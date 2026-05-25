@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-background: oklch(0.99 0 0);
@@ -21,8 +21,8 @@
   --color-input: oklch(0.9 0 0);
   --color-ring: oklch(0.65 0.18 220);
 
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', Menlo, monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", Menlo, monospace;
 
   --radius: 0.5rem;
 }
@@ -58,7 +58,10 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  code, kbd, pre, samp {
+  code,
+  kbd,
+  pre,
+  samp {
     font-family: var(--font-mono);
   }
 }

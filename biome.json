@@ -6,7 +6,16 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": ["node_modules", ".next", "dist", "build", "**/.turbo", "**/coverage", "plans", ".claude"]
+    "ignore": [
+      "node_modules",
+      ".next",
+      "dist",
+      "build",
+      "**/.turbo",
+      "**/coverage",
+      "plans",
+      ".claude"
+    ]
   },
   "organizeImports": {
     "enabled": true

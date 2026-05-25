@@ -7,8 +7,5 @@
     "./tsconfig": "./tsconfig.json",
     "./tailwind": "./tailwind-preset.ts"
   },
-  "files": [
-    "tsconfig.json",
-    "tailwind-preset.ts"
-  ]
+  "files": ["tsconfig.json", "tailwind-preset.ts"]
 }

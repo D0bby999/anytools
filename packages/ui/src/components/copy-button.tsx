@@ -23,7 +23,13 @@ export function CopyButton({ text, className, size = 'sm' }: CopyButtonProps) {
   };
 
   return (
-    <Button variant="outline" size={size} onClick={handleCopy} className={className} aria-label="Copy">
+    <Button
+      variant="outline"
+      size={size}
+      onClick={handleCopy}
+      className={className}
+      aria-label="Copy"
+    >
       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       <span className="ml-1.5 text-xs">{copied ? 'Copied' : 'Copy'}</span>
     </Button>
