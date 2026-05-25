@@ -1,5 +1,5 @@
 {
-  "extends": "@anytools/config/tsconfig",
+  "extends": "./packages/config/tsconfig.json",
   "include": [],
   "references": [
     { "path": "./apps/web" },

@@ -1,5 +1,5 @@
 {
-  "extends": "@anytools/config/tsconfig",
+  "extends": "../config/tsconfig.json",
   "compilerOptions": {
     "composite": true,
     "rootDir": "./src",
