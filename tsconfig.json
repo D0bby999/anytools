@@ -1,0 +1,11 @@
+{
+  "extends": "@anytools/config/tsconfig",
+  "include": [],
+  "references": [
+    { "path": "./apps/web" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/tools" },
+    { "path": "./packages/i18n" },
+    { "path": "./packages/analytics" }
+  ]
+}

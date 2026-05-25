@@ -1,0 +1,43 @@
+{
+  "name": "@anytools/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": ["**/*.css"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles": "./src/styles/globals.css",
+    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "echo 'no build step (consumed by Next transpilePackages)'"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "1.1.4",
+    "@radix-ui/react-slot": "1.1.1",
+    "@radix-ui/react-tabs": "1.1.2",
+    "@radix-ui/react-tooltip": "1.1.6",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "cmdk": "1.0.4",
+    "lucide-react": "0.469.0",
+    "next-themes": "0.4.4",
+    "tailwind-merge": "2.6.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.6"
+  },
+  "devDependencies": {
+    "@anytools/config": "workspace:*",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tailwindcss": "^4.0.6",
+    "typescript": "5.7.3"
+  }
+}

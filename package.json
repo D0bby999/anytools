@@ -1,0 +1,23 @@
+{
+  "name": "anytools",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @anytools/web dev",
+    "build": "pnpm -r --filter=!@anytools/config build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r exec rm -rf .next dist build node_modules && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "typescript": "5.7.3"
+  }
+}
