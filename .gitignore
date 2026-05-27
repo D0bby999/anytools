@@ -115,3 +115,7 @@ node_modules/
 .env.test.local
 .env.production.local
 
+auth.db
+*.db
+*.db-shm
+*.db-wal
