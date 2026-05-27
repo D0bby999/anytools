@@ -60,6 +60,8 @@ repomix-output.xml
 .serena/cache
 plans/**/*
 !plans/templates/*
+!plans/**/research/interview-kit/
+!plans/**/research/interview-kit/**
 screenshots/*
 docs/screenshots/*
 logs.txt
