@@ -24,3 +24,13 @@ export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './comp
 export { Badge, badgeVariants } from './components/badge';
 export { CopyButton } from './components/copy-button';
 export { PrivacyNote } from './components/privacy-note';
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuPortal,
+} from './components/dropdown-menu';
