@@ -34,3 +34,16 @@ export {
   DropdownMenuGroup,
   DropdownMenuPortal,
 } from './components/dropdown-menu';
+
+// Mobile-first input primitives (Phase 1 general-public expansion)
+export { NumberStepper } from './components/inputs/number-stepper';
+export { CurrencyInput } from './components/inputs/currency-input';
+export { RangeSlider } from './components/inputs/range-slider';
+export { SegmentedControl } from './components/inputs/segmented-control';
+export { HeightInput } from './components/inputs/height-input';
+export { WeightInput } from './components/inputs/weight-input';
+
+// Result card primitives
+export { NumericPrimary } from './components/results/numeric-primary';
+export { TableResult } from './components/results/table-result';
+export { ChartFallback } from './components/results/chart-fallback';

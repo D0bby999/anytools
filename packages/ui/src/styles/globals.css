@@ -12,37 +12,37 @@
 
 @theme {
   /* Light mode (default) — slate-50 background, slate-800 text */
-  --color-background: oklch(0.985 0.005 247);  /* #F8FAFC slate-50 */
-  --color-foreground: oklch(0.28 0.034 256);   /* #1E293B slate-800 */
-  --color-card: oklch(1 0 0);                  /* #FFFFFF pure white cards */
+  --color-background: oklch(0.985 0.005 247); /* #F8FAFC slate-50 */
+  --color-foreground: oklch(0.28 0.034 256); /* #1E293B slate-800 */
+  --color-card: oklch(1 0 0); /* #FFFFFF pure white cards */
   --color-card-foreground: oklch(0.28 0.034 256);
   --color-popover: oklch(1 0 0);
   --color-popover-foreground: oklch(0.28 0.034 256);
 
   /* Primary = slate (neutral, professional). Buttons + emphasis. */
-  --color-primary: oklch(0.45 0.034 256);      /* #475569 slate-600 */
+  --color-primary: oklch(0.45 0.034 256); /* #475569 slate-600 */
   --color-primary-foreground: oklch(1 0 0);
 
   /* Secondary = lighter slate for muted buttons */
-  --color-secondary: oklch(0.95 0.005 247);    /* #F1F5F9 slate-100 */
+  --color-secondary: oklch(0.95 0.005 247); /* #F1F5F9 slate-100 */
   --color-secondary-foreground: oklch(0.28 0.034 256);
 
   /* Muted = bg for cards, code blocks, ad slots */
-  --color-muted: oklch(0.96 0.005 247);        /* #EAEFF3 slate-50/100 mix */
+  --color-muted: oklch(0.96 0.005 247); /* #EAEFF3 slate-50/100 mix */
   --color-muted-foreground: oklch(0.55 0.025 257); /* #64748B slate-500 */
 
   /* Accent = blue (CTA, links, focus rings) */
-  --color-accent: oklch(0.55 0.20 261);        /* #2563EB blue-600 */
+  --color-accent: oklch(0.55 0.2 261); /* #2563EB blue-600 */
   --color-accent-foreground: oklch(1 0 0);
 
   /* Destructive = red */
-  --color-destructive: oklch(0.55 0.22 28);    /* #DC2626 red-600 */
+  --color-destructive: oklch(0.55 0.22 28); /* #DC2626 red-600 */
   --color-destructive-foreground: oklch(1 0 0);
 
   /* Borders + inputs = slate-200 (subtle) */
-  --color-border: oklch(0.91 0.013 249);       /* #E2E8F0 slate-200 */
+  --color-border: oklch(0.91 0.013 249); /* #E2E8F0 slate-200 */
   --color-input: oklch(0.91 0.013 249);
-  --color-ring: oklch(0.55 0.20 261);          /* matches accent — blue focus ring */
+  --color-ring: oklch(0.55 0.2 261); /* matches accent — blue focus ring */
 
   /* Typography — Inter for UI, JetBrains Mono for code */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -57,37 +57,58 @@
   --duration-slow: 320ms;
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Per-cluster accent tokens (4 new general-public clusters).
+   * Semantic hues, WCAG AA verified on white fg (≥ 4.5:1). */
+  --color-accent-finance: oklch(0.59 0.13 165); /* #059669 emerald-600 */
+  --color-accent-finance-fg: oklch(1 0 0);
+  --color-accent-health: oklch(0.59 0.2 24); /* #E11D48 rose-600 */
+  --color-accent-health-fg: oklch(1 0 0);
+  --color-accent-lifestyle: oklch(0.5 0.13 65); /* #B45309 amber-700 (AA on white) */
+  --color-accent-lifestyle-fg: oklch(1 0 0);
+  --color-accent-design: oklch(0.55 0.22 295); /* #7C3AED violet-600 */
+  --color-accent-design-fg: oklch(1 0 0);
 }
 
 .dark {
   /* Dark mode — slate-900 background, slate-50 text */
-  --color-background: oklch(0.21 0.026 256);   /* #0F172A slate-900 */
-  --color-foreground: oklch(0.985 0.005 247);  /* #F8FAFC slate-50 */
-  --color-card: oklch(0.255 0.028 256);        /* #1E293B slate-800 — slight elevation */
+  --color-background: oklch(0.21 0.026 256); /* #0F172A slate-900 */
+  --color-foreground: oklch(0.985 0.005 247); /* #F8FAFC slate-50 */
+  --color-card: oklch(0.255 0.028 256); /* #1E293B slate-800 — slight elevation */
   --color-card-foreground: oklch(0.985 0.005 247);
   --color-popover: oklch(0.255 0.028 256);
   --color-popover-foreground: oklch(0.985 0.005 247);
 
   /* Primary in dark = lighter slate so it pops */
-  --color-primary: oklch(0.78 0.025 247);      /* #CBD5E1 slate-300 */
+  --color-primary: oklch(0.78 0.025 247); /* #CBD5E1 slate-300 */
   --color-primary-foreground: oklch(0.21 0.026 256);
 
-  --color-secondary: oklch(0.30 0.028 256);    /* slate-700 */
+  --color-secondary: oklch(0.3 0.028 256); /* slate-700 */
   --color-secondary-foreground: oklch(0.985 0.005 247);
 
-  --color-muted: oklch(0.30 0.028 256);
+  --color-muted: oklch(0.3 0.028 256);
   --color-muted-foreground: oklch(0.71 0.018 252); /* #94A3B8 slate-400 */
 
   /* Accent stays blue but lighter for dark mode contrast */
-  --color-accent: oklch(0.65 0.20 261);        /* #3B82F6 blue-500 */
+  --color-accent: oklch(0.65 0.2 261); /* #3B82F6 blue-500 */
   --color-accent-foreground: oklch(1 0 0);
 
-  --color-destructive: oklch(0.62 0.22 28);    /* lighter red for dark */
+  --color-destructive: oklch(0.62 0.22 28); /* lighter red for dark */
   --color-destructive-foreground: oklch(0.985 0.005 247);
 
-  --color-border: oklch(0.32 0.028 256);       /* #334155 slate-700 — visible */
+  --color-border: oklch(0.32 0.028 256); /* #334155 slate-700 — visible */
   --color-input: oklch(0.32 0.028 256);
-  --color-ring: oklch(0.65 0.20 261);
+  --color-ring: oklch(0.65 0.2 261);
+
+  /* Per-cluster accents (dark mode — lighter shades for AA contrast on dark bg) */
+  --color-accent-finance: oklch(0.74 0.14 165); /* #34D399 emerald-400 */
+  --color-accent-finance-fg: oklch(0.21 0.026 256);
+  --color-accent-health: oklch(0.74 0.18 24); /* #FB7185 rose-400 */
+  --color-accent-health-fg: oklch(0.21 0.026 256);
+  --color-accent-lifestyle: oklch(0.79 0.15 87); /* #FBBF24 amber-400 */
+  --color-accent-lifestyle-fg: oklch(0.21 0.026 256);
+  --color-accent-design: oklch(0.71 0.18 295); /* #A78BFA violet-400 */
+  --color-accent-design-fg: oklch(0.21 0.026 256);
 }
 
 @layer base {
