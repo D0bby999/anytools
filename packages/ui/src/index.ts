@@ -47,3 +47,9 @@ export { WeightInput } from './components/inputs/weight-input';
 export { NumericPrimary } from './components/results/numeric-primary';
 export { TableResult } from './components/results/table-result';
 export { ChartFallback } from './components/results/chart-fallback';
+
+// Tool page templates
+export { CalculatorTemplate } from './components/tool-templates/calculator-template';
+export { ConverterTemplate } from './components/tool-templates/converter-template';
+export { PickerTemplate } from './components/tool-templates/picker-template';
+export { GeneratorTemplate } from './components/tool-templates/generator-template';
