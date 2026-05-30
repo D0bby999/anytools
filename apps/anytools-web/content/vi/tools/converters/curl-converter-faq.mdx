@@ -1,0 +1,35 @@
+---
+title: cURL Converter — Câu hỏi thường gặp
+---
+
+## Tại sao converter chạy trên server thay vì trong browser?
+
+Parser được xây dựng trên [tree-sitter](https://tree-sitter.github.io/tree-sitter/) với Bash grammar, compile thành native Node.js binary (`.node` module). Native binary không thể chạy trong browser sandbox. Chạy server-side cho phép parse backed bởi AST thực — giống như shell thực sự sẽ xử lý — thay vì xấp xỉ regex có thể parse sai các chuỗi có quote phức tạp hoặc multi-line command.
+
+## Lệnh curl của tôi có được lưu trữ hay log không?
+
+Không. Lệnh của bạn được gửi đến server chỉ để parse và convert. Nó tồn tại trong memory trong suốt thời gian của request đó — thường vài millisecond — rồi bị discard ngay. Nó không bao giờ được ghi vào disk, không bao giờ liên kết với IP address hay session của bạn, và không bao giờ được đưa vào bất kỳ log nào. Response từ server chỉ chứa code đã được convert.
+
+## Có thể convert sang những ngôn ngữ nào?
+
+Browser `fetch`, Node.js `node-fetch`, Python `requests`, PHP cURL (các hàm `curl_*`), và Go `net/http`. Những target này bao phủ các use case phổ biến nhất cho developer copy request từ DevTools hay API documentation. Thư viện `curlconverter` phía upstream hỗ trợ nhiều ngôn ngữ hơn và có thể được thêm vào sau.
+
+## Code được tạo ra bị thiếu request body — tại sao?
+
+Nguyên nhân phổ biến nhất là giá trị `-d` hoặc `--data` của bạn chứa quote chưa được escape làm hỏng quá trình parse. Thử wrap toàn bộ lệnh curl bằng double quote, hoặc escape các quote bên trong. Cũng kiểm tra xem bạn có dùng `--data-binary` với argument `@filename` không — file reference không thể được resolve phía server và sẽ được giữ nguyên như comment trong output.
+
+## `-u user:password` được convert thế nào?
+
+Flag `-u` tạo ra header `Authorization: Basic <base64(user:pass)>` trong output. Trong Python `requests`, nó trở thành keyword argument `auth=('user', 'password')`, mà thư viện encode tự động. Luôn chuyển hardcoded credential ra khỏi code được tạo và đặt vào environment variable trước khi commit.
+
+## Tool có xử lý được multipart form upload (`-F`) không?
+
+Có. Flag `-F name=value` tạo `FormData` trong JavaScript (`fetch`/`node-fetch`), `files={'name': ...}` trong Python `requests`, và các call `CURLOPT_HTTPPOST` / `curl_mime_*` phù hợp trong PHP. File được tham chiếu bằng `@filepath` được convert thành comment ghi chú rằng cần file handle ở runtime.
+
+## Output cho Go dùng `ioutil.ReadAll` — đó có phải đã deprecated không?
+
+`ioutil.ReadAll` bị soft-deprecated từ Go 1.16 và được thay thế bằng `io.ReadAll`. Nếu bạn dùng Go 1.16 trở lên, thay `ioutil.ReadAll(resp.Body)` bằng `io.ReadAll(resp.Body)` và bỏ import `io/ioutil`. Code được tạo ra ưu tiên tương thích rộng; hãy điều chỉnh cho phiên bản Go mục tiêu của bạn.
+
+## Tại sao code fetch được tạo ra không có error handling?
+
+Converter tạo ra bản dịch tối giản trung thực với lệnh curl của bạn — nó phản ánh những gì curl làm mặc định, tức là thành công hoặc thất bại mà không có retry logic. Thêm `if (!response.ok) throw new Error(response.statusText)` (hoặc tương đương) phù hợp với chiến lược error-handling của bạn. Việc tích hợp sẵn một pattern có quan điểm cho mọi ngôn ngữ và codebase nằm ngoài phạm vi của converter.

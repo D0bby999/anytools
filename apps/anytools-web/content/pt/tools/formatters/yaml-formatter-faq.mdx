@@ -1,0 +1,27 @@
+---
+title: YAML Formatter — Perguntas frequentes
+---
+
+## Por que `NO` virou `false` no YAML?
+
+YAML 1.1 trata `NO`, `YES`, `ON`, `OFF` como booleans. Coloque em aspas: `"NO"`. Ou use parser YAML 1.2 strict. Esta é a base do "Norway problem".
+
+## Como preservar comentários?
+
+Comentários YAML (`# ...`) **não** são preservados na maioria dos parsers (incluindo js-yaml). Se você dá format em um YAML comentado, os comentários somem. Para preservá-los, edite manualmente ou use `yq -P` em terminal.
+
+## Tabs funcionam?
+
+Não. YAML proíbe tabs para indentação (apenas espaços). Se você tem tabs, converta para 2 ou 4 espaços antes de formatar.
+
+## Anchors são suportados?
+
+Sim. `&anchor` e `*reference` funcionam normalmente. O formatter pode expandir (resolve) ou preservar — verifique a opção.
+
+## É seguro processar YAML não-confiável?
+
+js-yaml por padrão usa safe mode, sem instanciação de classes via tags. Em PyYAML antigo (antes de 5.1), `yaml.load()` era inseguro — use `yaml.safe_load()`. Em geral, nunca confie em YAML de fontes externas sem validação.
+
+## Tudo client-side?
+
+Sim. js-yaml roda no navegador. Network tab vazio. Funciona offline.

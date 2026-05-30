@@ -1,0 +1,216 @@
+---
+title: "Enciclopédia de codificação: Base64, URL, JWT e além"
+description: "Codificação vs criptografia, ASCII a UTF-8, Base64 e variantes, URL encoding, entidades HTML, JWT e vulnerabilidades, escapes Unicode, hex e binário."
+keywords: ["base64", "url encoding", "jwt", "entidades html", "unicode", "utf-8", "guia codificação", "encoding"]
+updated: 2026-05-27
+readingTime: 18
+---
+
+# Enciclopédia de codificação: Base64, URL, JWT e além
+
+Devs confundem constantemente codificação com criptografia, Base64 com compressão, e URL-encoding com HTML-encoding. Este guia coloca ordem: o que cada um faz, quando usar, que bugs surgem dos mal-entendidos.
+
+---
+
+## 1. Codificação vs criptografia vs hashing
+
+| Conceito | Reversível | Precisa de chave | Propósito |
+|----------|------------|------------------|-----------|
+| Codificação | Sim | Não | Representar dados em outro formato |
+| Criptografia | Sim | Sim | Confidencialidade |
+| Hashing | Não | Não | Integridade, identificação |
+
+**Base64 não é criptografia.** Se você só "codifica" uma senha com Base64, qualquer um com o resultado a recupera. Para confidencialidade, use AES (no mínimo AES-256-GCM) com gerenciamento adequado de chaves.
+
+**Hashing não é codificação.** SHA-256 produz um resumo fixo (32 bytes) que não pode ser invertido. Para senhas, use bcrypt/argon2 (com salt), não SHA-256 puro.
+
+---
+
+## 2. Conjuntos de caracteres: de ASCII a UTF-8
+
+**ASCII (1963):** 128 caracteres. 7 bits por caractere. Só letras latinas básicas, dígitos, pontuação. Sem acentos, sem `ç`, sem nada não-inglês.
+
+**ISO 8859-x (1980s):** 256 caracteres cada. ISO 8859-1 (Latin-1) cobre europeu ocidental (`á`, `ç`, `ü`). 8859-5 cobre cirílico. Mas cada documento tinha que declarar seu encoding, e misturar idiomas era impossível.
+
+**Unicode (1991):** conjunto único para todos idiomas. ~150.000 code points atribuídos hoje (e crescendo: 2300+ emoji só).
+
+**UTF-8:** a codificação de Unicode que dominou. Variable-length: ASCII ocupa 1 byte (compatibilidade backward), latinos não-ASCII 2 bytes, CJK 3 bytes, emoji 4 bytes. É a codificação padrão na web, JSON, filesystems Linux modernos.
+
+UTF-16: usa 2 ou 4 bytes. Strings JavaScript são UTF-16 internamente (daí os problemas com emoji e `.length`).
+
+---
+
+## 3. Base64
+
+**O que faz:** transforma qualquer byte arbitrário em string de 64 caracteres ASCII seguros: `A-Z`, `a-z`, `0-9`, `+`, `/`. Cada 3 bytes de entrada produzem 4 caracteres de saída. Padding com `=` quando não divide exato.
+
+**Por que existe:** sistemas de email históricos só lidavam com texto 7-bit. Base64 permitia anexar binários sem corromper. Hoje ainda útil para inlining (Data URIs em CSS), JWT, HTTP Basic Auth, e guardar binários em JSON.
+
+**Variantes:**
+
+- **Standard Base64** (RFC 4648): `+/` com padding `=`
+- **Base64URL** (RFC 4648 §5): `+/` substituídos por `-_`, sem padding. Seguro para URLs, JWT, nomes de arquivo
+- **MIME Base64**: igual ao standard com line breaks a cada 76 caracteres
+- **Base32, Base58**: outras bases (ver abaixo)
+
+**Tamanho:** Base64 adiciona ~33% de overhead. Não é compressão — é o contrário. Use para transporte, não para reduzir tamanho.
+
+**O gotcha UTF-8 em JavaScript:**
+
+```js
+btoa('日本')  // Throws: InvalidCharacterError
+```
+
+`btoa()` só lida com Latin-1 (bytes 0-255). Para Unicode:
+
+```js
+const bytes = new TextEncoder().encode('日本')
+const encoded = btoa(String.fromCharCode(...bytes))
+```
+
+[Base64 tool](/pt/encoding/base64-encode) lida com isso corretamente.
+
+---
+
+## 4. URL encoding
+
+**O que faz:** substitui caracteres não permitidos em URLs por `%XX` onde XX é o hex do byte UTF-8.
+
+```
+"ola mundo" → "ola%20mundo"
+"café"      → "caf%C3%A9"  (UTF-8: é = 0xC3 0xA9)
+```
+
+**RFC 3986** define quais caracteres são "reservados" (têm significado especial: `:`, `/`, `?`, `#`, `[`, `]`, `@`) e "não reservados" (sempre seguros: `A-Z a-z 0-9 - . _ ~`).
+
+**Funções JavaScript:**
+
+- `encodeURIComponent()` — encodeia tudo exceto os não-reservados. Use para valores em query strings.
+- `encodeURI()` — NÃO encodeia caracteres reservados que têm significado em URLs. Use só para URL completa, raramente o que você quer.
+
+**Espaço:** `+` ou `%20`? Em query string, ambos funcionam tradicionalmente. Em path, só `%20`. Por consistência, use sempre `%20`.
+
+---
+
+## 5. Entidades HTML
+
+**O que faz:** representa caracteres especiais para HTML sem que o parser os interprete como markup.
+
+```html
+&lt;       → <
+&gt;       → >
+&amp;      → &
+&quot;     → "
+&#x1F600;  → 😀  (hex Unicode)
+&#128512;  → 😀  (decimal)
+```
+
+**Quando usar:** sempre que insere texto de usuário em HTML, escape `<`, `>`, `&`, `"`. Sem escape → XSS.
+
+**Quando NÃO usar:** URLs (usam percent-encoding), JSON (tem próprios escapes), strings JS (usam `\xXX` ou `\uXXXX`).
+
+**Diferença para URL encoding:** sistemas independentes. `&` em HTML é `&amp;`, em URL é `%26`. Misturar quebra coisas.
+
+---
+
+## 6. JWT (JSON Web Token)
+
+**Estrutura:** `header.payload.signature` — três partes Base64URL-encoded separadas por pontos.
+
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+- **Header**: JSON com `{"alg":"HS256","typ":"JWT"}`
+- **Payload**: JSON com claims (`sub`, `name`, `exp`, `iat`, etc.)
+- **Signature**: HMAC/RSA/ECDSA sobre `base64url(header) + "." + base64url(payload)`
+
+**Decodificar ≠ verificar.** O payload é público (só Base64). Qualquer um pode ler. A signature é o que prova autenticidade — verificada pelo servidor com a chave compartilhada ou pública.
+
+**Vulnerabilidade `alg: none`:** alguns parsers antigos respeitavam `"alg":"none"` no header — pulando a verificação. Atacante muda header para `{"alg":"none"}`, remove signature, ganha acesso. SEMPRE valide a assinatura no servidor, e **rejeite explicitamente** `alg: none`.
+
+**Vulnerabilidade confusão HS/RS:** se o servidor aceita HMAC (HS256) e RSA (RS256), atacante pode mudar `alg` para HS256 e assinar com a chave pública RSA. Trave os algoritmos no código.
+
+[JWT Decoder tool](/pt/encoding/jwt-decoder) mostra header+payload sem pretender verificar.
+
+---
+
+## 7. Escapes Unicode em código
+
+| Contexto | Sintaxe | Exemplo |
+|----------|---------|---------|
+| JS string | `\uXXXX` (BMP) ou `\u{XXXXX}` (full) | `'é'` = `é` |
+| JSON | `\uXXXX` (sem extensões) | `"é"` |
+| Python | `\xXX`, `\uXXXX`, `\UXXXXXXXX` | `'é'` |
+| HTML | `&#xXX;` | `&#xE9;` |
+| URL | `%XX` (bytes UTF-8) | `%C3%A9` |
+
+Todos representam `é` (U+00E9). Contextos diferentes, mesmo caractere.
+
+---
+
+## 8. Hex e binário
+
+**Hex:** base 16 (`0-9`, `a-f`). Cada byte = 2 caracteres hex. Usado para checksums, cores (`#ff5733`), chaves criptográficas.
+
+**Binário:** base 2 (`0`, `1`). Cada byte = 8 bits. Útil para visualizar bitwise operations, máscaras de subnet, debug de protocolos binários.
+
+Ambos são codificações "transparentes" — 1:1 com bytes, sem gotchas Unicode. Mas ocupam mais espaço que Base64 (hex = 200% do binário; Base64 ≈ 133%).
+
+---
+
+## 9. Quando usar qual — árvore de decisão
+
+- **Quer transportar binário em JSON, HTTP, email?** → Base64 (ou Base64URL se vai em URL/JWT)
+- **Quer colocar valor em query string ou path?** → URL encoding (`encodeURIComponent`)
+- **Quer mostrar `<` literal em HTML?** → entidade HTML (`&lt;`)
+- **Quer autenticar request com server?** → JWT (verificado server-side)
+- **Quer mostrar checksums?** → Hex
+- **Quer ocultar valor?** → nenhum desses — criptografia (AES)
+- **Quer verificar integridade?** → hash (SHA-256)
+- **Quer comprimir?** → gzip/brotli, não Base64
+
+---
+
+## Ferramentas relacionadas
+
+- [Base64 Encoder](/pt/encoding/base64-encode) — UTF-8 safe
+- [URL Encoder](/pt/encoding/url-encode) — RFC 3986 compliant
+- [JWT Decoder](/pt/encoding/jwt-decoder) — decodifica sem verificar
+- [HTML Entity](/pt/encoding/html-entity) — encode/decode com named refs
+
+---
+
+## FAQ
+
+### Por que Base64 adiciona `=` no final?
+
+Padding. Base64 transforma cada 3 bytes em 4 caracteres. Se a entrada não é múltiplo de 3, padding com um ou dois `=`. Base64URL omite o padding por convenção.
+
+### É seguro guardar JWT em localStorage?
+
+Só se sua app é protegida contra XSS. Qualquer script malicioso no seu domínio lê localStorage. Melhor prática: cookies HTTP-only para tokens longos, JWT em memória para sessão ativa.
+
+### Por que `btoa('日本')` falha?
+
+`btoa` só processa Latin-1. Para Unicode, codifique para UTF-8 primeiro com `TextEncoder`, depois Base64 os bytes.
+
+### URL encoding e HTML encoding são intercambiáveis?
+
+Não. `&` em URL é `%26`. `&` em HTML é `&amp;`. Misturar quebra parsers.
+
+### Hex ou Base64 para mostrar chaves?
+
+Hex é mais legível byte-a-byte. Base64 mais compacto. Para chaves criptográficas em config, Base64. Para checksums visuais, hex.
+
+### O que é Base58 e quando usar?
+
+Base58 = Base64 sem caracteres confundíveis (`0`, `O`, `I`, `l`) e sem `+/`. Bitcoin usa para addresses (`1A1zP1eP...`). Mais legível quando humanos copiam manualmente.
+
+### Posso "decodar" um hash SHA-256?
+
+Não. Hashes são one-way por design. O que você vê em "decoders de hash" são lookup tables (rainbow tables) de hashes pré-computados de strings comuns — só funciona para senhas fracas.
+
+### UTF-8 pode representar todo Unicode?
+
+Sim. UTF-8 pode codificar qualquer code point Unicode (U+0000 a U+10FFFF) em 1-4 bytes. É a codificação dominante na web por compatibilidade ASCII + universalidade.

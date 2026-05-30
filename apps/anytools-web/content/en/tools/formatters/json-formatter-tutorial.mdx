@@ -1,0 +1,120 @@
+---
+title: JSON deeply — syntax, gotchas, performance, and the cases that bite
+description: A long, opinionated tour of JSON in 2026 — what it is, what JSON5 fixes, what JSON Schema is for, and why JSON.parse can silently lose data.
+updated: 2026-05-25
+---
+
+## What JSON is, and why it stuck
+
+JSON (JavaScript Object Notation) was extracted from JavaScript by Douglas Crockford in the early 2000s, formalized as [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259), and adopted with embarrassing speed as the default data-interchange format for the web. The reasons are mundane: it is **minimal** (six grammar productions), **textual** (debuggable with grep), **language-agnostic** (parsers exist for every language ever shipped), and **deliberately less expressive than XML** (which it largely displaced for new APIs).
+
+The grammar is small enough to type from memory: a JSON value is one of `null`, `true`, `false`, a number, a string, an array of values, or an object of string-keyed values. Strings are double-quoted with backslash escapes. Numbers are decimal, optionally with a fractional part, optionally with an exponent. Whitespace between tokens is ignored. That's it.
+
+What's **not** in JSON is interesting too: no comments, no trailing commas, no native binary, no native date type, no schemas, no `undefined`, no functions, no references between values. JSON5 (which this tool supports as "forgiving mode") adds the first two. JSON Schema adds external validation. The rest you build on top.
+
+## Strict syntax rules (the ones that bite)
+
+These five rules cause 95% of "why doesn't my JSON parse?" questions:
+
+1. **Strings must use double quotes.** `{'a': 1}` is invalid. JavaScript object literals accept single quotes; JSON does not.
+2. **No trailing commas.** `{"a": 1,}` is invalid. Easy to introduce when you delete the last property; some IDEs add a config-file-only setting to auto-remove.
+3. **No comments.** Not even `//` or `/* */`. JSON was designed for data, not configuration. If you need comments, you either need a different format (TOML, YAML) or you fake it with a `_comment` field.
+4. **Property keys must be quoted strings.** `{a: 1}` is invalid. Again, JavaScript object literals are more lenient than JSON.
+5. **Numbers are decimal.** No `NaN`, no `Infinity`, no `0x1A` hex literals. Some non-spec extensions accept these; most parsers don't.
+
+JSON5 relaxes all five of these (which is why this tool offers it as a toggle). The trade-off: a JSON5 file is no longer parseable by every JSON parser on earth. Use it for config files where humans hand-edit. Use strict JSON for everything wire-side.
+
+## JSONC, JSON5, NDJSON — knowing which dialect
+
+- **JSON** — RFC 8259, strict, the lingua franca for APIs.
+- **JSONC** — Microsoft's "JSON with Comments". Identical to JSON except `//` and `/* */` comments are allowed. Used in VS Code settings.
+- **JSON5** — Crockford-blessed superset adding comments, trailing commas, single quotes, unquoted keys, hex literals, multiline strings. Used by build tools (Babel config), and now ECMAScript's `--experimental-vm-modules` JSON imports allow `with { type: 'json5' }`.
+- **NDJSON / JSON Lines** — one JSON value per line, newline-delimited. Streamable, append-only friendly, used for logs and event streams.
+
+This tool's "forgiving" mode uses the [`json5`](https://github.com/json5/json5) parser, which also accepts strict JSON, so it's a strict superset.
+
+## Pretty-printing: indent strategies
+
+Two-space indent is the JavaScript ecosystem default. Four-space is the Python/Ruby/Java norm. Tabs are a religious dispute we won't resolve here, but JSON files in tab-indented codebases tend to look cleaner; everywhere else, two spaces wins on space-efficiency.
+
+If you're checking JSON files into git: pick one indent style for your project and stick with it. A formatter in pre-commit (Prettier, Biome, this tool's API) makes diffs sane.
+
+## Minification
+
+`JSON.stringify(value)` with no third argument produces minified output — no whitespace, no newlines. Use for:
+
+- Wire transport where every byte matters (mobile, low-bandwidth)
+- Embedding JSON into JavaScript source where smaller bundle wins
+- Caching identical structures (smaller cache key after hashing)
+
+Don't minify for storage on disk or in databases unless you're space-constrained. Pretty-printed JSON is grep-friendly and diffable; minified is neither.
+
+## Sort keys — when and why
+
+Object key order in JSON is **not significant** per the spec — `{"a":1,"b":2}` and `{"b":2,"a":1}` represent the same data. But: file diffs are textual, hashes are byte-based, and "data equality" arguments in code review devolve fast.
+
+Sorting keys before serialization gives you:
+
+- **Stable diffs**: same data → same bytes → same git diff
+- **Cache-key stability**: `hash(json_of(data))` matches across calls
+- **Manifest reproducibility**: build artifacts that contain JSON (package.json, package-lock.json, Cargo.lock) benefit from stable ordering
+
+The sort here is alphabetical, recursive (deep). Arrays preserve their order — JSON arrays are sequences, not sets.
+
+## Validation: JSON Schema vs format check
+
+This tool answers "is this syntactically valid JSON?" — a yes/no question with no schema knowledge. Production data pipelines usually need more: **does this JSON match the expected shape?** For that:
+
+- **JSON Schema** ([json-schema.org](https://json-schema.org/)) — the standard. Express types, required fields, enum constraints, regex patterns, value ranges. Tools: `ajv` (Node), `jsonschema` (Python), most languages have something.
+- **Zod** (TypeScript) — schema + runtime validation + static types in one library; the modern default for TS.
+- **Yup, Joi, io-ts** — older libraries in the same space.
+
+Use JSON Schema when you need cross-language validation (e.g., a public API). Use Zod when you're TypeScript end-to-end.
+
+## Performance notes
+
+`JSON.parse` is implemented in C++ in V8 / SpiderMonkey / JavaScriptCore — measurably faster than any pure-JS parser. For one-shot parses, you cannot beat it.
+
+Where it does poorly: very large documents (>100 MB) and partial reads. The parser builds the entire object tree in memory before returning. For multi-GB JSON or streaming scenarios:
+
+- **`stream-json`** (Node) — token-by-token streaming
+- **`jq`** — CLI tool that streams and filters
+- **NDJSON** — switch your format to one-document-per-line so you can parse a line at a time
+
+The other performance trap: deeply nested objects. Stringifying or parsing deeply nested structures hits stack limits eventually. If you're hitting that, your data model is probably wrong; flatten it.
+
+## Security: the things JSON.parse will not do for you
+
+`JSON.parse` is **safe by default**. It does not execute code; it does not call constructors; it does not invoke `__proto__` setters in modern engines. The old `__proto__` pollution attack via `JSON.parse('{"__proto__":{"x":1}}')` was patched at the spec level; the parse silently drops the `__proto__` key.
+
+What it does **not** protect you from:
+
+- **Parse bombs**: a few KB of input that decodes to gigabytes of nested arrays. Limit input size before parsing if input is untrusted.
+- **Floating-point loss**: `JSON.parse('{"id": 9007199254740993}')` returns `9007199254740992` because 64-bit Number can't represent integers above 2^53. APIs with large integer IDs (Twitter, Discord) ship them as strings for this reason.
+- **`__proto__` in older runtimes**: confirm you're on Node 12+ / modern browsers; the silent-drop behavior is recent-ish.
+
+## Common shapes you'll meet
+
+- **API responses**: usually an object with a `data` envelope and `meta`/`error` siblings.
+- **JWT payloads**: a flat object of claims, decoded from the second Base64URL chunk.
+- **`package.json`**: alphabetically sorted by convention (npm doesn't enforce); has many string-valued fields.
+- **OpenAPI spec**: deeply nested, large; use JSON Schema to validate it.
+- **GeoJSON**: tagged geometry — `{"type": "Point", "coordinates": [lng, lat]}`. Note: longitude first.
+
+## How to use this tool
+
+- Paste raw or hand-edited JSON into the left panel.
+- Output appears live on the right, pretty-printed.
+- Errors show line:col so you can jump to them in your source editor.
+- Toggle JSON5 if you're working with config files that use comments or trailing commas.
+- Toggle "Sort keys" before saving for stable diffs.
+- "Minify" button for wire-bound JSON.
+
+## Privacy
+
+100% browser-local via native `JSON.parse`/`stringify` and the open-source [`json5`](https://github.com/json5/json5) library. No network requests.
+
+## Related tools
+
+- **Base64 Encoder** — chain JSON serialization with Base64 for data URIs or query parameters.
+- **JWT Decoder** — JWT payloads are JSON; decode then format here.

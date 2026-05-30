@@ -1,0 +1,84 @@
+---
+title: Guía completa de escape y desescapado de Unicode
+description: Cuándo y por qué usar \\uXXXX y \\u{XXXXX}, cómo funcionan los pares sustitutos, diferencias entre los modos JSON y ES6, y problemas con los emoji.
+updated: 2026-05-27
+---
+
+## Qué es el escape de Unicode
+
+El escape de Unicode convierte caracteres a su representación de secuencia de escape `\uXXXX` (o `\u{XXXXX}`) — y viceversa. El carácter `é` se convierte en `é`; el emoji `👀` se convierte en `\u{1f440}` en modo ES6 o el par sustituto `👀` en modo JSON.
+
+Esto **no** es codificación para compresión o seguridad. Es una **representación segura para texto** que permite incrustar cualquier carácter Unicode en un contexto que solo acepta ASCII — valores de cadenas JSON, archivos fuente JavaScript, literales de cadena en C, archivos `.properties` de Java y contextos similares.
+
+## Las dos sintaxis de escape
+
+### `\uXXXX` — cuatro dígitos hexadecimales (solo BMP)
+
+La sintaxis de escape Unicode original, definida en la especificación ECMAScript 1 (1997) y requerida por la especificación JSON ([RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) §7). Funciona para puntos de código U+0000 a U+FFFF — el Plano Multilingüe Básico (BMP). Para estos 65.536 caracteres, `é` y `é` son exactamente equivalentes en cualquier analizador conforme.
+
+### `\u{XXXXX}` — dígitos hex variables entre llaves (Unicode completo)
+
+Introducida en ES6 (ECMAScript 2015). Soporta el rango Unicode completo U+000000 a U+10FFFF. Esta es la forma correcta de escapar caracteres del plano astral — puntos de código por encima de U+FFFF que incluyen la mayoría de los emoji, escrituras históricas y símbolos matemáticos. `\u{1f600}` es más limpio e inequívoco; la sintaxis de llaves también permite omitir los ceros iniciales.
+
+**JSON no soporta `\u{}`** — los analizadores JSON esperan exactamente cuatro dígitos hex después de `\u`. Para incrustar un punto de código del plano astral en JSON, debes usar pares sustitutos.
+
+## El plano astral y los pares sustitutos
+
+El Plano Multilingüe Básico de Unicode contiene los puntos de código U+0000–U+FFFF. Todo lo que está por encima — llamado **planos astrales** o caracteres suplementarios — requiere una estrategia diferente en sistemas construidos sobre UTF-16.
+
+Las cadenas JavaScript son internamente UTF-16. Para representar un punto de código por encima de U+FFFF en UTF-16, se usan dos unidades de código de 16 bits llamadas **par sustituto**: un sustituto alto (U+D800–U+DBFF) seguido de un sustituto bajo (U+DC00–U+DFFF). La fórmula:
+
+```
+codepoint = 0x10000 + (high - 0xD800) × 0x400 + (low - 0xDC00)
+```
+
+El emoji `😀` (U+1F600) se convierte en el par `😀`. En JSON, esta es la única forma de representarlo ya que el escape `\u` de JSON solo acepta cuatro dígitos hex. En JavaScript ES6, puedes usar `\u{1F600}` directamente.
+
+**El problema:** como un par sustituto son dos secuencias `\u`, las operaciones de cadena ingenuas que trabajan carácter por carácter se rompen. `"😀".length` devuelve `2` en JavaScript, no `1`. `"😀"[0]` devuelve el sustituto alto suelto `\uD83D`, no el emoji. Dividir por clústeres de grafemas requiere `[...str]` (spread) o `Intl.Segmenter` en ES2022+.
+
+## Modo JSON vs modo ES6 vs modo "all"
+
+**Modo JSON** — escapa cada carácter no ASCII usando solo `\uXXXX`, con pares sustitutos para puntos de código por encima de U+FFFF. La salida siempre es válida dentro de un literal de cadena JSON.
+
+**Modo ES6** — usa `\u{XXXXX}` para caracteres astrales y `\uXXXX` para caracteres BMP. Produce salida más corta y legible para cadenas con muchos emoji. Solo válido en contextos JavaScript ES6+ — no en JSON, no en entornos ES5 más antiguos.
+
+**Modo all** — escapa cada carácter, incluidos los ASCII. Útil cuando necesitas una representación puramente ASCII de una cadena sin ningún Unicode crudo — para incrustar en cadenas C, archivos fuente Python o depurar carácter por carácter.
+
+## `String.fromCodePoint` vs `String.fromCharCode`
+
+Estas dos funciones JavaScript revelan directamente la complejidad del par sustituto:
+
+```javascript
+String.fromCharCode(0x1F600)   // "?" — incorrecto, trunca a U+F600
+String.fromCodePoint(0x1F600)  // "😀" — correcto
+
+String.fromCharCode(0xD83D, 0xDE00)  // "😀" — correcto vía par sustituto
+String.fromCodePoint(0x1F600)        // "😀" — correcto vía punto de código
+```
+
+`fromCharCode` es anterior a los planos astrales de Unicode y opera en unidades de código UTF-16 crudas. Si le pasas un punto de código por encima de 0xFFFF, lo trunca silenciosamente. `fromCodePoint` (ES6) maneja el rango completo. Al desescapar `\u{1F600}`, usa siempre `fromCodePoint`.
+
+## ¿Cuándo obliga JSON a escapar?
+
+La especificación JSON (RFC 8259) requiere que los caracteres de control U+0000–U+001F sean escapados. Todos los demás caracteres **pueden** incluirse en crudo como UTF-8, pero muchos serializadores escapan el rango no ASCII completo por seguridad. Si recibes un payload JSON y ves `à` donde esperabas `à`, el JSON fue producido con una configuración de "escapar completamente los no ASCII". Ambas representaciones son idénticas para un analizador JSON conforme.
+
+## Literales de plantilla y cuándo no necesitas escape
+
+En los literales de plantilla ES6 y los literales de cadena JavaScript modernos, puedes incrustar Unicode directamente:
+
+```javascript
+const saludo = `¡Hola, España!`;   // sin necesidad de escape
+const emoji = "😀";                  // funciona en JS moderno
+const escaped = "\u{1F600}";        // idéntico a lo anterior
+```
+
+Necesitas escape cuando: la cadena se incrustará en JSON programáticamente, el archivo debe ser solo ASCII, estás depurando un carácter y quieres ver su punto de código explícitamente, o estás pasando la cadena por un canal que corrompe el Unicode crudo.
+
+## Privacidad
+
+Todo el procesamiento se ejecuta en tu navegador. Tu texto nunca se envía a un servidor.
+
+## Herramientas relacionadas
+
+- **URL Encode/Decode** — codificación porcentual para componentes URI, un esquema de escape diferente.
+- **HTML Entity Encode/Decode** — `&amp;`, `&#x00E9;` y referencias de caracteres HTML similares.

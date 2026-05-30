@@ -1,0 +1,108 @@
+---
+title: Guía completa para convertir CSV a JSON y JSON a CSV
+description: Variantes de CSV, RFC 4180, Papa Parse, inferencia de encabezados, escaping, aplanamiento de objetos anidados y manejo de archivos grandes.
+updated: 2026-05-26
+---
+
+## Por qué coexisten estos dos formatos
+
+JSON es el lenguaje nativo de las APIs y las aplicaciones JavaScript. CSV es el lenguaje nativo de las planillas, las exportaciones de datos y las operaciones masivas de bases de datos. En la práctica, casi toda pipeline de datos cruza esta frontera al menos una vez: exportas una tabla de base de datos a CSV para un analista, o recibes un CSV de un partner y necesitas importarlo a tu API. Esta herramienta maneja esa conversión en ambas direcciones, completamente en el navegador.
+
+## CSV es menos estándar de lo que crees
+
+Existe un RFC oficial para CSV — [RFC 4180](https://datatracker.ietf.org/doc/html/rfc4180) — pero la mayoría de archivos CSV en la práctica se desvían de él en pequeños detalles.
+
+**Delimitadores** — La "coma" en CSV no siempre es una coma. Los locales europeos usan comúnmente punto y coma (`;`) porque la coma es el separador decimal allí. Los tabs (`\t`) producen TSV (valores separados por tabs), que evita problemas de quoting. La herramienta auto-detecta el delimitador escaneando las primeras líneas.
+
+**Finales de línea** — RFC 4180 especifica `\r\n` (CRLF). Los archivos Unix usan `\n`. Los archivos Windows usan `\r\n`. Algunos archivos Mac antiguos usaban `\r` solo. Los parsers necesitan manejar los tres; Papa Parse lo hace.
+
+**Quoting** — Los campos que contienen el delimitador, un salto de línea o una comilla doble deben estar entre comillas dobles. Una comilla doble literal dentro de un campo entrecomillado se escapa duplicándola: `"Dijo ""hola"""`. Los campos entre comillas simples no son RFC 4180, pero algunas exportaciones de Excel los producen.
+
+**Fila de encabezado** — RFC 4180 no requiere una fila de encabezado, pero la convención es universal. La herramienta asume que la primera fila es encabezado por defecto; puedes desactivarlo si tu archivo no tiene encabezados, en cuyo caso los nombres de columna se generan automáticamente (`col_0`, `col_1`, …).
+
+**Quirks de Excel** — Excel agrega un BOM (`\xEF\xBB\xBF`) a los archivos CSV UTF-8. También auto-convierte valores que parecen números o fechas: `1-2` se convierte en 2 de enero, `0001` pierde el cero inicial. Si abres un CSV convertido en Excel y los valores se ven mal, el problema es la auto-conversión de Excel, no el contenido del CSV.
+
+## La librería Papa Parse
+
+Esta herramienta usa [Papa Parse](https://www.papaparse.com/), el parser CSV de facto estándar para JavaScript. Maneja todos los edge cases de RFC 4180, auto-detecta delimitadores, hace streaming de archivos grandes sin bloquear el hilo del navegador y provee error reporting estructurado para filas malformadas.
+
+Comportamientos clave de Papa Parse que afectan la conversión:
+
+- **Inferencia de tipos** — Por defecto, Papa Parse convierte `"true"` → `true`, `"42"` → `42`, `""` → `null`. Esto es normalmente lo que quieres para JSON, pero si necesitas preservar todos los strings, deshabilita el tipado dinámico.
+- **Saltar líneas vacías** — Las líneas vacías se saltan por defecto.
+- **Filas con error** — Las filas con número incorrecto de campos se reportan como errores en lugar de saltarse silenciosamente.
+
+## Conversión de CSV a JSON
+
+La dirección más común. Cada fila CSV se convierte en un objeto JSON; los encabezados de columna se convierten en claves.
+
+```
+Input CSV:
+nombre,email,edad
+Alice,alice@example.com,30
+Bob,bob@example.com,25
+
+Output JSON:
+[
+  { "nombre": "Alice", "email": "alice@example.com", "edad": 30 },
+  { "nombre": "Bob", "email": "bob@example.com", "edad": 25 }
+]
+```
+
+Nota que `edad` se parsea como número (no el string `"30"`) porque la inferencia de tipos de Papa Parse está activa por defecto.
+
+## Conversión de JSON a CSV
+
+Convertir arrays JSON a CSV es directo cuando los objetos son planos. Los objetos anidados requieren aplanamiento.
+
+**Objetos planos** — Cada clave se convierte en encabezado de columna, los valores en celdas.
+
+**Objetos anidados** — `{ "address": { "city": "Buenos Aires", "zip": "1001" } }` se aplana en dos columnas: `address.city` y `address.zip`. La ruta en notación de puntos se convierte en el encabezado de columna.
+
+**Arrays heterogéneos** — Si los objetos en el array JSON tienen claves diferentes, la unión de todas las claves se convierte en la fila de encabezado y los valores faltantes producen celdas vacías.
+
+```json
+Input JSON:
+[
+  { "id": 1, "nombre": "Alice", "rol": "admin" },
+  { "id": 2, "nombre": "Bob" }
+]
+
+Output CSV:
+id,nombre,rol
+1,Alice,admin
+2,Bob,
+```
+
+## Escaping: qué pasa con comas y saltos de línea en valores
+
+Si un valor contiene el delimitador, una comilla doble o un salto de línea, debe estar entrecomillado:
+
+```
+"García, Juan","Dijo ""hola""","Línea 1
+Línea 2"
+```
+
+La celda del medio contiene una comilla doble escapada (duplicada). La última celda contiene un salto de línea literal dentro del campo entrecomillado — esto es RFC 4180 válido y Papa Parse lo maneja correctamente. Al convertir a JSON, los saltos de línea en celdas se convierten en `\n` en el valor string.
+
+## Manejo de archivos grandes
+
+Papa Parse usa un parser de streaming que procesa el archivo en chunks en lugar de cargar todo el contenido en memoria a la vez. Esto le permite manejar archivos de decenas de megabytes en el navegador sin crashear el tab. Para archivos mayores de ~50 MB, un enfoque server-side o Node.js es más apropiado:
+
+```javascript
+import Papa from 'papaparse'
+import fs from 'fs'
+
+Papa.parse(fs.createReadStream('large.csv'), {
+  header: true,
+  step: (row) => {
+    // Procesar una fila a la vez — uso de memoria constante
+    processRow(row.data)
+  },
+  complete: () => console.log('Listo')
+})
+```
+
+## Privacidad
+
+Todo el parsing y la conversión se ejecutan en tu navegador usando Papa Parse. Tus datos CSV y JSON nunca se suben a nuestros servidores.

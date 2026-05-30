@@ -1,0 +1,35 @@
+---
+title: Codificador/Decodificador de Entidades HTML — Preguntas frecuentes
+---
+
+## ¿Cuál es la diferencia entre &amp;lt;, &#60; y &#x3C;?
+
+Los tres representan el mismo carácter: `<`. `&lt;` es la referencia nombrada (más legible), `&#60;` es la referencia numérica decimal y `&#x3C;` es la referencia numérica hexadecimal. Los navegadores los manejan de forma idéntica. Las referencias nombradas son mejores para HTML escrito a mano; las formas numéricas y hex son comunes en markup generado programáticamente porque mapean directamente desde code points Unicode sin necesitar una tabla de lookup.
+
+## ¿La codificación de entidades HTML previene el XSS?
+
+Previene XSS **en el contexto de contenido de texto HTML** — si insertas input del usuario entre etiquetas, codificar `<`, `>`, `&` y `"` hace que el markup inyectado sea texto inofensivo. Pero no es una solución XSS universal. Si insertas datos del usuario en un string JavaScript, un atributo `href`, un valor CSS o un parámetro de URL, cada contexto necesita su propio escaping. La codificación de entidades aplicada en el contexto incorrecto o no hace nada o rompe tu output.
+
+## ¿Qué causa la doble codificación como &amp;amp;amp; en una página?
+
+La doble codificación ocurre cuando un string se codifica con entidades más de una vez. `&` se convierte en `&amp;`, y si se codifica de nuevo se convierte en `&amp;amp;`. La página entonces renderiza `&amp;` en lugar de `&`. La solución: decodifica primero para verificar si el input ya está codificado, luego codifica exactamente una vez en el punto donde se inserta el string en HTML.
+
+## ¿Por qué debo codificar manualmente si los template engines ya escapan automáticamente?
+
+La mayoría de template engines (React JSX, Jinja2, Handlebars, Blade) escapan automáticamente por defecto. Necesitas codificación manual de entidades cuando usas `dangerouslySetInnerHTML`, `v-html`, `innerHTML` o cualquier API de inserción de raw HTML; cuando generas strings HTML fuera de un template engine; cuando escribes HTML estático a mano; o cuando sanitizas contenido de un editor de rich text.
+
+## ¿Puedo usar entidades HTML dentro de una URL?
+
+No. Las URLs usan percent-encoding, no entidades HTML. En `https://example.com/?q=a&b=c`, el `&` es un delimitador de URL y debe ser `%26` si es dato literal. Si pones `&amp;` en una URL, los navegadores lo interpretan como el string de cuatro caracteres `&amp;`, no como `&`. Usa URL encoding para query strings y HTML encoding para atributos HTML — son capas que se combinan, no son intercambiables.
+
+## ¿Mi input se envía a un servidor?
+
+No. Toda la codificación y decodificación se ejecuta en tu navegador usando la librería [`he`](https://github.com/mathiasbynens/he). Nada se transmite. Puedes verificarlo abriendo la pestaña de red mientras usas la herramienta — no hay solicitudes salientes.
+
+## ¿Qué caracteres codifica esta herramienta?
+
+Por defecto codifica los cinco caracteres con significado estructural en HTML: `&`, `<`, `>`, `"`, `'`. Con la opción "codificar todos los no-ASCII", cada carácter fuera del rango ASCII (code points > 127) también se emite como referencia numérica — útil cuando necesitas output puramente ASCII, como al embeber HTML en sistemas que no manejan UTF-8 de forma confiable.
+
+## ¿Por qué algunas entidades nombradas no necesitan punto y coma?
+
+El HTML antiguo (antes de HTML5) permitía ciertas referencias nombradas sin el punto y coma final — `&amp` a veces era aceptado junto con `&amp;`. Los parsers modernos aún toleran la omisión por compatibilidad hacia atrás, pero es técnicamente malformado. Siempre incluye el punto y coma en código nuevo; la librería `he` decodifica ambas formas pero siempre emite la forma correcta con punto y coma.

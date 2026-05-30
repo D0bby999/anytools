@@ -1,0 +1,35 @@
+---
+title: Base64 — Frequently asked questions
+---
+
+## Is Base64 encryption?
+
+No. Base64 is a reversible encoding — anyone holding the encoded string can decode it back to the original without a key. Use it to transport binary data through text-only channels, not to keep secrets.
+
+## Why does `btoa()` break on emoji or Vietnamese text?
+
+The browser's native `btoa()` only handles Latin-1 (bytes 0–255). Characters like `世` or `🌏` are multi-byte in UTF-8 and don't fit, so `btoa` throws. This tool encodes UTF-8 first, then applies Base64 — so unicode survives the round trip.
+
+## What's the difference between standard Base64 and Base64URL?
+
+Standard Base64 uses `+` and `/` and pads with `=`. Base64URL replaces `+/` with `-_` and drops the padding, making the result safe to use in URLs, JWT segments, or filenames. Toggle "URL-safe" above to switch alphabets.
+
+## Why do I see `=` at the end of some encoded strings?
+
+Base64 encodes every 3 input bytes as 4 output characters. When the input length isn't a multiple of 3, the encoder pads the output with one or two `=` characters so the total length stays divisible by 4. Base64URL omits this padding.
+
+## Is my input sent to a server?
+
+No. All processing happens in your browser via the [`js-base64`](https://github.com/dankogai/js-base64) library. Open your browser's network tab — you will see zero requests while you type. The page works offline once cached.
+
+## What's the largest input this can handle?
+
+Practically, a few megabytes per operation. Beyond ~10 MB you may notice the browser tab pausing while the conversion runs synchronously. For multi-hundred-MB files, prefer a streaming decoder in a Web Worker or a server-side tool.
+
+## My decoded text looks like garbage — what went wrong?
+
+Almost always one of three things: (1) the input is encoded with a different alphabet (URL-safe vs standard — try toggling), (2) the input was truncated and is missing padding, or (3) the original wasn't UTF-8 text but binary that happens to be invalid UTF-8 (then "decoded text" is meaningless; you want the raw bytes).
+
+## Can I use Base64 to compress data?
+
+No — Base64 makes data ~33% **larger**, not smaller. If you need to shrink, use gzip, brotli, or a domain-specific codec, then Base64-encode the compressed bytes if you need to transport them as text.

@@ -1,0 +1,35 @@
+---
+title: Conversor CSV ↔ JSON — Preguntas frecuentes
+---
+
+## Mi CSV usa punto y coma en lugar de comas. ¿Funcionará?
+
+Sí. La herramienta auto-detecta el delimitador escaneando las primeras líneas de tu input. Los punto y coma, tabs, pipes (`|`) y comas se detectan automáticamente. Si la detección falla (archivos muy cortos o delimitadores inusuales), puedes especificar el delimitador manualmente en el panel de opciones.
+
+## ¿Por qué mis números aparecen como strings en el output JSON?
+
+El tipado dinámico está deshabilitado en tu configuración actual. Habilita "Dynamic typing" para que Papa Parse convierta automáticamente `"42"` a `42`, `"3.14"` a `3.14`, y `"true"` a `true`. Si necesitas todos los valores como strings — por ejemplo, para preservar ceros iniciales en IDs como `"0042"` — mantén el tipado dinámico desactivado.
+
+## ¿Qué pasa con los objetos JSON anidados al convertir a CSV?
+
+Los objetos anidados se aplanan usando claves en notación de puntos. `{ "user": { "name": "Alice", "city": "Bogotá" } }` se convierte en dos columnas: `user.name` y `user.city`. Los arrays de primitivos dentro de un objeto se unen con punto y coma en un único valor de celda. Las estructuras muy anidadas pueden producir CSVs anchos con encabezados de columna largos — esta es una limitación fundamental del formato CSV plano.
+
+## ¿Por qué mi CSV se ve mal cuando lo abro en Excel después de convertir?
+
+Excel aplica auto-conversión al abrir archivos CSV: valores que parecen fechas (`1-2`, `Jan-2024`), números con ceros iniciales (`0042`) y triggers de notación científica (`1E10`) se transforman. Este es el comportamiento de Excel, no un fallo en el CSV. Para evitarlo, importa el CSV con el asistente "Obtener datos" de Excel y establece los tipos de columna explícitamente, o guarda directamente como XLSX.
+
+## ¿Puedo convertir un CSV sin fila de encabezado?
+
+Sí. Desactiva "La primera fila es encabezado" en las opciones. La herramienta genera nombres de columna automáticamente (`col_0`, `col_1`, `col_2`, …). Puedes renombrarlos después de la conversión si es necesario.
+
+## ¿Cómo maneja la herramienta las celdas con comas o saltos de línea dentro?
+
+Siguiendo RFC 4180, esas celdas deben estar entre comillas dobles en el CSV. El parser de la herramienta (Papa Parse) lo maneja correctamente — `"Buenos Aires, Argentina"` es un único valor de celda `Buenos Aires, Argentina`, no dos celdas. Los saltos de línea dentro de celdas entrecomilladas se preservan como `\n` en el valor string JSON. Si tu CSV no está correctamente entrecomillado alrededor de esos valores, el parse probablemente dará error en esas filas.
+
+## ¿Cuál es el archivo más grande que puedo convertir en el navegador?
+
+Papa Parse hace streaming del archivo en chunks, por lo que el uso de memoria se mantiene prácticamente constante independientemente del tamaño del archivo. En la práctica, archivos de hasta ~50 MB se convierten sin problemas. Por encima de eso, el paso de serialización JSON puede generar picos de memoria. Para archivos muy grandes, usa Papa Parse en un script Node.js con output en streaming.
+
+## El output JSON-to-CSV tiene columnas vacías extra para algunas filas. ¿Por qué?
+
+Tu array JSON tiene objetos con claves inconsistentes — algunos objetos tienen campos que otros no tienen. El conversor usa la unión de todas las claves como fila de encabezado y rellena los valores faltantes con strings vacíos. Este es el comportamiento correcto para datos heterogéneos. Si no quieres las columnas vacías, filtra tu JSON a un esquema consistente antes de convertir.

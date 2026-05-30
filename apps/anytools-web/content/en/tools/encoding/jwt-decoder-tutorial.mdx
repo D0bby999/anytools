@@ -1,0 +1,74 @@
+---
+title: JWT decoded — structure, claims, and the alg=none trap
+description: How JSON Web Tokens are built, what each segment contains, and why decoding is not the same as trusting.
+updated: 2026-05-25
+---
+
+## What a JWT actually is
+
+A JSON Web Token ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)) is three Base64URL-encoded segments joined by dots:
+
+```
+<header>.<payload>.<signature>
+```
+
+The first two segments are JSON objects. The third is a binary signature that proves the first two came from someone holding the issuer's signing key. Anyone can pop a JWT into a decoder — including this one — and read the header and payload. Only someone with the verification key can confirm the signature.
+
+Treat decoded JWTs as **untrusted user input** unless you've also verified the signature. This tool only decodes — by design we don't ask for keys, because pasting your production HMAC secret into a random website is a security nightmare.
+
+## What goes in the header
+
+Typically two fields:
+
+- `alg` — the signing algorithm (`HS256`, `RS256`, `ES256`, etc.).
+- `typ` — usually `"JWT"`.
+
+Sometimes you'll see `kid` (key ID) when the issuer rotates keys, or `x5t` when X.509 certificates are involved. Anything else is implementation-specific.
+
+## What goes in the payload (the claims)
+
+The payload is just an object. RFC 7519 reserves a few field names with standard meanings:
+
+| Claim | Meaning |
+|---|---|
+| `iss` | Issuer (who created the token) |
+| `sub` | Subject (the user or entity the token represents) |
+| `aud` | Audience (who the token is intended for) |
+| `exp` | Expiration (Unix timestamp in seconds) |
+| `iat` | Issued-at (Unix timestamp in seconds) |
+| `nbf` | Not-before (token is invalid until this time) |
+| `jti` | Token ID (for revocation lists) |
+| `scope` / `scp` | OAuth scopes |
+
+Beyond these, issuers add custom claims freely: user IDs, roles, plan tier, anything. This tool highlights the standard ones and shows expiry status front and center.
+
+## The alg=none disaster
+
+Historically, JWT libraries accepted tokens with `"alg": "none"` and treated them as authenticated. Combined with the fact that anyone can craft a header, this meant attackers could forge tokens that bypassed verification entirely.
+
+Modern libraries reject `none` by default, but the lesson stays: **always verify with the expected algorithm explicitly**, never trust the algorithm declared inside the header. If your library has an `algorithms: ['RS256']` option, set it.
+
+## HS256 vs RS256
+
+`HS256` is symmetric — the same secret signs and verifies. Fast, simple, but the verifier must have the secret, which means it can also forge tokens. Use for first-party services that fully trust each other.
+
+`RS256` (and `ES256`) is asymmetric — a private key signs, a public key verifies. Verifiers only get the public key, so they can't forge. Use for tokens crossing trust boundaries (third-party APIs, distributed services).
+
+## Common use cases
+
+- **Authentication tokens** issued after login (often via OAuth2 / OIDC).
+- **API access tokens** for stateless service-to-service calls.
+- **Magic links** for passwordless email login.
+- **Email verification** and **password reset** flows.
+- **Webhook signatures** (less common; HMAC bare is more typical).
+
+## Privacy on this page
+
+The tool decodes in your browser via Base64URL + JSON.parse. We do not save your token, do not log requests, and do not have a server endpoint to send it to. Open DevTools Network and watch — zero traffic.
+
+If your token contains real production secrets, prefer decoding locally with a CLI like `jq`. Public decoders (this one included) are convenient but not appropriate for live credentials.
+
+## Related tools
+
+- **Base64 Encode** — see what each segment looks like before/after.
+- **Hash Generator** — compute HMAC manually for HS256 verification.

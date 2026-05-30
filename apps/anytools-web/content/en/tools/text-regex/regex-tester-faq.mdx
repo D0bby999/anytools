@@ -1,0 +1,35 @@
+---
+title: Regex Tester — FAQ
+---
+
+## What is catastrophic backtracking?
+
+A regex performance pathology where the engine explores exponentially many ways to partition input across nested quantifiers. Patterns like `(a+)+b` against `aaaaaaaa…` (no `b`) hang indefinitely. This tool caps execution at 1 second and reports the issue.
+
+## Greedy vs lazy quantifier?
+
+`*` and `+` are greedy — they match as much as possible. Add `?` (`*?`, `+?`) to make them lazy — match as little as possible. For `<.*>` on `<a><b>` you get the whole string; `<.*?>` gives just `<a>`.
+
+## Why is matching HTML hard?
+
+HTML isn't a regular language — it has arbitrary nesting that regex can't (formally) handle. You can match very specific simple cases, but real-world HTML has comments, CDATA, malformed tags, and weird whitespace. Use `DOMParser` in the browser or `cheerio` in Node instead.
+
+## How do I match Unicode characters?
+
+Add the `u` flag. Then `\w` covers more characters, and you can use `\p{Letter}` / `\p{Script=Vietnamese}` style Unicode property escapes (Node 10+/all modern browsers).
+
+## Difference between `(?:…)` and `(…)`?
+
+`(…)` creates a numbered capture group, accessible as `$1` etc. `(?:…)` groups for the quantifier without capturing. Use non-capturing when you don't need the value — it's slightly faster and keeps your capture indices clean.
+
+## What's lookahead and lookbehind?
+
+Zero-width assertions: `(?=…)` matches if `…` follows but doesn't consume it; `(?!…)` matches if `…` does NOT follow; `(?<=…)` and `(?<!…)` are the same for what precedes. Useful for "match X but only when not followed by Y" without consuming Y.
+
+## JS regex vs PCRE — what's different?
+
+JS is mostly a subset of PCRE with some differences. No inline comments `(?#…)`, no possessive quantifiers, named groups use `(?<name>…)` not `(?P<name>…)` (which is Python). Don't paste random regex from the internet into JS without checking.
+
+## Why does my pattern not match newlines?
+
+`.` doesn't match `\n` by default. Add the `s` flag (dotAll) to make `.` match any character including newline. Alternative: use `[\s\S]` which always matches anything.

@@ -1,0 +1,100 @@
+---
+title: Complete guide to HTML beautifying and minification
+description: How to pretty-print or minify HTML, handle tricky edge cases like void elements and pre-blocks, and when each mode is appropriate.
+updated: 2026-05-27
+---
+
+## Why formatting HTML matters
+
+Raw HTML from a code generator, CMS export, or build tool often arrives as a single line or with inconsistent indentation. While browsers parse it identically regardless of whitespace, humans do not. Readable HTML is easier to diff in version control, easier to debug in browser DevTools, and far less likely to hide structural errors like unclosed tags or misplaced attributes.
+
+Minification goes the other direction: it removes all unnecessary whitespace to reduce file size. For HTML served over HTTP, every byte you remove is a byte the network doesn't need to transfer — though in practice, HTTP compression (gzip or brotli) makes raw whitespace removal a modest gain compared to, say, removing unnecessary comments or redundant attributes.
+
+## How HTML parsing works (and why it's harder than JSON)
+
+HTML has quirks that make formatting harder than JSON or YAML. A few that matter:
+
+**Void elements** — certain elements like `<br>`, `<hr>`, `<img>`, `<input>`, `<meta>`, and `<link>` cannot have children and never have a closing tag. A formatter must know this list to avoid inserting spurious newlines or expecting `</br>`. `js-beautify` handles the HTML5 void element set correctly.
+
+**Optional closing tags** — `<li>`, `<td>`, `<tr>`, `<th>`, `<p>`, and others have closing tags that the HTML5 spec makes optional. Browsers auto-close them; a naive formatter may misread nesting. The HTML5 parser in `js-beautify` accounts for these rules.
+
+**Self-closing syntax** — `<img />` and `<br />` are valid in XHTML but not required in HTML5. The formatter preserves whichever style was in the original by default.
+
+**CDATA sections in SVG/MathML** — inline `<svg>` may contain `<![CDATA[...]]>` blocks. A formatter should treat these as opaque text, not attempt to re-indent them.
+
+**Comments** — `<!-- ... -->` and IE conditional comments (`<!--[if lt IE 9]>`) must survive both beautify and minify intact (unless you opt to strip comments during minification).
+
+## Indentation options
+
+The tool supports 2-space, 4-space, and tab indentation. Which to choose depends on your project's `.editorconfig` or team convention. Two-space is dominant in front-end JavaScript projects and matches Prettier's HTML default. Four-space is common in legacy projects and some Python/Django templates.
+
+When pasting the output back into a project, match the project's existing style. Mixing indentation sizes inside a file confuses diffs and most code review tools.
+
+## The `<pre>` and `<textarea>` exception
+
+Whitespace inside `<pre>`, `<textarea>`, and `<script type="text/plain">` is **semantically significant**. A `<pre>` block renders every space, tab, and newline exactly as written — that's the point of the element. A formatter must not re-indent content inside these elements.
+
+`js-beautify` preserves whitespace inside `<pre>` and `<textarea>` by default. Watch out for tools that don't — they will visually corrupt `<pre>` code blocks and change `<textarea>` default values.
+
+## When to beautify vs minify
+
+**Beautify** is for:
+- Development and debugging.
+- Code review and pull requests — indented HTML is much easier to review.
+- Learning from third-party HTML: paste the source, indent it, read it.
+- Editing a template received from a designer or CMS export.
+
+**Minify** is for:
+- Production assets served directly (when HTTP compression alone isn't sufficient).
+- Inline HTML in JavaScript strings that will be inserted via `innerHTML` — every byte saved here is real.
+- Email HTML: many email clients disable external CSS and inline styles get verbose; minifying the HTML itself can recover meaningful size.
+
+In modern web apps, HTML is typically server-rendered or built by a bundler. Vite, webpack, and Next.js all minify HTML in production builds via `html-minifier-terser`. Use this tool for ad-hoc cleanup, one-off templates, or cases where you're not going through a bundler.
+
+## Using `js-beautify` for HTML
+
+```javascript
+import beautify from 'js-beautify';
+
+const pretty = beautify.html(rawHtml, {
+  indent_size: 2,
+  indent_char: ' ',
+  max_preserve_newlines: 1,
+  preserve_inner_whitespace: false,
+  indent_inner_html: true,
+  wrap_line_length: 0,        // 0 = no wrapping
+  unformatted: ['pre', 'textarea'],
+  extra_liners: ['head', 'body', '/html'],
+});
+```
+
+Key options:
+- `unformatted` — list of tags whose content should not be re-indented.
+- `indent_inner_html` — whether to indent `<head>` and `<body>` contents.
+- `wrap_line_length` — maximum line length before wrapping long attribute lists.
+
+For minification, the recommended production library is `html-minifier-terser`:
+
+```javascript
+import { minify } from 'html-minifier-terser';
+
+const small = await minify(rawHtml, {
+  collapseWhitespace: true,
+  removeComments: true,
+  removeRedundantAttributes: true,
+  minifyCSS: true,
+  minifyJS: true,
+});
+```
+
+## Alternatives and ecosystem
+
+- **Prettier** — the standard formatter for most front-end codebases. Formats HTML, CSS, JS, TypeScript, JSON, and more with an opinionated style. Suitable for per-project formatting pipelines (`.prettierrc`).
+- **html-minifier-terser** — more aggressive minification than `js-beautify`'s minify mode: removes redundant attributes, collapses boolean attributes, inlines critical CSS. Preferred for production build pipelines.
+- **ESLint + `eslint-plugin-html`** — linting HTML embedded in JS/TS files.
+
+For quick one-off formatting without installing anything, this tool gives you the result in the browser immediately.
+
+## Privacy
+
+All HTML processing runs in your browser. Your markup is never sent to a server.

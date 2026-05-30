@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>AnyTools maskable icon</title>
+  <!-- Full bleed background for OS masks (no rounded corners; OS applies mask) -->
+  <rect width="512" height="512" fill="#2563EB"/>
+  <!-- A glyph centered within the safe zone (40% of canvas radius around center) -->
+  <path d="M168 384 L240 128 L272 128 L344 384 L300 384 L280 320 L232 320 L212 384 Z M240 284 L272 284 L256 216 Z" fill="#FFFFFF"/>
+</svg>

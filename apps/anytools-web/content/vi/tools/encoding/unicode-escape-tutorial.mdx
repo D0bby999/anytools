@@ -1,0 +1,90 @@
+---
+title: Hướng dẫn đầy đủ về Unicode Escape / Unescape
+description: Khi nào và tại sao dùng \\uXXXX và \\u{XXXXX}, cách surrogate pair hoạt động, sự khác biệt JSON vs ES6 mode, và các gotcha với emoji.
+updated: 2026-05-27
+---
+
+## Unicode escaping là gì
+
+Unicode escaping chuyển đổi ký tự thành chuỗi escape `\uXXXX` (hoặc `\u{XXXXX}`) — và ngược lại. Ký tự `é` trở thành `é`; emoji `👀` trở thành `\u{1f440}` ở ES6 mode hoặc surrogate pair `👀` ở JSON mode.
+
+Đây **không phải** encoding để nén hay bảo mật. Đây là **biểu diễn an toàn cho text** — cho phép nhúng bất kỳ ký tự Unicode nào vào ngữ cảnh chỉ chấp nhận ASCII: JSON string value, JavaScript source file, C string literal, Java `.properties` file, và các ngữ cảnh tương tự.
+
+## Hai cú pháp escape
+
+### `\uXXXX` — bốn chữ số hex (chỉ BMP)
+
+Cú pháp escape Unicode gốc, được định nghĩa trong ECMAScript 1 spec (1997) và yêu cầu bởi JSON specification ([RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) §7). Hoạt động với codepoint U+0000 đến U+FFFF — Basic Multilingual Plane (BMP). Với 65.536 ký tự này, `é` và `é` hoàn toàn tương đương trong mọi parser tuân chuẩn.
+
+### `\u{XXXXX}` — hex có độ dài biến đổi trong dấu ngoặc (full Unicode)
+
+Được giới thiệu trong ES6 (ECMAScript 2015). Hỗ trợ toàn bộ phạm vi Unicode U+000000 đến U+10FFFF. Đây là cách đúng để escape các ký tự astral plane — codepoint trên U+FFFF bao gồm hầu hết emoji, chữ viết cổ đại, và ký hiệu toán học. `\u{1f600}` gọn hơn và rõ ràng hơn; cú pháp ngoặc cũng cho phép bỏ leading zero.
+
+**JSON không hỗ trợ `\u{}`** — JSON parser yêu cầu đúng bốn chữ số hex sau `\u`. Để nhúng astral plane codepoint trong JSON, phải dùng surrogate pair.
+
+## Astral plane và surrogate pair
+
+Basic Multilingual Plane của Unicode chứa codepoint U+0000–U+FFFF. Mọi thứ trên đó — gọi là **astral plane** hay supplementary character — cần chiến lược khác trong các hệ thống xây dựng trên UTF-16.
+
+JavaScript string nội bộ là UTF-16. Để biểu diễn codepoint trên U+FFFF trong UTF-16, hai 16-bit code unit gọi là **surrogate pair** được dùng: high surrogate (U+D800–U+DBFF) theo sau bởi low surrogate (U+DC00–U+DFFF). Công thức:
+
+```
+codepoint = 0x10000 + (high - 0xD800) × 0x400 + (low - 0xDC00)
+```
+
+Emoji `😀` (U+1F600) trở thành cặp `😀`. Trong JSON, đây là cách duy nhất để biểu diễn nó vì `\u` escape của JSON chỉ nhận bốn chữ số hex. Trong ES6 JavaScript, bạn có thể dùng `\u{1F600}` trực tiếp.
+
+**Gotcha quan trọng:** Vì surrogate pair là hai chuỗi `\u`, các thao tác string naïve làm việc từng ký tự sẽ bị hỏng. `"😀".length` trả về `2` trong JavaScript, không phải `1`. `"😀"[0]` trả về high surrogate lẻ `\uD83D`, không phải emoji. Chia tách theo grapheme cluster cần `[...str]` (spread) hoặc `Intl.Segmenter` trong ES2022+.
+
+## JSON mode vs ES6 mode vs "all" mode
+
+**JSON mode** — escape mọi ký tự non-ASCII bằng `\uXXXX` (chỉ bốn chữ số), dùng surrogate pair cho codepoint trên U+FFFF. Output luôn hợp lệ bên trong JSON string literal. An toàn để nhúng vào mọi hệ thống tiêu thụ JSON bất kể tuổi của parser.
+
+**ES6 mode** — dùng `\u{XXXXX}` cho ký tự astral và `\uXXXX` cho ký tự BMP. Tạo output ngắn hơn, dễ đọc hơn cho chuỗi nhiều emoji. Chỉ hợp lệ trong ngữ cảnh JavaScript ES6+ — không dùng trong JSON, không dùng trong môi trường ES5 cũ.
+
+**All mode** — escape mọi ký tự, kể cả ASCII. Hữu ích khi cần biểu diễn thuần ASCII của chuỗi không có raw Unicode nào — để nhúng trong C string, Python source file, hoặc debug từng codepoint.
+
+## `String.fromCodePoint` vs `String.fromCharCode`
+
+Hai hàm JavaScript này bộc lộ trực tiếp sự phức tạp của surrogate pair:
+
+```javascript
+String.fromCharCode(0x1F600)   // "?" — sai, truncate thành U+F600
+String.fromCodePoint(0x1F600)  // "😀" — đúng
+
+String.fromCharCode(0xD83D, 0xDE00)  // "😀" — đúng qua surrogate pair
+String.fromCodePoint(0x1F600)        // "😀" — đúng qua codepoint
+```
+
+`fromCharCode` ra đời trước astral plane của Unicode và hoạt động trên raw UTF-16 code unit. Nếu truyền codepoint trên 0xFFFF, nó truncate âm thầm. `fromCodePoint` (ES6) xử lý toàn bộ phạm vi. Khi unescape `\u{1F600}`, luôn dùng `fromCodePoint`.
+
+## Khi nào JSON bắt buộc phải escape?
+
+JSON spec (RFC 8259) yêu cầu các control character U+0000–U+001F phải được escape. Tất cả ký tự khác **có thể** được đưa vào raw UTF-8, nhưng nhiều serialiser escape toàn bộ phạm vi non-ASCII để an toàn — tránh vấn đề ASCII-only transport, tránh lỗi terminal rendering, hoặc phòng injection trong HTML (`<`, `>`, `&`, `"` thường được escape thành `<`, v.v.).
+
+Nếu bạn nhận JSON payload và thấy `à` thay vì `à`, JSON được tạo ra với setting "fully escape non-ASCII". Cả hai biểu diễn đều giống hệt nhau với một JSON parser tuân chuẩn.
+
+## Template literal và khi nào không cần escape
+
+Trong ES6 template literal và JavaScript string literal hiện đại, bạn có thể nhúng Unicode trực tiếp:
+
+```javascript
+const greeting = `Xin chào, Việt Nam!`;  // không cần escape
+const emoji = "😀";                        // hoạt động trong JS hiện đại
+const escaped = "\u{1F600}";              // tương đương với trên
+```
+
+Bạn cần escape khi:
+- String sẽ được nhúng vào JSON theo chương trình
+- File phải chỉ là ASCII (toolchain cũ, một số `.properties` file)
+- Bạn đang debug một ký tự và muốn thấy codepoint của nó rõ ràng
+- Bạn đang truyền string qua kênh làm hỏng raw Unicode
+
+## Quyền riêng tư
+
+Toàn bộ xử lý chạy trong trình duyệt của bạn. Text không bao giờ được gửi đến server.
+
+## Công cụ liên quan
+
+- **URL Encode/Decode** — percent-encoding cho URI component, scheme escape khác.
+- **HTML Entity Encode/Decode** — `&amp;`, `&#x00E9;`, và các HTML character reference tương tự.

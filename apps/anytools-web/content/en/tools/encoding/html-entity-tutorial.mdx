@@ -1,0 +1,94 @@
+---
+title: Complete guide to HTML entity encoding and decoding
+description: When to use HTML entities, named vs numeric references, XSS prevention, and the traps developers hit with &amp;amp; double-encoding.
+updated: 2026-05-26
+---
+
+## What HTML entities are
+
+HTML entities are text sequences that represent characters with special meaning in HTML — or characters that are hard to type. The browser sees `&lt;` and renders `<`; you see `&amp;` in source and the page shows `&`. They exist because HTML uses `<`, `>`, `&`, and `"` as structural markers, so if you want those characters to *display* rather than *parse*, you need an escape sequence.
+
+There are three forms:
+
+- **Named references** — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` and hundreds more for special symbols (`&copy;`, `&euro;`, `&mdash;`)
+- **Decimal numeric references** — `&#60;` for `<`, `&#38;` for `&`
+- **Hexadecimal numeric references** — `&#x3C;` for `<`, `&#x26;` for `&`
+
+All three forms are equivalent. Named references are more readable; numeric references are universal (they work even if the parser doesn't know the name). The hex form is common in programmatically generated output because it maps directly to Unicode code points.
+
+## When encoding actually matters
+
+### Displaying code in HTML
+
+If you're building a blog, docs site, or a code renderer, every `<` in a code example must be `&lt;` or the browser will try to parse it as a tag. This is the most common everyday use case. Copy a code snippet into HTML without encoding and watch Chrome try to evaluate `<script>` as a real tag.
+
+### XSS prevention
+
+Cross-site scripting attacks often inject `<script>` tags or event handlers like `onclick="malicious()"` through user-supplied input. When you entity-encode everything coming from users before inserting it into HTML, angle brackets and quotes become inert text characters instead of parser instructions.
+
+```html
+<!-- Dangerous: user input interpolated raw -->
+<p>Welcome, <script>alert('XSS')</script>!</p>
+
+<!-- Safe: entity-encoded -->
+<p>Welcome, &lt;script&gt;alert('XSS')&lt;/script&gt;!</p>
+```
+
+The browser renders the second version as literal text — the script never runs.
+
+**Important nuance:** entity encoding is the right defense when inserting into *HTML context*. Inserting user data into a JavaScript string, a CSS value, or a URL parameter each requires different escaping — entity encoding alone doesn't protect those contexts.
+
+### Preventing double-encoding
+
+Double-encoding is a common bug: you encode `&` to `&amp;`, then encode again and get `&amp;amp;`. The page renders `&amp;` instead of `&`. This happens when:
+
+- A template escapes HTML, and you also call an encode function on the same string
+- Data is stored already-encoded in the database, then encoded again at render time
+
+The fix is to decode first (or check whether the input is already encoded), then encode once at the final HTML insertion point.
+
+## Named vs numeric references: when to choose
+
+Use **named references** for human-maintained HTML files — `&copy;` and `&mdash;` are far more readable than `&#169;` and `&#8212;`. Named references have been standardized in HTML5 and are universally supported.
+
+Use **numeric references** when:
+- Generating HTML programmatically and you don't want to maintain a named-reference lookup table
+- The character doesn't have a named reference (most Unicode characters above the HTML4 set don't)
+- You're dealing with XML, where only `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` are guaranteed to be recognized by default
+
+Use **hex references** (&#x…) when working closely with Unicode code points. A code point like U+1F600 (😀) becomes `&#x1F600;` directly.
+
+## What NOT to entity-encode
+
+Entity encoding is for *HTML context only*. Applying it elsewhere breaks things:
+
+- **URL parameters** — use percent-encoding (`%26` not `&amp;`). Putting `&amp;` in a URL gives you a literal `&amp;` in the query string.
+- **JavaScript strings** — use `\'` or `\"` or template literals. `&quot;` in a JS string is the four characters `&quot;`, not a quote.
+- **CSS values** — Unicode escapes look like `\003C`, not `&#x3C;`.
+- **JSON** — JSON uses `\"` for quotes inside strings; HTML entities are meaningless there.
+
+## The `he` library
+
+This tool uses [`he`](https://github.com/mathiasbynens/he) (HTML entities) by Mathias Bynens. It covers the full HTML5 named character reference list (over 2000 entries), handles all three entity forms, and is correct about edge cases that trip up hand-rolled encoders — like the semicolon being optional for some legacy named references, or `&not;` vs `&notin;` having different Unicode values.
+
+The encoding function escapes `&`, `<`, `>`, `"`, `'`, and optionally all non-ASCII characters. The decoding function handles both well-formed and some malformed entities. All processing is in-browser; nothing leaves your machine.
+
+## Practical examples
+
+**Encoding a code snippet for HTML:**
+
+Input: `if (a < b && c > d) { return "<br>"; }`
+Encoded: `if (a &lt; b &amp;&amp; c &gt; d) { return &quot;&lt;br&gt;&quot;; }`
+
+**Decoding an entity string:**
+
+Input: `&lt;script&gt;alert(&quot;hello&quot;)&lt;/script&gt;`
+Decoded: `<script>alert("hello")</script>`
+
+**Numeric reference:**
+
+Input: `&#x1F4BB;` → `💻` (U+1F4BB, PERSONAL COMPUTER)
+
+## Security and privacy
+
+All encoding and decoding runs locally in your browser. Your input is never sent to our servers. The `he` library is MIT-licensed and auditable on GitHub.

@@ -1,0 +1,35 @@
+---
+title: Unicode Escape / Unescape — Câu hỏi thường gặp
+---
+
+## Tại sao emoji của tôi xuất hiện dưới dạng hai chuỗi `\u` trong JSON mode?
+
+Vì `\u` escape của JSON chỉ nhận đúng bốn chữ số hex, bao phủ codepoint đến U+FFFF. Emoji nằm trong astral plane (trên U+FFFF) và phải được biểu diễn dưới dạng UTF-16 surrogate pair — hai chuỗi `\u` liên tiếp. Ví dụ, `😀` (U+1F600) trở thành `😀`. Dùng ES6 mode để có dạng gọn hơn `\u{1F600}`, nhưng lưu ý JSON parser không chấp nhận cú pháp ngoặc.
+
+## Sự khác biệt giữa `\uXXXX` và `\u{XXXXX}` là gì?
+
+`\uXXXX` là cú pháp bốn chữ số hex gốc từ ECMAScript 1 (1997) và JSON spec (RFC 8259). Nó chỉ bao phủ Basic Multilingual Plane (U+0000–U+FFFF). `\u{XXXXX}` là cú pháp ngoặc của ES6, nhận số chữ số hex tùy ý và bao phủ toàn bộ phạm vi Unicode đến U+10FFFF. Dạng ngoặc hợp lệ trong JavaScript ES6+ và nhiều ngôn ngữ hiện đại, nhưng **không** trong JSON — JSON spec chưa bao giờ được cập nhật để bao gồm nó.
+
+## Tại sao `"😀".length` trả về 2 trong JavaScript?
+
+JavaScript string nội bộ là UTF-16. Codepoint trên U+FFFF được lưu dưới dạng hai 16-bit code unit (surrogate pair), nên `String.prototype.length` đếm code unit, không đếm ký tự. Dùng `[...str].length` (spread dùng string iterator, nhận biết codepoint) hoặc `Array.from(str).length` để lấy số ký tự đúng. `Intl.Segmenter` cho số grapheme cluster — thứ người dùng cảm nhận là "số ký tự".
+
+## Khi nào thực sự cần escape Unicode trong JavaScript?
+
+Hiếm trong code hiện đại. File ES6+ lưu dạng UTF-8 có thể chứa ký tự Unicode raw trực tiếp. Bạn cần escape `\u` khi: (1) file phải chỉ là ASCII cho toolchain cũ, (2) bạn đang xây dựng JSON string theo chương trình và cần nhúng nội dung non-ASCII an toàn, (3) môi trường target hỗ trợ Unicode không đầy đủ, hoặc (4) bạn đang debug một codepoint cụ thể và muốn nó rõ ràng trong source.
+
+## JSON có yêu cầu escape ký tự non-ASCII không?
+
+Không — RFC 8259 cho phép bất kỳ ký tự Unicode được encode UTF-8 nào xuất hiện unescaped trong JSON string, ngoại trừ control character (U+0000–U+001F). Nhiều JSON serialiser vẫn escape toàn bộ non-ASCII để an toàn qua transport chỉ chấp nhận ASCII hoặc tránh rủi ro HTML injection (`<`, `>`, `&` thường được escape). Cả hai biểu diễn đều giống hệt nhau với parser tuân chuẩn.
+
+## `String.fromCodePoint` là gì và tại sao nên dùng thay `String.fromCharCode`?
+
+`String.fromCharCode` (ES1) hoạt động trên raw UTF-16 code unit và silently truncate giá trị trên 0xFFFF. `String.fromCodePoint` (ES6) xử lý toàn bộ phạm vi Unicode — truyền `0x1F600` và bạn nhận được `😀`, không phải ký tự rác. Luôn dùng `fromCodePoint` khi chuyển đổi số codepoint thành ký tự, đặc biệt nếu codepoint có thể nằm trong astral plane.
+
+## "All" mode làm gì mà JSON và ES6 mode không làm?
+
+All mode escape mọi ký tự — kể cả chữ cái ASCII và chữ số thông thường — không chỉ non-ASCII hay non-printable. Kết quả là chuỗi thuần ASCII trong đó mọi ký tự được biểu diễn dạng `\uXXXX`. Hữu ích để nhúng trong C string literal phải chỉ là ASCII, một số định dạng `.properties` file (tool `native2ascii` của Java tạo ra output này), hoặc debug chuỗi ký tự khi muốn thấy mọi codepoint rõ ràng.
+
+## Chia tách string trên emoji có thể làm hỏng nó không?
+
+Có. Vì nhiều emoji là surrogate pair (hai UTF-16 code unit), các thao tác hoạt động ở mức code unit — `str[i]`, `str.substring()`, `str.split('')` — có thể cắt giữa hai nửa của pair, tạo ra dangling surrogate và output rác. Lựa chọn an toàn: spread operator `[...str]` iterate theo codepoint, và `Intl.Segmenter` iterate theo grapheme cluster (xử lý cả emoji modifier và ZWJ sequence như emoji gia đình ghép từ nhiều codepoint).

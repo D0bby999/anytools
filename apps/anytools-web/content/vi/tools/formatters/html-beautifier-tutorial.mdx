@@ -1,0 +1,95 @@
+---
+title: Hướng dẫn toàn diện về beautify và minify HTML
+description: Cách pretty-print hoặc minify HTML, xử lý các edge case như void element và pre block, và khi nào dùng mỗi chế độ.
+updated: 2026-05-27
+---
+
+## Tại sao format HTML quan trọng
+
+HTML thô từ code generator, CMS export, hay build tool thường đến dưới dạng một dòng dài hoặc thụt lề không nhất quán. Dù trình duyệt parse giống nhau bất kể whitespace, con người thì không. HTML dễ đọc dễ diff hơn trong version control, dễ debug hơn trong browser DevTools, và ít có khả năng che giấu lỗi cấu trúc như tag chưa đóng hoặc attribute đặt sai chỗ.
+
+Minification đi theo hướng ngược lại: loại bỏ tất cả whitespace không cần thiết để giảm kích thước file. Với HTML phục vụ qua HTTP, HTTP compression (gzip hoặc brotli) thực sự mạnh hơn nhiều so với việc chỉ xóa whitespace thô.
+
+## HTML parsing và những edge case khó
+
+HTML có những quirk làm format khó hơn JSON hay YAML:
+
+**Void elements** — các element như `<br>`, `<hr>`, `<img>`, `<input>`, `<meta>`, `<link>` không thể có children và không có closing tag. Một formatter phải biết danh sách này để tránh thêm newline sai hay chờ `</br>`. `js-beautify` xử lý đúng tập void element của HTML5.
+
+**Optional closing tags** — `<li>`, `<td>`, `<tr>`, `<p>` và một số element khác có closing tag mà spec HTML5 cho là tùy chọn. Trình duyệt tự đóng chúng; formatter ngây thơ có thể đọc sai nesting.
+
+**CDATA trong SVG/MathML** — inline `<svg>` có thể chứa `<![CDATA[...]]>`. Formatter phải xử lý đây là text không thể đọc, không cố re-indent.
+
+**Comments** — `<!-- ... -->` và IE conditional comments (`<!--[if lt IE 9]>`) phải tồn tại qua cả beautify lẫn minify (trừ khi bạn chọn strip comments khi minify).
+
+## Tùy chọn indentation
+
+Tool hỗ trợ thụt lề 2 space, 4 space và tab. Lựa chọn nào tùy thuộc vào `.editorconfig` hoặc quy ước nhóm của bạn. Hai space chiếm ưu thế trong các project JavaScript front-end hiện đại và khớp với default của Prettier cho HTML. Bốn space phổ biến hơn trong các project cũ và một số Python/Django template.
+
+Khi paste output trở lại project, khớp với style hiện có của project. Pha trộn kích thước thụt lề trong một file làm rối diff và hầu hết các công cụ review code.
+
+## Exception với `<pre>` và `<textarea>`
+
+Whitespace bên trong `<pre>`, `<textarea>`, và `<script type="text/plain">` có **nghĩa ngữ nghĩa**. Một block `<pre>` render đúng mỗi khoảng trắng, tab và newline. Formatter không được re-indent nội dung bên trong các element này.
+
+`js-beautify` giữ nguyên whitespace bên trong `<pre>` và `<textarea>` theo mặc định. Chú ý các tool không làm vậy — chúng sẽ làm hỏng về mặt thị giác các code block `<pre>` và thay đổi giá trị mặc định của `<textarea>`.
+
+## Khi nào beautify, khi nào minify
+
+**Beautify** dùng cho:
+- Development và debugging.
+- Code review và pull request — HTML thụt lề dễ review hơn nhiều.
+- Học từ HTML bên thứ ba: paste source, indent nó, đọc nó.
+- Chỉnh sửa template nhận từ designer hoặc CMS export.
+
+**Minify** dùng cho:
+- Asset production phục vụ trực tiếp (khi HTTP compression một mình không đủ).
+- HTML inline trong JavaScript string được chèn qua `innerHTML`.
+- Email HTML: nhiều email client tắt CSS ngoài và style inline trở nên dài dòng; minify HTML có thể tiết kiệm kích thước đáng kể.
+
+Trong web app hiện đại, HTML thường được server-render hoặc build bởi bundler. Vite, webpack và Next.js đều minify HTML trong production build. Dùng tool này cho cleanup ad-hoc, template một lần, hoặc trường hợp bạn không đi qua bundler.
+
+## Sử dụng `js-beautify` cho HTML
+
+```javascript
+import beautify from 'js-beautify';
+
+const pretty = beautify.html(rawHtml, {
+  indent_size: 2,
+  indent_char: ' ',
+  max_preserve_newlines: 1,
+  indent_inner_html: true,
+  wrap_line_length: 0,        // 0 = không wrap
+  unformatted: ['pre', 'textarea'],
+  extra_liners: ['head', 'body', '/html'],
+});
+```
+
+Các option quan trọng:
+- `unformatted` — danh sách tag không nên re-indent nội dung bên trong.
+- `indent_inner_html` — có thụt lề nội dung `<head>` và `<body>` không.
+- `wrap_line_length` — độ dài dòng tối đa trước khi wrap attribute list dài.
+
+Để minify trong production, nên dùng `html-minifier-terser`:
+
+```javascript
+import { minify } from 'html-minifier-terser';
+
+const small = await minify(rawHtml, {
+  collapseWhitespace: true,
+  removeComments: true,
+  minifyCSS: true,
+  minifyJS: true,
+});
+```
+
+## Các tool khác trong ecosystem
+
+- **Prettier** — formatter chuẩn cho hầu hết codebase front-end. Format HTML, CSS, JS, TypeScript, JSON và nhiều hơn nữa.
+- **html-minifier-terser** — minify aggressive hơn: loại bỏ attribute dư thừa, inline critical CSS.
+
+Để format nhanh một lần không cần cài gì, tool này cho kết quả ngay trong trình duyệt.
+
+## Quyền riêng tư
+
+Toàn bộ xử lý HTML chạy trên trình duyệt của bạn. Markup không bao giờ được gửi lên server.

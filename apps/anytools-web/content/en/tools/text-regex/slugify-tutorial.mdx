@@ -1,0 +1,50 @@
+---
+title: URL slugs — transliteration, diacritics, and SEO
+description: How to turn arbitrary text (Vietnamese, German, French) into a URL-safe slug without losing meaning.
+updated: 2026-05-26
+---
+
+## What a slug is
+
+A slug is the human-readable, URL-safe portion of a URL — `/blog/my-post-title` has slug `my-post-title`. It identifies the resource and contributes to SEO (Google reads slug words). It must be ASCII-safe, lowercase by convention, and use a separator that browsers won't mangle (`-` wins).
+
+The transformation from arbitrary text to slug involves three steps:
+
+1. **Transliterate** non-ASCII characters into ASCII equivalents (`café` → `cafe`, `Tiếng Việt` → `tieng-viet`, `Schöner Tag` → `schoner-tag`).
+2. **Normalize** whitespace and punctuation to your chosen separator.
+3. **Lowercase** (almost universally — search engines case-fold URLs anyway).
+
+This tool handles all three. Pick the right locale for the input text so transliteration uses the right rules — Vietnamese `ư` is `u`, not `w`; German `ü` is `ue` traditionally but `u` is more common in modern URLs.
+
+## Why hyphen over underscore
+
+Google indexes hyphens as word separators (`my-blog-post` = three words) but underscores as joiners (`my_blog_post` = one word). For SEO, **always use hyphen** in URL slugs. Underscores are fine for filenames or identifiers, not URLs.
+
+## Diacritics: strip or transliterate
+
+Two schools of thought:
+
+- **Strip**: `Café` → `caf`. Loses the `é` entirely. Wrong — drops a letter.
+- **Transliterate**: `Café` → `cafe`. Keeps the letter, drops the diacritic. Right.
+
+This tool transliterates. For Vietnamese, the locale-specific map turns `đ` → `d` (the standard `slugify` library handles the rest of Vietnamese diacritics via NFD normalization).
+
+## Length and SEO
+
+Most SEO guidance lands on **3–5 words** for the slug (~30–60 characters). Longer slugs aren't penalized but are uglier in social shares. Don't pad with stop words ("the", "a", "an") — they add length without meaning.
+
+## Use cases
+
+- Generating URL paths for CMS-driven content
+- Building filenames from human titles
+- Creating user-friendly IDs from arbitrary input
+- Bulk-generating slugs for an import batch (use the Bulk tab)
+
+## Privacy
+
+All processing in your browser via [`slugify`](https://github.com/simov/slugify). No network requests.
+
+## Related
+
+- **Text Case Converter** — change to lowercase before slugifying, or invert order.
+- **URL Encoder** — for query parameters and full URL composition.

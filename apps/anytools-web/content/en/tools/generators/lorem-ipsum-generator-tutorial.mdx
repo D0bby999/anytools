@@ -1,0 +1,100 @@
+---
+title: Complete guide to Lorem Ipsum generation
+description: The history of Lorem Ipsum, why placeholder text matters in design, modern variants, and when you should not use it.
+updated: 2026-05-27
+---
+
+## Where Lorem Ipsum comes from
+
+The text "Lorem ipsum dolor sit amet..." is not gibberish — it is corrupted Latin. The source is *De finibus bonorum et malorum* ("On the Ends of Good and Evil"), a philosophical treatise written by Cicero in 45 BC. The passage beginning at section 1.10.32 reads, in part:
+
+> "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+
+In the 1500s, an unknown typesetter took this passage, scrambled the words, and used it to demonstrate a typeface specimen. The text survived as an industry standard placeholder because it looks like natural language from a distance — it has a realistic mix of short and long words — without reading as any actual language, so it doesn't distract reviewers.
+
+Richard McClintock, a Latin scholar at Hampden-Sydney College, identified the source in the 1990s. You can read the original passage in any edition of Cicero's works; the most faithful Lorem Ipsum versions preserve the word distribution of the original.
+
+## Why placeholder text matters in design
+
+The purpose of placeholder text is to let designers and stakeholders evaluate **layout, typography, and hierarchy** without the distraction of real copy. Real words trigger reading. A reviewer who can read the text will start evaluating content rather than visual design — and that conversation belongs later in the process.
+
+Good placeholder text:
+
+- Has natural word-length variation (a mix of short and long words, matching the target language).
+- Fills space the way real copy will — line breaks, paragraph rhythm, hyphenation.
+- Is visually neutral — no recognizable phrases, no humor, nothing that pulls focus.
+
+This is why "Content Here Content Here" repeated in boxes is a worse stand-in than Lorem Ipsum: it produces unnatural line breaks and gives no sense of paragraph shape.
+
+## Output modes
+
+**Words** — useful for testing field widths and label containers.
+
+**Sentences** — useful for single-paragraph inputs, meta descriptions, card bodies.
+
+**Paragraphs** — useful for article layouts, email templates, multi-section pages.
+
+**HTML** — wraps output in `<p>` tags (and optionally `<h2>`, `<ul>`) for direct paste into HTML templates. Avoids the extra step of wrapping manually.
+
+## Variants and when to reach for them
+
+**Classic Latin (Lorem Ipsum)** is the universal default. Use it when your audience is design-savvy and instantly understands it as placeholder.
+
+**Vietnamese** — Latin Vietnamese placeholder is important when your product's primary language is Vietnamese. Vietnamese text is meaningfully longer than English for the same concept: diacritical marks and compound words mean a sentence that fits neatly in English may wrap an extra line in Vietnamese. Designing with English-length filler for a Vietnamese UI is a reliable way to get layout surprises in QA.
+
+**Spanish** — Similar concern: Spanish nouns and articles make average sentence length about 15-25% longer than their English equivalents. Latin American Spanish and Castilian have the same length profile — either works as filler.
+
+**Hipster Ipsum** — uses contemporary English slang and ironic vocabulary ("artisan," "craft beer," "normcore"). Useful for wireframe presentations to stakeholders who might ask "but what does this page actually say?" — the recognizable but absurdist content signals that this is explicitly placeholder.
+
+The `lorem-ipsum` npm package used by this tool supports custom word pools, so you can create industry-specific filler (medical terms, legal jargon) if needed in code.
+
+## Length matching: the most important best practice
+
+The biggest practical mistake with placeholder text is generating it in the wrong language for the target locale. A few concrete examples:
+
+| Concept | English | Vietnamese |
+|---------|---------|-----------|
+| "Settings" | 8 chars | "Cài đặt" — 7 chars but taller due to diacritics |
+| Typical nav label | ~6-10 chars | ~8-16 chars (with spaces between words) |
+| 160-char meta description | ~28-32 words | ~20-25 words (words are longer) |
+
+If you're designing a multi-locale product, generate placeholder in each target language and check that your layout holds. Do this at wireframe stage, not after the UI is handed off.
+
+## When NOT to use Lorem Ipsum
+
+**A/B tests for conversion.** Placeholder text in a test variant will produce meaningless click-through data. Real copy — even rough copy — is required for conversion testing.
+
+**Accessibility reviews.** Screen reader audits and keyboard navigation tests should use content that resembles production copy so reviewers can catch labeling and heading hierarchy problems.
+
+**Content strategy reviews.** When a stakeholder is reviewing information architecture ("does this page have the right sections?"), placeholder gives them nothing to react to. Use representative real content — even rough drafts — so the review produces actionable feedback.
+
+**Production deployments.** Lorem Ipsum has shipped to production in published websites, mobile apps, and print materials more times than anyone wants to admit. If your CMS or template system has a default content field, don't let it default to Lorem Ipsum.
+
+**SEO.** Lorem Ipsum on a crawled page signals to search engines that the page has no meaningful content, which can hurt rankings. Never let placeholder leak past staging.
+
+## Using the `lorem-ipsum` library
+
+```javascript
+import { LoremIpsum } from 'lorem-ipsum';
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: { max: 8, min: 4 },
+  wordsPerSentence: { max: 16, min: 4 },
+});
+
+console.log(lorem.generateWords(5));
+console.log(lorem.generateSentences(3));
+console.log(lorem.generateParagraphs(2));
+```
+
+For a custom word pool (e.g., domain-specific filler):
+
+```javascript
+const lorem = new LoremIpsum({}, 'word', '\n', myWordArray, myWordArray);
+```
+
+The constructor accepts separate arrays for words and sentence starters, so you can produce industry-jargon filler that still reads as natural prose structure.
+
+## Privacy
+
+All generation runs client-side. No input data is transmitted.

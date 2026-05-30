@@ -1,0 +1,56 @@
+---
+title: Converter horários entre fusos horários
+description: IANA timezone database, DST, e os erros clássicos que dev fazem ao lidar com timezones.
+updated: 2026-05-27
+---
+
+## Por que timezone é complicado
+
+Timezone parece trivial — UTC+0, UTC-3, etc. Mas o mundo real tem:
+
+- **DST (Daylight Saving Time)**: o offset muda duas vezes por ano em muitos países.
+- **Mudanças históricas**: o Brasil aboliu DST em 2019. Antes, Brasília alternava entre UTC-3 e UTC-2. Pegar um timestamp de 2017 e converter exige saber o offset *daquele momento*.
+- **Timezones que mudam de nome**: "Asia/Kolkata" antes era "Asia/Calcutta". Sistemas legados podem ter ambos.
+- **Locais sem regra fixa**: alguns países mudam DST por decreto governamental ano a ano.
+
+A solução é o **IANA Time Zone Database** (também chamada "Olson database" ou "tz database"), mantida coletivamente desde 1986 e atualizada várias vezes por ano. Ela tem zonas com nomes geográficos (`America/Sao_Paulo`, `Europe/London`, `Asia/Tokyo`) e regras históricas completas.
+
+## Por que `America/Sao_Paulo`, não `BRT`?
+
+Siglas como `BRT` (Brasília Time), `EST`, `PST` são **ambíguas**. `BRT` é UTC-3, mas o Brasil já teve BRST (Brasília Summer Time) UTC-2. `EST` em inglês geralmente é Eastern Standard Time (US, UTC-5), mas o Australian state também tem EST diferente.
+
+Nomes IANA (`Continent/City`) eliminam ambiguidade — sempre se referem a uma região com regras conhecidas, incluindo histórico.
+
+## UTC vs GMT vs Z
+
+Para fins práticos: UTC = GMT = Z (no formato ISO 8601). UTC é o padrão moderno (definido por relógios atômicos); GMT é definido por observação astronômica em Greenwich. Diferença é < 1 segundo, irrelevante para a maioria das aplicações.
+
+`2026-05-27T14:30:00Z` e `2026-05-27T14:30:00+00:00` são equivalentes.
+
+## Erros clássicos
+
+1. **Armazenar local time no banco**: nunca faça isso. Sempre armazene UTC, renderize local na UI. Caso contrário, na próxima mudança de DST, todos os timestamps ficam inconsistentes.
+
+2. **Usar `new Date('2026-05-27')`**: sem horário e Z, vira meia-noite **local** em alguns parsers, **UTC** em outros. Sempre seja explícito: `new Date('2026-05-27T00:00:00Z')`.
+
+3. **Assumir 24h por dia**: dias DST têm 23 ou 25 horas. Arithmetic em milissegundos pode mentir.
+
+4. **Confiar no `getTimezoneOffset()` do JS**: ele retorna offset *no momento atual*, não da data passada. Para datas históricas, use date-fns-tz ou Luxon.
+
+## DST: spring forward, fall back
+
+- **Spring forward (avança)**: às 02:00, o relógio pula para 03:00. A hora 02:30 não existe naquele dia.
+- **Fall back (atrasa)**: às 02:00, o relógio volta para 01:00. A hora 01:30 ocorre duas vezes.
+
+Eventos agendados nessas janelas têm comportamento indefinido. Mais um motivo para usar UTC em jobs e timestamps internos.
+
+## Casos de uso
+
+- Converter entre fusos para agendar reuniões internacionais
+- Validar offsets em logs de produção
+- Debug de bugs "só acontece quando o usuário está em outro fuso"
+- Converter horários antigos respeitando o offset histórico
+
+## Tudo client-side
+
+Usa `date-fns-tz` + o tz database embutido. Nenhum dado é enviado. Funciona offline.

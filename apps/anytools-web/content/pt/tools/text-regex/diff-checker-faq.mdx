@@ -1,0 +1,27 @@
+---
+title: Diff Checker — Perguntas frequentes
+---
+
+## Diff de linha ou de palavra?
+
+A ferramenta gera diff em nível de linha (unified format, como `diff -u`). Para diff word-level, copie cada lado em um editor com suporte (VSCode, GitHub PR view). Diff de linha é o padrão para código; word-level é melhor para prosa.
+
+## Funciona para arquivos binários?
+
+Não. O `diff` library trabalha em texto. Para binários (imagens, PDFs), use ferramentas dedicadas como `diffoscope` ou comparação visual.
+
+## Qual algoritmo é usado?
+
+Myers diff algorithm (LCS — Longest Common Subsequence), o mesmo do `git diff` e `diff` unix. Output ótimo em termos de número mínimo de mudanças.
+
+## Suporta diff semântico?
+
+Não. É textual puro. Se você reformatou JSON sem mudar valores, vai aparecer como diff inteiro. Para diff semântico de JSON, use `json-diff` em CLI ou comparação após normalização (sort keys, mesmo indent).
+
+## Limite de tamanho?
+
+Confortável até ~500KB por lado. Acima disso, navegador pode pausar segundos. Para arquivos enormes, `diff -u` em terminal é mais rápido.
+
+## Diff é enviado a servidor?
+
+Não. A biblioteca `diff` roda no navegador. Network tab vazio. Funciona offline.

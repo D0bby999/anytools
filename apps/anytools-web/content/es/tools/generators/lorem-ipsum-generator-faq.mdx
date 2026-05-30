@@ -1,0 +1,31 @@
+---
+title: Generador de Lorem Ipsum — Preguntas frecuentes
+---
+
+## ¿Lorem Ipsum es latín real?
+
+Sí, parcialmente. Proviene del tratado *De finibus bonorum et malorum* de Cicerón (45 a.C.), específicamente la sección 1.10.32. Las palabras fueron mezcladas por un tipógrafo en el siglo XVI para producir texto de muestra que parece lenguaje natural. Algunas palabras son latín auténtico; otras son fragmentos truncados. No tiene significado gramatical — su valor es puramente visual.
+
+## ¿Por qué no usar "Contenido Aquí" repetido como relleno?
+
+Las frases cortas repetidas producen saltos de línea uniformes y artificiales que no reflejan cómo fluirá el copy real. Lorem Ipsum tiene variación orgánica en la longitud de las palabras que imita el ritmo natural de la prosa. Esto es importante al evaluar el salto de línea, el control de viudas y huérfanas, el desbordamiento de texto y el espaciado de párrafos, todo lo cual es invisible con relleno uniforme.
+
+## ¿Debo generar el relleno en el idioma real de mi aplicación?
+
+Sí, cuando el idioma destino difiere del inglés. El español es sistemáticamente más largo que el inglés para el mismo significado: sustantivos, artículos y terminaciones verbales hacen que las oraciones promedio sean un 15-25% más largas. Diseñar con relleno en inglés para una UI en español es una causa conocida de truncamiento y desbordamiento de layout que solo aparece tarde en QA. Genera relleno en cada locale y verifica tus layouts.
+
+## ¿Qué es Hipster Ipsum?
+
+Una variante moderna que usa jerga contemporánea en inglés — "artisan," "selvage," "normcore," "craft beer." Es intencionalmente reconocible como relleno al tiempo que resulta absurdo. Útil en presentaciones de wireframes a partes interesadas que preguntan "¿qué dirá realmente esta página?" — el contenido reconocible pero sin sentido señala claramente que el copy está pendiente.
+
+## ¿Se puede usar Lorem Ipsum en producción?
+
+No. Lorem Ipsum ha llegado accidentalmente a producción muchas veces — en sitios web publicados, apps móviles y materiales impresos. Nunca uses relleno como valor predeterminado en un campo de CMS, formulario o plantilla de email que pueda llegar a usuarios reales. También evítalo en páginas rastreadas porque señala contenido de baja calidad a los motores de búsqueda.
+
+## ¿Qué hace el modo de salida HTML?
+
+El modo HTML envuelve la salida en etiquetas `<p>` para que puedas pegar directamente en plantillas HTML o editores de texto enriquecido sin añadir markup manualmente. Evita el error común de pegar texto plano en un contexto HTML y obtener un bloque de texto sin formato. Cada párrafo se convierte en un elemento `<p>` separado.
+
+## ¿Cuántas palabras debo generar para una tarjeta típica o meta descripción?
+
+El cuerpo de una tarjeta estándar (~3 líneas a 16px en un contenedor de 320px) necesita aproximadamente 20–30 palabras. Una meta descripción (limitada a ~160 caracteres por Google) necesita 25–35 palabras en inglés, menos en español o portugués donde las palabras tienden a ser más largas. Una página de longitud de artículo necesita 300–800 palabras en 4–8 párrafos.

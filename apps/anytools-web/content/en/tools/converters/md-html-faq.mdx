@@ -1,0 +1,35 @@
+---
+title: Markdown ↔ HTML Converter — Frequently asked questions
+---
+
+## Is it safe to render Markdown from user input directly as HTML?
+
+No. Markdown allows raw HTML blocks, which means untrusted Markdown can contain `<script>` tags, `onerror` handlers, and `javascript:` links. Always enable the sanitization option (powered by DOMPurify) when rendering user-supplied Markdown. For your own content — docs, blog posts, README files — sanitization is optional since you trust the source.
+
+## What's the difference between CommonMark and GitHub Flavored Markdown?
+
+CommonMark is the strict, unambiguous specification for Markdown. GFM (GitHub Flavored Markdown) extends it with tables, strikethrough (`~~text~~`), task lists (`- [ ] item`), and autolinked URLs. Most developers expect GFM because GitHub, GitLab, and most Markdown editors support it. Use CommonMark mode only if you need strict spec compliance for a publishing system that requires it.
+
+## Why does my HTML→Markdown conversion lose CSS styles?
+
+Markdown has no concept of styling. There is no Markdown syntax for font color, font size, custom classes, or inline CSS. When Turndown converts `<span style="color:red">text</span>`, it can only emit `text` — the styling information is dropped. If you need styled output, stay in HTML or use a rich text format like DOCX.
+
+## My round-trip conversion (MD→HTML→MD) changed the Markdown. Is something broken?
+
+No, this is expected. Conversions are lossy in both directions. Reference-style links become inline links, setext headings become ATX headings, custom HTML blocks may be dropped or altered. Round-trip identity is not a design goal of these parsers. Use one-way conversion for publishing pipelines; for bidirectional editing, keep the authoritative source in one format only.
+
+## Why is my fenced code block not syntax-highlighted in the output?
+
+The converter outputs `<code class="language-js">` (or whatever language you specified) but does not apply syntax highlighting — that's a separate rendering step. To get highlighted output, run the HTML through [Prism.js](https://prismjs.com/) or [highlight.js](https://highlightjs.org/) after conversion, or use a Markdown renderer that includes highlighting (like markdown-it with a highlight plugin).
+
+## How do I handle tables in HTML→Markdown conversion?
+
+Standard HTML tables (`<table><tr><td>`) convert to GFM pipe tables when the GFM plugin is enabled in Turndown. Simple tables with no merged cells convert cleanly. Tables with `colspan`, `rowspan`, or nested tables cannot be represented in GFM table syntax — they'll be emitted as raw HTML blocks in the output.
+
+## The converted Markdown has extra blank lines everywhere. Can I remove them?
+
+The extra blank lines are correct Markdown — blank lines separate block elements (paragraphs, headings, code blocks, tables) as required by the spec. Removing them can break the Markdown structure. If you're seeing more blank lines than expected, it may be because the source HTML had extra `<br>` tags, `<p>` tags wrapping already-block elements, or `<div>` containers that each emit a surrounding blank line.
+
+## Can I convert an entire HTML page, including `<head>` and navigation, to Markdown?
+
+You can paste a full HTML page, but Turndown will try to convert everything — nav menus, footers, script tags, style blocks — producing noisy output. For web page extraction, it's better to first isolate the main content element (`<article>`, `<main>`, or a specific `<div>`) and convert only that portion. Browser extensions like Markdownload do this extraction step for you before conversion.

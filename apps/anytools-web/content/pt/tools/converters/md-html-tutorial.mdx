@@ -1,0 +1,61 @@
+---
+title: Converter Markdown ↔ HTML
+description: marked + turndown, CommonMark vs GFM, sanitização contra XSS, e o trade-off de round-trip lossless.
+updated: 2026-05-27
+---
+
+## Por que converter
+
+Markdown é a linguagem dos READMEs, do GitHub, do dev.to e da maioria dos blogs técnicos. HTML é a linguagem da web — onde o conteúdo é finalmente exibido. Você converte quando publica (MD → HTML), quando importa (HTML → MD), ou quando migra entre CMSs.
+
+A conversão usa [marked](https://marked.js.org) (MD→HTML) e [turndown](https://github.com/mixmark-io/turndown) (HTML→MD). Ambas client-side, ambas implementam CommonMark + extensões GFM (tabelas, task lists, strikethrough).
+
+## CommonMark vs GFM
+
+**CommonMark** é a especificação estável de Markdown — todos os parsers sérios implementam. Define como `**bold**`, listas, headers, links, code blocks funcionam.
+
+**GitHub Flavored Markdown (GFM)** estende com:
+
+- Tabelas (`| col | col |`)
+- Task lists (`- [ ]`, `- [x]`)
+- Strikethrough (`~~texto~~`)
+- Autolinks para URLs nuas
+- Code fences com língua (` ```js `)
+
+O conversor ativa GFM por padrão. Renderizadores que só suportam CommonMark vão ignorar essas features.
+
+## Segurança: XSS via HTML cru em MD
+
+Markdown permite HTML cru inline:
+
+```markdown
+Olá <script>alert('xss')</script>
+```
+
+Por padrão, marked renderiza isso como `<script>` real. Se você renderiza MD de usuários externos, **sanitize** o HTML resultante com DOMPurify ou similar. Não confie no parser sozinho.
+
+Para conteúdo confiável (seu próprio README), HTML cru pode ser útil — embed de iframe, classes CSS específicas, atributos data.
+
+## Round-trip não é lossless
+
+Converter MD → HTML → MD não retorna ao original. Alguns motivos:
+
+- Ênfase pode normalizar (`_italic_` vira `*italic*`)
+- Espaçamento entre parágrafos muda
+- Listas aninhadas podem mudar indentação
+- HTML cru no MD original vira tags HTML que turndown converte de volta, possivelmente perdendo atributos
+- Code blocks com syntax highlight perdem o language hint se o HTML não preservar `class="language-x"`
+
+Para conteúdo crítico, mantenha o original (geralmente MD) como source-of-truth e gere HTML apenas para renderização.
+
+## Casos de uso comuns
+
+- Importar posts antigos do WordPress (HTML) para um blog estático (MD)
+- Exportar conversas do Slack (HTML) para documentação (MD)
+- Converter notas do Notion para um README
+- Gerar HTML de um README para preview offline
+- Limpar HTML de email para extrair só o texto formatado
+
+## Limites
+
+Ambas libs são rápidas. ~1MB de MD ou HTML processa em sub-segundo. Tudo no navegador, nada para servidor.

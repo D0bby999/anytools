@@ -1,0 +1,79 @@
+---
+title: Hướng dẫn đầy đủ về cURL Command Converter
+description: Cách parse curl bằng tree-sitter, tại sao chạy server-side, và những edge case cần lưu ý khi convert sang các ngôn ngữ khác nhau.
+updated: 2026-05-26
+---
+
+## Tool này làm gì
+
+Paste bất kỳ lệnh `curl` nào và tool này sẽ convert thành HTTP request tương đương trong ngôn ngữ bạn chọn: browser `fetch`, Node.js `node-fetch`, Python `requests`, PHP cURL, hoặc Go `net/http`. Code được tạo ra sẵn sàng để paste vào project — headers, body, auth, và query parameters đều được dịch chính xác.
+
+Điều này hữu ích khi bạn copy một request từ browser DevTools ("Copy as cURL"), từ tài liệu API, hoặc từ terminal của đồng nghiệp, và cần working code trong ngôn ngữ của mình mà không muốn map thủ công từng flag.
+
+## Tại sao parse chạy server-side
+
+Hầu hết browser-based tool chạy hoàn toàn trong JavaScript ở client. Converter này khác: parsing diễn ra trên server.
+
+Lý do là [tree-sitter](https://tree-sitter.github.io/tree-sitter/). Thư viện [`curlconverter`](https://github.com/curlconverter/curlconverter) dùng tree-sitter với Bash grammar để parse lệnh `curl` như một syntax tree thực sự thay vì dùng regular expression. Node.js binding của tree-sitter compile thành native `.node` module — cần binary native không thể chạy trong browser context. Chạy server-side cho phép parse chính xác, backed bởi AST, thay vì một regex dễ vỡ khi gặp edge case về quoting.
+
+**Lệnh của bạn được parse trên server và kết quả được trả về. Lệnh không bao giờ được log, lưu trữ, hay liên kết với session của bạn.** Nó chỉ tồn tại trong memory trong thời gian convert và ngay lập tức bị discard.
+
+## Các target conversion được hỗ trợ
+
+| Target | Ghi chú |
+|---|---|
+| `fetch` (browser) | Dùng `fetch()` với `Promise`; không cần dependency |
+| `node-fetch` | CommonJS `require('node-fetch')`, Node 14 trở xuống; Node 18+ dùng native `fetch` |
+| Python `requests` | Thư viện HTTP client phổ biến nhất của Python |
+| PHP cURL | Các hàm `curl_*` trực tiếp; tương thích PHP 7.4+ |
+| Go `net/http` | Chỉ standard library, không cần third-party dependency |
+
+## Cách tree-sitter parse curl
+
+Một lệnh `curl` là một Bash command invocation. Tree-sitter parse nó thành concrete syntax tree (CST) bắt được tên lệnh, flags, giá trị flag, quoting style, và vị trí argument — chính xác như shell sẽ thấy. Điều này có nghĩa parser xử lý đúng:
+
+- Single-quoted strings (`'value with spaces'`)
+- Double-quoted strings với escape sequences (`"value \"with\" quotes"`)
+- ANSI-C quoting (`$'value\twith\ttabs'`)
+- Multi-line command với `\` line continuation
+- Flags theo bất kỳ thứ tự nào
+
+Một regex-based parser sẽ cần logic đặc biệt cho từng trường hợp. Cách tiếp cận tree-sitter xử lý chúng như hệ quả tự nhiên của việc parse Bash grammar thực.
+
+## Các flag phổ biến và cách chúng được dịch
+
+**`-H` / `--header`** trở thành cặp key-value trong object `headers` của `fetch`, một list entry trong `requests.get(..., headers=...)`, hoặc call `curl_setopt(CURLOPT_HTTPHEADER, ...)` trong PHP.
+
+**`-d` / `--data`** gửi request body. Converter phát hiện content type từ header `Content-Type` của bạn: nếu là `application/json`, body được emit như parsed object (`JSON.stringify(...)` trong JS, dict trong Python); nếu là `application/x-www-form-urlencoded`, nó dùng form encoding API phù hợp.
+
+**`--data-raw`** tương tự `-d` nhưng bỏ qua interpretation `@filename` — giá trị luôn được coi là literal string, không bao giờ đọc từ file.
+
+**`-u` / `--user`** được dịch thành `Authorization: Basic <base64(user:pass)>` header (`btoa(user:pass)` trong JS, `auth=(user, pass)` trong requests, `CURLOPT_USERPWD` trong PHP).
+
+**`-X` / `--request`** đặt HTTP method tường minh. Converter tôn trọng điều này ngay cả khi có thể suy ra từ context.
+
+**`-F` / `--form`** tạo multipart/form-data code — `FormData` trong fetch, `files=` trong requests, `CURLFORM_*` trong PHP.
+
+## Edge cases cần biết
+
+**`--compressed`** yêu cầu curl nhận response nén gzip. Fetch và requests tự xử lý decompression; converter emit ghi chú nhưng không thêm code decompression tường minh vì library xử lý tự động.
+
+**Cookie jar (`-b` với filename).** Converter dịch `-b 'key=val'` inline cookie thành `Cookie` header, nhưng không thể replicate cookie-jar file — đó là tính năng curl-specific cần persistent storage.
+
+**Client certificate (`--cert`, `--key`).** Đây là TLS option cần cấu hình ở cấp HTTP client, không phải cấp request. Converter thêm comment trỏ đến tài liệu thư viện liên quan khi gặp các flag này.
+
+**Nhiều URL.** Nếu lệnh curl liệt kê nhiều hơn một URL, converter xử lý URL đầu tiên và emit cảnh báo.
+
+## Đọc code được tạo ra một cách phê phán
+
+Converter làm hết sức mình, nhưng hãy coi output là **điểm khởi đầu**, không phải production-ready code:
+
+- Thêm error handling (`try/catch`, kiểm tra response status) phù hợp với codebase của bạn.
+- Review hardcoded credential trong `-u` hoặc header `Authorization` — chuyển chúng vào environment variable.
+- Trong Python, xem xét `requests.Session()` cho nhiều request đến cùng host (connection pooling, shared headers).
+- Trong Go, tái sử dụng instance `http.Client` thay vì tạo mới cho mỗi request.
+
+## Công cụ liên quan
+
+- **URL Encoder** — encode từng query-string value trước khi chèn vào URL.
+- **JWT Decoder** — kiểm tra bearer token bạn thấy trong header `Authorization` của curl.

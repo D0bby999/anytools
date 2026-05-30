@@ -1,0 +1,35 @@
+---
+title: Wallet Address Checker — Frequently asked questions
+---
+
+## Can two different chains use the same address format?
+
+Yes — this is the most important caveat. All EVM-compatible chains (Ethereum, Polygon, Arbitrum, BNB Smart Chain, Base, etc.) share an identical `0x…` address format. The same string is a valid address on every EVM chain simultaneously. The tool reports "EVM-compatible" rather than a specific chain because format alone cannot tell them apart. Use the chainId in your application context to disambiguate.
+
+## Does a valid checksum mean the address is safe to send funds to?
+
+No. Checksum validation (EIP-55 for Ethereum, Base58Check for Bitcoin, Bech32 for SegWit) only confirms that the address string was not accidentally corrupted in transit. It says nothing about whether the address is controlled by anyone, whether it is a contract, or whether it belongs to the recipient you intend. Always confirm addresses out-of-band before sending large amounts.
+
+## Why does my Solana address look like a Bitcoin Legacy address?
+
+Both Bitcoin Legacy and Solana use Base58 encoding without a fixed prefix, so short Solana addresses (32–36 characters) can visually resemble Bitcoin `1…` addresses. The tool disambiguates by length and by verifying that the Base58 decodes to exactly 32 bytes (Solana) vs 25 bytes with a version byte and checksum (Bitcoin). If ambiguity remains, the tool reports both possibilities.
+
+## What is EIP-55 and why does it matter?
+
+EIP-55 is a checksum encoding for Ethereum addresses where specific hex letters are capitalized based on the Keccak-256 hash of the lowercase address. A mixed-case address that passes EIP-55 has a 1-in-2^40 chance of being produced by random corruption — effectively zero. Always store and display Ethereum addresses in EIP-55 mixed-case form, not all-lowercase or all-uppercase.
+
+## Does this tool make any network requests?
+
+No. All validation is done client-side using pattern matching and checksum algorithms. No address is ever sent to a server, a blockchain node, or a third-party API. You can use it offline once the page is loaded.
+
+## Can I check testnet addresses?
+
+Testnet addresses usually share the same format as mainnet. Ethereum Sepolia addresses are the same `0x…` format; Bitcoin testnet uses `m…` or `n…` for P2PKH and `tb1…` for Bech32. The tool detects both mainnet and testnet patterns and labels them accordingly.
+
+## What happens if I paste a contract address?
+
+Smart contract addresses on EVM chains are indistinguishable from externally owned account (EOA) addresses by format alone — both are 20-byte hex strings with an optional EIP-55 checksum. The tool will correctly identify it as a valid EVM address. Whether it is a contract or an EOA requires an `eth_getCode` RPC call.
+
+## Why does the tool say my address is invalid even though I copied it from my wallet app?
+
+The most common reasons: extra whitespace or a newline character got copied along with the address (the tool trims whitespace, but a zero-width space may survive), the address contains a character that looks like a valid hex digit but is a Unicode lookalike (e.g., a Cyrillic "о" instead of Latin "o"), or the address was truncated mid-copy. Try selecting the address text again carefully and copying the full string.

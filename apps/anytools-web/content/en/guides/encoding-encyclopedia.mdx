@@ -1,0 +1,525 @@
+---
+title: "Encoding Encyclopedia: Base64, URL, JWT, and Beyond"
+description: "Complete reference for Base64, URL encoding, HTML entities, JWT, Unicode, and character sets. Encoding vs encryption clarified, decision tree included."
+keywords: ["base64", "url encoding", "jwt", "unicode", "utf-8", "character encoding", "html entities", "encoding guide", "percent encoding", "base64url"]
+updated: 2026-05-26
+readingTime: 20
+---
+
+# Encoding Encyclopedia: Base64, URL, JWT, and Beyond
+
+Encoding is one of those topics developers encounter constantly but rarely study systematically. The result: confusion between encoding and encryption, mysterious `%20` vs `+` discrepancies, JWT segments that won't decode, and `btoa()` crashes on emoji. This guide builds a complete mental model from first principles — character sets, then binary encodings, then application-layer formats.
+
+---
+
+## 1. Encoding vs. Encryption — Settle This Once and For All
+
+These words are not synonyms. Confusing them has caused real security incidents.
+
+**Encoding** is a reversible transformation of data from one representation to another using a publicly known algorithm with no secret. Anyone who knows the algorithm can reverse it. Purpose: compatibility (fitting binary data into text channels), compactness, or structural convention.
+
+**Encryption** is a reversible transformation that requires a secret key to reverse. Without the key, the ciphertext is computationally infeasible to reverse. Purpose: confidentiality.
+
+**Hashing** is an irreversible transformation (one-way function) that produces a fixed-size digest. Purpose: integrity verification, password storage, deduplication.
+
+| Property | Encoding | Encryption | Hashing |
+|----------|---------|-----------|---------|
+| Reversible | Yes (no key needed) | Yes (key required) | No |
+| Secret required | No | Yes | No |
+| Purpose | Compatibility / format | Confidentiality | Integrity / fingerprint |
+| Examples | Base64, URL%, UTF-8 | AES, RSA, ChaCha20 | SHA-256, bcrypt, MD5 |
+
+The dangerous mistake: storing a password as Base64 and calling it "hashed." Base64 is trivially reversible — `echo "cGFzc3dvcmQ=" | base64 -d` gives `password` in milliseconds. Always use a proper password hashing function: bcrypt, Argon2id, or scrypt.
+
+---
+
+## 2. Character Sets: The Foundation
+
+Before encoding formats, you must understand character sets — the mapping between integers and characters.
+
+### ASCII (1963)
+
+ASCII (American Standard Code for Information Interchange) maps 128 code points (0–127) to characters: control codes (0–31), printable characters (32–126), and DEL (127). It uses 7 bits.
+
+The printable range covers the English alphabet, digits, and basic punctuation. Every ASCII character has a byte value from 0x00 to 0x7F. ASCII is the bedrock — every modern encoding is a superset of ASCII for code points 0–127.
+
+### ISO 8859 Family (1987–2001)
+
+To support non-English Western languages, ISO 8859 extended ASCII to 8 bits (256 code points). ISO 8859-1 (Latin-1) added characters for Western European languages: `é`, `ñ`, `ü`, `©`, `£`. ISO 8859-2 covered Central European, ISO 8859-5 Cyrillic, and so on to ISO 8859-16.
+
+The problem: there were dozens of incompatible 8-bit encodings. A document written in ISO 8859-5 (Cyrillic) and read with ISO 8859-1 (Latin) produced mojibake — corrupted text. The "Which encoding is this document?" problem was unsolvable without out-of-band metadata.
+
+### Unicode (1991–present)
+
+Unicode solves the incompatibility problem by defining one universal code space: 1,114,112 code points (U+0000 to U+10FFFF), enough for every human writing system plus emoji, math symbols, and musical notation.
+
+A **code point** is just an integer — U+0041 is the letter `A`. How those integers are stored in bytes is the **encoding** (UTF-8, UTF-16, UTF-32).
+
+**Unicode planes:**
+- Plane 0 (U+0000–U+FFFF): Basic Multilingual Plane (BMP) — most scripts
+- Plane 1 (U+10000–U+1FFFF): Supplementary Multilingual Plane — historic scripts, emoji
+- Planes 2–16: CJK extensions, rarely-used historic scripts, private use
+
+Code points above U+FFFF are called **supplementary characters**. In UTF-16 (JavaScript's internal representation), they require two 16-bit units called a **surrogate pair**.
+
+---
+
+## 3. UTF-8, UTF-16, and UTF-32
+
+These are the three standard Unicode Transfer Formats — ways to encode code points as bytes.
+
+### UTF-8 (RFC 3629)
+
+UTF-8 is the dominant encoding for files, web pages, APIs, and databases. It uses 1–4 bytes per code point:
+
+| Code point range | Bytes | Byte pattern |
+|-----------------|-------|-------------|
+| U+0000–U+007F | 1 | `0xxxxxxx` |
+| U+0080–U+07FF | 2 | `110xxxxx 10xxxxxx` |
+| U+0800–U+FFFF | 3 | `1110xxxx 10xxxxxx 10xxxxxx` |
+| U+10000–U+10FFFF | 4 | `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx` |
+
+Key properties:
+- **ASCII-compatible:** code points 0–127 encode to their ASCII byte. A pure ASCII file is valid UTF-8.
+- **Self-synchronizing:** you can find the start of any character from any byte position (multi-byte sequences have a distinctive leading byte pattern).
+- **No BOM required** (and RFC 8259 / JSON spec forbids a BOM).
+- Most space-efficient for primarily-Latin text.
+
+### UTF-16
+
+UTF-16 uses 2 bytes for BMP characters and 4 bytes (surrogate pair) for supplementary characters. It is used internally by:
+- JavaScript strings (`String` values are sequences of UTF-16 code units)
+- Java and C# strings
+- Windows NTFS filenames (sort of — it's actually UCS-2 extended to UTF-16)
+- XML's internal representation
+
+The JavaScript `length` property counts UTF-16 code units, not characters:
+```javascript
+'😀'.length  // 2 (not 1! — surrogate pair)
+[...'😀'].length  // 1 (spread iterates code points)
+```
+
+### UTF-32
+
+4 bytes per code point, always. Simple (no variable-width complexity) but wastes space. Used internally in some databases and Python's string representation on platforms where it's the native `wchar_t` size.
+
+---
+
+## 4. Base64 — The Complete Reference
+
+Base64 is defined by [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) and converts arbitrary binary data to a 64-character alphabet of printable ASCII.
+
+### The Alphabet and Algorithm
+
+The standard Base64 alphabet uses:
+- `A–Z` (0–25)
+- `a–z` (26–51)
+- `0–9` (52–61)
+- `+` (62)
+- `/` (63)
+- `=` padding
+
+The algorithm groups input bytes into 3-byte (24-bit) blocks. Each 24-bit block is split into four 6-bit values, each mapped to an alphabet character. If input length isn't divisible by 3, padding `=` (one or two) fills the output to a multiple of 4 characters.
+
+```
+Input:  "Man"  →  0x4D 0x61 0x6E
+Binary: 01001101 01100001 01101110
+Groups: 010011 010110 000101 101110
+Index:  19     22     5      46
+Output: T      W      F      u     = "TWFu"
+```
+
+**Overhead:** Base64 produces 4 output characters per 3 input bytes = 33.3% size increase. MIME Base64 adds line breaks every 76 characters (RFC 2045), increasing size slightly further.
+
+### Base64URL (RFC 4648 §5)
+
+Standard Base64 uses `+` and `/`, which are special in URLs and filenames. Base64URL swaps them:
+- `+` → `-`
+- `/` → `_`
+- `=` padding is typically omitted
+
+Used in: JWT segments, OAuth tokens, PKCE code_verifier/code_challenge, URL-safe file names, and web cryptography APIs (`crypto.subtle.exportKey` returns ArrayBuffer; converting to Base64URL for storage is idiomatic).
+
+### MIME Base64 (RFC 2045)
+
+Email encoding. Same alphabet as standard Base64, but output is wrapped at 76 characters per line with CRLF (`\r\n`). Used in email `Content-Transfer-Encoding: base64` and multipart boundaries.
+
+### Base32 (RFC 4648)
+
+Uses a 32-character alphabet (`A–Z`, `2–7`). Produces output that is case-insensitive (useful when case may be lost in transit), but 60% larger than the input. Used in: TOTP authenticator secrets (RFC 6238), some DNS encoding schemes, human-readable identifiers.
+
+### Base58
+
+Not in RFC 4648 — originated in Bitcoin. The alphabet removes visually ambiguous characters: `0` (zero), `O` (uppercase o), `I` (uppercase i), `l` (lowercase L), `+`, `/`. Leaves 58 characters. Used in Bitcoin addresses, IPFS CIDs, and any context where a human needs to read/type the encoded value.
+
+### When to Use Each
+
+| Format | Use when |
+|--------|---------|
+| Base64 | Binary in JSON/XML payloads, data URIs, email MIME |
+| Base64URL | JWT, OAuth tokens, URL parameters, filenames |
+| MIME Base64 | Email attachments |
+| Base32 | TOTP secrets, case-insensitive contexts |
+| Base58 | Human-typeable identifiers (crypto addresses) |
+
+Try encoding and decoding interactively: [Base64 Encoder/Decoder](/en/encoding/base64-encode).
+
+---
+
+## 5. URL Encoding — Percent-Encoding (RFC 3986)
+
+URLs are restricted to a small set of characters (unreserved and reserved characters defined in [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986)). Any other character must be percent-encoded: replaced with `%` followed by two hex digits representing the UTF-8 byte value.
+
+### RFC 3986 Character Classes
+
+**Unreserved characters** (never encoded): `A–Z a–z 0–9 - _ . ~`
+
+**Reserved characters** (have special meaning in URI structure, only encoded when used as data):
+- `gen-delims`: `: / ? # [ ] @`
+- `sub-delims`: `! $ & ' ( ) * + , ; =`
+
+**Everything else** must be percent-encoded, including spaces, non-ASCII characters, and characters like `<>{}|`.
+
+### Space: `%20` vs `+`
+
+This is a frequent source of confusion:
+
+- **`%20`** is the RFC 3986 percent-encoding of a space (0x20). Correct in any URL component.
+- **`+`** means space only in `application/x-www-form-urlencoded` format (HTML forms). This is NOT RFC 3986 — it's a separate convention from HTML 2.0 / RFC 1866.
+
+```javascript
+encodeURIComponent(' ') // "%20" — RFC 3986 compliant
+new URLSearchParams({q: 'hello world'}).toString() // "q=hello+world" — form encoding
+```
+
+If you're building a URL query string manually, use `encodeURIComponent()` (gets `%20`). If you're using the browser's `URLSearchParams` or submitting an HTML form, spaces become `+`.
+
+### `encodeURI` vs `encodeURIComponent`
+
+JavaScript has two encoding functions with different scopes:
+
+- `encodeURI()`: encodes a complete URL. Does NOT encode reserved characters (`/ ? # & = + @ : ;`) or unreserved characters. Use for a full URL you want to keep structurally intact.
+- `encodeURIComponent()`: encodes a single component (query param value, path segment). Encodes ALL characters except unreserved. Use for individual values being embedded in a URL.
+
+```javascript
+encodeURI('https://example.com/path?q=hello world')
+// "https://example.com/path?q=hello%20world"
+
+encodeURIComponent('hello/world&more')
+// "hello%2Fworld%26more"
+```
+
+Try percent-encoding in the browser: [URL Encoder/Decoder](/en/encoding/url-encode).
+
+---
+
+## 6. HTML Entities — Numeric and Named
+
+HTML entities allow special characters to be represented in HTML markup without breaking structure.
+
+### Named Entities
+
+Named entities use the format `&name;`. The most important:
+
+| Character | Entity | Code point |
+|-----------|--------|-----------|
+| `<` | `&lt;` | U+003C |
+| `>` | `&gt;` | U+003E |
+| `&` | `&amp;` | U+0026 |
+| `"` | `&quot;` | U+0022 |
+| `'` | `&apos;` | U+0027 |
+| non-breaking space | `&nbsp;` | U+00A0 |
+| `©` | `&copy;` | U+00A9 |
+| `™` | `&trade;` | U+2122 |
+| `—` (em dash) | `&mdash;` | U+2014 |
+| `–` (en dash) | `&ndash;` | U+2013 |
+| `€` | `&euro;` | U+20AC |
+
+HTML 5 defines over 2,000 named entities. The full list is in the [HTML 5 spec §8.5](https://html.spec.whatwg.org/multipage/named-characters.html).
+
+### Numeric Entities
+
+Numeric entities reference a Unicode code point directly:
+- Decimal: `&#65;` → `A` (U+0041)
+- Hexadecimal: `&#x41;` → `A` (U+0041)
+
+They work for any Unicode character: `&#x1F600;` → 😀
+
+### Security Implications
+
+HTML entity encoding is a **critical XSS defense mechanism**. Unescaped user input in HTML context enables Cross-Site Scripting:
+
+```html
+<!-- Vulnerable — attacker input becomes live script -->
+<p>Hello, John<script>stealCookies()</script></p>
+
+<!-- Safe — entities prevent execution -->
+<p>Hello, John&lt;script&gt;stealCookies()&lt;/script&gt;</p>
+```
+
+OWASP's [XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) specifies context-aware encoding rules:
+
+- **HTML context:** escape `< > & " '` with named entities
+- **JavaScript context:** `\uXXXX` Unicode escapes, or use a safe serializer like `JSON.stringify`
+- **URL context:** percent-encode with `encodeURIComponent`
+- **CSS context:** `\XXXX` hex escapes (rarely needed — avoid user input in CSS)
+
+Never build your own HTML escaper — use your framework's built-in templating (React's JSX auto-escapes, Vue's `{{ }}` auto-escapes, Go's `html/template` auto-escapes). Hand-rolled escapers miss edge cases like `\` in attribute values.
+
+Use the [HTML Entity Encoder/Decoder](/en/encoding/html-entity) for quick conversions.
+
+---
+
+## 7. JWT — Structure, Attacks, and Best Practices
+
+JSON Web Tokens ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)) are a compact, URL-safe way to represent claims between parties. They're the dominant stateless authentication token format.
+
+### The Three-Part Structure
+
+A JWT is three Base64URL-encoded JSON objects joined by dots:
+
+```
+header.payload.signature
+```
+
+**Header:**
+```json
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+```
+
+**Payload (claims):**
+```json
+{
+  "sub": "1234567890",
+  "name": "Alice",
+  "iat": 1716681600,
+  "exp": 1716768000
+}
+```
+
+**Signature:** `HMACSHA256(base64url(header) + "." + base64url(payload), secret)`
+
+To decode manually: split on `.`, Base64URL-decode each segment, parse as JSON. The payload is readable without the secret. This is why JWTs must never contain sensitive data (passwords, SSNs, credit card numbers) — anyone with the token can read the payload.
+
+### Standard Claims
+
+| Claim | Name | Description |
+|-------|------|-------------|
+| `iss` | Issuer | Who issued the token |
+| `sub` | Subject | Token's principal (usually user ID) |
+| `aud` | Audience | Intended recipients |
+| `exp` | Expiration | Unix timestamp — reject after this |
+| `nbf` | Not Before | Unix timestamp — reject before this |
+| `iat` | Issued At | When the token was created |
+| `jti` | JWT ID | Unique token identifier (for revocation) |
+
+### The `alg: none` Attack
+
+This is the most famous JWT vulnerability. Early JWT libraries allowed the algorithm `none` — meaning no signature. An attacker could:
+
+1. Take a valid JWT
+2. Decode the header
+3. Change `"alg": "HS256"` to `"alg": "none"`
+4. Modify the payload (e.g., change `"role": "user"` to `"role": "admin"`)
+5. Re-encode without a signature
+6. Submit — vulnerable servers would accept it
+
+The fix: **always explicitly specify which algorithms you accept** and reject `none`. Modern libraries require you to pass an `algorithms` option:
+
+```javascript
+// VULNERABLE — accepts alg: none
+jwt.verify(token, secret);
+
+// SAFE — only accepts HS256
+jwt.verify(token, secret, { algorithms: ['HS256'] });
+```
+
+CVE-2015-9235 and related issues affected multiple major JWT libraries. Always use a library version that is not vulnerable.
+
+### HS256 vs RS256 vs ES256
+
+| Algorithm | Type | Key | Use case |
+|-----------|------|-----|---------|
+| `HS256` | HMAC-SHA256 | Symmetric (one shared secret) | Single-service, same signer and verifier |
+| `HS384`, `HS512` | HMAC-SHA384/512 | Symmetric | Stronger HMAC, rarely needed |
+| `RS256` | RSA-SHA256 | Asymmetric (private sign, public verify) | Distributed systems, multiple verifiers |
+| `ES256` | ECDSA-P256-SHA256 | Asymmetric, shorter keys | Mobile, bandwidth-constrained |
+| `PS256` | RSA-PSS-SHA256 | Asymmetric, probabilistic signature | Strongest RSA variant |
+
+For microservices: use RS256 or ES256. The auth service signs with its private key; every other service verifies with the public key (distributed via JWKS endpoint, RFC 7517).
+
+### Key Confusion Attack (RS256 → HS256)
+
+An asymmetric-key attack: if a server uses RS256 and an attacker knows the public key (often distributed publicly via JWKS), they can:
+
+1. Take the public key
+2. Create a token signed with HMAC-SHA256 using the public key as the secret
+3. Set `"alg": "HS256"` in the header
+
+A vulnerable library that uses the "key" parameter for both HS and RS verification would use the public key as the HMAC secret — and verify the attacker's token as valid.
+
+Fix: same as `alg: none` — always explicitly specify the expected algorithm(s) and never mix asymmetric and symmetric verification logic.
+
+Decode and inspect JWT tokens: [JWT Decoder](/en/encoding/jwt-decoder).
+
+---
+
+## 8. Unicode Escapes — JavaScript, JSON, and Python
+
+Unicode escape sequences represent code points as ASCII-safe strings. Different contexts use different formats.
+
+### JavaScript
+
+```javascript
+// \uXXXX — exactly 4 hex digits (BMP only)
+'A'    // "A"
+'é'    // "é"
+
+// \u{XXXXX} — ES2015+, any code point (requires 'u' flag in regex)
+'\u{1F600}' // "😀"
+```
+
+### JSON
+
+JSON supports only `\uXXXX` (4-digit form). Supplementary characters require surrogate pairs:
+```json
+"😀"  // 😀 as a surrogate pair
+```
+Most modern serializers emit the actual UTF-8 bytes for readability. Use `\u` escapes only when you need guaranteed ASCII-safe JSON output.
+
+### Python
+
+```python
+'A'    # "A"
+'\U0001F600' # "😀" — uppercase U, 8 hex digits
+'\N{SNOWMAN}' # "☃" — Unicode name lookup
+```
+
+### CSS
+
+```css
+/* \XXXXXX — 1–6 hex digits followed by optional space */
+content: "\0041";  /* A */
+content: "\1F600"; /* 😀 */
+```
+
+### HTML
+
+`&#xXXXX;` or `&#DDDDD;` — hex or decimal code point respectively. Works for any Unicode character.
+
+---
+
+## 9. Hex and Binary Representations
+
+### Hexadecimal
+
+Every byte (0–255) can be represented as two hex digits (00–FF). Hex is the universal format for:
+- Binary data in debugging output
+- Color values (`#FF5733`)
+- Hash digests (`sha256: a665a45920...`)
+- Memory addresses (`0x7fff5fbff8e0`)
+- Cryptographic keys and IV values
+
+### Binary
+
+Binary (base-2) representation is used in network protocol documentation, bitfield manipulation, and permissions (Unix `chmod 755` = `111 101 101` binary).
+
+JavaScript binary literals: `0b1111` = 15. Conversion: `(255).toString(2)` = `"11111111"`.
+
+### Encoding Overhead Comparison
+
+| Format | Input (bytes) | Output (chars) | Overhead |
+|--------|--------------|---------------|---------|
+| Hex | 10 | 20 | 100% |
+| Base64 | 10 | 16 | 60% |
+| Base64URL | 10 | 14 (no padding) | ~40% |
+| Base32 | 10 | 16 | 60% |
+| Base58 | 10 | ~14 | ~40% |
+| UTF-8 (ASCII input) | 10 | 10 | 0% |
+
+---
+
+## 10. Decision Tree: Which Encoding to Use?
+
+```
+Need to send binary over a text channel?
+├── Email (MIME) → Base64 (RFC 2045, 76-char lines)
+├── URL parameter value → Base64URL or percent-encode
+├── JSON payload → Base64 (standard) or Base64URL
+└── Human needs to type it → Base32 or Base58
+
+Need to encode a string for a URL?
+├── Full URL (preserve structure) → encodeURI()
+├── Single query parameter value → encodeURIComponent()
+└── Form submission → URLSearchParams (handles +/%)
+
+Need to include text in HTML?
+├── Inside tag content → escape < > & (at minimum)
+├── Inside attribute value → escape < > & " '
+└── Use your framework's auto-escaping (React JSX, Vue {{}}, etc.)
+
+Need to represent Unicode as ASCII?
+├── In JavaScript source → \uXXXX or \u{XXXXX}
+├── In JSON → \uXXXX (surrogate pairs for > U+FFFF)
+├── In CSS → \XXXXXX
+└── In HTML → &#xXXXX; or &name;
+
+Handling authentication tokens?
+├── Stateless auth token → JWT (RS256/ES256 for multi-service)
+├── Opaque session token → Random bytes, base64url-encoded (store server-side)
+└── API keys → Random bytes, base58 or base64url, prefix for identification
+
+Storing password?
+└── NEVER encode — always hash: Argon2id > bcrypt > scrypt
+```
+
+---
+
+## FAQ
+
+### Q: Is Base64 encoding the same as encryption?
+
+No. Base64 is reversible by anyone who knows it's Base64 — which is obvious from the trailing `=` or character set. It provides zero confidentiality. If you need to protect data, use AES-256-GCM or have your transport layer (TLS) handle it.
+
+### Q: Why does `btoa()` fail on emoji?
+
+`btoa()` operates on Latin-1 (bytes 0–255 only). Emoji and other characters above U+00FF cannot be represented in one byte, so `btoa()` throws `InvalidCharacterError`. Fix: encode to UTF-8 bytes first, then to Base64. In Node.js: `Buffer.from(str).toString('base64')`. In browsers: use a helper that converts via `TextEncoder`.
+
+### Q: What is the difference between UTF-8 and Unicode?
+
+Unicode is the character set — the mapping from code points to characters. UTF-8 is an encoding — a way to serialize those code points as bytes. You can think of Unicode as the "what" and UTF-8 as the "how." There are other Unicode encodings (UTF-16, UTF-32), but UTF-8 is the dominant choice for files, APIs, and web content.
+
+### Q: Why do I see `%20` in some URLs and `+` in others?
+
+`%20` is RFC 3986 percent-encoding of a space — correct for any URL component. `+` means space only inside `application/x-www-form-urlencoded` data (HTML form submissions). If you decode a URL with `decodeURIComponent()`, `+` becomes a literal `+`, not a space. Use `new URLSearchParams(queryString)` to correctly parse form-encoded data.
+
+### Q: Can I read a JWT payload without the secret?
+
+Yes. The payload is Base64URL-encoded — no secret needed to decode it. That's why JWTs are described as "signed, not encrypted." Anyone with the token can read the claims. Only the signature verification requires the secret/public key. Use [JWE (JSON Web Encryption, RFC 7516)](https://datatracker.ietf.org/doc/html/rfc7516) if you need the payload to be confidential.
+
+### Q: What is the BOM (Byte Order Mark) and should I use it?
+
+The BOM is U+FEFF, used in UTF-16 to indicate byte order (big-endian vs little-endian) and in UTF-8 as an identifier. RFC 8259 (JSON) explicitly forbids a BOM. Most tools (Linux, macOS, Git) handle UTF-8 without BOM correctly. Windows tools historically add BOMs. The consensus: **do not add a BOM to UTF-8 files** — they cause parsing errors in many tools (including `JSON.parse` in some environments).
+
+### Q: What is percent-encoding vs HTML entity encoding?
+
+Percent-encoding (`%20`, `%3C`) is for URLs. HTML entities (`&amp;`, `&lt;`, `&#x41;`) are for HTML documents. They solve different problems in different contexts. A `<` in a URL should be `%3C`; in HTML text content it should be `&lt;`. Never confuse them or apply one where the other is needed.
+
+### Q: How do JWT refresh tokens work with Base64URL?
+
+Refresh tokens are typically opaque — random bytes encoded as Base64URL, stored server-side mapped to a user session. They are NOT JWTs (no signed claims). The Base64URL encoding just makes the random bytes safe for use in HTTP headers and request bodies. When a refresh token is used, the server looks it up in its store, validates it, and issues a new short-lived JWT access token.
+
+### Q: What is Unicode normalization and why does it matter?
+
+A single visual character can have multiple Unicode representations. For example, `é` can be U+00E9 (precomposed) or `e` + U+0301 combining accent (decomposed). They look identical but are different byte sequences. Unicode normalization (NFC, NFD, NFKC, NFKD) standardizes the representation. Use `String.prototype.normalize('NFC')` in JavaScript before comparing, hashing, or storing user-entered text.
+
+### Q: What is the difference between `encodeURIComponent` and `escape`?
+
+`escape()` is deprecated and non-standard. It does not encode `+`, `@`, `/`, `.` and uses `%uXXXX` format for non-ASCII characters (non-standard). Never use `escape()`. Use `encodeURIComponent()` for encoding individual URL component values, and `encodeURI()` for full URLs.
+
+### Q: How do I safely embed JSON in a HTML script tag?
+
+The risk: a JSON value containing `</script>` closes the script tag prematurely. The fix: replace `<` with `<` in the JSON output before embedding. In JavaScript: `JSON.stringify(data).replace(/</g, '\\u003c')`. This is why schema.ts in AnyTools has a `jsonLdSafe()` function that does exactly this.

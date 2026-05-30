@@ -1,0 +1,181 @@
+---
+title: "Maestría en regex: de principiante a mago"
+description: "Domina expresiones regulares: teoría de autómatas, flags JS, patrones comunes, lookahead/lookbehind, backtracking catastrófico, Unicode y rendimiento."
+keywords: ["regex tutorial", "expresiones regulares", "javascript regex", "regex patrones", "lookahead", "redos", "unicode regex"]
+updated: 2026-05-27
+readingTime: 18
+---
+
+# Maestría en regex: de principiante a mago
+
+Las expresiones regulares son lo más cercano a un superpoder en programación — y también una de las trampas más peligrosas. Una buena regex resuelve en una línea lo que tomaría veinte. Una mala puede tumbar un servidor de producción. Esta guía cubre desde el modelo teórico hasta el bug de backtracking catastrófico que ha causado caídas reales en empresas grandes.
+
+---
+
+## 1. Qué es una regex realmente: autómatas finitos
+
+La mayoría de desarrolladores tratan regex como sintaxis mágica. Entender el modelo subyacente — autómatas finitos — te hace dramáticamente mejor escribiéndolas y depurándolas.
+
+Una regex describe un **lenguaje formal** (un conjunto de cadenas). El motor procesa una cadena simulando un autómata finito: un grafo donde los nodos son estados y las aristas son transiciones por carácter.
+
+**DFA (Determinístico):** cada carácter lleva a exactamente un estado. Tiempo lineal O(n) garantizado. Lo usan `grep -E`, `awk`, y el paquete `regexp` de Go (RE2).
+
+**NFA (No Determinístico):** un estado puede tener múltiples transiciones. JavaScript, Python, Ruby, Java, PHP, Perl y .NET usan motores NFA con backtracking. Soportan backreferences y lookahead/lookbehind, pero pueden tener comportamiento exponencial en patrones específicos.
+
+La diferencia importa: NFA = más expresivo pero vulnerable a ReDoS. DFA = más rápido y seguro, pero limitado.
+
+---
+
+## 2. Sintaxis JavaScript: lo esencial
+
+JavaScript usa motor NFA (PCRE-family). Las flags más comunes:
+
+- `g` — global, encuentra todas las coincidencias (no solo la primera)
+- `i` — insensible a mayúsculas
+- `m` — multilínea: `^` y `$` matchean inicio/fin de línea, no solo del string
+- `s` — dotAll: `.` matchea también newlines
+- `u` — Unicode: habilita `\p{}`, `\u{...}` y semántica Unicode
+- `y` — sticky: ancla la búsqueda en `lastIndex`
+
+**Tip pragmático**: `/foo/gi` busca "foo" en todas partes ignorando mayúsculas. La flag `u` es casi obligatoria si trabajas con texto no-ASCII (acentos, emoji, idiomas no latinos).
+
+---
+
+## 3. Patrones comunes que vale memorizar
+
+| Necesidad | Patrón |
+|-----------|--------|
+| Email (simple) | `^[^\s@]+@[^\s@]+\.[^\s@]+$` |
+| URL | `^https?:\/\/[^\s]+$` |
+| IPv4 | `^(?:(?:25[0-5]\|2[0-4]\d\|[01]?\d?\d)\.){3}(?:25[0-5]\|2[0-4]\d\|[01]?\d?\d)$` |
+| UUID v4 | `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` |
+| Color hex | `^#(?:[0-9a-f]{3}\|[0-9a-f]{6})$` |
+| ISO 8601 fecha | `^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?$` |
+| Semver | `^\d+\.\d+\.\d+(?:-[\w.]+)?$` |
+
+**Advertencia sobre email**: la regex "perfecta" según RFC 5322 tiene más de 6000 caracteres. La simple de arriba es 95% correcta en la práctica. Para 100%, valida con doble opt-in (manda un email y pide click), no con regex.
+
+---
+
+## 4. Lookahead y lookbehind
+
+**Lookahead positivo** `(?=...)`: matchea si lo siguiente cumple el patrón, **sin consumirlo**.
+
+```js
+/\d+(?=px)/  // Matchea "100" en "100px" pero no en "100em"
+```
+
+**Lookahead negativo** `(?!...)`: matchea si lo siguiente NO cumple.
+
+```js
+/\d+(?!px)/  // Matchea "100" en "100em" pero no en "100px"
+```
+
+**Lookbehind** `(?<=...)` y `(?<!...)`: lo mismo pero hacia atrás. Soporte completo en JS desde 2018 (Node 10+, Chrome 62+).
+
+Caso real: extraer precio sin el signo `$`:
+
+```js
+"Precio: $19.99".match(/(?<=\$)\d+\.\d+/)[0]  // "19.99"
+```
+
+---
+
+## 5. Catastrophic backtracking — el bug que tumba servidores
+
+El patrón `(a+)+b` aplicado al input `aaaaaaaaaaaaaaaaX` toma tiempo exponencial. Cada `a` puede ser absorbido por el grupo interno o el externo — el motor prueba todas las combinaciones antes de fallar.
+
+Cloudflare tuvo una caída de 27 minutos en 2019 por una regex similar. Stack Overflow tuvo una en 2016. **Cualquier regex con `(X+)+` o `(X*)*` es sospechosa.**
+
+Soluciones:
+
+1. **Posesivos** (no en JS, pero sí en PCRE/Java): `(a++)+b` evita backtracking.
+2. **Atomic groups** (no en JS): `(?>a+)+b`.
+3. **Reescribir** para evitar ambigüedad: `a+b` en lugar de `(a+)+b`.
+4. **Cambiar a engine DFA** (RE2) para input no confiable. Google y Cloudflare lo usan en producción para esto exactamente.
+
+Para validar input de usuarios, **nunca uses regex JS sin timeout**. Considera RE2 vía WASM si la regex es compleja.
+
+---
+
+## 6. Unicode
+
+Sin flag `u`, `.` matchea unidades UTF-16 individuales — emoji compuestos se rompen.
+
+```js
+/^.$/u.test('😀')   // true con flag u
+/^.$/.test('😀')    // false sin flag u (emoji es 2 UTF-16)
+```
+
+Unicode property escapes (`\p{...}`) con flag `u`:
+
+- `\p{Letter}` — cualquier letra de cualquier idioma
+- `\p{Number}` — cualquier número (árabe, romano, chino, etc.)
+- `\p{Script=Latin}` — letras latinas (a-z, á, ñ, etc.)
+- `\p{Emoji}` — emoji
+
+Esto es enorme para apps multi-idioma: `/[a-zA-Z]/` no matchea `José`, pero `/\p{Letter}/u` sí.
+
+---
+
+## 7. Performance
+
+Generalizando:
+
+1. **Anclas son gratis** — `^pattern` falla rápido si la cadena no empieza con `pattern`.
+2. **Clases de carácter son rápidas** — `[abc]` es más rápido que `(a|b|c)`.
+3. **Alternancias son caras** — el motor las prueba en orden. Pon la más probable primero.
+4. **Cuantificadores no-codiciosos** (`*?`, `+?`) — no son inherentemente más rápidos. Solo cambian qué match prefieren.
+5. **Compilación es cara** — `new RegExp(...)` dentro de un loop es lento. Compila fuera.
+
+Para input grande, considera `string.includes()`, `string.startsWith()` cuando no necesites pattern matching real. Son mucho más rápidos.
+
+---
+
+## 8. Herramientas relacionadas en AnyTools
+
+- [Regex Tester](/es/text-regex/regex-tester) — prueba patrones contra input en vivo
+- [Text Case Converter](/es/text-regex/text-case-converter) — útil para normalizar antes de regex
+- [Slugify](/es/text-regex/slugify) — usa regex internamente para limpiar texto
+
+---
+
+## FAQ
+
+### ¿Cuándo NO debo usar regex?
+
+Cuando el formato es estructurado (JSON, XML, HTML) — usa un parser. Regex para HTML es famosa por fallar; el [post de Stack Overflow](https://stackoverflow.com/questions/1732348/) es legendario.
+
+### ¿Cuándo usar lookahead vs grupo no-capturante?
+
+Lookahead `(?=...)` no consume caracteres. Grupo no-capturante `(?:...)` sí consume pero no captura. Si necesitas el match pero no el grupo en `.match()`, usa `(?:)`. Si necesitas verificar contexto sin consumirlo, usa `(?=)`.
+
+### ¿Cómo escapo caracteres en una regex dinámica?
+
+```js
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+```
+
+No olvides `\` doble en strings JS.
+
+### ¿Regex JS es compatible con PCRE de PHP/Python?
+
+Casi. JS no tiene posesivos, atomic groups, ni algunos modifiers de PCRE. Pero la sintaxis básica (clases, cuantificadores, lookahead) es compatible.
+
+### ¿Cómo debug una regex que no matchea?
+
+Usa el [Regex Tester](/es/text-regex/regex-tester) con visualización de matches y groups. Si sigue siendo opaco, [regex101.com](https://regex101.com) tiene debugger paso a paso. Imprime cada parte del pattern incrementalmente.
+
+### ¿Qué es greedy vs lazy?
+
+Greedy (`*`, `+`) consume tanto como puede. Lazy (`*?`, `+?`) consume tan poco como puede. `<.*>` aplicado a `<a><b>` matchea todo. `<.*?>` matchea solo `<a>`.
+
+### ¿Unicode property escapes funcionan en todos los navegadores?
+
+Sí en navegadores modernos (Chrome 64+, Firefox 78+, Safari 11.1+). En Node 10+. Si soportas IE — IE no tiene flag `u`.
+
+### ¿Cuál es el límite de tamaño de input práctico?
+
+Para regex bien escritas en motor NFA: ~10MB ok. Para regex con backtracking potencial: cualquier tamaño es peligroso. Para datos masivos, usa streaming + boundary detection o cambia a herramientas como `ripgrep`.

@@ -1,0 +1,58 @@
+---
+title: Guia completo do Diff Checker — comparando texto do jeito certo
+description: Como os algoritmos LCS e Myers funcionam, diff linha a linha vs palavra a palavra, formatos unificado e lado a lado, e quando usar uma ferramenta diff.
+updated: 2026-05-26
+---
+
+## O que é um diff
+
+Um diff é uma descrição mínima de como transformar um texto em outro. Em vez de exibir dois documentos completos, um diff destaca apenas o que mudou — adições, remoções e linhas de contexto ao redor delas. Este é o mesmo conceito por trás do `git diff`, do `patch(1)` e de qualquer ferramenta de revisão de código que você já usou.
+
+O algoritmo subjacente na maioria das ferramentas diff modernas, incluindo a biblioteca [`diff`](https://github.com/kpdecker/jsdiff) que alimenta esta ferramenta, é o **Longest Common Subsequence (LCS)**. O LCS encontra a sequência mais longa de elementos presentes em ambas as entradas na mesma ordem, e depois trata tudo que não está nessa sequência como adicionado ou removido. Calcular LCS é O(n²) no pior caso, mas implementações práticas usam o algoritmo de Myers — uma busca diagonal que opera em O(ND) e é muito mais eficiente para entradas típicas.
+
+## Diff em nível de linha vs nível de palavra
+
+Existem duas granularidades que você vai precisar:
+
+**Diff em nível de linha** divide cada texto em linhas, executa LCS sobre essas linhas e reporta linhas inteiras como adicionadas, removidas ou inalteradas. Este é o padrão do `git diff`. É ideal para código-fonte porque linhas são a unidade natural de mudança — adicionar uma função significa adicionar múltiplas linhas, e o diff em nível de linha captura isso de forma limpa.
+
+**Diff em nível de palavra** (também chamado de "diff intra-linha") divide o texto ainda mais e calcula o LCS sobre palavras individuais ou até caracteres. Isso revela *quais palavras* dentro de uma linha alterada foram modificadas. É inestimável para prosa, contratos e blobs JSON onde uma linha pode ter 200 caracteres mas apenas um valor mudou.
+
+Use diff em nível de linha ao revisar código ou configuração. Use diff em nível de palavra ao comparar documentos, markdown, respostas de API ou qualquer texto onde a precisão sub-linha importa.
+
+## Formato unificado vs lado a lado
+
+**Formato unificado** é a saída tradicional do `diff -u`: linhas de contexto prefixadas com espaço, remoções com `-`, adições com `+`. Um cabeçalho de hunk unificado se parece com `@@ -12,7 +12,9 @@`, significando "a partir da linha 12 no arquivo antigo, 7 linhas; a partir da linha 12 no arquivo novo, 9 linhas." Este formato é compacto e amigável para grep; é o que o `git diff` produz e o que o `patch` consome.
+
+**Formato lado a lado** exibe a versão antiga à esquerda e a nova à direita, com linhas deletadas destacadas na coluna esquerda e linhas inseridas na direita. O formato lado a lado é mais fácil de ler para humanos revisando diffs grandes — você vê antes e depois sem precisar trocar de contexto mentalmente. A maioria das UIs de revisão de código baseadas na web (GitHub, GitLab, Bitbucket) usa lado a lado como padrão.
+
+## Quando usar uma ferramenta diff
+
+**Preparação para revisão de código.** Antes de abrir um pull request, cole as duas versões de uma função crítica em um diff checker para verificar que o delta é exatamente o que você pretendia — sem mudanças acidentais de espaços em branco, sem `console.log` de depuração esquecido.
+
+**QA de conteúdo.** Comparar dois rascunhos de um artigo ou página de documentação é muito mais rápido com um diff de palavras do que lendo ambos manualmente. Uma única frase alterada salta imediatamente.
+
+**Contratos e texto jurídico.** Até mudar "deverá" por "poderá" tem significado legal; um diff em nível de palavra detecta na hora.
+
+**Deriva de configuração.** Quando o arquivo de configuração de um servidor diverge da versão no controle de código-fonte, um diff em nível de linha aponta exatamente quais linhas foram tocadas.
+
+**Mudanças em respostas de API.** Cole a resposta de ontem ao lado da de hoje para detectar deriva de schema — especialmente útil durante atualizações de API de terceiros.
+
+## Limitações para entender
+
+**Textual, não semântico.** Uma ferramenta diff compara sequências de caracteres. Ela não tem compreensão de significado. Renomear uma função de `getUser` para `fetchUser` em 500 linhas parece 50 mudanças separadas mesmo sendo logicamente um único refactor.
+
+**Sensibilidade a espaços em branco.** Por padrão, um espaço à direita ou uma discrepância tab-vs-espaço conta como mudança. Ative a opção **Ignorar espaços em branco** para filtrar diferenças insignificantes de espaçamento.
+
+**Entradas grandes.** A complexidade do algoritmo LCS cresce com entradas muito grandes. Para arquivos de dezenas de milhares de linhas, o `diff` de linha de comando ou uma ferramenta com suporte a streaming vai performar melhor.
+
+**Sem lógica de merge.** Um diff mostra o que mudou. Ele não combina automaticamente duas versões divergentes nem resolve conflitos — esse é o problema de merge de três vias que `git merge` e `diff3` resolvem.
+
+## Privacidade
+
+Todo o cálculo diff acontece completamente no seu navegador usando a biblioteca open-source [`diff`](https://github.com/kpdecker/jsdiff). Nenhuma versão do seu texto é transmitida a um servidor. Isso é particularmente importante ao comparar documentos sensíveis — contratos confidenciais, arquivos de credenciais ou código-fonte privado. Abra a aba Network do seu navegador enquanto executa um diff: você vai ver zero requisições de saída.
+
+## Ferramentas relacionadas
+
+- **Regex Tester** — valide e itere com expressões regulares antes de usá-las em fluxos de trabalho de busca e substituição.
+- **Text Case Converter** — normalize inconsistências de capitalização antes de fazer diff para reduzir o ruído.

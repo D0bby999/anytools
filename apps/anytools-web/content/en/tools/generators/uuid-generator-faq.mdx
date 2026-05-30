@@ -1,0 +1,31 @@
+---
+title: UUID — FAQ
+---
+
+## Which UUID version should I use?
+
+For new application primary keys in 2026: **v7**. Sortable by creation time, friendly to B-tree indexes, no MAC address leak. Fall back to v4 if your stack doesn't yet support v7.
+
+## Are UUIDs truly unique?
+
+Practically yes. v4 has 122 bits of entropy — to have a 50% chance of any collision you'd need ~2.7 quintillion (10^18) IDs. v7's randomness portion is 74 bits, still well into "never collide" territory for any application below planet-scale traffic.
+
+## Can I use UUID as a database primary key?
+
+Yes. The historical performance warning applies to **v4 specifically** in large tables with random-insert workloads. Use v7 to avoid that issue. Storage cost is 16 bytes vs 8 for bigint — negligible for app tables, worth thinking about for billion-row tables.
+
+## v7 or ULID?
+
+v7 unless you specifically need ULID's encoding shape. ULID predates UUID v7 and was popular partly because v7 didn't exist yet. With v7 now standard, ULID has narrower library + database support and no spec advantage.
+
+## Is the randomness in this tool cryptographic?
+
+Yes. The underlying [`uuid`](https://github.com/uuidjs/uuid) library uses `crypto.getRandomValues`, the browser's CSPRNG. Suitable for security tokens, session IDs, etc.
+
+## Why does v1 leak a MAC address?
+
+v1 was designed in an era where the host's MAC was an easy uniqueness source. Modern libraries usually randomize the node ID to avoid the leak, but the design intent included identifying the generating machine. Don't use v1 in privacy-sensitive contexts — use v7 instead.
+
+## Can I generate millions in this tool?
+
+The Count field caps at 100. Generating millions in a browser tab is a memory hazard; for that scale use a CLI like `uuidgen` in a loop or your application code.

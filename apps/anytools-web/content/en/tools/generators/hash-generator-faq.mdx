@@ -1,0 +1,31 @@
+---
+title: Hash Generator — FAQ
+---
+
+## Should I hash passwords with SHA-256?
+
+No. SHA-256 is too fast — an attacker with a stolen database can brute-force billions of password guesses per second. Use a slow password hashing function (Argon2id, bcrypt, scrypt) via a library. SHA-256 is for *data integrity*, not *password storage*.
+
+## Is MD5 secure?
+
+For data integrity against accidental corruption: fine. For anything where an attacker might construct collisions (signatures, certificates, cryptographic uses): broken since 2004. Don't use for new security code.
+
+## What's the difference between SHA-256 and SHA-3?
+
+Both are modern and secure. SHA-256 is part of the SHA-2 family, widely deployed since 2001. SHA-3 (Keccak) was standardized later as a backup with a fundamentally different construction. SHA-256 is the practical default; SHA-3 is fine when specifically required.
+
+## Why same input = same hash?
+
+That's the definition of a hash function — deterministic. If you want different outputs for the same input, you want HMAC (add a secret key) or just append a random salt before hashing.
+
+## What about hash collisions?
+
+For SHA-256, the probability of finding any two inputs that collide is so low (1 in 2^128 for a birthday attack) that it has never been observed. For MD5, collisions can be constructed in minutes on a laptop. SHA-1 collisions cost about $110k of GPU time as of 2017.
+
+## HMAC vs plain hash?
+
+Plain hash: anyone can compute it from the same input. HMAC: requires a shared secret key, so it also authenticates that the message came from someone with the key. Use HMAC for webhook signatures, API request signing, and JWT HS256.
+
+## Does file hashing work on large files?
+
+Up to a few hundred MB comfortably. Beyond that, the browser loads the whole file into memory which gets slow. For multi-GB files, prefer a streaming CLI: `shasum -a 256` (Unix) or `Get-FileHash` (PowerShell).

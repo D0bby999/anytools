@@ -1,0 +1,35 @@
+---
+title: CSS Beautifier — Frequently asked questions
+---
+
+## Will beautifying CSS change how my styles apply?
+
+No. CSS whitespace outside string values and `content` properties is insignificant to the browser's parser. Indentation, newlines between rules, and spaces around colons are all ignored at render time. The computed styles your page produces are identical before and after formatting.
+
+## Why is one selector per line the default in beautified CSS?
+
+Placing each selector on its own line produces cleaner git diffs. When a grouped selector like `h1, h2, h3 { ... }` gains or loses one entry, a single-line format marks the entire selector line as changed. One-selector-per-line means adding `h4` or removing `h2` shows as a single-line diff with no noise. This is also why Prettier uses this format for CSS by default.
+
+## How much does CSS minification actually save?
+
+Raw whitespace removal typically reduces CSS by 20–40% depending on coding style. However, the more important factor is HTTP compression: gzip reduces CSS by 60–80% because whitespace is highly repetitive. Minification and gzip are complementary — use both in production. Minify first in your build pipeline, then let your CDN or server apply gzip/brotli on top. The combined result consistently beats either technique alone.
+
+## Does this tool support CSS Nesting?
+
+Yes. `js-beautify` preserves CSS Nesting syntax (the CSS Nesting Module Level 1, supported in all evergreen browsers) including the `&` selector. Both beautify and minify modes handle nested rules without de-nesting them to flat CSS.
+
+## What is the selector separator option?
+
+It controls how selectors in a grouped rule are separated. Set to newline (the default) for one selector per line — preferred for readability and diffs. Set to space for compact grouped selectors on one line. Neither changes how the rule is applied; it is purely a formatting preference.
+
+## Should I use this tool or integrate cssnano into my build pipeline?
+
+Both. Use this tool for ad-hoc formatting — pasting CSS snippets, cleaning up a one-off stylesheet, or examining third-party CSS. For automated production minification, integrate `cssnano` (PostCSS-based) or `lightningcss` (Rust, extremely fast) into your build step. Build-pipeline tools can also do shorthand merging, deduplication, and dead-code elimination that a browser-based tool cannot.
+
+## How do I debug my minified CSS in production?
+
+Generate a source map during the build step (`--map` flag in PostCSS, `sourceMap: true` in lightningcss). The map file links minified byte offsets back to original source lines. Browser DevTools automatically fetches the map and shows you the original file and line number when you inspect a styled element, even though the browser is loading the minified file.
+
+## Does minifying CSS remove my comments?
+
+Yes — standard CSS minification strips all `/* ... */` comments. If you have important comments that must survive (copyright headers, `/*! license */` style), use the `!` convention: `/*! Copyright ... */`. Most minifiers preserve comments starting with `!`. `js-beautify` minification removes all comments; for preserving license headers in production use `cssnano` with `{ discardComments: { removeAllButFirst: true } }`.

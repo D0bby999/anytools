@@ -1,0 +1,31 @@
+---
+title: UUID — Câu hỏi thường gặp
+---
+
+## Nên dùng UUID version nào?
+
+Cho primary key ứng dụng mới năm 2026: **v7**. Sortable theo thời gian tạo, thân thiện B-tree index, không lộ MAC address. Quay về v4 nếu stack chưa hỗ trợ v7.
+
+## UUID có thật sự unique không?
+
+Thực tế là có. v4 có 122 bit entropy — để có 50% xác suất xảy ra bất kỳ collision nào, cần ~2.7 quintillion (10^18) ID. Phần random của v7 có 74 bit, vẫn ở mức "không bao giờ collide" cho mọi ứng dụng dưới quy mô hành tinh.
+
+## Có thể dùng UUID làm database primary key không?
+
+Có. Cảnh báo hiệu năng lịch sử áp dụng cụ thể cho **v4** ở bảng lớn với workload insert random. Dùng v7 để tránh. Chi phí lưu trữ 16 byte vs 8 cho bigint — không đáng cho bảng app, đáng nghĩ cho bảng tỷ dòng.
+
+## v7 hay ULID?
+
+v7 trừ khi cần cụ thể shape encoding của ULID. ULID có trước UUID v7 và phổ biến phần vì v7 chưa tồn tại. Giờ v7 đã chuẩn, ULID có hỗ trợ library + database hẹp hơn và không lợi thế spec.
+
+## Randomness trong tool này có mã hóa không?
+
+Có. Library [`uuid`](https://github.com/uuidjs/uuid) underlying dùng `crypto.getRandomValues`, CSPRNG của browser. Phù hợp cho token bảo mật, session ID, v.v.
+
+## Vì sao v1 lộ MAC address?
+
+v1 thiết kế thời mà MAC của host là nguồn unique dễ. Library hiện đại thường randomize node ID để tránh leak, nhưng ý định thiết kế bao gồm xác định máy tạo. Đừng dùng v1 ở context nhạy cảm privacy — dùng v7.
+
+## Tạo hàng triệu trong tool này được không?
+
+Field Count giới hạn ở 100. Tạo hàng triệu trong tab browser là rủi ro bộ nhớ; quy mô đó dùng CLI như `uuidgen` trong vòng lặp hoặc code ứng dụng.

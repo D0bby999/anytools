@@ -1,0 +1,35 @@
+---
+title: Conversor Markdown ↔ HTML — Preguntas frecuentes
+---
+
+## ¿Es seguro renderizar Markdown de input del usuario directamente como HTML?
+
+No. Markdown permite bloques de HTML crudo, lo que significa que el Markdown no confiable puede contener etiquetas `<script>`, handlers `onerror` y links `javascript:`. Siempre habilita la opción de sanitización (powered by DOMPurify) cuando renderices Markdown provisto por usuarios. Para tu propio contenido — docs, posts de blog, archivos README — la sanitización es opcional ya que confías en la fuente.
+
+## ¿Cuál es la diferencia entre CommonMark y GitHub Flavored Markdown?
+
+CommonMark es la especificación estricta e inequívoca para Markdown. GFM (GitHub Flavored Markdown) la extiende con tablas, tachado (`~~text~~`), task lists (`- [ ] item`) y URLs autovinculadas. La mayoría de desarrolladores esperan GFM porque GitHub, GitLab y la mayoría de editores Markdown lo soportan. Usa el modo CommonMark solo si necesitas compliance estricto con la spec para un sistema de publicación que lo requiera.
+
+## ¿Por qué la conversión HTML→Markdown pierde los estilos CSS?
+
+Markdown no tiene concepto de styling. No hay sintaxis Markdown para color de fuente, tamaño de fuente, clases personalizadas o CSS inline. Cuando Turndown convierte `<span style="color:red">texto</span>`, solo puede emitir `texto` — la información de estilo se pierde. Si necesitas output con estilos, mantente en HTML o usa un formato de rich text como DOCX.
+
+## Mi conversión round-trip (MD→HTML→MD) cambió el Markdown. ¿Está algo roto?
+
+No, esto es esperado. Las conversiones son con pérdida en ambas direcciones. Los links de referencia se convierten en links inline, los headings setext se convierten en headings ATX, los bloques HTML personalizados pueden eliminarse o alterarse. La identidad en round-trip no es un objetivo de diseño de estos parsers. Usa conversión unidireccional para pipelines de publicación; para edición bidireccional, mantén la fuente autoritativa en un único formato.
+
+## ¿Por qué mi fenced code block no tiene syntax highlighting en el output?
+
+El conversor produce `<code class="language-js">` (o el lenguaje que especificaste) pero no aplica syntax highlighting — ese es un paso de rendering separado. Para obtener output resaltado, ejecuta el HTML por [Prism.js](https://prismjs.com/) o [highlight.js](https://highlightjs.org/) después de la conversión, o usa un renderer Markdown que incluya highlighting.
+
+## ¿Cómo se manejan las tablas en la conversión HTML→Markdown?
+
+Las tablas HTML estándar (`<table><tr><td>`) se convierten en tablas de pipes GFM cuando el plugin GFM está habilitado en Turndown. Las tablas simples sin celdas fusionadas se convierten limpiamente. Las tablas con `colspan`, `rowspan` o tablas anidadas no pueden representarse en sintaxis de tabla GFM — se emitirán como bloques HTML crudo en el output.
+
+## El Markdown convertido tiene muchas líneas en blanco en todos lados. ¿Puedo eliminarlas?
+
+Las líneas en blanco adicionales son Markdown correcto — las líneas en blanco separan elementos de bloque (párrafos, headings, code blocks, tablas) como requiere la spec. Eliminarlas puede romper la estructura Markdown. Si ves más líneas en blanco de las esperadas, puede deberse a que el HTML fuente tenía etiquetas `<br>` extra, etiquetas `<p>` envolviendo elementos ya de bloque, o contenedores `<div>` que cada uno emite una línea en blanco circundante.
+
+## ¿Puedo convertir una página HTML completa, incluyendo `<head>` y navegación, a Markdown?
+
+Puedes pegar una página HTML completa, pero Turndown intentará convertir todo — menús de navegación, footers, script tags, bloques de estilo — produciendo output ruidoso. Para extracción de páginas web, es mejor primero aislar el elemento de contenido principal (`<article>`, `<main>` o un `<div>` específico) y convertir solo esa porción. Extensiones de navegador como Markdownload hacen este paso de extracción antes de la conversión.

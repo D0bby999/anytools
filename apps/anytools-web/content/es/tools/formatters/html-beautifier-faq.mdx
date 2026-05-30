@@ -1,0 +1,35 @@
+---
+title: Embellecedor HTML — Preguntas frecuentes
+---
+
+## ¿Embellecer HTML cambia cómo se renderiza mi página?
+
+En casi todos los casos, no. Los navegadores normalizan el espacio en blanco en HTML: múltiples espacios, tabuladores y saltos de línea en el contenido de texto colapsan a un solo espacio. Indentar el markup cambia el espacio en blanco entre etiquetas, no en el contenido de texto visible. La única excepción es el contenido dentro de `<pre>`, `<textarea>` o elementos con estilo `white-space: pre` — esta herramienta preserva el espacio en blanco dentro de esos elementos exactamente como está.
+
+## ¿La minificación rompe el JavaScript o CSS inline?
+
+No, con las opciones correctas. El modo minify de `js-beautify` solo elimina el espacio en blanco entre etiquetas — no reescribe el contenido de los bloques `<script>` o `<style>`. Para una minificación más agresiva que también minifique JS y CSS inline, usa `html-minifier-terser` con `minifyJS: true` y `minifyCSS: true`. Esta herramienta es para limpieza rápida; para pipelines de producción, integra `html-minifier-terser` en tu proceso de build.
+
+## ¿Qué son los void elements y por qué importan?
+
+Los void elements son etiquetas HTML que no pueden tener hijos: `<br>`, `<hr>`, `<img>`, `<input>`, `<meta>`, `<link>`, `<area>`, `<col>`, `<embed>`, `<param>`, `<source>`, `<track>` y `<wbr>`. No tienen etiqueta de cierre. Un formateador que no conoce esta lista puede intentar indentar hijos que no existen. El parser consciente de HTML5 en `js-beautify` maneja los void elements correctamente.
+
+## ¿Debo usar indentación de 2 o 4 espacios?
+
+Sigue la convención existente de tu proyecto. Dos espacios es el estándar dominante en proyectos JavaScript de frontend moderno y coincide con el valor por defecto de Prettier. Cuatro espacios es más común en codebases legadas, plantillas de Python/Django y algunas guías de estilo empresariales. Si empiezas desde cero, dos espacios evita que el HTML profundamente anidado se desplace demasiado a la derecha.
+
+## ¿Por qué algunos atributos aparecen en líneas separadas?
+
+La configuración de longitud máxima de línea controla esto. Cuando una etiqueta de apertura con muchos atributos supera la longitud de línea configurada, `js-beautify` envuelve los atributos en líneas individuales para mayor legibilidad. Establece la longitud en 0 para deshabilitar el ajuste completamente y mantener todos los atributos en línea, o establece un valor como 120 para permitir etiquetas largas en una sola línea antes de ajustar.
+
+## ¿Cómo se compara esto con Prettier para formatear HTML?
+
+Prettier es el estándar de la industria para formateo automático y consistente en todo un proyecto — instálalo una vez y todos los desarrolladores obtienen el mismo resultado. Esta herramienta es para formateo puntual sin instalación ni configuración. Usa Prettier en CI y hooks pre-commit; usa esta herramienta para limpiezas rápidas, pegar fragmentos o explorar el formateo de HTML copiado de otro lugar.
+
+## ¿Puedo formatear HTML incrustado en template literals de JavaScript?
+
+No directamente — esta herramienta solo formatea HTML independiente. Para HTML dentro de archivos JS/TS (tagged template literals, JSX), Prettier maneja ese contexto automáticamente. Alternativamente, extrae el string HTML, fórmatealo aquí y pégalo de nuevo.
+
+## ¿Es seguro pegar HTML sensible aquí (dashboards internos, emails)?
+
+Todo el procesamiento se ejecuta localmente en tu navegador mediante `js-beautify` compilado a JavaScript. Ningún contenido se envía a ningún servidor. Puedes verificarlo abriendo la pestaña de red del navegador — no se realizan solicitudes cuando pegas y formateas.

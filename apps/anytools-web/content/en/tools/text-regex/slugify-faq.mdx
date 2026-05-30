@@ -1,0 +1,23 @@
+---
+title: Slugify — FAQ
+---
+
+## Hyphen or underscore?
+
+Hyphen. Google indexes hyphens as word separators and underscores as joiners — for SEO you almost always want word separation.
+
+## Should slugs keep diacritics?
+
+Tech-wise yes (`/café`), SEO-wise no (`/cafe`) — most English audiences and most non-Latin browsers will see encoded `%C3%A9` instead of `é`. Strip diacritics for portability.
+
+## What's the max slug length?
+
+No hard limit, but ~60 characters is the practical ceiling for SEO (Google truncates display in SERPs after ~50–60). Stick to 3–5 meaningful words.
+
+## How does Vietnamese transliteration work here?
+
+The underlying library transliterates standard Vietnamese diacritics via NFD normalization (`ế` → `e`, `ư` → `u`). We add a small map for special cases (`đ` → `d`) that NFD doesn't handle by default.
+
+## Slug for non-Latin scripts (Chinese, Japanese, Arabic)?
+
+Pinyin/romaji transliteration is possible but not enabled here by default. For Chinese: use a pinyin library before slugifying. For Japanese: romaji conversion. For Arabic: transliteration is debatable — many sites just keep the original characters URL-encoded.

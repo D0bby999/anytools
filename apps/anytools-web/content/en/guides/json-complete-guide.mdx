@@ -1,0 +1,434 @@
+---
+title: "Complete Guide to JSON in 2026"
+description: "Deep dive into JSON: history, syntax, variants (JSON5, NDJSON, BSON), validation, performance, and security. With practical examples and 10+ FAQs."
+keywords: ["json guide", "json tutorial", "json schema", "json validation", "json parsing", "json5", "ndjson", "bson", "json security", "json performance"]
+updated: 2026-05-26
+readingTime: 18
+---
+
+# Complete Guide to JSON in 2026
+
+JSON is everywhere — it powers REST APIs, configuration files, NoSQL databases, inter-process communication, and log pipelines. Yet most developers have only a surface-level understanding of the format they use dozens of times a day. This guide covers JSON from its historical roots to the security pitfalls that have taken down production systems.
+
+---
+
+## 1. History: How JSON Was Born
+
+Douglas Crockford popularized JSON around 2001, but the format itself predates him. The syntax derives directly from JavaScript object literals — Crockford's contribution was recognizing that a tiny subset of JavaScript syntax could serve as a universal data interchange format. He registered `json.org` and wrote the first parser.
+
+The first formal specification was RFC 4627 (2006), which described JSON as a subset of JavaScript. That claim turned out to be slightly wrong — there are Unicode code points legal in JavaScript string literals that RFC 4627 JSON does not allow — but it stood for years.
+
+**RFC 7159 (2014)** superseded 4627 and fixed several ambiguities: it clarified that a JSON text can be any JSON value (not just object/array), allowed duplicate keys (while noting they produce undefined behavior), and removed the claim that JSON is a subset of JavaScript.
+
+**RFC 8259 (2017)** is the current standard. It tightens the spec further: JSON MUST be encoded in UTF-8 with no BOM. This is the version your JSON library implements when it claims "RFC-compliant." ECMA-404 (2nd ed., 2017) is the companion standard from Ecma International; they are technically identical.
+
+One historical curiosity: the RFC 4627 wording accidentally made JSON not a strict subset of JavaScript because `U+2028` (LINE SEPARATOR) and `U+2029` (PARAGRAPH SEPARATOR) are valid in JSON strings but would break JavaScript parsers that treated them as line terminators. This was fixed in the JSON superset proposal ([tc39/proposal-json-superset](https://github.com/tc39/proposal-json-superset)), which shipped in ES2019. As of 2019, JSON *is* a syntactic subset of JavaScript.
+
+---
+
+## 2. Syntax Deep Dive
+
+JSON has six value types: `string`, `number`, `boolean` (`true`/`false`), `null`, `object`, and `array`. That's it. Understanding the edge cases in each saves hours of debugging.
+
+### Strings
+
+Strings are double-quoted (single quotes are NOT valid JSON). The only backslash escape sequences allowed are:
+
+```
+\"   \/   \\   \b   \f   \n   \r   \t   \uXXXX
+```
+
+The `\/` escape is optional but valid — some serializers emit it to avoid issues in HTML `<script>` tags (where `</` ends the script block). `\uXXXX` encodes a single UTF-16 code unit. Supplementary characters (emoji, some CJK characters) that fall outside the BMP (Basic Multilingual Plane) are encoded as two `\uXXXX` escapes forming a surrogate pair:
+
+```json
+{ "emoji": "😀" }
+```
+
+This encodes `😀` (U+1F600). Most parsers handle surrogate pairs transparently, but some low-quality parsers reject them or produce garbage.
+
+### Numbers
+
+JSON numbers are more nuanced than they appear. RFC 8259 places no size or precision limits on numbers — a conforming document can contain an integer with 10,000 digits. The problem arises on the receiving end: JavaScript's `JSON.parse()` converts all numbers to 64-bit IEEE 754 doubles. This means integers outside the range `[-2^53, 2^53]` lose precision silently:
+
+```javascript
+JSON.parse('{"id": 9007199254740993}').id
+// → 9007199254740992  (wrong! last digit corrupted)
+```
+
+This is the "large integer" bug that has caused real data corruption in Twitter Snowflake IDs, database primary keys, and payment identifiers. The fix: pass large integers as strings, or use a library like [`json-bigint`](https://github.com/sideway/json-bigint) that parses them to `BigInt`.
+
+JSON numbers can be integers, decimals, or use scientific notation (`1.5e10`), but NOT NaN, Infinity, or -Infinity. Those have no JSON representation; the usual workaround is `null` or a string sentinel.
+
+### Objects
+
+Keys must be strings. Duplicate keys are technically allowed by RFC 8259 but produce "undefined" behavior — different parsers handle them differently (last-wins, first-wins, or error). Never rely on duplicate keys.
+
+Object property order is not guaranteed by the JSON spec, though most modern parsers preserve insertion order as an implementation detail.
+
+### Arrays
+
+Arrays can hold any mixture of value types. Trailing commas are illegal:
+
+```json
+[1, 2, 3,]   // ✗ invalid JSON
+```
+
+This is one of the most common JSON syntax errors when copying JavaScript array literals.
+
+---
+
+## 3. JSON Variants and Superset Formats
+
+The strictness of RFC 8259 JSON is both its strength (interoperability) and its weakness (developer ergonomics). Several formats address the pain points.
+
+### JSON5
+
+[JSON5](https://json5.org/) (spec v1.0.0) adds the following to standard JSON:
+
+- Single-line (`//`) and multi-line (`/* */`) comments
+- Trailing commas in objects and arrays
+- Single-quoted strings
+- Unquoted object keys (if they are valid JavaScript identifiers)
+- Hexadecimal numbers (`0xFF`)
+- Multi-line strings (backslash-escaped newlines)
+- `Infinity`, `-Infinity`, `NaN` as number values
+
+JSON5 is widely used for configuration files (Babel, ESLint, some VS Code settings). It is **not** appropriate for API payloads because most HTTP clients and servers do not support it natively.
+
+### JSONC
+
+JSONC ("JSON with Comments") is a popular informal format used by TypeScript's `tsconfig.json`, VS Code's `settings.json`, and many other config files. It only adds comments (both `//` and `/* */`) to standard JSON. Despite being widely used, there is no formal JSONC specification — each tool implements its own parser.
+
+### NDJSON (Newline Delimited JSON)
+
+[NDJSON](http://ndjson.org/) (also called JSON Lines) places one JSON value — typically an object — per line, separated by `\n`. This makes it ideal for:
+
+- **Log streaming:** each log event is a parsable JSON line
+- **Bulk data transfer:** you can stream records without wrapping in a JSON array
+- **MapReduce:** tools like `jq`, `awk`, and Spark can process line-by-line
+
+```
+{"id":1,"event":"login","ts":"2026-05-26T00:00:00Z"}
+{"id":2,"event":"purchase","ts":"2026-05-26T00:01:00Z"}
+```
+
+The critical rule: each line must be a complete, valid JSON value. The spec requires `\n` as the delimiter; `\r\n` is technically non-conformant but tolerated by most parsers.
+
+### BSON
+
+[BSON](https://bsonspec.org/) (Binary JSON) is MongoDB's internal wire format. It extends JSON's type system with:
+
+- 64-bit integer (`int64`)
+- Binary data with explicit subtype
+- Dates as milliseconds (not strings)
+- Decimal128 for financial precision
+- ObjectId, Symbol, JavaScript code
+
+BSON is a binary format; you cannot hand-edit it. It is 10–20% larger than equivalent JSON for typical documents but much faster to encode/decode for MongoDB's use cases because field lengths are stored explicitly (no string scanning).
+
+### MessagePack
+
+[MessagePack](https://msgpack.org/) is a binary serialization format with JSON-equivalent semantics. It is smaller than JSON (no key quoting overhead, variable-length integer encoding) and significantly faster to parse. Many game backends, real-time APIs, and mobile apps use it for high-throughput scenarios where JSON's text overhead matters.
+
+Use [our JSON/YAML/TOML converter](/en/converters/json-yaml-toml) when you need to move between formats.
+
+---
+
+## 4. JSON Schema Validation
+
+JSON Schema is the de facto standard for describing the structure of JSON data. The latest released version is **Draft 2020-12**, though **Draft 07** is still the most widely supported in tooling.
+
+### Core Keywords
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "name"],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}
+```
+
+### Draft Evolution
+
+| Draft | Year | Key Addition |
+|-------|------|-------------|
+| Draft 03 | 2010 | Initial publish |
+| Draft 04 | 2013 | `$ref`, `anyOf`/`oneOf`/`allOf` |
+| Draft 06 | 2017 | `$id`, `contains`, `const` |
+| Draft 07 | 2018 | `if`/`then`/`else`, `readOnly`/`writeOnly` |
+| Draft 2019-09 | 2019 | Vocabulary system, `$recursiveRef` |
+| Draft 2020-12 | 2020 | `$dynamicRef`, `prefixItems`, unevaluated properties |
+
+**Practical advice:** Use Draft 07 for maximum tooling compatibility. Use Draft 2020-12 only if your validator (Ajv 8.x, `jsonschema` Python 4.x) explicitly supports it.
+
+### Validation Libraries
+
+- **JavaScript:** [Ajv](https://ajv.js.org/) — fastest, Draft 07 + 2020-12, compiles schemas to optimized functions
+- **Python:** [`jsonschema`](https://python-jsonschema.readthedocs.io/) — reference implementation
+- **Java:** [Everit JSON Schema](https://github.com/everit-org/json-schema), [networknt/json-schema-validator](https://github.com/networknt/json-schema-validator)
+- **Go:** [qri-io/jsonschema](https://github.com/qri-io/jsonschema), [santhosh-tekuri/jsonschema](https://github.com/santhosh-tekuri/jsonschema)
+- **CLI:** [`ajv-cli`](https://github.com/ajv-validator/ajv-cli), [`check-jsonschema`](https://github.com/python-jsonschema/check-jsonschema)
+
+Validate and format your JSON instantly with the [JSON Formatter](/en/formatters/json-formatter).
+
+---
+
+## 5. Performance: Parse vs. Stream vs. SIMD
+
+### Standard Parsing
+
+`JSON.parse()` in modern V8 is highly optimized — for objects under ~1 MB it is hard to beat. The bottleneck is usually memory allocation (creating JS objects), not the parsing logic itself.
+
+**Benchmark reference (V8 v12, 2024):** parsing a 1 MB JSON file takes ~3–8 ms depending on structure depth and string density.
+
+### Streaming Parsers
+
+When documents exceed available memory or arrive over the network, streaming parsers process tokens incrementally:
+
+- **Node.js:** [`clarinet`](https://github.com/dscape/clarinet) (SAX-style), [`stream-json`](https://github.com/uhop/stream-json) (Transform streams)
+- **Java:** Jackson's `JsonParser` — standard for production services
+- **Python:** [`ijson`](https://github.com/ICRAR/ijson) — iterative JSON parser
+
+Streaming is essential for: log ingestion pipelines, large export downloads, and real-time event feeds.
+
+### simdjson and SIMD Parsing
+
+[simdjson](https://simdjson.org/) (2019, Langdale & Lemire) uses SIMD CPU instructions (AVX2, SSE4.2, NEON) to parse JSON at multi-gigabyte-per-second speeds — several times faster than any scalar parser. It works by parsing structural characters in parallel using bitwise operations on 64-byte chunks.
+
+Bindings: [Node.js `simdjson`](https://www.npmjs.com/package/simdjson), Python [`pysimdjson`](https://github.com/TkTech/pysimdjson), Go [`simdjson-go`](https://github.com/minio/simdjson-go).
+
+Use simdjson when: parsing multi-megabyte API responses, high-throughput log processing (1M+ events/sec), analytics pipelines reading JSON from disk.
+
+---
+
+## 6. Security: Attacks You Need to Know
+
+### Prototype Pollution
+
+This is the most dangerous JSON-specific vulnerability in JavaScript. When you naively merge user-supplied JSON into an object, an attacker can override properties on `Object.prototype` and pollute all objects in the application:
+
+```javascript
+// Dangerous pattern — never do this
+const config = {};
+Object.assign(config, JSON.parse(userInput));
+
+// Malicious payload:
+// {"__proto__": {"admin": true}}
+// Result: ({}).admin === true  — for every object in the app!
+```
+
+**Mitigations:**
+
+1. Use `JSON.parse()` directly and access only known keys — never merge untrusted JSON into a base object with `__proto__` or `constructor` as valid paths.
+2. Use `Object.create(null)` as your accumulator for merge operations.
+3. Validate with JSON Schema using `additionalProperties: false` to block `__proto__` and `constructor` keys.
+4. Libraries: [`safe-json-stringify`](https://github.com/nicolo-ribaudo/safe-json-stringify), [`@fastify/secure-json-parse`](https://github.com/fastify/secure-json-parse).
+
+The [Lodash merge](https://security.snyk.io/vuln/SNYK-JS-LODASH-450202) CVE-2019-10744 is the canonical example — millions of projects were vulnerable.
+
+### Denial of Service: Parse Bombs
+
+A "parse bomb" (JSON equivalent of a billion-laughs XML attack) exploits parser behavior to exhaust CPU or memory:
+
+**Deeply nested structures:**
+```
+[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[...]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+```
+Most recursive-descent parsers will stack-overflow on deeply nested input. Node.js's `JSON.parse` handles ~500 levels before dying. Fix: set a depth limit in your parser, or reject inputs over a size threshold.
+
+**Large numbers of unique keys:** Creating a million-key object takes O(n) memory. If parsed, it can exhaust heap. Fix: limit total document size (typically 1–10 MB) at the HTTP layer before parsing.
+
+**Excessively long strings:** A single-key object with a 100 MB string value will parse successfully but kill your service. Fix: content-length header validation + body size limits.
+
+Best practice: always set `Content-Length` limits on HTTP endpoints before calling `JSON.parse()`. In Express: `app.use(express.json({ limit: '1mb' }))`.
+
+### Injection via Unsanitized JSON Embedding
+
+Embedding a JSON string directly into a `<script>` tag or a JavaScript string literal without escaping can allow script injection:
+
+```javascript
+// BAD — if data.name = '</script><script>alert(1)</script>'
+const html = `<script>var data = ${JSON.stringify(data)};</script>`;
+```
+
+Fix: use `JSON.stringify(data).replace(/</g, '\\u003c')` — the same technique as our [`jsonLdSafe()`](https://github.com) function in `schema.ts`.
+
+### Number Precision Attacks
+
+If your backend and frontend use different languages, large integer IDs can be corrupted in transit (JavaScript's 53-bit integer limit). An attacker can exploit this to reference a different resource by sending an ID that "rounds" to a different value. Always return large IDs as strings or use BigInt-aware parsing.
+
+---
+
+## 7. Common JSON Errors Developers Face Daily
+
+| Error Message | Root Cause | Fix |
+|--------------|-----------|-----|
+| `Unexpected token 'u' at position 0` | `undefined` serialized — `JSON.stringify(undefined)` returns `undefined`, not a string | Guard with a null check before stringify |
+| `Unexpected end of JSON input` | Truncated response (network cut) or empty string passed to parse | Wrap in try/catch, validate non-empty before parse |
+| `Unexpected token '}' at position N` | Trailing comma before `}` | Use a linter or JSON5 for config files |
+| `Circular reference` | Object has a property that points back to itself | Use a replacer function or `flatted` library |
+| `SyntaxError: Unexpected string in JSON` | Single-quoted strings or unquoted keys | Convert to valid JSON (our formatter helps) |
+| Large number becomes wrong value | Integer > 2^53 loses precision in JS | Return as string or use `json-bigint` |
+| `btoa(JSON.stringify(obj))` fails | Non-ASCII characters in values | Use `Buffer.from(JSON.stringify(obj)).toString('base64')` in Node.js |
+
+Use the [JSON Formatter](/en/formatters/json-formatter) to quickly validate and pretty-print any JSON you're debugging.
+
+---
+
+## 8. Working with JSON in Real-World Scenarios
+
+### Converting Between Formats
+
+Need to turn JSON into CSV for a spreadsheet? Or YAML for a Kubernetes manifest? See our converters:
+
+- [JSON ↔ YAML ↔ TOML converter](/en/converters/json-yaml-toml)
+- [CSV ↔ JSON converter](/en/converters/csv-json)
+
+### Generating Test Data
+
+Stop handwriting JSON fixtures. The [Mock Data Generator](/en/generators/mock-data-generator) generates realistic JSON with faker-style data: names, emails, UUIDs, dates, nested objects, arrays of N items.
+
+### jq for JSON Processing
+
+[jq](https://jqlang.github.io/jq/) is the Unix standard for JSON processing in the terminal. Essential patterns:
+
+```bash
+# Pretty-print
+cat data.json | jq .
+
+# Extract field
+jq '.users[0].email' data.json
+
+# Filter array
+jq '[.items[] | select(.price > 100)]' data.json
+
+# Transform and reshape
+jq '{id: .id, fullName: (.firstName + " " + .lastName)}' data.json
+
+# NDJSON — process each line
+cat events.ndjson | jq -c 'select(.type == "purchase")'
+```
+
+---
+
+## 9. JSON in Databases
+
+### PostgreSQL JSON/JSONB
+
+PostgreSQL has two JSON types:
+
+- `JSON`: stores the raw text, validates on insert, no indexing
+- `JSONB`: binary format, deduplicates keys, supports GIN/GiST indexes, preserves key order inconsistently
+
+For any real use case, prefer `JSONB`. Query operators:
+
+```sql
+-- Extract field as text
+SELECT data->>'name' FROM users;
+
+-- Contains operator (uses GIN index)
+SELECT * FROM users WHERE data @> '{"role": "admin"}';
+
+-- Existence check
+SELECT * FROM users WHERE data ? 'premium_feature';
+```
+
+GIN index on JSONB for fast contains queries:
+```sql
+CREATE INDEX idx_users_data ON users USING GIN (data);
+```
+
+### MongoDB
+
+MongoDB stores BSON internally but accepts JSON over the wire. The query language uses JSON-like filter documents. Key insight: MongoDB's `_id` field is ObjectId (BSON-specific), which serializes to `{"$oid": "..."}` in Extended JSON format.
+
+---
+
+## 10. Tools Roundup and Best Practices
+
+**Formatting:** Always pretty-print JSON in logs and debug output — minified JSON is unreadable. Use the [JSON Formatter](/en/formatters/json-formatter) for quick checks.
+
+**Validation:** Maintain a JSON Schema for every API contract. Run schema validation at the service boundary, not deep in business logic.
+
+**Big numbers:** Never use raw integers for IDs that exceed `Number.MAX_SAFE_INTEGER`. Use strings.
+
+**Dates:** JSON has no native date type. ISO 8601 strings (`2026-05-26T00:00:00Z`) are the universal convention. Avoid Unix timestamps in JSON — they're harder to read and lose timezone intent.
+
+**Ordering:** Don't rely on key ordering in any JSON implementation. If order matters, use an array.
+
+**Comments:** If you need comments in config, use JSONC or JSON5, not "comment hacks" like `"_comment": "..."` fields that bloat your schema.
+
+**Null vs. missing:** Be explicit: `{"key": null}` (key present, no value) vs. `{}` (key absent). Many parsers handle these identically but they carry different semantic intent.
+
+---
+
+## FAQ
+
+### Q: Is JSON a subset of JavaScript?
+
+Yes, since ES2019 (tc39 proposal-json-superset, shipped in V8 7.4 / Node.js 12). Prior to that, `U+2028` and `U+2029` were valid in JSON strings but would break JavaScript parsers. RFC 8259 JSON embedded in a `<script>` tag is now fully valid JavaScript.
+
+### Q: Can JSON keys be duplicate?
+
+RFC 8259 allows duplicate keys but defines the behavior as "undefined." In practice: Python's `json.loads` uses last-wins; JavaScript's `JSON.parse` uses last-wins; some strict parsers throw an error. Never intentionally use duplicate keys — they are a source of subtle bugs and interoperability failures.
+
+### Q: What's the maximum safe integer in JSON / JavaScript?
+
+`Number.MAX_SAFE_INTEGER = 9007199254740991` (2^53 − 1). Integers outside `[-(2^53−1), 2^53−1]` cannot be represented exactly as IEEE 754 doubles. For larger integers (Twitter IDs, database PKs), use strings in your JSON payload.
+
+### Q: Why does `JSON.stringify(undefined)` return `undefined` instead of `"undefined"`?
+
+By design: `undefined` is not a valid JSON value. The spec has no representation for it. `JSON.stringify` returns the JavaScript value `undefined` (not the string). This catches developers off-guard because `JSON.stringify({key: undefined})` silently drops the key: `"{}"`.
+
+### Q: What's the difference between `JSON.parse` reviver and `JSON.stringify` replacer?
+
+A **replacer** (second arg to `stringify`) controls which properties get serialized and how their values are transformed. A **reviver** (second arg to `parse`) transforms values after parsing. Use a reviver to convert ISO date strings back to `Date` objects; use a replacer to serialize custom types or strip sensitive fields.
+
+### Q: Is BSON better than JSON for APIs?
+
+For internal service-to-service communication where you control both ends, MessagePack is usually preferable to BSON (smaller, language-agnostic, no MongoDB-specific types). Use BSON if and only if you're working directly with MongoDB's wire protocol. For public APIs, standard JSON wins on debuggability and universal tooling support.
+
+### Q: What is JSON Patch (RFC 6902)?
+
+JSON Patch is a format for describing changes to a JSON document as an array of operations (`add`, `remove`, `replace`, `move`, `copy`, `test`). It's used for partial updates in REST APIs (the `PATCH` method). Related: JSON Merge Patch (RFC 7396) is simpler but can't express "delete key" for non-null-able fields.
+
+### Q: How do I handle JSON in streaming HTTP responses?
+
+Use NDJSON: send one JSON object per line. On the client, use a `TextDecoderStream` and split on `\n`. In Node.js, pipe through a `readline` interface. This is how OpenAI's streaming API (`text/event-stream`) and many analytics APIs return incremental results.
+
+### Q: Can JSON represent circular references?
+
+No. RFC 8259 JSON is a tree structure, not a graph. `JSON.stringify` throws `TypeError: Converting circular structure to JSON` if it encounters a cycle. Solutions: the [`flatted`](https://github.com/WebReflection/flatted) library encodes cycles using a special array format; `JSON.stringify` with a replacer that tracks seen objects and substitutes a sentinel.
+
+### Q: What is the `__proto__` pollution risk in JSON.parse?
+
+`JSON.parse('{"__proto__": {"admin": true}}')` in modern V8 does NOT pollute `Object.prototype` — V8's JSON parser special-cases `__proto__` as a literal key. However, passing the parsed result into functions like `Object.assign({}, parsed)` or lodash's `_.merge` DOES trigger prototype pollution. The safe pattern: always use `JSON.parse` result directly, never shallow-merge it into another object with a generic merge utility.
+
+### Q: What JSON tooling should every developer have?
+
+1. [`jq`](https://jqlang.github.io/jq/) — command-line JSON processor (install via `brew install jq` or `apt install jq`)
+2. [Ajv](https://ajv.js.org/) — schema validation in Node.js
+3. VS Code + Prettier — auto-formats JSON on save
+4. [JSON Formatter](/en/formatters/json-formatter) — browser-based, no install needed, handles large files
+5. [`json-bigint`](https://github.com/sideway/json-bigint) — when large integers matter

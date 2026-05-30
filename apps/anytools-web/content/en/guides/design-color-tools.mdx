@@ -1,0 +1,86 @@
+---
+title: "Color Converter & WCAG Contrast — A Designer's Guide"
+description: "HEX, RGB, HSL conversion plus WCAG 2.1 AA/AAA contrast ratios — what they mean, when each test matters, and how to read the numbers."
+keywords: ["color converter", "wcag contrast", "hex rgb hsl", "accessibility contrast", "color palette", "designer tools", "wcag 2.1"]
+updated: 2026-05-29
+readingTime: 6
+---
+
+# Color Converter & WCAG Contrast
+
+Color tools split into two groups: the ones that translate between encodings (HEX, RGB, HSL, OKLCH) and the ones that score accessibility. Our [color converter](/en/design/color-converter) does both in one screen.
+
+---
+
+## The Encoding Side
+
+### HEX
+
+`#1E293B` is three hex bytes for red, green, blue. Each byte is 0–255 in decimal, expressed as two hex digits (00 to FF). Convenient because it's compact and copy-pastable. Inconvenient because human intuition doesn't extend to it: you can't look at `#3B7AC9` and predict what it looks like.
+
+### RGB
+
+`rgb(30, 41, 59)` — same numbers as HEX, just in decimal. Better for arithmetic (computing a 50/50 blend, e.g.) and identical for display purposes.
+
+### HSL
+
+`hsl(217, 33%, 17%)` — hue (0–360°), saturation (0–100%), lightness (0–100%). This is the format you actually want when you're tweaking colors by hand. Want a darker version? Drop the lightness. Want a less-saturated tint? Drop the saturation. Want a warmer variant? Shift the hue toward red.
+
+The converter shows all three formats simultaneously for any color you pick.
+
+---
+
+## The WCAG Contrast Side
+
+WCAG (Web Content Accessibility Guidelines) 2.1 specifies minimum contrast ratios between foreground text and background:
+
+- **AA Normal** — 4.5:1 — the legal floor for most public-facing content.
+- **AA Large** — 3:1 — applies to text 18pt+ or 14pt+ bold.
+- **AAA Normal** — 7:1 — enhanced level, recommended for content that needs to work in low-vision conditions.
+- **AAA Large** — 4.5:1 — enhanced level for large text.
+
+The math behind these ratios uses **relative luminance** with sRGB linearization — *not* the naive RGB difference that some quick-and-dirty checkers use. Our calculator uses the correct WCAG 2.1 formula:
+
+```
+For each channel c (R, G, B normalized to 0..1):
+  c_linear = c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+Luminance = 0.2126 * R_linear + 0.7152 * G_linear + 0.0722 * B_linear
+Contrast = (lighter + 0.05) / (darker + 0.05)
+```
+
+The implication: simple-looking checkers that just average RGB will pass or fail colors incorrectly on the boundary. We use the canonical formula and cross-checked the output against [WebAIM's contrast checker](https://webaim.org/resources/contrastchecker/) for our brand palette.
+
+---
+
+## Practical Combinations
+
+A few rules of thumb that hold up across the matrix:
+
+- **Slate-900 on white** (`#0F172A on #FFFFFF`) — 20:1, passes everything.
+- **Slate-600 on white** (`#475569 on #FFFFFF`) — 6.8:1, passes AA Normal but only AAA Large.
+- **Blue-600 on white** (`#2563EB on #FFFFFF`) — 5.2:1, passes AA Normal.
+- **Yellow on white** — usually fails. Yellow needs a darker background.
+- **Red on red** — never works. Pick a different signal color.
+
+When you're inside the brand palette, the safest bet is to keep luminance contrast between fg and bg ≥ 4.5:1 and worry about hue harmony second.
+
+---
+
+## What's Coming Next
+
+- **Color palette generator** — pick a hue family and get harmonized 5-color palettes (analogous, complementary, triadic).
+- **Color blindness simulator** — preview how your palette renders for deuteranopia, protanopia, tritanopia. Roughly 8% of men and 0.5% of women have some form of color-vision deficiency; testing for it is cheap.
+
+---
+
+## Where the Color Choice Matters Most
+
+UI elements that *signal* state (errors, warnings, success) must not rely on color alone — WCAG 1.4.1 ("Use of Color"). Add an icon or a text label. If you remove the red and the meaning collapses, your interface is broken for the 1-in-12 readers who can't reliably see the red.
+
+The contrast checker covers the per-pair math. The "not by color alone" principle is harder to lint and worth thinking about every time you ship a new state indicator.
+
+---
+
+## Privacy
+
+All conversion and contrast math runs locally in your browser. The colors you test are never sent anywhere.

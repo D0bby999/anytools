@@ -1,0 +1,54 @@
+---
+title: Codificação e decodificação de entidades HTML
+description: Quando usar entidades HTML, named refs vs numeric refs, e por que isso importa para segurança XSS.
+updated: 2026-05-27
+---
+
+## O que são entidades HTML
+
+Entidades HTML são sequências de escape que permitem incluir caracteres reservados (`<`, `>`, `&`, `"`, `'`) ou caracteres especiais em documentos HTML sem que o navegador os interprete como markup. Existem em duas formas: **named refs** como `&lt;` e `&amp;`, e **numeric refs** como `&#60;` (decimal) ou `&#x3C;` (hexadecimal).
+
+A especificação HTML5 define mais de 2200 entidades nomeadas — uma lista completa em [html.spec.whatwg.org/multipage/named-characters.html](https://html.spec.whatwg.org/multipage/named-characters.html).
+
+## Quando você precisa codificar
+
+- **Renderizar input do usuário em HTML.** Se você concatena texto não escapado em uma string HTML, atacantes podem injetar tags `<script>`. Codificar `<` como `&lt;` neutraliza isso.
+- **Exibir código em uma página.** Para mostrar `<div>` literal em um post de blog, você precisa codificar para que o navegador renderize o texto em vez de criar uma div.
+- **Atributos.** Aspas dentro de valores de atributo precisam virar `&quot;` ou `&#39;` para não quebrar o parsing.
+
+## Quando NÃO codificar
+
+- **URLs.** URLs usam percent-encoding (`%3C`), não entidades HTML. Use o tool URL Encode/Decode.
+- **JSON.** JSON tem suas próprias regras de escape (`\"`, `<`). Não misture.
+- **Strings JavaScript.** Use `\x3C` ou `<` em strings JS.
+
+## Named vs numeric
+
+```html
+<!-- Equivalentes -->
+&lt;
+&#60;
+&#x3C;
+```
+
+Named refs são mais legíveis (`&copy;` vs `&#169;`) mas exigem suporte do parser. Numeric refs funcionam em qualquer parser HTML válido. Para máxima compatibilidade em emails ou XML, prefira numeric.
+
+## O perigo silencioso
+
+`document.innerHTML = userInput` sem escape é uma das raízes mais comuns de XSS. Mesmo quando o input parece "limpo", payloads como `<img src=x onerror=alert(1)>` passam. Sempre escape, ou use `textContent` que não interpreta HTML.
+
+A biblioteca [`he`](https://github.com/mathiasbynens/he) usada aqui implementa o algoritmo de decode da especificação HTML5, lidando corretamente com:
+
+- Referências sem `;` final em contextos legados (`&amp` ainda decodifica para `&`)
+- Pares surrogate Unicode (`&#x1F600;` → 😀)
+- Edge cases como `&CounterClockwiseContourIntegral;` (sim, existe)
+
+## Decodificação
+
+Decodificar é o caminho inverso: pegar `Hello&nbsp;World&#x21;` e produzir `Hello World!`. Útil quando você recebe HTML de uma API, salva texto em banco, ou faz scraping.
+
+Cuidado: decodificar HTML que você vai re-injetar em DOM é perigoso. Decode-then-inject re-introduz a vulnerabilidade XSS que o encode evitou. Decode apenas para exibir em campos de texto, contextos non-HTML, ou para análise.
+
+## Tudo local
+
+Toda codificação acontece no navegador via `he`. Nenhuma string toca nossos servidores — abra o Network tab e veja: zero requisições.

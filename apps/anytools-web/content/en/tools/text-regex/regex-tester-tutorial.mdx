@@ -1,0 +1,89 @@
+---
+title: Regex in JavaScript — the parts that actually matter
+description: A practical tour of regex with the gotchas (catastrophic backtracking, dot-doesn't-match-newline) called out. Cheatsheet at the bottom.
+updated: 2026-05-25
+---
+
+## Why regex is worth learning (and when not to use it)
+
+Regular expressions are the universal text-parsing tool — every modern language has them, the syntax mostly transfers, and they're the right answer for ~80% of "find this pattern" jobs. The remaining 20%:
+
+- **Parsing HTML or XML** with regex — don't. Use a real parser (`DOMParser` in the browser, `cheerio` in Node).
+- **Parsing JSON** with regex — don't. Use `JSON.parse`.
+- **Email validation** with regex — usually wrong; use a library or your auth provider's built-in.
+- **Deeply nested or balanced delimiters** — regex can't (formally) match these. Use a parser.
+
+For everything else: extracting URLs, splitting CSV-ish text, validating phone formats, matching log lines, finding TODO comments — regex is the right tool.
+
+## The five concepts worth memorizing
+
+You can write 90% of useful regex with these five primitives:
+
+1. **Character classes**: `\d` (digit), `\w` (word char), `\s` (whitespace), and their uppercase negations. Plus custom classes: `[a-z]`, `[^xyz]`.
+2. **Quantifiers**: `*` (0+), `+` (1+), `?` (0 or 1), `{n,m}` (between n and m). Add `?` to make them lazy: `*?`, `+?`.
+3. **Anchors**: `^` (start), `$` (end), `\b` (word boundary).
+4. **Groups**: `(…)` captures, `(?:…)` doesn't capture (cheaper), `(?<name>…)` captures with a name.
+5. **Alternation**: `a|b` — `a` or `b`.
+
+Combine these and you can match most things. The rest of regex syntax (lookahead, backreferences, unicode classes, etc.) is occasionally useful but skippable for daily work.
+
+## The JavaScript-specific quirks
+
+JS regex (per ECMAScript) is *almost* PCRE but not quite:
+
+- **No `(?#comment)`** — JS regex has no comment syntax. Comment your code instead.
+- **`.` does NOT match newlines** unless you set the `s` flag (dotAll). Frequent source of "why isn't this matching?".
+- **`\b` uses ASCII word boundaries** by default. Setting the `u` flag changes this. Add `u` whenever you handle non-ASCII text.
+- **Named groups use `(?<name>…)`** — Python-style. JS adopted this in 2018; assume modern browsers/Node.
+- **Backreferences in replace** use `$1`, `$2`, `$<name>` — not `\1` like Perl.
+
+Other languages do things slightly differently. PCRE is a near-superset of JS regex; Python `re` is similar but uses `(?P<name>…)` for named groups; Go's `regexp` package is RE2 (no backreferences, no lookahead, but linear-time guaranteed). Don't paste a Python regex into JS without checking.
+
+## Catastrophic backtracking — the one performance trap
+
+A pattern like `(a+)+b` matched against `aaaaaaaaaaaaaaaaaaaaa` (no final `b`) takes **exponential time** as the input grows. The regex engine tries every possible way to partition the `a`s between the two quantifiers, gives up, then tries the next combination. With 20 `a`s and no `b`, that's millions of attempts.
+
+This tool sets a 1-second execution cap precisely because pathological patterns can hang a browser tab indefinitely.
+
+Avoidance rules:
+
+- **Don't nest quantifiers** without thinking. `(a+)+`, `(a*)*`, `(a|aa)+` are red flags.
+- **Use atomic groups or possessive quantifiers** if your engine supports them (JS doesn't — use lookahead tricks).
+- **Be specific.** `[^"]*"` matches until the next quote; better than `.*"` which can backtrack.
+- **Test with adversarial input.** A pattern that handles your happy path may explode on input ending in a few mismatched chars.
+
+If a pattern is taking too long, the answer is rarely "add more `+`" — it's usually "rewrite to be linear", or "use a real parser".
+
+## How this tool helps
+
+- Paste a pattern and text; matches highlight live.
+- Flags are toggleable; you see them in the pattern preview (`/foo/gi`).
+- Capture groups and named groups appear under each match.
+- Replace mode previews the result of `text.replace(pattern, replacement)`.
+- 1-second execution cap catches catastrophic backtracking before your tab freezes.
+
+## A cheatsheet of patterns that work
+
+| Goal | Pattern |
+|---|---|
+| Match digits | `\d+` |
+| Match a word | `\w+` |
+| Match an email-ish string | `[\w.+-]+@[\w-]+\.[\w.-]+` |
+| Match a URL-ish string | `https?:\/\/[^\s)]+` |
+| Match an ISO date | `\d{4}-\d{2}-\d{2}` |
+| Match an IPv4 | `\b(?:\d{1,3}\.){3}\d{1,3}\b` |
+| Match an HTTP status code | `\b[1-5]\d{2}\b` |
+| Strip leading/trailing whitespace | replace `^\s+|\s+$` with `` |
+| Collapse multiple spaces | replace `\s+` with ` ` |
+
+Not bulletproof — the email one accepts plenty of invalid addresses — but good enough for filtering and extraction.
+
+## Privacy
+
+All regex matching runs in the browser via the native `RegExp` engine. We don't send your patterns or text anywhere.
+
+## Related tools
+
+- **Text Case Converter** — change the case of matched text.
+- **Slugify** — turn arbitrary text into URL-safe slugs (a higher-level regex transformation).
+- **JSON Formatter** — when your matches end up needing JSON formatting.

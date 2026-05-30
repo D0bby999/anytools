@@ -1,0 +1,35 @@
+---
+title: Embelezador CSS — Perguntas frequentes
+---
+
+## Embelezar CSS muda como meus estilos são aplicados?
+
+Não. O espaço em branco no CSS fora de valores de string e da propriedade `content` é insignificante para o parser do navegador. Indentação, quebras de linha entre regras e espaços ao redor de dois pontos são ignorados na renderização. Os estilos computados que sua página produz são idênticos antes e depois da formatação.
+
+## Por que um seletor por linha é o padrão no CSS embelezado?
+
+Colocar cada seletor em sua própria linha produz diffs de git mais limpos. Quando um seletor agrupado como `h1, h2, h3 { ... }` ganha ou perde uma entrada, o formato de uma linha marca toda a linha de seletores como alterada. Um-seletor-por-linha significa que adicionar `h4` ou remover `h2` aparece como um diff limpo de uma linha sem ruído. Essa também é a razão pela qual o Prettier usa esse formato para CSS por padrão.
+
+## Quanto a minificação de CSS realmente economiza?
+
+A remoção pura de espaço em branco tipicamente reduz o CSS em 20–40% dependendo do estilo de codificação. No entanto, o fator mais importante é a compressão HTTP: gzip reduz o CSS em 60–80% porque o espaço em branco é altamente repetitivo. Minificação e gzip são complementares — use ambos em produção. Minifique primeiro no seu pipeline de build, depois deixe seu CDN ou servidor aplicar gzip/brotli por cima.
+
+## Esta ferramenta suporta CSS Nesting?
+
+Sim. O `js-beautify` preserva a sintaxe CSS Nesting (CSS Nesting Module Level 1, suportado em todos os navegadores evergreen) incluindo o seletor `&`. Tanto o modo embelezado quanto o minificado tratam regras aninhadas sem desaninhá-las para CSS plano.
+
+## O que é a opção de separador de seletores?
+
+Controla como os seletores em uma regra agrupada são separados. Configure como quebra de linha (padrão) para um seletor por linha — preferido para legibilidade e diffs. Configure como espaço para seletores agrupados compactos em uma linha. Nenhuma altera como a regra é aplicada; é puramente uma preferência de formatação.
+
+## Devo usar esta ferramenta ou integrar cssnano no meu pipeline de build?
+
+Ambos. Use esta ferramenta para formatação ad-hoc — colar fragmentos CSS, limpar uma folha de estilos pontual ou examinar CSS de terceiros. Para minificação automatizada em produção, integre `cssnano` (baseado em PostCSS) ou `lightningcss` (Rust, extremamente rápido) no seu passo de build. Ferramentas de pipeline também podem fazer fusão de shorthands, deduplicação e eliminação de código morto que uma ferramenta baseada em navegador não pode.
+
+## Como depuro meu CSS minificado em produção?
+
+Gere um source map durante o passo de build (flag `--map` no PostCSS, `sourceMap: true` no lightningcss). O arquivo map liga os offsets de bytes minificados de volta às linhas de fonte originais. As DevTools do navegador recuperam automaticamente o map e mostram o arquivo e número de linha originais quando você inspeciona um elemento estilizado, mesmo que o navegador esteja carregando o arquivo minificado.
+
+## A minificação remove meus comentários?
+
+Sim — a minificação CSS padrão remove todos os comentários `/* ... */`. Se você tem comentários importantes que precisam sobreviver (cabeçalhos de copyright), use a convenção `!`: `/*! Copyright ... */`. A maioria dos minificadores preserva comentários começando com `!`. Para preservar cabeçalhos de licença em produção, use `cssnano` com `{ discardComments: { removeAllButFirst: true } }`.

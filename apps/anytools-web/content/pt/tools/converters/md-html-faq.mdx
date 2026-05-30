@@ -1,0 +1,27 @@
+---
+title: Markdown ↔ HTML — Perguntas frequentes
+---
+
+## Tabelas funcionam?
+
+Sim, com GFM ativado (padrão). Sintaxe: `| header | header |` na primeira linha, `| --- | --- |` na segunda, dados nas seguintes. Strict CommonMark não tem tabelas.
+
+## Por que código sem syntax highlight?
+
+A conversão gera apenas `<code class="language-js">...</code>`. O highlight visual depende de você incluir Prism.js, highlight.js, ou Shiki na página final. O conversor não embute CSS de highlight.
+
+## HTML cru no MD é seguro?
+
+Para seu próprio conteúdo, sim — você controla o que escreve. Para MD de usuários (comentários, posts), **sanitize o HTML resultante** com DOMPurify antes de injetar no DOM. marked não sanitiza por padrão.
+
+## Round-trip MD → HTML → MD é igual?
+
+Não. Algumas transformações são lossy: normalização de ênfase (`_` vs `*`), espaçamento, indentação de listas aninhadas, atributos HTML que turndown não preserva. Mantenha o MD como source-of-truth.
+
+## Posso processar arquivos grandes?
+
+Até ~1MB é tranquilo. Acima, navegador pausa alguns segundos. Para batches grandes, use marked/turndown via Node CLI.
+
+## Meu conteúdo passa por servidor?
+
+Não. marked e turndown são bibliotecas JS puras rodando no navegador. Zero requisições. Funciona offline.

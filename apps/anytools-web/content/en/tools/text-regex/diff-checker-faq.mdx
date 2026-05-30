@@ -1,0 +1,35 @@
+---
+title: Diff Checker — Frequently asked questions
+---
+
+## What algorithm does the diff checker use?
+
+The tool uses the **Longest Common Subsequence (LCS)** algorithm, specifically the Myers diff algorithm implemented by the open-source [`diff`](https://github.com/kpdecker/jsdiff) library. Myers' algorithm finds the minimal edit script between two sequences in O(ND) time, where N is the sum of input lengths and D is the size of the diff. For typical inputs this is far faster than the theoretical O(n²) worst case of naive LCS.
+
+## What is the difference between line-level and word-level diff?
+
+Line-level diff treats each line as an atomic unit — whole lines are marked added, removed, or unchanged. Word-level diff (intra-line diff) breaks lines further into individual tokens and highlights exactly which words changed. Use line-level for source code where lines are natural units; use word-level for prose, contracts, or JSON where a single important value may change within a long line.
+
+## What does the `@@` header in unified diff output mean?
+
+The hunk header `@@ -12,7 +12,9 @@` means: in the **original** file, the hunk starts at line 12 and spans 7 lines; in the **modified** file it starts at line 12 and spans 9 lines. Lines prefixed with `-` were removed, lines with `+` were added, and lines with a space are unchanged context. This is the standard format produced by `diff -u` and consumed by `patch`.
+
+## Can I use this to diff source code files?
+
+Yes — paste the two versions of your file into the text areas and run the diff. For code review prep it is especially useful to catch accidental changes (leftover debug logs, unintended whitespace modifications) before opening a pull request. For comparing entire repositories or tracking history, use `git diff` instead since it has access to the full commit graph.
+
+## Why does my diff show changes I didn't make (whitespace noise)?
+
+Editors often differ in trailing whitespace, end-of-line style (CRLF vs LF), or indentation (tabs vs spaces). Enable the **Ignore whitespace** option to strip insignificant whitespace differences before running the LCS. For persistent issues, normalize line endings first with a tool like `dos2unix` or your editor's "trim trailing whitespace" setting.
+
+## Is my text sent to a server?
+
+No. The entire diff is computed in your browser by the [`diff`](https://github.com/kpdecker/jsdiff) library — a pure-JavaScript implementation with no server calls. Your input never leaves your device, which makes this safe to use with confidential contracts, private source code, or any text you wouldn't want transmitted over a network. You can verify this by opening your browser's network tab while running a diff.
+
+## What are the input size limits?
+
+Practically, up to a few hundred kilobytes per side runs smoothly. Beyond that, the LCS algorithm's computation time grows and the browser may pause momentarily. For diffing large files (multi-MB logs, large SQL dumps), a command-line `diff` or a dedicated tool with streaming support will perform better. Most document and code comparison use cases fall well within the comfortable range.
+
+## Can the diff checker detect renamed or moved blocks of text?
+
+No — standard LCS-based diff is purely positional and sequential. If you move a paragraph from the top of a document to the bottom, the diff will show the original location as deleted and the new location as inserted, not as a "move." Detecting moves requires a semantic layer (similarity hashing, AST analysis) beyond what a text diff provides.

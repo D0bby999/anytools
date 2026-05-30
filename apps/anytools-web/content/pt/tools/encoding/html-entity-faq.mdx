@@ -1,0 +1,27 @@
+---
+title: Entidades HTML — Perguntas frequentes
+---
+
+## Por que `<` precisa virar `&lt;` em HTML?
+
+Porque o navegador interpreta `<` como início de uma tag. Se você quer exibir o caractere literal `<` na página (em um exemplo de código, por exemplo), precisa codificá-lo. Sem isso, `<div>` no seu texto vira uma div real.
+
+## Qual a diferença entre `&amp;` e `&#38;`?
+
+Ambos representam `&`. A primeira é uma named reference (mais legível); a segunda é numeric (decimal). Existe também `&#x26;` (hexadecimal). Use named quando disponíveis para legibilidade, numeric quando precisar de máxima compatibilidade (XML, parsers antigos).
+
+## Decodificar HTML antes de inserir no DOM é seguro?
+
+Não. Decodificar e depois fazer `innerHTML = decoded` reintroduz o vetor XSS que o encode preveniu. Decodifique apenas para exibir em campos de texto, processar conteúdo, ou contextos não-HTML. Para DOM, use `textContent`.
+
+## Por que algumas entidades não têm `;` final?
+
+HTML5 mantém compatibilidade com referências legadas: `&amp` (sem `;`) ainda decodifica para `&` em certos contextos. Em código novo, sempre termine com `;` — é o comportamento documentado e previsível.
+
+## Meu input passa por servidor?
+
+Não. Tudo é processado no seu navegador pela biblioteca `he`. Abra o Network tab — zero requisições. Funciona offline depois do primeiro carregamento.
+
+## Como lidar com emoji e caracteres não-ASCII?
+
+A biblioteca `he` suporta a referência hexadecimal completa, incluindo pares surrogate para caracteres fora do BMP. `&#x1F600;` decodifica para 😀. Para encode, ative a opção "use named references when available" se quiser nomes; caso contrário, gera numeric refs.

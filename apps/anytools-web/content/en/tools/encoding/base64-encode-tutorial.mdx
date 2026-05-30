@@ -1,0 +1,76 @@
+---
+title: Complete guide to Base64 encode / decode
+description: How Base64 works, when to use it, the UTF-8 gotcha that breaks `btoa()`, and how Base64URL differs.
+updated: 2026-05-25
+---
+
+## What Base64 actually is
+
+Base64 is an **encoding** — a way to represent arbitrary binary data using only the 64 printable ASCII characters `A–Z`, `a–z`, `0–9`, `+`, `/`. It is defined by [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) and was invented in the 1980s so binary attachments could survive email systems that only handled 7-bit text.
+
+It is **not encryption**. Anyone with the encoded string can decode it back to the original — there is no key, no secret. If you need confidentiality, use AES or your TLS layer; Base64 only solves "how do I transport bytes through a text-only channel?".
+
+The transform itself is mechanical: every 3 bytes of input become 4 output characters. Input that doesn't divide evenly into 3-byte groups gets padded with `=` so the output length is always a multiple of 4. This is why you see `=` at the end of some encoded strings (zero, one, or two of them).
+
+## When you'll reach for it
+
+- **Data URIs.** Inlining a small image into CSS or HTML: `url("data:image/png;base64,iVBOR…")`.
+- **JWT.** Each segment of a JSON Web Token is Base64URL-encoded JSON.
+- **HTTP Basic auth.** The `Authorization: Basic …` header is `user:pass` Base64-encoded.
+- **Email attachments (MIME).** Binary files survive transit by being Base64-wrapped.
+- **API payloads.** Sending binary blobs over JSON (which has no native binary type).
+- **Storing binary in databases or environment variables** that expect text.
+
+You should **not** use Base64 to "shrink" data — it adds ~33% overhead. It's a transport encoding, not a compression.
+
+## The UTF-8 gotcha
+
+The browser's built-in `btoa()` function looks like it does the right thing — and silently produces garbage the moment you feed it a non-ASCII character:
+
+```javascript
+btoa('Hello')      // "SGVsbG8="              ✓
+btoa('世界')        // InvalidCharacterError   ✗
+btoa('🌏')         // InvalidCharacterError   ✗
+```
+
+The reason: `btoa` operates on Latin-1 (bytes 0–255), not UTF-8. The character `世` doesn't fit in one byte, so the function refuses. Same for emoji, Vietnamese with diacritics, Arabic, anything outside basic Latin.
+
+The fix is to UTF-8 encode the string first into a byte sequence, then Base64-encode those bytes. That's exactly what this tool does — every input is treated as UTF-8 by default, so emoji and unicode round-trip cleanly.
+
+## Base64 vs Base64URL
+
+Standard Base64 uses `+` and `/`, which both have special meanings in URLs and filenames. Base64URL (RFC 4648 §5) swaps them for `-` and `_`, and strips the trailing `=` padding. This makes encoded strings safe to drop into a URL query parameter, a JWT segment, or a filename.
+
+If you toggle **URL-safe** above, the tool emits `-` and `_` instead of `+` and `/`, with no padding. Decoding accepts either flavor — we auto-detect.
+
+## Examples
+
+**Encode plain text:**
+
+Input: `Hello, World!`
+Output: `SGVsbG8sIFdvcmxkIQ==`
+
+**Encode Vietnamese with diacritics:**
+
+Input: `Tiếng Việt có dấu`
+Output: `VGnhur9uZyBWaeG7h3QgY8OzIGThuqV1`
+
+**Decode a JWT payload chunk (Base64URL):**
+
+Input: `eyJzdWIiOiIxMjM0NTY3ODkwIn0`
+Output: `{"sub":"1234567890"}`
+
+## Security notes
+
+- **Never store passwords as Base64.** It's reversible. Use a password hash function (bcrypt, argon2, scrypt) instead.
+- **Don't trust Base64-decoded JSON without re-validating.** A JWT signature is what proves integrity; the Base64 layer alone proves nothing.
+- **Watch input size when decoding.** A few KB of Base64 expands to a few KB of bytes — fine — but a few hundred MB at once can crash a browser tab. This tool processes input synchronously; for very large files prefer a streaming approach.
+
+## Privacy
+
+This page runs the encoding/decoding logic entirely in your browser using the open-source [`js-base64`](https://github.com/dankogai/js-base64) library. Your input is never sent to our servers, never logged, and never leaves your device. Open the network tab and try it — you'll see zero requests.
+
+## Related tools
+
+- **JWT Decoder** — inspect a JSON Web Token (which is three Base64URL chunks).
+- **URL Encoder** — for percent-encoding in URLs, a different (often complementary) encoding.

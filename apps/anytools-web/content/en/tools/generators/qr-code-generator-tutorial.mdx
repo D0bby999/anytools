@@ -1,0 +1,138 @@
+---
+title: Complete guide to QR code generation
+description: How QR codes work, error correction levels, payload formats for vCard/Wi-Fi/email, and when to choose PNG vs SVG.
+updated: 2026-05-27
+---
+
+## A brief history
+
+QR codes were invented in 1994 by Masahiro Hara at Denso Wave, a Toyota subsidiary, to track automotive parts on assembly lines. The goal was a barcode that could hold far more data and be scanned from any angle. "QR" stands for Quick Response — the design target was decoding in under a tenth of a second.
+
+Denso Wave released the format royalty-free in 1999, which allowed it to spread far beyond the factory floor. The ISO/IEC 18004 standard codifies the format. Today's smartphones scan QR codes natively through the camera app, removing the dedicated scanner app that was once required.
+
+## How a QR code is structured
+
+A QR code is a two-dimensional matrix of black and white modules (squares). The three large corner squares are **finder patterns** — they let the scanner identify position and orientation regardless of rotation or perspective. A **timing pattern** (alternating row of black/white modules) anchors the coordinate grid. The **format strip** encodes which error correction level and mask pattern are in use.
+
+The actual data occupies the remaining modules in one of four encoding modes:
+
+- **Numeric** — digits only, most compact (≈3.3 bits per character).
+- **Alphanumeric** — uppercase letters, digits, space, and `$%*./:+-` (≈5.5 bits/char).
+- **Byte** — raw bytes; the tool defaults to UTF-8 for full Unicode support.
+- **Kanji** — compact encoding for double-byte characters used in Japanese.
+
+For URLs and most modern text payloads, Byte mode with UTF-8 is the safe default.
+
+## Error correction levels
+
+One of the cleverest properties of QR codes is built-in Reed-Solomon error correction. You choose how much capacity to trade away for resilience:
+
+| Level | Correction capacity | Typical use case |
+|-------|--------------------|-----------------------------|
+| L (Low) | ~7% of modules can be damaged | Clean digital displays, perfect prints |
+| M (Medium) | ~15% | General purpose, tickets, posters |
+| Q (Quartile) | ~25% | Industrial labels, moderate wear |
+| H (High) | ~30% | Logos overlaid on the code, dirty surfaces, partial coverage |
+
+Higher correction means more redundant data, which increases physical size (more modules) for the same payload. If you're embedding a logo in the center of a QR code — a popular branding technique — use **H** so the logo occludes data modules the reader can still reconstruct. For a simple URL on a clean print, **M** or **L** keeps the code compact and scans faster in low-light conditions.
+
+## Standard payload formats
+
+Raw text works, but certain content types have structured formats that apps recognize automatically.
+
+**URL** — just the full URL including protocol:
+```
+https://example.com/promo?ref=qr
+```
+
+**Wi-Fi network** — recognized by Android and iOS camera apps:
+```
+WIFI:T:WPA;S:MyNetwork;P:MyPassword;;
+```
+`T` is the security type (`WPA`, `WEP`, or `nopass`), `S` is the SSID, `P` is the password. Semicolons separate fields; double semicolon terminates. Backslash-escape any `;`, `,`, `"`, or `\` in the values.
+
+**vCard 3.0** — contact card compatible with iOS Contacts and Android Contacts:
+```
+BEGIN:VCARD
+VERSION:3.0
+FN:Jane Smith
+ORG:Acme Corp
+TEL;TYPE=CELL:+1-555-0100
+EMAIL:jane@acme.com
+URL:https://acme.com
+END:VCARD
+```
+
+**Email** — opens the compose window with pre-filled recipient:
+```
+mailto:support@example.com?subject=Hello&body=Hi%20there
+```
+
+**SMS:**
+```
+smsto:+15550100:Your message here
+```
+
+## QR code vs traditional barcode
+
+| Dimension | Barcode (1D) | QR code (2D) |
+|-----------|-------------|-------------|
+| Data capacity | ~20 chars (numeric) | ~3 KB (binary) |
+| Scan direction | Linear only | Any angle |
+| Error recovery | None | Up to 30% |
+| Reader requirement | Laser scanner or camera | Camera only |
+
+Use barcodes when you're integrating with legacy point-of-sale systems that expect EAN-13 or UPC-A. Use QR for anything user-facing with modern smartphones.
+
+## Size, contrast, and the quiet zone
+
+Three physical constraints determine whether a QR code scans reliably:
+
+1. **Minimum size.** A QR code printed smaller than ~2 cm × 2 cm starts failing on mid-range smartphone cameras. Version 1 codes (21×21 modules) are the densest for tiny payloads; longer URLs generate higher version codes with more modules.
+
+2. **Contrast.** The standard calls for a light-on-dark ratio of at least 4:1 — black on white is ideal. Color QR codes with pastel foregrounds on light backgrounds often fail. If you use custom colors, test with multiple phone models.
+
+3. **Quiet zone.** Every QR code requires a blank border of at least 4 module widths on all sides. Trim it and scanners can't locate the finder patterns. The tool includes this margin automatically in both PNG and SVG exports.
+
+## PNG vs SVG — when each wins
+
+**PNG** is a raster format: a grid of colored pixels baked at a fixed resolution.
+
+- Best for: email attachments, messenger apps, web `<img>` tags with a fixed display size.
+- Limitation: scaling up introduces blur/pixelation. Export at 2× or 3× the intended display size to stay crisp on retina screens.
+
+**SVG** is a vector format: the code is described as mathematical paths that render sharp at any size.
+
+- Best for: print materials (business cards, signage, merchandise), logos, CSS embedding.
+- Limitation: some older email clients don't render inline SVG; use PNG for email.
+
+When in doubt and you control the use case end-to-end, SVG is the professional choice. For sharing to unknown recipients or social apps, PNG is safer.
+
+## Using the `qrcode` library
+
+This tool is built on the [`qrcode`](https://www.npmjs.com/package/qrcode) npm package. If you're generating codes programmatically:
+
+```javascript
+import QRCode from 'qrcode';
+
+// Generate SVG string
+const svg = await QRCode.toString('https://example.com', {
+  type: 'svg',
+  errorCorrectionLevel: 'H',
+  color: { dark: '#1a1a1a', light: '#ffffff' },
+  margin: 4,
+});
+
+// Generate PNG data URL (browser/Node)
+const dataUrl = await QRCode.toDataURL('https://example.com', {
+  type: 'image/png',
+  width: 400,
+  errorCorrectionLevel: 'M',
+});
+```
+
+The `margin` option maps to the quiet zone in module units (default 4, minimum recommended 4).
+
+## Privacy
+
+All QR generation runs locally in your browser. Your URLs, passwords, and contact data are never transmitted to a server. Check the network tab — no requests are fired when you click Generate.

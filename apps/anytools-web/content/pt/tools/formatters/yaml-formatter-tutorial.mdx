@@ -1,0 +1,93 @@
+---
+title: Formatar e validar YAML
+description: Indent, sort keys, validar sintaxe, e os gotchas (Norway problem, octal, anchors) que YAML esconde.
+updated: 2026-05-27
+---
+
+## YAML em 30 segundos
+
+YAML ("YAML Ain't Markup Language") é um formato de configuração legível, sensível à indentação. Dominou DevOps porque é mais conciso que JSON e permite comentários. Você encontra YAML em Kubernetes manifests, GitHub Actions workflows, Docker Compose, Ansible playbooks, Hugo frontmatter, e mais.
+
+## Indentação importa MUITO
+
+YAML usa espaços (nunca tabs) para indentação. Inconsistência quebra o parsing:
+
+```yaml
+servers:
+  - name: web
+    port: 80
+  - name: api
+   port: 8080    # ← 3 espaços em vez de 4 — ERRO
+```
+
+O formatter normaliza para 2 espaços (padrão da comunidade) ou o que você escolher. Tabs são rejeitados pela spec.
+
+## O Norway problem (de novo)
+
+YAML 1.1 trata `NO`, `YES`, `ON`, `OFF`, `TRUE`, `FALSE` (qualquer caixa) como booleans. Strings ambíguas precisam de aspas:
+
+```yaml
+country: NO      # ← false
+country: "NO"    # ← string "NO"
+```
+
+YAML 1.2 restringiu para apenas `true`/`false`, mas `js-yaml` (e muitos outros) usam 1.1 por padrão. Esta ferramenta usa modo "json" da js-yaml (1.2-like) por padrão.
+
+## Octal silencioso
+
+`01234` em YAML é octal (= decimal 668), não a string `"01234"`. Para preservar zeros à esquerda (CEPs, telefones), coloque em aspas:
+
+```yaml
+cep: "01234-567"   # ← string
+cep: 01234-567     # ← erro de parsing
+```
+
+## Anchors & references
+
+YAML permite reutilizar valores sem repetir:
+
+```yaml
+defaults: &defaults
+  timeout: 30
+  retries: 3
+
+prod:
+  <<: *defaults
+  host: prod.example.com
+
+staging:
+  <<: *defaults
+  host: staging.example.com
+```
+
+O `&defaults` define um anchor; `*defaults` referencia; `<<:` merge keys. Útil para configs grandes com muito boilerplate, mas confuso para iniciantes. O formatter preserva anchors se você ativar essa opção.
+
+## Multi-line scalars
+
+```yaml
+description: |
+  Linha 1
+  Linha 2 (newlines preservados)
+
+summary: >
+  Linha 1
+  Linha 2 (newlines viram espaços)
+```
+
+`|` (literal) preserva quebras de linha. `>` (folded) dobra newlines em espaços. Útil para strings longas, snippets de código em config, ou comandos shell.
+
+## Segurança: tags YAML
+
+YAML tem **tags** como `!!python/object` que podem instanciar classes durante o parsing. Em alguns parsers (PyYAML antigo), isso permite RCE em YAML "confiável". js-yaml por padrão é seguro (safe mode), mas em outras linguagens, **sempre use safe_load**.
+
+## Casos de uso
+
+- Validar manifests do K8s antes de `kubectl apply`
+- Reformatar workflows do GitHub Actions
+- Normalizar YAML gerado por ferramentas para diff limpo
+- Detectar erros de indentação silenciosos
+- Sort keys para reduzir noise em diffs git
+
+## Tudo local
+
+`js-yaml` no browser. Zero servidor.

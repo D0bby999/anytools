@@ -1,0 +1,35 @@
+---
+title: Conversor ETH / Wei — Preguntas frecuentes
+---
+
+## ¿Qué es wei y por qué lo usa Ethereum?
+
+Wei es la unidad indivisible más pequeña de ether — 1 ETH equivale a 10¹⁸ wei. La EVM no tiene aritmética de punto flotante, por lo que todas las transferencias de valor on-chain son cantidades enteras en wei. Usar la unidad más pequeña para la matemática interna elimina los errores de redondeo en la lógica financiera. El nombre honra a Wei Dai, el criptógrafo que describió b-money, un precursor conceptual de Bitcoin.
+
+## ¿Por qué no puedo usar JavaScript `Number` para valores wei?
+
+El `Number` de JavaScript es un double IEEE 754 de 64 bits, que solo puede representar enteros exactamente hasta 2⁵³ − 1 (alrededor de 9 × 10¹⁵). Un ether en wei es 10¹⁸ — mayor que ese límite. La aritmética sobre wei usando `Number` ordinario pierde precisión silenciosamente para cualquier cantidad superior a ~9 ETH. Usa siempre `BigInt` o una biblioteca como `ethers.js` que lo envuelva internamente.
+
+## ¿Qué es gwei y cuándo lo uso?
+
+Gwei (gigawei) equivale a 10⁹ wei. Es la unidad estándar para los precios de gas porque está en una escala legible para humanos — los precios de gas actuales de Ethereum oscilan entre un solo dígito y pocos cientos de gwei. Cuando tu wallet muestra "precio de gas: 15 gwei", eso son 15,000,000,000 wei por unidad de gas consumida.
+
+## ¿Cómo calculo la comisión total de una transacción?
+
+Multiplica el gas usado por el precio efectivo de gas: `comisión (wei) = gasUsado × effectiveGasPrice`. Ambos valores aparecen en el recibo de la transacción. Convierte el resultado de wei a ETH con esta herramienta para obtener el costo legible. Para una transferencia ETH estándar (21,000 gas) a 20 gwei, la comisión es 0.00042 ETH.
+
+## ¿Qué cambió con EIP-1559?
+
+EIP-1559 (fork London, agosto 2021) reemplazó la subasta de precio de gas único por un modelo de tarifa base más tarifa de prioridad. La tarifa base se quema y se ajusta algorítmicamente por bloque; la tarifa de prioridad (propina) va al validador. Estableces una tarifa máxima por gas como techo. La tarifa real pagada es `min(tarifa_máx, tarifa_base + tarifa_prioridad)`. Esto hizo la estimación de comisiones más predecible y redujo el exceso de pago.
+
+## ¿Este conversor funciona con tokens ERC-20?
+
+Parcialmente. Los tokens ERC-20 usan el mismo patrón wei/unidad pero con decimales específicos por token — USDC tiene 6 decimales, la mayoría de tokens tiene 18, algunos activos puente tienen 8. El modo "decimales personalizados" del conversor acepta cualquier número de decimales para que puedas convertir cualquier cantidad ERC-20. Los nombres de unidades (wei, gwei, ether) en el lado ETH son solo etiquetas para potencias de 10 — la misma matemática aplica.
+
+## ¿Cómo debo almacenar cantidades en wei en una base de datos?
+
+No uses columnas SQL `INTEGER` o `BIGINT` — el BIGINT de PostgreSQL llega a ~9.2 × 10¹⁸, que solo cabe ~9 ETH antes de overflow. Usa `NUMERIC` (precisión arbitraria) o almacena las cantidades como cadena decimal `TEXT`. Al leer de vuelta, parsea con `BigInt()` o `ethers.parseUnits` antes de hacer aritmética.
+
+## ¿Por qué mi smart contract recibe la cantidad incorrecta?
+
+Casi siempre es un error de unidades. Si tu frontend envía `parseUnits("1", "gwei")` (= 10⁹ wei) pero el contrato espera la cantidad en wei pensando que es 1 ETH, has enviado 10⁻⁹ ETH en lugar de 1 ETH. Decide sistemáticamente en cada capa si estás trabajando en wei o ether, añade sufijos de unidad a los nombres de variables (`amountWei`, `priceGwei`), y valida con este conversor antes de desplegar.

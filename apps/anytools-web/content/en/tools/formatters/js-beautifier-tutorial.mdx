@@ -1,0 +1,131 @@
+---
+title: Complete guide to JavaScript beautifying and minification
+description: AST-based formatting with js-beautify, real minification with Terser, mangle strategy, dead code, source maps, and ES2024 support.
+updated: 2026-05-27
+---
+
+## Two different problems: formatting and minification
+
+JavaScript formatting and minification sound like opposites of the same operation, but they involve fundamentally different techniques.
+
+**Formatting** (beautify) is cosmetic: add indentation, normalize spacing, insert newlines at logical boundaries. The output is semantically identical JavaScript — same tokens, same behavior.
+
+**Minification** is semantic compression: remove all whitespace, rename local identifiers to shorter names, eliminate dead code paths, collapse constant expressions. The output is functionally equivalent JavaScript but the tokens change. You cannot reliably reverse minification back to readable source (hence the need for source maps).
+
+This tool uses `js-beautify` for formatting and **Terser** for minification. These are best-in-class for each role.
+
+## AST-based vs regex-based formatters
+
+A regex-based formatter processes JavaScript as text: it looks for patterns like `{` followed by a newline and inserts indentation. This works for simple cases but fails on edge cases:
+
+- Template literals containing `{` — a naive regex may insert indentation inside a template string, corrupting its content.
+- Destructuring patterns — nested `{` in `const { a: { b } } = obj` gets misread.
+- Regular expression literals — `/[{(]/g` looks like an opening block to a text-based parser.
+
+An AST-based formatter first **parses** the JavaScript into an Abstract Syntax Tree — a structured representation where every node knows its type (FunctionDeclaration, ArrowFunctionExpression, TemplateLiteral, etc.). Formatting decisions are then made on the tree, not on text. Template literals are never incorrectly indented because the parser knows their boundaries.
+
+`js-beautify` uses an AST-aware approach and handles ES2024 syntax including optional chaining, nullish coalescing, logical assignment operators, top-level `await`, and class fields.
+
+## Terser: real AST minification
+
+Terser is the standard JavaScript minifier for production web builds. It is what Vite, webpack (via `terser-webpack-plugin`), and esbuild use internally or offer as an alternative. Its key capabilities:
+
+**Whitespace removal** — all insignificant whitespace, comments, and newlines are stripped.
+
+**Name mangling** — local variable names are renamed to single or double characters: `function calculateTaxableIncome(amount, rate)` becomes `function a(b,c)`. This is the largest contributor to size reduction beyond whitespace. Exported names are preserved by default (Terser understands ES module `export` boundaries) because renaming exports would break callers. Mangle only applies to names that are local to the scope.
+
+**Dead code elimination** — unreachable branches are removed:
+```javascript
+// Before
+if (false) {
+  console.log('never runs');
+}
+const DEBUG = false;
+if (DEBUG) { heavyOperation(); }
+
+// After (Terser with evaluate: true)
+// Both blocks removed entirely
+```
+
+**Constant folding** — expressions that evaluate to a constant at parse time are collapsed:
+```javascript
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+// Becomes:
+const MS_PER_DAY = 86400000;
+```
+
+## Mangle toggle: when to enable and when not to
+
+The **mangle** option renames local identifiers. You want it on for production browser bundles — it is the single biggest size reduction after whitespace removal.
+
+Disable mangle when:
+- You're minifying Node.js code that uses `Function.prototype.name` to identify functions by name at runtime.
+- You're minifying code that gets `eval()`'d or uses `new Function()` with string arguments referencing local variable names.
+- You need the minified output to still be debuggable without source maps (rare, but valid in some embedded contexts).
+- The code uses `with` statements (extremely rare in modern JS; Terser will warn).
+
+## Before/after byte count
+
+The tool shows input byte count, output byte count, and percentage saved. A few realistic examples:
+
+| Code type | Typical saving (whitespace only) | With mangle |
+|-----------|----------------------------------|------------|
+| Utility library (lodash-style) | 20–30% | 50–65% |
+| React component file | 25–35% | 45–60% |
+| Configuration-heavy file | 15–20% | 20–30% |
+| Already compact code | 5–15% | 15–25% |
+
+The percentage matters most for code that ships directly to browsers without bundler processing. For already-bundled apps, your bundler handles minification — use this tool for one-off scripts, CDN-hosted libraries, and inline scripts.
+
+## Tree shaking: what Terser cannot do
+
+A common misconception: Terser can eliminate dead code *within a file* but it cannot do cross-file tree shaking. Tree shaking — removing exported functions that no module ever imports — requires bundler-level analysis (Rollup, Vite, webpack). Terser sees one file at a time and doesn't know which exports are consumed.
+
+If you paste a utility library into this tool hoping to remove functions you don't use, Terser will not remove them — it will only minimize the code that's there. For library-level tree shaking, use a bundler with a proper entry point.
+
+## Source maps for production debugging
+
+Minified code in production is unreadable in stack traces. Source maps solve this by mapping minified byte positions back to original source lines. Terser generates inline or external source maps:
+
+```javascript
+import Terser from 'terser';
+
+const result = await Terser.minify(code, {
+  mangle: true,
+  compress: true,
+  sourceMap: {
+    filename: 'app.min.js',
+    url: 'app.min.js.map',
+  },
+});
+
+// result.code — minified JavaScript with sourceMappingURL comment
+// result.map — source map JSON
+```
+
+Upload both files. The `sourceMappingURL` comment at the end of the minified file points DevTools to the map. Error monitoring services (Sentry, Datadog) can consume source maps server-side to show original stack frames in alerts.
+
+## ES2024 syntax support
+
+Terser supports modern JavaScript through ES2024:
+- Optional chaining (`?.`) and nullish coalescing (`??`)
+- Logical assignment (`&&=`, `||=`, `??=`)
+- Top-level `await`
+- Class fields (public, private `#field`, static)
+- `Object.hasOwn()` and `Array.at()`
+- `using` / `await using` (Explicit Resource Management, Stage 4)
+
+Set `ecma: 2024` in Terser's compress options to enable optimizations specific to modern syntax.
+
+## Faster alternatives: SWC and esbuild
+
+For build pipelines where speed matters more than maximum compression:
+
+- **esbuild** (Go) — 10–100× faster than Terser, good enough minification for most apps. Limited dead code elimination compared to Terser.
+- **SWC** (Rust) — used by Next.js and Parcel. Very fast, improving minification quality rapidly.
+
+For a browser-based one-off tool, speed is not the bottleneck — Terser's more aggressive optimization is preferable.
+
+## Privacy
+
+All JavaScript processing runs in your browser. Your code is never transmitted to a server.

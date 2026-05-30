@@ -1,0 +1,35 @@
+---
+title: Hex Encode / Decode — Frequently asked questions
+---
+
+## Is hex encoding the same as encryption?
+
+No. Hex encoding is purely a display format — it converts each byte to two readable ASCII characters. Anyone with the hex string can decode it instantly, no key needed. If you need confidentiality, encrypt the data first (AES, ChaCha20), then hex-encode the ciphertext if you need a printable representation. Encoding and encryption are orthogonal concerns.
+
+## Why does my character produce four hex digits instead of two?
+
+Because that character is more than one byte in UTF-8. The letter `é` (U+00E9) encodes to two bytes (`0xc3 0xa9`), producing four hex digits. An emoji like `😀` (U+1F600) is four UTF-8 bytes — eight hex digits. ASCII characters (codepoints 0–127) always produce exactly two hex digits because they fit in a single byte. This is correct behaviour, not a bug.
+
+## When should I use hex instead of Base64?
+
+Choose hex when byte-level readability matters: debugging memory dumps, inspecting cryptographic hashes, reading packet captures, or formatting MAC addresses and Ethernet frames. Base64 is better when minimising size matters — it adds only 33% overhead versus hex's 100%. For most transport use cases (data URIs, JWT, MIME), Base64 is the right tool; for human inspection of raw bytes, hex wins.
+
+## What does the 0x prefix mean?
+
+The `0x` prefix is a convention from C (standardised in ANSI C89) that marks a numeric literal as hexadecimal. It spread to C++, Java, JavaScript, Go, Rust, and Python. You'll see it in Ethereum addresses, C array literals, and debugger output. In other contexts — CSS colour codes (`#ff6b6b`) or MAC addresses (`aa:bb:cc`) — a different separator or delimiter signals the hex format instead.
+
+## What separator should I use for MAC addresses?
+
+Use `:` as the separator and lowercase. The standard MAC address format is six colon-separated byte pairs: `aa:bb:cc:dd:ee:ff`. Some older networking tools use `-` as the separator (Windows `ipconfig` style: `AA-BB-CC-DD-EE-FF`). Toggle uppercase if the target system requires it. Leave the 0x prefix off — MAC addresses don't use it.
+
+## How is hex different from a binary dump?
+
+Hex represents each byte as two characters (100% overhead). Binary represents each byte as eight characters (700% overhead). Both encode the same information. Binary is useful as a teaching tool to see individual bit positions; hex is the practical choice for inspecting real data because it's compact enough to scan at a glance. A 32-byte SHA-256 digest is 64 hex characters but 256 binary characters.
+
+## Can I round-trip text with non-ASCII characters?
+
+Yes, as long as both sides agree on UTF-8. This tool encodes your input string to its UTF-8 byte representation, then hex-encodes those bytes. Decoding reverses the process: hex → bytes → UTF-8 string. If the receiving system interprets the bytes as Latin-1 or Windows-1252, the decoded text will differ. Ensure encoding agreement on both ends.
+
+## Why do some hex outputs look like `48 65 6c 6c 6f` and others like `48656c6c6f`?
+
+The only difference is the separator. A space between each byte pair is the style used by `xxd`, `hexdump`, and Wireshark — it improves readability for long byte sequences. No separator produces a compact hex string common in hash digests, Ethereum addresses, and URL encoding internals. This tool lets you choose: blank for compact, space for dump style, `:` for MAC/IPv6 style.

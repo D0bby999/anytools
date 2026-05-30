@@ -1,0 +1,23 @@
+---
+title: Text Case Converter — FAQ
+---
+
+## camelCase vs PascalCase?
+
+Same word boundaries, different first character. `helloWorld` is camelCase (lowercase first), `HelloWorld` is PascalCase (uppercase first). JavaScript/Java convention: camelCase for variables, PascalCase for classes/types.
+
+## Why does CSS use kebab-case?
+
+Because `_` and other characters had specific meanings in early CSS, and `-` was already used as a syntax character. Modern CSS still uses kebab-case for class names and properties (`background-color`, not `backgroundColor`).
+
+## Naming env var convention?
+
+`CONSTANT_CASE` (uppercase with underscores). Universal across shells, programming languages, container runtimes. `DATABASE_URL`, `API_KEY`, `NODE_ENV`.
+
+## Handling acronyms — Url or URL?
+
+Modern style: `Url` (treat acronym as a normal word). Older style: `URL` (preserve all-caps). JavaScript stdlib mostly uses `Url` (XMLHttpRequest is the famous exception — and you can see why people regret it). Pick one and apply consistently.
+
+## Is my text sent anywhere?
+
+No — all conversion runs in your browser using the open-source [`change-case`](https://github.com/blakeembrey/change-case) library. Network tab will show zero requests.

@@ -1,0 +1,35 @@
+---
+title: Hex Encode / Decode — Câu hỏi thường gặp
+---
+
+## Hex encoding có giống mã hóa bảo mật không?
+
+Không. Hex encoding chỉ là định dạng hiển thị — nó chuyển mỗi byte thành hai ký tự ASCII có thể đọc được. Bất kỳ ai có chuỗi hex đều có thể decode ngay lập tức, không cần key. Nếu cần bảo mật, hãy mã hóa dữ liệu trước (AES, ChaCha20), rồi hex-encode ciphertext nếu cần dạng có thể in. Encoding và encryption là hai việc hoàn toàn khác nhau.
+
+## Tại sao ký tự của tôi tạo ra bốn chữ số hex thay vì hai?
+
+Vì ký tự đó chiếm nhiều hơn một byte trong UTF-8. Chữ `é` (U+00E9) encode thành hai byte (`0xc3 0xa9`), tạo ra bốn chữ số hex. Emoji như `😀` (U+1F600) là bốn byte UTF-8 — tám chữ số hex. Ký tự ASCII (codepoint 0–127) luôn cho đúng hai chữ số hex vì vừa một byte. Đây là hành vi đúng, không phải bug.
+
+## Khi nào nên dùng hex thay vì Base64?
+
+Chọn hex khi khả năng đọc ở mức byte quan trọng: debug memory dump, kiểm tra cryptographic hash, đọc packet capture, hoặc format địa chỉ MAC và Ethernet frame. Base64 tốt hơn khi cần tối thiểu kích thước — overhead chỉ 33% so với 100% của hex. Với hầu hết use case vận chuyển dữ liệu (data URI, JWT, MIME), Base64 là lựa chọn đúng; với kiểm tra raw bytes, hex thắng.
+
+## Prefix 0x có ý nghĩa gì?
+
+Prefix `0x` là quy ước từ C (chuẩn hóa trong ANSI C89) để đánh dấu một numeric literal là hexadecimal. Nó lan sang C++, Java, JavaScript, Go, Rust, và Python. Bạn sẽ thấy nó trong Ethereum address, C array literal, và debugger output. Trong các ngữ cảnh khác — màu CSS (`#ff6b6b`) hay MAC address (`aa:bb:cc`) — separator hoặc dấu phân cách khác thay thế cho prefix.
+
+## Dùng separator nào cho địa chỉ MAC?
+
+Dùng `:` làm separator và chữ thường. Định dạng MAC address chuẩn là sáu cặp byte phân cách bằng dấu hai chấm: `aa:bb:cc:dd:ee:ff`. Một số tool networking cũ dùng `-` (kiểu Windows `ipconfig`: `AA-BB-CC-DD-EE-FF`). Bật chữ hoa nếu hệ thống đích yêu cầu. Bỏ prefix 0x — địa chỉ MAC không dùng nó.
+
+## Hex khác binary dump như thế nào?
+
+Hex biểu diễn mỗi byte bằng hai ký tự (overhead 100%). Binary biểu diễn mỗi byte bằng tám ký tự (overhead 700%). Cả hai encode cùng thông tin. Binary hữu ích như công cụ học tập để thấy từng vị trí bit; hex là lựa chọn thực tế để kiểm tra dữ liệu thực vì đủ nhỏ gọn để quét bằng mắt. Một SHA-256 digest 32 byte là 64 ký tự hex nhưng 256 ký tự binary.
+
+## Tôi có thể round-trip text có ký tự non-ASCII không?
+
+Có, miễn là cả hai phía đồng ý dùng UTF-8. Tool này encode input string sang byte UTF-8, rồi hex-encode các byte đó. Decode làm ngược lại: hex → bytes → UTF-8 string. Nếu hệ thống nhận interpret bytes theo Latin-1 hay Windows-1252, text decode sẽ khác. Hãy đảm bảo đồng thuận encoding ở cả hai đầu.
+
+## Tại sao một số hex output trông như `48 65 6c 6c 6f` còn một số trông như `48656c6c6f`?
+
+Điểm khác biệt duy nhất là separator. Space giữa mỗi cặp byte là style dùng bởi `xxd`, `hexdump`, và Wireshark — cải thiện khả năng đọc với chuỗi byte dài. Không có separator tạo ra chuỗi hex gọn thường dùng trong hash digest, Ethereum address, và URL encoding. Tool này cho phép bạn chọn: để trống cho gọn, space cho dump style, `:` cho MAC/IPv6 style.

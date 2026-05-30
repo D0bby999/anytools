@@ -1,0 +1,138 @@
+---
+title: YAML Formatter — indent, quirk, anchor, và các use case thực tế
+description: Format YAML, sort key, hiểu Norway problem, multi-line scalar, anchor/alias, và thư viện js-yaml.
+updated: 2026-05-26
+---
+
+## YAML là gì và bạn gặp nó ở đâu
+
+YAML ("YAML Ain't Markup Language") được thiết kế như một format serialization dễ đọc cho con người — phản ứng với sự phức tạp của XML và sự thiếu comment của JSON. YAML đọc sạch sẽ, hỗ trợ multi-line string tự nhiên, và có comment cùng anchor mà JSON hoàn toàn không có.
+
+Trong 2026, bạn gặp YAML ở khắp nơi: Kubernetes manifest, GitHub Actions workflow, Docker Compose, Helm chart, Ansible playbook, Hugo và Jekyll frontmatter, và hầu hết CI/CD tool nhận config viết tay. Nếu bạn làm cloud-native, bạn viết YAML mỗi ngày.
+
+## Norway problem và các bẫy type coercion
+
+YAML 1.1 — phiên bản hầu hết parser implement trong nhiều năm — áp dụng **implicit type coercion** cho unquoted scalar. Một số string bị convert thành type khác mà không báo lỗi:
+
+```yaml
+# YAML 1.1 implicit conversion — tất cả trở thành non-string
+country: NO          # → boolean false  (!!!)
+count: 010           # → integer 8 (octal)
+ratio: 1e3           # → float 1000.0
+enabled: yes         # → boolean true
+timestamp: 2026-05-26 # → date object
+```
+
+"Norway problem" là ví dụ điển hình nhất: country code ISO 3166-1 của Na Uy là `NO`, nhưng YAML 1.1 parser đọc nó là boolean `false`. Lỗi này đã phá vỡ nhiều config dropdown, file environment variable, và locale mapping.
+
+YAML 1.2 (2009, được adopt chậm) giới hạn boolean chỉ còn `true` và `false`, khiến `yes`, `no`, `on`, `off` an toàn để dùng unquoted.
+
+**Quy tắc thực tế:** Quote mọi string có thể bị đọc nhầm thành boolean, số, hoặc date.
+
+## Block style vs flow style
+
+YAML hỗ trợ hai cách trình bày cho mapping và sequence:
+
+**Block style** — mỗi entry trên một dòng với indent. Dễ đọc, diff-friendly, phù hợp config file:
+
+```yaml
+server:
+  host: localhost
+  port: 8080
+  tags:
+    - api
+    - v2
+```
+
+**Flow style** — giống JSON, compact, trên một dòng:
+
+```yaml
+server: {host: localhost, port: 8080, tags: [api, v2]}
+```
+
+Formatter này chuẩn hóa output thành block style — hầu như luôn là điều bạn muốn với config file check vào version control.
+
+## Multi-line scalar
+
+YAML có hai loại multi-line scalar indicator:
+
+**Literal block (`|`)** — newline được giữ nguyên:
+
+```yaml
+message: |
+  Dòng một
+  Dòng hai
+  Dòng ba
+```
+
+String kết quả có trailing newline. Dùng `|-` để strip nó hoặc `|+` để giữ tất cả trailing newline.
+
+**Folded block (`>`)** — single newline trở thành space; blank line trở thành newline thật:
+
+```yaml
+description: >
+  Đoạn mô tả dài này sẽ được fold
+  thành một dòng khi parse.
+
+  Blank line tạo paragraph break thật.
+```
+
+Chọn `|` khi line break có ý nghĩa ngữ nghĩa (code, log, SQL). Chọn `>` cho text xuôi. Formatter giữ nguyên indicator đang dùng.
+
+## Anchor và alias
+
+YAML anchor (`&name`) và alias (`*name`) cho phép định nghĩa một value một lần và tham chiếu nhiều lần — giống như biến:
+
+```yaml
+defaults: &defaults
+  timeout: 30
+  retries: 3
+
+production:
+  <<: *defaults
+  host: prod.example.com
+
+staging:
+  <<: *defaults
+  host: staging.example.com
+```
+
+Merge key `<<` là extension được hỗ trợ rộng rãi, merge key của mapping được tham chiếu vào mapping hiện tại. Anchor được parse đúng bởi formatter này và tồn tại qua round-trip. Khi dùng "sort keys", cấu trúc anchor/alias được giữ nguyên.
+
+## Comment — thứ YAML có mà JSON không có
+
+Comment YAML bắt đầu bằng `#` và chạy đến cuối dòng. Tin xấu: **hầu hết YAML parser bỏ qua comment** khi load document. Nếu bạn load YAML, sửa programmatically, rồi dump lại — toàn bộ comment biến mất.
+
+`js-yaml` bỏ qua comment trong quá trình parse. Formatter này bảo toàn comment bằng cách làm việc ở text level trước khi parse, rồi inject lại vào vị trí gốc. Đây là best-effort — document bị restructure nhiều (ví dụ sort key với comment inline dịch chuyển lớn) có thể mất một số comment.
+
+## Bảo mật: cảnh báo về `!!python` tag
+
+YAML hỗ trợ tag — annotation báo cho parser biết cách construct typed object:
+
+```yaml
+!!python/object/apply:os.system ['rm -rf /']
+```
+
+Đây là "YAML deserialization attack" nổi tiếng. Python YAML parser ở unsafe mode (`yaml.load()` không có `Loader=SafeLoader`) sẽ **execute arbitrary Python** khi gặp `!!python/…` tag. JavaScript parser không thể chạy Python, nhưng nếu pipeline của bạn pass YAML qua Python tool, rủi ro là thật.
+
+`js-yaml` raise error với unknown tag theo mặc định. Luôn dùng `yaml.load(input, { schema: yaml.DEFAULT_SAFE_SCHEMA })` khi xử lý input không tin tưởng.
+
+## js-yaml và các option của formatter
+
+Tool này dùng [`js-yaml`](https://github.com/nodeca/js-yaml), thư viện YAML JavaScript phổ biến nhất. Các option:
+
+- **Indent width** — 2 hoặc 4 space (tab hợp lệ về mặt kỹ thuật nhưng gây vấn đề tương thích parser; tránh dùng).
+- **Sort keys** — sắp xếp mapping key theo thứ tự alphabet đệ quy. Hữu ích cho stable diff trong k8s manifest và GitHub Actions.
+- **Line width** — chiều rộng cột tối đa trước khi folded scalar wrap. Mặc định 80.
+
+## Use case thực tế
+
+- **Kubernetes manifest**: Paste output `kubectl get -o yaml`, format, rồi check in.
+- **GitHub Actions workflow**: Kiểm tra indent của `on:`, `jobs:`, `steps:` trước khi push trigger run.
+- **Docker Compose**: Sửa block `services:` bị lỗi vì tab character nhảy vào.
+- **Helm values file**: Sort key trước khi diff hai environment.
+- **Hugo/Jekyll frontmatter**: Block `---` ở đầu file Markdown là YAML; formatter xử lý inner block này.
+
+## Quyền riêng tư
+
+Toàn bộ xử lý chạy trong browser qua `js-yaml`. Không có nội dung nào được gửi lên server.

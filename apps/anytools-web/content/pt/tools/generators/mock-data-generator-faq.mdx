@@ -1,0 +1,27 @@
+---
+title: Gerador de dados fake — Perguntas frequentes
+---
+
+## Os dados gerados são realmente fake?
+
+Sim. Nomes, emails, endereços e números de cartão são plausíveis mas não correspondem a pessoas reais. Cartões de crédito passam pelo algoritmo de Luhn (formato válido) mas não estão emitidos por nenhum banco. CPFs/CNPJs seguem regras de checksum mas não estão registrados.
+
+## Posso usar para teste de carga em produção?
+
+Não use os mesmos dados gerados aqui em sistemas de produção — alguém pode acertar uma coincidência com pessoa real. Para load testing, gere dados com um prefixo identificável (ex: `test+`) e ative isolation no ambiente de teste.
+
+## Como garantir mesmo output entre runs?
+
+Defina uma seed numérica nos controles. Mesma seed + mesma configuração = mesmo output, em todas as máquinas. Útil para snapshot testing onde o teste falha se a fixture mudar inesperadamente.
+
+## Suporta dados em português?
+
+Sim. O Faker tem locale `pt_BR` e `pt_PT` que geram nomes brasileiros/portugueses, endereços com CEPs válidos, telefones no formato local. Selecione no controle de locale.
+
+## Os dados são enviados para algum servidor?
+
+Não. Faker.js roda inteiramente no navegador. Abra o Network tab e veja zero requisições durante a geração. Funciona offline.
+
+## Quantas linhas posso gerar?
+
+Confortável até ~10.000 linhas. Acima disso o navegador pode pausar alguns segundos. Para volumes maiores, use Faker.js diretamente em Node com streaming, ou divida em batches menores e concatene os JSONs.

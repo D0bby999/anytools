@@ -1,0 +1,127 @@
+---
+title: Guía completa para embellecer y minificar CSS
+description: Formatea o minifica CSS con indentación configurable, entiende la legibilidad de la especificidad, el formato selector-por-línea, y el ahorro real de bytes.
+updated: 2026-05-27
+---
+
+## Por qué el CSS formateado vale la pena
+
+CSS no requiere espacio en blanco. Un navegador parsea `a{color:red}` y `a { color: red; }` de forma idéntica. Pero los humanos no los leemos igual. Una hoja de estilos que llega como una línea larga es casi imposible de analizar — no puedes ver los límites de las reglas, las cadenas de selectores ni las agrupaciones de declaraciones.
+
+Formatear CSS también es un requisito previo para un control de versiones útil. Un `git diff` sobre CSS minificado muestra una enorme línea modificada incluso cuando solo cambió un valor de color. El CSS embellecido muestra exactamente qué propiedad cambió, en qué selector, en qué bloque de regla.
+
+## Un selector por línea — por qué importa para diffs y legibilidad
+
+Un selector agrupado como:
+
+```css
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+```
+
+está bien para leer, pero una revisión de código que añade `h6` o elimina `h4` modifica una línea mixta. El diff es ruidoso. La forma embellecida pone cada selector en su propia línea:
+
+```css
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+```
+
+Ahora añadir o eliminar un nivel de encabezado es un diff limpio de una línea. Este es el comportamiento por defecto del modo CSS de `js-beautify` y el formato que Prettier usa para CSS.
+
+## Legibilidad de la especificidad
+
+La especificidad CSS determina qué regla gana cuando dos reglas apuntan al mismo elemento. El cálculo (estilos inline → IDs → clases/atributos → elementos) es más fácil de razonar cuando cada regla está completamente indentada y aislada. Las hojas de estilos minificadas lo aplanan todo en una línea — tienes que analizar mentalmente la cascada a nivel de carácter.
+
+Durante el desarrollo, mantén el CSS embellecido. Durante la revisión de código, un diff formateado hace visibles los conflictos de especificidad antes de que lleguen a producción.
+
+## Minificación: ahorro real de bytes
+
+La minificación CSS elimina:
+- Todo el espacio en blanco entre tokens
+- Comentarios (`/* ... */`)
+- Punto y coma finales en bloques de reglas
+- Ceros iniciales en decimales (`0.5em` → `.5em`)
+
+Una hoja de estilos realista puede reducirse un 25–40% tras la minificación. La clave: **la compresión HTTP (gzip o brotli) es mucho más efectiva que la eliminación de espacio en blanco**. Gzip típicamente logra una compresión del 60–80% en CSS porque el espacio en blanco es muy repetitivo:
+
+| Archivo | Sin comprimir | Tras minify | Tras gzip | Tras minify + gzip |
+|---------|--------------|------------|----------|-------------------|
+| bootstrap.css | 187 KB | 153 KB | 26 KB | 24 KB |
+
+La decisión correcta: activa gzip/brotli en tu servidor y también minifica el CSS en tu pipeline de build. La combinación siempre supera a cualquiera de las dos técnicas por separado.
+
+## CSS Nesting (CSS Nesting Module Level 1)
+
+El CSS moderno soporta anidamiento sin preprocesador. El CSS Nesting Module Level 1 (ahora soportado en todos los navegadores evergreen) permite:
+
+```css
+.card {
+  padding: 1rem;
+
+  & .title {
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    background: var(--color-hover);
+  }
+}
+```
+
+El modo CSS de `js-beautify` preserva correctamente la indentación del anidamiento. La minificación colapsa el anidamiento a su representación de espacio mínimo manteniendo la estructura válida — no "desanida" a CSS plano.
+
+## Shorthand vs longhand en la salida minificada
+
+Los shorthands CSS como `margin: 0 auto` son más pequeños que su equivalente longhand. Sin embargo, convertir automáticamente longhand a shorthand durante la minificación es arriesgado: el shorthand resetea todas las sub-propiedades, no solo las que listas. Un minificador que convierte ciegamente puede cambiar el comportamiento de la cascada.
+
+`js-beautify` no hace conversión de shorthands — solo elimina el espacio en blanco. Para optimización de shorthands, herramientas como `cssnano` con el plugin `postcss-merge-longhand` manejan esto con análisis correcto de la cascada.
+
+## Source maps para depurar CSS minificado
+
+Al servir CSS minificado en producción, genera un source map para que las DevTools del navegador muestren el archivo original embellecido:
+
+```bash
+# PostCSS con cssnano
+npx postcss styles.css --use cssnano -o styles.min.css --map
+```
+
+El archivo `.map` resultante mapea los offsets de bytes minificados de vuelta a las líneas fuente originales. Las DevTools lo recuperan automáticamente cuando el archivo minificado contiene `/*# sourceMappingURL=styles.min.css.map */` al final.
+
+## Usando `js-beautify` para CSS
+
+```javascript
+import beautify from 'js-beautify';
+
+const pretty = beautify.css(rawCss, {
+  indent_size: 2,
+  selector_separator_newline: true,
+  end_with_newline: true,
+  newline_between_rules: true,
+});
+```
+
+Para minificación en producción, prefiere `cssnano` o `lightningcss` (Rust, extremadamente rápido):
+
+```javascript
+import { transform } from 'lightningcss';
+
+const { code } = transform({
+  filename: 'styles.css',
+  code: Buffer.from(rawCss),
+  minify: true,
+  sourceMap: true,
+});
+```
+
+## Privacidad
+
+Todo el procesamiento CSS se ejecuta completamente en tu navegador. Tus estilos nunca se transmiten a un servidor.

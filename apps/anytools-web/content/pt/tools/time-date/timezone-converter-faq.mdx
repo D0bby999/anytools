@@ -1,0 +1,27 @@
+---
+title: Conversor de fusos — Perguntas frequentes
+---
+
+## UTC e GMT são a mesma coisa?
+
+Para uso prático, sim. UTC é definido por relógios atômicos; GMT por observação astronômica. Diferença é menor que 1 segundo. Em código, prefira UTC e o sufixo `Z` (`2026-05-27T14:30:00Z`).
+
+## Por que devo armazenar tudo em UTC?
+
+Porque local time depende de offset + DST, ambos variáveis. UTC é absoluto. Armazene UTC no banco, renderize local na UI conforme o timezone do usuário.
+
+## Por que `2026-05-27` no JS é meia-noite UTC?
+
+`new Date('2026-05-27')` sem `Z` ou offset é parseado como meia-noite UTC pela spec ES5+. Mas formatos com `/` ou outros separadores variam por engine. Sempre use ISO 8601 com `Z` para evitar ambiguidade.
+
+## Brasil tem DST?
+
+Não desde 2019. Antes alternava entre BRT (UTC-3) e BRST (UTC-2). Para timestamps anteriores a 2019, o conversor respeita o histórico via tz database.
+
+## Como descobrir o timezone do usuário?
+
+`Intl.DateTimeFormat().resolvedOptions().timeZone` retorna o nome IANA do browser (ex: `America/Sao_Paulo`). Útil para defaults em apps multi-fuso.
+
+## Dados são enviados a servidor?
+
+Não. `date-fns-tz` e tz database são embutidos no bundle. Tudo roda local. Network tab vazio.

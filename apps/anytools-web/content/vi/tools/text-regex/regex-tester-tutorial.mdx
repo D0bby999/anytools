@@ -1,0 +1,89 @@
+---
+title: Regex trong JavaScript — phần thực sự quan trọng
+description: Tour thực dụng về regex với các gotcha (catastrophic backtracking, dot không match newline) được nêu rõ. Cheatsheet ở cuối.
+updated: 2026-05-25
+---
+
+## Vì sao regex đáng học (và khi nào đừng dùng)
+
+Regular expression là tool parse text universal — mọi ngôn ngữ hiện đại đều có, cú pháp hầu hết chuyển được, và là đáp án đúng cho ~80% công việc "tìm pattern này". 20% còn lại:
+
+- **Parse HTML hoặc XML** bằng regex — đừng. Dùng parser thật (`DOMParser` trong browser, `cheerio` trong Node).
+- **Parse JSON** bằng regex — đừng. Dùng `JSON.parse`.
+- **Validate email** bằng regex — thường sai; dùng library hoặc built-in của auth provider.
+- **Delimiter lồng sâu hoặc balanced** — regex (chính thức) không match được. Dùng parser.
+
+Còn lại: extract URL, split text CSV-ish, validate format số điện thoại, match log line, tìm comment TODO — regex là tool đúng.
+
+## Năm khái niệm đáng nhớ thuộc lòng
+
+Bạn viết được 90% regex hữu ích với năm primitive này:
+
+1. **Character class**: `\d` (chữ số), `\w` (ký tự chữ), `\s` (whitespace), và phủ định viết hoa. Cộng class tùy chỉnh: `[a-z]`, `[^xyz]`.
+2. **Quantifier**: `*` (0+), `+` (1+), `?` (0 hoặc 1), `{n,m}` (giữa n và m). Thêm `?` làm lazy: `*?`, `+?`.
+3. **Anchor**: `^` (đầu), `$` (cuối), `\b` (biên từ).
+4. **Group**: `(…)` capture, `(?:…)` không capture (rẻ hơn), `(?<name>…)` capture có tên.
+5. **Alternation**: `a|b` — `a` hoặc `b`.
+
+Kết hợp năm cái này bạn match được hầu hết. Phần còn lại của cú pháp regex (lookahead, backreference, unicode class, v.v.) thỉnh thoảng hữu ích nhưng có thể skip cho công việc hàng ngày.
+
+## Quirk đặc thù JavaScript
+
+Regex JS (theo ECMAScript) *gần như* PCRE nhưng không hẳn:
+
+- **Không có `(?#comment)`** — regex JS không có cú pháp comment. Comment code thay thế.
+- **`.` KHÔNG match newline** trừ khi set flag `s` (dotAll). Nguồn lỗi "vì sao cái này không match?" thường xuyên.
+- **`\b` dùng biên từ ASCII** mặc định. Set flag `u` thay đổi. Thêm `u` bất cứ khi nào xử lý text non-ASCII.
+- **Named group dùng `(?<name>…)`** — kiểu Python. JS adopt cái này 2018; giả định browser/Node hiện đại.
+- **Backreference trong replace** dùng `$1`, `$2`, `$<name>` — không phải `\1` như Perl.
+
+Ngôn ngữ khác làm hơi khác. PCRE là near-superset của regex JS; Python `re` tương tự nhưng dùng `(?P<name>…)` cho named group; package `regexp` của Go là RE2 (không backreference, không lookahead, nhưng linear-time đảm bảo). Đừng paste regex Python vào JS mà không check.
+
+## Catastrophic backtracking — bẫy hiệu năng duy nhất
+
+Pattern như `(a+)+b` match với `aaaaaaaaaaaaaaaaaaaaa` (không có `b` cuối) tốn **thời gian mũ** khi input to. Engine regex thử mọi cách phân chia `a` giữa hai quantifier, bỏ cuộc, rồi thử combination tiếp. Với 20 `a` và không có `b`, đó là hàng triệu attempt.
+
+Tool này set cap thực thi 1 giây chính xác vì pattern pathological có thể treo tab browser vô hạn.
+
+Quy tắc tránh:
+
+- **Đừng lồng quantifier** không suy nghĩ. `(a+)+`, `(a*)*`, `(a|aa)+` là cờ đỏ.
+- **Dùng atomic group hoặc possessive quantifier** nếu engine hỗ trợ (JS không — dùng mẹo lookahead).
+- **Cụ thể.** `[^"]*"` match đến nháy kép tiếp theo; tốt hơn `.*"` có thể backtrack.
+- **Test với input adversarial.** Pattern xử lý happy path có thể nổ với input kết thúc bằng vài ký tự không khớp.
+
+Nếu pattern mất quá lâu, đáp án hiếm khi là "thêm `+`" — thường là "viết lại để linear", hoặc "dùng parser thật".
+
+## Tool này giúp thế nào
+
+- Paste pattern và text; match highlight live.
+- Flag toggleable; bạn thấy chúng trong pattern preview (`/foo/gi`).
+- Group capture và named group xuất hiện dưới mỗi match.
+- Mode replace preview kết quả `text.replace(pattern, replacement)`.
+- Cap thực thi 1 giây bắt catastrophic backtracking trước khi tab đóng băng.
+
+## Cheatsheet pattern work được
+
+| Mục tiêu | Pattern |
+|---|---|
+| Match chữ số | `\d+` |
+| Match một từ | `\w+` |
+| Match chuỗi email-ish | `[\w.+-]+@[\w-]+\.[\w.-]+` |
+| Match chuỗi URL-ish | `https?:\/\/[^\s)]+` |
+| Match ngày ISO | `\d{4}-\d{2}-\d{2}` |
+| Match IPv4 | `\b(?:\d{1,3}\.){3}\d{1,3}\b` |
+| Match HTTP status code | `\b[1-5]\d{2}\b` |
+| Strip whitespace đầu/cuối | replace `^\s+|\s+$` với `` |
+| Gộp nhiều space | replace `\s+` với ` ` |
+
+Không bulletproof — cái email chấp nhận khá nhiều địa chỉ invalid — nhưng đủ tốt cho filter và extract.
+
+## Quyền riêng tư
+
+Mọi regex matching chạy trong browser qua engine `RegExp` native. Chúng tôi không gửi pattern hoặc text của bạn đi đâu.
+
+## Công cụ liên quan
+
+- **Text Case Converter** — đổi case của text khớp.
+- **Slugify** — biến text bất kỳ thành slug URL-safe (transformation regex mức cao hơn).
+- **JSON Formatter** — khi match của bạn cần format JSON.

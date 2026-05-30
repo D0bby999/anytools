@@ -1,0 +1,90 @@
+---
+title: XML Formatter — hướng dẫn định dạng và minify XML
+description: Hiểu cú pháp XML, namespace, CDATA, self-closing tag và khi nào XML vẫn còn quan trọng trong thực tế.
+updated: 2026-05-26
+---
+
+## XML là gì và tại sao vẫn còn phổ biến
+
+XML (Extensible Markup Language) được W3C chuẩn hóa năm 1998 và nhanh chóng trở thành định dạng trao đổi dữ liệu phổ biến nhất trước khi JSON xuất hiện. Dù JSON đã thay thế XML trong hầu hết REST API mới, XML vẫn hiện diện rất nhiều trong thực tế: SOAP web services trong ngành ngân hàng và y tế, RSS/Atom feed, SVG, định dạng OOXML (`.docx`, `.xlsx`), file layout Android, Maven build config, và hầu hết các hệ thống tích hợp doanh nghiệp.
+
+Là một developer, bạn sẽ gặp XML thường xuyên hơn bạn nghĩ.
+
+## Các quy tắc XML hay gây lỗi
+
+XML parser tuân thủ spec bắt buộc phải **từ chối** input không hợp lệ, không cố đoán ý bạn như HTML parser. Các lỗi phổ biến nhất:
+
+1. **Tag chưa đóng.** Mọi tag mở đều cần tag đóng tương ứng hoặc phải là self-closing: `<br/>`. Không giống HTML, `<br>` không hợp lệ trong XML.
+2. **Case-sensitive.** `<Item>` và `<item>` là hai element khác nhau. Dùng lẫn lộn sẽ khiến document không hợp lệ.
+3. **Chỉ một root element.** Một XML document hợp lệ chỉ có đúng một element ở cấp cao nhất.
+4. **Attribute value phải được quote.** `<img width=300>` là HTML shorthand; trong XML phải là `width="300"`.
+5. **Ký tự đặc biệt trong text content.** Các ký tự `<`, `>`, `&` phải được escape thành `&lt;`, `&gt;`, `&amp;`, hoặc dùng CDATA section.
+
+## Namespace — nguồn gốc của nhiều nhầm lẫn
+
+XML namespace cho phép nhiều vocabulary XML cùng tồn tại trong một document mà không xung đột tên. Namespace là một URI được gán cho một prefix:
+
+```xml
+<root xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Envelope>
+    <soap:Body xsi:type="xs:string">Xin chào</soap:Body>
+  </soap:Envelope>
+</root>
+```
+
+URI ở đây chỉ là định danh duy nhất — không cần trỏ đến URL thực. Formatter phải giữ nguyên toàn bộ namespace declaration. Tool này sử dụng `fast-xml-parser` với chế độ bảo toàn namespace, nên attribute và prefix không bị thay đổi sau khi format.
+
+## CDATA section
+
+CDATA section cho phép nhúng text nguyên bản mà không cần escape:
+
+```xml
+<script><![CDATA[
+  if (a < b && c > d) {
+    xuLy();
+  }
+]]></script>
+```
+
+Rất hữu ích khi nhúng HTML, JavaScript, hoặc SQL vào XML. Chuỗi duy nhất không thể có bên trong CDATA là `]]>` (ký hiệu đóng). Tool này bảo toàn CDATA section nguyên vẹn qua quá trình format.
+
+## Comment và processing instruction
+
+Comment XML `<!-- như thế này -->` không mang ý nghĩa ngữ nghĩa — nhiều parser bỏ qua chúng khi xử lý. Tool này dùng `fast-xml-parser` với chế độ bảo toàn comment, nên comment của bạn không bị mất sau khi format.
+
+Processing instruction `<?xml-stylesheet type="text/xsl" href="style.xsl"?>` là chỉ thị cho ứng dụng xử lý. XML declaration `<?xml version="1.0" encoding="UTF-8"?>` luôn nên có khi document chứa ký tự non-ASCII.
+
+## Self-closing tag và thứ tự attribute
+
+Self-closing tag (`<element/>`) và cặp `<element></element>` có nghĩa giống nhau trong XML. Formatter chuẩn hóa các empty element ngắn thành self-closing để giảm noise. Thứ tự attribute không có ý nghĩa theo spec, nhưng tool này giữ nguyên thứ tự gốc để tránh vấn đề với các workflow so sánh diff theo vị trí attribute.
+
+## Pretty-print vs minify
+
+**Pretty-print** thêm indent và newline để cấu trúc dễ đọc. Dùng khi:
+- Check vào version control (diff dễ đọc hơn nhiều)
+- Debug SOAP envelope và API response
+- Chỉnh sửa config file thủ công
+
+**Minify** xóa toàn bộ whitespace không cần thiết. Dùng khi:
+- Truyền qua mạng trong môi trường hạn chế bandwidth
+- Nhúng XML vào môi trường mà whitespace có thể bị hiểu nhầm
+- Giảm dung lượng khi lưu trữ XML archive lớn
+
+Một lưu ý quan trọng: whitespace bên trong `<![CDATA[…]]>` hoặc trong mixed-content element là **significant** và không được xóa. Tool này tôn trọng điều này.
+
+## Khi nào XML vẫn tốt hơn JSON
+
+- **SOAP service**: Hệ thống tài chính, y tế, chính phủ thường bắt buộc dùng SOAP. Không có tương đương JSON.
+- **RSS/Atom feed**: Toàn bộ hệ sinh thái syndication vẫn là XML.
+- **SVG**: Scalable Vector Graphics là XML — bạn có thể format file SVG y như XML thông thường.
+- **OOXML**: File `.docx` và `.xlsx` là ZIP chứa XML bên trong.
+- **Document model phức tạp**: Mixed content, namespace, XSD schema phù hợp hơn JSON cho tài liệu phức tạp.
+
+## Hiệu suất và giới hạn kích thước
+
+Tool chạy hoàn toàn trên browser. Input đến khoảng **5 MB** xử lý mượt mà trên hầu hết trình duyệt hiện đại. Với file lớn hơn, dùng `xmllint --format` trên command line sẽ nhanh hơn.
+
+## Bảo mật và quyền riêng tư
+
+Toàn bộ quá trình xử lý diễn ra trong browser. XML của bạn không bao giờ được gửi lên server. Bạn có thể kiểm chứng bằng tab Network của DevTools.

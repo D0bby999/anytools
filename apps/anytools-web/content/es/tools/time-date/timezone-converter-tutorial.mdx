@@ -1,0 +1,64 @@
+---
+title: Guía completa del Convertidor de Zonas Horarias
+description: Cómo funciona la base de datos IANA, por qué UTC supera a "EST", casos borde en transiciones DST y los errores de desarrollador más comunes con el tiempo.
+updated: 2026-05-26
+---
+
+## La base de datos de zonas horarias IANA
+
+Cada nombre de timezone que ves en esta herramienta — `America/New_York`, `Europe/Paris`, `America/Mexico_City` — proviene de la **Base de Datos de Zonas Horarias IANA**, también llamada la **base de datos Olson** por su mantenedor original Arthur David Olson. Se publica en [https://www.iana.org/time-zones](https://www.iana.org/time-zones) y se actualiza varias veces al año cuando los gobiernos cambian sus reglas de timezone.
+
+La base de datos hace mucho más que listar offsets UTC. Codifica el historial completo de las reglas de cada timezone: cuándo ocurrieron las transiciones DST, cómo cambiaron los offsets por decisiones políticas, y cuándo los países adoptaron o abandonaron el horario de verano. Es por eso que `America/Mexico_City` sabe exactamente qué reglas DST aplicaban en 1995 y puede convertir correctamente cualquier timestamp histórico.
+
+Esta herramienta usa [`date-fns-tz`](https://github.com/marnusw/date-fns-tz) y la API `Intl.DateTimeFormat` integrada del navegador, ambas derivando sus datos de timezone de la base de datos IANA incluida con el sistema operativo o el runtime de JavaScript.
+
+## Por qué "America/Mexico_City" y no "CST"
+
+La abreviatura `CST` significa "Central Standard Time" — UTC−6. Pero es ambigua: `CST` también se usa para China Standard Time (UTC+8) y Cuba Standard Time (UTC−5). Más críticamente, `CST` no dice nada sobre el horario de verano. Cuando México está en CDT (Central Daylight Time, UTC−5) en verano, usar `CST` te da el offset incorrecto.
+
+El identificador IANA `America/Mexico_City` no tiene esa ambigüedad. Se refiere a una región geográfica cuyas reglas de offset están completamente especificadas en la base de datos Olson. El sistema sabe automáticamente si el momento en cuestión cae bajo CST o CDT. Siempre usa identificadores IANA en el código de aplicación; usa abreviaciones solo para visualización.
+
+El mismo principio aplica a `GMT` vs `UTC`. GMT es una timezone (la del Observatorio Real en Greenwich) y técnicamente observa el horario de verano británico en verano. UTC es un estándar de tiempo, no una timezone — nunca cambia, no tiene DST, y es la línea base correcta para almacenar timestamps.
+
+## Transiciones de horario de verano
+
+El DST crea dos momentos notoriamente complicados cada año:
+
+**Adelanto de primavera.** A las 2:00 AM hora local, los relojes avanzan a las 3:00 AM. La hora de las 2:00 a las 3:00 no existe. Una reunión programada para las 2:30 AM en esa fecha es ambigua — ese momento de reloj de pared no existe. La mayoría de los sistemas omiten la hora faltante silenciosamente.
+
+**Atraso de otoño.** A las 2:00 AM hora local, los relojes retroceden a la 1:00 AM. La hora de la 1:00 a las 2:00 ocurre dos veces. Un timestamp de "1:30 AM" en esa fecha es ambiguo — podría ser la primera o segunda ocurrencia. La biblioteca `date-fns-tz` resuelve esto usando el offset pre-transición para la primera ocurrencia.
+
+## UTC vs hora local: la regla más importante
+
+**Siempre almacena timestamps en UTC.** Esta es la regla con mayor impacto en el manejo del tiempo. La hora local almacenada en una base de datos no tiene significado sin su timezone, y las reglas de timezone cambian.
+
+En la práctica:
+- Almacena `TIMESTAMPTZ` (o equivalente) en PostgreSQL, que convierte a UTC al insertar.
+- En JavaScript, los objetos `Date` almacenan milisegundos UTC internamente — usa `toISOString()` para serialización (`2026-05-26T14:30:00.000Z`).
+- En Python, usa `datetime.now(timezone.utc)` no `datetime.now()` — la forma naive (sin tzinfo) es una trampa.
+- Muestra en hora local solo en la capa UI, nunca en lógica de negocio o almacenamiento.
+
+## Errores comunes de desarrollador
+
+**Almacenar hora local sin contexto de timezone.** Una columna `datetime` con `2026-03-08 02:30:00` en una app basada en EEUU es dato corrupto — esa hora local no existe (fue omitida por DST). Almacena UTC; convierte al mostrar.
+
+**Confundir "+00:00" con "Z".** Ambos significan UTC, pero `Z` (tiempo Zulu) es estrictamente una designación ISO 8601 para UTC. `+00:00` significa un offset de cero horas — el mismo valor numérico pero semántica diferente. Prefiere `Z` para timestamps UTC.
+
+**Usar timezones de offset fijo en código.** `new Date().toLocaleString('es-MX', {timeZone: 'UTC-6'})` fallará o se comportará incorrectamente en muchos entornos. Siempre usa un nombre IANA (`America/Mexico_City` para CST/CDT).
+
+**Asumir que las transiciones DST ocurren a medianoche.** En EEUU ocurren a las 2:00 AM. En la UE, a la 1:00 AM UTC. Nunca hardcodees el tiempo de transición.
+
+**Aritmética sobre timestamps locales.** Sumar 24 horas a un timestamp local cruzando un límite DST da el resultado incorrecto — un día puede durar 23 o 25 horas reales. Haz la aritmética en UTC, luego convierte a hora local para mostrar.
+
+## Usando esta herramienta para planificar entre zonas horarias
+
+Un caso de uso común: programar una reunión o una ventana de deployment que funcione para equipos en múltiples timezones. Ingresa el tiempo propuesto y tu timezone local, agrega las timezones de tus compañeros y la herramienta muestra los tiempos locales correspondientes para cada uno. Combinado con la herramienta Cron Parser (que muestra los próximos tiempos de ejecución en UTC), puedes verificar que un trabajo programado se dispare en un tiempo aceptable en cada región que importa.
+
+## Privacidad
+
+Todas las conversiones se ejecutan en tu navegador usando `date-fns-tz` y la API `Intl.DateTimeFormat`. No se envían timestamps ni consultas de timezone a un servidor.
+
+## Herramientas relacionadas
+
+- **Cron Parser** — traduce expresiones cron a timestamps de próxima ejecución y entiende su timing UTC.
+- **Timestamp Converter** — convierte enteros Unix epoch hacia y desde fechas legibles en cualquier timezone.

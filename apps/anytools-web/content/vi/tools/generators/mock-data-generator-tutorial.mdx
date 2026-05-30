@@ -1,0 +1,99 @@
+---
+title: Hướng dẫn tạo mock data với faker.js
+description: Tạo dữ liệu giả thực tế dưới dạng JSON và CSV bằng faker.js — seed, locale, các category, và giới hạn memory trình duyệt.
+updated: 2026-05-26
+---
+
+## Tại sao mock data quan trọng
+
+Dữ liệu test cứng như `user1`, `test@test.com`, hay `123 Main St` sẽ che giấu bugs chỉ xuất hiện với dữ liệu thực tế. Một field tên vừa với "Alice" sẽ bị tràn với "Nguyễn Thị Minh Châu". Field ngày tháng hoạt động ở US lại vỡ khi có format châu Âu. Mock data tốt giúp code của bạn gặp đủ loại dữ liệu đa dạng — độ dài string khác nhau, ký tự unicode, edge cases — trước khi người dùng thật làm điều đó trên production.
+
+Tool này dùng [faker.js](https://fakerjs.dev/), thư viện tạo fake data JavaScript phổ biến nhất, chạy hoàn toàn trong browser.
+
+## Các category dữ liệu
+
+faker.js tổ chức fake data theo module. Những cái developer dùng nhiều nhất:
+
+**Person** — `firstName`, `lastName`, `fullName`, `jobTitle`, `gender`, `bio`. Có locale: locale Nhật Bản tạo tên Nhật plausible; locale Brazil tạo tên tiếng Bồ Đào Nha.
+
+**Internet** — `email`, `userName`, `url`, `ip`, `ipv6`, `mac`, `password`, `domainName`. Hữu ích cho user accounts, API logs, network records.
+
+**Location** — `streetAddress`, `city`, `state`, `country`, `zipCode`, `latitude`, `longitude`. Kết hợp với person data để build user profile thực tế.
+
+**Finance** — `amount`, `currencyCode`, `currencyName`, `accountNumber`, `creditCardNumber`, `transactionType`. Tốt cho e-commerce và fintech fixtures. Lưu ý: số credit card pass Luhn validation nhưng không phải card thật.
+
+**Company** — `name`, `catchPhrase`, `buzzPhrase`, `industry`. Hữu ích khi seed org hay account records.
+
+**Date** — `past`, `future`, `between`, `birthdate`, `recent`. Trả về JavaScript `Date` objects; tool serialize thành ISO 8601 strings trong output.
+
+**Lorem** — `word`, `words`, `sentence`, `paragraph`, `paragraphs`. Lorem ipsum cổ điển hoặc câu tiếng Anh ngẫu nhiên.
+
+## JSON vs CSV output
+
+**Chọn JSON khi:**
+- Feed data vào REST API hoặc seed database qua migration script
+- Schema có nested objects (ví dụ user với embedded address)
+- Viết test fixtures cho Jest, Vitest, hay Playwright
+
+**Chọn CSV khi:**
+- Import vào spreadsheet (Excel, Google Sheets)
+- Load vào database với `COPY` hay `LOAD DATA`
+- Gửi cho stakeholder cần review sample data
+
+Nested JSON fields được tự động flatten cho CSV: `{ "address": { "city": "Hà Nội" } }` thành column `address.city`.
+
+## Seed để có kết quả tái lặp
+
+Mặc định faker.js dùng random seed mỗi lần chạy, nên mỗi lần generate ra dữ liệu khác nhau. Nếu cần **output xác định** — cùng fake records mỗi lần chạy test — hãy set một seed value. Số nguyên nào cũng được; tool truyền nó vào `faker.seed(n)`.
+
+```javascript
+// Tương đương với những gì tool làm bên dưới
+import { faker } from '@faker-js/faker'
+faker.seed(42)
+const name = faker.person.fullName() // Luôn cùng một tên với seed 42
+```
+
+Dùng fixed seed cho CI fixtures được commit vào repo. Dùng random seed khi muốn khám phá UI trông như thế nào với dữ liệu đa dạng.
+
+## Tạo dữ liệu theo locale
+
+faker.js có built-in locales cho 60+ vùng. Đổi locale ảnh hưởng đến tên, địa chỉ, số điện thoại và một số field khác. Locale `en` tạo dữ liệu tiếng Anh Mỹ mặc định. Các locale phổ biến khác:
+
+- `vi` — Tên và địa chỉ Việt Nam
+- `ja` — Tên Nhật (kanji + hiragana)
+- `pt_BR` — Tên tiếng Bồ Đào Nha Brazil và CPF-style IDs
+- `de` — Tên và địa chỉ Đức
+- `zh_CN` — Tiếng Trung giản thể
+
+Đặc biệt hữu ích khi test xử lý internationalization — nếu app chỉ được test với tên ASCII, bạn sẽ không phát hiện encoding bugs cho đến khi ra mắt.
+
+## Tạo được bao nhiêu rows?
+
+Browser xử lý thoải mái khoảng **10.000 rows** mà không lag đáng kể. Trên mức đó, cả vòng lặp generation lẫn render kết quả trong UI bắt đầu tốn nhiều memory. Với dataset lớn (100k+ rows), generate theo batch nhỏ hơn hoặc dùng faker.js trong Node.js script:
+
+```javascript
+import { faker } from '@faker-js/faker'
+import { writeFileSync } from 'fs'
+
+const rows = Array.from({ length: 100_000 }, () => ({
+  id: faker.string.uuid(),
+  name: faker.person.fullName(),
+  email: faker.internet.email(),
+}))
+
+writeFileSync('fixtures.json', JSON.stringify(rows, null, 2))
+```
+
+## Các use case thực tế
+
+**API integration tests** — generate 50 user objects, feed vào POST endpoint trong vòng lặp, assert response shape. Phát hiện serialization bugs mà fixed objects bỏ sót.
+
+**Database seeding** — generate records khớp với schema, rồi chạy qua ORM's bulk-insert. Test constraints, indexes, và triggers với realistic cardinality.
+
+**Demo environments** — populate staging database để stakeholders thấy app trông thực tế, không phải bảng trống hay placeholder text.
+
+**Schema validation** — pipe generated JSON qua JSON Schema hay Zod validator. Nếu validator reject, schema quá strict hay faker đang generate edge cases schema không ngờ đến — cả hai đều là phát hiện hữu ích.
+
+## Privacy
+
+faker.js chạy hoàn toàn trong browser. Không có dữ liệu generate nào được gửi lên server. Tất cả giá trị được tạo bằng thuật toán — không phải tên hay email thật của người thật.

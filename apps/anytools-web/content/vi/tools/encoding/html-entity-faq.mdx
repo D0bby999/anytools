@@ -1,0 +1,35 @@
+---
+title: HTML Entity Encoder/Decoder — Câu hỏi thường gặp
+---
+
+## Sự khác nhau giữa &amp;lt;, &#60;, và &#x3C; là gì?
+
+Cả ba đều biểu diễn cùng một ký tự: `<`. `&lt;` là named reference (dễ đọc nhất), `&#60;` là decimal numeric reference, và `&#x3C;` là hexadecimal numeric reference. Trình duyệt xử lý cả ba như nhau. Named references phù hợp cho HTML viết tay; numeric và hex thường xuất hiện trong HTML được generate bằng code vì chúng map trực tiếp từ Unicode code point mà không cần bảng lookup.
+
+## HTML entity encoding có phòng được XSS không?
+
+Phòng được XSS **trong HTML text content context** — nếu bạn insert user input giữa các tag, encode `<`, `>`, `&`, và `"` làm cho markup bị inject trở thành văn bản vô hại. Nhưng đây không phải giải pháp XSS toàn diện. Khi insert user data vào JavaScript string, `href` attribute, CSS value, hay URL parameter, mỗi context cần cách escape riêng. Entity encoding dùng sai context hoặc không làm gì, hoặc làm hỏng output.
+
+## Double-encoding như &amp;amp;amp; xuất hiện trên trang là do đâu?
+
+Double-encoding xảy ra khi một string bị entity-encode nhiều hơn một lần. `&` thành `&amp;`, rồi encode lại thành `&amp;amp;`. Trang sẽ hiện `&amp;` thay vì `&`. Cách fix: decode trước để kiểm tra xem input đã encoded chưa, rồi chỉ encode một lần duy nhất tại điểm insert vào HTML — không encode lúc lưu vào database rồi lại encode thêm lần nữa khi render.
+
+## Tại sao tôi cần tự encode khi template engine đã auto-escape?
+
+Hầu hết template engine (React JSX, Jinja2, Handlebars, Blade) đã auto-escape theo mặc định. Bạn cần encode thủ công khi: dùng `dangerouslySetInnerHTML`, `v-html`, `innerHTML`, hay bất kỳ API raw-HTML nào; generate HTML string bên ngoài template engine; viết HTML tĩnh bằng tay; hoặc sanitize nội dung từ rich-text editor.
+
+## Có thể dùng HTML entities trong URL không?
+
+Không. URL dùng percent-encoding, không phải HTML entities. `https://example.com/?q=a&b=c` — ký tự `&` ở đây là URL delimiter, và phải là `%26` nếu là data thực. Đặt `&amp;` trong URL, trình duyệt hiểu là chuỗi bốn ký tự `&amp;`, không phải `&`. Dùng URL encoding cho query strings và HTML encoding cho HTML attributes — chúng xếp chồng lên nhau, không thay thế cho nhau.
+
+## Input của tôi có được gửi lên server không?
+
+Không. Tất cả encode và decode chạy trong browser dùng library [`he`](https://github.com/mathiasbynens/he). Không có gì được truyền đi. Bạn có thể verify bằng cách mở network tab trong khi dùng tool — không có request nào được gửi ra.
+
+## Tool này encode những ký tự nào?
+
+Mặc định encode năm ký tự có ý nghĩa cấu trúc trong HTML: `&`, `<`, `>`, `"`, `'`. Với tùy chọn "encode all non-ASCII", mọi ký tự ngoài ASCII range (code points > 127) cũng được emit dưới dạng numeric reference — hữu ích khi cần output thuần ASCII, ví dụ embed HTML vào hệ thống không xử lý UTF-8 tốt.
+
+## Tại sao một số named entities không cần dấu chấm phẩy?
+
+HTML cũ (trước HTML5) cho phép một số named references không cần dấu chấm phẩy — `&amp` đôi khi được chấp nhận cùng với `&amp;`. Parser hiện đại vẫn chấp nhận để tương thích ngược, nhưng về mặt kỹ thuật đây là malformed. Luôn bao gồm dấu chấm phẩy trong code mới; library `he` decode cả hai dạng nhưng luôn emit dạng đúng có dấu chấm phẩy.

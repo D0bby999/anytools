@@ -1,0 +1,35 @@
+---
+title: QR Code Generator — Frequently asked questions
+---
+
+## What error correction level should I choose?
+
+Use **L** for clean digital displays or perfect prints where nothing will obscure the code. Use **M** for general-purpose printed materials — it's the sweet spot. Use **Q** or **H** when the surface may be dirty, worn, or when you're overlaying a logo in the center. Higher levels add redundant modules that let scanners reconstruct up to 30% of damaged data, but they also make the code physically larger for the same payload.
+
+## Can I overlay a logo on a QR code?
+
+Yes — this is a common branding technique. Set error correction to **H** (30% recovery capacity) before adding a logo. The logo should cover no more than 20-25% of the code area. Place it centered over the data region, not over the three corner finder patterns. After adding the logo, always test scanning with multiple devices and camera apps to confirm it still reads.
+
+## Why won't my colored QR code scan?
+
+Most scanning failures with colored codes come down to insufficient contrast. The ISO 18004 standard recommends at minimum a 4:1 luminance ratio between dark and light modules. Pastel foregrounds on off-white backgrounds are the most common failure. Stick to dark foreground / light background rather than inverting (light-on-dark fails on many readers). After choosing custom colors, test in direct sunlight and low-light conditions before deploying.
+
+## What is the maximum amount of data a QR code can hold?
+
+A Version 40 QR code (the largest, 177×177 modules) with error correction level L can store up to 7,089 numeric characters, 4,296 alphanumeric characters, or 2,953 bytes of binary data. In practice, longer payloads produce denser, harder-to-scan codes. Keep URLs short (use a URL shortener if needed) and vCards concise for reliable scanning on mid-range phones.
+
+## What is the Wi-Fi QR format exactly?
+
+The format is: `WIFI:T:WPA;S:NetworkName;P:Password;;` — `T` is security type (`WPA`, `WEP`, or `nopass`), `S` is the SSID, `P` is the password. Terminate with double semicolon. If your SSID or password contains `;`, `,`, `"`, or `\`, escape them with a backslash. iOS and Android camera apps recognize this format natively — no app required.
+
+## Should I export PNG or SVG?
+
+**SVG** for anything print-related (business cards, signage, packaging) — it's vector and scales to any size without blurring. **PNG** for digital sharing via email, messaging apps, or web pages with a known display size. When using PNG, export at 2× or 3× the intended display size to stay crisp on retina/HDPI screens.
+
+## Is my data sent to a server?
+
+No. QR generation runs entirely in your browser using the [`qrcode`](https://www.npmjs.com/package/qrcode) npm library compiled to JavaScript. Sensitive payloads like Wi-Fi passwords, vCard contact details, or private URLs never leave your device. You can verify this by opening your browser's network tab and watching for requests — there are none.
+
+## Why does my QR code have a white border?
+
+That border is the **quiet zone** — a mandatory blank margin of at least 4 module widths on all sides. Without it, scanners cannot detect where the code starts and ends, causing scan failures. The quiet zone is included automatically in all exports. Do not crop it when placing the code in print layouts.

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 128" width="480" height="128">
+  <title>AnyTools wordmark</title>
+  <rect width="128" height="128" rx="28" fill="#2563EB"/>
+  <path d="M40 96 L60 32 L68 32 L88 96 L77 96 L72 80 L56 80 L51 96 Z M59 71 L69 71 L64 54 Z" fill="#FFFFFF"/>
+  <text x="150" y="86" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="64" font-weight="800" fill="#1E293B" letter-spacing="-2">AnyTools</text>
+</svg>

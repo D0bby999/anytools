@@ -1,0 +1,120 @@
+---
+title: JSON sâu — cú pháp, gotcha, hiệu năng, và case cắn lại
+description: Tour dài về JSON năm 2026 — JSON là gì, JSON5 fix gì, JSON Schema dùng cho gì, và vì sao JSON.parse có thể lặng lẽ mất dữ liệu.
+updated: 2026-05-25
+---
+
+## JSON là gì và vì sao nó trụ lại
+
+JSON (JavaScript Object Notation) được tách ra từ JavaScript bởi Douglas Crockford đầu thập niên 2000, formalized thành [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259), và được áp dụng nhanh đáng xấu hổ làm format trao đổi dữ liệu mặc định cho web. Lý do bình thường: nó **tối giản** (sáu sản xuất grammar), **văn bản** (debug được bằng grep), **không phụ thuộc ngôn ngữ** (parser tồn tại cho mọi ngôn ngữ từng ship), và **cố ý kém biểu cảm hơn XML** (vốn nó hầu như thay thế cho API mới).
+
+Grammar nhỏ đủ để gõ từ trí nhớ: một JSON value là một trong `null`, `true`, `false`, số, chuỗi, mảng các value, hoặc object có key là chuỗi. Chuỗi dùng dấu nháy kép với backslash escape. Số là thập phân, có thể có phần thập phân, có thể có exponent. Whitespace giữa token bị bỏ qua. Hết.
+
+Cái **không** có trong JSON cũng thú vị: không comment, không trailing comma, không binary native, không date type native, không schema, không `undefined`, không function, không tham chiếu giữa value. JSON5 (tool này hỗ trợ như "forgiving mode") thêm hai cái đầu. JSON Schema thêm validation external. Còn lại bạn build trên.
+
+## Quy tắc cú pháp strict (những cái cắn)
+
+Năm quy tắc này gây 95% câu hỏi "vì sao JSON của tôi không parse?":
+
+1. **Chuỗi phải dùng dấu nháy kép.** `{'a': 1}` không hợp lệ. Object literal JavaScript chấp nhận nháy đơn; JSON không.
+2. **Không trailing comma.** `{"a": 1,}` không hợp lệ. Dễ dính khi xóa property cuối; một số IDE thêm setting config-file-only để tự xóa.
+3. **Không comment.** Cả `//` lẫn `/* */`. JSON thiết kế cho dữ liệu, không phải config. Cần comment thì hoặc cần format khác (TOML, YAML) hoặc fake bằng field `_comment`.
+4. **Key property phải là chuỗi có nháy.** `{a: 1}` không hợp lệ. Object literal JavaScript khoan dung hơn JSON.
+5. **Số là thập phân.** Không `NaN`, không `Infinity`, không hex literal `0x1A`. Vài extension không spec chấp nhận; hầu hết parser không.
+
+JSON5 nới năm cái này (vì sao tool này có toggle). Trade-off: file JSON5 không còn parseable bởi mọi JSON parser trên trái đất. Dùng cho file config nơi người edit tay. Dùng JSON strict cho mọi thứ wire-side.
+
+## JSONC, JSON5, NDJSON — biết dialect nào
+
+- **JSON** — RFC 8259, strict, lingua franca cho API.
+- **JSONC** — "JSON with Comments" của Microsoft. Giống JSON trừ cho phép `//` và `/* */` comment. Dùng trong VS Code settings.
+- **JSON5** — superset được Crockford bless thêm comment, trailing comma, nháy đơn, key không nháy, hex literal, chuỗi multiline. Dùng bởi build tool (Babel config).
+- **NDJSON / JSON Lines** — một JSON value mỗi dòng, ngăn bằng newline. Streamable, thân thiện append-only, dùng cho log và event stream.
+
+Mode "forgiving" của tool này dùng parser [`json5`](https://github.com/json5/json5), cũng chấp nhận JSON strict, nên là strict superset.
+
+## Pretty-print: chiến lược indent
+
+Indent 2 space là mặc định ecosystem JavaScript. 4 space là norm Python/Ruby/Java. Tab là tranh cãi tôn giáo không giải quyết được ở đây, nhưng file JSON trong codebase tab-indented thường sạch hơn; ngoài ra 2 space thắng về space-efficiency.
+
+Check JSON vào git: chọn một indent style cho project và giữ. Formatter trong pre-commit (Prettier, Biome, API tool này) làm diff hợp lý.
+
+## Minify
+
+`JSON.stringify(value)` không có argument thứ ba cho output minified — không whitespace, không newline. Dùng cho:
+
+- Wire transport nơi mỗi byte quan trọng (mobile, băng thông thấp)
+- Nhúng JSON vào source JavaScript nơi bundle nhỏ hơn thắng
+- Cache cấu trúc giống nhau (cache key nhỏ hơn sau hash)
+
+Đừng minify cho lưu trữ trên đĩa hoặc database trừ khi chật không gian. JSON pretty-print thân thiện grep và diffable; minified không.
+
+## Sort key — khi nào và vì sao
+
+Thứ tự key object trong JSON **không có ý nghĩa** theo spec — `{"a":1,"b":2}` và `{"b":2,"a":1}` biểu diễn cùng dữ liệu. Nhưng: diff file là văn bản, hash dựa byte, và tranh cãi "data equality" trong code review trở nhanh.
+
+Sort key trước khi serialize cho bạn:
+
+- **Diff ổn định**: cùng dữ liệu → cùng byte → cùng git diff
+- **Cache-key ổn định**: `hash(json_of(data))` khớp qua các call
+- **Manifest reproducibility**: build artifact chứa JSON (package.json, package-lock.json, Cargo.lock) lợi từ ordering ổn định
+
+Sort ở đây alphabet, đệ quy (deep). Mảng giữ thứ tự — mảng JSON là sequence, không phải set.
+
+## Validation: JSON Schema vs check format
+
+Tool này trả lời "đây có phải JSON cú pháp đúng?" — câu hỏi yes/no không có schema knowledge. Pipeline dữ liệu production thường cần thêm: **JSON này có khớp shape mong đợi?** Cho cái đó:
+
+- **JSON Schema** ([json-schema.org](https://json-schema.org/)) — chuẩn. Biểu diễn type, field bắt buộc, ràng buộc enum, pattern regex, range value. Tool: `ajv` (Node), `jsonschema` (Python), hầu hết ngôn ngữ có gì đó.
+- **Zod** (TypeScript) — schema + runtime validation + static type trong một library; mặc định hiện đại cho TS.
+- **Yup, Joi, io-ts** — library cũ hơn cùng không gian.
+
+Dùng JSON Schema khi cần validation xuyên ngôn ngữ (e.g., API công khai). Dùng Zod khi TypeScript đầu cuối.
+
+## Lưu ý hiệu năng
+
+`JSON.parse` implement bằng C++ trong V8 / SpiderMonkey / JavaScriptCore — đo được nhanh hơn parser pure-JS bất kỳ. Cho parse one-shot, bạn không thể đánh bại nó.
+
+Nơi nó kém: document rất lớn (>100 MB) và partial read. Parser build toàn bộ object tree trong memory trước khi trả về. Cho JSON multi-GB hoặc scenario streaming:
+
+- **`stream-json`** (Node) — streaming theo token
+- **`jq`** — CLI tool stream và filter
+- **NDJSON** — chuyển format sang one-document-per-line để parse từng dòng
+
+Bẫy hiệu năng khác: object lồng nhau sâu. Stringify hoặc parse cấu trúc lồng sâu hit stack limit cuối cùng. Nếu bạn đang hit, data model của bạn có lẽ sai; flatten nó.
+
+## Bảo mật: thứ JSON.parse không làm cho bạn
+
+`JSON.parse` **an toàn mặc định**. Không thực thi code; không gọi constructor; không invoke `__proto__` setter trong engine hiện đại. Tấn công ô nhiễm `__proto__` cũ qua `JSON.parse('{"__proto__":{"x":1}}')` được vá ở mức spec; parse lặng lẽ bỏ key `__proto__`.
+
+Cái nó **không** bảo vệ bạn:
+
+- **Parse bomb**: vài KB input decode ra gigabyte mảng lồng. Giới hạn kích thước input trước parse nếu input không tin được.
+- **Mất floating-point**: `JSON.parse('{"id": 9007199254740993}')` trả về `9007199254740992` vì Number 64-bit không biểu diễn được số nguyên trên 2^53. API có integer ID lớn (Twitter, Discord) ship chúng dưới dạng chuỗi vì lý do này.
+- **`__proto__` trong runtime cũ**: xác nhận bạn đang trên Node 12+ / browser hiện đại; behavior silent-drop là gần đây-ish.
+
+## Shape thông dụng bạn sẽ gặp
+
+- **API response**: thường là object với envelope `data` và sibling `meta`/`error`.
+- **JWT payload**: object phẳng các claim, decode từ đoạn Base64URL thứ hai.
+- **`package.json`**: sort alphabet theo convention (npm không enforce); có nhiều field giá trị chuỗi.
+- **OpenAPI spec**: lồng sâu, lớn; dùng JSON Schema để validate.
+- **GeoJSON**: geometry tagged — `{"type": "Point", "coordinates": [lng, lat]}`. Note: longitude trước.
+
+## Cách dùng tool này
+
+- Paste JSON raw hoặc edit tay vào panel trái.
+- Output xuất hiện live ở phải, pretty-printed.
+- Lỗi hiển thị line:col để bạn jump tới trong source editor.
+- Toggle JSON5 nếu làm việc với file config dùng comment hoặc trailing comma.
+- Toggle "Sort keys" trước khi save cho diff ổn định.
+- Nút "Minify" cho JSON wire-bound.
+
+## Quyền riêng tư
+
+100% browser-local qua native `JSON.parse`/`stringify` và library mã nguồn mở [`json5`](https://github.com/json5/json5). Không request mạng.
+
+## Công cụ liên quan
+
+- **Base64 Encoder** — chain JSON serialization với Base64 cho data URI hoặc query parameter.
+- **JWT Decoder** — payload JWT là JSON; decode rồi format ở đây.

@@ -1,0 +1,70 @@
+---
+title: Text case conventions across languages — pick the right one
+description: Why JavaScript uses camelCase, Python uses snake_case, CSS uses kebab-case, and what happens when you mix them.
+updated: 2026-05-25
+---
+
+## What "case" actually means in code
+
+When a name contains multiple words, you need a separator and a casing rule. Different language communities settled on different combinations, and the conventions are remarkably stable across decades of code:
+
+- **JavaScript / Java / Swift**: `camelCase` for variables and functions, `PascalCase` for types and classes.
+- **Python / Ruby / Rust**: `snake_case` for variables and functions, `PascalCase` for classes.
+- **CSS / HTML attributes / URLs**: `kebab-case` because the space character is reserved.
+- **Environment variables / SQL keywords / Constants**: `CONSTANT_CASE` (or `SCREAMING_SNAKE`).
+- **Filesystem paths**: `path/case` with `/` separators.
+- **Dot notation** (config keys, namespaces): `dot.case`.
+
+Pick the convention of the file you're editing. Don't fight it — convention is what lets code read like prose to people who know the language.
+
+## When you'll reach for a converter
+
+- **Generating env vars from config keys** (`api.timeout` → `API_TIMEOUT`).
+- **Building CSS class names from React component props** (`primaryButton` → `primary-button`).
+- **Naming database columns from object properties** (`firstName` → `first_name`).
+- **Cross-language code generation** (TypeScript → Python ORM, Swagger → JS client).
+- **Renaming variables consistently** across a refactor.
+
+## The acronym trap
+
+What's the snake_case version of `XMLHttpRequest`? Two reasonable answers:
+
+- `xml_http_request` — treat each acronym as a separate word
+- `x_m_l_http_request` — treat each capital letter as a word boundary
+
+Most modern libraries (including the one this tool wraps, `change-case`) do the first — they recognize runs of capital letters as a single acronym. This is the convention you almost always want. If a library produces the second form, switch libraries.
+
+The corresponding camelCase: `xmlHttpRequest`. PascalCase: `XmlHttpRequest`. Note the lowercase letters inside the acronym — that's deliberate and matches how the browser actually exposes the name (`window.xmlHttpRequest` after Babel transforms, etc.).
+
+## Common patterns by ecosystem
+
+| Use case | Convention | Example |
+|---|---|---|
+| JS variable | camelCase | `firstName` |
+| JS class/type | PascalCase | `UserService` |
+| JS const (global) | CONSTANT_CASE | `MAX_RETRIES` |
+| Python variable | snake_case | `first_name` |
+| Python class | PascalCase | `UserService` |
+| CSS class | kebab-case | `btn-primary` |
+| HTML attribute | kebab-case | `data-user-id` |
+| URL slug | kebab-case | `/my-blog-post` |
+| Filename | kebab-case (web), snake_case (Python) | `user-profile.tsx` / `user_profile.py` |
+| Env var | CONSTANT_CASE | `DATABASE_URL` |
+| GraphQL field | camelCase | `userName` |
+| JSON API field | camelCase or snake_case (project choice) | `firstName` / `first_name` |
+
+## File case sensitivity
+
+macOS by default has a case-insensitive filesystem (`HFS+`/`APFS` formatted that way). Linux is case-sensitive. Windows NTFS is case-insensitive but case-preserving. This bites cross-platform projects: a file named `Button.tsx` imported as `./button.tsx` works on macOS, breaks in CI on Linux. Set your CI to Linux from day one to catch this immediately.
+
+## How this tool helps
+
+- Paste text once, see all 12 case variants at the same time.
+- Click any output to copy.
+- Handles acronyms correctly (uses [`change-case`](https://github.com/blakeembrey/change-case)).
+- Works on multi-line input (each line converted independently).
+
+## Related tools
+
+- **Slugify** — when you need URL-safe output (handles diacritics, unicode, emoji).
+- **Regex Tester** — when you need to find/replace case patterns programmatically.

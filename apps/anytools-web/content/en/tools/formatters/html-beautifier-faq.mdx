@@ -1,0 +1,35 @@
+---
+title: HTML Beautifier — Frequently asked questions
+---
+
+## Will beautifying HTML change how my page renders?
+
+In nearly all cases, no. Browsers normalize whitespace in HTML: multiple spaces, tabs, and newlines in text content collapse to a single space. Indenting your markup changes whitespace between tags, not within visible text content. The one exception is content inside `<pre>`, `<textarea>`, or elements styled with `white-space: pre` — this tool preserves whitespace inside those elements exactly.
+
+## Does minification break inline JavaScript or CSS?
+
+Not with careful options. `js-beautify`'s minify mode removes inter-tag whitespace only — it does not rewrite the content of `<script>` or `<style>` blocks. For more aggressive minification that also minifies inline JS and CSS, use `html-minifier-terser` with `minifyJS: true` and `minifyCSS: true`. This tool targets quick cleanup; for production pipelines, integrate `html-minifier-terser` into your build step.
+
+## What are void elements and why do they matter?
+
+Void elements are HTML tags that cannot have children: `<br>`, `<hr>`, `<img>`, `<input>`, `<meta>`, `<link>`, `<area>`, `<col>`, `<embed>`, `<param>`, `<source>`, `<track>`, and `<wbr>`. They have no closing tag. A formatter that doesn't know this list may try to indent children that don't exist, producing malformed output. The HTML5-aware parser in `js-beautify` handles void elements correctly.
+
+## Should I use 2-space or 4-space indentation?
+
+Match your project's existing convention. Two-space is the dominant standard in modern front-end JavaScript projects and matches Prettier's default. Four-space is common in legacy codebases, Python/Django templates, and some enterprise style guides. If you're starting fresh, two-space keeps deeply nested HTML from drifting too far right.
+
+## Why do some attributes end up on separate lines?
+
+The wrap line length setting controls this. When an opening tag with many attributes exceeds the configured line length, `js-beautify` wraps attributes onto individual lines for readability. Set wrap length to 0 to disable wrapping entirely and keep all attributes inline, or set a value like 120 to allow long single-line tags before wrapping.
+
+## How does this compare to Prettier for HTML formatting?
+
+Prettier is the industry standard for automated, consistent formatting across a codebase — install it once per project and every developer gets the same output. This tool is for ad-hoc formatting without any installation or config. Use Prettier in CI and pre-commit hooks; use this tool for quick one-off cleanup, pasting snippets, or exploring formatting on HTML you've copied from somewhere else.
+
+## Can I format HTML embedded inside JavaScript template literals?
+
+Not directly — this tool formats standalone HTML only. For HTML inside JS/TS files (tagged template literals, JSX), Prettier handles that context automatically. Alternatively, extract the HTML string, format it here, then paste it back.
+
+## Is it safe to paste sensitive HTML here (internal dashboards, emails)?
+
+All processing runs locally in your browser via `js-beautify` compiled to JavaScript. No content is sent to any server. You can verify by opening the browser's network tab — no requests are made when you paste and format. The page works offline once loaded.

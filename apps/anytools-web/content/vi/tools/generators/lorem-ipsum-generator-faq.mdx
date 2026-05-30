@@ -1,0 +1,31 @@
+---
+title: Lorem Ipsum Generator — Câu hỏi thường gặp
+---
+
+## Lorem Ipsum có phải tiếng Latin thật không?
+
+Có — một phần. Nó được lấy từ tác phẩm *De finibus bonorum et malorum* của Cicero (45 trước CN), cụ thể là phần 1.10.32. Các từ đã bị một thợ sắp chữ đảo lộn vào thế kỷ 16 để tạo ra text mẫu trông giống ngôn ngữ tự nhiên nhưng không có nghĩa. Một số từ là tiếng Latin xác thực; một số là mảnh ghép bị cắt ngắn. Nó không có nghĩa ngữ pháp — giá trị của nó thuần túy về mặt thị giác.
+
+## Tại sao không dùng "Nội dung ở đây" lặp lại làm placeholder?
+
+Cụm từ ngắn lặp đi lặp lại tạo ra điểm xuống dòng đồng nhất, không tự nhiên và không phản ánh cách copy thực sẽ reflow. Lorem Ipsum có độ biến thiên độ dài từ tự nhiên bắt chước nhịp văn xuôi thực. Điều này quan trọng khi bạn đánh giá xuống dòng, kiểm soát widow/orphan, hành vi text overflow, và khoảng cách đoạn văn.
+
+## Có nên generate placeholder bằng ngôn ngữ thực của app không?
+
+Có, khi ngôn ngữ đích khác tiếng Anh. Tiếng Việt, Tây Ban Nha, Đức và Phần Lan có từ và câu dài hơn tiếng Anh đáng kể. Thiết kế với placeholder tiếng Anh cho UI tiếng Việt là nguyên nhân phổ biến gây lỗi truncation và overflow layout chỉ xuất hiện muộn trong QA. Generate placeholder cho từng locale và kiểm tra layout.
+
+## Hipster Ipsum là gì?
+
+Một biến thể hiện đại dùng tiếng lóng Anh đương đại — "artisan," "selvage," "normcore," "craft beer." Nó cố tình nhận ra được là placeholder trong khi vô lý. Hữu ích trong wireframe presentation với stakeholder hay hỏi "trang này thực sự nói gì?" — nội dung vừa quen vừa vô nghĩa báo hiệu rõ ràng rằng copy vẫn đang chờ xử lý.
+
+## Có thể dùng Lorem Ipsum trong production không?
+
+Không. Lorem Ipsum đã vô tình lên production nhiều lần — trong website, ứng dụng mobile và tài liệu in. Không bao giờ dùng placeholder làm giá trị mặc định trong trường CMS, form hay email template có thể đến tay người dùng thực. Cũng tránh dùng trên trang được crawl vì nó báo hiệu nội dung kém chất lượng với search engine.
+
+## Chế độ HTML output là gì?
+
+Chế độ HTML bọc output trong thẻ `<p>` để bạn có thể paste trực tiếp vào HTML template hoặc rich-text editor mà không cần thêm markup thủ công. Tránh được lỗi phổ biến là paste plain paragraph text vào HTML context và nhận được một khối text không định dạng. Mỗi đoạn văn trở thành một element `<p>` riêng.
+
+## Cần generate bao nhiêu từ cho card thông thường hay meta description?
+
+Card body chuẩn (~3 dòng ở 16px trên container 320px) cần khoảng 20–30 từ. Meta description (giới hạn ~160 ký tự của Google) cần 25–35 từ tiếng Anh, ít hơn với tiếng Việt hoặc tiếng Tây Ban Nha vì từ thường dài hơn. Trang bài viết đầy đủ cần 300–800 từ trải qua 4–8 đoạn văn.

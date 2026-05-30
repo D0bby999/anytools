@@ -1,0 +1,129 @@
+---
+title: Complete guide to CSS beautifying and minification
+description: Pretty-print or minify CSS with configurable indentation, understand specificity readability, selector-per-line formatting, and real-world byte savings.
+updated: 2026-05-27
+---
+
+## Why formatted CSS is worth the effort
+
+CSS has no required whitespace. A browser parses `a{color:red}` and `a { color: red; }` identically. But humans don't read them identically. A stylesheet that arrives from a CMS, a legacy project, or a third-party vendor as one long line is nearly impossible to reason about — you can't see rule boundaries, selector chains, or declaration groupings at a glance.
+
+Formatting CSS is also a precondition for useful version control. A `git diff` on minified CSS shows one enormous changed line even when a single color value changed. Beautified CSS shows exactly which property changed, on which selector, in which rule block.
+
+## One selector per line — why it matters for diffs and readability
+
+A grouped selector like:
+
+```css
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+```
+
+is fine for reading, but a code review that adds `h6` or removes `h4` modifies one mixed line. The diff is noisy. The beautified form puts each selector on its own line:
+
+```css
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+```
+
+Now adding or removing one heading level is a clean one-line diff. This is the default behavior of `js-beautify`'s CSS mode and the format used by Prettier for CSS. The selector separator option in this tool controls this: set it to a newline for one-per-line, or a space to keep selectors grouped.
+
+## Specificity readability
+
+CSS specificity determines which rule wins when two rules target the same element. The calculation (inline styles → IDs → classes/attributes → elements) is easier to reason about when each rule is fully indented and isolated. Minified stylesheets flatten everything to one line — you have to mentally parse the cascade at the character level.
+
+During development, keep CSS beautified. During code review, a formatted diff makes specificity conflicts visible before they reach production.
+
+## Minification: real byte savings
+
+CSS minification removes:
+- All whitespace between tokens (spaces, tabs, newlines)
+- Comments (`/* ... */`)
+- Trailing semicolons in rule blocks (the last declaration before `}` doesn't need one)
+- Leading zeros in decimals (`0.5em` → `.5em`)
+- Redundant quotes in some contexts
+
+A realistic stylesheet might shrink 25–40% after minification. Here's the key nuance: **HTTP compression (gzip or brotli) is vastly more effective than raw whitespace removal**. Gzip typically achieves 60–80% compression on CSS because whitespace is highly repetitive and compresses well. The order of magnitude difference:
+
+| File | Raw | After minify | After gzip | After minify + gzip |
+|------|-----|-------------|-----------|-------------------|
+| bootstrap.css | 187 KB | 153 KB | 26 KB | 24 KB |
+
+The right call: enable gzip/brotli on your server (virtually all do by default), and also minify CSS in your build pipeline. The combined savings are the best of both.
+
+## CSS Nesting (CSS Nesting Module Level 1)
+
+Modern CSS supports nesting without a preprocessor. The CSS Nesting Module Level 1 specification (now supported in all evergreen browsers) allows:
+
+```css
+.card {
+  padding: 1rem;
+
+  & .title {
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    background: var(--color-hover);
+  }
+}
+```
+
+`js-beautify`'s CSS mode preserves nesting indentation correctly. Minification collapses nesting to the minimum-whitespace representation while keeping the nesting structure valid — it does not "de-nest" to flat CSS.
+
+## Shorthand vs longhand in minified output
+
+CSS shorthands like `margin: 0 auto` are smaller than `margin-top: 0; margin-right: auto; margin-bottom: 0; margin-left: auto`. However, automatically converting longhand to shorthand during minification is risky because shorthand resets all sub-properties, not just the ones you list. A minifier that blindly converts longhand to shorthand can change cascade behavior.
+
+`js-beautify` does not do shorthand conversion — it only removes whitespace. For shorthand optimization, tools like `cssnano` with the `postcss-merge-longhand` plugin handle this with proper cascade analysis.
+
+## Source maps for debugging minified CSS
+
+When serving minified CSS in production, generate a source map so browser DevTools shows the original beautified line and file even when running minified code:
+
+```bash
+# PostCSS with cssnano
+npx postcss styles.css --use cssnano -o styles.min.css --map
+```
+
+The resulting `.map` file maps minified byte offsets back to original source lines. DevTools automatically fetches it when the minified file contains `/*# sourceMappingURL=styles.min.css.map */` at the end.
+
+## Using `js-beautify` for CSS
+
+```javascript
+import beautify from 'js-beautify';
+
+const pretty = beautify.css(rawCss, {
+  indent_size: 2,
+  indent_char: ' ',
+  selector_separator_newline: true,  // one selector per line
+  end_with_newline: true,
+  newline_between_rules: true,       // blank line between rule blocks
+});
+```
+
+For production minification, prefer `cssnano` (PostCSS-based) or `lightningcss` (Rust-based, extremely fast):
+
+```javascript
+import { transform } from 'lightningcss';
+
+const { code } = transform({
+  filename: 'styles.css',
+  code: Buffer.from(rawCss),
+  minify: true,
+  sourceMap: true,
+});
+```
+
+## Privacy
+
+All CSS processing runs entirely in your browser. Your styles are never transmitted to a server.

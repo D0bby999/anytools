@@ -1,0 +1,35 @@
+---
+title: SQL Formatter — FAQ
+---
+
+## Does this tool run my SQL?
+
+No. The tool only formats syntax — it has no database connection and no execution capability. Your queries never leave your browser.
+
+## Which dialect should I pick?
+
+The one matching your production database. If you don't know or your SQL is meant to be portable, pick "Standard SQL" — you get a more conservative, dialect-agnostic format.
+
+## Why uppercase keywords?
+
+Tradition (since SQL-86) and readability. It helps readers visually separate structural words (`SELECT`, `FROM`, `JOIN`) from identifiers. Some style guides prefer lowercase; pick one and apply consistently.
+
+## Can it format multiple statements at once?
+
+Yes — separate with semicolons and the formatter handles each. Useful for migration files.
+
+## Can it handle stored procedures / functions?
+
+Mostly yes. PL/SQL (Oracle) and T-SQL (SQL Server) dialects include procedural extensions; pick the matching dialect. Edge cases with deeply nested BEGIN/END blocks may not format perfectly — file an issue with the upstream `sql-formatter` library if you hit one.
+
+## Will it preserve my inline comments?
+
+Usually, in their original position relative to surrounding code. Verify the formatted output if comments encode meaningful position information (e.g., disabling a clause).
+
+## How do I add this to CI?
+
+Use the CLI version: `npx sql-formatter-cli --check schema/**/*.sql`. Same library underneath. Add as a pre-commit hook or PR check.
+
+## What about SQL inside backticked TS/JS strings?
+
+This page handles raw SQL only. For inline SQL in code, look at `eslint-plugin-sql` or `prettier-plugin-sql` which integrate into your code formatter.

@@ -1,0 +1,35 @@
+---
+title: CSV ↔ JSON Converter — Frequently asked questions
+---
+
+## My CSV uses semicolons instead of commas. Will it work?
+
+Yes. The tool auto-detects the delimiter by scanning the first few lines of your input. Semicolons, tabs, pipes (`|`), and commas are all detected automatically. If detection fails (very short files or unusual delimiters), you can manually specify the delimiter in the options panel.
+
+## Why are my numbers appearing as strings in the JSON output?
+
+Type inference is disabled in your current settings. Enable "Dynamic typing" to have Papa Parse automatically convert `"42"` to `42`, `"3.14"` to `3.14`, and `"true"` to `true`. If you need all values as strings — for example, when preserving leading zeros in IDs like `"0042"` — keep dynamic typing off.
+
+## What happens to nested JSON objects when converting to CSV?
+
+Nested objects are flattened using dot-notation keys. `{ "user": { "name": "Alice", "city": "Austin" } }` becomes two columns: `user.name` and `user.city`. Arrays of primitives within an object are joined with semicolons into a single cell value. Deeply nested structures may produce wide CSVs with long column headers — this is a fundamental limitation of the flat CSV format.
+
+## Why does my CSV look wrong when I open it in Excel after converting?
+
+Excel applies auto-conversion when opening CSV files: values that look like dates (`1-2`, `Jan-2024`), numbers with leading zeros (`0042`), and scientific notation triggers (`1E10`) are all transformed. This is Excel's behavior, not a flaw in the CSV. To prevent it, import the CSV via Excel's "Get Data" wizard and set column types explicitly, or save as XLSX from the start.
+
+## Can I convert a CSV with no header row?
+
+Yes. Toggle off "First row is header" in the options. The tool generates column names automatically (`col_0`, `col_1`, `col_2`, …). You can rename them after conversion if needed.
+
+## How does the tool handle cells with commas or line breaks inside them?
+
+Following RFC 4180, such cells must be wrapped in double quotes in the CSV. The tool's parser (Papa Parse) handles this correctly — `"Austin, TX"` is a single cell value `Austin, TX`, not two cells. Line breaks inside quoted cells are preserved as `\n` in the JSON string value. If your CSV wasn't properly quoted around these values, the parse will likely error on those rows.
+
+## What's the largest file I can convert in the browser?
+
+Papa Parse streams the file in chunks, so memory usage stays roughly constant regardless of file size. Practically, files up to ~50 MB convert without issues. Above that, the JSON serialization step (building the full output string) can spike memory. For very large files, use Papa Parse in a Node.js script with streaming output instead.
+
+## The JSON-to-CSV output has extra empty columns for some rows. Why?
+
+Your JSON array has objects with inconsistent keys — some objects have fields that others don't. The converter uses the union of all keys as the header row and fills missing values with empty strings. This is correct behavior for heterogeneous data. If the empty columns are unwanted, filter your JSON to a consistent schema before converting.

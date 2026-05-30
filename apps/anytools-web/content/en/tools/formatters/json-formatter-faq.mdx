@@ -1,0 +1,35 @@
+---
+title: JSON Formatter — FAQ
+---
+
+## Why does trailing comma fail to parse?
+
+Because RFC 8259 forbids it. JavaScript object literals accept trailing commas (and so do JSON5 and JSONC), but strict JSON does not. Toggle JSON5 mode if your input uses them.
+
+## JSON5 vs JSON — which should I use?
+
+JSON for wire formats (APIs, configs that machines exchange). JSON5 for human-edited config files where you want comments and trailing commas. Don't ship JSON5 to a generic JSON parser — it will choke on the comments.
+
+## What's the max JSON size this tool can handle?
+
+A few MB pretty-prints instantly; tens of MB takes a few seconds. Beyond ~100 MB the browser may freeze. For very large documents use a CLI like `jq`, which streams.
+
+## Why sort keys?
+
+For stable diffs and reproducible hashes. JSON object key order is technically insignificant, but file diffs and hashes are byte-based — same data with different key order produces different bytes. Sorting normalizes that.
+
+## Can JSON contain comments?
+
+Strict JSON: no. JSON5 and JSONC: yes. Toggle JSON5 mode above to accept them.
+
+## What's JSONC?
+
+JSON with Comments — Microsoft's variant used in VS Code settings and tsconfig.json. Allows `//` and `/* */` but nothing else. JSON5 is a superset of JSONC.
+
+## How do I validate JSON against a schema?
+
+This tool validates *syntax* (is this parseable JSON?), not *shape* (does it match an expected structure?). For shape validation use JSON Schema (`ajv`, `jsonschema`) or, in TypeScript, Zod.
+
+## Why does my big integer come back wrong?
+
+JavaScript's `Number` can't precisely represent integers above 2^53. APIs that return large IDs (Twitter, Discord, Snowflake-format IDs) ship them as **strings** for this reason. If your JSON has `"id": 9007199254740993`, that's intentional — don't convert to number on the client.

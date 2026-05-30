@@ -1,0 +1,27 @@
+---
+title: URL encoding — FAQ
+---
+
+## When should I use encodeURIComponent vs encodeURI?
+
+`encodeURIComponent` for a single piece (query value, path segment, form field). `encodeURI` for a full URL string you don't want to break the structure of. When in doubt, use `encodeURIComponent` on each piece and assemble manually.
+
+## Why does my decoded value have `+` where spaces should be?
+
+Decoded by a form-encoder rather than a URL-encoder. HTML forms historically encode spaces as `+` (the `application/x-www-form-urlencoded` MIME type). Our decoder accepts both `%20` and `+` for compatibility.
+
+## How do I encode special characters in keys vs values?
+
+Both. Encode every key and every value independently with `encodeURIComponent`, then join with `=` and `&`. The "build query" mode in this tool does exactly that.
+
+## What's the max length of a URL?
+
+The spec has no limit, but in practice ~2,000 characters is the safe ceiling across browsers + servers + proxies. For longer payloads, use a POST body instead.
+
+## Is my data sent anywhere?
+
+No. The page uses native browser functions for everything. Open DevTools Network — you'll see zero requests while you type.
+
+## Why does `café` produce six bytes when encoded?
+
+`é` is two bytes in UTF-8 (`0xC3 0xA9`), so it percent-encodes to `%C3%A9` — six characters. Single-byte ASCII like `a` stays as one character.

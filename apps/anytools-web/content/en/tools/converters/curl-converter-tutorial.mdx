@@ -1,0 +1,81 @@
+---
+title: Complete guide to cURL command converter
+description: How curl commands are parsed with tree-sitter, why conversion runs server-side, and what edge cases to watch for across all target languages.
+updated: 2026-05-26
+---
+
+## What this tool does
+
+Paste any `curl` command and this tool converts it to an equivalent HTTP request in your target language: browser `fetch`, Node.js `node-fetch`, Python `requests`, PHP cURL, or Go `net/http`. The generated code is ready to paste into your project — headers, body, auth, and query parameters all translated faithfully.
+
+This is useful when you copy a request from browser DevTools ("Copy as cURL"), from an API's documentation, or from a colleague's terminal session, and you need working code in your language of choice without manually mapping every flag.
+
+## Why parsing runs server-side
+
+Most browser-based tools run entirely in JavaScript on the client. This converter is different: parsing happens on the server.
+
+The reason is [tree-sitter](https://tree-sitter.github.io/tree-sitter/). The underlying [`curlconverter`](https://github.com/curlconverter/curlconverter) library uses tree-sitter's Bash grammar to parse `curl` commands as an actual syntax tree rather than with regular expressions. Tree-sitter's Node.js binding compiles to a native `.node` module — it requires native binaries that cannot run in a browser context. Running it server-side gives you correct, AST-backed parsing instead of a fragile regex that breaks on quoting edge cases.
+
+**Your command is parsed on the server and the result is returned. The command itself is never logged, stored, or associated with your session.** It is held in memory only for the duration of the conversion and immediately discarded.
+
+## Supported conversion targets
+
+| Target | Notes |
+|---|---|
+| `fetch` (browser) | Uses `fetch()` with `Promise`; no extra dependencies |
+| `node-fetch` | CommonJS `require('node-fetch')`, Node 14 and below; for Node 18+ use native `fetch` |
+| Python `requests` | Uses the `requests` library; the most popular Python HTTP client |
+| PHP cURL | Direct `curl_*` function calls; compatible with PHP 7.4+ |
+| Go `net/http` | Standard-library only, no third-party dependencies |
+
+## How tree-sitter parses curl
+
+A `curl` command is a Bash command invocation. Tree-sitter parses it into a concrete syntax tree (CST) that captures the command name, flags, flag values, quoting style, and argument positions — exactly as a shell would see them. This means the parser correctly handles:
+
+- Single-quoted strings (`'value with spaces'`)
+- Double-quoted strings with escape sequences (`"value \"with\" quotes"`)
+- ANSI-C quoting (`$'value\twith\ttabs'`)
+- Multi-line commands with `\` line continuations
+- Flags in any order
+
+A regex-based parser would need bespoke logic for each of these. The tree-sitter approach handles them as a natural consequence of parsing real Bash grammar.
+
+## Common flags and how they translate
+
+**`-H` / `--header`** becomes a key-value pair in the `headers` object of `fetch`, a list entry in `requests.get(..., headers=...)`, or a `curl_setopt(CURLOPT_HTTPHEADER, ...)` call in PHP.
+
+**`-d` / `--data`** sends a request body. The converter detects the content type from your `Content-Type` header: if it's `application/json`, the body is emitted as a parsed object (`JSON.stringify(...)` in JS, a dict in Python); if it's `application/x-www-form-urlencoded`, it uses the appropriate form encoding API.
+
+**`--data-raw`** is similar to `-d` but skips the `@filename` interpretation — the value is always treated as a literal string, never read from a file.
+
+**`-u` / `--user`** translates to a `Basic` `Authorization` header (`btoa(user:pass)` in JS, `auth=(user, pass)` in requests, `CURLOPT_USERPWD` in PHP).
+
+**`-X` / `--request`** sets the HTTP method explicitly. The converter respects this even when a default could be inferred.
+
+**`-F` / `--form`** generates multipart/form-data code — `FormData` in fetch, `files=` in requests, `CURLFORM_*` in PHP.
+
+## Edge cases to know about
+
+**Header continuation lines.** HTTP headers can technically span multiple lines (obs-fold, RFC 7230 §3.2.6), but curl does not support this syntax on the command line. Each `-H` flag is one header.
+
+**`--compressed`** tells curl to request gzip-compressed responses. Fetch and requests handle decompression automatically; the converter emits a note but does not add explicit decompression code since libraries handle it transparently.
+
+**Cookie jars (`-c`, `-b` with a filename).** The converter translates `-b 'key=val'` inline cookies into a `Cookie` header, but cannot replicate cookie-jar files — those are a curl-specific feature requiring persistent storage.
+
+**Client certificates (`--cert`, `--key`).** These are TLS options that require configuration at the HTTP-client level, not the request level. The converter includes a comment pointing to the relevant library documentation when it encounters these flags.
+
+**Multiple URLs.** If a curl command lists more than one URL, the converter processes the first URL and emits a warning.
+
+## Reading generated code critically
+
+The converter does its best, but treat the output as a **starting point**, not production-ready code:
+
+- Add error handling (`try/catch`, response status checks) appropriate to your codebase.
+- Review hardcoded credentials in `-u` or `Authorization` headers — move them to environment variables.
+- In Python, consider `requests.Session()` for multiple requests to the same host (connection pooling, shared headers).
+- In Go, re-use a `http.Client` instance rather than creating one per request.
+
+## Related tools
+
+- **URL Encoder** — encode individual query-string values before inserting them into a URL.
+- **JWT Decoder** — inspect bearer tokens you see in curl `Authorization` headers.

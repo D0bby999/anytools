@@ -1,0 +1,181 @@
+---
+title: "Domínio de regex: de iniciante a mago"
+description: "Domine expressões regulares: teoria de autômatos, flags JS, padrões comuns, lookahead/lookbehind, backtracking catastrófico, Unicode e performance."
+keywords: ["tutorial regex", "expressões regulares", "javascript regex", "regex padrões", "lookahead", "redos", "unicode regex"]
+updated: 2026-05-27
+readingTime: 18
+---
+
+# Domínio de regex: de iniciante a mago
+
+Expressões regulares são o mais próximo de um superpoder em programação — e uma das armadilhas mais perigosas. Uma boa regex resolve em uma linha o que tomaria vinte. Uma ruim pode derrubar um servidor de produção. Este guia cobre desde o modelo teórico até o bug de backtracking catastrófico que causou quedas reais em empresas grandes.
+
+---
+
+## 1. O que regex realmente É: autômatos finitos
+
+A maioria dos devs trata regex como sintaxe mágica. Entender o modelo subjacente — autômatos finitos — te torna dramaticamente melhor escrevendo e debugando.
+
+Uma regex descreve uma **linguagem formal** (conjunto de strings). O motor processa uma string simulando um autômato finito: grafo dirigido com estados e transições por caractere.
+
+**DFA (Determinístico):** cada caractere leva a exatamente um próximo estado. Tempo O(n) garantido. Usado por `grep -E`, `awk`, pacote `regexp` do Go (RE2).
+
+**NFA (Não Determinístico):** um estado pode ter múltiplas transições. JavaScript, Python, Ruby, Java, PHP, Perl, .NET usam motores NFA com backtracking. Suportam backreferences e lookahead/lookbehind, mas podem ter comportamento exponencial em padrões específicos.
+
+A diferença importa: NFA = mais expressivo mas vulnerável a ReDoS. DFA = mais rápido e seguro, mas limitado.
+
+---
+
+## 2. Sintaxe JavaScript: o essencial
+
+JavaScript usa motor NFA (família PCRE). Flags mais comuns:
+
+- `g` — global, encontra todos os matches
+- `i` — case-insensitive
+- `m` — multilinha: `^` e `$` matcheiam início/fim de linha
+- `s` — dotAll: `.` matcheia também newlines
+- `u` — Unicode: habilita `\p{}`, `\u{...}` e semântica Unicode
+- `y` — sticky: ancora a busca em `lastIndex`
+
+**Dica prática**: `/foo/gi` busca "foo" em qualquer lugar ignorando case. A flag `u` é quase obrigatória para texto não-ASCII.
+
+---
+
+## 3. Padrões comuns que vale memorizar
+
+| Necessidade | Padrão |
+|-------------|--------|
+| Email (simples) | `^[^\s@]+@[^\s@]+\.[^\s@]+$` |
+| URL | `^https?:\/\/[^\s]+$` |
+| IPv4 | `^(?:(?:25[0-5]\|2[0-4]\d\|[01]?\d?\d)\.){3}(?:25[0-5]\|2[0-4]\d\|[01]?\d?\d)$` |
+| UUID v4 | `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` |
+| Cor hex | `^#(?:[0-9a-f]{3}\|[0-9a-f]{6})$` |
+| ISO 8601 data | `^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?$` |
+| Semver | `^\d+\.\d+\.\d+(?:-[\w.]+)?$` |
+| CEP brasileiro | `^\d{5}-?\d{3}$` |
+| CPF (formato) | `^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$` |
+
+**Aviso sobre email**: a regex "perfeita" segundo RFC 5322 tem mais de 6000 caracteres. A simples acima cobre 95% dos casos. Para 100% de correção, valide com double opt-in (mande email, peça click), não com regex.
+
+**Aviso sobre CPF**: a regex só valida formato. Validar dígitos verificadores exige cálculo, não regex.
+
+---
+
+## 4. Lookahead e lookbehind
+
+**Lookahead positivo** `(?=...)`: matcheia se o que vem em seguida cumpre o padrão, **sem consumir**.
+
+```js
+/\d+(?=px)/  // Matcheia "100" em "100px" mas não em "100em"
+```
+
+**Lookahead negativo** `(?!...)`: matcheia se o seguinte NÃO cumpre.
+
+**Lookbehind** `(?<=...)` e `(?<!...)`: mesma coisa para trás. Suporte completo em JS desde 2018.
+
+Caso real: extrair preço sem o símbolo `R$`:
+
+```js
+"Preço: R$19,99".match(/(?<=R\$)\d+,\d+/)[0]  // "19,99"
+```
+
+---
+
+## 5. Backtracking catastrófico — o bug que derruba servidores
+
+O padrão `(a+)+b` aplicado ao input `aaaaaaaaaaaaaaaaX` toma tempo exponencial. Cada `a` pode ser absorvido pelo grupo interno ou externo — o motor testa todas combinações antes de falhar.
+
+Cloudflare teve uma queda de 27 minutos em 2019 por uma regex similar. Stack Overflow teve uma em 2016. **Qualquer regex com `(X+)+` ou `(X*)*` é suspeita.**
+
+Soluções:
+
+1. **Quantificadores possessivos** (não em JS, mas sim em PCRE/Java): `(a++)+b`
+2. **Atomic groups** (não em JS): `(?>a+)+b`
+3. **Reescrever** para evitar ambiguidade: `a+b` em vez de `(a+)+b`
+4. **Mudar para motor DFA** (RE2) para input não-confiável
+
+Para validar input de usuários, **nunca use regex JS sem timeout**. Considere RE2 via WASM se a regex é complexa.
+
+---
+
+## 6. Unicode
+
+Sem flag `u`, `.` matcheia code units UTF-16 — emoji compostos quebram.
+
+```js
+/^.$/u.test('😀')   // true com flag u
+/^.$/.test('😀')    // false sem flag u (emoji é 2 UTF-16)
+```
+
+Unicode property escapes (`\p{...}`) com flag `u`:
+
+- `\p{Letter}` — qualquer letra de qualquer idioma
+- `\p{Number}` — qualquer número
+- `\p{Script=Latin}` — letras latinas (a-z, á, ç, etc.)
+- `\p{Emoji}` — emoji
+
+Isso é enorme para apps multi-idioma: `/[a-zA-Z]/` não matcheia `José`, mas `/\p{Letter}/u` sim.
+
+---
+
+## 7. Performance
+
+Generalizando:
+
+1. **Âncoras são grátis** — `^pattern` falha rápido se a string não começa com `pattern`
+2. **Classes de caractere são rápidas** — `[abc]` é mais rápido que `(a|b|c)`
+3. **Alternativas são caras** — o motor testa em ordem. Coloque a mais provável primeiro
+4. **Quantificadores lazy** (`*?`, `+?`) — não são inerentemente mais rápidos
+5. **Compilação é cara** — `new RegExp(...)` dentro de loop é lento. Compile fora
+
+Para input grande, considere `string.includes()`, `string.startsWith()` quando não precisar de pattern matching real. São muito mais rápidos.
+
+---
+
+## 8. Ferramentas relacionadas no AnyTools
+
+- [Regex Tester](/pt/text-regex/regex-tester) — testa padrões contra input em tempo real
+- [Text Case Converter](/pt/text-regex/text-case-converter) — útil para normalizar antes de regex
+- [Slugify](/pt/text-regex/slugify) — usa regex internamente para limpar texto
+
+---
+
+## FAQ
+
+### Quando NÃO devo usar regex?
+
+Quando o formato é estruturado (JSON, XML, HTML) — use um parser. Regex para HTML é famosa por falhar; o [post do Stack Overflow](https://stackoverflow.com/questions/1732348/) é lendário.
+
+### Quando usar lookahead vs grupo não-capturante?
+
+Lookahead `(?=...)` não consome caracteres. Grupo não-capturante `(?:...)` consome mas não captura. Se precisa do match mas não do grupo em `.match()`, use `(?:)`. Se precisa verificar contexto sem consumir, use `(?=)`.
+
+### Como escapo caracteres em regex dinâmica?
+
+```js
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+```
+
+Não esqueça `\` duplo em strings JS.
+
+### Regex JS é compatível com PCRE de PHP/Python?
+
+Quase. JS não tem possessivos, atomic groups, nem alguns modifiers de PCRE. Sintaxe básica (classes, quantificadores, lookahead) é compatível.
+
+### Como debugar regex que não matcheia?
+
+Use o [Regex Tester](/pt/text-regex/regex-tester) com visualização de matches e groups. Se ainda opaco, [regex101.com](https://regex101.com) tem debugger passo-a-passo. Imprima cada parte do padrão incrementalmente.
+
+### O que é greedy vs lazy?
+
+Greedy (`*`, `+`) consome o máximo possível. Lazy (`*?`, `+?`) consome o mínimo. `<.*>` aplicado a `<a><b>` matcheia tudo. `<.*?>` matcheia só `<a>`.
+
+### Unicode property escapes funcionam em todos navegadores?
+
+Sim em modernos (Chrome 64+, Firefox 78+, Safari 11.1+). Em Node 10+. Se você suporta IE — IE não tem flag `u`.
+
+### Qual o limite prático de tamanho do input?
+
+Para regex bem escritas em motor NFA: ~10MB ok. Para regex com backtracking potencial: qualquer tamanho é perigoso. Para dados massivos, use streaming + boundary detection ou mude para `ripgrep`.

@@ -1,0 +1,101 @@
+---
+title: Complete guide to generating mock data with faker.js
+description: Generate realistic fake JSON and CSV test data using faker.js — seeding, locales, categories, and browser memory limits explained.
+updated: 2026-05-26
+---
+
+## Why mock data matters
+
+Hardcoded test fixtures like `user1`, `test@test.com`, and `123 Main St` hide bugs that only surface with realistic data. A name field that fits "Alice" overflows with "María de los Ángeles Gutiérrez-Hernández". A date field that works in the US breaks with European locale formatting. Good mock data exercises your code with realistic variety — varied string lengths, unicode characters, edge-case values — before real users do it in production.
+
+This tool uses [faker.js](https://fakerjs.dev/), the most widely used JavaScript fake-data library, running entirely in your browser.
+
+## Data categories
+
+faker.js organizes fake data into modules. The ones developers reach for most:
+
+**Person** — `firstName`, `lastName`, `fullName`, `jobTitle`, `gender`, `bio`. Locale-aware: a Japanese locale produces plausible Japanese names; a Brazilian locale produces Portuguese names.
+
+**Internet** — `email`, `userName`, `url`, `ip`, `ipv6`, `mac`, `password`, `domainName`. Useful for user accounts, API logs, network records.
+
+**Location** — `streetAddress`, `city`, `state`, `country`, `zipCode`, `latitude`, `longitude`. Mix with person data to build realistic user profiles.
+
+**Finance** — `amount`, `currencyCode`, `currencyName`, `accountNumber`, `creditCardNumber`, `transactionType`. Great for e-commerce and fintech fixtures. Note: credit card numbers pass Luhn validation but are not real cards.
+
+**Company** — `name`, `catchPhrase`, `buzzPhrase`, `industry`. Useful when seeding org or account records.
+
+**Date** — `past`, `future`, `between`, `birthdate`, `recent`. Returns JavaScript `Date` objects; the tool serializes them as ISO 8601 strings in the output.
+
+**Lorem** — `word`, `words`, `sentence`, `paragraph`, `paragraphs`. Classic lorem ipsum or realistic random English sentences.
+
+## JSON vs CSV output
+
+**JSON** is the right choice when:
+- Feeding data to a REST API or seeding a database via a migration script
+- Your schema has nested objects (e.g., a user with an embedded address object)
+- You're writing test fixtures for Jest, Vitest, or Playwright
+
+**CSV** is the right choice when:
+- Importing into a spreadsheet (Excel, Google Sheets)
+- Loading into a database with `COPY` or `LOAD DATA`
+- Sending to a business stakeholder who needs to review sample data
+
+Nested JSON fields are automatically flattened for CSV output: `{ "address": { "city": "Austin" } }` becomes a `address.city` column.
+
+## Seeding for reproducibility
+
+By default, faker.js uses a random seed on each run, so every generation produces different data. If you need **deterministic output** — the same fake records every time you run your test suite — set a seed value. Any integer works; the tool passes it to `faker.seed(n)`.
+
+```javascript
+// Equivalent to what this tool does under the hood
+import { faker } from '@faker-js/faker'
+faker.seed(42)
+const name = faker.person.fullName() // Always the same name with seed 42
+```
+
+Use a fixed seed in CI fixtures that get committed to your repo. Use a random seed (or no seed) when exploring what your UI looks like with varied data.
+
+## Locale-aware generation
+
+faker.js has built-in locales for 60+ regions. Switching locale affects names, addresses, phone numbers, and some other fields. The `en` locale produces American English data by default. Other commonly used locales:
+
+- `de` — German names, German street addresses
+- `ja` — Japanese names (kanji + hiragana)
+- `pt_BR` — Brazilian Portuguese names and CPF-style IDs
+- `fr` — French names and addresses
+- `zh_CN` — Simplified Chinese
+
+This is especially useful when testing internationalization handling — if your app only gets tested with ASCII names, you won't catch encoding bugs until launch.
+
+## How many rows can I generate?
+
+The browser handles up to roughly **10,000 rows** comfortably without noticeable lag. Beyond that, both the generation loop and rendering the result in the UI start consuming significant memory. For very large datasets (100k+ rows), generate in smaller batches or use faker.js in a Node.js script:
+
+```javascript
+import { faker } from '@faker-js/faker'
+import { writeFileSync } from 'fs'
+
+const rows = Array.from({ length: 100_000 }, () => ({
+  id: faker.string.uuid(),
+  name: faker.person.fullName(),
+  email: faker.internet.email(),
+}))
+
+writeFileSync('fixtures.json', JSON.stringify(rows, null, 2))
+```
+
+## Practical use cases
+
+**API integration tests** — generate 50 user objects, feed them to your POST endpoint in a loop, assert the response shape. Catches serialization bugs that fixed objects miss.
+
+**Database seeding** — generate records matching your schema, then run them through your ORM's bulk-insert. Tests constraints, indexes, and triggers with realistic cardinality.
+
+**Demo environments** — populate a staging database so stakeholders see a realistic-looking app, not empty tables or placeholder text.
+
+**Schema validation** — pipe generated JSON through a JSON Schema or Zod validator. If the validator rejects it, either your schema is too strict or faker is generating edge cases your schema doesn't expect — both are useful findings.
+
+**UI stress testing** — see how your tables, cards, and forms look with very long names, international characters, and unusual values before real users trigger them.
+
+## Privacy
+
+faker.js runs entirely in your browser. No generated data is sent to our servers. All values are algorithmically produced — they are not real people's names or real email addresses.

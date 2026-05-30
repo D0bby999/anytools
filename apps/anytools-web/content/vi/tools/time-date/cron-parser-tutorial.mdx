@@ -1,0 +1,94 @@
+---
+title: Hướng dẫn đầy đủ về Cron Expression Parser
+description: Hiểu cú pháp cron, sự khác biệt Vixie vs Quartz, các vấn đề DST, và cách debug Kubernetes CronJob cùng GitHub Actions schedule.
+updated: 2026-05-26
+---
+
+## Cron expression là gì
+
+Cron expression là một chuỗi ngắn gọn mô tả lịch lặp lại. Tên gọi đến từ Chronos (tiếng Hy Lạp nghĩa là thời gian) qua Unix `cron` daemon, đã chạy scheduled job từ Version 7 Unix năm 1979. Developer viết một expression và scheduler tự tính ra mọi thời điểm chạy trong tương lai.
+
+Format năm trường cổ điển là:
+
+```
+┌───────── phút          (0–59)
+│ ┌─────── giờ           (0–23)
+│ │ ┌───── ngày trong tháng (1–31)
+│ │ │ ┌─── tháng         (1–12 hoặc JAN–DEC)
+│ │ │ │ ┌─ ngày trong tuần (0–7, cả 0 và 7 đều là Chủ nhật, hoặc SUN–SAT)
+│ │ │ │ │
+* * * * *
+```
+
+Tool này dùng thư viện [`cron-parser`](https://github.com/harrisiirak/cron-parser) để tính các lần chạy tiếp theo và [`cronstrue`](https://github.com/bradymholt/cronstrue) để tạo giải thích bằng ngôn ngữ tự nhiên như "Lúc 9:00 SA, Thứ Hai đến Thứ Sáu."
+
+## Cú pháp từng trường
+
+Mỗi trường chấp nhận nhiều dạng cú pháp:
+
+- **Wildcard `*`** — khớp với mọi giá trị. `* * * * *` chạy mỗi phút.
+- **Giá trị cụ thể** — `30 * * * *` chạy vào phút thứ 30 của mỗi giờ.
+- **Range** — `1-5` nghĩa là các giá trị 1, 2, 3, 4, 5. `MON-FRI` trong trường day-of-week nghĩa là ngày trong tuần.
+- **Step** — `*/15` nghĩa là "cứ mỗi giá trị thứ 15": 0, 15, 30, 45 trong trường phút. `1-10/2` nghĩa là 1, 3, 5, 7, 9.
+- **List** — giá trị phân cách bằng dấu phẩy: `0,15,30,45` trong trường phút kích hoạt bốn lần mỗi giờ.
+
+Kết hợp các dạng: `0 9-17 * * MON-FRI` chạy vào đầu mỗi giờ từ 9 SA đến 5 CH các ngày trong tuần.
+
+## Standard cron vs Vixie cron vs Quartz
+
+Ba biến thể này là nguồn gây nhầm lẫn phổ biến vì trông giống nhau nhưng hoạt động khác nhau.
+
+**Standard/POSIX cron** có năm trường ở trên. Day-of-week 0 và 7 đều là Chủ nhật. Không có trường seconds. Đây là thứ hầu hết các distro Linux cung cấp.
+
+**Vixie cron** (đặt theo tên Paul Vixie, người viết lại cron năm 1987) thêm một số tiện ích: step values, các alias `@`, và hành vi khi cả day-of-month lẫn day-of-week đều được chỉ định (không cái nào là `*`), job chạy khi **bất kỳ** điều kiện nào thỏa mãn (logic OR). Hành vi OR này gây bất ngờ cho nhiều developer. `0 0 1 * 1` không có nghĩa là "Thứ Hai đầu tiên của tháng" — nó nghĩa là "nửa đêm ngày 1 của bất kỳ tháng nào **hoặc** nửa đêm bất kỳ Thứ Hai nào."
+
+**Quartz Scheduler** (Java) thêm **trường seconds** làm trường đầu tiên và trường **year** tùy chọn làm trường thứ bảy. Expression Quartz trông như `0 30 9 * * MON-FRI` (sáu trường), trong đó `0` đứng đầu là seconds. Nó cũng giới thiệu `L` (last), `W` (nearest weekday), `#` (lần xuất hiện thứ N), và `?` (không có giá trị cụ thể, dùng để phá vỡ sự mơ hồ OR). Quartz không có hành vi OR của Vixie — bạn dùng `?` để đánh dấu rõ ràng trường nào muốn bỏ qua.
+
+Khi debug một schedule, luôn xác định biến thể nào hệ thống của bạn dùng.
+
+## Các alias `@`
+
+Hầu hết hệ thống dẫn xuất từ Vixie-cron hỗ trợ các alias tiện lợi này:
+
+| Alias | Tương đương | Ý nghĩa |
+|---|---|---|
+| `@yearly` / `@annually` | `0 0 1 1 *` | Một lần mỗi năm, nửa đêm 1/1 |
+| `@monthly` | `0 0 1 * *` | Một lần mỗi tháng, nửa đêm ngày 1 |
+| `@weekly` | `0 0 * * 0` | Một lần mỗi tuần, nửa đêm Chủ nhật |
+| `@daily` / `@midnight` | `0 0 * * *` | Một lần mỗi ngày, nửa đêm |
+| `@hourly` | `0 * * * *` | Một lần mỗi giờ, đầu giờ |
+| `@reboot` | — | Một lần khi khởi động |
+
+Các alias này không hợp lệ trong Quartz hay một số cloud platform. GitHub Actions dùng `@yearly` v.v. trong trigger `schedule:`; Kubernetes CronJob không hỗ trợ chúng — dùng dạng năm trường tương đương.
+
+## Debug Kubernetes CronJob
+
+Kubernetes CronJob dùng cú pháp cron năm trường chuẩn, được tính theo UTC. Các lỗi phổ biến:
+
+**Bỏ lỡ run.** Nếu clock của node bị lệch hoặc node bị restart, CronJob controller có thể bỏ qua một run nếu cửa sổ `startingDeadlineSeconds` đã trôi qua. Kiểm tra `kubectl describe cronjob <name>` để tìm event "Missed scheduled time".
+
+**Nhầm lẫn timezone.** Kubernetes CronJob tính schedule theo UTC. Nếu bạn muốn `0 9 * * *` kích hoạt lúc 9 SA giờ địa phương, bạn sẽ bất ngờ khi clock thay đổi. Kubernetes 1.27+ thêm trường `timeZone` vào CronJob spec; trên cluster cũ hơn, thêm UTC offset thủ công.
+
+**Concurrent run.** `concurrencyPolicy` mặc định là `Allow`, nghĩa là job mới bắt đầu ngay cả khi job trước vẫn đang chạy. Với job idempotent điều này ổn; với job chạm đến shared state, đặt `concurrencyPolicy: Forbid`.
+
+## Debug GitHub Actions schedule
+
+GitHub Actions dùng Vixie-style cron trong trigger `schedule:`, cũng được tính theo UTC. Khoảng cách tối thiểu là mỗi 5 phút; schedule thường xuyên hơn sẽ bị từ chối. Ngoài ra có một hạn chế đã biết là scheduled workflow trên default branch có thể bị delay đến một giờ trong thời gian GitHub bị tải nặng.
+
+## Vấn đề Daylight Saving Time
+
+Cron expression thường được tính theo wall-clock time theo timezone đã cấu hình của server. Khi có DST transition:
+
+- **Spring forward** (ví dụ: 2:00 SA trở thành 3:00 SA): bất kỳ job nào được schedule từ 2:00 đến 3:00 SA đều bị bỏ qua — khoảng thời gian đó không tồn tại.
+- **Fall back** (ví dụ: 3:00 SA trở lại 2:00 SA): bất kỳ job nào được schedule trong giờ lặp lại có thể kích hoạt hai lần.
+
+Cách an toàn nhất là schedule job vào thời điểm không rơi vào cửa sổ transition, hoặc schedule theo UTC và chấp nhận rằng wall-clock time sẽ dịch một giờ hai lần mỗi năm.
+
+## Quyền riêng tư
+
+Tính toán next-run diễn ra hoàn toàn trong trình duyệt của bạn bằng các thư viện [`cron-parser`](https://github.com/harrisiirak/cron-parser) và [`cronstrue`](https://github.com/bradymholt/cronstrue). Không có expression nào được gửi đến server.
+
+## Công cụ liên quan
+
+- **Timezone Converter** — convert thời gian UTC được hiển thị ở đây sang wall-clock time địa phương của bạn.
+- **Timestamp Converter** — convert Unix epoch timestamp từ cron log sang ngày đọc được.

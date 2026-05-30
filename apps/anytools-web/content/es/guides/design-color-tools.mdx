@@ -1,0 +1,62 @@
+---
+title: "Conversor de color y contraste WCAG — Guía para diseñadores"
+description: "Conversión HEX, RGB, HSL más ratios de contraste WCAG 2.1 AA/AAA — qué significan, cuándo importa cada prueba, cómo leer los números."
+keywords: ["conversor de color", "contraste wcag", "hex rgb hsl", "accesibilidad", "paleta de colores"]
+updated: 2026-05-29
+readingTime: 5
+---
+
+# Conversor de color y contraste WCAG
+
+Las herramientas de color se dividen en dos grupos: las que traducen entre codificaciones (HEX, RGB, HSL) y las que evalúan accesibilidad. Nuestro [conversor de color](/es/design/color-converter) hace ambas en una sola pantalla.
+
+---
+
+## El lado de la codificación
+
+### HEX
+
+`#1E293B` son tres bytes hex para rojo, verde, azul. Cada byte 0-255, expresado en dos dígitos hex. Compacto y copiable, pero la intuición humana no llega: no puedes mirar `#3B7AC9` y predecir cómo se ve.
+
+### RGB
+
+`rgb(30, 41, 59)` — los mismos números en decimal. Mejor para aritmética.
+
+### HSL
+
+`hsl(217, 33%, 17%)` — hue (0-360°), saturation, lightness. El formato que realmente quieres cuando ajustas colores a mano. ¿Más oscuro? Baja el lightness. ¿Menos saturado? Baja la saturación.
+
+---
+
+## El lado del contraste WCAG
+
+WCAG 2.1 especifica ratios mínimos de contraste:
+
+- **AA Normal** — 4.5:1 — el piso legal para casi todo el contenido público.
+- **AA Large** — 3:1 — para texto 18pt+ o 14pt+ negrita.
+- **AAA Normal** — 7:1 — nivel reforzado.
+- **AAA Large** — 4.5:1 — nivel reforzado para texto grande.
+
+La matemática usa **luminancia relativa** con linealización sRGB — NO la diferencia ingenua de RGB. Nuestra calculadora usa la fórmula canónica de WCAG 2.1 y la verificamos contra [WebAIM contrast checker](https://webaim.org/resources/contrastchecker/).
+
+---
+
+## Combinaciones prácticas
+
+- **Slate-900 sobre blanco**: 20:1, pasa todo.
+- **Slate-600 sobre blanco**: 6.8:1, pasa AA Normal pero solo AAA Large.
+- **Blue-600 sobre blanco**: 5.2:1, pasa AA Normal.
+- **Amarillo sobre blanco**: usualmente falla.
+
+---
+
+## Próximamente
+
+- **Generador de paletas de color** — pick familia de hue y obtén 5 colores armonizados.
+- **Simulador de daltonismo** — preview deuteranopia/protanopia/tritanopia.
+
+---
+
+## Privacidad
+
+Toda conversión y matemática de contraste corre localmente en tu navegador.

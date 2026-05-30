@@ -1,0 +1,49 @@
+---
+title: Converter entre JSON, YAML e TOML
+description: Quando usar cada formato, gotchas (Norway problem, comentários perdidos) e como converter sem quebrar tipos.
+updated: 2026-05-27
+---
+
+## Três formatos, três casos de uso
+
+**JSON** ganhou a guerra das APIs REST. Strict, fácil de parsear, suportado nativamente em todas as linguagens. Ruim para configs: sem comentários, exige aspas em todas as chaves, virgula no fim quebra.
+
+**YAML** dominou configs de DevOps (Kubernetes, GitHub Actions, Ansible, Docker Compose). Permite comentários, é menos verboso, suporta anchors e references. Caro de parsear, sintaxe sensível à indentação, cheio de armadilhas (veja "Norway problem" abaixo).
+
+**TOML** é a escolha do ecossistema Rust (`Cargo.toml`) e Python moderno (`pyproject.toml`). Tipos explícitos, seções claras, parser determinístico. Menos popular fora desses ecossistemas, mas crescendo.
+
+## O "Norway problem"
+
+YAML 1.1 trata `NO`, `YES`, `ON`, `OFF`, `TRUE`, `FALSE` (em qualquer caixa) como booleans. Isso significa que o código de país `NO` (Noruega) vira `false` se você não colocar aspas:
+
+```yaml
+countries:
+  - NO    # ← isso é false!
+  - SE
+  - DK
+```
+
+YAML 1.2 corrigiu para apenas `true`/`false`, mas muitos parsers (js-yaml por padrão) ainda usam 1.1. Sempre coloque strings em aspas se forem ambíguas.
+
+## Comentários: a perda silenciosa
+
+Comentários em YAML/TOML não sobrevivem à conversão. Se você converte um `docker-compose.yml` comentado para JSON e volta, perde toda a documentação inline. Para preservar, ferramentas como `prettier --plugin-yaml` ou edição manual são necessárias.
+
+## Tipos numéricos
+
+TOML é o mais estrito: `1.0` é float, `1` é integer, `0xFF` é hex integer. JSON tem só "number" (interpretado conforme o parser). YAML faz inferência (heurística), o que pode surpreender — `01234` em YAML é octal (=668), não a string `"01234"`.
+
+## Datas
+
+TOML tem tipos nativos para datetime (RFC 3339), local datetime, local date, local time. JSON não tem tipo de data — sempre vai como string. YAML aceita date strings que parsers podem interpretar como Date.
+
+## Casos práticos
+
+- Migrar `package.json` para um formato com comentários → YAML ou TOML
+- Converter um `pyproject.toml` para inspecionar como objeto → TOML → JSON
+- Validar config de CI antes de commitar — parsear forçando o modo strict
+- Padronizar configs do time em um formato (geralmente YAML pelas vibes do K8s)
+
+## Bibliotecas usadas
+
+`json5` (JSON tolerante), `js-yaml` (YAML 1.2 mode), `@iarna/toml` (TOML 1.0). Todas rodam no navegador, zero servidor.

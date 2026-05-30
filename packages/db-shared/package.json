@@ -1,0 +1,33 @@
+{
+  "name": "@anytools/db-shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./schema": "./src/schema/index.ts",
+    "./sync-blogs": "./src/sync/sync-blogs.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "echo 'no build step'",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push",
+    "sync:blogs": "node --import tsx/esm src/sync/sync-blogs.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.36.4",
+    "gray-matter": "4.0.3",
+    "postgres": "3.4.5"
+  },
+  "devDependencies": {
+    "@anytools/config": "workspace:*",
+    "@types/node": "22.10.5",
+    "drizzle-kit": "0.30.1",
+    "tsx": "4.19.2",
+    "typescript": "5.7.3"
+  }
+}

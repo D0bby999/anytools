@@ -1,0 +1,125 @@
+---
+title: Hướng dẫn toàn diện về beautify và minify CSS
+description: Pretty-print hoặc minify CSS với thụt lề có thể cấu hình, hiểu rõ readability của specificity, format selector-per-line, và tiết kiệm byte thực tế.
+updated: 2026-05-27
+---
+
+## Tại sao format CSS được coi trọng
+
+CSS không cần whitespace. Trình duyệt parse `a{color:red}` và `a { color: red; }` giống hệt nhau. Nhưng con người không đọc chúng như nhau. Stylesheet đến dưới dạng một dòng dài gần như không thể phân tích — bạn không thể thấy ranh giới rule, chuỗi selector, hay nhóm declaration.
+
+Format CSS cũng là điều kiện tiên quyết cho version control hữu ích. Một `git diff` trên CSS đã minify hiển thị một dòng thay đổi khổng lồ ngay cả khi chỉ một giá trị màu thay đổi. CSS đã beautify hiển thị chính xác property nào thay đổi, trên selector nào, trong rule block nào.
+
+## Một selector mỗi dòng — tại sao quan trọng cho diff và readability
+
+Selector nhóm như:
+
+```css
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+}
+```
+
+ổn để đọc, nhưng code review thêm `h6` hoặc bỏ `h4` sẽ sửa một dòng hỗn hợp. Diff bị nhiễu. Form đã beautify đặt mỗi selector trên dòng riêng:
+
+```css
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+```
+
+Giờ thêm hoặc bỏ một heading level là diff một dòng sạch. Đây là hành vi mặc định của chế độ CSS trong `js-beautify` và format Prettier dùng cho CSS.
+
+## Readability của specificity
+
+CSS specificity xác định rule nào thắng khi hai rule nhắm cùng element. Phép tính (inline style → ID → class/attribute → element) dễ phân tích hơn khi mỗi rule được thụt lề đầy đủ và cô lập. Stylesheet đã minify làm phẳng mọi thứ thành một dòng — bạn phải phân tích cascade ở mức ký tự.
+
+Trong development, giữ CSS đã beautify. Trong code review, diff đã format làm xung đột specificity hiện rõ trước khi lên production.
+
+## Minification: tiết kiệm byte thực tế
+
+Minify CSS loại bỏ:
+- Toàn bộ whitespace giữa các token (khoảng trắng, tab, newline)
+- Comment (`/* ... */`)
+- Dấu chấm phẩy cuối trong rule block (declaration cuối trước `}` không cần)
+- Số 0 đứng đầu trong decimal (`0.5em` → `.5em`)
+
+Stylesheet thực tế có thể giảm 25–40% sau khi minify. Điểm mấu chốt: **HTTP compression (gzip hoặc brotli) hiệu quả hơn nhiều so với loại whitespace thô**. Gzip thường đạt 60–80% compression trên CSS vì whitespace rất lặp lại và compress tốt:
+
+| File | Thô | Sau minify | Sau gzip | Sau minify + gzip |
+|------|-----|-----------|---------|------------------|
+| bootstrap.css | 187 KB | 153 KB | 26 KB | 24 KB |
+
+Quyết định đúng: bật gzip/brotli trên server của bạn (hầu hết đều bật mặc định), và cũng minify CSS trong build pipeline. Kết hợp cả hai cho kết quả tốt nhất.
+
+## CSS Nesting (CSS Nesting Module Level 1)
+
+CSS hiện đại hỗ trợ nesting không cần preprocessor. CSS Nesting Module Level 1 (hiện được hỗ trợ trên tất cả evergreen browser) cho phép:
+
+```css
+.card {
+  padding: 1rem;
+
+  & .title {
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    background: var(--color-hover);
+  }
+}
+```
+
+Chế độ CSS của `js-beautify` giữ nguyên thụt lề nesting đúng cách. Minification thu gọn nesting về dạng whitespace tối thiểu trong khi giữ cấu trúc nesting hợp lệ — nó không "de-nest" về CSS phẳng.
+
+## Shorthand vs longhand trong output đã minify
+
+CSS shorthand như `margin: 0 auto` nhỏ hơn `margin-top: 0; margin-right: auto; margin-bottom: 0; margin-left: auto`. Tuy nhiên, tự động chuyển longhand sang shorthand trong quá trình minify là rủi ro vì shorthand reset tất cả sub-property, không chỉ những cái bạn liệt kê. Minifier chuyển đổi shorthand một cách mù quáng có thể thay đổi hành vi cascade.
+
+`js-beautify` không tối ưu shorthand — nó chỉ loại whitespace. Để tối ưu shorthand, các tool như `cssnano` với plugin `postcss-merge-longhand` xử lý điều này với phân tích cascade đúng.
+
+## Source map để debug CSS đã minify
+
+Khi phục vụ CSS đã minify trong production, generate source map để browser DevTools hiển thị dòng và file gốc đã beautify ngay cả khi chạy code đã minify:
+
+```bash
+# PostCSS với cssnano
+npx postcss styles.css --use cssnano -o styles.min.css --map
+```
+
+File `.map` kết quả ánh xạ byte offset đã minify về dòng source gốc. DevTools tự động fetch nó khi file đã minify có `/*# sourceMappingURL=styles.min.css.map */` ở cuối.
+
+## Sử dụng `js-beautify` cho CSS
+
+```javascript
+import beautify from 'js-beautify';
+
+const pretty = beautify.css(rawCss, {
+  indent_size: 2,
+  selector_separator_newline: true,  // một selector mỗi dòng
+  end_with_newline: true,
+  newline_between_rules: true,
+});
+```
+
+Để minify production, ưu tiên `cssnano` (PostCSS) hoặc `lightningcss` (Rust, cực nhanh):
+
+```javascript
+import { transform } from 'lightningcss';
+
+const { code } = transform({
+  filename: 'styles.css',
+  code: Buffer.from(rawCss),
+  minify: true,
+  sourceMap: true,
+});
+```
+
+## Quyền riêng tư
+
+Toàn bộ xử lý CSS chạy hoàn toàn trên trình duyệt. Style của bạn không bao giờ được gửi lên server.

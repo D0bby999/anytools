@@ -1,0 +1,35 @@
+---
+title: Base64 — Câu hỏi thường gặp
+---
+
+## Base64 có phải mã hóa bảo mật không?
+
+Không. Base64 là encoding có thể đảo ngược — ai có chuỗi đã mã hóa đều decode lại được mà không cần key. Dùng nó để đẩy dữ liệu nhị phân qua kênh text, không phải để giữ bí mật.
+
+## Tại sao `btoa()` lỗi với emoji hoặc tiếng Việt?
+
+Hàm `btoa()` mặc định của trình duyệt chỉ chấp nhận Latin-1 (byte 0–255). Ký tự như `ế` hay `🌏` là nhiều byte trong UTF-8, không vừa nên `btoa` ném lỗi. Công cụ này encode UTF-8 trước rồi mới Base64 — nhờ vậy unicode round-trip sạch.
+
+## Base64 chuẩn và Base64URL khác nhau ra sao?
+
+Base64 chuẩn dùng `+` và `/`, đệm `=`. Base64URL thay `+/` thành `-_` và bỏ padding, an toàn để dùng trong URL, đoạn JWT, hoặc tên file. Bật "URL-safe" ở trên để chuyển bộ ký tự.
+
+## Vì sao có dấu `=` ở cuối một số chuỗi mã hóa?
+
+Base64 mã hóa mỗi 3 byte input thành 4 ký tự output. Khi độ dài input không chia hết cho 3, encoder đệm một hoặc hai `=` để output luôn chia hết cho 4. Base64URL bỏ phần padding này.
+
+## Dữ liệu của tôi có được gửi lên server không?
+
+Không. Tất cả xử lý chạy trong trình duyệt bằng thư viện [`js-base64`](https://github.com/dankogai/js-base64). Mở tab Network — bạn sẽ thấy zero request khi gõ. Trang còn hoạt động được khi mất mạng (đã cache).
+
+## Input lớn nhất bao nhiêu thì xử lý nổi?
+
+Trên thực tế khoảng vài MB mỗi lần. Vượt ~10 MB tab có thể đứng vài giây vì xử lý đồng bộ. Với file vài trăm MB nên dùng decoder dạng streaming trong Web Worker hoặc công cụ phía server.
+
+## Text giải mã ra trông như rác — bị gì?
+
+Hầu như luôn là một trong ba: (1) input mã hóa bằng bộ ký tự khác (URL-safe vs chuẩn — thử bật/tắt), (2) input bị cắt mất padding, hoặc (3) gốc không phải text UTF-8 mà là nhị phân tình cờ không hợp lệ UTF-8 (lúc đó "text giải mã" vô nghĩa; thứ bạn muốn là raw byte).
+
+## Có dùng Base64 để nén dữ liệu được không?
+
+Không — Base64 làm dữ liệu **to thêm ~33%**, không thu gọn. Cần thu gọn thì dùng gzip, brotli, hoặc codec chuyên dụng cho domain, sau đó mới Base64 các byte đã nén nếu cần đẩy dạng text.

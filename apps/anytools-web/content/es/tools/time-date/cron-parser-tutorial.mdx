@@ -1,0 +1,92 @@
+---
+title: Guía completa del Analizador de Expresiones Cron
+description: Entiende la sintaxis cron, las diferencias entre Vixie y Quartz, los problemas con DST y cómo depurar Kubernetes CronJobs y schedules de GitHub Actions.
+updated: 2026-05-26
+---
+
+## Qué es una expresión cron
+
+Una expresión cron es una cadena compacta que describe un horario repetitivo. El nombre viene de Chronos (griego para tiempo) a través del daemon Unix `cron`, que ha estado ejecutando trabajos programados desde Unix Versión 7 en 1979. Los operadores escriben una expresión y el scheduler calcula automáticamente cada tiempo de ejecución futuro.
+
+El formato clásico de cinco campos es:
+
+```
+┌───────── minuto         (0–59)
+│ ┌─────── hora           (0–23)
+│ │ ┌───── día del mes    (1–31)
+│ │ │ ┌─── mes            (1–12 o JAN–DEC)
+│ │ │ │ ┌─ día de semana  (0–7, tanto 0 como 7 son domingo, o SUN–SAT)
+│ │ │ │ │
+* * * * *
+```
+
+Esta herramienta usa la biblioteca [`cron-parser`](https://github.com/harrisiirak/cron-parser) para calcular los próximos tiempos de ejecución y [`cronstrue`](https://github.com/bradymholt/cronstrue) para generar una explicación en lenguaje natural como "A las 9:00 AM, de lunes a viernes."
+
+## Sintaxis de campos
+
+Cada campo acepta varias formas sintácticas:
+
+- **Comodín `*`** — coincide con todos los valores. `* * * * *` se ejecuta cada minuto.
+- **Valor específico** — `30 * * * *` se ejecuta en el minuto 30 de cada hora.
+- **Rango** — `1-5` significa los valores 1, 2, 3, 4, 5. `MON-FRI` en el campo día de semana significa días laborables.
+- **Paso** — `*/15` significa "cada 15° valor": 0, 15, 30, 45 en el campo minuto. `1-10/2` significa 1, 3, 5, 7, 9.
+- **Lista** — valores separados por coma: `0,15,30,45` en el campo minuto dispara cuatro veces por hora.
+
+Combinando formas: `0 9-17 * * MON-FRI` se ejecuta al inicio de cada hora de 9 AM a 5 PM en días laborables.
+
+## Cron estándar vs Vixie cron vs Quartz
+
+Estas tres variantes son una fuente común de confusión porque se ven idénticas pero se comportan diferente.
+
+**Cron estándar/POSIX** tiene los cinco campos anteriores. El día de semana 0 y 7 son ambos domingo. Sin campo de segundos. Esto es lo que envía la mayoría de las distribuciones Linux.
+
+**Vixie cron** (nombrado por Paul Vixie, quien reescribió cron en 1987) agrega varias conveniencias: valores de paso, los alias `@` y el comportamiento donde si se especifican *tanto* día-del-mes *como* día-de-semana (ninguno es `*`), el trabajo se ejecuta cuando *cualquiera* de las condiciones se satisface (OR lógico). Este comportamiento OR sorprende a muchos desarrolladores. `0 0 1 * 1` no significa "el primer lunes del mes" — significa "medianoche del día 1 de cualquier mes **o** medianoche de cualquier lunes."
+
+**Quartz Scheduler** (Java) agrega un **campo de segundos** como primer campo y un **campo de año** opcional como séptimo. Una expresión Quartz se ve como `0 30 9 * * MON-FRI` (seis campos), donde el `0` inicial son segundos. También introduce `L` (último), `W` (día laborable más cercano), `#` (enésima ocurrencia) y `?` (sin valor específico, para romper la ambigüedad OR). Quartz no tiene el comportamiento OR de Vixie.
+
+## Los alias `@`
+
+La mayoría de los sistemas derivados de Vixie-cron soportan estos alias de conveniencia:
+
+| Alias | Equivalente | Significado |
+|---|---|---|
+| `@yearly` / `@annually` | `0 0 1 1 *` | Una vez al año, medianoche 1 de enero |
+| `@monthly` | `0 0 1 * *` | Una vez al mes, medianoche del día 1 |
+| `@weekly` | `0 0 * * 0` | Una vez a la semana, medianoche del domingo |
+| `@daily` / `@midnight` | `0 0 * * *` | Una vez al día, medianoche |
+| `@hourly` | `0 * * * *` | Una vez por hora, al inicio de la hora |
+| `@reboot` | — | Una vez al arranque |
+
+Estos alias no son válidos en Quartz ni en algunas plataformas cloud. GitHub Actions usa `@yearly` etc. en su trigger `schedule:`; Kubernetes CronJob no los soporta — usa la forma equivalente de cinco campos.
+
+## Depurando Kubernetes CronJobs
+
+Los Kubernetes CronJobs usan sintaxis cron estándar de cinco campos, evaluada en UTC. Errores comunes:
+
+**Ejecuciones perdidas.** Si los relojes del nodo están desincronizados o un nodo se reinició, el controlador CronJob puede omitir una ejecución si la ventana `startingDeadlineSeconds` ha pasado. Verifica `kubectl describe cronjob <nombre>` para eventos "Missed scheduled time".
+
+**Confusión de timezone.** Los CronJobs de Kubernetes evalúan schedules en UTC. Si esperas que `0 9 * * *` se dispare a las 9 AM hora local, te sorprenderás cuando cambien los relojes. Kubernetes 1.27+ agregó el campo `timeZone` en el spec de CronJob; en clústeres más viejos, agrega el offset UTC manualmente.
+
+**Ejecuciones concurrentes.** `concurrencyPolicy` por defecto es `Allow`, lo que significa que un nuevo trabajo comienza aunque el anterior todavía esté corriendo. Para trabajos idempotentes está bien; para trabajos que tocan estado compartido, establece `concurrencyPolicy: Forbid`.
+
+## Depurando schedules de GitHub Actions
+
+GitHub Actions usa cron estilo Vixie en el trigger `schedule:`, también evaluado en UTC. El intervalo mínimo es cada 5 minutos; los schedules más frecuentes son rechazados. También hay una limitación conocida donde los workflows programados en la rama predeterminada pueden retrasarse hasta una hora durante períodos de alta carga en GitHub.
+
+## Problemas con el horario de verano (DST)
+
+Las expresiones cron típicamente se evalúan contra el tiempo de reloj de pared en la timezone configurada del servidor. Cuando ocurren transiciones DST:
+
+- **Adelanto de primavera** (ej: 2:00 AM se convierte en 3:00 AM): cualquier trabajo programado entre las 2:00 y 3:00 AM se omite completamente — esa hora no existe.
+- **Atraso de otoño** (ej: 3:00 AM se convierte en 2:00 AM): cualquier trabajo programado en la hora repetida puede dispararse dos veces.
+
+La práctica más segura es programar trabajos en UTC y aceptar que el tiempo de reloj de pared local cambie una hora dos veces al año.
+
+## Privacidad
+
+Los cálculos de próxima ejecución ocurren completamente en tu navegador usando las bibliotecas [`cron-parser`](https://github.com/harrisiirak/cron-parser) y [`cronstrue`](https://github.com/bradymholt/cronstrue). No se envían expresiones a ningún servidor.
+
+## Herramientas relacionadas
+
+- **Timezone Converter** — convierte los tiempos UTC mostrados aquí a tu hora local de reloj de pared.
+- **Timestamp Converter** — convierte timestamps Unix epoch de logs de cron en fechas legibles.

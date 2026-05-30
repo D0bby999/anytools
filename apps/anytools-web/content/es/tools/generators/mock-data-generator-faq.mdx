@@ -1,0 +1,49 @@
+---
+title: Generador de Datos de Prueba — Preguntas frecuentes
+---
+
+## ¿Los datos generados son reales? ¿Podrían coincidir accidentalmente con una persona real?
+
+No. faker.js construye valores algorítmicamente — elige de listas de palabras, aplica patrones de formato y combina componentes. La probabilidad de generar accidentalmente la combinación de nombre + email + dirección de una persona real es astronómicamente baja. Dicho eso, nunca uses datos generados en un contexto de producción que requiera identidades reales.
+
+## ¿Qué hace establecer un seed?
+
+Un seed inicializa el generador de números aleatorios de faker en un estado fijo, de modo que cada ejecución con el mismo seed produce output idéntico. Esto es crítico para fixtures de prueba reproducibles — si tu test verifica valores específicos, el fixture debe ser estable entre ejecuciones. Usa cualquier entero como seed. Si cambias el seed, obtienes un dataset completamente diferente (pero nuevamente reproducible).
+
+## ¿Puedo generar objetos JSON anidados?
+
+La herramienta actual genera registros planos por esquema. Para estructuras anidadas, usa faker.js en un script Node.js donde puedes componer objetos libremente:
+
+```javascript
+const user = {
+  id: faker.string.uuid(),
+  profile: {
+    name: faker.person.fullName(),
+    avatar: faker.image.avatar(),
+  },
+  address: {
+    city: faker.location.city(),
+    country: faker.location.country(),
+  },
+}
+```
+
+## ¿Por qué el conteo de filas de CSV y JSON a veces difiere?
+
+No difieren — ambos modos generan el mismo número de registros. Lo que puede diferir es el conteo de filas aparente si abres el CSV en Excel y Excel auto-convierte valores (por ejemplo, un UUID que parece un número queda truncado). El archivo en bruto es correcto; la visualización es la interpretación de Excel.
+
+## ¿Cuál es el máximo de filas que debo generar en el navegador?
+
+Alrededor de 10.000 filas es cómodo. Más allá de eso, el loop de generación y la serialización JSON empiezan a consumir memoria notable y la UI puede lagear. Para 100k+ filas, instala `@faker-js/faker` via npm y corre un script Node.js — puede generar millones de filas limitado solo por el espacio en disco.
+
+## ¿Cómo genero datos específicos de locale como el CPF brasileño o códigos postales alemanes?
+
+Establece el locale en `pt_BR` o `de` en el dropdown. Los módulos de locale de faker.js incluyen formatos específicos por región para teléfonos, códigos postales e IDs. No todos los locales implementan todos los campos — si falta una implementación específica, faker hace fallback al valor en inglés.
+
+## ¿Puedo usar esto para load testing?
+
+Sí, con una advertencia. Esta herramienta genera datos en el navegador para archivos de fixture y scripts de seeding. Para load testing (enviar miles de requests por segundo), genera tus archivos de fixture aquí, luego aliméntalos a tu herramienta de load testing (k6, Artillery, Locust). No intentes manejar el load testing directamente desde el navegador.
+
+## ¿Los números de tarjeta de crédito generados son válidos?
+
+Los números pasan el algoritmo Luhn (la verificación de checksum) porque faker los genera así para que sean realistas. No son números de tarjeta reales y serán rechazados por cualquier procesador de pagos real. Nunca los uses en un flujo de pago en producción.

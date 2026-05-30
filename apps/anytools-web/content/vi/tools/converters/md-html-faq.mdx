@@ -1,0 +1,35 @@
+---
+title: Markdown ↔ HTML Converter — Câu hỏi thường gặp
+---
+
+## Render Markdown từ user input thẳng ra HTML có an toàn không?
+
+Không. Markdown cho phép raw HTML blocks, nghĩa là Markdown không tin cậy có thể chứa `<script>` tags, `onerror` handlers, và `javascript:` links. Luôn bật tùy chọn sanitization (dùng DOMPurify) khi render Markdown do người dùng cung cấp. Với nội dung của bạn — docs, blog posts, README files — sanitization là tùy chọn vì bạn tin source.
+
+## Sự khác nhau giữa CommonMark và GitHub Flavored Markdown là gì?
+
+CommonMark là spec chặt chẽ và không mơ hồ cho Markdown. GFM (GitHub Flavored Markdown) mở rộng thêm tables, strikethrough (`~~text~~`), task lists (`- [ ] item`), và autolinked URLs. Hầu hết developer kỳ vọng GFM vì GitHub, GitLab, và hầu hết Markdown editors hỗ trợ nó. Dùng CommonMark mode chỉ khi cần strict spec compliance cho publishing system yêu cầu.
+
+## Tại sao HTML→Markdown conversion mất CSS styles?
+
+Markdown không có khái niệm styling. Không có Markdown syntax cho font color, font size, custom classes, hay inline CSS. Khi Turndown convert `<span style="color:red">text</span>`, nó chỉ có thể emit `text` — thông tin styling bị mất. Nếu cần styled output, giữ nguyên HTML hoặc dùng rich text format như DOCX.
+
+## Round-trip conversion (MD→HTML→MD) làm thay đổi Markdown. Có phải lỗi không?
+
+Không, đây là expected behavior. Conversion theo cả hai hướng đều lossy. Reference-style links thành inline links, setext headings thành ATX headings, custom HTML blocks có thể bị drop hay alter. Round-trip identity không phải mục tiêu thiết kế của các parsers này. Dùng one-way conversion cho publishing pipelines; với bidirectional editing, chỉ giữ authoritative source ở một format.
+
+## Tại sao fenced code block không được syntax highlight trong output?
+
+Converter output `<code class="language-js">` (hay language bạn chỉ định) nhưng không áp dụng syntax highlighting — đó là rendering step riêng biệt. Để có highlighted output, chạy HTML qua [Prism.js](https://prismjs.com/) hay [highlight.js](https://highlightjs.org/) sau conversion, hoặc dùng Markdown renderer đã bao gồm highlighting.
+
+## Xử lý tables trong HTML→Markdown conversion thế nào?
+
+HTML tables chuẩn (`<table><tr><td>`) convert thành GFM pipe tables khi GFM plugin được bật trong Turndown. Tables đơn giản không có merged cells convert tốt. Tables với `colspan`, `rowspan`, hay nested tables không thể biểu diễn trong GFM table syntax — chúng sẽ được emit dưới dạng raw HTML blocks trong output.
+
+## Markdown convert xong có nhiều blank lines khắp nơi. Có loại bỏ được không?
+
+Các blank lines thêm vào là đúng theo Markdown — blank lines phân cách block elements (paragraphs, headings, code blocks, tables) theo yêu cầu của spec. Xóa chúng có thể làm hỏng cấu trúc Markdown. Nếu bạn thấy nhiều blank lines hơn mong đợi, có thể do source HTML có extra `<br>` tags, `<p>` tags bọc quanh block elements, hay `<div>` containers mỗi cái emit surrounding blank line.
+
+## Có thể convert cả trang HTML đầy đủ, gồm cả `<head>` và navigation, sang Markdown không?
+
+Bạn có thể paste full HTML page, nhưng Turndown sẽ cố convert mọi thứ — nav menus, footers, script tags, style blocks — tạo ra output ồn ào. Với web page extraction, tốt hơn là isolate main content element (`<article>`, `<main>`, hay `<div>` cụ thể) và chỉ convert phần đó. Browser extensions như Markdownload thực hiện extraction step này trước khi convert.

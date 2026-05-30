@@ -1,0 +1,79 @@
+---
+title: Unix timestamps, ISO 8601, and the timezone bugs they cause
+description: Why every developer eventually fights with timezones, what Y2K38 actually is, and the one storage rule that prevents most date bugs.
+updated: 2026-05-25
+---
+
+## The four formats this tool speaks
+
+Most date arguments boil down to which of these four formats you're using:
+
+- **Unix seconds** — `1779451200`. Integer count of seconds since 1970-01-01 UTC. Compact, easy to compare and sort. The "default" in databases, logs, and APIs designed before mobile.
+- **Unix milliseconds** — `1779451200000`. Same idea, finer resolution. JavaScript's `Date.now()` returns this. APIs originating from JS-heavy environments (Stripe, Firebase) often use this.
+- **ISO 8601** — `2026-05-25T12:00:00Z`. Human-readable, sortable as a string, unambiguous. The format you should be using in JSON APIs.
+- **RFC 2822** — `Mon, 25 May 2026 12:00:00 GMT`. The email/HTTP header format. You'll see it in `Date` and `Last-Modified` headers.
+
+This tool auto-detects which format you've pasted in and converts to all four, plus a human-readable rendering in any IANA timezone.
+
+## The single rule that prevents most date bugs
+
+**Store everything in UTC. Convert to local time only at display.**
+
+Every recurring date bug comes from violating this rule. Storing "2026-05-25 09:00" in a database without a timezone means you have no idea what instant in time that represents. Storing it in Eastern time means anyone in Vietnam reading the value has to know the convention. Storing the Unix timestamp (or an ISO 8601 with `Z`) means everyone agrees on the instant, and each viewer renders it in their local zone.
+
+The two acceptable storage formats:
+
+```
+1779451200            # Unix seconds (or millis), unambiguously UTC
+2026-05-25T12:00:00Z  # ISO 8601 with the Z (means UTC)
+```
+
+The unacceptable ones:
+
+```
+2026-05-25 12:00:00       # no timezone — what zone is this?
+05/25/2026 12:00 PM       # also no timezone, also ambiguous date format
+1779451200 (Asia/Tokyo)   # Unix timestamp with a "zone" — wrong by construction; epochs are UTC by definition
+```
+
+## The Y2K38 problem
+
+Unix timestamps in 32-bit signed integers overflow on 2038-01-19 at 03:14:07 UTC. After that moment, a 32-bit `time_t` wraps around to a negative number representing 1901. Any system still using 32-bit time storage will misbehave or crash.
+
+Modern systems use 64-bit `time_t`, which pushes the overflow to year 292 billion or so — comfortably beyond civilization. But there are still legacy embedded systems, databases with `INT(11)` timestamp columns, and old binary file formats out there. If you're building something today, use 64-bit storage and you'll never think about this again.
+
+## DST: why your cron job ran at 1am twice
+
+Twice a year, regions observing Daylight Saving Time either jump an hour forward (spring) or back (fall). On the fall transition, the same wall-clock hour (1am–2am in US Eastern) happens twice. On the spring transition, 2am doesn't exist.
+
+If you have a cron job scheduled at `0 1 * * *` in a server set to a DST-observing timezone:
+
+- Spring forward: the job is skipped (1am never happened that day).
+- Fall back: the job runs twice (1am happened twice).
+
+The fix: **schedule cron jobs in UTC**, not local time. Most cron implementations support this; check yours. If you control the application, store and compute in UTC, and only convert to user-local for display.
+
+## Timezones: IANA vs offset
+
+`+07:00` is an **offset** — a fixed number of hours from UTC. `Asia/Ho_Chi_Minh` is a **timezone** — the full set of historical rules for how that location's local time relates to UTC, including DST transitions and historical political changes.
+
+For display, both work. For storage and computation, **always use the IANA timezone name** (`Asia/Ho_Chi_Minh`, not `+07:00`). The offset can change due to DST or political decisions; the IANA name continues to mean the right thing.
+
+Vietnam doesn't observe DST, so `Asia/Ho_Chi_Minh` and `+07:00` look identical today. But the US/EU equivalents need IANA — `America/New_York` correctly shifts between `-05:00` (EST) and `-04:00` (EDT); pinning it to one offset is wrong.
+
+## Use cases for this tool
+
+- Decoding a JWT and figuring out when its `exp` timestamp lands.
+- Reading a Stripe webhook payload that ships `created` as Unix millis.
+- Cross-checking a server log timestamp against your local timezone.
+- Building a meeting-time helper across continents.
+- Sanity-checking that the timestamp your code wrote actually represents what you meant.
+
+## Privacy
+
+All conversion is local via native `Date` + `Intl` APIs and the open-source [`date-fns-tz`](https://github.com/marnusw/date-fns-tz) library. No request to our servers.
+
+## Related tools
+
+- **JWT Decoder** — inspect a token's `iat`/`exp` claims.
+- **UUID Generator** — v7 UUIDs include a timestamp prefix; useful for time-sortable IDs.

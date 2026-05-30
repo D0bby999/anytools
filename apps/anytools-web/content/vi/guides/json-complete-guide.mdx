@@ -1,0 +1,320 @@
+---
+title: "Hướng Dẫn JSON Toàn Diện 2026"
+description: "JSON từ lịch sử đến bảo mật: cú pháp, JSON5/NDJSON/BSON, JSON Schema, hiệu năng, prototype pollution, parse bomb và các lỗi thường gặp."
+keywords: ["json", "hướng dẫn json", "json schema", "json validation", "json5", "ndjson", "bson", "bảo mật json", "json parsing"]
+updated: 2026-05-26
+readingTime: 18
+---
+
+# Hướng Dẫn JSON Toàn Diện 2026
+
+JSON xuất hiện ở khắp nơi — REST API, file cấu hình, NoSQL database, giao tiếp giữa các service, log pipeline. Tuy nhiên hầu hết lập trình viên chỉ hiểu JSON ở mức bề mặt. Hướng dẫn này đi sâu từ nguồn gốc lịch sử đến những lỗ hổng bảo mật từng làm sập hệ thống production.
+
+---
+
+## 1. Lịch Sử: JSON Ra Đời Như Thế Nào
+
+Douglas Crockford phổ biến JSON khoảng năm 2001, nhưng format này có trước ông. Cú pháp được lấy trực tiếp từ object literal của JavaScript — đóng góp của Crockford là nhận ra rằng một tập con nhỏ cú pháp JavaScript có thể phục vụ như format trao đổi dữ liệu phổ quát. Ông đăng ký `json.org` và viết parser đầu tiên.
+
+Đặc tả chính thức đầu tiên là **RFC 4627** (2006), mô tả JSON như một tập con của JavaScript. Nhận định đó hóa ra không hoàn toàn đúng — có những code point Unicode hợp lệ trong string literal JavaScript nhưng RFC 4627 JSON không cho phép.
+
+**RFC 7159 (2014)** thay thế 4627 và sửa nhiều điểm mơ hồ: làm rõ rằng một JSON text có thể là bất kỳ giá trị JSON nào (không chỉ object/array), cho phép duplicate keys (nhưng lưu ý hành vi không xác định), và bỏ tuyên bố JSON là tập con của JavaScript.
+
+**RFC 8259 (2017)** là tiêu chuẩn hiện tại: JSON PHẢI được mã hóa bằng UTF-8 không có BOM. Đây là phiên bản mà thư viện JSON của bạn implement khi tuyên bố "tuân thủ RFC."
+
+---
+
+## 2. Cú Pháp Chi Tiết
+
+JSON có sáu kiểu giá trị: `string`, `number`, `boolean` (`true`/`false`), `null`, `object`, và `array`. Hiểu các edge case của từng kiểu sẽ giúp bạn debug nhanh hơn nhiều.
+
+### String
+
+String phải dùng nháy kép (nháy đơn KHÔNG hợp lệ trong JSON). Các escape sequence được phép:
+
+```
+\"   \/   \\   \b   \f   \n   \r   \t   \uXXXX
+```
+
+### Number
+
+JSON không giới hạn kích thước hay độ chính xác của số — tài liệu hợp lệ có thể chứa số nguyên với 10.000 chữ số. Vấn đề phát sinh ở phía nhận: `JSON.parse()` của JavaScript chuyển tất cả số sang IEEE 754 double 64-bit. Điều này có nghĩa là số nguyên ngoài phạm vi `[-2^53, 2^53]` bị mất độ chính xác trong im lặng:
+
+```javascript
+JSON.parse('{"id": 9007199254740993}').id
+// → 9007199254740992  (sai! chữ số cuối bị hỏng)
+```
+
+Đây là lỗi "large integer" đã gây ra tham nhũng dữ liệu thực tế với Twitter Snowflake IDs và database primary keys. Cách sửa: truyền số nguyên lớn dưới dạng string, hoặc dùng thư viện như `json-bigint`.
+
+### Object
+
+Keys phải là string. Duplicate keys được RFC 8259 cho phép nhưng tạo ra hành vi "không xác định." Không bao giờ dựa vào duplicate keys.
+
+### Array
+
+Trailing comma là bất hợp lệ:
+
+```json
+[1, 2, 3,]   // ✗ JSON không hợp lệ
+```
+
+Đây là lỗi cú pháp JSON phổ biến nhất khi copy từ JavaScript array literal.
+
+---
+
+## 3. Các Biến Thể JSON
+
+Sự chặt chẽ của RFC 8259 JSON là điểm mạnh (khả năng tương thích) và điểm yếu (trải nghiệm developer). Một số format giải quyết những điểm đau này.
+
+### JSON5
+
+[JSON5](https://json5.org/) thêm vào standard JSON:
+
+- Comment một dòng (`//`) và nhiều dòng (`/* */`)
+- Trailing comma trong object và array
+- String nháy đơn
+- Keys không cần nháy kép (nếu là JavaScript identifier hợp lệ)
+- Số hex (`0xFF`)
+- `Infinity`, `-Infinity`, `NaN`
+
+JSON5 được dùng rộng rãi cho file cấu hình (Babel, ESLint). **Không** phù hợp cho API payload vì hầu hết HTTP client/server không hỗ trợ.
+
+### JSONC
+
+JSONC ("JSON with Comments") thêm comment (`//` và `/* */`) vào JSON chuẩn. Dùng trong `tsconfig.json`, VS Code `settings.json`. Không có đặc tả chính thức.
+
+### NDJSON (Newline Delimited JSON)
+
+[NDJSON](http://ndjson.org/) đặt một giá trị JSON — thường là object — trên mỗi dòng, ngăn cách bằng `\n`:
+
+```
+{"id":1,"event":"login","ts":"2026-05-26T00:00:00Z"}
+{"id":2,"event":"purchase","ts":"2026-05-26T00:01:00Z"}
+```
+
+Lý tưởng cho: log streaming, bulk data transfer, MapReduce. Mỗi dòng phải là JSON hoàn chỉnh và hợp lệ.
+
+### BSON
+
+[BSON](https://bsonspec.org/) (Binary JSON) là format wire nội bộ của MongoDB. Mở rộng hệ thống kiểu JSON với: integer 64-bit, binary data, date dưới dạng milliseconds, Decimal128, ObjectId. BSON là format nhị phân — không thể chỉnh sửa bằng tay.
+
+### MessagePack
+
+[MessagePack](https://msgpack.org/) là format tuần tự hóa nhị phân với ngữ nghĩa tương đương JSON. Nhỏ hơn JSON (không cần quote key, variable-length integer) và parse nhanh hơn đáng kể.
+
+Dùng [converter JSON/YAML/TOML](/vi/converters/json-yaml-toml) khi cần chuyển đổi giữa các format.
+
+---
+
+## 4. JSON Schema Validation
+
+JSON Schema là tiêu chuẩn de facto để mô tả cấu trúc dữ liệu JSON. Phiên bản mới nhất là **Draft 2020-12**, nhưng **Draft 07** vẫn được hỗ trợ rộng rãi nhất trong tooling.
+
+### Ví Dụ Schema
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "name"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "email": { "type": "string", "format": "email" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}
+```
+
+### Lịch Sử Draft
+
+| Draft | Năm | Tính năng chính |
+|-------|-----|----------------|
+| Draft 04 | 2013 | `$ref`, `anyOf`/`oneOf`/`allOf` |
+| Draft 07 | 2018 | `if`/`then`/`else`, `readOnly`/`writeOnly` |
+| Draft 2020-12 | 2020 | `$dynamicRef`, `prefixItems`, unevaluated properties |
+
+**Lời khuyên thực tế:** Dùng Draft 07 để có khả năng tương thích tooling tối đa. Dùng Draft 2020-12 chỉ khi validator của bạn (Ajv 8.x) hỗ trợ rõ ràng.
+
+### Thư Viện Validation
+
+- **JavaScript:** [Ajv](https://ajv.js.org/) — nhanh nhất, Draft 07 + 2020-12
+- **Python:** [`jsonschema`](https://python-jsonschema.readthedocs.io/) — reference implementation
+- **Go:** [santhosh-tekuri/jsonschema](https://github.com/santhosh-tekuri/jsonschema)
+
+Format và validate JSON ngay lập tức: [JSON Formatter](/vi/formatters/json-formatter).
+
+---
+
+## 5. Hiệu Năng: Parse vs. Stream vs. SIMD
+
+### Parse Thông Thường
+
+`JSON.parse()` trong V8 hiện đại được tối ưu hóa cao — với object dưới ~1 MB rất khó vượt qua. Bottleneck thường là memory allocation (tạo JS object), không phải logic parsing.
+
+### Streaming Parser
+
+Khi document vượt quá RAM hoặc đến qua mạng, streaming parser xử lý token theo từng bước:
+
+- **Node.js:** `clarinet` (SAX-style), `stream-json` (Transform streams)
+- **Java:** Jackson's `JsonParser`
+- **Python:** `ijson` — iterative JSON parser
+
+Streaming cần thiết cho: log ingestion pipeline, large export download, real-time event feed.
+
+### simdjson và SIMD Parsing
+
+[simdjson](https://simdjson.org/) (2019, Langdale & Lemire) dùng SIMD CPU instructions (AVX2, SSE4.2, NEON) để parse JSON ở tốc độ multi-gigabyte/giây — nhanh hơn vài lần so với scalar parser. Binding: Node.js `simdjson`, Python `pysimdjson`, Go `simdjson-go`.
+
+---
+
+## 6. Bảo Mật: Các Tấn Công Bạn Cần Biết
+
+### Prototype Pollution
+
+Đây là lỗ hổng JSON nguy hiểm nhất trong JavaScript. Khi bạn merge JSON từ người dùng vào một object, kẻ tấn công có thể override properties trên `Object.prototype`:
+
+```javascript
+// Nguy hiểm — đừng làm thế này
+const config = {};
+Object.assign(config, JSON.parse(userInput));
+
+// Payload độc hại:
+// {"__proto__": {"admin": true}}
+// Kết quả: ({}).admin === true — với MỌI object trong app!
+```
+
+**Biện pháp phòng ngừa:**
+
+1. Dùng `JSON.parse()` trực tiếp và chỉ truy cập các key đã biết
+2. Validate bằng JSON Schema với `additionalProperties: false` để block `__proto__` và `constructor` keys
+3. Thư viện: `@fastify/secure-json-parse`
+
+Lỗ hổng Lodash CVE-2019-10744 là ví dụ kinh điển — hàng triệu dự án bị ảnh hưởng.
+
+### Denial of Service: Parse Bomb
+
+Nested structure quá sâu:
+```
+[[[[[[[[[[[[[[[[[[[[...]]]]]]]]]]]]]]]]]]]]
+```
+Hầu hết recursive-descent parser sẽ stack-overflow với nested input quá sâu. Node.js `JSON.parse` xử lý ~500 cấp trước khi crash. **Cách sửa:** giới hạn tổng kích thước document ở HTTP layer trước khi parse: `express.json({ limit: '1mb' })`.
+
+### Number Precision Attack
+
+Nếu backend và frontend dùng ngôn ngữ khác nhau, large integer ID có thể bị hỏng trong quá trình truyền (giới hạn 53-bit của JavaScript). Luôn trả về large ID dưới dạng string.
+
+---
+
+## 7. Lỗi JSON Thường Gặp Hàng Ngày
+
+| Thông báo lỗi | Nguyên nhân | Cách sửa |
+|--------------|-------------|---------|
+| `Unexpected token 'u' at position 0` | `undefined` được stringify — `JSON.stringify(undefined)` trả về `undefined` | Guard với null check trước khi stringify |
+| `Unexpected end of JSON input` | Response bị cắt (network) hoặc empty string | Wrap trong try/catch, validate không empty trước khi parse |
+| `Unexpected token '}'` | Trailing comma trước `}` | Dùng linter hoặc JSON5 cho config file |
+| `Circular reference` | Object có property trỏ lại chính nó | Dùng replacer function hoặc thư viện `flatted` |
+| Số lớn bị sai giá trị | Integer > 2^53 mất precision trong JS | Trả về dạng string hoặc dùng `json-bigint` |
+
+Dùng [JSON Formatter](/vi/formatters/json-formatter) để validate và pretty-print JSON đang debug.
+
+---
+
+## 8. JSON Trong Database
+
+### PostgreSQL JSON/JSONB
+
+PostgreSQL có hai kiểu JSON:
+- `JSON`: lưu raw text, validate khi insert, không index được
+- `JSONB`: binary format, hỗ trợ GIN/GiST index, nên dùng trong mọi trường hợp thực tế
+
+```sql
+-- Extract field dưới dạng text
+SELECT data->>'name' FROM users;
+
+-- Contains operator (dùng GIN index)
+SELECT * FROM users WHERE data @> '{"role": "admin"}';
+
+-- GIN index cho JSONB
+CREATE INDEX idx_users_data ON users USING GIN (data);
+```
+
+---
+
+## 9. Chuyển Đổi và Tạo Dữ Liệu Test
+
+Cần chuyển JSON sang CSV? Hay YAML cho Kubernetes manifest? Xem:
+- [Converter JSON ↔ YAML ↔ TOML](/vi/converters/json-yaml-toml)
+- [Converter CSV ↔ JSON](/vi/converters/csv-json)
+
+Không cần viết tay JSON fixture. [Mock Data Generator](/vi/generators/mock-data-generator) tạo JSON thực tế với faker-style data: tên, email, UUID, date, nested object, array N phần tử.
+
+---
+
+## 10. Best Practices Tổng Hợp
+
+- **Format:** Luôn pretty-print JSON trong log và debug output
+- **Validation:** Duy trì JSON Schema cho mọi API contract, validate tại service boundary
+- **Số lớn:** Không bao giờ dùng raw integer cho ID vượt `Number.MAX_SAFE_INTEGER`
+- **Date:** Dùng ISO 8601 string (`2026-05-26T00:00:00Z`) — không có kiểu date native trong JSON
+- **Ordering:** Không dựa vào thứ tự key trong bất kỳ implementation JSON nào
+- **Comment:** Nếu cần comment trong config, dùng JSONC hoặc JSON5
+- **Null vs. missing:** `{"key": null}` (key có mặt, không có giá trị) khác với `{}` (key vắng mặt)
+
+---
+
+## FAQ
+
+### Q: JSON có phải là tập con của JavaScript không?
+
+Có, kể từ ES2019 (tc39 proposal-json-superset). Trước đó, `U+2028` và `U+2029` hợp lệ trong JSON string nhưng sẽ phá vỡ JavaScript parser. Kể từ 2019, RFC 8259 JSON nhúng trong `<script>` tag là JavaScript hoàn toàn hợp lệ.
+
+### Q: JSON keys có thể trùng lặp không?
+
+RFC 8259 cho phép duplicate key nhưng định nghĩa hành vi là "không xác định." Trong thực tế: Python `json.loads` dùng last-wins; JavaScript `JSON.parse` dùng last-wins. Không bao giờ cố ý dùng duplicate keys.
+
+### Q: Giới hạn số nguyên an toàn trong JSON/JavaScript là bao nhiêu?
+
+`Number.MAX_SAFE_INTEGER = 9007199254740991` (2^53 − 1). Số nguyên ngoài `[-(2^53−1), 2^53−1]` không thể được biểu diễn chính xác. Dùng string cho ID lớn hơn.
+
+### Q: Tại sao `JSON.stringify(undefined)` trả về `undefined` thay vì `"undefined"`?
+
+Vì `undefined` không phải là giá trị JSON hợp lệ. `JSON.stringify` trả về JavaScript value `undefined` (không phải string). Điều này gây bất ngờ vì `JSON.stringify({key: undefined})` bỏ qua key đó trong im lặng: `"{}"`.
+
+### Q: Sự khác biệt giữa JSON Patch và JSON Merge Patch là gì?
+
+JSON Patch (RFC 6902) mô tả thay đổi như mảng các operation (`add`, `remove`, `replace`, `move`, `copy`, `test`). JSON Merge Patch (RFC 7396) đơn giản hơn nhưng không thể diễn đạt "xóa key" cho trường non-nullable. JSON Patch được dùng cho partial update trong REST API (PATCH method).
+
+### Q: Làm thế nào xử lý JSON trong streaming HTTP response?
+
+Dùng NDJSON: gửi một JSON object trên mỗi dòng. Ở client, dùng `TextDecoderStream` và split theo `\n`. Trong Node.js, pipe qua `readline` interface. Đây là cách OpenAI Streaming API và nhiều analytics API trả về kết quả tăng dần.
+
+### Q: JSON có thể biểu diễn circular reference không?
+
+Không. RFC 8259 JSON là cấu trúc cây, không phải đồ thị. `JSON.stringify` throw `TypeError: Converting circular structure to JSON` nếu gặp cycle. Giải pháp: thư viện `flatted` encode cycle bằng format mảng đặc biệt.
+
+### Q: `__proto__` pollution risk trong `JSON.parse` như thế nào?
+
+`JSON.parse('{"__proto__": {"admin": true}}')` trong V8 hiện đại KHÔNG làm ô nhiễm `Object.prototype` — V8's JSON parser xử lý đặc biệt `__proto__` như literal key. Tuy nhiên, truyền kết quả đã parse vào `Object.assign({}, parsed)` hoặc lodash `_.merge` thì SẼ trigger prototype pollution. Pattern an toàn: luôn dùng kết quả `JSON.parse` trực tiếp, không shallow-merge nó vào object khác.
+
+### Q: Công cụ JSON nào mỗi developer nên có?
+
+1. `jq` — command-line JSON processor
+2. [Ajv](https://ajv.js.org/) — schema validation trong Node.js
+3. VS Code + Prettier — auto-format JSON khi save
+4. [JSON Formatter](/vi/formatters/json-formatter) — browser-based, không cần cài đặt
+5. `json-bigint` — khi cần xử lý số nguyên lớn
+
+### Q: Khi nào nên dùng BSON thay vì JSON?
+
+Chỉ dùng BSON khi làm việc trực tiếp với wire protocol của MongoDB. Cho giao tiếp service-to-service nội bộ, MessagePack thường tốt hơn (nhỏ hơn, language-agnostic). Cho public API, JSON chuẩn thắng về khả năng debug và tooling support phổ quát.
+
+### Q: Best practice cho date trong JSON là gì?
+
+Dùng ISO 8601 string: `"2026-05-26T00:00:00Z"`. Tránh Unix timestamp trong JSON — khó đọc hơn và mất thông tin timezone. Khi parse, dùng `new Date(isoString)` trong JavaScript — constructor `Date` hiểu ISO 8601 chuẩn.

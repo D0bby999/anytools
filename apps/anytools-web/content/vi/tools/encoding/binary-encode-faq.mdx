@@ -1,0 +1,31 @@
+---
+title: Binary Encode / Decode — Câu hỏi thường gặp
+---
+
+## Binary encoding có được dùng trong production không?
+
+Hiếm khi dùng như serialisation format, vì overhead lên đến 700% — một byte thành tám ký tự. Nơi nó xuất hiện trong production là binary literal trong source code (`0b10010011` trong Python hay JavaScript) và trong tài liệu protocol khi mô tả bit-field layout. Như transport format, nó không có lợi thế thực tế nào so với hex (100% overhead) hay Base64 (33% overhead). Hãy coi tool này là công cụ học tập và debugger, không phải lựa chọn vận chuyển dữ liệu.
+
+## Tại sao emoji của tôi tạo ra 32 ký tự binary?
+
+Vì emoji chiếm bốn byte trong UTF-8. Binary encoding chuyển mỗi byte thành tám ký tự binary, nên bốn byte tạo ra 32 ký tự. Ví dụ, `😀` (U+1F600) encode thành `11110000 10011111 10011000 10000000` — bốn byte UTF-8 hiển thị thành bốn nhóm tám ký tự. Đây là hành vi đúng; tool đang hiển thị cấu trúc byte UTF-8 thực tế của ký tự.
+
+## Pattern bit đầu tiên cho tôi biết gì về byte UTF-8?
+
+UTF-8 encode số lượng byte trong các bit đầu: `0xxxxxxx` là ký tự ASCII một byte; `110xxxxx` bắt đầu chuỗi hai byte; `1110xxxx` bắt đầu ba byte; `11110xxx` bắt đầu bốn byte. Continuation byte luôn bắt đầu với `10xxxxxx`. Khi nhìn binary dump của chuỗi multi-byte, các prefix này giúp xác định byte boundary và codepoint width mà không cần tra bảng.
+
+## Làm thế nào dùng tool này để hiểu bitmask?
+
+Encode giá trị byte bạn đang làm việc và mask riêng lẻ, rồi so sánh chúng trực quan. Ví dụ, byte TCP flags `0x12` là `00010010` — bit 1 và 4 được set, tương ứng SYN và ACK. Mask `0x0F` là `00001111` — nó cô lập lower nibble. Nhìn cả hai dưới dạng chuỗi binary tám ký tự làm cho các phép toán AND, OR, và XOR trở nên tự giải thích mà không cần tính lũy thừa của 2.
+
+## Tại sao một byte luôn là 8 bit?
+
+Không phải lúc nào cũng vậy. Máy tính đời đầu dùng word 6, 7, 9, thậm chí 36-bit. Byte 8-bit được phổ biến bởi IBM System/360 năm 1964 và được pháp điển hóa bởi chuẩn ASCII. Đầu những năm 1980, vi xử lý 8-bit (Intel 8080, MOS 6502) đã làm nó trở nên phổ quát. POSIX chính thức hóa `CHAR_BIT = 8` năm 1988. Ngày nay giả định này đã ăn sâu đến mức RFC mạng dùng "octet" thay vì "byte" để chính xác — dù không còn sự mơ hồ nào trong thực tế.
+
+## Tôi có thể decode chuỗi binary tùy ý không phải UTF-8 hợp lệ không?
+
+Decoder sẽ cố gắng interpret các bit binary thành bytes rồi decode bytes đó theo UTF-8. Nếu chuỗi byte không phải UTF-8 hợp lệ, bạn sẽ thấy replacement character (``) hoặc output rác. Binary encoding và decoding của text chỉ có ý nghĩa khi các byte biểu diễn một string encoding hợp lệ. Với raw binary data (hình ảnh, executable), hex là công cụ phù hợp hơn.
+
+## Separator giữa các nhóm byte có bắt buộc không?
+
+Không. Separator (space, newline, hoặc dấu phân cách bất kỳ) chỉ mang tính thẩm mỹ — nó nhóm các chunk tám ký tự để dễ đọc nhưng không chứa thông tin. Khi decode, tool này strip whitespace và split trên ký tự non-binary, nên `01000001 01000010` và `0100000101000010` đều decode thành `AB`. Dùng space separator khi tự đọc output; bỏ separator khi truyền chuỗi binary giữa các chương trình.

@@ -1,0 +1,35 @@
+---
+title: Diff Checker — Preguntas frecuentes
+---
+
+## ¿Qué algoritmo usa el diff checker?
+
+La herramienta usa el algoritmo **Longest Common Subsequence (LCS)**, específicamente el algoritmo de Myers implementado en la biblioteca open-source [`diff`](https://github.com/kpdecker/jsdiff). El algoritmo de Myers encuentra el script de edición mínimo entre dos secuencias en tiempo O(ND), donde N es la suma de las longitudes de entrada y D es el tamaño del diff. Para entradas típicas esto es mucho más rápido que el peor caso teórico O(n²) del LCS ingenuo.
+
+## ¿Cuál es la diferencia entre diff a nivel de línea y nivel de palabra?
+
+El diff a nivel de línea trata cada línea como una unidad atómica — las líneas completas se marcan como agregadas, eliminadas o sin cambios. El diff a nivel de palabra (intra-línea) divide más en tokens individuales y resalta exactamente qué palabras cambiaron. Usa nivel de línea para código fuente donde las líneas son unidades naturales; usa nivel de palabra para prosa, contratos o JSON donde un valor importante puede cambiar dentro de una línea larga.
+
+## ¿Qué significa el encabezado `@@` en la salida diff unificado?
+
+El encabezado de hunk `@@ -12,7 +12,9 @@` significa: en el archivo **original**, el hunk comienza en la línea 12 y abarca 7 líneas; en el archivo **modificado** comienza en la línea 12 y abarca 9 líneas. Las líneas prefijadas con `-` fueron eliminadas, las líneas con `+` fueron agregadas, y las líneas con espacio son contexto sin cambios. Este es el formato estándar producido por `diff -u` y consumido por `patch`.
+
+## ¿Puedo usar esto para comparar archivos de código fuente?
+
+Sí — pega las dos versiones de tu archivo en las áreas de texto y ejecuta el diff. Para preparación de revisión de código es especialmente útil para detectar cambios accidentales (logs de depuración olvidados, modificaciones de espacios en blanco no deseadas) antes de abrir un pull request. Para comparar repositorios completos o rastrear historial, usa `git diff` ya que tiene acceso al grafo completo de commits.
+
+## ¿Por qué mi diff muestra cambios que no hice (ruido de espacios en blanco)?
+
+Los editores frecuentemente difieren en espacios en blanco al final, estilo de fin de línea (CRLF vs LF) o indentación (tabs vs espacios). Activa la opción **Ignorar espacios en blanco** para eliminar diferencias insignificantes de espaciado antes de ejecutar el LCS. Para problemas persistentes, normaliza los finales de línea primero con `dos2unix` o la configuración "trim trailing whitespace" de tu editor.
+
+## ¿Mi texto se envía a un servidor?
+
+No. Todo el diff se calcula en tu navegador por la biblioteca [`diff`](https://github.com/kpdecker/jsdiff) — una implementación pure JavaScript sin llamadas al servidor. Tu entrada nunca sale de tu dispositivo, lo que lo hace seguro para usar con contratos confidenciales, código fuente privado o cualquier texto que no quisieras transmitir por una red. Puedes verificarlo abriendo la pestaña Network de tu navegador mientras ejecutas un diff.
+
+## ¿Cuáles son los límites de tamaño de entrada?
+
+Prácticamente, hasta unos pocos cientos de kilobytes por lado funciona sin problemas. Más allá de eso, el tiempo de cálculo del LCS crece y el navegador puede pausar momentáneamente. Para comparar archivos grandes (logs de múltiples MB, volcados SQL grandes), `diff` en línea de comandos o una herramienta dedicada con soporte de streaming funcionará mejor.
+
+## ¿Puede el diff checker detectar bloques de texto renombrados o movidos?
+
+No — el diff basado en LCS es puramente posicional y secuencial. Si mueves un párrafo del principio de un documento al final, el diff mostrará la ubicación original como eliminada y la nueva ubicación como insertada, no como un "movimiento." Detectar movimientos requiere una capa semántica (hashing de similaridad, análisis AST) más allá de lo que proporciona un diff de texto.

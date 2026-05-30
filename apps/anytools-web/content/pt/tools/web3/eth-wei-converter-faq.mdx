@@ -1,0 +1,27 @@
+---
+title: ETH ↔ wei ↔ gwei — Perguntas frequentes
+---
+
+## Por que não posso usar `Number` para wei?
+
+JavaScript `Number` perde precisão acima de 2^53 (~9 quadrilhões). 1 ETH = 10^18 wei, então qualquer wei acima de ~9 ETH já entra nessa zona. Sempre use `BigInt` ou strings.
+
+## Qual a diferença entre `parseUnits` e `parseEther`?
+
+`parseEther("1")` = `parseUnits("1", "ether")` = `parseUnits("1", 18)` = `BigInt("1000000000000000000")`. Tudo equivalente. `parseUnits` é mais geral (suporta qualquer denominação de token, ex: USDC com 6 decimais).
+
+## Por que gas em gwei e não em ETH?
+
+Escala natural. 30 gwei é um número humano (~$0.00011 a $3700/ETH). Em ETH seria `0.00000003` ETH — difícil de comparar visualmente. EIP-1559 ferramentas e wallets exibem em gwei por convenção.
+
+## Como converter entre tokens com decimais diferentes?
+
+`USDC = 6 decimais`, `ETH = 18`. Para 100 USDC em "raw" units: `parseUnits("100", 6) = 100_000_000n`. Sempre cheque `decimals()` do contrato ERC20 antes de fazer cálculo.
+
+## Posso usar notação científica?
+
+A ferramenta aceita `1e18`, mas pode causar perda de precisão. Prefira strings decimais: `"1000000000000000000"` ou use `parseEther("1")`.
+
+## Tudo client-side?
+
+Sim. `ethers.js` no browser. Zero servidor. Funciona offline.

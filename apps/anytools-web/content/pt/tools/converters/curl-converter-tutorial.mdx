@@ -1,0 +1,53 @@
+---
+title: Converter curl para fetch, Python, PHP, Go
+description: Cole um comando curl, escolha o target. Gera código equivalente em fetch, node-fetch, requests, php-curl, ou net/http.
+updated: 2026-05-27
+---
+
+## Por que converter curl
+
+A documentação da maioria das APIs usa curl como linguagem universal — copy-paste funciona em qualquer terminal. Mas no seu código você precisa de fetch (browser), Python requests, PHP curl, ou Go net/http. Traduzir manualmente é tedioso e propenso a erros: esqueceu de um header, errou o encoding do body, perdeu uma flag.
+
+Esta ferramenta usa o parser oficial do [curlconverter.com](https://curlconverter.com) (mantido pelo Nick Frichette). Ele entende o shell syntax do curl real — line continuations, quoting, env vars, multi-line.
+
+## Por que server-side
+
+A biblioteca usa `tree-sitter-bash` para parsear o shell — e tree-sitter precisa de native bindings (`.node`) que não rodam em browser. Solução: API route Node.js. Seu curl é enviado via HTTPS, parseado, descartado. Nunca logado, nunca armazenado.
+
+Para quem prioriza máxima privacidade: o `curl` no seu terminal sozinho não vaza nada, mas então você não tem o output em outro lang. Trade-off conhecido.
+
+## Targets suportados
+
+- **fetch** — browser-native, ES2017+
+- **node-fetch** — Node.js (`import fetch from 'node-fetch'`)
+- **python** — requests (`import requests`)
+- **php** — curl extension (`curl_init`, `curl_setopt`)
+- **go** — net/http (`http.NewRequest`)
+
+Cada target gera idioma natural daquela linguagem — não uma tradução literal.
+
+## Edge cases que ele lida
+
+- `--data-raw` vs `--data` vs `--data-binary` (diferenças sutis em escape)
+- Headers multi-valor (`-H 'X-Foo: a' -H 'X-Foo: b'`)
+- Auth básica (`-u user:pass` vira `Authorization: Basic ...`)
+- Multipart (`-F field=value -F file=@path`)
+- Cookies (`--cookie 'name=value'`)
+- Line continuation (`\` no fim da linha)
+- Variáveis de ambiente (`-H "Auth: $TOKEN"`) — gera a referência
+
+## Edge cases problemáticos
+
+- `--data-urlencode` complexos com `=` no valor
+- Flags muito recentes que ainda não foram mapeadas
+- Custom curl behaviors via `~/.curlrc` (não temos contexto)
+
+Quando o conversor falha, você vê a mensagem de erro do parser e pode ajustar o comando.
+
+## Caso de uso típico
+
+API tem doc em curl. Você está construindo um cliente Python. Copia o curl da doc, escolhe target Python, copia o código gerado. Ajusta variáveis (`TOKEN` → sua env var), roda. Economiza 5-10 minutos por endpoint, multiplicado por dezenas de endpoints.
+
+## Privacidade reiterada
+
+O comando curl frequentemente contém credenciais (Bearer tokens, API keys). Eles passam pelo nosso servidor durante o parse. Não logamos. Mas se isso é inaceitável para você, rode `curlconverter` localmente via npm — é open source.

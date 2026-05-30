@@ -1,0 +1,92 @@
+---
+title: Guía completa para embellecer y minificar HTML
+description: Cómo formatear o minificar HTML, manejar casos especiales como void elements y bloques pre, y cuándo usar cada modo.
+updated: 2026-05-27
+---
+
+## Por qué formatear HTML tiene valor
+
+El HTML en bruto proveniente de generadores de código, exportaciones de CMS o herramientas de build suele llegar como una sola línea o con indentación inconsistente. Aunque los navegadores lo parsean de forma idéntica independientemente del espacio en blanco, los humanos no lo leemos igual. El HTML legible es más fácil de comparar en control de versiones, más fácil de depurar en las DevTools del navegador, y mucho menos probable de ocultar errores estructurales como etiquetas sin cerrar o atributos mal colocados.
+
+La minificación va en la dirección opuesta: elimina todo el espacio en blanco innecesario para reducir el tamaño del archivo. Para HTML servido por HTTP, cada byte que eliminamos es un byte que la red no necesita transferir — aunque en la práctica, la compresión HTTP (gzip o brotli) hace que la eliminación de espacio en blanco sea una ganancia modesta.
+
+## Particularidades del parseo HTML
+
+HTML tiene características que hacen el formateo más difícil que JSON o YAML:
+
+**Void elements** — elementos como `<br>`, `<hr>`, `<img>`, `<input>`, `<meta>` y `<link>` no pueden tener hijos y nunca tienen etiqueta de cierre. Un formateador debe conocer esta lista para evitar insertar saltos de línea espurios. `js-beautify` maneja correctamente el conjunto de void elements de HTML5.
+
+**Etiquetas de cierre opcionales** — `<li>`, `<td>`, `<tr>`, `<p>` y otros elementos tienen etiquetas de cierre que la especificación HTML5 hace opcionales. Los navegadores las cierran automáticamente; un formateador ingenuo puede malinterpretar el anidamiento.
+
+**Secciones CDATA en SVG/MathML** — el SVG inline puede contener bloques `<![CDATA[...]]>`. Un formateador debe tratarlos como texto opaco, no intentar re-indentarlos.
+
+**Comentarios** — `<!-- ... -->` y los comentarios condicionales de IE (`<!--[if lt IE 9]>`) deben sobrevivir tanto al proceso de embellecimiento como al de minificación.
+
+## Opciones de indentación
+
+La herramienta admite indentación de 2 espacios, 4 espacios y tabuladores. La elección depende del `.editorconfig` de tu proyecto o convención de equipo. Dos espacios domina en los proyectos JavaScript de frontend moderno y coincide con el valor por defecto de Prettier para HTML. Cuatro espacios es común en proyectos heredados y algunas plantillas de Django/Jinja.
+
+## La excepción de `<pre>` y `<textarea>`
+
+El espacio en blanco dentro de `<pre>`, `<textarea>` y `<script type="text/plain">` es **semánticamente significativo**. Un bloque `<pre>` renderiza cada espacio, tabulador y salto de línea exactamente como está escrito. Un formateador no debe re-indentar el contenido dentro de estos elementos.
+
+`js-beautify` preserva el espacio en blanco dentro de `<pre>` y `<textarea>` por defecto. Las herramientas que no lo hacen pueden corromper visualmente los bloques de código `<pre>` y cambiar los valores predeterminados de `<textarea>`.
+
+## Cuándo embellecer vs minificar
+
+**Embellece** cuando:
+- Trabajas en desarrollo y depuración.
+- Haces revisión de código y pull requests — el HTML indentado es mucho más fácil de revisar.
+- Aprendes de HTML de terceros: pégalo, indéntalo, léelo.
+
+**Minifica** cuando:
+- Sirves assets de producción directamente.
+- Tienes HTML inline en strings de JavaScript insertados vía `innerHTML`.
+- Trabajas con HTML para email: muchos clientes de correo deshabilitan CSS externo y los estilos inline se vuelven verbosos.
+
+En aplicaciones web modernas, Vite, webpack y Next.js minifican HTML en builds de producción. Usa esta herramienta para limpiezas puntuales, plantillas únicas o cuando no tienes un bundler disponible.
+
+## Usando `js-beautify` para HTML
+
+```javascript
+import beautify from 'js-beautify';
+
+const pretty = beautify.html(rawHtml, {
+  indent_size: 2,
+  indent_char: ' ',
+  max_preserve_newlines: 1,
+  indent_inner_html: true,
+  wrap_line_length: 0,
+  unformatted: ['pre', 'textarea'],
+  extra_liners: ['head', 'body', '/html'],
+});
+```
+
+Opciones clave:
+- `unformatted` — lista de etiquetas cuyo contenido no debe re-indentarse.
+- `indent_inner_html` — si se debe indentar el contenido de `<head>` y `<body>`.
+- `wrap_line_length` — longitud máxima de línea antes de envolver listas de atributos largas.
+
+Para minificación en producción, usa `html-minifier-terser`:
+
+```javascript
+import { minify } from 'html-minifier-terser';
+
+const small = await minify(rawHtml, {
+  collapseWhitespace: true,
+  removeComments: true,
+  minifyCSS: true,
+  minifyJS: true,
+});
+```
+
+## Alternativas en el ecosistema
+
+- **Prettier** — el formateador estándar para la mayoría de los proyectos frontend. Formatea HTML, CSS, JS y TypeScript con un estilo uniforme.
+- **html-minifier-terser** — minificación más agresiva: elimina atributos redundantes, colapsa atributos booleanos.
+
+Para formateo rápido sin instalar nada, esta herramienta entrega el resultado directamente en el navegador.
+
+## Privacidad
+
+Todo el procesamiento HTML se ejecuta en tu navegador. Tu markup nunca se envía a un servidor.

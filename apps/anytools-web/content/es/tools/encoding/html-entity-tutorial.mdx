@@ -1,0 +1,88 @@
+---
+title: Guía completa de codificación y decodificación de entidades HTML
+description: Cuándo usar entidades HTML, referencias nombradas vs numéricas, prevención de XSS y las trampas de la doble codificación.
+updated: 2026-05-26
+---
+
+## Qué son las entidades HTML
+
+Las entidades HTML son secuencias de texto que representan caracteres con significado estructural en HTML, o caracteres difíciles de escribir directamente. El navegador ve `&lt;` y muestra `<`; escribes `&amp;` en el código fuente y la página muestra `&`. Existen porque HTML usa `<`, `>`, `&` y `"` como marcadores estructurales, así que si quieres que esos caracteres se *muestren* en lugar de *parsearse*, necesitas una secuencia de escape.
+
+Hay tres formas:
+
+- **Referencias nombradas** — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` y cientos más para símbolos especiales (`&copy;`, `&euro;`, `&mdash;`)
+- **Referencias numéricas decimales** — `&#60;` para `<`, `&#38;` para `&`
+- **Referencias numéricas hexadecimales** — `&#x3C;` para `<`, `&#x26;` para `&`
+
+Las tres formas son equivalentes. Las referencias nombradas son más legibles; las numéricas son universales y funcionan aunque el parser no reconozca el nombre. La forma hexadecimal es común en output generado programáticamente porque mapea directamente a code points Unicode.
+
+## Cuándo la codificación realmente importa
+
+### Mostrar código en HTML
+
+Si construyes un blog, sitio de documentación o un renderizador de código, cada `<` en un ejemplo de código debe ser `&lt;` o el navegador intentará parsearlo como una etiqueta real. Copia un snippet de código en HTML sin codificar y Chrome intentará evaluar `<script>` como una etiqueta verdadera.
+
+### Prevención de XSS
+
+Los ataques de cross-site scripting a menudo inyectan etiquetas `<script>` o event handlers como `onclick="malicious()"` a través del input del usuario. Cuando codificas con entidades todo lo que proviene de usuarios antes de insertarlo en HTML, los corchetes angulares y las comillas se convierten en caracteres de texto inofensivos en lugar de instrucciones para el parser.
+
+```html
+<!-- Peligroso: input del usuario interpolado directamente -->
+<p>Bienvenido, <script>alert('XSS')</script>!</p>
+
+<!-- Seguro: codificado con entidades -->
+<p>Bienvenido, &lt;script&gt;alert('XSS')&lt;/script&gt;!</p>
+```
+
+El navegador renderiza la segunda versión como texto literal — el script nunca se ejecuta.
+
+**Matiz importante:** la codificación de entidades es la defensa correcta al insertar en *contexto HTML*. Insertar datos del usuario en un string de JavaScript, un valor CSS o un parámetro de URL requiere un escaping diferente — la codificación de entidades sola no protege esos contextos.
+
+### Evitar la doble codificación
+
+La doble codificación es un bug común: codificas `&` a `&amp;`, luego codificas de nuevo y obtienes `&amp;amp;`. La página renderiza `&amp;` en lugar de `&`. Esto ocurre cuando:
+
+- Un template escapa HTML y tú también llamas una función de codificación sobre el mismo string
+- Los datos se almacenan ya codificados en la base de datos y se codifican de nuevo al renderizar
+
+La solución: decodifica primero (o verifica si el input ya está codificado), luego codifica una sola vez en el punto final de inserción en HTML.
+
+## Referencias nombradas vs numéricas: cuándo elegir cada una
+
+Usa **referencias nombradas** para archivos HTML mantenidos manualmente — `&copy;` y `&mdash;` son mucho más legibles que `&#169;` y `&#8212;`. Las referencias nombradas están estandarizadas en HTML5 y tienen soporte universal.
+
+Usa **referencias numéricas** cuando:
+- Generes HTML programáticamente y no quieras mantener una tabla de lookup
+- El carácter no tenga referencia nombrada (la mayoría de caracteres Unicode por encima del conjunto HTML4 no la tienen)
+- Trabajes con XML, donde solo `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` están garantizadas por defecto
+
+Usa **referencias hex** (&#x…) cuando trabajes directamente con code points Unicode. El code point U+1F600 (😀) se convierte en `&#x1F600;` directamente.
+
+## Qué NO codificar con entidades
+
+La codificación de entidades es solo para *contexto HTML*. Aplicarla en otro lugar rompe las cosas:
+
+- **Parámetros de URL** — usa percent-encoding (`%26` no `&amp;`). Poner `&amp;` en una URL da literalmente `&amp;` en el query string.
+- **Strings de JavaScript** — usa `\'`, `\"` o template literals. `&quot;` en un string JS son los cuatro caracteres `&quot;`, no una comilla.
+- **Valores CSS** — CSS usa escapes Unicode como `\003C`, no `&#x3C;`.
+- **JSON** — JSON usa `\"` para comillas dentro de strings; las entidades HTML no tienen significado allí.
+
+## La librería `he`
+
+Esta herramienta usa [`he`](https://github.com/mathiasbynens/he) de Mathias Bynens. Cubre la lista completa de referencias de caracteres nombrados de HTML5 (más de 2000 entradas), maneja las tres formas de entidades y es correcta en edge cases que los encoders artesanales suelen omitir. Todo el procesamiento ocurre en tu navegador; nada sale de tu máquina.
+
+## Ejemplos prácticos
+
+**Codificar un snippet de código para HTML:**
+
+Input: `if (a < b && c > d) { return "<br>"; }`
+Codificado: `if (a &lt; b &amp;&amp; c &gt; d) { return &quot;&lt;br&gt;&quot;; }`
+
+**Decodificar un string de entidades:**
+
+Input: `&lt;script&gt;alert(&quot;hola&quot;)&lt;/script&gt;`
+Decodificado: `<script>alert("hola")</script>`
+
+## Privacidad
+
+Toda la codificación y decodificación se ejecuta localmente en tu navegador. Tu input nunca se envía a nuestros servidores. La librería `he` es MIT-licensed y auditable en GitHub.

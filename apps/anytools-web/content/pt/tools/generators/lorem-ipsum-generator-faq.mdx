@@ -1,0 +1,31 @@
+---
+title: Gerador de Lorem Ipsum — Perguntas frequentes
+---
+
+## Lorem Ipsum é latim de verdade?
+
+Sim, parcialmente. Vem do tratado *De finibus bonorum et malorum* de Cícero (45 a.C.), especificamente a seção 1.10.32. As palavras foram embaralhadas por um tipógrafo no século XVI para produzir texto de amostra que parece linguagem natural. Algumas palavras são latim autêntico; outras são fragmentos truncados. Não tem significado gramatical — seu valor é puramente visual.
+
+## Por que não usar "Conteúdo Aqui" repetido como preenchimento?
+
+Frases curtas repetidas produzem quebras de linha uniformes e artificiais que não refletem como o copy real vai fluir. Lorem Ipsum tem variação orgânica no comprimento das palavras que imita o ritmo natural da prosa. Isso importa ao avaliar quebra de linha, controle de viúvas e órfãos, comportamento de transbordamento de texto e espaçamento de parágrafos — tudo invisível com preenchimento uniforme.
+
+## Devo gerar o preenchimento no idioma real do meu app?
+
+Sim, quando o idioma alvo difere do inglês. O português brasileiro é sistematicamente mais longo que o inglês para o mesmo significado: substantivos, artigos e terminações verbais fazem que as frases médias sejam 15-25% mais longas. Projetar com preenchimento em inglês para uma UI em português é uma causa conhecida de truncamento e transbordamento de layout que só aparece tarde na QA. Gere preenchimento em cada locale e verifique seus layouts.
+
+## O que é Hipster Ipsum?
+
+Uma variante moderna que usa gíria contemporânea em inglês — "artisan," "selvage," "normcore," "craft beer." É intencionalmente reconhecível como preenchimento enquanto é absurdo. Útil em apresentações de wireframes para stakeholders que perguntam "mas o que essa página vai dizer?" — o conteúdo reconhecível mas sem sentido sinaliza claramente que o copy está pendente.
+
+## Pode-se usar Lorem Ipsum em produção?
+
+Não. Lorem Ipsum chegou acidentalmente à produção muitas vezes — em sites publicados, apps mobile e materiais impressos. Nunca use preenchimento como valor padrão em um campo de CMS, formulário ou template de e-mail que possa chegar a usuários reais. Também evite em páginas rastreadas porque sinaliza conteúdo de baixa qualidade aos mecanismos de busca.
+
+## O que faz o modo de saída HTML?
+
+O modo HTML envolve a saída em tags `<p>` para que você possa colar diretamente em templates HTML ou editores de texto rico sem adicionar markup manualmente. Evita o erro comum de colar texto simples em um contexto HTML e obter um bloco de texto sem formatação. Cada parágrafo se torna um elemento `<p>` separado.
+
+## Quantas palavras devo gerar para um card típico ou meta descrição?
+
+O corpo de um card padrão (~3 linhas a 16px em um container de 320px) precisa de aproximadamente 20–30 palavras. Uma meta descrição (limitada a ~160 caracteres pelo Google) precisa de 25–35 palavras em inglês, menos em português ou espanhol onde as palavras tendem a ser mais longas. Uma página com extensão de artigo precisa de 300–800 palavras em 4–8 parágrafos.

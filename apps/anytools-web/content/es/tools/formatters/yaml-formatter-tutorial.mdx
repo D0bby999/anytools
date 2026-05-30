@@ -1,0 +1,138 @@
+---
+title: YAML Formatter — indentación, quirks, anchors y casos de uso reales
+description: Formatea YAML, ordena claves, entiende el problema de Noruega, escalares multilínea, anchors/aliases y la biblioteca js-yaml.
+updated: 2026-05-26
+---
+
+## Por qué existe YAML y dónde lo encontrarás
+
+YAML ("YAML Ain't Markup Language") fue diseñado como un formato de serialización amigable para humanos — una reacción a la verbosidad de XML y a la ausencia de comentarios en JSON. Se lee con limpieza, soporta strings multilínea de forma natural y tiene comentarios y anchors que JSON no tiene.
+
+En 2026 encontrarás YAML constantemente: manifests de Kubernetes, workflows de GitHub Actions, Docker Compose, charts de Helm, playbooks de Ansible, frontmatter de Hugo y Jekyll, y prácticamente todas las herramientas CI/CD que aceptan configuración escrita a mano.
+
+## El problema de Noruega y otras trampas de conversión implícita
+
+YAML 1.1 — la versión que implementó la mayoría de parsers durante años — aplica **coerción implícita de tipos** a escalares sin comillas:
+
+```yaml
+# Conversiones implícitas en YAML 1.1 — todo se convierte a no-string
+country: NO          # → boolean false  (!!!)
+count: 010           # → integer 8 (octal)
+ratio: 1e3           # → float 1000.0
+enabled: yes         # → boolean true
+timestamp: 2026-05-26 # → objeto fecha
+```
+
+El "problema de Noruega" es el ejemplo canónico: el código ISO 3166-1 alpha-2 de Noruega es `NO`, que los parsers YAML 1.1 interpretan como el booleano `false`. Esto ha roto innumerables configs de dropdowns de países, archivos de variables de entorno y mapeos de locales.
+
+YAML 1.2 (2009, adoptado lentamente) restringe los booleanos solo a `true` y `false`, haciendo que `yes`, `no`, `on`, `off` sean seguros sin comillas.
+
+**Regla práctica:** entrecomilla cualquier string que pueda interpretarse erróneamente como booleano, número o fecha.
+
+## Estilo bloque vs estilo flujo
+
+YAML soporta dos estilos de presentación para mappings y secuencias:
+
+**Estilo bloque** — cada entrada en su propia línea con indentación. Legible, fácil de diferenciar, preferido para archivos de configuración:
+
+```yaml
+server:
+  host: localhost
+  port: 8080
+  tags:
+    - api
+    - v2
+```
+
+**Estilo flujo** — compacto, similar a JSON, en una sola línea:
+
+```yaml
+server: {host: localhost, port: 8080, tags: [api, v2]}
+```
+
+Este formatter normaliza la salida a estilo bloque, que es casi siempre lo que quieres para archivos de configuración en control de versiones.
+
+## Escalares multilínea
+
+YAML tiene dos indicadores de escalares multilínea:
+
+**Literal block (`|`)** — los saltos de línea se preservan tal cual:
+
+```yaml
+message: |
+  Línea uno
+  Línea dos
+  Línea tres
+```
+
+El string resultante tiene un salto de línea al final. Usa `|-` para eliminarlo o `|+` para conservar todos los saltos finales.
+
+**Folded block (`>`)** — los saltos de línea simples se convierten en espacios; las líneas en blanco se convierten en saltos reales:
+
+```yaml
+description: >
+  Esta larga descripción se plegará
+  en una sola línea al parsearse.
+
+  Una línea en blanco crea un salto de párrafo real.
+```
+
+Elige `|` cuando los saltos de línea sean semánticamente significativos (código, logs, SQL). Elige `>` para prosa. El formatter preserva el indicador que ya está en uso.
+
+## Anchors y aliases
+
+Los anchors YAML (`&nombre`) y aliases (`*nombre`) permiten definir un valor una vez y referenciarlo múltiples veces:
+
+```yaml
+defaults: &defaults
+  timeout: 30
+  retries: 3
+
+production:
+  <<: *defaults
+  host: prod.example.com
+
+staging:
+  <<: *defaults
+  host: staging.example.com
+```
+
+La merge key `<<` es una extensión ampliamente soportada que fusiona las claves del mapping referenciado en el actual. Los anchors se parsean correctamente y sobreviven a round-trips. Con "sort keys", la estructura anchor/alias se mantiene — solo cambia el orden de las claves.
+
+## Comentarios — lo que YAML tiene y JSON no
+
+Los comentarios YAML comienzan con `#` y llegan hasta el final de la línea. La mala noticia: **la mayoría de parsers YAML descartan comentarios** al cargar un documento. Si cargas YAML, lo modificas programáticamente y lo vuelcas, todos los comentarios desaparecen.
+
+`js-yaml` descarta comentarios durante el parseo. Este formatter los preserva trabajando a nivel de texto antes del parseo, reinyectándolos en sus posiciones originales. Es un enfoque de mejor esfuerzo; documentos muy reestructurados pueden perder algunos comentarios inline.
+
+## Seguridad: la advertencia sobre tags `!!python`
+
+YAML soporta tags — anotaciones que indican al parser cómo construir un objeto tipado:
+
+```yaml
+!!python/object/apply:os.system ['rm -rf /']
+```
+
+Este es el famoso "ataque de deserialización YAML". Un parser Python en modo inseguro (`yaml.load()` sin `Loader=SafeLoader`) **ejecutará Python arbitrario** al encontrar tags `!!python/…`. Los parsers JavaScript no pueden ejecutar Python, pero si tu pipeline pasa YAML por una herramienta Python, el riesgo es real.
+
+`js-yaml` lanza un error ante tags desconocidos por defecto. Usa siempre `yaml.load(input, { schema: yaml.DEFAULT_SAFE_SCHEMA })` al procesar input no confiable.
+
+## js-yaml y opciones del formatter
+
+Esta herramienta está impulsada por [`js-yaml`](https://github.com/nodeca/js-yaml), la biblioteca YAML de JavaScript más usada. Opciones disponibles:
+
+- **Ancho de indentación** — 2 o 4 espacios (los tabs son técnicamente válidos pero causan problemas de compatibilidad; evítalos).
+- **Ordenar claves** — alfabetiza las claves de mapping de forma recursiva. Útil para diffs estables en manifests k8s y GitHub Actions.
+- **Ancho de línea** — columna máxima antes de que los escalares plegados hagan wrap. Por defecto 80.
+
+## Casos de uso comunes
+
+- **Manifests de Kubernetes**: pega la salida de `kubectl get -o yaml`, formatea y súbelo.
+- **Workflows de GitHub Actions**: verifica la indentación de `on:`, `jobs:` y `steps:` antes de un push.
+- **Docker Compose**: corrige un bloque `services:` roto por un carácter tab accidental.
+- **Helm values files**: ordena claves antes de comparar dos entornos.
+- **Frontmatter de Hugo/Jekyll**: el bloque delimitado por `---` al principio de un archivo Markdown es YAML.
+
+## Privacidad
+
+Todo el procesamiento se ejecuta en tu navegador mediante `js-yaml`. Ningún contenido se envía a un servidor.

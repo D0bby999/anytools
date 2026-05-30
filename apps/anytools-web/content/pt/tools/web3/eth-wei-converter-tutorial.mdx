@@ -1,0 +1,65 @@
+---
+title: Converter wei, gwei, ether — sem perder precisão
+description: Hierarquia de unidades do Ethereum, gas em gwei, e por que JavaScript precisa de BigInt para isso.
+updated: 2026-05-27
+---
+
+## Hierarquia de unidades
+
+Ethereum (e EVM chains compatíveis) usa três unidades principais:
+
+| Unidade | Valor em wei                              | Quando usar                |
+|---------|--------------------------------------------|----------------------------|
+| wei     | 1                                          | Unidade atômica, todos os cálculos internos do EVM |
+| gwei    | 1,000,000,000 (10^9)                      | Gas price                  |
+| ether   | 1,000,000,000,000,000,000 (10^18)         | Display para humanos       |
+
+Outras unidades: szabo (10^12 wei), finney (10^15 wei), Kwei/Mwei (10^3, 10^6). Raramente usadas hoje — gwei e ether dominam.
+
+## Por que tantos zeros
+
+Ether é a denominação humana — `0.001 ETH` é uma quantia pequena de café (~$3). Mas o EVM trabalha em wei para evitar floats: `0.001 ETH = 1_000_000_000_000_000 wei` (1 quadrilhão). Inteiros não têm imprecisão de ponto flutuante.
+
+Gas price está em gwei porque essa é a escala natural — 1 gwei ≈ $0.0000037 (com ETH a $3700). Um swap simples custa ~150,000 gas units * 30 gwei = 0.0045 ETH = ~$17.
+
+## A armadilha do JavaScript
+
+`Number` em JS é IEEE 754 double — 53 bits de precisão inteira. Acima de `2^53 = 9_007_199_254_740_992` você perde precisão:
+
+```js
+1e18 + 1 === 1e18    // true em JS — perdeu o "+1"
+```
+
+Wei valores acima de ~9 ETH já entram nessa zona. **Sempre use BigInt** para wei:
+
+```js
+const wei = BigInt('1000000000000000000')  // 1 ETH em wei
+```
+
+`ethers.parseUnits` e `ethers.formatUnits` retornam BigInt e tratam string ↔ BigInt corretamente.
+
+## EIP-1559: base fee + priority fee
+
+Desde a London hardfork (2021), gas tem duas componentes:
+
+- **base fee** (gwei): definido pelo protocolo conforme demanda. Burned.
+- **priority fee** (gwei): tip ao validator. Você escolhe.
+
+`maxFeePerGas` = base fee + priority fee + buffer. Se você setar `maxPriorityFeePerGas = 2 gwei` e base fee = 30 gwei, paga ~32 gwei por unit.
+
+## Casos de uso
+
+- Debugar tx receipt: receipt vem em wei; converte para ETH legível
+- Calcular custo de gas: `gas_used * effective_gas_price` em wei → ETH → USD
+- Validar input do usuário: form pede ETH, você precisa em wei para a tx
+- Exibir saldos com precisão completa (sem truncar) ou com precisão fixa (2 decimais)
+
+## Edge cases
+
+- **Notação científica**: input `1e18` é aceito mas pode confundir com perda de precisão. Prefira `1000000000000000000` ou use `parseUnits('1', 'ether')`.
+- **Decimais em wei**: wei é inteiro. `0.5 wei` não existe.
+- **Negativos**: wei não pode ser negativo. Negativos costumam indicar erro lógico.
+
+## Bibliotecas
+
+`ethers.js` (`parseUnits`, `formatUnits`). BigInt nativo do JS. Tudo client-side.

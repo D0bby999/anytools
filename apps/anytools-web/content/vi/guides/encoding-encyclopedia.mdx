@@ -1,0 +1,347 @@
+---
+title: "Bách Khoa Toàn Thư Encoding: Base64, URL, JWT và Hơn Thế Nữa"
+description: "Tham chiếu đầy đủ về Base64, URL encoding, HTML entities, JWT, Unicode và character set. Encoding vs encryption, decision tree thực tế."
+keywords: ["base64", "url encoding", "jwt", "unicode", "utf-8", "mã hóa ký tự", "html entities", "hướng dẫn encoding", "percent encoding"]
+updated: 2026-05-26
+readingTime: 20
+---
+
+# Bách Khoa Toàn Thư Encoding: Base64, URL, JWT và Hơn Thế Nữa
+
+Encoding là chủ đề developer gặp hàng ngày nhưng ít khi nghiên cứu có hệ thống. Kết quả: nhầm lẫn giữa encoding và encryption, bí ẩn `%20` vs `+`, JWT segment không decode được, và `btoa()` crash với emoji. Hướng dẫn này xây dựng mental model hoàn chỉnh từ nền tảng — character set, rồi binary encoding, rồi application-layer format.
+
+---
+
+## 1. Encoding vs. Encryption — Phân Biệt Một Lần Cho Mãi
+
+**Encoding** là biến đổi thuận nghịch từ biểu diễn này sang biểu diễn khác bằng thuật toán công khai, không cần secret. Bất kỳ ai biết thuật toán đều có thể đảo ngược. Mục đích: tương thích (đưa binary data vào kênh text), gọn nhẹ, quy ước cấu trúc.
+
+**Encryption** là biến đổi thuận nghịch cần secret key để đảo ngược. Không có key, ciphertext không thể đảo ngược về mặt tính toán. Mục đích: bảo mật.
+
+**Hashing** là biến đổi một chiều (one-way function) tạo ra digest kích thước cố định. Mục đích: kiểm tra tính toàn vẹn, lưu trữ password, deduplication.
+
+| Thuộc tính | Encoding | Encryption | Hashing |
+|-----------|---------|-----------|---------|
+| Thuận nghịch | Có (không cần key) | Có (cần key) | Không |
+| Cần secret | Không | Có | Không |
+| Mục đích | Tương thích / format | Bảo mật | Tính toàn vẹn |
+| Ví dụ | Base64, URL%, UTF-8 | AES, RSA | SHA-256, bcrypt |
+
+Lỗi nguy hiểm: lưu password dưới dạng Base64 và gọi là "đã hash." Base64 có thể đảo ngược tầm thường — `echo "cGFzc3dvcmQ=" | base64 -d` cho `password` trong vài millisecond. Luôn dùng password hashing function đúng: bcrypt, Argon2id, hoặc scrypt.
+
+---
+
+## 2. Character Set: Nền Tảng
+
+### ASCII (1963)
+
+ASCII map 128 code point (0–127) sang ký tự: control code (0–31), ký tự in được (32–126), DEL (127). Dùng 7 bit. Bao gồm bảng chữ cái tiếng Anh, chữ số, dấu câu cơ bản. Mỗi character ASCII có giá trị byte từ 0x00 đến 0x7F.
+
+### ISO 8859 (1987–2001)
+
+Để hỗ trợ ngôn ngữ không phải tiếng Anh, ISO 8859 mở rộng ASCII lên 8 bit (256 code point). ISO 8859-1 (Latin-1) thêm ký tự cho ngôn ngữ Tây Âu: `é`, `ñ`, `ü`. Vấn đề: có hàng chục encoding 8-bit không tương thích. Tài liệu viết bằng ISO 8859-5 (Cyrillic) đọc bằng ISO 8859-1 tạo ra mojibake — văn bản bị hỏng.
+
+### Unicode (1991–nay)
+
+Unicode giải quyết vấn đề không tương thích bằng cách định nghĩa một không gian code duy nhất: 1,114,112 code point (U+0000 đến U+10FFFF), đủ cho mọi hệ thống chữ viết của nhân loại.
+
+**Code point** chỉ là một số nguyên — U+0041 là chữ `A`. Cách lưu trữ các số nguyên đó dưới dạng byte là **encoding** (UTF-8, UTF-16, UTF-32).
+
+---
+
+## 3. UTF-8, UTF-16 và UTF-32
+
+### UTF-8 (RFC 3629)
+
+UTF-8 là encoding chiếm ưu thế cho file, trang web, API và database. Dùng 1–4 byte mỗi code point:
+
+| Phạm vi code point | Byte | Pattern |
+|-------------------|------|---------|
+| U+0000–U+007F | 1 | `0xxxxxxx` |
+| U+0080–U+07FF | 2 | `110xxxxx 10xxxxxx` |
+| U+0800–U+FFFF | 3 | `1110xxxx 10xxxxxx 10xxxxxx` |
+| U+10000–U+10FFFF | 4 | `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx` |
+
+Tính chất quan trọng:
+- **ASCII-compatible:** code point 0–127 encode thành byte ASCII của chúng
+- **Không cần BOM** (RFC 8259/JSON cấm BOM)
+- Hiệu quả nhất cho text chủ yếu Latin
+
+**Lưu ý cho tiếng Việt:** Ký tự tiếng Việt (như `ế`, `ộ`, `ẫ`) nằm trong phạm vi U+0080–U+07FF hoặc cao hơn, dùng 2–3 byte trong UTF-8. `String.length` trong JavaScript đếm UTF-16 code unit, không phải byte — khi lưu vào database, hãy tính kích thước byte thực sự.
+
+### UTF-16
+
+JavaScript string dùng UTF-16 nội bộ. Code point BMP dùng 2 byte; supplementary character (emoji, một số CJK) dùng 4 byte (surrogate pair):
+
+```javascript
+'😀'.length  // 2 — surrogate pair!
+[...'😀'].length  // 1 — spread lặp code point
+```
+
+### UTF-32
+
+4 byte mỗi code point. Đơn giản nhưng tốn bộ nhớ. Dùng trong một số database và Python string nội bộ.
+
+---
+
+## 4. Base64 — Tham Chiếu Đầy Đủ
+
+Base64 được định nghĩa bởi [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) và chuyển đổi binary data tùy ý thành 64-character alphabet ASCII in được.
+
+### Thuật Toán
+
+Base64 nhóm input byte thành khối 3 byte (24 bit). Mỗi khối 24 bit được chia thành bốn giá trị 6-bit, mỗi giá trị được map sang ký tự alphabet. Nếu độ dài input không chia hết cho 3, padding `=` điền vào output thành bội số 4 ký tự.
+
+**Overhead:** 4 ký tự output / 3 byte input = tăng 33.3% kích thước.
+
+### Base64URL (RFC 4648 §5)
+
+Base64 chuẩn dùng `+` và `/`, có ý nghĩa đặc biệt trong URL. Base64URL đổi chúng:
+- `+` → `-`
+- `/` → `_`
+- Padding `=` thường bị bỏ
+
+Dùng trong: JWT segment, OAuth token, PKCE code_verifier/code_challenge, tên file an toàn.
+
+### Base32 (RFC 4648)
+
+Dùng 32-character alphabet (`A–Z`, `2–7`). Output case-insensitive (hữu ích khi case có thể bị mất). Dùng trong: TOTP authenticator secret (RFC 6238), một số DNS encoding scheme.
+
+### Base58
+
+Bắt nguồn từ Bitcoin. Loại bỏ ký tự dễ nhầm: `0`, `O`, `I`, `l`, `+`, `/`. Dùng trong: Bitcoin address, IPFS CID, identifier mà người dùng cần đọc/gõ.
+
+### Khi Nào Dùng
+
+| Format | Dùng khi |
+|--------|---------|
+| Base64 | Binary trong JSON/XML, data URI, email MIME |
+| Base64URL | JWT, OAuth token, URL param, tên file |
+| MIME Base64 | Email attachment |
+| Base32 | TOTP secret, context case-insensitive |
+| Base58 | Identifier mà người dùng cần gõ |
+
+Thử encode/decode: [Base64 Encoder/Decoder](/vi/encoding/base64-encode).
+
+---
+
+## 5. URL Encoding — Percent-Encoding (RFC 3986)
+
+URL bị giới hạn trong một tập nhỏ ký tự. Bất kỳ ký tự nào khác phải được percent-encode: thay bằng `%` theo sau là hai chữ số hex biểu diễn giá trị byte UTF-8.
+
+### `%20` vs `+`
+
+- **`%20`** là percent-encoding RFC 3986 của space (0x20). Đúng trong mọi thành phần URL.
+- **`+`** nghĩa là space chỉ trong format `application/x-www-form-urlencoded` (HTML form). Đây KHÔNG phải RFC 3986.
+
+```javascript
+encodeURIComponent(' ') // "%20" — RFC 3986
+new URLSearchParams({q: 'xin chào'}).toString() // "q=xin+ch%C3%A0o"
+```
+
+### `encodeURI` vs `encodeURIComponent`
+
+- `encodeURI()`: encode URL hoàn chỉnh, KHÔNG encode ký tự reserved (`/ ? # & = + @ : ;`). Dùng cho URL đầy đủ muốn giữ nguyên cấu trúc.
+- `encodeURIComponent()`: encode một component đơn lẻ. Encode TẤT CẢ trừ unreserved. Dùng cho giá trị individual nhúng trong URL.
+
+Thử encoding trong browser: [URL Encoder/Decoder](/vi/encoding/url-encode).
+
+---
+
+## 6. HTML Entity — Numeric và Named
+
+HTML entity cho phép ký tự đặc biệt được biểu diễn trong HTML markup mà không phá vỡ cấu trúc.
+
+### Entity Quan Trọng Nhất
+
+| Ký tự | Entity | Code point |
+|-------|--------|-----------|
+| `<` | `&lt;` | U+003C |
+| `>` | `&gt;` | U+003E |
+| `&` | `&amp;` | U+0026 |
+| `"` | `&quot;` | U+0022 |
+| `'` | `&apos;` | U+0027 |
+| non-breaking space | `&nbsp;` | U+00A0 |
+| `©` | `&copy;` | U+00A9 |
+
+### Ý Nghĩa Bảo Mật
+
+HTML entity encoding là **cơ chế phòng thủ XSS quan trọng**. Input người dùng chưa escape trong HTML context cho phép Cross-Site Scripting:
+
+```html
+<!-- Dễ bị tấn công -->
+<p>Xin chào, John<script>stealCookies()</script></p>
+
+<!-- An toàn -->
+<p>Xin chào, John&lt;script&gt;stealCookies()&lt;/script&gt;</p>
+```
+
+Không bao giờ tự viết HTML escaper — dùng tính năng built-in của framework (React JSX auto-escape, Vue `{{ }}` auto-escape).
+
+Dùng [HTML Entity Encoder/Decoder](/vi/encoding/html-entity) để chuyển đổi nhanh.
+
+---
+
+## 7. JWT — Cấu Trúc, Tấn Công và Best Practice
+
+JSON Web Token ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)) là format token xác thực stateless chiếm ưu thế.
+
+### Cấu Trúc Ba Phần
+
+```
+header.payload.signature
+```
+
+**Header:**
+```json
+{ "alg": "HS256", "typ": "JWT" }
+```
+
+**Payload (claims):**
+```json
+{ "sub": "1234567890", "name": "Alice", "iat": 1716681600, "exp": 1716768000 }
+```
+
+**Signature:** `HMACSHA256(base64url(header) + "." + base64url(payload), secret)`
+
+Để decode thủ công: split theo `.`, Base64URL-decode từng segment, parse JSON. Payload có thể đọc mà không cần secret — đây là lý do JWT không được chứa dữ liệu nhạy cảm.
+
+### Tấn Công `alg: none`
+
+Lỗ hổng JWT nổi tiếng nhất. Thư viện JWT đầu thế hệ cho phép algorithm `none` — không có signature. Kẻ tấn công có thể:
+1. Lấy JWT hợp lệ, decode header
+2. Đổi `"alg": "HS256"` thành `"alg": "none"`
+3. Sửa payload (đổi `"role": "user"` thành `"role": "admin"`)
+4. Re-encode không có signature
+5. Submit — server bị lỗ hổng sẽ chấp nhận
+
+**Cách sửa:** Luôn chỉ định rõ algorithm được chấp nhận:
+
+```javascript
+// DỄ BỊ TẤN CÔNG
+jwt.verify(token, secret);
+
+// AN TOÀN
+jwt.verify(token, secret, { algorithms: ['HS256'] });
+```
+
+### HS256 vs RS256 vs ES256
+
+| Algorithm | Loại | Key | Use case |
+|-----------|------|-----|---------|
+| `HS256` | HMAC-SHA256 | Symmetric (một shared secret) | Single-service |
+| `RS256` | RSA-SHA256 | Asymmetric (private sign, public verify) | Distributed system |
+| `ES256` | ECDSA-P256-SHA256 | Asymmetric, key ngắn hơn | Mobile, bandwidth thấp |
+
+Cho microservice: dùng RS256 hoặc ES256. Auth service ký với private key; mọi service khác verify với public key (phân phối qua JWKS endpoint, RFC 7517).
+
+Decode và kiểm tra JWT token: [JWT Decoder](/vi/encoding/jwt-decoder).
+
+---
+
+## 8. Unicode Escape — JavaScript, JSON và Python
+
+### JavaScript
+
+```javascript
+'A'    // "A" — \uXXXX, 4 hex digit (BMP only)
+'\u{1F600}' // "😀" — ES2015+, bất kỳ code point
+```
+
+### JSON
+
+JSON chỉ hỗ trợ `\uXXXX`. Supplementary character cần surrogate pair.
+
+### Python
+
+```python
+'A'      # "A"
+'\U0001F600'  # "😀" — uppercase U, 8 hex digit
+'\N{SNOWMAN}' # "☃" — Unicode name lookup
+```
+
+---
+
+## 9. So Sánh Overhead Encoding
+
+| Format | Input (byte) | Output (ký tự) | Overhead |
+|--------|-------------|----------------|---------|
+| Hex | 10 | 20 | 100% |
+| Base64 | 10 | 16 | 60% |
+| Base64URL | 10 | 14 (không padding) | ~40% |
+| Base32 | 10 | 16 | 60% |
+| Base58 | 10 | ~14 | ~40% |
+
+---
+
+## 10. Decision Tree: Chọn Encoding Nào?
+
+```
+Cần gửi binary qua text channel?
+├── Email (MIME) → Base64 (RFC 2045, 76-char line)
+├── URL param value → Base64URL hoặc percent-encode
+├── JSON payload → Base64 (standard) hoặc Base64URL
+└── Người dùng cần gõ → Base32 hoặc Base58
+
+Cần encode string cho URL?
+├── URL đầy đủ (giữ cấu trúc) → encodeURI()
+├── Giá trị query param đơn lẻ → encodeURIComponent()
+└── Form submission → URLSearchParams
+
+Cần nhúng text vào HTML?
+├── Trong nội dung tag → escape < > &
+├── Trong attribute value → escape < > & " '
+└── Dùng auto-escaping của framework (React, Vue, v.v.)
+
+Xử lý authentication token?
+├── Stateless auth token → JWT (RS256/ES256 cho multi-service)
+├── Opaque session token → Random bytes, base64url-encoded
+└── API key → Random bytes, base58 hoặc base64url
+
+Lưu password?
+└── KHÔNG BAO GIỜ encode — luôn hash: Argon2id > bcrypt > scrypt
+```
+
+---
+
+## FAQ
+
+### Q: Base64 encoding có giống encryption không?
+
+Không. Base64 có thể đảo ngược bởi bất kỳ ai biết đó là Base64 — rõ ràng từ ký tự `=` cuối hoặc tập ký tự. Không cung cấp bảo mật nào. Nếu cần bảo vệ dữ liệu, dùng AES-256-GCM hoặc để TLS xử lý.
+
+### Q: Tại sao `btoa()` fail với emoji?
+
+`btoa()` hoạt động trên Latin-1 (byte 0–255 only). Emoji và ký tự trên U+00FF không thể biểu diễn trong một byte, nên `btoa()` throw `InvalidCharacterError`. Cách sửa: encode sang UTF-8 byte trước, rồi mới Base64. Trong Node.js: `Buffer.from(str).toString('base64')`.
+
+### Q: Sự khác biệt giữa UTF-8 và Unicode là gì?
+
+Unicode là character set — mapping từ code point sang ký tự. UTF-8 là encoding — cách serialize những code point đó thành byte. Unicode là "cái gì", UTF-8 là "như thế nào."
+
+### Q: Tại sao tôi thấy `%20` trong một số URL và `+` trong URL khác?
+
+`%20` là percent-encoding RFC 3986 của space — đúng cho mọi URL component. `+` nghĩa là space chỉ trong `application/x-www-form-urlencoded` data (HTML form submission). Nếu decode URL bằng `decodeURIComponent()`, `+` trở thành `+` literal, không phải space. Dùng `new URLSearchParams(queryString)` để parse đúng form-encoded data.
+
+### Q: Có thể đọc JWT payload mà không cần secret không?
+
+Có. Payload là Base64URL-encoded — không cần secret để decode. Đó là lý do JWT được mô tả là "signed, not encrypted." Bất kỳ ai có token đều có thể đọc claims. Dùng JWE (JSON Web Encryption, RFC 7516) nếu cần payload được bảo mật.
+
+### Q: BOM là gì và có nên dùng không?
+
+BOM là U+FEFF, dùng trong UTF-16 để chỉ byte order và trong UTF-8 như identifier. RFC 8259 (JSON) cấm BOM. Đồng thuận: **không thêm BOM vào file UTF-8** — gây lỗi parse trong nhiều tool (bao gồm `JSON.parse` trong một số môi trường).
+
+### Q: Percent-encoding khác HTML entity encoding như thế nào?
+
+Percent-encoding (`%20`, `%3C`) dành cho URL. HTML entity (`&amp;`, `&lt;`) dành cho HTML document. Không nhầm lẫn hay áp dụng sai context.
+
+### Q: JWT refresh token hoạt động với Base64URL như thế nào?
+
+Refresh token thường là opaque — random byte encode dưới dạng Base64URL, lưu server-side map sang user session. Chúng KHÔNG phải JWT (không có signed claim). Khi sử dụng, server tra cứu trong store, validate, và cấp JWT access token ngắn hạn mới.
+
+### Q: Unicode normalization là gì và tại sao quan trọng?
+
+Một ký tự hiển thị có thể có nhiều biểu diễn Unicode. `é` có thể là U+00E9 (precomposed) hoặc `e` + U+0301 (decomposed). Chúng trông giống nhau nhưng là byte sequence khác nhau. Unicode normalization (NFC, NFD, NFKC, NFKD) chuẩn hóa biểu diễn. Dùng `String.prototype.normalize('NFC')` trước khi so sánh, hash hay lưu trữ text của người dùng.
+
+### Q: Làm thế nào nhúng JSON an toàn trong HTML script tag?
+
+Nguy cơ: JSON value chứa `</script>` đóng script tag sớm. Cách sửa: replace `<` bằng `<` trong JSON output trước khi nhúng. Trong JavaScript: `JSON.stringify(data).replace(/</g, '\\u003c')`.

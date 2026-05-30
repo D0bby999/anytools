@@ -1,0 +1,58 @@
+---
+title: Hướng dẫn đầy đủ về Diff Checker — so sánh văn bản đúng cách
+description: Cách thuật toán LCS hoạt động, sự khác biệt giữa line-level và word-level diff, và khi nào nên dùng diff tool.
+updated: 2026-05-26
+---
+
+## Diff là gì
+
+Diff là một mô tả tối giản về cách biến đổi văn bản này thành văn bản kia. Thay vì hiển thị toàn bộ hai tài liệu, diff chỉ làm nổi bật những gì thay đổi — các dòng thêm vào, dòng bị xóa, và các dòng context xung quanh chúng. Đây là khái niệm đứng sau `git diff`, lệnh `patch(1)`, và mọi công cụ code review bạn từng dùng.
+
+Thuật toán nền tảng trong hầu hết các diff tool hiện đại — bao gồm thư viện [`diff`](https://github.com/kpdecker/jsdiff) đang chạy trong tool này — là **Longest Common Subsequence (LCS)**. LCS tìm chuỗi dài nhất các phần tử xuất hiện ở cả hai input theo cùng thứ tự, sau đó coi mọi thứ không thuộc chuỗi đó là đã được thêm vào hoặc xóa đi. Tính toán LCS có độ phức tạp O(n²) trong trường hợp xấu nhất, nhưng các implementation thực tế dùng thuật toán Myers — tối ưu hơn nhiều với input thông thường.
+
+## Line-level vs word-level diff
+
+Có hai mức độ chi tiết bạn cần quan tâm:
+
+**Line-level diff** chia mỗi văn bản thành các dòng, chạy LCS trên những dòng đó, và báo cáo toàn bộ dòng là được thêm, xóa, hoặc không thay đổi. Đây là mặc định của `git diff`. Phù hợp nhất cho source code vì dòng là đơn vị thay đổi tự nhiên — thêm một function nghĩa là thêm nhiều dòng, và line-level diff bắt chính xác điều đó.
+
+**Word-level diff** (còn gọi là "intra-line diff") phân tích sâu hơn và tính LCS trên từng từ hoặc ký tự. Điều này tiết lộ *những từ nào* trong một dòng đã thay đổi. Cực kỳ hữu ích cho văn xuôi, hợp đồng, và JSON blob — nơi một dòng có thể dài 200 ký tự nhưng chỉ một giá trị thay đổi.
+
+Dùng line-level khi review code hoặc config. Dùng word-level khi so sánh tài liệu, markdown, API response, hoặc bất kỳ văn bản nào cần độ chính xác dưới dòng.
+
+## Unified vs side-by-side format
+
+**Unified format** là output kiểu `diff -u` truyền thống: các dòng context được đánh dấu bằng space, dòng xóa bằng `-`, dòng thêm bằng `+`. Header của một unified diff hunk trông như `@@ -12,7 +12,9 @@`, nghĩa là "bắt đầu từ dòng 12 trong file cũ, 7 dòng; bắt đầu từ dòng 12 trong file mới, 9 dòng." Format này gọn và thân thiện với grep — đây là thứ `git diff` tạo ra và `patch` tiêu thụ.
+
+**Side-by-side format** hiển thị phiên bản cũ bên trái và phiên bản mới bên phải, với các dòng bị xóa được highlight ở cột trái và dòng được thêm ở cột phải. Side-by-side dễ đọc hơn cho người review diff lớn — bạn thấy trước và sau cùng lúc mà không cần chuyển ngữ cảnh. Hầu hết các web UI review code (GitHub, GitLab, Bitbucket) mặc định dùng side-by-side.
+
+## Khi nào nên dùng diff tool
+
+**Chuẩn bị code review.** Trước khi mở pull request, paste hai phiên bản của một function quan trọng vào diff checker để xác minh delta chính xác như bạn muốn — không có thay đổi whitespace vô tình, không có `console.log` debug bỏ quên.
+
+**Content QA.** So sánh hai bản nháp của bài blog hay trang tài liệu nhanh hơn nhiều với word-level diff so với đọc thủ công. Một câu thay đổi sẽ hiển thị ngay lập tức.
+
+**Hợp đồng và văn bản pháp lý.** Ngay cả việc đổi "shall" thành "may" cũng có ý nghĩa pháp lý; word-level diff bắt được ngay.
+
+**Configuration drift.** Khi config file của server khác với phiên bản trong source control, line-level diff chỉ ra chính xác dòng nào bị chỉnh sửa.
+
+**Thay đổi API response.** Paste response của hôm qua cạnh response hôm nay để phát hiện schema drift — đặc biệt hữu ích khi nâng cấp third-party API.
+
+## Giới hạn cần biết
+
+**Textual, không phải semantic.** Diff tool so sánh chuỗi ký tự, không hiểu ngữ nghĩa. Rename một function từ `getUser` thành `fetchUser` ở 500 dòng code trông như 50 thay đổi riêng biệt dù về logic chỉ là một refactor.
+
+**Nhạy cảm với whitespace.** Mặc định, một khoảng trắng thừa hay tab-vs-space tính là thay đổi. Bật tùy chọn **Ignore whitespace** để lọc bỏ khác biệt whitespace không đáng kể.
+
+**Input lớn.** Độ phức tạp của LCS tăng đáng kể với input rất lớn. Với file hàng chục nghìn dòng, `diff` command-line hoặc tool có streaming support sẽ hiệu quả hơn.
+
+**Không có merge logic.** Diff chỉ cho thấy thay đổi. Nó không tự động merge hai phiên bản phân kỳ hay giải quyết conflict — đó là bài toán three-way merge mà `git merge` và `diff3` xử lý.
+
+## Quyền riêng tư
+
+Toàn bộ quá trình tính diff diễn ra trong trình duyệt của bạn bằng thư viện open-source [`diff`](https://github.com/kpdecker/jsdiff). Không có văn bản nào của bạn được gửi đến server. Mở tab Network trong DevTools trong khi chạy diff — bạn sẽ thấy không có request nào.
+
+## Công cụ liên quan
+
+- **Regex Tester** — kiểm tra và lặp lại với regular expression trước khi dùng trong workflow find-and-replace.
+- **Text Case Converter** — chuẩn hóa casing trước khi diff để giảm noise.

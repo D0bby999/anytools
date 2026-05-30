@@ -1,0 +1,35 @@
+---
+title: Timezone Converter — Câu hỏi thường gặp
+---
+
+## IANA timezone database là gì và tại sao nó quan trọng?
+
+IANA Time Zone Database (còn gọi là Olson database) là nguồn thẩm quyền cho quy tắc timezone trên toàn thế giới. Nó mã hóa không chỉ UTC offset hiện tại mà còn toàn bộ lịch sử của mỗi timezone — mọi thay đổi quy tắc DST, mọi quyết định chính trị về việc dịch chuyển đồng hồ. Không có nó, việc convert timestamp từ năm 1985 ở `Asia/Ho_Chi_Minh` (đã thay đổi offset nhiều lần) sẽ chỉ là đoán mò. Tất cả hệ điều hành, trình duyệt, và date library lớn đều đi kèm bản sao của database này.
+
+## Tại sao nên dùng `Asia/Ho_Chi_Minh` thay vì `ICT`?
+
+`ICT` (Indochina Time) có thể đề cập đến Vietnam, Thailand, Laos, hay Cambodia — tất cả đều UTC+7 nhưng có lịch sử timezone khác nhau. Quan trọng hơn, abbreviation không nói gì về việc offset có thể thay đổi không. IANA identifier `Asia/Ho_Chi_Minh` mã hóa đầy đủ lịch sử offset, cho phép hệ thống convert chính xác bất kỳ timestamp lịch sử nào mà không cần bạn tra cứu thủ công.
+
+## Sự khác biệt giữa UTC và GMT là gì?
+
+UTC (Coordinated Universal Time) là time standard được duy trì bằng atomic clock và không có daylight saving time. GMT (Greenwich Mean Time) là timezone tại Royal Observatory ở Greenwich, kỹ thuật mà nói có British Summer Time vào mùa hè. Trong thực tế chúng được coi là tương đương, nhưng kỹ thuật mà nói UTC là baseline đúng cho timestamp. Dùng `UTC` trong code; `GMT` chấp nhận được trong chuỗi hiển thị cho người dùng.
+
+## Điều gì xảy ra với cuộc hẹn 2:30 SA trong quá trình US spring-forward?
+
+Giờ địa phương đó không tồn tại — lúc 2:00 SA, đồng hồ Mỹ nhảy đến 3:00 SA, vì vậy 2:30 SA không bao giờ xảy ra. Nếu hệ thống lưu timestamp đó như giờ địa phương mà không có UTC equivalent, thời gian là dữ liệu không hợp lệ. Hầu hết ứng dụng calendar và scheduling lưu UTC equivalent tại thời điểm cuộc hẹn được tạo, nên DST transition không làm hỏng entry hiện có.
+
+## Tại sao cộng 24 giờ vào ngày đôi khi cho kết quả sai?
+
+Vào ngày DST transition, một ngày lịch dài 23 hoặc 25 giờ. Cộng `24 * 60 * 60 * 1000` millisecond vào local timestamp sẽ vượt qua số ngày lịch khác với mong đợi. Cách đúng là thêm một ngày lịch bằng hàm `addDays` của date library (xử lý DST), hoặc thực hiện arithmetic theo UTC và convert lại sang giờ địa phương để hiển thị.
+
+## `Z` ở cuối timestamp có nghĩa gì?
+
+`Z` là viết tắt của "Zulu time" — ký hiệu quân sự cho UTC. Trong format ISO 8601, `2026-05-26T14:30:00Z` nghĩa là 2:30 CH UTC. Nó tương đương với `2026-05-26T14:30:00+00:00`, dù `Z` là dạng ưu tiên cho UTC timestamp vì rõ ràng và ngắn gọn hơn. Luôn bao gồm `Z` hoặc explicit offset khi serialize timestamp; `2026-05-26T14:30:00` không có zone indicator là naive datetime và là nguồn bug.
+
+## Làm thế nào để convert Unix timestamp sang datetime có timezone?
+
+Unix timestamp luôn là số giây (hoặc millisecond) kể từ Unix epoch — 1970-01-01T00:00:00Z — theo UTC. Để hiển thị theo timezone địa phương, tạo object `Date` từ nó và format bằng `Intl.DateTimeFormat` chỉ định option `timeZone`, hoặc dùng hàm `format` của `date-fns-tz`. Ví dụ: `format(new Date(epochMs), 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Asia/Ho_Chi_Minh' })`. Giá trị epoch tự nó không phụ thuộc timezone.
+
+## Tool có xử lý đúng các thay đổi timezone lịch sử không?
+
+Có, trong giới hạn của phiên bản IANA database được đi kèm với JavaScript runtime của trình duyệt. Database bao phủ các transition lịch sử từ cuối thế kỷ 19 cho hầu hết các vùng. Với ngày rất cũ (trước 1970), dữ liệu có thể thưa hoặc không chắc chắn, nhưng với mọi timestamp thực tế hiện đại (sau 1970), các conversion là thẩm quyền. Nếu IANA data của trình duyệt lỗi thời, quy tắc timezone thay đổi gần đây có thể không phản ánh đúng — hiếm gặp, thường chỉ xảy ra trên hệ điều hành cũ.

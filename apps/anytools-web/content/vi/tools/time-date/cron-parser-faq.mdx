@@ -1,0 +1,35 @@
+---
+title: Cron Parser — Câu hỏi thường gặp
+---
+
+## Tại sao `0 0 1 * 1` không có nghĩa là "Thứ Hai đầu tiên của tháng"?
+
+Trong Vixie cron (được dùng bởi hầu hết hệ thống Linux), khi cả day-of-month lẫn day-of-week đều được chỉ định — không cái nào là `*` — scheduler kích hoạt khi **bất kỳ** điều kiện nào đúng, không phải cả hai. Vì vậy `0 0 1 * 1` nghĩa là "nửa đêm ngày 1 của bất kỳ tháng nào HOẶC nửa đêm bất kỳ Thứ Hai nào." Để schedule Thứ Hai đầu tiên của tháng, bạn cần workaround: chạy hàng ngày vào Thứ Hai và kiểm tra trong script xem `date +%d` có nằm trong khoảng 1–7 không. Quartz Scheduler tránh sự mơ hồ này bằng placeholder `?`.
+
+## Sự khác biệt giữa cron-parser và Quartz cron là gì?
+
+Standard/Vixie cron có năm trường: phút, giờ, ngày trong tháng, tháng, ngày trong tuần. Quartz thêm trường **seconds** ở đầu và trường **year** tùy chọn ở cuối, cho tổng cộng sáu hoặc bảy trường. Quartz cũng thêm ký tự đặc biệt: `L` (last day), `W` (nearest weekday), `#` (Nth weekday), và `?` (unspecified). Expression Quartz `0 30 9 * * MON-FRI` không phải cron năm trường hợp lệ — `0` đứng đầu là seconds. Luôn kiểm tra biến thể nào platform của bạn mong đợi.
+
+## Tool này có hỗ trợ alias `@yearly`, `@daily` không?
+
+Có. Cả hai thư viện `cronstrue` và `cron-parser` đều nhận diện các alias chuẩn `@yearly`, `@annually`, `@monthly`, `@weekly`, `@daily`, `@midnight`, và `@hourly`. Parser dịch chúng thành dạng năm trường tương đương trước khi tính next run. Lưu ý `@reboot` không có ý nghĩa time-based và không thể tạo ra next-run time.
+
+## DST ảnh hưởng đến cron schedule như thế nào?
+
+Cron tính schedule theo wall-clock time theo timezone đã cấu hình của daemon. Trong quá trình spring-forward transition, giờ "không tồn tại" bị bỏ qua — bất kỳ job nào được schedule trong cửa sổ đó sẽ không chạy. Trong fall-back, giờ lặp lại có thể kích hoạt job hai lần. Cách giảm thiểu an toàn nhất là schedule job theo UTC, chấp nhận rằng wall-clock time địa phương sẽ dịch một giờ hai lần mỗi năm.
+
+## Tại sao Kubernetes CronJob của tôi không chạy đúng giờ địa phương?
+
+Schedule Kubernetes CronJob luôn được tính theo **UTC**, bất kể timezone hệ thống của node. Nếu bạn muốn `0 9 * * *` kích hoạt lúc 9 SA ở TP.HCM (UTC+7), bạn cần `0 2 * * *`. Trường `timeZone` có sẵn từ Kubernetes 1.27+ cho phép chỉ định timezone trực tiếp. Tool hiển thị next run theo cả UTC và timezone địa phương của trình duyệt để giúp bạn nhận ra sự chênh lệch này.
+
+## Khoảng cách tối thiểu cho GitHub Actions scheduled workflow là bao nhiêu?
+
+GitHub Actions bắt buộc khoảng cách schedule tối thiểu là **5 phút** (`*/5 * * * *`). Schedule thường xuyên hơn bị từ chối. Ngoài ra, scheduled run trên default branch có thể bị delay đến một giờ trong thời gian GitHub bị tải nặng. Với trigger yêu cầu timing chính xác, dùng external scheduler (AWS EventBridge, Google Cloud Scheduler) gọi GitHub Actions API thay thế.
+
+## Cron expression có thể xử lý khoảng cách dưới một phút không?
+
+Cron năm trường chuẩn không thể — granularity nhỏ nhất là một phút. Để chạy task mỗi 10 giây bạn cần cơ chế khác: vòng lặp trong job, systemd timer với `OnCalendar=*:*:0/10`, hoặc job scheduler như Quartz (Java) hỗ trợ seconds-level scheduling. Nếu bạn nhập expression Quartz sáu trường, tool sẽ cố parse như expression Quartz và hiển thị trường seconds tường minh.
+
+## Job cron của tôi chạy sai giờ sau khi migrate server — cần kiểm tra gì?
+
+Ba điều theo thứ tự: (1) **Timezone** — xác minh `timedatectl` hoặc `/etc/timezone` của server mới khớp với server cũ; (2) **Clock sync** — xác nhận `ntpd`/`chronyd` đang chạy và clock chính xác; (3) **DST offset** — nếu migration xảy ra quanh cuối tuần đổi giờ, chênh lệch offset giữa timezone setting cũ và mới có thể giải thích sự lệch một giờ. Luôn schedule job quan trọng theo UTC để loại bỏ hoàn toàn sự mơ hồ về timezone.

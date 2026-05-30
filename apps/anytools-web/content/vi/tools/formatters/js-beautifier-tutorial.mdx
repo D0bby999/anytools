@@ -1,0 +1,121 @@
+---
+title: Hướng dẫn toàn diện về beautify và minify JavaScript
+description: Format AST-based với js-beautify, minify thực sự với Terser, chiến lược mangle, dead code, source map, và hỗ trợ ES2024.
+updated: 2026-05-27
+---
+
+## Hai bài toán khác nhau: format và minify
+
+Format và minify JavaScript nghe có vẻ ngược chiều của cùng một thao tác, nhưng chúng dùng kỹ thuật hoàn toàn khác nhau.
+
+**Format** (beautify) chỉ là thẩm mỹ: thêm thụt lề, chuẩn hóa khoảng cách, chèn newline tại ranh giới logic. Output là JavaScript giống hệt về ngữ nghĩa — cùng token, cùng hành vi.
+
+**Minify** là nén ngữ nghĩa: loại bỏ toàn bộ whitespace, đổi tên identifier cục bộ thành tên ngắn hơn, loại bỏ code path dead, thu gọn biểu thức hằng. Output là JavaScript tương đương về chức năng nhưng token thay đổi. Bạn không thể đảo ngược minification về source có thể đọc được (do đó cần source map).
+
+Tool này dùng `js-beautify` để format và **Terser** để minify. Đây là best-in-class cho từng vai trò.
+
+## AST-based vs regex-based formatter
+
+Formatter dựa trên regex xử lý JavaScript như text: tìm kiếm pattern như `{` theo sau bởi newline và chèn thụt lề. Hoạt động tốt với trường hợp đơn giản nhưng fail với edge case:
+
+- Template literal chứa `{` — regex ngây thơ có thể chèn thụt lề bên trong template string, làm hỏng nội dung.
+- Destructuring pattern — `{` lồng nhau trong `const { a: { b } } = obj` bị đọc sai.
+- Regular expression literal — `/[{(]/g` trông giống opening block với text parser.
+
+Formatter AST-based trước tiên **parse** JavaScript thành Abstract Syntax Tree — biểu diễn có cấu trúc trong đó mỗi node biết kiểu của nó (FunctionDeclaration, ArrowFunctionExpression, TemplateLiteral,...). Quyết định format sau đó được thực hiện trên tree, không phải trên text. Template literal không bao giờ bị thụt lề sai vì parser biết ranh giới của chúng.
+
+`js-beautify` dùng cách tiếp cận nhận thức AST và xử lý cú pháp ES2024 bao gồm optional chaining, nullish coalescing, logical assignment, top-level `await`, và class field.
+
+## Terser: minify AST thực sự
+
+Terser là minifier JavaScript chuẩn cho web build production. Đây là thứ Vite, webpack (qua `terser-webpack-plugin`), và esbuild dùng nội bộ hoặc cung cấp làm lựa chọn thay thế.
+
+**Loại whitespace** — toàn bộ whitespace, comment và newline không cần thiết đều bị xóa.
+
+**Name mangling** — tên biến cục bộ được đổi thành một hoặc hai ký tự: `function calculateTaxableIncome(amount, rate)` trở thành `function a(b,c)`. Đây là yếu tố đóng góp lớn nhất vào giảm kích thước ngoài whitespace. Tên export được giữ nguyên mặc định (Terser hiểu ranh giới ES module `export`) vì đổi tên export sẽ phá vỡ caller. Mangle chỉ áp dụng cho tên cục bộ trong scope.
+
+**Dead code elimination** — nhánh không thể đến được bị loại bỏ:
+```javascript
+// Trước
+if (false) {
+  console.log('không bao giờ chạy');
+}
+const DEBUG = false;
+if (DEBUG) { heavyOperation(); }
+
+// Sau (Terser với evaluate: true)
+// Cả hai block bị xóa hoàn toàn
+```
+
+**Constant folding** — biểu thức evaluate ra hằng số lúc parse time được thu gọn:
+```javascript
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+// Trở thành:
+const MS_PER_DAY = 86400000;
+```
+
+## Toggle mangle: khi nào bật, khi nào tắt
+
+Option **mangle** đổi tên identifier cục bộ. Bật nó cho production browser bundle — đây là giảm kích thước lớn nhất sau loại whitespace.
+
+Tắt mangle khi:
+- Bạn minify code Node.js dùng `Function.prototype.name` để nhận dạng function theo tên lúc runtime.
+- Code dùng `eval()` hoặc `new Function()` với string argument tham chiếu tên biến cục bộ.
+- Bạn cần output đã minify vẫn có thể debug mà không cần source map.
+
+## Số byte trước/sau
+
+Tool hiển thị số byte input, số byte output, và phần trăm tiết kiệm:
+
+| Loại code | Tiết kiệm (whitespace only) | Với mangle |
+|-----------|---------------------------|-----------|
+| Utility library | 20–30% | 50–65% |
+| React component | 25–35% | 45–60% |
+| File nhiều config | 15–20% | 20–30% |
+| Code đã compact | 5–15% | 15–25% |
+
+## Tree shaking: điều Terser không làm được
+
+Lầm tưởng phổ biến: Terser có thể loại bỏ dead code *trong một file* nhưng không thể tree-shake cross-file. Tree shaking — loại bỏ exported function không có module nào import — cần phân tích ở mức bundler (Rollup, Vite, webpack). Terser chỉ thấy một file tại một thời điểm.
+
+Nếu bạn paste một utility library vào tool này với hy vọng loại bỏ các function không dùng, Terser sẽ không loại chúng — nó chỉ minimize code hiện có. Để tree shaking ở mức library, dùng bundler với entry point đúng.
+
+## Source map để debug production
+
+Code đã minify trong production không thể đọc trong stack trace. Source map giải quyết điều này bằng cách ánh xạ vị trí byte đã minify về dòng source gốc:
+
+```javascript
+import Terser from 'terser';
+
+const result = await Terser.minify(code, {
+  mangle: true,
+  compress: true,
+  sourceMap: {
+    filename: 'app.min.js',
+    url: 'app.min.js.map',
+  },
+});
+```
+
+Upload cả hai file. Comment `sourceMappingURL` ở cuối file đã minify chỉ DevTools đến map. Dịch vụ error monitoring (Sentry, Datadog) có thể dùng source map server-side để hiển thị stack frame gốc trong cảnh báo.
+
+## Hỗ trợ cú pháp ES2024
+
+Terser hỗ trợ JavaScript hiện đại đến ES2024:
+- Optional chaining (`?.`) và nullish coalescing (`??`)
+- Logical assignment (`&&=`, `||=`, `??=`)
+- Top-level `await`
+- Class field (public, private `#field`, static)
+- `using` / `await using` (Explicit Resource Management)
+
+## Các lựa chọn thay thế nhanh hơn: SWC và esbuild
+
+Cho build pipeline cần tốc độ hơn compression tối đa:
+- **esbuild** (Go) — nhanh hơn Terser 10–100×, minification đủ tốt cho hầu hết app.
+- **SWC** (Rust) — dùng bởi Next.js và Parcel, rất nhanh.
+
+Với tool browser one-off, tốc độ không phải bottleneck — optimization aggressive hơn của Terser được ưu tiên hơn.
+
+## Quyền riêng tư
+
+Toàn bộ xử lý JavaScript chạy trên trình duyệt. Code của bạn không bao giờ được gửi lên server.

@@ -1,0 +1,31 @@
+---
+title: Lorem Ipsum Generator — Frequently asked questions
+---
+
+## Is Lorem Ipsum real Latin?
+
+Yes — partially. It is derived from Cicero's *De finibus bonorum et malorum* (45 BC), specifically section 1.10.32. The words were scrambled by a typesetter in the 1500s to produce specimen text that looks like natural language but reads as nothing. Some words are authentic Latin; others are truncated fragments. It is not grammatically meaningful — its value is purely visual.
+
+## Why not just use "Content Here" repeated as placeholder?
+
+Repeated identical short phrases produce unnatural, uniform line breaks and paragraph shapes that don't reflect how real copy will reflow. Lorem Ipsum has organic word-length variation that mimics natural prose rhythm. This matters when you are evaluating line wrapping, widow/orphan control, text overflow behavior, and paragraph spacing — all of which are invisible with uniform filler.
+
+## Should I generate placeholder in my app's actual language?
+
+Yes, when your target language differs from English. Languages like Vietnamese, Spanish, German, and Finnish have systematically longer words and sentences than English for equivalent meaning. Designing with English-length placeholder for a Vietnamese UI is a known source of truncation bugs and layout overflow that only surface late in QA. Generate placeholder in each target locale and check that your layouts hold.
+
+## What is Hipster Ipsum?
+
+A modern variant that uses contemporary English slang — words like "artisan," "selvage," "normcore," "craft beer." It is intentionally recognizable as placeholder while being absurdist. Useful in stakeholder presentations where standard Lorem Ipsum prompts the question "so what will this page actually say?" — the recognizable-but-nonsensical content signals clearly that copy is pending.
+
+## Can I use Lorem Ipsum in production?
+
+No. Lorem Ipsum has accidentally shipped to production many times — in published websites, mobile apps, and print materials. Never use placeholder as a default value in a CMS field, form, or email template that can reach real users. Also avoid it in any crawled page because it signals low-quality content to search engines.
+
+## What is the HTML output mode?
+
+HTML mode wraps output in `<p>` tags so you can paste directly into HTML templates or rich-text editors without manually adding markup. This avoids the common mistake of pasting plain paragraph text into an HTML context and getting a wall of unformatted text. Each paragraph becomes a separate `<p>` element.
+
+## How many words should I generate for a typical card or meta description?
+
+A standard card body (~3 lines at 16px on a 320px container) needs roughly 20–30 words. A meta description (capped at ~160 characters by Google) needs 25–35 words in English, fewer in Vietnamese or Spanish where words tend to be longer. A full article-length page needs 300–800 words across 4–8 paragraphs.
