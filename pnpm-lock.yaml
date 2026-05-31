@@ -118,7 +118,7 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@22.10.5)(happy-dom@16.5.3)(lightningcss@1.32.0)(terser@5.48.0)
 
-  apps/smarttoys-web:
+  apps/besttoys-web:
     dependencies:
       '@anytools/config':
         specifier: workspace:*
