@@ -1,9 +1,15 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 
-const DIR = '/Users/dobby/Cassau/anytools/apps/anytools-web/content/en/blog';
+// Resolve relative to this script (packages/db-shared/mdx-to-sql.mjs).
+// Override via env CONTENT_DIR for cross-project sync.
+const HERE = dirname(fileURLToPath(import.meta.url));
+const DIR =
+  process.env.CONTENT_DIR ??
+  resolve(HERE, '../../apps/anytools-web/content/en/blog');
 const files = (await readdir(DIR)).filter(f => f.endsWith('.mdx'));
 
 function sqlEscape(v) {
