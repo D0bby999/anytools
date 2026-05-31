@@ -1,4 +1,5 @@
 import { routing } from '@/i18n/routing';
+import { BLOG_SLUGS } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
@@ -60,6 +61,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
           ),
         },
       });
+    }
+    // Blog index (Phase 1 EN-only — emit for every locale anyway for crawl breadth)
+    urls.push({
+      url: `${BASE}/${locale}/blog`,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    });
+    // Blog posts (Phase 1 EN-only; only emit URLs for English).
+    // When VI/ES/PT translations land, loop locales like GUIDE_SLUGS above.
+    if (locale === 'en') {
+      for (const slug of BLOG_SLUGS) {
+        urls.push({
+          url: `${BASE}/${locale}/blog/${slug}`,
+          changeFrequency: 'monthly',
+          priority: 0.85,
+          alternates: { languages: { en: `${BASE}/en/blog/${slug}` } },
+        });
+      }
     }
     // Cluster landing pages (one per cluster per locale). Auto-loop on toolMetas
     // does NOT cover these — landings must be emitted explicitly.
