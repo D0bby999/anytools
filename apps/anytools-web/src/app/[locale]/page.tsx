@@ -6,15 +6,10 @@ import { Link, routing } from '@/i18n/routing';
 import { METADATA_BASE } from '@/lib/site-url';
 import { toolMetas, toolMetasClient } from '@anytools/tools/meta';
 import { Badge, Button, Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
-import { ArrowRight, Globe, Lock, ScrollText, ShieldCheck, Sparkles, Wifi } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
-const VALUE_PROPS = [
-  { Icon: Globe, key: 'valueProp1' },
-  { Icon: Lock, key: 'valueProp2' },
-  { Icon: ScrollText, key: 'valueProp3' },
-] as const;
+const VALUE_PROPS = ['valueProp1', 'valueProp2', 'valueProp3'] as const;
 
 export async function generateMetadata({
   params,
@@ -65,9 +60,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
             <div className="lg:col-span-3 space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 text-accent px-3 py-1 text-xs font-medium">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>{t('landing.eyebrow')}</span>
+              <div className="inline-flex items-center rounded-full bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
+                {t('landing.eyebrow')}
               </div>
               <h1 className="text-brand-gradient text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] pb-1">
                 {t('landing.heroTitle')}
@@ -77,10 +71,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button size="lg" asChild className="brand-glow">
-                  <a href="#catalog" className="inline-flex items-center gap-2">
-                    {t('landing.ctaPrimary')}
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
+                  <a href="#catalog">{t('landing.ctaPrimary')}</a>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a
@@ -92,24 +83,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </a>
                 </Button>
               </div>
-              {/* Trust badges */}
-              <div className="flex flex-wrap gap-4 pt-4 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <ScrollText className="h-3.5 w-3.5" />
-                  {t('landing.badgeMit')}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Wifi className="h-3.5 w-3.5" />
-                  {t('landing.badgeOffline')}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Globe className="h-3.5 w-3.5" />
-                  {t('landing.badge4Langs')}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  {t('landing.badgePrivate')}
-                </span>
+              {/* Trust badges — text-only pills */}
+              <div className="flex flex-wrap gap-2 pt-4 text-xs text-muted-foreground">
+                {(['badgeMit', 'badgeOffline', 'badge4Langs', 'badgePrivate'] as const).map(
+                  (key) => (
+                    <span
+                      key={key}
+                      className="inline-flex items-center rounded-full border border-border bg-card px-2.5 py-1"
+                    >
+                      {t(`landing.${key}`)}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
 
@@ -124,17 +109,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* RECENTLY USED (history if present, otherwise curated POPULAR_FALLBACK) */}
       <RecentlyUsedTools metas={toolMetasClient} locale={locale} />
 
-      {/* VALUE PROPS */}
+      {/* VALUE PROPS — large number tags replace icon tiles */}
       <section className="py-16 border-b">
         <div className="container mx-auto max-w-6xl px-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-10">{t('landing.valuePropsHeading')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {VALUE_PROPS.map(({ Icon, key }) => (
+            {VALUE_PROPS.map((key, i) => (
               <Card key={key} className="border-0 shadow-none bg-transparent">
                 <CardHeader className="px-0">
-                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-accent/10 text-accent mb-3">
-                    <Icon className="h-5 w-5" />
-                  </div>
+                  <span className="text-brand-gradient font-bold text-3xl tabular-nums mb-3 inline-block">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
                   <CardTitle className="text-lg">{t(`landing.${key}Title`)}</CardTitle>
                   <CardDescription className="text-base leading-relaxed">
                     {t(`landing.${key}Body`)}
