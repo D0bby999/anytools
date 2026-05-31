@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "source": "undraw.co",
+    "license": "unDraw open-source (free commercial use, no attribution required, no repackaging into competing service)",
+    "curated_by": "manual download from https://undraw.co",
+    "last_updated": "2026-05-31",
+    "categories": ["lifestyle", "design", "health", "finance"],
+    "notes": "Empty placeholder. Run Phase 5 curation step to populate. Skill /daily:blog Step 4c filters by category + scores by keyword overlap on H2 heading + summary."
+  },
+  "_curation_guide": {
+    "target_count_per_category": 10,
+    "target_total": 40,
+    "naming": "<category>/<topic-slug>.svg (e.g. lifestyle/reading-book.svg)",
+    "color_strategy": "keep unDraw default primary color (#6c63ff); category tint applied via CSS class .section-divider"
+  },
+  "illustrations": {}
+}

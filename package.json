@@ -16,11 +16,13 @@
     "test": "pnpm -r test",
     "clean": "pnpm -r exec rm -rf .next dist build node_modules && rm -rf node_modules",
     "blog:new": "node scripts/blog-new.mjs",
+    "blog:validate": "node scripts/blog-validate.mjs",
     "sync:prod": "bash scripts/sync-blogs-prod.sh"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1057.0",
     "@biomejs/biome": "1.9.4",
+    "gray-matter": "4.0.3",
     "playwright": "^1.60.0",
     "prompts": "^2.4.2",
     "typescript": "5.7.3"

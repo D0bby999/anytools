@@ -1,6 +1,12 @@
 import type { MDXComponents } from 'mdx/types';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import type { AnchorHTMLAttributes, HTMLAttributes, PropsWithChildren } from 'react';
+import type {
+  AnchorHTMLAttributes,
+  HTMLAttributes,
+  PropsWithChildren,
+  ReactElement,
+} from 'react';
+import { MermaidDiagram } from './mermaid-diagram';
 
 const components: MDXComponents = {
   h1: ({ children }: PropsWithChildren) => (
@@ -30,12 +36,25 @@ const components: MDXComponents = {
       {children}
     </a>
   ),
-  code: ({ children }: PropsWithChildren) => (
-    <code className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono">{children}</code>
+  code: ({ children, className }: PropsWithChildren<{ className?: string }>) => (
+    <code className={`rounded bg-muted px-1.5 py-0.5 text-sm font-mono ${className ?? ''}`}>
+      {children}
+    </code>
   ),
-  pre: ({ children }: PropsWithChildren) => (
-    <pre className="rounded-lg bg-muted p-4 overflow-x-auto text-sm font-mono mb-4">{children}</pre>
-  ),
+  pre: ({ children }: PropsWithChildren) => {
+    // ``` mermaid blocks: extract code from nested <code className="language-mermaid"> → render client component
+    const child = children as ReactElement<{ className?: string; children?: string }> | undefined;
+    const childClassName = child?.props?.className ?? '';
+    if (childClassName.includes('language-mermaid')) {
+      const code = String(child?.props?.children ?? '').trim();
+      return <MermaidDiagram code={code} />;
+    }
+    return (
+      <pre className="rounded-lg bg-muted p-4 overflow-x-auto text-sm font-mono mb-4">
+        {children}
+      </pre>
+    );
+  },
   blockquote: ({ children }: PropsWithChildren) => (
     <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground my-4">
       {children}
