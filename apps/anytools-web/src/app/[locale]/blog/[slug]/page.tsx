@@ -1,9 +1,11 @@
 import { AdSlot } from '@/components/ad-slot';
+import { BlogAuthorBio } from '@/components/blog-author-bio';
+import { BlogFtcDisclosure } from '@/components/blog-ftc-disclosure';
 import { BlogHero } from '@/components/blog-hero';
 import { MdxContent } from '@/components/mdx-content';
 import { routing } from '@/i18n/routing';
 import { BLOG_SLUGS, loadBlog } from '@/lib/load-blog-content';
-import { jsonLdSafe } from '@/lib/schema';
+import { faqSchema, howToSchema, jsonLdSafe } from '@/lib/schema';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -64,6 +66,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
   if (!blog) notFound();
 
   const url = `${SITE_URL}/${locale}/blog/${slug}`;
+  const author = blog.data.author;
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -75,6 +78,19 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
     image: blog.data.heroImage?.url,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     articleSection: blog.data.category,
+    ...(author && {
+      author: {
+        '@type': 'Person',
+        name: author.name,
+        url: author.url ? `${SITE_URL}${author.url}` : `${SITE_URL}/about`,
+        ...(author.credentials && { description: author.credentials }),
+      },
+    }),
+    publisher: {
+      '@type': 'Organization',
+      name: 'AnyTools',
+      url: SITE_URL,
+    },
   };
 
   return (
@@ -84,6 +100,20 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(articleSchema) }}
       />
+      {blog.data.howTo && blog.data.howTo.steps.length > 0 && (
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(howToSchema(blog.data.howTo)) }}
+        />
+      )}
+      {blog.data.faq && blog.data.faq.length > 0 && (
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(faqSchema(blog.data.faq)) }}
+        />
+      )}
       <article className="prose prose-neutral dark:prose-invert max-w-none">
         <header className="mb-6 not-prose">
           {blog.data.category && (
@@ -100,8 +130,10 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
             {blog.data.readingTime && <>{blog.data.readingTime} min read</>}
           </p>
         </header>
+        {blog.data.disclosureType && <BlogFtcDisclosure type={blog.data.disclosureType} />}
         {blog.data.heroImage && <BlogHero image={blog.data.heroImage} />}
         <MdxContent source={blog.source} />
+        {author && <BlogAuthorBio author={author} />}
       </article>
       <div className="my-8">
         <AdSlot slotId="blog-end" format="auto" />

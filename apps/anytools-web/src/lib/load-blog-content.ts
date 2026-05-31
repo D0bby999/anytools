@@ -18,6 +18,20 @@ export type BlogHeroImage = {
   credit: UnsplashCredit;
 };
 
+export type BlogAuthor = {
+  name: string;
+  credentials?: string;
+  bio?: string;
+  url?: string;
+  avatarUrl?: string;
+};
+
+export type BlogDisclosureType = 'affiliate' | 'ymyl' | 'both';
+
+export type BlogHowToStep = { name: string; text: string };
+
+export type BlogFaqItem = { q: string; a: string };
+
 export type BlogFrontmatter = {
   title: string;
   slug?: string;
@@ -29,6 +43,10 @@ export type BlogFrontmatter = {
   updatedAt?: string;
   toolsLinked?: string[];
   readingTime?: number;
+  author?: BlogAuthor;
+  disclosureType?: BlogDisclosureType;
+  howTo?: { name: string; steps: BlogHowToStep[] };
+  faq?: BlogFaqItem[];
 };
 
 export type BlogContent = {
