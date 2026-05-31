@@ -15,7 +15,8 @@
     "check": "biome check --write .",
     "test": "pnpm -r test",
     "clean": "pnpm -r exec rm -rf .next dist build node_modules && rm -rf node_modules",
-    "blog:new": "node scripts/blog-new.mjs"
+    "blog:new": "node scripts/blog-new.mjs",
+    "sync:prod": "bash scripts/sync-blogs-prod.sh"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1057.0",
