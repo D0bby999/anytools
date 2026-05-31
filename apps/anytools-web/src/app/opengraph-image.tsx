@@ -25,17 +25,19 @@ export default function Image() {
           style={{
             width: 56,
             height: 56,
-            background: '#2563EB',
+            background: '#047857',
             borderRadius: 12,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#FFFFFF',
-            fontSize: 36,
-            fontWeight: 900,
           }}
         >
-          A
+          {/* Morphing-module glyph (white cells on emerald box) */}
+          <svg width="36" height="36" viewBox="0 0 128 128" aria-hidden="true">
+            <rect x="20" y="44" width="44" height="44" rx="5" fill="#FFFFFF" opacity="0.5" />
+            <rect x="34" y="34" width="44" height="44" rx="14" fill="#FFFFFF" opacity="0.78" />
+            <rect x="48" y="24" width="44" height="44" rx="22" fill="#FFFFFF" />
+          </svg>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: '#1E293B' }}>AnyTools</div>
       </div>
@@ -55,7 +57,7 @@ export default function Image() {
           <br />
           your time, your data,
           <br />
-          your <span style={{ color: '#2563EB' }}>language.</span>
+          your <span style={{ color: '#047857' }}>language.</span>
         </div>
       </div>
 

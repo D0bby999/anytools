@@ -15,12 +15,13 @@ const CLUSTER_ACCENT: Record<string, string> = {
   lifestyle: '#B45309',
   design: '#7C3AED',
 };
-const DEFAULT_ACCENT = '#2563EB';
+const DEFAULT_ACCENT = '#047857'; // emerald-700 brand accent (AA on light OG bg)
 
 export default async function Image({ params }: { params: PageParams }) {
   const { locale, cluster } = params;
   const messages = (await getMessages({ locale })) as Record<string, unknown>;
-  const cl = (messages.clusterLanding as Record<string, { tagline?: string; intro?: string }>) ?? {};
+  const cl =
+    (messages.clusterLanding as Record<string, { tagline?: string; intro?: string }>) ?? {};
   const cn = (messages.tools as { cluster?: Record<string, string> })?.cluster ?? {};
 
   const title = cn[cluster] ?? cluster;
@@ -59,12 +60,14 @@ export default async function Image({ params }: { params: PageParams }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF',
-              fontSize: 30,
-              fontWeight: 900,
             }}
           >
-            A
+            {/* Morphing-module glyph (white cells on accent box) */}
+            <svg width="30" height="30" viewBox="0 0 128 128" aria-hidden="true">
+              <rect x="20" y="44" width="44" height="44" rx="5" fill="#FFFFFF" opacity="0.5" />
+              <rect x="34" y="34" width="44" height="44" rx="14" fill="#FFFFFF" opacity="0.78" />
+              <rect x="48" y="24" width="44" height="44" rx="22" fill="#FFFFFF" />
+            </svg>
           </div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#1E293B' }}>AnyTools</div>
         </div>

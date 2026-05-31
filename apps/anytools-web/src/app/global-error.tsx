@@ -21,7 +21,7 @@ export default function GlobalError({
             type="button"
             onClick={reset}
             style={{
-              background: '#2563eb',
+              background: '#047857',
               color: '#fff',
               border: 'none',
               padding: '0.625rem 1.25rem',

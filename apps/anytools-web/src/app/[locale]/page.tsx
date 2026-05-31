@@ -2,7 +2,7 @@ import { HeroDemo } from '@/components/hero-demo';
 import { NewsletterSignup } from '@/components/newsletter-signup';
 import { RecentlyUsedTools } from '@/components/recently-used-tools';
 import { ToolCatalog } from '@/components/tool-catalog';
-import { routing, Link } from '@/i18n/routing';
+import { Link, routing } from '@/i18n/routing';
 import { METADATA_BASE } from '@/lib/site-url';
 import { toolMetas, toolMetasClient } from '@anytools/tools/meta';
 import { Badge, Button, Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
@@ -56,22 +56,27 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <main>
       {/* HERO */}
-      <section className="border-b">
-        <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20">
+      <section className="border-b relative overflow-hidden">
+        {/* Brand aurora — emerald glow backdrop (decorative, brand surface) */}
+        <div
+          aria-hidden="true"
+          className="brand-aurora pointer-events-none absolute -top-28 right-[-80px] h-[440px] w-[560px]"
+        />
+        <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
             <div className="lg:col-span-3 space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 text-accent px-3 py-1 text-xs font-medium">
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>{t('landing.eyebrow')}</span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1]">
+              <h1 className="text-brand-gradient text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] pb-1">
                 {t('landing.heroTitle')}
               </h1>
               <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
                 {t('landing.heroSubtitle')}
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button size="lg" asChild>
+                <Button size="lg" asChild className="brand-glow">
                   <a href="#catalog" className="inline-flex items-center gap-2">
                     {t('landing.ctaPrimary')}
                     <ArrowRight className="h-4 w-4" />

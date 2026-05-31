@@ -60,17 +60,19 @@ export default async function Image({ params }: { params: PageParams }) {
             style={{
               width: 48,
               height: 48,
-              background: '#2563EB',
+              background: '#047857',
               borderRadius: 10,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF',
-              fontSize: 30,
-              fontWeight: 900,
             }}
           >
-            A
+            {/* Morphing-module glyph (white cells on emerald box) */}
+            <svg width="30" height="30" viewBox="0 0 128 128" aria-hidden="true">
+              <rect x="20" y="44" width="44" height="44" rx="5" fill="#FFFFFF" opacity="0.5" />
+              <rect x="34" y="34" width="44" height="44" rx="14" fill="#FFFFFF" opacity="0.78" />
+              <rect x="48" y="24" width="44" height="44" rx="22" fill="#FFFFFF" />
+            </svg>
           </div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#1E293B' }}>AnyTools</div>
         </div>
@@ -79,8 +81,8 @@ export default async function Image({ params }: { params: PageParams }) {
             display: 'flex',
             alignItems: 'center',
             padding: '8px 16px',
-            background: 'rgba(37, 99, 235, 0.1)',
-            color: '#2563EB',
+            background: 'rgba(4, 120, 87, 0.1)',
+            color: '#047857',
             borderRadius: 999,
             fontSize: 20,
             fontWeight: 600,
