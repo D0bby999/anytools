@@ -121,3 +121,6 @@ auth.db
 *.db-wal
 smoke-results.json
 smoke-results.json
+
+# But track repo-level skills that Claude Code maintains
+!/.claude/skills/
