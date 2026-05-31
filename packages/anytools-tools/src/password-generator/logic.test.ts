@@ -1,0 +1,81 @@
+import { describe, expect, it } from 'vitest';
+import { calculateStrength, generatePassword } from './logic';
+
+describe('generatePassword', () => {
+  it('produces requested length', () => {
+    const p = generatePassword({
+      length: 24,
+      lowercase: true,
+      uppercase: true,
+      numbers: true,
+      symbols: true,
+      excludeAmbiguous: false,
+    });
+    expect(p.length).toBe(24);
+  });
+
+  it('uses only the enabled charset', () => {
+    const p = generatePassword({
+      length: 50,
+      lowercase: false,
+      uppercase: true,
+      numbers: false,
+      symbols: false,
+      excludeAmbiguous: false,
+    });
+    expect(p).toMatch(/^[A-Z]+$/);
+  });
+
+  it('excludes ambiguous when requested', () => {
+    const p = generatePassword({
+      length: 200,
+      lowercase: true,
+      uppercase: true,
+      numbers: true,
+      symbols: false,
+      excludeAmbiguous: true,
+    });
+    expect(p).not.toMatch(/[0O1lIo]/);
+  });
+
+  it('throws when no charset enabled', () => {
+    expect(() =>
+      generatePassword({
+        length: 10,
+        lowercase: false,
+        uppercase: false,
+        numbers: false,
+        symbols: false,
+        excludeAmbiguous: false,
+      }),
+    ).toThrow(/character set/);
+  });
+
+  it('clamps length to safe bounds', () => {
+    const tiny = generatePassword({
+      length: 1,
+      lowercase: true,
+      uppercase: false,
+      numbers: false,
+      symbols: false,
+      excludeAmbiguous: false,
+    });
+    expect(tiny.length).toBe(4);
+  });
+});
+
+describe('calculateStrength', () => {
+  it('classifies weak short password', () => {
+    const s = calculateStrength('abc');
+    expect(s.level).toBe('weak');
+  });
+  it('classifies strong long random', () => {
+    const s = calculateStrength('aB3!aB3!aB3!aB3!aB3!');
+    expect(['strong', 'excellent']).toContain(s.level);
+  });
+  it('reports crack time string', () => {
+    const s = calculateStrength('aB3!aB3!aB3!');
+    expect(typeof s.crackTimeLabel).toBe('string');
+    expect(s.crackTimeLabel.length).toBeGreaterThan(0);
+  });
+});

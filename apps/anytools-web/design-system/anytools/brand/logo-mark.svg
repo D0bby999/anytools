@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>AnyTools mark</title>
+  <defs>
+    <linearGradient id="atg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10B981"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <!-- Morphing module: 3 modular cells mid-transform, offset + reshaping -->
+  <rect x="22" y="42" width="46" height="46" rx="6"  fill="#10B981" opacity="0.45" transform="rotate(-8 45 65)"/>
+  <rect x="36" y="34" width="46" height="46" rx="13" fill="#10B981" opacity="0.7"  transform="rotate(4 59 57)"/>
+  <rect x="52" y="24" width="46" height="46" rx="23" fill="url(#atg)"/>
+</svg>

@@ -1,0 +1,222 @@
+{
+  "app": {
+    "name": "AnyTools",
+    "tagline": "Bộ công cụ lập trình đa ngôn ngữ, hoạt động offline"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "tools": "Công cụ",
+    "pricing": "Bảng giá",
+    "blog": "Blog",
+    "github": "GitHub",
+    "favorites": "Yêu thích"
+  },
+  "actions": {
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "search": "Tìm kiếm",
+    "clear": "Xóa",
+    "download": "Tải xuống",
+    "tryExample": "Thử ví dụ"
+  },
+  "errors": {
+    "generic": "Có lỗi xảy ra",
+    "invalidInput": "Dữ liệu không hợp lệ"
+  },
+  "footer": {
+    "rights": "Bảo lưu mọi quyền",
+    "privacy": "Quyền riêng tư",
+    "terms": "Điều khoản",
+    "affiliateDisclosure": "Một số liên kết là affiliate. Chúng tôi nhận hoa hồng nhỏ mà không tốn thêm phí của bạn.",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ"
+  },
+  "cmdk": {
+    "placeholder": "Tìm công cụ…",
+    "recent": "Gần đây",
+    "all": "Tất cả công cụ",
+    "empty": "Không tìm thấy kết quả."
+  },
+  "landing": {
+    "heroTitle": "Tool miễn phí tôn trọng thời gian, dữ liệu, và ngôn ngữ của bạn.",
+    "heroSubtitle": "BMI, chia hóa đơn, JSON, regex, color contrast, đổi đơn vị và 35+ tool nữa. Có EN/VN/ES/PT. Không ads*, không tracking, chạy ngay trong browser.",
+    "ctaWaitlist": "Đăng ký newsletter",
+    "ctaGithub": "Star trên GitHub",
+    "eyebrow": "42 tool · 4 ngôn ngữ · Miễn phí mãi mãi",
+    "heroSubtitleNote": "*ads opt-in qua banner consent",
+    "ctaPrimary": "Xem tất cả tool",
+    "ctaSecondary": "Star trên GitHub",
+    "badgeMit": "MIT license",
+    "badgeOffline": "PWA offline",
+    "badge4Langs": "4 ngôn ngữ",
+    "badgePrivate": "Không tracking",
+    "popularHeading": "Tool phổ biến nhất",
+    "valuePropsHeading": "Tại sao AnyTools",
+    "valueProp1Title": "Đa ngôn ngữ",
+    "valueProp1Body": "Tutorial và UI bằng Anh, Việt, Tây Ban Nha, Bồ Đào Nha — content thật sự bản địa hóa, không chỉ dịch UI.",
+    "valueProp2Title": "100% cục bộ",
+    "valueProp2Body": "Dữ liệu của bạn ở trong browser. JSON paste, file upload, password tạo — không bao giờ rời thiết bị.",
+    "valueProp3Title": "Mã nguồn mở",
+    "valueProp3Body": "MIT license. Self-host, fork, audit. Chúng tôi không có gì giấu và không bán gì về bạn.",
+    "metaTitle": "AnyTools — 68 công cụ tính toán & tiện ích miễn phí",
+    "metaDescription": "BMI, vay ngân hàng, chia hóa đơn, JSON formatter, color contrast, tỉ giá, phần trăm và 60+ công cụ. Miễn phí, không đăng ký, chạy ngay trên trình duyệt. EN, VI, ES, PT."
+  },
+  "consent": {
+    "title": "Đồng ý cookie",
+    "message": "Chúng tôi dùng cookie cho analytics và (nếu bạn đồng ý) quảng cáo. Input của tool xử lý cục bộ, không gửi đi.",
+    "learnMore": "Xem chính sách bảo mật",
+    "accept": "Đồng ý",
+    "deny": "Từ chối"
+  },
+  "newsletter": {
+    "title": "Nhận cập nhật",
+    "subtitle": "Tool mới, hướng dẫn sâu, và round-up dev chọn lọc. 1-2 lần/tháng. Không spam.",
+    "placeholder": "ban@example.com",
+    "subscribe": "Đăng ký",
+    "submitting": "Đang đăng ký…",
+    "success": "Đã đăng ký! Kiểm tra email để xác nhận.",
+    "error": "Đăng ký thất bại. Thử lại sau."
+  },
+  "auth": {
+    "signIn": "Đăng nhập",
+    "signUp": "Đăng ký",
+    "signOut": "Đăng xuất",
+    "signingIn": "Đang đăng nhập…",
+    "signingUp": "Đang đăng ký…",
+    "signingOut": "Đang đăng xuất…",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "name": "Tên",
+    "minChars": "tối thiểu {n} ký tự",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "signInFailed": "Đăng nhập thất bại. Kiểm tra lại email/mật khẩu.",
+    "signUpFailed": "Đăng ký thất bại. Thử lại.",
+    "dashboard": "Bảng điều khiển",
+    "welcome": "Chào, {name}",
+    "account": "Tài khoản",
+    "memberSince": "Thành viên từ",
+    "plan": "Gói",
+    "planFreeDescription": "Truy cập không giới hạn 34+ tool. Tùy chọn nâng cấp sắp có."
+  },
+  "catalog": {
+    "searchPlaceholder": "Tìm trong {count} tool...",
+    "sortLabel": "Sắp xếp theo",
+    "sortPopular": "Phổ biến",
+    "sortAz": "A → Z",
+    "sortRecent": "Mới nhất",
+    "clusterAll": "Tất cả",
+    "cluster": {
+      "encoding": "Encoding",
+      "formatters": "Formatter",
+      "generators": "Generator",
+      "converters": "Converter",
+      "text-regex": "Text & Regex",
+      "time-date": "Thời gian",
+      "web3": "Web3",
+      "marketing": "Marketing",
+      "ecommerce-vn": "E-commerce VN",
+      "finance": "Tài chính",
+      "health": "Sức khỏe",
+      "lifestyle": "Đời sống",
+      "design": "Thiết kế"
+    },
+    "emptyTitle": "Không tìm thấy tool",
+    "emptyBody": "Thử từ khoá khác hoặc xoá filter.",
+    "showing": "Hiển thị {visible}/{total} tool"
+  },
+  "toolbar": {
+    "tool": "Tool",
+    "tutorial": "Hướng dẫn",
+    "faq": "FAQ",
+    "share": "Chia sẻ",
+    "linkCopied": "Đã copy link",
+    "addFavorite": "Thêm vào yêu thích",
+    "removeFavorite": "Bỏ khỏi yêu thích"
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn tìm không tồn tại hoặc đã di chuyển.",
+    "ctaHome": "Về trang chủ",
+    "popularHeading": "Hoặc thử các tool phổ biến:"
+  },
+  "error": {
+    "title": "Có lỗi xảy ra",
+    "description": "Lỗi không mong muốn. Chúng tôi đã được thông báo.",
+    "retry": "Thử lại",
+    "ctaHome": "Về trang chủ",
+    "errorRef": "Mã lỗi"
+  },
+  "dashboardPanel": {
+    "favoritesTitle": "Yêu thích",
+    "favoritesEmptyTitle": "Chưa có yêu thích",
+    "favoritesEmptyBody": "Bấm icon ⭐ trên trang tool để lưu vào đây.",
+    "recentTitle": "Dùng gần đây",
+    "recentEmptyTitle": "Chưa có tool nào",
+    "recentEmptyBody": "Tool bạn ghé thăm sẽ hiện ở đây.",
+    "clearHistory": "Xoá",
+    "browseTools": "Xem tools"
+  },
+  "favoritesPage": {
+    "title": "Yêu thích",
+    "subtitle": "Tool bạn đã star và dùng gần đây. Lưu cục bộ trong browser — không cần tài khoản.",
+    "storedLocally": "Mọi dữ liệu ở trên thiết bị này. Xoá browser data để reset."
+  },
+  "clusterLanding": {
+    "toolCount": "{count, plural, one {# tool} other {# tools}}",
+    "comingSoon": "Sắp ra mắt thêm tool — kiểm tra lại hoặc theo dõi GitHub repo.",
+    "browseAll": "Xem tất cả tool",
+    "encoding": {
+      "tagline": "Encoder/decoder cho các format hàng ngày",
+      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Paste vào, đọc kết quả, xong. Xử lý ngay trong browser — input không rời khỏi máy bạn."
+    },
+    "formatters": {
+      "tagline": "Pretty-print và minify trong một click",
+      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Mỗi formatter có preview side-by-side và tôn trọng indent preference của bạn."
+    },
+    "generators": {
+      "tagline": "Random data theo yêu cầu",
+      "intro": "UUID, password an toàn, hash, mock data, QR code, Lorem Ipsum. Tối ưu cho tốc độ với default sẵn sàng cho production."
+    },
+    "converters": {
+      "tagline": "Chuyển format không cần script",
+      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, image format. Option hợp lý nổi bật; flag long-tail ẩn bớt."
+    },
+    "text-regex": {
+      "tagline": "Find, match, transform — string thật đơn giản",
+      "intro": "Regex tester với capture group live, text case converter, slugify, diff checker. Click-to-explain regex để hiểu bạn vừa viết gì."
+    },
+    "time-date": {
+      "tagline": "Timezone, timestamp, cron không cần đoán",
+      "intro": "Unix timestamp converter, cron expression parser với next-runs, timezone converter cho team distributed. Cho những lúc 'khoan, là UTC à?'"
+    },
+    "web3": {
+      "tagline": "Web3 utilities cho builder",
+      "intro": "Wallet address checker (ENS, format, checksum), ETH ↔ Wei converter. Nhẹ, không cần connect wallet."
+    },
+    "marketing": {
+      "tagline": "Marketing toolkit",
+      "intro": "Utilities nhẹ cho SEO và campaign planning."
+    },
+    "ecommerce-vn": {
+      "tagline": "Helper e-commerce Việt Nam",
+      "intro": "Tool đặc thù cho ecosystem e-commerce Việt Nam."
+    },
+    "finance": {
+      "tagline": "Calculator tài chính miễn phí",
+      "intro": "Mortgage, loan, tip, percentage, lãi kép — xây dựng để bạn trả lời 'bao nhiêu?' trong vài giây. Không signup, không ads trên trang calc, kết quả lưu cục bộ. Chỉ để ước tính — kiểm chứng với chuyên gia cho quyết định lớn."
+    },
+    "health": {
+      "tagline": "Con số sức khỏe bạn thật sự hiểu",
+      "intro": "BMI, BMR, calorie target, body composition — công thức từ nghiên cứu khoa học, hiển thị metric + imperial song song. Chỉ để ước tính; tham vấn bác sĩ cho quyết định y tế."
+    },
+    "lifestyle": {
+      "tagline": "Tool hàng ngày tiết kiệm một lượt search",
+      "intro": "Tuổi, GPA, giấc ngủ, unit converter, percentage, đếm chữ, thời gian đọc — những thứ nhỏ bạn cần hàng ngày, ở một nơi, nhanh."
+    },
+    "design": {
+      "tagline": "Color tool cho designer và dev-adjacent",
+      "intro": "HEX ↔ RGB ↔ HSL converter, WCAG contrast checker, palette generator — xây dựng cho cả designer và content writer quan tâm đến accessibility."
+    }
+  }
+}

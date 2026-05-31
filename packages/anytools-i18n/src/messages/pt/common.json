@@ -1,0 +1,222 @@
+{
+  "app": {
+    "name": "AnyTools",
+    "tagline": "Ferramentas para desenvolvedores, multilíngue, offline-first"
+  },
+  "nav": {
+    "home": "Início",
+    "tools": "Ferramentas",
+    "pricing": "Preços",
+    "blog": "Blog",
+    "github": "GitHub",
+    "favorites": "Favoritos"
+  },
+  "actions": {
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "search": "Buscar",
+    "clear": "Limpar",
+    "download": "Baixar",
+    "tryExample": "Tentar exemplo"
+  },
+  "errors": {
+    "generic": "Algo deu errado",
+    "invalidInput": "Entrada inválida"
+  },
+  "footer": {
+    "rights": "Todos os direitos reservados",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "affiliateDisclosure": "Alguns links são de afiliados. Recebemos uma pequena comissão sem custo adicional para você.",
+    "about": "Sobre",
+    "contact": "Contato"
+  },
+  "cmdk": {
+    "placeholder": "Buscar ferramentas…",
+    "recent": "Recentes",
+    "all": "Todas as ferramentas",
+    "empty": "Sem resultados."
+  },
+  "landing": {
+    "heroTitle": "Ferramentas grátis que respeitam seu tempo, dados e idioma.",
+    "heroSubtitle": "IMC, dividir conta, JSON, regex, contraste de cor, conversor de unidades e 35+ mais. Em EN, VN, ES, PT. Sem anúncios*, sem tracking, roda no seu navegador.",
+    "ctaWaitlist": "Assine o boletim",
+    "ctaGithub": "Estrela no GitHub",
+    "eyebrow": "42 ferramentas · 4 idiomas · Grátis para sempre",
+    "heroSubtitleNote": "*anúncios opt-in via banner de consentimento",
+    "ctaPrimary": "Ver todas as ferramentas",
+    "ctaSecondary": "Estrela no GitHub",
+    "badgeMit": "Licença MIT",
+    "badgeOffline": "PWA offline",
+    "badge4Langs": "4 idiomas",
+    "badgePrivate": "Sem tracking",
+    "popularHeading": "Mais populares",
+    "valuePropsHeading": "Por que AnyTools",
+    "valueProp1Title": "Multi-idioma",
+    "valueProp1Body": "Tutoriais e UI em inglês, vietnamita, espanhol, português — conteúdo verdadeiramente localizado, não apenas UI traduzida.",
+    "valueProp2Title": "100% local",
+    "valueProp2Body": "Seus dados ficam no navegador. JSON que você cola, arquivos que envia, senhas que gera — nunca saem do seu dispositivo.",
+    "valueProp3Title": "Código aberto",
+    "valueProp3Body": "Licença MIT. Auto-hospede, faça fork, audite. Não temos nada a esconder e nada a vender sobre você.",
+    "metaTitle": "AnyTools — 68 calculadoras, conversores e utilitários grátis",
+    "metaDescription": "IMC, hipoteca, divisor de conta, formatador JSON, contraste de cor, câmbio, porcentagem e 60+ ferramentas. Grátis, sem cadastro, no seu navegador. EN, VI, ES, PT."
+  },
+  "consent": {
+    "title": "Consentimento de cookies",
+    "message": "Usamos cookies para análise e (com consentimento) publicidade. Suas entradas são processadas localmente e nunca enviadas.",
+    "learnMore": "Ver política de privacidade",
+    "accept": "Aceitar",
+    "deny": "Recusar"
+  },
+  "newsletter": {
+    "title": "Fique atualizado",
+    "subtitle": "Novas ferramentas, guias profundos e um resumo dev. Uma ou duas vezes por mês. Sem spam.",
+    "placeholder": "voce@exemplo.com",
+    "subscribe": "Inscrever",
+    "submitting": "Inscrevendo…",
+    "success": "Inscrito! Verifique seu email para confirmar.",
+    "error": "Falha na inscrição. Tente novamente."
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "signOut": "Sair",
+    "signingIn": "Entrando…",
+    "signingUp": "Cadastrando…",
+    "signingOut": "Saindo…",
+    "email": "Email",
+    "password": "Senha",
+    "name": "Nome",
+    "minChars": "mín {n} caracteres",
+    "noAccount": "Não tem conta?",
+    "hasAccount": "Já tem conta?",
+    "signInFailed": "Falha ao entrar. Verifique credenciais.",
+    "signUpFailed": "Falha ao cadastrar. Tente novamente.",
+    "dashboard": "Painel",
+    "welcome": "Olá, {name}",
+    "account": "Conta",
+    "memberSince": "Membro desde",
+    "plan": "Plano",
+    "planFreeDescription": "Acesso ilimitado a 34+ ferramentas. Opções pagas em breve."
+  },
+  "catalog": {
+    "searchPlaceholder": "Buscar em {count} ferramentas...",
+    "sortLabel": "Ordenar por",
+    "sortPopular": "Populares",
+    "sortAz": "A → Z",
+    "sortRecent": "Recentes",
+    "clusterAll": "Todas",
+    "cluster": {
+      "encoding": "Codificação",
+      "formatters": "Formatadores",
+      "generators": "Geradores",
+      "converters": "Conversores",
+      "text-regex": "Texto & Regex",
+      "time-date": "Tempo & Data",
+      "web3": "Web3",
+      "marketing": "Marketing",
+      "ecommerce-vn": "E-commerce VN",
+      "finance": "Finanças",
+      "health": "Saúde",
+      "lifestyle": "Estilo de vida",
+      "design": "Design"
+    },
+    "emptyTitle": "Nenhum resultado",
+    "emptyBody": "Tente outra busca ou remova os filtros.",
+    "showing": "Mostrando {visible} de {total}"
+  },
+  "toolbar": {
+    "tool": "Ferramenta",
+    "tutorial": "Como funciona",
+    "faq": "FAQ",
+    "share": "Compartilhar",
+    "linkCopied": "Link copiado",
+    "addFavorite": "Adicionar aos favoritos",
+    "removeFavorite": "Remover dos favoritos"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A página que você procura não existe ou foi movida.",
+    "ctaHome": "Voltar para o início",
+    "popularHeading": "Ou tente uma de nossas ferramentas populares:"
+  },
+  "error": {
+    "title": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. Fomos notificados.",
+    "retry": "Tentar novamente",
+    "ctaHome": "Voltar para o início",
+    "errorRef": "Referência do erro"
+  },
+  "dashboardPanel": {
+    "favoritesTitle": "Seus favoritos",
+    "favoritesEmptyTitle": "Sem favoritos",
+    "favoritesEmptyBody": "Clique na estrela em qualquer ferramenta para salvar aqui.",
+    "recentTitle": "Usadas recentemente",
+    "recentEmptyTitle": "Sem ferramentas recentes",
+    "recentEmptyBody": "Ferramentas que você visitar aparecerão aqui.",
+    "clearHistory": "Limpar",
+    "browseTools": "Explorar"
+  },
+  "favoritesPage": {
+    "title": "Seus favoritos",
+    "subtitle": "Ferramentas que você marcou e usou recentemente. Salvas localmente — sem conta.",
+    "storedLocally": "Todos os dados ficam neste dispositivo. Limpe dados do navegador para resetar."
+  },
+  "clusterLanding": {
+    "toolCount": "{count, plural, one {# ferramenta} other {# ferramentas}}",
+    "comingSoon": "Mais ferramentas em breve — volte ou siga o repo GitHub.",
+    "browseAll": "Ver todas as ferramentas",
+    "encoding": {
+      "tagline": "Codificadores e decodificadores para formatos do dia-a-dia",
+      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Cole, leia, pronto. Tudo no navegador — input nunca sai do seu dispositivo."
+    },
+    "formatters": {
+      "tagline": "Pretty-print e minify em um clique",
+      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Cada formatador mostra preview lado a lado e respeita suas preferências de indentação."
+    },
+    "generators": {
+      "tagline": "Dados aleatórios sob demanda",
+      "intro": "UUIDs, senhas seguras, hashes, mock data, QR, Lorem Ipsum. Otimizados para velocidade com defaults usáveis em produção."
+    },
+    "converters": {
+      "tagline": "Converter entre formatos sem scripts",
+      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, conversões de imagem. Opções sensatas visíveis; flags raras escondidas."
+    },
+    "text-regex": {
+      "tagline": "Find, match, transform — strings simples",
+      "intro": "Regex tester com capture groups ao vivo, conversor de maiúsculas, slugify, diff checker. Click-to-explain o regex para entender o que escreveu."
+    },
+    "time-date": {
+      "tagline": "Fusos horários, timestamps e cron sem adivinhação",
+      "intro": "Conversor Unix timestamp, parser de cron com próximas execuções, conversor de fusos para times distribuídos."
+    },
+    "web3": {
+      "tagline": "Utilidades Web3 para builders",
+      "intro": "Wallet address checker (ENS, formato, checksum), ETH ↔ Wei converter. Leve, sem conectar wallet."
+    },
+    "marketing": {
+      "tagline": "Toolkit de marketing",
+      "intro": "Utilidades leves para SEO e planejamento de campanhas."
+    },
+    "ecommerce-vn": {
+      "tagline": "Helpers e-commerce Vietnam",
+      "intro": "Ferramentas específicas para o ecossistema de e-commerce vietnamita."
+    },
+    "finance": {
+      "tagline": "Calculadoras grátis para decisões de dinheiro",
+      "intro": "Financiamento, empréstimo, gorjeta, porcentagem, juros compostos — para responder 'quanto?' em segundos. Sem signup, sem ads em pages de cálculo, resultados locais. Apenas estimativa — confirme com um profissional para decisões importantes."
+    },
+    "health": {
+      "tagline": "Números de bem-estar que você entende",
+      "intro": "IMC, BMR, calorias alvo, composição corporal — fórmulas de pesquisa clínica, métrico + imperial lado a lado. Apenas estimativa; consulte um médico para decisões clínicas."
+    },
+    "lifestyle": {
+      "tagline": "Ferramentas diárias que poupam uma busca",
+      "intro": "Idade, GPA, ciclo do sono, conversor de unidades, porcentagem, contador de palavras, tempo de leitura — o pequeno que você usa todo dia, em um só lugar, rápido."
+    },
+    "design": {
+      "tagline": "Ferramentas de cor para designers e dev-adjacent",
+      "intro": "HEX ↔ RGB ↔ HSL converter, checker de contraste WCAG, geradores de paleta — para pixel-pushers e content creators que se importam com acessibilidade."
+    }
+  }
+}

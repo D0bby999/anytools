@@ -1,0 +1,222 @@
+{
+  "app": {
+    "name": "AnyTools",
+    "tagline": "Multi-language dev tools, offline-first"
+  },
+  "nav": {
+    "home": "Home",
+    "tools": "Tools",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "github": "GitHub",
+    "favorites": "Favorites"
+  },
+  "actions": {
+    "copy": "Copy",
+    "copied": "Copied",
+    "search": "Search",
+    "clear": "Clear",
+    "download": "Download",
+    "tryExample": "Try example"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "invalidInput": "Invalid input"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "about": "About",
+    "contact": "Contact",
+    "affiliateDisclosure": "Some links are affiliate. We earn small commission at no extra cost."
+  },
+  "cmdk": {
+    "placeholder": "Search tools…",
+    "recent": "Recent",
+    "all": "All Tools",
+    "empty": "No results."
+  },
+  "landing": {
+    "heroTitle": "Free tools that respect your time, your data, your language.",
+    "heroSubtitle": "BMI, tip splitter, JSON, regex, color contrast, unit converter and 35+ more. Available in EN, VN, ES, PT. No ads*, no tracking, runs in your browser.",
+    "ctaWaitlist": "Join the newsletter",
+    "ctaGithub": "Star on GitHub",
+    "eyebrow": "42 tools · 4 languages · Free forever",
+    "heroSubtitleNote": "*ads opt-in via consent banner",
+    "ctaPrimary": "Browse all tools",
+    "ctaSecondary": "Star on GitHub",
+    "badgeMit": "MIT licensed",
+    "badgeOffline": "Offline-first PWA",
+    "badge4Langs": "4 languages",
+    "badgePrivate": "No tracking",
+    "popularHeading": "Try our most popular",
+    "valuePropsHeading": "Why AnyTools",
+    "valueProp1Title": "Multi-language",
+    "valueProp1Body": "Tutorials and UI in English, Vietnamese, Spanish, Portuguese — not just translated UI, real localized content.",
+    "valueProp2Title": "100% local",
+    "valueProp2Body": "Your data stays in your browser. JSON you paste, files you upload, passwords you generate — never leave your device.",
+    "valueProp3Title": "Open source",
+    "valueProp3Body": "MIT licensed. Self-host, fork, audit. We have nothing to hide and nothing to sell about you.",
+    "metaTitle": "AnyTools — 68 free calculators, converters & dev utilities",
+    "metaDescription": "BMI, mortgage, tip splitter, JSON formatter, color contrast, currency, percentage and 60+ more. Free, no signup, runs in your browser. Available in EN, VI, ES, PT."
+  },
+  "consent": {
+    "title": "Cookie consent",
+    "message": "We use cookies for analytics and (with consent) advertising. Tool inputs are processed locally and never sent.",
+    "learnMore": "Read privacy policy",
+    "accept": "Accept",
+    "deny": "Decline"
+  },
+  "newsletter": {
+    "title": "Stay updated",
+    "subtitle": "New tools, deep guides, and a curated dev round-up. Once or twice a month. No spam.",
+    "placeholder": "you@example.com",
+    "subscribe": "Subscribe",
+    "submitting": "Subscribing…",
+    "success": "Subscribed! Check your inbox to confirm.",
+    "error": "Subscription failed. Try again later."
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "signingIn": "Signing in…",
+    "signingUp": "Signing up…",
+    "signingOut": "Signing out…",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "minChars": "min {n} chars",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signInFailed": "Sign in failed. Check your credentials.",
+    "signUpFailed": "Sign up failed. Try again.",
+    "dashboard": "Dashboard",
+    "welcome": "Welcome, {name}",
+    "account": "Account",
+    "memberSince": "Member since",
+    "plan": "Plan",
+    "planFreeDescription": "Unlimited access to all 34+ tools. Upgrade options coming soon."
+  },
+  "catalog": {
+    "searchPlaceholder": "Search {count} tools...",
+    "sortLabel": "Sort tools by",
+    "sortPopular": "Popular",
+    "sortAz": "A → Z",
+    "sortRecent": "Recently added",
+    "clusterAll": "All",
+    "cluster": {
+      "encoding": "Encoding",
+      "formatters": "Formatters",
+      "generators": "Generators",
+      "converters": "Converters",
+      "text-regex": "Text & Regex",
+      "time-date": "Time & Date",
+      "web3": "Web3",
+      "marketing": "Marketing",
+      "ecommerce-vn": "VN E-commerce",
+      "finance": "Finance",
+      "health": "Health",
+      "lifestyle": "Lifestyle",
+      "design": "Design"
+    },
+    "emptyTitle": "No tools match",
+    "emptyBody": "Try a different search or clear the filter.",
+    "showing": "Showing {visible} of {total} tools"
+  },
+  "toolbar": {
+    "tool": "Tool",
+    "tutorial": "How it works",
+    "faq": "FAQ",
+    "share": "Share",
+    "linkCopied": "Link copied",
+    "addFavorite": "Add to favorites",
+    "removeFavorite": "Remove from favorites"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "ctaHome": "Back to home",
+    "popularHeading": "Or try one of our popular tools:"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. We've been notified.",
+    "retry": "Try again",
+    "ctaHome": "Back to home",
+    "errorRef": "Error reference"
+  },
+  "dashboardPanel": {
+    "favoritesTitle": "Your favorites",
+    "favoritesEmptyTitle": "No favorites yet",
+    "favoritesEmptyBody": "Click the star icon on any tool page to save it here.",
+    "recentTitle": "Recently used",
+    "recentEmptyTitle": "No recent tools",
+    "recentEmptyBody": "Tools you visit will appear here.",
+    "clearHistory": "Clear",
+    "browseTools": "Browse tools"
+  },
+  "favoritesPage": {
+    "title": "Your favorites",
+    "subtitle": "Tools you starred and recently used. Saved locally in your browser — no account needed.",
+    "storedLocally": "All data stays on this device. Clear browser data to reset."
+  },
+  "clusterLanding": {
+    "toolCount": "{count, plural, one {# tool} other {# tools}}",
+    "comingSoon": "More tools coming soon — check back or follow the GitHub repo.",
+    "browseAll": "Browse all tools",
+    "encoding": {
+      "tagline": "Encoders and decoders for everyday formats",
+      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Paste in, read out, done. All processing happens in your browser — input never leaves your machine."
+    },
+    "formatters": {
+      "tagline": "Pretty-print and minify in one click",
+      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Each formatter shows a side-by-side preview and respects your indentation preferences."
+    },
+    "generators": {
+      "tagline": "Random data on demand",
+      "intro": "UUIDs, secure passwords, hashes, mock data, QR codes, Lorem Ipsum. Tuned for speed and shipping defaults that match real-world usage."
+    },
+    "converters": {
+      "tagline": "Translate between formats without scripting",
+      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, image format conversions. Sensible options surfaced; long-tail flags tucked away."
+    },
+    "text-regex": {
+      "tagline": "Find, match, transform — strings made simple",
+      "intro": "Regex tester with live capture groups, text case converter, slugify, diff checker. Click-to-explain the regex so you understand what you wrote, not just that it ran."
+    },
+    "time-date": {
+      "tagline": "Time zones, timestamps, and cron without guesswork",
+      "intro": "Unix timestamp converter, cron expression parser with next-runs, time zone converter for distributed teams. Built for the 'wait, is that UTC?' moments."
+    },
+    "web3": {
+      "tagline": "Web3 utilities for builders",
+      "intro": "Wallet address checker (ENS, format, checksum), ETH ↔ Wei converter. Lightweight, no wallet connection required."
+    },
+    "marketing": {
+      "tagline": "Marketing toolkit",
+      "intro": "Lightweight utilities for SEO and campaign planning. Growing list."
+    },
+    "ecommerce-vn": {
+      "tagline": "Vietnam e-commerce helpers",
+      "intro": "Specialty tools for the Vietnamese e-commerce ecosystem."
+    },
+    "finance": {
+      "tagline": "Free calculators for money decisions",
+      "intro": "Mortgage, loan, tip, percentage, compound interest — built so you can answer 'how much?' in seconds. No signup, no ads on calc pages, results stay local. For estimation only — verify with a licensed professional for high-stakes decisions."
+    },
+    "health": {
+      "tagline": "Wellness numbers you actually understand",
+      "intro": "BMI, BMR, calorie targets, body composition — formulas from peer-reviewed research presented with metric + imperial side by side. For estimation only; consult a clinician for medical decisions."
+    },
+    "lifestyle": {
+      "tagline": "Everyday tools that save you a search",
+      "intro": "Age, GPA, sleep cycle, unit converter, percentage, word count, reading time — the small things you reach for daily, in one place, fast."
+    },
+    "design": {
+      "tagline": "Color tools for designers and dev-adjacent folk",
+      "intro": "HEX ↔ RGB ↔ HSL converter, WCAG contrast checker, palette generators — built for both pixel-pushers and content folks who care about accessibility."
+    }
+  }
+}

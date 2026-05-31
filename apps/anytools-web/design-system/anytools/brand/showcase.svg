@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <title>AnyTools brand showcase</title>
+  <defs>
+    <linearGradient id="scMark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10B981"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+    <radialGradient id="scGlow" cx="62%" cy="36%" r="55%">
+      <stop offset="0" stop-color="#10B981" stop-opacity="0.32"/>
+      <stop offset="60%" stop-color="#10B981" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0F172A"/>
+  <rect width="1200" height="630" fill="url(#scGlow)"/>
+
+  <!-- Logo mark (scaled 1.45 from 128-space) -->
+  <g transform="translate(330 234) scale(1.45)">
+    <rect x="22" y="42" width="46" height="46" rx="6"  fill="#10B981" opacity="0.45" transform="rotate(-8 45 65)"/>
+    <rect x="36" y="34" width="46" height="46" rx="13" fill="#10B981" opacity="0.7"  transform="rotate(4 59 57)"/>
+    <rect x="52" y="24" width="46" height="46" rx="23" fill="url(#scMark)"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="510" y="348" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="104" font-weight="800" fill="#F8FAFC" letter-spacing="-3">AnyTools</text>
+  <text x="512" y="408" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="30" font-weight="500" fill="#94A3B8" letter-spacing="0">Dev tools that respect your time, data, language.</text>
+</svg>

@@ -1,0 +1,22 @@
+{
+  "name": "@anytools/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "echo 'no build step'"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@anytools/config": "workspace:*",
+    "@types/react": "19.0.7",
+    "react": "19.0.0",
+    "typescript": "5.7.3"
+  }
+}

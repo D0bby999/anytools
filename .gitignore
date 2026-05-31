@@ -120,3 +120,4 @@ auth.db
 *.db-shm
 *.db-wal
 smoke-results.json
+smoke-results.json
