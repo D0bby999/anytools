@@ -26,7 +26,7 @@ export type BlogAuthor = {
   avatarUrl?: string;
 };
 
-export type BlogDisclosureType = 'affiliate' | 'ymyl' | 'both';
+export type BlogDisclosureType = 'affiliate' | 'amazon' | 'ymyl' | 'both';
 
 export type BlogHowToStep = { name: string; text: string };
 

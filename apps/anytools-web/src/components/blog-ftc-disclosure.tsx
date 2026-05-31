@@ -5,6 +5,10 @@ const COPY: Record<BlogDisclosureType, { title: string; body: string }> = {
     title: 'Affiliate disclosure',
     body: 'Some links below are affiliate links. I may earn a commission from qualifying purchases at no extra cost to you. I only recommend tools I have used or tested.',
   },
+  amazon: {
+    title: 'Amazon Associates disclosure',
+    body: 'As an Amazon Associate, I earn from qualifying purchases. The price you pay is the same; the small commission helps fund hands-on testing of every product reviewed here.',
+  },
   ymyl: {
     title: 'Not professional advice',
     body: 'This article is informational only. Calculators and tools give estimates; financial, medical, and legal decisions involve your specific circumstances. Consult a licensed professional before acting on anything you read here.',
