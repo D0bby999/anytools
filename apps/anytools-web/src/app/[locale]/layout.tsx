@@ -26,6 +26,9 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', 
 export const metadata: Metadata = {
   metadataBase: METADATA_BASE,
   manifest: '/manifest.json',
+  // Google Search Console verification: set GSC_VERIFICATION in Coolify env to the token
+  // from Search Console's "HTML tag" method → Next renders <meta name="google-site-verification">.
+  verification: process.env.GSC_VERIFICATION ? { google: process.env.GSC_VERIFICATION } : undefined,
   icons: {
     icon: [
       { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
