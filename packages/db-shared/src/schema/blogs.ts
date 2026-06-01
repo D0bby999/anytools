@@ -1,16 +1,18 @@
 import {
-  pgTable,
-  serial,
+  index,
   integer,
-  varchar,
-  text,
   jsonb,
+  pgTable,
+  primaryKey,
+  serial,
+  text,
   timestamp,
   uniqueIndex,
-  index,
-  primaryKey,
+  varchar,
 } from 'drizzle-orm/pg-core';
 import { affiliateProducts } from './affiliate-products';
+
+export type BlogStatus = 'draft' | 'published';
 
 export const blogs = pgTable(
   'blogs',
@@ -27,6 +29,8 @@ export const blogs = pgTable(
     wordCount: integer('word_count'),
     readingTime: integer('reading_time'),
     contentSha: varchar('content_sha', { length: 64 }),
+    // 'draft' = gate found blockers or not yet verified; 'published' = gate-clean
+    status: text('status').notNull().$type<BlogStatus>().default('draft'),
     publishedAt: timestamp('published_at', { withTimezone: true }),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     syncedAt: timestamp('synced_at', { withTimezone: true }).notNull().defaultNow(),
@@ -37,6 +41,8 @@ export const blogs = pgTable(
     index('blogs_category_idx').on(t.category),
     index('blogs_locale_idx').on(t.locale),
     index('blogs_published_idx').on(t.publishedAt),
+    // Render/sitemap queries: list published rows per locale ordered by date
+    index('blogs_locale_status_idx').on(t.locale, t.status, t.publishedAt),
   ],
 );
 

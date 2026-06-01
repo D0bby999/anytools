@@ -1,12 +1,4 @@
-import {
-  pgTable,
-  serial,
-  varchar,
-  text,
-  numeric,
-  timestamp,
-  index,
-} from 'drizzle-orm/pg-core';
+import { index, numeric, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const affiliateProducts = pgTable(
   'affiliate_products',

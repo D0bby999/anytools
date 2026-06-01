@@ -17,6 +17,8 @@
     "clean": "pnpm -r exec rm -rf .next dist build node_modules && rm -rf node_modules",
     "blog:new": "node scripts/blog-new.mjs",
     "blog:validate": "node scripts/blog-validate.mjs",
+    "blog:publish-check": "node scripts/blog-publish-check.mjs",
+    "blog:publish-db": "node scripts/blog-publish-db.mjs",
     "sync:prod": "bash scripts/sync-blogs-prod.sh"
   },
   "devDependencies": {

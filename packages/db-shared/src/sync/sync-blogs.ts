@@ -19,13 +19,14 @@
  * Idempotent: unchanged files (same content SHA) skip re-write.
  */
 
-import { readdir, readFile, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { and, eq } from 'drizzle-orm';
 import matter from 'gray-matter';
-import { eq, and } from 'drizzle-orm';
-import { getDb, closeDb } from '../client';
-import { blogs, blogProducts, affiliateProducts, type NewBlog } from '../schema';
+import { isDraftMdx } from '../blog-draft-markers';
+import { closeDb, getDb } from '../client';
+import { type NewBlog, affiliateProducts, blogProducts, blogs } from '../schema';
 
 const CONTENT_ROOT = resolve(
   process.cwd(),
@@ -100,6 +101,9 @@ async function syncOne(
     return 'unchanged';
   }
 
+  // Gate check: draft markers in the raw MDX → status='draft', else 'published'
+  const { draft } = isDraftMdx(raw);
+
   const record: NewBlog = {
     slug,
     locale,
@@ -112,6 +116,7 @@ async function syncOne(
     wordCount: wordCount(body),
     readingTime: data.readingTime ?? Math.max(1, Math.ceil(wordCount(body) / 250)),
     contentSha: sha,
+    status: draft ? 'draft' : 'published',
     publishedAt: readDate(data.published),
     updatedAt: readDate(data.updated) ?? new Date(),
     syncedAt: new Date(),
@@ -130,6 +135,7 @@ async function syncOne(
         wordCount: record.wordCount,
         readingTime: record.readingTime,
         contentSha: record.contentSha,
+        status: record.status,
         publishedAt: record.publishedAt,
         updatedAt: record.updatedAt,
         syncedAt: record.syncedAt,
@@ -184,9 +190,7 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log(
-    `[sync-blogs] inserted=${inserted} updated=${updated} unchanged=${unchanged}`,
-  );
+  console.log(`[sync-blogs] inserted=${inserted} updated=${updated} unchanged=${unchanged}`);
   await closeDb();
 }
 

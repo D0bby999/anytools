@@ -8,6 +8,13 @@
       "when": 1780121673516,
       "tag": "0000_nice_blockbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748736000000,
+      "tag": "0001_blog_status",
+      "breakpoints": true
     }
   ]
 }

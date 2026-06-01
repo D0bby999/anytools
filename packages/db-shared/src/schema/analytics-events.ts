@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  bigserial,
-  varchar,
-  jsonb,
-  timestamp,
-  index,
-} from 'drizzle-orm/pg-core';
+import { bigserial, index, jsonb, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const analyticsEvents = pgTable(
   'analytics_events',

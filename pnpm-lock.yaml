@@ -135,6 +135,9 @@ importers:
       next:
         specifier: 15.1.4
         version: 15.1.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next-intl:
+        specifier: 3.26.3
+        version: 3.26.3(next@15.1.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       next-mdx-remote:
         specifier: 5.0.0
         version: 5.0.0(@types/react@19.0.7)(react@19.0.0)
