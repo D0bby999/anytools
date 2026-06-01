@@ -44,6 +44,9 @@ yarn.lock
 .env*
 !.env.example
 
+# service-account keys / local secrets (GSC key, etc.) — never commit
+.secrets/
+
 # vercel
 .vercel
 
