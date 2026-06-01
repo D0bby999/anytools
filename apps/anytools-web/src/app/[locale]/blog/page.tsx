@@ -1,7 +1,7 @@
 import { BlogCard } from '@/components/blog-card';
+import { routing } from '@/i18n/routing';
 import { BLOG_CATEGORIES, listBlogs } from '@/lib/load-blog-content';
 import { METADATA_BASE } from '@/lib/site-url';
-import { routing } from '@/i18n/routing';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
