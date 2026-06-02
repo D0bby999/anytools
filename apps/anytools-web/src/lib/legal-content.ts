@@ -52,7 +52,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Your rights',
         body: [
-          'You can request a copy of any data we hold about you, request correction, or request deletion by emailing hello@anytools.world. We respond within 30 days. EU users have additional rights under GDPR; Vietnamese users under PDPA; California residents under CCPA.',
+          'You can request a copy of any data we hold about you, request correction, or request deletion by emailing chaudai621@gmail.com. We respond within 30 days. EU users have additional rights under GDPR; Vietnamese users under PDPA; California residents under CCPA.',
         ],
       },
       {
@@ -70,7 +70,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Contact',
         body: [
-          'Email: hello@anytools.world. We aim to respond within two business days.',
+          'Email: chaudai621@gmail.com. We aim to respond within two business days.',
           'AnyTools is operated by Cassau, LLC, a Delaware limited liability company. Registered agent: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA.',
         ],
       },
@@ -119,7 +119,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Quyền của bạn',
         body: [
-          'Bạn có thể yêu cầu bản sao dữ liệu chúng tôi có về bạn, yêu cầu chỉnh sửa, hoặc yêu cầu xóa qua email hello@anytools.world. Chúng tôi phản hồi trong 30 ngày. Người dùng EU có thêm quyền theo GDPR; Việt Nam theo PDPA; California theo CCPA.',
+          'Bạn có thể yêu cầu bản sao dữ liệu chúng tôi có về bạn, yêu cầu chỉnh sửa, hoặc yêu cầu xóa qua email chaudai621@gmail.com. Chúng tôi phản hồi trong 30 ngày. Người dùng EU có thêm quyền theo GDPR; Việt Nam theo PDPA; California theo CCPA.',
         ],
       },
       {
@@ -136,7 +136,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Liên hệ',
-        body: ['Email: hello@anytools.world. Phản hồi trong 2 ngày làm việc.'],
+        body: ['Email: chaudai621@gmail.com. Phản hồi trong 2 ngày làm việc.'],
       },
     ],
   },
@@ -183,7 +183,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Tus derechos',
         body: [
-          'Puedes pedir copia de los datos que tenemos sobre ti, solicitar corrección o solicitar borrado escribiendo a hello@anytools.world. Respondemos en 30 días. Usuarios de la UE tienen derechos adicionales bajo el RGPD; residentes de California bajo CCPA.',
+          'Puedes pedir copia de los datos que tenemos sobre ti, solicitar corrección o solicitar borrado escribiendo a chaudai621@gmail.com. Respondemos en 30 días. Usuarios de la UE tienen derechos adicionales bajo el RGPD; residentes de California bajo CCPA.',
         ],
       },
       {
@@ -200,7 +200,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Contacto',
-        body: ['Email: hello@anytools.world. Respondemos en dos días laborables.'],
+        body: ['Email: chaudai621@gmail.com. Respondemos en dos días laborables.'],
       },
     ],
   },
@@ -247,7 +247,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Seus direitos',
         body: [
-          'Você pode pedir cópia dos dados que temos sobre você, solicitar correção ou exclusão escrevendo para hello@anytools.world. Respondemos em 30 dias. Usuários da UE têm direitos adicionais sob GDPR; usuários brasileiros sob LGPD.',
+          'Você pode pedir cópia dos dados que temos sobre você, solicitar correção ou exclusão escrevendo para chaudai621@gmail.com. Respondemos em 30 dias. Usuários da UE têm direitos adicionais sob GDPR; usuários brasileiros sob LGPD.',
         ],
       },
       {
@@ -264,7 +264,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Contato',
-        body: ['Email: hello@anytools.world. Respondemos em dois dias úteis.'],
+        body: ['Email: chaudai621@gmail.com. Respondemos em dois dias úteis.'],
       },
     ],
   },
@@ -329,7 +329,7 @@ const TERMS: Record<Locale, LegalPage> = {
       {
         heading: 'Contact',
         body: [
-          'Questions about these Terms? Email hello@anytools.world.',
+          'Questions about these Terms? Email chaudai621@gmail.com.',
           'AnyTools is operated by Cassau, LLC, a Delaware limited liability company (registered agent: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA). These Terms are governed by the laws of the State of Delaware, USA.',
         ],
       },
@@ -392,7 +392,7 @@ const TERMS: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Liên hệ',
-        body: ['Thắc mắc về Điều khoản? Email hello@anytools.world.'],
+        body: ['Thắc mắc về Điều khoản? Email chaudai621@gmail.com.'],
       },
     ],
   },
@@ -453,7 +453,7 @@ const TERMS: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Contacto',
-        body: ['¿Preguntas sobre estos Términos? Email hello@anytools.world.'],
+        body: ['¿Preguntas sobre estos Términos? Email chaudai621@gmail.com.'],
       },
     ],
   },
@@ -514,7 +514,7 @@ const TERMS: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Contato',
-        body: ['Perguntas sobre estes Termos? Email hello@anytools.world.'],
+        body: ['Perguntas sobre estes Termos? Email chaudai621@gmail.com.'],
       },
     ],
   },
@@ -558,7 +558,7 @@ const ABOUT: Record<Locale, LegalPage> = {
       {
         heading: 'Get in touch',
         body: [
-          'Have a tool request? Found a bug? Want to partner? Email hello@anytools.world or open an issue on GitHub. We read everything.',
+          'Have a tool request? Found a bug? Want to partner? Email chaudai621@gmail.com or open an issue on GitHub. We read everything.',
         ],
       },
     ],
@@ -600,7 +600,7 @@ const ABOUT: Record<Locale, LegalPage> = {
       {
         heading: 'Liên hệ',
         body: [
-          'Có yêu cầu tool? Tìm thấy bug? Muốn hợp tác? Email hello@anytools.world hoặc mở issue trên GitHub. Chúng tôi đọc hết.',
+          'Có yêu cầu tool? Tìm thấy bug? Muốn hợp tác? Email chaudai621@gmail.com hoặc mở issue trên GitHub. Chúng tôi đọc hết.',
         ],
       },
     ],
@@ -642,7 +642,7 @@ const ABOUT: Record<Locale, LegalPage> = {
       {
         heading: 'Contacto',
         body: [
-          '¿Solicitud de herramienta? ¿Bug? ¿Colaboración? Email hello@anytools.world o abre un issue en GitHub. Leemos todo.',
+          '¿Solicitud de herramienta? ¿Bug? ¿Colaboración? Email chaudai621@gmail.com o abre un issue en GitHub. Leemos todo.',
         ],
       },
     ],
@@ -684,7 +684,7 @@ const ABOUT: Record<Locale, LegalPage> = {
       {
         heading: 'Contato',
         body: [
-          'Solicitação de ferramenta? Bug? Parceria? Email hello@anytools.world ou abra uma issue no GitHub. Lemos tudo.',
+          'Solicitação de ferramenta? Bug? Parceria? Email chaudai621@gmail.com ou abra uma issue no GitHub. Lemos tudo.',
         ],
       },
     ],
@@ -699,7 +699,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Email',
         body: [
-          'For anything — feature requests, bug reports, partnership inquiries, press, security disclosures, or just to say hello — write to hello@anytools.world. We aim to respond within two business days.',
+          'For anything — feature requests, bug reports, partnership inquiries, press, security disclosures, or just to say hello — write to chaudai621@gmail.com. We aim to respond within two business days.',
         ],
       },
       {
@@ -717,7 +717,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Press / Sponsorship',
         body: [
-          'For press inquiries, sponsored placements, or partnership discussions, email hello@anytools.world with "Press" or "Partnership" in the subject line.',
+          'For press inquiries, sponsored placements, or partnership discussions, email chaudai621@gmail.com with "Press" or "Partnership" in the subject line.',
         ],
       },
     ],
@@ -729,7 +729,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Email',
         body: [
-          'Cho mọi thứ — yêu cầu tính năng, báo lỗi, hợp tác, báo chí, công bố lỗ hổng bảo mật, hay chỉ chào hỏi — viết về hello@anytools.world. Chúng tôi cố gắng phản hồi trong 2 ngày làm việc.',
+          'Cho mọi thứ — yêu cầu tính năng, báo lỗi, hợp tác, báo chí, công bố lỗ hổng bảo mật, hay chỉ chào hỏi — viết về chaudai621@gmail.com. Chúng tôi cố gắng phản hồi trong 2 ngày làm việc.',
         ],
       },
       {
@@ -747,7 +747,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Báo chí / Tài trợ',
         body: [
-          'Cho báo chí, sponsored placement, hoặc thảo luận hợp tác, email hello@anytools.world với "Press" hoặc "Partnership" trong subject.',
+          'Cho báo chí, sponsored placement, hoặc thảo luận hợp tác, email chaudai621@gmail.com với "Press" hoặc "Partnership" trong subject.',
         ],
       },
     ],
@@ -759,7 +759,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Email',
         body: [
-          'Para cualquier cosa — solicitudes de funciones, reportes de bugs, consultas de colaboración, prensa, divulgaciones de seguridad o solo saludar — escribe a hello@anytools.world. Buscamos responder en dos días laborables.',
+          'Para cualquier cosa — solicitudes de funciones, reportes de bugs, consultas de colaboración, prensa, divulgaciones de seguridad o solo saludar — escribe a chaudai621@gmail.com. Buscamos responder en dos días laborables.',
         ],
       },
       {
@@ -777,7 +777,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Prensa / Patrocinio',
         body: [
-          'Para consultas de prensa, ubicaciones patrocinadas o conversaciones de colaboración, email hello@anytools.world con "Press" o "Partnership" en el asunto.',
+          'Para consultas de prensa, ubicaciones patrocinadas o conversaciones de colaboración, email chaudai621@gmail.com con "Press" o "Partnership" en el asunto.',
         ],
       },
     ],
@@ -789,7 +789,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Email',
         body: [
-          'Para qualquer coisa — solicitações de recursos, relatórios de bugs, consultas de parceria, imprensa, divulgações de segurança ou apenas dizer olá — escreva para hello@anytools.world. Buscamos responder em dois dias úteis.',
+          'Para qualquer coisa — solicitações de recursos, relatórios de bugs, consultas de parceria, imprensa, divulgações de segurança ou apenas dizer olá — escreva para chaudai621@gmail.com. Buscamos responder em dois dias úteis.',
         ],
       },
       {
@@ -807,7 +807,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'Imprensa / Patrocínio',
         body: [
-          'Para consultas de imprensa, posicionamentos patrocinados ou conversas de parceria, email hello@anytools.world com "Press" ou "Partnership" no assunto.',
+          'Para consultas de imprensa, posicionamentos patrocinados ou conversas de parceria, email chaudai621@gmail.com com "Press" ou "Partnership" no assunto.',
         ],
       },
     ],
