@@ -23,7 +23,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'What we collect',
         body: [
-          'Aggregate, anonymized analytics through Plausible Analytics: page views, referrer, country (from IP), device type. No personally identifiable information, no cookies, no cross-site tracking. You can opt out at any time via our cookie consent banner.',
+          'Aggregate, anonymized analytics through Umami Analytics: page views, referrer, country (from IP), device type. No personally identifiable information, no cookies, no cross-site tracking. You can opt out at any time via our cookie consent banner.',
           'If you join the waitlist or newsletter, we collect the email address you provide. Used only to send you product updates. Stored at our email provider (Resend / Loops). You can unsubscribe from any email or request deletion at any time.',
           'If you submit a contact form or report a bug, we collect what you write so we can respond.',
         ],
@@ -46,7 +46,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Third parties',
         body: [
-          'Hosting: Vercel (US/EU). Analytics: Plausible (EU). Email: Resend / Loops (US). Ads (if you consent): Google AdSense. CDN: Cloudflare. Each operates under its own privacy policy.',
+          'Hosting: Vercel (US/EU). Analytics: Umami (self-hosted, EU). Email: Resend / Loops (US). Ads (if you consent): Google AdSense. CDN: Cloudflare. Each operates under its own privacy policy.',
         ],
       },
       {
@@ -90,7 +90,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Chúng tôi thu thập gì',
         body: [
-          'Analytics aggregate, ẩn danh qua Plausible Analytics: lượt xem trang, referrer, quốc gia (từ IP), loại thiết bị. Không có thông tin cá nhân, không cookie, không tracking cross-site. Bạn có thể opt out bất cứ lúc nào qua banner cookie consent.',
+          'Analytics aggregate, ẩn danh qua Umami Analytics: lượt xem trang, referrer, quốc gia (từ IP), loại thiết bị. Không có thông tin cá nhân, không cookie, không tracking cross-site. Bạn có thể opt out bất cứ lúc nào qua banner cookie consent.',
           'Nếu bạn vào waitlist hoặc newsletter, chúng tôi thu thập email bạn cung cấp. Chỉ dùng để gửi cập nhật sản phẩm. Lưu tại nhà cung cấp email (Resend / Loops). Có thể unsubscribe từ bất kỳ email nào hoặc yêu cầu xóa bất cứ lúc nào.',
           'Nếu bạn gửi form liên hệ hoặc báo lỗi, chúng tôi lưu nội dung để phản hồi.',
         ],
@@ -113,7 +113,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Bên thứ ba',
         body: [
-          'Hosting: Vercel (US/EU). Analytics: Plausible (EU). Email: Resend / Loops (US). Ads (nếu bạn consent): Google AdSense. CDN: Cloudflare. Mỗi đơn vị vận hành theo chính sách riêng.',
+          'Hosting: Vercel (US/EU). Analytics: Umami (self-hosted, EU). Email: Resend / Loops (US). Ads (nếu bạn consent): Google AdSense. CDN: Cloudflare. Mỗi đơn vị vận hành theo chính sách riêng.',
         ],
       },
       {
@@ -154,7 +154,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Qué recopilamos',
         body: [
-          'Analítica agregada y anónima mediante Plausible Analytics: vistas de página, referente, país (por IP), tipo de dispositivo. Sin información personal identificable, sin cookies, sin seguimiento entre sitios. Puedes desactivarlo en cualquier momento desde el banner de consentimiento.',
+          'Analítica agregada y anónima mediante Umami Analytics: vistas de página, referente, país (por IP), tipo de dispositivo. Sin información personal identificable, sin cookies, sin seguimiento entre sitios. Puedes desactivarlo en cualquier momento desde el banner de consentimiento.',
           'Si te unes a la lista de espera o boletín, recopilamos el correo que proporcionas. Usado solo para enviarte actualizaciones del producto. Almacenado en el proveedor de email (Resend / Loops). Puedes darte de baja desde cualquier email o solicitar borrado en cualquier momento.',
           'Si envías un formulario de contacto o reportas un bug, guardamos lo que escribes para responderte.',
         ],
@@ -177,7 +177,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Terceros',
         body: [
-          'Hospedaje: Vercel (US/EU). Analítica: Plausible (EU). Email: Resend / Loops (US). Anuncios (si consientes): Google AdSense. CDN: Cloudflare. Cada uno opera bajo su propia política.',
+          'Hospedaje: Vercel (US/EU). Analítica: Umami (self-hosted, EU). Email: Resend / Loops (US). Anuncios (si consientes): Google AdSense. CDN: Cloudflare. Cada uno opera bajo su propia política.',
         ],
       },
       {
@@ -218,7 +218,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'O que coletamos',
         body: [
-          'Análise agregada e anônima via Plausible Analytics: visualizações de página, referência, país (por IP), tipo de dispositivo. Sem informações pessoais identificáveis, sem cookies, sem rastreamento entre sites. Você pode optar por sair a qualquer momento pelo banner de consentimento.',
+          'Análise agregada e anônima via Umami Analytics: visualizações de página, referência, país (por IP), tipo de dispositivo. Sem informações pessoais identificáveis, sem cookies, sem rastreamento entre sites. Você pode optar por sair a qualquer momento pelo banner de consentimento.',
           'Se entrar na lista de espera ou newsletter, coletamos o email que você fornece. Usado apenas para enviar atualizações do produto. Armazenado no provedor de email (Resend / Loops). Você pode cancelar inscrição em qualquer email ou pedir exclusão a qualquer momento.',
           'Se enviar formulário de contato ou reportar bug, guardamos o que escreve para responder.',
         ],
@@ -241,7 +241,7 @@ const PRIVACY: Record<Locale, LegalPage> = {
       {
         heading: 'Terceiros',
         body: [
-          'Hospedagem: Vercel (US/EU). Analítica: Plausible (EU). Email: Resend / Loops (US). Anúncios (se consentir): Google AdSense. CDN: Cloudflare. Cada um opera sob sua própria política.',
+          'Hospedagem: Vercel (US/EU). Analítica: Umami (self-hosted, EU). Email: Resend / Loops (US). Anúncios (se consentir): Google AdSense. CDN: Cloudflare. Cada um opera sob sua própria política.',
         ],
       },
       {

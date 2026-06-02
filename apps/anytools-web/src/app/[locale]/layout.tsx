@@ -3,7 +3,7 @@ import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { Footer } from '@/components/footer';
 import { InstallPrompt } from '@/components/install-prompt';
 import { MobileBottomNav } from '@/components/mobile-bottom-nav';
-import { PlausibleAnalytics } from '@/components/plausible-analytics';
+import { UmamiAnalytics } from '@/components/umami-analytics';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { routing } from '@/i18n/routing';
@@ -76,7 +76,7 @@ export default async function LocaleLayout({
             <CmdKPalette />
             <InstallPrompt />
             <CookieConsentBanner />
-            <PlausibleAnalytics />
+            <UmamiAnalytics />
             <MobileBottomNav />
           </NextIntlClientProvider>
         </ThemeProvider>
