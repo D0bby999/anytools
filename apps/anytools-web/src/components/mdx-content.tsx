@@ -1,5 +1,6 @@
 import type { MDXComponents } from 'mdx/types';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import type {
   AnchorHTMLAttributes,
   HTMLAttributes,
@@ -62,7 +63,9 @@ const components: MDXComponents = {
   ),
   hr: (_: HTMLAttributes<HTMLHRElement>) => <hr className="my-8 border-border" />,
   table: ({ children }: PropsWithChildren) => (
-    <table className="w-full border-collapse my-4 text-sm">{children}</table>
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
+      <table className="w-full border-collapse text-sm">{children}</table>
+    </div>
   ),
   th: ({ children }: PropsWithChildren) => (
     <th className="border border-border px-3 py-2 text-left bg-muted font-medium">{children}</th>
@@ -79,7 +82,14 @@ export interface MdxContentProps {
 export function MdxContent({ source }: MdxContentProps) {
   return (
     <div className="max-w-3xl">
-      <MDXRemote source={source} components={components} />
+      {/* remark-gfm enables GFM tables, strikethrough, autolinks, and task lists.
+          Without it next-mdx-remote parses pipe tables as literal text, so the
+          table/th/td overrides above never fire. */}
+      <MDXRemote
+        source={source}
+        components={components}
+        options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+      />
     </div>
   );
 }
