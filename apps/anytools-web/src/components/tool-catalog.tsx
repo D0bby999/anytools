@@ -205,7 +205,7 @@ export function ToolCatalog({ metas, locale }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {visible.map((m) => (
             <Link key={m.slug} href={`/${m.cluster}/${m.slug}` as never} className="block group">
-              <Card className="h-full hover:border-accent transition-colors duration-150">
+              <Card className="h-full transition-all duration-150 hover:border-accent hover:shadow-md">
                 <CardHeader>
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <CardTitle className="text-base group-hover:text-accent transition-colors duration-150">

@@ -1,4 +1,4 @@
-import { HeroDemo } from '@/components/hero-demo';
+import { HeroMiniTool } from '@/components/hero-mini-tool';
 import { NewsletterSignup } from '@/components/newsletter-signup';
 import { RecentlyUsedTools } from '@/components/recently-used-tools';
 import { ToolCatalog } from '@/components/tool-catalog';
@@ -57,16 +57,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           aria-hidden="true"
           className="brand-aurora pointer-events-none absolute -top-28 right-[-80px] h-[440px] w-[560px]"
         />
-        <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
-            <div className="lg:col-span-3 space-y-6">
-              <div className="inline-flex items-center rounded-full bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
+        <div className="container mx-auto max-w-6xl px-4 py-14 md:py-24 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12 items-center">
+            <div className="lg:col-span-3 space-y-7">
+              <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
                 {t('landing.eyebrow')}
               </div>
-              <h1 className="text-brand-gradient text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] pb-1">
+              <h1 className="text-brand-gradient text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] pb-1">
                 {t('landing.heroTitle')}
               </h1>
-              <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
                 {t('landing.heroSubtitle')}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -83,14 +84,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </a>
                 </Button>
               </div>
-              {/* Trust badges — text-only pills */}
-              <div className="flex flex-wrap gap-2 pt-4 text-xs text-muted-foreground">
+              {/* Trust badges — text-only pills, each marked with a brand dot */}
+              <div className="flex flex-wrap gap-2 pt-2 text-xs text-muted-foreground">
                 {(['badgeMit', 'badgeOffline', 'badge4Langs', 'badgePrivate'] as const).map(
                   (key) => (
                     <span
                       key={key}
-                      className="inline-flex items-center rounded-full border border-border bg-card px-2.5 py-1"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5"
                     >
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent/70" aria-hidden="true" />
                       {t(`landing.${key}`)}
                     </span>
                   ),
@@ -98,9 +100,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </div>
             </div>
 
-            {/* Demo */}
+            {/* Live, browser-only mini tool (replaces the old scripted demo) */}
             <div className="lg:col-span-2">
-              <HeroDemo />
+              <HeroMiniTool />
             </div>
           </div>
         </div>
@@ -109,15 +111,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* RECENTLY USED (history if present, otherwise curated POPULAR_FALLBACK) */}
       <RecentlyUsedTools metas={toolMetasClient} locale={locale} />
 
-      {/* VALUE PROPS — large number tags replace icon tiles */}
-      <section className="py-16 border-b">
+      {/* VALUE PROPS — numbered surface cards (large number tags replace icon tiles) */}
+      <section className="py-16 md:py-20 border-b">
         <div className="container mx-auto max-w-6xl px-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-10">{t('landing.valuePropsHeading')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {VALUE_PROPS.map((key, i) => (
-              <Card key={key} className="border-0 shadow-none bg-transparent">
-                <CardHeader className="px-0">
-                  <span className="text-brand-gradient font-bold text-3xl tabular-nums mb-3 inline-block">
+              <Card
+                key={key}
+                className="relative h-full overflow-hidden p-6 transition-colors duration-150 hover:border-accent/50"
+              >
+                {/* Top brand hairline — subtle depth without decorative icons */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand-from to-brand-to opacity-70"
+                />
+                <CardHeader className="p-0 space-y-3">
+                  <span className="text-brand-gradient font-bold text-4xl tabular-nums inline-block">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <CardTitle className="text-lg">{t(`landing.${key}Title`)}</CardTitle>
