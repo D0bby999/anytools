@@ -21,6 +21,7 @@
     "blog:publish-db": "node scripts/blog-publish-db.mjs",
     "blog:analytics": "node --env-file=.env.local scripts/blog-analytics.mjs",
     "blog:affiliate-audit": "node scripts/blog-affiliate-audit.mjs",
+    "blog:portfolio-status": "node scripts/blog-portfolio-status.mjs",
     "sync:prod": "bash scripts/sync-blogs-prod.sh"
   },
   "devDependencies": {
