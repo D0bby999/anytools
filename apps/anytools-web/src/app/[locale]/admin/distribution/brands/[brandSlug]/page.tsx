@@ -1,5 +1,3 @@
-'use server';
-
 import { requireAdmin } from '@/lib/auth-guards';
 import { type BrandRow, createDistributionApi } from '@/lib/distribution-api';
 import type { Metadata } from 'next';
