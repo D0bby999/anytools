@@ -69,7 +69,10 @@ const PRIVACY: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Contact',
-        body: ['Email: hello@anytools.world. We aim to respond within two business days.'],
+        body: [
+          'Email: hello@anytools.world. We aim to respond within two business days.',
+          'AnyTools is operated by Cassau, LLC, a Delaware limited liability company. Registered agent: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA.',
+        ],
       },
     ],
   },
@@ -325,7 +328,10 @@ const TERMS: Record<Locale, LegalPage> = {
       },
       {
         heading: 'Contact',
-        body: ['Questions about these Terms? Email hello@anytools.world.'],
+        body: [
+          'Questions about these Terms? Email hello@anytools.world.',
+          'AnyTools is operated by Cassau, LLC, a Delaware limited liability company (registered agent: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA). These Terms are governed by the laws of the State of Delaware, USA.',
+        ],
       },
     ],
   },
