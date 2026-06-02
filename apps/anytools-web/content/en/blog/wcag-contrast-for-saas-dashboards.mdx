@@ -25,11 +25,11 @@ author:
 
 ## Your dashboard is probably failing WCAG. Mine was too.
 
-I run a small audit on every SaaS dashboard I see. The pattern is consistent: marketing pages are usually fine. Settings pages are usually fine. The **dashboard itself** — the part the product actually does — fails WCAG contrast on at least one critical element about three-quarters of the time.
+I run a small audit on every SaaS dashboard I see. The pattern is consistent: marketing pages are usually fine. Settings pages are usually fine. The **dashboard itself** (the part the product actually does) fails WCAG contrast on at least one critical element about three-quarters of the time.
 
 The usual suspects: muted secondary metrics, chart axis labels, "ghost" buttons, success-green text on white, the disabled state of the primary button. These are exactly the elements designers iterate on most, and exactly the elements that get tweaked away from the safe brand palette during sprint pressure.
 
-This post is the 5-minute audit I run, the four contrast rules worth memorizing, and the tools — including a free [contrast ratio checker](/design/color-contrast) — that catch the failures before a customer files an accessibility complaint.
+This post covers the 5-minute audit I run, the four contrast rules worth memorizing, and the tools (including a free [contrast ratio checker](/design/color-contrast)) that catch the failures before a customer files an accessibility complaint.
 
 ## The contrast rules, distilled
 
@@ -47,17 +47,17 @@ Two practical implications most teams miss:
 
 1. **Sparklines and chart strokes are UI components, not text.** They fall under the 3:1 rule, but `#cbd5e1` (slate-300) on white is 1.65:1. Most dashboard charts I see fail this and nobody is enforcing it.
 
-2. **Disabled states are *exempt* from contrast requirements** under SC 1.4.3 — but only if they're genuinely non-interactive. If a "disabled" button still triggers a tooltip or shows an error on click, it's interactive, and the rules apply.
+2. **Disabled states are *exempt* from contrast requirements** under SC 1.4.3, but only if they're genuinely non-interactive. If a "disabled" button still triggers a tooltip or shows an error on click, it's interactive, and the rules apply.
 
 ## The 5 patterns that fail in every dashboard I audit
 
 After auditing dozens of SaaS UIs, these are the same five failures over and over:
 
-**1. Muted secondary metrics.** "Last updated 2 hours ago" in `#94a3b8` (slate-400) on a `#f8fafc` background. That's 3.1:1 — fails AA for body text. The fix is one shade darker (slate-500 is 4.6:1). Designers default to slate-400 because it "looks elegant"; it's also illegal.
+**1. Muted secondary metrics.** "Last updated 2 hours ago" in `#94a3b8` (slate-400) on a `#f8fafc` background. That's 3.1:1, which fails AA for body text. The fix is one shade darker (slate-500 is 4.6:1). Designers default to slate-400 because it "looks elegant"; it's also illegal.
 
 **2. Success/danger text on white.** `#22c55e` (Tailwind green-500) on white is 2.5:1. Catastrophic failure. Use green-700 (`#15803d`) at 4.7:1 minimum. This trips up almost every dashboard that uses a default color framework without tuning.
 
-**3. Chart axis labels.** Lines and small text in `#94a3b8` — fails. Charts need at least slate-500 (4.6:1) for labels and ≥ 3:1 contrast for the lines themselves.
+**3. Chart axis labels.** Lines and small text in `#94a3b8` fail. Charts need at least slate-500 (4.6:1) for labels and ≥ 3:1 contrast for the lines themselves.
 
 **4. Focus rings.** The trendy "no focus ring" reset breaks 2.4.7 (Focus Visible) entirely. If you've removed the default focus ring, you need a custom one with ≥ 3:1 contrast against the background. The A11y Project has a [thorough guide on focus visibility](https://www.a11yproject.com/posts/never-remove-css-outlines/) that's worth reading once.
 
@@ -71,7 +71,7 @@ This is the workflow I run on any dashboard before shipping a redesign. Five ste
 
 **2.** Take a screenshot. Drag it into a [contrast checker](/design/color-contrast). For each color pair you're worried about, sample the pixel values and check the ratio.
 
-**3.** Generate a candidate "safe" palette using a [color palette generator](/design/color-palette) — even if you don't use the output, the contrast ratios it shows for each pair are a quick sanity check against your current palette.
+**3.** Generate a candidate "safe" palette using a [color palette generator](/design/color-palette). Even if you don't use the output, the contrast ratios it shows for each pair are a quick sanity check against your current palette.
 
 **4.** Test with the OS-level **"Increase contrast"** accessibility setting on (macOS: System Settings → Accessibility → Display). About 8% of users have this turned on. If your "subtle" elements disappear entirely, you have a problem.
 
@@ -83,9 +83,9 @@ This audit is not a substitute for hiring an accessibility consultant for a real
 
 Three failure modes automated checkers do not catch:
 
-- **Data-dependent contrast.** If your "low" state is gray-300 and "high" is red-600, the contrast between them is fine — but the contrast of each *individually* against the background needs to be ≥ 3:1, and a checker won't know that "low" can occur on its own.
+- **Data-dependent contrast.** If your "low" state is gray-300 and "high" is red-600, the contrast between them is fine. The contrast of each *individually* against the background still needs to be ≥ 3:1, and a checker won't know that "low" can occur on its own.
 - **Composite contrast.** Stacked translucent overlays (the modern glassmorphism look) shift contrast based on what's behind them. Static checkers see only the foreground color.
-- **State changes that change context.** A status pill that turns from gray to amber doesn't change in contrast against the background — it changes in meaning. Color-blind users may miss the change entirely. The Smashing Magazine guide on [dashboard accessibility patterns](https://www.smashingmagazine.com/2022/03/accessibility-best-practices-tabs/) covers this kind of multi-channel signaling well.
+- **State changes that change context.** A status pill that turns from gray to amber doesn't change in contrast against the background; it changes in meaning. Color-blind users may miss the change entirely. The Smashing Magazine guide on [dashboard accessibility patterns](https://www.smashingmagazine.com/2022/03/accessibility-best-practices-tabs/) covers this kind of multi-channel signaling well.
 
 The fix for all three is the same: pair every color signal with a non-color cue (icon, label, weight). Belt and suspenders.
 
@@ -103,12 +103,12 @@ Run any custom values through a [color contrast checker](/design/color-contrast)
 
 ## The mindset shift
 
-Most contrast failures aren't designers ignoring accessibility — they're designers chasing "elegance" and not realizing the elegant choice is also the illegible one. The fix is to put a contrast check next to every color decision in the design system, not at the end as a compliance step.
+Most contrast failures aren't designers ignoring accessibility. They're designers chasing "elegance" and not realizing the elegant choice is also the illegible one. The fix is to put a contrast check next to every color decision in the design system, not at the end as a compliance step.
 
 If you do nothing else from this post: open your current dashboard, pull up a [color contrast checker](/design/color-contrast), and check the three most muted text colors. You will almost certainly find at least one failure. Spend the 10 minutes to fix it before the next design review. It is the single highest-ROI accessibility task on the board.
 
 ## Sources
 
-1. W3C — [WCAG 2.1 Success Criterion 1.4.3: Contrast (Minimum)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)
-2. The A11y Project — [Never remove CSS outlines](https://www.a11yproject.com/posts/never-remove-css-outlines/)
-3. Smashing Magazine — [Accessibility best practices for tabs and dashboards](https://www.smashingmagazine.com/2022/03/accessibility-best-practices-tabs/)
+1. W3C: [WCAG 2.1 Success Criterion 1.4.3: Contrast (Minimum)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)
+2. The A11y Project: [Never remove CSS outlines](https://www.a11yproject.com/posts/never-remove-css-outlines/)
+3. Smashing Magazine: [Accessibility best practices for tabs and dashboards](https://www.smashingmagazine.com/2022/03/accessibility-best-practices-tabs/)
