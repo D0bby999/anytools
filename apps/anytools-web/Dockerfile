@@ -35,6 +35,17 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# NEXT_PUBLIC_* are inlined into the client bundle at build time, so they must be present
+# during `next build` (client components can't read them at runtime). Public values only —
+# no secrets — passed as --build-arg from CI. Runtime secrets (DATABASE_URL, BETTER_AUTH_SECRET,
+# …) stay as runtime env injected by Coolify, never baked into the image.
+ARG NEXT_PUBLIC_URL
+ARG NEXT_PUBLIC_UMAMI_SRC
+ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
+ENV NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL
+ENV NEXT_PUBLIC_UMAMI_SRC=$NEXT_PUBLIC_UMAMI_SRC
+ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
+
 RUN pnpm --filter @anytools/web build
 
 # ---- Runtime ----
