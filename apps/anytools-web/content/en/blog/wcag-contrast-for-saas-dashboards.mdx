@@ -23,11 +23,27 @@ author:
   url: "/about"
 ---
 
+> **TL;DR**
+>
+> - **Normal body text** needs **4.5:1** contrast (AA); **large text** needs **3:1**.
+> - **UI components, icons, focus rings, and chart elements** need **3:1** (SC 1.4.11).
+> - About **three-quarters** of SaaS dashboards fail contrast on at least one critical element — usually muted metrics, success-green on white, chart labels, focus rings, or hover-only states.
+> - Common traps: slate-400 secondary text (3.1:1, fails) and green-500 on white (2.5:1, fails).
+> - A **5-minute audit** (screenshot → contrast checker → OS high-contrast mode → automated linter) catches the obvious failures before customers do.
+
 ## Your dashboard is probably failing WCAG. Mine was too.
 
 I run a small audit on every SaaS dashboard I see. The pattern is consistent: marketing pages are usually fine. Settings pages are usually fine. The **dashboard itself** (the part the product actually does) fails WCAG contrast on at least one critical element about three-quarters of the time.
 
-The usual suspects: muted secondary metrics, chart axis labels, "ghost" buttons, success-green text on white, the disabled state of the primary button. These are exactly the elements designers iterate on most, and exactly the elements that get tweaked away from the safe brand palette during sprint pressure.
+The usual suspects:
+
+- **Muted secondary metrics** — the small, low-emphasis numbers.
+- **Chart axis labels** — fine lines and tiny text.
+- **"Ghost" buttons** — low-contrast by design.
+- **Success-green text on white** — looks fine, measures terribly.
+- **The disabled state of the primary button.**
+
+These are exactly the elements designers iterate on most, and exactly the elements that get tweaked away from the safe brand palette during sprint pressure.
 
 This post covers the 5-minute audit I run, the four contrast rules worth memorizing, and the tools (including a free [contrast ratio checker](/design/color-contrast)) that catch the failures before a customer files an accessibility complaint.
 
@@ -106,6 +122,12 @@ Run any custom values through a [color contrast checker](/design/color-contrast)
 Most contrast failures aren't designers ignoring accessibility. They're designers chasing "elegance" and not realizing the elegant choice is also the illegible one. The fix is to put a contrast check next to every color decision in the design system, not at the end as a compliance step.
 
 If you do nothing else from this post: open your current dashboard, pull up a [color contrast checker](/design/color-contrast), and check the three most muted text colors. You will almost certainly find at least one failure. Spend the 10 minutes to fix it before the next design review. It is the single highest-ROI accessibility task on the board.
+
+> **Bottom line:** Memorize the three ratios (4.5:1 body, 3:1 large text, 3:1 UI/charts) and check contrast next to every color decision, not as a last-minute compliance step. Five minutes today saves a customer accessibility complaint later.
+
+## Don't forget the focus ring
+
+Contrast isn't only about text and icons — it's also about the focus indicator that shows which control a keyboard user has landed on. WCAG 2.4.7 (Focus Visible, level AA) requires that indicator to be perceivable, and a faint one-pixel outline that vanishes against a colored button fails the people who navigate without a mouse. The most common version of this mistake is removing the browser's default outline for "cleanliness." Don't: keep a visible focus style with real contrast against both the component and the page, and check the focus state of every interactive element, not just its resting and hover colors.
 
 ## Sources
 
