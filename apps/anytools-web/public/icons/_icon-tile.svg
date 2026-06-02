@@ -6,7 +6,8 @@
       <stop offset="1" stop-color="#06B6D4"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" fill="url(#tile)"/>
+  <!-- Rounded app-icon tile (~22% radius, iOS-squircle-approximate). Maskable variant stays square. -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#tile)"/>
   <!-- White morphing-module mark, comfortably sized for app icon / favicon -->
   <g fill="#FFFFFF" transform="translate(256 256) scale(3.9) translate(-58 -56)">
     <rect x="20" y="44" width="44" height="44" rx="5"  opacity="0.55"/>
