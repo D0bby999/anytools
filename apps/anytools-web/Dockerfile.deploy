@@ -1,0 +1,8 @@
+# Coolify deploy target — pulls the prebuilt image that CI built off-box (GitHub
+# runners) and pushed to GHCR. There is NO compile here: this "build" is just a
+# FROM-pull of an already-built image, so the 4GB server never runs `next build`
+# and cannot OOM. The real multi-stage build lives in ./Dockerfile (used by CI only).
+#
+# Freshness: CI pulls ghcr.io/.../anytools-web:latest onto the host right before it
+# tells Coolify to deploy, so this FROM resolves to the newest image.
+FROM ghcr.io/d0bby999/anytools-web:latest
