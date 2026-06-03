@@ -32,6 +32,9 @@ importers:
       '@anytools/analytics':
         specifier: workspace:*
         version: link:../../packages/anytools-analytics
+      '@anytools/db-shared':
+        specifier: workspace:*
+        version: link:../../packages/db-shared
       '@anytools/i18n':
         specifier: workspace:*
         version: link:../../packages/anytools-i18n

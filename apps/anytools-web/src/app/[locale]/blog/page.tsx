@@ -5,6 +5,9 @@ import { METADATA_BASE } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+// Rendered per-request so newly published posts appear without a rebuild.
+export const dynamic = 'force-dynamic';
+
 type PageParams = { locale: string };
 type SearchParams = { category?: string };
 

@@ -1,9 +1,22 @@
+/**
+ * Next.js sitemap route for anytools.world.
+ *
+ * Blog URLs are now read from the DB at request time (via listPublishedBlogRows)
+ * so a newly published post appears in the sitemap without a rebuild.
+ *
+ * Build safety: listPublishedBlogRows() returns [] on DB error so the build
+ * and initial sitemap render succeed without a live DB connection.
+ */
+
 import { routing } from '@/i18n/routing';
-import { BLOG_SLUGS } from '@/lib/load-blog-content';
+import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { MetadataRoute } from 'next';
+
+// Revalidate the sitemap at request time so new posts appear immediately.
+export const dynamic = 'force-dynamic';
 
 const BASE =
   process.env.NEXT_PUBLIC_URL ??
@@ -27,7 +40,7 @@ const CLUSTERS: ClusterId[] = [
   'design',
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const urls: MetadataRoute.Sitemap = [];
   // Tools dark-launched via published:false are excluded until translations land.
   const publishedTools = toolMetas.filter((m) => m.published !== false);
@@ -62,26 +75,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       });
     }
-    // Blog index (Phase 1 EN-only — emit for every locale anyway for crawl breadth)
+    // Blog index — emit for every locale for crawl breadth.
     urls.push({
       url: `${BASE}/${locale}/blog`,
       changeFrequency: 'weekly',
       priority: 0.7,
     });
-    // Blog posts (Phase 1 EN-only; only emit URLs for English).
-    // When VI/ES/PT translations land, loop locales like GUIDE_SLUGS above.
-    if (locale === 'en') {
-      for (const slug of BLOG_SLUGS) {
-        urls.push({
-          url: `${BASE}/${locale}/blog/${slug}`,
-          changeFrequency: 'monthly',
-          priority: 0.85,
-          alternates: { languages: { en: `${BASE}/en/blog/${slug}` } },
-        });
-      }
-    }
-    // Cluster landing pages (one per cluster per locale). Auto-loop on toolMetas
-    // does NOT cover these — landings must be emitted explicitly.
+    // Cluster landing pages (one per cluster per locale).
     for (const cluster of CLUSTERS) {
       urls.push({
         url: `${BASE}/${locale}/${cluster}`,
@@ -110,5 +110,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       });
     }
   }
+
+  // Dynamic blog routes — fetched from DB at request time.
+  // AnyTools is EN-only so we emit one URL per slug (no locale loop needed).
+  const blogRows = await listPublishedBlogRows('en');
+  for (const row of blogRows) {
+    const lastMod = row.updatedAt ?? row.publishedAt ?? undefined;
+    urls.push({
+      url: `${BASE}/en/blog/${row.slug}`,
+      changeFrequency: 'monthly',
+      priority: 0.85,
+      lastModified: lastMod ?? undefined,
+      alternates: { languages: { en: `${BASE}/en/blog/${row.slug}` } },
+    });
+  }
+
   return urls;
 }

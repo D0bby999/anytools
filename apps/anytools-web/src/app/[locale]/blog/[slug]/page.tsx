@@ -4,7 +4,7 @@ import { BlogFtcDisclosure } from '@/components/blog-ftc-disclosure';
 import { BlogHero } from '@/components/blog-hero';
 import { MdxContent } from '@/components/mdx-content';
 import { routing } from '@/i18n/routing';
-import { BLOG_SLUGS, loadBlog } from '@/lib/load-blog-content';
+import { loadBlog } from '@/lib/load-blog-content';
 import { faqSchema, howToSchema, jsonLdSafe } from '@/lib/schema';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
@@ -12,10 +12,10 @@ import { notFound } from 'next/navigation';
 
 type PageParams = { locale: string; slug: string };
 
-export function generateStaticParams(): PageParams[] {
-  // Phase 1: EN only. When VI/ES/PT translations land, expand here.
-  return BLOG_SLUGS.map((slug) => ({ locale: 'en', slug }));
-}
+// Rendered per-request from the DB (published rows only). force-dynamic avoids
+// the static/ISR-vs-dynamic-DB conflict; content goes live the instant it's
+// published, no rebuild needed. No generateStaticParams — every path is dynamic.
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,
