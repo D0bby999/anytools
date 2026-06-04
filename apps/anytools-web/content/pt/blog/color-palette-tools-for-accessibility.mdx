@@ -1,0 +1,128 @@
+---
+title: "Ferramentas de Paleta de Cores para Acessibilidade: Por Que a Maioria das Paletas Falha Antes de Você Publicar"
+slug: color-palette-tools-for-accessibility
+description: "83,6% das homepages falham em contraste. Como escolher ferramentas que verificam paletas acessíveis, evitam erros comuns e testam as combinações corretas."
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/color-palette-tools-for-accessibility/hero.jpg"
+  alt: "Primeiro plano da folha de adesivos do Google Material design em um MacBook."
+  credit:
+    photographer: "Tirza van Dijk"
+    photographer_url: "https://unsplash.com/@tirzavandijk?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/macbook-pro-displaying-computer-icons-o1SKqmgSDbg?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+category: design
+keywords: [contraste de cores, paleta acessível, daltonismo, simulação CVD, proporção, gerador de paleta, a11y]
+publishedAt: 2026-06-03
+updatedAt: 2026-06-03
+toolsLinked: [color-contrast, color-palette]
+readingTime: 9
+disclosureType: affiliate
+author:
+  name: "Dobby"
+  credentials: "Engenheiro de software desenvolvendo ferramentas para desenvolvedores, 8 anos de experiência"
+  bio: "Eu construo as ferramentas e avalio as que valem a pena recomendar. AnyTools é o meu projeto."
+  url: "/about"
+---
+
+## TL;DR
+
+- **83,6% das homepages falham em contraste.** A maioria falha não porque os designers são negligentes, mas porque as ferramentas não aplicam isso logo no início.
+- **4.5:1 é o limite** para textos de corpo legíveis. Textos grandes e elementos de interface precisam de 3:1. Não existe nenhuma solução elegante para contornar isso.
+- **O daltonismo vermelho-verde afeta ~1 em cada 12 homens.** Testar apenas um tipo faz você perder falhas reais.
+- **Escolha uma ferramenta pelo que ela verifica**, não pelo que ela gera. Um gerador de paleta sozinho é inútil sem verificação de contraste.
+- **Apenas a cor nunca funciona.** O critério SC 1.4.1 proíbe isso. Pareie cada sinal de cor com um ícone, rótulo ou borda.
+
+## Por que as paletas falham antes de você publicar
+
+Auditei dashboards em cinco empresas no último ano. Mesmo padrão: a paleta parece boa no papel. O aplicativo publicado falha nas interfaces reais. A falha é real e evitável.
+
+As falhas vêm de três lugares.
+
+**1. Testes isolados.** Uma ferramenta diz "green-700 tem 4.7:1 no branco." Bom. Mas o seu aplicativo coloca esse verde em um modal cinza-claro. Agora é 2.3:1. Nunca testado. A ferramenta gerou cores; não as verificou em seus fundos reais.
+
+**2. Verificações incompletas de daltonismo.** Todos testam o vermelho-verde, o tipo mais comum. Menos pessoas testam o azul-amarelo. Quase ninguém testa o monocromático completo. Uma cor que parece distinta para a maioria dos usuários pode ser invisível para alguém com visão tritán.
+
+**3. A regra do "apenas cor".** Um campo de formulário marcado apenas com texto vermelho falha no [SC 1.4.1](https://www.w3.org/WAI/WCAG20/Understanding/use-of-color) para usuários daltônicos, mesmo que o vermelho tenha 7:1. A proporção está boa. O design ainda falha. Nenhuma ferramenta pega isso porque não é um problema de proporção — é uma decisão de design.
+
+Causa raiz: as ferramentas de paleta são otimizadas para uma única coisa (fundos brancos) e deixam você assumir que isso é o suficiente. Não é.
+
+## As três regras
+
+O [SC 1.4.3 (Proporção Mínima)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html) define:
+
+| Tipo de texto | AA (mínimo) | AAA (preferencial) |
+|---|---|---|
+| Texto de corpo (abaixo de 18pt) | **4.5:1** | 7:1 |
+| Texto grande (18pt+) | 3:1 | 4.5:1 |
+| Elementos de UI, ícones, anéis de foco | **3:1** | — |
+
+Segundo: o [SC 1.4.1](https://www.w3.org/WAI/WCAG20/Understanding/use-of-color) proíbe a cor como único sinal. Um campo de erro vermelho precisa de um ícone ou rótulo. Um checkmark verde precisa de um símbolo.
+
+Terceiro: teste todas as combinações. Uma cor que passa no teste de 4.5:1 no branco pode falhar no cinza. O verificador não conhece a sua interface.
+
+## Por que a simulação de daltonismo é importante
+
+Cerca de 300 milhões de pessoas globalmente têm [deficiência de visão de cores](https://www.colourblindawareness.org/colour-blindness/). Aproximadamente 8% dos homens e 0,5% das mulheres têm daltonismo vermelho-verde. Isso representa cerca de 1 em cada 12 homens. O azul-amarelo (tritanopia) e o monocromático completo (acromatopsia) são mais raros, mas ainda reais e valem a pena testar.
+
+Aqui está a armadilha: se a sua ferramenta simula apenas o vermelho-verde, você pensa que está tudo bem. Não está. Você está verificando apenas um tipo dentre vários. Pule a tritanopia ou a acromatopsia e você estará publicando falhas para esses usuários.
+
+A maioria das ferramentas de paleta não simula nenhum tipo de daltonismo. Algumas (Leonardo, Who Can Use) fazem vários tipos. Se você não está verificando, está publicando pontos cegos na sua paleta.
+
+## As ferramentas: o que cada uma realmente faz
+
+| Ferramenta | Grátis? | Verificação de proporção | Simulação CVD | Gera paletas? | Exporta tokens | API |
+|---|---|---|---|---|---|---|
+| WebAIM Contrast Checker | Sim | Sim (AA/AAA) | Não | Não | — | Sim |
+| Leonardo (Adobe) | Sim | Sim (WCAG 2.x) | Sim (8 tipos) | Sim (priorizando contraste) | Sim | Sim |
+| Coolors | Freemium | Sim (limitado) | Não | Sim (baseado em regras) | Sim | Não |
+| Adobe Color | Sim | Não | Não | Sim (regras de harmonia) | Sim | Sim |
+| Who Can Use | Sim | Sim (com pré-visualização) | Sim (3 tipos + simulações) | Não | — | Não |
+| Stark (Figma) | Pago | Sim (no design) | Sim (8 types) | Não | — | Não |
+
+Se a sua ferramenta não faz simulação de CVD e verificação de proporção, ela está incompleta. A maioria das ferramentas pula uma das coisas.
+
+### As que realmente valem a pena usar
+
+**WebAIM Contrast Checker** é a sua linha de base. Insira duas cores e obtenha a proporção mais o resultado de aprovação/reprovação do AA/AAA. Sem login. Sem enrolação. Grátis em [webaim.org/resources/contrastchecker/](https://webaim.org/resources/contrastchecker/). Possui uma API para automatizar verificações em CI/CD se você quiser detectar falhas antes que sejam publicadas.
+
+**Leonardo** (Adobe, grátis) é a ferramenta de design. Em vez de escolher valores hex e torcer para que funcionem, você define uma proporção desejada (4.5:1, 3:1, etc.) e o Leonardo gera as amostras. Isso muda a mentalidade: "torne isto legível" em vez de "faça isto parecer com este hex". Simulação de CVD embutida para 8 tipos. Exporta para CSS/Tailwind/Figma. Se você está construindo um design system, o Leonardo evita que você escolha cores de forma isolada.
+
+**Who Can Use** faz uma coisa de forma diferente. Ele visualiza sua paleta conforme ela aparece para usuários com diferentes tipos de visão, em vez de medir proporções. Insira suas cores e veja as renderizações lado a lado para protanopia, deuteranopia, tritanopia e monocromático. Grátis em [whocanuse.com](https://www.whocanuse.com/). Mais simples que o Leonardo. Você apenas vê se as cores podem ser distinguidas.
+
+**Coolors** gera paletas de cores agradáveis usando regras de harmonia (complementares, análogas, triádicas). Útil para destravar quando você está olhando para uma tela em branco. Mas ele não verifica o contraste. Use-o para ideias iniciais e depois verifique cada amostra no WebAIM antes de considerar o trabalho finalizado.
+
+## Erros comuns a evitar
+
+**1. Testar apenas o daltonismo vermelho-verde.** A maioria das ferramentas e simuladores de paleta focam na protanopia e deuteranopia (daltonismo vermelho-verde). Tritanopia (azul-amarelo) e acromatopsia (monocromático) são mais raras, mas existem. Se a sua marca usa vermelho e azul, você pode falhar completamente na tritanopia e não notar até executar sua paleta pelo Who Can Use.
+
+**2. "Elegância" de cinza sobre cinza.** Cinza-pedra-400 sobre fundo branco parece sofisticado e profissional. Mas falha no WCAG AA (contraste de 3.1:1; você precisa de 4.5:1). Seu texto secundário agora é ilegível para qualquer pessoa com baixa visão. A elegância é um luxo que apenas interfaces de alto contraste podem pagar. Faça a escolha difícil logo no início.
+
+**3. Assumir que o resultado do gerador está finalizado.** O Coolors lhe dará seis amostras harmoniosas. É provável que nenhuma delas passe no contraste de 4.5:1 nas cores de fundo reais da sua aplicação. Geração e verificação são problemas diferentes. Um bom fluxo de trabalho: gere no Coolors para obter inspiração, verifique cada amostra individual com o [verificador de contraste do WebAIM](/design/color-contrast).
+
+**4. Indicadores de status baseados apenas em cor.** Campo de erro vermelho, campo de sucesso verde, aviso âmbar. Um usuário daltônico vê três campos idênticos. O critério WCAG 1.4.1 proíbe a cor como único indicador. Combine cada sinal de cor com uma pista secundária: um ícone, um rótulo, uma espessura de borda ou um padrão. Dois minutos de trabalho. Resolve o problema para usuários daltônicos e com baixa visão.
+
+**5. Testar apenas pares de cores "recomendados".** A sua paleta documentada diz "use green-700 no branco". Um designer usa green-600 no seu modal cinza-claro porque achou que parecia melhor. Essa combinação nunca foi testada. O contraste pode ser 2:1. Audite todas as combinações plausíveis na sua interface real, não apenas aquelas no seu guia de design.
+
+## O seu fluxo de trabalho prático
+
+**Comece com o Leonardo se estiver construindo um design system.** Defina a cor principal da sua marca. Defina proporções alvo explícitas: 4.5:1 para textos de corpo, 3:1 para elementos secundários e componentes de UI. Deixe o Leonardo gerar as variações de tonalidade. Você terá uma paleta que passa no WCAG AA antes de escrever qualquer CSS. Essa é a principal mudança: em vez de escolher cores e torcer, você projeta com restrições de acessibilidade desde o início.
+
+**Verifique cada combinação com o WebAIM.** O Leonardo fornece um bom ponto de partida, mas você ainda precisa testar. Para cada cor que usar, teste-a em todos os fundos onde ela aparecerá. Branco, cinza-claro, cinza-escuro, a cor da sua marca. O [verificador de contraste de cores](/design/color-contrast) leva segundos por par. Amostre os valores de pixel de capturas de tela para obter as proporções reais. Cinco minutos de trabalho eliminam noventa por cento das falhas que são publicadas.
+
+**Visualize através de diferentes tipos de visão.** Execute sua paleta no Who Can Use. Olhe fixamente para as versões em tritanopia, deuteranopia e acromatopsia. Você ainda consegue distinguir os indicadores de status? Ainda consegue ler o texto secundário? Se uma cor desaparece no modo monocromático, ajuste-a agora.
+
+**Combine cada sinal de cor com outra coisa.** Campos de erro vermelhos ganham um ícone ✗. Sucesso verde ganha um ✓. Avisos âmbar ganham um ⚠. Não porque a cor seja ruim, mas porque o WCAG 1.4.1 exige isso. Usuários daltônicos precisam de mais do do que apenas cor para entender a sua interface.
+
+Esse fluxo de trabalho leva uma tarde. Publicar uma paleta inacessível custa meses de retrabalho quando auditorias falham ou os clientes registram queixas.
+
+> **Resumo:** A acessibilidade de cores é uma restrição de design, não uma tarefa de polimento final. Construa isso desde o primeiro dia, não como uma verificação de conformidade no final.
+
+## Fontes
+
+1. W3C: [SC 1.4.3: Contrast (Minimum)](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)
+2. W3C: [SC 1.4.1: Use of Color](https://www.w3.org/WAI/WCAG20/Understanding/use-of-color)
+3. WebAIM: [Contrast and Color Accessibility](https://webaim.org/articles/contrast/)
+4. Colour Blind Awareness: [Color Blindness Statistics](https://www.colourblindawareness.org/colour-blindness/)
+5. WebAIM: [Contrast Checker](https://webaim.org/resources/contrastchecker/)
+6. Leonardo: [Color System Generator](https://leonardocolor.io/)
