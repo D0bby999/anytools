@@ -127,3 +127,6 @@ smoke-results.json
 
 # But track repo-level skills that Claude Code maintains
 !/.claude/skills/
+
+# /do daily index-coverage cache (regenerated per run)
+docs/*/index-coverage-cache.json
