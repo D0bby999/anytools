@@ -25,7 +25,9 @@
     "sync:prod": "bash scripts/sync-blogs-prod.sh",
     "blog:critique": "node scripts/editorial-critique.mjs",
     "blog:scoreboard": "node --env-file=.env.local scripts/blog-scoreboard.mjs",
-    "blog:keyword": "node scripts/keyword-research.mjs"
+    "blog:keyword": "node scripts/keyword-research.mjs",
+    "blog:subtag": "node scripts/affiliate-subtag.mjs",
+    "blog:earnings": "node scripts/blog-earnings.mjs"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1057.0",
