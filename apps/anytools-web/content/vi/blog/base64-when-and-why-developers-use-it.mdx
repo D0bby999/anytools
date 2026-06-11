@@ -1,0 +1,156 @@
+---
+title: "Base64 Encoding giải thích: Khi nào và tại sao Dev dùng (và những cạm bẫy nên tránh)"
+slug: base64-when-and-why-developers-use-it
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/base64-when-and-why-developers-use-it/hero.jpg"
+  alt: "Mọi thứ bắt đầu chỉ với HTML, CSS và một chút JavaScript."
+  credit:
+    photographer: "Nangialai Stoman"
+    photographer_url: "https://unsplash.com/@stoman?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/a-laptop-computer-sitting-on-top-of-a-wooden-desk-VUQnH1fo_Wk?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+description: "Base64 hoạt động như thế nào (3 byte thành 4 ký tự ASCII, cồng kềnh thêm 33%), các trường hợp sử dụng thực tế (data URIs, JWT, Basic auth), và những cạm bẫy: nó không phải mã hóa và cũng chẳng nén dữ liệu."
+category: design
+keywords: [mã hóa base64, base64 là gì, base64 vs base64url, ứng dụng của base64, base64 không phải mã hóa, base64 data uri, rfc 4648]
+publishedAt: 2026-06-11
+updatedAt: 2026-06-11
+toolsLinked: [base64-encode]
+readingTime: 8
+disclosureType: affiliate
+author:
+  name: "Dobby"
+  credentials: "Kỹ sư phần mềm phát triển công cụ cho Dev, 8 năm kinh nghiệm"
+  bio: "Tôi xây dựng các công cụ và đánh giá những công cụ đáng giới thiệu. AnyTools là dự án của riêng mình."
+  url: "/about"
+faq:
+  - q: "Base64 là mã hóa (encryption) à? Có an toàn khi lưu bí mật trong đó không?"
+    a: "Không hề, và chưa bao giờ là như vậy. Base64 là mã hóa định dạng (encoding), chứ không phải mã hóa bảo mật (encryption) — nó không có chìa khóa (key) hay bất kỳ bí mật nào. Bất kỳ ai có chuỗi đó đều có thể paste vào bộ giải mã và khôi phục lại dữ liệu gốc chỉ trong một nốt nhạc. Nếu bạn thấy một giá trị config, token, hay cookie chỉ 'là Base64,' hãy coi nó như văn bản rõ (plaintext) trùm lớp áo khoác而已. Việc mã hóa chỉ thay đổi bộ ký tự, chứ không mang lại bảo mật. Để đảm bảo bảo mật, bạn cần tới cryptography thực thụ (AES, tầng TLS) hoặc hàm băm mật khẩu (bcrypt, argon2). Base64 chỉ trả lời đúng một câu hỏi: làm sao truyền byte thô qua một kênh chỉ chấp nhận văn bản?"
+  - q: "Tại sao Base64 lại làm dữ liệu phình to ra?"
+    a: "Bản chất thiết kế của nó là vậy. Base64 ánh xạ mỗi 3 byte đầu vào (24 bit) thành 4 ký tự ASCII, mỗi ký tự mang 6 bit — do đó đầu ra luôn có kích thước khoảng 4/3 so với đầu vào, nghĩa là tăng khoảng +33%, theo chuẩn RFC 4648 và MDN. Đó là cái giá của việc vận chuyển an toàn dưới dạng văn bản: bạn đánh đổi dung lượng để đảm bảo các byte sống sót qua một kênh mà lẽ ra sẽ làm hỏng chúng. Đó là lý do Base64 là lựa chọn tồi cho các tệp lớn truyền qua mạng — mã hóa một hình ảnh 10 MB để nhúng vào sẽ tốn ~13 MB dung lượng. Chỉ nên dùng nó cho các khối dữ liệu nhỏ và dữ liệu nhị phân thực sự cần phải nhét vào môi trường văn bản."
+  - q: "Sự khác biệt giữa Base64 và Base64URL là gì?"
+    a: "Cùng một thuật toán, khác bảng chữ cái. Base64 chuẩn (RFC 4648 §4) dùng A-Z, a-z, 0-9, cộng thêm '+' và '/'. Vấn đề là '+', '/' và ký tự đệm '=' đều mang ý nghĩa đặc biệt trong các URL và tên tệp. Base64URL (RFC 4648 §5) thì thay '+' bằng '-' và '/' bằng '_', đồng thời thường bỏ ký tự đệm '=' ở cuối, để có thể thả thẳng chuỗi đó vào tham số truy vấn (query parameter), phân đoạn JWT, hay tên tệp mà không gặp vấn đề. Nếu giá trị được mã hóa nằm trong URL, hãy dùng Base64URL. Nếu nó nằm trong nội dung email hay trường văn bản thông thường, Base64 chuẩn là ổn."
+  - q: "Tại sao btoa() lại báo lỗi khi gặp emoji hay chữ có dấu?"
+    a: "Vì hàm btoa() tích hợp sẵn trong trình duyệt chỉ hoạt động với bộ ký tự Latin-1 (byte 0-255), chứ không phải UTF-8. Một ký tự như '世' hay emoji cần nhiều hơn một byte, nên btoa() sẽ văng ra lỗi InvalidCharacterError thay vì tự đoán bừa. Cách khắc phục là mã hóa chuỗi thành UTF-8 thành một chuỗi byte trước, rồi mới đem Base64 mã hóa đống byte đó. Công cụ Base64 của AnyTools tự động hóa việc này — mọi đầu vào đều được xử lý dưới dạng UTF-8, nên emoji, dấu tiếng Việt, hay tiếng Ả Rập đều được mã hóa và giải mã nguyên vẹn mà bạn không cần phải tự viết đoạn code xử lý TextEncoder thủ công."
+socialHooks:
+  - text: "Base64 KHÔNG PHẢI mã hóa bảo mật. Nó không có key. Ai cũng có thể giải mã nó chỉ bằng một bước. Nếu 'bí mật' của bạn chỉ là Base64, thì nó chỉ là văn bản rõ đang mặc đồ hóa trang而已."
+    angle: "Phá vỡ lầm tưởng / bảo mật"
+    image_focus: "Một chuỗi Base64 ở một bên, mật khẩu giải mã (plaintext) ở bên kia, với dấu bằng ở giữa, tông đỏ nhấn mạnh."
+  - text: "Base64 biến 3 byte thành 4 ký tự. Đó là mức thuế kích thước cố định +33% — chính là lý do bạn KHÔNG BAO GIỜ nên dùng Base64 một bức ảnh 10 MB để gửi qua mạng."
+    angle: "Kỹ thuật / những con số"
+    image_focus: "Sơ đồ đơn giản: 3 khối byte ánh xạ thành 4 khối ký tự, với nhãn +33%, tông xanh ngọc lục bảo/xanh lam nhạt."
+  - text: "Lý do btoa() hay bị nghẹn emoji: nó chỉ hiểu Latin-1 chứ không phải UTF-8. Hãy mã hóa UTF-8 trước đã, rồi mới Base64. Rất nhiều công cụ online làm sai vụ này."
+    angle: "Mẹo pro / cạm bẫy"
+    image_focus: "Trình soạn code hiển thị lỗi btoa('🌏') văng InvalidCharacterError, với đoạn fix chuẩn UTF-8 ngay bên dưới."
+  - text: "Base64 vs Base64URL: cùng thuật toán, khác bảng chữ cái. Phiên bản URL-safe thay + và / bằng - và _ để chuỗi sống sót qua các tham số URL. Các phân đoạn JWT dùng phiên bản URL-safe này."
+    angle: "Giải thích / tài liệu tham khảo"
+    image_focus: "Hai chuỗi đã mã hóa đặt cạnh nhau, làm nổi bật các ký tự + / so với - _ đã được thay thế, phong cách công nghệ tối giản."
+  - text: "Một quy tắc kinh nghiệm hay ho: Base64 là mã hóa vận chuyển, không phải nén dữ liệu và càng không phải két sắt. Nó chỉ giải quyết đúng một vấn đề — làm sao truyền byte thô qua một kênh chỉ dành cho văn bản?"
+    angle: "Khung tư duy / mô hình hóa"
+    image_focus: "Một khối nhị phân (binary blob) chui qua một đường ống hẹp 'chỉ dành cho văn bản' và xuất hiện bên ngoài dưới dạng văn bản ASCII dễ đọc, hiệu ứng chuyển màu xanh ngọc."
+---
+
+> **Tóm tắt (TL;DR)**
+>
+> - Base64 là một dạng **mã hóa định dạng (encoding)**, không phải mã hóa bảo mật (encryption) và cũng không phải nén (compression). Nó viết lại các byte tùy ý thành 64 ký tự ASCII có thể in được, giúp dữ liệu nhị phân đi xuyên qua các kênh chỉ hỗ trợ văn bản.
+> - Cơ chế hoạt động: cứ **3 byte lại biến thành 4 ký tự** (mỗi ký tự 6 bit), được đệm bằng các dấu `=`, đó là lý do tại sao đầu ra luôn **to hơn khoảng +33%** so với đầu vào ([RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648), [MDN](https://developer.mozilla.org/en-US/docs/Glossary/Base64)).
+> - Ứng dụng thực tế: **data URIs** (nhúng ảnh trực tiếp trong CSS/HTML), đính kèm **email MIME**, dữ liệu nhị phân trong **JSON/XML**, tiêu đề **HTTP Basic auth**, và các phân đoạn **JWT** (dùng chuẩn Base64URL).
+> - Những cạm bẫy: Base64 **dễ dàng bị đảo ngược** (tuyệt đối không dùng thay cho lớp bảo mật), mức tăng +33% khiến nó **hoàn toàn sai lầm khi dùng gửi tệp lớn qua mạng**, và hàm `btoa()` sẽ báo lỗi với các ký tự ngoài ASCII vì nó chỉ hiểu Latin-1, không phải UTF-8.
+> - Bạn có thể mã hóa/giải mã cả hai chuẩn tại [công cụ Base64 của AnyTools](/encoding/base64-encode) — mọi thứ chạy ngay trên trình duyệt của bạn, không có dữ liệu nào rời khỏi thiết lập của bạn.
+
+## Bạn gặp nó mọi lúc — vậy nó là cái gì?
+
+Bạn tình cờ thấy một chuỗi dài loằng ngoằng toàn chữ cái, chữ số và kết thúc bằng vài dấu `=` (chẳng hạn trong JWT, file config, `data:` URL, hay một header xác thực copy được), và脑子里本能地反应： ờ, Base64." Nhưng rốt cuộc nó mang lại lợi ích gì, và tại sao nó lại *có mặt ở khắp nơi* như vậy?
+
+Câu trả lời ngắn gọn: Base64 viết lại dữ liệu nhị phân tùy ý chỉ bằng 64 ký tự ASCII an toàn, giúp các byte có thể đi qua các kênh chỉ hỗ trợ văn bản mà không bị hỏng. Nó không phải là một loại mật mã. Nó không hề nén dữ liệu. Nó chỉ là một lớp vận chuyển thôi. Bài viết này là bản giải thích dành cho dev: cơ chế chính xác, nơi nó thực sự phát huy tác dụng, và những nơi mọi người đang lạm dụng nó sai cách.
+
+## Rốt cuộc Base64 làm cái gì?
+
+Base64 được quy định bởi [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648). Bảng chữ cái của nó gồm 64 ký tự: `A–Z`, `a–z`, `0–9`, cộng thêm `+` và `/`. Một ký tự thứ 65, dấu `=`, chỉ được dùng để chèn thêm (padding) vào cuối.
+
+Quá trình chuyển đổi mang tính cơ học hoàn toàn. Theo RFC 4648 §4, bộ mã hóa sẽ nhận đầu vào theo **nhóm 24 bit** (3 byte × 8 bit) và nhả ra **4 ký tự**, mỗi ký tự đại diện cho 6 bit. Tỷ lệ 3-đổi-4 này chính là cốt lõi của câu chuyện, và nó kéo theo một hệ quả không thể tránh khỏi mà [MDN đã chỉ ra](https://developer.mozilla.org/en-US/docs/Glossary/Base64): dạng mã hóa luôn **to hơn khoảng một phần ba** so với bản gốc — tức là mức tăng khoảng **+33%** (tỷ lệ 4/3). Nếu độ dài chuỗi đầu vào không chia hết cho 3, nhóm cuối cùng sẽ được đệm thêm để đầu ra là bội số của 4. Đó là lý do tại sao một số chuỗi kết thúc bằng một hoặc hai dấu `=`.
+
+Một ví dụ thực tế, bạn có thể tự kiểm chứng tại [công cụ Base64](/encoding/base64-encode):
+
+```text
+"Hi"  → 2 byte → "SGk="   (thiếu 1 byte để tạo thành nhóm 3 byte → thêm một dấu "=")
+"Hello, World!" → 13 byte → "SGVsbG8sIFdvcmxkIQ=="
+```
+
+Từ cơ chế này, chúng ta có hai điều rút ra được, quan trọng hơn cả những phép toán:
+
+- **Nó có thể đảo ngược hoàn toàn và không cần chìa khóa (key).** Giải mã chỉ là việc tra bảng ngược lại. Không có bí mật nào can thiệp vào đây, và đây chính là nguồn gốc của hiểu lầm tai hại nhất sẽ nhắc đến bên dưới.
+- **Nó đánh đổi dung lượng, không phải bảo mật.** Bạn tốn ~33% dung lượng để đổi lấy sự an toàn khi vận chuyển dưới dạng văn bản: rất tuyệt vời cho một token 200 byte, nhưng lại là thảm họa cho một tệp 10 MB.
+
+Ngoài ra còn có một "người anh em" đáng chú ý: **Base64URL** (RFC 4648 §5). Cùng một cách mã hóa, nhưng nó thay `+` bằng `-` và `/` bằng `_`, đồng thời thường lược bỏ luôn phần đệm `=` ở cuối, để đảm bảo kết quả có thể đưa thẳng vào URL, tên tệp hoặc các phân đoạn JWT mà không gặp lỗi.
+
+## Base64 thực sự tỏa sáng ở đâu?
+
+Mọi trường hợp sử dụng Base64 hợp lý đều xoay quanh một kịch bản: *dữ liệu nhị phân cần phải chen chân vào một nơi chỉ chấp nhận văn bản.* Dưới đây là những nơi điều đó diễn ra trong thực tế.
+
+- **Data URIs.** Nhúng ngay một icon nhỏ trực tiếp vào CSS hoặc HTML: `background: url("data:image/svg+xml;base64,PHN2Zy…")`. Các byte của hình ảnh trở thành một phần của văn bản stylesheet, giúp tiết kiệm một HTTP request — nhưng chỉ đáng để dùng cho các tài nguyên dưới ~1–2 KB, bởi cái giá +33% sẽ đi theo mỗi lần trang tảiStylesheet.
+- **Đính kèm Email (MIME).** Đây chính là *lý do* Base64 ra đời. Giao thức email vốn được xây dựng cho văn bản 7-bit, nên các tệp nhị phân phải được bọc trong Base64 để tồn tại nguyên vẹn.
+- **Dữ liệu nhị phân trong JSON / XML.** JSON không có kiểu dữ liệu nhị phân (binary) gốc. Để nhét một đoạn blob nhỏ (như hình thu nhỏ, chữ ký số, chứng chỉ) vào trường JSON, bạn mã hóa nó bằng Base64 thành một chuỗi để bộ phân tích cú pháp có thể đọc được.
+- **Xác thực HTTP Basic auth.** Header `Authorization: Basic …` thực chất chỉ là chuỗi `tên_người_dùng:mật_khẩu` được mã hóa Base64. Lưu ý chữ *mã hóa định dạng*: Basic auth tự nó mang lại **độ bảo mật bằng 0** và hoàn toàn phụ thuộc vào HTTPS. Base64 ở đây chỉ là cách đóng gói khuôn mẫu, chứ không phải lớp bảo vệ.
+- **Các phân đoạn JWT.** Một JSON Web Token có dạng `header.payload.signature`, trong đó mỗi phần là các đối tượng JSON được mã hóa bằng **Base64URL**. Bạn hoàn toàn có thể copy đoạn ở giữa bỏ vào trình giải mã và đọc được mọi Claim trong đó, đó là lý do bạn tuyệt đối không được lưu các thông tin bí mật trong payload của JWT.
+
+Đối với các trường hợp liên quan đến URL, Base64 thường đi kèm với một kiểu mã hóa *khác*. Nếu bạn đang tự tay lắp ráp một URL mang theo một giá trị đã được Base64, các ký tự `+`, `/`, và `=` vẫn cần được chuyển đổi cho thân thiện với URL: hoặc dùng Base64URL ngay từ đầu, hoặc đưa URL qua [mã hóa phần trăm (percent-encoding)](//encoding/url-encode) để các ký tự đó sống sót qua chuỗi truy vấn. Và khi bạn cần một mã định danh văn bản (text identifier) duy nhất thay vì các byte được mã hóa, [trình tạo UUID](/generators/uuid-generator) mới là công cụ phù hợp — UUID là mã định danh, không phải để mã hóa payload.
+
+## Khi nào KHÔNG nên dùng Base64?
+
+Đây là phần quan trọng nhất. Base64 bị lạm dụng chính ở ba trường hợp sau, và mỗi trường hợp đều là một lỗi (bug) chực chờ xảy ra.
+
+**1. Nó là mã hóa định dạng (encoding), không phải mã hóa bảo mật (encryption), nên đừng bao giờ dùng cho mục đích an toàn.** Đây là tội lỗi chí mạng. Base64 không có chìa khóa (key); bất kỳ ai cũng có thể đảo ngược nó trong một bước. Một mật khẩu, API key, hay token được "lưu trữ dưới dạng Base64" thì chẳng khác gì *lưu dưới dạng văn bản rõ (plaintext)*; việc mã hóa chỉ thay đổi diện mạo của các ký tự mà thôi, [như MDN đã lưu ý](https://developer.mozilla.org/en-US/docs/Glossary/Base64). Nếu cần tính bảo mật, hãy mã hóa (encrypt). Nếu cần lưu trữ thông tin xác thực, hãy băm (hash) chúng bằng bcrypt, scrypt, hoặc argon2.
+
+**2. Nó là công cụ sai lầm khi dùng gửi tệp lớn qua mạng.** Vì phải gánh mức tăng kích thước cứng nhắc +33%, việc mã hóa Base64 một bức ảnh lớn hay gửi tệp hàng megabyte dưới dạng chuỗi JSON sẽ lãng phí băng thông và ép hệ thống phải giải mã toàn bộ trong bộ nhớ cùng lúc. Đối với những thứ vượt quá tài nguyên nhỏ, hãy gửi nhị phân đúng chuẩn (dùng `multipart/form-data`, hoặc HTTP body nhị phân) và tham chiếu bằng URL. Data URI nội tuyến chỉ dành cho các tài nguyên cỡ favicon, chứ không phải ảnh bìa (hero image).
+
+**3. Nó không phải là nén dữ liệu (compression).** Base64 làm dữ liệu *to ra*, chứ không bao giờ làm nó nhỏ đi. Để nén payload, bạn cần gzip/brotli. Đôi khi mọi người Base64 một đoạn blob "cho dễ di chuyển" và kết quả là tự làm nó phình to thêm.
+
+Dưới đây là bảng quyết định nhanh.
+
+| Tình huống | Có dùng Base64? | Lý do |
+|---|---|---|
+| Icon nhúng trong CSS/HTML, dưới ~1–2 KB | ✅ Có | Tiết kiệm HTTP request; mức +33% là quá nhỏ ở cỡ này |
+| Tài nguyên lớn hơn vài KB | 🚫 Không | Mức +33% nhúng vào mọi trang sẽ thiệt hại nhiều hơn cái request được tiết kiệm; hãy dùng request tệp thông thường |
+| Đoạn blob nhị phân trong trường JSON/XML | ✅ Có | JSON không có kiểu nhị phân; văn bản là lựa chọn duy nhất |
+| Giá trị đưa vào URL hoặc JWT | ✅ Có — **Base64URL** | Các ký tự `+` `/` `=` không an toàn trong URL; bảng chữ cái URL-safe sẽ khắc phục điều đó |
+| Lưu mật khẩu hoặc API key | 🚫 Không | Có thể đảo ngược — tức là plaintext. Hãy băm hoặc mã hóa bảo mật thay thế |
+| Gửi ảnh 5 MB lên server | 🚫 Không | Tiêu tốn thêm +33%; hãy dùng upload nhị phân thực thụ và một URL |
+| Muốn thu nhỏ payload | 🚫 Không | Base64 làm phình to dữ liệu; hãy dùng gzip/brotli |
+
+Và đây là một bảng tham khảo nhanh cho các loại mã hóa hay bị nhầm lẫn với nhau:
+
+| Loại mã hóa | Bảng chữ cái / Dạng | Được thiết kế cho |
+|---|---|---|
+| **Base64** | `A–Z a–z 0–9 + /`, đệm `=` | Nhị phân → Văn bản ASCII (email, JSON, data URIs) |
+| **Base64URL** | `+`→`-`, `/`→`_`, không đệm | Nhị phân → văn bản an toàn khi nằm trong URL / tên tệp / JWT |
+| **Mã hóa URL (percent encoding)** | `%XX` cho các ký tự không an toàn | Biến *văn bản* thành dạng an toàn trong URL — một bài toán khác hẳn |
+| **Hex** | `0–9 a–f`, 2 ký tự/byte | Byte dễ đọc; tăng kích thước +100%, đơn giản hơn Base64 |
+
+## Làm thế nào để mã hóa và giải mã đúng cách?
+
+Bạn có thể làm điều này ngay trên trình duyệt mà không cần cài đặt npm package.
+
+1. Mở [công cụ Base64 của AnyTools](/encoding/base64-encode). Nó chạy hoàn toàn ở phía client — dữ liệu đầu vào của bạn không bao giờ rời khỏi thiết bị.
+2. **Mã hóa:** dán văn bản hoặc byte, lấy chuỗi Base64. Bật chế độ **URL-safe** nếu giá trị sẽ được đưa vào URL, tên tệp, hoặc JWT — bạn sẽ nhận được `-`/`_` và không có đệm `=`.
+3. **Giải mã:** dán chuỗi Base64 (hoặc Base64URL) để khôi phục bản gốc. Công cụ sẽ tự động nhận diện chuẩn đang dùng, nên bạn không cần phải tự đoán xem đó là chuẩn nào.
+4. **Các ký tự ngoài ASCII hoạt động hoàn hảo.** Công cụ sẽ mã hóa UTF-8 trước, nên emoji, tiếng Latin có dấu, tiếng Việt, tiếng Ả Rập đều được giữ nguyên vẹn khi mã hóa và giải mã — sẽ không có lỗi `InvalidCharacterError` của `btoa()` phát sinh khi bạn dùng `世界` hay `🌏`.
+
+Nếu bạn đang thao tác trong code, các hàm `btoa()`/`atob()` gốc của trình duyệt chỉ nói tiếng Latin-1 chứ không phải UTF-8. Do đó, hãy bọc chúng trong `TextEncoder`/`TextDecoder` cho bất kỳ ký tự nào nằm ngoài ASCII cơ bản, [theo tài liệu của MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa).
+
+## Tóm lại
+
+Base64 là một trong những công cụ nhàm chán nhưng hữu ích nhất trong hệ sinh thái dev, và hầu hết mọi vấn đề liên quan đến nó đều xuất phát từ việc chúng ta quên mất *bản chất* của nó. Nó là một cách mã hóa để vận chuyển: biến byte ngẫu nhiên thành 64 ký tự ASCII an toàn với cái giá cố định là +33% kích thước, giúp dữ liệu nhị phân đi qua các kênh chỉ hỗ trợ văn bản như email, JSON, URL, và headers. Hãy dùng nó cho data URIs, MIME, blob trong JSON, Basic auth, và JWT (biến thể URL-safe). **Tuyệt đối không** dùng nó thay cho bảo mật (vì không có key và dễ đảo ngược), gửi tệp lớn qua mạng (băng thông sẽ đội lên), hay để nén dữ liệu (nó chỉ làm dữ liệu phình to thêm).
+
+Hãy khắc cốt ghi tâm một câu: *mã hóa vận chuyển, không phải két sắt và cũng chẳng phải máy nén*, và bạn sẽ luôn dùng nó đúng lúc. Hãy dùng [công cụ Base64](/encoding/base64-encode) khi bạn cần đọc claim của JWT, nhúng một icon dưới 2 KB, hoặc kiểm tra nhanh một giá trị đã mã hóa; nhưng hãy chuyển sang upload nhị phân (`multipart/form-data`) ngay khi tài nguyên vượt quá vài KB. Công cụ chạy ngay trên trình duyệt của bạn, hỗ trợ cả hai chuẩn — văn bản bạn dán vào sẽ không bao giờ bị gửi tới máy chủ.
+
+_Lộ ý: bài viết này có thể chứa liên kết tiếp thị liên kết; anytools có thể nhận được hoa hồng mà không tốn thêm bất kỳ chi phí nào cho bạn._
+
+## Nguồn
+
+1. IETF: [RFC 4648 — The Base16, Base32, and Base64 Data Encodings](https://datatracker.ietf.org/doc/html/rfc4648)
+2. IETF: [RFC 4648 §5 — Base64 URL- and filename-safe alphabet](https://datatracker.ietf.org/doc/html/rfc4648#section-5)
+3. MDN: [Base64 (Glossary) — encoding, 6 bits per digit, ~33% size increase](https://developer.mozilla.org/en-US/docs/Glossary/Base64)
+4. MDN: [Window.btoa() — Base64 encoding in the browser](https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa)
+5. MDN: [Window.atob() — Base64 decoding in the browser](https://developer.mozilla.org/en-US/docs/Web/API/Window/atob)
+6. IETF: [RFC 7519 — JSON Web Token (JWT), Base64URL-encoded segments](https://datatracker.ietf.org/doc/html/rfc7519)
