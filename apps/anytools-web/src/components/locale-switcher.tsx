@@ -11,13 +11,13 @@ import { useLocale } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useTransition } from 'react';
 
-type LocaleOption = { code: 'en' | 'vi' | 'es' | 'pt'; label: string; flag: string };
+type LocaleOption = { code: 'en' | 'vi' | 'es' | 'pt'; label: string };
 
 const LOCALES: LocaleOption[] = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'pt', label: 'Português', flag: '🇧🇷' },
+  { code: 'en', label: 'English' },
+  { code: 'vi', label: 'Tiếng Việt' },
+  { code: 'es', label: 'Español' },
+  { code: 'pt', label: 'Português' },
 ];
 
 export function LocaleSwitcher() {
@@ -61,7 +61,6 @@ export function LocaleSwitcher() {
             onClick={() => change(l.code)}
             className={l.code === locale ? 'font-medium bg-accent/10' : ''}
           >
-            <span className="mr-2">{l.flag}</span>
             <span>{l.label}</span>
             <span className="ml-auto text-xs text-muted-foreground">{l.code.toUpperCase()}</span>
           </DropdownMenuItem>
