@@ -7,7 +7,8 @@ export async function generateMetadata({
 }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'auth' });
-  return { title: `${t('signIn')} — AnyTools` };
+  // Auth form — no SEO value, keep out of the index (avoids cross-locale dupes).
+  return { title: `${t('signIn')} — AnyTools`, robots: { index: false, follow: true } };
 }
 
 export default async function SignInPage({ params }: { params: Promise<{ locale: string }> }) {

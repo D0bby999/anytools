@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/routing';
+import { Link, routing } from '@/i18n/routing';
 import { listGuides } from '@/lib/load-guide-content';
 import { Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
@@ -16,6 +16,12 @@ export async function generateMetadata({
   return {
     title: titleByLocale[locale] ?? titleByLocale.en,
     description: 'Deep technical guides on JSON, Regex, Encoding, and more.',
+    // Index chrome + guide list are translated per locale → self-canonical +
+    // hreflang so the 4 language versions cluster instead of reading as duplicates.
+    alternates: {
+      canonical: `/${locale}/guides`,
+      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/guides`])),
+    },
   };
 }
 

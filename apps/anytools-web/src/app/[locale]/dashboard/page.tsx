@@ -15,7 +15,9 @@ export async function generateMetadata({
 }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'auth' });
-  return { title: `${t('dashboard')} — AnyTools` };
+  // Auth-gated personal page — keep out of the index (no SEO value, avoids
+  // thin/duplicate-content flags across locales).
+  return { title: `${t('dashboard')} — AnyTools`, robots: { index: false, follow: true } };
 }
 
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
