@@ -2,6 +2,7 @@ import { AdSlot } from '@/components/ad-slot';
 import { BlogAuthorBio } from '@/components/blog-author-bio';
 import { BlogFtcDisclosure } from '@/components/blog-ftc-disclosure';
 import { BlogHero } from '@/components/blog-hero';
+import { BlogRelatedPosts } from '@/components/blog-related-posts';
 import { MdxContent } from '@/components/mdx-content';
 import { routing } from '@/i18n/routing';
 import { loadBlog } from '@/lib/load-blog-content';
@@ -135,6 +136,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         <MdxContent source={blog.source} />
         {author && <BlogAuthorBio author={author} />}
       </article>
+      <BlogRelatedPosts locale={locale} currentSlug={slug} category={blog.data.category} />
       <div className="my-8">
         <AdSlot slotId="blog-end" format="auto" />
       </div>
