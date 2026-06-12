@@ -108,3 +108,42 @@ export async function listPublishedBlogs(db: Db, locale: string): Promise<Blog[]
 
   return merged;
 }
+
+// ---------------------------------------------------------------------------
+// listAllPublishedBlogRows
+// ---------------------------------------------------------------------------
+
+/**
+ * List every published blog row across ALL locales, with no en-fallback merging.
+ *
+ * Unlike listPublishedBlogs (which fills gaps with the en row), this returns
+ * each row under its real stored locale. The sitemap uses it so it advertises
+ * only URLs that have a genuine translation — an untranslated locale must not
+ * be listed as an indexable duplicate of the English original.
+ */
+export async function listAllPublishedBlogRows(db: Db): Promise<Blog[]> {
+  return db
+    .select()
+    .from(blogs)
+    .where(eq(blogs.status, 'published'))
+    .orderBy(desc(blogs.publishedAt));
+}
+
+// ---------------------------------------------------------------------------
+// listPublishedLocalesForSlug
+// ---------------------------------------------------------------------------
+
+/**
+ * Return the locales that have a genuinely published row for a slug.
+ *
+ * The blog page uses this to build a correct canonical + hreflang set: a locale
+ * served as the English fallback (not in this list) must canonicalise to the
+ * English URL rather than to itself, so Google consolidates the duplicate.
+ */
+export async function listPublishedLocalesForSlug(db: Db, slug: string): Promise<string[]> {
+  const rows = await db
+    .select({ locale: blogs.locale })
+    .from(blogs)
+    .where(and(eq(blogs.slug, slug), eq(blogs.status, 'published')));
+  return rows.map((r) => r.locale);
+}
