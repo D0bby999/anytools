@@ -4,6 +4,7 @@ import { BlogFtcDisclosure } from '@/components/blog-ftc-disclosure';
 import { BlogHero } from '@/components/blog-hero';
 import { BlogRelatedPosts } from '@/components/blog-related-posts';
 import { MdxContent } from '@/components/mdx-content';
+import { YouTubeEmbed } from '@/components/youtube-embed';
 import { routing } from '@/i18n/routing';
 import { loadBlog } from '@/lib/load-blog-content';
 import { faqSchema, howToSchema, jsonLdSafe } from '@/lib/schema';
@@ -134,6 +135,9 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         {blog.data.disclosureType && <BlogFtcDisclosure type={blog.data.disclosureType} />}
         {blog.data.heroImage && <BlogHero image={blog.data.heroImage} />}
         <MdxContent source={blog.source} />
+        {blog.data.videoId && (
+          <YouTubeEmbed videoId={blog.data.videoId} title={blog.data.videoTitle} />
+        )}
         {author && <BlogAuthorBio author={author} />}
       </article>
       <BlogRelatedPosts locale={locale} currentSlug={slug} category={blog.data.category} />

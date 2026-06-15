@@ -64,6 +64,11 @@ export type BlogFrontmatter = {
   disclosureType?: BlogDisclosureType;
   howTo?: { name: string; steps: BlogHowToStep[] };
   faq?: BlogFaqItem[];
+  /** Optional OFFICIAL source/tool-maker YouTube video id (11 chars) — rendered below the body as a
+   * privacy-friendly nocookie embed. Set only from the maker's OWN channel, never a reviewer. */
+  videoId?: string;
+  /** Optional eyebrow label for the video block; falls back to a generic prompt. */
+  videoTitle?: string;
 };
 
 // AnyTools has no isFallback field (en-only, no locale fallback layer needed).
