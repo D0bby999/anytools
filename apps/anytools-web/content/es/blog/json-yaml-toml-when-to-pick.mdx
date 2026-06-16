@@ -1,0 +1,153 @@
+---
+title: "JSON vs YAML vs TOML: Cuándo elegir cada uno (guía para desarrolladores)"
+slug: json-yaml-toml-when-to-pick
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/json-yaml-toml-when-to-pick/hero.jpg"
+  alt: "Laptop con código y una planta en una cafetería"
+  credit:
+    photographer: "James Harrison"
+    photographer_url: "https://unsplash.com/@jstrippa?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/black-laptop-computer-turned-on-on-table-vpOeXr5wmR4?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+description: "JSON vs YAML vs TOML, decidido: JSON para APIs y datos, YAML para configuración de Kubernetes/CI (cuidado con el problema de Noruega), TOML para configuración explícita de apps como Cargo.toml. Una guía clara de decisión."
+category: design
+keywords:
+  - json vs yaml vs toml
+  - json yaml toml cuando elegir
+  - yaml problema de noruega
+  - toml vs yaml configuracion
+  - que formato de configuracion usar
+  - json vs yaml para configuracion
+publishedAt: 2026-06-16
+updatedAt: 2026-06-16
+toolsLinked: [json-yaml-toml, json-formatter, yaml-formatter]
+readingTime: 9
+disclosureType: affiliate
+writingStyle: explainer
+author:
+  name: "Dobby"
+  credentials: "Ingeniero de software creando herramientas para desarrolladores, 8 años de experiencia"
+  bio: "Construyo herramientas y recomiendo las que realmente valen la pena. AnyTools es mi proyecto."
+  url: "/about"
+faq:
+  - q: "¿Qué es el problema de Noruega en YAML?"
+    a: "Es la clásica trampa de YAML. En YAML 1.1 —que sigue siendo el predeterminado en PyYAML y en varios parsers en 2026— las palabras sin comillas como NO, yes, on y off se interpretan como booleanos, no como cadenas de texto. Así que `country_code: NO` se convierte silenciosamente en el booleano false, a pesar de que NO es el código real de Noruega. El resultado es un bug sin ningún error de sintaxis, lo que lo hace súper difícil de detectar. La solución es simple: pon comillas a las cadenas ambiguas (`country_code: \"NO\"`) y usa un linter en tu YAML. YAML 1.2 corrigió esto en la especificación, pero muchas librerías siguen usando por defecto el comportamiento de la versión 1.1."
+  - q: "¿Por qué JSON no permite comentarios?"
+    a: "Es por diseño. RFC 8259, la especificación de JSON, excluye los comentarios de su gramática por completo para que todos los parsers se comporten igual y no se cuelen directivas específicas de ningún parser. Esa rigidez es buenísima para el intercambio de datos entre máquinas, pero pésima para configuraciones que un humano tiene que editar, porque no puedes documentar ni desactivar temporalmente una sección. Si necesitas comentarios en tu config, usa TOML o YAML, o una variante no estándar como JSON5 (a costa de perder algo de compatibilidad)."
+  - q: "¿Debería usar YAML o TOML para el archivo de configuración de mi aplicación?"
+    a: "Depende de la estructura y del ecosistema. TOML es explícito, amigable con comentarios y se mapea limpiamente a una tabla hash, por eso Rust (Cargo.toml) y Python (pyproject.toml) lo usan —es ideal para configuraciones planas o poco profundas. YAML es mejor cuando el config está muy anidado o cuando el ecosistema ya usa YAML (Kubernetes, GitHub Actions, Docker Compose, Ansible). Para una herramienta totalmente nueva con una configuración sencilla, defaulted a TOML; si estás dentro de un ecosistema que ya usa YAML, úsalo y aplica un linter estricto."
+  - q: "¿Todo JSON válido es YAML válido?"
+    a: "Sí, en YAML 1.2. La especificación de YAML 1.2 se diseñó para que JSON sea un subconjunto estricto de YAML, lo que significa que cualquier documento JSON válido también se parsea como YAML válido. Eso es súper práctico para migraciones: puedes renombrar el contenido de un archivo .json a un pipeline de YAML y seguirá funcionando. Lo contrario no es cierto —la mayoría de los YAML no son JSON válidos, porque YAML añade estructura basada en indentación, comentarios, anclas y tipado implícito que JSON no tiene."
+socialHooks:
+  - text: "En YAML, `country_code: NO` se convierte en el booleano false —el código de Noruega, borrado. Los yes/no/on/off sin comillas se leen como booleanos en YAML 1.1, que es el predeterminado de la mayoría de los parsers. Pon comillas a tus strings."
+    angle: "the-norway-problem"
+    image_focus: "Una línea YAML `country_code: NO` con una flecha hacia `false`, con un acento rojo apagado."
+  - text: "JSON para máquinas, TOML para humanos, YAML para el ecosistema. Una frase que resuelve la mayoría de los debates sobre configuración."
+    angle: "rule-of-thumb"
+    image_focus: "Tres iconos de archivo etiquetados —.json, .yaml, .toml— con una frase corta debajo de cada uno."
+  - text: "JSON no tiene comentarios. A propósito (RFC 8259). Súper bueno para APIs, un dolor para un archivo de config que un humano tiene que editar y documentar."
+    angle: "json-no-comments"
+    image_focus: "Un bloque JSON con un `// comentario` tachado y una insignia roja de 'no permitido'."
+---
+
+Estás eligiendo un formato de configuración o de datos, y la elección importa. JSON, YAML y TOML resuelven el mismo problema de formas distintas, y elegir mal te va a traer fricción, bugs o dolores de cabeza de mantenimiento. Cortemos el ruido y construyamos un árbol de decisión claro.
+
+> **TL;DR**
+> - **JSON**: intercambio de datos y APIs —universal pero rígido, sin comentarios.
+> - **YAML**: estándar de configuración para humanos (Kubernetes, GitHub Actions, Docker Compose) —legible pero frágil (el problema de Noruega, los espacios en blanco). Pon comillas a tus strings.
+> - **TOML**: configuración explícita y amigable con comentarios (Cargo.toml, pyproject.toml) —genial para estructuras planas o poco profundas, verboso para árboles muy anidados.
+
+## ¿Qué son JSON, YAML y TOML?
+
+**JSON** es un formato de texto para intercambiar datos estructurados entre sistemas. Es estricto: llaves, claves entre comillas, cero comentarios. Está pensado primero para que lo lean las máquinas y segundo para los humanos. [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) fija la especificación, así que todos los lenguajes lo parsean igual.
+
+**YAML** es un lenguaje de configuración que también sirve como formato de serialización. Busca la legibilidad humana: la mayoría de los strings no necesitan comillas, la indentación reemplaza a los corchetes y es un superconjunto de JSON. Red Hat [lo llama el estándar para automatización](https://www.redhat.com/en/topics/automation/what-is-yaml) —Kubernetes, Ansible, GitHub Actions y Docker Compose hablan todos en YAML.
+
+**TOML** significa Tom's Obvious, Minimal Language (el lenguaje obvio y mínimo de Tom). Es explícito con la estructura: declaras secciones con corchetes, las claves siempre son visibles y los comentarios son ciudadanos de primera clase. [TOML.io](https://toml.io/en/) lo posiciona como una alternativa minimalista a YAML para configuraciones —y ya viene integrado en Rust (Cargo.toml) y en Python 3.11+.
+
+La pregunta no es cuál es el mejor. Es cuál se adapta a tu caso de uso. Pasa un ejemplo por nuestro [conversor JSON↔YAML↔TOML](/converters/json-yaml-toml) para ver los mismos datos en los tres formatos.
+
+## ¿Cuándo deberías elegir JSON?
+
+**Elige JSON cuando los sistemas intercambian datos y un humano no va a editar el archivo a mano.** JSON es el idioma universal de la web: las APIs lo devuelven, los logs lo usan, las herramientas lo aceptan. Todos los lenguajes tienen un parser, y todos se comportan igual, así que no te llevarás sorpresas por un capricho de un lector distinto a otro.
+
+El contrapunto es que JSON es verboso para los humanos. Cero comentarios [la especificación se los prohíbe](https://www.json.org/json-en.html). Comillas en cada clave. Adiós a las comas finales. Editar un archivo JSON a mano es una fábrica de fricción. Úsalo para APIs, exportación de datos entre herramientas y logs generados por máquinas —no para un config que mantenga una persona.
+
+## ¿Cuándo deberías elegir YAML?
+
+**Elige YAML cuando los humanos editan la configuración a menudo y quieres la menor cantidad de sintaxis posible.** Es el estándar de facto para los manifiestos de Kubernetes, GitHub Actions, Docker Compose y Ansible. Los strings no necesitan comillas, la indentación define la estructura y se lee casi como pseudocódigo.
+
+```yaml
+database:
+  host: localhost
+  port: 5432
+  user: admin
+```
+
+Eso es más fácil de escanear que el equivalente en JSON. Pero la legibilidad tiene un costo, y ese costo tiene un nombre.
+
+## Las trampas de YAML que todo desarrollador debería conocer
+
+**El problema de Noruega es la trampa clásica.** En YAML 1.1, que sigue siendo el predeterminado en PyYAML y en varios parsers, las palabras sin comillas como `yes`, `no`, `on` y `off` se interpretan como booleanos y no como strings [como documenta el autor de StrictYAML](https://hitchdev.com/strictyaml/why/implicit-typing-removed/).
+
+```yaml
+country_code: NO
+enabled: yes
+```
+
+se convierte en `country_code: false`, `enabled: true`. El código de Noruega (`NO`) pasa silenciosamente a ser el booleano `false`. No hay error de sintaxis —solo un valor incorrecto. La solución es ponerle comillas: `country_code: "NO"`.
+
+**Los espacios en blanco también son sagrados.** YAML prohíbe las tabulaciones, la indentación estándar es de dos espacios y una línea mal alineada se parsea mal sin avisarte. Un tabulador que se te cuele al pegar desde un editor de texto enriquecido rompe todo el archivo. La lección: YAML es amigable para humanos *si eres disciplinado* —pon comillas a los strings ambiguos, usa un linter y valida el archivo con nuestro [formateador YAML](/formatters/yaml-formatter) antes de mandarlo a producción.
+
+## ¿Cuándo deberías elegir TOML?
+
+**Elige TOML cuando quieres una estructura explícita y comentarios de verdad.** Se mapea directamente a una tabla hash, las secciones son explícitas y los comentarios son parte del lenguaje. Es el estándar para [Cargo.toml](https://doc.rust-lang.org/cargo/reference/manifest.html) de Rust y [pyproject.toml](https://docs.python.org/3/library/tomllib.html) de Python.
+
+```toml
+[database]
+host = "localhost"
+port = 5432  # aquí los comentarios van en grande
+```
+
+La desventaja es la verbosidad cuando hay muchos niveles de anidamiento. A tres niveles de profundidad, TOML te hace repetir toda la ruta de la sección (`[servers.alpha.ports]`) donde YAML simplemente añade una indentación. Usa TOML para configuraciones planas o poco profundas; apóyate en YAML cuando el árbol se vuelva muy profundo.
+
+## La tabla de decisiones
+
+| Formato | Mejor para | Evítalo cuando | Usuario real |
+| --- | --- | --- | --- |
+| **JSON** | APIs, intercambio de datos, logs | humanos editando a mano, necesitas comentarios | Respuestas de API, package.json |
+| **YAML** | Kubernetes, CI/CD, config para humanos | necesitas tipado estricto y fuerte seguridad de tipos | GitHub Actions, Docker Compose |
+| **TOML** | config de aplicaciones, proyectos en Rust/Python | configuración con mucha anidación | Cargo.toml, pyproject.toml |
+
+Primero formatea tu JSON con nuestro [formateador JSON](/formatters/json-formatter), y luego conviértelo entre los tres para comparar las estructuras.
+
+## ¿Cómo conviertes entre JSON, YAML y TOML?
+
+**La mayoría de las veces no reescribes a mano, simplemente conviertes.** Como YAML 1.2 es un superconjunto de JSON y los tres describen el mismo tipo de estructura anidada de pares clave-valor, las herramientas pueden traducir entre ellos mecánicamente. Eso es súper útil cuando heredas una configuración en YAML y quieres visualizarla como TOML, o cuando una API te escupe un JSON y quieres una versión legible para estudiarla.
+
+Algunas reglas sobreviven a cualquier conversión y otras no. Las claves, los valores, los números y el anidamiento pasan limpios. Los comentarios no: JSON no tiene dónde ponerlos, así que convertir un archivo TOML o YAML con comentarios a JSON elimina cada uno de esos comentarios. Los tipos de datos también pueden cambiar, que es exactamente donde te muerde el problema de Noruega. Convierte `country_code: NO` de YAML 1.1 a JSON y te podría salir un `false` en lugar de un `"NO"`.
+
+El flujo de trabajo seguro es convertir y luego revisar el resultado a ojo antes de hacer commit. Pega tu archivo en el [conversor JSON↔YAML↔TOML](/converters/json-yaml-toml), verifica que los strings sigan siendo strings y que no haya desaparecido nada importante, y solo entonces guárdalo en tu proyecto. Para una revisión rápida de un archivo individual, el [formateador JSON](/formatters/json-formatter) te marca las estructuras mal formadas antes de que lleguen a tu build.
+
+## ¿Manejan estos formatos las fechas y los números de la misma forma?
+
+**No, y ese detalle decide más configuraciones de lo que la gente espera.** JSON mantiene su sistema de tipos deliberadamente pequeño. Tiene strings, números, booleanos, null, arrays y objetos, y [nada más en la especificación](https://www.json.org/json-en.html). No existe un tipo nativo para fechas o horas, así que un timestamp en JSON es simplemente un string que tu código tiene que parsear y en el que tiene que confiar.
+
+TOML va por el otro camino. Tiene tipos de fecha y hora de primera clase integrados en el formato, así que un timestamp con zona horaria o una fecha local es un valor real y validado, no un string que esperas que esté bien formateado. Eso hace a TOML muy agradable para configuraciones que registran cronogramas, versiones o fechas de lanzamiento. YAML queda en el medio, con un manejo opcional de fechas que depende del parser y de la versión que uses.
+
+La conclusión es práctica. Si tu configuración depende de fechas reales y quieres que el formato las valide por ti, TOML te ahorra un paso de parseo. Si solo intercambias datos con otros sistemas y de todos modos manejas los tipos en tu código, el conjunto reducido de tipos de JSON es una ventaja, no una limitación.
+
+## ¿Qué pasa con XML e INI?
+
+**Siguen existiendo, y a veces son la opción correcta.** XML es el abuelo verboso de esta familia. Es estricto, amigable con los esquemas y sigue siendo el estándar en sistemas empresariales, APIs SOAP y formatos de documentos como .docx. El costo es su sintaxis pesada: cada valor se sienta entre una etiqueta de apertura y otra de cierre, así que los archivos XML suelen ser dos o tres veces más largos que su equivalente en JSON. Úsalo solo cuando un sistema o estándar te lo exija.
+
+INI es lo opuesto: un formato antiguo y diminuto de líneas `clave = valor` agrupadas bajo `[secciones]`. Es tontamente simple y sigue siendo común en aplicaciones de escritorio antiguas y en algunas herramientas. El problema es que INI nunca se estandarizó formalmente, así que dos parsers pueden discrepar en el anidamiento, los tipos y los comentarios. Lo mejor es entender a TOML como un INI con una especificación real y reglas claras, por eso los proyectos nuevos eligen TOML por encima de INI casi siempre.
+
+Para cualquier cosa nueva, los tres formatos modernos cubren todo el campo. Ten en cuenta a XML e INI solo cuando estés trabajando dentro de un sistema que ya los habla.
+
+## La conclusión
+
+Las máquinas que intercambian datos se inclinan por JSON. Los humanos editando configuraciones simples se inclinan por TOML. Los ecosistemas como Kubernetes y CI/CD se inclinan por YAML —solo asegúrate de poner comillas a tus strings y usar un linter. El mejor formato suele ser el que tu stack ya utiliza; pelear contra el ecosistema es una batalla perdida.
+
+> **En resumen:** Máquinas intercambiando datos → JSON. Humanos editando configs sencillas → TOML. Kubernetes / CI/CD → YAML (cita tus strings). El problema de Noruega te atrapará una vez; después de eso, ya los irás citando por defecto.
