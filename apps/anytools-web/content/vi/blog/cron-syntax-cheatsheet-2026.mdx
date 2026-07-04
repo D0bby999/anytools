@@ -1,0 +1,212 @@
+---
+title: "Bảng Tham Khảo Cú Pháp Cron (2026): Đọc và Tạo Mọi Biểu Thức Crontab"
+slug: cron-syntax-cheatsheet-2026
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/cron-syntax-cheatsheet-2026/hero.jpg"
+  alt: "\n“Nói suông thì rẻ. Cho tôi xem code.”\n― Linus Torvalds"
+  credit:
+    photographer: "Mohammad Rahmani"
+    photographer_url: "https://unsplash.com/@afgprogrammer?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/laptop-screen-displaying-colorful-code-8qEB0fTe9Vw?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+description: "Giải thích cú pháp cron: thứ tự 5 trường, mô hình đọc trong 10 giây, 16 biểu thức đã kiểm chứng, cái bẫy OR của ngày trong tuần, các lỗi DST và so sánh cron với systemd timers."
+category: design
+keywords:
+  - bảng tham khảo cú pháp cron
+  - cron mỗi 5 phút
+  - định dạng crontab
+  - cron ngày trong tuần
+  - cron vs systemd
+writingStyle: explainer
+toolsLinked: [cron-parser, regex-tester]
+publishedAt: 2026-07-04
+updatedAt: 2026-07-04
+readingTime: 10
+disclosureType: affiliate
+author:
+  name: "Dobby"
+  credentials: "Kỹ sư phần mềm xây dựng công cụ cho developer, 8 năm kinh nghiệm"
+  bio: "Tôi phát triển các công cụ cho developer và viết hướng dẫn thực tế về những tiện ích mà các kỹ sư hay dùng nhất. Tôi chính là người tạo ra trình phân tích cron của anytools mà bài viết này nhắc tới, nên các công thức ở đây đều là những thứ tôi đã tự tay test. Không lời lẽ sáo rỗng, chỉ có những thứ thực sự hoạt động."
+  url: "/about"
+howTo:
+  name: "Cách đọc và tạo một biểu thức cron"
+  steps:
+    - name: "Xác định đúng năm trường theo thứ tự"
+      text: "Một dòng crontab tiêu chuẩn sẽ có năm trường ngăn cách nhau bởi dấu cách: phút, giờ, ngày trong tháng, tháng, ngày trong tuần. Đọc từ trái sang phải và dán nhãn cho từng cái trước khi muốn chỉnh sửa gì nhé."
+    - name: "Thiết lập phút và giờ để lên lịch chạy"
+      text: "Hãy cố định hai trường thời gian này trước. '0 9' nghĩa là ở phút 0 của giờ thứ 9, tức là 9:00 sáng. Hai trường này trả lời cho câu hỏi 'chạy lúc mấy giờ' và là nơi hầu hết các tác vụ được thiết lập."
+    - name: "Chỉ chọn ngày trong tháng HOẶC ngày trong tuần, không chọn cả hai"
+      text: "Hãy để các trường ngày là * trừ khi bạn cần chỉ định một ngày cụ thể. Nếu bạn hạn chế cả ngày trong tháng lẫn ngày trong tuần, Vixie cron sẽ chạy khi khớp với MỘT TRONG HAI (dấu OR), điều này gần như không bao giờ là thứ người dùng mong đợi."
+    - name: "Test thử trên Cron Parser trước khi triển khai"
+      text: "Dán biểu thức vừa tạo vào Cron Parser của anytools để xem chính xác thời gian chạy tiếp theo bằng tiếng Việt dễ hiểu trước khi đưa nó lên server."
+faq:
+  - q: "Làm thế nào để chạy cron job mỗi 5 phút?"
+    a: "Hãy dùng */5 * * * *. Ký tự */5 trong trường phút nghĩa là 'cứ mỗi 5 phút một lần' (0, 5, 10 ... 55), và bốn dấu sao còn lại có nghĩa là mỗi giờ, mỗi ngày, mỗi tháng và mỗi ngày trong tuần. Dán nó vào Cron Parser để xác nhận thời gian chạy tiếp theo nhé."
+  - q: "Ký hiệu */5 trong cron nghĩa là gì?"
+    a: "Đó là một giá trị bước (step value): chạy ở đơn vị thứ 5 của trường đó, bắt đầu từ giá trị đầu tiên. Trong trường phút, */5 sẽ kích hoạt tại các phút 0, 5, 10, cho đến 55. Nó dựa trên bước nhảy chứ không phải khoảng thời gian lăn tuần hoàn — nó căn chỉnh theo đồng hồ, nên nó không có nghĩa là '5 phút sau lần chạy gần nhất'."
+  - q: "Cron có 5 hay 6 trường?"
+    a: "Cron tiêu chuẩn theo POSIX và Vixie/cronie sử dụng 5 trường: phút, giờ, ngày trong tháng, tháng, ngày trong tuần. Một trường thứ 6 ở đầu dành cho giây là phi tiêu chuẩn — nó chỉ tồn tại trong bộ lập lịch Quartz Java và một số dịch vụ lập lịch đám mây, chứ không có trong crontab cổ điển mà bạn chỉnh sửa bằng lệnh crontab -e."
+  - q: "Các giá trị ngày trong tuần của cron là gì?"
+    a: "Trong cron Vixie/cronie, trường ngày trong tuần là 0-7, trong đó cả 0 và 7 đều là Chủ Nhật, 1 là Thứ Hai, cho đến 6 là Thứ Bảy. Đặc tả POSIX định nghĩa nó là 0-6 với 0=Chủ Nhật. Tên viết tắt ba chữ cái như SUN hoặc MON cũng hoạt động được trên hầu hết các hệ thống."
+  - q: "Tại sao cron job của tôi lại chạy hai lần?"
+    a: "Hai nguyên nhân phổ biến nhất là giờ chuyển đổi mùa đông (đồng hồ lùi lại một giờ, nên một tác vụ được lên lịch trong khung giờ đó có thể kích hoạt hai lần trên một số hệ thống) và các lần chạy chồng chéo, khi một tác vụ chạy chậm vẫn chưa xong mà cron đã bắt đầu chạy bản sao tiếp theo. Hãy bọc lệnh của bạn bằng flock để đảm bảo nó chỉ chạy một thực thể duy nhất."
+socialHooks:
+  - text: "Năm dấu sao, năm trường: phút, giờ, ngày trong tháng, tháng, ngày trong tuần. Học cách đọc bất kỳ dòng crontab nào chỉ trong 10 giây."
+    angle: "Mô hình tư duy cốt lõi — là sợi chỉ đỏ xuyên suốt toàn bộ hướng dẫn"
+    image_focus: "Năm dấu sao được dán nhãn nằm trên một hàng, mỗi trường được ghi tên bên dưới"
+  - text: "cron mỗi 5 phút là */5 * * * * — nhưng */5 là một bước nhảy, không phải khoảng thời gian lăn tuần hoàn. Đây là sự khác biệt khiến nhiều người mắc lỗi."
+    angle: "Từ khóa long-tail có lượng tìm kiếm cao nhất + hiểu lầm về bước nhảy step"
+    image_focus: "Mặt đồng hồ đánh dấu các phút 0, 5, 10, 15 căn chỉnh theo giờ"
+  - text: "Hạn chế CẢ ngày trong tháng VÀ ngày trong tuần, cron sẽ chạy khi khớp MỘT TRONG HAI. Cái bẫy OR này sẽ kích hoạt tác vụ vào những ngày bạn không hề muốn."
+    angle: "Hành vi gây bất ngờ nhất đã được xác minh trong cron"
+    image_focus: "Một lịch với hai bộ tô sáng chồng lên nhau thể hiện phép OR, chứ không phải AND"
+  - text: "Tại sao cron job của tôi lại chạy hai lần? Lỗi chuyển đổi giờ DST và các lần chạy chồng chéo. flock sẽ giải quyết vấn đề thứ hai."
+    angle: "Debug long-tail — bí ẩn 'chạy hai lần'"
+    image_focus: "Hai biểu tượng tác vụ giống hệt nhau xếp chồng lên nhau trên dải giờ 1am-2am lặp lại"
+  - text: "cron vs systemd timers vs cloud schedulers: cron là phổ biến nhất, systemd bắt bù các lần bị lỡ, còn cloud schedulers sống sót qua việc treo máy. Hãy chọn dựa trên cách xử lý thất bại."
+    angle: "Góc nhìn so sánh dành cho những người hướng tới hạ tầng"
+    image_focus: "Ba cột — tệp crontab, systemd unit, bảng điều khiển đám mây — đặt cạnh nhau"
+---
+
+> **TL;DR**
+> - **Năm trường, theo thứ tự này:** `minute hour day-of-month month day-of-week`. Cứ để `*` cho bất kỳ trường nào mà bạn không quan tâm.
+> - **Cái bẫy khiến ai cũng dính:** nếu bạn giới hạn *cả* ngày trong tháng và ngày trong tuần, Vixie cron sẽ chạy tác vụ khi *bất kỳ* trường nào khớp (dấu OR, chứ không phải AND). Chỉ giới hạn một trường và để trường kia là `*`.
+> - **Hãy test trước khi deploy:** dán bất kỳ biểu thức nào vào [Cron Parser](/time-date/cron-parser) để xem thời gian chạy tiếp theo chính xác bằng tiếng Việt bình dân.
+
+Bạn cần một script chạy mỗi đêm lúc 2 giờ sáng. Bạn mở `crontab -e` ra, nhìn chằm chằm vào năm dấu sao và nhận ra rằng mình không rõ dấu nào là trường giờ. Bài viết này sẽ giúp bạn giải quyết triệt để vấn đề đó: đọc bất kỳ dòng cron nào trong mười giây, tạo ra biểu thức mình cần từ các công thức đã được kiểm chứng, và biết được hai ba cái bẫy âm thầm làm hỏng tác vụ trên môi trường production.
+
+## Làm thế nào để đọc bất kỳ biểu thức cron nào trong 10 giây?
+
+Hãy đọc từ trái sang phải với năm trường, luôn theo đúng thứ tự này:
+
+```
+┌───────────── minute        (0-59)
+│ ┌─────────── hour          (0-23)
+│ │ ┌───────── day of month  (1-31)
+│ │ │ ┌─────── month         (1-12)
+│ │ │ │ ┌───── day of week   (0-7, 0 và 7 = Sunday)
+│ │ │ │ │
+* * * * *  lệnh để chạy
+```
+
+Toàn bộ mô hình tư duy là: **bạn chỉ kiểm soát ba thứ — phút, giờ và một bộ chọn ngày — và để bất kỳ trường nào bạn không quan tâm là `*`.** Dấu sao có nghĩa là "mọi giá trị của trường này," nên `* * * * *` sẽ chạy lệnh mỗi phút, mãi mãi. Mọi công thức bạn viết đều dùng cái nền tảng đó rồi ghim từ một đến ba trường mà thôi.
+
+Vậy `30 2 * * *` được đọc là: phút 30, giờ 2, mọi ngày trong tháng, mọi tháng, mọi ngày trong tuần — tức là **2:30 sáng mỗi ngày**. `Lệnh` nằm sau trường thứ năm là thứ sẽ chạy; nó không phải là trường thời gian thứ sáu. Mánh khóe chỉ có vậy. Phạm vi của các trường và ý nghĩa của dấu sao được định nghĩa trong [trang man crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html) và [đặc tả POSIX crontab](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html); khi không chắc chắn, hãy xác minh một dòng trong [Cron Parser](/time-date/cron-parser) thay vì đoán mò.
+
+## Ý nghĩa của từng trường trong năm trường là gì?
+
+Mỗi trường đều có một phạm vi cố định và một vài đặc điểm đặc biệt đáng lưu ý. Đây chính là tài liệu tham khảo mà bạn sẽ cần quay lại xem.
+
+| Trường | Phạm vi | Ghi chú |
+|---|---|---|
+| **Phút** | `0-59` | Phút của giờ. `0` là đầu giờ. |
+| **Giờ** | `0-23` | Đồng hồ 24 giờ, theo giờ địa phương của hệ thống. `0` là nửa đêm, `23` là 11 PM. |
+| **Ngày trong tháng** | `1-31` | Bắt đầu từ 1, không phải 0. Không hề có "ngày cuối cùng của tháng" mặc định. |
+| **Tháng** | `1-12` | `1` là tháng Giêng. Tên viết tắt ba chữ cái (`JAN`–`DEC`) cũng dùng được trên phần lớn hệ thống. |
+| **Ngày trong tuần** | `0-7` | `0` **và** `7` đều là Chủ nhật, `1` là Thứ Hai, `6` là Thứ Bảy. Tên ngày (`SUN`–`SAT`) cũng hoạt động tốt. |
+
+Có hai факt về phạm vi hay khiến người ta rối. Ngày trong tháng bắt đầu từ `1` trong khi các trường thời gian (phút, giờ) bắt đầu từ `0`. Và ngày trong tuần có đến hai ngày Chủ nhật: [trang man crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html) định nghĩa nó là `0-7` trong đó "0 hoặc 7 là Chủ nhật", nên cả `0` (đầu tuần theo kiểu Mỹ) và `7` (cuối tuần theo ISO) đều hoạt động chuẩn. [Đặc tả POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html) thì khắt khe hơn — `0-6` với `0=Chủ nhật` — nên trên một hệ thống cron POSIX tối giản, hãy dùng `0-6` và đừng phụ thuộc vào số `7`. 
+
+## Các ký tự `*`, `,`, `-`, và `/` dùng để làm gì?
+
+Bốn ký tự này bao quát mọi mẫu cron tiêu chuẩn. Bất cứ thứ gì ngoài bốn ký tự này đều là phần mở rộng phi tiêu chuẩn, đừng vội giả định rằng nó được hỗ trợ nhé.
+
+| Ký tự | Tên | Ý nghĩa | Ví dụ |
+|---|---|---|---|
+| `*` | Dấu sao | Mọi giá trị ("từ đầu đến cuối") của trường đó | `* * * * *` = mỗi phút |
+| `,` | Dấu phẩy | Một danh sách các giá trị cụ thể | `0 0,12 * * *` = nửa đêm và buổi trưa |
+| `-` | Dấu gạch ngang | Một phạm vi bao gồm cả điểm đầu và cuối | `0 9-17 * * *` = mỗi giờ từ 9 AM–5 PM |
+| `/` | Dấu gạch chéo | Một bước nhảy ("mỗi lần thứ N") trên một phạm vi hoặc `*` | `*/5 * * * *` = mỗi 5 phút |
+
+Subtlety duy nhất ở đây là bước nhảy đếm bắt đầu *từ* đâu. Một bước nhảy trên dấu sao sẽ bắt đầu từ giá trị đầu tiên của trường: `*/5` ở trường phút có nghĩa là các phút `0, 5, 10 … 55`. Một bước nhảy trên một phạm vi cụ thể sẽ bắt đầu từ điểm dưới của phạm vi: `10-50/5` nghĩa là `10, 15, 20 … 50` — nó bắt đầu từ 10, chứ không phải 0. Nếu hiểu sai chỗ này, bạn sẽ dính lỗi "tại sao nó chạy vào một phút kỳ quặc", nên hãy test các lịch trình có bước nhảy trong [Cron Parser](/time-date/cron-parser) nếu nó làm bạn ngạc nhiên.
+
+Mọi thứ khác — `L` (cuối cùng), `W` (ngày làm việc gần nhất), `#` (ngày làm việc thứ N của tháng), `?` (không có giá trị cụ thể) và một **trường giây** ở đầu — đều **phi tiêu chuẩn**. Theo [tài liệu tham khảo cron trên Wikipedia](https://en.wikipedia.org/wiki/Cron), những ký tự đó "chỉ tồn tại trong một số trình triển khai cron, ví dụ như bộ lập lịch Quartz Java," và trường giây chỉ xuất hiện trong các biến thể 6 và 7 trường. Cron Vixie/POSIX cổ điển (lệnh `crontab -e` trên máy của bạn) không có bất kỳ ký tự nào trong số đó. Copy một biểu thức `0 0 12 * * ?` từ một hướng dẫn Quartz và nó sẽ báo lỗi phân tích cú pháp trên crontab bình thường — chữ số `0` ở đầu chính là trường giây mà cron cổ điển không có.
+
+## Bảng công thức — 16 biểu thức đã kiểm chứng để copy
+
+Mỗi biểu thức dưới đây đều đã được kiểm tra từng trường một khớp với phạm vi phía trên. Hãy copy cái bạn cần; khi bạn chỉnh sửa nó, hãy xác minh kết quả trong [Cron Parser](/time-date/cron-parser).
+
+| Biểu thức | Tiếng Việt dễ hiểu |
+|---|---|
+| `*/5 * * * *` | Cứ 5 phút một lần |
+| `*/15 * * * *` | Cứ 15 phút một lần |
+| `*/30 * * * *` | Cứ 30 phút một lần (vào đầu giờ và giữa giờ) |
+| `0 * * * *` | Mỗi giờ, đúng đầu giờ |
+| `0 */2 * * *` | Cứ 2 giờ một lần (00:00, 02:00, 04:00 …) |
+| `0 */6 * * *` | Cứ 6 giờ một lần (00:00, 06:00, 12:00, 18:00) |
+| `0 0 * * *` | Mỗi ngày vào nửa đêm |
+| `0 9 * * *` | Mỗi ngày lúc 9:00 AM |
+| `0 0,12 * * *` | Hai lần một ngày — nửa đêm và trưa |
+| `0 9 * * 1-5` | 9:00 AM các ngày trong tuần (Thứ Hai–Thứ Sáu) |
+| `0 9-17 * * 1-5` | Mỗi giờ từ 9 AM đến 5 PM, các ngày trong tuần |
+| `0 0 * * 0` | Nửa đêm mỗi Chủ nhật |
+| `0 8 * * 6` | 8:00 AM mỗi Thứ Bảy |
+| `0 18 * * 1,3,5` | 6:00 PM các ngày Thứ Hai, Thứ Tư và Thứ Sáu |
+| `0 0 1 * *` | Nửa đêm ngày mùng 1 hàng tháng |
+| `0 0 1 1,4,7,10 *` | Nửa đêm ngày mùng 1 của tháng 1, 4, 7, 10 (hàng quý) |
+
+Bạn có nhận ra quy luật không: tất cả đều là `* * * * *` và chỉ ghim những trường mà nó cần quan tâm thôi. "Mỗi ngày lúc 9 AM" (`0 9 * * *`) chỉ động vào phút và giờ rồi để ba trường ngày/tháng là `*`. "Các ngày trong tuần từ 9 đến 5" (`0 9-17 * * 1-5`) động vào phút, một khoảng giờ và ngày trong tuần — và điều quan trọng là nó để ngày trong tháng là `*` nên cái bẫy OR (phần tiếp theo) sẽ không bao giờ xuất hiện.
+
+## Tại sao việc giới hạn cả hai trường ngày lại tạo ra phép OR, thay vì AND?
+
+Bởi vì Vixie cron được lập đặc tả như vậy — và đây là quy tắc gây bất ngờ nhất trong toàn bộ hệ thống.
+
+Bình thường, cron yêu cầu *tất cả* các trường phải khớp trước khi chạy một tác vụ (phép AND logic). Các trường ngày là ngoại lệ. Theo nguyên văn từ [trang man crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html):
+
+> Nếu cả hai trường đều bị hạn chế (tức là không phải là `*`), lệnh sẽ được chạy khi *bất kỳ* trường nào khớp với thời gian hiện tại.
+
+[Đặc tả POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html) cũng nói tương tự ("bất kỳ ngày nào khớp với ngày trong tháng, hoặc ngày trong tuần, đều được tính"), và bản gốc [Vixie cron crontab(5)](https://man.freebsd.org/cgi/man.cgi?query=crontab&sektion=5) cũng thế. Nên hãy thử xem biểu thức này:
+
+```
+0 0 1,15 * 5    →  nửa đêm vào ngày 1, ngày 15, VÀ mỗi Thứ Sáu
+```
+
+Nếu ý bạn *là* "nửa đêm ngày 1 và 15, nhưng chỉ khi nó rơi vào Thứ Sáu," thì bạn đã sai — nó sẽ kích hoạt vào ngày 1, ngày 15, **và** mỗi Thứ Sáu, bởi vì hai trường ngày được tính bằng dấu OR. Cách khắc phục đã được tích hợp sẵn trong mô hình đọc: **chỉ giới hạn một bộ chọn ngày và để trường kia là `*`.** Muốn chỉ định ngày trong tháng cụ thể? Hãy đặt ngày trong tuần thành `*`. Muốn một ngày trong tuần cụ thể? Hãy đặt ngày trong tháng thành `*`. Chỉ restrict cả hai khi bạn thực sự muốn lấy tập hợp hợp của chúng. Cron không có phép AND sẵn cho các trường ngày; nếu bạn thực sự cần "ngày 15 chỉ khi là Thứ Sáu", hãy chèn thêm điều kiện đó bên trong script. Bất kỳ biểu thức nào giới hạn cả hai trường ngày đều đáng để bạn dán vào [Cron Parser](/time-date/cron-parser) xem các ngày chạy thực tế trước.
+
+## Các lối tắt `@` (@daily, @hourly, @reboot) là gì?
+
+Cron có sẵn tám lối tắt được đặt tên và tự động quy đổi thành một biểu thức tiêu chuẩn, nên hiếm khi bạn phải tự tay viết các mẫu phổ biến. Chúng được tài liệu hóa trong [crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html):
+
+| Lối tắt | Tương đương | Ý nghĩa |
+|---|---|---|
+| `@yearly` / `@annually` | `0 0 1 1 *` | Một năm một lần, nửa đêm ngày 1 tháng 1 |
+| `@monthly` | `0 0 1 * *` | Một tháng một lần, nửa đêm ngày mùng 1 |
+| `@weekly` | `0 0 * * 0` | Một tuần một lần, nửa đêm ngày Chủ nhật |
+| `@daily` / `@midnight` | `0 0 * * *` | Một ngày một lần, vào lúc nửa đêm |
+| `@hourly` | `0 * * * *` | Một giờ một lần, đúng đầu giờ |
+| `@reboot` | — | Một lần, sau khi cron khởi động cùng máy |
+
+`@midnight` là một alias chính xác của `@daily` (cả hai đều là `0 0 * * *`), và `@annually` là một alias chính xác của `@yearly`. `@reboot` là trường hợp đặc biệt — nó không tương đương với bất kỳ trường thời gian nào vì nó chỉ kích hoạt một lần khi cron khởi động, chứ không theo lịch trình. Rất tiện để khởi động một trình hỗ trợ chạy dài cùng máy, nhưng hãy nhớ rằng nó chạy khi *cron* khởi động, trên hầu hết các hệ thống thì điều này xảy ra rất sớm trong quá trình boot, trước khi các dịch vụ khác có thể sẵn sàng.
+
+## Những cạm bẫy on production
+
+Hầu hết nỗi đau khi dùng cron không nằm ở cú pháp — mà nằm ở năm cái bẫy từ môi trường. Học thuộc một lần và bạn sẽ gỡ lỗi được những ticket "nó chạy sai giờ" trong chớp mắt.
+
+**Múi giờ và DST.** Cron sử dụng giờ *địa phương* của hệ thống, chứ không phải UTC, trừ khi được báo khác — điều này khiến các lần chuyển đổi giờ mùa màng trở nên rủi ro. Lúc xuân phân (spring-forward), đồng hồ nhảy từ 2 AM thành 3 AM, nên một tác vụ chạy lúc 2:30 AM sẽ rơi vào một giờ không tồn tại và có thể bị bỏ qua. Lúc thu phân (fall-back), khung giờ từ 1–2 AM lặp lại, nên một tác vụ trong cửa sổ này có thể kích hoạt **hai lần**. Các phiên bản Vixie/cronie hiện đại đã có [xử lý đặc biệt cho các khung giờ dịch chuyển dưới ba tiếng](https://en.wikipedia.org/wiki/Cron) để giảm thiểu vấn đề này cho các tác vụ chạy mỗi ngày một lần, nhưng cách hoạt động sẽ tùy thuộc vào phiên bản, nên giải pháp triệt để nhất là lên lịch các tác vụ quan trọng ngoài cửa sổ từ 1–3 AM hoặc chạy máy chủ theo UTC. Bạn có thể chốt một múi giờ bằng dòng `CRON_TZ=America/New_York` ngay trên đầu tác vụ — nhưng `CRON_TZ` chỉ thay đổi *lúc nào* cron kích hoạt; script của bạn vẫn sẽ thấy múi giờ của hệ thống trừ khi bạn tự xuất `TZ`.
+
+**Không có "ngày cuối cùng của tháng" mặc định.** Cron cổ điển không có ký tự `L`, nên `0 0 31 * *` sẽ không chạy trong các tháng 2, 4, 6, 9 hoặc 11. Hãy chạy hàng ngày và kiểm tra ngày tháng trong script, hoặc chạy vào ngày mùng 1 và hướng tới dữ liệu của "hôm qua".
+
+**Step trên một phạm vi vs step trên dấu sao.** Như đã nói ở trên, `*/5` bắt đầu từ 0 nhưng `10-50/5` bắt đầu từ 10. Nếu muốn "cứ 5 phút chạy một lần nhưng chỉ trong nửa sau của giờ," hãy viết phạm vi ra một cách tường minh.
+
+**Các tác vụ dài hạn bị chồng chéo.** Cron không kiểm tra xem lần gọi trước đó đã kết thúc chưa. Nếu `*/5` kích hoạt một tác vụ mà đôi khi mất tới 8 phút, hai bản sao sẽ chạy cùng một lúc — đây là nguyên nhân phổ biến của lỗi "tại sao nó lại chạy hai lần", công việc trùng lặp hoặc đầu ra bị hỏng. Hãy bọc lệnh trong `flock` (ví dụ: `flock -n /tmp/job.lock -c 'your-command'`) để lần gọi thứ hai sẽ lập tức thoát ra trong khi bản đầu tiên vẫn đang nắm giữ khóa.
+
+**PATH và môi trường tối giản.** Cron chạy với một môi trường đã bị lược bỏ và `PATH` tối giản (thường là `/usr/bin:/bin`), chứ không phải môi trường trong shell của bạn. Một script vẫn chạy ngon trong terminal có thể báo lỗi dưới cron vì một tệp binary không nằm trên `PATH` của cron. Hãy sử dụng đường dẫn tuyệt đối cho các tệp binary, hoặc thiết lập `PATH=` ở trên cùng của crontab.
+
+## Cron vs systemd timers vs cloud schedulers — khi nào thì dùng cái nào?
+
+Cả ba đều thực hiện việc chạy tác vụ theo lịch trình; chúng khác biệt ở việc chúng có thể sống sót qua những tình huống nào và chi phí vận hành ra sao. Hãy lựa chọn dựa trên cách thức xử lý lỗi (failure mode), đừng chọn theo thói quen.
+
+**Cron** là lựa chọn mặc định phổ quát: trên hầu như mọi máy chủ Unix, bạn không cần thiết lập gì thêm ngoài daemon đang chạy sẵn, chỉ cần một dòng là xong. Điểm yếu của nó là những cạm bẫy đã nhắc đến phía trên — nó âm thầm loại bỏ các lần chạy bị bỏ lỡ khi máy tính bị tắt, không có sẵn tính năng ghi log thành công/thất bại tích hợp sẵn và cũng không ngăn được việc chạy chồng chéo. Hãy dùng cron cho các tác vụ cơ bản, chạy cho từng máy (per-host) và mang tính best-effort.
+
+**systemd timers** là một tùy chọn nặng ký nhưng đáng tin cậy hơn trên Linux hiện đại. Một `OnCalendar=` của timer sử dụng các khái niệm lịch giống như cron, nhưng tính năng vô định ở đây là `Persistent=`: theo [trang man systemd.timer(5)](https://man7.org/linux/man-pages/man5/systemd.timer.5.html), khi được thiết lập, "đơn vị dịch vụ sẽ được kích hoạt ngay lập tức nếu nó lẽ ra đã được kích hoạt ít nhất một lần trong khoảng thời gian timer không hoạt động" — vì vậy, một lần chạy bị bỏ lỡ sẽ *được bắt bù lại (catch up)* sau thời gian chết thay vì biến mất. Các timer cũng có thêm khả năng ghi log qua journal, lên lịch định lượng (`OnBootSec=`, `OnUnitActiveSec=`), và `RandomizedDelaySec=` để làm lệch lịch trình trên các cụm máy chủ. Cái giá phải trả: bạn phải viết một unit `.timer` và `.service` thay vì chỉ một dòng. Hãy chọn chúng khi bạn cần tính năng bắt bù (catch-up), ghi log hoặc sắp xếp thứ tự dependencies.
+
+**Cloud schedulers** (cron được quản lý, CronJobs trong container, trình lập lịch serverless) tỏa sáng khi tác vụ bắt buộc phải tồn tại được ngay cả khi một máy chủ singular bị chết. Chúng chạy độc lập với bất kỳ máy chủ vật lý nào, tập trung hóa việc ghi log, thử lại (retry) và scale theo chiều ngang. Đánh đổi là vendor lock-in, phụ thuộc vào mạng và chi phí cho mỗi lần gọi. Hãy chọn chúng khi lịch trình mang tính sống còn đối với business và không thể phụ thuộc vào việc một máy chủ có đang online hay không.
+
+Bất kể bạn chọn cái nào, *biểu thức* viết ra vẫn giống hệt nhau. Kỷ luật test-trước-khi-ship này cũng áp dụng tương tự cho regex; hãy xem [hướng dẫn regex tester](/blog/regex-tester-pattern-builder-guide) cho mảng công cụ hỗ trợ đó nhé.
+
+## Tóm lại
+
+Cron là năm trường theo một thứ tự cố định, và 95% những gì bạn từng viết chỉ là `* * * * *` với các trường phút, giờ và một bộ chọn ngày được ghim lại. Hãy học thứ tự các trường, ghi nhớ bốn toán tử (`* , - /`), copy từ bảng công thức, và thấm nhuần quy tắc duy nhất giúp bạn tránh được những lần chạy đầy bí ẩn.
+
+> **Tóm lại:** Không bao giờ được giới hạn cả ngày trong tháng *và* ngày trong tuần trừ khi bạn thực sự muốn dùng dấu OR — và hãy dán mọi biểu thức vào [Cron Parser](/time-date/cron-parser) để xem thời gian chạy thực tế tiếp theo trước khi đưa nó lên máy chủ.

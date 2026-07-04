@@ -1,0 +1,212 @@
+---
+title: "Guia da Sintaxe do Cron (2026): Como Ler e Criar Qualquer Expressão Crontab"
+slug: cron-syntax-cheatsheet-2026
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/cron-syntax-cheatsheet-2026/hero.jpg"
+  alt: "\n“Falar é fácil. Mostre-me o código.”\n― Linus Torvalds"
+  credit:
+    photographer: "Mohammad Rahmani"
+    photographer_url: "https://unsplash.com/@afgprogrammer?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/laptop-screen-displaying-colorful-code-8qEB0fTe9Vw?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+description: "Sintaxe do cron explicada: a ordem dos 5 campos, um modelo para ler em 10 segundos, 16 receitas testadas, a pegadinha do OR no dia da semana, armadilhas de horário de verão e cron vs systemd timers."
+category: design
+keywords:
+  - guia sintaxe cron
+  - cron a cada 5 minutos
+  - formato crontab
+  - cron dia da semana
+  - cron vs systemd
+writingStyle: explainer
+toolsLinked: [cron-parser, regex-tester]
+publishedAt: 2026-07-04
+updatedAt: 2026-07-04
+readingTime: 10
+disclosureType: affiliate
+author:
+  name: "Dobby"
+  credentials: "Engenheiro de software criando ferramentas de desenvolvimento, 8 anos de experiência"
+  bio: "Crio ferramentas para desenvolvedores e escrevo guias práticos sobre os utilitários do dia a dia. Eu mesmo desenvolvi o parser de cron da anytools mencionado neste guia, então todas as receitas aqui foram testadas nele. Sem enrolação, apenas o que funciona."
+  url: "/about"
+howTo:
+  name: "Como ler e criar uma expressão cron"
+  steps:
+    - name: "Identifique os cinco campos em ordem"
+      text: "Uma linha padrão do crontab possui cinco campos separados por espaços: minuto, hora, dia-do-mês, mês, dia-da-semana. Leia da esquerda para a direita e identifique cada um antes de mexer em alguma coisa."
+    - name: "Defina o minuto e a hora para a execução"
+      text: "Arrume os dois campos de tempo primeiro. '0 9' significa no minuto 0 da hora 9, ou seja, 9:00 AM. Esses dois campos respondem 'a que horas' e é onde a maioria dos jobs mora."
+    - name: "Escolha dia-do-mês OU dia-da-semana, nunca os dois"
+      text: "Deixe os campos de dia como * a menos que você precise de um dia específico. Se você restringir tanto o dia-do-mês quanto o dia-da-semana, o Vixie cron executa em QUALQUER correspondência (um OR), o que quase nunca é o que as pessoas esperam."
+    - name: "Teste no Cron Parser antes de fazer deploy"
+      text: "Cole a expressão final no Cron Parser da anytools para ver os próximos horários exatos de execução em texto puro antes de subir para o servidor."
+faq:
+  - q: "Como faço para rodar um job cron a cada 5 minutos?"
+    a: "Use */5 * * * *. O */5 no campo de minutos significa 'a cada 5 minutos' (0, 5, 10 ... 55), e os quatro asteriscos significam todas as horas, todos os dias, todos os meses, todos os dias da semana. Cole no Cron Parser para confirmar os próximos horários."
+  - q: "O que significa */5 no cron?"
+    a: "É um valor de passo (step): roda a cada 5 unidades daquele campo, começando pelo primeiro valor do campo. No campo de minutos, o */5 dispara nos minutos 0, 5, 10, até 55. É base em passos, não em um intervalo contínuo — ele se alinha ao relógio, então não significa 'cinco minutos após a última execução'."
+  - q: "O cron tem 5 ou 6 campos?"
+    a: "O cron padrão POSIX e Vixie/cronie usa 5 campos: minuto, hora, dia-do-mês, mês, dia-da-semana. Um 6º campo à esquerda para segundos não é padrão — ele existe no agendador Quartz do Java e em alguns cloud schedulers, e não no crontab clássico que você edita com crontab -e."
+  - q: "Quais são os valores do dia da semana no cron?"
+    a: "No Vixie/cronie cron, o campo do dia da semana vai de 0-7, onde tanto 0 quanto 7 significam domingo, 1 é segunda-feira, até 6 para sábado. A especificação POSIX o define como 0-6, sendo 0=domingo. Nomes de três letras como SUN ou MON também funcionam na maioria das implementações."
+  - q: "Por que meu job cron rodou duas vezes?"
+    a: "As duas causas mais comuns são a hora do horário de verão quando os relógios voltam (o relógio repete uma hora, então um job agendado nela pode disparar duas vezes em algumas configurações) e execuções sobrepostas, onde um job lento ainda está rodando quando o cron inicia a próxima cópia. Coloque o comando dentro de um flock para garantir uma única instância."
+socialHooks:
+  - text: "Cinco asteriscos, cinco campos: minuto, hora, dia-do-mês, mês, dia-da-semana. Aprenda a ler qualquer linha do crontab em 10 segundos."
+    angle: "O modelo mental central — a linha guia de todo o artigo"
+    image_focus: "Cinco asteriscos rotulados em linha, com o nome de cada campo embaixo"
+  - text: "Cron a cada 5 minutos é */5 * * * * — mas */5 é um passo, não um intervalo contínuo. Aqui está a diferença que confunde todo mundo."
+    angle: "Palavra-chave de cauda longa com maior volume + a falha de entendimento sobre passos"
+    image_focus: "Um mostrador de relógio destacando os minutos 0, 5, 10, 15 alinhados à hora"
+  - text: "Restrinja AMBOS dia-do-mês e dia-da-semana e o cron roda em QUALQUER correspondência. A pegadinha do OR que dispara jobs nos dias em que você nunca quis."
+    angle: "O comportamento verificado mais surpreendente e isolado do cron"
+    image_focus: "Um calendário com dois conjuntos de destaques sobrepostos mostrando OR, não AND"
+  - text: "Por que meu job cron rodou duas vezes? Horário de verão caindo e execuções sobrepostas. O flock resolve o segundo."
+    angle: "Debug de cauda longa — o mistério do 'rodou duas vezes'"
+    image_focus: "Dois ícones idênticos de job empilhados em uma faixa repetida de relógio 1am-2am"
+  - text: "Cron vs systemd timers vs cloud schedulers: cron é universal, systemd recupera execuções perdidas, cloud schedulers sobrevivem a uma máquina morta. Escolha pelo modo de falha."
+    angle: "O ângulo de comparação para leitores focados em infraestrutura"
+    image_focus: "Três colunas — arquivo crontab, unit do systemd, console de cloud — lado a lado"
+---
+
+> **TL;DR**
+> - **Cinco campos, nesta ordem:** `minute hour day-of-month month day-of-week` (minuto, hora, dia do mês, mês, dia da semana). Deixe como `*` qualquer campo que você não queira restringir.
+> - **A pegadinha que pega todo mundo:** se você restringir *tanto* o dia do mês quanto o dia da semana, o Vixie cron executa o job quando *qualquer um* dos dois der match (um OR, e não um AND). Restrinja apenas um e deixe o outro como `*`.
+> - **Teste antes de subir para produção:** cole qualquer expressão no [Cron Parser](/time-date/cron-parser) para ver os próximos horários exatos de execução em linguagem simples.
+
+Você precisa que um script rode toda noite às 2 da manhã. Você abre o `crontab -e`, encara cinco asteriscos e percebe que não sabe qual deles é a hora. Este guia resolve isso de uma vez por todas: como ler qualquer linha de cron em dez segundos, montar a que você precisa usando receitas testadas e conhecer as duas ou três armadilhas que quebram jobs silenciosamente em produção.
+
+## Como ler qualquer expressão cron em 10 segundos?
+
+Leia da esquerda para a direita como cinco campos, sempre nesta ordem exata:
+
+```
+┌───────────── minuto         (0-59)
+│ ┌─────────── hora           (0-23)
+│ │ ┌───────── dia do mês     (1-31)
+│ │ │ ┌─────── mês            (1-12)
+│ │ │ │ ┌───── dia da semana  (0-7, 0 e 7 = Domingo)
+│ │ │ │ │
+* * * * *  comando a executar
+```
+
+O modelo mental todo é este: **você só controla três coisas — o minuto, a hora e um seletor de dia — e deixa todos os outros campos que não importam como `*`.** O asterisco significa "todos os valores deste campo", então `* * * * *` roda o comando a cada minuto, para sempre. Todas as receitas que você vai criar são essa linha de base com um a três campos fixados.
+
+Então `30 2 * * *` lê-se assim: minuto 30, hora 2, todos os dias do mês, todos os meses, todos os dias da semana — ou seja, **2:30 da manhã todos os dias**. O `comando` logo após o quinto campo é o que será executado; não é um sexto campo de tempo. Esse é o pulo do gato. Os intervalos de cada campo e o significado do asterisco são definidos na [man page do crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html) e na [especificação POSIX do crontab](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html); na dúvida, cheque a linha no [Cron Parser](/time-date/cron-parser) em vez de tentar adivinhar.
+
+## O que significa cada um dos cinco campos?
+
+Cada campo tem um intervalo fixo e um par de particularidades que valem a pena conhecer de antemão. Esta é a tabela de referência para a qual você sempre vai voltar.
+
+| Campo | Intervalo | Observações |
+|---|---|---|
+| **Minuto** | `0-59` | Minuto da hora. `0` é o topo da hora. |
+| **Hora** | `0-23` | Relógio de 24 horas, horário local do sistema. `0` é meia-noite, `23` é 23h. |
+| **Dia do mês** | `1-31` | Começa no 1, e não no 0. Não existe um "último dia do mês" nativo. |
+| **Mês** | `1-12` | `1` é janeiro. Nomes de três letras (`JAN`–`DEC`) também funcionam na maioria das implementações. |
+| **Dia da semana** | `0-7` | `0` **e** `7` significam domingo, `1` é segunda-feira, `6` é sábado. Nomes (`SUN`–`SAT`) também funcionam. |
+
+Dois detalhes sobre os intervalos costumam confundir. O dia do mês começa no `1`, enquanto os campos de tempo (minuto, hora) começam no `0`. E o dia da semana tem dois domingos: a [man page do crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html) define como `0-7`, onde "0 ou 7 é domingo", então tanto `0` (início da semana nos EUA) quanto `7` (final da semana na ISO) funcionam. A [especificação POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html) é mais rígida — `0-6` sendo `0=domingo` — então num cron POSIX minimalista, fique com `0-6` e não dependa do `7`.
+
+## O que fazem `*`, `,`, `-` e `/`?
+
+Quatro caracteres cobrem todos os padrões do cron padrão. Qualquer coisa além disso é uma extensão não padrão, e você não deve assumir que haverá suporte.
+
+| Caractere | Nome | Significado | Exemplo |
+|---|---|---|---|
+| `*` | Asterisco | Todos os valores ("do primeiro ao último") do campo | `* * * * *` = a cada minuto |
+| `,` | Vírgula | Uma lista de valores específicos | `0 0,12 * * *` = meia-noite e meio-dia |
+| `-` | Hífen | Um intervalo inclusivo | `0 9-17 * * *` = de hora em hora, das 9h às 17h |
+| `/` | Barra | Um passo ("a cada enésimo") num intervalo ou `*` | `*/5 * * * *` = a cada 5 minutos |
+
+A única sutileza é a partir de onde o passo começa a contar. Um passo num asterisco começa no primeiro valor do campo: `*/5` no campo de minutos significa minutos `0, 5, 10 … 55`. Um passo num intervalo explícito começa no limite inferior do intervalo: `10-50/5` significa `10, 15, 20 … 50` — começa no 10, e não no 0. Errar isso gera aqueles bugs de "por que ele rodou num minuto estranho", então teste schedules com passo no [Cron Parser](/time-date/cron-parser) se tiver dúvida.
+
+Qualquer outra coisa — `L` (último), `W` (dia útil mais próximo), `#` (enésimo dia da semana do mês), `?` (sem valor específico) e um **campo de segundos** inicial — é **não padrão**. Segundo a [referência do cron na Wikipédia](https://en.wikipedia.org/wiki/Cron), esses caracteres "existem apenas em algumas implementações do cron, como no agendador Quartz do Java", e o campo de segundos só aparece em variantes de 6 e 7 campos. O cron clássico Vixie/POSIX (o `crontab -e` da sua máquina) não tem nenhum deles. Copiar uma expressão `0 0 12 * * ?` de um tutorial de Quartz não vai funcionar num crontab normal — aquele `0` inicial é um campo de segundos que o cron clássico não possui.
+
+## A tabela de receitas — 16 expressões verificadas para copiar
+
+Cada expressão abaixo foi checada campo a campo de acordo com os intervalos acima. Copie a que você precisa; e, quando for ajustar, confira o resultado no [Cron Parser](/time-date/cron-parser).
+
+| Expressão | Em linguagem simples |
+|---|---|
+| `*/5 * * * *` | A cada 5 minutos |
+| `*/15 * * * *` | A cada 15 minutos |
+| `*/30 * * * *` | A cada 30 minutos (na hora cheia e na meia-hora) |
+| `0 * * * *` | De hora em hora, no minuto zero |
+| `0 */2 * * *` | A cada 2 horas (00:00, 02:00, 04:00 …) |
+| `0 */6 * * *` | A cada 6 horas (00:00, 06:00, 12:00, 18:00) |
+| `0 0 * * *` | Todos os dias à meia-noite |
+| `0 9 * * *` | Todos os dias às 9h |
+| `0 0,12 * * *` | Duas vezes ao dia — meia-noite e meio-dia |
+| `0 9 * * 1-5` | 9h em dias úteis (seg a sex) |
+| `0 9-17 * * 1-5` | De hora em hora, das 9h às 17h, dias úteis |
+| `0 0 * * 0` | Todo domingo à meia-noite |
+| `0 8 * * 6` | Todo sábado às 8h |
+| `0 18 * * 1,3,5` | 18h às segundas, quartas e sextas |
+| `0 0 1 * *` | Meia-noite no dia 1º de todo mês |
+| `0 0 1 1,4,7,10 *` | Meia-noite no dia 1º de jan, abr, jul, out (trimestral) |
+
+Repare no padrão: todas elas são `* * * * *` com apenas os campos importantes fixados. "Todos os dias às 9h" (`0 9 * * *`) mexe apenas no minuto e na hora, deixando os três campos de dia/mês como `*`. "Dias úteis das 9h às 17h" (`0 9-17 * * 1-5`) mexe no minuto, num intervalo de horas e no dia da semana — e, o mais importante, deixa o dia do mês como `*` para que a pegadinha do OR (próxima seção) nunca seja ativada.
+
+## Por que restringir ambos os campos de dia causa um OR, e não um AND?
+
+Porque é assim que o Vixie cron foi especificado — e essa é de longe a regra mais surpreendente de todo o sistema.
+
+Normalmente, o cron exige que *todos* os campos correspondam para rodar um job (um AND lógico). Os campos de dia são a exceção. Segundo a [man page do crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html), textualmente:
+
+> Se ambos os campos forem restritos (ou seja, não forem `*`), o comando será executado quando *qualquer* campo corresponder ao horário atual.
+
+A [especificação POSIX](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html) diz o mesmo ("qualquer dia que corresponda ao dia do mês ou ao dia da semana será considerado"), e o [crontab(5) original do Vixie cron](https://man.freebsd.org/cgi/man.cgi?query=crontab&sektion=5) também. Pegue esta expressão:
+
+```
+0 0 1,15 * 5    →  meia-noite no dia 1, no dia 15 E todo sexta-feira
+```
+
+Se você *queria dizer* "meia-noite nos dias 1 e 15, mas somente se cair numa sexta", isso está errado — o job vai disparar no dia 1, no dia 15 **e** em todas as sextas, porque os dois campos de dia são tratados com OR. A solução já está embutida no modelo mental: **restinja apenas um seletor de dia e deixe o outro como `*`.** Quer um dia específico do mês? Coloque o dia da semana como `*`. Quer um dia da semana específico? Coloque o dia do mês como `*`. Restrinja os dois apenas quando você quiser deliberadamente a união. O cron não tem um AND nativo para os campos de dia; se você realmente precisa do "dia 15, mas somente se for sexta", coloque essa validação dentro do próprio script. Qualquer expressão que restrinja os dois campos de dia vale a pena colar no [Cron Parser](/time-date/cron-parser) para ver as reais datas de execução antes.
+
+## O que são os atalhos `@` (@daily, @hourly, @reboot)?
+
+O cron vem com oito atalhos nomeados que se expandem para uma expressão padrão, então você raramente precisa escrever os mais comuns à mão. Eles estão documentados no [crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5.html):
+
+| Atalho | Equivalente | Significado |
+|---|---|---|
+| `@yearly` / `@annually` | `0 0 1 1 *` | Uma vez por ano, meia-noite do dia 1º de janeiro |
+| `@monthly` | `0 0 1 * *` | Uma vez por mês, meia-noite do dia 1º |
+| `@weekly` | `0 0 * * 0` | Uma vez por semana, meia-noite do domingo |
+| `@daily` / `@midnight` | `0 0 * * *` | Uma vez por dia, à meia-noite |
+| `@hourly` | `0 * * * *` | De hora em hora, no minuto zero |
+| `@reboot` | — | Uma vez, após o cron iniciar no boot |
+
+`@midnight` é um apelido exato para `@daily` (ambos são `0 0 * * *`), e `@annually` é um apelido exato para `@yearly`. O `@reboot` é o diferente da turma — ele não tem equivalente em campos de tempo porque dispara uma vez quando o cron inicia, e não num agendamento. É útil para iniciar um job demorado logo no boot, mas lembre-se de que ele roda quando o *cron* começa, o que na maioria dos sistemas ocorre cedo no processo de boot, antes que outros serviços estejam prontos.
+
+## As armadilhas que picam na produção
+
+A maioria das dores de cabeça com o cron não é de sintaxe — são essas cinco armadilhas de ambiente. Aprenda-as uma vez e você vai resolver os chamados de "rodou no horário errado" em segundos.
+
+**Fuso horário e horário de verão (DST).** O cron usa o horário *local* do sistema, e não UTC, a menos que seja instruído do contrário — o que torna as transições de horário de verão perigosas. Na virão para a frente (spring-forward), o relógio pula das 2h para as 3h, então um job agendado para as 2:30 cai numa hora que não existe e pode ser ignorado. Na virada para trás (fall-back), a janela de 1–2h da manhã se repete, então um job nesse intervalo pode rodar **duas vezes**. O Vixie/cronie cron moderno possui [tratamento especial para mudanças inferiores a três horas](https://en.wikipedia.org/wiki/Cron), o que atenua isso em jobs diários, mas o comportamento varia entre as implementações. A solução robusta é agendar jobs críticos fora dessa janela de 1–3h da manhã ou deixar a máquina em UTC. Você pode fixar um fuso com uma linha `CRON_TZ=America/New_York` acima do job — mas o `CRON_TZ` só muda *quando* o cron dispara; seu script ainda vai enxergar o fuso do sistema, a menos que você exporte a variável `TZ` no próprio script.
+
+**Falta de um "último dia do mês" nativo.** O cron clássico não tem suporte ao `L`, então `0 0 31 * *` simplesmente não vai rodar em fevereiro, abril, junho, setembro ou novembro. Rode diariamente e verifique a data no script, ou rode no dia 1º e processe "o dia anterior".
+
+**Passo em intervalo vs. passo no asterisco.** Como vimos acima, `*/5` começa no 0, mas `10-50/5` começa no 10. Para algo como "a cada 5 minutos, mas só na segunda metade da hora", escreva o intervalo explicitamente.
+
+**Execuções longas e sobrepostas.** O cron não verifica se a execução anterior já terminou. Se um `*/5` dispara um job que às vezes leva 8 minutos para rodar, duas cópias dele rodarão ao mesmo tempo — uma causa frequente de "por que rodou duas vezes", trabalho duplicado ou saída corrompida. Envolva o comando no `flock` (ex.: `flock -n /tmp/job.lock -c 'seu-comando'`) para que uma segunda invocação saia imediatamente enquanto a primeira ainda segura a trava.
+
+**Ambiente e PATH minimalistas.** O cron roda com um ambiente enxuto e um `PATH` mínimo (normalmente `/usr/bin:/bin`), e não com o do seu shell. Um script que funciona no seu terminal pode falhar sob o cron porque um binário não está no `PATH` dele. Use caminhos absolutos para binários ou defina `PATH=` no topo do crontab.
+
+## Cron vs systemd timers vs cloud schedulers — quando usar cada um?
+
+Os três executam coisas agendadas; a diferença está no que sobrevive e no custo operacional. Escolha pensando no modo de falha, e não no hábito.
+
+O **Cron** é o padrão universal: está em praticamente toda máquina Unix, não exige configuração além do daemon que já está rodando, e uma linha resolve o problema. Seus pontos fracos são as armadilhas que vimos acima — ele silenciosamente descarta execuções perdidas enquanto a máquina estava desligada, não tem log nativo de sucesso/erro e não impede sobreposições. Recorra ao cron para jobs simples, por host e de melhor esforço.
+
+Os **systemd timers** são a opção mais pesada e robusta em distribuições Linux modernas. O `OnCalendar=` de um timer usa os mesmos conceitos de calendário que o cron, mas o recurso matador é o `Persistent=`: segundo a [man page do systemd.timer(5)](https://man7.org/linux/man-pages/man5/systemd.timer.5.html), quando ativado, "a unidade de serviço é disparada imediatamente se teria sido disparada pelo menos uma vez durante o tempo em que o timer esteve inativo" — ou seja, uma execução perdida é *recuperada* após a queda, em vez de sumir. Timers também contam com logs no journal, agendamento monotônico (`OnBootSec=`, `OnUnitActiveSec=`) e `RandomizedDelaySec=` para escalonar frotas. O custo: você escreve uma unit `.timer` e uma `.service` em vez de uma única linha. Escolha-os quando precisar de recuperação, logs ou ordenação de dependências.
+
+Os **Cloud schedulers** (cron gerenciado, CronJobs em containers, agendadores serverless) brilham quando o job precisa sobreviver à morte de uma máquina específica. Eles rodam de forma independente de qualquer host, centralizam logs e tentativas automáticas (retries), e escalam horizontalmente. A contrapartida é o vendor lock-in, a dependência de rede e o custo por execução. Escolha-os quando o agendamento for crítico para o negócio e não puder depender de uma única máquina no ar.
+
+Não importa qual você escolha, a *expressão* exige a mesma habilidade. A mesma disciplina de testar antes de subir vale para regex; confira o [guia do regex tester](/blog/regex-tester-pattern-builder-guide) para essa outra metade da caixa de ferramentas.
+
+## Resumo
+
+O cron se resume a cinco campos numa ordem fixa, e 95% de tudo o que você vai escrever é `* * * * *` com o minuto, a hora e um seletor de dias fixados. Aprenda a ordem dos campos, memorize os quatro operadores (`* , - /`), copie a tabela de receitas e incorpore a única regra que salva você de execuções misteriosas.
+
+> **Resumo:** Nunca restrinja ambos os campos de dia do mês *e* dia da semana, a menos que você realmente queira a lógica OR — e cole todas as suas expressões no [Cron Parser](/time-date/cron-parser) para conferir os próximos horários reais de execução antes de subi-las para o servidor.
