@@ -1,0 +1,138 @@
+---
+title: "Calculadora de Markup vs Margem: As Fórmulas, a Tabela e o Erro de Precificação que Custa Dinheiro"
+slug: markup-vs-margin-calculator-retail-pricing
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/markup-vs-margin-calculator-retail-pricing/hero.jpg"
+  alt: "Balcão de loja de varejo com calculadora e etiquetas de preço, ilustrando cálculos de markup vs margem"
+  credit:
+    photographer: "Generated with AI"
+    kind: "ai"
+    source_label: "AI illustration (based on the manufacturer product photo)"
+    source_url: "https://commons.wikimedia.org/wiki/File:Greenrocer%27s_Interior.jpg"
+description: "Guia calculadora de markup vs margem: as duas fórmulas, uma tabela de conversão 10-300%, e o erro que subestima cada SKU."
+category: finance
+keywords:
+  - calculadora markup vs margem
+  - fórmula de markup vs margem
+  - calculadora de markup vs margem bruta
+  - margem vs markup planilha
+  - como converter markup para margem
+writingStyle: explainer
+toolsLinked: [percentage-calculator, discount-calculator, sales-tax-calculator]
+publishedAt: 2026-07-28
+updatedAt: 2026-07-28
+readingTime: 8
+disclosureType: both
+author:
+  name: "Dobby"
+  credentials: "Engenheiro de software desenvolvendo ferramentas para desenvolvedores, 8 anos de experiência"
+  bio: "Eu desenvolvimento ferramentas para engenheiros e escrevo guias práticos sobre os utilitários do dia a dia que engenheiros usam. Sem enrolação, só o que funciona."
+  url: "/about"
+faq:
+  - q: "Markup é a mesma coisa que percentual de lucro?"
+    a: "Não. Percentual de lucro é ambíguo por si só, pode significar markup (lucro dividido pelo custo) ou margem (lucro dividido pelo preço). Markup e margem compartilham o mesmo lucro em reais mas dividem por bases diferentes, então confirme qual denominador alguém quer dizer antes de usar qualquer figura de lucro %."
+  - q: "Como converter markup para margem rapidamente?"
+    a: "Margem % = Markup % / (1 + Markup %). Um markup de 50% vira 50 / 1,5 = 33,3% de margem. Para ir para o outro lado, Markup % = Margem % / (1 - Margem %): uma margem de 25% precisa de 25 / 0,75 = 33,33% de markup."
+  - q: "Qual margem uma empresa de varejo deve ter como objetivo?"
+    a: "Depende inteiramente do setor. Dados da NYU Stern colocam a margem bruta do varejo geral em 33,18% e varejo especializado em 35,30%, enquanto supermercado funciona com uma margem bruta muito mais fina de 26,31% e apenas 1,32% líquida. Compare com sua categoria específica, não com o varejo como um todo."
+  - q: "Por que minha margem é negativa mesmo tendo precificado acima do custo?"
+    a: "Verifique se imposto ou desconto entrou na conta. Margem deve usar o preço real que o cliente pagou depois de qualquer desconto, e nunca deve incluir imposto de vendas cobrado no checkout já que imposto não é receita do varejista. Se a margem ainda for negativa depois de excluir esses itens, o custo verdadeiro superou o preço."
+  - q: "Imposto de vendas conta para markup ou margem?"
+    a: "Não. Imposto de vendas é coletado em nome de uma autoridade tributária e repassado, não é retido como receita do varejista, então não pertence ao lado do custo nem ao lado do preço de um cálculo de markup ou margem."
+---
+
+> **Resumo**
+> - Markup % = (Preço − Custo) ÷ Custo. Margem % = (Preço − Custo) ÷ Preço. Mesmo lucro, denominador diferente. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+> - Um markup de 50% não é uma margem de 50% — são 33,3% de margem. Digite o errado na planilha de preços e cada SKU se subestima. [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit)
+> - Para atingir uma margem de 25%, você precisa de um markup de 33,33% sobre o custo, não 25%. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up)
+> - Supermercado funciona em aproximadamente 1,3% de margem líquida; varejo especializado funciona com 26–35% de margem bruta — mesma fórmula, números radicalmente diferentes por setor. [NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html)
+> - Faça a conta rápida com a [calculadora de percentuais](/lifestyle/percentage-calculator), depois verifique interações de desconto e imposto com a [calculadora de desconto](/finance/discount-calculator) e [calculadora de imposto de vendas](/finance/sales-tax-calculator).
+
+Você precifica um produto no que acha que é uma margem de 50% aplicando um markup de 50%. Você acabou de subestimar cada SKU do lote. Uma calculadora de markup vs margem importa porque estes são dois percentuais diferentes medindo o mesmo lucro em reais contra duas bases diferentes, e confundi-los é o erro de precificação mais comum no varejo. Markup divide pelo custo. Margem divide pelo preço. Acerte a base errada e um preço "lucrativo" é na verdade uma perda esperando aparecer na hora do imposto.
+
+## Qual é a diferença entre markup e margem?
+
+Markup mede lucro contra o que você pagou. Margem mede lucro contra o que você cobra. Mesmo numerador, denominador diferente, e essa lacuna é a fonte inteira da confusão.
+
+```
+Markup % = (Preço − Custo) ÷ Custo
+Margem % = (Preço − Custo) ÷ Preço
+```
+
+[University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+
+Pegue um item com custo de $0,80 com 18% de markup aplicado: $0,80 + ($0,80 × 0,18) = $0,94. Execute o mesmo lucro ao contrário pela fórmula de margem e você consegue um número diferente: custo de $1,90, margem alvo de 35%, preço = Custo ÷ (1 − Margem%) = $1,90 ÷ (1 − 0,35) = $2,92. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf) O denominador de margem (preço) é sempre maior que o denominador de markup (custo), o que significa que markup é sempre o número maior para o mesmo lucro em reais. Não é um arredondamento. Está embutido na matemática. [Corporate Finance Institute](https://corporatefinanceinstitute.com/resources/accounting/markup/)
+
+A mesma lógica fundamenta como a SBA enquadra a margem de contribuição para planejamento do ponto de equilíbrio: lucro dividido pelo preço, não pelo custo. [U.S. Small Business Administration](https://www.sba.gov/business-guide/plan-your-business/calculate-your-startup-costs/break-even-point)
+
+## Como você converte markup para margem?
+
+Aqui está o que um determinado markup realmente vira em termos de margem, de 10% até 300%:
+
+| Markup % | Margem % |
+|---|---|
+| 10% | 9,1% |
+| 20% | 16,7% |
+| 25% | 20,0% |
+| 33,33% | 25,0% |
+| 50% | 33,3% |
+| 66,7% | 40,0% |
+| 100% | 50,0% |
+| 150% | 60,0% |
+| 300% | 75,0% |
+
+Repare que a lacuna alarga conforme os números sobem. Com 10% de markup os dois são quase idênticos. Com 300% de markup (quadruplicando seu custo), a margem chega apenas a 75%. Margem se aproxima de 100% mas nunca chega lá, não importa o quanto você marque. Se seus números caem entre linhas, execute-os pela [calculadora de percentuais](/lifestyle/percentage-calculator) diretamente; markup e margem são ambos apenas matemática de mudança percentual com uma base diferente.
+
+## Quanto custa o erro de markup-vs-margem de 50%?
+
+Um varejista que quer uma margem de 50% e aplica um markup de 50% em vez disso subestima em 25% da receita que pretendia ganhar em cada unidade.
+
+Digamos que um item custa $60. Um markup de 50% o precifica em $60 × 1,50 = $90. Margem real dessa venda: ($90 − $60) ÷ $90 = 33,3%, não os 50% que o varejista achou que havia garantido. Para genuinamente atingir uma margem de 50%, o markup necessário era 100%: $60 × 2,00 = $120, margem = ($120 − $60) ÷ $120 = 50%. Essa é uma falta de $30 por unidade, uma lacuna de receita de 25% versus o preço pretendido, silenciosamente embutida em cada venda.
+
+Isso não é um caso único. Penn State Extension executa a mesma armadilha em um item com custo de $5,00: um markup de 30% o precifica em $6,50, mas a margem de lucro resultante é apenas 23% — "você está perdendo quase 1/4 de seus lucros brutos." [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit) Execute-o do outro lado e a lacuna ainda aparece: para atingir uma margem bruta de 25% em um item com custo de $75, a matemática trabalhada do AccountingCoach necessita um markup de 33,33%, não 25%. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up) Três exemplos diferentes, três números diferentes, uma lição consistente: markup e margem nunca são intercambiáveis no mesmo percentual.
+
+## Por que as apostas diferem tanto por setor?
+
+Porque margem é medida contra o preço, um pequeno deslize de precificação devora uma parte muito maior do lucro em um negócio de baixa margem do que em um de alta margem.
+
+Os dados de indústria da NYU Stern (Aswath Damodaran, dados de janeiro de 2026) colocam o varejo de supermercado dos EUA em uma margem bruta de 26,31% mas apenas 1,32% de margem líquida. O varejo geral funciona com 33,18% bruta e 5,61% líquida. O varejo especializado fica em 35,30% bruta e 5,19% líquida. [NYU Stern School of Business](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html) Um merceeiro operando em aproximadamente um centavo de lucro líquido por real de vendas tem quase nenhum espaço para absorver uma confusão de markup/margem. Alguns pontos de erro de precificação podem apagar o lucro inteiro do ano. Um varejista especializado com mais almofada de margem bruta pode absorver o mesmo erro e ainda ter lucro, embora ainda apareça como dinheiro perdido no P&L de qualquer forma.
+
+## Onde a matemática se quebra na prática?
+
+**Confusão de campo de planilha.** O erro mais comum é digitar um percentual de markup em uma célula ou campo POS rotulado "margem", ou o inverso. Como markup é sempre o número maior, usá-lo como se fosse margem sempre subestima seu verdadeiro lucro pretendido — você estabelecerá preços mais baixos do que pretendia, toda vez. [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit)
+
+**Margem negativa.** Se o custo real jamais sobe acima do preço de prateleira (um desconto de liquidação, um pico de custo de envio, um aumento de preço do fornecedor que você esqueceu de repassar), a margem fica negativa e o markup fica indefinido ou negativo também. A maioria das calculadoras básicas não vai sinalizar; vão apenas cuspir um número sem sentido e seguir em frente. Verifique qualquer resultado que volta negativo antes de confiar nele.
+
+**Imposto e desconto se acumulando.** Duas armadilhas separadas aqui. Primeira: se você calcula margem do preço de lista original em vez do preço real que o cliente pagou depois de um desconto, você superestima sua margem real. Execute o preço com desconto pela [calculadora de desconto](/finance/discount-calculator) primeiro, depois calcule margem naquele número. Segunda: imposto de vendas coletado no checkout nunca é receita do varejista, então nunca deveria entrar em nenhum lado de um cálculo de margem ou markup — a Receita Federal exige que custo de mercadorias vendidas e lucro bruto sejam computados separadamente da coleta de impostos exatamente por essa razão. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Verifique o que um preço listado realmente inclui com a [calculadora de imposto de vendas](/finance/sales-tax-calculator) antes que ele vaze em seus inputs de custo ou preço.
+
+## Quando você deve usar markup vs margem?
+
+- **Estabelecendo um preço a partir de um custo conhecido?** Use markup. É o número que você multiplica contra o custo para chegar a um preço de prateleira.
+- **Reportando ou comparando lucratividade?** Use margem. Benchmarks de indústria (como os dados da NYU Stern acima) e a maioria das declarações contábeis reportam margem, não markup, porque é medido contra receita.
+- **Lendo um relatório do seu POS ou software contábil?** Confirme qual base o percentual usa antes de agir com ele. Um campo "lucro %" sem documentação pode ser qualquer um dos dois.
+
+> **Bottom line:** Use markup para definir preços a partir do custo, e margem para julgar lucratividade ou comparar contra benchmarks de indústria. Nunca assuma que um número de um sistema significa a mesma coisa em outro — um markup de 50% é uma margem de 33,3%, não 50%, e essa lacuna é dinheiro real.
+
+## FAQ
+
+### Markup é a mesma coisa que percentual de lucro?
+
+Não. "Percentual de lucro" é ambíguo por si só, pode significar markup (lucro ÷ custo) ou margem (lucro ÷ preço), e as pessoas usam o termo frouxamente para qualquer um. Markup e margem compartilham o mesmo lucro em reais mas dividem por bases diferentes, então pergunte qual denominador alguém quer dizer antes de tratar qualquer figura de "lucro %" como usável. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+
+### Como converter markup para margem rapidamente?
+
+Margem % = Markup % ÷ (1 + Markup %). Um markup de 50% vira 50 ÷ 1,5 = 33,3% de margem. Para ir para o outro lado, Markup % = Margem % ÷ (1 − Margem %): uma margem de 25% precisa de 25 ÷ 0,75 = 33,33% de markup, combinando com o exemplo trabalhado do AccountingCoach. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up)
+
+### Qual margem uma empresa de varejo deve ter como objetivo?
+
+Depende inteiramente do setor. Os dados de indústria da NYU Stern colocam a margem bruta do varejo geral em 33,18% e varejo especializado em 35,30%, enquanto supermercado funciona com uma margem bruta muito mais fina de 26,31% e apenas 1,32% líquida. [NYU Stern School of Business](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html) Não há número alvo universal; compare sua margem contra sua categoria específica, não o varejo como um todo.
+
+### Por que minha margem é negativa mesmo tendo precificado acima do custo?
+
+Verifique se imposto ou desconto entrou na conta. Margem deve usar o preço real que o cliente pagou (depois de qualquer desconto) e nunca deve incluir imposto de vendas coletado no checkout, já que imposto não é receita do varejista. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Se a margem ainda sair negativa depois de excluir esses itens, seu custo verdadeiro superou seu preço. Verifique com uma nova estimativa de custo antes de executar os números novamente.
+
+### Imposto de vendas conta para markup ou margem?
+
+Não. Imposto de vendas é coletado em nome de uma autoridade tributária e repassado, não é retido como receita do varejista, então não pertence ao lado do custo nem ao lado do preço de um cálculo de markup ou margem. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Use a [calculadora de imposto de vendas](/finance/sales-tax-calculator) para separar imposto do preço de venda real antes de computar qualquer percentual.
+
+*Este artigo é apenas para fins informativos e não substitui aconselhamento de um contador ou profissional financeiro. Margens reais variam por setor, estrutura de descontos e base de custos.*

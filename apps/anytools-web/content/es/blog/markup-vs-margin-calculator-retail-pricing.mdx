@@ -1,0 +1,138 @@
+---
+title: "Calculadora Markup vs Margen: Las Fórmulas, la Tabla y el Error de Precio que Te Cuesta Dinero"
+slug: markup-vs-margin-calculator-retail-pricing
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/markup-vs-margin-calculator-retail-pricing/hero.jpg"
+  alt: "Mostrador de tienda minorista con una calculadora y etiquetas de precio, ilustrando el cálculo matemático de markup vs margen"
+  credit:
+    photographer: "Generated with AI"
+    kind: "ai"
+    source_label: "AI illustration (based on the manufacturer product photo)"
+    source_url: "https://commons.wikimedia.org/wiki/File:Greenrocer%27s_Interior.jpg"
+description: "Guía de calculadora markup vs margen: las dos fórmulas, una tabla de conversión 10-300%, y el error exacto de precio que subestima cada SKU."
+category: finance
+keywords:
+  - calculadora markup vs margen
+  - fórmula markup vs margen
+  - calculadora margen bruto vs markup
+  - margen vs markup excel
+  - cómo convertir markup a margen
+writingStyle: explainer
+toolsLinked: [percentage-calculator, discount-calculator, sales-tax-calculator]
+publishedAt: 2026-07-28
+updatedAt: 2026-07-28
+readingTime: 8
+disclosureType: both
+author:
+  name: "Dobby"
+  credentials: "Ingeniero de software que construye herramientas para desarrolladores, 8 años de experiencia"
+  bio: "Construyo herramientas para desarrolladores y escribo guías prácticas sobre las utilidades cotidianas que los ingenieros usan. Sin relleno, solo lo que funciona."
+  url: "/about"
+faq:
+  - q: "¿Es el markup lo mismo que el porcentaje de ganancia?"
+    a: "No. El porcentaje de ganancia es ambiguo por sí solo, podría significar markup (ganancia dividida por costo) o margen (ganancia dividida por precio). Markup y margen comparten el mismo dólar de ganancia pero se dividen entre bases diferentes, así que confirma qué denominador significa alguien antes de usar cualquier cifra de ganancia %."
+  - q: "¿Cómo convierto markup a margen rápidamente?"
+    a: "Margen % = Markup % ÷ (1 + Markup %). Un markup del 50% se convierte en 50 ÷ 1,5 = 33,3% de margen. Para ir en la otra dirección, Markup % = Margen % ÷ (1 - Margen %): un margen del 25% requiere 25 ÷ 0,75 = 33,33% de markup."
+  - q: "¿Qué margen debería aspirar a tener un negocio minorista?"
+    a: "Depende totalmente del sector. Los datos de la industria de NYU Stern ponen el margen bruto de la venta minorista general en 33,18% y la venta minorista especializada en 35,30%, mientras que el sector de comestibles opera con un margen bruto mucho más estrecho de 26,31% y apenas 1,32% neto. Compara con tu categoría específica, no con el comercio minorista en su conjunto."
+  - q: "¿Por qué mi margen es negativo aunque puse el precio por encima del costo?"
+    a: "Verifica si algún impuesto o descuento se coló en el cálculo. El margen debe usar el precio real que pagó el cliente después de cualquier descuento, y nunca debe incluir el impuesto de ventas recolectado en la caja, ya que ese impuesto no es ingreso del minorista. Si el margen sigue siendo negativo después de excluir esos, el costo verdadero ha superado el precio."
+  - q: "¿Cuenta el impuesto de ventas hacia el markup o el margen?"
+    a: "No. El impuesto de ventas se recauda en nombre de una autoridad fiscal y se transfiere, no se retiene como ingreso del minorista, así que no pertenece ni al lado del costo ni al lado del precio en un cálculo de markup o margen."
+---
+
+> **Resumen ejecutivo**
+> - Markup % = (Precio − Costo) ÷ Costo. Margen % = (Precio − Costo) ÷ Precio. Mismo dólar de ganancia, denominador diferente. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+> - Un markup del 50% no es un margen del 50% — es un margen del 33,3%. Escribe el equivocado en una hoja de cálculo de precios y cada SKU se subestima a sí misma. [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit)
+> - Para alcanzar un objetivo de margen del 25%, necesitas un markup del 33,33% sobre el costo, no del 25%. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up)
+> - El comercio minorista de comestibles opera en aproximadamente 1,3% de margen neto; la venta minorista especializada opera en margen bruto del 26–35% — la misma fórmula, cifras radicalmente diferentes según el sector. [NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html)
+> - Haz el cálculo rápido con la [calculadora-de-porcentaje](/lifestyle/percentage-calculator), luego verifica interacciones de descuentos e impuestos con la [calculadora-de-descuentos](/finance/discount-calculator) y [calculadora-de-impuesto-ventas](/finance/sales-tax-calculator).
+
+Estableces el precio de un producto a lo que crees es un margen del 50% aplicando un markup del 50%. Acabas de subestimar cada SKU en ese lote. Una calculadora markup vs margen importa porque estos son dos porcentajes diferentes midiendo el mismo dólar de ganancia contra dos bases diferentes, y mezclarlos es el error de precio más común en el comercio minorista. Markup se divide por costo. Margen se divide por precio. Si te equivocas en la base, un precio "rentable" es en realidad una pérdida esperando salir a la superficie en el momento de los impuestos.
+
+## ¿Cuál es la diferencia entre markup y margen?
+
+Markup mide ganancia contra lo que pagaste. Margen mide ganancia contra lo que cobras. Mismo numerador, denominador diferente, y esa brecha es la fuente completa de la confusión.
+
+```
+Markup % = (Precio − Costo) ÷ Costo
+Margen % = (Precio − Costo) ÷ Precio
+```
+
+[University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+
+Toma un artículo con costo de $0,80 con un markup del 18% aplicado: $0,80 + ($0,80 × 0,18) = $0,94. Ejecuta la misma ganancia hacia atrás a través de la fórmula de margen y obtienes un número diferente: costo de $1,90, objetivo de margen del 35%, precio = Costo ÷ (1 − Margen%) = $1,90 ÷ (1 − 0,35) = $2,92. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf) El denominador de margen (precio) es siempre más grande que el denominador de markup (costo), lo que significa que markup es siempre el número más grande para el mismo dólar de ganancia. Eso no es una sutileza de redondeo. Está incorporado en las matemáticas. [Corporate Finance Institute](https://corporatefinanceinstitute.com/resources/accounting/markup/)
+
+La misma lógica subyace en cómo la SBA enmarca el margen de contribución para la planificación del punto de equilibrio: ganancia dividida por precio, no por costo. [U.S. Small Business Administration](https://www.sba.gov/business-guide/plan-your-business/calculate-your-startup-costs/break-even-point)
+
+## ¿Cómo conviertes markup a margen?
+
+Aquí está lo que un markup dado realmente se convierte en términos de margen, del 10% al 300%:
+
+| Markup % | Margen % |
+|---|---|
+| 10% | 9,1% |
+| 20% | 16,7% |
+| 25% | 20,0% |
+| 33,33% | 25,0% |
+| 50% | 33,3% |
+| 66,7% | 40,0% |
+| 100% | 50,0% |
+| 150% | 60,0% |
+| 300% | 75,0% |
+
+Observa que la brecha se amplía a medida que los números suben. Con un markup del 10%, los dos son casi idénticos. Con un markup del 300% (cuadriplicando tu costo), el margen solo alcanza el 75%. El margen se acerca al 100% pero nunca llega, sin importar cuán agresivamente marques. Si tus números caen entre filas, ejecútalos a través de la [calculadora-de-porcentaje](/lifestyle/percentage-calculator) directamente; markup y margen son solo matemáticas de cambio porcentual con una base diferente.
+
+## ¿Cuánto te cuesta el error markup-vs-margen del 50%?
+
+Un minorista que quiere un margen del 50% y aplica un markup del 50% en su lugar subestima en un 25% de los ingresos que pretendía ganar en cada unidad.
+
+Digamos que un artículo cuesta $60. Un markup del 50% lo precisa en $60 × 1,50 = $90. Margen real en esa venta: ($90 − $60) ÷ $90 = 33,3%, no el 50% que el minorista pensaba que había asegurado. Para realmente alcanzar un margen del 50%, el markup requerido era del 100%: $60 × 2,00 = $120, margen = ($120 − $60) ÷ $120 = 50%. Eso es un déficit de $30 por unidad, una brecha de ingresos del 25% frente al precio previsto, silenciosamente incorporada en cada venta.
+
+Esto no es un caso aislado. Penn State Extension ejecuta la misma trampa en un artículo de costo de $5,00: un markup del 30% lo precisa en $6,50, pero el margen de ganancia resultante es solo del 23% — "estás perdiendo casi 1/4 de tus ganancias brutas." [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit) Ejecútalo en la otra dirección y la brecha aún aparece: para alcanzar un margen bruto del 25% en un artículo de costo de $75, las matemáticas trabajadas de AccountingCoach requieren un markup del 33,33%, no del 25%. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up) Tres ejemplos diferentes, tres números diferentes, una lección consistente: markup y margen nunca son intercambiables en el mismo porcentaje.
+
+## ¿Por qué las apuestas difieren tanto por sector?
+
+Porque el margen se mide contra el precio, un pequeño desliz de precio consume una parte mucho más grande de la ganancia en un negocio de bajo margen que en uno de alto margen.
+
+Los datos de la industria de NYU Stern (Aswath Damodaran, datos a partir de enero de 2026) ponen el comercio minorista de comestibles de EE.UU. en un margen bruto del 26,31% pero apenas 1,32% neto. El comercio minorista general opera en 33,18% bruto y 5,61% neto. La venta minorista especializada se sitúa en 35,30% bruto y 5,19% neto. [NYU Stern School of Business](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html) Un tendero que opera en aproximadamente un centavo de ganancia neta por dólar de ventas casi no tiene espacio para absorber una confusión de markup/margen. Algunos puntos de error de precio pueden borrar toda la ganancia del año. Un minorista especializado con más colchón de margen bruto puede absorber el mismo error y aún obtener una ganancia, aunque igualmente aparece como dinero perdido en el P&L de todas formas.
+
+## ¿Dónde se rompen las matemáticas en la práctica?
+
+**Confusión de campos de hojas de cálculo.** El error más común es escribir un porcentaje de markup en una celda o campo de POS etiquetado "margen", o a la inversa. Porque markup es siempre el número más grande, usarlo como si fuera margen siempre subestima tu ganancia verdaderamente prevista — establece precios más bajos de lo que pretendía, cada vez. [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit)
+
+**Margen negativo.** Si el costo real alguna vez sube por encima del precio en estante (una rebaja de liquidación, un aumento de costo de envío, un aumento de precio de proveedor que olvidaste transferir), el margen se vuelve negativo y markup se vuelve indefinido o negativo también. La mayoría de calculadoras básicas no marcarán esto; solo escupirán un número sin sentido y continuarán. Verifica cualquier resultado que regrese negativo antes de confiar en él.
+
+**Apilamiento de impuestos y descuentos.** Dos trampas separadas aquí. Primero: si calculas el margen fuera del precio de lista original en lugar del precio real que el cliente pagó después de un descuento, sobrestimas tu margen real. Ejecuta primero el precio descontado a través de la [calculadora-de-descuentos](/finance/discount-calculator), luego calcula el margen en ese número. Segundo: el impuesto de ventas recolectado en la caja nunca es ingreso del minorista, así que nunca debe entrar en ninguno de los lados de un cálculo de margen o markup — el IRS requiere que el costo de bienes vendidos y la ganancia bruta se calculen separadamente de la recolección de impuestos exactamente por esta razón. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Verifica qué precio listado realmente incluye con la [calculadora-de-impuesto-ventas](/finance/sales-tax-calculator) antes de que se filtre en tus insumos de costo o precio.
+
+## ¿Cuándo deberías usar markup vs margen?
+
+- **¿Estableciendo un precio de un costo conocido?** Usa markup. Es el número que multiplicas contra el costo para llegar a un precio en estante.
+- **¿Reportando o comparando rentabilidad?** Usa margen. Los puntos de referencia de la industria (como los datos de NYU Stern anteriores) y la mayoría de los estados de contabilidad reportan margen, no markup, porque se mide contra ingresos.
+- **¿Leyendo un reporte de tu POS o software de contabilidad?** Confirma qué base usa el porcentaje antes de actuar en ello. Un campo "ganancia %" sin documentación podría ser cualquiera de los dos.
+
+> **Conclusión:** Usa markup para establecer precios desde el costo, y margen para juzgar la rentabilidad o comparar contra puntos de referencia de la industria. Nunca supongas que un número de un sistema significa lo mismo en otro — un markup del 50% es un margen del 33,3%, no un margen del 50%, y esa brecha es dinero real.
+
+## FAQ
+
+### ¿Es el markup lo mismo que el porcentaje de ganancia?
+
+No. "Porcentaje de ganancia" es ambiguo por sí solo, podría significar markup (ganancia ÷ costo) o margen (ganancia ÷ precio), y la gente usa el término vagamente para uno u otro. Markup y margen comparten el mismo dólar de ganancia pero se dividen entre bases diferentes, así que pregunta qué denominador significa alguien antes de tratar cualquier cifra de "ganancia %" como utilizable. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+
+### ¿Cómo convierto markup a margen rápidamente?
+
+Margen % = Markup % ÷ (1 + Markup %). Un markup del 50% se convierte en 50 ÷ 1,5 = 33,3% de margen. Para ir en la otra dirección, Markup % = Margen % ÷ (1 − Margen %): un margen del 25% requiere 25 ÷ 0,75 = 33,33% de markup, coincidiendo con el ejemplo trabajado de AccountingCoach. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up)
+
+### ¿Qué margen debería aspirar a tener un negocio minorista?
+
+Depende totalmente del sector. Los datos de la industria de NYU Stern ponen el margen bruto minorista general en 33,18% y el de venta minorista especializada en 35,30%, mientras que los comestibles operan con un margen bruto mucho más estrecho de 26,31% y apenas 1,32% neto. [NYU Stern School of Business](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html) No hay un número de objetivo universal; compara tu margen contra tu categoría específica, no el comercio minorista como un todo.
+
+### ¿Por qué mi margen es negativo aunque puse el precio por encima del costo?
+
+Verifica si algún impuesto o descuento se coló en el cálculo. El margen debe usar el precio real que pagó el cliente (después de cualquier descuento) y nunca debe incluir el impuesto de ventas recolectado en la caja, ya que el impuesto no es ingreso del minorista. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Si el margen sigue siendo negativo después de excluir esos, tu costo verdadero ha superado tu precio. Verifica con una estimación de costo fresca antes de ejecutar los números nuevamente.
+
+### ¿Cuenta el impuesto de ventas hacia el markup o el margen?
+
+No. El impuesto de ventas se recauda en nombre de una autoridad fiscal y se transfiere, no se retiene como ingreso del minorista, así que no pertenece ni al lado del costo ni al lado del precio en un cálculo de markup o margen. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Usa la [calculadora-de-impuesto-ventas](/finance/sales-tax-calculator) para separar el impuesto del precio de venta real antes de calcular cualquiera de los dos porcentajes.
+
+*Este artículo es solo para fines informativos y no reemplaza el consejo de un contador o profesional financiero. Los márgenes reales varían según el sector, la estructura de descuentos y la base de costos.*

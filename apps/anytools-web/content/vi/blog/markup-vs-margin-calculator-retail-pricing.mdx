@@ -1,0 +1,138 @@
+---
+title: "Máy tính Markup vs Margin: Công thức, Bảng tính, và Sai lầm định giá mà bạn đang mất tiền"
+slug: markup-vs-margin-calculator-retail-pricing
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/markup-vs-margin-calculator-retail-pricing/hero.jpg"
+  alt: "Quầy tính tiền cửa hàng với máy tính và các thẻ giá, minh họa toán học markup vs margin"
+  credit:
+    photographer: "Generated with AI"
+    kind: "ai"
+    source_label: "AI illustration (based on the manufacturer product photo)"
+    source_url: "https://commons.wikimedia.org/wiki/File:Greenrocer%27s_Interior.jpg"
+description: "Hướng dẫn máy tính Markup vs Margin: hai công thức cơ bản, bảng chuyển đổi 10-300%, và sai lầm định giá khiến sản phẩm bị bán quá rẻ."
+category: finance
+keywords:
+  - máy tính markup vs margin
+  - công thức markup vs margin
+  - máy tính lợi nhuận biên vs tăng giá
+  - margin vs markup excel
+  - cách quy đổi markup thành margin
+writingStyle: explainer
+toolsLinked: [percentage-calculator, discount-calculator, sales-tax-calculator]
+publishedAt: 2026-07-28
+updatedAt: 2026-07-28
+readingTime: 8
+disclosureType: both
+author:
+  name: "Dobby"
+  credentials: "Software engineer building dev tools, 8 years experience"
+  bio: "Tôi xây dựng các công cụ cho nhà phát triển và viết những hướng dẫn thực tế về các tiện ích mà kỹ sư sử dụng hàng ngày. Không phồng phổng, chỉ những gì có ích."
+  url: "/about"
+faq:
+  - q: "Markup có giống như tỷ lệ phần trăm lợi nhuận không?"
+    a: "Không. Tỷ lệ phần trăm lợi nhuận mơ hồ, có thể là markup (lợi nhuận chia cho chi phí) hoặc margin (lợi nhuận chia cho giá bán). Markup và margin chia cùng một số tiền lợi nhuận nhưng chia cho các mẫu số khác nhau, vì vậy hãy xác nhận người nói có ý chỉ mẫu số nào trước khi sử dụng bất kỳ con số lợi nhuận nào."
+  - q: "Làm cách nào để nhanh chóng quy đổi markup thành margin?"
+    a: "Margin % = Markup % / (1 + Markup %). Markup 50% trở thành 50 / 1.5 = 33.3% margin. Để đi theo chiều ngược lại, Markup % = Margin % / (1 - Margin %): margin 25% cần 25 / 0.75 = 33.33% markup."
+  - q: "Một doanh nghiệp bán lẻ nên nhắm đến margin bao nhiêu?"
+    a: "Điều đó hoàn toàn phụ thuộc vào lĩnh vực. Dữ liệu của NYU Stern cho thấy margin lợi nhuận gộp của bán lẻ tổng quát là 33.18% và bán lẻ chuyên biệt là 35.30%, trong khi tạp hóa chỉ có 26.31% margin lợi nhuận gộp và chỉ 1.32% ròng. Hãy so sánh với thể loại cụ thể của bạn, không phải bán lẻ nói chung."
+  - q: "Tại sao margin của tôi lại âm dù tôi định giá cao hơn chi phí?"
+    a: "Kiểm tra xem liệu thuế hoặc chiết khấu có lẻn vào phép tính. Margin nên sử dụng giá thực tế mà khách hàng trả sau chiết khấu, và không bao giờ nên bao gồm thuế bán hàng thu tại quầy vì thuế không phải là doanh thu của nhà bán lẻ. Nếu margin vẫn âm sau khi loại trừ những phần đó, chi phí thực tế đã vượt quá giá bán."
+  - q: "Thuế bán hàng có tính vào markup hay margin không?"
+    a: "Không. Thuế bán hàng được thu thập thay mặt cơ quan thuế và chuyển qua, không được giữ lại là doanh thu của nhà bán lẻ, vì vậy nó không nằm ở phía chi phí hay phía giá của bất kỳ phép tính markup hay margin."
+---
+
+> **Tóm tắt**
+> - Markup % = (Giá − Chi phí) ÷ Chi phí. Margin % = (Giá − Chi phí) ÷ Giá. Cùng một số tiền lợi nhuận, nhưng mẫu số khác nhau. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+> - Markup 50% không phải là margin 50% — nó là margin 33.3%. Nhập sai một con số vào bảng tính giá và mọi SKU sẽ bị định giá thấp. [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit)
+> - Để đạt mục tiêu margin 25%, bạn cần markup 33.33% trên chi phí, chứ không phải 25%. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up)
+> - Bán lẻ tạp hóa vận hành với khoảng 1.3% net margin; bán lẻ chuyên biệt vận hành 26–35% gross margin — cùng một công thức, nhưng rất khác nhau giữa các lĩnh vực. [NYU Stern](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html)
+> - Tính toán nhanh bằng [percentage-calculator](/lifestyle/percentage-calculator), rồi kiểm tra tương tác chiết khấu và thuế bằng [discount-calculator](/finance/discount-calculator) và [sales-tax-calculator](/finance/sales-tax-calculator).
+
+Bạn định giá sản phẩm ở mức mà bạn cho rằng là margin 50% bằng cách cộng thêm 50% markup. Bạn vừa định giá thấp mọi SKU trong lô đó. Máy tính markup vs margin quan trọng vì đây là hai tỷ lệ phần trăm khác nhau đo lường cùng một số tiền lợi nhuận so với hai mẫu số khác nhau, và nhầm lẫn chúng là lỗi định giá phổ biến nhất trong bán lẻ. Markup chia cho chi phí. Margin chia cho giá bán. Nếu bạn lấy mẫu số sai, một mức giá "có lợi" thực chất là một tổn thất đang chờ bạn phát hiện vào thời điểm khai thuế.
+
+## Sự khác biệt giữa markup và margin là gì?
+
+Markup đo lợi nhuận so với những gì bạn đã chi trả. Margin đo lợi nhuận so với những gì bạn tính tiền. Tử số giống nhau, mẫu số khác nhau, và khoảng cách đó là toàn bộ nguyên nhân của sự nhầm lẫn.
+
+```
+Markup % = (Giá − Chi phí) ÷ Chi phí
+Margin % = (Giá − Chi phí) ÷ Giá
+```
+
+[University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+
+Lấy một mặt hàng chi phí $0.80 với markup 18% được áp dụng: $0.80 + ($0.80 × 0.18) = $0.94. Chạy cùng lợi nhuận ngược lại thông qua công thức margin và bạn sẽ nhận được một con số khác: chi phí $1.90, mục tiêu margin 35%, giá = Chi phí ÷ (1 − Margin%) = $1.90 ÷ (1 − 0.35) = $2.92. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf) Mẫu số margin (giá) luôn lớn hơn mẫu số markup (chi phí), có nghĩa là markup luôn là con số lớn hơn cho cùng một số tiền lợi nhuận. Đó không phải là một bất thường làm tròn. Nó được tích hợp trong toán học. [Corporate Finance Institute](https://corporatefinanceinstitute.com/resources/accounting/markup/)
+
+Cùng một logic làm nền tảng cho cách SBA sắp xếp contribution margin để lập kế hoạch hoà vốn: lợi nhuận chia cho giá, không chia cho chi phí. [U.S. Small Business Administration](https://www.sba.gov/business-guide/plan-your-business/calculate-your-startup-costs/break-even-point)
+
+## Làm cách nào để quy đổi markup thành margin?
+
+Đây là những gì một markup nhất định thực sự trở thành trong các điều khoản margin, từ 10% đến 300%:
+
+| Markup % | Margin % |
+|---|---|
+| 10% | 9.1% |
+| 20% | 16.7% |
+| 25% | 20.0% |
+| 33.33% | 25.0% |
+| 50% | 33.3% |
+| 66.7% | 40.0% |
+| 100% | 50.0% |
+| 150% | 60.0% |
+| 300% | 75.0% |
+
+Chú ý khoảng cách rộng ra khi các con số tăng lên. Ở markup 10%, hai con số gần như giống hệt nhau. Ở markup 300% (gấp bốn lần chi phí của bạn), margin chỉ đạt 75%. Margin tiến gần đến 100% nhưng không bao giờ đến được, bất kể bạn tăng giá tích cực như thế nào. Nếu các con số của bạn nằm giữa các hàng, hãy chạy chúng trực tiếp qua [percentage-calculator](/lifestyle/percentage-calculator); markup và margin chỉ là toán học thay đổi tỷ lệ phần trăm với một mẫu số khác nhau.
+
+## Sai lầm markup-vs-margin 50% tốn bao nhiêu?
+
+Một nhà bán lẻ muốn margin 50% và áp dụng markup 50% thay vào đó sẽ định giá thấp hơn 25% doanh thu mà họ dự định kiếm được cho mỗi đơn vị.
+
+Giả sử một mặt hàng chi phí $60. Markup 50% định giá nó ở $60 × 1.50 = $90. Margin thực tế trên bán hàng đó: ($90 − $60) ÷ $90 = 33.3%, không phải 50% mà nhà bán lẻ tưởng rằng họ đã khóa lại. Để thực sự đạt margin 50%, markup cần thiết là 100%: $60 × 2.00 = $120, margin = ($120 − $60) ÷ $120 = 50%. Đó là thiệt hại $30 trên mỗi đơn vị, khoảng trống doanh thu 25% so với giá dự định, âm thầm được tích hợp vào mỗi bán hàng.
+
+Đây không phải là chuyện một lần. Penn State Extension chạy cùng một cái bẫy trên một mặt hàng chi phí $5.00: markup 30% định giá nó ở $6.50, nhưng lợi nhuận margin kết quả chỉ là 23% — "bạn đang mất gần 1/4 lợi nhuận gộp của mình." [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit) Chạy nó theo hướng khác và khoảng cách vẫn xuất hiện: để đạt margin lợi nhuận gộp 25% trên mặt hàng chi phí $75, toán học đã làm việc của AccountingCoach yêu cầu markup 33.33%, không phải 25%. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up) Ba ví dụ khác nhau, ba con số khác nhau, một bài học nhất quán: markup và margin không bao giờ có thể hoán đổi được ở cùng một tỷ lệ phần trăm.
+
+## Tại sao mức độ rủi ro khác nhau nhiều giữa các ngành hàng?
+
+Vì margin được đo so với giá, một sai lầm định giá nhỏ sẽ ăn một phần lợi nhuận lớn hơn nhiều trong một doanh nghiệp có margin thấp hơn một doanh nghiệp có margin cao.
+
+Dữ liệu ngành của NYU Stern (Aswath Damodaran, dữ liệu tính đến tháng 1 năm 2026) đặt bán lẻ tạp hóa Mỹ ở margin lợi nhuận gộp 26.31% nhưng chỉ 1.32% ròng. Bán lẻ tổng quát chạy 33.18% gộp và 5.61% ròng. Bán lẻ chuyên biệt ngồi ở 35.30% gộp và 5.19% ròng. [NYU Stern School of Business](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html) Một cửa hàng tạp hóa vận hành với khoảng một xu lợi nhuận ròng cho mỗi đô la bán hàng gần như không có chỗ để hấp thụ sai lầm nhầm lẫn markup/margin. Một vài điểm lỗi định giá có thể xóa sạch lợi nhuận cả năm. Một nhà bán lẻ chuyên biệt với đệm margin lợi nhuận gộp nhiều hơn có thể hấp thụ cùng một sai lầm và vẫn kiếm lợi nhuận, mặc dù nó vẫn thể hiện ra dưới dạng tiền mất trên P&L.
+
+## Nơi mà toán học bị hỏng trong thực tế?
+
+**Nhầm lẫn trường bảng tính.** Lỗi phổ biến nhất là nhập tỷ lệ phần trăm markup vào một ô hoặc trường POS được dán nhãn "margin", hoặc ngược lại. Vì markup luôn là con số lớn hơn, sử dụng nó như thể nó là margin luôn coi nhẹ lợi nhuận dự định thực sự của bạn — bạn sẽ đặt giá thấp hơn mục tiêu, mỗi lần. [Penn State Extension](https://extension.psu.edu/whats-the-difference-between-markup-and-profit)
+
+**Margin âm.** Nếu chi phí thực tế bao giờ vượt quá giá kệ (một chiết khấu thanh lý, bước nhảy chi phí vận chuyển, tăng giá nhà cung cấp mà bạn quên chuyển qua), margin trở thành âm và markup trở thành không xác định hoặc âm. Hầu hết các máy tính cơ bản sẽ không cờ này; chúng sẽ chỉ tính ra một con số vô nghĩa và tiếp tục. Kiểm tra bất kỳ kết quả nào xuất hiện âm trước khi tin tưởng nó.
+
+**Thuế và chiết khấu xếp chồng.** Hai cái bẫy riêng biệt ở đây. Thứ nhất: nếu bạn tính toán margin từ giá danh sách gốc thay vì giá thực tế mà khách hàng trả sau chiết khấu, bạn sẽ phóng đại margin thực tế của bạn. Chạy giá đã chiết khấu qua [discount-calculator](/finance/discount-calculator) trước, rồi tính toán margin trên con số đó. Thứ hai: thuế bán hàng được thu tại quầy không bao giờ là doanh thu của nhà bán lẻ, vì vậy nó không bao giờ nên nhập vào bất kỳ phía nào của phép tính margin hoặc markup — IRS yêu cầu chi phí hàng bán và lợi nhuận gộp được tính toán riêng biệt với việc thu thuế chính vì lý do này. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Xác minh những gì giá được liệt kê thực sự bao gồm với [sales-tax-calculator](/finance/sales-tax-calculator) trước khi nó rò rỉ vào chi phí hoặc đầu vào giá của bạn.
+
+## Khi nào bạn nên sử dụng markup vs margin?
+
+- **Đặt giá từ chi phí đã biết?** Sử dụng markup. Nó là con số bạn nhân với chi phí để đặt giá kệ.
+- **Báo cáo hoặc so sánh lợi nhuận?** Sử dụng margin. Các tiêu chuẩn ngành (như dữ liệu NYU Stern ở trên) và hầu hết các báo cáo kế toán báo cáo margin, không phải markup, vì nó được đo so với doanh thu.
+- **Đọc báo cáo từ phần mềm POS hoặc kế toán của bạn?** Xác nhận mẫu số nào của tỷ lệ phần trăm được sử dụng trước khi bạn hành động trên nó. Trường "lợi nhuận %" không có tài liệu có thể là bất kỳ trường nào.
+
+> **Dòng cuối:** Sử dụng markup để đặt giá từ chi phí, và margin để đánh giá lợi nhuận hoặc so sánh với các tiêu chuẩn ngành. Không bao giờ giả định một con số từ một hệ thống có nghĩa tương tự trong một hệ thống khác — markup 50% là margin 33.3%, không phải margin 50%, và khoảng cách đó là tiền thật.
+
+## FAQ
+
+### Markup có giống như tỷ lệ phần trăm lợi nhuận không?
+
+Không. "Tỷ lệ phần trăm lợi nhuận" mơ hồ, có thể là markup (lợi nhuận ÷ chi phí) hoặc margin (lợi nhuận ÷ giá), và mọi người sử dụng thuật ngữ này một cách lỏng lẻo cho bất kỳ điều nào. Markup và margin chia cùng một số tiền lợi nhuận nhưng chia cho các mẫu số khác nhau, vì vậy hãy hỏi mẫu số nào mà ai đó có ý chỉ trước khi coi bất kỳ con số "lợi nhuận %" nào là có thể sử dụng được. [University of Vermont Extension](https://blog.uvm.edu/farmvia/files/2013/10/FBFS009-Markup-and-Margins-1.pdf)
+
+### Làm cách nào để nhanh chóng quy đổi markup thành margin?
+
+Margin % = Markup % ÷ (1 + Markup %). Markup 50% trở thành 50 ÷ 1.5 = 33.3% margin. Để đi theo chiều ngược lại, Markup % = Margin % ÷ (1 − Margin %): margin 25% cần 25 ÷ 0.75 = 33.33% markup, khớp với ví dụ đã làm việc của AccountingCoach. [AccountingCoach](https://www.accountingcoach.com/blog/gross-margin-mark-up)
+
+### Một doanh nghiệp bán lẻ nên nhắm đến margin bao nhiêu?
+
+Điều đó hoàn toàn phụ thuộc vào lĩnh vực. Dữ liệu ngành của NYU Stern cho thấy margin lợi nhuận gộp của bán lẻ tổng quát là 33.18% và bán lẻ chuyên biệt là 35.30%, trong khi tạp hóa chỉ có 26.31% margin lợi nhuận gộp và 1.32% ròng. [NYU Stern School of Business](https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/margin.html) Không có con số mục tiêu phổ quát; hãy so sánh margin của bạn với thể loại cụ thể của bạn, không phải bán lẻ nói chung.
+
+### Tại sao margin của tôi lại âm dù tôi định giá cao hơn chi phí?
+
+Kiểm tra xem liệu thuế hoặc chiết khấu có lẻn vào phép tính. Margin nên sử dụng giá thực tế mà khách hàng trả (sau bất kỳ chiết khấu nào) và không bao giờ nên bao gồm thuế bán hàng được thu tại quầy, vì thuế không phải là doanh thu của nhà bán lẻ. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Nếu margin vẫn xuất hiện âm sau khi loại trừ những phần đó, chi phí thực sự của bạn đã vượt quá giá của bạn. Xác minh bằng ước tính chi phí mới trước khi chạy các con số lại.
+
+### Thuế bán hàng có tính vào markup hay margin không?
+
+Không. Thuế bán hàng được thu thập thay mặt cơ quan thuế và chuyển qua, không được giữ lại là doanh thu của nhà bán lẻ, vì vậy nó không nằm ở phía chi phí hay phía giá của bất kỳ phép tính markup hay margin. [IRS Schedule C instructions](https://www.irs.gov/instructions/i1040sc) Sử dụng [sales-tax-calculator](/finance/sales-tax-calculator) để tách thuế từ giá bán thực tế trước khi tính toán bất kỳ tỷ lệ phần trăm nào.
+
+*Bài viết này chỉ nhằm mục đích cung cấp thông tin và không thay thế lời khuyên từ một nhân viên kế toán hoặc chuyên gia tài chính. Margin thực tế khác nhau theo lĩnh vực, cấu trúc chiết khấu và cơ sở chi phí.*
