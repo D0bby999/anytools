@@ -15,8 +15,11 @@ import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { MetadataRoute } from 'next';
 
-// Revalidate the sitemap at request time so new posts appear immediately.
-export const dynamic = 'force-dynamic';
+// Cache for 1h (stale-while-revalidate): posts publish via DB sync, so hourly
+// sitemap freshness is plenty — and crawlers always get a fast response.
+// (force-dynamic regenerated the full XML per request; slow sitemaps get
+// demoted by Googlebot — the besttoys sitemap froze exactly this way.)
+export const revalidate = 3600;
 
 const BASE =
   process.env.NEXT_PUBLIC_URL ??
