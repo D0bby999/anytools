@@ -4,6 +4,7 @@ import type { ToolMeta } from '@anytools/tools/types';
 import type { ReactNode } from 'react';
 import { AdSlot } from './ad-slot';
 import { FaqSection } from './faq-section';
+import { RelatedTools } from './related-tools';
 import { ToolToolbar } from './tool-toolbar';
 import { TrackToolVisit } from './track-tool-visit';
 import { TutorialSection } from './tutorial-section';
@@ -61,6 +62,7 @@ export function ToolPageLayout({ meta, locale, content, children }: ToolPageLayo
           {content.faq && <FaqSection source={content.faq.source} />}
         </section>
       )}
+      <RelatedTools cluster={meta.cluster} currentSlug={meta.slug} locale={locale} />
       <div className="my-8">
         <AdSlot slotId="tool-page-bottom" format="auto" />
       </div>
