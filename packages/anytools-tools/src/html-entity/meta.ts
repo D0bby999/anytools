@@ -5,10 +5,10 @@ export const meta: ToolMeta = {
   cluster: 'encoding',
   title: { en: 'HTML Entity Encoder / Decoder', vi: 'Mã hóa / Giải mã HTML Entity' },
   description: {
-    en: 'Encode/decode HTML entities (&amp;, &lt;, &gt;, named, numeric, hex). Full HTML5 entity set.',
-    vi: 'Mã hóa/giải mã HTML entity (&amp;, &lt;, &gt;, named, numeric, hex). Bộ HTML5 đầy đủ.',
+    en: 'Encode/decode HTML entities (&, <, >, named, numeric, hex). Full HTML5 entity set.',
+    vi: 'Mã hóa/giải mã HTML entity (&, <, >, named, numeric, hex). Bộ HTML5 đầy đủ.',
   },
-  keywords: ['html entity', 'html encode', 'html decode', '&amp;', 'xss escape', 'html5 entities'],
+  keywords: ['html entity', 'html encode', 'html decode', '&', 'xss escape', 'html5 entities'],
   priority: 'P2',
   effort: 'S',
   nextStepSuggestions: [
