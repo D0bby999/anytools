@@ -39,8 +39,13 @@ export async function GET(): Promise<NextResponse> {
 
   const toolSections = [...byCluster.entries()]
     .map(([cluster, metas]) => {
+      // title/description are LocalizedText ({ en, vi, es, pt }), not strings.
       const lines = metas
-        .map((m) => `- [${m.title ?? titleCase(m.slug)}](${SITE_URL}/en/${cluster}/${m.slug})`)
+        .map((m) => {
+          const name = m.title?.en ?? titleCase(m.slug);
+          const desc = m.description?.en ? `: ${m.description.en}` : '';
+          return `- [${name}](${SITE_URL}/en/${cluster}/${m.slug})${desc}`;
+        })
         .join('\n');
       return `### ${titleCase(cluster)}\n\n${lines}`;
     })
