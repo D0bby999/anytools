@@ -15,11 +15,11 @@ import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { MetadataRoute } from 'next';
 
-// Cache for 1h (stale-while-revalidate): posts publish via DB sync, so hourly
-// sitemap freshness is plenty — and crawlers always get a fast response.
-// (force-dynamic regenerated the full XML per request; slow sitemaps get
-// demoted by Googlebot — the besttoys sitemap froze exactly this way.)
-export const revalidate = 3600;
+// force-dynamic on purpose — do NOT switch this to ISR/revalidate: the image
+// builds on CI runners with no DB, so an ISR sitemap gets BAKED without the
+// DB-sourced blog URLs and serves that truncated copy after every deploy
+// (shipped and reverted 2026-08-05).
+export const dynamic = 'force-dynamic';
 
 const BASE =
   process.env.NEXT_PUBLIC_URL ??

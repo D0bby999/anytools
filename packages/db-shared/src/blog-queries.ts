@@ -121,9 +121,20 @@ export async function listPublishedBlogs(db: Db, locale: string): Promise<Blog[]
  * only URLs that have a genuine translation — an untranslated locale must not
  * be listed as an indexable duplicate of the English original.
  */
-export async function listAllPublishedBlogRows(db: Db): Promise<Blog[]> {
+export async function listAllPublishedBlogRows(
+  db: Db,
+): Promise<Array<{ slug: string; locale: string; publishedAt: Date | null; updatedAt: Date | null }>> {
+  // Lean projection on purpose: the sitemap is this function's only consumer,
+  // and select() (all columns) dragged every locale's full MDX body out of
+  // Postgres on each sitemap request — tens of MB for ~650 rows, which is what
+  // made sitemap generation take multiple seconds per fetch.
   return db
-    .select()
+    .select({
+      slug: blogs.slug,
+      locale: blogs.locale,
+      publishedAt: blogs.publishedAt,
+      updatedAt: blogs.updatedAt,
+    })
     .from(blogs)
     .where(eq(blogs.status, 'published'))
     .orderBy(desc(blogs.publishedAt));
