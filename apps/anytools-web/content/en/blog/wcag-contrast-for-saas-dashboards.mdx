@@ -87,7 +87,7 @@ This is the workflow I run on any dashboard before shipping a redesign. Five ste
 
 **2.** Take a screenshot. Drag it into a [contrast checker](/design/color-contrast). For each color pair you're worried about, sample the pixel values and check the ratio.
 
-**3.** Generate a candidate "safe" palette using a [color palette generator](/design/color-palette). Even if you don't use the output, the contrast ratios it shows for each pair are a quick sanity check against your current palette.
+**3.** Generate a candidate "safe" palette using a [color palette generator](/design/color-palette). Even if you don't use the output, the contrast ratios it shows for each pair are a quick sanity check against your current palette. For a deeper comparison of which generators actually verify contrast, rather than just producing nice-looking swatches, see [this breakdown of color palette tools for accessibility](/blog/color-palette-tools-for-accessibility).
 
 **4.** Test with the OS-level **"Increase contrast"** accessibility setting on (macOS: System Settings → Accessibility → Display). About 8% of users have this turned on. If your "subtle" elements disappear entirely, you have a problem.
 
@@ -114,6 +114,8 @@ If you want a starting point that nearly always passes AA when used correctly:
 - **Accent on white:** anything in the 600 weight range of the major frameworks
 - **Success:** green-700 (`#15803d`) = 4.7:1
 - **Danger:** red-700 (`#b91c1c`) = 6.0:1
+
+If any of this palette also has to survive a trip to print — a PDF export of the dashboard, marketing collateral built from the same brand colors — remember hex and CMYK follow different physics. See [why print color never matches the screen](/blog/hex-to-rgb-cmyk-color-converter-print-vs-web) before you reuse these hex values on paper.
 
 Run any custom values through a [color contrast checker](/design/color-contrast) before you ship. Two minutes saved arguing with a designer is worth two hours not spent re-tuning the palette after a customer files an a11y complaint.
 

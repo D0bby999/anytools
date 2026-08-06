@@ -70,13 +70,13 @@ The question isn't which is best. It's which fits your use case. Drop a sample i
 
 ## When should you pick JSON?
 
-**Pick JSON when systems exchange data and a human won't hand-edit the file.** JSON is the lingua franca of the web: APIs return it, logs use it, tools accept it. Every language has a parser, and all parsers behave the same, so you won't get surprised by a quirk in one reader that differs from another.
+**Pick JSON when systems exchange data and a human won't hand-edit the file.** JSON is the lingua franca of the web: APIs return it, logs use it, tools accept it. Every language has a parser, and all parsers behave the same, so you won't get surprised by a quirk in one reader that differs from another. That strictness has one blind spot: JSON has no native binary type, so a thumbnail or a signature that has to ride inside a JSON field first gets [Base64-encoded into a string](/blog/base64-when-and-why-developers-use-it) — a real size and readability cost worth knowing about before you assume JSON handles everything.
 
 The trade-off is that JSON is verbose for humans. No comments [the spec forbids them](https://www.json.org/json-en.html). Quotes around every key. Trailing commas rejected. Hand-editing JSON config is a friction factory. Use it for APIs, data export between tools, and machine-generated logs — not for config a person maintains.
 
 ## When should you pick YAML?
 
-**Pick YAML when humans edit config often and you want minimal syntax.** It's the de facto standard for Kubernetes manifests, GitHub Actions, Docker Compose, and Ansible. Strings don't need quotes, indentation defines structure, and it reads like pseudo-code.
+**Pick YAML when humans edit config often and you want minimal syntax.** It's the de facto standard for Kubernetes manifests, GitHub Actions, Docker Compose, and Ansible. Strings don't need quotes, indentation defines structure, and it reads like pseudo-code. A Kubernetes CronJob manifest is a good example of that YAML-everywhere habit: the wrapper is friendly, indented YAML, but the `schedule:` field inside it is still raw [cron syntax](/blog/cron-syntax-cheatsheet-2026) that has to be built and read correctly on its own terms.
 
 ```yaml
 database:

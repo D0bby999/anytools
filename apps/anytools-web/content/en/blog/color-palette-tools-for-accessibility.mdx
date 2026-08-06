@@ -45,7 +45,7 @@ Failures come from three places.
 
 **3. The "color alone" rule.** A form field marked only by red text fails [SC 1.4.1](https://www.w3.org/WAI/WCAG20/Understanding/use-of-color) for colorblind users, even if the red is 7:1. The ratio is fine. The design still fails. No tool catches this because it's not a ratio problem—it's a design decision.
 
-Root cause: palette tools optimize for one thing (white backgrounds) and let you assume that's enough. It isn't.
+Root cause: palette tools optimize for one thing (white backgrounds) and let you assume that's enough. It isn't. The same optimism shows up one step downstream, too — a palette that passes contrast on screen can still shift once it's [converted for print](/blog/hex-to-rgb-cmyk-color-converter-print-vs-web), where CMYK's narrower gamut mutes exactly the saturated colors palette tools favor.
 
 ## The three rules
 
@@ -59,7 +59,7 @@ Root cause: palette tools optimize for one thing (white backgrounds) and let you
 
 Second: [SC 1.4.1](https://www.w3.org/WAI/WCAG20/Understanding/use-of-color) forbids color as the only signal. A red error field needs an icon or label. A green checkmark needs a symbol.
 
-Third: test every combination. A color that passes 4.5:1 on white might fail on gray. The checker doesn't know your UI.
+Third: test every combination. A color that passes 4.5:1 on white might fail on gray. The checker doesn't know your UI. This is exactly the failure mode that turns up in [SaaS dashboards audited for WCAG contrast](/blog/wcag-contrast-for-saas-dashboards) — a color verified once against white quietly fails the moment it lands on a card or a modal.
 
 ## Why color blindness simulation matters
 
@@ -101,6 +101,8 @@ If your tool doesn't do both CVD simulation and ratio checking, it's incomplete.
 **3. Assuming generator output is complete.** Coolors will give you six harmonious swatches. Chances are good that not one of them passes 4.5:1 contrast on your actual background colors. Generation and verification are different problems. Good workflow: generate with Coolors for inspiration, verify every single swatch with [WebAIM's contrast checker](/design/color-contrast).
 
 **4. Color-only status indicators.** Red error field, green success field, amber warning. A colorblind user sees three identical fields. WCAG 1.4.1 forbids color as the sole indicator. Pair every color signal with a secondary cue: an icon, a label, a border weight, or a pattern. Two minutes of work. Solves the problem for colorblind and low-vision users alike.
+
+Contrast minimums show up outside web accessibility, too. A [custom-branded QR code](/blog/qr-code-generator-custom-branding) needs roughly the same 3:1 floor between its modules and the background to stay scannable — grayscale contrast math doesn't care whether it's read by an accessibility checker or a phone camera.
 
 **5. Testing only "recommended" color pairs.** Your documented palette says "use green-700 on white." A designer uses green-600 on your light-gray modal because they thought it looked better. Never tested that combination. Contrast might be 2:1. Audit every plausible combination in your actual UI, not just the ones in your design guide.
 

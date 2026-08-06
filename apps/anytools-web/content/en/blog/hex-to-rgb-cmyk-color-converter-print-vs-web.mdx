@@ -62,7 +62,7 @@ socialHooks:
 
 Three notations, two color models, one constant source of confusion.
 
-**HEX** is not a color model. It's a notation for sRGB. A hex color like `#1ABC9C` is just three pairs of base-16 digits — red, green, blue — exactly as defined in the [MDN reference on `<hex-color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color) and standardized in [CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/). When you paste a hex code, you are talking to a screen.
+**HEX** is not a color model. It's a notation for sRGB. A hex color like `#1ABC9C` is just three pairs of base-16 digits — red, green, blue — exactly as defined in the [MDN reference on `<hex-color>`](https://developer.mozilla.org/en-US/docs/Web/CSS/hex-color) and standardized in [CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/). When you paste a hex code, you are talking to a screen. That's also why hex values are the ones worth auditing for [contrast on things like SaaS dashboards](/blog/wcag-contrast-for-saas-dashboards) — CMYK contrast on paper follows different physics entirely.
 
 **RGB** is additive. You start from black (no light) and add red, green, and blue light to build up color; all three at full blast give you white. Each channel runs 0–255, which yields ~16.7 million combinations and a comparatively **wide gamut**. This is how every monitor, phone, and TV works.
 
@@ -147,7 +147,9 @@ A HEX/RGB/CMYK converter is a genuinely useful tool — as long as you know whic
 
 - **Final production color.** Profile-free CMYK is not a print spec. For anything going on press, soft-proof in design software against the printer's supplied ICC profile and convert as the **last** step.
 
-If you're picking and checking colors for a web UI, pair the converter with a [color contrast checker](/design/color-contrast) so the palette you land on is both on-brand and readable, and a [color palette generator](/design/color-palette) when you need to build out shade variations around a base hue. Those two cover the screen side; the converter just translates the notation.
+If you're picking and checking colors for a web UI, pair the converter with a [color contrast checker](/design/color-contrast) so the palette you land on is both on-brand and readable, and a [color palette generator](/design/color-palette) when you need to build out shade variations around a base hue. Those two cover the screen side; the converter just translates the notation. For the accessibility side of that pairing — which generators actually verify contrast and color-blindness, versus just producing pretty swatches — see [this rundown of color palette tools](/blog/color-palette-tools-for-accessibility).
+
+One place both halves of this guide matter at once: [choosing brand colors for a QR code](/blog/qr-code-generator-custom-branding) that's printed on packaging, where the dark modules need real contrast against the background *and* the ink might drift the hue you designed on screen.
 
 The honest mental model: **HEX and RGB are the same exact number; CMYK is a translation into a different language with fewer words.** Some things don't translate, and the converter can't invent ink that doesn't exist.
 

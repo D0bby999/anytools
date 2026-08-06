@@ -90,7 +90,7 @@ Every legitimate use of Base64 is the same shape: *binary data needs to live ins
 
 - **Data URIs.** Inline a small icon directly in CSS or HTML: `background: url("data:image/svg+xml;base64,PHN2Zy…")`. The image bytes become part of the text stylesheet, saving an HTTP request — worth it only for assets under ~1–2 KB, because the +33% tax rides along in every page that loads the stylesheet.
 - **Email attachments (MIME).** This is *why* Base64 exists. Email transport was built for 7-bit text, so binary files are Base64-wrapped to survive intact.
-- **Binary inside JSON / XML.** JSON has no native binary type. To put a small blob (a thumbnail, a signature, a certificate) into a JSON field, you Base64 it into a string the parser will carry.
+- **Binary inside JSON / XML.** JSON has no native binary type. To put a small blob (a thumbnail, a signature, a certificate) into a JSON field, you Base64 it into a string the parser will carry — a workaround worth remembering when you're also [choosing between JSON, YAML, and TOML](/blog/json-yaml-toml-when-to-pick) for a new config or API, since none of the three have a native binary type either.
 - **HTTP Basic auth.** The `Authorization: Basic …` header is literally `username:password` Base64-encoded. Note *encoded*: Basic auth offers **zero** confidentiality on its own and relies entirely on HTTPS. The Base64 is framing, not protection.
 - **JWT segments.** A JSON Web Token is `header.payload.signature`, each part **Base64URL**-encoded JSON. You can paste the middle segment into a decoder and read every claim, which is why you must never put secrets in a JWT payload.
 

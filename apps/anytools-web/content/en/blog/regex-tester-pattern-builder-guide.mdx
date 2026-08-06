@@ -45,7 +45,7 @@ faq:
 
 Regex is read-only until you test it. A pattern that looks airtight in your head often fails when it meets real strings: it matches too much, too little, or the engine times out. The test-first approach catches these misses before they hit production. A [regex tester](/text-regex/regex-tester) lets you paste a pattern, feed it test strings, and see exactly what matches and which capture groups extract. The anytools one runs the JavaScript engine entirely in your browser (nothing leaves the page), shows named and numbered capture groups, lets you toggle flags like `g`, `i`, `m`, and `s`, and has a replace mode for testing substitutions. You watch the behavior instead of imagining it.
 
-The other win is speed. Instead of writing code, running a test suite, and waiting for the result, you get instant feedback in the browser. Edit a pattern, watch it re-evaluate, and iterate in seconds. By the time you port the regex into production code, you already know it works on the inputs you care about.
+The other win is speed. Instead of writing code, running a test suite, and waiting for the result, you get instant feedback in the browser. Edit a pattern, watch it re-evaluate, and iterate in seconds. By the time you port the regex into production code, you already know it works on the inputs you care about. The same test-before-you-ship instinct pays off outside regex, too — the [cron syntax cheatsheet](/blog/cron-syntax-cheatsheet-2026) makes the identical case for a crontab expression: read it, then verify it, before it reaches a server.
 
 ## The building blocks — what a pattern actually does
 
@@ -117,7 +117,7 @@ A quick cheatsheet of patterns you will reach for, with the honest caveat that e
 
 Each pattern above *works* for its narrow case but breaks on variants. Always run real test strings (edge cases, international characters, weird formatting) through a [regex tester](/text-regex/regex-tester) before you commit.
 
-**Companion tools once you have a pattern.** After you have crafted a regex pattern, you often need to manipulate the matched strings. A [text case converter](/text-regex/text-case-converter) handles converting matched output to the case you need. For debugging or logging regex results, a [JSON formatter](/formatters/json-formatter) beautifies the match objects so you can see capture groups clearly. And if your regex is meant to validate URL components, a [URL encoder](/encoding/url-encode) tests whether your pattern plays nicely with URL-safe characters.
+**Companion tools once you have a pattern.** After you have crafted a regex pattern, you often need to manipulate the matched strings. A [text case converter](/text-regex/text-case-converter) handles converting matched output to the case you need. For debugging or logging regex results, a [JSON formatter](/formatters/json-formatter) beautifies the match objects so you can see capture groups clearly. And if your regex is meant to validate URL components, a [URL encoder](/encoding/url-encode) tests whether your pattern plays nicely with URL-safe characters. If the string you're matching looks like a JWT segment or a data URI, remember what a regex can and can't tell you about it: it can confirm the shape fits the Base64 alphabet, but [Base64 itself is an encoding, not encryption](/blog/base64-when-and-why-developers-use-it), so a pattern match is never proof the payload is safe.
 
 ## So which engine should you actually pick?
 
