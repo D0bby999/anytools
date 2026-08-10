@@ -1,0 +1,194 @@
+---
+title: "Nén Hình Ảnh Mà Không Giảm Chất Lượng: Hiểu Rõ Sự Đánh Đổi Thực Tế"
+slug: image-compressor-vs-quality-trade-off
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/image-compressor-vs-quality-trade-off/hero.jpg"
+  alt: "Phần mềm chỉnh sửa ảnh được hiển thị trên màn hình laptop."
+  credit:
+    photographer: "Zulfugar Karimov"
+    photographer_url: "https://unsplash.com/@zulfugarkarimov?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/photo-editing-software-is-shown-on-a-laptop-screen-PevdsGAUrKA?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+description: "Nén hình mà không mất chất lượng chỉ tồn tại ở định dạng không mất dữ liệu. Bạn cần 'không mất chất lượng về mặt hình ảnh' — đây là sự khác biệt thực sự."
+category: design
+keywords:
+  - nén hình ảnh không mất chất lượng
+  - nén hình mất dữ liệu nhưng không thấy khác
+  - đo chất lượng hình ảnh ssim
+  - so sánh webp và jpeg
+  - nén hình ảnh không mất dữ liệu
+toolsLinked: [image-format-converter, color-converter]
+writingStyle: explainer
+publishedAt: 2026-08-10
+updatedAt: 2026-08-10
+readingTime: 11
+disclosureType: affiliate
+author:
+  name: "Dobby"
+  credentials: "Kỹ sư phần mềm xây dựng công cụ lập trình, 8 năm kinh nghiệm"
+  bio: "Tôi xây dựng các công cụ và đánh giá những công cụ xứng đáng được giới thiệu. AnyTools là dự án của tôi."
+  url: "/about"
+faq:
+  - q: "Thực sự có khác biệt giữa 'không mất dữ liệu' và 'không mất chất lượng về mặt hình ảnh' không?"
+    a: "Có chứ. Nén không mất dữ liệu sẽ tái tạo lại file gốc từng bit (PNG, GIF). Không mất chất lượng về mặt hình ảnh là một hình ảnh mất dữ liệu nhưng trông giống hệt nguyên bản với mắt thường nhân, nhưng chỉ ở 50-70% kích thước file (JPEG q75-85, WebP q70, AVIF q50). Không mất dữ liệu là bảo hiểm; không mất chất lượng về mặt hình ảnh là lựa chọn thực tế khi kích thước file quan trọng."
+  - q: "Tôi nên sử dụng cài đặt chất lượng nào cho ảnh JPEG?"
+    a: "Bắt đầu từ q80 cho hầu hết ảnh. Trong khoảng q75-85, mắt thường nhân không nhận thấy sự khác biệt (được xác minh trên tập dữ liệu Kodak và ảnh trên web theo nghiên cứu WebP của Google). Dưới q70, các vết tạo tác khối trở nên rõ ràng trên các khu vực mịn (bầu trời, sắc da). Đối với ảnh chụp màn hình hoặc đồ họa vector, hãy sử dụng PNG hoặc WebP không mất dữ liệu — JPEG luôn mất thông tin dựa trên hình dạng."
+  - q: "Tại sao SSIM lại quan trọng hơn kích thước file?"
+    a: "Chỉ dựa vào kích thước file là một bẫy: bạn có thể nén hai file thành 40% nhưng một cái trông mờ còn một cái trông giống hệt nguyên bản. SSIM (Structural Similarity Index Measure) dự đoán chất lượng hình ảnh mà mắt thường cảm nhận được bằng cách phân tích độ sáng, độ tương phản và cấu trúc — nó có tương quan 80-90% với chất lượng nhận thức. Đó là số liệu Google sử dụng để chứng minh rằng WebP nhỏ hơn JPEG 25-34% ở chất lượng *hình ảnh* tương đương, không chỉ là file nhỏ hơn."
+  - q: "Lưu lại một hình ảnh mất dữ liệu có làm hỏng hơn nữa không?"
+    a: "Có, rất đáng kể. Mỗi chu kỳ lưu JPEG sẽ loại bỏ thêm dữ liệu — sau 10-20 lần lưu lại, các vết tạo tác khối và sự thay đổi màu sắc tích lũy. Đây là 'generation loss'. Không bao giờ chỉnh sửa JPEG; hãy chỉnh sửa ảnh gốc hoặc làm việc bằng PNG/WebP không mất dữ liệu, rồi xuất sang JPEG một lần duy nhất."
+  - q: "Tôi có nên sử dụng AVIF nếu khách truy cập sử dụng trình duyệt cũ không?"
+    a: "Không nên không có fallback. AVIF không được hỗ trợ trong Safari 16.0 trở về trước, Firefox/Chrome cũ hoặc Internet Explorer. Sử dụng phần tử <picture> với AVIF làm nguồn đầu tiên, sau đó là WebP, rồi JPEG làm fallback. Trình duyệt chỉ tải xuống và hiển thị định dạng đầu tiên mà nó hỗ trợ."
+faq_howTo:
+  - step: "Chọn định dạng phù hợp cho trường hợp sử dụng của bạn"
+    description: "Ảnh chụp và hình ảnh tự nhiên: WebP mất dữ liệu hoặc AVIF. Ảnh chụp màn hình, logo, text: PNG không mất dữ liệu hoặc WebP không mất dữ liệu. Biểu tượng nhỏ hoặc line art: WebP không mất dữ liệu. Biểu đồ: PNG không mất dữ liệu cho các màu chính xác."
+  - step: "Đặt thanh trượt chất lượng"
+    description: "Ảnh chụp: q75-85 (tương đương JPEG). WebP: q70-80. AVIF: q50-60. Kiểm tra bằng bản xem trước trực tiếp của Image Format Converter để xác nhận kết quả trông giống hệt nhau."
+  - step: "Kiểm tra kích thước file và các số liệu"
+    description: "So sánh file gốc với file nén theo byte. Nếu phiên bản nén nằm trong 60-80% kích thước gốc ở chất lượng hình ảnh tương đương, bạn đã đạt đến điểm cân bằng không mất chất lượng về mặt hình ảnh."
+  - step: "Kiểm tra trên trình duyệt thực tế"
+    description: "Kiểm tra hỗ trợ định dạng: mở DevTools Network tab và xác nhận hình ảnh được tải. Sử dụng <picture> cho fallback đa định dạng nếu bạn cần hỗ trợ trình duyệt cũ."
+---
+
+> **TL;DR**
+>
+> - **"Nén mà không mất chất lượng" chỉ trung thực khi sử dụng các định dạng không mất dữ liệu (PNG, GIF).** Những gì bạn thực sự muốn là **không mất chất lượng về mặt hình ảnh** — một hình ảnh mất dữ liệu trông giống hệt nguyên bản với mắt thường nhân nhưng chỉ ở 50-70% kích thước gốc.
+> - **Sử dụng SSIM, không phải kích thước file**, để đo chất lượng. SSIM dự đoán chất lượng nhận thức được bằng cách phân tích cấu trúc; "trông ổn" không phải là một phương pháp.
+> - **WebP nhỏ hơn JPEG 25-34% ở chất lượng hình ảnh tương đương.** AVIF nhỏ hơn JPEG 50% và nhỏ hơn WebP 20-30% — nén tốt nhất có sẵn ngày hôm nay.
+> - **Chất lượng JPEG 75-85 không thể cảm nhận được bởi con người.** Dưới 70, các vết tạo tác khối xuất hiện trên các khu vực mịn (bầu trời, sắc da). Ảnh chụp màn hình cần PNG hoặc WebP không mất dữ liệu.
+> - **Lợi ích duy nhất lớn nhất là thay đổi kích thước trước khi nén.** Hình ảnh 2000×1500px được thay đổi kích thước thành 1200×900px tiết kiệm 40-50% byte trước bất kỳ tối ưu hóa định dạng nào.
+
+## Tại sao "nén mà không mất chất lượng" lại là một cách diễn đạt gây hiểu lầm?
+
+Tìm kiếm "image compressor without losing quality" và bạn sẽ nhận được hai câu trả lời mâu thuẫn nhau. Câu trả lời đầu tiên có kỹ thuật là đúng nhưng không thực tế: nén không mất dữ liệu (PNG, GIF) tái tạo lại file gốc chính xác, từng bit một, nhưng file vẫn lớn. Một JPEG 2 MB trở thành PNG 3-4 MB.
+
+Câu trả lời thứ hai là những gì bạn thực sự cần: **nén không mất chất lượng về mặt hình ảnh**. Một định dạng mất dữ liệu (JPEG, WebP, AVIF) với cài đặt chất lượng phù hợp trông giống hệt nguyên bản với mắt thường nhân nhưng chi phí ít hơn 50-70% kích thước file. Sự khác biệt giữa hai cách này là sự khác biệt giữa "hoàn hảo" và "đủ tốt", và đủ tốt là những gì chiến thắng trên web.
+
+Đây là cách diễn đạt thẳng: nén không mất dữ liệu thực sự là bảo hiểm cho trường hợp hiếm khi bạn cần tái tạo từng pixel hoàn hảo (lưu trữ, sẵn sàng in, file nguồn thiết kế). Không mất chất lượng về mặt hình ảnh là mặc định thực tế cho mọi hình ảnh web bạn sẽ bao giờ phát hành. Ngưỡng LCP (Largest Contentful Paint) của bạn là [2,5 giây theo web.dev](https://web.dev/articles/performance-web-vitals), và phục vụ WebP (nhỏ hơn JPEG 25-34%) hoặc AVIF (nhỏ hơn khoảng 50%) là [một trong những sửa chữa tác động cao nhất](https://web.dev/articles/performance-web-vitals). Sự đánh đổi không mất chất lượng về mặt hình ảnh không phải là một thỏa hiệp — nó là lựa chọn hiệu quả.
+
+## Không mất dữ liệu hay mất dữ liệu: bạn thực sự cần cái nào?
+
+**Không mất dữ liệu:** Hình ảnh gốc được tái tạo chính xác. PNG áp dụng [một trong năm bộ lọc mỗi hàng làm tiền xử lý, rồi nén DEFLATE](http://www.libpng.org/pub/png/book/chapter09.html) — bộ lọc là những gì làm cho lựa chọn DEFLATE tiếp theo có hiệu quả trên dữ liệu hình ảnh. Chi phí là kích thước file vẫn lớn: PNG không mất dữ liệu của ảnh chụp thường hay gấp vài lần kích thước của JPEG không thể phân biệt được về mặt hình ảnh.
+
+**Mất dữ liệu:** Loại bỏ dữ liệu mà mắt thường nhân không nhận thức được (chi tiết tần số cao, biến đổi màu sắc tinh tế). Hình ảnh được xây dựng lại không phải là một bản sao hoàn hảo, nhưng nó trông giống hệt trên màn hình. Kích thước file giảm 60-80% so với gốc.
+
+**Không mất chất lượng về mặt hình ảnh:** Điểm cân bằng thực tế. Một file mất dữ liệu với thanh trượt chất lượng được đặt đủ cao để không ai nhận thấy sự khác biệt. Ví dụ: JPEG q80, WebP q70-75, AVIF q50-55.
+
+Hãy tự kiểm tra: [sử dụng Image Format Converter](/converters/image-format-converter) với bất kỳ ảnh nào. Tải một JPEG, kéo thanh trượt chất lượng từ 100 xuống 75, và xem kích thước file giảm 40-50% trong khi bản xem trước trông giống hệt nhau. Đó là không mất chất lượng về mặt hình ảnh hoạt động.
+
+## Làm cách nào để đo mất chất lượng thay vì chỉ nhìn?
+
+Chỉ dựa vào kích thước file là một bẫy. Hai hình ảnh được nén thành 40% của hình gốc có thể trông khác nhau rất nhiều — cái này mờ, cái kia giống hệt nhau — nhưng nếu bạn chỉ kiểm tra kích thước file, bạn không có cách nào để biết cái nào là cái nào.
+
+Vào **SSIM** (Structural Similarity Index Measure). Thay vì đo pixel (giống như các số liệu cũ hơn), SSIM dự đoán chất lượng hình ảnh nhận thức được bằng cách phân tích **độ sáng** (độ sáng), **độ tương phản** và **cấu trúc** trên toàn hình ảnh. Điểm SSIM 0,95 có nghĩa là một người quan sát được đào tạo không thể phân biệt được hình ảnh nén với hình gốc. Dưới 0,90, các vết tạo tác có thể nhìn thấy bắt đầu xuất hiện. Dưới 0,80, sự suy giảm là rõ ràng. (Điều này tương tự như cách [các quy tắc tương phản WCAG](/blog/wcag-contrast-for-saas-dashboards) định lượng trợ năng hình ảnh: một số liệu vượt trội so với phán đoán chủ quan.)
+
+Nghiên cứu nén WebP của Google [WebP compression study](https://developers.google.com/speed/webp/docs/webp_study) sử dụng SSIM (không phải chỉ kích thước file) để chứng minh rằng WebP **nhỏ hơn JPEG 25-34% ở chỉ số SSIM giống nhau** trên hình ảnh Kodak và tập dữ liệu trên web. Đây không phải là "file nhỏ hơn" — nó là **file nhỏ hơn trông giống hệt nhau**. [Tổng quan MDN](https://developer.mozilla.org/en-US/blog/image-formats-codecs-compression-tools) xác nhận rằng SSIM "bắt chước cảm nhận con người tốt hơn MSE hoặc PSNR," những số liệu cũ hơn mà các nhà cung cấp từng tuyên bố chứng minh chất lượng.
+
+Lợi ích thực tế: khi bạn điều chỉnh thanh trượt chất lượng, đừng dựa vào phỏng đoán. Sử dụng một công cụ báo cáo điểm SSIM cùng với kích thước file. [Image Format Converter](/converters/image-format-converter) hiển thị kích thước file; các công cụ sản xuất (Squoosh, Cloudinary) báo cáo SSIM. Nếu bạn đạt 0,95+ SSIM ở 60% kích thước gốc, bạn đã thắng trò chơi không mất chất lượng về mặt hình ảnh.
+
+## Bạn nên chọn định dạng nào cho công việc?
+
+Đây là nơi cây quyết định bắt đầu. Các định dạng khác nhau được thiết kế cho nội dung khác nhau, và chọn sai định dạng chi phí 2-3 lần kích thước file.
+
+**WebP (mất dữ liệu)** — định dạng hiện đại tối thiểu khả thi. Nhỏ hơn JPEG 25-34% ở chất lượng hình ảnh tương đương. Được hỗ trợ trong [tất cả trình duyệt hiện đại](https://caniuse.com/webp), mặc dù không ở các phiên bản Safari trước 16 hoặc Internet Explorer. Đối với ảnh hoặc hình ảnh hero, WebP là lựa chọn mặc định nếu bạn chấp nhận một đường dẫn fallback duy nhất (JPEG cho trình duyệt cũ).
+
+**AVIF (mất dữ liệu)** — bộ nén tốt nhất trong lớp ngày hôm nay. Nhỏ hơn JPEG khoảng 50% và nhỏ hơn WebP 20-30% ở chất lượng tương đương. Bẫy: hỗ trợ trình duyệt là mới hơn. Không được hỗ trợ trong Safari 16.0 trở về trước, Firefox/Chrome cũ hoặc IE. Yêu cầu chuỗi fallback: AVIF → WebP → JPEG. Đáng nếu khán giả của bạn là trình duyệt hiện đại (Chrome, Edge, Firefox 50+, Safari 16.1+) hoặc nếu bạn sẵn sàng phục vụ fallback.
+
+**JPEG (mất dữ liệu)** — tiêu chuẩn kế thừa. Vẫn có 95%+ độ phủ trình duyệt và nhỏ hơn PNG cho ảnh, nhưng đang bị thay thế. JPEG ở q75-85 không thể cảm nhận được bởi con người; dưới q70, các vết tạo tác khối xuất hiện. Không sử dụng JPEG cho ảnh chụp màn hình, logo hoặc bất cứ thứ gì có text sắc nét — hãy sử dụng PNG hoặc WebP không mất dữ liệu thay thế.
+
+**PNG (không mất dữ liệu)** — lựa chọn an toàn cho bất cứ thứ gì có độ trong suốt, cạnh sắc nét hoặc text. Không có thanh trượt chất lượng: PNG là PNG. Nhỏ hơn JPEG mất dữ liệu tương đương khoảng 26%, nhưng vẫn lớn. Sử dụng cho ảnh chụp màn hình, biểu tượng hoặc khi pixel-perfect là một yêu cầu thực sự.
+
+**WebP không mất dữ liệu** — thay thế hiện đại của PNG. Nhỏ hơn PNG khoảng 26% với chất lượng không mất dữ liệu giống nhau. Được hỗ trợ trong hầu hết các trình duyệt hiện đại nhưng không Safari 15 trở về trước hoặc IE. Nếu bạn chỉ cần hỗ trợ Chrome/Edge/Firefox, WebP không mất dữ liệu vượt trội so với PNG về kích thước và tốc độ.
+
+## Bạn nên sử dụng cài đặt nào cho mỗi loại hình ảnh?
+
+Đây là bản đồ để bạn đi từ hình ảnh đến quyết định trong 30 giây:
+
+| **Trường hợp sử dụng** | **Định dạng tốt nhất** | **Cài đặt chất lượng** | **Lý do** |
+|---|---|---|---|
+| **Ảnh / ảnh hero** | WebP mất dữ liệu hoặc AVIF | WebP q70-80 / AVIF q50-60 | Nhỏ hơn JPEG 50-80% ở mất mất có thể cảm nhận được. WebP để hỗ trợ trình duyệt an toàn; AVIF nếu khán giả hiện đại. |
+| **Ảnh sản phẩm** | WebP mất dữ liệu | q75 | q75 là điểm cân bằng: mất có thể cảm nhận được, kích thước file 60%. Rất quan trọng phải kiểm tra trên phần cứng khán giả của bạn. |
+| **Biểu đồ / biểu đồ có text** | PNG hoặc WebP không mất dữ liệu | N/A (không mất dữ liệu là tất cả hoặc không) | Các định dạng mất dữ liệu làm mờ text và màu phẳng. Không mất dữ liệu bảo tồn hình dạng. WebP không mất dữ liệu nhỏ hơn PNG khoảng 26%. |
+| **Ảnh chụp màn hình** | PNG hoặc WebP không mất dữ liệu | N/A | Giống như biểu đồ. Ảnh chụp màn hình có cạnh sắc nét và text; các vết tạo tác JPEG phá hủy khả năng đọc dưới q85. |
+| **Logo / biểu tượng** | WebP không mất dữ liệu hoặc PNG | N/A | Chỉ không mất dữ liệu. Các định dạng mất dữ liệu (JPEG) giới thiệu sự ứa xung quanh cạnh. WebP không mất dữ liệu nhỏ hơn. |
+| **Ảnh header hoặc hero (ảnh phong cảnh)** | AVIF với fallback WebP | AVIF q50-55 / WebP q75 | AVIF ở q50-55 không thể phân biệt được so với JPEG ở q80+. Phục vụ AVIF đầu tiên; WebP cho Safari 16.0 trở về trước. |
+| **Hero + text overlay (ví dụ, biểu ngữ bán hàng)** | PNG hoặc WebP không mất dữ liệu | N/A | Text yêu cầu không mất dữ liệu. Nếu text được hiển thị *sau* hình ảnh tải (HTML overlay), hãy sử dụng mất dữ liệu cho lớp ảnh. |
+
+Lợi ích duy nhất lớn nhất bị bỏ qua là **thay đổi kích thước trước khi nén**. Hình ảnh hero 2000px rộng phục vụ vào khe 1200px lãng phí byte không có cài đặt chất lượng nào có thể khôi phục. Phục vụ hình ảnh đáp ứng qua `<picture>` hoặc `srcset`; sử dụng CDN hoặc công cụ xây dựng thời gian để tự động tạo kích thước.
+
+## Những gì thực sự xảy ra khi nén được thực hiện tệ?
+
+Nén không phải là phép thuật. Hiểu điều gì bị hỏng giúp bạn tránh các bẫy.
+
+**Vết tạo tác nén quá mức.** Dưới JPEG q75, hai điều xảy ra. Đầu tiên, các khu vực mịn (bầu trời, sắc da, những tấm nền studio) vỡ thành dải hình khối rõ ràng — các bước thay vì độ chuyển. Thứ hai, các cạnh sắc nét (text, đường biểu đồ) rung với haloing (quầng sáng/tối xung quanh cạnh). [Hướng dẫn ImageLab](https://imagelabtools.com/guides/image-compression-guide/) xác nhận: "Blocking rõ ràng nhất ở cài đặt chất lượng dưới 50." Các độ chuyển và sắc da bị ảnh hưởng đầu tiên. Kiểm tra ảnh của bạn ở q70 và q80 cạnh nhau; bước nhảy rất lớn.
+
+**Generation loss từ nén lại.** Lưu JPEG, chỉnh sửa nó trong Photoshop, lưu nó lại là JPEG. Lần lưu thứ hai loại bỏ dữ liệu *khác* so với lần đầu tiên, và hiệu ứng tích lũy có thể nhìn thấy sau 10-20 chu kỳ lưu. [Cloudinary giải thích nó tốt nhất](https://cloudinary.com/blog/why_jpeg_is_like_a_photocopier): "Mỗi chu kỳ mã hóa loại bỏ thêm dữ liệu. JPEG có thể hoạt động như tái quét tài liệu." Sửa chữa rất đơn giản: chỉnh sửa PNG hoặc WebP không mất dữ liệu làm định dạng làm việc, rồi xuất sang JPEG một lần ở cuối.
+
+**Độ trong suốt bị phá hủy bằng mất khớp định dạng.** Một PNG với kênh alpha (độ trong suốt) được chuyển đổi sang JPEG mất alpha hoàn toàn — JPEG không hỗ trợ độ trong suốt. Nếu sau đó bạn chuyển đổi lại sang PNG, nền là trắng rắn hoặc bất cứ mặc định nào công cụ của bạn chọn. Luôn bảo tồn độ trong suốt trong WebP hoặc PNG, không bao giờ JPEG.
+
+**Vết tạo tác chroma subsampling (4:2:0 mặc định).** JPEG và WebP mã hóa thông tin màu ở độ phân giải thấp hơn độ sáng (độ sáng). Theo mặc định, cả hai đều sử dụng lấy mẫu 4:2:0: màu được lấy mẫu ở 1/4 tốc độ của độ sáng. Trên hình ảnh độ bão hòa cao (ví dụ, vải, text neon trên nền tối), điều này gây chảy màu và cạnh đục. Bạn có thể điều chỉnh cái này thành 4:4:4 (độ phân giải đầy đủ) để bảo tồn màu, nhưng kích thước file tăng. Sự đánh đổi: 4:2:0 nhỏ hơn 10-15% nhưng có thể thay đổi màu; 4:4:4 chính xác nhưng lớn hơn. Kiểm tra cả hai trên ảnh của bạn.
+
+**Khoảng trống hỗ trợ trình duyệt cho AVIF.** AVIF rất tốt nhưng không phổ quát. Sử dụng phần tử `<picture>` để phục vụ nhiều định dạng: trình duyệt chỉ tải xuống hình ảnh đầu tiên mà nó hiểu được. Ví dụ:
+
+```html
+<picture>
+  <source srcset="image.avif" type="image/avif" />
+  <source srcset="image.webp" type="image/webp" />
+  <img src="image.jpg" alt="..." />
+</picture>
+```
+
+Safari tải xuống JPEG; Chrome tải xuống AVIF. Cú pháp hoạt động ngày hôm nay.
+
+## Quy trình nén chính xác trông như thế nào?
+
+1. **Bắt đầu với định dạng phù hợp.** Sử dụng ma trận quyết định ở trên. Nếu không chắc chắn, ảnh chụp = WebP mất dữ liệu; biểu đồ/ảnh chụp màn hình = không mất dữ liệu; text trong ảnh = PNG.
+
+2. **Thay đổi kích thước đến kích thước mục tiêu trước. ** Ảnh 4000×3000px cho trang web rộng 1200px nên được thay đổi kích thước thành ~1200-1600px trước bất kỳ nén nào. Quỹ kích thước là 60-70% và *không* được tính chống chất lượng nhận thức (bạn không loại bỏ chi tiết nhận thức được, chỉ độ phân giải dư thừa).
+
+3. **Đặt thanh trượt chất lượng.** Ảnh chụp: q75-80 (tương đương JPEG). WebP: q70-75. AVIF: q50-55. Không đoán. Sử dụng một công cụ như [Image Format Converter](/converters/image-format-converter) để xem trước và so sánh kích thước file.
+
+4. **So sánh SSIM hoặc chất lượng hình ảnh, không phải kích thước file.** Nếu công cụ báo cáo SSIM, hãy nhắm 0,95+. Nếu không, hãy so sánh hình ảnh cạnh nhau (phóng to cạnh, độ chuyển, sắc da) và xác nhận phiên bản nén trông giống hệt nhau.
+
+5. **Kiểm tra trên các trình duyệt và thiết bị thực tế.** Kích thước file trên laptop của bạn và kích thước file trên mạng di động dưới tải là khác nhau. Kiểm tra tab Network trong DevTools để xem thời gian chuyển, và sử dụng throttling DevTools để mô phỏng 3G.
+
+6. **Tước siêu dữ liệu.** Các file hình ảnh thường chứa dữ liệu EXIF (mô hình máy ảnh, GPS, dấu thời gian). Tước nó trước khi tải lên (hầu hết công cụ tự động làm). Điều này tiết kiệm 5-20 KB và loại bỏ rò rỉ quyền riêng tư.
+
+7. **Xác minh độ chính xác màu nếu hình ảnh có các màu thương hiệu quan trọng.** Sử dụng [color-converter](/design/color-converter) để kiểm tra spot xem hình ảnh nén có bảo tồn bảng màu thương hiệu của bạn không. Chroma subsampling hoặc lựa chọn định dạng có thể thay đổi sắc trên các màu độ bão hòa cao. Để tìm hiểu sâu hơn về lựa chọn màu có thể truy cập, hãy xem [color palette tools for accessibility](/blog/color-palette-tools-for-accessibility).
+
+## Tại sao điều này lại quan trọng với Core Web Vitals?
+
+Tối ưu hóa hình ảnh không phải là vấn đề tầm thường. Hình ảnh thường chiếm 50-80% byte trang, và những hình ảnh chưa được tối ưu hóa lớn là [nguyên nhân #1 của Largest Contentful Paint (LCP) chậm](https://web.dev/articles/performance-web-vitals). LCP "tốt" là ≤2,5 giây; mỗi 100 KB hình ảnh thêm ~0,1-0,2 giây trên kết nối 3G điển hình. Phục vụ WebP hoặc AVIF thay vì JPEG ([40-60% nhỏ hơn](https://web.dev/articles/performance-web-vitals)) là một trong những sửa chữa hiệu suất cao nhất ROI. Bạn không nén chỉ để tiết kiệm băng thông — bạn nén để đáp ứng ngân sách LCP của mình và giữ người dùng không rời đi.
+
+## Phán quyết: những gì thực sự cần làm ngày hôm nay
+
+Nếu bạn lấy một điều để đi, hãy lấy thứ tự, bởi vì hầu hết mọi người tối ưu hóa nút sai trước tiên.
+
+**Thay đổi kích thước trước khi nén.** Phục vụ hình ảnh 2000px rộng vào khe 1200px lãng phí byte không có cài đặt chất lượng nào có thể khôi phục. Đây gần như luôn luôn là quỹ tiết kiệm duy nhất lớn nhất có sẵn, và đó là bước thường xuyên bị bỏ qua.
+
+**Sau đó chọn định dạng theo nội dung, không phải thói quen.** Ảnh và hình ảnh tự nhiên đi WebP hoặc AVIF. Ảnh chụp màn hình, logo, biểu đồ và bất cứ thứ gì chứa text đi PNG hoặc WebP *không mất dữ liệu* — chạy hình ảnh mang text qua JPEG là vấn đề tự gây khó khăn về chất lượng phổ biến nhất.
+
+**Sau đó đặt thanh trượt một cách cố ý:** JPEG q80, WebP q70-80, AVIF q50-60. Bắt đầu ở đó và chỉ di chuyển nếu một hình ảnh cụ thể nói với bạn.
+
+**Không bao giờ lưu lại một file mất dữ liệu.** Giữ gốc, chỉnh sửa gốc, xuất một lần. Generation loss là tích lũy và không thể đảo ngược.
+
+Đối với hai bước giữa, bạn có thể làm công việc trong trình duyệt với [Image Format Converter](/converters/image-format-converter) — chuyển đổi giữa PNG, JPEG và WebP, và sử dụng thanh trượt chất lượng để tìm điểm mà bản xem trước dừng thay đổi nhưng kích thước file tiếp tục giảm. Để rõ ràng về những gì site này cung cấp và không cung cấp: công cụ chuyển đổi đó là công cụ định dạng và chất lượng, không phải bộ nén hàng loạt, và mọi thứ nó làm chạy cục bộ trong trình duyệt của bạn.
+
+## FAQ
+
+**Hỏi: Tại sao không sử dụng "lossless compressor" và gọi nó xong?**
+
+Trả lời: Nén không mất dữ liệu thực sự (DEFLATE, được sử dụng trong PNG và GIF) có trần: PNG nhỏ hơn JPEG mất dữ liệu tương đương khoảng 26%. Nếu bạn cần nhỏ hơn, bạn *phải* chấp nhận một số mất mát. Không mất chất lượng về mặt hình ảnh là sự đánh đổi thực dụng: mất có thể cảm nhận được, tiết kiệm kích thước file 50-80%.
+
+**Hỏi: Tôi có thể tin tưởng bản xem trước trong một công cụ như [Image Format Converter](/converters/image-format-converter)?**
+
+Trả lời: Có, nếu bạn phóng to và kiểm tra các khu vực tác động cao (mặt, text, độ chuyển). Các công cụ dựa trên trình duyệt hiển thị ở độ phân giải màn hình đầy đủ, vì vậy những gì bạn thấy trong bản xem trước gần với những gì người dùng thấy. Cảnh báo: hiệu chuẩn màn hình ảnh hưởng đến cách bạn *cảm nhận* chất lượng, không phải liệu hình ảnh có mất mát.
+
+**Hỏi: Điều gì nếu tôi hoàn toàn không thể chịu bất kỳ mất mát nào?**
+
+Trả lời: Sử dụng PNG hoặc WebP không mất dữ liệu. Chấp nhận rằng kích thước file sẽ lớn hơn 2-4 lần so với các lựa chọn không mất chất lượng về mặt hình ảnh. Chỉ sử dụng cái này cho công việc lưu trữ, sẵn sàng in hoặc khi hình ảnh rất quan trọng (ví dụ, ảnh sản phẩm trong đó khớp màu chính xác quan trọng). Đối với web, đây là hiếm.
+
+**Hỏi: Làm cách nào để chọn giữa WebP và AVIF?**
+
+Trả lời: Nếu bạn cần hỗ trợ tất cả trình duyệt hiện đại (bao gồm Safari 15 và Chrome cũ hơn), hãy sử dụng WebP. AVIF nhỏ hơn 20-30% nhưng không được hỗ trợ trong Safari 16.0 trở về trước. Sử dụng cả hai thông qua fallback `<picture>` nếu khán giả của bạn là 80%+ trên Chrome/Edge/Firefox. Đo phân phối trình duyệt thực tế của bạn qua phân tích.

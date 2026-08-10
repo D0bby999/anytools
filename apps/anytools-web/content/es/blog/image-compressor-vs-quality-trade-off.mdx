@@ -1,0 +1,194 @@
+---
+title: "Compresión de imágenes sin perder calidad: el verdadero conflicto explicado"
+slug: image-compressor-vs-quality-trade-off
+heroImage:
+  url: "https://s3-hcm-r2.s3cloud.vn/anytools/anytools/blog/image-compressor-vs-quality-trade-off/hero.jpg"
+  alt: "Software de edición de fotos se muestra en la pantalla de una portátil."
+  credit:
+    photographer: "Zulfugar Karimov"
+    photographer_url: "https://unsplash.com/@zulfugarkarimov?utm_source=anytools&utm_medium=referral"
+    unsplash_url: "https://unsplash.com/photos/photo-editing-software-is-shown-on-a-laptop-screen-PevdsGAUrKA?utm_source=anytools&utm_medium=referral"
+    kind: "unsplash"
+    source_label: "Unsplash"
+description: "La \"compresión sin pérdida de calidad\" solo existe en formatos sin pérdida. El objetivo real es visualmente sin pérdida: aquí está la diferencia honesta y cómo lograrlo deliberadamente."
+category: design
+keywords:
+  - compresión de imágenes sin pérdida de calidad
+  - compresión visualmente sin pérdida
+  - métricas de calidad de imagen ssim
+  - calidad webp vs jpeg
+  - compresión de imágenes sin pérdida
+toolsLinked: [image-format-converter, color-converter]
+writingStyle: explainer
+publishedAt: 2026-08-10
+updatedAt: 2026-08-10
+readingTime: 11
+disclosureType: affiliate
+author:
+  name: "Dobby"
+  credentials: "Ingeniero de software que construye herramientas de desarrollo, 8 años de experiencia"
+  bio: "Construyo las herramientas y recomiendo las que vale la pena. AnyTools es mi proyecto."
+  url: "/about"
+faq:
+  - q: "¿Hay realmente una diferencia entre 'sin pérdida' y 'visualmente sin pérdida'?"
+    a: "Sí. La compresión sin pérdida reproduce el archivo original bit por bit (PNG, GIF). Visualmente sin pérdida es una imagen con pérdida que se ve idéntica al ojo humano pero al 50-70% del tamaño (JPEG q75-85, WebP q70, AVIF q50). Sin pérdida es un seguro; visualmente sin pérdida es la opción práctica cuando el tamaño del archivo importa."
+  - q: "¿Qué configuración de calidad debo usar para fotos JPEG?"
+    a: "Comienza en q80 para la mayoría de fotos. Entre q75-85, el ojo humano no detecta diferencia (verificado en conjuntos de imágenes Kodak y rastreadas por la web según el estudio WebP de Google). Por debajo de q70, los artefactos de bloqueo se hacen visibles en áreas suaves (cielos, tonos de piel). Para capturas de pantalla o gráficos vectoriales, usa PNG o WebP sin pérdida en su lugar: JPEG siempre pierde información basada en formas."
+  - q: "¿Por qué SSIM importa más que el tamaño del archivo?"
+    a: "El tamaño del archivo solo es engañoso: podrías comprimir dos archivos al 40% pero uno se ve borroso y otro se ve idéntico al original. SSIM (Índice de Similitud Estructural) predice lo que el ojo humano ve analizando luminancia, contraste y estructura: tiene una correlación del 80-90% con la calidad percibida. Es la métrica que Google usó para probar que WebP es 25-34% más pequeño que JPEG en calidad *visual* equivalente, no solo archivos más pequeños."
+  - q: "¿Daña significativamente el guardado repetido de una imagen con pérdida?"
+    a: "Sí, significativamente. Cada ciclo de guardado JPEG descarta más datos: después de 10-20 re-guardados, el bloqueo visible y los cambios de color se acumulan. Esto es 'pérdida de generación'. Nunca edites un JPEG; edita el original o trabaja en PNG/WebP sin pérdida, luego exporta a JPEG una sola vez."
+  - q: "¿Debo usar AVIF si mis visitantes usan navegadores más antiguos?"
+    a: "No sin un respaldo. AVIF no es compatible en Safari 16.0 y versiones anteriores, Firefox/Chrome más antiguo, o Internet Explorer. Usa el elemento <picture> con AVIF como la primera fuente, luego WebP, luego JPEG como respaldo. El navegador descarga y renderiza solo el primer formato que soporta."
+faq_howTo:
+  - step: "Elige el formato correcto para tu caso de uso"
+    description: "Fotografías e imágenes naturales: WebP con pérdida o AVIF. Capturas de pantalla, logos, texto: PNG sin pérdida o WebP sin pérdida. Iconos pequeños o arte lineal: WebP sin pérdida. Gráficos: PNG sin pérdida para colores exactos."
+  - step: "Configura el deslizador de calidad"
+    description: "Fotos: q75-85 (equivalente JPEG). WebP: q70-80. AVIF: q50-60. Prueba con la vista previa en vivo del Convertidor de Formato de Imagen para confirmar salida visualmente idéntica."
+  - step: "Verifica el tamaño del archivo y las métricas"
+    description: "Compara el archivo original vs comprimido en bytes. Si la versión comprimida está dentro del 60-80% del tamaño original con calidad visual equivalente, has alcanzado el punto dulce visualmente sin pérdida."
+  - step: "Prueba en navegadores reales"
+    description: "Verifica la compatibilidad del formato: abre la pestaña Red de DevTools y confirma que la imagen carga. Usa <picture> para respaldos de múltiples formatos si necesitas soportar navegadores antiguos."
+---
+
+> **TL;DR**
+>
+> - **"Compresión sin pérdida de calidad" es honesta solo para formatos sin pérdida (PNG, GIF).** Lo que realmente quieres es **visualmente sin pérdida**: una imagen con pérdida que se ve idéntica al ojo humano pero al 50-70% del tamaño original.
+> - **Usa SSIM, no el tamaño del archivo**, para medir la calidad. SSIM predice la calidad percibida analizando la estructura; "se ve bien" no es un método.
+> - **WebP es 25-34% más pequeño que JPEG en calidad visual equivalente.** AVIF es 50% más pequeño que JPEG y 20-30% más pequeño que WebP: la mejor compresión disponible hoy.
+> - **La calidad JPEG 75-85 es imperceptible para humanos.** Por debajo de 70, los artefactos de bloqueo emergen en áreas suaves (cielos, tonos de piel). Las capturas de pantalla necesitan PNG o WebP sin pérdida en su lugar.
+> - **La mayor ganancia única es redimensionar antes de comprimir.** Una imagen de 2000×1500px escalada a 1200×900px ahorra ~40-50% de bytes antes de cualquier optimización de formato.
+
+## ¿Por qué es "compresión sin pérdida de calidad" una frase engañosa?
+
+Busca "compresor de imágenes sin perder calidad" y obtendrás dos respuestas contradictorias. La primera es técnicamente correcta pero impráctica: la compresión sin pérdida (PNG, GIF) reproduce el archivo original exactamente, bit por bit, pero los archivos siguen siendo grandes. Un JPEG de 2 MB se convierte en un PNG de 3-4 MB.
+
+La segunda respuesta es lo que realmente necesitas: **compresión visualmente sin pérdida**. Un formato con pérdida (JPEG, WebP, AVIF) con la configuración correcta de calidad se ve idéntico al ojo humano pero cuesta 50-70% menos en tamaño de archivo. La diferencia entre los dos es la diferencia entre "perfecto" y "lo suficientemente bueno", y lo suficientemente bueno es lo que gana en la web.
+
+Aquí está el enfoque honesto: la compresión sin pérdida verdadera es un seguro para el caso raro cuando necesitas reproducción pixel-perfecta (archival, listo para imprimir, archivos de origen de diseño). Visualmente sin pérdida es el estándar práctico para cada imagen web que jamás enviarás. Tu umbral LCP (Largest Contentful Paint) es [2.5 segundos según web.dev](https://web.dev/articles/performance-web-vitals), y servir WebP (25-34% más pequeño que JPEG) o AVIF (aproximadamente 50% más pequeño) es [una de las correcciones de mayor impacto](https://web.dev/articles/performance-web-vitals). El compromiso visualmente sin pérdida no es un sacrificio: es la opción eficiente.
+
+## ¿Sin pérdida o con pérdida: cuál necesitas realmente?
+
+**Sin pérdida:** La imagen original se reconstruye exactamente. PNG aplica [uno de cinco filtros por fila como preprocesamiento, luego compresión DEFLATE](http://www.libpng.org/pub/png/book/chapter09.html): el filtrado es lo que hace que el pase DEFLATE posterior sea efectivo en datos de imagen. El costo es que el tamaño del archivo sigue siendo grande: un PNG sin pérdida de una fotografía es rutinariamente varias veces el tamaño de un JPEG visualmente indistinguible.
+
+**Con pérdida:** Descarta datos que el ojo humano no percibe (detalle de alta frecuencia, variación de color sutil). La imagen reconstruida *no* es una copia perfecta, pero se ve idéntica en pantalla. El tamaño del archivo cae 60-80% vs el original.
+
+**Visualmente sin pérdida:** El punto medio honesto. Un archivo con pérdida con el deslizador de calidad establecido lo suficientemente alto como para que ningún humano note la diferencia. Ejemplos: JPEG q80, WebP q70-75, AVIF q50-55.
+
+Prueba esto tú mismo: [usa el Convertidor de Formato de Imagen](/converters/image-format-converter) con cualquier foto. Carga un JPEG, arrastra el deslizador de calidad de 100 a 75, y observa cómo el tamaño del archivo cae 40-50% mientras la vista previa se ve idéntica. Eso es visualmente sin pérdida en acción.
+
+## ¿Cómo mides la pérdida de calidad en lugar de adivinar?
+
+El tamaño del archivo solo es una trampa. Dos imágenes comprimidas al 40% del original pueden verse vastamente diferentes: una borrosa, una idéntica, pero si solo verificas el tamaño del archivo, no tienes forma de saber cuál es cuál.
+
+Entra **SSIM** (Índice de Similitud Estructural). En lugar de medir píxeles (como lo hacen las métricas más antiguas), SSIM predice la calidad visual percibida analizando **luminancia** (brillo), **contraste** y **estructura** en toda la imagen. Una puntuación de 0.95 SSIM significa que un observador entrenado no puede diferenciar la comprimida del original. Por debajo de 0.90, los artefactos visibles comienzan a aparecer. Por debajo de 0.80, la degradación es obvia. (Esto es similar a cómo [las reglas de contraste WCAG](/blog/wcag-contrast-for-saas-dashboards) cuantifican la accesibilidad visual: una métrica vence al juicio subjetivo).
+
+El [estudio de compresión WebP de Google](https://developers.google.com/speed/webp/docs/webp_study) usó SSIM (no solo el tamaño del archivo) para probar que WebP es **25-34% más pequeño que JPEG en el mismo índice SSIM** en imágenes Kodak y conjuntos de datos rastreados por la web. Esto no es "archivos más pequeños": es **archivos más pequeños que se ven idénticos**. La [descripción general de MDN](https://developer.mozilla.org/en-US/blog/image-formats-codecs-compression-tools) confirma que SSIM "imita mejor la percepción humana que MSE o PSNR," las métricas más antiguas que los proveedores alguna vez afirmaron que probaban la calidad.
+
+La lección práctica: cuando estés ajustando un deslizador de calidad, no confíes en adivinar. Usa una herramienta que reporte puntuaciones SSIM junto con el tamaño del archivo. El [Convertidor de Formato de Imagen](/converters/image-format-converter) muestra el tamaño del archivo; herramientas de producción (Squoosh, Cloudinary) reportan SSIM. Si alcanzas 0.95+ SSIM al 60% del tamaño original, has ganado el juego visualmente sin pérdida.
+
+## ¿Qué formato debes elegir para el trabajo?
+
+Aquí es donde comienza el árbol de decisión. Diferentes formatos están diseñados para diferente contenido, y elegir el incorrecto cuesta 2-3× en tamaño de archivo.
+
+**WebP (con pérdida)** — el formato moderno viable mínimo. 25-34% más pequeño que JPEG en calidad visual equivalente. Compatible en [todos los navegadores modernos](https://caniuse.com/webp), aunque no en versiones de Safari anteriores a 16 o Internet Explorer. Para una foto o imagen de héroe, WebP es la opción predeterminada si estás de acuerdo con una ruta de respaldo único (JPEG para navegadores antiguos).
+
+**AVIF (con pérdida)** — el compresor de clase mundial hoy. ~50% más pequeño que JPEG y 20-30% más pequeño que WebP en calidad equivalente. El inconveniente: el soporte del navegador es más nuevo. No es compatible en Safari 16.0 y versiones anteriores, Firefox/Chrome más antiguo, o IE. Requiere una cadena de respaldo: AVIF → WebP → JPEG. Vale la pena si tu audiencia usa navegadores modernos (Chrome, Edge, Firefox 50+, Safari 16.1+) o si estás dispuesto a servir respaldos.
+
+**JPEG (con pérdida)** — el estándar heredado. Aún tiene cobertura de navegador 95%+ y es más pequeño que PNG para fotos, pero está siendo desplazado. JPEG en q75-85 es imperceptible para humanos; por debajo de q70, emergen artefactos de bloqueo. No uses JPEG para capturas de pantalla, logos, o cualquier cosa con texto agudo: usa PNG o WebP sin pérdida en su lugar.
+
+**PNG (sin pérdida)** — la opción segura para cualquier cosa con transparencia, bordes agudos, o texto. Sin deslizador de calidad: PNG es PNG. ~26% más pequeño que equivalentes JPEG con pérdida, pero aún grande. Úsalo para capturas de pantalla, iconos, o cuando pixel-perfecto es un requisito real.
+
+**WebP sin pérdida** — el reemplazo moderno de PNG. ~26% más pequeño que PNG con la misma calidad sin pérdida. Compatible en la mayoría de navegadores modernos pero no Safari 15 y versiones anteriores, o IE. Si solo necesitas soportar Chrome/Edge/Firefox, WebP sin pérdida vence a PNG en tamaño y velocidad.
+
+## ¿Qué configuración debes usar para cada tipo de imagen?
+
+Aquí está el mapa para llevarte de imagen a decisión en 30 segundos:
+
+| **Caso de uso** | **Mejor formato** | **Configuración de calidad** | **Justificación** |
+|---|---|---|---|
+| **Fotografía / imagen de héroe** | WebP con pérdida o AVIF | WebP q70-80 / AVIF q50-60 | 50-80% más pequeño que JPEG en pérdida imperceptible. WebP para soporte seguro del navegador; AVIF si la audiencia es moderna. |
+| **Foto de producto** | WebP con pérdida | q75 | q75 es el punto dulce: pérdida imperceptible, 60% tamaño de archivo. Crítico de probar en el hardware de tu audiencia. |
+| **Diagrama / gráfico con texto** | PNG o WebP sin pérdida | N/A (sin pérdida es todo o nada) | Los formatos con pérdida emborrachan el texto y colores planos. Sin pérdida preserva la forma. WebP sin pérdida es ~26% más pequeño que PNG. |
+| **Captura de pantalla** | PNG o WebP sin pérdida | N/A | Igual que gráficos. Las capturas de pantalla tienen bordes agudos y texto; los artefactos JPEG destruyen la legibilidad por debajo de q85. |
+| **Logo / icono** | WebP sin pérdida o PNG | N/A | Sin pérdida solo. Los formatos con pérdida (JPEG) introducen franjas de color alrededor de los bordes. WebP sin pérdida es más pequeño. |
+| **Imagen de encabezado o héroe (foto de paisaje)** | AVIF con respaldo WebP | AVIF q50-55 / WebP q75 | AVIF en q50-55 es indistinguible de JPEG en q80+. Sirve AVIF primero; WebP para Safari 16.0 y versiones anteriores. |
+| **Héroe + superposición de texto (p. ej., banner de ventas)** | PNG o WebP sin pérdida | N/A | El texto demanda sin pérdida. Si el texto se renderiza *después* de que carga la imagen (superposición HTML), usa con pérdida para la capa de foto. |
+
+La ganancia más pasada por alto es **redimensionar antes de comprimir**. Una imagen de héroe de 2000px de ancho servida en un espacio de 1200px desperdicia bytes que ninguna configuración de calidad puede recuperar. Sirve imágenes responsivas vía `<picture>` o `srcset`; usa una CDN o herramienta de tiempo de compilación para generar los tamaños automáticamente.
+
+## ¿Qué sale mal cuando la compresión se realiza mal?
+
+La compresión no es magia. Entender qué se rompe te ayuda a evitar las trampas.
+
+**Artefactos de sobre-compresión.** Por debajo de JPEG q75, suceden dos cosas. Primero, las áreas suaves (cielos, tonos de piel, telones de fondo de estudio) se rompen en bandas visibles: pasos en lugar de gradientes. Segundo, los bordes agudos (texto, líneas de gráficos) suenan con halos (halos de luz/oscuro alrededor del borde). La [guía de ImageLab](https://imagelabtools.com/guides/image-compression-guide/) confirma: "El bloqueo es más visible en configuraciones de calidad por debajo de 50." Los gradientes y tonos de piel sufren primero. Prueba tus imágenes en q70 y q80 lado a lado; el salto es dramático.
+
+**Pérdida de generación por re-compresión.** Guarda un JPEG, edítalo en Photoshop, guárdalo nuevamente como JPEG. El segundo guardado descarta *diferentes* datos que el primero, y el efecto acumulativo es visible después de 10-20 ciclos de guardado. [Cloudinary lo explica mejor](https://cloudinary.com/blog/why_jpeg_is_like_a_photocopier): "Cada ciclo de codificación descarta datos adicionales. JPEG puede comportarse como fotocopiar un documento varias veces." La solución es simple: edita PNG o WebP sin pérdida como tu formato de trabajo, luego exporta a JPEG una sola vez al final.
+
+**Transparencia destruida por falta de coincidencia de formato.** Un PNG con un canal alfa (transparencia) convertido a JPEG pierde el alfa completamente: JPEG no tiene soporte de transparencia. Si luego reconviertes a PNG, el fondo es blanco sólido o lo que tu herramienta eligió por defecto. Siempre preserva la transparencia en WebP o PNG, nunca JPEG.
+
+**Artefactos de submuestreo de crominancia (4:2:0 predeterminado).** JPEG y WebP codifican información de color a una resolución más baja que el brillo (luminancia). Por defecto, ambos usan muestreo 4:2:0: el color se muestrea a 1/4 de la tasa del brillo. En imágenes de alta saturación (p. ej., tela, texto de neón sobre fondo oscuro), esto causa sangrado de color y bordes turbios. Puedes ajustar esto a 4:4:4 (resolución completa) para preservar el color, pero el tamaño del archivo aumenta. Compromiso: 4:2:0 es 10-15% más pequeño pero puede cambiar el color; 4:4:4 es preciso pero más grande. Prueba ambos en tus imágenes.
+
+**Brechas de soporte del navegador para AVIF.** AVIF es excelente pero no universal. Usa el elemento `<picture>` para servir múltiples formatos: el navegador descarga solo el primero que entiende. Ejemplo:
+
+```html
+<picture>
+  <source srcset="image.avif" type="image/avif" />
+  <source srcset="image.webp" type="image/webp" />
+  <img src="image.jpg" alt="..." />
+</picture>
+```
+
+Safari descarga el JPEG; Chrome descarga el AVIF. La sintaxis funciona hoy.
+
+## ¿Cómo se ve un flujo de trabajo de compresión correcto?
+
+1. **Comienza con el formato correcto.** Usa la matriz de decisión anterior. Si tienes dudas, fotografía = WebP con pérdida; diagrama/captura de pantalla = sin pérdida; texto en imagen = PNG.
+
+2. **Redimensiona a las dimensiones objetivo primero.** Una foto de 4000×3000px para una página web de 1200px de ancho debe redimensionarse a ~1200-1600px antes de cualquier compresión. La caída de tamaño es 60-70% y *no* se cuenta contra la calidad visual (no estás descartando detalle percibido, solo resolución excesiva).
+
+3. **Configura el deslizador de calidad.** Fotografía: q75-80 (equivalente JPEG). WebP: q70-75. AVIF: q50-55. No adivines. Usa una herramienta como el [Convertidor de Formato de Imagen](/converters/image-format-converter) para previsualizar y comparar tamaños de archivo.
+
+4. **Compara SSIM o calidad visual, no tamaño de archivo.** Si una herramienta reporta SSIM, apunta a 0.95+. Si no, haz una comparación visual lado a lado (acerca en bordes, gradientes, tonos de piel) y confirma que la versión comprimida se ve idéntica.
+
+5. **Prueba en navegadores y dispositivos reales.** El tamaño de archivo en tu portátil y el tamaño de archivo en una red móvil bajo carga son diferentes. Verifica la pestaña Red en DevTools para ver el tiempo de transferencia, y usa la limitación de DevTools para simular 3G.
+
+6. **Elimina metadatos.** Los archivos de imagen a menudo llevan datos EXIF (modelo de cámara, GPS, marcas de tiempo). Elimínalos antes de cargar (la mayoría de herramientas lo hacen automáticamente). Esto ahorra 5-20 KB y elimina fugas de privacidad.
+
+7. **Verifica la precisión del color si la imagen tiene colores de marca críticos.** Usa [color-converter](/design/color-converter) para verificar puntualmente si la imagen comprimida preservó tu paleta de marca. El submuestreo de crominancia o la opción de formato pueden cambiar el matiz en colores de alta saturación. Para una inmersión más profunda en opciones de color accesibles, ve [herramientas de paleta de color para accesibilidad](/blog/color-palette-tools-for-accessibility).
+
+## ¿Por qué importa todo esto para Core Web Vitals?
+
+La optimización de imagen no es trivialidad. Las imágenes son típicamente 50-80% de los bytes de una página, e imágenes no optimizadas grandes son la [causa #1 de lentitud de Largest Contentful Paint (LCP)](https://web.dev/articles/performance-web-vitals). LCP "bueno" es ≤2.5 segundos; cada 100 KB de imagen agrega ~0.1-0.2s en una conexión 3G típica. Servir WebP o AVIF en lugar de JPEG ([40-60% más pequeño](https://web.dev/articles/performance-web-vitals)) es una de las correcciones de máximo ROI en rendimiento. No estás comprimiendo solo para ahorrar ancho de banda: estás comprimiendo para cumplir tu presupuesto LCP y evitar que los usuarios reboten.
+
+## El veredicto: qué hacer hoy
+
+Si tomas una cosa, toma el ordenamiento, porque la mayoría de personas optimizan el botón incorrecto primero.
+
+**Redimensiona antes de comprimir.** Servir una imagen de 2000px de ancho en un espacio de 1200px desperdicia bytes que ninguna configuración de calidad puede recuperar. Este es casi siempre el ahorro único más grande disponible, y es el paso que más a menudo se omite.
+
+**Luego elige el formato por contenido, no por hábito.** Fotografías e imágenes naturales van a WebP o AVIF. Capturas de pantalla, logos, gráficos y cualquier cosa que contenga texto van a PNG o WebP *sin pérdida*: ejecutar imágenes que contienen texto a través de JPEG es el problema de calidad auto-infligido más común que existe.
+
+**Luego configura el deslizador deliberadamente:** JPEG q80, WebP q70-80, AVIF q50-60. Comienza allí y muévete solo si una imagen específica te lo dice.
+
+**Nunca re-guardes un archivo con pérdida.** Mantén el original, edita el original, exporta una sola vez. La pérdida de generación es acumulativa e irreversible.
+
+Para los dos pasos medios puedes hacer el trabajo en el navegador con el [Convertidor de Formato de Imagen](/converters/image-format-converter): convierte entre PNG, JPEG y WebP, y usa el deslizador de calidad para encontrar el punto donde la vista previa deja de cambiar pero el tamaño del archivo sigue cayendo. Para ser explícito sobre lo que este sitio ofrece y no ofrece: ese convertidor es una herramienta de formato y calidad, no un compresor por lotes, y todo lo que hace se ejecuta localmente en tu navegador.
+
+## Preguntas frecuentes
+
+**P: ¿Por qué no usar un "compresor sin pérdida" y listos?**
+
+R: La compresión verdaderamente sin pérdida (DEFLATE, usada en PNG y GIF) tiene un techo: PNG es ~26% más pequeño que equivalentes JPEG con pérdida. Si necesitas más pequeño, *debes* aceptar algo de pérdida. Visualmente sin pérdida es el compromiso pragmático: pérdida imperceptible, ahorros de tamaño de archivo 50-80%.
+
+**P: ¿Puedo confiar en la vista previa en una herramienta como el [Convertidor de Formato de Imagen](/converters/image-format-converter)?**
+
+R: Sí, si acercas y pruebas en áreas de alto impacto (caras, texto, gradientes). Las herramientas basadas en navegador se renderizan a resolución de pantalla completa, así que lo que ves en la vista previa es similar a lo que los usuarios ven. Advertencia: la calibración del monitor afecta cómo *percibes* la calidad, no si la imagen tiene pérdida.
+
+**P: ¿Y si absolutamente no puedo permitir pérdida?**
+
+R: Usa PNG o WebP sin pérdida. Acepta que los tamaños de archivo serán 2-4× más grandes que alternativas visualmente sin pérdida. Usa esto solo para archival, trabajo listo para imprimir, o cuando la imagen es crítica (p. ej., fotografía de producto donde el coincidencia precisa de color importa). Para la web, esto es raro.
+
+**P: ¿Cómo elijo entre WebP y AVIF?**
+
+R: Si necesitas soportar todos los navegadores modernos (incluyendo Safari 15 y Chrome más antiguo), usa WebP. AVIF es 20-30% más pequeño pero no es compatible en Safari 16.0 y versiones anteriores. Usa ambos vía respaldo `<picture>` si tu audiencia es 80%+ en Chrome/Edge/Firefox. Mide tu distribución de navegador real vía analítica.
