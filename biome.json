@@ -14,7 +14,8 @@
       "**/.turbo",
       "**/coverage",
       "plans",
-      ".claude"
+      ".claude",
+      "postclaw-blog-starter"
     ]
   },
   "organizeImports": {
