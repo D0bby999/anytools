@@ -123,7 +123,9 @@ export async function listPublishedBlogs(db: Db, locale: string): Promise<Blog[]
  */
 export async function listAllPublishedBlogRows(
   db: Db,
-): Promise<Array<{ slug: string; locale: string; publishedAt: Date | null; updatedAt: Date | null }>> {
+): Promise<
+  Array<{ slug: string; locale: string; publishedAt: Date | null; updatedAt: Date | null }>
+> {
   // Lean projection on purpose: the sitemap is this function's only consumer,
   // and select() (all columns) dragged every locale's full MDX body out of
   // Postgres on each sitemap request — tens of MB for ~650 rows, which is what

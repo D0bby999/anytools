@@ -5,6 +5,7 @@ export {
   blogProducts,
   affiliateProducts,
   analyticsEvents,
+  postclawIdempotency,
   type Blog,
   type NewBlog,
   type BlogProduct,
@@ -13,6 +14,9 @@ export {
   type AnalyticsEvent,
   type NewAnalyticsEvent,
   type BlogStatus,
+  type BlogContentFormat,
+  type PostclawIdempotencyRow,
+  type NewPostclawIdempotencyRow,
 } from './schema';
 export { isDraftMdx, type DraftCheckResult, type DraftMarker } from './blog-draft-markers';
 export {
