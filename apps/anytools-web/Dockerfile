@@ -21,6 +21,7 @@ COPY packages/anytools-i18n/package.json packages/anytools-i18n/
 COPY packages/anytools-analytics/package.json packages/anytools-analytics/
 COPY packages/config/package.json packages/config/
 COPY packages/db-shared/package.json packages/db-shared/
+COPY packages/postclaw-blog-endpoint/package.json packages/postclaw-blog-endpoint/
 
 RUN pnpm install --frozen-lockfile
 
