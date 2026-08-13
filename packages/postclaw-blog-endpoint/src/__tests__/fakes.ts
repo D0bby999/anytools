@@ -1,6 +1,7 @@
 import type {
   BlogRowLite,
   BlogStore,
+  BlogSyncRow,
   IdempotencyStore,
   InsertPostResult,
   PostclawBlogInsert,
@@ -8,18 +9,53 @@ import type {
   ReserveResult,
 } from '../types';
 
+/** Extra columns the read (content-sync) path needs that the write path's BlogRowLite omits. */
+type FakeBlogRow = BlogRowLite & {
+  title: string;
+  description: string | null;
+  category: string | null;
+  keywords: string[] | null;
+  contentFormat: BlogSyncRow['contentFormat'];
+  bodyMdx: string;
+  syncedAt: Date;
+};
+
+function toSyncRow(row: FakeBlogRow): BlogSyncRow {
+  return {
+    id: row.id,
+    externalId: row.externalId,
+    slug: row.slug,
+    locale: row.locale,
+    title: row.title,
+    description: row.description,
+    category: row.category,
+    keywords: row.keywords,
+    contentFormat: row.contentFormat,
+    bodyMdx: row.bodyMdx,
+    status: row.status,
+    publishedAt: row.publishedAt,
+    syncedAt: row.syncedAt,
+  };
+}
+
 /** In-memory BlogStore mirroring the DB constraints (slug+locale unique, external_id unique). */
 export class FakeBlogStore implements BlogStore {
-  rows: (BlogRowLite & { bodyMdx?: string; contentFormat?: string; category?: string | null })[] =
-    [];
+  rows: FakeBlogRow[] = [];
   private nextId = 1;
 
-  seed(row: Partial<BlogRowLite> & { slug: string; locale: string }): BlogRowLite {
-    const full: BlogRowLite = {
+  seed(row: Partial<FakeBlogRow> & { slug: string; locale: string }): FakeBlogRow {
+    const full: FakeBlogRow = {
       id: this.nextId++,
       status: 'published',
       externalId: null,
       publishedAt: new Date('2026-01-01T00:00:00Z'),
+      title: 'Seeded post',
+      description: null,
+      category: null,
+      keywords: null,
+      contentFormat: 'html',
+      bodyMdx: '<p>seeded</p>',
+      syncedAt: new Date('2026-01-01T00:00:00Z'),
       ...row,
     };
     this.rows.push(full);
@@ -41,16 +77,21 @@ export class FakeBlogStore implements BlogStore {
     if (this.rows.some((r) => r.slug === input.slug && r.locale === input.locale)) {
       return { ok: false, conflict: 'slug' };
     }
-    const row = {
+    const row: FakeBlogRow = {
       id: this.nextId++,
       slug: input.slug,
       locale: input.locale,
       status: input.status,
       externalId: input.externalId,
       publishedAt: input.publishedAt,
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      keywords: input.keywords,
       bodyMdx: input.bodyMdx as string,
       contentFormat: input.contentFormat,
-      category: input.category,
+      // Mirrors createDrizzleBlogStore: every write stamps a fresh synced_at.
+      syncedAt: new Date(),
     };
     this.rows.push(row);
     return { ok: true, row };
@@ -62,8 +103,32 @@ export class FakeBlogStore implements BlogStore {
   ): Promise<BlogRowLite | null> {
     const row = this.rows.find((r) => r.externalId === externalId);
     if (!row) return null;
-    Object.assign(row, patch);
+    Object.assign(row, patch, { syncedAt: new Date() });
     return row;
+  }
+
+  async listForSync(opts: {
+    cursor: { syncedAt: Date; id: number } | null;
+    perPage: number;
+    locale: string;
+  }): Promise<BlogSyncRow[]> {
+    const { cursor, perPage, locale } = opts;
+    return this.rows
+      .filter((r) => r.status === 'published')
+      .filter((r) => locale === 'all' || r.locale === locale)
+      .filter((r) => {
+        if (!cursor) return true;
+        const delta = r.syncedAt.getTime() - cursor.syncedAt.getTime();
+        return delta !== 0 ? delta > 0 : r.id > cursor.id;
+      })
+      .sort((a, b) => a.syncedAt.getTime() - b.syncedAt.getTime() || a.id - b.id)
+      .slice(0, perPage)
+      .map(toSyncRow);
+  }
+
+  async findPublishedByExternalId(externalId: string): Promise<BlogSyncRow | null> {
+    const row = this.rows.find((r) => r.externalId === externalId && r.status === 'published');
+    return row ? toSyncRow(row) : null;
   }
 }
 

@@ -1,9 +1,10 @@
-import { blogs, postclawIdempotency } from '@anytools/db-shared';
+import { blogs, listBlogsForSync, postclawIdempotency } from '@anytools/db-shared';
 import { and, eq, isNull, lt, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type {
   BlogRowLite,
   BlogStore,
+  BlogSyncRow,
   IdempotencyStore,
   InsertPostResult,
   PostclawBlogInsert,
@@ -20,6 +21,22 @@ const LITE_COLUMNS = {
   status: blogs.status,
   externalId: blogs.externalId,
   publishedAt: blogs.publishedAt,
+} as const;
+
+const SYNC_COLUMNS = {
+  id: blogs.id,
+  externalId: blogs.externalId,
+  slug: blogs.slug,
+  locale: blogs.locale,
+  title: blogs.title,
+  description: blogs.description,
+  category: blogs.category,
+  keywords: blogs.keywords,
+  contentFormat: blogs.contentFormat,
+  bodyMdx: blogs.bodyMdx,
+  status: blogs.status,
+  publishedAt: blogs.publishedAt,
+  syncedAt: blogs.syncedAt,
 } as const;
 
 // postgres.js surfaces unique violations as code 23505 with the index name in
@@ -79,6 +96,22 @@ export function createDrizzleBlogStore(db: Db): BlogStore {
         .set({ ...patch, updatedAt: new Date(), syncedAt: new Date() })
         .where(eq(blogs.externalId, externalId))
         .returning(LITE_COLUMNS);
+      return row ?? null;
+    },
+
+    async listForSync(opts): Promise<BlogSyncRow[]> {
+      return listBlogsForSync(db, opts);
+    },
+
+    async findPublishedByExternalId(externalId: string): Promise<BlogSyncRow | null> {
+      // Explicit published filter (repo convention, e.g. blog-queries.ts
+      // getPublishedBlog) — a draft row with a leaked/guessed external_id
+      // must read the same as an unknown one: null, so the handler 404s both.
+      const [row] = await db
+        .select(SYNC_COLUMNS)
+        .from(blogs)
+        .where(and(eq(blogs.externalId, externalId), eq(blogs.status, 'published')))
+        .limit(1);
       return row ?? null;
     },
   };

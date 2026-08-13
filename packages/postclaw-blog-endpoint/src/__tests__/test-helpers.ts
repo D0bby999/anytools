@@ -34,8 +34,9 @@ export function request(
   method: string,
   body: string | null,
   headers: Record<string, string> = {},
+  url = 'https://example.test/api/postclaw/posts',
 ): Request {
-  return new Request('https://example.test/api/postclaw/posts', {
+  return new Request(url, {
     method,
     body,
     headers: { authorization: `Bearer ${TOKEN}`, ...headers },
@@ -59,6 +60,13 @@ export function signedPatch(payload: Record<string, unknown>, idemKey?: string):
 }
 
 export const patchCtx = (id: string) => ({ params: Promise.resolve({ id }) });
+/** Same shape as patchCtx, named for GET /posts/{id} call sites. */
+export const idCtx = patchCtx;
+
+/** GET {base}/posts[?query] — bearer-only, no HMAC (GETs carry no body to sign). */
+export function listRequest(query = '', headers: Record<string, string> = {}): Request {
+  return request('GET', null, headers, `https://example.test/api/postclaw/posts${query}`);
+}
 
 export const CREATE_PAYLOAD = {
   title: 'AI is reshaping social media',

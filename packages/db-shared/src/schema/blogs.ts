@@ -42,6 +42,10 @@ export const blogs = pgTable(
     status: text('status').notNull().$type<BlogStatus>().default('draft'),
     publishedAt: timestamp('published_at', { withTimezone: true }),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    // Keyset sync cursor component: every writer MUST stamp this explicitly
+    // with a JS `new Date()` (ms precision). Relying on the µs-precision DB
+    // default would make the cursor's equality tie-break unmatchable and stall
+    // pagination at that row.
     syncedAt: timestamp('synced_at', { withTimezone: true }).notNull().defaultNow(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },

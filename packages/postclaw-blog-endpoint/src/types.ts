@@ -1,5 +1,12 @@
-import type { BlogContentFormat, BlogStatus } from '@anytools/db-shared';
+import type {
+  BlogContentFormat,
+  BlogStatus,
+  BlogSyncCursor,
+  BlogSyncRow,
+} from '@anytools/db-shared';
 import type { SanitizedHtml } from './sanitize-post-html';
+
+export type { BlogSyncCursor, BlogSyncRow };
 
 /** Request body of POST {base}/posts and PATCH {base}/posts/{id} (custom_blog contract). */
 export type PostclawPostPayload = {
@@ -70,6 +77,14 @@ export interface BlogStore {
   insertPost(input: PostclawBlogInsert): Promise<InsertPostResult>;
   /** Returns the updated row, or null when no row has this externalId. */
   updateByExternalId(externalId: string, patch: PostclawBlogPatch): Promise<BlogRowLite | null>;
+  /** Keyset page of published posts for the content-sync read extension. */
+  listForSync(opts: {
+    cursor: BlogSyncCursor | null;
+    perPage: number;
+    locale: string;
+  }): Promise<BlogSyncRow[]>;
+  /** Single post by externalId, published only — draft or absent both return null (handler 404s either way). */
+  findPublishedByExternalId(externalId: string): Promise<BlogSyncRow | null>;
 }
 
 export type ReserveResult =

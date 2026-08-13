@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { handleGetPost } from './handle-get-post';
+import { handleListPosts } from './handle-list-posts';
 import { HEALTH_BODY, handleCreatePost, handleUpdatePost } from './handle-posts';
 import type { HandlerResult, PostclawEndpointConfig } from './types';
 import { verifyBearer, verifySignature } from './verify-bearer-and-hmac';
@@ -65,12 +67,16 @@ async function withIdempotency(
  * Wire-up per app:
  *   api/postclaw/health/route.ts     → export const GET = handlers.health
  *   api/postclaw/posts/route.ts      → export const POST = handlers.createPost
+ *                                       export const GET  = handlers.listPosts
  *   api/postclaw/posts/[id]/route.ts → export const PATCH = handlers.updatePost
+ *                                       export const GET   = handlers.getPost
  */
 export function createPostclawHandlers(config: PostclawEndpointConfig): {
   health: (req: Request) => Response;
   createPost: (req: Request) => Promise<Response>;
   updatePost: (req: Request, ctx: { params: Promise<{ id: string }> }) => Promise<Response>;
+  listPosts: (req: Request) => Promise<Response>;
+  getPost: (req: Request, ctx: { params: Promise<{ id: string }> }) => Promise<Response>;
 } {
   const authorized = (req: Request): boolean =>
     verifyBearer(req.headers.get('authorization'), config.token);
@@ -110,6 +116,22 @@ export function createPostclawHandlers(config: PostclawEndpointConfig): {
         rawBody,
         () => handleUpdatePost(config, id, rawBody),
       );
+      return json(result);
+    },
+
+    // Bearer-auth only — GETs carry no body, so there is nothing for an HMAC
+    // signature to cover (the write path's signature protects body integrity).
+    listPosts: async (req: Request): Promise<Response> => {
+      if (!authorized(req)) return json(UNAUTHORIZED);
+      const { searchParams } = new URL(req.url);
+      const result = await handleListPosts(config, searchParams);
+      return json(result);
+    },
+
+    getPost: async (req: Request, ctx: { params: Promise<{ id: string }> }): Promise<Response> => {
+      if (!authorized(req)) return json(UNAUTHORIZED);
+      const { id } = await ctx.params;
+      const result = await handleGetPost(config, id);
       return json(result);
     },
   };
