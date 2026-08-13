@@ -4,8 +4,12 @@
  * Each project owns its own Postgres DB. This script reads the project's MDX
  * files and mirrors them into the DB pointed at by DATABASE_URL.
  *
- * Source of truth = content/{locale}/blog/*.mdx (git-versioned, per project).
- * Postgres DB = read-only mirror for SQL queries + analytics joins.
+ * Source of truth = content/{locale}/blog/*.mdx (git-versioned, per project)
+ * for MDX-authored rows. Postgres DB = read-only mirror of those files.
+ * EXCEPTION: rows with external_id set are authored via the PostClaw
+ * custom_blog endpoints and exist ONLY in the DB — this sync must never
+ * overwrite or delete them. A slug collision with such a row is skipped
+ * and logged loudly instead.
  *
  * Usage:
  *   DATABASE_URL=postgres://...   # set per project (different DB per project)
@@ -82,7 +86,7 @@ async function syncOne(
   locale: string,
   filePath: string,
   fileName: string,
-): Promise<'inserted' | 'updated' | 'unchanged'> {
+): Promise<'inserted' | 'updated' | 'unchanged' | 'collision'> {
   const raw = await readFile(filePath, 'utf-8');
   const parsed = matter(raw);
   const data = parsed.data as BlogFrontmatter;
@@ -96,6 +100,16 @@ async function syncOne(
     .from(blogs)
     .where(and(eq(blogs.slug, slug), eq(blogs.locale, locale)))
     .limit(1);
+
+  // PostClaw-authored row (external_id set) has no MDX source — an MDX file
+  // landing on the same slug is a topic collision, not an update. Never
+  // overwrite; surface it for a human to resolve (rename the MDX slug).
+  if (existing[0]?.externalId) {
+    console.error(
+      `[sync-blogs] COLLISION: ${locale}/${slug} is a PostClaw-authored row (external_id=${existing[0].externalId}) — MDX file ${fileName} SKIPPED. Rename the MDX slug or delete the PostClaw post.`,
+    );
+    return 'collision';
+  }
 
   if (existing[0]?.contentSha === sha) {
     return 'unchanged';
@@ -176,6 +190,7 @@ async function main(): Promise<void> {
   let inserted = 0;
   let updated = 0;
   let unchanged = 0;
+  let collisions = 0;
 
   for (const locale of LOCALES) {
     const dir = join(CONTENT_ROOT, locale, 'blog');
@@ -186,11 +201,14 @@ async function main(): Promise<void> {
       const result = await syncOne(db, locale, join(dir, f), f);
       if (result === 'inserted') inserted++;
       else if (result === 'updated') updated++;
+      else if (result === 'collision') collisions++;
       else unchanged++;
     }
   }
 
-  console.log(`[sync-blogs] inserted=${inserted} updated=${updated} unchanged=${unchanged}`);
+  console.log(
+    `[sync-blogs] inserted=${inserted} updated=${updated} unchanged=${unchanged} collisions=${collisions}`,
+  );
   await closeDb();
 }
 

@@ -66,7 +66,11 @@ function isDraftMdx(raw) {
 }
 
 console.log('BEGIN;');
-console.log('TRUNCATE blog_products, blogs RESTART IDENTITY CASCADE;');
+// Rebuild only MDX-mirrored rows. Rows with external_id set are authored via
+// the PostClaw custom_blog endpoints and exist ONLY in the DB — deleting them
+// would destroy live posts, and a TRUNCATE ... RESTART IDENTITY would also
+// re-issue serial ids out from under them. blog_products rows cascade via FK.
+console.log('DELETE FROM blogs WHERE external_id IS NULL;');
 
 for (const { dir, locale } of sources) {
   const files = await listMdx(dir);
@@ -88,8 +92,11 @@ for (const { dir, locale } of sources) {
     console.log(
       'INSERT INTO blogs (slug, locale, title, description, category, keywords, frontmatter, body_mdx, word_count, reading_time, content_sha, published_at, updated_at, synced_at, status)',
     );
+    // ON CONFLICT: after the scoped DELETE above, the only possible (slug, locale)
+    // conflict is a surviving PostClaw-authored row — keep it, skip the MDX insert
+    // (the TS sync path logs the same collision loudly for a human to resolve).
     console.log(
-      `VALUES (${sqlEscape(slug)}, ${sqlEscape(locale)}, ${sqlEscape(data.title)}, ${sqlEscape(data.description)}, ${sqlEscape(data.category)}, ${sqlEscape(keywords)}::jsonb, ${sqlEscape(JSON.stringify(fm))}::jsonb, ${sqlEscape(content)}, ${wordCount}, ${readingTime}, ${sqlEscape(sha)}, ${publishedAt ? `${sqlEscape(publishedAt)}::timestamptz` : 'NULL'}, ${updatedAt ? `${sqlEscape(updatedAt)}::timestamptz` : 'NULL'}, NOW(), ${sqlEscape(status)});`,
+      `VALUES (${sqlEscape(slug)}, ${sqlEscape(locale)}, ${sqlEscape(data.title)}, ${sqlEscape(data.description)}, ${sqlEscape(data.category)}, ${sqlEscape(keywords)}::jsonb, ${sqlEscape(JSON.stringify(fm))}::jsonb, ${sqlEscape(content)}, ${wordCount}, ${readingTime}, ${sqlEscape(sha)}, ${publishedAt ? `${sqlEscape(publishedAt)}::timestamptz` : 'NULL'}, ${updatedAt ? `${sqlEscape(updatedAt)}::timestamptz` : 'NULL'}, NOW(), ${sqlEscape(status)}) ON CONFLICT (slug, locale) DO NOTHING;`,
     );
   }
 }

@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   index,
   integer,
@@ -13,6 +14,9 @@ import {
 import { affiliateProducts } from './affiliate-products';
 
 export type BlogStatus = 'draft' | 'published';
+// 'mdx' = authored as MDX (git-synced); 'html' = sanitized HTML ingested via the
+// PostClaw custom_blog endpoints — rendered through the per-app html body component.
+export type BlogContentFormat = 'mdx' | 'html';
 
 export const blogs = pgTable(
   'blogs',
@@ -29,6 +33,11 @@ export const blogs = pgTable(
     wordCount: integer('word_count'),
     readingTime: integer('reading_time'),
     contentSha: varchar('content_sha', { length: 64 }),
+    contentFormat: text('content_format').notNull().$type<BlogContentFormat>().default('mdx'),
+    // PostClaw custom_blog resource identity ("postclaw_<uuid>"). Non-null marks the
+    // row as externally authored: it has no MDX source file, so the MDX sync must
+    // never overwrite or delete it. Provenance IS this column — no separate flag.
+    externalId: varchar('external_id', { length: 128 }),
     // 'draft' = gate found blockers or not yet verified; 'published' = gate-clean
     status: text('status').notNull().$type<BlogStatus>().default('draft'),
     publishedAt: timestamp('published_at', { withTimezone: true }),
@@ -38,6 +47,7 @@ export const blogs = pgTable(
   },
   (t) => [
     uniqueIndex('blogs_slug_locale_idx').on(t.slug, t.locale),
+    uniqueIndex('blogs_external_id_idx').on(t.externalId).where(sql`${t.externalId} IS NOT NULL`),
     index('blogs_category_idx').on(t.category),
     index('blogs_locale_idx').on(t.locale),
     index('blogs_published_idx').on(t.publishedAt),
