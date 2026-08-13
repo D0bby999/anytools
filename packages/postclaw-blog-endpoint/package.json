@@ -1,0 +1,24 @@
+{
+  "name": "@anytools/postclaw-blog-endpoint",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anytools/db-shared": "workspace:*",
+    "drizzle-orm": "0.36.4",
+    "sanitize-html": "2.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "@types/sanitize-html": "2.13.0",
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
+  }
+}
