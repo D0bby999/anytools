@@ -2,11 +2,12 @@ import { AdSlot } from '@/components/ad-slot';
 import { BlogAuthorBio } from '@/components/blog-author-bio';
 import { BlogFtcDisclosure } from '@/components/blog-ftc-disclosure';
 import { BlogHero } from '@/components/blog-hero';
+import { BlogHtmlBody } from '@/components/blog-html-body';
 import { BlogRelatedPosts } from '@/components/blog-related-posts';
 import { MdxContent } from '@/components/mdx-content';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { routing } from '@/i18n/routing';
-import { loadBlog } from '@/lib/load-blog-content';
+import { asSanitizedHtml, loadBlog } from '@/lib/load-blog-content';
 import { faqSchema, howToSchema, jsonLdSafe } from '@/lib/schema';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
@@ -134,7 +135,11 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         </header>
         {blog.data.disclosureType && <BlogFtcDisclosure type={blog.data.disclosureType} />}
         {blog.data.heroImage && <BlogHero image={blog.data.heroImage} />}
-        <MdxContent source={blog.source} />
+        {blog.format === 'html' ? (
+          <BlogHtmlBody html={asSanitizedHtml(blog.source)} />
+        ) : (
+          <MdxContent source={blog.source} />
+        )}
         {blog.data.videoId && (
           <YouTubeEmbed videoId={blog.data.videoId} title={blog.data.videoTitle} />
         )}

@@ -16,6 +16,7 @@
     "@anytools/analytics": "workspace:*",
     "@anytools/db-shared": "workspace:*",
     "@anytools/i18n": "workspace:*",
+    "@anytools/postclaw-blog-endpoint": "workspace:*",
     "@anytools/tools": "workspace:*",
     "@anytools/ui": "workspace:*",
     "better-auth": "^1.6.11",

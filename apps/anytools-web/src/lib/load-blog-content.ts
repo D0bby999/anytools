@@ -16,6 +16,7 @@
 import { getPublishedBlog, listPublishedBlogs } from '@anytools/db-shared';
 import type { Blog } from '@anytools/db-shared';
 import { getDb } from '@anytools/db-shared/client';
+import type { SanitizedHtml } from '@anytools/postclaw-blog-endpoint';
 
 // ---------------------------------------------------------------------------
 // Type exports — preserved exactly so all existing callers compile unchanged
@@ -25,8 +26,14 @@ export type BlogCategory = 'lifestyle' | 'design' | 'health' | 'finance';
 
 export type UnsplashCredit = {
   photographer: string;
-  photographer_url: string;
-  unsplash_url: string;
+  // Unsplash-only fields (absent on AI-generated/PostClaw heroes).
+  photographer_url?: string;
+  unsplash_url?: string;
+  // 'ai' for PostClaw/Gemini-generated heroes, 'unsplash' (default) for stock photos.
+  kind?: 'unsplash' | 'ai';
+  // Generic credit line: e.g. "Unsplash" or "AI illustration (based on …)".
+  source_label?: string;
+  source_url?: string;
 };
 
 export type BlogHeroImage = {
@@ -74,6 +81,9 @@ export type BlogFrontmatter = {
 // AnyTools has no isFallback field (en-only, no locale fallback layer needed).
 export type BlogContent = {
   source: string;
+  /** 'html' rows were ingested via the PostClaw custom_blog endpoints (Phase 2/3);
+   * everything else is git-authored MDX. Drives the renderer branch in [slug]/page.tsx. */
+  format: 'mdx' | 'html';
   data: BlogFrontmatter;
 };
 
@@ -113,7 +123,18 @@ function rowToBlogContent(row: Blog, requestedLocale: string): BlogContent {
   // consistency with besttoys's loader (isFallback logic lives there, not here).
   void requestedLocale;
 
-  return { source: row.bodyMdx, data };
+  return { source: row.bodyMdx, format: row.contentFormat, data };
+}
+
+/**
+ * Marks an html-format body as safe for dangerouslySetInnerHTML. Sound only
+ * because content_format='html' rows are sanitized once at ingest (the
+ * PostClaw route handlers, packages/postclaw-blog-endpoint) — this loader is
+ * the trust boundary; never call it on a string that hasn't passed through
+ * that sanitizer.
+ */
+export function asSanitizedHtml(source: string): SanitizedHtml {
+  return source as SanitizedHtml;
 }
 
 // ---------------------------------------------------------------------------

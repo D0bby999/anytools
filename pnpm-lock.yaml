@@ -38,6 +38,9 @@ importers:
       '@anytools/i18n':
         specifier: workspace:*
         version: link:../../packages/anytools-i18n
+      '@anytools/postclaw-blog-endpoint':
+        specifier: workspace:*
+        version: link:../../packages/postclaw-blog-endpoint
       '@anytools/tools':
         specifier: workspace:*
         version: link:../../packages/anytools-tools
@@ -132,6 +135,9 @@ importers:
       '@anytools/db-shared':
         specifier: workspace:*
         version: link:../../packages/db-shared
+      '@anytools/postclaw-blog-endpoint':
+        specifier: workspace:*
+        version: link:../../packages/postclaw-blog-endpoint
       gray-matter:
         specifier: 4.0.3
         version: 4.0.3
@@ -242,6 +248,9 @@ importers:
       '@anytools/db-shared':
         specifier: workspace:*
         version: link:../../packages/db-shared
+      '@anytools/postclaw-blog-endpoint':
+        specifier: workspace:*
+        version: link:../../packages/postclaw-blog-endpoint
       gray-matter:
         specifier: 4.0.3
         version: 4.0.3
