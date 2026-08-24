@@ -3,11 +3,11 @@ import type { BlogDisclosureType } from '@/lib/load-blog-content';
 const COPY: Record<BlogDisclosureType, { title: string; body: string }> = {
   affiliate: {
     title: 'Affiliate disclosure',
-    body: 'Some links below are affiliate links. I may earn a commission from qualifying purchases at no extra cost to you. I only recommend tools I have used or tested.',
+    body: 'Some links below are affiliate links. I may earn a commission from qualifying purchases at no extra cost to you. Recommendations come from published specifications and independent reviews, not hands-on testing.',
   },
   amazon: {
     title: 'Amazon Associates disclosure',
-    body: 'As an Amazon Associate, I earn from qualifying purchases. The price you pay is the same; the small commission helps fund hands-on testing of every product reviewed here.',
+    body: 'As an Amazon Associate, I earn from qualifying purchases. The price you pay is the same. This guide is based on manufacturer specifications, published independent reviews, and verified-buyer feedback, not hands-on testing.',
   },
   ymyl: {
     title: 'Not professional advice',
