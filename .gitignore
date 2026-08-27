@@ -130,3 +130,6 @@ smoke-results.json
 
 # /do daily index-coverage cache (regenerated per run)
 docs/*/index-coverage-cache.json
+
+# wrangler local simulator state (miniflare) — never part of the repo
+.wrangler/
