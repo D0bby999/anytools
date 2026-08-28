@@ -110,14 +110,13 @@ export function mapPayloadToBlogInsert(
     ...(payload.excerpt ? { description: payload.excerpt } : {}),
     ...(payload.tags?.length ? { keywords: payload.tags } : {}),
     ...(payload.canonical_url ? { canonicalUrl: payload.canonical_url } : {}),
+    // No `credit` block: the hero caption renders only when credit.photographer
+    // is set, and a tool byline under someone's hero image is publisher branding
+    // on content the site owner published as their own. The MDX posts that DO
+    // carry a credit earn it — a real photographer, or an AI hero with a source
+    // reference worth citing. A constant string naming the pipeline is neither.
     ...(payload.cover_image_url
-      ? {
-          heroImage: {
-            url: payload.cover_image_url,
-            alt: payload.title,
-            credit: { photographer: 'PostClaw', kind: 'ai', source_label: 'PostClaw' },
-          },
-        }
+      ? { heroImage: { url: payload.cover_image_url, alt: payload.title } }
       : {}),
   };
 

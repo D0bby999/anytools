@@ -6,6 +6,7 @@ export {
 } from './drizzle-stores';
 export { sanitizePostHtml } from './sanitize-post-html';
 export type { SanitizedHtml } from './sanitize-post-html';
+export { applyAffiliateLinks, containsAffiliateLink } from './apply-affiliate-links';
 export { HEALTH_BODY } from './handle-posts';
 export type {
   BlogRowLite,
