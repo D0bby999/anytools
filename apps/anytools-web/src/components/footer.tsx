@@ -44,7 +44,10 @@ export function Footer() {
           <p>
             © {year} AnyTools. {t('rights')}.
           </p>
-          <p className="text-xs max-w-md md:ml-auto">{t('affiliateDisclosure')}</p>
+          {/* No affiliate disclosure: this site carries no affiliate links. It
+              used to claim it did, which is the kind of untrue disclosure that
+              costs more trust than the disclosure ever buys. Restore it — and
+              the affiliateDisclosure string — when a program is actually joined. */}
         </div>
       </div>
     </footer>

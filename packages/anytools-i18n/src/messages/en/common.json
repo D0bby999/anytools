@@ -28,8 +28,7 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "about": "About",
-    "contact": "Contact",
-    "affiliateDisclosure": "Some links are affiliate. We earn small commission at no extra cost."
+    "contact": "Contact"
   },
   "cmdk": {
     "placeholder": "Search tools…",
@@ -39,17 +38,16 @@
   },
   "landing": {
     "heroTitle": "Free tools that respect your time, your data, your language.",
-    "heroSubtitle": "BMI, tip splitter, JSON, regex, color contrast, unit converter and 35+ more. Available in EN, VN, ES, PT. No ads*, no tracking, runs in your browser.",
+    "heroSubtitle": "BMI, tip splitter, JSON, regex, color contrast, unit converter and 60+ more. Available in EN, VN, ES, PT. Everything runs in your browser — what you paste never leaves your device.",
     "ctaWaitlist": "Join the newsletter",
     "ctaGithub": "Star on GitHub",
-    "eyebrow": "42 tools · 4 languages · Free forever",
-    "heroSubtitleNote": "*ads opt-in via consent banner",
+    "eyebrow": "68 tools · 4 languages · Free forever",
     "ctaPrimary": "Browse all tools",
     "ctaSecondary": "Star on GitHub",
     "badgeMit": "MIT licensed",
     "badgeOffline": "Offline-first PWA",
     "badge4Langs": "4 languages",
-    "badgePrivate": "No tracking",
+    "badgePrivate": "Inputs stay local",
     "popularHeading": "Try our most popular",
     "valuePropsHeading": "Why AnyTools",
     "valueProp1Title": "Multi-language",
@@ -57,7 +55,7 @@
     "valueProp2Title": "100% local",
     "valueProp2Body": "Your data stays in your browser. JSON you paste, files you upload, passwords you generate — never leave your device.",
     "valueProp3Title": "Open source",
-    "valueProp3Body": "MIT licensed. Self-host, fork, audit. We have nothing to hide and nothing to sell about you.",
+    "valueProp3Body": "MIT licensed. Self-host, fork, audit. The code that handles your data is open for anyone to check.",
     "metaTitle": "AnyTools — 68 free calculators, converters & dev utilities",
     "metaDescription": "BMI, mortgage, tip splitter, JSON formatter, color contrast, currency, percentage and 60+ more. Free, no signup, runs in your browser. Available in EN, VI, ES, PT."
   },
