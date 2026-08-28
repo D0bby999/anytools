@@ -36,8 +36,11 @@
   --color-popover: oklch(1 0 0);
   --color-popover-foreground: oklch(0.28 0.034 256);
 
-  /* Primary = slate (neutral, professional). Buttons + emphasis. */
-  --color-primary: oklch(0.45 0.034 256); /* #475569 slate-600 */
+  /* Primary = the brand cyan, same value as accent. It was slate, which meant the
+   * largest, most important element on every page — the main CTA — was the one
+   * place the brand never appeared, while carrying a cyan glow underneath it.
+   * White on cyan-700 is 5.36:1. */
+  --color-primary: oklch(0.520 0.094 223); /* #0E7490 cyan-700 */
   --color-primary-foreground: oklch(1 0 0);
 
   /* Secondary = lighter slate for muted buttons */
@@ -104,8 +107,8 @@
   --color-popover: oklch(0.255 0.028 256);
   --color-popover-foreground: oklch(0.985 0.005 247);
 
-  /* Primary in dark = lighter slate so it pops */
-  --color-primary: oklch(0.78 0.025 247); /* #CBD5E1 slate-300 */
+  /* Primary in dark = the logo cyan, matching accent. slate-900 on it is 7.33:1. */
+  --color-primary: oklch(0.713 0.121 207); /* #08B7C9 logo cyan */
   --color-primary-foreground: oklch(0.21 0.026 256);
 
   --color-secondary: oklch(0.3 0.028 256); /* slate-700 */

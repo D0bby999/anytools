@@ -52,13 +52,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <main>
       {/* HERO */}
       <section className="border-b relative overflow-hidden">
-        {/* Brand aurora — emerald glow backdrop (decorative, brand surface) */}
+        {/* Brand aurora — cyan glow backdrop (decorative, brand surface) */}
         <div
           aria-hidden="true"
           className="brand-aurora pointer-events-none absolute -top-28 right-[-80px] h-[440px] w-[560px]"
         />
-        <div className="container mx-auto max-w-6xl px-4 py-10 md:py-16 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+        {/* Tight top padding: the first thing above the fold should be the product,
+            not empty canvas. items-start rather than items-center so the copy and
+            the demo panel share a top edge instead of floating around a midline. */}
+        <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-start">
             <div className="lg:col-span-3 space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
