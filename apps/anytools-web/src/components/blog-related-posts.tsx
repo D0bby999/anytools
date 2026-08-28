@@ -1,12 +1,17 @@
 import { BlogCard } from '@/components/blog-card';
 import { listBlogs } from '@/lib/load-blog-content';
+import { pickRelatedPosts } from '@anytools/postclaw-blog-endpoint';
 
 /**
- * Auto "Keep reading" block at the foot of every blog post. Adds up to 6 internal
- * links per page (same-category first, then most-recent others) so Google has dense
- * crawl paths to discover + prioritise indexing un-orphaned posts, and readers have
- * somewhere to go. Server component reading the same published rows the index uses —
- * no MDX edit, no re-translation. Renders nothing when there are too few siblings.
+ * Auto "Keep reading" block at the foot of every blog post. Adds up to 6 internal links per
+ * page so Google has dense crawl paths, and readers have somewhere to go. Server component
+ * reading the same published rows the index uses — no MDX edit, no re-translation. Renders
+ * nothing when there are too few siblings.
+ *
+ * WHICH siblings is the whole game and lives in pickRelatedPosts. Picking the newest few made
+ * every page vote for the same handful: measured 2026-08-28, 3 of anytools' 20 posts had no
+ * inbound internal link at all, and on besttoys the same shape left 25 of 58 stranded with
+ * Google indexing 8 of 55.
  */
 const HEADING: Record<string, string> = {
   en: 'Keep reading',
@@ -24,15 +29,16 @@ export async function BlogRelatedPosts({
   currentSlug: string;
   category?: string;
 }) {
-  const others = (await listBlogs(locale)).filter((b) => b.slug !== currentSlug);
-  if (others.length < 2) return null;
+  // listBlogs is ordered publishedAt desc; pickRelatedPosts keeps that ordering inside each
+  // window and only decides where the window starts.
+  const all = await listBlogs(locale);
+  if (all.length < 3) return null;
 
-  // Same category first (strongest topical relevance), then fill with the most
-  // recent of the rest. listBlogs is already ordered publishedAt desc.
-  const key = category ?? '';
-  const sameCat = others.filter((b) => (b.data.category ?? '') === key);
-  const rest = others.filter((b) => (b.data.category ?? '') !== key);
-  const picks = [...sameCat, ...rest].slice(0, 6);
+  const picks = pickRelatedPosts({
+    all: all.map((b) => ({ slug: b.slug, category: b.data.category ?? '', post: b })),
+    currentSlug,
+    category: category ?? '',
+  }).map((p) => p.post);
 
   return (
     <section aria-label="Related posts" className="border-t border-border pt-8 mt-4">
