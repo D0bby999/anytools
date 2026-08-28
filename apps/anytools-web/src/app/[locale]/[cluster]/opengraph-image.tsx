@@ -15,7 +15,7 @@ const CLUSTER_ACCENT: Record<string, string> = {
   lifestyle: '#B45309',
   design: '#7C3AED',
 };
-const DEFAULT_ACCENT = '#047857'; // emerald-700 brand accent (AA on light OG bg)
+const DEFAULT_ACCENT = '#0E7490'; // cyan-700 brand accent, matches the logo (AA on light OG bg)
 
 export default async function Image({ params }: { params: PageParams }) {
   const { locale, cluster } = params;

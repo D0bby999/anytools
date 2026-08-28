@@ -60,7 +60,7 @@ export default async function Image({ params }: { params: PageParams }) {
             style={{
               width: 48,
               height: 48,
-              background: '#047857',
+              background: '#0E7490',
               borderRadius: 10,
               display: 'flex',
               alignItems: 'center',
@@ -82,7 +82,7 @@ export default async function Image({ params }: { params: PageParams }) {
             alignItems: 'center',
             padding: '8px 16px',
             background: 'rgba(4, 120, 87, 0.1)',
-            color: '#047857',
+            color: '#0E7490',
             borderRadius: 999,
             fontSize: 20,
             fontWeight: 600,

@@ -25,7 +25,7 @@ export default function Image() {
           style={{
             width: 56,
             height: 56,
-            background: '#047857',
+            background: '#0E7490',
             borderRadius: 12,
             display: 'flex',
             alignItems: 'center',
@@ -57,7 +57,7 @@ export default function Image() {
           <br />
           your time, your data,
           <br />
-          your <span style={{ color: '#047857' }}>language.</span>
+          your <span style={{ color: '#0E7490' }}>language.</span>
         </div>
       </div>
 

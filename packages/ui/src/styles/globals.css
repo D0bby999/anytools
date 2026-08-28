@@ -6,8 +6,15 @@
  *
  * Palette intent:
  * - Neutral slate scale (warm-neutral, professional)
- * - Emerald brand accent (deep #047857 light / vivid #10B981 dark) for CTA + brand
- * - Brand-only emerald→cyan signature gradient (logo + hero)
+ * - Cyan brand accent taken from the logo mark itself (#08B7C9, oklch 0.713
+ *   0.121 207). The system previously accented in emerald while the logo was
+ *   cyan, so every screen disagreed with the mark at the top of it.
+ * - Shade per mode is contrast-driven, not aesthetic: the logo cyan is too
+ *   light to carry white text (2.43:1), so light mode drops to cyan-700
+ *   (#0E7490, white-on-accent 5.36:1) exactly as it previously dropped to
+ *   emerald-700. Dark mode CAN show the true logo cyan — slate-900 on it is
+ *   7.33:1 — so the brand colour appears literally there.
+ * - Brand-only teal→cyan signature gradient, both stops from the logo's own range
  * - Per-cluster accent hues kept distinct from brand accent
  * - Inter (UI) + JetBrains Mono (code/tool I/O)
  */
@@ -33,15 +40,17 @@
   --color-muted: oklch(0.96 0.005 247); /* #EAEFF3 slate-50/100 mix */
   --color-muted-foreground: oklch(0.55 0.025 257); /* #64748B slate-500 */
 
-  /* Accent = emerald brand (CTA, links, focus rings). Light uses deep emerald-700
-   * so white-on-accent + accent-on-bg both clear WCAG AA (vivid emerald fails on light). */
-  --color-accent: oklch(0.52 0.11 162); /* #047857 emerald-700 — AA on white */
+  /* Accent = logo cyan (CTA, links, focus rings). Light uses deep cyan-700 so
+   * white-on-accent clears WCAG AA at 5.36:1 — the logo's own cyan manages only
+   * 2.43:1 and would fail. */
+  --color-accent: oklch(0.520 0.094 223); /* #0E7490 cyan-700 — 5.36:1 on white */
   --color-accent-foreground: oklch(1 0 0);
 
-  /* Brand signature gradient (emerald→cyan). BRAND-ONLY: logo + hero glow.
-   * Never used in cluster chrome (preserves per-cluster hue identity). */
-  --color-brand-from: oklch(0.70 0.15 162); /* #10B981 emerald-500 */
-  --color-brand-to: oklch(0.72 0.13 205); /* #06B6D4 cyan-500 */
+  /* Brand signature gradient (teal→cyan), both stops drawn from the logo's own
+   * range. BRAND-ONLY: logo + hero glow. Never used in cluster chrome
+   * (preserves per-cluster hue identity). */
+  --color-brand-from: oklch(0.705 0.120 192); /* #0AB7B3 logo teal */
+  --color-brand-to: oklch(0.713 0.121 207); /* #08B7C9 logo cyan */
 
   /* Destructive = red */
   --color-destructive: oklch(0.55 0.22 28); /* #DC2626 red-600 */
@@ -50,7 +59,7 @@
   /* Borders + inputs = slate-200 (subtle) */
   --color-border: oklch(0.91 0.013 249); /* #E2E8F0 slate-200 */
   --color-input: oklch(0.91 0.013 249);
-  --color-ring: oklch(0.52 0.11 162); /* matches accent — emerald focus ring */
+  --color-ring: oklch(0.520 0.094 223); /* matches accent — cyan focus ring */
 
   /* Typography — Inter for UI, JetBrains Mono for code */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -97,17 +106,17 @@
   --color-muted: oklch(0.3 0.028 256);
   --color-muted-foreground: oklch(0.71 0.018 252); /* #94A3B8 slate-400 */
 
-  /* Accent = vivid emerald in dark (passes AA on slate-900). Foreground flips to
-   * slate-900 — white-on-vivid-emerald fails AA, dark-on-emerald clears it. */
-  --color-accent: oklch(0.70 0.15 162); /* #10B981 emerald-500 */
-  --color-accent-foreground: oklch(0.21 0.026 256); /* slate-900 on emerald */
+  /* Accent in dark = the logo cyan itself, unmodified. Foreground flips to
+   * slate-900: dark-on-cyan is 7.33:1, white-on-cyan only 2.43:1. */
+  --color-accent: oklch(0.713 0.121 207); /* #08B7C9 — the logo mark's cyan */
+  --color-accent-foreground: oklch(0.21 0.026 256); /* slate-900 on cyan */
 
   --color-destructive: oklch(0.62 0.22 28); /* lighter red for dark */
   --color-destructive-foreground: oklch(0.985 0.005 247);
 
   --color-border: oklch(0.32 0.028 256); /* #334155 slate-700 — visible */
   --color-input: oklch(0.32 0.028 256);
-  --color-ring: oklch(0.70 0.15 162); /* emerald */
+  --color-ring: oklch(0.713 0.121 207); /* logo cyan */
 
   /* Per-cluster accents (dark mode — lighter shades for AA contrast on dark bg) */
   --color-accent-finance: oklch(0.74 0.14 165); /* #34D399 emerald-400 */
@@ -143,7 +152,7 @@
     font-family: var(--font-mono);
     font-feature-settings: "calt", "liga"; /* programming ligatures */
   }
-  /* Focus visible — accessible emerald ring matches accent */
+  /* Focus visible — accessible cyan ring matches accent */
   :focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
@@ -167,23 +176,23 @@
 @layer utilities {
   /* Gradient brand text — AA-safe stops per mode (verified ≥4.5 light / ≥9 dark) */
   .text-brand-gradient {
-    background-image: linear-gradient(115deg, #047857, #0e7490); /* emerald-700 → cyan-700 */
+    background-image: linear-gradient(115deg, #0f766e, #0e7490); /* teal-700 → cyan-700 */
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .dark .text-brand-gradient {
-    background-image: linear-gradient(115deg, #34d399, #22d3ee); /* emerald-400 → cyan-400 */
+    background-image: linear-gradient(115deg, #2dd4bf, #22d3ee); /* teal-400 → cyan-400 */
   }
 
-  /* Emerald glow for brand CTAs (sanctioned shadow exception) */
+  /* Cyan glow for brand CTAs (sanctioned shadow exception) */
   .brand-glow {
     box-shadow:
       0 0 0 1px color-mix(in oklab, var(--color-accent) 35%, transparent),
       0 10px 30px -10px color-mix(in oklab, var(--color-accent) 60%, transparent);
   }
 
-  /* Hero aurora backdrop — emerald radial glow, blurred, decorative */
+  /* Hero aurora backdrop — cyan radial glow, blurred, decorative */
   .brand-aurora {
     background: radial-gradient(
       60% 75% at 70% 30%,
