@@ -88,6 +88,22 @@ export function containsAffiliateLink(html: string, isAmazon: (href: string) => 
 /** Amazon product-page shapes worth attributing per post. */
 const RE_PRODUCT_PATH = /\/(dp|gp\/product|gp\/aw\/d)\//;
 
+// Click instrumentation. Amazon reports what it attributes to our tag, but only
+// after it decides to, and never per page in near-real-time; on 2026-08-28 the
+// dashboard was still two days behind. Meanwhile nothing on our side recorded
+// whether any of ~300 visitors per 90 days ever reached a product page, so
+// "does this traffic convert?" had no answer at all and no post could be told
+// apart from a dead one.
+//
+// Umami's tracker fires on these attributes with no extra JS and no cookie, and
+// it already records the page the click happened on — so the anchor only needs
+// to name the event and which product it points at.
+const RE_UMAMI_EVENT = /\bdata-umami-event\s*=/i;
+// An ASIN is exactly ten characters. The trailing boundary matters: without it a
+// longer token silently reports its first ten, which reads as a real ASIN in the
+// dashboard and points at nothing. Better to record no product than a wrong one.
+const RE_ASIN = /\/(?:dp|gp\/product|gp\/aw\/d)\/([A-Z0-9]{10})(?![A-Z0-9])/i;
+
 /**
  * Add `ascsubtag=<subtag>` unless the link already carries one.
  *
@@ -137,6 +153,12 @@ export function applyAffiliateLinks(
     next = rel
       ? next.replace(RE_REL, () => `rel="${merged}"`)
       : `${next.replace(/\s*$/, '')} rel="${merged}"`;
+
+    if (!RE_UMAMI_EVENT.test(next)) {
+      next = `${next.replace(/\s*$/, '')} data-umami-event="affiliate-click"`;
+      const asin = RE_ASIN.exec(built);
+      if (asin?.[1]) next += ` data-umami-event-asin="${encodeAttr(asin[1])}"`;
+    }
 
     return `<a${next}>`;
   });

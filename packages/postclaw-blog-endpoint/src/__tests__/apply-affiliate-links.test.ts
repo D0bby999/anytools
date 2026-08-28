@@ -177,3 +177,51 @@ describe('containsAffiliateLink', () => {
     expect(has('<a href="https://www.amazon.com/dp/B0X?a=1&amp;b=2">buy</a>')).toBe(true);
   });
 });
+
+describe('applyAffiliateLinks — click instrumentation', () => {
+  // Amazon reports what it attributes to our tag, on its own schedule and never
+  // per page. Without a click event on our side there is no way to tell a post
+  // that sends buyers to Amazon from one nobody reads.
+  it('marks an Amazon link as a trackable affiliate click', () => {
+    expect(rewrite('<a href="https://www.amazon.com/dp/B0BQZ9K3LM">buy</a>')).toContain(
+      'data-umami-event="affiliate-click"',
+    );
+  });
+
+  it('records which product was clicked', () => {
+    expect(rewrite('<a href="https://www.amazon.com/dp/B0BQZ9K3LM">buy</a>')).toContain(
+      'data-umami-event-asin="B0BQZ9K3LM"',
+    );
+  });
+
+  it('leaves non-Amazon links uninstrumented', () => {
+    const html = '<a href="https://petlibro.com/specs">spec sheet</a>';
+    expect(rewrite(html)).toBe(html);
+  });
+
+  it('records no product rather than a truncated one when the token is not an ASIN', () => {
+    const out = rewrite('<a href="https://www.amazon.com/dp/B0BQZ9K3LMXX">buy</a>');
+    expect(out).toContain('data-umami-event="affiliate-click"');
+    expect(out).not.toContain('data-umami-event-asin');
+  });
+
+  it('omits the asin attribute for a storefront link that names no product', () => {
+    const out = rewrite('<a href="https://www.amazon.com/stores/petlibro">shop</a>');
+    expect(out).toContain('data-umami-event="affiliate-click"');
+    expect(out).not.toContain('data-umami-event-asin');
+  });
+
+  it('does not double-instrument a link that already carries an event', () => {
+    const out = rewrite(
+      '<a href="https://www.amazon.com/dp/B0BQZ9K3LM" data-umami-event="custom">buy</a>',
+    );
+    expect(out.match(/data-umami-event=/g)).toHaveLength(1);
+    expect(out).toContain('data-umami-event="custom"');
+  });
+
+  it('still applies the tag and rel tokens alongside the event', () => {
+    const out = rewrite('<a href="https://www.amazon.com/dp/B0BQZ9K3LM">buy</a>');
+    expect(out).toContain('tag=pettech01a-20');
+    expect(out).toContain('sponsored');
+  });
+});
