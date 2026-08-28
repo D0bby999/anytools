@@ -57,17 +57,21 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           aria-hidden="true"
           className="brand-aurora pointer-events-none absolute -top-28 right-[-80px] h-[440px] w-[560px]"
         />
-        <div className="container mx-auto max-w-6xl px-4 py-14 md:py-24 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12 items-center">
-            <div className="lg:col-span-3 space-y-7">
+        <div className="container mx-auto max-w-6xl px-4 py-10 md:py-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+            <div className="lg:col-span-3 space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
                 {t('landing.eyebrow')}
               </div>
-              <h1 className="text-brand-gradient text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] pb-1">
+              {/* Plain foreground, not the brand gradient, and two steps smaller.
+                  A full-width gradient headline is the single most template-looking
+                  element on a utility site — the product demo beside it is what
+                  should carry the page. */}
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-[1.12] text-foreground">
                 {t('landing.heroTitle')}
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed">
                 {t('landing.heroSubtitle')}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -112,10 +116,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <RecentlyUsedTools metas={toolMetasClient} locale={locale} />
 
       {/* VALUE PROPS — numbered surface cards (large number tags replace icon tiles) */}
-      <section className="py-16 md:py-20 border-b">
+      <section className="py-12 md:py-14 border-b">
         <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="text-2xl md:text-3xl font-bold mb-10">{t('landing.valuePropsHeading')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <h2 className="text-xl md:text-2xl font-bold mb-6">{t('landing.valuePropsHeading')}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {VALUE_PROPS.map((key, i) => (
               <Card
                 key={key}

@@ -202,7 +202,9 @@ export function ToolCatalog({ metas, locale }: Props) {
           </CardHeader>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        // Four columns on wide screens: 68 tools scan far better as a dense grid
+        // than as three roomy ones, and density is the point on a utility site.
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {visible.map((m) => (
             <Link key={m.slug} href={`/${m.cluster}/${m.slug}` as never} className="block group">
               <Card className="h-full transition-all duration-150 hover:border-accent hover:shadow-md">

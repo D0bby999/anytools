@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Scan this package's own components. Tailwind v4 auto-detects sources from the
+ * importing app, which in a workspace stops at the app boundary — so any utility
+ * used ONLY inside packages/ui was silently dropped from the generated CSS. It
+ * failed quietly: `h-11` and `rounded-md` happened to also appear in app code and
+ * worked, while `px-8` (button size="lg", nowhere in the app) did not, leaving
+ * every large button with its label jammed against both edges. */
+@source "../";
+
 /* AnyTools design system — Swiss Modernism 2.0 (light + dark dual).
  * Locked 2026-05-28 via ui-ux-pro-max skill.
  * Reference: apps/anytools-web/design-system/anytools/MASTER.md
