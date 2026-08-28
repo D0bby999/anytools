@@ -1,3 +1,4 @@
+import { AdSenseScript } from '@/components/adsense-script';
 import { CmdKPalette } from '@/components/cmd-k-palette';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { Footer } from '@/components/footer';
@@ -68,6 +69,8 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-background text-foreground antialiased pb-16 lg:pb-0">
+        {/* React 19 hoists this async script into <head> of the server HTML. */}
+        <AdSenseScript />
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <SiteHeader />

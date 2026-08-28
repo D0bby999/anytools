@@ -1,12 +1,15 @@
 // /ads.txt — IAB authorized-sellers file required by Google AdSense / programmatic ads.
-// Emits the AdSense authorization line ONLY once the publisher ID is configured
-// (set ADSENSE_PUB_ID in Coolify env after AdSense approval, e.g. pub-1234567890123456).
-// Until then it serves a commented placeholder so the route exists and returns 200.
+// Declares which publisher is allowed to sell this site's inventory; Google reads it
+// during review and again when serving, and an unlisted publisher means unfilled ads.
+//
+// The publisher ID is baked in as a fallback (same pattern as the Amazon tag in
+// affiliate-url.ts) so the file is correct without depending on a Coolify env var
+// being set — a silent empty env would serve the placeholder and look fine.
 
 export const dynamic = 'force-static';
 
 export function GET(): Response {
-  const pub = process.env.ADSENSE_PUB_ID;
+  const pub = process.env.ADSENSE_PUB_ID ?? 'pub-8231549980592586';
   const body = pub
     ? `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n`
     : [
