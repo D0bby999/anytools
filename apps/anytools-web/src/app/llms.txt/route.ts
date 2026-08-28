@@ -21,8 +21,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const titleCase = (s: string) =>
-  s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+const titleCase = (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 export async function GET(): Promise<NextResponse> {
   const rows = await listPublishedBlogRows('en');
