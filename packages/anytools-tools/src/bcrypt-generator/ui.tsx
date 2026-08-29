@@ -126,8 +126,8 @@ export function BcryptGeneratorUi() {
                 <Badge
                   className={
                     verdict
-                      ? 'bg-green-500/10 text-green-700 dark:text-green-300 border-0'
-                      : 'bg-red-500/10 text-red-700 dark:text-red-300 border-0'
+                      ? 'bg-success/10 text-success border-0'
+                      : 'bg-destructive/10 text-destructive border-0'
                   }
                 >
                   {verdict ? 'Match ✓' : 'No match ✗'}

@@ -69,7 +69,7 @@ export function CrontabGeneratorUi() {
             </div>
           </>
         ) : (
-          <p className="text-sm text-red-600 dark:text-red-400">{result.error}</p>
+          <p className="text-sm text-destructive">{result.error}</p>
         )}
         <PrivacyNote />
       </CardContent>

@@ -7,25 +7,28 @@
 - **Name:** AnyTools
 - **Voice:** friendly, no-BS, dev-first
 - **Visual:** Swiss-Modernism slate chrome + **emerald brand accent**, light mode default (dark via toggle).
-  Playful/bold brand moments (morphing-module logo, emerald→cyan gradient, hero glow) layered on the neutral base.
+  Playful/bold brand moments (morphing-module logo, teal→cyan gradient, hero aurora) layered on the neutral base.
 
 ## Tokens (CSS custom properties)
 
-Defined in `packages/ui/src/styles/globals.css` (OKLCH). Primary is **slate** (neutral); the brand color lives in **accent** (emerald).
+Defined in `packages/ui/src/styles/globals.css` (OKLCH — that file is the source of truth; this table is a digest). Brand color is the **logo cyan**; primary = accent so the main CTA carries the brand.
 
 | Token | Light | Dark |
 |---|---|---|
 | `--color-background` | slate-50 `oklch(0.985 0.005 247)` | slate-900 `oklch(0.21 0.026 256)` |
 | `--color-foreground` | slate-800 `oklch(0.28 0.034 256)` | slate-50 `oklch(0.985 0.005 247)` |
-| `--color-primary` | slate-600 `oklch(0.45 0.034 256)` | slate-300 `oklch(0.78 0.025 247)` |
-| `--color-accent` (brand) | emerald-700 `oklch(0.52 0.11 162)` #047857 | emerald-500 `oklch(0.70 0.15 162)` #10B981 |
-| `--color-accent-foreground` | white | slate-900 (dark-on-emerald for AA) |
-| `--color-brand-from` / `--color-brand-to` | emerald-500 → cyan-500 (brand-only gradient) | same |
+| `--color-primary` = `--color-accent` (brand) | cyan-700 `#0E7490` (white text 5.36:1) | logo cyan `#08B7C9` (slate-900 text 7.33:1) |
+| `--color-brand-from` / `--color-brand-to` | logo teal `#0AB7B3` → logo cyan `#08B7C9` (brand-only gradient) | same |
+| `--color-success` / `--color-warning` / `--color-info` | green-700 / amber-700 / blue-700 (AA on white) | green-300 / amber-300 / blue-300 |
 | `--radius` | `0.5rem` | same |
 
-**Per-cluster accents** (`--color-accent-{finance,health,lifestyle,design}` + Tailwind ring hues in `cluster-config.ts`) stay distinct from the brand accent — do not recolor them to emerald.
+**Status inks — one meaning each:** success = passed, warning = attention, info = neutral annotation, destructive = error/danger. Soft badge form: `bg-{status}/10 text-{status}`. Never hand-roll green/amber/blue palette classes for status — categorical data scales (per-cluster hues, http-status 4xx orange, json-diff purple) are the only sanctioned raw-palette use and each must carry a comment.
 
-**Light vs dark:** emerald accent is intentionally deeper in light mode (vivid emerald fails WCAG AA on white). The vivid emerald + gradient carry the "playful" punch in dark mode, logo, and hero.
+**Per-cluster accents** (`--color-accent-{finance,health,lifestyle,design}` + Tailwind ring hues in `cluster-config.ts`) stay distinct from the brand accent — do not recolor them to cyan.
+
+**Light vs dark:** brand cyan is deeper in light mode (the logo's own cyan carries white text at only 2.43:1); dark mode shows the literal logo cyan.
+
+**Tailwind sources:** `globals.css` must `@source` every workspace package whose TSX uses utilities (`../` for packages/ui, `../../../anytools-tools/src` for tool UIs) — a utility used only in an unlisted package is silently dropped from the build.
 
 ## Typography
 - **Sans:** Inter (Google Fonts) — UI text, body

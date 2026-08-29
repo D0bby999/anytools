@@ -16,12 +16,14 @@ import {
 import { useMemo, useState } from 'react';
 import { type StatusClass, classOfCode, searchMimeTypes, searchStatusCodes } from './logic';
 
+// 4xx keeps a raw categorical orange: it sits between warning (3xx) and
+// destructive (5xx) in the class scale and means only "client error" here.
 const CLASS_STYLE: Record<StatusClass, string> = {
-  '1xx': 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
-  '2xx': 'bg-green-500/10 text-green-700 dark:text-green-300',
-  '3xx': 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  '1xx': 'bg-info/10 text-info',
+  '2xx': 'bg-success/10 text-success',
+  '3xx': 'bg-warning/10 text-warning',
   '4xx': 'bg-orange-500/10 text-orange-700 dark:text-orange-300',
-  '5xx': 'bg-red-500/10 text-red-700 dark:text-red-300',
+  '5xx': 'bg-destructive/10 text-destructive',
 };
 
 const CLASSES: (StatusClass | 'all')[] = ['all', '1xx', '2xx', '3xx', '4xx', '5xx'];

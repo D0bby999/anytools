@@ -25,7 +25,7 @@ export function BlogFtcDisclosure({ type }: { type: BlogDisclosureType }) {
     <div
       role="note"
       aria-label={title}
-      className="not-prose my-6 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-950/40 p-3 text-sm rounded-r text-amber-900 dark:text-amber-100"
+      className="not-prose my-6 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm"
     >
       <p className="font-semibold mb-1">{title}</p>
       <p className="leading-relaxed">{body}</p>

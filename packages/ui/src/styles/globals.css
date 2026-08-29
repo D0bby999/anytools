@@ -8,6 +8,13 @@
  * every large button with its label jammed against both edges. */
 @source "../";
 
+/* Tool UIs live in a sibling workspace package the importing app never lists
+ * as a Tailwind source, so utilities used ONLY there were silently dropped
+ * from the generated CSS — accent-[var(--color-accent)] (chmod checkboxes),
+ * tracking-[0.3em] (TOTP code display), duration-1000 (TOTP countdown bar)
+ * all rendered as browser defaults. Same failure mode as the "../" line above. */
+@source "../../../anytools-tools/src";
+
 /* AnyTools design system — Swiss Modernism 2.0 (light + dark dual).
  * Locked 2026-05-28 via ui-ux-pro-max skill.
  * Reference: apps/anytools-web/design-system/anytools/MASTER.md
@@ -67,6 +74,18 @@
   --color-destructive: oklch(0.55 0.22 28); /* #DC2626 red-600 */
   --color-destructive-foreground: oklch(1 0 0);
 
+  /* Status inks — one meaning each: success = operation/validation passed,
+   * warning = needs attention but not blocked, info = neutral annotation.
+   * Every screen previously hand-rolled green/amber/blue palette classes;
+   * these tokens make status read the same everywhere and keep AA on white.
+   * Soft badge form is bg-{status}/10 text-{status}. */
+  --color-success: oklch(0.527 0.154 150); /* #15803D green-700 — 4.7:1 on white */
+  --color-success-foreground: oklch(1 0 0);
+  --color-warning: oklch(0.555 0.135 66); /* #B45309 amber-700 — 4.5:1 on white */
+  --color-warning-foreground: oklch(1 0 0);
+  --color-info: oklch(0.488 0.195 264); /* #1D4ED8 blue-700 — 6.3:1 on white */
+  --color-info-foreground: oklch(1 0 0);
+
   /* Borders + inputs = slate-200 (subtle) */
   --color-border: oklch(0.91 0.013 249); /* #E2E8F0 slate-200 */
   --color-input: oklch(0.91 0.013 249);
@@ -124,6 +143,14 @@
 
   --color-destructive: oklch(0.62 0.22 28); /* lighter red for dark */
   --color-destructive-foreground: oklch(0.985 0.005 247);
+
+  /* Status inks (dark — lighter shades for AA on slate-900) */
+  --color-success: oklch(0.871 0.128 156); /* #86EFAC green-300 */
+  --color-success-foreground: oklch(0.21 0.026 256);
+  --color-warning: oklch(0.879 0.123 88); /* #FCD34D amber-300 */
+  --color-warning-foreground: oklch(0.21 0.026 256);
+  --color-info: oklch(0.809 0.105 252); /* #93C5FD blue-300 */
+  --color-info-foreground: oklch(0.21 0.026 256);
 
   --color-border: oklch(0.32 0.028 256); /* #334155 slate-700 — visible */
   --color-input: oklch(0.32 0.028 256);

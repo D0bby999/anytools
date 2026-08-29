@@ -9,9 +9,9 @@ type Props = {
 
 const ACCENT_BG = {
   primary: 'bg-accent',
-  good: 'bg-emerald-500',
-  warn: 'bg-amber-500',
-  danger: 'bg-rose-500',
+  good: 'bg-success',
+  warn: 'bg-warning',
+  danger: 'bg-destructive',
 };
 
 /**

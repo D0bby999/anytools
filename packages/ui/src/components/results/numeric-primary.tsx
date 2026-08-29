@@ -10,9 +10,9 @@ type Props = {
 };
 
 const TONE_CLASS = {
-  good: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-  warn: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  danger: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
+  good: 'bg-success/10 text-success',
+  warn: 'bg-warning/10 text-warning',
+  danger: 'bg-destructive/10 text-destructive',
   neutral: 'bg-muted text-muted-foreground',
 };
 

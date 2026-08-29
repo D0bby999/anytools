@@ -40,7 +40,7 @@ export function NewsletterSignup({ variant = 'inline' }: { variant?: 'inline' | 
       <p
         className={
           variant === 'card'
-            ? 'text-sm text-green-600 dark:text-green-400'
+            ? 'text-sm text-success'
             : 'text-sm text-muted-foreground'
         }
       >

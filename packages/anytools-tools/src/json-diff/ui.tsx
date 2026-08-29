@@ -3,10 +3,12 @@ import { Badge, Card, CardContent, CardHeader, CardTitle, PrivacyNote, Textarea 
 import { useMemo, useState } from 'react';
 import { type DiffEntry, diffJson, summarize } from './logic';
 
+// type-changed keeps a raw categorical purple — a fourth diff kind outside the
+// success/warning/destructive status scale.
 const KIND_STYLE: Record<DiffEntry['kind'], string> = {
-  added: 'bg-green-500/10 text-green-700 dark:text-green-300',
-  removed: 'bg-red-500/10 text-red-700 dark:text-red-300',
-  changed: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  added: 'bg-success/10 text-success',
+  removed: 'bg-destructive/10 text-destructive',
+  changed: 'bg-warning/10 text-warning',
   'type-changed': 'bg-purple-500/10 text-purple-700 dark:text-purple-300',
 };
 
@@ -50,11 +52,11 @@ export function JsonDiffUi() {
         </div>
 
         {!result.ok ? (
-          <p className="text-sm text-red-600 dark:text-red-400">
+          <p className="text-sm text-destructive">
             {result.side === 'left' ? 'Original' : 'Modified'} JSON is invalid: {result.error}
           </p>
         ) : result.identical ? (
-          <p className="text-sm font-medium text-green-700 dark:text-green-300">
+          <p className="text-sm font-medium text-success">
             Structurally identical — key order and whitespace ignored.
           </p>
         ) : (

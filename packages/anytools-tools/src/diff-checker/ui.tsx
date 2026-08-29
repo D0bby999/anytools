@@ -94,9 +94,9 @@ export function DiffCheckerUi() {
                     key={`diff-${i}`}
                     className={
                       c.added
-                        ? 'bg-green-500/20 text-green-400'
+                        ? 'bg-success/15 text-success'
                         : c.removed
-                          ? 'bg-red-500/20 text-red-400'
+                          ? 'bg-destructive/15 text-destructive'
                           : ''
                     }
                   >

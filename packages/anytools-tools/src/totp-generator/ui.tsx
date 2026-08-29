@@ -111,7 +111,7 @@ export function TotpGeneratorUi() {
         )}
 
         {secret !== '' && result === null && (
-          <p className="text-sm text-red-600 dark:text-red-400">
+          <p className="text-sm text-destructive">
             Invalid base32 secret (allowed: A–Z, 2–7).
           </p>
         )}
