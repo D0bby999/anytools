@@ -74,7 +74,15 @@
     "./shoe-size-converter": "./src/shoe-size-converter/index.ts",
     "./readability-analyzer": "./src/readability-analyzer/index.ts",
     "./tip-to-hourly-wage": "./src/tip-to-hourly-wage/index.ts",
-    "./pomodoro-timer": "./src/pomodoro-timer/index.ts"
+    "./pomodoro-timer": "./src/pomodoro-timer/index.ts",
+    "./wcag-contrast-checker": "./src/wcag-contrast-checker/index.ts",
+    "./ip-subnet-calculator": "./src/ip-subnet-calculator/index.ts",
+    "./crontab-generator": "./src/crontab-generator/index.ts",
+    "./json-diff": "./src/json-diff/index.ts",
+    "./chmod-calculator": "./src/chmod-calculator/index.ts",
+    "./bcrypt-generator": "./src/bcrypt-generator/index.ts",
+    "./totp-generator": "./src/totp-generator/index.ts",
+    "./http-status-codes": "./src/http-status-codes/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -85,6 +93,7 @@
     "@anytools/ui": "workspace:*",
     "@faker-js/faker": "9.3.0",
     "@iarna/toml": "2.2.5",
+    "bcryptjs": "^3.0.3",
     "change-case": "5.4.4",
     "cron-parser": "4.9.0",
     "cronstrue": "2.52.0",
@@ -102,6 +111,7 @@
     "json5": "2.2.3",
     "lorem-ipsum": "^3.0.0",
     "marked": "15.0.6",
+    "otpauth": "^9.5.1",
     "papaparse": "5.4.1",
     "qrcode": "^1.5.4",
     "slugify": "1.6.6",

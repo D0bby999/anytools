@@ -41,8 +41,16 @@ import { meta as mockDataGenerator } from './mock-data-generator/meta';
 import { meta as mortgageCalculator } from './mortgage-calculator/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
 import { meta as passwordGenerator } from './password-generator/meta';
+import { meta as bcryptGenerator } from './bcrypt-generator/meta';
+import { meta as chmodCalculator } from './chmod-calculator/meta';
+import { meta as crontabGenerator } from './crontab-generator/meta';
+import { meta as httpStatusCodes } from './http-status-codes/meta';
+import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
+import { meta as jsonDiff } from './json-diff/meta';
 import { meta as percentageCalculator } from './percentage-calculator/meta';
 import { meta as pomodoroTimer } from './pomodoro-timer/meta';
+import { meta as totpGenerator } from './totp-generator/meta';
+import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as pregnancyDueDate } from './pregnancy-due-date/meta';
 import { meta as qrCodeGenerator } from './qr-code-generator/meta';
 import { meta as randomPicker } from './random-picker/meta';
@@ -148,6 +156,15 @@ export const toolMetas: ToolMeta[] = [
   readabilityAnalyzer,
   tipToHourlyWage,
   pomodoroTimer,
+  // Dev quick-wins (gap analysis vs it-tools/omni-tools, 260829)
+  wcagContrastChecker,
+  ipSubnetCalculator,
+  crontabGenerator,
+  jsonDiff,
+  chmodCalculator,
+  bcryptGenerator,
+  totpGenerator,
+  httpStatusCodes,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

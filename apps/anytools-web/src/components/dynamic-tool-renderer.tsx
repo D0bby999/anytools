@@ -89,6 +89,17 @@ const LOADERS: Record<string, ComponentType> = {
   'readability-analyzer': dynamic(() => import('@anytools/tools/readability-analyzer').then(pick)),
   'tip-to-hourly-wage': dynamic(() => import('@anytools/tools/tip-to-hourly-wage').then(pick)),
   'pomodoro-timer': dynamic(() => import('@anytools/tools/pomodoro-timer').then(pick)),
+  // Dev quick-wins (260829)
+  'wcag-contrast-checker': dynamic(() =>
+    import('@anytools/tools/wcag-contrast-checker').then(pick),
+  ),
+  'ip-subnet-calculator': dynamic(() => import('@anytools/tools/ip-subnet-calculator').then(pick)),
+  'crontab-generator': dynamic(() => import('@anytools/tools/crontab-generator').then(pick)),
+  'json-diff': dynamic(() => import('@anytools/tools/json-diff').then(pick)),
+  'chmod-calculator': dynamic(() => import('@anytools/tools/chmod-calculator').then(pick)),
+  'bcrypt-generator': dynamic(() => import('@anytools/tools/bcrypt-generator').then(pick)),
+  'totp-generator': dynamic(() => import('@anytools/tools/totp-generator').then(pick)),
+  'http-status-codes': dynamic(() => import('@anytools/tools/http-status-codes').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
