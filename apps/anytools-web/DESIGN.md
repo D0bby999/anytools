@@ -6,7 +6,7 @@
 ## Brand
 - **Name:** AnyTools
 - **Voice:** friendly, no-BS, dev-first
-- **Visual:** Swiss-Modernism slate chrome + **emerald brand accent**, dark mode default.
+- **Visual:** Swiss-Modernism slate chrome + **emerald brand accent**, light mode default (dark via toggle).
   Playful/bold brand moments (morphing-module logo, emerald→cyan gradient, hero glow) layered on the neutral base.
 
 ## Tokens (CSS custom properties)
@@ -50,7 +50,7 @@ To add when needed:
 
 ## Patterns
 
-- **Dark mode:** default ON, light toggle via next-themes
+- **Theme:** light default for new visitors (owner decision 260829); dark + system selectable via next-themes toggle, stored choice wins
 - **Mobile-first:** all components responsive
 - **Accessibility:** WCAG AA color contrast min, focus rings always visible, keyboard nav tested
 - **Animation:** sparingly on product/tool UI. **Sanctioned brand-motion exceptions** (brand surfaces only): morphing-module logo animation (load + hover), hero aurora glow. All gated by `prefers-reduced-motion`. Do not add motion to cluster/tool chrome.
