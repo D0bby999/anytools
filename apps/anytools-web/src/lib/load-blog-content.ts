@@ -39,7 +39,9 @@ export type UnsplashCredit = {
 export type BlogHeroImage = {
   url: string;
   alt: string;
-  credit: UnsplashCredit;
+  // Absent on PostClaw-ingested rows (map-postclaw-payload.ts stores { url, alt }
+  // only) — every consumer must tolerate a missing credit block.
+  credit?: UnsplashCredit;
 };
 
 export type BlogAuthor = {

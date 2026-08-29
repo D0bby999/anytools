@@ -6,6 +6,11 @@ type BlogHeroProps = {
 };
 
 export function BlogHero({ image }: BlogHeroProps) {
+  // PostClaw-ingested rows store heroImage as { url, alt } with no credit block
+  // (map-postclaw-payload.ts) — the caption only exists when there is someone
+  // to credit: a photographer, or an AI hero with a source worth citing.
+  const credit = image.credit;
+  const showCredit = credit != null && (credit.kind === 'ai' || Boolean(credit.photographer));
   return (
     <figure className="mb-8 not-prose">
       {/* External s3cloud.vn host — plain img tag avoids Next.js Image domain config */}
@@ -15,9 +20,11 @@ export function BlogHero({ image }: BlogHeroProps) {
         alt={image.alt}
         className="w-full aspect-[16/9] object-cover rounded-lg"
       />
-      <figcaption className="mt-2 text-xs text-muted-foreground">
-        <UnsplashCredit credit={image.credit} />
-      </figcaption>
+      {showCredit && (
+        <figcaption className="mt-2 text-xs text-muted-foreground">
+          <UnsplashCredit credit={credit} />
+        </figcaption>
+      )}
     </figure>
   );
 }

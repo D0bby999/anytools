@@ -103,7 +103,7 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(articleSchema) }}
       />
-      {blog.data.howTo && blog.data.howTo.steps.length > 0 && (
+      {blog.data.howTo && (blog.data.howTo.steps?.length ?? 0) > 0 && (
         <script
           type="application/ld+json"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
