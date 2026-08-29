@@ -16,7 +16,7 @@ export async function generateMetadata({
 }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'landing' });
-  const title = t('metaTitle');
+  const title = t('metaTitle', { count: toolMetas.length });
   const description = t('metaDescription');
   const canonical = `/${locale}`;
   return {
@@ -65,7 +65,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="lg:col-span-3 space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
-                {t('landing.eyebrow')}
+                {t('landing.eyebrow', { count: toolMetas.length })}
               </div>
               {/* Plain foreground, not the brand gradient, and two steps smaller.
                   A full-width gradient headline is the single most template-looking

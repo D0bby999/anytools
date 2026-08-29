@@ -41,7 +41,7 @@
     "heroSubtitle": "IMC, dividir conta, JSON, regex, contraste de cor, conversor de unidades e 60+ mais. Em EN, VN, ES, PT. Tudo roda no seu navegador — o que você cola nunca sai do seu dispositivo.",
     "ctaWaitlist": "Assine o boletim",
     "ctaGithub": "Estrela no GitHub",
-    "eyebrow": "68 ferramentas · 4 idiomas · Grátis para sempre",
+    "eyebrow": "{count} ferramentas · 4 idiomas · Grátis para sempre",
     "ctaPrimary": "Ver todas as ferramentas",
     "ctaSecondary": "Estrela no GitHub",
     "badgeMit": "Licença MIT",
@@ -56,7 +56,7 @@
     "valueProp2Body": "Seus dados ficam no navegador. JSON que você cola, arquivos que envia, senhas que gera — nunca saem do seu dispositivo.",
     "valueProp3Title": "Código aberto",
     "valueProp3Body": "Licença MIT. Auto-hospede, faça fork, audite. O código que lida com seus dados está aberto para qualquer um verificar.",
-    "metaTitle": "AnyTools — 68 calculadoras, conversores e utilitários grátis",
+    "metaTitle": "AnyTools — {count} calculadoras, conversores e utilitários grátis",
     "metaDescription": "IMC, hipoteca, divisor de conta, formatador JSON, contraste de cor, câmbio, porcentagem e 60+ ferramentas. Grátis, sem cadastro, no seu navegador. EN, VI, ES, PT."
   },
   "consent": {

@@ -41,7 +41,7 @@
     "heroSubtitle": "BMI, chia hóa đơn, JSON, regex, color contrast, đổi đơn vị và 60+ tool nữa. Có EN/VN/ES/PT. Mọi thứ chạy ngay trong browser — thứ bạn dán vào không rời khỏi máy.",
     "ctaWaitlist": "Đăng ký newsletter",
     "ctaGithub": "Star trên GitHub",
-    "eyebrow": "68 tool · 4 ngôn ngữ · Miễn phí mãi mãi",
+    "eyebrow": "{count} tool · 4 ngôn ngữ · Miễn phí mãi mãi",
     "ctaPrimary": "Xem tất cả tool",
     "ctaSecondary": "Star trên GitHub",
     "badgeMit": "MIT license",
@@ -56,7 +56,7 @@
     "valueProp2Body": "Dữ liệu của bạn ở trong browser. JSON paste, file upload, password tạo — không bao giờ rời thiết bị.",
     "valueProp3Title": "Mã nguồn mở",
     "valueProp3Body": "MIT license. Self-host, fork, audit. Phần code xử lý dữ liệu của bạn công khai để ai cũng kiểm tra được.",
-    "metaTitle": "AnyTools — 68 công cụ tính toán & tiện ích miễn phí",
+    "metaTitle": "AnyTools — {count} công cụ tính toán & tiện ích miễn phí",
     "metaDescription": "BMI, vay ngân hàng, chia hóa đơn, JSON formatter, color contrast, tỉ giá, phần trăm và 60+ công cụ. Miễn phí, không đăng ký, chạy ngay trên trình duyệt. EN, VI, ES, PT."
   },
   "consent": {
