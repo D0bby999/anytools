@@ -9,6 +9,7 @@
  */
 
 import { routing } from '@/i18n/routing';
+import { POPULATED_CLUSTERS } from '@/lib/cluster-config';
 import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { toolMetas } from '@anytools/tools/meta';
@@ -25,23 +26,11 @@ const BASE =
   process.env.NEXT_PUBLIC_URL ??
   (process.env.NODE_ENV === 'production' ? 'https://anytools.world' : 'http://localhost:3000');
 
-// All cluster landing IDs — must match the ClusterId union in @anytools/tools/types.
-// Each gets its own landing page emitted to the sitemap.
-const CLUSTERS: ClusterId[] = [
-  'encoding',
-  'formatters',
-  'generators',
-  'converters',
-  'text-regex',
-  'time-date',
-  'web3',
-  'marketing',
-  'ecommerce-vn',
-  'finance',
-  'health',
-  'lifestyle',
-  'design',
-];
+// Cluster landing pages, derived from the tool registry — a cluster with zero
+// published tools is a dead end for a crawler and is left out. Previously this
+// was a hand-maintained list and shipped `marketing` + `ecommerce-vn` with no
+// tools behind them.
+const CLUSTERS: ClusterId[] = POPULATED_CLUSTERS;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const urls: MetadataRoute.Sitemap = [];

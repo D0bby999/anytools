@@ -1,3 +1,4 @@
+import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 
 /**
@@ -88,4 +89,21 @@ export const ALL_CLUSTERS: ClusterId[] = Object.keys(CLUSTER_CONFIG) as ClusterI
 
 export function isClusterId(s: string): s is ClusterId {
   return Object.prototype.hasOwnProperty.call(CLUSTER_CONFIG, s);
+}
+
+/**
+ * Clusters that actually have at least one published tool.
+ *
+ * Derived from the tool registry rather than listed by hand: a cluster with no
+ * tools renders a landing page with nothing to click, which reads as thin content
+ * to search and ad review alike. Deriving it means an empty cluster can never be
+ * crawled by accident, and a cluster rejoins the sitemap the moment its first
+ * tool ships — no list to remember to update.
+ */
+export const POPULATED_CLUSTERS: ClusterId[] = ALL_CLUSTERS.filter((cluster) =>
+  toolMetas.some((m) => m.cluster === cluster && m.published !== false),
+);
+
+export function isPopulatedCluster(s: string): s is ClusterId {
+  return (POPULATED_CLUSTERS as string[]).includes(s);
 }
