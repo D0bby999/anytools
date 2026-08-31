@@ -1,7 +1,7 @@
 {
-  "name": "AnyTools — Dev tools that respect your time",
+  "name": "AnyTools — Free tools that respect your time",
   "short_name": "AnyTools",
-  "description": "Multi-language dev tools, offline-first. 34+ tools in EN, VN, ES, PT.",
+  "description": "70+ free calculators, converters and developer tools in EN, VN, ES, PT.",
   "start_url": "/en",
   "scope": "/",
   "display": "standalone",

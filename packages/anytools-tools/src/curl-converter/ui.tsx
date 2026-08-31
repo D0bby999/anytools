@@ -66,6 +66,15 @@ export function CurlConverterUi() {
             Try example
           </button>
         </div>
+        {/* Unlike the rest of the catalogue this tool cannot run client-side — parsing curl
+            needs tree-sitter on the server. This sits above the input, not below it: a warning
+            about what you are about to paste is useless after you have pasted it, and curl
+            commands routinely carry tokens, cookies and API keys. */}
+        <p className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+          Unlike our other tools, this one does not run in your browser: parsing curl needs
+          server-side native bindings. Your command is sent over HTTPS, parsed, and discarded —
+          never logged or stored. Still, replace any real tokens, cookies or API keys first.
+        </p>
         <div>
           <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
             curl command
@@ -93,10 +102,6 @@ export function CurlConverterUi() {
             </output>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Note: curl parsing runs server-side (tree-sitter requires native bindings). Your command
-          is sent over HTTPS, parsed, and discarded — never logged or stored.
-        </p>
       </CardContent>
     </Card>
   );

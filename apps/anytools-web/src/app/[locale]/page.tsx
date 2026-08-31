@@ -7,7 +7,7 @@ import { METADATA_BASE } from '@/lib/site-url';
 import { toolMetas, toolMetasClient } from '@anytools/tools/meta';
 import { Badge, Button, Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 const VALUE_PROPS = ['valueProp1', 'valueProp2', 'valueProp3'] as const;
 
@@ -46,6 +46,9 @@ export async function generateMetadata({
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  // Opts this route into static rendering; without it next-intl marks the page
+  // request-scoped and Next serves it uncacheable.
+  setRequestLocale(locale);
   const t = await getTranslations({ locale });
 
   return (
@@ -93,17 +96,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </div>
               {/* Trust badges — text-only pills, each marked with a brand dot */}
               <div className="flex flex-wrap gap-2 pt-2 text-xs text-muted-foreground">
-                {(['badgeMit', 'badgeOffline', 'badge4Langs', 'badgePrivate'] as const).map(
-                  (key) => (
-                    <span
-                      key={key}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent/70" aria-hidden="true" />
-                      {t(`landing.${key}`)}
-                    </span>
-                  ),
-                )}
+                {(['badgeMit', 'badge4Langs', 'badgePrivate'] as const).map((key) => (
+                  <span
+                    key={key}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent/70" aria-hidden="true" />
+                    {t(`landing.${key}`)}
+                  </span>
+                ))}
               </div>
             </div>
 
