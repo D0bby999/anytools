@@ -5,8 +5,8 @@ import type { ClusterId } from '@anytools/tools/types';
 import { Badge, Card, CardDescription, CardHeader, CardTitle, Input } from '@anytools/ui';
 import { Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useDeferredValue, useMemo, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react';
 
 const SORT_OPTIONS = ['popular', 'az', 'recent'] as const;
 type Sort = (typeof SORT_OPTIONS)[number];
@@ -38,19 +38,32 @@ type Props = {
 
 export function ToolCatalog({ metas, locale }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const t = useTranslations('catalog');
   const [, startTransition] = useTransition();
 
-  // URL state (shareable filtered views)
-  const initialCluster = searchParams.get('cluster') ?? 'all';
-  const initialSort = (searchParams.get('sort') as Sort) ?? 'popular';
-  const initialQuery = searchParams.get('q') ?? '';
-
-  const [cluster, setCluster] = useState(initialCluster);
-  const [sort, setSort] = useState<Sort>(initialSort);
-  const [query, setQuery] = useState(initialQuery);
+  // Filters start at their defaults and adopt the URL only after mount.
+  //
+  // Deliberately NOT useSearchParams(): that hook opts the subtree out of static
+  // rendering, and Next would then require a Suspense boundary whose fallback ships
+  // in the prerendered HTML instead of the catalogue. The homepage would lose all 76
+  // tool links from its markup — the internal links every tool page depends on to be
+  // discovered. Rendering the unfiltered list server-side is also the correct default:
+  // it is what a crawler should see. Shareable ?cluster=/?sort=/?q= URLs still work,
+  // applied on hydration.
+  const [cluster, setCluster] = useState('all');
+  const [sort, setSort] = useState<Sort>('popular');
+  const [query, setQuery] = useState('');
   const deferredQuery = useDeferredValue(query);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get('cluster');
+    const s = params.get('sort');
+    const q = params.get('q');
+    if (c) setCluster(c);
+    if (s && (SORT_OPTIONS as readonly string[]).includes(s)) setSort(s as Sort);
+    if (q) setQuery(q);
+  }, []);
 
   // Cluster counts (only show clusters that have tools available in current locale)
   const clusters = useMemo(() => {
@@ -106,7 +119,7 @@ export function ToolCatalog({ metas, locale }: Props) {
   // Sync URL when filters change (debounced via transition)
   const syncUrl = (next: { cluster?: string; sort?: Sort; q?: string }) => {
     startTransition(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(window.location.search);
       const c = next.cluster ?? cluster;
       const s = next.sort ?? sort;
       const q = next.q ?? query;
