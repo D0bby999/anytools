@@ -2,6 +2,7 @@ import { LegalPageRenderer } from '@/components/legal-page-renderer';
 import { routing } from '@/i18n/routing';
 import { getLegalPage } from '@/lib/legal-content';
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 
 export async function generateMetadata({
   params,
@@ -22,5 +23,8 @@ export async function generateMetadata({
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  // Opts this route into static rendering; without it next-intl marks the page
+  // request-scoped and Next serves it uncacheable.
+  setRequestLocale(locale);
   return <LegalPageRenderer page={getLegalPage('contact', locale)} />;
 }

@@ -2,17 +2,16 @@ import { AdSenseScript } from '@/components/adsense-script';
 import { CmdKPalette } from '@/components/cmd-k-palette';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { Footer } from '@/components/footer';
-import { InstallPrompt } from '@/components/install-prompt';
 import { MobileBottomNav } from '@/components/mobile-bottom-nav';
-import { UmamiAnalytics } from '@/components/umami-analytics';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
+import { UmamiAnalytics } from '@/components/umami-analytics';
 import { routing } from '@/i18n/routing';
 import { METADATA_BASE } from '@/lib/site-url';
 import { isValidLocale } from '@anytools/i18n';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -64,6 +63,11 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
 
+  // Opts the whole locale subtree into static rendering. Without this, next-intl treats every
+  // translated page as request-scoped and Next serves it `no-store` — every tool page was being
+  // re-rendered per request despite having generateStaticParams.
+  setRequestLocale(locale);
+
   const messages = await getMessages();
 
   return (
@@ -77,7 +81,6 @@ export default async function LocaleLayout({
             {children}
             <Footer />
             <CmdKPalette />
-            <InstallPrompt />
             <CookieConsentBanner />
             <UmamiAnalytics />
             <MobileBottomNav />

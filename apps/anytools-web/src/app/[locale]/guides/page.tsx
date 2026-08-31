@@ -2,6 +2,7 @@ import { Link, routing } from '@/i18n/routing';
 import { listGuides } from '@/lib/load-guide-content';
 import { Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 
 export async function generateMetadata({
   params,
@@ -27,6 +28,9 @@ export async function generateMetadata({
 
 export default async function GuidesIndexPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  // Opts this route into static rendering; without it next-intl marks the page
+  // request-scoped and Next serves it uncacheable.
+  setRequestLocale(locale);
   const guides = await listGuides(locale);
   const headings: Record<string, string> = {
     en: 'Guides',

@@ -5,6 +5,7 @@ import { GUIDE_SLUGS, loadGuide } from '@/lib/load-guide-content';
 import { jsonLdSafe } from '@/lib/schema';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
+import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 type PageParams = { locale: string; slug: string };
@@ -56,6 +57,9 @@ export async function generateMetadata({
 
 export default async function GuidePage({ params }: { params: Promise<PageParams> }) {
   const { locale, slug } = await params;
+  // Opts this route into static rendering; without it next-intl marks the page
+  // request-scoped and Next serves it uncacheable.
+  setRequestLocale(locale);
   const guide = await loadGuide(locale, slug);
   if (!guide) notFound();
 
