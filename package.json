@@ -29,7 +29,8 @@
     "blog:keyword": "node scripts/keyword-research.mjs",
     "blog:subtag": "node scripts/affiliate-subtag.mjs",
     "blog:earnings": "node scripts/blog-earnings.mjs",
-    "finance": "node scripts/finance.mjs"
+    "finance": "node scripts/finance.mjs",
+    "audit:anytools": "node scripts/anytools-page-audit.mjs"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1057.0",
@@ -40,9 +41,6 @@
     "typescript": "5.7.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3",
-      "better-auth"
-    ]
+    "onlyBuiltDependencies": ["better-sqlite3", "better-auth"]
   }
 }
