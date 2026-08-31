@@ -1,24 +1,27 @@
 import { ClusterLandingHero } from '@/components/cluster-landing-hero';
 import { ClusterToolGrid } from '@/components/cluster-tool-grid';
 import { routing } from '@/i18n/routing';
-import { ALL_CLUSTERS, isClusterId } from '@/lib/cluster-config';
+import { POPULATED_CLUSTERS, isClusterId, isPopulatedCluster } from '@/lib/cluster-config';
+import { breadcrumbSchema, jsonLdSafe } from '@/lib/schema';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import { getToolMetasByCluster } from '@anytools/tools/meta';
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 type PageParams = { locale: string; cluster: string };
 
 export function generateStaticParams(): PageParams[] {
-  return routing.locales.flatMap((locale) => ALL_CLUSTERS.map((cluster) => ({ locale, cluster })));
+  return routing.locales.flatMap((locale) =>
+    POPULATED_CLUSTERS.map((cluster) => ({ locale, cluster })),
+  );
 }
 
 export async function generateMetadata({
   params,
 }: { params: Promise<PageParams> }): Promise<Metadata> {
   const { locale, cluster } = await params;
-  if (!isClusterId(cluster)) return {};
+  if (!isClusterId(cluster) || !isPopulatedCluster(cluster)) return {};
   const t = await getTranslations({ locale });
   const label = t(`catalog.cluster.${cluster}`);
   const tagline = t(`clusterLanding.${cluster}.tagline`);
@@ -42,7 +45,12 @@ export async function generateMetadata({
 
 export default async function ClusterLandingPage({ params }: { params: Promise<PageParams> }) {
   const { locale, cluster } = await params;
-  if (!isClusterId(cluster)) notFound();
+  // Opts this route into static rendering; without it next-intl marks the page
+  // request-scoped and Next serves it uncacheable.
+  setRequestLocale(locale);
+  // A cluster with no published tools has nothing to offer a visitor or a crawler.
+  // 404 rather than render an empty landing page.
+  if (!isClusterId(cluster) || !isPopulatedCluster(cluster)) notFound();
 
   const t = await getTranslations({ locale });
   const tools = getToolMetasByCluster(cluster)
@@ -54,8 +62,19 @@ export default async function ClusterLandingPage({ params }: { params: Promise<P
   const intro = t(`clusterLanding.${cluster}.intro`);
   const toolCount = t('clusterLanding.toolCount', { count: tools.length });
 
+  // Same URL construction as the canonical tag above, so the trail matches it exactly.
+  const breadcrumb = breadcrumbSchema([
+    { name: 'AnyTools', url: `${SITE_URL}/${locale}` },
+    { name: label, url: `${SITE_URL}/${locale}/${cluster}` },
+  ]);
+
   return (
     <main>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes `</` to prevent script-tag breakout
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumb) }}
+      />
       <ClusterLandingHero
         cluster={cluster}
         label={label}

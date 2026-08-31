@@ -2,10 +2,18 @@ import { DynamicToolRenderer } from '@/components/dynamic-tool-renderer';
 import { ToolPageLayout } from '@/components/tool-page-layout';
 import { routing } from '@/i18n/routing';
 import { loadToolContent } from '@/lib/load-tool-content';
-import { faqSchema, howToSchema, jsonLdSafe, softwareAppSchema } from '@/lib/schema';
+import {
+  breadcrumbSchema,
+  faqSchema,
+  howToSchema,
+  jsonLdSafe,
+  softwareAppSchema,
+} from '@/lib/schema';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import { getToolMeta, toolMetas } from '@anytools/tools/meta';
+import type { ClusterId } from '@anytools/tools/types';
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
 type PageParams = { locale: string; cluster: string; tool: string };
@@ -21,7 +29,6 @@ export function generateStaticParams(): PageParams[] {
 // SEO title template: "{tool} — Free Online {category} | AnyTools"
 // Keeps tool name first (highest weight), category-keyword for cluster SEO,
 // brand suffix for memorability + click-back recognition. <60 chars target.
-import type { ClusterId } from '@anytools/tools/types';
 const CLUSTER_LABEL_EN: Record<ClusterId, string> = {
   encoding: 'Encoder',
   formatters: 'Formatter',
@@ -87,6 +94,9 @@ export async function generateMetadata({
 
 export default async function ToolPage({ params }: { params: Promise<PageParams> }) {
   const { locale, cluster, tool } = await params;
+  // Opts this route into static rendering; without it next-intl marks the page
+  // request-scoped and Next serves it uncacheable.
+  setRequestLocale(locale);
   const m = getToolMeta(cluster, tool);
   if (!m) notFound();
   if (m.availableLocales && !m.availableLocales.includes(locale as never)) notFound();
@@ -97,8 +107,19 @@ export default async function ToolPage({ params }: { params: Promise<PageParams>
   const description = m.description[locale] ?? m.description.en ?? '';
   const url = `${SITE_URL}/${locale}/${cluster}/${tool}`;
 
+  // Breadcrumb URLs are built from the same SITE_URL + locale path as the canonical tag,
+  // so the trail can never disagree with the canonical Google resolves.
+  const t = await getTranslations({ locale });
   const schemas: { key: string; data: object }[] = [
     { key: 'software', data: softwareAppSchema({ name: title, description, url }) },
+    {
+      key: 'breadcrumb',
+      data: breadcrumbSchema([
+        { name: 'AnyTools', url: `${SITE_URL}/${locale}` },
+        { name: t(`catalog.cluster.${cluster}`), url: `${SITE_URL}/${locale}/${cluster}` },
+        { name: title, url },
+      ]),
+    },
   ];
   if (content.faq && content.faq.items.length > 0) {
     schemas.push({ key: 'faq', data: faqSchema(content.faq.items) });

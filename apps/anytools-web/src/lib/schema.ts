@@ -34,6 +34,25 @@ export const howToSchema = (input: { name: string; steps: { name: string; text: 
   })),
 });
 
+/**
+ * Breadcrumb trail for a page.
+ *
+ * `item` must be the absolute canonical URL of each step — Google compares the trail
+ * against the canonical, and a mismatched or relative href makes it drop the breadcrumb
+ * silently. Callers build the URLs from the same SITE_URL + locale path the canonical
+ * tag uses, so the two cannot drift apart.
+ */
+export const breadcrumbSchema = (trail: { name: string; url: string }[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: trail.map((step, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: step.name,
+    item: step.url,
+  })),
+});
+
 export const faqSchema = (qa: { q: string; a: string }[]) => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
