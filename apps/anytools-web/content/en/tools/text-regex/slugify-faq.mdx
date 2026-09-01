@@ -21,3 +21,13 @@ The underlying library transliterates standard Vietnamese diacritics via NFD nor
 ## Slug for non-Latin scripts (Chinese, Japanese, Arabic)?
 
 Pinyin/romaji transliteration is possible but not enabled here by default. For Chinese: use a pinyin library before slugifying. For Japanese: romaji conversion. For Arabic: transliteration is debatable — many sites just keep the original characters URL-encoded.
+
+## Why does my slug still contain an exclamation mark?
+
+Because a few punctuation characters survive unless you tick **strict**. By default `Hello World!! 2026` becomes `hello-world!!-2026`; with strict on, the set `*+~.()'"!:@` is stripped and you get `hello-world-2026`.
+
+Most punctuation is already removed without strict — `What? Really!` gives `what-really!`, so the question mark goes while the exclamation mark stays. Strict is off by default because removing characters is destructive, but for anything going into a URL, turn it on.
+
+## Why did `&` turn into the word "and"?
+
+Because the underlying slugifier transliterates symbols into words rather than deleting them, so `a/b&c` becomes `abandc`. This happens in both modes. If you want the symbol gone rather than spelled out, remove it before slugifying.

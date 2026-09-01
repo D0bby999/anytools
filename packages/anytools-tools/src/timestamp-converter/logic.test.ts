@@ -70,3 +70,29 @@ describe('relativeFromNow', () => {
     expect(relativeFromNow(future)).toMatch(/^in /);
   });
 });
+
+describe('negative Unix timestamps (pre-1970)', () => {
+  // These fell through the 10-and-13-digit rules and reached `new Date('-86400')`,
+  // which the engine reads as a YEAR — returning a date in 86399 CE labelled rfc2822.
+  it('reads -86400 as one day before the epoch', () => {
+    const r = parseTimestamp('-86400');
+    expect(r.detectedFormat).toBe('unix-seconds');
+    expect(r.date.toISOString()).toBe('1969-12-31T00:00:00.000Z');
+  });
+
+  it('reads a nine-digit negative as seconds', () => {
+    const r = parseTimestamp('-315619200');
+    expect(r.detectedFormat).toBe('unix-seconds');
+    expect(r.date.getUTCFullYear()).toBe(1960);
+  });
+
+  it('reads a thirteen-digit negative as milliseconds', () => {
+    const ms = parseTimestamp('-1234567890123');
+    expect(ms.detectedFormat).toBe('unix-millis');
+    expect(ms.date.getUTCFullYear()).toBe(1930);
+  });
+
+  it('still rejects genuine nonsense', () => {
+    expect(() => parseTimestamp('not a date')).toThrow();
+  });
+});

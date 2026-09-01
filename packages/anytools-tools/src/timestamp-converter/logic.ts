@@ -14,6 +14,18 @@ export function parseTimestamp(input: string): ParsedTimestamp {
   if (/^\d{13}$/.test(trimmed)) {
     return { date: new Date(Number(trimmed)), detectedFormat: 'unix-millis' };
   }
+  // Negative Unix timestamps — dates before 1970. The digit-count rules above cannot
+  // match them, and falling through to `new Date('-86400')` makes the engine read the
+  // string as a *year*, returning a date in 86399 CE labelled as RFC 2822. A bare
+  // negative number is never valid in any of the other formats, so it is unambiguous
+  // here; the seconds-vs-millis split follows the same >10-digit rule as positives.
+  if (/^-\d{1,13}$/.test(trimmed)) {
+    const digits = trimmed.length - 1;
+    const value = Number(trimmed);
+    return digits > 10
+      ? { date: new Date(value), detectedFormat: 'unix-millis' }
+      : { date: new Date(value * 1000), detectedFormat: 'unix-seconds' };
+  }
   // ISO 8601 (also covers RFC 3339)
   const iso = new Date(trimmed);
   if (!Number.isNaN(iso.getTime())) {

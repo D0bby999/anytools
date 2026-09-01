@@ -28,3 +28,17 @@ describe('makeBulkSlugs', () => {
     expect(makeBulkSlugs('\n\nHello\n\n')).toEqual(['hello']);
   });
 });
+
+describe('documented punctuation behaviour', () => {
+  // The FAQ describes these exactly; if the slugifier's charmap changes, the copy
+  // becomes wrong and this catches it.
+  it('keeps "!" unless strict, and drops "?" either way', () => {
+    expect(makeSlug('Hello World!! 2026')).toBe('hello-world!!-2026');
+    expect(makeSlug('Hello World!! 2026', { strict: true })).toBe('hello-world-2026');
+    expect(makeSlug('What? Really!')).toBe('what-really!');
+  });
+
+  it('transliterates "&" into "and" rather than deleting it', () => {
+    expect(makeSlug('a/b&c')).toBe('abandc');
+  });
+});
