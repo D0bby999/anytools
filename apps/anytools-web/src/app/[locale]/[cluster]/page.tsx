@@ -3,6 +3,7 @@ import { ClusterToolGrid } from '@/components/cluster-tool-grid';
 import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS, isClusterId, isPopulatedCluster } from '@/lib/cluster-config';
 import { breadcrumbSchema, jsonLdSafe } from '@/lib/schema';
+import { clampMetaDescription } from '@/lib/seo-metadata';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import { getToolMetasByCluster } from '@anytools/tools/meta';
 import type { Metadata } from 'next';
@@ -24,19 +25,22 @@ export async function generateMetadata({
   if (!isClusterId(cluster) || !isPopulatedCluster(cluster)) return {};
   const t = await getTranslations({ locale });
   const label = t(`catalog.cluster.${cluster}`);
-  const tagline = t(`clusterLanding.${cluster}.tagline`);
+  // The tagline is a display headline — 21 to 50 characters, too thin to describe the
+  // page in a result. The landing intro already names the actual tools, so use that and
+  // clamp it to what a SERP will show.
+  const description = clampMetaDescription(t(`clusterLanding.${cluster}.intro`));
   const canonicalPath = `/${locale}/${cluster}`;
   return {
     metadataBase: METADATA_BASE,
     title: `${label} — Free Online Tools | AnyTools`,
-    description: tagline,
+    description,
     alternates: {
       canonical: canonicalPath,
       languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/${cluster}`])),
     },
     openGraph: {
       title: `${label} — AnyTools`,
-      description: tagline,
+      description,
       url: `${SITE_URL}${canonicalPath}`,
       type: 'website',
     },

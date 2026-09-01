@@ -3,6 +3,7 @@ import { MdxContent } from '@/components/mdx-content';
 import { routing } from '@/i18n/routing';
 import { GUIDE_SLUGS, loadGuide } from '@/lib/load-guide-content';
 import { jsonLdSafe } from '@/lib/schema';
+import { fitTitle } from '@/lib/seo-metadata';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
@@ -20,7 +21,10 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const guide = await loadGuide(locale, slug);
   if (!guide) return {};
-  const seoTitle = `${guide.data.title} | AnyTools Guides`;
+  // Guide titles are long by nature ("Free Finance Calculators — Mortgage, Loan, Tip,
+  // Compound Interest"), so the " | AnyTools Guides" suffix pushed five of seven past
+  // the point Google truncates. Keep the headline, drop the suffix when it will not fit.
+  const seoTitle = fitTitle(guide.data.title as string, ' | AnyTools Guides');
   const canonicalPath = `/${locale}/guides/${slug}`;
   return {
     metadataBase: METADATA_BASE,

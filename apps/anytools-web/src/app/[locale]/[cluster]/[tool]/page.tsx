@@ -9,6 +9,7 @@ import {
   jsonLdSafe,
   softwareAppSchema,
 } from '@/lib/schema';
+import { buildToolTitle } from '@/lib/seo-metadata';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import { getToolMeta, toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
@@ -54,7 +55,7 @@ export async function generateMetadata({
   const title = m.title[locale] ?? m.title.en ?? m.slug;
   const description = m.description[locale] ?? m.description.en ?? '';
   const categoryLabel = CLUSTER_LABEL_EN[m.cluster];
-  const seoTitle = `${title} — Free Online ${categoryLabel} | AnyTools`;
+  const seoTitle = buildToolTitle(title, categoryLabel);
   const canonicalPath = `/${locale}/${cluster}/${tool}`;
 
   return {
