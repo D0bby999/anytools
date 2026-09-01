@@ -14,21 +14,27 @@ type Sort = (typeof SORT_OPTIONS)[number];
 const PRIORITY_RANK: Record<string, number> = { P1: 0, P2: 1, P3: 2, P4: 3 };
 
 // Typed exhaustively against ClusterId — adding a new cluster without an entry is a compile error.
+//
+// Light-mode text is -800, not -700. Measured against the composited pill background
+// (the 500 tint over a white card), -700 bottomed out at 4.60:1 for green — technically
+// AA, but this label renders at 11px in uppercase with letter-spacing, where the AA
+// threshold for normal body text is not enough to be comfortable. -800 over a 15% tint
+// puts the weakest colour at 6.26:1.
 const CLUSTER_COLOR: Record<ClusterId, string> = {
-  encoding: 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
-  formatters: 'bg-purple-500/10 text-purple-700 dark:text-purple-300',
-  generators: 'bg-green-500/10 text-green-700 dark:text-green-300',
-  converters: 'bg-orange-500/10 text-orange-700 dark:text-orange-300',
-  'text-regex': 'bg-pink-500/10 text-pink-700 dark:text-pink-300',
-  'time-date': 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  web3: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300',
-  marketing: 'bg-teal-500/10 text-teal-700 dark:text-teal-300',
-  'ecommerce-vn': 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
+  encoding: 'bg-blue-500/15 text-blue-800 dark:text-blue-300',
+  formatters: 'bg-purple-500/15 text-purple-800 dark:text-purple-300',
+  generators: 'bg-green-500/15 text-green-800 dark:text-green-300',
+  converters: 'bg-orange-500/15 text-orange-800 dark:text-orange-300',
+  'text-regex': 'bg-pink-500/15 text-pink-800 dark:text-pink-300',
+  'time-date': 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
+  web3: 'bg-indigo-500/15 text-indigo-800 dark:text-indigo-300',
+  marketing: 'bg-teal-500/15 text-teal-800 dark:text-teal-300',
+  'ecommerce-vn': 'bg-rose-500/15 text-rose-800 dark:text-rose-300',
   // General-public clusters (Phase 3+) — match accent tokens in globals.css
-  finance: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-  health: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
-  lifestyle: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  design: 'bg-violet-500/10 text-violet-700 dark:text-violet-300',
+  finance: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300',
+  health: 'bg-rose-500/15 text-rose-800 dark:text-rose-300',
+  lifestyle: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
+  design: 'bg-violet-500/15 text-violet-800 dark:text-violet-300',
 };
 
 type Props = {
@@ -228,7 +234,7 @@ export function ToolCatalog({ metas, locale }: Props) {
                     </CardTitle>
                     <Badge
                       variant="secondary"
-                      className={`text-[10px] uppercase tracking-wide shrink-0 border-0 ${CLUSTER_COLOR[m.cluster] ?? ''}`}
+                      className={`text-[11px] uppercase tracking-wide shrink-0 border-0 ${CLUSTER_COLOR[m.cluster] ?? ''}`}
                     >
                       {m.cluster}
                     </Badge>

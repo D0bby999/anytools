@@ -48,7 +48,7 @@ export function ToolToolbar({ slug, cluster, hasTutorial, hasFaq }: Props) {
       <div className="flex items-center justify-between gap-3">
         {/* Left: cluster badge + jump links */}
         <div className="flex items-center gap-2 overflow-x-auto">
-          <Badge variant="secondary" className="text-[10px] uppercase tracking-wide shrink-0">
+          <Badge variant="secondary" className="text-[11px] uppercase tracking-wide shrink-0">
             {cluster}
           </Badge>
           <button
