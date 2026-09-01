@@ -1,0 +1,35 @@
+---
+title: Percentage calculator — Frequently asked questions
+---
+
+## What are the three modes?
+
+**X% of Y** multiplies: `(x / 100) × y`. **X is what percent of Y** divides: `(x / y) × 100`. **Percentage change** compares two values: `((to − from) / from) × 100`. Most percentage questions are one of these three wearing different words.
+
+## How do I pick the right one?
+
+By what you are missing. If you know the percentage and want an amount, use the first. If you have two amounts and want the percentage, use the second. If you have a before and an after, use the third.
+
+## Why is a 50% rise followed by a 50% fall not back where I started?
+
+Because each percentage applies to a different base. Take 100, add 50% to reach 150, then remove 50% of 150 — that is 75, not 100. Percentage change is always relative to the value you start from, which is why the direction of the comparison matters.
+
+## What is the difference between percent and percentage points?
+
+A rate moving from 4% to 6% has risen two percentage *points*, but 50 *percent*. Both statements are true and they describe the same move. Financial and political reporting routinely blurs this, usually toward whichever number sounds larger.
+
+## Why does percentage change return zero when the starting value is zero?
+
+Because the change would be a division by zero — going from nothing to something has no finite percentage. Rather than emit an infinity, the tool returns zero. If your "from" value is genuinely zero, percentage change is not the right measure; state the absolute change instead.
+
+## Can I use it to remove a percentage that was added?
+
+Not directly with these three modes, because you would be dividing rather than subtracting. For stripping an included tax there is a dedicated reverse mode in the [sales tax calculator](/en/finance/sales-tax-calculator), which does that arithmetic properly.
+
+## How is it rounded?
+
+It is not forced to a fixed number of decimals — you see the computed value. Round it yourself to whatever precision your context calls for; rounding early is a common source of drift when percentages are chained.
+
+## Is anything sent to a server?
+
+No. The arithmetic runs in your browser.

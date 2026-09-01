@@ -1,0 +1,39 @@
+---
+title: Statistics calculator — Frequently asked questions
+---
+
+## What does it compute?
+
+Count, sum, mean, median, mode, minimum, maximum, range, variance, standard deviation, and the first and third quartiles — the standard descriptive set for a single list of numbers.
+
+## Should I choose sample or population?
+
+Population if your numbers are the entire group you care about; sample if they are a subset you are using to infer something about a larger group. In practice sample is the more common choice, because data is usually a sample of something.
+
+## What actually changes between the two?
+
+The denominator in the variance. Population divides by `n`; sample divides by `n − 1`. That correction — Bessel's correction — exists because a sample's spread systematically underestimates the population's, and dividing by the smaller number compensates. With large lists the difference is negligible; with small ones it is not.
+
+## Why does it show several modes?
+
+Because there can be several. The tool collects every value tied for the highest frequency rather than picking one arbitrarily. If every value appears once, they are all modes — which is the honest answer, and a sign the mode is not telling you anything useful about that data.
+
+## Why is the median different from the mean?
+
+Because they measure different things and disagree whenever the data is skewed. The mean is pulled by extreme values; the median is not. When they diverge sharply, that gap is itself the finding — it usually means outliers or a long tail, and it is why income is reported as a median rather than a mean.
+
+## How are the quartiles calculated?
+
+From the sorted values, with the median of the whole set as the reference point. Be aware that there are several accepted quartile conventions and statistical packages do not all agree, so a quartile from this tool may differ slightly from one produced by other software. The difference is method, not error.
+
+## What is the range good for?
+
+Very little on its own, beyond a quick sanity check that no value is wildly out of place. It depends on exactly two numbers, so a single typo changes it completely. Standard deviation is the more informative measure of spread.
+
+## Does the order of my numbers matter?
+
+No. The tool sorts internally, so paste them in whatever order you have.
+
+## Is my data uploaded?
+
+No. Everything is computed in your browser and nothing is stored.

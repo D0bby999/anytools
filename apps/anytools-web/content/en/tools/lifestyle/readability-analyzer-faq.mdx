@@ -1,0 +1,39 @@
+---
+title: Readability analyzer — Frequently asked questions
+---
+
+## Which scores does it report?
+
+Flesch Reading Ease, Flesch-Kincaid Grade Level, and the Gunning Fog index, alongside the raw counts they are built from: words, sentences and syllables.
+
+## How do I read the Flesch Reading Ease number?
+
+Higher is easier. It runs on a scale where roughly 60–70 is plain English suited to a general audience, higher numbers are simpler, and scores below about 30 indicate dense, specialist prose. Unlike the other two it is not a grade level, which is why it moves in the opposite direction.
+
+## What do the grade-level scores mean?
+
+Both Flesch-Kincaid and Gunning Fog approximate the years of schooling a reader would need. They disagree slightly by design: Flesch-Kincaid weights syllables per word, while Gunning Fog counts "complex" words — here, any word of three or more syllables.
+
+## How are syllables counted?
+
+By a heuristic: it counts vowel groups and then removes a silent trailing "e" only in the vowel-consonant-e pattern, so "make" counts as one while "simple" keeps its final syllable. This is an approximation, not a dictionary lookup, so unusual words and names will sometimes be counted wrong.
+
+## Why does my score change so much when I add a full stop?
+
+Because sentence count is a denominator in every one of these formulas. Splitting one long sentence into two immediately lowers the average sentence length and improves every score, without changing a single word. That sensitivity is the honest limitation of readability metrics.
+
+## Can I improve the score without improving the writing?
+
+Easily, and that is worth knowing. Chopping sentences arbitrarily and swapping long words for short ones will move the numbers while leaving prose worse — the formulas count syllables and lengths, not clarity, logic or whether the argument makes sense. Use them to catch prose that has drifted dense, not as a target to optimise.
+
+## Does it work on languages other than English?
+
+No. The syllable heuristic assumes English vowel patterns and all three formulas were fitted to English text. Scores for other languages will be produced but they will not mean anything.
+
+## What counts as a sentence?
+
+A run ending in a full stop, question mark or exclamation mark. Abbreviations, decimals and ellipses can therefore inflate the sentence count, which flatters the score slightly.
+
+## Is my text uploaded?
+
+No. The analysis runs entirely in your browser; nothing you paste is transmitted or stored.

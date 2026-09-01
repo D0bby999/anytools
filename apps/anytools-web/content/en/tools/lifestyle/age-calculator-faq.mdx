@@ -1,0 +1,35 @@
+---
+title: Age calculator — Frequently asked questions
+---
+
+## How is the age worked out?
+
+As calendar years, months and days — not as a total divided by 365.25. The tool subtracts the birth date from the reference date field by field and borrows when a field goes negative, which is how people actually count age.
+
+## Why not just divide the number of days by 365?
+
+Because that drifts. Months are different lengths and leap years add a day, so a decimal-year approximation disagrees with the calendar by increasing amounts over a lifetime. Counting by calendar fields gives the answer a passport agrees with.
+
+## How does it handle someone born on 29 February?
+
+By borrowing from the actual preceding month, whatever length that month had. In a non-leap year the day count borrows 28 days from February and, where that still leaves the day negative, borrows again from January's 31. The result is the conventional treatment: the anniversary falls at the start of March in years without a 29 February.
+
+## What if I enter a birth date in the future?
+
+Nothing is returned. A future birth date has no valid age, so the tool declines rather than showing a negative or an absurd number.
+
+## Can I calculate age at a past or future date?
+
+Yes — the reference date is an input, not fixed to today. That is what you want when working out how old someone was on a specific date, or how old they will be at an event.
+
+## Why does my age in months not match my age in years times twelve?
+
+Because the months figure is the remainder after whole years, not a separate total. Someone aged 30 years and 4 months has lived roughly 364 months, but the tool shows "30 years, 4 months, and some days" — the calendar breakdown rather than a cumulative count.
+
+## Does the time of day matter?
+
+No. The calculation works on dates, not timestamps, so it does not attempt to know the hour of birth. For most purposes that is what you want; for anything requiring precision to the hour, a date calculator is the wrong instrument.
+
+## Is my date of birth sent anywhere?
+
+No. Everything is calculated in your browser and nothing is stored or transmitted.

@@ -1,0 +1,35 @@
+---
+title: Final grade calculator — Frequently asked questions
+---
+
+## What question does this answer?
+
+"What do I need on the final to end up with the grade I want?" You give your current grade, the target, and how much the final is worth; it returns the score required.
+
+## What is the formula?
+
+Your final overall grade is `current × (1 − w) + finalScore × w`, where `w` is the final's weight as a fraction. Rearranged for the unknown: `needed = (target − current × (1 − w)) / w`. You can check any result by substituting it back.
+
+## Why does it sometimes tell me the target is unachievable?
+
+Because the required score came out above 100. If the final is worth 20% and you are 30 points below your target, no possible score on it closes the gap — the tool says so rather than printing an impossible number. It also flags results below 0, which mean you have already secured the target no matter what you score.
+
+## What does a negative required score mean?
+
+That you could score zero on the final and still hit your target. It is not an error; it is the arithmetic telling you the grade is already locked in.
+
+## Which letter-grade cutoffs does it use?
+
+The common US scale: 90 and above is an A, 80 a B, 70 a C, 60 a D, below that an F. Institutions vary — some use pluses and minuses, some set an A at 93 — so check your syllabus before trusting the letter rather than the number.
+
+## What if my course has several weighted components, not just a final?
+
+Fold them into the "current grade" figure first. Work out your weighted average across everything completed so far, enter that as current, and enter only the final's weight. The calculation assumes one remaining assessment.
+
+## Does rounding work in my favour?
+
+That depends on your instructor, and this tool does not assume. If a course rounds 89.5 up to an A, you need slightly less than the figure shown; if it truncates, you need slightly more. Aim above the number rather than exactly at it.
+
+## Is anything I enter stored?
+
+No. It is calculated in your browser and nothing is transmitted.

@@ -1,0 +1,39 @@
+---
+title: Time card calculator — Frequently asked questions
+---
+
+## What does it total?
+
+Hours worked per day from clock-in and clock-out times, summed across the week, then split into regular and overtime hours with pay for each.
+
+## How is overtime decided?
+
+Anything beyond 40 hours in the week is overtime, paid at 1.5 times the base rate. That is the common US weekly standard and it is what this tool applies.
+
+## Does it handle daily overtime rules?
+
+No. Some jurisdictions require overtime after a set number of hours in a single day regardless of the weekly total, and some have double-time thresholds. This calculator only applies the 40-hour weekly rule, so it will understate what you are owed where a daily rule applies.
+
+## What time format should I use?
+
+Twenty-four hour, as `HH:MM` — so 5pm is `17:00`. Entering a time that cannot be parsed contributes zero hours for that day rather than a wrong number.
+
+## How do I enter a shift that crosses midnight?
+
+Carefully — the day calculation works from clock-in to clock-out within a row, so a shift ending after midnight needs splitting across two rows, or the day will come out short or negative. This is the tool's sharpest edge; check any overnight shift by hand.
+
+## Are unpaid breaks deducted?
+
+Only if you exclude them yourself, by entering the worked segments rather than one span from arrival to departure. The tool has no break field, so a single row from `09:00` to `17:30` counts the whole 8.5 hours including any lunch.
+
+## Is this before or after tax?
+
+Before. It multiplies hours by rates and nothing else — no tax, no deductions, no benefits. Your take-home will be lower.
+
+## Can I use this to check my paycheck?
+
+As a sanity check, yes, and a mismatch is worth investigating. But it is not authoritative: your employer may apply daily overtime, different rounding of clock times, or contractual terms this does not know about. Take a real discrepancy to your payroll department or a labour adviser rather than to a calculator.
+
+## Is my timesheet data stored?
+
+No. It stays in your browser and nothing is transmitted.

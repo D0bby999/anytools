@@ -1,0 +1,39 @@
+---
+title: Triangle calculator — Frequently asked questions
+---
+
+## What does it work out from three sides?
+
+Area, perimeter, all three angles, whether the triangle is right-angled, and whether it is equilateral, isosceles or scalene.
+
+## How is the area calculated without a height?
+
+Heron's formula. With `s` as half the perimeter, the area is `√(s(s−a)(s−b)(s−c))`. It needs only the three side lengths, which is why you are not asked for a height.
+
+## How are the angles found?
+
+The law of cosines, rearranged for the angle: each angle is the arc-cosine of `(b² + c² − a²) / 2bc`, converted from radians to degrees. The third angle is then taken as 180 minus the other two, which also guards against small rounding drift.
+
+## Why did it refuse my three numbers?
+
+Because they cannot form a triangle. Any two sides must together exceed the third — the triangle inequality — so 1, 2 and 5 has no solution. Rather than return a nonsense area, the tool declines. A negative or zero length is rejected for the same reason.
+
+## How does it decide a triangle is right-angled?
+
+By checking Pythagoras against the longest side, with a small tolerance for floating-point error. That tolerance matters: a 3-4-5 triangle is exactly right-angled, but sides derived from measurements rarely produce exact arithmetic, so an exact comparison would almost never report true.
+
+## What is the difference between isosceles and equilateral here?
+
+Equilateral means all three sides equal; isosceles means at least two. A triangle with all three equal satisfies both, and the tool reports the more specific one — equilateral.
+
+## Can I solve from two sides and an angle instead?
+
+Not in this tool. It works from three sides only, the case where the triangle is fully determined without ambiguity. Other combinations sometimes admit two valid triangles, which needs a different interface to resolve.
+
+## Do the angles always add to 180?
+
+In the output, yes, because the third is computed as the remainder rather than independently. That is deliberate — it keeps the result internally consistent instead of showing 179.9999 from accumulated rounding.
+
+## Is anything sent to a server?
+
+No. The geometry runs in your browser.

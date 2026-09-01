@@ -1,0 +1,35 @@
+---
+title: Scientific calculator — Frequently asked questions
+---
+
+## Do the trigonometric functions use degrees or radians?
+
+**Radians.** `sin(pi/2)` gives 1; `sin(90)` does not. This is the single most common surprise with any programmable calculator, so if your angles are in degrees, convert first by multiplying by `pi/180`.
+
+## Which functions are available?
+
+`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`, `ln`, `sqrt`, `exp`, `abs` and `pow`, plus the constants `pi` and `e`.
+
+## What is the difference between `log` and `ln`?
+
+`ln` is the natural logarithm, base *e*. `log` here is base 10. Notation differs by field — mathematicians often write `log` for the natural log while engineers mean base 10 — so this calculator separates them explicitly rather than leaving it ambiguous.
+
+## Does it respect order of operations?
+
+Yes. It parses the expression rather than applying operations left to right as they are typed, so `2 + 3 * 4` is 14, not 20. Use parentheses when you want to override the default precedence.
+
+## Can I type a whole expression instead of pressing keys one at a time?
+
+That is the intended way to use it. Writing `sqrt(16) + pow(2, 10)` in one go is faster than stepping through it, and easier to check afterwards because the whole expression stays visible.
+
+## Why did my expression return an error?
+
+Usually an unbalanced parenthesis, an unknown function name, or an operation with no real answer — the square root of a negative number, or `asin` of a value outside −1 to 1. The parser rejects what it cannot evaluate rather than returning a misleading number.
+
+## How precise is it?
+
+It uses standard double-precision floating point, the same as every other calculator running in a browser. That means the familiar artefacts apply: expressions that should yield exactly 0.3 can produce 0.30000000000000004. It is not a bug in the calculator; it is how binary floating point represents decimal fractions.
+
+## Is my input sent anywhere?
+
+No. Parsing and evaluation happen entirely in your browser.
