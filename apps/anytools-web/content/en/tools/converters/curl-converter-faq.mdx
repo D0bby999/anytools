@@ -33,3 +33,7 @@ Yes. The `-F name=value` flag generates `FormData` in JavaScript (`fetch`/`node-
 ## Why does the generated fetch code not include error handling?
 
 The converter produces the minimal faithful translation of your curl command — it mirrors what curl does by default, which is to succeed or fail without retry logic. Add `if (!response.ok) throw new Error(response.statusText)` (or equivalent) appropriate to your error-handling strategy. Baking in an opinionated pattern for every language and codebase is out of scope for a converter.
+
+## Is there a length limit on the command?
+
+Yes — 8,000 characters. Beyond that the request is rejected with HTTP 413 rather than parsed. Commands that long are almost always a `--data` payload that would be better read from a file, which the converter cannot resolve anyway.
