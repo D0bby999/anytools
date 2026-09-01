@@ -705,7 +705,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'GitHub',
         body: [
-          'Code and issue tracker live on GitHub. File issues for bugs, propose enhancements via pull requests, or browse the source. Repository: github.com/anytools.',
+          'Code and issue tracker live on GitHub. File issues for bugs, propose enhancements via pull requests, or browse the source. Repository: github.com/D0bby999/anytools.',
         ],
       },
       {
@@ -735,7 +735,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'GitHub',
         body: [
-          'Code và issue tracker nằm trên GitHub. Tạo issue cho bug, đề xuất cải tiến qua pull request, hoặc duyệt source code. Repository: github.com/anytools.',
+          'Code và issue tracker nằm trên GitHub. Tạo issue cho bug, đề xuất cải tiến qua pull request, hoặc duyệt source code. Repository: github.com/D0bby999/anytools.',
         ],
       },
       {
@@ -765,7 +765,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'GitHub',
         body: [
-          'El código y el rastreador de issues están en GitHub. Reporta bugs, propón mejoras vía pull request o explora el código. Repositorio: github.com/anytools.',
+          'El código y el rastreador de issues están en GitHub. Reporta bugs, propón mejoras vía pull request o explora el código. Repositorio: github.com/D0bby999/anytools.',
         ],
       },
       {
@@ -795,7 +795,7 @@ const CONTACT: Record<Locale, LegalPage> = {
       {
         heading: 'GitHub',
         body: [
-          'O código e o rastreador de issues estão no GitHub. Reporte bugs, proponha melhorias via pull request ou explore o código. Repositório: github.com/anytools.',
+          'O código e o rastreador de issues estão no GitHub. Reporte bugs, proponha melhorias via pull request ou explore o código. Repositório: github.com/D0bby999/anytools.',
         ],
       },
       {

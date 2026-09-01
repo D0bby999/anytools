@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/routing';
+import { GITHUB_REPO_URL } from '@/lib/site-url';
 import { useTranslations } from 'next-intl';
 import { NewsletterSignup } from './newsletter-signup';
 
@@ -33,7 +34,7 @@ export function Footer() {
               {t('terms')}
             </Link>
             <a
-              href="https://github.com/anytools"
+              href={GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground"

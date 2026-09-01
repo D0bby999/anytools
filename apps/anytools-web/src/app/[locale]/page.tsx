@@ -3,7 +3,7 @@ import { NewsletterSignup } from '@/components/newsletter-signup';
 import { RecentlyUsedTools } from '@/components/recently-used-tools';
 import { ToolCatalog } from '@/components/tool-catalog';
 import { Link, routing } from '@/i18n/routing';
-import { METADATA_BASE } from '@/lib/site-url';
+import { GITHUB_REPO_URL, METADATA_BASE } from '@/lib/site-url';
 import { toolMetas, toolMetasClient } from '@anytools/tools/meta';
 import { Badge, Button, Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
@@ -85,11 +85,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <a href="#catalog">{t('landing.ctaPrimary')}</a>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <a
-                    href="https://github.com/D0bby999/anytools"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer">
                     {t('landing.ctaSecondary')}
                   </a>
                 </Button>

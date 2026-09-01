@@ -2,6 +2,7 @@
 import { LocaleSwitcher } from '@/components/locale-switcher';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Link } from '@/i18n/routing';
+import { GITHUB_REPO_URL } from '@/lib/site-url';
 import { Command, Github } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -86,7 +87,7 @@ export function SiteHeader() {
             <ThemeToggle />
 
             <a
-              href="https://github.com/D0bby999/anytools"
+              href={GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent/10 text-muted-foreground hover:text-foreground transition-colors duration-150"
