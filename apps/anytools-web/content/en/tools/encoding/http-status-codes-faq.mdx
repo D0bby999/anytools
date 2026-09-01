@@ -1,0 +1,39 @@
+---
+title: HTTP status codes — Frequently asked questions
+---
+
+## What is this page?
+
+A searchable reference of HTTP status codes and common MIME types. Search by number, by name, or filter by class — 1xx informational, 2xx success, 3xx redirection, 4xx client error, 5xx server error.
+
+## How do I read the first digit?
+
+It tells you who to talk to. A 4xx says the request was wrong — fix the caller. A 5xx says the server failed while handling a valid request — fix the server. Getting that boundary right is most of the value in the scheme, and it is why returning 200 with an error body makes systems hard to operate: every monitor and cache downstream now believes the call succeeded.
+
+## What is the difference between 301 and 302?
+
+301 is permanent and 302 is temporary. Browsers and search engines cache a 301 aggressively — often indefinitely — so a 301 issued by mistake is genuinely hard to undo, because clients stop asking the old URL. Use 302 (or 307) while you are unsure.
+
+## What about 307 and 308?
+
+They are the strict versions of 302 and 301. The older codes permitted clients to change a POST into a GET when following the redirect; 307 and 308 forbid that, preserving the method and body. If you are redirecting anything other than a GET, prefer them.
+
+## When should I use 401 versus 403?
+
+401 means "not authenticated" — you have not proved who you are, and a `WWW-Authenticate` header should accompany it. 403 means "authenticated, but not allowed". A common leak is returning 403 where 404 would be better: telling an unauthorised user that a resource exists is itself information.
+
+## What is 304 Not Modified for?
+
+Conditional requests. The client sends a validator such as `If-None-Match`, and if nothing changed the server replies 304 with no body — saving the transfer while confirming the cached copy is still good.
+
+## Is 418 real?
+
+It is a genuine registered code from an April Fools' RFC — "I'm a teapot" — and it periodically gets proposed for removal. Do not use it in production; it appears in the list for completeness.
+
+## Why do I need MIME types alongside status codes?
+
+Because both are part of getting a response right. A correct status with `text/plain` on JSON leaves clients guessing, and browsers may sniff the content and behave in ways you did not intend.
+
+## Is anything sent to a server?
+
+No. The list is bundled with the page and searched locally.

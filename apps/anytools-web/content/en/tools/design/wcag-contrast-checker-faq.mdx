@@ -1,0 +1,39 @@
+---
+title: WCAG contrast checker — Frequently asked questions
+---
+
+## What thresholds does it check?
+
+Four, straight from WCAG: **AA normal text** needs a ratio of 4.5 or above, **AA large text** needs 3, **AAA normal** needs 7, and **AAA large** needs 4.5. Each is reported separately, so you can see exactly which level a pair passes.
+
+## What counts as "large text"?
+
+At least 18pt, or 14pt when bold — roughly 24px and 18.66px in CSS. That is the whole reason large text gets a lower bar: bigger glyphs have thicker strokes and stay legible at lower contrast. Applying the large-text threshold to body copy is the most common way a design passes on paper and fails in use.
+
+## How is the ratio calculated?
+
+From relative luminance, not from how different the colours look. Each channel is linearised — divided by 12.92 below the sRGB threshold, otherwise raised through the gamma curve — then weighted 0.2126 red, 0.7152 green, 0.0722 blue. The ratio is `(lighter + 0.05) / (darker + 0.05)`.
+
+## Why does green weigh so much more than blue?
+
+Because human vision is far more sensitive to green light. That weighting is why swapping blue for green at the same hex "brightness" changes the ratio dramatically, and why pale yellow on white fails while the same lightness in blue may pass.
+
+## Does a passing ratio mean the design is accessible?
+
+No. Contrast is one criterion among many. Focus indicators, target sizes, motion, keyboard access and text alternatives all sit outside this number. A page can hit AAA on every colour pair and still be unusable with a keyboard.
+
+## Does it check text on images or gradients?
+
+No — it compares two solid colours. Text over a photograph or a gradient has a different effective ratio at every pixel, which is why such designs usually need a scrim or a solid backing behind the text.
+
+## What about disabled controls and logos?
+
+WCAG exempts them from the contrast minimum. That is a floor, not a goal: a disabled control nobody can read is still a usability problem, even where it is technically conformant.
+
+## Which WCAG version does this follow?
+
+The 2.x contrast definitions, which are unchanged between 2.0, 2.1 and 2.2. The formulas are specification facts rather than an interpretation.
+
+## Is anything sent to a server?
+
+No. The maths runs in your browser.
