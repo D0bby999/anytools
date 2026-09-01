@@ -1,0 +1,91 @@
+# Build the AnyTools image and tell Coolify to pull it.
+#
+# Single-app version of the workflow this project used while it lived in the
+# dobby-platform monorepo. Registry, image name and Coolify application UUID are
+# deliberately unchanged, so the running deployment does not need recreating — only
+# its Git source repository has to be repointed at this repo.
+name: Build image (CI) + deploy
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: After build, tell Coolify to pull + redeploy (turn OFF for build-only)
+        type: boolean
+        default: true
+
+concurrency:
+  group: ci-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: d0bby999
+  APP: anytools-web
+  COOLIFY: http://157.180.70.19:8000
+  COOLIFY_APP_UUID: v5kik8xxwkh7wqlu56wq5eb2
+
+jobs:
+  # The monorepo skipped tests on the deploy path; a single-app repo can afford to
+  # gate the image on them, and `go test`-style build time is not the bottleneck here.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm -r test
+
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/anytools-web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/anytools-web:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/anytools-web:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_URL=https://anytools.world
+            NEXT_PUBLIC_UMAMI_SRC=https://stats.besttoys.world/script.js
+            NEXT_PUBLIC_UMAMI_WEBSITE_ID=d16d47ff-7cf1-4087-a01b-188ae6cd9b52
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Coolify PULLS the freshly pushed image and restarts; the server never builds.
+  # Requires the Coolify app to stay on build_pack=dockerimage pointing at
+  # ghcr.io/d0bby999/anytools-web:latest — which it already does.
+  deploy:
+    needs: build
+    if: always() && needs.build.result == 'success' && (github.event_name == 'push' || inputs.deploy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Redeploy on Coolify
+        env:
+          TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          COOLIFY: ${{ env.COOLIFY }}
+        run: bash .github/scripts/coolify-deploy-wait.sh ${{ env.COOLIFY_APP_UUID }} anytools

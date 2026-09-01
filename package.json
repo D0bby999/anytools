@@ -1,5 +1,5 @@
 {
-  "name": "dobby-platform",
+  "name": "anytools",
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@10.20.0",
@@ -14,33 +14,17 @@
     "format": "biome format --write .",
     "check": "biome check --write .",
     "test": "pnpm -r test",
-    "clean": "pnpm -r exec rm -rf .next dist build node_modules && rm -rf node_modules",
-    "blog:new": "node scripts/blog-new.mjs",
-    "blog:validate": "node scripts/blog-validate.mjs",
-    "blog:publish-check": "node scripts/blog-publish-check.mjs",
-    "blog:publish-db": "node scripts/blog-publish-db.mjs",
-    "blog:analytics": "node --env-file=.env.local scripts/blog-analytics.mjs",
-    "blog:affiliate-audit": "node scripts/blog-affiliate-audit.mjs",
-    "blog:portfolio-status": "node scripts/blog-portfolio-status.mjs",
-    "blog:queue-sync": "node scripts/blog-queue-sync.mjs",
-    "sync:prod": "bash scripts/sync-blogs-prod.sh",
-    "blog:critique": "node scripts/editorial-critique.mjs",
-    "blog:scoreboard": "node --env-file=.env.local scripts/blog-scoreboard.mjs",
-    "blog:keyword": "node scripts/keyword-research.mjs",
-    "blog:subtag": "node scripts/affiliate-subtag.mjs",
-    "blog:earnings": "node scripts/blog-earnings.mjs",
-    "finance": "node scripts/finance.mjs",
-    "audit:anytools": "node scripts/anytools-page-audit.mjs"
+    "clean": "pnpm -r exec rm -rf .next dist build node_modules && rm -rf node_modules"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1057.0",
     "@biomejs/biome": "1.9.4",
-    "gray-matter": "4.0.3",
-    "playwright": "^1.60.0",
-    "prompts": "^2.4.2",
     "typescript": "5.7.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["better-sqlite3", "better-auth"]
-  }
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "better-auth"
+    ]
+  },
+  "description": "AnyTools \u2014 free browser-based calculators, converters and developer tools. https://anytools.world"
 }

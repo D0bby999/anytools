@@ -69,9 +69,11 @@ describe('cross-check against independently computed values', () => {
     near(calcSalesTax(110, 10, 'remove').pretax, 100));
 
   it('stacked 20% then 10% off 100 = 72, not 70', () => {
-    const r = calcStackedDiscounts(100, 20, 10) as unknown as Record<string, number> | number;
-    const final = typeof r === 'number' ? r : (r.final ?? r.afterDiscount);
-    near(final, 72);
+    const r = calcStackedDiscounts(100, 20, 10);
+    near(r.final, 72);
+    // The intermediate step is the reason the two discounts do not add to 30%.
+    near(r.afterDiscount, 80);
+    near(r.discount, 28);
   });
 
   it('pace 10km in 50min = 5:00/km', () => near(calculatePace(10, 3000).paceSecPerKm, 300));
