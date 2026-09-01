@@ -1,0 +1,39 @@
+---
+title: Loan calculator — Frequently asked questions
+---
+
+## What does this calculate?
+
+The fixed monthly payment on a fully amortising loan, plus what you pay in total and how much of that is interest. It uses `M = P × r(1+r)^n / ((1+r)^n − 1)`, where `r` is the annual rate divided by 12 and `n` is the number of months.
+
+## What does "fully amortising" mean?
+
+That every payment is identical and the final one clears the debt exactly — nothing is left over. Loans that are not fully amortising work differently: an interest-only loan leaves the whole principal due at the end, and a balloon loan leaves a large lump sum. This calculator models the first kind only.
+
+## Is APR the same as the interest rate?
+
+No, and the difference matters when comparing offers. The interest rate is what accrues on the balance; APR folds in mandatory fees to express the total cost as a yearly percentage, so it is usually higher. Enter the interest rate here to get the payment, but compare loans on APR — that is what it exists for.
+
+## Why does a longer term cost so much more?
+
+Because you are borrowing the money for longer and interest accrues the whole time. Stretching the term lowers each payment while raising the total. Run the same principal over two terms in this tool and the trade-off is visible immediately: a smaller monthly figure bought with a much larger total.
+
+## Does entering 0% interest work?
+
+Yes. The calculation switches to simple division — principal divided by the number of months — because the standard formula divides by zero at that rate. Genuine 0% promotional finance is modelled correctly.
+
+## Does it account for fees, insurance or early repayment?
+
+No. Arrangement fees, payment protection and early-repayment penalties are outside the formula, as are overpayments. A loan that looks cheaper here can be more expensive once fees are added, which is another reason to compare APR.
+
+## Why is my lender's payment slightly different?
+
+Rounding conventions and day-count. Some lenders round each payment to the cent, some compute interest on actual days elapsed rather than a clean twelfth of a year, and some add a fee to the payment. Small differences are normal; large ones mean something is in the contract that is not in this calculation.
+
+## Is my data sent anywhere?
+
+No. Everything runs in your browser.
+
+## Should I take a loan based on these numbers?
+
+This shows what a loan would cost, not whether taking it is wise. Affordability, existing debts and the consequences of missing a payment are matters for a qualified adviser.

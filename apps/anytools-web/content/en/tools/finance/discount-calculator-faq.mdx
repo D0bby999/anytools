@@ -1,0 +1,35 @@
+---
+title: Discount calculator — Frequently asked questions
+---
+
+## What does it work out?
+
+The money off, the price after the discount, any tax on that reduced price, and the final amount — plus what you saved against the original. Tax is optional; leave it at zero and the tool just handles the discount.
+
+## Is tax applied before or after the discount?
+
+After. The sequence is `discount = original × pct`, then `afterDiscount = original − discount`, then `tax = afterDiscount × taxPct`. That ordering matters, because tax is normally charged on what you actually pay, not on the pre-sale ticket price — so a discount reduces the tax as well.
+
+## Why isn't 20% off then 10% off the same as 30% off?
+
+Because the second discount applies to the already-reduced price, not to the original. Twenty percent then ten percent leaves you paying `0.8 × 0.9 = 0.72` of the original — a 28% saving, not 30%. The stacked-discount mode does this correctly. It is the single most common mistake in sale maths and it always favours the shop.
+
+## Does the order of two stacked discounts change the result?
+
+No. Multiplication commutes, so 20% then 10% and 10% then 20% both leave 72%. Where order does matter is when one of them is a fixed amount off rather than a percentage — that is a different calculation and this tool does not model it.
+
+## How do I check an advertised "final price"?
+
+Enter the original price and the claimed discount, then compare the tool's final figure with the shelf price. A mismatch usually means the discount is being applied to a "was" price that was never really charged, or that tax is being handled differently than you assumed.
+
+## Can I work backwards from the sale price to the discount?
+
+Not directly — this tool goes forward from an original price. To find the percentage, divide the saving by the original price and multiply by 100. If what you actually want is to strip tax out of a total, the [sales tax calculator](/en/finance/sales-tax-calculator) has a reverse mode for exactly that.
+
+## Does it round the way a till does?
+
+It does not force any particular rounding rule. Real registers round at defined points and may compute tax per line rather than on the total, so a final cent of difference against a receipt is normal.
+
+## Is anything sent to a server?
+
+No. The arithmetic runs in your browser.

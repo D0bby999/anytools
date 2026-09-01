@@ -1,0 +1,35 @@
+---
+title: Compound interest calculator — Frequently asked questions
+---
+
+## What exactly is being projected?
+
+The future value of a starting amount plus a regular monthly contribution, at a fixed annual rate. The tool reports the final balance, the total you actually put in, and the difference between them — the part the interest did.
+
+## How often does it compound, and when are contributions added?
+
+Monthly, and contributions land at the end of each month — an ordinary annuity. That matters: a deposit made at the end of a month earns nothing for that month. If your real plan pays in at the start of each month, the true result is slightly higher than shown.
+
+## What is the formula?
+
+Two parts added together. The starting amount grows as `P × (1 + r)^n`. The contributions grow as `PMT × ((1 + r)^n − 1) / r`. In both, `r` is the annual rate divided by 12 and `n` is the number of months. At a rate of zero the second part collapses to `PMT × n`, which the tool handles rather than dividing by zero.
+
+## Why does the balance curve upwards instead of climbing steadily?
+
+Because each period's interest is calculated on a balance that already includes previous interest. Early on, growth is dominated by what you contribute; later, the returns on accumulated returns take over. Set a long horizon in the calculator and watch when the interest line overtakes the contributions line — that crossover is the whole argument for starting early.
+
+## Does it account for inflation, tax or fees?
+
+No. The output is a nominal figure. Inflation reduces what that balance can buy, investment tax reduces what you keep, and platform or fund fees are deducted from returns before you see them. A percentage point of annual fees compounds against you exactly the way returns compound for you.
+
+## What rate should I use?
+
+Whatever you enter, the tool treats as certain and constant, which no real investment is. A fixed savings rate is knowable; a market return is not, and real sequences include falling years that a smooth average hides. Modelling a pessimistic rate alongside an optimistic one is more informative than a single confident number.
+
+## Is my data sent anywhere?
+
+No. The projection runs entirely in your browser.
+
+## Can I plan my finances with this?
+
+Use it to understand how compounding behaves, not as a forecast. Actual outcomes depend on markets, taxes, fees and your own behaviour during downturns. Speak to a licensed financial adviser before committing to a plan.
