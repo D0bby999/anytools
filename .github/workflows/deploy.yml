@@ -1,9 +1,22 @@
-# Build the AnyTools image and tell Coolify to pull it.
+# Build the AnyTools image on a GitHub runner and have Coolify adopt it.
 #
 # Single-app version of the workflow this project used while it lived in the
 # dobby-platform monorepo. Registry, image name and Coolify application UUID are
-# deliberately unchanged, so the running deployment does not need recreating — only
-# its Git source repository has to be repointed at this repo.
+# deliberately unchanged, so the running deployment does not need recreating.
+#
+# How the deploy actually works (read from the Coolify DB, 2026-09-01 — an earlier
+# version of this comment guessed `build_pack=dockerimage` and was wrong):
+#
+#   applications.build_pack         = dockerfile
+#   applications.dockerfile_location= /apps/anytools-web/Dockerfile.deploy
+#   applications.git_repository     = <must be repointed to D0bby999/anytools>
+#
+# So Coolify CLONES this repo and "builds" Dockerfile.deploy, which is a single
+# `FROM ghcr.io/d0bby999/anytools-web:latest` — no compile, so the 4GB server can
+# never OOM. The catch is that `:latest` is a MUTABLE tag: without a fresh pull on
+# the host first, that FROM resolves from the host's local Docker cache and the
+# deploy silently ships the PREVIOUS image while reporting success. Hence the
+# explicit `docker pull` over SSH before every Coolify call.
 name: Build image (CI) + deploy
 
 on:
@@ -75,17 +88,28 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # Coolify PULLS the freshly pushed image and restarts; the server never builds.
-  # Requires the Coolify app to stay on build_pack=dockerimage pointing at
-  # ghcr.io/d0bby999/anytools-web:latest — which it already does.
+  # Pre-pull the fresh :latest onto the host, THEN tell Coolify to deploy. The order
+  # matters: Dockerfile.deploy's `FROM …:latest` is resolved against the host's local
+  # image cache, so skipping the pull produces a green deploy that serves stale code.
   deploy:
     needs: build
     if: always() && needs.build.result == 'success' && (github.event_name == 'push' || inputs.deploy)
     runs-on: ubuntu-latest
+    env:
+      HETZNER_HOST: 157.180.70.19
     steps:
       - uses: actions/checkout@v4
-      - name: Redeploy on Coolify
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$HETZNER_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+      - name: Pull the new image onto the host, then redeploy
         env:
           TOKEN: ${{ secrets.COOLIFY_TOKEN }}
           COOLIFY: ${{ env.COOLIFY }}
-        run: bash .github/scripts/coolify-deploy-wait.sh ${{ env.COOLIFY_APP_UUID }} anytools
+        run: |
+          ssh -i ~/.ssh/id_ed25519 root@"$HETZNER_HOST" \
+            'docker pull ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.APP }}:latest'
+          bash .github/scripts/coolify-deploy-wait.sh ${{ env.COOLIFY_APP_UUID }} anytools
