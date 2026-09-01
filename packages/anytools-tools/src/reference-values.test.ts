@@ -21,6 +21,7 @@ import { generatePassword } from './password-generator/logic';
 import { calculatePregnancy } from './pregnancy-due-date/logic';
 import { calcSalesTax } from './sales-tax-calculator/logic';
 import { solveSSS } from './triangle-calculator/logic';
+import { decodeUrlComponent } from './url-encode/logic';
 import { contrastRatio, parseHex } from './wcag-contrast-checker/logic';
 
 const near = (a: number, b: number, eps = 0.01) => expect(Math.abs(a - b)).toBeLessThan(eps);
@@ -170,4 +171,13 @@ describe('numeric claims made in the FAQ copy', () => {
     expect(c?.hostCount).toBe(1);
     expect(a?.broadcastAddress).toBe('192.168.1.255');
   });
+});
+
+describe('url decoding — "+" is a literal, not a space', () => {
+  // The FAQ used to claim the decoder accepted "+" as a space. It does not, and
+  // should not: "+" only means space inside a form-encoded query string, so a
+  // general decoder that converted it would corrupt any path containing one.
+  it('leaves "+" alone', () => expect(decodeUrlComponent('hello+world')).toBe('hello+world'));
+  it('decodes %20 as a space', () =>
+    expect(decodeUrlComponent('hello%20world')).toBe('hello world'));
 });

@@ -35,3 +35,37 @@ describe('validateXml', () => {
   it('valid', () => expect(validateXml('<a/>').ok).toBe(true));
   it('mismatched tag', () => expect(validateXml('<a></b>').ok).toBe(false));
 });
+
+describe('comments and CDATA survive a reformat', () => {
+  // Both were being silently dropped: fast-xml-parser discards them unless
+  // commentPropName and cdataPropName are set. An XML formatter that deletes the
+  // comments out of a config file, or unwraps CDATA and escapes its contents, is
+  // changing what the document means — and the FAQ claimed both were preserved.
+  const withComments = '<config><!-- db --><db host="localhost"><port>5432</port></db></config>';
+
+  it('keeps comments when formatting', () => {
+    const out = formatXml(withComments, 2);
+    expect(out.ok).toBe(true);
+    if (out.ok) expect(out.value).toContain('<!-- db -->');
+  });
+
+  it('keeps comments when minifying', () => {
+    const out = minifyXml(withComments);
+    expect(out.ok).toBe(true);
+    if (out.ok) expect(out.value).toContain('<!-- db -->');
+  });
+
+  it('keeps CDATA wrapped rather than unwrapping and escaping it', () => {
+    const out = formatXml('<a><![CDATA[<b>raw</b>]]></a>', 2);
+    expect(out.ok).toBe(true);
+    if (out.ok) {
+      expect(out.value).toContain('<![CDATA[<b>raw</b>]]>');
+      expect(out.value).not.toContain('&lt;b&gt;');
+    }
+  });
+
+  it('output is still valid XML afterwards', () => {
+    const out = formatXml(withComments, 2);
+    if (out.ok) expect(validateXml(out.value).ok).toBe(true);
+  });
+});

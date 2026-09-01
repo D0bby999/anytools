@@ -8,7 +8,9 @@ title: URL encoding — FAQ
 
 ## Why does my decoded value have `+` where spaces should be?
 
-Decoded by a form-encoder rather than a URL-encoder. HTML forms historically encode spaces as `+` (the `application/x-www-form-urlencoded` MIME type). Our decoder accepts both `%20` and `+` for compatibility.
+Because it was encoded by a form-encoder rather than a URL-encoder, and this tool deliberately leaves it alone. HTML forms encode spaces as `+` under the `application/x-www-form-urlencoded` MIME type, but that convention applies **only** inside a form-encoded query string — everywhere else in a URL, `+` is an ordinary literal character. A general decoder that silently turned every `+` into a space would corrupt any path or value that legitimately contains one.
+
+So decoding `hello+world` here returns `hello+world`, while `hello%20world` returns `hello world`. If your input really is a form-encoded query string, replace `+` with `%20` before decoding, or with a space afterwards.
 
 ## How do I encode special characters in keys vs values?
 

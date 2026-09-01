@@ -2,17 +2,29 @@ import { XMLBuilder, XMLParser, XMLValidator } from 'fast-xml-parser';
 
 export type ParseResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
+// fast-xml-parser drops comments unless commentPropName is set. An XML formatter
+// that silently deletes the comments out of a config file is destroying the part
+// a human wrote, so both the parser and every builder name them explicitly.
+const COMMENT_PROP = '#comment';
+// Same story for CDATA: without cdataPropName the wrapper is unwrapped and its
+// contents get escaped, which changes what the document means.
+const CDATA_PROP = '#cdata';
+
 const PARSER = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
   preserveOrder: true,
   trimValues: false,
+  commentPropName: COMMENT_PROP,
+  cdataPropName: CDATA_PROP,
 });
 
 const BUILDER_INDENT2 = new XMLBuilder({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
   preserveOrder: true,
+  commentPropName: COMMENT_PROP,
+  cdataPropName: CDATA_PROP,
   format: true,
   indentBy: '  ',
 });
@@ -21,6 +33,8 @@ const BUILDER_INDENT4 = new XMLBuilder({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
   preserveOrder: true,
+  commentPropName: COMMENT_PROP,
+  cdataPropName: CDATA_PROP,
   format: true,
   indentBy: '    ',
 });
@@ -29,6 +43,8 @@ const BUILDER_MINIFY = new XMLBuilder({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
   preserveOrder: true,
+  commentPropName: COMMENT_PROP,
+  cdataPropName: CDATA_PROP,
   format: false,
 });
 
