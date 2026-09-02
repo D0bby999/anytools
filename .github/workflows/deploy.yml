@@ -77,7 +77,11 @@ jobs:
         with:
           context: .
           file: apps/anytools-web/Dockerfile
-          push: true
+          # Pull requests BUILD but never PUSH. `:latest` is a mutable tag that
+          # Dockerfile.deploy resolves against the host cache, so publishing it from an
+          # unmerged branch would leave production one `docker pull` away from shipping
+          # PR code — the same defect that had the old monorepo overwriting this image.
+          push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.OWNER }}/anytools-web:latest
             ${{ env.REGISTRY }}/${{ env.OWNER }}/anytools-web:${{ github.sha }}
