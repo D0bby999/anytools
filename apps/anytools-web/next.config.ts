@@ -49,6 +49,38 @@ const nextConfig: NextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
           },
+          // Report-only to start. The PDF tools parse attacker-supplied files with pdf.js,
+          // which has a documented class of arbitrary-JS-execution bugs through the font
+          // path (CVE-2024-4367 and successors), and better-auth keeps a 30-day session
+          // cookie on this same origin. Until now there was no CSP at all.
+          //
+          // Report-only rather than enforcing because AdSense loads a chain of scripts
+          // whose hosts are not fully enumerable in advance, and an over-tight policy would
+          // silently kill the site's only revenue. Collect violations first, then enforce.
+          // The value below is deliberately permissive about Google's ad hosts and strict
+          // about everything else.
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              // 'unsafe-inline'/'unsafe-eval' are required by Next's inline bootstrap and by
+              // the ad stack. They are what a later enforcing policy should try to remove,
+              // via nonces, once the report data shows what actually loads.
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://stats.besttoys.world",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: blob: https:",
+              // blob: is what the PDF and image tools use for their output; worker-src is
+              // what pdf.js needs for pdf.worker.
+              "worker-src 'self' blob:",
+              "connect-src 'self' https://pagead2.googlesyndication.com https://*.google-analytics.com https://stats.besttoys.world",
+              'frame-src https://googleads.g.doubleclick.net https://*.safeframe.googlesyndication.com',
+              "font-src 'self' data:",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'none'",
+            ].join('; '),
+          },
         ],
       },
     ];

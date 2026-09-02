@@ -24,6 +24,10 @@ const LOADERS: Record<string, ComponentType> = {
   'csv-json': dynamic(() => import('@anytools/tools/csv-json').then(pick)),
   'md-html': dynamic(() => import('@anytools/tools/md-html').then(pick)),
   'merge-pdf': dynamic(() => import('@anytools/tools/merge-pdf').then(pick)),
+  'pdf-to-png': dynamic(() => import('@anytools/tools/pdf-to-png').then(pick)),
+  'extract-images-from-pdf': dynamic(() =>
+    import('@anytools/tools/extract-images-from-pdf').then(pick),
+  ),
   'integer-base-converter': dynamic(() =>
     import('@anytools/tools/integer-base-converter').then(pick),
   ),

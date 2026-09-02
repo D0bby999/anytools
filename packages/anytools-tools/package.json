@@ -94,7 +94,9 @@
     "./url-parser": "./src/url-parser/index.ts",
     "./user-agent-parser": "./src/user-agent-parser/index.ts",
     "./roman-numeral-converter": "./src/roman-numeral-converter/index.ts",
-    "./meta-tag-generator": "./src/meta-tag-generator/index.ts"
+    "./meta-tag-generator": "./src/meta-tag-generator/index.ts",
+    "./pdf-to-png": "./src/pdf-to-png/index.ts",
+    "./extract-images-from-pdf": "./src/extract-images-from-pdf/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -127,6 +129,7 @@
     "otpauth": "^9.5.1",
     "papaparse": "5.4.1",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "5.4.149",
     "qrcode": "^1.5.4",
     "slugify": "1.6.6",
     "sql-formatter": "15.4.8",

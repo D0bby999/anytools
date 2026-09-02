@@ -28,6 +28,7 @@ import { meta as dateDiff } from './date-diff/meta';
 import { meta as diffChecker } from './diff-checker/meta';
 import { meta as discountCalculator } from './discount-calculator/meta';
 import { meta as ethWeiConverter } from './eth-wei-converter/meta';
+import { meta as extractImagesFromPdf } from './extract-images-from-pdf/meta';
 import { meta as gpaCalculator } from './gpa-calculator/meta';
 import { meta as gradeCalculator } from './grade-calculator/meta';
 import { meta as hashGenerator } from './hash-generator/meta';
@@ -52,6 +53,7 @@ import { meta as mockDataGenerator } from './mock-data-generator/meta';
 import { meta as mortgageCalculator } from './mortgage-calculator/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
 import { meta as passwordGenerator } from './password-generator/meta';
+import { meta as pdfToPng } from './pdf-to-png/meta';
 import { meta as percentageCalculator } from './percentage-calculator/meta';
 import { meta as pomodoroTimer } from './pomodoro-timer/meta';
 import { meta as pregnancyDueDate } from './pregnancy-due-date/meta';
@@ -96,6 +98,8 @@ import { meta as yamlFormatter } from './yaml-formatter/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
+  pdfToPng,
+  extractImagesFromPdf,
   integerBaseConverter,
   urlParser,
   userAgentParser,

@@ -1,0 +1,39 @@
+---
+title: PDF to PNG — Frequently asked questions
+---
+
+## Which DPI should I pick?
+
+72 for anything that will only be looked at on a screen — it matches PDF's own coordinate system, so a page comes out at its nominal pixel size and the files stay small. 150 for a document someone will print casually or zoom into. 300 when the output is going into print production, or when text needs to stay crisp under magnification.
+
+The cost is quadratic: 300 DPI is roughly four times the pixel count of 150, so an A4 page goes from about 2 megapixels to about 8.7, and the PNG grows accordingly. Pick the lowest that does the job.
+
+## Why does it refuse at 300 DPI for my large page?
+
+Because the result would exceed what a browser canvas can hold. An A0 poster at 300 DPI is about 139 megapixels; the ceiling is around 16.7. Past that, browsers return a blank white canvas rather than raising an error, so the tool works out the dimensions before drawing anything and tells you instead of handing back an empty image.
+
+A lower DPI usually solves it. A0 at 72 DPI is comfortably inside the limit.
+
+## Is this the same as extracting images from the PDF?
+
+No, and the difference matters. This renders each *page* — text, vector graphics, images, all composited together — into one picture at the DPI you chose. Extract Images from PDF pulls out the *embedded* image files at whatever resolution they were stored at.
+
+For a scanned document, extraction gives you the original scan at its native resolution, while rendering resamples it to your chosen DPI. For a text document, extraction gives you nothing at all — correctly, because there are no embedded images — while rendering gives you a picture of the text.
+
+## Is my document uploaded?
+
+No. Rendering happens in this browser tab using Mozilla's pdf.js, which runs in a Web Worker served from this site's own origin. The PNGs are built on a canvas in the page, and the download links point at blobs your browser holds locally. Nothing crosses the network. You can verify it in the Network tab, or by going offline once the page has loaded.
+
+## Why do I get a .zip for a multi-page PDF?
+
+Because browsers suppress the second and subsequent downloads when a page triggers several in a row — the files appear to vanish. An archive is the only reliable way to hand you more than one file. Each page is also listed individually with its own download link if you want just one.
+
+Page numbers in the filenames are zero-padded to the document's page count, so a 100-page render sorts correctly in a file manager rather than putting p10 before p2.
+
+## Why is the text in the PNG not selectable?
+
+Because a PNG is pixels. Rendering a page to an image discards the text layer along with everything else structural — that is what "render" means. If you need selectable text, keep the PDF, or run the image through OCR afterwards to reconstruct an approximation.
+
+## Is it safe to open a PDF from someone I do not know?
+
+Safer here than in most desktop readers, but not risk-free, and it is worth being straight about that. Parsing an untrusted PDF is genuine attack surface: pdf.js has had bugs allowing script execution through the font path. This tool pins pdf.js to an exact version rather than a floating range, disables the eval-based font path (`isEvalSupported: false`), disables font installation, and the site sends a Content-Security-Policy. Those measures reduce the risk; they do not eliminate it.
