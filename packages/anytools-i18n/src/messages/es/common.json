@@ -116,7 +116,9 @@
       "finance": "Finanzas",
       "health": "Salud",
       "lifestyle": "Estilo de vida",
-      "design": "Diseño"
+      "design": "Diseño",
+      "pdf": "PDF",
+      "image": "Imagen"
     },
     "emptyTitle": "Sin resultados",
     "emptyBody": "Prueba otra búsqueda o quita los filtros.",
@@ -269,6 +271,24 @@
         "Tres herramientas alrededor de una pregunta: ¿esta combinación de colores se va a poder leer?",
         "El contraste se mide, no se opina. WCAG define una razón a partir de la luminancia relativa de dos colores, y los umbrales son 4,5:1 para texto normal y 3:1 para texto grande en nivel AA. El verificador informa de la razón y del apto o no apto en cada nivel, que es la diferencia entre una revisión de diseño que acaba en una opinión y otra que acaba en un número.",
         "El conversor mueve un color entre HEX, RGB, HSL y sus variantes con alfa sin la deriva de redondeo que aparece al convertir dos veces a mano, y el generador de paletas construye armonías a partir de un color base. Ambos rinden más junto al verificador de contraste: elige una paleta y confirma que los pares sobre los que vas a poner texto superan el umbral antes de que lleguen a producción."
+      ]
+    },
+    "pdf": {
+      "tagline": "Trabajar con PDF sin que salga de tu equipo",
+      "intro": "Combina, divide, rota y elimina páginas. Todo se ejecuta dentro de tu navegador: el archivo nunca se sube, así que después no queda nada que borrar.",
+      "body": [
+        "Los sitios de PDF conocidos funcionan todos igual: subes el archivo, un servidor hace el trabajo y se te pide confiar en una política de borrado. Es un trato razonable para un itinerario de viaje y malo para un contrato, una nómina o el escaneo de tu pasaporte. Estas herramientas toman el otro lado: el PDF lo lee JavaScript que corre en tu propia máquina, y ningún byte cruza la red.",
+        "El límite real es tu memoria, no un tope de subida. Un documento escaneado grande necesita entre dos y tres veces su tamaño en RAM mientras se copian las páginas, así que un escaneo de 200 páginas va cómodo en un portátil y puede atragantarse en un móvil antiguo. Cuando un archivo es demasiado grande, la herramienta lo dice en lugar de fallar a mitad.",
+        "El orden de páginas, los marcadores y los metadatos por página sobreviven a estas operaciones. Los campos de formulario y las firmas digitales no siempre: reescribir el árbol de páginas puede invalidar una firma que lo cubre, y eso es una propiedad del formato, no un fallo. Cada herramienta indica en su página qué conserva y qué descarta."
+      ]
+    },
+    "image": {
+      "tagline": "Redimensionar y comprimir sin subir nada",
+      "intro": "Reduce una foto para enviarla por correo, ajústala a un límite de tamaño o recórtala a una proporción fija. La imagen se decodifica y recodifica en tu navegador y no se envía a ningún sitio.",
+      "body": [
+        "Casi todo el trabajo con imágenes es cantidad, no oficio: la foto pesa cuatro megabytes y el formulario acepta dos, o una cabecera necesita exactamente 1200 píxeles de ancho. Abrir un editor para eso sobra, y subir una foto de vacaciones a un servidor desconocido para ahorrar dos megabytes es un mal trato. Estas herramientas hacen la parte mecánica en la pestaña que ya tienes abierta.",
+        "La compresión es un intercambio y deberías poder verlo. Los ajustes de calidad de JPEG y WebP no son porcentajes de nada significativo, así que la pregunta útil es cómo se ve el archivo a un tamaño dado — por eso las herramientas muestran el antes y el después juntos en vez de limitarse a informar del porcentaje ahorrado.",
+        "Dos cosas sorprenden con frecuencia. Las fotos hechas con el móvil llevan una marca de orientación, y el software que la ignora tumba los retratos; estas herramientas la leen. Y la transparencia no sobrevive al paso a JPEG: un fondo transparente se vuelve negro. Cuando eso va a ocurrir se te avisa antes, y se te ofrece WebP en su lugar."
       ]
     }
   }

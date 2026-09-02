@@ -5,9 +5,11 @@ import {
   Braces,
   Calculator,
   Code2,
+  FileText,
   Globe,
   HeartPulse,
   Hexagon,
+  Image as ImageIcon,
   Key,
   Palette,
   Regex,
@@ -35,4 +37,6 @@ export const CLUSTER_ICON: Record<ClusterId, LucideIcon> = {
   health: HeartPulse,
   lifestyle: Sparkles,
   design: Palette,
+  pdf: FileText,
+  image: ImageIcon,
 };

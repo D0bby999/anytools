@@ -45,6 +45,8 @@ const CLUSTER_LABEL_EN: Record<ClusterId, string> = {
   health: 'Health Tool',
   lifestyle: 'Tool',
   design: 'Design Tool',
+  pdf: 'PDF Tool',
+  image: 'Image Tool',
 };
 
 export async function generateMetadata({

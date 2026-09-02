@@ -15,7 +15,10 @@ export type ClusterId =
   | 'finance'
   | 'health'
   | 'lifestyle'
-  | 'design';
+  | 'design'
+  // File-in/file-out tools. Everything runs client-side; nothing is uploaded.
+  | 'pdf'
+  | 'image';
 
 export type ToolPriority = 'P1' | 'P2' | 'P3' | 'P4';
 export type ToolEffort = 'S' | 'M' | 'L';

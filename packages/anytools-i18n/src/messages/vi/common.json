@@ -116,7 +116,9 @@
       "finance": "Tài chính",
       "health": "Sức khỏe",
       "lifestyle": "Đời sống",
-      "design": "Thiết kế"
+      "design": "Thiết kế",
+      "pdf": "PDF",
+      "image": "Ảnh"
     },
     "emptyTitle": "Không tìm thấy tool",
     "emptyBody": "Thử từ khoá khác hoặc xoá filter.",
@@ -269,6 +271,24 @@
         "Ba công cụ xoay quanh một câu hỏi: tổ hợp màu này có thật sự đọc được không?",
         "Độ tương phản đo được, không phải chuyện gu thẩm mỹ. WCAG định nghĩa một tỷ số từ độ sáng tương đối của hai màu, và ngưỡng là 4,5:1 cho chữ thường và 3:1 cho chữ lớn ở mức AA. Bộ kiểm tra báo tỷ số cùng kết quả đạt hay trượt ở từng mức — đó là khác biệt giữa một buổi duyệt thiết kế kết thúc bằng ý kiến và một buổi kết thúc bằng con số.",
         "Bộ chuyển đổi đưa màu qua lại giữa HEX, RGB, HSL và các biến thể có alpha mà không bị trôi số do làm tròn như khi chuyển tay hai lần, còn bộ sinh bảng màu dựng các hoà sắc từ một màu gốc. Cả hai hữu ích nhất khi đặt cạnh bộ kiểm tra tương phản: chọn bảng màu, rồi xác nhận những cặp bạn định đặt chữ lên thật sự vượt ngưỡng trước khi ra production."
+      ]
+    },
+    "pdf": {
+      "tagline": "Làm việc với PDF, file không rời máy bạn",
+      "intro": "Gộp, tách, xoay và xoá trang. Mọi thao tác chạy ngay trong tab trình duyệt, file không được tải lên đâu cả, nên cũng chẳng có gì để chúng tôi phải xoá sau đó.",
+      "body": [
+        "Các trang PDF quen thuộc đều làm theo một kiểu: bạn tải file lên, máy chủ xử lý, rồi bạn được mời tin vào một chính sách xoá dữ liệu. Đổi chác đó hợp lý với lịch trình du lịch, và tệ với hợp đồng, bảng lương hay bản scan hộ chiếu. Bộ tool này chọn phía còn lại — PDF được đọc bằng JavaScript chạy trên chính máy bạn, không byte nào đi qua mạng.",
+        "Giới hạn thật là bộ nhớ máy bạn chứ không phải mức trần dung lượng tải lên. Một tài liệu scan lớn cần khoảng gấp hai tới ba lần dung lượng của nó trong RAM lúc sao chép trang, nên bản scan 200 trang chạy thoải mái trên laptop mà có thể đuối trên điện thoại đời cũ. File quá lớn thì tool báo trước, không làm nửa chừng rồi hỏng.",
+        "Thứ tự trang, bookmark và metadata cấp trang đều giữ nguyên qua các thao tác này. Trường điền và chữ ký số thì không phải lúc nào cũng vậy: viết lại cây trang của tài liệu có thể làm mất hiệu lực chữ ký bao trùm nó — đó là tính chất của định dạng, không phải lỗi. Mỗi tool tự ghi rõ nó giữ gì và bỏ gì."
+      ]
+    },
+    "image": {
+      "tagline": "Đổi cỡ và nén ảnh, không cần tải lên",
+      "intro": "Thu nhỏ ảnh để gửi email, ép ảnh xuống dưới mức dung lượng cho phép, hoặc cắt theo tỷ lệ cố định. Ảnh được giải mã và mã hoá lại ngay trong trình duyệt, không gửi đi đâu.",
+      "body": [
+        "Phần lớn việc với ảnh là chuyện số lượng chứ không phải nghệ thuật: ảnh nặng bốn megabyte mà form chỉ nhận hai, hoặc ảnh bìa cần đúng 1200 pixel chiều ngang. Mở phần mềm chỉnh ảnh cho việc đó là thừa, còn tải ảnh du lịch lên một máy chủ lạ để tiết kiệm hai megabyte là một đổi chác dở. Bộ tool này làm phần cơ học ngay trong tab bạn đang mở.",
+        "Nén là một đánh đổi, và bạn phải nhìn thấy nó. Thanh chất lượng của JPEG hay WebP không phải phần trăm của thứ gì có nghĩa, nên câu hỏi đáng hỏi là ở dung lượng đó ảnh trông ra sao — vì vậy tool đặt ảnh trước và sau cạnh nhau, thay vì chỉ báo tiết kiệm được bao nhiêu phần trăm.",
+        "Hai chuyện hay làm người dùng bất ngờ. Ảnh chụp điện thoại mang một cờ chiều xoay, phần mềm nào bỏ qua cờ đó sẽ làm ảnh dọc nằm ngang; tool này đọc nó. Và nền trong suốt không sống sót khi chuyển sang JPEG — nền trong sẽ thành đen. Sắp xảy ra chuyện đó thì bạn được báo trước, kèm gợi ý dùng WebP."
       ]
     }
   }

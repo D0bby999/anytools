@@ -1,0 +1,31 @@
+---
+title: Merge PDF — Frequently asked questions
+---
+
+## Is my file uploaded anywhere?
+
+No. The PDF is read by JavaScript running inside this browser tab, using the `pdf-lib` library, and the merged result is handed back to you as a blob URL your browser creates locally. No request carries the file, so there is no copy on a server to be retained, logged or deleted. You can confirm this yourself: open your browser's developer tools, switch to the Network tab, and merge a file — you will see no upload. You can also disconnect from the network entirely after the page has loaded and the tool still works.
+
+This is the practical difference between this page and the established PDF sites. Those upload your file, process it on a server, and ask you to trust a deletion policy. That is a fine trade for a holiday itinerary and a poor one for a contract, a payslip or a scan of your passport.
+
+## What is the size limit?
+
+There is no imposed limit, because there is no upload to limit. The real constraint is your device's memory. While pages are being copied, roughly two to three times the combined file size is held in RAM, so merging five 20 MB documents needs a few hundred megabytes free. A modern laptop handles that comfortably; an older phone may not. Above 100 MB the tool warns you that the operation may be slow, but it will still attempt it — the warning exists because your machine is the limiting factor, not because a rule was broken.
+
+If a tab does run out of memory the browser will stop the page rather than produce a corrupt file. Nothing is written or sent in that case.
+
+## Does the page order stay the way I set it?
+
+Yes. Files are combined top to bottom in the order shown in the list, and each source document's internal page order is preserved exactly. You can reorder by dragging a row, or with the up and down arrows next to it — the arrows exist because dragging does not work with a keyboard and is awkward on a touchscreen.
+
+The numbers beside each file show the position it will occupy. After merging, the result panel lists each source and how many pages it contributed, so you can check the total before downloading.
+
+## Can I merge a password-protected PDF?
+
+No, and this is deliberate. If a file is encrypted the tool names it and stops rather than merging it. It is technically possible to load an encrypted PDF while ignoring its protection, but the result would be a document with the restrictions stripped out. Quietly doing that to a file somebody chose to protect is not merging, it is bypassing. Remove the password in the application that created the file, then merge.
+
+## Will form fields, bookmarks and signatures survive?
+
+Bookmarks, page-level metadata and page order survive. Interactive form fields usually survive but may lose values in complex documents. Digital signatures generally do not: a signature covers a specific byte layout of a specific document, and merging necessarily rewrites the page tree, so any signature that covered the original no longer matches. That is a property of the PDF format rather than a limitation of this tool — every merge tool, local or server-based, has the same effect.
+
+If a signature must remain valid, keep the signed document separate rather than merging it.

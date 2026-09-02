@@ -82,7 +82,8 @@
     "./chmod-calculator": "./src/chmod-calculator/index.ts",
     "./bcrypt-generator": "./src/bcrypt-generator/index.ts",
     "./totp-generator": "./src/totp-generator/index.ts",
-    "./http-status-codes": "./src/http-status-codes/index.ts"
+    "./http-status-codes": "./src/http-status-codes/index.ts",
+    "./merge-pdf": "./src/merge-pdf/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -113,6 +114,7 @@
     "marked": "15.0.6",
     "otpauth": "^9.5.1",
     "papaparse": "5.4.1",
+    "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
     "slugify": "1.6.6",
     "sql-formatter": "15.4.8",

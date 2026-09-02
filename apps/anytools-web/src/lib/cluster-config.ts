@@ -83,6 +83,16 @@ export const CLUSTER_CONFIG: Record<ClusterId, ClusterConfig> = {
     bgClass: 'bg-violet-500/5',
     surfaceOnNav: true,
   },
+  pdf: {
+    ringClass: 'ring-red-500/30',
+    bgClass: 'bg-red-500/5',
+    surfaceOnNav: true,
+  },
+  image: {
+    ringClass: 'ring-teal-500/30',
+    bgClass: 'bg-teal-500/5',
+    surfaceOnNav: true,
+  },
 };
 
 export const ALL_CLUSTERS: ClusterId[] = Object.keys(CLUSTER_CONFIG) as ClusterId[];

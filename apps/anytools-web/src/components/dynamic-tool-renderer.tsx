@@ -23,6 +23,7 @@ const LOADERS: Record<string, ComponentType> = {
   'json-yaml-toml': dynamic(() => import('@anytools/tools/json-yaml-toml').then(pick)),
   'csv-json': dynamic(() => import('@anytools/tools/csv-json').then(pick)),
   'md-html': dynamic(() => import('@anytools/tools/md-html').then(pick)),
+  'merge-pdf': dynamic(() => import('@anytools/tools/merge-pdf').then(pick)),
   'diff-checker': dynamic(() => import('@anytools/tools/diff-checker').then(pick)),
   'curl-converter': dynamic(() => import('@anytools/tools/curl-converter').then(pick)),
   'cron-parser': dynamic(() => import('@anytools/tools/cron-parser').then(pick)),

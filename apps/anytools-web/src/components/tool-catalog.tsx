@@ -35,6 +35,8 @@ const CLUSTER_COLOR: Record<ClusterId, string> = {
   health: 'bg-rose-500/15 text-rose-800 dark:text-rose-300',
   lifestyle: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
   design: 'bg-violet-500/15 text-violet-800 dark:text-violet-300',
+  pdf: 'bg-red-500/15 text-red-800 dark:text-red-300',
+  image: 'bg-teal-500/15 text-teal-800 dark:text-teal-300',
 };
 
 type Props = {

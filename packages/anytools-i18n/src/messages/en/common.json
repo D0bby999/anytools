@@ -116,7 +116,9 @@
       "finance": "Finance",
       "health": "Health",
       "lifestyle": "Lifestyle",
-      "design": "Design"
+      "design": "Design",
+      "pdf": "PDF",
+      "image": "Image"
     },
     "emptyTitle": "No tools match",
     "emptyBody": "Try a different search or clear the filter.",
@@ -269,6 +271,24 @@
         "Three tools around one question: will this colour combination actually be readable?",
         "Contrast is measurable, not a matter of taste. WCAG defines a ratio from the relative luminance of two colours, and the thresholds are 4.5:1 for body text and 3:1 for large text at AA. The checker reports the ratio and the pass or fail at each level, which is the difference between a design review that ends in an opinion and one that ends in a number.",
         "The converter moves a colour between HEX, RGB, HSL and their alpha variants without the rounding drift you get from converting twice by hand, and the palette generator builds harmonies from a base colour. Both are most useful next to the contrast checker: pick a palette, then confirm the pairs you intend to put text on actually clear the threshold before it reaches production."
+      ]
+    },
+    "pdf": {
+      "tagline": "PDF work that never leaves your machine",
+      "intro": "Merge, split, rotate and remove pages. Every operation runs inside your browser tab, so the file is never uploaded and there is nothing for us to delete afterwards.",
+      "body": [
+        "The established PDF sites all work the same way: you upload the file, a server does the work, and you are asked to trust a deletion policy. That is a reasonable trade for a holiday itinerary and a bad one for a contract, a payslip or a scan of your passport. These tools take the other side of that trade — the PDF is read by JavaScript running on your own machine, and no byte of it crosses the network.",
+        "The practical limit is your own memory rather than an upload cap. A large scanned document needs roughly two to three times its size in RAM while pages are copied, so a 200-page scan is comfortable on a laptop and may struggle on an older phone. Where a file is too big the tool says so instead of failing halfway through.",
+        "Page order, bookmarks and page-level metadata survive these operations. Interactive form fields and digital signatures do not always: rewriting a document's page tree can invalidate a signature that covers it, which is a property of the format rather than a bug. Each tool says on its own page what it preserves and what it drops."
+      ]
+    },
+    "image": {
+      "tagline": "Resize and compress without an upload",
+      "intro": "Shrink a photo for email, fit an image to a size limit, or crop to a fixed ratio. The picture is decoded and re-encoded in your browser and never sent anywhere.",
+      "body": [
+        "Most image work is quantity, not craft: a photo is four megabytes and the form accepts two, or a header needs to be exactly 1200 pixels wide. Opening an editor for that is overkill, and uploading a holiday photo to an unknown server to save two megabytes is a poor bargain. These tools do the mechanical part in the tab you already have open.",
+        "Compression is a trade you should be able to see. JPEG and WebP quality settings are not percentages of anything meaningful, so the useful question is what the file looks like at a given size — which is why the tools show the before and after together rather than only reporting a percentage saved.",
+        "Two things routinely surprise people. Photographs taken on a phone carry an orientation flag, and software that ignores it turns portrait shots sideways; these tools read it. And transparency does not survive a move to JPEG — a transparent background becomes black. Where that is about to happen you get told first, with WebP offered instead."
       ]
     }
   }
