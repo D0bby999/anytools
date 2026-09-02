@@ -87,7 +87,12 @@ export async function generateMetadata({
       url: canonicalPath,
       siteName: 'AnyTools',
       locale,
-      alternateLocale: (m.availableLocales ?? routing.locales).filter((l) => l !== locale),
+      // Same filter as hreflang above. Leaving this unfiltered advertised an es/pt
+      // version of a page whose own robots tag says noindex — contradictory
+      // metadata on the one page a reviewer might open.
+      alternateLocale: (m.availableLocales ?? routing.locales).filter(
+        (l) => l !== locale && hasLocalizedToolBody(l, cluster, tool),
+      ),
     },
     twitter: {
       card: 'summary_large_image',
