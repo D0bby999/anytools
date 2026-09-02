@@ -1,0 +1,39 @@
+---
+title: Compress Image — Frequently asked questions
+---
+
+## Is my photo uploaded anywhere?
+
+No. The image is decoded by your browser, redrawn onto a canvas, and re-encoded there. The result is a blob your browser holds in memory, and the download link points at that. Nothing is transmitted, so there is no copy on a server to be kept, indexed or deleted. You can check in your browser's Network tab, or disconnect from the network after the page has loaded — the tool keeps working.
+
+## What quality should I choose?
+
+For photographs, 0.75 to 0.85 is the useful range. Below about 0.6 you start seeing blocky artefacts in smooth areas like skies and skin; above 0.9 the file grows quickly for a difference almost nobody can see. The reason the tool shows the original and the result side by side is that a percentage saved tells you nothing about whether the result still looks acceptable — which is the only question worth answering.
+
+Quality numbers are not percentages of anything meaningful and are not comparable between formats. WebP at 0.8 and JPEG at 0.8 are different operations that happen to share a scale.
+
+## Why did compressing my PNG make it bigger?
+
+Because you re-encoded a lossless image into a lossy one, or the other way round, and neither is a compressor in the sense you wanted. PNG stores exact pixels and does well on flat colour, line art and screenshots; JPEG and WebP throw detail away and do well on photographs. Running a screenshot through JPEG can easily produce a larger file that also looks worse.
+
+If your image is a screenshot, a diagram or has large flat areas, keep it as PNG and use Resize Image to cut its dimensions instead — that is what actually reduces the size of this kind of image.
+
+## What does "hit a size budget" do?
+
+You give it a maximum file size and it searches for the highest quality setting that fits, by binary search — about eight encodes rather than a linear sweep from 1.0 downwards. This is the mode to use when a form says "maximum 2 MB" and you do not care what quality number gets you there.
+
+If even the lowest quality cannot reach your target, you get that attempt back with its real size rather than an error, so you can see how far off it is and decide whether to resize instead.
+
+## My transparent PNG came out with a solid background. Why?
+
+JPEG has no alpha channel. When a transparent image is drawn onto a canvas and encoded as JPEG, the transparent pixels get filled with whatever the canvas background is. The tool detects transparency in the source and warns you when this is about to happen, and WebP is offered because it supports transparency in both lossy and lossless modes.
+
+If you need transparency, choose WebP or PNG.
+
+## Are my photos rotated correctly?
+
+Yes. Photos taken on a phone are usually stored in the sensor's landscape orientation with a separate flag saying how to turn them. Software that ignores that flag turns portrait shots sideways — the single most common defect in browser image tools. This one decodes with the flag applied, so what you see is what you get.
+
+## How large an image can it handle?
+
+Up to roughly 16.7 megapixels, which is the canvas limit in Safari — the strictest of the major browsers. Above that the tool tells you the size and stops, because exceeding a canvas limit produces a blank white image rather than an error. A 12-megapixel phone photo is comfortably inside it.

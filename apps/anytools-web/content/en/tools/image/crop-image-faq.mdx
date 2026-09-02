@@ -1,0 +1,37 @@
+---
+title: Crop Image — Frequently asked questions
+---
+
+## How do I select the area?
+
+Drag anywhere on the image. The box follows your pointer, and the readout underneath shows the selection in pixels of the *original* image, not of the preview — so you can see exactly what you will get before cropping. Pick an aspect preset first if you need a fixed shape; the selection is then constrained as you drag.
+
+It works with a mouse, a trackpad, a finger and a stylus. The tool uses pointer events, which cover all four with one code path, and captures the pointer so the drag survives your finger leaving the image.
+
+## Does cropping reduce quality?
+
+The pixels inside your selection are copied unchanged; nothing is scaled. What can cost quality is the output format. PNG is lossless, so a PNG crop of a PNG is pixel-identical to the region you selected. Choosing JPEG or WebP re-encodes, which on a photo that was already JPEG means a second round of lossy compression.
+
+PNG is the default here for that reason. If the crop is a photograph and the file size matters, WebP is the better trade.
+
+## Why does the 1:1 preset not look square on my wide photo?
+
+It should, and it does — but this is worth explaining because it is where crop tools commonly get it wrong. The selection is stored as fractions of the image, and equal fractions of a 2000×1000 photo are not a square: 50% of the width is 1000px while 50% of the height is 500px. The tool converts through the real pixel dimensions before applying a ratio, so 1:1 means 1:1 on screen and in the file.
+
+If a crop ever comes out at the wrong ratio, that conversion is the first place to look.
+
+## Is my image uploaded?
+
+No. The file is decoded in your browser, the selected region is drawn to a canvas and encoded there, and the download link points at a blob your browser holds locally. No request carries the image. Check the Network tab in developer tools, or simply go offline once the page has loaded — cropping still works.
+
+## Are phone photos oriented correctly?
+
+Yes. Phone cameras store the sensor's landscape frame plus a flag saying which way up it goes. Ignoring that flag is why some tools crop the wrong part of a portrait photo — the visible image and the stored pixels disagree. This tool decodes with the orientation applied, so the region you select is the region you get.
+
+## Can I crop several images at once?
+
+Not here. A crop rectangle is specific to one image's framing, so batching would mean applying one person's selection to photos it was not drawn for. If you need the same *size* across many images, Resize Image handles that properly.
+
+## What is the largest image I can crop?
+
+About 16.7 megapixels, the canvas ceiling in Safari, which is the strictest of the major browsers. Past that, canvases return blank output instead of an error, so the tool checks the dimensions up front and tells you rather than handing back a white rectangle.

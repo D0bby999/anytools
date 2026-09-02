@@ -1,0 +1,37 @@
+---
+title: Resize Image — Frequently asked questions
+---
+
+## What is the difference between "fit inside a box" and "exact size"?
+
+Fit keeps the aspect ratio: you give a maximum for the longest side and the image is scaled down until both dimensions are inside it. A 4000×3000 photo fitted to 1920 becomes 1920×1440. Nothing is stretched and nothing is cut off.
+
+Exact takes the two numbers you give and uses them, whatever they are. If they do not match the original ratio, the image is squashed or stretched. Use it only when something genuinely requires a fixed pixel size — and if you need exact dimensions *without* distortion, crop first, then resize.
+
+## Why will fit mode not make my image bigger?
+
+Because enlarging invents detail that was never captured. Scaling a 400px image up to 1920px produces a soft, mushy 1920px image, not a sharper one — the extra pixels are interpolated from their neighbours. Fit mode therefore stops at 100%.
+
+Percentage mode does allow values above 100, because there you have explicitly asked for it. The tool says what will happen rather than silently refusing.
+
+## Is my image sent to a server?
+
+No. It is decoded, redrawn at the new size and re-encoded entirely inside this browser tab, and the download link points at a blob your browser created locally. Nothing is transmitted. You can confirm it in the Network tab of your browser's developer tools, or by going offline after the page loads.
+
+## Does resizing rotate my phone photos correctly?
+
+Yes. A photo from a phone is normally stored the way the sensor read it — landscape — with a separate flag recording how the device was held. Software that ignores that flag delivers portrait photos on their side. This tool applies the flag while decoding, so the result matches what you saw on your phone.
+
+## Which output format should I choose?
+
+WebP for almost everything on the web: it is smaller than JPEG at the same visual quality and supports transparency. JPEG when something old needs to read the file. PNG when the image is a screenshot, a diagram, or has flat areas of colour or transparency you need to keep exactly.
+
+Resizing always re-encodes, so a JPEG that is resized is compressed a second time. That is unavoidable in any resize, but it is a reason not to resize the same file repeatedly.
+
+## Why is the resized file not much smaller?
+
+Dimensions and file size are related but not proportional. Halving both dimensions quarters the pixel count, which usually cuts the file substantially — but if the source was already heavily compressed, or the content is noisy, the saving is smaller than the arithmetic suggests. If size rather than dimensions is the goal, Compress Image with a size budget is the direct tool.
+
+## What is the largest image it can handle?
+
+Around 16.7 megapixels, the canvas limit in Safari and therefore the safe ceiling across browsers. Beyond that, canvases silently produce blank output rather than failing, so the tool checks the dimensions first and tells you instead. A 12-megapixel photo is well within range.

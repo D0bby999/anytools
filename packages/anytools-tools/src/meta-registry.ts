@@ -16,8 +16,10 @@ import { meta as chmodCalculator } from './chmod-calculator/meta';
 import { meta as colorConverter } from './color-converter/meta';
 import { meta as colorPalette } from './color-palette/meta';
 import { meta as compoundInterest } from './compound-interest/meta';
+import { meta as compressImage } from './compress-image/meta';
 import { meta as cronParser } from './cron-parser/meta';
 import { meta as crontabGenerator } from './crontab-generator/meta';
+import { meta as cropImage } from './crop-image/meta';
 import { meta as cssBeautifier } from './css-beautifier/meta';
 import { meta as csvJson } from './csv-json/meta';
 import { meta as curlConverter } from './curl-converter/meta';
@@ -57,6 +59,7 @@ import { meta as readabilityAnalyzer } from './readability-analyzer/meta';
 import { meta as readingTime } from './reading-time/meta';
 import { meta as regexTester } from './regex-tester/meta';
 import { meta as removePdfPages } from './remove-pdf-pages/meta';
+import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
 import { meta as rotatePdf } from './rotate-pdf/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
@@ -88,6 +91,9 @@ import { meta as yamlFormatter } from './yaml-formatter/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
+  compressImage,
+  resizeImage,
+  cropImage,
   splitPdf,
   rotatePdf,
   removePdfPages,

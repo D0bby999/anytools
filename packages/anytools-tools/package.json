@@ -86,7 +86,10 @@
     "./merge-pdf": "./src/merge-pdf/index.ts",
     "./split-pdf": "./src/split-pdf/index.ts",
     "./rotate-pdf": "./src/rotate-pdf/index.ts",
-    "./remove-pdf-pages": "./src/remove-pdf-pages/index.ts"
+    "./remove-pdf-pages": "./src/remove-pdf-pages/index.ts",
+    "./compress-image": "./src/compress-image/index.ts",
+    "./resize-image": "./src/resize-image/index.ts",
+    "./crop-image": "./src/crop-image/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
