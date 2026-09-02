@@ -1,0 +1,35 @@
+---
+title: Rotate PDF — Frequently asked questions
+---
+
+## Why is my scan sideways in the first place?
+
+A PDF page carries a rotation value — 0, 90, 180 or 270 degrees — separate from the image on it. Scanners and phone scanning apps set it based on how the paper went through or how the device was held, and they get it wrong often, particularly on documents fed in landscape. Some viewers honour the value and some ignore it, which is why the same file can look upright in one application and sideways in another.
+
+Rotating here sets that value correctly, so every viewer agrees.
+
+## Does rotating re-render the page or lose quality?
+
+No. Only the rotation attribute changes. Text stays selectable, images keep their original resolution and compression, and the page content is untouched — nothing is rasterised or re-encoded. A rotated file is the same size as the original, give or take a few bytes.
+
+That also means rotation is completely reversible: rotating 90 degrees and then 270 returns the page to exactly where it started.
+
+## What if some pages are already rotated and others are not?
+
+Rotation is *added* to whatever each page already carries, not assigned over it. A page at 270 degrees rotated by 90 becomes 0; a page at 0 rotated by 90 becomes 90. This matters for mixed documents, which are common in scans — a tool that assigned instead of added would silently undo corrections a scanner had already made while appearing to work.
+
+If only some pages are wrong, choose "Only these pages" and enter their numbers as `1-3, 7, 9-12`.
+
+## How do I rotate anticlockwise?
+
+Rotate by 270 degrees. Three quarter-turns clockwise is one quarter-turn anticlockwise — the PDF format only stores rotations in units of 90, so there is no separate anticlockwise operation to expose. Rotating by 180 flips the page upside down regardless of direction.
+
+## Is my document uploaded anywhere?
+
+No. The file is read by JavaScript in this browser tab using `pdf-lib`, the rotation is applied in memory, and the download link points at a blob URL your browser created locally. No request carries the document, so there is no server copy to retain or delete. Check your browser's Network tab, or disconnect from the network after the page loads — the tool still works.
+
+## Will bookmarks, form fields or signatures break?
+
+Bookmarks and form fields survive; rotation does not restructure the document. Digital signatures are the exception. A signature covers a specific byte layout, and saving the file with a changed rotation value produces a different layout, so a signature that covered the original will no longer validate. Every rotation tool has this effect — it is a property of the format, not a limitation here. If a signature must stay valid, keep the signed original and rotate a copy.
+
+Password-protected files are refused rather than unlocked. Remove the password first.

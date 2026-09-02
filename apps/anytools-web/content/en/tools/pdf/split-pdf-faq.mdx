@@ -1,0 +1,37 @@
+---
+title: Split PDF — Frequently asked questions
+---
+
+## How do I write a page range?
+
+Use page numbers as your PDF reader shows them, separated by commas, with hyphens for runs: `1-3, 7, 9-12`. Spaces are ignored, duplicates are collapsed, and a reversed range like `5-2` is read as `2-5` rather than rejected. Pages start at 1, not 0.
+
+Each *run of consecutive pages* becomes its own file. `1-3, 7, 9-12` gives you three documents — a three-page one, a single page, and a four-page one — not one document of eight pages. If you want those eight pages together instead, extract them and then use Merge PDF.
+
+## Why did I get a .zip instead of PDFs?
+
+Because there is more than one output file. Browsers block a page from triggering several downloads in a row — the second and subsequent ones are silently suppressed, which looks like the tool losing your files. Bundling them into one archive is the only reliable way to hand you multiple documents. When the split produces a single file you get that file directly, with no archive.
+
+Every part is also listed individually with its own download link, so you can take just one without unpacking the archive.
+
+## Is the file uploaded to a server?
+
+No. The PDF is parsed by JavaScript in this tab using `pdf-lib`, the new documents are built in memory, and the download links point at blob URLs your own browser created. Nothing is transmitted. You can verify it in your browser's Network tab, or simply go offline after the page loads — the tool still works.
+
+The zip archive is also built locally, by `jszip`, and is only loaded at all when a split produces more than one file.
+
+## What is the largest PDF I can split?
+
+There is no configured limit, because there is no upload to limit. What constrains you is memory: the source document and the copies being built both live in the tab, so peak usage is roughly twice the file size plus overhead. A 100 MB scan is realistic on a desktop and risky on a phone. Above 100 MB you get a warning, but the operation still runs — the warning is about your hardware, not a rule.
+
+Splitting into one file per page is the heaviest mode, because it builds as many documents as there are pages before the archive is assembled.
+
+## Does splitting reduce quality or change the pages?
+
+No. Pages are copied wholesale, not re-rendered. Text stays selectable, images keep their original resolution and compression, and nothing is rasterised. The extracted pages are byte-for-byte the same content, in a new container.
+
+What does not always survive is document-level structure: bookmarks pointing at pages that are not in the extract have nowhere to go, and a digital signature covering the original document will not validate against a fragment of it. Form fields on the extracted pages are normally kept.
+
+## Can I split a password-protected PDF?
+
+No. If the document is encrypted the tool stops and says so rather than working around the protection. Remove the password in whatever application created or opened the file, then split the unlocked copy.

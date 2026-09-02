@@ -56,12 +56,15 @@ import { meta as randomPicker } from './random-picker/meta';
 import { meta as readabilityAnalyzer } from './readability-analyzer/meta';
 import { meta as readingTime } from './reading-time/meta';
 import { meta as regexTester } from './regex-tester/meta';
+import { meta as removePdfPages } from './remove-pdf-pages/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
+import { meta as rotatePdf } from './rotate-pdf/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
 import { meta as scientificCalculator } from './scientific-calculator/meta';
 import { meta as shoeSizeConverter } from './shoe-size-converter/meta';
 import { meta as sleepCalculator } from './sleep-calculator/meta';
 import { meta as slugify } from './slugify/meta';
+import { meta as splitPdf } from './split-pdf/meta';
 import { meta as sqlFormatter } from './sql-formatter/meta';
 import { meta as statisticsCalculator } from './statistics-calculator/meta';
 import { meta as textCaseConverter } from './text-case-converter/meta';
@@ -85,6 +88,9 @@ import { meta as yamlFormatter } from './yaml-formatter/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
+  splitPdf,
+  rotatePdf,
+  removePdfPages,
   base64Encode,
   urlEncode,
   jwtDecoder,

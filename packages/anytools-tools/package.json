@@ -83,7 +83,10 @@
     "./bcrypt-generator": "./src/bcrypt-generator/index.ts",
     "./totp-generator": "./src/totp-generator/index.ts",
     "./http-status-codes": "./src/http-status-codes/index.ts",
-    "./merge-pdf": "./src/merge-pdf/index.ts"
+    "./merge-pdf": "./src/merge-pdf/index.ts",
+    "./split-pdf": "./src/split-pdf/index.ts",
+    "./rotate-pdf": "./src/rotate-pdf/index.ts",
+    "./remove-pdf-pages": "./src/remove-pdf-pages/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -110,6 +113,7 @@
     "js-md5": "0.8.3",
     "js-yaml": "4.1.0",
     "json5": "2.2.3",
+    "jszip": "^3.10.1",
     "lorem-ipsum": "^3.0.0",
     "marked": "15.0.6",
     "otpauth": "^9.5.1",
