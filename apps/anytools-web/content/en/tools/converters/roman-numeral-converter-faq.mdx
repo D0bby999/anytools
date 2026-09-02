@@ -1,0 +1,33 @@
+---
+title: Roman Numeral Converter — Frequently asked questions
+---
+
+## Why does it reject IIII when I can obviously read it?
+
+Because standard notation allows a symbol to repeat at most three times, and 4 is written IV. IIII is readable and appears on clock faces — traditionally, for visual balance against the VIII opposite — but it is not standard notation, and a converter that silently accepts it teaches the wrong form.
+
+The tool tells you what it thinks you meant, so IIII reports "Did you mean IV (4)?" rather than a bare rejection.
+
+## How does it decide what is valid?
+
+By converting your input to a number and then converting that number back. If the result does not match exactly what you typed, the input is not standard notation. One rule catches IIII, IM, VX, XXXX and every other readable-but-wrong form at once — and it cannot disagree with the number-to-Roman direction, because it uses it.
+
+## Why does it stop at 3999?
+
+Because standard Roman numerals have no symbol above M (1000), so 3999 — MMMCMXCIX — is the largest number that can be written with three or fewer repeated M's. Larger values need an overline (a vinculum) meaning "multiply by 1000", which is a typographic convention rather than a character, and there is no agreed plain-text form for it. Rather than invent one, the tool says where the limit is and why.
+
+## Which subtractive pairs are valid?
+
+Only six: IV (4), IX (9), XL (40), XC (90), CD (400) and CM (900). The rule is that only I, X and C are ever subtracted, and only from the next two symbols up. That is why IM is invalid for 999 even though it reads as 1000 − 1; the correct form is CMXCIX.
+
+## Is zero or a negative number possible?
+
+No. Roman numerals have no symbol for zero — the concept arrived in Europe later, with positional notation — and no notation for negatives. The tool covers 1 to 3999 and says so when you go outside it.
+
+## Can I type lowercase?
+
+Yes. Input is upper-cased before parsing, and surrounding spaces are ignored, so `mcmxciv` and `  MCMXCIV  ` both give 1994. Output is always uppercase, which is the conventional form.
+
+## Is anything sent to a server?
+
+No. Both directions are a short loop over a lookup table, running in this browser tab. Nothing is transmitted and nothing is stored.

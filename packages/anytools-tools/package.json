@@ -89,7 +89,12 @@
     "./remove-pdf-pages": "./src/remove-pdf-pages/index.ts",
     "./compress-image": "./src/compress-image/index.ts",
     "./resize-image": "./src/resize-image/index.ts",
-    "./crop-image": "./src/crop-image/index.ts"
+    "./crop-image": "./src/crop-image/index.ts",
+    "./integer-base-converter": "./src/integer-base-converter/index.ts",
+    "./url-parser": "./src/url-parser/index.ts",
+    "./user-agent-parser": "./src/user-agent-parser/index.ts",
+    "./roman-numeral-converter": "./src/roman-numeral-converter/index.ts",
+    "./meta-tag-generator": "./src/meta-tag-generator/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

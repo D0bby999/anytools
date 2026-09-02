@@ -14,11 +14,13 @@ import {
   Textarea,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
-import { type HashAlgo, type HashEncoding, hashFile, hashText } from './logic';
+import { type HashAlgo, type HashEncoding, hashFile, hashText, hmac } from './logic';
 
 const ALL_ALGOS: HashAlgo[] = ['md5', 'sha-1', 'sha-256', 'sha-384', 'sha-512'];
+// WebCrypto has no HMAC-MD5, and it would be the wrong default even if it did.
+const HMAC_ALGOS = ALL_ALGOS.filter((a): a is Exclude<HashAlgo, 'md5'> => a !== 'md5');
 
-type Mode = 'text' | 'file';
+type Mode = 'text' | 'file' | 'hmac';
 
 export function HashGeneratorUi() {
   const [mode, setMode] = useState<Mode>('text');
@@ -28,6 +30,28 @@ export function HashGeneratorUi() {
   const [enabled, setEnabled] = useState<Set<HashAlgo>>(new Set(['md5', 'sha-1', 'sha-256']));
   const [results, setResults] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [hmacKey, setHmacKey] = useState('');
+
+  useEffect(() => {
+    if (mode !== 'hmac') return;
+    let cancelled = false;
+    const run = async () => {
+      const out: Record<string, string> = {};
+      for (const algo of HMAC_ALGOS) {
+        if (!enabled.has(algo)) continue;
+        try {
+          out[algo] = await hmac(hmacKey, text, algo, encoding);
+        } catch {
+          out[algo] = 'Error';
+        }
+      }
+      if (!cancelled) setResults(out);
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, text, hmacKey, encoding, enabled]);
 
   useEffect(() => {
     if (mode !== 'text') return;
@@ -81,6 +105,7 @@ export function HashGeneratorUi() {
           <TabsList>
             <TabsTrigger value="text">Text</TabsTrigger>
             <TabsTrigger value="file">File</TabsTrigger>
+            <TabsTrigger value="hmac">HMAC</TabsTrigger>
           </TabsList>
           <TabsContent value="text" className="space-y-3">
             <Textarea
@@ -99,6 +124,31 @@ export function HashGeneratorUi() {
             <Button onClick={handleFile} disabled={!file || busy}>
               {busy ? 'Hashing…' : 'Hash file'}
             </Button>
+          </TabsContent>
+          {/* HMAC is keyed: unlike a plain hash it proves the message came from someone
+              holding the secret. logic.hmac() has existed and been tested against RFC 4231
+              since this tool shipped; it was simply never surfaced. */}
+          <TabsContent value="hmac" className="space-y-3">
+            <Textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Message to authenticate"
+              rows={3}
+            />
+            <label className="block text-sm">
+              <span className="mb-1 block text-muted-foreground">Secret key</span>
+              <input
+                type="text"
+                value={hmacKey}
+                onChange={(e) => setHmacKey(e.target.value)}
+                placeholder="Shared secret"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-mono"
+              />
+            </label>
+            <p className="text-sm text-muted-foreground">
+              MD5 is not offered here — HMAC-MD5 is not something to start a new integration with.
+              Everything is computed in your browser via WebCrypto; the key is never sent anywhere.
+            </p>
           </TabsContent>
         </Tabs>
 

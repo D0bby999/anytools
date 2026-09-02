@@ -29,3 +29,19 @@ Plain hash: anyone can compute it from the same input. HMAC: requires a shared s
 ## Does file hashing work on large files?
 
 Up to a few hundred MB comfortably. Beyond that, the browser loads the whole file into memory which gets slow. For multi-GB files, prefer a streaming CLI: `shasum -a 256` (Unix) or `Get-FileHash` (PowerShell).
+
+## What is the HMAC tab for?
+
+A plain hash proves a message has not changed. It does not prove who produced it — anyone can hash anything. HMAC adds a shared secret key, so a matching digest also proves the sender held that key. That is why webhook providers sign their payloads with it: Stripe, GitHub and Shopify all send an HMAC-SHA-256 header you recompute over the raw request body to confirm the request really came from them.
+
+Paste the message and the key, and the digest appears for each algorithm you have selected. Both stay in your browser — the computation uses WebCrypto locally, and nothing is transmitted.
+
+## Why is MD5 missing from the HMAC tab?
+
+WebCrypto does not offer HMAC-MD5, and it would be the wrong default even if it did. HMAC-MD5 is not broken in the way plain MD5 is, but there is no reason to start a new integration with it. SHA-256 is the modern default and what every major provider uses.
+
+## Why does my HMAC not match what the server computed?
+
+Almost always one of three things. First, the exact bytes: HMAC is computed over the raw request body, so a JSON payload that has been parsed and re-serialised — even with identical fields — produces a different digest. Second, the encoding: some providers compare hex, others base64, and the same digest looks entirely different in each. Third, trailing whitespace or a newline your editor added to the key.
+
+Check the raw body first; it is the cause far more often than the other two combined.

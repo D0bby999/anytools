@@ -1,0 +1,33 @@
+---
+title: Integer Base Converter — Frequently asked questions
+---
+
+## Which bases can it handle?
+
+Anything from 2 to 36. Binary, octal, decimal and hex are shown together on every conversion because those are the four people actually move between; the last row takes any base you type. The ceiling is 36 because that is how many distinct characters the standard digit alphabet has — 0-9 followed by a-z. There is no agreed convention above that.
+
+## Why does it get big numbers right when other converters do not?
+
+Because it parses to an arbitrary-precision integer rather than a JavaScript number. JavaScript's `Number` is a 64-bit float, exact only up to 2^53 — so `parseInt('9007199254740993')` returns 9007199254740992. That is a wrong answer with no error attached, which for a tool whose entire purpose is exactness is the worst possible failure. Hashes, database IDs and 64-bit flags routinely exceed that range.
+
+Try `9007199254740993` in decimal: you should get `20000000000001` in hex, and back again unchanged.
+
+## Can I paste 0x, 0b or 0o prefixes?
+
+Yes, and underscores too — `0xFF`, `0b1010`, `0o17` and `1_000_000` all work. The prefix is only stripped when it matches the base you selected, which matters more than it sounds: `0b1010` read as hexadecimal is a perfectly good hex number (0xb1010), not a prefixed binary one. Stripping it regardless would silently change your value.
+
+## What does the error "not a valid digit in base 8" mean?
+
+Each base only has certain digits available. Base 8 uses 0-7, so a `9` cannot appear in an octal number; base 2 uses only 0 and 1. The message names the offending character and lists what is allowed, because the usual cause is having the wrong input base selected rather than a typo in the number.
+
+## Does it handle negative numbers?
+
+Yes. A leading minus is preserved through the conversion — `-FF` in hex is `-255` in decimal. Note this is a plain sign, not two's complement: if you are looking at a raw 32-bit or 64-bit representation of a negative number, the bit pattern is a large positive value in this tool, which is exactly what it is in memory.
+
+## Is anything sent to a server?
+
+No. The conversion is a few lines of arithmetic running in this browser tab. There is no request to make, and nothing you type leaves the page. That matters more than it might seem for this tool — the numbers people convert are often IDs, keys and internal identifiers.
+
+## Why is hex shown in lowercase?
+
+Because that is what `toString(16)` produces and what most languages and file formats emit. Hex is case-insensitive, so `FF` and `ff` are the same value; if you need uppercase for a particular format, change it after copying. Input is accepted in either case.

@@ -36,6 +36,7 @@ import { meta as htmlBeautifier } from './html-beautifier/meta';
 import { meta as htmlEntity } from './html-entity/meta';
 import { meta as httpStatusCodes } from './http-status-codes/meta';
 import { meta as imageFormatConverter } from './image-format-converter/meta';
+import { meta as integerBaseConverter } from './integer-base-converter/meta';
 import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
 import { meta as jsBeautifier } from './js-beautifier/meta';
 import { meta as jsonDiff } from './json-diff/meta';
@@ -46,6 +47,7 @@ import { meta as loanCalculator } from './loan-calculator/meta';
 import { meta as loremIpsumGenerator } from './lorem-ipsum-generator/meta';
 import { meta as mdHtml } from './md-html/meta';
 import { meta as mergePdf } from './merge-pdf/meta';
+import { meta as metaTagGenerator } from './meta-tag-generator/meta';
 import { meta as mockDataGenerator } from './mock-data-generator/meta';
 import { meta as mortgageCalculator } from './mortgage-calculator/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
@@ -61,6 +63,7 @@ import { meta as regexTester } from './regex-tester/meta';
 import { meta as removePdfPages } from './remove-pdf-pages/meta';
 import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
+import { meta as romanNumeralConverter } from './roman-numeral-converter/meta';
 import { meta as rotatePdf } from './rotate-pdf/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
 import { meta as scientificCalculator } from './scientific-calculator/meta';
@@ -82,6 +85,8 @@ import type { ToolMeta } from './types';
 import { meta as unicodeEscape } from './unicode-escape/meta';
 import { meta as unitConverter } from './unit-converter/meta';
 import { meta as urlEncode } from './url-encode/meta';
+import { meta as urlParser } from './url-parser/meta';
+import { meta as userAgentParser } from './user-agent-parser/meta';
 import { meta as uuidGenerator } from './uuid-generator/meta';
 import { meta as walletChecker } from './wallet-checker/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
@@ -91,6 +96,11 @@ import { meta as yamlFormatter } from './yaml-formatter/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
+  integerBaseConverter,
+  urlParser,
+  userAgentParser,
+  romanNumeralConverter,
+  metaTagGenerator,
   compressImage,
   resizeImage,
   cropImage,

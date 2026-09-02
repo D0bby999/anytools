@@ -24,6 +24,15 @@ const LOADERS: Record<string, ComponentType> = {
   'csv-json': dynamic(() => import('@anytools/tools/csv-json').then(pick)),
   'md-html': dynamic(() => import('@anytools/tools/md-html').then(pick)),
   'merge-pdf': dynamic(() => import('@anytools/tools/merge-pdf').then(pick)),
+  'integer-base-converter': dynamic(() =>
+    import('@anytools/tools/integer-base-converter').then(pick),
+  ),
+  'url-parser': dynamic(() => import('@anytools/tools/url-parser').then(pick)),
+  'user-agent-parser': dynamic(() => import('@anytools/tools/user-agent-parser').then(pick)),
+  'roman-numeral-converter': dynamic(() =>
+    import('@anytools/tools/roman-numeral-converter').then(pick),
+  ),
+  'meta-tag-generator': dynamic(() => import('@anytools/tools/meta-tag-generator').then(pick)),
   'compress-image': dynamic(() => import('@anytools/tools/compress-image').then(pick)),
   'resize-image': dynamic(() => import('@anytools/tools/resize-image').then(pick)),
   'crop-image': dynamic(() => import('@anytools/tools/crop-image').then(pick)),

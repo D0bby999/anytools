@@ -1,0 +1,39 @@
+---
+title: User Agent Parser — Frequently asked questions
+---
+
+## Why does every browser claim to be Mozilla?
+
+History. In the 1990s servers checked for "Mozilla" before serving frames, so every competing browser added it to get the good version of pages. The same pattern repeated: Chrome added "Safari" because sites were sniffing for WebKit, Edge added "Chrome" because sites were sniffing for Chrome. Nothing was ever removed, because removing it breaks whatever is still checking.
+
+The result is that a modern Chrome UA claims to be Mozilla, KHTML, Gecko and Safari simultaneously. It is layers of compatibility fiction, and reading it requires knowing the order the claims were added in.
+
+## So how does the parser tell Edge from Chrome?
+
+By checking most-specific first. Edge's string contains the complete Chrome string plus `Edg/124`, so a parser that tests for Chrome before Edge reports Chrome for every Edge user — and it will look correct in testing, because Chrome users get the right answer. The detection tables here are ordered deliberately: Edge, Opera, Samsung Internet, Vivaldi and Brave are all tested before Chrome, and Chrome before Safari.
+
+The same problem appears in operating systems. iPadOS 13 and later report "Macintosh", so iPad has to be checked before macOS or every iPad is reported as a Mac.
+
+## Why does it say "Windows 10 or 11" instead of picking one?
+
+Because the string does not say. Windows 11 still reports `Windows NT 10.0` — Microsoft did not increment it. Any tool that confidently tells you "Windows 11" from a UA string alone is guessing, usually from unrelated hints that break. Saying so is more useful than being confidently wrong.
+
+Distinguishing them requires Client Hints (`Sec-CH-UA-Platform-Version`), which is a different mechanism the browser sends separately.
+
+## Can I trust this for access control or licensing?
+
+No. A User-Agent is a string the client chooses to send, and anyone can send anything — changing it takes one line of code or a browser setting. Treat the result as a hint for support tickets and rough analytics.
+
+If you need to know whether a capability exists, feature-detect it in JavaScript instead. That answers the real question and cannot be spoofed, because it tests the thing itself rather than a claim about it.
+
+## Why is the field prefilled?
+
+With your own browser's User-Agent, because that is the string most people arrive wanting to see — checking what a site sees when you visit, or grabbing your UA to paste into a bug report. Replace it with any other string to parse that instead.
+
+## Is my User-Agent sent to a server?
+
+No. Parsing is regex matching in this tab; nothing is transmitted. Your browser does of course send its real User-Agent to every site you visit, including this one, as part of ordinary HTTP — but this page does not record, store or forward it.
+
+## Why not use an off-the-shelf parsing library?
+
+It would be around 20 KB for one tool, and the hard part is not the code. UA parsing is a table of patterns in the right order, plus knowing which compatibility claims each browser makes. The table is here in the source, commented, so when a new browser appears the fix is one line rather than waiting for a release.
