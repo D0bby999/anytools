@@ -76,7 +76,15 @@ function tokenize(input: string): Token[] {
       tokens.push({ kind: 'ident', value: input.slice(start, i) });
       continue;
     }
-    if (ch === '+' || ch === '-' || ch === '*' || ch === '/' || ch === '^' || ch === '!' || ch === ',') {
+    if (
+      ch === '+' ||
+      ch === '-' ||
+      ch === '*' ||
+      ch === '/' ||
+      ch === '^' ||
+      ch === '!' ||
+      ch === ','
+    ) {
       tokens.push({ kind: 'op', value: ch });
       i++;
       continue;

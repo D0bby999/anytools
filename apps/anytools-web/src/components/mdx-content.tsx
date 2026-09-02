@@ -1,12 +1,7 @@
 import type { MDXComponents } from 'mdx/types';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import type { AnchorHTMLAttributes, HTMLAttributes, PropsWithChildren, ReactElement } from 'react';
 import remarkGfm from 'remark-gfm';
-import type {
-  AnchorHTMLAttributes,
-  HTMLAttributes,
-  PropsWithChildren,
-  ReactElement,
-} from 'react';
 import { MermaidDiagram } from './mermaid-diagram';
 
 const components: MDXComponents = {

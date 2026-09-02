@@ -56,7 +56,7 @@ describe('formatResult', () => {
   });
 
   it('returns Error for non-finite numbers', () => {
-    expect(formatResult(Infinity)).toBe('Error');
-    expect(formatResult(NaN)).toBe('Error');
+    expect(formatResult(Number.POSITIVE_INFINITY)).toBe('Error');
+    expect(formatResult(Number.NaN)).toBe('Error');
   });
 });

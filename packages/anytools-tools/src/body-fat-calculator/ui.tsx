@@ -7,7 +7,7 @@ import {
   SegmentedControl,
 } from '@anytools/ui';
 import { useState } from 'react';
-import { classifyBodyFat, usNavyBodyFat, type Sex } from './logic';
+import { type Sex, classifyBodyFat, usNavyBodyFat } from './logic';
 
 export function BodyFatCalculatorUi() {
   const [sex, setSex] = useState<Sex>('male');

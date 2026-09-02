@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type Dpi, type PdfToPngResult, pdfToPng } from './logic';
 
 const DPIS: { value: Dpi; label: string }[] = [
@@ -11,6 +12,9 @@ const DPIS: { value: Dpi; label: string }[] = [
 ];
 
 export function PdfToPngUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [dpi, setDpi] = useState<Dpi>(150);
   const [result, setResult] = useState<PdfToPngResult | null>(null);
@@ -24,11 +28,11 @@ export function PdfToPngUi() {
 
   const revoke = () => {
     setUrls((prev) => {
-      for (const u of prev) URL.revokeObjectURL(u);
+      for (const u of prev) objectUrls.revoke(u);
       return [];
     });
     setZipUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
+      if (prev) objectUrls.revoke(prev);
       return null;
     });
   };
@@ -42,8 +46,8 @@ export function PdfToPngUi() {
     try {
       const r = await pdfToPng(file, dpi, (done, total) => setProgress({ done, total }));
       setResult(r);
-      setUrls(r.pages.map((p) => URL.createObjectURL(p.blob)));
-      setZipUrl(r.zip ? URL.createObjectURL(r.zip) : null);
+      setUrls(r.pages.map((p) => objectUrls.create(p.blob)));
+      setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
       setError(e instanceof Error ? e.message : 'Render failed');

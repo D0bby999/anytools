@@ -1,5 +1,13 @@
 'use client';
-import { Badge, Card, CardContent, CardHeader, CardTitle, PrivacyNote, Textarea } from '@anytools/ui';
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PrivacyNote,
+  Textarea,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type DiffEntry, diffJson, summarize } from './logic';
 

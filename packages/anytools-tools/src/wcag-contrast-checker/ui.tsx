@@ -1,5 +1,14 @@
 'use client';
-import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, PrivacyNote } from '@anytools/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  PrivacyNote,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { contrastRatio, parseHex, rateContrast, suggestForeground, toHex } from './logic';
 
@@ -41,9 +50,7 @@ function PassBadge({ pass, label }: { pass: boolean; label: string }) {
   return (
     <Badge
       className={
-        pass
-          ? 'bg-success/10 text-success border-0'
-          : 'bg-destructive/10 text-destructive border-0'
+        pass ? 'bg-success/10 text-success border-0' : 'bg-destructive/10 text-destructive border-0'
       }
     >
       {label} {pass ? '✓' : '✗'}

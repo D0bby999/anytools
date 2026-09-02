@@ -21,11 +21,7 @@ export type DiscountResult = {
  * tax           = afterDiscount × (taxPct / 100)
  * final         = afterDiscount + tax
  */
-export function calcDiscount(
-  original: number,
-  discountPct: number,
-  taxPct: number = 0,
-): DiscountResult {
+export function calcDiscount(original: number, discountPct: number, taxPct = 0): DiscountResult {
   const discount = original * (discountPct / 100);
   const afterDiscount = original - discount;
   const tax = afterDiscount * (taxPct / 100);

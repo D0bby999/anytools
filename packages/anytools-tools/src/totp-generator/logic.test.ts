@@ -18,11 +18,7 @@ describe('normalizeSecret', () => {
 
 describe('currentCode', () => {
   it('matches the RFC 6238 SHA1 test vector at t=59s (8 digits)', () => {
-    const result = currentCode(
-      RFC_SECRET,
-      { digits: 8, period: 30, algorithm: 'SHA1' },
-      59 * 1000,
-    );
+    const result = currentCode(RFC_SECRET, { digits: 8, period: 30, algorithm: 'SHA1' }, 59 * 1000);
     expect(result?.code).toBe('94287082');
     expect(result?.remainingSeconds).toBe(1);
   });

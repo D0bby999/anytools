@@ -2,9 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type MergeResult, mergePdfs } from './logic';
 
 export function MergePdfUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [result, setResult] = useState<MergeResult | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -20,8 +24,8 @@ export function MergePdfUi() {
       const r = await mergePdfs(files);
       setResult(r);
       setDownloadUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(r.blob);
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
       });
     } catch (e) {
       setResult(null);
@@ -31,16 +35,10 @@ export function MergePdfUi() {
     }
   };
 
-  // Any change to the inputs invalidates the previous output — keeping a stale download
-  // button next to an edited list is how someone ships the wrong file.
-  useEffect(() => {
-    setResult(null);
-    setDownloadUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
-    setError(null);
-  }, []);
+  // Invalidating the previous output when the file list changes is handled inline in the
+  // dropzone's onChange below. An effect with `[]` deps used to sit here claiming to do it;
+  // it ran once on mount against empty state and could never fire again — dead code carrying
+  // a comment that asserted behaviour it did not have.
 
   return (
     <Card>
@@ -55,7 +53,7 @@ export function MergePdfUi() {
             setResult(null);
             setError(null);
             setDownloadUrl((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
+              if (prev) objectUrls.revoke(prev);
               return null;
             });
           }}

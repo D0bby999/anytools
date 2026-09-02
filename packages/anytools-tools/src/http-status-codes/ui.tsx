@@ -67,7 +67,9 @@ export function HttpStatusCodesUi() {
                   onClick={() => setKlass(c)}
                   aria-pressed={klass === c}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                    klass === c ? 'bg-accent text-accent-foreground border-transparent' : 'hover:bg-accent/10'
+                    klass === c
+                      ? 'bg-accent text-accent-foreground border-transparent'
+                      : 'hover:bg-accent/10'
                   }`}
                 >
                   {c}
@@ -77,7 +79,9 @@ export function HttpStatusCodesUi() {
             <ul className="divide-y rounded-lg border overflow-hidden">
               {statuses.map((entry) => (
                 <li key={entry.code} className="flex items-start gap-3 p-3">
-                  <Badge className={`border-0 font-mono shrink-0 ${CLASS_STYLE[classOfCode(entry.code)]}`}>
+                  <Badge
+                    className={`border-0 font-mono shrink-0 ${CLASS_STYLE[classOfCode(entry.code)]}`}
+                  >
                     {entry.code}
                   </Badge>
                   <div className="min-w-0">

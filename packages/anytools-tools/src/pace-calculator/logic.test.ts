@@ -55,6 +55,6 @@ describe('formatTime', () => {
 
   it('returns — for 0 or non-finite', () => {
     expect(formatTime(0)).toBe('—');
-    expect(formatTime(Infinity)).toBe('—');
+    expect(formatTime(Number.POSITIVE_INFINITY)).toBe('—');
   });
 });

@@ -2,11 +2,15 @@
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type RotateAngle, type RotateResult, readPageCount, rotatePdf } from './logic';
 
 const ANGLES: RotateAngle[] = [90, 180, 270];
 
 export function RotatePdfUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [angle, setAngle] = useState<RotateAngle>(90);
@@ -41,8 +45,8 @@ export function RotatePdfUi() {
       const r = await rotatePdf(file, angle, allPages ? '' : range);
       setResult(r);
       setUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(r.blob);
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
       });
     } catch (e) {
       setResult(null);
@@ -67,7 +71,7 @@ export function RotatePdfUi() {
             setResult(null);
             setError(null);
             setUrl((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
+              if (prev) objectUrls.revoke(prev);
               return null;
             });
           }}

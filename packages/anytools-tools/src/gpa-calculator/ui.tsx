@@ -1,7 +1,7 @@
 'use client';
 import { Button, CalculatorTemplate, Input, NumericPrimary } from '@anytools/ui';
 import { useState } from 'react';
-import { calculateGpa, GRADE_POINTS, GRADES } from './logic';
+import { GRADES, GRADE_POINTS, calculateGpa } from './logic';
 import type { Course } from './logic';
 
 let nextId = 1;

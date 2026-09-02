@@ -41,10 +41,14 @@ export async function loadBitmap(file: File): Promise<ImageBitmap> {
     );
   }
   if (bitmap.width * bitmap.height > MAX_CANVAS_PIXELS) {
-    const mp = (bitmap.width * bitmap.height) / 1_000_000;
+    // Read the dimensions BEFORE closing. A detached ImageBitmap reports 0x0, so closing first
+    // produced "This image is 0×0 (139.0 megapixels)" — nonsense, on the one message whose job
+    // is telling the user what to fix.
+    const { width, height } = bitmap;
+    const mp = (width * height) / 1_000_000;
     bitmap.close();
     throw new ImageToolError(
-      `This image is ${bitmap.width}×${bitmap.height} (${mp.toFixed(1)} megapixels), above what browsers reliably handle on a canvas. Resize it in an image editor first.`,
+      `This image is ${width}×${height} (${mp.toFixed(1)} megapixels), above what browsers reliably handle on a canvas. Resize it in an image editor first.`,
     );
   }
   return bitmap;

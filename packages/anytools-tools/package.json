@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./package.json": "./package.json",
     "./types": "./src/types.ts",
     "./meta": "./src/meta-registry.ts",
     "./base64-encode": "./src/base64-encode/index.ts",

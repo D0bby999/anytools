@@ -23,13 +23,50 @@ export type ExtractedImage = {
 
 export type ExtractResult = { images: ExtractedImage[]; zip?: Blob };
 
+type PdfImage = { width: number; height: number; data?: Uint8ClampedArray; bitmap?: ImageBitmap };
+
+/** How long to wait for one image object before giving up on it. */
+const OBJECT_TIMEOUT_MS = 10_000;
+
+/**
+ * Resolve an image XObject by name.
+ *
+ * Two traps, both of which produce a hang rather than an error:
+ *
+ * 1. pdf.js routes by id prefix. An image the evaluator decides to cache across pages — a
+ *    letterhead, a logo, exactly the repeated-image case this tool advertises — gets a `g_`
+ *    prefix and lives in `commonObjs`, NOT `page.objs`. Asking the wrong store returns nothing.
+ * 2. `PDFObjects.get(id, callback)` creates a pending entry and attaches a `.then()`. It never
+ *    rejects and never times out, so a `try/catch` around it is dead code and a missing object
+ *    leaves the UI on "Scanning…" until the tab is reloaded.
+ */
+async function resolveImage(
+  page: {
+    objs: { get(id: string, cb: (v: unknown) => void): void };
+    commonObjs: { get(id: string, cb: (v: unknown) => void): void };
+  },
+  name: string,
+): Promise<PdfImage | null> {
+  const store = name.startsWith('g_') ? page.commonObjs : page.objs;
+  return Promise.race([
+    new Promise<PdfImage | null>((resolve) => {
+      try {
+        store.get(name, (value) => resolve((value as PdfImage) ?? null));
+      } catch {
+        resolve(null);
+      }
+    }),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), OBJECT_TIMEOUT_MS)),
+  ]);
+}
+
 /**
  * pdf.js hands back raw pixel data whose channel count varies with the source colour space:
  * 1 byte per pixel for greyscale, 3 for RGB, 4 for RGBA. Canvas wants RGBA, so anything else
  * has to be expanded. CMYK is NOT handled — pdf.js converts most CMYK images to RGB on the way
  * out, but not all, and guessing at a conversion would produce confidently wrong colours.
  */
-function toRgba(data: Uint8ClampedArray, width: number, height: number): ImageData | null {
+export function toRgba(data: Uint8ClampedArray, width: number, height: number): ImageData | null {
   const pixels = width * height;
   const channels = data.length / pixels;
   const out = new Uint8ClampedArray(pixels * 4);
@@ -81,24 +118,31 @@ export async function extractImagesFromPdf(
         if (!name || seen.has(name)) continue;
         seen.add(name);
 
-        let img: { width: number; height: number; data?: Uint8ClampedArray } | undefined;
-        try {
-          // Objects resolve asynchronously; a name can be listed before its data arrives.
-          img = await new Promise((resolve) => page.objs.get(name, resolve));
-        } catch {
-          continue;
-        }
-        if (!img?.data || !img.width || !img.height) continue;
-
-        const imageData = toRgba(img.data, img.width, img.height);
-        if (!imageData) continue;
+        const img = await resolveImage(page, name);
+        if (!img || !img.width || !img.height) continue;
 
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new PdfRenderError('Your browser did not provide a 2D canvas context.');
-        ctx.putImageData(imageData, 0, 0);
+
+        // pdf.js returns ONE OF TWO shapes and the choice is not ours to make. With
+        // isOffscreenCanvasSupported (the browser default, and what openPdf sets) the worker
+        // transfers an ImageBitmap and sets `data: null`; only the resized/fallback path
+        // returns raw pixels. Handling just `data` meant every image was skipped and the UI
+        // cheerfully reported "no embedded images found" for every document ever fed to it.
+        if (img.bitmap) {
+          ctx.drawImage(img.bitmap, 0, 0);
+          // The bitmap is transferred to us; release it rather than waiting for GC.
+          img.bitmap.close?.();
+        } else if (img.data) {
+          const imageData = toRgba(img.data, img.width, img.height);
+          if (!imageData) continue;
+          ctx.putImageData(imageData, 0, 0);
+        } else {
+          continue;
+        }
 
         const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/png'));
         if (!blob) continue;

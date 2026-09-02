@@ -37,13 +37,7 @@ export function NewsletterSignup({ variant = 'inline' }: { variant?: 'inline' | 
 
   if (status === 'success') {
     return (
-      <p
-        className={
-          variant === 'card'
-            ? 'text-sm text-success'
-            : 'text-sm text-muted-foreground'
-        }
-      >
+      <p className={variant === 'card' ? 'text-sm text-success' : 'text-sm text-muted-foreground'}>
         {t('success')}
       </p>
     );

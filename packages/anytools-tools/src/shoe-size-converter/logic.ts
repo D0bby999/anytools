@@ -26,11 +26,7 @@ export const WOMEN: ShoeSizeRow[] = [
 ];
 
 /** Returns the row whose `system` value is closest to `value`. */
-export function findClosest(
-  demographic: Demographic,
-  system: System,
-  value: number,
-): ShoeSizeRow {
+export function findClosest(demographic: Demographic, system: System, value: number): ShoeSizeRow {
   const chart = demographic === 'men' ? MEN : WOMEN;
   return chart.reduce((best, row) => {
     const dist = Math.abs(row[system] - value);

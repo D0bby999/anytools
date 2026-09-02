@@ -48,11 +48,7 @@ export function ColorPaletteUi() {
       </div>
       <div className={`grid grid-cols-${Math.min(palette.length, 5)} gap-3`}>
         {palette.map((c) => (
-          <div
-            key={c}
-            className="rounded-lg border overflow-hidden"
-            style={{ backgroundColor: c }}
-          >
+          <div key={c} className="rounded-lg border overflow-hidden" style={{ backgroundColor: c }}>
             <div className="h-32" />
             <div className="bg-card border-t p-2 text-center">
               <button

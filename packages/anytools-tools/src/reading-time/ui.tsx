@@ -7,8 +7,12 @@ export function ReadingTimeUi() {
   const [text, setText] = useState('');
   const [readWpm, setReadWpm] = useState(238);
 
-  const { words, readSeconds: readSec, speakSeconds: speakSec, skimSeconds: skimSec } =
-    estimateReadingTime(text, readWpm);
+  const {
+    words,
+    readSeconds: readSec,
+    speakSeconds: speakSec,
+    skimSeconds: skimSec,
+  } = estimateReadingTime(text, readWpm);
 
   return (
     <div className="space-y-6">

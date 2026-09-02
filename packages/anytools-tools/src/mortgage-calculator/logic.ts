@@ -24,11 +24,7 @@ export type MortgageResult = {
  *
  * Verified: amortize(320000, 6.5, 30) → monthly ≈ 2022.62
  */
-export function amortize(
-  principal: number,
-  annualRatePct: number,
-  years: number,
-): MortgageResult {
+export function amortize(principal: number, annualRatePct: number, years: number): MortgageResult {
   const months = years * 12;
 
   if (months <= 0) return { monthly: 0, totalPaid: 0, totalInterest: 0 };

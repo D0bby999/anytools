@@ -3,12 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools
 import { useEffect, useState } from 'react';
 import type { OutputFormat } from '../shared/canvas-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type CompressResult, compressImage, compressToTargetSize } from './logic';
 
 const FORMATS: OutputFormat[] = ['webp', 'jpeg', 'png'];
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
 export function CompressImageUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [format, setFormat] = useState<OutputFormat>('webp');
   const [quality, setQuality] = useState(0.8);
@@ -24,8 +28,8 @@ export function CompressImageUi() {
 
   useEffect(() => {
     setSrcUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return file ? URL.createObjectURL(file) : null;
+      if (prev) objectUrls.revoke(prev);
+      return file ? objectUrls.create(file) : null;
     });
   }, [file]);
 
@@ -34,13 +38,17 @@ export function CompressImageUi() {
     setBusy(true);
     setError(null);
     try {
-      const r = byTarget
+      // PNG is lossless, so quality is ignored and every search iteration produces a
+      // byte-identical file. Running the budget search there is 9 full-resolution encodes to
+      // reach the same answer the first one gave.
+      const useTarget = byTarget && format !== 'png';
+      const r = useTarget
         ? await compressToTargetSize(file, format, targetKb * 1024)
         : await compressImage(file, { format, quality });
       setResult(r);
       setUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(r.blob);
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
       });
     } catch (e) {
       setResult(null);
@@ -157,6 +165,16 @@ export function CompressImageUi() {
           <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
             This image has transparent areas and JPEG cannot store them — they have been filled in.
             Choose WebP or PNG to keep the transparency.
+          </output>
+        )}
+
+        {result?.targetMet === false && (
+          // Without this the panel below reports the saving against the ORIGINAL, so a user
+          // who asked for 500 KB and got 3 MB reads "40% smaller" next to a download button.
+          <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+            Could not reach {targetKb} KB even at the lowest quality — the result below is{' '}
+            {(result.sizeAfter / 1024).toFixed(0)} KB. Reduce the dimensions with Resize Image
+            first; past a point, quality alone cannot get there.
           </output>
         )}
 

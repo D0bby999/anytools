@@ -49,6 +49,18 @@ export async function loadPdfjs(): Promise<PdfjsModule> {
   return pdfjs;
 }
 
+/**
+ * pdf.js fetches these three resource sets by URL at runtime rather than importing them, so a
+ * bundler never sees them and they are simply absent unless copied. They are placed under
+ * public/pdfjs/ by scripts/copy-pdfjs-assets.mjs, which runs before build and dev.
+ *
+ * Without cMapUrl, a PDF using CJK text with non-embedded fonts makes the worker throw
+ * "Built-in CMap parameters are not provided." — from page.render(), which is OUTSIDE this
+ * function's catch, so the raw internal message reaches the user. Without wasmUrl, JPEG 2000
+ * images (routine in scans) do not decode. Served from our own origin, never a CDN.
+ */
+const ASSET_BASE = '/pdfjs/';
+
 /** Open a document with the hardened options. Always use this rather than getDocument directly. */
 export async function openPdf(file: File) {
   const pdfjs = await loadPdfjs();
@@ -57,7 +69,16 @@ export async function openPdf(file: File) {
       data: new Uint8Array(await file.arrayBuffer()),
       isEvalSupported: false,
       disableFontFace: true,
-      // Do not let a document pull in remote resources of its own.
+      cMapUrl: `${ASSET_BASE}cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `${ASSET_BASE}standard_fonts/`,
+      wasmUrl: `${ASSET_BASE}wasm/`,
+      // Selects the ImageBitmap transfer path for decoded images. NOTE: with this on, the
+      // worker returns `{ data: null, …, bitmap }` rather than raw pixels — see
+      // extract-images-from-pdf, which must handle both shapes. It is NOT a security control;
+      // an earlier comment here claimed it stopped documents fetching remote resources, which
+      // it does not, and that wrong comment hid a bug that made image extraction return
+      // nothing on every input.
       isOffscreenCanvasSupported: true,
     }).promise;
   } catch (e) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateGpa, GRADE_POINTS } from './logic';
+import { GRADE_POINTS, calculateGpa } from './logic';
 import type { Course } from './logic';
 
 const course = (id: number, grade: string, credits: number): Course => ({

@@ -8,7 +8,7 @@ import {
   WeightInput,
 } from '@anytools/ui';
 import { useState } from 'react';
-import { mifflinStJeor, type Sex } from './logic';
+import { type Sex, mifflinStJeor } from './logic';
 
 export function BmrCalculatorUi() {
   const [kg, setKg] = useState(70);

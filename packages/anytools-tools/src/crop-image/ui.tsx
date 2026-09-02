@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools
 import { useEffect, useRef, useState } from 'react';
 import type { OutputFormat } from '../shared/canvas-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import {
   ASPECT_PRESETS,
   type CropRect,
@@ -16,6 +17,9 @@ const FULL: CropRect = { x: 0, y: 0, width: 1, height: 1 };
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
 export function CropImageUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [srcUrl, setSrcUrl] = useState<string | null>(null);
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
@@ -36,11 +40,14 @@ export function CropImageUi() {
 
   useEffect(() => {
     setSrcUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return file ? URL.createObjectURL(file) : null;
+      if (prev) objectUrls.revoke(prev);
+      return file ? objectUrls.create(file) : null;
     });
     setRect(FULL);
     setResult(null);
+    // Also clear the cached dimensions: until the new <img> fires onLoad, applyAspect would
+    // otherwise be doing its pixel-ratio maths against the PREVIOUS image's size.
+    setNatural(null);
   }, [file]);
 
   const toFraction = (clientX: number, clientY: number) => {
@@ -83,8 +90,8 @@ export function CropImageUi() {
       const r = await cropImage(file, rect, format);
       setResult(r);
       setOutUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(r.blob);
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
       });
     } catch (e) {
       setResult(null);
@@ -93,6 +100,15 @@ export function CropImageUi() {
       setBusy(false);
     }
   };
+
+  // A click with no drag leaves the rect at the 0.001 floor. On a 4000x3000 source that is a
+  // 4x3 px "crop" downloaded under the original filename. Require a selection big enough to
+  // have been meant.
+  const MIN_CROP_PX = 8;
+  const usableSelection =
+    natural !== null &&
+    rect.width * natural.w >= MIN_CROP_PX &&
+    rect.height * natural.h >= MIN_CROP_PX;
 
   const cropPx = natural
     ? {
@@ -177,7 +193,9 @@ export function CropImageUi() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Drag on the image to select an area.
+              {usableSelection
+                ? 'Drag on the image to select an area.'
+                : 'Drag on the image to select an area — the current selection is too small to crop.'}
               {cropPx && ` Selection: ${cropPx.w} × ${cropPx.h} px`}
               {natural && ` of ${natural.w} × ${natural.h}`}
             </p>
@@ -205,7 +223,7 @@ export function CropImageUi() {
               <button
                 type="button"
                 onClick={run}
-                disabled={busy}
+                disabled={busy || !usableSelection}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
               >
                 {busy ? 'Cropping…' : 'Crop'}

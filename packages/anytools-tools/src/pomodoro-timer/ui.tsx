@@ -1,7 +1,7 @@
 'use client';
 import { Button, SegmentedControl } from '@anytools/ui';
 import { useEffect, useRef, useState } from 'react';
-import { type Phase, DURATIONS, LABELS, fmtSeconds, phaseProgress } from './logic';
+import { DURATIONS, LABELS, type Phase, fmtSeconds, phaseProgress } from './logic';
 
 // iOS Safari only allows AudioContext.start() inside a user gesture. We create
 // the context on the first Start click, store it in a ref, and resume() it

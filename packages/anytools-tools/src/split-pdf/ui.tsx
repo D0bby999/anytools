@@ -2,9 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type SplitResult, readPageCount, splitPdf } from './logic';
 
 export function SplitPdfUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [mode, setMode] = useState<'ranges' | 'each'>('ranges');
@@ -19,11 +23,11 @@ export function SplitPdfUi() {
 
   const revoke = () => {
     setUrls((prev) => {
-      for (const u of prev) URL.revokeObjectURL(u);
+      for (const u of prev) objectUrls.revoke(u);
       return [];
     });
     setZipUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
+      if (prev) objectUrls.revoke(prev);
       return null;
     });
   };
@@ -55,8 +59,8 @@ export function SplitPdfUi() {
         mode === 'each' ? { kind: 'each' } : { kind: 'ranges', range },
       );
       setResult(r);
-      setUrls(r.parts.map((p) => URL.createObjectURL(p.blob)));
-      setZipUrl(r.zip ? URL.createObjectURL(r.zip) : null);
+      setUrls(r.parts.map((p) => objectUrls.create(p.blob)));
+      setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
       setError(e instanceof Error ? e.message : 'Split failed');

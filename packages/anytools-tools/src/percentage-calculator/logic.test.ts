@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { percentOf, whatPercent, percentChange, calcPercent } from './logic';
+import { calcPercent, percentChange, percentOf, whatPercent } from './logic';
 
 describe('percentOf', () => {
   it('20% of 150 = 30', () => {

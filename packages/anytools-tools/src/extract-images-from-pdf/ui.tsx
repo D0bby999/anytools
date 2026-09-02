@@ -2,9 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type ExtractResult, extractImagesFromPdf } from './logic';
 
 export function ExtractImagesFromPdfUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [result, setResult] = useState<ExtractResult | null>(null);
   const [urls, setUrls] = useState<string[]>([]);
@@ -17,11 +21,11 @@ export function ExtractImagesFromPdfUi() {
 
   const revoke = () => {
     setUrls((prev) => {
-      for (const u of prev) URL.revokeObjectURL(u);
+      for (const u of prev) objectUrls.revoke(u);
       return [];
     });
     setZipUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
+      if (prev) objectUrls.revoke(prev);
       return null;
     });
   };
@@ -35,8 +39,8 @@ export function ExtractImagesFromPdfUi() {
     try {
       const r = await extractImagesFromPdf(file, (done, total) => setProgress({ done, total }));
       setResult(r);
-      setUrls(r.images.map((i) => URL.createObjectURL(i.blob)));
-      setZipUrl(r.zip ? URL.createObjectURL(r.zip) : null);
+      setUrls(r.images.map((i) => objectUrls.create(i.blob)));
+      setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
       setError(e instanceof Error ? e.message : 'Extraction failed');

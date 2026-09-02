@@ -14,7 +14,11 @@ export function SleepCalculatorUi() {
   const ref = new Date();
   const anchor = parseTimeString(time, ref);
   const cycleRows = computeSleepTimes(mode, anchor);
-  const rows = cycleRows.map((r) => ({ label: r.label, value: fmtTime(r.target), emphasis: r.emphasis }));
+  const rows = cycleRows.map((r) => ({
+    label: r.label,
+    value: fmtTime(r.target),
+    emphasis: r.emphasis,
+  }));
 
   return (
     <CalculatorTemplate

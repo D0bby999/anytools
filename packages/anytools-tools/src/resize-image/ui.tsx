@@ -3,12 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools
 import { useState } from 'react';
 import type { OutputFormat } from '../shared/canvas-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type ResizeMode, type ResizeResult, resizeImage } from './logic';
 
 const PRESETS = [1920, 1280, 1080, 800, 400];
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
 export function ResizeImageUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [kind, setKind] = useState<ResizeMode['kind']>('fit');
   const [maxSide, setMaxSide] = useState(1920);
@@ -38,8 +42,8 @@ export function ResizeImageUi() {
       const r = await resizeImage(file, mode(), format);
       setResult(r);
       setUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(r.blob);
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
       });
     } catch (e) {
       setResult(null);

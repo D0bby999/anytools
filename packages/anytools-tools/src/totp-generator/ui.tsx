@@ -12,7 +12,13 @@ import {
 } from '@anytools/ui';
 import QRCode from 'qrcode';
 import { useEffect, useMemo, useState } from 'react';
-import { type TotpOptions, DEFAULT_OPTIONS, currentCode, generateRandomSecret, otpauthUri } from './logic';
+import {
+  DEFAULT_OPTIONS,
+  type TotpOptions,
+  currentCode,
+  generateRandomSecret,
+  otpauthUri,
+} from './logic';
 
 export function TotpGeneratorUi() {
   const [secret, setSecret] = useState('');
@@ -28,7 +34,10 @@ export function TotpGeneratorUi() {
     return () => clearInterval(timer);
   }, []);
 
-  const result = useMemo(() => (secret ? currentCode(secret, options, now) : null), [secret, options, now]);
+  const result = useMemo(
+    () => (secret ? currentCode(secret, options, now) : null),
+    [secret, options, now],
+  );
   const uri = useMemo(
     () => (secret ? otpauthUri(secret, label, issuer, options) : null),
     [secret, label, issuer, options],
@@ -104,23 +113,25 @@ export function TotpGeneratorUi() {
                 style={{ width: `${(result.remainingSeconds / result.period) * 100}%` }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              refreshes in {result.remainingSeconds}s
-            </p>
+            <p className="text-xs text-muted-foreground">refreshes in {result.remainingSeconds}s</p>
           </div>
         )}
 
         {secret !== '' && result === null && (
-          <p className="text-sm text-destructive">
-            Invalid base32 secret (allowed: A–Z, 2–7).
-          </p>
+          <p className="text-sm text-destructive">Invalid base32 secret (allowed: A–Z, 2–7).</p>
         )}
 
         {uri && (
           <div className="grid sm:grid-cols-[auto_1fr] gap-4 items-start rounded-lg border p-4">
             {qrDataUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={qrDataUrl} alt="otpauth QR code" width={144} height={144} className="rounded" />
+              <img
+                src={qrDataUrl}
+                alt="otpauth QR code"
+                width={144}
+                height={144}
+                className="rounded"
+              />
             )}
             <div className="space-y-2 min-w-0">
               <div className="grid grid-cols-2 gap-2">
@@ -140,7 +151,9 @@ export function TotpGeneratorUi() {
                 />
               </div>
               <div className="flex items-start gap-2">
-                <code className="font-mono text-xs break-all flex-1 text-muted-foreground">{uri}</code>
+                <code className="font-mono text-xs break-all flex-1 text-muted-foreground">
+                  {uri}
+                </code>
                 <CopyButton text={uri} />
               </div>
               <p className="text-xs text-muted-foreground">

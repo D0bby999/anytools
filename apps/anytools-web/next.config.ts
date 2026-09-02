@@ -59,6 +59,7 @@ const nextConfig: NextConfig = {
           // silently kill the site's only revenue. Collect violations first, then enforce.
           // The value below is deliberately permissive about Google's ad hosts and strict
           // about everything else.
+          { key: 'Reporting-Endpoints', value: 'csp="/api/csp-report"' },
           {
             key: 'Content-Security-Policy-Report-Only',
             value: [
@@ -66,19 +67,25 @@ const nextConfig: NextConfig = {
               // 'unsafe-inline'/'unsafe-eval' are required by Next's inline bootstrap and by
               // the ad stack. They are what a later enforcing policy should try to remove,
               // via nonces, once the report data shows what actually loads.
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://stats.besttoys.world",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.googleadservices.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com https://stats.besttoys.world",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               // blob: is what the PDF and image tools use for their output; worker-src is
               // what pdf.js needs for pdf.worker.
               "worker-src 'self' blob:",
-              "connect-src 'self' https://pagead2.googlesyndication.com https://*.google-analytics.com https://stats.besttoys.world",
-              'frame-src https://googleads.g.doubleclick.net https://*.safeframe.googlesyndication.com',
+              "connect-src 'self' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.adtrafficquality.google https://*.google-analytics.com https://stats.besttoys.world",
+              "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.safeframe.googlesyndication.com https://*.adtrafficquality.google",
               "font-src 'self' data:",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'none'",
+              // Without a destination the header only prints into each visitor's own console
+              // and the operator learns nothing — the "collect, then enforce" plan above
+              // cannot reach its second step. report-uri is the legacy form and still the
+              // one browsers reliably honour for report-only.
+              'report-uri /api/csp-report',
+              'report-to csp',
             ].join('; '),
           },
         ],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countWords, wordsToSeconds, formatDuration, estimateReadingTime } from './logic';
+import { countWords, estimateReadingTime, formatDuration, wordsToSeconds } from './logic';
 
 describe('countWords', () => {
   it('returns 0 for empty string', () => {

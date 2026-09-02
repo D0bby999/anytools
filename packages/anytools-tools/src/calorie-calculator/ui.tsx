@@ -11,9 +11,9 @@ import { useState } from 'react';
 import {
   ACTIVITY_FACTOR,
   ACTIVITY_LABEL,
-  calculateCalories,
   type Activity,
   type Sex,
+  calculateCalories,
 } from './logic';
 
 export function CalorieCalculatorUi() {

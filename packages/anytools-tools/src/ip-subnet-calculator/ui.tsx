@@ -1,5 +1,14 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, Input, PrivacyNote, TableResult } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  Input,
+  PrivacyNote,
+  TableResult,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { calculateSubnet } from './logic';
 

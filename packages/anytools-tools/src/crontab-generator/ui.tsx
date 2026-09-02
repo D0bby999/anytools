@@ -1,5 +1,13 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, Input, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  Input,
+  PrivacyNote,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type CronFields, EVERY, PRESETS, describeExpression } from './logic';
 
@@ -63,7 +71,9 @@ export function CrontabGeneratorUi() {
               </p>
               <ul className="space-y-1 font-mono text-sm">
                 {result.nextRuns.map((run) => (
-                  <li key={run.toISOString()}>{run.toISOString().replace('T', ' ').slice(0, 16)}</li>
+                  <li key={run.toISOString()}>
+                    {run.toISOString().replace('T', ' ').slice(0, 16)}
+                  </li>
                 ))}
               </ul>
             </div>

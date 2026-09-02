@@ -4,13 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/copy-pdfjs-assets.mjs && next dev",
     "dev:turbo": "next dev --turbopack",
-    "build": "next build",
+    "build": "node scripts/copy-pdfjs-assets.mjs && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint src",
-    "test": "vitest run"
+    "test": "vitest run",
+    "pdfjs:assets": "node scripts/copy-pdfjs-assets.mjs"
   },
   "dependencies": {
     "@anytools/analytics": "workspace:*",

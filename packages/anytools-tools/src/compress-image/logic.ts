@@ -9,7 +9,17 @@ export type CompressResult = {
   format: OutputFormat;
   /** True when the source used transparency — JPEG would lose it. */
   sourceHasAlpha: boolean;
+  /**
+   * Set only by compressToTargetSize. `false` means the budget could not be met even at the
+   * lowest quality — the caller MUST say so rather than reporting the saving against the
+   * original, which reads as success for a result that missed by a mile.
+   */
+  targetMet?: boolean;
 };
+
+/** Quality search bounds. 1 is included so an image that already fits is not re-encoded lossily. */
+const MIN_QUALITY = 0.1;
+const MAX_QUALITY = 1;
 
 export type CompressOptions = {
   format: OutputFormat;
@@ -56,8 +66,26 @@ export async function compressToTargetSize(
   const bitmap = await loadBitmap(file);
   try {
     const alpha = hasAlpha(bitmap);
-    let lo = 0.1;
-    let hi = 1;
+
+    // Try full quality first. Without this the search interval is open at the top — the first
+    // midpoint is 0.55 — so an image that already fits at quality 1 gets re-encoded lossily
+    // for no reason at all.
+    const full = await drawToBlob(bitmap, bitmap.width, bitmap.height, format, MAX_QUALITY);
+    if (full.size <= targetBytes) {
+      return {
+        blob: full,
+        width: bitmap.width,
+        height: bitmap.height,
+        sizeBefore: file.size,
+        sizeAfter: full.size,
+        format,
+        sourceHasAlpha: alpha,
+        targetMet: true,
+      };
+    }
+
+    let lo = MIN_QUALITY;
+    let hi = MAX_QUALITY;
     let best: Blob | null = null;
 
     for (let i = 0; i < 8; i++) {
@@ -72,19 +100,22 @@ export async function compressToTargetSize(
       }
     }
 
-    // Nothing fit even at the lowest quality. Return that attempt rather than throwing:
-    // the caller can see the size and decide, and "as small as this format goes" is a more
-    // useful answer than an error.
-    if (!best) best = await drawToBlob(bitmap, bitmap.width, bitmap.height, format, 0.1);
+    // Nothing fit even at the lowest quality. Return that attempt rather than throwing — "as
+    // small as this format goes" is more useful than an error — but flag it, because reporting
+    // the saving against the original would read as success for a result that missed the
+    // budget entirely.
+    const fallback =
+      best ?? (await drawToBlob(bitmap, bitmap.width, bitmap.height, format, MIN_QUALITY));
 
     return {
-      blob: best,
+      blob: fallback,
       width: bitmap.width,
       height: bitmap.height,
       sizeBefore: file.size,
-      sizeAfter: best.size,
+      sizeAfter: fallback.size,
       format,
       sourceHasAlpha: alpha,
+      targetMet: fallback.size <= targetBytes,
     };
   } finally {
     bitmap.close();

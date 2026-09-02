@@ -19,8 +19,12 @@ export function TimeCardCalculatorUi() {
   const [days, setDays] = useState<Day[]>(DEFAULT_DAYS);
   const [rate, setRate] = useState(20);
 
-  const { totalHours: total, regularHours: regular, overtimeHours: overtime, grossPay: pay } =
-    summariseWeek(days, rate);
+  const {
+    totalHours: total,
+    regularHours: regular,
+    overtimeHours: overtime,
+    grossPay: pay,
+  } = summariseWeek(days, rate);
 
   const update = (i: number, patch: Partial<Day>) =>
     setDays((ds) => ds.map((d, idx) => (idx === i ? { ...d, ...patch } : d)));
@@ -73,7 +77,10 @@ export function TimeCardCalculatorUi() {
             rows={[
               { label: 'Total hours', value: `${total.toFixed(2)} h`, emphasis: true },
               { label: `Regular (≤40h)`, value: `${regular.toFixed(2)} h @ $${rate}/h` },
-              { label: 'Overtime (>40h)', value: `${overtime.toFixed(2)} h @ $${(rate * 1.5).toFixed(2)}/h` },
+              {
+                label: 'Overtime (>40h)',
+                value: `${overtime.toFixed(2)} h @ $${(rate * 1.5).toFixed(2)}/h`,
+              },
               { label: 'Pay (FLSA 1.5× OT)', value: `$${pay.toFixed(2)}`, emphasis: true },
             ]}
           />

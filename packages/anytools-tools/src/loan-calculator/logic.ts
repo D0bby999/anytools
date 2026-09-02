@@ -22,11 +22,7 @@ export type LoanResult = {
  *
  * Special case: r = 0 → M = P / n (simple division, no interest)
  */
-export function amortize(
-  principal: number,
-  annualRatePct: number,
-  months: number,
-): LoanResult {
+export function amortize(principal: number, annualRatePct: number, months: number): LoanResult {
   if (months <= 0) return { monthly: 0, total: 0, interest: 0 };
 
   const monthlyRate = annualRatePct / 100 / 12;

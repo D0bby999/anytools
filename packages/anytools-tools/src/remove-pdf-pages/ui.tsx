@@ -2,9 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { useObjectUrls } from '../shared/use-object-urls';
 import { type RemoveResult, readPageCount, removePdfPages } from './logic';
 
 export function RemovePdfPagesUi() {
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [range, setRange] = useState('');
@@ -37,8 +41,8 @@ export function RemovePdfPagesUi() {
       const r = await removePdfPages(file, range);
       setResult(r);
       setUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(r.blob);
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
       });
     } catch (e) {
       setResult(null);
@@ -63,7 +67,7 @@ export function RemovePdfPagesUi() {
             setResult(null);
             setError(null);
             setUrl((prev) => {
-              if (prev) URL.revokeObjectURL(prev);
+              if (prev) objectUrls.revoke(prev);
               return null;
             });
           }}

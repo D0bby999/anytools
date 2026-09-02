@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { offsetMinutes, parseTimeString, computeSleepTimes, CYCLE_MIN, FALL_ASLEEP_MIN } from './logic';
+import {
+  CYCLE_MIN,
+  FALL_ASLEEP_MIN,
+  computeSleepTimes,
+  offsetMinutes,
+  parseTimeString,
+} from './logic';
 
 describe('offsetMinutes', () => {
   it('adds positive minutes', () => {

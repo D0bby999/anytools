@@ -25,17 +25,14 @@ export function usNavyBodyFat(
   if (sex === 'male') {
     if (waistCm - neckCm <= 0) return null;
     return (
-      495 / (1.0324 - 0.19077 * Math.log10(waistCm - neckCm) + 0.15456 * Math.log10(heightCm)) -
-      450
+      495 / (1.0324 - 0.19077 * Math.log10(waistCm - neckCm) + 0.15456 * Math.log10(heightCm)) - 450
     );
   }
 
   if (waistCm + hipCm - neckCm <= 0) return null;
   return (
     495 /
-      (1.29579 -
-        0.35004 * Math.log10(waistCm + hipCm - neckCm) +
-        0.221 * Math.log10(heightCm)) -
+      (1.29579 - 0.35004 * Math.log10(waistCm + hipCm - neckCm) + 0.221 * Math.log10(heightCm)) -
     450
   );
 }

@@ -105,6 +105,10 @@ export function MultiFileDropzone({
           type="file"
           accept={accept}
           multiple={multiple}
+          // The input is a descendant of the clickable container above, and
+          // HTMLElement.click() dispatches a BUBBLING click — without this the container's
+          // handler re-enters and re-opens the file dialog.
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => {
             accepted([...(e.target.files ?? [])]);
             // Allow re-selecting the same file after a removal.
@@ -126,7 +130,7 @@ export function MultiFileDropzone({
         <ul className="space-y-1">
           {files.map((f, i) => (
             <li
-              key={`${f.name}-${f.size}-${f.lastModified}`}
+              key={`${i}-${f.name}-${f.size}-${f.lastModified}`}
               draggable={reorderable}
               onDragStart={() => {
                 dragIndex.current = i;

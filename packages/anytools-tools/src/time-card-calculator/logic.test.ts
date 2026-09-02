@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseHM, dayHours, summariseWeek } from './logic';
+import { dayHours, parseHM, summariseWeek } from './logic';
 
 describe('parseHM', () => {
   it('returns null for empty string', () => {
