@@ -16,5 +16,19 @@ describe('convertImage size guard', () => {
   });
 });
 
-// Note: full encode/decode tests run in browser (Playwright) — happy-dom does not
-// implement canvas.toBlob or HTMLImageElement decoding reliably.
+// COVERAGE GAP — read before trusting this file.
+//
+// The encode/decode path is NOT tested anywhere. happy-dom (this package's vitest
+// environment) returns null from canvas.getContext('2d') and never invokes the
+// toBlob callback, so a test of the real conversion hangs to timeout rather than
+// failing usefully. There is no browser lane either: the repo has no Playwright
+// dependency and no playwright config.
+//
+// This note previously read "full encode/decode tests run in browser (Playwright)",
+// which described a suite that has never existed — a claim of coverage is worse than
+// none, because it stops the next person looking. What is actually covered here is
+// the size guard and its constant.
+//
+// So: quality, EXIF orientation and format correctness are verified by hand, not by
+// CI. Changing this file's logic means checking a portrait phone photo, a PNG with
+// transparency, and an oversized image in a real browser.

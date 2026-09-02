@@ -3,6 +3,7 @@ import { ClusterLandingHero } from '@/components/cluster-landing-hero';
 import { ClusterToolGrid } from '@/components/cluster-tool-grid';
 import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS, isClusterId, isPopulatedCluster } from '@/lib/cluster-config';
+import { clusterHasBodiedTool } from '@/lib/has-localized-tool-body';
 import { breadcrumbSchema, jsonLdSafe } from '@/lib/schema';
 import { clampMetaDescription } from '@/lib/seo-metadata';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
@@ -31,13 +32,30 @@ export async function generateMetadata({
   // clamp it to what a SERP will show.
   const description = clampMetaDescription(t(`clusterLanding.${cluster}.intro`));
   const canonicalPath = `/${locale}/${cluster}`;
+  // A cluster whose tools all lack a body in this locale is a grid of links to pages we
+  // mark noindex. Serving it is fine — someone browsing still sees the tools — but asking
+  // Google to index it is the same claim the thin tool pages were making. The sitemap uses
+  // this exact predicate, so the two cannot drift.
+  const indexable = clusterHasBodiedTool(locale, cluster);
   return {
     metadataBase: METADATA_BASE,
     title: `${label} — Free Online Tools | AnyTools`,
     description,
     alternates: {
       canonical: canonicalPath,
-      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/${cluster}`])),
+      // Only advertise locales that are themselves indexable — an unfiltered set had the
+      // English page hreflang-linking the vi/es/pt pages it excludes.
+      languages: Object.fromEntries(
+        routing.locales
+          .filter((l) => clusterHasBodiedTool(l, cluster))
+          .map((l) => [l, `/${l}/${cluster}`]),
+      ),
+    },
+    // follow stays true: the grid's links to sibling tools are still worth crawling.
+    robots: {
+      index: indexable,
+      follow: true,
+      googleBot: { index: indexable, follow: true },
     },
     openGraph: {
       title: `${label} — AnyTools`,

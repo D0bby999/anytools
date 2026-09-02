@@ -10,7 +10,7 @@
 
 import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS } from '@/lib/cluster-config';
-import { hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
+import { clusterHasBodiedTool, hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { toolMetas } from '@anytools/tools/meta';
@@ -75,13 +75,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     });
     // Cluster landing pages (one per cluster per locale).
+    //
+    // Gated the same way tool URLs are. A cluster page is a grid of links; if none of
+    // its tools have a body in this locale, every link points at a page our own robots
+    // tag marks noindex — so the URL exists only to advertise pages we are telling
+    // Google to skip. That is a smaller version of the pattern that got the AdSense
+    // application declined, and the fix shipped on 2026-09-02 gated the tool loop below
+    // while leaving this one emitting all four locales unconditionally.
     for (const cluster of CLUSTERS) {
+      if (!clusterHasBodiedTool(locale, cluster)) continue;
       urls.push({
         url: `${BASE}/${locale}/${cluster}`,
         changeFrequency: 'weekly',
         priority: 0.7,
         alternates: {
-          languages: Object.fromEntries(routing.locales.map((l) => [l, `${BASE}/${l}/${cluster}`])),
+          // Same predicate the page's own robots tag and hreflang use, so the three
+          // signals cannot disagree.
+          languages: Object.fromEntries(
+            routing.locales
+              .filter((l) => clusterHasBodiedTool(l, cluster))
+              .map((l) => [l, `${BASE}/${l}/${cluster}`]),
+          ),
         },
       });
     }
