@@ -163,33 +163,69 @@
     "toolCount": "{count, plural, one {# herramienta} other {# herramientas}}",
     "comingSoon": "Próximamente más herramientas — vuelve o sigue el repo de GitHub.",
     "browseAll": "Ver todas las herramientas",
+    "bodyHeading": "Cómo elegir entre estas herramientas",
     "encoding": {
       "tagline": "Codificadores y decodificadores para formatos del día a día",
-      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Pega, lee, listo. Todo el procesamiento en tu navegador — la entrada nunca sale de tu equipo."
+      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Pega, lee, listo. Todo el procesamiento en tu navegador — la entrada nunca sale de tu equipo.",
+      "body": [
+        "Codificar no es cifrar. Base64, hexadecimal, URL-percent y las entidades HTML existen para mover bytes con seguridad por un canal que de otro modo los destrozaría: una cabecera de correo, una cadena de consulta, un atributo HTML. Cualquiera puede revertirlas, así que nunca las uses para ocultar un secreto.",
+        "Elige según el canal, no por costumbre. Usa codificación URL para todo lo que vaya en una query string o en la ruta; entidades HTML cuando el texto deba sobrevivir dentro del marcado; Base64 cuando datos binarios tengan que viajar en un campo de solo texto; hexadecimal o binario cuando necesites leer un valor byte a byte. El decodificador de JWT es un caso aparte: separa el token y muestra los claims, que es como compruebas una caducidad o una audiencia sin fiarte de la aplicación que lo emitió.",
+        "La referencia de códigos HTTP y tipos MIME está aquí por el mismo motivo que los conversores: responde a la pregunta que de verdad tenías, normalmente si corresponde un 302 o un 307, o qué Content-Type respetará el navegador. Todo funciona en tu navegador, así que el texto que pegas nunca llega a un servidor."
+      ]
     },
     "formatters": {
       "tagline": "Pretty-print y minify en un click",
-      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Cada formateador muestra preview side-by-side y respeta tus preferencias de indentación."
+      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Cada formateador muestra preview side-by-side y respeta tus preferencias de indentación.",
+      "body": [
+        "Un formateador sirve dos veces: cuando convierte un muro de texto minificado en algo legible, y cuando se niega a analizarlo y te dice dónde está roto el archivo. El segundo uso es el que salva una tarde: un JSON que falla en la línea 412, columna 9 es mucho mejor informe de error que \"la API no devolvió nada\".",
+        "JSON, YAML, XML y SQL fallan cada uno a su manera. YAML castiga las tabulaciones y los booleanos ambiguos; a XML le importan los espacios de nombres y los ampersands sin escapar; formatear SQL sirve sobre todo para que una cláusula WHERE larga se pueda revisar. La herramienta de diff de JSON es la indicada cuando dos respuestas deberían ser idénticas y no lo son: muestra las claves que cambiaron en vez de obligarte a comparar dos bloques.",
+        "Los embellecedores de HTML, CSS y JavaScript también minifican, lo que ayuda a comprobar cuánto encogería un archivo antes de añadir un paso de compilación. El formateo ocurre en tu navegador, así que puedes pegar una carga útil real sin enviarla a ningún sitio."
+      ]
     },
     "generators": {
       "tagline": "Datos aleatorios bajo demanda",
-      "intro": "UUIDs, contraseñas seguras, hashes, mock data, QR, Lorem Ipsum. Ajustados para velocidad con defaults usables en producción."
+      "intro": "UUIDs, contraseñas seguras, hashes, mock data, QR, Lorem Ipsum. Ajustados para velocidad con defaults usables en producción.",
+      "body": [
+        "Un valor generado vale lo que valga su fuente de aleatoriedad. Los generadores de contraseñas y de UUID de aquí usan la fuente criptográfica del navegador en lugar de Math.random, algo que importa en cuanto el valor sirve para algo que un desconocido podría intentar adivinar.",
+        "Ajusta la herramienta a la amenaza. Un generador de contraseñas produce valores que una persona guarda en un gestor; la herramienta bcrypt es para valores que guarda un servidor, porque hace lenta cada comprobación a propósito. El generador de hashes cubre MD5 y la familia SHA, rápidos por diseño y por tanto correctos para sumas de verificación e incorrectos para contraseñas. TOTP produce los códigos de seis dígitos del inicio de sesión en dos pasos, útil para confirmar que un secreto compartido quedó bien configurado.",
+        "Lorem Ipsum, datos de prueba y códigos QR son la mitad cotidiana del conjunto: texto de relleno con la forma adecuada, registros de ejemplo con nombres y fechas plausibles, y un QR cuyo tamaño y corrección de errores puedes ajustar antes de imprimirlo. Todo se genera en tu navegador: ningún valor se transmite ni se registra."
+      ]
     },
     "converters": {
       "tagline": "Traducir entre formatos sin scripts",
-      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, conversiones de imagen. Opciones sensatas visibles; flags raras escondidas."
+      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, conversiones de imagen. Opciones sensatas visibles; flags raras escondidas.",
+      "body": [
+        "La mayoría de las conversiones pierden información en un sentido y no en el otro, y saber en cuál es toda la habilidad. De CSV a JSON es seguro; de JSON a CSV se pierde el anidamiento. De Markdown a HTML es fiel; de HTML a Markdown se cae cualquier atributo que Markdown no sepa expresar. Los conversores de aquí declaran lo que descartan en vez de descartarlo en silencio.",
+        "JSON, YAML y TOML describen las mismas formas con reglas distintas, así que las sorpresas viven en la ida y vuelta: YAML leerá un código de país sin comillas como booleano, y TOML no tiene null. El conversor de curl va en sentido contrario, convirtiendo una petición que ya sabes que funciona en código de tu lenguaje, algo casi siempre más rápido que leer la documentación de la librería cliente.",
+        "Chmod y CIDR están aquí porque ambos son cálculos que la gente rehace de memoria y equivoca. La calculadora de chmod muestra la forma simbólica y la octal juntas; la de subredes da el rango de hosts utilizables y trata /31 y /32 correctamente en lugar de restar dos a ciegas."
+      ]
     },
     "text-regex": {
       "tagline": "Find, match, transform — strings sencillos",
-      "intro": "Regex tester con capture groups en vivo, conversor de mayúsculas, slugify, diff checker. Click-to-explain el regex para entender lo que escribiste."
+      "intro": "Regex tester con capture groups en vivo, conversor de mayúsculas, slugify, diff checker. Click-to-explain el regex para entender lo que escribiste.",
+      "body": [
+        "Estas cuatro cubren las tareas de texto que quedan entre escribir y publicar: comparar dos versiones, probar un patrón, cambiar mayúsculas de forma coherente y convertir un título en un segmento de URL.",
+        "El probador de expresiones regulares merece que vayas despacio. Los dialectos difieren de verdad: JavaScript solo admite lookbehind de ancho fijo, y \\\\d coincide con dígitos no latinos bajo reglas Unicode en unos motores y en otros no, así que un patrón probado en un lenguaje no está probado en todos. El probador también hace visible el retroceso catastrófico: un patrón como ^(a+)+$ explora un número exponencial de caminos y colgará un servidor con la entrada adecuada.",
+        "Slugify y el conversor de mayúsculas parecen triviales hasta que llega texto no inglés. Transliterar acentos, decidir qué hacer con una raya y colapsar separadores repetidos son justo los detalles que producen dos URL para un mismo artículo. El comparador de diferencias trabaja línea a línea y sirve tanto para archivos de configuración como para prosa."
+      ]
     },
     "time-date": {
       "tagline": "Zonas horarias, timestamps y cron sin adivinar",
-      "intro": "Convertidor Unix timestamp, parser de cron con próximas ejecuciones, conversor de zonas horarias para equipos distribuidos."
+      "intro": "Convertidor Unix timestamp, parser de cron con próximas ejecuciones, conversor de zonas horarias para equipos distribuidos.",
+      "body": [
+        "El tiempo es donde el código que parece correcto se equivoca en silencio. Una marca de tiempo Unix no lleva zona horaria, una fecha de calendario no lleva instante, y la distancia entre ambas explica buena parte de los errores de un día de desfase.",
+        "El conversor de marcas de tiempo lee segundos y milisegundos y te dice cuál supuso, porque un número de diez y otro de trece dígitos significan el mismo momento escalado por mil. El conversor de zonas horarias existe para la pregunta que una invitación de calendario no responde: cómo se ve un instante fijo para otra persona, incluidos los días en que un cambio de horario de verano vuelve la aritmética poco evidente.",
+        "El par de herramientas cron va en ambos sentidos. El analizador convierte una expresión en las próximas ejecuciones en lenguaje llano, que es como detectas una programación que se dispara cada minuto en vez de cada hora. El generador construye la expresión a partir de la programación que describas. Ten en cuenta que @reboot y otros atajos los gestiona el demonio cron, no la sintaxis de cinco campos."
+      ]
     },
     "web3": {
       "tagline": "Utilidades Web3 para builders",
-      "intro": "Wallet address checker (ENS, formato, checksum), ETH ↔ Wei converter. Ligero, sin conectar wallet."
+      "intro": "Wallet address checker (ENS, formato, checksum), ETH ↔ Wei converter. Ligero, sin conectar wallet.",
+      "body": [
+        "Dos herramientas, ambas para el momento previo a firmar algo: convertir entre ETH, Gwei y Wei, y comprobar que una dirección es lo que dice ser.",
+        "El Wei es la unidad base y hay 10^18 en un ETH; por eso el gas se cotiza en Gwei —mil millones de Wei— y por eso un decimal mal puesto en una transacción manual sale caro y no solo vergonzoso. El conversor mantiene la precisión entera completa en lugar de pasar el valor por un número de coma flotante, así que un saldo sigue siendo exacto con dieciocho decimales.",
+        "El verificador de direcciones valida el formato y la suma de comprobación de mayúsculas y minúsculas de EIP-55, la forma barata de detectar un carácter mal tecleado o alterado en tránsito. Solo lee la dirección: no conecta una cartera, no pide una clave y no emite nada. Como todas las herramientas de aquí, la comprobación se ejecuta en tu navegador."
+      ]
     },
     "marketing": {
       "tagline": "Toolkit de marketing",
@@ -201,19 +237,39 @@
     },
     "finance": {
       "tagline": "Calculadoras gratis para decisiones de dinero",
-      "intro": "Hipoteca, préstamo, propina, porcentaje, interés compuesto — para responder '¿cuánto?' en segundos. Sin signup, sin ads en pages de cálculo, resultados locales. Solo estimación — confirma con un profesional para decisiones grandes."
+      "intro": "Hipoteca, préstamo, propina, porcentaje, interés compuesto — para responder '¿cuánto?' en segundos. Sin signup, sin ads en pages de cálculo, resultados locales. Solo estimación — confirma con un profesional para decisiones grandes.",
+      "body": [
+        "Estas calculadoras enseñan sus cuentas. Una cifra de hipoteca o de préstamo solo sirve si ves qué supuesto la movió, así que cada una expone el tipo de interés, el plazo y el periodo de capitalización en lugar de devolver un número suelto.",
+        "Hay dos resultados que sorprenden lo bastante a menudo como para decirlos. Los descuentos encadenados no se suman: un 20% y luego otro 10% deja el 72% del precio original, no el 70%, porque el segundo recorte se aplica sobre la cantidad ya rebajada. Y con aportaciones periódicas, el tiempo pesa más que el tipo de interés; las calculadoras de interés compuesto y de jubilación lo hacen visible al permitirte cambiar una variable cada vez.",
+        "Los tipos de cambio se mueven y las reglas fiscales varían por país y a veces por ciudad, así que trata el conversor de divisas y la calculadora de impuestos como ayuda aritmética y no como fuente de verdad para una declaración. Nada de esto es asesoramiento financiero, y ninguna cifra que introduzcas se guarda ni se envía."
+      ]
     },
     "health": {
       "tagline": "Números de bienestar que entiendes",
-      "intro": "IMC, BMR, calorías objetivo, composición corporal — fórmulas de investigación clínica, métrico + imperial lado a lado. Solo estimación; consulta a un clínico para decisiones médicas."
+      "intro": "IMC, BMR, calorías objetivo, composición corporal — fórmulas de investigación clínica, métrico + imperial lado a lado. Solo estimación; consulta a un clínico para decisiones médicas.",
+      "body": [
+        "Cada número de aquí procede de una fórmula publicada, y cada herramienta nombra la que usa para que puedas comprobarla. El metabolismo basal usa Mifflin-St Jeor; la grasa corporal usa el método de circunferencias de la Marina de EE. UU.; el gasto total es el metabolismo basal multiplicado por un factor de actividad.",
+        "Esas fórmulas se ajustaron a poblaciones, no a ti. El IMC en particular describe una relación entre masa y estatura y no distingue músculo de grasa, por eso un atleta magro y una persona sedentaria de complexión similar pueden compartir lectura. La grasa corporal por circunferencias mejora justo ese punto y aun así arrastra varios puntos porcentuales de error. Lee los resultados como un rango de partida para conversar, no como un diagnóstico.",
+        "Las herramientas de ritmo, sueño y embarazo son aritmética de calendario, no estimaciones clínicas: una fecha probable de parto son los 280 días estándar desde la última menstruación, que es una convención y no una predicción. Para cualquier cosa que afecte a un tratamiento, a una medicación o a una decisión de salud, habla con un profesional. Nada de lo que introduzcas sale de tu navegador."
+      ]
     },
     "lifestyle": {
       "tagline": "Herramientas diarias que te ahorran una búsqueda",
-      "intro": "Edad, GPA, ciclo de sueño, conversor de unidades, porcentaje, contador de palabras, tiempo de lectura — lo pequeño que usas a diario, en un solo lugar, rápido."
+      "intro": "Edad, GPA, ciclo de sueño, conversor de unidades, porcentaje, contador de palabras, tiempo de lectura — lo pequeño que usas a diario, en un solo lugar, rápido.",
+      "body": [
+        "El grupo más grande del sitio y el menos temático: son las calculadoras que la gente abre una vez y quiere terminar en diez segundos. Porcentajes, edades, diferencias de fechas, conversiones de unidades, notas, partes de horas.",
+        "Algunas compensan una segunda mirada. La calculadora de estadística informa de la desviación típica muestral y la poblacional, que son números distintos y se confunden a menudo. El analizador de legibilidad aplica Flesch-Kincaid, así que mide longitud de frase y de sílabas, no si el texto es bueno: útil como señal, engañoso como objetivo. El selector aleatorio usa la fuente criptográfica del navegador, de modo que un sorteo no queda barajado por una semilla predecible.",
+        "La calculadora de partes de horas contempla turnos nocturnos y descansos no remunerados, que es donde suele fallar el cálculo a mano. Los conversores de unidades y de tallas de calzado cubren las conversiones cotidianas que conviene no adivinar. Nada de esto requiere cuenta y nada se almacena."
+      ]
     },
     "design": {
       "tagline": "Herramientas de color para diseñadores y dev-adjacent",
-      "intro": "HEX ↔ RGB ↔ HSL converter, comprobador de contraste WCAG, generadores de paleta — para pixel-pushers y content creators que cuidan la accesibilidad."
+      "intro": "HEX ↔ RGB ↔ HSL converter, comprobador de contraste WCAG, generadores de paleta — para pixel-pushers y content creators que cuidan la accesibilidad.",
+      "body": [
+        "Tres herramientas alrededor de una pregunta: ¿esta combinación de colores se va a poder leer?",
+        "El contraste se mide, no se opina. WCAG define una razón a partir de la luminancia relativa de dos colores, y los umbrales son 4,5:1 para texto normal y 3:1 para texto grande en nivel AA. El verificador informa de la razón y del apto o no apto en cada nivel, que es la diferencia entre una revisión de diseño que acaba en una opinión y otra que acaba en un número.",
+        "El conversor mueve un color entre HEX, RGB, HSL y sus variantes con alfa sin la deriva de redondeo que aparece al convertir dos veces a mano, y el generador de paletas construye armonías a partir de un color base. Ambos rinden más junto al verificador de contraste: elige una paleta y confirma que los pares sobre los que vas a poner texto superan el umbral antes de que lleguen a producción."
+      ]
     }
   }
 }

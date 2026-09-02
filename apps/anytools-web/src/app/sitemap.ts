@@ -10,6 +10,7 @@
 
 import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS } from '@/lib/cluster-config';
+import { hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { toolMetas } from '@anytools/tools/meta';
@@ -87,16 +88,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const m of publishedTools) {
       // Skip tools that don't support this locale (e.g. gpa-calculator is en-only)
       if (m.availableLocales && !m.availableLocales.includes(locale as never)) continue;
+      // Skip tools whose body content has not been translated into this locale.
+      // The page still works and is still reachable — it just isn't submitted as
+      // indexable content while it consists of nothing but widget labels. See
+      // has-localized-tool-body.ts for the measurements behind this.
+      if (!hasLocalizedToolBody(locale, m.cluster, m.slug)) continue;
       urls.push({
         url: `${BASE}/${locale}/${m.cluster}/${m.slug}`,
         changeFrequency: 'monthly',
         priority: 0.8,
         alternates: {
+          // Only advertise a translation that actually exists — hreflang pointing
+          // at a bodyless page is what spread the thin pages through the index.
           languages: Object.fromEntries(
-            (m.availableLocales ?? routing.locales).map((l) => [
-              l,
-              `${BASE}/${l}/${m.cluster}/${m.slug}`,
-            ]),
+            (m.availableLocales ?? routing.locales)
+              .filter((l) => hasLocalizedToolBody(l, m.cluster, m.slug))
+              .map((l) => [l, `${BASE}/${l}/${m.cluster}/${m.slug}`]),
           ),
         },
       });

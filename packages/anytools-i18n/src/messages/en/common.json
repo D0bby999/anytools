@@ -163,33 +163,69 @@
     "toolCount": "{count, plural, one {# tool} other {# tools}}",
     "comingSoon": "More tools coming soon — check back or follow the GitHub repo.",
     "browseAll": "Browse all tools",
+    "bodyHeading": "Choosing between these tools",
     "encoding": {
       "tagline": "Encoders and decoders for everyday formats",
-      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Paste in, read out, done. All processing happens in your browser — input never leaves your machine."
+      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Paste in, read out, done. All processing happens in your browser — input never leaves your machine.",
+      "body": [
+        "Encoding is not encryption. Base64, hex, URL-percent and HTML-entity encoding all exist to move bytes safely through a channel that would otherwise mangle them — an email header, a query string, an HTML attribute. Anyone can reverse them, so never use them to hide a secret.",
+        "Pick by the channel, not by taste. Use URL encoding for anything going into a query string or path segment; HTML entities when text has to survive inside markup; Base64 when binary data must ride inside a text-only field; hex or binary when you are reading a value byte by byte. The JWT decoder is a special case — it splits a token and shows you the claims, which is how you check an expiry or an audience without trusting the issuing app.",
+        "The HTTP status and MIME reference is here for the same reason the converters are: it answers the question you actually had, which is usually whether a 302 or a 307 is correct, or which Content-Type a browser will honour. Everything on these pages runs in your browser, so the text you paste never reaches a server."
+      ]
     },
     "formatters": {
       "tagline": "Pretty-print and minify in one click",
-      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Each formatter shows a side-by-side preview and respects your indentation preferences."
+      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Each formatter shows a side-by-side preview and respects your indentation preferences.",
+      "body": [
+        "A formatter earns its place twice: once when it makes a wall of minified text readable, and once when it refuses to parse and tells you where the file is broken. The second use is the one that saves an afternoon — a JSON body that fails at line 412 column 9 is a far better bug report than \"the API returned nothing\".",
+        "JSON, YAML, XML and SQL each fail in their own way. YAML punishes tabs and ambiguous booleans; XML cares about namespaces and unescaped ampersands; SQL formatting is mostly about making a long WHERE clause reviewable. The JSON diff tool is the one to reach for when two responses should be identical and are not — it shows the changed keys instead of making you scan two blobs.",
+        "The beautifiers for HTML, CSS and JavaScript also minify, which is useful for checking how much a file would actually shrink before wiring a build step to do it. Formatting happens locally in your browser, so you can paste a production payload without sending it anywhere."
+      ]
     },
     "generators": {
       "tagline": "Random data on demand",
-      "intro": "UUIDs, secure passwords, hashes, mock data, QR codes, Lorem Ipsum. Tuned for speed and shipping defaults that match real-world usage."
+      "intro": "UUIDs, secure passwords, hashes, mock data, QR codes, Lorem Ipsum. Tuned for speed and shipping defaults that match real-world usage.",
+      "body": [
+        "Generated values are only as good as the source of randomness behind them. The password and UUID generators here draw from the browser's cryptographic random source rather than Math.random, which matters the moment a value is used for anything a stranger might try to guess.",
+        "Match the tool to the threat. A password generator is for values a human stores in a manager; the bcrypt tool is for values a server stores, because it deliberately makes each check slow. The hash generator covers MD5 and the SHA family, which are fast by design and therefore right for checksums and wrong for passwords. TOTP produces the six-digit codes behind two-factor login, useful for confirming a shared secret was set up correctly.",
+        "Lorem Ipsum, mock data and QR codes are the everyday half of this set: filler text with the right paragraph shape, seed records with plausible names and dates, and a QR code you can size and error-correct before printing it. All generation runs in your browser — no value shown here is transmitted or logged."
+      ]
     },
     "converters": {
       "tagline": "Translate between formats without scripting",
-      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, image format conversions. Sensible options surfaced; long-tail flags tucked away."
+      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, image format conversions. Sensible options surfaced; long-tail flags tucked away.",
+      "body": [
+        "Most conversions are lossy in one direction and not the other, and knowing which way is the whole skill. CSV to JSON is safe; JSON to CSV throws away nesting. Markdown to HTML is faithful; HTML to Markdown drops any attribute Markdown cannot express. The converters here state what they discard instead of quietly discarding it.",
+        "JSON, YAML and TOML describe the same shapes with different rules, so the round trip is where surprises live — YAML will read an unquoted country code as a boolean, and TOML has no null. The curl converter goes the other way, turning a request you already know works into code in your language, which is usually faster than reading the client library's docs.",
+        "Chmod and CIDR are here because both are arithmetic people redo from memory and get wrong. The chmod calculator shows the symbolic and octal forms together; the subnet calculator gives the usable host range, and treats /31 and /32 correctly rather than blindly subtracting two."
+      ]
     },
     "text-regex": {
       "tagline": "Find, match, transform — strings made simple",
-      "intro": "Regex tester with live capture groups, text case converter, slugify, diff checker. Click-to-explain the regex so you understand what you wrote, not just that it ran."
+      "intro": "Regex tester with live capture groups, text case converter, slugify, diff checker. Click-to-explain the regex so you understand what you wrote, not just that it ran.",
+      "body": [
+        "These four cover the text chores that sit between writing and shipping: comparing two versions, testing a pattern, changing case consistently, and turning a title into a URL segment.",
+        "The regex tester is the one worth slowing down for. Flavours genuinely differ — JavaScript only allows fixed-width lookbehind, and \\\\d matches non-Latin digits under Unicode rules in some engines and not others — so a pattern proven in one language is not proven everywhere. The tester also makes catastrophic backtracking visible: a pattern like ^(a+)+$ explores an exponential number of paths and will hang a server given the right input.",
+        "Slugify and the case converter look trivial until non-English text arrives. Transliterating accents, deciding what to do with an em dash, and collapsing repeated separators are exactly the details that produce two URLs for one article. The diff checker works line by line and is useful for config files and prose alike."
+      ]
     },
     "time-date": {
       "tagline": "Time zones, timestamps, and cron without guesswork",
-      "intro": "Unix timestamp converter, cron expression parser with next-runs, time zone converter for distributed teams. Built for the 'wait, is that UTC?' moments."
+      "intro": "Unix timestamp converter, cron expression parser with next-runs, time zone converter for distributed teams. Built for the 'wait, is that UTC?' moments.",
+      "body": [
+        "Time is where correct-looking code goes wrong quietly. A Unix timestamp has no time zone, a calendar date has no instant, and the gap between the two is responsible for a large share of off-by-one-day bugs.",
+        "The timestamp converter reads seconds and milliseconds and tells you which it assumed, because a ten-digit and a thirteen-digit number mean the same moment scaled by a thousand. The time zone converter exists for the question a calendar invite cannot answer: what a fixed instant looks like to someone else, including on the days a DST change makes the arithmetic non-obvious.",
+        "The cron pair goes both ways. The parser turns an expression into the next run times in plain language, which is how you catch a schedule that fires every minute instead of every hour. The generator builds the expression from the schedule you describe. Note that @reboot and other shorthands are handled by the cron daemon rather than the five-field syntax."
+      ]
     },
     "web3": {
       "tagline": "Web3 utilities for builders",
-      "intro": "Wallet address checker (ENS, format, checksum), ETH ↔ Wei converter. Lightweight, no wallet connection required."
+      "intro": "Wallet address checker (ENS, format, checksum), ETH ↔ Wei converter. Lightweight, no wallet connection required.",
+      "body": [
+        "Two tools, both for the moment before you sign something: converting between ETH, Gwei and Wei, and checking that an address is what it claims to be.",
+        "Wei is the base unit and there are 10^18 of them in one ETH, which is why gas is quoted in Gwei — a billion Wei — and why a misplaced decimal in a manual transaction is expensive rather than merely embarrassing. The converter keeps full integer precision instead of routing the value through a floating-point number, so a balance stays exact at eighteen decimals.",
+        "The address checker validates the format and the EIP-55 mixed-case checksum, which is the cheap way to catch a character that was mistyped or altered in transit. It reads the address only; it does not connect a wallet, ask for a key, or broadcast anything. As with every tool here, the check runs in your browser."
+      ]
     },
     "marketing": {
       "tagline": "Marketing toolkit",
@@ -201,19 +237,39 @@
     },
     "finance": {
       "tagline": "Free calculators for money decisions",
-      "intro": "Mortgage, loan, tip, percentage, compound interest — built so you can answer 'how much?' in seconds. No signup, no ads on calc pages, results stay local. For estimation only — verify with a licensed professional for high-stakes decisions."
+      "intro": "Mortgage, loan, tip, percentage, compound interest — built so you can answer 'how much?' in seconds. No signup, no ads on calc pages, results stay local. For estimation only — verify with a licensed professional for high-stakes decisions.",
+      "body": [
+        "These calculators show their working. A mortgage or loan figure is only useful if you can see which assumption moved it, so each one exposes the rate, the term and the compounding period rather than returning a single number.",
+        "Two results surprise people often enough to be worth stating. Stacked discounts do not add: 20% off and then a further 10% off leaves 72% of the original price, not 70%, because the second cut applies to the already-reduced amount. And with regular contributions, time does more work than rate — the compound interest and retirement calculators make that visible by letting you change one input at a time.",
+        "Currency rates move, and tax rules differ by country and sometimes by city, so treat the converter and the sales tax calculator as arithmetic help rather than a source of truth for a filing. Nothing here is financial advice, and no figure you enter is stored or sent anywhere."
+      ]
     },
     "health": {
       "tagline": "Wellness numbers you actually understand",
-      "intro": "BMI, BMR, calorie targets, body composition — formulas from peer-reviewed research presented with metric + imperial side by side. For estimation only; consult a clinician for medical decisions."
+      "intro": "BMI, BMR, calorie targets, body composition — formulas from peer-reviewed research presented with metric + imperial side by side. For estimation only; consult a clinician for medical decisions.",
+      "body": [
+        "Every number here comes from a published formula, and each tool names the one it uses so you can check it. BMR uses Mifflin-St Jeor; body fat uses the US Navy circumference method; TDEE is BMR multiplied by an activity factor.",
+        "Those formulas were fitted to populations, not to you. BMI in particular describes a ratio of mass to height and cannot distinguish muscle from fat, which is why a lean athlete and a sedentary person of the same build can share a reading. Circumference-based body fat is better on that specific point and still carries several percentage points of error. Read the outputs as a starting range to discuss, not a diagnosis.",
+        "The pace, sleep and pregnancy tools are scheduling arithmetic rather than clinical estimates — a due date is the standard 280 days from the last menstrual period, which is a convention, not a prediction. For anything that affects treatment, medication or a health decision, talk to a clinician. Nothing you enter leaves your browser."
+      ]
     },
     "lifestyle": {
       "tagline": "Everyday tools that save you a search",
-      "intro": "Age, GPA, sleep cycle, unit converter, percentage, word count, reading time — the small things you reach for daily, in one place, fast."
+      "intro": "Age, GPA, sleep cycle, unit converter, percentage, word count, reading time — the small things you reach for daily, in one place, fast.",
+      "body": [
+        "The largest group on the site, and the least thematic: these are the calculators people reach for once and want to finish in ten seconds. Percentages, ages, date gaps, unit conversions, grades, timesheets.",
+        "A few repay a second look. The statistics calculator reports both sample and population standard deviation, which are different numbers and are routinely confused. The readability analyzer runs Flesch-Kincaid, so it measures sentence and syllable length rather than whether the writing is any good — useful as a signal, misleading as a target. The random picker uses the browser's cryptographic random source, so a draw is not merely shuffled by a predictable seed.",
+        "The time card calculator handles overnight shifts and unpaid breaks, which is where hand arithmetic usually breaks down. The unit and shoe size converters cover the everyday conversions worth not guessing at. Nothing here needs an account and nothing is stored."
+      ]
     },
     "design": {
       "tagline": "Color tools for designers and dev-adjacent folk",
-      "intro": "HEX ↔ RGB ↔ HSL converter, WCAG contrast checker, palette generators — built for both pixel-pushers and content folks who care about accessibility."
+      "intro": "HEX ↔ RGB ↔ HSL converter, WCAG contrast checker, palette generators — built for both pixel-pushers and content folks who care about accessibility.",
+      "body": [
+        "Three tools around one question: will this colour combination actually be readable?",
+        "Contrast is measurable, not a matter of taste. WCAG defines a ratio from the relative luminance of two colours, and the thresholds are 4.5:1 for body text and 3:1 for large text at AA. The checker reports the ratio and the pass or fail at each level, which is the difference between a design review that ends in an opinion and one that ends in a number.",
+        "The converter moves a colour between HEX, RGB, HSL and their alpha variants without the rounding drift you get from converting twice by hand, and the palette generator builds harmonies from a base colour. Both are most useful next to the contrast checker: pick a palette, then confirm the pairs you intend to put text on actually clear the threshold before it reaches production."
+      ]
     }
   }
 }

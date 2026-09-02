@@ -1,6 +1,7 @@
 import { DynamicToolRenderer } from '@/components/dynamic-tool-renderer';
 import { ToolPageLayout } from '@/components/tool-page-layout';
 import { routing } from '@/i18n/routing';
+import { hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { loadToolContent } from '@/lib/load-tool-content';
 import {
   breadcrumbSchema,
@@ -57,6 +58,10 @@ export async function generateMetadata({
   const categoryLabel = CLUSTER_LABEL_EN[m.cluster];
   const seoTitle = buildToolTitle(title, categoryLabel);
   const canonicalPath = `/${locale}/${cluster}/${tool}`;
+  // A locale with no translated tutorial/FAQ renders the widget and little else
+  // (~130 unique words against 400-800 in English). Serving that is fine; asking
+  // Google to index it is what got the site turned down for thin content.
+  const hasBody = hasLocalizedToolBody(locale, cluster, tool);
 
   return {
     metadataBase: METADATA_BASE,
@@ -66,9 +71,13 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalPath,
       // For en-only tools, hreflang lists only the supported locales so we don't
-      // advertise links to pages that will 404.
+      // advertise links to pages that will 404 — and, since 2026-09-02, only the
+      // locales whose body content actually exists, so hreflang stops pointing at
+      // pages we are simultaneously telling Google not to index.
       languages: Object.fromEntries(
-        (m.availableLocales ?? routing.locales).map((l) => [l, `/${l}/${cluster}/${tool}`]),
+        (m.availableLocales ?? routing.locales)
+          .filter((l) => hasLocalizedToolBody(l, cluster, tool))
+          .map((l) => [l, `/${l}/${cluster}/${tool}`]),
       ),
     },
     openGraph: {
@@ -85,10 +94,12 @@ export async function generateMetadata({
       title: seoTitle,
       description,
     },
+    // follow stays true even when index is false: the page's links to sibling
+    // tools and to the English original are still worth crawling.
     robots: {
-      index: true,
+      index: hasBody,
       follow: true,
-      googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+      googleBot: { index: hasBody, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
     },
   };
 }

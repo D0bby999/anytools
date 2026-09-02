@@ -1,3 +1,4 @@
+import { ClusterLandingBody } from '@/components/cluster-landing-body';
 import { ClusterLandingHero } from '@/components/cluster-landing-hero';
 import { ClusterToolGrid } from '@/components/cluster-tool-grid';
 import { routing } from '@/i18n/routing';
@@ -65,6 +66,10 @@ export default async function ClusterLandingPage({ params }: { params: Promise<P
   const tagline = t(`clusterLanding.${cluster}.tagline`);
   const intro = t(`clusterLanding.${cluster}.intro`);
   const toolCount = t('clusterLanding.toolCount', { count: tools.length });
+  // t.raw so the array comes back as an array; a cluster added without copy yet
+  // yields a non-array, which ClusterLandingBody renders as nothing.
+  const rawBody = t.raw(`clusterLanding.${cluster}.body`);
+  const body: string[] = Array.isArray(rawBody) ? (rawBody as string[]) : [];
 
   // Same URL construction as the canonical tag above, so the trail matches it exactly.
   const breadcrumb = breadcrumbSchema([
@@ -92,6 +97,9 @@ export default async function ClusterLandingPage({ params }: { params: Promise<P
         emptyTitle={t('clusterLanding.comingSoon')}
         emptyBody={t('clusterLanding.browseAll')}
       />
+      {/* Below the grid on purpose: someone who came for a specific tool should
+          reach it first, and the prose is for the visitor still deciding. */}
+      <ClusterLandingBody heading={t('clusterLanding.bodyHeading')} paragraphs={body} />
     </main>
   );
 }

@@ -163,33 +163,69 @@
     "toolCount": "{count, plural, one {# tool} other {# tools}}",
     "comingSoon": "Sắp ra mắt thêm tool — kiểm tra lại hoặc theo dõi GitHub repo.",
     "browseAll": "Xem tất cả tool",
+    "bodyHeading": "Chọn công cụ nào trong nhóm này",
     "encoding": {
       "tagline": "Encoder/decoder cho các format hàng ngày",
-      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Paste vào, đọc kết quả, xong. Xử lý ngay trong browser — input không rời khỏi máy bạn."
+      "intro": "Base64, URL, JWT, hex, binary, Unicode escape, HTML entities. Paste vào, đọc kết quả, xong. Xử lý ngay trong browser — input không rời khỏi máy bạn.",
+      "body": [
+        "Mã hoá dạng encoding KHÔNG phải mã hoá bảo mật. Base64, hex, URL-percent hay HTML entity đều sinh ra để đưa byte đi qua một kênh vốn sẽ làm hỏng chúng — tiêu đề email, chuỗi truy vấn, thuộc tính HTML. Ai cũng đảo ngược được, nên đừng bao giờ dùng chúng để giấu bí mật.",
+        "Chọn theo kênh truyền, không theo thói quen. Dùng URL encoding cho mọi thứ nằm trong query string hoặc path; HTML entity khi văn bản phải sống sót bên trong markup; Base64 khi dữ liệu nhị phân phải đi trong một trường chỉ nhận text; hex hoặc nhị phân khi bạn cần đọc giá trị theo từng byte. JWT decoder là trường hợp riêng — nó tách token và hiện các claim, cách để kiểm tra hạn dùng hay audience mà không phải tin vào ứng dụng đã phát hành nó.",
+        "Bảng mã trạng thái HTTP và MIME nằm ở đây cùng lý do với các bộ chuyển đổi: nó trả lời đúng câu bạn đang hỏi, thường là 302 hay 307 mới đúng, hoặc trình duyệt sẽ tôn trọng Content-Type nào. Mọi thứ trên các trang này chạy trong trình duyệt, nên đoạn văn bạn dán không bao giờ tới máy chủ."
+      ]
     },
     "formatters": {
       "tagline": "Pretty-print và minify trong một click",
-      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Mỗi formatter có preview side-by-side và tôn trọng indent preference của bạn."
+      "intro": "JSON, SQL, XML, YAML, HTML, CSS, JavaScript. Mỗi formatter có preview side-by-side và tôn trọng indent preference của bạn.",
+      "body": [
+        "Một bộ định dạng có ích ở hai chỗ: khi biến khối text bị nén thành thứ đọc được, và khi nó từ chối phân tích rồi chỉ đúng chỗ file hỏng. Công dụng thứ hai mới là thứ cứu bạn cả buổi chiều — một JSON lỗi ở dòng 412 cột 9 là báo cáo lỗi tốt hơn hẳn câu \"API không trả gì cả\".",
+        "JSON, YAML, XML và SQL hỏng theo những cách khác nhau. YAML trừng phạt ký tự tab và các giá trị boolean nhập nhằng; XML khó tính với namespace và dấu & chưa escape; định dạng SQL chủ yếu để mệnh đề WHERE dài trở nên soi được. Công cụ JSON diff dành cho lúc hai response lẽ ra phải giống nhau mà lại khác — nó chỉ ra key nào đổi thay vì bắt bạn dò hai khối chữ.",
+        "Các bộ làm đẹp HTML, CSS và JavaScript cũng minify được, tiện để đo xem file thực sự nhỏ đi bao nhiêu trước khi thêm một bước build. Việc định dạng chạy ngay trong trình duyệt, nên bạn dán được cả payload thật mà không gửi đi đâu."
+      ]
     },
     "generators": {
       "tagline": "Random data theo yêu cầu",
-      "intro": "UUID, password an toàn, hash, mock data, QR code, Lorem Ipsum. Tối ưu cho tốc độ với default sẵn sàng cho production."
+      "intro": "UUID, password an toàn, hash, mock data, QR code, Lorem Ipsum. Tối ưu cho tốc độ với default sẵn sàng cho production.",
+      "body": [
+        "Giá trị sinh ra chỉ tốt bằng nguồn ngẫu nhiên đứng sau nó. Bộ sinh mật khẩu và UUID ở đây lấy từ nguồn ngẫu nhiên mật mã của trình duyệt chứ không phải Math.random — điều này quan trọng ngay khi giá trị được dùng cho thứ mà người lạ có thể thử đoán.",
+        "Chọn công cụ theo mối đe doạ. Bộ sinh mật khẩu dành cho giá trị con người cất trong trình quản lý; công cụ bcrypt dành cho giá trị máy chủ lưu, vì nó cố tình làm mỗi lần kiểm tra chậm đi. Bộ sinh hash phủ MD5 và họ SHA — vốn nhanh theo thiết kế, nên đúng cho checksum và sai cho mật khẩu. TOTP tạo mã sáu chữ số của đăng nhập hai lớp, tiện để xác nhận khoá chia sẻ đã cài đúng.",
+        "Lorem Ipsum, dữ liệu giả và mã QR là nửa đời thường của nhóm này: chữ lấp chỗ đúng dáng đoạn văn, bản ghi mẫu với tên và ngày hợp lý, và mã QR chỉnh được kích thước lẫn mức sửa lỗi trước khi in. Toàn bộ việc sinh chạy trong trình duyệt — không giá trị nào hiện ở đây được truyền đi hay ghi lại."
+      ]
     },
     "converters": {
       "tagline": "Chuyển format không cần script",
-      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, image format. Option hợp lý nổi bật; flag long-tail ẩn bớt."
+      "intro": "JSON ↔ YAML ↔ TOML, CSV ↔ JSON, Markdown ↔ HTML, cURL → fetch/axios/Python, image format. Option hợp lý nổi bật; flag long-tail ẩn bớt.",
+      "body": [
+        "Phần lớn phép chuyển đổi mất mát theo một chiều mà không mất theo chiều kia, và biết chiều nào mới là kỹ năng. CSV sang JSON thì an toàn; JSON sang CSV vứt mất cấu trúc lồng nhau. Markdown sang HTML thì trung thành; HTML sang Markdown bỏ mọi thuộc tính Markdown không diễn đạt nổi. Các bộ chuyển đổi ở đây nói rõ chúng bỏ gì thay vì lặng lẽ bỏ.",
+        "JSON, YAML và TOML mô tả cùng những hình dạng bằng luật khác nhau, nên chuyến khứ hồi mới là chỗ có bất ngờ — YAML sẽ đọc một mã quốc gia không đặt trong nháy thành giá trị boolean, còn TOML thì không có null. Bộ chuyển curl đi hướng ngược lại, biến một request bạn đã biết chạy được thành mã trong ngôn ngữ của bạn, thường nhanh hơn đọc tài liệu thư viện client.",
+        "Chmod và CIDR có mặt ở đây vì cả hai là phép tính người ta hay làm lại theo trí nhớ rồi sai. Máy tính chmod hiện cả dạng ký hiệu lẫn bát phân; máy tính subnet cho dải host dùng được, và xử lý /31 với /32 đúng chuẩn chứ không trừ hai một cách máy móc."
+      ]
     },
     "text-regex": {
       "tagline": "Find, match, transform — string thật đơn giản",
-      "intro": "Regex tester với capture group live, text case converter, slugify, diff checker. Click-to-explain regex để hiểu bạn vừa viết gì."
+      "intro": "Regex tester với capture group live, text case converter, slugify, diff checker. Click-to-explain regex để hiểu bạn vừa viết gì.",
+      "body": [
+        "Bốn công cụ này lo mấy việc vặt về văn bản nằm giữa lúc viết và lúc phát hành: so hai phiên bản, thử một mẫu, đổi kiểu chữ cho nhất quán, và biến tiêu đề thành đoạn URL.",
+        "Bộ thử regex là thứ đáng chậm lại mà dùng. Các phương ngữ khác nhau thật sự — JavaScript chỉ cho phép lookbehind độ dài cố định, và \\\\d khớp cả chữ số ngoài hệ Latin theo luật Unicode ở một số engine chứ không phải tất cả — nên một mẫu đã chứng minh trong ngôn ngữ này chưa chắc đúng ở nơi khác. Bộ thử còn cho thấy hiện tượng quay lui thảm hoạ: mẫu kiểu ^(a+)+$ duyệt số đường đi tăng theo hàm mũ và sẽ treo máy chủ nếu gặp đúng đầu vào.",
+        "Slugify và bộ đổi kiểu chữ trông tầm thường cho tới khi gặp văn bản ngoài tiếng Anh. Chuyển tự dấu, quyết định xử lý gạch ngang dài ra sao, gộp các dấu phân cách lặp — đó đúng là những chi tiết đẻ ra hai URL cho một bài. Bộ so sánh diff làm việc theo dòng, hợp cho cả file cấu hình lẫn văn xuôi."
+      ]
     },
     "time-date": {
       "tagline": "Timezone, timestamp, cron không cần đoán",
-      "intro": "Unix timestamp converter, cron expression parser với next-runs, timezone converter cho team distributed. Cho những lúc 'khoan, là UTC à?'"
+      "intro": "Unix timestamp converter, cron expression parser với next-runs, timezone converter cho team distributed. Cho những lúc 'khoan, là UTC à?'",
+      "body": [
+        "Thời gian là chỗ mã trông đúng lại sai một cách âm thầm. Dấu thời gian Unix không mang múi giờ, ngày trên lịch không mang thời điểm, và khoảng cách giữa hai thứ đó gây ra phần lớn lỗi lệch một ngày.",
+        "Bộ chuyển timestamp đọc cả giây lẫn mili-giây và nói rõ nó đã giả định cái nào, vì số mười chữ số và mười ba chữ số chỉ cùng một khoảnh khắc nhân lệch một nghìn lần. Bộ chuyển múi giờ sinh ra cho câu hỏi mà lời mời lịch không trả lời được: một thời điểm cố định trông ra sao với người khác, kể cả vào những ngày đổi giờ mùa khiến phép tính không còn hiển nhiên.",
+        "Cặp công cụ cron đi cả hai chiều. Bộ phân tích biến biểu thức thành các lần chạy kế tiếp bằng lời, cách để bắt được lịch chạy mỗi phút thay vì mỗi giờ. Bộ sinh dựng biểu thức từ lịch bạn mô tả. Lưu ý @reboot và các dạng viết tắt khác do trình nền cron xử lý chứ không thuộc cú pháp năm trường."
+      ]
     },
     "web3": {
       "tagline": "Web3 utilities cho builder",
-      "intro": "Wallet address checker (ENS, format, checksum), ETH ↔ Wei converter. Nhẹ, không cần connect wallet."
+      "intro": "Wallet address checker (ENS, format, checksum), ETH ↔ Wei converter. Nhẹ, không cần connect wallet.",
+      "body": [
+        "Hai công cụ, đều dành cho khoảnh khắc ngay trước khi bạn ký một giao dịch: đổi qua lại giữa ETH, Gwei và Wei, và kiểm tra một địa chỉ có đúng như nó tự nhận hay không.",
+        "Wei là đơn vị gốc và một ETH bằng 10^18 Wei, đó là lý do phí gas được niêm yết bằng Gwei — một tỷ Wei — và là lý do đặt sai dấu thập phân trong giao dịch thủ công thì tốn tiền chứ không chỉ ngượng. Bộ chuyển giữ nguyên độ chính xác số nguyên thay vì đẩy giá trị qua số thực dấu phẩy động, nên số dư vẫn chính xác tới mười tám chữ số thập phân.",
+        "Bộ kiểm tra địa chỉ xác thực định dạng và checksum chữ hoa-thường theo EIP-55, cách rẻ nhất để bắt một ký tự gõ nhầm hoặc bị đổi trên đường truyền. Nó chỉ đọc địa chỉ; không kết nối ví, không hỏi khoá, không phát tán gì cả. Như mọi công cụ ở đây, phép kiểm tra chạy trong trình duyệt của bạn."
+      ]
     },
     "marketing": {
       "tagline": "Marketing toolkit",
@@ -201,19 +237,39 @@
     },
     "finance": {
       "tagline": "Calculator tài chính miễn phí",
-      "intro": "Mortgage, loan, tip, percentage, lãi kép — xây dựng để bạn trả lời 'bao nhiêu?' trong vài giây. Không signup, không ads trên trang calc, kết quả lưu cục bộ. Chỉ để ước tính — kiểm chứng với chuyên gia cho quyết định lớn."
+      "intro": "Mortgage, loan, tip, percentage, lãi kép — xây dựng để bạn trả lời 'bao nhiêu?' trong vài giây. Không signup, không ads trên trang calc, kết quả lưu cục bộ. Chỉ để ước tính — kiểm chứng với chuyên gia cho quyết định lớn.",
+      "body": [
+        "Các máy tính này bày ra cách tính. Con số trả góp hay khoản vay chỉ hữu ích khi bạn thấy được giả định nào làm nó đổi, nên mỗi công cụ đều phơi ra lãi suất, kỳ hạn và chu kỳ ghép lãi thay vì trả về một con số trơ.",
+        "Có hai kết quả làm người ta bất ngờ đủ nhiều để đáng nói ra. Giảm giá chồng nhau không cộng lại: giảm 20% rồi giảm tiếp 10% còn lại 72% giá gốc chứ không phải 70%, vì lần giảm thứ hai áp lên số đã giảm. Và khi có đóng góp đều đặn, thời gian làm việc nhiều hơn lãi suất — máy tính lãi kép và máy tính hưu trí cho thấy điều đó bằng cách cho bạn đổi từng biến một.",
+        "Tỷ giá thì biến động, quy tắc thuế thì khác nhau theo quốc gia và đôi khi theo thành phố, nên hãy xem bộ chuyển tiền tệ và máy tính thuế bán hàng là công cụ tính toán chứ không phải nguồn chân lý để khai báo. Không nội dung nào ở đây là lời khuyên tài chính, và không con số nào bạn nhập được lưu hay gửi đi đâu."
+      ]
     },
     "health": {
       "tagline": "Con số sức khỏe bạn thật sự hiểu",
-      "intro": "BMI, BMR, calorie target, body composition — công thức từ nghiên cứu khoa học, hiển thị metric + imperial song song. Chỉ để ước tính; tham vấn bác sĩ cho quyết định y tế."
+      "intro": "BMI, BMR, calorie target, body composition — công thức từ nghiên cứu khoa học, hiển thị metric + imperial song song. Chỉ để ước tính; tham vấn bác sĩ cho quyết định y tế.",
+      "body": [
+        "Mọi con số ở đây đều đến từ một công thức đã công bố, và mỗi công cụ đều nêu tên công thức nó dùng để bạn kiểm chứng. BMR dùng Mifflin-St Jeor; tỷ lệ mỡ dùng phương pháp đo chu vi của Hải quân Mỹ; TDEE là BMR nhân hệ số vận động.",
+        "Những công thức đó được khớp với quần thể, không phải với riêng bạn. Riêng BMI chỉ mô tả tỷ lệ giữa khối lượng và chiều cao, không phân biệt được cơ với mỡ — vì thế một vận động viên săn chắc và một người ít vận động cùng vóc dáng có thể ra cùng chỉ số. Đo mỡ theo chu vi tốt hơn ở đúng điểm này nhưng vẫn sai số vài phần trăm. Hãy đọc kết quả như một khoảng khởi đầu để trao đổi, không phải một chẩn đoán.",
+        "Các công cụ về nhịp chạy, giấc ngủ và thai kỳ là phép tính lịch chứ không phải ước lượng lâm sàng — ngày dự sinh là mốc 280 ngày kể từ kỳ kinh cuối, đó là quy ước chứ không phải dự báo. Với bất cứ điều gì ảnh hưởng tới điều trị, thuốc men hay một quyết định sức khoẻ, hãy hỏi nhân viên y tế. Không dữ liệu nào bạn nhập rời khỏi trình duyệt."
+      ]
     },
     "lifestyle": {
       "tagline": "Tool hàng ngày tiết kiệm một lượt search",
-      "intro": "Tuổi, GPA, giấc ngủ, unit converter, percentage, đếm chữ, thời gian đọc — những thứ nhỏ bạn cần hàng ngày, ở một nơi, nhanh."
+      "intro": "Tuổi, GPA, giấc ngủ, unit converter, percentage, đếm chữ, thời gian đọc — những thứ nhỏ bạn cần hàng ngày, ở một nơi, nhanh.",
+      "body": [
+        "Nhóm lớn nhất trên site, và cũng ít chủ đề chung nhất: đây là những máy tính người ta mở ra một lần và muốn xong trong mười giây. Phần trăm, tuổi, khoảng cách ngày, đổi đơn vị, điểm số, bảng chấm công.",
+        "Vài cái đáng nhìn lần hai. Máy tính thống kê báo cả độ lệch chuẩn mẫu lẫn tổng thể — hai con số khác nhau và thường xuyên bị lẫn. Bộ phân tích độ dễ đọc chạy Flesch-Kincaid, tức nó đo độ dài câu và số âm tiết chứ không đo văn có hay hay không — hữu ích như một tín hiệu, lệch lạc nếu lấy làm mục tiêu. Bộ chọn ngẫu nhiên dùng nguồn ngẫu nhiên mật mã của trình duyệt, nên kết quả bốc không chỉ là xáo theo một hạt giống đoán được.",
+        "Máy tính bảng công xử lý được ca qua đêm và giờ nghỉ không lương — đúng chỗ tính tay hay sai. Bộ đổi đơn vị và đổi cỡ giày lo những phép quy đổi thường ngày không nên đoán bừa. Không cái nào cần tài khoản và không gì được lưu lại."
+      ]
     },
     "design": {
       "tagline": "Color tool cho designer và dev-adjacent",
-      "intro": "HEX ↔ RGB ↔ HSL converter, WCAG contrast checker, palette generator — xây dựng cho cả designer và content writer quan tâm đến accessibility."
+      "intro": "HEX ↔ RGB ↔ HSL converter, WCAG contrast checker, palette generator — xây dựng cho cả designer và content writer quan tâm đến accessibility.",
+      "body": [
+        "Ba công cụ xoay quanh một câu hỏi: tổ hợp màu này có thật sự đọc được không?",
+        "Độ tương phản đo được, không phải chuyện gu thẩm mỹ. WCAG định nghĩa một tỷ số từ độ sáng tương đối của hai màu, và ngưỡng là 4,5:1 cho chữ thường và 3:1 cho chữ lớn ở mức AA. Bộ kiểm tra báo tỷ số cùng kết quả đạt hay trượt ở từng mức — đó là khác biệt giữa một buổi duyệt thiết kế kết thúc bằng ý kiến và một buổi kết thúc bằng con số.",
+        "Bộ chuyển đổi đưa màu qua lại giữa HEX, RGB, HSL và các biến thể có alpha mà không bị trôi số do làm tròn như khi chuyển tay hai lần, còn bộ sinh bảng màu dựng các hoà sắc từ một màu gốc. Cả hai hữu ích nhất khi đặt cạnh bộ kiểm tra tương phản: chọn bảng màu, rồi xác nhận những cặp bạn định đặt chữ lên thật sự vượt ngưỡng trước khi ra production."
+      ]
     }
   }
 }
