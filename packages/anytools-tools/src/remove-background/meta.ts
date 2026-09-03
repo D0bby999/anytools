@@ -26,13 +26,12 @@ export const meta: ToolMeta = {
   ],
   priority: 'P2',
   effort: 'L',
-  // DARK-LAUNCHED. Phase 9's quality gate ("2 of 4 real photos — portrait, product, pet, hair —
-  // usable without hand-fixing") has never been run: the lane graded two synthetic silhouettes by
-  // what percentage of the mask they kept, which measures that the pipeline runs, not that the
-  // cutout is good enough to publish. Until someone judges four real photographs, this tool stays
-  // out of the sitemap, llms.txt, the cluster index and Related Tools; the route still renders for
-  // anyone given the link. Re-enable steps: plans/…/phase-09-remove-background.md § Re-enable.
-  published: false,
+  // Published 2026-09-03 on the owner's call, ahead of the quality gate ("2 of 4 real photos —
+  // portrait, product, pet, hair — usable without hand-fixing"): the owner judges the cutouts on
+  // the live server instead of in the lane. If the results disappoint, set `published: false`
+  // again — every public surface (sitemap, llms.txt, cluster index, home catalogue, ⌘K, Related
+  // Tools) filters on it, and the route keeps rendering for a direct link.
+  published: true,
   nextStepSuggestions: [
     {
       tool: 'crop-image',
