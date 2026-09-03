@@ -97,8 +97,10 @@ async function download({ url, sha256: want, to }, dest) {
 }
 
 // A path entry is either "dir/file" (lands at <dest>/<basename>) or { "from", "to" } when the
-// library expects a specific relative layout under its asset base (Excalidraw wants the fonts at
-// <EXCALIDRAW_ASSET_PATH>/dist/prod/fonts/... in some versions — verify per version).
+// library expects a specific relative layout under its asset base. Excalidraw 0.18.1 resolves
+// "./fonts/<Family>/<file>.woff2" against EXCALIDRAW_ASSET_PATH (verified in its bundle,
+// 2026-09-03), hence `"to": "fonts"`; re-check on every Excalidraw upgrade — a wrong path does
+// not 404, it silently falls through to the CDN it lists as each FontFace's second source.
 function copyFrom({ from: pkg, via, paths }, dest) {
   const root = pkgRoot(pkg, via);
   for (const entry of paths) {
