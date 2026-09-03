@@ -1,3 +1,4 @@
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { getToolMeta } from '@anytools/tools/meta';
 import { ImageResponse } from 'next/og';
 
@@ -7,6 +8,15 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 type PageParams = { locale: string; cluster: string; tool: string };
+
+// See root opengraph-image.tsx for why an empty array (not a gate inside the default
+// export) is what actually removes the og:image/twitter:image meta tags in self-host
+// builds — with zero entries Next never calls the renderer below. `id` is required
+// (Next's `[__metadata_id__]` route looks the entry up by it and throws otherwise).
+export function generateImageMetadata() {
+  if (IS_SELF_HOSTED) return [];
+  return [{ id: 'og', alt, size, contentType }];
+}
 
 export default async function Image({ params }: { params: PageParams }) {
   const { locale, cluster, tool } = params;

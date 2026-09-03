@@ -1,9 +1,25 @@
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 export const alt = 'AnyTools — Dev tools that respect your time, your data, your language';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
+
+// Next's file-convention `og:image`/`twitter:image` metadata tags are generated from
+// this file's existence regardless of `metadataBase` — a self-host build's tags would
+// otherwise resolve to `http://localhost/opengraph-image` (site-url.ts's placeholder),
+// an absolute URL that points at the wrong place on a stranger's install. Returning an
+// empty array here (rather than gating inside the default export) is what actually
+// removes the `<meta property="og:image">`/`<meta property="twitter:image">` tags:
+// with zero entries, Next never calls the image renderer below and never emits the tag.
+// `id` is required on the returned object — Next's internal `[__metadata_id__]` route
+// handler looks up the matching entry by `id` and throws (`Cannot read properties of
+// undefined (reading 'toString')`) if it is missing, even with a single-entry array.
+export function generateImageMetadata() {
+  if (IS_SELF_HOSTED) return [];
+  return [{ id: 'og', alt, size, contentType }];
+}
 
 export default function Image() {
   return new ImageResponse(
