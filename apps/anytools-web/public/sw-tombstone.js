@@ -16,6 +16,14 @@
  *
  * This worker unregisters itself, clears every cache this app created, and forces every
  * open tab back onto the network for its next load.
+ *
+ * That cache wipe is deliberately total — it deletes `anytools-models` too (the ORT
+ * runtime/model bucket owned by packages/anytools-tools/src/shared/onnx-loader.ts, NOT
+ * prefixed `at-`), unlike the real sw.js's `activate`, which only ever deletes its own
+ * `at-`-prefixed caches. That is intentional here: a rollback is "something is badly wrong,
+ * start clean," not a routine deploy, so re-downloading the 18.5 MB background-removal
+ * runtime/model on next use is an acceptable cost in exchange for not having to reason about
+ * whether the bug being rolled back could have corrupted that bucket too.
  */
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -31,7 +39,14 @@ self.addEventListener('activate', (event) => {
       await self.registration.unregister();
       const clients = await self.clients.matchAll({ type: 'window' });
       for (let j = 0; j < clients.length; j++) {
-        clients[j].navigate(clients[j].url);
+        // One client failing to navigate (already closed, an invalid URL) must not stop the
+        // rest from being forced back onto the network too. `navigate()` returns a promise
+        // that can reject, so the catch has to sit on the promise, not around the call.
+        try {
+          await clients[j].navigate(clients[j].url);
+        } catch {
+          // Nothing to do — that tab just keeps running unregistered until its own next load.
+        }
       }
     })(),
   );
