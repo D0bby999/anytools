@@ -3,18 +3,18 @@
  *
  * The pipeline follows rembg's, because that is what this model file was published for:
  * stretch to 320×320 → normalise → run → take d0 → min-max stretch → scale the mask back up →
- * use as alpha. The arithmetic lives in ./mask-math.ts, which is unit-tested; this file is the
- * canvas and session plumbing around it, which is not testable outside a browser (happy-dom
- * returns null for getContext) and is therefore verified in the browser lane instead.
+ * use as alpha. The arithmetic is in ./mask-math.ts (unit-tested), the canvas work in
+ * ./mask-canvas.ts; this file is the order of operations and the session call. Everything that
+ * touches a canvas or the WASM session is verified in the browser lane, not in vitest — happy-dom
+ * returns null from getContext and never calls back from toBlob.
  */
 import { ImageToolError, loadBitmap } from '../shared/canvas-image';
 import { type ModelProgress, loadOnnxRuntime, loadOnnxSession } from '../shared/onnx-loader';
+import { buildMask, surface, toPng } from './mask-canvas';
 import {
   MODEL_SIZE,
   alphaStats,
-  applyThresholdInPlace,
   composeAlpha,
-  maskToRgba,
   minMaxNormalise,
   normaliseToTensor,
 } from './mask-math';
@@ -50,17 +50,6 @@ export type RemoveBackgroundResult = {
   transparent: number;
   inferenceMs: number;
 };
-
-type Surface = { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D };
-
-function surface(width: number, height: number): Surface {
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(width));
-  canvas.height = Math.max(1, Math.round(height));
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new ImageToolError('Your browser did not provide a 2D canvas context.');
-  return { canvas, ctx };
-}
 
 /**
  * Decode the image into the model's input tensor.
@@ -107,53 +96,11 @@ async function runModel(
 }
 
 /**
- * Scale the 320×320 mask up to the image's size, then threshold and feather it.
- *
- * Order matters: threshold first, blur second. Blurring a soft mask and then cutting it gives a
- * hard edge in a slightly different place; cutting first and blurring after is what produces the
- * soft border the "edge softness" control promises.
- *
- * Known limit: `ctx.filter` samples transparent black from outside the canvas, so a subject that
- * runs off the edge of the frame fades over the feather radius at that edge. At the default 1px
- * this is invisible; at 8px on a tight crop it is not.
- */
-function buildMask(
-  mask: Float32Array,
-  width: number,
-  height: number,
-  { threshold, feather }: RemoveBackgroundOptions,
-): ImageData {
-  const small = surface(MODEL_SIZE, MODEL_SIZE);
-  small.ctx.putImageData(new ImageData(maskToRgba(mask), MODEL_SIZE, MODEL_SIZE), 0, 0);
-
-  const full = surface(width, height);
-  full.ctx.imageSmoothingEnabled = true;
-  full.ctx.imageSmoothingQuality = 'high';
-  full.ctx.drawImage(small.canvas, 0, 0, full.canvas.width, full.canvas.height);
-
-  const scaled = full.ctx.getImageData(0, 0, full.canvas.width, full.canvas.height);
-  applyThresholdInPlace(scaled.data, threshold);
-  if (!(feather > 0)) return scaled;
-
-  full.ctx.putImageData(scaled, 0, 0);
-  const blurred = surface(width, height);
-  blurred.ctx.filter = `blur(${feather}px)`;
-  blurred.ctx.drawImage(full.canvas, 0, 0);
-  return blurred.ctx.getImageData(0, 0, blurred.canvas.width, blurred.canvas.height);
-}
-
-async function toPng(canvas: HTMLCanvasElement): Promise<Blob> {
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-  if (!blob) throw new ImageToolError('Your browser could not encode the PNG.');
-  return blob;
-}
-
-/**
  * Remove the background from one image.
  *
- * `onProgress` reports the one-off model download; inference itself is a single opaque call into
- * WASM with no intermediate signal to report, so the UI switches to a "running" state rather
- * than pretending to know a percentage.
+ * `onProgress` reports the two one-off downloads (engine, then model) byte by byte. Inference is
+ * a single opaque call into WASM with no intermediate signal, so it is announced as a stage and
+ * not as a percentage the code would have to invent.
  */
 export async function removeBackground(
   file: File,
@@ -164,8 +111,8 @@ export async function removeBackground(
   try {
     const input = toModelInput(bitmap);
     onProgress?.({ stage: 'engine', loaded: 0, total: 0 });
-    const session = await loadOnnxSession(MODEL_URL, ({ file, loaded, total }) =>
-      onProgress?.({ stage: file, loaded, total }),
+    const session = await loadOnnxSession(MODEL_URL, (p) =>
+      onProgress?.({ stage: p.file, loaded: p.loaded, total: p.total }),
     );
     const ort = await loadOnnxRuntime();
 
