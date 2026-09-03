@@ -7,11 +7,10 @@
 // the downscale re-encode are therefore verified in the browser lane
 // (docs/tool-runtime-verification.md), not here. Everything below drives the real exported
 // functions against images built in-process.
-import { deflateSync } from 'node:zlib';
-import zlib from 'node:zlib';
 import { PDFDocument, PDFName, PDFRawStream } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import type { EmbeddableImage } from '../shared/embeddable-image';
+import { encodeRgbPng } from '../shared/test-png';
 import {
   FIT_DPI,
   ImageToPdfError,
@@ -23,36 +22,8 @@ import {
 
 // --- fixtures -------------------------------------------------------------------------------
 
-function chunk(type: string, data: Buffer): Buffer {
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(zlib.crc32(body) >>> 0);
-  return Buffer.concat([len, body, crc]);
-}
-
-/** A real, decodable RGB PNG of the requested size. */
-function pngBytes(width: number, height: number): Uint8Array {
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 2; // colour type: RGB
-  const stride = width * 3 + 1;
-  const raw = Buffer.alloc(stride * height);
-  for (let y = 0; y < height; y++) {
-    raw[y * stride] = 0; // filter: none
-    for (let x = 0; x < width; x++) raw[y * stride + 1 + x * 3] = (x * 7 + y * 11) & 0xff;
-  }
-  const png = Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk('IHDR', ihdr),
-    chunk('IDAT', deflateSync(raw)),
-    chunk('IEND', Buffer.alloc(0)),
-  ]);
-  return Uint8Array.from(png);
-}
+/** A real, decodable RGB PNG of the requested size (shared encoder, see shared/test-png.ts). */
+const pngBytes = (width: number, height: number): Uint8Array => encodeRgbPng(width, height);
 
 /**
  * A JPEG header pdf-lib can read: SOI, JFIF APP0, SOF0 declaring the size, EOI. pdf-lib's

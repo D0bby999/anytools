@@ -5,12 +5,13 @@
 //
 // As with add-page-numbers, the assertions read the bytes back: the drawn text and its angle
 // come out of the inflated content stream, and the opacity out of the page's ExtGState.
-import zlib, { deflateSync, inflateSync } from 'node:zlib';
+import { inflateSync } from 'node:zlib';
 import { PDFArray, PDFDict, PDFDocument, PDFName, PDFRawStream, PDFStream } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import type { EmbeddableImage } from '../shared/embeddable-image';
 import { PageRangeError } from '../shared/page-range';
 import { PdfTextError } from '../shared/pdf-page-stamp';
+import { encodeRgbPng } from '../shared/test-png';
 import {
   WatermarkError,
   type WatermarkOptions,
@@ -35,33 +36,9 @@ async function pdfFile(
   return new File([bytes.slice()], name, { type: 'application/pdf' });
 }
 
-/** A real, decodable RGB PNG — the same encoder the image-to-pdf tests use. */
+/** A real, decodable RGB PNG — the same encoder the image-to-pdf tests use (shared/test-png.ts). */
 function pngImage(name: string, width: number, height: number): EmbeddableImage {
-  const chunk = (type: string, data: Buffer) => {
-    const len = Buffer.alloc(4);
-    len.writeUInt32BE(data.length);
-    const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-    const crc = Buffer.alloc(4);
-    crc.writeUInt32BE(zlib.crc32(body) >>> 0);
-    return Buffer.concat([len, body, crc]);
-  };
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8;
-  ihdr[9] = 2;
-  const stride = width * 3 + 1;
-  const raw = Buffer.alloc(stride * height);
-  for (let y = 0; y < height; y++) raw[y * stride] = 0;
-  const bytes = Uint8Array.from(
-    Buffer.concat([
-      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-      chunk('IHDR', ihdr),
-      chunk('IDAT', deflateSync(raw)),
-      chunk('IEND', Buffer.alloc(0)),
-    ]),
-  );
-  return { name, bytes, format: 'png', width, height };
+  return { name, bytes: encodeRgbPng(width, height, () => 0), format: 'png', width, height };
 }
 
 const textOpts = (over: Partial<WatermarkOptions> = {}): WatermarkOptions =>
