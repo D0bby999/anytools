@@ -14,6 +14,10 @@ import { fileURLToPath } from 'node:url';
  *   cjk.pdf            Japanese text set in a NON-embedded font through the predefined CMap
  *                      UniJIS-UCS2-H. Rendering it needs /third-party/pdfjs/cmaps/; if that path is
  *                      wrong the worker throws "Built-in CMap parameters are not provided".
+ *   ocr-text.pdf       two pages of large, plain English sentences for ocr-pdf. NOT a scan —
+ *                      it carries a real text layer — so it proves the OCR pipeline recognises
+ *                      pixels, not that it handles scanner noise. A real scan belongs in
+ *                      fixtures/manual/scan.pdf; see docs/tool-runtime-verification.md.
  *
  * The PNG is built in-process (a 96x96 two-colour checkerboard) so the repository does not
  * carry a binary. pdf-lib cannot emit a non-embedded CJK font, so cjk.pdf is written by hand
@@ -138,7 +142,41 @@ function cjkPdf() {
   writeFileSync(join(OUT, 'cjk.pdf'), Buffer.from(out, 'latin1'));
 }
 
+// --- ocr-text.pdf ---------------------------------------------------------------------------
+// Sentences are deliberately short, unambiguous and set at 20pt: rendered at 200 DPI that is a
+// ~55px line, well above what tesseract needs, so a failure here is a pipeline failure and not a
+// legibility argument. The marker words are what the browser lane greps for.
+//
+// 20pt and not larger because pdf-lib does not wrap: at 28pt the longest line ran past the right
+// edge of A4 and was CLIPPED BY THE MEDIA BOX, and the OCR output then looked like a truncation
+// bug in the tool ("the lazy doc", "sentence exa") when the pixels really did stop there.
+const OCR_PAGES = [
+  [
+    'The quick brown fox jumps over the lazy dog.',
+    'Recognition should return this sentence exactly.',
+    'Invoice number 4815 dated 3 September 2026.',
+  ],
+  [
+    'Page two contains a different marker word: rhinoceros.',
+    'Optical character recognition runs in the browser.',
+    'Total amount due is 162 dollars and 30 cents.',
+  ],
+];
+
+async function ocrText() {
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  for (const lines of OCR_PAGES) {
+    const page = doc.addPage([595.28, 841.89]);
+    lines.forEach((line, i) => {
+      page.drawText(line, { x: 50, y: 740 - i * 60, size: 20, font });
+    });
+  }
+  writeFileSync(join(OUT, 'ocr-text.pdf'), await doc.save());
+}
+
 await textThreePages();
 await imagesShared();
 cjkPdf();
-console.log(`fixtures written to ${OUT}: text-3p.pdf images-shared.pdf cjk.pdf`);
+await ocrText();
+console.log(`fixtures written to ${OUT}: text-3p.pdf images-shared.pdf cjk.pdf ocr-text.pdf`);

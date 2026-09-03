@@ -4,7 +4,6 @@
     "paths": ["cmaps", "standard_fonts", "wasm"]
   },
   "tesseract": {
-    "pending": true,
     "from": "tesseract.js",
     "paths": ["dist/worker.min.js"],
     "also": {
@@ -14,7 +13,6 @@
     }
   },
   "tessdata": {
-    "pending": true,
     "download": [
       {
         "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata",

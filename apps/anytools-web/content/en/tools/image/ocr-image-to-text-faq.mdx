@@ -1,0 +1,43 @@
+---
+title: Image to text (OCR) — Frequently asked questions
+---
+
+## Is my photo uploaded anywhere?
+
+No. The recogniser is Tesseract, compiled to WebAssembly and run inside this browser tab by `tesseract.js`. Your image is decoded to a canvas, handed to that WebAssembly module as raw pixels, and the text comes back in the same tab. No request carries the picture.
+
+That matters more here than on most tools, because the images people run through OCR are rarely neutral: a payslip, a prescription, a passport page, a contract someone photographed on a desk, a screenshot of a private conversation. Most free OCR sites are a form that posts your file to a server and, in several cases, to a paid API behind it. Open your developer tools, switch to the Network tab, and watch this one: after the language files load, nothing leaves.
+
+## What actually gets downloaded, and when?
+
+Nothing OCR-related loads when you open the page. The moment you press **Recognize text**, three things are fetched from this site — never from a CDN:
+
+- the worker script, about 110 KB;
+- the WebAssembly recognition engine, about 3.8 MB;
+- the language data for the language you chose, between 0.5 MB and 4 MB.
+
+The language file is then stored in your browser's IndexedDB, so the second run of that language downloads nothing at all. English is the largest at roughly 4 MB; Vietnamese is the smallest at about 0.5 MB. Clearing site data removes them, and they will be fetched again on the next run. Everything is served from this origin, so the fact that you are reading a document is not disclosed to Google, jsDelivr or anyone else.
+
+## Why only English, Vietnamese, Spanish and Portuguese?
+
+Because those four language files are shipped with the site and are therefore available offline and instantly. Tesseract supports over a hundred languages, but each one is a separate download that would have to be fetched from a third party at the moment you picked it — which is exactly the request this tool exists to avoid.
+
+If your text is in a language not listed, the result will be poor rather than empty: the recogniser will map the shapes onto the alphabet it knows. Latin-alphabet languages close to the four listed (Italian, French, Catalan) often come out surprisingly usable with Spanish or Portuguese selected, because the letter shapes are the same and only the dictionary differs. Non-Latin scripts will not work at all.
+
+## How accurate should I expect this to be?
+
+For a clean, straight, well-lit page of printed text at a reasonable resolution, expect somewhere in the high nineties per cent of characters — good enough to read and correct rather than retype. The tool shows an average confidence figure so you can judge before trusting it; below roughly 70% the output usually needs real correction.
+
+Three things degrade it sharply, in order of severity. **Skew**: a page photographed at an angle is much harder than a page photographed square, and no automatic straightening is applied here. **Resolution**: text smaller than about 20 pixels tall in the image is often unreadable to the recogniser even when it looks fine to you on screen. **Contrast and glare**: a phone flash on glossy paper wipes out whole lines.
+
+Handwriting does not work. Tesseract's models are trained on printed type; cursive and hand-printed notes produce nonsense with high confidence, which is the worst combination. Highly stylised display fonts, dense tables and text over photographs are all considerably worse than plain body text.
+
+## Why the "keep line breaks" option?
+
+Because printed text wraps at the column edge, and those breaks are an artefact of the page, not of the sentence. By default the tool joins the lines within each detected block back into continuous paragraphs, so pasting the result into a document gives you prose rather than text with a hard return every eight words.
+
+Turn the option on when the line breaks are meaningful: poetry, addresses, code, receipts, tables, forms. Toggling it re-formats the text you already have — it does not run recognition again.
+
+## Which model is used, and could it be more accurate?
+
+The language files are from Tesseract's `tessdata_fast` set: integer-quantised models built for speed and size. The alternative, `tessdata_best`, is roughly two to three per cent more accurate on difficult scans and about four times larger — English alone would be 15 MB or so downloaded per visitor. That trade is not worth it for the common case, so `fast` is what ships. The result is a real, if small, accuracy ceiling, and it is better stated than hidden.

@@ -41,6 +41,15 @@ export const meta: ToolMeta = {
       },
     },
     {
+      tool: 'ocr-image-to-text',
+      reason: {
+        en: 'Read the text out of the photo before compressing it',
+        vi: 'Trích chữ trong ảnh trước khi nén',
+        es: 'Extraer el texto de la foto antes de comprimirla',
+        pt: 'Extrair o texto da foto antes de comprimi-la',
+      },
+    },
+    {
       tool: 'create-zip',
       reason: {
         en: 'Bundle the compressed photos into one file to send',

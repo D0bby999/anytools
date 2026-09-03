@@ -111,7 +111,8 @@
     "./xlsx-to-csv": "./src/xlsx-to-csv/index.ts",
     "./docx-to-markdown": "./src/docx-to-markdown/index.ts",
     "./heic-to-jpg": "./src/heic-to-jpg/index.ts",
-    "./whiteboard": "./src/whiteboard/index.ts"
+    "./whiteboard": "./src/whiteboard/index.ts",
+    "./ocr-image-to-text": "./src/ocr-image-to-text/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
