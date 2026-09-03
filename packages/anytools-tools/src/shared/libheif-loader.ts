@@ -45,8 +45,51 @@ export class HeicEngineError extends Error {
   }
 }
 
-/** `{ code: 0 }` means success; libheif returns this shape from most calls. */
-export type HeifError = { code: number; subcode?: number; message?: string };
+/**
+ * What libheif hands back from most calls.
+ *
+ * `code` is NOT the plain integer the C API documents. embind exposes `heif_error_code` as an
+ * enum, and a value of an embind enum is an object — `{ value: 0 }` under a class whose name is
+ * mangled — so the success object is `{ code: <enum 0>, subcode: <enum 0>, message: 'Success' }`.
+ * Typing it as a number here is what made `err.code !== 0` true for every file that decoded
+ * perfectly, and every valid HEIC was rejected with "could not be read as HEIC: Success"
+ * (found in review, 2026-09-03, on three real files). Read the code through `heifErrorValue`.
+ */
+export type HeifErrorCode = { value: number };
+export type HeifError = {
+  code: HeifErrorCode | number;
+  subcode?: HeifErrorCode | number;
+  message?: string;
+};
+
+/**
+ * The numeric error code, or null when `value` is not one of these objects at all.
+ *
+ * Accepts a plain number too: the enum wrapper is a property of how this build was compiled, and
+ * a future one returning the raw int should not silently start reporting failures again.
+ */
+export function heifErrorValue(value: unknown): number | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const code = (value as { code?: unknown }).code;
+  if (typeof code === 'number') return code;
+  if (typeof code === 'object' && code !== null) {
+    const inner = (code as { value?: unknown }).value;
+    if (typeof inner === 'number') return inner;
+  }
+  return null;
+}
+
+/**
+ * Does this look like an error object rather than an image handle?
+ *
+ * Handles come back as embind objects with no `code` property, so the presence of a readable
+ * code is the discriminator. `heif_error_Ok` (0) is still an "error object": a call that returns
+ * one returned a status, not a handle.
+ */
+export const isHeifError = (value: unknown): value is HeifError => heifErrorValue(value) !== null;
+
+/** True only for `heif_error_Ok`. */
+export const isHeifOk = (value: unknown): boolean => heifErrorValue(value) === 0;
 
 /** Opaque embind handles. Never dereferenced here — only passed back into the module. */
 export type HeifContext = object;

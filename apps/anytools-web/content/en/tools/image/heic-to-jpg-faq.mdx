@@ -20,17 +20,21 @@ The file will very often be **larger** than the HEIC, sometimes twice the size, 
 
 Depth maps, HDR gain maps, edit history and burst frames stored beside the picture do not survive: JPEG has nowhere to keep them. Choosing PNG gives you a lossless copy of the decoded pixels, but PNG is a poor fit for photographs and the files are usually several times larger than the JPEG.
 
+The colour profile is not carried over either. An iPhone photo is usually in Display P3, a wider gamut than sRGB, and the file written here has no ICC profile attached — so anything opening it assumes sRGB. Saturated reds and greens can come out flatter than in the original. If exact colour matters, keep the HEIC and convert with software that embeds the profile.
+
 ## What happens to a Live Photo?
 
 You get the still frame — the single image the container marks as its primary item, which is the frame Photos shows you. The accompanying video lives in a separate `.mov` file that a browser tool never receives, and any extra frames in a burst stay in the original file. When a file turns out to hold more than one image, the tool says so under the result.
 
 ## Will portrait photos come out sideways?
 
-They should not. HEIF stores rotation and mirroring as `irot` and `imir` properties on the image item, and libheif applies both while decoding, so the pixels handed to the canvas are already the right way up. This is the most common defect in browser image tools, and the reason it is not a problem here is that the transform is handled inside the decoder rather than by us reading an EXIF tag.
+No. HEIF stores rotation and mirroring as `irot` and `imir` properties on the image item, and libheif applies both while decoding, so the pixels handed to the canvas are already the right way up. This is the most common defect in browser image tools, and the reason it is not a problem here is that the transform is handled inside the decoder rather than by us reading an EXIF tag. It is checked rather than assumed: the test suite decodes a HEIC whose stored image is 64 × 48 with a quarter-turn property and fails unless the decode comes back 48 × 64.
 
 ## Which files does it accept?
 
-`.heic`, `.heif` and Canon's `.hif`, checked by reading the `ftyp` box rather than trusting the extension — Windows often reports no MIME type at all for these. AVIF is refused with a note: it uses the same container but the AV1 codec, and browsers open AVIF natively, so the [Image Format Converter](/tools/image-format-converter) handles it — that tool deliberately does not take HEIC, because a browser canvas cannot decode one. Very large images are refused above about 16.7 megapixels, the point where Safari's canvas limit produces a blank image instead of an error.
+`.heic`, `.heif` and Canon's `.hif`, checked by reading the `ftyp` box rather than trusting the extension — Windows often reports no MIME type at all for these. AVIF is refused straight away, on its major brand: it uses the same container but the AV1 codec, which this decoder does not contain, and browsers open AVIF natively, so the [Image Format Converter](/tools/image-format-converter) handles it — that tool deliberately does not take HEIC, because a browser canvas cannot decode one.
+
+Photos above about 16.7 megapixels — Safari's canvas ceiling, which a 24 MP iPhone photo passes — are scaled down to fit rather than refused, and the result says by how much. Below that nothing is resized.
 
 ## What is the decoder, and what licence is it under?
 

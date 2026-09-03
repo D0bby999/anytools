@@ -84,6 +84,9 @@ export function HeicToJpgUi() {
   };
 
   const burst = results.filter((r) => r.imageCount > 1);
+  // A photo above the canvas ceiling is written smaller rather than refused, so say so: the
+  // download is not the size the camera took, and nothing else on the page would reveal that.
+  const scaled = results.filter((r) => r.width !== r.sourceWidth || r.height !== r.sourceHeight);
 
   return (
     <Card>
@@ -97,7 +100,11 @@ export function HeicToJpgUi() {
             setFiles(f);
             reset();
           }}
-          accept={`${HEIC_EXTENSIONS.join(',')},image/heic,image/heif`}
+          // AVIF is in the list so that dropping one produces the explanation in `logic.ts`
+          // rather than nothing at all: the dropzone discards anything outside `accept`
+          // silently, and "my file vanished" is a worse answer than "AVIF is not supported
+          // here". Nothing is decoded — the brand check turns it away before the WASM loads.
+          accept={`${HEIC_EXTENSIONS.join(',')},.avif,image/heic,image/heif,image/avif`}
           multiple
           label="HEIC or HEIF photos (.heic, .heif, .hif)"
         />
@@ -173,6 +180,16 @@ export function HeicToJpgUi() {
           </output>
         )}
 
+        {scaled.length > 0 && (
+          <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
+            {scaled.length === 1 ? 'One photo was' : `${scaled.length} photos were`} larger than a
+            browser canvas draws reliably (16.7 megapixels) and{' '}
+            {scaled.length === 1 ? 'was' : 'were'} scaled down to fit — {scaled[0]?.sourceWidth} ×{' '}
+            {scaled[0]?.sourceHeight} became {scaled[0]?.width} × {scaled[0]?.height}. The original
+            file is untouched.
+          </output>
+        )}
+
         {results.length > 0 && (
           <div className="space-y-3">
             {results.length > 1 && (
@@ -186,13 +203,17 @@ export function HeicToJpgUi() {
             )}
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {results.map((r, i) => (
-                <li key={r.sourceName} className="space-y-1 rounded-md border p-2">
+                // Output names are made unique per batch, so two IMG_0001.HEIC are two keys.
+                <li key={r.name} className="space-y-1 rounded-md border p-2">
                   {/* A plain <img>: the source is a blob URL in this tab, which next/image cannot
                       optimise and must not try to fetch. */}
                   <img src={previews[i]} alt={r.name} className="w-full rounded border" />
                   <p className="truncate text-sm">{r.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {r.width} × {r.height} px · {kb(r.sourceSize)} → {kb(r.blob.size)}
+                    {r.width} × {r.height} px
+                    {(r.width !== r.sourceWidth || r.height !== r.sourceHeight) &&
+                      ` (scaled from ${r.sourceWidth} × ${r.sourceHeight})`}{' '}
+                    · {kb(r.sourceSize)} → {kb(r.blob.size)}
                   </p>
                   <button
                     type="button"
