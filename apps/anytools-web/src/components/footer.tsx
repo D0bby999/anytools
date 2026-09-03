@@ -38,11 +38,10 @@ export function Footer() {
           </div>
         )}
         <div className="md:text-right space-y-3 text-sm text-muted-foreground">
-          {/* Renders nothing until the browser fires `beforeinstallprompt` — most visitors
-              (Firefox, Safari, anyone who already installed) never see this. */}
-          <div className="flex md:justify-end">
-            <InstallPrompt />
-          </div>
+          {/* Renders nothing (no wrapper element either — see install-prompt.tsx) until the
+              browser fires `beforeinstallprompt`; most visitors (Firefox, Safari, anyone who
+              already installed) never see this. */}
+          <InstallPrompt />
           <nav className="flex flex-wrap gap-4 md:justify-end">
             <Link href="/about" className="hover:text-foreground">
               {t('about')}
