@@ -13,7 +13,18 @@ export function Footer() {
 
   return (
     <footer className="border-t mt-16 py-12">
-      <div className="container mx-auto max-w-6xl px-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Self-host hides the newsletter column below, leaving a single grid child — at
+          the `md:grid-cols-2` breakpoint that child would still occupy only the first
+          of two columns (still `md:text-right`), landing right-aligned text in the left
+          half of the row instead of spanning full width (review finding #11,
+          2026-09-03). Dropping `md:grid-cols-2` when self-hosted collapses back to the
+          single `grid-cols-1` column already declared, so the remaining column spans
+          the full container; the hosted className string is unchanged byte-for-byte. */}
+      <div
+        className={`container mx-auto max-w-6xl px-4 grid grid-cols-1${
+          IS_SELF_HOSTED ? '' : ' md:grid-cols-2'
+        } gap-8`}
+      >
         {/* Self-host builds have no Resend account behind /api/newsletter/subscribe
             (that route 404s — see newsletter/subscribe/route.ts), so the whole column
             is hidden rather than leaving a heading and subtitle above a dead form. */}
