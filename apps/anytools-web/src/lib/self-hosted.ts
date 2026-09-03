@@ -22,3 +22,13 @@
  * pointing back to this file).
  */
 export const IS_SELF_HOSTED = process.env.NEXT_PUBLIC_SELF_HOSTED === '1';
+
+/**
+ * Shared 404 Response for API routes that only exist for the hosted platform
+ * (the 3 `/api/postclaw/**` routes re-export handlers trivially, so there is no
+ * function body of their own to gate with an `if` — the whole exported const is
+ * swapped for this instead). Ignores whatever arguments the real handler would
+ * have received; a function with fewer declared parameters is assignable to any
+ * Next.js route handler type.
+ */
+export const notFoundHandler = (): Response => new Response(null, { status: 404 });
