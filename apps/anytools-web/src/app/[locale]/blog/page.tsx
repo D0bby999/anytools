@@ -2,7 +2,7 @@ import { BlogCard } from '@/components/blog-card';
 import { routing } from '@/i18n/routing';
 import { BLOG_CATEGORIES, listBlogs } from '@/lib/load-blog-content';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
-import { METADATA_BASE } from '@/lib/site-url';
+import { METADATA_BASE, selfHostSafeAlternates } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -33,10 +33,10 @@ export async function generateMetadata({
     metadataBase: METADATA_BASE,
     title: titleByLocale[locale] ?? titleByLocale.en,
     description: descByLocale[locale] ?? descByLocale.en,
-    alternates: {
+    alternates: selfHostSafeAlternates({
       canonical: `/${locale}/blog`,
       languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/blog`])),
-    },
+    }),
   };
 }
 
@@ -49,8 +49,10 @@ export default async function BlogIndexPage({
 }) {
   // The blog is DB-backed (listPublishedBlogRows/listBlogs) and self-host builds ship
   // with no DATABASE_URL: without this gate the page would render empty rather than
-  // signal it doesn't exist. generateMetadata above touches no data, so it is left
-  // ungated — the component 404 alone is sufficient.
+  // signal it doesn't exist. generateMetadata above touches no data, so its body does
+  // not need an early notFound() of its own — but its `alternates` still goes through
+  // selfHostSafeAlternates() (same as every other page), because a thrown notFound()
+  // is not guaranteed to discard metadata already resolved for the response `<head>`.
   if (IS_SELF_HOSTED) notFound();
   const { locale } = await params;
   const { category } = await searchParams;
