@@ -58,5 +58,14 @@ export const meta: ToolMeta = {
         pt: 'Reunir as fotos comprimidas num PDF',
       },
     },
+    {
+      tool: 'heic-to-jpg',
+      reason: {
+        en: 'This tool cannot open .heic — convert an iPhone photo first',
+        vi: 'Tool này không mở được .heic — chuyển ảnh iPhone trước',
+        es: 'Esta herramienta no abre .heic — convierte antes la foto del iPhone',
+        pt: 'Esta ferramenta não abre .heic — converta a foto do iPhone antes',
+      },
+    },
   ],
 };

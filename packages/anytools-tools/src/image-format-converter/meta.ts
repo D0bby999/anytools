@@ -54,5 +54,14 @@ export const meta: ToolMeta = {
         pt: 'Colocar as imagens convertidas num PDF, uma por página',
       },
     },
+    {
+      tool: 'heic-to-jpg',
+      reason: {
+        en: 'HEIC is not on the list above — browsers cannot decode it without a separate decoder',
+        vi: 'HEIC không nằm trong danh sách trên — trình duyệt cần decoder riêng',
+        es: 'HEIC no está en la lista de arriba — el navegador necesita un decodificador aparte',
+        pt: 'HEIC não está na lista acima — o navegador precisa de um decodificador à parte',
+      },
+    },
   ],
 };

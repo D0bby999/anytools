@@ -1,0 +1,37 @@
+---
+title: HEIC to JPG — Frequently asked questions
+---
+
+## Why does my iPhone save photos I cannot open?
+
+HEIC is a HEIF container holding an image compressed with HEVC (H.265). At the same visual quality it is roughly half the size of JPEG, which is why Apple made it the default in iOS 11. The cost is support: HEVC is patent-encumbered, so Windows, Android and every web browser either lack a decoder or hide it behind a paid or optional component. The file is not broken — the software opening it simply has no HEVC decoder.
+
+If you would rather avoid the conversion altogether, iOS can go back to JPEG: **Settings → Camera → Formats → Most Compatible**. That changes future photos only; the ones already on the phone stay HEIC.
+
+## Are my photos uploaded?
+
+No. This page loads a WebAssembly build of libheif from this site and decodes the file inside the tab, then re-encodes it with your browser's own JPEG or PNG encoder. Nothing is transmitted. You can watch the Network tab, or disconnect after the page has loaded and convert anyway. The decoder is about 1 MB and is fetched the first time you convert something, not when the page opens.
+
+## What do I lose converting to JPG?
+
+Detail, in a way you may or may not see. The HEIC has already been through one lossy compression; decoding it and re-encoding as JPEG applies a second, different one, and each pass discards information the previous pass kept. At a high quality setting the difference is hard to spot on a photograph, but it is a copy of a copy — keep the original HEIC if the photo matters.
+
+The file will very often be **larger** than the HEIC, sometimes twice the size, because JPEG is simply a less efficient codec. That is expected, not a bug. If the size matters, take the result to [Compress Image](/tools/compress-image), or drop the dimensions with [Resize Image](/tools/resize-image) first. To collect a set of converted photos into one document, [Image to PDF](/tools/image-to-pdf) takes JPGs a page at a time.
+
+Depth maps, HDR gain maps, edit history and burst frames stored beside the picture do not survive: JPEG has nowhere to keep them. Choosing PNG gives you a lossless copy of the decoded pixels, but PNG is a poor fit for photographs and the files are usually several times larger than the JPEG.
+
+## What happens to a Live Photo?
+
+You get the still frame — the single image the container marks as its primary item, which is the frame Photos shows you. The accompanying video lives in a separate `.mov` file that a browser tool never receives, and any extra frames in a burst stay in the original file. When a file turns out to hold more than one image, the tool says so under the result.
+
+## Will portrait photos come out sideways?
+
+They should not. HEIF stores rotation and mirroring as `irot` and `imir` properties on the image item, and libheif applies both while decoding, so the pixels handed to the canvas are already the right way up. This is the most common defect in browser image tools, and the reason it is not a problem here is that the transform is handled inside the decoder rather than by us reading an EXIF tag.
+
+## Which files does it accept?
+
+`.heic`, `.heif` and Canon's `.hif`, checked by reading the `ftyp` box rather than trusting the extension — Windows often reports no MIME type at all for these. AVIF is refused with a note: it uses the same container but the AV1 codec, and browsers open AVIF natively, so the [Image Format Converter](/tools/image-format-converter) handles it — that tool deliberately does not take HEIC, because a browser canvas cannot decode one. Very large images are refused above about 16.7 megapixels, the point where Safari's canvas limit produces a blank image instead of an error.
+
+## What is the decoder, and what licence is it under?
+
+[libheif](https://github.com/strukturag/libheif) with libde265, compiled to WebAssembly and published as `libheif-js`. Both are **LGPL-3.0**, not MIT like the rest of this site. The binary is served as a separate file from `/third-party/libheif/`, never fused into our own JavaScript, and it can be replaced with any compatible build — see THIRD-PARTY-NOTICES.md in the repository for the full notice and the licence text.

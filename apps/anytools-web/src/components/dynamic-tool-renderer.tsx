@@ -137,6 +137,7 @@ const LOADERS: Record<string, ComponentType> = {
   'qr-barcode-scanner': dynamic(() => import('@anytools/tools/qr-barcode-scanner').then(pick)),
   'xlsx-to-csv': dynamic(() => import('@anytools/tools/xlsx-to-csv').then(pick)),
   'docx-to-markdown': dynamic(() => import('@anytools/tools/docx-to-markdown').then(pick)),
+  'heic-to-jpg': dynamic(() => import('@anytools/tools/heic-to-jpg').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

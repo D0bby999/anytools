@@ -63,7 +63,6 @@
     "paths": [{ "from": "dist/prod/fonts", "to": "dist/prod/fonts" }]
   },
   "libheif": {
-    "pending": true,
     "from": "libheif-js",
     "paths": ["libheif-wasm/libheif.js", "libheif-wasm/libheif.wasm", "libheif-wasm/LICENSE"]
   },

@@ -58,5 +58,14 @@ export const meta: ToolMeta = {
         pt: 'Numerar as páginas depois de criar o documento',
       },
     },
+    {
+      tool: 'heic-to-jpg',
+      reason: {
+        en: 'iPhone .heic photos have to become JPG before they can go in a PDF',
+        vi: 'Ảnh .heic của iPhone phải đổi sang JPG trước khi đưa vào PDF',
+        es: 'Las fotos .heic del iPhone deben pasar a JPG antes de ir a un PDF',
+        pt: 'Fotos .heic do iPhone precisam virar JPG antes de entrar num PDF',
+      },
+    },
   ],
 };

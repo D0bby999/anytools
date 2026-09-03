@@ -39,6 +39,7 @@ import { meta as extractImagesFromPdf } from './extract-images-from-pdf/meta';
 import { meta as gpaCalculator } from './gpa-calculator/meta';
 import { meta as gradeCalculator } from './grade-calculator/meta';
 import { meta as hashGenerator } from './hash-generator/meta';
+import { meta as heicToJpg } from './heic-to-jpg/meta';
 import { meta as hexEncode } from './hex-encode/meta';
 import { meta as htmlBeautifier } from './html-beautifier/meta';
 import { meta as htmlEntity } from './html-entity/meta';
@@ -219,6 +220,8 @@ export const toolMetas: ToolMeta[] = [
   // Office files, read in the tab (260903)
   xlsxToCsv,
   docxToMarkdown,
+  // iPhone photos, decoded in the tab (260903)
+  heicToJpg,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
