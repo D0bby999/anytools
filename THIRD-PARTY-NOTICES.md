@@ -5,8 +5,7 @@ copyright and permission notice to be reproduced.
 
 Ordinary npm dependencies are not listed here — their licences travel with them in
 `node_modules` and are not redistributed as our source. This file is for code that was read
-and adapted into this repository, and for compiled binaries this site serves to visitors
-(the WebAssembly modules under `public/third-party/`), whose notices have to travel with them.
+and adapted into this repository.
 
 ---
 
@@ -237,6 +236,10 @@ like the rest of the backend, and the font data inside them is:
     You may obtain a copy of the License at
 
         http://www.apache.org/licenses/LICENSE-2.0
+```
+
+---
+
 ## mammoth
 
 `docx-to-markdown` reads `.docx` files with [mammoth.js](https://github.com/mwilliamson/mammoth.js)
@@ -1180,6 +1183,28 @@ Public License instead of this License.  But first, please read
 ----------------------------------------------------------------------
 
                              MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
 ## Excalidraw
 
 `whiteboard` is not adapted code — it embeds
@@ -1335,6 +1360,10 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
+```
+
+---
+
 ## tesseract.js / tessdata_fast
 
 The two OCR tools (`ocr-image-to-text`, `ocr-pdf`) run
@@ -1690,3 +1719,4 @@ GPL-3.0 code into it would both breach that licence and force the whole reposito
 
 Tools whose idea came from that catalogue are implemented from primary specifications
 (WebCrypto, the WHATWG URL Standard, MDN, the Open Graph protocol) and their commits say which.
+
