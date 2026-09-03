@@ -23,6 +23,10 @@ export function QrBarcodeScannerUi() {
   const streamRef = useRef<MediaStream | null>(null);
   const frameHandle = useRef<number | null>(null);
   const timerHandle = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Bumped by every start and every stop. A getUserMedia call that resolves after the user has
+  // already pressed Stop (or Start again) is stale: without this its stream was assigned over the
+  // live one and never stopped — indicator light on until the tab closed (review, 2026-09-03).
+  const cameraGen = useRef(0);
 
   /**
    * Release the camera.
@@ -33,6 +37,7 @@ export function QrBarcodeScannerUi() {
    * which is the classic defect in browser scanners.
    */
   const stopCamera = useCallback(() => {
+    cameraGen.current += 1;
     if (frameHandle.current !== null) {
       const video = videoRef.current as
         | (HTMLVideoElement & { cancelVideoFrameCallback?: (h: number) => void })
@@ -97,13 +102,17 @@ export function QrBarcodeScannerUi() {
     setError(null);
     setSymbols(null);
     setCamera('starting');
+    const gen = ++cameraGen.current;
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        // 720p is plenty for a code that fills a fraction of the frame; without a size hint a 4K
+        // webcam hands over 8 MP per frame, decoded synchronously on the main thread.
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
     } catch (e) {
+      if (gen !== cameraGen.current) return;
       setCamera('off');
       const name = e instanceof DOMException ? e.name : '';
       setError(
@@ -113,6 +122,11 @@ export function QrBarcodeScannerUi() {
             ? 'No camera was found on this device. Drop a photo of the code instead.'
             : 'The camera could not be started. On a plain http:// address other than localhost, browsers block it outright.',
       );
+      return;
+    }
+    if (gen !== cameraGen.current || streamRef.current) {
+      // Stale: the user pressed Stop (or Start again) while the permission prompt was up.
+      for (const track of stream.getTracks()) track.stop();
       return;
     }
     streamRef.current = stream;

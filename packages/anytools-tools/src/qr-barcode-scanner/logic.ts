@@ -192,9 +192,33 @@ export async function decodeImageData(data: ImageData): Promise<DecodedSymbol[]>
   return results.filter((r) => r.isValid && r.text !== '').map(toSymbol);
 }
 
+/**
+ * Decode the file to a bitmap, letting the decoder itself downscale anything the canvas ceiling
+ * would refuse. `loadBitmap` throws above MAX_CANVAS_PIXELS (16.7 MP) — which is exactly the
+ * 48 MP phone photo the 2000 px cap exists for, so without this branch that photo never reached
+ * the cap and got "resize it in an image editor first" instead (review, 2026-09-03).
+ * `resizeWidth` alone keeps the aspect ratio; a photo large enough to trip the ceiling is always
+ * wider than MAX_SCAN_EDGE, so this only ever shrinks.
+ */
+async function loadBitmapForScan(file: File): Promise<ImageBitmap> {
+  try {
+    return await loadBitmap(file);
+  } catch (first) {
+    try {
+      return await createImageBitmap(file, {
+        resizeWidth: MAX_SCAN_EDGE,
+        resizeQuality: 'high',
+        imageOrientation: 'from-image',
+      });
+    } catch {
+      throw first;
+    }
+  }
+}
+
 /** Decode a dropped image file: decode, downscale if large, then scan. */
 export async function decodeBarcodeImage(file: File): Promise<DecodedSymbol[]> {
-  const bitmap = await loadBitmap(file);
+  const bitmap = await loadBitmapForScan(file);
   try {
     const { width, height } = fitWithin(bitmap.width, bitmap.height, MAX_SCAN_EDGE, MAX_SCAN_EDGE);
     const canvas = document.createElement('canvas');
@@ -202,6 +226,11 @@ export async function decodeBarcodeImage(file: File): Promise<DecodedSymbol[]> {
     canvas.height = Math.max(1, height);
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) throw new Error('Your browser did not provide a 2D canvas context.');
+    // zxing's luminance conversion ignores alpha. A transparent PNG (a common QR export) drawn
+    // onto a blank canvas leaves its background at (0,0,0,0) — black to the decoder, so a black
+    // code on a transparent background became "no barcode found". Paint white underneath first.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     return await decodeImageData(ctx.getImageData(0, 0, canvas.width, canvas.height));
   } finally {
