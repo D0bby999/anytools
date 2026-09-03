@@ -152,10 +152,16 @@ jobs:
           # auto-latest so it isn't computed twice.
           flavor: |
             latest=false
+          # `prefix=v` on every semver pattern: `type=semver` strips the leading
+          # `v` from the git tag by default (docker/metadata-action README —
+          # `v1.2.3` → `1.2.3`), but this repo's convention (docker-compose.yml,
+          # release tags, `docker buildx imagetools inspect …:v1.0.0`) keeps the
+          # `v`. Without this the pushed tags would be `1.0.0`/`1.0`/`1`, not the
+          # `vX.Y.Z`/`vX.Y`/`vX` this workflow is documented to produce.
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=semver,pattern={{version}},prefix=v
+            type=semver,pattern={{major}}.{{minor}},prefix=v
+            type=semver,pattern={{major}},prefix=v
             type=raw,value=latest
 
       - name: Create manifest list and push
@@ -169,5 +175,10 @@ jobs:
             $(printf '${{ env.IMAGE }}@sha256:%s ' *)
 
       - name: Inspect pushed manifest
+        # NOT `steps.meta.outputs.version`: metadata-action's `version` output is
+        # the bare semver match ("1.0.0"), independent of the `prefix=v` applied
+        # to the tag itself ("v1.0.0") — see docker/metadata-action README, output
+        # docs vs. the `prefix`/`suffix` attribute docs. `github.ref_name` on a
+        # `refs/tags/v1.0.0` push is exactly "v1.0.0", which is what got pushed.
         run: |
-          docker buildx imagetools inspect ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ env.IMAGE }}:${{ github.ref_name }}
