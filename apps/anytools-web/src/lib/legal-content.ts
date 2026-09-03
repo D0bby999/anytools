@@ -6,7 +6,7 @@ export type LegalPage = {
   lastUpdated: string;
 };
 
-export const LAST_UPDATED = '2026-09-02';
+export const LAST_UPDATED = '2026-09-03';
 
 const PRIVACY: Record<Locale, LegalPage> = {
   en: {
