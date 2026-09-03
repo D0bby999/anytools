@@ -31,6 +31,15 @@ export const meta: ToolMeta = {
   effort: 'M',
   nextStepSuggestions: [
     {
+      tool: 'qr-barcode-scanner',
+      reason: {
+        en: 'Read the code back — Wi-Fi and vCard land in fields again',
+        vi: 'Quét lại mã — Wi-Fi và vCard tách lại thành trường',
+        es: 'Vuelve a leer el código — Wi-Fi y vCard se separan en campos',
+        pt: 'Leia o código de volta — Wi-Fi e vCard voltam a campos',
+      },
+    },
+    {
       tool: 'barcode-generator',
       reason: {
         en: 'For EAN-13, UPC-A, Code 128 and the other 1D symbologies',

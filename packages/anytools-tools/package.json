@@ -106,7 +106,8 @@
     "./image-to-pdf": "./src/image-to-pdf/index.ts",
     "./add-page-numbers": "./src/add-page-numbers/index.ts",
     "./watermark-pdf": "./src/watermark-pdf/index.ts",
-    "./barcode-generator": "./src/barcode-generator/index.ts"
+    "./barcode-generator": "./src/barcode-generator/index.ts",
+    "./qr-barcode-scanner": "./src/qr-barcode-scanner/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

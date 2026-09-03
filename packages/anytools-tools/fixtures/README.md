@@ -10,6 +10,17 @@ Everything in this directory except this file and `manual/.gitkeep` is gitignore
 | `images-shared.pdf` | one PNG drawn on all three pages — the `g_`/`commonObjs` path and image de-duplication |
 | `cjk.pdf` | Japanese text in a non-embedded font via `UniJIS-UCS2-H` — needs `/third-party/pdfjs/cmaps/`; renders blank text by design (fonts are never installed from a document) |
 
+## Generated — run `pnpm --filter @anytools/tools exec node scripts/make-barcode-fixtures.mjs`
+
+Written by the same encoder the site ships, so scanning them is a real generator → scanner
+round trip. Needs `public/third-party/zxing/zxing_full.wasm` staged first (`vendor:assets`).
+
+| File | Exercises |
+|---|---|
+| `barcode-ean13.png` | EAN-13 `5901234123457` (GS1's published sample) — the digits must come back exactly |
+| `qr-wifi.png` | a `WIFI:` QR whose password contains an escaped `;` — the case a naive `split(';')` parser mangles |
+| `barcodes-three.png` | EAN-13, Code 128 and Data Matrix in one image — the scanner must list all three, not stop at the first |
+
 ## Manual — owner drops real files into `manual/`
 
 We cannot synthesise these cleanly. A tool whose phase needs one is not verified until it exists here.
