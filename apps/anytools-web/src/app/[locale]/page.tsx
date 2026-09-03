@@ -4,7 +4,12 @@ import { RecentlyUsedTools } from '@/components/recently-used-tools';
 import { ToolCatalog } from '@/components/tool-catalog';
 import { Link, routing } from '@/i18n/routing';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
-import { GITHUB_REPO_URL, METADATA_BASE, selfHostSafeAlternates } from '@/lib/site-url';
+import {
+  GITHUB_REPO_URL,
+  METADATA_BASE,
+  selfHostSafeAlternates,
+  selfHostSafeUrl,
+} from '@/lib/site-url';
 import { toolMetas, toolMetasClient } from '@anytools/tools/meta';
 import { Badge, Button, Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
@@ -39,7 +44,7 @@ export async function generateMetadata({
       type: 'website',
       title,
       description,
-      url: IS_SELF_HOSTED ? undefined : canonical,
+      url: selfHostSafeUrl(canonical),
       siteName: 'AnyTools',
       locale,
       alternateLocale: routing.locales.filter((l) => l !== locale),

@@ -5,7 +5,12 @@ import { GUIDE_SLUGS, loadGuide } from '@/lib/load-guide-content';
 import { jsonLdSafe } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { fitTitle } from '@/lib/seo-metadata';
-import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
+import {
+  METADATA_BASE,
+  SITE_URL,
+  selfHostSafeAlternates,
+  selfHostSafeUrl,
+} from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -40,7 +45,7 @@ export async function generateMetadata({
       type: 'article',
       title: seoTitle,
       description: guide.data.description,
-      url: IS_SELF_HOSTED ? undefined : canonicalPath,
+      url: selfHostSafeUrl(canonicalPath),
       siteName: 'AnyTools',
       locale,
       alternateLocale: routing.locales.filter((l) => l !== locale),
@@ -82,11 +87,17 @@ export default async function GuidePage({ params }: { params: Promise<PageParams
 
   return (
     <main className="container mx-auto max-w-3xl px-4 py-12">
-      <script
-        type="application/ld+json"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
-        dangerouslySetInnerHTML={{ __html: jsonLdSafe(articleSchema) }}
-      />
+      {/* JSON-LD only serves SEO crawlers; a self-host build has no known public URL to
+          put in `mainEntityOfPage.@id` (it would read http://localhost/... on a
+          stranger's install), so the script is skipped rather than shipping structured
+          data that points at the wrong place. */}
+      {!IS_SELF_HOSTED && (
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(articleSchema) }}
+        />
+      )}
       <article className="prose prose-neutral dark:prose-invert max-w-none">
         <header className="mb-8 not-prose">
           <h1 className="text-4xl font-bold mb-2">{guide.data.title}</h1>

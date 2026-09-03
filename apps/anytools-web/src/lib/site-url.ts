@@ -35,6 +35,18 @@ export function selfHostSafeAlternates<T>(alternates: T): T | undefined {
 }
 
 /**
+ * Strips a single absolute/relative URL value (typically `openGraph.url`) to
+ * `undefined` in self-host builds, for the same reason `selfHostSafeAlternates`
+ * strips canonical/hreflang: a stranger's install has no way to know its own
+ * public URL at build time, so the tag is omitted rather than pointed at a
+ * placeholder. Replaces the `IS_SELF_HOSTED ? undefined : url` ternary that was
+ * duplicated at each `openGraph.url` call site.
+ */
+export function selfHostSafeUrl<T>(url: T): T | undefined {
+  return IS_SELF_HOSTED ? undefined : url;
+}
+
+/**
  * Public source repository.
  *
  * Defined once because it was hard-coded in five places across two spellings, one

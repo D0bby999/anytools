@@ -12,7 +12,12 @@ import {
 } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { buildToolTitle } from '@/lib/seo-metadata';
-import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
+import {
+  METADATA_BASE,
+  SITE_URL,
+  selfHostSafeAlternates,
+  selfHostSafeUrl,
+} from '@/lib/site-url';
 import { getToolMeta, toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { Metadata } from 'next';
@@ -87,7 +92,7 @@ export async function generateMetadata({
       type: 'website',
       title: seoTitle,
       description,
-      url: IS_SELF_HOSTED ? undefined : canonicalPath,
+      url: selfHostSafeUrl(canonicalPath),
       siteName: 'AnyTools',
       locale,
       // Same filter as hreflang above. Leaving this unfiltered advertised an es/pt
@@ -153,14 +158,19 @@ export default async function ToolPage({ params }: { params: Promise<PageParams>
 
   return (
     <>
-      {schemas.map(({ key, data }) => (
-        <script
-          key={key}
-          type="application/ld+json"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes `</` to prevent script-tag breakout
-          dangerouslySetInnerHTML={{ __html: jsonLdSafe(data) }}
-        />
-      ))}
+      {/* JSON-LD only serves SEO crawlers; a self-host build has no known public URL to
+          put in `softwareAppSchema.url` / breadcrumb `item` (they'd read
+          http://localhost/... on a stranger's install), so the whole block is skipped
+          rather than shipping structured data that points at the wrong place. */}
+      {!IS_SELF_HOSTED &&
+        schemas.map(({ key, data }) => (
+          <script
+            key={key}
+            type="application/ld+json"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes `</` to prevent script-tag breakout
+            dangerouslySetInnerHTML={{ __html: jsonLdSafe(data) }}
+          />
+        ))}
       <ToolPageLayout meta={m} locale={locale} content={content}>
         <DynamicToolRenderer slug={tool} />
       </ToolPageLayout>

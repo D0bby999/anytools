@@ -7,7 +7,12 @@ import { clusterHasBodiedTool } from '@/lib/has-localized-tool-body';
 import { breadcrumbSchema, jsonLdSafe } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { clampMetaDescription } from '@/lib/seo-metadata';
-import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
+import {
+  METADATA_BASE,
+  SITE_URL,
+  selfHostSafeAlternates,
+  selfHostSafeUrl,
+} from '@/lib/site-url';
 import { getToolMetasByCluster } from '@anytools/tools/meta';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -61,7 +66,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${label} — AnyTools`,
       description,
-      url: IS_SELF_HOSTED ? undefined : `${SITE_URL}${canonicalPath}`,
+      url: selfHostSafeUrl(`${SITE_URL}${canonicalPath}`),
       type: 'website',
     },
   };
@@ -98,11 +103,17 @@ export default async function ClusterLandingPage({ params }: { params: Promise<P
 
   return (
     <main>
-      <script
-        type="application/ld+json"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes `</` to prevent script-tag breakout
-        dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumb) }}
-      />
+      {/* JSON-LD only serves SEO crawlers; a self-host build has no known public URL
+          to put in the breadcrumb's `item` fields (they'd read http://localhost/...
+          on a stranger's install), so the whole script is skipped rather than shipping
+          structured data that points at the wrong place. */}
+      {!IS_SELF_HOSTED && (
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes `</` to prevent script-tag breakout
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumb) }}
+        />
+      )}
       <ClusterLandingHero
         cluster={cluster}
         label={label}
