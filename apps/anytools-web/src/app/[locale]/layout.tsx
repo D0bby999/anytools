@@ -8,7 +8,6 @@ import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
 import { routing } from '@/i18n/routing';
-import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { METADATA_BASE } from '@/lib/site-url';
 import { isValidLocale } from '@anytools/i18n';
 import type { Metadata, Viewport } from 'next';
@@ -26,10 +25,17 @@ const inter = Inter({
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', display: 'swap' });
 
 export const metadata: Metadata = {
-  // Self-host: no known public origin (see site-url.ts) — leave metadataBase unset so
-  // any relative resource Next would otherwise resolve against it renders as a relative
-  // path instead of an absolute URL pointing at a placeholder host.
-  metadataBase: IS_SELF_HOSTED ? undefined : METADATA_BASE,
+  // Always set, never gated on IS_SELF_HOSTED here — Next 15.1.4 does NOT render a
+  // relative path when metadataBase is left unset; it falls back to
+  // `http://localhost:3000` (plus a build warning), and every page-level
+  // `generateMetadata()` in this app sets its own `metadataBase: METADATA_BASE`
+  // regardless, which would have overridden a gate placed only here anyway (review
+  // finding #4, 2026-09-03: the old `IS_SELF_HOSTED ? undefined : METADATA_BASE` ternary
+  // was dead code for every one of those pages). `site-url.ts` is the one place that
+  // decides the safe value: in a self-host build `SITE_URL` — and therefore
+  // `METADATA_BASE` — already resolves to the `http://localhost` placeholder, never to
+  // anytools.world.
+  metadataBase: METADATA_BASE,
   manifest: '/manifest.json',
   // Google Search Console verification: set GSC_VERIFICATION in Coolify env to the token
   // from Search Console's "HTML tag" method → Next renders <meta name="google-site-verification">.
