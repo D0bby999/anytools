@@ -254,6 +254,45 @@ describe('legal-content.ts — self-host privacy variant (review finding #3)', (
   });
 });
 
+// Polish pass (2026-09-03): `/privacy`, `/terms`, `/about`, `/contact` each build
+// their own `alternates` object with a raw canonical + hreflang `languages` map,
+// same shape as the tool page before it started routing through
+// `selfHostSafeAlternates()` — a self-host install still has no way to know its
+// own public URL at build time on these four pages either. Exercises
+// `generateMetadata()` directly (no rendering), same pattern as the route-handler
+// tests above.
+describe('legal page generateMetadata() — alternates go through selfHostSafeAlternates()', () => {
+  // Explicit per-page import map rather than a computed template literal: Vite's
+  // dynamic-import-vars plugin can only statically analyze a literal extension in
+  // the import specifier, and warns (functionally harmless, but noisy) otherwise.
+  const importPage = {
+    privacy: () => import('../app/[locale]/privacy/page'),
+    terms: () => import('../app/[locale]/terms/page'),
+    about: () => import('../app/[locale]/about/page'),
+    contact: () => import('../app/[locale]/contact/page'),
+  } as const;
+  const pages = Object.keys(importPage) as (keyof typeof importPage)[];
+
+  it.each(pages)('%s: alternates is undefined in a self-host build', async (slug) => {
+    vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '1');
+    vi.resetModules();
+    const { generateMetadata } = await importPage[slug]();
+    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
+    expect(metadata.alternates).toBeUndefined();
+  });
+
+  it.each(pages)('%s: alternates is unchanged in a hosted build', async (slug) => {
+    vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '');
+    vi.resetModules();
+    const { generateMetadata } = await importPage[slug]();
+    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
+    expect(metadata.alternates).toMatchObject({
+      canonical: `/en/${slug}`,
+      languages: expect.objectContaining({ en: `/en/${slug}` }),
+    });
+  });
+});
+
 // Review finding #13 (2026-09-03): `loading.tsx` is what triggers the Suspense-
 // streaming trap documented in dashboard/layout.tsx's comment (a later notFound()
 // cannot change the HTTP status once the response has started streaming). This test
