@@ -19,8 +19,9 @@ to argue with it, which is usually what you want from an architecture diagram in
 This is the part worth understanding before you rely on it.
 
 Every change you make is saved to this browser's `localStorage`, under the key
-`anytools:whiteboard:v1`, roughly half a second after you stop moving the mouse. That is the whole
-persistence story. There is no account, no server copy, and no sync:
+`anytools:whiteboard:v1`, roughly half a second after you stop moving the mouse — shapes and text,
+but also the canvas background colour, the grid, the zoom and where you had scrolled to. That is
+the whole persistence story. There is no account, no server copy, and no sync:
 
 - Reload the page, close the tab, restart the browser — the board comes back.
 - Open the same URL in a different browser, a different profile, or on your phone — the board is
@@ -33,9 +34,11 @@ see the mechanism working rather than trust it.
 
 There is one size limit: about 5 MB. That is a browser constraint, not ours — `localStorage` caps
 each origin at roughly that. Shapes and text are tiny, so you will not approach it by drawing; you
-will approach it by pasting photographs, which are stored as base64 inside the scene. If a board
-does pass the limit the tool stops autosaving and says so explicitly instead of failing silently
-on some later, unrelated edit.
+will approach it by pasting photographs, which are stored as base64 inside the scene. Deleting a
+pasted image gives its space back at the next save: only the images the board still shows are
+written. If a board does pass the limit anyway, the tool stops autosaving and says so — including
+that the copy still in the browser is now the older one — instead of failing silently on some
+later, unrelated edit.
 
 ## Exporting: three formats, three purposes
 
@@ -62,8 +65,12 @@ says `excalidraw` rather than `excalidrawlib`, that its version is one this buil
 that it is under the size cap — and tells you which of those failed rather than showing an empty
 canvas.
 
+Opening a file replaces whatever is on the board, so it asks first, the same way **New board**
+does — unless the canvas is empty, where there is nothing to ask about.
+
 Imported scenes are run through Excalidraw's `restore()`, which upgrades elements written by older
-versions and discards malformed ones. A 2021 scene opens fine.
+versions and discards malformed ones. A 2021 scene opens fine. Embedded web content is the one
+thing that does not survive the trip: see below.
 
 ## Starting over
 
@@ -76,6 +83,12 @@ there is any doubt.
 Excalidraw ships several features that need a server. All of them are disabled here rather than
 left to chance:
 
+- **Web embeds** — Excalidraw can place a live `<iframe>` on the canvas holding a YouTube video, a
+  Figma frame, a gist or a tweet. Left at its default the component allows its own list of those
+  hosts, and three routes reach it without asking: the toolbar's Web Embed tool, pasting a link,
+  and opening a `.excalidraw` file that already contains one. All three are closed here — the
+  toolbar entry is hidden, pasted links stay links, and embeds in an opened file are removed
+  before it loads, with a count so you know your file was changed.
 - **Live collaboration** — never initialised, so no socket is opened.
 - **Wireframe-to-code** — this posts the canvas to Excalidraw's AI endpoint. It is on by default
   in the component; it is explicitly off here.

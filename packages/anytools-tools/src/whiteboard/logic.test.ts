@@ -7,9 +7,22 @@ import {
   sceneByteLength,
   serializeScene,
   storageKey,
+  stripEmbedElements,
 } from './logic';
 
 const rectangle = { id: 'a1', type: 'rectangle', x: 10, y: 20, width: 100, height: 60 };
+const image = (fileId: string, extra: Record<string, unknown> = {}) => ({
+  id: `img-${fileId}`,
+  type: 'image',
+  fileId,
+  ...extra,
+});
+const binaryFile = (id: string) => ({
+  id,
+  mimeType: 'image/png',
+  dataURL: `data:image/png;base64,${'A'.repeat(64)}`,
+  created: 1,
+});
 
 function sceneFile(overrides: Record<string, unknown> = {}): string {
   return JSON.stringify({
@@ -97,6 +110,72 @@ describe('serializeScene', () => {
     expect(back.appState).toEqual({});
     expect(back.files).toEqual({});
   });
+
+  it('keeps only the files a live image element still points at', () => {
+    // Excalidraw never removes an entry from `files` when an image is deleted, so persisting the
+    // map as given leaves every pasted photo in storage forever, eating the 5 MB budget.
+    const back = parseSceneFile(
+      serializeScene(
+        [rectangle, image('kept'), image('erased', { isDeleted: true })],
+        {},
+        {
+          kept: binaryFile('kept'),
+          erased: binaryFile('erased'),
+          orphan: binaryFile('orphan'),
+        },
+      ),
+    );
+    expect(Object.keys(back.files)).toEqual(['kept']);
+  });
+
+  it('drops the file bytes, not just the reference, so the saved scene actually shrinks', () => {
+    const files = { big: binaryFile('big') };
+    const withImage = serializeScene([image('big')], {}, files);
+    const afterDelete = serializeScene([image('big', { isDeleted: true })], {}, files);
+    expect(afterDelete.length).toBeLessThan(withImage.length);
+    expect(afterDelete).not.toContain('data:image/png;base64');
+  });
+
+  it('keeps files for an image element that is present and not flagged deleted', () => {
+    const json = serializeScene(
+      [image('a'), image('b', { isDeleted: false })],
+      {},
+      {
+        a: binaryFile('a'),
+        b: binaryFile('b'),
+      },
+    );
+    expect(Object.keys(parseSceneFile(json).files).sort()).toEqual(['a', 'b']);
+  });
+
+  it('survives elements that are not objects at all', () => {
+    const json = serializeScene([null, 'nope', 42, rectangle], {}, { x: binaryFile('x') });
+    expect(parseSceneFile(json).files).toEqual({});
+  });
+});
+
+describe('stripEmbedElements', () => {
+  it('removes both element types Excalidraw renders as an iframe', () => {
+    const { elements, removed } = stripEmbedElements([
+      rectangle,
+      { id: 'e1', type: 'embeddable', link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+      { id: 'f1', type: 'iframe' },
+    ]);
+    expect(elements).toEqual([rectangle]);
+    expect(removed).toBe(2);
+  });
+
+  it('leaves a scene without embeds untouched and reports nothing removed', () => {
+    const { elements, removed } = stripEmbedElements([rectangle, image('a')]);
+    expect(elements).toEqual([rectangle, image('a')]);
+    expect(removed).toBe(0);
+  });
+
+  it('ignores entries that are not element objects', () => {
+    const { elements, removed } = stripEmbedElements([null, 'embeddable', { type: 7 }]);
+    expect(elements).toEqual([null, 'embeddable', { type: 7 }]);
+    expect(removed).toBe(0);
+  });
 });
 
 describe('parseSceneFile', () => {
@@ -174,6 +253,43 @@ describe('parseSceneFile', () => {
     const cjk = '漢'.repeat(Math.ceil(MAX_SCENE_BYTES / 3) + 10);
     expect(cjk.length).toBeLessThan(MAX_SCENE_BYTES);
     expect(() => parseSceneFile(sceneFile({ source: cjk }))).toThrow(/limit is 5 MB/);
+  });
+
+  it('filters out embedded frames instead of rejecting the whole file', () => {
+    // The route that matters: a hand-made .excalidraw carrying an embeddable would otherwise
+    // mount a live iframe the moment the file is opened. Removing the element and saying how
+    // many were removed beats refusing a file whose fifty other shapes are fine.
+    const scene = parseSceneFile(
+      sceneFile({
+        elements: [
+          rectangle,
+          { id: 'e1', type: 'embeddable', link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+          { id: 'f1', type: 'iframe', customData: { generationData: { status: 'done' } } },
+        ],
+      }),
+    );
+    expect(scene.elements).toEqual([rectangle]);
+    expect(scene.removedEmbeds).toBe(2);
+    expect(JSON.stringify(scene.elements)).not.toContain('youtube.com');
+  });
+
+  it('reports nothing removed for an ordinary scene', () => {
+    expect(parseSceneFile(sceneFile()).removedEmbeds).toBe(0);
+  });
+
+  it('strips embeds read back out of localStorage too, not only picked files', () => {
+    // Same function guards both routes: anything on this origin can write the autosave key.
+    const poisoned = JSON.stringify({
+      type: SCENE_TYPE,
+      version: SCENE_VERSION,
+      source: 'https://anytools.world',
+      elements: [{ id: 'e1', type: 'embeddable', link: 'https://player.vimeo.com/video/1' }],
+      appState: {},
+      files: {},
+    });
+    const scene = parseSceneFile(poisoned);
+    expect(scene.elements).toEqual([]);
+    expect(scene.removedEmbeds).toBe(1);
   });
 
   it('accepts a scene just under the cap', () => {

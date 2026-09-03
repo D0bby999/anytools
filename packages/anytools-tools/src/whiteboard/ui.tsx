@@ -71,8 +71,18 @@ function toExcalidrawData(scene: WhiteboardScene): ImportedDataState {
   } as ImportedDataState;
 }
 
-/** Read the autosaved board. Any failure means "start empty" — never a crashed tool page. */
-function loadSavedScene(): ImportedDataState | null {
+/**
+ * Read the autosaved board. Any failure means "start empty" — never a crashed tool page.
+ *
+ * The raw string comes back alongside the parsed scene because it is what the next save has to
+ * compare against: knowing exactly what is in storage is what lets a save that fails leave the
+ * older copy there and keep saying so, instead of assuming a write it never made.
+ *
+ * The scene goes through `parseSceneFile` like a picked file does, so localStorage gets no more
+ * trust than a downloaded `.excalidraw`: anything on this origin can write that key, and embed
+ * elements are stripped here too.
+ */
+function loadSavedScene(): { data: ImportedDataState; raw: string } | null {
   if (typeof window === 'undefined') return null;
   let raw: string | null = null;
   try {
@@ -83,7 +93,7 @@ function loadSavedScene(): ImportedDataState | null {
   }
   if (!raw) return null;
   try {
-    return toExcalidrawData(parseSceneFile(raw));
+    return { data: toExcalidrawData(parseSceneFile(raw)), raw };
   } catch {
     return null;
   }
@@ -97,21 +107,34 @@ const buttonClass =
 export function WhiteboardUi() {
   const objectUrls = useObjectUrls();
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tracked = useRef(false);
-  // JSON of the elements as they were loaded. The comparison against it is what tells a real
-  // edit apart from the onChange Excalidraw fires once during its own mount.
-  const baseline = useRef('[]');
+  // The scene JSON believed to be in localStorage right now — set from what was read at mount and
+  // then ONLY after a write actually succeeds. A failed write must not advance it: if it did, the
+  // next edit would compare equal, skip the write, and leave the older scene sitting in storage to
+  // be silently restored on reload.
+  const lastSaved = useRef<string | null>(null);
+  // JSON of the elements as last seen. Only used to decide whether the person actually drew
+  // something, which is what `tool_run` means; appState-only changes (panning, colours) are saved
+  // but are not a run.
+  const drawnBaseline = useRef('[]');
 
   const [initial] = useState<ImportedDataState | null>(() => {
     const scene = loadSavedScene();
-    if (scene) baseline.current = JSON.stringify(scene.elements ?? []);
-    return scene;
+    if (!scene) return null;
+    lastSaved.current = scene.raw;
+    drawnBaseline.current = JSON.stringify(scene.data.elements ?? []);
+    return scene.data;
   });
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [confirmingNew, setConfirmingNew] = useState(false);
+  // Kept apart from `error`: that one reports what an action the person just took did, and any
+  // next action clears it. This one is a standing condition — the board is not being saved — and
+  // it has to stay on screen until a save succeeds or the board is emptied.
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<'new' | 'import' | null>(null);
   const [exported, setExported] = useState<ExportResult | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -140,43 +163,67 @@ export function WhiteboardUi() {
     trackEvent('tool_run', { tool: 'whiteboard' });
   }, []);
 
+  /** What is (or is not) in storage while a save is failing — the half people need to hear. */
+  const staleCopyNote = useCallback(
+    () =>
+      lastSaved.current
+        ? 'The copy in this browser is an earlier version of it.'
+        : 'Nothing is saved in this browser yet.',
+    [],
+  );
+
   const handleChange = useCallback(
     (elements: readonly unknown[], appState: unknown, files: unknown) => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => {
-        const elementsJson = JSON.stringify(elements);
-        if (elementsJson === baseline.current) return;
-        baseline.current = elementsJson;
-        trackOnce();
+        // An untouched board with nothing already in storage stays out of storage. This is the
+        // state on a first visit — Excalidraw fires onChange once while mounting — and the state
+        // right after "New board", which has just deleted the key on purpose. Without this, both
+        // would put an empty scene back.
+        if (elements.length === 0 && lastSaved.current === null) return;
 
+        const elementsJson = JSON.stringify(elements);
+        if (elementsJson !== drawnBaseline.current) {
+          drawnBaseline.current = elementsJson;
+          trackOnce();
+        }
+
+        // Compare the whole payload, not just the elements: the background colour, grid, zoom and
+        // scroll position are part of what gets persisted, so an appState-only change is a real
+        // change. Comparing elements alone is why a new background colour used to survive until
+        // the next reload and no further.
         const json = serializeScene(
           elements,
           (appState ?? {}) as Record<string, unknown>,
           (files ?? {}) as Record<string, unknown>,
         );
+        if (json === lastSaved.current) return;
+
         // Pasted images live in `files` as data URLs, so a board with photos on it can pass
         // the ~5 MB localStorage budget quickly. Say so rather than let setItem throw on a
-        // later, unrelated edit.
+        // later, unrelated edit — and keep saying it, because until the board gets smaller
+        // every later edit is unsaved too.
         if (sceneByteLength(json) > MAX_SCENE_BYTES) {
           setStatus(null);
-          setError(
-            'This board is too big to save in the browser. Export it as .excalidraw to keep it.',
+          setSaveError(
+            `This board is past the ${MAX_SCENE_BYTES / (1024 * 1024)} MB browser-storage limit, so it is no longer being saved. ${staleCopyNote()} Export it as .excalidraw to keep this version.`,
           );
           return;
         }
         try {
           window.localStorage.setItem(storageKey(), json);
-          setError(null);
+          lastSaved.current = json;
+          setSaveError(null);
           setStatus('Saved in this browser');
         } catch {
           setStatus(null);
-          setError(
-            'Could not save the board — browser storage is full or blocked. Export it as .excalidraw to keep it.',
+          setSaveError(
+            `Could not save the board — browser storage is full or blocked. ${staleCopyNote()} Export it as .excalidraw to keep this version.`,
           );
         }
       }, AUTOSAVE_DEBOUNCE_MS);
     },
-    [trackOnce],
+    [staleCopyNote, trackOnce],
   );
 
   const newBoard = useCallback(() => {
@@ -185,20 +232,33 @@ export function WhiteboardUi() {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     api.resetScene();
     api.history.clear();
-    baseline.current = '[]';
+    drawnBaseline.current = '[]';
+    lastSaved.current = null;
     try {
       window.localStorage.removeItem(storageKey());
     } catch {
       // Nothing to clean up if storage is unavailable; the canvas is already empty.
     }
-    setConfirmingNew(false);
+    setConfirming(null);
     setExported((prev) => {
       objectUrls.revoke(prev?.url);
       return null;
     });
     setError(null);
+    setSaveError(null);
     setStatus('New board');
   }, [objectUrls]);
+
+  /** Is there anything on the canvas that an import would replace? */
+  const boardHasContent = useCallback(
+    () => (apiRef.current?.getSceneElements().length ?? 0) > 0,
+    [],
+  );
+
+  const openFilePicker = useCallback(() => {
+    setConfirming(null);
+    fileInputRef.current?.click();
+  }, []);
 
   const runExport = useCallback(
     async (kind: ExportKind) => {
@@ -227,13 +287,20 @@ export function WhiteboardUi() {
           // Font inlining is left on: without it the SVG's text falls back to a system font
           // anywhere Excalifont is not installed, which is everywhere.
           //
-          // Known, harmless console line on the FIRST svg export only: Excalidraw subsets the
-          // fonts in a module worker whose URL it derives from `import.meta.url`, and webpack
-          // rewrites that to a `file://` path, so constructing the worker throws SecurityError.
-          // Excalidraw catches it, logs "Failed to use workers for subsetting, falling back to
-          // the main thread", sets its own flag so it never retries, and produces byte-identical
-          // output on the main thread. Nothing here can supply a different worker URL; the two
+          // Known console line on the FIRST svg export of a board containing text: Excalidraw
+          // subsets the fonts in a module worker whose URL it derives from `import.meta.url`,
+          // and webpack rewrites that to a `file://` path, so constructing the worker throws
+          // SecurityError. Excalidraw catches it, logs "Failed to use workers for subsetting,
+          // falling back to the main thread", sets its own flag so it never retries, and subsets
+          // on the main thread instead. Nothing here can supply a different worker URL; the two
           // error types Excalidraw suppresses the log for are not reachable from outside.
+          //
+          // Measured, rather than assumed: two consecutive exports of the same board — the one
+          // that logs the fallback and the one after it, which does not — are byte-identical
+          // (sha256 f091c325…, 3 363 B, fonts inlined in both). What is NOT measured is worker
+          // output against main-thread output: the worker never constructs in this build, so
+          // there is nothing to compare it with. Treat "the fallback matches the worker" as
+          // unverified rather than true.
           const svg = await mod.exportToSvg({ elements, appState, files, exportPadding: 16 });
           blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
         } else {
@@ -274,7 +341,8 @@ export function WhiteboardUi() {
             `That file is ${(file.size / (1024 * 1024)).toFixed(1)} MB. The limit is ${MAX_SCENE_BYTES / (1024 * 1024)} MB.`,
           );
         }
-        const data = toExcalidrawData(parseSceneFile(await file.text()));
+        const scene = parseSceneFile(await file.text());
+        const data = toExcalidrawData(scene);
         // `restore` upgrades elements written by older Excalidraw versions and drops anything
         // malformed. Passing raw file contents to updateScene puts the editor in a state it
         // cannot render.
@@ -287,7 +355,16 @@ export function WhiteboardUi() {
         // Replaced by "Saved in this browser" half a second later, when the autosave the import
         // just triggered lands. Both are true and the later one is the one worth leaving on
         // screen; this names the file so a mis-picked one is obvious immediately.
-        setStatus(`Opened ${file.name}`);
+        //
+        // Anything the parser had to drop is named rather than left for the person to notice a
+        // missing box: their file was changed on the way in, and being told why is the point.
+        setStatus(
+          scene.removedEmbeds > 0
+            ? `Opened ${file.name} — removed ${scene.removedEmbeds} embedded ${
+                scene.removedEmbeds === 1 ? 'frame' : 'frames'
+              }, which this board does not load.`
+            : `Opened ${file.name}`,
+        );
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Could not open that file.');
       } finally {
@@ -304,20 +381,20 @@ export function WhiteboardUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          {confirmingNew ? (
+          {confirming === 'new' ? (
             <>
               <span className="text-sm text-muted-foreground">Erase this board?</span>
               <button type="button" onClick={newBoard} className={buttonClass}>
                 Yes, erase it
               </button>
-              <button type="button" onClick={() => setConfirmingNew(false)} className={buttonClass}>
+              <button type="button" onClick={() => setConfirming(null)} className={buttonClass}>
                 Cancel
               </button>
             </>
           ) : (
             <button
               type="button"
-              onClick={() => setConfirmingNew(true)}
+              onClick={() => setConfirming('new')}
               className={buttonClass}
               disabled={busy}
             >
@@ -348,16 +425,44 @@ export function WhiteboardUi() {
           >
             Export .excalidraw
           </button>
-          <label
-            htmlFor="whiteboard-import"
-            className={`${buttonClass} cursor-pointer`}
-            aria-disabled={busy}
-          >
-            Open .excalidraw
-          </label>
+          {/*
+            Opening a file REPLACES the board, exactly like "New board" does, so it asks first for
+            the same reason — but only when there is something to lose. On an empty canvas the
+            question would be noise, so the picker opens straight away.
+          */}
+          {confirming === 'import' ? (
+            <>
+              <span className="text-sm text-muted-foreground">Replace this board with a file?</span>
+              <button type="button" onClick={openFilePicker} className={buttonClass}>
+                Yes, choose a file
+              </button>
+              <button type="button" onClick={() => setConfirming(null)} className={buttonClass}>
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                if (boardHasContent()) setConfirming('import');
+                else openFilePicker();
+              }}
+              className={buttonClass}
+              disabled={busy}
+            >
+              Open .excalidraw
+            </button>
+          )}
+          {/*
+            Driven by the button above rather than a <label for>, because the button has to decide
+            whether to ask first. It keeps an aria-label: the input stays in the accessibility tree
+            (sr-only, not hidden), and the label it used to borrow from the <label> is gone.
+          */}
           <input
+            ref={fileInputRef}
             id="whiteboard-import"
             type="file"
+            aria-label="Choose an .excalidraw file to open"
             accept=".excalidraw,application/json"
             className="sr-only"
             onChange={(e) => {
@@ -372,7 +477,12 @@ export function WhiteboardUi() {
             {error}
           </output>
         )}
-        {!error && status && (
+        {saveError && (
+          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {saveError}
+          </output>
+        )}
+        {!error && !saveError && status && (
           <output className="block text-sm text-muted-foreground">{status}</output>
         )}
 
@@ -392,7 +502,26 @@ export function WhiteboardUi() {
           "Browse libraries", a link to libraries.excalidraw.com. Everything else in the library
           panel is local: importing an .excalidrawlib file from disk still works.
         */}
-        <div className="h-[70vh] min-h-[520px] w-full overflow-hidden rounded-md border [&_.library-menu-browse-button]:hidden">
+        <div className="anytools-whiteboard h-[70vh] min-h-[520px] w-full overflow-hidden rounded-md border [&_.library-menu-browse-button]:hidden">
+          {/*
+            "Web Embed" sits in the toolbar's "More tools" dropdown and, left alone, drops an
+            iframe onto the canvas. `validateEmbeddable={false}` below already stops anything
+            being embedded, so the entry can only produce a "cannot embed" toast — hide it rather
+            than leave a control that does nothing.
+
+            This is a stylesheet rather than an arbitrary Tailwind variant (the trick used for the
+            library button above) because the selector cannot be written as a class: Excalidraw
+            0.18.1 gives BOTH the Web Embed item and the Mermaid item the same
+            `data-testid="toolbar-embeddable"`, so the testid alone would also hide Mermaid, which
+            is local and worth keeping. Position within the dropdown is the only thing separating
+            them. Being doubly anchored means a future reorder makes the rule match nothing and
+            the entry comes back — cosmetic, not a hole: the prop is what does the blocking.
+          */}
+          <style>
+            {
+              '.anytools-whiteboard .App-toolbar__extra-tools-dropdown button[data-testid="toolbar-embeddable"]:nth-of-type(2){display:none}'
+            }
+          </style>
           <Suspense
             fallback={
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -415,8 +544,19 @@ export function WhiteboardUi() {
               // "wireframe to code" action, which posts the canvas to oss-ai.excalidraw.com.
               // libraryReturnUrl is deliberately unset: setting it is what turns the library
               // panel into an OAuth-ish round trip through libraries.excalidraw.com.
+              //
+              // validateEmbeddable decides which links may become live iframes on the canvas.
+              // UNSET IS NOT OFF: Excalidraw then falls back to its own allowlist — YouTube,
+              // Vimeo, Figma, X, gists, Giphy, Reddit, val.town, StackBlitz and more — and three
+              // routes reach it, all of them without a prompt: the Web Embed tool, pasting a URL
+              // (auto-converted to an embed), and opening a .excalidraw file that already
+              // contains one. `false` is the documented "never" (`embeddableURLValidator` returns
+              // it verbatim for a boolean), so no embed is created, validated or rendered. Not
+              // sufficient on its own: `iframe` elements render regardless of this prop, which is
+              // why parseSceneFile strips both kinds before anything reaches the editor.
               isCollaborating={false}
               aiEnabled={false}
+              validateEmbeddable={false}
               autoFocus={false}
               UIOptions={{
                 canvasActions: {

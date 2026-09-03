@@ -12,6 +12,11 @@ The practical consequence is worth stating plainly: clearing site data, running 
 data" tool, or using a private window that you then close will erase the board with no way back.
 If a drawing matters, export a `.excalidraw` file. That file is the copy you own.
 
+What is saved is the board as it stands: shapes, text, the canvas background colour, the grid
+setting and where you had scrolled to. Images you pasted and then deleted are not part of that —
+each save keeps only the image data the board still shows, so removing a screenshot gives the
+space back rather than leaving it in storage for the life of the browser profile.
+
 ## What is the editor?
 
 [Excalidraw](https://github.com/excalidraw/excalidraw), the MIT-licensed open-source editor,
@@ -44,6 +49,20 @@ Yes. `.excalidraw` is plain JSON with a documented envelope, and the export uses
 serializer, so the file is byte-compatible with what excalidraw.com writes. The reverse works
 too — a scene saved there opens here. Files above 5 MB are refused, which is a limit of browser
 storage rather than of the format.
+
+## Can I embed a YouTube video or a Figma frame on the board?
+
+No. Excalidraw has a "Web Embed" feature that puts a live `<iframe>` on the canvas — a video, a
+Figma file, a gist, a tweet — and it is switched off here in full. The toolbar entry is hidden,
+pasting a link gives you a link rather than a player, and if you open a `.excalidraw` file that
+already contains embeds, they are removed before the file is loaded and the tool tells you how
+many it removed.
+
+The reason is the promise on the rest of this page. An embed is a third-party page running inside
+this one: it fetches from that third party's servers, and it can see that you opened it. That is
+the opposite of "nothing leaves your device", and a `.excalidraw` file is a plain JSON document
+that anyone can mail you, so "only if you add one yourself" would not have been true either.
+Everything else about a scene — shapes, text, images, arrows, frames — opens normally.
 
 ## Why can I only import `.excalidraw`, not `.excalidrawlib`?
 

@@ -22,6 +22,20 @@ export const SCENE_VERSION = 2;
  */
 export const MAX_SCENE_BYTES = 5 * 1024 * 1024;
 
+/**
+ * The two element types Excalidraw renders as a live `<iframe>` in the page, and the reason this
+ * file has an opinion about element contents at all.
+ *
+ * An `embeddable` carries a URL; an `iframe` carries HTML in `srcdoc`. Both are mounted as real
+ * iframes over the canvas, so a `.excalidraw` file — a plain JSON document someone can mail you —
+ * would otherwise be able to make this page load and run third-party content the moment it is
+ * opened. The editor is configured with `validateEmbeddable={false}`, which stops embeddables
+ * being created or rendered, but that prop does not cover `iframe` elements: Excalidraw renders
+ * those unconditionally. Dropping both on the way in is the check that does not depend on a prop
+ * staying set.
+ */
+export const EMBED_ELEMENT_TYPES = ['embeddable', 'iframe'] as const;
+
 export type WhiteboardScene = {
   type: typeof SCENE_TYPE;
   version: number;
@@ -30,6 +44,63 @@ export type WhiteboardScene = {
   appState: Record<string, unknown>;
   files: Record<string, unknown>;
 };
+
+/** A validated scene plus what had to be removed from it to be safe to open. */
+export type ParsedScene = WhiteboardScene & { removedEmbeds: number };
+
+/**
+ * Remove every element Excalidraw would mount as an iframe, and say how many there were.
+ *
+ * Removing rather than rejecting the whole file is deliberate: a scene drawn on excalidraw.com
+ * may well contain one embedded video among fifty shapes, and refusing to open any of it would
+ * be a worse answer than opening the drawing and telling the person what was dropped. The count
+ * comes back so the UI can say it out loud instead of quietly changing someone's file.
+ */
+export function stripEmbedElements(elements: readonly unknown[]): {
+  elements: unknown[];
+  removed: number;
+} {
+  const kept: unknown[] = [];
+  let removed = 0;
+  for (const element of elements) {
+    const type =
+      typeof element === 'object' && element !== null
+        ? (element as { type?: unknown }).type
+        : undefined;
+    if (typeof type === 'string' && (EMBED_ELEMENT_TYPES as readonly string[]).includes(type)) {
+      removed += 1;
+      continue;
+    }
+    kept.push(element);
+  }
+  return { elements: kept, removed };
+}
+
+/**
+ * The ids of files still shown on the board: those referenced by an image element that has not
+ * been deleted.
+ *
+ * Excalidraw never drops entries from its `files` map — deleting an image only flags the element
+ * `isDeleted`, and the pasted photo stays in memory under the same id so undo can bring it back.
+ * Persisting that map wholesale means every screenshot ever pasted here is still eating the
+ * origin's ~5 MB storage budget, and the first symptom is autosave failing on an unrelated edit
+ * much later. In-session undo is unaffected: the editor keeps its own copy of the files, so an
+ * undone delete re-references the file and the next save writes it back.
+ */
+function referencedFileIds(elements: readonly unknown[]): Set<string> {
+  const ids = new Set<string>();
+  for (const element of elements) {
+    if (typeof element !== 'object' || element === null) continue;
+    const { type, isDeleted, fileId } = element as {
+      type?: unknown;
+      isDeleted?: unknown;
+      fileId?: unknown;
+    };
+    if (type !== 'image' || isDeleted === true) continue;
+    if (typeof fileId === 'string' && fileId !== '') ids.add(fileId);
+  }
+  return ids;
+}
 
 /**
  * localStorage key for the autosaved board. Namespaced and versioned: `anytools:` keeps it
@@ -67,6 +138,9 @@ const KEPT_APP_STATE = [
  * The exported `.excalidraw` file is a different thing and does use `serializeAsJSON` — that
  * one has to be readable by excalidraw.com, so it must carry the full appState Excalidraw
  * writes itself.
+ *
+ * `files` is filtered to what the board still shows (see `referencedFileIds`); everything else
+ * is copied as given.
  */
 export function serializeScene(
   elements: readonly unknown[],
@@ -77,13 +151,18 @@ export function serializeScene(
   for (const key of KEPT_APP_STATE) {
     if (appState[key] !== undefined) kept[key] = appState[key];
   }
+  const live = referencedFileIds(elements);
+  const usedFiles: Record<string, unknown> = {};
+  for (const [id, file] of Object.entries(files)) {
+    if (live.has(id)) usedFiles[id] = file;
+  }
   const scene: WhiteboardScene = {
     type: SCENE_TYPE,
     version: SCENE_VERSION,
     source: 'https://anytools.world',
     elements: [...elements],
     appState: kept,
-    files: { ...files },
+    files: usedFiles,
   };
   return JSON.stringify(scene);
 }
@@ -106,8 +185,13 @@ export function sceneByteLength(text: string): number {
  * says what was wrong with the file rather than "invalid input". A `.excalidrawlib` file (a
  * shape library, `type: "excalidrawlib"`) is the mistake people actually make, so it gets
  * named explicitly.
+ *
+ * Embed elements are FILTERED OUT rather than treated as a reason to reject the file, and the
+ * count is reported back in `removedEmbeds` (see `stripEmbedElements`). This is the one place
+ * both untrusted routes into the editor meet — a picked `.excalidraw` file and the autosave
+ * read back out of localStorage — so it is the one place the rule has to hold.
  */
-export function parseSceneFile(text: string): WhiteboardScene {
+export function parseSceneFile(text: string): ParsedScene {
   // Size first: a 200 MB string must not reach JSON.parse.
   const bytes = sceneByteLength(text);
   if (bytes > MAX_SCENE_BYTES) {
@@ -163,12 +247,15 @@ export function parseSceneFile(text: string): WhiteboardScene {
       ? (data.files as Record<string, unknown>)
       : {};
 
+  const { elements, removed } = stripEmbedElements(data.elements);
+
   return {
     type: SCENE_TYPE,
     version,
     source: typeof data.source === 'string' ? data.source : '',
-    elements: data.elements,
+    elements,
     appState,
     files,
+    removedEmbeds: removed,
   };
 }
