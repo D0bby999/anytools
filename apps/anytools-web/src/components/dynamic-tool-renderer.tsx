@@ -123,6 +123,10 @@ const LOADERS: Record<string, ComponentType> = {
   // Archives (260903)
   'create-zip': dynamic(() => import('@anytools/tools/create-zip').then(pick)),
   'unzip-archive': dynamic(() => import('@anytools/tools/unzip-archive').then(pick)),
+  // CSS generators (260903)
+  'css-gradient-generator': dynamic(() =>
+    import('@anytools/tools/css-gradient-generator').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

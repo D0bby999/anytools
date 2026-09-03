@@ -17,6 +17,11 @@ export function WorkflowChain({ suggestions, locale, heading = 'What next?' }: W
     .map((s) => {
       const m = toolMetasClient.find((mm) => mm.slug === s.tool);
       if (!m) return null;
+      // A tool that renders in English only 404s on every other locale, so a suggestion
+      // pointing at one from a translated page would be a dead link in three languages.
+      if (m.availableLocales && !(m.availableLocales as readonly string[]).includes(locale)) {
+        return null;
+      }
       return {
         slug: m.slug,
         cluster: m.cluster,

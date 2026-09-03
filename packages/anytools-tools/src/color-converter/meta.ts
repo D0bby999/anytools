@@ -19,4 +19,24 @@ export const meta: ToolMeta = {
   priority: 'P1',
   effort: 'S',
   published: true,
+  nextStepSuggestions: [
+    {
+      tool: 'css-gradient-generator',
+      reason: {
+        en: 'Blend this colour into a linear, radial or conic gradient',
+        vi: 'Trộn màu này thành gradient linear, radial hoặc conic',
+        es: 'Combina este color en un degradado lineal, radial o cónico',
+        pt: 'Combine esta cor em um gradiente linear, radial ou cônico',
+      },
+    },
+    {
+      tool: 'color-palette',
+      reason: {
+        en: 'Build a harmonised palette around it',
+        vi: 'Dựng bảng màu hài hoà quanh nó',
+        es: 'Crea una paleta armonizada a su alrededor',
+        pt: 'Monte uma paleta harmonizada em torno dela',
+      },
+    },
+  ],
 };

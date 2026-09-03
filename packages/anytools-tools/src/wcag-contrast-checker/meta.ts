@@ -47,5 +47,14 @@ export const meta: ToolMeta = {
         pt: 'Monte uma paleta completa a partir do par acessível',
       },
     },
+    {
+      tool: 'css-gradient-generator',
+      reason: {
+        en: 'Text over a gradient: check it against the lightest and darkest stop',
+        vi: 'Chữ trên gradient: kiểm tra với stop sáng nhất và tối nhất',
+        es: 'Texto sobre degradado: compruébalo con la parada más clara y la más oscura',
+        pt: 'Texto sobre gradiente: verifique com a parada mais clara e a mais escura',
+      },
+    },
   ],
 };

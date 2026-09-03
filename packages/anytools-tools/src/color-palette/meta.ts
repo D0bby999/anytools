@@ -19,4 +19,24 @@ export const meta: ToolMeta = {
   priority: 'P2',
   effort: 'M',
   published: true,
+  nextStepSuggestions: [
+    {
+      tool: 'css-gradient-generator',
+      reason: {
+        en: 'Turn two palette colours into a gradient',
+        vi: 'Biến hai màu trong bảng thành gradient',
+        es: 'Convierte dos colores de la paleta en un degradado',
+        pt: 'Transforme duas cores da paleta em um gradiente',
+      },
+    },
+    {
+      tool: 'wcag-contrast-checker',
+      reason: {
+        en: 'Check which pairs in the palette are readable',
+        vi: 'Kiểm tra cặp màu nào trong bảng đọc được',
+        es: 'Comprueba qué pares de la paleta son legibles',
+        pt: 'Verifique quais pares da paleta são legíveis',
+      },
+    },
+  ],
 };

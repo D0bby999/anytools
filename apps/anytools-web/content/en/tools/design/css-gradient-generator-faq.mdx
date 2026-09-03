@@ -1,0 +1,39 @@
+---
+title: CSS gradient generator — Frequently asked questions
+---
+
+## Why does the output have two `background` lines?
+
+The first line is a flat colour, the second the gradient. Any engine that understands `linear-gradient` applies the second declaration and the flat colour never shows. An engine that cannot parse the gradient value drops that declaration during CSS error recovery and keeps the flat colour it already accepted. It costs one line and removes the worst failure mode — white text on a background that never painted. The generator uses your first colour stop for that line; if your text sits over the middle of the gradient, edit it to a colour from there instead.
+
+## Which browsers support conic gradients?
+
+`conic-gradient()` is the newest of the three: Chrome 69, Safari 12.1 and Firefox 83 shipped it, so anything released since late 2020 has it. It was never in Internet Explorer and no prefix helps there. `linear-gradient()` and `radial-gradient()` are far older and unprefixed everywhere that matters today. If your traffic includes browsers older than the conic cut-off, the fallback line above is what those visitors see.
+
+## What does the angle mean?
+
+In CSS, `0deg` points to the top of the box and the angle increases clockwise, so `90deg` runs left to right and `180deg` runs top to bottom — which is also the default when you omit the angle. That is rotated from the mathematical convention, and it is the single most common reason a gradient comes out sideways.
+
+## Why does the generator write `135deg` instead of `to bottom right`?
+
+Because they are not the same thing. The corner keywords aim the gradient line so the corner sits exactly on the final stop, which means the real angle depends on the width and height of the box — `to bottom right` is 135° only on a square. This editor stores an angle, so pasting a corner keyword converts it to the square-box equivalent. If you specifically want the corner to track the box shape, keep the keyword in your stylesheet by hand.
+
+## Can I use a gradient anywhere a colour goes?
+
+No. A gradient is an image value, not a colour. It works in `background-image` (and the `background` shorthand), `border-image`, `mask-image` and `list-style-image`, but not in `color`, `border-color` or `box-shadow`. Gradient text is the usual exception people are looking for: set the gradient as the background, then `background-clip: text` with a transparent text colour — and give it a real `color` fallback, because a browser that ignores the clip will paint transparent text on the gradient.
+
+## Why do wide, subtle gradients look striped?
+
+Banding. An 8-bit-per-channel screen has 256 steps per channel; a gradient that crosses only a few of those steps over a thousand pixels shows each step as a visible band. Nothing in the CSS is wrong. Adding intermediate stops does not help — the display is the limit. Practical fixes are increasing the colour distance, overlaying a faint noise texture, or accepting it on the wide backgrounds where it is least noticeable.
+
+## What are stops without a position for?
+
+If you leave the position empty, the browser spaces that stop evenly between the neighbours that do have one. It keeps the CSS short and survives you inserting another colour later. Positions are useful when you want a specific transition point — or a hard edge: give two stops the same percentage and the colour changes with no blend at all, which is how stripes, progress bars and the repeating preset are built.
+
+## Why can I only enter percentages?
+
+Because percentages are what the editor can round-trip. CSS also accepts lengths (`red 20px`) and interpolation hints (a bare `40%` between two stops), and pasting either of those in returns a parse error rather than a wrong result. That is deliberate: quietly turning `20px` into `20%` would change the design without telling you.
+
+## Is anything uploaded?
+
+No. The gradient string is assembled in your browser, and nothing about it leaves the page.

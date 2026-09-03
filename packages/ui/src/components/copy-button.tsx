@@ -7,9 +7,11 @@ export interface CopyButtonProps {
   text: string;
   className?: string;
   size?: 'default' | 'sm' | 'icon';
+  /** Fired after the text reaches the clipboard. Used for analytics. */
+  onCopied?: () => void;
 }
 
-export function CopyButton({ text, className, size = 'sm' }: CopyButtonProps) {
+export function CopyButton({ text, className, size = 'sm', onCopied }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -17,6 +19,7 @@ export function CopyButton({ text, className, size = 'sm' }: CopyButtonProps) {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
+      onCopied?.();
     } catch {
       // clipboard unavailable
     }
