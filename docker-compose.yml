@@ -4,6 +4,11 @@
 # variant — better-auth, ads, analytics, newsletter and blog never initialize, and no
 # absolute URL is ever emitted, so there is nothing to configure and nothing to persist.
 # Building your own image with different settings? See docs/self-hosting.md.
+#
+# Explicit project name: without it Compose derives one from the directory, so a
+# GitHub zip download becomes project "anytools-main" and CasaOS-style importers
+# can collide on re-import.
+name: anytools
 services:
   anytools:
     image: ghcr.io/d0bby999/anytools:v1.0.0

@@ -21,11 +21,13 @@
 # `python3 make g++` — under QEMU aarch64 emulation that compile is 10-30x slower.
 name: Release image (self-host)
 
+# Tag push ONLY — no workflow_dispatch. A manual run from `master` would produce no
+# semver tags but `type=raw,value=latest` still fires, publicly pointing `:latest`
+# at an untagged snapshot. There is no "dry run" of a public mutable tag.
 on:
   push:
     tags:
       - "v*.*.*"
-  workflow_dispatch:
 
 concurrency:
   group: release-${{ github.ref }}
@@ -46,7 +48,12 @@ jobs:
   # Copy of deploy.yml's verify job. vendor:assets must run before test — a fresh
   # checkout has no public/third-party/, and vendor-assets.test.ts asserts it exists.
   verify:
+    # Forks that push a v* tag would otherwise run the whole pipeline and die at
+    # the GHCR push with a 403. Every later job `needs` this one, so the guard
+    # here skips them all.
+    if: github.repository == 'D0bby999/anytools'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -107,8 +114,16 @@ jobs:
             NEXT_PUBLIC_SELF_HOSTED=1
           # `name=` is required or buildx has no repo to push the digest into.
           outputs: type=image,"name=${{ env.IMAGE }}",push-by-digest=true,name-canonical=true,push=true
-          cache-from: type=gha,scope=selfhost-${{ matrix.slug }}
-          cache-to: type=gha,mode=max,scope=selfhost-${{ matrix.slug }}
+          # Provenance attestations add an `unknown/unknown` entry to the manifest
+          # list, which confuses `imagetools inspect` readers and CasaOS/Umbrel
+          # importers alike. Off until someone actually consumes them.
+          provenance: false
+          # Read-only cache: the GHA cache is scoped per ref, so a new tag could
+          # never hit a cache written by an older tag, and writing `mode=max` for
+          # two architectures on every release would evict deploy.yml's hosted
+          # cache from the 10 GB LRU. Reading the default scope at least lets the
+          # amd64 leg reuse layers deploy.yml pushed from master.
+          cache-from: type=gha
 
       - name: Export digest
         run: |
@@ -127,6 +142,7 @@ jobs:
   merge:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
@@ -162,7 +178,9 @@ jobs:
             type=semver,pattern={{version}},prefix=v
             type=semver,pattern={{major}}.{{minor}},prefix=v
             type=semver,pattern={{major}},prefix=v
-            type=raw,value=latest
+            # Belt and braces with the tag-only trigger above: `latest` can only
+            # ever be computed on a v* tag ref.
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
@@ -174,11 +192,17 @@ jobs:
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.IMAGE }}@sha256:%s ' *)
 
-      - name: Inspect pushed manifest
-        # NOT `steps.meta.outputs.version`: metadata-action's `version` output is
-        # the bare semver match ("1.0.0"), independent of the `prefix=v` applied
-        # to the tag itself ("v1.0.0") — see docker/metadata-action README, output
-        # docs vs. the `prefix`/`suffix` attribute docs. `github.ref_name` on a
-        # `refs/tags/v1.0.0` push is exactly "v1.0.0", which is what got pushed.
+      - name: Assert the pushed manifest carries both architectures
+        # `github.ref_name` on a `refs/tags/v1.0.0` push is exactly "v1.0.0", the
+        # same string metadata-action produced for the first tag (it applies
+        # `prefix=v` to its `version` output too, so either would do — ref_name
+        # is simply the one that cannot drift from the git tag).
+        #
+        # This is the release gate for phase-04 ("manifest has linux/amd64 AND
+        # linux/arm64"): printing the manifest is not a check, grepping it is.
         run: |
-          docker buildx imagetools inspect ${{ env.IMAGE }}:${{ github.ref_name }}
+          out="$(docker buildx imagetools inspect ${{ env.IMAGE }}:${{ github.ref_name }})"
+          printf '%s\n' "$out"
+          for p in linux/amd64 linux/arm64; do
+            grep -q "Platform: *$p" <<< "$out" || { echo "::error::manifest is missing $p"; exit 1; }
+          done
