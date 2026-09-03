@@ -31,6 +31,15 @@ export const meta: ToolMeta = {
   effort: 'M',
   nextStepSuggestions: [
     {
+      tool: 'barcode-generator',
+      reason: {
+        en: 'For EAN-13, UPC-A, Code 128 and the other 1D symbologies',
+        vi: 'Cho EAN-13, UPC-A, Code 128 và các mã vạch 1D khác',
+        es: 'Para EAN-13, UPC-A, Code 128 y otros códigos 1D',
+        pt: 'Para EAN-13, UPC-A, Code 128 e outros códigos 1D',
+      },
+    },
+    {
       tool: 'url-encode',
       reason: {
         en: 'Encode URL parameters before generating a QR',

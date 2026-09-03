@@ -132,6 +132,8 @@ const LOADERS: Record<string, ComponentType> = {
   ),
   'box-shadow-generator': dynamic(() => import('@anytools/tools/box-shadow-generator').then(pick)),
   'clip-path-generator': dynamic(() => import('@anytools/tools/clip-path-generator').then(pick)),
+  // Barcodes (260903)
+  'barcode-generator': dynamic(() => import('@anytools/tools/barcode-generator').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

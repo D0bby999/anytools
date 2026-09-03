@@ -39,7 +39,6 @@
     ]
   },
   "zxing": {
-    "pending": true,
     "from": "zxing-wasm",
     "paths": ["dist/full/zxing_full.wasm"]
   },

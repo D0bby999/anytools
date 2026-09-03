@@ -6,6 +6,7 @@
  */
 import { meta as addPageNumbers } from './add-page-numbers/meta';
 import { meta as ageCalculator } from './age-calculator/meta';
+import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
 import { meta as bcryptGenerator } from './bcrypt-generator/meta';
 import { meta as binaryEncode } from './binary-encode/meta';
@@ -121,6 +122,7 @@ export const toolMetas: ToolMeta[] = [
   cropImage,
   createZip,
   unzipArchive,
+  barcodeGenerator,
   splitPdf,
   rotatePdf,
   removePdfPages,
