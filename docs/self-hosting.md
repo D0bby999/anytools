@@ -8,9 +8,10 @@ switch, see `apps/anytools-web/src/lib/self-hosted.ts`.
 ## Requirements
 
 - Docker (or Podman) able to pull from `ghcr.io`.
-- Roughly 1 GB of RAM free for the container. The image itself is a few hundred MB —
-  it ships offline WASM runtimes for the file tools (pdf.js, tesseract.js, an ONNX
-  background-removal model, libheif, libarchive; see [Third-party runtime
+- Roughly 1 GB of RAM free for the container. The image itself measured ~430 MB
+  (arm64, local `--target selfhost` build) — it ships offline WASM runtimes for the
+  file tools (pdf.js, tesseract.js, an ONNX background-removal model, libheif,
+  libarchive; see [Third-party runtime
   assets](./deployment-guide.md#third-party-runtime-assets-wasm-models-fonts) for the
   breakdown) so that those tools work without calling out to a CDN.
 - No database. No persistent volume is required for the self-host image (the hosted
@@ -26,15 +27,17 @@ docker run -p 3000:3000 ghcr.io/d0bby999/anytools:v1.0.0
 That's the whole setup — no environment variables, no volume, no config file. Visit
 `http://localhost:3000/en`.
 
-Or with Compose:
+Or with the `docker-compose.yml` at the repo root:
 
 ```yaml
 # docker-compose.yml
+name: anytools
 services:
   anytools:
     image: ghcr.io/d0bby999/anytools:v1.0.0
     container_name: anytools
-    ports: ["3000:3000"]
+    ports:
+      - "3000:3000"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
@@ -61,6 +64,14 @@ Nothing else is read at runtime — no build-time flag can be changed by passing
 `docker run -e` against an already-built image. See "Building your own image" below if
 you need to change one of those.
 
+Changing `PORT` with a bare `docker run` also means changing the `-p` mapping to
+match (`-p 8080:8080 -e PORT=8080`, not just the `-e`). If you use the
+`docker-compose.yml` at the repo root, changing `PORT` there means editing three
+places, not one: the `environment:` list (add `PORT=8080`), the `ports:` mapping, and
+the `healthcheck.test` command — the latter is a literal string handed straight to
+`wget`, not something Compose resolves against a container's runtime environment, so
+it stays wrong silently until you edit it by hand.
+
 ## Reverse proxy
 
 The container listens on plain HTTP on port 3000 and does not send an HSTS header
@@ -86,11 +97,18 @@ server {
 
     location / {
         proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 }
 ```
+
+nginx defaults to HTTP/1.0 against the upstream, which drops keepalive and buffers
+the entire response before forwarding it — that breaks streaming for the App
+Router's RSC/Suspense responses. `proxy_http_version 1.1;` is what turns streaming
+back on.
 
 ## Upgrading
 
@@ -126,22 +144,18 @@ plan directory if that ever happens.
 | 6 | `/ads.txt` | `app/ads.txt/route.ts` | 404 |
 | 7 | `/api/postclaw/**` (3 routes: `health`, `posts`, `posts/[id]`) | internal blog-ingest endpoints | wrapped re-exports return 404 instead of calling through |
 | 8 | Auth surfaces: `/sign-in`, `/sign-up`, `/dashboard`, `/admin/**`, `/api/auth/**` | respective `page.tsx` / `route.ts` files | 404 before anything imports the auth module, so better-auth is never initialized — no `BETTER_AUTH_SECRET` needed, no database file written. `/dashboard` additionally needed a dedicated `dashboard/layout.tsx`: its sibling `loading.tsx` wraps the page in a React Suspense boundary, and once that boundary starts streaming, a `notFound()` thrown later from inside the page can still render the right "not found" content but can no longer undo the HTTP 200 status the response already committed to (a known Next.js limitation, `vercel/next.js#45801`). A layout's body runs *before* the Suspense boundary it wraps, so gating there produces a real 404 status code |
-| 9 | `/blog`, `/blog/[slug]` | `[locale]/blog/page.tsx`, `blog/[slug]/page.tsx` | 404 — the header/footer/mobile nav never linked `/blog` to begin with, they only ever pointed at `/guides` |
-| 10 | `Strict-Transport-Security` header | `next.config.ts` | header is filtered out of the response; Content-Security-Policy and everything else stay as-is |
+| 9 | `/blog`, `/blog/[slug]` | `[locale]/blog/page.tsx`, `blog/[slug]/page.tsx` | 404 — the header/footer/mobile nav never linked `/blog` to begin with, they only ever pointed at `/guides`. The nav still shows a link *labeled* "Blog" (the same label as on the hosted site) — that label's `href` has always been `/guides`, so screenshots showing a "Blog" item in the nav are not a sign that `/blog` works |
+| 10 | `Strict-Transport-Security` header | `next.config.ts` | header is filtered out of the response entirely — see row 14 for what else `next.config.ts` gates |
 | 11 | `/sitemap.xml`, `/llms.txt` | `app/sitemap.ts`, `app/llms.txt/route.ts` | both return 404 (not a `200` with an empty list) |
 | 12 | `/privacy`, `/terms` copy | `[locale]/privacy/page.tsx`, `[locale]/terms/page.tsx` | self-host builds render a separate text variant of both pages that does not mention AdSense, Umami, the newsletter or the cookie banner — because none of that runs in this build. The only network calls the self-host copy discloses are the same two covered in [What leaves the browser](../README.md#what-leaves-the-browser): `/api/fx` (currency rates) and the curl converter POSTing to this server |
 | 13 | `og:image`, `twitter:image`, JSON-LD (`application/ld+json`) | shared metadata helpers | none of these are emitted on any page when this flag is on — no social preview image tags, no structured data script |
+| 14 | AdSense/Google Analytics/Umami hosts in the `Content-Security-Policy-Report-Only` header | `next.config.ts` | the three ad/analytics host allowlists (`script-src`, `connect-src`, `frame-src`) are spliced in only for the hosted build; a self-host response's CSP header names none of `googlesyndication.com`, `doubleclick.net`, `google-analytics.com` or any other ad/analytics host. `Reporting-Endpoints`/`report-uri` (`/api/csp-report`) stay in both builds — that endpoint itself isn't gated |
 
 Beyond that table: no page emits an absolute URL. No `rel="canonical"`, no `hreflang`
 alternates, no `og:url` — `generateMetadata` returns `undefined` for all of them when
 this flag is on. `robots.txt` becomes `User-agent: * / Disallow: /` with no `Sitemap:`
 line. The footer instead shows a small `Powered by AnyTools · anytools.world · GitHub`
 attribution line — the only place `anytools.world` appears at all in a self-hosted page.
-
-Rows 12–13 landed as a follow-up to the initial 11-row gate in `phase-01` (same flag,
-same review), on `master` around the time this document was written — if a build you
-are running predates it, `/privacy`/`/terms` and social-preview/JSON-LD tags may still
-be visible; the surfaces from rows 1–11 are unaffected either way.
 
 **One thing that stays, on purpose:** the `better-sqlite3` native binding is still
 present in the image even though self-host never opens a database with it — cutting it
@@ -151,12 +165,30 @@ there" — it is, it's just unused.
 
 ## Building your own image
 
+The published `ghcr.io/d0bby999/anytools` image is built by
+[`.github/workflows/release.yml`](../.github/workflows/release.yml), which runs
+**only** on a `push` of a `vX.Y.Z` tag — there is no manual/`workflow_dispatch`
+trigger, on purpose, so there is no way to publish an untagged snapshot as `:latest`.
+Each release builds `linux/amd64` and `linux/arm64` separately and merges them into
+one manifest list; the workflow's last step re-inspects the pushed manifest and fails
+the run if either platform is missing, rather than trusting that the build step
+succeeded.
+
+Building it yourself instead:
+
 ```bash
 docker build -f apps/anytools-web/Dockerfile --target selfhost \
   --build-arg NEXT_PUBLIC_SELF_HOSTED=1 \
   --build-arg NEXT_PUBLIC_URL=https://tools.example.com \
   -t anytools-selfhost:custom .
 ```
+
+The `builder` stage needs outbound HTTPS to `github.com` and
+`notofonts.github.io` — before `next build` runs, `copy-vendor-assets.mjs`
+downloads the WASM/model/font assets that ship under `public/third-party/`
+(gitignored, regenerated on every build, sha256-pinned against the manifest in
+`vendor-assets.json`), and a firewalled/air-gapped build environment will fail that
+step with no other symptom.
 
 `NEXT_PUBLIC_URL` **only has an effect here**, as a `--build-arg`. Every
 `NEXT_PUBLIC_*` value is read once, at `next build` time, and inlined into the static

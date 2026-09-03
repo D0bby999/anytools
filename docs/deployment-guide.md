@@ -16,14 +16,26 @@ previous image. This was shipped broken once and fixed in `2de4030`.
 
 ## Two images, one Dockerfile
 
-`apps/anytools-web/Dockerfile` builds two different images from the same source, split by a
-build-arg and by which runtime stage is targeted. This section (`deploy.yml`) only ever produces
-the **hosted** image, `ghcr.io/d0bby999/anytools-web`, from the Dockerfile's last stage — nothing
-above changes: no new build-arg, no new target, same `:latest` + `:<git-sha>` tags. A second,
-independent workflow (`release.yml`, triggered by pushing a `vX.Y.Z` tag) builds the **self-host**
-image, `ghcr.io/d0bby999/anytools`, from an earlier stage with `NEXT_PUBLIC_SELF_HOSTED=1` — no
-ads, no analytics, no accounts, no database volume. See
-[`docs/self-hosting.md`](./self-hosting.md) for what that image disables and how to run it.
+`apps/anytools-web/Dockerfile` has two runtime stages that both inherit from a shared
+`runtime-base` stage: `selfhost` and `runner` (the **last** stage in the file, so it's
+the one Docker picks when nobody passes `--target`). The two differ in exactly two
+ways: whether `NEXT_PUBLIC_SELF_HOSTED=1` was passed as a build-arg to the earlier
+`builder` stage, and whether `runner`'s extra `RUN mkdir /data` + `VOLUME /data`
+lines ran (`selfhost` never declares that volume — a `VOLUME` instruction can't be
+un-declared by a later stage, which is why `runner` has to come after `selfhost`,
+not before it).
+
+This section (`deploy.yml`) only ever produces the **hosted** image,
+`ghcr.io/d0bby999/anytools-web`, by building with no `--target` — nothing above
+changes: no new build-arg, no new target, same `:latest` + `:<git-sha>` tags, still
+the `runner` stage with its `/data` volume for the better-auth SQLite DB. A second,
+independent workflow, [`.github/workflows/release.yml`](../.github/workflows/release.yml)
+(triggered only by pushing a `vX.Y.Z` tag — no manual dispatch), builds the
+**self-host** image, `ghcr.io/d0bby999/anytools`, with `--target selfhost` and
+`--build-arg NEXT_PUBLIC_SELF_HOSTED=1` — no ads, no analytics, no accounts, no
+database volume — for both `linux/amd64` and `linux/arm64`, published as one manifest
+list. See [`docs/self-hosting.md`](./self-hosting.md) for what that image disables
+and how to run it.
 
 ## Rollback
 

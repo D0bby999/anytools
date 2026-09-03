@@ -14,15 +14,21 @@ self-hostable in one command — [anytools.world](https://anytools.world).
 docker run -p 3000:3000 ghcr.io/d0bby999/anytools:v1.0.0
 ```
 
+First release: `v1.0.0` (see [GitHub Releases](https://github.com/D0bby999/anytools/releases));
+until it's published, build locally — see the "Building your own image" section of
+[`docs/self-hosting.md`](docs/self-hosting.md).
+
 Or with Compose:
 
 ```yaml
 # docker-compose.yml
+name: anytools
 services:
   anytools:
     image: ghcr.io/d0bby999/anytools:v1.0.0
     container_name: anytools
-    ports: ["3000:3000"]
+    ports:
+      - "3000:3000"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
@@ -68,7 +74,10 @@ read this as "2 tools call out":
 
 1. **Currency converter** calls `/api/fx`, which calls out to the internet —
    [Frankfurter](https://api.frankfurter.app) (ECB reference rates, no API key). This
-   is the only third-party egress in the whole app.
+   is the only third-party egress in the self-host image — the hosted instance at
+   anytools.world additionally loads AdSense and Umami analytics scripts client-side,
+   and its own `/api/newsletter/subscribe` calls Resend; none of that ships in the
+   self-host build (see "Self-hosting" below).
 2. **curl → code converter** calls `/api/curl-convert`, which does **not** call out to
    the internet. But the curl command you paste — which **often contains an
    `Authorization: Bearer …` header** — is POSTed verbatim to the server you are
@@ -91,7 +100,7 @@ the linked source before quoting these elsewhere.
 
 | | AnyTools | it-tools | omni-tools | Stirling-PDF |
 |---|---|---|---|---|
-| Licence | MIT ([`LICENSE`](LICENSE)) | **GPL-3.0** ([source](https://github.com/CorentinTh/it-tools/blob/main/LICENSE)) | MIT ([source](https://github.com/iib0011/omni-tools/blob/main/LICENSE)) | open-core: MIT + a `proprietary` folder ([source](https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/LICENSE)) |
+| Licence | MIT ([`LICENSE`](LICENSE)) | **GPL-3.0** ([source](https://github.com/CorentinTh/it-tools/blob/main/LICENSE)) | MIT ([source](https://github.com/iib0011/omni-tools/blob/main/LICENSE)) | open-core: MIT with several proprietary carve-out directories, e.g. `engine/`, `app/saas/` ([source](https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/LICENSE)) |
 | GitHub stars (2026-09-03) | 0 | 40,448 | 10,126 | 91,208 |
 | Tools | 107 (counted from `meta-registry.ts`, see above) | 86 folders under `src/tools` | not published; organized into 12 groups | "50+ PDF tools" (per its own README) |
 | Scope | dev + PDF + image + **finance/health/lifestyle** | dev/IT tools only | audio, converters, csv, image, json, list, number, pdf, string, time, video, xml | PDF only |
@@ -144,8 +153,8 @@ packages/anytools-tools      the 107 tools: pure logic + UI, one directory each
 packages/ui                  shared components and the design tokens
 packages/anytools-i18n       locale list and helpers
 packages/anytools-analytics  Umami event wrapper
-packages/db-shared           Postgres client for the DB-backed blog
-packages/postclaw-blog-endpoint  blog ingest endpoint
+packages/db-shared           Postgres client for the DB-backed blog (hosted only)
+packages/postclaw-blog-endpoint  blog ingest endpoint (hosted only)
 packages/config              shared tsconfig/biome presets
 ```
 
