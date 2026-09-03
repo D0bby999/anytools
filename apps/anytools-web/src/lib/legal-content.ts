@@ -1,3 +1,5 @@
+import { IS_SELF_HOSTED } from './self-hosted';
+
 type Locale = 'en' | 'vi' | 'es' | 'pt';
 
 export type LegalPage = {
@@ -273,6 +275,123 @@ const PRIVACY: Record<Locale, LegalPage> = {
     ],
   },
 };
+
+/**
+ * Self-host builds ship with no AdSense, no Umami, no cookie consent banner and no
+ * newsletter — phase-01's `IS_SELF_HOSTED` flag compiles those surfaces out entirely —
+ * and no relationship of their own with Hetzner/Resend/Loops. The hosted PRIVACY text
+ * above describing those third parties is false on a stranger's install (review
+ * finding #3, 2026-09-03): `/privacy` and `/terms` are not gated 404 like `/blog` or
+ * `/dashboard` (the footer still links to them), so a self-host visitor would read
+ * promises about a cookie banner and an ad program that do not exist in front of them.
+ *
+ * This map overrides only the sections that actually mention those third parties —
+ * "What we collect" / "What we do not collect" / "Cookies" / "Third parties" (by their
+ * translated heading, one map per locale) — leaving every other section (Summary,
+ * rights, children, changes, contact...) byte-identical to the hosted PRIVACY object
+ * above in both builds. TERMS has no equivalent: grepping it for AdSense/Umami/
+ * Hetzner/Resend/cookie/newsletter turns up nothing, so it needs no self-host variant.
+ */
+const PRIVACY_SELF_HOST_TEXT: Record<Locale, Partial<Record<string, string[]>>> = {
+  en: {
+    'What we collect': [
+      'This is a self-hosted install, run by its own operator — not by the AnyTools.world team. There is no Umami Analytics and no cookie consent banner in this build; those surfaces are compiled out entirely, not merely hidden.',
+      'There is no waitlist or newsletter in this build — the subscribe endpoint is disabled, so no email address is ever collected or sent anywhere.',
+      'If you submit a contact form or report a bug, we collect what you write so we can respond.',
+      'If you create an account, we store your email address and a hashed password on our server so you can sign in. Social sign-in stores the identifier your provider returns instead. Ask us and we will delete the account and its data.',
+    ],
+    'What we do not collect': [
+      'Your tool inputs — these stay in your browser. We do not have copies of the JSON you formatted, the regexes you tested, the passwords you generated, the files you converted, or anything else.',
+      'Personally identifiable information beyond what you explicitly provide (message body for contact).',
+      'Behavior tracking, and no third-party scripts at all: this build ships with no AdSense, no analytics client, and no ad network of any kind. The only outbound calls this server makes on your behalf are described in "Third parties" below.',
+    ],
+    Cookies: [
+      'This build has no cookie consent banner because there is nothing for it to gate: no AdSense, no analytics, no ad cookies. We still set one first-party cookie to remember your locale, kept in your browser only — not sent anywhere. Tool history, favourites and recent tools stay in your browser and never reach this server.',
+    ],
+    'Third parties': [
+      'Hosting: whoever operates this install — not AnyTools.world. Ads: none (no AdSense). Analytics: none (no Umami). Email: none (no newsletter). The only two outbound calls this build makes: currency rates for the currency converter, fetched server-side from Frankfurter (api.frankfurter.app, EU public data, no API key); and the curl-to-code converter, which parses the curl command you paste on THIS server and discards it (see "Summary" above). Ask your operator which provider and jurisdiction this instance actually runs on.',
+    ],
+  },
+  vi: {
+    'Chúng tôi thu thập gì': [
+      'Đây là bản self-host, do người vận hành riêng của họ triển khai — không phải team AnyTools.world. Bản build này không có Umami Analytics và không có banner cookie consent; các bề mặt đó bị loại bỏ hoàn toàn khỏi bản build, không chỉ ẩn đi.',
+      'Bản build này không có waitlist hay newsletter — endpoint subscribe bị tắt, nên không email nào được thu thập hay gửi đi đâu cả.',
+      'Nếu bạn gửi form liên hệ hoặc báo lỗi, chúng tôi lưu nội dung để phản hồi.',
+      'Nếu bạn tạo tài khoản, chúng tôi lưu email và mật khẩu đã băm trên máy chủ để bạn đăng nhập được. Đăng nhập bằng mạng xã hội thì lưu định danh do nhà cung cấp trả về. Bạn yêu cầu là chúng tôi xoá tài khoản cùng dữ liệu của nó.',
+    ],
+    'Chúng tôi KHÔNG thu thập': [
+      'Input tool của bạn — toàn bộ ở trong browser. Chúng tôi không có bản sao của JSON bạn format, regex bạn test, password bạn tạo, file bạn convert, hay bất kỳ thứ gì khác.',
+      'Thông tin định danh cá nhân ngoài những gì bạn chủ động cung cấp (nội dung contact).',
+      'Tracking hành vi, và không một script bên thứ ba nào: bản build này không có AdSense, không có client analytics, không có mạng quảng cáo nào. Hai lệnh gọi ra ngoài duy nhất của server này được liệt kê ở mục "Bên thứ ba" bên dưới.',
+    ],
+    Cookies: [
+      'Bản build này không có banner cookie consent vì không có gì để nó gate: không AdSense, không analytics, không cookie quảng cáo. Chúng tôi vẫn đặt một cookie first-party để nhớ ngôn ngữ, nằm trong trình duyệt của bạn — không gửi đi đâu cả. Lịch sử tool, mục yêu thích và tool vừa dùng chỉ nằm trong trình duyệt bạn, không bao giờ đến server này.',
+    ],
+    'Bên thứ ba': [
+      'Hosting: bất kỳ ai vận hành bản cài đặt này — không phải AnyTools.world. Ads: không có (không AdSense). Analytics: không có (không Umami). Email: không có (không newsletter). Hai lệnh gọi ra ngoài duy nhất của bản build này: tỷ giá tiền tệ cho tool currency converter, lấy từ Frankfurter server-side (api.frankfurter.app, dữ liệu công khai EU, không cần API key); và tool curl-to-code converter, parse lệnh curl bạn dán NGAY TRÊN server này rồi xóa đi (xem "Tóm tắt" ở trên). Hỏi người vận hành để biết nhà cung cấp và khu vực pháp lý thật sự của bản cài đặt này.',
+    ],
+  },
+  es: {
+    'Qué recopilamos': [
+      'Esta es una instalación autoalojada (self-host), operada por su propio administrador — no por el equipo de AnyTools.world. Esta build no tiene Umami Analytics ni banner de consentimiento de cookies; esas superficies se eliminan por completo de la build, no solo se ocultan.',
+      'Esta build no tiene lista de espera ni boletín — el endpoint de suscripción está desactivado, así que ningún correo se recopila ni se envía a ningún lado.',
+      'Si envías un formulario de contacto o reportas un bug, guardamos lo que escribes para responderte.',
+      'Si creas una cuenta, guardamos tu correo y una contraseña cifrada (hash) en nuestro servidor para que puedas iniciar sesión. El inicio de sesión social guarda el identificador que devuelve tu proveedor. Si nos lo pides, eliminamos la cuenta y sus datos.',
+    ],
+    'Qué NO recopilamos': [
+      'Tus datos de entrada — permanecen en tu navegador. No tenemos copias del JSON que formateaste, los regex que probaste, las contraseñas que generaste, los archivos que convertiste, ni nada más.',
+      'Información personal identificable más allá de lo que proporcionas explícitamente (cuerpo del mensaje de contacto).',
+      'Seguimiento de comportamiento, y ningún script de terceros: esta build no incluye AdSense, ni cliente de analítica, ni red publicitaria de ningún tipo. Las únicas dos llamadas salientes de este servidor están descritas en «Terceros» más abajo.',
+    ],
+    Cookies: [
+      'Esta build no tiene banner de consentimiento de cookies porque no hay nada que consentir: sin AdSense, sin analítica, sin cookies publicitarias. Seguimos estableciendo una cookie propia para recordar tu idioma, guardada solo en tu navegador — nunca se envía a ningún lado. El historial de herramientas, favoritos y recientes se quedan en tu navegador y nunca llegan a este servidor.',
+    ],
+    Terceros: [
+      'Hospedaje: quien sea que opere esta instalación — no AnyTools.world. Anuncios: ninguno (sin AdSense). Analítica: ninguna (sin Umami). Email: ninguno (sin boletín). Las únicas dos llamadas salientes de esta build: tasas de cambio para el conversor de divisas, obtenidas del lado del servidor desde Frankfurter (api.frankfurter.app, datos públicos de la UE, sin clave de API); y el conversor curl-to-code, que analiza el comando curl que pegas EN ESTE servidor y lo descarta (ver «Resumen» arriba). Pregunta a quien administra esta instancia sobre el proveedor y la jurisdicción reales.',
+    ],
+  },
+  pt: {
+    'O que coletamos': [
+      'Esta é uma instalação self-hosted, operada pelo seu próprio administrador — não pela equipe do AnyTools.world. Esta build não tem Umami Analytics nem banner de consentimento de cookies; essas superfícies são removidas completamente da build, não apenas ocultadas.',
+      'Esta build não tem lista de espera nem newsletter — o endpoint de inscrição está desativado, então nenhum email é coletado ou enviado a lugar nenhum.',
+      'Se enviar formulário de contato ou reportar bug, guardamos o que escreve para responder.',
+      'Se criar uma conta, guardamos seu e-mail e uma senha com hash em nosso servidor para você poder entrar. O login social guarda o identificador devolvido pelo seu provedor. Se pedir, excluímos a conta e seus dados.',
+    ],
+    'O que NÃO coletamos': [
+      'Seus dados de entrada — permanecem no seu navegador. Não temos cópias do JSON que você formatou, regex testou, senhas gerou, arquivos converteu, ou qualquer outra coisa.',
+      'Informações pessoais identificáveis além do que você fornece explicitamente (corpo do contato).',
+      'Rastreamento de comportamento, e nenhum script de terceiros: esta build não inclui AdSense, cliente de analítica, ou rede de anúncios de qualquer tipo. As duas únicas chamadas de saída deste servidor estão descritas em "Terceiros" abaixo.',
+    ],
+    Cookies: [
+      'Esta build não tem banner de consentimento de cookies porque não há nada para consentir: sem AdSense, sem analítica, sem cookies de anúncio. Ainda definimos um cookie próprio para lembrar seu idioma, guardado só no seu navegador — nunca enviado a lugar nenhum. Histórico de ferramentas, favoritos e recentes ficam só no seu navegador e nunca chegam a este servidor.',
+    ],
+    Terceiros: [
+      'Hospedagem: quem quer que opere esta instalação — não o AnyTools.world. Anúncios: nenhum (sem AdSense). Analítica: nenhuma (sem Umami). Email: nenhum (sem newsletter). As duas únicas chamadas de saída desta build: taxas de câmbio para o conversor de moedas, obtidas no lado do servidor via Frankfurter (api.frankfurter.app, dados públicos da UE, sem chave de API); e o conversor curl-to-code, que analisa o comando curl que você cola NESTE servidor e descarta (veja "Resumo" acima). Pergunte a quem administra esta instância sobre o provedor e a jurisdição reais.',
+    ],
+  },
+};
+
+function applyPrivacySelfHostText(page: LegalPage, overrides: Partial<Record<string, string[]>>): LegalPage {
+  return {
+    ...page,
+    sections: page.sections.map((section) =>
+      overrides[section.heading] ? { ...section, body: overrides[section.heading] as string[] } : section,
+    ),
+  };
+}
+
+// Computed once at module load from the same single-source-of-truth flag every other
+// gated surface reads. `PRIVACY` above (the hosted text) is never mutated — this is a
+// new object built from it, so `git diff` on the hosted-text lines stays additive-only
+// and self-hosted.test.ts can assert the hosted branch is byte-identical to it.
+const EFFECTIVE_PRIVACY: Record<Locale, LegalPage> = IS_SELF_HOSTED
+  ? {
+      en: applyPrivacySelfHostText(PRIVACY.en, PRIVACY_SELF_HOST_TEXT.en),
+      vi: applyPrivacySelfHostText(PRIVACY.vi, PRIVACY_SELF_HOST_TEXT.vi),
+      es: applyPrivacySelfHostText(PRIVACY.es, PRIVACY_SELF_HOST_TEXT.es),
+      pt: applyPrivacySelfHostText(PRIVACY.pt, PRIVACY_SELF_HOST_TEXT.pt),
+    }
+  : PRIVACY;
 
 const TERMS: Record<Locale, LegalPage> = {
   en: {
@@ -821,7 +940,7 @@ const CONTACT: Record<Locale, LegalPage> = {
 export type LegalPageKey = 'privacy' | 'terms' | 'about' | 'contact';
 
 const REGISTRY: Record<LegalPageKey, Record<Locale, LegalPage>> = {
-  privacy: PRIVACY,
+  privacy: EFFECTIVE_PRIVACY,
   terms: TERMS,
   about: ABOUT,
   contact: CONTACT,
