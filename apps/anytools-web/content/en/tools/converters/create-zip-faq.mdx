@@ -1,0 +1,35 @@
+---
+title: Create ZIP — Frequently asked questions
+---
+
+## Which compression level should I use?
+
+Level 6 is the DEFLATE default and is almost always the right answer. Level 9 spends noticeably more time for a gain that is usually under one percent on ordinary documents, because DEFLATE's window is only 32 KB — past a point there is simply nothing left for it to find. Level 0 stores the files without compressing them, which is the honest choice when the input is already compressed: it produces the archive in a fraction of the time and the result is the same size either way.
+
+## Why is my zip barely smaller than the files I put in?
+
+Because JPEG, PNG, GIF, WebP, MP3, MP4, and most modern office formats (`.docx`, `.xlsx`, `.pptx` are zip containers already) are compressed. Zipping compressed data cannot help — the redundancy DEFLATE looks for has already been removed, and the archive ends up a hair larger than the sum of the inputs because every entry carries about 100 bytes of header.
+
+Text, CSV, JSON, XML, logs, SVG, source code, BMP and uncompressed WAV compress dramatically, often to a fifth of their size or less. If your goal is smaller photos, compressing the images themselves is the lever that works; zipping them is not.
+
+## Can I put a password on the archive?
+
+No, and this tool will not pretend otherwise. It uses JSZip, which cannot write encrypted entries. Zip's own legacy encryption (ZipCrypto) is broken and should not be recommended to anyone; AES-256 zip encryption is well outside what this library does. If you need the contents protected, encrypt the archive after downloading it with a tool built for that job, or use an end-to-end encrypted transfer instead of relying on the container.
+
+## Are the files uploaded anywhere?
+
+No. The archive is assembled in this browser tab. Your files are read with the File API, compressed by JSZip in the page, and the download link points at a blob your browser is holding in memory. Nothing crosses the network — you can confirm it in the Network tab of developer tools, or by disconnecting after the page has loaded and zipping anyway.
+
+That is also the constraint: everything must fit in the tab's memory. A few hundred megabytes is routine on a desktop; several gigabytes is not, and mobile Safari gives up far earlier than a desktop browser. If the tab reloads itself mid-run, that is what happened.
+
+## What happens to two files with the same name?
+
+They are both kept. A zip is a flat list of paths, so a second `photo.jpg` would silently replace the first — instead the tool renames it to `photo (2).jpg` and shows you the final list of entry names before you download. Any `../` or leading `/` in a name is stripped for the same reason it matters in the other direction: a path that escapes its folder is how the Zip Slip class of bugs works, and no archive built here will carry one.
+
+## What is the "folder inside the zip" option for?
+
+It nests every entry under one directory, so extracting the archive creates a single folder rather than scattering forty loose files into whatever directory the user happened to be in. Many command-line extractors do not create a wrapping folder for you, and this is the fix that travels inside the file.
+
+## Are there size limits?
+
+Nothing artificial, but two real ones. The tab's memory is the practical ceiling. Beyond that, this writes a standard (non-Zip64) archive, so individual entries and the archive as a whole must stay under 4 GB — an archive past that limit would be silently wrong rather than refused, which is worth knowing before you try.

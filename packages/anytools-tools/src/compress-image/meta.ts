@@ -40,5 +40,14 @@ export const meta: ToolMeta = {
         pt: 'Trocar de formato em vez de recodificar',
       },
     },
+    {
+      tool: 'create-zip',
+      reason: {
+        en: 'Bundle the compressed photos into one file to send',
+        vi: 'Gộp ảnh đã nén thành một file để gửi',
+        es: 'Agrupar las fotos comprimidas en un solo archivo',
+        pt: 'Juntar as fotos comprimidas num único arquivo',
+      },
+    },
   ],
 };

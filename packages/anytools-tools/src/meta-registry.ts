@@ -17,6 +17,7 @@ import { meta as colorConverter } from './color-converter/meta';
 import { meta as colorPalette } from './color-palette/meta';
 import { meta as compoundInterest } from './compound-interest/meta';
 import { meta as compressImage } from './compress-image/meta';
+import { meta as createZip } from './create-zip/meta';
 import { meta as cronParser } from './cron-parser/meta';
 import { meta as crontabGenerator } from './crontab-generator/meta';
 import { meta as cropImage } from './crop-image/meta';
@@ -108,6 +109,7 @@ export const toolMetas: ToolMeta[] = [
   compressImage,
   resizeImage,
   cropImage,
+  createZip,
   splitPdf,
   rotatePdf,
   removePdfPages,

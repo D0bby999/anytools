@@ -120,6 +120,8 @@ const LOADERS: Record<string, ComponentType> = {
   'bcrypt-generator': dynamic(() => import('@anytools/tools/bcrypt-generator').then(pick)),
   'totp-generator': dynamic(() => import('@anytools/tools/totp-generator').then(pick)),
   'http-status-codes': dynamic(() => import('@anytools/tools/http-status-codes').then(pick)),
+  // Archives (260903)
+  'create-zip': dynamic(() => import('@anytools/tools/create-zip').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

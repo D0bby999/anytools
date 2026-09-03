@@ -53,11 +53,15 @@ export function MultiFileDropzone({
         const type = f.type.toLowerCase();
         const ext = `.${f.name.split('.').pop()?.toLowerCase() ?? ''}`;
         return patterns.some((p) =>
-          p.startsWith('.')
-            ? ext === p
-            : p.endsWith('/*')
-              ? type.startsWith(p.slice(0, -1))
-              : type === p,
+          // `*/*` (create-zip takes anything at all) matches no rule below — `*/*`.slice(0,-1)
+          // is `*/`, which no MIME type starts with — so a drop silently discarded every file.
+          p === '*' || p === '*/*'
+            ? true
+            : p.startsWith('.')
+              ? ext === p
+              : p.endsWith('/*')
+                ? type.startsWith(p.slice(0, -1))
+                : type === p,
         );
       });
       onChange(multiple ? [...files, ...ok] : ok.slice(0, 1));

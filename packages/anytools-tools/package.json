@@ -97,7 +97,8 @@
     "./roman-numeral-converter": "./src/roman-numeral-converter/index.ts",
     "./meta-tag-generator": "./src/meta-tag-generator/index.ts",
     "./pdf-to-png": "./src/pdf-to-png/index.ts",
-    "./extract-images-from-pdf": "./src/extract-images-from-pdf/index.ts"
+    "./extract-images-from-pdf": "./src/extract-images-from-pdf/index.ts",
+    "./create-zip": "./src/create-zip/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
