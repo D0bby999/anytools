@@ -45,12 +45,25 @@ export function planEntryPaths(names: string[], rootFolder?: string): string[] {
 }
 
 /**
+ * A zip's offsets and sizes are 32-bit fields, and jszip 3.10 does not write the ZIP64 records
+ * that extend them. Past 4 GiB the numbers wrap and the archive is quietly wrong: extractors
+ * report a corrupt file, or worse, hand back truncated data without complaining. Refusing is
+ * the only honest answer, and it has to happen before compression rather than after.
+ */
+export const MAX_TOTAL_INPUT_BYTES = 4 * 1024 * 1024 * 1024;
+
+const fmtGb = (n: number) => `${(n / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+
+/**
  * Zip `files`, reporting 0–100 as jszip writes.
  *
- * `streamFiles: true` makes jszip emit each entry as it is produced instead of holding the
- * finished archive in a second buffer; on a large selection that is the difference between
- * working and an out-of-memory tab. It writes data descriptors — a normal, thirty-year-old
- * zip feature — rather than seeking back to patch each local header.
+ * This holds everything in memory, and there is no arrangement of jszip options that avoids it:
+ * `zip.file()` resolves each input to an ArrayBuffer up front (hand it a File and jszip reads
+ * the whole Blob with a FileReader instead — same peak), and `generateAsync({type:'blob'})`
+ * gathers the result into one Blob. Peak use is therefore roughly input + output. `streamFiles:
+ * true` changes the *format*, not the memory: jszip writes data descriptors after each entry
+ * rather than seeking back to patch its local header. MAX_TOTAL_INPUT_BYTES is what actually
+ * stands between a huge selection and a dead tab.
  */
 export async function createZip(
   files: File[],
@@ -58,6 +71,13 @@ export async function createZip(
   onProgress?: (percent: number) => void,
 ): Promise<CreateZipResult> {
   if (files.length === 0) throw new CreateZipError('Choose at least one file to zip.');
+
+  const inputBytes = files.reduce((n, f) => n + f.size, 0);
+  if (inputBytes >= MAX_TOTAL_INPUT_BYTES) {
+    throw new CreateZipError(
+      `These files come to ${fmtGb(inputBytes)}, and a zip written here has to stay under ${fmtGb(MAX_TOTAL_INPUT_BYTES)}: the format's size fields are 32-bit and this writer does not emit the ZIP64 records that extend them. Past that point the archive would be silently corrupt, so it is refused instead. Zip them in two batches, or use a desktop archiver.`,
+    );
+  }
 
   const paths = planEntryPaths(
     files.map((f) => f.name),
@@ -70,8 +90,9 @@ export async function createZip(
     const file = files[i];
     const path = paths[i];
     if (!file || !path) continue;
-    // arrayBuffer() rather than the File itself: it is what the browser already holds for a
-    // picked file, and it keeps the entry's byte length knowable before compression starts.
+    // arrayBuffer() rather than the File itself. Not for memory — jszip would read the Blob
+    // whole anyway — but because reading here fails loudly, on this line, if the user moved or
+    // deleted the file after picking it, instead of somewhere inside generateAsync.
     zip.file(path, await file.arrayBuffer(), { date: new Date(file.lastModified) });
   }
 
@@ -87,10 +108,5 @@ export async function createZip(
     (meta) => onProgress?.(Math.round(meta.percent)),
   );
 
-  return {
-    blob,
-    paths,
-    inputBytes: files.reduce((n, f) => n + f.size, 0),
-    outputBytes: blob.size,
-  };
+  return { blob, paths, inputBytes, outputBytes: blob.size };
 }

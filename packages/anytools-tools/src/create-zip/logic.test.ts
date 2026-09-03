@@ -2,10 +2,17 @@
 // happy-dom has no working Blob→ArrayBuffer round trip for jszip's blob output; node 22 does,
 // and nothing in this module touches the DOM.
 import { describe, expect, it } from 'vitest';
-import { CreateZipError, createZip, planEntryPaths } from './logic';
+import { CreateZipError, MAX_TOTAL_INPUT_BYTES, createZip, planEntryPaths } from './logic';
 
 const file = (name: string, body: string, lastModified = Date.UTC(2024, 0, 2)) =>
   new File([body], name, { lastModified });
+
+/**
+ * A File that claims a size without holding one. The 4 GB guard reads `size` and nothing else,
+ * which is the only way to test a ceiling that cannot be allocated on a test runner.
+ */
+const fileClaimingSize = (name: string, size: number) =>
+  Object.defineProperty(new File([], name), 'size', { value: size }) as File;
 
 describe('planEntryPaths', () => {
   it('keeps ordinary names untouched', () => {
@@ -84,11 +91,37 @@ describe('createZip', () => {
     expect(deflated.outputBytes).toBeLessThan(stored.outputBytes);
   });
 
-  it('reports progress that ends at 100', async () => {
+  it('reports progress that only ever moves forward, and ends at 100', async () => {
     const seen: number[] = [];
-    await createZip([file('a.txt', 'alpha')], { level: 6 }, (p) => seen.push(p));
+    await createZip(
+      [file('a.txt', 'alpha'), file('b.txt', 'b'.repeat(200_000))],
+      { level: 6 },
+      (p) => seen.push(p),
+    );
     expect(seen.length).toBeGreaterThan(0);
     expect(seen.at(-1)).toBe(100);
-    expect(Math.min(...seen)).toBeGreaterThanOrEqual(0);
+    // A progress bar that goes backwards is a bug the old assertion (`min >= 0`, which no
+    // percentage can fail) could not see.
+    expect(seen).toEqual([...seen].sort((a, b) => a - b));
+    expect(seen.every((p) => Number.isInteger(p) && p >= 0 && p <= 100)).toBe(true);
+  });
+
+  it('refuses a selection at or past 4 GB instead of writing a corrupt archive', async () => {
+    // Zip's size and offset fields are 32-bit and jszip writes no ZIP64 records, so past this
+    // point the archive is wrong without being reported wrong. Refusing is the honest answer.
+    const huge = [
+      fileClaimingSize('a.bin', MAX_TOTAL_INPUT_BYTES - 1),
+      fileClaimingSize('b.bin', 1),
+    ];
+    await expect(createZip(huge, { level: 6 })).rejects.toBeInstanceOf(CreateZipError);
+    await expect(createZip(huge, { level: 6 })).rejects.toThrow(/4\.0 GB/);
+  });
+
+  it('still zips a selection just under the ceiling', async () => {
+    const result = await createZip([fileClaimingSize('a.bin', MAX_TOTAL_INPUT_BYTES - 1)], {
+      level: 0,
+    });
+    expect(result.inputBytes).toBe(MAX_TOTAL_INPUT_BYTES - 1);
+    expect(result.paths).toEqual(['a.bin']);
   });
 });

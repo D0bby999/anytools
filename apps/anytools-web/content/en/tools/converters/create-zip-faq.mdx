@@ -32,4 +32,6 @@ It nests every entry under one directory, so extracting the archive creates a si
 
 ## Are there size limits?
 
-Nothing artificial, but two real ones. The tab's memory is the practical ceiling. Beyond that, this writes a standard (non-Zip64) archive, so individual entries and the archive as a whole must stay under 4 GB — an archive past that limit would be silently wrong rather than refused, which is worth knowing before you try.
+Two real ones. The tab's memory is the practical ceiling: every file is read into memory before it is compressed, and the finished archive is held there too, so peak use is roughly the inputs plus the output. A few hundred megabytes is routine on a desktop; mobile Safari gives up far earlier.
+
+The hard limit is 4 GB. This writes a standard, non-ZIP64 archive, whose size and offset fields are 32 bits — past 4 GB they wrap, and the result is an archive that extractors either reject as corrupt or, worse, unpack into truncated files without saying anything. So a selection totalling 4 GB or more is refused before compression starts, with a message saying so, rather than producing a file that looks fine until someone needs what is inside it. Zip in two batches, or use a desktop archiver that writes ZIP64.
