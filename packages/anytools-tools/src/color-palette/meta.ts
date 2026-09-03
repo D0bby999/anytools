@@ -30,6 +30,15 @@ export const meta: ToolMeta = {
       },
     },
     {
+      tool: 'clip-path-generator',
+      reason: {
+        en: 'Cut a shape out of a block filled with these colours',
+        vi: 'Cắt hình từ khối màu vừa tạo',
+        es: 'Recorta una forma de un bloque con estos colores',
+        pt: 'Recorte uma forma de um bloco com estas cores',
+      },
+    },
+    {
       tool: 'wcag-contrast-checker',
       reason: {
         en: 'Check which pairs in the palette are readable',

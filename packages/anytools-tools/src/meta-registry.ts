@@ -14,6 +14,7 @@ import { meta as bodyFatCalculator } from './body-fat-calculator/meta';
 import { meta as boxShadowGenerator } from './box-shadow-generator/meta';
 import { meta as calorieCalculator } from './calorie-calculator/meta';
 import { meta as chmodCalculator } from './chmod-calculator/meta';
+import { meta as clipPathGenerator } from './clip-path-generator/meta';
 import { meta as colorConverter } from './color-converter/meta';
 import { meta as colorPalette } from './color-palette/meta';
 import { meta as compoundInterest } from './compound-interest/meta';
@@ -202,6 +203,7 @@ export const toolMetas: ToolMeta[] = [
   // CSS generators (260903)
   cssGradientGenerator,
   boxShadowGenerator,
+  clipPathGenerator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

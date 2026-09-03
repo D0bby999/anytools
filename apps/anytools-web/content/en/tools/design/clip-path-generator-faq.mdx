@@ -1,0 +1,39 @@
+---
+title: CSS clip path generator — Frequently asked questions
+---
+
+## Does clipping change where clicks land?
+
+Yes, and this is the part that surprises people. The clipped-away region no longer receives pointer events at all: a button clipped to a triangle only responds inside the triangle, and the corners you cut off stop being clickable — even though nothing else about the layout changed. This is usually what you want, but it also means a large decorative shape stops catching clicks it visually appears to cover, and a clipped overlay can leave the element beneath it reachable in places you did not intend. Test the interactive parts, not just the picture.
+
+## Does the element still take up its full space?
+
+Yes. `clip-path` is a paint-time operation. Layout runs first, the box keeps its full width and height, and then part of it is not painted. Neighbouring elements do not move into the gap, and the shape does not shrink the scrollable area. If you need the surrounding text to wrap around the shape, that is `shape-outside`, a different property that takes the same `<basic-shape>` values.
+
+## Percentages or px?
+
+Percentages resolve against the reference box, so the shape scales with the element — a triangle stays a triangle at any width. Pixel values are frozen: they still measure from the top-left of the box, so a shape drawn for a 400px card will look wrong the moment the card is 320px wide. Use px only when the geometry genuinely must not scale. The generator stores percentages internally and converts on output, which is why switching units never distorts the shape you drew.
+
+## What is the reference box?
+
+By default the border box. You can change it by adding a keyword — `clip-path: polygon(…) padding-box` — so the coordinates resolve against the padding, content or margin box instead. It matters as soon as the element has a border: `0% 0%` is the outer edge of the border by default, not the inside corner.
+
+## Why is my circle an ellipse?
+
+It is not — a circle radius resolves against the diagonal of the reference box, specifically `sqrt(width² + height²) / sqrt(2)`, and the result is always a circle. On a wide box a 50% radius is therefore larger than half the height, so the circle is clipped by the top and bottom edges and reads as a horizontal band. Reduce the radius, or use `ellipse()` with separate x and y radii if you want the shape to stretch with the box.
+
+## Can I animate between shapes?
+
+Only between polygons with the same number of vertices, in the same winding direction; the browser then interpolates each point. Different vertex counts, or a polygon to a circle, is a discrete swap with no in-between frames. A common workaround is to give the "simple" shape repeated vertices so both states have the same count.
+
+## Do I still need the `-webkit-` prefix?
+
+For these basic shapes, no. Unprefixed `clip-path` works across current Chrome, Edge, Firefox and Safari. The prefix is a relic of older Safari, and it never supported the full unprefixed syntax anyway. What does still differ is `clip-path: url(#svgShape)`, which references an SVG `<clipPath>` element and has a rougher support history than the basic shapes this tool writes.
+
+## Can the shape have a border or a shadow?
+
+Not directly. A border is painted before clipping, so it gets cut away with everything else, and `box-shadow` follows the rectangular border box rather than the clipped silhouette. To outline a clipped shape, stack a slightly larger clipped element behind it in the outline colour; for a shadow that follows the silhouette, wrap the element and put `filter: drop-shadow()` on the wrapper.
+
+## Is anything uploaded?
+
+No. The shape is edited and the CSS generated entirely in your browser.
