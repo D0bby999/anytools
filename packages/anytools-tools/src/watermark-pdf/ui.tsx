@@ -5,13 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 import { type EmbeddableImage, toEmbeddableImage } from '../shared/embeddable-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
-import {
-  type WatermarkOptions,
-  type WatermarkResult,
-  readPageCount,
-  renderFirstPage,
-  watermarkPdf,
-} from './logic';
+import { type WatermarkOptions, type WatermarkResult, readPageCount, watermarkPdf } from './logic';
+import { PREVIEW_DPI, renderFirstPage } from './preview';
 
 type Preview = { url: string; width: number; height: number };
 
@@ -351,8 +346,9 @@ export function WatermarkPdfUi() {
                     {kind === 'text' ? (
                       <span
                         style={{
-                          // The preview renders at 96 dpi, so a point is 96/72 CSS pixels.
-                          fontSize: fontSize * (96 / 72) * previewScale,
+                          // The page was rendered at PREVIEW_DPI, so one point of font size is
+                          // PREVIEW_DPI/72 CSS pixels before the fit-to-column scale.
+                          fontSize: fontSize * (PREVIEW_DPI / 72) * previewScale,
                           color,
                           fontFamily: 'Helvetica, Arial, sans-serif',
                         }}

@@ -3,7 +3,6 @@
 import { type EmbeddableImage, ownBuffer } from '../shared/embeddable-image';
 import { parsePageRange } from '../shared/page-range';
 import { pageFrame, rethrowAsTextError } from '../shared/pdf-page-stamp';
-import { PdfRenderError, openPdf } from '../shared/pdfjs-loader';
 
 export type WatermarkTextOptions = {
   kind: 'text';
@@ -41,9 +40,6 @@ export class WatermarkError extends Error {
     this.name = 'WatermarkError';
   }
 }
-
-/** Preview at 96 dpi — a CSS pixel per point, which is what the overlay is measured in. */
-export const PREVIEW_DPI = 96;
 
 /**
  * `#rgb` or `#rrggbb` to the 0-1 components pdf-lib's `rgb()` takes.
@@ -111,35 +107,6 @@ async function loadDoc(file: File) {
 /** Page count, so the range field can say what is valid before the user submits. */
 export async function readPageCount(file: File): Promise<number> {
   return (await loadDoc(file)).getPageCount();
-}
-
-/**
- * Render page 1 for the preview.
- *
- * Only page 1, and only once per file: the overlay above it is CSS, so moving the opacity or
- * rotation slider costs nothing. Re-rendering the page through pdf.js on every slider tick
- * would make the controls unusable on any real document.
- */
-export async function renderFirstPage(
-  file: File,
-): Promise<{ blob: Blob; width: number; height: number }> {
-  const doc = await openPdf(file);
-  try {
-    const page = await doc.getPage(1);
-    const viewport = page.getViewport({ scale: PREVIEW_DPI / 72 });
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.floor(viewport.width);
-    canvas.height = Math.floor(viewport.height);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new PdfRenderError('Your browser did not provide a 2D canvas context.');
-    await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-    if (!blob) throw new PdfRenderError('The preview page could not be encoded.');
-    page.cleanup();
-    return { blob, width: canvas.width, height: canvas.height };
-  } finally {
-    await doc.destroy();
-  }
 }
 
 /** Stamp a mark across the centre of every selected page. */
