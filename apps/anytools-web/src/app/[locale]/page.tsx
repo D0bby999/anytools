@@ -11,12 +11,19 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 const VALUE_PROPS = ['valueProp1', 'valueProp2', 'valueProp3'] as const;
 
+// published:false is a dark launch: the route still renders for a direct link, but the tool must
+// not be advertised — not in the catalogue, not in "recently used", not in the headline count.
+// remove-background (2026-09-03) is the first tool to use the flag, which is why nothing here
+// filtered on it before.
+const publicMetas = toolMetasClient.filter((m) => m.published !== false);
+const publicCount = toolMetas.filter((m) => m.published !== false).length;
+
 export async function generateMetadata({
   params,
 }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'landing' });
-  const title = t('metaTitle', { count: toolMetas.length });
+  const title = t('metaTitle', { count: publicCount });
   const description = t('metaDescription');
   const canonical = `/${locale}`;
   return {
@@ -68,7 +75,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="lg:col-span-3 space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 text-accent px-3 py-1 text-xs font-medium tracking-wide uppercase">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
-                {t('landing.eyebrow', { count: toolMetas.length })}
+                {t('landing.eyebrow', { count: publicCount })}
               </div>
               {/* Plain foreground, not the brand gradient, and two steps smaller.
                   A full-width gradient headline is the single most template-looking
@@ -113,7 +120,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* RECENTLY USED (history if present, otherwise curated POPULAR_FALLBACK) */}
-      <RecentlyUsedTools metas={toolMetasClient} locale={locale} />
+      <RecentlyUsedTools metas={publicMetas} locale={locale} />
 
       {/* VALUE PROPS — numbered surface cards (large number tags replace icon tiles) */}
       <section className="py-12 md:py-14 border-b">
@@ -151,10 +158,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="flex items-end justify-between mb-6">
             <h2 className="text-2xl md:text-3xl font-bold">{t('nav.tools')}</h2>
             <Badge variant="secondary" className="text-xs">
-              {toolMetas.length} tools
+              {publicCount} tools
             </Badge>
           </div>
-          <ToolCatalog metas={toolMetasClient} locale={locale} />
+          <ToolCatalog metas={publicMetas} locale={locale} />
         </div>
       </section>
 

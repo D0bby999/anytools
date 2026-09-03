@@ -83,17 +83,21 @@ export function CmdKPalette() {
             )}
             {toolMetasClient.length > 0 && (
               <Command.Group heading={t('all')}>
-                {toolMetasClient.map((m) => (
-                  <Command.Item
-                    key={`${m.cluster}/${m.slug}`}
-                    value={`${m.title.en} ${m.keywords.join(' ')}`}
-                    onSelect={() => select(m.cluster, m.slug)}
-                    className="px-3 py-2 rounded cursor-pointer hover:bg-accent flex items-center justify-between"
-                  >
-                    <span>{m.title[locale] ?? m.title.en}</span>
-                    <span className="text-xs opacity-50">{m.cluster}</span>
-                  </Command.Item>
-                ))}
+                {/* published:false is a dark launch — out of the sitemap and the cluster pages,
+                    and it must be out of the palette too or it is one keystroke from the front page. */}
+                {toolMetasClient
+                  .filter((m) => m.published !== false)
+                  .map((m) => (
+                    <Command.Item
+                      key={`${m.cluster}/${m.slug}`}
+                      value={`${m.title.en} ${m.keywords.join(' ')}`}
+                      onSelect={() => select(m.cluster, m.slug)}
+                      className="px-3 py-2 rounded cursor-pointer hover:bg-accent flex items-center justify-between"
+                    >
+                      <span>{m.title[locale] ?? m.title.en}</span>
+                      <span className="text-xs opacity-50">{m.cluster}</span>
+                    </Command.Item>
+                  ))}
               </Command.Group>
             )}
           </Command.List>

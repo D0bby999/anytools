@@ -51,7 +51,7 @@
   },
   "onnx": {
     "from": "onnxruntime-web",
-    "paths": ["dist/ort-wasm-simd-threaded.wasm", "dist/ort-wasm-simd-threaded.mjs"]
+    "paths": ["dist/ort-wasm-simd-threaded.wasm"]
   },
   "u2netp": {
     "download": [
