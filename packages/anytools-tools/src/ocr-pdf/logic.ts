@@ -3,10 +3,12 @@ import { PdfRenderError, openPdf } from '../shared/pdfjs-loader';
 import {
   type OcrLanguage,
   type OcrProgress,
+  beginOcrRun,
+  ensureRunLive,
   prepareForOcr,
   recognize,
 } from '../shared/tesseract-loader';
-import { type PageLayer, buildSearchablePdf } from './searchable-layer';
+import { type PageLayer, type SearchableBuilder, prepareSearchableLayer } from './searchable-layer';
 
 /**
  * 200 DPI. Tesseract's models were trained around 300 DPI for 10pt type, but a scan is usually
@@ -42,7 +44,12 @@ export type OcrPdfResult = {
   pdf: Blob | null;
   /** Words the invisible layer could not encode. Zero unless a font ran out of glyphs. */
   skipped: number;
+  /** Set when the searchable PDF failed but the text survived. Never hides the text. */
+  searchableError: string | null;
 };
+
+/** What the optional searchable-PDF step produced, however it ended. */
+export type SearchableOutcome = Pick<OcrPdfResult, 'pdf' | 'skipped' | 'searchableError'>;
 
 export type OcrPdfProgress = {
   pageNumber: number;
@@ -84,6 +91,41 @@ export function renderScale(widthPt: number, heightPt: number, dpi: number): num
 }
 
 /**
+ * Assemble the result, running the optional searchable-PDF step without ever risking the text.
+ *
+ * Minutes of recognition are already spent by the time this is called. A failure in the layer —
+ * a document pdf-lib chokes on while saving, a page index the original does not have, memory —
+ * used to propagate out of `ocrPdf` and take every recognised page with it. The user gets the
+ * .txt and a sentence saying what went wrong instead.
+ */
+export async function finishOcrPdf(
+  pages: OcrPdfPage[],
+  build: SearchableBuilder | null,
+  layers: PageLayer[],
+): Promise<OcrPdfResult> {
+  let outcome: SearchableOutcome = { pdf: null, skipped: 0, searchableError: null };
+  if (build) {
+    try {
+      const { blob, skipped } = await build(layers);
+      outcome = { pdf: blob, skipped, searchableError: null };
+    } catch (e) {
+      const why = e instanceof Error && e.message ? ` ${e.message}` : '';
+      outcome = {
+        pdf: null,
+        skipped: 0,
+        searchableError: `The text below is complete, but the searchable PDF could not be built.${why}`,
+      };
+    }
+  }
+  return {
+    pages,
+    text: formatPagesText(pages),
+    confidence: meanPageConfidence(pages),
+    ...outcome,
+  };
+}
+
+/**
  * Read a scanned PDF, page by page.
  *
  * Sequential: one tesseract worker, one page at a time, and the whole pipeline is memory-heavy
@@ -95,6 +137,11 @@ export async function ocrPdf(
   opts: OcrPdfOptions,
   onProgress?: (p: OcrPdfProgress) => void,
 ): Promise<OcrPdfResult> {
+  // Before anything expensive: if the original cannot take a text layer, say so now rather than
+  // after the last page. Throwing here costs the user nothing — no page has been read yet.
+  const build = opts.searchable ? await prepareSearchableLayer(file, opts.lang) : null;
+
+  const run = beginOcrRun();
   const doc = await openPdf(file);
   const pages: OcrPdfPage[] = [];
   const layers: PageLayer[] = [];
@@ -105,6 +152,9 @@ export async function ocrPdf(
       : Array.from({ length: doc.numPages }, (_, i) => i);
 
     for (const [done, index] of indices.entries()) {
+      // Stop pressed between pages, or while the previous page was rendering, rejects no job —
+      // only this check ends the run instead of letting it start the next page's worker.
+      ensureRunLive(run);
       const page = await doc.getPage(index + 1);
       const base = page.getViewport({ scale: 1 });
       const viewport = page.getViewport({
@@ -123,9 +173,16 @@ export async function ocrPdf(
       await page.render({ canvas, canvasContext: ctx, viewport }).promise;
 
       const prepared = prepareForOcr(canvas, canvas.width, canvas.height);
-      const result = await recognize(opts.lang, prepared, (stage) =>
+      // The rendered page is now redundant — the grayscale copy is what tesseract reads. Zeroing
+      // it hands ~15 MB per A4 page back at once instead of at the collector's convenience,
+      // which on a 50-page scan is the difference between steady memory and a growing tab.
+      canvas.width = 0;
+      canvas.height = 0;
+      const result = await recognize(run, opts.lang, prepared, (stage) =>
         onProgress?.({ pageNumber: index + 1, done, total: indices.length, stage }),
       );
+      prepared.width = 0;
+      prepared.height = 0;
       page.cleanup();
 
       const words = result.blocks.flatMap((b) => b.lines.flatMap((l) => l.words));
@@ -146,12 +203,5 @@ export async function ocrPdf(
     await doc.destroy();
   }
 
-  const searchable = opts.searchable ? await buildSearchablePdf(file, layers, opts.lang) : null;
-  return {
-    pages,
-    text: formatPagesText(pages),
-    confidence: meanPageConfidence(pages),
-    pdf: searchable?.blob ?? null,
-    skipped: searchable?.skipped ?? 0,
-  };
+  return finishOcrPdf(pages, build, layers);
 }

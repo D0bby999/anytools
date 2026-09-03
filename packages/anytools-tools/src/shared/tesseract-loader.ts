@@ -76,6 +76,41 @@ export class OcrCancelledError extends Error {
   }
 }
 
+/**
+ * One pass over a batch of pages or images.
+ *
+ * Stop used to be enforced only on the job that happened to be inside tesseract at that instant.
+ * A loop spends a good part of its time elsewhere — rendering a PDF page, decoding an image,
+ * between pages — and a Stop landing there rejected nothing, so the next iteration called
+ * `recognize`, which spawned a brand new worker and carried the run to completion. A run token
+ * closes that window: it records the generation it began in, and every step checks that the
+ * module has not been terminated since.
+ *
+ * It also carries the progress sink, which used to be a single module-level variable shared by
+ * whatever was running. Two overlapping loops then reported into each other's progress bar.
+ */
+export type OcrRun = {
+  /** Generation this run began in. `terminateOcr` bumps the module counter past it. */
+  readonly startedAt: number;
+  /** Where progress for this run's current job goes. Set per `recognize` call. */
+  progress: ((p: OcrProgress) => void) | null;
+};
+
+/** Start a run. Call once per user-initiated pass, then thread it through every step. */
+export function beginOcrRun(): OcrRun {
+  return { startedAt: generation, progress: null };
+}
+
+/** Has Stop (or an unmount) happened since this run began? */
+export function isRunStopped(run: OcrRun): boolean {
+  return run.startedAt !== generation;
+}
+
+/** Abort a stopped run at a step boundary. The loop's catch treats this as "stopped", not error. */
+export function ensureRunLive(run: OcrRun): void {
+  if (isRunStopped(run)) throw new OcrCancelledError();
+}
+
 export class OcrLoadError extends Error {
   constructor(message: string) {
     super(message);
@@ -102,22 +137,53 @@ const corePath = () =>
   `${CORE_DIR}${hasSimd() ? 'tesseract-core-simd-lstm.wasm.js' : 'tesseract-core-lstm.wasm.js'}`;
 
 /**
- * One worker per language, kept alive between runs.
+ * One live worker, kept alive between runs.
  *
  * Spawning is expensive: ~3.8 MB of WASM to compile plus 0.5-4 MB of traineddata to parse. A
- * user OCRing ten images pays that once. `generation` exists so that a worker still loading when
- * the user presses Stop is terminated on arrival instead of joining the pool as a zombie.
+ * user OCRing ten images pays that once. Only ONE language stays resident: this used to be a
+ * pool keyed by language that was never trimmed, so a visitor trying their document in each of
+ * the four staged languages left four compiled cores and four language models pinned in the tab
+ * until they navigated away. Switching language releases the previous worker instead, which
+ * costs one respawn on a switch — rare, and bounded memory is worth more than that.
+ *
+ * `generation` is the Stop counter: a worker still loading when the user presses Stop is
+ * terminated on arrival instead of joining the pool as a zombie, and a run that was stopped
+ * between pages cannot start a fresh one on its next page (see `OcrRun`).
+ *
+ * CACHE KEY. `cacheMethod: 'write'` stores the traineddata in IndexedDB under the bare language
+ * name — "eng" — with nothing recording which model set it came from. Everything staged here is
+ * `tessdata_fast`, so the key is unambiguous today. If `tessdata_best` is ever offered as a
+ * second choice, the two would collide in that cache and whichever ran first would silently win;
+ * that change needs a distinct `cachePath` per set, not just a different `langPath`.
  */
 const workers = new Map<OcrLanguage, Promise<TesseractWorker>>();
 const live = new Set<TesseractWorker>();
 let generation = 0;
 
-/** The logger tesseract.js was given at spawn time reports for whatever job is running now. */
-let activeProgress: ((p: OcrProgress) => void) | null = null;
+/** The run whose job the worker is executing, so its logger reports into the right progress bar. */
+let activeRun: OcrRun | null = null;
+
+/** Terminate every resident worker except `keep`. Does NOT bump the generation: no run is cancelled. */
+async function releaseOtherLanguages(keep: OcrLanguage): Promise<void> {
+  const stale = [...workers.entries()].filter(([lang]) => lang !== keep);
+  for (const [lang] of stale) workers.delete(lang);
+  await Promise.all(
+    stale.map(async ([, pending]) => {
+      try {
+        const worker = await pending;
+        live.delete(worker);
+        await worker.terminate();
+      } catch {
+        // Never finished spawning, or already terminated. Nothing to release either way.
+      }
+    }),
+  );
+}
 
 async function getWorker(lang: OcrLanguage): Promise<TesseractWorker> {
   const existing = workers.get(lang);
   if (existing) return existing;
+  await releaseOtherLanguages(lang);
 
   const spawnedAt = generation;
   const promise = (async () => {
@@ -132,7 +198,7 @@ async function getWorker(lang: OcrLanguage): Promise<TesseractWorker> {
       // 'write' keeps the traineddata in IndexedDB, so the second run of a language costs no
       // download at all. It is the user's own browser storage; the FAQ says so.
       cacheMethod: 'write',
-      logger: (m) => activeProgress?.({ status: m.status, progress: m.progress }),
+      logger: (m) => activeRun?.progress?.({ status: m.status, progress: m.progress }),
     });
     if (spawnedAt !== generation) {
       // Stop was pressed while this was loading. Nobody is waiting for it any more.
@@ -144,7 +210,12 @@ async function getWorker(lang: OcrLanguage): Promise<TesseractWorker> {
   })();
 
   workers.set(lang, promise);
-  promise.catch(() => workers.delete(lang));
+  // Identity-guarded: an unguarded delete raced with Stop-during-spawn. Stop clears the map, the
+  // next run puts a NEW promise under the same key, then this failing one deletes that entry —
+  // and its worker is live, referenced by nothing, never terminated.
+  promise.catch(() => {
+    if (workers.get(lang) === promise) workers.delete(lang);
+  });
   return promise;
 }
 
@@ -160,29 +231,33 @@ const inFlight = new Set<(error: unknown) => void>();
  * before recognition starts and a bar stuck at 0% looks like a hang.
  */
 export async function recognize(
+  run: OcrRun,
   lang: OcrLanguage,
   image: HTMLCanvasElement | Blob,
   onProgress?: (p: OcrProgress) => void,
 ): Promise<OcrResult> {
-  let worker: TesseractWorker;
-  activeProgress = onProgress ?? null;
-  try {
-    worker = await getWorker(lang);
-  } catch (e) {
-    activeProgress = null;
-    if (e instanceof OcrCancelledError) throw e;
-    throw new OcrLoadError(
-      `The ${OCR_LANGUAGE_LABELS[lang]} recogniser could not start. Reload the page and try again.`,
-    );
-  }
+  // Checked here as well as in the caller's loop. Stop can land between the two, and spawning a
+  // worker for a run nobody is waiting on is precisely the leak this guards.
+  ensureRunLive(run);
+  run.progress = onProgress ?? null;
+  activeRun = run;
 
   let cancel: (error: unknown) => void = () => {};
-  const cancelled = new Promise<never>((_, reject) => {
-    cancel = reject;
-  });
-  inFlight.add(cancel);
-
   try {
+    const worker = await getWorker(lang).catch((e: unknown) => {
+      if (e instanceof OcrCancelledError) throw e;
+      throw new OcrLoadError(
+        `The ${OCR_LANGUAGE_LABELS[lang]} recogniser could not start. Reload the page and try again.`,
+      );
+    });
+    // Loading the core and the language data takes seconds; Stop is often pressed inside it.
+    ensureRunLive(run);
+
+    const cancelled = new Promise<never>((_, reject) => {
+      cancel = reject;
+    });
+    inFlight.add(cancel);
+
     const { data } = await Promise.race([
       worker.recognize(image, {}, { text: true, blocks: true }),
       cancelled,
@@ -205,7 +280,9 @@ export async function recognize(
     };
   } finally {
     inFlight.delete(cancel);
-    activeProgress = null;
+    run.progress = null;
+    // Identity guard: a later run may already own the worker if this one is unwinding slowly.
+    if (activeRun === run) activeRun = null;
   }
 }
 
@@ -223,6 +300,10 @@ function toWord(w: TesseractWord): OcrWord {
  * Called from the Stop button and from component unmount. Terminating mid-job leaves the
  * recognise promise permanently pending inside tesseract.js, which is why every in-flight job is
  * rejected here first — otherwise a page loop would sit forever on a job whose worker is gone.
+ *
+ * Rejecting the in-flight job is NOT on its own enough to stop a run: bumping `generation` is
+ * what stops the loop's next iteration (`ensureRunLive`). Stop pressed while a page is being
+ * rendered rejects nothing at all, and without the counter the loop would sail on.
  */
 export async function terminateOcr(): Promise<void> {
   generation += 1;

@@ -20,7 +20,9 @@ If you leave the option off you get plain `.txt` with a `--- Page n ---` marker 
 
 Recognition is genuinely expensive: roughly one to five seconds per page on a modern laptop, more on a phone, plus a one-off start-up cost the first time. A fifty-page scan is a few minutes of real work, and it is your own CPU doing it — a server-side service feels faster because the work happens on somebody else's machine.
 
-There is a **Stop** button, and it terminates the worker immediately rather than waiting for the current page. Use the page range field if you only need part of a document: reading pages 12–14 of a 200-page scan takes seconds.
+There is a **Stop** button. It ends the run: the page being read is abandoned, the recognition engine is shut down, and the loop does not move on to the next page. What it does not do is hand you the pages it had already finished — a stopped run produces no text at all, and the button stays in its "stopping" state until the run has actually unwound, which is normally a fraction of a second.
+
+So if you only want part of a document, use the page range field rather than Stop: reading pages 12–14 of a 200-page scan takes seconds and gives you those three pages.
 
 ## What gets downloaded the first time?
 
@@ -34,7 +36,15 @@ What does matter is the scan you started with. A 150 DPI grayscale scan of a cle
 
 ## Why do some words go missing from the searchable layer?
 
-Two reasons, both reported rather than hidden. Words the recogniser was less than 30% confident about are left out on purpose: at that level they are usually speckles read as punctuation, and including them makes selecting a line copy junk. And for English, Spanish and Portuguese the invisible layer is drawn in Helvetica, whose character set is roughly Latin-1; if OCR produces a character outside it, that one word is skipped and the count is shown to you. Vietnamese uses an embedded Unicode font instead and does not have this limit.
+Two reasons, both reported rather than hidden. Words the recogniser was less than 30% confident about are left out on purpose: at that level they are usually speckles read as punctuation, and including them makes selecting a line copy junk.
+
+The other reason is the font. For English, Spanish and Portuguese the invisible layer is drawn in Helvetica, whose character set is roughly Latin-1. Vietnamese uses an embedded Noto Sans instead, which covers about three thousand code points — the Latin alphabet with every Vietnamese tone mark, Greek, Cyrillic and common punctuation. Either way, a word containing a character the font has no glyph for is left out and counted, and the count appears above the text. Characters that fall outside both are rare in practice and usually mis-reads to begin with: CJK, arrows and box-drawing lines that OCR extracted from a stamp or a table border. The `.txt` output has no such limit — it contains every word regardless of font.
+
+## What if the searchable PDF cannot be built?
+
+You still get the text. The tool checks your original before it starts reading — a file with permissions or a password on it can be displayed but cannot have a text layer written into it, and that is refused up front rather than after several minutes of recognition. If something goes wrong later, at the assembly step, the recognised text and the `.txt` download stay on the page and a message explains why the PDF is missing.
+
+A password-protected original is the common case. Remove the protection first, or turn the searchable-PDF option off and take the text on its own.
 
 ## How accurate is it?
 

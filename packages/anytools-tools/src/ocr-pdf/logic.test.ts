@@ -15,6 +15,7 @@ import { describe, expect, it } from 'vitest';
 import { pageFrame } from '../shared/pdf-page-stamp';
 import {
   type OcrPdfPage,
+  finishOcrPdf,
   formatPagesText,
   meanPageConfidence,
   outputName,
@@ -22,11 +23,24 @@ import {
 } from './logic';
 import {
   MIN_LAYER_CONFIDENCE,
-  buildSearchablePdf,
+  type PageLayer,
+  SearchableLayerError,
+  type SearchableResult,
+  canDrawWord,
   needsUnicodeFont,
   placeWord,
   pointsPerPixel,
+  prepareSearchableLayer,
 } from './searchable-layer';
+
+/** The old one-shot helper, which is what every placement test below wants. */
+async function buildSearchablePdf(
+  file: File,
+  layers: PageLayer[],
+  lang: 'eng' | 'vie' | 'spa' | 'por',
+): Promise<SearchableResult> {
+  return (await prepareSearchableLayer(file, lang))(layers);
+}
 
 const page = (n: number, text: string, words = 10, confidence = 90): OcrPdfPage => ({
   pageNumber: n,
@@ -285,6 +299,32 @@ describe('buildSearchablePdf', () => {
     expect(f).toBeCloseTo(36, 6);
   });
 
+  it('refuses a document pdf-lib cannot open, before a single page is read', async () => {
+    // A real permission-encrypted scan, which pdf.js opens and pdf-lib will not: pdf-lib decides
+    // by looking up the trailer's /Encrypt entry, so pointing it at any existing object is
+    // enough to reproduce the refusal exactly.
+    const doc = await PDFDocument.create();
+    doc.addPage([612, 792]);
+    const saved = Buffer.from(await doc.save({ useObjectStreams: false })).toString('latin1');
+    const encrypted = saved.replace('trailer\n<<\n/Size', 'trailer\n<<\n/Encrypt 3 0 R\n/Size');
+    expect(encrypted).not.toBe(saved);
+    const file = new File([Buffer.from(encrypted, 'latin1')], 'locked.pdf', {
+      type: 'application/pdf',
+    });
+
+    await expect(prepareSearchableLayer(file, 'eng')).rejects.toBeInstanceOf(SearchableLayerError);
+    await expect(prepareSearchableLayer(file, 'eng')).rejects.toThrow(/password-protected/);
+  });
+
+  it('explains a file it cannot parse instead of leaking the parser message', async () => {
+    const file = new File([Buffer.from('not a pdf at all')], 'notes.pdf', {
+      type: 'application/pdf',
+    });
+    await expect(prepareSearchableLayer(file, 'eng')).rejects.toThrow(
+      /"notes\.pdf" could not be re-opened/,
+    );
+  });
+
   it('counts words it could not encode instead of failing the whole export', async () => {
     const file = await onePagePdf(612, 792);
     const { blob, skipped } = await buildSearchablePdf(
@@ -307,5 +347,80 @@ describe('buildSearchablePdf', () => {
     expect((await PDFDocument.load(new Uint8Array(await blob.arrayBuffer()))).getPageCount()).toBe(
       1,
     );
+  });
+});
+
+describe('canDrawWord', () => {
+  // Helvetica throws on an unencodable character, so the old try/catch caught those. An embedded
+  // Unicode font does not: fontkit substitutes .notdef and the word joins the layer as a blank.
+  const latin = new Set([...'abcdefghijklmnopqrstuvwxyz .'].map((c) => c.codePointAt(0) as number));
+
+  it('accepts a word whose every code point the font has a glyph for', () => {
+    expect(canDrawWord(latin, 'invoice')).toBe(true);
+  });
+
+  it('rejects a word with one code point outside the font, however long', () => {
+    expect(canDrawWord(latin, 'invoiçe')).toBe(false);
+    expect(canDrawWord(latin, '漢')).toBe(false);
+  });
+
+  it('reads astral code points as one character, not as surrogate halves', () => {
+    const emoji = '\u{1F600}';
+    expect(canDrawWord(new Set([0x1f600]), emoji)).toBe(true);
+    expect(canDrawWord(new Set([emoji.charCodeAt(0)]), emoji)).toBe(false);
+  });
+});
+
+describe('finishOcrPdf', () => {
+  const pages = [page(1, 'First page text'), page(2, 'Second page text')];
+  const layers: PageLayer[] = [{ pageIndex: 0, words: [], imageWidth: 1700, imageHeight: 2200 }];
+
+  it('keeps the recognised text when the layer builder throws', async () => {
+    const result = await finishOcrPdf(
+      pages,
+      async () => {
+        throw new Error('Ran out of memory writing the layer.');
+      },
+      layers,
+    );
+
+    // The point of the test: minutes of OCR are not thrown away by a failure in the last step.
+    expect(result.text).toContain('First page text');
+    expect(result.text).toContain('Second page text');
+    expect(result.pages).toHaveLength(2);
+    expect(result.pdf).toBeNull();
+    expect(result.skipped).toBe(0);
+    expect(result.searchableError).toBe(
+      'The text below is complete, but the searchable PDF could not be built. Ran out of memory writing the layer.',
+    );
+  });
+
+  it('still says something useful when the failure carries no message', async () => {
+    const result = await finishOcrPdf(
+      pages,
+      async () => {
+        throw new Error('');
+      },
+      layers,
+    );
+    expect(result.searchableError).toBe(
+      'The text below is complete, but the searchable PDF could not be built.',
+    );
+    expect(result.text).toContain('First page text');
+  });
+
+  it('reports no error and no pdf when the layer was never asked for', async () => {
+    const result = await finishOcrPdf(pages, null, layers);
+    expect(result.pdf).toBeNull();
+    expect(result.searchableError).toBeNull();
+    expect(result.confidence).toBeCloseTo(90, 6);
+  });
+
+  it('passes the blob and the skipped count straight through on success', async () => {
+    const blob = new Blob([new Uint8Array([1, 2, 3])], { type: 'application/pdf' });
+    const result = await finishOcrPdf(pages, async () => ({ blob, skipped: 4 }), layers);
+    expect(result.pdf).toBe(blob);
+    expect(result.skipped).toBe(4);
+    expect(result.searchableError).toBeNull();
   });
 });

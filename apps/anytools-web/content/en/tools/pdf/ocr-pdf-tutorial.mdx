@@ -77,4 +77,4 @@ The language file is written to your browser's IndexedDB by `tesseract.js`, whic
 3. Run one page — put `1` in the page range — and read the output. Thirty seconds here tells you whether the scan is good enough before you spend ten minutes on 200 pages.
 4. If confidence is under about 70%, fix the input rather than the settings: re-scan straighter, at 300 DPI, in grayscale.
 5. Decide what you actually want. `.txt` if the text is going to be edited or re-used; searchable PDF if the document has to stay a document and just needs to be findable.
-6. For long jobs, use the page range to work in batches. The **Stop** button ends the run immediately if you change your mind.
+6. For long jobs, use the page range to work in batches. **Stop** abandons the run if you change your mind — it does not hand back the pages read so far, which is exactly why batches are worth the trouble.

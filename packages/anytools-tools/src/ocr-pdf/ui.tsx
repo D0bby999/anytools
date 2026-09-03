@@ -32,6 +32,7 @@ export function OcrPdfUi() {
   const [progress, setProgress] = useState<OcrPdfProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stopping, setStopping] = useState(false);
 
   const file = files[0] ?? null;
 
@@ -53,28 +54,33 @@ export function OcrPdfUi() {
   };
 
   const run = async () => {
-    if (!file) return;
+    if (!file || busy) return;
     trackEvent('tool_run', { tool: 'ocr-pdf' });
     setBusy(true);
+    setStopping(false);
     reset();
     try {
       const r = await ocrPdf(file, { lang, range, searchable }, setProgress);
       setResult(r);
       setText(r.text);
       setPdfUrl(r.pdf ? objectUrls.create(r.pdf) : null);
+      if (r.searchableError) setError(r.searchableError);
     } catch (e) {
-      if (e instanceof OcrCancelledError) return;
-      setError(e instanceof Error ? e.message : 'This PDF could not be read.');
+      if (!(e instanceof OcrCancelledError)) {
+        setError(e instanceof Error ? e.message : 'This PDF could not be read.');
+      }
     } finally {
+      // Only here. Clearing `busy` inside stop() re-enabled the button while the loop was still
+      // unwinding, and a second press then ran two loops over the same document at once.
       setBusy(false);
+      setStopping(false);
       setProgress(null);
     }
   };
 
-  const stop = async () => {
-    await terminateOcr();
-    setBusy(false);
-    setProgress(null);
+  const stop = () => {
+    setStopping(true);
+    void terminateOcr();
   };
 
   const downloadText = () => {
@@ -169,14 +175,22 @@ export function OcrPdfUi() {
             <button
               type="button"
               onClick={stop}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
+              disabled={stopping}
+              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
             >
-              Stop
+              {stopping ? 'Stopping…' : 'Stop'}
             </button>
           )}
         </div>
 
-        {progress && (
+        {stopping && (
+          <p className="text-sm text-muted-foreground">
+            Stopping. The run is abandoned, so no text comes out of it — use the page range to read
+            part of a document instead.
+          </p>
+        )}
+
+        {progress && !stopping && (
           <p className="text-sm text-muted-foreground">
             {STAGE_LABELS[progress.stage.status] ?? 'Working'} — page {progress.pageNumber} (
             {progress.done} of {progress.total} done,{' '}
@@ -195,9 +209,17 @@ export function OcrPdfUi() {
             <p className="text-sm text-muted-foreground">
               {result.pages.length} {result.pages.length === 1 ? 'page' : 'pages'} read, average
               confidence {result.confidence.toFixed(0)}%.
-              {result.skipped > 0 &&
-                ` ${result.skipped} words used characters the embedded font could not draw and are missing from the searchable layer.`}
             </p>
+
+            {result.skipped > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {result.skipped} {result.skipped === 1 ? 'word is' : 'words are'} missing from the
+                searchable layer: the embedded font has no glyph for
+                {result.skipped === 1 ? ' a character in it' : ' some of their characters'}, so
+                Ctrl+F will not find {result.skipped === 1 ? 'it' : 'them'}. The .txt below is
+                unaffected.
+              </p>
+            )}
 
             <textarea
               value={text}
