@@ -15,9 +15,16 @@ const PRODUCTION_URL = 'https://anytools.world';
 // instead of pointing them at this placeholder.
 const SELF_HOSTED_PLACEHOLDER_URL = 'http://localhost';
 
+// Docker's `ARG NEXT_PUBLIC_URL` (declared in Dockerfile, not passed at build time) yields
+// an EMPTY STRING, not undefined — `?? fallback` treats '' as "set" and would carry it
+// straight into `new URL('')`, which throws during `next build` (caught building Phase 2's
+// Docker default target with no build-args). `.trim()` + falsy check treats empty/whitespace
+// the same as unset.
+const rawNextPublicUrl = process.env.NEXT_PUBLIC_URL?.trim();
+
 export const SITE_URL = IS_SELF_HOSTED
   ? SELF_HOSTED_PLACEHOLDER_URL
-  : (process.env.NEXT_PUBLIC_URL ??
+  : (rawNextPublicUrl ||
     (process.env.NODE_ENV === 'production' ? PRODUCTION_URL : 'http://localhost:3000'));
 
 export const METADATA_BASE = new URL(SITE_URL);

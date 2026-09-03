@@ -64,6 +64,21 @@ describe('IS_SELF_HOSTED — cờ tắt (mặc định, hosted build)', () => {
     expect(SITE_URL).toContain('anytools.world');
   });
 
+  it('SITE_URL falls back to the production URL when NEXT_PUBLIC_URL is an empty string', async () => {
+    // Docker's `ARG NEXT_PUBLIC_URL` declared but not passed at build time yields ''
+    // (not undefined) — `?? fallback` treated that as "set" and fed `new URL('')`,
+    // which throws during `next build` (caught building Phase 2's Docker default
+    // target with no build-args). `.trim() || fallback` must treat '' as absent.
+    vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '');
+    vi.stubEnv('NEXT_PUBLIC_URL', '');
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.resetModules();
+    const { SITE_URL, METADATA_BASE } = await import('./site-url');
+    expect(SITE_URL).toContain('anytools.world');
+    expect(() => new URL(SITE_URL)).not.toThrow();
+    expect(METADATA_BASE).toBeInstanceOf(URL);
+  });
+
   it('selfHostSafeAlternates() passes its argument through unchanged', async () => {
     vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '');
     vi.resetModules();
