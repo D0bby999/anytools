@@ -67,5 +67,14 @@ export const meta: ToolMeta = {
         pt: 'Numerar o documento combinado de forma contínua',
       },
     },
+    {
+      tool: 'watermark-pdf',
+      reason: {
+        en: 'Stamp the whole bundle as draft or confidential',
+        vi: 'Đóng dấu "draft"/"confidential" cho cả tập',
+        es: 'Marcar todo el conjunto como borrador o confidencial',
+        pt: 'Marcar todo o conjunto como rascunho ou confidencial',
+      },
+    },
   ],
 };

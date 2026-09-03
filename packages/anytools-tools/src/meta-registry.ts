@@ -98,6 +98,7 @@ import { meta as urlParser } from './url-parser/meta';
 import { meta as userAgentParser } from './user-agent-parser/meta';
 import { meta as uuidGenerator } from './uuid-generator/meta';
 import { meta as walletChecker } from './wallet-checker/meta';
+import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as wordCounter } from './word-counter/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
@@ -109,6 +110,7 @@ export const toolMetas: ToolMeta[] = [
   extractImagesFromPdf,
   imageToPdf,
   addPageNumbers,
+  watermarkPdf,
   integerBaseConverter,
   urlParser,
   userAgentParser,

@@ -1,0 +1,43 @@
+---
+title: Watermark a PDF — Frequently asked questions
+---
+
+## Is my document uploaded anywhere?
+
+No. The PDF is read by JavaScript inside this browser tab, stamped using the `pdf-lib` library, and returned as a blob URL your browser creates locally. Page one is rendered for the preview by `pdf.js`, also in the tab. No request carries the file, so there is no server copy to retain, log or delete. Open your developer tools, switch to the Network tab, and run the tool — you will see no upload, and it keeps working with the network disconnected.
+
+Watermarking is usually the last step before a document goes to somebody outside your organisation: a draft contract, a tender, a set of design proofs, a pre-publication manuscript. Those are precisely the files that should not be handed to a third party in order to stamp "CONFIDENTIAL" on them.
+
+## Does a watermark actually protect the document?
+
+Not in the way people sometimes hope, and it is worth being direct about this.
+
+A watermark is drawn *on top of* the existing page content. It marks a document as a draft or as confidential, and it makes a casual screenshot or photocopy obviously derived from your file. It is a deterrent and a label.
+
+It is not encryption and it is not redaction. Everything under the watermark is still there and can still be selected, copied and searched. Someone determined can remove the mark, because a PDF stores it as a separate drawing operation rather than burning it into the pixels — that is exactly why the text under it stays selectable, which is normally what you want. If content must not be readable, delete it before export; if a file must not be opened, encrypt it in the application that produced it.
+
+## Why is text limited to Latin characters?
+
+Because the mark is drawn in Helvetica, one of the fourteen fonts every PDF reader is required to have built in. Nothing is embedded, so the output file barely grows and it renders the same everywhere.
+
+Standard PDF fonts use WinAnsi encoding, which is roughly Latin-1: the unaccented Latin alphabet, digits, punctuation, and Western European accents — `BRÖTCHEN` and `ÉTÉ` are fine. It cannot draw Vietnamese tone marks, Chinese, Japanese, Korean, Greek, Cyrillic, Arabic, Hebrew, Thai or emoji. Type any of those and the tool stops with a message naming the limitation rather than failing with an internal error.
+
+Supporting other scripts means embedding a Unicode font, which is one to two megabytes downloaded by everyone who opens the page. That cost is not worth paying speculatively, so it is deferred rather than quietly missing. An image watermark is the way around it today: set your text in any font in an image editor, export a transparent PNG, and stamp that.
+
+## How accurate is the preview?
+
+Close, and honest about where it is not. The preview renders page one through `pdf.js` at 96 dpi and draws the mark over it with CSS, so moving the angle or opacity slider is instant — re-rendering the page for every slider tick would make the controls unusable on a real document.
+
+The consequence is that the preview's text is set in *your system's* Helvetica or Arial, while the output uses the PDF standard Helvetica. Letter widths differ very slightly, so a long mark may sit a few points differently in the final file. Position, angle, colour and opacity are accurate. The preview also shows page one only; if you have set a page range that excludes it, the preview still shows the mark.
+
+## What happens to pages my scanner saved sideways?
+
+They are handled. A PDF page carries a box with a width and a height, plus a rotation the reader applies before displaying it, and a page scanned sideways is usually stored as an upright box with a quarter-turn rotation. A tool that ignores that would place the mark relative to the box, so on those pages it comes out at the wrong angle and running off the edge.
+
+The mark is centred on the page as *you* see it, and the angle you choose is the angle you get on screen, whatever rotation the page carries. Image size is a percentage of the page's visible width, measured the same way, so a mixed document comes out consistent.
+
+## Can I stamp only some pages, and what about size and colour?
+
+Yes. "Pages to stamp" takes ranges in the ordinary form — `1-5`, or `1, 4-6, 9` — and defaults to every page. Text marks take a font size in points, any colour, an angle from -90 to 90 degrees, and an opacity from 5% to 100%. Image marks take a width as a percentage of the page, keep their aspect ratio, and support transparent PNGs, which is what a logo usually wants.
+
+WebP, GIF and AVIF images are accepted even though PDF itself can only carry PNG and JPEG: the image is re-drawn through a canvas first, which also applies the EXIF rotation flag a phone camera writes. The image is embedded once and referenced from every stamped page, so a 200 KB logo adds 200 KB to a fifty-page document rather than 10 MB.

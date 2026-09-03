@@ -104,7 +104,8 @@
     "./create-zip": "./src/create-zip/index.ts",
     "./unzip-archive": "./src/unzip-archive/index.ts",
     "./image-to-pdf": "./src/image-to-pdf/index.ts",
-    "./add-page-numbers": "./src/add-page-numbers/index.ts"
+    "./add-page-numbers": "./src/add-page-numbers/index.ts",
+    "./watermark-pdf": "./src/watermark-pdf/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

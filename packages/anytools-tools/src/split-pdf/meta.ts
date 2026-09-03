@@ -49,5 +49,14 @@ export const meta: ToolMeta = {
         pt: 'Renumerar uma secção que já não começa na página 1',
       },
     },
+    {
+      tool: 'watermark-pdf',
+      reason: {
+        en: 'Mark the extracted section before sending it out',
+        vi: 'Đóng dấu phần vừa tách trước khi gửi đi',
+        es: 'Marcar la sección extraída antes de enviarla',
+        pt: 'Marcar a secção extraída antes de a enviar',
+      },
+    },
   ],
 };
