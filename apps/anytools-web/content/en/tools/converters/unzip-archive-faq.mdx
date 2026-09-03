@@ -1,0 +1,39 @@
+---
+title: Unzip Archive — Frequently asked questions
+---
+
+## Which formats can it open?
+
+ZIP, 7z, RAR (both the version 4 and version 5 formats), TAR, and gzip — including the common combinations `.tar.gz` and `.tgz`. The format is decided by the file's first bytes, not by its extension, so an archive that arrived named `download` or `photos.zip` when it is really a RAR still opens correctly.
+
+A plain zip is read by JSZip, a JavaScript library. Everything else is read by libarchive, the same C library `bsdtar` uses, compiled to WebAssembly. That build is about 1 MB, so it is only fetched when you actually drop a non-zip archive — open a zip and it is never requested at all.
+
+## Why does it refuse an archive that says it contains 3 GB?
+
+Because unpacking it would happen in this browser tab's memory, and the tab would die. The tool reads the size each entry declares in the archive's own directory — which costs nothing and requires decompressing nothing — and stops before extraction if the total exceeds 2 GB or the entry count exceeds 50,000.
+
+That is the zip bomb defence. A famous 42 KB zip expands to 4.5 petabytes; a more modest one is a few megabytes that expands to several gigabytes of zeros, which is exactly the shape these limits catch. The declared sizes can lie in the other direction too — an archive can under-report — so the ceiling is a guard, not a guarantee, and a large legitimate archive is refused by the same rule. It is a deliberate trade: a tab that says no is better than a tab that hangs and loses whatever else you had open.
+
+## Can it open a password-protected archive?
+
+Encrypted zips, yes: enter the password and open the archive again. This goes through libarchive, which handles both legacy ZipCrypto and AES zip encryption. JSZip cannot read encrypted entries at all, which is why an encrypted zip asks you for a password before anything is loaded.
+
+RAR is where the honest answer gets longer. RAR can encrypt file *contents* while leaving the *headers* readable, or it can encrypt the headers too. The first kind lists and extracts with the right password. The second kind cannot even be listed without the password, and support for it in this WebAssembly build is unreliable — if a RAR with encrypted headers refuses to open here, that is a real limitation and a desktop tool is the answer. Nothing about a wrong password can be distinguished from an unsupported variant with certainty, so the error message says both.
+
+## Is the archive uploaded to a server?
+
+No. The file is read by this page, decompressed in this tab (in a Web Worker for the WebAssembly formats), and every download link points at a blob your browser holds locally. The WebAssembly binary and its worker are served from this site's own origin, not from a CDN — so opening an archive contacts no third party at all. You can check in the Network tab, or open one after going offline.
+
+## Why does "extract all" hand me back another zip?
+
+Because a browser suppresses the second and subsequent downloads when a page starts several at once, so files silently vanish. Repacking everything into one zip is the only reliable way to give you more than one file. Each entry also has its own download link if you only want one or two.
+
+When the tool builds that zip it rewrites every path: anything containing `../`, a leading `/`, or a Windows drive letter is flattened. Archives really do carry such paths — it is how the Zip Slip class of vulnerabilities gets files written outside the folder you extracted into — and nothing this site produces will pass one along.
+
+## It ran out of memory on my phone. Why?
+
+Because everything is held in RAM. A tab on desktop Chrome or Firefox will handle a few hundred megabytes without complaint; Safari on iOS is much tighter and can discard the page well below that, especially with the WebAssembly reader holding its own copy of the archive alongside the extracted files. If a large archive reloads the page on a phone, that is what happened, and a desktop browser or a native tool is the way through.
+
+## What about ISO, CAB, DMG or a split archive?
+
+libarchive itself understands many more formats than the five this tool advertises, but only those five are detected and offered here, because those are the ones that were verified. Multi-part archives (`.z01`, `.part1.rar`) are not supported: they need every part present at once, and this tool takes a single file.

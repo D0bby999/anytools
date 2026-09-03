@@ -87,6 +87,7 @@ import { meta as triangleCalculator } from './triangle-calculator/meta';
 import type { ToolMeta } from './types';
 import { meta as unicodeEscape } from './unicode-escape/meta';
 import { meta as unitConverter } from './unit-converter/meta';
+import { meta as unzipArchive } from './unzip-archive/meta';
 import { meta as urlEncode } from './url-encode/meta';
 import { meta as urlParser } from './url-parser/meta';
 import { meta as userAgentParser } from './user-agent-parser/meta';
@@ -110,6 +111,7 @@ export const toolMetas: ToolMeta[] = [
   resizeImage,
   cropImage,
   createZip,
+  unzipArchive,
   splitPdf,
   rotatePdf,
   removePdfPages,

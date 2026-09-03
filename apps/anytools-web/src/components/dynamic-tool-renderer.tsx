@@ -122,6 +122,7 @@ const LOADERS: Record<string, ComponentType> = {
   'http-status-codes': dynamic(() => import('@anytools/tools/http-status-codes').then(pick)),
   // Archives (260903)
   'create-zip': dynamic(() => import('@anytools/tools/create-zip').then(pick)),
+  'unzip-archive': dynamic(() => import('@anytools/tools/unzip-archive').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

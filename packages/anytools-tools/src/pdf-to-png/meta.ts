@@ -24,5 +24,7 @@ export const meta: ToolMeta = {
       reason: { en: 'Get the embedded images instead of page renders' },
     },
     { tool: 'compress-image', reason: { en: 'Shrink the resulting PNGs' } },
+    // A multi-page render comes back as a .zip; this is where that zip gets opened.
+    { tool: 'unzip-archive', reason: { en: 'Open the .zip of pages this produces' } },
   ],
 };
