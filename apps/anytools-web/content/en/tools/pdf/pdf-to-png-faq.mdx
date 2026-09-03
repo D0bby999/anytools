@@ -20,6 +20,12 @@ No, and the difference matters. This renders each *page* — text, vector graphi
 
 For a scanned document, extraction gives you the original scan at its native resolution, while rendering resamples it to your chosen DPI. For a text document, extraction gives you nothing at all — correctly, because there are no embedded images — while rendering gives you a picture of the text.
 
+## Why is some text missing from the rendered page?
+
+Almost always because the PDF did not embed the font and expected the reading device to supply it. That is common for Chinese, Japanese and Korean documents produced by older tools, and for some forms. This tool deliberately does not let a PDF install or use fonts on your machine — that font path is where pdf.js has had security bugs — so text set in a font the file does not carry has nothing to draw with and comes out blank, while embedded fonts, images and vector graphics render normally. The standard Latin fonts (Helvetica, Times, Courier and their relatives) are an exception: pdf.js ships stand-ins for those, served from this site.
+
+If the text matters, re-export the PDF with fonts embedded — every modern PDF exporter has the option — and render again.
+
 ## Is my document uploaded?
 
 No. Rendering happens in this browser tab using Mozilla's pdf.js, which runs in a Web Worker served from this site's own origin. The PNGs are built on a canvas in the page, and the download links point at blobs your browser holds locally. Nothing crosses the network. You can verify it in the Network tab, or by going offline once the page has loaded.

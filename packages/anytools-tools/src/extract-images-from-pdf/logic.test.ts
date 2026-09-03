@@ -3,11 +3,31 @@
 // including through a defect that made the tool return zero images on every input. A test that
 // cannot fail is worse than no test, because it stops the next person looking.
 //
-// The end-to-end path still needs a pdf.js worker and a real canvas; happy-dom has neither and
-// this repo has no browser lane. Extraction against real PDFs, CMYK handling and transparency
-// are verified BY HAND.
+// The end-to-end path still needs a pdf.js worker and a real canvas; happy-dom has neither.
+// Extraction against real PDFs is verified in a headless browser against the production build —
+// see docs/tool-runtime-verification.md. Last run 2026-09-03: fixtures/images-shared.pdf (one PNG
+// drawn on three pages) → 1 image after content de-duplication, console clean, no third-party
+// requests. CMYK handling and transparency remain hand-verified.
 import { describe, expect, it } from 'vitest';
-import { toRgba } from './logic';
+import { contentKey, toRgba } from './logic';
+
+describe('contentKey', () => {
+  const blob = (bytes: number[]) => new Blob([new Uint8Array(bytes)]);
+
+  it('is identical for the same bytes under different pdf.js object names', async () => {
+    // img_p0_1 on page 1 and g_d0_img_p1_1 on page 2 are the same XObject; only the key below
+    // lets the extractor notice, because the names differ.
+    expect(await contentKey(blob([1, 2, 3, 4]))).toBe(await contentKey(blob([1, 2, 3, 4])));
+  });
+  it('separates images of identical length whose bytes differ', async () => {
+    // The failure mode of the length-based key this replaced: same size, same byte count,
+    // different picture.
+    expect(await contentKey(blob([1, 2, 3, 4]))).not.toBe(await contentKey(blob([1, 2, 3, 5])));
+  });
+  it('is a 64-character hex SHA-256', async () => {
+    expect(await contentKey(blob([]))).toMatch(/^[0-9a-f]{64}$/);
+  });
+});
 
 // happy-dom does not implement ImageData; a minimal stand-in is enough for toRgba, which only
 // constructs one. Installed before the assertions rather than mocked per-test.

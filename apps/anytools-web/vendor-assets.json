@@ -1,0 +1,99 @@
+{
+  "pdfjs": {
+    "from": "pdfjs-dist",
+    "paths": [
+      "cmaps",
+      "standard_fonts",
+      "wasm"
+    ]
+  },
+  "tesseract": {
+    "pending": true,
+    "from": "tesseract.js",
+    "paths": [
+      "dist/worker.min.js"
+    ],
+    "also": {
+      "from": "tesseract.js-core",
+      "via": "tesseract.js",
+      "paths": [
+        "tesseract-core-simd-lstm.wasm.js",
+        "tesseract-core-lstm.wasm.js"
+      ]
+    }
+  },
+  "tessdata": {
+    "pending": true,
+    "download": [
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata",
+        "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+        "to": "eng.traineddata"
+      },
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/main/vie.traineddata",
+        "sha256": "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1",
+        "to": "vie.traineddata"
+      },
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/main/spa.traineddata",
+        "sha256": "6f2e04d02774a18f01bed44b1111f2cd7f3ba7ac9dc4373cd3f898a40ea6b464",
+        "to": "spa.traineddata"
+      },
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/main/por.traineddata",
+        "sha256": "c4932b937207a9514b7514d518b931a99938c02a28a5a5a553f8599ed58b7deb",
+        "to": "por.traineddata"
+      }
+    ]
+  },
+  "zxing": {
+    "pending": true,
+    "from": "zxing-wasm",
+    "paths": [
+      "dist/full/zxing_full.wasm"
+    ]
+  },
+  "onnx": {
+    "pending": true,
+    "from": "onnxruntime-web",
+    "paths": [
+      "dist/ort-wasm-simd-threaded.wasm",
+      "dist/ort-wasm-simd-threaded.mjs"
+    ]
+  },
+  "u2netp": {
+    "pending": true,
+    "download": [
+      {
+        "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx",
+        "sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+        "to": "u2netp.onnx"
+      }
+    ]
+  },
+  "excalidraw": {
+    "pending": true,
+    "from": "@excalidraw/excalidraw",
+    "paths": [
+      { "from": "dist/prod/fonts", "to": "dist/prod/fonts" }
+    ]
+  },
+  "libheif": {
+    "pending": true,
+    "from": "libheif-js",
+    "paths": [
+      "libheif-wasm/libheif.js",
+      "libheif-wasm/libheif.wasm",
+      "libheif-wasm/LICENSE"
+    ]
+  },
+  "libarchive": {
+    "pending": true,
+    "from": "libarchive.js",
+    "paths": [
+      "dist/worker-bundle.js",
+      "dist/libarchive.wasm"
+    ]
+  }
+}

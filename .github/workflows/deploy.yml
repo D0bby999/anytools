@@ -59,6 +59,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
+      # Stages public/third-party/ (gitignored) — vendor-assets.test.ts asserts it exists, and
+      # nothing else on a fresh checkout produces it.
+      - run: pnpm --filter @anytools/web vendor:assets
       - run: pnpm -r test
 
   build:

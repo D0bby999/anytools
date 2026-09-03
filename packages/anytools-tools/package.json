@@ -105,9 +105,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anytools/analytics": "workspace:*",
     "@anytools/ui": "workspace:*",
+    "@excalidraw/excalidraw": "0.18.1",
     "@faker-js/faker": "9.3.0",
     "@iarna/toml": "2.2.5",
+    "@pdf-lib/fontkit": "1.1.1",
     "bcryptjs": "^3.0.3",
     "change-case": "5.4.4",
     "cron-parser": "4.9.0",
@@ -117,6 +120,7 @@
     "date-fns-tz": "3.2.0",
     "diff": "7.0.0",
     "ethers": "6.13.5",
+    "exceljs": "4.4.0",
     "fast-xml-parser": "4.5.1",
     "he": "1.2.0",
     "js-base64": "3.7.7",
@@ -125,8 +129,12 @@
     "js-yaml": "4.1.0",
     "json5": "2.2.3",
     "jszip": "^3.10.1",
+    "libarchive.js": "2.0.2",
+    "libheif-js": "1.19.8",
     "lorem-ipsum": "^3.0.0",
+    "mammoth": "1.12.2",
     "marked": "15.0.6",
+    "onnxruntime-web": "1.29.0",
     "otpauth": "^9.5.1",
     "papaparse": "5.4.1",
     "pdf-lib": "^1.17.1",
@@ -135,8 +143,11 @@
     "slugify": "1.6.6",
     "sql-formatter": "15.4.8",
     "terser": "^5.48.0",
+    "tesseract.js": "7.0.0",
     "turndown": "7.2.0",
-    "uuid": "11.0.5"
+    "turndown-plugin-gfm": "1.0.2",
+    "uuid": "11.0.5",
+    "zxing-wasm": "3.1.3"
   },
   "peerDependencies": {
     "react": "^19.0.0"
@@ -152,6 +163,7 @@
     "@types/react": "19.0.7",
     "@types/turndown": "5.0.5",
     "@types/uuid": "10.0.0",
+    "docx": "9.7.1",
     "happy-dom": "16.5.3",
     "react": "19.0.0",
     "typescript": "5.7.3",

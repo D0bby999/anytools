@@ -1,3 +1,4 @@
 
-# Copied from pdfjs-dist at build time by scripts/copy-pdfjs-assets.mjs — not source.
-/public/pdfjs/
+# Runtime assets (WASM, models, fonts, language files) staged at build time by
+# scripts/copy-vendor-assets.mjs from vendor-assets.json — not source.
+/public/third-party/

@@ -133,3 +133,10 @@ docs/*/index-coverage-cache.json
 
 # wrangler local simulator state (miniflare) — never part of the repo
 .wrangler/
+
+# generated file-tool fixtures (see docs/tool-runtime-verification.md)
+packages/anytools-tools/fixtures/*
+!packages/anytools-tools/fixtures/README.md
+!packages/anytools-tools/fixtures/manual/
+packages/anytools-tools/fixtures/manual/*
+!packages/anytools-tools/fixtures/manual/.gitkeep

@@ -3,7 +3,7 @@ import { useFavoriteTools } from '@/hooks/use-favorite-tools';
 import { Badge, Button } from '@anytools/ui';
 import { BookOpen, Check, Copy, HelpCircle, Link2, Share2, Star, Wrench } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = {
   slug: string;
@@ -16,6 +16,13 @@ export function ToolToolbar({ slug, cluster, hasTutorial, hasFaq }: Props) {
   const { isFavorite, toggle, hydrated } = useFavoriteTools();
   const t = useTranslations('toolbar');
   const [copied, setCopied] = useState(false);
+  // Decided after mount, not during render: the server has no `navigator`, so reading it inline
+  // rendered Link2 on the server and Share2 on the client — a hydration mismatch on every tool
+  // page (seen as the "1 error" badge in dev, and a full client re-render in prod).
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => {
+    setCanShare(typeof navigator.share === 'function');
+  }, []);
   const favored = hydrated && isFavorite(slug);
 
   const share = async () => {
@@ -109,7 +116,7 @@ export function ToolToolbar({ slug, cluster, hasTutorial, hasFaq }: Props) {
           >
             {copied ? (
               <Check className="h-4 w-4 text-accent" />
-            ) : typeof navigator !== 'undefined' && typeof navigator.share === 'function' ? (
+            ) : canShare ? (
               <Share2 className="h-4 w-4" />
             ) : (
               <Link2 className="h-4 w-4" />

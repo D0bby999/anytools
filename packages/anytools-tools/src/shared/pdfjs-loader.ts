@@ -52,14 +52,15 @@ export async function loadPdfjs(): Promise<PdfjsModule> {
 /**
  * pdf.js fetches these three resource sets by URL at runtime rather than importing them, so a
  * bundler never sees them and they are simply absent unless copied. They are placed under
- * public/pdfjs/ by scripts/copy-pdfjs-assets.mjs, which runs before build and dev.
+ * public/third-party/pdfjs/ by scripts/copy-vendor-assets.mjs (manifest: vendor-assets.json), which
+ * runs before build and dev.
  *
  * Without cMapUrl, a PDF using CJK text with non-embedded fonts makes the worker throw
  * "Built-in CMap parameters are not provided." — from page.render(), which is OUTSIDE this
  * function's catch, so the raw internal message reaches the user. Without wasmUrl, JPEG 2000
  * images (routine in scans) do not decode. Served from our own origin, never a CDN.
  */
-const ASSET_BASE = '/pdfjs/';
+const ASSET_BASE = '/third-party/pdfjs/';
 
 /** Open a document with the hardened options. Always use this rather than getDocument directly. */
 export async function openPdf(file: File) {

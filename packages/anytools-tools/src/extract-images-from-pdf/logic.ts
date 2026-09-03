@@ -95,6 +95,23 @@ export function toRgba(data: Uint8ClampedArray, width: number, height: number): 
   return new ImageData(out, width, height);
 }
 
+/**
+ * Identity of an extracted image for de-duplication, independent of the pdf.js object name.
+ *
+ * Names are not enough: the same XObject appears as `img_p0_1` on the first page it is drawn
+ * on, and only from the SECOND page does pdf.js promote it to a shared `g_…` id. Deduplicating
+ * on name alone therefore emits the letterhead twice (pages 1 and 2) and skips it from page 3
+ * onward — measured on a three-page fixture, 2026-09-03.
+ *
+ * The key is a SHA-256 of the encoded bytes. A first version used dimensions + byte length; code
+ * review measured 64 distinct 24×24 solid-colour PNGs collapsing to 2 lengths, so a palette or
+ * icon sheet would have lost 62 images silently. Hashing costs one digest per name-unique image.
+ */
+export async function contentKey(png: Blob): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', await png.arrayBuffer());
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export async function extractImagesFromPdf(
   file: File,
   onProgress?: (done: number, total: number) => void,
@@ -105,6 +122,7 @@ export async function extractImagesFromPdf(
   // The same logo on every page is one XObject referenced many times; without this a
   // 40-page report yields 40 copies of the letterhead.
   const seen = new Set<string>();
+  const seenContent = new Set<string>();
 
   try {
     for (let n = 1; n <= doc.numPages; n++) {
@@ -146,6 +164,9 @@ export async function extractImagesFromPdf(
 
         const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/png'));
         if (!blob) continue;
+        const key = await contentKey(blob);
+        if (seenContent.has(key)) continue;
+        seenContent.add(key);
 
         images.push({
           name: `${base}-p${n}-${images.length + 1}.png`,
