@@ -1,3 +1,4 @@
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -33,6 +34,10 @@ async function addToResend(email: string, locale: string): Promise<void> {
 }
 
 export async function POST(req: Request) {
+  // Self-host builds have no Resend account: without this gate, a missing RESEND_*
+  // config would fall through to console.log-ing the visitor's email into a stranger's
+  // container log (see addToResend above) instead of ever reaching an inbox.
+  if (IS_SELF_HOSTED) return new Response(null, { status: 404 });
   let body: { email?: unknown; locale?: unknown };
   try {
     body = await req.json();

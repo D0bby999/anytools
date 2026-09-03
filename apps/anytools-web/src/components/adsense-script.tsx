@@ -12,9 +12,15 @@
 // the crawler visits once, without consenting, and must still see the tag.
 // Serving real ads to EEA/UK visitors additionally requires a Google-certified
 // CMP — a separate step, not a prerequisite for verification.
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+
 const PUB_ID = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID ?? 'pub-8231549980592586';
 
 export function AdSenseScript() {
+  // Self-host builds carry no ad program of their own — PUB_ID's hard-coded fallback
+  // above would otherwise ship the hosted site's AdSense client ID into a stranger's
+  // install.
+  if (IS_SELF_HOSTED) return null;
   if (!PUB_ID) return null;
   return (
     <script

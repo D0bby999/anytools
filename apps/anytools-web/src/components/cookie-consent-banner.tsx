@@ -1,6 +1,7 @@
 'use client';
 import { useCookieConsent } from '@/hooks/use-cookie-consent';
 import { Link } from '@/i18n/routing';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { Button } from '@anytools/ui';
 import { useTranslations } from 'next-intl';
 
@@ -8,6 +9,14 @@ export function CookieConsentBanner() {
   const { choice, grant, deny } = useCookieConsent();
   const t = useTranslations('consent');
 
+  // Self-host builds gate no analytics behind consent (Umami is off entirely — see
+  // umami-analytics.tsx) so the banner's only purpose no longer applies. Hooks are
+  // called above, unconditionally, so this early return does not violate rules of
+  // hooks — that also means this component is NOT unit-tested by calling the function
+  // directly (self-hosted.test.ts): useCookieConsent()/useTranslations() both throw
+  // outside a provider under `environment: 'node'`. It is verified via rendered HTML
+  // in the phase's browser Verify step instead.
+  if (IS_SELF_HOSTED) return null;
   if (choice !== 'pending') return null;
 
   return (

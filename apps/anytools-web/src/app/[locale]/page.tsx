@@ -3,7 +3,8 @@ import { NewsletterSignup } from '@/components/newsletter-signup';
 import { RecentlyUsedTools } from '@/components/recently-used-tools';
 import { ToolCatalog } from '@/components/tool-catalog';
 import { Link, routing } from '@/i18n/routing';
-import { GITHUB_REPO_URL, METADATA_BASE } from '@/lib/site-url';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { GITHUB_REPO_URL, METADATA_BASE, selfHostSafeAlternates } from '@/lib/site-url';
 import { toolMetas, toolMetasClient } from '@anytools/tools/meta';
 import { Badge, Button, Card, CardDescription, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
@@ -30,15 +31,15 @@ export async function generateMetadata({
     metadataBase: METADATA_BASE,
     title,
     description,
-    alternates: {
+    alternates: selfHostSafeAlternates({
       canonical,
       languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])),
-    },
+    }),
     openGraph: {
       type: 'website',
       title,
       description,
-      url: canonical,
+      url: IS_SELF_HOSTED ? undefined : canonical,
       siteName: 'AnyTools',
       locale,
       alternateLocale: routing.locales.filter((l) => l !== locale),
@@ -165,22 +166,26 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* NEWSLETTER */}
-      <section
-        id="waitlist"
-        aria-labelledby="newsletter-heading"
-        className="py-16 border-t bg-muted/30"
-      >
-        <div className="container mx-auto max-w-2xl px-4 text-center">
-          <h2 id="newsletter-heading" className="text-2xl md:text-3xl font-semibold mb-2">
-            {t('newsletter.title')}
-          </h2>
-          <p className="text-muted-foreground mb-6">{t('newsletter.subtitle')}</p>
-          <div className="max-w-md mx-auto">
-            <NewsletterSignup />
+      {/* NEWSLETTER — self-host builds have no Resend account behind
+          /api/newsletter/subscribe (that route 404s), so the entire section is
+          skipped rather than leaving a heading above a dead form. */}
+      {!IS_SELF_HOSTED && (
+        <section
+          id="waitlist"
+          aria-labelledby="newsletter-heading"
+          className="py-16 border-t bg-muted/30"
+        >
+          <div className="container mx-auto max-w-2xl px-4 text-center">
+            <h2 id="newsletter-heading" className="text-2xl md:text-3xl font-semibold mb-2">
+              {t('newsletter.title')}
+            </h2>
+            <p className="text-muted-foreground mb-6">{t('newsletter.subtitle')}</p>
+            <div className="max-w-md mx-auto">
+              <NewsletterSignup />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </main>
   );
 }

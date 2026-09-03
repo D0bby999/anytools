@@ -6,10 +6,15 @@
 // origin-of-record: it is what runs locally, in preview, and if the Worker is removed.
 
 import { adsTxtBody } from '@/lib/ads-txt';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 
 export const dynamic = 'force-static';
 
 export function GET(): Response {
+  // Self-host builds carry no ad program of their own (see adsense-script.tsx) — an
+  // ads.txt naming the hosted site's AdSense publisher would misrepresent a stranger's
+  // install as an authorized seller for that account.
+  if (IS_SELF_HOSTED) return new Response(null, { status: 404 });
   return new Response(adsTxtBody(), {
     headers: { 'content-type': 'text/plain; charset=utf-8' },
   });
