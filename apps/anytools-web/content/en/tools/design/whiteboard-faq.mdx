@@ -1,0 +1,63 @@
+---
+title: Online whiteboard — Frequently asked questions
+---
+
+## Where is my drawing stored?
+
+In this browser, in this profile, on this device, and nowhere else. The board is written to
+`localStorage` under the key `anytools:whiteboard:v1` about half a second after you stop drawing.
+Nothing is uploaded, there is no account, and there is no sync between your phone and your laptop.
+
+The practical consequence is worth stating plainly: clearing site data, running a "clean browsing
+data" tool, or using a private window that you then close will erase the board with no way back.
+If a drawing matters, export a `.excalidraw` file. That file is the copy you own.
+
+## What is the editor?
+
+[Excalidraw](https://github.com/excalidraw/excalidraw), the MIT-licensed open-source editor,
+embedded as a React component. The version here is 0.18.1. It is the same editing surface as
+excalidraw.com, minus every feature that needs a server: no live collaboration, no shareable
+links, no "wireframe to code", no Excalidraw+ integration.
+
+## Are the hand-drawn fonts loaded from a CDN?
+
+No. Excalidraw's default behaviour is to fetch Excalifont, Virgil, Cascadia Code, Nunito, Lilita
+One, Comic Shanns, Liberation Sans and Xiaolai from `esm.sh` on demand. This build sets
+`EXCALIDRAW_ASSET_PATH` to `/third-party/excalidraw/` and serves all of them from this domain.
+If you open your browser's network panel while typing, every `.woff2` request goes to this site.
+
+That includes the 12 MB Xiaolai family, which covers Chinese, Japanese and Korean text. It is only
+requested when you actually type those characters — the font faces are split by Unicode range —
+but it is hosted here rather than dropped, because a missing font is not a blank: Excalidraw lists
+the CDN as a fallback source in the same `@font-face` rule, so removing it would send CJK users to
+a third party without telling them.
+
+## Can I collaborate with someone in real time?
+
+No. Collaboration needs a server to relay the session, and this site does not have one for
+drawings. If you need that, excalidraw.com does it well and is free. What you can do here is
+export a `.excalidraw` file and send it to someone, who can open it here or there.
+
+## Will a file exported here open on excalidraw.com?
+
+Yes. `.excalidraw` is plain JSON with a documented envelope, and the export uses Excalidraw's own
+serializer, so the file is byte-compatible with what excalidraw.com writes. The reverse works
+too — a scene saved there opens here. Files above 5 MB are refused, which is a limit of browser
+storage rather than of the format.
+
+## Why can I only import `.excalidraw`, not `.excalidrawlib`?
+
+A `.excalidrawlib` file is a shape library, not a drawing, and it goes in through the library
+panel in the editor rather than the "Open" button. Handing one to the Open button gets you a
+message saying exactly that instead of a generic error.
+
+## Does it work on a phone?
+
+It renders and it is usable with a finger or a stylus, but a 70%-of-viewport canvas on a small
+screen is cramped, and the toolbar collapses. This is a desktop-first tool. Drawings sync nowhere,
+so a board started on a phone stays on that phone.
+
+## Is there an undo limit or an autosave history?
+
+Undo is Excalidraw's own, in-memory, and resets when you reload the page. There is no version
+history — the autosave keeps exactly one state, the latest. "New board" erases it after asking.

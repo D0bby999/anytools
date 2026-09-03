@@ -110,7 +110,8 @@
     "./qr-barcode-scanner": "./src/qr-barcode-scanner/index.ts",
     "./xlsx-to-csv": "./src/xlsx-to-csv/index.ts",
     "./docx-to-markdown": "./src/docx-to-markdown/index.ts",
-    "./heic-to-jpg": "./src/heic-to-jpg/index.ts"
+    "./heic-to-jpg": "./src/heic-to-jpg/index.ts",
+    "./whiteboard": "./src/whiteboard/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

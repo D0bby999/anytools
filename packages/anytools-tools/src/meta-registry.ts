@@ -104,6 +104,7 @@ import { meta as uuidGenerator } from './uuid-generator/meta';
 import { meta as walletChecker } from './wallet-checker/meta';
 import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
+import { meta as whiteboard } from './whiteboard/meta';
 import { meta as wordCounter } from './word-counter/meta';
 import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
@@ -222,6 +223,8 @@ export const toolMetas: ToolMeta[] = [
   docxToMarkdown,
   // iPhone photos, decoded in the tab (260903)
   heicToJpg,
+  // Embedded Excalidraw board (260903)
+  whiteboard,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

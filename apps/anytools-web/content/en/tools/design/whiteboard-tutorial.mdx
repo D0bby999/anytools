@@ -1,0 +1,88 @@
+---
+title: Sketching a diagram in the browser, and keeping it
+description: How the embedded Excalidraw board stores your work in this browser, what exporting to PNG, SVG and .excalidraw each gives you, and how to move a board between machines without an account.
+updated: 2026-09-03
+---
+
+## What this tool is for
+
+A quick diagram: boxes and arrows for a service layout, a wireframe of a screen, a sketch pasted
+into a pull request. The kind of drawing where opening a design tool, signing in and picking a
+template costs more than the drawing is worth.
+
+The editor is [Excalidraw](https://github.com/excalidraw/excalidraw) 0.18.1 embedded directly in
+the page. Its hand-drawn look is not decoration — a sketch that looks provisional invites people
+to argue with it, which is usually what you want from an architecture diagram in week one.
+
+## Where the drawing lives
+
+This is the part worth understanding before you rely on it.
+
+Every change you make is saved to this browser's `localStorage`, under the key
+`anytools:whiteboard:v1`, roughly half a second after you stop moving the mouse. That is the whole
+persistence story. There is no account, no server copy, and no sync:
+
+- Reload the page, close the tab, restart the browser — the board comes back.
+- Open the same URL in a different browser, a different profile, or on your phone — the board is
+  not there. It never left the machine it was drawn on.
+- Clear site data, use "delete cookies and site data", or close a private window — the board is
+  gone, permanently.
+
+The status line under the toolbar says "Saved in this browser" each time a save lands, so you can
+see the mechanism working rather than trust it.
+
+There is one size limit: about 5 MB. That is a browser constraint, not ours — `localStorage` caps
+each origin at roughly that. Shapes and text are tiny, so you will not approach it by drawing; you
+will approach it by pasting photographs, which are stored as base64 inside the scene. If a board
+does pass the limit the tool stops autosaving and says so explicitly instead of failing silently
+on some later, unrelated edit.
+
+## Exporting: three formats, three purposes
+
+**PNG** is for pasting into a chat, a ticket or a document. It is a flat image at the canvas's
+current colours, with 16 px of padding around the content. It cannot be edited afterwards.
+
+**SVG** is for anything that will be resized or printed — documentation sites, slides, a README.
+The export inlines the fonts it used, so the file renders identically on a machine that has never
+heard of Excalifont. That also makes SVG exports noticeably larger than you might expect.
+
+**`.excalidraw`** is the only one that is still a drawing. It is JSON, written by Excalidraw's own
+serializer, and it opens again here or on excalidraw.com with every shape still editable. If you
+care about a board, this is the export that matters; PNG and SVG are pictures of it.
+
+Each export produces a download link under the toolbar rather than starting a download
+immediately, so an accidental click does not fill your Downloads folder.
+
+## Moving a board to another machine
+
+There is no sync, so the move is manual and takes three steps: export `.excalidraw` here, get the
+file to the other machine however you normally move files, then use **Open .excalidraw** there.
+The importer checks the envelope before loading anything — that it is JSON, that its `type` field
+says `excalidraw` rather than `excalidrawlib`, that its version is one this build understands, and
+that it is under the size cap — and tells you which of those failed rather than showing an empty
+canvas.
+
+Imported scenes are run through Excalidraw's `restore()`, which upgrades elements written by older
+versions and discards malformed ones. A 2021 scene opens fine.
+
+## Starting over
+
+**New board** asks first, then erases both the canvas and the saved copy. There is no undo for it
+and no version history — the autosave keeps one state, the current one. Export before you erase if
+there is any doubt.
+
+## What is switched off, and why
+
+Excalidraw ships several features that need a server. All of them are disabled here rather than
+left to chance:
+
+- **Live collaboration** — never initialised, so no socket is opened.
+- **Wireframe-to-code** — this posts the canvas to Excalidraw's AI endpoint. It is on by default
+  in the component; it is explicitly off here.
+- **Shareable links and Excalidraw+ export** — the export dialog saves to disk only.
+- **Browsing the public shape library** — the link out is hidden; importing an `.excalidrawlib`
+  file from your disk still works.
+- **CDN fonts** — the hand-drawn fonts are served from this domain, not from `esm.sh`.
+
+If you want real-time collaboration, [excalidraw.com](https://excalidraw.com) does it properly and
+for free. This page is for the case where you would rather nothing left the machine.

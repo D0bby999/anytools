@@ -47,5 +47,14 @@ export const meta: ToolMeta = {
         pt: 'Verifique quais pares da paleta são legíveis',
       },
     },
+    {
+      tool: 'whiteboard',
+      reason: {
+        en: 'Try the palette on a real sketch before committing to it',
+        vi: 'Thử bảng màu trên một bản vẽ thật trước khi chốt',
+        es: 'Prueba la paleta en un boceto real antes de decidir',
+        pt: 'Teste a paleta em um esboço real antes de decidir',
+      },
+    },
   ],
 };

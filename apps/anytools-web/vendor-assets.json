@@ -58,9 +58,8 @@
     ]
   },
   "excalidraw": {
-    "pending": true,
     "from": "@excalidraw/excalidraw",
-    "paths": [{ "from": "dist/prod/fonts", "to": "dist/prod/fonts" }]
+    "paths": [{ "from": "dist/prod/fonts", "to": "fonts" }]
   },
   "libheif": {
     "from": "libheif-js",

@@ -34,5 +34,9 @@ export const meta: ToolMeta = {
       tool: 'wcag-contrast-checker',
       reason: { en: 'Check text over the gradient against its darkest stop' },
     },
+    {
+      tool: 'whiteboard',
+      reason: { en: 'Sketch the screen this gradient sits on before writing any CSS' },
+    },
   ],
 };

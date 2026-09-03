@@ -138,6 +138,10 @@ const LOADERS: Record<string, ComponentType> = {
   'xlsx-to-csv': dynamic(() => import('@anytools/tools/xlsx-to-csv').then(pick)),
   'docx-to-markdown': dynamic(() => import('@anytools/tools/docx-to-markdown').then(pick)),
   'heic-to-jpg': dynamic(() => import('@anytools/tools/heic-to-jpg').then(pick)),
+  // Whiteboard (260903). ssr:false is load-bearing, not a preference: the module assigns
+  // window.EXCALIDRAW_ASSET_PATH at import time, and Excalidraw itself builds FontFace objects
+  // during evaluation. Rendering it on the server throws before the page can be sent.
+  whiteboard: dynamic(() => import('@anytools/tools/whiteboard').then(pick), { ssr: false }),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

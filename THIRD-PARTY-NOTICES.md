@@ -1180,6 +1180,21 @@ Public License instead of this License.  But first, please read
 ----------------------------------------------------------------------
 
                              MIT License
+## Excalidraw
+
+`whiteboard` is not adapted code — it embeds
+[@excalidraw/excalidraw](https://github.com/excalidraw/excalidraw) 0.18.1 whole, as a React
+component. The compiled editor is bundled into the page and its canvas fonts are staged into
+`public/third-party/excalidraw/fonts/` and served from this origin, so both the editor and the
+fonts are redistributed by this site and both notices have to travel with them. Hence this
+section, and hence the font section below it.
+
+Text of <https://github.com/excalidraw/excalidraw/blob/v0.18.0/LICENSE> (fetched 2026-09-03):
+
+```
+MIT License
+
+Copyright (c) 2020 Excalidraw
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1198,6 +1213,128 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
+
+### Fonts bundled with Excalidraw
+
+Excalidraw loads its canvas fonts by URL at runtime, defaulting to `https://esm.sh/`. The whole
+point of this site is that using a tool involves no third party, so all nine families are staged
+from the package's `dist/prod/fonts` into `public/third-party/excalidraw/fonts/` (12.5 MB, of
+which 12.1 MB is the Xiaolai CJK family) and `window.EXCALIDRAW_ASSET_PATH` points there.
+
+Eight families are under the SIL Open Font License 1.1; Comic Shanns is MIT. The upstream package
+ships no licence files alongside the `.woff2` binaries, so each copyright line below was taken
+from the font's own name table as recorded in the Excalidraw source
+(`packages/excalidraw/fonts/<Family>/index.ts`, tag v0.18.0) or, where that carries no metadata
+block, from the family's canonical licence file. Fetched 2026-09-03.
+
+| Family | Copyright | Licence |
+|---|---|---|
+| Excalifont | Copyright (c) 2024 by Excalidraw. All rights reserved. (Reserved Font Name Excalifont) | OFL-1.1 |
+| Virgil | Copyright (c) 2021 - Present, Ellinor Rapp, with Reserved Font Name Virgil. | OFL-1.1 |
+| Cascadia Code | Copyright (c) 2019 - Present, Microsoft Corporation, with Reserved Font Name Cascadia Code. | OFL-1.1 |
+| Nunito | Copyright 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito) | OFL-1.1 |
+| Lilita One | Copyright (c) 2011 Juan Montoreano (juan@remolacha.biz), with Reserved Font Name Lilita | OFL-1.1 |
+| Liberation Sans | Digitized data copyright (c) 2010 Google Corporation, with Reserved Font Arimo, Tinos and Cousine. Copyright (c) 2012 Red Hat, Inc., with Reserved Font Name Liberation. | OFL-1.1 |
+| Assistant | Copyright 2020 The Assistant Project Authors (https://github.com/hafontia/Assistant). Copyright 2010 The Source Sans Pro Authors (https://github.com/adobe-fonts/source-sans-pro), with Reserved Font Name 'Source'. | OFL-1.1 |
+| Xiaolai SC | Copyright 2020-2024 LXGW (https://github.com/lxgw/kose-font). Copyright 2014 Nozomi Seto (https://ja.osdn.net/projects/setofont/) | OFL-1.1 |
+| Comic Shanns | Copyright (c) 2018 Shannon Miwa | MIT |
+
+Comic Shanns is MIT, and MIT requires the full permission notice, which is the same text
+reproduced under "omni-tools" above with the copyright line replaced by
+`Copyright (c) 2018 Shannon Miwa`.
+
+The other eight are OFL-1.1, whose condition 2 requires that each copy be distributed with the
+copyright notice (above) and the licence. The licence is identical for all eight, so it is
+reproduced once, from <https://github.com/google/fonts/blob/main/ofl/nunito/OFL.txt>:
+
+```
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded,
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
 ```
 
 ---
