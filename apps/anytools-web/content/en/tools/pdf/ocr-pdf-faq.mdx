@@ -1,0 +1,41 @@
+---
+title: OCR a scanned PDF — Frequently asked questions
+---
+
+## Is my document uploaded anywhere?
+
+No. Each page is rendered to a canvas by `pdf.js`, recognised by Tesseract compiled to WebAssembly, and — if you ask for a searchable PDF — reassembled by `pdf-lib`. All three run inside this browser tab. Nothing about the document reaches a server, so there is no stored copy to retain, log or delete.
+
+This is the whole reason the tool exists in this form. Every other free "OCR PDF" service posts your file to a machine you do not control, and scanned PDFs are overwhelmingly the documents you would least want to hand over: contracts, medical records, bank statements, land titles, court filings. You can verify it: open the Network tab, run the tool, and after the language file loads you will see no request carrying the PDF.
+
+## What is a "searchable PDF" and what does the option actually change?
+
+It is the same scan, visually unchanged, with the recognised words written over the image in invisible text. Your reader can then find, select and copy words that only exist in the document as pixels.
+
+Nothing is redrawn or re-compressed. The tool loads your original file, and for each word Tesseract found it draws that word at zero opacity, positioned over the place on the page where the ink is. The scan you see afterwards is byte-identical in appearance; only a text layer has been added. That means the file grows by a few tens of kilobytes rather than being re-encoded — and it also means the quality of the image is exactly what you started with, for better or worse.
+
+If you leave the option off you get plain `.txt` with a `--- Page n ---` marker before each page, which is the better output when you intend to edit or re-use the text rather than keep the scan.
+
+## Why does it take so long, and can I stop it?
+
+Recognition is genuinely expensive: roughly one to five seconds per page on a modern laptop, more on a phone, plus a one-off start-up cost the first time. A fifty-page scan is a few minutes of real work, and it is your own CPU doing it — a server-side service feels faster because the work happens on somebody else's machine.
+
+There is a **Stop** button, and it terminates the worker immediately rather than waiting for the current page. Use the page range field if you only need part of a document: reading pages 12–14 of a 200-page scan takes seconds.
+
+## What gets downloaded the first time?
+
+Nothing until you press **Recognize text**. Then, from this site and never from a CDN: the worker script (~110 KB), the WebAssembly engine (~3.8 MB), and the language data (0.5–4 MB depending on the language). The language file is cached in your browser's IndexedDB, so the second document in the same language downloads nothing. Choosing the searchable-PDF option in Vietnamese additionally fetches a 421 KB Noto Sans file, because the built-in PDF fonts cannot spell Vietnamese; the other three languages use a font every PDF reader already has.
+
+## Why 200 DPI, and does resolution matter?
+
+Each page is rendered at 200 dots per inch before recognition. Tesseract's models were trained on material around 300 DPI for ordinary body type, and below about 150 DPI accuracy falls away quickly. Rendering *above* the resolution of the original scan adds pixels but no information, so it only makes recognition slower — 200 is where the curve flattens for the documents this tool sees.
+
+What does matter is the scan you started with. A 150 DPI grayscale scan of a clean printed page will do very well. A photograph of a page taken at an angle, a fax, or a scan someone has already compressed to a small JPEG will do noticeably worse, and no setting here can recover information the scan did not capture. Pages are converted to grayscale before recognition, which is roughly twice as fast and no less accurate, since Tesseract discards colour internally anyway.
+
+## Why do some words go missing from the searchable layer?
+
+Two reasons, both reported rather than hidden. Words the recogniser was less than 30% confident about are left out on purpose: at that level they are usually speckles read as punctuation, and including them makes selecting a line copy junk. And for English, Spanish and Portuguese the invisible layer is drawn in Helvetica, whose character set is roughly Latin-1; if OCR produces a character outside it, that one word is skipped and the count is shown to you. Vietnamese uses an embedded Unicode font instead and does not have this limit.
+
+## How accurate is it?
+
+The language files are Tesseract's `tessdata_fast` models — quantised for speed and size. On a clean printed page expect the high nineties per cent of characters; the tool reports an average confidence per page so you can see which pages are weak. `tessdata_best` would be about two to three per cent better and four times the download, which is not a trade worth making for every visitor. Handwriting does not work at all, and dense tables, multi-column layouts with narrow gutters, and text printed over images are all substantially worse than plain body text.

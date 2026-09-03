@@ -26,5 +26,6 @@ export const meta: ToolMeta = {
     { tool: 'compress-image', reason: { en: 'Shrink the resulting PNGs' } },
     // A multi-page render comes back as a .zip; this is where that zip gets opened.
     { tool: 'unzip-archive', reason: { en: 'Open the .zip of pages this produces' } },
+    { tool: 'ocr-pdf', reason: { en: 'Read the text out of a scanned PDF instead' } },
   ],
 };

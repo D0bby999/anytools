@@ -36,6 +36,15 @@
       }
     ]
   },
+  "noto": {
+    "download": [
+      {
+        "url": "https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/unhinted/ttf/NotoSans-Regular.ttf",
+        "sha256": "f3961a9cde016d41a4879aecda1474d3a36d6bf54fa0e4643de029cc2248b0e8",
+        "to": "NotoSans-Regular.ttf"
+      }
+    ]
+  },
   "zxing": {
     "from": "zxing-wasm",
     "paths": ["dist/full/zxing_full.wasm"]

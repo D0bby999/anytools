@@ -61,6 +61,7 @@ import { meta as metaTagGenerator } from './meta-tag-generator/meta';
 import { meta as mockDataGenerator } from './mock-data-generator/meta';
 import { meta as mortgageCalculator } from './mortgage-calculator/meta';
 import { meta as ocrImageToText } from './ocr-image-to-text/meta';
+import { meta as ocrPdf } from './ocr-pdf/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
 import { meta as passwordGenerator } from './password-generator/meta';
 import { meta as pdfToPng } from './pdf-to-png/meta';
@@ -118,6 +119,7 @@ export const toolMetas: ToolMeta[] = [
   imageToPdf,
   addPageNumbers,
   watermarkPdf,
+  ocrPdf,
   ocrImageToText,
   integerBaseConverter,
   urlParser,

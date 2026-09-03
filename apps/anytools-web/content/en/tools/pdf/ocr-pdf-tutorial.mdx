@@ -1,0 +1,80 @@
+---
+title: Complete guide to OCR-ing a scanned PDF in the browser
+description: What separates a scan from a text PDF, how scan quality and DPI decide the result, why the language models here are the fast ones, what a searchable PDF really is, and what the first run downloads.
+updated: 2026-09-03
+---
+
+## First, work out whether you need OCR at all
+
+A PDF can hold text in two completely different ways, and they look identical on screen.
+
+A **digital PDF** — anything exported from Word, a browser, LaTeX or a design tool — stores the characters themselves. Open it and try to select a sentence: if the cursor highlights words, the text is already there. You do not need OCR, and running it would be a waste of several minutes. Copy the text, or use a PDF-to-text tool.
+
+A **scanned PDF** stores a photograph of a page. Selecting a sentence highlights nothing, or highlights a rectangle covering the whole page image. Searching finds nothing. This is what OCR is for: reading the shapes in the picture and working out which characters they are.
+
+Mixed documents exist and are common — a digital contract with a scanned signature page appended, for example. Running OCR over the whole thing is harmless but slow; the page range field lets you do just the scanned pages.
+
+## Scan quality decides most of the outcome
+
+Optical character recognition is pattern matching over pixels. Nothing downstream can recover detail the scan never captured, so the quality of the source dominates everything else you can control.
+
+**Resolution.** The useful figure is not the DPI of the file but the height of a lowercase letter in pixels. Below roughly 20 pixels, recognition degrades badly; around 30 to 40 pixels it is comfortable. Ordinary 10-point body type reaches that at about 200–300 DPI. A 600 DPI scan of the same page is four times the data for no gain in accuracy.
+
+**Straightness.** A page fed crookedly through a scanner, or photographed at an angle, is much harder than a square one. Tesseract tolerates a degree or two and struggles beyond that. This tool does not deskew: automatic straightening needs an angle estimate, and a wrong estimate makes things worse silently, which is a poor trade for a tool you cannot inspect. If your pages are visibly crooked, re-scanning them straight is worth more than any setting.
+
+**Contrast and evenness.** Grey text on a grey background, a phone flash blowing out the middle of a glossy page, a shadow from the photographer's own head — each of these removes whole lines. A flatbed scanner or a document-scanning phone app beats a casual photograph by a wide margin.
+
+**Compression.** A scan already saved as a small JPEG carries ringing artefacts around every letter. They are invisible at a glance and very visible to a character classifier.
+
+**Layout.** Plain single-column body text is the easy case. Dense tables, multi-column layouts with narrow gutters, text printed over photographs, and stylised display faces are all considerably harder. Handwriting does not work at all — Tesseract's models are trained on printed type, and cursive produces confident nonsense.
+
+## Why the tool renders every page at 200 DPI
+
+Before recognition each page has to become pixels, so the tool rasterises it with `pdf.js`. The scale it uses is 200 DPI, and both directions from there are worse.
+
+Lower, and letters fall under the pixel height the models need. Higher, and you are enlarging a photograph: if the embedded scan is 200 DPI, rendering the page at 400 invents no new detail, it just quadruples the work. Since a scanned PDF is usually 200–300 DPI to begin with, 200 is where accuracy stops improving and cost keeps rising.
+
+Two adjustments happen automatically. Pages are converted to grayscale, which roughly halves recognition time and loses nothing — Tesseract discards colour internally regardless. And a page big enough to exceed what browsers will allocate for a canvas (an A0 plan at 200 DPI would be about 119 megapixels) is rendered at a reduced scale instead of failing; the word positions are mapped back through the image's real size, so the searchable layer stays correct.
+
+## Why the language models here are the "fast" ones
+
+Tesseract publishes its trained models in three sets. `tessdata_best` is the most accurate and the largest. `tessdata` is the middle. `tessdata_fast` is integer-quantised for speed and size.
+
+This site ships `fast`, and the reason is arithmetic rather than preference. English in `fast` is about 4 MB; in `best` it is roughly four times that. Every visitor who presses the button downloads it. The accuracy difference is real but small — on the order of two to three per cent of characters, concentrated in the hard scans where the output needs correcting either way. Paying 15 MB per visitor for that on every language would be the wrong default, so it is not the default. It is also a genuine ceiling on what this tool can do, which is why it is written down here rather than left for you to discover.
+
+Four languages are available — English, Vietnamese, Spanish and Portuguese — because those four model files are shipped with the site. Tesseract supports over a hundred, but each additional one would have to be fetched from a third-party CDN at the moment you selected it, which would leak the fact that you are reading a document in that language. That is the request this tool exists to avoid, so the list stops at what can be served from here.
+
+## What "searchable PDF" actually means
+
+This is the option most people are looking for, and the name is doing a lot of work.
+
+The tool loads your original file with `pdf-lib` and, for every word the recogniser located, draws that word at zero opacity in the place on the page where the ink is. The scan underneath is untouched: not re-rendered, not re-compressed, not converted. What you get back looks pixel-for-pixel like what you put in, but Ctrl+F finds words, text selection works, and anything that indexes PDFs — Spotlight, Windows Search, a document management system — can read it.
+
+Three details are worth knowing:
+
+- **Position comes from the recogniser, not from guesswork.** Each word's box is in pixels of the rendered image, origin top-left; PDF coordinates are points, origin bottom-left; and a page may carry a `/Rotate` flag that the reader applies but the drawing layer does not. All three conversions happen per page, using the rendered image's actual width rather than an assumed DPI.
+- **Low-confidence words are left out.** Below 30% confidence, output is usually speckles read as punctuation, and including it makes selecting a line copy junk between the real words.
+- **The layer is only as good as the OCR.** A word read wrongly is searchable under the wrong spelling. Invisible text hides its own mistakes, which is a reason to check the `.txt` output on a page or two before trusting a large batch.
+
+For English, Spanish and Portuguese the invisible text uses Helvetica, one of the fonts every PDF reader already has, so the file grows by tens of kilobytes. Vietnamese needs an embedded Unicode font — Helvetica's character set cannot spell it — so a 421 KB Noto Sans file is fetched from this site and subset down to just the glyphs used.
+
+## What the first run downloads, and where it goes
+
+Opening the page downloads no OCR machinery at all. Press **Recognize text** and three things arrive, all from this origin:
+
+| What | Size | Cached afterwards |
+|---|---|---|
+| Worker script | ~110 KB | Normal HTTP cache |
+| WebAssembly engine | ~3.8 MB | Normal HTTP cache |
+| Language data | 0.5–4 MB | IndexedDB, in your browser |
+
+The language file is written to your browser's IndexedDB by `tesseract.js`, which is why the second document in the same language starts recognising immediately. It is your own storage; clearing site data removes it and the next run fetches it again. Nothing is sent anywhere — the only network traffic is these downloads from the site you are already on.
+
+## A working order of operations
+
+1. Try selecting text in your PDF first. If it selects, you do not need this tool.
+2. Pick the language of the document, not your own language.
+3. Run one page — put `1` in the page range — and read the output. Thirty seconds here tells you whether the scan is good enough before you spend ten minutes on 200 pages.
+4. If confidence is under about 70%, fix the input rather than the settings: re-scan straighter, at 300 DPI, in grayscale.
+5. Decide what you actually want. `.txt` if the text is going to be edited or re-used; searchable PDF if the document has to stay a document and just needs to be findable.
+6. For long jobs, use the page range to work in batches. The **Stop** button ends the run immediately if you change your mind.

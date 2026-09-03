@@ -31,6 +31,7 @@ const LOADERS: Record<string, ComponentType> = {
   'image-to-pdf': dynamic(() => import('@anytools/tools/image-to-pdf').then(pick)),
   'add-page-numbers': dynamic(() => import('@anytools/tools/add-page-numbers').then(pick)),
   'watermark-pdf': dynamic(() => import('@anytools/tools/watermark-pdf').then(pick)),
+  'ocr-pdf': dynamic(() => import('@anytools/tools/ocr-pdf').then(pick)),
   'ocr-image-to-text': dynamic(() => import('@anytools/tools/ocr-image-to-text').then(pick)),
   'integer-base-converter': dynamic(() =>
     import('@anytools/tools/integer-base-converter').then(pick),

@@ -25,5 +25,6 @@ export const meta: ToolMeta = {
   nextStepSuggestions: [
     { tool: 'pdf-to-png', reason: { en: 'Render whole pages instead of embedded images' } },
     { tool: 'resize-image', reason: { en: 'Scale the extracted images' } },
+    { tool: 'ocr-pdf', reason: { en: 'Read the text out of the scan instead of saving it' } },
   ],
 };
