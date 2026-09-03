@@ -32,6 +32,24 @@ Three things degrade it sharply, in order of severity. **Skew**: a page photogra
 
 Handwriting does not work. Tesseract's models are trained on printed type; cursive and hand-printed notes produce nonsense with high confidence, which is the worst combination. Highly stylised display fonts, dense tables and text over photographs are all considerably worse than plain body text.
 
+## Which image formats can I drop here, and why not TIFF?
+
+PNG, JPEG, WebP, GIF, AVIF and BMP — the formats a browser can decode by itself. Recognition happens in the tab, so the picture has to reach a canvas before Tesseract ever sees it, and the only decoders available are the ones the browser ships with.
+
+TIFF is not one of them, in any current browser, which is awkward because scanners produce it constantly and multi-page TIFF is a normal way to hold a scanned document. Convert it first: many scanner utilities can output PDF instead, and a scanned PDF can go through the OCR PDF tool on this site without a conversion step at all. TIFF used to be listed in this tool's file picker, which only meant the file was accepted and then failed.
+
+## One file in my batch failed. What happens to the rest?
+
+They are read normally. Each image is handled on its own: a file that cannot be decoded — a corrupt download, something renamed to `.png` that is not a PNG, a format the browser does not support — gets a line of its own in the list under the text saying what went wrong, and every other image in the batch still produces its text. Files that failed are left out of the `.txt` entirely rather than appearing as an empty section, and they do not count towards the average confidence.
+
+Two things do end the whole run rather than one file: pressing **Stop**, and the recognition engine failing to start at all. The second means something is wrong with this page's assets, not with your image, and trying the remaining nineteen files would only repeat the same failure.
+
+## What does Stop actually do?
+
+It shuts the recogniser down and abandons the run. The image being read is dropped, the batch does not continue to the next file, and you get no text — including for the images already finished. The button shows "Stopping…" until the run has actually unwound, so you cannot start a second run on top of one that is still finishing.
+
+If a batch is too long to sit through, run it in smaller groups rather than relying on Stop to salvage part of it.
+
 ## Why the "keep line breaks" option?
 
 Because printed text wraps at the column edge, and those breaks are an artefact of the page, not of the sentence. By default the tool joins the lines within each detected block back into continuous paragraphs, so pasting the result into a document gives you prose rather than text with a hard return every eight words.

@@ -6,9 +6,33 @@
  * section of plans/…/phase-06-ocr.md). What is tested here is everything that decides what the
  * user actually sees: how a block tree becomes text, and how confidence is summarised.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { OcrBlock } from '../shared/tesseract-loader';
-import { combineText, countWords, formatOcrText, meanConfidence, textFileName } from './logic';
+import {
+  combineText,
+  countWords,
+  formatOcrText,
+  meanConfidence,
+  ocrImages,
+  textFileName,
+} from './logic';
+
+// Hoisted: vi.mock factories are lifted above the imports, so these have to be too.
+const { loadBitmap, recognizeImage } = vi.hoisted(() => ({
+  loadBitmap: vi.fn(),
+  recognizeImage: vi.fn(),
+}));
+
+vi.mock('../shared/canvas-image', () => ({ loadBitmap }));
+vi.mock('../shared/tesseract-loader', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../shared/tesseract-loader')>();
+  return {
+    ...actual,
+    // happy-dom has no 2D context, and neither step is what these tests are about.
+    prepareForOcr: () => ({ width: 10, height: 10 }) as HTMLCanvasElement,
+    recognize: recognizeImage,
+  };
+});
 
 const word = (text: string) => ({ text, confidence: 90, bbox: { x0: 0, y0: 0, x1: 1, y1: 1 } });
 const line = (text: string) => ({ text, words: text.split(' ').map(word) });
@@ -87,6 +111,15 @@ describe('combineText', () => {
     { name: 'b.png', blocks: [{ lines: [line('Second')] }], confidence: 80, words: 1 },
   ];
 
+  it('leaves a file that could not be read out of the .txt entirely', () => {
+    const withFailure = [
+      items[0]!,
+      { name: 'b.png', blocks: [], confidence: 0, words: 0, error: 'Not an image.' },
+    ];
+    // Not "--- b.png ---" followed by nothing: the error belongs on screen, not in the output.
+    expect(combineText(withFailure, false)).toBe('First');
+  });
+
   it('adds no header for a single image', () => {
     expect(combineText([items[0]!], false)).toBe('First');
   });
@@ -129,5 +162,108 @@ describe('textFileName', () => {
 
   it('falls back to a usable name when there are no items', () => {
     expect(textFileName([])).toBe('ocr.txt');
+  });
+});
+
+/**
+ * The batch loop. One unreadable file used to throw out of it and discard every image already
+ * recognised — the nineteen good ones and the minutes they cost with them.
+ */
+describe('ocrImages', () => {
+  const file = (name: string) => new File([new Uint8Array([1])], name, { type: 'image/png' });
+  const bitmap = () => ({ width: 10, height: 10, close: vi.fn() });
+  const recognised = (text: string) => ({
+    text,
+    confidence: 90,
+    blocks: [{ lines: [line(text)] }],
+    width: 10,
+    height: 10,
+  });
+
+  it('records the failure against the one file and reads the rest', async () => {
+    loadBitmap.mockReset();
+    recognizeImage.mockReset();
+    loadBitmap
+      .mockResolvedValueOnce(bitmap())
+      .mockRejectedValueOnce(new Error('"broken.png" could not be read as an image.'))
+      .mockResolvedValueOnce(bitmap());
+    recognizeImage
+      .mockResolvedValueOnce(recognised('First'))
+      .mockResolvedValueOnce(recognised('Third'));
+
+    const items = await ocrImages(
+      [file('a.png'), file('broken.png'), file('c.png')],
+      'eng',
+      undefined,
+    );
+
+    expect(items.map((i) => i.name)).toEqual(['a.png', 'broken.png', 'c.png']);
+    expect(items[1]?.error).toBe('"broken.png" could not be read as an image.');
+    expect(items[1]?.words).toBe(0);
+    expect(items[0]?.words).toBe(1);
+    expect(items[2]?.words).toBe(1);
+    expect(combineText(items, false)).toBe('--- a.png ---\nFirst\n\n--- c.png ---\nThird');
+    // A failed file must not drag the average down as if it had scored zero.
+    expect(meanConfidence(items)).toBe(90);
+  });
+
+  it('closes the bitmap of a file whose recognition failed', async () => {
+    loadBitmap.mockReset();
+    recognizeImage.mockReset();
+    const opened = bitmap();
+    loadBitmap.mockResolvedValueOnce(opened);
+    recognizeImage.mockRejectedValueOnce(new Error('Recognition failed.'));
+
+    const items = await ocrImages([file('a.png')], 'eng', undefined);
+    expect(items[0]?.error).toBe('Recognition failed.');
+    expect(opened.close).toHaveBeenCalledTimes(1);
+  });
+
+  it('still unwinds the whole batch when the user presses Stop', async () => {
+    const { OcrCancelledError } = await import('../shared/tesseract-loader');
+    loadBitmap.mockReset();
+    recognizeImage.mockReset();
+    loadBitmap.mockResolvedValue(bitmap());
+    recognizeImage
+      .mockResolvedValueOnce(recognised('First'))
+      .mockRejectedValueOnce(new OcrCancelledError());
+
+    await expect(
+      ocrImages([file('a.png'), file('b.png'), file('c.png')], 'eng', undefined),
+    ).rejects.toBeInstanceOf(OcrCancelledError);
+    // Not four calls: Stop ends the run rather than turning into a per-file error row.
+    expect(recognizeImage).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not even decode the next file once the run has been stopped', async () => {
+    const { OcrCancelledError, terminateOcr } = await import('../shared/tesseract-loader');
+    loadBitmap.mockReset();
+    recognizeImage.mockReset();
+    loadBitmap.mockResolvedValue(bitmap());
+    // Stop pressed while the first image was being read: the job it rejects is already over, so
+    // only the loop's own check stands between the user and a full decode of image two.
+    recognizeImage.mockImplementationOnce(async () => {
+      await terminateOcr();
+      return recognised('First');
+    });
+
+    await expect(
+      ocrImages([file('a.png'), file('b.png'), file('c.png')], 'eng', undefined),
+    ).rejects.toBeInstanceOf(OcrCancelledError);
+    expect(loadBitmap).toHaveBeenCalledTimes(1);
+    expect(recognizeImage).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives up on the batch when the recogniser itself will not start', async () => {
+    const { OcrLoadError } = await import('../shared/tesseract-loader');
+    loadBitmap.mockReset();
+    recognizeImage.mockReset();
+    loadBitmap.mockResolvedValue(bitmap());
+    recognizeImage.mockRejectedValue(new OcrLoadError('The English recogniser could not start.'));
+
+    await expect(
+      ocrImages([file('a.png'), file('b.png')], 'eng', undefined),
+    ).rejects.toBeInstanceOf(OcrLoadError);
+    expect(recognizeImage).toHaveBeenCalledTimes(1);
   });
 });

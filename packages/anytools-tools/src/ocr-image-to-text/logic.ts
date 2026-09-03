@@ -1,9 +1,12 @@
 import { loadBitmap } from '../shared/canvas-image';
 import {
   type OcrBlock,
+  OcrCancelledError,
   type OcrLanguage,
+  OcrLoadError,
   type OcrProgress,
-  type OcrResult,
+  beginOcrRun,
+  ensureRunLive,
   prepareForOcr,
   recognize,
 } from '../shared/tesseract-loader';
@@ -14,6 +17,8 @@ export type ImageOcrItem = {
   blocks: OcrBlock[];
   confidence: number;
   words: number;
+  /** Why this one file produced nothing. The rest of the batch is unaffected. */
+  error?: string;
 };
 
 export type ImageOcrProgress = {
@@ -64,11 +69,17 @@ export function meanConfidence(items: Pick<ImageOcrItem, 'confidence' | 'words'>
   return scored.reduce((sum, i) => sum + i.confidence * i.words, 0) / total;
 }
 
-/** One `.txt` for the whole batch. A single image gets no header; several get one each. */
+/**
+ * One `.txt` for the whole batch. A single image gets no header; several get one each.
+ *
+ * Files that could not be read are left out entirely rather than contributing an empty section:
+ * the error belongs on screen, next to the file it is about, not pasted into someone's document.
+ */
 export function combineText(items: ImageOcrItem[], keepLineBreaks: boolean): string {
-  const texts = items.map((i) => formatOcrText(i.blocks, keepLineBreaks));
-  if (items.length === 1) return texts[0] ?? '';
-  return items.map((i, n) => `--- ${i.name} ---\n${texts[n] ?? ''}`).join('\n\n');
+  const read = items.filter((i) => !i.error);
+  const texts = read.map((i) => formatOcrText(i.blocks, keepLineBreaks));
+  if (read.length === 1) return texts[0] ?? '';
+  return read.map((i, n) => `--- ${i.name} ---\n${texts[n] ?? ''}`).join('\n\n');
 }
 
 /** `photo.jpg` becomes `photo.txt`; a batch is named after the first file. */
@@ -83,30 +94,52 @@ export function textFileName(items: ImageOcrItem[]): string {
  * Sequential on purpose: one tesseract worker handles one job at a time, and a parallel version
  * would need a scheduler plus a second copy of the 3.8 MB core per worker for no gain on the
  * batch sizes this tool sees.
+ *
+ * ONE BAD FILE DOES NOT END THE BATCH. A drag of twenty photos with a corrupt one, or a format
+ * the browser will not decode, used to throw out of the loop and discard every image already
+ * recognised — including the nineteen good ones and the minutes they cost. Each file now carries
+ * its own outcome. Stop is the one exception that still unwinds the loop: the user asked for it.
  */
 export async function ocrImages(
   files: File[],
   lang: OcrLanguage,
   onProgress?: (p: ImageOcrProgress) => void,
 ): Promise<ImageOcrItem[]> {
+  const run = beginOcrRun();
   const items: ImageOcrItem[] = [];
   for (const [i, file] of files.entries()) {
-    const bitmap = await loadBitmap(file);
-    let result: OcrResult;
+    // Stop pressed while the previous image was decoding rejects no job; only this ends the run.
+    ensureRunLive(run);
     try {
-      const canvas = prepareForOcr(bitmap, bitmap.width, bitmap.height);
-      result = await recognize(lang, canvas, (stage) =>
-        onProgress?.({ index: i + 1, total: files.length, name: file.name, stage }),
-      );
-    } finally {
-      bitmap.close();
+      const bitmap = await loadBitmap(file);
+      try {
+        const canvas = prepareForOcr(bitmap, bitmap.width, bitmap.height);
+        const result = await recognize(run, lang, canvas, (stage) =>
+          onProgress?.({ index: i + 1, total: files.length, name: file.name, stage }),
+        );
+        canvas.width = 0;
+        canvas.height = 0;
+        items.push({
+          name: file.name,
+          blocks: result.blocks,
+          confidence: result.confidence,
+          words: countWords(result.blocks),
+        });
+      } finally {
+        bitmap.close();
+      }
+    } catch (e) {
+      // Stop, and "the engine will not start", are about the run and not about this file.
+      // Retrying the same broken worker on nineteen more images helps nobody.
+      if (e instanceof OcrCancelledError || e instanceof OcrLoadError) throw e;
+      items.push({
+        name: file.name,
+        blocks: [],
+        confidence: 0,
+        words: 0,
+        error: e instanceof Error ? e.message : 'This file could not be read.',
+      });
     }
-    items.push({
-      name: file.name,
-      blocks: result.blocks,
-      confidence: result.confidence,
-      words: countWords(result.blocks),
-    });
   }
   return items;
 }

@@ -20,7 +20,12 @@ import {
   textFileName,
 } from './logic';
 
-const ACCEPT = 'image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp,image/tiff';
+/**
+ * What `createImageBitmap` can actually decode in a browser. TIFF was listed here and is not one
+ * of them — no engine decodes it — so offering it only produced a file picker that accepted a
+ * scan the tool then rejected one by one. The FAQ says what to do with a TIFF instead.
+ */
+const ACCEPT = 'image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp';
 
 /** Tesseract's status strings are internal jargon; these are the three the user ever waits on. */
 const STAGE_LABELS: Record<string, string> = {
@@ -40,6 +45,7 @@ export function OcrImageToTextUi() {
   const [progress, setProgress] = useState<ImageOcrProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stopping, setStopping] = useState(false);
 
   // The worker holds a compiled 3.8 MB WASM module and the language data. Leaving the page
   // without terminating it strands both for the life of the tab.
@@ -51,9 +57,10 @@ export function OcrImageToTextUi() {
   );
 
   const run = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0 || busy) return;
     trackEvent('tool_run', { tool: 'ocr-image-to-text' });
     setBusy(true);
+    setStopping(false);
     setError(null);
     setItems(null);
     setText('');
@@ -62,18 +69,21 @@ export function OcrImageToTextUi() {
       setItems(result);
       setText(combineText(result, keepLineBreaks));
     } catch (e) {
-      if (e instanceof OcrCancelledError) return;
-      setError(e instanceof Error ? e.message : 'The image could not be read.');
+      if (!(e instanceof OcrCancelledError)) {
+        setError(e instanceof Error ? e.message : 'The image could not be read.');
+      }
     } finally {
+      // Only here. Clearing `busy` inside stop() re-enabled the button while the loop was still
+      // unwinding, and a second press then ran two loops over the same batch at once.
       setBusy(false);
+      setStopping(false);
       setProgress(null);
     }
   };
 
-  const stop = async () => {
-    await terminateOcr();
-    setBusy(false);
-    setProgress(null);
+  const stop = () => {
+    setStopping(true);
+    void terminateOcr();
   };
 
   const reset = () => {
@@ -83,6 +93,8 @@ export function OcrImageToTextUi() {
   };
 
   const confidence = items ? meanConfidence(items) : 0;
+  const failed = items?.filter((i) => i.error).length ?? 0;
+  const read = (items?.length ?? 0) - failed;
   const download = () => {
     const url = objectUrls.create(new Blob([text], { type: 'text/plain;charset=utf-8' }));
     const a = document.createElement('a');
@@ -157,14 +169,22 @@ export function OcrImageToTextUi() {
             <button
               type="button"
               onClick={stop}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
+              disabled={stopping}
+              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
             >
-              Stop
+              {stopping ? 'Stopping…' : 'Stop'}
             </button>
           )}
         </div>
 
-        {progress && (
+        {stopping && (
+          <p className="text-sm text-muted-foreground">
+            Stopping. The run is abandoned, so no text comes out of it — read the images in smaller
+            batches if a full one is too long.
+          </p>
+        )}
+
+        {progress && !stopping && (
           <p className="text-sm text-muted-foreground">
             {STAGE_LABELS[progress.stage.status] ?? 'Working'} — image {progress.index} of{' '}
             {progress.total} ({Math.round((progress.stage.progress ?? 0) * 100)}%)
@@ -180,8 +200,9 @@ export function OcrImageToTextUi() {
         {items && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Average confidence {confidence.toFixed(0)}%
-              {items.length > 1 && ` across ${items.length} images`}.{' '}
+              Average confidence {confidence.toFixed(0)}%{read > 1 && ` across ${read} images`}.{' '}
+              {failed > 0 &&
+                `${failed} of ${items.length} could not be read at all — see the list below. `}
               {confidence > 0 && confidence < 70
                 ? 'Below about 70% the output usually needs correcting — a sharper, straighter, higher-resolution image is the fix.'
                 : 'Check the text below before using it; OCR is never exact.'}
@@ -207,11 +228,17 @@ export function OcrImageToTextUi() {
               </button>
             </div>
 
-            {items.length > 1 && (
-              <ul className="space-y-1 text-xs text-muted-foreground">
+            {/* A file that failed is listed even when it is the only one: silently returning an
+                empty textarea would look like the image had no text in it. */}
+            {(items.length > 1 || failed > 0) && (
+              <ul className="space-y-1 text-xs">
                 {items.map((i) => (
-                  <li key={i.name}>
-                    {i.name} — {i.words} words, {i.confidence.toFixed(0)}% confidence
+                  <li
+                    key={i.name}
+                    className={i.error ? 'text-destructive' : 'text-muted-foreground'}
+                  >
+                    {i.name} —{' '}
+                    {i.error ?? `${i.words} words, ${i.confidence.toFixed(0)}% confidence`}
                   </li>
                 ))}
               </ul>
