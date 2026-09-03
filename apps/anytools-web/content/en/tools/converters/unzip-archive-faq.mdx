@@ -12,7 +12,9 @@ A plain zip is read by JSZip, a JavaScript library. Everything else is read by l
 
 Because unpacking it would happen in this browser tab's memory, and the tab would die. The tool reads the size each entry declares in the archive's own directory — which costs nothing and requires decompressing nothing — and stops before extraction if the total exceeds 2 GB or the entry count exceeds 50,000.
 
-That is the zip bomb defence. A famous 42 KB zip expands to 4.5 petabytes; a more modest one is a few megabytes that expands to several gigabytes of zeros, which is exactly the shape these limits catch. The declared sizes can lie in the other direction too — an archive can under-report — so the ceiling is a guard, not a guarantee, and a large legitimate archive is refused by the same rule. It is a deliberate trade: a tab that says no is better than a tab that hangs and loses whatever else you had open.
+Those declared sizes are written by whoever built the archive, so a bomb can simply under-report: state 1 KB and hand over a stream that expands to gigabytes. A second ceiling handles that one, counting the bytes that actually come out and stopping when the total passes 2 GB no matter what the headers claimed. On the zip path the count runs as the data arrives, in roughly 16 KB steps, so a single lying entry is cut off part-way rather than after it has already filled the tab; on the WebAssembly path the reader returns one whole file at a time, so the check can only land between entries.
+
+There is one more wrinkle worth stating plainly. A zip past 4 GB records its sizes in ZIP64 fields, and the JavaScript zip library used here reads those wrong — a 5 GB entry comes back as 1 GB, and a 4 GB one comes back as no size at all. So this tool parses the archive's directory itself, before handing anything to that library, and an entry whose real size cannot be established is refused rather than assumed to be small. A large legitimate archive is refused by the same rules. It is a deliberate trade: a tab that says no is better than a tab that hangs and loses whatever else you had open.
 
 ## Can it open a password-protected archive?
 
@@ -36,4 +38,8 @@ Because everything is held in RAM. A tab on desktop Chrome or Firefox will handl
 
 ## What about ISO, CAB, DMG or a split archive?
 
-libarchive itself understands many more formats than the five this tool advertises, but only those five are detected and offered here, because those are the ones that were verified. Multi-part archives (`.z01`, `.part1.rar`) are not supported: they need every part present at once, and this tool takes a single file.
+libarchive itself understands many more formats than the five this tool advertises, but only those five are detected and offered here — the file's first bytes are matched against those five signatures and nothing else, so an ISO or a CAB is turned away at the door even though the reader behind it could probably cope.
+
+Being precise about "offered": zip, tar and gzip have each been opened here with real files, including an encrypted zip and a `.tar.gz`. RAR and 7z are routed to the same libarchive build, which documents support for both, but no `.rar` or `.7z` file has been run through this page — they are offered on the library's reputation, not on a check performed here. If one fails to open, that is worth reporting rather than working around.
+
+Multi-part archives (`.z01`, `.part1.rar`) are not supported: they need every part present at once, and this tool takes a single file.

@@ -54,15 +54,20 @@ build of the C library [libarchive](https://github.com/libarchive/libarchive). T
 served to every visitor who opens a non-zip archive — and libarchive's licence requires its
 copyright notice to travel with a binary redistribution. Hence this section.
 
-Text copied verbatim from the notice at the bottom of
-<https://github.com/libarchive/libarchive/blob/master/COPYING> (fetched 2026-09-03). The same
-file records that a few sources carry additional terms — the compress filter and `mtree.5`
-carry a 3-clause UC Regents notice, `archive_parse_date.c` is public domain, and the BLAKE2
-files are triple-licensed CC0-1.0 / OpenSSL / Apache-2.0 — none of which conflict with MIT
-redistribution.
+Text from the notice at the bottom of
+<https://github.com/libarchive/libarchive/blob/master/COPYING> (fetched 2026-09-03). That file
+prints the notice as a template, with the placeholder `<author(s)>` on the copyright line and
+the instruction that each source file names its own holder; the name carried by the sources and
+by the project itself is Tim Kientzle, together with the project's contributors, so that is what
+stands on the line below. Nothing else is altered.
+
+The same COPYING file records that a few sources carry additional terms — the compress filter
+and `mtree.5` carry a 3-clause UC Regents notice, `archive_parse_date.c` is public domain, and
+the BLAKE2 files are triple-licensed CC0-1.0 / OpenSSL / Apache-2.0 — none of which conflict
+with MIT redistribution.
 
 ```
-Copyright (c) 2003-2018 <author(s)>
+Copyright (c) 2003-2018 Tim Kientzle and the libarchive contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

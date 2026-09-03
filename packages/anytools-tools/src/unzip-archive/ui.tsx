@@ -36,16 +36,24 @@ export function UnzipArchiveUi() {
     [],
   );
 
+  // Revoking inside a setState updater runs twice under StrictMode's double-invoke, and React
+  // may call an updater at a moment of its choosing — neither is a place for a side effect.
+  // The current URL is tracked here so revocation happens on the way to setState instead.
+  const zipUrlRef = useRef<string | null>(null);
+  const replaceZipUrl = (blob: Blob | null) => {
+    objectUrls.revoke(zipUrlRef.current);
+    const next = blob ? objectUrls.create(blob) : null;
+    zipUrlRef.current = next;
+    setZipUrl(next);
+  };
+
   const reset = async () => {
     await openSession.current?.close();
     openSession.current = null;
     setSession(null);
     setError(null);
     setStatus(null);
-    setZipUrl((prev) => {
-      objectUrls.revoke(prev);
-      return null;
-    });
+    replaceZipUrl(null);
   };
 
   const open = async () => {
@@ -57,6 +65,9 @@ export function UnzipArchiveUi() {
       const s = await openArchive(file, password.trim() || undefined);
       setSession(s);
       openSession.current = s;
+      // The archive is unlocked; the session needs no further use of the password, so it stops
+      // sitting in this component's state (and in the form field) for the rest of the visit.
+      setPassword('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'This archive could not be read.');
     } finally {
@@ -91,10 +102,7 @@ export function UnzipArchiveUi() {
       const blob = await repackAll(session, (done, total) =>
         setStatus(`Extracting ${done} of ${total}…`),
       );
-      setZipUrl((prev) => {
-        objectUrls.revoke(prev);
-        return objectUrls.create(blob);
-      });
+      replaceZipUrl(blob);
       setStatus(null);
     } catch (e) {
       setStatus(null);

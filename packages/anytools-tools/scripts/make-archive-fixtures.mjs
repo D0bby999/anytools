@@ -10,6 +10,11 @@
  *                     refuses encrypted entries by design; this is the libarchive password path.
  *   bomb.zip          ~3 MB that declares 3 GB of zeros in one entry. A real DEFLATE stream, not
  *                     a doctored header: the 2 GB guard must stop it before extraction.
+ *   zip64-5gib.zip    a one-byte stream declaring 5 GiB in a ZIP64 extra field. jszip reads that
+ *                     field as 1 GiB (its integer reader wraps at 32 bits), so a guard built on
+ *                     jszip's number lets it through; this must be refused.
+ *   collide.zip       three entries, two of which normalise to the same path (`..\config.json`
+ *                     and `config.json`). All three must come back out of "extract all".
  *
  * The zip and tar containers are written by hand rather than with a library because the point
  * is to have a file whose bytes we chose. Run: node scripts/make-archive-fixtures.mjs
@@ -43,11 +48,13 @@ function zipFile(path, entries) {
   const central = [];
   let offset = 0;
 
-  for (const { name, data, crc, size, method } of entries) {
+  for (const { name, data, crc, size, method, extra = Buffer.alloc(0) } of entries) {
     const nameBuf = Buffer.from(name, 'utf8');
+    // 45 is the version that announces ZIP64; the extra field only carries meaning with it.
+    const version = extra.length > 0 ? 45 : 20;
     const local = Buffer.alloc(30);
     local.writeUInt32LE(0x04034b50, 0);
-    local.writeUInt16LE(20, 4); // version needed
+    local.writeUInt16LE(version, 4); // version needed
     local.writeUInt16LE(0x0800, 6); // UTF-8 names
     local.writeUInt16LE(method, 8);
     local.writeUInt32LE(crc, 14);
@@ -58,16 +65,17 @@ function zipFile(path, entries) {
 
     const cd = Buffer.alloc(46);
     cd.writeUInt32LE(0x02014b50, 0);
-    cd.writeUInt16LE(20, 4);
-    cd.writeUInt16LE(20, 6);
+    cd.writeUInt16LE(version, 4);
+    cd.writeUInt16LE(version, 6);
     cd.writeUInt16LE(0x0800, 8);
     cd.writeUInt16LE(method, 10);
     cd.writeUInt32LE(crc, 16);
     cd.writeUInt32LE(data.length, 20);
     cd.writeUInt32LE(size, 24);
     cd.writeUInt16LE(nameBuf.length, 28);
+    cd.writeUInt16LE(extra.length, 30);
     cd.writeUInt32LE(offset, 42);
-    central.push(cd, nameBuf);
+    central.push(cd, nameBuf, extra);
 
     offset += local.length + nameBuf.length + data.length;
   }
@@ -117,6 +125,47 @@ async function bombZip(total = 3 * 1024 * 1024 * 1024) {
   await finished;
   zipFile(join(OUT, 'bomb.zip'), [
     { name: 'zeros.bin', data: Buffer.concat(parts), crc, size: total, method: 8 },
+  ]);
+}
+
+/** Deflate one small body into the shape zipFile() wants. */
+const zipEntry = (name, body, extra) => {
+  const raw = Buffer.from(body, 'utf8');
+  return {
+    name,
+    data: zlib.deflateRawSync(raw, { level: 6 }),
+    crc: crc32(raw),
+    size: extra ? 0xffffffff : raw.length,
+    method: 8,
+    extra,
+  };
+};
+
+/**
+ * A one-byte entry whose real size lives in a ZIP64 extra field and says 5 GiB.
+ *
+ * jszip reads that 8-byte field with signed 32-bit shifts and returns 1 GiB, so a size ceiling
+ * that trusts jszip waves this through. The 4-byte field carries the 0xFFFFFFFF marker that
+ * says "look in the extra field", exactly as a real archiver writes it.
+ */
+function zip64Zip() {
+  const extra = Buffer.alloc(12);
+  extra.writeUInt16LE(0x0001, 0); // ZIP64 extended information
+  extra.writeUInt16LE(8, 2); // one 8-byte value follows
+  extra.writeBigUInt64LE(BigInt(5 * 1024 * 1024 * 1024), 4);
+  zipFile(join(OUT, 'zip64-5gib.zip'), [zipEntry('zeros.bin', 'x', extra)]);
+}
+
+/**
+ * Two entries that collapse onto one path once `..` and the Windows separator are stripped,
+ * plus one that does not. Backslashes rather than `../`: jszip resolves a `/`-separated `..`
+ * away while loading, so a slash version would never reach the repacking step this checks.
+ */
+function collideZip() {
+  zipFile(join(OUT, 'collide.zip'), [
+    zipEntry('..\\config.json', '{"from":"outside"}\n'),
+    zipEntry('config.json', '{"from":"inside"}\n'),
+    zipEntry('docs/notes.md', '# notes\n'),
   ]);
 }
 
@@ -171,5 +220,9 @@ function secretZip() {
 sampleZip();
 sampleTarGz();
 secretZip();
+zip64Zip();
+collideZip();
 await bombZip();
-console.log(`fixtures written to ${OUT}: sample.zip sample.tar.gz secret.zip bomb.zip`);
+console.log(
+  `fixtures written to ${OUT}: sample.zip sample.tar.gz secret.zip zip64-5gib.zip collide.zip bomb.zip`,
+);

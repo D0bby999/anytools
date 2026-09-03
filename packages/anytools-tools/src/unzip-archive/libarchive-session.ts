@@ -12,7 +12,19 @@
  *
  * Neither file is requested until openWithLibarchive runs — that is the whole reason the
  * format check in logic.ts happens first.
+ *
+ * Every reader opened here owns a Web Worker holding the whole archive in the WASM heap. There
+ * is exactly one way to free it — `close()` — so every path out of this module that is not a
+ * returned session closes first. A wrong password, an archive over the size ceiling and a
+ * start-up timeout all used to leak one worker each.
  */
+import { deduplicatePaths } from '../shared/archive-path';
+import {
+  ArchiveError,
+  type ExtractionBudget,
+  enforceArchiveLimits,
+  unsignedSize,
+} from './archive-limits';
 
 const WORKER_URL = '/third-party/libarchive/worker-bundle.js';
 
@@ -30,9 +42,16 @@ export type LibarchiveSession = {
   close(): Promise<void>;
 };
 
-type CompressedEntry = {
+export type CompressedEntry = {
   file: { name: string; size: number; extract(): Promise<File> };
   path: string;
+};
+
+/** The part of libarchive.js's Archive this module uses — named so a test can stand in for it. */
+export type LibarchiveReader = {
+  usePassword(password: string): Promise<void>;
+  getFilesArray(): Promise<CompressedEntry[]>;
+  close(): Promise<void>;
 };
 
 let initialised = false;
@@ -46,11 +65,34 @@ async function loadArchive() {
   return Archive;
 }
 
-async function withTimeout<T>(work: Promise<T>, what: string): Promise<T> {
+/** Closing can fail too; when it does, the failure being handled is the one worth reporting. */
+async function closeQuietly(reader: Pick<LibarchiveReader, 'close'>): Promise<void> {
+  try {
+    await reader.close();
+  } catch {
+    // Deliberately swallowed: see above.
+  }
+}
+
+/**
+ * Wait for `work`, but not forever.
+ *
+ * `dispose` matters on the timeout path: the value can still arrive after we have given up, and
+ * for `Archive.open` that value is a live worker. Without this it would run until the tab closes.
+ */
+async function withTimeout<T>(
+  work: Promise<T>,
+  what: string,
+  dispose?: (value: T) => void,
+): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let arrived = false;
   try {
     return await Promise.race([
-      work,
+      work.then((value) => {
+        arrived = true;
+        return value;
+      }),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
           () =>
@@ -65,11 +107,13 @@ async function withTimeout<T>(work: Promise<T>, what: string): Promise<T> {
     ]);
   } finally {
     clearTimeout(timer);
+    if (!arrived && dispose) void work.then(dispose, () => undefined);
   }
 }
 
 /** Turns libarchive's own wording into something a person can act on. */
 function readable(e: unknown, hadPassword: boolean): Error {
+  if (e instanceof ArchiveError) return e;
   const message = e instanceof Error ? e.message : String(e);
   if (/passphrase|password|encrypt/i.test(message)) {
     return new Error(
@@ -87,52 +131,89 @@ function readable(e: unknown, hadPassword: boolean): Error {
 }
 
 /**
- * List an archive's entries without extracting them. Sizes come from the archive's own headers,
- * which is what makes the zip-bomb check in logic.ts possible before any byte is inflated.
+ * Turn an opened reader into a session: unlock it, list it, check it against the zip-bomb
+ * ceiling. Split out from the opening so the close-on-failure contract can be tested without a
+ * worker — every throw below closes the reader first.
  */
-export async function openWithLibarchive(
-  file: File,
+export async function sessionFromReader(
+  reader: LibarchiveReader,
+  budget: ExtractionBudget,
   password?: string,
 ): Promise<LibarchiveSession> {
-  const Archive = await loadArchive();
-  let reader: Awaited<ReturnType<typeof Archive.open>>;
-  try {
-    reader = await withTimeout(Archive.open(file), 'Opening the archive');
-    if (password) await reader.usePassword(password);
-  } catch (e) {
-    throw readable(e, Boolean(password));
-  }
-
+  // Only the boolean survives into the closures below. The password itself is needed for the
+  // unlock and nothing else, and a session can outlive the screen the user typed it on.
+  const hadPassword = Boolean(password);
   let listed: CompressedEntry[];
   try {
-    listed = (await withTimeout(
-      reader.getFilesArray(),
-      'Reading the file list',
-    )) as CompressedEntry[];
+    if (password) await reader.usePassword(password);
+    listed = await withTimeout(reader.getFilesArray(), 'Reading the file list');
   } catch (e) {
-    await reader.close();
-    throw readable(e, Boolean(password));
+    await closeQuietly(reader);
+    throw readable(e, hadPassword);
   }
 
   // `path` is the folder the entry sits in ("docs/") and `name` its basename; the full path is
-  // the two joined. The CompressedFile keeps the real internal path for extraction.
-  const byPath = new Map(listed.map((e) => [`${e.path}${e.file.name}`, e]));
+  // the two joined. Two entries can legitimately carry the same full path — tar keeps every
+  // version of a file it was given — and a Map keyed on that path would drop all but the last,
+  // so the listing would be missing a file the archive really contains.
+  const paths = deduplicatePaths(listed.map((e) => `${e.path}${e.file.name}`));
+  const byPath = new Map<string, CompressedEntry>();
+  for (const [i, entry] of listed.entries()) {
+    byPath.set(paths[i] ?? `${entry.path}${entry.file.name}`, entry);
+  }
+  // unsignedSize, not e.file.size: libarchive hands a 3 GB entry back as -1,073,741,824, and a
+  // negative size both displays as nonsense and slips under the ceiling. Measured in the lane.
+  const entries = [...byPath].map(([path, e]) => ({ path, size: unsignedSize(e.file.size) }));
+
+  try {
+    enforceArchiveLimits(entries);
+  } catch (e) {
+    await closeQuietly(reader);
+    throw e;
+  }
 
   return {
     engine: 'libarchive',
-    entries: [...byPath].map(([path, e]) => ({ path, size: e.file.size })),
+    entries,
     async extract(path) {
       const entry = byPath.get(path);
-      if (!entry) throw new Error(`"${path}" is not in this archive.`);
+      if (!entry) throw new ArchiveError(`"${path}" is not in this archive.`);
+      let extracted: File;
       try {
-        return await entry.file.extract();
+        extracted = await entry.file.extract();
       } catch (e) {
-        throw readable(e, Boolean(password));
+        throw readable(e, hadPassword);
       }
+      // The worker hands back one whole file at a time, so unlike the jszip path the running
+      // ceiling can only be applied between entries — this is the first moment the real size
+      // of this one is known, whatever its header claimed.
+      budget.spend(extracted.size);
+      return extracted;
     },
     async close() {
       // Terminates the worker, which is what frees the WASM heap holding the whole archive.
       await reader.close();
     },
   };
+}
+
+/**
+ * List an archive's entries without extracting them. Sizes come from the archive's own headers,
+ * which is what makes the zip-bomb check possible before any byte is inflated.
+ */
+export async function openWithLibarchive(
+  file: File,
+  budget: ExtractionBudget,
+  password?: string,
+): Promise<LibarchiveSession> {
+  const Archive = await loadArchive();
+  let reader: LibarchiveReader;
+  try {
+    reader = (await withTimeout(Archive.open(file), 'Opening the archive', (opened) => {
+      void closeQuietly(opened as unknown as LibarchiveReader);
+    })) as unknown as LibarchiveReader;
+  } catch (e) {
+    throw readable(e, Boolean(password));
+  }
+  return sessionFromReader(reader, budget, password);
 }
