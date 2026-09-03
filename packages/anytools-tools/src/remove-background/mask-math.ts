@@ -11,6 +11,36 @@
 /** u2netp takes a fixed 320×320 input. Not a tunable — the graph has this shape baked in. */
 export const MODEL_SIZE = 320;
 
+/**
+ * Largest frame the compose step will work on. Above this the image is scaled down first.
+ *
+ * The model never sees more than 320×320, so every pixel above this ceiling carries the user's
+ * colour detail but not one extra bit of mask detail — the alpha edge is interpolated from a
+ * 320-px prediction either way. What the extra pixels do cost is real: each full-frame buffer is
+ * width × height × 4 bytes, this pipeline holds several at once, and all of the compose work runs
+ * on the main thread. At the 16.7 Mpx canvas ceiling that is around 400 MB and a visibly frozen
+ * tab; at 8 Mpx it is half of that. The scaling is reported to the user rather than done quietly.
+ */
+export const MAX_WORK_PIXELS = 8_000_000;
+
+/**
+ * The size the cutout will actually be produced at, and whether that differs from the source.
+ *
+ * Aspect ratio is preserved and the image is never enlarged.
+ */
+export function workSize(
+  width: number,
+  height: number,
+): { width: number; height: number; scaled: boolean } {
+  const scale = Math.sqrt(MAX_WORK_PIXELS / (width * height));
+  if (!(scale < 1)) return { width, height, scaled: false };
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+    scaled: true,
+  };
+}
+
 /** ImageNet channel statistics, as used by U-2-Net's own training transform. */
 export const MEAN = [0.485, 0.456, 0.406] as const;
 export const STD = [0.229, 0.224, 0.225] as const;

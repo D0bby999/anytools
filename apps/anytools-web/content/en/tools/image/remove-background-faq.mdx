@@ -4,13 +4,19 @@ title: Remove Image Background — Frequently asked questions
 
 ## What actually runs when I press the button?
 
-A neural network called u2netp, running inside your browser tab on WebAssembly. It takes a 320×320 version of your image, predicts which pixels belong to the most prominent object, and that prediction becomes the alpha channel of a PNG. Nothing is sent anywhere: the image is decoded, resized, fed to the model and composited entirely on your machine, which you can confirm by opening the Network tab in developer tools, or by going offline after the first run and using the tool anyway.
+A neural network called u2netp, running inside your browser tab on WebAssembly. It takes a 320×320 version of your image, predicts which pixels belong to the most prominent object, and that prediction becomes the alpha channel of a PNG. Nothing is sent anywhere: the image is decoded, resized, fed to the model and composited entirely on your machine, which you can confirm by opening the Network tab in developer tools and watching a cutout complete without a single request.
 
 u2netp is the small variant of U-2-Net, published in 2020 alongside the paper *U²-Net: Going Deeper with Nested U-Structure for Salient Object Detection*. The weights are Apache-2.0 licensed, which is why this site can serve them. The model file is 4.4 MB and the ONNX Runtime that executes it is about 14 MB.
 
 ## Why is the first run slow, and the second one fast?
 
-Because those ~19 MB have to arrive before anything can happen. Both files are put into your browser's Cache Storage as they download, so a second cutout — in the same tab, in a new tab, or after a reload — re-downloads neither of them; all that crosses the network is a 24 KB loader script, and usually only to be told it has not changed. Clearing site data removes the cached copies, and the next run fetches them again.
+Because those ~19 MB have to arrive before anything can happen. Both files are put into your browser's Cache Storage as they download, so a second cutout — in the same tab, in a new tab, or after a reload — sends nothing at all: not the model, not the runtime, not a loader script. Clearing site data removes the cached copies, and the next run fetches them again. The model file's SHA-256 is checked against a pinned value before it is stored, so a truncated or tampered download is refused rather than run.
+
+You can cancel while those bytes are moving — the button appears next to the main one during the download and stops it cleanly. Once the model starts running there is nothing left to cancel: that step is a single call into WebAssembly on the page's main thread, which cannot be interrupted by this tool or by the browser. Expect the tab to be unresponsive for about a second while it happens.
+
+## Does it work offline?
+
+Partly, and it is worth being exact about which part. Once the model and runtime are cached, producing a cutout needs no network — disconnect after your first run and the next one still works, which you can verify in developer tools. What does *not* work offline is opening the page: this site installs no service worker, so reloading or navigating here without a connection gets you the browser's "no internet" screen. Keep the tab open and you keep the tool.
 
 Inference itself takes roughly one to three seconds on a laptop. It could be faster: the runtime supports multi-threading, but threads require the site to send COOP and COEP headers, and those headers break the ad frames this site is funded by. Single-threaded is the honest trade — about twice the time, no change to the result.
 
@@ -42,7 +48,9 @@ Because JPEG has no alpha channel. Saving a cutout as JPEG would fill the transp
 
 ## Is there a size limit?
 
-About 16.7 megapixels, the point where Safari's canvas stops working and returns blank output instead of an error. Above that the tool tells you rather than handing back an empty image. Large images are also slower to composite, though not to run the model on — that step is always 320×320.
+Two of them. Above about 16.7 megapixels the file is rejected outright — that is where Safari's canvas stops working and returns blank output instead of an error, so the tool says so rather than handing back an empty image.
+
+Between 8 and 16.7 megapixels the cutout is produced at a smaller size, and the result panel tells you the exact dimensions it used. The reason is that the mask is predicted at 320×320 no matter how large your photo is, so those extra pixels carry none of the detail that decides where the edge falls; what they do carry is several full-frame buffers of memory and a longer freeze while the page composites them. If you need the cutout at full resolution, the workaround is to take the alpha channel from this PNG into an editor and apply it to your original.
 
 ## Can I do several images at once?
 

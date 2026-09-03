@@ -1,8 +1,9 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { isAbortError } from '../shared/onnx-loader';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type RemoveBackgroundProgress,
@@ -36,15 +37,32 @@ export function RemoveBackgroundUi() {
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Cancels the two one-off downloads. Not the inference: that is one synchronous call into
+  // WebAssembly on the main thread, and nothing — not this signal, not the browser — interrupts it.
+  const abort = useRef<AbortController | null>(null);
 
   const file = files[0] ?? null;
+
+  /** Drop the current result and free the blob behind its object URL. */
+  const clearResult = () => {
+    objectUrls.revoke(url);
+    setUrl(null);
+    setResult(null);
+  };
 
   const run = async () => {
     if (!file) return;
     trackEvent('tool_run', { tool: 'remove-background' });
+    const controller = new AbortController();
+    abort.current = controller;
     setBusy(true);
     setError(null);
     setProgress({ stage: 'engine', loaded: 0, total: 0 });
+    // Revoked before the run, not inside the state updater that replaces it: React may call an
+    // updater more than once, and a revoke that runs twice is a leak (the second create is never
+    // released) as surely as one that never runs.
+    objectUrls.revoke(url);
+    setUrl(null);
     try {
       const r = await removeBackground(
         file,
@@ -55,16 +73,16 @@ export function RemoveBackgroundUi() {
             background === 'transparent' ? null : background === 'white' ? '#ffffff' : colour,
         },
         setProgress,
+        controller.signal,
       );
       setResult(r);
-      setUrl((prev) => {
-        if (prev) objectUrls.revoke(prev);
-        return objectUrls.create(r.blob);
-      });
+      setUrl(objectUrls.create(r.blob));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Background removal failed');
+      if (isAbortError(e)) setError('Download cancelled — nothing was changed.');
+      else setError(e instanceof Error ? e.message : 'Background removal failed');
     } finally {
+      abort.current = null;
       setBusy(false);
       setProgress(null);
     }
@@ -84,7 +102,7 @@ export function RemoveBackgroundUi() {
           files={files}
           onChange={(f) => {
             setFiles(f);
-            setResult(null);
+            clearResult();
             setError(null);
           }}
           accept="image/*"
@@ -158,14 +176,29 @@ export function RemoveBackgroundUi() {
           cut-off gives a cleaner, harder edge. Edge softness blurs that edge afterwards.
         </p>
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? 'Working…' : 'Remove background'}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={run}
+            disabled={!file || busy}
+            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
+          >
+            {busy ? 'Working…' : 'Remove background'}
+          </button>
+
+          {/* Only offered while bytes are moving. Once inference starts there is nothing left to
+              cancel — the WASM call blocks this thread until it returns — and a dead button is
+              worse than none. */}
+          {busy && progress && progress.stage !== 'inference' && (
+            <button
+              type="button"
+              onClick={() => abort.current?.abort()}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-input px-4 text-sm font-medium hover:bg-accent"
+            >
+              Cancel download
+            </button>
+          )}
+        </div>
 
         {progress && (
           <output className="block space-y-2 text-sm">
@@ -196,6 +229,14 @@ export function RemoveBackgroundUi() {
             <div className="rounded-md border bg-muted p-3 text-sm">
               {result.width} × {result.height} px · kept {Math.round(result.opaque * 100)}% of the
               pixels, removed {Math.round(result.transparent * 100)}% · {result.inferenceMs} ms
+              {result.scaledFrom && (
+                <span className="mt-1 block text-muted-foreground">
+                  Scaled down from {result.scaledFrom.width} × {result.scaledFrom.height} px. Above
+                  8 megapixels the cutout is produced at a smaller size — the mask itself is
+                  predicted at 320 × 320 whatever the input, so the extra pixels add no detail to
+                  the edge, only memory and time.
+                </span>
+              )}
             </div>
             <div className="rounded border p-2" style={CHECKERBOARD}>
               {/* A plain img, not next/image: this is a blob URL for bytes the browser already

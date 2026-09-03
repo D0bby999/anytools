@@ -12,11 +12,13 @@ If the subject is small in the frame, crop closer first with [Crop Image](/en/im
 
 ## 2. Run it, and wait out the first download
 
-The first run fetches the 14 MB WebAssembly engine and then the 4.4 MB model, and the progress bar names whichever is arriving. Both are stored in your browser's cache afterwards, so this happens once, not once per image and not once per visit. On the runs that follow, the bar barely appears and the whole thing takes a second or two.
+The first run fetches the 14 MB WebAssembly engine and then the 4.4 MB model, and the progress bar names whichever is arriving. A **Cancel download** button sits beside the main one while that is happening, in case you would rather not spend the bytes right now; nothing is changed if you use it. Both files are stored in your browser's cache afterwards, so the download happens once, not once per image and not once per visit. On the runs that follow, the bar barely appears and the whole thing takes a second or two — during which the page will not respond to clicks, because the model runs on the same thread that draws it.
 
 ## 3. Read the numbers, not just the picture
 
 Under the preview the tool reports how much of the image it kept and how much it removed. That line catches the two failure modes a checkerboard preview hides on a small screen: a mask that kept almost everything (the background was not removed at all) and one that kept almost nothing (the subject was treated as background). If either number looks absurd for your photo, the mask is wrong, and the next two steps will not save it — change the photo instead.
+
+The same line reports the output size, and says so explicitly when the cutout came out smaller than what you supplied. Anything above 8 megapixels is produced at a reduced size: the mask is predicted at 320×320 whatever you feed in, so the extra pixels sharpen nothing about the edge while costing memory and a longer pause.
 
 ## 4. Set the cut-off
 
@@ -36,7 +38,7 @@ Leave the background transparent for logos, product shots and anything you will 
 
 ## 7. Download, then tidy up
 
-The download is a full-resolution PNG. Transparent PNGs are large — a 12-megapixel cutout can be 8 MB or more — so [Compress Image](/en/image/compress-image) is usually the next stop, and it keeps the alpha channel if you choose WebP or PNG. If you cut out a series of products, [Image to PDF](/en/pdf/image-to-pdf) collects them into one document in the order you set.
+The download is a PNG at the size named in the result panel — your original resolution, or the 8-megapixel ceiling if you were above it. Transparent PNGs are large — an 8-megapixel cutout can be 8 MB or more — so [Compress Image](/en/image/compress-image) is usually the next stop, and it keeps the alpha channel if you choose WebP or PNG. If you cut out a series of products, [Image to PDF](/en/pdf/image-to-pdf) collects them into one document in the order you set.
 
 ## When to stop trying
 

@@ -8,10 +8,11 @@
  * docs/tool-runtime-verification.md, whose results are recorded in the phase file.
  */
 import { describe, expect, it } from 'vitest';
-import { MODEL_URL } from './logic';
+import { cacheKeyFor, isAbortError, isStaleCacheEntry, toHex } from '../shared/onnx-loader';
+import { MODEL } from './logic';
 import {
+  MAX_WORK_PIXELS,
   MEAN,
-  MODEL_SIZE,
   STD,
   alphaStats,
   applyThresholdInPlace,
@@ -19,6 +20,7 @@ import {
   maskToRgba,
   minMaxNormalise,
   normaliseToTensor,
+  workSize,
 } from './mask-math';
 
 const rgba = (...pixels: [number, number, number, number][]) =>
@@ -142,12 +144,78 @@ describe('alphaStats', () => {
   });
 });
 
-describe('model wiring', () => {
-  it('loads the model from our own origin', () => {
-    expect(MODEL_URL.startsWith('/third-party/')).toBe(true);
+describe('workSize', () => {
+  it('leaves an image at or below the ceiling alone', () => {
+    expect(workSize(2000, 1500)).toEqual({ width: 2000, height: 1500, scaled: false });
   });
 
-  it('uses the input size the graph was exported with', () => {
-    expect(MODEL_SIZE).toBe(320);
+  it('scales a larger image down to the ceiling, keeping the aspect ratio', () => {
+    const out = workSize(6000, 4000); // 24 Mpx
+    expect(out.scaled).toBe(true);
+    expect(out.width * out.height).toBeLessThanOrEqual(MAX_WORK_PIXELS * 1.001);
+    expect(out.width / out.height).toBeCloseTo(6000 / 4000, 3);
+  });
+
+  it('never returns a zero dimension for an extreme panorama', () => {
+    const out = workSize(60_000, 20);
+    expect(out.height).toBeGreaterThanOrEqual(1);
+    expect(out.width).toBeGreaterThanOrEqual(1);
+  });
+});
+
+/**
+ * The cache-key helpers live in shared/onnx-loader.ts but are exercised here: this tool is the
+ * only caller, and the loader has no test file of its own to add to.
+ */
+describe('model cache keys', () => {
+  it('pins the weights to their sha256, so new weights cannot reuse an old entry', () => {
+    const key = cacheKeyFor(MODEL.url, MODEL.sha256);
+    expect(key).toBe(`${MODEL.url}?v=${MODEL.sha256}`);
+    expect(cacheKeyFor(MODEL.url, 'other-hash')).not.toBe(key);
+  });
+
+  it('treats a pre-versioning entry for the same path as stale', () => {
+    expect(isStaleCacheEntry('http://x/third-party/u2netp/u2netp.onnx', MODEL.url, 'a')).toBe(true);
+  });
+
+  it('treats an entry from another version as stale, and the current one as fresh', () => {
+    const url = '/third-party/onnx/ort-wasm-simd-threaded.wasm';
+    expect(isStaleCacheEntry(`http://x${url}?v=1.28.0`, url, '1.29.0')).toBe(true);
+    expect(isStaleCacheEntry(`http://x${url}?v=1.29.0`, url, '1.29.0')).toBe(false);
+  });
+
+  it('never deletes another asset that happens to be cached alongside', () => {
+    const url = '/third-party/onnx/ort-wasm-simd-threaded.wasm';
+    expect(isStaleCacheEntry('http://x/third-party/u2netp/u2netp.onnx?v=z', url, '1.29.0')).toBe(
+      false,
+    );
+  });
+
+  it('escapes a version that would otherwise change the query string', () => {
+    expect(cacheKeyFor('/a.wasm', '1.0 &b=c')).toBe('/a.wasm?v=1.0%20%26b%3Dc');
+  });
+});
+
+describe('integrity check', () => {
+  it('hexes a digest the way the pinned sha256 is written', async () => {
+    const digest = await crypto.subtle.digest('SHA-256', new Uint8Array());
+    // The SHA-256 of the empty input, lower-case hex — the form vendor-assets.json uses.
+    expect(toHex(digest)).toBe('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+  });
+
+  it('pins a 64-character lower-case hex digest for the weights', () => {
+    expect(MODEL.sha256).toMatch(/^[0-9a-f]{64}$/);
+  });
+});
+
+describe('isAbortError', () => {
+  it('recognises the DOMException a cancelled fetch raises', () => {
+    expect(isAbortError(new DOMException('stopped', 'AbortError'))).toBe(true);
+  });
+
+  it('does not swallow a real failure', () => {
+    expect(isAbortError(new TypeError('Failed to fetch'))).toBe(false);
+    expect(isAbortError(null)).toBe(false);
+    expect(isAbortError('AbortError')).toBe(false);
   });
 });

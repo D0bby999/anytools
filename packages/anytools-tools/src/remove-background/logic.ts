@@ -9,18 +9,34 @@
  * returns null from getContext and never calls back from toBlob.
  */
 import { ImageToolError, loadBitmap } from '../shared/canvas-image';
-import { type ModelProgress, loadOnnxRuntime, loadOnnxSession } from '../shared/onnx-loader';
-import { buildMask, surface, toPng } from './mask-canvas';
+import {
+  type ModelProgress,
+  type OnnxModel,
+  loadOnnxRuntime,
+  loadOnnxSession,
+} from '../shared/onnx-loader';
+import { type Surface, buildMask, release, surface, toPng } from './mask-canvas';
 import {
   MODEL_SIZE,
   alphaStats,
   composeAlpha,
   minMaxNormalise,
   normaliseToTensor,
+  workSize,
 } from './mask-math';
 
-/** Staged by copy-vendor-assets.mjs (manifest key `u2netp`), sha256-pinned. Our origin only. */
-export const MODEL_URL = '/third-party/u2netp/u2netp.onnx';
+/**
+ * Staged by copy-vendor-assets.mjs (manifest key `u2netp`). Our origin only.
+ *
+ * The sha256 is the same one pinned in vendor-assets.json, repeated here on purpose: the manifest
+ * hash is checked at build time against what the release download produced, this one is checked in
+ * the browser against what the visitor's network actually delivered, and it is also the cache key,
+ * so replacing the weights can never serve a stale copy. Change the file, change both.
+ */
+export const MODEL: OnnxModel = {
+  url: '/third-party/u2netp/u2netp.onnx',
+  sha256: '309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8',
+};
 
 export type RemoveBackgroundOptions = {
   /** 0…1 cut-off applied to the mask. 0 keeps the model's soft mask unchanged. */
@@ -43,8 +59,11 @@ export type RemoveBackgroundProgress = {
 
 export type RemoveBackgroundResult = {
   blob: Blob;
+  /** Size of the PNG produced — below the source size when the frame exceeded MAX_WORK_PIXELS. */
   width: number;
   height: number;
+  /** The source size, present only when the output had to be scaled down from it. */
+  scaledFrom: { width: number; height: number } | null;
   /** Share of pixels left fully opaque (the subject) and fully transparent (the background). */
   opaque: number;
   transparent: number;
@@ -60,9 +79,11 @@ export type RemoveBackgroundResult = {
  * and it also wastes resolution on padding.
  */
 function toModelInput(bitmap: ImageBitmap): Float32Array {
-  const { ctx } = surface(MODEL_SIZE, MODEL_SIZE);
-  ctx.drawImage(bitmap, 0, 0, MODEL_SIZE, MODEL_SIZE);
-  return normaliseToTensor(ctx.getImageData(0, 0, MODEL_SIZE, MODEL_SIZE).data);
+  const small = surface(MODEL_SIZE, MODEL_SIZE);
+  small.ctx.drawImage(bitmap, 0, 0, MODEL_SIZE, MODEL_SIZE);
+  const tensor = normaliseToTensor(small.ctx.getImageData(0, 0, MODEL_SIZE, MODEL_SIZE).data);
+  release(small);
+  return tensor;
 }
 
 /**
@@ -98,21 +119,26 @@ async function runModel(
 /**
  * Remove the background from one image.
  *
- * `onProgress` reports the two one-off downloads (engine, then model) byte by byte. Inference is
- * a single opaque call into WASM with no intermediate signal, so it is announced as a stage and
- * not as a percentage the code would have to invent.
+ * `onProgress` reports the two one-off downloads (engine, then model) byte by byte; `signal`
+ * cancels them. Inference is a single opaque call into WASM with no intermediate signal, so it is
+ * announced as a stage and not as a percentage the code would have to invent — and, being one
+ * synchronous trip into WebAssembly on the main thread, it is the one step `signal` cannot stop.
  */
 export async function removeBackground(
   file: File,
   options: RemoveBackgroundOptions,
   onProgress?: (p: RemoveBackgroundProgress) => void,
+  signal?: AbortSignal,
 ): Promise<RemoveBackgroundResult> {
   const bitmap = await loadBitmap(file);
+  let cutout: Surface | null = null;
   try {
     const input = toModelInput(bitmap);
     onProgress?.({ stage: 'engine', loaded: 0, total: 0 });
-    const session = await loadOnnxSession(MODEL_URL, (p) =>
-      onProgress?.({ stage: p.file, loaded: p.loaded, total: p.total }),
+    const session = await loadOnnxSession(
+      MODEL,
+      (p) => onProgress?.({ stage: p.file, loaded: p.loaded, total: p.total }),
+      signal,
     );
     const ort = await loadOnnxRuntime();
 
@@ -121,11 +147,11 @@ export async function removeBackground(
     const mask = await runModel(ort, session, input);
     const inferenceMs = Math.round(performance.now() - started);
 
-    const { width, height } = bitmap;
+    const { width, height, scaled } = workSize(bitmap.width, bitmap.height);
     const maskData = buildMask(mask, width, height, options);
 
-    const cutout = surface(width, height);
-    cutout.ctx.drawImage(bitmap, 0, 0);
+    cutout = surface(width, height);
+    cutout.ctx.drawImage(bitmap, 0, 0, width, height);
     const pixels = cutout.ctx.getImageData(0, 0, width, height);
     composeAlpha(pixels.data, maskData.data);
     // Measured on the cutout, before any background is flattened on: the useful number is how
@@ -133,24 +159,28 @@ export async function removeBackground(
     const stats = alphaStats(pixels.data);
     cutout.ctx.putImageData(pixels, 0, 0);
 
-    let output = cutout;
     if (options.background) {
-      output = surface(width, height);
-      output.ctx.fillStyle = options.background;
-      output.ctx.fillRect(0, 0, width, height);
-      output.ctx.drawImage(cutout.canvas, 0, 0);
+      // 'destination-over' paints the fill BEHIND what is already there, which is what a second
+      // canvas (fill, then draw the cutout on top) was doing at the cost of another full frame.
+      cutout.ctx.globalCompositeOperation = 'destination-over';
+      cutout.ctx.fillStyle = options.background;
+      cutout.ctx.fillRect(0, 0, width, height);
+      cutout.ctx.globalCompositeOperation = 'source-over';
     }
 
     return {
-      blob: await toPng(output.canvas),
+      blob: await toPng(cutout.canvas),
       width,
       height,
+      scaledFrom: scaled ? { width: bitmap.width, height: bitmap.height } : null,
       opaque: stats.opaque,
       transparent: stats.transparent,
       inferenceMs,
     };
   } finally {
-    // Decoded pixels live outside the JS heap; a few large photos without this exhaust the tab.
+    // Decoded pixels and canvas backing stores live outside the JS heap, so the collector is in no
+    // hurry to reclaim them; a few large photos without this exhaust the tab.
     bitmap.close();
+    if (cutout) release(cutout);
   }
 }

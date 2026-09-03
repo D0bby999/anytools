@@ -27,6 +27,19 @@ export function surface(width: number, height: number): Surface {
 }
 
 /**
+ * Drop a canvas's backing store now instead of at the next garbage collection.
+ *
+ * A full-frame surface is width × height × 4 bytes of memory the JS heap does not account for, so
+ * the collector is in no hurry to reclaim it; this tool holds several at once and an 8-megapixel
+ * frame makes each of them 32 MB. Setting either dimension to 0 frees the buffer immediately, and
+ * is the only way to say so from script.
+ */
+export function release(s: Surface): void {
+  s.canvas.width = 0;
+  s.canvas.height = 0;
+}
+
+/**
  * Scale the 320×320 mask up to the image's size, then threshold and feather it.
  *
  * Order matters: threshold first, blur second. Blurring a soft mask and then cutting it gives a
@@ -50,16 +63,26 @@ export function buildMask(
   full.ctx.imageSmoothingEnabled = true;
   full.ctx.imageSmoothingQuality = 'high';
   full.ctx.drawImage(small.canvas, 0, 0, full.canvas.width, full.canvas.height);
+  release(small);
 
   const scaled = full.ctx.getImageData(0, 0, full.canvas.width, full.canvas.height);
   applyThresholdInPlace(scaled.data, threshold);
-  if (!(feather > 0)) return scaled;
+  if (!(feather > 0)) {
+    release(full);
+    return scaled;
+  }
 
   full.ctx.putImageData(scaled, 0, 0);
+  // A second surface, not a self-draw: drawing a canvas onto itself through ctx.filter is legal
+  // per spec but has a history of browser bugs, and this path cannot be unit-tested. The cost is
+  // one extra full-frame buffer for the length of one drawImage, freed on the next line.
   const blurred = surface(width, height);
   blurred.ctx.filter = `blur(${feather}px)`;
   blurred.ctx.drawImage(full.canvas, 0, 0);
-  return blurred.ctx.getImageData(0, 0, blurred.canvas.width, blurred.canvas.height);
+  release(full);
+  const out = blurred.ctx.getImageData(0, 0, blurred.canvas.width, blurred.canvas.height);
+  release(blurred);
+  return out;
 }
 
 /** Encode a canvas as PNG — the only common format that keeps an alpha channel. */
