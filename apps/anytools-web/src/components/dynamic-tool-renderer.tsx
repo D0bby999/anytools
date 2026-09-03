@@ -127,6 +127,7 @@ const LOADERS: Record<string, ComponentType> = {
   'css-gradient-generator': dynamic(() =>
     import('@anytools/tools/css-gradient-generator').then(pick),
   ),
+  'box-shadow-generator': dynamic(() => import('@anytools/tools/box-shadow-generator').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

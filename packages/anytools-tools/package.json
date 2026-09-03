@@ -85,6 +85,7 @@
     "./totp-generator": "./src/totp-generator/index.ts",
     "./http-status-codes": "./src/http-status-codes/index.ts",
     "./css-gradient-generator": "./src/css-gradient-generator/index.ts",
+    "./box-shadow-generator": "./src/box-shadow-generator/index.ts",
     "./merge-pdf": "./src/merge-pdf/index.ts",
     "./split-pdf": "./src/split-pdf/index.ts",
     "./rotate-pdf": "./src/rotate-pdf/index.ts",

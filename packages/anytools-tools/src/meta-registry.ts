@@ -11,6 +11,7 @@ import { meta as binaryEncode } from './binary-encode/meta';
 import { meta as bmiCalculator } from './bmi-calculator/meta';
 import { meta as bmrCalculator } from './bmr-calculator/meta';
 import { meta as bodyFatCalculator } from './body-fat-calculator/meta';
+import { meta as boxShadowGenerator } from './box-shadow-generator/meta';
 import { meta as calorieCalculator } from './calorie-calculator/meta';
 import { meta as chmodCalculator } from './chmod-calculator/meta';
 import { meta as colorConverter } from './color-converter/meta';
@@ -200,6 +201,7 @@ export const toolMetas: ToolMeta[] = [
   httpStatusCodes,
   // CSS generators (260903)
   cssGradientGenerator,
+  boxShadowGenerator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

@@ -1,0 +1,39 @@
+---
+title: Box shadow generator — Frequently asked questions
+---
+
+## What do the four numbers mean?
+
+In order: horizontal offset, vertical offset, blur radius, spread. Positive offsets move the shadow right and down. The blur radius is the width of the fade — roughly, the shadow extends half the blur beyond the shape's edge. Spread grows (or, when negative, shrinks) the shadow before the blur is applied, which is how you get a tight, dark shadow that does not creep out from under the element. Spread is optional in the syntax, so the generator leaves it out when it is zero.
+
+## Why does one layer look flat and three look real?
+
+Because real light produces more than one shadow. The Material elevation presets stack three: a small, darker layer directly under the element (the key light's umbra), a wider mid layer (the penumbra), and a large faint layer that spreads out (ambient light). Each one alone looks like a grey smudge; together they read as height. That is the whole trick behind shadows that look designed rather than applied.
+
+## Does the layer order matter?
+
+Yes. The first layer in the list paints on top of the second, and so on — the same stacking order as multiple backgrounds. With translucent layers, reordering changes the composited result, so the generator never sorts them. Put the tightest, darkest layer first.
+
+## Are many layers expensive?
+
+They can be. Each layer is a separate blurred rasterisation of the border box, and blur cost grows with the radius, not with the element's size. On a static card, five layers cost nothing you can measure. On something that animates, scrolls under `position: fixed`, or repeats a hundred times in a list, large-radius shadows are one of the classic reasons a page drops frames. The usual fixes: animate `transform` and `opacity` instead of the shadow itself, keep the blur radius modest, or cross-fade between a pre-set "resting" and "raised" shadow on a pseudo-element rather than animating the blur.
+
+## What does `inset` change?
+
+It paints the shadow inside the border box instead of outside it, so the element looks pressed in rather than raised. Offsets still work the same way, but the visible edge is the opposite one: a `y` of 4 with `inset` darkens the top inside edge. You can mix inset and outer layers in a single value, which is how a pressed button with a soft outer glow is built.
+
+## Why does `box-shadow` follow my rounded corners but not my clipped shape?
+
+Because it follows the *border box*, including `border-radius`. It does not know about `clip-path`, an SVG mask, or transparent pixels in a background image — you will get a rectangle-shaped shadow behind a star-shaped element. For those cases the answer is `filter: drop-shadow()`, which follows the alpha channel of what is actually painted. It takes no spread value and only one shadow per function, but it is the right tool when the silhouette is not a rectangle.
+
+## Can I animate a shadow?
+
+You can — `box-shadow` is animatable, and layers interpolate one-to-one when both sides have the same number of them. But animating blur means re-rasterising every frame. The common alternative is to put the raised shadow on a pseudo-element with `opacity: 0` and fade it in, which stays on the compositor.
+
+## Why a light and a dark preview?
+
+Because a shadow tuned on white usually disappears on a dark background. Black at 12% opacity over `#0b1220` is nearly invisible, which is why dark themes tend to use borders, lighter surfaces or a coloured glow instead of a black shadow. Seeing both at once is faster than switching themes and hoping.
+
+## Is anything uploaded?
+
+No. The value is assembled in your browser and nothing leaves the page.

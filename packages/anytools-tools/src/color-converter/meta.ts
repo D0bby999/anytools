@@ -30,6 +30,15 @@ export const meta: ToolMeta = {
       },
     },
     {
+      tool: 'box-shadow-generator',
+      reason: {
+        en: 'Use it as a shadow colour with an alpha channel',
+        vi: 'Dùng làm màu shadow kèm alpha',
+        es: 'Úsalo como color de sombra con canal alfa',
+        pt: 'Use-o como cor de sombra com canal alfa',
+      },
+    },
+    {
       tool: 'color-palette',
       reason: {
         en: 'Build a harmonised palette around it',
