@@ -1,0 +1,41 @@
+---
+title: XLSX to CSV / JSON — Frequently asked questions
+---
+
+## Why will it not open my .xls, .ods or Numbers file?
+
+Because they are not the same format, and this tool reads exactly one of them. `.xlsx` is a zip container full of XML — the format Excel has written by default since 2007. The older `.xls` is a binary compound-document format with nothing in common with it beyond the name. `.ods` is OpenDocument, another zip full of XML but with entirely different XML inside. Apple Numbers files are a bundle of Apple's own protobuf-encoded snapshots and are not publicly specified.
+
+The library here, ExcelJS, reads `.xlsx` and nothing else. There is a well-known JavaScript library that reads all of them, and it was considered and rejected: its current community build is distributed as a tarball from the vendor's own CDN rather than from npm, which means the lockfile that pins it carries no integrity hash, and every install in CI would have to accept whatever bytes that host returned that day. That is not a trade worth making for a converter.
+
+The workaround takes ten seconds: open the file in Excel, LibreOffice Calc, Google Sheets or Numbers, and use *Save As* or *Export* to produce a `.xlsx`. Every one of those applications can write it. Then drop the result here.
+
+## Why does my date column come out as a number in other converters?
+
+Because a date in a spreadsheet is not a date — it is a number with a costume on. Excel stores 3 September 2026 as `46264`, the count of days since 30 December 1899, and the calendar appearance comes from a display format attached to the cell, not from the value. A converter that reads the raw value and writes it out gets `46264`, which is technically what was in the file and useless to everybody.
+
+This tool asks ExcelJS for the parsed value, which comes back as a JavaScript `Date`, and writes it as `2026-09-03`. If the cell also carries a time, you get `2026-09-03T14:30:05`. Both are ISO 8601, which sorts correctly as text and is unambiguous about day and month order — unlike `03/09/2026`, which means two different days depending on which side of the Atlantic you read it on.
+
+One caveat worth stating plainly: the conversion is done in UTC. Excel's stored value has no time zone at all, so any choice is arbitrary, and reading it in your local zone would move dates backwards by a day for anyone west of Greenwich. UTC keeps the calendar date that was typed.
+
+## What happens to formulas, merged cells and formatting?
+
+Formulas are replaced by their **cached result** — the value Excel last calculated and stored in the file. That is what you see on screen, so it is what a CSV should contain. Nothing here evaluates formulas: if a workbook was saved by a tool that did not write cached values, those cells arrive empty rather than wrong. Formula errors are passed through as text, so a `#DIV/0!` stays a `#DIV/0!` instead of quietly becoming a blank.
+
+Merged cells lose their merge. A merged block holds its value in the top-left cell only, and the cells underneath it are genuinely empty in the file — so a heading merged across four columns produces one value and three blanks. CSV has no concept of a merged cell, so there is nothing better to do; if the shape of the result surprises you, that is why.
+
+Everything visual is discarded, because CSV cannot carry it: fonts, colours, borders, number formats, conditional formatting, column widths, frozen panes, filters, charts, pivot tables, images and comments. Rich text inside a cell keeps its characters and loses its styling — bold and non-bold runs are joined into one string. Hyperlinks keep the text you see, not the target URL.
+
+## Are my files uploaded anywhere?
+
+No. The workbook is read in this browser tab. The file goes from the picker into the page through the File API, ExcelJS parses it in the page's own memory, and the download link points at a blob your browser is holding. Nothing is sent to a server, which you can confirm by opening the Network tab of your developer tools, or by disconnecting from the network after the page has loaded and converting anyway.
+
+That is also the limit of the tool. Everything must fit in the tab, and the parse runs on the main thread, so a large workbook freezes the page while it works. Above 20 MB you will see a warning to that effect. It is a warning and not a refusal — a 30 MB file will usually still finish, it will just take a visibly long time.
+
+## Should I use the CSV output or the JSON output?
+
+Use CSV when the destination is another spreadsheet, a database import, or any tool that expects tabular text. Set the delimiter to match what the destination expects: comma is standard, semicolon is what Excel expects in locales that use a comma as the decimal separator, and tab avoids the question entirely. Tick the BOM option if the file is going back into Excel and contains accented characters or non-Latin script — without it, Excel on Windows guesses the encoding and usually guesses wrong.
+
+Use JSON when the destination is code. The first row becomes the object keys by default; a blank header becomes `column_3` by position, and a repeated header becomes `name_2` so that no column is silently swallowed by a duplicate key.
+
+The one thing to know about the JSON output is that every value is a string, including numbers. A spreadsheet cell carries no JSON type, and guessing would corrupt real data — a part number like `007` becomes `7`, a phone number becomes a float. If you want typed values, take the CSV into the [CSV ↔ JSON converter](/tools/csv-json), which infers types while it parses, or into [JSON Formatter](/tools/json-formatter) to check the result. To turn a Word document into text the same way, see [DOCX to Markdown](/tools/docx-to-markdown).

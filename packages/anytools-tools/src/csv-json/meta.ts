@@ -14,5 +14,12 @@ export const meta: ToolMeta = {
   nextStepSuggestions: [
     { tool: 'json-formatter', reason: { en: 'Format the JSON output', vi: 'Format JSON output' } },
     { tool: 'mock-data-generator', reason: { en: 'Generate test data', vi: 'Tạo dữ liệu test' } },
+    {
+      tool: 'xlsx-to-csv',
+      reason: {
+        en: 'Start from an Excel workbook instead of a CSV',
+        vi: 'Bắt đầu từ file Excel thay vì CSV',
+      },
+    },
   ],
 };

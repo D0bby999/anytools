@@ -20,6 +20,12 @@ round trip. Needs `public/third-party/zxing/zxing_full.wasm` staged first (`vend
 | `barcode-ean13.png` | EAN-13 `5901234123457` (GS1's published sample) — the digits must come back exactly |
 | `qr-wifi.png` | a `WIFI:` QR whose password contains an escaped `;` — the case a naive `split(';')` parser mangles |
 | `barcodes-three.png` | EAN-13, Code 128 and Data Matrix in one image — the scanner must list all three, not stop at the first |
+## Generated — run `pnpm --filter @anytools/tools exec node scripts/make-office-fixtures.mjs`
+
+| File | Exercises |
+|---|---|
+| `office-book.xlsx` | xlsx-to-csv: two sheets, a date cell (must read `2026-09-03`, not the serial `46264`), a formula with a cached result, a formula whose result is `#DIV/0!`, rich text in two runs, a field holding both a comma and a quote, and an empty cell in the middle of a row |
+| `office-doc.docx` | docx-to-markdown: H1/H2, bold + italic, a bullet list, a link, and a 2x2 table whose first row is **not** flagged as a header row — the ordinary case, where a naive pipeline emits raw `<table>` HTML instead of a GFM table |
 
 ## Manual — owner drops real files into `manual/`
 

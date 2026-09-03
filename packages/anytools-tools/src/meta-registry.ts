@@ -103,6 +103,7 @@ import { meta as walletChecker } from './wallet-checker/meta';
 import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as wordCounter } from './word-counter/meta';
+import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
 import { meta as yamlFormatter } from './yaml-formatter/meta';
 
@@ -214,6 +215,8 @@ export const toolMetas: ToolMeta[] = [
   cssGradientGenerator,
   boxShadowGenerator,
   clipPathGenerator,
+  // Office files, read in the tab (260903)
+  xlsxToCsv,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

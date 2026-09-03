@@ -34,5 +34,12 @@ export const meta: ToolMeta = {
         vi: 'Phân tích payload JWT (vốn là JSON)',
       },
     },
+    {
+      tool: 'xlsx-to-csv',
+      reason: {
+        en: 'Get JSON out of an Excel sheet in the first place',
+        vi: 'Lấy JSON từ một sheet Excel',
+      },
+    },
   ],
 };
