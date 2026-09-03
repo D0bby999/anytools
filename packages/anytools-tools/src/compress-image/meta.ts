@@ -49,5 +49,14 @@ export const meta: ToolMeta = {
         pt: 'Juntar as fotos comprimidas num único arquivo',
       },
     },
+    {
+      tool: 'image-to-pdf',
+      reason: {
+        en: 'Collect the compressed photos into one PDF',
+        vi: 'Gom ảnh đã nén thành một file PDF',
+        es: 'Reunir las fotos comprimidas en un PDF',
+        pt: 'Reunir as fotos comprimidas num PDF',
+      },
+    },
   ],
 };

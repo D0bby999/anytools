@@ -49,5 +49,14 @@ export const meta: ToolMeta = {
         pt: 'Remover páginas que não queria',
       },
     },
+    {
+      tool: 'image-to-pdf',
+      reason: {
+        en: 'Turn photos or scans into a PDF you can merge in',
+        vi: 'Biến ảnh hoặc bản scan thành PDF để gộp vào',
+        es: 'Convertir fotos o escaneos en un PDF para combinar',
+        pt: 'Transformar fotos ou digitalizações num PDF para juntar',
+      },
+    },
   ],
 };

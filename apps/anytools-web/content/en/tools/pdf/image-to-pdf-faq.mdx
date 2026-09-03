@@ -1,0 +1,41 @@
+---
+title: Image to PDF — Frequently asked questions
+---
+
+## Are my photos uploaded anywhere?
+
+No. Each image is decoded and re-drawn by JavaScript running inside this browser tab, assembled into a document with the `pdf-lib` library, and handed back to you as a blob URL your browser creates locally. No request carries the file. You can check this yourself: open your browser's developer tools, switch to the Network tab, and build a PDF — you will see no upload. You can also disconnect from the network after the page has loaded and the tool still works.
+
+That difference matters more here than for most conversions. The photos people turn into PDFs are passports, driving licences, receipts, prescriptions and signed forms — the exact set of documents you would least like sitting in a stranger's processing queue behind a deletion policy you cannot audit.
+
+## Why does the tool re-encode an image that is already a JPEG?
+
+Because that is what makes rotation come out right, and it is the honest trade.
+
+A phone camera almost always records the sensor's raw landscape frame and adds an EXIF orientation flag saying "display this rotated". Image viewers honour that flag. PDF has no equivalent — a PDF stores pixels and a placement, and nothing else. So if the original bytes of a portrait phone photo were copied straight into the document, the page would come out sideways. This is the single most common defect in image-to-PDF tools, and the only reliable fix is to decode the image with the orientation applied and re-draw it.
+
+The cost: a JPEG is re-encoded once at quality 0.92, which is visually lossless at normal viewing size but is not bit-identical to your original. A PNG re-encodes to PNG, which is lossless. Re-drawing is also what allows WebP, GIF, AVIF and BMP as inputs at all, since PDF itself can only carry JPEG and PNG image data.
+
+Images that use transparency are written as PNG; everything else is written as JPEG. A photograph stored as PNG is routinely ten times the size of the same photograph as JPEG, and twenty of those produce a document that will not open on a phone.
+
+## What do the page size options do?
+
+**A4** and **US Letter** give every page the same standard size, and each image is scaled to fit inside the margins with its aspect ratio preserved. Nothing is cropped, so an image whose shape does not match the page leaves white bars on two sides. With orientation set to "Match each image", a landscape photo gets a landscape page and a portrait photo gets a portrait page, so those bars are usually small.
+
+**Fit the page to each image** sizes every page to its own image, so there are no bars at all and pages in one document may differ in size. The conversion used is 96 pixels per inch — the CSS pixel, the unit your screen and your browser already measure images in — so a 1920 × 1080 screenshot becomes a 1440 × 810 point page. A large photo therefore produces a physically large page. That is inherent to "no white bars" rather than a setting we could pick better; choose A4 or Letter if the result has to print on ordinary paper.
+
+## What is the "downscale to 150 dpi" option for?
+
+A PDF stores whatever pixels you give it. A 48-megapixel phone photo placed on an A4 page carries roughly ten megabytes into the document, even though an A4 page at good print resolution needs about 1.5 megapixels. Twenty such pages make a file too large to email and slow to open.
+
+With the option on, each image is reduced so that it lands at about 150 dots per inch at the size it will actually be printed — good print quality, with no visible difference on screen. Images already smaller than that budget are never enlarged. Turn it off when you need the full resolution, for example when the PDF is an archival copy of a scan. The option is not used when the page is sized to the image, because there shrinking the image would simply shrink the page and change nothing about the result.
+
+## Is there a size or count limit?
+
+There is no imposed limit, because there is no upload to limit. The real constraint is your device's memory: images are decoded one at a time rather than all at once, precisely so that a batch of large photos does not allocate several gigabytes of pixel buffers and stop the tab. Files above 100 MB draw a warning, but the tool still attempts them.
+
+An image above roughly 16.7 megapixels is refused with a message naming its size. That is a browser limit, not ours — Safari in particular returns a blank canvas rather than an error above that area, so refusing is the only way to avoid handing you a page that is silently white.
+
+## Does the order I set stick?
+
+Yes. Images become pages top to bottom in the order shown in the list, one image per page. Reorder by dragging a row, or with the up and down arrows beside it — the arrows exist because dragging does not work with a keyboard and is awkward on a touchscreen. After the PDF is built, the result panel lists each source file with the pixel size that went into the document and the page size it landed on, so you can confirm the order and the resolution before downloading.

@@ -41,6 +41,7 @@ import { meta as htmlBeautifier } from './html-beautifier/meta';
 import { meta as htmlEntity } from './html-entity/meta';
 import { meta as httpStatusCodes } from './http-status-codes/meta';
 import { meta as imageFormatConverter } from './image-format-converter/meta';
+import { meta as imageToPdf } from './image-to-pdf/meta';
 import { meta as integerBaseConverter } from './integer-base-converter/meta';
 import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
 import { meta as jsBeautifier } from './js-beautifier/meta';
@@ -105,6 +106,7 @@ export const toolMetas: ToolMeta[] = [
   mergePdf,
   pdfToPng,
   extractImagesFromPdf,
+  imageToPdf,
   integerBaseConverter,
   urlParser,
   userAgentParser,

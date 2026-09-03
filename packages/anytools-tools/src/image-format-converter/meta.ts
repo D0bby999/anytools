@@ -45,5 +45,14 @@ export const meta: ToolMeta = {
         pt: 'Gerar um QR code',
       },
     },
+    {
+      tool: 'image-to-pdf',
+      reason: {
+        en: 'Put the converted images into a PDF, one per page',
+        vi: 'Đưa ảnh đã đổi định dạng vào PDF, mỗi ảnh một trang',
+        es: 'Poner las imágenes convertidas en un PDF, una por página',
+        pt: 'Colocar as imagens convertidas num PDF, uma por página',
+      },
+    },
   ],
 };

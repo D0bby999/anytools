@@ -28,6 +28,7 @@ const LOADERS: Record<string, ComponentType> = {
   'extract-images-from-pdf': dynamic(() =>
     import('@anytools/tools/extract-images-from-pdf').then(pick),
   ),
+  'image-to-pdf': dynamic(() => import('@anytools/tools/image-to-pdf').then(pick)),
   'integer-base-converter': dynamic(() =>
     import('@anytools/tools/integer-base-converter').then(pick),
   ),
