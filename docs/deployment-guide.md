@@ -81,3 +81,25 @@ Add Repository → role Write.
 The misleading part: the failure surfaces as a `results-receiver … GetCacheEntryDownloadURL`
 error that looks like broken GitHub Actions caching. It is not — read further down for the real
 push-denied line.
+
+## Third-party runtime assets (WASM, models, fonts)
+
+Since 2026-09-03 the file tools load their heavy parts at runtime from our own origin, never a
+CDN: pdf.js cmaps/fonts, tesseract worker + core + traineddata, zxing wasm, onnxruntime wasm +
+the u2netp model, libheif glue + wasm, libarchive worker + wasm, Excalidraw fonts, Noto Sans.
+`apps/anytools-web/scripts/copy-vendor-assets.mjs` stages them into `public/third-party/`
+(gitignored) from the manifest `apps/anytools-web/vendor-assets.json`; it runs before `build`
+and `dev`, and CI runs it before `pnpm -r test`. Downloaded files are sha256-pinned; a mismatch
+fails the build on purpose.
+
+Consequences for deploys:
+
+- The Docker builder stage needs outbound HTTPS to github.com and notofonts.github.io for the
+  pinned downloads (~15 MB, cached under `~/.cache/anytools-vendor` inside the stage).
+- The runner image grew by roughly 54 MB (`public/third-party/`); the largest pieces are the
+  onnxruntime wasm (14 MB), Excalidraw's Xiaolai CJK font (12 MB) and tessdata (10 MB).
+- `next start` serves `public/` with `Cache-Control: public, max-age=0`, so every cold visit
+  revalidates. The tools cache the big binaries themselves (Cache API / IndexedDB), but a
+  `Cache-Control: immutable` header for `/third-party/*` in `next.config.ts` would still spare
+  a revalidation per asset — open follow-up.
+- A key marked `"pending": true` in the manifest is skipped: its tool has not shipped.
