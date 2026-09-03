@@ -28,11 +28,17 @@ Banding. An 8-bit-per-channel screen has 256 steps per channel; a gradient that 
 
 ## What are stops without a position for?
 
-If you leave the position empty, the browser spaces that stop evenly between the neighbours that do have one. It keeps the CSS short and survives you inserting another colour later. Positions are useful when you want a specific transition point — or a hard edge: give two stops the same percentage and the colour changes with no blend at all, which is how stripes, progress bars and the repeating preset are built.
+If you leave the position empty, the browser spaces that stop evenly between the neighbours that do have one. It keeps the CSS short and survives you inserting another colour later. Positions are useful when you want a specific transition point — or a hard edge: give two stops the same percentage and the colour changes with no blend at all, which is how stripes, progress bars and the repeating preset are built. The handles on the strip under the preview sit where the browser would place each stop, so an unpositioned one still has a handle; dragging it (or nudging it with the arrow keys, Home and End) writes an explicit percentage, because that is what a dragged position means.
 
 ## Why can I only enter percentages?
 
 Because percentages are what the editor can round-trip. CSS also accepts lengths (`red 20px`) and interpolation hints (a bare `40%` between two stops), and pasting either of those in returns a parse error rather than a wrong result. That is deliberate: quietly turning `20px` into `20%` would change the design without telling you.
+
+## What else does pasting CSS refuse, and why?
+
+Four more things, each because the editor has nowhere to put them: a colour interpolation method (`linear-gradient(in oklab, red, blue)` blends through a different colour space), a computed value anywhere in the declaration (`calc()`, `var()` — there is no fixed number to show you), more than one comma-separated background layer, and explicit radii on a radial gradient (`radial-gradient(200px 100px at 50% 50%, …)`). Every refusal prints the reason above the field, and the message clears as soon as you edit the text. The alternative — accepting the value and dropping the part it cannot hold — is how a generator hands back CSS you never wrote: an early version of this tool turned `in oklab` into a colour stop called "in oklab" and painted a gradient nobody asked for.
+
+One limit is worth stating plainly: the parser has no list of the 148 CSS colour names, so a single word it does not recognise is passed through as a colour name rather than rejected. `blurple` survives the round trip untouched, and the preview simply shows nothing for that stop — the same thing the browser does with it.
 
 ## Is anything uploaded?
 

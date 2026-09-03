@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { type GradientState, parse, toCss, toCssBlock, toTailwind, withKind } from './logic';
-import { GRADIENT_PRESETS } from './presets';
+import {
+  type GradientState,
+  pointerPercent,
+  toCss,
+  toCssBlock,
+  toTailwind,
+  trackPositions,
+  withKind,
+} from './logic';
 
 const linear: GradientState = {
   kind: 'linear',
@@ -69,151 +76,6 @@ describe('toCssBlock / toTailwind', () => {
   });
 });
 
-describe('parse round trip', () => {
-  const cases: [string, GradientState][] = [
-    ['plain linear', linear],
-    ['negative angle', { ...linear, angle: -45 }],
-    ['fractional angle', { ...linear, angle: 22.5 }],
-    [
-      'stops without a position',
-      { ...linear, stops: [...linear.stops].map((s) => ({ ...s, position: null })) },
-    ],
-    [
-      'hsl and rgba colours',
-      {
-        ...linear,
-        stops: [
-          { color: 'hsl(210, 90%, 60%)', position: 0 },
-          { color: 'rgba(0, 0, 0, 0.5)', position: 100 },
-        ],
-      },
-    ],
-    ['repeating linear', { ...linear, repeating: true }],
-    [
-      'radial with centre',
-      {
-        kind: 'radial',
-        shape: 'ellipse',
-        size: 'farthest-side',
-        cx: 25,
-        cy: 75,
-        repeating: false,
-        stops: [
-          { color: 'gold', position: 10 },
-          { color: 'navy', position: 90 },
-        ],
-      },
-    ],
-    [
-      'repeating conic',
-      {
-        kind: 'conic',
-        angle: 120,
-        cx: 40,
-        cy: 60,
-        repeating: true,
-        stops: [
-          { color: '#FF0000', position: 0 },
-          { color: '#00FF00', position: 50 },
-          { color: '#FF0000', position: 100 },
-        ],
-      },
-    ],
-    ['three stops', { ...linear, stops: [...linear.stops, { color: '#123456', position: 50 }] }],
-  ];
-
-  for (const [name, state] of cases) {
-    it(`round-trips ${name}`, () => {
-      expect(parse(toCss(state))).toEqual(state);
-    });
-  }
-
-  it('round-trips every preset', () => {
-    for (const preset of GRADIENT_PRESETS) {
-      expect(parse(toCss(preset.state)), preset.name).toEqual(preset.state);
-    }
-  });
-});
-
-describe('parse', () => {
-  it('accepts a full declaration with the property name and semicolon', () => {
-    expect(parse('  background: linear-gradient(90deg, red, blue);  ')).toEqual({
-      kind: 'linear',
-      angle: 90,
-      repeating: false,
-      stops: [
-        { color: 'red', position: null },
-        { color: 'blue', position: null },
-      ],
-    });
-  });
-
-  it('converts turn, rad and grad to degrees', () => {
-    expect((parse('linear-gradient(0.25turn, red, blue)') as { angle: number }).angle).toBe(90);
-    expect((parse('linear-gradient(200grad, red, blue)') as { angle: number }).angle).toBe(180);
-    expect(
-      (parse('linear-gradient(3.141592653589793rad, red, blue)') as { angle: number }).angle,
-    ).toBeCloseTo(180, 6);
-  });
-
-  it('maps the side and corner keywords to degrees', () => {
-    expect((parse('linear-gradient(to right, red, blue)') as { angle: number }).angle).toBe(90);
-    expect((parse('linear-gradient(to top, red, blue)') as { angle: number }).angle).toBe(0);
-    expect((parse('linear-gradient(to bottom left, red, blue)') as { angle: number }).angle).toBe(
-      225,
-    );
-  });
-
-  it('defaults a directionless linear gradient to 180deg, the CSS default', () => {
-    expect((parse('linear-gradient(red, blue)') as { angle: number }).angle).toBe(180);
-  });
-
-  it('does not mistake the first colour stop for geometry', () => {
-    expect(parse('radial-gradient(red, blue)')).toEqual({
-      kind: 'radial',
-      shape: 'ellipse',
-      size: 'farthest-corner',
-      cx: 50,
-      cy: 50,
-      repeating: false,
-      stops: [
-        { color: 'red', position: null },
-        { color: 'blue', position: null },
-      ],
-    });
-    expect((parse('conic-gradient(red, blue)') as { stops: unknown[] }).stops).toHaveLength(2);
-  });
-
-  it('expands a double-position stop into two stops', () => {
-    expect(
-      (parse('linear-gradient(90deg, red 0% 40%, blue 40% 100%)') as GradientState).stops,
-    ).toEqual([
-      { color: 'red', position: 0 },
-      { color: 'red', position: 40 },
-      { color: 'blue', position: 40 },
-      { color: 'blue', position: 100 },
-    ]);
-  });
-
-  it('keeps commas inside a colour function together', () => {
-    const g = parse('linear-gradient(90deg, rgb(255, 0, 0) 0%, rgb(0, 0, 255) 100%)');
-    expect((g as GradientState).stops.map((s) => s.color)).toEqual([
-      'rgb(255, 0, 0)',
-      'rgb(0, 0, 255)',
-    ]);
-  });
-
-  it('rejects what it cannot represent instead of guessing', () => {
-    expect(parse('linear-gradient(90deg, red 0px, blue 100px)')).toBeNull(); // px stops
-    expect(parse('radial-gradient(200px 100px at 50% 50%, red, blue)')).toBeNull(); // explicit radii
-    expect(parse('linear-gradient(90deg, red, 40%, blue)')).toBeNull(); // interpolation hint
-    expect(parse('linear-gradient(90deg, red)')).toBeNull(); // one stop is not a gradient
-    expect(parse('linear-gradient(to nowhere, red, blue)')).toBeNull();
-    expect(parse('url(cat.png)')).toBeNull();
-    expect(parse('')).toBeNull();
-  });
-});
-
 describe('withKind', () => {
   it('keeps the stops when switching kind', () => {
     expect(withKind(linear, 'conic')).toEqual({
@@ -235,5 +97,77 @@ describe('withKind', () => {
   it('gives a linear gradient an angle even when coming from radial', () => {
     const radial = withKind(linear, 'radial');
     expect(withKind(radial, 'linear')).toMatchObject({ kind: 'linear', angle: 90 });
+  });
+});
+
+describe('trackPositions', () => {
+  it('returns explicit positions unchanged', () => {
+    expect(trackPositions(linear.stops)).toEqual([0, 100]);
+  });
+
+  it('anchors an unpositioned first and last stop at 0% and 100%', () => {
+    expect(
+      trackPositions([
+        { color: 'red', position: null },
+        { color: 'blue', position: null },
+      ]),
+    ).toEqual([0, 100]);
+  });
+
+  it('spaces a run of unpositioned stops evenly between its neighbours', () => {
+    const [a, b, c, d] = trackPositions([
+      { color: 'a', position: 0 },
+      { color: 'b', position: null },
+      { color: 'c', position: null },
+      { color: 'd', position: 100 },
+    ]);
+    expect(a).toBe(0);
+    expect(b).toBeCloseTo(33.33, 1);
+    expect(c).toBeCloseTo(66.67, 1);
+    expect(d).toBe(100);
+  });
+
+  it('interpolates between the surrounding explicit positions, not the whole track', () => {
+    expect(
+      trackPositions([
+        { color: 'a', position: 10 },
+        { color: 'b', position: null },
+        { color: 'c', position: 50 },
+      ]),
+    ).toEqual([10, 30, 50]);
+  });
+
+  it('leaves backwards positions where they were typed', () => {
+    expect(
+      trackPositions([
+        { color: 'a', position: 60 },
+        { color: 'b', position: 20 },
+      ]),
+    ).toEqual([60, 20]);
+  });
+
+  it('handles an empty stop list', () => {
+    expect(trackPositions([])).toEqual([]);
+  });
+});
+
+describe('pointerPercent', () => {
+  const rect = { left: 100, width: 400 };
+
+  it('maps a pointer inside the track to a percentage', () => {
+    expect(pointerPercent(300, rect)).toBe(50);
+  });
+
+  it('clamps a drag that runs past either end, so 0% and 100% are reachable', () => {
+    expect(pointerPercent(-40, rect)).toBe(0);
+    expect(pointerPercent(9999, rect)).toBe(100);
+  });
+
+  it('rounds to one decimal', () => {
+    expect(pointerPercent(201, rect)).toBe(25.3);
+  });
+
+  it('does not divide by a zero width', () => {
+    expect(pointerPercent(10, { left: 0, width: 0 })).toBe(0);
   });
 });

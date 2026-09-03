@@ -230,10 +230,11 @@ export function getToolMetasByCluster(cluster: string): ToolMeta[] {
 }
 
 /**
- * Slim client-only variant. Drops `nextStepSuggestions` (localized reasons,
- * heaviest field per tool) and `availableLocales` (rendering-time only).
- * Use this in client components (catalog, cmdk, dashboard) to avoid shipping
- * heavy workflow-chain metadata in every page bundle.
+ * Slim client-only variant. Drops `nextStepSuggestions` — localized reasons, the
+ * heaviest field per tool — and keeps everything the catalog needs to render a row,
+ * `availableLocales` included (the catalog filters on it). Use this in client
+ * components (catalog, cmdk, dashboard) to avoid shipping the workflow-chain metadata
+ * in every page bundle.
  *
  * workflow-chain.tsx imports full `toolMetas` since it needs nextStepSuggestions.
  */

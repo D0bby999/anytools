@@ -4,10 +4,14 @@ import {
   type ShadowLayer,
   joinColor,
   layerToCss,
+  makeLayerRow,
+  makeLayerRows,
+  removeLayerRow,
   splitColor,
   toCss,
   toCssBlock,
   toTailwind,
+  updateLayerRow,
 } from './logic';
 import { SHADOW_PRESETS } from './presets';
 
@@ -113,6 +117,44 @@ describe('splitColor / joinColor', () => {
   it('emits hex when fully opaque and rgba() otherwise', () => {
     expect(joinColor('#101828', 1)).toBe('#101828');
     expect(joinColor('#101828', 0.25)).toBe('rgba(16, 24, 40, 0.25)');
+  });
+});
+
+describe('layer rows', () => {
+  const preset = SHADOW_PRESETS[2]?.layers ?? [DEFAULT_LAYER];
+
+  it('gives every row an id of its own, across separate lists', () => {
+    const ids = [...makeLayerRows(preset), ...makeLayerRows(preset)].map((r) => r.id);
+    expect(new Set(ids).size).toBe(preset.length * 2);
+  });
+
+  // The keystroke bug in one assertion: rows used to be keyed by `layer.color`, so each
+  // character typed (and each step of the alpha slider) produced a new key, React
+  // remounted the row and the control lost focus.
+  it('keeps the id while the colour is edited character by character', () => {
+    let rows = makeLayerRows([DEFAULT_LAYER]);
+    const id = rows[0]?.id;
+    for (const color of ['#', '#1', '#10', '#101828', 'rgba(16, 24, 40, 0.25)']) {
+      rows = updateLayerRow(rows, 0, { color });
+      expect(rows[0]?.id).toBe(id);
+    }
+    expect(rows[0]?.color).toBe('rgba(16, 24, 40, 0.25)');
+  });
+
+  it('touches no other row and ignores a missing index', () => {
+    const rows = makeLayerRows(preset);
+    expect(updateLayerRow(rows, 0, { blur: 30 })[1]).toBe(rows[1]);
+    expect(updateLayerRow(rows, 99, { blur: 30 })).toEqual(rows);
+  });
+
+  it('removes one row and leaves the ids of the rest alone', () => {
+    const rows = makeLayerRows(preset);
+    expect(removeLayerRow(rows, 0).map((r) => r.id)).toEqual(rows.slice(1).map((r) => r.id));
+  });
+
+  it('stays a valid layer list for toCss', () => {
+    const rows = [...makeLayerRows(preset), makeLayerRow(DEFAULT_LAYER)];
+    expect(toCss(rows)).toBe(`${toCss(preset)}, ${layerToCss(DEFAULT_LAYER)}`);
   });
 });
 

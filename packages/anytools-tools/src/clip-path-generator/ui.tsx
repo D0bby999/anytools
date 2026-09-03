@@ -12,9 +12,9 @@ import {
   RangeSlider,
   SegmentedControl,
 } from '@anytools/ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ClipCanvas } from './clip-canvas';
-import { type Box, type ClipShape, type Unit, toCss, toCssBlock } from './logic';
+import { type Box, type ClipShape, type Unit, parseBoxSide, toCss, toCssBlock } from './logic';
 import { CLIP_PRESETS } from './presets';
 
 const SLUG = 'clip-path-generator';
@@ -31,8 +31,28 @@ export function ClipPathGeneratorUi() {
   const [shape, setShape] = useState<ClipShape>(BLANK.polygon);
   const [unit, setUnit] = useState<Unit>('%');
   const [box, setBox] = useState<Box>({ width: 400, height: 320 });
+  // What the two px fields show. It is separate from `box` so a half-typed or cleared
+  // field keeps the last usable size in the CSS instead of collapsing it to zero.
+  const [boxText, setBoxText] = useState({ width: '400', height: '320' });
+  // `tool_run` counts sessions that got something out of the tool, so it fires once per
+  // mount: one visitor copying five shapes is one run, and a visitor who copies nothing
+  // is none.
+  const counted = useRef(false);
 
   const declaration = toCssBlock(shape, unit, box);
+  const boxIsStale = parseBoxSide(boxText.width) === null || parseBoxSide(boxText.height) === null;
+
+  const countRun = () => {
+    if (counted.current) return;
+    counted.current = true;
+    trackEvent('tool_run', { tool: SLUG });
+  };
+
+  const setSide = (side: 'width' | 'height', text: string) => {
+    setBoxText((prev) => ({ ...prev, [side]: text }));
+    const value = parseBoxSide(text);
+    if (value !== null) setBox((prev) => ({ ...prev, [side]: value }));
+  };
 
   return (
     <Card>
@@ -206,8 +226,8 @@ export function ClipPathGeneratorUi() {
                 <Input
                   type="number"
                   min={1}
-                  value={box.width}
-                  onChange={(e) => setBox({ ...box, width: Number(e.target.value) })}
+                  value={boxText.width}
+                  onChange={(e) => setSide('width', e.target.value)}
                   aria-label="Reference box width in px"
                   className="h-11 font-mono"
                 />
@@ -217,8 +237,8 @@ export function ClipPathGeneratorUi() {
                 <Input
                   type="number"
                   min={1}
-                  value={box.height}
-                  onChange={(e) => setBox({ ...box, height: Number(e.target.value) })}
+                  value={boxText.height}
+                  onChange={(e) => setSide('height', e.target.value)}
                   aria-label="Reference box height in px"
                   className="h-11 font-mono"
                 />
@@ -232,14 +252,17 @@ export function ClipPathGeneratorUi() {
             Percentages are the safer default.
           </p>
         )}
+        {unit === 'px' && boxIsStale && (
+          <p className="text-sm text-destructive" data-testid="box-warning">
+            A box side has to be at least 1px. The CSS below still uses the last size that was:{' '}
+            {box.width}×{box.height}.
+          </p>
+        )}
 
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium">CSS</span>
-            <CopyButton
-              text={declaration}
-              onCopied={() => trackEvent('tool_run', { tool: SLUG })}
-            />
+            <CopyButton text={declaration} onCopied={countRun} />
           </div>
           <pre
             className="overflow-x-auto rounded-md border bg-muted p-3 text-xs font-mono"

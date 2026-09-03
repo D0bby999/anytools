@@ -66,6 +66,18 @@ export function toCssBlock(shape: ClipShape, unit: Unit = '%', box?: Box): strin
   return `clip-path: ${toCss(shape, unit, box)};`;
 }
 
+/**
+ * One side of the reference box, as typed. `null` means "not a usable size" — an empty
+ * field, a minus sign on its own, `0`. The editor keeps the last usable value in that
+ * case: emitting `circle(0px at 0px 0px)` while somebody clears the field to retype it
+ * hands them a shape that clips everything away, and it looks like the tool broke.
+ */
+export function parseBoxSide(text: string): number | null {
+  const n = Number(text.trim());
+  if (!text.trim() || !Number.isFinite(n) || n < 1) return null;
+  return n;
+}
+
 /** Clamp to the reference box and round to 0.1% — the precision the CSS needs. */
 export function clampPoint(p: Point): Point {
   return { x: round(Math.max(0, Math.min(100, p.x))), y: round(Math.max(0, Math.min(100, p.y))) };

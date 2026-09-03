@@ -30,6 +30,41 @@ export const DEFAULT_LAYER: ShadowLayer = {
   inset: false,
 };
 
+/**
+ * A layer as the editor holds it. React needs a key that survives an edit: keying a
+ * layer row by `layer.color` (what this tool shipped with) remounted the row on every
+ * keystroke and on every step of the alpha slider, so the colour field lost focus after
+ * one character and the slider let go of the thumb. The index is no good either —
+ * removing a layer would shift every key below it. The id stays out of `ShadowLayer`
+ * so the CSS model keeps holding only what CSS has.
+ */
+export type LayerRow = ShadowLayer & { id: string };
+
+let counter = 0;
+
+/** Ids only have to be unique inside one list; a module counter is enough for that. */
+export function makeLayerRow(layer: ShadowLayer): LayerRow {
+  counter += 1;
+  return { ...layer, id: `layer-${counter}` };
+}
+
+export function makeLayerRows(layers: readonly ShadowLayer[]): LayerRow[] {
+  return layers.map(makeLayerRow);
+}
+
+/** Edit one row in place. The id is kept, which is the whole point of these helpers. */
+export function updateLayerRow(
+  rows: LayerRow[],
+  index: number,
+  patch: Partial<ShadowLayer>,
+): LayerRow[] {
+  return rows.map((row, i) => (i === index ? { ...row, ...patch } : row));
+}
+
+export function removeLayerRow(rows: LayerRow[], index: number): LayerRow[] {
+  return rows.filter((_, i) => i !== index);
+}
+
 export function layerToCss(layer: ShadowLayer): string {
   const parts = [`${layer.x}px`, `${layer.y}px`, `${Math.max(0, layer.blur)}px`];
   // Spread is optional in the syntax; omitting the zero keeps the common case short.

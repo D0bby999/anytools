@@ -12,20 +12,28 @@ import {
   RangeSlider,
   SegmentedControl,
 } from '@anytools/ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { hexToRgb, rgbToHex } from '../color-converter/logic';
 import {
   type ColorStop,
   type GradientKind,
   type GradientState,
   type RadialSize,
-  parse,
   toCss,
   toCssBlock,
   toTailwind,
-  withKind,
 } from './logic';
+import { parseGradient } from './parse';
 import { GRADIENT_PRESETS } from './presets';
+import {
+  type GradientEditorState,
+  appendRow,
+  removeRow,
+  switchKind,
+  updateRow,
+  withRowIds,
+} from './stop-rows';
+import { StopTrack } from './stop-track';
 
 const SLUG = 'css-gradient-generator';
 const SIZES: RadialSize[] = ['closest-side', 'closest-corner', 'farthest-side', 'farthest-corner'];
@@ -41,24 +49,37 @@ function swatchHex(color: string): string {
 }
 
 export function CssGradientGeneratorUi() {
-  const [g, setG] = useState<GradientState>(() => GRADIENT_PRESETS[0]?.state as GradientState);
+  const [g, setG] = useState<GradientEditorState>(() =>
+    withRowIds(GRADIENT_PRESETS[0]?.state as GradientState),
+  );
   const [importText, setImportText] = useState('');
-  const [importError, setImportError] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  // `tool_run` counts sessions that got something out of the tool, so it fires once per
+  // mount: one visitor copying five variants is one run, and a visitor who copies
+  // nothing is none.
+  const counted = useRef(false);
 
   const css = toCss(g);
-  const setStops = (stops: ColorStop[]) => setG((prev) => ({ ...prev, stops }));
+  const countRun = () => {
+    if (counted.current) return;
+    counted.current = true;
+    trackEvent('tool_run', { tool: SLUG });
+  };
+  const setStops = (stops: GradientEditorState['stops']) => setG((prev) => ({ ...prev, stops }));
   const updateStop = (i: number, patch: Partial<ColorStop>) =>
-    setStops(g.stops.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+    setStops(updateRow(g.stops, i, patch));
   const setAngle = (angle: number) => setG((prev) => ('angle' in prev ? { ...prev, angle } : prev));
   const setCentre = (c: { cx?: number; cy?: number }) =>
     setG((prev) => ('cx' in prev ? { ...prev, ...c } : prev));
 
   const loadCss = () => {
-    const parsed = parse(importText);
-    setImportError(parsed === null);
-    if (parsed) {
-      setG(parsed);
-      trackEvent('tool_run', { tool: SLUG });
+    const parsed = parseGradient(importText);
+    if (parsed.ok) {
+      setImportError(null);
+      setG(withRowIds(parsed.state));
+      countRun();
+    } else {
+      setImportError(parsed.reason);
     }
   };
 
@@ -74,13 +95,14 @@ export function CssGradientGeneratorUi() {
           data-testid="gradient-preview"
           aria-label="Gradient preview"
         />
+        <StopTrack rows={g.stops} onMove={(i, position) => updateStop(i, { position })} />
 
         <div className="flex flex-wrap items-end gap-3">
           <SegmentedControl
             className="flex-1 min-w-[15rem]"
             label="Type"
             value={g.kind}
-            onChange={(kind: GradientKind) => setG(withKind(g, kind))}
+            onChange={(kind: GradientKind) => setG(switchKind(g, kind))}
             options={[
               { value: 'linear', label: 'Linear' },
               { value: 'radial', label: 'Radial' },
@@ -161,7 +183,9 @@ export function CssGradientGeneratorUi() {
         <div className="space-y-2">
           <span className="block text-sm font-medium">Colour stops</span>
           {g.stops.map((stop, i) => (
-            <div key={`stop-${i}-${stop.color}`} className="flex items-center gap-2">
+            // Keyed by a row id, never by the colour: a key that changes as you type
+            // remounts the row and the field loses focus after one character.
+            <div key={stop.id} className="flex items-center gap-2">
               <input
                 type="color"
                 value={swatchHex(stop.color)}
@@ -193,7 +217,7 @@ export function CssGradientGeneratorUi() {
                 className="h-11 w-11 shrink-0"
                 disabled={g.stops.length <= 2}
                 aria-label={`Remove stop ${i + 1}`}
-                onClick={() => setStops(g.stops.filter((_, idx) => idx !== i))}
+                onClick={() => setStops(removeRow(g.stops, i))}
               >
                 ×
               </Button>
@@ -202,7 +226,7 @@ export function CssGradientGeneratorUi() {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => setStops([...g.stops, { color: '#FFFFFF', position: 100 }])}
+            onClick={() => setStops(appendRow(g.stops, { color: '#FFFFFF', position: 100 }))}
           >
             Add stop
           </Button>
@@ -217,7 +241,7 @@ export function CssGradientGeneratorUi() {
                 type="button"
                 title={p.name}
                 aria-label={p.name}
-                onClick={() => setG(p.state)}
+                onClick={() => setG(withRowIds(p.state))}
                 className="h-11 rounded-md border transition-transform hover:scale-105"
                 style={{ background: toCss(p.state) }}
               />
@@ -228,20 +252,14 @@ export function CssGradientGeneratorUi() {
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium">CSS</span>
-            <CopyButton
-              text={toCssBlock(g)}
-              onCopied={() => trackEvent('tool_run', { tool: SLUG })}
-            />
+            <CopyButton text={toCssBlock(g)} onCopied={countRun} />
           </div>
           <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs font-mono">
             {toCssBlock(g)}
           </pre>
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium">Tailwind</span>
-            <CopyButton
-              text={toTailwind(g)}
-              onCopied={() => trackEvent('tool_run', { tool: SLUG })}
-            />
+            <CopyButton text={toTailwind(g)} onCopied={countRun} />
           </div>
           <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs font-mono">
             {toTailwind(g)}
@@ -253,10 +271,13 @@ export function CssGradientGeneratorUi() {
           <div className="flex gap-2">
             <Input
               value={importText}
-              onChange={(e) => setImportText(e.target.value)}
+              onChange={(e) => {
+                setImportText(e.target.value);
+                setImportError(null);
+              }}
               placeholder="background: linear-gradient(90deg, #fff 0%, #000 100%);"
               aria-label="Paste CSS to load"
-              aria-invalid={importError}
+              aria-invalid={importError !== null}
               className="h-11 font-mono"
             />
             <Button className="h-11 shrink-0" onClick={loadCss}>
@@ -264,9 +285,8 @@ export function CssGradientGeneratorUi() {
             </Button>
           </div>
           {importError && (
-            <p className="mt-1.5 text-sm text-destructive">
-              Not a gradient this editor can represent — stop positions must be percentages, and
-              explicit radii or interpolation hints are not supported.
+            <p className="mt-1.5 text-sm text-destructive" data-testid="import-error">
+              {importError}
             </p>
           )}
         </div>

@@ -4,6 +4,7 @@ import {
   clampPoint,
   insertPointAfter,
   movePoint,
+  parseBoxSide,
   regularPolygon,
   removePoint,
   star,
@@ -81,6 +82,32 @@ describe('clampPoint / movePoint', () => {
 
   it('leaves the shape alone for an index that does not exist', () => {
     expect(movePoint(triangle, 9, { x: 1, y: 1 }).points).toEqual(triangle.points);
+  });
+
+  // The canvas captures the pointer on pointerdown, so a drag that runs past the edge
+  // keeps sending moves with out-of-range coordinates; the clamp is what turns those
+  // into a vertex parked exactly on 0% or 100%.
+  it('parks a vertex dragged past the edge exactly on the boundary', () => {
+    expect(movePoint(triangle, 0, { x: -30, y: -12 }).points[0]).toEqual({ x: 0, y: 0 });
+    expect(movePoint(triangle, 0, { x: 140, y: 260 }).points[0]).toEqual({ x: 100, y: 100 });
+  });
+});
+
+describe('parseBoxSide', () => {
+  it('reads a usable px size', () => {
+    expect(parseBoxSide('400')).toBe(400);
+    expect(parseBoxSide(' 12.5 ')).toBe(12.5);
+  });
+
+  it('refuses an emptied or unusable field, so the CSS keeps the last good box', () => {
+    // Without this, clearing the width field to retype it produced
+    // `circle(0px at 0px 0px)` — a shape that clips the whole element away.
+    expect(parseBoxSide('')).toBeNull();
+    expect(parseBoxSide('   ')).toBeNull();
+    expect(parseBoxSide('-')).toBeNull();
+    expect(parseBoxSide('0')).toBeNull();
+    expect(parseBoxSide('-200')).toBeNull();
+    expect(parseBoxSide('abc')).toBeNull();
   });
 });
 

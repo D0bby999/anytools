@@ -49,11 +49,8 @@ export function ClipCanvas({ shape, onChange }: Props) {
       className="relative h-80 touch-none select-none rounded-lg border bg-muted"
       onPointerMove={handleMove}
       onPointerUp={() => setDragging(null)}
-      onPointerLeave={() => setDragging(null)}
+      onPointerCancel={() => setDragging(null)}
       data-testid="clip-canvas"
-      // Mirrors the drag state into the DOM: pointer drags are invisible to unit tests
-      // (happy-dom has no layout) and this is what a browser check can actually read.
-      data-dragging={dragging === null ? 'none' : String(dragging)}
     >
       {/* Only the artwork is clipped. Clipping the whole canvas cut the outer half off
           every handle sitting on 0% or 100% — most preset vertices — and those halves
@@ -91,8 +88,21 @@ export function ClipCanvas({ shape, onChange }: Props) {
               data-vertex={i}
               aria-label={`Vertex ${i + 1} at ${p.x}% ${p.y}% — arrow keys move it, Delete removes it`}
               onPointerDown={(e) => {
-                e.preventDefault();
+                // Capture keeps the moves coming after the pointer leaves the canvas,
+                // which is what lets a drag reach 0% and 100% (the clamp in movePoint
+                // does the rest) and stops a fast drag from being lost to whatever
+                // element the pointer crosses. It replaces an onPointerLeave that used
+                // to cancel the drag at the border, exactly where the edge vertices are.
+                e.currentTarget.setPointerCapture(e.pointerId);
+                // No preventDefault here: Safari and Firefox do not focus a button on
+                // click, and suppressing the default would cancel the focus the arrow
+                // keys need. Focusing by hand keeps click-then-keyboard working.
+                e.currentTarget.focus();
                 setDragging(i);
+              }}
+              onPointerUp={(e) => {
+                if (e.currentTarget.hasPointerCapture(e.pointerId))
+                  e.currentTarget.releasePointerCapture(e.pointerId);
               }}
               onKeyDown={(e) => {
                 const map: Record<string, [number, number]> = {
