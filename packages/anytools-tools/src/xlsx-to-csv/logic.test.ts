@@ -11,12 +11,34 @@
  * cell in the middle shifting every value after it one column left.
  */
 import { describe, expect, it } from 'vitest';
-import { formatCellValue, jsonKeys, readWorkbookBuffer, toCsv, toJson, toRecords } from './logic';
+import {
+  MAX_WORKBOOK_BYTES,
+  WorkbookError,
+  formatCellValue,
+  jsonKeys,
+  readWorkbookBuffer,
+  readWorkbookFile,
+  toCsv,
+  toJson,
+  toRecords,
+  workbookFileStem,
+  zipEntryNames,
+} from './logic';
 
-async function buildWorkbook(): Promise<ArrayBuffer> {
+/** exceljs writes a `Buffer`; the reader takes an `ArrayBuffer`. */
+function toArrayBuffer(written: unknown): ArrayBuffer {
+  const view = new Uint8Array(written as ArrayBufferLike);
+  return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
+}
+
+async function newWorkbook() {
   const mod = await import('exceljs');
   const ExcelJS = mod.default ?? mod;
-  const wb = new ExcelJS.Workbook();
+  return new ExcelJS.Workbook();
+}
+
+async function buildWorkbook(): Promise<ArrayBuffer> {
+  const wb = await newWorkbook();
 
   const data = wb.addWorksheet('Data');
   data.getCell('A1').value = 'name';
@@ -41,9 +63,23 @@ async function buildWorkbook(): Promise<ArrayBuffer> {
   notes.getCell('A1').value = 'only';
   notes.getCell('A2').value = 'sheet two';
 
-  const written = await wb.xlsx.writeBuffer();
-  const view = new Uint8Array(written as unknown as ArrayBufferLike);
-  return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
+  return toArrayBuffer(await wb.xlsx.writeBuffer());
+}
+
+/**
+ * A sheet of `rows` narrow data rows plus one cell parked at column 16384 (XFD) — the shape
+ * that made `worksheet.columnCount` report 16384 and the old index loop materialise every
+ * column of every row. `stray: 'value'` is real data out there; `stray: 'format'` is the
+ * far commoner accident, a cell that carries only a style.
+ */
+async function buildWideWorkbook(rows: number, stray: 'value' | 'format'): Promise<ArrayBuffer> {
+  const wb = await newWorkbook();
+  const sheet = wb.addWorksheet('Data');
+  sheet.addRow(['name', 'score', 'note']);
+  for (let r = 2; r <= rows; r++) sheet.addRow([`n${r}`, r, 'x']);
+  if (stray === 'value') sheet.getCell(1, 16384).value = 'edge';
+  else sheet.getCell(1, 16384).font = { bold: true };
+  return toArrayBuffer(await wb.xlsx.writeBuffer());
 }
 
 describe('formatCellValue', () => {
@@ -167,5 +203,131 @@ describe('readWorkbookBuffer', () => {
   it('rejects a file that is not an xlsx container with a message naming xls and ods', async () => {
     const notAZip = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer;
     await expect(readWorkbookBuffer(notAZip)).rejects.toThrow(/\.xls.*\.ods|ods.*xls/i);
+  });
+});
+
+/**
+ * The used range, which is not what exceljs calls `columnCount` or `rowCount`. Getting this
+ * wrong is not a cosmetic bug: reading a 62 KB file by `columnCount` took 31 seconds and
+ * 828 MB at 200 rows and never finished at 5000.
+ */
+describe('readWorkbookBuffer — used range', () => {
+  it('ignores a stray format at column 16384 and reads a 5000-row sheet in well under a second', async () => {
+    const buffer = await buildWideWorkbook(5000, 'format');
+    const started = Date.now();
+    const [data] = await readWorkbookBuffer(buffer);
+    const elapsed = Date.now() - started;
+
+    expect(data?.rows).toHaveLength(5000);
+    // Three columns, not 16384: a cell holding only a style is not data.
+    expect(data?.rows[0]).toHaveLength(3);
+    expect(data?.rows[4999]).toEqual(['n5000', '5000', 'x']);
+    expect(elapsed).toBeLessThan(2000);
+  });
+
+  it('reads a real value at column 16384 at its true width, quickly', async () => {
+    const buffer = await buildWideWorkbook(100, 'value');
+    const started = Date.now();
+    const [data] = await readWorkbookBuffer(buffer);
+    const elapsed = Date.now() - started;
+
+    expect(data?.rows[0]).toHaveLength(16384);
+    expect(data?.rows[0]?.[16383]).toBe('edge');
+    expect(data?.rows[0]?.slice(0, 3)).toEqual(['name', 'score', 'note']);
+    // A row without the far cell is padded, not ragged.
+    expect(data?.rows[1]).toHaveLength(16384);
+    expect(data?.rows[1]?.[16383]).toBe('');
+    expect(elapsed).toBeLessThan(2000);
+  });
+
+  it('refuses — quickly — a sheet whose real used range is past the cell cap', async () => {
+    const buffer = await buildWideWorkbook(5000, 'value');
+    const started = Date.now();
+    // 16,384 x 5,000 is 81.9 million cells. Building that array is the freeze this replaces.
+    await expect(readWorkbookBuffer(buffer)).rejects.toBeInstanceOf(WorkbookError);
+    await expect(readWorkbookBuffer(buffer)).rejects.toThrow(/2,000,000/);
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
+
+  it('trims trailing empty rows and columns but keeps the holes inside the data', async () => {
+    const wb = await newWorkbook();
+    const sheet = wb.addWorksheet('Data');
+    sheet.getCell('A1').value = 'a';
+    sheet.getCell('C1').value = 'c'; // B1 is a hole in the middle of a row
+    sheet.getCell('A3').value = 'a3'; // row 2 is entirely blank, in the middle
+    sheet.getCell('E1').value = ''; // trailing empty column
+    sheet.getCell('A5').value = ''; // trailing empty row
+    sheet.getCell('B6').font = { bold: true }; // formatting only, below the data
+
+    const [data] = await readWorkbookBuffer(toArrayBuffer(await wb.xlsx.writeBuffer()));
+    expect(data?.rows).toEqual([
+      ['a', '', 'c'],
+      ['', '', ''],
+      ['a3', '', ''],
+    ]);
+  });
+});
+
+describe('zipEntryNames', () => {
+  it('keeps two sheets whose sanitised names collide', () => {
+    // Both flatten to Q1_2026; without the suffix the second entry replaces the first and
+    // the zip silently holds one sheet fewer than the workbook.
+    expect(zipEntryNames(['Q1/2026', 'Q1 2026', 'Q1:2026'])).toEqual([
+      'Q1_2026',
+      'Q1_2026-2',
+      'Q1_2026-3',
+    ]);
+  });
+
+  it('treats names that differ only in case as a collision', () => {
+    // A zip may hold both, but Windows and macOS merge them on extraction.
+    expect(zipEntryNames(['Data', 'data'])).toEqual(['Data', 'data-2']);
+  });
+
+  it('still separates two sheets whose names are nothing but punctuation', () => {
+    // Both collapse to a bare underscore, which is a legal filename — the point is only that
+    // the second one does not overwrite the first.
+    expect(zipEntryNames(['///', '***'])).toEqual(['_', '_-2']);
+  });
+
+  it('falls back to a name when there is nothing left at all', () => {
+    expect(zipEntryNames([''])).toEqual(['sheet']);
+  });
+
+  it('leaves distinct names untouched', () => {
+    expect(zipEntryNames(['Data', 'Notes'])).toEqual(['Data', 'Notes']);
+  });
+});
+
+describe('workbookFileStem', () => {
+  it('drops the extension and sanitises what is left', () => {
+    expect(workbookFileStem('Q1/2026 report.xlsx')).toBe('Q1_2026_report');
+    expect(workbookFileStem(undefined)).toBe('workbook');
+  });
+});
+
+describe('readWorkbookFile', () => {
+  it('refuses a workbook past the size limit before reading a byte of it', async () => {
+    let read = false;
+    const file = {
+      size: MAX_WORKBOOK_BYTES + 1,
+      arrayBuffer: async () => {
+        read = true;
+        return new ArrayBuffer(0);
+      },
+    } as unknown as File;
+
+    await expect(readWorkbookFile(file)).rejects.toBeInstanceOf(WorkbookError);
+    await expect(readWorkbookFile(file)).rejects.toThrow(/50 MB/);
+    expect(read).toBe(false);
+  });
+
+  it('lets a workbook at the limit through to the parser', async () => {
+    const file = {
+      size: MAX_WORKBOOK_BYTES,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    } as unknown as File;
+    // Empty bytes, so it fails as "not an xlsx" — which proves the size gate passed it on.
+    await expect(readWorkbookFile(file)).rejects.toThrow(/could not be read as \.xlsx/);
   });
 });

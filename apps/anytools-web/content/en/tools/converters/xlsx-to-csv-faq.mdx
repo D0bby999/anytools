@@ -30,7 +30,15 @@ Everything visual is discarded, because CSV cannot carry it: fonts, colours, bor
 
 No. The workbook is read in this browser tab. The file goes from the picker into the page through the File API, ExcelJS parses it in the page's own memory, and the download link points at a blob your browser is holding. Nothing is sent to a server, which you can confirm by opening the Network tab of your developer tools, or by disconnecting from the network after the page has loaded and converting anyway.
 
-That is also the limit of the tool. Everything must fit in the tab, and the parse runs on the main thread, so a large workbook freezes the page while it works. Above 20 MB you will see a warning to that effect. It is a warning and not a refusal — a 30 MB file will usually still finish, it will just take a visibly long time.
+That is also the limit of the tool. Everything must fit in the tab, and the parse runs on the main thread, so a large workbook freezes the page while it works. Above 20 MB you will see a warning to that effect. It is a warning and not a refusal — a 30 MB file will usually still finish, it will just take a visibly long time. Past 50 MB the file is refused outright, before it is opened: an `.xlsx` is compressed XML that expands several times over once parsed, and starting a file that size only buys you a frozen page and then a crash.
+
+## Why does it say my sheet is too wide?
+
+There is a ceiling of two million cells across a workbook, counted as the used width times the used height of each sheet. Past it the conversion stops and says so rather than freezing the tab.
+
+Most files that hit it are not actually large. A spreadsheet has 16,384 columns and a million rows available, and a sheet remembers the furthest one anything ever touched — a value pasted into the far right and deleted, a background colour applied to a whole row, a stray format. From then on the file claims to be that wide, and a converter that trusts the claim tries to build every cell in between. That is why a 62 KB file can ask for tens of millions of empty strings.
+
+This tool measures the width from the cells that actually hold a value, so the usual version of that problem costs nothing: a formatting leftover at the far right is ignored, and trailing empty rows and columns are trimmed off the result. Empty cells *inside* the data are kept, because they are positions — dropping one would shift every value after it a column to the left. The cap only fires when the far-right cell is real data and the sheet genuinely is that big. If you hit it, select the columns and rows beyond your data in Excel, delete them, save, and try again.
 
 ## Should I use the CSV output or the JSON output?
 

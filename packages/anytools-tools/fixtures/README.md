@@ -20,6 +20,7 @@ round trip. Needs `public/third-party/zxing/zxing_full.wasm` staged first (`vend
 | `barcode-ean13.png` | EAN-13 `5901234123457` (GS1's published sample) — the digits must come back exactly |
 | `qr-wifi.png` | a `WIFI:` QR whose password contains an escaped `;` — the case a naive `split(';')` parser mangles |
 | `barcodes-three.png` | EAN-13, Code 128 and Data Matrix in one image — the scanner must list all three, not stop at the first |
+
 ## Generated — run `pnpm --filter @anytools/tools exec node scripts/make-office-fixtures.mjs`
 
 | File | Exercises |

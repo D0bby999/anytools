@@ -1,16 +1,20 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type Delimiter,
+  MAX_WORKBOOK_BYTES,
   SLOW_WORKBOOK_BYTES,
   type SheetData,
   readWorkbookFile,
+  safeName,
   toCsv,
   toJson,
+  workbookFileStem,
+  zipEntryNames,
 } from './logic';
 
 const SLUG = 'xlsx-to-csv';
@@ -21,9 +25,6 @@ const DELIMITERS: { value: Delimiter; label: string }[] = [
   { value: ';', label: 'Semicolon' },
   { value: '\t', label: 'Tab' },
 ];
-
-/** Sheet names may contain anything a person can type; a download filename may not. */
-const safeName = (s: string) => s.replace(/[^\w.-]+/g, '_').slice(0, 60) || 'sheet';
 
 export function XlsxToCsvUi() {
   const objectUrls = useObjectUrls();
@@ -39,13 +40,22 @@ export function XlsxToCsvUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+  const tooLarge = !!file && file.size > MAX_WORKBOOK_BYTES;
   const sheet = sheets?.[active] ?? null;
 
-  const serialise = (rows: string[][]) =>
-    format === 'csv' ? toCsv(rows, { delimiter, quoteAll, bom }) : toJson(rows, firstRowAsKeys);
+  const serialise = useCallback(
+    (rows: string[][]) =>
+      format === 'csv' ? toCsv(rows, { delimiter, quoteAll, bom }) : toJson(rows, firstRowAsKeys),
+    [format, delimiter, quoteAll, bom, firstRowAsKeys],
+  );
 
-  const output = sheet ? serialise(sheet.rows) : '';
-  const preview = sheet ? serialise(sheet.rows.slice(0, PREVIEW_ROWS)) : '';
+  // Serialising the whole sheet is O(cells) and runs on every keystroke-sized state change
+  // otherwise — including the ones that cannot affect it, like switching sheets in the picker.
+  const output = useMemo(() => (sheet ? serialise(sheet.rows) : ''), [sheet, serialise]);
+  const preview = useMemo(
+    () => (sheet ? serialise(sheet.rows.slice(0, PREVIEW_ROWS)) : ''),
+    [sheet, serialise],
+  );
   const truncated = (sheet?.rows.length ?? 0) > PREVIEW_ROWS;
 
   const reset = () => {
@@ -93,9 +103,10 @@ export function XlsxToCsvUi() {
     try {
       const { default: JSZip } = await import('jszip');
       const zip = new JSZip();
-      for (const s of sheets) zip.file(`${safeName(s.name)}.${format}`, serialise(s.rows));
+      const names = zipEntryNames(sheets.map((s) => s.name));
+      sheets.forEach((s, i) => zip.file(`${names[i]}.${format}`, serialise(s.rows)));
       const blob = await zip.generateAsync({ type: 'blob' });
-      saveBlob(blob, `${safeName(file?.name.replace(/\.xlsx$/i, '') ?? 'workbook')}-${format}.zip`);
+      saveBlob(blob, `${workbookFileStem(file?.name)}-${format}.zip`);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not build the zip');
     }
@@ -129,7 +140,16 @@ export function XlsxToCsvUi() {
           takes those directly.
         </p>
 
-        {file && file.size > SLOW_WORKBOOK_BYTES && (
+        {tooLarge && (
+          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            This workbook is {Math.round(file.size / 1024 / 1024)} MB, over the{' '}
+            {MAX_WORKBOOK_BYTES / 1024 / 1024} MB limit. An .xlsx is compressed XML that expands
+            several times over once parsed, so the tab would run out of memory before it finished.
+            Split the workbook, or delete the sheets you do not need, and try again.
+          </output>
+        )}
+
+        {file && !tooLarge && file.size > SLOW_WORKBOOK_BYTES && (
           <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
             This workbook is over 20 MB. Parsing happens on this page's main thread, so the tab will
             stop responding for a while — possibly a long while. It will still be attempted.
@@ -139,7 +159,7 @@ export function XlsxToCsvUi() {
         <button
           type="button"
           onClick={run}
-          disabled={!file || busy}
+          disabled={!file || busy || tooLarge}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
           {busy ? 'Reading…' : 'Read workbook'}

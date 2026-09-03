@@ -16,6 +16,25 @@
 /** Above this the parse blocks the tab noticeably. A warning, not a limit — see the UI. */
 export const SLOW_WORKBOOK_BYTES = 20 * 1024 * 1024;
 
+/**
+ * Refused before the file is even unzipped. A `.xlsx` is compressed XML, so 50 MB on disk
+ * expands to something no tab can hold; letting it start only buys the user a frozen page
+ * and then a crash with nothing to show for it.
+ */
+export const MAX_WORKBOOK_BYTES = 50 * 1024 * 1024;
+
+/**
+ * Hard ceiling on the cells one workbook may expand to, across all of its sheets.
+ *
+ * A sheet's width has to come from the cells that hold something, never from
+ * `worksheet.columnCount`: that is the highest column index any cell object reaches, and one
+ * value — or one leftover format — parked at column XFD makes it 16384 for the whole sheet.
+ * Reading such a sheet by index took 31 seconds and 828 MB for 200 rows, and never finished
+ * at 5000, from a 62 KB file. The used width below fixes that; this cap catches the case
+ * where the far-right cell is real data and the sheet genuinely is that big.
+ */
+export const MAX_CELLS = 2_000_000;
+
 export type SheetData = { name: string; rows: string[][] };
 export type Delimiter = ',' | ';' | '\t';
 
@@ -132,6 +151,32 @@ export function toJson(rows: string[][], firstRowAsKeys: boolean): string {
   return JSON.stringify(toRecords(rows, firstRowAsKeys), null, 2);
 }
 
+/** Sheet names may contain anything a person can type; a download filename may not. */
+export const safeName = (s: string) => s.replace(/[^\w.-]+/g, '_').slice(0, 60) || 'sheet';
+
+/** The zip itself is named after the workbook, so it needs the same flattening. */
+export const workbookFileStem = (fileName: string | undefined): string =>
+  safeName(fileName?.replace(/\.xlsx$/i, '') ?? 'workbook');
+
+/**
+ * Filenames for the "download all sheets" zip, one per sheet, in the same order.
+ *
+ * `safeName` is lossy on purpose, so it collides: "Q1/2026" and "Q1 2026" both flatten to
+ * "Q1_2026", and the second entry written under that name replaces the first — a zip that
+ * quietly holds fewer sheets than the workbook did. Compared case-insensitively because
+ * Windows and macOS merge "Data" and "data" on extraction even though the zip format does not.
+ */
+export function zipEntryNames(sheetNames: string[]): string[] {
+  const taken = new Set<string>();
+  return sheetNames.map((name) => {
+    const base = safeName(name);
+    let candidate = base;
+    for (let n = 2; taken.has(candidate.toLowerCase()); n++) candidate = `${base}-${n}`;
+    taken.add(candidate.toLowerCase());
+    return candidate;
+  });
+}
+
 type ExcelJsModule = typeof import('exceljs');
 
 /**
@@ -146,6 +191,50 @@ async function loadExcelJs(): Promise<ExcelJsModule> {
   return mod.default ?? mod;
 }
 
+/** Index after the last field that holds something, so trailing blanks are dropped. */
+function usedLength(cells: string[]): number {
+  for (let i = cells.length - 1; i >= 0; i--) if (cells[i] !== '') return i + 1;
+  return 0;
+}
+
+/**
+ * The rows of one sheet that carry a value, keyed by their real row number, plus the extent
+ * of the used range.
+ *
+ * `row.values` is the load-bearing detail. It is a sparse array indexed by column number that
+ * exceljs builds from the cells that actually exist, so reading it costs what the sheet holds
+ * — unlike `row.getCell(c)` in a `1..columnCount` loop, which *creates* a cell object for
+ * every column it walks past. Holes in it are the empty cells inside a row and must survive
+ * as empty fields, or every value after a gap shifts one column left.
+ */
+function scanSheet(sheet: import('exceljs').Worksheet): {
+  rowsByNumber: Map<number, string[]>;
+  width: number;
+  height: number;
+} {
+  const rowsByNumber = new Map<number, string[]>();
+  let width = 0;
+  let height = 0;
+
+  sheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    const values = row.values as unknown[];
+    const cells: string[] = new Array(Math.max(values.length - 1, 0));
+    for (let c = 1; c < values.length; c++) cells[c - 1] = formatCellValue(values[c]);
+
+    // A row of nothing but blanks and formatting is not content: leaving it out here is what
+    // trims the empty rows off the bottom. A blank row in the MIDDLE is still emitted, from
+    // its row number, when the sheet is rebuilt below.
+    const used = usedLength(cells);
+    if (used === 0) return;
+
+    rowsByNumber.set(rowNumber, cells.slice(0, used));
+    if (used > width) width = used;
+    if (rowNumber > height) height = rowNumber;
+  });
+
+  return { rowsByNumber, width, height };
+}
+
 export async function readWorkbookBuffer(data: ArrayBuffer): Promise<SheetData[]> {
   const ExcelJS = await loadExcelJs();
   const workbook = new ExcelJS.Workbook();
@@ -158,16 +247,25 @@ export async function readWorkbookBuffer(data: ArrayBuffer): Promise<SheetData[]
   }
 
   const sheets: SheetData[] = [];
+  let budget = MAX_CELLS;
+
   workbook.eachSheet((sheet) => {
-    const width = sheet.columnCount;
+    const { rowsByNumber, width, height } = scanSheet(sheet);
+    const cellCount = width * height;
+
+    if (cellCount > budget) {
+      throw new WorkbookError(
+        `Sheet "${sheet.name}" covers ${width.toLocaleString('en')} columns by ${height.toLocaleString('en')} rows — ${cellCount.toLocaleString('en')} cells, past the ${MAX_CELLS.toLocaleString('en')} this tool will build in a browser tab. A sheet is usually this wide by accident: one value or one leftover format far to the right of the data stretches it. Select the columns and rows beyond your data in Excel, delete them, save, and try again.`,
+      );
+    }
+    budget -= cellCount;
+
     const rows: string[][] = [];
-    for (let r = 1; r <= sheet.rowCount; r++) {
-      const row = sheet.getRow(r);
-      // Indexed rather than `eachCell`, which skips empty cells and would shift every
-      // value after a gap one column to the left.
-      const cells: string[] = [];
-      for (let c = 1; c <= width; c++) cells.push(formatCellValue(row.getCell(c).value));
-      rows.push(cells);
+    for (let r = 1; r <= height; r++) {
+      const cells = rowsByNumber.get(r);
+      const padded: string[] = new Array(width);
+      for (let c = 0; c < width; c++) padded[c] = cells?.[c] ?? '';
+      rows.push(padded);
     }
     sheets.push({ name: sheet.name, rows });
   });
@@ -177,5 +275,12 @@ export async function readWorkbookBuffer(data: ArrayBuffer): Promise<SheetData[]
 }
 
 export async function readWorkbookFile(file: File): Promise<SheetData[]> {
+  if (file.size > MAX_WORKBOOK_BYTES) {
+    throw new WorkbookError(
+      `This workbook is ${Math.round(file.size / 1024 / 1024)} MB. The limit is ${
+        MAX_WORKBOOK_BYTES / 1024 / 1024
+      } MB, because an .xlsx is compressed XML that expands several times over in memory and the tab would run out before it finished. Split the workbook, or delete the sheets you do not need, and try again.`,
+    );
+  }
   return readWorkbookBuffer(await file.arrayBuffer());
 }
