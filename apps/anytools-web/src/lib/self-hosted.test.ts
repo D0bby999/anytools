@@ -46,7 +46,10 @@ describe('IS_SELF_HOSTED — cờ bật (NEXT_PUBLIC_SELF_HOSTED=1)', () => {
     // notFound() throws; a route that served [] with a 200 would look identical to
     // a site with zero pages instead of one that does not exist here at all — the
     // phase's own risk assessment calls that out as the wrong shape for this gate.
-    await expect(sitemap()).rejects.toThrow();
+    // Asserting the digest (not just `.rejects.toThrow()`) is what actually proves
+    // this is Next's notFound() and not some unrelated thrown error (a DB import
+    // failure would also make a bare `.rejects.toThrow()` pass) — review finding #12.
+    await expect(sitemap()).rejects.toMatchObject({ digest: 'NEXT_HTTP_ERROR_FALLBACK;404' });
   });
 });
 
