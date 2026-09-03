@@ -122,8 +122,10 @@ export async function addPageNumbers(
   file: File,
   opts: AddPageNumbersOptions,
 ): Promise<AddPageNumbersResult> {
-  if (!Number.isFinite(opts.startAt) || opts.startAt < 0) {
-    throw new PageNumberError('The starting number must be zero or more.');
+  // Whole numbers only. A fractional start was accepted before and printed "1.5", "2.5", "3.5"
+  // — a page numbering nobody asked for, from a spinner the browser lets you type into.
+  if (!Number.isInteger(opts.startAt) || opts.startAt < 0) {
+    throw new PageNumberError('The starting number must be a whole number, zero or more.');
   }
   if (!(opts.fontSize > 0)) throw new PageNumberError('Choose a font size above zero.');
 
@@ -145,7 +147,9 @@ export async function addPageNumbers(
 
   targets.forEach((index, position) => {
     const page = doc.getPage(index);
-    const frame = pageFrame(page.getWidth(), page.getHeight(), page.getRotation().angle);
+    // getCropBox, not getWidth/getHeight: the crop box is what the reader displays, and both it
+    // and the media box can start somewhere other than (0, 0). See shared/pdf-page-stamp.ts.
+    const frame = pageFrame(page.getCropBox(), page.getRotation().angle);
     const text = labelFor(opts.format, opts.startAt + position, lastNumber);
     if (position === 0) firstLabel = text;
     lastLabel = text;

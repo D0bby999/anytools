@@ -1,7 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type EmbeddableImage, toEmbeddableImage } from '../shared/embeddable-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
@@ -19,13 +19,9 @@ const PREVIEW_MAX_WIDTH = 320;
 export function WatermarkPdfUi() {
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
+  // Its identity is stable (useMemo, see the hook), so it can be named as an effect dependency
+  // like any other value — no latest-ref dance, and no mutation during render.
   const objectUrls = useObjectUrls();
-  // useObjectUrls returns a fresh object literal on every render, so naming it as an effect
-  // dependency re-runs the effect on every render — here that would re-render page 1 through
-  // pdf.js, set state, and loop forever. The methods are all ref-backed and safe to reach
-  // through a ref that is kept current, which is also what stops the lint rule asking for it.
-  const urls = useRef(objectUrls);
-  urls.current = objectUrls;
 
   const [files, setFiles] = useState<File[]>([]);
   const [pageCount, setPageCount] = useState<number | null>(null);
@@ -51,75 +47,74 @@ export function WatermarkPdfUi() {
   const file = files[0] ?? null;
   const markFile = markFiles[0] ?? null;
 
+  // Object URLs are created and revoked here, not inside a setState updater: React may run an
+  // updater more than once (and does, in StrictMode), which would leak one URL per extra call
+  // and revoke one that is still on screen.
   const reset = () => {
+    objectUrls.revoke(downloadUrl);
+    setDownloadUrl(null);
     setResult(null);
     setError(null);
-    setDownloadUrl((prev) => {
-      if (prev) objectUrls.revoke(prev);
-      return null;
-    });
   };
 
   // Page count and the page-1 render, once per file. The overlay below is CSS, so every
   // slider afterwards is free; re-rendering the page per tick would make them unusable.
   useEffect(() => {
+    // The old preview belongs to the old file; showing it beside a new one is worse than a gap.
+    setPreview(null);
     if (!file) {
       setPageCount(null);
-      setPreview(null);
       return;
     }
     let cancelled = false;
+    let created: string | null = null;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
       .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read PDF'));
     renderFirstPage(file)
       .then(({ blob, width, height }) => {
         if (cancelled) return;
-        setPreview((prev) => {
-          if (prev) urls.current.revoke(prev.url);
-          return { url: urls.current.create(blob), width, height };
-        });
+        created = objectUrls.create(blob);
+        setPreview({ url: created, width, height });
       })
       // A failed preview is not a failed tool — the stamp itself uses pdf-lib, not pdf.js.
       // Drop the preview rather than blocking the run.
       .catch(() => !cancelled && setPreview(null));
     return () => {
       cancelled = true;
+      objectUrls.revoke(created);
     };
-  }, [file]);
+  }, [file, objectUrls]);
 
   // Decode the watermark image once, when it is chosen, rather than on every run. This also
   // converts WebP and applies EXIF orientation — pdf-lib embeds PNG and JPEG only.
   useEffect(() => {
+    setMarkUrl(null);
     if (!markFile) {
       setMarkImage(null);
-      setMarkUrl((prev) => {
-        if (prev) urls.current.revoke(prev);
-        return null;
-      });
       return;
     }
     let cancelled = false;
+    let created: string | null = null;
     toEmbeddableImage(markFile)
       .then((image) => {
         if (cancelled) return;
         setMarkImage(image);
-        setMarkUrl((prev) => {
-          if (prev) urls.current.revoke(prev);
-          // Preview the bytes that will actually be embedded, not the original file: this is
-          // what shows a WebP logo, or one whose EXIF rotation has just been applied.
-          return urls.current.create(
-            new Blob([image.bytes.slice()], { type: `image/${image.format}` }),
-          );
-        });
+        // Preview the bytes that will actually be embedded, not the original file: this is
+        // what shows a WebP logo, or one whose EXIF rotation has just been applied.
+        created = objectUrls.create(
+          new Blob([image.bytes.slice()], { type: `image/${image.format}` }),
+        );
+        setMarkUrl(created);
       })
       .catch(
         (e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read image'),
       );
     return () => {
       cancelled = true;
+      objectUrls.revoke(created);
     };
-  }, [markFile]);
+  }, [markFile, objectUrls]);
 
   const previewScale = preview ? Math.min(1, PREVIEW_MAX_WIDTH / preview.width) : 1;
 

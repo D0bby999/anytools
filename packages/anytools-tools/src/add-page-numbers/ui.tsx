@@ -52,13 +52,13 @@ export function AddPageNumbersUi() {
 
   const file = files[0] ?? null;
 
+  // Revoke outside the updater: React may run an updater more than once (and does, in
+  // StrictMode), which would revoke a URL still on screen and leak the extra ones.
   const reset = () => {
+    objectUrls.revoke(downloadUrl);
+    setDownloadUrl(null);
     setResult(null);
     setError(null);
-    setDownloadUrl((prev) => {
-      if (prev) objectUrls.revoke(prev);
-      return null;
-    });
   };
 
   // Read the page count as soon as a file lands, so the range field can say what is valid
@@ -166,9 +166,14 @@ export function AddPageNumbersUi() {
             <input
               type="number"
               min={0}
+              step={1}
               value={startAt}
               onChange={(e) => {
-                setStartAt(Number(e.target.value));
+                // Whole numbers only — `step` governs the spinner, not what can be typed or
+                // pasted, and "1.5" would otherwise be numbered 1.5, 2.5, 3.5. An empty field
+                // gives NaN from Number(''), so fall back to the first page.
+                const typed = Math.trunc(Number(e.target.value));
+                setStartAt(Number.isFinite(typed) ? Math.max(0, typed) : 1);
                 reset();
               }}
               className={fieldClass}

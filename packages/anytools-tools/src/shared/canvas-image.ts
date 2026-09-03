@@ -30,15 +30,25 @@ export class ImageToolError extends Error {
  * `imageOrientation: 'from-image'` is not optional. Without it, photos taken on a phone — which
  * store the sensor's raw landscape frame plus an orientation flag — come out sideways. This is
  * the single most common defect in browser image tools.
+ *
+ * The retry is for browsers, some Safari versions among them, that reject the enum value rather
+ * than ignoring an option they do not implement. Without it those browsers are told their
+ * perfectly good JPEG "could not be read as an image", which sends the user looking at the
+ * file. Second attempt drops the options entirely, so orientation is then whatever the browser
+ * does by default — a sideways photo beats no photo and a false accusation.
  */
 export async function loadBitmap(file: File): Promise<ImageBitmap> {
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   } catch {
-    throw new ImageToolError(
-      `"${file.name}" could not be read as an image. Check that the file is a PNG, JPEG, WebP, GIF or AVIF.`,
-    );
+    try {
+      bitmap = await createImageBitmap(file);
+    } catch {
+      throw new ImageToolError(
+        `"${file.name}" could not be read as an image. Check that the file is a PNG, JPEG, WebP, GIF or AVIF.`,
+      );
+    }
   }
   if (bitmap.width * bitmap.height > MAX_CANVAS_PIXELS) {
     // Read the dimensions BEFORE closing. A detached ImageBitmap reports 0x0, so closing first

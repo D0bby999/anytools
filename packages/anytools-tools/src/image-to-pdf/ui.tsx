@@ -50,13 +50,13 @@ export function ImageToPdfUi() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Revoke outside the updater: React may run an updater more than once (and does, in
+  // StrictMode), which would revoke a URL still on screen and leak the extra ones.
   const reset = () => {
+    objectUrls.revoke(downloadUrl);
+    setDownloadUrl(null);
     setResult(null);
     setError(null);
-    setDownloadUrl((prev) => {
-      if (prev) objectUrls.revoke(prev);
-      return null;
-    });
   };
 
   const run = async () => {

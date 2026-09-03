@@ -6,7 +6,15 @@
 // As with add-page-numbers, the assertions read the bytes back: the drawn text and its angle
 // come out of the inflated content stream, and the opacity out of the page's ExtGState.
 import { inflateSync } from 'node:zlib';
-import { PDFArray, PDFDict, PDFDocument, PDFName, PDFRawStream, PDFStream } from 'pdf-lib';
+import {
+  PDFArray,
+  PDFDict,
+  PDFDocument,
+  PDFName,
+  PDFRawStream,
+  PDFStream,
+  StandardFonts,
+} from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import type { EmbeddableImage } from '../shared/embeddable-image';
 import { PageRangeError } from '../shared/page-range';
@@ -22,14 +30,31 @@ import {
 
 // --- fixtures -------------------------------------------------------------------------------
 
+/** A rectangle as pdf-lib's setters take it: lower-left corner plus extent. */
+type Box = [x: number, y: number, width: number, height: number];
+
 async function pdfFile(
   pages: number,
-  { name = 'in.pdf', size = [595, 842] as [number, number], rotate = {} as Record<number, number> },
+  {
+    name = 'in.pdf',
+    size = [595, 842] as [number, number],
+    rotate = {} as Record<number, number>,
+    mediaBox,
+    cropBox,
+  }: {
+    name?: string;
+    size?: [number, number];
+    rotate?: Record<number, number>;
+    mediaBox?: Box;
+    cropBox?: Box;
+  },
 ): Promise<File> {
   const { degrees } = await import('pdf-lib');
   const doc = await PDFDocument.create();
   for (let i = 0; i < pages; i++) {
     const page = doc.addPage(size);
+    if (mediaBox) page.setMediaBox(...mediaBox);
+    if (cropBox) page.setCropBox(...cropBox);
     if (rotate[i]) page.setRotation(degrees(rotate[i] as number));
   }
   const bytes = await doc.save();
@@ -151,6 +176,34 @@ function drawnImageBox(doc: PDFDocument, pageIndex: number) {
   };
 }
 
+/**
+ * Walk from a drawn box's anchor along the box's own rotated axes to its centre — the inverse of
+ * `centeredAnchor`. Where the mark ENDED UP is the only thing worth asserting; the anchor on its
+ * own is meaningless once an angle is involved.
+ */
+function boxCenter(
+  anchor: { x: number; y: number },
+  width: number,
+  height: number,
+  angleDegrees: number,
+): { x: number; y: number } {
+  const a = (angleDegrees * Math.PI) / 180;
+  return {
+    x: anchor.x + (width / 2) * Math.cos(a) - (height / 2) * Math.sin(a),
+    y: anchor.y + (width / 2) * Math.sin(a) + (height / 2) * Math.cos(a),
+  };
+}
+
+/** Helvetica metrics for a string, from a throwaway document. */
+async function helveticaBox(text: string, size: number) {
+  const probe = await PDFDocument.create();
+  const font = await probe.embedFont(StandardFonts.Helvetica);
+  return {
+    width: font.widthOfTextAtSize(text, size),
+    height: font.heightAtSize(size, { descender: false }),
+  };
+}
+
 const imageXObjects = (doc: PDFDocument) =>
   doc.context
     .enumerateIndirectObjects()
@@ -243,11 +296,7 @@ describe('watermarkPdf with text', () => {
       (await watermarkPdf(await pdfFile(1, {}), textOpts({ rotation: 0, fontSize: size }))).blob,
     );
     const t = drawnText(doc, 0)[0];
-    const { StandardFonts } = await import('pdf-lib');
-    const probe = await PDFDocument.create();
-    const font = await probe.embedFont(StandardFonts.Helvetica);
-    const width = font.widthOfTextAtSize('CONFIDENTIAL', size);
-    const height = font.heightAtSize(size, { descender: false });
+    const { width, height } = await helveticaBox('CONFIDENTIAL', size);
     expect((t?.x ?? 0) + width / 2).toBeCloseTo(595 / 2, 1);
     expect((t?.y ?? 0) + height / 2).toBeCloseTo(842 / 2, 1);
   });
@@ -379,5 +428,63 @@ describe('watermarkPdf with an image', () => {
     await expect(
       watermarkPdf(await pdfFile(1, {}), imageOpts({ scalePercent: 0 })),
     ).rejects.toThrow(/size above zero/);
+  });
+});
+
+// --- box origins ----------------------------------------------------------------------------
+//
+// `page.getSize()` reports the media box's width and height and drops its ORIGIN, and it never
+// looks at the CropBox — the box a reader actually displays. A watermark centred on (w/2, h/2)
+// of a page whose box is [100 200 695 1042] therefore lands 100 pt left and 200 pt below where
+// the page's middle really is; with a crop box it can land outside the visible area entirely.
+// The centre is the same point whatever the /Rotate, which is what makes these numbers checkable
+// by hand: the middle of MediaBox [100 200 695 1042] is (100 + 297.5, 200 + 421) = (397.5, 621),
+// and the middle of CropBox [80 40 525 742] is (80 + 222.5, 40 + 351) = (302.5, 391).
+//
+// The crop box here is deliberately OFF-CENTRE inside its media box. A centred crop box — the
+// obvious [50 50 545 792] — shares its middle with the media box, so a tool that ignored the
+// CropBox entirely would still pass a centring assertion against it.
+
+describe('watermarkPdf on a page whose box is not at the origin', () => {
+  for (const rotation of [0, 90, 180, 270]) {
+    it(`centres the text on the real middle of the media box at /Rotate ${rotation}`, async () => {
+      const file = await pdfFile(1, { mediaBox: [100, 200, 595, 842], rotate: { 0: rotation } });
+      const doc = await reopen((await watermarkPdf(file, textOpts({ rotation: 0 }))).blob);
+      const t = drawnText(doc, 0)[0];
+      const { width, height } = await helveticaBox('CONFIDENTIAL', 48);
+
+      // The mark asked for 0 degrees, so its user-space angle is the page's own rotation.
+      // atan2 reports a quarter turn anticlockwise as -90, hence the normalisation.
+      expect((((t?.angle ?? 0) % 360) + 360) % 360).toBe(rotation);
+      const center = boxCenter({ x: t?.x ?? 0, y: t?.y ?? 0 }, width, height, t?.angle ?? 0);
+      expect(center.x).toBeCloseTo(397.5, 1);
+      expect(center.y).toBeCloseTo(621, 1);
+    });
+
+    it(`centres the text on the middle of the crop box at /Rotate ${rotation}`, async () => {
+      const file = await pdfFile(1, { cropBox: [80, 40, 445, 702], rotate: { 0: rotation } });
+      const doc = await reopen((await watermarkPdf(file, textOpts({ rotation: 0 }))).blob);
+      const t = drawnText(doc, 0)[0];
+      const { width, height } = await helveticaBox('CONFIDENTIAL', 48);
+
+      const center = boxCenter({ x: t?.x ?? 0, y: t?.y ?? 0 }, width, height, t?.angle ?? 0);
+      expect(center.x).toBeCloseTo(302.5, 1);
+      expect(center.y).toBeCloseTo(391, 1);
+    });
+  }
+
+  it('sizes an image mark against the crop box, and centres it there', async () => {
+    // 50% of the crop box's 445 pt width is 222.5 pt — NOT 50% of the media box's 595.
+    const file = await pdfFile(1, { cropBox: [80, 40, 445, 702] });
+    const doc = await reopen((await watermarkPdf(file, imageOpts({ scalePercent: 50 }))).blob);
+    const box = drawnImageBox(doc, 0);
+
+    expect(box.width).toBeCloseTo(222.5, 1);
+    expect(box.height).toBeCloseTo(222.5 / 2, 1); // 200x100 source
+    expect(box.x + box.width / 2).toBeCloseTo(302.5, 1);
+    expect(box.y + box.height / 2).toBeCloseTo(391, 1);
+    // Inside the visible page, which the media box alone would not have guaranteed.
+    expect(box.x).toBeGreaterThanOrEqual(80);
+    expect(box.x + box.width).toBeLessThanOrEqual(525);
   });
 });

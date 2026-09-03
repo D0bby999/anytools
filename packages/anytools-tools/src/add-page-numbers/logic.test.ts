@@ -27,14 +27,37 @@ import {
 
 // --- fixtures and content-stream reading ----------------------------------------------------
 
-/** A real PDF. `rotate` sets /Rotate on the page at that index, as a scanner would. */
+/** A rectangle as pdf-lib's setters take it: lower-left corner plus extent. */
+type Box = [x: number, y: number, width: number, height: number];
+
+/**
+ * A real PDF. `rotate` sets /Rotate on the page at that index, as a scanner would.
+ *
+ * `mediaBox` and `cropBox` apply to every page. Both matter: `addPage([w, h])` always produces a
+ * media box anchored at the origin, which is the one case where dropping the box origin cannot
+ * be noticed.
+ */
 async function pdfFile(
   pages: number,
-  { name = 'in.pdf', size = [595, 842] as [number, number], rotate = {} as Record<number, number> },
+  {
+    name = 'in.pdf',
+    size = [595, 842] as [number, number],
+    rotate = {} as Record<number, number>,
+    mediaBox,
+    cropBox,
+  }: {
+    name?: string;
+    size?: [number, number];
+    rotate?: Record<number, number>;
+    mediaBox?: Box;
+    cropBox?: Box;
+  },
 ): Promise<File> {
   const doc = await PDFDocument.create();
   for (let i = 0; i < pages; i++) {
     const page = doc.addPage(size);
+    if (mediaBox) page.setMediaBox(...mediaBox);
+    if (cropBox) page.setCropBox(...cropBox);
     if (rotate[i]) page.setRotation(degrees(rotate[i] as number));
   }
   const bytes = await doc.save();
@@ -232,6 +255,104 @@ describe('addPageNumbers', () => {
     expect(t?.y).toBeLessThan(842 / 2 + 20);
   });
 
+  // --- box origins ---------------------------------------------------------------------------
+  //
+  // `page.getSize()` returns only the media box's WIDTH and HEIGHT, so a page whose box does not
+  // start at the origin — [100 200 695 1042], what a trimmed or imposed page looks like — used to
+  // be stamped as if it started at (0, 0), putting the label 100 pt left and 200 pt below the
+  // sheet: off the page, with no error. The CropBox is worse, because that is the box readers
+  // actually display; a label inside the media box but outside the crop box is simply invisible.
+  //
+  // Every number below is derived by hand from the mapping in shared/pdf-page-stamp.ts and
+  // written out in the comments, so a wrong formula cannot be "confirmed" by re-deriving it from
+  // itself. All four rotations, because each one uses a different pair of box edges.
+
+  describe('a media box that does not start at the origin', () => {
+    // MediaBox [100 200 695 1042]: origin (100, 200), 595 x 842. Bottom-left label, margin 36,
+    // so the visible point is (36, 36) and the media-box extent is w=595, h=842.
+    //   /Rotate 0   → (bx + x, by + y)          = (100 + 36, 200 + 36)         = (136, 236)
+    //   /Rotate 90  → (bx + w - y, by + x)      = (100 + 595 - 36, 200 + 36)   = (659, 236)
+    //   /Rotate 180 → (bx + w - x, by + h - y)  = (659, 200 + 842 - 36)        = (659, 1006)
+    //   /Rotate 270 → (bx + y, by + h - x)      = (136, 1006)
+    const expected: Record<number, { x: number; y: number }> = {
+      0: { x: 136, y: 236 },
+      90: { x: 659, y: 236 },
+      180: { x: 659, y: 1006 },
+      270: { x: 136, y: 1006 },
+    };
+
+    for (const rotation of [0, 90, 180, 270]) {
+      it(`stamps inside the box at /Rotate ${rotation}`, async () => {
+        const file = await pdfFile(1, {
+          mediaBox: [100, 200, 595, 842],
+          rotate: { 0: rotation },
+        });
+        const r = await addPageNumbers(file, opts({ position: 'bottom-left' }));
+        const t = drawnText(await reopen(r.blob), 0)[0];
+
+        expect(t?.x).toBeCloseTo(expected[rotation]?.x as number, 4);
+        expect(t?.y).toBeCloseTo(expected[rotation]?.y as number, 4);
+        // atan2 reports a quarter turn anticlockwise as -90, hence the normalisation.
+        expect((((t?.angle ?? 0) % 360) + 360) % 360).toBe(rotation);
+        // And, independently of the arithmetic above: on the sheet at all.
+        expect(t?.x).toBeGreaterThanOrEqual(100);
+        expect(t?.x).toBeLessThanOrEqual(695);
+        expect(t?.y).toBeGreaterThanOrEqual(200);
+        expect(t?.y).toBeLessThanOrEqual(1042);
+      });
+    }
+  });
+
+  describe('a crop box smaller than the media box', () => {
+    // MediaBox [0 0 595 842], CropBox [50 50 545 792]: origin (50, 50), 495 x 742. Same visible
+    // point (36, 36); the frame is now the CROP box, so w=495, h=742.
+    //   /Rotate 0   → (50 + 36, 50 + 36)                    = (86, 86)
+    //   /Rotate 90  → (50 + 495 - 36, 50 + 36)              = (509, 86)
+    //   /Rotate 180 → (50 + 495 - 36, 50 + 742 - 36)        = (509, 756)
+    //   /Rotate 270 → (50 + 36, 50 + 742 - 36)              = (86, 756)
+    const expected: Record<number, { x: number; y: number }> = {
+      0: { x: 86, y: 86 },
+      90: { x: 509, y: 86 },
+      180: { x: 509, y: 756 },
+      270: { x: 86, y: 756 },
+    };
+
+    for (const rotation of [0, 90, 180, 270]) {
+      it(`stamps inside the visible area at /Rotate ${rotation}`, async () => {
+        const file = await pdfFile(1, { cropBox: [50, 50, 495, 742], rotate: { 0: rotation } });
+        const r = await addPageNumbers(file, opts({ position: 'bottom-left' }));
+        const t = drawnText(await reopen(r.blob), 0)[0];
+
+        expect(t?.x).toBeCloseTo(expected[rotation]?.x as number, 4);
+        expect(t?.y).toBeCloseTo(expected[rotation]?.y as number, 4);
+        // atan2 reports a quarter turn anticlockwise as -90, hence the normalisation.
+        expect((((t?.angle ?? 0) % 360) + 360) % 360).toBe(rotation);
+        // Inside the crop box, not merely inside the media box — the media box would accept
+        // (36, 36), which the reader never shows.
+        expect(t?.x).toBeGreaterThanOrEqual(50);
+        expect(t?.x).toBeLessThanOrEqual(545);
+        expect(t?.y).toBeGreaterThanOrEqual(50);
+        expect(t?.y).toBeLessThanOrEqual(792);
+      });
+    }
+
+    it('measures a right-aligned label against the crop box edge', async () => {
+      // Right alignment is the case that needs the frame's WIDTH as well as its origin: the
+      // label's right edge must sit one margin in from the crop box's right edge, 545 - 36 = 509.
+      const file = await pdfFile(1, { cropBox: [50, 50, 495, 742] });
+      const r = await addPageNumbers(file, opts({ position: 'top-right' }));
+      const t = drawnText(await reopen(r.blob), 0)[0];
+
+      const probe = await PDFDocument.create();
+      const font = await probe.embedFont(StandardFonts.Helvetica);
+      const width = font.widthOfTextAtSize('1', 12);
+      const ascent = font.heightAtSize(12, { descender: false });
+
+      expect((t?.x as number) + width).toBeCloseTo(509, 4);
+      expect((t?.y as number) + ascent).toBeCloseTo(792 - 36, 4);
+    });
+  });
+
   it('rejects a range the document cannot satisfy, with the range parser message', async () => {
     await expect(addPageNumbers(await pdfFile(3, {}), opts({ range: '9' }))).rejects.toThrow(
       PageRangeError,
@@ -250,15 +371,36 @@ describe('addPageNumbers', () => {
     await expect(addPageNumbers(file, opts({ fontSize: 0 }))).rejects.toThrow(/font size/i);
   });
 
+  it('refuses a fractional starting number rather than printing "1.5"', async () => {
+    // A number input accepts typed decimals whatever its step says, and the page after 1.5 was
+    // 2.5. Page numbers are whole or they are not page numbers.
+    const file = await pdfFile(2, {});
+    await expect(addPageNumbers(file, opts({ startAt: 1.5 }))).rejects.toThrow(/whole number/);
+    await expect(addPageNumbers(file, opts({ startAt: Number.NaN }))).rejects.toThrow(
+      PageNumberError,
+    );
+    await expect(addPageNumbers(file, opts({ startAt: 0 }))).resolves.toBeTruthy();
+  });
+
   it('names a file it cannot read', async () => {
     const bad = new File([new Uint8Array([1, 2, 3])], 'broken.pdf', { type: 'application/pdf' });
     await expect(addPageNumbers(bad, opts())).rejects.toThrow(/broken\.pdf/);
   });
 
   it('stays fast enough to be worth running in a tab on a long document', async () => {
-    const r = await addPageNumbers(await pdfFile(120, {}), opts({ format: 'of-total' }));
+    // The name used to be the whole test: it numbered 120 pages and asserted only the labels,
+    // so any amount of time would have passed. Measure it. The budget is deliberately loose —
+    // 120 pages takes tens of milliseconds here, so 4 seconds is ~100x headroom and will not
+    // flake on a loaded CI runner, while still catching the accident that matters: embedding
+    // the font (or reopening the document) per page, which is quadratic and lands in minutes.
+    const file = await pdfFile(120, {});
+    const started = performance.now();
+    const r = await addPageNumbers(file, opts({ format: 'of-total' }));
+    const elapsed = performance.now() - started;
+
     expect(r.numbered).toBe(120);
     expect(r.lastLabel).toBe('120 / 120');
+    expect(elapsed).toBeLessThan(4000);
   });
 
   it('produces a document that reopens as a PDF', async () => {

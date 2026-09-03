@@ -2,7 +2,7 @@
 // as merge-pdf: a top-level import pulls ~173 KB gzipped into anything that touches this module.
 import { type EmbeddableImage, ownBuffer } from '../shared/embeddable-image';
 import { parsePageRange } from '../shared/page-range';
-import { pageFrame, rethrowAsTextError } from '../shared/pdf-page-stamp';
+import { assertDrawableText, pageFrame, rethrowAsTextError } from '../shared/pdf-page-stamp';
 
 export type WatermarkTextOptions = {
   kind: 'text';
@@ -125,6 +125,13 @@ export async function watermarkPdf(file: File, opts: WatermarkOptions): Promise<
   }
 
   const { StandardFonts, degrees, rgb } = await import('pdf-lib');
+  // Before reading the file, which may be hundreds of megabytes: can the built-in font draw
+  // this at all? The failure is the same either way, but it arrives now instead of after the
+  // load and save. Colours are parsed up front for the same reason.
+  if (opts.kind === 'text') {
+    await assertDrawableText(opts.text, 'The watermark text');
+    parseHexColor(opts.color);
+  }
   const doc = await loadDoc(file);
   const pageCount = doc.getPageCount();
   const targets = opts.range.trim()
@@ -147,7 +154,9 @@ export async function watermarkPdf(file: File, opts: WatermarkOptions): Promise<
 
   for (const index of targets) {
     const page = doc.getPage(index);
-    const frame = pageFrame(page.getWidth(), page.getHeight(), page.getRotation().angle);
+    // getCropBox, not getWidth/getHeight: the crop box is what the reader displays, and both it
+    // and the media box can start somewhere other than (0, 0). See shared/pdf-page-stamp.ts.
+    const frame = pageFrame(page.getCropBox(), page.getRotation().angle);
     const center = { x: frame.width / 2, y: frame.height / 2 };
     const userAngle = frame.toUserAngle(opts.rotation);
 
