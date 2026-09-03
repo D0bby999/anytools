@@ -4,6 +4,7 @@
  * Use for sitemap, catalog page, Cmd+K, workflow-chain — anywhere that needs
  * tool listings without rendering the tool itself.
  */
+import { meta as addPageNumbers } from './add-page-numbers/meta';
 import { meta as ageCalculator } from './age-calculator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
 import { meta as bcryptGenerator } from './bcrypt-generator/meta';
@@ -107,6 +108,7 @@ export const toolMetas: ToolMeta[] = [
   pdfToPng,
   extractImagesFromPdf,
   imageToPdf,
+  addPageNumbers,
   integerBaseConverter,
   urlParser,
   userAgentParser,

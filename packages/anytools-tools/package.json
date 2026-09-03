@@ -103,7 +103,8 @@
     "./extract-images-from-pdf": "./src/extract-images-from-pdf/index.ts",
     "./create-zip": "./src/create-zip/index.ts",
     "./unzip-archive": "./src/unzip-archive/index.ts",
-    "./image-to-pdf": "./src/image-to-pdf/index.ts"
+    "./image-to-pdf": "./src/image-to-pdf/index.ts",
+    "./add-page-numbers": "./src/add-page-numbers/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -40,5 +40,14 @@ export const meta: ToolMeta = {
         pt: 'Remover páginas em vez de extrair',
       },
     },
+    {
+      tool: 'add-page-numbers',
+      reason: {
+        en: 'Renumber a section that no longer starts at page 1',
+        vi: 'Đánh số lại phần không còn bắt đầu từ trang 1',
+        es: 'Renumerar una sección que ya no empieza en la página 1',
+        pt: 'Renumerar uma secção que já não começa na página 1',
+      },
+    },
   ],
 };

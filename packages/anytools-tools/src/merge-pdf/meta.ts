@@ -58,5 +58,14 @@ export const meta: ToolMeta = {
         pt: 'Transformar fotos ou digitalizações num PDF para juntar',
       },
     },
+    {
+      tool: 'add-page-numbers',
+      reason: {
+        en: 'Number the combined document straight through',
+        vi: 'Đánh số trang liên tục cho tài liệu vừa gộp',
+        es: 'Numerar el documento combinado de corrido',
+        pt: 'Numerar o documento combinado de forma contínua',
+      },
+    },
   ],
 };
