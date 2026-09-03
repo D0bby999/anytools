@@ -28,7 +28,8 @@
     "privacy": "Privacidade",
     "terms": "Termos",
     "about": "Sobre",
-    "contact": "Contato"
+    "contact": "Contato",
+    "installApp": "Instalar app"
   },
   "cmdk": {
     "placeholder": "Buscar ferramentas…",
@@ -145,6 +146,11 @@
     "retry": "Tentar novamente",
     "ctaHome": "Voltar para o início",
     "errorRef": "Referência do erro"
+  },
+  "offline": {
+    "title": "Você está offline",
+    "body": "Esta página ainda não foi salva para uso offline. Reconecte-se e tente novamente, ou abra uma ferramenta que você já visitou — essas continuam funcionando sem conexão.",
+    "retry": "Tentar novamente"
   },
   "dashboardPanel": {
     "favoritesTitle": "Seus favoritos",

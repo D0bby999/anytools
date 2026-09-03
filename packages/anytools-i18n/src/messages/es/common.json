@@ -28,7 +28,8 @@
     "privacy": "Privacidad",
     "terms": "Términos",
     "about": "Acerca",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "installApp": "Instalar app"
   },
   "cmdk": {
     "placeholder": "Buscar herramientas…",
@@ -145,6 +146,11 @@
     "retry": "Reintentar",
     "ctaHome": "Volver al inicio",
     "errorRef": "Referencia del error"
+  },
+  "offline": {
+    "title": "Estás sin conexión",
+    "body": "Esta página aún no se guardó para uso sin conexión. Reconéctate y vuelve a intentarlo, o abre una herramienta que ya visitaste — esas siguen funcionando sin conexión.",
+    "retry": "Reintentar"
   },
   "dashboardPanel": {
     "favoritesTitle": "Tus favoritos",

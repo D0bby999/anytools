@@ -28,7 +28,8 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "installApp": "Install app"
   },
   "cmdk": {
     "placeholder": "Search tools…",
@@ -145,6 +146,11 @@
     "retry": "Try again",
     "ctaHome": "Back to home",
     "errorRef": "Error reference"
+  },
+  "offline": {
+    "title": "You're offline",
+    "body": "This page hasn't been saved for offline use yet. Reconnect and try again, or open a tool you've already visited — those keep working without a connection.",
+    "retry": "Try again"
   },
   "dashboardPanel": {
     "favoritesTitle": "Your favorites",

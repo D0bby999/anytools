@@ -3,6 +3,7 @@ import { CmdKPalette } from '@/components/cmd-k-palette';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 import { Footer } from '@/components/footer';
 import { MobileBottomNav } from '@/components/mobile-bottom-nav';
+import { ServiceWorkerRegister } from '@/components/service-worker-register';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
@@ -88,6 +89,11 @@ export default async function LocaleLayout({
             <CookieConsentBanner />
             <UmamiAnalytics />
             <MobileBottomNav />
+            {/* Runs in both the hosted build and the self-host build — see
+                service-worker-register.tsx: PWA/offline is the one surface phase-05
+                deliberately ships to prod hosted too, unlike every other IS_SELF_HOSTED
+                gate in this file. */}
+            <ServiceWorkerRegister />
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

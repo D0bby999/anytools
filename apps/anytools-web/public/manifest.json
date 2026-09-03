@@ -1,7 +1,8 @@
 {
   "name": "AnyTools — Free tools that respect your time",
   "short_name": "AnyTools",
-  "description": "70+ free calculators, converters and developer tools in EN, VN, ES, PT.",
+  "description": "107+ free calculators, converters and developer tools in EN, VN, ES, PT.",
+  "id": "/en",
   "start_url": "/en",
   "scope": "/",
   "display": "standalone",

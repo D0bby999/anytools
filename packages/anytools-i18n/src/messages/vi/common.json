@@ -28,7 +28,8 @@
     "privacy": "Quyền riêng tư",
     "terms": "Điều khoản",
     "about": "Giới thiệu",
-    "contact": "Liên hệ"
+    "contact": "Liên hệ",
+    "installApp": "Cài đặt ứng dụng"
   },
   "cmdk": {
     "placeholder": "Tìm công cụ…",
@@ -145,6 +146,11 @@
     "retry": "Thử lại",
     "ctaHome": "Về trang chủ",
     "errorRef": "Mã lỗi"
+  },
+  "offline": {
+    "title": "Bạn đang offline",
+    "body": "Trang này chưa được lưu để dùng ngoại tuyến. Kết nối lại rồi thử lại, hoặc mở một tool bạn đã ghé qua trước đó — các tool đó vẫn chạy được khi mất mạng.",
+    "retry": "Thử lại"
   },
   "dashboardPanel": {
     "favoritesTitle": "Yêu thích",
