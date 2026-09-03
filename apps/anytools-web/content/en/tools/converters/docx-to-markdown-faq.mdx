@@ -1,0 +1,49 @@
+---
+title: DOCX to Markdown — Frequently asked questions
+---
+
+## What survives the conversion, and what is lost?
+
+What survives is structure. Headings become `#` and `##` — and they become headings because the paragraph carries Word's *Heading 1* style, not because it happens to be large and bold. Bold and italic survive, as do bulleted and numbered lists including their nesting, hyperlinks with their targets, block quotes, superscript and subscript, and tables.
+
+What is lost is everything Markdown has no way to say. Fonts, sizes, colours, highlighting, alignment, line spacing, page breaks, columns, headers and footers, page numbers, text boxes, shapes, SmartArt, equations, charts, and comments all disappear. Footnotes and endnotes are converted to text but their exact placement changes. Tracked changes are flattened: the document converts as if every change had been accepted, so review a document with tracked changes before trusting the output.
+
+A caveat worth knowing about styles. Word documents made from a template often use custom style names — a heading styled *Report Heading 2* rather than *Heading 2*. Those are not recognised, and the paragraph converts as ordinary text. When that happens the converter reports it in the notes under the output, listing each style it did not understand. If your headings came out flat, that list is where the reason will be.
+
+## Why is my table's first row being used as a header?
+
+Because GitHub Flavored Markdown has no table without one. Every GFM table is a header row, a `| --- | --- |` separator, and then body rows; there is no syntax for a headerless table. Word, meanwhile, only records a row as a header if the author explicitly ticked *Repeat as header row* in the table properties, which almost nobody does.
+
+Left alone, that combination means most real tables cannot be expressed at all, and the underlying converter falls back to emitting raw `<table>` HTML in the middle of your Markdown. So this tool promotes the first row of any table that has no marked header row, and treats it as the header.
+
+That is an assumption, and it can be wrong. If your table starts straight into data, the first data row will become the header and you will need to add a row back by hand. It is a deliberate trade: one editable row versus a block of HTML that no Markdown renderer will style.
+
+Two other things happen to tables here. A cell whose text Word split across several paragraphs is joined with `<br>`, because a real line break inside a Markdown table row ends the row and destroys the table. And a literal `|` inside cell text is escaped to `\|`, since an unescaped one would silently add a column to that row.
+
+## What happens to the images in my document?
+
+By default they are dropped, and the tool tells you how many it dropped. There is a toggle to embed them instead, as base64 data URIs inside the Markdown.
+
+The default is off for a practical reason. Base64 is about a third larger than the bytes it encodes, so a single 2 MB photo becomes roughly 2.7 MB of unreadable text sitting in the middle of your document. Three photos and the Markdown is no longer something a person can open in an editor. Data URIs also do not work everywhere: GitHub strips them from rendered Markdown, and several static-site generators do the same.
+
+Turn the toggle on when the document has one or two small images — a logo, a diagram — and you want a single self-contained file. Leave it off when the images matter, and put them back as ordinary files with ordinary paths afterwards.
+
+## Are my documents uploaded anywhere?
+
+No. The `.docx` is read in this browser tab. It goes from the file picker into the page through the File API, is unzipped and parsed in the page's own memory, and the result is text that never leaves your machine. You can confirm that in the Network tab of your developer tools, or by disconnecting from the network after the page has loaded and converting anyway.
+
+The preview is rendered inside a sandboxed frame with scripting disabled, so nothing that arrived in your document can execute — a precaution rather than a known risk, since the converter emits only a small fixed set of HTML elements.
+
+The trade for privacy is memory. Everything happens on the page's main thread, so the tab stops responding while a large document converts. Above 20 MB you will see a warning saying so. It is a warning, not a refusal.
+
+## Why will it not open my .doc, .odt, .rtf or Pages file?
+
+Because they are unrelated formats. A `.docx` is a zip archive of XML, the format Word has written by default since 2007, and it is the only one the underlying library — mammoth — reads. The older `.doc` is a binary compound-document format that shares nothing with it but three letters of the extension. `.odt` is OpenDocument, `.rtf` is a plain-text markup from the 1980s, and Pages files are Apple's own bundle format.
+
+Every one of those can be converted in ten seconds by the application that made it: open the file in Word, LibreOffice Writer, Google Docs or Pages and use *Save As* or *Export* to produce a `.docx`. Then drop the result here.
+
+## What can I do with the output?
+
+The Markdown tab is the main output — copy it, or download it as a `.md` file. The HTML tab is the clean HTML the converter produced on the way there, which is often what you want if the destination is a CMS rather than a repository. The preview tab renders the Markdown so you can see what it will look like.
+
+From here, [Markdown ↔ HTML](/tools/md-html) will convert between the two forms again after you have edited them, [Word Counter](/tools/word-counter) will give you a word count and reading time for the converted text, and [XLSX to CSV / JSON](/tools/xlsx-to-csv) does the equivalent job for an Excel workbook.

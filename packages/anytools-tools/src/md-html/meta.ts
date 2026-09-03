@@ -23,5 +23,12 @@ export const meta: ToolMeta = {
       tool: 'text-case-converter',
       reason: { en: 'Reformat the result text', vi: 'Đổi case kết quả' },
     },
+    {
+      tool: 'docx-to-markdown',
+      reason: {
+        en: 'Start from a Word document instead of Markdown',
+        vi: 'Bắt đầu từ file Word thay vì Markdown',
+      },
+    },
   ],
 };

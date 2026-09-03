@@ -231,6 +231,44 @@ like the rest of the backend, and the font data inside them is:
     You may obtain a copy of the License at
 
         http://www.apache.org/licenses/LICENSE-2.0
+## mammoth
+
+`docx-to-markdown` reads `.docx` files with [mammoth.js](https://github.com/mwilliamson/mammoth.js)
+(BSD-2-Clause). Specifically it loads the package's prebuilt browser bundle,
+`mammoth/mammoth.browser.js`, which is served to every visitor who converts a document — a
+binary redistribution, and BSD-2-Clause requires the copyright notice to travel with one.
+Hence this section.
+
+The other libraries in that tool and in `xlsx-to-csv` — turndown, turndown-plugin-gfm and
+exceljs — are MIT npm dependencies whose notices travel with them in the installed package,
+so they are not reproduced here.
+
+Text copied verbatim from the `LICENSE` file in the installed `mammoth@1.12.2` package
+(`node_modules/mammoth/LICENSE`):
+
+```
+Copyright (c) 2013, Michael Williamson
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met: 
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution. 
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
 ---

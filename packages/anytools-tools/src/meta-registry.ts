@@ -33,6 +33,7 @@ import { meta as currencyConverter } from './currency-converter/meta';
 import { meta as dateDiff } from './date-diff/meta';
 import { meta as diffChecker } from './diff-checker/meta';
 import { meta as discountCalculator } from './discount-calculator/meta';
+import { meta as docxToMarkdown } from './docx-to-markdown/meta';
 import { meta as ethWeiConverter } from './eth-wei-converter/meta';
 import { meta as extractImagesFromPdf } from './extract-images-from-pdf/meta';
 import { meta as gpaCalculator } from './gpa-calculator/meta';
@@ -217,6 +218,7 @@ export const toolMetas: ToolMeta[] = [
   clipPathGenerator,
   // Office files, read in the tab (260903)
   xlsxToCsv,
+  docxToMarkdown,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
