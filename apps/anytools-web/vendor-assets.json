@@ -50,12 +50,10 @@
     "paths": ["dist/full/zxing_full.wasm"]
   },
   "onnx": {
-    "pending": true,
     "from": "onnxruntime-web",
     "paths": ["dist/ort-wasm-simd-threaded.wasm", "dist/ort-wasm-simd-threaded.mjs"]
   },
   "u2netp": {
-    "pending": true,
     "download": [
       {
         "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx",

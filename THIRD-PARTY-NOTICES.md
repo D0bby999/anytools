@@ -1710,6 +1710,87 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 ---
 
+## U-2-Net (u2netp.onnx)
+
+`remove-background` runs the **u2netp** salient-object-detection network. The weights are
+redistributed by this site — the file is staged into `public/third-party/u2netp/` and downloaded
+by every visitor who uses the tool — so its notice has to travel with it.
+
+| | |
+|---|---|
+| File | `u2netp.onnx`, 4,574,861 bytes |
+| sha256 | `309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8` (pinned in `apps/anytools-web/vendor-assets.json`; a mismatch fails the build) |
+| Source URL | <https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx> |
+| Model | [xuebinqin/U-2-Net](https://github.com/xuebinqin/U-2-Net) — **Apache-2.0** |
+| Publisher of this file | [danielgatis/rembg](https://github.com/danielgatis/rembg) — **MIT**, `Copyright (c) 2020 Daniel Gatis`. rembg repackages the U-2-Net weights as ONNX; it adds no licence of its own to them |
+
+Copyright Xuebin Qin, Zichen Zhang, Chenyang Huang, Masood Dehghan, Osmar Zaiane and Martin
+Jagersand — *U²-Net: Going Deeper with Nested U-Structure for Salient Object Detection*, Pattern
+Recognition 106 (2020) 107404. The repository's `LICENSE` (fetched 2026-09-03) is the unmodified
+Apache License 2.0 text, with the appendix left as the template placeholder
+`Copyright [yyyy] [name of copyright owner]`; the holders above are named from the repository and
+the paper.
+
+```
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+A copy of the full License is at <https://github.com/xuebinqin/U-2-Net/blob/master/LICENSE>.
+The weights are served **unmodified**; only the pre- and post-processing around them
+(`packages/anytools-tools/src/remove-background/`) is ours, and it follows rembg's.
+
+Deliberately **not** used, and not to be added later without re-reading their terms: the
+`u2net_portrait` and `u2net_human_seg` variants, BRIA RMBG-1.4/2.0, MODNet and
+`@imgly/background-removal` (ISNet). Every one is either non-commercial or AGPL.
+
+---
+
+## onnxruntime-web
+
+The model above is executed by [onnxruntime-web](https://github.com/microsoft/onnxruntime) 1.29.0
+(**MIT**). Unlike an ordinary npm dependency, its compiled artefacts are redistributed by this
+site: `ort-wasm-simd-threaded.wasm` (~14 MB) and `ort-wasm-simd-threaded.mjs` are staged into
+`public/third-party/onnx/` and served to visitors, so the permission notice belongs here.
+
+Text from <https://github.com/microsoft/onnxruntime/blob/main/LICENSE> (fetched 2026-09-03; the
+npm package itself ships no LICENSE file).
+
+```
+MIT License
+
+Copyright (c) Microsoft Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
 ## Not used: it-tools
 
 [CorentinTh/it-tools](https://github.com/CorentinTh/it-tools) is GPL-3.0. Its **catalogue**

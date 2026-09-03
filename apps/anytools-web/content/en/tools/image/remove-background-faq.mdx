@@ -1,0 +1,53 @@
+---
+title: Remove Image Background — Frequently asked questions
+---
+
+## What actually runs when I press the button?
+
+A neural network called u2netp, running inside your browser tab on WebAssembly. It takes a 320×320 version of your image, predicts which pixels belong to the most prominent object, and that prediction becomes the alpha channel of a PNG. Nothing is sent anywhere: the image is decoded, resized, fed to the model and composited entirely on your machine, which you can confirm by opening the Network tab in developer tools, or by going offline after the first run and using the tool anyway.
+
+u2netp is the small variant of U-2-Net, published in 2020 alongside the paper *U²-Net: Going Deeper with Nested U-Structure for Salient Object Detection*. The weights are Apache-2.0 licensed, which is why this site can serve them. The model file is 4.4 MB and the ONNX Runtime that executes it is about 14 MB.
+
+## Why is the first run slow, and the second one fast?
+
+Because those ~19 MB have to arrive before anything can happen. Both files are put into your browser's Cache Storage as they download, so a second cutout — in the same tab, in a new tab, or after a reload — re-downloads neither of them; all that crosses the network is a 24 KB loader script, and usually only to be told it has not changed. Clearing site data removes the cached copies, and the next run fetches them again.
+
+Inference itself takes roughly one to three seconds on a laptop. It could be faster: the runtime supports multi-threading, but threads require the site to send COOP and COEP headers, and those headers break the ad frames this site is funded by. Single-threaded is the honest trade — about twice the time, no change to the result.
+
+## When does it fail?
+
+Often enough that you should look at the result before using it. This is a small 2020 model and it is a *salient object detector*, not a person or product segmenter, so:
+
+- **Hair, fur and fine detail** come out as a blob. Individual strands need alpha matting, which this model does not do.
+- **Glass, smoke, water and anything semi-transparent** are treated as opaque or dropped entirely.
+- **A background the same colour or brightness as the subject** confuses it — a white mug on a white table is the classic failure.
+- **Several equally prominent objects** may give you one of them, or a mask spanning all of them; the model picks what stands out, and cannot be told what to pick.
+- **Low-contrast, low-light or heavily compressed photos** produce ragged edges.
+
+Where it does work well: one clear subject against a background that differs from it — a person photographed against a wall, a product on a plain surface, a pet on grass.
+
+## Why not use a better model?
+
+Because the better-known ones cannot be used here. BRIA's RMBG-1.4 and 2.0 are licensed for non-commercial use only. MODNet's weights carry the same restriction. The popular `@imgly/background-removal` package is AGPL, which this MIT-licensed site cannot take. Among models with a permissive licence and a size that a browser can download, u2netp is the strongest option available today rather than a compromise chosen for convenience. If that changes, the model here will change with it.
+
+## What do the cut-off and edge softness sliders do?
+
+The model returns a soft mask — values between 0 and 1 rather than in-or-out. The cut-off turns that into a decision: everything above it is fully kept, everything below fully removed. Setting it to 0 keeps the soft mask as-is, which looks better on fur and motion blur but leaves the background faintly visible instead of properly transparent. Edge softness then blurs the resulting edge by a few pixels, which hides the stair-stepping you get from a hard cut.
+
+Neither slider changes the model's opinion. If the mask has the wrong shape, no setting here will repair it.
+
+## Why is the download always a PNG?
+
+Because JPEG has no alpha channel. Saving a cutout as JPEG would fill the transparent area with a colour and silently undo the work. If you picked a solid background colour instead of transparency, the result is still a PNG — run it through [Compress Image](/en/image/compress-image) to get a smaller JPEG or WebP once the transparency is no longer needed.
+
+## Is there a size limit?
+
+About 16.7 megapixels, the point where Safari's canvas stops working and returns blank output instead of an error. Above that the tool tells you rather than handing back an empty image. Large images are also slower to composite, though not to run the model on — that step is always 320×320.
+
+## Can I do several images at once?
+
+Not yet. Each run holds the full-size image, its mask and the output in memory at the same time, and doing that for a queue is the quickest way to exhaust a tab. One at a time, checking each result, is also the honest workflow with a model that fails as visibly as this one does.
+
+## What next?
+
+[Crop Image](/en/image/crop-image) trims the empty space a cutout usually leaves behind, and [Image to PDF](/en/pdf/image-to-pdf) lays a set of finished cutouts into one document.

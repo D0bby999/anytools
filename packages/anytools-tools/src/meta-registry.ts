@@ -74,6 +74,7 @@ import { meta as randomPicker } from './random-picker/meta';
 import { meta as readabilityAnalyzer } from './readability-analyzer/meta';
 import { meta as readingTime } from './reading-time/meta';
 import { meta as regexTester } from './regex-tester/meta';
+import { meta as removeBackground } from './remove-background/meta';
 import { meta as removePdfPages } from './remove-pdf-pages/meta';
 import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
@@ -229,6 +230,8 @@ export const toolMetas: ToolMeta[] = [
   heicToJpg,
   // Embedded Excalidraw board (260903)
   whiteboard,
+  // Segmentation model in the browser (260903)
+  removeBackground,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

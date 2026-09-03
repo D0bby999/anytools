@@ -113,7 +113,8 @@
     "./heic-to-jpg": "./src/heic-to-jpg/index.ts",
     "./whiteboard": "./src/whiteboard/index.ts",
     "./ocr-pdf": "./src/ocr-pdf/index.ts",
-    "./ocr-image-to-text": "./src/ocr-image-to-text/index.ts"
+    "./ocr-image-to-text": "./src/ocr-image-to-text/index.ts",
+    "./remove-background": "./src/remove-background/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

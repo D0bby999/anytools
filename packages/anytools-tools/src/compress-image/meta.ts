@@ -76,5 +76,14 @@ export const meta: ToolMeta = {
         pt: 'Esta ferramenta não abre .heic — converta a foto do iPhone antes',
       },
     },
+    {
+      tool: 'remove-background',
+      reason: {
+        en: 'Cut the subject out before compressing it',
+        vi: 'Tách nền trước khi nén',
+        es: 'Recortar el sujeto antes de comprimir',
+        pt: 'Recortar o objeto antes de comprimir',
+      },
+    },
   ],
 };

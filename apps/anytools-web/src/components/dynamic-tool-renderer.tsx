@@ -144,6 +144,9 @@ const LOADERS: Record<string, ComponentType> = {
   // window.EXCALIDRAW_ASSET_PATH at import time, and Excalidraw itself builds FontFace objects
   // during evaluation. Rendering it on the server throws before the page can be sent.
   whiteboard: dynamic(() => import('@anytools/tools/whiteboard').then(pick), { ssr: false }),
+  // Segmentation model in the browser (260903). ssr:false is not needed — the module touches no
+  // browser global at import time; onnxruntime-web is imported inside the run path only.
+  'remove-background': dynamic(() => import('@anytools/tools/remove-background').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

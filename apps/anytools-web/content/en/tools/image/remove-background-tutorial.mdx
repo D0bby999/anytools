@@ -1,0 +1,43 @@
+---
+title: How to remove a background and save a transparent PNG
+---
+
+The tool is one button, but the result depends almost entirely on the photo you give it and on two settings afterwards. This is the order that gets a usable cutout the first time.
+
+## 1. Pick a photo the model can handle
+
+u2netp finds the single most prominent object in a frame. It does that well when the subject and the background differ in colour or brightness, and badly when they do not. Before running anything, look at your image and ask whether *you* could trace the subject's outline in one stroke. A shoe on a wooden floor, a person against a wall, a bottle on a table: yes. A grey cat on a grey sofa, a wine glass, a person with flyaway hair against a busy street: expect to be disappointed.
+
+If the subject is small in the frame, crop closer first with [Crop Image](/en/image/crop-image). The model works at 320×320 regardless of your image size, so a subject that occupies a tenth of the frame is being judged from a very small number of pixels.
+
+## 2. Run it, and wait out the first download
+
+The first run fetches the 14 MB WebAssembly engine and then the 4.4 MB model, and the progress bar names whichever is arriving. Both are stored in your browser's cache afterwards, so this happens once, not once per image and not once per visit. On the runs that follow, the bar barely appears and the whole thing takes a second or two.
+
+## 3. Read the numbers, not just the picture
+
+Under the preview the tool reports how much of the image it kept and how much it removed. That line catches the two failure modes a checkerboard preview hides on a small screen: a mask that kept almost everything (the background was not removed at all) and one that kept almost nothing (the subject was treated as background). If either number looks absurd for your photo, the mask is wrong, and the next two steps will not save it — change the photo instead.
+
+## 4. Set the cut-off
+
+The cut-off decides how confident the model has to be before a pixel is kept. 50% is a sensible default and gives a clean, fully transparent background.
+
+- **Raise it** (60–80%) when a halo of background survives around the subject.
+- **Lower it** (20–40%) when parts of the subject have been eaten away.
+- **Set it to 0** to keep the raw soft mask. Fur, feathers, and motion-blurred edges look more natural this way, at the cost of a background that is faintly translucent rather than truly gone.
+
+## 5. Soften the edge
+
+A hard cut leaves a stair-stepped outline, visible as soon as the cutout is placed on a different background. One or two pixels of edge softness fixes it. More than about four starts to make the subject look like a sticker with a glow, and — because the blur samples from outside the canvas — it will fade the edges where the subject runs off the side of the frame.
+
+## 6. Choose transparency or a colour
+
+Leave the background transparent for logos, product shots and anything you will place onto another design. Choose white for marketplace listings that require it, or a solid colour to make a quick badge or avatar. The file is a PNG either way, since that is the only common format here that stores transparency at all.
+
+## 7. Download, then tidy up
+
+The download is a full-resolution PNG. Transparent PNGs are large — a 12-megapixel cutout can be 8 MB or more — so [Compress Image](/en/image/compress-image) is usually the next stop, and it keeps the alpha channel if you choose WebP or PNG. If you cut out a series of products, [Image to PDF](/en/pdf/image-to-pdf) collects them into one document in the order you set.
+
+## When to stop trying
+
+If two or three attempts with different cut-offs all give the wrong shape, the model cannot see your subject and no setting will change that. That is a real limitation of a 4 MB model with a licence permissive enough to run in your browser, not something you have configured wrongly.

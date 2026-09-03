@@ -40,5 +40,14 @@ export const meta: ToolMeta = {
         pt: 'Reduzir o arquivo antes de enviar',
       },
     },
+    {
+      tool: 'remove-background',
+      reason: {
+        en: 'Drop the background out of the cropped subject',
+        vi: 'Xoá nền của phần ảnh vừa cắt',
+        es: 'Quitar el fondo del recorte',
+        pt: 'Remover o fundo do recorte',
+      },
+    },
   ],
 };

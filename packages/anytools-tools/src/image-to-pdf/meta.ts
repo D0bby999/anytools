@@ -67,5 +67,14 @@ export const meta: ToolMeta = {
         pt: 'Fotos .heic do iPhone precisam virar JPG antes de entrar num PDF',
       },
     },
+    {
+      tool: 'remove-background',
+      reason: {
+        en: 'Cut product photos out before laying them into a PDF',
+        vi: 'Tách nền ảnh sản phẩm trước khi xếp vào PDF',
+        es: 'Recortar las fotos de producto antes de armar el PDF',
+        pt: 'Recortar as fotos de produto antes de montar o PDF',
+      },
+    },
   ],
 };
