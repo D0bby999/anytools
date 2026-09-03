@@ -5,8 +5,9 @@ import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS, isClusterId, isPopulatedCluster } from '@/lib/cluster-config';
 import { clusterHasBodiedTool } from '@/lib/has-localized-tool-body';
 import { breadcrumbSchema, jsonLdSafe } from '@/lib/schema';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { clampMetaDescription } from '@/lib/seo-metadata';
-import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
 import { getToolMetasByCluster } from '@anytools/tools/meta';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -41,7 +42,7 @@ export async function generateMetadata({
     metadataBase: METADATA_BASE,
     title: `${label} — Free Online Tools | AnyTools`,
     description,
-    alternates: {
+    alternates: selfHostSafeAlternates({
       canonical: canonicalPath,
       // Only advertise locales that are themselves indexable — an unfiltered set had the
       // English page hreflang-linking the vi/es/pt pages it excludes.
@@ -50,7 +51,7 @@ export async function generateMetadata({
           .filter((l) => clusterHasBodiedTool(l, cluster))
           .map((l) => [l, `/${l}/${cluster}`]),
       ),
-    },
+    }),
     // follow stays true: the grid's links to sibling tools are still worth crawling.
     robots: {
       index: indexable,
@@ -60,7 +61,7 @@ export async function generateMetadata({
     openGraph: {
       title: `${label} — AnyTools`,
       description,
-      url: `${SITE_URL}${canonicalPath}`,
+      url: IS_SELF_HOSTED ? undefined : `${SITE_URL}${canonicalPath}`,
       type: 'website',
     },
   };

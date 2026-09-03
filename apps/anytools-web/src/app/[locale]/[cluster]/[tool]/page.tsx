@@ -10,8 +10,9 @@ import {
   jsonLdSafe,
   softwareAppSchema,
 } from '@/lib/schema';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { buildToolTitle } from '@/lib/seo-metadata';
-import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
 import { getToolMeta, toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { Metadata } from 'next';
@@ -70,7 +71,7 @@ export async function generateMetadata({
     title: seoTitle,
     description,
     keywords: m.keywords,
-    alternates: {
+    alternates: selfHostSafeAlternates({
       canonical: canonicalPath,
       // For en-only tools, hreflang lists only the supported locales so we don't
       // advertise links to pages that will 404 — and, since 2026-09-02, only the
@@ -81,12 +82,12 @@ export async function generateMetadata({
           .filter((l) => hasLocalizedToolBody(l, cluster, tool))
           .map((l) => [l, `/${l}/${cluster}/${tool}`]),
       ),
-    },
+    }),
     openGraph: {
       type: 'website',
       title: seoTitle,
       description,
-      url: canonicalPath,
+      url: IS_SELF_HOSTED ? undefined : canonicalPath,
       siteName: 'AnyTools',
       locale,
       // Same filter as hreflang above. Leaving this unfiltered advertised an es/pt

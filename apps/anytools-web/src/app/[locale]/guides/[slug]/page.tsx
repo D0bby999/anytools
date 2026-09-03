@@ -3,8 +3,9 @@ import { MdxContent } from '@/components/mdx-content';
 import { routing } from '@/i18n/routing';
 import { GUIDE_SLUGS, loadGuide } from '@/lib/load-guide-content';
 import { jsonLdSafe } from '@/lib/schema';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { fitTitle } from '@/lib/seo-metadata';
-import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -31,15 +32,15 @@ export async function generateMetadata({
     title: seoTitle,
     description: guide.data.description,
     keywords: guide.data.keywords,
-    alternates: {
+    alternates: selfHostSafeAlternates({
       canonical: canonicalPath,
       languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}/guides/${slug}`])),
-    },
+    }),
     openGraph: {
       type: 'article',
       title: seoTitle,
       description: guide.data.description,
-      url: canonicalPath,
+      url: IS_SELF_HOSTED ? undefined : canonicalPath,
       siteName: 'AnyTools',
       locale,
       alternateLocale: routing.locales.filter((l) => l !== locale),

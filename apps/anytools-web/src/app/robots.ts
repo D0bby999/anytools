@@ -1,10 +1,14 @@
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { SITE_URL } from '@/lib/site-url';
 import type { MetadataRoute } from 'next';
 
-const BASE =
-  process.env.NEXT_PUBLIC_URL ??
-  (process.env.NODE_ENV === 'production' ? 'https://anytools.world' : 'http://localhost:3000');
-
 export default function robots(): MetadataRoute.Robots {
+  // Self-host builds have no sitemap (see sitemap.ts) and no public URL worth crawling
+  // — no `sitemap` key here, and disallow everything rather than advertise a stranger's
+  // private install to search engines.
+  if (IS_SELF_HOSTED) {
+    return { rules: [{ userAgent: '*', disallow: '/' }] };
+  }
   return {
     rules: [
       { userAgent: '*', allow: '/', disallow: ['/api/', '/admin/'] },
@@ -20,6 +24,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: 'Google-Extended', allow: '/' },
       { userAgent: 'Bingbot', allow: '/' },
     ],
-    sitemap: `${BASE}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

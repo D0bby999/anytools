@@ -15,6 +15,7 @@
 
 import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { SITE_URL } from '@/lib/site-url';
 import { toolMetas } from '@anytools/tools/meta';
 import { NextResponse } from 'next/server';
@@ -24,6 +25,12 @@ export const dynamic = 'force-dynamic';
 const titleCase = (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 export async function GET(): Promise<NextResponse> {
+  // Self-host builds point at no known public origin (see site-url.ts) and ship with no
+  // DATABASE_URL for the blog-row fetch below — 404 rather than serve an index full of
+  // placeholder URLs.
+  if (IS_SELF_HOSTED) {
+    return new NextResponse(null, { status: 404 });
+  }
   const rows = await listPublishedBlogRows('en');
   const published = toolMetas.filter((m) => m.published !== false);
 

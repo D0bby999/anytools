@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
 import { routing } from '@/i18n/routing';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { METADATA_BASE } from '@/lib/site-url';
 import { isValidLocale } from '@anytools/i18n';
 import type { Metadata, Viewport } from 'next';
@@ -24,7 +25,10 @@ const inter = Inter({
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', display: 'swap' });
 
 export const metadata: Metadata = {
-  metadataBase: METADATA_BASE,
+  // Self-host: no known public origin (see site-url.ts) — leave metadataBase unset so
+  // any relative resource Next would otherwise resolve against it renders as a relative
+  // path instead of an absolute URL pointing at a placeholder host.
+  metadataBase: IS_SELF_HOSTED ? undefined : METADATA_BASE,
   manifest: '/manifest.json',
   // Google Search Console verification: set GSC_VERIFICATION in Coolify env to the token
   // from Search Console's "HTML tag" method → Next renders <meta name="google-site-verification">.

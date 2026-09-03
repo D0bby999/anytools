@@ -13,9 +13,12 @@ import { POPULATED_CLUSTERS } from '@/lib/cluster-config';
 import { clusterHasBodiedTool, hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { SITE_URL } from '@/lib/site-url';
 import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { MetadataRoute } from 'next';
+import { notFound } from 'next/navigation';
 
 // force-dynamic on purpose — do NOT switch this to ISR/revalidate: the image
 // builds on CI runners with no DB, so an ISR sitemap gets BAKED without the
@@ -23,9 +26,11 @@ import type { MetadataRoute } from 'next';
 // (shipped and reverted 2026-08-05).
 export const dynamic = 'force-dynamic';
 
-const BASE =
-  process.env.NEXT_PUBLIC_URL ??
-  (process.env.NODE_ENV === 'production' ? 'https://anytools.world' : 'http://localhost:3000');
+// This file used to declare its own BASE constant duplicating site-url.ts's logic (and
+// drifting: it had no IS_SELF_HOSTED awareness), which meant a self-host build would
+// still emit `https://anytools.world` URLs here even though NEXT_PUBLIC_URL is unset,
+// because NODE_ENV=production in the Dockerfile. SITE_URL is now the one place that
+// decides this — imported directly, used below in place of the old BASE.
 
 // Cluster landing pages, derived from the tool registry — a cluster with zero
 // published tools is a dead end for a crawler and is left out. Previously this
@@ -34,43 +39,46 @@ const BASE =
 const CLUSTERS: ClusterId[] = POPULATED_CLUSTERS;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Self-host builds point at no known public origin and ship with no DATABASE_URL for
+  // the blog-URL loop below — 404 rather than serve a sitemap full of placeholder URLs.
+  if (IS_SELF_HOSTED) notFound();
   const urls: MetadataRoute.Sitemap = [];
   // Tools dark-launched via published:false are excluded until translations land.
   const publishedTools = toolMetas.filter((m) => m.published !== false);
 
   for (const locale of routing.locales) {
     urls.push({
-      url: `${BASE}/${locale}`,
+      url: `${SITE_URL}/${locale}`,
       changeFrequency: 'weekly',
       priority: 1.0,
     });
     for (const slug of ['privacy', 'terms', 'about', 'contact']) {
       urls.push({
-        url: `${BASE}/${locale}/${slug}`,
+        url: `${SITE_URL}/${locale}/${slug}`,
         changeFrequency: 'yearly',
         priority: 0.3,
       });
     }
     urls.push({
-      url: `${BASE}/${locale}/guides`,
+      url: `${SITE_URL}/${locale}/guides`,
       changeFrequency: 'monthly',
       priority: 0.7,
     });
     for (const slug of GUIDE_SLUGS) {
       urls.push({
-        url: `${BASE}/${locale}/guides/${slug}`,
+        url: `${SITE_URL}/${locale}/guides/${slug}`,
         changeFrequency: 'monthly',
         priority: 0.9,
         alternates: {
           languages: Object.fromEntries(
-            routing.locales.map((l) => [l, `${BASE}/${l}/guides/${slug}`]),
+            routing.locales.map((l) => [l, `${SITE_URL}/${l}/guides/${slug}`]),
           ),
         },
       });
     }
     // Blog index — emit for every locale for crawl breadth.
     urls.push({
-      url: `${BASE}/${locale}/blog`,
+      url: `${SITE_URL}/${locale}/blog`,
       changeFrequency: 'weekly',
       priority: 0.7,
     });
@@ -85,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const cluster of CLUSTERS) {
       if (!clusterHasBodiedTool(locale, cluster)) continue;
       urls.push({
-        url: `${BASE}/${locale}/${cluster}`,
+        url: `${SITE_URL}/${locale}/${cluster}`,
         changeFrequency: 'weekly',
         priority: 0.7,
         alternates: {
@@ -94,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           languages: Object.fromEntries(
             routing.locales
               .filter((l) => clusterHasBodiedTool(l, cluster))
-              .map((l) => [l, `${BASE}/${l}/${cluster}`]),
+              .map((l) => [l, `${SITE_URL}/${l}/${cluster}`]),
           ),
         },
       });
@@ -108,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // has-localized-tool-body.ts for the measurements behind this.
       if (!hasLocalizedToolBody(locale, m.cluster, m.slug)) continue;
       urls.push({
-        url: `${BASE}/${locale}/${m.cluster}/${m.slug}`,
+        url: `${SITE_URL}/${locale}/${m.cluster}/${m.slug}`,
         changeFrequency: 'monthly',
         priority: 0.8,
         alternates: {
@@ -117,7 +125,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           languages: Object.fromEntries(
             (m.availableLocales ?? routing.locales)
               .filter((l) => hasLocalizedToolBody(l, m.cluster, m.slug))
-              .map((l) => [l, `${BASE}/${l}/${m.cluster}/${m.slug}`]),
+              .map((l) => [l, `${SITE_URL}/${l}/${m.cluster}/${m.slug}`]),
           ),
         },
       });
@@ -130,11 +138,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const row of blogRows) {
     const lastMod = row.updatedAt ?? row.publishedAt ?? undefined;
     urls.push({
-      url: `${BASE}/en/blog/${row.slug}`,
+      url: `${SITE_URL}/en/blog/${row.slug}`,
       changeFrequency: 'monthly',
       priority: 0.85,
       lastModified: lastMod ?? undefined,
-      alternates: { languages: { en: `${BASE}/en/blog/${row.slug}` } },
+      alternates: { languages: { en: `${SITE_URL}/en/blog/${row.slug}` } },
     });
   }
 
