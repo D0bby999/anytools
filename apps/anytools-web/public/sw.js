@@ -6,124 +6,65 @@
  * and the one thing a precache manifest tool is built for (precaching everything) is exactly
  * what /third-party/ (54 MB of WASM/models/fonts) must never do.
  *
- * Cache-bypass rules live in sw-policy.js (importScripts below) so the exact same function
- * that decides here also runs, unmodified, inside the vitest suite
- * (src/lib/service-worker-policy.test.ts) — no string-grepping a copy of the regex.
+ * This file is deliberately thin wiring: routing table + event listeners. The decision logic
+ * lives in sw-policy.js (what to bypass, cache names/limits/precache list), sw-lib.js (fetch
+ * strategies, safePut), and sw-trim.js (cache GC) — all three loaded below via importScripts so
+ * the exact same functions run here AND, unmodified, inside the vitest suites under
+ * src/lib/*.test.ts (no string-grepping a copy of this file's logic).
  *
  * Registered at root scope (/sw.js) by service-worker-register.tsx, production builds only.
  * Rollback: copy sw-tombstone.js over this file and deploy — see that file's header.
  */
-importScripts('/sw-policy.js');
+importScripts('/sw-policy.js', '/sw-lib.js', '/sw-trim.js');
 
-const STATIC_CACHE = 'at-static-v1';
-const VENDOR_CACHE = 'at-vendor-v1';
-const PAGES_CACHE = 'at-pages-v1';
-const ASSETS_CACHE = 'at-assets-v1';
-const CURRENT_CACHES = [STATIC_CACHE, VENDOR_CACHE, PAGES_CACHE, ASSETS_CACHE];
+const {
+  CACHE_NAMES,
+  CURRENT_CACHES,
+  TRIM_LIMITS,
+  PUT_TRIM_CHECK_INTERVAL,
+  PRECACHE_ENTRIES,
+  LOCALES,
+  shouldBypassCache,
+} = self.SW_POLICY;
+const { cacheFirst, staleWhileRevalidate, networkFirstNavigate, runInstall } = self.SW_LIB;
+const {
+  pickCachesToDelete,
+  extractBuildId,
+  trimCache,
+  createPutCounter,
+  readStoredBuildId,
+  writeStoredBuildId,
+} = self.SW_TRIM;
 
-// `at-static-v1` keys are content-hashed Next.js chunks (immutable, one per build) — every
-// build adds a fresh batch and old ones are never revisited, so without a trim the cache
-// grows without bound across deploys. `cache.keys()` returns entries in insertion order, so
-// slicing from the front deletes the oldest first.
-const STATIC_TRIM_LIMIT = 300;
+// Synthetic Cache Storage key (never a real request URL) for the one entry `at-meta-v1` holds:
+// the most recently observed Next.js build id, read at `activate` and refreshed on every
+// `/_next/static/` fetch — see the `fetch` handler below and sw-trim.js's stale-build purge.
+const BUILD_ID_KEY = '/__meta__/build-id';
 
-// Precached at install — exactly 5 URLs, deliberately, spelled out as literal arrays right
-// at each addAll() call site (not behind a variable) so a source-level check can find every
-// precached URL by reading the addAll(...) calls directly. The 4 locale offline fallbacks
-// are what a failed navigation falls back to (see networkFirstNavigate below); manifest.json
-// is what makes the "Install app" prompt possible on a first visit that never navigated
-// again. /third-party/** must NEVER appear in any addAll() call in this file — it is 54 MB
-// of WASM/model/font assets, cached on demand only, the moment a tool actually fetches one.
+// In-memory mirror of the persisted build id, populated from `at-meta-v1` at `activate` and
+// kept current for the rest of this SW instance's life without an extra cache read per fetch.
+let currentBuildId = null;
 
-/**
- * Every cache write goes through this. Two safety nets, both required:
- * - never cache a non-200/non-ok/opaque or redirected response. Skipping `redirected`
- *   matters because `middleware.ts` 307-redirects `/` to `/en` — caching that response and
- *   replaying it for a navigation throws "a redirected response was used to respond to a
- *   request whose mode is not follow, or whose redirect mode is manual".
- * - swallow QuotaExceededError. Safari/iOS gives roughly 50 MB of Cache Storage quota, and
- *   /third-party/ alone can exceed that; a full quota must never turn into a broken tool
- *   response — the fetch already succeeded and the page needs that response regardless of
- *   whether the write to cache lands.
- */
-async function safePut(cacheName, request, res) {
-  if (!res || !res.ok || res.status !== 200 || res.redirected) return;
-  try {
-    const cache = await caches.open(cacheName);
-    await cache.put(request, res.clone());
-  } catch (err) {
-    // QuotaExceededError (or any other Cache Storage failure) is swallowed on purpose —
-    // see header comment. Nothing to do here; the response already went to the caller.
-  }
-}
+// Throttles trim re-checks to once every N successful writes per cache, from `fetch` — not
+// just once per deploy at `activate` (review finding #4).
+const putCounter = createPutCounter(PUT_TRIM_CHECK_INTERVAL);
 
-async function cacheFirst(cacheName, request) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  if (cached) return cached;
-  const response = await fetch(request);
-  await safePut(cacheName, request, response);
-  return response;
-}
-
-async function staleWhileRevalidate(cacheName, request) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  const networkPromise = fetch(request)
-    .then((response) => {
-      safePut(cacheName, request, response);
-      return response;
-    })
-    .catch(() => undefined);
-  if (cached) {
-    networkPromise.catch(() => {});
-    return cached;
-  }
-  const networkResponse = await networkPromise;
-  return networkResponse || Response.error();
-}
-
-function localeFromPathname(pathname) {
-  const match = /^\/(en|vi|es|pt)(?:\/|$)/.exec(pathname);
-  return match ? match[1] : 'en';
-}
-
-/**
- * HTML navigations: network-first, falling back to a cached copy of the same URL, falling
- * back to the locale-appropriate /offline page. This is the strategy that makes "kill the
- * server, reload, tool still works" true for a page already visited, and "reload a page
- * never visited, offline" show a real page instead of the browser's own error screen.
- */
-async function networkFirstNavigate(request, url) {
-  try {
-    const response = await fetch(request);
-    await safePut(PAGES_CACHE, request, response);
-    return response;
-  } catch (err) {
-    const cache = await caches.open(PAGES_CACHE);
-    const cached = await cache.match(request);
-    if (cached) return cached;
-    const offline = await cache.match(`/${localeFromPathname(url.pathname)}/offline`);
-    if (offline) return offline;
-    return Response.error();
-  }
+function trimForCache(cacheName) {
+  const limit = TRIM_LIMITS[cacheName];
+  if (!limit) return Promise.resolve();
+  const buildId = cacheName === CACHE_NAMES.STATIC ? currentBuildId : null;
+  return trimCache(caches, cacheName, limit, buildId);
 }
 
 self.addEventListener('install', (event) => {
   // Take over from any previously-waiting SW immediately — static assets aren't
-  // build-tagged (that would need a post-`next build` injection step), so there is no
-  // correctness reason to wait here; see the `activate` handler below for the one place
+  // build-tagged in their own right (that would need a post-`next build` injection step;
+  // see the stale-build purge in sw-trim.js for how staleness is detected instead), so there
+  // is no correctness reason to wait here; see the `activate` handler below for the one place
   // this file does choose to leave already-open tabs on their existing controller.
   self.skipWaiting();
   event.waitUntil(
-    Promise.all([
-      caches
-        .open(PAGES_CACHE)
-        .then((cache) =>
-          cache.addAll(['/en/offline', '/vi/offline', '/es/offline', '/pt/offline']),
-        ),
-      caches.open(ASSETS_CACHE).then((cache) => cache.addAll(['/manifest.json'])),
-    ]),
+    runInstall(caches, fetch, PRECACHE_ENTRIES, (message, err) => console.error(message, err)),
   );
 });
 
@@ -131,57 +72,104 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       const names = await caches.keys();
-      await Promise.all(
-        names
-          .filter((name) => CURRENT_CACHES.indexOf(name) === -1)
-          .map((name) => caches.delete(name)),
-      );
+      const toDelete = pickCachesToDelete(names, CURRENT_CACHES);
+      await Promise.all(toDelete.map((name) => caches.delete(name)));
 
-      const staticCache = await caches.open(STATIC_CACHE);
-      const keys = await staticCache.keys(); // insertion order
-      if (keys.length > STATIC_TRIM_LIMIT) {
-        const toDelete = keys.slice(0, keys.length - STATIC_TRIM_LIMIT);
-        await Promise.all(toDelete.map((request) => staticCache.delete(request)));
+      currentBuildId = await readStoredBuildId(caches, CACHE_NAMES.META, BUILD_ID_KEY);
+      if (currentBuildId) {
+        await trimCache(
+          caches,
+          CACHE_NAMES.STATIC,
+          TRIM_LIMITS[CACHE_NAMES.STATIC],
+          currentBuildId,
+        );
       }
     })(),
   );
-  // Deliberately no call here to take over already-open tabs (the ServiceWorkerGlobalScope
-  // clients API's "claim" method — spelled out this way so this explanation itself doesn't
-  // match a source-level check for its absence). Static assets carry no buildId, so an old
-  // tab left open across a deploy would otherwise get served new chunks by the new SW under
-  // old HTML ("HTML from build N, chunk from build N+1" — a guaranteed mismatch). Without
-  // that call, an open tab keeps its old controller until its next navigation; the new SW
-  // only takes over tabs opened after activation. Trade-off: a new SW version takes one
-  // extra navigation to fully roll out.
+  // Deliberately no call here to the ServiceWorkerGlobalScope Clients API's `claim()` method.
+  // `skipWaiting()` above only shortens the WAITING phase — on its own it does not hand control
+  // of already-open tabs to the new worker; that is standard, documented service worker
+  // behaviour (https://web.dev/articles/service-worker-lifecycle#the_lifecycle), not this
+  // file's own invention. Without `clients.claim()`, a tab that was already open when this
+  // activation ran — whether it was controlled by an older SW, or (a visitor's very first-ever
+  // page load on this site) by no SW at all — keeps that same controller until its NEXT
+  // navigation; only navigations that start AFTER this activation are controlled by the newly
+  // active worker. Static assets carry no build id of their own, so an open tab left on old
+  // HTML must not be handed a newer chunk by a new SW mid-session (a guaranteed mismatch:
+  // "HTML from build N, chunk from build N+1"). Trade-offs this buys: a deployed SW update
+  // takes one extra navigation to fully roll out, and a visitor's very first page load on this
+  // site is never SW-controlled regardless of skipWaiting/claim — a service worker cannot
+  // intercept the network request that fetches the page which goes on to register it.
+  // This handler never references `self.clients` at all (verified by reading this function,
+  // not by a source-text grep for the string "clients.claim"); the cache-deletion decision it
+  // does make is exercised as real behaviour in `service-worker-trim.test.ts`'s
+  // `pickCachesToDelete` tests, run against a fake CacheStorage.
 });
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  if (self.SW_POLICY.shouldBypassCache(url, request)) {
+  if (shouldBypassCache(url, request)) {
     return; // no respondWith() — browser handles this request exactly as if no SW ran.
+  }
+
+  function onWrite(cacheName) {
+    return () => {
+      if (putCounter.increment(cacheName)) event.waitUntil(trimForCache(cacheName));
+    };
   }
 
   if (url.pathname.indexOf('/_next/static/') === 0) {
     // Filename includes a content hash → immutable, safe to serve from cache forever.
-    event.respondWith(cacheFirst(STATIC_CACHE, request));
+    const buildId = extractBuildId(url.pathname);
+    if (buildId && buildId !== currentBuildId) {
+      currentBuildId = buildId;
+      event.waitUntil(writeStoredBuildId(caches, CACHE_NAMES.META, BUILD_ID_KEY, buildId));
+    }
+    event.respondWith(
+      cacheFirst(caches, fetch, CACHE_NAMES.STATIC, request, onWrite(CACHE_NAMES.STATIC)),
+    );
     return;
   }
 
   if (url.pathname.indexOf('/third-party/') === 0) {
-    // On-demand only: nothing under /third-party/ is precached (see install handler above),
-    // so this cache only ever gains an entry the moment a tool actually fetches that asset.
-    event.respondWith(cacheFirst(VENDOR_CACHE, request));
+    // On-demand only: nothing under /third-party/ is precached (see PRECACHE_ENTRIES in
+    // sw-policy.js), so this cache only ever gains an entry the moment a tool actually fetches
+    // that asset. /third-party/onnx/ and /third-party/u2netp/ never reach here at all —
+    // shouldBypassCache() above already sent them straight to the network/onnx-loader's own
+    // cache (see sw-policy.js's OWNER_CACHED_PREFIXES comment).
+    event.respondWith(
+      cacheFirst(caches, fetch, CACHE_NAMES.VENDOR, request, onWrite(CACHE_NAMES.VENDOR)),
+    );
     return;
   }
 
   if (request.mode === 'navigate') {
-    event.respondWith(networkFirstNavigate(request, url));
+    event.respondWith(
+      networkFirstNavigate(
+        caches,
+        fetch,
+        CACHE_NAMES.PAGES,
+        request,
+        url,
+        LOCALES,
+        onWrite(CACHE_NAMES.PAGES),
+      ),
+    );
     return;
   }
 
-  // Everything else: icons, manifest.json, fonts. Fine to serve slightly stale while a
-  // fresh copy loads in the background.
-  event.respondWith(staleWhileRevalidate(ASSETS_CACHE, request));
+  // Everything else: icons, manifest.json, fonts, `/_next/image` variants, RSC payloads. Fine
+  // to serve slightly stale while a fresh copy loads in the background.
+  event.respondWith(
+    staleWhileRevalidate(
+      caches,
+      fetch,
+      CACHE_NAMES.ASSETS,
+      request,
+      event.waitUntil.bind(event),
+      onWrite(CACHE_NAMES.ASSETS),
+    ),
+  );
 });
