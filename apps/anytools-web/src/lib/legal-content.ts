@@ -288,7 +288,7 @@ const TERMS: Record<Locale, LegalPage> = {
       {
         heading: 'License to use',
         body: [
-          'The Service and its tools are free for personal and commercial use under the MIT License. The source code is open and available on GitHub. You may self-host, fork, modify, and redistribute under the MIT terms.',
+          'The Service and its tools are free for personal and commercial use. Our own code is MIT licensed, open on GitHub, and you may self-host, fork, modify and redistribute it under the MIT terms. It is not all MIT: some third-party components ship under their own licences — including the LGPL-3.0 HEIC decoder behind the HEIC to JPG tool — and every one of them is listed in THIRD-PARTY-NOTICES in the repository.',
         ],
       },
       {
@@ -352,7 +352,7 @@ const TERMS: Record<Locale, LegalPage> = {
       {
         heading: 'Quyền sử dụng',
         body: [
-          'Dịch vụ và các tool miễn phí cho mục đích cá nhân và thương mại theo Giấy phép MIT. Mã nguồn mở trên GitHub. Bạn có thể self-host, fork, sửa đổi, và phân phối lại theo điều khoản MIT.',
+          'Dịch vụ và các tool miễn phí cho mục đích cá nhân và thương mại. Code của chúng tôi theo Giấy phép MIT, mở trên GitHub; bạn có thể self-host, fork, sửa đổi và phân phối lại theo điều khoản MIT. Không phải mọi thứ đều MIT: một số thành phần bên thứ ba đi kèm giấy phép riêng — trong đó có decoder HEIC theo LGPL-3.0 mà tool HEIC to JPG dùng — và tất cả được liệt kê trong file THIRD-PARTY-NOTICES của repository.',
         ],
       },
       {
@@ -413,7 +413,7 @@ const TERMS: Record<Locale, LegalPage> = {
       {
         heading: 'Licencia de uso',
         body: [
-          'El Servicio y sus herramientas son gratuitos para uso personal y comercial bajo la Licencia MIT. El código fuente está abierto en GitHub. Puedes auto-hospedar, hacer fork, modificar y redistribuir bajo los términos MIT.',
+          'El Servicio y sus herramientas son gratuitos para uso personal y comercial. Nuestro código está bajo la Licencia MIT y abierto en GitHub: puedes auto-hospedarlo, hacer fork, modificarlo y redistribuirlo bajo los términos MIT. No todo es MIT: algunos componentes de terceros vienen con su propia licencia — entre ellos el decodificador HEIC bajo LGPL-3.0 que usa la herramienta HEIC a JPG — y todos están listados en THIRD-PARTY-NOTICES en el repositorio.',
         ],
       },
       {
@@ -474,7 +474,7 @@ const TERMS: Record<Locale, LegalPage> = {
       {
         heading: 'Licença de uso',
         body: [
-          'O Serviço e suas ferramentas são gratuitos para uso pessoal e comercial sob a Licença MIT. O código-fonte é aberto no GitHub. Você pode auto-hospedar, fazer fork, modificar e redistribuir sob os termos MIT.',
+          'O Serviço e suas ferramentas são gratuitos para uso pessoal e comercial. Nosso código está sob a Licença MIT e aberto no GitHub: você pode auto-hospedar, fazer fork, modificar e redistribuir sob os termos MIT. Nem tudo é MIT: alguns componentes de terceiros vêm com licença própria — entre eles o decodificador HEIC sob LGPL-3.0 usado pela ferramenta HEIC para JPG — e todos estão listados em THIRD-PARTY-NOTICES no repositório.',
         ],
       },
       {
