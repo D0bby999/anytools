@@ -1,5 +1,9 @@
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
-import { toNextJsHandler } from 'better-auth/next-js';
+// Type-only: the value import happens inside getHandler(), never at module top level.
+// A top-level value import here would pull `better-auth/next-js` (and, transitively,
+// its native better-sqlite3 binding) into every self-host request that touches this
+// route module — even ones that 404 before ever calling getHandler().
+import type { toNextJsHandler } from 'better-auth/next-js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,8 +13,11 @@ export const dynamic = 'force-dynamic';
 let _handler: ReturnType<typeof toNextJsHandler> | null = null;
 async function getHandler() {
   if (_handler) return _handler;
-  const { auth } = await import('@/lib/auth');
-  _handler = toNextJsHandler(auth);
+  const [{ auth }, { toNextJsHandler: buildHandler }] = await Promise.all([
+    import('@/lib/auth'),
+    import('better-auth/next-js'),
+  ]);
+  _handler = buildHandler(auth);
   return _handler;
 }
 
