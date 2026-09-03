@@ -1,11 +1,13 @@
 import { DashboardToolsPanel } from '@/components/dashboard-tools-panel';
 import { SignOutButton } from '@/components/sign-out-button';
 import { redirect } from '@/i18n/routing';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { toolMetasClient } from '@anytools/tools/meta';
 import { Card, CardContent, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,6 +15,12 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  // Defense in depth — the real 404 status for self-host comes from the sibling
+  // layout.tsx (see its comment: this page has a `loading.tsx`, which streams the
+  // response and would otherwise lock the status at 200 even when notFound() renders
+  // the not-found UI). Gating here too costs nothing and avoids an unnecessary
+  // getTranslations() call.
+  if (IS_SELF_HOSTED) notFound();
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'auth' });
   // Auth-gated personal page — keep out of the index (no SEO value, avoids
@@ -21,6 +29,11 @@ export async function generateMetadata({
 }
 
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+  // Defense in depth (see layout.tsx for the real 404-status fix and why it's needed
+  // here too): gated before the `@/lib/auth` import below so better-auth never
+  // initializes (no BETTER_AUTH_SECRET required, no auth.db written) in a self-host
+  // build, even though the layout above already stops rendering from reaching here.
+  if (IS_SELF_HOSTED) notFound();
   const { locale } = await params;
   const { auth } = await import('@/lib/auth');
   const session = await auth.api.getSession({ headers: await headers() });

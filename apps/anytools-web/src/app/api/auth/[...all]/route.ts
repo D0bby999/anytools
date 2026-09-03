@@ -1,3 +1,4 @@
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { toNextJsHandler } from 'better-auth/next-js';
 
 export const runtime = 'nodejs';
@@ -14,11 +15,15 @@ async function getHandler() {
 }
 
 export async function POST(req: Request) {
+  // Gated before getHandler() so better-auth never initializes in self-host: no
+  // BETTER_AUTH_SECRET is required, and no auth.db gets written.
+  if (IS_SELF_HOSTED) return new Response(null, { status: 404 });
   const h = await getHandler();
   return h.POST(req);
 }
 
 export async function GET(req: Request) {
+  if (IS_SELF_HOSTED) return new Response(null, { status: 404 });
   const h = await getHandler();
   return h.GET(req);
 }

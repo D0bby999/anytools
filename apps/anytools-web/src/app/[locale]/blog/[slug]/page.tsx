@@ -9,6 +9,7 @@ import { YouTubeEmbed } from '@/components/youtube-embed';
 import { routing } from '@/i18n/routing';
 import { asSanitizedHtml, loadBlog } from '@/lib/load-blog-content';
 import { faqSchema, howToSchema, jsonLdSafe } from '@/lib/schema';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -23,6 +24,9 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: { params: Promise<PageParams> }): Promise<Metadata> {
+  // loadBlog() below hits the DB (listBlogs/getBlogBySlug) — self-host builds ship
+  // with no DATABASE_URL, so skip the fetch entirely rather than let it fail.
+  if (IS_SELF_HOSTED) return {};
   const { locale, slug } = await params;
   const blog = await loadBlog(locale, slug);
   if (!blog) return {};
@@ -64,6 +68,7 @@ export async function generateMetadata({
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<PageParams> }) {
+  if (IS_SELF_HOSTED) notFound();
   const { locale, slug } = await params;
   const blog = await loadBlog(locale, slug);
   if (!blog) notFound();

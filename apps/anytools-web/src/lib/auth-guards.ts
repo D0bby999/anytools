@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { auth } from './auth';
+import { IS_SELF_HOSTED } from './self-hosted';
 
 // Admin email allowlist: comma-separated list of lowercase email addresses.
 // Set DISTRIBUTION_ADMIN_EMAILS in Coolify env, e.g.:
@@ -33,8 +33,18 @@ const ADMIN_EMAILS: ReadonlySet<string> = new Set(
  * binding which cannot run in the Next.js Edge runtime that middleware uses.
  * Per-layout/per-action guards are equivalent in security because Next.js App
  * Router always runs layouts before pages and actions are server-only.
+ *
+ * Self-host safety net: `admin/distribution/layout.tsx` already 404s the whole
+ * subtree before this runs, but this function is also called directly from several
+ * server actions (`brands/[brandSlug]/page.tsx`, `posts/[postId]/page.tsx`,
+ * `templates/page.tsx`) — a server action is itself a callable POST endpoint, so a
+ * 404'd page does not stop it from being invoked directly. Throwing here, before
+ * `auth` is even imported, is what actually prevents better-auth from initializing
+ * (and touching a DB) in a self-host build.
  */
 export async function requireAdmin() {
+  if (IS_SELF_HOSTED) throw new Error('admin disabled');
+  const { auth } = await import('./auth');
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user?.email || !ADMIN_EMAILS.has(session.user.email.toLowerCase())) {

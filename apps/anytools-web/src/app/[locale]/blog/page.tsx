@@ -1,9 +1,11 @@
 import { BlogCard } from '@/components/blog-card';
 import { routing } from '@/i18n/routing';
 import { BLOG_CATEGORIES, listBlogs } from '@/lib/load-blog-content';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { METADATA_BASE } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 // Rendered per-request so newly published posts appear without a rebuild.
 export const dynamic = 'force-dynamic';
@@ -45,6 +47,11 @@ export default async function BlogIndexPage({
   params: Promise<PageParams>;
   searchParams: Promise<SearchParams>;
 }) {
+  // The blog is DB-backed (listPublishedBlogRows/listBlogs) and self-host builds ship
+  // with no DATABASE_URL: without this gate the page would render empty rather than
+  // signal it doesn't exist. generateMetadata above touches no data, so it is left
+  // ungated — the component 404 alone is sufficient.
+  if (IS_SELF_HOSTED) notFound();
   const { locale } = await params;
   const { category } = await searchParams;
 
