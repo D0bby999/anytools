@@ -1,0 +1,173 @@
+# Publish the self-host release image to GHCR: ghcr.io/d0bby999/anytools.
+#
+# Separate from deploy.yml on purpose: that workflow builds the *hosted* image
+# (ads/analytics/auth/blog on, stage `runner`, pushed to a different repo,
+# anytools-web) on every push to master. This one only runs on a semver tag,
+# builds the *self-host* image (stage `selfhost`, NEXT_PUBLIC_SELF_HOSTED=1, no
+# Umami build-args, NEXT_PUBLIC_URL left empty so no absolute URL is ever baked
+# in), and publishes linux/amd64 + linux/arm64 as one manifest list.
+#
+# Push-by-digest + `docker buildx imagetools create` pattern (docs.docker.com no
+# longer prints this as of 2026-09; verified instead via docker/build-push-action
+# discussions + docker/metadata-action README at implementation time): each arch
+# builds and pushes an UNTAGGED image by digest, uploads the digest as an
+# artifact, then a final job downloads every digest and merges them into one
+# tagged manifest list with `imagetools create`. This is what avoids the classic
+# matrix bug where each arch's job overwrites the previous arch's tag.
+#
+# arm64 runs on a native `ubuntu-24.04-arm` runner (free for public repos since
+# 2025-08-07), not QEMU: `next.config.ts` keeps `better-sqlite3` in
+# `serverExternalPackages`, whose native addon the `deps` stage compiles with
+# `python3 make g++` — under QEMU aarch64 emulation that compile is 10-30x slower.
+name: Release image (self-host)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  # Hard-coded, not reused from deploy.yml's OWNER/APP: the self-host image lives
+  # under a different repo name (`anytools`, not `anytools-web`) so a copy-paste
+  # mistake here can never push over the hosted image.
+  IMAGE: ghcr.io/d0bby999/anytools
+
+jobs:
+  # Copy of deploy.yml's verify job. vendor:assets must run before test — a fresh
+  # checkout has no public/third-party/, and vendor-assets.test.ts asserts it exists.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm --filter @anytools/web vendor:assets
+      - run: pnpm -r test
+
+  build:
+    needs: verify
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            slug: amd64
+          - runner: ubuntu-24.04-arm
+            platform: linux/arm64
+            slug: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata (labels only — final tags are applied in the merge job)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/anytools-web/Dockerfile
+          target: selfhost
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # NEXT_PUBLIC_UMAMI_* intentionally absent, NEXT_PUBLIC_URL intentionally
+          # absent — the self-host build must not bake in any absolute URL or
+          # analytics endpoint (see phase-01: sitemap/robots/canonical all read
+          # IS_SELF_HOSTED and go silent when this build-arg is "1").
+          build-args: |
+            NEXT_PUBLIC_SELF_HOSTED=1
+          # `name=` is required or buildx has no repo to push the digest into.
+          outputs: type=image,"name=${{ env.IMAGE }}",push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=selfhost-${{ matrix.slug }}
+          cache-to: type=gha,mode=max,scope=selfhost-${{ matrix.slug }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.slug }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          # We add `latest` explicitly below — turn off metadata-action's own
+          # auto-latest so it isn't computed twice.
+          flavor: |
+            latest=false
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          # word splitting is the point here, not a bug: both $() expand to a
+          # *space-separated list* of `-t tag` / `image@sha256:digest` arguments.
+          # shellcheck disable=SC2046
+          docker buildx imagetools create \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.IMAGE }}@sha256:%s ' *)
+
+      - name: Inspect pushed manifest
+        run: |
+          docker buildx imagetools inspect ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}

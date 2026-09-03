@@ -1,0 +1,23 @@
+# Docker build context excludes for `docker build -f apps/anytools-web/Dockerfile .`
+#
+# Keep in mind the build context is the WHOLE repo root (monorepo COPY . . in the
+# `builder` stage) — anything needed at build time (packages/**, apps/anytools-web/content,
+# LICENSE, THIRD-PARTY-NOTICES.md) must NOT be excluded here. `public/third-party` is
+# excluded on purpose: `apps/anytools-web/package.json`'s `build` script runs
+# `copy-vendor-assets.mjs` before `next build`, so it is regenerated inside the image —
+# shipping the host's copy in the build context would just be ~54MB of dead weight.
+
+.git
+plans
+node_modules
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+packages/anytools-tools/fixtures
+apps/anytools-web/public/third-party
+**/*.db
+**/*.db-shm
+**/*.db-wal
+.claude
+workers
+.github

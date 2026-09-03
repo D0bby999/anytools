@@ -1,0 +1,19 @@
+# Self-host AnyTools with one command: `docker compose up -d`.
+#
+# No env, no volume: the self-host image (ghcr.io/d0bby999/anytools) is a build-time
+# variant — better-auth, ads, analytics, newsletter and blog never initialize, and no
+# absolute URL is ever emitted, so there is nothing to configure and nothing to persist.
+# Building your own image with different settings? See docs/self-hosting.md.
+services:
+  anytools:
+    image: ghcr.io/d0bby999/anytools:v1.0.0
+    container_name: anytools
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
