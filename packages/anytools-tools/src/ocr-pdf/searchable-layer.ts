@@ -109,7 +109,7 @@ export async function buildSearchablePdf(
   let skipped = 0;
   for (const layer of layers) {
     const page = doc.getPage(layer.pageIndex);
-    const frame = pageFrame(page.getWidth(), page.getHeight(), page.getRotation().angle);
+    const frame = pageFrame(page.getCropBox(), page.getRotation().angle);
     const scale = pointsPerPixel(frame, layer.imageWidth);
     if (scale <= 0) continue;
     // The layer is drawn in the frame the reader sees, so a page stored sideways gets its text

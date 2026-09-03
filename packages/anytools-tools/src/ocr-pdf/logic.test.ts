@@ -100,18 +100,20 @@ describe('placeWord', () => {
 
 describe('pointsPerPixel', () => {
   it('divides the visible width, so a downscaled render still maps correctly', () => {
-    const frame = pageFrame(612, 792, 0);
+    const frame = pageFrame({ x: 0, y: 0, width: 612, height: 792 }, 0);
     expect(pointsPerPixel(frame, 1700)).toBeCloseTo(0.36, 10);
     expect(pointsPerPixel(frame, 850)).toBeCloseTo(0.72, 10);
   });
 
   it('uses the rotated width on a page stored sideways', () => {
     // /Rotate 90 means the reader sees a 792 x 612 page.
-    expect(pointsPerPixel(pageFrame(612, 792, 90), 2200)).toBeCloseTo(792 / 2200, 10);
+    expect(
+      pointsPerPixel(pageFrame({ x: 0, y: 0, width: 612, height: 792 }, 90), 2200),
+    ).toBeCloseTo(792 / 2200, 10);
   });
 
   it('returns zero rather than Infinity for an empty image', () => {
-    expect(pointsPerPixel(pageFrame(612, 792, 0), 0)).toBe(0);
+    expect(pointsPerPixel(pageFrame({ x: 0, y: 0, width: 612, height: 792 }, 0), 0)).toBe(0);
   });
 });
 
@@ -133,7 +135,7 @@ function contentStreams(bytes: Uint8Array): Promise<string[]> {
       let raw: Uint8Array = obj.contents;
       if (String(obj.dict.get(PDFName.of('Filter')) ?? '').includes('FlateDecode')) {
         try {
-          raw = inflateSync(Buffer.from(raw));
+          raw = new Uint8Array(inflateSync(Buffer.from(raw)));
         } catch {
           continue;
         }
