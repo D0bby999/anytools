@@ -39,7 +39,7 @@
   },
   "landing": {
     "heroTitle": "Ferramentas grátis que respeitam seu tempo, dados e idioma.",
-    "heroSubtitle": "IMC, dividir conta, JSON, regex, contraste de cor, conversor de unidades e 60+ mais. Em EN, VN, ES, PT. Quase todas as ferramentas rodam inteiramente no seu navegador — o que você cola fica no seu dispositivo.",
+    "heroSubtitle": "IMC, dividir conta, JSON, regex, contraste de cor, conversor de unidades e mais uma centena. Em EN, VN, ES, PT. Quase todas as ferramentas rodam inteiramente no seu navegador — o que você cola fica no seu dispositivo.",
     "ctaWaitlist": "Assine o boletim",
     "ctaGithub": "Estrela no GitHub",
     "eyebrow": "{count} ferramentas · 4 idiomas · Grátis para sempre",
@@ -57,7 +57,7 @@
     "valueProp3Title": "Código aberto",
     "valueProp3Body": "Licença MIT. Auto-hospede, faça fork, audite. O código que lida com seus dados está aberto para qualquer um verificar.",
     "metaTitle": "AnyTools — {count} calculadoras, conversores e utilitários grátis",
-    "metaDescription": "IMC, hipoteca, divisor de conta, formatador JSON, contraste de cor, câmbio, porcentagem e 60+ ferramentas. Grátis, sem cadastro, no seu navegador. EN, VI, ES, PT."
+    "metaDescription": "IMC, hipoteca, divisor de conta, formatador JSON, contraste de cor, câmbio, porcentagem e mais uma centena de ferramentas. Grátis, sem cadastro, no seu navegador. EN, VI, ES, PT."
   },
   "consent": {
     "title": "Consentimento de cookies",

@@ -39,7 +39,7 @@
   },
   "landing": {
     "heroTitle": "Tool miễn phí tôn trọng thời gian, dữ liệu, và ngôn ngữ của bạn.",
-    "heroSubtitle": "BMI, chia hóa đơn, JSON, regex, color contrast, đổi đơn vị và 60+ tool nữa. Có EN/VN/ES/PT. Gần như mọi tool chạy trọn trong browser — thứ bạn dán vào ở lại trên máy bạn.",
+    "heroSubtitle": "BMI, chia hóa đơn, JSON, regex, color contrast, đổi đơn vị và cả trăm công cụ khác. Có EN/VN/ES/PT. Gần như mọi tool chạy trọn trong browser — thứ bạn dán vào ở lại trên máy bạn.",
     "ctaWaitlist": "Đăng ký newsletter",
     "ctaGithub": "Star trên GitHub",
     "eyebrow": "{count} tool · 4 ngôn ngữ · Miễn phí mãi mãi",
@@ -57,7 +57,7 @@
     "valueProp3Title": "Mã nguồn mở",
     "valueProp3Body": "MIT license. Self-host, fork, audit. Phần code xử lý dữ liệu của bạn công khai để ai cũng kiểm tra được.",
     "metaTitle": "AnyTools — {count} công cụ tính toán & tiện ích miễn phí",
-    "metaDescription": "BMI, vay ngân hàng, chia hóa đơn, JSON formatter, color contrast, tỉ giá, phần trăm và 60+ công cụ. Miễn phí, không đăng ký, chạy ngay trên trình duyệt. EN, VI, ES, PT."
+    "metaDescription": "BMI, vay ngân hàng, chia hóa đơn, JSON formatter, color contrast, tỉ giá, phần trăm và cả trăm công cụ khác. Miễn phí, không đăng ký, chạy ngay trên trình duyệt. EN, VI, ES, PT."
   },
   "consent": {
     "title": "Đồng ý cookie",

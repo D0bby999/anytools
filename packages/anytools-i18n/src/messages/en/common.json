@@ -39,7 +39,7 @@
   },
   "landing": {
     "heroTitle": "Free tools that respect your time, your data, your language.",
-    "heroSubtitle": "BMI, tip splitter, JSON, regex, color contrast, unit converter and 60+ more. Available in EN, VN, ES, PT. Almost every tool runs entirely in your browser — what you paste stays on your device.",
+    "heroSubtitle": "BMI, tip splitter, JSON, regex, color contrast, unit converter and a hundred more. Available in EN, VN, ES, PT. Almost every tool runs entirely in your browser — what you paste stays on your device.",
     "ctaWaitlist": "Join the newsletter",
     "ctaGithub": "Star on GitHub",
     "eyebrow": "{count} tools · 4 languages · Free forever",
@@ -57,7 +57,7 @@
     "valueProp3Title": "Open source",
     "valueProp3Body": "MIT licensed. Self-host, fork, audit. The code that handles your data is open for anyone to check.",
     "metaTitle": "AnyTools — {count} free calculators, converters & dev utilities",
-    "metaDescription": "BMI, mortgage, tip splitter, JSON formatter, color contrast, currency, percentage and 60+ more. Free, no signup, runs in your browser. Available in EN, VI, ES, PT."
+    "metaDescription": "BMI, mortgage, tip splitter, JSON formatter, color contrast, currency, percentage and a hundred more. Free, no signup, runs in your browser. Available in EN, VI, ES, PT."
   },
   "consent": {
     "title": "Cookie consent",
