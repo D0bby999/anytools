@@ -1,0 +1,20 @@
+# Edge copy of /ads.txt — see src/index.js for why this exists.
+#
+# Deployed by hand, not by CI: the repo has no CLOUDFLARE_API_TOKEN secret, and the
+# file changes only when the AdSense publisher does. To ship a change:
+#
+#   npx wrangler deploy --config workers/ads-txt/wrangler.toml
+#
+# The two routes cover both hostnames Google may have on file for the site. Without the
+# www route, www/ads.txt would still be a 301 served by the origin — i.e. still down
+# during a deploy, which is the whole failure this Worker exists to remove.
+name = "anytools-ads-txt"
+main = "src/index.js"
+compatibility_date = "2026-09-03"
+account_id = "dced48e4f30407853a7d93a005af5980"
+workers_dev = false
+
+routes = [
+  { pattern = "anytools.world/ads.txt", zone_name = "anytools.world" },
+  { pattern = "www.anytools.world/ads.txt", zone_name = "anytools.world" },
+]

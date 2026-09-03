@@ -1,26 +1,16 @@
-// /ads.txt — IAB authorized-sellers file required by Google AdSense / programmatic ads.
-// Declares which publisher is allowed to sell this site's inventory; Google reads it
-// during review and again when serving, and an unlisted publisher means unfilled ads.
+// /ads.txt — see src/lib/ads-txt.ts for what the file is and why the body lives there.
 //
-// The publisher ID is baked in as a fallback (same pattern as the Amazon tag in
-// affiliate-url.ts) so the file is correct without depending on a Coolify env var
-// being set — a silent empty env would serve the placeholder and look fine.
+// In production this route is normally shadowed by the Cloudflare Worker on the
+// anytools.world/ads.txt route (workers/ads-txt), which answers from the edge so an
+// AdSense crawl cannot land on a container that is mid-redeploy. This route stays the
+// origin-of-record: it is what runs locally, in preview, and if the Worker is removed.
+
+import { adsTxtBody } from '@/lib/ads-txt';
 
 export const dynamic = 'force-static';
 
 export function GET(): Response {
-  const pub = process.env.ADSENSE_PUB_ID ?? 'pub-8231549980592586';
-  const body = pub
-    ? `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n`
-    : [
-        '# ads.txt placeholder — no ad network authorized yet.',
-        '# After Google AdSense approval, set ADSENSE_PUB_ID env (pub-XXXXXXXXXXXXXXXX);',
-        '# this route will then emit:',
-        '#   google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0',
-        '',
-      ].join('\n');
-
-  return new Response(body, {
+  return new Response(adsTxtBody(), {
     headers: { 'content-type': 'text/plain; charset=utf-8' },
   });
 }
