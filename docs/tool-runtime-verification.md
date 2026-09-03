@@ -72,6 +72,13 @@ Notes on each step:
   is a shorter form of the `eval` above.
 - **`agent-browser drag` / `mouse` do not reach the page** (0.27.0). For real pointer gestures use
   CDP `Input.dispatchMouseEvent` on the session — see phase-03 of the 260903 plan for the recipe.
+- **Web Worker traffic is invisible to `network requests`** (and to `network route`). pdf.js,
+  tesseract.js and libarchive fetch their WASM/language files from inside a worker, so an empty
+  page-level list proves nothing for them. To prove origin for worker fetches, attach a CDP
+  client with `Target.setAutoAttach` and `Network.enable` per worker session (phase-06 of the
+  260903 plan has the recipe), or at minimum assert the tool still works with the CDN hosts
+  blocked at the OS level. `agent-browser download` also fails on blob: anchors (0.27.0) — read
+  the blob back through the page instead.
 - **Upload after `sleep 3`.** An upload that lands before React hydrates sets `input.files` but no
   handler runs, and agent-browser still prints `✓ Done`.
 - **Console** must have no `error` entries. In dev, ignore `[Fast Refresh]` lines.
