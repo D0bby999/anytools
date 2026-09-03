@@ -49,7 +49,16 @@ const BLOCKED_GET_PATHS = [
   '/sitemap.xml',
   '/llms.txt',
   '/api/postclaw/health',
+  // better-auth's catch-all. Every other blocked row is a page; this is the one that
+  // would matter most if the gate ever regressed, because it is an API that hands
+  // out sessions — so it gets its own row rather than being implied by /sign-in.
+  '/api/auth/get-session',
 ];
+
+// Locale-prefixed utility pages that are NOT tools, clusters or guides but must still
+// serve in self-host: /offline is the service worker's navigation fallback (precached
+// at install — a 404 here silently breaks offline mode), /favorites is localStorage-only.
+const LOCALE_UTILITY_PATHS = ['offline', 'favorites'];
 const BLOCKED_POST_PATH = '/api/newsletter/subscribe';
 
 function readStringField(src, name) {
@@ -162,6 +171,9 @@ export function buildRouteInventory(opts = {}) {
   for (const locale of locales) {
     for (const slug of guideSlugs) expect200.push(route(`/${locale}/guides/${slug}`));
   }
+  for (const locale of locales) {
+    for (const p of LOCALE_UTILITY_PATHS) expect200.push(route(`/${locale}/${p}`));
+  }
   for (const p of SINGLE_ASSET_PATHS) expect200.push(route(p));
 
   const expect404 = [...BLOCKED_GET_PATHS.map((p) => route(p)), route(BLOCKED_POST_PATH, 'POST')];
@@ -181,6 +193,7 @@ export function buildRouteInventory(opts = {}) {
       toolPages: toolPageCount,
       guideIndexPages: locales.length,
       guideSlugPages: locales.length * guideSlugs.length,
+      localeUtilityPages: locales.length * LOCALE_UTILITY_PATHS.length,
       singleAssetPages: SINGLE_ASSET_PATHS.length,
       total200: expect200.length,
       total404: expect404.length,

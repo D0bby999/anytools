@@ -31,7 +31,13 @@ function parseArgs(argv) {
 async function fetchOne(base, entry) {
   const url = new URL(entry.path, base).toString();
   try {
-    const res = await fetch(url, { method: entry.method, redirect: 'manual' });
+    // A hung server must fail the gate, not hang it: 20 s is generous for a cold
+    // prerendered page and far below any CI job timeout.
+    const res = await fetch(url, {
+      method: entry.method,
+      redirect: 'manual',
+      signal: AbortSignal.timeout(20_000),
+    });
     return { ...entry, status: res.status };
   } catch (err) {
     return { ...entry, status: 0, error: String(err?.message ?? err) };

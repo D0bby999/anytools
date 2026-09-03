@@ -40,15 +40,17 @@ tagged, and pulled from a registry.
   every route the app should serve straight from the tool/cluster/guide registries
   (not from `/sitemap.xml`, which intentionally omits untranslated tool bodies and
   the blog) and fetch them against a running container, asserting 200/404 as
-  expected. Used to gate this release; see
-  `plans/260903-1527-anytools-selfhost-distribution/phase-04-release-v1-gate.md` for
-  the full verification record.
+  expected. Used to gate this release (415 routes expected to serve, 11 expected to
+  be blocked, checked against a container started with no environment and no volume).
 
 ### Changed
 
-- Nothing — this is the first tagged release. The self-host build flag
-  (`NEXT_PUBLIC_SELF_HOSTED=1`, build-time only) does not alter the hosted build at
-  `anytools.world` in any way; that was verified byte-for-byte during development.
+- The hosted site at `anytools.world` picked up the service worker, the install
+  prompt and the footer attribution slot from this release; its Open Graph image URLs
+  moved from `…/opengraph-image?<hash>` to `…/opengraph-image/og?<hash>` as a side
+  effect of making them switchable per build. Everything the self-host build flag
+  (`NEXT_PUBLIC_SELF_HOSTED=1`, build-time only) turns off stays on for the hosted
+  build — that part was verified surface by surface during development.
 
 ### Notes — what's disabled in self-host mode
 

@@ -33,28 +33,37 @@ describe('buildRouteInventory', () => {
     expect(inventory.counts.toolPages).toBe(323);
   });
 
-  it('adds up to 415 expect200 routes (4 home + 52 cluster + 323 tool + 4 guide index + 28 guide slug + 4 single-asset)', () => {
+  it('adds up to 423 expect200 routes (4 home + 52 cluster + 323 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
     expect(inventory.counts.home).toBe(4);
     expect(inventory.counts.clusterPages).toBe(52);
     expect(inventory.counts.guideIndexPages).toBe(4);
     expect(inventory.counts.guideSlugPages).toBe(28);
+    expect(inventory.counts.localeUtilityPages).toBe(8);
     expect(inventory.counts.singleAssetPages).toBe(4);
-    expect(inventory.counts.total200).toBe(415);
-    expect(inventory.expect200).toHaveLength(415);
+    expect(inventory.counts.total200).toBe(423);
+    expect(inventory.expect200).toHaveLength(423);
   });
 
-  it('lists exactly 10 blocked routes, 9 GET + 1 POST', () => {
-    expect(inventory.counts.total404).toBe(10);
-    expect(inventory.expect404).toHaveLength(10);
+  it('serves the service worker offline fallback and favorites in every locale', () => {
+    for (const locale of inventory.locales) {
+      expect(inventory.expect200).toContainEqual({ path: `/${locale}/offline`, method: 'GET' });
+      expect(inventory.expect200).toContainEqual({ path: `/${locale}/favorites`, method: 'GET' });
+    }
+  });
+
+  it('lists exactly 11 blocked routes, 10 GET + 1 POST', () => {
+    expect(inventory.counts.total404).toBe(11);
+    expect(inventory.expect404).toHaveLength(11);
     const getCount = inventory.expect404.filter((r) => r.method === 'GET').length;
     const postCount = inventory.expect404.filter((r) => r.method === 'POST').length;
-    expect(getCount).toBe(9);
+    expect(getCount).toBe(10);
     expect(postCount).toBe(1);
     expect(inventory.expect404).toContainEqual({
       path: '/api/newsletter/subscribe',
       method: 'POST',
     });
     expect(inventory.expect404).toContainEqual({ path: '/en/dashboard', method: 'GET' });
+    expect(inventory.expect404).toContainEqual({ path: '/api/auth/get-session', method: 'GET' });
   });
 
   it('has no duplicate path+method pairs across expect200', () => {
