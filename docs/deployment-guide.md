@@ -14,6 +14,17 @@
 the host's local Docker cache. Skip the pull and the deploy reports success while serving the
 previous image. This was shipped broken once and fixed in `2de4030`.
 
+## Two images, one Dockerfile
+
+`apps/anytools-web/Dockerfile` builds two different images from the same source, split by a
+build-arg and by which runtime stage is targeted. This section (`deploy.yml`) only ever produces
+the **hosted** image, `ghcr.io/d0bby999/anytools-web`, from the Dockerfile's last stage — nothing
+above changes: no new build-arg, no new target, same `:latest` + `:<git-sha>` tags. A second,
+independent workflow (`release.yml`, triggered by pushing a `vX.Y.Z` tag) builds the **self-host**
+image, `ghcr.io/d0bby999/anytools`, from an earlier stage with `NEXT_PUBLIC_SELF_HOSTED=1` — no
+ads, no analytics, no accounts, no database volume. See
+[`docs/self-hosting.md`](./self-hosting.md) for what that image disables and how to run it.
+
 ## Rollback
 
 There is no rollback button. `Dockerfile.deploy` pins the mutable `:latest` tag with no digest,
