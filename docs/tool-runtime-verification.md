@@ -60,13 +60,20 @@ agent-browser eval "(() => document.getElementById('tool').innerText)"   # what 
 agent-browser screenshot /tmp/<slug>.png
 agent-browser console | grep -iE 'error|warn'                    # must be empty
 agent-browser network requests | grep -v localhost:3000 \
-  | grep -viE 'googlesyndication|doubleclick|google\.com|adtrafficquality'   # must be empty
+  | grep -viE 'googlesyndication|doubleclick|google\.com|adtrafficquality|csi\.gstatic\.com'   # must be empty
 ```
 
 Notes on each step:
 
 - **Click by text through `eval`**, not `find role button click` — the latter matched the command
-  palette button first and opened it over the tool.
+  palette button first and opened it over the tool. If you click by `@ref`, `agent-browser click`
+  silently does nothing when the target is outside the viewport or under the sticky sub-header /
+  cookie banner: `snapshot` → `scrollintoview "@ref"` → `click "@ref"`. `agent-browser get text "#tool"`
+  is a shorter form of the `eval` above.
+- **`agent-browser drag` / `mouse` do not reach the page** (0.27.0). For real pointer gestures use
+  CDP `Input.dispatchMouseEvent` on the session — see phase-03 of the 260903 plan for the recipe.
+- **Upload after `sleep 3`.** An upload that lands before React hydrates sets `input.files` but no
+  handler runs, and agent-browser still prints `✓ Done`.
 - **Console** must have no `error` entries. In dev, ignore `[Fast Refresh]` lines.
 - **Network**: after removing our own origin and the AdSense hosts (they load on every page today,
   a known and separately tracked decision), the list **must be empty**. A `cdn.jsdelivr.net`,
