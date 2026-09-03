@@ -20,6 +20,16 @@ That is an assumption, and it can be wrong. If your table starts straight into d
 
 Two other things happen to tables here. A cell whose text Word split across several paragraphs is joined with `<br>`, because a real line break inside a Markdown table row ends the row and destroys the table. And a literal `|` inside cell text is escaped to `\|`, since an unescaped one would silently add a column to that row.
 
+## What happens to merged cells in a table?
+
+They are unmerged. Markdown has no merging at all: every row of a table is the same number of `|`-separated fields, lined up by position, and there is no syntax that says "this heading covers two columns".
+
+So a cell merged across two columns becomes two cells — the first keeps the text, the second is empty — and a cell merged down two rows becomes the cell plus an empty one directly below it. The result is a rectangle, with the columns still lined up under the right headings. It reads differently from the Word original, but nothing is lost, and it is a table your renderer will draw.
+
+That matters more than it sounds. Left alone, a header merged across two columns produces a header row narrower than the body rows, and GitHub-flavoured Markdown resolves that by truncating every row to the header's width — so a three-column table with a merged header quietly ships with its last column deleted.
+
+Two tables cannot be rescued this way, and both are emitted as ordinary HTML instead of a mangled Markdown table: a table containing another table inside one of its cells, which Markdown has no way to express at all, and a table whose merges claim more columns than any real document has. HTML inside a Markdown file renders correctly on GitHub and in most static site generators; a broken pipe table renders nowhere.
+
 ## What happens to the images in my document?
 
 By default they are dropped, and the tool tells you how many it dropped. There is a toggle to embed them instead, as base64 data URIs inside the Markdown.
@@ -32,9 +42,9 @@ Turn the toggle on when the document has one or two small images — a logo, a d
 
 No. The `.docx` is read in this browser tab. It goes from the file picker into the page through the File API, is unzipped and parsed in the page's own memory, and the result is text that never leaves your machine. You can confirm that in the Network tab of your developer tools, or by disconnecting from the network after the page has loaded and converting anyway.
 
-The preview is rendered inside a sandboxed frame with scripting disabled, so nothing that arrived in your document can execute — a precaution rather than a known risk, since the converter emits only a small fixed set of HTML elements.
+The preview is rendered inside a sandboxed frame with scripting disabled, so nothing that arrived in your document can execute. The frame is also blocked from loading anything over the network. That second part is the one that matters in practice: a document containing the text of an image tag pointing at some other website would, in a frame without that block, make your browser fetch that image — telling whoever runs that server that you had opened the document. It cannot. Images already embedded in the document, as `data:` URIs, still display.
 
-The trade for privacy is memory. Everything happens on the page's main thread, so the tab stops responding while a large document converts. Above 20 MB you will see a warning saying so. It is a warning, not a refusal.
+The trade for privacy is memory. Everything happens on the page's main thread, so the tab stops responding while a large document converts. Above 20 MB you will see a warning saying so; that one is a warning, not a refusal. Past 50 MB the document is refused before it is opened, because the unzipped XML, the HTML and the Markdown all have to be held in the tab at once and the page would run out of memory partway through with nothing to show for it.
 
 ## Why will it not open my .doc, .odt, .rtf or Pages file?
 

@@ -6,6 +6,7 @@ import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type DocxConversion,
+  MAX_DOCX_BYTES,
   SLOW_DOCX_BYTES,
   convertDocxFile,
   renderMarkdownPreview,
@@ -13,6 +14,21 @@ import {
 
 const SLUG = 'docx-to-markdown';
 type View = 'markdown' | 'preview' | 'html';
+
+/**
+ * `sandbox=""` stops the preview frame running script, but it does not stop it *fetching*.
+ * A document that contains the text `<img src="https://tracker.example/x.png">` survives into
+ * the Markdown as text, comes back as a real `<img>` when the preview renders it, and the
+ * frame then asks a third party for it — which tells that third party the visitor opened this
+ * document. The header below is what actually blocks the request: nothing may be loaded except
+ * the inline stylesheet, and images only from `data:` URIs already inside the file.
+ */
+const PREVIEW_CSP =
+  "default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'none'; base-uri 'none'";
+
+const PREVIEW_STYLE =
+  'body{font:14px/1.6 system-ui,sans-serif;margin:12px;color:#222}' +
+  'table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:4px 8px}img{max-width:100%}';
 
 const VIEWS: { id: View; label: string }[] = [
   { id: 'markdown', label: 'Markdown' },
@@ -32,6 +48,7 @@ export function DocxToMarkdownUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+  const tooLarge = !!file && file.size > MAX_DOCX_BYTES;
 
   // The preview needs `marked`, which is only worth loading once the user asks to see it.
   useEffect(() => {
@@ -110,7 +127,16 @@ export function DocxToMarkdownUi() {
           Embed images as data URIs (off by default — one photo can add megabytes of base64)
         </label>
 
-        {file && file.size > SLOW_DOCX_BYTES && (
+        {tooLarge && (
+          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            This document is {Math.round(file.size / 1024 / 1024)} MB, over the{' '}
+            {MAX_DOCX_BYTES / 1024 / 1024} MB limit. A .docx is compressed, and the unzipped XML,
+            the HTML and the Markdown all have to be held in the tab at once. Split the document, or
+            save a copy with the images removed, and try again.
+          </output>
+        )}
+
+        {file && !tooLarge && file.size > SLOW_DOCX_BYTES && (
           <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
             This document is over 20 MB. Conversion happens on this page's main thread, so the tab
             will stop responding while it runs. It will still be attempted.
@@ -120,7 +146,7 @@ export function DocxToMarkdownUi() {
         <button
           type="button"
           onClick={run}
-          disabled={!file || busy}
+          disabled={!file || busy || tooLarge}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
           {busy ? 'Converting…' : 'Convert to Markdown'}
@@ -187,12 +213,14 @@ export function DocxToMarkdownUi() {
                   <a href="/tools/md-html" className="underline">
                     Markdown ↔ HTML tool
                   </a>
-                  , inside a sandboxed frame so nothing in your document can run as script.
+                  , inside a sandboxed frame that cannot run script and cannot load anything from
+                  the network — so a link or an image address inside your document stays a piece of
+                  text and never becomes a request.
                 </p>
                 <iframe
                   title="Markdown preview"
                   sandbox=""
-                  srcDoc={`<!doctype html><meta charset="utf-8"><style>body{font:14px/1.6 system-ui,sans-serif;margin:12px;color:#222}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:4px 8px}img{max-width:100%}</style>${previewHtml}`}
+                  srcDoc={`<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${PREVIEW_CSP}"><style>${PREVIEW_STYLE}</style>${previewHtml}`}
                   className="h-80 w-full rounded-md border bg-white"
                 />
               </>

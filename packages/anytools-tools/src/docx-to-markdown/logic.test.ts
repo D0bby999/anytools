@@ -3,7 +3,7 @@
  * then read back through the real `convertDocxBuffer` — mammoth, turndown and the GFM plugin
  * all run for real. Nothing is stubbed and no expected Markdown is hand-written twice.
  *
- * Runs in the default happy-dom environment because `promoteTableHeaders` needs a DOMParser,
+ * Runs in the default happy-dom environment because `normaliseTables` needs a DOMParser,
  * which is exactly what the browser gives it.
  *
  * The table in the fixture deliberately does NOT set `tableHeader` on its first row. That is
@@ -13,9 +13,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   DocxError,
+  MAX_DOCX_BYTES,
   convertDocxBuffer,
+  convertDocxFile,
   htmlToGfmMarkdown,
-  promoteTableHeaders,
+  normaliseTables,
   renderMarkdownPreview,
 } from './logic';
 
@@ -86,11 +88,48 @@ async function buildDocx(withImage: boolean): Promise<ArrayBuffer> {
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
 }
 
-describe('promoteTableHeaders', () => {
-  it('turns the first row of a header-less table into th cells', () => {
-    const out = promoteTableHeaders(
-      '<table><tr><td>a</td><td>b</td></tr><tr><td>1</td></tr></table>',
+/**
+ * A Word table with real merged cells: the header merges two columns, and a body cell is
+ * merged down two rows. This is the shape that used to collapse to a single column.
+ */
+async function buildMergedTableDocx(): Promise<ArrayBuffer> {
+  const { Document, Packer, Paragraph, Table, TableCell, TableRow } = await import('docx');
+  const cell = (text: string, opts: Record<string, number> = {}) =>
+    new TableCell({ children: [new Paragraph(text)], ...opts });
+
+  const doc = new Document({
+    sections: [
+      {
+        children: [
+          new Table({
+            rows: [
+              new TableRow({ children: [cell('Revenue', { columnSpan: 2 }), cell('Total')] }),
+              new TableRow({
+                children: [cell('North', { rowSpan: 2 }), cell('120'), cell('218')],
+              }),
+              new TableRow({ children: [cell('98'), cell('196')] }),
+            ],
+            // biome-ignore lint/suspicious/noExplicitAny: docx's section children union is not exported
+          }) as any,
+        ],
+      },
+    ],
+  });
+  const buf = await Packer.toBuffer(doc);
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+}
+
+describe('normaliseTables', () => {
+  /** Cell texts per row, so a test can assert the grid rather than a blob of HTML. */
+  function grid(html: string): string[][] {
+    const doc = new DOMParser().parseFromString(`<!doctype html><body>${html}`, 'text/html');
+    return Array.from(doc.querySelectorAll('tr')).map((tr) =>
+      Array.from(tr.children).map((c) => c.textContent ?? ''),
     );
+  }
+
+  it('turns the first row of a header-less table into th cells', () => {
+    const out = normaliseTables('<table><tr><td>a</td><td>b</td></tr><tr><td>1</td></tr></table>');
     expect(out).toContain('<th>a</th>');
     expect(out).toContain('<th>b</th>');
     // Only the first row: the body must stay data.
@@ -98,25 +137,69 @@ describe('promoteTableHeaders', () => {
   });
 
   it('leaves a table that already has a header row alone', () => {
-    const out = promoteTableHeaders('<table><tr><th>a</th></tr><tr><td>1</td></tr></table>');
+    const out = normaliseTables('<table><tr><th>a</th></tr><tr><td>1</td></tr></table>');
     expect(out.match(/<th>/g)).toHaveLength(1);
   });
 
   it('does not touch a table nested inside a cell of an already-headed table', () => {
-    const out = promoteTableHeaders(
+    const out = normaliseTables(
       '<table><tr><th>outer</th></tr><tr><td><table><tr><td>inner</td></tr></table></td></tr></table>',
     );
     expect(out).toContain('<th>inner</th>');
     expect(out.match(/<th>outer<\/th>/g)).toHaveLength(1);
+  });
+
+  it('expands a colspan header into one cell per column it covers', () => {
+    const out = normaliseTables(
+      '<table><tr><th colspan="2">Revenue</th><th>Total</th></tr>' +
+        '<tr><td>Q1</td><td>Q2</td><td>218</td></tr></table>',
+    );
+    expect(grid(out)).toEqual([
+      ['Revenue', '', 'Total'],
+      ['Q1', 'Q2', '218'],
+    ]);
+    // The filler must stay a th, or the plugin stops recognising the heading row.
+    expect(out).toContain('<th></th>');
+    expect(out).not.toContain('colspan');
+  });
+
+  it('carries a rowspan down as an empty cell in each row it covers', () => {
+    const out = normaliseTables(
+      '<table><tr><th>Region</th><th>Quarter</th><th>Revenue</th></tr>' +
+        '<tr><td rowspan="2">North</td><td>Q1</td><td>120</td></tr>' +
+        '<tr><td>Q2</td><td>98</td></tr></table>',
+    );
+    expect(grid(out)).toEqual([
+      ['Region', 'Quarter', 'Revenue'],
+      ['North', 'Q1', '120'],
+      // The covered slot keeps North's column; Q2 does not slide left into it.
+      ['', 'Q2', '98'],
+    ]);
+    expect(out).not.toContain('rowspan');
+  });
+
+  it('places a cell in the first free slot, so a rowspan pushes later cells right', () => {
+    const out = normaliseTables(
+      '<table><tr><td>a</td><td rowspan="2">b</td><td>c</td></tr><tr><td>d</td><td>e</td></tr></table>',
+    );
+    expect(grid(out)).toEqual([
+      ['a', 'b', 'c'],
+      ['d', '', 'e'],
+    ]);
+  });
+
+  it('leaves an absurd colspan unexpanded rather than building the grid it asks for', () => {
+    const out = normaliseTables('<table><tr><td colspan="90000">x</td></tr></table>');
+    expect(grid(out)[0]).toHaveLength(1);
+    // Still spanning, which is what sends it down the raw-HTML path.
+    expect(out).toContain('colspan');
   });
 });
 
 describe('htmlToGfmMarkdown', () => {
   it('writes a GFM table once the header row exists', async () => {
     const md = await htmlToGfmMarkdown(
-      promoteTableHeaders(
-        '<table><tr><td>a</td><td>b</td></tr><tr><td>1</td><td>2</td></tr></table>',
-      ),
+      normaliseTables('<table><tr><td>a</td><td>b</td></tr><tr><td>1</td><td>2</td></tr></table>'),
     );
     expect(md).toContain('| a | b |');
     expect(md).toContain('| 1 | 2 |');
@@ -129,7 +212,7 @@ describe('htmlToGfmMarkdown', () => {
 
   it('keeps a cell on one line when Word wrapped its text in paragraphs', async () => {
     const md = await htmlToGfmMarkdown(
-      promoteTableHeaders('<table><tr><td><p>a</p><p>b</p></td><td><p>c</p></td></tr></table>'),
+      normaliseTables('<table><tr><td><p>a</p><p>b</p></td><td><p>c</p></td></tr></table>'),
     );
     expect(md).toContain('| a<br>b | c |');
     // A newline inside a row ends the row; there must not be one.
@@ -138,9 +221,57 @@ describe('htmlToGfmMarkdown', () => {
 
   it('escapes a pipe inside cell text so it cannot invent a column', async () => {
     const md = await htmlToGfmMarkdown(
-      promoteTableHeaders('<table><tr><td>a | b</td><td>c</td></tr></table>'),
+      normaliseTables('<table><tr><td>a | b</td><td>c</td></tr></table>'),
     );
     expect(md).toContain(String.raw`| a \| b | c |`);
+  });
+
+  it('keeps every column of a colspan header, separator included', async () => {
+    const md = await htmlToGfmMarkdown(
+      normaliseTables(
+        '<table><tr><th colspan="2">Revenue</th><th>Total</th></tr>' +
+          '<tr><td>120</td><td>98</td><td>218</td></tr></table>',
+      ),
+    );
+    expect(md).toContain('| Revenue |  | Total |');
+    expect(md).toContain('| --- | --- | --- |');
+    // Every number survives: collapsing the header to one column used to drop 98 and 218.
+    expect(md).toContain('| 120 | 98 | 218 |');
+  });
+
+  it('keeps the columns aligned under a rowspan', async () => {
+    const md = await htmlToGfmMarkdown(
+      normaliseTables(
+        '<table><tr><th>Region</th><th>Quarter</th><th>Revenue</th></tr>' +
+          '<tr><td rowspan="2">North</td><td>Q1</td><td>120</td></tr>' +
+          '<tr><td>Q2</td><td>98</td></tr></table>',
+      ),
+    );
+    expect(md).toContain('| North | Q1 | 120 |');
+    expect(md).toContain('|  | Q2 | 98 |');
+  });
+
+  it('emits a table containing a nested table as HTML rather than broken pipes', async () => {
+    const md = await htmlToGfmMarkdown(
+      normaliseTables(
+        '<table><tr><td>outer</td><td><table><tr><td>inner</td></tr></table></td></tr></table>',
+      ),
+    );
+    expect(md).toContain('<table>');
+    // Nothing is lost on the way — the HTML still carries both tables' text.
+    expect(md).toContain('outer');
+    expect(md).toContain('inner');
+    expect(md).not.toMatch(/^\|/m);
+  });
+
+  it('emits a table whose spans were too large to expand as HTML', async () => {
+    const md = await htmlToGfmMarkdown(
+      normaliseTables(
+        '<table><tr><td colspan="90000">x</td><td>y</td></tr><tr><td>z</td></tr></table>',
+      ),
+    );
+    expect(md).toContain('<table');
+    expect(md).toContain('colspan="90000"');
   });
 });
 
@@ -201,6 +332,51 @@ describe('convertDocxBuffer', () => {
     const notAZip = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer;
     await expect(convertDocxBuffer(notAZip)).rejects.toBeInstanceOf(DocxError);
     await expect(convertDocxBuffer(notAZip)).rejects.toThrow(/\.doc\b[\s\S]*\.odt/);
+  });
+
+  it('keeps every cell of a Word table with merged header and body cells', async () => {
+    const { markdown } = await convertDocxBuffer(await buildMergedTableDocx());
+    const rows = markdown.split('\n').filter((l) => l.trim().startsWith('|'));
+    const columnsIn = (row: string) =>
+      row
+        .trim()
+        .replace(/^\||\|$/g, '')
+        .split('|').length;
+
+    // Header, separator, two body rows — all three columns wide, none collapsed.
+    expect(rows).toHaveLength(4);
+    for (const row of rows) expect(columnsIn(row)).toBe(3);
+    expect(rows[0]).toContain('Revenue');
+    expect(rows[0]).toContain('Total');
+    // The numbers past the merged header used to vanish entirely.
+    for (const value of ['North', '120', '218', '98', '196']) {
+      expect(markdown).toContain(value);
+    }
+    expect(markdown).not.toContain('<table');
+  });
+});
+
+describe('convertDocxFile', () => {
+  const fakeFile = (size: number) =>
+    ({ size, arrayBuffer: async () => new ArrayBuffer(0) }) as unknown as File;
+
+  it('refuses a document past the size limit before reading a byte of it', async () => {
+    let read = false;
+    const file = {
+      size: MAX_DOCX_BYTES + 1,
+      arrayBuffer: async () => {
+        read = true;
+        return new ArrayBuffer(0);
+      },
+    } as unknown as File;
+    await expect(convertDocxFile(file)).rejects.toBeInstanceOf(DocxError);
+    await expect(convertDocxFile(file)).rejects.toThrow(/50 MB/);
+    expect(read).toBe(false);
+  });
+
+  it('lets a document at the limit through to the parser', async () => {
+    // Empty bytes, so it fails as "not a docx" — which proves the size gate passed it on.
+    await expect(convertDocxFile(fakeFile(MAX_DOCX_BYTES))).rejects.toThrow(/could not be read/);
   });
 });
 
