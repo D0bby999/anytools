@@ -12,10 +12,30 @@
  */
 const MAX_TITLE_CHARS = 60;
 
-export function buildToolTitle(title: string, category: string, brand = 'AnyTools'): string {
+/**
+ * The "free online" phrase is the other keyword in the title, so it has to be in the
+ * page's language too. Before this table every locale got the English one, which produced
+ * titles like "Mã hóa & Giải mã Base64 — Free Online Encoder": half Vietnamese, half
+ * English, and matching neither query.
+ */
+const CATEGORY_PHRASE: Record<string, (category: string) => string> = {
+  en: (c) => `Free Online ${c}`,
+  vi: (c) => `${c} online miễn phí`,
+  es: (c) => `${c} online gratis`,
+  pt: (c) => `${c} online grátis`,
+};
+
+export function buildToolTitle(
+  title: string,
+  category: string,
+  locale = 'en',
+  brand = 'AnyTools',
+): string {
+  const toPhrase = CATEGORY_PHRASE[locale] ?? CATEGORY_PHRASE.en;
+  const phrase = toPhrase ? toPhrase(category) : `Free Online ${category}`;
   const ladder = [
-    `${title} — Free Online ${category} | ${brand}`,
-    `${title} — Free Online ${category}`,
+    `${title} — ${phrase} | ${brand}`,
+    `${title} — ${phrase}`,
     `${title} | ${brand}`,
     title,
   ];

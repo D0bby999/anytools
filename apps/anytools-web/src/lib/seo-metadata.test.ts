@@ -46,6 +46,26 @@ describe('buildToolTitle', () => {
     const long = 'A'.repeat(80);
     expect(buildToolTitle(long, 'Tool')).toBe(long);
   });
+
+  // Prod 2026-09-05: /vi/encoding/base64-encode rendered
+  // "Mã hóa & Giải mã Base64 — Free Online Encoder | AnyTools" — the tool name
+  // in Vietnamese, the keyword phrase in English.
+  it.each([
+    ['vi', 'Công cụ mã hóa', 'Mã hóa & Giải mã Base64 — Công cụ mã hóa online miễn phí'],
+    ['es', 'Codificador', 'Mã hóa & Giải mã Base64 — Codificador online gratis'],
+    ['pt', 'Codificador', 'Mã hóa & Giải mã Base64 — Codificador online grátis'],
+  ])('writes the category phrase in the page language (%s)', (locale, category, expected) => {
+    const out = buildToolTitle('Mã hóa & Giải mã Base64', category, locale);
+    expect(out).toBe(expected);
+    expect(out).not.toContain('Free Online');
+    expect(out.length).toBeLessThanOrEqual(MAX_TITLE_CHARS);
+  });
+
+  it('falls back to the English phrase for an unknown locale', () => {
+    expect(buildToolTitle('JSON Formatter', 'Formatter', 'de')).toBe(
+      'JSON Formatter — Free Online Formatter | AnyTools',
+    );
+  });
 });
 
 describe('fitTitle', () => {

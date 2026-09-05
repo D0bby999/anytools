@@ -3,16 +3,12 @@ import { ClusterLandingHero } from '@/components/cluster-landing-hero';
 import { ClusterToolGrid } from '@/components/cluster-tool-grid';
 import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS, isClusterId, isPopulatedCluster } from '@/lib/cluster-config';
+import { clusterPageNoun } from '@/lib/cluster-seo-labels';
 import { clusterHasBodiedTool } from '@/lib/has-localized-tool-body';
 import { breadcrumbSchema, jsonLdSafe } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
-import { clampMetaDescription } from '@/lib/seo-metadata';
-import {
-  METADATA_BASE,
-  SITE_URL,
-  selfHostSafeAlternates,
-  selfHostSafeUrl,
-} from '@/lib/site-url';
+import { buildToolTitle, clampMetaDescription } from '@/lib/seo-metadata';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates, selfHostSafeUrl } from '@/lib/site-url';
 import { getToolMetasByCluster } from '@anytools/tools/meta';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -45,7 +41,8 @@ export async function generateMetadata({
   const indexable = clusterHasBodiedTool(locale, cluster);
   return {
     metadataBase: METADATA_BASE,
-    title: `${label} — Free Online Tools | AnyTools`,
+    // Same per-locale phrase as tool pages, so /vi doesn't read "Mã hóa — Free Online Tools".
+    title: buildToolTitle(label, clusterPageNoun(locale), locale),
     description,
     alternates: selfHostSafeAlternates({
       canonical: canonicalPath,
