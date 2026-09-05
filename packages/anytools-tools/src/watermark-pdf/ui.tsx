@@ -1,12 +1,13 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { type EmbeddableImage, toEmbeddableImage } from '../shared/embeddable-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type WatermarkOptions, type WatermarkResult, readPageCount, watermarkPdf } from './logic';
 import { PREVIEW_DPI, renderFirstPage } from './preview';
+import { STRINGS } from './strings';
 
 type Preview = { url: string; width: number; height: number };
 
@@ -17,6 +18,7 @@ const fieldClass =
 const PREVIEW_MAX_WIDTH = 320;
 
 export function WatermarkPdfUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   // Its identity is stable (useMemo, see the hook), so it can be named as an effect dependency
@@ -70,7 +72,7 @@ export function WatermarkPdfUi() {
     let created: string | null = null;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read PDF'));
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
     renderFirstPage(file)
       .then(({ blob, width, height }) => {
         if (cancelled) return;
@@ -84,7 +86,7 @@ export function WatermarkPdfUi() {
       cancelled = true;
       objectUrls.revoke(created);
     };
-  }, [file, objectUrls]);
+  }, [file, objectUrls, s.couldNotReadPdf]);
 
   // Decode the watermark image once, when it is chosen, rather than on every run. This also
   // converts WebP and applies EXIF orientation — pdf-lib embeds PNG and JPEG only.
@@ -107,14 +109,12 @@ export function WatermarkPdfUi() {
         );
         setMarkUrl(created);
       })
-      .catch(
-        (e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read image'),
-      );
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadImage));
     return () => {
       cancelled = true;
       objectUrls.revoke(created);
     };
-  }, [markFile, objectUrls]);
+  }, [markFile, objectUrls, s.couldNotReadImage]);
 
   const previewScale = preview ? Math.min(1, PREVIEW_MAX_WIDTH / preview.width) : 1;
 
@@ -130,14 +130,14 @@ export function WatermarkPdfUi() {
           : markImage
             ? { kind: 'image', image: markImage, scalePercent, rotation, opacity, range }
             : (() => {
-                throw new Error('Choose a PNG or JPG to use as the watermark.');
+                throw new Error(s.chooseImage);
               })();
       const r = await watermarkPdf(file, opts);
       setResult(r);
       setDownloadUrl(objectUrls.create(r.blob));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Could not add the watermark');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -146,7 +146,7 @@ export function WatermarkPdfUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Watermark PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -157,17 +157,17 @@ export function WatermarkPdfUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="The PDF to stamp. The mark is drawn on top; nothing already on the page is removed."
+          label={s.dropLabel}
         />
 
         {pageCount !== null && (
           <p className="text-sm text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'}.
+            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
           </p>
         )}
 
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium">Watermark</legend>
+          <legend className="text-sm font-medium">{s.watermark}</legend>
           <div className="flex gap-4 text-sm">
             {(['text', 'image'] as const).map((k) => (
               <label key={k} className="flex items-center gap-2">
@@ -181,7 +181,7 @@ export function WatermarkPdfUi() {
                   }}
                   className="h-4 w-4"
                 />
-                {k === 'text' ? 'Text' : 'Image (PNG or JPG)'}
+                {k === 'text' ? s.kindText : s.kindImage}
               </label>
             ))}
           </div>
@@ -192,7 +192,7 @@ export function WatermarkPdfUi() {
             {kind === 'text' ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="space-y-1 text-sm sm:col-span-2">
-                  <span className="font-medium">Text</span>
+                  <span className="font-medium">{s.text}</span>
                   <input
                     type="text"
                     value={text}
@@ -205,7 +205,7 @@ export function WatermarkPdfUi() {
                 </label>
 
                 <label className="space-y-1 text-sm">
-                  <span className="font-medium">Font size</span>
+                  <span className="font-medium">{s.fontSize}</span>
                   <input
                     type="number"
                     min={4}
@@ -220,7 +220,7 @@ export function WatermarkPdfUi() {
                 </label>
 
                 <label className="space-y-1 text-sm">
-                  <span className="font-medium">Colour</span>
+                  <span className="font-medium">{s.colour}</span>
                   <input
                     type="color"
                     value={color}
@@ -242,10 +242,12 @@ export function WatermarkPdfUi() {
                   }}
                   accept="image/*"
                   multiple={false}
-                  label="The image to stamp. A logo with a transparent background works best."
+                  label={s.imageDropLabel}
                 />
                 <label className="space-y-1 text-sm">
-                  <span className="font-medium">Width — {scalePercent}% of the page</span>
+                  <span className="font-medium">
+                    {s.width.replace('{n}', String(scalePercent))}
+                  </span>
                   <input
                     type="range"
                     min={5}
@@ -264,7 +266,7 @@ export function WatermarkPdfUi() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-1 text-sm">
-                <span className="font-medium">Angle — {rotation}°</span>
+                <span className="font-medium">{s.angle.replace('{n}', String(rotation))}</span>
                 <input
                   type="range"
                   min={-90}
@@ -280,7 +282,9 @@ export function WatermarkPdfUi() {
               </label>
 
               <label className="space-y-1 text-sm">
-                <span className="font-medium">Opacity — {Math.round(opacity * 100)}%</span>
+                <span className="font-medium">
+                  {s.opacity.replace('{n}', String(Math.round(opacity * 100)))}
+                </span>
                 <input
                   type="range"
                   min={5}
@@ -296,11 +300,15 @@ export function WatermarkPdfUi() {
               </label>
 
               <label className="space-y-1 text-sm sm:col-span-2">
-                <span className="font-medium">Pages to stamp</span>
+                <span className="font-medium">{s.pagesToStamp}</span>
                 <input
                   type="text"
                   value={range}
-                  placeholder={pageCount ? `all — or e.g. 1-${pageCount}` : 'all — or e.g. 1-5, 9'}
+                  placeholder={
+                    pageCount
+                      ? s.rangePlaceholderAll.replace('{n}', String(pageCount))
+                      : s.rangePlaceholder
+                  }
                   onChange={(e) => {
                     setRange(e.target.value);
                     reset();
@@ -322,7 +330,7 @@ export function WatermarkPdfUi() {
               >
                 <img
                   src={preview.url}
-                  alt="First page of the PDF, with the watermark drawn over it"
+                  alt={s.previewAlt}
                   className="absolute inset-0 h-full w-full"
                 />
                 {/* The overlay is CSS, not a second PDF render: moving a slider must not cost
@@ -362,20 +370,12 @@ export function WatermarkPdfUi() {
                   </div>
                 </div>
               </div>
-              <figcaption className="text-xs text-muted-foreground">
-                Page 1, with the mark drawn over it in the browser. A close approximation — the font
-                is your system's Helvetica, not the one written into the PDF.
-              </figcaption>
+              <figcaption className="text-xs text-muted-foreground">{s.previewCaption}</figcaption>
             </figure>
           )}
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Latin text is drawn in Helvetica, the font every PDF reader already has, so nothing is
-          embedded and the file barely grows. Vietnamese, Greek and Cyrillic switch to Noto Sans,
-          embedded as a small subset. Chinese, Japanese, Korean, Arabic and emoji are not covered,
-          and the tool names the characters rather than fail obscurely.
-        </p>
+        <p className="text-sm text-muted-foreground">{s.fontNote}</p>
 
         <button
           type="button"
@@ -383,7 +383,7 @@ export function WatermarkPdfUi() {
           disabled={!file || busy || (kind === 'image' && !markImage)}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Stamping…' : 'Add watermark'}
+          {busy ? s.stamping : s.addWatermark}
         </button>
 
         {error && (
@@ -395,14 +395,16 @@ export function WatermarkPdfUi() {
         {result && downloadUrl && (
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm font-medium">
-              Stamped {result.stamped} of {result.pages} {result.pages === 1 ? 'page' : 'pages'}
+              {(result.pages === 1 ? s.stampedOne : s.stampedMany)
+                .replace('{n}', String(result.stamped))
+                .replace('{total}', String(result.pages))}
             </div>
             <a
               href={downloadUrl}
               download="watermarked.pdf"
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download watermarked.pdf
+              {s.download}
             </a>
           </div>
         )}

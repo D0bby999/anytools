@@ -1,11 +1,13 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ExtractResult, extractImagesFromPdf } from './logic';
+import { STRINGS } from './strings';
 
 export function ExtractImagesFromPdfUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -43,7 +45,7 @@ export function ExtractImagesFromPdfUi() {
       setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Extraction failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
       setProgress(null);
@@ -53,7 +55,7 @@ export function ExtractImagesFromPdfUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Extract Images from PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -66,7 +68,7 @@ export function ExtractImagesFromPdfUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="PDF to take images from"
+          label={s.dropLabel}
         />
 
         <button
@@ -75,12 +77,14 @@ export function ExtractImagesFromPdfUi() {
           disabled={!file || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Scanning…' : 'Extract images'}
+          {busy ? s.scanning : s.extract}
         </button>
 
         {progress && progress.total > 0 && (
           <p className="text-sm text-muted-foreground">
-            Page {progress.done} of {progress.total}
+            {s.pageOf
+              .replace('{n}', String(progress.done))
+              .replace('{total}', String(progress.total))}
           </p>
         )}
 
@@ -94,8 +98,7 @@ export function ExtractImagesFromPdfUi() {
           // Not an error: a text-only PDF genuinely has no embedded images, and saying so
           // is more useful than an empty panel that looks like a failure.
           <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            No embedded images found. If this is a text PDF that is expected — try PDF to PNG to
-            render the pages as pictures instead.
+            {s.noImages}
           </output>
         )}
 
@@ -107,7 +110,7 @@ export function ExtractImagesFromPdfUi() {
                 download="images.zip"
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download all {result.images.length} as .zip
+                {s.downloadAllZip.replace('{n}', String(result.images.length))}
               </a>
             )}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -116,13 +119,13 @@ export function ExtractImagesFromPdfUi() {
                   {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
                   <img
                     src={urls[i]}
-                    alt={`Extracted from page ${img.pageNumber}`}
+                    alt={s.extractedAlt.replace('{n}', String(img.pageNumber))}
                     className="w-full rounded border"
                   />
                   <figcaption className="text-xs text-muted-foreground">
                     p{img.pageNumber} · {img.width}×{img.height}{' '}
                     <a href={urls[i]} download={img.name} className="underline">
-                      download
+                      {s.downloadLink}
                     </a>
                   </figcaption>
                 </figure>

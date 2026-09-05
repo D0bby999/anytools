@@ -1,9 +1,19 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { type DecodedSymbol, decodeBarcodeImage, decodeImageData } from './logic';
+import { STRINGS } from './strings';
 
 const ACCEPT = 'image/*';
 /** How often a camera frame is handed to the decoder. Every frame is wasted work. */
@@ -12,6 +22,8 @@ const CAMERA_INTERVAL_MS = 150;
 type CameraState = 'off' | 'starting' | 'live';
 
 export function QrBarcodeScannerUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [files, setFiles] = useState<File[]>([]);
   const [symbols, setSymbols] = useState<DecodedSymbol[] | null>(null);
   const [source, setSource] = useState<'image' | 'camera' | null>(null);
@@ -27,6 +39,10 @@ export function QrBarcodeScannerUi() {
   // already pressed Stop (or Start again) is stale: without this its stream was assigned over the
   // live one and never stopped — indicator light on until the tab closed (review, 2026-09-03).
   const cameraGen = useRef(0);
+
+  // The footnote carries two inline links; split the sentence around their placeholders.
+  const [noteBefore, noteRest = ''] = s.makeCodeNote.split('{barcode}');
+  const [noteMiddle, noteAfter = ''] = noteRest.split('{qr}');
 
   /**
    * Release the camera.
@@ -68,7 +84,7 @@ export function QrBarcodeScannerUi() {
       setSymbols(found);
       setSource('image');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'This image could not be read.');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -117,10 +133,10 @@ export function QrBarcodeScannerUi() {
       const name = e instanceof DOMException ? e.name : '';
       setError(
         name === 'NotAllowedError'
-          ? 'Camera access was denied. Allow it in your browser’s site settings, or scan a photo instead.'
+          ? s.cameraDenied
           : name === 'NotFoundError'
-            ? 'No camera was found on this device. Drop a photo of the code instead.'
-            : 'The camera could not be started. On a plain http:// address other than localhost, browsers block it outright.',
+            ? s.cameraNotFound
+            : s.cameraFailed,
       );
       return;
     }
@@ -165,7 +181,7 @@ export function QrBarcodeScannerUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">QR &amp; Barcode Scanner</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -177,7 +193,7 @@ export function QrBarcodeScannerUi() {
           }}
           accept={ACCEPT}
           multiple={false}
-          label="Photo or screenshot containing the code"
+          label={s.dropLabel}
         />
 
         <div className="flex flex-wrap items-center gap-2">
@@ -186,7 +202,7 @@ export function QrBarcodeScannerUi() {
             onClick={() => (camera === 'off' ? void startCamera() : stopCamera())}
             className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
           >
-            {camera === 'off' ? 'Scan with camera' : 'Stop camera'}
+            {camera === 'off' ? s.scanWithCamera : s.stopCamera}
           </button>
           {files[0] && (
             <button
@@ -198,12 +214,10 @@ export function QrBarcodeScannerUi() {
               disabled={busy}
               className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
             >
-              {busy ? 'Scanning…' : 'Scan image again'}
+              {busy ? s.scanning : s.scanAgain}
             </button>
           )}
-          <span className="text-xs text-muted-foreground">
-            The camera is off until you press the button, and stops the moment a code is read.
-          </span>
+          <span className="text-xs text-muted-foreground">{s.cameraNote}</span>
         </div>
 
         {/* Kept mounted so the ref exists before getUserMedia resolves; hidden while off.
@@ -219,7 +233,9 @@ export function QrBarcodeScannerUi() {
               : 'w-full max-w-md rounded-md border bg-black object-contain'
           }
         />
-        {camera === 'starting' && <p className="text-sm text-muted-foreground">Starting camera…</p>}
+        {camera === 'starting' && (
+          <p className="text-sm text-muted-foreground">{s.startingCamera}</p>
+        )}
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -229,72 +245,74 @@ export function QrBarcodeScannerUi() {
 
         {symbols?.length === 0 && (
           <output className="block rounded-md border bg-muted/40 px-3 py-2 text-sm">
-            No barcode was found in that image. A blurred, angled or very small code often fails —
-            crop closer to the code and try again.
+            {s.noBarcode}
           </output>
         )}
 
         {symbols && symbols.length > 0 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              {symbols.length === 1 ? '1 symbol' : `${symbols.length} symbols`} read from the{' '}
-              {source === 'camera' ? 'camera' : 'image'}.
+              {(symbols.length === 1 ? s.readOne : s.readMany)
+                .replace('{n}', String(symbols.length))
+                .replace('{source}', source === 'camera' ? s.sourceCamera : s.sourceImage)}
             </p>
             <ul className="space-y-3">
-              {symbols.map((s, i) => (
+              {symbols.map((sym, i) => (
                 <li
-                  key={`${s.format}-${s.center.x}-${s.center.y}-${i}`}
+                  key={`${sym.format}-${sym.center.x}-${sym.center.y}-${i}`}
                   className="space-y-2 rounded-md border p-3 text-sm"
                 >
                   <div className="flex items-center gap-2">
                     <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">
-                      {s.format}
+                      {sym.format}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      at {s.center.x}, {s.center.y}
+                      {s.at
+                        .replace('{x}', String(sym.center.x))
+                        .replace('{y}', String(sym.center.y))}
                     </span>
-                    <CopyButton text={s.text} className="ml-auto" />
+                    <CopyButton text={sym.text} className="ml-auto" />
                   </div>
                   <pre className="overflow-x-auto whitespace-pre-wrap break-all font-mono text-xs">
-                    {s.text}
+                    {sym.text}
                   </pre>
-                  {s.payload.kind === 'url' && (
+                  {sym.payload.kind === 'url' && (
                     <p className="text-xs">
-                      Web address —{' '}
+                      {s.webAddress}{' '}
                       {/* Never opened automatically, and never anything but http(s): a code
                           printed by a stranger must not be able to navigate this page. */}
                       <a
-                        href={s.payload.url}
+                        href={sym.payload.url}
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                         className="underline"
                       >
-                        open in a new tab
+                        {s.openNewTab}
                       </a>
-                      . Check it before you do.
+                      {s.checkFirst}
                     </p>
                   )}
-                  {s.payload.kind === 'wifi' && (
+                  {sym.payload.kind === 'wifi' && (
                     <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                      <dt className="text-muted-foreground">Network</dt>
-                      <dd className="font-mono">{s.payload.wifi.ssid}</dd>
-                      <dt className="text-muted-foreground">Password</dt>
+                      <dt className="text-muted-foreground">{s.network}</dt>
+                      <dd className="font-mono">{sym.payload.wifi.ssid}</dd>
+                      <dt className="text-muted-foreground">{s.password}</dt>
                       <dd className="font-mono">
-                        {s.payload.wifi.password || <span className="italic">none</span>}
+                        {sym.payload.wifi.password || <span className="italic">{s.none}</span>}
                       </dd>
-                      <dt className="text-muted-foreground">Security</dt>
-                      <dd className="font-mono">{s.payload.wifi.encryption}</dd>
-                      {s.payload.wifi.hidden && (
+                      <dt className="text-muted-foreground">{s.security}</dt>
+                      <dd className="font-mono">{sym.payload.wifi.encryption}</dd>
+                      {sym.payload.wifi.hidden && (
                         <>
-                          <dt className="text-muted-foreground">Hidden</dt>
-                          <dd>yes</dd>
+                          <dt className="text-muted-foreground">{s.hidden}</dt>
+                          <dd>{s.yes}</dd>
                         </>
                       )}
                     </dl>
                   )}
-                  {s.payload.kind === 'vcard' && (
+                  {sym.payload.kind === 'vcard' && (
                     <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                      {Object.entries(s.payload.vcard).map(([k, v]) => (
+                      {Object.entries(sym.payload.vcard).map(([k, v]) => (
                         <span key={k} className="contents">
                           <dt className="text-muted-foreground capitalize">{k}</dt>
                           <dd className="font-mono">{v}</dd>
@@ -309,15 +327,15 @@ export function QrBarcodeScannerUi() {
         )}
 
         <p className="text-sm text-muted-foreground">
-          Need to make a code instead? The{' '}
-          <a href="/en/generators/barcode-generator" className="underline">
-            barcode generator
-          </a>{' '}
-          covers EAN, UPC, Code 128 and the 2D symbologies, and the{' '}
-          <a href="/en/generators/qr-code-generator" className="underline">
-            QR code generator
-          </a>{' '}
-          builds Wi-Fi, vCard and email codes that this tool reads straight back into fields.
+          {noteBefore}
+          <a href={`/${locale}/generators/barcode-generator`} className="underline">
+            {s.barcodeGenerator}
+          </a>
+          {noteMiddle}
+          <a href={`/${locale}/generators/qr-code-generator`} className="underline">
+            {s.qrGenerator}
+          </a>
+          {noteAfter}
         </p>
 
         <PrivacyNote />

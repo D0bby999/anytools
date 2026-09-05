@@ -1,13 +1,15 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type RotateAngle, type RotateResult, readPageCount, rotatePdf } from './logic';
+import { STRINGS } from './strings';
 
 const ANGLES: RotateAngle[] = [90, 180, 270];
 
 export function RotatePdfUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -31,11 +33,11 @@ export function RotatePdfUi() {
     let cancelled = false;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read PDF'));
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
     return () => {
       cancelled = true;
     };
-  }, [file]);
+  }, [file, s.couldNotReadPdf]);
 
   const run = async () => {
     if (!file) return;
@@ -50,7 +52,7 @@ export function RotatePdfUi() {
       });
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Rotation failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -61,7 +63,7 @@ export function RotatePdfUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Rotate PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -77,17 +79,17 @@ export function RotatePdfUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="PDF to rotate"
+          label={s.dropLabel}
         />
 
         {pageCount !== null && (
           <p className="text-sm text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
           </p>
         )}
 
         <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">Rotate clockwise by</span>
+          <span className="mb-1 block text-muted-foreground">{s.rotateBy}</span>
           <select
             value={angle}
             onChange={(e) => setAngle(Number(e.target.value) as RotateAngle)}
@@ -102,10 +104,10 @@ export function RotatePdfUi() {
         </label>
 
         <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">Which pages</legend>
+          <legend className="text-sm text-muted-foreground">{s.whichPages}</legend>
           <label className="flex items-center gap-2 text-sm">
             <input type="radio" name="rot" checked={allPages} onChange={() => setAllPages(true)} />
-            Every page
+            {s.everyPage}
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -114,7 +116,7 @@ export function RotatePdfUi() {
               checked={!allPages}
               onChange={() => setAllPages(false)}
             />
-            Only these pages
+            {s.onlyThese}
           </label>
           {!allPages && (
             <input
@@ -133,7 +135,7 @@ export function RotatePdfUi() {
           disabled={!file || busy || (!allPages && !range.trim())}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Rotating…' : `Rotate ${angle}°`}
+          {busy ? s.rotating : s.rotate.replace('{angle}', String(angle))}
         </button>
 
         {error && (
@@ -145,14 +147,16 @@ export function RotatePdfUi() {
         {result && url && (
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
-              Rotated {result.rotated} of {result.pages} {result.pages === 1 ? 'page' : 'pages'}.
+              {(result.pages === 1 ? s.rotatedOne : s.rotatedMany)
+                .replace('{n}', String(result.rotated))
+                .replace('{total}', String(result.pages))}
             </div>
             <a
               href={url}
               download={`${outName}-rotated.pdf`}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download {outName}-rotated.pdf
+              {s.download.replace('{name}', `${outName}-rotated.pdf`)}
             </a>
           </div>
         )}

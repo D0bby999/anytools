@@ -1,15 +1,18 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { MAX_CANVAS_PIXELS, type OutputFormat } from '../shared/canvas-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ResizeMode, type ResizeResult, resizeImage } from './logic';
+import { STRINGS } from './strings';
 
 const PRESETS = [1920, 1280, 1080, 800, 400];
+const MODES: ResizeMode['kind'][] = ['fit', 'percent', 'exact'];
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
 export function ResizeImageUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -26,6 +29,12 @@ export function ResizeImageUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+
+  const modeLabel: Record<ResizeMode['kind'], string> = {
+    fit: s.mode_fit,
+    percent: s.mode_percent,
+    exact: s.mode_exact,
+  };
 
   const mode = (): ResizeMode =>
     kind === 'fit'
@@ -47,7 +56,7 @@ export function ResizeImageUi() {
       });
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Resize failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -60,7 +69,7 @@ export function ResizeImageUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Resize Image</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -72,18 +81,12 @@ export function ResizeImageUi() {
           }}
           accept="image/*"
           multiple={false}
-          label="Image to resize"
+          label={s.dropLabel}
         />
 
         <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">How to size it</legend>
-          {(
-            [
-              ['fit', 'Fit inside a box (keeps the aspect ratio)'],
-              ['percent', 'Percentage of the original'],
-              ['exact', 'Exact width and height'],
-            ] as const
-          ).map(([k, labelText]) => (
+          <legend className="text-sm text-muted-foreground">{s.howToSize}</legend>
+          {MODES.map((k) => (
             <label key={k} className="flex items-center gap-2 text-sm">
               <input
                 type="radio"
@@ -91,14 +94,14 @@ export function ResizeImageUi() {
                 checked={kind === k}
                 onChange={() => setKind(k)}
               />
-              {labelText}
+              {modeLabel[k]}
             </label>
           ))}
         </fieldset>
 
         {kind === 'fit' && (
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Longest side (px)</span>
+            <span className="mb-1 block text-muted-foreground">{s.longestSide}</span>
             <div className="flex flex-wrap gap-2">
               {PRESETS.map((p) => (
                 <button
@@ -125,7 +128,9 @@ export function ResizeImageUi() {
 
         {kind === 'percent' && (
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Scale: {percent}%</span>
+            <span className="mb-1 block text-muted-foreground">
+              {s.scale.replace('{n}', String(percent))}
+            </span>
             <input
               type="range"
               min={1}
@@ -135,9 +140,7 @@ export function ResizeImageUi() {
               className="w-full"
             />
             {percent > 100 && (
-              <span className="mt-1 block text-xs text-muted-foreground">
-                Above 100% the image is enlarged. Nothing new is added — it will look softer.
-              </span>
+              <span className="mt-1 block text-xs text-muted-foreground">{s.enlargeNote}</span>
             )}
           </label>
         )}
@@ -145,7 +148,7 @@ export function ResizeImageUi() {
         {kind === 'exact' && (
           <div className="grid grid-cols-2 gap-3">
             <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">Width (px)</span>
+              <span className="mb-1 block text-muted-foreground">{s.width}</span>
               <input
                 type="number"
                 min={1}
@@ -155,7 +158,7 @@ export function ResizeImageUi() {
               />
             </label>
             <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">Height (px)</span>
+              <span className="mb-1 block text-muted-foreground">{s.height}</span>
               <input
                 type="number"
                 min={1}
@@ -168,7 +171,7 @@ export function ResizeImageUi() {
         )}
 
         <label className="block text-sm md:w-48">
-          <span className="mb-1 block text-muted-foreground">Output format</span>
+          <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as OutputFormat)}
@@ -186,7 +189,7 @@ export function ResizeImageUi() {
           disabled={!file || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Resizing…' : 'Resize'}
+          {busy ? s.resizing : s.resize}
         </button>
 
         {error && (
@@ -201,17 +204,17 @@ export function ResizeImageUi() {
               {result.widthBefore} × {result.heightBefore} → {result.width} × {result.height} px ·{' '}
               {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
               {result.scaledFrom && result.width * result.height > MAX_CANVAS_PIXELS
-                ? ' · the source was above what a canvas can hold, so the output is capped at 16.7 megapixels'
+                ? ` · ${s.cappedNote}`
                 : ''}
             </div>
             {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-            <img src={url} alt="Resized" className="max-h-80 rounded border" />
+            <img src={url} alt={s.resultAlt} className="max-h-80 rounded border" />
             <a
               href={url}
               download={outName}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download {outName}
+              {s.download.replace('{name}', outName)}
             </a>
           </div>
         )}

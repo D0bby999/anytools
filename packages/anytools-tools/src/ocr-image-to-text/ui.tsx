@@ -1,6 +1,15 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import {
@@ -19,6 +28,7 @@ import {
   ocrImages,
   textFileName,
 } from './logic';
+import { STRINGS } from './strings';
 
 /**
  * What `createImageBitmap` can actually decode in a browser. TIFF was listed here and is not one
@@ -27,15 +37,9 @@ import {
  */
 const ACCEPT = 'image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp';
 
-/** Tesseract's status strings are internal jargon; these are the three the user ever waits on. */
-const STAGE_LABELS: Record<string, string> = {
-  'loading tesseract core': 'Starting the recogniser',
-  'loading language traineddata': 'Loading the language',
-  'initializing api': 'Starting the recogniser',
-  'recognizing text': 'Reading',
-};
-
 export function OcrImageToTextUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [lang, setLang] = useState<OcrLanguage>('eng');
@@ -46,6 +50,21 @@ export function OcrImageToTextUi() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stopping, setStopping] = useState(false);
+
+  /** Tesseract's status strings are internal jargon; these are the three the user ever waits on. */
+  const stageLabel: Record<string, string> = {
+    'loading tesseract core': s.stage_starting,
+    'loading language traineddata': s.stage_loadingLang,
+    'initializing api': s.stage_starting,
+    'recognizing text': s.stage_reading,
+  };
+  // The shared loader names languages in English; map the ones we ship to the locale.
+  const langLabel: Record<OcrLanguage, string> = {
+    eng: s.lang_eng,
+    vie: s.lang_vie,
+    spa: s.lang_spa,
+    por: s.lang_por,
+  };
 
   // The worker holds a compiled 3.8 MB WASM module and the language data. Leaving the page
   // without terminating it strands both for the life of the tab.
@@ -70,7 +89,7 @@ export function OcrImageToTextUi() {
       setText(combineText(result, keepLineBreaks));
     } catch (e) {
       if (!(e instanceof OcrCancelledError)) {
-        setError(e instanceof Error ? e.message : 'The image could not be read.');
+        setError(e instanceof Error ? e.message : s.failed);
       }
     } finally {
       // Only here. Clearing `busy` inside stop() re-enabled the button while the loop was still
@@ -107,7 +126,7 @@ export function OcrImageToTextUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Image to Text (OCR)</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -118,12 +137,12 @@ export function OcrImageToTextUi() {
           }}
           accept={ACCEPT}
           multiple
-          label="Images to read"
+          label={s.dropLabel}
         />
 
         <div className="flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">Language of the text</span>
+            <span className="text-muted-foreground">{s.language}</span>
             <select
               value={lang}
               onChange={(e) => {
@@ -134,7 +153,7 @@ export function OcrImageToTextUi() {
             >
               {OCR_LANGUAGES.map((l) => (
                 <option key={l} value={l}>
-                  {OCR_LANGUAGE_LABELS[l]}
+                  {langLabel[l] ?? OCR_LANGUAGE_LABELS[l]}
                 </option>
               ))}
             </select>
@@ -152,7 +171,7 @@ export function OcrImageToTextUi() {
                 if (items) setText(combineText(items, next));
               }}
             />
-            Keep line breaks inside each block
+            {s.keepLineBreaks}
           </label>
         </div>
 
@@ -163,7 +182,7 @@ export function OcrImageToTextUi() {
             disabled={files.length === 0 || busy}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
           >
-            {busy ? 'Reading…' : 'Recognize text'}
+            {busy ? s.reading : s.recognize}
           </button>
           {busy && (
             <button
@@ -172,22 +191,20 @@ export function OcrImageToTextUi() {
               disabled={stopping}
               className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
             >
-              {stopping ? 'Stopping…' : 'Stop'}
+              {stopping ? s.stopping : ui.stop}
             </button>
           )}
         </div>
 
-        {stopping && (
-          <p className="text-sm text-muted-foreground">
-            Stopping. The run is abandoned, so no text comes out of it — read the images in smaller
-            batches if a full one is too long.
-          </p>
-        )}
+        {stopping && <p className="text-sm text-muted-foreground">{s.stoppingNote}</p>}
 
         {progress && !stopping && (
           <p className="text-sm text-muted-foreground">
-            {STAGE_LABELS[progress.stage.status] ?? 'Working'} — image {progress.index} of{' '}
-            {progress.total} ({Math.round((progress.stage.progress ?? 0) * 100)}%)
+            {s.progressLine
+              .replace('{stage}', stageLabel[progress.stage.status] ?? s.stage_working)
+              .replace('{index}', String(progress.index))
+              .replace('{total}', String(progress.total))
+              .replace('{pct}', String(Math.round((progress.stage.progress ?? 0) * 100)))}
           </p>
         )}
 
@@ -200,12 +217,13 @@ export function OcrImageToTextUi() {
         {items && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Average confidence {confidence.toFixed(0)}%{read > 1 && ` across ${read} images`}.{' '}
+              {s.avgConfidence.replace('{conf}', confidence.toFixed(0))}
+              {read > 1 && s.acrossImages.replace('{n}', String(read))}.{' '}
               {failed > 0 &&
-                `${failed} of ${items.length} could not be read at all — see the list below. `}
-              {confidence > 0 && confidence < 70
-                ? 'Below about 70% the output usually needs correcting — a sharper, straighter, higher-resolution image is the fix.'
-                : 'Check the text below before using it; OCR is never exact.'}
+                `${s.failedNote
+                  .replace('{failed}', String(failed))
+                  .replace('{total}', String(items.length))} `}
+              {confidence > 0 && confidence < 70 ? s.lowConfidence : s.checkText}
             </p>
 
             <textarea
@@ -213,7 +231,7 @@ export function OcrImageToTextUi() {
               onChange={(e) => setText(e.target.value)}
               spellCheck={false}
               rows={14}
-              aria-label="Recognised text"
+              aria-label={s.recognisedText}
               className="w-full rounded-md border border-input bg-background p-3 font-mono text-sm"
             />
 
@@ -224,7 +242,7 @@ export function OcrImageToTextUi() {
                 onClick={download}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download .txt
+                {s.downloadTxt}
               </button>
             </div>
 
@@ -238,7 +256,10 @@ export function OcrImageToTextUi() {
                     className={i.error ? 'text-destructive' : 'text-muted-foreground'}
                   >
                     {i.name} —{' '}
-                    {i.error ?? `${i.words} words, ${i.confidence.toFixed(0)}% confidence`}
+                    {i.error ??
+                      s.itemLine
+                        .replace('{words}', String(i.words))
+                        .replace('{conf}', i.confidence.toFixed(0))}
                   </li>
                 ))}
               </ul>

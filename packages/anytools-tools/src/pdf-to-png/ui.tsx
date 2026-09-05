@@ -1,17 +1,15 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type Dpi, type PdfToPngResult, pdfToPng } from './logic';
+import { STRINGS } from './strings';
 
-const DPIS: { value: Dpi; label: string }[] = [
-  { value: 72, label: '72 — screen' },
-  { value: 150, label: '150 — good print' },
-  { value: 300, label: '300 — full print' },
-];
+const DPIS: Dpi[] = [72, 150, 300];
 
 export function PdfToPngUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -25,6 +23,8 @@ export function PdfToPngUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+
+  const dpiLabel: Record<Dpi, string> = { 72: s.dpi_72, 150: s.dpi_150, 300: s.dpi_300 };
 
   const revoke = () => {
     setUrls((prev) => {
@@ -50,7 +50,7 @@ export function PdfToPngUi() {
       setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Render failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
       setProgress(null);
@@ -60,7 +60,7 @@ export function PdfToPngUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">PDF to PNG</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -73,20 +73,15 @@ export function PdfToPngUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="PDF to render"
+          label={s.dropLabel}
         />
 
         <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">Resolution</legend>
+          <legend className="text-sm text-muted-foreground">{s.resolution}</legend>
           {DPIS.map((d) => (
-            <label key={d.value} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name="dpi"
-                checked={dpi === d.value}
-                onChange={() => setDpi(d.value)}
-              />
-              {d.label}
+            <label key={d} className="flex items-center gap-2 text-sm">
+              <input type="radio" name="dpi" checked={dpi === d} onChange={() => setDpi(d)} />
+              {dpiLabel[d]}
             </label>
           ))}
         </fieldset>
@@ -97,12 +92,14 @@ export function PdfToPngUi() {
           disabled={!file || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Rendering…' : 'Render to PNG'}
+          {busy ? s.rendering : s.render}
         </button>
 
         {progress && progress.total > 0 && (
           <p className="text-sm text-muted-foreground">
-            Page {progress.done} of {progress.total}
+            {s.pageOf
+              .replace('{n}', String(progress.done))
+              .replace('{total}', String(progress.total))}
           </p>
         )}
 
@@ -120,7 +117,7 @@ export function PdfToPngUi() {
                 download="pages.zip"
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download all {result.pages.length} as .zip
+                {s.downloadAllZip.replace('{n}', String(result.pages.length))}
               </a>
             )}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -129,13 +126,13 @@ export function PdfToPngUi() {
                   {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
                   <img
                     src={urls[i]}
-                    alt={`Page ${p.pageNumber}`}
+                    alt={s.pageAlt.replace('{n}', String(p.pageNumber))}
                     className="w-full rounded border"
                   />
                   <figcaption className="text-xs text-muted-foreground">
                     p{p.pageNumber} · {p.width}×{p.height}{' '}
                     <a href={urls[i]} download={p.name} className="underline">
-                      download
+                      {s.downloadLink}
                     </a>
                   </figcaption>
                 </figure>

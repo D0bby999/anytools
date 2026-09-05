@@ -1,11 +1,13 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type RemoveResult, readPageCount, removePdfPages } from './logic';
+import { STRINGS } from './strings';
 
 export function RemovePdfPagesUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -18,6 +20,7 @@ export function RemovePdfPagesUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+  const [deleteBefore, deleteAfter] = s.pagesToDelete.split('{code}');
 
   useEffect(() => {
     if (!file) {
@@ -27,11 +30,11 @@ export function RemovePdfPagesUi() {
     let cancelled = false;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read PDF'));
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
     return () => {
       cancelled = true;
     };
-  }, [file]);
+  }, [file, s.couldNotReadPdf]);
 
   const run = async () => {
     if (!file) return;
@@ -46,7 +49,7 @@ export function RemovePdfPagesUi() {
       });
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Removal failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -57,7 +60,7 @@ export function RemovePdfPagesUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Remove PDF Pages</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -73,18 +76,20 @@ export function RemovePdfPagesUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="PDF to edit"
+          label={s.dropLabel}
         />
 
         {pageCount !== null && (
           <p className="text-sm text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
           </p>
         )}
 
         <label className="block text-sm">
           <span className="mb-1 block text-muted-foreground">
-            Pages to delete — e.g. <code>1, 4-6, 12</code>
+            {deleteBefore}
+            <code>1, 4-6, 12</code>
+            {deleteAfter}
           </span>
           <input
             type="text"
@@ -101,7 +106,7 @@ export function RemovePdfPagesUi() {
           disabled={!file || busy || !range.trim()}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Removing…' : 'Remove pages'}
+          {busy ? s.removing : s.removePages}
         </button>
 
         {error && (
@@ -113,15 +118,18 @@ export function RemovePdfPagesUi() {
         {result && url && (
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
-              Removed {result.removed} {result.removed === 1 ? 'page' : 'pages'} — {result.pages}{' '}
-              {result.pages === 1 ? 'page' : 'pages'} left.
+              {(result.removed === 1 ? s.removedOne : s.removedMany).replace(
+                '{n}',
+                String(result.removed),
+              )}{' '}
+              — {(result.pages === 1 ? s.leftOne : s.leftMany).replace('{n}', String(result.pages))}
             </div>
             <a
               href={url}
               download={`${outName}-edited.pdf`}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download {outName}-edited.pdf
+              {s.download.replace('{name}', `${outName}-edited.pdf`)}
             </a>
           </div>
         )}

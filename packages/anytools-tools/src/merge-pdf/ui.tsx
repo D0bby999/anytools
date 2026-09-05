@@ -1,11 +1,13 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
-import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
+import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type MergeResult, mergePdfs } from './logic';
+import { STRINGS } from './strings';
 
 export function MergePdfUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -29,7 +31,7 @@ export function MergePdfUi() {
       });
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Merge failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -40,10 +42,17 @@ export function MergePdfUi() {
   // it ran once on mount against empty state and could never fire again — dead code carrying
   // a comment that asserted behaviour it did not have.
 
+  const mergeLabel =
+    files.length === 0
+      ? s.mergeEmpty
+      : files.length === 1
+        ? s.mergeOne
+        : s.mergeMany.replace('{n}', String(files.length));
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Merge PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -59,7 +68,7 @@ export function MergePdfUi() {
           }}
           accept="application/pdf,.pdf"
           reorderable
-          label="PDFs to merge — drag to reorder, or use the arrows. They are combined top to bottom."
+          label={s.dropLabel}
         />
 
         <button
@@ -68,12 +77,10 @@ export function MergePdfUi() {
           disabled={files.length < 2 || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Merging…' : `Merge ${files.length || ''} PDF${files.length === 1 ? '' : 's'}`}
+          {busy ? s.merging : mergeLabel}
         </button>
 
-        {files.length === 1 && (
-          <p className="text-sm text-muted-foreground">Add at least one more PDF to merge.</p>
-        )}
+        {files.length === 1 && <p className="text-sm text-muted-foreground">{s.addMore}</p>}
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -84,11 +91,15 @@ export function MergePdfUi() {
         {result && downloadUrl && (
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
-              <div className="font-medium">{result.pages} pages</div>
+              <div className="font-medium">{s.totalPages.replace('{n}', String(result.pages))}</div>
               <ul className="mt-1 text-muted-foreground">
-                {result.sources.map((s) => (
-                  <li key={s.name}>
-                    {s.name} — {s.pages} {s.pages === 1 ? 'page' : 'pages'}
+                {result.sources.map((src) => (
+                  <li key={src.name}>
+                    {src.name} —{' '}
+                    {(src.pages === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                      '{n}',
+                      String(src.pages),
+                    )}
                   </li>
                 ))}
               </ul>
@@ -98,7 +109,7 @@ export function MergePdfUi() {
               download="merged.pdf"
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download merged.pdf
+              {s.download}
             </a>
           </div>
         )}

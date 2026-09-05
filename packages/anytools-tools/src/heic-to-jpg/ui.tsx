@@ -1,6 +1,14 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
@@ -12,12 +20,15 @@ import {
   convertHeicFiles,
   zipConversions,
 } from './logic';
+import { STRINGS } from './strings';
 
 const SLUG = 'heic-to-jpg';
 const kb = (n: number) =>
   n >= 1024 * 1024 ? `${(n / 1048576).toFixed(1)} MB` : `${(n / 1024).toFixed(0)} KB`;
 
 export function HeicToJpgUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   // Revokes every preview and download URL when the component unmounts.
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
@@ -54,7 +65,7 @@ export function HeicToJpgUi() {
       setPreviews(outcome.results.map((r) => objectUrls.create(r.blob)));
       setFailures(outcome.failures);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Conversion failed');
+      setError(e instanceof Error ? e.message : ui.conversionFailed);
     } finally {
       setBusy(false);
       setProgress(null);
@@ -79,7 +90,7 @@ export function HeicToJpgUi() {
         `heic-converted-${format === 'jpeg' ? 'jpg' : 'png'}.zip`,
       );
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not build the zip');
+      setError(e instanceof Error ? e.message : s.zipFailed);
     }
   };
 
@@ -88,10 +99,13 @@ export function HeicToJpgUi() {
   // download is not the size the camera took, and nothing else on the page would reveal that.
   const scaled = results.filter((r) => r.width !== r.sourceWidth || r.height !== r.sourceHeight);
 
+  const convertLabel =
+    files.length > 1 ? s.convertMany.replace('{n}', String(files.length)) : s.convertOne;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">HEIC to JPG</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -106,26 +120,26 @@ export function HeicToJpgUi() {
           // here". Nothing is decoded — the brand check turns it away before the WASM loads.
           accept={`${HEIC_EXTENSIONS.join(',')},.avif,image/heic,image/heif,image/avif`}
           multiple
-          label="HEIC or HEIF photos (.heic, .heif, .hif)"
+          label={s.dropLabel}
         />
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">Save as</span>
+            <span className="mb-1 block text-muted-foreground">{s.saveAs}</span>
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value as HeicFormat)}
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
-              <option value="jpeg">JPG — opens everywhere</option>
-              <option value="png">PNG — lossless, much larger</option>
+              <option value="jpeg">{s.jpgOption}</option>
+              <option value="png">{s.pngOption}</option>
             </select>
           </label>
 
           {format === 'jpeg' && (
             <label className="text-sm">
               <span className="mb-1 block text-muted-foreground">
-                JPEG quality: {Math.round(quality * 100)}%
+                {s.quality.replace('{n}', String(Math.round(quality * 100)))}
               </span>
               <input
                 type="range"
@@ -148,15 +162,14 @@ export function HeicToJpgUi() {
         >
           {busy
             ? progress
-              ? `Converting ${progress.done}/${progress.total}…`
-              : 'Converting…'
-            : `Convert ${files.length > 1 ? `${files.length} photos` : 'photo'}`}
+              ? s.convertingProgress
+                  .replace('{done}', String(progress.done))
+                  .replace('{total}', String(progress.total))
+              : s.converting
+            : convertLabel}
         </button>
 
-        <p className="text-sm text-muted-foreground">
-          The HEIC decoder is about 1 MB and is fetched from this site the first time you convert
-          something — not when the page loads. Everything after that happens on this page.
-        </p>
+        <p className="text-sm text-muted-foreground">{s.decoderNote}</p>
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -174,19 +187,18 @@ export function HeicToJpgUi() {
 
         {burst.length > 0 && (
           <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            {burst.length === 1 ? 'One file holds' : `${burst.length} files hold`} more than one
-            image — a Live Photo or a burst. The still frame the camera marked as the main one was
-            converted; the other frames and the video are left in the original file.
+            {burst.length === 1 ? s.burstOne : s.burstMany.replace('{n}', String(burst.length))}
           </output>
         )}
 
         {scaled.length > 0 && (
           <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            {scaled.length === 1 ? 'One photo was' : `${scaled.length} photos were`} larger than a
-            browser canvas draws reliably (16.7 megapixels) and{' '}
-            {scaled.length === 1 ? 'was' : 'were'} scaled down to fit — {scaled[0]?.sourceWidth} ×{' '}
-            {scaled[0]?.sourceHeight} became {scaled[0]?.width} × {scaled[0]?.height}. The original
-            file is untouched.
+            {(scaled.length === 1 ? s.scaledOne : s.scaledMany)
+              .replace('{n}', String(scaled.length))
+              .replace('{sw}', String(scaled[0]?.sourceWidth))
+              .replace('{sh}', String(scaled[0]?.sourceHeight))
+              .replace('{w}', String(scaled[0]?.width))
+              .replace('{h}', String(scaled[0]?.height))}
           </output>
         )}
 
@@ -198,7 +210,7 @@ export function HeicToJpgUi() {
                 onClick={downloadAll}
                 className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
               >
-                Download all {results.length} as .zip
+                {s.downloadAllZip.replace('{n}', String(results.length))}
               </button>
             )}
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -212,7 +224,9 @@ export function HeicToJpgUi() {
                   <p className="text-xs text-muted-foreground">
                     {r.width} × {r.height} px
                     {(r.width !== r.sourceWidth || r.height !== r.sourceHeight) &&
-                      ` (scaled from ${r.sourceWidth} × ${r.sourceHeight})`}{' '}
+                      ` ${s.scaledFrom
+                        .replace('{w}', String(r.sourceWidth))
+                        .replace('{h}', String(r.sourceHeight))}`}{' '}
                     · {kb(r.sourceSize)} → {kb(r.blob.size)}
                   </p>
                   <button
@@ -220,7 +234,7 @@ export function HeicToJpgUi() {
                     onClick={() => saveBlob(r.blob, r.name)}
                     className="inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
                   >
-                    Download
+                    {ui.download}
                   </button>
                 </li>
               ))}

@@ -1,6 +1,15 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import {
@@ -12,15 +21,11 @@ import {
 } from '../shared/tesseract-loader';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type OcrPdfProgress, type OcrPdfResult, ocrPdf, outputName } from './logic';
-
-const STAGE_LABELS: Record<string, string> = {
-  'loading tesseract core': 'Starting the recogniser',
-  'loading language traineddata': 'Loading the language',
-  'initializing api': 'Starting the recogniser',
-  'recognizing text': 'Reading',
-};
+import { STRINGS } from './strings';
 
 export function OcrPdfUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [lang, setLang] = useState<OcrLanguage>('eng');
@@ -35,6 +40,22 @@ export function OcrPdfUi() {
   const [stopping, setStopping] = useState(false);
 
   const file = files[0] ?? null;
+
+  // Tesseract's status strings are internal jargon; these are the stages the user waits on.
+  const stageLabel: Record<string, string> = {
+    'loading tesseract core': s.stage_starting,
+    'loading language traineddata': s.stage_loadingLang,
+    'initializing api': s.stage_starting,
+    'recognizing text': s.stage_reading,
+  };
+  // The shared loader names languages in English; map the ones we ship to the locale.
+  const langLabel: Record<OcrLanguage, string> = {
+    eng: s.lang_eng,
+    vie: s.lang_vie,
+    spa: s.lang_spa,
+    por: s.lang_por,
+  };
+  const [pagesBefore, pagesAfter] = s.pagesLabel.split('{code}');
 
   useEffect(
     () => () => {
@@ -67,7 +88,7 @@ export function OcrPdfUi() {
       if (r.searchableError) setError(r.searchableError);
     } catch (e) {
       if (!(e instanceof OcrCancelledError)) {
-        setError(e instanceof Error ? e.message : 'This PDF could not be read.');
+        setError(e instanceof Error ? e.message : s.failed);
       }
     } finally {
       // Only here. Clearing `busy` inside stop() re-enabled the button while the loop was still
@@ -96,7 +117,7 @@ export function OcrPdfUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">OCR a Scanned PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -107,12 +128,12 @@ export function OcrPdfUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="Scanned PDF to read"
+          label={s.dropLabel}
         />
 
         <div className="flex flex-wrap items-end gap-4">
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">Language of the text</span>
+            <span className="text-muted-foreground">{s.language}</span>
             <select
               value={lang}
               onChange={(e) => {
@@ -123,7 +144,7 @@ export function OcrPdfUi() {
             >
               {OCR_LANGUAGES.map((l) => (
                 <option key={l} value={l}>
-                  {OCR_LANGUAGE_LABELS[l]}
+                  {langLabel[l] ?? OCR_LANGUAGE_LABELS[l]}
                 </option>
               ))}
             </select>
@@ -131,7 +152,9 @@ export function OcrPdfUi() {
 
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-muted-foreground">
-              Pages — e.g. <code>1-3, 7</code>. Blank reads them all.
+              {pagesBefore}
+              <code>1-3, 7</code>
+              {pagesAfter}
             </span>
             <input
               type="text"
@@ -154,11 +177,8 @@ export function OcrPdfUi() {
             className="mt-1"
           />
           <span>
-            Also build a searchable PDF
-            <span className="block text-xs text-muted-foreground">
-              The same scan, unchanged to look at, with the recognised words written over it
-              invisibly so Ctrl+F and text selection work.
-            </span>
+            {s.searchable}
+            <span className="block text-xs text-muted-foreground">{s.searchableNote}</span>
           </span>
         </label>
 
@@ -169,7 +189,7 @@ export function OcrPdfUi() {
             disabled={!file || busy}
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
           >
-            {busy ? 'Reading…' : 'Recognize text'}
+            {busy ? s.reading : s.recognize}
           </button>
           {busy && (
             <button
@@ -178,23 +198,21 @@ export function OcrPdfUi() {
               disabled={stopping}
               className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
             >
-              {stopping ? 'Stopping…' : 'Stop'}
+              {stopping ? s.stopping : ui.stop}
             </button>
           )}
         </div>
 
-        {stopping && (
-          <p className="text-sm text-muted-foreground">
-            Stopping. The run is abandoned, so no text comes out of it — use the page range to read
-            part of a document instead.
-          </p>
-        )}
+        {stopping && <p className="text-sm text-muted-foreground">{s.stoppingNote}</p>}
 
         {progress && !stopping && (
           <p className="text-sm text-muted-foreground">
-            {STAGE_LABELS[progress.stage.status] ?? 'Working'} — page {progress.pageNumber} (
-            {progress.done} of {progress.total} done,{' '}
-            {Math.round((progress.stage.progress ?? 0) * 100)}%)
+            {s.progressLine
+              .replace('{stage}', stageLabel[progress.stage.status] ?? s.stage_working)
+              .replace('{page}', String(progress.pageNumber))
+              .replace('{done}', String(progress.done))
+              .replace('{total}', String(progress.total))
+              .replace('{pct}', String(Math.round((progress.stage.progress ?? 0) * 100)))}
           </p>
         )}
 
@@ -207,17 +225,17 @@ export function OcrPdfUi() {
         {result && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              {result.pages.length} {result.pages.length === 1 ? 'page' : 'pages'} read, average
-              confidence {result.confidence.toFixed(0)}%.
+              {(result.pages.length === 1 ? s.readSummaryOne : s.readSummaryMany)
+                .replace('{n}', String(result.pages.length))
+                .replace('{conf}', result.confidence.toFixed(0))}
             </p>
 
             {result.skipped > 0 && (
               <p className="text-sm text-muted-foreground">
-                {result.skipped} {result.skipped === 1 ? 'word is' : 'words are'} missing from the
-                searchable layer: the embedded font has no glyph for
-                {result.skipped === 1 ? ' a character in it' : ' some of their characters'}, so
-                Ctrl+F will not find {result.skipped === 1 ? 'it' : 'them'}. The .txt below is
-                unaffected.
+                {(result.skipped === 1 ? s.skippedOne : s.skippedMany).replace(
+                  '{n}',
+                  String(result.skipped),
+                )}
               </p>
             )}
 
@@ -226,7 +244,7 @@ export function OcrPdfUi() {
               onChange={(e) => setText(e.target.value)}
               spellCheck={false}
               rows={14}
-              aria-label="Recognised text"
+              aria-label={s.recognisedText}
               className="w-full rounded-md border border-input bg-background p-3 font-mono text-sm"
             />
 
@@ -237,7 +255,7 @@ export function OcrPdfUi() {
                 onClick={downloadText}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download .txt
+                {s.downloadTxt}
               </button>
               {pdfUrl && file && (
                 <a
@@ -245,7 +263,7 @@ export function OcrPdfUi() {
                   download={outputName(file.name, 'searchable', 'pdf')}
                   className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
                 >
-                  Download searchable PDF
+                  {s.downloadSearchable}
                 </a>
               )}
             </div>
@@ -253,7 +271,10 @@ export function OcrPdfUi() {
             <ul className="space-y-1 text-xs text-muted-foreground">
               {result.pages.map((p) => (
                 <li key={p.pageNumber}>
-                  Page {p.pageNumber} — {p.words} words, {p.confidence.toFixed(0)}% confidence
+                  {s.pageLine
+                    .replace('{n}', String(p.pageNumber))
+                    .replace('{words}', String(p.words))
+                    .replace('{conf}', p.confidence.toFixed(0))}
                 </li>
               ))}
             </ul>

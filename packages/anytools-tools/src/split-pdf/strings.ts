@@ -1,0 +1,69 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Split PDF',
+  dropLabel: 'PDF to split',
+  couldNotReadPdf: 'Could not read PDF',
+  failed: 'Split failed',
+  pageCountOne: '{n} page',
+  pageCountMany: '{n} pages',
+  whatToProduce: 'What to produce',
+  extractRanges: 'Extract page ranges',
+  onePerPage: 'One file per page',
+  // {code} is replaced with the <code>1-3, 7, 9-12</code> example.
+  rangesLabel: 'Pages — e.g. {code}. Each run of consecutive pages becomes its own file.',
+  splitting: 'Splitting…',
+  split: 'Split PDF',
+  downloadAllZip: 'Download all {n} as .zip',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Tách PDF',
+    dropLabel: 'PDF cần tách',
+    couldNotReadPdf: 'Không đọc được PDF',
+    failed: 'Tách thất bại',
+    pageCountOne: '{n} trang',
+    pageCountMany: '{n} trang',
+    whatToProduce: 'Kết quả mong muốn',
+    extractRanges: 'Trích các khoảng trang',
+    onePerPage: 'Mỗi trang một tệp',
+    rangesLabel: 'Trang — vd. {code}. Mỗi dãy trang liên tiếp thành một tệp riêng.',
+    splitting: 'Đang tách…',
+    split: 'Tách PDF',
+    downloadAllZip: 'Tải tất cả {n} tệp dạng .zip',
+  },
+  es: {
+    title: 'Dividir PDF',
+    dropLabel: 'PDF a dividir',
+    couldNotReadPdf: 'No se pudo leer el PDF',
+    failed: 'La división falló',
+    pageCountOne: '{n} página',
+    pageCountMany: '{n} páginas',
+    whatToProduce: 'Qué generar',
+    extractRanges: 'Extraer rangos de páginas',
+    onePerPage: 'Un archivo por página',
+    rangesLabel:
+      'Páginas — p. ej. {code}. Cada serie de páginas consecutivas se convierte en su propio archivo.',
+    splitting: 'Dividiendo…',
+    split: 'Dividir PDF',
+    downloadAllZip: 'Descargar los {n} como .zip',
+  },
+  pt: {
+    title: 'Dividir PDF',
+    dropLabel: 'PDF a dividir',
+    couldNotReadPdf: 'Não foi possível ler o PDF',
+    failed: 'A divisão falhou',
+    pageCountOne: '{n} página',
+    pageCountMany: '{n} páginas',
+    whatToProduce: 'O que gerar',
+    extractRanges: 'Extrair intervalos de páginas',
+    onePerPage: 'Um arquivo por página',
+    rangesLabel:
+      'Páginas — ex. {code}. Cada sequência de páginas consecutivas vira um arquivo próprio.',
+    splitting: 'Dividindo…',
+    split: 'Dividir PDF',
+    downloadAllZip: 'Baixar todos os {n} como .zip',
+  },
+};

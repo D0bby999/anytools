@@ -1,6 +1,6 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
@@ -12,16 +12,19 @@ import {
   labelFor,
   readPageCount,
 } from './logic';
+import { STRINGS } from './strings';
 
-const POSITIONS: { value: NumberPosition; label: string }[] = [
-  { value: 'top-left', label: 'Top left' },
-  { value: 'top-center', label: 'Top centre' },
-  { value: 'top-right', label: 'Top right' },
-  { value: 'bottom-left', label: 'Bottom left' },
-  { value: 'bottom-center', label: 'Bottom centre' },
-  { value: 'bottom-right', label: 'Bottom right' },
+const POSITIONS: NumberPosition[] = [
+  'top-left',
+  'top-center',
+  'top-right',
+  'bottom-left',
+  'bottom-center',
+  'bottom-right',
 ];
 
+// The labels are what the PDF will literally print (see `labelFor` in logic.ts), so they are
+// not translated: "Page 1" is the text stamped on the page, in any UI language.
 const FORMATS: { value: NumberFormatId; label: string }[] = [
   { value: 'plain', label: '1' },
   { value: 'of-total', label: '1 / 10' },
@@ -34,6 +37,7 @@ const fieldClass =
   'h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export function AddPageNumbersUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -51,6 +55,15 @@ export function AddPageNumbersUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+
+  const positionLabel: Record<NumberPosition, string> = {
+    'top-left': s.pos_topLeft,
+    'top-center': s.pos_topCenter,
+    'top-right': s.pos_topRight,
+    'bottom-left': s.pos_bottomLeft,
+    'bottom-center': s.pos_bottomCenter,
+    'bottom-right': s.pos_bottomRight,
+  };
 
   // Revoke outside the updater: React may run an updater more than once (and does, in
   // StrictMode), which would revoke a URL still on screen and leak the extra ones.
@@ -71,11 +84,11 @@ export function AddPageNumbersUi() {
     let cancelled = false;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read PDF'));
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
     return () => {
       cancelled = true;
     };
-  }, [file]);
+  }, [file, s.couldNotReadPdf]);
 
   const run = async () => {
     if (!file) return;
@@ -95,7 +108,7 @@ export function AddPageNumbersUi() {
       setDownloadUrl(objectUrls.create(r.blob));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Could not add page numbers');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -104,7 +117,7 @@ export function AddPageNumbersUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Add Page Numbers to PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -115,18 +128,18 @@ export function AddPageNumbersUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="The PDF to number. Page count and page order are not changed."
+          label={s.dropLabel}
         />
 
         {pageCount !== null && (
           <p className="text-sm text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'}.
+            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
           </p>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Position</span>
+            <span className="font-medium">{s.position}</span>
             <select
               value={position}
               onChange={(e) => {
@@ -135,16 +148,16 @@ export function AddPageNumbersUi() {
               }}
               className={fieldClass}
             >
-              {POSITIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
+              {POSITIONS.map((p) => (
+                <option key={p} value={p}>
+                  {positionLabel[p]}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Format</span>
+            <span className="font-medium">{s.format}</span>
             <select
               value={format}
               onChange={(e) => {
@@ -162,7 +175,7 @@ export function AddPageNumbersUi() {
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Start numbering at</span>
+            <span className="font-medium">{s.startAt}</span>
             <input
               type="number"
               min={0}
@@ -181,11 +194,15 @@ export function AddPageNumbersUi() {
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Pages to number</span>
+            <span className="font-medium">{s.pagesToNumber}</span>
             <input
               type="text"
               value={range}
-              placeholder={pageCount ? `all — or e.g. 2-${pageCount}` : 'all — or e.g. 2-10, 14'}
+              placeholder={
+                pageCount
+                  ? s.rangePlaceholderAll.replace('{n}', String(pageCount))
+                  : s.rangePlaceholder
+              }
               onChange={(e) => {
                 setRange(e.target.value);
                 reset();
@@ -195,7 +212,7 @@ export function AddPageNumbersUi() {
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Font size</span>
+            <span className="font-medium">{s.fontSize}</span>
             <select
               value={fontSize}
               onChange={(e) => {
@@ -204,16 +221,16 @@ export function AddPageNumbersUi() {
               }}
               className={fieldClass}
             >
-              {FONT_SIZES.map((s) => (
-                <option key={s} value={s}>
-                  {s} pt
+              {FONT_SIZES.map((size) => (
+                <option key={size} value={size}>
+                  {size} pt
                 </option>
               ))}
             </select>
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Distance from the edge</span>
+            <span className="font-medium">{s.margin}</span>
             <select
               value={margin}
               onChange={(e) => {
@@ -230,12 +247,7 @@ export function AddPageNumbersUi() {
           </label>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Numbers are drawn in Helvetica, the font every PDF reader already has — nothing is
-          embedded, so the file barely grows. Latin characters only: the built-in font cannot draw
-          Vietnamese tone marks, CJK, Greek, Cyrillic or Arabic. Pages your scanner saved sideways
-          are handled — the number follows the page's own rotation.
-        </p>
+        <p className="text-sm text-muted-foreground">{s.fontNote}</p>
 
         <button
           type="button"
@@ -243,11 +255,11 @@ export function AddPageNumbersUi() {
           disabled={!file || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Numbering…' : 'Add page numbers'}
+          {busy ? s.numbering : s.addNumbers}
         </button>
 
         <p className="text-sm text-muted-foreground">
-          Preview of the first label:{' '}
+          {s.previewFirst}{' '}
           <span className="font-medium">{labelFor(format, startAt, pageCount ?? 10)}</span>
         </p>
 
@@ -261,10 +273,12 @@ export function AddPageNumbersUi() {
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
               <div className="font-medium">
-                Numbered {result.numbered} of {result.pages} {result.pages === 1 ? 'page' : 'pages'}
+                {(result.pages === 1 ? s.numberedOne : s.numberedMany)
+                  .replace('{n}', String(result.numbered))
+                  .replace('{total}', String(result.pages))}
               </div>
               <p className="mt-1 text-muted-foreground">
-                First label "{result.firstLabel}", last label "{result.lastLabel}".
+                {s.labels.replace('{first}', result.firstLabel).replace('{last}', result.lastLabel)}
               </p>
             </div>
             <a
@@ -272,7 +286,7 @@ export function AddPageNumbersUi() {
               download="numbered.pdf"
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download numbered.pdf
+              {s.download}
             </a>
           </div>
         )}

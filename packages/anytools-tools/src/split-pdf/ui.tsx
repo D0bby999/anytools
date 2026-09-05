@@ -1,11 +1,22 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type SplitResult, readPageCount, splitPdf } from './logic';
+import { STRINGS } from './strings';
 
 export function SplitPdfUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -20,6 +31,7 @@ export function SplitPdfUi() {
   const [busy, setBusy] = useState(false);
 
   const file = files[0] ?? null;
+  const [rangesBefore, rangesAfter] = s.rangesLabel.split('{code}');
 
   const revoke = () => {
     setUrls((prev) => {
@@ -42,11 +54,11 @@ export function SplitPdfUi() {
     let cancelled = false;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Could not read PDF'));
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
     return () => {
       cancelled = true;
     };
-  }, [file]);
+  }, [file, s.couldNotReadPdf]);
 
   const run = async () => {
     if (!file) return;
@@ -63,7 +75,7 @@ export function SplitPdfUi() {
       setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Split failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -72,7 +84,7 @@ export function SplitPdfUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Split PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -85,17 +97,17 @@ export function SplitPdfUi() {
           }}
           accept="application/pdf,.pdf"
           multiple={false}
-          label="PDF to split"
+          label={s.dropLabel}
         />
 
         {pageCount !== null && (
           <p className="text-sm text-muted-foreground">
-            {pageCount} {pageCount === 1 ? 'page' : 'pages'}
+            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
           </p>
         )}
 
         <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">What to produce</legend>
+          <legend className="text-sm text-muted-foreground">{s.whatToProduce}</legend>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
@@ -103,7 +115,7 @@ export function SplitPdfUi() {
               checked={mode === 'ranges'}
               onChange={() => setMode('ranges')}
             />
-            Extract page ranges
+            {s.extractRanges}
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -112,15 +124,16 @@ export function SplitPdfUi() {
               checked={mode === 'each'}
               onChange={() => setMode('each')}
             />
-            One file per page
+            {s.onePerPage}
           </label>
         </fieldset>
 
         {mode === 'ranges' && (
           <label className="block text-sm">
             <span className="mb-1 block text-muted-foreground">
-              Pages — e.g. <code>1-3, 7, 9-12</code>. Each run of consecutive pages becomes its own
-              file.
+              {rangesBefore}
+              <code>1-3, 7, 9-12</code>
+              {rangesAfter}
             </span>
             <input
               type="text"
@@ -138,7 +151,7 @@ export function SplitPdfUi() {
           disabled={!file || busy || (mode === 'ranges' && !range.trim())}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Splitting…' : 'Split PDF'}
+          {busy ? s.splitting : s.split}
         </button>
 
         {error && (
@@ -155,7 +168,7 @@ export function SplitPdfUi() {
                 download="split.zip"
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download all {result.parts.length} as .zip
+                {s.downloadAllZip.replace('{n}', String(result.parts.length))}
               </a>
             )}
             <ul className="space-y-1">
@@ -165,10 +178,14 @@ export function SplitPdfUi() {
                   className="flex items-center justify-between gap-3 rounded-md border bg-muted/40 px-3 py-2 text-sm"
                 >
                   <span className="truncate">
-                    {p.name} — {p.pages} {p.pages === 1 ? 'page' : 'pages'}
+                    {p.name} —{' '}
+                    {(p.pages === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                      '{n}',
+                      String(p.pages),
+                    )}
                   </span>
                   <a href={urls[i]} download={p.name} className="shrink-0 underline">
-                    Download
+                    {ui.download}
                   </a>
                 </li>
               ))}

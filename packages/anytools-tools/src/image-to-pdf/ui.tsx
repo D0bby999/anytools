@@ -1,6 +1,6 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
@@ -12,30 +12,17 @@ import {
   imagesToPdf,
   prepareImages,
 } from './logic';
+import { STRINGS } from './strings';
 
-const PAGE_SIZE_OPTIONS: { value: PageSizeId; label: string }[] = [
-  { value: 'a4', label: 'A4 — 210 × 297 mm' },
-  { value: 'letter', label: 'US Letter — 8.5 × 11 in' },
-  { value: 'fit', label: 'Fit the page to each image' },
-];
-
-const ORIENTATION_OPTIONS: { value: OrientationId; label: string }[] = [
-  { value: 'auto', label: 'Match each image' },
-  { value: 'portrait', label: 'Portrait' },
-  { value: 'landscape', label: 'Landscape' },
-];
-
-const MARGIN_OPTIONS = [
-  { value: 0, label: 'None' },
-  { value: 18, label: 'Narrow — 6 mm' },
-  { value: 36, label: 'Normal — 13 mm' },
-  { value: 72, label: 'Wide — 25 mm' },
-];
+const PAGE_SIZES: PageSizeId[] = ['a4', 'letter', 'fit'];
+const ORIENTATIONS: OrientationId[] = ['auto', 'portrait', 'landscape'];
+const MARGINS = [0, 18, 36, 72] as const;
 
 const selectClass =
   'h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export function ImageToPdfUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -49,6 +36,24 @@ export function ImageToPdfUi() {
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Paper names and dimensions are the same in every locale; only the "fit" option is prose.
+  const pageSizeLabel: Record<PageSizeId, string> = {
+    a4: 'A4 — 210 × 297 mm',
+    letter: 'US Letter — 8.5 × 11 in',
+    fit: s.size_fit,
+  };
+  const orientationLabel: Record<OrientationId, string> = {
+    auto: s.orient_auto,
+    portrait: s.orient_portrait,
+    landscape: s.orient_landscape,
+  };
+  const marginLabel: Record<(typeof MARGINS)[number], string> = {
+    0: s.margin_none,
+    18: s.margin_narrow,
+    36: s.margin_normal,
+    72: s.margin_wide,
+  };
 
   // Revoke outside the updater: React may run an updater more than once (and does, in
   // StrictMode), which would revoke a URL still on screen and leak the extra ones.
@@ -77,17 +82,24 @@ export function ImageToPdfUi() {
       setDownloadUrl(objectUrls.create(r.blob));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Could not build the PDF');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
       setProgress(null);
     }
   };
 
+  const createLabel =
+    files.length === 0
+      ? s.createEmpty
+      : files.length === 1
+        ? s.createOne
+        : s.createMany.replace('{n}', String(files.length));
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Image to PDF</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -98,12 +110,12 @@ export function ImageToPdfUi() {
           }}
           accept="image/*"
           reorderable
-          label="Images — drag to reorder, or use the arrows. One image per page, top to bottom."
+          label={s.dropLabel}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Page size</span>
+            <span className="font-medium">{s.pageSize}</span>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -112,16 +124,16 @@ export function ImageToPdfUi() {
               }}
               className={selectClass}
             >
-              {PAGE_SIZE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
+              {PAGE_SIZES.map((id) => (
+                <option key={id} value={id}>
+                  {pageSizeLabel[id]}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Orientation</span>
+            <span className="font-medium">{s.orientation}</span>
             <select
               value={orientation}
               onChange={(e) => {
@@ -131,16 +143,16 @@ export function ImageToPdfUi() {
               disabled={pageSize === 'fit'}
               className={`${selectClass} disabled:opacity-50`}
             >
-              {ORIENTATION_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
+              {ORIENTATIONS.map((id) => (
+                <option key={id} value={id}>
+                  {orientationLabel[id]}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Margin</span>
+            <span className="font-medium">{s.margin}</span>
             <select
               value={margin}
               onChange={(e) => {
@@ -149,9 +161,9 @@ export function ImageToPdfUi() {
               }}
               className={selectClass}
             >
-              {MARGIN_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
+              {MARGINS.map((m) => (
+                <option key={m} value={m}>
+                  {marginLabel[m]}
                 </option>
               ))}
             </select>
@@ -169,21 +181,15 @@ export function ImageToPdfUi() {
               className="mt-0.5 h-4 w-4"
             />
             <span className={pageSize === 'fit' ? 'text-muted-foreground' : ''}>
-              Downscale to {PRINT_DPI} dpi at the printed size
+              {s.downscale.replace('{dpi}', String(PRINT_DPI))}
               <span className="block text-xs text-muted-foreground">
-                {pageSize === 'fit'
-                  ? 'Not used when the page is sized to the image — shrinking would shrink the page.'
-                  : 'Keeps a phone photo from adding several megabytes per page. Turn off to keep full resolution.'}
+                {pageSize === 'fit' ? s.downscaleFitNote : s.downscaleNote}
               </span>
             </span>
           </label>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Every image is re-drawn in this tab before it goes into the PDF. That is what applies the
-          rotation flag a phone camera writes, and what lets WebP and GIF in at all — PDF itself
-          stores only JPEG and PNG.
-        </p>
+        <p className="text-sm text-muted-foreground">{s.redrawNote}</p>
 
         <button
           type="button"
@@ -193,9 +199,11 @@ export function ImageToPdfUi() {
         >
           {busy
             ? progress
-              ? `Reading image ${progress.done + 1} of ${progress.total}…`
-              : 'Building PDF…'
-            : `Create PDF from ${files.length || ''} image${files.length === 1 ? '' : 's'}`}
+              ? s.readingImage
+                  .replace('{n}', String(progress.done + 1))
+                  .replace('{total}', String(progress.total))
+              : s.building
+            : createLabel}
         </button>
 
         {error && (
@@ -208,12 +216,18 @@ export function ImageToPdfUi() {
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
               <div className="font-medium">
-                {result.pages} {result.pages === 1 ? 'page' : 'pages'}
+                {(result.pages === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                  '{n}',
+                  String(result.pages),
+                )}
               </div>
               <ul className="mt-1 text-muted-foreground">
-                {result.sources.map((s, i) => (
-                  <li key={`${i}-${s.name}`}>
-                    {s.name} — {s.pixels} px on a {s.page} page
+                {result.sources.map((src, i) => (
+                  <li key={`${i}-${src.name}`}>
+                    {s.sourceLine
+                      .replace('{name}', src.name)
+                      .replace('{pixels}', src.pixels)
+                      .replace('{page}', src.page)}
                   </li>
                 ))}
               </ul>
@@ -223,7 +237,7 @@ export function ImageToPdfUi() {
               download="images.pdf"
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download images.pdf
+              {s.download}
             </a>
           </div>
         )}

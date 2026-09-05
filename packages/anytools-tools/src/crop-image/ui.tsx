@@ -1,5 +1,5 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
 import { useEffect, useRef, useState } from 'react';
 import type { OutputFormat } from '../shared/canvas-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
@@ -12,11 +12,13 @@ import {
   clampRect,
   cropImage,
 } from './logic';
+import { STRINGS } from './strings';
 
 const FULL: CropRect = { x: 0, y: 0, width: 1, height: 1 };
 const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
 
 export function CropImageUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -37,6 +39,15 @@ export function CropImageUi() {
   const drag = useRef<{ startX: number; startY: number } | null>(null);
 
   const file = files[0] ?? null;
+
+  // The presets are labelled in English in logic.ts; map them by that label to the locale.
+  const aspectLabel: Record<string, string> = {
+    Free: s.aspect_free,
+    '1:1 square': s.aspect_square,
+    '4:5 portrait': s.aspect_portrait,
+    '3:2 landscape': s.aspect_landscape,
+    '16:9 widescreen': s.aspect_wide,
+  };
 
   useEffect(() => {
     setSrcUrl((prev) => {
@@ -95,7 +106,7 @@ export function CropImageUi() {
       });
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Crop failed');
+      setError(e instanceof Error ? e.message : s.failed);
     } finally {
       setBusy(false);
     }
@@ -123,7 +134,7 @@ export function CropImageUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Crop Image</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -135,7 +146,7 @@ export function CropImageUi() {
           }}
           accept="image/*"
           multiple={false}
-          label="Image to crop"
+          label={s.dropLabel}
         />
 
         {srcUrl && (
@@ -154,7 +165,7 @@ export function CropImageUi() {
                     aspect === p.ratio ? 'border-primary bg-primary/10' : 'border-input'
                   }`}
                 >
-                  {p.label}
+                  {aspectLabel[p.label] ?? p.label}
                 </button>
               ))}
             </div>
@@ -171,7 +182,7 @@ export function CropImageUi() {
               {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
               <img
                 src={srcUrl}
-                alt="Drag on this image to choose the crop area"
+                alt={s.imageAlt}
                 onLoad={(e) =>
                   setNatural({
                     w: e.currentTarget.naturalWidth,
@@ -193,16 +204,16 @@ export function CropImageUi() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              {usableSelection
-                ? 'Drag on the image to select an area.'
-                : 'Drag on the image to select an area — the current selection is too small to crop.'}
-              {cropPx && ` Selection: ${cropPx.w} × ${cropPx.h} px`}
-              {natural && ` of ${natural.w} × ${natural.h}`}
+              {usableSelection ? s.dragHint : s.dragHintSmall}
+              {cropPx &&
+                ` ${s.selection.replace('{w}', String(cropPx.w)).replace('{h}', String(cropPx.h))}`}
+              {natural &&
+                ` ${s.ofSize.replace('{w}', String(natural.w)).replace('{h}', String(natural.h))}`}
             </p>
 
             <div className="flex flex-wrap items-end gap-3">
               <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">Output format</span>
+                <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
                 <select
                   value={format}
                   onChange={(e) => setFormat(e.target.value as OutputFormat)}
@@ -218,7 +229,7 @@ export function CropImageUi() {
                 onClick={() => setRect(FULL)}
                 className="h-10 rounded-md border border-input px-3 text-sm"
               >
-                Reset selection
+                {s.resetSelection}
               </button>
               <button
                 type="button"
@@ -226,7 +237,7 @@ export function CropImageUi() {
                 disabled={busy || !usableSelection}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
               >
-                {busy ? 'Cropping…' : 'Crop'}
+                {busy ? s.cropping : s.crop}
               </button>
             </div>
           </>
@@ -243,17 +254,19 @@ export function CropImageUi() {
             <div className="rounded-md border bg-muted p-3 text-sm">
               {result.width} × {result.height} px · {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
               {result.scaledFrom
-                ? ` · cut from a smaller decode: the ${result.scaledFrom.width} × ${result.scaledFrom.height} original is above what a canvas can hold`
+                ? ` · ${s.scaledNote
+                    .replace('{w}', String(result.scaledFrom.width))
+                    .replace('{h}', String(result.scaledFrom.height))}`
                 : ''}
             </div>
             {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-            <img src={outUrl} alt="Cropped result" className="max-h-80 rounded border" />
+            <img src={outUrl} alt={s.resultAlt} className="max-h-80 rounded border" />
             <a
               href={outUrl}
               download={outName}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download {outName}
+              {s.download.replace('{name}', outName)}
             </a>
           </div>
         )}
