@@ -371,11 +371,16 @@ const PRIVACY_SELF_HOST_TEXT: Record<Locale, Partial<Record<string, string[]>>> 
   },
 };
 
-function applyPrivacySelfHostText(page: LegalPage, overrides: Partial<Record<string, string[]>>): LegalPage {
+function applyPrivacySelfHostText(
+  page: LegalPage,
+  overrides: Partial<Record<string, string[]>>,
+): LegalPage {
   return {
     ...page,
     sections: page.sections.map((section) =>
-      overrides[section.heading] ? { ...section, body: overrides[section.heading] as string[] } : section,
+      overrides[section.heading]
+        ? { ...section, body: overrides[section.heading] as string[] }
+        : section,
     ),
   };
 }
@@ -652,7 +657,7 @@ const ABOUT: Record<Locale, LegalPage> = {
         heading: 'What we build',
         body: [
           'AnyTools is a collection of fast, offline-first developer utilities. JSON formatting, Base64 encoding, UUID generation, regex testing, JWT decoding, password generation, hash computation, SQL formatting, timestamp conversion, and many more — all in one place, free, open source, and respectful of your time and data.',
-          'We launched with 25 tools across encoding, formatting, generation, conversion, text/regex, time/date, and web3 categories. New tools ship roughly every two weeks, prioritized by what developers actually search for and ask for in our community.',
+          'We launched with 25 tools across encoding, formatting, generation, conversion, text/regex, time/date, and web3 categories. As of September 2026 the catalog holds 107 tools in 13 categories, including PDF, image, finance and health utilities. New tools ship roughly every two weeks, prioritized by what developers actually search for and ask for in our community.',
         ],
       },
       {

@@ -3,10 +3,17 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'password-generator',
   cluster: 'generators',
-  title: { en: 'Password Generator', vi: 'Tạo Mật Khẩu' },
+  title: {
+    en: 'Password Generator',
+    vi: 'Tạo Mật Khẩu',
+    es: 'Generador de contraseñas',
+    pt: 'Gerador de senhas',
+  },
   description: {
     en: 'Generate strong passwords with crypto-grade randomness. Length, charsets, ambiguous-char filter. Browser-only.',
     vi: 'Tạo mật khẩu mạnh bằng randomness mã hóa. Tùy chỉnh độ dài, charset, loại ký tự dễ nhầm. Chỉ trong browser.',
+    es: 'Genera contraseñas seguras con aleatoriedad criptográfica. Longitud, conjuntos de caracteres y filtro de caracteres ambiguos. Solo en el navegador.',
+    pt: 'Gera senhas fortes com aleatoriedade criptográfica. Comprimento, conjuntos de caracteres e filtro de caracteres ambíguos. Só no navegador.',
   },
   keywords: [
     'password generator',

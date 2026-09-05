@@ -3,10 +3,17 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'cron-parser',
   cluster: 'time-date',
-  title: { en: 'Cron Parser', vi: 'Phân tích Cron' },
+  title: {
+    en: 'Cron Parser',
+    vi: 'Phân tích Cron',
+    es: 'Analizador de Cron',
+    pt: 'Analisador de Cron',
+  },
   description: {
     en: 'Parse cron expressions to human language. See next 10 scheduled runs. Browser-only.',
     vi: 'Phân tích cron expression sang ngôn ngữ người đọc. Xem 10 lần chạy tiếp theo. Chỉ trong browser.',
+    es: 'Traduce expresiones cron a lenguaje humano. Muestra las próximas 10 ejecuciones. Solo en el navegador.',
+    pt: 'Traduz expressões cron para linguagem humana. Mostra as próximas 10 execuções. Só no navegador.',
   },
   keywords: ['cron', 'cron parser', 'cron expression', 'crontab', 'scheduled task'],
   priority: 'P2',

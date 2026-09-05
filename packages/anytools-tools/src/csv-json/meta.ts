@@ -3,10 +3,17 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'csv-json',
   cluster: 'converters',
-  title: { en: 'CSV ↔ JSON Converter', vi: 'Chuyển đổi CSV ↔ JSON' },
+  title: {
+    en: 'CSV ↔ JSON Converter',
+    vi: 'Chuyển đổi CSV ↔ JSON',
+    es: 'Conversor CSV ↔ JSON',
+    pt: 'Conversor CSV ↔ JSON',
+  },
   description: {
     en: 'Convert between CSV and JSON. Auto-detect delimiter, quote handling, header row toggle. Browser-only.',
     vi: 'Chuyển đổi CSV và JSON. Tự nhận delimiter, xử lý quote, toggle header. Chỉ trong browser.',
+    es: 'Convierte entre CSV y JSON. Detecta el delimitador, gestiona comillas y fila de cabecera. Solo en el navegador.',
+    pt: 'Converte entre CSV e JSON. Detecta o delimitador, trata aspas e linha de cabeçalho. Só no navegador.',
   },
   keywords: ['csv to json', 'json to csv', 'csv parser', 'papaparse', 'tsv'],
   priority: 'P2',

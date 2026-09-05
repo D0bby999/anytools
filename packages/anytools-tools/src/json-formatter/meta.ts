@@ -3,10 +3,17 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'json-formatter',
   cluster: 'formatters',
-  title: { en: 'JSON Formatter & Validator', vi: 'Định dạng & Kiểm tra JSON' },
+  title: {
+    en: 'JSON Formatter & Validator',
+    vi: 'Định dạng & Kiểm tra JSON',
+    es: 'Formateador y validador de JSON',
+    pt: 'Formatador e validador de JSON',
+  },
   description: {
     en: 'Format, minify, sort, and validate JSON. JSON5 mode accepts comments and trailing commas. Browser-only.',
     vi: 'Định dạng, minify, sort, validate JSON. Mode JSON5 chấp nhận comment và trailing comma. Chỉ trong browser.',
+    es: 'Formatea, minifica, ordena y valida JSON. El modo JSON5 acepta comentarios y comas finales. Solo en el navegador.',
+    pt: 'Formata, minifica, ordena e valida JSON. O modo JSON5 aceita comentários e vírgulas finais. Só no navegador.',
   },
   keywords: [
     'json formatter',

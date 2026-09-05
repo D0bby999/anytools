@@ -6,10 +6,14 @@ export const meta: ToolMeta = {
   title: {
     en: 'Base64 Encode & Decode',
     vi: 'Mã hóa & Giải mã Base64',
+    es: 'Codificar y decodificar Base64',
+    pt: 'Codificar e decodificar Base64',
   },
   description: {
     en: 'Free online Base64 encoder and decoder. UTF-8 safe, works offline, runs entirely in your browser.',
     vi: 'Công cụ mã hóa và giải mã Base64 miễn phí. Hỗ trợ UTF-8, hoạt động offline, xử lý hoàn toàn trong trình duyệt.',
+    es: 'Codificador y decodificador Base64 gratis. Compatible con UTF-8, funciona sin conexión y se ejecuta por completo en tu navegador.',
+    pt: 'Codificador e decodificador Base64 grátis. Compatível com UTF-8, funciona offline e roda inteiramente no seu navegador.',
   },
   keywords: [
     'base64',

@@ -4,9 +4,17 @@ export const meta: ToolMeta = {
   slug: 'pdf-to-png',
   cluster: 'pdf',
   availableLocales: ['en'],
-  title: { en: 'PDF to PNG', vi: 'PDF sang PNG', es: 'PDF a PNG', pt: 'PDF para PNG' },
+  title: {
+    en: 'PDF to PNG',
+    vi: 'PDF sang PNG',
+    es: 'PDF a PNG',
+    pt: 'PDF para PNG',
+  },
   description: {
     en: 'Render each page of a PDF to a PNG image at 72, 150 or 300 DPI. Runs in your browser — the document is never uploaded.',
+    vi: 'Xuất từng trang PDF thành ảnh PNG ở 72, 150 hoặc 300 DPI. Chạy trong trình duyệt, tài liệu không bao giờ được tải lên.',
+    es: 'Convierte cada página de un PDF en una imagen PNG a 72, 150 o 300 DPI. Se ejecuta en tu navegador: el documento nunca se sube.',
+    pt: 'Converte cada página de um PDF em uma imagem PNG a 72, 150 ou 300 DPI. Roda no seu navegador: o documento nunca é enviado.',
   },
   keywords: [
     'pdf to png',

@@ -11,7 +11,7 @@ export const meta: ToolMeta = {
   },
   description: {
     en: 'Free BMI calculator with metric + imperial units. Shows category from underweight to obese class III. For estimation only.',
-    vi: 'Tính BMI miễn phí với đơn vị metric + imperial. Hiện category từ thiếu cân đến béo phì độ III. Chỉ để ước tính.',
+    vi: 'Tính BMI miễn phí với đơn vị metric + imperial. Hiện phân loại từ thiếu cân đến béo phì độ III. Chỉ để ước tính.',
     es: 'Calculadora de IMC gratis con métrico + imperial. Muestra categoría de bajo peso a obesidad clase III. Solo estimación.',
     pt: 'Calculadora de IMC grátis com métrico + imperial. Mostra categoria de baixo peso a obesidade classe III. Apenas estimativa.',
   },
