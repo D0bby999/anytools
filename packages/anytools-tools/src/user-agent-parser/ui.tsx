@@ -10,6 +10,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useId, useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { parseUserAgent } from './logic';
 import { STRINGS } from './strings';
 
@@ -29,9 +30,9 @@ export function UserAgentParserUi() {
     try {
       return { result: parseUserAgent(input), error: null as string | null };
     } catch (e) {
-      return { result: null, error: e instanceof Error ? e.message : ui.invalidInput };
+      return { result: null, error: toolErrorText(e, s, ui.invalidInput) };
     }
-  }, [input, ui.invalidInput]);
+  }, [input, s, ui.invalidInput]);
 
   const r = state.result;
   // The logic layer names device types in English; map them to the locale here.

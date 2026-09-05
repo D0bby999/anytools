@@ -30,6 +30,15 @@ describe('convertFormat', () => {
     expect(() => convertFormat('{"a":{"b":null}}', 'json', 'toml')).toThrow(/"a\.b" is null/);
     expect(() => convertFormat('{"list":[1,null]}', 'json', 'toml')).toThrow(/"list\[1\]"/);
   });
+  it('carries a code and the null path for the widget to localize', () => {
+    let caught: unknown;
+    try {
+      convertFormat('{"a":{"b":null}}', 'json', 'toml');
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toMatchObject({ code: 'tomlNull', params: { path: 'a.b' } });
+  });
 });
 
 describe('detectFormat', () => {

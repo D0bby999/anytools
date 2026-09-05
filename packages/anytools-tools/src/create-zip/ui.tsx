@@ -11,6 +11,7 @@ import {
 } from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type CompressionLevel, type CreateZipResult, createZip } from './logic';
 import { STRINGS } from './strings';
@@ -52,7 +53,7 @@ export function CreateZipUi() {
       setResult(r);
       setUrl(objectUrls.create(r.blob));
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.buildFailed);
+      setError(toolErrorText(e, s, s.buildFailed));
     } finally {
       setBusy(false);
       setPercent(null);

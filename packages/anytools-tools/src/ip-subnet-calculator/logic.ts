@@ -14,7 +14,9 @@ export type SubnetInfo = {
   netmask: string;
   wildcardMask: string;
   prefix: number;
+  /** English label, kept for callers that render it as-is; `ipClassLetter` is the bare id. */
   ipClass: 'A' | 'B' | 'C' | 'D (multicast)' | 'E (reserved)';
+  ipClassLetter: 'A' | 'B' | 'C' | 'D' | 'E';
   isPrivate: boolean;
   binaryNetmask: string;
   binaryAddress: string;
@@ -99,6 +101,7 @@ export function calculateSubnet(cidrOrIp: string, prefixInput?: number): SubnetI
     wildcardMask: formatIpv4(~netmask >>> 0),
     prefix,
     ipClass: classOf(ip),
+    ipClassLetter: classOf(ip)[0] as SubnetInfo['ipClassLetter'],
     isPrivate: isPrivateIp(ip),
     binaryNetmask: toBinaryOctets(netmask),
     binaryAddress: toBinaryOctets(ip),

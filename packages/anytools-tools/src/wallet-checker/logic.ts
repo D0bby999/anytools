@@ -2,9 +2,23 @@ import { getAddress, isAddress } from 'ethers';
 
 export type WalletKind = 'eth' | 'btc' | 'sol' | 'unknown';
 
+/** Stable ids for the subtype labels; the widget maps them to its own language. */
+export type WalletSubtype = 'evmValid' | 'evmMismatch' | 'bech32' | 'legacy' | 'segwitWrapped';
+
+/** Stable ids for the failure reasons; the widget looks up `error_<code>` in its strings. */
+export type WalletErrorCode = 'emptyInput' | 'evmChecksum' | 'unrecognized';
+
 export type WalletInspection =
-  | { valid: true; kind: WalletKind; canonical: string; checksum?: boolean; subtype?: string }
-  | { valid: false; kind: 'unknown'; error: string };
+  | {
+      valid: true;
+      kind: WalletKind;
+      canonical: string;
+      checksum?: boolean;
+      /** English label, kept for callers that render it as-is. */
+      subtype?: string;
+      subtypeId?: WalletSubtype;
+    }
+  | { valid: false; kind: 'unknown'; error: string; code: WalletErrorCode };
 
 const BTC_LEGACY = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/;
 const BTC_BECH32 = /^(bc1|tb1)[a-zA-HJ-NP-Z0-9]{25,62}$/;
@@ -12,7 +26,9 @@ const SOL_BASE58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
 export function inspect(address: string): WalletInspection {
   const trimmed = address.trim();
-  if (trimmed.length === 0) return { valid: false, kind: 'unknown', error: 'Empty input' };
+  if (trimmed.length === 0) {
+    return { valid: false, kind: 'unknown', error: 'Empty input', code: 'emptyInput' };
+  }
 
   // ETH (and other EVM chains share the format)
   if (/^0x[0-9a-fA-F]{40}$/.test(trimmed)) {
@@ -25,9 +41,10 @@ export function inspect(address: string): WalletInspection {
         canonical,
         checksum: trimmed === canonical,
         subtype: checksumValid ? 'EVM (EIP-55 valid)' : 'EVM (checksum mismatch)',
+        subtypeId: checksumValid ? 'evmValid' : 'evmMismatch',
       };
     }
-    return { valid: false, kind: 'unknown', error: 'Invalid EVM checksum' };
+    return { valid: false, kind: 'unknown', error: 'Invalid EVM checksum', code: 'evmChecksum' };
   }
 
   // BTC native segwit (bech32) — distinctive prefix, check first
@@ -37,6 +54,7 @@ export function inspect(address: string): WalletInspection {
       kind: 'btc',
       canonical: trimmed.toLowerCase(),
       subtype: 'bech32 (native segwit)',
+      subtypeId: 'bech32',
     };
   }
   // SOL base58 — disambiguate from BTC legacy by length.
@@ -62,8 +80,14 @@ export function inspect(address: string): WalletInspection {
       kind: 'btc',
       canonical: trimmed,
       subtype: trimmed.startsWith('1') ? 'legacy (P2PKH)' : 'segwit-wrapped (P2SH)',
+      subtypeId: trimmed.startsWith('1') ? 'legacy' : 'segwitWrapped',
     };
   }
 
-  return { valid: false, kind: 'unknown', error: 'Unrecognized address format' };
+  return {
+    valid: false,
+    kind: 'unknown',
+    error: 'Unrecognized address format',
+    code: 'unrecognized',
+  };
 }

@@ -6,6 +6,9 @@ const EN = {
   serverNote:
     'Unlike our other tools, this one does not run in your browser: parsing curl needs server-side native bindings. Your command is sent over HTTPS, parsed, and discarded — never logged or stored. Still, replace any real tokens, cookies or API keys first.',
   curlCommand: 'curl command',
+  // {detail} is the server's own reason, in English; {status} the HTTP status code.
+  error_apiError: '{detail}',
+  error_requestFailed: 'Request failed ({status})',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -16,6 +19,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     serverNote:
       'Khác với các công cụ còn lại, công cụ này không chạy trong trình duyệt: phân tích curl cần thư viện native phía máy chủ. Lệnh của bạn được gửi qua HTTPS, phân tích rồi bỏ đi — không ghi log, không lưu. Dù vậy, hãy thay các token, cookie hay API key thật trước khi dán.',
     curlCommand: 'Lệnh curl',
+    error_apiError: 'Máy chủ từ chối lệnh: {detail}',
+    error_requestFailed: 'Yêu cầu thất bại ({status})',
   },
   es: {
     title: 'Conversor de curl → código',
@@ -23,6 +28,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     serverNote:
       'A diferencia de nuestras otras herramientas, esta no se ejecuta en tu navegador: analizar curl requiere bindings nativos en el servidor. Tu comando se envía por HTTPS, se analiza y se descarta — nunca se registra ni se almacena. Aun así, reemplaza antes cualquier token, cookie o clave de API real.',
     curlCommand: 'Comando curl',
+    error_apiError: 'El servidor rechazó el comando: {detail}',
+    error_requestFailed: 'La solicitud falló ({status})',
   },
   pt: {
     title: 'Conversor de curl → código',
@@ -30,5 +37,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     serverNote:
       'Diferente das nossas outras ferramentas, esta não roda no seu navegador: analisar curl exige bindings nativos no servidor. Seu comando é enviado por HTTPS, analisado e descartado — nunca registrado nem armazenado. Mesmo assim, substitua antes qualquer token, cookie ou chave de API real.',
     curlCommand: 'Comando curl',
+    error_apiError: 'O servidor rejeitou o comando: {detail}',
+    error_requestFailed: 'A solicitação falhou ({status})',
   },
 };

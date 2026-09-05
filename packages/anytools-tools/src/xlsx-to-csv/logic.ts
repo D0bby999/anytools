@@ -13,6 +13,8 @@
  * before anything can be written, and getting one wrong is how a date column ships as `46264`.
  */
 
+import { ToolError } from '../shared/tool-error';
+
 /** Above this the parse blocks the tab noticeably. A warning, not a limit — see the UI. */
 export const SLOW_WORKBOOK_BYTES = 20 * 1024 * 1024;
 
@@ -46,9 +48,9 @@ export type CsvOptions = {
   bom?: boolean;
 };
 
-export class WorkbookError extends Error {
-  constructor(message: string) {
-    super(message);
+export class WorkbookError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'WorkbookError';
   }
 }
@@ -242,6 +244,7 @@ export async function readWorkbookBuffer(data: ArrayBuffer): Promise<SheetData[]
     await workbook.xlsx.load(data);
   } catch {
     throw new WorkbookError(
+      'notXlsx',
       'This file could not be read as .xlsx. Old .xls, .ods and Numbers files are different formats — open one in Excel, LibreOffice or Numbers and save it as .xlsx first.',
     );
   }
@@ -255,7 +258,9 @@ export async function readWorkbookBuffer(data: ArrayBuffer): Promise<SheetData[]
 
     if (cellCount > budget) {
       throw new WorkbookError(
+        'tooManyCells',
         `Sheet "${sheet.name}" covers ${width.toLocaleString('en')} columns by ${height.toLocaleString('en')} rows — ${cellCount.toLocaleString('en')} cells, past the ${MAX_CELLS.toLocaleString('en')} this tool will build in a browser tab. A sheet is usually this wide by accident: one value or one leftover format far to the right of the data stretches it. Select the columns and rows beyond your data in Excel, delete them, save, and try again.`,
+        { sheet: sheet.name, columns: width, rows: height, cells: cellCount, max: MAX_CELLS },
       );
     }
     budget -= cellCount;
@@ -270,16 +275,18 @@ export async function readWorkbookBuffer(data: ArrayBuffer): Promise<SheetData[]
     sheets.push({ name: sheet.name, rows });
   });
 
-  if (sheets.length === 0) throw new WorkbookError('This workbook has no sheets.');
+  if (sheets.length === 0) throw new WorkbookError('noSheets', 'This workbook has no sheets.');
   return sheets;
 }
 
 export async function readWorkbookFile(file: File): Promise<SheetData[]> {
   if (file.size > MAX_WORKBOOK_BYTES) {
+    const size = Math.round(file.size / 1024 / 1024);
+    const max = MAX_WORKBOOK_BYTES / 1024 / 1024;
     throw new WorkbookError(
-      `This workbook is ${Math.round(file.size / 1024 / 1024)} MB. The limit is ${
-        MAX_WORKBOOK_BYTES / 1024 / 1024
-      } MB, because an .xlsx is compressed XML that expands several times over in memory and the tab would run out before it finished. Split the workbook, or delete the sheets you do not need, and try again.`,
+      'tooLarge',
+      `This workbook is ${size} MB. The limit is ${max} MB, because an .xlsx is compressed XML that expands several times over in memory and the tab would run out before it finished. Split the workbook, or delete the sheets you do not need, and try again.`,
+      { size, max },
     );
   }
   return readWorkbookBuffer(await file.arrayBuffer());

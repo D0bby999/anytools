@@ -12,6 +12,8 @@
  * Everything is loaded on demand: the mammoth browser bundle alone is around 700 KB.
  */
 
+import { ToolError } from '../shared/tool-error';
+
 /** Above this the conversion blocks the tab noticeably. A warning, not a limit — see the UI. */
 export const SLOW_DOCX_BYTES = 20 * 1024 * 1024;
 
@@ -45,9 +47,9 @@ export type DocxOptions = {
   includeImages?: boolean;
 };
 
-export class DocxError extends Error {
-  constructor(message: string) {
-    super(message);
+export class DocxError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'DocxError';
   }
 }
@@ -272,10 +274,11 @@ export async function convertDocxBuffer(
   try {
     result = await mammoth.convertToHtml({ arrayBuffer: data }, { convertImage });
   } catch (e) {
+    const detail = e instanceof Error ? e.message : 'unknown error';
     throw new DocxError(
-      `This file could not be read as .docx. The older binary .doc, .rtf, .odt and Apple Pages formats are different files entirely — open one in Word, LibreOffice or Pages and save it as .docx first. (${
-        e instanceof Error ? e.message : 'unknown error'
-      })`,
+      'notDocx',
+      `This file could not be read as .docx. The older binary .doc, .rtf, .odt and Apple Pages formats are different files entirely — open one in Word, LibreOffice or Pages and save it as .docx first. (${detail})`,
+      { detail },
     );
   }
 
@@ -298,10 +301,12 @@ export async function convertDocxFile(
   options: DocxOptions = {},
 ): Promise<DocxConversion> {
   if (file.size > MAX_DOCX_BYTES) {
+    const size = Math.round(file.size / 1024 / 1024);
+    const max = MAX_DOCX_BYTES / 1024 / 1024;
     throw new DocxError(
-      `This document is ${Math.round(file.size / 1024 / 1024)} MB. The limit is ${
-        MAX_DOCX_BYTES / 1024 / 1024
-      } MB, because a .docx is compressed and the unzipped XML, the HTML and the Markdown all have to be held in the tab at once. Split the document, or save a copy with the images removed, and try again.`,
+      'tooLarge',
+      `This document is ${size} MB. The limit is ${max} MB, because a .docx is compressed and the unzipped XML, the HTML and the Markdown all have to be held in the tab at once. Split the document, or save a copy with the images removed, and try again.`,
+      { size, max },
     );
   }
   return convertDocxBuffer(await file.arrayBuffer(), options);

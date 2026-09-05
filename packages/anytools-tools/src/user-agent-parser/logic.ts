@@ -10,6 +10,8 @@
  * of these tables is the algorithm. Treat results as a hint, never as a security control.
  */
 
+import { ToolError } from '../shared/tool-error';
+
 export type UaResult = {
   browser: { name: string; version: string };
   engine: { name: string; version: string };
@@ -71,7 +73,7 @@ function match(rules: Rule[], ua: string): { name: string; version: string } {
 
 export function parseUserAgent(raw: string): UaResult {
   const ua = raw.trim();
-  if (!ua) throw new Error('Paste a User-Agent string.');
+  if (!ua) throw new ToolError('emptyInput', 'Paste a User-Agent string.');
 
   const browser = match(BROWSERS, ua);
   const engine = match(ENGINES, ua);

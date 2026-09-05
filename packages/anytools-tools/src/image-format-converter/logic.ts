@@ -1,3 +1,5 @@
+import { ToolError } from '../shared/tool-error';
+
 export type TargetFormat = 'png' | 'jpeg' | 'webp';
 
 export type ConvertResult = {
@@ -23,7 +25,8 @@ export async function convertImage(
   quality = 0.9,
 ): Promise<ConvertResult> {
   if (file.size > MAX_BYTES) {
-    throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(1)} MB (max 10 MB)`);
+    const size = (file.size / 1024 / 1024).toFixed(1);
+    throw new ToolError('tooLarge', `File too large: ${size} MB (max 10 MB)`, { size, max: 10 });
   }
   const dataUrl = await blobToDataUrl(file);
   const img = await loadImage(dataUrl);
@@ -31,7 +34,7 @@ export async function convertImage(
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas 2D context not available');
+  if (!ctx) throw new ToolError('noCanvas', 'Canvas 2D context not available');
   // JPEG has no alpha: without this a transparent PNG converts onto a black background.
   if (target === 'jpeg') {
     ctx.fillStyle = '#ffffff';
@@ -43,7 +46,13 @@ export async function convertImage(
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (b) =>
-        b ? resolve(b) : reject(new Error(`Encoder for ${target} not supported in this browser`)),
+        b
+          ? resolve(b)
+          : reject(
+              new ToolError('noEncoder', `Encoder for ${target} not supported in this browser`, {
+                format: target,
+              }),
+            ),
       mime,
       target === 'png' ? undefined : quality,
     );
@@ -63,7 +72,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new ToolError('readFailed', 'Failed to read file'));
     reader.readAsDataURL(blob);
   });
 }
@@ -73,7 +82,12 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () =>
-      reject(new Error('Failed to decode image (unsupported format or corrupt file)'));
+      reject(
+        new ToolError(
+          'decodeFailed',
+          'Failed to decode image (unsupported format or corrupt file)',
+        ),
+      );
     img.src = src;
   });
 }

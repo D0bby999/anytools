@@ -5,9 +5,11 @@
  * No third-party source consulted.
  */
 
-export class UrlParseError extends Error {
-  constructor(message: string) {
-    super(message);
+import { ToolError } from '../shared/tool-error';
+
+export class UrlParseError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'UrlParseError';
   }
 }
@@ -42,7 +44,7 @@ const DEFAULT_PORTS: Record<string, string> = {
 
 export function parseUrl(input: string): ParsedUrl {
   const trimmed = input.trim();
-  if (!trimmed) throw new UrlParseError('Enter a URL.');
+  if (!trimmed) throw new UrlParseError('emptyUrl', 'Enter a URL.');
 
   let url: URL;
   try {
@@ -51,12 +53,12 @@ export function parseUrl(input: string): ParsedUrl {
     // The overwhelmingly common mistake is a missing scheme. Retry with https rather than
     // making the user retype, but only when the input has no scheme-like prefix at all.
     if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) {
-      throw new UrlParseError(`"${trimmed}" is not a valid URL.`);
+      throw new UrlParseError('invalidUrl', `"${trimmed}" is not a valid URL.`, { url: trimmed });
     }
     try {
       url = new URL(`https://${trimmed}`);
     } catch {
-      throw new UrlParseError(`"${trimmed}" is not a valid URL.`);
+      throw new UrlParseError('invalidUrl', `"${trimmed}" is not a valid URL.`, { url: trimmed });
     }
   }
 

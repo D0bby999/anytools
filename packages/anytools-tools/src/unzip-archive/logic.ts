@@ -80,7 +80,9 @@ export async function openArchive(file: File, password?: string): Promise<Archiv
   const kind = await detectFileFormat(file);
   if (!kind) {
     throw new ArchiveError(
+      'notArchive',
       `"${file.name}" does not look like a zip, 7z, rar, tar or gzip archive — its first bytes match none of them.`,
+      { name: file.name },
     );
   }
   const budget = createExtractionBudget();
@@ -93,7 +95,10 @@ export async function openArchive(file: File, password?: string): Promise<Archiv
       // Encrypted zips are libarchive's job — and it cannot do anything without the password,
       // so ask before spending a megabyte of WebAssembly on a certain failure.
       if (!password) {
-        throw new ArchiveError('This zip is encrypted. Enter its password and open it again.');
+        throw new ArchiveError(
+          'zipEncrypted',
+          'This zip is encrypted. Enter its password and open it again.',
+        );
       }
     }
   }

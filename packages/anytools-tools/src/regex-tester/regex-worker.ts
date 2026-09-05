@@ -40,7 +40,7 @@ export function runRegexInWorker(
     }
     const timer = setTimeout(() => {
       worker.terminate();
-      resolve({ ok: false, error: TIMEOUT_ERROR });
+      resolve({ ok: false, error: TIMEOUT_ERROR, code: 'timeout' });
     }, timeoutMs);
     worker.onmessage = (e: MessageEvent<RegexJobResult>) => {
       clearTimeout(timer);

@@ -9,6 +9,7 @@ import {
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { parseUrl } from './logic';
 import { STRINGS } from './strings';
 
@@ -22,9 +23,9 @@ export function UrlParserUi() {
     try {
       return { url: parseUrl(input), error: null as string | null };
     } catch (e) {
-      return { url: null, error: e instanceof Error ? e.message : s.invalidUrl };
+      return { url: null, error: toolErrorText(e, s, s.invalidUrl) };
     }
-  }, [input, s.invalidUrl]);
+  }, [input, s]);
 
   const rows = state.url
     ? (

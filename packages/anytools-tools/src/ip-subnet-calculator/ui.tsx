@@ -56,7 +56,16 @@ export function IpSubnetCalculatorUi() {
                 { label: s.totalAddresses, value: info.totalAddresses.toLocaleString(locale) },
                 { label: s.netmask, value: info.netmask },
                 { label: s.wildcardMask, value: info.wildcardMask },
-                { label: s.ipClass, value: info.ipClass },
+                {
+                  label: s.ipClass,
+                  // D and E carry a note; logic labels it in English, the strings table here.
+                  value:
+                    info.ipClassLetter === 'D'
+                      ? s.classMulticast
+                      : info.ipClassLetter === 'E'
+                        ? s.classReserved
+                        : info.ipClassLetter,
+                },
                 { label: s.scope, value: info.isPrivate ? s.privateScope : s.publicScope },
               ]}
             />

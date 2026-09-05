@@ -19,6 +19,8 @@ const EN = {
   value: 'Value',
   empty: '(empty)',
   invalidUrl: 'Invalid URL',
+  error_emptyUrl: 'Enter a URL.',
+  error_invalidUrl: '"{url}" is not a valid URL.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -42,6 +44,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     value: 'Giá trị',
     empty: '(trống)',
     invalidUrl: 'URL không hợp lệ',
+    error_emptyUrl: 'Nhập một URL.',
+    error_invalidUrl: '"{url}" không phải là URL hợp lệ.',
   },
   es: {
     title: 'Analizador de URL',
@@ -62,6 +66,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     value: 'Valor',
     empty: '(vacío)',
     invalidUrl: 'URL no válida',
+    error_emptyUrl: 'Introduce una URL.',
+    error_invalidUrl: '"{url}" no es una URL válida.',
   },
   pt: {
     title: 'Analisador de URL',
@@ -82,5 +88,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     value: 'Valor',
     empty: '(vazio)',
     invalidUrl: 'URL inválida',
+    error_emptyUrl: 'Digite uma URL.',
+    error_invalidUrl: '"{url}" não é uma URL válida.',
   },
 };

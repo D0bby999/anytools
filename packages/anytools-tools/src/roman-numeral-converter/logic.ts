@@ -3,9 +3,11 @@
  * Implemented from the standard subtractive notation rules; no third-party source consulted.
  */
 
-export class RomanError extends Error {
-  constructor(message: string) {
-    super(message);
+import { ToolError } from '../shared/tool-error';
+
+export class RomanError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'RomanError';
   }
 }
@@ -34,10 +36,14 @@ const TABLE: [number, string][] = [
 const VALUES: Record<string, number> = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
 
 export function toRoman(n: number): string {
-  if (!Number.isInteger(n)) throw new RomanError('Roman numerals represent whole numbers only.');
+  if (!Number.isInteger(n)) {
+    throw new RomanError('notInteger', 'Roman numerals represent whole numbers only.');
+  }
   if (n < MIN_ROMAN || n > MAX_ROMAN) {
     throw new RomanError(
+      'outOfRange',
       `Standard Roman numerals cover ${MIN_ROMAN} to ${MAX_ROMAN}. There is no symbol above M, so larger numbers need overlines this tool does not produce.`,
+      { min: MIN_ROMAN, max: MAX_ROMAN },
     );
   }
   let rest = n;
@@ -53,9 +59,11 @@ export function toRoman(n: number): string {
 
 export function fromRoman(input: string): number {
   const s = input.trim().toUpperCase();
-  if (!s) throw new RomanError('Enter a Roman numeral.');
+  if (!s) throw new RomanError('empty', 'Enter a Roman numeral.');
   for (const ch of s) {
-    if (!(ch in VALUES)) throw new RomanError(`"${ch}" is not a Roman numeral symbol.`);
+    if (!(ch in VALUES)) {
+      throw new RomanError('badSymbol', `"${ch}" is not a Roman numeral symbol.`, { char: ch });
+    }
   }
 
   let total = 0;
@@ -69,13 +77,18 @@ export function fromRoman(input: string): number {
   // Round-trip as the validity check. It is the only rule that rejects IIII, IM, VX and
   // XXXX at once, and it cannot disagree with toRoman by construction.
   if (total < MIN_ROMAN || total > MAX_ROMAN || toRoman(total) !== s) {
-    throw new RomanError(
-      `"${input.trim()}" is not valid standard notation.${
-        total >= MIN_ROMAN && total <= MAX_ROMAN
-          ? ` Did you mean ${toRoman(total)} (${total})?`
-          : ''
-      }`,
-    );
+    const typed = input.trim();
+    if (total >= MIN_ROMAN && total <= MAX_ROMAN) {
+      const suggestion = toRoman(total);
+      throw new RomanError(
+        'notStandardSuggest',
+        `"${typed}" is not valid standard notation. Did you mean ${suggestion} (${total})?`,
+        { input: typed, suggestion, value: total },
+      );
+    }
+    throw new RomanError('notStandard', `"${typed}" is not valid standard notation.`, {
+      input: typed,
+    });
   }
   return total;
 }

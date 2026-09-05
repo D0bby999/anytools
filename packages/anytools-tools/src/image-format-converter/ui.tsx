@@ -9,6 +9,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { type ConvertResult, type TargetFormat, convertImage } from './logic';
 import { STRINGS } from './strings';
 
@@ -50,7 +51,7 @@ export function ImageFormatConverterUi() {
       .catch((e) => {
         if (cancelled) return;
         setResult(null);
-        setError(e instanceof Error ? e.message : ui.conversionFailed);
+        setError(toolErrorText(e, s, ui.conversionFailed));
       })
       .finally(() => {
         if (!cancelled) setBusy(false);
@@ -58,7 +59,7 @@ export function ImageFormatConverterUi() {
     return () => {
       cancelled = true;
     };
-  }, [file, target, quality, ui.conversionFailed]);
+  }, [file, target, quality, s, ui.conversionFailed]);
 
   // Cleanup object URL on unmount
   useEffect(

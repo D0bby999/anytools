@@ -47,7 +47,10 @@ describe('sessionFromReader, close-on-failure', () => {
     await expect(sessionFromReader(reader, budget(), 'wrong')).rejects.toThrow(
       /That password did not open the archive/,
     );
-    expect(closes()).toBe(1);
+    await expect(sessionFromReader(reader, budget(), 'wrong')).rejects.toMatchObject({
+      code: 'wrongPassword',
+    });
+    expect(closes()).toBe(2);
   });
 
   it('closes the reader when listing fails', async () => {
@@ -57,7 +60,11 @@ describe('sessionFromReader, close-on-failure', () => {
       },
     });
     await expect(sessionFromReader(reader, budget())).rejects.toThrow(/could not be read/);
-    expect(closes()).toBe(1);
+    await expect(sessionFromReader(reader, budget())).rejects.toMatchObject({
+      code: 'unsupportedVariant',
+      params: { detail: 'Unrecognized archive format' },
+    });
+    expect(closes()).toBe(2);
   });
 
   it('closes the reader when the archive is past the size ceiling', async () => {
@@ -134,5 +141,9 @@ describe('sessionFromReader, listing', () => {
     const { reader } = fakeReader({ entries: [entry('', 'a.txt', 1)] });
     const session = await sessionFromReader(reader, budget());
     await expect(session.extract('nope.txt')).rejects.toThrow(/is not in this archive/);
+    await expect(session.extract('nope.txt')).rejects.toMatchObject({
+      code: 'notInArchive',
+      params: { path: 'nope.txt' },
+    });
   });
 });

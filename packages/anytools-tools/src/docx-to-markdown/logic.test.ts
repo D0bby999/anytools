@@ -332,6 +332,7 @@ describe('convertDocxBuffer', () => {
     const notAZip = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer;
     await expect(convertDocxBuffer(notAZip)).rejects.toBeInstanceOf(DocxError);
     await expect(convertDocxBuffer(notAZip)).rejects.toThrow(/\.doc\b[\s\S]*\.odt/);
+    await expect(convertDocxBuffer(notAZip)).rejects.toMatchObject({ code: 'notDocx' });
   });
 
   it('keeps every cell of a Word table with merged header and body cells', async () => {
@@ -371,6 +372,10 @@ describe('convertDocxFile', () => {
     } as unknown as File;
     await expect(convertDocxFile(file)).rejects.toBeInstanceOf(DocxError);
     await expect(convertDocxFile(file)).rejects.toThrow(/50 MB/);
+    await expect(convertDocxFile(file)).rejects.toMatchObject({
+      code: 'tooLarge',
+      params: { size: 50, max: 50 },
+    });
     expect(read).toBe(false);
   });
 

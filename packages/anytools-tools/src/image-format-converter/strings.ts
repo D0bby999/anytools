@@ -10,6 +10,12 @@ const EN = {
   smaller: 'smaller',
   convertedPreview: 'Converted preview',
   downloadFile: 'Download {name}',
+  // {size} in MB with one decimal, {max} in MB; {format} is png / jpeg / webp.
+  error_tooLarge: 'File too large: {size} MB (max {max} MB)',
+  error_noCanvas: 'Canvas 2D context not available',
+  error_noEncoder: 'Encoder for {format} not supported in this browser',
+  error_readFailed: 'Failed to read file',
+  error_decodeFailed: 'Failed to decode image (unsupported format or corrupt file)',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -24,6 +30,11 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     smaller: 'nhỏ hơn',
     convertedPreview: 'Xem trước ảnh đã chuyển',
     downloadFile: 'Tải {name}',
+    error_tooLarge: 'Tệp quá lớn: {size} MB (tối đa {max} MB)',
+    error_noCanvas: 'Không có canvas 2D context',
+    error_noEncoder: 'Trình duyệt này không hỗ trợ mã hoá {format}',
+    error_readFailed: 'Không đọc được tệp',
+    error_decodeFailed: 'Không giải mã được ảnh (định dạng không hỗ trợ hoặc tệp hỏng)',
   },
   es: {
     title: 'Conversor de formato de imagen',
@@ -35,6 +46,11 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     smaller: 'más pequeño',
     convertedPreview: 'Vista previa convertida',
     downloadFile: 'Descargar {name}',
+    error_tooLarge: 'Archivo demasiado grande: {size} MB (máx. {max} MB)',
+    error_noCanvas: 'Contexto 2D de canvas no disponible',
+    error_noEncoder: 'Este navegador no admite el codificador de {format}',
+    error_readFailed: 'No se pudo leer el archivo',
+    error_decodeFailed: 'No se pudo decodificar la imagen (formato no admitido o archivo dañado)',
   },
   pt: {
     title: 'Conversor de formato de imagem',
@@ -46,5 +62,11 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     smaller: 'menor',
     convertedPreview: 'Pré-visualização convertida',
     downloadFile: 'Baixar {name}',
+    error_tooLarge: 'Arquivo muito grande: {size} MB (máx. {max} MB)',
+    error_noCanvas: 'Contexto 2D do canvas não disponível',
+    error_noEncoder: 'Este navegador não suporta o codificador de {format}',
+    error_readFailed: 'Não foi possível ler o arquivo',
+    error_decodeFailed:
+      'Não foi possível decodificar a imagem (formato não suportado ou arquivo corrompido)',
   },
 };

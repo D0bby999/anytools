@@ -33,4 +33,19 @@ describe('inspect', () => {
   it('garbage', () => {
     expect(inspect('hello world').valid).toBe(false);
   });
+  it('failures carry a code and successes a subtype id', () => {
+    expect(inspect('   ')).toMatchObject({ valid: false, code: 'emptyInput' });
+    expect(inspect('0x52908400098527886E0F7030069857D2E4169Ee7')).toMatchObject({
+      code: 'evmChecksum',
+      error: 'Invalid EVM checksum',
+    });
+    expect(inspect('hello world')).toMatchObject({ code: 'unrecognized' });
+    expect(inspect('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa')).toMatchObject({ subtypeId: 'legacy' });
+    expect(inspect('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')).toMatchObject({
+      subtypeId: 'bech32',
+    });
+    expect(inspect('0x52908400098527886E0F7030069857D2E4169EE7')).toMatchObject({
+      subtypeId: 'evmValid',
+    });
+  });
 });

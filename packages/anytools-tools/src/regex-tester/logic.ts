@@ -1,4 +1,4 @@
-import { type RegexJobMatch, runRegexJob } from './regex-job';
+import { type RegexJobErrorCode, type RegexJobMatch, runRegexJob } from './regex-job';
 
 export type RegexFlags = {
   global: boolean;
@@ -11,9 +11,12 @@ export type RegexFlags = {
 
 export type Match = RegexJobMatch;
 
-export type TestResult =
-  | { ok: true; matches: Match[]; replaced?: string }
-  | { ok: false; error: string };
+export type RegexErrorCode = RegexJobErrorCode;
+
+/** `code` names the failure for the widget's strings table; `error` is the English text. */
+export type RegexFailure = { ok: false; error: string; code: RegexErrorCode };
+
+export type TestResult = { ok: true; matches: Match[]; replaced?: string } | RegexFailure;
 
 export function flagString(flags: RegexFlags): string {
   let s = '';
@@ -29,11 +32,15 @@ export function flagString(flags: RegexFlags): string {
 export function buildRegex(
   pattern: string,
   flags: RegexFlags,
-): { ok: true; re: RegExp } | { ok: false; error: string } {
+): { ok: true; re: RegExp } | RegexFailure {
   try {
     return { ok: true, re: new RegExp(pattern, flagString(flags)) };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : 'Invalid regex' };
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : 'Invalid regex',
+      code: 'invalidRegex',
+    };
   }
 }
 
@@ -47,7 +54,7 @@ export function replaceRegex(
   flags: RegexFlags,
   text: string,
   replacement: string,
-): { ok: true; result: string } | { ok: false; error: string } {
+): { ok: true; result: string } | RegexFailure {
   const result = runRegexJob({ pattern, flags: flagString(flags), text, replacement });
   if (!result.ok) return result;
   return { ok: true, result: result.replaced ?? text };

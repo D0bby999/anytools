@@ -12,9 +12,11 @@
  *      counting real output catches it.
  */
 
-export class ArchiveError extends Error {
-  constructor(message: string) {
-    super(message);
+import { ToolError } from '../shared/tool-error';
+
+export class ArchiveError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'ArchiveError';
   }
 }
@@ -62,7 +64,9 @@ export function enforceArchiveLimits(
   const count = Math.max(entries.length, declaredEntryCount);
   if (count > MAX_ENTRIES) {
     throw new ArchiveError(
+      'tooManyEntries',
       `This archive declares ${count.toLocaleString()} entries; the limit is ${MAX_ENTRIES.toLocaleString()}. It is refused rather than opened — an archive that shape is usually a zip bomb.`,
+      { count, max: MAX_ENTRIES },
     );
   }
   let total = 0;
@@ -73,13 +77,17 @@ export function enforceArchiveLimits(
     // first, so anything still negative here is a size nobody can vouch for.
     if (!Number.isFinite(entry.size) || entry.size < 0) {
       throw new ArchiveError(
+        'unknownEntrySize',
         `Entry ${i + 1} of ${entries.length} does not state a size this reader can make sense of, so there is no way to know what opening it would cost. It is refused rather than opened.`,
+        { index: i + 1, total: entries.length },
       );
     }
     total += entry.size;
     if (total > MAX_TOTAL_BYTES) {
       throw new ArchiveError(
+        'declaredTooBig',
         `This archive unpacks to more than 2 GB (past the limit at entry ${i + 1} of ${entries.length}). It is refused rather than opened — extracting it would run this tab out of memory.`,
+        { index: i + 1, total: entries.length },
       );
     }
   }
@@ -106,7 +114,9 @@ export function createExtractionBudget(limit: number = MAX_TOTAL_BYTES): Extract
       used += Math.max(0, bytes);
       if (used > limit) {
         throw new ArchiveError(
+          'budgetExceeded',
           `Extraction stopped: this archive has already produced more than ${ceilingLabel(limit)}, whatever its directory claimed. A file that decompresses far past its declared size is the definition of a zip bomb.`,
+          { limit: ceilingLabel(limit) },
         );
       }
     },

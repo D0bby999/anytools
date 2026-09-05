@@ -17,6 +17,14 @@ const EN = {
   readWorkbook: 'Read workbook',
   readFailed: 'Could not read this workbook',
   zipFailed: 'Could not build the zip',
+  error_notXlsx:
+    'This file could not be read as .xlsx. Old .xls, .ods and Numbers files are different formats — open one in Excel, LibreOffice or Numbers and save it as .xlsx first.',
+  // {sheet} name; {columns} {rows} {cells} {max} are plain numbers.
+  error_tooManyCells:
+    'Sheet "{sheet}" covers {columns} columns by {rows} rows — {cells} cells, past the {max} this tool will build in a browser tab. A sheet is usually this wide by accident: one value or one leftover format far to the right of the data stretches it. Select the columns and rows beyond your data in Excel, delete them, save, and try again.',
+  error_noSheets: 'This workbook has no sheets.',
+  error_tooLarge:
+    'This workbook is {size} MB. The limit is {max} MB, because an .xlsx is compressed XML that expands several times over in memory and the tab would run out before it finished. Split the workbook, or delete the sheets you do not need, and try again.',
   sheetLabel: 'Sheet ({n} in this workbook)',
   rowOne: '{n} row',
   rowMany: '{n} rows',
@@ -53,6 +61,13 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     readWorkbook: 'Đọc bảng tính',
     readFailed: 'Không đọc được bảng tính này',
     zipFailed: 'Không tạo được file zip',
+    error_notXlsx:
+      'Không đọc được tệp này dưới dạng .xlsx. Các tệp .xls cũ, .ods và Numbers là định dạng khác — hãy mở trong Excel, LibreOffice hoặc Numbers rồi lưu thành .xlsx trước.',
+    error_tooManyCells:
+      'Sheet "{sheet}" trải rộng {columns} cột × {rows} hàng — {cells} ô, vượt mức {max} mà công cụ này dựng được trong tab trình duyệt. Sheet thường rộng như vậy do vô ý: một giá trị hay một định dạng còn sót ở tít bên phải dữ liệu kéo nó ra. Hãy chọn các cột và hàng ngoài vùng dữ liệu trong Excel, xoá đi, lưu rồi thử lại.',
+    error_noSheets: 'Bảng tính này không có sheet nào.',
+    error_tooLarge:
+      'Bảng tính này nặng {size} MB. Giới hạn là {max} MB, vì file .xlsx là XML nén, khi phân tích sẽ nở ra gấp nhiều lần trong bộ nhớ nên tab sẽ hết bộ nhớ trước khi xong. Hãy tách bảng tính, hoặc xoá các sheet không cần, rồi thử lại.',
     sheetLabel: 'Sheet ({n} sheet trong bảng tính)',
     rowOne: '{n} dòng',
     rowMany: '{n} dòng',
@@ -86,6 +101,13 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     readWorkbook: 'Leer libro',
     readFailed: 'No se pudo leer este libro',
     zipFailed: 'No se pudo crear el zip',
+    error_notXlsx:
+      'Este archivo no se pudo leer como .xlsx. Los antiguos .xls, .ods y los archivos de Numbers son formatos distintos — ábrelo en Excel, LibreOffice o Numbers y guárdalo como .xlsx primero.',
+    error_tooManyCells:
+      'La hoja "{sheet}" abarca {columns} columnas por {rows} filas — {cells} celdas, más de las {max} que esta herramienta construye en una pestaña del navegador. Una hoja suele ser así de ancha por accidente: un valor o un formato olvidado muy a la derecha de los datos la estira. Selecciona en Excel las columnas y filas más allá de tus datos, elimínalas, guarda e inténtalo de nuevo.',
+    error_noSheets: 'Este libro no tiene hojas.',
+    error_tooLarge:
+      'Este libro pesa {size} MB. El límite es {max} MB, porque un .xlsx es XML comprimido que se expande varias veces en memoria y la pestaña se quedaría sin ella antes de terminar. Divide el libro, o elimina las hojas que no necesites, e inténtalo de nuevo.',
     sheetLabel: 'Hoja ({n} en este libro)',
     rowOne: '{n} fila',
     rowMany: '{n} filas',
@@ -119,6 +141,13 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     readWorkbook: 'Ler pasta de trabalho',
     readFailed: 'Não foi possível ler esta pasta de trabalho',
     zipFailed: 'Não foi possível criar o zip',
+    error_notXlsx:
+      'Este arquivo não pôde ser lido como .xlsx. Os antigos .xls, .ods e arquivos do Numbers são formatos diferentes — abra-o no Excel, LibreOffice ou Numbers e salve como .xlsx primeiro.',
+    error_tooManyCells:
+      'A planilha "{sheet}" cobre {columns} colunas por {rows} linhas — {cells} células, além das {max} que esta ferramenta constrói em uma aba do navegador. Uma planilha costuma ficar assim larga por acidente: um valor ou um formato esquecido bem à direita dos dados a estica. Selecione no Excel as colunas e linhas além dos seus dados, exclua-as, salve e tente novamente.',
+    error_noSheets: 'Esta pasta de trabalho não tem planilhas.',
+    error_tooLarge:
+      'Esta pasta de trabalho tem {size} MB. O limite é {max} MB, porque um .xlsx é XML compactado que se expande várias vezes na memória e a aba ficaria sem memória antes de terminar. Divida a pasta de trabalho, ou exclua as planilhas de que não precisa, e tente novamente.',
     sheetLabel: 'Planilha ({n} nesta pasta de trabalho)',
     rowOne: '{n} linha',
     rowMany: '{n} linhas',

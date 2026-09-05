@@ -19,13 +19,13 @@ export function WalletCheckerUi() {
   const [address, setAddress] = useState('');
   const result = useMemo(() => (address ? inspect(address) : null), [address]);
 
-  // logic.ts names subtypes in English; map them by exact text, falling back to the original.
+  // logic.ts labels subtypes in English; its stable ids pick the label in this language.
   const subtypeLabel: Record<string, string> = {
-    'EVM (EIP-55 valid)': s.evmValid,
-    'EVM (checksum mismatch)': s.evmMismatch,
-    'bech32 (native segwit)': s.bech32,
-    'legacy (P2PKH)': s.legacy,
-    'segwit-wrapped (P2SH)': s.segwitWrapped,
+    evmValid: s.evmValid,
+    evmMismatch: s.evmMismatch,
+    bech32: s.bech32,
+    legacy: s.legacy,
+    segwitWrapped: s.segwitWrapped,
   };
 
   return (
@@ -47,7 +47,7 @@ export function WalletCheckerUi() {
                 <Badge>{result.kind.toUpperCase()}</Badge>
                 {result.subtype && (
                   <Badge variant="secondary">
-                    {subtypeLabel[result.subtype] ?? result.subtype}
+                    {(result.subtypeId && subtypeLabel[result.subtypeId]) ?? result.subtype}
                   </Badge>
                 )}
                 {result.checksum && <Badge variant="default">{s.checksum}</Badge>}
@@ -64,7 +64,7 @@ export function WalletCheckerUi() {
             </div>
           ) : (
             <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {result.error}
+              {s[`error_${result.code}`] ?? result.error}
             </output>
           ))}
         <PrivacyNote message={s.privacy} />

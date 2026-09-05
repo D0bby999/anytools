@@ -62,6 +62,7 @@ describe('parseUserAgent', () => {
 
   it('rejects empty input', () => {
     expect(() => parseUserAgent('   ')).toThrow(/Paste a User-Agent/);
+    expect(() => parseUserAgent('   ')).toThrow(expect.objectContaining({ code: 'emptyInput' }));
   });
 
   it('degrades to Unknown rather than guessing on nonsense', () => {

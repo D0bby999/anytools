@@ -57,6 +57,26 @@ describe('fromRoman', () => {
     expect(() => fromRoman('')).toThrow(/Enter a Roman numeral/);
   });
 
+  it('carries codes and params so the widget can localize', () => {
+    expect(() => toRoman(4000)).toThrow(
+      expect.objectContaining({ code: 'outOfRange', params: { min: 1, max: MAX_ROMAN } }),
+    );
+    expect(() => toRoman(1.5)).toThrow(expect.objectContaining({ code: 'notInteger' }));
+    expect(() => fromRoman('')).toThrow(expect.objectContaining({ code: 'empty' }));
+    expect(() => fromRoman('ABC')).toThrow(
+      expect.objectContaining({ code: 'badSymbol', params: { char: 'A' } }),
+    );
+    expect(() => fromRoman('IIII')).toThrow(
+      expect.objectContaining({
+        code: 'notStandardSuggest',
+        params: { input: 'IIII', suggestion: 'IV', value: 4 },
+      }),
+    );
+    expect(() => fromRoman('MMMMM')).toThrow(
+      expect.objectContaining({ code: 'notStandard', params: { input: 'MMMMM' } }),
+    );
+  });
+
   it('round-trips the whole valid range', () => {
     for (let n = 1; n <= MAX_ROMAN; n++) expect(fromRoman(toRoman(n))).toBe(n);
   });

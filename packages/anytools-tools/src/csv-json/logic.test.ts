@@ -15,6 +15,19 @@ describe('csvToJson', () => {
     const out = csvToJson('a\tb\n1\t2') as { a: number; b: number }[];
     expect(out[0]).toEqual({ a: 1, b: 2 });
   });
+  it('carries a code and the parser reason when nothing could be read', () => {
+    let caught: unknown;
+    try {
+      csvToJson('"unterminated');
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toMatchObject({
+      code: 'csvParse',
+      message: 'Quoted field unterminated',
+      params: { detail: 'Quoted field unterminated' },
+    });
+  });
 });
 
 describe('jsonToCsv', () => {

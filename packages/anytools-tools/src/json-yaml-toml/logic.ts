@@ -1,5 +1,6 @@
 import TOML from '@iarna/toml';
 import YAML from 'yaml';
+import { ToolError } from '../shared/tool-error';
 
 export type Format = 'json' | 'yaml' | 'toml';
 
@@ -18,8 +19,10 @@ export function stringifyFormat(value: unknown, format: Format): string {
   if (nullPath !== null) {
     // @iarna/toml's own message for this is "Array values can't have mixed types" or a stack
     // trace, neither of which says what the problem is.
-    throw new Error(
+    throw new ToolError(
+      'tomlNull',
       `TOML has no null value, and "${nullPath || '(root)'}" is null. Remove the key or give it a value before converting.`,
+      { path: nullPath || '(root)' },
     );
   }
   return TOML.stringify(value as TOML.JsonMap);

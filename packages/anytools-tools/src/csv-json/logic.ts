@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { ToolError } from '../shared/tool-error';
 
 export type CsvOptions = {
   delimiter?: string;
@@ -29,7 +30,8 @@ export function csvToJson(csv: string, options: CsvOptions = {}): unknown[] {
     transform: typeField,
   });
   if (result.errors.length > 0 && !result.data.length) {
-    throw new Error(result.errors[0]?.message ?? 'Parse failed');
+    const detail = result.errors[0]?.message ?? 'Parse failed';
+    throw new ToolError('csvParse', detail, { detail });
   }
   return result.data;
 }

@@ -1,3 +1,5 @@
+import { ToolError } from '../shared/tool-error';
+
 export type Target = 'fetch' | 'node-fetch' | 'python' | 'php' | 'go';
 
 export async function convertCurl(curl: string, target: Target): Promise<string> {
@@ -8,7 +10,8 @@ export async function convertCurl(curl: string, target: Target): Promise<string>
   });
   const data = (await res.json()) as { code?: string; error?: string };
   if (!res.ok) {
-    throw new Error(data.error || `Request failed (${res.status})`);
+    if (data.error) throw new ToolError('apiError', data.error, { detail: data.error });
+    throw new ToolError('requestFailed', `Request failed (${res.status})`, { status: res.status });
   }
   return data.code ?? '';
 }

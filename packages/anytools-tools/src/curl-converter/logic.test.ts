@@ -35,6 +35,23 @@ describe('convertCurl (API client)', () => {
     await expect(convertCurl('not a curl', 'fetch')).rejects.toThrow('Parse failed');
   });
 
+  it('carries a code and params so the widget can localize', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 422,
+      json: async () => ({ error: 'Parse failed' }),
+    });
+    await expect(convertCurl('not a curl', 'fetch')).rejects.toMatchObject({
+      code: 'apiError',
+      params: { detail: 'Parse failed' },
+    });
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) });
+    await expect(convertCurl('curl x', 'python')).rejects.toMatchObject({
+      code: 'requestFailed',
+      params: { status: 500 },
+    });
+  });
+
   it('throws on missing code with no error message', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,

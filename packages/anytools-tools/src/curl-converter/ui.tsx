@@ -10,6 +10,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { type Target, convertCurl } from './logic';
 import { STRINGS } from './strings';
 
@@ -41,13 +42,12 @@ export function CurlConverterUi() {
         if (!cancelled) setResult({ ok: true, value });
       })
       .catch((e) => {
-        if (!cancelled)
-          setResult({ ok: false, error: e instanceof Error ? e.message : ui.conversionFailed });
+        if (!cancelled) setResult({ ok: false, error: toolErrorText(e, s, ui.conversionFailed) });
       });
     return () => {
       cancelled = true;
     };
-  }, [curl, target, ui.conversionFailed]);
+  }, [curl, target, s, ui.conversionFailed]);
 
   return (
     <Card>

@@ -13,6 +13,10 @@ describe('convertImage size guard', () => {
     const big = new Blob(['x'], { type: 'image/png' });
     Object.defineProperty(big, 'size', { value: MAX_BYTES + 1, configurable: true });
     await expect(convertImage(big, 'png')).rejects.toThrow(/too large/i);
+    await expect(convertImage(big, 'png')).rejects.toMatchObject({
+      code: 'tooLarge',
+      params: { size: '10.0', max: 10 },
+    });
   });
 });
 

@@ -12,6 +12,7 @@ import {
 } from '@anytools/ui';
 import { useEffect, useRef, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ArchiveSession, openArchive, repackAll } from './logic';
 import { STRINGS } from './strings';
@@ -81,7 +82,7 @@ export function UnzipArchiveUi() {
       // sitting in this component's state (and in the form field) for the rest of the visit.
       setPassword('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.readFailed);
+      setError(toolErrorText(e, s, s.readFailed));
     } finally {
       setBusy(false);
     }
@@ -102,7 +103,7 @@ export function UnzipArchiveUi() {
       // every file the user has already saved.
       setTimeout(() => objectUrls.revoke(url), 30_000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.extractFailed.replace('{path}', path));
+      setError(toolErrorText(e, s, s.extractFailed.replace('{path}', path)));
     }
   };
 
@@ -118,7 +119,7 @@ export function UnzipArchiveUi() {
       setStatus(null);
     } catch (e) {
       setStatus(null);
-      setError(e instanceof Error ? e.message : s.repackFailed);
+      setError(toolErrorText(e, s, s.repackFailed));
     } finally {
       setBusy(false);
     }

@@ -63,6 +63,18 @@ describe('calculateSubnet', () => {
       totalAddresses: 2 ** 32,
       isPrivate: false,
       ipClass: 'A',
+      ipClassLetter: 'A',
+    });
+  });
+
+  it('exposes the bare class letter beside the annotated label', () => {
+    expect(calculateSubnet('224.0.0.1/24')).toMatchObject({
+      ipClass: 'D (multicast)',
+      ipClassLetter: 'D',
+    });
+    expect(calculateSubnet('240.0.0.1/24')).toMatchObject({
+      ipClass: 'E (reserved)',
+      ipClassLetter: 'E',
     });
   });
 

@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { richText } from '../shared/rich-text';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type DocxConversion,
@@ -87,7 +88,7 @@ export function DocxToMarkdownUi() {
       setResult(await convertDocxFile(file, { includeImages }));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : s.readFailed);
+      setError(toolErrorText(e, s, s.readFailed));
     } finally {
       setBusy(false);
     }

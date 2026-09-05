@@ -6,6 +6,7 @@
  * library is ~100 KB and nobody who lands on the page and reads the FAQ should pay for it.
  */
 import { deduplicatePaths, normaliseArchivePath } from '../shared/archive-path';
+import { ToolError } from '../shared/tool-error';
 
 /** DEFLATE levels as jszip exposes them. 0 means "store", which jszip spells differently. */
 export type CompressionLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -24,9 +25,9 @@ export type CreateZipResult = {
   outputBytes: number;
 };
 
-export class CreateZipError extends Error {
-  constructor(message: string) {
-    super(message);
+export class CreateZipError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'CreateZipError';
   }
 }
@@ -70,12 +71,14 @@ export async function createZip(
   options: CreateZipOptions,
   onProgress?: (percent: number) => void,
 ): Promise<CreateZipResult> {
-  if (files.length === 0) throw new CreateZipError('Choose at least one file to zip.');
+  if (files.length === 0) throw new CreateZipError('noFiles', 'Choose at least one file to zip.');
 
   const inputBytes = files.reduce((n, f) => n + f.size, 0);
   if (inputBytes >= MAX_TOTAL_INPUT_BYTES) {
     throw new CreateZipError(
+      'tooLarge',
       `These files come to ${fmtGb(inputBytes)}, and a zip written here has to stay under ${fmtGb(MAX_TOTAL_INPUT_BYTES)}: the format's size fields are 32-bit and this writer does not emit the ZIP64 records that extend them. Past that point the archive would be silently corrupt, so it is refused instead. Zip them in two batches, or use a desktop archiver.`,
+      { size: fmtGb(inputBytes), max: fmtGb(MAX_TOTAL_INPUT_BYTES) },
     );
   }
 

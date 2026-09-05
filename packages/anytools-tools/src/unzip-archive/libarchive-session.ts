@@ -80,11 +80,19 @@ async function closeQuietly(reader: Pick<LibarchiveReader, 'close'>): Promise<vo
  * `dispose` matters on the timeout path: the value can still arrive after we have given up, and
  * for `Archive.open` that value is a live worker. Without this it would run until the tab closes.
  */
+/** The two waits with a deadline; each has its own message and code. */
+const TIMEOUT_STEPS = {
+  opening: { code: 'openTimeout', what: 'Opening the archive' },
+  listing: { code: 'listTimeout', what: 'Reading the file list' },
+} as const;
+
 async function withTimeout<T>(
   work: Promise<T>,
-  what: string,
+  step: keyof typeof TIMEOUT_STEPS,
   dispose?: (value: T) => void,
 ): Promise<T> {
+  const { code, what } = TIMEOUT_STEPS[step];
+  const seconds = START_TIMEOUT_MS / 1000;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let arrived = false;
   try {
@@ -97,8 +105,10 @@ async function withTimeout<T>(
         timer = setTimeout(
           () =>
             reject(
-              new Error(
-                `${what} did not finish within ${START_TIMEOUT_MS / 1000} seconds. The archive engine may have failed to start — that is a bug on our side, not a problem with your file.`,
+              new ArchiveError(
+                code,
+                `${what} did not finish within ${seconds} seconds. The archive engine may have failed to start — that is a bug on our side, not a problem with your file.`,
+                { seconds },
               ),
             ),
           START_TIMEOUT_MS,
@@ -116,18 +126,26 @@ function readable(e: unknown, hadPassword: boolean): Error {
   if (e instanceof ArchiveError) return e;
   const message = e instanceof Error ? e.message : String(e);
   if (/passphrase|password|encrypt/i.test(message)) {
-    return new Error(
-      hadPassword
-        ? 'That password did not open the archive. Check it and try again — for RAR files, note that a file list can be readable while the contents are not.'
-        : 'This archive is encrypted. Enter its password and open it again.',
-    );
+    return hadPassword
+      ? new ArchiveError(
+          'wrongPassword',
+          'That password did not open the archive. Check it and try again — for RAR files, note that a file list can be readable while the contents are not.',
+        )
+      : new ArchiveError(
+          'encrypted',
+          'This archive is encrypted. Enter its password and open it again.',
+        );
   }
   if (/unrecognized|not.*(supported|recognized)|format/i.test(message)) {
-    return new Error(
+    return new ArchiveError(
+      'unsupportedVariant',
       `This archive could not be read: ${message}. Some variants (solid RAR5 with encrypted headers, for example) are outside what the reader supports.`,
+      { detail: message },
     );
   }
-  return new Error(`This archive could not be read: ${message}`);
+  return new ArchiveError('unreadable', `This archive could not be read: ${message}`, {
+    detail: message,
+  });
 }
 
 /**
@@ -146,7 +164,7 @@ export async function sessionFromReader(
   let listed: CompressedEntry[];
   try {
     if (password) await reader.usePassword(password);
-    listed = await withTimeout(reader.getFilesArray(), 'Reading the file list');
+    listed = await withTimeout(reader.getFilesArray(), 'listing');
   } catch (e) {
     await closeQuietly(reader);
     throw readable(e, hadPassword);
@@ -177,7 +195,8 @@ export async function sessionFromReader(
     entries,
     async extract(path) {
       const entry = byPath.get(path);
-      if (!entry) throw new ArchiveError(`"${path}" is not in this archive.`);
+      if (!entry)
+        throw new ArchiveError('notInArchive', `"${path}" is not in this archive.`, { path });
       let extracted: File;
       try {
         extracted = await entry.file.extract();
@@ -209,7 +228,7 @@ export async function openWithLibarchive(
   const Archive = await loadArchive();
   let reader: LibarchiveReader;
   try {
-    reader = (await withTimeout(Archive.open(file), 'Opening the archive', (opened) => {
+    reader = (await withTimeout(Archive.open(file), 'opening', (opened) => {
       void closeQuietly(opened as unknown as LibarchiveReader);
     })) as unknown as LibarchiveReader;
   } catch (e) {

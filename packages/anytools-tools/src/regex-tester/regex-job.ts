@@ -25,16 +25,26 @@ export type RegexJobMatch = {
   namedGroups: Record<string, string>;
 };
 
+/**
+ * Why a job failed. The widget maps a code to its own language; `error` stays the English text.
+ * A plain string union rather than a shared constant so the function below stays self-contained.
+ */
+export type RegexJobErrorCode = 'invalidRegex' | 'timeout' | 'execFailed';
+
 export type RegexJobResult =
   | { ok: true; matches: RegexJobMatch[]; replaced?: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code: RegexJobErrorCode };
 
 export function runRegexJob(job: RegexJob): RegexJobResult {
   let re: RegExp;
   try {
     re = new RegExp(job.pattern, job.flags);
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : 'Invalid regex' };
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : 'Invalid regex',
+      code: 'invalidRegex',
+    };
   }
   const timeoutMs = job.timeoutMs === undefined ? 1000 : job.timeoutMs;
   const maxMatches = job.maxMatches === undefined ? 10000 : job.maxMatches;
@@ -60,6 +70,7 @@ export function runRegexJob(job: RegexJob): RegexJobResult {
             ok: false,
             error:
               'Regex execution exceeded 1s — possible catastrophic backtracking. Simplify pattern.',
+            code: 'timeout',
           };
         }
         matches.push(toMatch(m));
@@ -71,6 +82,10 @@ export function runRegexJob(job: RegexJob): RegexJobResult {
     const replaced = job.text.replace(new RegExp(job.pattern, job.flags), job.replacement);
     return { ok: true, matches, replaced };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : 'Regex execution failed' };
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : 'Regex execution failed',
+      code: 'execFailed',
+    };
   }
 }

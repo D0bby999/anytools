@@ -188,6 +188,25 @@ describe('enforceArchiveLimits', () => {
     expect(() => enforceArchiveLimits([{ size: Number.NaN }])).toThrow(/does not state a size/);
   });
 
+  it('names each refusal with a code and params for the widget to localize', () => {
+    expect(() => enforceArchiveLimits([], MAX_ENTRIES + 1)).toThrow(
+      expect.objectContaining({
+        code: 'tooManyEntries',
+        params: { count: MAX_ENTRIES + 1, max: MAX_ENTRIES },
+      }),
+    );
+    expect(() => enforceArchiveLimits([{ size: 10 }, { size: -1 }])).toThrow(
+      expect.objectContaining({ code: 'unknownEntrySize', params: { index: 2, total: 2 } }),
+    );
+    expect(() => enforceArchiveLimits([{ size: 3 * GIB }])).toThrow(
+      expect.objectContaining({ code: 'declaredTooBig', params: { index: 1, total: 1 } }),
+    );
+    const budget = createExtractionBudget(1024);
+    expect(() => budget.spend(2048)).toThrow(
+      expect.objectContaining({ code: 'budgetExceeded', params: { limit: '1 KB' } }),
+    );
+  });
+
   it('recovers a size a signed 32-bit reader mangled', () => {
     expect(unsignedSize(-1_073_741_824)).toBe(3 * GIB);
     expect(unsignedSize(0x7fff_ffff)).toBe(0x7fff_ffff);
@@ -226,6 +245,7 @@ describe('openArchive', () => {
     // do either, so the WASM must not be fetched to find that out.
     const encrypted = asFile(buildZip([{ name: 'a.txt', body: 'secret' }], true), 'secret.zip');
     await expect(openArchive(encrypted)).rejects.toThrow(/encrypted.*password/is);
+    await expect(openArchive(encrypted)).rejects.toMatchObject({ code: 'zipEncrypted' });
   });
 
   it('refuses a zip bomb whose 3 GB entry jszip reports as a NEGATIVE size', async () => {

@@ -50,6 +50,7 @@ describe('planEntryPaths', () => {
 describe('createZip', () => {
   it('refuses an empty selection', async () => {
     await expect(createZip([], { level: 6 })).rejects.toBeInstanceOf(CreateZipError);
+    await expect(createZip([], { level: 6 })).rejects.toMatchObject({ code: 'noFiles' });
   });
 
   it('writes every file, and jszip reads back the same names and bytes', async () => {
@@ -115,6 +116,10 @@ describe('createZip', () => {
     ];
     await expect(createZip(huge, { level: 6 })).rejects.toBeInstanceOf(CreateZipError);
     await expect(createZip(huge, { level: 6 })).rejects.toThrow(/4\.0 GB/);
+    await expect(createZip(huge, { level: 6 })).rejects.toMatchObject({
+      code: 'tooLarge',
+      params: { size: '4.0 GB', max: '4.0 GB' },
+    });
   });
 
   it('still zips a selection just under the ceiling', async () => {

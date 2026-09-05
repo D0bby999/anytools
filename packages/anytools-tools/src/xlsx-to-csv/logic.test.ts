@@ -203,6 +203,7 @@ describe('readWorkbookBuffer', () => {
   it('rejects a file that is not an xlsx container with a message naming xls and ods', async () => {
     const notAZip = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer;
     await expect(readWorkbookBuffer(notAZip)).rejects.toThrow(/\.xls.*\.ods|ods.*xls/i);
+    await expect(readWorkbookBuffer(notAZip)).rejects.toMatchObject({ code: 'notXlsx' });
   });
 });
 
@@ -246,6 +247,10 @@ describe('readWorkbookBuffer — used range', () => {
     // 16,384 x 5,000 is 81.9 million cells. Building that array is the freeze this replaces.
     await expect(readWorkbookBuffer(buffer)).rejects.toBeInstanceOf(WorkbookError);
     await expect(readWorkbookBuffer(buffer)).rejects.toThrow(/2,000,000/);
+    await expect(readWorkbookBuffer(buffer)).rejects.toMatchObject({
+      code: 'tooManyCells',
+      params: { columns: 16384, rows: 5000, max: 2_000_000 },
+    });
     expect(Date.now() - started).toBeLessThan(2000);
   });
 
@@ -319,6 +324,10 @@ describe('readWorkbookFile', () => {
 
     await expect(readWorkbookFile(file)).rejects.toBeInstanceOf(WorkbookError);
     await expect(readWorkbookFile(file)).rejects.toThrow(/50 MB/);
+    await expect(readWorkbookFile(file)).rejects.toMatchObject({
+      code: 'tooLarge',
+      params: { size: 50, max: 50 },
+    });
     expect(read).toBe(false);
   });
 

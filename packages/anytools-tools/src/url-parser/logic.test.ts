@@ -58,6 +58,10 @@ describe('parseUrl', () => {
 
   it('rejects empty input', () => {
     expect(() => parseUrl('  ')).toThrow(/Enter a URL/);
+    expect(() => parseUrl('  ')).toThrow(expect.objectContaining({ code: 'emptyUrl' }));
+    expect(() => parseUrl('htp:// bad url')).toThrow(
+      expect.objectContaining({ code: 'invalidUrl', params: { url: 'htp:// bad url' } }),
+    );
   });
 
   it('parses non-http schemes', () => {

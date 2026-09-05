@@ -12,6 +12,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { type Format, convertFormat, detectFormat } from './logic';
 import { STRINGS } from './strings';
 
@@ -29,9 +30,9 @@ export function JsonYamlTomlUi() {
     try {
       return { ok: true as const, value: convertFormat(input, from, to) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : ui.conversionFailed };
+      return { ok: false as const, error: toolErrorText(e, s, ui.conversionFailed) };
     }
-  }, [input, from, to, ui.conversionFailed]);
+  }, [input, from, to, s, ui.conversionFailed]);
 
   const autoDetect = () => setFrom(detectFormat(input));
   const swap = () => {

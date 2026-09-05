@@ -15,6 +15,11 @@ const EN = {
   converting: 'Converting…',
   convert: 'Convert to Markdown',
   readFailed: 'Could not read this document',
+  // {detail} is the parser's own reason, in English.
+  error_notDocx:
+    'This file could not be read as .docx. The older binary .doc, .rtf, .odt and Apple Pages formats are different files entirely — open one in Word, LibreOffice or Pages and save it as .docx first. ({detail})',
+  error_tooLarge:
+    'This document is {size} MB. The limit is {max} MB, because a .docx is compressed and the unzipped XML, the HTML and the Markdown all have to be held in the tab at once. Split the document, or save a copy with the images removed, and try again.',
   imageEmbeddedOne: '1 image was embedded as a data URI.',
   imagesEmbedded: '{n} images were embedded as data URIs.',
   imageDroppedOne: '1 image was dropped.',
@@ -45,6 +50,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     converting: 'Đang chuyển đổi…',
     convert: 'Chuyển sang Markdown',
     readFailed: 'Không đọc được tài liệu này',
+    error_notDocx:
+      'Không đọc được tệp này dưới dạng .docx. Các định dạng .doc nhị phân cũ, .rtf, .odt và Apple Pages là những loại tệp hoàn toàn khác — hãy mở trong Word, LibreOffice hoặc Pages rồi lưu thành .docx trước. ({detail})',
+    error_tooLarge:
+      'Tài liệu này nặng {size} MB. Giới hạn là {max} MB, vì file .docx được nén, còn XML sau giải nén, HTML và Markdown đều phải nằm trong tab cùng lúc. Hãy tách tài liệu, hoặc lưu một bản đã bỏ ảnh, rồi thử lại.',
     imageEmbeddedOne: 'Đã nhúng 1 ảnh dạng data URI.',
     imagesEmbedded: 'Đã nhúng {n} ảnh dạng data URI.',
     imageDroppedOne: 'Đã bỏ 1 ảnh.',
@@ -72,6 +81,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     converting: 'Convirtiendo…',
     convert: 'Convertir a Markdown',
     readFailed: 'No se pudo leer este documento',
+    error_notDocx:
+      'Este archivo no se pudo leer como .docx. El antiguo .doc binario, junto con .rtf, .odt y los archivos de Apple Pages, son formatos completamente distintos — ábrelo en Word, LibreOffice o Pages y guárdalo como .docx primero. ({detail})',
+    error_tooLarge:
+      'Este documento pesa {size} MB. El límite es {max} MB, porque un .docx está comprimido y el XML descomprimido, el HTML y el Markdown deben estar en la pestaña a la vez. Divide el documento, o guarda una copia sin las imágenes, e inténtalo de nuevo.',
     imageEmbeddedOne: 'Se incrustó 1 imagen como data URI.',
     imagesEmbedded: 'Se incrustaron {n} imágenes como data URI.',
     imageDroppedOne: 'Se descartó 1 imagen.',
@@ -99,6 +112,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     converting: 'Convertendo…',
     convert: 'Converter para Markdown',
     readFailed: 'Não foi possível ler este documento',
+    error_notDocx:
+      'Este arquivo não pôde ser lido como .docx. O antigo .doc binário, junto com .rtf, .odt e arquivos do Apple Pages, são formatos totalmente diferentes — abra-o no Word, LibreOffice ou Pages e salve como .docx primeiro. ({detail})',
+    error_tooLarge:
+      'Este documento tem {size} MB. O limite é {max} MB, porque um .docx é compactado e o XML descompactado, o HTML e o Markdown precisam ficar na aba ao mesmo tempo. Divida o documento, ou salve uma cópia sem as imagens, e tente novamente.',
     imageEmbeddedOne: '1 imagem foi incorporada como data URI.',
     imagesEmbedded: '{n} imagens foram incorporadas como data URI.',
     imageDroppedOne: '1 imagem foi descartada.',

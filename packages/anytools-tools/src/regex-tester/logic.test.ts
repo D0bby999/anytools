@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildRegex, replaceRegex, testRegex } from './logic';
+import { runRegexJob } from './regex-job';
 
 const ALL_OFF = {
   global: false,
@@ -54,6 +55,21 @@ describe('testRegex', () => {
   it('catches invalid regex', () => {
     const r = testRegex('[a-', ALL_OFF, 'anything');
     expect(r.ok).toBe(false);
+  });
+
+  it('names the failure with a code the widget can localize', () => {
+    expect(testRegex('[a-', ALL_OFF, 'anything')).toMatchObject({
+      ok: false,
+      code: 'invalidRegex',
+    });
+    expect(buildRegex('[a-', ALL_OFF)).toMatchObject({ ok: false, code: 'invalidRegex' });
+    expect(replaceRegex('[a-', ALL_OFF, 'x', 'y')).toMatchObject({
+      ok: false,
+      code: 'invalidRegex',
+    });
+    const slow = runRegexJob({ pattern: 'a', flags: 'g', text: 'aaaa', timeoutMs: -1 });
+    expect(slow).toMatchObject({ ok: false, code: 'timeout' });
+    if (!slow.ok) expect(slow.error).toMatch(/exceeded 1s/);
   });
 
   it('respects ignoreCase flag', () => {

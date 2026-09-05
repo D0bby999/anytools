@@ -11,6 +11,9 @@ const EN = {
   bech32: 'bech32 (native segwit)',
   legacy: 'legacy (P2PKH)',
   segwitWrapped: 'segwit-wrapped (P2SH)',
+  error_emptyInput: 'Empty input',
+  error_evmChecksum: 'Invalid EVM checksum',
+  error_unrecognized: 'Unrecognized address format',
   privacy:
     'Address validation runs in your browser. We do not query any blockchain or external API.',
 };
@@ -27,6 +30,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     bech32: 'bech32 (segwit gốc)',
     legacy: 'kiểu cũ (P2PKH)',
     segwitWrapped: 'segwit bọc (P2SH)',
+    error_emptyInput: 'Chưa nhập gì',
+    error_evmChecksum: 'Checksum EVM không hợp lệ',
+    error_unrecognized: 'Không nhận ra định dạng địa chỉ',
     privacy:
       'Việc kiểm tra địa chỉ chạy trong trình duyệt của bạn. Chúng tôi không truy vấn blockchain hay API bên ngoài nào.',
   },
@@ -40,6 +46,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     bech32: 'bech32 (segwit nativo)',
     legacy: 'legado (P2PKH)',
     segwitWrapped: 'segwit envuelto (P2SH)',
+    error_emptyInput: 'Entrada vacía',
+    error_evmChecksum: 'Checksum EVM no válido',
+    error_unrecognized: 'Formato de dirección no reconocido',
     privacy:
       'La validación de direcciones se ejecuta en tu navegador. No consultamos ninguna blockchain ni API externa.',
   },
@@ -53,6 +62,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     bech32: 'bech32 (segwit nativo)',
     legacy: 'legado (P2PKH)',
     segwitWrapped: 'segwit encapsulado (P2SH)',
+    error_emptyInput: 'Entrada vazia',
+    error_evmChecksum: 'Checksum EVM inválido',
+    error_unrecognized: 'Formato de endereço não reconhecido',
     privacy:
       'A validação do endereço roda no seu navegador. Não consultamos nenhuma blockchain nem API externa.',
   },

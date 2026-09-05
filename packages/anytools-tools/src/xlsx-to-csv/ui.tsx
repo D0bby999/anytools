@@ -13,6 +13,7 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { richText } from '../shared/rich-text';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type Delimiter,
@@ -88,7 +89,7 @@ export function XlsxToCsvUi() {
       setActive(0);
     } catch (e) {
       setSheets(null);
-      setError(e instanceof Error ? e.message : s.readFailed);
+      setError(toolErrorText(e, s, s.readFailed));
     } finally {
       setBusy(false);
     }
@@ -121,7 +122,7 @@ export function XlsxToCsvUi() {
       const blob = await zip.generateAsync({ type: 'blob' });
       saveBlob(blob, `${workbookFileStem(file?.name)}-${format}.zip`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.zipFailed);
+      setError(toolErrorText(e, s, s.zipFailed));
     }
   };
 

@@ -51,7 +51,9 @@ function enforceDeclaredLimits(directory: ZipCentralDirectory): Map<string, numb
   for (const entry of directory.entries) {
     if (entry.size === null) {
       throw new ArchiveError(
+        'zip64SizeUnknown',
         `"${entry.name}" declares a ZIP64 size that this reader cannot read back, so its real size is unknown. The archive is refused rather than opened — an entry of unknown size is how a zip bomb gets past a size limit.`,
+        { name: entry.name },
       );
     }
     sizes.set(entry.name, entry.size);
@@ -87,7 +89,9 @@ function assertNothingCollapsed(directory: ZipCentralDirectory, loadedFiles: num
   const names = directory.entries.filter((e) => !e.name.endsWith('/')).map((e) => e.name);
   if (loadedFiles >= names.length || !names.some(collapsesOnLoad)) return;
   throw new ArchiveError(
+    'pathsCollapsed',
     `This archive holds ${names.length} files but only ${loadedFiles} of them have distinct paths: at least one entry uses "../" or "./" to land on the same path as another, and the zip reader here keeps only the last. It is refused rather than opened one file short — a desktop archiver will show you what is really inside.`,
+    { files: names.length, distinct: loadedFiles },
   );
 }
 
@@ -101,7 +105,9 @@ function displayedSize(file: unknown, path: string): number {
     // JSZip reports no size at all for a ZIP64 field at or past 4 GiB. Calling that zero is
     // what a bomb needs; refusing is the only honest reading of "we do not know".
     throw new ArchiveError(
+      'untrustedSize',
       `"${path}" does not state a size this reader can trust. The archive is refused rather than opened.`,
+      { path },
     );
   }
   return unsignedSize(declared);
@@ -129,7 +135,11 @@ async function extractCounted(file: object, budget: ExtractionBudget): Promise<B
           // Pause before rejecting: otherwise JSZip keeps inflating into a promise nobody is
           // waiting on, which is the memory this check exists to save.
           stream.pause();
-          reject(e instanceof Error ? e : new ArchiveError(String(e)));
+          reject(
+            e instanceof Error
+              ? e
+              : new ArchiveError('extractFailed', String(e), { detail: String(e) }),
+          );
           return;
         }
         chunks.push(chunk);
@@ -165,7 +175,8 @@ export async function openWithJsZip(file: File, budget: ExtractionBudget): Promi
     entries,
     async extract(path) {
       const entry = zip.file(path);
-      if (!entry) throw new ArchiveError(`"${path}" is not in this archive.`);
+      if (!entry)
+        throw new ArchiveError('notInArchive', `"${path}" is not in this archive.`, { path });
       return extractCounted(entry, budget);
     },
     async close() {

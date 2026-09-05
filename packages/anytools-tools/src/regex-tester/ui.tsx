@@ -18,12 +18,12 @@ import {
 } from '@anytools/ui';
 import { useState } from 'react';
 import { richText } from '../shared/rich-text';
-import { type RegexFlags, type TestResult, flagString } from './logic';
+import { type RegexFailure, type RegexFlags, type TestResult, flagString } from './logic';
 import { runRegexInWorker } from './regex-worker';
 import { STRINGS } from './strings';
 
 type Mode = 'test' | 'replace';
-type ReplaceResult = { ok: true; result: string } | { ok: false; error: string };
+type ReplaceResult = { ok: true; result: string } | RegexFailure;
 
 const DEFAULT_FLAGS: RegexFlags = {
   global: true,
@@ -67,6 +67,13 @@ export function RegexTesterUi() {
     dotAll: s.flagDotAll,
     unicode: s.flagUnicode,
     sticky: s.flagSticky,
+  };
+
+  // Failures come from logic with a code; the table here may know it, otherwise the English
+  // text is shown as-is. {detail} carries the engine's own wording (a syntax error, say).
+  const failureText = (f: RegexFailure): string => {
+    const template = s[`error_${f.code}`];
+    return template ? template.replace('{detail}', f.error) : f.error;
   };
 
   const truncated = text.length > MAX_TEXT_LEN;
@@ -198,7 +205,7 @@ export function RegexTesterUi() {
 
         {testResult && !testResult.ok && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {testResult.error}
+            {failureText(testResult)}
           </output>
         )}
 
@@ -261,7 +268,7 @@ export function RegexTesterUi() {
               </pre>
             ) : (
               <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {replaceResult.error}
+                {failureText(replaceResult)}
               </output>
             )}
           </div>

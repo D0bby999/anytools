@@ -28,6 +28,11 @@ const EN = {
   // {run} is the Run button label in <strong>; {n} the character cap.
   footnote:
     'Click {run} to execute — avoids re-running on every keystroke. Text is capped at {n} chars and execution at 1 second to prevent catastrophic backtracking from freezing the tab. Runs in your browser.',
+  // {detail} is the JavaScript engine's own message for the pattern, in English.
+  error_invalidRegex: '{detail}',
+  error_timeout:
+    'Regex execution exceeded 1s — possible catastrophic backtracking. Simplify pattern.',
+  error_execFailed: '{detail}',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -58,6 +63,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     afterReplace: 'Sau khi thay thế',
     footnote:
       'Bấm {run} để thực thi — tránh chạy lại sau mỗi lần gõ. Văn bản giới hạn {n} ký tự và thời gian chạy 1 giây để backtracking bùng nổ không làm treo tab. Chạy trong trình duyệt của bạn.',
+    error_invalidRegex: 'Biểu thức không hợp lệ: {detail}',
+    error_timeout:
+      'Biểu thức chạy quá 1 giây — có thể do backtracking bùng nổ. Hãy đơn giản hoá mẫu.',
+    error_execFailed: 'Chạy biểu thức thất bại: {detail}',
   },
   es: {
     title: 'Probador de Regex',
@@ -85,6 +94,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     afterReplace: 'Tras el reemplazo',
     footnote:
       'Pulsa {run} para ejecutar — evita volver a ejecutar con cada tecla. El texto se limita a {n} caracteres y la ejecución a 1 segundo para que el backtracking catastrófico no congele la pestaña. Se ejecuta en tu navegador.',
+    error_invalidRegex: 'Expresión no válida: {detail}',
+    error_timeout:
+      'La ejecución superó 1 s — posible retroceso catastrófico. Simplifica el patrón.',
+    error_execFailed: 'La ejecución falló: {detail}',
   },
   pt: {
     title: 'Testador de Regex',
@@ -112,5 +125,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     afterReplace: 'Após a substituição',
     footnote:
       'Clique em {run} para executar — evita reexecutar a cada tecla. O texto é limitado a {n} caracteres e a execução a 1 segundo para que o backtracking catastrófico não trave a aba. Roda no seu navegador.',
+    error_invalidRegex: 'Expressão inválida: {detail}',
+    error_timeout:
+      'A execução passou de 1 s — possível backtracking catastrófico. Simplifique o padrão.',
+    error_execFailed: 'A execução falhou: {detail}',
   },
 };

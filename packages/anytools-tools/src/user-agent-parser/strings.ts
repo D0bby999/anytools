@@ -13,6 +13,7 @@ const EN = {
   tablet: 'tablet',
   bot: 'bot',
   unknown: 'unknown',
+  error_emptyInput: 'Paste a User-Agent string.',
   note: 'User-Agent strings are historical fiction — every browser claims to be Mozilla, Chrome claims to be Safari, Edge claims to be Chrome. Anyone can send any string. Useful as a hint for support and analytics; never as a security control.',
 };
 
@@ -31,6 +32,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     tablet: 'máy tính bảng',
     bot: 'bot',
     unknown: 'không rõ',
+    error_emptyInput: 'Dán một chuỗi User-Agent vào.',
     note: 'Chuỗi User-Agent là "tiểu thuyết lịch sử" — trình duyệt nào cũng tự nhận là Mozilla, Chrome nhận là Safari, Edge nhận là Chrome. Ai cũng có thể gửi chuỗi bất kỳ. Chỉ nên dùng làm gợi ý cho hỗ trợ và phân tích; không bao giờ dùng làm biện pháp bảo mật.',
   },
   es: {
@@ -46,6 +48,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     tablet: 'tableta',
     bot: 'bot',
     unknown: 'desconocido',
+    error_emptyInput: 'Pega una cadena User-Agent.',
     note: 'Las cadenas User-Agent son ficción histórica — todos los navegadores dicen ser Mozilla, Chrome dice ser Safari, Edge dice ser Chrome. Cualquiera puede enviar cualquier cadena. Sirve como pista para soporte y analítica; nunca como control de seguridad.',
   },
   pt: {
@@ -61,6 +64,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     tablet: 'tablet',
     bot: 'bot',
     unknown: 'desconhecido',
+    error_emptyInput: 'Cole uma string User-Agent.',
     note: 'Strings User-Agent são ficção histórica — todo navegador diz ser Mozilla, o Chrome diz ser Safari, o Edge diz ser Chrome. Qualquer um pode enviar qualquer string. Útil como pista para suporte e analytics; nunca como controle de segurança.',
   },
 };

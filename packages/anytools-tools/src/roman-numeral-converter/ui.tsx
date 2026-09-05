@@ -10,6 +10,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { MAX_ROMAN, fromRoman, toRoman } from './logic';
 import { STRINGS } from './strings';
 
@@ -23,17 +24,17 @@ export function RomanNumeralConverterUi() {
     try {
       return { value: toRoman(Number(numberInput)), error: null as string | null };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : ui.invalidInput };
+      return { value: '', error: toolErrorText(e, s, ui.invalidInput) };
     }
-  }, [numberInput, ui.invalidInput]);
+  }, [numberInput, s, ui.invalidInput]);
 
   const fromRomanResult = useMemo(() => {
     try {
       return { value: String(fromRoman(romanInput)), error: null as string | null };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : ui.invalidInput };
+      return { value: '', error: toolErrorText(e, s, ui.invalidInput) };
     }
-  }, [romanInput, ui.invalidInput]);
+  }, [romanInput, s, ui.invalidInput]);
 
   return (
     <Card>
