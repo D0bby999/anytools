@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useUiStrings } from '../../i18n/ui-strings';
 import { NumberStepper } from './number-stepper';
 import { SegmentedControl } from './segmented-control';
 
@@ -19,7 +20,9 @@ const INCHES_PER_FOOT = 12;
  * Height input with unit toggle. Canonical storage = centimeters.
  * Imperial mode: separate ft + in steppers. Metric: single cm stepper.
  */
-export function HeightInput({ cm, onChange, label = 'Height', className }: Props) {
+export function HeightInput({ cm, onChange, label: labelProp, className }: Props) {
+  const ui = useUiStrings();
+  const label = labelProp ?? ui.height;
   const [unit, setUnit] = useState<Unit>('metric');
 
   const totalInches = cm / CM_PER_INCH;

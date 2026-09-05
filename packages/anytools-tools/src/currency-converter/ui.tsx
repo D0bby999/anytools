@@ -1,7 +1,8 @@
 'use client';
-import { ConverterTemplate, Input } from '@anytools/ui';
+import { ConverterTemplate, Input, useLocalized, useToolLocale, useUiStrings } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { convertCurrency, extractRate } from './logic';
+import { STRINGS } from './strings';
 
 const COMMON = [
   'USD',
@@ -49,6 +50,9 @@ async function fetchRates(base: string): Promise<RatesPayload | null> {
 }
 
 export function CurrencyConverterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const locale = useToolLocale();
   const [from, setFrom] = useState('USD');
   const [to, setTo] = useState('EUR');
   const [amount, setAmount] = useState(100);
@@ -70,7 +74,7 @@ export function CurrencyConverterUi() {
       ? amount
       : 0;
   const fmt = (n: number) =>
-    n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 
   const Pane = ({
     selected,
@@ -79,6 +83,8 @@ export function CurrencyConverterUi() {
     onVal,
     readOnly,
     label,
+    currencyAria,
+    amountAria,
   }: {
     selected: string;
     onSelect: (id: string) => void;
@@ -86,6 +92,8 @@ export function CurrencyConverterUi() {
     onVal?: (n: number) => void;
     readOnly?: boolean;
     label: string;
+    currencyAria: string;
+    amountAria: string;
   }) => (
     <div className="rounded-lg border bg-card p-4 space-y-3">
       <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -95,7 +103,7 @@ export function CurrencyConverterUi() {
         value={selected}
         onChange={(e) => onSelect(e.target.value)}
         className="w-full h-11 rounded-md border bg-background px-2 text-sm font-mono"
-        aria-label={`${label} currency`}
+        aria-label={currencyAria}
       >
         {COMMON.map((c) => (
           <option key={c} value={c}>
@@ -110,7 +118,7 @@ export function CurrencyConverterUi() {
         onChange={(e) => onVal?.(e.target.valueAsNumber || 0)}
         readOnly={readOnly}
         className="h-12 text-xl tabular-nums font-semibold"
-        aria-label={`${label} amount`}
+        aria-label={amountAria}
       />
     </div>
   );
@@ -118,18 +126,36 @@ export function CurrencyConverterUi() {
   return (
     <div className="space-y-4">
       <ConverterTemplate
-        title="Currency Converter"
+        title={s.title}
         description={
           loading
-            ? 'Loading rates…'
+            ? s.loadingRates
             : rates
-              ? `Rates from ${rates.date} (Frankfurter / ECB). Updated daily.`
-              : 'Rates unavailable. Refresh to retry.'
+              ? s.ratesFrom.replace('{date}', rates.date)
+              : s.ratesUnavailable
         }
         source={
-          <Pane selected={from} onSelect={setFrom} val={amount} onVal={setAmount} label="From" />
+          <Pane
+            selected={from}
+            onSelect={setFrom}
+            val={amount}
+            onVal={setAmount}
+            label={ui.from}
+            currencyAria={s.fromCurrency}
+            amountAria={s.fromAmount}
+          />
         }
-        target={<Pane selected={to} onSelect={setTo} val={result} label="To" readOnly />}
+        target={
+          <Pane
+            selected={to}
+            onSelect={setTo}
+            val={result}
+            label={ui.to}
+            currencyAria={s.toCurrency}
+            amountAria={s.toAmount}
+            readOnly
+          />
+        }
         onSwap={() => {
           const oldFrom = from;
           setFrom(to);
@@ -138,7 +164,7 @@ export function CurrencyConverterUi() {
         }}
         disclaimer={
           rate && from !== to
-            ? `1 ${from} = ${fmt(rate)} ${to}. Indicative rate; banks/brokers add spreads.`
+            ? s.rateNote.replace('{from}', from).replace('{rate}', fmt(rate)).replace('{to}', to)
             : undefined
         }
       />

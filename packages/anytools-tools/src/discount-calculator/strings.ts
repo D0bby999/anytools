@@ -1,0 +1,58 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Discount Calculator',
+  description: 'Original price + discount % → final price.',
+  originalPrice: 'Original price',
+  discount: 'Discount',
+  taxOptional: 'Tax (optional)',
+  row_original: 'Original',
+  row_discount: 'Discount ({pct}%)',
+  row_afterDiscount: 'After discount',
+  row_tax: 'Tax ({pct}%)',
+  row_final: 'Final price',
+  row_save: 'You save',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Máy tính giảm giá',
+    description: 'Giá gốc + % giảm → giá cuối.',
+    originalPrice: 'Giá gốc',
+    discount: 'Giảm giá',
+    taxOptional: 'Thuế (tùy chọn)',
+    row_original: 'Giá gốc',
+    row_discount: 'Giảm ({pct}%)',
+    row_afterDiscount: 'Sau giảm giá',
+    row_tax: 'Thuế ({pct}%)',
+    row_final: 'Giá cuối',
+    row_save: 'Bạn tiết kiệm',
+  },
+  es: {
+    title: 'Calculadora de descuentos',
+    description: 'Precio original + % de descuento → precio final.',
+    originalPrice: 'Precio original',
+    discount: 'Descuento',
+    taxOptional: 'Impuesto (opcional)',
+    row_original: 'Original',
+    row_discount: 'Descuento ({pct} %)',
+    row_afterDiscount: 'Tras el descuento',
+    row_tax: 'Impuesto ({pct} %)',
+    row_final: 'Precio final',
+    row_save: 'Ahorras',
+  },
+  pt: {
+    title: 'Calculadora de desconto',
+    description: 'Preço original + % de desconto → preço final.',
+    originalPrice: 'Preço original',
+    discount: 'Desconto',
+    taxOptional: 'Imposto (opcional)',
+    row_original: 'Original',
+    row_discount: 'Desconto ({pct}%)',
+    row_afterDiscount: 'Após o desconto',
+    row_tax: 'Imposto ({pct}%)',
+    row_final: 'Preço final',
+    row_save: 'Você economiza',
+  },
+};

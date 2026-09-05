@@ -1,0 +1,58 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Sales Tax Calculator',
+  description: 'Add tax to a pre-tax price, or strip tax from a tax-inclusive total.',
+  addTax: 'Add tax',
+  removeTax: 'Remove tax',
+  mode: 'Mode',
+  pretaxAmount: 'Pre-tax amount',
+  taxInclusiveTotal: 'Tax-inclusive total',
+  taxRate: 'Tax rate',
+  row_pretax: 'Pre-tax',
+  row_tax: 'Tax ({pct}%)',
+  row_total: 'Total',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Máy tính thuế bán hàng',
+    description: 'Cộng thuế vào giá chưa thuế, hoặc tách thuế khỏi tổng đã gồm thuế.',
+    addTax: 'Cộng thuế',
+    removeTax: 'Tách thuế',
+    mode: 'Chế độ',
+    pretaxAmount: 'Số tiền chưa thuế',
+    taxInclusiveTotal: 'Tổng đã gồm thuế',
+    taxRate: 'Thuế suất',
+    row_pretax: 'Chưa thuế',
+    row_tax: 'Thuế ({pct}%)',
+    row_total: 'Tổng',
+  },
+  es: {
+    title: 'Calculadora de impuesto sobre ventas',
+    description: 'Añade impuesto a un precio sin impuestos o quítalo de un total con impuestos.',
+    addTax: 'Añadir impuesto',
+    removeTax: 'Quitar impuesto',
+    mode: 'Modo',
+    pretaxAmount: 'Importe sin impuestos',
+    taxInclusiveTotal: 'Total con impuestos',
+    taxRate: 'Tipo impositivo',
+    row_pretax: 'Sin impuestos',
+    row_tax: 'Impuesto ({pct} %)',
+    row_total: 'Total',
+  },
+  pt: {
+    title: 'Calculadora de imposto sobre vendas',
+    description: 'Adicione imposto a um preço sem imposto ou retire-o de um total com imposto.',
+    addTax: 'Adicionar imposto',
+    removeTax: 'Retirar imposto',
+    mode: 'Modo',
+    pretaxAmount: 'Valor sem imposto',
+    taxInclusiveTotal: 'Total com imposto',
+    taxRate: 'Alíquota',
+    row_pretax: 'Sem imposto',
+    row_tax: 'Imposto ({pct}%)',
+    row_total: 'Total',
+  },
+};

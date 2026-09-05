@@ -1,15 +1,29 @@
 'use client';
-import { CalculatorTemplate, Input, SegmentedControl, TableResult } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  Input,
+  SegmentedControl,
+  TableResult,
+  useLocalized,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { RACES, calculatePace, formatPace, formatTime, toKm } from './logic';
+import { STRINGS } from './strings';
 
 type Unit = 'km' | 'mile';
 
 export function PaceCalculatorUi() {
+  const s = useLocalized(STRINGS);
   const [unit, setUnit] = useState<Unit>('km');
   const [distance, setDistance] = useState(10);
   const [minutes, setMinutes] = useState(50);
   const [seconds, setSeconds] = useState(0);
+
+  // RACES names come from logic.ts in English; "5K"/"10K" are universal, the rest map here.
+  const raceLabel: Record<string, string> = {
+    'Half marathon': s.race_half,
+    Marathon: s.race_marathon,
+  };
 
   const totalSec = minutes * 60 + seconds;
   const distanceKm = toKm(distance, unit);
@@ -17,34 +31,34 @@ export function PaceCalculatorUi() {
 
   return (
     <CalculatorTemplate
-      title="Running Pace Calculator"
-      description="Pace from distance + time. Race-distance projections."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <SegmentedControl
             value={unit}
             onChange={setUnit}
             options={[
-              { value: 'km', label: 'Kilometers' },
-              { value: 'mile', label: 'Miles' },
+              { value: 'km', label: s.kilometers },
+              { value: 'mile', label: s.miles },
             ]}
-            label="Distance unit"
+            label={s.distanceUnit}
           />
           <div>
-            <span className="block text-sm font-medium mb-1.5">Distance</span>
+            <span className="block text-sm font-medium mb-1.5">{s.distance}</span>
             <Input
               type="number"
               inputMode="decimal"
               value={distance}
               onChange={(e) => setDistance(e.target.valueAsNumber || 0)}
               className="h-11 tabular-nums"
-              aria-label="Distance"
+              aria-label={s.distance}
               min={0.1}
               step={0.1}
             />
           </div>
           <div>
-            <span className="block text-sm font-medium mb-1.5">Time</span>
+            <span className="block text-sm font-medium mb-1.5">{s.time}</span>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <Input
@@ -52,10 +66,10 @@ export function PaceCalculatorUi() {
                   value={minutes}
                   onChange={(e) => setMinutes(e.target.valueAsNumber || 0)}
                   className="h-11 tabular-nums"
-                  aria-label="Minutes"
+                  aria-label={s.minutes}
                   min={0}
                 />
-                <p className="text-xs text-muted-foreground mt-1 text-center">minutes</p>
+                <p className="text-xs text-muted-foreground mt-1 text-center">{s.minutesHint}</p>
               </div>
               <div>
                 <Input
@@ -63,11 +77,11 @@ export function PaceCalculatorUi() {
                   value={seconds}
                   onChange={(e) => setSeconds(e.target.valueAsNumber || 0)}
                   className="h-11 tabular-nums"
-                  aria-label="Seconds"
+                  aria-label={s.seconds}
                   min={0}
                   max={59}
                 />
-                <p className="text-xs text-muted-foreground mt-1 text-center">seconds</p>
+                <p className="text-xs text-muted-foreground mt-1 text-center">{s.secondsHint}</p>
               </div>
             </div>
           </div>
@@ -75,12 +89,12 @@ export function PaceCalculatorUi() {
       }
       result={
         <TableResult
-          title="Pace + race projections"
+          title={s.tableTitle}
           rows={[
-            { label: 'Pace per km', value: `${formatPace(paceSecPerKm)} /km`, emphasis: true },
-            { label: 'Pace per mile', value: `${formatPace(paceSecPerMile)} /mi`, emphasis: true },
+            { label: s.pacePerKm, value: `${formatPace(paceSecPerKm)} /km`, emphasis: true },
+            { label: s.pacePerMile, value: `${formatPace(paceSecPerMile)} /mi`, emphasis: true },
             ...RACES.map((r) => ({
-              label: r.name,
+              label: raceLabel[r.name] ?? r.name,
               value: formatTime(r.km * paceSecPerKm),
             })),
           ]}

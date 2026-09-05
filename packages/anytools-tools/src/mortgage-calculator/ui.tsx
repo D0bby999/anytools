@@ -5,11 +5,16 @@ import {
   NumberStepper,
   RangeSlider,
   TableResult,
+  useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
 import { amortize } from './logic';
+import { STRINGS } from './strings';
 
 export function MortgageCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [home, setHome] = useState(400000);
   const [downPayment, setDownPayment] = useState(80000);
   const [ratePct, setRatePct] = useState(6.5);
@@ -18,23 +23,23 @@ export function MortgageCalculatorUi() {
   const principal = Math.max(0, home - downPayment);
   const { monthly, totalPaid, totalInterest } = amortize(principal, ratePct, years);
   const fmt = (n: number) =>
-    n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    n.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <CalculatorTemplate
-      title="Mortgage Calculator"
-      description="Monthly payment + total interest. User-input rate."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
-          <CurrencyInput value={home} onChange={setHome} label="Home price" />
-          <CurrencyInput value={downPayment} onChange={setDownPayment} label="Down payment" />
+          <CurrencyInput value={home} onChange={setHome} label={s.homePrice} />
+          <CurrencyInput value={downPayment} onChange={setDownPayment} label={s.downPayment} />
           <RangeSlider
             value={ratePct}
             onChange={setRatePct}
             min={0}
             max={15}
             step={0.05}
-            label="Interest rate"
+            label={s.interestRate}
             unit="%"
           />
           <NumberStepper
@@ -43,18 +48,18 @@ export function MortgageCalculatorUi() {
             min={5}
             max={40}
             step={5}
-            label="Loan term"
-            unit="yrs"
+            label={s.loanTerm}
+            unit={s.unitYears}
           />
         </>
       }
       result={
         <TableResult
           rows={[
-            { label: 'Loan amount', value: `$${fmt(principal)}` },
-            { label: 'Monthly payment', value: `$${fmt(monthly)}`, emphasis: true },
-            { label: 'Total interest', value: `$${fmt(totalInterest)}`, emphasis: true },
-            { label: 'Total paid', value: `$${fmt(totalPaid)}` },
+            { label: s.row_loanAmount, value: `$${fmt(principal)}` },
+            { label: s.row_monthly, value: `$${fmt(monthly)}`, emphasis: true },
+            { label: s.row_totalInterest, value: `$${fmt(totalInterest)}`, emphasis: true },
+            { label: s.row_totalPaid, value: `$${fmt(totalPaid)}` },
           ]}
         />
       }
@@ -64,7 +69,7 @@ export function MortgageCalculatorUi() {
         setRatePct(6.5);
         setYears(30);
       }}
-      disclaimer="Estimation only. Does not include property tax, PMI, HOA, or insurance. Consult a lender for accurate quotes."
+      disclaimer={s.disclaimer}
     />
   );
 }

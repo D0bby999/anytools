@@ -65,6 +65,8 @@ const EN = {
   moveUp: 'Move {name} up',
   moveDown: 'Move {name} down',
   removeFile: 'Remove {name}',
+  height: 'Height',
+  weight: 'Weight',
 };
 
 export const UI_STRINGS: LocalizedStrings<typeof EN> = {
@@ -130,6 +132,8 @@ export const UI_STRINGS: LocalizedStrings<typeof EN> = {
     moveUp: 'Chuyển {name} lên',
     moveDown: 'Chuyển {name} xuống',
     removeFile: 'Xóa {name}',
+    height: 'Chiều cao',
+    weight: 'Cân nặng',
   },
   es: {
     copy: 'Copiar',
@@ -193,6 +197,8 @@ export const UI_STRINGS: LocalizedStrings<typeof EN> = {
     moveUp: 'Subir {name}',
     moveDown: 'Bajar {name}',
     removeFile: 'Quitar {name}',
+    height: 'Altura',
+    weight: 'Peso',
   },
   pt: {
     copy: 'Copiar',
@@ -255,6 +261,8 @@ export const UI_STRINGS: LocalizedStrings<typeof EN> = {
     moveUp: 'Mover {name} para cima',
     moveDown: 'Mover {name} para baixo',
     removeFile: 'Remover {name}',
+    height: 'Altura',
+    weight: 'Peso',
   },
 };
 

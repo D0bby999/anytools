@@ -5,16 +5,30 @@ import {
   NumberStepper,
   NumericPrimary,
   SegmentedControl,
+  useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
 import { type Sex, classifyBodyFat, usNavyBodyFat } from './logic';
+import { STRINGS } from './strings';
 
 export function BodyFatCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [sex, setSex] = useState<Sex>('male');
   const [cm, setCm] = useState(170);
   const [waist, setWaist] = useState(85);
   const [neck, setNeck] = useState(38);
   const [hip, setHip] = useState(95);
+
+  // classifyBodyFat labels its categories in English; map those names to the locale.
+  const categoryLabel: Record<string, string> = {
+    'Essential fat': s.cat_essential,
+    Athletic: s.cat_athletic,
+    Fitness: s.cat_fitness,
+    Average: s.cat_average,
+    High: s.cat_high,
+  };
 
   const bf = usNavyBodyFat(sex, cm, waist, neck, sex === 'female' ? hip : 0);
   const validBf = bf !== null && Number.isFinite(bf) ? Math.max(0, Math.min(60, bf)) : null;
@@ -23,18 +37,18 @@ export function BodyFatCalculatorUi() {
 
   return (
     <CalculatorTemplate
-      title="Body Fat % Calculator"
-      description="US Navy method (Hodgdon-Beckett). Estimate without calipers or DEXA."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <SegmentedControl
             value={sex}
             onChange={setSex}
             options={[
-              { value: 'male', label: 'Male' },
-              { value: 'female', label: 'Female' },
+              { value: 'male', label: s.male },
+              { value: 'female', label: s.female },
             ]}
-            label="Sex (biological)"
+            label={s.sexLabel}
           />
           <HeightInput cm={cm} onChange={setCm} />
           <NumberStepper
@@ -42,27 +56,44 @@ export function BodyFatCalculatorUi() {
             onChange={setWaist}
             min={50}
             max={200}
-            label="Waist"
+            label={s.waist}
             unit="cm"
           />
-          <NumberStepper value={neck} onChange={setNeck} min={20} max={60} label="Neck" unit="cm" />
+          <NumberStepper
+            value={neck}
+            onChange={setNeck}
+            min={20}
+            max={60}
+            label={s.neck}
+            unit="cm"
+          />
           {sex === 'female' && (
-            <NumberStepper value={hip} onChange={setHip} min={60} max={200} label="Hip" unit="cm" />
+            <NumberStepper
+              value={hip}
+              onChange={setHip}
+              min={60}
+              max={200}
+              label={s.hip}
+              unit="cm"
+            />
           )}
         </>
       }
       result={
         validBf === null ? (
           <div className="rounded-lg border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
-            Inputs out of range. Waist must be larger than neck.
+            {s.outOfRange}
           </div>
         ) : (
           <NumericPrimary
-            label="Body fat"
-            value={validBf.toFixed(1)}
+            label={s.bodyFat}
+            value={validBf.toLocaleString(locale, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })}
             unit="%"
-            category={{ label: category, tone }}
-            caption="US Navy method has ±3-4% accuracy vs DEXA. Best for trend tracking, not single-point precision."
+            category={{ label: categoryLabel[category] ?? category, tone }}
+            caption={s.caption}
           />
         )
       }
@@ -73,7 +104,7 @@ export function BodyFatCalculatorUi() {
         setNeck(38);
         setHip(95);
       }}
-      disclaimer="Estimation only. For accurate body composition use DEXA, BodPod, or calibrated calipers."
+      disclaimer={s.disclaimer}
     />
   );
 }

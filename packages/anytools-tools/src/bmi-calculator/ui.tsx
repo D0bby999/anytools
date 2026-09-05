@@ -1,16 +1,15 @@
 'use client';
-import { CalculatorTemplate, HeightInput, NumericPrimary, WeightInput } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  HeightInput,
+  NumericPrimary,
+  WeightInput,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { type BmiCategory, calculateBmi, categorize } from './logic';
-
-const CATEGORY_LABEL: Record<BmiCategory, string> = {
-  underweight: 'Underweight',
-  normal: 'Normal',
-  overweight: 'Overweight',
-  'obese-1': 'Obesity class I',
-  'obese-2': 'Obesity class II',
-  'obese-3': 'Obesity class III',
-};
+import { STRINGS } from './strings';
 
 const CATEGORY_TONE: Record<BmiCategory, 'good' | 'warn' | 'danger' | 'neutral'> = {
   underweight: 'warn',
@@ -22,16 +21,28 @@ const CATEGORY_TONE: Record<BmiCategory, 'good' | 'warn' | 'danger' | 'neutral'>
 };
 
 export function BmiCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [heightCm, setHeightCm] = useState(170);
   const [weightKg, setWeightKg] = useState(70);
+
+  // The logic layer names categories by id; the label is picked per locale here.
+  const categoryLabel: Record<BmiCategory, string> = {
+    underweight: s.cat_underweight,
+    normal: s.cat_normal,
+    overweight: s.cat_overweight,
+    'obese-1': s.cat_obese1,
+    'obese-2': s.cat_obese2,
+    'obese-3': s.cat_obese3,
+  };
 
   const bmi = calculateBmi(weightKg, heightCm);
   const category = categorize(bmi);
 
   return (
     <CalculatorTemplate
-      title="BMI Calculator"
-      description="Body Mass Index with WHO category. Metric or imperial."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <HeightInput cm={heightCm} onChange={setHeightCm} />
@@ -40,18 +51,18 @@ export function BmiCalculatorUi() {
       }
       result={
         <NumericPrimary
-          label="Your BMI"
-          value={bmi.toFixed(1)}
+          label={s.yourBmi}
+          value={bmi.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
           unit="kg/m²"
-          category={{ label: CATEGORY_LABEL[category], tone: CATEGORY_TONE[category] }}
-          caption="WHO 1995 ranges. Asian-Pacific population may use 23 / 27.5 cutoffs."
+          category={{ label: categoryLabel[category], tone: CATEGORY_TONE[category] }}
+          caption={s.caption}
         />
       }
       onReset={() => {
         setHeightCm(170);
         setWeightKg(70);
       }}
-      disclaimer="For estimation only. BMI does not distinguish muscle from fat; athletes, pregnant people, children and the elderly need different assessment. Consult a clinician for medical decisions."
+      disclaimer={s.disclaimer}
     />
   );
 }

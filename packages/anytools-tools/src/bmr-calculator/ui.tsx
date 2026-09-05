@@ -6,11 +6,16 @@ import {
   NumericPrimary,
   SegmentedControl,
   WeightInput,
+  useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
 import { type Sex, mifflinStJeor } from './logic';
+import { STRINGS } from './strings';
 
 export function BmrCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [kg, setKg] = useState(70);
   const [cm, setCm] = useState(170);
   const [age, setAge] = useState(30);
@@ -20,30 +25,37 @@ export function BmrCalculatorUi() {
 
   return (
     <CalculatorTemplate
-      title="BMR Calculator"
-      description="Mifflin–St Jeor — calories burned at rest."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <SegmentedControl
             value={sex}
             onChange={setSex}
             options={[
-              { value: 'male', label: 'Male' },
-              { value: 'female', label: 'Female' },
+              { value: 'male', label: s.male },
+              { value: 'female', label: s.female },
             ]}
-            label="Sex (biological)"
+            label={s.sexLabel}
           />
           <HeightInput cm={cm} onChange={setCm} />
           <WeightInput kg={kg} onChange={setKg} />
-          <NumberStepper value={age} onChange={setAge} min={10} max={120} label="Age" unit="yrs" />
+          <NumberStepper
+            value={age}
+            onChange={setAge}
+            min={10}
+            max={120}
+            label={s.age}
+            unit={s.unitYears}
+          />
         </>
       }
       result={
         <NumericPrimary
-          label="Your BMR"
-          value={Math.round(bmr).toLocaleString()}
-          unit="kcal/day"
-          caption="Calories your body burns at complete rest. Multiply by activity factor for TDEE."
+          label={s.yourBmr}
+          value={Math.round(bmr).toLocaleString(locale)}
+          unit={s.unitKcalDay}
+          caption={s.caption}
         />
       }
       onReset={() => {
@@ -52,7 +64,7 @@ export function BmrCalculatorUi() {
         setAge(30);
         setSex('male');
       }}
-      disclaimer="Estimation only. ±10% accuracy. Real metabolic rates vary with thyroid status, body composition, and recent diet."
+      disclaimer={s.disclaimer}
     />
   );
 }

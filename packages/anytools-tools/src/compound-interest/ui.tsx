@@ -5,11 +5,16 @@ import {
   NumberStepper,
   RangeSlider,
   TableResult,
+  useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
 import { calcCompoundInterest } from './logic';
+import { STRINGS } from './strings';
 
 export function CompoundInterestUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [principal, setPrincipal] = useState(10000);
   const [monthly, setMonthly] = useState(200);
   const [ratePct, setRatePct] = useState(7);
@@ -22,23 +27,23 @@ export function CompoundInterestUi() {
     years,
   );
   const fmt = (n: number) =>
-    n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    n.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
     <CalculatorTemplate
-      title="Compound Interest Calculator"
-      description="Annual rate, compounded monthly, monthly contributions."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
-          <CurrencyInput value={principal} onChange={setPrincipal} label="Initial principal" />
-          <CurrencyInput value={monthly} onChange={setMonthly} label="Monthly contribution" />
+          <CurrencyInput value={principal} onChange={setPrincipal} label={s.initialPrincipal} />
+          <CurrencyInput value={monthly} onChange={setMonthly} label={s.monthlyContribution} />
           <RangeSlider
             value={ratePct}
             onChange={setRatePct}
             min={0}
             max={20}
             step={0.25}
-            label="Annual interest rate"
+            label={s.annualRate}
             unit="%"
           />
           <NumberStepper
@@ -46,17 +51,17 @@ export function CompoundInterestUi() {
             onChange={setYears}
             min={1}
             max={50}
-            unit="yrs"
-            label="Years"
+            unit={s.unitYears}
+            label={s.years}
           />
         </>
       }
       result={
         <TableResult
           rows={[
-            { label: 'Final balance', value: `$${fmt(balance)}`, emphasis: true },
-            { label: 'Total contributed', value: `$${fmt(totalContributed)}` },
-            { label: 'Interest earned', value: `$${fmt(interest)}`, emphasis: true },
+            { label: s.row_finalBalance, value: `$${fmt(balance)}`, emphasis: true },
+            { label: s.row_totalContributed, value: `$${fmt(totalContributed)}` },
+            { label: s.row_interestEarned, value: `$${fmt(interest)}`, emphasis: true },
           ]}
         />
       }
@@ -66,7 +71,7 @@ export function CompoundInterestUi() {
         setRatePct(7);
         setYears(20);
       }}
-      disclaimer="Estimation only. Real returns vary with market conditions, taxes, and fees. Past performance does not guarantee future results."
+      disclaimer={s.disclaimer}
     />
   );
 }

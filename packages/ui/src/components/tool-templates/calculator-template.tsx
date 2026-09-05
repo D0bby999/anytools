@@ -1,7 +1,8 @@
 'use client';
-import { Button } from '../button';
 import { RotateCcw } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useUiStrings } from '../../i18n/ui-strings';
+import { Button } from '../button';
 
 type Props = {
   title?: string;
@@ -26,6 +27,7 @@ export function CalculatorTemplate({
   actions,
   disclaimer,
 }: Props) {
+  const ui = useUiStrings();
   return (
     <div className="space-y-6">
       {(title || description) && (
@@ -43,7 +45,7 @@ export function CalculatorTemplate({
               {onReset && (
                 <Button type="button" variant="outline" size="sm" onClick={onReset}>
                   <RotateCcw className="h-4 w-4 mr-1.5" />
-                  Reset
+                  {ui.reset}
                 </Button>
               )}
               {actions}

@@ -6,6 +6,8 @@ import {
   SegmentedControl,
   TableResult,
   WeightInput,
+  useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
 import {
@@ -15,46 +17,66 @@ import {
   type Sex,
   calculateCalories,
 } from './logic';
+import { STRINGS } from './strings';
 
 export function CalorieCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [kg, setKg] = useState(70);
   const [cm, setCm] = useState(170);
   const [age, setAge] = useState(30);
   const [sex, setSex] = useState<Sex>('male');
   const [activity, setActivity] = useState<Activity>('moderate');
 
+  // ACTIVITY_LABEL in logic.ts is English; pick the label per locale by id.
+  const activityLabel: Record<Activity, string> = {
+    sedentary: s.activity_sedentary,
+    light: s.activity_light,
+    moderate: s.activity_moderate,
+    active: s.activity_active,
+    athlete: s.activity_athlete,
+  };
+
   const { bmr: bmrVal, tdee } = calculateCalories(kg, cm, age, sex, activity);
 
-  const r = (n: number) => Math.round(n).toLocaleString();
+  const r = (n: number) => Math.round(n).toLocaleString(locale);
 
   return (
     <CalculatorTemplate
-      title="Calorie & TDEE Calculator"
-      description="BMR × activity factor × goal adjustment."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <SegmentedControl
             value={sex}
             onChange={setSex}
             options={[
-              { value: 'male', label: 'Male' },
-              { value: 'female', label: 'Female' },
+              { value: 'male', label: s.male },
+              { value: 'female', label: s.female },
             ]}
-            label="Sex (biological)"
+            label={s.sexLabel}
           />
           <HeightInput cm={cm} onChange={setCm} />
           <WeightInput kg={kg} onChange={setKg} />
-          <NumberStepper value={age} onChange={setAge} min={10} max={120} label="Age" unit="yrs" />
+          <NumberStepper
+            value={age}
+            onChange={setAge}
+            min={10}
+            max={120}
+            label={s.age}
+            unit={s.unitYears}
+          />
           <div>
-            <span className="block text-sm font-medium mb-1.5">Activity level</span>
+            <span className="block text-sm font-medium mb-1.5">{s.activityLevel}</span>
             <select
               value={activity}
               onChange={(e) => setActivity(e.target.value as Activity)}
               className="w-full h-11 rounded-md border bg-background px-3 text-sm"
+              aria-label={s.activityLevel}
             >
               {(Object.keys(ACTIVITY_FACTOR) as Activity[]).map((a) => (
                 <option key={a} value={a}>
-                  {ACTIVITY_LABEL[a]}
+                  {activityLabel[a] ?? ACTIVITY_LABEL[a]}
                 </option>
               ))}
             </select>
@@ -63,14 +85,14 @@ export function CalorieCalculatorUi() {
       }
       result={
         <TableResult
-          title="Daily Calorie Targets"
+          title={s.tableTitle}
           rows={[
-            { label: 'BMR (rest)', value: `${r(bmrVal)} kcal` },
-            { label: 'Maintenance (TDEE)', value: `${r(tdee)} kcal`, emphasis: true },
-            { label: 'Mild weight loss (-250)', value: `${r(tdee - 250)} kcal` },
-            { label: 'Weight loss (-500)', value: `${r(tdee - 500)} kcal` },
-            { label: 'Mild weight gain (+250)', value: `${r(tdee + 250)} kcal` },
-            { label: 'Weight gain (+500)', value: `${r(tdee + 500)} kcal` },
+            { label: s.row_bmr, value: `${r(bmrVal)} kcal` },
+            { label: s.row_tdee, value: `${r(tdee)} kcal`, emphasis: true },
+            { label: s.row_mildLoss, value: `${r(tdee - 250)} kcal` },
+            { label: s.row_loss, value: `${r(tdee - 500)} kcal` },
+            { label: s.row_mildGain, value: `${r(tdee + 250)} kcal` },
+            { label: s.row_gain, value: `${r(tdee + 500)} kcal` },
           ]}
         />
       }
@@ -81,7 +103,7 @@ export function CalorieCalculatorUi() {
         setSex('male');
         setActivity('moderate');
       }}
-      disclaimer="Estimation only. Real metabolic rates vary ±10%. Sustained large deficits (>500 cal/day) trigger metabolic adaptation; bodies push back."
+      disclaimer={s.disclaimer}
     />
   );
 }

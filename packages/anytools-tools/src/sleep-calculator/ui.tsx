@@ -1,57 +1,77 @@
 'use client';
-import { CalculatorTemplate, Input, SegmentedControl, TableResult } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  Input,
+  SegmentedControl,
+  TableResult,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useState } from 'react';
-import { type SleepMode, computeSleepTimes, parseTimeString } from './logic';
+import { CYCLE_MIN, type SleepMode, computeSleepTimes, parseTimeString } from './logic';
+import { STRINGS } from './strings';
 
-function fmtTime(d: Date): string {
-  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-}
+/** Cycle counts shown, in display order — mirrors the logic default so labels can be rebuilt here. */
+const CYCLES = [6, 5, 4, 3];
 
 export function SleepCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [mode, setMode] = useState<SleepMode>('wakeUp');
   const [time, setTime] = useState('07:00');
 
+  const fmtTime = (d: Date): string =>
+    d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+
   const ref = new Date();
   const anchor = parseTimeString(time, ref);
-  const cycleRows = computeSleepTimes(mode, anchor);
-  const rows = cycleRows.map((r) => ({
-    label: r.label,
-    value: fmtTime(r.target),
-    emphasis: r.emphasis,
-  }));
+  const cycleRows = computeSleepTimes(mode, anchor, CYCLES);
+  // The logic layer labels rows in English ("5 cycles (7h 30m)"); rebuild the label per locale.
+  const rows = cycleRows.map((r, i) => {
+    const n = CYCLES[i] ?? 0;
+    const sleepMinutes = n * CYCLE_MIN;
+    const hours = Math.floor(sleepMinutes / 60);
+    const mins = sleepMinutes % 60;
+    const duration = `${hours}h${mins ? ` ${mins}m` : ''}`;
+    return {
+      label: s.cyclesLabel.replace('{n}', String(n)).replace('{time}', duration),
+      value: fmtTime(r.target),
+      emphasis: r.emphasis,
+    };
+  });
 
   return (
     <CalculatorTemplate
-      title="Sleep Calculator"
-      description="90-minute REM cycles + 14 min to fall asleep."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <SegmentedControl
             value={mode}
             onChange={setMode}
             options={[
-              { value: 'wakeUp', label: 'I want to wake up at' },
-              { value: 'goToBed', label: 'I plan to sleep at' },
+              { value: 'wakeUp', label: s.wakeUpAt },
+              { value: 'goToBed', label: s.sleepAt },
             ]}
-            label="Mode"
+            label={s.mode}
           />
           <div>
             <span className="block text-sm font-medium mb-1.5">
-              {mode === 'wakeUp' ? 'Target wake-up time' : 'Bedtime'}
+              {mode === 'wakeUp' ? s.targetWakeTime : s.bedtime}
             </span>
             <Input
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className="h-11"
-              aria-label="Time"
+              aria-label={s.timeAria}
             />
           </div>
         </>
       }
       result={
         <TableResult
-          title={mode === 'wakeUp' ? 'Suggested bedtimes' : 'Suggested wake-up times'}
+          title={mode === 'wakeUp' ? s.suggestedBedtimes : s.suggestedWakeTimes}
           rows={rows}
         />
       }
@@ -59,7 +79,7 @@ export function SleepCalculatorUi() {
         setMode('wakeUp');
         setTime('07:00');
       }}
-      disclaimer="Estimates. Individual sleep cycles range 70-120 min; sleep quality matters more than exact timing."
+      disclaimer={s.disclaimer}
     />
   );
 }

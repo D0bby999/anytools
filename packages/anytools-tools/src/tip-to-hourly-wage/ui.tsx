@@ -1,9 +1,19 @@
 'use client';
-import { CalculatorTemplate, CurrencyInput, NumberStepper, TableResult } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  CurrencyInput,
+  NumberStepper,
+  TableResult,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { calculateTipWage } from './logic';
+import { STRINGS } from './strings';
 
 export function TipToHourlyWageUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [tips, setTips] = useState(120);
   const [baseRate, setBaseRate] = useState(2.13);
   const [hours, setHours] = useState(6);
@@ -16,23 +26,24 @@ export function TipToHourlyWageUi() {
     tipShareOut,
   );
   const fmt = (n: number) =>
-    n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const perHour = (n: number) => s.perHour.replace('{amount}', `$${fmt(n)}`);
 
   return (
     <CalculatorTemplate
-      title="Tip → Hourly Wage"
-      description="Effective hourly rate for tipped workers."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
-          <CurrencyInput value={tips} onChange={setTips} label="Tips earned this shift" />
-          <CurrencyInput value={baseRate} onChange={setBaseRate} label="Base hourly wage" />
+          <CurrencyInput value={tips} onChange={setTips} label={s.tipsEarned} />
+          <CurrencyInput value={baseRate} onChange={setBaseRate} label={s.baseWage} />
           <NumberStepper
             value={hours}
             onChange={setHours}
             min={0.5}
             max={24}
             step={0.5}
-            label="Hours worked"
+            label={s.hoursWorked}
             unit="h"
           />
           <NumberStepper
@@ -41,7 +52,7 @@ export function TipToHourlyWageUi() {
             min={0}
             max={50}
             step={1}
-            label="Tip-out to bus/runner/etc"
+            label={s.tipOut}
             unit="%"
           />
         </>
@@ -49,12 +60,12 @@ export function TipToHourlyWageUi() {
       result={
         <TableResult
           rows={[
-            { label: 'Tips (post tip-out)', value: `$${fmt(netTips)}` },
-            { label: 'Tip hourly', value: `$${fmt(tipHourly)}/h` },
-            { label: 'Base wage', value: `$${fmt(baseRate)}/h` },
-            { label: 'Effective hourly', value: `$${fmt(effective)}/h`, emphasis: true },
+            { label: s.row_netTips, value: `$${fmt(netTips)}` },
+            { label: s.row_tipHourly, value: perHour(tipHourly) },
+            { label: s.row_baseWage, value: perHour(baseRate) },
+            { label: s.row_effective, value: perHour(effective), emphasis: true },
             {
-              label: 'Shift earnings',
+              label: s.row_shift,
               value: `$${fmt(shiftEarnings)}`,
               emphasis: true,
             },
@@ -67,7 +78,7 @@ export function TipToHourlyWageUi() {
         setHours(6);
         setTipShareOut(15);
       }}
-      disclaimer="Estimation. Excludes income tax, payroll tax, and FICA. Real take-home is lower."
+      disclaimer={s.disclaimer}
     />
   );
 }

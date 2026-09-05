@@ -1,0 +1,68 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Tip → Hourly Wage',
+  description: 'Effective hourly rate for tipped workers.',
+  tipsEarned: 'Tips earned this shift',
+  baseWage: 'Base hourly wage',
+  hoursWorked: 'Hours worked',
+  tipOut: 'Tip-out to bus/runner/etc',
+  row_netTips: 'Tips (post tip-out)',
+  row_tipHourly: 'Tip hourly',
+  row_baseWage: 'Base wage',
+  row_effective: 'Effective hourly',
+  row_shift: 'Shift earnings',
+  perHour: '{amount}/h',
+  disclaimer: 'Estimation. Excludes income tax, payroll tax, and FICA. Real take-home is lower.',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Tip → Lương theo giờ',
+    description: 'Mức lương giờ thực tế cho người làm việc nhận tip.',
+    tipsEarned: 'Tiền tip ca này',
+    baseWage: 'Lương cơ bản theo giờ',
+    hoursWorked: 'Số giờ làm',
+    tipOut: 'Chia tip cho phụ bàn/chạy bàn…',
+    row_netTips: 'Tip (sau khi chia)',
+    row_tipHourly: 'Tip theo giờ',
+    row_baseWage: 'Lương cơ bản',
+    row_effective: 'Lương giờ thực tế',
+    row_shift: 'Thu nhập cả ca',
+    perHour: '{amount}/giờ',
+    disclaimer: 'Ước lượng. Chưa trừ thuế thu nhập, thuế lương và FICA. Số thực nhận sẽ thấp hơn.',
+  },
+  es: {
+    title: 'Propinas → salario por hora',
+    description: 'Tarifa por hora efectiva para trabajadores con propinas.',
+    tipsEarned: 'Propinas de este turno',
+    baseWage: 'Salario base por hora',
+    hoursWorked: 'Horas trabajadas',
+    tipOut: 'Reparto a ayudantes/corredores, etc.',
+    row_netTips: 'Propinas (tras el reparto)',
+    row_tipHourly: 'Propinas por hora',
+    row_baseWage: 'Salario base',
+    row_effective: 'Por hora efectivo',
+    row_shift: 'Ganancia del turno',
+    perHour: '{amount}/h',
+    disclaimer:
+      'Estimación. No incluye impuesto sobre la renta, cotizaciones ni FICA. El neto real es menor.',
+  },
+  pt: {
+    title: 'Gorjeta → salário por hora',
+    description: 'Valor efetivo por hora para quem trabalha com gorjetas.',
+    tipsEarned: 'Gorjetas deste turno',
+    baseWage: 'Salário base por hora',
+    hoursWorked: 'Horas trabalhadas',
+    tipOut: 'Repasse para auxiliares/runners etc.',
+    row_netTips: 'Gorjetas (após repasse)',
+    row_tipHourly: 'Gorjeta por hora',
+    row_baseWage: 'Salário base',
+    row_effective: 'Por hora efetivo',
+    row_shift: 'Ganho do turno',
+    perHour: '{amount}/h',
+    disclaimer:
+      'Estimativa. Não inclui imposto de renda, encargos nem FICA. O valor líquido real é menor.',
+  },
+};

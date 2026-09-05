@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useUiStrings } from '../../i18n/ui-strings';
 import { NumberStepper } from './number-stepper';
 import { SegmentedControl } from './segmented-control';
 
@@ -17,7 +18,9 @@ const KG_PER_LB = 0.45359237;
 /**
  * Weight input with unit toggle. Canonical storage = kilograms.
  */
-export function WeightInput({ kg, onChange, label = 'Weight', className }: Props) {
+export function WeightInput({ kg, onChange, label: labelProp, className }: Props) {
+  const ui = useUiStrings();
+  const label = labelProp ?? ui.weight;
   const [unit, setUnit] = useState<Unit>('metric');
   const lb = kg / KG_PER_LB;
 
