@@ -12,7 +12,7 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { beautifyJs, minifyJs } from './logic';
 import { STRINGS } from './strings';
 
@@ -31,6 +31,7 @@ export function JsBeautifierUi() {
   const [mode, setMode] = useState<'beautify' | 'minify'>('beautify');
   const [mangle, setMangle] = useState(true);
   const [output, setOutput] = useState<Output | null>(null);
+  const indentId = useId();
 
   useEffect(() => {
     if (!input.trim()) {
@@ -84,9 +85,10 @@ export function JsBeautifierUi() {
             </button>
           </div>
           {mode === 'beautify' && (
-            <label className="text-sm">
+            <label className="text-sm" htmlFor={indentId}>
               <span className="block mb-1 text-muted-foreground">{ui.indentSize}</span>
               <Input
+                id={indentId}
                 type="number"
                 min={1}
                 max={8}
