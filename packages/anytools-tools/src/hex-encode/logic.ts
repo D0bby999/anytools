@@ -18,10 +18,17 @@ export function encodeHex(text: string, format: HexFormat = {}): string {
     .join(sep);
 }
 
+// Whatever people put between bytes: whitespace, commas, dashes, pipes, colons, underscores.
+const SEPARATORS = /[\s,;:|_-]/g;
+
 export function decodeHex(input: string): string {
-  // Strip 0x prefix, all non-hex chars (spaces, dashes, commas), normalize case
-  const clean = input.replace(/0x/gi, '').replace(/[^0-9a-fA-F]/g, '');
+  // Strip 0x prefixes and byte separators, normalize case
+  const clean = input.replace(/0x/gi, '').replace(SEPARATORS, '');
   if (clean.length === 0) return '';
+  // Previously every non-hex character was dropped silently, so "xyz" decoded to "" with no
+  // hint that nothing had been read. Anything left that isn't a hex digit is now an error.
+  const bad = clean.match(/[^0-9a-fA-F]/);
+  if (bad) throw new Error(`"${bad[0]}" is not a hex digit — expected 0-9 and a-f`);
   if (clean.length % 2 !== 0) throw new Error('Hex string has odd length');
   const bytes = new Uint8Array(clean.length / 2);
   for (let i = 0; i < clean.length; i += 2) {

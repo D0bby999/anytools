@@ -12,9 +12,19 @@ export function encodeUrl(input: string): string {
   return encodeURI(input);
 }
 
-export function decodeUrlComponent(input: string): string {
+export type DecodeOptions = {
+  /**
+   * Treat `+` as a space, as application/x-www-form-urlencoded does. Query strings copied
+   * from a browser use this; a `+` in a path segment is literal. decodeURIComponent alone
+   * never converts it, which is why "hello+world" used to come back unchanged.
+   */
+  plusAsSpace?: boolean;
+};
+
+export function decodeUrlComponent(input: string, options: DecodeOptions = {}): string {
+  const source = options.plusAsSpace ? input.replace(/\+/g, ' ') : input;
   try {
-    return decodeURIComponent(input);
+    return decodeURIComponent(source);
   } catch {
     throw new Error('Invalid URL-encoded input (malformed % escape)');
   }

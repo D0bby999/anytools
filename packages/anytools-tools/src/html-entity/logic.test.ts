@@ -10,6 +10,13 @@ describe('encodeHtml', () => {
   it('encodes ampersand', () => {
     expect(encodeHtml('Tom & Jerry')).toContain('Tom &amp; Jerry');
   });
+  it('leaves non-ASCII text alone by default and references it on request', () => {
+    expect(encodeHtml('Xin chào <b>')).toBe('Xin chào &lt;b&gt;');
+    expect(encodeHtml('Xin chào <b>', { encodeNonAscii: true })).toBe('Xin ch&agrave;o &lt;b&gt;');
+  });
+  it('escapes quotes so the output is safe inside attributes', () => {
+    expect(encodeHtml(`"a" 'b'`)).toBe('&quot;a&quot; &#x27;b&#x27;');
+  });
   it('round-trip with unicode', () => {
     const original = 'Café 世界 🌏';
     expect(decodeHtml(encodeHtml(original, { encodeEverything: true }))).toBe(original);

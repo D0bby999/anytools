@@ -23,8 +23,14 @@ describe('decodeBinary', () => {
   it('decodes ASCII', () => {
     expect(decodeBinary('01001000 01101001')).toBe('Hi');
   });
-  it('strips non-01 characters', () => {
+  it('strips byte separators', () => {
     expect(decodeBinary('01001000-01101001')).toBe('Hi');
+    expect(decodeBinary('01001000, 01101001')).toBe('Hi');
+    expect(decodeBinary('0b01001000 0b01101001')).toBe('Hi');
+  });
+  it('rejects characters that are not bits instead of silently dropping them', () => {
+    expect(() => decodeBinary('hello')).toThrow(/not a binary digit/);
+    expect(() => decodeBinary('01001000 0110100x')).toThrow(/"x"/);
   });
   it('decodes UTF-8 multi-byte', () => {
     expect(decodeBinary('1100001110101001')).toBe('é');

@@ -34,6 +34,12 @@ describe('decodeUrlComponent', () => {
     expect(() => decodeUrlComponent('%')).toThrow(/Invalid URL-encoded/);
     expect(() => decodeUrlComponent('%ZZ')).toThrow(/Invalid URL-encoded/);
   });
+  it('keeps + literal by default and decodes it as space on request', () => {
+    expect(decodeUrlComponent('a+b%20c')).toBe('a+b c');
+    expect(decodeUrlComponent('a+b%20c', { plusAsSpace: true })).toBe('a b c');
+    // An encoded plus must survive either way.
+    expect(decodeUrlComponent('1%2B1', { plusAsSpace: true })).toBe('1+1');
+  });
 });
 
 describe('buildQueryString', () => {

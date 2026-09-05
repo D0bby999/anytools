@@ -32,17 +32,18 @@ export function UrlEncodeUi() {
   const ui = useUiStrings();
   const [mode, setMode] = useState<Mode>('component');
   const [input, setInput] = useState('');
+  const [plusAsSpace, setPlusAsSpace] = useState(true);
 
   const result = useMemo(() => {
     if (input.length === 0) return { value: '', error: '' };
     try {
       if (mode === 'component') return { value: encodeUrlComponent(input), error: '' };
       if (mode === 'full') return { value: encodeUrl(input), error: '' };
-      return { value: decodeUrlComponent(input), error: '' };
+      return { value: decodeUrlComponent(input, { plusAsSpace }), error: '' };
     } catch (e) {
       return { value: '', error: e instanceof Error ? e.message : ui.conversionFailed };
     }
-  }, [input, mode, ui.conversionFailed]);
+  }, [input, mode, plusAsSpace, ui.conversionFailed]);
 
   const textarea = (
     <Textarea
@@ -68,7 +69,18 @@ export function UrlEncodeUi() {
           </TabsList>
           <TabsContent value="component">{textarea}</TabsContent>
           <TabsContent value="full">{textarea}</TabsContent>
-          <TabsContent value="decode">{textarea}</TabsContent>
+          <TabsContent value="decode" className="space-y-3">
+            {textarea}
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={plusAsSpace}
+                onChange={(e) => setPlusAsSpace(e.target.checked)}
+                className="h-4 w-4"
+              />
+              {s.plusAsSpace}
+            </label>
+          </TabsContent>
         </Tabs>
 
         <div className="flex gap-2">

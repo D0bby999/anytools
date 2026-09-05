@@ -6,9 +6,18 @@ export function encodeBinary(text: string, separator = ' '): string {
     .join(separator);
 }
 
+// Whatever people put between bytes: whitespace, commas, dashes, pipes, colons, underscores.
+const SEPARATORS = /[\s,;:|_-]/g;
+// A `0b` prefix ahead of a byte, as printed by most languages.
+const BINARY_PREFIX = /0b(?=[01])/gi;
+
 export function decodeBinary(input: string): string {
-  const clean = input.replace(/[^01]/g, '');
+  const clean = input.replace(BINARY_PREFIX, '').replace(SEPARATORS, '');
   if (clean.length === 0) return '';
+  // Previously every non-01 character was dropped silently, so "hello" decoded to "" with no
+  // hint that nothing had been read. Anything left that isn't a bit is now an error.
+  const bad = clean.match(/[^01]/);
+  if (bad) throw new Error(`"${bad[0]}" is not a binary digit — expected only 0 and 1`);
   if (clean.length % 8 !== 0) throw new Error('Binary string length must be a multiple of 8');
   const bytes = new Uint8Array(clean.length / 8);
   for (let i = 0; i < clean.length; i += 8) {

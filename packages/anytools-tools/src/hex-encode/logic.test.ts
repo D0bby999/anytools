@@ -38,6 +38,15 @@ describe('decodeHex', () => {
   it('odd length throws', () => {
     expect(() => decodeHex('abc')).toThrow();
   });
+  it('accepts common byte separators', () => {
+    expect(decodeHex('48:69')).toBe('Hi');
+    expect(decodeHex('48,69')).toBe('Hi');
+    expect(decodeHex('48-69')).toBe('Hi');
+  });
+  it('rejects characters that are not hex instead of silently dropping them', () => {
+    expect(() => decodeHex('xyz')).toThrow(/not a hex digit/);
+    expect(() => decodeHex('48 6g')).toThrow(/"g"/);
+  });
   it('empty input returns empty', () => {
     expect(decodeHex('')).toBe('');
   });

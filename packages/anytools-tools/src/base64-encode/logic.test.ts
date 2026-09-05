@@ -55,7 +55,20 @@ describe('decodeBase64', () => {
 
   it('throws on invalid input', () => {
     expect(() => decodeBase64('not!valid')).toThrow(/Invalid Base64/);
-    expect(() => decodeBase64('abc')).toThrow(/Invalid Base64/); // length not multiple of 4
+    expect(() => decodeBase64('abcde')).toThrow(/Invalid Base64/); // remainder 1 can't be Base64
+  });
+
+  // Prod 2026-09-05: pasting MIME-wrapped or unpadded Base64 — the two most common shapes
+  // in the wild — produced "Invalid Base64 input" on the site's most visited tool.
+  it('accepts line-wrapped and trailing-newline input', () => {
+    expect(decodeBase64('SGVsbG8s\nIOS4lueVjA==')).toBe('Hello, 世界');
+    expect(decodeBase64('SGVsbG8=\n')).toBe('Hello');
+    expect(decodeBase64('SGVs bG8s IFdv cmxk IQ==')).toBe('Hello, World!');
+  });
+
+  it('accepts missing padding', () => {
+    expect(decodeBase64('SGVsbG8')).toBe('Hello');
+    expect(decodeBase64('SGVsbG8sIFdvcmxkIQ')).toBe('Hello, World!');
   });
 });
 
@@ -98,7 +111,11 @@ describe('isValidBase64', () => {
   });
 
   it('rejects bad length', () => {
-    expect(isValidBase64('abc')).toBe(false);
+    expect(isValidBase64('abcde')).toBe(false);
+  });
+
+  it('tolerates whitespace and missing padding', () => {
+    expect(isValidBase64('SGVs\nbG8')).toBe(true);
   });
 
   it('rejects bad characters', () => {
@@ -115,6 +132,10 @@ describe('isValidBase64Url', () => {
   it('accepts URL-safe chars', () => {
     expect(isValidBase64Url('SGVs-G8_')).toBe(true);
     expect(isValidBase64Url('SGVsbG8')).toBe(true);
+  });
+
+  it('decodes URL-safe input with stray whitespace', () => {
+    expect(decodeBase64Url('SGVs\nbG8\n')).toBe('Hello');
   });
 
   it('rejects bad characters', () => {

@@ -10,10 +10,11 @@ import {
   PrivacyNote,
   Textarea,
   useLocalized,
+  useToolLocale,
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
-import { decodeJwt, readExpiry } from './logic';
+import { decodeJwt, formatDuration, readExpiry } from './logic';
 import { STRINGS } from './strings';
 
 const EXAMPLE =
@@ -22,6 +23,7 @@ const EXAMPLE =
 export function JwtDecoderUi() {
   const s = useLocalized(STRINGS);
   const ui = useUiStrings();
+  const locale = useToolLocale();
   const [token, setToken] = useState('');
 
   const decoded = useMemo(() => {
@@ -70,20 +72,32 @@ export function JwtDecoderUi() {
           </output>
         ) : (
           <div className="space-y-4">
-            {decoded.expiry.exp && (
-              <div>
-                {decoded.expiry.isExpired ? (
-                  <Badge variant="destructive">
-                    {s.expiredAgo.replace(
-                      '{n}',
-                      String(Math.abs(decoded.expiry.expiresInSec ?? 0)),
-                    )}
-                  </Badge>
-                ) : (
-                  <Badge>{s.validFor.replace('{n}', String(decoded.expiry.expiresInSec))}</Badge>
-                )}
+            {(decoded.expiry.exp || decoded.result.unsecured) && (
+              <div className="flex flex-wrap gap-2">
+                {decoded.result.unsecured && <Badge variant="destructive">{s.unsecured}</Badge>}
+                {decoded.expiry.exp &&
+                  (decoded.expiry.isExpired ? (
+                    <Badge variant="destructive">
+                      {s.expiredAgo.replace(
+                        '{n}',
+                        formatDuration(decoded.expiry.expiresInSec ?? 0),
+                      )}
+                    </Badge>
+                  ) : (
+                    <Badge>
+                      {s.validFor.replace('{n}', formatDuration(decoded.expiry.expiresInSec ?? 0))}
+                    </Badge>
+                  ))}
               </div>
             )}
+            <ClaimDates
+              locale={locale}
+              rows={[
+                [s.issuedAt, decoded.expiry.iat],
+                [s.notBefore, decoded.expiry.nbf],
+                [s.expiresAt, decoded.expiry.exp],
+              ]}
+            />
             <Section title={s.header} data={decoded.result.header} />
             <Section title={s.payload} data={decoded.result.payload} />
             <SignatureBlock raw={decoded.result.signature} />
@@ -93,6 +107,22 @@ export function JwtDecoderUi() {
         <PrivacyNote message={s.privacy} />
       </CardContent>
     </Card>
+  );
+}
+
+/** iat / nbf / exp as wall-clock dates in the reader's locale; rows without a claim are skipped. */
+function ClaimDates({ locale, rows }: { locale: string; rows: [string, Date | null][] }) {
+  const present = rows.filter((r): r is [string, Date] => r[1] !== null);
+  if (present.length === 0) return null;
+  return (
+    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+      {present.map(([label, date]) => (
+        <div key={label} className="contents">
+          <dt className="text-muted-foreground">{label}</dt>
+          <dd className="font-mono">{date.toLocaleString(locale)}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 

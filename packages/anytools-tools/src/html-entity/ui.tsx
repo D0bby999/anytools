@@ -23,16 +23,19 @@ export function HtmlEntityUi() {
   const ui = useUiStrings();
   const [text, setText] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
+  const [encodeNonAscii, setEncodeNonAscii] = useState(false);
   const [encodeEverything, setEncodeEverything] = useState(false);
 
   const result = useMemo(() => {
     if (!text) return '';
     try {
-      return mode === 'encode' ? encodeHtml(text, { encodeEverything }) : decodeHtml(text);
+      return mode === 'encode'
+        ? encodeHtml(text, { encodeNonAscii, encodeEverything })
+        : decodeHtml(text);
     } catch {
       return '';
     }
-  }, [text, mode, encodeEverything]);
+  }, [text, mode, encodeNonAscii, encodeEverything]);
 
   return (
     <Card>
@@ -52,6 +55,15 @@ export function HtmlEntityUi() {
               placeholder="<script>alert('xss')</script>"
               rows={5}
             />
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={encodeNonAscii}
+                onChange={(e) => setEncodeNonAscii(e.target.checked)}
+                className="h-4 w-4"
+              />
+              {s.encodeNonAscii}
+            </label>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"

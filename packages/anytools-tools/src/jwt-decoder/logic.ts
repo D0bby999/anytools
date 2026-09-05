@@ -5,27 +5,65 @@ export type DecodedJwt = {
   header: object;
   payload: object;
   signature: string;
+  /** RFC 7519 §6: an "unsecured" JWT has `alg: none` and an empty signature part. */
+  unsecured: boolean;
   raw: { header: string; payload: string; signature: string };
 };
 
-const PART_RE = /^[A-Za-z0-9\-_]+$/;
+// Base64URL, tolerating the `=` padding some encoders leave on.
+const PART_RE = /^[A-Za-z0-9\-_]+={0,2}$/;
+const SIGNATURE_RE = /^[A-Za-z0-9\-_]*={0,2}$/;
+
+/**
+ * Tokens are usually pasted straight out of an Authorization header or a cookie, so the
+ * "Bearer " scheme prefix is dropped rather than reported as a malformed token.
+ */
+export function stripBearer(token: string): string {
+  return token.trim().replace(/^bearer\s+/i, '');
+}
 
 export function decodeJwt(token: string): DecodedJwt {
-  const trimmed = token.trim();
+  const trimmed = stripBearer(token);
   const parts = trimmed.split('.');
   if (parts.length !== 3) {
     throw new Error('Invalid JWT format — expected three segments separated by `.`');
   }
   const [rawHeader, rawPayload, rawSignature] = parts as [string, string, string];
-  if (!PART_RE.test(rawHeader) || !PART_RE.test(rawPayload) || !PART_RE.test(rawSignature)) {
+  if (!PART_RE.test(rawHeader) || !PART_RE.test(rawPayload) || !SIGNATURE_RE.test(rawSignature)) {
     throw new Error('Invalid JWT — segments must be Base64URL');
   }
   return {
     header: parseSegment(rawHeader, 'header'),
     payload: parseSegment(rawPayload, 'payload'),
     signature: rawSignature,
+    unsecured: rawSignature.length === 0,
     raw: { header: rawHeader, payload: rawPayload, signature: rawSignature },
   };
+}
+
+/**
+ * "31536000s" tells nobody anything; "365d" does. Largest two units only, so a token that
+ * expires in 400 days reads "1y 35d", not "1y 35d 4h 12m 9s".
+ */
+export function formatDuration(totalSeconds: number): string {
+  const abs = Math.abs(Math.floor(totalSeconds));
+  const units: [string, number][] = [
+    ['y', 31_536_000],
+    ['d', 86_400],
+    ['h', 3_600],
+    ['m', 60],
+    ['s', 1],
+  ];
+  const parts: string[] = [];
+  let rest = abs;
+  for (const [label, size] of units) {
+    if (rest >= size) {
+      parts.push(`${Math.floor(rest / size)}${label}`);
+      rest %= size;
+    }
+    if (parts.length === 2) break;
+  }
+  return parts.length ? parts.join(' ') : '0s';
 }
 
 function parseSegment(raw: string, label: string): object {
