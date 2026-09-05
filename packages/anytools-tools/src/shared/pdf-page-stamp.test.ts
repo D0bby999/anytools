@@ -1,7 +1,7 @@
 // @vitest-environment node
 // Pure geometry — no PDF, no DOM. This is the mapping that decides whether every position
 // control on add-page-numbers and watermark-pdf points where the user thinks it does.
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   PdfTextError,
   assertDrawableText,
@@ -9,6 +9,7 @@ import {
   pageFrame,
   rethrowAsTextError,
 } from './pdf-page-stamp';
+import { hasNotoFont, stubNotoFetch } from './test-unicode-font';
 
 /** A4 at the origin — the easy case, and the only one `getWidth()`/`getHeight()` describe. */
 const A4 = { x: 0, y: 0, width: 595, height: 842 };
@@ -198,12 +199,30 @@ describe('rethrowAsTextError', () => {
 });
 
 describe('assertDrawableText', () => {
-  it('rejects text the built-in font cannot draw, with the same explanation', async () => {
-    for (const text of ['Tài liệu mật', '机密文件', 'КОНФИДЕНЦИАЛЬНО', '🙂']) {
+  beforeAll(() => {
+    if (hasNotoFont()) stubNotoFetch();
+  });
+  afterAll(() => vi.unstubAllGlobals());
+
+  it('rejects text no available font can draw, naming the characters', async () => {
+    for (const text of ['机密文件', '🙂']) {
       await expect(assertDrawableText(text, 'The watermark text')).rejects.toThrow(PdfTextError);
     }
     await expect(assertDrawableText('机密文件', 'The watermark text')).rejects.toThrow(
       /^The watermark text/,
+    );
+  });
+
+  // Review 2026-09-05: "Tài liệu mật" was refused on a site with a Vietnamese edition.
+  it.skipIf(!hasNotoFont())('accepts Vietnamese, Greek and Cyrillic via Noto Sans', async () => {
+    for (const text of ['Tài liệu mật', 'BẢN NHÁP', 'КОНФИДЕНЦИАЛЬНО', 'Απόρρητο']) {
+      await expect(assertDrawableText(text, 'The watermark text')).resolves.toBeUndefined();
+    }
+  });
+
+  it.skipIf(!hasNotoFont())('names only the characters Noto Sans lacks', async () => {
+    await expect(assertDrawableText('Mật 机密', 'The watermark text')).rejects.toThrow(
+      /can draw: 机 密\./,
     );
   });
 

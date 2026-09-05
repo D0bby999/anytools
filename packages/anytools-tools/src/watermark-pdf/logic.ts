@@ -3,6 +3,7 @@
 import { type EmbeddableImage, ownBuffer } from '../shared/embeddable-image';
 import { parsePageRange } from '../shared/page-range';
 import { assertDrawableText, pageFrame, rethrowAsTextError } from '../shared/pdf-page-stamp';
+import { embedTextFont } from '../shared/pdf-unicode-font';
 
 export type WatermarkTextOptions = {
   kind: 'text';
@@ -124,7 +125,7 @@ export async function watermarkPdf(file: File, opts: WatermarkOptions): Promise<
     throw new WatermarkError('Opacity must be above 0 and at most 1.');
   }
 
-  const { StandardFonts, degrees, rgb } = await import('pdf-lib');
+  const { degrees, rgb } = await import('pdf-lib');
   // Before reading the file, which may be hundreds of megabytes: can the built-in font draw
   // this at all? The failure is the same either way, but it arrives now instead of after the
   // load and save. Colours are parsed up front for the same reason.
@@ -139,8 +140,10 @@ export async function watermarkPdf(file: File, opts: WatermarkOptions): Promise<
     : Array.from({ length: pageCount }, (_, i) => i);
 
   // Both the font and the image are embedded ONCE and referenced from every page. Embedding
-  // per page would multiply a 200 KB logo by the page count.
-  const font = opts.kind === 'text' ? await doc.embedFont(StandardFonts.Helvetica) : null;
+  // per page would multiply a 200 KB logo by the page count. Helvetica when it can spell the
+  // text; the staged Noto Sans (subset) for Vietnamese, Greek, Cyrillic.
+  const font =
+    opts.kind === 'text' ? await embedTextFont(doc, opts.text, 'The watermark text') : null;
   const color = opts.kind === 'text' ? parseHexColor(opts.color) : null;
   let image: Awaited<ReturnType<typeof doc.embedPng>> | null = null;
   if (opts.kind === 'image') {

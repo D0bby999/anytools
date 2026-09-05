@@ -113,12 +113,9 @@ export function pageFrame(box: PageBox, rotationDegrees: number): PageFrame {
 }
 
 /** Raised when text cannot be drawn with the built-in font. */
-export class PdfTextError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'PdfTextError';
-  }
-}
+import { PdfTextError, embedTextFont } from './pdf-unicode-font';
+
+export { PdfTextError } from './pdf-unicode-font';
 
 /**
  * Turn pdf-lib's encoding failure into something a user can act on.
@@ -145,21 +142,17 @@ export class PdfTextError extends Error {
  * standard font costs nothing to embed since it is a reference by name, not glyph bytes.
  */
 export async function assertDrawableText(text: string, subject: string): Promise<void> {
-  const { PDFDocument, StandardFonts } = await import('pdf-lib');
+  const { PDFDocument } = await import('pdf-lib');
   const probe = await PDFDocument.create();
-  const font = await probe.embedFont(StandardFonts.Helvetica);
-  try {
-    font.encodeText(text);
-  } catch (e) {
-    rethrowAsTextError(e, subject);
-  }
+  // Throws PdfTextError naming the characters when neither Helvetica nor Noto Sans has them.
+  await embedTextFont(probe, text, subject);
 }
 
 export function rethrowAsTextError(error: unknown, subject: string): never {
   const message = error instanceof Error ? error.message : String(error);
   if (/cannot encode|winansi|encoding/i.test(message)) {
     throw new PdfTextError(
-      `${subject} uses characters the built-in font cannot draw. This version has Helvetica only, which covers Latin characters — no Vietnamese tone marks, Chinese, Japanese, Korean, Greek, Cyrillic, Arabic or emoji.`,
+      `${subject} uses characters the font cannot draw. Latin characters (including Vietnamese), Greek and Cyrillic are covered; Chinese, Japanese, Korean, Arabic and emoji are not.`,
     );
   }
   throw error instanceof Error ? error : new Error(message);

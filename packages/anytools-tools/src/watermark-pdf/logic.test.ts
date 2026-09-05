@@ -15,11 +15,12 @@ import {
   PDFStream,
   StandardFonts,
 } from 'pdf-lib';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { EmbeddableImage } from '../shared/embeddable-image';
 import { PageRangeError } from '../shared/page-range';
 import { PdfTextError } from '../shared/pdf-page-stamp';
 import { encodeRgbPng } from '../shared/test-png';
+import { hasNotoFont, stubNotoFetch } from '../shared/test-unicode-font';
 import {
   WatermarkError,
   type WatermarkOptions,
@@ -265,6 +266,11 @@ describe('centeredAnchor', () => {
 
 // --- watermarkPdf, text ---------------------------------------------------------------------
 
+beforeAll(() => {
+  if (hasNotoFont()) stubNotoFetch();
+});
+afterAll(() => vi.unstubAllGlobals());
+
 describe('watermarkPdf with text', () => {
   it('stamps every page, leaving the page count and sizes alone', async () => {
     const r = await watermarkPdf(await pdfFile(4, {}), textOpts());
@@ -325,15 +331,28 @@ describe('watermarkPdf with text', () => {
     expect([0, 1, 2, 3, 4].map((i) => drawnText(doc, i).length)).toEqual([0, 1, 0, 1, 0]);
   });
 
-  it('says plainly that the built-in font is Latin only', async () => {
+  it('refuses text no available font can draw, naming the characters', async () => {
     const file = await pdfFile(1, {});
-    // Real strings people will try, in the three scripts most likely to be typed here.
-    for (const text of ['Tài liệu mật', '机密文件', 'КОНФИДЕНЦИАЛЬНО']) {
+    for (const text of ['机密文件', '🙂']) {
       await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(PdfTextError);
-      await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(/Latin characters/);
+      await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(/can draw/);
     }
-    // And the accented Latin that WinAnsi does cover still works.
+    // And the accented Latin that WinAnsi does cover still goes through Helvetica.
     await expect(watermarkPdf(file, textOpts({ text: 'BRÖTCHEN ÉTÉ' }))).resolves.toBeTruthy();
+  });
+
+  // Review 2026-09-05: a Vietnamese watermark was refused outright. Noto Sans is embedded as a
+  // subset when Helvetica cannot spell the text.
+  it.skipIf(!hasNotoFont())('stamps Vietnamese and Cyrillic text through Noto Sans', async () => {
+    const file = await pdfFile(2, {});
+    for (const text of ['BẢN NHÁP — Tài liệu mật', 'КОНФИДЕНЦИАЛЬНО']) {
+      const r = await watermarkPdf(file, textOpts({ text }));
+      expect(r.stamped).toBe(2);
+      const doc = await reopen(r.blob);
+      expect(drawnText(doc, 0).length).toBeGreaterThan(0);
+      // The subset is embedded, not the whole 421 KB file.
+      expect(r.blob.size).toBeLessThan(200_000);
+    }
   });
 
   it('refuses settings that would produce an invisible or empty mark', async () => {

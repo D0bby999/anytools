@@ -19,9 +19,10 @@
  */
 
 import { type PageFrame, pageFrame } from '../shared/pdf-page-stamp';
+import { NOTO_FONT_URL, UnicodeFontError, loadUnicodeFont } from '../shared/pdf-unicode-font';
 import type { OcrBox, OcrLanguage } from '../shared/tesseract-loader';
 
-export const NOTO_FONT_URL = '/third-party/noto/NotoSans-Regular.ttf';
+export { NOTO_FONT_URL };
 
 /**
  * Words below this are usually noise — speckles read as punctuation — and putting them in the
@@ -87,28 +88,18 @@ export class SearchableLayerError extends Error {
   }
 }
 
-/**
- * Load the Unicode font used for languages Helvetica cannot spell.
- *
- * Served from this origin (manifest key `noto`), never from Google Fonts — the request would
- * otherwise tell a third party that someone is OCRing a Vietnamese document. Subsetting is left
- * to pdf-lib, so the 421 KB file adds only the glyphs actually used to the output.
- */
-async function loadUnicodeFont(): Promise<ArrayBuffer> {
-  let res: Response;
+/** The shared loader, with its failure re-labelled for this tool's UI. */
+async function loadLayerFont(): Promise<ArrayBuffer> {
   try {
-    res = await fetch(NOTO_FONT_URL);
-  } catch {
-    throw new SearchableLayerError(
-      'The Unicode font the searchable layer needs could not be loaded. Check your connection and try again.',
-    );
+    return await loadUnicodeFont();
+  } catch (e) {
+    if (e instanceof UnicodeFontError) {
+      throw new SearchableLayerError(
+        e.message.replace('this text needs', 'the searchable layer needs'),
+      );
+    }
+    throw e;
   }
-  if (!res.ok) {
-    throw new SearchableLayerError(
-      `The Unicode font the searchable layer needs could not be loaded (HTTP ${res.status}).`,
-    );
-  }
-  return res.arrayBuffer();
 }
 
 /**
@@ -166,7 +157,7 @@ export async function prepareSearchableLayer(
   if (needsUnicodeFont(lang)) {
     const fontkit = (await import('@pdf-lib/fontkit')).default;
     doc.registerFontkit(fontkit);
-    font = await doc.embedFont(await loadUnicodeFont(), { subset: true });
+    font = await doc.embedFont(await loadLayerFont(), { subset: true });
   } else {
     font = await doc.embedFont(StandardFonts.Helvetica);
   }
