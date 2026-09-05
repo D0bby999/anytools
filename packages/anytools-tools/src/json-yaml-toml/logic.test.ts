@@ -19,6 +19,17 @@ describe('convertFormat', () => {
   it('invalid json throws', () => {
     expect(() => convertFormat('{bad', 'json', 'yaml')).toThrow();
   });
+  // Review 2026-09-05: js-yaml read `2024-01-01` as a timestamp and JSON got an ISO datetime.
+  it('keeps a YAML date as the string it was written as', () => {
+    expect(JSON.parse(convertFormat('date: 2024-01-01\nflag: no', 'yaml', 'json'))).toEqual({
+      date: '2024-01-01',
+      flag: 'no',
+    });
+  });
+  it('names the null key when TOML cannot represent it', () => {
+    expect(() => convertFormat('{"a":{"b":null}}', 'json', 'toml')).toThrow(/"a\.b" is null/);
+    expect(() => convertFormat('{"list":[1,null]}', 'json', 'toml')).toThrow(/"list\[1\]"/);
+  });
 });
 
 describe('detectFormat', () => {

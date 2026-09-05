@@ -79,6 +79,14 @@ export async function drawToBlob(
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new ImageToolError('Your browser did not provide a 2D canvas context.');
 
+  // JPEG has no alpha channel. Left alone, the canvas's transparent pixels encode as black,
+  // so a logo on a transparent PNG came back on a black slab. White is what every image
+  // editor does for the same export.
+  if (format === 'jpeg') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   if (source) {
     ctx.drawImage(
       bitmap,

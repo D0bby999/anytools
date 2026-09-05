@@ -32,6 +32,11 @@ export async function convertImage(
   canvas.height = img.naturalHeight;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas 2D context not available');
+  // JPEG has no alpha: without this a transparent PNG converts onto a black background.
+  if (target === 'jpeg') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
   ctx.drawImage(img, 0, 0);
 
   const mime = MIME_MAP[target];
