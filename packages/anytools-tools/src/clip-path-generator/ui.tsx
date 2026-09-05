@@ -11,11 +11,14 @@ import {
   PrivacyNote,
   RangeSlider,
   SegmentedControl,
+  useLocalized,
 } from '@anytools/ui';
 import { useRef, useState } from 'react';
+import { richText } from '../shared/rich-text';
 import { ClipCanvas } from './clip-canvas';
 import { type Box, type ClipShape, type Unit, parseBoxSide, toCss, toCssBlock } from './logic';
 import { CLIP_PRESETS } from './presets';
+import { STRINGS } from './strings';
 
 const SLUG = 'clip-path-generator';
 type Kind = ClipShape['kind'];
@@ -28,6 +31,7 @@ const BLANK: Record<Kind, ClipShape> = {
 };
 
 export function ClipPathGeneratorUi() {
+  const s = useLocalized(STRINGS);
   const [shape, setShape] = useState<ClipShape>(BLANK.polygon);
   const [unit, setUnit] = useState<Unit>('%');
   const [box, setBox] = useState<Box>({ width: 400, height: 320 });
@@ -41,6 +45,9 @@ export function ClipPathGeneratorUi() {
 
   const declaration = toCssBlock(shape, unit, box);
   const boxIsStale = parseBoxSide(boxText.width) === null || parseBoxSide(boxText.height) === null;
+  // Preset names live in presets.ts in English; look them up by name here.
+  const presetName = (name: string) =>
+    (s as Record<string, string>)[`preset_${name.replace(/\s+/g, '')}`] ?? name;
 
   const countRun = () => {
     if (counted.current) return;
@@ -57,30 +64,27 @@ export function ClipPathGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">CSS Clip Path Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <ClipCanvas shape={shape} onChange={setShape} />
-        <p className="text-sm text-muted-foreground">
-          Drag a vertex to move it, or focus one and use the arrow keys. The small squares on each
-          edge add a vertex there; Delete on a vertex removes it (three is the minimum).
-        </p>
+        <p className="text-sm text-muted-foreground">{s.hint}</p>
 
         <SegmentedControl
-          label="Shape"
+          label={s.shape}
           value={shape.kind}
           onChange={(kind: Kind) => setShape(BLANK[kind])}
           options={[
-            { value: 'polygon', label: 'Polygon' },
-            { value: 'circle', label: 'Circle' },
-            { value: 'ellipse', label: 'Ellipse' },
-            { value: 'inset', label: 'Inset' },
+            { value: 'polygon', label: s.polygon },
+            { value: 'circle', label: s.circle },
+            { value: 'ellipse', label: s.ellipse },
+            { value: 'inset', label: s.inset },
           ]}
         />
 
         {shape.kind === 'polygon' && (
           <div>
-            <span className="block text-sm font-medium mb-1.5">Presets</span>
+            <span className="block text-sm font-medium mb-1.5">{s.presets}</span>
             <div className="flex flex-wrap gap-2">
               {CLIP_PRESETS.map((p) => (
                 <Button
@@ -90,7 +94,7 @@ export function ClipPathGeneratorUi() {
                   className="h-11"
                   onClick={() => setShape(p.shape)}
                 >
-                  {p.name}
+                  {presetName(p.name)}
                 </Button>
               ))}
             </div>
@@ -100,7 +104,7 @@ export function ClipPathGeneratorUi() {
         {shape.kind === 'circle' && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <RangeSlider
-              label="Radius"
+              label={s.radius}
               unit="%"
               min={0}
               max={100}
@@ -108,7 +112,7 @@ export function ClipPathGeneratorUi() {
               onChange={(r) => setShape({ ...shape, r })}
             />
             <RangeSlider
-              label="Centre X"
+              label={s.centreX}
               unit="%"
               min={0}
               max={100}
@@ -116,7 +120,7 @@ export function ClipPathGeneratorUi() {
               onChange={(cx) => setShape({ ...shape, cx })}
             />
             <RangeSlider
-              label="Centre Y"
+              label={s.centreY}
               unit="%"
               min={0}
               max={100}
@@ -129,7 +133,7 @@ export function ClipPathGeneratorUi() {
         {shape.kind === 'ellipse' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <RangeSlider
-              label="Radius X"
+              label={s.radiusX}
               unit="%"
               min={0}
               max={100}
@@ -137,7 +141,7 @@ export function ClipPathGeneratorUi() {
               onChange={(rx) => setShape({ ...shape, rx })}
             />
             <RangeSlider
-              label="Radius Y"
+              label={s.radiusY}
               unit="%"
               min={0}
               max={100}
@@ -145,7 +149,7 @@ export function ClipPathGeneratorUi() {
               onChange={(ry) => setShape({ ...shape, ry })}
             />
             <RangeSlider
-              label="Centre X"
+              label={s.centreX}
               unit="%"
               min={0}
               max={100}
@@ -153,7 +157,7 @@ export function ClipPathGeneratorUi() {
               onChange={(cx) => setShape({ ...shape, cx })}
             />
             <RangeSlider
-              label="Centre Y"
+              label={s.centreY}
               unit="%"
               min={0}
               max={100}
@@ -166,7 +170,7 @@ export function ClipPathGeneratorUi() {
         {shape.kind === 'inset' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <RangeSlider
-              label="Top"
+              label={s.top}
               unit="%"
               min={0}
               max={50}
@@ -174,7 +178,7 @@ export function ClipPathGeneratorUi() {
               onChange={(top) => setShape({ ...shape, top })}
             />
             <RangeSlider
-              label="Right"
+              label={s.right}
               unit="%"
               min={0}
               max={50}
@@ -182,7 +186,7 @@ export function ClipPathGeneratorUi() {
               onChange={(right) => setShape({ ...shape, right })}
             />
             <RangeSlider
-              label="Bottom"
+              label={s.bottom}
               unit="%"
               min={0}
               max={50}
@@ -190,7 +194,7 @@ export function ClipPathGeneratorUi() {
               onChange={(bottom) => setShape({ ...shape, bottom })}
             />
             <RangeSlider
-              label="Left"
+              label={s.left}
               unit="%"
               min={0}
               max={50}
@@ -198,7 +202,7 @@ export function ClipPathGeneratorUi() {
               onChange={(left) => setShape({ ...shape, left })}
             />
             <RangeSlider
-              label="Corner radius"
+              label={s.cornerRadius}
               unit="%"
               min={0}
               max={50}
@@ -211,7 +215,7 @@ export function ClipPathGeneratorUi() {
         <div className="flex flex-wrap items-end gap-3">
           <SegmentedControl
             className="w-40"
-            label="Units"
+            label={s.units}
             value={unit}
             onChange={setUnit}
             options={[
@@ -222,40 +226,34 @@ export function ClipPathGeneratorUi() {
           {unit === 'px' && (
             <>
               <div className="w-28">
-                <span className="block text-sm font-medium mb-1.5">Box width</span>
+                <span className="block text-sm font-medium mb-1.5">{s.boxWidth}</span>
                 <Input
                   type="number"
                   min={1}
                   value={boxText.width}
                   onChange={(e) => setSide('width', e.target.value)}
-                  aria-label="Reference box width in px"
+                  aria-label={s.boxWidthAria}
                   className="h-11 font-mono"
                 />
               </div>
               <div className="w-28">
-                <span className="block text-sm font-medium mb-1.5">Box height</span>
+                <span className="block text-sm font-medium mb-1.5">{s.boxHeight}</span>
                 <Input
                   type="number"
                   min={1}
                   value={boxText.height}
                   onChange={(e) => setSide('height', e.target.value)}
-                  aria-label="Reference box height in px"
+                  aria-label={s.boxHeightAria}
                   className="h-11 font-mono"
                 />
               </div>
             </>
           )}
         </div>
-        {unit === 'px' && (
-          <p className="text-sm text-muted-foreground">
-            px values are frozen at this box size — the shape will not follow a responsive element.
-            Percentages are the safer default.
-          </p>
-        )}
+        {unit === 'px' && <p className="text-sm text-muted-foreground">{s.pxNote}</p>}
         {unit === 'px' && boxIsStale && (
           <p className="text-sm text-destructive" data-testid="box-warning">
-            A box side has to be at least 1px. The CSS below still uses the last size that was:{' '}
-            {box.width}×{box.height}.
+            {s.boxWarning.replace('{w}', String(box.width)).replace('{h}', String(box.height))}
           </p>
         )}
 
@@ -272,7 +270,10 @@ export function ClipPathGeneratorUi() {
           </pre>
           {shape.kind === 'polygon' && (
             <p className="text-xs text-muted-foreground">
-              {shape.points.length} vertices · value: <code>{toCss(shape)}</code>
+              {richText(s.verticesValue, {
+                n: String(shape.points.length),
+                code: <code>{toCss(shape)}</code>,
+              })}
             </p>
           )}
         </div>

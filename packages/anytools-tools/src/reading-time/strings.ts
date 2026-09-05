@@ -1,0 +1,50 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Reading Time Estimator',
+  description: 'Average adult reads 238 WPM, speaks 150 WPM, skims 450 WPM.',
+  placeholder: 'Paste your text...',
+  text: 'Text',
+  readingSpeed: 'Reading speed',
+  words: 'Words',
+  read: 'Read ({wpm} WPM)',
+  speak: 'Speak (150 WPM)',
+  skim: 'Skim (450 WPM)',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Ước tính thời gian đọc',
+    description: 'Người lớn trung bình đọc 238 từ/phút, nói 150 từ/phút, đọc lướt 450 từ/phút.',
+    placeholder: 'Dán văn bản của bạn...',
+    text: 'Văn bản',
+    readingSpeed: 'Tốc độ đọc',
+    words: 'Số từ',
+    read: 'Đọc ({wpm} từ/phút)',
+    speak: 'Nói (150 từ/phút)',
+    skim: 'Đọc lướt (450 từ/phút)',
+  },
+  es: {
+    title: 'Estimador de tiempo de lectura',
+    description: 'Un adulto promedio lee 238 PPM, habla a 150 PPM y ojea a 450 PPM.',
+    placeholder: 'Pega tu texto...',
+    text: 'Texto',
+    readingSpeed: 'Velocidad de lectura',
+    words: 'Palabras',
+    read: 'Leer ({wpm} PPM)',
+    speak: 'Hablar (150 PPM)',
+    skim: 'Ojear (450 PPM)',
+  },
+  pt: {
+    title: 'Estimador de tempo de leitura',
+    description: 'Um adulto médio lê 238 PPM, fala a 150 PPM e passa os olhos a 450 PPM.',
+    placeholder: 'Cole seu texto...',
+    text: 'Texto',
+    readingSpeed: 'Velocidade de leitura',
+    words: 'Palavras',
+    read: 'Ler ({wpm} PPM)',
+    speak: 'Falar (150 PPM)',
+    skim: 'Passar os olhos (450 PPM)',
+  },
+};

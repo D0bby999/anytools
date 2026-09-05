@@ -1,0 +1,58 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Color Palette Generator',
+  description: 'Harmonized palettes from a seed color.',
+  seedColor: 'Seed color',
+  seedHex: 'Seed hex',
+  harmony: 'Harmony',
+  analogous: 'Analogous',
+  complementary: 'Complement',
+  triadic: 'Triadic',
+  tetradic: 'Tetradic',
+  monochromatic: 'Mono',
+  copyColor: 'Copy {color}',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Tạo bảng màu',
+    description: 'Bảng màu hài hòa từ một màu gốc.',
+    seedColor: 'Màu gốc',
+    seedHex: 'Mã hex màu gốc',
+    harmony: 'Kiểu phối màu',
+    analogous: 'Tương đồng',
+    complementary: 'Bổ túc',
+    triadic: 'Bộ ba',
+    tetradic: 'Bộ bốn',
+    monochromatic: 'Đơn sắc',
+    copyColor: 'Sao chép {color}',
+  },
+  es: {
+    title: 'Generador de paletas de color',
+    description: 'Paletas armonizadas a partir de un color base.',
+    seedColor: 'Color base',
+    seedHex: 'Hex del color base',
+    harmony: 'Armonía',
+    analogous: 'Análoga',
+    complementary: 'Complementaria',
+    triadic: 'Triádica',
+    tetradic: 'Tetrádica',
+    monochromatic: 'Mono',
+    copyColor: 'Copiar {color}',
+  },
+  pt: {
+    title: 'Gerador de paletas de cores',
+    description: 'Paletas harmonizadas a partir de uma cor base.',
+    seedColor: 'Cor base',
+    seedHex: 'Hex da cor base',
+    harmony: 'Harmonia',
+    analogous: 'Análoga',
+    complementary: 'Complementar',
+    triadic: 'Triádica',
+    tetradic: 'Tetrádica',
+    monochromatic: 'Mono',
+    copyColor: 'Copiar {color}',
+  },
+};

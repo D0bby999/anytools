@@ -1,10 +1,20 @@
 'use client';
 import '@excalidraw/excalidraw/index.css';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PrivacyNote,
+  useLocalized,
+  useToolLocale,
+  useUiStrings,
+} from '@anytools/ui';
 import type { ImportedDataState } from '@excalidraw/excalidraw/data/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { richText } from '../shared/rich-text';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   MAX_SCENE_BYTES,
@@ -14,6 +24,7 @@ import {
   serializeScene,
   storageKey,
 } from './logic';
+import { STRINGS } from './strings';
 
 /**
  * Where Excalidraw looks for its canvas fonts (Excalifont, Virgil, Cascadia, Xiaolai…).
@@ -104,7 +115,13 @@ const AUTOSAVE_DEBOUNCE_MS = 500;
 const buttonClass =
   'inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-muted disabled:opacity-40';
 
+// Excalidraw's own chrome (menus, tooltips) in the page language. Codes per its locales list.
+const EXCALIDRAW_LANG: Record<string, string> = { en: 'en', vi: 'vi-VN', es: 'es-ES', pt: 'pt-BR' };
+
 export function WhiteboardUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
+  const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const apiRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -164,13 +181,7 @@ export function WhiteboardUi() {
   }, []);
 
   /** What is (or is not) in storage while a save is failing — the half people need to hear. */
-  const staleCopyNote = useCallback(
-    () =>
-      lastSaved.current
-        ? 'The copy in this browser is an earlier version of it.'
-        : 'Nothing is saved in this browser yet.',
-    [],
-  );
+  const staleCopyNote = useCallback(() => (lastSaved.current ? s.staleCopy : s.nothingSaved), [s]);
 
   const handleChange = useCallback(
     (elements: readonly unknown[], appState: unknown, files: unknown) => {
@@ -206,7 +217,9 @@ export function WhiteboardUi() {
         if (sceneByteLength(json) > MAX_SCENE_BYTES) {
           setStatus(null);
           setSaveError(
-            `This board is past the ${MAX_SCENE_BYTES / (1024 * 1024)} MB browser-storage limit, so it is no longer being saved. ${staleCopyNote()} Export it as .excalidraw to keep this version.`,
+            s.overLimit
+              .replace('{mb}', String(MAX_SCENE_BYTES / (1024 * 1024)))
+              .replace('{note}', staleCopyNote()),
           );
           return;
         }
@@ -214,16 +227,14 @@ export function WhiteboardUi() {
           window.localStorage.setItem(storageKey(), json);
           lastSaved.current = json;
           setSaveError(null);
-          setStatus('Saved in this browser');
+          setStatus(s.savedInBrowser);
         } catch {
           setStatus(null);
-          setSaveError(
-            `Could not save the board — browser storage is full or blocked. ${staleCopyNote()} Export it as .excalidraw to keep this version.`,
-          );
+          setSaveError(s.couldNotSave.replace('{note}', staleCopyNote()));
         }
       }, AUTOSAVE_DEBOUNCE_MS);
     },
-    [staleCopyNote, trackOnce],
+    [s, staleCopyNote, trackOnce],
   );
 
   const newBoard = useCallback(() => {
@@ -246,8 +257,8 @@ export function WhiteboardUi() {
     });
     setError(null);
     setSaveError(null);
-    setStatus('New board');
-  }, [objectUrls]);
+    setStatus(s.newBoard);
+  }, [objectUrls, s]);
 
   /** Is there anything on the canvas that an import would replace? */
   const boardHasContent = useCallback(
@@ -269,7 +280,7 @@ export function WhiteboardUi() {
       trackOnce();
       try {
         const elements = api.getSceneElements();
-        if (elements.length === 0) throw new Error('The board is empty — draw something first.');
+        if (elements.length === 0) throw new Error(s.boardEmpty);
         const appState = api.getAppState();
         const files = api.getFiles();
         const mod = await import('@excalidraw/excalidraw');
@@ -321,12 +332,12 @@ export function WhiteboardUi() {
           objectUrls.revoke(prev?.url);
           return null;
         });
-        setError(e instanceof Error ? e.message : 'Could not export the board.');
+        setError(e instanceof Error ? e.message : s.couldNotExport);
       } finally {
         setBusy(false);
       }
     },
-    [objectUrls, trackOnce],
+    [objectUrls, s, trackOnce],
   );
 
   const importScene = useCallback(
@@ -338,7 +349,9 @@ export function WhiteboardUi() {
       try {
         if (file.size > MAX_SCENE_BYTES) {
           throw new Error(
-            `That file is ${(file.size / (1024 * 1024)).toFixed(1)} MB. The limit is ${MAX_SCENE_BYTES / (1024 * 1024)} MB.`,
+            s.fileTooBig
+              .replace('{size}', (file.size / (1024 * 1024)).toFixed(1))
+              .replace('{limit}', String(MAX_SCENE_BYTES / (1024 * 1024))),
           );
         }
         const scene = parseSceneFile(await file.text());
@@ -359,36 +372,39 @@ export function WhiteboardUi() {
         // Anything the parser had to drop is named rather than left for the person to notice a
         // missing box: their file was changed on the way in, and being told why is the point.
         setStatus(
-          scene.removedEmbeds > 0
-            ? `Opened ${file.name} — removed ${scene.removedEmbeds} embedded ${
-                scene.removedEmbeds === 1 ? 'frame' : 'frames'
-              }, which this board does not load.`
-            : `Opened ${file.name}`,
+          (scene.removedEmbeds === 0
+            ? s.opened
+            : scene.removedEmbeds === 1
+              ? s.openedRemovedOne
+              : s.openedRemovedMany
+          )
+            .replace('{name}', file.name)
+            .replace('{n}', String(scene.removedEmbeds)),
         );
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Could not open that file.');
+        setError(e instanceof Error ? e.message : s.couldNotOpen);
       } finally {
         setBusy(false);
       }
     },
-    [trackOnce],
+    [s, trackOnce],
   );
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Online whiteboard</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           {confirming === 'new' ? (
             <>
-              <span className="text-sm text-muted-foreground">Erase this board?</span>
+              <span className="text-sm text-muted-foreground">{s.eraseQuestion}</span>
               <button type="button" onClick={newBoard} className={buttonClass}>
-                Yes, erase it
+                {s.yesErase}
               </button>
               <button type="button" onClick={() => setConfirming(null)} className={buttonClass}>
-                Cancel
+                {ui.cancel}
               </button>
             </>
           ) : (
@@ -398,7 +414,7 @@ export function WhiteboardUi() {
               className={buttonClass}
               disabled={busy}
             >
-              New board
+              {s.newBoard}
             </button>
           )}
           <button
@@ -407,7 +423,7 @@ export function WhiteboardUi() {
             className={buttonClass}
             disabled={busy}
           >
-            Export PNG
+            {s.exportPng}
           </button>
           <button
             type="button"
@@ -415,7 +431,7 @@ export function WhiteboardUi() {
             className={buttonClass}
             disabled={busy}
           >
-            Export SVG
+            {s.exportSvg}
           </button>
           <button
             type="button"
@@ -423,7 +439,7 @@ export function WhiteboardUi() {
             className={buttonClass}
             disabled={busy}
           >
-            Export .excalidraw
+            {s.exportExcalidraw}
           </button>
           {/*
             Opening a file REPLACES the board, exactly like "New board" does, so it asks first for
@@ -432,12 +448,12 @@ export function WhiteboardUi() {
           */}
           {confirming === 'import' ? (
             <>
-              <span className="text-sm text-muted-foreground">Replace this board with a file?</span>
+              <span className="text-sm text-muted-foreground">{s.replaceQuestion}</span>
               <button type="button" onClick={openFilePicker} className={buttonClass}>
-                Yes, choose a file
+                {s.yesChooseFile}
               </button>
               <button type="button" onClick={() => setConfirming(null)} className={buttonClass}>
-                Cancel
+                {ui.cancel}
               </button>
             </>
           ) : (
@@ -450,7 +466,7 @@ export function WhiteboardUi() {
               className={buttonClass}
               disabled={busy}
             >
-              Open .excalidraw
+              {s.openExcalidraw}
             </button>
           )}
           {/*
@@ -462,7 +478,7 @@ export function WhiteboardUi() {
             ref={fileInputRef}
             id="whiteboard-import"
             type="file"
-            aria-label="Choose an .excalidraw file to open"
+            aria-label={s.chooseFileAria}
             accept=".excalidraw,application/json"
             className="sr-only"
             onChange={(e) => {
@@ -492,7 +508,7 @@ export function WhiteboardUi() {
             download={exported.filename}
             className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
-            Download {exported.filename}
+            {s.downloadFile.replace('{name}', exported.filename)}
           </a>
         )}
 
@@ -525,7 +541,7 @@ export function WhiteboardUi() {
           <Suspense
             fallback={
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                Loading the board…
+                {s.loadingBoard}
               </div>
             }
           >
@@ -536,7 +552,7 @@ export function WhiteboardUi() {
               initialData={initial}
               onChange={handleChange}
               theme={theme}
-              langCode="en"
+              langCode={EXCALIDRAW_LANG[locale]}
               name="anytools-whiteboard"
               // Every network feature Excalidraw ships, switched off explicitly.
               // isCollaborating stays false and no LiveCollaborationTrigger is rendered, so the
@@ -574,7 +590,7 @@ export function WhiteboardUi() {
               renderTopRightUI={(isMobile) =>
                 isMobile ? null : (
                   <span className="rounded-md border px-2 py-1 text-xs text-muted-foreground">
-                    Saved in this browser only
+                    {s.savedOnlyHere}
                   </span>
                 )
               }
@@ -583,9 +599,7 @@ export function WhiteboardUi() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          The board autosaves to this browser&rsquo;s storage about half a second after you stop
-          drawing. Clearing site data erases it. Export a <code>.excalidraw</code> file to keep a
-          copy you can reopen here or on excalidraw.com.
+          {richText(s.autosaveNote, { code: <code>.excalidraw</code> })}
         </p>
 
         <PrivacyNote />

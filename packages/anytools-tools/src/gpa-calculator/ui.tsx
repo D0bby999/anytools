@@ -1,13 +1,15 @@
 'use client';
-import { Button, CalculatorTemplate, Input, NumericPrimary } from '@anytools/ui';
+import { Button, CalculatorTemplate, Input, NumericPrimary, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
-import { GRADES, GRADE_POINTS, calculateGpa } from './logic';
+import { GRADES, calculateGpa } from './logic';
 import type { Course } from './logic';
+import { STRINGS } from './strings';
 
 let nextId = 1;
 const blank = (): Course => ({ id: nextId++, name: '', grade: 'A', credits: 3 });
 
 export function GpaCalculatorUi() {
+  const s = useLocalized(STRINGS);
   const [courses, setCourses] = useState<Course[]>([blank(), blank(), blank()]);
 
   const { gpa, totalCredits } = calculateGpa(courses);
@@ -17,8 +19,8 @@ export function GpaCalculatorUi() {
 
   return (
     <CalculatorTemplate
-      title="GPA Calculator"
-      description="US 4.0 scale, weighted by credit hours."
+      title={s.title}
+      description={s.description}
       inputs={
         <div className="space-y-2">
           {courses.map((c) => (
@@ -26,15 +28,15 @@ export function GpaCalculatorUi() {
               <Input
                 value={c.name}
                 onChange={(e) => update(c.id, { name: e.target.value })}
-                placeholder="Course name (optional)"
+                placeholder={s.courseNamePlaceholder}
                 className="col-span-6 h-11"
-                aria-label="Course name"
+                aria-label={s.courseName}
               />
               <select
                 value={c.grade}
                 onChange={(e) => update(c.id, { grade: e.target.value })}
                 className="col-span-3 h-11 rounded-md border bg-background px-2 text-sm"
-                aria-label="Grade"
+                aria-label={s.grade}
               >
                 {GRADES.map((g) => (
                   <option key={g} value={g}>
@@ -49,14 +51,14 @@ export function GpaCalculatorUi() {
                 max={12}
                 onChange={(e) => update(c.id, { credits: e.target.valueAsNumber || 0 })}
                 className="col-span-2 h-11 tabular-nums"
-                aria-label="Credits"
+                aria-label={s.credits}
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => setCourses((cs) => cs.filter((x) => x.id !== c.id))}
-                aria-label="Remove course"
+                aria-label={s.removeCourse}
                 className="col-span-1 h-11 w-11"
               >
                 ✕
@@ -69,16 +71,18 @@ export function GpaCalculatorUi() {
             onClick={() => setCourses((cs) => [...cs, blank()])}
             className="w-full mt-2"
           >
-            + Add course
+            {s.addCourse}
           </Button>
         </div>
       }
       result={
         <NumericPrimary
-          label="Cumulative GPA"
+          label={s.cumulativeGpa}
           value={gpa.toFixed(2)}
           unit="/ 4.0"
-          caption={`${totalCredits} credit hours across ${courses.length} courses`}
+          caption={s.caption
+            .replace('{credits}', String(totalCredits))
+            .replace('{n}', String(courses.length))}
         />
       }
       onReset={() => setCourses([blank(), blank(), blank()])}

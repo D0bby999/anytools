@@ -1,0 +1,78 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Box Shadow Generator',
+  presets: 'Presets',
+  preset_inner: 'Inner',
+  layersHint: 'Layers — the first one paints on top of the rest',
+  blur: 'Blur',
+  spread: 'Spread',
+  layerField: 'Layer {n} {field}',
+  colour: 'Colour',
+  layerColour: 'Layer {n} colour',
+  alpha: 'Alpha {pct}%',
+  layerAlpha: 'Layer {n} alpha',
+  inset: 'Inset',
+  removeLayer: 'Remove layer {n}',
+  addLayer: 'Add layer',
+  manyLayers:
+    '{n} layers: every one is a separate blurred copy of the box. That is fine for a static card and expensive on anything that animates or scrolls.',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'Tạo Box Shadow',
+    presets: 'Mẫu có sẵn',
+    preset_inner: 'Bóng trong',
+    layersHint: 'Các lớp — lớp đầu tiên vẽ đè lên các lớp còn lại',
+    blur: 'Độ mờ',
+    spread: 'Độ lan',
+    layerField: 'Lớp {n} {field}',
+    colour: 'Màu',
+    layerColour: 'Màu lớp {n}',
+    alpha: 'Độ mờ đục {pct}%',
+    layerAlpha: 'Độ mờ đục lớp {n}',
+    inset: 'Bóng trong (inset)',
+    removeLayer: 'Xóa lớp {n}',
+    addLayer: 'Thêm lớp',
+    manyLayers:
+      '{n} lớp: mỗi lớp là một bản sao làm mờ riêng của khối. Ổn với thẻ tĩnh nhưng tốn tài nguyên với bất cứ thứ gì có hoạt ảnh hoặc cuộn.',
+  },
+  es: {
+    title: 'Generador de box-shadow',
+    presets: 'Preajustes',
+    preset_inner: 'Interior',
+    layersHint: 'Capas: la primera se pinta encima de las demás',
+    blur: 'Desenfoque',
+    spread: 'Extensión',
+    layerField: 'Capa {n} {field}',
+    colour: 'Color',
+    layerColour: 'Color de la capa {n}',
+    alpha: 'Alfa {pct}%',
+    layerAlpha: 'Alfa de la capa {n}',
+    inset: 'Interior (inset)',
+    removeLayer: 'Quitar capa {n}',
+    addLayer: 'Añadir capa',
+    manyLayers:
+      '{n} capas: cada una es una copia desenfocada independiente de la caja. Está bien en una tarjeta estática y es costoso en cualquier cosa que se anime o se desplace.',
+  },
+  pt: {
+    title: 'Gerador de box-shadow',
+    presets: 'Predefinições',
+    preset_inner: 'Interna',
+    layersHint: 'Camadas: a primeira é pintada por cima das demais',
+    blur: 'Desfoque',
+    spread: 'Expansão',
+    layerField: 'Camada {n} {field}',
+    colour: 'Cor',
+    layerColour: 'Cor da camada {n}',
+    alpha: 'Alfa {pct}%',
+    layerAlpha: 'Alfa da camada {n}',
+    inset: 'Interna (inset)',
+    removeLayer: 'Remover camada {n}',
+    addLayer: 'Adicionar camada',
+    manyLayers:
+      '{n} camadas: cada uma é uma cópia desfocada separada da caixa. Tudo bem em um cartão estático, mas é caro em qualquer coisa que anime ou role.',
+  },
+};

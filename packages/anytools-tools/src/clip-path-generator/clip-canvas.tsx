@@ -1,4 +1,5 @@
 'use client';
+import { useLocalized } from '@anytools/ui';
 import { type PointerEvent as ReactPointerEvent, useState } from 'react';
 import {
   type ClipShape,
@@ -8,6 +9,7 @@ import {
   removePoint,
   toCss,
 } from './logic';
+import { STRINGS } from './strings';
 
 const STEP = 1; // percent per arrow-key press
 
@@ -22,6 +24,7 @@ type Props = {
  * would squash a circle into an ellipse on a non-square box.
  */
 export function ClipCanvas({ shape, onChange }: Props) {
+  const s = useLocalized(STRINGS);
   const [dragging, setDragging] = useState<number | null>(null);
   const polygon = shape.kind === 'polygon' ? shape : null;
 
@@ -86,7 +89,10 @@ export function ClipCanvas({ shape, onChange }: Props) {
             <button
               type="button"
               data-vertex={i}
-              aria-label={`Vertex ${i + 1} at ${p.x}% ${p.y}% — arrow keys move it, Delete removes it`}
+              aria-label={s.vertexHandle
+                .replace('{n}', String(i + 1))
+                .replace('{x}', String(p.x))
+                .replace('{y}', String(p.y))}
               onPointerDown={(e) => {
                 // Capture keeps the moves coming after the pointer leaves the canvas,
                 // which is what lets a drag reach 0% and 100% (the clamp in movePoint
@@ -126,7 +132,7 @@ export function ClipCanvas({ shape, onChange }: Props) {
             <button
               type="button"
               data-edge={i}
-              aria-label={`Add a vertex on the edge after vertex ${i + 1}`}
+              aria-label={s.addVertexAfter.replace('{n}', String(i + 1))}
               onClick={() => onChange(insertPointAfter(polygon, i))}
               className="absolute -ml-1.5 -mt-1.5 h-3 w-3 rounded-sm border border-slate-900 bg-white opacity-70 hover:opacity-100"
               style={{ left: `${(p.x + next.x) / 2}%`, top: `${(p.y + next.y) / 2}%` }}

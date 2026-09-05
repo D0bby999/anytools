@@ -1,7 +1,9 @@
 'use client';
+import { useLocalized } from '@anytools/ui';
 import { type PointerEvent as ReactPointerEvent, useState } from 'react';
 import { type ColorStop, pointerPercent, toCss, trackPositions } from './logic';
 import type { StopRow } from './stop-rows';
+import { STRINGS } from './strings';
 
 const STEP = 1; // percent per arrow-key press
 const BIG_STEP = 10; // with Shift held
@@ -19,6 +21,7 @@ type Props = {
  * a circle would make the handles unreachable.
  */
 export function StopTrack({ rows, onMove }: Props) {
+  const s = useLocalized(STRINGS);
   const [dragging, setDragging] = useState<number | null>(null);
   const positions = trackPositions(rows);
   // Only the ramp needs the resolved positions; the rows keep whatever the user typed.
@@ -58,7 +61,9 @@ export function StopTrack({ rows, onMove }: Props) {
           key={row.id}
           type="button"
           data-stop-handle={i}
-          aria-label={`Stop ${i + 1} at ${positions[i] ?? 0}% — drag, or use the arrow keys`}
+          aria-label={s.stopHandle
+            .replace('{n}', String(i + 1))
+            .replace('{pct}', String(positions[i] ?? 0))}
           style={{ left: `${positions[i] ?? 0}%` }}
           className="absolute top-0 -ml-2 h-8 w-4 cursor-grab rounded-md border-2 border-white bg-slate-900 shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           onPointerDown={(e) => {

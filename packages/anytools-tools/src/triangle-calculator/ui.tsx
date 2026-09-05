@@ -1,24 +1,27 @@
 'use client';
-import { CalculatorTemplate, Input, TableResult } from '@anytools/ui';
+import { CalculatorTemplate, Input, TableResult, useLocalized, useToolLocale } from '@anytools/ui';
 import { useState } from 'react';
 import { solveSSS } from './logic';
+import { STRINGS } from './strings';
 
 export function TriangleCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [a, setA] = useState(3);
   const [b, setB] = useState(4);
   const [c, setC] = useState(5);
 
   const result = solveSSS(a, b, c);
-  const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 3 });
+  const fmt = (n: number) => n.toLocaleString(locale, { maximumFractionDigits: 3 });
 
   return (
     <CalculatorTemplate
-      title="Triangle Calculator"
-      description="Three sides → angles, area, perimeter. Heron's formula."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <div>
-            <span className="block text-sm font-medium mb-1.5">Side a</span>
+            <span className="block text-sm font-medium mb-1.5">{s.sideA}</span>
             <Input
               type="number"
               value={a}
@@ -26,11 +29,11 @@ export function TriangleCalculatorUi() {
               className="h-11 tabular-nums"
               min={0.001}
               step={0.1}
-              aria-label="Side a"
+              aria-label={s.sideA}
             />
           </div>
           <div>
-            <span className="block text-sm font-medium mb-1.5">Side b</span>
+            <span className="block text-sm font-medium mb-1.5">{s.sideB}</span>
             <Input
               type="number"
               value={b}
@@ -38,11 +41,11 @@ export function TriangleCalculatorUi() {
               className="h-11 tabular-nums"
               min={0.001}
               step={0.1}
-              aria-label="Side b"
+              aria-label={s.sideB}
             />
           </div>
           <div>
-            <span className="block text-sm font-medium mb-1.5">Side c</span>
+            <span className="block text-sm font-medium mb-1.5">{s.sideC}</span>
             <Input
               type="number"
               value={c}
@@ -50,7 +53,7 @@ export function TriangleCalculatorUi() {
               className="h-11 tabular-nums"
               min={0.001}
               step={0.1}
-              aria-label="Side c"
+              aria-label={s.sideC}
             />
           </div>
         </>
@@ -59,17 +62,17 @@ export function TriangleCalculatorUi() {
         result ? (
           <TableResult
             rows={[
-              { label: 'Area', value: fmt(result.area), emphasis: true },
-              { label: 'Perimeter', value: fmt(result.perimeter) },
-              { label: 'Angle A', value: `${fmt(result.angleA)}°` },
-              { label: 'Angle B', value: `${fmt(result.angleB)}°` },
-              { label: 'Angle C', value: `${fmt(result.angleC)}°` },
-              { label: 'Type', value: result.isRight ? 'Right triangle' : 'Oblique' },
+              { label: s.area, value: fmt(result.area), emphasis: true },
+              { label: s.perimeter, value: fmt(result.perimeter) },
+              { label: s.angleA, value: `${fmt(result.angleA)}°` },
+              { label: s.angleB, value: `${fmt(result.angleB)}°` },
+              { label: s.angleC, value: `${fmt(result.angleC)}°` },
+              { label: s.type, value: result.isRight ? s.rightTriangle : s.oblique },
             ]}
           />
         ) : (
           <div className="rounded-lg border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
-            Sides violate triangle inequality.
+            {s.invalid}
           </div>
         )
       }

@@ -1,9 +1,11 @@
 'use client';
-import { Input, SegmentedControl } from '@anytools/ui';
+import { Input, SegmentedControl, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { type Harmony, generatePalette } from './logic';
+import { STRINGS } from './strings';
 
 export function ColorPaletteUi() {
+  const s = useLocalized(STRINGS);
   const [seed, setSeed] = useState('#2563EB');
   const [harmony, setHarmony] = useState<Harmony>('analogous');
   const palette = generatePalette(seed, harmony);
@@ -11,25 +13,25 @@ export function ColorPaletteUi() {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="text-2xl font-semibold mb-1">Color Palette Generator</h2>
-        <p className="text-sm text-muted-foreground">Harmonized palettes from a seed color.</p>
+        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
+        <p className="text-sm text-muted-foreground">{s.description}</p>
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <span className="block text-sm font-medium mb-1.5">Seed color</span>
+          <span className="block text-sm font-medium mb-1.5">{s.seedColor}</span>
           <div className="flex gap-2">
             <input
               type="color"
               value={seed}
               onChange={(e) => setSeed(e.target.value.toUpperCase())}
               className="h-11 w-14 rounded border bg-card cursor-pointer"
-              aria-label="Seed color"
+              aria-label={s.seedColor}
             />
             <Input
               value={seed}
               onChange={(e) => setSeed(e.target.value)}
               className="h-11 font-mono"
-              aria-label="Seed hex"
+              aria-label={s.seedHex}
             />
           </div>
         </div>
@@ -37,13 +39,13 @@ export function ColorPaletteUi() {
           value={harmony}
           onChange={setHarmony}
           options={[
-            { value: 'analogous', label: 'Analogous' },
-            { value: 'complementary', label: 'Complement' },
-            { value: 'triadic', label: 'Triadic' },
-            { value: 'tetradic', label: 'Tetradic' },
-            { value: 'monochromatic', label: 'Mono' },
+            { value: 'analogous', label: s.analogous },
+            { value: 'complementary', label: s.complementary },
+            { value: 'triadic', label: s.triadic },
+            { value: 'tetradic', label: s.tetradic },
+            { value: 'monochromatic', label: s.monochromatic },
           ]}
-          label="Harmony"
+          label={s.harmony}
         />
       </div>
       <div className={`grid grid-cols-${Math.min(palette.length, 5)} gap-3`}>
@@ -55,7 +57,7 @@ export function ColorPaletteUi() {
                 type="button"
                 onClick={() => navigator.clipboard.writeText(c)}
                 className="text-xs font-mono hover:text-accent transition-colors"
-                aria-label={`Copy ${c}`}
+                aria-label={s.copyColor.replace('{color}', c)}
               >
                 {c}
               </button>

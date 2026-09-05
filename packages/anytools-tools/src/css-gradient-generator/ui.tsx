@@ -11,6 +11,7 @@ import {
   PrivacyNote,
   RangeSlider,
   SegmentedControl,
+  useLocalized,
 } from '@anytools/ui';
 import { useRef, useState } from 'react';
 import { hexToRgb, rgbToHex } from '../color-converter/logic';
@@ -34,6 +35,7 @@ import {
   withRowIds,
 } from './stop-rows';
 import { StopTrack } from './stop-track';
+import { STRINGS } from './strings';
 
 const SLUG = 'css-gradient-generator';
 const SIZES: RadialSize[] = ['closest-side', 'closest-corner', 'farthest-side', 'farthest-corner'];
@@ -49,6 +51,7 @@ function swatchHex(color: string): string {
 }
 
 export function CssGradientGeneratorUi() {
+  const s = useLocalized(STRINGS);
   const [g, setG] = useState<GradientEditorState>(() =>
     withRowIds(GRADIENT_PRESETS[0]?.state as GradientState),
   );
@@ -60,6 +63,9 @@ export function CssGradientGeneratorUi() {
   const counted = useRef(false);
 
   const css = toCss(g);
+  // Preset names live in presets.ts in English; look them up by name here.
+  const presetName = (name: string) =>
+    (s as Record<string, string>)[`preset_${name.replace(/\s+/g, '')}`] ?? name;
   const countRun = () => {
     if (counted.current) return;
     counted.current = true;
@@ -86,27 +92,27 @@ export function CssGradientGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">CSS Gradient Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <div
           className="h-48 rounded-lg border"
           style={{ background: css }}
           data-testid="gradient-preview"
-          aria-label="Gradient preview"
+          aria-label={s.gradientPreview}
         />
         <StopTrack rows={g.stops} onMove={(i, position) => updateStop(i, { position })} />
 
         <div className="flex flex-wrap items-end gap-3">
           <SegmentedControl
             className="flex-1 min-w-[15rem]"
-            label="Type"
+            label={s.type}
             value={g.kind}
             onChange={(kind: GradientKind) => setG(switchKind(g, kind))}
             options={[
-              { value: 'linear', label: 'Linear' },
-              { value: 'radial', label: 'Radial' },
-              { value: 'conic', label: 'Conic' },
+              { value: 'linear', label: s.linear },
+              { value: 'radial', label: s.radial },
+              { value: 'conic', label: s.conic },
             ]}
           />
           <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
@@ -116,13 +122,13 @@ export function CssGradientGeneratorUi() {
               checked={g.repeating}
               onChange={(e) => setG({ ...g, repeating: e.target.checked })}
             />
-            Repeating
+            {s.repeating}
           </label>
         </div>
 
         {'angle' in g && (
           <RangeSlider
-            label={g.kind === 'conic' ? 'Start angle' : 'Angle'}
+            label={g.kind === 'conic' ? s.startAngle : s.angle}
             unit="deg"
             min={-180}
             max={360}
@@ -134,25 +140,25 @@ export function CssGradientGeneratorUi() {
           <div className="flex flex-wrap gap-3">
             <SegmentedControl
               className="flex-1 min-w-[12rem]"
-              label="Shape"
+              label={s.shape}
               value={g.shape}
               onChange={(shape: 'circle' | 'ellipse') => setG({ ...g, shape })}
               options={[
-                { value: 'circle', label: 'Circle' },
-                { value: 'ellipse', label: 'Ellipse' },
+                { value: 'circle', label: s.circle },
+                { value: 'ellipse', label: s.ellipse },
               ]}
             />
             <div className="flex-1 min-w-[12rem]">
-              <span className="block text-sm font-medium mb-1.5">Size</span>
+              <span className="block text-sm font-medium mb-1.5">{s.size}</span>
               <select
-                aria-label="Radial size"
+                aria-label={s.radialSize}
                 value={g.size}
                 onChange={(e) => setG({ ...g, size: e.target.value as RadialSize })}
                 className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
-                {SIZES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
+                {SIZES.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
                   </option>
                 ))}
               </select>
@@ -162,7 +168,7 @@ export function CssGradientGeneratorUi() {
         {'cx' in g && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <RangeSlider
-              label="Centre X"
+              label={s.centreX}
               unit="%"
               min={0}
               max={100}
@@ -170,7 +176,7 @@ export function CssGradientGeneratorUi() {
               onChange={(cx) => setCentre({ cx })}
             />
             <RangeSlider
-              label="Centre Y"
+              label={s.centreY}
               unit="%"
               min={0}
               max={100}
@@ -181,7 +187,7 @@ export function CssGradientGeneratorUi() {
         )}
 
         <div className="space-y-2">
-          <span className="block text-sm font-medium">Colour stops</span>
+          <span className="block text-sm font-medium">{s.colourStops}</span>
           {g.stops.map((stop, i) => (
             // Keyed by a row id, never by the colour: a key that changes as you type
             // remounts the row and the field loses focus after one character.
@@ -190,13 +196,13 @@ export function CssGradientGeneratorUi() {
                 type="color"
                 value={swatchHex(stop.color)}
                 onChange={(e) => updateStop(i, { color: e.target.value.toUpperCase() })}
-                aria-label={`Stop ${i + 1} colour picker`}
+                aria-label={s.stopPicker.replace('{n}', String(i + 1))}
                 className="h-11 w-11 shrink-0 cursor-pointer rounded-md border border-input bg-transparent p-1"
               />
               <Input
                 value={stop.color}
                 onChange={(e) => updateStop(i, { color: e.target.value })}
-                aria-label={`Stop ${i + 1} colour`}
+                aria-label={s.stopColour.replace('{n}', String(i + 1))}
                 className="h-11 font-mono"
               />
               <Input
@@ -208,7 +214,7 @@ export function CssGradientGeneratorUi() {
                     position: e.target.value === '' ? null : Number(e.target.value),
                   })
                 }
-                aria-label={`Stop ${i + 1} position in percent`}
+                aria-label={s.stopPosition.replace('{n}', String(i + 1))}
                 className="h-11 w-24 shrink-0 font-mono"
               />
               <Button
@@ -216,7 +222,7 @@ export function CssGradientGeneratorUi() {
                 size="icon"
                 className="h-11 w-11 shrink-0"
                 disabled={g.stops.length <= 2}
-                aria-label={`Remove stop ${i + 1}`}
+                aria-label={s.removeStop.replace('{n}', String(i + 1))}
                 onClick={() => setStops(removeRow(g.stops, i))}
               >
                 ×
@@ -228,19 +234,19 @@ export function CssGradientGeneratorUi() {
             size="sm"
             onClick={() => setStops(appendRow(g.stops, { color: '#FFFFFF', position: 100 }))}
           >
-            Add stop
+            {s.addStop}
           </Button>
         </div>
 
         <div>
-          <span className="block text-sm font-medium mb-1.5">Presets</span>
+          <span className="block text-sm font-medium mb-1.5">{s.presets}</span>
           <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
             {GRADIENT_PRESETS.map((p) => (
               <button
                 key={p.name}
                 type="button"
-                title={p.name}
-                aria-label={p.name}
+                title={presetName(p.name)}
+                aria-label={presetName(p.name)}
                 onClick={() => setG(withRowIds(p.state))}
                 className="h-11 rounded-md border transition-transform hover:scale-105"
                 style={{ background: toCss(p.state) }}
@@ -267,7 +273,7 @@ export function CssGradientGeneratorUi() {
         </div>
 
         <div>
-          <span className="block text-sm font-medium mb-1.5">Edit an existing gradient</span>
+          <span className="block text-sm font-medium mb-1.5">{s.editExisting}</span>
           <div className="flex gap-2">
             <Input
               value={importText}
@@ -276,12 +282,12 @@ export function CssGradientGeneratorUi() {
                 setImportError(null);
               }}
               placeholder="background: linear-gradient(90deg, #fff 0%, #000 100%);"
-              aria-label="Paste CSS to load"
+              aria-label={s.pasteCss}
               aria-invalid={importError !== null}
               className="h-11 font-mono"
             />
             <Button className="h-11 shrink-0" onClick={loadCss}>
-              Load CSS
+              {s.loadCss}
             </Button>
           </div>
           {importError && (

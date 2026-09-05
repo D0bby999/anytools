@@ -1,9 +1,11 @@
 'use client';
-import { CalculatorTemplate, Input, TableResult } from '@anytools/ui';
+import { CalculatorTemplate, Input, TableResult, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { contrastRatio, hexToRgb, rgbToHsl } from './logic';
+import { STRINGS } from './strings';
 
 export function ColorConverterUi() {
+  const s = useLocalized(STRINGS);
   const [fg, setFg] = useState('#1E293B');
   const [bg, setBg] = useState('#F8FAFC');
 
@@ -13,29 +15,29 @@ export function ColorConverterUi() {
   const fgHsl = fgRgb ? rgbToHsl(fgRgb) : null;
   const bgHsl = bgRgb ? rgbToHsl(bgRgb) : null;
 
-  const passes = (threshold: number) => (ratio >= threshold ? 'Pass' : 'Fail');
+  const passes = (threshold: number) => (ratio >= threshold ? s.pass : s.fail);
 
   return (
     <CalculatorTemplate
-      title="Color Converter + Contrast Checker"
-      description="HEX ↔ RGB ↔ HSL plus WCAG 2.1 AA/AAA contrast ratio."
+      title={s.title}
+      description={s.description}
       inputs={
         <div className="space-y-4">
           <div>
-            <span className="block text-sm font-medium mb-1.5">Foreground (text)</span>
+            <span className="block text-sm font-medium mb-1.5">{s.foreground}</span>
             <div className="flex gap-2">
               <input
                 type="color"
                 value={fg}
                 onChange={(e) => setFg(e.target.value.toUpperCase())}
                 className="h-11 w-14 rounded border bg-card cursor-pointer"
-                aria-label="Foreground color"
+                aria-label={s.foregroundColor}
               />
               <Input
                 value={fg}
                 onChange={(e) => setFg(e.target.value)}
                 className="h-11 font-mono tabular-nums"
-                aria-label="Foreground hex"
+                aria-label={s.foregroundHex}
               />
             </div>
             {fgRgb && fgHsl && (
@@ -45,20 +47,20 @@ export function ColorConverterUi() {
             )}
           </div>
           <div>
-            <span className="block text-sm font-medium mb-1.5">Background</span>
+            <span className="block text-sm font-medium mb-1.5">{s.background}</span>
             <div className="flex gap-2">
               <input
                 type="color"
                 value={bg}
                 onChange={(e) => setBg(e.target.value.toUpperCase())}
                 className="h-11 w-14 rounded border bg-card cursor-pointer"
-                aria-label="Background color"
+                aria-label={s.backgroundColor}
               />
               <Input
                 value={bg}
                 onChange={(e) => setBg(e.target.value)}
                 className="h-11 font-mono tabular-nums"
-                aria-label="Background hex"
+                aria-label={s.backgroundHex}
               />
             </div>
             {bgRgb && bgHsl && (
@@ -70,26 +72,26 @@ export function ColorConverterUi() {
           <div
             className="rounded-md border p-4"
             style={{ backgroundColor: bg, color: fg }}
-            aria-label="Live preview"
+            aria-label={s.livePreview}
           >
-            <p className="text-lg font-semibold">The quick brown fox</p>
-            <p className="text-sm">jumps over the lazy dog.</p>
+            <p className="text-lg font-semibold">{s.sampleLine1}</p>
+            <p className="text-sm">{s.sampleLine2}</p>
           </div>
         </div>
       }
       result={
         <TableResult
-          title="WCAG 2.1 Contrast"
+          title={s.wcagTitle}
           rows={[
             {
-              label: 'Contrast ratio',
+              label: s.contrastRatio,
               value: `${ratio.toFixed(2)}:1`,
               emphasis: true,
             },
-            { label: 'AA normal text (4.5:1)', value: passes(4.5) },
-            { label: 'AA large text (3:1)', value: passes(3) },
-            { label: 'AAA normal text (7:1)', value: passes(7) },
-            { label: 'AAA large text (4.5:1)', value: passes(4.5) },
+            { label: s.aaNormal, value: passes(4.5) },
+            { label: s.aaLarge, value: passes(3) },
+            { label: s.aaaNormal, value: passes(7) },
+            { label: s.aaaLarge, value: passes(4.5) },
           ]}
         />
       }

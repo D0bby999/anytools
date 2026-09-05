@@ -1,14 +1,31 @@
 'use client';
-import { CalculatorTemplate, Input, NumericPrimary, SegmentedControl } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  Input,
+  NumericPrimary,
+  SegmentedControl,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { type PercentMode, calcPercent } from './logic';
+import { STRINGS } from './strings';
 
 export function PercentageCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [mode, setMode] = useState<PercentMode>('percentOf');
   const [a, setA] = useState(20);
   const [b, setB] = useState(150);
 
-  const { value, label, unit } = calcPercent(mode, a, b);
+  const { value, unit } = calcPercent(mode, a, b);
+  // The logic layer phrases the result label in English; rebuild it from the mode here.
+  const resultLabel: Record<PercentMode, string> = {
+    percentOf: s.resultPercentOf,
+    whatPercent: s.resultWhatPercent,
+    change: s.resultChange,
+  };
+  const label = resultLabel[mode].replace('{a}', String(a)).replace('{b}', String(b));
 
   const reset = () => {
     setA(20);
@@ -18,27 +35,27 @@ export function PercentageCalculatorUi() {
 
   return (
     <CalculatorTemplate
-      title="Percentage Calculator"
-      description="Tip, discount, tax, grade, growth — three percentage modes."
+      title={s.title}
+      description={s.description}
       inputs={
         <>
           <SegmentedControl
             value={mode}
             onChange={setMode}
             options={[
-              { value: 'percentOf', label: 'X% of Y' },
-              { value: 'whatPercent', label: 'X = ?% of Y' },
-              { value: 'change', label: '% change' },
+              { value: 'percentOf', label: s.modePercentOf },
+              { value: 'whatPercent', label: s.modeWhatPercent },
+              { value: 'change', label: s.modeChange },
             ]}
-            label="Mode"
+            label={s.mode}
           />
           <div>
             <span className="block text-sm font-medium mb-1.5">
               {mode === 'percentOf'
-                ? 'Percentage (X)'
+                ? s.percentageX
                 : mode === 'whatPercent'
-                  ? 'Part (X)'
-                  : 'Old value (X)'}
+                  ? s.partX
+                  : s.oldValueX}
             </span>
             <Input
               type="number"
@@ -51,11 +68,7 @@ export function PercentageCalculatorUi() {
           </div>
           <div>
             <span className="block text-sm font-medium mb-1.5">
-              {mode === 'percentOf'
-                ? 'Of value (Y)'
-                : mode === 'whatPercent'
-                  ? 'Whole (Y)'
-                  : 'New value (Y)'}
+              {mode === 'percentOf' ? s.ofValueY : mode === 'whatPercent' ? s.wholeY : s.newValueY}
             </span>
             <Input
               type="number"
@@ -71,7 +84,7 @@ export function PercentageCalculatorUi() {
       result={
         <NumericPrimary
           label={label}
-          value={value.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+          value={value.toLocaleString(locale, { maximumFractionDigits: 4 })}
           unit={unit}
         />
       }

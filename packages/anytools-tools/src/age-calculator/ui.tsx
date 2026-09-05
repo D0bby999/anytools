@@ -1,32 +1,35 @@
 'use client';
-import { CalculatorTemplate, Input, TableResult } from '@anytools/ui';
+import { CalculatorTemplate, Input, TableResult, useLocalized, useToolLocale } from '@anytools/ui';
 import { useState } from 'react';
 import { parseDateInput, todayInputValue } from '../shared/date-input';
 import { calcAge } from './logic';
+import { STRINGS } from './strings';
 
 const DEFAULT = '1990-01-01';
 
 export function AgeCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [birth, setBirth] = useState(DEFAULT);
   const parsed = parseDateInput(birth) ?? new Date(Number.NaN);
   const now = new Date();
   const valid = !Number.isNaN(parsed.getTime()) && parsed <= now;
   const age = valid ? calcAge(parsed, now) : null;
-  const fmt = (n: number) => n.toLocaleString();
+  const fmt = (n: number) => n.toLocaleString(locale);
 
   return (
     <CalculatorTemplate
-      title="Age Calculator"
-      description="Exact age from birth date."
+      title={s.title}
+      description={s.description}
       inputs={
         <div>
-          <span className="block text-sm font-medium mb-1.5">Birth date</span>
+          <span className="block text-sm font-medium mb-1.5">{s.birthDate}</span>
           <Input
             type="date"
             value={birth}
             max={todayInputValue()}
             onChange={(e) => setBirth(e.target.value)}
-            aria-label="Birth date"
+            aria-label={s.birthDate}
             className="h-11"
           />
         </div>
@@ -36,18 +39,21 @@ export function AgeCalculatorUi() {
           <TableResult
             rows={[
               {
-                label: 'Age',
-                value: `${age.years} years ${age.months} months ${age.days} days`,
+                label: s.age,
+                value: s.ageValue
+                  .replace('{y}', String(age.years))
+                  .replace('{m}', String(age.months))
+                  .replace('{d}', String(age.days)),
                 emphasis: true,
               },
-              { label: 'Total days', value: fmt(age.totalDays) },
-              { label: 'Total hours', value: fmt(age.totalHours) },
-              { label: 'Total minutes', value: fmt(age.totalMinutes) },
+              { label: s.totalDays, value: fmt(age.totalDays) },
+              { label: s.totalHours, value: fmt(age.totalHours) },
+              { label: s.totalMinutes, value: fmt(age.totalMinutes) },
             ]}
           />
         ) : (
           <div className="rounded-lg border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
-            Pick a date in the past.
+            {s.pickPastDate}
           </div>
         )
       }

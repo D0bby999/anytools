@@ -6,13 +6,18 @@ import {
   NumericPrimary,
   SegmentedControl,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useState } from 'react';
 import { flipCoin, parseListItems, pickOne, randomInt, rollDice } from './logic';
+import { STRINGS } from './strings';
 
 type Mode = 'dice' | 'coin' | 'number' | 'pick';
 
 export function RandomPickerUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [mode, setMode] = useState<Mode>('dice');
   const [diceCount, setDiceCount] = useState(2);
   const [diceSides, setDiceSides] = useState(6);
@@ -26,7 +31,7 @@ export function RandomPickerUi() {
       const { rolls, sum } = rollDice(diceCount, diceSides);
       setResult(`${rolls.join(' + ')} = ${sum}`);
     } else if (mode === 'coin') {
-      setResult(flipCoin());
+      setResult(flipCoin() === 'Heads' ? s.heads : s.tails);
     } else if (mode === 'number') {
       setResult(String(randomInt(min, max)));
     } else {
@@ -38,8 +43,8 @@ export function RandomPickerUi() {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="text-2xl font-semibold mb-1">Random Picker</h2>
-        <p className="text-sm text-muted-foreground">Dice, coin, number, list — one screen.</p>
+        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
+        <p className="text-sm text-muted-foreground">{s.description}</p>
       </header>
       <SegmentedControl
         value={mode}
@@ -48,12 +53,12 @@ export function RandomPickerUi() {
           setResult('—');
         }}
         options={[
-          { value: 'dice', label: 'Dice' },
-          { value: 'coin', label: 'Coin' },
-          { value: 'number', label: 'Number' },
-          { value: 'pick', label: 'Pick' },
+          { value: 'dice', label: s.dice },
+          { value: 'coin', label: s.coin },
+          { value: 'number', label: s.number },
+          { value: 'pick', label: s.pick },
         ]}
-        label="Mode"
+        label={s.mode}
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
@@ -64,62 +69,64 @@ export function RandomPickerUi() {
                 onChange={setDiceCount}
                 min={1}
                 max={20}
-                label="Dice count"
+                label={s.diceCount}
               />
               <NumberStepper
                 value={diceSides}
                 onChange={setDiceSides}
                 min={2}
                 max={100}
-                label="Sides per die"
+                label={s.sidesPerDie}
               />
             </>
           )}
           {mode === 'number' && (
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="block text-sm font-medium mb-1.5">Min</span>
+                <span className="block text-sm font-medium mb-1.5">{s.min}</span>
                 <Input
                   type="number"
                   value={min}
                   onChange={(e) => setMin(e.target.valueAsNumber || 0)}
                   className="h-11 tabular-nums"
+                  aria-label={s.min}
                 />
               </div>
               <div>
-                <span className="block text-sm font-medium mb-1.5">Max</span>
+                <span className="block text-sm font-medium mb-1.5">{s.max}</span>
                 <Input
                   type="number"
                   value={max}
                   onChange={(e) => setMax(e.target.valueAsNumber || 0)}
                   className="h-11 tabular-nums"
+                  aria-label={s.max}
                 />
               </div>
             </div>
           )}
           {mode === 'pick' && (
             <div>
-              <span className="block text-sm font-medium mb-1.5">Items (one per line)</span>
+              <span className="block text-sm font-medium mb-1.5">{s.itemsOnePerLine}</span>
               <Textarea
                 value={list}
                 onChange={(e) => setList(e.target.value)}
                 className="min-h-[160px] font-mono text-sm"
-                aria-label="List items"
+                aria-label={s.listItems}
               />
             </div>
           )}
           <Button type="button" size="lg" onClick={pick} className="w-full h-12">
             🎲{' '}
             {mode === 'dice'
-              ? 'Roll'
+              ? s.roll
               : mode === 'coin'
-                ? 'Flip'
+                ? s.flip
                 : mode === 'number'
-                  ? 'Generate'
-                  : 'Pick'}
+                  ? ui.generate
+                  : s.pick}
           </Button>
         </div>
-        <NumericPrimary label="Result" value={result} />
+        <NumericPrimary label={ui.result} value={result} />
       </div>
     </div>
   );
