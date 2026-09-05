@@ -371,10 +371,10 @@ export function WatermarkPdfUi() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Text marks use Helvetica, the font every PDF reader already has, so nothing is embedded
-          and the file barely grows. Latin characters only: the built-in font cannot draw Vietnamese
-          tone marks, CJK, Greek, Cyrillic or Arabic, and the tool will say so rather than fail
-          obscurely.
+          Latin text is drawn in Helvetica, the font every PDF reader already has, so nothing is
+          embedded and the file barely grows. Vietnamese, Greek and Cyrillic switch to Noto Sans,
+          embedded as a small subset. Chinese, Japanese, Korean, Arabic and emoji are not covered,
+          and the tool names the characters rather than fail obscurely.
         </p>
 
         <button

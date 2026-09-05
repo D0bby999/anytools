@@ -16,13 +16,11 @@ A watermark is drawn *on top of* the existing page content. It marks a document 
 
 It is not encryption and it is not redaction. Everything under the watermark is still there and can still be selected, copied and searched. Someone determined can remove the mark, because a PDF stores it as a separate drawing operation rather than burning it into the pixels — that is exactly why the text under it stays selectable, which is normally what you want. If content must not be readable, delete it before export; if a file must not be opened, encrypt it in the application that produced it.
 
-## Why is text limited to Latin characters?
+## Which characters can the text mark use?
 
-Because the mark is drawn in Helvetica, one of the fourteen fonts every PDF reader is required to have built in. Nothing is embedded, so the output file barely grows and it renders the same everywhere.
+Latin text — including Western European accents such as `BRÖTCHEN` and `ÉTÉ` — is drawn in Helvetica, one of the fourteen fonts every PDF reader is required to have built in. Nothing is embedded, so the output file barely grows and it renders the same everywhere.
 
-Standard PDF fonts use WinAnsi encoding, which is roughly Latin-1: the unaccented Latin alphabet, digits, punctuation, and Western European accents — `BRÖTCHEN` and `ÉTÉ` are fine. It cannot draw Vietnamese tone marks, Chinese, Japanese, Korean, Greek, Cyrillic, Arabic, Hebrew, Thai or emoji. Type any of those and the tool stops with a message naming the limitation rather than failing with an internal error.
-
-Supporting other scripts means embedding a Unicode font, which is one to two megabytes downloaded by everyone who opens the page. That cost is not worth paying speculatively, so it is deferred rather than quietly missing. An image watermark is the way around it today: set your text in any font in an image editor, export a transparent PNG, and stamp that.
+Vietnamese tone marks, Greek and Cyrillic are outside that font, so for those the tool embeds Noto Sans instead — only the glyphs your mark actually uses, which adds a few kilobytes. `BẢN NHÁP`, `Tài liệu mật` and `КОНФИДЕНЦИАЛЬНО` all work. Chinese, Japanese, Korean, Arabic, Hebrew, Thai and emoji are not covered; type any of those and the tool stops with a message naming the exact characters rather than drawing empty boxes.
 
 ## How accurate is the preview?
 
