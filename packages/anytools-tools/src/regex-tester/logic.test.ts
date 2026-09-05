@@ -80,3 +80,20 @@ describe('replaceRegex', () => {
     if (r.ok) expect(r.result).toBe('<a>@x.com <b>@y.com');
   });
 });
+
+// Review 2026-09-05: the run moved into a self-contained function whose source becomes a Web
+// Worker, so it must keep working when stringified and evaluated with no module scope.
+describe('runRegexJob as worker source', () => {
+  it('has no free references — its own source evaluates standalone', async () => {
+    const { runRegexJob } = await import('./regex-job');
+    const standalone = new Function(`return (${runRegexJob.toString()});`)() as typeof runRegexJob;
+    const r = standalone({ pattern: '(?<y>\\d{4})', flags: 'g', text: 'in 2024 and 2025' });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.matches.map((m) => m.match)).toEqual(['2024', '2025']);
+      expect(r.matches[0]?.namedGroups).toEqual({ y: '2024' });
+    }
+    const rep = standalone({ pattern: 'a', flags: 'g', text: 'banana', replacement: 'o' });
+    expect(rep.ok && rep.replaced).toBe('bonono');
+  });
+});

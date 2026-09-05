@@ -14,7 +14,8 @@ import {
   Textarea,
 } from '@anytools/ui';
 import { useState } from 'react';
-import { type RegexFlags, type TestResult, replaceRegex, testRegex } from './logic';
+import { type RegexFlags, type TestResult, flagString } from './logic';
+import { runRegexInWorker } from './regex-worker';
 
 type Mode = 'test' | 'replace';
 type ReplaceResult = { ok: true; result: string } | { ok: false; error: string };
@@ -52,19 +53,32 @@ export function RegexTesterUi() {
 
   const truncated = text.length > MAX_TEXT_LEN;
 
-  const handleRun = () => {
+  const [running, setRunning] = useState(false);
+
+  const handleRun = async () => {
     if (pattern.length === 0) {
       setTestResult(null);
       setReplaceResult(null);
       return;
     }
     const safeText = text.slice(0, MAX_TEXT_LEN);
-    setTestResult(testRegex(pattern, flags, safeText));
-    if (mode === 'replace') {
-      setReplaceResult(replaceRegex(pattern, flags, safeText, replacement));
-    } else {
-      setReplaceResult(null);
+    setRunning(true);
+    // Off the main thread, so a pattern that backtracks forever is terminated after 1 s
+    // instead of freezing the tab.
+    const result = await runRegexInWorker({
+      pattern,
+      flags: flagString(flags),
+      text: safeText,
+      replacement: mode === 'replace' ? replacement : undefined,
+    });
+    setRunning(false);
+    if (!result.ok) {
+      setTestResult(result);
+      setReplaceResult(mode === 'replace' ? result : null);
+      return;
     }
+    setTestResult({ ok: true, matches: result.matches });
+    setReplaceResult(mode === 'replace' ? { ok: true, result: result.replaced ?? safeText } : null);
   };
 
   const toggleFlag = (key: keyof RegexFlags) =>
@@ -148,8 +162,8 @@ export function RegexTesterUi() {
         </Tabs>
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleRun} disabled={pattern.length === 0}>
-            Run
+          <Button onClick={handleRun} disabled={pattern.length === 0 || running}>
+            {running ? 'Running…' : 'Run'}
           </Button>
           {truncated && (
             <span className="text-xs text-destructive">
