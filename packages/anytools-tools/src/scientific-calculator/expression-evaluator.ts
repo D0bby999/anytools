@@ -12,9 +12,22 @@
  *   func      = 'sin'|'cos'|'tan'|'asin'|'acos'|'atan'|'log'|'ln'|'sqrt'|'exp'|'abs'|'pow'
  *
  * Allowlist enforced at the token-recognition layer — anything not matching the
- * grammar throws SyntaxError. No `globalThis`, no `Function` constructor, no
+ * grammar throws CalcSyntaxError. No `globalThis`, no `Function` constructor, no
  * `eval`. Safe to feed user-pasted text.
  */
+
+import { ToolError } from '../shared/tool-error';
+
+/**
+ * A grammar violation. Carries a `code` and the offending token so the widget can say
+ * *which* syntax error in its own language instead of a bare "Syntax error".
+ */
+export class CalcSyntaxError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
+    this.name = 'CalcSyntaxError';
+  }
+}
 
 type Token =
   | { kind: 'num'; value: number }
@@ -66,7 +79,8 @@ function tokenize(input: string): Token[] {
       const start = i;
       while (i < input.length && /[0-9.]/.test(input[i] ?? '')) i++;
       const num = Number.parseFloat(input.slice(start, i));
-      if (!Number.isFinite(num)) throw new SyntaxError(`Invalid number at ${start}`);
+      if (!Number.isFinite(num))
+        throw new CalcSyntaxError('invalidNumber', `Invalid number at ${start}`, { pos: start });
       tokens.push({ kind: 'num', value: num });
       continue;
     }
@@ -99,7 +113,10 @@ function tokenize(input: string): Token[] {
       i++;
       continue;
     }
-    throw new SyntaxError(`Unexpected character "${ch}" at ${i}`);
+    throw new CalcSyntaxError('unexpectedChar', `Unexpected character "${ch}" at ${i}`, {
+      char: ch,
+      pos: i,
+    });
   }
   return tokens;
 }
@@ -113,13 +130,14 @@ class Parser {
   }
   private consume(): Token {
     const t = this.tokens[this.pos];
-    if (!t) throw new SyntaxError('Unexpected end of input');
+    if (!t) throw new CalcSyntaxError('unexpectedEnd', 'Unexpected end of input');
     this.pos++;
     return t;
   }
   private expectOp(op: string): void {
     const t = this.peek();
-    if (!t || t.kind !== 'op' || t.value !== op) throw new SyntaxError(`Expected "${op}"`);
+    if (!t || t.kind !== 'op' || t.value !== op)
+      throw new CalcSyntaxError('expectedToken', `Expected "${op}"`, { token: op });
     this.consume();
   }
 
@@ -198,7 +216,8 @@ class Parser {
       const v = this.parseExpr();
       this.expectOp = this.expectOp.bind(this);
       const next = this.peek();
-      if (!next || next.kind !== 'rparen') throw new SyntaxError('Expected ")"');
+      if (!next || next.kind !== 'rparen')
+        throw new CalcSyntaxError('expectedClose', 'Expected ")"');
       this.consume();
       return v;
     }
@@ -209,7 +228,8 @@ class Parser {
       const isCall = after && after.kind === 'lparen';
       if (!isCall) {
         const c = CONSTANTS[name];
-        if (c === undefined) throw new SyntaxError(`Unknown identifier "${name}"`);
+        if (c === undefined)
+          throw new CalcSyntaxError('unknownIdentifier', `Unknown identifier "${name}"`, { name });
         return c;
       }
       // Function call
@@ -223,37 +243,67 @@ class Parser {
         } else break;
       }
       const close = this.peek();
-      if (!close || close.kind !== 'rparen') throw new SyntaxError('Expected ")"');
+      if (!close || close.kind !== 'rparen')
+        throw new CalcSyntaxError('expectedClose', 'Expected ")"');
       this.consume();
       if (name in UNARY_FUNCTIONS) {
-        if (args.length !== 1) throw new SyntaxError(`${name}() takes 1 argument`);
+        if (args.length !== 1)
+          throw new CalcSyntaxError('takesOneArg', `${name}() takes 1 argument`, { name });
         const fn = UNARY_FUNCTIONS[name];
-        if (!fn) throw new SyntaxError(`Unknown function "${name}"`);
+        if (!fn)
+          throw new CalcSyntaxError('unknownFunction', `Unknown function "${name}"`, { name });
         return fn(args[0] ?? 0);
       }
       if (name in BINARY_FUNCTIONS) {
-        if (args.length !== 2) throw new SyntaxError(`${name}() takes 2 arguments`);
+        if (args.length !== 2)
+          throw new CalcSyntaxError('takesTwoArgs', `${name}() takes 2 arguments`, { name });
         const fn = BINARY_FUNCTIONS[name];
-        if (!fn) throw new SyntaxError(`Unknown function "${name}"`);
+        if (!fn)
+          throw new CalcSyntaxError('unknownFunction', `Unknown function "${name}"`, { name });
         return fn(args[0] ?? 0, args[1] ?? 0);
       }
-      throw new SyntaxError(`Unknown function "${name}"`);
+      throw new CalcSyntaxError('unknownFunction', `Unknown function "${name}"`, { name });
     }
-    throw new SyntaxError(`Unexpected token`);
+    throw new CalcSyntaxError('unexpectedToken', 'Unexpected token');
   }
 }
 
-export function evaluateExpression(input: string): number | string {
+/**
+ * The evaluator's answer with the failure kept structured: `error` is the English label the
+ * display has always shown ('Syntax error' / 'Error'), `code` + `params` say which failure so
+ * the widget can render a specific, localized message instead.
+ */
+export type EvalResult =
+  | { ok: true; value: number | '' }
+  | {
+      ok: false;
+      error: 'Syntax error' | 'Error';
+      code: string;
+      params: Record<string, string | number>;
+    };
+
+export function evaluate(input: string): EvalResult {
   const trimmed = input.trim();
-  if (!trimmed) return '';
+  if (!trimmed) return { ok: true, value: '' };
   try {
     const tokens = tokenize(trimmed);
-    if (tokens.length === 0) return '';
+    if (tokens.length === 0) return { ok: true, value: '' };
     const parser = new Parser(tokens);
     const result = parser.parseExpr();
-    if (typeof result !== 'number' || !Number.isFinite(result)) return 'Error';
-    return result;
+    if (typeof result !== 'number' || !Number.isFinite(result)) {
+      return { ok: false, error: 'Error', code: 'notFinite', params: {} };
+    }
+    return { ok: true, value: result };
   } catch (e) {
-    return e instanceof SyntaxError ? 'Syntax error' : 'Error';
+    if (e instanceof CalcSyntaxError) {
+      return { ok: false, error: 'Syntax error', code: e.code, params: e.params };
+    }
+    return { ok: false, error: 'Error', code: 'unknown', params: {} };
   }
+}
+
+/** String-or-number form kept for callers and tests that only branch on the label. */
+export function evaluateExpression(input: string): number | string {
+  const result = evaluate(input);
+  return result.ok ? result.value : result.error;
 }

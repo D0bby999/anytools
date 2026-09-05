@@ -1,8 +1,21 @@
 'use client';
 import { Button, Input, useLocalized, useUiStrings } from '@anytools/ui';
 import { useState } from 'react';
-import { evaluateExpression, formatResult } from './logic';
+import { evaluate, formatResult } from './logic';
 import { STRINGS } from './strings';
+
+/** The specific, localized failure when the strings table knows its code; else the generic label. */
+function failureText(
+  result: Extract<ReturnType<typeof evaluate>, { ok: false }>,
+  s: Record<string, string>,
+  generic: string,
+): string {
+  const template = s[`error_${result.code}`];
+  if (!template) return generic;
+  return template.replace(/\{(\w+)\}/g, (m, key: string) =>
+    key in result.params ? String(result.params[key]) : m,
+  );
+}
 
 const KEYS = [
   ['7', '8', '9', '/', 'sin('],
@@ -16,16 +29,13 @@ export function ScientificCalculatorUi() {
   const s = useLocalized(STRINGS);
   const ui = useUiStrings();
   const [expr, setExpr] = useState('');
-  const result = evaluateExpression(expr);
+  const result = evaluate(expr);
 
-  // The evaluator reports failures as English strings ('Error', 'Syntax error') and formatResult
-  // renders a non-finite number as 'Error'; both are mapped to the locale here.
-  const shown =
-    result === 'Syntax error'
-      ? s.syntaxError
-      : result === 'Error' || (typeof result === 'number' && !Number.isFinite(result))
-        ? s.error
-        : formatResult(result);
+  // The evaluator reports failures with a code; a syntax error the strings table knows is shown
+  // specifically ("Unknown function "foo""), anything else falls back to the generic label.
+  const shown = result.ok
+    ? formatResult(result.value)
+    : failureText(result, s, result.error === 'Syntax error' ? s.syntaxError : s.error);
 
   const tap = (k: string) => setExpr((e) => e + k);
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { countWords, estimateReadingTime, formatDuration, wordsToSeconds } from './logic';
+import {
+  countWords,
+  durationParts,
+  estimateReadingTime,
+  formatDuration,
+  wordsToSeconds,
+} from './logic';
 
 describe('countWords', () => {
   it('returns 0 for empty string', () => {
@@ -57,6 +63,15 @@ describe('formatDuration', () => {
   it('rounds sub-60 seconds', () => {
     expect(formatDuration(0.4)).toBe('0s');
     expect(formatDuration(59.6)).toBe('60s');
+  });
+});
+
+describe('durationParts', () => {
+  it('splits the way formatDuration phrases it', () => {
+    expect(durationParts(45)).toEqual({ minutes: 0, seconds: 45 });
+    expect(durationParts(120)).toEqual({ minutes: 2, seconds: 0 });
+    expect(durationParts(90)).toEqual({ minutes: 1, seconds: 30 });
+    expect(durationParts(59.6)).toEqual({ minutes: 0, seconds: 60 });
   });
 });
 

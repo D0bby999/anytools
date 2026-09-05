@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyze, complexWords, syllables } from './logic';
+import { READING_LEVEL_NAMES, analyze, complexWords, syllables } from './logic';
 
 describe('syllables', () => {
   it('counts single syllable words', () => {
@@ -67,6 +67,16 @@ describe('analyze', () => {
     // Short simple words → high flesch score → 6th grade or 7th grade level
     const r = analyze('Go. Run. Jump. Sit. Play. Stop. Walk. Eat. Drink. Sleep.')!;
     expect(['6th grade', '7th grade', '8th–9th grade', 'Universal']).toContain(r.level);
+  });
+
+  it('tags the level with an id the widget can translate', () => {
+    const r = analyze('Go. Run. Jump. Sit. Play. Stop. Walk. Eat. Drink. Sleep.')!;
+    expect(READING_LEVEL_NAMES[r.levelId]).toBe(r.level);
+    const hard = analyze(
+      'Notwithstanding the aforementioned considerations, institutional epistemological frameworks necessitate comprehensive reconceptualization.',
+    )!;
+    expect(hard.levelId).toBe('collegeGraduate');
+    expect(hard.level).toBe('College graduate');
   });
 
   it('Flesch formula matches manual calculation', () => {

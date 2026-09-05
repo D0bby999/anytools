@@ -10,6 +10,9 @@ const EN = {
   read: 'Read ({wpm} WPM)',
   speak: 'Speak (150 WPM)',
   skim: 'Skim (450 WPM)',
+  durSeconds: '{s}s',
+  durMinutes: '{m} min',
+  durMinutesSeconds: '{m}m {s}s',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -24,6 +27,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     read: 'Đọc ({wpm} từ/phút)',
     speak: 'Nói (150 từ/phút)',
     skim: 'Đọc lướt (450 từ/phút)',
+    durSeconds: '{s} giây',
+    durMinutes: '{m} phút',
+    durMinutesSeconds: '{m} phút {s} giây',
   },
   es: {
     title: 'Estimador de tiempo de lectura',
@@ -35,6 +41,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     read: 'Leer ({wpm} PPM)',
     speak: 'Hablar (150 PPM)',
     skim: 'Ojear (450 PPM)',
+    durSeconds: '{s} s',
+    durMinutes: '{m} min',
+    durMinutesSeconds: '{m} min {s} s',
   },
   pt: {
     title: 'Estimador de tempo de leitura',
@@ -46,5 +55,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     read: 'Ler ({wpm} PPM)',
     speak: 'Falar (150 PPM)',
     skim: 'Passar os olhos (450 PPM)',
+    durSeconds: '{s} s',
+    durMinutes: '{m} min',
+    durMinutesSeconds: '{m} min {s} s',
   },
 };

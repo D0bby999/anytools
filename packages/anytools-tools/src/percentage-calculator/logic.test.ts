@@ -57,6 +57,7 @@ describe('calcPercent', () => {
     expect(r.value).toBeCloseTo(30);
     expect(r.unit).toBe('');
     expect(r.label).toContain('20%');
+    expect(r).toMatchObject({ mode: 'percentOf', a: 20, b: 150 });
   });
 
   it('whatPercent mode returns % unit', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateExpression, formatResult } from './logic';
+import { evaluate, evaluateExpression, formatResult } from './logic';
 
 describe('evaluateExpression', () => {
   it('evaluates basic arithmetic', () => {
@@ -28,6 +28,25 @@ describe('evaluateExpression', () => {
   it('returns Syntax error for malformed input', () => {
     expect(evaluateExpression('2 +')).toBe('Syntax error');
     expect(evaluateExpression('unknown(1)')).toBe('Syntax error');
+    expect(evaluate('2 +')).toEqual({
+      ok: false,
+      error: 'Syntax error',
+      code: 'unexpectedEnd',
+      params: {},
+    });
+    expect(evaluate('unknown(1)')).toEqual({
+      ok: false,
+      error: 'Syntax error',
+      code: 'unknownFunction',
+      params: { name: 'unknown' },
+    });
+    expect(evaluate('2 $ 3')).toMatchObject({
+      code: 'unexpectedChar',
+      params: { char: '$', pos: 2 },
+    });
+    expect(evaluate('sin(1, 2)')).toMatchObject({ code: 'takesOneArg', params: { name: 'sin' } });
+    expect(evaluate('1/0')).toEqual({ ok: false, error: 'Error', code: 'notFinite', params: {} });
+    expect(evaluate('2 + 3')).toEqual({ ok: true, value: 5 });
   });
 
   it('returns empty string for blank input', () => {

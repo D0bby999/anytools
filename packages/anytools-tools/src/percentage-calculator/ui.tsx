@@ -18,14 +18,17 @@ export function PercentageCalculatorUi() {
   const [a, setA] = useState(20);
   const [b, setB] = useState(150);
 
-  const { value, unit } = calcPercent(mode, a, b);
-  // The logic layer phrases the result label in English; rebuild it from the mode here.
+  const result = calcPercent(mode, a, b);
+  // The logic layer phrases `label` in English; rebuild it here from the mode and operands.
   const resultLabel: Record<PercentMode, string> = {
     percentOf: s.resultPercentOf,
     whatPercent: s.resultWhatPercent,
     change: s.resultChange,
   };
-  const label = resultLabel[mode].replace('{a}', String(a)).replace('{b}', String(b));
+  const label = resultLabel[result.mode]
+    .replace('{a}', String(result.a))
+    .replace('{b}', String(result.b));
+  const { value, unit } = result;
 
   const reset = () => {
     setA(20);

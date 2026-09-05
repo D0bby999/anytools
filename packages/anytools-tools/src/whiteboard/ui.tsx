@@ -15,6 +15,7 @@ import type { ImportedDataState } from '@excalidraw/excalidraw/data/types';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { richText } from '../shared/rich-text';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   MAX_SCENE_BYTES,
@@ -332,7 +333,7 @@ export function WhiteboardUi() {
           objectUrls.revoke(prev?.url);
           return null;
         });
-        setError(e instanceof Error ? e.message : s.couldNotExport);
+        setError(toolErrorText(e, s, s.couldNotExport));
       } finally {
         setBusy(false);
       }
@@ -382,7 +383,7 @@ export function WhiteboardUi() {
             .replace('{n}', String(scene.removedEmbeds)),
         );
       } catch (e) {
-        setError(e instanceof Error ? e.message : s.couldNotOpen);
+        setError(toolErrorText(e, s, s.couldNotOpen));
       } finally {
         setBusy(false);
       }

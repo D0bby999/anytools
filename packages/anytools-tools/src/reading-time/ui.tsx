@@ -1,7 +1,7 @@
 'use client';
 import { RangeSlider, TableResult, Textarea, useLocalized, useToolLocale } from '@anytools/ui';
 import { useState } from 'react';
-import { estimateReadingTime, formatDuration } from './logic';
+import { durationParts, estimateReadingTime } from './logic';
 import { STRINGS } from './strings';
 
 export function ReadingTimeUi() {
@@ -16,6 +16,14 @@ export function ReadingTimeUi() {
     speakSeconds: speakSec,
     skimSeconds: skimSec,
   } = estimateReadingTime(text, readWpm);
+
+  // Same split as `formatDuration`, phrased with the page's own strings.
+  const duration = (totalSeconds: number) => {
+    const { minutes, seconds } = durationParts(totalSeconds);
+    const template =
+      minutes === 0 ? s.durSeconds : seconds === 0 ? s.durMinutes : s.durMinutesSeconds;
+    return template.replace('{m}', String(minutes)).replace('{s}', String(seconds));
+  };
 
   return (
     <div className="space-y-6">
@@ -48,11 +56,11 @@ export function ReadingTimeUi() {
               { label: s.words, value: words.toLocaleString(locale), emphasis: true },
               {
                 label: s.read.replace('{wpm}', String(readWpm)),
-                value: formatDuration(readSec),
+                value: duration(readSec),
                 emphasis: true,
               },
-              { label: s.speak, value: formatDuration(speakSec) },
-              { label: s.skim, value: formatDuration(skimSec) },
+              { label: s.speak, value: duration(speakSec) },
+              { label: s.skim, value: duration(skimSec) },
             ]}
           />
         </div>

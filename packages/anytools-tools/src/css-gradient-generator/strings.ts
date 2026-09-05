@@ -36,6 +36,33 @@ const EN = {
   editExisting: 'Edit an existing gradient',
   pasteCss: 'Paste CSS to load',
   loadCss: 'Load CSS',
+  error_lengthPosition:
+    'Stop positions have to be percentages — "{token}" is a length this editor cannot store.',
+  error_interpolationHint:
+    '"{text}" is an interpolation hint (a bare percentage between two stops), which this editor cannot represent.',
+  error_notColor: 'Not a colour this editor understands: "{color}".',
+  error_tooManyPositions: 'A colour stop takes at most two positions; "{text}" has {count}.',
+  error_centerPercent: 'The centre has to be given as percentages or `center`.',
+  error_emptyInput: 'Paste a gradient value, or a whole `background:` declaration.',
+  error_computedValue:
+    '{fn}() is resolved by the browser, so there is no fixed value for this editor to show.',
+  error_notGradient:
+    'Not a gradient — expected linear-gradient(), radial-gradient() or conic-gradient().',
+  error_unbalanced: 'Unbalanced brackets — the gradient is never closed.',
+  error_layerStack:
+    'One gradient at a time — this editor cannot hold a stack of comma-separated background layers.',
+  error_trailingValue: 'Unexpected value after the gradient: "{tail}".',
+  error_interpolationMethod:
+    'A colour interpolation method (`in oklab`, `in hsl longer hue`) changes how colours blend and cannot be stored here.',
+  error_tooFewStops: 'A gradient needs at least two colour stops.',
+  error_unknownDirection: 'Unknown direction keyword: "{head}".',
+  error_explicitRadii:
+    'Explicit radii (`radial-gradient(200px 100px at …)`) cannot be stored as percentages — use a size keyword such as `farthest-corner`.',
+  error_conicPrefix:
+    'Only `from <angle>` and `at <position>` can come before the stops of a conic gradient.',
+  error_notAngle: 'Not an angle: "{token}".',
+  error_radialShape:
+    'Not a radial shape or size this editor supports: "{token}". Use circle/ellipse with one of {sizes}.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -76,6 +103,33 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     editExisting: 'Chỉnh sửa gradient có sẵn',
     pasteCss: 'Dán CSS để tải',
     loadCss: 'Tải CSS',
+    error_lengthPosition:
+      'Vị trí điểm dừng phải là phần trăm — "{token}" là độ dài mà trình chỉnh sửa này không lưu được.',
+    error_interpolationHint:
+      '"{text}" là gợi ý nội suy (một phần trăm trần giữa hai điểm dừng), trình chỉnh sửa này không biểu diễn được.',
+    error_notColor: 'Không phải màu mà trình chỉnh sửa này hiểu: "{color}".',
+    error_tooManyPositions: 'Một điểm dừng màu nhận tối đa hai vị trí; "{text}" có {count}.',
+    error_centerPercent: 'Tâm phải được ghi bằng phần trăm hoặc `center`.',
+    error_emptyInput: 'Dán một giá trị gradient, hoặc cả khai báo `background:`.',
+    error_computedValue:
+      '{fn}() do trình duyệt tính toán nên không có giá trị cố định để trình chỉnh sửa này hiển thị.',
+    error_notGradient:
+      'Không phải gradient — cần linear-gradient(), radial-gradient() hoặc conic-gradient().',
+    error_unbalanced: 'Ngoặc không cân — gradient chưa bao giờ được đóng.',
+    error_layerStack:
+      'Mỗi lần một gradient — trình chỉnh sửa này không chứa được nhiều lớp nền cách nhau bằng dấu phẩy.',
+    error_trailingValue: 'Giá trị không mong đợi sau gradient: "{tail}".',
+    error_interpolationMethod:
+      'Phương pháp nội suy màu (`in oklab`, `in hsl longer hue`) thay đổi cách pha màu và không lưu được ở đây.',
+    error_tooFewStops: 'Gradient cần ít nhất hai điểm dừng màu.',
+    error_unknownDirection: 'Từ khóa hướng không xác định: "{head}".',
+    error_explicitRadii:
+      'Bán kính tường minh (`radial-gradient(200px 100px at …)`) không lưu được dưới dạng phần trăm — hãy dùng từ khóa kích thước như `farthest-corner`.',
+    error_conicPrefix:
+      'Chỉ `from <angle>` và `at <position>` được đứng trước các điểm dừng của conic gradient.',
+    error_notAngle: 'Không phải góc: "{token}".',
+    error_radialShape:
+      'Không phải hình hoặc kích thước radial mà trình chỉnh sửa này hỗ trợ: "{token}". Hãy dùng circle/ellipse với một trong {sizes}.',
   },
   es: {
     title: 'Generador de degradados CSS',
@@ -113,6 +167,34 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     editExisting: 'Editar un degradado existente',
     pasteCss: 'Pega CSS para cargarlo',
     loadCss: 'Cargar CSS',
+    error_lengthPosition:
+      'Las posiciones de las paradas deben ser porcentajes: "{token}" es una longitud que este editor no puede guardar.',
+    error_interpolationHint:
+      '"{text}" es una pista de interpolación (un porcentaje suelto entre dos paradas), que este editor no puede representar.',
+    error_notColor: 'No es un color que este editor entienda: "{color}".',
+    error_tooManyPositions:
+      'Una parada de color admite como máximo dos posiciones; "{text}" tiene {count}.',
+    error_centerPercent: 'El centro debe indicarse en porcentajes o con `center`.',
+    error_emptyInput: 'Pega un valor de degradado, o una declaración `background:` completa.',
+    error_computedValue:
+      '{fn}() lo resuelve el navegador, así que no hay un valor fijo que este editor pueda mostrar.',
+    error_notGradient:
+      'No es un degradado: se esperaba linear-gradient(), radial-gradient() o conic-gradient().',
+    error_unbalanced: 'Paréntesis desequilibrados: el degradado nunca se cierra.',
+    error_layerStack:
+      'Un degradado a la vez: este editor no puede contener varias capas de fondo separadas por comas.',
+    error_trailingValue: 'Valor inesperado después del degradado: "{tail}".',
+    error_interpolationMethod:
+      'Un método de interpolación de color (`in oklab`, `in hsl longer hue`) cambia cómo se mezclan los colores y no se puede guardar aquí.',
+    error_tooFewStops: 'Un degradado necesita al menos dos paradas de color.',
+    error_unknownDirection: 'Palabra clave de dirección desconocida: "{head}".',
+    error_explicitRadii:
+      'Los radios explícitos (`radial-gradient(200px 100px at …)`) no se pueden guardar como porcentajes: usa una palabra clave de tamaño como `farthest-corner`.',
+    error_conicPrefix:
+      'Solo `from <angle>` y `at <position>` pueden ir antes de las paradas de un degradado cónico.',
+    error_notAngle: 'No es un ángulo: "{token}".',
+    error_radialShape:
+      'No es una forma o tamaño radial que este editor admita: "{token}". Usa circle/ellipse con uno de {sizes}.',
   },
   pt: {
     title: 'Gerador de gradientes CSS',
@@ -150,5 +232,33 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     editExisting: 'Editar um gradiente existente',
     pasteCss: 'Cole o CSS para carregar',
     loadCss: 'Carregar CSS',
+    error_lengthPosition:
+      'As posições das paradas precisam ser porcentagens: "{token}" é um comprimento que este editor não consegue guardar.',
+    error_interpolationHint:
+      '"{text}" é uma dica de interpolação (uma porcentagem solta entre duas paradas), que este editor não consegue representar.',
+    error_notColor: 'Não é uma cor que este editor entenda: "{color}".',
+    error_tooManyPositions:
+      'Uma parada de cor aceita no máximo duas posições; "{text}" tem {count}.',
+    error_centerPercent: 'O centro precisa ser indicado em porcentagens ou com `center`.',
+    error_emptyInput: 'Cole um valor de gradiente, ou uma declaração `background:` inteira.',
+    error_computedValue:
+      '{fn}() é resolvido pelo navegador, então não há um valor fixo para este editor mostrar.',
+    error_notGradient:
+      'Não é um gradiente: esperado linear-gradient(), radial-gradient() ou conic-gradient().',
+    error_unbalanced: 'Parênteses desbalanceados: o gradiente nunca é fechado.',
+    error_layerStack:
+      'Um gradiente por vez: este editor não consegue guardar várias camadas de fundo separadas por vírgula.',
+    error_trailingValue: 'Valor inesperado depois do gradiente: "{tail}".',
+    error_interpolationMethod:
+      'Um método de interpolação de cores (`in oklab`, `in hsl longer hue`) muda como as cores se misturam e não pode ser guardado aqui.',
+    error_tooFewStops: 'Um gradiente precisa de pelo menos duas paradas de cor.',
+    error_unknownDirection: 'Palavra-chave de direção desconhecida: "{head}".',
+    error_explicitRadii:
+      'Raios explícitos (`radial-gradient(200px 100px at …)`) não podem ser guardados como porcentagens: use uma palavra-chave de tamanho como `farthest-corner`.',
+    error_conicPrefix:
+      'Somente `from <angle>` e `at <position>` podem vir antes das paradas de um gradiente cônico.',
+    error_notAngle: 'Não é um ângulo: "{token}".',
+    error_radialShape:
+      'Não é uma forma ou tamanho radial que este editor aceite: "{token}". Use circle/ellipse com um de {sizes}.',
   },
 };

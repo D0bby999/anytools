@@ -8,6 +8,8 @@
  * Everything below validates or produces exactly that envelope.
  */
 
+import { ToolError } from '../shared/tool-error';
+
 /** The `type` discriminator every `.excalidraw` file carries. */
 export const SCENE_TYPE = 'excalidraw';
 
@@ -181,8 +183,9 @@ export function sceneByteLength(text: string): number {
 /**
  * Parse and validate a `.excalidraw` file (or our own autosave, which uses the same envelope).
  *
- * Throws an `Error` whose message is written to be shown to the user as-is — every branch
- * says what was wrong with the file rather than "invalid input". A `.excalidrawlib` file (a
+ * Throws a `ToolError` whose message is written to be shown to the user as-is — every branch
+ * says what was wrong with the file rather than "invalid input" — and whose `code` lets the
+ * widget render the same complaint in its own language. A `.excalidrawlib` file (a
  * shape library, `type: "excalidrawlib"`) is the mistake people actually make, so it gets
  * named explicitly.
  *
@@ -197,45 +200,68 @@ export function parseSceneFile(text: string): ParsedScene {
   if (bytes > MAX_SCENE_BYTES) {
     const mb = (bytes / (1024 * 1024)).toFixed(1);
     const cap = MAX_SCENE_BYTES / (1024 * 1024);
-    throw new Error(`That scene is ${mb} MB. The limit is ${cap} MB — it is too big to open here.`);
+    throw new ToolError(
+      'sceneTooBig',
+      `That scene is ${mb} MB. The limit is ${cap} MB — it is too big to open here.`,
+      { mb, cap },
+    );
   }
-  if (text.trim() === '') throw new Error('That file is empty.');
+  if (text.trim() === '') throw new ToolError('fileEmpty', 'That file is empty.');
 
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    throw new Error('That file is not valid JSON, so it is not an .excalidraw scene.');
+    throw new ToolError(
+      'notJson',
+      'That file is not valid JSON, so it is not an .excalidraw scene.',
+    );
   }
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
-    throw new Error('That file does not contain an .excalidraw scene object.');
+    throw new ToolError(
+      'notSceneObject',
+      'That file does not contain an .excalidraw scene object.',
+    );
   }
 
   const data = raw as Record<string, unknown>;
   if (data.type !== SCENE_TYPE) {
     if (data.type === 'excalidrawlib') {
-      throw new Error(
+      throw new ToolError(
+        'shapeLibrary',
         'That is an Excalidraw shape library (.excalidrawlib), not a drawing. Open it from the library panel instead.',
       );
     }
-    const got = typeof data.type === 'string' ? `"${data.type}"` : 'nothing';
-    throw new Error(
-      `Not an Excalidraw scene: its "type" field says ${got}, expected "excalidraw".`,
+    if (typeof data.type === 'string') {
+      throw new ToolError(
+        'wrongType',
+        `Not an Excalidraw scene: its "type" field says "${data.type}", expected "excalidraw".`,
+        { type: data.type },
+      );
+    }
+    throw new ToolError(
+      'missingType',
+      'Not an Excalidraw scene: its "type" field says nothing, expected "excalidraw".',
     );
   }
 
   const version = data.version;
   if (typeof version !== 'number' || !Number.isFinite(version)) {
-    throw new Error('That scene has no version number, so it cannot be read safely.');
+    throw new ToolError(
+      'noVersion',
+      'That scene has no version number, so it cannot be read safely.',
+    );
   }
   if (version > SCENE_VERSION) {
-    throw new Error(
+    throw new ToolError(
+      'newerVersion',
       `That scene is version ${version}; this tool reads up to version ${SCENE_VERSION}. It was saved by a newer Excalidraw.`,
+      { version, max: SCENE_VERSION },
     );
   }
 
   if (!Array.isArray(data.elements)) {
-    throw new Error('That scene has no "elements" array — nothing to draw.');
+    throw new ToolError('noElements', 'That scene has no "elements" array — nothing to draw.');
   }
 
   const appState =

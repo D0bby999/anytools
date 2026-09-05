@@ -23,6 +23,26 @@ export function complexWords(words: string[]): number {
   return words.filter((w) => syllables(w) >= 3).length;
 }
 
+export type ReadingLevelId =
+  | 'universal'
+  | 'collegeGraduate'
+  | 'college'
+  | 'grade10to12'
+  | 'grade8to9'
+  | 'grade7'
+  | 'grade6';
+
+/** English names of each Flesch band, kept for the string-returning `level` field. */
+export const READING_LEVEL_NAMES: Record<ReadingLevelId, string> = {
+  universal: 'Universal',
+  collegeGraduate: 'College graduate',
+  college: 'College',
+  grade10to12: '10th–12th grade',
+  grade8to9: '8th–9th grade',
+  grade7: '7th grade',
+  grade6: '6th grade',
+};
+
 export type ReadabilityResult = {
   words: number;
   sentences: number;
@@ -30,7 +50,9 @@ export type ReadabilityResult = {
   flesch: number;
   fkGrade: number;
   fog: number;
+  /** English level name; `levelId` is the stable key widgets map to their own strings. */
   level: string;
+  levelId: ReadingLevelId;
 };
 
 export function analyze(text: string): ReadabilityResult | null {
@@ -53,13 +75,14 @@ export function analyze(text: string): ReadabilityResult | null {
   const complexPct = (complexWords(words) / wordCount) * 100;
   const fog = 0.4 * (wordsPerSentence + complexPct);
 
-  let level = 'Universal';
-  if (flesch < 30) level = 'College graduate';
-  else if (flesch < 50) level = 'College';
-  else if (flesch < 60) level = '10th–12th grade';
-  else if (flesch < 70) level = '8th–9th grade';
-  else if (flesch < 80) level = '7th grade';
-  else if (flesch < 90) level = '6th grade';
+  let levelId: ReadingLevelId = 'universal';
+  if (flesch < 30) levelId = 'collegeGraduate';
+  else if (flesch < 50) levelId = 'college';
+  else if (flesch < 60) levelId = 'grade10to12';
+  else if (flesch < 70) levelId = 'grade8to9';
+  else if (flesch < 80) levelId = 'grade7';
+  else if (flesch < 90) levelId = 'grade6';
+  const level = READING_LEVEL_NAMES[levelId];
 
   return {
     words: wordCount,
@@ -69,5 +92,6 @@ export function analyze(text: string): ReadabilityResult | null {
     fkGrade: Math.max(0, fkGrade),
     fog: Math.max(0, fog),
     level,
+    levelId,
   };
 }

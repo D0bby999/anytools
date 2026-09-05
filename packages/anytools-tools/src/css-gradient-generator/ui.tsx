@@ -24,7 +24,7 @@ import {
   toCssBlock,
   toTailwind,
 } from './logic';
-import { parseGradient } from './parse';
+import { type ParseFailure, parseGradient } from './parse';
 import { GRADIENT_PRESETS } from './presets';
 import {
   type GradientEditorState,
@@ -36,6 +36,16 @@ import {
 } from './stop-rows';
 import { StopTrack } from './stop-track';
 import { STRINGS } from './strings';
+
+/** The rejection in the page's language when the strings table knows its code, else as written. */
+function parseFailureText(failure: ParseFailure, s: Record<string, string>): string {
+  const template = s[`error_${failure.code}`];
+  if (!template) return failure.reason;
+  const params = failure.params ?? {};
+  return template.replace(/\{(\w+)\}/g, (m, key: string) =>
+    key in params ? String(params[key]) : m,
+  );
+}
 
 const SLUG = 'css-gradient-generator';
 const SIZES: RadialSize[] = ['closest-side', 'closest-corner', 'farthest-side', 'farthest-corner'];
@@ -85,7 +95,7 @@ export function CssGradientGeneratorUi() {
       setG(withRowIds(parsed.state));
       countRun();
     } else {
-      setImportError(parsed.reason);
+      setImportError(parseFailureText(parsed, s));
     }
   };
 

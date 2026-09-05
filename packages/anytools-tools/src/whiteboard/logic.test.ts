@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ToolError } from '../shared/tool-error';
 import {
   MAX_SCENE_BYTES,
   SCENE_TYPE,
@@ -253,6 +254,36 @@ describe('parseSceneFile', () => {
     const cjk = '漢'.repeat(Math.ceil(MAX_SCENE_BYTES / 3) + 10);
     expect(cjk.length).toBeLessThan(MAX_SCENE_BYTES);
     expect(() => parseSceneFile(sceneFile({ source: cjk }))).toThrow(/limit is 5 MB/);
+  });
+
+  it('tags every refusal with a code the widget can translate', () => {
+    const codeOf = (text: string) => {
+      try {
+        parseSceneFile(text);
+      } catch (e) {
+        return e instanceof ToolError ? { code: e.code, params: e.params } : null;
+      }
+      return null;
+    };
+    expect(codeOf('')).toEqual({ code: 'fileEmpty', params: {} });
+    expect(codeOf('<html>')).toEqual({ code: 'notJson', params: {} });
+    expect(codeOf('[1]')).toEqual({ code: 'notSceneObject', params: {} });
+    expect(codeOf(sceneFile({ type: 'excalidrawlib' }))?.code).toBe('shapeLibrary');
+    expect(codeOf(sceneFile({ type: 'drawing' }))).toEqual({
+      code: 'wrongType',
+      params: { type: 'drawing' },
+    });
+    expect(codeOf(sceneFile({ type: undefined }))?.code).toBe('missingType');
+    expect(codeOf(sceneFile({ version: '2' }))?.code).toBe('noVersion');
+    expect(codeOf(sceneFile({ version: SCENE_VERSION + 1 }))).toEqual({
+      code: 'newerVersion',
+      params: { version: SCENE_VERSION + 1, max: SCENE_VERSION },
+    });
+    expect(codeOf(sceneFile({ elements: {} }))?.code).toBe('noElements');
+    expect(codeOf(sceneFile({ source: 'x'.repeat(MAX_SCENE_BYTES) }))).toEqual({
+      code: 'sceneTooBig',
+      params: { mb: '5.0', cap: 5 },
+    });
   });
 
   it('filters out embedded frames instead of rejecting the whole file', () => {

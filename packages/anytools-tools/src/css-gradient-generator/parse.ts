@@ -19,12 +19,27 @@ import type {
   RadialSize,
 } from './logic';
 
-export type ParseResult = { ok: true; state: GradientState } | { ok: false; reason: string };
+/**
+ * A rejection carries the English sentence (`reason`) plus a stable `code` and the values the
+ * sentence was built from, so the widget can render `error_<code>` in the page's language.
+ */
+export type ParseFailure = {
+  ok: false;
+  reason: string;
+  code: string;
+  params?: Record<string, string | number>;
+};
 
-type Res<T> = { ok: true; value: T } | { ok: false; reason: string };
+export type ParseResult = { ok: true; state: GradientState } | ParseFailure;
+
+type Res<T> = { ok: true; value: T } | ParseFailure;
 
 const ok = <T>(value: T): Res<T> => ({ ok: true, value });
-const fail = (reason: string): { ok: false; reason: string } => ({ ok: false, reason });
+const fail = (
+  code: string,
+  reason: string,
+  params?: Record<string, string | number>,
+): ParseFailure => (params ? { ok: false, reason, code, params } : { ok: false, reason, code });
 
 const RADIAL_SIZES: RadialSize[] = [
   'closest-side',
@@ -139,25 +154,33 @@ function parseStop(text: string): Res<ColorStop[]> {
     // than silently glue it onto the colour (`red 0px` is not a colour).
     else if (/^[-.\d]/.test(token))
       return fail(
+        'lengthPosition',
         `Stop positions have to be percentages — "${token}" is a length this editor cannot store.`,
+        { token },
       );
     else colorParts.push(token);
   }
   if (colorParts.length === 0)
     return fail(
+      'interpolationHint',
       `"${text}" is an interpolation hint (a bare percentage between two stops), which this editor cannot represent.`,
+      { text },
     );
   const color = colorParts.join(' ');
   if (colorParts.length > 1 || !isColorToken(color))
-    return fail(`Not a colour this editor understands: "${color}".`);
+    return fail('notColor', `Not a colour this editor understands: "${color}".`, { color });
   if (positions.length > 2)
-    return fail(`A colour stop takes at most two positions; "${text}" has ${positions.length}.`);
+    return fail(
+      'tooManyPositions',
+      `A colour stop takes at most two positions; "${text}" has ${positions.length}.`,
+      { text, count: positions.length },
+    );
   if (positions.length === 0) return ok([{ color, position: null }]);
   return ok(positions.map((position) => ({ color, position })));
 }
 
 function parseCenter(tokens: string[]): Res<{ cx: number; cy: number }> {
-  const bad = fail('The centre has to be given as percentages or `center`.');
+  const bad = fail('centerPercent', 'The centre has to be given as percentages or `center`.');
   if (tokens.length === 0 || tokens.length > 2) return bad;
   const cx = toPercent(tokens[0] as string);
   const cy = tokens.length === 2 ? toPercent(tokens[1] as string) : 50;
@@ -171,28 +194,35 @@ export function parseGradient(input: string): ParseResult {
     .replace(/^background(-image)?\s*:\s*/i, '')
     .replace(/;\s*$/, '')
     .trim();
-  if (!src) return fail('Paste a gradient value, or a whole `background:` declaration.');
+  if (!src)
+    return fail('emptyInput', 'Paste a gradient value, or a whole `background:` declaration.');
 
   const computed = COMPUTED.exec(src);
   if (computed)
     return fail(
+      'computedValue',
       `${computed[1]}() is resolved by the browser, so there is no fixed value for this editor to show.`,
+      { fn: computed[1] ?? '' },
     );
 
   const opener = /^(repeating-)?(linear|radial|conic)-gradient\s*\(/i.exec(src);
   if (!opener?.[2])
     return fail(
+      'notGradient',
       'Not a gradient — expected linear-gradient(), radial-gradient() or conic-gradient().',
     );
   const openIndex = opener[0].length - 1;
   const closeIndex = matchingParen(src, openIndex);
-  if (closeIndex === -1) return fail('Unbalanced brackets — the gradient is never closed.');
+  if (closeIndex === -1)
+    return fail('unbalanced', 'Unbalanced brackets — the gradient is never closed.');
   const tail = src.slice(closeIndex + 1).trim();
   if (tail.startsWith(','))
     return fail(
+      'layerStack',
       'One gradient at a time — this editor cannot hold a stack of comma-separated background layers.',
     );
-  if (tail) return fail(`Unexpected value after the gradient: "${tail}".`);
+  if (tail)
+    return fail('trailingValue', `Unexpected value after the gradient: "${tail}".`, { tail });
 
   const repeating = Boolean(opener[1]);
   const kind = opener[2].toLowerCase() as GradientKind;
@@ -200,6 +230,7 @@ export function parseGradient(input: string): ParseResult {
   const head = parts[0] ?? '';
   if (INTERPOLATION.test(head))
     return fail(
+      'interpolationMethod',
       'A colour interpolation method (`in oklab`, `in hsl longer hue`) changes how colours blend and cannot be stored here.',
     );
 
@@ -210,7 +241,7 @@ export function parseGradient(input: string): ParseResult {
       if (!parsed.ok) return parsed;
       stops.push(...parsed.value);
     }
-    if (stops.length < 2) return fail('A gradient needs at least two colour stops.');
+    if (stops.length < 2) return fail('tooFewStops', 'A gradient needs at least two colour stops.');
     return { ok: true, state: build({ repeating, stops }) };
   };
 
@@ -219,7 +250,8 @@ export function parseGradient(input: string): ParseResult {
     let rest = parts;
     if (/^to\s/i.test(head)) {
       const side = SIDE_ANGLES[head.toLowerCase().split(/\s+/).slice(1).sort().join(' ')];
-      if (side === undefined) return fail(`Unknown direction keyword: "${head}".`);
+      if (side === undefined)
+        return fail('unknownDirection', `Unknown direction keyword: "${head}".`, { head });
       angle = side;
       rest = parts.slice(1);
     } else {
@@ -240,6 +272,7 @@ export function parseGradient(input: string): ParseResult {
       : /^(circle|ellipse|closest-|farthest-|at)\b/i.test(head);
   if (kind === 'radial' && !geometry && /^[-.\d]/.test(head))
     return fail(
+      'explicitRadii',
       'Explicit radii (`radial-gradient(200px 100px at …)`) cannot be stored as percentages — use a size keyword such as `farthest-corner`.',
     );
   const tokens = geometry ? splitOutsideParens(head, /\s/) : [];
@@ -254,10 +287,12 @@ export function parseGradient(input: string): ParseResult {
     if (before.length > 0) {
       if (before.length !== 2 || before[0]?.toLowerCase() !== 'from')
         return fail(
+          'conicPrefix',
           'Only `from <angle>` and `at <position>` can come before the stops of a conic gradient.',
         );
       const deg = toDeg(before[1] as string);
-      if (deg === null) return fail(`Not an angle: "${before[1]}".`);
+      if (deg === null)
+        return fail('notAngle', `Not an angle: "${before[1]}".`, { token: before[1] ?? '' });
       angle = deg;
     }
     return finish(rest, (c) => ({ ...c, kind: 'conic', angle, ...center.value }));
@@ -272,7 +307,9 @@ export function parseGradient(input: string): ParseResult {
     // Explicit radii (`radial-gradient(200px 100px at …)`) are not representable here.
     else
       return fail(
+        'radialShape',
         `Not a radial shape or size this editor supports: "${token}". Use circle/ellipse with one of ${RADIAL_SIZES.join(', ')}.`,
+        { token, sizes: RADIAL_SIZES.join(', ') },
       );
   }
   return finish(rest, (c) => ({ ...c, kind: 'radial', shape, size, ...center.value }));

@@ -1,7 +1,7 @@
 'use client';
 import { TableResult, Textarea, useLocalized, useToolLocale } from '@anytools/ui';
 import { useState } from 'react';
-import { analyze } from './logic';
+import { type ReadingLevelId, analyze } from './logic';
 import { STRINGS } from './strings';
 
 export function ReadabilityAnalyzerUi() {
@@ -12,15 +12,15 @@ export function ReadabilityAnalyzerUi() {
   );
   const r = analyze(text);
   const fmt = (n: number) => n.toLocaleString(locale, { maximumFractionDigits: 1 });
-  // The logic layer names the level in English; map it to the locale here.
-  const levelLabel: Record<string, string> = {
-    Universal: s.level_universal,
-    'College graduate': s.level_collegeGraduate,
-    College: s.level_college,
-    '10th–12th grade': s.level_grade10to12,
-    '8th–9th grade': s.level_grade8to9,
-    '7th grade': s.level_grade7,
-    '6th grade': s.level_grade6,
+  // The logic layer names the level in English and tags it with an id; map the id here.
+  const levelLabel: Record<ReadingLevelId, string> = {
+    universal: s.level_universal,
+    collegeGraduate: s.level_collegeGraduate,
+    college: s.level_college,
+    grade10to12: s.level_grade10to12,
+    grade8to9: s.level_grade8to9,
+    grade7: s.level_grade7,
+    grade6: s.level_grade6,
   };
 
   return (
@@ -48,7 +48,7 @@ export function ReadabilityAnalyzerUi() {
                 { label: s.fleschEase, value: fmt(r.flesch), emphasis: true },
                 { label: s.fkGrade, value: fmt(r.fkGrade), emphasis: true },
                 { label: s.gunningFog, value: fmt(r.fog) },
-                { label: s.readingLevel, value: levelLabel[r.level] ?? r.level, emphasis: true },
+                { label: s.readingLevel, value: levelLabel[r.levelId] ?? r.level, emphasis: true },
               ]}
             />
           ) : (

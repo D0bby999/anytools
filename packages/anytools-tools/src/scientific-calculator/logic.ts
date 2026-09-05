@@ -2,7 +2,7 @@
  * Scientific calculator logic — thin re-export of the expression evaluator
  * plus display formatting helpers. Pure functions, no side effects.
  */
-export { evaluateExpression } from './expression-evaluator';
+export { type EvalResult, evaluate, evaluateExpression } from './expression-evaluator';
 
 /** Format a numeric result for display: integers shown whole, decimals trimmed. */
 export function formatResult(result: number | string): string {

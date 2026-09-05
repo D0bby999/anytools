@@ -27,13 +27,24 @@ export function wordsToSeconds(words: number, wpm: number): number {
   return (words / wpm) * 60;
 }
 
+export type DurationParts = { minutes: number; seconds: number };
+
+/**
+ * Splits seconds into the whole minutes and rounded seconds a display shows. Under a minute
+ * the minutes are 0 and the seconds are the rounded total (so 59.6 s is `{0, 60}`, matching
+ * the "60s" the string form has always shown); the widget picks the localized phrasing.
+ */
+export function durationParts(seconds: number): DurationParts {
+  if (seconds < 60) return { minutes: 0, seconds: Math.round(seconds) };
+  return { minutes: Math.floor(seconds / 60), seconds: Math.round(seconds % 60) };
+}
+
 /**
  * Formats seconds into a human-readable string: "45s", "3 min", "3m 45s".
  */
 export function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${Math.round(seconds)}s`;
-  const m = Math.floor(seconds / 60);
-  const s = Math.round(seconds % 60);
+  const { minutes: m, seconds: s } = durationParts(seconds);
+  if (m === 0) return `${s}s`;
   return s === 0 ? `${m} min` : `${m}m ${s}s`;
 }
 

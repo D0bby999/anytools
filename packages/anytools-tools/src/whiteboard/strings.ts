@@ -31,6 +31,20 @@ const EN = {
   savedOnlyHere: 'Saved in this browser only',
   autosaveNote:
     'The board autosaves to this browser’s storage about half a second after you stop drawing. Clearing site data erases it. Export a {code} file to keep a copy you can reopen here or on excalidraw.com.',
+  error_sceneTooBig: 'That scene is {mb} MB. The limit is {cap} MB — it is too big to open here.',
+  error_fileEmpty: 'That file is empty.',
+  error_notJson: 'That file is not valid JSON, so it is not an .excalidraw scene.',
+  error_notSceneObject: 'That file does not contain an .excalidraw scene object.',
+  error_shapeLibrary:
+    'That is an Excalidraw shape library (.excalidrawlib), not a drawing. Open it from the library panel instead.',
+  error_wrongType:
+    'Not an Excalidraw scene: its "type" field says "{type}", expected "excalidraw".',
+  error_missingType:
+    'Not an Excalidraw scene: its "type" field says nothing, expected "excalidraw".',
+  error_noVersion: 'That scene has no version number, so it cannot be read safely.',
+  error_newerVersion:
+    'That scene is version {version}; this tool reads up to version {max}. It was saved by a newer Excalidraw.',
+  error_noElements: 'That scene has no "elements" array — nothing to draw.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -66,6 +80,20 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     savedOnlyHere: 'Chỉ lưu trong trình duyệt này',
     autosaveNote:
       'Bảng tự động lưu vào bộ nhớ trình duyệt khoảng nửa giây sau khi bạn ngừng vẽ. Xóa dữ liệu trang web sẽ xóa luôn bảng. Hãy xuất tệp {code} để giữ bản sao có thể mở lại ở đây hoặc trên excalidraw.com.',
+    error_sceneTooBig: 'Bản vẽ này nặng {mb} MB. Giới hạn là {cap} MB — quá lớn để mở ở đây.',
+    error_fileEmpty: 'Tệp đó trống.',
+    error_notJson: 'Tệp đó không phải JSON hợp lệ nên không phải bản vẽ .excalidraw.',
+    error_notSceneObject: 'Tệp đó không chứa đối tượng bản vẽ .excalidraw.',
+    error_shapeLibrary:
+      'Đó là thư viện hình của Excalidraw (.excalidrawlib), không phải bản vẽ. Hãy mở nó từ bảng thư viện.',
+    error_wrongType:
+      'Không phải bản vẽ Excalidraw: trường "type" ghi "{type}", cần là "excalidraw".',
+    error_missingType:
+      'Không phải bản vẽ Excalidraw: trường "type" không có giá trị, cần là "excalidraw".',
+    error_noVersion: 'Bản vẽ này không có số phiên bản nên không thể đọc an toàn.',
+    error_newerVersion:
+      'Bản vẽ này là phiên bản {version}; công cụ này chỉ đọc tới phiên bản {max}. Nó được lưu bởi một Excalidraw mới hơn.',
+    error_noElements: 'Bản vẽ này không có mảng "elements" — không có gì để vẽ.',
   },
   es: {
     title: 'Pizarra en línea',
@@ -99,6 +127,22 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     savedOnlyHere: 'Guardado solo en este navegador',
     autosaveNote:
       'La pizarra se guarda automáticamente en el almacenamiento de este navegador medio segundo después de dejar de dibujar. Borrar los datos del sitio la elimina. Exporta un archivo {code} para conservar una copia que puedas reabrir aquí o en excalidraw.com.',
+    error_sceneTooBig:
+      'Esa escena pesa {mb} MB. El límite es {cap} MB: es demasiado grande para abrirla aquí.',
+    error_fileEmpty: 'Ese archivo está vacío.',
+    error_notJson: 'Ese archivo no es JSON válido, así que no es una escena .excalidraw.',
+    error_notSceneObject: 'Ese archivo no contiene un objeto de escena .excalidraw.',
+    error_shapeLibrary:
+      'Eso es una biblioteca de formas de Excalidraw (.excalidrawlib), no un dibujo. Ábrela desde el panel de biblioteca.',
+    error_wrongType:
+      'No es una escena de Excalidraw: su campo "type" dice "{type}", se esperaba "excalidraw".',
+    error_missingType:
+      'No es una escena de Excalidraw: su campo "type" no dice nada, se esperaba "excalidraw".',
+    error_noVersion:
+      'Esa escena no tiene número de versión, así que no se puede leer con seguridad.',
+    error_newerVersion:
+      'Esa escena es la versión {version}; esta herramienta lee hasta la versión {max}. La guardó un Excalidraw más nuevo.',
+    error_noElements: 'Esa escena no tiene un arreglo "elements": no hay nada que dibujar.',
   },
   pt: {
     title: 'Quadro branco online',
@@ -133,5 +177,20 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     savedOnlyHere: 'Salvo apenas neste navegador',
     autosaveNote:
       'O quadro é salvo automaticamente no armazenamento deste navegador cerca de meio segundo depois que você para de desenhar. Limpar os dados do site o apaga. Exporte um arquivo {code} para manter uma cópia que você pode reabrir aqui ou no excalidraw.com.',
+    error_sceneTooBig:
+      'Essa cena tem {mb} MB. O limite é {cap} MB: é grande demais para abrir aqui.',
+    error_fileEmpty: 'Esse arquivo está vazio.',
+    error_notJson: 'Esse arquivo não é JSON válido, então não é uma cena .excalidraw.',
+    error_notSceneObject: 'Esse arquivo não contém um objeto de cena .excalidraw.',
+    error_shapeLibrary:
+      'Isso é uma biblioteca de formas do Excalidraw (.excalidrawlib), não um desenho. Abra-a pelo painel de biblioteca.',
+    error_wrongType:
+      'Não é uma cena do Excalidraw: o campo "type" diz "{type}", esperado "excalidraw".',
+    error_missingType:
+      'Não é uma cena do Excalidraw: o campo "type" não diz nada, esperado "excalidraw".',
+    error_noVersion: 'Essa cena não tem número de versão, então não pode ser lida com segurança.',
+    error_newerVersion:
+      'Essa cena é a versão {version}; esta ferramenta lê até a versão {max}. Ela foi salva por um Excalidraw mais novo.',
+    error_noElements: 'Essa cena não tem um array "elements": não há nada para desenhar.',
   },
 };

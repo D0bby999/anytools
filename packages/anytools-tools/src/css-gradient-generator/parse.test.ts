@@ -230,6 +230,35 @@ describe('parse refuses what it cannot represent', () => {
     }
   });
 
+  it('tags every rejection with a code and the values in the sentence', () => {
+    const failure = (input: string) => {
+      const result = parseGradient(input);
+      return result.ok ? null : { code: result.code, params: result.params };
+    };
+    expect(failure('')).toEqual({ code: 'emptyInput', params: undefined });
+    expect(failure('url(cat.png)')?.code).toBe('notGradient');
+    expect(failure('linear-gradient(in oklab, red, blue)')?.code).toBe('interpolationMethod');
+    expect(failure('linear-gradient(calc(45deg), red, blue)')).toEqual({
+      code: 'computedValue',
+      params: { fn: 'calc' },
+    });
+    expect(failure('linear-gradient(90deg, red 0px, blue 100px)')).toEqual({
+      code: 'lengthPosition',
+      params: { token: '0px' },
+    });
+    expect(failure('linear-gradient(90deg, red, blue 50% nonsense)')).toEqual({
+      code: 'notColor',
+      params: { color: 'blue nonsense' },
+    });
+    expect(failure('linear-gradient(to nowhere, red, blue)')).toEqual({
+      code: 'unknownDirection',
+      params: { head: 'to nowhere' },
+    });
+    expect(failure('radial-gradient(circle wonky, red, blue)')?.code).toBe('radialShape');
+    expect(failure('linear-gradient(90deg, red)')?.code).toBe('tooFewStops');
+    expect(failure('linear-gradient(90deg, red, blue')?.code).toBe('unbalanced');
+  });
+
   it('still passes an unknown single word through as a colour name', () => {
     // The parser has no table of the 148 named colours, so a word it does not know is
     // treated as one. The browser will simply not paint it — the same outcome as typing

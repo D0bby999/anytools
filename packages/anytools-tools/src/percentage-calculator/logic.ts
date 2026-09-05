@@ -2,8 +2,12 @@ export type PercentMode = 'percentOf' | 'whatPercent' | 'change';
 
 export type PercentResult = {
   value: number;
+  /** English phrasing of the calculation; widgets rebuild it from `mode`, `a`, `b` instead. */
   label: string;
   unit: string;
+  mode: PercentMode;
+  a: number;
+  b: number;
 };
 
 /**
@@ -40,10 +44,17 @@ export function percentChange(from: number, to: number): number {
 export function calcPercent(mode: PercentMode, a: number, b: number): PercentResult {
   switch (mode) {
     case 'percentOf':
-      return { value: percentOf(a, b), label: `${a}% of ${b}`, unit: '' };
+      return { value: percentOf(a, b), label: `${a}% of ${b}`, unit: '', mode, a, b };
     case 'whatPercent':
-      return { value: whatPercent(a, b), label: `${a} is X% of ${b}`, unit: '%' };
+      return { value: whatPercent(a, b), label: `${a} is X% of ${b}`, unit: '%', mode, a, b };
     case 'change':
-      return { value: percentChange(a, b), label: `Change from ${a} to ${b}`, unit: '%' };
+      return {
+        value: percentChange(a, b),
+        label: `Change from ${a} to ${b}`,
+        unit: '%',
+        mode,
+        a,
+        b,
+      };
   }
 }
