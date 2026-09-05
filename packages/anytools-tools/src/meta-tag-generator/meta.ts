@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'meta-tag-generator',
   cluster: 'generators',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Meta Tag Generator',
     vi: 'Tạo Thẻ Meta',

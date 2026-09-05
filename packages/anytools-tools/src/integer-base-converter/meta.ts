@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'integer-base-converter',
   cluster: 'encoding',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Integer Base Converter',
     vi: 'Chuyển Đổi Cơ Số',

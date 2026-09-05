@@ -3,10 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'image-to-pdf',
   cluster: 'pdf',
-  // English only for now. Without this the route generates vi/es/pt pages carrying an
-  // English widget and no body — the shape that had 150 URLs declined for thin content.
-  // Drop the field when hand-written translations land.
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Image to PDF',
     vi: 'Chuyển ảnh sang PDF',

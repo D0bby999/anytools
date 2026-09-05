@@ -14,12 +14,11 @@ describe('buildRouteInventory', () => {
     expect(inventory.counts.toolMetaFiles).toBe(107);
   });
 
-  it("counts the 35 tools restricted to English only (availableLocales: ['en'])", () => {
-    // NOT the same as the phase plan's original assumption of "no tool sets this
-    // field" — 35 tools shipped English-only bodies (thin-content SEO guard) after
-    // that assumption was written. This is the reason toolPages below is 323, not
-    // 107 x 4 = 428. See route-inventory.mjs's file header.
-    expect(inventory.counts.localeRestrictedTools).toBe(35);
+  it("counts the 5 tools restricted to English only (availableLocales: ['en'])", () => {
+    // 2026-09-05: widgets are localized, so the 30 tools that were gated to English while
+    // their widget was English-only now serve in every locale (noindex until a body lands,
+    // see has-localized-tool-body.ts). Only the five with English-only meta keep the gate.
+    expect(inventory.counts.localeRestrictedTools).toBe(5);
   });
 
   it('finds 13 populated clusters and 7 guide slugs', () => {
@@ -27,21 +26,21 @@ describe('buildRouteInventory', () => {
     expect(inventory.counts.guideSlugs).toBe(7);
   });
 
-  it('computes 323 tool routes: 107 English + 72 each for vi/es/pt', () => {
-    // 107 tools all ship English; 35 of them stop there, so the other 3 locales
-    // only get 107 - 35 = 72 tool routes each. 107 + 72*3 = 323.
-    expect(inventory.counts.toolPages).toBe(323);
+  it('computes 413 tool routes: 107 English + 102 each for vi/es/pt', () => {
+    // 107 tools all ship English; 5 of them stop there, so the other 3 locales
+    // get 107 - 5 = 102 tool routes each. 107 + 102*3 = 413.
+    expect(inventory.counts.toolPages).toBe(413);
   });
 
-  it('adds up to 423 expect200 routes (4 home + 52 cluster + 323 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
+  it('adds up to 513 expect200 routes (4 home + 52 cluster + 413 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
     expect(inventory.counts.home).toBe(4);
     expect(inventory.counts.clusterPages).toBe(52);
     expect(inventory.counts.guideIndexPages).toBe(4);
     expect(inventory.counts.guideSlugPages).toBe(28);
     expect(inventory.counts.localeUtilityPages).toBe(8);
     expect(inventory.counts.singleAssetPages).toBe(4);
-    expect(inventory.counts.total200).toBe(423);
-    expect(inventory.expect200).toHaveLength(423);
+    expect(inventory.counts.total200).toBe(513);
+    expect(inventory.expect200).toHaveLength(513);
   });
 
   it('serves the service worker offline fallback and favorites in every locale', () => {
@@ -72,16 +71,24 @@ describe('buildRouteInventory', () => {
   });
 
   it('never emits a route for an English-only tool under vi/es/pt', () => {
-    // merge-pdf ships availableLocales: ['en'] — a regression here would mean the
+    // gpa-calculator ships availableLocales: ['en'] — a regression here would mean the
     // enumerator started trusting all-4-locales again, silently reintroducing the
-    // false-404 risk the phase file's own risk table calls out.
-    expect(inventory.expect200).toContainEqual({ path: '/en/pdf/merge-pdf', method: 'GET' });
-    expect(inventory.expect200).not.toContainEqual({ path: '/vi/pdf/merge-pdf', method: 'GET' });
-    expect(inventory.expect200).not.toContainEqual({ path: '/es/pdf/merge-pdf', method: 'GET' });
-    expect(inventory.expect200).not.toContainEqual({ path: '/pt/pdf/merge-pdf', method: 'GET' });
+    // false-404 risk the phase file's own risk table calls out. merge-pdf, gated until
+    // 2026-09-05, is the positive case: its widget is localized and it serves everywhere.
+    expect(inventory.expect200).toContainEqual({
+      path: '/en/lifestyle/gpa-calculator',
+      method: 'GET',
+    });
+    for (const l of ['vi', 'es', 'pt']) {
+      expect(inventory.expect200).not.toContainEqual({
+        path: `/${l}/lifestyle/gpa-calculator`,
+        method: 'GET',
+      });
+      expect(inventory.expect200).toContainEqual({ path: `/${l}/pdf/merge-pdf`, method: 'GET' });
+    }
   });
 
-  it('the /en/pdf/ slice is exactly 10 routes (all 10 PDF tools are English-only today)', () => {
+  it('the /en/pdf/ slice is exactly 10 routes (10 PDF tools)', () => {
     const enPdf = inventory.expect200.filter((r) => r.path.startsWith('/en/pdf/'));
     expect(enPdf).toHaveLength(10);
   });

@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'compress-image',
   cluster: 'image',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: { en: 'Compress Image', vi: 'Nén Ảnh', es: 'Comprimir Imagen', pt: 'Comprimir Imagem' },
   description: {
     en: 'Shrink a photo to fit an upload limit, with the before and after shown side by side. Runs in your browser — the image is never uploaded.',

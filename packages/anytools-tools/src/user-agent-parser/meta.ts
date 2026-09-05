@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'user-agent-parser',
   cluster: 'text-regex',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'User Agent Parser',
     vi: 'Phân Tích User Agent',

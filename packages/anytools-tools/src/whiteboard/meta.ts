@@ -26,10 +26,8 @@ export const meta: ToolMeta = {
   priority: 'P3',
   effort: 'S',
   published: true,
-  // English only: the board is an embedded Excalidraw editor whose own interface strings are
-  // English here (we pin langCode) and the FAQ that explains where the drawing is stored has
-  // no translation yet. A half-translated page around an English canvas is worse than one.
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   nextStepSuggestions: [
     {
       tool: 'color-palette',

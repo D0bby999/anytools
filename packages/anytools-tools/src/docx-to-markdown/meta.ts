@@ -25,7 +25,8 @@ export const meta: ToolMeta = {
   ],
   priority: 'P2',
   effort: 'M',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   nextStepSuggestions: [
     {
       tool: 'md-html',

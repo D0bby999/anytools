@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'crop-image',
   cluster: 'image',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: { en: 'Crop Image', vi: 'Cắt Ảnh', es: 'Recortar Imagen', pt: 'Cortar Imagem' },
   description: {
     en: 'Drag a box to crop, with presets for 1:1, 4:5 and 16:9. Works with a mouse or a touchscreen. Runs in your browser.',

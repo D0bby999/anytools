@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'rotate-pdf',
   cluster: 'pdf',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: { en: 'Rotate PDF', vi: 'Xoay PDF', es: 'Rotar PDF', pt: 'Girar PDF' },
   description: {
     en: 'Turn PDF pages 90, 180 or 270 degrees — all of them or just the ones you name. Runs in your browser, nothing is uploaded.',

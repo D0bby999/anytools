@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'create-zip',
   cluster: 'converters',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: { en: 'Create ZIP', vi: 'Tạo File ZIP', es: 'Crear ZIP', pt: 'Criar ZIP' },
   description: {
     en: 'Bundle several files into one .zip, with a compression level you choose. Runs in your browser — nothing is uploaded.',

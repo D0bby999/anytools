@@ -3,7 +3,8 @@ import type { ToolMeta } from '../types';
 export const meta: ToolMeta = {
   slug: 'split-pdf',
   cluster: 'pdf',
-  availableLocales: ['en'],
+  // Widget strings are localized (strings.ts). Where no vi/es/pt FAQ body exists yet the
+  // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: { en: 'Split PDF', vi: 'Tách PDF', es: 'Dividir PDF', pt: 'Dividir PDF' },
   description: {
     en: 'Extract page ranges from a PDF, or split it into one file per page. Runs in your browser — the document is never uploaded.',
