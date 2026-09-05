@@ -1,4 +1,4 @@
-import { formatInTimeZone, getTimezoneOffset } from 'date-fns-tz';
+import { formatInZone, offsetLabel as zoneOffsetLabel, zoneOffsetMs } from '../shared/zone-offset';
 
 export const COMMON_TIMEZONES = [
   'UTC',
@@ -23,17 +23,44 @@ export const COMMON_TIMEZONES = [
 ];
 
 export function formatAtZone(date: Date, tz: string, pattern = 'yyyy-MM-dd HH:mm:ss xxx'): string {
-  return formatInTimeZone(date, tz, pattern);
+  return formatInZone(date, tz, pattern);
 }
 
 export function offsetLabel(tz: string, date: Date = new Date()): string {
-  const ms = getTimezoneOffset(tz, date);
-  const hours = ms / (1000 * 60 * 60);
-  const sign = hours >= 0 ? '+' : '-';
-  const abs = Math.abs(hours);
-  const h = Math.floor(abs);
-  const m = Math.round((abs - h) * 60);
-  return `${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  return zoneOffsetLabel(tz, date);
+}
+
+/**
+ * The instant at which `wallClock` ("YYYY-MM-DDTHH:mm[:ss]") is the local time in `tz`.
+ *
+ * Never touches the machine's own zone. The previous version went through `new Date(string)`,
+ * which the engine reads in the machine's zone, so "09:00 Asia/Ho_Chi_Minh" converted correctly
+ * on a UTC server and came out seven hours wrong for anyone sitting in Vietnam. date-fns-tz's
+ * `fromZonedTime` and `getTimezoneOffset` still build a local Date underneath and are an hour
+ * out on the day the MACHINE's zone changes DST, so the offset comes from shared/zone-offset.
+ *
+ * So the fields are taken as UTC and corrected by the zone's offset. Two passes, because the
+ * offset at the naive instant can differ from the offset at the real one across a DST change
+ * in `tz` itself; the second pass settles it, and a wall-clock time inside a spring-forward gap
+ * resolves to the offset in force after the gap.
+ */
+export function wallClockToInstant(wallClock: string, tz: string): Date {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(wallClock.trim());
+  if (!m) throw new Error('Use ISO format: YYYY-MM-DDTHH:mm');
+  const [, y, mo, d, h, mi, s] = m.map(Number) as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+  const naive = Date.UTC(y, mo - 1, d, h, mi, s || 0);
+  if (Number.isNaN(naive)) throw new Error('Use ISO format: YYYY-MM-DDTHH:mm');
+  const first = naive - zoneOffsetMs(tz, new Date(naive));
+  const second = naive - zoneOffsetMs(tz, new Date(first));
+  return new Date(second);
 }
 
 export function meetingTable(
@@ -41,16 +68,10 @@ export function meetingTable(
   fromTz: string,
   targetTzs: string[],
 ): { tz: string; time: string; offset: string }[] {
-  // Parse localDateTime as a wall-clock time in fromTz
-  const [date, time] = localDateTime.split('T');
-  if (!date || !time) throw new Error('Use ISO format: YYYY-MM-DDTHH:mm');
-  // Build a Date that represents the instant when `localDateTime` is the wall clock at `fromTz`
-  const fromOffsetMs = getTimezoneOffset(fromTz, new Date(localDateTime));
-  const naive = new Date(localDateTime);
-  const instant = new Date(naive.getTime() - fromOffsetMs);
+  const instant = wallClockToInstant(localDateTime, fromTz);
   return targetTzs.map((tz) => ({
     tz,
-    time: formatInTimeZone(instant, tz, 'yyyy-MM-dd HH:mm xxx'),
+    time: formatInZone(instant, tz, 'yyyy-MM-dd HH:mm xxx'),
     offset: offsetLabel(tz, instant),
   }));
 }

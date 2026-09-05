@@ -96,3 +96,23 @@ describe('negative Unix timestamps (pre-1970)', () => {
     expect(() => parseTimestamp('not a date')).toThrow();
   });
 });
+
+// Review 2026-09-05: "0" parsed as the year 2000 and 1 Jan 2000 in seconds was rejected.
+describe('Unix timestamps of any length', () => {
+  it('reads short positive values as seconds', () => {
+    expect(parseTimestamp('0').date.toISOString()).toBe('1970-01-01T00:00:00.000Z');
+    expect(parseTimestamp('86400').date.toISOString()).toBe('1970-01-02T00:00:00.000Z');
+    expect(parseTimestamp('946684800').date.toISOString()).toBe('2000-01-01T00:00:00.000Z');
+    expect(parseTimestamp('946684800').detectedFormat).toBe('unix-seconds');
+  });
+  it('reads 11-14 digit values as milliseconds', () => {
+    expect(parseTimestamp('946684800000').date.toISOString()).toBe('2000-01-01T00:00:00.000Z');
+    expect(parseTimestamp('946684800000').detectedFormat).toBe('unix-millis');
+  });
+  it('keeps fractional seconds', () => {
+    expect(parseTimestamp('1700000000.5').date.toISOString()).toBe('2023-11-14T22:13:20.500Z');
+  });
+  it('refuses a number with more digits than milliseconds can have', () => {
+    expect(() => parseTimestamp('123456789012345')).toThrow(/too large/);
+  });
+});

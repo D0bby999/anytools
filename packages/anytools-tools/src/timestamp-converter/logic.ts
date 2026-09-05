@@ -1,30 +1,34 @@
 import { format as formatDateFn } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import { formatInZone as formatInZoneIntl } from '../shared/zone-offset';
 
 export type ParsedTimestamp = {
   date: Date;
   detectedFormat: 'unix-seconds' | 'unix-millis' | 'iso' | 'rfc2822' | 'unknown';
 };
 
+/**
+ * A bare number is a Unix timestamp: up to 10 integer digits is seconds (through the year
+ * 2286), 11-14 is milliseconds. Fractions of a second are kept.
+ *
+ * The earlier rule accepted exactly 10 or 13 digits and let everything else fall through to
+ * `new Date(string)`, which reads a bare number as a YEAR: "0" became 2000-01-01, "86400" became
+ * the year 86400, and 946684800 (1 Jan 2000, nine digits) was "unrecognized". Negative values
+ * (before 1970) follow the same split.
+ */
+const UNIX_NUMBER = /^-?(\d+)(?:\.\d+)?$/;
+
 export function parseTimestamp(input: string): ParsedTimestamp {
   const trimmed = input.trim();
-  if (/^\d{10}$/.test(trimmed)) {
-    return { date: new Date(Number(trimmed) * 1000), detectedFormat: 'unix-seconds' };
-  }
-  if (/^\d{13}$/.test(trimmed)) {
-    return { date: new Date(Number(trimmed)), detectedFormat: 'unix-millis' };
-  }
-  // Negative Unix timestamps — dates before 1970. The digit-count rules above cannot
-  // match them, and falling through to `new Date('-86400')` makes the engine read the
-  // string as a *year*, returning a date in 86399 CE labelled as RFC 2822. A bare
-  // negative number is never valid in any of the other formats, so it is unambiguous
-  // here; the seconds-vs-millis split follows the same >10-digit rule as positives.
-  if (/^-\d{1,13}$/.test(trimmed)) {
-    const digits = trimmed.length - 1;
+  const numeric = UNIX_NUMBER.exec(trimmed);
+  if (numeric) {
+    const digits = (numeric[1] as string).length;
+    if (digits > 14) {
+      throw new Error('That number is too large for a Unix timestamp in seconds or milliseconds.');
+    }
     const value = Number(trimmed);
     return digits > 10
-      ? { date: new Date(value), detectedFormat: 'unix-millis' }
-      : { date: new Date(value * 1000), detectedFormat: 'unix-seconds' };
+      ? { date: new Date(Math.trunc(value)), detectedFormat: 'unix-millis' }
+      : { date: new Date(Math.round(value * 1000)), detectedFormat: 'unix-seconds' };
   }
   // ISO 8601 (also covers RFC 3339)
   const iso = new Date(trimmed);
@@ -55,7 +59,8 @@ export function formatInZone(
   timeZone: string,
   pattern = 'yyyy-MM-dd HH:mm:ss zzz',
 ): string {
-  return formatInTimeZone(date, timeZone, pattern);
+  // Intl-based: date-fns-tz's formatter is an hour out on the machine's own DST-change day.
+  return formatInZoneIntl(date, timeZone, pattern);
 }
 
 export function relativeFromNow(date: Date): string {
