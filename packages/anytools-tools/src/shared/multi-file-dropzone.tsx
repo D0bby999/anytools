@@ -12,6 +12,7 @@
  * the real constraint is the tab's memory, which no constant knows. So: tell the user a large
  * file may be slow, and let them decide.
  */
+import { useUiStrings } from '@anytools/ui';
 import { useCallback, useRef, useState } from 'react';
 
 /** Above this, warn about memory. Not enforced — see the note above. */
@@ -41,6 +42,7 @@ export function MultiFileDropzone({
   label,
   reorderable = false,
 }: MultiFileDropzoneProps) {
+  const ui = useUiStrings();
   const [dragOver, setDragOver] = useState(false);
   const dragIndex = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -101,9 +103,7 @@ export function MultiFileDropzone({
           dragOver ? 'border-primary bg-primary/5' : 'border-input'
         }`}
       >
-        <p className="text-muted-foreground">
-          Drop {multiple ? 'files' : 'a file'} here, or click to choose
-        </p>
+        <p className="text-muted-foreground">{multiple ? ui.dropFilesHere : ui.dropFileHere}</p>
         <input
           ref={inputRef}
           type="file"
@@ -124,9 +124,10 @@ export function MultiFileDropzone({
 
       {oversized.length > 0 && (
         <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-          {oversized.length === 1 ? 'This file is' : 'Some files are'} over{' '}
-          {fmtSize(LARGE_FILE_WARN_BYTES)}. Everything runs in this tab, so a file that large may be
-          slow or run the tab out of memory. It will still be attempted.
+          {(oversized.length === 1 ? ui.oversizedFile : ui.oversizedFiles).replace(
+            '{size}',
+            fmtSize(LARGE_FILE_WARN_BYTES),
+          )}
         </output>
       )}
 
@@ -159,7 +160,7 @@ export function MultiFileDropzone({
                     type="button"
                     onClick={() => move(i, i - 1)}
                     disabled={i === 0}
-                    aria-label={`Move ${f.name} up`}
+                    aria-label={ui.moveUp.replace('{name}', f.name)}
                     className="shrink-0 rounded px-1 disabled:opacity-30"
                   >
                     ↑
@@ -168,7 +169,7 @@ export function MultiFileDropzone({
                     type="button"
                     onClick={() => move(i, i + 1)}
                     disabled={i === files.length - 1}
-                    aria-label={`Move ${f.name} down`}
+                    aria-label={ui.moveDown.replace('{name}', f.name)}
                     className="shrink-0 rounded px-1 disabled:opacity-30"
                   >
                     ↓
@@ -178,7 +179,7 @@ export function MultiFileDropzone({
               <button
                 type="button"
                 onClick={() => onChange(files.filter((_, j) => j !== i))}
-                aria-label={`Remove ${f.name}`}
+                aria-label={ui.removeFile.replace('{name}', f.name)}
                 className="shrink-0 rounded px-1 text-muted-foreground hover:text-destructive"
               >
                 ✕
