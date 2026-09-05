@@ -10,11 +10,16 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type EscapeMode, escapeUnicode, unescapeUnicode } from './logic';
+import { STRINGS } from './strings';
 
 export function UnicodeEscapeUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [mode, setMode] = useState<'escape' | 'unescape'>('escape');
   const [input, setInput] = useState('');
   const [escapeMode, setEscapeMode] = useState<EscapeMode>('json');
@@ -26,34 +31,34 @@ export function UnicodeEscapeUi() {
         return { ok: true as const, value: escapeUnicode(input, { mode: escapeMode, uppercase }) };
       return { ok: true as const, value: unescapeUnicode(input) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : 'Conversion failed' };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.conversionFailed };
     }
-  }, [input, mode, escapeMode, uppercase]);
+  }, [input, mode, escapeMode, uppercase, ui.conversionFailed]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Unicode Escape / Unescape</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'escape' | 'unescape')}>
           <TabsList>
-            <TabsTrigger value="escape">Text → \uXXXX</TabsTrigger>
-            <TabsTrigger value="unescape">\uXXXX → Text</TabsTrigger>
+            <TabsTrigger value="escape">{s.escapeTab}</TabsTrigger>
+            <TabsTrigger value="unescape">{s.unescapeTab}</TabsTrigger>
           </TabsList>
         </Tabs>
         {mode === 'escape' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">Mode</span>
+              <span className="block mb-1 text-muted-foreground">{s.mode}</span>
               <select
                 value={escapeMode}
                 onChange={(e) => setEscapeMode(e.target.value as EscapeMode)}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
-                <option value="json">JSON (surrogate pairs, escape non-ASCII)</option>
-                <option value="es6">ES6 (\u&#123;XXXXX&#125; for astral)</option>
-                <option value="all">All (escape ASCII too)</option>
+                <option value="json">{s.modeJson}</option>
+                <option value="es6">{s.modeEs6}</option>
+                <option value="all">{s.modeAll}</option>
               </select>
             </label>
             <label className="flex items-center gap-2 text-sm pt-6">
@@ -63,7 +68,7 @@ export function UnicodeEscapeUi() {
                 onChange={(e) => setUppercase(e.target.checked)}
                 className="h-4 w-4"
               />
-              Uppercase hex
+              {s.uppercaseHex}
             </label>
           </div>
         )}
@@ -72,15 +77,13 @@ export function UnicodeEscapeUi() {
           onChange={(e) => setInput(e.target.value)}
           rows={5}
           className="font-mono text-sm"
-          placeholder={
-            mode === 'escape'
-              ? 'Type text with emoji or non-ASCII...'
-              : 'Paste \\uXXXX or \\u{XXXXX} escapes'
-          }
+          placeholder={mode === 'escape' ? s.typeText : s.pasteEscapes}
         />
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
             {output.ok && output.value && <CopyButton text={output.value} />}
           </div>
           {output.ok ? (

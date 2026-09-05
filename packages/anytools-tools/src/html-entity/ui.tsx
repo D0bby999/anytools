@@ -11,11 +11,16 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { decodeHtml, encodeHtml } from './logic';
+import { STRINGS } from './strings';
 
 export function HtmlEntityUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [text, setText] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [encodeEverything, setEncodeEverything] = useState(false);
@@ -32,13 +37,13 @@ export function HtmlEntityUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">HTML Entity Encoder / Decoder</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'encode' | 'decode')}>
           <TabsList>
-            <TabsTrigger value="encode">Encode</TabsTrigger>
-            <TabsTrigger value="decode">Decode</TabsTrigger>
+            <TabsTrigger value="encode">{ui.encode}</TabsTrigger>
+            <TabsTrigger value="decode">{ui.decode}</TabsTrigger>
           </TabsList>
           <TabsContent value="encode" className="space-y-3">
             <Textarea
@@ -54,7 +59,7 @@ export function HtmlEntityUi() {
                 onChange={(e) => setEncodeEverything(e.target.checked)}
                 className="h-4 w-4"
               />
-              Encode every character (not just required)
+              {s.encodeEverything}
             </label>
           </TabsContent>
           <TabsContent value="decode">
@@ -68,7 +73,9 @@ export function HtmlEntityUi() {
         </Tabs>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
             {result && <CopyButton text={result} />}
           </div>
           <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all min-h-[80px]">

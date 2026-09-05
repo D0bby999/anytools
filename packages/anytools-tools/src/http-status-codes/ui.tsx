@@ -12,9 +12,11 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type StatusClass, classOfCode, searchMimeTypes, searchStatusCodes } from './logic';
+import { STRINGS } from './strings';
 
 // 4xx keeps a raw categorical orange: it sits between warning (3xx) and
 // destructive (5xx) in the class scale and means only "client error" here.
@@ -29,6 +31,7 @@ const CLASS_STYLE: Record<StatusClass, string> = {
 const CLASSES: (StatusClass | 'all')[] = ['all', '1xx', '2xx', '3xx', '4xx', '5xx'];
 
 export function HttpStatusCodesUi() {
+  const s = useLocalized(STRINGS);
   const [query, setQuery] = useState('');
   const [klass, setKlass] = useState<StatusClass | 'all'>('all');
   const [mimeQuery, setMimeQuery] = useState('');
@@ -42,21 +45,21 @@ export function HttpStatusCodesUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">HTTP Status Codes & MIME Types</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs defaultValue="status">
           <TabsList>
-            <TabsTrigger value="status">Status codes</TabsTrigger>
-            <TabsTrigger value="mime">MIME types</TabsTrigger>
+            <TabsTrigger value="status">{s.statusTab}</TabsTrigger>
+            <TabsTrigger value="mime">{s.mimeTab}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="status" className="space-y-3">
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search: 404, timeout, gateway…"
-              aria-label="Search status codes"
+              placeholder={s.searchStatus}
+              aria-label={s.searchStatusAria}
               className="h-11"
             />
             <div className="flex flex-wrap gap-2">
@@ -91,7 +94,7 @@ export function HttpStatusCodesUi() {
                 </li>
               ))}
               {statuses.length === 0 && (
-                <li className="p-3 text-sm text-muted-foreground">No matching status code.</li>
+                <li className="p-3 text-sm text-muted-foreground">{s.noStatus}</li>
               )}
             </ul>
           </TabsContent>
@@ -100,8 +103,8 @@ export function HttpStatusCodesUi() {
             <Input
               value={mimeQuery}
               onChange={(e) => setMimeQuery(e.target.value)}
-              placeholder="Search: .png, json, font…"
-              aria-label="Search MIME types"
+              placeholder={s.searchMime}
+              aria-label={s.searchMimeAria}
               className="h-11"
             />
             <ul className="divide-y rounded-lg border overflow-hidden">
@@ -116,7 +119,7 @@ export function HttpStatusCodesUi() {
                 </li>
               ))}
               {mimes.length === 0 && (
-                <li className="p-3 text-sm text-muted-foreground">No matching MIME type.</li>
+                <li className="p-3 text-sm text-muted-foreground">{s.noMime}</li>
               )}
             </ul>
           </TabsContent>

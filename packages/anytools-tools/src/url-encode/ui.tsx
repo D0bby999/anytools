@@ -6,14 +6,18 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  PrivacyNote,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { decodeUrlComponent, encodeUrl, encodeUrlComponent } from './logic';
+import { STRINGS } from './strings';
 
 type Mode = 'component' | 'full' | 'decode';
 
@@ -24,6 +28,8 @@ const EXAMPLES: Record<Mode, string> = {
 };
 
 export function UrlEncodeUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [mode, setMode] = useState<Mode>('component');
   const [input, setInput] = useState('');
 
@@ -34,54 +40,40 @@ export function UrlEncodeUi() {
       if (mode === 'full') return { value: encodeUrl(input), error: '' };
       return { value: decodeUrlComponent(input), error: '' };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : 'Conversion failed' };
+      return { value: '', error: e instanceof Error ? e.message : ui.conversionFailed };
     }
-  }, [input, mode]);
+  }, [input, mode, ui.conversionFailed]);
+
+  const textarea = (
+    <Textarea
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      placeholder={EXAMPLES[mode]}
+      rows={4}
+      aria-label={ui.input}
+    />
+  );
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">URL Encoder / Decoder</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
           <TabsList>
-            <TabsTrigger value="component">Encode component</TabsTrigger>
-            <TabsTrigger value="full">Encode full URL</TabsTrigger>
-            <TabsTrigger value="decode">Decode</TabsTrigger>
+            <TabsTrigger value="component">{s.encodeComponent}</TabsTrigger>
+            <TabsTrigger value="full">{s.encodeFull}</TabsTrigger>
+            <TabsTrigger value="decode">{ui.decode}</TabsTrigger>
           </TabsList>
-          <TabsContent value="component">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={EXAMPLES.component}
-              rows={4}
-              aria-label="Input"
-            />
-          </TabsContent>
-          <TabsContent value="full">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={EXAMPLES.full}
-              rows={4}
-              aria-label="Input"
-            />
-          </TabsContent>
-          <TabsContent value="decode">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={EXAMPLES.decode}
-              rows={4}
-              aria-label="Input"
-            />
-          </TabsContent>
+          <TabsContent value="component">{textarea}</TabsContent>
+          <TabsContent value="full">{textarea}</TabsContent>
+          <TabsContent value="decode">{textarea}</TabsContent>
         </Tabs>
 
         <div className="flex gap-2">
           <Button variant="ghost" size="sm" onClick={() => setInput(EXAMPLES[mode])}>
-            Try example
+            {ui.tryExample}
           </Button>
           <Button
             variant="ghost"
@@ -89,7 +81,7 @@ export function UrlEncodeUi() {
             onClick={() => setInput('')}
             disabled={input.length === 0}
           >
-            Clear
+            {ui.clear}
           </Button>
         </div>
 
@@ -100,20 +92,20 @@ export function UrlEncodeUi() {
         ) : (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {ui.output}
+              </span>
               {result.value && <CopyButton text={result.value} />}
             </div>
             <output className="block min-h-[80px] rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all">
               {result.value || (
-                <span className="text-muted-foreground italic">Waiting for input…</span>
+                <span className="text-muted-foreground italic">{ui.waitingForInput}</span>
               )}
             </output>
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground">
-          Runs in your browser. Input never leaves your device.
-        </p>
+        <PrivacyNote />
       </CardContent>
     </Card>
   );

@@ -1,12 +1,16 @@
+'use client';
+import { useUiStrings } from '../i18n/ui-strings';
 import { cn } from '../lib/cn';
 
 export interface PrivacyNoteProps {
+  /** Override the default note; leave unset to get the locale-aware default. */
   message?: string;
   className?: string;
 }
 
-const DEFAULT_MESSAGE = 'Runs entirely in your browser. Your input never leaves your device.';
-
-export function PrivacyNote({ message = DEFAULT_MESSAGE, className }: PrivacyNoteProps) {
-  return <p className={cn('text-xs text-muted-foreground', className)}>{message}</p>;
+export function PrivacyNote({ message, className }: PrivacyNoteProps) {
+  const s = useUiStrings();
+  return (
+    <p className={cn('text-xs text-muted-foreground', className)}>{message ?? s.privacyNote}</p>
+  );
 }

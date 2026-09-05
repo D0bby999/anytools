@@ -11,16 +11,23 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { decodeHex, encodeHex } from './logic';
+import { STRINGS } from './strings';
 
 export function HexEncodeUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [input, setInput] = useState('');
   const [separator, setSeparator] = useState(' ');
   const [prefix, setPrefix] = useState('');
   const [uppercase, setUppercase] = useState(false);
+  const separatorId = useId();
+  const prefixId = useId();
 
   const output = useMemo(() => {
     try {
@@ -29,39 +36,41 @@ export function HexEncodeUi() {
       }
       return { ok: true as const, value: decodeHex(input) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : 'Conversion failed' };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.conversionFailed };
     }
-  }, [input, mode, separator, prefix, uppercase]);
+  }, [input, mode, separator, prefix, uppercase, ui.conversionFailed]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Hex Encode / Decode</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'encode' | 'decode')}>
           <TabsList>
-            <TabsTrigger value="encode">Text → Hex</TabsTrigger>
-            <TabsTrigger value="decode">Hex → Text</TabsTrigger>
+            <TabsTrigger value="encode">{s.toHex}</TabsTrigger>
+            <TabsTrigger value="decode">{s.fromHex}</TabsTrigger>
           </TabsList>
         </Tabs>
 
         {mode === 'encode' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">Separator</span>
+            <label className="text-sm" htmlFor={separatorId}>
+              <span className="block mb-1 text-muted-foreground">{s.separator}</span>
               <Input
+                id={separatorId}
                 value={separator}
                 onChange={(e) => setSeparator(e.target.value)}
-                placeholder="(none)"
+                placeholder={ui.none}
               />
             </label>
-            <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">Byte prefix</span>
+            <label className="text-sm" htmlFor={prefixId}>
+              <span className="block mb-1 text-muted-foreground">{s.bytePrefix}</span>
               <Input
+                id={prefixId}
                 value={prefix}
                 onChange={(e) => setPrefix(e.target.value)}
-                placeholder="(none)"
+                placeholder={ui.none}
               />
             </label>
             <label className="flex items-center gap-2 text-sm pt-6">
@@ -71,7 +80,7 @@ export function HexEncodeUi() {
                 onChange={(e) => setUppercase(e.target.checked)}
                 className="h-4 w-4"
               />
-              Uppercase
+              {ui.uppercase}
             </label>
           </div>
         )}
@@ -81,14 +90,14 @@ export function HexEncodeUi() {
           onChange={(e) => setInput(e.target.value)}
           rows={5}
           className="font-mono text-sm"
-          placeholder={
-            mode === 'encode' ? 'Type text...' : 'Paste hex (spaces, 0x prefix, mixed case all OK)'
-          }
+          placeholder={mode === 'encode' ? ui.typeText : s.pasteHex}
         />
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
             {output.ok && output.value && <CopyButton text={output.value} />}
           </div>
           {output.ok ? (

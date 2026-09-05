@@ -1,6 +1,7 @@
 import { DynamicToolRenderer } from '@/components/dynamic-tool-renderer';
 import { ToolPageLayout } from '@/components/tool-page-layout';
 import { routing } from '@/i18n/routing';
+import { clusterSeoLabel } from '@/lib/cluster-seo-labels';
 import { hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { loadToolContent } from '@/lib/load-tool-content';
 import {
@@ -12,14 +13,9 @@ import {
 } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { buildToolTitle } from '@/lib/seo-metadata';
-import {
-  METADATA_BASE,
-  SITE_URL,
-  selfHostSafeAlternates,
-  selfHostSafeUrl,
-} from '@/lib/site-url';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates, selfHostSafeUrl } from '@/lib/site-url';
 import { getToolMeta, toolMetas } from '@anytools/tools/meta';
-import type { ClusterId } from '@anytools/tools/types';
+import { ToolLocaleProvider } from '@anytools/ui';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -34,27 +30,6 @@ export function generateStaticParams(): PageParams[] {
   );
 }
 
-// SEO title template: "{tool} — Free Online {category} | AnyTools"
-// Keeps tool name first (highest weight), category-keyword for cluster SEO,
-// brand suffix for memorability + click-back recognition. <60 chars target.
-const CLUSTER_LABEL_EN: Record<ClusterId, string> = {
-  encoding: 'Encoder',
-  formatters: 'Formatter',
-  generators: 'Generator',
-  converters: 'Converter',
-  'text-regex': 'Text Tool',
-  'time-date': 'Date Tool',
-  web3: 'Web3 Tool',
-  marketing: 'Marketing Tool',
-  'ecommerce-vn': 'VN E-commerce',
-  finance: 'Calculator',
-  health: 'Health Tool',
-  lifestyle: 'Tool',
-  design: 'Design Tool',
-  pdf: 'PDF Tool',
-  image: 'Image Tool',
-};
-
 export async function generateMetadata({
   params,
 }: { params: Promise<PageParams> }): Promise<Metadata> {
@@ -63,8 +38,9 @@ export async function generateMetadata({
   if (!m) return {};
   const title = m.title[locale] ?? m.title.en ?? m.slug;
   const description = m.description[locale] ?? m.description.en ?? '';
-  const categoryLabel = CLUSTER_LABEL_EN[m.cluster];
-  const seoTitle = buildToolTitle(title, categoryLabel);
+  // Title template: "{tool} — Free Online {category} | AnyTools" (per-locale phrase and
+  // category word; see cluster-seo-labels.ts and buildToolTitle for the truncation ladder).
+  const seoTitle = buildToolTitle(title, clusterSeoLabel(locale, m.cluster), locale);
   const canonicalPath = `/${locale}/${cluster}/${tool}`;
   // A locale with no translated tutorial/FAQ renders the widget and little else
   // (~130 unique words against 400-800 in English). Serving that is fine; asking
@@ -172,7 +148,10 @@ export default async function ToolPage({ params }: { params: Promise<PageParams>
           />
         ))}
       <ToolPageLayout meta={m} locale={locale} content={content}>
-        <DynamicToolRenderer slug={tool} />
+        {/* The widget package has no route access; this is how its labels learn the locale. */}
+        <ToolLocaleProvider locale={locale}>
+          <DynamicToolRenderer slug={tool} />
+        </ToolLocaleProvider>
       </ToolPageLayout>
     </>
   );

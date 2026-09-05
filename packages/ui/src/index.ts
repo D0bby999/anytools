@@ -53,3 +53,14 @@ export { CalculatorTemplate } from './components/tool-templates/calculator-templ
 export { ConverterTemplate } from './components/tool-templates/converter-template';
 export { PickerTemplate } from './components/tool-templates/picker-template';
 export { GeneratorTemplate } from './components/tool-templates/generator-template';
+
+// Locale hand-off from the page to tool widgets + shared widget labels.
+export {
+  ToolLocaleProvider,
+  pickStrings,
+  toUiLocale,
+  useLocalized,
+  useToolLocale,
+} from './i18n/tool-locale';
+export type { LocalizedStrings, UiLocale } from './i18n/tool-locale';
+export { UI_STRINGS, useUiStrings } from './i18n/ui-strings';

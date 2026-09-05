@@ -1,7 +1,8 @@
 'use client';
-import { Button } from '../button';
 import { ArrowLeftRight } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useUiStrings } from '../../i18n/ui-strings';
+import { Button } from '../button';
 
 type Props = {
   title?: string;
@@ -28,6 +29,7 @@ export function ConverterTemplate({
   actions,
   disclaimer,
 }: Props) {
+  const s = useUiStrings();
   return (
     <div className="space-y-6">
       {(title || description) && (
@@ -45,7 +47,7 @@ export function ConverterTemplate({
               variant="outline"
               size="icon"
               onClick={onSwap}
-              aria-label="Swap units"
+              aria-label={s.swapUnits}
               className="h-11 w-11 md:rotate-0 rotate-90"
             >
               <ArrowLeftRight className="h-4 w-4" />
