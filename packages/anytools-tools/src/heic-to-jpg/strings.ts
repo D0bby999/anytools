@@ -24,6 +24,21 @@ const EN = {
     '{n} photos were larger than a browser canvas draws reliably (16.7 megapixels) and were scaled down to fit — {sw} × {sh} became {w} × {h}. The original file is untouched.',
   downloadAllZip: 'Download all {n} as .zip',
   scaledFrom: '(scaled from {w} × {h})',
+  error_heicNoImage: 'This HEIC file has no image that could be opened.',
+  error_heicDecodeTimeout: 'Decoding this image took too long and was stopped.',
+  error_heicDecodeFailed: 'The HEIC image could not be decoded.',
+  error_heicDecodeFailedDetail: 'The HEIC image could not be decoded: {detail}',
+  error_heicUnreadable: 'This file could not be read as HEIC.',
+  error_heicUnreadableDetail: 'This file could not be read as HEIC: {detail}.',
+  error_heicNoImages: 'This HEIC container holds no images.',
+  error_heicZeroSize: 'This HEIC image reports a size of zero and cannot be converted.',
+  error_heicTooLarge:
+    'This image claims to be {width}×{height} ({mp} megapixels), too large to decode in a browser tab.',
+  error_heicBadFormat: 'Unsupported output format "{format}".',
+  error_heicBadQuality: 'JPEG quality must be greater than 0 and at most 1.',
+  error_heicIsAvif:
+    '"{name}" is an AVIF file. AVIF is not supported here — it is the same container with AV1 inside, which this decoder cannot read. Browsers open AVIF on their own, so the Image Format Converter handles it.',
+  error_heicNotHeic: '"{name}" is not a HEIC or HEIF file.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -52,6 +67,21 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
       '{n} ảnh lớn hơn mức canvas trình duyệt vẽ ổn định (16,7 megapixel) nên đã được thu nhỏ cho vừa — {sw} × {sh} thành {w} × {h}. Tệp gốc không thay đổi.',
     downloadAllZip: 'Tải tất cả {n} ảnh dạng .zip',
     scaledFrom: '(thu nhỏ từ {w} × {h})',
+    error_heicNoImage: 'Tệp HEIC này không có ảnh nào mở được.',
+    error_heicDecodeTimeout: 'Giải mã ảnh này quá lâu nên đã bị dừng.',
+    error_heicDecodeFailed: 'Không giải mã được ảnh HEIC.',
+    error_heicDecodeFailedDetail: 'Không giải mã được ảnh HEIC: {detail}',
+    error_heicUnreadable: 'Không đọc được tệp này dưới dạng HEIC.',
+    error_heicUnreadableDetail: 'Không đọc được tệp này dưới dạng HEIC: {detail}.',
+    error_heicNoImages: 'Vùng chứa HEIC này không có ảnh nào.',
+    error_heicZeroSize: 'Ảnh HEIC này báo kích thước bằng 0 nên không chuyển đổi được.',
+    error_heicTooLarge:
+      'Ảnh này khai báo kích thước {width}×{height} ({mp} megapixel), quá lớn để giải mã trong một tab trình duyệt.',
+    error_heicBadFormat: 'Định dạng đầu ra "{format}" không được hỗ trợ.',
+    error_heicBadQuality: 'Chất lượng JPEG phải lớn hơn 0 và tối đa là 1.',
+    error_heicIsAvif:
+      '"{name}" là tệp AVIF. AVIF không được hỗ trợ ở đây — đó là cùng loại vùng chứa nhưng bên trong là AV1, bộ giải mã này không đọc được. Trình duyệt tự mở được AVIF, nên công cụ Chuyển định dạng ảnh sẽ xử lý.',
+    error_heicNotHeic: '"{name}" không phải tệp HEIC hay HEIF.',
   },
   es: {
     title: 'HEIC a JPG',
@@ -77,6 +107,21 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
       '{n} fotos eran más grandes de lo que un canvas del navegador dibuja de forma fiable (16,7 megapíxeles) y se redujeron para que quepan — {sw} × {sh} pasó a {w} × {h}. El archivo original no se toca.',
     downloadAllZip: 'Descargar las {n} como .zip',
     scaledFrom: '(reducida desde {w} × {h})',
+    error_heicNoImage: 'Este archivo HEIC no tiene ninguna imagen que se pueda abrir.',
+    error_heicDecodeTimeout: 'La decodificación de esta imagen tardó demasiado y se detuvo.',
+    error_heicDecodeFailed: 'No se pudo decodificar la imagen HEIC.',
+    error_heicDecodeFailedDetail: 'No se pudo decodificar la imagen HEIC: {detail}',
+    error_heicUnreadable: 'No se pudo leer este archivo como HEIC.',
+    error_heicUnreadableDetail: 'No se pudo leer este archivo como HEIC: {detail}.',
+    error_heicNoImages: 'Este contenedor HEIC no contiene imágenes.',
+    error_heicZeroSize: 'Esta imagen HEIC indica un tamaño de cero y no se puede convertir.',
+    error_heicTooLarge:
+      'Esta imagen dice medir {width}×{height} ({mp} megapíxeles), demasiado grande para decodificarla en una pestaña del navegador.',
+    error_heicBadFormat: 'Formato de salida "{format}" no admitido.',
+    error_heicBadQuality: 'La calidad JPEG debe ser mayor que 0 y como máximo 1.',
+    error_heicIsAvif:
+      '"{name}" es un archivo AVIF. AVIF no se admite aquí — es el mismo contenedor con AV1 dentro, que este decodificador no puede leer. Los navegadores abren AVIF por sí solos, así que el Conversor de formato de imagen se encarga.',
+    error_heicNotHeic: '"{name}" no es un archivo HEIC ni HEIF.',
   },
   pt: {
     title: 'HEIC para JPG',
@@ -102,5 +147,20 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
       '{n} fotos eram maiores do que um canvas do navegador desenha com segurança (16,7 megapixels) e foram reduzidas para caber — {sw} × {sh} virou {w} × {h}. O arquivo original não é alterado.',
     downloadAllZip: 'Baixar todas as {n} como .zip',
     scaledFrom: '(reduzida de {w} × {h})',
+    error_heicNoImage: 'Este arquivo HEIC não tem nenhuma imagem que possa ser aberta.',
+    error_heicDecodeTimeout: 'A decodificação desta imagem demorou demais e foi interrompida.',
+    error_heicDecodeFailed: 'Não foi possível decodificar a imagem HEIC.',
+    error_heicDecodeFailedDetail: 'Não foi possível decodificar a imagem HEIC: {detail}',
+    error_heicUnreadable: 'Não foi possível ler este arquivo como HEIC.',
+    error_heicUnreadableDetail: 'Não foi possível ler este arquivo como HEIC: {detail}.',
+    error_heicNoImages: 'Este contêiner HEIC não contém imagens.',
+    error_heicZeroSize: 'Esta imagem HEIC informa tamanho zero e não pode ser convertida.',
+    error_heicTooLarge:
+      'Esta imagem declara ter {width}×{height} ({mp} megapixels), grande demais para decodificar em uma aba do navegador.',
+    error_heicBadFormat: 'Formato de saída "{format}" não suportado.',
+    error_heicBadQuality: 'A qualidade JPEG deve ser maior que 0 e no máximo 1.',
+    error_heicIsAvif:
+      '"{name}" é um arquivo AVIF. AVIF não é suportado aqui — é o mesmo contêiner com AV1 dentro, que este decodificador não consegue ler. Os navegadores abrem AVIF sozinhos, então o Conversor de formato de imagem cuida disso.',
+    error_heicNotHeic: '"{name}" não é um arquivo HEIC nem HEIF.',
   },
 };

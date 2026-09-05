@@ -33,6 +33,10 @@ const EN = {
   // {pixels} is "WxH", {page} is "WxH pt".
   sourceLine: '{name} — {pixels} px on a {page} page',
   download: 'Download images.pdf',
+  error_marginTooLarge:
+    'A margin of {margin} pt leaves no room on a {paper} page. Use less than {max} pt.',
+  error_noImages: 'Choose at least one image.',
+  error_imageEmbedFailed: '"{name}" could not be embedded as an image.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -68,6 +72,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     pageCountMany: '{n} trang',
     sourceLine: '{name} — {pixels} px trên trang {page}',
     download: 'Tải images.pdf',
+    error_marginTooLarge:
+      'Lề {margin} pt không chừa chỗ nào trên trang {paper}. Hãy dùng dưới {max} pt.',
+    error_noImages: 'Chọn ít nhất một ảnh.',
+    error_imageEmbedFailed: 'Không nhúng được "{name}" dưới dạng ảnh.',
   },
   es: {
     title: 'Imagen a PDF',
@@ -101,6 +109,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     pageCountMany: '{n} páginas',
     sourceLine: '{name} — {pixels} px en una página de {page}',
     download: 'Descargar images.pdf',
+    error_marginTooLarge:
+      'Un margen de {margin} pt no deja espacio en una página {paper}. Usa menos de {max} pt.',
+    error_noImages: 'Elige al menos una imagen.',
+    error_imageEmbedFailed: 'No se pudo incrustar "{name}" como imagen.',
   },
   pt: {
     title: 'Imagem para PDF',
@@ -134,5 +146,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     pageCountMany: '{n} páginas',
     sourceLine: '{name} — {pixels} px em uma página de {page}',
     download: 'Baixar images.pdf',
+    error_marginTooLarge:
+      'Uma margem de {margin} pt não deixa espaço em uma página {paper}. Use menos de {max} pt.',
+    error_noImages: 'Escolha pelo menos uma imagem.',
+    error_imageEmbedFailed: 'Não foi possível incorporar "{name}" como imagem.',
   },
 };

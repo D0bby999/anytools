@@ -1,16 +1,22 @@
 import { parsePageRange } from '../shared/page-range';
+import { ToolError } from '../shared/tool-error';
 
 /** Clockwise quarter turns to apply. */
 export type RotateAngle = 90 | 180 | 270;
 
 export type RotateResult = { blob: Blob; pages: number; rotated: number };
 
-export class PdfRotateError extends Error {
-  constructor(message: string) {
-    super(message);
+export class PdfRotateError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PdfRotateError';
   }
 }
+
+const unreadable = (file: File) =>
+  new PdfRotateError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+    name: file.name,
+  });
 
 export async function readPageCount(file: File): Promise<number> {
   const { PDFDocument } = await import('pdf-lib');
@@ -20,10 +26,12 @@ export async function readPageCount(file: File): Promise<number> {
     const msg = e instanceof Error ? e.message : String(e);
     if (/encrypt/i.test(msg)) {
       throw new PdfRotateError(
+        'pdfPasswordProtected',
         `"${file.name}" is password-protected. Remove the password and try again.`,
+        { name: file.name },
       );
     }
-    throw new PdfRotateError(`"${file.name}" could not be read as a PDF.`);
+    throw unreadable(file);
   }
 }
 
@@ -37,7 +45,7 @@ export async function readPageCount(file: File): Promise<number> {
 export async function rotatePdf(file: File, angle: RotateAngle, range = ''): Promise<RotateResult> {
   const { PDFDocument, degrees } = await import('pdf-lib');
   const doc = await PDFDocument.load(await file.arrayBuffer()).catch(() => {
-    throw new PdfRotateError(`"${file.name}" could not be read as a PDF.`);
+    throw unreadable(file);
   });
 
   const pageCount = doc.getPageCount();

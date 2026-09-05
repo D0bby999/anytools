@@ -268,6 +268,22 @@ describe('imagesToPdf', () => {
     await expect(imagesToPdf([], opts())).rejects.toThrow(/at least one/i);
   });
 
+  it('carries a code and params so the widget can localize the message', async () => {
+    await expect(imagesToPdf([], opts())).rejects.toMatchObject({ code: 'noImages' });
+    const thrown = (() => {
+      try {
+        layoutPage({ width: 100, height: 100 }, opts({ margin: 400 }));
+      } catch (e) {
+        return e;
+      }
+      return null;
+    })();
+    expect(thrown).toMatchObject({
+      code: 'marginTooLarge',
+      params: { margin: 400, paper: 'A4', max: 297 },
+    });
+  });
+
   it('names the image that could not be embedded', async () => {
     const broken: EmbeddableImage = {
       name: 'broken.png',

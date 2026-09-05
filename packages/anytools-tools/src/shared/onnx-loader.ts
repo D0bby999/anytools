@@ -39,6 +39,7 @@
  * ORT into any page's initial chunk.
  */
 import type { InferenceSession } from 'onnxruntime-web';
+import { ToolError } from './tool-error';
 
 /** Where copy-vendor-assets.mjs stages the runtime. */
 const ASSET_BASE = '/third-party/onnx/';
@@ -55,9 +56,9 @@ const ENGINE_VERSION_FALLBACK = '1.29.0';
 /** Cache Storage bucket for model weights. Shared by every model-backed tool. */
 export const MODEL_CACHE_NAME = 'anytools-models';
 
-export class OnnxEngineError extends Error {
-  constructor(message: string) {
-    super(message);
+export class OnnxEngineError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'OnnxEngineError';
   }
 }
@@ -167,8 +168,12 @@ async function fetchCachedBytes(
   const response = cached ?? (await fetchOrNull(url, signal));
 
   if (!response || !response.ok) {
+    // One code per file ("engineDownloadFailed" / "modelDownloadFailed"): the file is named in
+    // prose, and a translated sentence cannot splice an English noun into itself.
     throw new OnnxEngineError(
+      `${file}DownloadFailed`,
       `The background-removal ${file} could not be downloaded. This is a bug on our side, not a problem with your image.`,
+      { file },
     );
   }
 
@@ -181,8 +186,12 @@ async function fetchCachedBytes(
     if (expectSha256) {
       const actual = await sha256Hex(bytes);
       if (actual && actual !== expectSha256) {
+        const got = actual.slice(0, 12);
+        const want = expectSha256.slice(0, 12);
         throw new OnnxEngineError(
-          `The background-removal ${file} arrived corrupted (checksum ${actual.slice(0, 12)}…, expected ${expectSha256.slice(0, 12)}…). This is a bug on our side, not a problem with your image.`,
+          `${file}Corrupted`,
+          `The background-removal ${file} arrived corrupted (checksum ${got}…, expected ${want}…). This is a bug on our side, not a problem with your image.`,
+          { file, actual: got, expected: want },
         );
       }
     }
@@ -278,7 +287,9 @@ async function withEngineError<T>(step: () => Promise<T>): Promise<T> {
     if (e instanceof OnnxEngineError || isAbortError(e)) throw e;
     const msg = e instanceof Error ? e.message : String(e);
     throw new OnnxEngineError(
+      'engineStartFailed',
       `The background-removal engine failed to start (${msg}). This is a bug on our side, not a problem with your image.`,
+      { detail: msg },
     );
   }
 }

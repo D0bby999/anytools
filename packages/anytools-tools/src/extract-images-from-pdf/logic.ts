@@ -143,7 +143,12 @@ export async function extractImagesFromPdf(
         canvas.width = img.width;
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
-        if (!ctx) throw new PdfRenderError('Your browser did not provide a 2D canvas context.');
+        if (!ctx) {
+          throw new PdfRenderError(
+            'noCanvasContext',
+            'Your browser did not provide a 2D canvas context.',
+          );
+        }
 
         // pdf.js returns ONE OF TWO shapes and the choice is not ours to make. With
         // isOffscreenCanvasSupported (the browser default, and what openPdf sets) the worker

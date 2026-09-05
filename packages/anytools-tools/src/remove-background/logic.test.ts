@@ -9,7 +9,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { cacheKeyFor, isAbortError, isStaleCacheEntry, toHex } from '../shared/onnx-loader';
-import { MODEL } from './logic';
+import { MODEL, removeBackground } from './logic';
 import {
   MAX_WORK_PIXELS,
   MEAN,
@@ -25,6 +25,17 @@ import {
 
 const rgba = (...pixels: [number, number, number, number][]) =>
   new Uint8ClampedArray(pixels.flat());
+
+describe('removeBackground', () => {
+  it('rejects a file that is not an image with a code the widget can localize', async () => {
+    // node has no createImageBitmap, which lands on the same "not an image" path a corrupt file
+    // does in a browser — the one failure reachable before the engine is needed.
+    const file = new File([new Uint8Array([1, 2, 3])], 'notes.txt', { type: 'text/plain' });
+    await expect(
+      removeBackground(file, { threshold: 0.5, feather: 1, background: null }),
+    ).rejects.toMatchObject({ code: 'imageUnreadable', params: { name: 'notes.txt' } });
+  });
+});
 
 describe('normaliseToTensor', () => {
   it('lays the tensor out channel-planar, not interleaved', () => {

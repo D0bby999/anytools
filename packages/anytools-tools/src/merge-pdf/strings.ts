@@ -13,6 +13,7 @@ const EN = {
   pageCountOne: '{n} page',
   pageCountMany: '{n} pages',
   download: 'Download merged.pdf',
+  error_needTwoPdfs: 'Choose at least two PDFs to merge.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -31,6 +32,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     pageCountOne: '{n} trang',
     pageCountMany: '{n} trang',
     download: 'Tải merged.pdf',
+    error_needTwoPdfs: 'Chọn ít nhất hai PDF để ghép.',
   },
   es: {
     title: 'Unir PDF',
@@ -46,6 +48,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     pageCountOne: '{n} página',
     pageCountMany: '{n} páginas',
     download: 'Descargar merged.pdf',
+    error_needTwoPdfs: 'Elige al menos dos PDF para unir.',
   },
   pt: {
     title: 'Juntar PDF',
@@ -61,5 +64,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     pageCountOne: '{n} página',
     pageCountMany: '{n} páginas',
     download: 'Baixar merged.pdf',
+    error_needTwoPdfs: 'Escolha pelo menos dois PDFs para juntar.',
   },
 };

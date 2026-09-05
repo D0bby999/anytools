@@ -371,6 +371,17 @@ describe('addPageNumbers', () => {
     await expect(addPageNumbers(file, opts({ fontSize: 0 }))).rejects.toThrow(/font size/i);
   });
 
+  it('carries a code and params so the widget can localize the message', async () => {
+    const file = await pdfFile(2, {});
+    await expect(addPageNumbers(file, opts({ startAt: 1.5 }))).rejects.toMatchObject({
+      code: 'startAtNotWhole',
+    });
+    await expect(addPageNumbers(await pdfFile(3, {}), opts({ range: '9' }))).rejects.toMatchObject({
+      code: 'pageOutOfRange',
+      params: { page: 9, count: 3 },
+    });
+  });
+
   it('refuses a fractional starting number rather than printing "1.5"', async () => {
     // A number input accepts typed decimals whatever its step says, and the page after 1.5 was
     // 2.5. Page numbers are whole or they are not page numbers.

@@ -16,6 +16,8 @@ const EN = {
   leftOne: '1 page left.',
   leftMany: '{n} pages left.',
   download: 'Download {name}',
+  error_removeAllPages:
+    'That would remove every page. A PDF needs at least one page — keep one, or delete the file instead.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -35,6 +37,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     leftOne: 'còn lại 1 trang.',
     leftMany: 'còn lại {n} trang.',
     download: 'Tải {name}',
+    error_removeAllPages:
+      'Làm vậy sẽ xóa hết mọi trang. PDF cần ít nhất một trang — hãy giữ lại một trang, hoặc xóa hẳn tệp.',
   },
   es: {
     title: 'Eliminar páginas de un PDF',
@@ -51,6 +55,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     leftOne: 'queda 1 página.',
     leftMany: 'quedan {n} páginas.',
     download: 'Descargar {name}',
+    error_removeAllPages:
+      'Eso eliminaría todas las páginas. Un PDF necesita al menos una página — conserva una, o borra el archivo directamente.',
   },
   pt: {
     title: 'Remover páginas de PDF',
@@ -67,5 +73,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     leftOne: 'resta 1 página.',
     leftMany: 'restam {n} páginas.',
     download: 'Baixar {name}',
+    error_removeAllPages:
+      'Isso removeria todas as páginas. Um PDF precisa de pelo menos uma página — mantenha uma, ou apague o arquivo.',
   },
 };

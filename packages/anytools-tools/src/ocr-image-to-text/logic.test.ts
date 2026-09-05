@@ -207,6 +207,29 @@ describe('ocrImages', () => {
     expect(meanConfidence(items)).toBe(90);
   });
 
+  it('keeps the code and params of a coded failure so the widget can localize it', async () => {
+    const { ToolError } = await import('../shared/tool-error');
+    loadBitmap.mockReset();
+    recognizeImage.mockReset();
+    loadBitmap.mockRejectedValueOnce(
+      new ToolError('imageUnreadable', '"broken.png" could not be read as an image.', {
+        name: 'broken.png',
+      }),
+    );
+    const items = await ocrImages([file('broken.png')], 'eng', undefined);
+    expect(items[0]).toMatchObject({
+      error: '"broken.png" could not be read as an image.',
+      errorCode: 'imageUnreadable',
+      errorParams: { name: 'broken.png' },
+    });
+
+    // A plain Error keeps its English text and gets no code: the widget shows the text as is.
+    loadBitmap.mockRejectedValueOnce(new Error('boom'));
+    const plain = await ocrImages([file('b.png')], 'eng', undefined);
+    expect(plain[0]?.error).toBe('boom');
+    expect(plain[0]?.errorCode).toBeUndefined();
+  });
+
   it('closes the bitmap of a file whose recognition failed', async () => {
     loadBitmap.mockReset();
     recognizeImage.mockReset();
@@ -259,7 +282,9 @@ describe('ocrImages', () => {
     loadBitmap.mockReset();
     recognizeImage.mockReset();
     loadBitmap.mockResolvedValue(bitmap());
-    recognizeImage.mockRejectedValue(new OcrLoadError('The English recogniser could not start.'));
+    recognizeImage.mockRejectedValue(
+      new OcrLoadError('ocrStartFailed', 'The English recogniser could not start.'),
+    );
 
     await expect(
       ocrImages([file('a.png'), file('b.png')], 'eng', undefined),

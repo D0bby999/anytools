@@ -27,10 +27,17 @@ export async function renderFirstPage(
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
     const ctx = canvas.getContext('2d');
-    if (!ctx) throw new PdfRenderError('Your browser did not provide a 2D canvas context.');
+    if (!ctx) {
+      throw new PdfRenderError(
+        'noCanvasContext',
+        'Your browser did not provide a 2D canvas context.',
+      );
+    }
     await page.render({ canvas, canvasContext: ctx, viewport }).promise;
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-    if (!blob) throw new PdfRenderError('The preview page could not be encoded.');
+    if (!blob) {
+      throw new PdfRenderError('previewEncodeFailed', 'The preview page could not be encoded.');
+    }
     page.cleanup();
     return { blob, width: canvas.width, height: canvas.height };
   } finally {

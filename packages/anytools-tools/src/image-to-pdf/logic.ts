@@ -1,6 +1,7 @@
 // pdf-lib is imported dynamically inside the function, never at module top level — same reason
 // as merge-pdf: a top-level import pulls ~173 KB gzipped into anything that touches this module.
 import { type EmbeddableImage, ownBuffer, toEmbeddableImage } from '../shared/embeddable-image';
+import { ToolError } from '../shared/tool-error';
 
 /** Page sizes in PostScript points, the unit PDF itself uses. 1 pt = 1/72 inch. */
 export const PAGE_SIZES = {
@@ -46,13 +47,14 @@ export type ImageToPdfResult = {
   sources: { name: string; pixels: string; page: string }[];
 };
 
-export class ImageToPdfError extends Error {
-  constructor(
-    message: string,
-    readonly fileName?: string,
-  ) {
-    super(message);
+export class ImageToPdfError extends ToolError {
+  /** The input that failed, when the error is about one file. Read from `params.name`. */
+  readonly fileName?: string;
+
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'ImageToPdfError';
+    if (typeof params.name === 'string') this.fileName = params.name;
   }
 }
 
@@ -86,8 +88,12 @@ export function layoutPage(
   const availWidth = page.width - margin * 2;
   const availHeight = page.height - margin * 2;
   if (availWidth <= 0 || availHeight <= 0) {
+    const rounded = Math.round(margin);
+    const max = Math.floor(Math.min(page.width, page.height) / 2);
     throw new ImageToPdfError(
-      `A margin of ${Math.round(margin)} pt leaves no room on a ${base.label} page. Use less than ${Math.floor(Math.min(page.width, page.height) / 2)} pt.`,
+      'marginTooLarge',
+      `A margin of ${rounded} pt leaves no room on a ${base.label} page. Use less than ${max} pt.`,
+      { margin: rounded, paper: base.label, max },
     );
   }
 
@@ -140,7 +146,7 @@ export async function imagesToPdf(
   images: EmbeddableImage[],
   opts: ImageToPdfOptions,
 ): Promise<ImageToPdfResult> {
-  if (images.length === 0) throw new ImageToPdfError('Choose at least one image.');
+  if (images.length === 0) throw new ImageToPdfError('noImages', 'Choose at least one image.');
 
   const { PDFDocument } = await import('pdf-lib');
   const doc = await PDFDocument.create();
@@ -153,7 +159,11 @@ export async function imagesToPdf(
     try {
       embedded = img.format === 'png' ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
     } catch {
-      throw new ImageToPdfError(`"${img.name}" could not be embedded as an image.`, img.name);
+      throw new ImageToPdfError(
+        'imageEmbedFailed',
+        `"${img.name}" could not be embedded as an image.`,
+        { name: img.name },
+      );
     }
     doc.addPage([size.width, size.height]).drawImage(embedded, box);
     sources.push({

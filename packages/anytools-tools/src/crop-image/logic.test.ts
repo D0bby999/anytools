@@ -1,6 +1,17 @@
 // Geometry only — see shared/canvas-image.test.ts for why the encode path is hand-verified.
 import { describe, expect, it } from 'vitest';
-import { ASPECT_PRESETS, applyAspect, clampRect } from './logic';
+import { ASPECT_PRESETS, applyAspect, clampRect, cropImage } from './logic';
+
+describe('cropImage', () => {
+  it('rejects a file that is not an image with a code the widget can localize', async () => {
+    // happy-dom has no createImageBitmap, which lands on the same "not an image" path a
+    // corrupt file does in a browser — the one decode failure reachable here.
+    const file = new File([new Uint8Array([1, 2, 3])], 'notes.txt', { type: 'text/plain' });
+    await expect(cropImage(file, { x: 0, y: 0, width: 1, height: 1 }, 'png')).rejects.toMatchObject(
+      { code: 'imageUnreadable', params: { name: 'notes.txt' } },
+    );
+  });
+});
 
 describe('clampRect', () => {
   it('keeps a rectangle already inside the image', () => {

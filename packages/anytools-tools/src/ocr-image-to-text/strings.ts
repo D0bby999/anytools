@@ -29,6 +29,7 @@ const EN = {
   recognisedText: 'Recognised text',
   downloadTxt: 'Download .txt',
   itemLine: '{words} words, {conf}% confidence',
+  error_fileUnreadable: 'This file could not be read.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -63,6 +64,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     recognisedText: 'Văn bản đã nhận dạng',
     downloadTxt: 'Tải .txt',
     itemLine: '{words} từ, độ tin cậy {conf}%',
+    error_fileUnreadable: 'Không đọc được tệp này.',
   },
   es: {
     title: 'Imagen a texto (OCR)',
@@ -93,6 +95,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     recognisedText: 'Texto reconocido',
     downloadTxt: 'Descargar .txt',
     itemLine: '{words} palabras, {conf}% de confianza',
+    error_fileUnreadable: 'No se pudo leer este archivo.',
   },
   pt: {
     title: 'Imagem para texto (OCR)',
@@ -123,5 +126,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     recognisedText: 'Texto reconhecido',
     downloadTxt: 'Baixar .txt',
     itemLine: '{words} palavras, {conf}% de confiança',
+    error_fileUnreadable: 'Não foi possível ler este arquivo.',
   },
 };

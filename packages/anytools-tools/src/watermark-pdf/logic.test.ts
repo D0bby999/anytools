@@ -364,6 +364,21 @@ describe('watermarkPdf with text', () => {
     await expect(watermarkPdf(file, textOpts({ color: 'grey' }))).rejects.toThrow(WatermarkError);
   });
 
+  it('carries a code and params so the widget can localize the message', async () => {
+    const file = await pdfFile(1, {});
+    await expect(watermarkPdf(file, textOpts({ text: '   ' }))).rejects.toMatchObject({
+      code: 'watermarkTextEmpty',
+    });
+    await expect(watermarkPdf(file, textOpts({ color: 'grey' }))).rejects.toMatchObject({
+      code: 'badColour',
+      params: { hex: 'grey' },
+    });
+    await expect(watermarkPdf(file, textOpts({ text: '机密文件' }))).rejects.toMatchObject({
+      code: 'fontCoverage',
+      params: { subject: 'The watermark text', missing: '机 密 文 件' },
+    });
+  });
+
   it('passes the range parser message through', async () => {
     await expect(watermarkPdf(await pdfFile(3, {}), textOpts({ range: '7' }))).rejects.toThrow(
       PageRangeError,

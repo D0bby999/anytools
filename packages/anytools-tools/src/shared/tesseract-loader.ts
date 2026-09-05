@@ -25,6 +25,7 @@
 
 import type { Word as TesseractWord, Worker as TesseractWorker } from 'tesseract.js';
 import { fitWithin } from './canvas-image';
+import { ToolError } from './tool-error';
 
 /** Exactly the traineddata files staged under public/third-party/tessdata/. */
 export const OCR_LANGUAGES = ['eng', 'vie', 'spa', 'por'] as const;
@@ -111,9 +112,9 @@ export function ensureRunLive(run: OcrRun): void {
   if (isRunStopped(run)) throw new OcrCancelledError();
 }
 
-export class OcrLoadError extends Error {
-  constructor(message: string) {
-    super(message);
+export class OcrLoadError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'OcrLoadError';
   }
 }
@@ -247,7 +248,9 @@ export async function recognize(
     const worker = await getWorker(lang).catch((e: unknown) => {
       if (e instanceof OcrCancelledError) throw e;
       throw new OcrLoadError(
+        'ocrStartFailed',
         `The ${OCR_LANGUAGE_LABELS[lang]} recogniser could not start. Reload the page and try again.`,
+        { lang, langLabel: OCR_LANGUAGE_LABELS[lang] },
       );
     });
     // Loading the core and the language data takes seconds; Stop is often pressed inside it.
@@ -338,7 +341,9 @@ export function prepareForOcr(
   canvas.width = Math.max(1, width);
   canvas.height = Math.max(1, height);
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new OcrLoadError('Your browser did not provide a 2D canvas context.');
+  if (!ctx) {
+    throw new OcrLoadError('noCanvasContext', 'Your browser did not provide a 2D canvas context.');
+  }
   ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
 
   const image = ctx.getImageData(0, 0, canvas.width, canvas.height);

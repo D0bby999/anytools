@@ -187,6 +187,18 @@ describe('rethrowAsTextError', () => {
     }
   });
 
+  it('carries the subject and any extra params for a localized template', () => {
+    const raw = new Error('WinAnsi cannot encode "ế" (0x1ebf)');
+    try {
+      rethrowAsTextError(raw, 'The page number "3"', { label: '3' });
+    } catch (e) {
+      expect(e).toMatchObject({
+        code: 'textNotDrawable',
+        params: { subject: 'The page number "3"', label: '3' },
+      });
+    }
+  });
+
   it('passes anything else through untouched — it is not a catch-all', () => {
     const other = new Error('out of memory');
     expect(() => rethrowAsTextError(other, 'The label')).toThrow(other);

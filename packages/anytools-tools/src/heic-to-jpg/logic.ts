@@ -1,6 +1,7 @@
 import { MAX_CANVAS_PIXELS, drawToBlob, fitWithin } from '../shared/canvas-image';
 import { classifyBrand, readFtypBrand } from '../shared/ftyp';
 import { loadLibheif } from '../shared/libheif-loader';
+import { ToolError } from '../shared/tool-error';
 import { HeicDecodeError, decodeHeif } from './decode';
 
 export type HeicFormat = 'jpeg' | 'png';
@@ -21,7 +22,16 @@ export type HeicConversion = {
   imageCount: number;
 };
 
-export type HeicFailure = { name: string; message: string };
+/**
+ * One file that did not convert. `message` is the English sentence; `code` + `params` let the UI
+ * look up a translation for it (`error_<code>`), the way `toolErrorText` does for thrown errors.
+ */
+export type HeicFailure = {
+  name: string;
+  message: string;
+  code: string;
+  params: Record<string, string | number>;
+};
 
 /** What the file picker accepts. `.hif` is Canon's spelling of the same container. */
 export const HEIC_EXTENSIONS = ['.heic', '.heif', '.hif'] as const;
@@ -39,10 +49,16 @@ export function looksLikeHeic(file: { name: string; type: string }): boolean {
 /** Reject nonsense before a 1 MB WASM download and a full decode. */
 export function validateOptions(options: HeicOptions): HeicOptions {
   if (options.format !== 'jpeg' && options.format !== 'png') {
-    throw new HeicDecodeError(`Unsupported output format "${String(options.format)}".`);
+    const format = String(options.format);
+    throw new HeicDecodeError('heicBadFormat', `Unsupported output format "${format}".`, {
+      format,
+    });
   }
   if (!Number.isFinite(options.quality) || options.quality <= 0 || options.quality > 1) {
-    throw new HeicDecodeError('JPEG quality must be greater than 0 and at most 1.');
+    throw new HeicDecodeError(
+      'heicBadQuality',
+      'JPEG quality must be greater than 0 and at most 1.',
+    );
   }
   return options;
 }
@@ -92,11 +108,15 @@ export async function convertHeicFile(file: File, options: HeicOptions): Promise
   const kind = box ? classifyBrand(box) : 'other';
   if (kind === 'avif') {
     throw new HeicDecodeError(
+      'heicIsAvif',
       `"${file.name}" is an AVIF file. AVIF is not supported here — it is the same container with AV1 inside, which this decoder cannot read. Browsers open AVIF on their own, so the Image Format Converter handles it.`,
+      { name: file.name },
     );
   }
   if (kind !== 'heif') {
-    throw new HeicDecodeError(`"${file.name}" is not a HEIC or HEIF file.`);
+    throw new HeicDecodeError('heicNotHeic', `"${file.name}" is not a HEIC or HEIF file.`, {
+      name: file.name,
+    });
   }
   const decoded = await decodeHeif(bytes, await loadLibheif());
   const out = outputSize(decoded.width, decoded.height);
@@ -134,7 +154,12 @@ export async function convertHeicFiles(
       const converted = await convertHeicFile(file, options);
       results.push({ ...converted, name: uniqueName(converted.name, taken) });
     } catch (e) {
-      failures.push({ name: file.name, message: e instanceof Error ? e.message : String(e) });
+      failures.push({
+        name: file.name,
+        message: e instanceof Error ? e.message : String(e),
+        code: e instanceof ToolError ? e.code : 'unknown',
+        params: e instanceof ToolError ? e.params : {},
+      });
     }
     onProgress?.(index + 1, files.length);
   }

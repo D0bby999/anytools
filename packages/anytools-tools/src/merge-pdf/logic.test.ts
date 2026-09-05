@@ -56,4 +56,14 @@ describe('mergePdfs', () => {
     const bad = new File([new Uint8Array([1, 2, 3])], 'broken.pdf', { type: 'application/pdf' });
     await expect(mergePdfs([await pdfFile('ok.pdf', 1), bad])).rejects.toThrow(/broken\.pdf/);
   });
+
+  it('carries a code and params so the widget can localize the message', async () => {
+    await expect(mergePdfs([])).rejects.toMatchObject({ code: 'needTwoPdfs' });
+    const bad = new File([new Uint8Array([1, 2, 3])], 'broken.pdf', { type: 'application/pdf' });
+    await expect(mergePdfs([await pdfFile('ok.pdf', 1), bad])).rejects.toMatchObject({
+      code: 'pdfUnreadable',
+      params: { name: 'broken.pdf' },
+      fileName: 'broken.pdf',
+    });
+  });
 });

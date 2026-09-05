@@ -10,6 +10,7 @@
  * site reads back into the same fields it was built from.
  */
 import { fitWithin, loadBitmap } from '../shared/canvas-image';
+import { ToolError } from '../shared/tool-error';
 import { type ReadResult, readBarcodes } from '../shared/zxing-loader';
 
 /**
@@ -225,7 +226,9 @@ export async function decodeBarcodeImage(file: File): Promise<DecodedSymbol[]> {
     canvas.width = Math.max(1, width);
     canvas.height = Math.max(1, height);
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) throw new Error('Your browser did not provide a 2D canvas context.');
+    if (!ctx) {
+      throw new ToolError('noCanvasContext', 'Your browser did not provide a 2D canvas context.');
+    }
     // zxing's luminance conversion ignores alpha. A transparent PNG (a common QR export) drawn
     // onto a blank canvas leaves its background at (0,0,0,0) — black to the decoder, so a black
     // code on a transparent background became "no barcode found". Paint white underneath first.

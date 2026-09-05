@@ -8,19 +8,20 @@
  * Sans otherwise, and a message naming the characters when neither can.
  */
 import type { PDFDocument, PDFFont } from 'pdf-lib';
+import { ToolError } from './tool-error';
 
 export const NOTO_FONT_URL = '/third-party/noto/NotoSans-Regular.ttf';
 
-export class UnicodeFontError extends Error {
-  constructor(message: string) {
-    super(message);
+export class UnicodeFontError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'UnicodeFontError';
   }
 }
 
-export class PdfTextError extends Error {
-  constructor(message: string) {
-    super(message);
+export class PdfTextError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PdfTextError';
   }
 }
@@ -32,12 +33,15 @@ export async function loadUnicodeFont(): Promise<ArrayBuffer> {
     res = await fetch(NOTO_FONT_URL);
   } catch {
     throw new UnicodeFontError(
+      'unicodeFontFetch',
       'The Unicode font this text needs could not be loaded. Check your connection and try again.',
     );
   }
   if (!res.ok) {
     throw new UnicodeFontError(
+      'unicodeFontHttp',
       `The Unicode font this text needs could not be loaded (HTTP ${res.status}).`,
+      { status: res.status },
     );
   }
   return res.arrayBuffer();
@@ -60,6 +64,14 @@ export function undrawableChars(charset: Set<number>, text: string): string[] {
 
 export function coverageMessage(subject: string, missing: string[]): string {
   return `${subject} uses characters no available font can draw: ${missing.join(' ')}. Latin characters (including Vietnamese), Greek and Cyrillic are covered; Chinese, Japanese, Korean, Arabic and emoji are not.`;
+}
+
+/** The error `embedTextFont` throws for text with characters no available font can draw. */
+export function coverageError(subject: string, missing: string[]): PdfTextError {
+  return new PdfTextError('fontCoverage', coverageMessage(subject, missing), {
+    subject,
+    missing: missing.join(' '),
+  });
 }
 
 /**
@@ -87,14 +99,17 @@ export async function embedTextFont(
   try {
     bytes = await loadUnicodeFont();
   } catch (e) {
+    const detail = e instanceof Error ? e.message : '';
     throw new PdfTextError(
-      `${subject} needs the Unicode font, which could not be loaded. ${e instanceof Error ? e.message : ''}`.trim(),
+      'unicodeFontNeeded',
+      `${subject} needs the Unicode font, which could not be loaded. ${detail}`.trim(),
+      { subject, detail },
     );
   }
   const fontkit = (await import('@pdf-lib/fontkit')).default;
   doc.registerFontkit(fontkit);
   const noto = await doc.embedFont(bytes, { subset: true });
   const missing = undrawableChars(new Set(noto.getCharacterSet()), text);
-  if (missing.length > 0) throw new PdfTextError(coverageMessage(subject, missing));
+  if (missing.length > 0) throw coverageError(subject, missing);
   return noto;
 }

@@ -325,6 +325,16 @@ describe('buildSearchablePdf', () => {
     );
   });
 
+  it('carries a code and params so the widget can localize the message', async () => {
+    const file = new File([Buffer.from('not a pdf at all')], 'notes.pdf', {
+      type: 'application/pdf',
+    });
+    await expect(prepareSearchableLayer(file, 'eng')).rejects.toMatchObject({
+      code: 'layerPdfUnreadable',
+      params: { name: 'notes.pdf' },
+    });
+  });
+
   it('counts words it could not encode instead of failing the whole export', async () => {
     const file = await onePagePdf(612, 792);
     const { blob, skipped } = await buildSearchablePdf(
@@ -407,6 +417,20 @@ describe('finishOcrPdf', () => {
       'The text below is complete, but the searchable PDF could not be built.',
     );
     expect(result.text).toContain('First page text');
+  });
+
+  it('exposes the code and the cause so the widget can localize both halves', async () => {
+    const cause = new Error('Ran out of memory writing the layer.');
+    const result = await finishOcrPdf(
+      pages,
+      async () => {
+        throw cause;
+      },
+      layers,
+    );
+    expect(result.searchableErrorCode).toBe('searchableFailed');
+    expect(result.searchableCause).toBe(cause);
+    expect((await finishOcrPdf(pages, null, layers)).searchableErrorCode).toBeNull();
   });
 
   it('reports no error and no pdf when the layer was never asked for', async () => {

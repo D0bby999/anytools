@@ -1,4 +1,5 @@
 import { parsePageRange, toContiguousRuns } from '../shared/page-range';
+import { ToolError } from '../shared/tool-error';
 
 // pdf-lib and jszip are both imported at call time, never at module scope. jszip in
 // particular is only needed for the multi-file mode, so a user extracting one range never
@@ -18,9 +19,9 @@ export type SplitResult = {
   zip?: Blob;
 };
 
-export class PdfSplitError extends Error {
-  constructor(message: string) {
-    super(message);
+export class PdfSplitError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PdfSplitError';
   }
 }
@@ -33,10 +34,14 @@ async function loadDoc(file: File) {
     const msg = e instanceof Error ? e.message : String(e);
     if (/encrypt/i.test(msg)) {
       throw new PdfSplitError(
+        'pdfPasswordProtected',
         `"${file.name}" is password-protected. Remove the password and try again.`,
+        { name: file.name },
       );
     }
-    throw new PdfSplitError(`"${file.name}" could not be read as a PDF.`);
+    throw new PdfSplitError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+      name: file.name,
+    });
   }
 }
 
@@ -56,7 +61,7 @@ export async function splitPdf(file: File, mode: SplitMode): Promise<SplitResult
       ? src.getPageIndices().map((i) => [i])
       : toContiguousRuns(parsePageRange(mode.range, { pageCount }));
 
-  if (groups.length === 0) throw new PdfSplitError('Nothing to extract.');
+  if (groups.length === 0) throw new PdfSplitError('nothingToExtract', 'Nothing to extract.');
 
   const parts: SplitPart[] = [];
   for (const indices of groups) {

@@ -15,6 +15,7 @@ const EN = {
   splitting: 'Splitting…',
   split: 'Split PDF',
   downloadAllZip: 'Download all {n} as .zip',
+  error_nothingToExtract: 'Nothing to extract.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -33,6 +34,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     splitting: 'Đang tách…',
     split: 'Tách PDF',
     downloadAllZip: 'Tải tất cả {n} tệp dạng .zip',
+    error_nothingToExtract: 'Không có gì để trích.',
   },
   es: {
     title: 'Dividir PDF',
@@ -49,6 +51,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     splitting: 'Dividiendo…',
     split: 'Dividir PDF',
     downloadAllZip: 'Descargar los {n} como .zip',
+    error_nothingToExtract: 'Nada que extraer.',
   },
   pt: {
     title: 'Dividir PDF',
@@ -65,5 +68,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     splitting: 'Dividindo…',
     split: 'Dividir PDF',
     downloadAllZip: 'Baixar todos os {n} como .zip',
+    error_nothingToExtract: 'Nada a extrair.',
   },
 };

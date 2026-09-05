@@ -10,6 +10,7 @@ import {
   prepareForOcr,
   recognize,
 } from '../shared/tesseract-loader';
+import { ToolError } from '../shared/tool-error';
 
 export type ImageOcrItem = {
   name: string;
@@ -19,6 +20,9 @@ export type ImageOcrItem = {
   words: number;
   /** Why this one file produced nothing. The rest of the batch is unaffected. */
   error?: string;
+  /** Code + params for `error`, so the UI can show it in the page's language. */
+  errorCode?: string;
+  errorParams?: Record<string, string | number>;
 };
 
 export type ImageOcrProgress = {
@@ -132,12 +136,16 @@ export async function ocrImages(
       // Stop, and "the engine will not start", are about the run and not about this file.
       // Retrying the same broken worker on nineteen more images helps nobody.
       if (e instanceof OcrCancelledError || e instanceof OcrLoadError) throw e;
+      const coded = e instanceof ToolError ? e : null;
       items.push({
         name: file.name,
         blocks: [],
         confidence: 0,
         words: 0,
         error: e instanceof Error ? e.message : 'This file could not be read.',
+        // A plain Error keeps its English message and no code; the UI falls back to the text.
+        errorCode: coded ? coded.code : e instanceof Error ? undefined : 'fileUnreadable',
+        errorParams: coded ? coded.params : undefined,
       });
     }
   }

@@ -51,4 +51,16 @@ describe('rotatePdf', () => {
   it('rejects a page past the end', async () => {
     await expect(rotatePdf(await pdfFile(2), 90, '7')).rejects.toThrow(/does not exist/);
   });
+
+  it('carries a code and params so the widget can localize the message', async () => {
+    const bad = new File([new Uint8Array([1, 2, 3])], 'broken.pdf', { type: 'application/pdf' });
+    await expect(rotatePdf(bad, 90)).rejects.toMatchObject({
+      code: 'pdfUnreadable',
+      params: { name: 'broken.pdf' },
+    });
+    await expect(rotatePdf(await pdfFile(2), 90, '7')).rejects.toMatchObject({
+      code: 'pageOutOfRange',
+      params: { page: 7, count: 2 },
+    });
+  });
 });

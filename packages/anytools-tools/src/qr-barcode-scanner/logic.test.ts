@@ -1,6 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { buildPayload } from '../qr-code-generator/logic';
-import { classifyPayload, parseVCardPayload, parseWifiPayload, safeLinkUrl } from './logic';
+import {
+  classifyPayload,
+  decodeBarcodeImage,
+  parseVCardPayload,
+  parseWifiPayload,
+  safeLinkUrl,
+} from './logic';
+
+describe('decodeBarcodeImage', () => {
+  it('rejects a file that is not an image with a code the widget can localize', async () => {
+    // happy-dom has no createImageBitmap, which lands on the same "not an image" path a
+    // corrupt file does in a browser — the one decode failure reachable here.
+    const file = new File([new Uint8Array([1, 2, 3])], 'notes.txt', { type: 'text/plain' });
+    await expect(decodeBarcodeImage(file)).rejects.toMatchObject({
+      code: 'imageUnreadable',
+      params: { name: 'notes.txt' },
+    });
+  });
+});
 
 /**
  * The decode path (`decodeBarcodeImage`, `decodeImageData`) is not tested here: it needs a canvas

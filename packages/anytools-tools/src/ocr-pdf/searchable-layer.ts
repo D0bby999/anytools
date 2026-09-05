@@ -21,6 +21,7 @@
 import { type PageFrame, pageFrame } from '../shared/pdf-page-stamp';
 import { NOTO_FONT_URL, UnicodeFontError, loadUnicodeFont } from '../shared/pdf-unicode-font';
 import type { OcrBox, OcrLanguage } from '../shared/tesseract-loader';
+import { ToolError } from '../shared/tool-error';
 
 export { NOTO_FONT_URL };
 
@@ -81,9 +82,9 @@ export type SearchableResult = {
 export type SearchableBuilder = (layers: PageLayer[]) => Promise<SearchableResult>;
 
 /** Nothing in the searchable step is worth losing the recognised text over. Say what failed. */
-export class SearchableLayerError extends Error {
-  constructor(message: string) {
-    super(message);
+export class SearchableLayerError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'SearchableLayerError';
   }
 }
@@ -95,7 +96,9 @@ async function loadLayerFont(): Promise<ArrayBuffer> {
   } catch (e) {
     if (e instanceof UnicodeFontError) {
       throw new SearchableLayerError(
+        e.code === 'unicodeFontHttp' ? 'layerFontHttp' : 'layerFontFetch',
         e.message.replace('this text needs', 'the searchable layer needs'),
+        e.params,
       );
     }
     throw e;
@@ -146,11 +149,18 @@ export async function prepareSearchableLayer(
     doc = await PDFDocument.load(await file.arrayBuffer());
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    throw new SearchableLayerError(
-      /encrypt/i.test(msg)
-        ? `"${file.name}" is password-protected, so a text layer cannot be written into it. Remove the password, or turn the searchable-PDF option off to get the text on its own.`
-        : `"${file.name}" could not be re-opened to write the text layer into. Turn the searchable-PDF option off to get the text on its own.`,
-    );
+    const name = file.name;
+    throw /encrypt/i.test(msg)
+      ? new SearchableLayerError(
+          'layerPdfPasswordProtected',
+          `"${name}" is password-protected, so a text layer cannot be written into it. Remove the password, or turn the searchable-PDF option off to get the text on its own.`,
+          { name },
+        )
+      : new SearchableLayerError(
+          'layerPdfUnreadable',
+          `"${name}" could not be re-opened to write the text layer into. Turn the searchable-PDF option off to get the text on its own.`,
+          { name },
+        );
   }
 
   let font: Awaited<ReturnType<typeof doc.embedFont>>;

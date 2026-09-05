@@ -10,8 +10,10 @@ import {
   useLocalized,
   useToolLocale,
 } from '@anytools/ui';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
 import { type DecodedSymbol, decodeBarcodeImage, decodeImageData } from './logic';
 import { STRINGS } from './strings';
 
@@ -23,6 +25,9 @@ type CameraState = 'off' | 'starting' | 'live';
 
 export function QrBarcodeScannerUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   const locale = useToolLocale();
   const [files, setFiles] = useState<File[]>([]);
   const [symbols, setSymbols] = useState<DecodedSymbol[] | null>(null);
@@ -84,7 +89,7 @@ export function QrBarcodeScannerUi() {
       setSymbols(found);
       setSource('image');
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.failed);
+      setError(toolErrorText(e, errorStrings, s.failed));
     } finally {
       setBusy(false);
     }

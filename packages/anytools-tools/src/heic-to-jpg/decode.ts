@@ -8,10 +8,11 @@ import {
   isHeifError,
   isHeifOk,
 } from '../shared/libheif-loader';
+import { ToolError } from '../shared/tool-error';
 
-export class HeicDecodeError extends Error {
-  constructor(message: string) {
-    super(message);
+export class HeicDecodeError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'HeicDecodeError';
   }
 }
@@ -37,7 +38,7 @@ function primaryHandle(lib: LibheifModule, ctx: object, ids: number[]) {
   if (primary && !isHeifError(primary)) return primary;
   const first = ids[0] !== undefined ? lib.heif_js_context_get_image_handle(ctx, ids[0]) : null;
   if (!first || isHeifError(first)) {
-    throw new HeicDecodeError('This HEIC file has no image that could be opened.');
+    throw new HeicDecodeError('heicNoImage', 'This HEIC file has no image that could be opened.');
   }
   return first;
 }
@@ -73,7 +74,12 @@ function decodeToPixels(img: HeifImage, target: ImageData): Promise<ImageData> {
     const timer = setTimeout(
       () =>
         finish(() =>
-          reject(new HeicDecodeError('Decoding this image took too long and was stopped.')),
+          reject(
+            new HeicDecodeError(
+              'heicDecodeTimeout',
+              'Decoding this image took too long and was stopped.',
+            ),
+          ),
         ),
       DECODE_TIMEOUT_MS,
     );
@@ -82,14 +88,19 @@ function decodeToPixels(img: HeifImage, target: ImageData): Promise<ImageData> {
         finish(() =>
           result
             ? resolve(result)
-            : reject(new HeicDecodeError('The HEIC image could not be decoded.')),
+            : reject(
+                new HeicDecodeError('heicDecodeFailed', 'The HEIC image could not be decoded.'),
+              ),
         );
       });
     } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
       finish(() =>
         reject(
           new HeicDecodeError(
-            `The HEIC image could not be decoded: ${e instanceof Error ? e.message : String(e)}`,
+            'heicDecodeFailedDetail',
+            `The HEIC image could not be decoded: ${detail}`,
+            { detail },
           ),
         ),
       );
@@ -114,24 +125,36 @@ export async function decodeHeif(bytes: Uint8Array, lib: LibheifModule): Promise
     if (!isHeifOk(err)) {
       // libheif's own messages already end in a full stop ("File size too small.").
       const detail = err?.message?.replace(/\.*\s*$/, '');
-      throw new HeicDecodeError(
-        `This file could not be read as HEIC${detail ? `: ${detail}` : ''}.`,
-      );
+      throw detail
+        ? new HeicDecodeError(
+            'heicUnreadableDetail',
+            `This file could not be read as HEIC: ${detail}.`,
+            {
+              detail,
+            },
+          )
+        : new HeicDecodeError('heicUnreadable', 'This file could not be read as HEIC.');
     }
     const ids = lib.heif_js_context_get_list_of_top_level_image_IDs(ctx);
     if (!Array.isArray(ids) || ids.length === 0) {
-      throw new HeicDecodeError('This HEIC container holds no images.');
+      throw new HeicDecodeError('heicNoImages', 'This HEIC container holds no images.');
     }
     const img = new lib.HeifImage(primaryHandle(lib, ctx, ids));
     image = img;
     const width = img.get_width();
     const height = img.get_height();
     if (!(width > 0 && height > 0)) {
-      throw new HeicDecodeError('This HEIC image reports a size of zero and cannot be converted.');
+      throw new HeicDecodeError(
+        'heicZeroSize',
+        'This HEIC image reports a size of zero and cannot be converted.',
+      );
     }
     if (width * height > MAX_DECODE_PIXELS) {
+      const mp = ((width * height) / 1_000_000).toFixed(1);
       throw new HeicDecodeError(
-        `This image claims to be ${width}×${height} (${((width * height) / 1_000_000).toFixed(1)} megapixels), too large to decode in a browser tab.`,
+        'heicTooLarge',
+        `This image claims to be ${width}×${height} (${mp} megapixels), too large to decode in a browser tab.`,
+        { width, height, mp },
       );
     }
     const pixels = await decodeToPixels(img, blankImageData(width, height));

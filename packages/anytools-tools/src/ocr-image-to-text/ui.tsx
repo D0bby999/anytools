@@ -10,8 +10,9 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS, returnedErrorText } from '../shared/shared-error-strings';
 import {
   OCR_LANGUAGES,
   OCR_LANGUAGE_LABELS,
@@ -19,6 +20,7 @@ import {
   type OcrLanguage,
   terminateOcr,
 } from '../shared/tesseract-loader';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type ImageOcrItem,
@@ -39,6 +41,9 @@ const ACCEPT = 'image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp';
 
 export function OcrImageToTextUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
@@ -89,7 +94,7 @@ export function OcrImageToTextUi() {
       setText(combineText(result, keepLineBreaks));
     } catch (e) {
       if (!(e instanceof OcrCancelledError)) {
-        setError(e instanceof Error ? e.message : s.failed);
+        setError(toolErrorText(e, errorStrings, s.failed));
       }
     } finally {
       // Only here. Clearing `busy` inside stop() re-enabled the button while the loop was still
@@ -256,10 +261,11 @@ export function OcrImageToTextUi() {
                     className={i.error ? 'text-destructive' : 'text-muted-foreground'}
                   >
                     {i.name} —{' '}
-                    {i.error ??
-                      s.itemLine
-                        .replace('{words}', String(i.words))
-                        .replace('{conf}', i.confidence.toFixed(0))}
+                    {i.error === undefined
+                      ? s.itemLine
+                          .replace('{words}', String(i.words))
+                          .replace('{conf}', i.confidence.toFixed(0))
+                      : returnedErrorText(errorStrings, i.errorCode, i.errorParams, i.error)}
                   </li>
                 ))}
               </ul>

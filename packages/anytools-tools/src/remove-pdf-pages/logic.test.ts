@@ -54,6 +54,16 @@ describe('removePdfPages', () => {
     await expect(removePdfPages(await pdfFile(3), '5')).rejects.toThrow(/does not exist/);
   });
 
+  it('carries a code and params so the widget can localize the message', async () => {
+    await expect(removePdfPages(await pdfFile(3), '1-3')).rejects.toMatchObject({
+      code: 'removeAllPages',
+    });
+    await expect(removePdfPages(await pdfFile(3), '5')).rejects.toMatchObject({
+      code: 'pageOutOfRange',
+      params: { page: 5, count: 3 },
+    });
+  });
+
   it('produces a document that reopens', async () => {
     const r = await removePdfPages(await pdfFile(5), '2');
     expect((await PDFDocument.load(await r.blob.arrayBuffer())).getPageCount()).toBe(4);

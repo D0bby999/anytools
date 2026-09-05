@@ -60,6 +60,28 @@ describe('parsePageRange', () => {
     expect(parse('1', 1)).toEqual([0]);
     expect(() => parse('2', 1)).toThrow(/1 page\b/);
   });
+
+  it('carries a code and params so widgets can localize the message', () => {
+    const thrown = (s: string, n?: number) => {
+      try {
+        parse(s, n);
+      } catch (e) {
+        return e;
+      }
+      return null;
+    };
+    expect(thrown('19-25', 20)).toMatchObject({
+      code: 'pageOutOfRange',
+      params: { page: 25, count: 20 },
+    });
+    expect(thrown('2', 1)).toMatchObject({
+      code: 'pageOutOfRangeOne',
+      params: { page: 2, count: 1 },
+    });
+    expect(thrown('1-3, abc')).toMatchObject({ code: 'rangeBadPart', params: { part: 'abc' } });
+    expect(thrown('')).toMatchObject({ code: 'rangeEmpty' });
+    expect(thrown('0')).toMatchObject({ code: 'pageStartsAtOne' });
+  });
 });
 
 describe('toContiguousRuns', () => {

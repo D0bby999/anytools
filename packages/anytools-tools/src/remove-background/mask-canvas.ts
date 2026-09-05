@@ -22,7 +22,12 @@ export function surface(width: number, height: number): Surface {
   canvas.width = Math.max(1, Math.round(width));
   canvas.height = Math.max(1, Math.round(height));
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new ImageToolError('Your browser did not provide a 2D canvas context.');
+  if (!ctx) {
+    throw new ImageToolError(
+      'noCanvasContext',
+      'Your browser did not provide a 2D canvas context.',
+    );
+  }
   return { canvas, ctx };
 }
 
@@ -88,6 +93,6 @@ export function buildMask(
 /** Encode a canvas as PNG — the only common format that keeps an alpha channel. */
 export async function toPng(canvas: HTMLCanvasElement): Promise<Blob> {
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-  if (!blob) throw new ImageToolError('Your browser could not encode the PNG.');
+  if (!blob) throw new ImageToolError('pngEncodeFailed', 'Your browser could not encode the PNG.');
   return blob;
 }

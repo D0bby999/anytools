@@ -6,12 +6,16 @@
  * producing the wrong pages.
  */
 
-export class PageRangeError extends Error {
-  constructor(message: string) {
-    super(message);
+import { ToolError } from './tool-error';
+
+export class PageRangeError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PageRangeError';
   }
 }
+
+const EMPTY_RANGE = 'Enter at least one page or range, e.g. 1-3, 7.';
 
 export type ParseOptions = {
   /** Total pages in the document. Used to reject out-of-range input. */
@@ -28,8 +32,8 @@ export type ParseOptions = {
  */
 export function parsePageRange(input: string, { pageCount }: ParseOptions): number[] {
   const trimmed = input.trim();
-  if (!trimmed) throw new PageRangeError('Enter at least one page or range, e.g. 1-3, 7.');
-  if (pageCount < 1) throw new PageRangeError('The document has no pages.');
+  if (!trimmed) throw new PageRangeError('rangeEmpty', EMPTY_RANGE);
+  if (pageCount < 1) throw new PageRangeError('noPages', 'The document has no pages.');
 
   const out = new Set<number>();
 
@@ -40,29 +44,36 @@ export function parsePageRange(input: string, { pageCount }: ParseOptions): numb
     // Accept the hyphen people type and the dashes an editor may substitute.
     const match = part.match(/^(\d+)\s*(?:[-–—]\s*(\d+))?$/);
     if (!match) {
-      throw new PageRangeError(`"${part}" is not a page or a range. Use formats like 4 or 2-6.`);
+      throw new PageRangeError(
+        'rangeBadPart',
+        `"${part}" is not a page or a range. Use formats like 4 or 2-6.`,
+        { part },
+      );
     }
 
     const first = Number(match[1]);
     // A bare number is a one-page range; treating it as such keeps one code path.
     const second = match[2] === undefined ? first : Number(match[2]);
-    if (first < 1 || second < 1) throw new PageRangeError('Pages start at 1.');
+    if (first < 1 || second < 1) throw new PageRangeError('pageStartsAtOne', 'Pages start at 1.');
 
     // "5-2" is a reversed range. Read it as 2-5 rather than rejecting it — the intent is
     // unambiguous, and rejecting it only teaches the user to retype it in the other order.
     const lo = Math.min(first, second);
     const hi = Math.max(first, second);
     if (hi > pageCount) {
+      // Two codes rather than a "page/pages" param: the plural is the translator's to decide.
       throw new PageRangeError(
+        pageCount === 1 ? 'pageOutOfRangeOne' : 'pageOutOfRange',
         `Page ${hi} does not exist — the document has ${pageCount} ${
           pageCount === 1 ? 'page' : 'pages'
         }.`,
+        { page: hi, count: pageCount },
       );
     }
     for (let p = lo; p <= hi; p++) out.add(p - 1);
   }
 
-  if (out.size === 0) throw new PageRangeError('Enter at least one page or range, e.g. 1-3, 7.');
+  if (out.size === 0) throw new PageRangeError('rangeEmpty', EMPTY_RANGE);
   return [...out].sort((a, b) => a - b);
 }
 

@@ -34,6 +34,15 @@ const EN = {
   downloadTxt: 'Download .txt',
   downloadSearchable: 'Download searchable PDF',
   pageLine: 'Page {n} — {words} words, {conf}% confidence',
+  error_searchableFailed: 'The text below is complete, but the searchable PDF could not be built.',
+  error_layerFontFetch:
+    'The Unicode font the searchable layer needs could not be loaded. Check your connection and try again.',
+  error_layerFontHttp:
+    'The Unicode font the searchable layer needs could not be loaded (HTTP {status}).',
+  error_layerPdfPasswordProtected:
+    '"{name}" is password-protected, so a text layer cannot be written into it. Remove the password, or turn the searchable-PDF option off to get the text on its own.',
+  error_layerPdfUnreadable:
+    '"{name}" could not be re-opened to write the text layer into. Turn the searchable-PDF option off to get the text on its own.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -71,6 +80,14 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadTxt: 'Tải .txt',
     downloadSearchable: 'Tải PDF có thể tìm kiếm',
     pageLine: 'Trang {n} — {words} từ, độ tin cậy {conf}%',
+    error_searchableFailed: 'Văn bản bên dưới đã đầy đủ, nhưng không tạo được PDF có thể tìm kiếm.',
+    error_layerFontFetch:
+      'Không tải được phông Unicode mà lớp tìm kiếm cần. Hãy kiểm tra kết nối rồi thử lại.',
+    error_layerFontHttp: 'Không tải được phông Unicode mà lớp tìm kiếm cần (HTTP {status}).',
+    error_layerPdfPasswordProtected:
+      '"{name}" được bảo vệ bằng mật khẩu nên không ghi được lớp chữ vào. Hãy gỡ mật khẩu, hoặc tắt tùy chọn PDF có thể tìm kiếm để chỉ lấy văn bản.',
+    error_layerPdfUnreadable:
+      'Không mở lại được "{name}" để ghi lớp chữ vào. Hãy tắt tùy chọn PDF có thể tìm kiếm để chỉ lấy văn bản.',
   },
   es: {
     title: 'OCR de un PDF escaneado',
@@ -105,6 +122,16 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadTxt: 'Descargar .txt',
     downloadSearchable: 'Descargar PDF con búsqueda',
     pageLine: 'Página {n} — {words} palabras, {conf}% de confianza',
+    error_searchableFailed:
+      'El texto de abajo está completo, pero no se pudo generar el PDF con búsqueda.',
+    error_layerFontFetch:
+      'No se pudo cargar la fuente Unicode que la capa de búsqueda necesita. Comprueba tu conexión e inténtalo de nuevo.',
+    error_layerFontHttp:
+      'No se pudo cargar la fuente Unicode que la capa de búsqueda necesita (HTTP {status}).',
+    error_layerPdfPasswordProtected:
+      '"{name}" está protegido con contraseña, así que no se puede escribir una capa de texto en él. Quita la contraseña, o desactiva la opción de PDF con búsqueda para obtener solo el texto.',
+    error_layerPdfUnreadable:
+      'No se pudo volver a abrir "{name}" para escribir la capa de texto. Desactiva la opción de PDF con búsqueda para obtener solo el texto.',
   },
   pt: {
     title: 'OCR de PDF escaneado',
@@ -139,5 +166,15 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadTxt: 'Baixar .txt',
     downloadSearchable: 'Baixar PDF pesquisável',
     pageLine: 'Página {n} — {words} palavras, {conf}% de confiança',
+    error_searchableFailed:
+      'O texto abaixo está completo, mas não foi possível gerar o PDF pesquisável.',
+    error_layerFontFetch:
+      'Não foi possível carregar a fonte Unicode de que a camada pesquisável precisa. Verifique sua conexão e tente de novo.',
+    error_layerFontHttp:
+      'Não foi possível carregar a fonte Unicode de que a camada pesquisável precisa (HTTP {status}).',
+    error_layerPdfPasswordProtected:
+      '"{name}" está protegido por senha, então não é possível gravar uma camada de texto nele. Remova a senha, ou desative a opção de PDF pesquisável para obter só o texto.',
+    error_layerPdfUnreadable:
+      'Não foi possível reabrir "{name}" para gravar a camada de texto. Desative a opção de PDF pesquisável para obter só o texto.',
   },
 };

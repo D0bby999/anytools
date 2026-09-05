@@ -70,6 +70,18 @@ describe('splitPdf', () => {
     await expect(splitPdf(bad, { kind: 'each' })).rejects.toThrow(/broken\.pdf/);
   });
 
+  it('carries a code and params so the widget can localize the message', async () => {
+    const bad = new File([new Uint8Array([1, 2, 3])], 'broken.pdf', { type: 'application/pdf' });
+    await expect(splitPdf(bad, { kind: 'each' })).rejects.toMatchObject({
+      code: 'pdfUnreadable',
+      params: { name: 'broken.pdf' },
+    });
+    await expect(splitPdf(await pdfFile(3), { kind: 'ranges', range: '9' })).rejects.toMatchObject({
+      code: 'pageOutOfRange',
+      params: { page: 9, count: 3 },
+    });
+  });
+
   it('reads a page count without splitting', async () => {
     expect(await readPageCount(await pdfFile(7))).toBe(7);
   });

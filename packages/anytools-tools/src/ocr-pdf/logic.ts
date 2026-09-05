@@ -46,10 +46,21 @@ export type OcrPdfResult = {
   skipped: number;
   /** Set when the searchable PDF failed but the text survived. Never hides the text. */
   searchableError: string | null;
+  /** Code for the sentence above (`searchableFailed`), so the UI can localize it. */
+  searchableErrorCode: string | null;
+  /** What the searchable step threw, for the UI to localize the reason after the sentence. */
+  searchableCause: unknown;
 };
 
 /** What the optional searchable-PDF step produced, however it ended. */
-export type SearchableOutcome = Pick<OcrPdfResult, 'pdf' | 'skipped' | 'searchableError'>;
+export type SearchableOutcome = Pick<
+  OcrPdfResult,
+  'pdf' | 'skipped' | 'searchableError' | 'searchableErrorCode' | 'searchableCause'
+>;
+
+/** The sentence a failed searchable step is reported with; the cause follows it. */
+export const SEARCHABLE_FAILED =
+  'The text below is complete, but the searchable PDF could not be built.';
 
 export type OcrPdfProgress = {
   pageNumber: number;
@@ -103,17 +114,25 @@ export async function finishOcrPdf(
   build: SearchableBuilder | null,
   layers: PageLayer[],
 ): Promise<OcrPdfResult> {
-  let outcome: SearchableOutcome = { pdf: null, skipped: 0, searchableError: null };
+  let outcome: SearchableOutcome = {
+    pdf: null,
+    skipped: 0,
+    searchableError: null,
+    searchableErrorCode: null,
+    searchableCause: null,
+  };
   if (build) {
     try {
       const { blob, skipped } = await build(layers);
-      outcome = { pdf: blob, skipped, searchableError: null };
+      outcome = { ...outcome, pdf: blob, skipped };
     } catch (e) {
       const why = e instanceof Error && e.message ? ` ${e.message}` : '';
       outcome = {
         pdf: null,
         skipped: 0,
-        searchableError: `The text below is complete, but the searchable PDF could not be built.${why}`,
+        searchableError: `${SEARCHABLE_FAILED}${why}`,
+        searchableErrorCode: 'searchableFailed',
+        searchableCause: e,
       };
     }
   }
@@ -165,7 +184,12 @@ export async function ocrPdf(
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       const ctx = canvas.getContext('2d');
-      if (!ctx) throw new PdfRenderError('Your browser did not provide a 2D canvas context.');
+      if (!ctx) {
+        throw new PdfRenderError(
+          'noCanvasContext',
+          'Your browser did not provide a 2D canvas context.',
+        );
+      }
       // OCR of a transparent canvas reads black-on-black. Scans have no alpha, but a page whose
       // content does not cover the media box leaves the rest transparent.
       ctx.fillStyle = '#ffffff';

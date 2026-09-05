@@ -1,9 +1,11 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { type EmbeddableImage, toEmbeddableImage } from '../shared/embeddable-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type WatermarkOptions, type WatermarkResult, readPageCount, watermarkPdf } from './logic';
 import { PREVIEW_DPI, renderFirstPage } from './preview';
@@ -19,6 +21,9 @@ const PREVIEW_MAX_WIDTH = 320;
 
 export function WatermarkPdfUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   // Its identity is stable (useMemo, see the hook), so it can be named as an effect dependency
@@ -72,7 +77,7 @@ export function WatermarkPdfUi() {
     let created: string | null = null;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
+      .catch((e) => !cancelled && setError(toolErrorText(e, errorStrings, s.couldNotReadPdf)));
     renderFirstPage(file)
       .then(({ blob, width, height }) => {
         if (cancelled) return;
@@ -86,7 +91,7 @@ export function WatermarkPdfUi() {
       cancelled = true;
       objectUrls.revoke(created);
     };
-  }, [file, objectUrls, s.couldNotReadPdf]);
+  }, [file, objectUrls, errorStrings, s.couldNotReadPdf]);
 
   // Decode the watermark image once, when it is chosen, rather than on every run. This also
   // converts WebP and applies EXIF orientation — pdf-lib embeds PNG and JPEG only.
@@ -109,12 +114,12 @@ export function WatermarkPdfUi() {
         );
         setMarkUrl(created);
       })
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadImage));
+      .catch((e) => !cancelled && setError(toolErrorText(e, errorStrings, s.couldNotReadImage)));
     return () => {
       cancelled = true;
       objectUrls.revoke(created);
     };
-  }, [markFile, objectUrls, s.couldNotReadImage]);
+  }, [markFile, objectUrls, errorStrings, s.couldNotReadImage]);
 
   const previewScale = preview ? Math.min(1, PREVIEW_MAX_WIDTH / preview.width) : 1;
 
@@ -137,7 +142,7 @@ export function WatermarkPdfUi() {
       setDownloadUrl(objectUrls.create(r.blob));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : s.failed);
+      setError(toolErrorText(e, errorStrings, s.failed));
     } finally {
       setBusy(false);
     }

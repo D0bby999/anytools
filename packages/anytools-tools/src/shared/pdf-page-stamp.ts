@@ -148,11 +148,21 @@ export async function assertDrawableText(text: string, subject: string): Promise
   await embedTextFont(probe, text, subject);
 }
 
-export function rethrowAsTextError(error: unknown, subject: string): never {
+/**
+ * `params` are carried on the error beside `subject`, so a caller whose subject embeds a value
+ * (add-page-numbers: `The page number "3"`) can name it in a localized template.
+ */
+export function rethrowAsTextError(
+  error: unknown,
+  subject: string,
+  params: Record<string, string | number> = {},
+): never {
   const message = error instanceof Error ? error.message : String(error);
   if (/cannot encode|winansi|encoding/i.test(message)) {
     throw new PdfTextError(
+      'textNotDrawable',
       `${subject} uses characters the font cannot draw. Latin characters (including Vietnamese), Greek and Cyrillic are covered; Chinese, Japanese, Korean, Arabic and emoji are not.`,
+      { subject, ...params },
     );
   }
   throw error instanceof Error ? error : new Error(message);

@@ -14,6 +14,9 @@ const EN = {
   downloadAllZip: 'Download all {n} as .zip',
   pageAlt: 'Page {n}',
   downloadLink: 'download',
+  error_pageTooLargeAtDpi:
+    'Page {page} would be {width}x{height} pixels at {dpi} DPI, past what browsers can render. Try a lower DPI.',
+  error_pagePngEncodeFailed: 'Page {page} could not be encoded as PNG.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -32,6 +35,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadAllZip: 'Tải tất cả {n} trang dạng .zip',
     pageAlt: 'Trang {n}',
     downloadLink: 'tải xuống',
+    error_pageTooLargeAtDpi:
+      'Trang {page} sẽ có kích thước {width}x{height} pixel ở {dpi} DPI, vượt quá mức trình duyệt kết xuất được. Hãy thử DPI thấp hơn.',
+    error_pagePngEncodeFailed: 'Không mã hóa được trang {page} thành PNG.',
   },
   es: {
     title: 'PDF a PNG',
@@ -47,6 +53,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadAllZip: 'Descargar las {n} como .zip',
     pageAlt: 'Página {n}',
     downloadLink: 'descargar',
+    error_pageTooLargeAtDpi:
+      'La página {page} tendría {width}x{height} píxeles a {dpi} DPI, más de lo que los navegadores pueden renderizar. Prueba un DPI menor.',
+    error_pagePngEncodeFailed: 'La página {page} no se pudo codificar como PNG.',
   },
   pt: {
     title: 'PDF para PNG',
@@ -62,5 +71,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadAllZip: 'Baixar todas as {n} como .zip',
     pageAlt: 'Página {n}',
     downloadLink: 'baixar',
+    error_pageTooLargeAtDpi:
+      'A página {page} teria {width}x{height} pixels a {dpi} DPI, além do que os navegadores conseguem renderizar. Tente um DPI menor.',
+    error_pagePngEncodeFailed: 'A página {page} não pôde ser codificada como PNG.',
   },
 };

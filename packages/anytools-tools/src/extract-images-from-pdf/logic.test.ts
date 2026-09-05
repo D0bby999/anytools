@@ -8,8 +8,34 @@
 // see docs/tool-runtime-verification.md. Last run 2026-09-03: fixtures/images-shared.pdf (one PNG
 // drawn on three pages) → 1 image after content de-duplication, console clean, no third-party
 // requests. CMYK handling and transparency remain hand-verified.
-import { describe, expect, it } from 'vitest';
-import { contentKey, toRgba } from './logic';
+import { describe, expect, it, vi } from 'vitest';
+import { contentKey, extractImagesFromPdf, toRgba } from './logic';
+
+// The document open is the one failure a user can hit here; pdf.js itself needs a worker, so
+// the loader is replaced and the point asserted is that its coded error reaches the caller intact.
+vi.mock('../shared/pdfjs-loader', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../shared/pdfjs-loader')>();
+  return {
+    ...actual,
+    openPdf: async (file: File) => {
+      throw new actual.PdfRenderError(
+        'pdfUnreadable',
+        `"${file.name}" could not be read as a PDF.`,
+        { name: file.name },
+      );
+    },
+  };
+});
+
+describe('extractImagesFromPdf', () => {
+  it("passes the loader's coded error through so the widget can localize it", async () => {
+    const file = new File([new Uint8Array([1, 2, 3])], 'broken.pdf', { type: 'application/pdf' });
+    await expect(extractImagesFromPdf(file)).rejects.toMatchObject({
+      code: 'pdfUnreadable',
+      params: { name: 'broken.pdf' },
+    });
+  });
+});
 
 describe('contentKey', () => {
   const blob = (bytes: number[]) => new Blob([new Uint8Array(bytes)]);

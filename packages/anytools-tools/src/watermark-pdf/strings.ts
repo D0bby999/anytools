@@ -33,6 +33,19 @@ const EN = {
   stampedOne: 'Stamped {n} of {total} page',
   stampedMany: 'Stamped {n} of {total} pages',
   download: 'Download watermarked.pdf',
+  error_badColour: '"{hex}" is not a colour. Use a hex value such as #808080.',
+  error_watermarkTextEmpty: 'Type the text you want stamped on the pages.',
+  error_fontSizeAboveZero: 'Choose a font size above zero.',
+  error_sizeAboveZero: 'Choose a size above zero.',
+  error_opacityRange: 'Opacity must be above 0 and at most 1.',
+  error_imageEmbedFailed: '"{name}" could not be embedded as an image.',
+  error_previewEncodeFailed: 'The preview page could not be encoded.',
+  error_unicodeFontNeeded:
+    'The watermark text needs the Unicode font, which could not be loaded. {detail}',
+  error_fontCoverage:
+    'The watermark text uses characters no available font can draw: {missing}. Latin characters (including Vietnamese), Greek and Cyrillic are covered; Chinese, Japanese, Korean, Arabic and emoji are not.',
+  error_textNotDrawable:
+    'The watermark text uses characters the font cannot draw. Latin characters (including Vietnamese), Greek and Cyrillic are covered; Chinese, Japanese, Korean, Arabic and emoji are not.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -69,6 +82,18 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     stampedOne: 'Đã đóng dấu {n}/{total} trang',
     stampedMany: 'Đã đóng dấu {n}/{total} trang',
     download: 'Tải watermarked.pdf',
+    error_badColour: '"{hex}" không phải là màu. Hãy dùng giá trị hex như #808080.',
+    error_watermarkTextEmpty: 'Nhập chữ bạn muốn đóng lên các trang.',
+    error_fontSizeAboveZero: 'Chọn cỡ chữ lớn hơn 0.',
+    error_sizeAboveZero: 'Chọn kích thước lớn hơn 0.',
+    error_opacityRange: 'Độ mờ phải lớn hơn 0 và tối đa là 1.',
+    error_imageEmbedFailed: 'Không nhúng được "{name}" dưới dạng ảnh.',
+    error_previewEncodeFailed: 'Không mã hóa được trang xem trước.',
+    error_unicodeFontNeeded: 'Chữ đóng dấu cần phông Unicode nhưng không tải được. {detail}',
+    error_fontCoverage:
+      'Chữ đóng dấu chứa ký tự mà không phông nào sẵn có vẽ được: {missing}. Ký tự Latin (kể cả tiếng Việt), Hy Lạp và Kirin được hỗ trợ; tiếng Trung, Nhật, Hàn, Ả Rập và emoji thì không.',
+    error_textNotDrawable:
+      'Chữ đóng dấu chứa ký tự mà phông không vẽ được. Ký tự Latin (kể cả tiếng Việt), Hy Lạp và Kirin được hỗ trợ; tiếng Trung, Nhật, Hàn, Ả Rập và emoji thì không.',
   },
   es: {
     title: 'Marca de agua en PDF',
@@ -103,6 +128,19 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     stampedOne: 'Marcada {n} de {total} página',
     stampedMany: 'Marcadas {n} de {total} páginas',
     download: 'Descargar watermarked.pdf',
+    error_badColour: '"{hex}" no es un color. Usa un valor hexadecimal como #808080.',
+    error_watermarkTextEmpty: 'Escribe el texto que quieres estampar en las páginas.',
+    error_fontSizeAboveZero: 'Elige un tamaño de fuente mayor que cero.',
+    error_sizeAboveZero: 'Elige un tamaño mayor que cero.',
+    error_opacityRange: 'La opacidad debe ser mayor que 0 y como máximo 1.',
+    error_imageEmbedFailed: 'No se pudo incrustar "{name}" como imagen.',
+    error_previewEncodeFailed: 'No se pudo codificar la página de vista previa.',
+    error_unicodeFontNeeded:
+      'El texto de la marca de agua necesita la fuente Unicode, que no se pudo cargar. {detail}',
+    error_fontCoverage:
+      'El texto de la marca de agua contiene caracteres que ninguna fuente disponible puede dibujar: {missing}. Los caracteres latinos (incluido el vietnamita), el griego y el cirílico están cubiertos; el chino, japonés, coreano, árabe y los emoji no.',
+    error_textNotDrawable:
+      'El texto de la marca de agua contiene caracteres que la fuente no puede dibujar. Los caracteres latinos (incluido el vietnamita), el griego y el cirílico están cubiertos; el chino, japonés, coreano, árabe y los emoji no.',
   },
   pt: {
     title: "Marca d'água em PDF",
@@ -137,5 +175,18 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     stampedOne: 'Carimbada {n} de {total} página',
     stampedMany: 'Carimbadas {n} de {total} páginas',
     download: 'Baixar watermarked.pdf',
+    error_badColour: '"{hex}" não é uma cor. Use um valor hexadecimal como #808080.',
+    error_watermarkTextEmpty: 'Digite o texto que você quer carimbar nas páginas.',
+    error_fontSizeAboveZero: 'Escolha um tamanho de fonte maior que zero.',
+    error_sizeAboveZero: 'Escolha um tamanho maior que zero.',
+    error_opacityRange: 'A opacidade deve ser maior que 0 e no máximo 1.',
+    error_imageEmbedFailed: 'Não foi possível incorporar "{name}" como imagem.',
+    error_previewEncodeFailed: 'Não foi possível codificar a página de prévia.',
+    error_unicodeFontNeeded:
+      "O texto da marca d'água precisa da fonte Unicode, que não pôde ser carregada. {detail}",
+    error_fontCoverage:
+      "O texto da marca d'água contém caracteres que nenhuma fonte disponível consegue desenhar: {missing}. Caracteres latinos (incluindo vietnamita), grego e cirílico são cobertos; chinês, japonês, coreano, árabe e emoji não.",
+    error_textNotDrawable:
+      "O texto da marca d'água contém caracteres que a fonte não consegue desenhar. Caracteres latinos (incluindo vietnamita), grego e cirílico são cobertos; chinês, japonês, coreano, árabe e emoji não.",
   },
 };

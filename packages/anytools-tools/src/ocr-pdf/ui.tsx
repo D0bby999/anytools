@@ -10,8 +10,9 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
 import {
   OCR_LANGUAGES,
   OCR_LANGUAGE_LABELS,
@@ -19,12 +20,16 @@ import {
   type OcrLanguage,
   terminateOcr,
 } from '../shared/tesseract-loader';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type OcrPdfProgress, type OcrPdfResult, ocrPdf, outputName } from './logic';
 import { STRINGS } from './strings';
 
 export function OcrPdfUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
@@ -85,10 +90,14 @@ export function OcrPdfUi() {
       setResult(r);
       setText(r.text);
       setPdfUrl(r.pdf ? objectUrls.create(r.pdf) : null);
-      if (r.searchableError) setError(r.searchableError);
+      if (r.searchableError) {
+        // The fixed sentence in the page's language, then the cause the same way.
+        const reason = toolErrorText(r.searchableCause, errorStrings, '');
+        setError(`${s.error_searchableFailed} ${reason}`.trim());
+      }
     } catch (e) {
       if (!(e instanceof OcrCancelledError)) {
-        setError(e instanceof Error ? e.message : s.failed);
+        setError(toolErrorText(e, errorStrings, s.failed));
       }
     } finally {
       // Only here. Clearing `busy` inside stop() re-enabled the button while the loop was still

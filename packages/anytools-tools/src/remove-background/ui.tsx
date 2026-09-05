@@ -1,9 +1,11 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { isAbortError } from '../shared/onnx-loader';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type RemoveBackgroundProgress,
@@ -28,6 +30,9 @@ const pct = (p: RemoveBackgroundProgress) =>
 
 export function RemoveBackgroundUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [threshold, setThreshold] = useState(0.5);
@@ -82,7 +87,7 @@ export function RemoveBackgroundUi() {
     } catch (e) {
       setResult(null);
       if (isAbortError(e)) setError(s.cancelled);
-      else setError(e instanceof Error ? e.message : s.failed);
+      else setError(toolErrorText(e, errorStrings, s.failed));
     } finally {
       abort.current = null;
       setBusy(false);

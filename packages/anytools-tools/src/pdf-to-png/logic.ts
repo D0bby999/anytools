@@ -37,8 +37,12 @@ export async function pdfToPng(
       const viewport = page.getViewport({ scale });
 
       if (viewport.width * viewport.height > MAX_CANVAS_PIXELS) {
+        const width = Math.round(viewport.width);
+        const height = Math.round(viewport.height);
         throw new PdfRenderError(
-          `Page ${n} would be ${Math.round(viewport.width)}x${Math.round(viewport.height)} pixels at ${dpi} DPI, past what browsers can render. Try a lower DPI.`,
+          'pageTooLargeAtDpi',
+          `Page ${n} would be ${width}x${height} pixels at ${dpi} DPI, past what browsers can render. Try a lower DPI.`,
+          { page: n, width, height, dpi },
         );
       }
 
@@ -46,12 +50,21 @@ export async function pdfToPng(
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       const ctx = canvas.getContext('2d');
-      if (!ctx) throw new PdfRenderError('Your browser did not provide a 2D canvas context.');
+      if (!ctx) {
+        throw new PdfRenderError(
+          'noCanvasContext',
+          'Your browser did not provide a 2D canvas context.',
+        );
+      }
 
       await page.render({ canvas, canvasContext: ctx, viewport }).promise;
 
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) throw new PdfRenderError(`Page ${n} could not be encoded as PNG.`);
+      if (!blob) {
+        throw new PdfRenderError('pagePngEncodeFailed', `Page ${n} could not be encoded as PNG.`, {
+          page: n,
+        });
+      }
 
       pages.push({
         pageNumber: n,

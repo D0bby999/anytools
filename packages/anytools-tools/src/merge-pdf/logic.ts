@@ -2,6 +2,7 @@
 // already code-splits per tool, but a top-level import would still pull ~173 KB gzipped
 // into anything that touches this module — a test helper, a future registry, a barrel
 // re-export. Loading it at call time keeps that impossible rather than merely unlikely.
+import { ToolError } from '../shared/tool-error';
 
 export type MergeResult = {
   blob: Blob;
@@ -11,14 +12,14 @@ export type MergeResult = {
   sources: { name: string; pages: number }[];
 };
 
-export class PdfMergeError extends Error {
-  constructor(
-    message: string,
-    /** The input that failed, so the UI can name it. */
-    readonly fileName?: string,
-  ) {
-    super(message);
+export class PdfMergeError extends ToolError {
+  /** The input that failed, so the UI can name it. Read from `params.name`. */
+  readonly fileName?: string;
+
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PdfMergeError';
+    if (typeof params.name === 'string') this.fileName = params.name;
   }
 }
 
@@ -30,7 +31,9 @@ export class PdfMergeError extends Error {
  * doing that to a file someone password-protected is not a merge, it is a bypass.
  */
 export async function mergePdfs(files: File[]): Promise<MergeResult> {
-  if (files.length < 2) throw new PdfMergeError('Choose at least two PDFs to merge.');
+  if (files.length < 2) {
+    throw new PdfMergeError('needTwoPdfs', 'Choose at least two PDFs to merge.');
+  }
 
   const { PDFDocument } = await import('pdf-lib');
   const out = await PDFDocument.create();
@@ -44,11 +47,14 @@ export async function mergePdfs(files: File[]): Promise<MergeResult> {
       const msg = e instanceof Error ? e.message : String(e);
       if (/encrypt/i.test(msg)) {
         throw new PdfMergeError(
+          'pdfPasswordProtected',
           `"${file.name}" is password-protected. Remove the password and try again.`,
-          file.name,
+          { name: file.name },
         );
       }
-      throw new PdfMergeError(`"${file.name}" could not be read as a PDF.`, file.name);
+      throw new PdfMergeError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+        name: file.name,
+      });
     }
     const copied = await out.copyPages(src, src.getPageIndices());
     for (const page of copied) out.addPage(page);

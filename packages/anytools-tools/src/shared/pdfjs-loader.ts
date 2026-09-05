@@ -21,9 +21,11 @@
  * children by default, so this only means: no dangerouslySetInnerHTML.
  */
 
-export class PdfRenderError extends Error {
-  constructor(message: string) {
-    super(message);
+import { ToolError } from './tool-error';
+
+export class PdfRenderError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PdfRenderError';
   }
 }
@@ -86,16 +88,21 @@ export async function openPdf(file: File) {
     const msg = e instanceof Error ? e.message : String(e);
     if (/password/i.test(msg)) {
       throw new PdfRenderError(
+        'pdfPasswordProtected',
         `"${file.name}" is password-protected. Remove the password and try again.`,
+        { name: file.name },
       );
     }
     if (/worker/i.test(msg)) {
       // Distinctive enough to recognise instantly: this is a build/bundler problem, not a
       // problem with the user's file, and the two look identical from the UI.
       throw new PdfRenderError(
+        'pdfWorkerFailed',
         'The PDF renderer failed to start (worker could not load). This is a bug on our side, not a problem with your file.',
       );
     }
-    throw new PdfRenderError(`"${file.name}" could not be read as a PDF.`);
+    throw new PdfRenderError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+      name: file.name,
+    });
   }
 }

@@ -102,7 +102,10 @@ async function runModel(
   const inputName = session.inputNames[0];
   const outputName = session.outputNames[0];
   if (!inputName || !outputName) {
-    throw new ImageToolError('The background model exposes no inputs — the file may be corrupt.');
+    throw new ImageToolError(
+      'modelNoInputs',
+      'The background model exposes no inputs — the file may be corrupt.',
+    );
   }
   const pixels = MODEL_SIZE * MODEL_SIZE;
   const feeds = {
@@ -111,7 +114,10 @@ async function runModel(
   const results = await session.run(feeds);
   const data = results[outputName]?.data;
   if (!(data instanceof Float32Array) || data.length < pixels) {
-    throw new ImageToolError('The background model returned an unexpected result.');
+    throw new ImageToolError(
+      'modelBadOutput',
+      'The background model returned an unexpected result.',
+    );
   }
   return minMaxNormalise(data.subarray(0, pixels));
 }

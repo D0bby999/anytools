@@ -31,6 +31,10 @@ const EN = {
   numberedMany: 'Numbered {n} of {total} pages',
   labels: 'First label "{first}", last label "{last}".',
   download: 'Download numbered.pdf',
+  error_startAtNotWhole: 'The starting number must be a whole number, zero or more.',
+  error_fontSizeAboveZero: 'Choose a font size above zero.',
+  error_textNotDrawable:
+    'The page number "{label}" uses characters the font cannot draw. Latin characters (including Vietnamese), Greek and Cyrillic are covered; Chinese, Japanese, Korean, Arabic and emoji are not.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -65,6 +69,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     numberedMany: 'Đã đánh số {n}/{total} trang',
     labels: 'Nhãn đầu "{first}", nhãn cuối "{last}".',
     download: 'Tải numbered.pdf',
+    error_startAtNotWhole: 'Số bắt đầu phải là số nguyên, từ 0 trở lên.',
+    error_fontSizeAboveZero: 'Chọn cỡ chữ lớn hơn 0.',
+    error_textNotDrawable:
+      'Số trang "{label}" chứa ký tự mà phông không vẽ được. Ký tự Latin (kể cả tiếng Việt), Hy Lạp và Kirin được hỗ trợ; tiếng Trung, Nhật, Hàn, Ả Rập và emoji thì không.',
   },
   es: {
     title: 'Añadir números de página al PDF',
@@ -96,6 +104,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     numberedMany: 'Numeradas {n} de {total} páginas',
     labels: 'Primera etiqueta "{first}", última etiqueta "{last}".',
     download: 'Descargar numbered.pdf',
+    error_startAtNotWhole: 'El número inicial debe ser un número entero, cero o mayor.',
+    error_fontSizeAboveZero: 'Elige un tamaño de fuente mayor que cero.',
+    error_textNotDrawable:
+      'El número de página "{label}" contiene caracteres que la fuente no puede dibujar. Los caracteres latinos (incluido el vietnamita), el griego y el cirílico están cubiertos; el chino, japonés, coreano, árabe y los emoji no.',
   },
   pt: {
     title: 'Adicionar números de página ao PDF',
@@ -127,5 +139,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     numberedMany: 'Numeradas {n} de {total} páginas',
     labels: 'Primeiro rótulo "{first}", último rótulo "{last}".',
     download: 'Baixar numbered.pdf',
+    error_startAtNotWhole: 'O número inicial deve ser um número inteiro, zero ou maior.',
+    error_fontSizeAboveZero: 'Escolha um tamanho de fonte maior que zero.',
+    error_textNotDrawable:
+      'O número de página "{label}" contém caracteres que a fonte não consegue desenhar. Caracteres latinos (incluindo vietnamita), grego e cirílico são cobertos; chinês, japonês, coreano, árabe e emoji não.',
   },
 };

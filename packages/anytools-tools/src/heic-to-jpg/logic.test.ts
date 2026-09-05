@@ -362,6 +362,28 @@ describe('an AVIF file', () => {
       /AVIF is not supported here/,
     );
   });
+
+  it('carries a code and params so the widget can localize the message', async () => {
+    const avif = new File([fixture('tiny.avif')], 'holiday.avif', { type: 'image/avif' });
+    await expect(convertHeicFile(avif, { format: 'jpeg', quality: 0.9 })).rejects.toMatchObject({
+      code: 'heicIsAvif',
+      params: { name: 'holiday.avif' },
+    });
+    // The batch keeps going and records the same code on the failure row.
+    const { failures } = await convertHeicFiles([avif], { format: 'jpeg', quality: 0.9 });
+    expect(failures).toMatchObject([
+      { name: 'holiday.avif', code: 'heicIsAvif', params: { name: 'holiday.avif' } },
+    ]);
+    const thrown = (() => {
+      try {
+        validateOptions({ format: 'jpeg', quality: 0 });
+      } catch (e) {
+        return e;
+      }
+      return null;
+    })();
+    expect(thrown).toMatchObject({ code: 'heicBadQuality' });
+  });
 });
 
 const REAL_PHOTO = resolve(__dirname, '..', '..', 'fixtures', 'manual', 'photo.heic');

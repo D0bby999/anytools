@@ -4,6 +4,7 @@ import { type EmbeddableImage, ownBuffer } from '../shared/embeddable-image';
 import { parsePageRange } from '../shared/page-range';
 import { assertDrawableText, pageFrame, rethrowAsTextError } from '../shared/pdf-page-stamp';
 import { embedTextFont } from '../shared/pdf-unicode-font';
+import { ToolError } from '../shared/tool-error';
 
 export type WatermarkTextOptions = {
   kind: 'text';
@@ -35,9 +36,9 @@ export type WatermarkResult = {
   stamped: number;
 };
 
-export class WatermarkError extends Error {
-  constructor(message: string) {
-    super(message);
+export class WatermarkError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'WatermarkError';
   }
 }
@@ -50,7 +51,13 @@ export class WatermarkError extends Error {
  */
 export function parseHexColor(hex: string): { r: number; g: number; b: number } {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
-  if (!m) throw new WatermarkError(`"${hex}" is not a colour. Use a hex value such as #808080.`);
+  if (!m) {
+    throw new WatermarkError(
+      'badColour',
+      `"${hex}" is not a colour. Use a hex value such as #808080.`,
+      { hex },
+    );
+  }
   const digits = m[1] as string;
   const full =
     digits.length === 3
@@ -98,10 +105,14 @@ async function loadDoc(file: File) {
     const msg = e instanceof Error ? e.message : String(e);
     if (/encrypt/i.test(msg)) {
       throw new WatermarkError(
+        'pdfPasswordProtected',
         `"${file.name}" is password-protected. Remove the password and try again.`,
+        { name: file.name },
       );
     }
-    throw new WatermarkError(`"${file.name}" could not be read as a PDF.`);
+    throw new WatermarkError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+      name: file.name,
+    });
   }
 }
 
@@ -113,16 +124,16 @@ export async function readPageCount(file: File): Promise<number> {
 /** Stamp a mark across the centre of every selected page. */
 export async function watermarkPdf(file: File, opts: WatermarkOptions): Promise<WatermarkResult> {
   if (opts.kind === 'text' && !opts.text.trim()) {
-    throw new WatermarkError('Type the text you want stamped on the pages.');
+    throw new WatermarkError('watermarkTextEmpty', 'Type the text you want stamped on the pages.');
   }
   if (opts.kind === 'text' && !(opts.fontSize > 0)) {
-    throw new WatermarkError('Choose a font size above zero.');
+    throw new WatermarkError('fontSizeAboveZero', 'Choose a font size above zero.');
   }
   if (opts.kind === 'image' && !(opts.scalePercent > 0)) {
-    throw new WatermarkError('Choose a size above zero.');
+    throw new WatermarkError('sizeAboveZero', 'Choose a size above zero.');
   }
   if (!(opts.opacity > 0 && opts.opacity <= 1)) {
-    throw new WatermarkError('Opacity must be above 0 and at most 1.');
+    throw new WatermarkError('opacityRange', 'Opacity must be above 0 and at most 1.');
   }
 
   const { degrees, rgb } = await import('pdf-lib');
@@ -151,7 +162,11 @@ export async function watermarkPdf(file: File, opts: WatermarkOptions): Promise<
     try {
       image = opts.image.format === 'png' ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
     } catch {
-      throw new WatermarkError(`"${opts.image.name}" could not be embedded as an image.`);
+      throw new WatermarkError(
+        'imageEmbedFailed',
+        `"${opts.image.name}" could not be embedded as an image.`,
+        { name: opts.image.name },
+      );
     }
   }
 

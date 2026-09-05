@@ -1,7 +1,9 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type Dpi, type PdfToPngResult, pdfToPng } from './logic';
 import { STRINGS } from './strings';
@@ -10,6 +12,9 @@ const DPIS: Dpi[] = [72, 150, 300];
 
 export function PdfToPngUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
   const objectUrls = useObjectUrls();
@@ -50,7 +55,7 @@ export function PdfToPngUi() {
       setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : s.failed);
+      setError(toolErrorText(e, errorStrings, s.failed));
     } finally {
       setBusy(false);
       setProgress(null);

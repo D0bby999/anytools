@@ -8,6 +8,8 @@
  * caught it. Leave the working tool alone.
  */
 
+import { ToolError } from './tool-error';
+
 export type OutputFormat = 'jpeg' | 'png' | 'webp';
 
 /**
@@ -17,9 +19,9 @@ export type OutputFormat = 'jpeg' | 'png' | 'webp';
  */
 export const MAX_CANVAS_PIXELS = 16_777_216;
 
-export class ImageToolError extends Error {
-  constructor(message: string) {
-    super(message);
+export class ImageToolError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'ImageToolError';
   }
 }
@@ -78,7 +80,9 @@ export async function loadBitmap(file: File): Promise<ImageBitmap> {
     bitmap = await decode();
   } catch {
     throw new ImageToolError(
+      'imageUnreadable',
       `"${file.name}" could not be read as an image. Check that the file is a PNG, JPEG, WebP, GIF or AVIF.`,
+      { name: file.name },
     );
   }
 
@@ -92,9 +96,11 @@ export async function loadBitmap(file: File): Promise<ImageBitmap> {
   try {
     reduced = await decode({ resizeWidth, resizeQuality: 'high' });
   } catch {
-    const mp = (source.width * source.height) / 1_000_000;
+    const mp = ((source.width * source.height) / 1_000_000).toFixed(1);
     throw new ImageToolError(
-      `This image is ${source.width}×${source.height} (${mp.toFixed(1)} megapixels), above what this browser can decode onto a canvas. Resize it in an image editor first.`,
+      'imageTooLarge',
+      `This image is ${source.width}×${source.height} (${mp} megapixels), above what this browser can decode onto a canvas. Resize it in an image editor first.`,
+      { width: source.width, height: source.height, mp },
     );
   }
   decodedFromSize.set(reduced, source);
@@ -114,7 +120,12 @@ export async function drawToBlob(
   canvas.width = Math.max(1, Math.round(width));
   canvas.height = Math.max(1, Math.round(height));
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new ImageToolError('Your browser did not provide a 2D canvas context.');
+  if (!ctx) {
+    throw new ImageToolError(
+      'noCanvasContext',
+      'Your browser did not provide a 2D canvas context.',
+    );
+  }
   // The default is 'low': a 4000px photo drawn straight to 800px comes out aliased, which reads
   // as "this tool makes my pictures worse". 'high' is a proper multi-tap filter where supported.
   ctx.imageSmoothingQuality = 'high';
@@ -146,7 +157,12 @@ export async function drawToBlob(
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, `image/${format}`, quality),
   );
-  if (!blob) throw new ImageToolError(`Your browser could not encode ${format.toUpperCase()}.`);
+  if (!blob) {
+    const label = format.toUpperCase();
+    throw new ImageToolError('encodeFailed', `Your browser could not encode ${label}.`, {
+      format: label,
+    });
+  }
   return blob;
 }
 

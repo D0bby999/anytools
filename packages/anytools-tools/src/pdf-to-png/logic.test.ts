@@ -2,8 +2,38 @@
 // this repo has no browser lane. What IS testable is the arithmetic that decides whether a
 // render will succeed — which is also where a wrong answer is silent rather than loud.
 // Rendering quality, CMYK colour and transparency are verified BY HAND.
-import { describe, expect, it } from 'vitest';
-import { MAX_CANVAS_PIXELS, scaleForDpi } from './logic';
+import { describe, expect, it, vi } from 'vitest';
+import { MAX_CANVAS_PIXELS, pdfToPng, scaleForDpi } from './logic';
+
+// A stand-in document whose one page is A0, so the ceiling check fires before any canvas is
+// touched — the only render-path failure that can be reached without a browser.
+vi.mock('../shared/pdfjs-loader', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../shared/pdfjs-loader')>();
+  return {
+    ...actual,
+    openPdf: async () => ({
+      numPages: 1,
+      getPage: async () => ({
+        getViewport: ({ scale }: { scale: number }) => ({
+          width: 2384 * scale,
+          height: 3370 * scale,
+        }),
+        cleanup: () => undefined,
+      }),
+      destroy: async () => undefined,
+    }),
+  };
+});
+
+describe('pdfToPng', () => {
+  it('carries a code and params so the widget can localize the message', async () => {
+    const file = new File([new Uint8Array([1])], 'plan.pdf', { type: 'application/pdf' });
+    await expect(pdfToPng(file, 300)).rejects.toMatchObject({
+      code: 'pageTooLargeAtDpi',
+      params: { page: 1, dpi: 300, width: 9933, height: 14042 },
+    });
+  });
+});
 
 describe('scaleForDpi', () => {
   it('treats PDF user space as 72 units per inch', () => {

@@ -9,8 +9,10 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS, returnedErrorText } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   HEIC_EXTENSIONS,
@@ -28,6 +30,9 @@ const kb = (n: number) =>
 
 export function HeicToJpgUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   const ui = useUiStrings();
   // Revokes every preview and download URL when the component unmounts.
   const objectUrls = useObjectUrls();
@@ -65,7 +70,7 @@ export function HeicToJpgUi() {
       setPreviews(outcome.results.map((r) => objectUrls.create(r.blob)));
       setFailures(outcome.failures);
     } catch (e) {
-      setError(e instanceof Error ? e.message : ui.conversionFailed);
+      setError(toolErrorText(e, errorStrings, ui.conversionFailed));
     } finally {
       setBusy(false);
       setProgress(null);
@@ -90,7 +95,7 @@ export function HeicToJpgUi() {
         `heic-converted-${format === 'jpeg' ? 'jpg' : 'png'}.zip`,
       );
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.zipFailed);
+      setError(toolErrorText(e, errorStrings, s.zipFailed));
     }
   };
 
@@ -180,7 +185,7 @@ export function HeicToJpgUi() {
         {failures.length > 0 && (
           <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
             {failures.map((f) => (
-              <p key={f.name}>{f.message}</p>
+              <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
             ))}
           </output>
         )}

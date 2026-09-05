@@ -2,6 +2,7 @@
 // as merge-pdf: a top-level import pulls ~173 KB gzipped into anything that touches this module.
 import { parsePageRange } from '../shared/page-range';
 import { pageFrame, rethrowAsTextError } from '../shared/pdf-page-stamp';
+import { ToolError } from '../shared/tool-error';
 
 export type NumberPosition =
   | 'bottom-left'
@@ -47,9 +48,9 @@ export type AddPageNumbersResult = {
   lastLabel: string;
 };
 
-export class PageNumberError extends Error {
-  constructor(message: string) {
-    super(message);
+export class PageNumberError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'PageNumberError';
   }
 }
@@ -105,10 +106,14 @@ async function loadDoc(file: File) {
     const msg = e instanceof Error ? e.message : String(e);
     if (/encrypt/i.test(msg)) {
       throw new PageNumberError(
+        'pdfPasswordProtected',
         `"${file.name}" is password-protected. Remove the password and try again.`,
+        { name: file.name },
       );
     }
-    throw new PageNumberError(`"${file.name}" could not be read as a PDF.`);
+    throw new PageNumberError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+      name: file.name,
+    });
   }
 }
 
@@ -125,9 +130,14 @@ export async function addPageNumbers(
   // Whole numbers only. A fractional start was accepted before and printed "1.5", "2.5", "3.5"
   // — a page numbering nobody asked for, from a spinner the browser lets you type into.
   if (!Number.isInteger(opts.startAt) || opts.startAt < 0) {
-    throw new PageNumberError('The starting number must be a whole number, zero or more.');
+    throw new PageNumberError(
+      'startAtNotWhole',
+      'The starting number must be a whole number, zero or more.',
+    );
   }
-  if (!(opts.fontSize > 0)) throw new PageNumberError('Choose a font size above zero.');
+  if (!(opts.fontSize > 0)) {
+    throw new PageNumberError('fontSizeAboveZero', 'Choose a font size above zero.');
+  }
 
   const { StandardFonts, degrees, rgb } = await import('pdf-lib');
   const doc = await loadDoc(file);
@@ -169,7 +179,7 @@ export async function addPageNumbers(
         rotate: degrees(frame.toUserAngle(0)),
       });
     } catch (e) {
-      rethrowAsTextError(e, `The page number "${text}"`);
+      rethrowAsTextError(e, `The page number "${text}"`, { label: text });
     }
   });
 

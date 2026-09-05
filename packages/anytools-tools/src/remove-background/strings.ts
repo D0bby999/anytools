@@ -32,6 +32,9 @@ const EN = {
   download: 'Download {name}',
   modelNote:
     'The model is u2netp, a small open one from 2020. It is solid on a clear subject against a contrasting background, and weak on hair, fur, glass and backgrounds the same colour as the subject. If the mask is wrong, no slider here will fix it.',
+  error_modelNoInputs: 'The background model exposes no inputs — the file may be corrupt.',
+  error_modelBadOutput: 'The background model returned an unexpected result.',
+  error_pngEncodeFailed: 'Your browser could not encode the PNG.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -67,6 +70,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     download: 'Tải {name}',
     modelNote:
       'Mô hình là u2netp, một mô hình mở nhỏ từ năm 2020. Nó làm tốt với chủ thể rõ trên nền tương phản, và yếu với tóc, lông, thủy tinh và nền cùng màu với chủ thể. Nếu mặt nạ sai, không thanh trượt nào ở đây sửa được.',
+    error_modelNoInputs: 'Mô hình xóa nền không có đầu vào nào — tệp có thể đã hỏng.',
+    error_modelBadOutput: 'Mô hình xóa nền trả về kết quả không mong đợi.',
+    error_pngEncodeFailed: 'Trình duyệt của bạn không mã hóa được PNG.',
   },
   es: {
     title: 'Eliminar fondo de imagen',
@@ -100,6 +106,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     download: 'Descargar {name}',
     modelNote:
       'El modelo es u2netp, uno abierto y pequeño de 2020. Es sólido con un sujeto claro sobre un fondo contrastado, y flojo con pelo, pelaje, cristal y fondos del mismo color que el sujeto. Si la máscara está mal, ningún control de aquí lo arreglará.',
+    error_modelNoInputs: 'El modelo de fondo no expone entradas — el archivo puede estar dañado.',
+    error_modelBadOutput: 'El modelo de fondo devolvió un resultado inesperado.',
+    error_pngEncodeFailed: 'Tu navegador no pudo codificar el PNG.',
   },
   pt: {
     title: 'Remover fundo de imagem',
@@ -132,5 +141,8 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     download: 'Baixar {name}',
     modelNote:
       'O modelo é o u2netp, um modelo aberto e pequeno de 2020. Ele é sólido com um assunto claro sobre um fundo contrastante, e fraco com cabelo, pelos, vidro e fundos da mesma cor do assunto. Se a máscara estiver errada, nenhum controle aqui vai corrigir.',
+    error_modelNoInputs: 'O modelo de fundo não expõe entradas — o arquivo pode estar corrompido.',
+    error_modelBadOutput: 'O modelo de fundo retornou um resultado inesperado.',
+    error_pngEncodeFailed: 'Seu navegador não conseguiu codificar o PNG.',
   },
 };

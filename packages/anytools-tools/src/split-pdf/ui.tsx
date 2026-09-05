@@ -8,14 +8,19 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type SplitResult, readPageCount, splitPdf } from './logic';
 import { STRINGS } from './strings';
 
 export function SplitPdfUi() {
   const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
   const ui = useUiStrings();
   // Revokes every URL this component created when it unmounts; without it each blob
   // stays pinned for the life of the document, and client-side navigation does not clear it.
@@ -54,11 +59,11 @@ export function SplitPdfUi() {
     let cancelled = false;
     readPageCount(file)
       .then((n) => !cancelled && setPageCount(n))
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : s.couldNotReadPdf));
+      .catch((e) => !cancelled && setError(toolErrorText(e, errorStrings, s.couldNotReadPdf)));
     return () => {
       cancelled = true;
     };
-  }, [file, s.couldNotReadPdf]);
+  }, [file, errorStrings, s.couldNotReadPdf]);
 
   const run = async () => {
     if (!file) return;
@@ -75,7 +80,7 @@ export function SplitPdfUi() {
       setZipUrl(r.zip ? objectUrls.create(r.zip) : null);
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : s.failed);
+      setError(toolErrorText(e, errorStrings, s.failed));
     } finally {
       setBusy(false);
     }
