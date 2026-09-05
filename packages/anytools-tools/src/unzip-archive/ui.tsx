@@ -1,10 +1,20 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, Input, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useRef, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ArchiveSession, openArchive, repackAll } from './logic';
+import { STRINGS } from './strings';
 
 const ACCEPT =
   '.zip,.7z,.rar,.tar,.gz,.tgz,application/zip,application/x-7z-compressed,application/vnd.rar,application/x-tar,application/gzip';
@@ -13,6 +23,8 @@ const fmt = (n: number) =>
   n >= 1024 * 1024 ? `${(n / (1024 * 1024)).toFixed(1)} MB` : `${(n / 1024).toFixed(1)} KB`;
 
 export function UnzipArchiveUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState('');
@@ -62,14 +74,14 @@ export function UnzipArchiveUi() {
     setBusy(true);
     await reset();
     try {
-      const s = await openArchive(file, password.trim() || undefined);
-      setSession(s);
-      openSession.current = s;
+      const opened = await openArchive(file, password.trim() || undefined);
+      setSession(opened);
+      openSession.current = opened;
       // The archive is unlocked; the session needs no further use of the password, so it stops
       // sitting in this component's state (and in the form field) for the rest of the visit.
       setPassword('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'This archive could not be read.');
+      setError(e instanceof Error ? e.message : s.readFailed);
     } finally {
       setBusy(false);
     }
@@ -90,7 +102,7 @@ export function UnzipArchiveUi() {
       // every file the user has already saved.
       setTimeout(() => objectUrls.revoke(url), 30_000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : `Could not extract ${path}.`);
+      setError(e instanceof Error ? e.message : s.extractFailed.replace('{path}', path));
     }
   };
 
@@ -100,13 +112,13 @@ export function UnzipArchiveUi() {
     setError(null);
     try {
       const blob = await repackAll(session, (done, total) =>
-        setStatus(`Extracting ${done} of ${total}…`),
+        setStatus(s.extracting.replace('{done}', String(done)).replace('{total}', String(total))),
       );
       replaceZipUrl(blob);
       setStatus(null);
     } catch (e) {
       setStatus(null);
-      setError(e instanceof Error ? e.message : 'Could not repack the archive.');
+      setError(e instanceof Error ? e.message : s.repackFailed);
     } finally {
       setBusy(false);
     }
@@ -117,7 +129,7 @@ export function UnzipArchiveUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Unzip Archive</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -128,14 +140,14 @@ export function UnzipArchiveUi() {
           }}
           accept={ACCEPT}
           multiple={false}
-          label="Archive to open (.zip .7z .rar .tar .tar.gz)"
+          label={s.archiveLabel}
         />
 
         <div className="space-y-1 text-sm">
           {/* htmlFor rather than wrapping: <Input> is a component, so the a11y rule cannot see
               the input inside it. */}
           <label htmlFor="unzip-password" className="block text-muted-foreground">
-            Password (only if the archive has one)
+            {s.passwordLabel}
           </label>
           <Input
             id="unzip-password"
@@ -143,7 +155,7 @@ export function UnzipArchiveUi() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="off"
-            placeholder="leave empty for a normal archive"
+            placeholder={s.passwordPlaceholder}
           />
         </div>
 
@@ -153,7 +165,7 @@ export function UnzipArchiveUi() {
           disabled={!file || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Working…' : 'Open archive'}
+          {busy ? s.working : s.openArchive}
         </button>
 
         {status && <p className="text-sm text-muted-foreground">{status}</p>}
@@ -167,8 +179,11 @@ export function UnzipArchiveUi() {
         {session && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              {session.kind.toUpperCase()} · {session.entries.length} files · {fmt(total)}{' '}
-              uncompressed · read with {session.engine === 'jszip' ? 'JSZip' : 'libarchive (WASM)'}
+              {s.summary
+                .replace('{kind}', session.kind.toUpperCase())
+                .replace('{n}', String(session.entries.length))
+                .replace('{size}', fmt(total))
+                .replace('{engine}', session.engine === 'jszip' ? 'JSZip' : 'libarchive (WASM)')}
             </p>
 
             {session.entries.length > 0 && (
@@ -178,7 +193,7 @@ export function UnzipArchiveUi() {
                 disabled={busy}
                 className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
               >
-                Extract all to a .zip
+                {s.extractAll}
               </button>
             )}
 
@@ -188,7 +203,7 @@ export function UnzipArchiveUi() {
                 download={`${(file?.name ?? 'archive').replace(/\.[^.]+$/, '')}-extracted.zip`}
                 className="ml-2 inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download .zip
+                {s.downloadZip}
               </a>
             )}
 
@@ -202,7 +217,7 @@ export function UnzipArchiveUi() {
                     onClick={() => downloadOne(entry.path)}
                     className="shrink-0 underline"
                   >
-                    download
+                    {ui.download}
                   </button>
                 </li>
               ))}

@@ -1,9 +1,22 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, Textarea } from '@anytools/ui';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PrivacyNote,
+  Textarea,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { parseUserAgent } from './logic';
+import { STRINGS } from './strings';
 
 export function UserAgentParserUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const inputId = useId();
   const [input, setInput] = useState('');
 
   // Prefill with the visitor's own UA — it is the string they most likely want to look at,
@@ -16,22 +29,23 @@ export function UserAgentParserUi() {
     try {
       return { result: parseUserAgent(input), error: null as string | null };
     } catch (e) {
-      return { result: null, error: e instanceof Error ? e.message : 'Invalid' };
+      return { result: null, error: e instanceof Error ? e.message : ui.invalidInput };
     }
-  }, [input]);
+  }, [input, ui.invalidInput]);
 
   const r = state.result;
+  // The logic layer names device types in English; map them to the locale here.
   const rows = r
     ? (
         [
           [
-            'Browser',
+            s.browser,
             r.browser.version ? `${r.browser.name} ${r.browser.version}` : r.browser.name,
           ],
-          ['Engine', r.engine.version ? `${r.engine.name} ${r.engine.version}` : r.engine.name],
-          ['Operating system', r.os.version ? `${r.os.name} ${r.os.version}` : r.os.name],
-          ['Device type', r.device.type],
-          ['Device model', r.device.model],
+          [s.engine, r.engine.version ? `${r.engine.name} ${r.engine.version}` : r.engine.name],
+          [s.os, r.os.version ? `${r.os.name} ${r.os.version}` : r.os.name],
+          [s.deviceType, s[r.device.type] ?? r.device.type],
+          [s.deviceModel, r.device.model],
         ] as const
       ).filter(([, v]) => v)
     : [];
@@ -39,14 +53,17 @@ export function UserAgentParserUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">User Agent Parser</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">
-            User-Agent string — yours is filled in below
-          </span>
-          <Textarea value={input} onChange={(e) => setInput(e.target.value)} rows={3} />
+        <label htmlFor={inputId} className="block text-sm">
+          <span className="mb-1 block text-muted-foreground">{s.uaLabel}</span>
+          <Textarea
+            id={inputId}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            rows={3}
+          />
         </label>
 
         {state.error && (
@@ -69,11 +86,7 @@ export function UserAgentParserUi() {
           </div>
         )}
 
-        <p className="text-sm text-muted-foreground">
-          User-Agent strings are historical fiction — every browser claims to be Mozilla, Chrome
-          claims to be Safari, Edge claims to be Chrome. Anyone can send any string. Useful as a
-          hint for support and analytics; never as a security control.
-        </p>
+        <p className="text-sm text-muted-foreground">{s.note}</p>
 
         <PrivacyNote />
       </CardContent>

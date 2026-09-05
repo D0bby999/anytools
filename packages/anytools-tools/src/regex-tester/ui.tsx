@@ -12,10 +12,15 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useToolLocale,
+  useUiStrings,
 } from '@anytools/ui';
 import { useState } from 'react';
+import { richText } from '../shared/rich-text';
 import { type RegexFlags, type TestResult, flagString } from './logic';
 import { runRegexInWorker } from './regex-worker';
+import { STRINGS } from './strings';
 
 type Mode = 'test' | 'replace';
 type ReplaceResult = { ok: true; result: string } | { ok: false; error: string };
@@ -29,13 +34,14 @@ const DEFAULT_FLAGS: RegexFlags = {
   sticky: false,
 };
 
-const FLAG_LABELS: { key: keyof RegexFlags; label: string }[] = [
-  { key: 'global', label: 'g — global' },
-  { key: 'ignoreCase', label: 'i — ignore case' },
-  { key: 'multiline', label: 'm — ^/$ per line' },
-  { key: 'dotAll', label: 's — dot matches newline' },
-  { key: 'unicode', label: 'u — unicode' },
-  { key: 'sticky', label: 'y — sticky' },
+// The flag letter is the JavaScript token and never changes; the description is localized.
+const FLAG_LETTERS: { key: keyof RegexFlags; letter: string }[] = [
+  { key: 'global', letter: 'g' },
+  { key: 'ignoreCase', letter: 'i' },
+  { key: 'multiline', letter: 'm' },
+  { key: 'dotAll', letter: 's' },
+  { key: 'unicode', letter: 'u' },
+  { key: 'sticky', letter: 'y' },
 ];
 
 const MAX_TEXT_LEN = 10_240;
@@ -43,6 +49,9 @@ const EXAMPLE_PATTERN = '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})';
 const EXAMPLE_TEXT = 'Today is 2026-05-25 and tomorrow is 2026-05-26.';
 
 export function RegexTesterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const locale = useToolLocale();
   const [pattern, setPattern] = useState('');
   const [text, setText] = useState('');
   const [flags, setFlags] = useState<RegexFlags>(DEFAULT_FLAGS);
@@ -51,7 +60,17 @@ export function RegexTesterUi() {
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [replaceResult, setReplaceResult] = useState<ReplaceResult | null>(null);
 
+  const flagDescription: Record<keyof RegexFlags, string> = {
+    global: s.flagGlobal,
+    ignoreCase: s.flagIgnoreCase,
+    multiline: s.flagMultiline,
+    dotAll: s.flagDotAll,
+    unicode: s.flagUnicode,
+    sticky: s.flagSticky,
+  };
+
   const truncated = text.length > MAX_TEXT_LEN;
+  const maxLen = MAX_TEXT_LEN.toLocaleString(locale);
 
   const [running, setRunning] = useState(false);
 
@@ -94,18 +113,18 @@ export function RegexTesterUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Regex Tester</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* biome-ignore lint/a11y/noLabelWithoutControl: wraps Input forwardRef which biome can't detect statically */}
         <label className="block text-sm">
-          <span className="block mb-1 text-muted-foreground">Pattern</span>
+          <span className="block mb-1 text-muted-foreground">{s.pattern}</span>
           <div className="flex gap-2">
             <span className="font-mono text-muted-foreground self-center">/</span>
             <Input
               value={pattern}
               onChange={(e) => setPattern(e.target.value)}
-              placeholder="e.g. (?<year>\d{4})-(?<month>\d{2})"
+              placeholder={s.patternPlaceholder}
               className="font-mono"
             />
             <span className="font-mono text-muted-foreground self-center">/</span>
@@ -113,8 +132,8 @@ export function RegexTesterUi() {
         </label>
 
         <div className="flex flex-wrap gap-3 items-center text-sm">
-          <span className="text-muted-foreground">Flags:</span>
-          {FLAG_LABELS.map(({ key, label }) => (
+          <span className="text-muted-foreground">{s.flags}</span>
+          {FLAG_LETTERS.map(({ key, letter }) => (
             <label key={key} className="flex items-center gap-1 cursor-pointer">
               <input
                 type="checkbox"
@@ -122,25 +141,27 @@ export function RegexTesterUi() {
                 onChange={() => toggleFlag(key)}
                 className="h-4 w-4"
               />
-              <span className="text-xs">{label}</span>
+              <span className="text-xs">
+                {letter} — {flagDescription[key]}
+              </span>
             </label>
           ))}
           <Button variant="ghost" size="sm" onClick={tryExample}>
-            Try example
+            {ui.tryExample}
           </Button>
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
           <TabsList>
-            <TabsTrigger value="test">Test</TabsTrigger>
-            <TabsTrigger value="replace">Replace</TabsTrigger>
+            <TabsTrigger value="test">{s.test}</TabsTrigger>
+            <TabsTrigger value="replace">{s.replace}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="test" className="space-y-3">
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Test text"
+              placeholder={s.testText}
               rows={6}
             />
           </TabsContent>
@@ -149,13 +170,13 @@ export function RegexTesterUi() {
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Test text"
+              placeholder={s.testText}
               rows={6}
             />
             <Input
               value={replacement}
               onChange={(e) => setReplacement(e.target.value)}
-              placeholder="Replacement (use $1, $2, $<name> for groups)"
+              placeholder={s.replacementPlaceholder}
               className="font-mono"
             />
           </TabsContent>
@@ -163,15 +184,15 @@ export function RegexTesterUi() {
 
         <div className="flex items-center gap-3">
           <Button onClick={handleRun} disabled={pattern.length === 0 || running}>
-            {running ? 'Running…' : 'Run'}
+            {running ? s.running : ui.run}
           </Button>
           {truncated && (
-            <span className="text-xs text-destructive">
-              Text capped at {MAX_TEXT_LEN.toLocaleString()} chars
-            </span>
+            <span className="text-xs text-destructive">{s.capped.replace('{n}', maxLen)}</span>
           )}
           <span className="text-xs text-muted-foreground ml-auto">
-            {text.length.toLocaleString()} / {MAX_TEXT_LEN.toLocaleString()} chars
+            {s.charCount
+              .replace('{n}', text.length.toLocaleString(locale))
+              .replace('{max}', maxLen)}
           </span>
         </div>
 
@@ -185,7 +206,9 @@ export function RegexTesterUi() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Badge>
-                {testResult.matches.length} match{testResult.matches.length === 1 ? '' : 'es'}
+                {testResult.matches.length === 1
+                  ? s.matchOne
+                  : s.matchMany.replace('{n}', String(testResult.matches.length))}
               </Badge>
             </div>
             {testResult.matches.length > 0 && (
@@ -203,13 +226,13 @@ export function RegexTesterUi() {
                     </div>
                     {m.groups.length > 0 && (
                       <div className="text-xs text-muted-foreground mt-1">
-                        groups:{' '}
+                        {s.groups}{' '}
                         {m.groups.map((g, gi) => `$${gi + 1}=${JSON.stringify(g)}`).join(' · ')}
                       </div>
                     )}
                     {Object.keys(m.namedGroups).length > 0 && (
                       <div className="text-xs text-muted-foreground">
-                        named:{' '}
+                        {s.named}{' '}
                         {Object.entries(m.namedGroups)
                           .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
                           .join(' · ')}
@@ -219,7 +242,7 @@ export function RegexTesterUi() {
                 ))}
                 {testResult.matches.length > 50 && (
                   <p className="text-xs text-muted-foreground">
-                    Showing first 50 of {testResult.matches.length} matches.
+                    {s.showingFirst.replace('{n}', String(testResult.matches.length))}
                   </p>
                 )}
               </div>
@@ -230,7 +253,7 @@ export function RegexTesterUi() {
         {mode === 'replace' && replaceResult && (
           <div>
             <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-              After replace
+              {s.afterReplace}
             </span>
             {replaceResult.ok ? (
               <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all">
@@ -245,9 +268,7 @@ export function RegexTesterUi() {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Click <strong>Run</strong> to execute — avoids re-running on every keystroke. Text is
-          capped at {MAX_TEXT_LEN.toLocaleString()} chars and execution at 1 second to prevent
-          catastrophic backtracking from freezing the tab. Runs in your browser.
+          {richText(s.footnote, { run: <strong>{ui.run}</strong>, n: maxLen })}
         </p>
       </CardContent>
     </Card>

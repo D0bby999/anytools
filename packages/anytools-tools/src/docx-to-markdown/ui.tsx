@@ -1,8 +1,18 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { richText } from '../shared/rich-text';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type DocxConversion,
@@ -11,6 +21,7 @@ import {
   convertDocxFile,
   renderMarkdownPreview,
 } from './logic';
+import { STRINGS } from './strings';
 
 const SLUG = 'docx-to-markdown';
 type View = 'markdown' | 'preview' | 'html';
@@ -30,14 +41,12 @@ const PREVIEW_STYLE =
   'body{font:14px/1.6 system-ui,sans-serif;margin:12px;color:#222}' +
   'table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:4px 8px}img{max-width:100%}';
 
-const VIEWS: { id: View; label: string }[] = [
-  { id: 'markdown', label: 'Markdown' },
-  { id: 'preview', label: 'Preview' },
-  // Spelled out rather than title-cased from the id: CSS `capitalize` renders "Html".
-  { id: 'html', label: 'HTML' },
-];
+// Markdown and HTML are format names; only "Preview" is a word to translate (see VIEW label below).
+const VIEWS: View[] = ['markdown', 'preview', 'html'];
 
 export function DocxToMarkdownUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [includeImages, setIncludeImages] = useState(false);
@@ -46,6 +55,13 @@ export function DocxToMarkdownUi() {
   const [previewHtml, setPreviewHtml] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Spelled out rather than title-cased from the id: CSS `capitalize` renders "Html".
+  const viewLabel: Record<View, string> = {
+    markdown: 'Markdown',
+    preview: ui.preview,
+    html: 'HTML',
+  };
 
   const file = files[0] ?? null;
   const tooLarge = !!file && file.size > MAX_DOCX_BYTES;
@@ -71,7 +87,7 @@ export function DocxToMarkdownUi() {
       setResult(await convertDocxFile(file, { includeImages }));
     } catch (e) {
       setResult(null);
-      setError(e instanceof Error ? e.message : 'Could not read this document');
+      setError(e instanceof Error ? e.message : s.readFailed);
     } finally {
       setBusy(false);
     }
@@ -91,10 +107,17 @@ export function DocxToMarkdownUi() {
 
   const text = result ? (view === 'html' ? result.html : result.markdown) : '';
 
+  const imageSummary = (n: number) => {
+    if (includeImages) {
+      return n === 1 ? s.imageEmbeddedOne : s.imagesEmbedded.replace('{n}', String(n));
+    }
+    return n === 1 ? s.imageDroppedOne : s.imagesDropped.replace('{n}', String(n));
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">DOCX to Markdown</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -106,13 +129,17 @@ export function DocxToMarkdownUi() {
           }}
           accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           multiple={false}
-          label="Word document (.docx)"
+          label={s.docLabel}
         />
 
         <p className="text-sm text-muted-foreground">
-          <strong>.docx only.</strong> The older binary <code>.doc</code>, along with{' '}
-          <code>.rtf</code>, <code>.odt</code> and Apple Pages files, are different formats — open
-          one in Word, LibreOffice or Pages and use <em>Save As → .docx</em> first.
+          <strong>{s.docxOnly}</strong>{' '}
+          {richText(s.formatNote, {
+            doc: <code>.doc</code>,
+            rtf: <code>.rtf</code>,
+            odt: <code>.odt</code>,
+            saveAs: <em>{s.saveAs}</em>,
+          })}
         </p>
 
         <label className="flex items-center gap-2 text-sm">
@@ -124,22 +151,20 @@ export function DocxToMarkdownUi() {
               setResult(null);
             }}
           />
-          Embed images as data URIs (off by default — one photo can add megabytes of base64)
+          {s.embedImages}
         </label>
 
         {tooLarge && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            This document is {Math.round(file.size / 1024 / 1024)} MB, over the{' '}
-            {MAX_DOCX_BYTES / 1024 / 1024} MB limit. A .docx is compressed, and the unzipped XML,
-            the HTML and the Markdown all have to be held in the tab at once. Split the document, or
-            save a copy with the images removed, and try again.
+            {s.tooLarge
+              .replace('{size}', String(Math.round(file.size / 1024 / 1024)))
+              .replace('{max}', String(MAX_DOCX_BYTES / 1024 / 1024))}
           </output>
         )}
 
         {file && !tooLarge && file.size > SLOW_DOCX_BYTES && (
           <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            This document is over 20 MB. Conversion happens on this page's main thread, so the tab
-            will stop responding while it runs. It will still be attempted.
+            {s.slow}
           </output>
         )}
 
@@ -149,7 +174,7 @@ export function DocxToMarkdownUi() {
           disabled={!file || busy || tooLarge}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Converting…' : 'Convert to Markdown'}
+          {busy ? s.converting : s.convert}
         </button>
 
         {error && (
@@ -161,16 +186,14 @@ export function DocxToMarkdownUi() {
         {result && (
           <div className="space-y-3">
             {result.imageCount > 0 && (
-              <p className="text-sm text-muted-foreground">
-                {result.imageCount} {result.imageCount === 1 ? 'image was' : 'images were'}{' '}
-                {includeImages ? 'embedded as data URIs' : 'dropped'}.
-              </p>
+              <p className="text-sm text-muted-foreground">{imageSummary(result.imageCount)}</p>
             )}
             {result.warnings.length > 0 && (
               <details className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
                 <summary className="cursor-pointer">
-                  {result.warnings.length} note{result.warnings.length === 1 ? '' : 's'} from the
-                  converter
+                  {result.warnings.length === 1
+                    ? s.noteOne
+                    : s.notesMany.replace('{n}', String(result.warnings.length))}
                 </summary>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
                   {result.warnings.map((w) => (
@@ -183,14 +206,14 @@ export function DocxToMarkdownUi() {
             <div className="flex flex-wrap gap-2">
               {VIEWS.map((v) => (
                 <button
-                  key={v.id}
+                  key={v}
                   type="button"
-                  onClick={() => setView(v.id)}
+                  onClick={() => setView(v)}
                   className={`h-9 rounded-md border px-3 text-sm ${
-                    view === v.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                    view === v ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                   }`}
                 >
-                  {v.label}
+                  {viewLabel[v]}
                 </button>
               ))}
             </div>
@@ -202,23 +225,23 @@ export function DocxToMarkdownUi() {
                 onClick={downloadMarkdown}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download .md
+                {s.downloadMd}
               </button>
             </div>
 
             {view === 'preview' ? (
               <>
                 <p className="text-sm text-muted-foreground">
-                  Rendered with the same converter as the{' '}
-                  <a href="/tools/md-html" className="underline">
-                    Markdown ↔ HTML tool
-                  </a>
-                  , inside a sandboxed frame that cannot run script and cannot load anything from
-                  the network — so a link or an image address inside your document stays a piece of
-                  text and never becomes a request.
+                  {richText(s.previewNote, {
+                    link: (
+                      <a href="/tools/md-html" className="underline">
+                        {s.mdHtmlLink}
+                      </a>
+                    ),
+                  })}
                 </p>
                 <iframe
-                  title="Markdown preview"
+                  title={s.previewTitle}
                   sandbox=""
                   srcDoc={`<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${PREVIEW_CSP}"><style>${PREVIEW_STYLE}</style>${previewHtml}`}
                   className="h-80 w-full rounded-md border bg-white"

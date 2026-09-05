@@ -7,10 +7,13 @@ import {
   CopyButton,
   PrivacyNote,
   Textarea,
+  useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type CaseType, convertAllCases } from './logic';
+import { STRINGS } from './strings';
 
+// Each label is written in the case it names, so it doubles as the example — kept in English.
 const ORDER: { key: CaseType; label: string }[] = [
   { key: 'camel', label: 'camelCase' },
   { key: 'pascal', label: 'PascalCase' },
@@ -27,19 +30,20 @@ const ORDER: { key: CaseType; label: string }[] = [
 ];
 
 export function TextCaseConverterUi() {
+  const s = useLocalized(STRINGS);
   const [text, setText] = useState('');
   const results = useMemo(() => (text ? convertAllCases(text) : null), [text]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Text Case Converter</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Paste text to convert"
+          placeholder={s.placeholder}
           rows={3}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">

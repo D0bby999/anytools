@@ -8,27 +8,33 @@ import {
   Input,
   PrivacyNote,
   TableResult,
+  useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { calculateSubnet } from './logic';
+import { STRINGS } from './strings';
 
 export function IpSubnetCalculatorUi() {
+  const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [cidr, setCidr] = useState('192.168.1.0/24');
   const info = useMemo(() => calculateSubnet(cidr), [cidr]);
+  const [hintBefore, hintAfter] = s.hint.split('{code}');
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">IP Subnet Calculator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <span className="block text-sm font-medium mb-1.5">IPv4 address / prefix</span>
+          <span className="block text-sm font-medium mb-1.5">{s.addressPrefix}</span>
           <Input
             value={cidr}
             onChange={(e) => setCidr(e.target.value)}
             placeholder="192.168.1.0/24"
-            aria-label="CIDR notation"
+            aria-label={s.cidrNotation}
             aria-invalid={info === null}
             className="h-11 font-mono"
           />
@@ -42,32 +48,34 @@ export function IpSubnetCalculatorUi() {
             </div>
             <TableResult
               rows={[
-                { label: 'Network address', value: info.networkAddress },
-                { label: 'Broadcast address', value: info.broadcastAddress },
-                { label: 'First usable host', value: info.firstHost },
-                { label: 'Last usable host', value: info.lastHost },
-                { label: 'Usable hosts', value: info.hostCount.toLocaleString('en-US') },
-                { label: 'Total addresses', value: info.totalAddresses.toLocaleString('en-US') },
-                { label: 'Netmask', value: info.netmask },
-                { label: 'Wildcard mask', value: info.wildcardMask },
-                { label: 'IP class', value: info.ipClass },
-                { label: 'Scope', value: info.isPrivate ? 'Private (RFC 1918)' : 'Public' },
+                { label: s.networkAddress, value: info.networkAddress },
+                { label: s.broadcastAddress, value: info.broadcastAddress },
+                { label: s.firstHost, value: info.firstHost },
+                { label: s.lastHost, value: info.lastHost },
+                { label: s.usableHosts, value: info.hostCount.toLocaleString(locale) },
+                { label: s.totalAddresses, value: info.totalAddresses.toLocaleString(locale) },
+                { label: s.netmask, value: info.netmask },
+                { label: s.wildcardMask, value: info.wildcardMask },
+                { label: s.ipClass, value: info.ipClass },
+                { label: s.scope, value: info.isPrivate ? s.privateScope : s.publicScope },
               ]}
             />
             <div className="rounded-lg border p-3 font-mono text-xs space-y-1 overflow-x-auto">
               <p>
-                <span className="text-muted-foreground">address </span>
+                <span className="text-muted-foreground">{s.binaryAddress} </span>
                 {info.binaryAddress}
               </p>
               <p>
-                <span className="text-muted-foreground">netmask </span>
+                <span className="text-muted-foreground">{s.binaryNetmask} </span>
                 {info.binaryNetmask}
               </p>
             </div>
           </>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Enter CIDR like <code>10.0.0.0/26</code> (prefix 0–32).
+            {hintBefore}
+            <code>10.0.0.0/26</code>
+            {hintAfter}
           </p>
         )}
         <PrivacyNote />

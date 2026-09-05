@@ -1,11 +1,22 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { type ConvertResult, type TargetFormat, convertImage } from './logic';
+import { STRINGS } from './strings';
 
 const FORMATS: TargetFormat[] = ['png', 'jpeg', 'webp'];
 
 export function ImageFormatConverterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [file, setFile] = useState<File | null>(null);
   const [target, setTarget] = useState<TargetFormat>('webp');
   const [quality, setQuality] = useState(0.9);
@@ -39,7 +50,7 @@ export function ImageFormatConverterUi() {
       .catch((e) => {
         if (cancelled) return;
         setResult(null);
-        setError(e instanceof Error ? e.message : 'Conversion failed');
+        setError(e instanceof Error ? e.message : ui.conversionFailed);
       })
       .finally(() => {
         if (!cancelled) setBusy(false);
@@ -47,7 +58,7 @@ export function ImageFormatConverterUi() {
     return () => {
       cancelled = true;
     };
-  }, [file, target, quality]);
+  }, [file, target, quality, ui.conversionFailed]);
 
   // Cleanup object URL on unmount
   useEffect(
@@ -66,14 +77,12 @@ export function ImageFormatConverterUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Image Format Converter</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">
-              Source image (PNG, JPEG, WebP, AVIF, GIF) — max 10 MB
-            </span>
+            <span className="block mb-1 text-muted-foreground">{s.sourceImage}</span>
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
@@ -85,7 +94,7 @@ export function ImageFormatConverterUi() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Target format</span>
+            <span className="block mb-1 text-muted-foreground">{s.targetFormat}</span>
             <select
               value={target}
               onChange={(e) => setTarget(e.target.value as TargetFormat)}
@@ -101,7 +110,7 @@ export function ImageFormatConverterUi() {
           {(target === 'jpeg' || target === 'webp') && (
             <label className="text-sm">
               <span className="block mb-1 text-muted-foreground">
-                Quality: {Math.round(quality * 100)}%
+                {s.quality.replace('{p}', String(Math.round(quality * 100)))}
               </span>
               <input
                 type="range"
@@ -116,7 +125,7 @@ export function ImageFormatConverterUi() {
           )}
         </div>
 
-        {busy && <p className="text-sm text-muted-foreground">Converting…</p>}
+        {busy && <p className="text-sm text-muted-foreground">{s.converting}</p>}
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -132,15 +141,15 @@ export function ImageFormatConverterUi() {
               </div>
               <div>
                 {(result.sizeBefore / 1024).toFixed(1)} KB → {(result.sizeAfter / 1024).toFixed(1)}{' '}
-                KB ({((1 - result.sizeAfter / result.sizeBefore) * 100).toFixed(1)}%
-                {result.sizeAfter > result.sizeBefore ? ' larger' : ' smaller'})
+                KB ({((1 - result.sizeAfter / result.sizeBefore) * 100).toFixed(1)}%{' '}
+                {result.sizeAfter > result.sizeBefore ? s.larger : s.smaller})
               </div>
             </div>
             <div className="flex flex-col items-center gap-3">
               {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
               <img
                 src={downloadUrl}
-                alt="Converted preview"
+                alt={s.convertedPreview}
                 className="max-w-full max-h-80 rounded border"
               />
               <a
@@ -148,7 +157,7 @@ export function ImageFormatConverterUi() {
                 download={downloadName}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download {downloadName}
+                {s.downloadFile.replace('{name}', downloadName)}
               </a>
             </div>
           </div>

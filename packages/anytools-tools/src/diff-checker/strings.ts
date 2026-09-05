@@ -1,0 +1,58 @@
+import type { LocalizedStrings } from '@anytools/ui';
+
+const EN = {
+  title: 'Diff Checker',
+  granularity: 'Granularity:',
+  line: 'Line',
+  word: 'Word',
+  character: 'Character',
+  view: 'View:',
+  inlineColor: 'Inline (color)',
+  unifiedPatch: 'Unified patch',
+  inputs: 'Inputs',
+  original: 'Original',
+  modified: 'Modified',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'So sánh văn bản',
+    granularity: 'Mức so sánh:',
+    line: 'Dòng',
+    word: 'Từ',
+    character: 'Ký tự',
+    view: 'Hiển thị:',
+    inlineColor: 'Nội tuyến (tô màu)',
+    unifiedPatch: 'Bản vá unified',
+    inputs: 'Đầu vào',
+    original: 'Bản gốc',
+    modified: 'Bản sửa',
+  },
+  es: {
+    title: 'Comparador de diferencias',
+    granularity: 'Granularidad:',
+    line: 'Línea',
+    word: 'Palabra',
+    character: 'Carácter',
+    view: 'Vista:',
+    inlineColor: 'En línea (color)',
+    unifiedPatch: 'Parche unificado',
+    inputs: 'Entradas',
+    original: 'Original',
+    modified: 'Modificado',
+  },
+  pt: {
+    title: 'Comparador de diferenças',
+    granularity: 'Granularidade:',
+    line: 'Linha',
+    word: 'Palavra',
+    character: 'Caractere',
+    view: 'Visualização:',
+    inlineColor: 'Em linha (cor)',
+    unifiedPatch: 'Patch unificado',
+    inputs: 'Entradas',
+    original: 'Original',
+    modified: 'Modificado',
+  },
+};

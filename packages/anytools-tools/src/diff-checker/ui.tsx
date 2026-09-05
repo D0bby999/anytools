@@ -12,11 +12,16 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type Granularity, diffStats, diffText, generatePatch } from './logic';
+import { STRINGS } from './strings';
 
 export function DiffCheckerUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [a, setA] = useState('');
   const [b, setB] = useState('');
   const [granularity, setGranularity] = useState<Granularity>('line');
@@ -29,31 +34,31 @@ export function DiffCheckerUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Diff Checker</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-center text-sm">
           <label className="flex items-center gap-1">
-            Granularity:
+            {s.granularity}
             <select
               value={granularity}
               onChange={(e) => setGranularity(e.target.value as Granularity)}
               className="h-8 rounded border border-input bg-background px-2"
             >
-              <option value="line">Line</option>
-              <option value="word">Word</option>
-              <option value="char">Character</option>
+              <option value="line">{s.line}</option>
+              <option value="word">{s.word}</option>
+              <option value="char">{s.character}</option>
             </select>
           </label>
           <label className="flex items-center gap-1">
-            View:
+            {s.view}
             <select
               value={view}
               onChange={(e) => setView(e.target.value as 'inline' | 'patch')}
               className="h-8 rounded border border-input bg-background px-2"
             >
-              <option value="inline">Inline (color)</option>
-              <option value="patch">Unified patch</option>
+              <option value="inline">{s.inlineColor}</option>
+              <option value="patch">{s.unifiedPatch}</option>
             </select>
           </label>
           {(a || b) && (
@@ -66,20 +71,20 @@ export function DiffCheckerUi() {
 
         <Tabs defaultValue="inputs">
           <TabsList>
-            <TabsTrigger value="inputs">Inputs</TabsTrigger>
-            <TabsTrigger value="result">Result</TabsTrigger>
+            <TabsTrigger value="inputs">{s.inputs}</TabsTrigger>
+            <TabsTrigger value="result">{ui.result}</TabsTrigger>
           </TabsList>
           <TabsContent value="inputs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-                  Original
+                  {s.original}
                 </span>
                 <Textarea value={a} onChange={(e) => setA(e.target.value)} rows={10} />
               </div>
               <div>
                 <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-                  Modified
+                  {s.modified}
                 </span>
                 <Textarea value={b} onChange={(e) => setB(e.target.value)} rows={10} />
               </div>
@@ -108,7 +113,7 @@ export function DiffCheckerUi() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                    Unified patch
+                    {s.unifiedPatch}
                   </span>
                   {patch && <CopyButton text={patch} />}
                 </div>

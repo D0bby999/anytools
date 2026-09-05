@@ -1,9 +1,21 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { MAX_ROMAN, fromRoman, toRoman } from './logic';
+import { STRINGS } from './strings';
 
 export function RomanNumeralConverterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [numberInput, setNumberInput] = useState('2026');
   const [romanInput, setRomanInput] = useState('MMXXVI');
 
@@ -11,27 +23,29 @@ export function RomanNumeralConverterUi() {
     try {
       return { value: toRoman(Number(numberInput)), error: null as string | null };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : 'Invalid' };
+      return { value: '', error: e instanceof Error ? e.message : ui.invalidInput };
     }
-  }, [numberInput]);
+  }, [numberInput, ui.invalidInput]);
 
   const fromRomanResult = useMemo(() => {
     try {
       return { value: String(fromRoman(romanInput)), error: null as string | null };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : 'Invalid' };
+      return { value: '', error: e instanceof Error ? e.message : ui.invalidInput };
     }
-  }, [romanInput]);
+  }, [romanInput, ui.invalidInput]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Roman Numeral Converter</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="space-y-2">
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Number → Roman (1–{MAX_ROMAN})</span>
+            <span className="mb-1 block text-muted-foreground">
+              {s.numberToRoman.replace('{max}', String(MAX_ROMAN))}
+            </span>
             <input
               type="number"
               value={numberInput}
@@ -55,7 +69,7 @@ export function RomanNumeralConverterUi() {
 
         <div className="space-y-2">
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Roman → Number</span>
+            <span className="mb-1 block text-muted-foreground">{s.romanToNumber}</span>
             <input
               value={romanInput}
               onChange={(e) => setRomanInput(e.target.value)}
@@ -77,10 +91,7 @@ export function RomanNumeralConverterUi() {
           )}
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Only standard notation is accepted. IIII and IM are readable and both are invalid — the
-          converter says so and suggests the correct form.
-        </p>
+        <p className="text-sm text-muted-foreground">{s.note}</p>
 
         <PrivacyNote />
       </CardContent>

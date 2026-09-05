@@ -1,9 +1,19 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { parseUrl } from './logic';
+import { STRINGS } from './strings';
 
 export function UrlParserUi() {
+  const s = useLocalized(STRINGS);
   const [input, setInput] = useState(
     'https://example.com:8443/docs/getting-started?tag=a&tag=b#intro',
   );
@@ -12,21 +22,24 @@ export function UrlParserUi() {
     try {
       return { url: parseUrl(input), error: null as string | null };
     } catch (e) {
-      return { url: null, error: e instanceof Error ? e.message : 'Invalid URL' };
+      return { url: null, error: e instanceof Error ? e.message : s.invalidUrl };
     }
-  }, [input]);
+  }, [input, s.invalidUrl]);
 
   const rows = state.url
     ? (
         [
-          ['Protocol', state.url.protocol],
-          ['Username', state.url.username],
-          ['Password', state.url.password ? '••••••••' : ''],
-          ['Hostname', state.url.hostname],
-          ['Port', state.url.port || `${state.url.effectivePort} (default)`],
-          ['Origin', state.url.origin],
-          ['Path', state.url.pathname],
-          ['Fragment', state.url.hash],
+          [s.protocol, state.url.protocol],
+          [s.username, state.url.username],
+          [s.password, state.url.password ? '••••••••' : ''],
+          [s.hostname, state.url.hostname],
+          [
+            s.port,
+            state.url.port || s.defaultPort.replace('{port}', String(state.url.effectivePort)),
+          ],
+          [s.origin, state.url.origin],
+          [s.path, state.url.pathname],
+          [s.fragment, state.url.hash],
         ] as const
       ).filter(([, v]) => v)
     : [];
@@ -34,11 +47,11 @@ export function UrlParserUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">URL Parser</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">URL</span>
+          <span className="mb-1 block text-muted-foreground">{s.url}</span>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -69,14 +82,14 @@ export function UrlParserUi() {
 
             {state.url.segments.length > 0 && (
               <div>
-                <h3 className="mb-2 text-sm text-muted-foreground">Path segments</h3>
+                <h3 className="mb-2 text-sm text-muted-foreground">{s.pathSegments}</h3>
                 <ol className="space-y-1">
-                  {state.url.segments.map((s, i) => (
+                  {state.url.segments.map((seg, i) => (
                     <li
-                      key={`${i}-${s}`}
+                      key={`${i}-${seg}`}
                       className="rounded-md border bg-muted/40 px-3 py-1.5 font-mono text-sm"
                     >
-                      {i + 1}. {s}
+                      {i + 1}. {seg}
                     </li>
                   ))}
                 </ol>
@@ -85,16 +98,16 @@ export function UrlParserUi() {
 
             <div>
               <h3 className="mb-2 text-sm text-muted-foreground">
-                Query parameters ({state.url.params.length})
+                {s.queryParams.replace('{n}', String(state.url.params.length))}
               </h3>
               {state.url.params.length === 0 ? (
-                <p className="text-sm text-muted-foreground">None.</p>
+                <p className="text-sm text-muted-foreground">{s.noParams}</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-muted-foreground">
-                      <th className="pb-1 font-normal">Key</th>
-                      <th className="pb-1 font-normal">Value</th>
+                      <th className="pb-1 font-normal">{s.key}</th>
+                      <th className="pb-1 font-normal">{s.value}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -104,7 +117,7 @@ export function UrlParserUi() {
                       <tr key={`${p.key}-${i}`} className="border-t">
                         <td className="py-1.5 pr-3 font-mono">{p.key}</td>
                         <td className="py-1.5 font-mono break-all">
-                          {p.value || <em>(empty)</em>}
+                          {p.value || <em>{s.empty}</em>}
                         </td>
                       </tr>
                     ))}

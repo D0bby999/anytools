@@ -7,6 +7,7 @@ import {
   CopyButton,
   Input,
   PrivacyNote,
+  useLocalized,
 } from '@anytools/ui';
 import { useState } from 'react';
 import {
@@ -18,11 +19,13 @@ import {
   stateToSymbolic,
   symbolicToState,
 } from './logic';
+import { STRINGS } from './strings';
 
 const WHO = ['owner', 'group', 'others'] as const;
 const PERMS = ['read', 'write', 'execute'] as const;
 
 export function ChmodCalculatorUi() {
+  const s = useLocalized(STRINGS);
   const [state, setState] = useState<ChmodState>(DEFAULT_STATE);
   // Text drafts let users type freely; state only updates on valid input.
   const [octalDraft, setOctalDraft] = useState(stateToOctal(DEFAULT_STATE));
@@ -37,17 +40,17 @@ export function ChmodCalculatorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Chmod Calculator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-muted-foreground">
-                <th className="py-2 pr-4 font-medium">Who</th>
+                <th className="py-2 pr-4 font-medium">{s.who}</th>
                 {PERMS.map((perm) => (
                   <th key={perm} className="py-2 px-3 font-medium capitalize">
-                    {perm}
+                    {s[perm]}
                   </th>
                 ))}
               </tr>
@@ -55,7 +58,7 @@ export function ChmodCalculatorUi() {
             <tbody className="divide-y">
               {WHO.map((who) => (
                 <tr key={who}>
-                  <td className="py-2 pr-4 capitalize font-medium">{who}</td>
+                  <td className="py-2 pr-4 capitalize font-medium">{s[who]}</td>
                   {PERMS.map((perm) => (
                     <td key={perm} className="py-2 px-3">
                       <input
@@ -67,7 +70,7 @@ export function ChmodCalculatorUi() {
                             [who]: { ...state[who], [perm]: e.target.checked },
                           })
                         }
-                        aria-label={`${who} ${perm}`}
+                        aria-label={`${s[who]} ${s[perm]}`}
                         className="h-4 w-4 accent-[var(--color-accent)]"
                       />
                     </td>
@@ -94,7 +97,7 @@ export function ChmodCalculatorUi() {
 
         <div className="grid sm:grid-cols-2 gap-3">
           <div>
-            <span className="block text-sm font-medium mb-1.5">Octal</span>
+            <span className="block text-sm font-medium mb-1.5">{s.octal}</span>
             <Input
               value={octalDraft}
               onChange={(e) => {
@@ -105,13 +108,13 @@ export function ChmodCalculatorUi() {
                   setSymbolicDraft(stateToSymbolic(parsed));
                 }
               }}
-              aria-label="Octal permissions"
+              aria-label={s.octalPermissions}
               aria-invalid={octalToState(octalDraft) === null}
               className="h-11 font-mono text-lg"
             />
           </div>
           <div>
-            <span className="block text-sm font-medium mb-1.5">Symbolic</span>
+            <span className="block text-sm font-medium mb-1.5">{s.symbolic}</span>
             <Input
               value={symbolicDraft}
               onChange={(e) => {
@@ -122,7 +125,7 @@ export function ChmodCalculatorUi() {
                   setOctalDraft(stateToOctal(parsed));
                 }
               }}
-              aria-label="Symbolic permissions"
+              aria-label={s.symbolicPermissions}
               aria-invalid={symbolicToState(symbolicDraft) === null}
               className="h-11 font-mono text-lg"
             />

@@ -1,8 +1,18 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
+import { richText } from '../shared/rich-text';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   type Delimiter,
@@ -16,17 +26,20 @@ import {
   workbookFileStem,
   zipEntryNames,
 } from './logic';
+import { STRINGS } from './strings';
 
 const SLUG = 'xlsx-to-csv';
 const PREVIEW_ROWS = 50;
 
-const DELIMITERS: { value: Delimiter; label: string }[] = [
-  { value: ',', label: 'Comma' },
-  { value: ';', label: 'Semicolon' },
-  { value: '\t', label: 'Tab' },
+const DELIMITERS: { value: Delimiter; key: 'comma' | 'semicolon' | 'tab' }[] = [
+  { value: ',', key: 'comma' },
+  { value: ';', key: 'semicolon' },
+  { value: '\t', key: 'tab' },
 ];
 
 export function XlsxToCsvUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const objectUrls = useObjectUrls();
   const [files, setFiles] = useState<File[]>([]);
   const [sheets, setSheets] = useState<SheetData[] | null>(null);
@@ -75,7 +88,7 @@ export function XlsxToCsvUi() {
       setActive(0);
     } catch (e) {
       setSheets(null);
-      setError(e instanceof Error ? e.message : 'Could not read this workbook');
+      setError(e instanceof Error ? e.message : s.readFailed);
     } finally {
       setBusy(false);
     }
@@ -103,19 +116,25 @@ export function XlsxToCsvUi() {
     try {
       const { default: JSZip } = await import('jszip');
       const zip = new JSZip();
-      const names = zipEntryNames(sheets.map((s) => s.name));
-      sheets.forEach((s, i) => zip.file(`${names[i]}.${format}`, serialise(s.rows)));
+      const names = zipEntryNames(sheets.map((sh) => sh.name));
+      sheets.forEach((sh, i) => zip.file(`${names[i]}.${format}`, serialise(sh.rows)));
       const blob = await zip.generateAsync({ type: 'blob' });
       saveBlob(blob, `${workbookFileStem(file?.name)}-${format}.zip`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not build the zip');
+      setError(e instanceof Error ? e.message : s.zipFailed);
     }
   };
+
+  const csvJsonLink = (
+    <a href="/tools/csv-json" className="underline">
+      {s.csvJsonLink}
+    </a>
+  );
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">XLSX to CSV / JSON</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -126,33 +145,31 @@ export function XlsxToCsvUi() {
           }}
           accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           multiple={false}
-          label="Excel workbook (.xlsx)"
+          label={s.workbookLabel}
         />
 
         <p className="text-sm text-muted-foreground">
-          <strong>.xlsx only.</strong> The old binary <code>.xls</code>, OpenDocument{' '}
-          <code>.ods</code> and Apple Numbers files are different formats and will not open here —
-          open one in Excel, LibreOffice or Numbers and use <em>Save As → .xlsx</em> first. Plain{' '}
-          <code>.csv</code> files do not need this tool; the{' '}
-          <a href="/tools/csv-json" className="underline">
-            CSV ↔ JSON converter
-          </a>{' '}
-          takes those directly.
+          <strong>{s.xlsxOnly}</strong>{' '}
+          {richText(s.formatNote, {
+            xls: <code>.xls</code>,
+            ods: <code>.ods</code>,
+            csv: <code>.csv</code>,
+            saveAs: <em>{s.saveAs}</em>,
+            link: csvJsonLink,
+          })}
         </p>
 
         {tooLarge && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            This workbook is {Math.round(file.size / 1024 / 1024)} MB, over the{' '}
-            {MAX_WORKBOOK_BYTES / 1024 / 1024} MB limit. An .xlsx is compressed XML that expands
-            several times over once parsed, so the tab would run out of memory before it finished.
-            Split the workbook, or delete the sheets you do not need, and try again.
+            {s.tooLarge
+              .replace('{size}', String(Math.round(file.size / 1024 / 1024)))
+              .replace('{max}', String(MAX_WORKBOOK_BYTES / 1024 / 1024))}
           </output>
         )}
 
         {file && !tooLarge && file.size > SLOW_WORKBOOK_BYTES && (
           <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            This workbook is over 20 MB. Parsing happens on this page's main thread, so the tab will
-            stop responding for a while — possibly a long while. It will still be attempted.
+            {s.slow}
           </output>
         )}
 
@@ -162,7 +179,7 @@ export function XlsxToCsvUi() {
           disabled={!file || busy || tooLarge}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Reading…' : 'Read workbook'}
+          {busy ? s.reading : s.readWorkbook}
         </button>
 
         {error && (
@@ -175,23 +192,27 @@ export function XlsxToCsvUi() {
           <div className="space-y-4">
             <label className="block text-sm">
               <span className="mb-1 block text-muted-foreground">
-                Sheet ({sheets.length} in this workbook)
+                {s.sheetLabel.replace('{n}', String(sheets.length))}
               </span>
               <select
                 value={active}
                 onChange={(e) => setActive(Number(e.target.value))}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
-                {sheets.map((s, i) => (
-                  <option key={s.name} value={i}>
-                    {s.name} — {s.rows.length} {s.rows.length === 1 ? 'row' : 'rows'}
+                {sheets.map((sh, i) => (
+                  <option key={sh.name} value={i}>
+                    {sh.name} —{' '}
+                    {(sh.rows.length === 1 ? s.rowOne : s.rowMany).replace(
+                      '{n}',
+                      String(sh.rows.length),
+                    )}
                   </option>
                 ))}
               </select>
             </label>
 
             <fieldset className="space-y-2">
-              <legend className="text-sm text-muted-foreground">Output</legend>
+              <legend className="text-sm text-muted-foreground">{ui.output}</legend>
               <div className="flex gap-4">
                 {(['csv', 'json'] as const).map((f) => (
                   <label key={f} className="flex items-center gap-2 text-sm">
@@ -210,15 +231,15 @@ export function XlsxToCsvUi() {
             {format === 'csv' ? (
               <div className="space-y-2">
                 <label className="block text-sm">
-                  <span className="mb-1 block text-muted-foreground">Delimiter</span>
+                  <span className="mb-1 block text-muted-foreground">{s.delimiter}</span>
                   <select
                     value={delimiter}
                     onChange={(e) => setDelimiter(e.target.value as Delimiter)}
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
                     {DELIMITERS.map((d) => (
-                      <option key={d.label} value={d.value}>
-                        {d.label}
+                      <option key={d.key} value={d.value}>
+                        {s[d.key]}
                       </option>
                     ))}
                   </select>
@@ -229,11 +250,11 @@ export function XlsxToCsvUi() {
                     checked={quoteAll}
                     onChange={(e) => setQuoteAll(e.target.checked)}
                   />
-                  Quote every field
+                  {s.quoteAll}
                 </label>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={bom} onChange={(e) => setBom(e.target.checked)} />
-                  Add a UTF-8 BOM (Excel needs it to show accents correctly)
+                  {s.bom}
                 </label>
               </div>
             ) : (
@@ -244,15 +265,10 @@ export function XlsxToCsvUi() {
                     checked={firstRowAsKeys}
                     onChange={(e) => setFirstRowAsKeys(e.target.checked)}
                   />
-                  Use the first row as object keys
+                  {s.firstRowKeys}
                 </label>
                 <p className="text-sm text-muted-foreground">
-                  Every value is a string — a spreadsheet cell has no JSON type. If you need real
-                  numbers and booleans, take the CSV into the{' '}
-                  <a href="/tools/csv-json" className="underline">
-                    CSV ↔ JSON converter
-                  </a>
-                  , which types values as it parses.
+                  {richText(s.jsonNote, { link: csvJsonLink })}
                 </p>
               </div>
             )}
@@ -264,7 +280,7 @@ export function XlsxToCsvUi() {
                 onClick={() => download(output, `${safeName(sheet.name)}.${format}`)}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download this sheet
+                {s.downloadSheet}
               </button>
               {sheets.length > 1 && (
                 <button
@@ -272,15 +288,18 @@ export function XlsxToCsvUi() {
                   onClick={downloadAll}
                   className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
                 >
-                  Download all {sheets.length} sheets as .zip
+                  {s.downloadAllSheets.replace('{n}', String(sheets.length))}
                 </button>
               )}
             </div>
 
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">
-                Preview{truncated ? ` — first ${PREVIEW_ROWS} rows of ${sheet.rows.length}` : ''}.
-                Copy and download always use the whole sheet.
+                {truncated
+                  ? s.previewFirst
+                      .replace('{n}', String(PREVIEW_ROWS))
+                      .replace('{total}', String(sheet.rows.length))
+                  : s.previewAll}
               </p>
               <pre className="max-h-80 overflow-auto rounded-md border bg-muted/40 p-3 text-xs">
                 {preview}

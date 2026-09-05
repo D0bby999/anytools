@@ -1,15 +1,25 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, Input, PrivacyNote } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  PrivacyNote,
+  useLocalized,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type CompressionLevel, type CreateZipResult, createZip } from './logic';
+import { STRINGS } from './strings';
 
 const fmt = (n: number) =>
   n >= 1024 * 1024 ? `${(n / (1024 * 1024)).toFixed(1)} MB` : `${(n / 1024).toFixed(0)} KB`;
 
 export function CreateZipUi() {
+  const s = useLocalized(STRINGS);
   // Revokes every URL this component created when it unmounts; without it the finished
   // archive stays pinned for the life of the document.
   const objectUrls = useObjectUrls();
@@ -42,7 +52,7 @@ export function CreateZipUi() {
       setResult(r);
       setUrl(objectUrls.create(r.blob));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not build the archive.');
+      setError(e instanceof Error ? e.message : s.buildFailed);
     } finally {
       setBusy(false);
       setPercent(null);
@@ -54,7 +64,7 @@ export function CreateZipUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Create ZIP</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <MultiFileDropzone
@@ -65,14 +75,14 @@ export function CreateZipUi() {
           }}
           accept="*/*"
           multiple={true}
-          label="Files to put in the archive"
+          label={s.filesLabel}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-1 text-sm">
             <span className="block text-muted-foreground">
-              Compression level: {level}
-              {level === 0 ? ' — store, no compression' : ''}
+              {s.compressionLevel}: {level}
+              {level === 0 ? ` — ${s.levelStore}` : ''}
             </span>
             <input
               type="range"
@@ -82,7 +92,7 @@ export function CreateZipUi() {
               value={level}
               onChange={(e) => setLevel(Number(e.target.value) as CompressionLevel)}
               className="w-full"
-              aria-label="Compression level"
+              aria-label={s.compressionLevel}
             />
           </label>
 
@@ -90,13 +100,13 @@ export function CreateZipUi() {
             {/* htmlFor rather than wrapping: <Input> is a component, and the a11y rule (rightly)
                 cannot see an input inside it. */}
             <label htmlFor="create-zip-root" className="block text-muted-foreground">
-              Folder inside the zip (optional)
+              {s.folderLabel}
             </label>
             <Input
               id="create-zip-root"
               value={rootFolder}
               onChange={(e) => setRootFolder(e.target.value)}
-              placeholder="e.g. invoices"
+              placeholder={s.folderPlaceholder}
             />
           </div>
         </div>
@@ -107,7 +117,11 @@ export function CreateZipUi() {
           disabled={files.length === 0 || busy}
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
         >
-          {busy ? 'Zipping…' : `Create .zip${files.length ? ` from ${files.length} files` : ''}`}
+          {busy
+            ? s.zipping
+            : files.length
+              ? s.createZipFrom.replace('{n}', String(files.length))
+              : s.createZip}
         </button>
 
         {percent !== null && <p className="text-sm text-muted-foreground">{percent}%</p>}
@@ -121,10 +135,15 @@ export function CreateZipUi() {
         {result && url && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              {result.paths.length} files · {fmt(result.inputBytes)} in, {fmt(result.outputBytes)}{' '}
-              out
+              {s.summary
+                .replace('{n}', String(result.paths.length))
+                .replace('{in}', fmt(result.inputBytes))
+                .replace('{out}', fmt(result.outputBytes))}
               {result.inputBytes > 0 && (
-                <> · {Math.round((saved / result.inputBytes) * 100)}% smaller</>
+                <>
+                  {' · '}
+                  {s.smaller.replace('{p}', String(Math.round((saved / result.inputBytes) * 100)))}
+                </>
               )}
             </p>
             <a
@@ -132,7 +151,7 @@ export function CreateZipUi() {
               download={`${rootFolder.trim() || 'archive'}.zip`}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Download .zip
+              {s.downloadZip}
             </a>
             <ul className="max-h-64 space-y-1 overflow-auto rounded-md border p-2 text-sm">
               {result.paths.map((p) => (

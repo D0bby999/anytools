@@ -1,7 +1,17 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle, CopyButton, Textarea } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  Textarea,
+  useLocalized,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { type Target, convertCurl } from './logic';
+import { STRINGS } from './strings';
 
 const TARGETS: Target[] = ['fetch', 'node-fetch', 'python', 'php', 'go'];
 
@@ -11,6 +21,8 @@ const EXAMPLE = `curl -X POST 'https://api.example.com/users' \\
   -d '{"name":"Alice","age":30}'`;
 
 export function CurlConverterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [curl, setCurl] = useState('');
   const [target, setTarget] = useState<Target>('fetch');
   const [result, setResult] = useState<{ ok: true; value: string } | { ok: false; error: string }>({
@@ -30,22 +42,22 @@ export function CurlConverterUi() {
       })
       .catch((e) => {
         if (!cancelled)
-          setResult({ ok: false, error: e instanceof Error ? e.message : 'Convert failed' });
+          setResult({ ok: false, error: e instanceof Error ? e.message : ui.conversionFailed });
       });
     return () => {
       cancelled = true;
     };
-  }, [curl, target]);
+  }, [curl, target, ui.conversionFailed]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">curl → Code Converter</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Target</span>
+            <span className="block mb-1 text-muted-foreground">{s.target}</span>
             <select
               value={target}
               onChange={(e) => setTarget(e.target.value as Target)}
@@ -63,7 +75,7 @@ export function CurlConverterUi() {
             onClick={() => setCurl(EXAMPLE)}
             className="text-sm text-primary hover:underline"
           >
-            Try example
+            {ui.tryExample}
           </button>
         </div>
         {/* Unlike the rest of the catalogue this tool cannot run client-side — parsing curl
@@ -71,13 +83,11 @@ export function CurlConverterUi() {
             about what you are about to paste is useless after you have pasted it, and curl
             commands routinely carry tokens, cookies and API keys. */}
         <p className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
-          Unlike our other tools, this one does not run in your browser: parsing curl needs
-          server-side native bindings. Your command is sent over HTTPS, parsed, and discarded —
-          never logged or stored. Still, replace any real tokens, cookies or API keys first.
+          {s.serverNote}
         </p>
         <div>
           <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            curl command
+            {s.curlCommand}
           </span>
           <Textarea
             value={curl}

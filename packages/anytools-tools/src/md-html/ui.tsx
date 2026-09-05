@@ -11,13 +11,18 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { htmlToMarkdown, markdownToHtml } from './logic';
+import { STRINGS } from './strings';
 
 type Mode = 'md-to-html' | 'html-to-md';
 
 export function MdHtmlUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [mode, setMode] = useState<Mode>('md-to-html');
   const [input, setInput] = useState('');
   const [gfm, setGfm] = useState(true);
@@ -28,14 +33,14 @@ export function MdHtmlUi() {
       const value = mode === 'md-to-html' ? markdownToHtml(input, { gfm }) : htmlToMarkdown(input);
       return { ok: true as const, value };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : 'Convert failed' };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.conversionFailed };
     }
-  }, [input, mode, gfm]);
+  }, [input, mode, gfm, ui.conversionFailed]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Markdown ↔ HTML Converter</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
@@ -52,13 +57,13 @@ export function MdHtmlUi() {
               onChange={(e) => setGfm(e.target.checked)}
               className="h-4 w-4"
             />
-            GitHub Flavored Markdown (tables, task lists, strikethrough)
+            {s.gfm}
           </label>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-              Input
+              {ui.input}
             </span>
             <Textarea
               value={input}
@@ -69,7 +74,9 @@ export function MdHtmlUi() {
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {ui.output}
+              </span>
               {result.ok && result.value && <CopyButton text={result.value} />}
             </div>
             {result.ok ? (

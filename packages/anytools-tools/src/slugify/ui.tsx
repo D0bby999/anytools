@@ -11,11 +11,16 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type SlugifyOptions, makeBulkSlugs, makeSlug } from './logic';
+import { STRINGS } from './strings';
 
 export function SlugifyUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [text, setText] = useState('');
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
   const [options, setOptions] = useState<SlugifyOptions>({
@@ -34,13 +39,13 @@ export function SlugifyUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Slugify</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as 'single' | 'bulk')}>
           <TabsList>
-            <TabsTrigger value="single">Single</TabsTrigger>
-            <TabsTrigger value="bulk">Bulk (line-by-line)</TabsTrigger>
+            <TabsTrigger value="single">{s.single}</TabsTrigger>
+            <TabsTrigger value="bulk">{s.bulk}</TabsTrigger>
           </TabsList>
           <TabsContent value="single" className="space-y-3">
             <Textarea
@@ -62,7 +67,7 @@ export function SlugifyUi() {
 
         <div className="flex flex-wrap gap-4 text-sm">
           <label className="flex items-center gap-1">
-            Separator:
+            {s.separator}
             <select
               value={options.separator}
               onChange={(e) =>
@@ -70,13 +75,13 @@ export function SlugifyUi() {
               }
               className="h-8 rounded border border-input bg-background px-2"
             >
-              <option value="-">- (hyphen)</option>
-              <option value="_">_ (underscore)</option>
-              <option value=".">. (dot)</option>
+              <option value="-">{s.hyphen}</option>
+              <option value="_">{s.underscore}</option>
+              <option value=".">{s.dot}</option>
             </select>
           </label>
           <label className="flex items-center gap-1">
-            Locale:
+            {s.locale}
             <select
               value={options.locale}
               onChange={(e) =>
@@ -99,7 +104,7 @@ export function SlugifyUi() {
               onChange={(e) => setOptions({ ...options, lowercase: e.target.checked })}
               className="h-4 w-4"
             />
-            lowercase
+            {s.lowercase}
           </label>
           <label className="flex items-center gap-1">
             <input
@@ -108,14 +113,16 @@ export function SlugifyUi() {
               onChange={(e) => setOptions({ ...options, strict: e.target.checked })}
               className="h-4 w-4"
             />
-            strict (strip punctuation)
+            {s.strict}
           </label>
         </div>
 
         {mode === 'single' ? (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {ui.output}
+              </span>
               {single && <CopyButton text={single} />}
             </div>
             <code className="block rounded-md border bg-muted px-3 py-2 text-sm font-mono break-all">
@@ -126,7 +133,7 @@ export function SlugifyUi() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {bulk.length} slug{bulk.length === 1 ? '' : 's'}
+                {(bulk.length === 1 ? s.slugOne : s.slugMany).replace('{n}', String(bulk.length))}
               </span>
               {bulk.length > 0 && <CopyButton text={bulk.join('\n')} />}
             </div>
