@@ -45,16 +45,20 @@ export function buildPayload(t: QrTemplate): string {
     case 'url':
       return t.url;
     case 'email': {
-      const params = new URLSearchParams();
-      if (t.subject) params.set('subject', t.subject);
-      if (t.body) params.set('body', t.body);
-      const qs = params.toString();
-      return `mailto:${t.to}${qs ? `?${qs}` : ''}`;
+      // RFC 6068 wants percent-encoding. URLSearchParams writes a space as "+", which mail
+      // clients show as a literal plus sign in the subject line.
+      const params: string[] = [];
+      if (t.subject) params.push(`subject=${encodeURIComponent(t.subject)}`);
+      if (t.body) params.push(`body=${encodeURIComponent(t.body)}`);
+      return `mailto:${t.to}${params.length ? `?${params.join('&')}` : ''}`;
     }
     case 'tel':
       return `tel:${t.phone}`;
     case 'sms':
-      return `sms:${t.phone}${t.message ? `?body=${encodeURIComponent(t.message)}` : ''}`;
+      // `sms:number?body=` is read by Android and ignored by iOS (which expects `&body=`).
+      // SMSTO:number:message is the form QR readers (ZXing and descendants) standardise on
+      // and both platforms open with the message filled in.
+      return t.message ? `SMSTO:${t.phone}:${t.message}` : `sms:${t.phone}`;
     case 'wifi': {
       const encryption = t.encryption ?? 'WPA';
       const ssid = escapeWifi(t.ssid);
@@ -75,7 +79,8 @@ export function buildPayload(t: QrTemplate): string {
       if (t.email) lines.push(`EMAIL:${escapeVcard(t.email)}`);
       if (t.url) lines.push(`URL:${escapeVcard(t.url)}`);
       lines.push('END:VCARD');
-      return lines.join('\n');
+      // RFC 6350 §3.2: lines are CRLF-delimited.
+      return lines.join('\r\n');
     }
   }
 }

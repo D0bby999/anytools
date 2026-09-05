@@ -51,6 +51,25 @@ describe('generatePassword', () => {
     ).toThrow(/character set/);
   });
 
+  // Review 2026-09-05: half of all 8-char passwords lacked a digit or a symbol.
+  it('includes at least one character from every enabled set', () => {
+    for (let i = 0; i < 300; i++) {
+      const p = generatePassword({
+        length: 8,
+        lowercase: true,
+        uppercase: true,
+        numbers: true,
+        symbols: true,
+        excludeAmbiguous: true,
+      });
+      expect(p).toMatch(/[a-z]/);
+      expect(p).toMatch(/[A-Z]/);
+      expect(p).toMatch(/[0-9]/);
+      expect(p).toMatch(/[^A-Za-z0-9]/);
+      expect(p).not.toMatch(/[0O1lIo|`']/);
+    }
+  });
+
   it('clamps length to safe bounds', () => {
     const tiny = generatePassword({
       length: 1,

@@ -13,13 +13,20 @@ describe('buildPayload', () => {
       'mailto:a@b.com?subject=hi&body=msg',
     );
   });
+  // Review 2026-09-05: spaces came out as "+", which mail clients show literally.
+  it('percent-encodes spaces and line breaks in mailto', () => {
+    expect(
+      buildPayload({ kind: 'email', to: 'a@b.com', subject: 'Hello world', body: 'L1\nL2 & more' }),
+    ).toBe('mailto:a@b.com?subject=Hello%20world&body=L1%0AL2%20%26%20more');
+  });
   it('tel', () => {
     expect(buildPayload({ kind: 'tel', phone: '+84909000000' })).toBe('tel:+84909000000');
   });
-  it('sms with message', () => {
-    expect(buildPayload({ kind: 'sms', phone: '0909', message: 'hi there' })).toContain(
-      'sms:0909?body=hi%20there',
+  it('sms with message uses the SMSTO form both platforms honour', () => {
+    expect(buildPayload({ kind: 'sms', phone: '0909', message: 'hi there' })).toBe(
+      'SMSTO:0909:hi there',
     );
+    expect(buildPayload({ kind: 'sms', phone: '0909' })).toBe('sms:0909');
   });
   it('wifi escapes special chars', () => {
     const out = buildPayload({
@@ -43,6 +50,7 @@ describe('buildPayload', () => {
     expect(out).toContain('FN:Alice Tran');
     expect(out).toContain('EMAIL:a@b.com');
     expect(out).toContain('END:VCARD');
+    expect(out).toContain('\r\n');
   });
 });
 
