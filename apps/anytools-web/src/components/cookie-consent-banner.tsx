@@ -23,16 +23,20 @@ export function CookieConsentBanner() {
     <div
       role="dialog"
       aria-label={t('title')}
-      className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75"
+      // Sits above the mobile bottom nav (body reserves pb-16 for it below lg) and stays
+      // a single row at every width: the stacked mobile layout covered ~25% of a
+      // 390x844 viewport and hid the BMI result and the homepage demo on first paint
+      // (SEO audit 2026-09-05, seo-visual screenshots).
+      className="fixed inset-x-0 bottom-16 lg:bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75"
     >
-      <div className="container mx-auto max-w-5xl px-4 py-3 flex flex-col md:flex-row md:items-center gap-3 text-sm">
-        <p className="flex-1 text-muted-foreground">
+      <div className="container mx-auto max-w-5xl px-3 py-2 md:px-4 flex flex-row items-center gap-3 text-xs md:text-sm">
+        <p className="flex-1 min-w-0 text-muted-foreground line-clamp-2 md:line-clamp-none">
           {t('message')}{' '}
           <Link href="/privacy" className="underline hover:text-foreground">
             {t('learnMore')}
           </Link>
         </p>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 md:gap-2 shrink-0">
           <Button variant="outline" size="sm" onClick={deny}>
             {t('deny')}
           </Button>

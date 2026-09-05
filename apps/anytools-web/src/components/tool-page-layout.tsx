@@ -24,8 +24,15 @@ export function ToolPageLayout({ meta, locale, content, children }: ToolPageLayo
   const hasFaq = Boolean(content.faq && content.faq.items.length > 0);
 
   return (
-    <main className="container mx-auto max-w-5xl px-4 py-8">
-      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground mb-4">
+    // Mobile spacing is tighter than desktop on purpose: at 390px the breadcrumb, H1,
+    // description and toolbar filled the whole first screen and the dropzone/inputs
+    // started below the fold (SEO audit 2026-09-05). A search visitor who typed
+    // "merge pdf" wants the tool first; the copy still reads in the same DOM order.
+    <main className="container mx-auto max-w-5xl px-4 py-5 md:py-8">
+      <nav
+        aria-label="Breadcrumb"
+        className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-4"
+      >
         <Link href="/" className="hover:underline">
           Home
         </Link>
@@ -34,9 +41,9 @@ export function ToolPageLayout({ meta, locale, content, children }: ToolPageLayo
         <span className="mx-2">/</span>
         <span className="text-foreground">{title}</span>
       </nav>
-      <header className="mb-4">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">{title}</h1>
-        <p className="text-muted-foreground">{description}</p>
+      <header className="mb-3 md:mb-4">
+        <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">{title}</h1>
+        <p className="text-sm md:text-base text-muted-foreground">{description}</p>
       </header>
       <ToolToolbar
         slug={meta.slug}
@@ -45,7 +52,7 @@ export function ToolPageLayout({ meta, locale, content, children }: ToolPageLayo
         hasFaq={hasFaq}
       />
       <TrackToolVisit slug={meta.slug} cluster={meta.cluster} />
-      <section id="tool" className="mt-6 scroll-mt-32">
+      <section id="tool" className="mt-4 md:mt-6 scroll-mt-32">
         {children}
       </section>
       <WorkflowChain suggestions={meta.nextStepSuggestions ?? []} locale={locale} />
