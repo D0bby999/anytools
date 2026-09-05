@@ -14,6 +14,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { decodeJwt, formatDuration, readExpiry } from './logic';
 import { STRINGS } from './strings';
 
@@ -33,9 +34,9 @@ export function JwtDecoderUi() {
       const expiry = readExpiry(result.payload);
       return { ok: true as const, result, expiry };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : s.decodeFailed };
+      return { ok: false as const, error: toolErrorText(e, s, s.decodeFailed) };
     }
-  }, [token, s.decodeFailed]);
+  }, [token, s]);
 
   return (
     <Card>

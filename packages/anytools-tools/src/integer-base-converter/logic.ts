@@ -4,9 +4,11 @@
  * no third-party source consulted.
  */
 
-export class BaseConvertError extends Error {
-  constructor(message: string) {
-    super(message);
+import { ToolError } from '../shared/tool-error';
+
+export class BaseConvertError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
     this.name = 'BaseConvertError';
   }
 }
@@ -35,10 +37,13 @@ export function normalizeInput(raw: string, base: number): string {
  */
 export function parseInBase(raw: string, base: number): bigint {
   if (base < MIN_BASE || base > MAX_BASE) {
-    throw new BaseConvertError(`Base must be between ${MIN_BASE} and ${MAX_BASE}.`);
+    throw new BaseConvertError('baseRange', `Base must be between ${MIN_BASE} and ${MAX_BASE}.`, {
+      min: MIN_BASE,
+      max: MAX_BASE,
+    });
   }
   const s = normalizeInput(raw, base);
-  if (!s || s === '-') throw new BaseConvertError('Enter a number.');
+  if (!s || s === '-') throw new BaseConvertError('enterNumber', 'Enter a number.');
   const negative = s.startsWith('-');
   const body = negative ? s.slice(1) : s;
 
@@ -48,7 +53,9 @@ export function parseInBase(raw: string, base: number): bigint {
     const digit = DIGITS.indexOf(ch);
     if (digit < 0 || digit >= base) {
       throw new BaseConvertError(
+        'invalidDigit',
         `"${ch}" is not a valid digit in base ${base}. Allowed: ${DIGITS.slice(0, base)}`,
+        { char: ch, base, allowed: DIGITS.slice(0, base) },
       );
     }
     value = value * big + BigInt(digit);
@@ -58,7 +65,10 @@ export function parseInBase(raw: string, base: number): bigint {
 
 export function formatInBase(value: bigint, base: number): string {
   if (base < MIN_BASE || base > MAX_BASE) {
-    throw new BaseConvertError(`Base must be between ${MIN_BASE} and ${MAX_BASE}.`);
+    throw new BaseConvertError('baseRange', `Base must be between ${MIN_BASE} and ${MAX_BASE}.`, {
+      min: MIN_BASE,
+      max: MAX_BASE,
+    });
   }
   return value.toString(base);
 }

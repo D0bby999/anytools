@@ -1,3 +1,5 @@
+import { ToolError } from '../shared/tool-error';
+
 export type HexFormat = {
   separator?: string;
   prefix?: string;
@@ -28,8 +30,12 @@ export function decodeHex(input: string): string {
   // Previously every non-hex character was dropped silently, so "xyz" decoded to "" with no
   // hint that nothing had been read. Anything left that isn't a hex digit is now an error.
   const bad = clean.match(/[^0-9a-fA-F]/);
-  if (bad) throw new Error(`"${bad[0]}" is not a hex digit — expected 0-9 and a-f`);
-  if (clean.length % 2 !== 0) throw new Error('Hex string has odd length');
+  if (bad) {
+    throw new ToolError('notHexDigit', `"${bad[0]}" is not a hex digit — expected 0-9 and a-f`, {
+      char: bad[0],
+    });
+  }
+  if (clean.length % 2 !== 0) throw new ToolError('hexOddLength', 'Hex string has odd length');
   const bytes = new Uint8Array(clean.length / 2);
   for (let i = 0; i < clean.length; i += 2) {
     bytes[i / 2] = Number.parseInt(clean.slice(i, i + 2), 16);

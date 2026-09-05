@@ -19,6 +19,10 @@ const EN = {
     'Decoded in your browser. Never store or send JWTs that contain secrets to third-party tools.',
   signatureNote:
     "Signature verification requires the issuer's key — intentionally not exposed in this client-side tool.",
+  error_jwtSegments: 'Invalid JWT format — expected three segments separated by `.`',
+  error_jwtNotBase64Url: 'Invalid JWT — segments must be Base64URL',
+  error_jwtSegmentDecode: 'Invalid JWT {label} — failed Base64URL decode',
+  error_jwtSegmentJson: 'Invalid JWT {label} — not valid JSON',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -39,6 +43,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
       'Giải mã ngay trong trình duyệt. Đừng lưu hay gửi JWT chứa bí mật cho công cụ bên thứ ba.',
     signatureNote:
       'Xác minh chữ ký cần khóa của bên phát hành — công cụ chạy phía client này cố ý không làm việc đó.',
+    error_jwtSegments: 'JWT sai định dạng — cần ba đoạn ngăn bởi dấu `.`',
+    error_jwtNotBase64Url: 'JWT không hợp lệ — các đoạn phải là Base64URL',
+    error_jwtSegmentDecode: 'Đoạn {label} của JWT không giải mã Base64URL được',
+    error_jwtSegmentJson: 'Đoạn {label} của JWT không phải JSON hợp lệ',
   },
   es: {
     title: 'Decodificador JWT',
@@ -57,6 +65,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
       'Decodificado en tu navegador. Nunca guardes ni envíes JWT con secretos a herramientas de terceros.',
     signatureNote:
       'Verificar la firma requiere la clave del emisor — esta herramienta del lado del cliente no lo hace a propósito.',
+    error_jwtSegments: 'Formato JWT no válido: se esperaban tres segmentos separados por `.`',
+    error_jwtNotBase64Url: 'JWT no válido: los segmentos deben ser Base64URL',
+    error_jwtSegmentDecode: 'El {label} del JWT no se pudo decodificar como Base64URL',
+    error_jwtSegmentJson: 'El {label} del JWT no es JSON válido',
   },
   pt: {
     title: 'Decodificador JWT',
@@ -75,5 +87,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
       'Decodificado no seu navegador. Nunca guarde nem envie JWTs com segredos para ferramentas de terceiros.',
     signatureNote:
       'Verificar a assinatura exige a chave do emissor — esta ferramenta no cliente não faz isso de propósito.',
+    error_jwtSegments: 'Formato JWT inválido — esperados três segmentos separados por `.`',
+    error_jwtNotBase64Url: 'JWT inválido — os segmentos devem ser Base64URL',
+    error_jwtSegmentDecode: 'O {label} do JWT não pôde ser decodificado como Base64URL',
+    error_jwtSegmentJson: 'O {label} do JWT não é JSON válido',
   },
 };

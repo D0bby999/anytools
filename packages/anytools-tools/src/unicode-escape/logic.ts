@@ -1,3 +1,5 @@
+import { ToolError } from '../shared/tool-error';
+
 export type EscapeMode = 'json' | 'es6' | 'all';
 
 export type EscapeOptions = {
@@ -45,7 +47,8 @@ export function unescapeUnicode(text: string): string {
   return text
     .replace(/\\u\{([0-9a-fA-F]+)\}/g, (_m, hex) => {
       const cp = Number.parseInt(hex, 16);
-      if (cp > 0x10ffff) throw new Error(`Invalid code point: ${hex}`);
+      if (cp > 0x10ffff)
+        throw new ToolError('invalidCodePoint', `Invalid code point: ${hex}`, { hex });
       return String.fromCodePoint(cp);
     })
     .replace(/\\u([0-9a-fA-F]{4})\\u([0-9a-fA-F]{4})/g, (m, h1, h2) => {

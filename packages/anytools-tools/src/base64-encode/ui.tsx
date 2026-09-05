@@ -16,6 +16,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { decodeBase64, decodeBase64Url, encodeBase64, encodeBase64Url } from './logic';
 import { STRINGS } from './strings';
 
@@ -41,9 +42,9 @@ export function Base64ToolUi() {
       }
       return { value: urlSafe ? decodeBase64Url(input) : decodeBase64(input), error: '' };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : ui.conversionFailed };
+      return { value: '', error: toolErrorText(e, s, ui.conversionFailed) };
     }
-  }, [input, mode, urlSafe, ui.conversionFailed]);
+  }, [input, mode, urlSafe, s, ui.conversionFailed]);
 
   return (
     <Card>

@@ -16,6 +16,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { decodeUrlComponent, encodeUrl, encodeUrlComponent } from './logic';
 import { STRINGS } from './strings';
 
@@ -41,9 +42,9 @@ export function UrlEncodeUi() {
       if (mode === 'full') return { value: encodeUrl(input), error: '' };
       return { value: decodeUrlComponent(input, { plusAsSpace }), error: '' };
     } catch (e) {
-      return { value: '', error: e instanceof Error ? e.message : ui.conversionFailed };
+      return { value: '', error: toolErrorText(e, s, ui.conversionFailed) };
     }
-  }, [input, mode, plusAsSpace, ui.conversionFailed]);
+  }, [input, mode, plusAsSpace, s, ui.conversionFailed]);
 
   const textarea = (
     <Textarea

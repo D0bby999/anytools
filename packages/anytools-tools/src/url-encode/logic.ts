@@ -4,6 +4,8 @@
  * + query-string helpers that the standard library doesn't expose.
  */
 
+import { ToolError } from '../shared/tool-error';
+
 export function encodeUrlComponent(input: string): string {
   return encodeURIComponent(input);
 }
@@ -26,7 +28,7 @@ export function decodeUrlComponent(input: string, options: DecodeOptions = {}): 
   try {
     return decodeURIComponent(source);
   } catch {
-    throw new Error('Invalid URL-encoded input (malformed % escape)');
+    throw new ToolError('malformedEscape', 'Invalid URL-encoded input (malformed % escape)');
   }
 }
 
@@ -48,7 +50,9 @@ export function parseQueryString(qs: string): Record<string, string> {
     try {
       out[decodeURIComponent(rawKey)] = decodeURIComponent(rawVal.replace(/\+/g, ' '));
     } catch {
-      throw new Error(`Invalid query string segment: ${pair}`);
+      throw new ToolError('invalidQuerySegment', `Invalid query string segment: ${pair}`, {
+        segment: pair,
+      });
     }
   }
   return out;

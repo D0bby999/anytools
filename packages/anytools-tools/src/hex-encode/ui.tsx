@@ -15,6 +15,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useId, useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { decodeHex, encodeHex } from './logic';
 import { STRINGS } from './strings';
 
@@ -36,9 +37,9 @@ export function HexEncodeUi() {
       }
       return { ok: true as const, value: decodeHex(input) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : ui.conversionFailed };
+      return { ok: false as const, error: toolErrorText(e, s, ui.conversionFailed) };
     }
-  }, [input, mode, separator, prefix, uppercase, ui.conversionFailed]);
+  }, [input, mode, separator, prefix, uppercase, s, ui.conversionFailed]);
 
   return (
     <Card>

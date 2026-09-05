@@ -1,4 +1,5 @@
 import { Base64 } from 'js-base64';
+import { ToolError } from '../shared/tool-error';
 
 export type JwtPart = { raw: string; decoded: object | string };
 export type DecodedJwt = {
@@ -26,11 +27,14 @@ export function decodeJwt(token: string): DecodedJwt {
   const trimmed = stripBearer(token);
   const parts = trimmed.split('.');
   if (parts.length !== 3) {
-    throw new Error('Invalid JWT format — expected three segments separated by `.`');
+    throw new ToolError(
+      'jwtSegments',
+      'Invalid JWT format — expected three segments separated by `.`',
+    );
   }
   const [rawHeader, rawPayload, rawSignature] = parts as [string, string, string];
   if (!PART_RE.test(rawHeader) || !PART_RE.test(rawPayload) || !SIGNATURE_RE.test(rawSignature)) {
-    throw new Error('Invalid JWT — segments must be Base64URL');
+    throw new ToolError('jwtNotBase64Url', 'Invalid JWT — segments must be Base64URL');
   }
   return {
     header: parseSegment(rawHeader, 'header'),
@@ -71,12 +75,14 @@ function parseSegment(raw: string, label: string): object {
   try {
     decoded = Base64.decode(raw);
   } catch {
-    throw new Error(`Invalid JWT ${label} — failed Base64URL decode`);
+    throw new ToolError('jwtSegmentDecode', `Invalid JWT ${label} — failed Base64URL decode`, {
+      label,
+    });
   }
   try {
     return JSON.parse(decoded);
   } catch {
-    throw new Error(`Invalid JWT ${label} — not valid JSON`);
+    throw new ToolError('jwtSegmentJson', `Invalid JWT ${label} — not valid JSON`, { label });
   }
 }
 

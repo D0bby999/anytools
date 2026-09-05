@@ -10,6 +10,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { MAX_BASE, MIN_BASE, convertToCommonBases, formatInBase, parseInBase } from './logic';
 import { STRINGS } from './strings';
 
@@ -38,9 +39,9 @@ export function IntegerBaseConverterUi() {
         error: null as string | null,
       };
     } catch (e) {
-      return { rows: [], custom: '', error: e instanceof Error ? e.message : ui.invalidInput };
+      return { rows: [], custom: '', error: toolErrorText(e, s, ui.invalidInput) };
     }
-  }, [value, fromBase, customBase, ui.invalidInput]);
+  }, [value, fromBase, customBase, s, ui.invalidInput]);
 
   return (
     <Card>

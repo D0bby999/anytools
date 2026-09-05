@@ -1,3 +1,5 @@
+import { ToolError } from '../shared/tool-error';
+
 export function encodeBinary(text: string, separator = ' '): string {
   if (!text) return '';
   const bytes = new TextEncoder().encode(text);
@@ -17,8 +19,18 @@ export function decodeBinary(input: string): string {
   // Previously every non-01 character was dropped silently, so "hello" decoded to "" with no
   // hint that nothing had been read. Anything left that isn't a bit is now an error.
   const bad = clean.match(/[^01]/);
-  if (bad) throw new Error(`"${bad[0]}" is not a binary digit — expected only 0 and 1`);
-  if (clean.length % 8 !== 0) throw new Error('Binary string length must be a multiple of 8');
+  if (bad) {
+    throw new ToolError(
+      'notBinaryDigit',
+      `"${bad[0]}" is not a binary digit — expected only 0 and 1`,
+      {
+        char: bad[0],
+      },
+    );
+  }
+  if (clean.length % 8 !== 0) {
+    throw new ToolError('binaryLength', 'Binary string length must be a multiple of 8');
+  }
   const bytes = new Uint8Array(clean.length / 8);
   for (let i = 0; i < clean.length; i += 8) {
     bytes[i / 8] = Number.parseInt(clean.slice(i, i + 8), 2);

@@ -1,4 +1,5 @@
 import { Base64 } from 'js-base64';
+import { ToolError } from '../shared/tool-error';
 
 /**
  * Encode a UTF-8 string to standard Base64 (RFC 4648).
@@ -27,7 +28,7 @@ export function normalizeBase64(input: string): string {
 export function decodeBase64(input: string): string {
   const normalized = normalizeBase64(input);
   if (!isValidBase64(normalized)) {
-    throw new Error('Invalid Base64 input');
+    throw new ToolError('invalidBase64', 'Invalid Base64 input');
   }
   return Base64.decode(normalized);
 }
@@ -48,7 +49,7 @@ export function encodeBase64Url(input: string): string {
 export function decodeBase64Url(input: string): string {
   const compact = input.replace(/\s+/g, '');
   if (!isValidBase64Url(compact)) {
-    throw new Error('Invalid Base64URL input');
+    throw new ToolError('invalidBase64Url', 'Invalid Base64URL input');
   }
   return Base64.decode(compact);
 }

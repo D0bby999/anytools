@@ -11,6 +11,7 @@ const EN = {
   uppercaseHex: 'Uppercase hex',
   typeText: 'Type text with emoji or non-ASCII...',
   pasteEscapes: 'Paste \\uXXXX or \\u{XXXXX} escapes',
+  error_invalidCodePoint: 'Invalid code point: {hex}',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -26,6 +27,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     uppercaseHex: 'Hex chữ hoa',
     typeText: 'Nhập văn bản có emoji hoặc ký tự ngoài ASCII...',
     pasteEscapes: 'Dán chuỗi escape \\uXXXX hoặc \\u{XXXXX}',
+    error_invalidCodePoint: 'Code point không hợp lệ: {hex}',
   },
   es: {
     title: 'Escapar / Desescapar Unicode',
@@ -38,6 +40,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     uppercaseHex: 'Hex en mayúsculas',
     typeText: 'Escribe texto con emoji o caracteres no ASCII...',
     pasteEscapes: 'Pega escapes \\uXXXX o \\u{XXXXX}',
+    error_invalidCodePoint: 'Punto de código no válido: {hex}',
   },
   pt: {
     title: 'Escapar / Desescapar Unicode',
@@ -50,5 +53,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     uppercaseHex: 'Hex em maiúsculas',
     typeText: 'Digite texto com emoji ou caracteres não ASCII...',
     pasteEscapes: 'Cole escapes \\uXXXX ou \\u{XXXXX}',
+    error_invalidCodePoint: 'Code point inválido: {hex}',
   },
 };

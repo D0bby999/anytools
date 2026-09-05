@@ -14,6 +14,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { type EscapeMode, escapeUnicode, unescapeUnicode } from './logic';
 import { STRINGS } from './strings';
 
@@ -31,9 +32,9 @@ export function UnicodeEscapeUi() {
         return { ok: true as const, value: escapeUnicode(input, { mode: escapeMode, uppercase }) };
       return { ok: true as const, value: unescapeUnicode(input) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : ui.conversionFailed };
+      return { ok: false as const, error: toolErrorText(e, s, ui.conversionFailed) };
     }
-  }, [input, mode, escapeMode, uppercase, ui.conversionFailed]);
+  }, [input, mode, escapeMode, uppercase, s, ui.conversionFailed]);
 
   return (
     <Card>
