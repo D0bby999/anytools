@@ -62,4 +62,12 @@ describe('validate', () => {
   it('is silent on a well-formed input', () => {
     expect(validate(base)).toEqual([]);
   });
+
+  it('carries a code and params so widgets can localize the warning', () => {
+    const w = validate({ ...base, title: 'x'.repeat(75), twitterHandle: 'example' });
+    expect(w).toContainEqual(
+      expect.objectContaining({ code: 'titleLong', params: { count: 75, limit: 60 } }),
+    );
+    expect(w).toContainEqual(expect.objectContaining({ field: 'twitterHandle', code: 'handleAt' }));
+  });
 });

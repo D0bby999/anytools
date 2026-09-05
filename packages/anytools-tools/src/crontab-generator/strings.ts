@@ -20,6 +20,7 @@ const EN = {
   dayOfWeek: 'Day of week',
   dayOfWeekHint: '0–6 (Sun=0), 1-5',
   next5Runs: 'Next 5 runs (UTC)',
+  error_invalidCron: '{detail}',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -43,6 +44,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     dayOfWeek: 'Thứ',
     dayOfWeekHint: '0–6 (CN=0), 1-5',
     next5Runs: '5 lần chạy tiếp theo (UTC)',
+    error_invalidCron: 'Biểu thức cron không hợp lệ: {detail}',
   },
   es: {
     title: 'Generador de crontab',
@@ -63,6 +65,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     dayOfWeek: 'Día de la semana',
     dayOfWeekHint: '0–6 (Dom=0), 1-5',
     next5Runs: 'Próximas 5 ejecuciones (UTC)',
+    error_invalidCron: 'Expresión cron no válida: {detail}',
   },
   pt: {
     title: 'Gerador de crontab',
@@ -83,5 +86,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     dayOfWeek: 'Dia da semana',
     dayOfWeekHint: '0–6 (Dom=0), 1-5',
     next5Runs: 'Próximas 5 execuções (UTC)',
+    error_invalidCron: 'Expressão cron inválida: {detail}',
   },
 };

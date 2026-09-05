@@ -12,11 +12,13 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import {
   COMMON_TIMEZONES,
+  type ParsedTimestamp,
   formatInZone,
   parseTimestamp,
-  relativeFromNow,
+  relativeParts,
   toIso,
   toRfc2822,
   toUnixMillis,
@@ -43,9 +45,23 @@ export function TimestampConverterUi() {
     try {
       return { ok: true as const, ...parseTimestamp(input) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : s.parseFailed };
+      return { ok: false as const, error: toolErrorText(e, s, s.parseFailed) };
     }
-  }, [input, s.parseFailed]);
+  }, [input, s]);
+
+  // Detected-format ids and the relative-time parts come from the logic layer; word them here.
+  const formatLabel: Record<ParsedTimestamp['detectedFormat'], string> = {
+    'unix-seconds': s.format_unixSeconds,
+    'unix-millis': s.format_unixMillis,
+    iso: s.format_iso,
+    rfc2822: s.format_rfc2822,
+    unknown: s.format_unknown,
+  };
+  const relativeLabel = (date: Date) => {
+    const { unit, value, direction } = relativeParts(date);
+    const span = s[`rel_${unit}`].replace('{n}', String(value));
+    return (direction === 'future' ? s.rel_future : s.rel_past).replace('{t}', span);
+  };
 
   const setNow = () => setInput(String(toUnixSeconds(new Date())));
 
@@ -96,13 +112,13 @@ export function TimestampConverterUi() {
           </output>
         ) : (
           <div className="space-y-2">
-            <Row label={s.detected} value={parsed.detectedFormat} />
+            <Row label={s.detected} value={formatLabel[parsed.detectedFormat]} />
             <Row label={s.unixSeconds} value={String(toUnixSeconds(parsed.date))} />
             <Row label={s.unixMillis} value={String(toUnixMillis(parsed.date))} />
             <Row label="ISO 8601" value={toIso(parsed.date)} />
             <Row label="RFC 2822" value={toRfc2822(parsed.date)} />
             <Row label={s.inZone.replace('{zone}', zone)} value={formatInZone(parsed.date, zone)} />
-            <Row label={s.relative} value={relativeFromNow(parsed.date)} />
+            <Row label={s.relative} value={relativeLabel(parsed.date)} />
           </div>
         )}
         <PrivacyNote />

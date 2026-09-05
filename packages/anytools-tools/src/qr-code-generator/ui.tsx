@@ -15,6 +15,7 @@ import {
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { type QrTemplate, buildPayload, generateQrDataUrl, generateQrSvg } from './logic';
 import { STRINGS } from './strings';
 
@@ -86,7 +87,7 @@ export function QrCodeGeneratorUi() {
     try {
       payload = buildPayload(tmpl);
     } catch (e) {
-      setError(e instanceof Error ? e.message : ui.invalidInput);
+      setError(toolErrorText(e, s, ui.invalidInput));
       setPngUrl(null);
       setSvg(null);
       return;
@@ -110,7 +111,7 @@ export function QrCodeGeneratorUi() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof Error ? e.message : s.generationFailed);
+        setError(toolErrorText(e, s, s.generationFailed));
         setPngUrl(null);
         setSvg(null);
       });
@@ -118,20 +119,7 @@ export function QrCodeGeneratorUi() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    kind,
-    text,
-    url,
-    email,
-    tel,
-    wifi,
-    vcard,
-    ecc,
-    darkColor,
-    lightColor,
-    s.generationFailed,
-    ui.invalidInput,
-  ]);
+  }, [kind, text, url, email, tel, wifi, vcard, ecc, darkColor, lightColor, s, ui.invalidInput]);
 
   const downloadSvg = () => {
     if (!svg) return;

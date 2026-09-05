@@ -6,6 +6,7 @@ const EN = {
   fromTimezone: 'From timezone',
   now: 'Now',
   showIn: 'Show in',
+  error_isoFormat: 'Use ISO format: YYYY-MM-DDTHH:mm',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -16,6 +17,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     fromTimezone: 'Từ múi giờ',
     now: 'Bây giờ',
     showIn: 'Hiển thị theo',
+    error_isoFormat: 'Dùng định dạng ISO: YYYY-MM-DDTHH:mm',
   },
   es: {
     title: 'Conversor de zonas horarias',
@@ -23,6 +25,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     fromTimezone: 'Zona horaria de origen',
     now: 'Ahora',
     showIn: 'Mostrar en',
+    error_isoFormat: 'Usa el formato ISO: YYYY-MM-DDTHH:mm',
   },
   pt: {
     title: 'Conversor de fuso horário',
@@ -30,5 +33,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     fromTimezone: 'Fuso horário de origem',
     now: 'Agora',
     showIn: 'Mostrar em',
+    error_isoFormat: 'Use o formato ISO: YYYY-MM-DDTHH:mm',
   },
 };

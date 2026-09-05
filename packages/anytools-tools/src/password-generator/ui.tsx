@@ -12,7 +12,7 @@ import {
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
-import { type PasswordOptions, calculateStrength, generatePassword } from './logic';
+import { type CrackTime, type PasswordOptions, calculateStrength, generatePassword } from './logic';
 import { STRINGS } from './strings';
 
 const STRENGTH_COLOR: Record<string, string> = {
@@ -32,6 +32,9 @@ export function PasswordGeneratorUi() {
     excellent: s.levelExcellent,
   };
   const [noteBefore, noteAfter] = s.note.split('{code}');
+  // The crack-time estimate arrives as { unit, value }; word it in the locale.
+  const crackTimeLabel = ({ unit, value }: CrackTime) =>
+    s[`crack_${unit}`].replace('{n}', unit === 'bYears' ? value.toExponential(1) : String(value));
   const [options, setOptions] = useState<PasswordOptions>({
     length: 20,
     lowercase: true,
@@ -83,7 +86,7 @@ export function PasswordGeneratorUi() {
                 {s.bits.replace('{n}', String(Math.round(strength.bits)))}
               </Badge>
               <span className="text-muted-foreground">
-                {s.crackTime.replace('{t}', strength.crackTimeLabel)}
+                {s.crackTime.replace('{t}', crackTimeLabel(strength.crackTime))}
               </span>
             </div>
           )}

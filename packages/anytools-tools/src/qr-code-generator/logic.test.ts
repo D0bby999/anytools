@@ -63,6 +63,10 @@ describe('generateQrDataUrl', () => {
   it('throws on empty payload', async () => {
     await expect(generateQrDataUrl('')).rejects.toThrow();
   });
+  it('the empty-payload error carries a code for localization', async () => {
+    await expect(generateQrDataUrl('   ')).rejects.toMatchObject({ code: 'payloadEmpty' });
+    await expect(generateQrSvg('')).rejects.toMatchObject({ code: 'payloadEmpty' });
+  });
   it('respects error correction level', async () => {
     const low = await generateQrDataUrl('hello', { errorCorrectionLevel: 'L' });
     const high = await generateQrDataUrl('hello', { errorCorrectionLevel: 'H' });

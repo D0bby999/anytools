@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateStrength, generatePassword } from './logic';
+import { calculateStrength, formatCrackTime, generatePassword } from './logic';
 
 describe('generatePassword', () => {
   it('produces requested length', () => {
@@ -51,6 +51,19 @@ describe('generatePassword', () => {
     ).toThrow(/character set/);
   });
 
+  it('the no-charset error carries a code for localization', () => {
+    expect(() =>
+      generatePassword({
+        length: 10,
+        lowercase: false,
+        uppercase: false,
+        numbers: false,
+        symbols: false,
+        excludeAmbiguous: false,
+      }),
+    ).toThrow(expect.objectContaining({ code: 'noCharset' }));
+  });
+
   // Review 2026-09-05: half of all 8-char passwords lacked a digit or a symbol.
   it('includes at least one character from every enabled set', () => {
     for (let i = 0; i < 300; i++) {
@@ -96,5 +109,11 @@ describe('calculateStrength', () => {
     const s = calculateStrength('aB3!aB3!aB3!');
     expect(typeof s.crackTimeLabel).toBe('string');
     expect(s.crackTimeLabel.length).toBeGreaterThan(0);
+  });
+  it('reports crack time as structured data that matches the label', () => {
+    expect(calculateStrength('abc').crackTime).toEqual({ unit: 'instantly', value: 0 });
+    const s = calculateStrength('aB3!aB3!aB3!aB3!aB3!');
+    expect(s.crackTime.unit).toBe('bYears');
+    expect(formatCrackTime(s.crackTime)).toBe(s.crackTimeLabel);
   });
 });

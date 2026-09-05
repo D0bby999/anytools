@@ -1,11 +1,18 @@
 import cronParser from 'cron-parser';
 import cronstrue from 'cronstrue';
+import 'cronstrue/locales/es';
+import 'cronstrue/locales/pt_BR';
+import 'cronstrue/locales/vi';
 
 /**
  * Builder for standard 5-field crontab expressions (minute hour day month weekday).
  * Complements the cron-parser tool: this one goes UI → expression,
  * that one goes expression → explanation.
  */
+
+/** Widget locales → the cronstrue locale that describes the expression in that language. */
+export type CronLocale = 'en' | 'vi' | 'es' | 'pt';
+const CRONSTRUE_LOCALE: Record<CronLocale, string> = { en: 'en', vi: 'vi', es: 'es', pt: 'pt_BR' };
 
 export type CronFields = {
   minute: string;
@@ -66,9 +73,21 @@ export function buildExpression(fields: CronFields): string {
 
 export type CronBuildResult =
   | { valid: true; expression: string; description: string; nextRuns: Date[] }
-  | { valid: false; expression: string; error: string };
+  | {
+      valid: false;
+      expression: string;
+      /** cron-parser's own (English) message. */
+      error: string;
+      /** Stable code + the message as `detail`, so a widget can wrap it in its own language. */
+      code: string;
+      params: Record<string, string | number>;
+    };
 
-export function describeExpression(fields: CronFields, runCount = 5): CronBuildResult {
+export function describeExpression(
+  fields: CronFields,
+  runCount = 5,
+  locale: CronLocale = 'en',
+): CronBuildResult {
   const expression = buildExpression(fields);
   try {
     const interval = cronParser.parseExpression(expression, { tz: 'UTC' });
@@ -79,14 +98,11 @@ export function describeExpression(fields: CronFields, runCount = 5): CronBuildR
     return {
       valid: true,
       expression,
-      description: cronstrue.toString(expression),
+      description: cronstrue.toString(expression, { locale: CRONSTRUE_LOCALE[locale] }),
       nextRuns,
     };
   } catch (e) {
-    return {
-      valid: false,
-      expression,
-      error: e instanceof Error ? e.message : 'Invalid cron expression',
-    };
+    const error = e instanceof Error ? e.message : 'Invalid cron expression';
+    return { valid: false, expression, error, code: 'invalidCron', params: { detail: error } };
   }
 }

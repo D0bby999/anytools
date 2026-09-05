@@ -10,6 +10,7 @@
  * No QR code here on purpose — qr-code-generator already does that, with templates for Wi-Fi,
  * vCard and email that a raw "encode this string" box cannot offer.
  */
+import { ToolError } from '../shared/tool-error';
 import { type WriterOptions, writeBarcode } from '../shared/zxing-loader';
 
 export type BarcodeFormatId =
@@ -59,7 +60,9 @@ const CODE39_ALPHABET = /^[0-9A-Z\-. $/+%]*$/;
  * than four near-copies that each get the phase wrong in their own way.
  */
 export function gtinCheckDigit(body: string): number {
-  if (!/^\d+$/.test(body)) throw new Error('Check digits are only defined for digit strings');
+  if (!/^\d+$/.test(body)) {
+    throw new ToolError('checkDigitDigitsOnly', 'Check digits are only defined for digit strings');
+  }
   let sum = 0;
   for (let i = 0; i < body.length; i++) {
     const digit = body.charCodeAt(i) - 48;
@@ -68,13 +71,19 @@ export function gtinCheckDigit(body: string): number {
   return (10 - (sum % 10)) % 10;
 }
 
+export type ValidationParams = Record<string, string | number>;
+
+/**
+ * `error` and `note` are the English text (asserted by tests); `code`/`noteCode` plus the params
+ * they were built from let a widget render the same message in the page's language.
+ */
 export type ValidationResult =
-  | { ok: true; value: string; note?: string }
-  | { ok: false; error: string };
+  | { ok: true; value: string; note?: string; noteCode?: string; noteParams?: ValidationParams }
+  | { ok: false; error: string; code: string; params?: ValidationParams };
 
 export function formatSpec(id: BarcodeFormatId): BarcodeFormatSpec {
   const spec = BARCODE_FORMATS.find((f) => f.id === id);
-  if (!spec) throw new Error(`Unknown barcode format: ${id}`);
+  if (!spec) throw new ToolError('unknownFormat', `Unknown barcode format: ${id}`, { id });
   return spec;
 }
 
@@ -88,21 +97,34 @@ export function validateBarcodeInput(format: BarcodeFormatId, raw: string): Vali
   // the digit-only symbologies, and only for those. Code 39 and Code 128 encode spaces.
   const value = GTIN_FORMATS.has(format) || format === 'ITF' ? raw.replace(/[\s-]/g, '') : raw;
 
-  if (!value) return { ok: false, error: 'Enter the data to encode.' };
+  if (!value) return { ok: false, error: 'Enter the data to encode.', code: 'enterData' };
 
   if (GTIN_FORMATS.has(format)) {
     const total = spec.digits as number;
     if (!/^\d+$/.test(value)) {
-      return { ok: false, error: `${spec.label} holds digits only — no letters or punctuation.` };
+      return {
+        ok: false,
+        error: `${spec.label} holds digits only — no letters or punctuation.`,
+        code: 'digitsOnly',
+        params: { format: spec.label },
+      };
     }
     if (value.length === total - 1) {
       const check = gtinCheckDigit(value);
-      return { ok: true, value: value + check, note: `Check digit ${check} added.` };
+      return {
+        ok: true,
+        value: value + check,
+        note: `Check digit ${check} added.`,
+        noteCode: 'checkDigitAdded',
+        noteParams: { check },
+      };
     }
     if (value.length !== total) {
       return {
         ok: false,
         error: `${spec.label} needs ${total} digits (or ${total - 1} and we work out the last one). You entered ${value.length}.`,
+        code: 'digitCount',
+        params: { format: spec.label, total, body: total - 1, entered: value.length },
       };
     }
     const body = value.slice(0, -1);
@@ -112,17 +134,23 @@ export function validateBarcodeInput(format: BarcodeFormatId, raw: string): Vali
       return {
         ok: false,
         error: `Check digit is wrong: ${body} ends in ${want}, not ${got}. Scanners reject this code.`,
+        code: 'checkDigitWrong',
+        params: { body, want, got },
       };
     }
     return { ok: true, value };
   }
 
   if (format === 'ITF') {
-    if (!/^\d+$/.test(value)) return { ok: false, error: 'ITF holds digits only.' };
+    if (!/^\d+$/.test(value)) {
+      return { ok: false, error: 'ITF holds digits only.', code: 'itfDigitsOnly' };
+    }
     if (value.length % 2 !== 0) {
       return {
         ok: false,
         error: `ITF encodes digits in pairs, so it needs an even count. You entered ${value.length}.`,
+        code: 'itfEvenCount',
+        params: { entered: value.length },
       };
     }
     return { ok: true, value };
@@ -134,11 +162,17 @@ export function validateBarcodeInput(format: BarcodeFormatId, raw: string): Vali
       return {
         ok: false,
         error: 'Code 39 only carries A–Z, 0–9, space and - . $ / + % — nothing else.',
+        code: 'code39Alphabet',
       };
     }
     return upper === value
       ? { ok: true, value }
-      : { ok: true, value: upper, note: 'Code 39 has no lowercase; text was uppercased.' };
+      : {
+          ok: true,
+          value: upper,
+          note: 'Code 39 has no lowercase; text was uppercased.',
+          noteCode: 'code39Uppercased',
+        };
   }
 
   if (format === 'Code128') {
@@ -149,6 +183,8 @@ export function validateBarcodeInput(format: BarcodeFormatId, raw: string): Vali
       return {
         ok: false,
         error: `Code 128 cannot encode "${bad}". Use Data Matrix, PDF417 or Aztec for text outside Latin-1.`,
+        code: 'code128Latin1',
+        params: { char: bad },
       };
     }
     return { ok: true, value };
@@ -184,7 +220,7 @@ export async function generateBarcode(
   options: BarcodeRenderOptions = {},
 ): Promise<GeneratedBarcode> {
   const checked = validateBarcodeInput(format, raw);
-  if (!checked.ok) throw new Error(checked.error);
+  if (!checked.ok) throw new ToolError(checked.code, checked.error, checked.params);
 
   const writerOptions: WriterOptions = {
     format,

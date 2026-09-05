@@ -11,6 +11,7 @@ import {
   useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
   BARCODE_FORMATS,
@@ -45,6 +46,21 @@ const HRT_FORMATS: ReadonlySet<BarcodeFormatId> = new Set([
   'Code128',
   'Code39',
 ]);
+
+/** Localized text for a coded message returned by the logic layer, falling back to its English. */
+function localizedMessage(
+  table: Record<string, string>,
+  key: string,
+  params: Record<string, string | number> | undefined,
+  fallback: string,
+): string {
+  const template = table[key];
+  if (!template) return fallback;
+  return Object.entries(params ?? {}).reduce(
+    (text, [name, value]) => text.split(`{${name}}`).join(String(value)),
+    template,
+  );
+}
 
 export function BarcodeGeneratorUi() {
   const s = useLocalized(STRINGS);
@@ -120,7 +136,7 @@ export function BarcodeGeneratorUi() {
       setPngUrl(objectUrls.create(generated.png));
       setSvgUrl(objectUrls.create(new Blob([generated.svg], { type: 'image/svg+xml' })));
     } catch (e) {
-      setError(e instanceof Error ? e.message : s.encodeFailed);
+      setError(toolErrorText(e, s, s.encodeFailed));
     } finally {
       setBusy(false);
     }
@@ -167,10 +183,19 @@ export function BarcodeGeneratorUi() {
             className="font-mono"
           />
           {preflight && !preflight.ok && (
-            <p className="text-xs text-destructive">{preflight.error}</p>
+            <p className="text-xs text-destructive">
+              {localizedMessage(s, `error_${preflight.code}`, preflight.params, preflight.error)}
+            </p>
           )}
           {preflight?.ok && preflight.note && (
-            <p className="text-xs text-muted-foreground">{preflight.note}</p>
+            <p className="text-xs text-muted-foreground">
+              {localizedMessage(
+                s,
+                `note_${preflight.noteCode}`,
+                preflight.noteParams,
+                preflight.note,
+              )}
+            </p>
           )}
         </div>
 

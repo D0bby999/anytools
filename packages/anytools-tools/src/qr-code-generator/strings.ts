@@ -27,6 +27,7 @@ const EN = {
   downloadPng: 'Download PNG',
   downloadSvg: 'Download SVG',
   generationFailed: 'Generation failed',
+  error_payloadEmpty: 'Payload is empty',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -58,6 +59,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadPng: 'Tải PNG',
     downloadSvg: 'Tải SVG',
     generationFailed: 'Tạo mã thất bại',
+    error_payloadEmpty: 'Nội dung trống',
   },
   es: {
     title: 'Generador de códigos QR',
@@ -86,6 +88,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadPng: 'Descargar PNG',
     downloadSvg: 'Descargar SVG',
     generationFailed: 'La generación falló',
+    error_payloadEmpty: 'El contenido está vacío',
   },
   pt: {
     title: 'Gerador de QR Code',
@@ -114,5 +117,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     downloadPng: 'Baixar PNG',
     downloadSvg: 'Baixar SVG',
     generationFailed: 'Falha ao gerar',
+    error_payloadEmpty: 'O conteúdo está vazio',
   },
 };

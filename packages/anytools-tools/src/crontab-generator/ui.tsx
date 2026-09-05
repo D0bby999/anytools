@@ -8,6 +8,7 @@ import {
   Input,
   PrivacyNote,
   useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type CronFields, EVERY, PRESETS, describeExpression } from './logic';
@@ -15,8 +16,24 @@ import { STRINGS } from './strings';
 
 const FIELD_KEYS: (keyof CronFields)[] = ['minute', 'hour', 'dayOfMonth', 'month', 'dayOfWeek'];
 
+/** Localized text for a coded message returned by the logic layer, falling back to its English. */
+function localizedMessage(
+  table: Record<string, string>,
+  key: string,
+  params: Record<string, string | number> | undefined,
+  fallback: string,
+): string {
+  const template = table[key];
+  if (!template) return fallback;
+  return Object.entries(params ?? {}).reduce(
+    (text, [name, value]) => text.split(`{${name}}`).join(String(value)),
+    template,
+  );
+}
+
 export function CrontabGeneratorUi() {
   const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const fieldDefs: Record<keyof CronFields, { label: string; hint: string }> = {
     minute: { label: s.minute, hint: '0–59, *, */5, 0,30' },
     hour: { label: s.hour, hint: '0–23, *, 9-17' },
@@ -38,7 +55,7 @@ export function CrontabGeneratorUi() {
     'yearly-jan1': s.preset_yearly_jan1,
   };
   const [fields, setFields] = useState<CronFields>({ ...EVERY, minute: '0', hour: '9' });
-  const result = useMemo(() => describeExpression(fields), [fields]);
+  const result = useMemo(() => describeExpression(fields, 5, locale), [fields, locale]);
 
   return (
     <Card>
@@ -99,7 +116,9 @@ export function CrontabGeneratorUi() {
             </div>
           </>
         ) : (
-          <p className="text-sm text-destructive">{result.error}</p>
+          <p className="text-sm text-destructive">
+            {localizedMessage(s, `error_${result.code}`, result.params, result.error)}
+          </p>
         )}
         <PrivacyNote />
       </CardContent>

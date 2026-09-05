@@ -15,6 +15,10 @@ const EN = {
   // {v} is the variant name reported by the logic layer.
   variant: 'Variant: {v}',
   invalidUuid: 'Invalid UUID',
+  variant_ncs: 'NCS (legacy)',
+  variant_rfc4122: 'RFC 4122',
+  variant_microsoft: 'Microsoft',
+  variant_reserved: 'Reserved',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -33,6 +37,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     validatePlaceholder: 'Dán UUID để nhận diện phiên bản',
     variant: 'Biến thể: {v}',
     invalidUuid: 'UUID không hợp lệ',
+    variant_ncs: 'NCS (cũ)',
+    variant_rfc4122: 'RFC 4122',
+    variant_microsoft: 'Microsoft',
+    variant_reserved: 'Dự phòng',
   },
   es: {
     title: 'Generador de UUID',
@@ -48,6 +56,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     validatePlaceholder: 'Pega un UUID para detectar la versión',
     variant: 'Variante: {v}',
     invalidUuid: 'UUID no válido',
+    variant_ncs: 'NCS (heredado)',
+    variant_rfc4122: 'RFC 4122',
+    variant_microsoft: 'Microsoft',
+    variant_reserved: 'Reservado',
   },
   pt: {
     title: 'Gerador de UUID',
@@ -63,5 +75,9 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     validatePlaceholder: 'Cole um UUID para detectar a versão',
     variant: 'Variante: {v}',
     invalidUuid: 'UUID inválido',
+    variant_ncs: 'NCS (legado)',
+    variant_rfc4122: 'RFC 4122',
+    variant_microsoft: 'Microsoft',
+    variant_reserved: 'Reservado',
   },
 };

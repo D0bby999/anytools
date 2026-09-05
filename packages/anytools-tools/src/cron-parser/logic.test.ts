@@ -13,6 +13,11 @@ describe('parseCron', () => {
     const diff = (out.nextRuns[1]!.getTime() - out.nextRuns[0]!.getTime()) / 1000 / 60;
     expect(diff).toBe(5);
   });
+  it('describes in the widget locale', () => {
+    expect(parseCron('*/5 * * * *', 1, 'UTC', 'vi').description).toBe('Mỗi 5 phút');
+    expect(parseCron('*/5 * * * *', 1, 'UTC', 'es').description).toBe('Cada 5 minutos');
+    expect(parseCron('*/5 * * * *', 1, 'UTC', 'pt').description).toBe('A cada 5 minutos');
+  });
 });
 
 describe('validateCron', () => {
@@ -21,5 +26,10 @@ describe('validateCron', () => {
   });
   it('rejects invalid', () => {
     expect(validateCron('60 * * * *').valid).toBe(false);
+  });
+  it('the error carries a code and the parser message as detail', () => {
+    const r = validateCron('60 * * * *');
+    expect(r.code).toBe('invalidCron');
+    expect(r.params).toEqual({ detail: r.error });
   });
 });

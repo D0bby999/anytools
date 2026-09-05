@@ -32,6 +32,19 @@ describe('describeExpression', () => {
     const result = describeExpression({ ...EVERY, minute: '61' });
     expect(result.valid).toBe(false);
   });
+
+  it('carries a code and the parser message as detail on an invalid expression', () => {
+    const result = describeExpression({ ...EVERY, minute: '61' });
+    expect(result.valid).toBe(false);
+    if (result.valid) throw new Error('unreachable');
+    expect(result.code).toBe('invalidCron');
+    expect(result.params).toEqual({ detail: result.error });
+  });
+
+  it('describes in the widget locale', () => {
+    const result = describeExpression({ ...EVERY, minute: '*/5' }, 1, 'vi');
+    expect(result.valid && result.description).toBe('Mỗi 5 phút');
+  });
 });
 
 describe('PRESETS', () => {

@@ -62,4 +62,10 @@ describe('meetingTable is independent of the machine time zone', () => {
     expect(() => meetingTable('2024-03-10', 'UTC', ['UTC'])).toThrow(/ISO format/);
     expect(() => meetingTable('nonsense', 'UTC', ['UTC'])).toThrow(/ISO format/);
   });
+
+  it('the format error carries a code for localization', () => {
+    expect(() => wallClockToInstant('2024-03-10', 'UTC')).toThrow(
+      expect.objectContaining({ code: 'isoFormat' }),
+    );
+  });
 });

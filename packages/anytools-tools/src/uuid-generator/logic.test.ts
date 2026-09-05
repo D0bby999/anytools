@@ -53,6 +53,12 @@ describe('inspectUuid', () => {
     const id = generateUuid('v7', 1)[0]!;
     expect(inspectUuid(id).version).toBe(7);
   });
+  it('reports the variant as a stable id alongside its English name', () => {
+    const out = inspectUuid(generateUuid('v4', 1)[0]!);
+    expect(out.variantId).toBe('rfc4122');
+    expect(out.variant).toBe('RFC 4122');
+    expect(inspectUuid('nope').variantId).toBe('invalid');
+  });
   it('rejects garbage', () => {
     expect(inspectUuid('not-a-uuid').valid).toBe(false);
   });

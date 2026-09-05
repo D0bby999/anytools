@@ -36,6 +36,13 @@ export function UuidGeneratorUi() {
   };
 
   const inspection = validateInput ? inspectUuid(validateInput) : null;
+  // Variant ids come from the logic layer; name them in the locale.
+  const variantLabel: Record<string, string> = {
+    ncs: s.variant_ncs,
+    rfc4122: s.variant_rfc4122,
+    microsoft: s.variant_microsoft,
+    reserved: s.variant_reserved,
+  };
 
   return (
     <div className="space-y-4">
@@ -122,7 +129,10 @@ export function UuidGeneratorUi() {
                 <>
                   <Badge>v{inspection.version}</Badge>
                   <span className="text-muted-foreground">
-                    {s.variant.replace('{v}', inspection.variant)}
+                    {s.variant.replace(
+                      '{v}',
+                      variantLabel[inspection.variantId] ?? inspection.variant,
+                    )}
                   </span>
                 </>
               ) : (

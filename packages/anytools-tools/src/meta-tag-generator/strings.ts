@@ -16,6 +16,13 @@ const EN = {
   cardSummary: 'Summary',
   robots: 'Robots',
   pasteIntoHead: 'Paste into <head>',
+  error_titleLong: '{count} characters — search results usually cut off around {limit}.',
+  error_descriptionLong: '{count} characters — snippets usually cut off around {limit}.',
+  error_imageAbsolute:
+    'og:image must be an absolute URL — crawlers fetch it without your page context.',
+  error_urlAbsolute: 'og:url must be absolute.',
+  error_handleAt: 'Handles start with @.',
+  error_largeCardNoImage: 'A large-image card with no image falls back to a plain summary card.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -36,6 +43,13 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     cardSummary: 'Tóm tắt',
     robots: 'Robots',
     pasteIntoHead: 'Dán vào <head>',
+    error_titleLong: '{count} ký tự — kết quả tìm kiếm thường cắt ở khoảng {limit}.',
+    error_descriptionLong: '{count} ký tự — đoạn mô tả thường cắt ở khoảng {limit}.',
+    error_imageAbsolute:
+      'og:image phải là URL tuyệt đối — trình thu thập tải nó mà không có ngữ cảnh trang của bạn.',
+    error_urlAbsolute: 'og:url phải là URL tuyệt đối.',
+    error_handleAt: 'Tên tài khoản bắt đầu bằng @.',
+    error_largeCardNoImage: 'Thẻ ảnh lớn không có ảnh sẽ rơi về thẻ tóm tắt thường.',
   },
   es: {
     title: 'Generador de meta tags',
@@ -53,6 +67,16 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     cardSummary: 'Resumen',
     robots: 'Robots',
     pasteIntoHead: 'Pegar en <head>',
+    error_titleLong:
+      '{count} caracteres: los resultados de búsqueda suelen cortarse alrededor de {limit}.',
+    error_descriptionLong:
+      '{count} caracteres: los fragmentos suelen cortarse alrededor de {limit}.',
+    error_imageAbsolute:
+      'og:image debe ser una URL absoluta: los rastreadores la obtienen sin el contexto de tu página.',
+    error_urlAbsolute: 'og:url debe ser absoluta.',
+    error_handleAt: 'Los identificadores empiezan por @.',
+    error_largeCardNoImage:
+      'Una tarjeta de imagen grande sin imagen se muestra como una tarjeta de resumen simple.',
   },
   pt: {
     title: 'Gerador de meta tags',
@@ -70,5 +94,14 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     cardSummary: 'Resumo',
     robots: 'Robots',
     pasteIntoHead: 'Colar no <head>',
+    error_titleLong:
+      '{count} caracteres — os resultados de busca costumam cortar por volta de {limit}.',
+    error_descriptionLong: '{count} caracteres — os trechos costumam cortar por volta de {limit}.',
+    error_imageAbsolute:
+      'og:image precisa ser uma URL absoluta — os rastreadores a buscam sem o contexto da sua página.',
+    error_urlAbsolute: 'og:url precisa ser absoluta.',
+    error_handleAt: 'Identificadores começam com @.',
+    error_largeCardNoImage:
+      'Um cartão de imagem grande sem imagem vira um cartão de resumo simples.',
   },
 };

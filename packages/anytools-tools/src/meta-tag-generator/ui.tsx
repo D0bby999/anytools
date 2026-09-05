@@ -13,6 +13,21 @@ import { useMemo, useState } from 'react';
 import { DEFAULT_INPUT, LIMITS, type MetaInput, generateMetaTags, validate } from './logic';
 import { STRINGS } from './strings';
 
+/** Localized text for a coded message returned by the logic layer, falling back to its English. */
+function localizedMessage(
+  table: Record<string, string>,
+  key: string,
+  params: Record<string, string | number> | undefined,
+  fallback: string,
+): string {
+  const template = table[key];
+  if (!template) return fallback;
+  return Object.entries(params ?? {}).reduce(
+    (text, [name, value]) => text.split(`{${name}}`).join(String(value)),
+    template,
+  );
+}
+
 export function MetaTagGeneratorUi() {
   const s = useLocalized(STRINGS);
   const [input, setInput] = useState<MetaInput>({
@@ -106,7 +121,9 @@ export function MetaTagGeneratorUi() {
         {warnings.length > 0 && (
           <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
             {warnings.map((w) => (
-              <p key={`${w.field}-${w.message}`}>{w.message}</p>
+              <p key={`${w.field}-${w.code}`}>
+                {localizedMessage(s, `error_${w.code}`, w.params, w.message)}
+              </p>
             ))}
           </output>
         )}

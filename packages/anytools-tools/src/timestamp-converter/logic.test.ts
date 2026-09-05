@@ -3,6 +3,7 @@ import {
   formatInZone,
   parseTimestamp,
   relativeFromNow,
+  relativeParts,
   toIso,
   toRfc2822,
   toUnixMillis,
@@ -68,6 +69,30 @@ describe('relativeFromNow', () => {
   it('future time uses in prefix', () => {
     const future = new Date(Date.now() + 86_400_000);
     expect(relativeFromNow(future)).toMatch(/^in /);
+  });
+  it('relativeParts exposes unit, value and direction for localized wording', () => {
+    const now = Date.UTC(2026, 0, 1);
+    expect(relativeParts(new Date(now + 3 * 3600_000), now)).toEqual({
+      unit: 'hr',
+      value: 3,
+      direction: 'future',
+    });
+    expect(relativeParts(new Date(now - 2 * 86_400_000), now)).toEqual({
+      unit: 'days',
+      value: 2,
+      direction: 'past',
+    });
+  });
+});
+
+describe('parse errors carry a code for localization', () => {
+  it('unrecognized input and oversized numbers', () => {
+    expect(() => parseTimestamp('not a date')).toThrow(
+      expect.objectContaining({ code: 'unrecognized' }),
+    );
+    expect(() => parseTimestamp('123456789012345')).toThrow(
+      expect.objectContaining({ code: 'tooLarge' }),
+    );
   });
 });
 

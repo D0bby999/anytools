@@ -1,4 +1,5 @@
 import QRCode, { type QRCodeErrorCorrectionLevel } from 'qrcode';
+import { ToolError } from '../shared/tool-error';
 
 export type QrFormat = 'png' | 'svg';
 
@@ -86,7 +87,7 @@ export function buildPayload(t: QrTemplate): string {
 }
 
 export async function generateQrDataUrl(payload: string, options: QrOptions = {}): Promise<string> {
-  if (!payload || !payload.trim()) throw new Error('Payload is empty');
+  if (!payload || !payload.trim()) throw new ToolError('payloadEmpty', 'Payload is empty');
   return QRCode.toDataURL(payload, {
     errorCorrectionLevel: options.errorCorrectionLevel ?? 'M',
     margin: options.margin ?? 2,
@@ -100,7 +101,7 @@ export async function generateQrDataUrl(payload: string, options: QrOptions = {}
 }
 
 export async function generateQrSvg(payload: string, options: QrOptions = {}): Promise<string> {
-  if (!payload || !payload.trim()) throw new Error('Payload is empty');
+  if (!payload || !payload.trim()) throw new ToolError('payloadEmpty', 'Payload is empty');
   return QRCode.toString(payload, {
     type: 'svg',
     errorCorrectionLevel: options.errorCorrectionLevel ?? 'M',

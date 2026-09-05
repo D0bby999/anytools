@@ -8,6 +8,7 @@ import {
   Input,
   PrivacyNote,
   useLocalized,
+  useToolLocale,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { parseCron, validateCron } from './logic';
@@ -26,11 +27,30 @@ const PRESETS: { key: PresetKey; expr: string }[] = [
   { key: 'presetBusinessHours', expr: '0 9-17 * * 1-5' },
 ];
 
+/** Localized text for a coded message returned by the logic layer, falling back to its English. */
+function localizedMessage(
+  table: Record<string, string>,
+  key: string,
+  params: Record<string, string | number> | undefined,
+  fallback: string,
+): string {
+  const template = table[key];
+  if (!template) return fallback;
+  return Object.entries(params ?? {}).reduce(
+    (text, [name, value]) => text.split(`{${name}}`).join(String(value)),
+    template,
+  );
+}
+
 export function CronParserUi() {
   const s = useLocalized(STRINGS);
+  const locale = useToolLocale();
   const [expr, setExpr] = useState('0 0 * * *');
   const valid = useMemo(() => validateCron(expr), [expr]);
-  const parsed = useMemo(() => (valid.valid ? parseCron(expr, 10) : null), [expr, valid.valid]);
+  const parsed = useMemo(
+    () => (valid.valid ? parseCron(expr, 10, 'UTC', locale) : null),
+    [expr, valid.valid, locale],
+  );
 
   return (
     <Card>
@@ -61,7 +81,7 @@ export function CronParserUi() {
 
         {!valid.valid ? (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {valid.error}
+            {localizedMessage(s, `error_${valid.code}`, valid.params, valid.error ?? '')}
           </output>
         ) : parsed ? (
           <>

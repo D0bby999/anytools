@@ -33,7 +33,15 @@ export const DEFAULT_INPUT: MetaInput = {
 /** Lengths at which Google and the social cards start truncating. Advisory, not enforced. */
 export const LIMITS = { title: 60, description: 160 } as const;
 
-export type Warning = { field: keyof MetaInput; message: string };
+export type WarningParams = Record<string, string | number>;
+
+/** `message` is the English text; `code` + `params` let a widget render it in the page's language. */
+export type Warning = {
+  field: keyof MetaInput;
+  message: string;
+  code: string;
+  params?: WarningParams;
+};
 
 export function validate(input: MetaInput): Warning[] {
   const out: Warning[] = [];
@@ -41,12 +49,16 @@ export function validate(input: MetaInput): Warning[] {
     out.push({
       field: 'title',
       message: `${input.title.length} characters — search results usually cut off around ${LIMITS.title}.`,
+      code: 'titleLong',
+      params: { count: input.title.length, limit: LIMITS.title },
     });
   }
   if (input.description.length > LIMITS.description) {
     out.push({
       field: 'description',
       message: `${input.description.length} characters — snippets usually cut off around ${LIMITS.description}.`,
+      code: 'descriptionLong',
+      params: { count: input.description.length, limit: LIMITS.description },
     });
   }
   // Relative URLs work in a page but not in a scraper, which fetches og:image on its own.
@@ -54,18 +66,20 @@ export function validate(input: MetaInput): Warning[] {
     out.push({
       field: 'imageUrl',
       message: 'og:image must be an absolute URL — crawlers fetch it without your page context.',
+      code: 'imageAbsolute',
     });
   }
   if (input.url && !/^https?:\/\//i.test(input.url)) {
-    out.push({ field: 'url', message: 'og:url must be absolute.' });
+    out.push({ field: 'url', message: 'og:url must be absolute.', code: 'urlAbsolute' });
   }
   if (input.twitterHandle && !input.twitterHandle.startsWith('@')) {
-    out.push({ field: 'twitterHandle', message: 'Handles start with @.' });
+    out.push({ field: 'twitterHandle', message: 'Handles start with @.', code: 'handleAt' });
   }
   if (input.cardType === 'summary_large_image' && !input.imageUrl) {
     out.push({
       field: 'imageUrl',
       message: 'A large-image card with no image falls back to a plain summary card.',
+      code: 'largeCardNoImage',
     });
   }
   return out;

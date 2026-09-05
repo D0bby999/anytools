@@ -66,6 +66,8 @@ describe('validateBarcodeInput — GTIN symbologies', () => {
       ok: true,
       value: '5901234123457',
       note: 'Check digit 7 added.',
+      noteCode: 'checkDigitAdded',
+      noteParams: { check: 7 },
     });
   });
 
@@ -126,6 +128,7 @@ describe('validateBarcodeInput — the rest', () => {
       ok: true,
       value: 'ABC-123',
       note: 'Code 39 has no lowercase; text was uppercased.',
+      noteCode: 'code39Uppercased',
     });
     expect(validateBarcodeInput('Code39', 'ABC@123').ok).toBe(false);
   });
@@ -165,5 +168,34 @@ describe('BARCODE_FORMATS', () => {
   it('has a spec for every id it lists, and throws on an unknown one', () => {
     for (const spec of BARCODE_FORMATS) expect(formatSpec(spec.id)).toBe(spec);
     expect(() => formatSpec('Nope' as BarcodeFormatId)).toThrow(/Unknown barcode format/);
+  });
+});
+
+describe('validation errors carry a code and params for localization', () => {
+  it('names the expected and actual check digit', () => {
+    const r = validateBarcodeInput('EAN13', '5901234123456');
+    expect(r).toMatchObject({
+      ok: false,
+      code: 'checkDigitWrong',
+      params: { body: '590123412345', want: 7, got: 6 },
+    });
+  });
+
+  it('carries the format label and digit counts', () => {
+    const r = validateBarcodeInput('EAN13', '1234');
+    expect(r).toMatchObject({
+      ok: false,
+      code: 'digitCount',
+      params: { format: 'EAN-13', total: 13, body: 12, entered: 4 },
+    });
+  });
+
+  it('throws a coded error for a bad check-digit body and an unknown format', () => {
+    expect(() => gtinCheckDigit('12X')).toThrow(
+      expect.objectContaining({ code: 'checkDigitDigitsOnly' }),
+    );
+    expect(() => formatSpec('Nope' as BarcodeFormatId)).toThrow(
+      expect.objectContaining({ code: 'unknownFormat', params: { id: 'Nope' } }),
+    );
   });
 });

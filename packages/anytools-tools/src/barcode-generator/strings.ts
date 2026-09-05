@@ -32,6 +32,22 @@ const EN = {
   hint_DataMatrix: 'any text',
   hint_PDF417: 'any text',
   hint_Aztec: 'any text',
+  error_enterData: 'Enter the data to encode.',
+  error_digitsOnly: '{format} holds digits only — no letters or punctuation.',
+  error_digitCount:
+    '{format} needs {total} digits (or {body} and we work out the last one). You entered {entered}.',
+  error_checkDigitWrong:
+    'Check digit is wrong: {body} ends in {want}, not {got}. Scanners reject this code.',
+  error_itfDigitsOnly: 'ITF holds digits only.',
+  error_itfEvenCount:
+    'ITF encodes digits in pairs, so it needs an even count. You entered {entered}.',
+  error_code39Alphabet: 'Code 39 only carries A–Z, 0–9, space and - . $ / + % — nothing else.',
+  error_code128Latin1:
+    'Code 128 cannot encode "{char}". Use Data Matrix, PDF417 or Aztec for text outside Latin-1.',
+  error_checkDigitDigitsOnly: 'Check digits are only defined for digit strings',
+  error_unknownFormat: 'Unknown barcode format: {id}',
+  note_checkDigitAdded: 'Check digit {check} added.',
+  note_code39Uppercased: 'Code 39 has no lowercase; text was uppercased.',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -64,6 +80,21 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     hint_DataMatrix: 'văn bản bất kỳ',
     hint_PDF417: 'văn bản bất kỳ',
     hint_Aztec: 'văn bản bất kỳ',
+    error_enterData: 'Nhập dữ liệu cần mã hóa.',
+    error_digitsOnly: '{format} chỉ chứa chữ số — không có chữ cái hay dấu câu.',
+    error_digitCount:
+      '{format} cần {total} chữ số (hoặc {body} và chúng tôi tính chữ số cuối). Bạn đã nhập {entered}.',
+    error_checkDigitWrong:
+      'Số kiểm tra sai: {body} phải kết thúc bằng {want}, không phải {got}. Máy quét sẽ từ chối mã này.',
+    error_itfDigitsOnly: 'ITF chỉ chứa chữ số.',
+    error_itfEvenCount: 'ITF mã hóa chữ số theo cặp nên cần số lượng chẵn. Bạn đã nhập {entered}.',
+    error_code39Alphabet: 'Code 39 chỉ chứa A–Z, 0–9, khoảng trắng và - . $ / + % — không gì khác.',
+    error_code128Latin1:
+      'Code 128 không mã hóa được "{char}". Dùng Data Matrix, PDF417 hoặc Aztec cho văn bản ngoài Latin-1.',
+    error_checkDigitDigitsOnly: 'Số kiểm tra chỉ được định nghĩa cho chuỗi chữ số',
+    error_unknownFormat: 'Định dạng mã vạch không xác định: {id}',
+    note_checkDigitAdded: 'Đã thêm số kiểm tra {check}.',
+    note_code39Uppercased: 'Code 39 không có chữ thường; văn bản đã được viết hoa.',
   },
   es: {
     title: 'Generador de códigos de barras',
@@ -93,6 +124,23 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     hint_DataMatrix: 'cualquier texto',
     hint_PDF417: 'cualquier texto',
     hint_Aztec: 'cualquier texto',
+    error_enterData: 'Introduce los datos a codificar.',
+    error_digitsOnly: '{format} solo admite dígitos: sin letras ni puntuación.',
+    error_digitCount:
+      '{format} necesita {total} dígitos (o {body} y calculamos el último). Introdujiste {entered}.',
+    error_checkDigitWrong:
+      'El dígito de control es incorrecto: {body} termina en {want}, no en {got}. Los escáneres rechazan este código.',
+    error_itfDigitsOnly: 'ITF solo admite dígitos.',
+    error_itfEvenCount:
+      'ITF codifica los dígitos por pares, así que necesita una cantidad par. Introdujiste {entered}.',
+    error_code39Alphabet: 'Code 39 solo admite A–Z, 0–9, espacio y - . $ / + %: nada más.',
+    error_code128Latin1:
+      'Code 128 no puede codificar "{char}". Usa Data Matrix, PDF417 o Aztec para texto fuera de Latin-1.',
+    error_checkDigitDigitsOnly:
+      'Los dígitos de control solo están definidos para cadenas de dígitos',
+    error_unknownFormat: 'Formato de código de barras desconocido: {id}',
+    note_checkDigitAdded: 'Dígito de control {check} añadido.',
+    note_code39Uppercased: 'Code 39 no tiene minúsculas; el texto se pasó a mayúsculas.',
   },
   pt: {
     title: 'Gerador de código de barras',
@@ -122,5 +170,21 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     hint_DataMatrix: 'qualquer texto',
     hint_PDF417: 'qualquer texto',
     hint_Aztec: 'qualquer texto',
+    error_enterData: 'Informe os dados a codificar.',
+    error_digitsOnly: '{format} aceita apenas dígitos — sem letras nem pontuação.',
+    error_digitCount:
+      '{format} precisa de {total} dígitos (ou {body} e calculamos o último). Você digitou {entered}.',
+    error_checkDigitWrong:
+      'O dígito verificador está errado: {body} termina em {want}, não em {got}. Os leitores rejeitam este código.',
+    error_itfDigitsOnly: 'ITF aceita apenas dígitos.',
+    error_itfEvenCount:
+      'ITF codifica os dígitos em pares, então precisa de uma quantidade par. Você digitou {entered}.',
+    error_code39Alphabet: 'Code 39 aceita apenas A–Z, 0–9, espaço e - . $ / + % — nada mais.',
+    error_code128Latin1:
+      'Code 128 não consegue codificar "{char}". Use Data Matrix, PDF417 ou Aztec para texto fora do Latin-1.',
+    error_checkDigitDigitsOnly: 'Dígitos verificadores só são definidos para cadeias de dígitos',
+    error_unknownFormat: 'Formato de código de barras desconhecido: {id}',
+    note_checkDigitAdded: 'Dígito verificador {check} adicionado.',
+    note_code39Uppercased: 'Code 39 não tem minúsculas; o texto foi convertido para maiúsculas.',
   },
 };

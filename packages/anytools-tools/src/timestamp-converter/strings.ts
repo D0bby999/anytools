@@ -13,6 +13,21 @@ const EN = {
   // {zone} is an IANA timezone id such as Asia/Ho_Chi_Minh.
   inZone: 'In {zone}',
   relative: 'Relative',
+  error_tooLarge: 'That number is too large for a Unix timestamp in seconds or milliseconds.',
+  error_unrecognized:
+    'Unrecognized timestamp format. Try Unix seconds/millis, ISO 8601, or RFC 2822.',
+  format_unixSeconds: 'unix-seconds',
+  format_unixMillis: 'unix-millis',
+  format_iso: 'iso',
+  format_rfc2822: 'rfc2822',
+  format_unknown: 'unknown',
+  rel_sec: '{n} sec',
+  rel_min: '{n} min',
+  rel_hr: '{n} hr',
+  rel_days: '{n} days',
+  rel_years: '{n} years',
+  rel_future: 'in {t}',
+  rel_past: '{t} ago',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -29,6 +44,21 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     unixMillis: 'Mili giây Unix',
     inZone: 'Theo {zone}',
     relative: 'Tương đối',
+    error_tooLarge: 'Số này quá lớn cho dấu thời gian Unix tính bằng giây hoặc mili giây.',
+    error_unrecognized:
+      'Không nhận ra định dạng dấu thời gian. Thử giây/mili giây Unix, ISO 8601 hoặc RFC 2822.',
+    format_unixSeconds: 'giây Unix',
+    format_unixMillis: 'mili giây Unix',
+    format_iso: 'ISO 8601',
+    format_rfc2822: 'RFC 2822',
+    format_unknown: 'không xác định',
+    rel_sec: '{n} giây',
+    rel_min: '{n} phút',
+    rel_hr: '{n} giờ',
+    rel_days: '{n} ngày',
+    rel_years: '{n} năm',
+    rel_future: '{t} nữa',
+    rel_past: '{t} trước',
   },
   es: {
     title: 'Conversor de timestamps',
@@ -42,6 +72,22 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     unixMillis: 'Milisegundos Unix',
     inZone: 'En {zone}',
     relative: 'Relativo',
+    error_tooLarge:
+      'Ese número es demasiado grande para una marca de tiempo Unix en segundos o milisegundos.',
+    error_unrecognized:
+      'Formato de marca de tiempo no reconocido. Prueba con segundos/milisegundos Unix, ISO 8601 o RFC 2822.',
+    format_unixSeconds: 'segundos Unix',
+    format_unixMillis: 'milisegundos Unix',
+    format_iso: 'ISO 8601',
+    format_rfc2822: 'RFC 2822',
+    format_unknown: 'desconocido',
+    rel_sec: '{n} s',
+    rel_min: '{n} min',
+    rel_hr: '{n} h',
+    rel_days: '{n} días',
+    rel_years: '{n} años',
+    rel_future: 'dentro de {t}',
+    rel_past: 'hace {t}',
   },
   pt: {
     title: 'Conversor de timestamp',
@@ -55,5 +101,21 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     unixMillis: 'Milissegundos Unix',
     inZone: 'Em {zone}',
     relative: 'Relativo',
+    error_tooLarge:
+      'Esse número é grande demais para um timestamp Unix em segundos ou milissegundos.',
+    error_unrecognized:
+      'Formato de timestamp não reconhecido. Tente segundos/milissegundos Unix, ISO 8601 ou RFC 2822.',
+    format_unixSeconds: 'segundos Unix',
+    format_unixMillis: 'milissegundos Unix',
+    format_iso: 'ISO 8601',
+    format_rfc2822: 'RFC 2822',
+    format_unknown: 'desconhecido',
+    rel_sec: '{n} s',
+    rel_min: '{n} min',
+    rel_hr: '{n} h',
+    rel_days: '{n} dias',
+    rel_years: '{n} anos',
+    rel_future: 'em {t}',
+    rel_past: 'há {t}',
   },
 };

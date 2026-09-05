@@ -14,6 +14,7 @@ const EN = {
   presetBusinessHours: 'Business hours',
   description: 'Description: ',
   next10Runs: 'Next 10 runs (UTC)',
+  error_invalidCron: '{detail}',
 };
 
 export const STRINGS: LocalizedStrings<typeof EN> = {
@@ -32,6 +33,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     presetBusinessHours: 'Giờ hành chính',
     description: 'Mô tả: ',
     next10Runs: '10 lần chạy tiếp theo (UTC)',
+    error_invalidCron: 'Biểu thức cron không hợp lệ: {detail}',
   },
   es: {
     title: 'Analizador de cron',
@@ -47,6 +49,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     presetBusinessHours: 'Horario laboral',
     description: 'Descripción: ',
     next10Runs: 'Próximas 10 ejecuciones (UTC)',
+    error_invalidCron: 'Expresión cron no válida: {detail}',
   },
   pt: {
     title: 'Analisador de cron',
@@ -62,5 +65,6 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     presetBusinessHours: 'Horário comercial',
     description: 'Descrição: ',
     next10Runs: 'Próximas 10 execuções (UTC)',
+    error_invalidCron: 'Expressão cron inválida: {detail}',
   },
 };

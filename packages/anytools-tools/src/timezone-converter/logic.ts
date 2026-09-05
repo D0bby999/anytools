@@ -1,3 +1,4 @@
+import { ToolError } from '../shared/tool-error';
 import { formatInZone, offsetLabel as zoneOffsetLabel, zoneOffsetMs } from '../shared/zone-offset';
 
 export const COMMON_TIMEZONES = [
@@ -46,7 +47,7 @@ export function offsetLabel(tz: string, date: Date = new Date()): string {
  */
 export function wallClockToInstant(wallClock: string, tz: string): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(wallClock.trim());
-  if (!m) throw new Error('Use ISO format: YYYY-MM-DDTHH:mm');
+  if (!m) throw new ToolError('isoFormat', 'Use ISO format: YYYY-MM-DDTHH:mm');
   const [, y, mo, d, h, mi, s] = m.map(Number) as [
     number,
     number,
@@ -57,7 +58,7 @@ export function wallClockToInstant(wallClock: string, tz: string): Date {
     number,
   ];
   const naive = Date.UTC(y, mo - 1, d, h, mi, s || 0);
-  if (Number.isNaN(naive)) throw new Error('Use ISO format: YYYY-MM-DDTHH:mm');
+  if (Number.isNaN(naive)) throw new ToolError('isoFormat', 'Use ISO format: YYYY-MM-DDTHH:mm');
   const first = naive - zoneOffsetMs(tz, new Date(naive));
   const second = naive - zoneOffsetMs(tz, new Date(first));
   return new Date(second);
