@@ -223,7 +223,7 @@ export function ToolCatalog({ metas, locale }: Props) {
           </CardHeader>
         </Card>
       ) : (
-        // Four columns on wide screens: 68 tools scan far better as a dense grid
+        // Four columns on wide screens: 100+ tools scan far better as a dense grid
         // than as three roomy ones, and density is the point on a utility site.
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {visible.map((m) => (

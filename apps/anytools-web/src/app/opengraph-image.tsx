@@ -1,4 +1,5 @@
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { toolMetas } from '@anytools/tools/meta';
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
@@ -87,7 +88,8 @@ export default function Image() {
           fontWeight: 500,
         }}
       >
-        <div>34+ tools</div>
+        {/* Read the count from the registry so this strip can't drift from the catalog again */}
+        <div>{toolMetas.length}+ tools</div>
         <div style={{ color: '#CBD5E1' }}>·</div>
         <div>EN · VN · ES · PT</div>
         <div style={{ color: '#CBD5E1' }}>·</div>
