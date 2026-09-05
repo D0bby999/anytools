@@ -29,4 +29,16 @@ describe('minifyCss', () => {
   it('empty input returns empty', () => {
     expect(minifyCss('')).toBe('');
   });
+  // Review 2026-09-05: calc(1px+2px) is invalid CSS, and "x; y" is content.
+  it('keeps the spaces calc() needs around + and -', () => {
+    expect(minifyCss('a { width: calc(100% - 10px); height: calc(1px + 2px); }')).toBe(
+      'a{width:calc(100% - 10px);height:calc(1px + 2px)}',
+    );
+  });
+  it('leaves string literals and url() bodies untouched', () => {
+    expect(minifyCss('a::before { content: "x; y, z"; }')).toBe('a::before{content:"x; y, z"}');
+    expect(minifyCss('a { background: url( data:image/png;base64,AA ); }')).toBe(
+      'a{background:url( data:image/png;base64,AA )}',
+    );
+  });
 });

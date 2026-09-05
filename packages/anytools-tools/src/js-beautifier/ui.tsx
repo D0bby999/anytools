@@ -9,9 +9,12 @@ import {
   Input,
   PrivacyNote,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { beautifyJs, minifyJs } from './logic';
+import { STRINGS } from './strings';
 
 const EXAMPLE = `function fibonacci(n){if(n<2)return n;return fibonacci(n-1)+fibonacci(n-2);}\nconst result = [0,1,2,3,4,5].map(fibonacci);\nconsole.log(result);`;
 
@@ -21,6 +24,8 @@ type Output =
   | { mode: 'error'; error: string };
 
 export function JsBeautifierUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [input, setInput] = useState('');
   const [indentSize, setIndentSize] = useState(2);
   const [mode, setMode] = useState<'beautify' | 'minify'>('beautify');
@@ -37,7 +42,7 @@ export function JsBeautifierUi() {
       try {
         setOutput({ mode: 'beautify', code: beautifyJs(input, { indentSize }) });
       } catch (e) {
-        setOutput({ mode: 'error', error: e instanceof Error ? e.message : 'Format failed' });
+        setOutput({ mode: 'error', error: e instanceof Error ? e.message : ui.formatFailed });
       }
       return;
     }
@@ -48,17 +53,17 @@ export function JsBeautifierUi() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setOutput({ mode: 'error', error: e instanceof Error ? e.message : 'Minify failed' });
+        setOutput({ mode: 'error', error: e instanceof Error ? e.message : ui.minifyFailed });
       });
     return () => {
       cancelled = true;
     };
-  }, [input, indentSize, mode, mangle]);
+  }, [input, indentSize, mode, mangle, ui.formatFailed, ui.minifyFailed]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">JavaScript Beautifier / Minifier</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
@@ -68,19 +73,19 @@ export function JsBeautifierUi() {
               onClick={() => setMode('beautify')}
               className={`px-3 py-1 text-sm rounded ${mode === 'beautify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
             >
-              Beautify
+              {ui.beautify}
             </button>
             <button
               type="button"
               onClick={() => setMode('minify')}
               className={`px-3 py-1 text-sm rounded ${mode === 'minify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
             >
-              Minify (Terser)
+              {s.minifyTerser}
             </button>
           </div>
           {mode === 'beautify' && (
             <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">Indent size</span>
+              <span className="block mb-1 text-muted-foreground">{ui.indentSize}</span>
               <Input
                 type="number"
                 min={1}
@@ -99,17 +104,17 @@ export function JsBeautifierUi() {
                 onChange={(e) => setMangle(e.target.checked)}
                 className="h-4 w-4"
               />
-              Mangle names
+              {s.mangleNames}
             </label>
           )}
           <Button variant="outline" size="sm" onClick={() => setInput(EXAMPLE)}>
-            Try example
+            {ui.tryExample}
           </Button>
         </div>
 
         <div>
           <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            Input
+            {ui.input}
           </span>
           <Textarea
             value={input}
@@ -122,7 +127,9 @@ export function JsBeautifierUi() {
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
             {output && (output.mode === 'beautify' || output.mode === 'minify') && output.code && (
               <CopyButton text={output.code} />
             )}
@@ -141,8 +148,10 @@ export function JsBeautifierUi() {
           )}
           {output?.mode === 'minify' && output.before > 0 && (
             <p className="text-xs text-muted-foreground mt-2">
-              {output.before} → {output.after} bytes (
-              {((1 - output.after / output.before) * 100).toFixed(1)}% smaller)
+              {s.sizeNote
+                .replace('{before}', String(output.before))
+                .replace('{after}', String(output.after))
+                .replace('{pct}', ((1 - output.after / output.before) * 100).toFixed(1))}
             </p>
           )}
         </div>

@@ -9,30 +9,36 @@ import {
   Input,
   PrivacyNote,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { beautifyCss, minifyCss } from './logic';
+import { STRINGS } from './strings';
 
 const EXAMPLE = `.btn,.cta{display:inline-flex;align-items:center;padding:8px 16px;color:#fff;background:#2563eb;border-radius:6px}.btn:hover,.cta:hover{opacity:.9}`;
 
 export function CssBeautifierUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [input, setInput] = useState('');
   const [indentSize, setIndentSize] = useState(2);
   const [mode, setMode] = useState<'beautify' | 'minify'>('beautify');
+  const indentId = useId();
 
   const output = useMemo(() => {
     try {
       if (mode === 'minify') return { ok: true as const, value: minifyCss(input) };
       return { ok: true as const, value: beautifyCss(input, { indentSize }) };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : 'Format failed' };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.formatFailed };
     }
-  }, [input, indentSize, mode]);
+  }, [input, indentSize, mode, ui.formatFailed]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">CSS Beautifier / Minifier</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
@@ -42,20 +48,21 @@ export function CssBeautifierUi() {
               onClick={() => setMode('beautify')}
               className={`px-3 py-1 text-sm rounded ${mode === 'beautify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
             >
-              Beautify
+              {ui.beautify}
             </button>
             <button
               type="button"
               onClick={() => setMode('minify')}
               className={`px-3 py-1 text-sm rounded ${mode === 'minify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
             >
-              Minify
+              {ui.minify}
             </button>
           </div>
           {mode === 'beautify' && (
-            <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">Indent size</span>
+            <label className="text-sm" htmlFor={indentId}>
+              <span className="block mb-1 text-muted-foreground">{ui.indentSize}</span>
               <Input
+                id={indentId}
                 type="number"
                 min={1}
                 max={8}
@@ -66,12 +73,12 @@ export function CssBeautifierUi() {
             </label>
           )}
           <Button variant="outline" size="sm" onClick={() => setInput(EXAMPLE)}>
-            Try example
+            {ui.tryExample}
           </Button>
         </div>
         <div>
           <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            Input
+            {ui.input}
           </span>
           <Textarea
             value={input}
@@ -83,7 +90,9 @@ export function CssBeautifierUi() {
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
             {output.ok && output.value && <CopyButton text={output.value} />}
           </div>
           {output.ok ? (

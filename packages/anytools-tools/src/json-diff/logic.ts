@@ -3,6 +3,7 @@
  * index-based for arrays. Unlike the text diff-checker tool, reformatting
  * or key reordering produces zero differences here.
  */
+import { findUnsafeIntegers } from '../shared/json-unsafe-integers';
 
 export type DiffKind = 'added' | 'removed' | 'changed' | 'type-changed';
 
@@ -14,7 +15,7 @@ export type DiffEntry = {
 };
 
 export type JsonDiffResult =
-  | { ok: true; entries: DiffEntry[]; identical: boolean }
+  | { ok: true; entries: DiffEntry[]; identical: boolean; unsafeIntegers: string[] }
   | { ok: false; error: string; side: 'left' | 'right' };
 
 function typeOf(v: unknown): string {
@@ -86,7 +87,12 @@ export function diffJson(leftText: string, rightText: string): JsonDiffResult {
   }
   const entries: DiffEntry[] = [];
   walk('$', left, right, entries);
-  return { ok: true, entries, identical: entries.length === 0 };
+  // Two IDs that differ only past the 53rd bit parse to the same double and diff as
+  // identical; surface the literals so the reader knows the comparison is lossy there.
+  const unsafeIntegers = [
+    ...new Set([...findUnsafeIntegers(leftText), ...findUnsafeIntegers(rightText)]),
+  ];
+  return { ok: true, entries, identical: entries.length === 0, unsafeIntegers };
 }
 
 export function summarize(entries: DiffEntry[]): Record<DiffKind, number> {

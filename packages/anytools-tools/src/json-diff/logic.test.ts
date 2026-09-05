@@ -67,3 +67,15 @@ describe('summarize', () => {
     });
   });
 });
+
+// Review 2026-09-05: two IDs differing past 2^53 compared as identical.
+describe('unsafe integers', () => {
+  it('lists integer literals the comparison cannot distinguish', () => {
+    const r = diffJson('{"id": 12345678901234567890}', '{"id": 12345678901234567891}');
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.identical).toBe(true);
+      expect(r.unsafeIntegers).toEqual(['12345678901234567890', '12345678901234567891']);
+    }
+  });
+});

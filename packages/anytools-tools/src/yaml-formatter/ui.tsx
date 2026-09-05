@@ -7,11 +7,16 @@ import {
   CopyButton,
   PrivacyNote,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { formatYaml } from './logic';
+import { STRINGS } from './strings';
 
 export function YamlFormatterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [input, setInput] = useState('');
   const [indent, setIndent] = useState<2 | 4>(2);
   const [sortKeys, setSortKeys] = useState(false);
@@ -24,19 +29,19 @@ export function YamlFormatterUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">YAML Formatter / Validator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-center text-sm">
           <label className="flex items-center gap-1">
-            Indent:
+            {ui.indent}:
             <select
               value={indent}
               onChange={(e) => setIndent(Number(e.target.value) as 2 | 4)}
               className="h-8 rounded border border-input bg-background px-2"
             >
-              <option value={2}>2 spaces</option>
-              <option value={4}>4 spaces</option>
+              <option value={2}>{ui.spaces2}</option>
+              <option value={4}>{ui.spaces4}</option>
             </select>
           </label>
           <label className="flex items-center gap-1">
@@ -46,13 +51,13 @@ export function YamlFormatterUi() {
               onChange={(e) => setSortKeys(e.target.checked)}
               className="h-4 w-4"
             />
-            Sort keys
+            {ui.sortKeys}
           </label>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-              Input
+              {ui.input}
             </span>
             <Textarea
               value={input}
@@ -63,7 +68,9 @@ export function YamlFormatterUi() {
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {ui.output}
+              </span>
               {result.ok && result.value && <CopyButton text={result.value} />}
             </div>
             {result.ok ? (

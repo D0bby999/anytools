@@ -1,17 +1,48 @@
 import JSON5 from 'json5';
+import { findUnsafeIntegers } from '../shared/json-unsafe-integers';
 
 export type ParseMode = 'strict' | 'forgiving';
 
+export type ParseError = {
+  message: string;
+  line?: number;
+  col?: number;
+  /** Strict parse failed but JSON5 accepts it — the input has comments/trailing commas. */
+  json5Ok?: boolean;
+};
+
 export type ParseResult =
-  | { ok: true; value: unknown }
-  | { ok: false; error: { message: string; line?: number; col?: number } };
+  | { ok: true; value: unknown; unsafeIntegers: string[] }
+  | { ok: false; error: ParseError };
 
 export function parseJson(input: string, mode: ParseMode = 'strict'): ParseResult {
   try {
     const value = mode === 'forgiving' ? JSON5.parse(input) : JSON.parse(input);
-    return { ok: true, value };
+    return { ok: true, value, unsafeIntegers: findUnsafeIntegers(input) };
   } catch (e) {
-    return { ok: false, error: extractError(e, input) };
+    return {
+      ok: false,
+      error: mode === 'strict' ? locateWithJson5(e, input) : extractError(e, input),
+    };
+  }
+}
+
+/**
+ * V8 changed its JSON.parse message in 2023 from "… at position N" to
+ * "Unexpected token '}', "…" is not valid JSON", so on current Chrome and Node the error
+ * carries no position at all. JSON5's parser always reports line:col, and its grammar is
+ * a superset, so re-parsing with it either yields a located error for the same mistake or
+ * tells us the only problem was a comment / trailing comma.
+ */
+function locateWithJson5(err: unknown, input: string): ParseError {
+  const strict = extractError(err, input);
+  try {
+    JSON5.parse(input);
+    return { ...strict, json5Ok: true };
+  } catch (e5) {
+    if (strict.line) return strict;
+    const loose = extractError(e5, input);
+    return loose.line ? { message: strict.message, line: loose.line, col: loose.col } : strict;
   }
 }
 

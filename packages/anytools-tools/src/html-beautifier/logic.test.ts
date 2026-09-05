@@ -30,6 +30,18 @@ describe('minifyHtml', () => {
   it('collapses runs of whitespace inside text', () => {
     expect(minifyHtml('<p>hello   world</p>')).toBe('<p>hello world</p>');
   });
+  // Review 2026-09-05: the old minify rewrote what the page rendered.
+  it('keeps the single space between inline elements', () => {
+    expect(minifyHtml('<p>a <b>b</b> <i>c</i></p>')).toBe('<p>a <b>b</b> <i>c</i></p>');
+    expect(minifyHtml('<span>a</span>\n<span>b</span>')).toBe('<span>a</span> <span>b</span>');
+  });
+  it('leaves pre, textarea, script and style content verbatim', () => {
+    expect(minifyHtml('<pre>a\n  b</pre>\n<p>x   y</p>')).toBe('<pre>a\n  b</pre><p>x y</p>');
+    expect(minifyHtml('<textarea>a\n\n  b</textarea>')).toBe('<textarea>a\n\n  b</textarea>');
+    expect(minifyHtml('<script>// keep\nlet a  = 1;</script>')).toBe(
+      '<script>// keep\nlet a  = 1;</script>',
+    );
+  });
   it('empty input returns empty', () => {
     expect(minifyHtml('')).toBe('');
   });

@@ -27,7 +27,13 @@ describe('minifyXml', () => {
   it('collapses whitespace', () => {
     const r = minifyXml('<a>\n  <b>1</b>\n</a>');
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.value).not.toContain('\n');
+    if (r.ok) expect(r.value).toBe('<a><b>1</b></a>');
+  });
+  // Review 2026-09-05: "line1\nline2" inside a text node came out as "line1line2".
+  it('keeps newlines that are inside text content', () => {
+    const r = minifyXml('<a>line1\nline2</a>');
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value).toBe('<a>line1\nline2</a>');
   });
 });
 

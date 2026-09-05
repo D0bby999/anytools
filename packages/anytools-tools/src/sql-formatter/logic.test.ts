@@ -31,6 +31,20 @@ describe('minifySql', () => {
   it('collapses whitespace', () => {
     expect(minifySql('SELECT  *\n  FROM  users')).toBe('SELECT * FROM users');
   });
+  // Review 2026-09-05: "SELECT 1 -- note FROM t" commented out the rest of the query.
+  it('removes comments instead of folding the query into them', () => {
+    expect(minifySql('SELECT 1 -- pick one\nFROM t')).toBe('SELECT 1 FROM t');
+    expect(minifySql('SELECT /* a */ 1\nFROM t')).toBe('SELECT 1 FROM t');
+  });
+  it('leaves string literals and quoted identifiers alone', () => {
+    expect(minifySql("SELECT 'a, b' FROM t WHERE x IN (1, 2)")).toBe(
+      "SELECT 'a, b' FROM t WHERE x IN(1,2)",
+    );
+    expect(minifySql('SELECT "my  col", `a , b` FROM t')).toBe('SELECT "my  col",`a , b` FROM t');
+    expect(minifySql("SELECT 'it''s -- not a comment' FROM t")).toBe(
+      "SELECT 'it''s -- not a comment' FROM t",
+    );
+  });
   it('tightens around commas and parens', () => {
     expect(minifySql('SELECT a , b FROM t')).toBe('SELECT a,b FROM t');
     expect(minifySql('COUNT( * )')).toBe('COUNT(*)');

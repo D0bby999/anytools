@@ -64,11 +64,9 @@ export function minifyXml(xml: string): ParseResult<string> {
   const valid = validateXml(xml);
   if (!valid.ok) return valid;
   try {
-    // Strip whitespace between tags (>...<), keep text content intact
-    const minified = xml
-      .replace(/>\s+</g, '><')
-      .replace(/^\s+|\s+$/g, '')
-      .replace(/\n/g, '');
+    // Strip whitespace between tags (>...<) only. A blanket newline removal used to
+    // follow, which joined "line1\nline2" inside a text node into "line1line2".
+    const minified = xml.replace(/>\s+</g, '><').trim();
     return { ok: true, value: minified };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Minify failed' };

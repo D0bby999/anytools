@@ -1,4 +1,5 @@
 import { type SqlLanguage, format as sqlFormat } from 'sql-formatter';
+import { protectSegments } from '../shared/protect-segments';
 
 export type SqlDialect = SqlLanguage;
 
@@ -29,9 +30,21 @@ export function formatSql(sql: string, options: FormatOptions): string {
   });
 }
 
+// Quoted strings and quoted identifiers keep their spaces: 'a, b' is data.
+const SQL_LITERALS = /'(?:[^']|'')*'|"(?:[^"]|"")*"|`[^`]*`/g;
+
+/**
+ * Comments go first, and go entirely: collapsing whitespace before stripping them turned
+ * `SELECT 1 -- note\nFROM t` into `SELECT 1 -- note FROM t`, which comments out the rest
+ * of the query.
+ */
 export function minifySql(sql: string): string {
-  return sql
+  const { text, restore } = protectSegments(sql, SQL_LITERALS);
+  const minified = text
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/--[^\n]*/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/\s*([,()])\s*/g, '$1')
     .trim();
+  return restore(minified);
 }

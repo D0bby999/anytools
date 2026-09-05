@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { findUnsafeIntegers } from '../shared/json-unsafe-integers';
 import { formatJson, minifyJson, parseJson, sortJsonKeys } from './logic';
 
 describe('parseJson strict', () => {
@@ -73,5 +74,39 @@ describe('sortJsonKeys', () => {
   });
   it('preserves array order', () => {
     expect(sortJsonKeys([3, 1, 2])).toEqual([3, 1, 2]);
+  });
+});
+
+// Review 2026-09-05: integers above 2^53 were rounded without a word, and V8's current
+// JSON.parse message carries no position, so errors lost their line/col.
+describe('unsafe integers', () => {
+  it('flags integer literals JSON.parse cannot hold exactly', () => {
+    const r = parseJson(
+      '{"id": 12345678901234567890, "n": -9007199254740993, "ok": 9007199254740991}',
+    );
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.unsafeIntegers).toEqual(['12345678901234567890', '-9007199254740993']);
+  });
+  it('ignores digits inside strings, comments, floats and exponents', () => {
+    expect(
+      findUnsafeIntegers('{"s": "12345678901234567890", "f": 12345678901234567890.5, "e": 1e30}'),
+    ).toEqual([]);
+    expect(findUnsafeIntegers('// 12345678901234567890\n{"a": 1}')).toEqual([]);
+  });
+});
+
+describe('error location', () => {
+  it('reports line and column even when the engine message has no position', () => {
+    const r = parseJson('{\n"a": 1,\n"b": }');
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.error.line).toBe(3);
+      expect(r.error.col).toBeGreaterThan(0);
+    }
+  });
+  it('says when the only problem is JSON5 syntax', () => {
+    const r = parseJson('{"a": 1,}');
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.json5Ok).toBe(true);
   });
 });
