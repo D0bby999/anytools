@@ -1,13 +1,14 @@
 'use client';
 import { CalculatorTemplate, Input, TableResult } from '@anytools/ui';
 import { useState } from 'react';
+import { parseDateInput, todayInputValue } from '../shared/date-input';
 import { calcAge } from './logic';
 
 const DEFAULT = '1990-01-01';
 
 export function AgeCalculatorUi() {
   const [birth, setBirth] = useState(DEFAULT);
-  const parsed = new Date(birth);
+  const parsed = parseDateInput(birth) ?? new Date(Number.NaN);
   const now = new Date();
   const valid = !Number.isNaN(parsed.getTime()) && parsed <= now;
   const age = valid ? calcAge(parsed, now) : null;
@@ -23,7 +24,7 @@ export function AgeCalculatorUi() {
           <Input
             type="date"
             value={birth}
-            max={new Date().toISOString().slice(0, 10)}
+            max={todayInputValue()}
             onChange={(e) => setBirth(e.target.value)}
             aria-label="Birth date"
             className="h-11"

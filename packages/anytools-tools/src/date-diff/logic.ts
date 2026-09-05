@@ -1,3 +1,5 @@
+import { calendarDuration } from '../shared/calendar-duration';
+
 export type DateDiffResult = {
   years: number;
   months: number;
@@ -14,21 +16,8 @@ export type DateDiffResult = {
 export function dateDiff(start: Date, end: Date): DateDiffResult {
   const [a, b] = start <= end ? [start, end] : [end, start];
 
-  let years = b.getFullYear() - a.getFullYear();
-  let months = b.getMonth() - a.getMonth();
-  let days = b.getDate() - a.getDate();
-
-  // Borrow months until days is non-negative (mirrors age-calculator borrow logic).
-  let borrowMonth = b.getMonth();
-  while (days < 0) {
-    months -= 1;
-    borrowMonth -= 1;
-    days += new Date(b.getFullYear(), borrowMonth, 0).getDate();
-  }
-  if (months < 0) {
-    years -= 1;
-    months += 12;
-  }
+  // Calendar arithmetic shared with age-calculator (see shared/calendar-duration).
+  const { years, months, days } = calendarDuration(a, b);
 
   const ms = b.getTime() - a.getTime();
   return {

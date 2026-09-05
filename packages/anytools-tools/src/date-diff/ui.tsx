@@ -1,16 +1,17 @@
 'use client';
 import { CalculatorTemplate, Input, TableResult } from '@anytools/ui';
 import { useState } from 'react';
+import { parseDateInput, todayInputValue } from '../shared/date-input';
 import { dateDiff } from './logic';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => todayInputValue();
 
 export function DateDiffUi() {
   const [start, setStart] = useState('2020-01-01');
   const [end, setEnd] = useState(today());
 
-  const s = new Date(start);
-  const e = new Date(end);
+  const s = parseDateInput(start) ?? new Date(Number.NaN);
+  const e = parseDateInput(end) ?? new Date(Number.NaN);
   const valid = !Number.isNaN(s.getTime()) && !Number.isNaN(e.getTime());
   const d = valid ? dateDiff(s, e) : null;
   const fmt = (n: number) => n.toLocaleString();

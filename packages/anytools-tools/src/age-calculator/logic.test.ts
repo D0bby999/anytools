@@ -26,9 +26,9 @@ describe('calcAge', () => {
   });
 
   it('handles month-end carry (born Jan 31, ref Mar 1 in leap year)', () => {
-    // days = 1-31 = -30; borrow from Jan (31 days): -30+31 = 1; months = 1
-    const birth = new Date('2000-01-31');
-    const ref = new Date('2000-03-01');
+    // 31 Jan + 1 month = 29 Feb (clamped), then one day to 1 Mar
+    const birth = new Date(2000, 0, 31);
+    const ref = new Date(2000, 2, 1);
     const result = calcAge(birth, ref);
     expect(result?.years).toBe(0);
     expect(result?.months).toBe(1);
@@ -50,5 +50,39 @@ describe('calcAge', () => {
     const result = calcAge(birth, ref);
     expect(result?.years).toBe(1);
     expect(result?.days).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// Review 2026-09-05: the month-borrow loop read the length of the wrong month, so 4 of these
+// 9 cases were wrong (30 Apr → 1 May came out as two days). Expected values are what a person
+// counts, and what date-fns' intervalToDuration returns.
+const CROSS_CHECK: [string, string, [number, number, number]][] = [
+  ['2024-04-30', '2024-05-01', [0, 0, 1]],
+  ['2024-01-31', '2024-03-01', [0, 1, 1]],
+  ['2024-01-31', '2024-03-10', [0, 1, 10]],
+  ['2024-05-31', '2024-07-01', [0, 1, 1]],
+  ['2023-12-15', '2024-01-10', [0, 0, 26]],
+  ['2024-02-29', '2025-03-01', [1, 0, 1]],
+  ['2000-08-31', '2024-10-05', [24, 1, 5]],
+  ['2024-03-31', '2024-05-30', [0, 1, 30]],
+  ['2024-01-15', '2024-03-14', [0, 1, 28]],
+];
+const local = (iso: string) => new Date(`${iso}T00:00:00`);
+
+describe('calcAge calendar arithmetic', () => {
+  it.each(CROSS_CHECK)('%s → %s', (birth, ref, [years, months, days]) => {
+    const r = calcAge(local(birth), local(ref));
+    expect([r?.years, r?.months, r?.days]).toEqual([years, months, days]);
+  });
+
+  it('a baby born yesterday is one day old, not two', () => {
+    const r = calcAge(local('2024-04-30'), local('2024-05-01'));
+    expect(r?.days).toBe(1);
+    expect(r?.totalDays).toBe(1);
+  });
+
+  it('a leap-day birthday turns one on 1 March of the next year', () => {
+    const r = calcAge(local('2024-02-29'), local('2025-03-01'));
+    expect([r?.years, r?.months, r?.days]).toEqual([1, 0, 1]);
   });
 });

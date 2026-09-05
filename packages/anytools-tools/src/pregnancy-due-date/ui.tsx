@@ -1,14 +1,15 @@
 'use client';
 import { CalculatorTemplate, Input, TableResult } from '@anytools/ui';
 import { useState } from 'react';
+import { parseDateInput, todayInputValue } from '../shared/date-input';
 import { calculatePregnancy, fmtDate } from './logic';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => todayInputValue();
 
 export function PregnancyDueDateUi() {
   const [lmp, setLmp] = useState(today());
 
-  const lmpDate = new Date(lmp);
+  const lmpDate = parseDateInput(lmp) ?? new Date(Number.NaN);
   const result = calculatePregnancy(lmpDate);
   const due = result?.dueDate ?? null;
   const weeks = result?.weeks ?? 0;
