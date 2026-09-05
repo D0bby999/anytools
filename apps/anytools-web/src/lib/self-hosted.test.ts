@@ -86,7 +86,11 @@ describe('IS_SELF_HOSTED — cờ tắt (mặc định, hosted build)', () => {
     vi.resetModules();
     const { selfHostSafeAlternates } = await import('./site-url');
     const alternates = { canonical: '/en/pdf/merge-pdf', languages: { en: '/en' } };
-    expect(selfHostSafeAlternates(alternates)).toBe(alternates);
+    // Hosted builds keep the object and gain an x-default pointing at English.
+    expect(selfHostSafeAlternates(alternates)).toEqual({
+      canonical: '/en/pdf/merge-pdf',
+      languages: { en: '/en', 'x-default': '/en' },
+    });
   });
 
   it('robots() allows crawling and links the sitemap', async () => {
@@ -160,7 +164,9 @@ describe('self-host-only routes return a real 404 GET/POST, not just a status co
     vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '1');
     vi.resetModules();
     const { POST } = await import('../app/api/auth/[...all]/route');
-    const res = await POST(new Request('http://localhost/api/auth/sign-in/email', { method: 'POST' }));
+    const res = await POST(
+      new Request('http://localhost/api/auth/sign-in/email', { method: 'POST' }),
+    );
     expect(res.status).toBe(404);
   });
 });
@@ -180,14 +186,21 @@ describe('requireAdmin() — the dedicated safety net for direct server-action P
 });
 
 describe('legal-content.ts — self-host privacy variant (review finding #3)', () => {
-  const CHANGED_HEADINGS = ['What we collect', 'What we do not collect', 'Cookies', 'Third parties'];
+  const CHANGED_HEADINGS = [
+    'What we collect',
+    'What we do not collect',
+    'Cookies',
+    'Third parties',
+  ];
 
   it('self-host (flag on): replaces the ads/analytics/third-parties/cookies/newsletter text', async () => {
     vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '1');
     vi.resetModules();
     const { getLegalPage } = await import('./legal-content');
     const privacy = getLegalPage('privacy', 'en');
-    const thirdParties = privacy.sections.find((s) => s.heading === 'Third parties')?.body.join(' ');
+    const thirdParties = privacy.sections
+      .find((s) => s.heading === 'Third parties')
+      ?.body.join(' ');
     // The hosted text names Hetzner/Resend as facts about who runs this install and
     // where the email goes — both are false on a stranger's self-host build and must
     // not survive (a truthful negated mention of AdSense/Umami, e.g. "no AdSense", is
@@ -229,7 +242,11 @@ describe('legal-content.ts — self-host privacy variant (review finding #3)', (
     const { getLegalPage } = await import('./legal-content');
     for (const locale of ['en', 'vi', 'es', 'pt']) {
       const thirdParties = getLegalPage('privacy', locale).sections.find(
-        (s) => s.heading === 'Third parties' || s.heading === 'Bên thứ ba' || s.heading === 'Terceros' || s.heading === 'Terceiros',
+        (s) =>
+          s.heading === 'Third parties' ||
+          s.heading === 'Bên thứ ba' ||
+          s.heading === 'Terceros' ||
+          s.heading === 'Terceiros',
       );
       expect(thirdParties?.body.join(' ')).toMatch(/Hetzner/);
     }

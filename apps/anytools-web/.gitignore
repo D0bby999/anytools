@@ -2,3 +2,6 @@
 # Runtime assets (WASM, models, fonts, language files) staged at build time by
 # scripts/copy-vendor-assets.mjs from vendor-assets.json — not source.
 /public/third-party/
+
+# Per-file git dates for the sitemap, generated in CI by scripts/generate-content-lastmod.mjs
+/content/.lastmod.json

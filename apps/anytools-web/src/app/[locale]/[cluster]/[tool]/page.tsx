@@ -4,13 +4,7 @@ import { routing } from '@/i18n/routing';
 import { clusterSeoLabel } from '@/lib/cluster-seo-labels';
 import { hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { loadToolContent } from '@/lib/load-tool-content';
-import {
-  breadcrumbSchema,
-  faqSchema,
-  howToSchema,
-  jsonLdSafe,
-  softwareAppSchema,
-} from '@/lib/schema';
+import { breadcrumbSchema, faqSchema, jsonLdSafe, softwareAppSchema } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { buildToolTitle } from '@/lib/seo-metadata';
 import { METADATA_BASE, SITE_URL, selfHostSafeAlternates, selfHostSafeUrl } from '@/lib/site-url';
@@ -112,7 +106,10 @@ export default async function ToolPage({ params }: { params: Promise<PageParams>
   // so the trail can never disagree with the canonical Google resolves.
   const t = await getTranslations({ locale });
   const schemas: { key: string; data: object }[] = [
-    { key: 'software', data: softwareAppSchema({ name: title, description, url }) },
+    {
+      key: 'software',
+      data: softwareAppSchema({ name: title, description, url, cluster, locale }),
+    },
     {
       key: 'breadcrumb',
       data: breadcrumbSchema([
@@ -125,12 +122,8 @@ export default async function ToolPage({ params }: { params: Promise<PageParams>
   if (content.faq && content.faq.items.length > 0) {
     schemas.push({ key: 'faq', data: faqSchema(content.faq.items) });
   }
-  if (content.tutorial) {
-    schemas.push({
-      key: 'howto',
-      data: howToSchema({ name: title, steps: [{ name: 'Use the tool', text: description }] }),
-    });
-  }
+  // No HowTo block for tutorials: Google dropped HowTo rich results in 2023, and the
+  // one-step "Use the tool" recipe emitted here said nothing a crawler could use.
 
   return (
     <>

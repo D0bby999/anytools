@@ -24,8 +24,8 @@ const rawNextPublicUrl = process.env.NEXT_PUBLIC_URL?.trim();
 
 export const SITE_URL = IS_SELF_HOSTED
   ? SELF_HOSTED_PLACEHOLDER_URL
-  : (rawNextPublicUrl ||
-    (process.env.NODE_ENV === 'production' ? PRODUCTION_URL : 'http://localhost:3000'));
+  : rawNextPublicUrl ||
+    (process.env.NODE_ENV === 'production' ? PRODUCTION_URL : 'http://localhost:3000');
 
 export const METADATA_BASE = new URL(SITE_URL);
 
@@ -37,8 +37,27 @@ export const METADATA_BASE = new URL(SITE_URL);
  * choice that is never wrong. Callers pass their normal `alternates` object through;
  * this is the one place that decides whether it ships.
  */
-export function selfHostSafeAlternates<T>(alternates: T): T | undefined {
-  return IS_SELF_HOSTED ? undefined : alternates;
+export function selfHostSafeAlternates<T extends { languages?: Record<string, string> }>(
+  alternates: T,
+): T | undefined {
+  if (IS_SELF_HOSTED) return undefined;
+  return alternates.languages
+    ? { ...alternates, languages: withXDefault(alternates.languages) }
+    : alternates;
+}
+
+/**
+ * Adds `x-default` to an hreflang map, pointing at the English URL.
+ *
+ * Every rendered page and every sitemap entry listed en/vi/es/pt but no `x-default`
+ * (SEO audit 2026-09-05), so Google picked the fallback for unmatched languages by
+ * its own heuristic. English is the only locale with a body for all 107 tools, which
+ * makes it the one alternate that is never a noindex page. A map with no `en` entry
+ * (a locale-restricted page) is returned unchanged rather than guessing.
+ */
+export function withXDefault<T extends Record<string, string>>(languages: T): T {
+  if ('x-default' in languages || !languages.en) return languages;
+  return { ...languages, 'x-default': languages.en };
 }
 
 /**

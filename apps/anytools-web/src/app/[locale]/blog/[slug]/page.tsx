@@ -8,7 +8,7 @@ import { MdxContent } from '@/components/mdx-content';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { routing } from '@/i18n/routing';
 import { asSanitizedHtml, loadBlog } from '@/lib/load-blog-content';
-import { faqSchema, howToSchema, jsonLdSafe } from '@/lib/schema';
+import { faqSchema, jsonLdSafe } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import type { Metadata } from 'next';
@@ -108,13 +108,6 @@ export default async function BlogPostPage({ params }: { params: Promise<PagePar
         // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(articleSchema) }}
       />
-      {blog.data.howTo && (blog.data.howTo.steps?.length ?? 0) > 0 && (
-        <script
-          type="application/ld+json"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes
-          dangerouslySetInnerHTML={{ __html: jsonLdSafe(howToSchema(blog.data.howTo)) }}
-        />
-      )}
       {blog.data.faq && blog.data.faq.length > 0 && (
         <script
           type="application/ld+json"

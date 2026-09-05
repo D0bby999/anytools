@@ -8,7 +8,9 @@ import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { UmamiAnalytics } from '@/components/umami-analytics';
 import { routing } from '@/i18n/routing';
-import { METADATA_BASE } from '@/lib/site-url';
+import { jsonLdSafe, siteSchema } from '@/lib/schema';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
 import { isValidLocale } from '@anytools/i18n';
 import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
@@ -86,6 +88,17 @@ export default async function LocaleLayout({
       <body className="min-h-screen bg-background text-foreground antialiased pb-16 lg:pb-0">
         {/* React 19 hoists this async script into <head> of the server HTML. */}
         <AdSenseScript />
+        {/* WebSite + Organization entity graph, once per locale. Skipped on self-host
+            for the same reason as the per-page JSON-LD: SITE_URL is a placeholder there. */}
+        {!IS_SELF_HOSTED && (
+          <script
+            type="application/ld+json"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: jsonLdSafe escapes `</` to prevent script-tag breakout
+            dangerouslySetInnerHTML={{
+              __html: jsonLdSafe(siteSchema({ siteUrl: SITE_URL, locale })),
+            }}
+          />
+        )}
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <SiteHeader />

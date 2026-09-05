@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { faqSchema, howToSchema, jsonLdSafe, softwareAppSchema } from './schema';
+import {
+  applicationCategory,
+  faqSchema,
+  jsonLdSafe,
+  siteSchema,
+  softwareAppSchema,
+} from './schema';
 
 describe('jsonLdSafe (XSS guard)', () => {
   it('escapes </script> closer so attacker cannot break out', () => {
@@ -39,36 +45,46 @@ describe('softwareAppSchema', () => {
       name: 'BMI Calculator',
       description: 'Free BMI calculator',
       url: 'https://anytools.world/en/health/bmi-calculator',
+      cluster: 'health',
+      locale: 'en',
     });
     expect(out['@type']).toBe('SoftwareApplication');
     expect(out['@context']).toBe('https://schema.org');
     expect(out.offers).toEqual({ '@type': 'Offer', price: '0', priceCurrency: 'USD' });
     expect(out.url).toContain('bmi-calculator');
+    expect(out.inLanguage).toBe('en');
+  });
+
+  it('derives applicationCategory from the cluster instead of calling every tool a dev tool', () => {
+    expect(applicationCategory('health')).toBe('HealthApplication');
+    expect(applicationCategory('finance')).toBe('FinanceApplication');
+    expect(applicationCategory('formatters')).toBe('DeveloperApplication');
+    expect(applicationCategory('pdf')).toBe('UtilitiesApplication');
+    // Unknown cluster ids fall back rather than throwing at render time.
+    expect(applicationCategory('not-a-cluster')).toBe('UtilitiesApplication');
   });
 });
 
-describe('howToSchema', () => {
-  it('numbers steps sequentially starting at 1', () => {
-    const out = howToSchema({
-      name: 'How to BMI',
-      steps: [
-        { name: 'Input weight', text: 'Enter kg' },
-        { name: 'Input height', text: 'Enter cm' },
-      ],
-    });
-    expect(out.step).toHaveLength(2);
-    expect(out.step[0]).toEqual({
-      '@type': 'HowToStep',
-      position: 1,
-      name: 'Input weight',
-      text: 'Enter kg',
-    });
-    expect(out.step[1]?.position).toBe(2);
+describe('siteSchema', () => {
+  it('links WebSite to Organization and exposes the ?q= catalog search', () => {
+    const out = siteSchema({ siteUrl: 'https://anytools.world', locale: 'vi' });
+    const [site, org] = out['@graph'];
+    expect(site['@type']).toBe('WebSite');
+    expect(site.url).toBe('https://anytools.world/vi');
+    expect(site.inLanguage).toBe('vi');
+    expect(site.publisher).toEqual({ '@id': 'https://anytools.world/#organization' });
+    expect(site.potentialAction?.target.urlTemplate).toBe(
+      'https://anytools.world/vi?q={search_term_string}',
+    );
+    expect(org['@type']).toBe('Organization');
+    expect(org['@id']).toBe('https://anytools.world/#organization');
+    expect(org.sameAs).toEqual(['https://github.com/D0bby999/anytools']);
   });
 
-  it('handles empty step list', () => {
-    const out = howToSchema({ name: 'X', steps: [] });
-    expect(out.step).toEqual([]);
+  it('has no HowTo anywhere in the graph (rich result removed 2023)', () => {
+    expect(jsonLdSafe(siteSchema({ siteUrl: 'https://x.test', locale: 'en' }))).not.toContain(
+      'HowTo',
+    );
   });
 });
 

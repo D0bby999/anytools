@@ -10,11 +10,12 @@
 
 import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS } from '@/lib/cluster-config';
+import { clusterLastModified, guideLastModified, toolLastModified } from '@/lib/content-lastmod';
 import { clusterHasBodiedTool, hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
 import { listPublishedBlogRows } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
-import { SITE_URL } from '@/lib/site-url';
+import { SITE_URL, withXDefault } from '@/lib/site-url';
 import { toolMetas } from '@anytools/tools/meta';
 import type { ClusterId } from '@anytools/tools/types';
 import type { MetadataRoute } from 'next';
@@ -46,42 +47,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Tools dark-launched via published:false are excluded until translations land.
   const publishedTools = toolMetas.filter((m) => m.published !== false);
 
+  // No `priority` / `changeFrequency` on any entry: Google has ignored both since 2020,
+  // and they doubled the payload. `lastModified` is the one freshness signal it reads,
+  // sourced from git history when content/.lastmod.json exists (see content-lastmod.ts)
+  // and omitted otherwise — a uniform or fabricated date is worse than none.
   for (const locale of routing.locales) {
-    urls.push({
-      url: `${SITE_URL}/${locale}`,
-      changeFrequency: 'weekly',
-      priority: 1.0,
-    });
+    urls.push({ url: `${SITE_URL}/${locale}` });
     for (const slug of ['privacy', 'terms', 'about', 'contact']) {
-      urls.push({
-        url: `${SITE_URL}/${locale}/${slug}`,
-        changeFrequency: 'yearly',
-        priority: 0.3,
-      });
+      urls.push({ url: `${SITE_URL}/${locale}/${slug}` });
     }
-    urls.push({
-      url: `${SITE_URL}/${locale}/guides`,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    });
+    urls.push({ url: `${SITE_URL}/${locale}/guides` });
     for (const slug of GUIDE_SLUGS) {
       urls.push({
         url: `${SITE_URL}/${locale}/guides/${slug}`,
-        changeFrequency: 'monthly',
-        priority: 0.9,
+        lastModified: guideLastModified(locale, slug),
         alternates: {
-          languages: Object.fromEntries(
-            routing.locales.map((l) => [l, `${SITE_URL}/${l}/guides/${slug}`]),
+          languages: withXDefault(
+            Object.fromEntries(routing.locales.map((l) => [l, `${SITE_URL}/${l}/guides/${slug}`])),
           ),
         },
       });
     }
     // Blog index — emit for every locale for crawl breadth.
-    urls.push({
-      url: `${SITE_URL}/${locale}/blog`,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    });
+    urls.push({ url: `${SITE_URL}/${locale}/blog` });
     // Cluster landing pages (one per cluster per locale).
     //
     // Gated the same way tool URLs are. A cluster page is a grid of links; if none of
@@ -94,15 +82,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (!clusterHasBodiedTool(locale, cluster)) continue;
       urls.push({
         url: `${SITE_URL}/${locale}/${cluster}`,
-        changeFrequency: 'weekly',
-        priority: 0.7,
+        lastModified: clusterLastModified(locale, cluster),
         alternates: {
           // Same predicate the page's own robots tag and hreflang use, so the three
           // signals cannot disagree.
-          languages: Object.fromEntries(
-            routing.locales
-              .filter((l) => clusterHasBodiedTool(l, cluster))
-              .map((l) => [l, `${SITE_URL}/${l}/${cluster}`]),
+          languages: withXDefault(
+            Object.fromEntries(
+              routing.locales
+                .filter((l) => clusterHasBodiedTool(l, cluster))
+                .map((l) => [l, `${SITE_URL}/${l}/${cluster}`]),
+            ),
           ),
         },
       });
@@ -117,15 +106,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (!hasLocalizedToolBody(locale, m.cluster, m.slug)) continue;
       urls.push({
         url: `${SITE_URL}/${locale}/${m.cluster}/${m.slug}`,
-        changeFrequency: 'monthly',
-        priority: 0.8,
+        lastModified: toolLastModified(locale, m.cluster, m.slug),
         alternates: {
           // Only advertise a translation that actually exists — hreflang pointing
           // at a bodyless page is what spread the thin pages through the index.
-          languages: Object.fromEntries(
-            (m.availableLocales ?? routing.locales)
-              .filter((l) => hasLocalizedToolBody(l, m.cluster, m.slug))
-              .map((l) => [l, `${SITE_URL}/${l}/${m.cluster}/${m.slug}`]),
+          languages: withXDefault(
+            Object.fromEntries(
+              (m.availableLocales ?? routing.locales)
+                .filter((l) => hasLocalizedToolBody(l, m.cluster, m.slug))
+                .map((l) => [l, `${SITE_URL}/${l}/${m.cluster}/${m.slug}`]),
+            ),
           ),
         },
       });
@@ -139,10 +129,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const lastMod = row.updatedAt ?? row.publishedAt ?? undefined;
     urls.push({
       url: `${SITE_URL}/en/blog/${row.slug}`,
-      changeFrequency: 'monthly',
-      priority: 0.85,
       lastModified: lastMod ?? undefined,
-      alternates: { languages: { en: `${SITE_URL}/en/blog/${row.slug}` } },
+      alternates: { languages: withXDefault({ en: `${SITE_URL}/en/blog/${row.slug}` }) },
     });
   }
 

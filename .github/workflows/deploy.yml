@@ -69,6 +69,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: the sitemap's <lastmod> comes from each MDX file's last commit
+          # date (see apps/anytools-web/scripts/generate-content-lastmod.mjs). A shallow
+          # clone would give every file the same date, and the script then writes nothing.
+          fetch-depth: 0
+      - name: Generate content lastmod table for the sitemap
+        run: node scripts/generate-content-lastmod.mjs
+        working-directory: apps/anytools-web
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
