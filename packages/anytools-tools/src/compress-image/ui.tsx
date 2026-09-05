@@ -181,8 +181,11 @@ export function CompressImageUi() {
         {result && url && srcUrl && (
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
-              {result.width} × {result.height} px · {kb(result.sizeBefore)} → {kb(result.sizeAfter)}{' '}
-              (
+              {result.width} × {result.height} px
+              {result.scaledFrom
+                ? ` (decoded down from ${result.scaledFrom.width} × ${result.scaledFrom.height}, above the canvas ceiling)`
+                : ''}{' '}
+              · {kb(result.sizeBefore)} → {kb(result.sizeAfter)} (
               {result.sizeAfter <= result.sizeBefore
                 ? `${((1 - result.sizeAfter / result.sizeBefore) * 100).toFixed(0)}% smaller`
                 : `${((result.sizeAfter / result.sizeBefore - 1) * 100).toFixed(0)}% larger`}

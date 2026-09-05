@@ -1,4 +1,4 @@
-import { type OutputFormat, drawToBlob, loadBitmap } from '../shared/canvas-image';
+import { type OutputFormat, decodedFrom, drawToBlob, loadBitmap } from '../shared/canvas-image';
 
 /** Crop rectangle in FRACTIONS of the source (0-1), so it survives preview scaling. */
 export type CropRect = { x: number; y: number; width: number; height: number };
@@ -19,6 +19,8 @@ export type CropResult = {
   height: number;
   sizeBefore: number;
   sizeAfter: number;
+  /** Set when the source was above the canvas ceiling: the crop was cut from a smaller decode. */
+  scaledFrom: { width: number; height: number } | null;
 };
 
 /**
@@ -73,6 +75,7 @@ export async function cropImage(
       height: source.height,
       sizeBefore: file.size,
       sizeAfter: blob.size,
+      scaledFrom: decodedFrom(bitmap),
     };
   } finally {
     bitmap.close();

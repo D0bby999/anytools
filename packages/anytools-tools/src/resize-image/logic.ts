@@ -1,4 +1,10 @@
-import { type OutputFormat, drawToBlob, fitWithin, loadBitmap } from '../shared/canvas-image';
+import {
+  type OutputFormat,
+  decodedFrom,
+  drawToBlob,
+  fitWithin,
+  loadBitmap,
+} from '../shared/canvas-image';
 
 export type ResizeMode =
   /** Fit inside a box, keeping the aspect ratio. */
@@ -16,6 +22,8 @@ export type ResizeResult = {
   height: number;
   sizeBefore: number;
   sizeAfter: number;
+  /** Set when the source was above the canvas ceiling and was decoded smaller before resizing. */
+  scaledFrom: { width: number; height: number } | null;
 };
 
 export function targetSize(
@@ -46,16 +54,24 @@ export async function resizeImage(
 ): Promise<ResizeResult> {
   const bitmap = await loadBitmap(file);
   try {
-    const { width, height } = targetSize(mode, bitmap.width, bitmap.height);
+    const source = decodedFrom(bitmap);
+    // Percent and fit are measured against the photo's real size, so "50%" of a 24 MP photo
+    // is what the user meant even though the decode in hand is smaller.
+    const { width, height } = targetSize(
+      mode,
+      source?.width ?? bitmap.width,
+      source?.height ?? bitmap.height,
+    );
     const blob = await drawToBlob(bitmap, width, height, format, quality);
     return {
       blob,
-      widthBefore: bitmap.width,
-      heightBefore: bitmap.height,
+      widthBefore: source?.width ?? bitmap.width,
+      heightBefore: source?.height ?? bitmap.height,
       width,
       height,
       sizeBefore: file.size,
       sizeAfter: blob.size,
+      scaledFrom: source,
     };
   } finally {
     bitmap.close();

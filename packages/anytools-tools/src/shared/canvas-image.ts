@@ -25,6 +25,30 @@ export class ImageToolError extends Error {
 }
 
 /**
+ * The width to decode at so that an image lands under the canvas ceiling, or null when it
+ * already fits. Pure, so the arithmetic is unit-tested without a browser.
+ */
+export function ceilingWidth(width: number, height: number): number | null {
+  const pixels = width * height;
+  if (pixels <= MAX_CANVAS_PIXELS) return null;
+  // Floor, then one more pixel off if rounding of the height would still tip over the ceiling.
+  let target = Math.floor(width * Math.sqrt(MAX_CANVAS_PIXELS / pixels));
+  while (target > 1 && target * Math.round((height * target) / width) > MAX_CANVAS_PIXELS) target--;
+  return target;
+}
+
+/** Original pixel size of a bitmap that `loadBitmap` had to decode smaller. */
+const decodedFromSize = new WeakMap<ImageBitmap, { width: number; height: number }>();
+
+/**
+ * Size the file was before `loadBitmap` scaled it to fit the canvas ceiling, or null when it
+ * was decoded at full size. Tools report this so "before" is the photo, not the decode.
+ */
+export function decodedFrom(bitmap: ImageBitmap): { width: number; height: number } | null {
+  return decodedFromSize.get(bitmap) ?? null;
+}
+
+/**
  * Decode a file to a bitmap with EXIF orientation applied.
  *
  * `imageOrientation: 'from-image'` is not optional. Without it, photos taken on a phone — which
@@ -36,32 +60,45 @@ export class ImageToolError extends Error {
  * perfectly good JPEG "could not be read as an image", which sends the user looking at the
  * file. Second attempt drops the options entirely, so orientation is then whatever the browser
  * does by default — a sideways photo beats no photo and a false accusation.
+ *
+ * Above the canvas ceiling the file is decoded AGAIN at a reduced width rather than refused.
+ * Refusing — what this did until 2026-09-05 — turned away every 24 MP iPhone photo (5712×4284)
+ * with "resize it in an image editor first", on the tools whose job is resizing it. The decoder
+ * scales during decode, so the full-size pixels never touch a canvas; `decodedFrom` reports the
+ * original size so the caller can say what happened.
  */
 export async function loadBitmap(file: File): Promise<ImageBitmap> {
+  const decode = (options?: ImageBitmapOptions) =>
+    createImageBitmap(file, { imageOrientation: 'from-image', ...options }).catch(() =>
+      createImageBitmap(file, options),
+    );
+
   let bitmap: ImageBitmap;
   try {
-    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    bitmap = await decode();
   } catch {
-    try {
-      bitmap = await createImageBitmap(file);
-    } catch {
-      throw new ImageToolError(
-        `"${file.name}" could not be read as an image. Check that the file is a PNG, JPEG, WebP, GIF or AVIF.`,
-      );
-    }
-  }
-  if (bitmap.width * bitmap.height > MAX_CANVAS_PIXELS) {
-    // Read the dimensions BEFORE closing. A detached ImageBitmap reports 0x0, so closing first
-    // produced "This image is 0×0 (139.0 megapixels)" — nonsense, on the one message whose job
-    // is telling the user what to fix.
-    const { width, height } = bitmap;
-    const mp = (width * height) / 1_000_000;
-    bitmap.close();
     throw new ImageToolError(
-      `This image is ${width}×${height} (${mp.toFixed(1)} megapixels), above what browsers reliably handle on a canvas. Resize it in an image editor first.`,
+      `"${file.name}" could not be read as an image. Check that the file is a PNG, JPEG, WebP, GIF or AVIF.`,
     );
   }
-  return bitmap;
+
+  const resizeWidth = ceilingWidth(bitmap.width, bitmap.height);
+  if (resizeWidth === null) return bitmap;
+
+  // Read the dimensions BEFORE closing: a detached ImageBitmap reports 0×0.
+  const source = { width: bitmap.width, height: bitmap.height };
+  bitmap.close();
+  let reduced: ImageBitmap;
+  try {
+    reduced = await decode({ resizeWidth, resizeQuality: 'high' });
+  } catch {
+    const mp = (source.width * source.height) / 1_000_000;
+    throw new ImageToolError(
+      `This image is ${source.width}×${source.height} (${mp.toFixed(1)} megapixels), above what this browser can decode onto a canvas. Resize it in an image editor first.`,
+    );
+  }
+  decodedFromSize.set(reduced, source);
+  return reduced;
 }
 
 /** Draw a bitmap at a target size and encode. Callers must close the bitmap. */
@@ -78,6 +115,9 @@ export async function drawToBlob(
   canvas.height = Math.max(1, Math.round(height));
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new ImageToolError('Your browser did not provide a 2D canvas context.');
+  // The default is 'low': a 4000px photo drawn straight to 800px comes out aliased, which reads
+  // as "this tool makes my pictures worse". 'high' is a proper multi-tap filter where supported.
+  ctx.imageSmoothingQuality = 'high';
 
   // JPEG has no alpha channel. Left alone, the canvas's transparent pixels encode as black,
   // so a logo on a transparent PNG came back on a black slab. White is what every image

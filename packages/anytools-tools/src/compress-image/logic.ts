@@ -1,4 +1,10 @@
-import { type OutputFormat, drawToBlob, hasAlpha, loadBitmap } from '../shared/canvas-image';
+import {
+  type OutputFormat,
+  decodedFrom,
+  drawToBlob,
+  hasAlpha,
+  loadBitmap,
+} from '../shared/canvas-image';
 
 export type CompressResult = {
   blob: Blob;
@@ -9,6 +15,8 @@ export type CompressResult = {
   format: OutputFormat;
   /** True when the source used transparency — JPEG would lose it. */
   sourceHasAlpha: boolean;
+  /** Set when the source was above the canvas ceiling and was decoded smaller first. */
+  scaledFrom: { width: number; height: number } | null;
   /**
    * Set only by compressToTargetSize. `false` means the budget could not be met even at the
    * lowest quality — the caller MUST say so rather than reporting the saving against the
@@ -43,6 +51,7 @@ export async function compressImage(
       sizeAfter: blob.size,
       format,
       sourceHasAlpha: alpha,
+      scaledFrom: decodedFrom(bitmap),
     };
   } finally {
     // Bitmaps hold decoded pixel data outside the JS heap; without close() a few large
@@ -80,6 +89,7 @@ export async function compressToTargetSize(
         sizeAfter: full.size,
         format,
         sourceHasAlpha: alpha,
+        scaledFrom: decodedFrom(bitmap),
         targetMet: true,
       };
     }
@@ -115,6 +125,7 @@ export async function compressToTargetSize(
       sizeAfter: fallback.size,
       format,
       sourceHasAlpha: alpha,
+      scaledFrom: decodedFrom(bitmap),
       targetMet: fallback.size <= targetBytes,
     };
   } finally {

@@ -1,7 +1,7 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, PrivacyNote } from '@anytools/ui';
 import { useState } from 'react';
-import type { OutputFormat } from '../shared/canvas-image';
+import { MAX_CANVAS_PIXELS, type OutputFormat } from '../shared/canvas-image';
 import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ResizeMode, type ResizeResult, resizeImage } from './logic';
@@ -200,6 +200,9 @@ export function ResizeImageUi() {
             <div className="rounded-md border bg-muted p-3 text-sm">
               {result.widthBefore} × {result.heightBefore} → {result.width} × {result.height} px ·{' '}
               {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
+              {result.scaledFrom && result.width * result.height > MAX_CANVAS_PIXELS
+                ? ' · the source was above what a canvas can hold, so the output is capped at 16.7 megapixels'
+                : ''}
             </div>
             {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
             <img src={url} alt="Resized" className="max-h-80 rounded border" />

@@ -242,6 +242,9 @@ export function CropImageUi() {
           <div className="space-y-3">
             <div className="rounded-md border bg-muted p-3 text-sm">
               {result.width} × {result.height} px · {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
+              {result.scaledFrom
+                ? ` · cut from a smaller decode: the ${result.scaledFrom.width} × ${result.scaledFrom.height} original is above what a canvas can hold`
+                : ''}
             </div>
             {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
             <img src={outUrl} alt="Cropped result" className="max-h-80 rounded border" />
