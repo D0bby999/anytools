@@ -11,13 +11,18 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { type QrTemplate, buildPayload, generateQrDataUrl, generateQrSvg } from './logic';
+import { STRINGS } from './strings';
 
 type Kind = QrTemplate['kind'];
 
 export function QrCodeGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [kind, setKind] = useState<Kind>('text');
   const [text, setText] = useState('');
   const [url, setUrl] = useState('');
@@ -81,7 +86,7 @@ export function QrCodeGeneratorUi() {
     try {
       payload = buildPayload(tmpl);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Invalid input');
+      setError(e instanceof Error ? e.message : ui.invalidInput);
       setPngUrl(null);
       setSvg(null);
       return;
@@ -105,7 +110,7 @@ export function QrCodeGeneratorUi() {
       })
       .catch((e) => {
         if (cancelled) return;
-        setError(e instanceof Error ? e.message : 'Generation failed');
+        setError(e instanceof Error ? e.message : s.generationFailed);
         setPngUrl(null);
         setSvg(null);
       });
@@ -113,7 +118,20 @@ export function QrCodeGeneratorUi() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, text, url, email, tel, wifi, vcard, ecc, darkColor, lightColor]);
+  }, [
+    kind,
+    text,
+    url,
+    email,
+    tel,
+    wifi,
+    vcard,
+    ecc,
+    darkColor,
+    lightColor,
+    s.generationFailed,
+    ui.invalidInput,
+  ]);
 
   const downloadSvg = () => {
     if (!svg) return;
@@ -129,15 +147,15 @@ export function QrCodeGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">QR Code Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={kind} onValueChange={(v) => setKind(v as Kind)}>
           <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="text">Text</TabsTrigger>
+            <TabsTrigger value="text">{s.tabText}</TabsTrigger>
             <TabsTrigger value="url">URL</TabsTrigger>
-            <TabsTrigger value="email">Email</TabsTrigger>
-            <TabsTrigger value="tel">Phone</TabsTrigger>
+            <TabsTrigger value="email">{s.tabEmail}</TabsTrigger>
+            <TabsTrigger value="tel">{s.tabPhone}</TabsTrigger>
             <TabsTrigger value="sms">SMS</TabsTrigger>
             <TabsTrigger value="wifi">Wi-Fi</TabsTrigger>
             <TabsTrigger value="vcard">vCard</TabsTrigger>
@@ -148,7 +166,7 @@ export function QrCodeGeneratorUi() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={3}
-              placeholder="Any text..."
+              placeholder={s.anyText}
             />
           </TabsContent>
           <TabsContent value="url">
@@ -167,13 +185,13 @@ export function QrCodeGeneratorUi() {
             <Input
               value={email.subject}
               onChange={(e) => setEmail({ ...email, subject: e.target.value })}
-              placeholder="Subject (optional)"
+              placeholder={s.subjectOptional}
             />
             <Textarea
               value={email.body}
               onChange={(e) => setEmail({ ...email, body: e.target.value })}
               rows={2}
-              placeholder="Body (optional)"
+              placeholder={s.bodyOptional}
             />
           </TabsContent>
           <TabsContent value="tel">
@@ -194,12 +212,12 @@ export function QrCodeGeneratorUi() {
             <Input
               value={wifi.ssid}
               onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })}
-              placeholder="SSID (network name)"
+              placeholder={s.ssid}
             />
             <Input
               value={wifi.password}
               onChange={(e) => setWifi({ ...wifi, password: e.target.value })}
-              placeholder="Password (leave empty for open)"
+              placeholder={s.wifiPassword}
               type="password"
             />
             <select
@@ -211,7 +229,7 @@ export function QrCodeGeneratorUi() {
             >
               <option value="WPA">WPA/WPA2/WPA3</option>
               <option value="WEP">WEP</option>
-              <option value="nopass">Open (no password)</option>
+              <option value="nopass">{s.wifiOpen}</option>
             </select>
           </TabsContent>
           <TabsContent value="vcard" className="space-y-2">
@@ -219,58 +237,58 @@ export function QrCodeGeneratorUi() {
               <Input
                 value={vcard.firstName}
                 onChange={(e) => setVcard({ ...vcard, firstName: e.target.value })}
-                placeholder="First name"
+                placeholder={s.firstName}
               />
               <Input
                 value={vcard.lastName}
                 onChange={(e) => setVcard({ ...vcard, lastName: e.target.value })}
-                placeholder="Last name"
+                placeholder={s.lastName}
               />
             </div>
             <Input
               value={vcard.org}
               onChange={(e) => setVcard({ ...vcard, org: e.target.value })}
-              placeholder="Organization"
+              placeholder={s.organization}
             />
             <Input
               value={vcard.title}
               onChange={(e) => setVcard({ ...vcard, title: e.target.value })}
-              placeholder="Job title"
+              placeholder={s.jobTitle}
             />
             <Input
               value={vcard.phone}
               onChange={(e) => setVcard({ ...vcard, phone: e.target.value })}
-              placeholder="Phone"
+              placeholder={s.phone}
             />
             <Input
               value={vcard.email}
               onChange={(e) => setVcard({ ...vcard, email: e.target.value })}
-              placeholder="Email"
+              placeholder={s.email}
             />
             <Input
               value={vcard.url}
               onChange={(e) => setVcard({ ...vcard, url: e.target.value })}
-              placeholder="Website"
+              placeholder={s.website}
             />
           </TabsContent>
         </Tabs>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Error correction</span>
+            <span className="block mb-1 text-muted-foreground">{s.errorCorrection}</span>
             <select
               value={ecc}
               onChange={(e) => setEcc(e.target.value as typeof ecc)}
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
               <option value="L">L (~7%)</option>
-              <option value="M">M (~15%) — default</option>
+              <option value="M">{s.eccDefault}</option>
               <option value="Q">Q (~25%)</option>
-              <option value="H">H (~30%) — for logos</option>
+              <option value="H">{s.eccLogos}</option>
             </select>
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Dark color</span>
+            <span className="block mb-1 text-muted-foreground">{s.darkColor}</span>
             <Input
               type="color"
               value={darkColor}
@@ -279,7 +297,7 @@ export function QrCodeGeneratorUi() {
             />
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Light color</span>
+            <span className="block mb-1 text-muted-foreground">{s.lightColor}</span>
             <Input
               type="color"
               value={lightColor}
@@ -298,25 +316,21 @@ export function QrCodeGeneratorUi() {
         {pngUrl && (
           <div className="flex flex-col items-center gap-3">
             {/* biome-ignore lint/performance/noImgElement: data URI, not optimizable by next/image */}
-            <img
-              src={pngUrl}
-              alt="QR code preview"
-              className="rounded border bg-white p-2 max-w-xs"
-            />
+            <img src={pngUrl} alt={s.previewAlt} className="rounded border bg-white p-2 max-w-xs" />
             <div className="flex gap-2">
               <a
                 href={pngUrl}
                 download={`qr-${kind}-${Date.now()}.png`}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Download PNG
+                {s.downloadPng}
               </a>
               <button
                 type="button"
                 onClick={downloadSvg}
                 className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent"
               >
-                Download SVG
+                {s.downloadSvg}
               </button>
             </div>
           </div>

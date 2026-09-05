@@ -15,11 +15,14 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
 } from '@anytools/ui';
 import { useState } from 'react';
 import { DEFAULT_ROUNDS, MAX_ROUNDS, MIN_ROUNDS, hashPassword, verifyPassword } from './logic';
+import { STRINGS } from './strings';
 
 export function BcryptGeneratorUi() {
+  const s = useLocalized(STRINGS);
   const [password, setPassword] = useState('');
   const [rounds, setRounds] = useState(DEFAULT_ROUNDS);
   const [hash, setHash] = useState('');
@@ -33,27 +36,27 @@ export function BcryptGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Bcrypt Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs defaultValue="hash">
           <TabsList>
-            <TabsTrigger value="hash">Hash</TabsTrigger>
-            <TabsTrigger value="verify">Verify</TabsTrigger>
+            <TabsTrigger value="hash">{s.tabHash}</TabsTrigger>
+            <TabsTrigger value="verify">{s.tabVerify}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="hash" className="space-y-4">
             <div>
-              <span className="block text-sm font-medium mb-1.5">Password</span>
+              <span className="block text-sm font-medium mb-1.5">{s.password}</span>
               <Input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                aria-label="Password to hash"
+                aria-label={s.passwordToHash}
                 className="h-11 font-mono"
               />
             </div>
             <RangeSlider
-              label={`Cost rounds: ${rounds} (2^${rounds} iterations)`}
+              label={s.costRounds.split('{n}').join(String(rounds))}
               min={MIN_ROUNDS}
               max={MAX_ROUNDS}
               step={1}
@@ -71,7 +74,7 @@ export function BcryptGeneratorUi() {
                 }
               }}
             >
-              {hashing ? 'Hashing…' : 'Generate hash'}
+              {hashing ? s.hashing : s.generateHash}
             </Button>
             {hash && (
               <div className="flex items-start gap-2 rounded-lg border p-3">
@@ -83,19 +86,19 @@ export function BcryptGeneratorUi() {
 
           <TabsContent value="verify" className="space-y-4">
             <div>
-              <span className="block text-sm font-medium mb-1.5">Password</span>
+              <span className="block text-sm font-medium mb-1.5">{s.password}</span>
               <Input
                 value={verifyPw}
                 onChange={(e) => {
                   setVerifyPw(e.target.value);
                   setVerdict(null);
                 }}
-                aria-label="Password to verify"
+                aria-label={s.passwordToVerify}
                 className="h-11 font-mono"
               />
             </div>
             <div>
-              <span className="block text-sm font-medium mb-1.5">Existing bcrypt hash</span>
+              <span className="block text-sm font-medium mb-1.5">{s.existingHash}</span>
               <Textarea
                 value={verifyHash}
                 onChange={(e) => {
@@ -104,7 +107,7 @@ export function BcryptGeneratorUi() {
                 }}
                 rows={2}
                 placeholder="$2b$10$…"
-                aria-label="Bcrypt hash"
+                aria-label={s.bcryptHash}
                 className="font-mono text-sm"
               />
             </div>
@@ -120,7 +123,7 @@ export function BcryptGeneratorUi() {
                   }
                 }}
               >
-                {verifying ? 'Checking…' : 'Verify'}
+                {verifying ? s.checking : s.tabVerify}
               </Button>
               {verdict !== null && (
                 <Badge
@@ -130,7 +133,7 @@ export function BcryptGeneratorUi() {
                       : 'bg-destructive/10 text-destructive border-0'
                   }
                 >
-                  {verdict ? 'Match ✓' : 'No match ✗'}
+                  {verdict ? s.match : s.noMatch}
                 </Badge>
               )}
             </div>

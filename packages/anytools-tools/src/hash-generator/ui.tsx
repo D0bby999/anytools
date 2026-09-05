@@ -12,9 +12,12 @@ import {
   TabsList,
   TabsTrigger,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { type HashAlgo, type HashEncoding, hashFile, hashText, hmac } from './logic';
+import { STRINGS } from './strings';
 
 const ALL_ALGOS: HashAlgo[] = ['md5', 'sha-1', 'sha-256', 'sha-384', 'sha-512'];
 // WebCrypto has no HMAC-MD5, and it would be the wrong default even if it did.
@@ -23,6 +26,8 @@ const HMAC_ALGOS = ALL_ALGOS.filter((a): a is Exclude<HashAlgo, 'md5'> => a !== 
 type Mode = 'text' | 'file' | 'hmac';
 
 export function HashGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [mode, setMode] = useState<Mode>('text');
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -42,7 +47,7 @@ export function HashGeneratorUi() {
         try {
           out[algo] = await hmac(hmacKey, text, algo, encoding);
         } catch {
-          out[algo] = 'Error';
+          out[algo] = s.error;
         }
       }
       if (!cancelled) setResults(out);
@@ -51,7 +56,7 @@ export function HashGeneratorUi() {
     return () => {
       cancelled = true;
     };
-  }, [mode, text, hmacKey, encoding, enabled]);
+  }, [mode, text, hmacKey, encoding, enabled, s.error]);
 
   useEffect(() => {
     if (mode !== 'text') return;
@@ -63,7 +68,7 @@ export function HashGeneratorUi() {
         try {
           out[algo] = await hashText(text, algo, encoding);
         } catch {
-          out[algo] = 'Error';
+          out[algo] = s.error;
         }
       }
       if (!cancelled) setResults(out);
@@ -72,7 +77,7 @@ export function HashGeneratorUi() {
     return () => {
       cancelled = true;
     };
-  }, [text, encoding, enabled, mode]);
+  }, [text, encoding, enabled, mode, s.error]);
 
   const handleFile = async () => {
     if (!file) return;
@@ -98,20 +103,20 @@ export function HashGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Hash Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
           <TabsList>
-            <TabsTrigger value="text">Text</TabsTrigger>
-            <TabsTrigger value="file">File</TabsTrigger>
+            <TabsTrigger value="text">{s.tabText}</TabsTrigger>
+            <TabsTrigger value="file">{s.tabFile}</TabsTrigger>
             <TabsTrigger value="hmac">HMAC</TabsTrigger>
           </TabsList>
           <TabsContent value="text" className="space-y-3">
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Paste text to hash"
+              placeholder={s.pasteText}
               rows={4}
             />
           </TabsContent>
@@ -122,7 +127,7 @@ export function HashGeneratorUi() {
               className="block w-full text-sm"
             />
             <Button onClick={handleFile} disabled={!file || busy}>
-              {busy ? 'Hashing…' : 'Hash file'}
+              {busy ? s.hashing : s.hashFile}
             </Button>
           </TabsContent>
           {/* HMAC is keyed: unlike a plain hash it proves the message came from someone
@@ -132,28 +137,25 @@ export function HashGeneratorUi() {
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Message to authenticate"
+              placeholder={s.messageToAuthenticate}
               rows={3}
             />
             <label className="block text-sm">
-              <span className="mb-1 block text-muted-foreground">Secret key</span>
+              <span className="mb-1 block text-muted-foreground">{s.secretKey}</span>
               <input
                 type="text"
                 value={hmacKey}
                 onChange={(e) => setHmacKey(e.target.value)}
-                placeholder="Shared secret"
+                placeholder={s.sharedSecret}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-mono"
               />
             </label>
-            <p className="text-sm text-muted-foreground">
-              MD5 is not offered here — HMAC-MD5 is not something to start a new integration with.
-              Everything is computed in your browser via WebCrypto; the key is never sent anywhere.
-            </p>
+            <p className="text-sm text-muted-foreground">{s.hmacNote}</p>
           </TabsContent>
         </Tabs>
 
         <div className="flex flex-wrap gap-3">
-          <span className="text-sm text-muted-foreground">Algorithms:</span>
+          <span className="text-sm text-muted-foreground">{s.algorithms}</span>
           {ALL_ALGOS.map((algo) => (
             <label key={algo} className="flex items-center gap-1 text-sm cursor-pointer">
               <input
@@ -165,7 +167,7 @@ export function HashGeneratorUi() {
               {algo.toUpperCase()}
             </label>
           ))}
-          <span className="ml-auto text-sm text-muted-foreground">Output:</span>
+          <span className="ml-auto text-sm text-muted-foreground">{ui.output}:</span>
           {(['hex', 'base64'] as HashEncoding[]).map((enc) => (
             <label key={enc} className="flex items-center gap-1 text-sm cursor-pointer">
               <input
@@ -195,10 +197,7 @@ export function HashGeneratorUi() {
           ))}
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          MD5 and SHA-1 are cryptographically broken — fine for non-security checksums, never for
-          passwords or signatures. Use SHA-256+ for anything security-related.
-        </p>
+        <p className="text-xs text-muted-foreground">{s.weakNote}</p>
         <PrivacyNote />
       </CardContent>
     </Card>

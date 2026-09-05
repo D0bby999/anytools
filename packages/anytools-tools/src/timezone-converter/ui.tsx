@@ -8,9 +8,11 @@ import {
   CopyButton,
   Input,
   PrivacyNote,
+  useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { COMMON_TIMEZONES, meetingTable } from './logic';
+import { STRINGS } from './strings';
 
 function detectLocalZone(): string {
   try {
@@ -21,6 +23,7 @@ function detectLocalZone(): string {
 }
 
 export function TimezoneConverterUi() {
+  const s = useLocalized(STRINGS);
   const [datetime, setDatetime] = useState(() => new Date().toISOString().slice(0, 16));
   const [fromTz, setFromTz] = useState(detectLocalZone());
   const [selectedTzs, setSelectedTzs] = useState<string[]>([
@@ -45,13 +48,13 @@ export function TimezoneConverterUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Timezone Converter</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
           {/* biome-ignore lint/a11y/noLabelWithoutControl: wraps Input forwardRef */}
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Time</span>
+            <span className="block mb-1 text-muted-foreground">{s.time}</span>
             <Input
               type="datetime-local"
               value={datetime}
@@ -59,7 +62,7 @@ export function TimezoneConverterUi() {
             />
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">From timezone</span>
+            <span className="block mb-1 text-muted-foreground">{s.fromTimezone}</span>
             <select
               value={fromTz}
               onChange={(e) => setFromTz(e.target.value)}
@@ -76,13 +79,13 @@ export function TimezoneConverterUi() {
             variant="outline"
             onClick={() => setDatetime(new Date().toISOString().slice(0, 16))}
           >
-            Now
+            {s.now}
           </Button>
         </div>
 
         <div>
           <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            Show in
+            {s.showIn}
           </span>
           <div className="flex flex-wrap gap-2">
             {COMMON_TIMEZONES.map((tz) => (

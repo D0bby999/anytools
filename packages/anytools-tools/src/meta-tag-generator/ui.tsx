@@ -7,11 +7,14 @@ import {
   CopyButton,
   PrivacyNote,
   Textarea,
+  useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { DEFAULT_INPUT, LIMITS, type MetaInput, generateMetaTags, validate } from './logic';
+import { STRINGS } from './strings';
 
 export function MetaTagGeneratorUi() {
+  const s = useLocalized(STRINGS);
   const [input, setInput] = useState<MetaInput>({
     ...DEFAULT_INPUT,
     title: 'How to merge PDFs without uploading them',
@@ -49,14 +52,14 @@ export function MetaTagGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Meta Tag Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {field('title', 'Page title', 'Shown as the headline in search results', LIMITS.title)}
+        {field('title', s.pageTitle, s.pageTitlePlaceholder, LIMITS.title)}
 
         <label className="block text-sm">
           <span className="mb-1 flex items-center justify-between text-muted-foreground">
-            <span>Description</span>
+            <span>{s.description}</span>
             <span className={input.description.length > LIMITS.description ? 'text-amber-600' : ''}>
               {input.description.length}/{LIMITS.description}
             </span>
@@ -69,24 +72,24 @@ export function MetaTagGeneratorUi() {
         </label>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {field('url', 'Canonical URL', 'https://example.com/page')}
-          {field('imageUrl', 'Preview image URL', 'https://example.com/og.png')}
-          {field('siteName', 'Site name', 'Example')}
-          {field('author', 'Author', 'Optional')}
-          {field('twitterHandle', 'X / Twitter handle', '@example')}
+          {field('url', s.canonicalUrl, 'https://example.com/page')}
+          {field('imageUrl', s.previewImageUrl, 'https://example.com/og.png')}
+          {field('siteName', s.siteName, 'Example')}
+          {field('author', s.author, s.optional)}
+          {field('twitterHandle', s.twitterHandle, '@example')}
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Card type</span>
+            <span className="mb-1 block text-muted-foreground">{s.cardType}</span>
             <select
               value={input.cardType}
               onChange={(e) => set('cardType', e.target.value as MetaInput['cardType'])}
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
-              <option value="summary_large_image">Large image</option>
-              <option value="summary">Summary</option>
+              <option value="summary_large_image">{s.cardLargeImage}</option>
+              <option value="summary">{s.cardSummary}</option>
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">Robots</span>
+            <span className="mb-1 block text-muted-foreground">{s.robots}</span>
             <select
               value={input.robots}
               onChange={(e) => set('robots', e.target.value as MetaInput['robots'])}
@@ -110,7 +113,7 @@ export function MetaTagGeneratorUi() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm text-muted-foreground">Paste into &lt;head&gt;</h3>
+            <h3 className="text-sm text-muted-foreground">{s.pasteIntoHead}</h3>
             <CopyButton text={output} />
           </div>
           <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs">

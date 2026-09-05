@@ -1,20 +1,33 @@
 'use client';
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, PrivacyNote } from '@anytools/ui';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
+  PrivacyNote,
+  useLocalized,
+} from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { parseCron, validateCron } from './logic';
+import { STRINGS } from './strings';
 
-const PRESETS: { label: string; expr: string }[] = [
-  { label: 'Every minute', expr: '* * * * *' },
-  { label: 'Every 5 minutes', expr: '*/5 * * * *' },
-  { label: 'Hourly', expr: '0 * * * *' },
-  { label: 'Daily midnight', expr: '0 0 * * *' },
-  { label: 'Daily 9am', expr: '0 9 * * *' },
-  { label: 'Weekly Sun midnight', expr: '0 0 * * 0' },
-  { label: 'Monthly 1st', expr: '0 0 1 * *' },
-  { label: 'Business hours', expr: '0 9-17 * * 1-5' },
+type PresetKey = keyof typeof STRINGS.en & `preset${string}`;
+
+const PRESETS: { key: PresetKey; expr: string }[] = [
+  { key: 'presetEveryMinute', expr: '* * * * *' },
+  { key: 'presetEvery5Minutes', expr: '*/5 * * * *' },
+  { key: 'presetHourly', expr: '0 * * * *' },
+  { key: 'presetDailyMidnight', expr: '0 0 * * *' },
+  { key: 'presetDaily9am', expr: '0 9 * * *' },
+  { key: 'presetWeeklySunMidnight', expr: '0 0 * * 0' },
+  { key: 'presetMonthly1st', expr: '0 0 1 * *' },
+  { key: 'presetBusinessHours', expr: '0 9-17 * * 1-5' },
 ];
 
 export function CronParserUi() {
+  const s = useLocalized(STRINGS);
   const [expr, setExpr] = useState('0 0 * * *');
   const valid = useMemo(() => validateCron(expr), [expr]);
   const parsed = useMemo(() => (valid.valid ? parseCron(expr, 10) : null), [expr, valid.valid]);
@@ -22,12 +35,12 @@ export function CronParserUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Cron Parser</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            Cron expression
+            {s.cronExpression}
           </span>
           <Input
             value={expr}
@@ -35,15 +48,13 @@ export function CronParserUi() {
             placeholder="* * * * *"
             className="font-mono"
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            5 fields: minute hour day month weekday
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">{s.fieldsHint}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((p) => (
             <Button key={p.expr} variant="outline" size="sm" onClick={() => setExpr(p.expr)}>
-              {p.label}
+              {s[p.key]}
             </Button>
           ))}
         </div>
@@ -55,12 +66,12 @@ export function CronParserUi() {
         ) : parsed ? (
           <>
             <div className="rounded-md border bg-muted px-3 py-2 text-sm">
-              <span className="text-muted-foreground">Description: </span>
+              <span className="text-muted-foreground">{s.description}</span>
               <strong>{parsed.description}</strong>
             </div>
             <div>
               <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-                Next 10 runs (UTC)
+                {s.next10Runs}
               </span>
               <ul className="space-y-1 text-sm font-mono">
                 {parsed.nextRuns.map((d, i) => (

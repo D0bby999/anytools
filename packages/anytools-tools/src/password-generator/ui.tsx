@@ -9,9 +9,11 @@ import {
   CopyButton,
   Input,
   PrivacyNote,
+  useLocalized,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { type PasswordOptions, calculateStrength, generatePassword } from './logic';
+import { STRINGS } from './strings';
 
 const STRENGTH_COLOR: Record<string, string> = {
   weak: 'destructive',
@@ -21,6 +23,15 @@ const STRENGTH_COLOR: Record<string, string> = {
 };
 
 export function PasswordGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  // Strength levels are ids from the logic layer; label them in the locale.
+  const levelLabel: Record<string, string> = {
+    weak: s.levelWeak,
+    fair: s.levelFair,
+    strong: s.levelStrong,
+    excellent: s.levelExcellent,
+  };
+  const [noteBefore, noteAfter] = s.note.split('{code}');
   const [options, setOptions] = useState<PasswordOptions>({
     length: 20,
     lowercase: true,
@@ -53,7 +64,7 @@ export function PasswordGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Password Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -68,10 +79,11 @@ export function PasswordGeneratorUi() {
               <Badge
                 variant={STRENGTH_COLOR[strength.level] as 'default' | 'secondary' | 'destructive'}
               >
-                {strength.level} · {Math.round(strength.bits)} bits
+                {levelLabel[strength.level] ?? strength.level} ·{' '}
+                {s.bits.replace('{n}', String(Math.round(strength.bits)))}
               </Badge>
               <span className="text-muted-foreground">
-                est. crack time: {strength.crackTimeLabel}
+                {s.crackTime.replace('{t}', strength.crackTimeLabel)}
               </span>
             </div>
           )}
@@ -79,7 +91,7 @@ export function PasswordGeneratorUi() {
 
         <label className="block text-sm">
           <span className="block mb-1 text-muted-foreground">
-            Length: <span className="text-foreground">{options.length}</span>
+            {s.length} <span className="text-foreground">{options.length}</span>
           </span>
           <input
             type="range"
@@ -93,37 +105,38 @@ export function PasswordGeneratorUi() {
 
         <div className="grid grid-cols-2 gap-2">
           <Toggle
-            label="Lowercase a–z"
+            label={s.lowercase}
             checked={options.lowercase}
             onChange={(v) => update({ lowercase: v })}
           />
           <Toggle
-            label="Uppercase A–Z"
+            label={s.uppercase}
             checked={options.uppercase}
             onChange={(v) => update({ uppercase: v })}
           />
           <Toggle
-            label="Numbers 0–9"
+            label={s.numbers}
             checked={options.numbers}
             onChange={(v) => update({ numbers: v })}
           />
           <Toggle
-            label="Symbols !@#…"
+            label={s.symbols}
             checked={options.symbols}
             onChange={(v) => update({ symbols: v })}
           />
           <Toggle
-            label="Exclude ambiguous (0,O,l,1,I)"
+            label={s.excludeAmbiguous}
             checked={options.excludeAmbiguous}
             onChange={(v) => update({ excludeAmbiguous: v })}
           />
         </div>
 
-        <Button onClick={regenerate}>Generate new</Button>
+        <Button onClick={regenerate}>{s.generateNew}</Button>
 
         <p className="text-xs text-muted-foreground">
-          Generated with <code>crypto.getRandomValues</code>. For storage, hash with bcrypt /
-          Argon2, never with plain SHA.
+          {noteBefore}
+          <code>crypto.getRandomValues</code>
+          {noteAfter}
         </p>
         <PrivacyNote />
       </CardContent>

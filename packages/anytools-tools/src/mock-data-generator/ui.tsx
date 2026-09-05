@@ -8,6 +8,8 @@ import {
   CopyButton,
   Input,
   PrivacyNote,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useState } from 'react';
 import {
@@ -17,6 +19,7 @@ import {
   exportAs,
   generateMockData,
 } from './logic';
+import { STRINGS } from './strings';
 
 const FIELD_TYPES: FieldType[] = [
   'uuid',
@@ -49,6 +52,8 @@ const PRESET_USER: FieldSpec[] = [
 ];
 
 export function MockDataGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
   const [fields, setFields] = useState<FieldSpec[]>(PRESET_USER);
   const [count, setCount] = useState(10);
   const [locale, setLocale] = useState<FakerLocale>('en');
@@ -70,7 +75,7 @@ export function MockDataGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Mock Data Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -79,11 +84,12 @@ export function MockDataGeneratorUi() {
               <Input
                 value={field.name}
                 onChange={(e) => updateField(i, { name: e.target.value })}
-                placeholder="field name"
+                placeholder={s.fieldName}
                 className="max-w-[180px]"
               />
               <select
                 value={field.type}
+                aria-label={s.fieldType}
                 onChange={(e) => updateField(i, { type: e.target.value as FieldType })}
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm"
               >
@@ -93,20 +99,25 @@ export function MockDataGeneratorUi() {
                   </option>
                 ))}
               </select>
-              <Button size="sm" variant="ghost" onClick={() => removeField(i)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label={ui.remove}
+                onClick={() => removeField(i)}
+              >
                 ×
               </Button>
             </div>
           ))}
           <Button size="sm" variant="outline" onClick={addField}>
-            + Add field
+            {s.addField}
           </Button>
         </div>
 
         <div className="flex flex-wrap gap-3 items-end">
           {/* biome-ignore lint/a11y/noLabelWithoutControl: wraps Input forwardRef */}
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Count (1-1000)</span>
+            <span className="block mb-1 text-muted-foreground">{s.count}</span>
             <Input
               type="number"
               min={1}
@@ -116,7 +127,7 @@ export function MockDataGeneratorUi() {
             />
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Locale</span>
+            <span className="block mb-1 text-muted-foreground">{s.locale}</span>
             <select
               value={locale}
               onChange={(e) => setLocale(e.target.value as FakerLocale)}
@@ -132,7 +143,7 @@ export function MockDataGeneratorUi() {
             </select>
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Format</span>
+            <span className="block mb-1 text-muted-foreground">{s.format}</span>
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value as typeof format)}
@@ -143,13 +154,15 @@ export function MockDataGeneratorUi() {
               <option value="sql">SQL INSERT</option>
             </select>
           </label>
-          <Button onClick={generate}>Generate</Button>
+          <Button onClick={generate}>{ui.generate}</Button>
         </div>
 
         {output && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">Output</span>
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {ui.output}
+              </span>
               <CopyButton text={output} />
             </div>
             <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all max-h-96 overflow-auto">

@@ -9,6 +9,7 @@ import {
   Input,
   PrivacyNote,
   SegmentedControl,
+  useLocalized,
 } from '@anytools/ui';
 import QRCode from 'qrcode';
 import { useEffect, useMemo, useState } from 'react';
@@ -19,8 +20,10 @@ import {
   generateRandomSecret,
   otpauthUri,
 } from './logic';
+import { STRINGS } from './strings';
 
 export function TotpGeneratorUi() {
+  const s = useLocalized(STRINGS);
   const [secret, setSecret] = useState('');
   const [options, setOptions] = useState<TotpOptions>(DEFAULT_OPTIONS);
   const [issuer, setIssuer] = useState('AnyTools');
@@ -60,22 +63,22 @@ export function TotpGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">TOTP Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <span className="block text-sm font-medium mb-1.5">Base32 secret</span>
+          <span className="block text-sm font-medium mb-1.5">{s.base32Secret}</span>
           <div className="flex gap-2">
             <Input
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               placeholder="JBSWY3DPEHPK3PXP"
-              aria-label="TOTP secret"
+              aria-label={s.secretAria}
               aria-invalid={secret !== '' && result === null}
               className="h-11 font-mono"
             />
             <Button variant="outline" onClick={() => setSecret(generateRandomSecret())}>
-              Random
+              {s.random}
             </Button>
           </div>
         </div>
@@ -85,10 +88,10 @@ export function TotpGeneratorUi() {
             value={String(options.digits)}
             onChange={(v) => setOptions((o) => ({ ...o, digits: Number(v) as 6 | 8 }))}
             options={[
-              { value: '6', label: '6 digits' },
-              { value: '8', label: '8 digits' },
+              { value: '6', label: s.digits6 },
+              { value: '8', label: s.digits8 },
             ]}
-            label="Digits"
+            label={s.digits}
           />
           <SegmentedControl
             value={String(options.period)}
@@ -97,7 +100,7 @@ export function TotpGeneratorUi() {
               { value: '30', label: '30s' },
               { value: '60', label: '60s' },
             ]}
-            label="Period"
+            label={s.period}
           />
         </div>
 
@@ -113,39 +116,35 @@ export function TotpGeneratorUi() {
                 style={{ width: `${(result.remainingSeconds / result.period) * 100}%` }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">refreshes in {result.remainingSeconds}s</p>
+            <p className="text-xs text-muted-foreground">
+              {s.refreshesIn.replace('{n}', String(result.remainingSeconds))}
+            </p>
           </div>
         )}
 
         {secret !== '' && result === null && (
-          <p className="text-sm text-destructive">Invalid base32 secret (allowed: A–Z, 2–7).</p>
+          <p className="text-sm text-destructive">{s.invalidSecret}</p>
         )}
 
         {uri && (
           <div className="grid sm:grid-cols-[auto_1fr] gap-4 items-start rounded-lg border p-4">
             {qrDataUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={qrDataUrl}
-                alt="otpauth QR code"
-                width={144}
-                height={144}
-                className="rounded"
-              />
+              <img src={qrDataUrl} alt={s.qrAlt} width={144} height={144} className="rounded" />
             )}
             <div className="space-y-2 min-w-0">
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   value={issuer}
                   onChange={(e) => setIssuer(e.target.value)}
-                  aria-label="Issuer"
-                  placeholder="Issuer"
+                  aria-label={s.issuer}
+                  placeholder={s.issuer}
                   className="h-9 text-sm"
                 />
                 <Input
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
-                  aria-label="Account label"
+                  aria-label={s.accountLabel}
                   placeholder="account@email"
                   className="h-9 text-sm"
                 />
@@ -156,9 +155,7 @@ export function TotpGeneratorUi() {
                 </code>
                 <CopyButton text={uri} />
               </div>
-              <p className="text-xs text-muted-foreground">
-                Scan with Google Authenticator, Aegis, 1Password…
-              </p>
+              <p className="text-xs text-muted-foreground">{s.scanWith}</p>
             </div>
           </div>
         )}

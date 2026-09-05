@@ -9,21 +9,33 @@ import {
   Input,
   PrivacyNote,
   Textarea,
+  useLocalized,
+  useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import { type LoremOutput, type LoremUnit, type LoremVariant, generateLorem } from './logic';
+import { STRINGS } from './strings';
 
-const VARIANTS: { value: LoremVariant; label: string }[] = [
-  { value: 'classic', label: 'Classic Lorem' },
-  { value: 'vietnamese', label: 'Vietnamese' },
-  { value: 'spanish', label: 'Spanish' },
-  { value: 'hipster', label: 'Hipster' },
-];
+const VARIANTS: LoremVariant[] = ['classic', 'vietnamese', 'spanish', 'hipster'];
 
 const UNITS: LoremUnit[] = ['paragraphs', 'sentences', 'words'];
 const OUTPUTS: LoremOutput[] = ['plain', 'html'];
 
 export function LoremIpsumGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const variantLabel: Record<LoremVariant, string> = {
+    classic: s.variantClassic,
+    vietnamese: s.variantVietnamese,
+    spanish: s.variantSpanish,
+    hipster: s.variantHipster,
+  };
+  const unitLabel: Record<LoremUnit, string> = {
+    paragraphs: s.unitParagraphs,
+    sentences: s.unitSentences,
+    words: s.unitWords,
+  };
+  const outputLabel: Record<LoremOutput, string> = { plain: s.outputPlain, html: s.outputHtml };
   const [variant, setVariant] = useState<LoremVariant>('classic');
   const [unit, setUnit] = useState<LoremUnit>('paragraphs');
   const [count, setCount] = useState(3);
@@ -40,26 +52,26 @@ export function LoremIpsumGeneratorUi() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Lorem Ipsum Generator</CardTitle>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Variant</span>
+            <span className="block mb-1 text-muted-foreground">{s.variant}</span>
             <select
               value={variant}
               onChange={(e) => setVariant(e.target.value as LoremVariant)}
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
               {VARIANTS.map((v) => (
-                <option key={v.value} value={v.value}>
-                  {v.label}
+                <option key={v} value={v}>
+                  {variantLabel[v]}
                 </option>
               ))}
             </select>
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Unit</span>
+            <span className="block mb-1 text-muted-foreground">{s.unit}</span>
             <select
               value={unit}
               onChange={(e) => setUnit(e.target.value as LoremUnit)}
@@ -67,13 +79,13 @@ export function LoremIpsumGeneratorUi() {
             >
               {UNITS.map((u) => (
                 <option key={u} value={u}>
-                  {u}
+                  {unitLabel[u]}
                 </option>
               ))}
             </select>
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Count (1–500)</span>
+            <span className="block mb-1 text-muted-foreground">{s.count}</span>
             <Input
               type="number"
               min={1}
@@ -83,7 +95,7 @@ export function LoremIpsumGeneratorUi() {
             />
           </label>
           <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">Output</span>
+            <span className="block mb-1 text-muted-foreground">{ui.output}</span>
             <select
               value={output}
               onChange={(e) => setOutput(e.target.value as LoremOutput)}
@@ -91,7 +103,7 @@ export function LoremIpsumGeneratorUi() {
             >
               {OUTPUTS.map((o) => (
                 <option key={o} value={o}>
-                  {o}
+                  {outputLabel[o]}
                 </option>
               ))}
             </select>
@@ -99,7 +111,7 @@ export function LoremIpsumGeneratorUi() {
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={() => setRegenKey((k) => k + 1)}>Regenerate</Button>
+          <Button onClick={() => setRegenKey((k) => k + 1)}>{s.regenerate}</Button>
           <CopyButton text={text} />
         </div>
 
