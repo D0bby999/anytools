@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseDateInput, todayInputValue } from './date-input';
+import { dateTimeInputValue, parseDateInput, todayInputValue } from './date-input';
 
 describe('parseDateInput', () => {
   afterEach(() => vi.unstubAllEnvs());
@@ -26,5 +26,11 @@ describe('parseDateInput', () => {
 describe('todayInputValue', () => {
   it('formats the local date, zero-padded', () => {
     expect(todayInputValue(new Date(2024, 0, 5, 23, 30))).toBe('2024-01-05');
+  });
+});
+
+describe('dateTimeInputValue', () => {
+  it('formats local wall-clock time for a datetime-local input', () => {
+    expect(dateTimeInputValue(new Date(2024, 8, 5, 22, 38))).toBe('2024-09-05T22:38');
   });
 });

@@ -8,6 +8,7 @@ import {
   useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
+import { useClientNow } from '../shared/use-client-now';
 import { CYCLE_MIN, type SleepMode, computeSleepTimes, parseTimeString } from './logic';
 import { STRINGS } from './strings';
 
@@ -23,9 +24,9 @@ export function SleepCalculatorUi() {
   const fmtTime = (d: Date): string =>
     d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
 
-  const ref = new Date();
-  const anchor = parseTimeString(time, ref);
-  const cycleRows = computeSleepTimes(mode, anchor, CYCLES);
+  // Null until mounted: the rows depend on today's date, which must not be baked into the HTML.
+  const ref = useClientNow();
+  const cycleRows = ref ? computeSleepTimes(mode, parseTimeString(time, ref), CYCLES) : [];
   // The logic layer labels rows in English ("5 cycles (7h 30m)"); rebuild the label per locale.
   const rows = cycleRows.map((r, i) => {
     const n = CYCLES[i] ?? 0;

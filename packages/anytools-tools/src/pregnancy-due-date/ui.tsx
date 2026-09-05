@@ -1,16 +1,20 @@
 'use client';
 import { CalculatorTemplate, Input, TableResult, useLocalized, useToolLocale } from '@anytools/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { parseDateInput, todayInputValue } from '../shared/date-input';
+import { useClientNow } from '../shared/use-client-now';
 import { calculatePregnancy } from './logic';
 import { STRINGS } from './strings';
-
-const today = () => todayInputValue();
 
 export function PregnancyDueDateUi() {
   const s = useLocalized(STRINGS);
   const locale = useToolLocale();
-  const [lmp, setLmp] = useState(today());
+  // Empty in the prerendered HTML; today's date is filled in once the clock is the user's.
+  const [lmp, setLmp] = useState('');
+  const now = useClientNow();
+  useEffect(() => {
+    if (now) setLmp((current) => current || todayInputValue(now));
+  }, [now]);
 
   const lmpDate = parseDateInput(lmp) ?? new Date(Number.NaN);
   const result = calculatePregnancy(lmpDate);
@@ -30,7 +34,7 @@ export function PregnancyDueDateUi() {
           <Input
             type="date"
             value={lmp}
-            max={today()}
+            max={now ? todayInputValue(now) : undefined}
             onChange={(e) => setLmp(e.target.value)}
             className="h-11"
             aria-label={s.lmpAria}
@@ -70,7 +74,7 @@ export function PregnancyDueDateUi() {
           </div>
         )
       }
-      onReset={() => setLmp(today())}
+      onReset={() => setLmp(todayInputValue())}
       disclaimer={s.disclaimer}
     />
   );

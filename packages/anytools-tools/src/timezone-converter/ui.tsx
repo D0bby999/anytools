@@ -10,7 +10,9 @@ import {
   PrivacyNote,
   useLocalized,
 } from '@anytools/ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { dateTimeInputValue } from '../shared/date-input';
+import { useClientNow } from '../shared/use-client-now';
 import { COMMON_TIMEZONES, meetingTable } from './logic';
 import { STRINGS } from './strings';
 
@@ -24,7 +26,12 @@ function detectLocalZone(): string {
 
 export function TimezoneConverterUi() {
   const s = useLocalized(STRINGS);
-  const [datetime, setDatetime] = useState(() => new Date().toISOString().slice(0, 16));
+  // Empty in the prerendered HTML; the user's local wall-clock time is filled in on mount.
+  const [datetime, setDatetime] = useState('');
+  const now = useClientNow();
+  useEffect(() => {
+    if (now) setDatetime((current) => current || dateTimeInputValue(now));
+  }, [now]);
   const [fromTz, setFromTz] = useState(detectLocalZone());
   const [selectedTzs, setSelectedTzs] = useState<string[]>([
     'UTC',
@@ -75,10 +82,7 @@ export function TimezoneConverterUi() {
               ))}
             </select>
           </label>
-          <Button
-            variant="outline"
-            onClick={() => setDatetime(new Date().toISOString().slice(0, 16))}
-          >
+          <Button variant="outline" onClick={() => setDatetime(dateTimeInputValue(new Date()))}>
             {s.now}
           </Button>
         </div>

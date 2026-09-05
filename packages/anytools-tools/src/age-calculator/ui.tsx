@@ -2,6 +2,7 @@
 import { CalculatorTemplate, Input, TableResult, useLocalized, useToolLocale } from '@anytools/ui';
 import { useState } from 'react';
 import { parseDateInput, todayInputValue } from '../shared/date-input';
+import { useClientNow } from '../shared/use-client-now';
 import { calcAge } from './logic';
 import { STRINGS } from './strings';
 
@@ -12,9 +13,10 @@ export function AgeCalculatorUi() {
   const locale = useToolLocale();
   const [birth, setBirth] = useState(DEFAULT);
   const parsed = parseDateInput(birth) ?? new Date(Number.NaN);
-  const now = new Date();
-  const valid = !Number.isNaN(parsed.getTime()) && parsed <= now;
-  const age = valid ? calcAge(parsed, now) : null;
+  // Null until mounted, so the prerendered HTML carries no clock-dependent text.
+  const now = useClientNow();
+  const valid = now !== null && !Number.isNaN(parsed.getTime()) && parsed <= now;
+  const age = valid && now ? calcAge(parsed, now) : null;
   const fmt = (n: number) => n.toLocaleString(locale);
 
   return (
@@ -27,7 +29,7 @@ export function AgeCalculatorUi() {
           <Input
             type="date"
             value={birth}
-            max={todayInputValue()}
+            max={now ? todayInputValue(now) : undefined}
             onChange={(e) => setBirth(e.target.value)}
             aria-label={s.birthDate}
             className="h-11"

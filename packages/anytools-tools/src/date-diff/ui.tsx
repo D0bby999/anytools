@@ -1,17 +1,21 @@
 'use client';
 import { CalculatorTemplate, Input, TableResult, useLocalized, useToolLocale } from '@anytools/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { parseDateInput, todayInputValue } from '../shared/date-input';
+import { useClientNow } from '../shared/use-client-now';
 import { dateDiff } from './logic';
 import { STRINGS } from './strings';
-
-const today = () => todayInputValue();
 
 export function DateDiffUi() {
   const t = useLocalized(STRINGS);
   const locale = useToolLocale();
   const [start, setStart] = useState('2020-01-01');
-  const [end, setEnd] = useState(today());
+  // Empty in the prerendered HTML; today's date is filled in once the clock is the user's.
+  const [end, setEnd] = useState('');
+  const now = useClientNow();
+  useEffect(() => {
+    if (now) setEnd((current) => current || todayInputValue(now));
+  }, [now]);
 
   const s = parseDateInput(start) ?? new Date(Number.NaN);
   const e = parseDateInput(end) ?? new Date(Number.NaN);
@@ -72,7 +76,7 @@ export function DateDiffUi() {
       }
       onReset={() => {
         setStart('2020-01-01');
-        setEnd(today());
+        setEnd(todayInputValue());
       }}
     />
   );

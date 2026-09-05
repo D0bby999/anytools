@@ -15,8 +15,18 @@ export function parseDateInput(value: string): Date | null {
   return date;
 }
 
+const pad = (n: number) => String(n).padStart(2, '0');
+
 /** Today as an input value, in the user's zone. `toISOString().slice(0, 10)` is UTC's today. */
 export function todayInputValue(now: Date = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/**
+ * A `<input type="datetime-local">` value for an instant, in the user's zone. The previous
+ * `toISOString().slice(0, 16)` filled the field with UTC wall-clock time — 15:38 for a user
+ * whose clock said 22:38.
+ */
+export function dateTimeInputValue(now: Date = new Date()): string {
+  return `${todayInputValue(now)}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
