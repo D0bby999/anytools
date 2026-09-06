@@ -11,6 +11,7 @@ import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
 import { meta as bcryptGenerator } from './bcrypt-generator/meta';
 import { meta as binaryEncode } from './binary-encode/meta';
+import { meta as bip39Mnemonic } from './bip39-mnemonic/meta';
 import { meta as bmiCalculator } from './bmi-calculator/meta';
 import { meta as bmrCalculator } from './bmr-calculator/meta';
 import { meta as bodyFatCalculator } from './body-fat-calculator/meta';
@@ -268,6 +269,7 @@ export const toolMetas: ToolMeta[] = [
   // Phase 5 (batch-ab, 260906) — crypto tools built on pinned jose/@peculiar/x509/bip39
   jwtSignVerify,
   x509CertificateDecoder,
+  bip39Mnemonic,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

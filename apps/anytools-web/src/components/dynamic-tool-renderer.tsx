@@ -178,6 +178,7 @@ const LOADERS: Record<string, ComponentType> = {
   'x509-certificate-decoder': dynamic(() =>
     import('@anytools/tools/x509-certificate-decoder').then(pick),
   ),
+  'bip39-mnemonic': dynamic(() => import('@anytools/tools/bip39-mnemonic').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
