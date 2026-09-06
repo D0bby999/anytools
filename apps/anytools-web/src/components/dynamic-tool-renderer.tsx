@@ -173,6 +173,10 @@ const LOADERS: Record<string, ComponentType> = {
   'rotate-image': dynamic(() => import('@anytools/tools/rotate-image').then(pick)),
   'watermark-image': dynamic(() => import('@anytools/tools/watermark-image').then(pick)),
   'image-to-base64': dynamic(() => import('@anytools/tools/image-to-base64').then(pick)),
+  // Phase 6 (batch-ab, 260906) — data format tools
+  'json-schema-validator': dynamic(() =>
+    import('@anytools/tools/json-schema-validator').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

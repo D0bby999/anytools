@@ -58,6 +58,7 @@ import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
 import { meta as jsBeautifier } from './js-beautifier/meta';
 import { meta as jsonDiff } from './json-diff/meta';
 import { meta as jsonFormatter } from './json-formatter/meta';
+import { meta as jsonSchemaValidator } from './json-schema-validator/meta';
 import { meta as jsonYamlToml } from './json-yaml-toml/meta';
 import { meta as jwtDecoder } from './jwt-decoder/meta';
 import { meta as loanCalculator } from './loan-calculator/meta';
@@ -263,6 +264,8 @@ export const toolMetas: ToolMeta[] = [
   rotateImage,
   watermarkImage,
   imageToBase64,
+  // Phase 6 (batch-ab, 260906) — data format tools
+  jsonSchemaValidator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
