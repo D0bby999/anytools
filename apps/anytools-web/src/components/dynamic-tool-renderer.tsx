@@ -153,6 +153,9 @@ const LOADERS: Record<string, ComponentType> = {
     import('@anytools/tools/rsa-keypair-generator').then(pick),
   ),
   'hmac-generator': dynamic(() => import('@anytools/tools/hmac-generator').then(pick)),
+  // OSS tool batch A/B, phase 2 (260906)
+  'unicode-cleaner': dynamic(() => import('@anytools/tools/unicode-cleaner').then(pick)),
+  'token-counter': dynamic(() => import('@anytools/tools/token-counter').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

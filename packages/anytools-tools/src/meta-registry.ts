@@ -97,9 +97,11 @@ import { meta as timestampConverter } from './timestamp-converter/meta';
 import { meta as timezoneConverter } from './timezone-converter/meta';
 import { meta as tipCalculator } from './tip-calculator/meta';
 import { meta as tipToHourlyWage } from './tip-to-hourly-wage/meta';
+import { meta as tokenCounter } from './token-counter/meta';
 import { meta as totpGenerator } from './totp-generator/meta';
 import { meta as triangleCalculator } from './triangle-calculator/meta';
 import type { ToolMeta } from './types';
+import { meta as unicodeCleaner } from './unicode-cleaner/meta';
 import { meta as unicodeEscape } from './unicode-escape/meta';
 import { meta as unitConverter } from './unit-converter/meta';
 import { meta as unzipArchive } from './unzip-archive/meta';
@@ -239,6 +241,9 @@ export const toolMetas: ToolMeta[] = [
   aesTextEncrypt,
   rsaKeypairGenerator,
   hmacGenerator,
+  // OSS tool batch A/B, phase 2 (260906)
+  unicodeCleaner,
+  tokenCounter,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

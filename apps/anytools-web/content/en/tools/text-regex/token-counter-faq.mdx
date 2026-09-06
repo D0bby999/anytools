@@ -1,0 +1,27 @@
+---
+title: Token Counter — FAQ
+---
+
+## What is a token, and why isn't it the same as a word?
+
+A token is the unit a language model actually reads text in — not a character, and not quite a word. OpenAI's models use byte-pair encoding, which builds a vocabulary of common character sequences from huge amounts of training text and represents any input as a sequence of pieces from that vocabulary. A short, common word like "the" is one token. A longer or less common word often splits into two or three: "unbelievable" might come apart into "un", "believ", and "able". Whitespace, punctuation, and even parts of numbers count as separate tokens too. That's why a sentence with 9 words can easily cost 12-15 tokens, and why token count is the number that actually determines API pricing and context-window limits — not word count or character count.
+
+## Which encoding should I pick?
+
+Match it to the model you're checking against. `o200k_base` is the encoding behind GPT-4o, GPT-4.1, the GPT-5 family, and OpenAI's o-series reasoning models — pick this for anything current. `cl100k_base` is the older encoding used by GPT-4 (the original release), GPT-3.5-turbo, and the `text-embedding-ada-002` embedding model. The two encodings have different vocabularies, so the same sentence can produce a different token count and even a different token count difference under each one — there's no fixed conversion ratio between them.
+
+## Does this work for Claude or Gemini prompts?
+
+Only as a rough estimate, and the FAQ would be lying if it said otherwise. Claude and Gemini use their own tokenizers with their own vocabularies, trained on different data with different merge rules. This tool counts using OpenAI's tokenizer specifically, because that's the one with an open-source JavaScript implementation that can run entirely in a browser tab. For English prose the counts across different tokenizers tend to land within a similar range, but for code, non-English text, or unusual formatting the gap can be significant. If a project bills against Claude or Gemini token counts specifically, use that provider's own counting tool for the number that actually matters.
+
+## Why does the tool say "loading" the first time I use it?
+
+The token vocabulary — technically the byte-pair-encoding rank table — for a single encoding is roughly 1 to 2 megabytes of data, because it has to describe tens of thousands of possible tokens as byte sequences with a rank order. Loading that unconditionally would make every visit to this page download it whether or not anyone types anything, so it's fetched only after you land on the tool, and only the one table for whichever encoding is selected. It's cached in the browser tab afterward, so switching between the two encodings mid-session, or typing more text, doesn't reload anything.
+
+## Is my text sent anywhere to be tokenized?
+
+No. Both the encoding logic and its vocabulary tables run as plain JavaScript inside this browser tab, using the same open-source library (`tiktoken`, in its pure-JS build) that OpenAI publishes for developers who need to count tokens locally rather than call an API for it. Nothing about the text you paste — content, length, or the fact that you used this tool at all — leaves the page.
+
+## Why do the character and word counts disappear briefly while I'm typing?
+
+They don't disappear — recomputation is deliberately deferred to keep the text box itself responsive. Running byte-pair encoding over a long paste is more work than a plain character count, so recalculating it on every single keystroke of a fast typist could make the input feel laggy. The counts update a moment after typing settles rather than mid-keystroke; nothing is lost, and nothing needs to be re-triggered manually.

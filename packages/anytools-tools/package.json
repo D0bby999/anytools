@@ -117,7 +117,9 @@
     "./remove-background": "./src/remove-background/index.ts",
     "./aes-text-encrypt": "./src/aes-text-encrypt/index.ts",
     "./rsa-keypair-generator": "./src/rsa-keypair-generator/index.ts",
-    "./hmac-generator": "./src/hmac-generator/index.ts"
+    "./hmac-generator": "./src/hmac-generator/index.ts",
+    "./unicode-cleaner": "./src/unicode-cleaner/index.ts",
+    "./token-counter": "./src/token-counter/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
