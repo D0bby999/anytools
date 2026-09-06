@@ -187,6 +187,11 @@ const LOADERS: Record<string, ComponentType> = {
     import('@anytools/tools/x509-certificate-decoder').then(pick),
   ),
   'bip39-mnemonic': dynamic(() => import('@anytools/tools/bip39-mnemonic').then(pick)),
+  // Phase 7 (batch-ab, 260906) — WASM playgrounds (jq-wasm, sql.js). Neither module touches a
+  // browser global at import time (both load their WASM binary inside the run path), so no
+  // ssr:false is needed.
+  'jq-playground': dynamic(() => import('@anytools/tools/jq-playground').then(pick)),
+  'sql-playground': dynamic(() => import('@anytools/tools/sql-playground').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

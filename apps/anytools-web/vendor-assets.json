@@ -1,24 +1,15 @@
 {
   "pdfjs": {
     "from": "pdfjs-dist",
-    "paths": [
-      "cmaps",
-      "standard_fonts",
-      "wasm"
-    ]
+    "paths": ["cmaps", "standard_fonts", "wasm"]
   },
   "tesseract": {
     "from": "tesseract.js",
-    "paths": [
-      "dist/worker.min.js"
-    ],
+    "paths": ["dist/worker.min.js"],
     "also": {
       "from": "tesseract.js-core",
       "via": "tesseract.js",
-      "paths": [
-        "tesseract-core-simd-lstm.wasm.js",
-        "tesseract-core-lstm.wasm.js"
-      ]
+      "paths": ["tesseract-core-simd-lstm.wasm.js", "tesseract-core-lstm.wasm.js"]
     }
   },
   "tessdata": {
@@ -56,15 +47,11 @@
   },
   "zxing": {
     "from": "zxing-wasm",
-    "paths": [
-      "dist/full/zxing_full.wasm"
-    ]
+    "paths": ["dist/full/zxing_full.wasm"]
   },
   "onnx": {
     "from": "onnxruntime-web",
-    "paths": [
-      "dist/ort-wasm-simd-threaded.wasm"
-    ]
+    "paths": ["dist/ort-wasm-simd-threaded.wasm"]
   },
   "u2netp": {
     "download": [
@@ -86,60 +73,37 @@
   },
   "libheif": {
     "from": "libheif-js",
-    "paths": [
-      "libheif-wasm/libheif.js",
-      "libheif-wasm/libheif.wasm",
-      "libheif-wasm/LICENSE"
-    ]
+    "paths": ["libheif-wasm/libheif.js", "libheif-wasm/libheif.wasm", "libheif-wasm/LICENSE"]
   },
   "libarchive": {
     "from": "libarchive.js",
-    "paths": [
-      "dist/worker-bundle.js",
-      "dist/libarchive.wasm"
-    ]
+    "paths": ["dist/worker-bundle.js", "dist/libarchive.wasm"]
   },
   "jq": {
     "from": "jq-wasm",
-    "paths": [
-      "dist/build/jq.wasm"
-    ],
-    "pending": true
+    "paths": ["dist/build/jq.wasm"]
   },
   "sqljs": {
     "from": "sql.js",
-    "paths": [
-      "dist/sql-wasm.wasm"
-    ],
-    "pending": true
+    "paths": ["dist/sql-wasm-browser.wasm"]
   },
   "vtracer": {
     "from": "@visioncortex/vtracer",
-    "paths": [
-      "pkg/vtracer_wasm_bg.wasm"
-    ],
+    "paths": ["pkg/vtracer_wasm_bg.wasm"],
     "pending": true
   },
   "harfbuzz": {
     "from": "harfbuzzjs",
-    "paths": [
-      "dist/harfbuzz.wasm",
-      "dist/harfbuzz-subset.wasm"
-    ],
+    "paths": ["dist/harfbuzz.wasm", "dist/harfbuzz-subset.wasm"],
     "pending": true
   },
   "jsquash": {
     "from": "@jsquash/jpeg",
-    "paths": [
-      "codec/dec",
-      "codec/enc"
-    ],
+    "paths": ["codec/dec", "codec/enc"],
     "pending": true,
     "also": {
       "from": "@jsquash/png",
-      "paths": [
-        "codec"
-      ]
+      "paths": ["codec"]
     }
   }
 }
