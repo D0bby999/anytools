@@ -194,6 +194,12 @@ const LOADERS: Record<string, ComponentType> = {
   // audio-trim: wavesurfer.js is dynamically imported inside an effect; the module itself
   // touches no browser global at import time.
   'audio-trim': dynamic(() => import('@anytools/tools/audio-trim').then(pick)),
+  // stl-obj-viewer: ssr:false is load-bearing — three's WebGLRenderer needs a real <canvas>
+  // and is only ever constructed inside a dynamic import, but the surrounding component still
+  // reads `window`-dependent layout on mount and must never run a server pass.
+  'stl-obj-viewer': dynamic(() => import('@anytools/tools/stl-obj-viewer').then(pick), {
+    ssr: false,
+  }),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

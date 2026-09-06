@@ -1,0 +1,29 @@
+---
+title: STL/OBJ Viewer — Frequently asked questions
+---
+
+## What units is the volume in?
+
+Neither STL nor OBJ carries a unit in the file itself — both formats store bare numbers for every vertex coordinate, with no field anywhere that says "these are millimeters" or "these are inches." This tool labels the volume as millimeters because that is the overwhelming convention for 3D printing, which is what STL is used for the vast majority of the time, and CAD tools that export STL (Fusion 360, SolidWorks, FreeCAD, Blender with the right export settings) default to it too. If your model was actually authored in a different unit — inches, meters, arbitrary CAD units — the triangle geometry itself is unaffected, but the number this tool reports needs the corresponding unit conversion applied by you; there is no way for a viewer to know which one you meant.
+
+## How is the volume actually calculated, and when is it wrong?
+
+By the divergence theorem, applied to the mesh directly: every triangle contributes the signed volume of the tetrahedron formed with the coordinate origin, and for a closed, consistently-wound surface those signed volumes sum to exactly six times the enclosed volume, whatever the shape. This is why STL files — which specify each triangle's own vertices with no shared indexing — and OBJ files loaded with shared, indexed vertices both feed the same calculation without any special-casing.
+
+The formula assumes the mesh is watertight (no holes) and every triangle's winding is consistent (all outward, or all inward — not a mix). A model with a hole in its surface, flipped normals mixed in with correct ones, or self-intersecting geometry will still produce a number — this tool does not detect those defects — but that number will not be the model's true volume. If you need a trustworthy volume for a physically broken mesh, a slicer's "repair" step (or a dedicated mesh-repair tool) needs to run first.
+
+## Why does my OBJ file show more triangles than I expected?
+
+Two reasons, both real. First, some 3D content is authored in quads (4-sided faces) rather than triangles, and every quad splits into 2 triangles when it is triangulated for rendering — a 500-quad model becomes 1,000 triangles here, which is correct, not a bug. Second, an OBJ file can define several named objects or material groups in one file (`o` and `g` blocks, or a `usemtl` per section); this viewer walks every mesh in the file and reports the combined triangle count across all of them, since that is what actually gets rendered on screen.
+
+## Are materials or textures from the OBJ's .mtl file shown?
+
+No. This viewer applies one flat, adjustable color to the whole model and ignores any referenced `.mtl` material file, texture maps, or per-face material assignment the OBJ format supports. Loading and re-mapping textures correctly (including resolving relative paths to image files that were not uploaded alongside the `.obj`) is a materially bigger feature than a geometry inspector needs — what this tool answers is "how many triangles, how big, roughly what volume," not "what does this asset look like when fully textured."
+
+## Is my model uploaded anywhere?
+
+No. The file is parsed and rendered entirely in this browser tab with three.js and WebGL; nothing about the geometry, its file name, or the screenshot you save ever leaves your device. Check the Network tab, or disconnect after the page loads and load a model anyway.
+
+## Why is there no STEP, 3MF or GLTF support?
+
+Each of those is a materially different format — STEP is a full CAD boundary-representation format (curved surfaces, assemblies, not just triangles), 3MF and GLTF are their own JSON/XML+binary container formats with their own parsers. Adding real, correct support for any of them is a separate scope of work from what this tool does today, which is deliberately narrow: two well-understood triangle-mesh formats, read and measured correctly, rather than a shallow reader for many formats.

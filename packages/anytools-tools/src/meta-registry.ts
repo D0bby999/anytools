@@ -106,6 +106,7 @@ import { meta as slugify } from './slugify/meta';
 import { meta as splitPdf } from './split-pdf/meta';
 import { meta as sqlFormatter } from './sql-formatter/meta';
 import { meta as statisticsCalculator } from './statistics-calculator/meta';
+import { meta as stlObjViewer } from './stl-obj-viewer/meta';
 import { meta as textCaseConverter } from './text-case-converter/meta';
 import { meta as timeCardCalculator } from './time-card-calculator/meta';
 import { meta as timestampConverter } from './timestamp-converter/meta';
@@ -286,6 +287,7 @@ export const toolMetas: ToolMeta[] = [
   // wavesurfer.js, three); image-to-svg dropped, see phase-08 file for why
   fontConverter,
   audioTrim,
+  stlObjViewer,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
