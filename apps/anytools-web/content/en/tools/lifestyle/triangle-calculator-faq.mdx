@@ -20,7 +20,9 @@ Because they cannot form a triangle. Any two sides must together exceed the thir
 
 ## How does it decide a triangle is right-angled?
 
-By checking Pythagoras against the longest side, with a small tolerance for floating-point error. That tolerance matters: a 3-4-5 triangle is exactly right-angled, but sides derived from measurements rarely produce exact arithmetic, so an exact comparison would almost never report true.
+By looking at the angles it has already solved, not by testing Pythagoras on the sides. All three angles come from the law of cosines first, and the triangle is reported as right-angled when any one of them is within 0.01 degrees of 90.
+
+Working from the angles is what makes the check usable on measured input. An exact side-based comparison would almost never report true, because sides taken from real measurements rarely satisfy the equation exactly. A hundredth of a degree is tight enough that nothing visibly off-square passes, and loose enough that 3-4-5 and its scaled cousins are recognised despite the rounding in between.
 
 ## What is the difference between isosceles and equilateral here?
 

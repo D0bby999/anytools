@@ -34,4 +34,4 @@ Dimensions and file size are related but not proportional. Halving both dimensio
 
 ## What is the largest image it can handle?
 
-Around 16.7 megapixels, the canvas limit in Safari and therefore the safe ceiling across browsers. Beyond that, canvases silently produce blank output rather than failing, so the tool checks the dimensions first and tells you instead. A 12-megapixel photo is well within range.
+Any size. Around 16.7 megapixels is the canvas limit in Safari and therefore the safe ceiling across browsers, and beyond it canvases silently produce blank output rather than failing — so a larger image is decoded at a reduced size that fits, with the original dimensions reported alongside. Percentage mode still measures against the photo's true size rather than the reduced decode, so asking for 50% of a 48-megapixel image gives you half of what you actually shot, not half of an internal working copy. A 12-megapixel photo is well within range and is resized from the full decode.

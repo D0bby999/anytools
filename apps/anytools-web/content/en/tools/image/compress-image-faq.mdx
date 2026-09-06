@@ -36,4 +36,4 @@ Yes. Photos taken on a phone are usually stored in the sensor's landscape orient
 
 ## How large an image can it handle?
 
-Up to roughly 16.7 megapixels, which is the canvas limit in Safari — the strictest of the major browsers. Above that the tool tells you the size and stops, because exceeding a canvas limit produces a blank white image rather than an error. A 12-megapixel phone photo is comfortably inside it.
+There is no size at which it refuses. Browsers cap how many pixels a canvas can hold — about 16.7 megapixels in Safari, the strictest of the major ones — and going over that produces a blank white image rather than an error. So anything larger is decoded at a reduced size that fits under the ceiling, and the tool reports the original dimensions alongside the ones it worked at. A 12-megapixel phone photo is comfortably inside the limit and is processed at full size; a 48-megapixel one is compressed from a smaller decode, which is visible if you compare it pixel for pixel with the original.

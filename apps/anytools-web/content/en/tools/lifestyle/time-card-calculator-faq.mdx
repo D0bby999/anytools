@@ -20,11 +20,15 @@ Twenty-four hour, as `HH:MM` — so 5pm is `17:00`. Entering a time that cannot 
 
 ## How do I enter a shift that crosses midnight?
 
-Carefully — the day calculation works from clock-in to clock-out within a row, so a shift ending after midnight needs splitting across two rows, or the day will come out short or negative. This is the tool's sharpest edge; check any overnight shift by hand.
+As a single row. When the clock-out time is earlier than the clock-in time, the day calculation adds 24 hours rather than returning a negative span, so `22:00` to `06:00` is read as eight hours, not minus sixteen. You do not need to split the shift across two rows.
+
+The limit of that rule is that it assumes any backwards pair means one overnight shift. A typo that puts the clock-out before the clock-in on an ordinary day is therefore read as a very long shift instead of being flagged, so a day that comes back far larger than expected is worth re-reading rather than trusting.
 
 ## Are unpaid breaks deducted?
 
-Only if you exclude them yourself, by entering the worked segments rather than one span from arrival to departure. The tool has no break field, so a single row from `09:00` to `17:30` counts the whole 8.5 hours including any lunch.
+Yes. Each row has its own break field in minutes, and that many minutes are subtracted from the span between clock-in and clock-out before the day total is worked out. It starts at 30 minutes per day, which is a default rather than a suggestion — set it to 0 for days you worked through, and to the real figure on days you did not.
+
+The subtraction floors at zero, so a break longer than the shift produces a zero-hour day rather than a negative one that would quietly cancel out hours elsewhere in the week.
 
 ## Is this before or after tax?
 

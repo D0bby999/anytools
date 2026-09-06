@@ -4,32 +4,48 @@ title: BMI calculator — Frequently asked questions
 
 ## What exactly does this calculator compute?
 
-Body Mass Index: your weight in kilograms divided by the square of your height in metres. Nothing else goes into it — not age, not sex, not body composition. If you enter pounds and feet, the tool converts to metric first and runs the same formula.
+Body Mass Index: your weight in kilograms divided by the square of your height in metres. That is the whole formula, and the shortness of it is the point — nothing else goes in. Not age, not sex, not body composition, not where the weight sits on you. If you enter pounds and feet, the tool converts to metric first and runs the same equation, so the imperial and metric modes cannot disagree.
+
+Because there are only two inputs, the result moves in ways worth anticipating. Height is squared, so a small error in how you measure it moves the number about twice as much as the same proportional error in weight. Measuring your height properly once is more useful than weighing yourself precisely every day.
 
 ## Which category boundaries does it use?
 
-The World Health Organization adult cut-offs: under 18.5 is underweight, 18.5–24.9 is the normal range, 25–29.9 is overweight, and 30 and above is obesity, split into class I (30–34.9), class II (35–39.9) and class III (40+). These are the thresholds this tool applies.
+The World Health Organization adult cut-offs: under 18.5 is underweight, 18.5 to 24.9 is the normal range, 25 to 29.9 is overweight, and 30 and above is obesity, split into class I (30 to 34.9), class II (35 to 39.9) and class III (40 and over).
+
+Those bands are conventions drawn across a continuous scale, not biological thresholds. A BMI of 24.9 and one of 25.1 describe practically identical bodies while landing in different categories, and the label changes at the boundary far more sharply than any underlying risk does. Read the number and the direction it has been moving over months; the band name is the least informative part of the output.
 
 ## Why can a healthy, muscular person get an "overweight" BMI?
 
-Because BMI has no way to tell muscle from fat. It only knows your total mass. Muscle is denser than fat, so a lifter or a rugby player at a low body fat percentage can land in the overweight or even obese band. The number is not wrong — it is measuring the wrong thing for that person. If you want a composition estimate instead, use the [body fat calculator](/en/health/body-fat-calculator).
+Because the formula has no way to tell muscle from fat. It only knows your total mass, and muscle is denser than fat, so a lifter or a rugby player carrying little fat can land in the overweight or even the obese band. The number is not wrong in that case; it is measuring something other than what you wanted to know.
+
+This is the single most common reason a BMI result feels absurd, and it cuts the other way too. Someone with low muscle mass and a high proportion of body fat can sit inside the normal range while carrying the risk profile the measure is supposed to flag. If body composition is the actual question, a circumference-based estimate such as the [body fat calculator](/en/health/body-fat-calculator) answers it more directly, and a waist measurement adds information that BMI structurally cannot.
 
 ## Do the same cut-offs apply to everyone?
 
-No. The WHO has noted that the relationship between BMI and health risk differs across populations, and several health authorities in Asia use lower action points — commonly around 23 for increased risk and 27.5 for high risk — because cardiometabolic risk appears at a lower BMI. This tool reports the standard international bands; if you are using it against local clinical guidance, check which thresholds that guidance uses.
+No. The WHO has noted that the relationship between BMI and health risk differs across populations, and several health authorities across Asia use lower action points, commonly around 23 for increased risk and 27.5 for high risk, because cardiometabolic risk appears at a lower BMI in those populations.
+
+This tool reports the standard international bands. If you are comparing your result against local clinical guidance, check which thresholds that guidance uses before deciding the two disagree, because a result the international scale calls normal can sit above a locally used action point. The underlying number is identical either way; only the line drawn through it moves.
 
 ## Is BMI valid for children or during pregnancy?
 
-Not as calculated here. Children and teenagers are assessed against age- and sex-specific percentile charts rather than fixed adult cut-offs, and BMI is not a meaningful measure during pregnancy. This calculator implements the adult formula only.
+Not as calculated here. Children and teenagers are assessed against age- and sex-specific percentile charts, because a growing body's healthy ratio of weight to height changes year by year, and a fixed adult cut-off applied to a twelve-year-old means nothing. During pregnancy the measure is not meaningful either, since the weight gain it registers is expected and is tracked against separate guidance.
+
+This calculator implements the adult formula only, and it does not detect who is using it. If either situation applies to you, the number it returns is arithmetic without a matching interpretation.
 
 ## What is BMI actually good for, then?
 
-Population-level screening and tracking your own trend over time. It is cheap, needs two numbers, and is reproducible — which is why clinicians and epidemiologists still use it as a first filter. It is a starting point for a conversation, not a diagnosis.
+Population-level screening and tracking your own trend over time. It is cheap, it needs two numbers anyone can obtain, and it is reproducible, which is precisely why clinicians and epidemiologists keep using it as a first filter despite knowing everything above.
+
+For an individual it is most useful read as a series rather than a single value. A BMI that has moved from 27 to 25 over a year says something; the same 25 seen once, with no history, says very little. Treat it as the opening of a conversation with a clinician, not as its conclusion.
 
 ## Does my data go anywhere?
 
-No. The calculation runs in your browser as you type. Nothing is sent to a server, stored, or logged.
+No. The calculation runs in your browser as you type, in JavaScript already loaded with the page. Your height and weight are never sent to a server, never stored, and never logged, so there is no record of them for us to hand over, lose, or delete.
+
+You can verify that rather than take it on faith. Open your browser's network tab and watch while you type, or disconnect from the network after the page has loaded and keep using the tool. Both hold for every tool on this site, and it matters more here than on most: body measurements are exactly the kind of data worth not scattering across services that keep it.
 
 ## Should I make a health decision based on this number?
 
-No. This is an estimation tool. Weight, body composition and health risk are clinical questions that depend on your history, bloodwork and circumstances — talk to a doctor or a registered dietitian before acting on any number here.
+No. This is an estimation tool, and BMI is a screening measure that deliberately ignores most of what determines health. Weight, body composition and cardiometabolic risk are clinical questions that depend on your history, your bloodwork, your medications and your circumstances, none of which a two-input formula can see.
+
+Talk to a doctor or a registered dietitian before changing anything on the strength of a number here, particularly if the result surprised you. A surprising BMI is more often a sign that the measure fits you badly than a sign that something is wrong.

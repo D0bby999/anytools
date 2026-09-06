@@ -34,4 +34,4 @@ Not here. A crop rectangle is specific to one image's framing, so batching would
 
 ## What is the largest image I can crop?
 
-About 16.7 megapixels, the canvas ceiling in Safari, which is the strictest of the major browsers. Past that, canvases return blank output instead of an error, so the tool checks the dimensions up front and tells you rather than handing back a white rectangle.
+Any size, but not always at full resolution. Canvases return blank output instead of an error past roughly 16.7 megapixels — the ceiling in Safari, the strictest of the major browsers — so a larger photo is decoded smaller to stay under it, and the tool shows the original dimensions next to the ones in use. The consequence worth knowing: your crop is cut from that reduced decode, so the region you select comes out with fewer pixels than the same crop taken in a desktop editor. For a crop destined for the web that is usually invisible; for one you intend to print, start from a desktop tool.

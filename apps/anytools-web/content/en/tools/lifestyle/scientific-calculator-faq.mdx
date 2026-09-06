@@ -28,7 +28,9 @@ Usually an unbalanced parenthesis, an unknown function name, or an operation wit
 
 ## How precise is it?
 
-It uses standard double-precision floating point, the same as every other calculator running in a browser. That means the familiar artefacts apply: expressions that should yield exactly 0.3 can produce 0.30000000000000004. It is not a bug in the calculator; it is how binary floating point represents decimal fractions.
+It computes in standard double-precision floating point, the same as every other calculator running in a browser, so the familiar artefacts exist internally: 0.1 plus 0.2 really is 0.30000000000000004 in the arithmetic.
+
+What you see is rounded before display. A non-integer result is written to eight decimal places and trailing zeros are stripped, so that expression shows as `0.3`. The rounding is presentational only and has two consequences worth knowing. Differences smaller than the ninth decimal place are invisible, so two results that display identically are not guaranteed to be equal. And a very small non-zero result can display as `0` once rounded, which is worth remembering when subtracting two nearly equal numbers.
 
 ## Is my input sent anywhere?
 
