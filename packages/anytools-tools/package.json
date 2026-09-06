@@ -135,7 +135,8 @@
     "./x509-certificate-decoder": "./src/x509-certificate-decoder/index.ts",
     "./bip39-mnemonic": "./src/bip39-mnemonic/index.ts",
     "./jq-playground": "./src/jq-playground/index.ts",
-    "./sql-playground": "./src/sql-playground/index.ts"
+    "./sql-playground": "./src/sql-playground/index.ts",
+    "./compress-pdf": "./src/compress-pdf/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

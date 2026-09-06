@@ -1,0 +1,27 @@
+---
+title: Compress PDF — Frequently asked questions
+---
+
+## Is my file uploaded anywhere?
+
+No. The PDF is read by JavaScript inside this browser tab, its images are recompressed with `pdf-lib` and a WebAssembly build of MozJPEG, and the result comes back as a blob URL your browser creates locally. Nothing is sent to a server, so there is no upload to intercept and no copy left anywhere to delete. Open your browser's developer tools, switch to the Network tab, and run the tool — you will see no request carrying your file, and it keeps working with the network disconnected.
+
+## Why didn't my PDF get smaller?
+
+Because a PDF that is mostly text was never big to begin with, and this tool cannot make text smaller — it only recompresses **embedded images**. We measured this directly before building the tool: running structural PDF compression (rewriting object streams, deduplicating fonts) on real files shaved 0.2% off a 924 KB text-heavy PDF and 1.8% off a 284 KB certificate. What actually makes a PDF large is a scanned page saved as a full-page photo, and that is the only thing worth compressing. If your file has few or no embedded images, expect little or no change — the tool will say so honestly in the result rather than claim a saving that did not happen.
+
+## What exactly does it recompress, and what does it leave alone?
+
+Only images whose `/Filter` is `DCTDecode` — meaning the bytes stored in the PDF are already a JPEG. That covers the overwhelming majority of scanner output, because scanners default to JPEG for photos and full-page scans. Left untouched: images stored as raw `FlateDecode` samples, fax-style `CCITTFaxDecode` scans, JPEG 2000 (`JPXDecode`) or `JBIG2Decode` images, and anything used as a transparency mask (`/SMask` or `/Mask`) for another image. Decoding those correctly needs their colour space and bit depth interpreted by hand, and getting that wrong risks a corrupted or discoloured image — this tool would rather skip a file it cannot verify than guess. The result screen tells you how many images were recompressed and how many were left as-is, so this is never hidden.
+
+## Is this lossy? Will my scan look worse?
+
+Yes, and yes, if you push it hard. JPEG recompression discards image data every time it runs — even at high quality, re-encoding a JPEG that has already been compressed once loses a little more than the first pass did. The quality slider trades file size for fidelity directly: lower numbers produce a smaller, blurrier result, and text inside a scanned page is usually still legible well below the point where a photograph starts looking rough. If you need the original pixels preserved exactly, keep a copy of the source file before compressing.
+
+## What does the resolution cap do?
+
+It downsamples an image's pixel dimensions to a target DPI, on the assumption that — as a scanned page normally does — the image fills the page it sits on. For documents meant to be read on a screen rather than printed, 150 DPI is usually indistinguishable from the original and is by far the biggest lever for shrinking a scanned document, larger than the quality slider alone. If an image is not directly referenced by any page's own resources (nested inside a form, for instance), the cap is skipped for that image and only the quality setting applies.
+
+## Will the page count or layout change?
+
+No. This tool never touches a page's content stream — the instructions that place text, drawings and images on the page — so nothing about where things sit, how many pages exist, or what text says can change. Only the bytes of the qualifying images themselves are replaced, in place, at the same reference the rest of the file already points to.

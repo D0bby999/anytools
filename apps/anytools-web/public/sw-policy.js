@@ -64,17 +64,18 @@
   // manifest file and fails the moment it drifts from the hash recorded below — that failure
   // IS the reminder.
   const VENDOR_CACHE_VERSION = 2;
-  // 2026-09-06 (phase 7, batch-ab): jq and sqljs flipped from "pending" to staged — real bytes
-  // now land under /third-party/jq/ and /third-party/sqljs/ for the first time, so a returning
+  // 2026-09-06/07 (batch-ab): jq, sqljs and jsquash flipped from "pending" to staged — real
+  // bytes land under /third-party/{jq,sqljs,jsquash}/ for the first time, so a returning
   // visitor's browser must not keep whatever (nonexistent) response it had cached for those
-  // URLs under the old bucket. VENDOR_CACHE_VERSION bumped by exactly 1 for this; vtracer/
-  // harfbuzz/jsquash stay "pending" and did not move. (Corrected same-phase, before ship: sql.js
-  // resolves to dist/sql-wasm-browser.js under webpack's "browser" export condition — not
-  // dist/sql-wasm.js, which is what Node's `require.resolve` picks and what an initial probe of
-  // this manifest staged — so the browser build was requesting a file this site never staged and
-  // 404ing. Re-staged as sql-wasm-browser.wasm, same bytes, correct filename; version stays 2
-  // since /third-party/sqljs/ had never shipped real content at any version before this.)
-  const VENDOR_MANIFEST_SHA256 = '2d6f59ab92c0bf3b447bd66a77530e14f47f2e0143458fa6444382d30ab7dcde';
+  // URLs. ONE bump covers all three: none of those prefixes had ever shipped content at any
+  // earlier version, so there is nothing per-key to invalidate separately. vtracer and harfbuzz
+  // stay "pending" and did not move.
+  //
+  // Corrected before ship: sql.js resolves to dist/sql-wasm-browser.js under webpack's "browser"
+  // export condition — not dist/sql-wasm.js, which is what Node's `require.resolve` picks and
+  // what the first probe of this manifest staged. Every Node test passed while the browser build
+  // requested a file this site never staged and 404'd. Re-staged as sql-wasm-browser.wasm.
+  const VENDOR_MANIFEST_SHA256 = '181aa2e0d98ead346bbbb6de6efe521b32765bd8cc6e86209fd2c0863046873a';
 
   const CACHE_NAMES = {
     STATIC: 'at-static-v1',

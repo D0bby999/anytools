@@ -167,6 +167,61 @@ export async function drawToBlob(
 }
 
 /**
+ * Draw a bitmap at a target size and read the pixels back, for encoders that want `ImageData`
+ * rather than a `Blob` — mozjpeg and oxipng via `jsquash-loader.ts`, which `canvas.toBlob`
+ * cannot delegate to. Mirrors `drawToBlob`'s canvas setup (high-quality resampling, white
+ * background for formats with no alpha channel) so the pixels handed to either encoder path
+ * are identical for the same input. Callers must close the bitmap.
+ */
+export function drawToImageData(
+  bitmap: ImageBitmap,
+  width: number,
+  height: number,
+  options: {
+    whiteBackground?: boolean;
+    source?: { x: number; y: number; width: number; height: number };
+  } = {},
+): ImageData {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(width));
+  canvas.height = Math.max(1, Math.round(height));
+  // willReadFrequently: this canvas exists only to be read back with getImageData, never
+  // painted on screen — the hint lets the browser skip a GPU round-trip.
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) {
+    throw new ImageToolError(
+      'noCanvasContext',
+      'Your browser did not provide a 2D canvas context.',
+    );
+  }
+  ctx.imageSmoothingQuality = 'high';
+
+  if (options.whiteBackground) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  const { source } = options;
+  if (source) {
+    ctx.drawImage(
+      bitmap,
+      source.x,
+      source.y,
+      source.width,
+      source.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+  } else {
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  }
+
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+/**
  * Does this image use its alpha channel?
  *
  * Matters because JPEG has no alpha: a transparent background silently becomes black (or white,
