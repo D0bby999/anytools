@@ -1,0 +1,31 @@
+---
+title: AES Text Encrypt / Decrypt — FAQ
+---
+
+## What algorithm does this actually use?
+
+AES-256-GCM for the encryption itself, with the key derived from your password by PBKDF2-HMAC-SHA256 at 310,000 iterations — the current OWASP (2023) minimum recommendation for that specific combination. GCM is an authenticated mode: it does not just hide the text, it also detects if the ciphertext was altered after the fact, which a plain AES-CBC setup would not catch on its own.
+
+## Why 310,000 PBKDF2 iterations specifically?
+
+That number comes straight from OWASP's password storage cheat sheet, current as of 2023, for PBKDF2-HMAC-SHA256. More iterations means an attacker who steals your encrypted text has to spend proportionally more compute per password guess when brute-forcing it offline. It also means every encryption or decryption in this tool takes a small but deliberate fraction of a second — that delay is the point, not a bug.
+
+## Can I decrypt this with OpenSSL or 7-Zip?
+
+No. The output is Base64 of `salt (16 bytes) || IV (12 bytes) || ciphertext`, a layout this tool invented for itself so it can decrypt what it encrypted without needing to ask you for anything except the password. It is not PKCS#7, not an OpenSSL `enc` header, not a 7-Zip AES archive. If you need a format other tools can open, use a general-purpose archiver's built-in encryption instead — this tool trades interoperability for simplicity.
+
+## Why does decrypting with the wrong password give one generic error?
+
+GCM's authentication tag check either passes or fails; WebCrypto does not tell you *why* it failed, and this tool passes that ambiguity straight through rather than guessing. A wrong password, a corrupted clipboard paste, and a single flipped bit from someone tampering with the ciphertext all produce the exact same rejected decrypt. That is by design — a more specific error message here would leak information to an attacker about which failure mode they hit.
+
+## Does encrypting the same text twice give the same output?
+
+No, and that is intentional. Every encryption draws a brand-new random salt and IV, so the same plaintext and password produce a different Base64 string each time. If it did not, anyone who saw two identical outputs would learn that the underlying plaintexts matched — a real weakness with deterministic encryption.
+
+## Is this safe enough for anything important?
+
+For protecting a note or a small secret while it's being copied between your own devices, or sitting in a text file, notes app, or chat history — yes, this is real, standard authenticated encryption. What it does not do is protect you if the device you're using is already compromised: malware or a keylogger watching that browser tab can read your password and plaintext directly, no cryptography defeats that. It also never leaves your device to begin with — encryption and decryption both happen locally with WebCrypto, and there is nothing to intercept over the network in the first place.
+
+## What happens to my password?
+
+It is used once, in memory, to derive a key via PBKDF2, and then discarded. This tool has no server component and stores nothing — close the tab and everything, including the derived key, is gone.

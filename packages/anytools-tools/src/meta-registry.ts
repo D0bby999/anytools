@@ -5,6 +5,7 @@
  * tool listings without rendering the tool itself.
  */
 import { meta as addPageNumbers } from './add-page-numbers/meta';
+import { meta as aesTextEncrypt } from './aes-text-encrypt/meta';
 import { meta as ageCalculator } from './age-calculator/meta';
 import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
@@ -232,6 +233,8 @@ export const toolMetas: ToolMeta[] = [
   whiteboard,
   // Segmentation model in the browser (260903)
   removeBackground,
+  // WebCrypto, 0 dependency (260906)
+  aesTextEncrypt,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
