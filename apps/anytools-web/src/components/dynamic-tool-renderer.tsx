@@ -193,6 +193,19 @@ const LOADERS: Record<string, ComponentType> = {
   // ssr:false is needed.
   'jq-playground': dynamic(() => import('@anytools/tools/jq-playground').then(pick)),
   'sql-playground': dynamic(() => import('@anytools/tools/sql-playground').then(pick)),
+  // Phase 8 (batch-ab, 260906) — media tools with third-party WASM/JS deps.
+  // font-converter: harfbuzzjs is imported inside the run path only, no window access at
+  // import time, so no ssr:false needed.
+  'font-converter': dynamic(() => import('@anytools/tools/font-converter').then(pick)),
+  // audio-trim: wavesurfer.js is dynamically imported inside an effect; the module itself
+  // touches no browser global at import time.
+  'audio-trim': dynamic(() => import('@anytools/tools/audio-trim').then(pick)),
+  // stl-obj-viewer: ssr:false is load-bearing — three's WebGLRenderer needs a real <canvas>
+  // and is only ever constructed inside a dynamic import, but the surrounding component still
+  // reads `window`-dependent layout on mount and must never run a server pass.
+  'stl-obj-viewer': dynamic(() => import('@anytools/tools/stl-obj-viewer').then(pick), {
+    ssr: false,
+  }),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

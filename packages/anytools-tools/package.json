@@ -136,7 +136,10 @@
     "./bip39-mnemonic": "./src/bip39-mnemonic/index.ts",
     "./jq-playground": "./src/jq-playground/index.ts",
     "./sql-playground": "./src/sql-playground/index.ts",
-    "./compress-pdf": "./src/compress-pdf/index.ts"
+    "./compress-pdf": "./src/compress-pdf/index.ts",
+    "./font-converter": "./src/font-converter/index.ts",
+    "./audio-trim": "./src/audio-trim/index.ts",
+    "./stl-obj-viewer": "./src/stl-obj-viewer/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

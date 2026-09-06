@@ -7,6 +7,7 @@
 import { meta as addPageNumbers } from './add-page-numbers/meta';
 import { meta as aesTextEncrypt } from './aes-text-encrypt/meta';
 import { meta as ageCalculator } from './age-calculator/meta';
+import { meta as audioTrim } from './audio-trim/meta';
 import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
 import { meta as bcryptGenerator } from './bcrypt-generator/meta';
@@ -42,6 +43,7 @@ import { meta as discountCalculator } from './discount-calculator/meta';
 import { meta as docxToMarkdown } from './docx-to-markdown/meta';
 import { meta as ethWeiConverter } from './eth-wei-converter/meta';
 import { meta as extractImagesFromPdf } from './extract-images-from-pdf/meta';
+import { meta as fontConverter } from './font-converter/meta';
 import { meta as gpaCalculator } from './gpa-calculator/meta';
 import { meta as gradeCalculator } from './grade-calculator/meta';
 import { meta as hashGenerator } from './hash-generator/meta';
@@ -107,6 +109,7 @@ import { meta as splitPdf } from './split-pdf/meta';
 import { meta as sqlFormatter } from './sql-formatter/meta';
 import { meta as sqlPlayground } from './sql-playground/meta';
 import { meta as statisticsCalculator } from './statistics-calculator/meta';
+import { meta as stlObjViewer } from './stl-obj-viewer/meta';
 import { meta as textCaseConverter } from './text-case-converter/meta';
 import { meta as timeCardCalculator } from './time-card-calculator/meta';
 import { meta as timestampConverter } from './timestamp-converter/meta';
@@ -288,6 +291,11 @@ export const toolMetas: ToolMeta[] = [
   sqlPlayground,
   // Phase 10 (batch-ab, 260906) — compress-pdf + compress-image upgrade, both via @jsquash
   compressPdf,
+  // Phase 8 (batch-ab, 260906) — media tools with third-party deps (vtracer, harfbuzzjs,
+  // wavesurfer.js, three); image-to-svg dropped, see phase-08 file for why
+  fontConverter,
+  audioTrim,
+  stlObjViewer,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

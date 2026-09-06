@@ -1,0 +1,33 @@
+---
+title: Audio Trim — Frequently asked questions
+---
+
+## Why does this only export .wav, not .mp3?
+
+Because a real MP3 encoder that could ship in this MIT-licensed repository does not currently exist as an npm package. The obvious pure-JavaScript option, `lamejs`, is licensed LGPL-3.0. LGPL's usual escape hatch — link against the library as a separate object a user could swap out — assumes there is a separate compiled artifact to swap. A JS-only build has none: it is bundled straight into the page's own JavaScript, so using it would mean either relicensing this tool under LGPL or fusing a copyleft library into code we distribute under MIT. Neither is acceptable here, so the tool writes WAV instead, which needs no encoder at all — 16-bit PCM samples plus a 44-byte header, built by hand in this tool's own code.
+
+The trade-off is real: your cut will be noticeably bigger than the source file, because MP3's whole reason to exist is throwing away psychoacoustically unimportant data that WAV keeps in full. A 3-minute MP3 at 192 kbps is roughly 4 MB; the same 3 minutes as 16-bit stereo WAV at 44.1 kHz is about 30 MB. If you need the trimmed clip back in MP3, re-encode the WAV afterward with a tool built for that job — a desktop app, or `ffmpeg` on the command line, both of which link a real (GPL, in ffmpeg's usual build) encoder the way LGPL and GPL both expect.
+
+## What audio formats can I upload?
+
+Whatever your browser's `AudioContext` can decode — in practice, mp3, wav, ogg (Vorbis/Opus) and m4a/aac are supported in every current desktop and mobile browser, though the exact codec list is the browser's decision, not this tool's. If a file fails to decode, the tool says so plainly rather than pretending it worked; it does not maintain its own list of "supported" extensions, because the real answer depends on what shipped inside the file, not its name.
+
+## Is the audio uploaded anywhere?
+
+No. The file is read with the File API, decoded by the browser's own Web Audio API, and the waveform, playback and cut all happen in this tab. The download link points at a Blob your browser is holding in memory — check the Network tab, or disconnect after the page loads and cut the clip anyway.
+
+## How accurate is the selection?
+
+The waveform region snaps to the sample the browser decoded, so trimming is exact to a single audio sample — there is no frame-boundary rounding the way there sometimes is with compressed formats. What it will not do is trim on a musical beat or a silence gap for you; that judgment is the reason the waveform is there to look at, and dragging the region's edges is how you refine it.
+
+## Why is there a minimum selection length?
+
+Twenty milliseconds. Below that you are not really trimming audio, you are picking a handful of samples that would produce an inaudible click rather than a usable clip, and it is more honest to say so than to hand back a technically valid but useless file.
+
+## Can I trim more than one clip from the same file?
+
+One region at a time, currently. Cut the first range, download it, then drag the region to the next range you want and cut again — the source file stays loaded in the tab the whole time, so re-cutting does not mean re-uploading.
+
+## Does trimming change the audio quality?
+
+No re-encoding happens on the part you keep. The decoded samples for your selection are copied out exactly and written into the WAV container unchanged; the only lossy step in the whole pipeline was the browser's original decode of your source file (real only if that source was itself compressed, like an MP3), which every browser does the same way it would for playback. What you hear on playback is what ends up in the file.

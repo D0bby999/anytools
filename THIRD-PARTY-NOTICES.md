@@ -2213,6 +2213,123 @@ SOFTWARE.
 
 ---
 
+## harfbuzzjs / HarfBuzz
+
+`font-converter` subsets fonts (drops every glyph the user's character set does not need) with
+[harfbuzzjs](https://github.com/harfbuzz/harfbuzzjs) 1.6.1, pinned exactly. Its compiled
+`harfbuzz-subset.wasm` — a standalone build with zero WASM imports, so it needs neither the
+Node `fs` module nor a browser global to run — is redistributed by this site: staged into
+`public/third-party/harfbuzz/` and served to every visitor who subsets a font. The library
+ships two licence notices, because it is a thin JS wrapper (harfbuzzjs itself) around a
+compiled build of a separate C library (HarfBuzz):
+
+| Component | Role | Licence |
+|---|---|---|
+| harfbuzzjs | the TypeScript wrapper, build scripts, Emscripten glue | MIT |
+| [HarfBuzz](https://github.com/harfbuzz/harfbuzz) (compiled into the .wasm) | the C library actually doing the subsetting | "Old MIT" (HarfBuzz's own historical wording; functionally MIT-equivalent) |
+
+`font-converter` calls the subset wasm's exported C functions directly
+(`hb_subset_input_create_or_fail`, `hb_subset_or_fail`, `hb_face_reference_blob`, …) rather than
+through harfbuzzjs's documented `hb.js` wrapper, which only covers text shaping — subsetting has
+no high-level JS API in this package, only the raw exports. Calling an unmodified library's own
+public C ABI through `WebAssembly.instantiate` is normal use, not a fork of its code, so no
+notice beyond the two below is owed. `dist/harfbuzz.wasm` (the shaping engine, used for none of
+this) is left out of the staged files on purpose — nothing in this tool loads it.
+
+### harfbuzzjs — MIT
+
+Copied from `LICENSE` in the installed `harfbuzzjs@1.6.1` package.
+
+```
+Copyright (c) 2019-2026 The harfbuzzjs project authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+### HarfBuzz — "Old MIT"
+
+Copied from `COPYING` at
+<https://raw.githubusercontent.com/harfbuzz/harfbuzz/main/COPYING> (fetched 2026-09-06). This is
+the notice harfbuzzjs's own build compiles against; HarfBuzz upstream describes it as "the
+so-called Old MIT license".
+
+```
+HarfBuzz is licensed under the so-called "Old MIT" license.  Details follow.
+For parts of HarfBuzz that are licensed under different licenses see individual
+files names COPYING in subdirectories where applicable.
+
+Copyright © 2010-2022  Google, Inc.
+Copyright © 2015-2020  Ebrahim Byagowi
+Copyright © 2019,2020  Facebook, Inc.
+Copyright © 2012,2015  Mozilla Foundation
+Copyright © 2011  Codethink Limited
+Copyright © 2008,2010  Nokia Corporation and/or its subsidiary(-ies)
+Copyright © 2009  Keith Stribley
+Copyright © 2011  Martin Hosken and SIL International
+Copyright © 2007  Chris Wilson
+Copyright © 2005,2006,2020,2021,2022,2023  Behdad Esfahbod
+Copyright © 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.
+Copyright © 1998-2005  David Turner and Werner Lemberg
+Copyright © 2016  Igalia S.L.
+Copyright © 2022  Matthias Clasen
+Copyright © 2018,2021  Khaled Hosny
+Copyright © 2018,2019,2020  Adobe, Inc
+Copyright © 2013-2015  Alexei Podtelezhnikov
+
+For full copyright notices consult the individual files in the package.
+
+
+Permission is hereby granted, without written agreement and without
+license or royalty fees, to use, copy, modify, and distribute this
+software and its documentation for any purpose, provided that the
+above copyright notice and the following two paragraphs appear in
+all copies of this software.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
+IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
+
+THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
+PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+```
+
+### Not used: @visioncortex/vtracer
+
+`image-to-svg` (batch-ab phase 8) was planned around
+[@visioncortex/vtracer](https://www.npmjs.com/package/@visioncortex/vtracer) 1.0.0-alpha.4
+(MIT OR Apache-2.0) but the tool was dropped before shipping, so no vtracer code or wasm is
+redistributed and no notice is owed. Recorded here for anyone re-attempting the tool: the
+published package's `pkg/vtracer_wasm.js` is a `wasm-pack build --target nodejs` output — its
+last line is `require('fs').readFileSync(`${__dirname}/vtracer_wasm_bg.wasm`)`, run synchronously
+at module load, with no browser entry point in the package at all (`package.json`'s own
+`repository.directory` is literally `"nodejs"`). Using it client-side would mean hand-writing a
+replacement for wasm-bindgen's memory-marshalling glue against an alpha build's ABI, which is
+patching the library, not using it. `vendor-assets.json` keeps the `vtracer` key `"pending":
+true` for this reason — nothing under `/third-party/vtracer/` is staged.
+
+---
+
 ## Not used: it-tools
 
 [CorentinTh/it-tools](https://github.com/CorentinTh/it-tools) is GPL-3.0. Its **catalogue**
