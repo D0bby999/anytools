@@ -331,15 +331,20 @@ describe('watermarkPdf with text', () => {
     expect([0, 1, 2, 3, 4].map((i) => drawnText(doc, i).length)).toEqual([0, 1, 0, 1, 0]);
   });
 
-  it('refuses text no available font can draw, naming the characters', async () => {
-    const file = await pdfFile(1, {});
-    for (const text of ['机密文件', '🙂']) {
-      await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(PdfTextError);
-      await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(/can draw/);
-    }
-    // And the accented Latin that WinAnsi does cover still goes through Helvetica.
-    await expect(watermarkPdf(file, textOpts({ text: 'BRÖTCHEN ÉTÉ' }))).resolves.toBeTruthy();
-  });
+  // See the note in shared/pdf-page-stamp.test.ts: this distinguishes 'font lacks these
+  // glyphs' from 'font not staged', so it needs the staged font to mean anything.
+  it.skipIf(!hasNotoFont())(
+    'refuses text no available font can draw, naming the characters',
+    async () => {
+      const file = await pdfFile(1, {});
+      for (const text of ['机密文件', '🙂']) {
+        await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(PdfTextError);
+        await expect(watermarkPdf(file, textOpts({ text }))).rejects.toThrow(/can draw/);
+      }
+      // And the accented Latin that WinAnsi does cover still goes through Helvetica.
+      await expect(watermarkPdf(file, textOpts({ text: 'BRÖTCHEN ÉTÉ' }))).resolves.toBeTruthy();
+    },
+  );
 
   // Review 2026-09-05: a Vietnamese watermark was refused outright. Noto Sans is embedded as a
   // subset when Helvetica cannot spell the text.
@@ -373,10 +378,14 @@ describe('watermarkPdf with text', () => {
       code: 'badColour',
       params: { hex: 'grey' },
     });
-    await expect(watermarkPdf(file, textOpts({ text: '机密文件' }))).rejects.toMatchObject({
-      code: 'fontCoverage',
-      params: { subject: 'The watermark text', missing: '机 密 文 件' },
-    });
+    // Same staged-font dependency as above: skipped rather than asserted when the asset is
+    // absent, because the error would be 'unicodeFontNeeded', not 'fontCoverage'.
+    if (hasNotoFont()) {
+      await expect(watermarkPdf(file, textOpts({ text: '机密文件' }))).rejects.toMatchObject({
+        code: 'fontCoverage',
+        params: { subject: 'The watermark text', missing: '机 密 文 件' },
+      });
+    }
   });
 
   it('passes the range parser message through', async () => {

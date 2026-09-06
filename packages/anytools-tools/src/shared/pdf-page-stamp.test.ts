@@ -216,14 +216,22 @@ describe('assertDrawableText', () => {
   });
   afterAll(() => vi.unstubAllGlobals());
 
-  it('rejects text no available font can draw, naming the characters', async () => {
-    for (const text of ['机密文件', '🙂']) {
-      await expect(assertDrawableText(text, 'The watermark text')).rejects.toThrow(PdfTextError);
-    }
-    await expect(assertDrawableText('机密文件', 'The watermark text')).rejects.toThrow(
-      /^The watermark text/,
-    );
-  });
+  // Needs the staged Noto Sans: without it embedTextFont fails with 'unicodeFontNeeded'
+  // (font absent) instead of 'fontCoverage' (font present, glyphs missing), which is a
+  // different assertion. public/third-party/ is gitignored, so a fresh worktree has to run
+  // `pnpm --filter @anytools/web vendor:assets` first — two agents read the resulting red
+  // as a flaky CDN fetch on 2026-09-06. It is neither flaky nor a CDN: the URL is same-origin.
+  it.skipIf(!hasNotoFont())(
+    'rejects text no available font can draw, naming the characters',
+    async () => {
+      for (const text of ['机密文件', '🙂']) {
+        await expect(assertDrawableText(text, 'The watermark text')).rejects.toThrow(PdfTextError);
+      }
+      await expect(assertDrawableText('机密文件', 'The watermark text')).rejects.toThrow(
+        /^The watermark text/,
+      );
+    },
+  );
 
   // Review 2026-09-05: "Tài liệu mật" was refused on a site with a Vietnamese edition.
   it.skipIf(!hasNotoFont())('accepts Vietnamese, Greek and Cyrillic via Noto Sans', async () => {
