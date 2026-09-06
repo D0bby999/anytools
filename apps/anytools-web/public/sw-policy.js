@@ -64,7 +64,11 @@
   // manifest file and fails the moment it drifts from the hash recorded below — that failure
   // IS the reminder.
   const VENDOR_CACHE_VERSION = 1;
-  const VENDOR_MANIFEST_SHA256 = '14e2293363c0359fa8ab00cac5335eb6f7b01c9455cb992e71fa7fa5b38432bc';
+  // 2026-09-06: the manifest gained jq/sqljs/vtracer/harfbuzz/jsquash as "pending" keys.
+  // copy-vendor-assets skips pending keys, so nothing new is staged and no URL under
+  // /third-party/ serves different bytes — the recorded hash moves, the cache version does
+  // not. The phase that flips one of those keys to staged MUST bump VENDOR_CACHE_VERSION.
+  const VENDOR_MANIFEST_SHA256 = 'b2baa3e2681b4b8a10fd0d44bd20707887f2e75317bf3f73dff19c3618c58fac';
 
   const CACHE_NAMES = {
     STATIC: 'at-static-v1',
