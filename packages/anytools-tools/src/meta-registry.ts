@@ -79,6 +79,8 @@ import { meta as removePdfPages } from './remove-pdf-pages/meta';
 import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
 import { meta as romanNumeralConverter } from './roman-numeral-converter/meta';
+// Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+import { meta as rotateImage } from './rotate-image/meta';
 import { meta as rotatePdf } from './rotate-pdf/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
 import { meta as scientificCalculator } from './scientific-calculator/meta';
@@ -232,6 +234,8 @@ export const toolMetas: ToolMeta[] = [
   whiteboard,
   // Segmentation model in the browser (260903)
   removeBackground,
+  // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+  rotateImage,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

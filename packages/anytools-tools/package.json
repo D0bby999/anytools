@@ -114,7 +114,8 @@
     "./whiteboard": "./src/whiteboard/index.ts",
     "./ocr-pdf": "./src/ocr-pdf/index.ts",
     "./ocr-image-to-text": "./src/ocr-image-to-text/index.ts",
-    "./remove-background": "./src/remove-background/index.ts"
+    "./remove-background": "./src/remove-background/index.ts",
+    "./rotate-image": "./src/rotate-image/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -147,6 +147,8 @@ const LOADERS: Record<string, ComponentType> = {
   // Segmentation model in the browser (260903). ssr:false is not needed — the module touches no
   // browser global at import time; onnxruntime-web is imported inside the run path only.
   'remove-background': dynamic(() => import('@anytools/tools/remove-background').then(pick)),
+  // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+  'rotate-image': dynamic(() => import('@anytools/tools/rotate-image').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
