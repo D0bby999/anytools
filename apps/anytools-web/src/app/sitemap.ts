@@ -12,7 +12,7 @@ import { routing } from '@/i18n/routing';
 import { POPULATED_CLUSTERS } from '@/lib/cluster-config';
 import { clusterLastModified, guideLastModified, toolLastModified } from '@/lib/content-lastmod';
 import { clusterHasBodiedTool, hasLocalizedToolBody } from '@/lib/has-localized-tool-body';
-import { listPublishedBlogRows } from '@/lib/load-blog-content';
+import { listEveryPublishedBlogRow } from '@/lib/load-blog-content';
 import { GUIDE_SLUGS } from '@/lib/load-guide-content';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { SITE_URL, withXDefault } from '@/lib/site-url';
@@ -123,14 +123,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Dynamic blog routes — fetched from DB at request time.
-  // AnyTools is EN-only so we emit one URL per slug (no locale loop needed).
-  const blogRows = await listPublishedBlogRows('en');
+  //
+  // This loop used to call listPublishedBlogRows('en') only, on the comment "AnyTools is
+  // EN-only". That was wrong: posts are translated, and on production 2026-09-06 /vi/blog
+  // served the same 23 posts as /en/blog with fully translated bodies, self-referencing
+  // canonicals and `index, follow` — pages the sitemap never mentioned.
+  //
+  // It uses listEveryPublishedBlogRow (no en-fallback merging) rather than looping the
+  // per-locale helper, because that helper substitutes the English row for a missing
+  // translation: looping it would have submitted /vi/blog/<slug> for posts that exist
+  // only in English, i.e. manufactured the duplicate-content problem the tool-page gate
+  // was built to avoid. Rows here carry their real locale, and hreflang is derived from
+  // the same set, so the sitemap can only ever advertise translations that exist.
+  const blogRows = await listEveryPublishedBlogRow();
+  const blogLocalesBySlug = new Map<string, string[]>();
   for (const row of blogRows) {
-    const lastMod = row.updatedAt ?? row.publishedAt ?? undefined;
+    if (!routing.locales.includes(row.locale as never)) continue;
+    blogLocalesBySlug.set(row.slug, [...(blogLocalesBySlug.get(row.slug) ?? []), row.locale]);
+  }
+  for (const row of blogRows) {
+    if (!routing.locales.includes(row.locale as never)) continue;
     urls.push({
-      url: `${SITE_URL}/en/blog/${row.slug}`,
-      lastModified: lastMod ?? undefined,
-      alternates: { languages: withXDefault({ en: `${SITE_URL}/en/blog/${row.slug}` }) },
+      url: `${SITE_URL}/${row.locale}/blog/${row.slug}`,
+      lastModified: row.updatedAt ?? row.publishedAt ?? undefined,
+      alternates: {
+        languages: withXDefault(
+          Object.fromEntries(
+            (blogLocalesBySlug.get(row.slug) ?? [row.locale]).map((l) => [
+              l,
+              `${SITE_URL}/${l}/blog/${row.slug}`,
+            ]),
+          ),
+        ),
+      },
     });
   }
 

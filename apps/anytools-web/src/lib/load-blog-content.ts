@@ -13,7 +13,12 @@
  * AnyTools is English-only (no locale fallback needed — en rows only).
  */
 
-import { getPublishedBlog, listPublishedBlogs } from '@anytools/db-shared';
+import {
+  getPublishedBlog,
+  listAllPublishedBlogRows,
+  listPublishedBlogs,
+  listPublishedLocalesForSlug,
+} from '@anytools/db-shared';
 import type { Blog } from '@anytools/db-shared';
 import { getDb } from '@anytools/db-shared/client';
 import type { SanitizedHtml } from '@anytools/postclaw-blog-endpoint';
@@ -209,6 +214,44 @@ export async function listPublishedBlogRows(locale = 'en'): Promise<
       publishedAt: r.publishedAt,
       updatedAt: r.updatedAt,
     }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Every published blog row under its REAL locale, with no en-fallback merging.
+ *
+ * `listPublishedBlogRows` (above) goes through `listPublishedBlogs`, which fills a
+ * missing translation with the English row — useful for rendering an index, wrong for
+ * deciding what to submit to Google. The sitemap uses this instead so an untranslated
+ * locale is never advertised as an indexable page.
+ *
+ * Build-safe: returns [] on any DB error, same as its sibling.
+ */
+export async function listEveryPublishedBlogRow(): Promise<
+  Array<{ slug: string; locale: string; publishedAt: Date | null; updatedAt: Date | null }>
+> {
+  try {
+    return await listAllPublishedBlogRows(getDb());
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Locales that have a genuinely published row for this slug.
+ *
+ * The post page uses it to tell "translated" from "served the English fallback": the
+ * second case must canonicalise to the English URL instead of to itself, or the same
+ * article competes with itself on four URLs.
+ *
+ * Returns [] on DB error, which callers must read as "cannot prove a translation
+ * exists" — the page then behaves exactly as it did before this existed.
+ */
+export async function publishedBlogLocales(slug: string): Promise<string[]> {
+  try {
+    return await listPublishedLocalesForSlug(getDb(), slug);
   } catch {
     return [];
   }

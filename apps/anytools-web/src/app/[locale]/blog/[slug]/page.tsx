@@ -7,10 +7,10 @@ import { BlogRelatedPosts } from '@/components/blog-related-posts';
 import { MdxContent } from '@/components/mdx-content';
 import { YouTubeEmbed } from '@/components/youtube-embed';
 import { routing } from '@/i18n/routing';
-import { asSanitizedHtml, loadBlog } from '@/lib/load-blog-content';
+import { asSanitizedHtml, loadBlog, publishedBlogLocales } from '@/lib/load-blog-content';
 import { faqSchema, jsonLdSafe } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
-import { METADATA_BASE, SITE_URL } from '@/lib/site-url';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -31,17 +31,31 @@ export async function generateMetadata({
   const blog = await loadBlog(locale, slug);
   if (!blog) return {};
   const seoTitle = `${blog.data.title} | AnyTools Blog`;
-  const canonicalPath = `/${locale}/blog/${slug}`;
+  // `getPublishedBlog` silently substitutes the English row when a locale has no
+  // published translation, so reaching this line proves a page renders — not that it
+  // renders in `locale`. Without the distinction, /vi/blog/x served the English article
+  // under its own canonical with `index, follow`: the same text competing with itself on
+  // four URLs. A locale that only got the fallback now points its canonical at the
+  // English original so Google consolidates the duplicate instead of picking one.
+  const translatedLocales = (await publishedBlogLocales(slug)).filter((l) =>
+    routing.locales.includes(l as never),
+  );
+  // An empty list means the query failed, not that nothing is translated — fall back to
+  // the previous self-canonical behaviour rather than sending every locale to /en.
+  const isTranslated = translatedLocales.length === 0 || translatedLocales.includes(locale);
+  const canonicalPath = isTranslated ? `/${locale}/blog/${slug}` : `/en/blog/${slug}`;
+  const languages = Object.fromEntries(
+    (translatedLocales.length > 0 ? translatedLocales : [locale]).map((l) => [
+      l,
+      `/${l}/blog/${slug}`,
+    ]),
+  );
   return {
     metadataBase: METADATA_BASE,
     title: seoTitle,
     description: blog.data.description,
     keywords: blog.data.keywords,
-    alternates: {
-      canonical: canonicalPath,
-      // Phase 1 EN only — other locales redirect or 404 until translations ship
-      languages: { en: `/en/blog/${slug}` },
-    },
+    alternates: selfHostSafeAlternates({ canonical: canonicalPath, languages }),
     openGraph: {
       type: 'article',
       title: seoTitle,
