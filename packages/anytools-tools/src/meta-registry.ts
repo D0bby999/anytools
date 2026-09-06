@@ -45,6 +45,8 @@ import { meta as htmlBeautifier } from './html-beautifier/meta';
 import { meta as htmlEntity } from './html-entity/meta';
 import { meta as httpStatusCodes } from './http-status-codes/meta';
 import { meta as imageFormatConverter } from './image-format-converter/meta';
+// Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+import { meta as imageToBase64 } from './image-to-base64/meta';
 import { meta as imageToPdf } from './image-to-pdf/meta';
 import { meta as integerBaseConverter } from './integer-base-converter/meta';
 import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
@@ -239,6 +241,7 @@ export const toolMetas: ToolMeta[] = [
   // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
   rotateImage,
   watermarkImage,
+  imageToBase64,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

@@ -116,7 +116,8 @@
     "./ocr-image-to-text": "./src/ocr-image-to-text/index.ts",
     "./remove-background": "./src/remove-background/index.ts",
     "./rotate-image": "./src/rotate-image/index.ts",
-    "./watermark-image": "./src/watermark-image/index.ts"
+    "./watermark-image": "./src/watermark-image/index.ts",
+    "./image-to-base64": "./src/image-to-base64/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

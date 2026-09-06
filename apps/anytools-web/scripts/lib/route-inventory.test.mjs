@@ -10,9 +10,9 @@ import { buildRouteInventory } from './route-inventory.mjs';
 describe('buildRouteInventory', () => {
   const inventory = buildRouteInventory();
 
-  it('finds all 109 published tool meta files', () => {
-    // 260906: +2 (rotate-image, watermark-image — batch-ab phase 3).
-    expect(inventory.counts.toolMetaFiles).toBe(109);
+  it('finds all 110 published tool meta files', () => {
+    // 260906: +3 (rotate-image, watermark-image, image-to-base64 — batch-ab phase 3).
+    expect(inventory.counts.toolMetaFiles).toBe(110);
   });
 
   it("counts the 5 tools restricted to English only (availableLocales: ['en'])", () => {
@@ -27,21 +27,21 @@ describe('buildRouteInventory', () => {
     expect(inventory.counts.guideSlugs).toBe(7);
   });
 
-  it('computes 421 tool routes: 109 English + 104 each for vi/es/pt', () => {
-    // 109 tools all ship English; 5 of them stop there, so the other 3 locales
-    // get 109 - 5 = 104 tool routes each. 109 + 104*3 = 421.
-    expect(inventory.counts.toolPages).toBe(421);
+  it('computes 425 tool routes: 110 English + 105 each for vi/es/pt', () => {
+    // 110 tools all ship English; 5 of them stop there, so the other 3 locales
+    // get 110 - 5 = 105 tool routes each. 110 + 105*3 = 425.
+    expect(inventory.counts.toolPages).toBe(425);
   });
 
-  it('adds up to 521 expect200 routes (4 home + 52 cluster + 421 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
+  it('adds up to 525 expect200 routes (4 home + 52 cluster + 425 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
     expect(inventory.counts.home).toBe(4);
     expect(inventory.counts.clusterPages).toBe(52);
     expect(inventory.counts.guideIndexPages).toBe(4);
     expect(inventory.counts.guideSlugPages).toBe(28);
     expect(inventory.counts.localeUtilityPages).toBe(8);
     expect(inventory.counts.singleAssetPages).toBe(4);
-    expect(inventory.counts.total200).toBe(521);
-    expect(inventory.expect200).toHaveLength(521);
+    expect(inventory.counts.total200).toBe(525);
+    expect(inventory.expect200).toHaveLength(525);
   });
 
   it('serves the service worker offline fallback and favorites in every locale', () => {

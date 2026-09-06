@@ -150,6 +150,7 @@ const LOADERS: Record<string, ComponentType> = {
   // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
   'rotate-image': dynamic(() => import('@anytools/tools/rotate-image').then(pick)),
   'watermark-image': dynamic(() => import('@anytools/tools/watermark-image').then(pick)),
+  'image-to-base64': dynamic(() => import('@anytools/tools/image-to-base64').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
