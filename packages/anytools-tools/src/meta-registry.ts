@@ -17,6 +17,7 @@ import { meta as boxShadowGenerator } from './box-shadow-generator/meta';
 import { meta as calorieCalculator } from './calorie-calculator/meta';
 import { meta as chmodCalculator } from './chmod-calculator/meta';
 import { meta as clipPathGenerator } from './clip-path-generator/meta';
+import { meta as colorBlindnessSimulator } from './color-blindness-simulator/meta';
 import { meta as colorConverter } from './color-converter/meta';
 import { meta as colorPalette } from './color-palette/meta';
 import { meta as compoundInterest } from './compound-interest/meta';
@@ -235,6 +236,7 @@ export const toolMetas: ToolMeta[] = [
   removeBackground,
   // Design + time-date + image, 0-dependency batch (260906)
   cubicBezierGenerator,
+  colorBlindnessSimulator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

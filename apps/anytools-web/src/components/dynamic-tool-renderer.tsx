@@ -151,6 +151,9 @@ const LOADERS: Record<string, ComponentType> = {
   'cubic-bezier-generator': dynamic(() =>
     import('@anytools/tools/cubic-bezier-generator').then(pick),
   ),
+  'color-blindness-simulator': dynamic(() =>
+    import('@anytools/tools/color-blindness-simulator').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

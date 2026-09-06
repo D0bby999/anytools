@@ -1,0 +1,39 @@
+---
+title: Color Blindness Simulator — Frequently asked questions
+---
+
+## What is the difference between protanopia, deuteranopia and tritanopia?
+
+They correspond to the absence of one of the three cone cell types in the retina. Protanopia is the absence of L (long-wavelength, "red") cones, deuteranopia is the absence of M (medium-wavelength, "green") cones, and tritanopia is the absence of S (short-wavelength, "blue") cones. Protanopia and deuteranopia are both commonly (if loosely) called "red-green color blindness" because both make reds and greens hard to tell apart, though the specific colors that get confused differ between the two. Tritanopia, confusing blues and yellows, is much rarer and has a different genetic basis than the other two. Achromatopsia — total color blindness, with no functioning cones of any kind — is separate again and far rarer than any of the three dichromacies.
+
+## What math does the simulation actually run?
+
+Each pixel's sRGB value is converted to linear light, then to CIE XYZ, then into LMS space — the three numbers representing how strongly the long, medium and short cones would respond to that color. For a dichromat, one of those three responses does not exist, so the missing axis is reconstructed by projecting it onto the other two along the "confusion line" — the direction in color space a person with that deficiency cannot perceive a difference along. The result is converted back through XYZ and linear light to sRGB. This is the method from Brettel, Viénot & Mollon's 1997 paper on simulating dichromat color appearance, simplified in their 1999 follow-up to a single matrix multiplication per deficiency type. Achromatopsia skips this entirely and uses a standard luminance formula, since a total absence of color vision is just brightness with no chromatic information at all.
+
+## Where do the exact matrix numbers come from?
+
+They are transcribed from the worked derivation published by Martin Krzywinski at the BC Genome Sciences Centre, a bioinformatics visualization specialist whose page walks through the full sRGB-to-LMS-to-sRGB pipeline with every intermediate matrix shown. The sRGB-to-XYZ matrices there match the standard reference values used across color science (the same ones published by Bruce Lindbloom's widely-cited color equations reference), which is the cross-check that gives confidence these are the real coefficients rather than a rough approximation invented for this tool.
+
+## Why does a saturated red-green pair still look somewhat different under each simulation?
+
+Because the three deficiencies remove different information. A color that becomes nearly indistinguishable from another under protanopia might stay clearly separable under tritanopia, since tritanopia leaves the red-green (L/M) axis untouched and only collapses the blue-yellow (S) axis. That is also why relying on a single "colorblind-safe" palette without specifying which type it was checked against is not a complete answer — a palette safe for deuteranopia is not automatically safe for tritanopia.
+
+## Is this an exact simulation, or an approximation?
+
+An approximation, and this matters for how you should use it. Two specific simplifications are made here: first, the projection can put a color slightly outside what a monitor can actually display (out of the sRGB gamut), which is clamped back into range rather than corrected with the more involved whole-image gamut-compression step some research implementations use. Second, and more fundamentally, real dichromacy varies in severity between individuals, and this tool only simulates the complete absence of a cone type (dichromacy), not partial anomalous trichromacy, which is actually the more common and less severe form color vision deficiency takes in practice. Treat the output as "this is roughly what a person with complete absence of this cone type would see," not as a certified test result for a specific person.
+
+## Should I test my UI with this instead of asking a colorblind user?
+
+No — use it as a fast first pass, not a replacement. This tool is useful for catching the obvious mistakes early: a status indicator that relies purely on red-versus-green, a chart where two data series are only distinguishable by hue. But no simulation captures the full range of real human color vision, which varies with lighting conditions, screen calibration, and the specific severity of an individual's deficiency. If the product matters, testing with actual colorblind users remains the more reliable check.
+
+## Why does the achromatopsia option not use the same LMS math as the other three?
+
+Because achromatopsia is not a dichromacy — there is no third cone type left to project onto after removing one, since none of the cone types are functioning. Someone with complete achromatopsia sees through the rod cells alone, which carry only brightness, not color. Converting the image to grayscale with perceptual luminance weights (the same weighting used in standard luma calculations, favoring green heavily and blue very little, since the eye is far more sensitive to green light at any luminance level) is the direct way to represent that.
+
+## Does the color-code mode use a different calculation than the image mode?
+
+No — both modes call the exact same per-pixel function, once for a single color instead of once per pixel of an image. The color-code mode exists because sometimes the question is narrower than "how does this whole photo look" — it is "does this specific brand red still read as red," which a single swatch answers faster than uploading an image containing that color.
+
+## Is anything uploaded to a server?
+
+No. The image decode, the pixel math, and the rendered comparison all happen in your browser using the Canvas API. Nothing about the photo or the color you type leaves your machine.
