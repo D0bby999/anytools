@@ -173,6 +173,8 @@ const LOADERS: Record<string, ComponentType> = {
   'rotate-image': dynamic(() => import('@anytools/tools/rotate-image').then(pick)),
   'watermark-image': dynamic(() => import('@anytools/tools/watermark-image').then(pick)),
   'image-to-base64': dynamic(() => import('@anytools/tools/image-to-base64').then(pick)),
+  // Phase 9 (batch-ab, 260906) — @cantoo/pdf-lib, kept out of the other PDF tools' bundle
+  'pdf-password': dynamic(() => import('@anytools/tools/pdf-password').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

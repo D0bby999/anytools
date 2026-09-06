@@ -71,6 +71,7 @@ import { meta as ocrImageToText } from './ocr-image-to-text/meta';
 import { meta as ocrPdf } from './ocr-pdf/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
 import { meta as passwordGenerator } from './password-generator/meta';
+import { meta as pdfPassword } from './pdf-password/meta';
 import { meta as pdfToPng } from './pdf-to-png/meta';
 import { meta as percentageCalculator } from './percentage-calculator/meta';
 import { meta as pomodoroTimer } from './pomodoro-timer/meta';
@@ -263,6 +264,8 @@ export const toolMetas: ToolMeta[] = [
   rotateImage,
   watermarkImage,
   imageToBase64,
+  // Phase 9 (batch-ab, 260906) — @cantoo/pdf-lib, kept out of the other PDF tools' bundle
+  pdfPassword,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
