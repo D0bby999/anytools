@@ -124,6 +124,7 @@ import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as whiteboard } from './whiteboard/meta';
 import { meta as wordCounter } from './word-counter/meta';
+import { meta as x509CertificateDecoder } from './x509-certificate-decoder/meta';
 import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
 import { meta as yamlFormatter } from './yaml-formatter/meta';
@@ -266,6 +267,7 @@ export const toolMetas: ToolMeta[] = [
   imageToBase64,
   // Phase 5 (batch-ab, 260906) — crypto tools built on pinned jose/@peculiar/x509/bip39
   jwtSignVerify,
+  x509CertificateDecoder,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
