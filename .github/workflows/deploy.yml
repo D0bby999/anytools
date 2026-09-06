@@ -144,3 +144,9 @@ jobs:
           curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
             -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" \
             --data '{"purge_everything":true}'
+      # Bing/Yandex/Seznam only. Google ignores IndexNow, so this is a side channel, not
+      # the main one. Runs after the purge so the sitemap it reads is the new build's.
+      # The script swallows its own failures — a bad minute at Bing must not fail a deploy.
+      - name: Ping IndexNow
+        run: node scripts/indexnow-submit.mjs --base=https://anytools.world
+        working-directory: apps/anytools-web
