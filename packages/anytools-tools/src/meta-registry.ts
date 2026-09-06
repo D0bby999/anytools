@@ -107,6 +107,8 @@ import { meta as urlParser } from './url-parser/meta';
 import { meta as userAgentParser } from './user-agent-parser/meta';
 import { meta as uuidGenerator } from './uuid-generator/meta';
 import { meta as walletChecker } from './wallet-checker/meta';
+// Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+import { meta as watermarkImage } from './watermark-image/meta';
 import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as whiteboard } from './whiteboard/meta';
@@ -236,6 +238,7 @@ export const toolMetas: ToolMeta[] = [
   removeBackground,
   // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
   rotateImage,
+  watermarkImage,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
