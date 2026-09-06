@@ -147,6 +147,12 @@ const LOADERS: Record<string, ComponentType> = {
   // Segmentation model in the browser (260903). ssr:false is not needed — the module touches no
   // browser global at import time; onnxruntime-web is imported inside the run path only.
   'remove-background': dynamic(() => import('@anytools/tools/remove-background').then(pick)),
+  // WebCrypto, 0 dependency (260906)
+  'aes-text-encrypt': dynamic(() => import('@anytools/tools/aes-text-encrypt').then(pick)),
+  'rsa-keypair-generator': dynamic(() =>
+    import('@anytools/tools/rsa-keypair-generator').then(pick),
+  ),
+  'hmac-generator': dynamic(() => import('@anytools/tools/hmac-generator').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

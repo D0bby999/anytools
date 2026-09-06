@@ -5,6 +5,7 @@
  * tool listings without rendering the tool itself.
  */
 import { meta as addPageNumbers } from './add-page-numbers/meta';
+import { meta as aesTextEncrypt } from './aes-text-encrypt/meta';
 import { meta as ageCalculator } from './age-calculator/meta';
 import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
@@ -41,6 +42,7 @@ import { meta as gradeCalculator } from './grade-calculator/meta';
 import { meta as hashGenerator } from './hash-generator/meta';
 import { meta as heicToJpg } from './heic-to-jpg/meta';
 import { meta as hexEncode } from './hex-encode/meta';
+import { meta as hmacGenerator } from './hmac-generator/meta';
 import { meta as htmlBeautifier } from './html-beautifier/meta';
 import { meta as htmlEntity } from './html-entity/meta';
 import { meta as httpStatusCodes } from './http-status-codes/meta';
@@ -80,6 +82,7 @@ import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
 import { meta as romanNumeralConverter } from './roman-numeral-converter/meta';
 import { meta as rotatePdf } from './rotate-pdf/meta';
+import { meta as rsaKeypairGenerator } from './rsa-keypair-generator/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
 import { meta as scientificCalculator } from './scientific-calculator/meta';
 import { meta as shoeSizeConverter } from './shoe-size-converter/meta';
@@ -232,6 +235,10 @@ export const toolMetas: ToolMeta[] = [
   whiteboard,
   // Segmentation model in the browser (260903)
   removeBackground,
+  // WebCrypto, 0 dependency (260906)
+  aesTextEncrypt,
+  rsaKeypairGenerator,
+  hmacGenerator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

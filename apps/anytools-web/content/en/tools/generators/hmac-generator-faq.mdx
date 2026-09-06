@@ -1,0 +1,27 @@
+---
+title: HMAC Generator & Verifier — FAQ
+---
+
+## How is this different from the HMAC tab on Hash Generator?
+
+Hash Generator's HMAC tab covers the common case: a text key, hex or Base64 output. This tool adds two things that tab doesn't: a key entered as hex (needed when a provider hands you a hex-encoded secret rather than a plain string — some webhook and API signing schemes do exactly that), and a dedicated Verify mode. If all you need is a quick digest with a plain-text key, either tool works; this one exists for the cases where the key format or the verification step matters.
+
+## Why does Verify use `crypto.subtle.verify` instead of just comparing strings?
+
+Comparing two hex or Base64 strings with `===` stops at the first character that differs — a JavaScript engine does not promise to keep comparing after it finds a mismatch. That means the *time* the comparison takes can leak how many leading bytes of a guess were correct, which is a real side channel: an attacker who can measure response timing precisely enough could recover a valid signature one byte at a time instead of guessing all of it at once. `crypto.subtle.verify` recomputes the HMAC internally and reports a boolean without exposing that timing difference. This is exactly the class of bug behind CVE-style "timing attack" reports against custom signature-checking code, and it's why this tool never does the naive string comparison.
+
+## Why do I need to pick a key format (text vs hex)?
+
+The two produce completely different key bytes for the same characters. The 4-character string `"abcd"` as text is the four ASCII bytes `0x61 0x62 0x63 0x64`; as hex, `"abcd"` decodes to two bytes, `0xAB 0xCD`. If your provider's documentation shows the secret as something like `3a7f01...` and calls it "hex-encoded," you need Hex mode — feeding it in as Text mode would derive an HMAC from the wrong key entirely, and the signatures will never match no matter how many times you retry.
+
+## Which algorithm should I use?
+
+SHA-256 is the default nearly everywhere — Stripe, GitHub, and Shopify webhooks, most JWT HS256 flows, and most custom API signing schemes all use HMAC-SHA-256. SHA-1 is included for compatibility with older or legacy integrations only; HMAC-SHA-1 itself is not broken the way plain SHA-1 hashing is (HMAC's construction tolerates a weaker underlying hash better than direct hashing does), but there's no reason to choose it for anything new. SHA-384 and SHA-512 show up in higher-security contexts and some enterprise APIs.
+
+## My computed HMAC doesn't match what I expected. What's wrong?
+
+Almost always one of: the message bytes don't match exactly (a JSON body that got re-serialized, even with identical field values, hashes differently from the original raw bytes — always sign or verify against the exact raw request body); the key format is wrong (text vs hex, see above); trailing whitespace or a newline character your editor silently added to the key or message; or the output encoding is mismatched (hex vs Base64 look nothing alike for the same digest). Check the raw message bytes first — it's the most common cause by a wide margin.
+
+## Is my key or message sent anywhere?
+
+No. Both the digest and the verification run locally with WebCrypto; nothing here makes a network request.
