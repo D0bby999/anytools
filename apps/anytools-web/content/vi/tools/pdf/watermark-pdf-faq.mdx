@@ -1,0 +1,27 @@
+---
+title: Đóng dấu mờ lên PDF — Câu hỏi thường gặp
+---
+
+## Tôi gõ "đóng dấu mờ pdf online" — file có bị tải lên máy chủ không?
+
+Không. PDF được JavaScript đọc ngay trong tab này, được `pdf-lib` đóng dấu, và trả về dưới dạng blob URL do chính trình duyệt bạn tạo. Trang đầu tiên được `pdf.js` dựng lên để xem trước, cũng ngay trong tab. Không request nào mang tài liệu đi, nên không có bản sao trên máy chủ để phải lưu, phải ghi log hay phải xoá. Mở tab Network trong DevTools rồi chạy thử: bạn sẽ không thấy lượt upload nào, và nếu ngắt mạng sau khi trang đã tải xong thì tool vẫn chạy. Đóng dấu thường là bước cuối trước khi tài liệu rời khỏi tổ chức của bạn — bản hợp đồng nháp, hồ sơ thầu, bản in thử thiết kế, bản thảo chưa xuất bản — nên đó chính là những file bạn không nên giao cho bên thứ ba chỉ để dập chữ "MẬT" lên.
+
+## Chữ tiếng Việt có dấu đóng dấu được không?
+
+Được, và đây là chi tiết đáng nói vì rất nhiều công cụ khác gãy đúng ở đây. Chữ Latin — kể cả dấu Tây Âu như `BRÖTCHEN` hay `ÉTÉ` — được vẽ bằng Helvetica, một trong mười bốn font mọi phần mềm đọc PDF bắt buộc có sẵn, nên file gần như không phình thêm. Nhưng Helvetica dùng mã hoá WinAnsi và hoàn toàn không có glyph cho dấu thanh tiếng Việt: `BẢN NHÁP` từng bị từ chối vì lý do này. Vì vậy khi chuỗi của bạn vượt ngoài Helvetica, tool tự nhúng Noto Sans — font đã được đặt sẵn trên chính máy chủ của site, không lấy từ Google Fonts — và chỉ nhúng đúng những glyph mà dấu của bạn dùng tới, nên chỉ tốn thêm vài kilobyte. `BẢN NHÁP`, `Tài liệu mật`, `КОНФИДЕНЦИАЛЬНО` đều chạy. Tiếng Trung, Nhật, Hàn, Ả Rập, Do Thái, Thái và emoji thì không: gõ vào, tool dừng lại và gọi tên đúng những ký tự nó không vẽ được, thay vì in ra một hàng ô vuông rỗng.
+
+## Đóng dấu mờ có thật sự bảo vệ tài liệu không?
+
+Không theo cách nhiều người kỳ vọng, và điều này nên nói thẳng. Dấu mờ được vẽ đè lên nội dung sẵn có. Nó đánh dấu tài liệu là bản nháp hoặc tài liệu mật, và làm cho một tấm ảnh chụp màn hình hay một bản photocopy lộ rõ nguồn gốc. Nó là một lời cảnh báo và một cái nhãn. Nó không phải mã hoá và cũng không phải bôi đen. Mọi thứ nằm dưới dấu vẫn còn nguyên, vẫn bôi chọn, copy và tìm kiếm được. Người quyết tâm vẫn gỡ được dấu, vì PDF lưu nó như một lệnh vẽ riêng chứ không nung vào pixel — cũng chính nhờ vậy mà chữ bên dưới còn chọn được, thứ mà thông thường bạn muốn giữ. Nếu nội dung buộc phải không đọc được, hãy xoá nó trước khi xuất file; nếu file buộc phải không mở được, hãy mã hoá bằng phần mềm đã tạo ra nó.
+
+## Bản xem trước có đúng với file cuối không?
+
+Gần đúng, và nên biết chỗ nó không đúng. Bản xem trước dựng trang đầu bằng `pdf.js` ở 96 dpi rồi vẽ dấu đè lên bằng CSS, nhờ vậy kéo thanh trượt góc nghiêng hay độ mờ là thấy ngay — nếu phải dựng lại cả trang cho từng nấc thanh trượt thì thao tác sẽ không dùng nổi trên tài liệu thật. Hệ quả: chữ trong bản xem trước dùng Helvetica hoặc Arial của hệ điều hành bạn, còn file kết quả dùng Helvetica chuẩn của PDF. Bề rộng từng chữ chênh nhau chút ít, nên một dòng dấu dài có thể lệch vài point trong file cuối. Vị trí, góc nghiêng, màu và độ mờ thì chính xác. Xem trước cũng chỉ hiện trang đầu, kể cả khi bạn đã chọn khoảng trang không bao gồm trang đó.
+
+## Trang nằm ngang và trang bị xén có bị đóng dấu lệch không?
+
+Không. Trang PDF mang một khung có chiều rộng và chiều cao, cộng thêm một góc xoay mà phần mềm đọc áp vào trước khi hiển thị, và trang scan nằm ngang thường được lưu là khung đứng cộng một phần tư vòng xoay. Công cụ bỏ qua chi tiết đó sẽ đặt dấu theo khung, nên trên các trang này dấu ra sai góc và tràn khỏi mép. Ở đây dấu luôn được canh giữa trang như bạn nhìn thấy, và góc bạn chọn là góc bạn nhận được trên màn hình, bất kể trang mang góc xoay nào. Kích thước ảnh dấu tính theo phần trăm chiều rộng nhìn thấy, đo cùng một cách. Tool cũng dùng crop box thay vì media box, nên trang đã xén hay bình bản vẫn được đóng dấu vào đúng vùng hiển thị.
+
+## Đóng dấu chỉ một số trang được không, còn ảnh logo thì sao?
+
+Được. Ô khoảng trang nhận cú pháp thường dùng `1-5` hoặc `1, 4-6, 9`, mặc định là mọi trang. Dấu chữ nhận cỡ chữ theo point, màu hex bất kỳ, góc nghiêng và độ mờ từ trên 0 đến 1 — màu sai cú pháp bị từ chối kèm thông báo chứ không âm thầm chuyển thành đen, vì một dấu bỗng dưng đen sẽ bị đổ lỗi cho tool chứ không cho ô nhập. Dấu ảnh nhận chiều rộng theo phần trăm trang, giữ đúng tỷ lệ, và hỗ trợ PNG nền trong suốt — thứ mà logo thường cần. Ảnh chỉ được nhúng một lần rồi tham chiếu lại từ mọi trang, nên một logo 200 KB làm tài liệu năm mươi trang nặng thêm 200 KB chứ không phải 10 MB.

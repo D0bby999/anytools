@@ -1,0 +1,27 @@
+---
+title: Calculator Thống kê — Trung bình, trung vị, độ lệch chuẩn — Câu hỏi thường gặp
+---
+
+## Tính độ lệch chuẩn thì chọn "mẫu" hay "tổng thể"?
+
+Chọn tổng thể nếu dãy số của bạn là toàn bộ nhóm cần mô tả — điểm của cả 40 học sinh trong lớp, doanh thu đủ 12 tháng trong năm. Chọn mẫu nếu đó chỉ là một phần được lấy ra để suy đoán về nhóm lớn hơn, ví dụ 200 người trả lời khảo sát đại diện cho khách hàng. Thực tế mẫu là lựa chọn phổ biến hơn nên tool để sẵn chế độ này. Khác biệt nằm ở mẫu số của phương sai: tổng thể chia cho `n`, mẫu chia cho `n − 1`. Đây là hiệu chỉnh Bessel, tồn tại vì độ phân tán trong một mẫu luôn hụt so với tổng thể một cách có hệ thống. Với dãy dài thì chênh lệch không đáng kể, với dãy 5–10 số thì rất đáng kể.
+
+## Nhập số kiểu gì, và vì sao "3,5" cho kết quả sai?
+
+Đây là bẫy lớn nhất với người dùng Việt. Bộ tách số coi khoảng trắng, dấu phẩy và dấu chấm phẩy đều là dấu ngăn cách, nên `3,5` không được hiểu là ba phẩy năm — nó bị tách thành hai số riêng là 3 và 5, làm số lượng phần tử tăng lên và trung bình lệch hẳn. Số thập phân bắt buộc dùng dấu chấm: viết `3.5`. Ngược lại, mọi token không phải số hợp lệ đều bị loại bỏ trong im lặng, không hiện cảnh báo — nên dán cả cột có kèm chữ "kg" hay "triệu" thì phần chữ biến mất mà bạn không hay. Cách kiểm tra nhanh: nhìn ô đếm `n` xem có đúng bằng số phần tử bạn định nhập không.
+
+## Vì sao có lúc tool hiện tới mấy giá trị mode?
+
+Vì thật sự có thể có nhiều mode. Code thu thập mọi giá trị đạt tần suất cao nhất chứ không tuỳ tiện chọn một cái. Nếu hai giá trị cùng xuất hiện 4 lần và không giá trị nào nhiều hơn, cả hai đều được liệt kê. Trường hợp cực đoan: nếu mọi giá trị chỉ xuất hiện đúng một lần, tất cả đều là mode — nghe vô lý nhưng đó là câu trả lời trung thực, đồng thời là dấu hiệu rõ ràng rằng mode không nói lên điều gì hữu ích về dãy số này. Với dữ liệu liên tục như chiều cao hay giá tiền lẻ, mode gần như luôn vô dụng; hãy nhìn trung vị và độ lệch chuẩn thay vì nó.
+
+## Tứ phân vị được tính theo phương pháp nào?
+
+Bằng nội suy tuyến tính trên dãy đã sắp xếp: vị trí cần lấy là `p × (n − 1)`, nếu rơi vào giữa hai phần tử thì lấy giá trị nội suy giữa chúng. Đây đúng là cách hàm `QUARTILE.INC` và `PERCENTILE.INC` của Excel làm, nên hai bên khớp nhau. Nhưng có ít nhất năm quy ước tứ phân vị khác nhau đang được dùng: `QUARTILE.EXC` của Excel, phương pháp trung vị của các nửa dãy hay dạy trong sách giáo khoa, và vài biến thể trong R hay SPSS. Vì thế Q1 hoặc Q3 ở đây có thể lệch chút ít so với phần mềm khác — đó là khác biệt phương pháp, không phải lỗi tính toán.
+
+## Sao không dùng Excel hay máy tính bỏ túi?
+
+Excel làm được, nhưng bạn phải nhớ đúng tên hàm và đó chính là chỗ hay sai: `STDEV.S` là mẫu, `STDEV.P` là tổng thể, và chọn nhầm thì bảng vẫn ra số đẹp mà không ai phát hiện. Bạn cũng phải gõ riêng từng công thức cho trung bình, trung vị, mode, phương sai, tứ phân vị. Ở đây bạn dán dãy số một lần và có ngay toàn bộ nhóm chỉ số mô tả — từ đếm, tổng, trung bình, trung vị, mode cho tới khoảng biến thiên, phương sai, độ lệch chuẩn và tứ phân vị, kèm nút chuyển qua lại giữa mẫu và tổng thể để thấy con số thay đổi thế nào. Máy tính bỏ túi thì bắt nhập từng số vào bộ nhớ thống kê và không cho sửa khi lỡ gõ nhầm ở giữa.
+
+## Dữ liệu của tôi có được tải lên server không?
+
+Không. Toàn bộ việc tách chuỗi, sắp xếp và tính toán chạy bằng JavaScript trong trình duyệt của bạn. Không có request nào mang dãy số đi đâu, không lưu vào cơ sở dữ liệu, không log. Điều này đáng quan tâm hơn người ta tưởng: dãy số thống kê thường là lương nhân viên, doanh thu chi nhánh hay kết quả xét nghiệm — dán những thứ đó vào một dịch vụ online lạ là rủi ro thật. Tắt mạng rồi thử lại, tool vẫn chạy đúng; đó là cách tự kiểm chứng nhanh nhất.

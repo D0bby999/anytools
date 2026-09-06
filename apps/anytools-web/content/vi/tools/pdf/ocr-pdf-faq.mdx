@@ -1,0 +1,27 @@
+---
+title: OCR file PDF scan — Câu hỏi thường gặp
+---
+
+## Tôi tìm "chuyển pdf scan thành chữ" — tài liệu có bị tải lên máy chủ không?
+
+Không. Từng trang được `pdf.js` dựng lên canvas, được Tesseract biên dịch sang WebAssembly nhận dạng, và nếu bạn chọn tạo PDF tìm kiếm được thì `pdf-lib` ghép lại. Cả ba đều chạy trong tab trình duyệt này. Không có gì về tài liệu đi tới máy chủ, nên không tồn tại bản sao nào để phải lưu, ghi log hay xoá. Đây chính là lý do tool tồn tại ở dạng này: mọi dịch vụ OCR miễn phí khác đều gửi file của bạn tới một cỗ máy bạn không kiểm soát, mà PDF scan lại đúng là loại tài liệu bạn ít muốn giao đi nhất — hợp đồng, hồ sơ bệnh án, sao kê ngân hàng, sổ đỏ, hồ sơ kiện tụng. Cách kiểm chứng: mở tab Network, chạy tool, và sau khi file ngôn ngữ tải xong, bạn sẽ không thấy request nào mang PDF đi.
+
+## "PDF tìm kiếm được" là gì và tuỳ chọn đó thay đổi thứ gì?
+
+Đó vẫn là bản scan cũ, nhìn không khác gì, nhưng có thêm các từ đã nhận dạng được viết vô hình đè lên ảnh. Phần mềm đọc nhờ vậy tìm, bôi chọn và copy được những chữ mà trong tài liệu vốn chỉ tồn tại dưới dạng pixel. Không có gì bị vẽ lại hay nén lại: tool nạp chính file gốc của bạn và với mỗi từ Tesseract tìm thấy, nó vẽ từ đó ở độ mờ bằng 0, đặt đúng chỗ có vệt mực trên trang. Bản scan sau đó nhìn giống hệt bản đầu; chỉ một lớp chữ được thêm vào. Nghĩa là file chỉ nặng thêm vài chục kilobyte, và chất lượng ảnh đúng bằng những gì bạn đưa vào, tốt hay xấu cũng vậy. Nếu tắt tuỳ chọn, bạn nhận file `.txt` với dấu phân trang trước mỗi trang, phù hợp hơn khi bạn định biên tập lại phần chữ.
+
+## Vì sao chạy lâu, và bấm dừng thì sao?
+
+Nhận dạng là việc nặng thật: khoảng một đến năm giây mỗi trang trên laptop đời mới, chậm hơn trên điện thoại, cộng thêm chi phí khởi động một lần cho lần chạy đầu. Bản scan năm mươi trang là vài phút làm việc thật, và CPU của chính bạn đang gánh — dịch vụ chạy trên máy chủ có vẻ nhanh hơn chỉ vì công việc đó diễn ra trên máy người khác. Các trang được xử lý tuần tự, mỗi lúc một trang, vì riêng một canvas A4 ở 200 DPI đã chiếm chừng 15 MB pixel; chạy song song sẽ tiết kiệm được ít thời gian mà đánh đổi bằng nguy cơ chết tab. Có nút **Dừng**: nó kết thúc lượt chạy, bỏ dở trang đang đọc và không sang trang kế tiếp, nhưng cũng không trả lại các trang đã xong — dừng là không có chữ nào. Muốn lấy một phần tài liệu, hãy dùng ô khoảng trang thay vì bấm Dừng. Chi phí khởi động đó là các file tải về ngay lần bấm đầu tiên, và tải từ chính site này chứ không từ CDN nào: script worker khoảng 110 KB, engine WebAssembly khoảng 3.8 MB, và dữ liệu ngôn ngữ từ 0.5 đến 4 MB tuỳ ngôn ngữ — mặc định thư viện Tesseract sẽ gọi jsDelivr, tức báo cho bên thứ ba biết bạn đang đọc tài liệu ngôn ngữ nào, nên đường đó bị chặn hẳn. File ngôn ngữ nằm lại trong IndexedDB, tài liệu thứ hai cùng ngôn ngữ không tải thêm gì.
+
+## Tiếng Việt có dấu nhận dạng và ghi vào lớp chữ được không?
+
+Được, nhưng cần biết chỗ nào tốn thêm. Chọn tiếng Việt kèm tuỳ chọn PDF tìm kiếm được, tool tải thêm một file Noto Sans 421 KB, vì các font dựng sẵn trong PDF không đánh vần được tiếng Việt: Helvetica dùng mã hoá WinAnsi và hoàn toàn không có glyph cho dấu thanh, nên nếu cứ vẽ bừa thì lớp chữ vô hình sẽ rỗng đúng ở những từ có dấu. Ba ngôn ngữ còn lại dùng font mà mọi phần mềm đọc PDF đã có sẵn nên không tải gì thêm. Font này được phục vụ từ chính máy chủ của site, không lấy từ Google Fonts, và chỉ nhúng những glyph thật sự dùng tới. Bản `.txt` thì không vướng giới hạn font nào cả — nó chứa mọi từ, bất kể ký tự.
+
+## Vì sao vài từ biến mất khỏi lớp chữ tìm kiếm được?
+
+Hai lý do, và cả hai đều được báo chứ không giấu. Thứ nhất, từ nào máy nhận dạng tự tin dưới 30% sẽ bị bỏ có chủ đích: ở mức đó chúng thường là hạt bụi bị đọc thành dấu câu, và giữ lại chỉ khiến việc bôi chọn một dòng copy ra toàn rác. Thứ hai là font: một từ chứa ký tự mà font không có glyph sẽ bị bỏ và được đếm, con số đó hiện ngay phía trên phần chữ. Những ký tự rơi ra ngoài cả Helvetica lẫn Noto Sans khá hiếm trong thực tế và thường vốn đã là đọc nhầm — chữ Hán, mũi tên, nét kẻ khung bảng mà OCR bóc ra từ một con dấu. Ngoài ra nếu file gốc có mật khẩu hoặc quyền hạn chế, tool báo ngay từ đầu chứ không để bạn chờ hết mấy phút nhận dạng rồi mới nói.
+
+## Độ chính xác tới đâu?
+
+Các file ngôn ngữ là bộ `tessdata_fast` của Tesseract, đã lượng tử hoá để chạy nhanh và nhẹ. Với trang in sạch, tỷ lệ ký tự đúng ở mức chín mươi mấy phần trăm; tool báo độ tự tin trung bình theo từng trang để bạn biết trang nào yếu, và con số này được tính có trọng số theo số từ, nên một trang gần như trắng không kéo lệch kết quả. Bộ `tessdata_best` sẽ tốt hơn chừng hai đến ba phần trăm nhưng nặng gấp bốn lần tải về, một đánh đổi không đáng bắt mọi người trả. Chữ viết tay thì không nhận dạng được. Bảng dày, bố cục nhiều cột sát nhau và chữ in đè lên ảnh đều kém hơn hẳn so với chữ thân bài thông thường.

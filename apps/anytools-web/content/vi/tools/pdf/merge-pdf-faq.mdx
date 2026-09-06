@@ -1,0 +1,27 @@
+---
+title: Gộp PDF — Câu hỏi thường gặp
+---
+
+## File của tôi có bị tải lên máy chủ không?
+
+Không. Toàn bộ việc gộp do JavaScript chạy ngay trong tab trình duyệt này thực hiện, dùng thư viện `pdf-lib`, và file kết quả trả về dưới dạng blob URL do chính trình duyệt bạn tạo ra. Không có request nào mang nội dung file đi, nên cũng không tồn tại bản sao nào trên server để ai đó phải hứa xoá. Bạn tự kiểm chứng được: mở DevTools, sang tab Network rồi bấm gộp — sẽ không thấy request upload nào. Cách thứ hai còn chắc hơn: sau khi trang đã tải xong, ngắt mạng hoàn toàn rồi gộp — tool vẫn chạy bình thường, vì lúc đó chẳng còn gì để gửi đi đâu được nữa.
+
+## Tôi hay "ghép file pdf online" bằng iLovePDF hay Smallpdf, khác gì ở đây?
+
+Khác ở chỗ file có rời khỏi máy bạn hay không. Các dịch vụ kia nhận file, xử lý trên máy chủ của họ, rồi mời bạn tin vào chính sách tự động xoá sau vài giờ. Đó là giao dịch chấp nhận được với một tờ lịch trình du lịch, nhưng rất tệ với hợp đồng, bảng lương, sổ đỏ hay bản scan hộ chiếu. Ở đây không có bước "tin tưởng" nào cả, vì không có gì để tin: file không đi đâu, nên không có log, không có hàng đợi xử lý, không có bản backup nằm lại trên đĩa của bên thứ ba. Đổi lại, tốc độ phụ thuộc vào máy bạn chứ không phải máy chủ của họ.
+
+## Giới hạn dung lượng file là bao nhiêu?
+
+Không có giới hạn do tool áp đặt, đơn giản vì không có bước upload nào để giới hạn. Ràng buộc thật là bộ nhớ của thiết bị bạn: trong lúc các trang được sao chép, RAM cần khoảng gấp hai đến ba lần tổng dung lượng file, nên gộp năm tài liệu 20 MB cần vài trăm megabyte trống. Laptop đời mới làm việc này thoải mái; điện thoại cũ thì không chắc. Trên 100 MB, tool cảnh báo rằng thao tác có thể chậm nhưng vẫn thực hiện — cảnh báo đó nói về phần cứng của bạn, không phải một luật lệ bị vi phạm. Nếu tab hết bộ nhớ, trình duyệt sẽ dừng trang lại chứ không sinh ra file PDF hỏng.
+
+## Vì sao PDF có mật khẩu bị từ chối?
+
+Đây là lựa chọn có chủ đích. Khi phát hiện file đã mã hoá, tool gọi đúng tên file đó ra và dừng lại, thay vì gộp. Về mặt kỹ thuật, hoàn toàn có thể nạp một PDF mã hoá rồi bỏ qua lớp bảo vệ của nó, nhưng kết quả sẽ là một tài liệu đã bị tước sạch các hạn chế mà chủ file cố ý đặt vào. Làm việc đó một cách âm thầm không còn là gộp file nữa, mà là phá khoá. Cách xử lý đúng: gỡ mật khẩu trong chính phần mềm đã tạo ra file, rồi mang bản đã mở khoá sang đây.
+
+## Thứ tự trang có giữ nguyên như tôi sắp không?
+
+Có. Các file được nối từ trên xuống dưới đúng theo thứ tự trong danh sách, và thứ tự trang bên trong từng tài liệu nguồn được giữ nguyên tuyệt đối. Bạn đổi thứ tự bằng cách kéo thả một dòng, hoặc bấm mũi tên lên xuống bên cạnh — hai nút mũi tên tồn tại vì thao tác kéo thả không dùng được bằng bàn phím và rất khó trên màn hình cảm ứng. Con số cạnh mỗi file cho biết vị trí nó sẽ chiếm. Sau khi gộp xong, bảng kết quả liệt kê từng file nguồn kèm số trang nó đóng góp, để bạn đối chiếu tổng số trang trước khi tải về.
+
+## Bookmark, form và chữ ký số có còn dùng được không?
+
+Bookmark, metadata ở mức trang và thứ tự trang đều được giữ. Các trường biểu mẫu tương tác thường sống sót, nhưng ở tài liệu phức tạp có thể mất giá trị đã điền. Chữ ký số thì gần như chắc chắn hỏng: một chữ ký bảo chứng cho đúng một bố cục byte của đúng một tài liệu, mà thao tác gộp bắt buộc phải viết lại cây trang, nên chữ ký cũ không còn khớp với gì nữa. Đây là đặc tính của định dạng PDF chứ không phải hạn chế riêng của tool này — mọi công cụ gộp, chạy trên máy bạn hay trên server, đều gây ra hệ quả y hệt. Nếu chữ ký buộc phải còn hiệu lực, hãy để tài liệu đã ký đứng riêng.

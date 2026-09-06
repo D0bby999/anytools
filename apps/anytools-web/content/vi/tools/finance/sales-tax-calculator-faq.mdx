@@ -1,0 +1,27 @@
+---
+title: Tính thuế bán hàng — Câu hỏi thường gặp
+---
+
+## Hai chế độ cộng thuế và tách thuế dùng khi nào?
+
+Chế độ **cộng** nhận số tiền chưa thuế rồi trả về tiền thuế và tổng phải trả — dùng khi bạn có giá net và cần ra giá gross. Chế độ **tách** làm ngược lại: nhận tổng đã bao gồm thuế rồi tính ngược ra số tiền chưa thuế, hữu ích khi hóa đơn chỉ ghi mỗi con số cuối cùng, hoặc khi bạn cần số tiền net để làm sổ sách và kê khai chi phí. Ở Việt Nam, giá bán lẻ trên kệ thường đã gồm VAT, nên chế độ tách là cái bạn dùng nhiều hơn; còn khi báo giá dịch vụ hay xuất hóa đơn B2B, giá thường niêm yết chưa thuế và bạn cần chế độ cộng.
+
+## Tách thuế ngược tính thế nào cho đúng?
+
+Bằng phép **chia**, không phải bằng cách trừ đi phần trăm. Số tiền chưa thuế bằng `tổng ÷ (1 + thuế suất/100)`, phần còn lại chính là tiền thuế. Đây là chỗ rất nhiều người tính sai. Lấy ví dụ thuế suất 10%: 100 cộng thuế thành 110. Đi ngược lại đúng cách, `110 ÷ 1,10 = 100`. Nhưng nếu trừ 10% của 110 thì ra 99 — hụt mất 1 đơn vị. Lý do là 10% đó được tính trên con số nhỏ hơn là 100, chứ không phải trên 110. Thuế suất càng cao thì sai số càng lớn, và đó chính là lý do chế độ tách tồn tại thay vì để bạn tự nhẩm.
+
+## Tool có sẵn bảng thuế suất Việt Nam không?
+
+Không. Code không có bảng thuế nào và cũng không đoán — nó áp đúng một thuế suất bạn nhập lên đúng một số tiền. Đây là giới hạn có chủ ý, vì thuế suất thay đổi theo thời điểm và theo nhóm hàng hóa. Ở Việt Nam, VAT phổ thông là 10%, một số nhóm hàng hóa dịch vụ có giai đoạn được giảm còn 8% theo nghị quyết của Quốc hội, và có những nhóm áp mức 5% hoặc thuộc diện không chịu thuế. Hãy tra mức đang áp dụng cho đúng mặt hàng và đúng thời điểm phát sinh rồi nhập vào, thay vì mặc định con số quen thuộc.
+
+## Giỏ hàng có nhiều mặt hàng chịu thuế suất khác nhau thì làm sao?
+
+Tool không xử lý được trong một lần chạy — nó áp một thuế suất cho một số tiền, hết. Với giỏ hàng hỗn hợp, hãy tách theo từng nhóm thuế suất rồi chạy riêng từng nhóm, sau đó cộng lại. Đây cũng là lý do khiến kết quả hay lệch vài đồng so với hóa đơn thật: nhiều hệ thống bán hàng tính và làm tròn thuế theo **từng dòng hàng** chứ không tính một lần trên tổng, và hướng làm tròn cũng khác nhau. Chênh lệch nhỏ là bình thường; chênh lệch đáng kể thường có nghĩa là bạn đang dùng sai thuế suất, hoặc trong giỏ có mặt hàng được miễn hay giảm thuế mà bạn chưa tách ra.
+
+## Số liệu tôi nhập có bị gửi lên server không?
+
+Không. Phép tính chạy hoàn toàn trong trình duyệt, không request nào mang theo số tiền hay thuế suất bạn gõ vào. Điều này có ý nghĩa thực tế với người làm kế toán và chủ cửa hàng nhỏ: bạn đang gõ vào đây doanh thu từng đơn hàng, giá vốn, giá bán — những con số không nên nằm trên server của một dịch vụ miễn phí nào cả. Bạn có thể tắt mạng rồi vẫn dùng bình thường sau khi trang đã tải xong, và đó là cách tự kiểm chứng nhanh nhất thay vì phải tin lời chúng tôi.
+
+## Sao không dùng Excel hay máy tính điện thoại cho nhanh?
+
+Với chiều cộng thuế thì máy tính bỏ túi đúng là đủ. Vấn đề nằm ở chiều ngược lại — tách thuế khỏi tổng — vì phản xạ tự nhiên của hầu hết mọi người là trừ đi phần trăm, và như đã nói ở trên thì cách đó luôn sai. Excel làm được nếu bạn nhớ gõ `=A1/1,1`, nhưng khi thuế suất đổi từ 10% sang 8% cho một nhóm hàng thì bạn phải sửa công thức ở mọi ô, và sót một ô là sai cả bảng mà không có gì cảnh báo. Ở đây bạn đổi một ô thuế suất và thấy ngay cả ba con số net, thuế, gross. Kết quả là ước tính đối chiếu, **không phải tư vấn thuế** — hồ sơ kê khai chính thức hãy để kế toán viên xác nhận.

@@ -1,0 +1,31 @@
+---
+title: Ảnh sang chữ (OCR) — Câu hỏi thường gặp
+---
+
+## Tách chữ từ ảnh thì ảnh có bị tải lên máy chủ không?
+
+Không. Bộ nhận dạng là Tesseract, biên dịch sang WebAssembly và chạy ngay trong tab này. Ảnh của bạn được giải mã ra canvas, đưa thẳng cho module WebAssembly dưới dạng pixel thô, và chữ trả về vẫn trong tab đó. Không request nào mang theo tấm ảnh. Chuyện này quan trọng ở đây hơn mọi công cụ khác, vì ảnh người ta đem đi OCR hiếm khi vô thưởng vô phạt: bảng lương, đơn thuốc, trang hộ chiếu, CCCD, hợp đồng chụp vội trên bàn, ảnh chụp màn hình tin nhắn riêng. Phần lớn site OCR miễn phí thực chất là một cái form đẩy file của bạn lên server, nhiều trong số đó chuyển tiếp sang một API trả tiền phía sau. Mở developer tools, sang tab Network và tự xem tool này: sau khi gói ngôn ngữ tải xong, không còn gì đi ra nữa.
+
+## Tool tải về những gì, và nặng bao nhiêu?
+
+Lúc mở trang thì chưa tải gì liên quan tới OCR. Đúng khoảnh khắc bạn bấm nhận dạng, ba thứ được lấy về từ chính tên miền này chứ không phải từ CDN: script worker khoảng 110 KB, engine nhận dạng WebAssembly khoảng 3,8 MB, và dữ liệu ngôn ngữ bạn chọn. Gói tiếng Việt là gói nhỏ nhất, khoảng 0,5 MB; tiếng Anh lớn nhất, khoảng 4 MB; Tây Ban Nha và Bồ Đào Nha nằm ở giữa. Gói ngôn ngữ sau đó được cất vào IndexedDB của trình duyệt, nên lần chạy thứ hai với cùng ngôn ngữ không tải thêm byte nào. Xoá dữ liệu site thì chúng biến mất và sẽ được tải lại ở lần sau. Vì mọi file đều đến từ origin này, việc bạn đang đọc tài liệu gì không bị tiết lộ cho Google hay jsDelivr.
+
+## Độ chính xác với tiếng Việt có dấu tới đâu?
+
+Với một trang chữ in thẳng, sáng đều, đủ độ phân giải, tỷ lệ ký tự đúng thường đạt mức chín mươi mấy phần trăm — đủ để đọc rồi sửa lại thay vì gõ lại từ đầu. Tool hiện chỉ số tin cậy trung bình để bạn tự cân nhắc; dưới khoảng 70% thì kết quả cần sửa thật sự.
+
+Tiếng Việt khó hơn tiếng Anh ở đúng một chỗ: dấu. Dấu thanh và dấu mũ là những nét rất nhỏ, và chúng là thứ mất trước tiên khi ảnh mờ, thiếu nét hoặc bị nén mạnh — nên lỗi hay gặp nhất không phải sai chữ mà là sai dấu, kiểu "hoà" ra "hòa", "đã" ra "đa", hay "ế" ra "ê". Nhớ chọn đúng gói tiếng Việt trước khi chạy: để nguyên tiếng Anh thì Tesseract vẫn cho ra chữ trông có vẻ đúng nhưng rụng gần hết dấu, vì từ điển của nó không có những tổ hợp đó.
+
+## Chụp thế nào để OCR ra kết quả tốt hơn?
+
+Ba việc, theo thứ tự quan trọng. Thứ nhất, chụp vuông góc với trang: ảnh chụp chéo khó hơn hẳn ảnh chụp thẳng, và tool không tự nắn nghiêng. Thứ hai, chụp cho chữ đủ lớn: nét chữ cao dưới khoảng 20 pixel trong ảnh thường là không đọc nổi dù nhìn trên màn hình vẫn thấy rõ — nên chụp sát vào phần cần lấy thay vì chụp cả trang từ xa rồi phóng to. Ảnh còn bị thu về tối đa 3000 pixel cạnh dài trước khi nhận dạng, vì Tesseract chậm đi rất nhanh theo kích thước trang, nên chụp cả tờ A4 bằng camera 48 MP không giúp gì. Thứ ba, tránh loá: đèn flash trên giấy bóng xoá trắng nguyên dòng chữ. Chữ viết tay thì không dùng được — Tesseract chỉ học chữ in.
+
+## Vì sao chỉ có bốn ngôn ngữ, và một file lỗi thì cả lô có mất không?
+
+Bốn gói tiếng Anh, Việt, Tây Ban Nha, Bồ Đào Nha được đóng gói sẵn cùng site nên có ngay và không cần mạng bên thứ ba. Tesseract hỗ trợ hơn trăm ngôn ngữ, nhưng mỗi ngôn ngữ là một file phải tải từ nơi khác đúng lúc bạn chọn nó — tức đúng thứ mà công cụ này sinh ra để tránh. Ngôn ngữ Latinh gần tiếng Tây Ban Nha hay Bồ Đào Nha vẫn ra tạm được; chữ không phải hệ Latinh thì không.
+
+Về lô ảnh: mỗi file được xử lý độc lập. Một ảnh hỏng, ảnh đổi đuôi giả, hay định dạng trình duyệt không giải mã được sẽ có dòng báo lỗi riêng của nó, còn mọi ảnh khác vẫn cho ra chữ bình thường và file `.txt` không chèn phần trống cho nó. Chỉ hai thứ làm dừng cả lô: bạn bấm Dừng, và engine không khởi động được.
+
+## Vì sao không dùng web OCR tải file lên, hay app quét tài liệu trên điện thoại?
+
+Vì với OCR, thứ bạn gửi đi thường là tài liệu nhạy cảm nhất trong máy. Các web OCR miễn phí nhận file rồi xử lý trên server của họ — bạn không biết ảnh nằm lại bao lâu, ai đọc được, hay có bị chuyển tiếp sang một API bên thứ ba không; nhiều dịch vụ còn giới hạn số trang mỗi ngày để đẩy bạn lên gói trả phí. App quét tài liệu trên điện thoại thì đòi cài đặt, xin quyền camera và thư viện ảnh vĩnh viễn, và phần lớn cũng gửi ảnh lên đám mây để nhận dạng vì mô hình chạy trên máy tốn pin. Ở đây engine chạy trong tab, dùng được trên cả máy tính lẫn điện thoại, và lần chạy thứ hai không cần mạng.

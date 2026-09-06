@@ -1,0 +1,27 @@
+---
+title: Trích Ảnh từ PDF — Câu hỏi thường gặp
+---
+
+## Cái này khác gì với "PDF sang PNG"?
+
+PDF sang PNG dựng từng trang thành một tấm hình: chữ, hình vector và ảnh chụp bị ghép phẳng lại với nhau ở độ phân giải bạn chọn. Còn tool này lấy ra chính các file ảnh đã được nhúng bên trong tài liệu, ở đúng độ phân giải chúng được lưu. Với một bản báo cáo scan, trích ảnh trả lại đúng bản scan gốc, còn dựng trang sẽ lấy mẫu lại nó về DPI bạn chọn — hoặc thừa dung lượng, hoặc mất chi tiết, tuỳ bạn đoán trúng hay trượt. Với một tấm ảnh nằm trong slide, trích ảnh cho bạn tấm ảnh đó mà không kèm phần khung slide bao quanh. Nói ngắn gọn: cần đúng pixel gốc thì dùng tool này, cần một bức hình của cả trang thì dùng PDF sang PNG.
+
+## Vì sao tool báo không tìm thấy ảnh nào?
+
+Vì file PDF của bạn thật sự không nhúng ảnh nào. Tài liệu tạo từ Word hay LaTeX chỉ gồm chữ và các lệnh vẽ vector — bên trong không có file hình nào để trích ra, dù nhìn trên màn hình rõ ràng là "có hình". Vì vậy thông báo nói thẳng điều đó và chỉ bạn sang PDF sang PNG, công cụ dựng cả trang thành ảnh. Đây là một kết quả hợp lệ chứ không phải sự cố, nên nó không hiện dưới dạng lỗi. Trường hợp còn lại hiếm hơn: ảnh dùng không gian màu CMYK mà `pdf.js` không quy đổi được về màu màn hình, những ảnh đó bị bỏ qua thay vì chuyển đổi bằng cách đoán, vì một màu sai một cách tự tin còn tệ hơn một file thiếu.
+
+## Vì sao số ảnh nhận được ít hơn số hình tôi thấy trong tài liệu?
+
+Chủ yếu vì tool cố ý loại trùng. Một ảnh được vẽ lại trên nhiều trang — logo, tiêu đề thư, con dấu mờ — chỉ được lưu một lần trong file và tham chiếu nhiều lần, nên báo cáo 40 trang cho ra một bản chứ không phải 40 bản giống hệt. Việc loại trùng không dựa vào tên đối tượng nội bộ, vì tên không đáng tin: cùng một ảnh xuất hiện dưới một tên riêng ở trang đầu và chỉ từ trang thứ hai `pdf.js` mới đổi nó thành một mã dùng chung. Thay vào đó, tool băm SHA-256 nội dung byte của từng ảnh đã mã hoá và so khớp bằng mã băm. Cách cũ dựa trên kích thước cộng độ dài byte đã bị bắt lỗi khi rà soát: 64 ảnh PNG 24 x 24 màu đặc gộp lại chỉ còn 2, nghĩa là một bảng icon sẽ mất 62 ảnh mà không ai hay.
+
+## Ảnh trích ra có bị giảm chất lượng không?
+
+Không. Đó đúng là số pixel đã được lưu, không có bước lấy mẫu lại hay co giãn nào. Chúng được ghi ra dưới dạng PNG, vốn là định dạng nén không mất mát, nên không có lớp nén nào chồng thêm trên đường ra. Hệ quả cần biết: một ảnh vốn được lưu dạng JPEG bên trong PDF sẽ ra thành file PNG chứa đúng các pixel đã giải mã — nhìn giống hệt, nhưng file thường nặng hơn bản JPEG gốc. Nếu dung lượng mới là thứ bạn quan tâm, hãy đưa kết quả qua công cụ nén ảnh. Một điểm nữa: PDF rất hay lưu trọn tấm ảnh rồi chỉ hiển thị một phần qua đường cắt, nên ảnh trích ra đôi khi rộng hơn phần bạn nhìn thấy trên trang — thường thì đó lại là điều bạn muốn.
+
+## Tôi tìm "lấy ảnh từ file pdf" — có phải tải file lên máy chủ không?
+
+Không. Tài liệu được `pdf.js` phân tích ngay trong tab trình duyệt này, với worker phục vụ từ chính origin của site chứ không phải CDN, và các ảnh được dựng lại trên canvas trong trang. Link tải trỏ tới blob do trình duyệt bạn tạo. Không có gì được truyền đi — bạn kiểm chứng bằng tab Network trong DevTools, hoặc ngắt mạng sau khi trang đã tải xong rồi chạy lại. Đây là khác biệt lớn nhất so với các dịch vụ trích ảnh phải upload: ở đó cả tài liệu của bạn nằm lại trên máy chủ của bên thứ ba, còn ở đây không có bản sao nào để ai phải hứa xoá.
+
+## Mở một file PDF lạ ở đây có an toàn không?
+
+Tương đối, nhưng cần nói rõ giới hạn. Phân tích một PDF không rõ nguồn gốc là bề mặt tấn công thật sự — `pdf.js` từng có lỗi cho phép chạy mã qua đường xử lý font. Tool này ghim `pdf.js` ở một phiên bản chính xác thay vì một dải phiên bản có thể trôi ngược về bản chưa vá, tắt đường biên dịch font dựa trên eval, chặn việc cài font vào tài liệu, và site có gửi Content-Security-Policy. Đó là mức giảm rủi ro có ý nghĩa, không phải một lời bảo đảm. Ngoài ra tool chỉ xử lý một tài liệu mỗi lần: kết quả của một file đã thường là vài chục ảnh, gộp nhiều file sẽ khiến bạn không còn biết ảnh nào đến từ đâu.

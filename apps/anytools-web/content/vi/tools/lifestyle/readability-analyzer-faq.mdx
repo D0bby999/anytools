@@ -1,0 +1,27 @@
+---
+title: Phân tích độ dễ đọc (Flesch-Kincaid) — Câu hỏi thường gặp
+---
+
+## Công cụ này có dùng được cho văn bản tiếng Việt không?
+
+Không, và đây là điều cần nói thẳng trước mọi thứ khác. Bộ đếm âm tiết bên trong giả định quy tắc nguyên âm của tiếng Anh, còn cả ba công thức đều được hiệu chỉnh trên văn bản tiếng Anh từ giữa thế kỷ trước. Dán một đoạn tiếng Việt vào, tool vẫn cho ra đủ con số vì phép tính không hề báo lỗi — nhưng những con số đó không mang ý nghĩa nào cả. Tiếng Việt là ngôn ngữ đơn âm tiết, hầu như mọi từ đều một âm, nên chỉ số "từ phức tạp từ ba âm tiết trở lên" của Gunning Fog gần như luôn bằng 0 và điểm Flesch bị đẩy lên cao giả tạo. Hãy chỉ dùng nó cho bản tiếng Anh: email công việc, CV, bài blog, thư xin học bổng.
+
+## Ba chỉ số hiện ra nghĩa là gì?
+
+Flesch Reading Ease chấm theo thang càng cao càng dễ đọc, khoảng 60 đến 70 là tiếng Anh phổ thông cho người đọc đại chúng, dưới 30 là văn bản đặc và chuyên ngành. Flesch-Kincaid Grade Level và Gunning Fog thì ngược lại, càng cao càng khó, và ước lượng số năm đi học mà người đọc cần có. Hai chỉ số sau lệch nhau là chuyện bình thường vì chúng đo hai thứ khác nhau: Flesch-Kincaid cân theo số âm tiết trên mỗi từ, còn Gunning Fog đếm tỷ lệ từ phức tạp. Tool cũng gắn nhãn cấp độ dựa trên điểm Flesch, chia thành các mốc 30, 50, 60, 70, 80 và 90 — dưới 30 là trình độ sau đại học, trên 90 là ai cũng đọc được.
+
+## Số âm tiết được đếm bằng cách nào?
+
+Bằng suy đoán theo quy tắc, không phải tra từ điển. Tool bỏ hết ký tự không phải chữ cái, rồi đếm số cụm nguyên âm liên tiếp, coi cả chữ "y" là nguyên âm. Có hai quy ước cần biết: từ dài từ ba chữ cái trở xuống luôn được tính là một âm tiết, và chữ "e" câm cuối từ chỉ bị trừ đi khi nó nằm trong khuôn nguyên âm–phụ âm–e, nên "make" tính một âm còn "simple" giữ nguyên âm cuối. Cách này đủ tốt cho số đông, nhưng tên riêng, từ vay mượn và các từ viết tắt sẽ bị đếm sai. Với một đoạn văn vài trăm chữ, sai số lẻ tẻ ấy hòa tan đi; với một câu ngắn thì không.
+
+## Vì sao chỉ thêm một dấu chấm mà điểm nhảy hẳn?
+
+Vì số câu là mẫu số của cả ba công thức. Tool đếm câu bằng cách tìm các cụm dấu chấm, dấu hỏi và dấu chấm than; tách một câu dài thành hai câu ngắn lập tức giảm số từ trung bình mỗi câu và cải thiện toàn bộ chỉ số, dù bạn không đổi một chữ nào. Chiều ngược lại cũng đúng: chữ viết tắt có dấu chấm, số thập phân và dấu ba chấm đều bị đếm nhầm thành ranh giới câu, làm số câu phồng lên và điểm đẹp hơn thực tế. Nếu văn bản của bạn nhiều số liệu hay nhiều tên viết tắt, hãy trừ hao con số hiện ra. Còn khi văn bản không có dấu kết câu nào, tool coi như có một câu để tránh chia cho 0.
+
+## Có thể làm đẹp điểm số mà không làm văn hay hơn không?
+
+Rất dễ, và biết điều đó mới là cách dùng công cụ này đúng. Cứ chặt câu dài thành từng mẩu và thay từ dài bằng từ ngắn, mọi chỉ số sẽ tốt lên trong khi bài viết tệ đi: công thức chỉ đếm âm tiết và độ dài, nó không biết lập luận có chặt không, ý có nối được với nhau không, hay đoạn văn có nói được điều gì không. Hãy dùng các con số này như một cái chuông báo — khi điểm tụt sâu, nhiều khả năng bạn đã viết những câu dài lê thê cần cắt — chứ đừng lấy chúng làm đích để tối ưu. Người đọc thật vẫn là thước đo cuối cùng.
+
+## Văn bản tôi dán vào có được gửi lên máy chủ không?
+
+Không. Toàn bộ việc tách từ, đếm âm tiết và tính ba công thức diễn ra bằng JavaScript ngay trong tab của bạn; không có lời gọi mạng nào mang nội dung đi và không có gì được lưu lại. Điểm này quan trọng hơn người ta tưởng, vì thứ hay được đem đi kiểm tra độ dễ đọc lại thường là bản nháp chưa công bố: hợp đồng, thư ứng tuyển, bài PR sắp đăng, tài liệu nội bộ. Dán chúng vào một dịch vụ trực tuyến bất kỳ đồng nghĩa với việc gửi bản nháp cho một máy chủ lạ. Ở đây bạn không phải cân nhắc chuyện đó, đổi lại nội dung cũng biến mất khi bạn tải lại trang.

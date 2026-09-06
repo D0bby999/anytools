@@ -1,0 +1,27 @@
+---
+title: Tính tuổi — Câu hỏi thường gặp
+---
+
+## Công cụ tính tuổi theo cách nào?
+
+Theo lịch. Nó lấy số năm tròn trước, rồi số tháng tròn, rồi số ngày còn dư giữa ngày sinh và ngày mốc — đúng cách một người đếm khi nói "32 tuổi 4 tháng 12 ngày". Phần này gọi hàm `intervalToDuration` của thư viện date-fns chứ không phải công thức tự chế, vì bản tự viết trước đây đọc nhầm độ dài của tháng liền trước và cho kết quả sai ở 4 trên 9 trường hợp thử. Song song, tool hiện thêm tổng số ngày, tổng số giờ và tổng số phút bạn đã sống, lấy hiệu hai mốc chia cho 86.400.000 mili giây rồi làm tròn xuống. Hai cách đọc phục vụ hai việc khác nhau: bản chia theo lịch để nói cho người khác nghe, còn tổng số ngày để đem đi tính tiếp.
+
+## Đây là tuổi dương hay tuổi mụ?
+
+Tuổi dương — tuổi tính theo lịch dương, đếm từ ngày sinh thật trên giấy khai sinh. Người Việt còn quen dùng tuổi mụ, tức tuổi ta: coi như đã một tuổi ngay lúc chào đời và cộng thêm một tuổi mỗi dịp Tết Nguyên đán, nên tuổi mụ thường nhiều hơn tuổi dương một đến hai tuổi tùy bạn sinh trước hay sau Tết. Công cụ này không quy đổi sang tuổi mụ và cũng không biết ngày Tết âm lịch của từng năm. Nếu bạn cần tuổi mụ để xem tuổi cưới, xem hạn hay coi ngày, hãy lấy con số ở đây làm tuổi dương rồi tự cộng theo quy ước gia đình bạn dùng, đừng dán thẳng kết quả vào chỗ cần tuổi ta.
+
+## Người sinh ngày 29/2 thì tính ra sao?
+
+Được xử lý bằng cách kẹp về ngày cuối tháng. Khi cộng số tháng tròn mà ngày đích không tồn tại trong tháng đó, phép tính lùi về ngày cuối cùng thực có: 31/1 cộng một tháng ra 29/2 ở năm nhuận và 28/2 ở năm thường. Với người sinh 29/2, những năm không nhuận không hề có ngày sinh nhật thật, nên phần "ngày" được đếm mốc từ ngày cuối tháng Hai năm đó. Đây là quy ước phổ biến nhất, nhưng vẫn chỉ là quy ước chứ không phải luật: cơ quan hành chính ở mỗi nơi có thể chọn 28/2 hoặc 1/3 làm mốc kỷ niệm. Nếu con số dùng cho hồ sơ chính thức, nên hỏi lại nơi cấp giấy trước khi dựa vào.
+
+## Ngày sinh tôi nhập có bị gửi đi đâu không?
+
+Không. Toàn bộ phép tính chạy bằng JavaScript ngay trong trình duyệt của bạn; không có lời gọi mạng nào mang ngày sinh đi và không có gì được lưu lại sau khi bạn đóng tab. Có một chi tiết kỹ thuật đáng nói kèm theo: ô chọn ngày trả về chuỗi dạng YYYY-MM-DD, mà nếu đọc chuỗi đó theo mặc định của trình duyệt thì nó được hiểu là nửa đêm giờ UTC — với người dùng ở múi giờ âm, đó là buổi tối của ngày hôm trước và tuổi bị lệch mất một ngày. Tool đọc chuỗi thành nửa đêm theo giờ máy bạn để tránh đúng lỗi này, nên kết quả khớp với tờ lịch treo tường của chính bạn.
+
+## Tại sao không tự nhẩm hoặc lập công thức trong Excel?
+
+Vì nhẩm thì hay quên năm nhuận, còn Excel thì dễ ra con số trông đúng mà sai. Cách nhiều người làm là lấy hiệu hai ngày chia cho 365 hoặc 365,25 — cách này trôi dần theo thời gian, do tháng dài ngắn khác nhau và cứ bốn năm lại dôi thêm một ngày, đến tuổi trung niên có thể lệch hẳn vài ngày so với lịch. Hàm `DATEDIF` của Excel làm đúng hơn nhưng lại không xuất hiện trong danh sách gợi ý công thức, và ít người nhớ đủ ba biến thể "Y", "YM", "MD" để ghép thành một câu tuổi hoàn chỉnh. Ở đây bạn chỉ chọn hai ngày rồi đọc kết quả, không phải nhớ cú pháp nào.
+
+## Tính tuổi tại một mốc trong quá khứ hoặc tương lai được không?
+
+Được. Ngày mốc là một ô nhập chứ không bị khóa cứng vào hôm nay, nên bạn tính được ai đó bao nhiêu tuổi vào ngày ký hợp đồng năm ngoái, hay sẽ bao nhiêu tuổi vào ngày cưới sang năm. Ràng buộc duy nhất: ngày sinh phải nằm trước hoặc trùng ngày mốc. Nếu bạn nhập ngày sinh sau ngày mốc, tool không trả kết quả nào cả thay vì hiện một số âm — vì "âm ba tuổi" không có nghĩa gì, và sự im lặng đó chính là dấu hiệu bạn đã điền nhầm thứ tự hai ô. Đảo lại hai ngày là màn hình có kết quả ngay.

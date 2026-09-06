@@ -1,0 +1,27 @@
+---
+title: Trình tạo clip-path CSS — Câu hỏi thường gặp
+---
+
+## Cắt bằng clip-path có làm mất vùng bấm không?
+
+Có, và đây là chỗ hay làm người ta bất ngờ nhất. Phần bị cắt đi không còn nhận pointer event nữa: một button bị clip thành hình tam giác chỉ phản hồi bên trong tam giác, mấy góc bạn cắt bỏ hết bấm được — dù layout không đổi gì cả. Thường thì đó đúng là thứ bạn muốn, nhưng nó cũng có nghĩa là một khối trang trí lớn sẽ thôi "ăn" những cú click mà nhìn thì tưởng nó che, còn một overlay bị clip có thể để lọt chuột xuống element bên dưới ở những chỗ bạn không lường. Nhớ test phần tương tác, đừng chỉ nhìn hình.
+
+## Nên xuất theo phần trăm hay px?
+
+Phần trăm resolve theo reference box nên hình co giãn cùng element — tam giác vẫn là tam giác ở mọi bề rộng. Giá trị px thì bị đóng băng: nó vẫn đo từ góc trên bên trái của box, nên một hình vẽ cho card 400px sẽ méo ngay khi card còn 320px. Chỉ dùng px khi hình học thật sự không được phép co giãn. Bên trong, tool luôn lưu toạ độ dưới dạng phần trăm và chỉ quy đổi lúc xuất CSS, đó là lý do đổi qua đổi lại đơn vị không bao giờ làm biến dạng hình bạn vừa kéo. Khi chọn px bạn phải nhập kích thước box; ô nào để trống hoặc nhỏ hơn 1 sẽ bị bỏ qua và tool giữ lại giá trị hợp lệ gần nhất — nếu không, giữa lúc bạn xoá số để gõ lại, output sẽ nhảy ra `circle(0px at 0px 0px)` và cắt sạch element, trông y như tool bị hỏng.
+
+## Vì sao hình `circle()` của tôi trông như một dải ngang chứ không tròn?
+
+Nó vẫn tròn, chỉ là bị cắt cụt. Bán kính của `circle()` không resolve theo chiều rộng hay chiều cao, mà theo đường chéo của reference box — cụ thể là căn bậc hai của `(w² + h²) / 2`. Trên một box rộng, bán kính 50% vì thế lớn hơn hẳn nửa chiều cao, nên vòng tròn bị mép trên và mép dưới xén mất và đọc ra thành một dải nằm ngang. Cách xử lý: giảm bán kính xuống, hoặc chuyển sang `ellipse()` với bán kính x và y tách riêng nếu bạn muốn hình giãn theo tỉ lệ của box. Tool dùng đúng công thức đường chéo này khi quy đổi sang px, nên hai chế độ đơn vị luôn cho ra cùng một hình.
+
+## Kéo đỉnh polygon có giới hạn gì không?
+
+Có vài quy ước cứng. Mỗi đỉnh bị kẹp trong khoảng 0–100% của box và làm tròn tới 0,1% — đủ độ chính xác cho CSS mà không sinh ra chuỗi số lẻ dài loằng ngoằng. Thêm đỉnh thì tool chèn vào trung điểm của cạnh bạn chọn, kể cả cạnh cuối vòng ngược về điểm đầu (chỗ mà nhiều implementation ẩu hay làm rơi mất đỉnh). Còn xoá thì dừng ở ba đỉnh: dưới ba điểm thì polygon không bao được diện tích nào, nên tool từ chối thay vì để bạn tạo ra một hình rỗng. Các preset hình sao và đa giác đều được sinh bằng lượng giác với đỉnh đầu tiên đặt ở phía trên, nên chúng luôn cân đối trong box.
+
+## Tạo hình clip-path CSS ở đây khác gì cắt ảnh trong Photoshop hay Figma?
+
+Khác về bản chất kết quả. Photoshop và Figma cắt ra một file ảnh: hình đã bị nướng cứng, muốn đổi màu nền hay đổi tỉ lệ là phải xuất lại, và bạn tải thêm một request ảnh. `clip-path` thì cắt chính element đang sống trong DOM — chữ bên trong vẫn là chữ chọn được, nền vẫn có thể là gradient động, và hình co theo breakpoint mà không cần asset mới. Còn gõ tay một `polygon()` tám đỉnh thì gần như không khả thi: bạn phải tưởng tượng toạ độ trong đầu, sửa một số rồi reload để xem. Ở đây bạn kéo đỉnh và nhìn thẳng vào chuỗi CSS thật, đó là toàn bộ lý do tool này tồn tại.
+
+## Hình đã clip có thêm viền hay đổ bóng được không, và dữ liệu có bị gửi đi đâu không?
+
+Không có gì rời khỏi trình duyệt — hình được chỉnh và CSS được sinh hoàn toàn trong trang này. Còn về viền và bóng: không làm trực tiếp được. Border được vẽ trước khi clip nên bị cắt đi cùng phần thừa, và `box-shadow` bám theo border box hình chữ nhật chứ không bám theo silhouette đã cắt. Muốn có viền, xếp một element clip cùng hình nhưng to hơn một chút ở phía sau và tô màu viền. Muốn có bóng bám đúng hình, bọc element lại rồi đặt `filter: drop-shadow()` lên wrapper — filter này đi theo kênh alpha của thứ thực sự được vẽ ra, nên nó hiểu hình sao, hình lục giác, chứ không chỉ hình chữ nhật.

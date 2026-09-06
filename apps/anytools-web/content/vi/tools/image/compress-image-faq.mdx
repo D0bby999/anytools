@@ -1,0 +1,29 @@
+---
+title: Nén Ảnh — Câu hỏi thường gặp
+---
+
+## Nén ảnh online thì ảnh của tôi có bị tải lên máy chủ không?
+
+Không. Mọi thứ diễn ra ngay trong tab trình duyệt: file được giải mã thành bitmap, vẽ lại lên canvas rồi mã hoá lại tại máy bạn. Nút tải về trỏ vào một blob nằm trong bộ nhớ trình duyệt chứ không phải một địa chỉ trên server. Bạn kiểm chứng được ngay: mở tab Network trong developer tools mà xem, hoặc đơn giản hơn là rút mạng sau khi trang đã tải xong — tool vẫn nén bình thường. Điều này đáng giá nhất với ảnh CCCD, hộ chiếu, sổ khám bệnh, hợp đồng hay ảnh gia đình: không có bản sao nào nằm trên máy chủ của ai để rồi bạn phải đi xin xoá, cũng không có log nào ghi lại rằng bạn vừa nén cái gì.
+
+## Nên để mức chất lượng bao nhiêu, và chế độ ép xuống dưới một dung lượng hoạt động ra sao?
+
+Với ảnh chụp, khoảng 0,75–0,85 là vùng hợp lý. Dưới 0,6 bạn bắt đầu thấy vệt vuông ở những mảng chuyển màu mượt như bầu trời hay da người; trên 0,9 thì file phình nhanh mà mắt thường gần như không phân biệt được. Đó là lý do tool đặt ảnh gốc và ảnh kết quả cạnh nhau — con số "giảm được 68%" chẳng nói lên điều gì về việc ảnh còn dùng được hay không.
+
+Chế độ ép theo dung lượng thì khác: bạn cho một mức trần, tool thử chất lượng 1 trước (nếu đã vừa thì không mã hoá lại kiểu mất dữ liệu cho phí), rồi tìm nhị phân đúng 8 lần mã hoá để lấy mức chất lượng cao nhất còn lọt trần. Nếu ngay cả mức thấp nhất vẫn vượt, tool trả về file đó kèm dung lượng thật và nói thẳng là không đạt, thay vì báo lỗi.
+
+## Ảnh PNG trong suốt của tôi nén ra lại có nền trắng, vì sao?
+
+Vì JPEG không có kênh alpha — định dạng này không có chỗ nào để lưu độ trong suốt. Khi một ảnh trong suốt được vẽ lên canvas rồi mã hoá thành JPEG, những pixel trong suốt phải nhận một màu nào đó. Tool chủ động tô trắng nền trước khi vẽ, đúng như mọi trình chỉnh sửa ảnh làm khi bạn xuất JPEG; nếu để mặc, một số trình duyệt sẽ mã hoá chúng thành màu đen và logo của bạn nằm trên một tấm nền đen sì. Tool cũng dò kênh alpha của ảnh nguồn và cảnh báo trước khi chuyện đó xảy ra. Cần giữ nền trong suốt thì chọn PNG hoặc WebP, cả hai đều lưu được alpha.
+
+## Ảnh 24 megapixel chụp bằng iPhone có nén được không?
+
+Được, nhưng có một trần thật cần biết. Canvas của trình duyệt bị giới hạn diện tích: Safari chặn ở khoảng 16.777.216 pixel, tức 16,7 megapixel, và khi vượt qua thì canvas trả về một tấm ảnh trắng trơn chứ không báo lỗi. Vì thế tool tính trước: ảnh nào vượt trần sẽ được giải mã lại ngay từ bộ giải mã ở chiều rộng nhỏ hơn, để những pixel dư không bao giờ chạm tới canvas. Ảnh 24 MP mặc định của iPhone (5712×4284) rơi vào diện này. Kết quả vẫn có, và bảng kết quả ghi rõ kích thước gốc là bao nhiêu, đã thu về bao nhiêu — chứ không im lặng.
+
+## Vì sao nén ảnh chụp màn hình lại làm file nặng thêm?
+
+Vì bạn đang mã hoá một ảnh không mất dữ liệu thành một định dạng mất dữ liệu, hoặc ngược lại, và cả hai đều không phải "máy nén" theo nghĩa bạn muốn. PNG lưu pixel chính xác nên rất hợp với ảnh chụp màn hình, hình vẽ nét, biểu đồ, chữ và các mảng màu phẳng. JPEG và WebP thì vứt bớt chi tiết đi và chỉ giỏi với ảnh chụp thật. Đẩy một ảnh chụp màn hình qua JPEG thường cho ra file vừa to hơn vừa nhoè chữ. Với loại ảnh này, cách giảm dung lượng đúng là hạ kích thước bằng công cụ Đổi Cỡ Ảnh, hoặc giữ nguyên PNG.
+
+## Vì sao không dùng web nén ảnh phải tải file lên, hay app trên điện thoại?
+
+Web nén ảnh kiểu upload buộc bạn giao file gốc cho một máy chủ lạ, thường kèm điều khoản cho phép họ lưu tạm, và bạn không có cách nào kiểm chứng file đã bị xoá thật hay chưa. Với ảnh giấy tờ thì đó là rủi ro không cần thiết cho một việc mà trình duyệt tự làm được. App điện thoại thì phải cài, thường xin quyền đọc toàn bộ thư viện ảnh, gắn watermark hoặc chèn quảng cáo toàn màn hình, và nhiều app vẫn lặng lẽ gửi ảnh lên server của họ để xử lý. Tool này chạy thẳng trong trình duyệt trên cả máy tính lẫn điện thoại, không cài gì, và bạn tự xác minh được bằng tab Network.

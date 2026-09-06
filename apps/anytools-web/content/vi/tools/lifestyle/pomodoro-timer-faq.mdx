@@ -1,0 +1,27 @@
+---
+title: Pomodoro Timer — Câu hỏi thường gặp
+---
+
+## Ba phiên dài bao nhiêu, và đổi được không?
+
+Cố định ba mức: 25 phút tập trung, 5 phút nghỉ ngắn, 15 phút nghỉ dài. Ba con số này nằm cứng trong code dưới dạng số giây, không có ô nhập nào để chỉnh và cũng không có tùy chọn ẩn. Đó là lựa chọn có chủ đích chứ không phải thiếu sót: giá trị của phương pháp Pomodoro nằm ở chỗ bạn cam kết với một khối thời gian đã định sẵn, thay vì mặc cả với chính mình về độ dài của nó ngay lúc sắp bắt đầu. Nếu 25 phút thường xuyên cắt ngang lúc bạn đang vào guồng, phương pháp này không phải chân lý — nhưng khi đó bạn cần một đồng hồ đếm ngược tự chỉnh, không phải công cụ này.
+
+## Đồng hồ có tự nhảy sang phiên nghỉ khi hết giờ không?
+
+Không. Khi còn 0 giây, tool phát một tiếng chuông ngắn rồi dừng hẳn; bạn tự bấm sang phiên nghỉ ngắn hoặc nghỉ dài bằng thanh chọn ở trên. Nghỉ dài cũng vậy, nó là một phiên độc lập chứ không được xếp lịch tự động sau bốn khối tập trung như mô tả kinh điển — bạn quyết định khi nào một chuỗi đã kết thúc, điều này tiện lúc công việc kéo dài quá hoặc lúc bạn bắt đầu giữa chừng. Lưu ý: đổi phiên sẽ dừng đồng hồ và nạp lại trọn thời lượng của phiên mới, nên đừng bấm nhầm thanh chọn khi đang chạy dở.
+
+## Chuyển sang tab khác thì đồng hồ có chạy đúng không?
+
+Nên cẩn thận chỗ này. Đồng hồ trừ đi một giây mỗi lần bộ đếm nội bộ chạy, mà trình duyệt hiện đại đều bóp tần suất bộ đếm ở tab chạy nền để tiết kiệm pin — Chrome và Safari có thể giãn xuống còn một lần mỗi phút, thậm chí đóng băng hẳn nếu máy bạn đang ở chế độ tiết kiệm năng lượng. Hệ quả là khi quay lại tab sau nửa tiếng, số hiện trên màn hình có thể còn nhiều hơn thời gian thực đã trôi qua. Muốn phiên tập trung đúng 25 phút thật, hãy để tab này ở một cửa sổ nhìn thấy được, hoặc dùng nó như mốc nhắc chứ không như thiết bị đo chính xác.
+
+## Vì sao tôi không nghe thấy tiếng chuông?
+
+Tiếng chuông là một sóng sin 440 Hz kéo dài 0,4 giây do trình duyệt tự tạo, không phải file âm thanh tải về. Trình duyệt chỉ cho phép tạo âm thanh sau khi người dùng thao tác, nên bộ phát được khởi tạo ngay lần đầu bạn bấm nút bắt đầu — nếu bạn để trang tự chạy mà chưa bấm gì thì sẽ không có tiếng. Safari trên iPhone khó tính nhất khoản này. Ngoài ra hãy kiểm tra máy có đang ở chế độ im lặng không, và đừng trông chờ vào thông báo hệ thống: tool không gửi notification, nên khi bạn đã rời khỏi tab thì không có gì gọi bạn quay lại ngoài tiếng chuông kia.
+
+## Số phiên đã hoàn thành có được lưu lại không?
+
+Không. Bộ đếm phiên chỉ tăng khi một khối tập trung chạy hết đến 0 giây, và nó sống trong bộ nhớ tab — tải lại trang hay đóng tab là về 0. Không có gì được ghi vào máy bạn, không có tài khoản, không có lời gọi mạng nào và không có thống kê nào được gửi đi đâu cả. Đây là đánh đổi rõ ràng: bạn không có biểu đồ năng suất theo tuần, đổi lại không ai biết bạn làm việc lúc mấy giờ và trong bao lâu. Nếu cần theo dõi dài hạn, hãy tự ghi số phiên vào sổ hoặc ứng dụng ghi chú của bạn trước khi đóng trang.
+
+## Dùng đồng hồ đếm ngược của điện thoại có tiện hơn không?
+
+Tùy bạn làm việc ở đâu. Đồng hồ điện thoại chạy nền chính xác và có thông báo đẩy, nhưng cầm điện thoại lên để bấm giờ chính là động tác mở đầu quen thuộc của việc lướt mạng xã hội mười lăm phút — đúng thứ mà phương pháp này muốn chặn. Công cụ ở đây nằm cùng màn hình với việc bạn đang làm, ba phiên đã cài sẵn nên không phải gõ lại thời lượng mỗi lần, và có thanh tiến trình cho biết còn bao nhiêu mà không cần đọc con số. Nếu bị ngắt quãng, cách làm gốc là bỏ luôn khối đang chạy, xử lý hoặc ghi lại việc chen ngang, rồi bấm lại từ đầu.

@@ -1,0 +1,27 @@
+---
+title: PDF sang PNG — Câu hỏi thường gặp
+---
+
+## Nên chọn DPI nào?
+
+72 cho thứ chỉ để xem trên màn hình — con số này trùng với hệ toạ độ của chính PDF, nên trang ra đúng kích thước pixel danh nghĩa và file nhẹ. 150 cho tài liệu ai đó sẽ in bình thường hoặc phóng to để xem. 300 khi ảnh đi vào khâu in ấn thật, hoặc khi chữ phải còn sắc nét dưới kính lúp. Cái giá tăng theo bình phương: 300 DPI có số pixel gấp khoảng bốn lần 150 DPI, nên một trang A4 nhảy từ chừng 2 megapixel lên chừng 8.7 megapixel và file PNG phình theo đúng tỷ lệ đó. Hãy chọn mức thấp nhất còn làm được việc, đừng mặc định chọn 300.
+
+## Vì sao trang khổ lớn của tôi bị từ chối ở 300 DPI?
+
+Vì kết quả sẽ vượt quá sức chứa của canvas trong trình duyệt. Một tờ A0 ở 300 DPI vào khoảng 139 megapixel, trong khi trần là 16.777.216 pixel, tức chừng 16.7 megapixel. Vượt ngưỡng đó, trình duyệt trả về một canvas trắng trơn chứ không hề báo lỗi — nên tool tính trước kích thước trước khi vẽ bất cứ thứ gì và nói cho bạn biết, thay vì đưa lại một tấm ảnh rỗng mà bạn chỉ phát hiện khi mở ra. Thông báo nêu rõ trang số mấy, sẽ ra bao nhiêu pixel, ở DPI nào. Hạ DPI xuống thường là xong: A0 ở 72 DPI nằm thoải mái trong giới hạn.
+
+## Cái này có giống "trích ảnh từ PDF" không?
+
+Không, và khác biệt này quan trọng. Ở đây mỗi trang được dựng thành một tấm hình: chữ, hình vector và ảnh đều được ghép phẳng lại với nhau ở đúng DPI bạn chọn. Còn công cụ Trích Ảnh từ PDF lấy ra các file ảnh được nhúng bên trong tài liệu, ở đúng độ phân giải chúng được lưu. Với tài liệu scan, trích ảnh cho bạn bản scan gốc, còn dựng trang sẽ lấy mẫu lại nó về DPI bạn chọn — hoặc phí, hoặc mất chất lượng, tuỳ bạn đoán đúng hay sai. Với tài liệu chữ, trích ảnh không cho gì cả, và đó là kết quả đúng vì bên trong không có file ảnh nào; còn dựng trang cho bạn một tấm hình chụp lại phần chữ đó.
+
+## Vì sao vài chỗ chữ bị mất trong ảnh dựng ra?
+
+Gần như luôn là do file PDF không nhúng font mà trông chờ thiết bị đọc tự có sẵn. Chuyện này rất phổ biến với tài liệu tiếng Trung, Nhật, Hàn tạo bằng công cụ đời cũ, và với một số biểu mẫu. Tool cố ý không cho phép một file PDF cài hay dùng font trên máy bạn — chính đường font là nơi `pdf.js` từng dính lỗ hổng cho phép chạy mã. Vì vậy chữ dùng font mà file không mang theo sẽ không có gì để vẽ và ra trắng, trong khi font đã nhúng, ảnh và hình vector vẫn hiển thị bình thường. Riêng nhóm font Latin chuẩn — Helvetica, Times, Courier và họ hàng — là ngoại lệ, vì `pdf.js` có sẵn bản thay thế phục vụ từ chính máy chủ của site này. Nếu phần chữ đó quan trọng, hãy xuất lại PDF có nhúng font rồi dựng lại.
+
+## Tôi hay gõ "chuyển pdf sang ảnh png" — file có phải tải lên máy chủ không?
+
+Không. Việc dựng ảnh chạy ngay trong tab này bằng `pdf.js` của Mozilla, với worker phục vụ từ chính origin của site chứ không phải một CDN nào. Các file PNG được vẽ trên canvas trong trang, và link tải trỏ tới blob mà trình duyệt bạn đang giữ. Không có gì đi qua mạng. Bạn kiểm chứng bằng tab Network, hoặc bằng cách ngắt mạng sau khi trang đã tải xong — tool vẫn dựng ảnh. Đây là điểm khác cốt lõi so với các dịch vụ phải upload: với chúng, một tài liệu scan đầy đủ họ tên, số căn cước, số tài khoản sẽ nằm lại trên máy chủ của bên thứ ba, và bạn chỉ còn cách tin vào một chính sách xoá mà không ai bên ngoài kiểm tra được.
+
+## Vì sao chữ trong file PNG không bôi chọn được?
+
+Vì PNG là pixel. Dựng một trang thành ảnh sẽ bỏ đi lớp chữ cùng với mọi thứ mang tính cấu trúc — đó chính là ý nghĩa của từ "dựng ảnh". Nếu bạn cần chữ chọn được, hãy giữ lại file PDF, hoặc đưa ảnh qua công cụ OCR để dựng lại một bản gần đúng của phần chữ. Ngược lại, cũng vì là pixel nên PNG dựng ra hiển thị y hệt nhau ở mọi thiết bị, không phụ thuộc font cài trên máy người nhận — đó là lý do người ta hay dựng ảnh trước khi đưa trang PDF vào slide hay bài đăng. Với PDF nhiều trang, kết quả trả về trong một file .zip: trình duyệt chặn lượt tải thứ hai trở đi khi một trang kích hoạt liên tiếp nhiều lượt, nên đóng gói là cách duy nhất đáng tin để trao lại nhiều file; mỗi trang vẫn có link tải riêng, và số trang trong tên file được đệm số 0 để bản dựng 100 trang sắp đúng thứ tự thay vì để p10 đứng trước p2.

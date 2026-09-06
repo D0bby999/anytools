@@ -1,0 +1,27 @@
+---
+title: Tính lương theo giờ từ tiền tip — Câu hỏi thường gặp
+---
+
+## Làm phục vụ một ca thực ra được bao nhiêu một giờ?
+
+Đó chính là câu hỏi tool này trả lời. Bạn nhập tổng tiền tip gộp trong ca, phần trăm phải chia lại cho người khác, số giờ đã làm và lương cơ bản theo giờ. Tool lấy tiền tip gộp trừ phần chia lại để ra tip ròng, chia cho số giờ để ra phần tip quy về mỗi giờ, rồi cộng lương cơ bản vào — đó là **lương theo giờ hiệu dụng** của ca đó. Nó cũng tính riêng tổng thu nhập cả ca bằng `lương cơ bản × số giờ + tip ròng`, để bạn thấy cùng lúc cả con số theo giờ lẫn con số trọn ca.
+
+## "Chia lại tip" là gì và vì sao phải nhập nó?
+
+Là phần trăm tiền tip bạn phải chia cho phụ bàn, người chạy món, bartender hoặc quỹ tip chung của quán. Nó bị trừ ngay từ đầu, nên một ca trông có vẻ được nhiều tip có thể chỉ ở mức bình thường sau khi chia. Công thức là `tip ròng = tip gộp × (1 − phần trăm chia lại)`. Đây chính là khoảng cách giữa con số bạn **cảm thấy** mình kiếm được và con số bạn **thật sự** cầm về, và là lý do chính khiến tool này tồn tại. Ở Việt Nam, nhiều quán gom toàn bộ tip vào quỹ chung rồi chia theo ca hoặc theo vị trí — nếu vậy hãy quy đổi tỷ lệ đó thành phần trăm để nhập vào.
+
+## Nhập số giờ bằng 0 thì kết quả ra sao?
+
+Code có chốt chặn cho trường hợp này: khi số giờ không lớn hơn 0, phần tip theo giờ được trả về bằng 0 thay vì chia cho 0 và cho ra `Infinity`. Hệ quả là lương hiệu dụng lúc đó bằng đúng lương cơ bản của bạn, dù tip ròng vẫn được tính và vẫn cộng vào tổng thu nhập ca. Nếu bạn thấy lương hiệu dụng bằng chằn chặn lương cơ bản trong khi rõ ràng có tip, hãy kiểm tra lại ô số giờ trước tiên. Về việc nên nhập bao nhiêu giờ: nhập **toàn bộ giờ có mặt tại quán**, kể cả setup đầu ca và dọn dẹp cuối ca. Chỉ đếm khung giờ đông khách sẽ thổi phồng kết quả — mà đó đúng là ảo tưởng công cụ này sinh ra để phá bỏ.
+
+## Số liệu thu nhập của tôi có bị gửi đi đâu không?
+
+Không. Mọi phép tính chạy trong trình duyệt của bạn, không có gì được gửi lên server và không có gì được lưu lại. Với công cụ này thì đó là điểm then chốt: bạn đang gõ vào đây thu nhập thật của mình, mức tip từng ca, tỷ lệ bị quán trừ lại — những thông tin bạn có thể không muốn chủ quán, đồng nghiệp hay bất kỳ dịch vụ nào biết. Trang đã tải xong thì tắt mạng vẫn dùng bình thường, và bạn có thể tự kiểm chứng điều đó trong mười giây. Nếu bạn muốn theo dõi nhiều ca, hãy tự ghi kết quả ra sổ hoặc bảng tính của riêng mình.
+
+## Sao không tự tính bằng Excel hay máy tính điện thoại?
+
+Bấm máy tính thì được, nhưng thứ tự dễ nhầm — rất nhiều người chia tip gộp cho số giờ rồi mới trừ phần chia lại, ra một con số cao hơn thực tế. Excel dựng được, nhưng để so sánh nhiều ca bạn phải giữ file đó theo mình, còn ca làm thì kết thúc lúc nửa đêm ở chỗ chỉ có điện thoại. Ở đây bạn mở trang, gõ bốn số, có ngay cả bốn kết quả gồm tip ròng, tip mỗi giờ, lương hiệu dụng và tổng thu nhập ca. Cái tool khóa lại giúp bạn là **thứ tự đúng của các bước**, thứ mà một ô máy tính trống không nhắc bạn được.
+
+## Có thể dùng con số này để so sánh hai chỗ làm, hay để khiếu nại lương không?
+
+So sánh hai chỗ làm là một trong những cách dùng tốt nhất — nhưng phải so trên nhiều ca, đừng so một ca. Thu nhập từ tip dao động theo ngày trong tuần, theo mùa, theo khu vực bàn bạn phụ trách và cả theo thời tiết; một tối thứ Bảy ở quán này đọ với một trưa thứ Ba ở quán kia thì nói lên rất ít. Còn để khiếu nại thì không dùng được làm bằng chứng: đây chỉ là phép tính trên con số bạn tự gõ, không có hồ sơ chứng minh bạn thực sự được trả bao nhiêu. Tool cũng chưa trừ thuế thu nhập cá nhân, các khoản trích bảo hiểm, hay phí xử lý thẻ mà một số nơi trừ vào tip. Kết quả là ước tính, **không phải tư vấn tài chính hay pháp lý**.

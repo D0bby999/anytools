@@ -1,0 +1,27 @@
+---
+title: Đổi tiền tệ — Câu hỏi thường gặp
+---
+
+## Tỷ giá lấy từ đâu và có phải real-time không?
+
+Từ Frankfurter, nơi phát hành lại bộ tỷ giá tham chiếu của Ngân hàng Trung ương châu Âu (ECB). ECB công bố mỗi ngày làm việc một lần, nên đây là một mốc chuẩn chính thức hàng ngày chứ **không phải** dữ liệu thị trường chạy liên tục. Trang này còn cache thêm phản hồi tối đa 24 giờ nữa. Để quy đổi một hóa đơn, dự trù ngân sách chuyến đi hay kiểm tra nhanh một invoice thì hoàn toàn đủ dùng. Nhưng nếu bạn cần theo biến động trong ngày — giao dịch, hedging, chốt giá hợp đồng — thì phải dùng nền tảng giao dịch có feed thật. Cuối tuần và ngày lễ ECB không công bố, nên tra vào Chủ nhật là bạn đang xem số của thứ Sáu.
+
+## Tại sao không tìm thấy VND trong danh sách?
+
+Vì bộ tỷ giá tham chiếu của ECB chỉ gồm khoảng ba chục đồng tiền — các đồng lớn của thế giới và các đồng châu Âu — và đồng Việt Nam không nằm trong đó. Đây là giới hạn của nguồn dữ liệu chứ không phải lỗi tool. Cùng lý do đó, nhiều đồng tiền giao dịch mỏng, đồng bị neo tỷ giá hoặc bị hạn chế chuyển đổi cũng vắng mặt. Về mặt code, khi thiếu tỷ giá cho đồng nguồn hoặc đồng đích, hàm quy đổi trả về `null` và giao diện báo không có dữ liệu — nó **không** đoán bừa hay nội suy một con số gần đúng. Với VND, hãy tra tỷ giá tại Vietcombank hoặc trang của Ngân hàng Nhà nước.
+
+## Tool quy đổi giữa hai đồng đều không phải đồng cơ sở bằng cách nào?
+
+Bằng cross rate, đi vòng qua đồng cơ sở. Nếu bạn đổi JPY sang GBP mà bảng tỷ giá đang tính theo USD, tool lấy `số tiền / tỷ giá JPY` để ra số tiền quy về USD, rồi nhân với `tỷ giá GBP`. Khi đồng nguồn trùng đồng cơ sở thì chỉ cần một phép nhân trực tiếp. Trường hợp đồng nguồn trùng đồng đích, tool trả về đúng số tiền ban đầu chứ không chạy qua công thức. Hệ quả nhỏ cần biết: cross rate đi qua hai phép chia–nhân nên có thể lệch vài chữ số thập phân cuối so với một bảng niêm yết trực tiếp cặp đó — sai số làm tròn dấu phẩy động, không đáng kể ở quy mô thực tế.
+
+## Số tiền tôi nhập có rời khỏi trình duyệt không?
+
+Gần như không, nhưng ở đây phải nói thật một ngoại lệ. Phép quy đổi chạy hoàn toàn trong trình duyệt bạn — **số tiền bạn gõ không bao giờ được gửi đi đâu cả**. Tuy nhiên bảng tỷ giá thì phải tải về từ server của chúng tôi, và request đó có mang theo mã đồng tiền cơ sở bạn chọn. Nghĩa là cặp tiền tệ bạn quan tâm thì lộ trong request, còn con số thì không. Đây là công cụ duy nhất trong cụm tài chính này cần mạng; tất cả các tool còn lại — tính lãi kép, tính vay, tính thuế — chạy 100% offline sau khi trang đã tải xong.
+
+## Tại sao ngân hàng không đổi cho tôi đúng tỷ giá này?
+
+Vì đây là mid-market rate — điểm giữa của giá mua và giá bán — và gần như không ai giao dịch thật ở mức đó. Ngân hàng, tổ chức thẻ và quầy thu đổi đều cộng thêm spread, nhiều nơi tính thêm phí chuyển tiền quốc tế. Bạn sẽ luôn nhận về ít hơn con số hiển thị ở đây; khoảng chênh chính là cách dịch vụ đó kiếm tiền. Chính vì vậy tool này hữu ích theo một cách khác với app ngân hàng: lấy báo giá của nhà cung cấp đem so với mid-market rate là bạn đo được **biên lợi nhuận thật** của họ, thứ mà không app ngân hàng nào chủ động cho bạn thấy.
+
+## Dùng con số này để kê khai kế toán hay thuế được không?
+
+Hãy kiểm tra quy định trước đã. Nhiều cơ quan thuế bắt buộc dùng một tỷ giá cụ thể vào một ngày cụ thể — thường là tỷ giá do chính họ công bố hoặc tỷ giá của ngân hàng trung ương tại ngày phát sinh giao dịch. Ở Việt Nam, quy đổi ngoại tệ cho mục đích kế toán và thuế thường phải theo tỷ giá của ngân hàng thương mại nơi doanh nghiệp mở tài khoản. Một công cụ tiện tay không tự động là công cụ được chấp nhận. Kết quả ở đây là ước tính tham khảo, **không phải tư vấn tài chính hay kế toán**; với hồ sơ chính thức hãy hỏi kế toán viên hoặc cơ quan thuế quản lý trực tiếp.

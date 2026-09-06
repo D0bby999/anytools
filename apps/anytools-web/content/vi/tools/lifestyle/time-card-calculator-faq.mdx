@@ -1,0 +1,27 @@
+---
+title: Calculator chấm công — Câu hỏi thường gặp
+---
+
+## Tính giờ làm và lương theo tuần thế nào?
+
+Mỗi ngày trong tuần là một dòng: bạn điền giờ vào, giờ ra và số phút nghỉ không lương của ngày đó. Tool lấy hiệu giữa giờ ra và giờ vào, trừ đi phút nghỉ, rồi đổi ra giờ thập phân. Cộng bảy dòng lại thành tổng giờ tuần, sau đó tách thành giờ thường và giờ tăng ca, nhân với đơn giá theo giờ bạn nhập để ra lương gộp. Vì có ô nghỉ riêng nên bạn cứ điền nguyên khoảng từ lúc đến tới lúc về rồi khai 60 phút nghỉ trưa, không cần tự chia ca thành hai đoạn như nhiều bảng chấm công khác bắt làm.
+
+## Ca đêm qua nửa đêm có tính đúng không?
+
+Có, và đây là điểm dễ sai nhất ở các công cụ khác. Khi giờ ra nhỏ hơn giờ vào — ví dụ vào `22:00`, ra `06:00` — code hiểu là ca vắt qua nửa đêm và tự cộng thêm 24 giờ trước khi trừ, cho ra 8 giờ chứ không ra số âm. Bạn không phải tách ca thành hai dòng. Nhưng có một giới hạn thật cần biết: quy ước cộng 24 giờ chỉ đúng cho ca ngắn hơn một ngày. Ca kéo dài hơn 24 tiếng sẽ bị hiểu nhầm thành ca ngắn. Ngoài ra, sau khi trừ phút nghỉ mà kết quả âm thì ngày đó bị đưa về 0 giờ chứ không trừ ngược vào tổng tuần.
+
+## Tăng ca tính theo quy tắc nào, có khớp luật Việt Nam không?
+
+Tool áp đúng một quy tắc: mọi giờ vượt quá 40 giờ trong tuần là tăng ca, trả bằng 1.5 lần đơn giá. Đó là chuẩn tuần của Mỹ theo FLSA, và bạn cần biết rõ điều này trước khi dùng nó cho bảng lương Việt Nam. Bộ luật Lao động Việt Nam tính tăng ca theo mức 150 phần trăm ngày thường, 200 phần trăm ngày nghỉ hằng tuần và 300 phần trăm ngày lễ — tool không phân biệt được ba mức đó. Nó cũng không xử lý quy tắc tăng ca theo ngày mà một số nơi áp dụng, kiểu vượt 8 giờ trong một ngày là tính tăng ca bất kể tổng tuần. Với những trường hợp đó, con số ở đây sẽ thấp hơn thực tế bạn được nhận.
+
+## Nhập giờ theo định dạng nào, gõ sai thì chuyện gì xảy ra?
+
+Dùng định dạng 24 giờ kiểu `HH:MM`, nên 5 giờ chiều là `17:00`. Bỏ trống hoặc nhập chuỗi không đọc được thì ngày đó tính 0 giờ chứ không báo lỗi đỏ, nên một dòng quên điền sẽ âm thầm kéo tổng tuần xuống. Đáng chú ý hơn: bộ đọc giờ không kiểm tra khoảng hợp lệ, nó chỉ tách chuỗi ở dấu hai chấm rồi đổi sang số phút. Gõ nhầm `25:00` vẫn được chấp nhận và tính thành 1500 phút kể từ nửa đêm, cho ra kết quả trông hợp lý mà thật ra sai. Nên rà lại từng dòng, nhất là những dòng bạn gõ vội.
+
+## Sao không tự dựng bảng chấm công trong Excel?
+
+Excel làm được nhưng phép trừ thời gian ở đó rất phiền: bạn phải để ô đúng định dạng thời gian, phải nhân kết quả với 24 mới ra giờ thập phân, và trừ qua nửa đêm cho ra số âm hiện thành một hàng dấu thăng cho tới khi bạn thêm hàm xử lý. Công thức tách giờ thường và giờ tăng ca cần thêm hai hàm nữa, và mỗi lần copy sang tuần mới lại có nguy cơ lệch tham chiếu ô. Ở đây bạn chỉ điền số. Đổi lại, hãy nhớ kết quả là lương gộp trước thuế: không trừ thuế thu nhập cá nhân, không trừ bảo hiểm, không cộng phụ cấp, nên số thực nhận sẽ thấp hơn.
+
+## Dữ liệu chấm công của tôi có được lưu lại không?
+
+Không. Giờ vào, giờ ra, phút nghỉ và đơn giá đều nằm trong bộ nhớ tab trình duyệt; mọi phép tính chạy tại chỗ. Không có request nào gửi bảng lên server, không tài khoản, không lịch sử. Tắt tab là dữ liệu biến mất, nên nếu cần giữ, hãy chép kết quả ra chỗ khác trước khi đóng. Với dữ liệu vừa là lịch làm việc vừa là thu nhập cá nhân, đây là mặc định nên có: dùng để đối chiếu bảng lương thì được, nhưng khi thấy chênh lệch thật, hãy mang bằng chứng tới bộ phận nhân sự chứ đừng coi con số của một máy tính online là căn cứ cuối cùng.

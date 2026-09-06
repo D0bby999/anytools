@@ -1,0 +1,27 @@
+---
+title: Tính giảm giá — Câu hỏi thường gặp
+---
+
+## Tính giảm giá bao nhiêu phần trăm — tool cho ra những con số nào?
+
+Bốn con số: số tiền được giảm, giá sau khi giảm, thuế tính trên giá đã giảm, và số tiền cuối cùng phải trả — kèm theo phần bạn tiết kiệm được so với giá gốc. Ô thuế là tùy chọn: để 0 thì tool chỉ xử lý phần giảm giá. Trình tự tính đúng bằng ba bước, `giảm giá = giá gốc × phần trăm`, rồi `giá sau giảm = giá gốc − giảm giá`, cuối cùng `thuế = giá sau giảm × thuế suất`. Đây là kiểu tính bạn cần khi đứng trước kệ hàng và muốn biết cái biển "sale 35%" thực sự nghĩa là bao nhiêu tiền, thay vì nhẩm tròn rồi ra quầy mới ngã ngửa.
+
+## Thuế tính trước hay sau khi giảm giá?
+
+Sau. Và thứ tự này không phải lựa chọn tùy tiện — thuế bán hàng thông thường được tính trên số tiền bạn **thực trả**, không phải trên giá niêm yết trước khi sale. Nghĩa là giảm giá kéo cả tiền thuế xuống theo. Ở Việt Nam, giá bán lẻ trưng trên kệ thường đã bao gồm VAT nên bạn hay không phải làm bước này; nhưng với hóa đơn dịch vụ, đơn hàng B2B hoặc mua từ nước ngoài, giá gốc là giá chưa thuế và bước cộng VAT ở cuối mới cho ra con số thật. VAT phổ thông ở Việt Nam là 10%, và một số nhóm hàng hóa dịch vụ có giai đoạn được giảm còn 8% theo nghị quyết của Quốc hội — hãy kiểm tra mức đang áp dụng cho mặt hàng cụ thể thay vì mặc định.
+
+## Giảm 20% rồi giảm tiếp 10% có bằng giảm 30% không?
+
+Không, và đây là cái bẫy phổ biến nhất trong toán khuyến mãi. Lần giảm thứ hai áp lên **giá đã giảm**, không phải giá gốc. Giảm 20% rồi 10% để bạn trả `0,8 × 0,9 = 0,72` giá gốc — tức tiết kiệm 28%, chứ không phải 30%. Chênh lệch luôn nghiêng về phía cửa hàng. Chế độ giảm giá chồng của tool tính đúng chuyện này. Thứ tự hai mức giảm thì không ảnh hưởng: phép nhân có tính giao hoán, 20% trước rồi 10% hay ngược lại đều còn 72%. Thứ tự chỉ đổi kết quả khi một trong hai là giảm một số tiền cố định thay vì phần trăm — dạng đó tool không mô hình hóa.
+
+## Chế độ giảm giá chồng có cộng thuế được không?
+
+Không, và đây là giới hạn nằm thẳng trong code: hàm tính giảm giá chồng luôn trả về phần thuế bằng 0. Nó chỉ nhận giá gốc và hai mức phần trăm, không nhận thuế suất. Nếu bạn cần cả hai, làm hai bước: chạy chế độ giảm giá chồng để ra giá cuối, rồi đưa con số đó vào chế độ một mức giảm với phần trăm giảm bằng 0 và điền thuế suất — hoặc dùng thẳng công cụ tính thuế bán hàng. Một giới hạn nữa: tool đi xuôi từ giá gốc, không đi ngược từ giá sale để suy ra phần trăm đã giảm. Muốn tìm phần trăm, lấy số tiền tiết kiệm chia giá gốc rồi nhân 100.
+
+## Dữ liệu tôi nhập có được gửi đi đâu không?
+
+Không. Phép tính chạy hoàn toàn trong trình duyệt, không có request nào rời khỏi máy bạn mang theo giá cả hay thông tin đơn hàng. So với việc mở app máy tính rồi tự bấm, hay dựng một file Excel cho việc này, cái được ở đây là bạn không phải nhớ thứ tự đúng của các bước — chỗ mà đa số người tính nhầm là cộng thuế trước khi giảm giá, hoặc cộng thẳng hai mức phần trăm lại với nhau. Tool khóa sẵn trình tự đúng và hiển thị đủ các bước trung gian để bạn đối chiếu, thay vì chỉ đưa ra một con số cuối không kiểm chứng được.
+
+## Kết quả có khớp chính xác với hóa đơn ở quầy không?
+
+Thường lệch vài đồng, và đó là chuyện bình thường. Tool không ép một quy tắc làm tròn nào. Máy tính tiền thật làm tròn ở những điểm được cấu hình sẵn, và nhiều hệ thống tính thuế theo **từng dòng hàng** rồi mới cộng lại, thay vì tính một lần trên tổng giỏ hàng — hai cách này cho kết quả chênh nhau ở hàng đơn vị. Chênh lệch nhỏ thì bỏ qua; chênh lệch lớn thường có nghĩa là mức giảm đang áp lên một mức "giá cũ" chưa từng thực bán, hoặc trong giỏ có mặt hàng chịu thuế suất khác. Con số ở đây là ước tính để đối chiếu, **không phải tư vấn tài chính** hay căn cứ khiếu nại.

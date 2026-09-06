@@ -1,0 +1,29 @@
+---
+title: Xoá Nền Ảnh — Câu hỏi thường gặp
+---
+
+## Bấm nút xoá nền thì chuyện gì xảy ra, ảnh có được gửi đi đâu không?
+
+Một mạng nơ-ron tên u2netp chạy bằng WebAssembly ngay trong tab trình duyệt của bạn. Nó nhận bản 320×320 của ảnh, dự đoán những pixel nào thuộc về chủ thể nổi bật nhất, và dự đoán đó trở thành kênh alpha của file PNG. Không có gì được gửi đi: ảnh được giải mã, thu nhỏ, đưa vào model và ghép lại hoàn toàn trên máy bạn — mở tab Network trong developer tools là thấy một lần tách nền hoàn tất mà không phát sinh request nào. Với ảnh chân dung, ảnh thẻ, ảnh sản phẩm chưa công bố hay ảnh con cái, đó là khác biệt đáng kể so với việc đẩy file lên dịch vụ của người khác. Trọng số model theo giấy phép Apache-2.0 nên site này phục vụ được trực tiếp.
+
+## Vì sao lần đầu chạy chậm mà lần sau lại nhanh?
+
+Vì khoảng 19 MB phải về máy trước khi bất cứ điều gì xảy ra: file model 4,4 MB và bộ chạy ONNX Runtime khoảng 14 MB. Cả hai được cất vào Cache Storage của trình duyệt ngay khi tải, nên lần tách nền thứ hai — cùng tab, tab mới, hay sau khi tải lại trang — không gửi đi byte nào nữa. Xoá dữ liệu site thì bản cache mất và lần sau tải lại. Mã băm SHA-256 của file model được đối chiếu với một giá trị ghim sẵn trước khi lưu, nên bản tải về bị cắt cụt hay bị can thiệp sẽ bị từ chối chứ không được đem ra chạy. Trong lúc tải bạn có thể huỷ; nhưng khi model đã bắt đầu chạy thì không huỷ được nữa, vì đó là một lệnh gọi liền mạch vào WebAssembly trên luồng chính, và tab sẽ đứng khoảng một giây.
+
+## Khi nào tách nền ra kết quả hỏng?
+
+Đủ thường xuyên để bạn nên nhìn kỹ kết quả trước khi dùng. Đây là một model nhỏ từ năm 2020 và nó dò vật thể nổi bật chứ không phải model chuyên tách người hay tách sản phẩm, nên: tóc, lông thú và chi tiết mảnh ra thành một mảng đặc — muốn từng sợi thì phải có alpha matting, model này không làm; thuỷ tinh, khói, nước và mọi thứ bán trong suốt bị coi là đặc hoặc bị bỏ hẳn; nền cùng màu hoặc cùng độ sáng với chủ thể gây nhầm, ly trắng trên bàn trắng là ca kinh điển; nhiều vật thể nổi bật ngang nhau thì model có thể chỉ giữ một, và không có cách nào bảo nó giữ cái nào. Nó làm tốt khi có một chủ thể rõ ràng trên nền khác biệt: người đứng trước tường, sản phẩm trên mặt phẳng trơn, thú cưng trên cỏ.
+
+## Ảnh lớn thì kết quả có bị thu nhỏ không?
+
+Có, ở hai ngưỡng. Trên khoảng 16.777.216 pixel — tức 16,7 megapixel, trần canvas của Safari — ảnh được giải mã lại nhỏ hơn ngay từ bộ giải mã, vì vượt trần đó canvas trả về ảnh trắng trơn chứ không báo lỗi. Ngưỡng thứ hai thấp hơn và là của riêng công cụ này: trên 8 triệu pixel, ảnh tách nền được tạo ra ở kích thước nhỏ hơn, và bảng kết quả ghi rõ kích thước đã dùng. Lý do là mask luôn được dự đoán ở 320×320 bất kể ảnh của bạn lớn cỡ nào, nên những pixel dôi ra không mang thêm một chút chi tiết nào cho đường viền — chúng chỉ chiếm thêm vài khung bộ nhớ đầy đủ và kéo dài lúc trang bị đứng. Cần độ phân giải gốc thì lấy kênh alpha từ PNG này áp sang ảnh gốc trong phần mềm chỉnh sửa.
+
+## Hai thanh trượt ngưỡng cắt và độ mềm viền làm gì, và vì sao file tải về luôn là PNG?
+
+Model trả về một mask mềm, giá trị nằm giữa 0 và 1 chứ không phải có hoặc không. Ngưỡng cắt biến nó thành quyết định: trên ngưỡng thì giữ hoàn toàn, dưới ngưỡng thì xoá hoàn toàn. Để 0 nghĩa là giữ nguyên mask mềm, trông đẹp hơn với tóc và ảnh rung nhưng nền cũ vẫn hiện mờ mờ thay vì trong suốt hẳn. Độ mềm viền làm nhoè đường biên vài pixel để giấu răng cưa do cắt cứng. Cả hai đều không thay đổi ý kiến của model: mask sai hình thì không thanh trượt nào cứu được.
+
+File tải về luôn là PNG vì JPEG không có kênh alpha — lưu JPEG là lấp màu vào vùng trong suốt và xoá sạch công sức vừa làm. Kể cả khi bạn chọn nền màu đặc, kết quả vẫn là PNG; cần file nhỏ hơn thì đưa qua công cụ Nén Ảnh sau.
+
+## Vì sao không dùng dịch vụ xoá nền online hay app trên điện thoại?
+
+Các dịch vụ xoá nền trực tuyến nổi tiếng chạy model trên máy chủ của họ, nghĩa là ảnh bạn tải lên nằm trên hạ tầng của người khác — với ảnh thẻ, ảnh chân dung nhân viên hay ảnh sản phẩm chưa ra mắt thì đó là điều cần cân nhắc — và hầu hết chỉ cho tải về bản độ phân giải thấp trước khi đòi mua gói hoặc mua tín dụng. App điện thoại thì phải cài, xin quyền thư viện ảnh, dán watermark, và phần lớn cũng gửi ảnh lên đám mây vì model chạy trên máy tốn pin. Đổi lại, model chạy ngay tại máy như ở đây yếu hơn các model thương mại — nên hãy nhìn kết quả rồi mới dùng, và mỗi lần chỉ xử lý một ảnh vì mỗi lần chạy giữ cùng lúc ảnh gốc, mask và ảnh xuất trong bộ nhớ.

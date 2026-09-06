@@ -1,0 +1,27 @@
+---
+title: Tính thế chấp / vay mua nhà — Câu hỏi thường gặp
+---
+
+## Tính tiền trả góp mua nhà mỗi tháng bao nhiêu?
+
+Nhập giá nhà, số tiền trả trước, lãi suất năm và kỳ hạn tính bằng **năm**, tool sẽ ra khoản trả cố định hàng tháng cùng tổng tiền và tổng lãi cho cả kỳ hạn. Số tiền vay được lấy bằng giá nhà trừ đi khoản trả trước, rồi đưa vào công thức trả đều `M = P × r(1+r)^n / ((1+r)^n − 1)`, với `r` là lãi suất năm chia 12 và `n` là số năm nhân 12. Ví dụ kiểm chứng nằm ngay trong code: vay 320.000 với lãi 6,5% trong 30 năm cho ra khoảng 2.022,62 mỗi tháng. Đây là con số gốc-và-lãi thuần túy.
+
+## Con số hàng tháng đó đã gồm những gì và thiếu những gì?
+
+Chỉ gồm gốc và lãi. Nó **không** bao gồm bảo hiểm khoản vay, bảo hiểm cháy nổ tài sản thế chấp, phí thẩm định giá, phí công chứng, thuế và lệ phí trước bạ sang tên, hay phí quản lý chung cư. Ở Việt Nam, bảo hiểm nhân thọ hoặc bảo hiểm khoản vay thường được đề nghị kèm khi giải ngân, và phí quản lý chung cư là khoản định kỳ tách rời hoàn toàn khỏi khoản vay. Vì vậy số tiền bạn thực sự phải chuẩn bị mỗi tháng luôn lớn hơn con số ở đây, đôi khi lớn hơn đáng kể. Hãy coi kết quả này là sàn tối thiểu, rồi cộng thêm các khoản kia vào khi tính khả năng chi trả.
+
+## Tool có mô hình hóa được lãi suất thả nổi không?
+
+Không, và với thị trường Việt Nam thì đây là giới hạn quan trọng nhất cần biết. Code giả định **một mức lãi suất cố định suốt kỳ hạn** và các kỳ trả bằng nhau từ đầu đến cuối. Trong khi đó, phần lớn gói vay mua nhà ở Việt Nam áp lãi ưu đãi cố định trong 6 đến 24 tháng đầu, sau đó thả nổi theo công thức lãi suất cơ sở của ngân hàng cộng một biên độ. Nghĩa là con số tính bằng lãi ưu đãi sẽ đẹp hơn thực tế rất nhiều từ năm thứ hai trở đi. Cách dùng đúng: chạy hai lần, một lần với lãi ưu đãi để xem giai đoạn đầu, một lần với lãi thả nổi ước tính để xem phần còn lại.
+
+## Vì sao mấy năm đầu trả mãi mà nợ gốc gần như không giảm?
+
+Vì mỗi kỳ trả có số tiền bằng nhau nhưng tỷ lệ bên trong thì không. Giai đoạn đầu, gần như toàn bộ khoản trả dùng để bù tiền lãi phát sinh trong tháng đó, chỉ một phần nhỏ chạm tới gốc; khi dư nợ giảm dần thì tiền lãi teo lại và phần gốc phình ra. Đây cũng là lý do trả thêm một khoản nhỏ trong vài năm đầu cắt được nhiều tổng lãi hơn hẳn so với cùng số tiền đó trả vào cuối kỳ. Nhưng lưu ý: tool không mô hình hóa việc trả thêm gốc, và nhiều ngân hàng thu phí trả nợ trước hạn theo phần trăm số tiền trả sớm — hãy đọc kỹ điều khoản đó trước khi tính chuyện tất toán sớm.
+
+## Số liệu tài chính tôi nhập có rời khỏi máy không?
+
+Không. Phép tính khấu hao chạy hoàn toàn bằng JavaScript trong trình duyệt; giá nhà, số tiền trả trước và lãi suất bạn gõ vào không được gửi đi đâu, không được lưu lại, và chúng tôi không nhìn thấy. Khác biệt so với công cụ tính vay trên website ngân hàng hay sàn bất động sản là rõ ràng: ở đó, form tính toán thường gắn liền với ô để lại số điện thoại và mã theo dõi, và việc bạn quan tâm tới một khoản vay bao nhiêu tiền là dữ liệu có giá trị bán được. Ở đây bạn thử mười kịch bản cũng không ai biết, và không có cuộc gọi nào gọi tới sau đó.
+
+## Tôi có thể dựa vào đây để quyết định mua nhà không?
+
+Không. Đây là phép tính số học trên những con số bạn tự nhập, **không phải tư vấn tài chính** và cũng không phải đánh giá khả năng chi trả. Ngân hàng khi thẩm định sẽ nhìn thu nhập chứng minh được, các khoản nợ đang có, tỷ lệ vay trên giá trị tài sản và loại hình bất động sản — và lãi suất bạn thực sự được duyệt có thể khác con số quảng cáo. Ngoài ra còn chi phí vận hành căn nhà, biến động thu nhập và rủi ro lãi suất thả nổi tăng. Hãy dùng tool để hiểu các đòn bẩy tác động lẫn nhau ra sao, rồi mang kịch bản thật đi hỏi chuyên viên tín dụng hoặc chuyên gia tư vấn tài chính có chứng chỉ.

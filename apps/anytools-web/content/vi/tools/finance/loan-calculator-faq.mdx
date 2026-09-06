@@ -1,0 +1,27 @@
+---
+title: Tính vay — Câu hỏi thường gặp
+---
+
+## Tính lãi vay ngân hàng — tool này tính ra cái gì?
+
+Khoản trả góp cố định hàng tháng của một khoản vay trả đều (fully amortising), cộng với tổng số tiền bạn phải trả trong cả kỳ hạn và bao nhiêu trong đó là tiền lãi. Công thức chuẩn: `M = P × r(1+r)^n / ((1+r)^n − 1)`, với `P` là số tiền vay, `r` là lãi suất năm chia cho 12, và `n` là tổng số tháng. "Trả đều" nghĩa là mọi kỳ trả bằng nhau và kỳ cuối cùng vừa vặn tất toán khoản nợ, không còn dư. Cách này ở Việt Nam hay được gọi là trả góp theo **dư nợ giảm dần**, và nó khác hẳn kiểu tính lãi trên dư nợ gốc ban đầu.
+
+## Vì sao con số ở đây thấp hơn nhiều so với chỗ tôi được báo giá?
+
+Rất có thể bên kia đang tính lãi trên **dư nợ gốc ban đầu** (lãi phẳng, flat rate) chứ không phải dư nợ giảm dần. Với lãi phẳng, tiền lãi mỗi tháng luôn tính trên toàn bộ số vay ban đầu dù bạn đã trả bớt gốc — nên tổng lãi thực tế cao hơn đáng kể, và lãi suất hiệu dụng thường xấp xỉ gần gấp đôi con số quảng cáo. Tool này chỉ mô hình hóa dư nợ giảm dần. Khi so sánh các gói vay tiêu dùng, luôn hỏi thẳng "lãi tính trên dư nợ giảm dần hay dư nợ gốc?" trước khi so con số phần trăm — hai kiểu đó không cùng đơn vị đo và đặt cạnh nhau là so sai.
+
+## Nhập lãi suất 0% hoặc kỳ hạn 0 tháng thì sao?
+
+Cả hai đều được xử lý sẵn trong code chứ không văng lỗi. Với lãi suất 0%, công thức chuẩn sẽ chia cho 0, nên tool chuyển sang phép chia đơn giản — số tiền vay chia cho số tháng — nhờ đó các chương trình trả góp 0% thật sự được tính đúng. Với số tháng bằng 0 hoặc âm, tool trả về cả ba con số bằng 0 thay vì cho ra kết quả vô nghĩa. Một chi tiết cần để ý khi nhập: ô kỳ hạn ở đây tính bằng **tháng**, không phải năm. Vay 5 năm thì nhập 60. Đây là khác biệt so với công cụ tính vay mua nhà, nơi kỳ hạn nhập theo năm.
+
+## Số tiền vay và thu nhập tôi nhập có bị gửi lên server không?
+
+Không. Toàn bộ phép tính chạy trong trình duyệt của bạn. Không có số tiền vay, lãi suất hay kỳ hạn nào rời khỏi máy; chúng tôi không lưu và không nhìn thấy. Điều này đáng nói vì phần lớn công cụ tính trả góp trên mạng nằm trên website của chính bên cho vay hoặc bên môi giới, và ở đó việc bạn gõ số vào form thường đi kèm một ô số điện thoại, một cookie theo dõi, hoặc một cuộc gọi mời chào vài ngày sau. Ở đây bạn tính thử bao nhiêu kịch bản cũng được mà không để lại dấu vết nào, và không ai bán thông tin đó cho bất kỳ ai.
+
+## APR có phải là lãi suất không, và tại sao không dùng luôn Excel?
+
+APR không phải lãi suất. Lãi suất là phần cộng dồn trên dư nợ; APR gộp thêm các khoản phí bắt buộc để diễn đạt tổng chi phí thành một tỷ lệ theo năm, nên thường cao hơn. Hãy nhập lãi suất vào đây để ra số tiền trả hàng tháng, nhưng khi **so sánh** giữa các gói vay thì so bằng APR — đó chính là mục đích tồn tại của chỉ số này. Excel có hàm `PMT()` làm được việc tương tự, nhưng bạn phải nhớ chia lãi suất cho 12 và đổi năm ra tháng; sai một trong hai chỗ thì kết quả lệch nhiều lần mà bảng tính không cảnh báo gì. Tool này khóa sẵn quy ước đó.
+
+## Tool có tính phí, bảo hiểm và phí trả nợ trước hạn không?
+
+Không, và ở Việt Nam đây là những khoản không nhỏ. Phí thẩm định, bảo hiểm khoản vay, phí bảo hiểm tài sản và đặc biệt là **phí trả nợ trước hạn** đều nằm ngoài công thức — nhiều ngân hàng thu phí trả trước hạn theo tỷ lệ phần trăm trên số dư nợ trả sớm và giảm dần theo số năm đã vay, nên trả sớm không phải lúc nào cũng rẻ hơn. Việc trả thêm gốc hàng tháng cũng không được mô hình hóa. Chênh lệch nhỏ so với bảng của ngân hàng là do quy ước làm tròn và cách đếm ngày; chênh lệch lớn nghĩa là trong hợp đồng có thứ không nằm trong phép tính này. Kết quả ở đây là ước tính, **không phải tư vấn tài chính**.

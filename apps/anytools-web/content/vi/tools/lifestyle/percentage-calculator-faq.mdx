@@ -1,0 +1,27 @@
+---
+title: Tính phần trăm — Câu hỏi thường gặp
+---
+
+## Ba chế độ khác nhau ở chỗ nào?
+
+Chế độ thứ nhất, "X% của Y", là phép nhân: lấy X chia 100 rồi nhân với Y — 20% của 150 ra 30. Chế độ thứ hai, "X bằng bao nhiêu phần trăm của Y", là phép chia: X chia Y rồi nhân 100. Chế độ thứ ba, "phần trăm thay đổi", so hai giá trị: lấy hiệu chia cho giá trị gốc rồi nhân 100, kết quả dương là tăng và âm là giảm. Cách chọn đơn giản là nhìn xem bạn đang thiếu gì: biết phần trăm và muốn ra số tiền thì dùng cái đầu, có hai con số và muốn ra phần trăm thì dùng cái thứ hai, có mốc trước và mốc sau thì dùng cái thứ ba.
+
+## Vì sao phần trăm thay đổi trả về 0 khi giá trị gốc bằng 0?
+
+Vì đó là phép chia cho 0. Đi từ 0 lên 5 triệu thì mức tăng theo phần trăm là vô hạn, không có con số hữu hạn nào diễn đạt được. Thay vì in ra "Infinity" hay "NaN" làm hỏng phần còn lại của màn hình, tool trả về 0 — nên số 0 ở chế độ này nghĩa là "câu hỏi không tính được", không phải "không thay đổi gì". Chế độ "X bằng bao nhiêu phần trăm của Y" cũng chặn y hệt: Y bằng 0 thì kết quả là 0. Khi gặp trường hợp đó, hãy nói bằng số tuyệt đối — "tăng thêm 5 triệu từ con số không" — thay vì cố ép ra một tỷ lệ phần trăm.
+
+## Tăng 50% rồi giảm 50% sao không quay về chỗ cũ?
+
+Vì mỗi lần tính phần trăm lại lấy một gốc khác nhau. Lấy 100 tăng 50% ra 150; giảm 50% của 150 là bớt 75, còn 75 chứ không phải 100. Đây là chỗ dễ bị dẫn dắt nhất trong quảng cáo và báo cáo: một cổ phiếu giảm 50% phải tăng lại 100% mới hòa vốn, một mặt hàng bị đội giá 20% rồi "giảm 20%" vẫn đắt hơn giá gốc 4%. Quy tắc nhớ cho gọn: phần trăm luôn gắn với con số mà bạn xuất phát, nên khi ai đó đưa ra một tỷ lệ mà không nói rõ gốc là gì, tỷ lệ ấy chưa đủ để kết luận điều gì.
+
+## Phần trăm và điểm phần trăm khác nhau ra sao?
+
+Một lãi suất đi từ 4% lên 6% đã tăng hai điểm phần trăm, nhưng cũng là tăng 50 phần trăm. Cả hai câu đều đúng và cùng mô tả một chuyển động, chỉ khác cách đo. Báo chí tài chính và các bản tin về lãi suất ngân hàng rất hay lẫn hai khái niệm này, thường nghiêng về con số nào nghe kêu hơn. Khi con số bạn đang so sánh bản thân nó đã là một tỷ lệ phần trăm — lãi suất, tỷ lệ thất nghiệp, tỷ lệ chuyển đổi — hãy nói rõ bạn đang dùng đơn vị nào. Chế độ "phần trăm thay đổi" ở đây luôn cho ra phần trăm tương đối, không phải điểm phần trăm.
+
+## Kết quả được làm tròn đến mấy chữ số?
+
+Không ép về một số chữ số cố định — bạn thấy đúng giá trị vừa tính ra. Việc làm tròn dành cho bạn, vì mức chính xác cần thiết tùy bối cảnh: hóa đơn thì hai chữ số thập phân, báo cáo nội bộ thì một, còn bảng tóm tắt cho sếp có khi chỉ cần số nguyên. Một cảnh báo đáng nhớ: làm tròn sớm rồi tiếp tục tính là nguồn sai lệch phổ biến khi nhiều phép phần trăm nối tiếp nhau, chẳng hạn cộng thuế rồi trừ chiết khấu rồi chia đầu người. Hãy giữ nguyên giá trị đầy đủ suốt chuỗi tính và chỉ làm tròn ở con số cuối cùng bạn công bố.
+
+## Dữ liệu tôi nhập có rời khỏi máy không, và tính bằng điện thoại có nhanh hơn không?
+
+Không có gì rời khỏi trình duyệt: hai con số bạn gõ được tính ngay tại chỗ, không gửi đi đâu và không lưu lại. Còn so với máy tính bỏ túi trên điện thoại, khác biệt nằm ở chỗ dễ sai: trên máy tính bạn phải tự nhớ nhân trước hay chia trước, nhân 100 hay chia 100, và lấy gốc nào làm mẫu số — ba lỗi thường gặp nhất khi tính phần trăm đều nằm ở đó. Ở đây bạn chọn đúng câu hỏi mình đang hỏi, tool chọn công thức, nên khả năng lộn ngược tử số với mẫu số gần như bằng không.

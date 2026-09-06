@@ -1,0 +1,27 @@
+---
+title: Tính lãi kép — Câu hỏi thường gặp
+---
+
+## Tính lãi kép online — tool này tính ra đúng những con số nào?
+
+Ba con số: số dư cuối kỳ, tổng tiền bạn thực sự bỏ vào, và phần chênh lệch giữa hai cái đó — tức là phần lãi kép làm ra. Bạn nhập số vốn ban đầu, khoản góp đều hàng tháng, lãi suất năm và số năm. Công thức chia làm hai vế cộng lại: vốn gốc lớn lên theo `P × (1 + r)^n`, còn dòng tiền góp đều lớn lên theo `PMT × ((1 + r)^n − 1) / r`. Trong đó `r` là lãi suất năm chia cho 12 và `n` là tổng số tháng. Đây là lý do một khoản góp 3 triệu mỗi tháng trong 20 năm cho ra con số lớn hơn nhiều so với cảm giác trực giác — mỗi tháng lãi lại được tính trên số dư đã bao gồm lãi của các tháng trước.
+
+## Tool ghép lãi bao lâu một lần, và tiền góp vào lúc nào trong tháng?
+
+Ghép lãi theo tháng, và khoản góp được cộng vào **cuối** mỗi tháng — đúng chuẩn ordinary annuity. Chi tiết này quan trọng hơn vẻ ngoài của nó: tiền nộp cuối tháng thì tháng đó không sinh lãi. Nếu kế hoạch thật của bạn là nộp vào đầu tháng, kết quả thực tế sẽ nhỉnh hơn con số hiển thị một chút. Một trường hợp biên nữa nằm ngay trong code: khi bạn nhập lãi suất bằng 0, vế thứ hai của công thức sẽ chia cho 0, nên tool chuyển sang tính `PMT × n` thay vì trả về lỗi. Nhờ vậy bạn có thể dùng lãi suất 0% để xem thuần túy mình đã tích cóp được bao nhiêu.
+
+## Số tiền tôi nhập có bị gửi lên server không?
+
+Không. Toàn bộ phép tính chạy bằng JavaScript ngay trong trình duyệt của bạn, không có một request nào mang theo số vốn, khoản góp hay lãi suất bạn gõ vào. Chúng tôi không lưu, không log, không nhìn thấy. Với chủ đề tiền bạc thì đây không phải chi tiết phụ — bảng kế hoạch tích lũy của bạn cho biết thu nhập, khả năng tiết kiệm và mục tiêu tài chính cá nhân, những thứ chẳng có lý do gì phải rời khỏi máy bạn. Bạn có thể tắt mạng rồi mở lại trang, tool vẫn tính bình thường. Đó cũng là cách nhanh nhất để tự kiểm chứng lời khẳng định này thay vì phải tin chúng tôi.
+
+## Tại sao không dùng Excel hay app ngân hàng cho tiện?
+
+Excel làm được, nhưng bạn phải tự gõ `FV()` hoặc tự dựng công thức, và sai một chỗ chia 12 là lệch hàng chục phần trăm mà không có gì báo cho bạn biết. App ngân hàng thì tính đúng nhưng chỉ tính cho **sản phẩm của họ**: kỳ hạn họ bán, lãi suất họ niêm yết, và thường chỉ cho gửi một lần chứ không mô hình hóa được khoản góp đều hàng tháng. Tool này ngược lại — bạn tự do đặt lãi suất giả định, kéo dài kỳ hạn 30 năm, hay chạy hai kịch bản lạc quan và bi quan cạnh nhau để xem khoảng dao động. Nó không bán gì cho bạn, nên cũng không có động cơ chọn con số đẹp.
+
+## Kết quả đã trừ lạm phát, thuế và phí chưa?
+
+Chưa, và đây là giới hạn cần nhớ. Con số hiển thị là danh nghĩa. Lạm phát bào mòn sức mua của số dư đó; thuế thu nhập từ đầu tư cắt bớt phần bạn giữ lại; phí quản lý quỹ hay phí nền tảng bị trừ vào lợi suất trước khi bạn nhìn thấy. Điểm đau nhất là phí: một điểm phần trăm phí mỗi năm sẽ cộng dồn chống lại bạn đúng theo cách lãi kép cộng dồn cho bạn. Một mẹo đọc kết quả theo giá trị hiện tại là nhập lãi suất đã trừ đi lạm phát kỳ vọng — ví dụ kỳ vọng 8% và lạm phát 4% thì nhập 4% — để có bức tranh thực chất hơn.
+
+## Tôi có thể dựa vào đây để quyết định gửi tiết kiệm hay đầu tư không?
+
+Hãy dùng nó để hiểu cơ chế, đừng dùng như một lời hứa. Tool coi lãi suất bạn nhập là cố định và chắc chắn, trong khi không khoản đầu tư nào ngoài đời như vậy. Lãi suất tiết kiệm ngân hàng thì biết trước theo kỳ hạn, nhưng lợi suất thị trường thì không — và một chuỗi lợi suất thật luôn có những năm âm mà con số trung bình mượt mà đã che đi. Kết quả ở đây là ước tính minh họa, **không phải tư vấn tài chính**. Trước khi cam kết một kế hoạch dài hạn liên quan đến khoản tiền lớn, hãy trao đổi với chuyên gia tư vấn tài chính có chứng chỉ hành nghề.

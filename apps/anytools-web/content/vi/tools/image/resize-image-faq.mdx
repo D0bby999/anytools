@@ -1,0 +1,31 @@
+---
+title: Đổi Cỡ Ảnh — Câu hỏi thường gặp
+---
+
+## Đổi cỡ ảnh online thì ảnh có được gửi lên máy chủ không?
+
+Không. Ảnh được giải mã, vẽ lại ở kích thước mới và mã hoá lại hoàn toàn bên trong tab trình duyệt này, còn link tải về trỏ vào một blob do chính trình duyệt của bạn tạo ra. Không có gì được truyền đi. Bạn kiểm chứng được bằng tab Network trong developer tools, hoặc bằng cách ngắt mạng sau khi trang đã tải xong rồi vẫn đổi cỡ như thường. Với những việc người ta hay phải đổi cỡ nhất — ảnh CCCD hay ảnh 3×4 để nộp hồ sơ trực tuyến, ảnh chụp bằng lái để đăng ký dịch vụ, ảnh chụp màn hình sao kê — điều đó có nghĩa là không tồn tại bản sao nào trên máy chủ của ai để bạn phải đi xin xoá về sau.
+
+## Chế độ vừa trong khung và kích thước chính xác khác nhau ra sao?
+
+Chế độ vừa trong khung giữ nguyên tỷ lệ: bạn cho một giới hạn, ảnh được thu nhỏ tới khi cả chiều rộng lẫn chiều cao đều lọt vào trong đó. Ảnh 4000×3000 đưa vào khung 1920 sẽ thành 1920×1440 — không kéo giãn, không cắt mất phần nào.
+
+Chế độ kích thước chính xác thì lấy đúng hai con số bạn gõ, bất kể chúng là gì. Nếu chúng không khớp tỷ lệ gốc, ảnh sẽ bị bóp hoặc kéo giãn cho vừa. Chỉ dùng khi có nơi thật sự bắt buộc một kích thước pixel cố định. Cần đúng kích thước mà không méo thì cắt trước cho về đúng tỷ lệ, rồi mới đổi cỡ. Ngoài ra còn chế độ phần trăm, tính theo tỷ lệ của ảnh gốc.
+
+## Vì sao chế độ vừa trong khung không phóng to ảnh lên được?
+
+Vì phóng to là bịa ra chi tiết vốn chưa từng được ghi lại. Kéo một ảnh 400px lên 1920px cho ra một ảnh 1920px nhoè nhoẹt chứ không nét hơn — những pixel thêm vào chỉ là nội suy từ các pixel hàng xóm. Vì thế chế độ vừa trong khung dừng ở 100% và không bao giờ tự phóng to. Chế độ phần trăm thì vẫn cho nhập giá trị trên 100, vì ở đó bạn đã chủ động yêu cầu chuyện đó và tool nói rõ điều gì sẽ xảy ra thay vì lặng lẽ từ chối. Khi thu nhỏ, tool đặt chất lượng nội suy ở mức cao thay vì mức mặc định thấp của canvas — nếu không, ảnh 4000px hạ thẳng xuống 800px sẽ đầy răng cưa.
+
+## Ảnh chụp dọc bằng điện thoại có bị nằm ngang sau khi đổi cỡ không?
+
+Không. Ảnh từ điện thoại thường được lưu đúng như cảm biến đọc — tức khung ngang — kèm một cờ riêng ghi lại lúc chụp máy được cầm thế nào. Phần mềm bỏ qua cờ đó sẽ trả về ảnh chân dung nằm nghiêng, và đây là lỗi phổ biến nhất của các công cụ ảnh chạy trên trình duyệt. Tool này áp cờ hướng ngay trong lúc giải mã, nên kết quả khớp với những gì bạn thấy trên điện thoại. Có một dự phòng nhỏ: vài phiên bản trình duyệt từ chối thẳng tuỳ chọn đó thay vì bỏ qua, nên khi gặp trường hợp ấy tool giải mã lại lần hai không kèm tuỳ chọn — một tấm ảnh nằm nghiêng vẫn hơn là báo với bạn rằng file JPEG lành lặn của bạn "không đọc được".
+
+## Ảnh 24 megapixel có đổi cỡ được không?
+
+Được, và đây là chỗ có một giới hạn thật đáng biết. Canvas của trình duyệt bị chặn diện tích ở khoảng 16.777.216 pixel, tức 16,7 megapixel — mức của Safari, trình chặt nhất — và vượt qua thì canvas trả về ảnh trắng trơn chứ không báo lỗi. Ảnh vượt trần vì thế được giải mã lại ở chiều rộng nhỏ hơn ngay từ bộ giải mã. Điểm quan trọng: phần trăm và khung giới hạn vẫn được tính theo kích thước THẬT của tấm ảnh gốc chứ không phải theo bản đã giải mã nhỏ, nên "50%" của một ảnh 24 MP đúng là 50% như bạn nghĩ. Bảng kết quả ghi rõ ảnh gốc bao nhiêu pixel để bạn biết chuyện gì đã xảy ra.
+
+## Đổi cỡ xong mà dung lượng không giảm bao nhiêu, và vì sao không dùng app?
+
+Kích thước và dung lượng có liên quan nhưng không tỷ lệ thuận. Giảm một nửa mỗi chiều làm số pixel còn một phần tư, thường cắt được kha khá dung lượng — nhưng nếu ảnh gốc vốn đã bị nén mạnh, hoặc nội dung nhiều nhiễu, mức tiết kiệm sẽ ít hơn phép tính gợi ý. Nếu mục tiêu là dung lượng chứ không phải kích thước, hãy dùng Nén Ảnh với chế độ ép xuống dưới một mức trần. Cũng nên nhớ đổi cỡ luôn kéo theo mã hoá lại, nên một file JPEG bị đổi cỡ là bị nén thêm một lần nữa — đừng đổi cỡ cùng một file nhiều lần liên tiếp.
+
+So với các web đổi cỡ kiểu tải file lên, ở đây bạn không giao ảnh giấy tờ cho máy chủ lạ rồi tin vào lời hứa tự xoá. So với app điện thoại, bạn không cài gì, không cấp quyền đọc toàn bộ thư viện ảnh, và không bị dán watermark lên kết quả.

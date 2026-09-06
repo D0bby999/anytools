@@ -1,0 +1,27 @@
+---
+title: Tính lương hưu — Câu hỏi thường gặp
+---
+
+## Về hưu tôi sẽ có bao nhiêu tiền — tool này ước tính thế nào?
+
+Nó chiếu số dư của bạn tại thời điểm nghỉ hưu, từ số tiền bạn đang có cộng khoản tích lũy đều hàng tháng, ghép lãi theo tháng ở một mức lãi suất năm cố định. Kết quả gồm bốn phần: số năm còn lại đến tuổi nghỉ hưu, số dư dự kiến, phần bạn tự bỏ vào so với phần do tăng trưởng sinh ra, và một con số rút hàng năm theo quy tắc 4%. Số năm được tính bằng tuổi nghỉ hưu trừ tuổi hiện tại. Công thức tăng trưởng chia hai vế: khoản tiết kiệm sẵn có lớn lên theo `S × (1 + r)^n`, còn dòng góp đều theo `PMT × ((1 + r)^n − 1) / r`, với `r` là lãi suất năm chia 12.
+
+## Nếu tôi nhập tuổi nghỉ hưu nhỏ hơn tuổi hiện tại thì sao?
+
+Tool không báo lỗi và cũng không cho ra số âm. Code kẹp số năm ở mức tối thiểu bằng 0, nên khi tuổi nghỉ hưu bằng hoặc nhỏ hơn tuổi hiện tại, số tháng bằng 0, phần tăng trưởng bằng 0, và số dư trả về đúng bằng số tiền bạn đang có — không có đồng lãi nào, cũng không có khoản góp nào được cộng thêm. Đây là hành vi có chủ đích chứ không phải lỗi: nó phản ánh đúng thực tế rằng nếu bạn đã tới tuổi nghỉ hưu thì không còn thời gian để tiền sinh lời. Nếu thấy kết quả bằng đúng số vốn ban đầu, hãy kiểm tra lại hai ô tuổi trước khi nghi ngờ phép tính.
+
+## Quy tắc 4% là gì và có đáng tin không?
+
+Là một quy tắc ngón tay cái: năm đầu nghỉ hưu rút 4% số dư, các năm sau điều chỉnh theo lạm phát, thì khoản tiền khó cạn trong một kỳ nghỉ hưu dài. Tool tính thẳng bằng `số dư × 0,04`. Nhưng gốc của nó là các nghiên cứu trên dữ liệu lợi suất thị trường Mỹ theo cửa sổ 30 năm — không phải Việt Nam, không phải mọi thời kỳ. Nó nhạy cảm với lợi suất của vài năm đầu nghỉ hưu, với tuổi thọ thực tế của bạn, và với giả định rằng thị trường tương lai giống quá khứ mà nó được khớp vào. Hãy coi đây là công cụ ước lượng quy mô, không phải bảo đảm; nhiều chuyên gia hiện dùng tỷ lệ khởi điểm thấp hơn.
+
+## Kết quả đã tính lương hưu bảo hiểm xã hội chưa?
+
+Chưa. Tool chỉ biết đúng hai con số bạn nhập: khoản tiết kiệm hiện có và khoản góp hàng tháng. Lương hưu từ bảo hiểm xã hội, khoản đóng góp của người sử dụng lao động, hay bất kỳ chế độ hưu trí bổ sung nào đều nằm ngoài phép tính. Ở Việt Nam, lương hưu BHXH là nguồn thu chính khi về già với phần lớn người lao động khu vực chính thức, nên một dự phóng bỏ qua nó sẽ đánh giá thấp tổng thu nhập hưu trí của bạn khá nhiều. Cách xử lý thực dụng: dùng tool này cho phần tiết kiệm và đầu tư tự nguyện, rồi cộng riêng phần lương hưu BHXH ước tính vào khi lập kế hoạch tổng thể.
+
+## Con số tôi nhập có bị gửi đi đâu không, và sao không dùng Excel?
+
+Không có gì rời khỏi trình duyệt. Tuổi, thu nhập tích lũy và mục tiêu hưu trí của bạn được tính ngay trên máy, không gửi lên server, không lưu lại. Đây là loại dữ liệu nhạy cảm nhất trong cả cụm công cụ tài chính, nên chuyện này không phải chi tiết nhỏ. Còn về Excel: hàm `FV()` làm được, nhưng bạn phải tự dựng hai vế công thức và tự nhớ đổi lãi suất năm sang tháng — sai chỗ đó là lệch nhiều lần. Quan trọng hơn, ở đây bạn kéo một tham số rồi thấy kết quả đổi ngay, nên việc chạy năm kịch bản mất một phút; trên bảng tính thì mất một buổi và thường bạn chỉ chạy đúng một kịch bản lạc quan.
+
+## Vì sao đổi lãi suất một chút mà kết quả nhảy nhiều đến vậy?
+
+Vì lãi suất được ghép qua hàng trăm tháng, nên chênh lệch bị khuếch đại theo cấp số nhân. Một điểm phần trăm qua vài thập kỷ có thể đổi hẳn quy mô con số cuối. Đây vừa là bài học quan trọng nhất của công cụ này vừa là điểm yếu lớn nhất của nó: không ai biết trước lợi suất tương lai của mình, nên kết quả chỉ tốt bằng đúng phỏng đoán đó. Ngoài ra tool không tính thuế, phí quản lý quỹ, lạm phát, và không mô hình hóa rủi ro thứ tự lợi suất — một cú giảm mạnh ngay đầu giai đoạn nghỉ hưu gây thiệt hại lớn hơn nhiều so với cùng cú giảm đó xảy ra muộn. Kết quả ở đây là ước tính minh họa, **không phải tư vấn tài chính**; hãy mang kế hoạch thật đi hỏi chuyên gia có chứng chỉ hành nghề.

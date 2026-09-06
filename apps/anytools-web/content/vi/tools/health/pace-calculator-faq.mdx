@@ -1,0 +1,27 @@
+---
+title: Tính pace chạy bộ — Câu hỏi thường gặp
+---
+
+## Pace bao nhiêu là tốt, và tool tính pace thế nào?
+
+Không có con số "tốt" chung cho mọi người — pace phụ thuộc cự ly, độ tuổi, kinh nghiệm và mục tiêu của bạn, nên hãy so với chính mình ở lần chạy trước thay vì so với người khác. Về phép tính, tool làm đúng một việc: lấy tổng thời gian tính bằng giây chia cho quãng đường tính bằng kilomet, ra số giây trên mỗi kilomet. Sau đó nhân với 1.609344 để có pace trên mỗi dặm. Nếu bạn nhập quãng đường theo dặm, tool đổi sang kilomet bằng đúng hệ số đó trước khi chia. Kết quả hiển thị dạng phút và giây cho mỗi đơn vị, ví dụ 6:30 nghĩa là sáu phút ba mươi giây cho một kilomet.
+
+## Vì sao half marathon là 21.0975 km chứ không phải 21 km?
+
+Vì đó là cự ly chính thức. Tool cài sẵn bốn cự ly thi đấu: 5K là 5 km, 10K là 10 km, half marathon là 21.0975 km và marathon là 42.195 km. Người ta quen nói tròn 21 và 42 khi trò chuyện, nhưng phần lẻ không hề nhỏ khi tính thời gian về đích: với marathon, 0.195 km thừa ra tương đương gần một phút chạy với nhiều người, đủ để trượt mốc mục tiêu bạn đặt ra. Dùng đúng cự ly chính thức là cách duy nhất để con số dự đoán khớp với đồng hồ ở vạch đích. Nếu bạn chạy một cung đường tự do, cứ nhập quãng đường thực tế thay vì chọn cự ly có sẵn.
+
+## Vì sao đồng hồ GPS của tôi báo pace khác kết quả ở đây?
+
+Vì hai bên đo hai thứ khác nhau. Đồng hồ hiển thị pace tức thời hoặc pace trung bình trượt trong vài giây gần nhất, và nó ước lượng quãng đường từ tín hiệu GPS — tín hiệu này trôi khi bạn chạy dưới tán cây, giữa các tòa nhà cao, hoặc qua nhiều khúc cua gấp. Tool này không đoán gì cả: nó cho pace trung bình chính xác trên đúng quãng đường bạn nhập. Nếu đồng hồ đo được 5.08 km trên một cung đường thực tế 5.00 km, pace nó báo sẽ nhanh hơn thực tế một chút. Muốn so sánh công bằng, hãy lấy quãng đường đã được đo chuẩn của giải chạy thay vì con số GPS.
+
+## Vì sao cùng một pace mà buổi chạy này mệt hơn hẳn buổi kia?
+
+Phép chia trong tool không biết gì về địa hình hay cách bạn phân phối sức. Nó gộp toàn bộ quãng đường thành một con số duy nhất, nên một buổi chạy leo dốc rồi đổ đèo và một buổi chạy đường bằng đều đều có thể ra cùng pace trung bình dù cảm giác và mức gắng sức hoàn toàn khác nhau. Độ cao, gió, nắng nóng và mặt đường đều thay đổi kết quả mà công thức không hề thấy. Tương tự, pace bạn giữ được trong 5 km và pace giữ được suốt marathon là hai chuyện khác hẳn — pace duy trì được luôn chậm dần khi cự ly tăng lên. Hãy chỉ so sánh những buổi chạy cùng cung đường, cùng điều kiện.
+
+## Thời gian và quãng đường tôi nhập có được gửi đi đâu không?
+
+Không. Toàn bộ phép chia và phép đổi đơn vị chạy trong trình duyệt trên máy bạn, không có yêu cầu mạng nào mang dữ liệu ra ngoài, không lưu, không cần tài khoản. Điều này khác hẳn các nền tảng theo dõi chạy bộ: khi bạn đồng bộ một buổi chạy lên đó, bạn đang tải lên cả lộ trình GPS — tức là bản đồ chi tiết bạn chạy từ đâu, lúc mấy giờ, thường xuyên thế nào. Đó là dữ liệu vị trí nhạy cảm hơn nhiều người tưởng. Ở đây bạn chỉ gõ hai con số và chúng ở lại trong máy bạn; tải trang xong có thể ngắt mạng, tool vẫn tính bình thường.
+
+## Đã dùng Strava hoặc app của đồng hồ rồi, cần trang này làm gì?
+
+Các nền tảng đó mạnh ở việc lưu lịch sử, vẽ biểu đồ và so sánh với bạn bè, nhưng chúng cần tài khoản, cần đồng bộ và không giúp bạn khi muốn tính nhanh một tình huống giả định — kiểu "nếu giữ pace 6:00 thì marathon mất bao lâu" trước khi buổi chạy diễn ra. Tool này giải đúng bài toán ngược đó bằng cùng một phương trình, ngay trên trình duyệt, không cần cài gì. Cuối cùng, một lưu ý sức khỏe: pace chỉ là con số, không phản ánh việc cơ thể bạn có chịu được mức đó hay không. Nếu bạn thấy đau ngực, khó thở bất thường, chóng mặt khi chạy, hoặc mới quay lại tập sau chấn thương hay bệnh, hãy đi khám trước khi ép theo bất kỳ mục tiêu pace nào.

@@ -1,0 +1,29 @@
+---
+title: Cắt Ảnh — Câu hỏi thường gặp
+---
+
+## Cắt ảnh online thì file có rời khỏi máy tôi không?
+
+Không. File được giải mã trong tab, vùng bạn chọn được vẽ sang một canvas rồi mã hoá ngay tại đó, và link tải về trỏ vào một blob do chính trình duyệt của bạn tạo ra. Không có request nào mang theo tấm ảnh. Muốn chắc thì mở tab Network trong developer tools, hoặc ngắt mạng sau khi trang đã tải xong — thao tác cắt vẫn chạy. Với những thứ người ta hay cắt nhất — ảnh CCCD để nộp hồ sơ, ảnh thẻ, ảnh chụp màn hình tin nhắn hay sao kê ngân hàng cần che bớt phần trên — chuyện ảnh không rời máy không phải là chi tiết kỹ thuật, mà là toàn bộ lý do nên dùng công cụ chạy trong trình duyệt.
+
+## Cắt ảnh có làm giảm chất lượng không?
+
+Phần pixel nằm trong khung chọn được sao chép nguyên vẹn, không hề bị co giãn, nên bản thân thao tác cắt không mất gì. Cái có thể làm mất chất lượng là định dạng đầu ra. PNG không mất dữ liệu, nên cắt một ảnh PNG rồi lưu PNG cho ra đúng từng pixel của vùng bạn đã chọn — đó cũng là lý do PNG là mặc định ở đây. Chọn JPEG hoặc WebP nghĩa là mã hoá lại; nếu ảnh gốc vốn đã là JPEG thì đây là lần nén mất dữ liệu thứ hai chồng lên lần thứ nhất. Với ảnh chụp mà bạn quan tâm dung lượng, WebP là đánh đổi hợp lý nhất: nhỏ hơn JPEG ở cùng mức nhìn.
+
+## Vì sao khung 1:1 trên ảnh ngang vẫn ra đúng hình vuông?
+
+Vì khung chọn được lưu dưới dạng tỷ lệ phần của ảnh chứ không phải pixel của bản xem trước, và tool quy đổi qua kích thước pixel thật trước khi áp tỷ lệ. Chỗ này là nơi nhiều công cụ cắt làm sai: trên ảnh 2000×1000, 50% chiều rộng là 1000px còn 50% chiều cao chỉ là 500px, nên nếu so trực tiếp hai con số phần trăm với nhau thì "1:1" cho ra một hình chữ nhật dẹt. Cách lưu theo tỷ lệ cũng là lý do khung bạn kéo trên bản xem trước rộng 600px ánh xạ chính xác lên ảnh gốc 6000px, thay vì lệch vài pixel như khi tính bằng pixel của bản xem trước rồi nhân lên ở bước cuối.
+
+## Ảnh chụp dọc bằng điện thoại có bị cắt nhầm phần không?
+
+Không. Máy ảnh điện thoại lưu khung ngang đúng như cảm biến đọc được, kèm một cờ ghi lại lúc chụp máy được cầm thế nào. Phần mềm bỏ qua cờ đó sẽ hiển thị ảnh chân dung nằm ngang — và tệ hơn với công cụ cắt: vùng bạn khoanh trên màn hình không trùng với vùng thật sự được lấy ra. Tool này áp cờ hướng ngay khi giải mã, nên pixel đưa vào canvas đã đúng chiều, và vùng bạn chọn chính là vùng bạn nhận. Đây là lỗi phổ biến nhất của các công cụ ảnh chạy trên trình duyệt, nên nó được kiểm tra bằng test chứ không phải chỉ tin là đúng.
+
+## Ảnh quá lớn thì có cắt được không?
+
+Được, nhưng có một trần thật. Canvas của trình duyệt bị giới hạn diện tích — Safari, trình chặt nhất, dừng ở khoảng 16.777.216 pixel tức 16,7 megapixel — và khi vượt qua, canvas trả về ảnh trắng trơn chứ không báo lỗi. Vì thế ảnh vượt trần được giải mã lại ở chiều rộng nhỏ hơn ngay từ bộ giải mã, rồi mới cắt trên bản đó; ảnh 24 MP mặc định của iPhone (5712×4284) rơi đúng vào diện này. Hệ quả cần biết: với những ảnh như vậy, phần cắt ra có số pixel ít hơn so với cắt từ file gốc bằng phần mềm máy tính. Kết quả ghi rõ kích thước gốc là bao nhiêu để bạn không bị bất ngờ.
+
+## Cắt hàng loạt nhiều ảnh cùng lúc được không, và vì sao không dùng app?
+
+Không cắt hàng loạt được, và đó là chủ ý: một khung cắt gắn với bố cục của đúng một tấm ảnh, áp cùng một khung cho cả tập ảnh chỉ cho ra một loạt ảnh bị cắt cụt sai chỗ. Nếu điều bạn cần là cùng một kích thước cho nhiều ảnh thì Đổi Cỡ Ảnh mới là công cụ đúng.
+
+So với các web cắt ảnh kiểu tải file lên, ở đây bạn không phải giao ảnh giấy tờ cho một máy chủ lạ rồi tin vào lời hứa "tự xoá sau 1 giờ". So với app điện thoại, bạn không phải cài gì, không phải cấp quyền đọc toàn bộ thư viện ảnh, và không bị dán watermark lên kết quả. Tool dùng pointer events nên kéo khung bằng chuột, trackpad, ngón tay hay bút cảm ứng đều được.

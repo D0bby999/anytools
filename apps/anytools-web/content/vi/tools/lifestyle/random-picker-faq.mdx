@@ -1,0 +1,27 @@
+---
+title: Random Picker — Xí ngầu, đồng xu, số, tên — Câu hỏi thường gặp
+---
+
+## Công cụ bốc ngẫu nhiên được những gì?
+
+Bốn kiểu. Đổ xí ngầu với số lượng viên và số mặt tùy chọn, kết quả hiện từng viên riêng rồi mới đến tổng — quan trọng với các trò chơi cần đọc từng con số chứ không chỉ tổng điểm. Tung đồng xu, ra sấp hoặc ngửa. Bốc một số nguyên trong khoảng bạn đặt. Và bốc một mục từ danh sách bạn dán vào, mỗi dòng một mục. Ở chế độ danh sách, tool cắt khoảng trắng thừa hai đầu mỗi dòng và bỏ qua các dòng trống, nên bạn dán thẳng từ Excel hay từ tin nhắn cũng không sao — nhưng hai dòng trùng tên vẫn được coi là hai mục riêng, tức là người đó có gấp đôi cơ hội trúng.
+
+## Khoảng số có lấy cả hai đầu mút không?
+
+Có, cả số nhỏ nhất lẫn số lớn nhất đều có thể ra. Đặt khoảng từ 1 đến 100 thì cả 1 lẫn 100 đều nằm trong tập kết quả, không bị hụt đầu nào — chi tiết này đáng để ý vì nhiều đoạn code tự viết hay quên cộng một và làm rơi mất giá trị lớn nhất. Nếu bạn nhập ngược, ví dụ số nhỏ nhất là 90 còn lớn nhất là 10, tool tự sắp lại trước khi bốc chứ không báo lỗi. Nói cách khác, thứ tự hai ô không quan trọng, chỉ có hai đầu mút là quan trọng.
+
+## Nguồn ngẫu nhiên lấy từ đâu, dùng cho mật khẩu được không?
+
+Từ bộ sinh số ngẫu nhiên có sẵn của trình duyệt, tức `Math.random` — một thuật toán giả ngẫu nhiên do trình duyệt tự gieo mầm. Nó thừa sức để chọn ai đi trước, bốc người rửa bát hay đổ xí ngầu cho một ván cờ tỷ phú. Nhưng tuyệt đối đừng dùng cho việc bảo mật. Bộ sinh loại này không được thiết kế để chống lại người cố đoán kết quả tiếp theo, nên không dùng nó để tạo mật khẩu, mã OTP, khóa hay bất cứ thứ gì cần không đoán được. Cho mật khẩu, hãy dùng công cụ tạo mật khẩu chuyên dụng — nó gọi bộ sinh ngẫu nhiên mã hóa của trình duyệt, khác hẳn về bản chất.
+
+## Bốc tên xong thì tên đó có bị loại khỏi danh sách không?
+
+Không. Mỗi lần bốc là một lần độc lập trên nguyên danh sách, nên cùng một tên có thể trúng liên tiếp hai ba lần. Muốn bốc kiểu không hoàn lại — chia đội, xếp thứ tự thuyết trình, rút thăm nhiều giải khác nhau — bạn phải tự xóa tên vừa trúng khỏi ô danh sách trước khi bấm lần tiếp theo. Cũng vì mỗi lần bốc độc lập nên đừng ngạc nhiên khi một con số lặp lại ngay: với xí ngầu sáu mặt, hai lần đổ trùng nhau xảy ra khoảng một lần trong sáu. Một bộ sinh cố tránh lặp lại sẽ kém ngẫu nhiên hơn chứ không ngẫu nhiên hơn.
+
+## Dùng để quay số trúng thưởng công khai có được không?
+
+Nên cân nhắc kỹ. Kết quả hiện lên rồi biến mất: không có nhật ký, không có mã hạt giống để công bố, không có cách nào để người ngoài kiểm chứng rằng lượt quay đã diễn ra đúng như bạn kể lại. Với một buổi bốc thăm trong nhóm bạn bè thì chẳng sao. Nhưng khi phần thưởng có giá trị và người tham gia là khách hàng hay người lạ, bạn cần một cách quay có bằng chứng — quay trực tiếp trên sóng, dùng dịch vụ có lưu biên bản, hoặc chí ít là ghi màn hình toàn bộ quá trình từ lúc dán danh sách. Sự minh bạch ở đây quan trọng hơn tính ngẫu nhiên.
+
+## Danh sách tên tôi dán vào có bị gửi đi đâu không?
+
+Không. Mọi thứ chạy trong trình duyệt của bạn: danh sách nằm trong bộ nhớ tab, phép bốc thực hiện tại chỗ, không có lời gọi mạng và không có gì được lưu lại sau khi bạn đóng trang. Điều này đáng nói vì danh sách bốc thăm thường chứa họ tên đầy đủ, đôi khi cả số điện thoại hay email của khách hàng đi kèm — dán những dữ liệu đó lên một trang web bất kỳ là chuyện nên nghĩ trước. Ở đây bạn không phải nghĩ: dữ liệu không rời khỏi máy bạn, và cũng vì thế nó biến mất hoàn toàn khi bạn tải lại trang.

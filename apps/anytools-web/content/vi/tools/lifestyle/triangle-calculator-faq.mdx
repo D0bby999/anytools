@@ -1,0 +1,27 @@
+---
+title: Calculator tam giác — Câu hỏi thường gặp
+---
+
+## Tính diện tích tam giác khi chỉ biết ba cạnh thì làm sao?
+
+Dùng công thức Heron, và đó chính là việc tool làm. Gọi `s` là nửa chu vi, diện tích bằng căn bậc hai của `s(s−a)(s−b)(s−c)`. Công thức này chỉ cần ba độ dài cạnh nên bạn không phải đi tìm đường cao — thứ mà trong bài toán thực tế như đo một mảnh đất hay cắt một tấm vật liệu thường không đo được trực tiếp. Nhập ba cạnh xong, ngoài diện tích bạn còn nhận luôn chu vi, số đo cả ba góc tính bằng độ, kết luận tam giác có vuông hay không, và phân loại đều, cân hay thường. Tool chỉ nhận trường hợp ba cạnh, vì đó là dữ kiện xác định tam giác duy nhất không gây nhập nhằng.
+
+## Ba góc được tìm bằng cách nào, có luôn cộng đủ 180 độ không?
+
+Hai góc đầu tính bằng định lý cosin viết ngược lại cho góc: mỗi góc là arc-cosin của `(b² + c² − a²) / 2bc`, rồi đổi từ radian sang độ. Góc thứ ba không tính lại bằng công thức mà lấy 180 trừ đi hai góc kia. Vì vậy câu trả lời là có, tổng ba góc luôn đúng 180 độ. Đây là lựa chọn có chủ đích: nếu tính độc lập cả ba, sai số làm tròn tích tụ có thể cho ra tổng kiểu 179.9999 và người dùng sẽ nghi ngờ kết quả. Đánh đổi là góc thứ ba gánh toàn bộ sai số của hai góc trước, tuy phần sai đó nhỏ hơn nhiều so với sai số phép đo ngoài đời.
+
+## Vì sao ba số tôi nhập bị từ chối?
+
+Vì chúng không tạo thành tam giác nào cả. Điều kiện là tổng hai cạnh bất kỳ phải lớn hơn cạnh còn lại, nên bộ ba 1, 2 và 5 vô nghiệm. Lưu ý code chặt hơn một chút so với cách nhiều người nhớ: trường hợp tổng hai cạnh bằng đúng cạnh thứ ba, ví dụ 2, 3 và 5, cũng bị loại, vì hình thu được là một đoạn thẳng bẹp có diện tích 0 chứ không phải tam giác. Cạnh bằng 0 hoặc âm cũng bị loại ngay. Thà từ chối còn hơn trả về một diện tích vô nghĩa mà bạn mang đi dùng tiếp.
+
+## Tool nhận biết tam giác vuông và tam giác cân thế nào?
+
+Không phải bằng cách so trực tiếp định lý Pythagore như nhiều người đoán. Sau khi có ba góc, code kiểm tra xem có góc nào lệch khỏi 90 độ dưới 0.01 độ hay không; đạt thì kết luận vuông. Dung sai này rất quan trọng: tam giác 3-4-5 vuông chính xác, nhưng cạnh lấy từ số đo thực tế hầu như không bao giờ cho phép tính chẵn, và một phép so bằng tuyệt đối sẽ gần như không bao giờ báo vuông. Ngược lại, phần phân loại đều hay cân lại so bằng chính xác giữa các cạnh, nên hai cạnh 3 và 3.0000001 bị xếp là tam giác thường. Tam giác có ba cạnh bằng nhau thoả cả hai định nghĩa và được báo là đều, tức kết luận cụ thể hơn.
+
+## Sao không dùng máy tính cầm tay hay Excel?
+
+Trên máy cầm tay, riêng công thức Heron đã phải bấm qua bốn phép trừ rồi mới nhân và khai căn, và bạn không nhìn thấy các bước trung gian nên sai một lần là phải làm lại từ đầu. Ba góc còn nặng hơn: mỗi góc là một biểu thức arc-cosin dài, chưa kể phải nhớ chuyển máy sang chế độ DEG nếu không muốn ra radian. Excel thì cần ít nhất năm ô công thức và hàm `DEGREES` bọc quanh `ACOS`, mà kiểm tra bất đẳng thức tam giác thì phải viết thêm `IF` — nếu quên, bảng tính trả về lỗi hoặc một con số sai mà không cảnh báo gì.
+
+## Số liệu tôi nhập có rời khỏi trình duyệt không?
+
+Không. Toàn bộ phần hình học chạy bằng JavaScript ngay trên máy bạn, không có lệnh gọi mạng nào khi bạn đổi độ dài cạnh. Không tài khoản, không lưu lịch sử, không thống kê nội dung nhập. Bạn có thể ngắt kết nối mạng rồi vẫn tính được, đó là cách tự kiểm chứng nhanh nhất. Với số đo của một bản vẽ kỹ thuật hay một mảnh đất, việc dữ liệu không rời máy là điều đáng quan tâm chứ không chỉ là câu chữ trấn an.

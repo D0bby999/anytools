@@ -1,0 +1,29 @@
+---
+title: Chuyển HEIC sang JPG — Câu hỏi thường gặp
+---
+
+## Vì sao ảnh .heic chụp bằng iPhone mở không được trên Windows và Android?
+
+HEIC là một container HEIF chứa ảnh nén bằng HEVC (H.265). Ở cùng mức nhìn, nó nhỏ chỉ khoảng một nửa JPEG, nên Apple đặt làm mặc định từ iOS 11. Cái giá phải trả là khả năng mở: HEVC vướng bằng sáng chế, nên Windows, Android và mọi trình duyệt hoặc không có bộ giải mã, hoặc giấu nó sau một gói cài thêm có khi phải trả tiền. File của bạn không hỏng — phần mềm đang mở nó chỉ đơn giản là không có bộ giải mã HEVC. Nếu muốn khỏi phải chuyển đổi về sau, iPhone quay lại JPEG được: vào Cài đặt → Camera → Định dạng → Tương thích nhất. Cách đó chỉ đổi ảnh chụp từ nay về sau, ảnh cũ trong máy vẫn là HEIC.
+
+## Chuyển heic sang jpg thì ảnh có bị tải lên máy chủ không?
+
+Không. Trang này nạp một bản libheif biên dịch sang WebAssembly, lấy từ chính tên miền của site chứ không phải từ CDN của bên thứ ba, rồi giải mã file ngay trong tab và mã hoá lại bằng bộ mã hoá JPEG hoặc PNG có sẵn của trình duyệt. Không có gì được gửi đi. Bạn có thể theo dõi tab Network, hoặc ngắt mạng sau khi trang đã tải xong và vẫn chuyển đổi được. Bộ giải mã nặng khoảng 1 MB và chỉ được tải về lần đầu bạn bấm chuyển, không tải lúc mở trang. Đây là điểm đáng cân nhắc với ảnh chụp CCCD, giấy tờ xe, hoá đơn hay ảnh riêng tư trong máy: file không bao giờ đi khỏi thiết bị.
+
+## Chuyển sang JPG thì mất những gì?
+
+Mất chi tiết, ít hay nhiều tuỳ ảnh. File HEIC vốn đã qua một lần nén mất dữ liệu; giải mã ra rồi mã hoá lại thành JPEG là lần thứ hai, với thuật toán khác, và mỗi lần lại vứt đi những thứ lần trước còn giữ. Ở mức chất lượng cao thì khó thấy, nhưng đó vẫn là bản sao của bản sao — ảnh quan trọng thì nên giữ lại file HEIC gốc.
+
+File JPG rất thường nặng hơn HEIC, đôi khi gấp đôi, đơn giản vì JPEG là codec kém hiệu quả hơn; đó là chuyện bình thường chứ không phải lỗi. Bản đồ độ sâu, gain map HDR, lịch sử chỉnh sửa và các khung ảnh chụp liên tiếp đều không theo sang được vì JPEG không có chỗ chứa. Hồ sơ màu cũng vậy: ảnh iPhone thường ở Display P3 rộng hơn sRGB, còn file xuất ra ở đây không gắn ICC profile, nên đỏ và xanh đậm có thể nhạt đi đôi chút.
+
+## Ảnh 24 megapixel có bị thu nhỏ khi chuyển không?
+
+Có, và đây là giới hạn thật cần biết. Canvas của trình duyệt bị chặn diện tích ở khoảng 16.777.216 pixel — tức 16,7 megapixel, mức của Safari, trình chặt nhất — và vượt qua thì canvas trả về ảnh trắng trơn chứ không báo lỗi. Ảnh mặc định 24 MP của iPhone (5712×4284) vượt trần đó. Thay vì từ chối, tool tính ra kích thước lớn nhất còn lọt trần, giữ nguyên tỷ lệ khung hình, và ghi rõ trong kết quả rằng ảnh đã được thu về bao nhiêu. Ảnh dưới trần thì không bị đụng tới một pixel nào. Ảnh chân dung cũng không bị nằm ngang: HEIF lưu xoay và lật thành thuộc tính `irot` với `imir`, và libheif áp cả hai ngay trong lúc giải mã.
+
+## Tool nhận những file nào?
+
+`.heic`, `.heif` và `.hif` — cách Canon gọi cùng một container. Quan trọng hơn: tool đọc hộp `ftyp` trong chính nội dung file để xác định, chứ không tin vào phần đuôi tên, vì Windows rất hay không khai báo MIME type nào cho những file này. AVIF bị từ chối ngay từ đầu: nó dùng cùng container nhưng codec AV1 mà bộ giải mã này không có, và trình duyệt vốn mở AVIF được nên công cụ Chuyển Đổi Định Dạng Ảnh lo phần đó. Khi một file chứa nhiều ảnh — Live Photo hay chuỗi chụp liên tiếp — bạn nhận khung ảnh chính, và tool ghi chú bên dưới kết quả rằng trong file còn ảnh khác.
+
+## Vì sao không dùng web chuyển đổi kiểu tải file lên, hay app trên điện thoại?
+
+Web chuyển đổi kiểu upload đòi bạn đẩy nguyên tấm ảnh lên máy chủ của họ, thường kèm một dòng điều khoản cho phép lưu tạm, và bạn không có cách nào kiểm chứng file đã bị xoá hay chưa — trong khi thứ người ta hay chuyển từ HEIC nhất lại chính là ảnh chụp giấy tờ để nộp hồ sơ trực tuyến. App chuyển đổi trên điện thoại thì phải cài, xin quyền đọc toàn bộ thư viện ảnh, hay chèn watermark và quảng cáo, và nhiều app cũng gửi ảnh lên server để xử lý. Ở đây bộ giải mã chạy trong tab của bạn, chuyển được cả một lô ảnh cùng lúc, tự đặt tên tránh trùng và gói lại thành một file zip.

@@ -1,0 +1,27 @@
+---
+title: Chuyển ảnh sang PDF — Câu hỏi thường gặp
+---
+
+## Ảnh của tôi có bị tải lên máy chủ không?
+
+Không. Từng ảnh được JavaScript giải mã và vẽ lại ngay trong tab trình duyệt này, rồi ghép thành tài liệu bằng thư viện `pdf-lib` và trả về dưới dạng blob URL do chính trình duyệt bạn tạo. Không request nào mang ảnh đi. Bạn tự kiểm chứng được: mở tab Network trong DevTools rồi tạo file PDF, sẽ không thấy lượt upload nào; hoặc ngắt mạng sau khi trang đã tải xong, tool vẫn chạy. Điều này quan trọng ở đây hơn hầu hết các phép chuyển đổi khác. Ảnh mà người ta hay gộp thành PDF là căn cước, bằng lái, hoá đơn, đơn thuốc, giấy tờ đã ký — đúng tập tài liệu bạn ít muốn để nằm trong hàng đợi xử lý của người lạ nhất, phía sau một chính sách xoá mà bạn không kiểm chứng được.
+
+## Tôi hay tìm "chuyển ảnh sang pdf online" — vì sao không nên dùng dịch vụ upload?
+
+Vì với thao tác này, việc upload không mua lại cho bạn thứ gì. Ghép ảnh thành PDF là việc trình duyệt làm được trọn vẹn tại chỗ, nên gửi file đi chỉ thêm rủi ro chứ không thêm năng lực: bản scan căn cước của bạn nằm lại trên đĩa của một bên thứ ba, trong log của họ, có thể cả trong bản backup, và bạn chỉ còn cách tin vào lời hứa xoá sau vài giờ. Ở đây không có bước tin tưởng nào vì không có gì để tin. Đổi lại, tốc độ và giới hạn phụ thuộc vào máy bạn: trên laptop đời mới thì nhanh hơn upload, trên điện thoại cũ với hai mươi tấm ảnh 48 megapixel thì chậm hơn.
+
+## Vì sao tool mã hoá lại một tấm ảnh vốn đã là JPEG?
+
+Vì đó là cách duy nhất để hướng ảnh ra đúng chiều, và đây là một đánh đổi sòng phẳng. Camera điện thoại gần như luôn ghi khung ngang thô của cảm biến rồi gắn thêm cờ EXIF nói "hãy hiển thị xoay lại". Phần mềm xem ảnh tôn trọng cờ đó. PDF thì không có khái niệm tương đương — nó chỉ lưu pixel và vị trí đặt. Nên nếu chép thẳng byte gốc của một tấm ảnh dọc vào tài liệu, trang sẽ ra nằm ngang. Đây là lỗi phổ biến nhất của các tool chuyển ảnh sang PDF, và cách sửa đáng tin duy nhất là giải mã ảnh kèm hướng rồi vẽ lại. Cái giá: JPEG bị mã hoá lại một lần ở chất lượng 0.92 — mắt thường không phân biệt được ở cỡ xem thường, nhưng không còn giống bản gốc từng byte. PNG mã hoá lại thành PNG, không mất mát. Chính việc vẽ lại này cũng là lý do WebP, GIF, AVIF và BMP được chấp nhận, dù bản thân PDF chỉ chở được JPEG và PNG.
+
+## Các lựa chọn khổ trang khác nhau thế nào?
+
+**A4** và **US Letter** cho mọi trang cùng một khổ chuẩn, mỗi ảnh được co vào trong lề và giữ nguyên tỷ lệ. Không có gì bị cắt xén, nên ảnh có hình dạng không khớp khổ giấy sẽ chừa hai dải trắng. Đặt hướng trang thành "theo từng ảnh" thì ảnh ngang được trang ngang, ảnh dọc được trang dọc, và hai dải đó thường rất nhỏ. **Khớp trang theo ảnh** cho mỗi trang một khổ riêng, không còn dải trắng nào, đổi lại các trang trong cùng file có thể khác kích thước. Quy đổi dùng 96 pixel mỗi inch — đúng đơn vị CSS pixel mà màn hình và trình duyệt đang đo ảnh — nên ảnh chụp màn hình 1920 x 1080 thành trang 1440 x 810 point. Ảnh lớn vì thế cho ra trang lớn về mặt vật lý; đó là hệ quả tất yếu của "không có dải trắng". Cần in ra giấy thường thì chọn A4 hoặc Letter. Đặt lề quá lớn khiến trang không còn chỗ sẽ bị từ chối kèm số lề tối đa hợp lệ.
+
+## Tuỳ chọn "giảm về 150 dpi" dùng khi nào?
+
+PDF lưu đúng số pixel bạn đưa vào. Một tấm ảnh 48 megapixel đặt lên trang A4 mang theo khoảng mười megabyte vào tài liệu, trong khi trang A4 in đẹp chỉ cần chừng 1.5 megapixel. Hai mươi trang như vậy tạo ra file quá nặng để gửi email và mở rất chậm. Bật tuỳ chọn này, mỗi ảnh được giảm sao cho rơi vào khoảng 150 dpi tại đúng kích thước nó sẽ được in — chất lượng in vẫn tốt, nhìn trên màn hình không thấy khác biệt. Ảnh vốn đã nhỏ hơn mức đó thì không bao giờ bị phóng to lên. Tắt nó khi bạn cần độ phân giải đầy đủ, ví dụ khi PDF là bản lưu trữ của một bản scan. Tuỳ chọn này không áp dụng khi trang được khớp theo ảnh, vì ở chế độ đó thu nhỏ ảnh chỉ làm trang nhỏ theo chứ không đổi gì.
+
+## Có giới hạn về số lượng hay dung lượng không?
+
+Không có giới hạn do tool áp đặt, vì không có bước upload nào để giới hạn. Ràng buộc thật là bộ nhớ máy bạn, và tool cố ý giải mã từng ảnh một chứ không giải mã song song, đúng để một lô ảnh lớn không cấp phát vài gigabyte bộ đệm pixel cùng lúc và làm chết tab. File trên 100 MB có cảnh báo nhưng vẫn được thử. Riêng ảnh vượt quá khoảng 16.7 megapixel bị từ chối kèm thông báo nêu rõ kích thước — đây là giới hạn của trình duyệt chứ không phải của tool: Safari trả về canvas trắng trơn thay vì báo lỗi khi vượt ngưỡng đó, nên từ chối là cách duy nhất để không trao cho bạn một trang trắng mà bạn chỉ phát hiện sau khi in.
