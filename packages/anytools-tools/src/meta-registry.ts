@@ -11,6 +11,7 @@ import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
 import { meta as bcryptGenerator } from './bcrypt-generator/meta';
 import { meta as binaryEncode } from './binary-encode/meta';
+import { meta as bip39Mnemonic } from './bip39-mnemonic/meta';
 import { meta as bmiCalculator } from './bmi-calculator/meta';
 import { meta as bmrCalculator } from './bmr-calculator/meta';
 import { meta as bodyFatCalculator } from './body-fat-calculator/meta';
@@ -61,6 +62,7 @@ import { meta as jsonFormatter } from './json-formatter/meta';
 import { meta as jsonSchemaValidator } from './json-schema-validator/meta';
 import { meta as jsonYamlToml } from './json-yaml-toml/meta';
 import { meta as jwtDecoder } from './jwt-decoder/meta';
+import { meta as jwtSignVerify } from './jwt-sign-verify/meta';
 import { meta as loanCalculator } from './loan-calculator/meta';
 import { meta as loremIpsumGenerator } from './lorem-ipsum-generator/meta';
 import { meta as mdHtml } from './md-html/meta';
@@ -127,6 +129,7 @@ import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as whiteboard } from './whiteboard/meta';
 import { meta as wordCounter } from './word-counter/meta';
+import { meta as x509CertificateDecoder } from './x509-certificate-decoder/meta';
 import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
 import { meta as yamlFormatter } from './yaml-formatter/meta';
@@ -273,6 +276,10 @@ export const toolMetas: ToolMeta[] = [
   jsonSchemaValidator,
   protobufDecoder,
   msgpackDecoder,
+  // Phase 5 (batch-ab, 260906) — crypto tools built on pinned jose/@peculiar/x509/bip39
+  jwtSignVerify,
+  x509CertificateDecoder,
+  bip39Mnemonic,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

@@ -1,0 +1,35 @@
+---
+title: X.509 Certificate Decoder — FAQ
+---
+
+## What's the difference between a certificate and a private key, and which can I paste here?
+
+A certificate (what this tool reads) is the *public* half of a key pair plus a signed statement from a certificate authority: "this public key belongs to this subject, valid from this date to that date." A private key is the secret half that never leaves the server and is never meant to be pasted into any web tool, this one included. If what you have starts with `-----BEGIN CERTIFICATE-----`, it's safe to inspect here. If it starts with `-----BEGIN PRIVATE KEY-----` or `-----BEGIN RSA PRIVATE KEY-----`, stop — that file should stay on the server it belongs to.
+
+## Why does the tool say a certificate is "self-signed" — is that always bad?
+
+Self-signed means the certificate's issuer field is identical to its subject field, and the signature was produced by the certificate's own private key rather than a separate certificate authority's. That is completely normal and expected for a root CA certificate (the top of every trust chain has to be self-signed by definition) and for internal/development certificates you generate yourself. It is a red flag only in one specific context: if a browser is showing a security warning for a public-facing website and the certificate it received is self-signed, that means no recognized CA vouched for it, and the connection has no third party confirming the server is who it claims to be.
+
+## The tool shows a certificate chain "in order" — what order is that, and does order matter?
+
+The tool parses every `-----BEGIN CERTIFICATE-----` block in the file in the exact order it appears in the file, and shows them the same way, numbered "Certificate 1 of N", "Certificate 2 of N", and so on — it does not sort or reassemble anything by issuer/subject relationships. Order absolutely matters for how a real TLS chain is meant to be assembled: the standard convention (and what most servers expect when you concatenate a "fullchain.pem") is leaf certificate first, then each intermediate, ending with — or just before — the root. If your file was built in a different order, this tool will faithfully show you that different order rather than silently correcting it, which is useful for spotting a misassembled chain in the first place.
+
+## Why do I see both a SHA-1 and a SHA-256 fingerprint — which one should I use?
+
+A fingerprint is a hash of the certificate's raw DER bytes, used to identify one exact certificate the way a file checksum identifies one exact file — two certificates with the same fingerprint are byte-for-byte identical, and the tiniest difference (even a re-issued certificate with the same subject) produces a completely different fingerprint. SHA-1 fingerprints are still shown because a lot of older tooling, documentation, and certificate pinning configurations reference them, but SHA-1 is cryptographically broken for purposes that need collision resistance and should not be relied on for anything security-critical going forward. SHA-256 is the one to use for matching against modern tooling, certificate transparency logs, or pinning configuration — treat the SHA-1 value as a legacy compatibility field only.
+
+## What do Key Usage and Extended Key Usage actually restrict?
+
+Key Usage is a bitmask baked into the certificate by whoever issued it, declaring which cryptographic operations the key is *allowed* to perform — for example "Digital Signature" and "Key Encipherment" for a typical TLS server certificate, or "Certificate Signing" and "CRL Signing" for a CA certificate. Extended Key Usage narrows the *purpose* further with specific OIDs like "TLS Server Authentication" or "Code Signing." These aren't suggestions: a correctly implemented TLS client will refuse to accept a certificate for server authentication if it lacks the `serverAuth` extended key usage, even if every other field looks fine. If you generated a certificate yourself and a client application rejects it for a use case you expected to work, checking these two fields first is usually faster than re-reading the client's error message.
+
+## Why does "days remaining" not match what I calculated by hand?
+
+The count is calculated from the moment you ran the decode, using the certificate's `notAfter` field, in whatever timezone your browser reports for `Date` objects — normally your local timezone, not UTC. A certificate that expires at `2026-09-06T00:00:00Z` and a viewer in a timezone ahead of UTC will see a slightly different "days remaining" than someone in a timezone behind UTC, purely because midnight UTC has already passed locally for one of them. For anything where an exact cutover second matters (an automated renewal script, for instance), always compare against the raw `notAfter` timestamp in UTC rather than a rounded day count from any tool, this one included.
+
+## Does the tool validate the certificate against a trusted root, like a browser does?
+
+No — and that is a meaningfully different job than what this tool does. A browser's certificate validation walks the entire chain up to a root it already trusts, checks revocation status (via OCSP or CRL), confirms every intermediate's Basic Constraints and Key Usage permit issuing the certificate below it, and rejects the connection if any link is missing, expired, or revoked. This tool only decodes and displays the fields of whatever certificate or chain you give it — it has no list of trusted roots, makes no network requests to check revocation, and does not attempt path validation. Use it to read what a certificate says about itself, not as a substitute for `openssl verify` or a real TLS client's validation logic.
+
+## Can I check a certificate for a domain I don't control, just by pasting its PEM?
+
+Yes, as long as you already have the PEM or DER file in hand — this tool has no way to fetch a certificate from a live server itself, since doing so would mean the tool making an outbound network connection on your behalf, which conflicts with the "nothing leaves your browser" model every tool on this site follows. To get a server's certificate first, use `openssl s_client -connect example.com:443 -showcerts` from a terminal, or your browser's own certificate viewer (usually behind the padlock icon in the address bar), then paste the resulting PEM block here.

@@ -130,7 +130,10 @@
     "./pdf-password": "./src/pdf-password/index.ts",
     "./json-schema-validator": "./src/json-schema-validator/index.ts",
     "./protobuf-decoder": "./src/protobuf-decoder/index.ts",
-    "./msgpack-decoder": "./src/msgpack-decoder/index.ts"
+    "./msgpack-decoder": "./src/msgpack-decoder/index.ts",
+    "./jwt-sign-verify": "./src/jwt-sign-verify/index.ts",
+    "./x509-certificate-decoder": "./src/x509-certificate-decoder/index.ts",
+    "./bip39-mnemonic": "./src/bip39-mnemonic/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
