@@ -64,18 +64,19 @@
   // manifest file and fails the moment it drifts from the hash recorded below — that failure
   // IS the reminder.
   const VENDOR_CACHE_VERSION = 2;
-  // 2026-09-06/07 (batch-ab): jq, sqljs and jsquash flipped from "pending" to staged — real
+  // 2026-09-06/07 (batch-ab): jq, sqljs, jsquash and harfbuzz flipped from "pending" to staged — real
   // bytes land under /third-party/{jq,sqljs,jsquash}/ for the first time, so a returning
   // visitor's browser must not keep whatever (nonexistent) response it had cached for those
-  // URLs. ONE bump covers all three: none of those prefixes had ever shipped content at any
-  // earlier version, so there is nothing per-key to invalidate separately. vtracer and harfbuzz
-  // stay "pending" and did not move.
+  // URLs. ONE bump covers all four: none of those prefixes had ever shipped content at any
+  // earlier version, so there is nothing per-key to invalidate separately. vtracer
+  // stays "pending" and did not move: image-to-svg was dropped, because vtracer 1.0.0-alpha.4
+  // ships only a wasm-pack nodejs build that readFileSync's its own .wasm at load time.
   //
   // Corrected before ship: sql.js resolves to dist/sql-wasm-browser.js under webpack's "browser"
   // export condition — not dist/sql-wasm.js, which is what Node's `require.resolve` picks and
   // what the first probe of this manifest staged. Every Node test passed while the browser build
   // requested a file this site never staged and 404'd. Re-staged as sql-wasm-browser.wasm.
-  const VENDOR_MANIFEST_SHA256 = '181aa2e0d98ead346bbbb6de6efe521b32765bd8cc6e86209fd2c0863046873a';
+  const VENDOR_MANIFEST_SHA256 = '5207c9cf594264f0d04840ee36ab93890a1282600d016c9640b57bc127b1e37c';
 
   const CACHE_NAMES = {
     STATIC: 'at-static-v1',
