@@ -68,6 +68,7 @@ import { meta as mergePdf } from './merge-pdf/meta';
 import { meta as metaTagGenerator } from './meta-tag-generator/meta';
 import { meta as mockDataGenerator } from './mock-data-generator/meta';
 import { meta as mortgageCalculator } from './mortgage-calculator/meta';
+import { meta as msgpackDecoder } from './msgpack-decoder/meta';
 import { meta as ocrImageToText } from './ocr-image-to-text/meta';
 import { meta as ocrPdf } from './ocr-pdf/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
@@ -268,6 +269,7 @@ export const toolMetas: ToolMeta[] = [
   // Phase 6 (batch-ab, 260906) — data format tools
   jsonSchemaValidator,
   protobufDecoder,
+  msgpackDecoder,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
