@@ -18,7 +18,7 @@ describe('pdf-password against plain pdf-lib', () => {
     const locked = await lockPdf(source(), {
       userPassword: 'secret',
       ownerPassword: 'owner',
-      permissions: {},
+      permissions: { printing: true, copying: false, modifying: false, annotating: false },
     });
     const lockedBytes = new Uint8Array(await locked.blob.arrayBuffer());
     expect(Buffer.from(lockedBytes).includes(Buffer.from('/Encrypt'))).toBe(true);
