@@ -27,6 +27,10 @@ const AD_ANALYTICS_SCRIPT_HOSTS = [
   'https://*.adtrafficquality.google',
   'https://fundingchoicesmessages.google.com',
   'https://stats.besttoys.world',
+  // Cloudflare Web Analytics beacon. Not in the app's own code: the Cloudflare proxy
+  // injects it into the HTML, so it appears only on the hosted site and only became
+  // visible once real violations were collected (2026-09-06).
+  'https://static.cloudflareinsights.com',
 ];
 const AD_ANALYTICS_CONNECT_HOSTS = [
   'https://pagead2.googlesyndication.com',
@@ -41,7 +45,21 @@ const AD_ANALYTICS_FRAME_HOSTS = [
   'https://tpc.googlesyndication.com',
   'https://*.safeframe.googlesyndication.com',
   'https://*.adtrafficquality.google',
+  // AdSense frames an interstitial from the bare google.com host; measured on every
+  // ad-bearing page, not just one (2026-09-06).
+  'https://www.google.com',
 ];
+// Deliberately no CDN host for Excalidraw fonts, despite /design/whiteboard producing 230
+// font-src reports. Measured 2026-09-06 before widening anything: across four fresh page
+// loads the browser made ZERO font requests to that CDN and zero to our own copy, while
+// reporting 230 violations every time. The reports come from FontFace construction, not
+// from fetching — Excalidraw bakes a CDN fallback into each FontFace's source list, and the
+// browser CSP-checks every source when the object is built. `window.EXCALIDRAW_ASSET_PATH`
+// is set correctly (whiteboard/ui.tsx), so the first source is our own origin and the
+// fallback is never reached.
+// Enforcing therefore drops the fallback entry instead of breaking the tool, which is the
+// behaviour this site promises. vendor-assets.test.ts also greps this file for CDN
+// hostnames precisely to stop one being written here.
 // Appends a leading space + the host list when hosted, or nothing at all in
 // self-host — string-identical to the old hard-coded directive when hosted.
 const adHostSuffix = (hosts: string[]) => (IS_SELF_HOSTED ? '' : ` ${hosts.join(' ')}`);
@@ -93,19 +111,31 @@ const nextConfig: NextConfig = {
       // Filtered out below (rather than made conditional on scheme, which this
       // function has no way to know at build time).
       { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
-      // Report-only to start. The PDF tools parse attacker-supplied files with pdf.js,
-      // which has a documented class of arbitrary-JS-execution bugs through the font
-      // path (CVE-2024-4367 and successors), and better-auth keeps a 30-day session
-      // cookie on this same origin. Until now there was no CSP at all.
+      // ENFORCING since 2026-09-06. The PDF tools parse attacker-supplied files with
+      // pdf.js, which has a documented class of arbitrary-JS-execution bugs through the
+      // font path (CVE-2024-4367 and successors), and better-auth keeps a 30-day session
+      // cookie on this same origin — report-only bought nothing against either.
       //
-      // Report-only rather than enforcing because AdSense loads a chain of scripts
-      // whose hosts are not fully enumerable in advance, and an over-tight policy would
-      // silently kill the site's only revenue. Collect violations first, then enforce.
-      // The value below is deliberately permissive about Google's ad hosts and strict
-      // about everything else.
+      // The policy shipped report-only first because AdSense loads a chain of scripts
+      // whose hosts are not enumerable in advance, and an over-tight policy would
+      // silently kill the site's only revenue. That collection step is now done, but not
+      // from server logs: at ~16 visitors / 90 days, waiting for organic reports would
+      // have taken weeks, so a headless Chrome walked 15 pages and ran the merge-pdf,
+      // regex-worker and OCR paths on production while recording every
+      // `securitypolicyviolation` event. Exactly three distinct violations existed:
+      //
+      //   230x  font-src         <a public CDN>              (Excalidraw FontFace fallback)
+      //     1x  frame-src        https://www.google.com      (AdSense interstitial)
+      //     1x  script-src-elem  https://static.cloudflareinsights.com
+      //
+      // The last two are now allowed. The first is deliberately NOT — see the note above
+      // EXCALIDRAW's font handling: those reports come from FontFace construction, not from
+      // a fetch, and enforcing simply drops a fallback the tool never uses. Nothing else in
+      // the app tripped the policy, and the browser reported no non-CSP console errors
+      // during the same walk. `report-uri` stays so a regression still surfaces.
       { key: 'Reporting-Endpoints', value: 'csp="/api/csp-report"' },
       {
-        key: 'Content-Security-Policy-Report-Only',
+        key: 'Content-Security-Policy',
         value: [
           "default-src 'self'",
           // 'unsafe-inline'/'unsafe-eval' are required by Next's inline bootstrap and by

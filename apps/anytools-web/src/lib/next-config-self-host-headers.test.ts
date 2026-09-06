@@ -59,9 +59,27 @@ describe('next.config headers() — CSP ad/analytics hosts gated by NEXT_PUBLIC_
     'stats.besttoys.world',
   ];
 
+  it('ships enforcing, not report-only', async () => {
+    // The policy ran report-only from its introduction until 2026-09-06, when a browser
+    // walk of production established that only three hosts ever tripped it. Asserted
+    // explicitly because the difference between the two header names is the difference
+    // between a policy and a diary, and it is one word.
+    for (const selfHosted of [false, true]) {
+      const headers = await headersOf(selfHosted);
+      expect(headers.some((h) => h.key === 'Content-Security-Policy')).toBe(true);
+      expect(headers.some((h) => h.key === 'Content-Security-Policy-Report-Only')).toBe(false);
+    }
+  });
+
   it('hosted (flag off): CSP allowlists every ad/analytics host', async () => {
     const headers = await headersOf(false);
-    const csp = headers.find((h) => h.key === 'Content-Security-Policy-Report-Only')?.value ?? '';
+    const csp = headers.find((h) => h.key === 'Content-Security-Policy')?.value ?? '';
+    // Present since 2026-09-06: AdSense frames an interstitial from the bare google.com
+    // host, and the Cloudflare proxy injects its own analytics beacon into the HTML.
+    expect(csp).toContain('https://www.google.com');
+    expect(csp).toContain('https://static.cloudflareinsights.com');
+    // The whiteboard's font CDN fallback is deliberately absent — see next.config.ts.
+    expect(csp).toContain("font-src 'self' data:");
     for (const host of AD_ANALYTICS_HOSTS) {
       expect(csp).toContain(host);
     }
@@ -74,7 +92,7 @@ describe('next.config headers() — CSP ad/analytics hosts gated by NEXT_PUBLIC_
 
   it('self-host (flag on): CSP contains none of the ad/analytics hosts', async () => {
     const headers = await headersOf(true);
-    const csp = headers.find((h) => h.key === 'Content-Security-Policy-Report-Only')?.value ?? '';
+    const csp = headers.find((h) => h.key === 'Content-Security-Policy')?.value ?? '';
     for (const host of AD_ANALYTICS_HOSTS) {
       expect(csp).not.toContain(host);
     }
