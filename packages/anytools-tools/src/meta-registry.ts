@@ -76,6 +76,7 @@ import { meta as pdfToPng } from './pdf-to-png/meta';
 import { meta as percentageCalculator } from './percentage-calculator/meta';
 import { meta as pomodoroTimer } from './pomodoro-timer/meta';
 import { meta as pregnancyDueDate } from './pregnancy-due-date/meta';
+import { meta as protobufDecoder } from './protobuf-decoder/meta';
 import { meta as qrBarcodeScanner } from './qr-barcode-scanner/meta';
 import { meta as qrCodeGenerator } from './qr-code-generator/meta';
 import { meta as randomPicker } from './random-picker/meta';
@@ -266,6 +267,7 @@ export const toolMetas: ToolMeta[] = [
   imageToBase64,
   // Phase 6 (batch-ab, 260906) — data format tools
   jsonSchemaValidator,
+  protobufDecoder,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

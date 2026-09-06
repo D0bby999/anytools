@@ -127,7 +127,8 @@
     "./rotate-image": "./src/rotate-image/index.ts",
     "./watermark-image": "./src/watermark-image/index.ts",
     "./image-to-base64": "./src/image-to-base64/index.ts",
-    "./json-schema-validator": "./src/json-schema-validator/index.ts"
+    "./json-schema-validator": "./src/json-schema-validator/index.ts",
+    "./protobuf-decoder": "./src/protobuf-decoder/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

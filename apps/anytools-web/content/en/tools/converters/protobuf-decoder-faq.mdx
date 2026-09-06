@@ -1,0 +1,27 @@
+---
+title: Protobuf Decoder — FAQ
+---
+
+## Why does the blind mode show several guesses for the same field instead of one answer?
+
+Because the wire format genuinely cannot tell you. Protocol Buffers has only four wire types on the byte level — varint, 64-bit, length-delimited, 32-bit — and each one covers several Protobuf field types at once. A length-delimited value (wire type 2) is the encoding for `string`, `bytes`, and any embedded message, and there is nothing in the bytes themselves that says which one the author intended; a varint (wire type 0) is shared by `int32`, `int64`, `uint32`, `uint64`, `sint32`, `sint64`, `bool`, and every `enum`. Without the `.proto` that declared the field, this tool shows every plausible reading side by side — raw unsigned value, two's-complement signed value, zigzag-decoded value, UTF-8 string if the bytes happen to be valid UTF-8, nested-message breakdown if the bytes happen to parse as one — and leaves picking the right one to you.
+
+## A length-delimited field decoded as both a string AND a nested message. Which is real?
+
+Whichever the schema says. Short binary blobs are ambiguous by construction: two bytes like `0x08 0x0A` are simultaneously a valid single-field submessage (field 1 = 10) and two valid UTF-8 control characters. If you know or can guess the `.proto`, switch to the "With .proto" mode and decode against the real message definition — it resolves every one of these ambiguities in one pass, since the schema pins down each field's declared type.
+
+## Why do I need to also give a message type, not just a `.proto` file?
+
+A single `.proto` file commonly declares more than one `message`, and a raw payload carries no type name on the wire — Protobuf deliberately omits that to stay compact, unlike JSON where the shape is visible in the text itself. The dropdown lists every message the parsed `.proto` declares, nested ones included with their dotted path (`Outer.Inner`), so you pick the one the bytes were actually encoded from.
+
+## The decoder rejected my payload as invalid wire format. Is my `.proto` wrong?
+
+Blind mode doesn't look at any `.proto` — it only reads raw bytes as generic wire format, so a rejection there means the bytes themselves don't parse as *any* valid Protobuf message: a field number of zero, a truncated varint, a length prefix that claims more bytes than are actually present, or the long-deprecated "group" wire type (3/4), which this decoder does not implement since it was removed from proto3 and is essentially unseen in modern payloads. If you're in schema mode and get a decode error instead, that's a different failure — it means the bytes don't match the specific message type you picked, which can also happen with perfectly valid Protobuf bytes decoded against the wrong message.
+
+## Is there a limit on how deep nested messages can go?
+
+Yes, eight levels in blind mode. Protobuf itself has no nesting limit, but a browser tab does — recursively guessing "is this length-delimited value secretly another message" without a cap is exactly the kind of input a hostile payload can exploit to blow the call stack or freeze the tab. Past eight levels the tool still shows the raw bytes at that depth; it just stops guessing whether they're a message too. Real-world Protobuf schemas essentially never nest that deep.
+
+## Can I paste a `.proto` with imports?
+
+The `import "other.proto";` line itself parses fine — this tool doesn't fetch anything over the network, so it's simply not resolved to a second file. Whether that matters depends on what you decode: a message that doesn't actually reference a type from the missing import decodes normally. One that does (a field typed `other.Bar`) will fail at decode time with an error naming the missing type, since there is no second file to pull `Bar`'s definition from. Inline everything the message you want to decode actually depends on into the one file you paste.

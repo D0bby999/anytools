@@ -177,6 +177,7 @@ const LOADERS: Record<string, ComponentType> = {
   'json-schema-validator': dynamic(() =>
     import('@anytools/tools/json-schema-validator').then(pick),
   ),
+  'protobuf-decoder': dynamic(() => import('@anytools/tools/protobuf-decoder').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
