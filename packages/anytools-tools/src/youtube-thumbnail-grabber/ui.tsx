@@ -17,7 +17,7 @@ import {
   THUMBNAIL_ORDER,
   THUMBNAIL_SIZES,
   type ThumbnailKey,
-  fetchThumbnailBlob,
+  downloadThumbnail,
   parseYouTubeId,
   thumbnailUrl,
 } from './logic';
@@ -94,7 +94,7 @@ function ThumbnailPanel({ videoId }: { videoId: string }) {
     setDownloadingKey(key);
     setDownloadNote(null);
     try {
-      const blob = await fetchThumbnailBlob(url);
+      const blob = await downloadThumbnail(url);
       const objectUrl = objectUrls.create(blob);
       const a = document.createElement('a');
       a.href = objectUrl;
@@ -102,10 +102,9 @@ function ThumbnailPanel({ videoId }: { videoId: string }) {
       a.click();
       countRun();
     } catch (e) {
-      // Fetch failed for a reason other than "this size doesn't exist" (offline, an extension
-      // or the site's own Content-Security-Policy blocking the cross-origin request) — the
-      // image itself is still reachable as a normal navigation, so fall back to opening it
-      // directly rather than leaving the user with nothing.
+      // The canvas route failed — the CDN was unreachable, the browser refused a canvas, or
+      // an extension stripped the CORS header and tainted it. The image is still reachable as
+      // a plain navigation, so open it rather than leaving the user with nothing.
       setDownloadNote(toolErrorText(e, s, s.downloadFailedNote));
       window.open(url, '_blank', 'noopener,noreferrer');
     } finally {

@@ -8,8 +8,12 @@
  * be false here.
  *
  * Verified against the real CDN on 2026-09-06 (see phase report for the raw requests):
- * - i.ytimg.com sends `Access-Control-Allow-Origin: *`, so `fetch()` for the download button
- *   works cross-origin without a proxy.
+ * - i.ytimg.com sends `Access-Control-Allow-Origin: *`. That is NOT enough for `fetch()` here:
+ *   this app's own CSP is `connect-src 'self'`, so a cross-origin fetch is refused by the page
+ *   before the CDN is ever asked, and the download button could only ever fall back to opening
+ *   a tab. `img-src` is `'self' data: blob: https:`, so the image itself is allowed to load —
+ *   downloadThumbnail() therefore goes through <img crossOrigin="anonymous"> + canvas.toBlob(),
+ *   which the open CORS header keeps un-tainted. No CSP change was made for this tool.
  * - A missing maxresdefault answers HTTP 404 — BUT the response body is still a decodable
  *   120×90 grey-placeholder JPEG (`content-type: image/jpeg`, confirmed via curl + `sips` on
  *   both a garbage id and a real video old enough to lack every size above mqdefault). A plain
@@ -78,23 +82,49 @@ export function parseYouTubeId(input: string): string | null {
 }
 
 /**
- * Downloads a thumbnail as a Blob for a real file save. i.ytimg.com's open CORS policy (see
- * file header) means this works directly; the caller still needs a fallback for the rare case
- * fetch itself fails (offline, an extension blocking the request) — see ui.tsx.
+ * Reads a thumbnail into a Blob so the browser can save a real file.
+ *
+ * Goes through an <img> rather than fetch() on purpose — see the CSP note in the file header.
+ * `crossOrigin="anonymous"` plus the CDN's `Access-Control-Allow-Origin: *` keeps the canvas
+ * un-tainted, which is what makes toBlob() legal here; without the attribute the draw succeeds
+ * and toBlob() throws a SecurityError instead.
  */
-export async function fetchThumbnailBlob(url: string): Promise<Blob> {
-  let response: Response;
-  try {
-    response = await fetch(url);
-  } catch {
-    throw new ToolError('networkFailed', "Could not reach YouTube's image server.");
-  }
-  if (!response.ok) {
-    throw new ToolError(
-      'thumbnailMissing',
-      `YouTube returned ${response.status} for this thumbnail size — it may not exist for this video.`,
-      { status: response.status },
-    );
-  }
-  return response.blob();
+export function downloadThumbnail(url: string): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onerror = () =>
+      reject(new ToolError('networkFailed', "Could not reach YouTube's image server."));
+    img.onload = () => {
+      // Same placeholder trap as the preview: a missing size answers 404 with a decodable
+      // 120x90 grey JPEG, so a successful load is not proof the size exists.
+      if (img.naturalWidth <= 120 && img.naturalHeight <= 90) {
+        reject(
+          new ToolError(
+            'thumbnailMissing',
+            'YouTube has no image at this size for this video — it returned the grey placeholder.',
+          ),
+        );
+        return;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new ToolError('networkFailed', 'This browser refused to open a canvas.'));
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob(
+        (blob) =>
+          blob
+            ? resolve(blob)
+            : reject(new ToolError('networkFailed', 'The image could not be re-encoded.')),
+        'image/jpeg',
+        0.95,
+      );
+    };
+    img.src = url;
+  });
 }

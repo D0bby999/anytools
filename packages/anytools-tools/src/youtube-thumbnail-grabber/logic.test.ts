@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchThumbnailBlob, parseYouTubeId, thumbnailUrl } from './logic';
+import { downloadThumbnail, parseYouTubeId, thumbnailUrl } from './logic';
 
 const ID = 'dQw4w9WgXcQ';
 
@@ -61,36 +61,42 @@ describe('thumbnailUrl', () => {
   });
 });
 
-describe('fetchThumbnailBlob', () => {
-  afterEach(() => {
+describe('downloadThumbnail', () => {
+  // The blob path needs Image + canvas.toBlob, which happy-dom does not implement; it is
+  // covered by the browser lane instead (see the phase file's Verify section). What is worth
+  // asserting here is the decision the function makes BEFORE touching a canvas: a decoded
+  // 120x90 image is YouTube's grey placeholder, not a thumbnail, and must be rejected.
+  it('rejects the 120x90 placeholder YouTube serves for a missing size', async () => {
+    class FakeImage {
+      crossOrigin = '';
+      naturalWidth = 120;
+      naturalHeight = 90;
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(_v: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    vi.stubGlobal('Image', FakeImage);
+    await expect(downloadThumbnail('https://i.ytimg.com/vi/x/maxresdefault.jpg')).rejects.toThrow(
+      /placeholder/i,
+    );
     vi.unstubAllGlobals();
   });
 
-  it('resolves with the blob on a 200 response', async () => {
-    const blob = new Blob(['fake-jpeg-bytes']);
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: true, status: 200, blob: async () => blob }),
+  it('rejects when the CDN cannot be reached at all', async () => {
+    class FailingImage {
+      crossOrigin = '';
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(_v: string) {
+        queueMicrotask(() => this.onerror?.());
+      }
+    }
+    vi.stubGlobal('Image', FailingImage);
+    await expect(downloadThumbnail('https://i.ytimg.com/vi/x/maxresdefault.jpg')).rejects.toThrow(
+      /image server/i,
     );
-    await expect(fetchThumbnailBlob('https://i.ytimg.com/vi/x/maxresdefault.jpg')).resolves.toBe(
-      blob,
-    );
-  });
-
-  it('throws a ToolError with the status on a non-ok response (e.g. missing maxresdefault)', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: false, status: 404, blob: async () => new Blob() }),
-    );
-    await expect(fetchThumbnailBlob('https://i.ytimg.com/vi/x/maxresdefault.jpg')).rejects.toThrow(
-      'YouTube returned 404',
-    );
-  });
-
-  it('throws a ToolError when the network request itself fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
-    await expect(fetchThumbnailBlob('https://i.ytimg.com/vi/x/maxresdefault.jpg')).rejects.toThrow(
-      "Could not reach YouTube's image server.",
-    );
+    vi.unstubAllGlobals();
   });
 });
