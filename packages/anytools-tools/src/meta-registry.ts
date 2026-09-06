@@ -28,6 +28,7 @@ import { meta as cropImage } from './crop-image/meta';
 import { meta as cssBeautifier } from './css-beautifier/meta';
 import { meta as cssGradientGenerator } from './css-gradient-generator/meta';
 import { meta as csvJson } from './csv-json/meta';
+import { meta as cubicBezierGenerator } from './cubic-bezier-generator/meta';
 import { meta as curlConverter } from './curl-converter/meta';
 import { meta as currencyConverter } from './currency-converter/meta';
 import { meta as dateDiff } from './date-diff/meta';
@@ -232,6 +233,8 @@ export const toolMetas: ToolMeta[] = [
   whiteboard,
   // Segmentation model in the browser (260903)
   removeBackground,
+  // Design + time-date + image, 0-dependency batch (260906)
+  cubicBezierGenerator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

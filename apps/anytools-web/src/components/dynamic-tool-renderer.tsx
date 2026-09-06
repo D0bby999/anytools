@@ -147,6 +147,10 @@ const LOADERS: Record<string, ComponentType> = {
   // Segmentation model in the browser (260903). ssr:false is not needed — the module touches no
   // browser global at import time; onnxruntime-web is imported inside the run path only.
   'remove-background': dynamic(() => import('@anytools/tools/remove-background').then(pick)),
+  // Design + time-date + image, 0-dependency batch (260906).
+  'cubic-bezier-generator': dynamic(() =>
+    import('@anytools/tools/cubic-bezier-generator').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
