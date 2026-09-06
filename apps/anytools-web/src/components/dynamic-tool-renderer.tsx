@@ -173,6 +173,8 @@ const LOADERS: Record<string, ComponentType> = {
   'rotate-image': dynamic(() => import('@anytools/tools/rotate-image').then(pick)),
   'watermark-image': dynamic(() => import('@anytools/tools/watermark-image').then(pick)),
   'image-to-base64': dynamic(() => import('@anytools/tools/image-to-base64').then(pick)),
+  // Phase 5 (batch-ab, 260906) — crypto tools built on pinned jose/@peculiar/x509/bip39
+  'jwt-sign-verify': dynamic(() => import('@anytools/tools/jwt-sign-verify').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

@@ -60,6 +60,7 @@ import { meta as jsonDiff } from './json-diff/meta';
 import { meta as jsonFormatter } from './json-formatter/meta';
 import { meta as jsonYamlToml } from './json-yaml-toml/meta';
 import { meta as jwtDecoder } from './jwt-decoder/meta';
+import { meta as jwtSignVerify } from './jwt-sign-verify/meta';
 import { meta as loanCalculator } from './loan-calculator/meta';
 import { meta as loremIpsumGenerator } from './lorem-ipsum-generator/meta';
 import { meta as mdHtml } from './md-html/meta';
@@ -263,6 +264,8 @@ export const toolMetas: ToolMeta[] = [
   rotateImage,
   watermarkImage,
   imageToBase64,
+  // Phase 5 (batch-ab, 260906) — crypto tools built on pinned jose/@peculiar/x509/bip39
+  jwtSignVerify,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
