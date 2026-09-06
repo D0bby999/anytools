@@ -41,6 +41,7 @@ import { meta as discountCalculator } from './discount-calculator/meta';
 import { meta as docxToMarkdown } from './docx-to-markdown/meta';
 import { meta as ethWeiConverter } from './eth-wei-converter/meta';
 import { meta as extractImagesFromPdf } from './extract-images-from-pdf/meta';
+import { meta as fontConverter } from './font-converter/meta';
 import { meta as gpaCalculator } from './gpa-calculator/meta';
 import { meta as gradeCalculator } from './grade-calculator/meta';
 import { meta as hashGenerator } from './hash-generator/meta';
@@ -280,6 +281,9 @@ export const toolMetas: ToolMeta[] = [
   jwtSignVerify,
   x509CertificateDecoder,
   bip39Mnemonic,
+  // Phase 8 (batch-ab, 260906) — media tools with third-party deps (vtracer, harfbuzzjs,
+  // wavesurfer.js, three); image-to-svg dropped, see phase-08 file for why
+  fontConverter,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

@@ -123,10 +123,8 @@
   "harfbuzz": {
     "from": "harfbuzzjs",
     "paths": [
-      "dist/harfbuzz.wasm",
       "dist/harfbuzz-subset.wasm"
-    ],
-    "pending": true
+    ]
   },
   "jsquash": {
     "from": "@jsquash/jpeg",

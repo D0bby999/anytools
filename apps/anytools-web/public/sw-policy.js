@@ -63,12 +63,15 @@
   // enforces this bump other than `vendor-cache-version.test.ts`, which hashes the live
   // manifest file and fails the moment it drifts from the hash recorded below — that failure
   // IS the reminder.
-  const VENDOR_CACHE_VERSION = 1;
-  // 2026-09-06: the manifest gained jq/sqljs/vtracer/harfbuzz/jsquash as "pending" keys.
-  // copy-vendor-assets skips pending keys, so nothing new is staged and no URL under
-  // /third-party/ serves different bytes — the recorded hash moves, the cache version does
-  // not. The phase that flips one of those keys to staged MUST bump VENDOR_CACHE_VERSION.
-  const VENDOR_MANIFEST_SHA256 = 'b2baa3e2681b4b8a10fd0d44bd20707887f2e75317bf3f73dff19c3618c58fac';
+  const VENDOR_CACHE_VERSION = 2;
+  // 2026-09-06 (phase 8, batch-ab): harfbuzz flipped from "pending" to staged — its
+  // dist/harfbuzz-subset.wasm now actually lands under /third-party/harfbuzz/, new bytes at a
+  // URL nothing served before, so VENDOR_CACHE_VERSION had to move too (jq/sqljs/vtracer/
+  // jsquash stay "pending", still skipped by copy-vendor-assets). vtracer stays pending
+  // permanently: image-to-svg was dropped (see plans/260906-1425-oss-tool-batch-ab/
+  // phase-08-media-deps.md) because @visioncortex/vtracer's Node build reads its own .wasm with
+  // `fs.readFileSync(__dirname + ...)` at require time and has no browser entry point at all.
+  const VENDOR_MANIFEST_SHA256 = 'fe0bde01342346e3e13b42420440586114829f9648c313dd8aee23cd84ad1739';
 
   const CACHE_NAMES = {
     STATIC: 'at-static-v1',

@@ -187,6 +187,10 @@ const LOADERS: Record<string, ComponentType> = {
     import('@anytools/tools/x509-certificate-decoder').then(pick),
   ),
   'bip39-mnemonic': dynamic(() => import('@anytools/tools/bip39-mnemonic').then(pick)),
+  // Phase 8 (batch-ab, 260906) — media tools with third-party WASM/JS deps.
+  // font-converter: harfbuzzjs is imported inside the run path only, no window access at
+  // import time, so no ssr:false needed.
+  'font-converter': dynamic(() => import('@anytools/tools/font-converter').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
