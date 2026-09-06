@@ -116,7 +116,8 @@
     "./ocr-image-to-text": "./src/ocr-image-to-text/index.ts",
     "./remove-background": "./src/remove-background/index.ts",
     "./cubic-bezier-generator": "./src/cubic-bezier-generator/index.ts",
-    "./color-blindness-simulator": "./src/color-blindness-simulator/index.ts"
+    "./color-blindness-simulator": "./src/color-blindness-simulator/index.ts",
+    "./discord-timestamp-generator": "./src/discord-timestamp-generator/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

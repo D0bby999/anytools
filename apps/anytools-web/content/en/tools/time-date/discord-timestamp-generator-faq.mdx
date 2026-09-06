@@ -1,0 +1,39 @@
+---
+title: Discord Timestamp Generator — Frequently asked questions
+---
+
+## What does `<t:1735689600:F>` actually mean?
+
+`t` marks it as a Discord timestamp tag, `1735689600` is a Unix timestamp — the number of seconds since 1 January 1970 UTC — and `F` is one of Discord's seven display styles, here "long date/time". When Discord's client renders the message, it reads the number, converts it to the reader's own local time zone, and formats it according to the style letter and the reader's own locale settings. Nothing about the tag itself specifies a time zone, because it deliberately does not need one: the same 1735689600 is the same instant everywhere, and only the display differs per reader.
+
+## Why does the same code show different text to different people?
+
+Because a Unix timestamp is a point in absolute time, not a wall-clock reading. `1735689600` is 2025-01-01 00:00:00 UTC — but that instant is 2024-12-31 19:00 in New York, 2025-01-01 09:00 in Tokyo, and 2025-01-01 07:00 in Ho Chi Minh City, all at the same moment. Discord's client does the zone conversion locally, in the reader's browser or app, using whatever time zone that reader's device is set to. That is the entire value proposition over typing "meeting at 7pm EST" into a message: every reader sees their own correct local time without anyone doing the arithmetic.
+
+## What is the difference between the seven styles?
+
+`t` and `T` are time only (short "16:20" and long "16:20:30"). `d` and `D` are date only (short "20/04/2026" and long "20 April 2026"). `f` and `F` combine date and time, with `F` additionally spelling out the weekday. `R` is relative — "in 2 hours", "3 days ago" — and re-renders as time passes, since Discord's client recomputes it against the reader's current clock every time the message is viewed, rather than freezing the text at send time.
+
+## Why does the tool ask for both a date/time and a separate time zone?
+
+Because "6pm" is meaningless without knowing whose 6pm it is. If you are scheduling something for 6pm Los Angeles time, you pick that date/time and set the zone dropdown to America/Los_Angeles — this tool then computes the single absolute instant that wall-clock reading corresponds to in that zone, and that instant is what gets encoded into the Unix number. Get the zone wrong here and the generated timestamp is wrong for everyone, in exactly the same way scheduling a flight in the wrong time zone is wrong for everyone who reads the itinerary.
+
+## Does changing my computer's time zone change the generated code?
+
+No — and that is intentional, not a bug. The `<t:...:...>` code is derived only from the date, time and zone you explicitly pick in the two input fields above it. It has no dependency on what zone your operating system happens to be set to. What DOES depend on your device's zone is the "how this looks to you right now" preview underneath the codes, which is rendered using your browser's detected zone specifically to demonstrate the tool's whole premise — change your OS time zone and reload, and that preview line updates to match, while the actual `<t:...>` text stays byte-for-byte the same.
+
+## Can I paste this into Slack or another chat app instead of Discord?
+
+No. The `<t:...:...>` syntax is a Discord-specific message-formatting extension, and only Discord's client software knows to convert it into a formatted date — everywhere else, it will show up as the literal, unhelpful text `<t:1735689600:F>`. Slack has its own similar syntax (`<!date^...>`), and most other chat platforms have no equivalent at all; you would need a platform-specific generator for each.
+
+## Is the relative style (R) accurate forever, or does it go stale?
+
+It stays accurate, which is the whole point of choosing it over a fixed date string. Discord's client recalculates "in 2 hours" or "3 days ago" against the reader's current clock every time the message renders — open the same message a week later and it will say "a week ago" instead of the number that was true when it was first sent. This makes `R` the right style for countdown-style announcements (`event starts <t:...:R>`), where a static date would need editing to stay meaningful.
+
+## What if the person I'm timestamping for is in a time zone using daylight saving?
+
+It is handled automatically, and correctly, for the same reason the code carries no zone information: DST only affects the mapping between wall-clock time and the absolute Unix instant, which is exactly the conversion this tool (and Discord's own renderer) performs using the IANA time zone database, not a fixed UTC offset. A "9am America/New_York" you generate in January (UTC-5) and one you generate in July (UTC-4) both produce the correct instant for 9am in New York on that date, without you needing to know which offset applies when.
+
+## Does this tool send my chosen date and time anywhere?
+
+No. The date-to-Unix-timestamp conversion, and every rendered preview, run entirely in your browser using the Internationalization API already built into it. Nothing about the date or time you pick is transmitted anywhere.

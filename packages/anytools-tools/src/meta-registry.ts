@@ -34,6 +34,7 @@ import { meta as curlConverter } from './curl-converter/meta';
 import { meta as currencyConverter } from './currency-converter/meta';
 import { meta as dateDiff } from './date-diff/meta';
 import { meta as diffChecker } from './diff-checker/meta';
+import { meta as discordTimestampGenerator } from './discord-timestamp-generator/meta';
 import { meta as discountCalculator } from './discount-calculator/meta';
 import { meta as docxToMarkdown } from './docx-to-markdown/meta';
 import { meta as ethWeiConverter } from './eth-wei-converter/meta';
@@ -237,6 +238,7 @@ export const toolMetas: ToolMeta[] = [
   // Design + time-date + image, 0-dependency batch (260906)
   cubicBezierGenerator,
   colorBlindnessSimulator,
+  discordTimestampGenerator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

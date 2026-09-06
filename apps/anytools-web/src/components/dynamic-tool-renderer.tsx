@@ -154,6 +154,9 @@ const LOADERS: Record<string, ComponentType> = {
   'color-blindness-simulator': dynamic(() =>
     import('@anytools/tools/color-blindness-simulator').then(pick),
   ),
+  'discord-timestamp-generator': dynamic(() =>
+    import('@anytools/tools/discord-timestamp-generator').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
