@@ -1,6 +1,6 @@
 /**
  * Localized templates for the errors the SHARED modules throw — canvas-image, pdfjs-loader,
- * page-range, pdf-unicode-font, pdf-page-stamp, tesseract-loader, onnx-loader.
+ * page-range, pdf-unicode-font, pdf-page-stamp, tesseract-loader, onnx-loader, jsquash-loader.
  *
  * Those modules know nothing about locales (see tool-error.ts), and a dozen tools rethrow their
  * errors untouched. Rather than every tool copying the same twenty translations, each widget
@@ -57,6 +57,11 @@ const EN = {
     'The background-removal model arrived corrupted (checksum {actual}…, expected {expected}…). This is a bug on our side, not a problem with your image.',
   error_engineStartFailed:
     'The background-removal engine failed to start ({detail}). This is a bug on our side, not a problem with your image.',
+  // jsquash-loader
+  error_jpegEncodeFailed:
+    'The JPEG encoder failed to run ({detail}). This is a bug on our side, not a problem with your image.',
+  error_pngEncodeFailed:
+    'The PNG optimiser failed to run ({detail}). This is a bug on our side, not a problem with your image.',
 };
 
 export const SHARED_ERROR_STRINGS: LocalizedStrings<typeof EN> = {
@@ -97,6 +102,10 @@ export const SHARED_ERROR_STRINGS: LocalizedStrings<typeof EN> = {
       'Mô hình xóa nền tải về bị hỏng (checksum {actual}…, mong đợi {expected}…). Đây là lỗi phía chúng tôi, không phải do ảnh của bạn.',
     error_engineStartFailed:
       'Engine xóa nền không khởi động được ({detail}). Đây là lỗi phía chúng tôi, không phải do ảnh của bạn.',
+    error_jpegEncodeFailed:
+      'Bộ mã hóa JPEG chạy lỗi ({detail}). Đây là lỗi phía chúng tôi, không phải do ảnh của bạn.',
+    error_pngEncodeFailed:
+      'Bộ tối ưu PNG chạy lỗi ({detail}). Đây là lỗi phía chúng tôi, không phải do ảnh của bạn.',
   },
   es: {
     error_imageUnreadable:
@@ -138,6 +147,10 @@ export const SHARED_ERROR_STRINGS: LocalizedStrings<typeof EN> = {
       'El modelo de eliminación de fondo llegó corrupto (checksum {actual}…, se esperaba {expected}…). Es un fallo nuestro, no un problema de tu imagen.',
     error_engineStartFailed:
       'El motor de eliminación de fondo no pudo iniciarse ({detail}). Es un fallo nuestro, no un problema de tu imagen.',
+    error_jpegEncodeFailed:
+      'El codificador JPEG falló al ejecutarse ({detail}). Es un fallo nuestro, no un problema de tu imagen.',
+    error_pngEncodeFailed:
+      'El optimizador de PNG falló al ejecutarse ({detail}). Es un fallo nuestro, no un problema de tu imagen.',
   },
   pt: {
     error_imageUnreadable:
@@ -179,6 +192,10 @@ export const SHARED_ERROR_STRINGS: LocalizedStrings<typeof EN> = {
       'O modelo de remoção de fundo chegou corrompido (checksum {actual}…, esperado {expected}…). Isso é um erro nosso, não um problema com a sua imagem.',
     error_engineStartFailed:
       'O motor de remoção de fundo não conseguiu iniciar ({detail}). Isso é um erro nosso, não um problema com a sua imagem.',
+    error_jpegEncodeFailed:
+      'O codificador JPEG falhou ao executar ({detail}). Isso é um erro nosso, não um problema com a sua imagem.',
+    error_pngEncodeFailed:
+      'O otimizador de PNG falhou ao executar ({detail}). Isso é um erro nosso, não um problema com a sua imagem.',
   },
 };
 

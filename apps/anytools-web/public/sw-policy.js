@@ -63,12 +63,11 @@
   // enforces this bump other than `vendor-cache-version.test.ts`, which hashes the live
   // manifest file and fails the moment it drifts from the hash recorded below — that failure
   // IS the reminder.
-  const VENDOR_CACHE_VERSION = 1;
-  // 2026-09-06: the manifest gained jq/sqljs/vtracer/harfbuzz/jsquash as "pending" keys.
-  // copy-vendor-assets skips pending keys, so nothing new is staged and no URL under
-  // /third-party/ serves different bytes — the recorded hash moves, the cache version does
-  // not. The phase that flips one of those keys to staged MUST bump VENDOR_CACHE_VERSION.
-  const VENDOR_MANIFEST_SHA256 = 'b2baa3e2681b4b8a10fd0d44bd20707887f2e75317bf3f73dff19c3618c58fac';
+  const VENDOR_CACHE_VERSION = 2;
+  // 2026-09-06: the `jsquash` key flipped from "pending" to staged (compress-pdf +
+  // compress-image now load MozJPEG + oxipng from /third-party/jsquash/) — new bytes under a
+  // URL nothing served before, so VENDOR_CACHE_VERSION bumped 1 -> 2 alongside the hash below.
+  const VENDOR_MANIFEST_SHA256 = 'd7291c81cdf7815e29f0fb26aad56566ca0ecd770a26743c2b547b2e1fff3fc9';
 
   const CACHE_NAMES = {
     STATIC: 'at-static-v1',

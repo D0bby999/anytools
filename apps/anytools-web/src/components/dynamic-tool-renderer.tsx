@@ -43,6 +43,7 @@ const LOADERS: Record<string, ComponentType> = {
   ),
   'meta-tag-generator': dynamic(() => import('@anytools/tools/meta-tag-generator').then(pick)),
   'compress-image': dynamic(() => import('@anytools/tools/compress-image').then(pick)),
+  'compress-pdf': dynamic(() => import('@anytools/tools/compress-pdf').then(pick)),
   'resize-image': dynamic(() => import('@anytools/tools/resize-image').then(pick)),
   'crop-image': dynamic(() => import('@anytools/tools/crop-image').then(pick)),
   'split-pdf': dynamic(() => import('@anytools/tools/split-pdf').then(pick)),

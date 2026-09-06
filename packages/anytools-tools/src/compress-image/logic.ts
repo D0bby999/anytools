@@ -2,9 +2,11 @@ import {
   type OutputFormat,
   decodedFrom,
   drawToBlob,
+  drawToImageData,
   hasAlpha,
   loadBitmap,
 } from '../shared/canvas-image';
+import { encodeJpegMozjpeg, encodeOptimizedPng } from '../shared/jsquash-loader';
 
 export type CompressResult = {
   blob: Blob;
@@ -35,6 +37,37 @@ export type CompressOptions = {
   quality: number;
 };
 
+/**
+ * Encode a bitmap at a target size, in the format the UI offers.
+ *
+ * JPEG and PNG go through `jsquash-loader.ts` (MozJPEG / oxipng) — see compress-image's Verify
+ * notes for the measured KB-vs-KB improvement over `canvas.toBlob`. WebP stays on
+ * `canvas.toBlob`: none of this repo's pinned deps include a WebP WASM codec, and Chromium's
+ * own libwebp encoder (which is what `canvas.toBlob('image/webp', …)` calls) is already good.
+ */
+async function encode(
+  bitmap: ImageBitmap,
+  width: number,
+  height: number,
+  format: OutputFormat,
+  quality: number,
+  source?: { x: number; y: number; width: number; height: number },
+): Promise<Blob> {
+  if (format === 'webp') {
+    return drawToBlob(bitmap, width, height, format, quality, source);
+  }
+  const imageData = drawToImageData(bitmap, width, height, {
+    whiteBackground: format === 'jpeg',
+    source,
+  });
+  if (format === 'jpeg') {
+    const buf = await encodeJpegMozjpeg(imageData, quality * 100);
+    return new Blob([buf], { type: 'image/jpeg' });
+  }
+  const buf = await encodeOptimizedPng(imageData);
+  return new Blob([buf], { type: 'image/png' });
+}
+
 export async function compressImage(
   file: File,
   { format, quality }: CompressOptions,
@@ -42,7 +75,7 @@ export async function compressImage(
   const bitmap = await loadBitmap(file);
   try {
     const alpha = hasAlpha(bitmap);
-    const blob = await drawToBlob(bitmap, bitmap.width, bitmap.height, format, quality);
+    const blob = await encode(bitmap, bitmap.width, bitmap.height, format, quality);
     return {
       blob,
       width: bitmap.width,
@@ -79,7 +112,7 @@ export async function compressToTargetSize(
     // Try full quality first. Without this the search interval is open at the top — the first
     // midpoint is 0.55 — so an image that already fits at quality 1 gets re-encoded lossily
     // for no reason at all.
-    const full = await drawToBlob(bitmap, bitmap.width, bitmap.height, format, MAX_QUALITY);
+    const full = await encode(bitmap, bitmap.width, bitmap.height, format, MAX_QUALITY);
     if (full.size <= targetBytes) {
       return {
         blob: full,
@@ -100,7 +133,7 @@ export async function compressToTargetSize(
 
     for (let i = 0; i < 8; i++) {
       const mid = (lo + hi) / 2;
-      const blob = await drawToBlob(bitmap, bitmap.width, bitmap.height, format, mid);
+      const blob = await encode(bitmap, bitmap.width, bitmap.height, format, mid);
       if (blob.size <= targetBytes) {
         // Fits — keep it and try for better quality.
         best = blob;
@@ -115,7 +148,7 @@ export async function compressToTargetSize(
     // the saving against the original would read as success for a result that missed the
     // budget entirely.
     const fallback =
-      best ?? (await drawToBlob(bitmap, bitmap.width, bitmap.height, format, MIN_QUALITY));
+      best ?? (await encode(bitmap, bitmap.width, bitmap.height, format, MIN_QUALITY));
 
     return {
       blob: fallback,
