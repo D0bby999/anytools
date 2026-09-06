@@ -50,6 +50,8 @@ import { meta as htmlBeautifier } from './html-beautifier/meta';
 import { meta as htmlEntity } from './html-entity/meta';
 import { meta as httpStatusCodes } from './http-status-codes/meta';
 import { meta as imageFormatConverter } from './image-format-converter/meta';
+// Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+import { meta as imageToBase64 } from './image-to-base64/meta';
 import { meta as imageToPdf } from './image-to-pdf/meta';
 import { meta as integerBaseConverter } from './integer-base-converter/meta';
 import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
@@ -84,6 +86,8 @@ import { meta as removePdfPages } from './remove-pdf-pages/meta';
 import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
 import { meta as romanNumeralConverter } from './roman-numeral-converter/meta';
+// Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+import { meta as rotateImage } from './rotate-image/meta';
 import { meta as rotatePdf } from './rotate-pdf/meta';
 import { meta as rsaKeypairGenerator } from './rsa-keypair-generator/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
@@ -113,6 +117,8 @@ import { meta as urlParser } from './url-parser/meta';
 import { meta as userAgentParser } from './user-agent-parser/meta';
 import { meta as uuidGenerator } from './uuid-generator/meta';
 import { meta as walletChecker } from './wallet-checker/meta';
+// Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+import { meta as watermarkImage } from './watermark-image/meta';
 import { meta as watermarkPdf } from './watermark-pdf/meta';
 import { meta as wcagContrastChecker } from './wcag-contrast-checker/meta';
 import { meta as whiteboard } from './whiteboard/meta';
@@ -253,6 +259,10 @@ export const toolMetas: ToolMeta[] = [
   colorBlindnessSimulator,
   discordTimestampGenerator,
   youtubeThumbnailGrabber,
+  // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
+  rotateImage,
+  watermarkImage,
+  imageToBase64,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

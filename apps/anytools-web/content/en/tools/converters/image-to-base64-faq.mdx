@@ -1,0 +1,31 @@
+---
+title: Image to Base64 — Frequently asked questions
+---
+
+## What is a base64 data URI, exactly?
+
+It is a way of writing binary data — in this case, the raw bytes of an image file — as plain text, so it can be pasted anywhere a browser expects a URL: an `<img src>` attribute, a CSS `url()`, a Markdown image link, even a JSON field. The text always follows the same shape: `data:image/png;base64,` followed by the encoded bytes. Browsers recognise that prefix and decode the image directly from the string, with no separate file and no network request needed to display it.
+
+## Why is the encoded text bigger than my original file?
+
+Base64 encodes every 3 bytes of the original file as 4 characters of text, because it restricts itself to 64 printable ASCII characters so the result is safe to embed in text formats that were never designed to carry raw binary. That fixed ratio adds almost exactly one third to the size — a 90 KB PNG becomes about 120 KB of base64 text. This tool measures the real encoded length rather than estimating it, and shows a warning once it passes 100 KB: past that point, embedding the data URI directly in your HTML, CSS or Markdown makes that page noticeably heavier for every visitor, where a normal linked image file would be cached and shared across pages instead.
+
+## When does it make sense to inline an image instead of linking to one?
+
+Inlining is worth it for small, page-critical images that would otherwise cost a separate HTTP request before they can render — a tiny icon, a placeholder blur, an inline SVG-style graphic, or an image needed inside a CSS file that cannot itself reference an external upload. It stops making sense once the image is large or reused across many pages: every page that inlines the same logo ships its own full copy of that base64 text, while a linked file is fetched once and cached by the browser for every page after that.
+
+## Can I go the other way — turn a data URI back into a downloadable file?
+
+Yes, that is what the "Base64 → Image" tab is for. Paste any data URI that starts with `data:image/` and includes `;base64,` — copied from browser DevTools, an email's embedded image, a CSS file, or anywhere else — and it decodes back to the original bytes, previews the image, and offers a direct download with a sensible file extension guessed from the MIME type in the data URI. If what you paste is not a base64-encoded image data URI (for example it is missing the `;base64` flag, or its type is not an `image/*` type), the tool says exactly what is wrong rather than failing silently.
+
+## Does encoding change my image at all — recompress it, strip metadata?
+
+No. This is the one image tool in this collection that never touches a canvas. Every other image tool here redraws pixels — resizing, rotating, watermarking — which is unavoidable for what they do, but it also means a JPEG passed through a canvas gets re-encoded and can lose its EXIF data in the process. Encoding to base64 is different: it reads the file's exact original bytes with `FileReader.readAsDataURL` and encodes them as-is, so the decoded image on the other end is byte-for-byte identical to what you uploaded, metadata included.
+
+## Is my image uploaded anywhere during this?
+
+No. Reading the file, encoding it to base64, and decoding a pasted data URI back to a file all happen in your browser using standard Web APIs (`FileReader`, `atob`) — nothing is sent over the network. You can confirm this by watching the Network tab in your browser's developer tools while you use the tool, or by disconnecting from the internet after the page has loaded.
+
+## How is this different from the plain Base64 Encode tool?
+
+Base64 Encode works on text you type or paste — it has no idea what an image is and produces a bare base64 string with no `data:` prefix or MIME type. This tool is built specifically for images: it reads a file's bytes, wraps them in a proper `data:image/...;base64,` URI, and hands you ready-to-paste snippets for HTML, CSS and Markdown, plus the reverse decode-and-download direction that the text tool has no reason to offer.
