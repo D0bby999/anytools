@@ -175,6 +175,12 @@ const LOADERS: Record<string, ComponentType> = {
   'image-to-base64': dynamic(() => import('@anytools/tools/image-to-base64').then(pick)),
   // Phase 9 (batch-ab, 260906) — @cantoo/pdf-lib, kept out of the other PDF tools' bundle
   'pdf-password': dynamic(() => import('@anytools/tools/pdf-password').then(pick)),
+  // Phase 6 (batch-ab, 260906) — data format tools
+  'json-schema-validator': dynamic(() =>
+    import('@anytools/tools/json-schema-validator').then(pick),
+  ),
+  'protobuf-decoder': dynamic(() => import('@anytools/tools/protobuf-decoder').then(pick)),
+  'msgpack-decoder': dynamic(() => import('@anytools/tools/msgpack-decoder').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

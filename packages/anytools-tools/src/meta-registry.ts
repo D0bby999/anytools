@@ -58,6 +58,7 @@ import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
 import { meta as jsBeautifier } from './js-beautifier/meta';
 import { meta as jsonDiff } from './json-diff/meta';
 import { meta as jsonFormatter } from './json-formatter/meta';
+import { meta as jsonSchemaValidator } from './json-schema-validator/meta';
 import { meta as jsonYamlToml } from './json-yaml-toml/meta';
 import { meta as jwtDecoder } from './jwt-decoder/meta';
 import { meta as loanCalculator } from './loan-calculator/meta';
@@ -67,6 +68,7 @@ import { meta as mergePdf } from './merge-pdf/meta';
 import { meta as metaTagGenerator } from './meta-tag-generator/meta';
 import { meta as mockDataGenerator } from './mock-data-generator/meta';
 import { meta as mortgageCalculator } from './mortgage-calculator/meta';
+import { meta as msgpackDecoder } from './msgpack-decoder/meta';
 import { meta as ocrImageToText } from './ocr-image-to-text/meta';
 import { meta as ocrPdf } from './ocr-pdf/meta';
 import { meta as paceCalculator } from './pace-calculator/meta';
@@ -76,6 +78,7 @@ import { meta as pdfToPng } from './pdf-to-png/meta';
 import { meta as percentageCalculator } from './percentage-calculator/meta';
 import { meta as pomodoroTimer } from './pomodoro-timer/meta';
 import { meta as pregnancyDueDate } from './pregnancy-due-date/meta';
+import { meta as protobufDecoder } from './protobuf-decoder/meta';
 import { meta as qrBarcodeScanner } from './qr-barcode-scanner/meta';
 import { meta as qrCodeGenerator } from './qr-code-generator/meta';
 import { meta as randomPicker } from './random-picker/meta';
@@ -266,6 +269,10 @@ export const toolMetas: ToolMeta[] = [
   imageToBase64,
   // Phase 9 (batch-ab, 260906) — @cantoo/pdf-lib, kept out of the other PDF tools' bundle
   pdfPassword,
+  // Phase 6 (batch-ab, 260906) — data format tools
+  jsonSchemaValidator,
+  protobufDecoder,
+  msgpackDecoder,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

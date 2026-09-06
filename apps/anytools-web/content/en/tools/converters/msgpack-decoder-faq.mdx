@@ -1,0 +1,27 @@
+---
+title: MessagePack ↔ JSON — FAQ
+---
+
+## Why is MessagePack smaller than the equivalent JSON?
+
+JSON spends bytes on syntax that carries no data: every string key is repeated in full and wrapped in quotes on every object, every number is written out as decimal digits, and structural characters (`{`, `}`, `[`, `]`, `,`, `:`) add up across a large document. MessagePack replaces all of that with a one-byte type header followed by the raw value — a small integer often costs one byte total instead of several ASCII digits, and a short string costs its byte length plus one header byte instead of that plus two quote characters. The size line under the result shows exactly how much this saves for whatever you pasted; the exact percentage depends heavily on how much of your data is short numbers and short keys versus long strings, where the two formats converge.
+
+## What's a "timestamp extension," and why does it show up as a date?
+
+MessagePack's core types don't include a native date — string, integer, float, boolean, array, map, binary, and nil cover everything else, but not "point in time." The August 2017 revision of the spec added a reserved extension type (type `-1`) specifically for this, packing seconds and nanoseconds since the Unix epoch into 4, 8, or 12 bytes depending on the range needed. This tool's decoder recognizes that extension automatically and turns it into a readable ISO 8601 timestamp in the JSON output, rather than showing the raw byte encoding you'd otherwise have to decode by hand.
+
+## Can I decode a MessagePack file produced by Python, Rust, or another language's library?
+
+Yes, as long as the producer follows the wire-format spec, which is language-agnostic by design — that is the entire point of a serialization format used for cross-language RPC (it's the wire format behind MessagePack-RPC and is used inside Fluentd's pipeline). If a file fails to decode here, the most common real cause is that it isn't a single, standalone MessagePack value: this tool expects exactly one value and reports "extra bytes" rather than guessing, so a file with a length-prefixed transport frame around the payload, or several MessagePack values concatenated back to back, needs that framing stripped (or splitting into individual values) before it will decode.
+
+## Why did my round trip through JSON lose a distinction MessagePack originally had?
+
+JSON has a narrower type system than MessagePack. MessagePack distinguishes `bin` (raw binary) from `str` (text) as separate wire types, and separates 15 different integer widths (from a one-byte fixint up to a full 64-bit int/uint) from a single float type. JSON has exactly one string type and one number type — so encoding JSON back to MessagePack after a round trip cannot recover which specific integer width or binary-vs-string distinction the original payload used. If preserving that distinction matters, keep working with the original binary payload rather than the JSON in between.
+
+## Does this tool handle every MessagePack extension type, not just timestamps?
+
+Application-defined extension types (anything other than the reserved timestamp type -1) have no universal meaning — the MessagePack spec deliberately leaves types 0 through 127 open for each application to define its own semantics, the same way protobuf leaves interpretation of a schema-less payload to whoever wrote the `.proto`. Without knowing which convention the producer used, this tool shows an unrecognized extension's raw type number and bytes rather than guessing at a decoding that would likely be wrong for your specific producer.
+
+## Is there a size limit on what I can paste or upload?
+
+Yes — payloads above 10 MB are rejected before decoding starts. Everything runs in your browser tab rather than on a server, and parsing tens of megabytes of hex or Base64 text in a single input field is exactly the kind of operation that can make a tab visibly stall. If you need to inspect something larger, a command-line MessagePack tool that streams the input is a better fit than a browser-based one.
