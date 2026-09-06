@@ -63,12 +63,18 @@
   // enforces this bump other than `vendor-cache-version.test.ts`, which hashes the live
   // manifest file and fails the moment it drifts from the hash recorded below — that failure
   // IS the reminder.
-  const VENDOR_CACHE_VERSION = 1;
-  // 2026-09-06: the manifest gained jq/sqljs/vtracer/harfbuzz/jsquash as "pending" keys.
-  // copy-vendor-assets skips pending keys, so nothing new is staged and no URL under
-  // /third-party/ serves different bytes — the recorded hash moves, the cache version does
-  // not. The phase that flips one of those keys to staged MUST bump VENDOR_CACHE_VERSION.
-  const VENDOR_MANIFEST_SHA256 = 'b2baa3e2681b4b8a10fd0d44bd20707887f2e75317bf3f73dff19c3618c58fac';
+  const VENDOR_CACHE_VERSION = 2;
+  // 2026-09-06 (phase 7, batch-ab): jq and sqljs flipped from "pending" to staged — real bytes
+  // now land under /third-party/jq/ and /third-party/sqljs/ for the first time, so a returning
+  // visitor's browser must not keep whatever (nonexistent) response it had cached for those
+  // URLs under the old bucket. VENDOR_CACHE_VERSION bumped by exactly 1 for this; vtracer/
+  // harfbuzz/jsquash stay "pending" and did not move. (Corrected same-phase, before ship: sql.js
+  // resolves to dist/sql-wasm-browser.js under webpack's "browser" export condition — not
+  // dist/sql-wasm.js, which is what Node's `require.resolve` picks and what an initial probe of
+  // this manifest staged — so the browser build was requesting a file this site never staged and
+  // 404ing. Re-staged as sql-wasm-browser.wasm, same bytes, correct filename; version stays 2
+  // since /third-party/sqljs/ had never shipped real content at any version before this.)
+  const VENDOR_MANIFEST_SHA256 = '2d6f59ab92c0bf3b447bd66a77530e14f47f2e0143458fa6444382d30ab7dcde';
 
   const CACHE_NAMES = {
     STATIC: 'at-static-v1',

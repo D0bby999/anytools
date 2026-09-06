@@ -1,0 +1,35 @@
+---
+title: jq Playground — FAQ
+---
+
+## Does my JSON leave my browser?
+
+No. jq itself runs as a WebAssembly module loaded from this site's own server, and the JSON you type never crosses the network. There is no server-side execution and no analytics payload built from your data — the filter runs, and the result is rendered, entirely inside the tab.
+
+## What jq version does this use?
+
+The `jq-wasm` package this tool is built on bundles jq 1.8.2, compiled to WebAssembly with Emscripten. If a filter behaves differently here than on a system `jq` binary, check which jq version that binary reports (`jq --version`) — jq's syntax has grown across major versions (object construction shorthand, `?//`, `ltrimstr`/`rtrimstr`, and others arrived at different points), and a script written against an older or newer jq can surface as an "unknown filter" error here.
+
+## Why does a filter sometimes take a few seconds to fail instead of failing instantly?
+
+A jq filter that never terminates — the classic example is a recursive function that calls itself with no base case, like `def f: f; f` — runs as native WebAssembly code with no point where JavaScript can step in and check a clock. The only way to stop it without freezing the whole tab is to terminate the Web Worker it runs in, which this tool does automatically after 8 seconds. You'll see a timeout message rather than the browser tab locking up. A syntax error, by contrast, is detected immediately by jq's own compiler and reported right away.
+
+## Is there a size limit on the JSON I can paste in?
+
+Yes — 5 MB of input text. jq-wasm loads the entire document into the WebAssembly module's memory before any filter can run against it (it does not stream), so a much larger document risks running the tab out of memory rather than producing a useful error. If you need to work with something bigger, pre-filter it down with a streaming tool first, or split it into smaller chunks.
+
+## Can I use jq command-line flags like `-r`, `-s`, or `--arg`?
+
+Not from this UI. The playground always runs your filter with jq's default output mode (compact where jq itself would compact it, pretty-printed otherwise) and passes no extra flags or external variables. If your workflow depends on `-r` (raw string output), `-s` (slurp all inputs into one array), or `--arg name value` (binding a shell variable into the filter), you'll need the real `jq` binary or the `jq-wasm` npm package directly, where those are supported.
+
+## Can a filter read files, run shell commands, or load jq modules with `import`?
+
+No, and this is by design rather than an oversight. This build of jq has no filesystem and no network access from inside the sandboxed WebAssembly module, so filters that would normally read another file (`input_filename`, `$__prog_name__` tricks aside), import a jq module (`import "foo" as bar;`), or shell out are limited to whatever jq's built-in standard library exposes. Ordinary data-transformation filters — the kind the example buttons demonstrate — are unaffected.
+
+## Why does my filter's output look different from what I expected?
+
+Two common causes: first, jq treats every top-level result as its own value, so a filter that is not wrapped in `[...]` prints one JSON value per match rather than a single array — the `.[] | select(...)` example on this page does exactly that on purpose. Second, jq's default pretty-printer indents nested objects and arrays across multiple lines; if you were expecting single-line compact JSON, that's a formatting choice this playground makes for readability, not a difference in the underlying result.
+
+## Does this replace the real `jq` command-line tool?
+
+For learning the language and testing filters against a JSON sample, yes. For anything involving real files, shell pipelines, streaming multi-gigabyte input, or CLI flags, no — install jq itself. This tool exists for the common case of "I have some JSON and want to try a filter on it right now" without opening a terminal.

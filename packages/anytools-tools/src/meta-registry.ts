@@ -56,6 +56,7 @@ import { meta as imageToBase64 } from './image-to-base64/meta';
 import { meta as imageToPdf } from './image-to-pdf/meta';
 import { meta as integerBaseConverter } from './integer-base-converter/meta';
 import { meta as ipSubnetCalculator } from './ip-subnet-calculator/meta';
+import { meta as jqPlayground } from './jq-playground/meta';
 import { meta as jsBeautifier } from './js-beautifier/meta';
 import { meta as jsonDiff } from './json-diff/meta';
 import { meta as jsonFormatter } from './json-formatter/meta';
@@ -103,6 +104,7 @@ import { meta as sleepCalculator } from './sleep-calculator/meta';
 import { meta as slugify } from './slugify/meta';
 import { meta as splitPdf } from './split-pdf/meta';
 import { meta as sqlFormatter } from './sql-formatter/meta';
+import { meta as sqlPlayground } from './sql-playground/meta';
 import { meta as statisticsCalculator } from './statistics-calculator/meta';
 import { meta as textCaseConverter } from './text-case-converter/meta';
 import { meta as timeCardCalculator } from './time-card-calculator/meta';
@@ -280,6 +282,9 @@ export const toolMetas: ToolMeta[] = [
   jwtSignVerify,
   x509CertificateDecoder,
   bip39Mnemonic,
+  // Phase 7 (batch-ab, 260906) — WASM playgrounds (jq-wasm, sql.js)
+  jqPlayground,
+  sqlPlayground,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
