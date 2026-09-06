@@ -1,0 +1,35 @@
+---
+title: YouTube Thumbnail Grabber — Frequently asked questions
+---
+
+## Does this tool actually run locally, like the rest of the site?
+
+Partly, and this is worth being precise about, because most tools on this site genuinely run 100% in the browser with nothing sent anywhere. This one is different: a thumbnail image is not a file sitting on your computer, it lives on YouTube's servers, so getting it necessarily means your browser makes a request to YouTube. The video ID you type or paste is part of that request URL, which means it reaches YouTube's CDN the moment an image loads — before you even click download. Nothing about that request passes through this site's own servers; it goes directly from your browser to YouTube. But calling this a "fully local" tool would be false, so it isn't labeled that way here.
+
+## What URL formats does it understand?
+
+Six shapes: a full watch link (`youtube.com/watch?v=ID`, including with extra parameters like `&t=` or `&list=` tacked on), a shortened `youtu.be/ID` link, a Shorts link (`youtube.com/shorts/ID`), an embed link (`youtube.com/embed/ID`), a live link (`youtube.com/live/ID`), and a bare 11-character video ID pasted with nothing around it. The parser reads the URL structurally (using the browser's own URL parser, not a fragile string search), so a share link with tracking parameters attached still resolves correctly.
+
+## Why do some resolutions come back missing?
+
+Because YouTube only generates `maxresdefault.jpg` (1280×720), and sometimes `sddefault.jpg` (640×480), for videos where the source footage or the platform's own processing produced one — older uploads, low-resolution source video, and some auto-generated content can lack either entirely. Requesting a missing size returns an HTTP 404, but the response body is still a real, decodable 120×90 grey placeholder image rather than an empty error page, so a naive "did the image load" check is not enough to detect it — the browser happily displays that placeholder as if it were legitimate content. `hqdefault` (480×360) and `mqdefault` (320×180) are essentially always present, since YouTube generates them directly from the encoded video stream rather than from a separately-produced thumbnail. The preview area checks the actual decoded pixel dimensions of whatever comes back and steps down to the next size whenever they match that 120×90 placeholder, so you always end up looking at the best real thumbnail that exists rather than a tiny grey square passed off as a photo.
+
+## Why does the Download button sometimes open a new tab instead of saving a file?
+
+Two different mechanisms are involved, and the fallback exists because the first one is not guaranteed to succeed in every browsing environment. The primary path fetches the image as raw bytes and hands the browser a same-origin blob URL with a chosen filename, which is what makes a proper "Save As" download with a sensible name actually happen — a plain link to a cross-origin image like YouTube's, by contrast, will usually just navigate the tab to display the picture rather than save it, because the `download` attribute is unreliable across origins. If that fetch is blocked for any reason — you're offline, a browser extension is interfering, or this site's own security policy declines to make that particular cross-origin request — the tool opens the image directly in a new tab instead, so you can still save it via your browser's own right-click menu, and it tells you that happened rather than failing silently.
+
+## Is YouTube's thumbnail CDN the same for every video?
+
+Yes. Every public YouTube video's thumbnails live at the same predictable URL pattern, `i.ytimg.com/vi/VIDEO_ID/SIZE.jpg`, regardless of channel, upload date or region. That predictability is exactly what makes a tool like this possible without an API key or any authentication — the URLs are directly constructible from the video ID alone, the same way this tool builds them.
+
+## Can I use this for a private or unlisted video?
+
+Only if you already have the URL, and even then the id-to-image URL mapping does not check visibility the way YouTube's own player does — knowing a video's id is enough to request its thumbnail image regardless of whether the video itself is set to private, unlisted or public. This is a property of YouTube's own CDN, not something specific to this tool, and it means a thumbnail image is not a reliable way to keep the existence of a private video secret.
+
+## Does downloading a thumbnail let me use it anywhere?
+
+No — downloading the file does not grant any usage rights to it. YouTube thumbnails are typically either supplied by the uploader or auto-generated from a copyrighted video, and the underlying image remains subject to whatever copyright applies to it, same as any other image on the web. Reusing a thumbnail in your own content, especially commercially, without the original creator's permission carries the same risk as reusing any other copyrighted image.
+
+## Why is this the only tool on the site with a custom privacy note?
+
+Because the site's default privacy note says nothing leaves your browser, and for this tool that claim would be false — the whole point of it is fetching an image from a server that is not this site's own. Rather than either suppressing that fact or reusing wording that doesn't apply, this tool states plainly what does happen: your browser talks to YouTube's image CDN directly, the video ID is part of that request, and nothing passes through this site's own infrastructure in either direction.

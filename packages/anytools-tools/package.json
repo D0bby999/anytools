@@ -117,7 +117,8 @@
     "./remove-background": "./src/remove-background/index.ts",
     "./cubic-bezier-generator": "./src/cubic-bezier-generator/index.ts",
     "./color-blindness-simulator": "./src/color-blindness-simulator/index.ts",
-    "./discord-timestamp-generator": "./src/discord-timestamp-generator/index.ts"
+    "./discord-timestamp-generator": "./src/discord-timestamp-generator/index.ts",
+    "./youtube-thumbnail-grabber": "./src/youtube-thumbnail-grabber/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

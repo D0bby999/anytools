@@ -157,6 +157,9 @@ const LOADERS: Record<string, ComponentType> = {
   'discord-timestamp-generator': dynamic(() =>
     import('@anytools/tools/discord-timestamp-generator').then(pick),
   ),
+  'youtube-thumbnail-grabber': dynamic(() =>
+    import('@anytools/tools/youtube-thumbnail-grabber').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

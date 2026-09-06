@@ -10,8 +10,8 @@ import { buildRouteInventory } from './route-inventory.mjs';
 describe('buildRouteInventory', () => {
   const inventory = buildRouteInventory();
 
-  it('finds all 107 published tool meta files', () => {
-    expect(inventory.counts.toolMetaFiles).toBe(107);
+  it('finds all 111 published tool meta files', () => {
+    expect(inventory.counts.toolMetaFiles).toBe(111);
   });
 
   it("counts the 5 tools restricted to English only (availableLocales: ['en'])", () => {
@@ -26,21 +26,21 @@ describe('buildRouteInventory', () => {
     expect(inventory.counts.guideSlugs).toBe(7);
   });
 
-  it('computes 413 tool routes: 107 English + 102 each for vi/es/pt', () => {
-    // 107 tools all ship English; 5 of them stop there, so the other 3 locales
-    // get 107 - 5 = 102 tool routes each. 107 + 102*3 = 413.
-    expect(inventory.counts.toolPages).toBe(413);
+  it('computes 429 tool routes: 111 English + 106 each for vi/es/pt', () => {
+    // 111 tools all ship English; 5 of them stop there, so the other 3 locales
+    // get 111 - 5 = 106 tool routes each. 111 + 106*3 = 429.
+    expect(inventory.counts.toolPages).toBe(429);
   });
 
-  it('adds up to 513 expect200 routes (4 home + 52 cluster + 413 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
+  it('adds up to 529 expect200 routes (4 home + 52 cluster + 429 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
     expect(inventory.counts.home).toBe(4);
     expect(inventory.counts.clusterPages).toBe(52);
     expect(inventory.counts.guideIndexPages).toBe(4);
     expect(inventory.counts.guideSlugPages).toBe(28);
     expect(inventory.counts.localeUtilityPages).toBe(8);
     expect(inventory.counts.singleAssetPages).toBe(4);
-    expect(inventory.counts.total200).toBe(513);
-    expect(inventory.expect200).toHaveLength(513);
+    expect(inventory.counts.total200).toBe(529);
+    expect(inventory.expect200).toHaveLength(529);
   });
 
   it('serves the service worker offline fallback and favorites in every locale', () => {

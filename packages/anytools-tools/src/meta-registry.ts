@@ -115,6 +115,7 @@ import { meta as wordCounter } from './word-counter/meta';
 import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
 import { meta as yamlFormatter } from './yaml-formatter/meta';
+import { meta as youtubeThumbnailGrabber } from './youtube-thumbnail-grabber/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
@@ -239,6 +240,7 @@ export const toolMetas: ToolMeta[] = [
   cubicBezierGenerator,
   colorBlindnessSimulator,
   discordTimestampGenerator,
+  youtubeThumbnailGrabber,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
