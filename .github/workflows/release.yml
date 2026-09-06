@@ -47,6 +47,9 @@ env:
 jobs:
   # Copy of deploy.yml's verify job. vendor:assets must run before test — a fresh
   # checkout has no public/third-party/, and vendor-assets.test.ts asserts it exists.
+  # Same reason for make-fixtures: packages/anytools-tools/fixtures/*.pdf is gitignored
+  # (generated, not source — docs/tool-runtime-verification.md), so
+  # pdf-password/cross-library.test.ts ENOENTs on a fresh checkout without it.
   verify:
     # Forks that push a v* tag would otherwise run the whole pipeline and die at
     # the GHCR push with a 403. Every later job `needs` this one, so the guard
@@ -64,6 +67,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm --filter @anytools/web vendor:assets
+      - run: pnpm --filter @anytools/tools exec node scripts/make-fixtures.mjs
       - run: pnpm -r test
 
   build:

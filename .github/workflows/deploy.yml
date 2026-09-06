@@ -62,6 +62,11 @@ jobs:
       # Stages public/third-party/ (gitignored) — vendor-assets.test.ts asserts it exists, and
       # nothing else on a fresh checkout produces it.
       - run: pnpm --filter @anytools/web vendor:assets
+      # Same reason as the step above: packages/anytools-tools/fixtures/*.pdf is gitignored
+      # (docs/tool-runtime-verification.md — they're generated, not source), so
+      # pdf-password/cross-library.test.ts ENOENTs on a fresh checkout without this. It only
+      # ever passed locally, where a developer had already run this once by hand.
+      - run: pnpm --filter @anytools/tools exec node scripts/make-fixtures.mjs
       - run: pnpm -r test
 
   build:
