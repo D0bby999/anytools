@@ -1,0 +1,27 @@
+---
+title: Unicode Cleaner — FAQ
+---
+
+## What exactly does this tool look for?
+
+Two unrelated problems that both hide inside text that looks completely normal. The first is invisible characters: zero-width spaces, zero-width joiners, bidirectional-text controls, a byte-order mark, a soft hyphen, and a dozen Unicode "space" characters that are not the plain U+0020 you get from a keyboard. None of these render as anything on screen, but they are real bytes, and they break exact-match search, diffing, and sometimes JSON parsing or URL slugs built from the text. The second is homoglyphs — letters from the Cyrillic or Greek alphabet that are drawn identically to a Latin letter (Cyrillic а looks exactly like Latin a; Greek Ρ looks exactly like Latin P). A homoglyph swapped into an English or Spanish word makes that word fail to match itself in a search box, even though a human reading it sees nothing wrong.
+
+## Why would a homoglyph end up in my text by accident?
+
+The most common path is copy-pasting from a source that already had the problem: a PDF with a broken font-to-Unicode mapping, a scraped web page, or a phrase typed on a keyboard layout that silently substituted a look-alike character. It also happens during machine translation and OCR, both of which sometimes pick the visually closest glyph rather than the linguistically correct one. Once it is in a document, nothing about normal editing catches it — spell-checkers usually pass it, because the substituted letter still looks like a valid letter, just from the wrong alphabet.
+
+## Won't this flag every Russian or Greek word I paste in?
+
+No — that is the specific failure mode this tool is built to avoid. Detection uses the rest of the pasted text as context: a Cyrillic or Greek look-alike letter is only flagged when the majority of the surrounding text is a different script. Paste a full paragraph of real Russian or real Greek and every letter in it agrees with the paragraph's own dominant script, so nothing stands out as foreign and nothing gets flagged. Paste an English or Spanish sentence with one stray Cyrillic letter dropped in, and that one letter disagrees with everything around it, which is exactly the signal the heuristic looks for. Vietnamese diacritics, accented French or Spanish letters, and anything else in the Latin alphabet's extended ranges are never treated as suspicious in the first place — they are not homoglyphs, just normal accented Latin letters.
+
+## Does "Clean text" delete spaces along with the invisible characters?
+
+Not the ones that carry visible width. Truly zero-width characters (zero-width space, zero-width joiner, the bidirectional-override controls, the byte-order mark, the soft hyphen) are deleted outright, because removing them changes nothing about how the text looks. The odd Unicode spaces — no-break space, the en/em-space family, the ideographic and mathematical spaces — are different: they do occupy width, so deleting them would silently glue words together ("10 km" would become "10km"). Cleaning normalizes those to a single ordinary space instead, which fixes the underlying inconsistency without merging anything.
+
+## What alphabets are covered, and what is missing?
+
+The homoglyph table covers the pairs people actually run into: Latin look-alikes from Cyrillic and Greek, which together account for the classic domain-spoofing and copy-paste-corruption cases. It does not attempt full-alphabet coverage of every script that has a Latin-adjacent letter shape — Armenian, Cherokee, and a handful of other scripts have occasional look-alikes too, and those are out of scope here. If a document needs certainty rather than a heuristic, the character table below the input shows the exact Unicode code point for every flagged character, which any editor or script can act on directly.
+
+## Is my text uploaded anywhere?
+
+No. Everything — scanning, highlighting, and cleaning — runs in JavaScript inside this browser tab. Nothing is sent to a server, so this is safe to use on text you would not otherwise paste into a random web form.
