@@ -81,6 +81,7 @@ import { meta as resizeImage } from './resize-image/meta';
 import { meta as retirementCalculator } from './retirement-calculator/meta';
 import { meta as romanNumeralConverter } from './roman-numeral-converter/meta';
 import { meta as rotatePdf } from './rotate-pdf/meta';
+import { meta as rsaKeypairGenerator } from './rsa-keypair-generator/meta';
 import { meta as salesTaxCalculator } from './sales-tax-calculator/meta';
 import { meta as scientificCalculator } from './scientific-calculator/meta';
 import { meta as shoeSizeConverter } from './shoe-size-converter/meta';
@@ -235,6 +236,7 @@ export const toolMetas: ToolMeta[] = [
   removeBackground,
   // WebCrypto, 0 dependency (260906)
   aesTextEncrypt,
+  rsaKeypairGenerator,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

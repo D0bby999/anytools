@@ -1,0 +1,31 @@
+---
+title: RSA Key Pair Generator — FAQ
+---
+
+## What key size should I pick?
+
+2048-bit is still the accepted minimum for RSA and is what most services default to; 3072-bit and 4096-bit add margin against future factoring advances at the cost of slower signing/verification and a bigger key file. NIST's current guidance treats 2048-bit RSA as adequate through 2030; if your key needs to stay trusted well past that, 3072-bit is the more conservative choice. 4096-bit is mostly relevant for long-lived root or CA-style keys, not everyday TLS or SSH use.
+
+## Why does 4096-bit take longer than 2048-bit?
+
+RSA key generation has to find two large random prime numbers and verify they are actually prime, and that search gets slower as the primes get bigger — roughly quadrupling in cost from 2048 to 4096 bits. The browser tab stays responsive while this runs (WebCrypto's `generateKey` is asynchronous), but expect a few seconds rather than the near-instant response you get from a 2048-bit key.
+
+## RSA-sign vs RSA-encrypt — what's the actual difference?
+
+Same RSA math, different padding scheme, and WebCrypto (correctly) refuses to let you mix them. RSASSA-PKCS1-v1_5 is for signing: proving a message came from whoever holds the private key. RSA-OAEP is for encryption: letting anyone with the public key send something only the private key holder can read. Pick sign/verify for things like JWT RS256 signatures or document signing; pick encrypt/decrypt for one-off small-message encryption (RSA is never used to encrypt bulk data directly — that's what hybrid schemes like PGP or TLS do, encrypting a symmetric key with RSA and the actual payload with AES).
+
+## What is Ed25519 and why would I pick it over RSA?
+
+Ed25519 is a modern elliptic-curve signature scheme (EdDSA over Curve25519). For the same security level, its keys and signatures are dramatically smaller than RSA's, and signing/verification is faster. It has no encryption mode — Ed25519 only signs and verifies, it does not do RSA-OAEP's job. It shows up here only when your browser's WebCrypto implements it; not every browser build does, and the tool checks for that with a real key generation attempt rather than assuming support.
+
+## Why PEM instead of some other format?
+
+PEM (Base64 text wrapped in `-----BEGIN ... -----END-----` headers, at 64 characters per line) is the de facto standard for exchanging keys with OpenSSL, most TLS libraries, and version-controlled config. WebCrypto has no native PEM export — it only gives you raw DER bytes — so this tool base64-wraps that DER output itself, matching the exact framing OpenSSL produces for the same SPKI/PKCS8 structures.
+
+## Is it safe to use a key generated in a browser tab?
+
+The math is identical to any other WebCrypto-backed generator: it draws from the same operating-system CSPRNG your browser uses everywhere else. What is different is the operational context — a browser tab has no hardware key storage, no audit log, and is one malicious extension or compromised machine away from leaking the private key the moment it's generated. For learning, local testing, throwaway keys, or CI fixtures, this is fine. For anything protecting real production traffic or signing anything valuable, generate the key on (or transfer it immediately into) a hardware security module, an offline air-gapped machine, or an audited CLI like `openssl genrsa` / `ssh-keygen` running somewhere you control end to end.
+
+## Does the private key ever leave my device?
+
+No — key generation, PEM export, and everything you see happens with WebCrypto inside this browser tab. There is no network request involved in generating or displaying the key pair.
