@@ -1,0 +1,42 @@
+---
+title: HEIC para JPG — Perguntas frequentes
+---
+
+## Por que meu iPhone salva fotos que não consigo abrir?
+
+HEIC é um contêiner HEIF contendo uma imagem comprimida com HEVC (H.265). Na mesma qualidade visual é aproximadamente metade do tamanho de JPEG, razão pela qual Apple a tornou o padrão em iOS 11. O custo é suporte: HEVC é patenteado, portanto Windows, Android e todo navegador da web carecem de decodificador ou o escondem atrás de um componente pago ou opcional. O arquivo não está quebrado — o software que o abre simplesmente não tem decodificador HEVC.
+
+Se você preferir evitar a conversão completamente, iOS pode voltar a JPEG: **Configurações → Câmera → Formatos → Mais Compatível**. Isso muda apenas fotos futuras; as que já estão no telefone continuam em HEIC.
+
+## Minhas fotos são enviadas?
+
+Não. Esta página carrega uma construção WebAssembly de libheif deste site e decodifica o arquivo dentro da guia, depois o re-codifica com o próprio codificador JPEG ou PNG do seu navegador. Nada é transmitido. Você pode assistir à aba Rede, ou desconectar após a página ter carregado e converter mesmo assim. O decodificador tem cerca de 1 MB e é buscado na primeira vez que você converte algo, não quando a página se abre.
+
+## O que perco convertendo para JPG?
+
+Detalhe, de uma forma que você pode ou não ver. O HEIC já passou por uma compressão com perda; decodificá-lo e re-codificá-lo como JPEG aplica uma segunda, diferente, e cada passagem descarta informações que a passagem anterior manteve. Com uma configuração de alta qualidade, a diferença é difícil de detectar em uma fotografia, mas é uma cópia de uma cópia — mantenha o HEIC original se a foto for importante.
+
+O arquivo muito frequentemente será **maior** do que o HEIC, às vezes o dobro do tamanho, porque JPEG é simplesmente um codec menos eficiente. Isso é esperado, não é um bug. Se o tamanho importa, leve o resultado para [Comprimir Imagem](/en/image/compress-image), ou solte as dimensões com [Redimensionar Imagem](/en/image/resize-image) primeiro. Para coletar um conjunto de fotos convertidas em um documento, [Imagem para PDF](/en/pdf/image-to-pdf) pega JPGs uma página de cada vez.
+
+Mapas de profundidade, mapas de ganho HDR, histórico de edição e frames de rajada armazenados ao lado da foto não sobrevivem: JPEG não tem lugar para mantê-los. Escolher PNG oferece uma cópia sem perda dos pixels decodificados, mas PNG é um ajuste pobre para fotografias e os arquivos geralmente são várias vezes maiores do que o JPEG.
+
+O perfil de cor também não é transportado. Uma foto de iPhone geralmente está em Display P3, uma gama mais ampla que sRGB, e o arquivo escrito aqui não tem perfil ICC anexado — portanto qualquer coisa que o abra assume sRGB. Vermelhos e verdes saturados podem sair mais planos do que no original. Se a cor exata importa, mantenha o HEIC e converta com software que incorpora o perfil.
+
+## O que acontece com uma Live Photo?
+
+Você obtém o quadro fixo — a imagem única que o contêiner marca como seu item primário, que é o quadro que Fotos mostra. O vídeo que o acompanha vive em um arquivo `.mov` separado que uma ferramenta de navegador nunca recebe, e quaisquer frames extras em uma rajada permanecem no arquivo original. Quando um arquivo se mostrar contendo mais de uma imagem, a ferramenta diz abaixo do resultado.
+
+## Fotos em retrato sairão de lado?
+
+Não. HEIF armazena rotação e espelhamento como propriedades `irot` e `imir` no item de imagem, e libheif aplica ambas durante a decodificação, portanto os pixels entregues à tela já estão do lado certo. Este é o defeito mais comum em ferramentas de imagem do navegador, e a razão pela qual não é um problema aqui é que a transformação é tratada dentro do decodificador em vez de nós lermos uma tag EXIF. É verificado em vez de assumido: a suíte de testes decodifica um HEIC cujas imagens armazenadas são 64 × 48 com uma propriedade de quarto de volta e falha, a menos que a decodificação volte 48 × 64.
+
+## Quais arquivos ela aceita?
+
+`.heic`, `.heif` e `.hif` do Canon, verificados lendo a caixa `ftyp` em vez de confiar na extensão — Windows frequentemente não relata tipo MIME nenhum para estes. AVIF é recusado na marca principal: usa o mesmo contêiner mas o codec AV1, que este decodificador não contém, e navegadores abrem AVIF nativamente, portanto o [Conversor de Formato de Imagem](/en/converters/image-format-converter) o trata — essa ferramenta deliberadamente não pega HEIC, porque uma tela de navegador não consegue decodificar uma.
+
+Fotos acima de cerca de 16,7 megapixels — o teto da tela do Safari, que uma foto de iPhone de 24 MP passa — são redimensionadas para encaixar em vez de serem recusadas, e o resultado diz o quanto. Abaixo disso nada é redimensionado.
+
+## O que é o decodificador e sob qual licença está?
+
+[libheif](https://github.com/strukturag/libheif) com libde265, compilado para WebAssembly e publicado como `libheif-js`. Ambos são **LGPL-3.0**, não MIT como o resto deste site. O binário é servido como um arquivo separado de `/third-party/libheif/`, nunca fundido em nosso próprio JavaScript, e pode ser substituído por qualquer construção compatível — veja THIRD-PARTY-NOTICES.md no repositório para o aviso completo e o texto da licença.
+

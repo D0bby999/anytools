@@ -1,0 +1,33 @@
+---
+title: Gerador de slugs — Perguntas frequentes
+---
+
+## Hífen ou sublinhado?
+
+Hífen. Google indexa hífens como separadores de palavras e sublinhados como juntadores — para SEO você quase sempre quer separação de palavras.
+
+## Os slugs devem manter diacríticos?
+
+Tecnicamente sim (`/café`), SEO-wise não (`/cafe`) — a maioria dos públicos em inglês e a maioria dos navegadores não-Latin verão codificado `%C3%A9` em vez de `é`. Remova diacríticos para portabilidade.
+
+## Qual é o comprimento máximo do slug?
+
+Nenhum limite difícil, mas ~60 caracteres é o teto prático para SEO (Google trunca exibição em SERPs após ~50–60). Fique com 3–5 palavras significativas.
+
+## Como funciona a transliteração vietnamita aqui?
+
+A biblioteca subjacente translitere diacríticos vietnamitas padrão via normalização NFD (`ế` → `e`, `ư` → `u`). Adicionamos um pequeno mapa para casos especiais (`đ` → `d`) que NFD não lida por padrão.
+
+## Slug para scripts não-Latin (chinês, japonês, árabe)?
+
+Transliteração de Pinyin/romaji é possível mas não habilitada aqui por padrão. Para chinês: use uma biblioteca pinyin antes de slugificar. Para japonês: conversão romaji. Para árabe: transliteração é debatível — muitos sites apenas mantêm os caracteres originais URL-encoded.
+
+## Por que meu slug ainda contém um ponto de exclamação?
+
+Porque alguns caracteres de pontuação sobrevivem a menos que você marque **strict**. Por padrão `Hello World!! 2026` se torna `hello-world!!-2026`; com strict ativado, o conjunto `*+~.()'"!:@` é removido e você obtém `hello-world-2026`.
+
+A maioria da pontuação já é removida sem strict — `What? Really!` fornece `what-really!`, portanto o ponto de interrogação vai enquanto o ponto de exclamação fica. Strict está desligado por padrão porque remover caracteres é destrutivo, mas para qualquer coisa indo para uma URL, ative-o.
+
+## Por que `&` se tornou a palavra "and"?
+
+Porque o slugificador subjacente translitere símbolos em palavras em vez de deletá-los, então `a/b&c` se torna `abandc`. Isso acontece em ambos os modos. Se você quer o símbolo desaparecido em vez de escrito, remova-o antes de slugificar.

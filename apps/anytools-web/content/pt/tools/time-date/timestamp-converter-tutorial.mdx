@@ -1,0 +1,79 @@
+---
+title: Unix timestamps, ISO 8601, e os bugs de zona de tempo que causam
+description: Por que cada desenvolvedor eventualmente luta com zonas de tempo, o que Y2K38 realmente é, e a regra única de armazenamento que previne a maioria dos bugs de data.
+updated: 2026-05-25
+---
+
+## Os quatro formatos que esta ferramenta fala
+
+A maioria dos argumentos de data se reduz a qual desses quatro formatos você está usando:
+
+- **Segundos Unix** — `1779451200`. Contagem inteira de segundos desde 1970-01-01 UTC. Compacto, fácil de comparar e ordenar. O "padrão" em bancos de dados, logs, e APIs projetadas antes de mobile.
+- **Milissegundos Unix** — `1779451200000`. Mesma ideia, resolução mais fina. `Date.now()` de JavaScript retorna isso. APIs originadas de ambientes pesados em JS (Stripe, Firebase) frequentemente usam isso.
+- **ISO 8601** — `2026-05-25T12:00:00Z`. Legível por humano, ordenável como string, inequívoco. O formato que você deveria estar usando em APIs JSON.
+- **RFC 2822** — `Mon, 25 May 2026 12:00:00 GMT`. O formato de cabeçalho de email/HTTP. Você o verá em cabeçalhos `Date` e `Last-Modified`.
+
+Esta ferramenta auto-detecta qual formato você colou e converte para todos os quatro, mais uma renderização legível por humano em qualquer zona de tempo IANA.
+
+## A regra única que previne a maioria dos bugs de data
+
+**Armazene tudo em UTC. Converta para hora local apenas ao exibir.**
+
+Cada bug de data recorrente vem de violar essa regra. Armazenar "2026-05-25 09:00" em um banco de dados sem uma zona de tempo significa você não tem idea que instante no tempo aquilo representa. Armazená-lo em hora do Leste significa qualquer um no Vietnã lendo o valor precisa saber a convenção. Armazenar o timestamp Unix (ou um ISO 8601 com `Z`) significa todos concordam no instante, e cada visualizador o renderiza em sua zona local.
+
+Os dois formatos aceitáveis de armazenamento:
+
+```
+1779451200            # Segundos Unix (ou millis), inequivocamente UTC
+2026-05-25T12:00:00Z  # ISO 8601 com o Z (significa UTC)
+```
+
+Os inaceitáveis:
+
+```
+2026-05-25 12:00:00       # sem zona de tempo — qual zona é essa?
+05/25/2026 12:00 PM       # também sem zona de tempo, também formato de data ambíguo
+1779451200 (Asia/Tokyo)   # timestamp Unix com uma "zona" — errado pela construção; épocas são UTC por definição
+```
+
+## O problema Y2K38
+
+Timestamps Unix em inteiros assinados de 32-bit transbordam em 2038-01-19 às 03:14:07 UTC. Após esse momento, um `time_t` de 32-bit envolve até um número negativo representando 1901. Qualquer sistema ainda usando armazenamento de tempo de 32-bit se comportará incorretamente ou travará.
+
+Sistemas modernos usam `time_t` de 64-bit, o que empurra o transbordamento para ano 292 bilhões ou assim — confortavelmente além da civilização. Mas ainda há sistemas embarcados legados, bancos de dados com colunas de timestamp `INT(11)`, e antigos formatos de arquivo binário por lá. Se você está construindo algo hoje, use armazenamento de 64-bit e você nunca pensará disso novamente.
+
+## DST: por que seu trabalho cron rodou 1am duas vezes
+
+Duas vezes por ano, regiões observando Daylight Saving Time ou pulam uma hora para frente (primavera) ou para trás (outono). Na transição de outono, a mesma hora de parede (1am–2am em Eastern dos EUA) acontece duas vezes. Na transição de primavera, 2am não existe.
+
+Se você tem um trabalho cron agendado em `0 1 * * *` em um servidor definido para uma zona de tempo observando DST:
+
+- Pular para frente na primavera: o trabalho é pulado (1am nunca aconteceu aquele dia).
+- Cair de volta no outono: o trabalho roda duas vezes (1am aconteceu duas vezes).
+
+O conserto: **agende trabalhos cron em UTC**, não hora local. A maioria das implementações de cron suporta isso; verifique a sua. Se você controla a aplicação, armazene e calcule em UTC, e apenas converta para local do usuário para exibição.
+
+## Zonas de tempo: IANA vs deslocamento
+
+`+07:00` é um **deslocamento** — um número fixo de horas de UTC. `Asia/Ho_Chi_Minh` é uma **zona de tempo** — o conjunto completo de regras históricas de como o horário local daquele local se relaciona com UTC, incluindo transições de DST e mudanças políticas históricas.
+
+Para exibição, ambos funcionam. Para armazenamento e cálculo, **sempre use o nome de zona de tempo IANA** (`Asia/Ho_Chi_Minh`, não `+07:00`). O deslocamento consegue mudar devido a DST ou decisões políticas; o nome IANA continua a significar a coisa certa.
+
+Vietnã não observa DST, então `Asia/Ho_Chi_Minh` e `+07:00` parecem idênticos hoje. Mas os equivalentes dos EUA/EU precisam de IANA — `America/New_York` corretamente muda entre `-05:00` (EST) e `-04:00` (EDT); fixá-la a um deslocamento está errado.
+
+## Casos de uso para esta ferramenta
+
+- Decodificar um JWT e descobrir quando seu timestamp `exp` pousa.
+- Ler um payload de webhook Stripe que envia `created` como Unix millis.
+- Verificação-cruzada de um timestamp de log de servidor contra sua zona de tempo local.
+- Construir um ajudador de hora de reunião entre continentes.
+- Verificação de sanidade que o timestamp que seu código escreveu realmente representa o que você quis.
+
+## Privacidade
+
+Toda conversão é local via APIs `Date` nativas + `Intl` e a biblioteca open-source [`date-fns-tz`](https://github.com/marnusw/date-fns-tz). Nenhuma solicitação para nossos servidores.
+
+## Ferramentas relacionadas
+
+- **Decodificador JWT** — inspecione claims `iat`/`exp` de um token.
+- **Gerador de UUID** — v7 UUIDs incluem um prefixo de timestamp; útil para IDs ordenáveis por tempo.

@@ -1,0 +1,61 @@
+---
+title: Pizarra en línea — Preguntas frecuentes
+---
+
+## ¿Dónde se almacena mi dibujo?
+
+En este navegador, en este perfil, en este dispositivo, y en ningún otro lugar. La pizarra se escribe en
+`localStorage` bajo la clave `anytools:whiteboard:v1` aproximadamente medio segundo después de que dejes de dibujar.
+Nada se carga, no hay cuenta, y no hay sincronización entre tu teléfono y tu portátil.
+
+La consecuencia práctica vale la pena declarar claramente: limpiar datos del sitio, ejecutar una herramienta "limpiar datos de navegación" o usar una ventana privada que luego cierres borrará la pizarra sin forma de volver. Si un dibujo importa, exporta un archivo `.excalidraw`. Ese archivo es la copia que posees.
+
+Lo que se guarda es la pizarra como se ve: formas, texto, el color de fondo del lienzo, la configuración de la cuadrícula y dónde habías desplazado. Las imágenes que pegaste y luego borraste no son parte de eso — cada guardado mantiene solo los datos de imagen que la pizarra aún muestra, por lo que eliminar una captura de pantalla devuelve el espacio en lugar de dejarlo en almacenamiento para la vida del perfil del navegador.
+
+## ¿Cuál es el editor?
+
+[Excalidraw](https://github.com/excalidraw/excalidraw), el editor de código abierto con licencia MIT,
+insertado como un componente React. La versión aquí es 0.18.1. Es la misma superficie de edición que
+excalidraw.com, menos cada característica que necesita un servidor: sin colaboración en vivo, sin
+enlaces compartibles, sin "wireframe a código", sin integración de Excalidraw+.
+
+## ¿Se cargan las fuentes manuscritas desde un CDN?
+
+No. El comportamiento predeterminado de Excalidraw es obtener Excalifont, Virgil, Cascadia Code, Nunito, Lilita
+One, Comic Shanns, Liberation Sans y Xiaolai de `esm.sh` bajo demanda. Esta compilación establece
+`EXCALIDRAW_ASSET_PATH` en `/third-party/excalidraw/` y sirve a todos ellos desde este dominio.
+Si abres el panel de red de tu navegador mientras escribes, cada solicitud `.woff2` va a este sitio.
+
+Eso incluye la familia Xiaolai de 12 MB, que cubre texto chino, japonés y coreano. Solo se
+solicita cuando realmente escribes esos caracteres — las caras de fuente se dividen por rango Unicode —
+pero se aloja aquí en lugar de descartarse, porque una fuente faltante no es un espacio en blanco: Excalidraw enumera
+el CDN como una fuente de reserva en la misma regla `@font-face`, por lo que eliminarlo enviaría a usuarios CJK a
+un tercero sin decirles.
+
+## ¿Puedo colaborar con alguien en tiempo real?
+
+No. La colaboración necesita un servidor para retransmitir la sesión, y este sitio no tiene uno para
+dibujos. Si necesitas eso, excalidraw.com lo hace bien y es gratis. Lo que puedes hacer aquí es
+exportar un archivo `.excalidraw` y enviarlo a alguien, quien puede abrirlo aquí o allá.
+
+## ¿Un archivo exportado aquí se abrirá en excalidraw.com?
+
+Sí. `.excalidraw` es JSON plano con una envoltura documentada, y la exportación utiliza el serializador propio de Excalidraw, por lo que el archivo es byte-compatible con lo que excalidraw.com escribe. El inverso también funciona — una escena guardada allá se abre aquí. Los archivos por encima de 5 MB se rechaza, que es un límite del almacenamiento del navegador en lugar del formato.
+
+## ¿Puedo incrustar un video de YouTube o un marco de Figma en la pizarra?
+
+No. Excalidraw tiene una característica "Incrustar en la Web" que pone un `<iframe>` en vivo en el lienzo — un video, un archivo de Figma, una esencia, un tweet — y se apaga aquí en su totalidad. La entrada de la barra de herramientas está oculta, pegar un enlace te da un enlace en lugar de un reproductor, y si abres un archivo `.excalidraw` que ya contiene incrustaciones, se eliminan antes de que se cargue el archivo y la herramienta te dice cuántas eliminó.
+
+La razón es la promesa en el resto de esta página. Una incrustación es una página de terceros que se ejecuta dentro de esta: obtiene de los servidores de ese tercero, y puede ver que la abriste. Eso es lo opuesto a "nada sale de tu dispositivo", y un archivo `.excalidraw` es un documento JSON plano que cualquiera puede enviarte por correo, por lo que "solo si añades uno tú mismo" no habría sido verdad de todos modos. Todo lo demás sobre una escena — formas, texto, imágenes, flechas, marcos — se abre normalmente.
+
+## ¿Por qué solo puedo importar `.excalidraw`, no `.excalidrawlib`?
+
+Un archivo `.excalidrawlib` es una biblioteca de formas, no un dibujo, y entra a través del panel de biblioteca en el editor en lugar del botón "Abrir". Entregar uno al botón Abrir te da un mensaje que dice exactamente eso en lugar de un error genérico.
+
+## ¿Funciona en un teléfono?
+
+Se renderiza y es utilizable con un dedo o un estilete, pero un lienzo de 70%-de-viewport en una pantalla pequeña es apretado, y la barra de herramientas se desmorona. Esta es una herramienta de escritorio primero. Los dibujos no se sincronizan en ningún lado, así que una pizarra comenzada en un teléfono se queda en ese teléfono.
+
+## ¿Hay un límite de deshacer o un historial de guardado automático?
+
+Deshacer es el propio de Excalidraw, en la memoria, y se restablece cuando recargas la página. No hay historial de versiones — el guardado automático mantiene exactamente un estado, el último. "Nueva pizarra" lo borra después de preguntar.

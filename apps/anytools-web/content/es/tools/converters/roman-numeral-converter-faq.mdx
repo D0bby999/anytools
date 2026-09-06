@@ -1,0 +1,33 @@
+---
+title: Conversor de Números Romanos — Preguntas frecuentes
+---
+
+## ¿Por qué rechaza IIII cuando obviamente puedo leerlo?
+
+Porque la notación estándar permite que un símbolo se repita como máximo tres veces, y 4 se escribe IV. IIII es legible y aparece en caratulas de reloj — tradicionalmente, por equilibrio visual contra el VIII opuesto — pero no es notación estándar, y un convertidor que silenciosamente acepta enseña la forma incorrecta.
+
+La herramienta te dice lo que cree que quisiste decir, así que IIII reporta "¿Quisiste decir IV (4)?" en lugar de un rechazo desnudo.
+
+## ¿Cómo decide qué es válido?
+
+Convertiendo tu entrada a un número y luego convirtiendo ese número de vuelta. Si el resultado no coincide exactamente con lo que escribiste, la entrada no es notación estándar. Una regla atrapa IIII, IM, VX, XXXX y cada otra forma legible-pero-incorrecta a la vez — y no puede no estar de acuerdo con la dirección de número-a-Romano, porque la usa.
+
+## ¿Por qué se detiene en 3999?
+
+Porque los números romanos estándar no tienen símbolo por encima de M (1000), así que 3999 — MMMCMXCIX — es el número más grande que puede escribirse con tres o menos M's repetidas. Los valores más grandes necesitan una línea superior (un vinculum) significando "multiplicar por 1000", que es una convención tipográfica en lugar de un carácter, y no hay forma de texto plano acordada para ello. En lugar de inventar una, la herramienta dice dónde está el límite y por qué.
+
+## ¿Cuál es la única pareja sustractiva válida?
+
+Solo seis: IV (4), IX (9), XL (40), XC (90), CD (400) y CM (900). La regla es que solo I, X y C son sustraídos, y solo de los dos símbolos siguientes. Por eso IM es inválido para 999 aunque se lee como 1000 − 1; la forma correcta es CMXCIX.
+
+## ¿Es posible cero o un número negativo?
+
+No. Los números romanos no tienen símbolo para cero — el concepto llegó a Europa más tarde, con notación posicional — y ninguna notación para negativos. La herramienta cubre 1 a 3999 y lo dice cuando vas afuera.
+
+## ¿Puedo escribir minúsculas?
+
+Sí. La entrada se convierte a mayúsculas antes de analizarse, y los espacios circundantes se ignoran, así que `mcmxciv` y `  MCMXCIV  ` ambos dan 1994. La salida siempre es mayúscula, que es la forma convencional.
+
+## ¿Se envía algo a un servidor?
+
+No. Ambas direcciones son un bucle corto sobre una tabla de búsqueda, ejecutándose en esta pestaña del navegador. Nada se transmite y nada se almacena.

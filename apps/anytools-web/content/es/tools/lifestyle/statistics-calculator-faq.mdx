@@ -1,0 +1,39 @@
+---
+title: Calculadora de estadísticas — Preguntas frecuentes
+---
+
+## ¿Qué calcula?
+
+Recuento, suma, media, mediana, moda, mínimo, máximo, rango, varianza, desviación estándar, y los cuartiles primero y tercero, el conjunto descriptivo estándar para una única lista de números.
+
+## ¿Debería elegir muestra o población?
+
+Población si tus números son el grupo completo que te importa; muestra si son un subconjunto que estás usando para inferir algo sobre un grupo más grande. En la práctica, la muestra es la opción más común, porque los datos suelen ser una muestra de algo.
+
+## ¿Qué cambia realmente entre los dos?
+
+El denominador en la varianza. La población divide por `n`; la muestra divide por `n − 1`. Esa corrección, la corrección de Bessel, existe porque la dispersión de una muestra subestima sistemáticamente la de la población, y dividir por el número más pequeño compensa. Con listas grandes la diferencia es negligible; con pequeñas no lo es.
+
+## ¿Por qué muestra varios modos?
+
+Porque puede haber varios. La herramienta recopila cada valor empatado por la frecuencia más alta en lugar de elegir uno arbitrariamente. Si cada valor aparece una vez, todos son modos, que es la respuesta honesta, y una señal de que la moda no te está diciendo nada útil sobre esos datos.
+
+## ¿Por qué la mediana es diferente de la media?
+
+Porque miden cosas diferentes y no están de acuerdo siempre que los datos están sesgados. La media se ve afectada por valores extremos; la mediana no. Cuando divergen drásticamente, esa brecha es en sí misma el hallazgo, usualmente significa valores atípicos o una cola larga, y es por eso que el ingreso se reporta como una mediana en lugar de una media.
+
+## ¿Cómo se calculan los cuartiles?
+
+De los valores ordenados, con la mediana del conjunto completo como punto de referencia. Ten en cuenta que hay varios convenciones de cuartiles aceptadas y los paquetes estadísticos no están todos de acuerdo, así que un cuartil de esta herramienta puede diferir ligeramente del producido por otro software. La diferencia es método, no error.
+
+## ¿Para qué es el rango?
+
+Muy poco por sí solo, más allá de una verificación rápida de cordura de que ningún valor está notablemente fuera de lugar. Depende de exactamente dos números, así que un solo error de tipografía lo cambia completamente. La desviación estándar es la medida más informativa de dispersión.
+
+## ¿Importa el orden de mis números?
+
+No. La herramienta ordena internamente, así que pégalos en cualquier orden que tengas.
+
+## ¿Se cargan mis datos?
+
+No. Todo se calcula en tu navegador y nada se almacena.

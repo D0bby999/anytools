@@ -1,0 +1,59 @@
+---
+title: Convertidor de DOCX a Markdown — Preguntas frecuentes
+---
+
+## ¿Qué sobrevive a la conversión y qué se pierde?
+
+Lo que sobrevive es la estructura. Los títulos se convierten en `#` y `##` — y se convierten en títulos porque el párrafo lleva el estilo *Heading 1* de Word, no porque sea grande y negrita. Negrita e itálica sobreviven, al igual que las listas con viñetas y numeradas incluyendo su anidación, hipervínculos con sus destinos, citas, superíndice y subíndice, y tablas.
+
+Lo que se pierde es todo lo que Markdown no tiene forma de decir. Fuentes, tamaños, colores, resaltado, alineación, espaciado de línea, saltos de página, columnas, encabezados y pies, números de página, cuadros de texto, formas, SmartArt, ecuaciones, gráficos y comentarios desaparecen. Notas al pie y notas finales se convierten a texto pero su ubicación exacta cambia. Los cambios rastreados se aplanan: el documento se convierte como si cada cambio hubiera sido aceptado, así que revisa un documento con cambios rastreados antes de confiar en la salida.
+
+Una advertencia que vale la pena saber sobre estilos. Los documentos de Word hechos a partir de una plantilla a menudo usan nombres de estilos personalizados — un título con estilo *Report Heading 2* en lugar de *Heading 2*. Esos no son reconocidos, y el párrafo se convierte como texto ordinario. Cuando eso sucede el convertidor lo reporta en las notas bajo la salida, listando cada estilo que no entendió. Si tus títulos salieron planos, esa lista es donde encontrarás la razón.
+
+## ¿Por qué la primera fila de mi tabla se usa como encabezado?
+
+Porque GitHub Flavored Markdown no tiene tabla sin una. Cada tabla de GFM es una fila de encabezado, un separador `| --- | --- |`, y luego filas de cuerpo; no hay sintaxis para una tabla sin encabezado. Word, mientras tanto, solo registra una fila como encabezado si el autor marcó explícitamente *Repeat as header row* en las propiedades de la tabla, lo que casi nadie hace.
+
+Dejado solo, esa combinación significa que la mayoría de tablas reales no pueden expresarse en absoluto, y el convertidor subyacente regresa emitiendo HTML `<table>` sin procesar en medio de tu Markdown. Así que esta herramienta promueve la primera fila de cualquier tabla que no tenga una fila de encabezado marcada, y la trata como el encabezado.
+
+Esa es una suposición, y puede estar equivocada. Si tu tabla comienza directamente con datos, la primera fila de datos se convertirá en el encabezado y necesitarás agregar una fila de nuevo a mano. Es un compromiso deliberado: una fila editable versus un bloque de HTML que ningún renderizador de Markdown estilizará.
+
+Otras dos cosas suceden a las tablas aquí. Una celda cuyo texto Word dividió en varios párrafos se une con `<br>`, porque un salto de línea real dentro de una fila de tabla de Markdown termina la fila y destruye la tabla. Y un `|` literal dentro del texto de la celda se escapa a `\|`, ya que uno sin escape silenciosamente agregaría una columna a esa fila.
+
+## ¿Qué sucede con las celdas fusionadas en una tabla?
+
+Se desfusionan. Markdown no tiene fusión en absoluto: cada fila de una tabla es el mismo número de campos separados por `|`, alineados por posición, y no hay sintaxis que diga "este encabezado cubre dos columnas".
+
+Así que una celda fusionada en dos columnas se convierte en dos celdas — la primera mantiene el texto, la segunda está vacía — y una celda fusionada en dos filas se convierte en la celda más una vacía directamente debajo. El resultado es un rectángulo, con las columnas aún alineadas bajo los encabezados correctos. Se lee diferente del original de Word, pero nada se pierde, y es una tabla que tu renderizador dibujará.
+
+Eso importa más de lo que suena. Dejado solo, un encabezado fusionado en dos columnas produce una fila de encabezado más estrecha que las filas de cuerpo, y Markdown con sabor GitHub lo resuelve truncando cada fila al ancho del encabezado — así que una tabla de tres columnas con un encabezado fusionado silenciosamente envía su última columna eliminada.
+
+Dos tablas no pueden rescatarse de esta manera, y ambas se emiten como HTML ordinario en lugar de una tabla de tubería deformada: una tabla que contiene otra tabla dentro de una de sus celdas, lo que Markdown no tiene forma de expresar en absoluto, y una tabla cuyas fusiones reclaman más columnas que cualquier documento real tiene. HTML dentro de un archivo Markdown se renderiza correctamente en GitHub y en la mayoría de generadores de sitios estáticos; una tabla de tubería rota no se renderiza en ningún lugar.
+
+## ¿Qué sucede con las imágenes en mi documento?
+
+Por defecto se eliminan, y la herramienta te dice cuántas eliminó. Hay un interruptor para incrustarlas, como URIs de datos base64 dentro del Markdown.
+
+El defecto está desactivado por una razón práctica. Base64 es aproximadamente un tercio más grande que los bytes que codifica, así que una sola foto de 2 MB se convierte en aproximadamente 2.7 MB de texto ilegible sentado en medio de tu documento. Tres fotos y el Markdown ya no es algo que una persona pueda abrir en un editor. Los URIs de datos tampoco funcionan en todas partes: GitHub los elimina del Markdown renderizado, y varios generadores de sitios estáticos hacen lo mismo.
+
+Activa el interruptor cuando el documento tiene una o dos imágenes pequeñas — un logo, un diagrama — y quieres un archivo único y autónomo. Déjalo desactivado cuando las imágenes importan, y ponlas de nuevo como archivos ordinarios con rutas ordinarias después.
+
+## ¿Se cargan mis documentos en algún lugar?
+
+No. El `.docx` se lee en esta pestaña del navegador. Va del selector de archivo a la página a través de la File API, se descomprime y analiza en la memoria propia de la página, y el resultado es texto que nunca deja tu máquina. Puedes confirmarlo en la pestaña Network de tus herramientas de desarrollador, o desconectándote de la red después de que la página haya cargado y convertiendo de todas formas.
+
+La vista previa se renderiza dentro de un marco aislado con scripting deshabilitado, así que nada que llegara en tu documento puede ejecutarse. El marco también está bloqueado de cargar cualquier cosa sobre la red. Esa segunda parte es la que importa en la práctica: un documento que contiene el texto de una etiqueta de imagen que apunta a algún otro sitio web haría, en un marco sin ese bloque, que tu navegador fuera a buscar esa imagen — diciéndole a quien ejecuta ese servidor que habías abierto el documento. No puede. Las imágenes ya incrustadas en el documento, como URIs `data:`, siguen mostrándose.
+
+El comercio de privacidad es la memoria. Todo sucede en el hilo principal de la página, así que la pestaña deja de responder mientras se convierte un documento grande. Por encima de 20 MB verás una advertencia que lo dice; esa es una advertencia, no un rechazo. Pasado 50 MB el documento es rechazado antes de que se abra, porque el XML descomprimido, el HTML y el Markdown deben mantenerse en la pestaña a la vez y la página se quedaría sin memoria a mitad de camino sin nada que mostrar por ello.
+
+## ¿Por qué no abrirá mi archivo .doc, .odt, .rtf o Pages?
+
+Porque son formatos no relacionados. Un `.docx` es un archivo zip de XML, el formato que Word escribe por defecto desde 2007, y es el único que lee la biblioteca subyacente — mammoth. El `.doc` anterior es un formato de documento compuesto binario que no comparte nada con él excepto tres letras de la extensión. `.odt` es OpenDocument, `.rtf` es un marcado de texto plano de los años 80, y los archivos de Pages son el formato de paquete propio de Apple.
+
+Cada uno de esos puede convertirse en diez segundos por la aplicación que lo hizo: abre el archivo en Word, LibreOffice Writer, Google Docs o Pages y usa *Save As* o *Export* para producir un `.docx`. Luego suéltalo aquí.
+
+## ¿Qué puedo hacer con la salida?
+
+La pestaña Markdown es la salida principal — cópiala, o descárgala como archivo `.md`. La pestaña HTML es el HTML limpio que el convertidor produjo en el camino, que a menudo es lo que quieres si el destino es un CMS en lugar de un repositorio. La pestaña de vista previa renderiza el Markdown para que puedas ver cómo se verá.
+
+Desde aquí, [Markdown ↔ HTML](/en/converters/md-html) convertirá entre los dos formularios de nuevo después de que los hayas editado, [Word Counter](/en/lifestyle/word-counter) te dará un recuento de palabras y tiempo de lectura para el texto convertido, y [XLSX to CSV / JSON](/en/converters/xlsx-to-csv) hace el trabajo equivalente para un libro de Excel.

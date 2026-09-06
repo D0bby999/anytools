@@ -1,0 +1,39 @@
+---
+title: Códigos de Estado HTTP y Tipos MIME — Preguntas frecuentes
+---
+
+## ¿Qué es esta página?
+
+Una referencia buscable de códigos de estado HTTP y tipos MIME comunes. Busca por número, por nombre, o filtra por clase — 1xx informativo, 2xx éxito, 3xx redirección, 4xx error de cliente, 5xx error de servidor.
+
+## ¿Cómo leo el primer dígito?
+
+Te dice con quién hablar. Un 4xx dice que la solicitud fue incorrecta — corrige al llamador. Un 5xx dice que el servidor falló mientras manejaba una solicitud válida — corrige el servidor. Obtener ese límite correcto es la mayor parte del valor en el esquema, y es por eso que devolver 200 con un cuerpo de error hace que los sistemas sean difíciles de operar: cada monitor y caché aguas abajo ahora cree que la llamada tuvo éxito.
+
+## ¿Cuál es la diferencia entre 301 y 302?
+
+301 es permanente y 302 es temporal. Los navegadores y motores de búsqueda almacenan en caché un 301 agresivamente — a menudo indefinidamente — así que un 301 emitido por error es genuinamente difícil de deshacer, porque los clientes dejan de pedir la URL antigua. Usa 302 (o 307) mientras no estés seguro.
+
+## ¿Qué hay de 307 y 308?
+
+Son las versiones estrictas de 302 y 301. Los códigos más antiguos permitían a los clientes cambiar un POST a un GET al seguir la redirección; 307 y 308 lo prohíben, preservando el método y el cuerpo. Si estás redirigiendo cualquier cosa que no sea un GET, prefiere ellos.
+
+## ¿Cuándo debo usar 401 versus 403?
+
+401 significa "no autenticado" — no has probado quién eres, y un encabezado `WWW-Authenticate` debe acompañarlo. 403 significa "autenticado, pero no permitido". Una fuga común es devolver 403 donde 404 sería mejor: decirle a un usuario no autorizado que existe un recurso es en sí información.
+
+## ¿Para qué es 304 No Modificado?
+
+Solicitudes condicionales. El cliente envía un validador como `If-None-Match`, y si nada cambió el servidor responde 304 sin cuerpo — ahorrando la transferencia mientras confirma que la copia en caché sigue siendo buena.
+
+## ¿Es 418 real?
+
+Es un código genuinamente registrado de un RFC de Abril de Tontos — "Soy una tetera" — y periódicamente se propone para su eliminación. No lo uses en producción; aparece en la lista por completitud.
+
+## ¿Por qué necesito tipos MIME junto a códigos de estado?
+
+Porque ambos son parte de obtener una respuesta correcta. Un estado correcto con `text/plain` en JSON deja a los clientes adivinando, y los navegadores pueden inspeccionar el contenido y comportarse de formas que no pretendías.
+
+## ¿Se envía algo a un servidor?
+
+No. La lista se incluye con la página y se busca localmente.

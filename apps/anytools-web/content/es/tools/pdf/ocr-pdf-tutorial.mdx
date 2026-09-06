@@ -1,0 +1,80 @@
+---
+title: Guía completa para OCR de un PDF escaneado en el navegador
+description: Qué separa un escaneo de un PDF de texto, cómo la calidad del escaneo y los DPI deciden el resultado, por qué los modelos de idioma aquí son los rápidos, qué es realmente un PDF buscable, y qué descarga la primera ejecución.
+updated: 2026-09-03
+---
+
+## Primero, averigua si necesitas OCR en absoluto
+
+Un PDF puede contener texto de dos maneras completamente diferentes, y se ven idénticas en pantalla.
+
+Un **PDF digital** — cualquier cosa exportada desde Word, un navegador, LaTeX o una herramienta de diseño — almacena los caracteres en sí. Abrirlo e intenta seleccionar una oración: si el cursor resalta palabras, el texto ya está allí. No necesitas OCR, y ejecutarlo sería un desperdicio de varios minutos. Copia el texto, o usa una herramienta PDF-a-texto.
+
+Un **PDF escaneado** almacena una fotografía de una página. Seleccionar una oración no resalta nada, o resalta un rectángulo que cubre la imagen de página completa. Buscar no encuentra nada. Esto es para qué OCR es: leer las formas en la imagen y calcular qué caracteres son.
+
+Los documentos mixtos existen y son comunes — un contrato digital con una página de firma escaneada adjunta, por ejemplo. Ejecutar OCR sobre el todo es inofensivo pero lento; el campo de rango de páginas te permite hacer solo las páginas escaneadas.
+
+## La calidad del escaneo decide la mayoría del resultado
+
+El reconocimiento óptico de caracteres es coincidencia de patrones sobre píxeles. Nada posterior puede recuperar detalle que el escaneo nunca capturó, así que la calidad de la fuente domina todo lo demás que puedas controlar.
+
+**Resolución.** La figura útil no es el DPI del archivo sino la altura de una letra minúscula en píxeles. Por debajo de aproximadamente 20 píxeles, el reconocimiento se degrada mal; alrededor de 30 a 40 píxeles es cómodo. El tipo de cuerpo ordinario de 10 puntos llega a eso en aproximadamente 200–300 DPI. Un escaneo de 600 DPI de la misma página es cuatro veces los datos sin ganancia en precisión.
+
+**Rectitud.** Una página alimentada torcida a través de un escáner, o fotografiada en ángulo, es mucho más difícil que una cuadrada. Tesseract tolera un grado o dos y tiene dificultades más allá. Esta herramienta no desinclinación: la rectificación automática necesita una estimación de ángulo, y una estimación incorrecta empeora las cosas silenciosamente, que es un mal trato para una herramienta que no puedes inspeccionar. Si tus páginas están visiblemente inclinadas, volver a escanearlas rectas vale más que cualquier configuración.
+
+**Contraste y uniformidad.** Texto gris sobre un fondo gris, un flash telefónico destrozando el medio de una página brillante, una sombra de la propia cabeza del fotógrafo — cada uno de estos elimina líneas completas. Un escáner de cama plana o una aplicación de escaneo de documentos telefónica vence a una fotografía casual por un amplio margen.
+
+**Compresión.** Un escaneo ya guardado como un JPEG pequeño lleva artefactos de zumbido alrededor de cada letra. Son invisibles de un vistazo y muy visibles para un clasificador de caracteres.
+
+**Diseño.** El texto simple de una columna es el caso fácil. Tablas densas, diseños de varias columnas con canaletas estrechas, texto impreso sobre fotografías, y caras de visualización estilizadas son todo considerablemente más difícil. La escritura a mano no funciona en absoluto — los modelos de Tesseract se entrenan en tipo impreso, y la cursiva produce tonterías confiables.
+
+## Por qué la herramienta renderiza cada página a 200 DPI
+
+Antes del reconocimiento cada página tiene que convertirse en píxeles, así que la herramienta la rasteriza con `pdf.js`. La escala que usa es 200 puntos por pulgada, y ambas direcciones desde allí son peor.
+
+Menor, y las letras caen bajo la altura de píxel que los modelos necesitan. Mayor, y estás ampliando una fotografía: si el escaneo integrado es 200 DPI, renderizar la página a 400 no inventa nuevo detalle, solo cuadruplica el trabajo. Ya que un PDF escaneado es usualmente 200–300 DPI para empezar, 200 es donde la precisión deja de mejorar y el costo sigue subiendo.
+
+Dos ajustes suceden automáticamente. Las páginas se convierten a escala de grises, que aproximadamente duplica el tiempo de reconocimiento y pierde nada — Tesseract descarta el color internamente de todos modos. Y una página lo suficientemente grande como para exceder lo que los navegadores asignarán para un lienzo (un plan A0 a 200 DPI sería aproximadamente 119 megapíxeles) se renderiza a una escala reducida en lugar de fallar; las posiciones de palabras se mapean a través del tamaño real de la imagen, así que la capa buscable se mantiene correcta.
+
+## Por qué los modelos de idioma aquí son los "rápidos"
+
+Tesseract publica sus modelos entrenados en tres conjuntos. `tessdata_best` es el más preciso y el más grande. `tessdata` es el del medio. `tessdata_fast` es cuantizado entero para velocidad y tamaño.
+
+Este sitio envía `fast`, y la razón es aritmética en lugar de preferencia. El inglés en `fast` es aproximadamente 4 MB; en `best` es aproximadamente cuatro veces eso. Cada visitante que presiona el botón lo descarga. La diferencia de precisión es real pero pequeña — aproximadamente dos a tres por ciento de caracteres, concentrados en los escaneos difíciles donde la salida necesita corrección de todos modos. Pagar 15 MB por visitante por eso en cada idioma sería la predeterminada incorrecta, así que no lo es. También es un techo genuino en lo que esta herramienta puede hacer, que es por qué se escribe aquí en lugar de dejarse para que descubras.
+
+Cuatro idiomas están disponibles — inglés, vietnamita, español y portugués — porque esos cuatro archivos de modelo se envían con el sitio. Tesseract soporta más de cien, pero cada uno adicional tendría que obtenerse de un CDN de terceros en el momento en que lo seleccionaste, lo que filtraría el hecho de que estás leyendo un documento en ese idioma. Eso es la solicitud que esta herramienta existe para evitar, así que la lista se detiene en lo que se puede servir desde aquí.
+
+## Qué "PDF buscable" realmente significa
+
+Esta es la opción que la mayoría de las personas buscan, y el nombre está haciendo mucho trabajo.
+
+La herramienta carga tu archivo original con `pdf-lib` y, para cada palabra que el reconocedor ubicó, dibuja esa palabra a opacidad cero en el lugar en la página donde está la tinta. El escaneo debajo no se toca: no se rerenderiza, no se recomprime, no se convierte. Lo que devuelves se ve pixel a pixel como lo que pusiste, pero Ctrl+F encuentra palabras, la selección de texto funciona, y cualquier cosa que indexe PDFs — Spotlight, Windows Search, un sistema de gestión de documentos — puede leerlo.
+
+Tres detalles merecen saberse:
+
+- **La posición viene del reconocedor, no de adivinanzas.** El cuadro de cada palabra está en píxeles de la imagen renderizada, origen arriba-izquierda; las coordenadas de PDF son puntos, origen abajo-izquierda; y una página puede llevar una bandera `/Rotate` que el lector aplica pero la capa de dibujo no. Las tres conversiones suceden por página, usando el ancho real de la imagen renderizada en lugar de un DPI asumido.
+- **Las palabras de baja confianza se dejan fuera.** Por debajo del 30% de confianza, la salida suele ser motas leídas como puntuación, e incluirla hace que seleccionar una línea copie basura entre las palabras reales.
+- **La capa es tan buena como el OCR.** Una palabra leída incorrectamente es buscable bajo la ortografía equivocada. El texto invisible oculta sus propios errores, que es una razón para verificar la salida `.txt` en una página o dos antes de confiar en un lote grande.
+
+Para inglés, español y portugués el texto invisible usa Helvetica, una de las fuentes que cada lector PDF ya tiene, así que el archivo crece por decenas de kilobytes. El vietnamita necesita una fuente Unicode integrada — el conjunto de caracteres Helvetica no puede escribirlo — así que un archivo Noto Sans de 421 KB se obtiene desde este sitio y se subconjunta solo a los glifos utilizados.
+
+## Qué descarga la primera ejecución, y dónde va
+
+Abrir la página no descarga ninguna maquinaria de OCR. Presiona **Reconocer texto** y tres cosas llegan, todas de este origen:
+
+| Qué | Tamaño | Almacenado después |
+|---|---|---|
+| Script del worker | ~110 KB | Caché HTTP normal |
+| Motor WebAssembly | ~3,8 MB | Caché HTTP normal |
+| Datos de idioma | 0,5–4 MB | IndexedDB, en tu navegador |
+
+El archivo de idioma se escribe en IndexedDB de tu navegador por `tesseract.js`, que es por qué el segundo documento en el mismo idioma comienza a reconocer inmediatamente. Es tu propio almacenamiento; borrar datos del sitio lo elimina y la siguiente ejecución lo obtiene de nuevo. Nada se envía a ningún lado — el único tráfico de red son estas descargas desde el sitio en el que ya estás.
+
+## Un orden de operaciones que funciona
+
+1. Intenta seleccionar texto en tu PDF primero. Si selecciona, no necesitas esta herramienta.
+2. Elige el idioma del documento, no tu propio idioma.
+3. Ejecuta una página — pon `1` en el rango de páginas — y lee la salida. Treinta segundos aquí te dice si el escaneo es lo suficientemente bueno antes de gastar diez minutos en 200 páginas.
+4. Si la confianza está bajo aproximadamente 70%, arregla la entrada en lugar de la configuración: reescanea recto, a 300 DPI, en escala de grises.
+5. Decide qué realmente quieres. `.txt` si el texto va a ser editado o reutilizado; PDF buscable si el documento tiene que mantenerse como documento y solo necesita ser encontrable.
+6. Para trabajos largos, usa el rango de páginas para trabajar en lotes. **Detener** abandona la ejecución si cambias de idea — no entrega las páginas leídas hasta ahora, que es exactamente por qué los lotes vale la pena el problema.

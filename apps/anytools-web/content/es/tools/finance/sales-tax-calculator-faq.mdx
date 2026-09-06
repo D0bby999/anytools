@@ -1,0 +1,35 @@
+---
+title: Calculadora de impuesto sobre ventas — Preguntas frecuentes
+---
+
+## ¿Para qué sirven los dos modos?
+
+Agregar y quitar. **Agregar** toma una cantidad antes de impuestos y te da el impuesto y el total. **Quitar** toma un total inclusive de impuestos y trabaja hacia atrás a la cantidad antes de impuestos — útil cuando un recibo solo muestra la cifra final, o cuando necesitas la cantidad neta para gastos o contabilidad.
+
+## ¿Cómo funciona el cálculo inverso?
+
+Dividiendo, no restando un porcentaje. Pre-impuesto es `total ÷ (1 + tasa/100)`, e impuesto es lo que queda. Restar el 10% de un total inclusive del 10% da la respuesta equivocada, porque el 10% se cobró sobre la cifra pre-impuesto más pequeña, no sobre el total.
+
+## ¿Puedes mostrar por qué falla restar el porcentaje?
+
+A una tasa del 10%, 100 se convierte en 110. Regresando, `110 ÷ 1.10 = 100` — correcto. Pero `110 − 10% de 110 = 99` — una unidad corta. Cuanto mayor es la tasa, mayor es el error, que es por qué existe el modo inverso en lugar de dejarte hacerlo a mano.
+
+## ¿Qué tasa de impuesto debo ingresar?
+
+La que se aplique a tu transacción — la herramienta no tiene tabla de tasa incorporada y no adivina. En los EE.UU., el impuesto sobre ventas se establece por estado y a menudo por condado y ciudad además, y lo que está sujeto a impuesto varía por categoría. En otros lugares puede ser un IVA o GST nacional único. Busca la tasa que realmente se aplica en lugar de asumir una familiar.
+
+## ¿Maneja IVA y GST?
+
+Sí, la aritmética es idéntica: ambos son impuestos porcentuales sobre una cantidad neta. La distinción que importa es la presentación — los precios de IVA y GST usualmente se muestran inclusive de impuestos, así que el modo quitar es el que normalmente querrás, mientras que el impuesto sobre ventas estadounidense típicamente se agrega en el registro, haciendo que el modo agregar sea el predeterminado allí.
+
+## ¿Por qué mi cifra está un centavo diferente del recibo?
+
+Reglas de redondeo. Muchas jurisdicciones requieren que el impuesto se calcule y redondee por artículo de línea en lugar de una vez en el total de la cesta, y la dirección del redondeo varía. Las pequeñas discrepancias contra un recibo real se esperan; las grandes usualmente significan una tasa diferente o un artículo parcialmente exento.
+
+## ¿Maneja artículos gravados a diferentes tasas?
+
+No — aplica una tasa a una cantidad. Para una cesta mixta, divídela por tasa y ejecuta cada grupo por separado.
+
+## ¿Se transmite algo que ingrese?
+
+No. El cálculo se ejecuta en tu navegador.

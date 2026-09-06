@@ -1,0 +1,36 @@
+---
+title: Calculadora de imposto sobre vendas — Perguntas frequentes
+---
+
+## Para que servem os dois modos?
+
+Adicionar e remover. **Adicionar** pega um valor pré-imposto e fornece o imposto e o total. **Remover** pega um total inclusivo de imposto e trabalha para trás até o valor pré-imposto — útil quando um recibo mostra apenas o valor final, ou quando você precisa do valor líquido para despesas ou contabilidade.
+
+## Como funciona o cálculo reverso?
+
+Dividindo, não subtraindo uma porcentagem. Pré-imposto é `total ÷ (1 + taxa/100)` e o imposto é o que resta. Subtrair 10% de um total inclusivo de 10% dá a resposta errada, porque os 10% foram cobrados sobre a figura pré-imposto menor, não sobre o total.
+
+## Você pode mostrar por que subtrair a porcentagem falha?
+
+Com uma taxa de 10%, 100 se torna 110. Voltando, `110 ÷ 1,10 = 100` — correto. Mas `110 − 10% de 110 = 99` — uma unidade faltando. Quanto maior a taxa, maior o erro, razão pela qual o modo reverso existe em vez de deixá-lo fazer à mão.
+
+## Qual taxa de imposto devo inserir?
+
+Qualquer uma que se aplique à sua transação — a ferramenta não tem tabela de taxas integrada e não faz suposições. Nos EUA, o imposto sobre vendas é definido por estado e frequentemente por condado e cidade além disso, e o que é tributável varia por categoria. Em outros lugares, pode ser um IVA nacional único ou GST. Procure a taxa que realmente se aplica em vez de assumir uma familiar.
+
+## Ela lida com IVA e GST?
+
+Sim, a aritmética é idêntica: ambas são taxas percentuais sobre um valor líquido. A distinção que importa é apresentação — os preços de IVA e GST geralmente são mostrados com imposto incluído, portanto o modo remover é aquele que você normalmente desejará, enquanto o imposto sobre vendas nos EUA é tipicamente adicionado no caixa, tornando o modo adicionar o padrão lá.
+
+## Por que meu valor está um centavo diferente do recibo?
+
+Regras de arredondamento. Muitas jurisdições exigem que o imposto seja calculado e arredondado por item de linha em vez de uma vez no total da cesta, e a direção de arredondamento varia. Pequenas discrepâncias contra um recibo real são esperadas; as grandes geralmente significam uma taxa diferente ou um item parcialmente isento.
+
+## Ela lida com itens tributados em diferentes taxas?
+
+Não — aplica uma taxa a um valor. Para uma cesta mista, divida-a por taxa e execute cada grupo separadamente.
+
+## Algo que digito é transmitido?
+
+Não. O cálculo é executado em seu navegador.
+

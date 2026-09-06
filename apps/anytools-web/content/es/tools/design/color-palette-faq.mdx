@@ -1,0 +1,41 @@
+---
+title: Generador de paleta de colores — Preguntas frecuentes
+---
+
+## ¿Qué armonías genera?
+
+Cinco, cada una una regla diferente para moverte alrededor de la rueda de matiz desde tu color semilla:
+
+- **Análoga** — cinco colores en −30°, −15°, 0°, +15° y +30°
+- **Complementaria** — la semilla y su opuesta en +180°
+- **Triádica** — tres espaciadas uniformemente en 0°, 120°, 240°
+- **Tetradica** — cuatro en 0°, 90°, 180°, 270°
+- **Monocromática** — un matiz en cinco niveles de luminosidad: 20%, 35%, 50%, 65%, 80%
+
+## ¿Qué se mantiene fijo cuando se mueve el matiz?
+
+Saturación y luminosidad. Cada armonía excepto monocromática mantiene las de tu semilla y solo rota el matiz, que es por qué los resultados se sienten como un conjunto en lugar de colores no relacionados. Monocromático hace lo opuesto: mantiene el matiz y mueve la luminosidad.
+
+## ¿Qué armonía debo elegir?
+
+Análoga es la segura — los matices vecinos raramente se pelean. Complementaria da la máxima separación y es mejor usarla escasamente, usualmente un acento contra un color dominante en lugar de una división 50/50. Triádica y tetradica son vívidas y difíciles de equilibrar; funcionan cuando un color domina y los otros se usan en área pequeña. Monocromática es la caballa para escalas de interfaz.
+
+## ¿Puedo usar estos directamente como colores de interfaz de usuario?
+
+No sin verificar contraste. Una armonía trata sobre relaciones de matiz; no dice nada sobre si el texto en esos colores será legible. Ejecuta cualquier pareja que planees poner texto sobre a través del [verificador de contraste](/en/design/wcag-contrast-checker) antes de comprometerse.
+
+## ¿Por qué algunos colores generados se ven más apagados que la semilla?
+
+Porque valores de saturación iguales no se ven igualmente saturados en toda la rueda. Un amarillo y un azul en la misma saturación HSL se leen muy diferente, ya que HSL es un modelo conveniente en lugar de uno perceptual. Espera ajustar a mano después de generar.
+
+## ¿Es esto suficiente para un sistema de diseño completo?
+
+No. Una paleta funcional también necesita neutros, una escala de luminosidad para cada color, y asignaciones semánticas — qué color significa "peligro", cuál es una superficie. Esto te da las relaciones de matiz para construir desde, no el conjunto terminado.
+
+## ¿Por qué cinco colores para análoga pero dos para complementaria?
+
+Porque eso es lo que significa cada regla. Complementaria es un par por definición; rellenarlo con matices extra lo haría algo más.
+
+## ¿Se envía algo a un servidor?
+
+No. La paleta se calcula en tu navegador.

@@ -1,0 +1,31 @@
+---
+title: Combinar PDF — Preguntas frecuentes
+---
+
+## ¿Se sube mi archivo a algún lado?
+
+No. El PDF se lee por JavaScript que se ejecuta dentro de esta pestaña del navegador, usando la biblioteca `pdf-lib`, y el resultado combinado te lo devuelvo como una URL blob que tu navegador crea localmente. Ninguna solicitud lleva el archivo, así que no hay copia en un servidor para ser retenida, registrada o borrada. Puedes confirmarlo tú mismo: abre las herramientas de desarrollador de tu navegador, cambia a la pestaña Red, y combina un archivo — no verás ninguna carga. También puedes desconectarte completamente de la red después de que la página haya cargado y la herramienta aún funciona.
+
+Esta es la diferencia práctica entre esta página y los sitios PDF establecidos. Esos suben tu archivo, lo procesan en un servidor, y te piden que confíes en una política de eliminación. Ese es un buen trato para un itinerario de vacaciones y un mal trato para un contrato, una nómina o un escaneo de tu pasaporte.
+
+## ¿Cuál es el límite de tamaño?
+
+No hay límite impuesto, porque no hay carga que limitar. La verdadera restricción es la memoria de tu dispositivo. Mientras se copian las páginas, se mantienen en RAM aproximadamente dos a tres veces el tamaño total del archivo combinado, así que combinar cinco documentos de 20 MB necesita algunos cientos de megabytes libres. Una laptop moderna lo maneja cómodamente; un teléfono antiguo puede que no. Por encima de 100 MB la herramienta te advierte que la operación puede ser lenta, pero aún lo intentará — la advertencia existe porque tu máquina es el factor limitante, no porque se haya roto una regla.
+
+Si una pestaña se queda sin memoria el navegador detendrá la página en lugar de producir un archivo corrupto. Nada se escribe o se envía en ese caso.
+
+## ¿Se mantiene el orden de páginas como lo establecí?
+
+Sí. Los archivos se combinan de arriba a abajo en el orden mostrado en la lista, y el orden interno de páginas de cada documento fuente se preserva exactamente. Puedes reordenar arrastrando una fila, o con las flechas arriba y abajo junto a ella — las flechas existen porque el arrastre no funciona con un teclado y es incómodo en una pantalla táctil.
+
+Los números junto a cada archivo muestran la posición que ocupará. Después de combinar, el panel de resultados lista cada fuente y cuántas páginas contribuyó, así que puedes verificar el total antes de descargar.
+
+## ¿Puedo combinar un PDF protegido con contraseña?
+
+No, y esto es deliberado. Si un archivo está encriptado la herramienta lo nombra y se detiene en lugar de combinarlo. Es técnicamente posible cargar un PDF encriptado ignorando su protección, pero el resultado sería un documento con las restricciones eliminadas. Hacer esto calladamente a un archivo que alguien eligió proteger no es combinar, es eludir. Elimina la contraseña en la aplicación que creó el archivo, luego combina.
+
+## ¿Sobrevivirán los campos de formulario, marcadores y firmas?
+
+Los marcadores, metadatos de nivel de página y orden de páginas sobreviven. Los campos de formulario interactivos generalmente sobreviven pero pueden perder valores en documentos complejos. Las firmas digitales generalmente no: una firma cubre un diseño de bytes específico de un documento específico, y combinar necesariamente reescribe el árbol de páginas, así que cualquier firma que cubriera el original ya no coincide. Eso es una propiedad del formato PDF en lugar de una limitación de esta herramienta — cada herramienta de combinación, local o basada en servidor, tiene el mismo efecto.
+
+Si una firma debe mantenerse válida, mantén el documento firmado separado en lugar de combinarlo.

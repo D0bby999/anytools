@@ -1,0 +1,74 @@
+---
+title: JWT decodificado — estructura, reclamaciones y la trampa alg=none
+description: Cómo se construyen los Tokens Web JSON, qué contiene cada segmento, y por qué la decodificación no es lo mismo que confiar.
+updated: 2026-05-25
+---
+
+## Qué es realmente un JWT
+
+Un JSON Web Token ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)) es tres segmentos codificados en Base64URL unidos por puntos:
+
+```
+<header>.<payload>.<signature>
+```
+
+Los primeros dos segmentos son objetos JSON. El tercero es una firma binaria que prueba que los primeros dos vinieron de alguien que tiene la clave de firma del emisor. Cualquiera puede poner un JWT en un decodificador — incluyendo este — y leer el encabezado y la carga útil. Solo alguien con la clave de verificación puede confirmar la firma.
+
+Trata los JWT decodificados como **entrada de usuario no confiable** a menos que también hayas verificado la firma. Esta herramienta solo decodifica — por diseño no pedimos claves, porque pegar tu secreto HMAC de producción en un sitio web aleatorio es una pesadilla de seguridad.
+
+## Qué va en el encabezado
+
+Típicamente dos campos:
+
+- `alg` — el algoritmo de firma (`HS256`, `RS256`, `ES256`, etc.).
+- `typ` — normalmente `"JWT"`.
+
+A veces verás `kid` (clave ID) cuando el emisor rota claves, o `x5t` cuando certificados X.509 están involucrados. Cualquier otra cosa es específica de la implementación.
+
+## Qué va en la carga útil (las reclamaciones)
+
+La carga útil es solo un objeto. RFC 7519 reserva algunos nombres de campo con significados estándar:
+
+| Reclamación | Significado |
+|---|---|
+| `iss` | Emisor (quién creó el token) |
+| `sub` | Sujeto (el usuario o entidad que representa el token) |
+| `aud` | Audiencia (para quién está destinado el token) |
+| `exp` | Expiración (marca de tiempo Unix en segundos) |
+| `iat` | Emitido-en (marca de tiempo Unix en segundos) |
+| `nbf` | No-antes (token es inválido hasta esta hora) |
+| `jti` | Token ID (para listas de revocación) |
+| `scope` / `scp` | Alcances OAuth |
+
+Más allá de estos, los emisores agregan reclamaciones personalizadas libremente: IDs de usuario, roles, nivel de plan, lo que sea. Esta herramienta destaca los estándar y muestra estado de expiración prominentemente.
+
+## El desastre alg=none
+
+Históricamente, las bibliotecas JWT aceptaban tokens con `"alg": "none"` y los trataban como autenticados. Combinado con el hecho de que cualquiera puede fabricar un encabezado, esto significaba que los atacantes podían forjar tokens que omitían completamente la verificación.
+
+Las bibliotecas modernas rechazan `none` por defecto, pero la lección permanece: **siempre verifica con el algoritmo esperado explícitamente**, nunca confíes en el algoritmo declarado dentro del encabezado. Si tu biblioteca tiene una opción `algorithms: ['RS256']`, establécela.
+
+## HS256 vs RS256
+
+`HS256` es simétrico — el mismo secreto firma y verifica. Rápido, simple, pero el verificador debe tener el secreto, lo que significa que también puede forjar tokens. Úsalo para servicios de primera parte que se confían completamente entre sí.
+
+`RS256` (y `ES256`) es asimétrico — una clave privada firma, una clave pública verifica. Los verificadores solo obtienen la clave pública, así que no pueden forjar. Úsalo para tokens cruzando límites de confianza (API de terceros, servicios distribuidos).
+
+## Casos de uso comunes
+
+- **Tokens de autenticación** emitidos después del inicio de sesión (a menudo vía OAuth2 / OIDC).
+- **Tokens de acceso API** para llamadas de servicio a servicio sin estado.
+- **Enlaces mágicos** para inicio de sesión por correo sin contraseña.
+- **Verificación de correo** y flujos de **restablecimiento de contraseña**.
+- **Firmas de webhook** (menos común; HMAC desnudo es más típico).
+
+## Privacidad en esta página
+
+La herramienta decodifica en tu navegador vía Base64URL + JSON.parse. No guardamos tu token, no registramos solicitudes, y no tenemos un endpoint del servidor para enviarlo. Abre DevTools Network y mira — tráfico cero.
+
+Si tu token contiene secretos reales de producción, prefiere decodificar localmente con un CLI como `jq`. Los decodificadores públicos (incluyendo este) son convenientes pero no apropiados para credenciales en vivo.
+
+## Herramientas relacionadas
+
+- **Codificador Base64** — ve cómo se ve cada segmento antes/después.
+- **Generador de Hash** — calcula HMAC manualmente para verificación de HS256.

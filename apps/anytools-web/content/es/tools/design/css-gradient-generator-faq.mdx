@@ -1,0 +1,45 @@
+---
+title: Generador de degradados CSS — Preguntas frecuentes
+---
+
+## ¿Por qué la salida tiene dos líneas de `background`?
+
+La primera línea es un color sólido, la segunda el degradado. Cualquier motor que entienda `linear-gradient` aplica la segunda declaración y el color sólido nunca se muestra. Un motor que no puede analizar el valor de degradado deja esa declaración durante recuperación de errores CSS y mantiene el color sólido que ya aceptó. Cuesta una línea y elimina el modo de fallo peor — texto blanco en un fondo que nunca se pintó. El generador usa tu primer parada de color para esa línea; si tu texto se sienta sobre el medio del degradado, edítalo a un color de allí en su lugar.
+
+## ¿Qué navegadores soportan degradados cónicos?
+
+`conic-gradient()` es el más nuevo de los tres: Chrome 69, Safari 12.1 y Firefox 83 lo enviaron, por lo que cualquier cosa lanzada desde finales de 2020 lo tiene. Nunca estuvo en Internet Explorer y ningún prefijo ayuda allí. `linear-gradient()` y `radial-gradient()` son mucho más antiguos y sin prefijo en todos lados que importa hoy. Si tu tráfico incluye navegadores más antiguos que el corte cónico, la línea de respaldo anterior es lo que esos visitantes ven.
+
+## ¿Qué significa el ángulo?
+
+En CSS, `0deg` apunta a la parte superior de la caja y el ángulo aumenta en el sentido de las agujas del reloj, por lo que `90deg` corre de izquierda a derecha y `180deg` corre de arriba a abajo — que es también el predeterminado cuando omites el ángulo. Eso está rotado de la convención matemática, y es la razón única más común por la que un degradado sale de lado.
+
+## ¿Por qué el generador escribe `135deg` en lugar de `to bottom right`?
+
+Porque no son lo mismo. Las palabras clave de esquina apuntan la línea de degradado para que la esquina se siente exactamente en la parada final, lo que significa que el ángulo real depende del ancho y alto de la caja — `to bottom right` es 135° solo en un cuadrado. Este editor almacena un ángulo, por lo que pegar una palabra clave de esquina la convierte en el equivalente de caja cuadrada. Si específicamente quieres que la esquina rastrée la forma de la caja, mantén la palabra clave en tu hoja de estilos a mano.
+
+## ¿Puedo usar un degradado en cualquier lugar donde va un color?
+
+No. Un degradado es un valor de imagen, no un color. Funciona en `background-image` (y el acceso directo `background`), `border-image`, `mask-image` y `list-style-image`, pero no en `color`, `border-color` o `box-shadow`. El texto degradado es la excepción habitual que la gente busca: establece el degradado como el fondo, luego `background-clip: text` con un color de texto transparente — y dale un respaldo `color` real, porque un navegador que ignora el clip pintará texto transparente sobre el degradado.
+
+## ¿Por qué los degradados anchos y sutiles se ven rayados?
+
+Banda. Una pantalla de 8 bits por canal tiene 256 pasos por canal; un degradado que cruza solo algunos de esos pasos sobre mil píxeles muestra cada paso como una banda visible. Nada en el CSS es incorrecto. Añadir paradas intermedias no ayuda — la pantalla es el límite. Los arreglos prácticos son aumentar la distancia de color, superponer una textura de ruido tenue, o aceptarlo en los fondos anchos donde es menos notable.
+
+## ¿Qué son paradas sin una posición?
+
+Si dejas la posición vacía, el navegador espacía esa parada uniformemente entre los vecinos que sí tienen una. Mantiene el CSS corto y sobrevive a que insertes otro color después. Las posiciones son útiles cuando quieres un punto de transición específico — o un borde duro: da a dos paradas el mismo porcentaje y el color cambia sin mezcla en absoluto, que es cómo se construyen rayas, barras de progreso y el predefinido repetido. Las manijas en la franja bajo la vista previa se sientan donde el navegador colocaría cada parada, por lo que una sin posición todavía tiene una manija; arrastrarla (o empujarla con las teclas de flecha, Inicio y Fin) escribe un porcentaje explícito, porque eso es lo que significa una posición arrastrada.
+
+## ¿Por qué solo puedo ingresar porcentajes?
+
+Porque los porcentajes son lo que el editor puede viaje redondo. CSS también acepta longitudes (`rojo 20px`) e insinuaciones de interpolación (un `40%` desnudo entre dos paradas), y pegar cualquiera de esos en devuelve un error de análisis en lugar de un resultado incorrecto. Eso es deliberado: convertir silenciosamente `20px` en `20%` cambiaría el diseño sin decirte.
+
+## ¿Qué más rechaza pegar CSS, y por qué?
+
+Cuatro cosas más, cada una porque el editor no tiene dónde ponerlas: un método de interpolación de color (`linear-gradient(in oklab, rojo, azul)` se mezcla a través de un espacio de color diferente), un valor calculado en cualquier lugar en la declaración (`calc()`, `var()` — no hay un número fijo para mostrarte), más de una capa de fondo separada por comas, y radios explícitos en un degradado radial (`radial-gradient(200px 100px en 50% 50%, …)`). Cada rechazo imprime la razón arriba del campo, y el mensaje se borra tan pronto como editas el texto. La alternativa — aceptar el valor y soltar la parte que no puede sostener — es cómo un generador devuelve CSS que nunca escribiste: una versión anterior de esta herramienta convirtió `in oklab` en una parada de color llamada "in oklab" y pintó un degradado que nadie pidió.
+
+Un límite vale la pena declarar claramente: el analizador no tiene una lista de los 148 nombres de color CSS, por lo que una sola palabra que no reconoce se pasa como un nombre de color en lugar de rechazarse. `blurple` sobrevive el viaje redondo intacto, y la vista previa simplemente no muestra nada para esa parada — lo mismo que el navegador hace con ella.
+
+## ¿Se carga algo?
+
+No. La cadena de degradado se ensambla en tu navegador, y nada sobre ella sale de la página.

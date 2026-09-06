@@ -1,0 +1,37 @@
+---
+title: Crear ZIP — Preguntas frecuentes
+---
+
+## ¿Qué nivel de compresión debería usar?
+
+El nivel 6 es el estándar de DEFLATE y casi siempre es la respuesta correcta. El nivel 9 pasa notoriamente más tiempo para una ganancia que es normalmente menor del uno por ciento en documentos ordinarios, porque la ventana de DEFLATE es solo de 32 KB — pasado cierto punto simplemente no hay nada más para encontrar. El nivel 0 almacena los archivos sin comprimirlos, que es la opción honesta cuando la entrada ya está comprimida: produce el archivo en una fracción del tiempo y el resultado es del mismo tamaño de cualquier forma.
+
+## ¿Por qué mi zip es apenas más pequeño que los archivos que puse dentro?
+
+Porque JPEG, PNG, GIF, WebP, MP3, MP4 y la mayoría de formatos de oficina modernos (`.docx`, `.xlsx`, `.pptx` son contenedores zip ya) están comprimidos. Comprimir datos comprimidos no puede ayudar — la redundancia que busca DEFLATE ya ha sido removida, y el archivo termina un poco más grande que la suma de las entradas porque cada entrada lleva alrededor de 100 bytes de encabezado.
+
+Texto, CSV, JSON, XML, logs, SVG, código fuente, BMP y WAV sin comprimir se comprimen dramáticamente, a menudo a una quinta parte de su tamaño o menos. Si tu objetivo es fotos más pequeñas, comprimir las imágenes en sí es la palanca que funciona; comprimirlas en zip no lo es.
+
+## ¿Puedo poner una contraseña en el archivo?
+
+No, y esta herramienta no pretenderá lo contrario. Usa JSZip, que no puede escribir entradas encriptadas. La encriptación legada de Zip propio (ZipCrypto) está quebrada y no debería recomendarse a nadie; la encriptación AES-256 de zip está muy fuera de lo que esta biblioteca hace. Si necesitas proteger el contenido, encripta el archivo después de descargarlo con una herramienta construida para ese trabajo, o usa una transferencia cifrada de extremo a extremo en lugar de confiar en el contenedor.
+
+## ¿Se cargan los archivos a algún lugar?
+
+No. El archivo se ensambla en esta pestaña del navegador. Tus archivos se leen con la File API, se comprimen con JSZip en la página, y el enlace de descarga apunta a un blob que tu navegador está manteniendo en memoria. Nada cruza la red — puedes confirmarlo en la pestaña Network de las herramientas de desarrollador, o desconectándote después de que la página haya cargado y comprimiendo de todas formas.
+
+Esa es también la limitación: todo debe caber en la memoria de la pestaña. Unos pocos cientos de megabytes es rutinario en un escritorio; varios gigabytes no lo es, y Safari móvil se rinde mucho antes que un navegador de escritorio. Si la pestaña se recarga a sí misma durante la ejecución, eso es lo que sucedió.
+
+## ¿Qué sucede con dos archivos con el mismo nombre?
+
+Ambos se mantienen. Un zip es una lista plana de rutas, así que un segundo `photo.jpg` reemplazaría silenciosamente el primero — en cambio la herramienta lo renombra a `photo (2).jpg` y te muestra la lista final de nombres de entradas antes de que descargues. Cualquier `../` o `/` inicial en un nombre se elimina por la misma razón que importa en la otra dirección: una ruta que escapa su carpeta es cómo funciona la clase de errores Zip Slip, y ningún archivo construido aquí llevará uno.
+
+## ¿Para qué es la opción "carpeta dentro del zip"?
+
+Anida cada entrada bajo un directorio, así que extraer el archivo crea una sola carpeta en lugar de dispersar cuarenta archivos sueltos en cualquier directorio en el que el usuario haya estado. Muchos extractores de línea de comandos no crean una carpeta envolvente para ti, y esta es la solución que viaja dentro del archivo.
+
+## ¿Hay límites de tamaño?
+
+Dos reales. La memoria de la pestaña es el techo práctico: cada archivo se lee en memoria antes de ser comprimido, y el archivo terminado se mantiene allí también, así que el uso máximo es aproximadamente las entradas más la salida. Unos pocos cientos de megabytes es rutinario en un escritorio; Safari móvil se rinde mucho antes.
+
+El límite difícil es 4 GB. Esto escribe un archivo estándar, no-ZIP64, cuyos campos de tamaño y offset son de 32 bits — pasado 4 GB se envuelven, y el resultado es un archivo que los extractores rechazan como corrupto o, peor, desempaquetan en archivos truncados sin decir nada. Así que una selección sumando 4 GB o más se rechaza antes de que comience la compresión, con un mensaje que lo dice, en lugar de producir un archivo que se ve bien hasta que alguien necesita lo que hay dentro. Comprime en dos tandas, o usa un archivador de escritorio que escriba ZIP64.

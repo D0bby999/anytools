@@ -1,0 +1,39 @@
+---
+title: Calculadora de Chmod — Preguntas frecuentes
+---
+
+## ¿Entre qué convierte?
+
+Notación octal, notación simbólica y casillas de permisos individuales — cambia cualquiera y los demás se actualizan. Cubre también los tres bits especiales: setuid, setgid y sticky.
+
+## ¿Cómo funcionan los dígitos octales?
+
+Cada dígito es una suma de tres bits: lectura es 4, escritura es 2, ejecución es 1. Entonces 7 es los tres, 6 es lectura más escritura, 5 es lectura más ejecución. Los tres dígitos son propietario, grupo y otros en ese orden — lo que hace que 755 signifique "el propietario puede hacer todo, todos los demás pueden leer y ejecutar".
+
+## ¿Por qué el octal a veces tiene cuatro dígitos?
+
+Porque un dígito inicial lleva los bits especiales: setuid es 4, setgid es 2, sticky es 1, sumados de la misma manera. La herramienta sigue la convención habitual de omitirlo cuando es cero, así que `0755` y `755` significan lo mismo mientras que `4755` significa que setuid está activado.
+
+## ¿Qué hacen realmente los bits especiales?
+
+**setuid** en un ejecutable lo hace correr como el propietario del archivo en lugar del que lo llamó. **setgid** hace lo mismo para el grupo, y en un directorio hace que los nuevos archivos hereden el grupo de ese directorio. **sticky** en un directorio significa que solo el propietario del archivo puede borrarlo — la razón por la que cualquiera puede escribir en `/tmp` sin borrar archivos de otras personas.
+
+## ¿Por qué setuid es peligroso?
+
+Porque entrega los privilegios del propietario del archivo a quien lo ejecute. Un binario setuid-root con un error es una vulnerabilidad de escalada de privilegios, por eso es importante ser deliberado antes de establecer ese bit y por eso muchos sistemas lo ignoran en sistemas de archivos montados.
+
+## ¿Qué significa el bit de ejecución en un directorio?
+
+Permiso para atravesarlo — para entrar y acceder a lo que hay dentro. Lectura en un directorio te permite listar los nombres; ejecución te permite usarlos. Un directorio con lectura pero no ejecución te da una lista de archivos que no puedes abrir, lo que es una fuente común de confusión.
+
+## ¿Es 777 nunca la respuesta correcta?
+
+Casi nunca. Otorga a todos los usuarios del sistema permiso para modificar y ejecutar el archivo. Es un "arreglo" común para un error de permisos, y normalmente reemplaza un problema pequeño con uno más grande — la solución real es normalmente corregir la propiedad.
+
+## ¿Se aplica esto a Windows?
+
+No. Windows usa ACLs, un modelo diferente y más granular. Estos números son para Unix, Linux y macOS.
+
+## ¿Se envía algo a un servidor?
+
+No. La aritmética se ejecuta en tu navegador.

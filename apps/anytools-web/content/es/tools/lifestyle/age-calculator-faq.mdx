@@ -1,0 +1,35 @@
+---
+title: Calculadora de edad — Preguntas frecuentes
+---
+
+## ¿Cómo se calcula la edad?
+
+Por años, meses y días de calendario (no dividiendo un total entre 365,25). La herramienta resta la fecha de nacimiento de la fecha de referencia campo a campo y toma prestado cuando algún campo queda negativo, que es cómo la gente realmente cuenta la edad.
+
+## ¿Por qué no simplemente dividir el número de días entre 365?
+
+Porque eso se desvía. Los meses tienen diferentes longitudes y los años bisiestos añaden un día, de modo que una aproximación de año decimal no coincide con el calendario en cantidades cada vez mayores a lo largo de una vida. Contar por campos de calendario da una respuesta con la que un pasaporte está de acuerdo.
+
+## ¿Cómo maneja alguien nacido el 29 de febrero?
+
+Tomando prestado del mes anterior real, cualquiera que sea la longitud de ese mes. En un año sin bisiesto, el contador de días toma prestados 28 días de febrero y, donde eso aún deja el día negativo, toma prestado nuevamente de los 31 de enero. El resultado es el tratamiento convencional: el aniversario cae al inicio de marzo en años sin 29 de febrero.
+
+## ¿Qué pasa si ingreso una fecha de nacimiento en el futuro?
+
+No se devuelve nada. Una fecha de nacimiento futura no tiene una edad válida, así que la herramienta rechaza mostrar un número negativo o absurdo.
+
+## ¿Puedo calcular la edad en una fecha pasada o futura?
+
+Sí, la fecha de referencia es una entrada, no fija a hoy. Es lo que necesita cuando calcula cuántos años tenía alguien en una fecha específica, o cuántos años tendrá en un evento.
+
+## ¿Por qué mi edad en meses no coincide con mi edad en años multiplicada por doce?
+
+Porque la cifra de meses es el resto después de los años completos, no un total separado. Alguien con 30 años y 4 meses ha vivido aproximadamente 364 meses, pero la herramienta muestra "30 años, 4 meses, y algunos días" — la descomposición del calendario en lugar de un recuento acumulativo.
+
+## ¿Importa la hora del día?
+
+No. El cálculo funciona con fechas, no con marcas de tiempo, por lo que no intenta saber la hora de nacimiento. Para la mayoría de propósitos, eso es lo que desea; para cualquier cosa que requiera precisión hasta la hora, una calculadora de fechas es el instrumento equivocado.
+
+## ¿Se envía mi fecha de nacimiento a algún lugar?
+
+No. Todo se calcula en su navegador y nada se almacena ni se transmite.

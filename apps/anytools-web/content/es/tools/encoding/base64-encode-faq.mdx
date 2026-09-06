@@ -1,0 +1,35 @@
+---
+title: Codificar y decodificar Base64 — Preguntas frecuentes
+---
+
+## ¿Es Base64 encriptación?
+
+No. Base64 es una codificación reversible — cualquiera que tenga la cadena codificada puede decodificarla de vuelta al original sin una clave. Úsalo para transportar datos binarios a través de canales solo de texto, no para guardar secretos.
+
+## ¿Por qué `btoa()` se rompe con emoji o texto vietnamita?
+
+La función nativa `btoa()` del navegador solo maneja Latin-1 (bytes 0–255). Caracteres como `世` o `🌏` son multi-byte en UTF-8 y no caben, así que `btoa` lanza. Esta herramienta codifica UTF-8 primero, luego aplica Base64 — así que unicode sobrevive el viaje de ida y vuelta.
+
+## ¿Cuál es la diferencia entre Base64 estándar y Base64URL?
+
+Base64 estándar usa `+` y `/` y rellena con `=`. Base64URL reemplaza `+/` con `-_` y elimina el relleno, haciendo el resultado seguro para usar en URL, segmentos JWT, o nombres de archivo. Alterna "URL-safe" arriba para cambiar alfabetos.
+
+## ¿Por qué veo `=` al final de algunas cadenas codificadas?
+
+Base64 codifica cada 3 bytes de entrada como 4 caracteres de salida. Cuando la longitud de entrada no es un múltiplo de 3, el codificador rellena la salida con uno o dos caracteres `=` para que la longitud total permanezca divisible por 4. Base64URL omite este relleno.
+
+## ¿Se envía mi entrada a un servidor?
+
+No. Todo el procesamiento sucede en tu navegador a través de la biblioteca [`js-base64`](https://github.com/dankogai/js-base64). Abre la pestaña de red de tu navegador — verás cero solicitudes mientras escribes. Una vez que la página ha cargado puedes desconectarte completamente y la herramienta sigue funcionando.
+
+## ¿Cuál es la entrada más grande que esto puede manejar?
+
+Prácticamente, unos pocos megabytes por operación. Más allá de ~10 MB podrías notar la pestaña del navegador pausando mientras la conversión se ejecuta sincrónicamente. Para archivos de cientos de MB, prefiere un decodificador de transmisión en un Web Worker o una herramienta del lado del servidor.
+
+## Mi texto decodificado se ve como basura — ¿qué salió mal?
+
+Casi siempre una de tres cosas: (1) la entrada está codificada con un alfabeto diferente (URL-safe vs estándar — intenta alternar), (2) la entrada fue truncada y le falta relleno, o (3) el original no era texto UTF-8 sino binario que resulta ser UTF-8 inválido (entonces "texto decodificado" es sin sentido; quieres los bytes sin procesar).
+
+## ¿Puedo usar Base64 para comprimir datos?
+
+No — Base64 hace que los datos sean ~33% **más grandes**, no más pequeños. Si necesitas reducir, usa gzip, brotli, o un códec específico del dominio, luego codifica en Base64 los bytes comprimidos si necesitas transportarlos como texto.

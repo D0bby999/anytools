@@ -1,0 +1,41 @@
+---
+title: Marca d'água em PDF — Perguntas frequentes
+---
+
+## Meu documento é enviado para algum lugar?
+
+Não. O PDF é lido por JavaScript dentro desta aba do navegador, marcado usando a biblioteca `pdf-lib`, e retornado como uma URL de blob que seu navegador cria localmente. A página um é renderizada para a pré-visualização por `pdf.js`, também na aba. Nenhuma solicitação transporta o arquivo, então não há cópia do servidor para ser retida, registrada ou deletada. Abra suas ferramentas de desenvolvedor, mude para a aba Rede, e execute a ferramenta — você não verá upload, e continua funcionando com a rede desconectada.
+
+A marca d'água é geralmente o passo final antes de um documento ir para alguém fora de sua organização: um contrato rascunho, um concurso, um conjunto de provas de design, um manuscrito pré-publicação. Esses são precisamente os arquivos que não deveriam ser entregues a um terceiro para marcar "CONFIDENCIAL".
+
+## Uma marca d'água realmente protege o documento?
+
+Não da forma que as pessoas às vezes esperam, e vale a pena ser direto sobre isso.
+
+Uma marca d'água é desenhada *em cima do* conteúdo de página existente. Marca um documento como rascunho ou confidencial, e torna uma captura de tela casual ou fotocópia obviamente derivada do seu arquivo. É um impedimento e um rótulo.
+
+Não é criptografia e não é redação. Tudo sob a marca d'água ainda está lá e ainda consegue ser selecionado, copiado e pesquisado. Alguém determinado consegue remover a marca, porque um PDF a armazena como uma operação de desenho separada em vez de queimá-la nos pixels — é exatamente por que o texto sob ela permanece selecionável, que é normalmente o que você quer. Se conteúdo não deve ser legível, delete-o antes da exportação; se um arquivo não deve ser aberto, criptografe-o no aplicativo que o produziu.
+
+## Quais caracteres o texto da marca consegue usar?
+
+Texto latino — incluindo acentos da Europa Ocidental como `BRÖTCHEN` e `ÉTÉ` — é desenhado em Helvetica, uma das quatorze fontes que cada leitor de PDF é obrigado a ter incorporadas. Nada é incorporado, então o arquivo de saída cresce pouco e renderiza o mesmo em todo lugar.
+
+As marcas de tom vietnamita, grego e cirílico estão fora dessa fonte, então para aqueles a ferramenta incorpora Noto Sans em vez disso — apenas os glifos que sua marca realmente usa, que adiciona alguns quilobytes. `BẢN NHÁP`, `Tài liệu mật` e `КОНФИДЕНЦИАЛЬНО` todos funcionam. Chinês, japonês, coreano, árabe, hebraico, tailandês e emoji não são cobertos; digite qualquer um desses e a ferramenta para com uma mensagem nomeando os caracteres exatos em vez de desenhar caixas vazias.
+
+## Qual é a precisão da pré-visualização?
+
+Próxima, e honesta sobre onde não é. A pré-visualização renderiza página um através de `pdf.js` a 96 dpi e desenha a marca sobre com CSS, então mover o controle deslizante de ângulo ou opacidade é instantâneo — rerenderizar a página para cada tick do controle deslizante tornaria os controles inutilizáveis em um documento real.
+
+A consequência é que a fonte da pré-visualização é *seu* Helvetica ou Arial do sistema, enquanto a saída usa o Helvetica padrão de PDF. As larguras de letra diferem muito ligeiramente, então uma marca longa pode sentar alguns pontos diferentemente no arquivo final. Posição, ângulo, cor e opacidade são precisos. A pré-visualização também mostra apenas página um; se você definiu um intervalo de páginas que a exclui, a pré-visualização ainda mostra a marca.
+
+## O que acontece com páginas que meu scanner salvou de lado?
+
+Elas são tratadas. Uma página PDF carrega uma caixa com uma largura e uma altura, mais uma rotação que o leitor aplica antes de exibir, e uma página digitalizada de lado é geralmente armazenada como uma caixa em pé com um quarto-de-volta de rotação. Uma ferramenta que ignora isso colocaria a marca relativa à caixa, então nessas páginas ela sai no ângulo errado e correndo para fora da borda.
+
+A marca é centrada na página como *você* a vê, e o ângulo que você escolhe é o ângulo que você recebe na tela, qualquer rotação que a página carregue. O tamanho da imagem é uma percentagem da largura visível de página, medida do mesmo jeito, então um documento misto sai consistente.
+
+## Consigo marcar apenas algumas páginas, e que tal tamanho e cor?
+
+Sim. "Páginas a marcar" aceita intervalos na forma ordinária — `1-5`, ou `1, 4-6, 9` — e por padrão cada página. As marcas de texto pegam um tamanho de fonte em pontos, qualquer cor, um ângulo de -90 a 90 graus, e uma opacidade de 5% a 100%. As marcas de imagem pegam uma largura como uma percentagem da página, mantêm sua proporção, e suportam PNGs transparentes, que é o que um logotipo geralmente quer.
+
+Imagens WebP, GIF e AVIF são aceitas mesmo que PDF em si consegue apenas carregar dados de imagem PNG e JPEG: a imagem é redesenhada através de um canvas primeiro, que também aplica a flag de rotação EXIF que uma câmera de telefone escreve. A imagem é incorporada uma vez e referenciada de cada página marcada, então um logotipo de 200 KB adiciona 200 KB a um documento de cinquenta páginas em vez de 10 MB.

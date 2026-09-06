@@ -1,0 +1,38 @@
+---
+title: Cortar Imagem — Perguntas frequentes
+---
+
+## Como seleciono a área?
+
+Arraste em qualquer lugar da imagem. A caixa segue seu cursor, e a leitura abaixo mostra a seleção em pixels da *imagem original*, não da visualização — portanto você pode ver exatamente o que obterá antes de cortar. Escolha uma predefinição de proporção primeiro se precisar de uma forma fixa; a seleção é então restrita conforme você arrasta.
+
+Funciona com um mouse, trackpad, dedo e stylus. A ferramenta usa eventos de cursor, que cobrem todos os quatro com um caminho de código, e captura o cursor para que o arrasto sobreviva seu dedo saindo da imagem.
+
+## Cortar reduz a qualidade?
+
+Os pixels dentro de sua seleção são copiados inalterados; nada é redimensionado. O que pode custar qualidade é o formato de saída. PNG é sem perda, portanto um corte PNG de um PNG é pixel-idêntico à região que você selecionou. Escolher JPEG ou WebP re-codifica, o que em uma foto que era JPEG significa uma segunda rodada de compressão com perda.
+
+PNG é o padrão aqui por essa razão. Se o corte é uma fotografia e o tamanho do arquivo importa, WebP é a melhor troca.
+
+## Por que a predefinição 1:1 não parece quadrada em minha foto larga?
+
+Deveria, e faz — mas vale a pena explicar porque este é o lugar onde ferramentas de corte comumente erram. A seleção é armazenada como frações da imagem, e frações iguais de uma foto 2000×1000 não são um quadrado: 50% da largura é 1000px enquanto 50% da altura é 500px. A ferramenta converte através das dimensões de pixel real antes de aplicar uma proporção, portanto 1:1 significa 1:1 na tela e no arquivo.
+
+Se um corte nunca sair com a proporção errada, essa conversão é o primeiro lugar a procurar.
+
+## Minha imagem é enviada?
+
+Não. O arquivo é decodificado em seu navegador, a região selecionada é desenhada em uma tela e codificada lá, e o link de download aponta para um blob que seu navegador mantém localmente. Nenhuma solicitação carrega a imagem. Verifique a aba Rede nas ferramentas do desenvolvedor, ou simplesmente vá offline após a página ter carregado — cortar ainda funciona.
+
+## Fotos de telefone estão orientadas corretamente?
+
+Sim. Câmeras de telefone armazenam o quadro de paisagem do sensor mais uma bandeira dizendo de qual forma fica. Ignorar essa bandeira é por que algumas ferramentas cortam a parte errada de uma foto em retrato — a imagem visível e os pixels armazenados discordam. Esta ferramenta decodifica com a orientação aplicada, portanto a região que você seleciona é a região que obtém.
+
+## Posso cortar várias imagens de uma vez?
+
+Não aqui. Um retângulo de corte é específico para o enquadramento de uma imagem, portanto agrupar significaria aplicar a seleção de uma pessoa a fotos para as quais não foi feito. Se você precisa do mesmo *tamanho* em muitas imagens, Redimensionar Imagem lida com isso adequadamente.
+
+## Qual é a maior imagem que posso cortar?
+
+Qualquer tamanho, mas nem sempre em resolução completa. Telas retornam saída em branco em vez de um erro passado aproximadamente 16,7 megapixels — o teto no Safari, o mais restritivo dos principais navegadores — portanto uma foto maior é decodificada menor para ficar abaixo dele, e a ferramenta mostra as dimensões originais ao lado daquelas em uso. A consequência que vale a pena saber: seu corte é cortado dessa decodificação reduzida, portanto a região que você seleciona vem com menos pixels do que o mesmo corte feito em um editor de desktop. Para um corte destinado à web, isso geralmente é invisível; para um que você pretende imprimir, comece com uma ferramenta de desktop.
+

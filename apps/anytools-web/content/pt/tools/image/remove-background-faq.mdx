@@ -1,0 +1,62 @@
+---
+title: Remover Fundo da Imagem — Perguntas frequentes
+---
+
+## O que realmente é executado quando pressiono o botão?
+
+Uma rede neural chamada u2netp, rodando dentro de sua aba do navegador no WebAssembly. Ela pega uma versão 320×320 de sua imagem, prevê quais pixels pertencem ao objeto mais proeminente, e essa previsão se torna o canal alfa de um PNG. Nada é enviado para lugar algum: a imagem é decodificada, redimensionada, alimentada para o modelo e composta inteiramente na sua máquina, o que você pode confirmar abrindo a aba Rede nas ferramentas do desenvolvedor e assistindo a um corte ser concluído sem uma única solicitação.
+
+u2netp é a variante pequena de U-2-Net, publicada em 2020 ao lado do artigo *U²-Net: Going Deeper with Nested U-Structure for Salient Object Detection*. Os pesos são licenciados Apache-2.0, razão pela qual este site pode servi-los. O arquivo do modelo tem 4,4 MB e o ONNX Runtime que o executa tem cerca de 14 MB.
+
+## Por que a primeira execução é lenta e a segunda é rápida?
+
+Porque aqueles ~19 MB têm que chegar antes que qualquer coisa possa acontecer. Ambos os arquivos são colocados no Cache Storage do seu navegador conforme eles fazem download, portanto um segundo corte — na mesma aba, em uma nova aba ou após um reload — não envia nada em absoluto: não o modelo, não o runtime, não um script de carregador. Limpar dados do site remove as cópias em cache, e a próxima execução os busca novamente. O SHA-256 do arquivo do modelo é verificado contra um valor fixado antes de ser armazenado, portanto um download truncado ou adulterado é recusado em vez de ser executado.
+
+Você pode cancelar enquanto esses bytes estão se movendo — o botão aparece ao lado do principal durante o download e o para com limpeza. Uma vez que o modelo começa a ser executado, não há nada deixado para cancelar: esse passo é uma única chamada em WebAssembly na thread principal da página, que não pode ser interrompida por esta ferramenta ou pelo navegador. Espere que a aba fique sem resposta por cerca de um segundo enquanto isso acontece.
+
+## Funciona offline?
+
+Parcialmente, e vale a pena ser exato sobre qual parte. Uma vez que o modelo e o runtime são armazenados em cache, produzir um corte não precisa de rede — desconecte após sua primeira execução e a próxima ainda funciona, o que você pode verificar nas ferramentas do desenvolvedor. O que *não* funciona offline é abrir a página: este site não instala nenhum service worker, portanto recarregar ou navegar aqui sem conexão o coloca na tela "sem internet" do navegador. Mantenha a aba aberta e mantenha a ferramenta.
+
+A inferência em si leva aproximadamente um a três segundos em um laptop. Poderia ser mais rápida: o runtime suporta multi-threading, mas threads exigem que o site envie cabeçalhos COOP e COEP, e esses cabeçalhos quebram os frames de anúncios pelos quais este site é financiado. Single-threaded é a troca honesta — cerca de duas vezes o tempo, nenhuma mudança no resultado.
+
+## Quando falha?
+
+Com frequência suficiente para que você verifique o resultado antes de usá-lo. Este é um modelo pequeno de 2020 e é um *detector de objeto saliente*, não um segmentador de pessoa ou produto, portanto:
+
+- **Cabelo, pele e detalhe fino** saem como uma mancha. Fios individuais precisam de alpha matting, que este modelo não faz.
+- **Vidro, fumaça, água e qualquer coisa semi-transparente** são tratados como opacos ou descartados completamente.
+- **Um fundo da mesma cor ou brilho do assunto** confunde — uma caneca branca em uma mesa branca é o fracasso clássico.
+- **Vários objetos igualmente proeminentes** podem dar a você um deles ou uma máscara abrangendo todos eles; o modelo escolhe o que se destaca e não pode ser dito o que escolher.
+- **Fotos de baixo contraste, pouca luz ou altamente comprimidas** produzem bordas irregulares.
+
+Onde funciona bem: um assunto claro contra um fundo que diferencia dele — uma pessoa fotografada contra uma parede, um produto em uma superfície plana, um animal de estimação na grama.
+
+## Por que não usar um modelo melhor?
+
+Porque os mais conhecidos não podem ser usados aqui. RMBG-1.4 e 2.0 do BRIA são licenciados apenas para uso não comercial. Os pesos do MODNet carregam a mesma restrição. O pacote popular `@imgly/background-removal` é AGPL, que este site licenciado MIT não pode aceitar. Entre modelos com licença permissiva e tamanho que um navegador pode baixar, u2netp é a opção mais forte disponível hoje em vez de um compromisso escolhido por conveniência. Se isso mudar, o modelo aqui mudará com ele.
+
+## O que os controles deslizantes de corte e suavidade de borda fazem?
+
+O modelo retorna uma máscara suave — valores entre 0 e 1 em vez de dentro-ou-fora. O corte transforma isso em uma decisão: tudo acima é totalmente mantido, tudo abaixo totalmente removido. Defini-lo como 0 mantém a máscara suave como está, o que parece melhor em pele e motion blur, mas deixa o fundo levemente visível em vez de adequadamente transparente. A suavidade da borda então desfoca a borda resultante por alguns pixels, o que esconde o degrau que você obtém de um corte duro.
+
+Nenhum controle deslizante muda a opinião do modelo. Se a máscara tiver a forma errada, nenhuma configuração aqui a reparará.
+
+## Por que o download é sempre PNG?
+
+Porque JPEG não tem canal alfa. Salvar um corte como JPEG preencheria a área transparente com uma cor e silenciosamente desfaria o trabalho. Se você escolheu uma cor de fundo sólida em vez de transparência, o resultado ainda é um PNG — execute-o através de [Comprimir Imagem](/en/image/compress-image) para obter um JPEG ou WebP menor uma vez que a transparência não for mais necessária.
+
+## Há um limite de tamanho?
+
+Dois deles. Acima de cerca de 16,7 megapixels, o arquivo é rejeitado completamente — é onde a tela do Safari para de funcionar e retorna saída em branco em vez de um erro, portanto a ferramenta o diz em vez de devolver uma imagem vazia.
+
+Entre 8 e 16,7 megapixels, o corte é produzido em um tamanho menor, e o painel de resultados diz as dimensões exatas que usou. A razão é que a máscara é prevista em 320×320 não importa o tamanho de sua foto, portanto esses pixels extras não carregam nenhum detalhe que decide onde a borda cai; o que eles carregam é vários buffers de quadro completo de memória e uma pausa mais longa enquanto a página os compõe. Se você precisa do corte em resolução completa, o contorno é pegar o canal alfa deste PNG em um editor e aplicá-lo ao seu original.
+
+## Posso fazer várias imagens de uma vez?
+
+Ainda não. Cada execução mantém a imagem de tamanho completo, sua máscara e a saída na memória ao mesmo tempo, e fazer isso para uma fila é a forma mais rápida de esgotar uma aba. Uma de cada vez, verificando cada resultado, também é o fluxo de trabalho honesto com um modelo que falha tão visivelmente como este.
+
+## E agora?
+
+[Cortar Imagem](/en/image/crop-image) aparação o espaço vazio que um corte geralmente deixa, e [Imagem para PDF](/en/pdf/image-to-pdf) coloca um conjunto de cortes terminados em um documento.
+

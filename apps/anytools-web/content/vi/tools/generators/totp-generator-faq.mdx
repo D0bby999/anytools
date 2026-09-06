@@ -1,0 +1,35 @@
+---
+title: Tạo mã TOTP (2FA) — Câu hỏi thường gặp
+---
+
+## Nó tạo ra cái gì?
+
+Mật khẩu một lần dựa trên thời gian như được định nghĩa trong RFC 6238 — các mã sáu chữ số mà ứng dụng xác thực hiển thị. Cho nó một bí mật base32 và nó tạo ra mã hiện tại cộng với các giây còn lại trước khi nó cuộn lại.
+
+## Những tùy chọn nào có thể cấu hình?
+
+Chữ số (6 hoặc 8), khoảng thời gian (30 hoặc 60 giây), và thuật toán (SHA1, SHA256 hoặc SHA512). Các mặc định là 6 chữ số, 30 giây và SHA1 — những gì hầu như mọi dịch vụ phát hành, và những gì Google Authenticator giả định.
+
+## Tại sao SHA1 vẫn là mặc định khi nó bị phá vỡ ở nơi khác?
+
+Vì những điểm yếu trong SHA1 là các cuộc tấn công va chạm, những cái không áp dụng cho cách HMAC sử dụng nó ở đây, và vì quy tắc tương thích có tác dụng thực tế: rất nhiều dịch vụ chỉ chấp nhận TOTP SHA1. Sử dụng SHA256 khi dịch vụ rõ ràng hỗ trợ nó, không phải như một nâng cấp toàn bộ — một không phù hợp chỉ tạo ra mã sai.
+
+## Cái gì tính như một bí mật hợp lệ?
+
+Base32: các chữ cái A–Z và chữ số 2–7. Tool chuyển đổi đầu vào của bạn thành chữ hoa, loại bỏ các khoảng trắng và dấu gạch ngang, và loại bỏ `=` padding ở cuối, vì vậy một bí mật được sao chép từ một trang thiết lập ở dạng được nhóm hoạt động ngay lập tức. Bất cứ điều gì chứa 0, 1, 8 hoặc 9 không phải là base32 hợp lệ và sẽ bị từ chối.
+
+## Tại sao mã của tôi bị từ chối bởi dịch vụ?
+
+Gần như luôn là chệch thời gian. TOTP lấy mã từ thời gian hiện tại, vì vậy nếu đồng hồ thiết bị của bạn sai lệch hơn mức dung sai của dịch vụ, mọi mã sẽ sai trong khi trông hoàn toàn hợp lý. Kiểm tra đồng hồ trước khi giả định bí mật là xấu.
+
+## Trình tạo bí mật ngẫu nhiên tạo ra cái gì?
+
+Một bí mật 160-bit từ nguồn ngẫu nhiên mã hóa của trình duyệt, được biểu thị bằng base32 — cùng kích thước Google Authenticator sử dụng. Đó là ngẫu nhiên mã hóa thực tế, không giống như trình tạo mục đích chung đứng sau [random picker](/en/lifestyle/random-picker).
+
+## Có an toàn để dán bí mật 2FA thực tế của tôi ở đây không?
+
+Phép tính hoàn toàn là phía client và không có gì được truyền. Nhưng hãy rõ ràng về những gì bí mật TOTP là: bất kỳ ai nắm giữ nó có thể tạo mã của bạn mãi mãi. Dán nó vào bất kỳ trang web — cái này bao gồm — là một thói quen đáng để tránh cho các tài khoản quan trọng. Sử dụng nó để phát triển, thử nghiệm và hiểu, không phải cho ngân hàng của bạn.
+
+## Nó có thể thay thế ứng dụng xác thực của tôi không?
+
+Không. Nó giữ không có gì: đóng trang và bí mật đã biến mất, không có sao lưu và không có ràng buộc thiết bị. Nó là một công cụ gỡ lỗi và học tập, không phải một nơi để lưu trữ các nhân tố thứ hai.

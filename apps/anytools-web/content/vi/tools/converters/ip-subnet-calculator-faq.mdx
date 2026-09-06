@@ -1,0 +1,39 @@
+---
+title: Tính Subnet IP (CIDR) — Câu hỏi thường gặp
+---
+
+## Nó báo cáo cái gì?
+
+Đối với một địa chỉ IPv4 và tiền tố CIDR: địa chỉ mạng, địa chỉ broadcast, netmask ở dạng dấu chấm và nhị phân, phạm vi máy chủ có thể sử dụng, số lượng máy chủ, và lớp địa chỉ legacy.
+
+## Tại sao số lượng máy chủ có thể sử dụng ít hơn tổng cộng hai địa chỉ?
+
+Vì địa chỉ đầu tiên trong một khối xác định chính mạng và địa chỉ cuối cùng là địa chỉ broadcast — không có cái nào có thể được gán cho một máy. Một /24 giữ 256 địa chỉ và 254 máy chủ có thể sử dụng.
+
+## Tại sao phép trừ đó không áp dụng cho /31 và /32?
+
+Vì đó là các trường hợp đặc biệt và tool xử lý chúng. Một /31 không có chỗ cho một phép chia mạng-và-broadcast, và RFC 3021 xác định nó là một liên kết point-to-point nơi cả hai địa chỉ đều có thể sử dụng được — đó là cách các kết nối định tuyến thường được đánh số. Một /32 là một tuyến máy chủ duy nhất. Trừ hai từ một trong hai sẽ cung cấp một số lượng vô lý bằng không hoặc âm.
+
+## Độ dài tiền tố thực sự có ý nghĩa gì?
+
+Bao nhiêu bit hàng đầu được cố định là phần mạng. Một /24 cố định 24 bit đầu tiên, để lại 8 cho máy chủ; mỗi bit bạn trả về cho phần máy chủ gấp đôi khối. Đó là lý do tại sao kích thước đi 256, 512, 1024 thay vì theo từng bước decimal tròn.
+
+## Tại sao hiển thị netmask ở dạng nhị phân?
+
+Vì dạng nhị phân là nơi subnetting ngừng là ghi nhớ. Thấy 255.255.255.0 là hai mươi bốn cái theo sau là tám cái không làm cho nó rõ ràng tại sao /25 chia một khối thành hai và tại sao mặt nạ phải là các cái liền tục.
+
+## Các lớp địa chỉ có còn liên quan không?
+
+Không về mặt hoạt động. Địa chỉ classful đã được thay thế bởi CIDR trong những năm 1990, và định tuyến hiện đại không có khái niệm về lớp A, B hoặc C. Lớp được báo cáo vì tài liệu cũ hơn và các câu hỏi phỏng vấn vẫn sử dụng các thuật ngữ, không phải vì bất cứ điều gì định tuyến theo chúng.
+
+## Nó có xử lý IPv6 không?
+
+Không — đây chỉ là IPv4. Subnetting IPv6 sử dụng ký hiệu hexadecimal và một không gian lớn hơn nhiều, nơi số học đếm máy chủ ở đây sẽ không có ý nghĩa.
+
+## Tại sao nó từ chối địa chỉ của tôi?
+
+Mỗi octet phải là một số decimal từ 0 đến 255 không có văn bản đứng đầu. Các địa chỉ có nhiều hơn hoặc ít hơn bốn octets, hoặc một octet trên 255, được từ chối thay vì được quấn im lặng.
+
+## Đầu vào của tôi có được truyền không?
+
+Không. Số học là pure integer maths trong trình duyệt của bạn.

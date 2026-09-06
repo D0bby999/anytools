@@ -1,0 +1,39 @@
+---
+title: Gerador de clip-path CSS — Perguntas frequentes
+---
+
+## O recorte muda onde os cliques caem?
+
+Sim, e esta é a parte que surpreende as pessoas. A região recortada não recebe mais eventos de ponteiro: um botão recortado em um triângulo só responde dentro do triângulo, e os cantos que você cortou deixam de ser clicáveis — mesmo que nada mais sobre o layout mudasse. Isso geralmente é o que você quer, mas também significa que uma forma decorativa grande para de pegar cliques que parecem visualmente cobrir, e um sobreposição recortada pode deixar o elemento abaixo dela alcançável em lugares que você não pretendia. Teste as partes interativas, não apenas a figura.
+
+## O elemento ainda ocupa seu espaço completo?
+
+Sim. `clip-path` é uma operação em tempo de pintura. O layout é executado primeiro, a caixa mantém sua largura e altura completas, e então parte dela não é pintada. Elementos vizinhos não se movem para a lacuna, e a forma não encolhe a área rolável. Se você precisa que o texto ao redor se envolva em torno da forma, isso é `shape-outside`, uma propriedade diferente que leva os mesmos valores `<basic-shape>`.
+
+## Percentuais ou px?
+
+Percentuais se resolvem contra a caixa de referência, então a forma escala com o elemento — um triângulo continua sendo um triângulo em qualquer largura. Valores em pixels são congelados: eles ainda medem do canto superior esquerdo da caixa, então uma forma desenhada para um cartão de 400px se verá errada no momento em que o cartão tiver 320px de largura. Use px apenas quando a geometria realmente não deve escalar. O gerador armazena percentuais internamente e converte na saída, e é por isso que mudar unidades nunca distorce a forma que você desenhou.
+
+## O que é a caixa de referência?
+
+Por padrão a caixa de borda. Você pode mudar adicionando uma palavra-chave — `clip-path: polygon(…) padding-box` — então as coordenadas se resolvem contra o preenchimento, conteúdo ou caixa de margem em vez disso. Importa assim que o elemento tem uma borda: `0% 0%` é a borda externa pela padrão, não o canto interno.
+
+## Por que meu círculo é uma elipse?
+
+Não é — um raio de círculo se resolve contra a diagonal da caixa de referência, especificamente `sqrt(largura² + altura²) / sqrt(2)`, e o resultado é sempre um círculo. Em uma caixa ampla um raio de 50% é portanto maior que a metade da altura, então o círculo é recortado pelas bordas superior e inferior e lê como uma faixa horizontal. Reduza o raio, ou use `ellipse()` com raios x e y separados se você quer que a forma se estique com a caixa.
+
+## Posso animar entre formas?
+
+Apenas entre polígonos com o mesmo número de vértices, na mesma direção de enrolamento; o navegador então interpola cada ponto. Contagens de vértice diferentes, ou um polígono para um círculo, é uma troca discreta sem quadros de transição. Uma solução comum é dar à forma "simples" vértices repetidos para que ambos os estados tenham o mesmo número.
+
+## Ainda preciso do prefixo `-webkit-`?
+
+Para essas formas básicas, não. `clip-path` não prefixado funciona em Chrome, Edge, Firefox e Safari atuais. O prefixo é um resquício do Safari mais antigo, e ele nunca suportou a sintaxe não prefixada completa de qualquer forma. O que ainda difere é `clip-path: url(#svgShape)`, que referencia um elemento `<clipPath>` SVG e tem um histórico de suporte mais áspero do que as formas básicas que esta ferramenta escreve.
+
+## A forma pode ter uma borda ou uma sombra?
+
+Não diretamente. Uma borda é pintada antes do recorte, então é cortada com tudo mais, e `box-shadow` segue a caixa de borda retangular em vez da silhueta recortada. Para delinear uma forma recortada, empilhe um elemento recortado ligeiramente maior por trás dela na cor do delineado; para uma sombra que segue a silhueta, envolva o elemento e coloque `filter: drop-shadow()` no invólucro.
+
+## Algo é enviado?
+
+Não. A forma é editada e o CSS gerado inteiramente em seu navegador.

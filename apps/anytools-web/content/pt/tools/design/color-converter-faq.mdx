@@ -1,0 +1,35 @@
+---
+title: Conversor de cor — Perguntas frequentes
+---
+
+## Quais formatos ele converte entre?
+
+HEX, RGB e HSL, em qualquer direção. Também relata a luminância relativa e taxa de contraste do par, então você pode avaliar legibilidade sem se mover para outra ferramenta.
+
+## Quando HSL é mais útil que HEX?
+
+Sempre que você está ajustando em vez de especificando. HSL separa matiz de saturação e claridade, então tornar uma cor 10% mais clara é um número em vez de três não relacionados. HEX é compacto e universalmente compreendido; HSL é o que você quer enquanto projeta uma escala.
+
+## Converter HEX para HSL e voltar sempre retorna o mesmo valor?
+
+Nem sempre. Componentes HSL são arredondados para números inteiros aqui, e o cubo sRGB não mapeia limpavelmente no cilindro HSL, então uma viagem de ida e volta pode cair um dígito distante. A diferença é imperceptível, mas significa que você deveria manter um formato canônico em seus tokens em vez de converter de um lado para o outro.
+
+## Por que a ferramenta mostra luminância também?
+
+Porque claridade em HSL e brilho percebido não são a mesma coisa. Duas cores em `L: 50%` podem se parecer muito diferentes, já que a claridade HSL ignora quanto mais sensível o olho é ao verde do que ao azul. Luminância relativa aplica essa ponderação, e é por isso que ela — não a claridade HSL — é o que os padrões de acessibilidade usam.
+
+## Como a taxa de contraste é calculada?
+
+`(mais claro + 0,05) / (mais escuro + 0,05)` nas luminâncias relativas, a definição WCAG. Se você está verificando uma cor de texto contra um fundo especificamente, o [verificador de contraste](/en/design/wcag-contrast-checker) relata os níveis de aprovação/reprovação ao lado.
+
+## Isso funciona com alfa ou hex de 8 dígitos?
+
+Não — funciona com cores opacas. Uma cor com transparência não tem aparência fixa até ser composta sobre algo, então seu contraste depende do que está por trás.
+
+## E quanto a CMYK ou Pantone?
+
+Não suportado, e o motivo importa: esses são sistemas de impressão ligados a tintas e mídia física. Converter uma cor de tela para CMYK de forma significativa precisa de um perfil de cor e uma imprensa alvo, que é um problema diferente da aritmética entre formatos de tela.
+
+## Minha entrada é enviada em algum lugar?
+
+Não. Toda conversão acontece em seu navegador.

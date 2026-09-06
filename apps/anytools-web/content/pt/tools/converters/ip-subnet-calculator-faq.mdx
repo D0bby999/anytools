@@ -1,0 +1,39 @@
+---
+title: Calculadora de Sub-rede IP (CIDR) — Perguntas frequentes
+---
+
+## O que ele relata?
+
+Para um endereço IPv4 e prefixo CIDR: o endereço de rede, endereço de broadcast, máscara de rede em forma pontilhada e binária, o intervalo de host utilizável, a contagem de hosts e a classe de endereço legada.
+
+## Por que a contagem de hosts utilizável é dois menos que o total?
+
+Porque o primeiro endereço em um bloco identifica a rede em si e o último é o endereço de broadcast — nenhum dos dois pode ser atribuído a uma máquina. Um /24 contém 256 endereços e 254 hosts utilizáveis.
+
+## Por que essa subtração não se aplica a /31 e /32?
+
+Porque são casos especiais e a ferramenta os trata. Um /31 não tem espaço para uma divisão de rede e broadcast, e RFC 3021 o define como um link ponto a ponto onde ambos os endereços são utilizáveis — é assim que as interconexões de roteador são comumente numeradas. Um /32 é uma rota de host único. Subtrair dois de qualquer um daria uma contagem zero ou negativa sem sentido.
+
+## O que o comprimento do prefixo realmente significa?
+
+Quantos bits iniciais são fixos como a porção de rede. Um /24 fixa os primeiros 24 bits, deixando 8 para hosts; cada bit que você devolve à porção de host dobra o bloco. É por isso que os tamanhos vão 256, 512, 1024 em vez de ir em etapas decimais redondas.
+
+## Por que mostrar a máscara de rede em binário?
+
+Porque a forma binária é onde a sub-rede deixa de ser memorização. Ver 255.255.255.0 como vinte e quatro uns seguidos de oito zeros torna óbvio por que /25 divide um bloco pela metade e por que a máscara deve ser uns contíguos.
+
+## As classes de endereço ainda são relevantes?
+
+Não operacionalmente. O endereçamento classful foi substituído por CIDR nos anos 1990, e o roteamento moderno não tem conceito de classe A, B ou C. A classe é relatada porque documentação mais antiga e perguntas de entrevista ainda usam os termos, não porque algo roteia por eles.
+
+## Ele lida com IPv6?
+
+Não — isso é apenas IPv4. A sub-rede IPv6 usa notação hexadecimal e um espaço vastamente maior, onde a aritmética de contagem de hosts aqui seria sem sentido.
+
+## Por que ele rejeita meu endereço?
+
+Cada octeto deve ser um número decimal de 0 a 255 sem texto inicial. Endereços com mais ou menos de quatro octetos, ou um octeto acima de 255, são rejeitados em vez de envolvidos silenciosamente.
+
+## Minha entrada é transmitida?
+
+Não. A aritmética é matemática inteira pura no seu navegador.

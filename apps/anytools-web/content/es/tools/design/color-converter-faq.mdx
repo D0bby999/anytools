@@ -1,0 +1,35 @@
+---
+title: Conversor de color y verificador de contraste — Preguntas frecuentes
+---
+
+## ¿Entre qué formatos convierte?
+
+HEX, RGB y HSL, en cualquier dirección. También informa la luminancia relativa de la pareja y la relación de contraste, para que puedas juzgar la legibilidad sin moverte a otra herramienta.
+
+## ¿Cuándo es HSL más útil que HEX?
+
+Cuando estás ajustando en lugar de especificar. HSL separa el matiz de la saturación y la luminosidad, por lo que hacer un color 10% más claro es un número en lugar de tres no relacionados. HEX es compacto y universalmente entendido; HSL es lo que quieres mientras diseñas una escala.
+
+## ¿Convertir HEX a HSL y de vuelta siempre devuelve el mismo valor?
+
+No siempre. Los componentes HSL se redondean a números enteros aquí, y el cubo sRGB no se asigna limpiamente al cilindro HSL, por lo que un viaje de ida y vuelta puede caer un dígito. La diferencia es imperceptible, pero significa que debes mantener un formato canónico en tus tokens en lugar de convertir de un lado al otro.
+
+## ¿Por qué la herramienta también muestra luminancia?
+
+Porque la luminosidad en HSL y el brillo percibido no son lo mismo. Dos colores en `L: 50%` pueden verse muy diferentes, ya que la luminosidad HSL ignora cómo el ojo es mucho más sensible al verde que al azul. La luminancia relativa aplica esa ponderación, que es por eso que — no la luminosidad HSL — es lo que los estándares de accesibilidad usan.
+
+## ¿Cómo se calcula la relación de contraste?
+
+`(más clara + 0.05) / (más oscura + 0.05)` en las luminancias relativas, la definición WCAG. Si estás verificando un color de texto contra un fondo específicamente, el [verificador de contraste](/en/design/wcag-contrast-checker) informa los niveles de aprobación/falla junto con él.
+
+## ¿Maneja alfa o hex de 8 dígitos?
+
+No — funciona con colores opacos. Un color con transparencia no tiene una apariencia fija hasta que se compone sobre algo, por lo que su contraste depende de lo que hay detrás de él.
+
+## ¿Qué hay de CMYK o Pantone?
+
+No compatible, y la razón importa: son sistemas de impresión vinculados a tintas y medios físicos. Convertir un color de pantalla a CMYK significativamente necesita un perfil de color y una prensa objetivo, que es un problema diferente de la aritmética entre formatos de pantalla.
+
+## ¿Mi entrada se envía a algún lado?
+
+No. Toda conversión ocurre en tu navegador.

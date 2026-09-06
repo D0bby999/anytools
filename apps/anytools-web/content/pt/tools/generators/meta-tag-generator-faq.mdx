@@ -1,0 +1,39 @@
+---
+title: Gerador de Meta Tags — Perguntas frequentes
+---
+
+## Por que a descrição é repetida três vezes?
+
+Porque três consumidores diferentes leem três tags diferentes e nenhum deles cai de volta para os outros. `<meta name="description">` é o que os motores de busca leem para o snippet. `og:description` é o que Facebook, LinkedIn, Slack, WhatsApp e a maioria dos unfurlers de link leem. `twitter:description` é o que X lê. Omitir um significa que aquela plataforma mostra nada, ou inventa algo do seu texto de página.
+
+A duplicação é inevitável e é por isso que gerar esses à mão é tedioso o bastante para querer uma ferramenta para.
+
+## O que os contadores de 60 e 160 caracteres significam?
+
+São onde o truncamento geralmente começa, não limites rígidos. Google renderiza títulos em uma largura de pixel em vez de contar caracteres, então um título de maiúsculas largas é cortado mais cedo que um de minúsculas estreitas — 60 é uma regra de ouro confiável. Descrições são cortadas por volta de 160, às vezes mais curto em mobile.
+
+Nada é forçado. Ir além é uma escolha legítima se as palavras importantes vêm primeiro; o contador está lá para ser uma escolha ao invés de um acidente.
+
+## Por que ele avisa sobre uma URL de imagem relativa?
+
+Porque `og:image` é obtida por um crawler que tem apenas aquela string — ele não tem uma página para resolver `/og.png` contra, e nenhuma noção confiável de sua origem. Uma URL relativa é a razão simples mais comum de uma prévia de link não mostrar uma imagem, e é invisível em testes porque a própria página renderiza bem.
+
+O mesmo se aplica a `og:url`, que deve ser absoluto pela mesma razão.
+
+## Qual é a diferença entre os dois tipos de cartão?
+
+`summary_large_image` renderiza uma imagem larga acima do texto; `summary` renderiza uma pequena miniatura quadrada ao lado dele. Grande é certo para artigos e páginas de produto; summary é certo quando você não tem uma imagem forte ou a imagem é um logo.
+
+Solicitar um cartão large-image sem fornecer uma imagem é avisado, porque plataformas silenciosamente caem de volta para um cartão summary puro e a prévia parece quebrada em vez de intencional.
+
+## As tags estão propriamente escapadas?
+
+Sim. Ampersands, aspas e colchetes angulares são escapados em cada valor de atributo. Isso importa mais que parece: um título como `Bob & "Widgets"` escrito sem escape fecha o atributo cedo, e o resto da tag se torna markup perdido no seu `<head>`. Títulos contendo aspas são comuns e a quebra é fácil de perder.
+
+## Ainda devo adicionar um link canônico?
+
+Sim, e está incluído quando você preenche a URL. `og:url` e `<link rel="canonical">` fazem trabalhos relacionados mas diferentes — o primeiro diz a plataformas sociais qual URL atribuir um compartilhamento para, o segundo diz a motores de busca qual de várias URLs similares é a real. Ambos devem apontar para o mesmo endereço.
+
+## Algo é enviado para um servidor?
+
+Não. As tags são montadas de sua entrada por concatenação de string nesta aba do navegador. Nada é transmitido, o que é bom saber já que títulos de página não-publicados e URLs são frequentemente a primeira coisa que qualquer um digita em uma ferramenta como essa.

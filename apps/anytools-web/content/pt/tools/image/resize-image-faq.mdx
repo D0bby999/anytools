@@ -1,0 +1,38 @@
+---
+title: Redimensionar Imagem — Perguntas frequentes
+---
+
+## Qual é a diferença entre "caber dentro de uma caixa" e "tamanho exato"?
+
+Caber mantém a proporção: você fornece um máximo para o lado mais longo e a imagem é redimensionada até que ambas as dimensões estejam dentro dele. Uma foto 4000×3000 encaixada em 1920 torna-se 1920×1440. Nada é esticado e nada é cortado.
+
+Exato pega os dois números que você fornece e os usa, o que quer que sejam. Se eles não corresponderem à proporção original, a imagem é espremida ou esticada. Use apenas quando algo realmente exigir um tamanho de pixel fixo — e se você precisar de dimensões exatas *sem* distorção, corte primeiro, depois redimensione.
+
+## Por que o modo caber não tornará minha imagem maior?
+
+Porque ampliar inventa detalhe que nunca foi capturado. Redimensionar uma imagem 400px para 1920px produz uma imagem 1920px macia e pastosa, não uma mais nítida — os pixels extras são interpolados de seus vizinhos. Portanto, o modo caber para em 100%.
+
+O modo percentual permite valores acima de 100, porque você pediu explicitamente. A ferramenta diz o que acontecerá em vez de silenciosamente se recusar.
+
+## Minha imagem é enviada para um servidor?
+
+Não. É decodificada, redesenhada no novo tamanho e re-codificada inteiramente dentro dessa aba do navegador, e o link de download aponta para um blob que seu navegador criou localmente. Nada é transmitido. Você pode confirmá-lo na aba Rede das ferramentas do desenvolvedor do seu navegador, ou indo offline após a página carregar.
+
+## Redimensionar rotaciona minhas fotos de telefone corretamente?
+
+Sim. Uma foto de um telefone normalmente é armazenada da forma como o sensor a leu — paisagem — com uma bandeira separada registrando como o dispositivo foi mantido. Software que ignora essa bandeira entrega fotos em retrato de lado. Esta ferramenta aplica a bandeira durante a decodificação, portanto o resultado corresponde ao que você viu em seu telefone.
+
+## Qual formato de saída devo escolher?
+
+WebP para quase tudo na web: é menor que JPEG na mesma qualidade visual e suporta transparência. JPEG quando algo antigo precisa ler o arquivo. PNG quando a imagem é uma captura de tela, um diagrama ou tem áreas planas de cor ou transparência que você precisa manter exatamente.
+
+Redimensionar sempre re-codifica, portanto um JPEG que é redimensionado é comprimido uma segunda vez. Isso é inevitável em qualquer redimensionamento, mas é uma razão para não redimensionar o mesmo arquivo repetidamente.
+
+## Por que o arquivo redimensionado não é muito menor?
+
+Dimensões e tamanho de arquivo estão relacionados mas não são proporcionais. Reduzir as dimensões pela metade reduz a contagem de pixels em um quarto, o que geralmente reduz o arquivo substancialmente — mas se a fonte já estava altamente comprimida ou o conteúdo é barulhento, a economia é menor do que a aritmética sugere. Se o tamanho em vez de dimensões for o objetivo, Comprimir Imagem com um limite de tamanho é a ferramenta direta.
+
+## Qual é o maior tamanho de imagem que ela pode lidar?
+
+Qualquer tamanho. Cerca de 16,7 megapixels é o limite da tela no Safari e, portanto, o teto seguro entre navegadores, e além disso as telas silenciosamente produzem saída em branco em vez de falhar — portanto uma imagem maior é decodificada em um tamanho reduzido que cabe, com as dimensões originais relatadas ao lado. O modo percentual ainda mede contra o tamanho verdadeiro da foto em vez de uma decodificação interna, portanto pedir 50% de uma imagem de 48 megapixels fornece metade do que você realmente fotografou, não metade de uma cópia de trabalho interna. Uma foto de 12 megapixels está bem dentro do intervalo e é redimensionada da decodificação completa.
+

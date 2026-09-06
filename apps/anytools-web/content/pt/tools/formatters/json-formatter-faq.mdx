@@ -1,0 +1,35 @@
+---
+title: Formatador e validador de JSON — Perguntas frequentes
+---
+
+## Por que vírgula à direita falha ao analisar?
+
+Porque RFC 8259 a proíbe. Literais de objeto JavaScript aceitam vírgulas à direita (e JSON5 e JSONC também), mas JSON estrito não. Mude o modo JSON5 se sua entrada as usa.
+
+## JSON5 vs JSON — qual devo usar?
+
+JSON para formatos de fio (APIs, configs que máquinas trocam). JSON5 para arquivos de config editados por humanos onde você quer comentários e vírgulas à direita. Não envie JSON5 para um parser JSON genérico — ele engasgará nos comentários.
+
+## Qual é o tamanho máximo JSON que esta ferramenta consegue lidar?
+
+Uns poucos MB pretty-print instantaneamente; dezenas de MB levam alguns segundos. Além de ~100 MB o navegador pode congelar. Para documentos muito grandes use uma CLI como `jq`, que faz stream.
+
+## Por que ordenar chaves?
+
+Para diffs estáveis e hashes reproduzíveis. A ordem das chaves de objeto JSON é tecnicamente insignificante, mas diffs de arquivo e hashes são baseados em bytes — mesmos dados com ordem de chave diferente produz bytes diferentes. Ordenar normaliza isso.
+
+## JSON consegue conter comentários?
+
+JSON estrito: não. JSON5 e JSONC: sim. Mude o modo JSON5 acima para aceitá-los.
+
+## O que é JSONC?
+
+JSON com Comentários — variante de Microsoft usada em configurações VS Code e tsconfig.json. Permite `//` e `/* */` mas nada mais. JSON5 é um superconjunto de JSONC.
+
+## Como valido JSON contra um schema?
+
+Esta ferramenta valida *sintaxe* (isso é parseable JSON?), não *forma* (isso corresponde a uma estrutura esperada?). Para validação de forma use JSON Schema (`ajv`, `jsonschema`) ou, em TypeScript, Zod.
+
+## Por que meu inteiro grande volta errado?
+
+JavaScript's `Number` não consegue representar precisamente inteiros acima de 2^53. APIs que retornam grandes IDs (Twitter, Discord, Snowflake-format IDs) os enviam como **strings** por essa razão. Se seu JSON tem `"id": 9007199254740993`, isso é intencional — não converta para número no cliente.

@@ -1,0 +1,45 @@
+---
+title: Giải Nén File — Câu hỏi thường gặp
+---
+
+## Nó có thể mở những định dạng nào?
+
+ZIP, 7z, RAR (cả phiên bản 4 và phiên bản 5 formats), TAR, và gzip — bao gồm các kết hợp phổ biến `.tar.gz` và `.tgz`. Định dạng được quyết định bởi các byte đầu tiên của tệp, không phải bằng phần mở rộng của nó, vì vậy một lưu trữ tới được đặt tên `download` hoặc `photos.zip` khi nó thực sự là RAR vẫn mở chính xác.
+
+Một zip đơn giản được đọc bởi JSZip, một thư viện JavaScript. Mọi thứ khác được đọc bởi libarchive, cùng một thư viện C mà `bsdtar` sử dụng, được biên dịch để WebAssembly. Bản dựng đó khoảng 1 MB, vì vậy nó chỉ được tìm nạp khi bạn thực sự thả một lưu trữ non-zip — mở một zip và nó không bao giờ được yêu cầu ở tất cả.
+
+## Tại sao nó từ chối một lưu trữ nói nó chứa 3 GB?
+
+Vì giải nén nó sẽ xảy ra trong bộ nhớ của tab trình duyệt này, và tab sẽ chết. Tool đọc kích thước mà mỗi entry khai báo trong thư mục của lưu trữ — cái chỉ có chi phí không và yêu cầu giải nén không — và dừng trước khi trích xuất nếu tổng cộng vượt quá 2 GB hoặc số lượng entry vượt quá 50.000.
+
+Những kích thước được khai báo đó được viết bởi bất kỳ ai xây dựng lưu trữ, vì vậy một bom có thể đơn giản là dưới báo cáo: nhà nước 1 KB và trao một luồng mở rộng đến gigabyte. Một trần thứ hai xử lý một, đếm các byte thực sự phát ra và dừng khi tổng cộng vượt quá 2 GB bất kể những gì các tiêu đề khẳng định. Trên đường dẫn zip đếm chạy khi dữ liệu đến, trong khoảng 16 KB bước, vì vậy một mục nằm duy nhất bị cắt từng phần thay vì sau khi nó đã điền đầy tab; trên đường dẫn WebAssembly người đọc trả về một tệp toàn bộ cùng một lúc, vì vậy kiểm tra chỉ có thể đáp ứng giữa các entries.
+
+Có một nếp gấp hơn đáng để nói rõ ràng. Một zip quá 4 GB ghi lại kích thước của nó trong các trường ZIP64, và thư viện zip JavaScript được sử dụng ở đây đọc những cái sai — một mục 5 GB quay lại là 1 GB, và một trong 4 GB quay lại là không kích thước ở tất cả. Vì vậy, tool này phân tích cú pháp thư mục của lưu trữ chính nó, trước khi giao bất cứ điều gì cho thư viện đó, và một mục có kích thước thực không thể được thiết lập được từ chối thay vì được giả định là nhỏ. Một lưu trữ hợp pháp lớn bị từ chối bởi những quy tắc tương tự. Đó là một thương mại có ý định: một tab nói không tốt hơn một tab bị treo và mất bất cứ điều gì khác bạn đã mở.
+
+## Nó có thể mở một lưu trữ bảo vệ bằng mật khẩu không?
+
+Zips được mã hóa, có: nhập mật khẩu và mở lưu trữ lại. Điều này đi qua libarchive, xử lý cả legacy ZipCrypto và mã hóa zip AES. JSZip không thể đọc các entries được mã hóa ở tất cả, đó là lý do tại sao một zip được mã hóa hỏi bạn mật khẩu trước khi bất cứ điều gì được tải.
+
+RAR là nơi câu trả lời trung thực trở nên dài hơn. RAR có thể mã hóa *nội dung* tệp trong khi để lại *tiêu đề* có thể đọc, hoặc nó có thể mã hóa các tiêu đề quá. Loại đầu tiên liệt kê và trích xuất với mật khẩu đúng. Loại thứ hai thậm chí không thể được liệt kê mà không có mật khẩu, và hỗ trợ cho nó trong bản dựng WebAssembly này là không đáng tin cậy — nếu một RAR có các tiêu đề được mã hóa từ chối mở ở đây, đó là một hạn chế thực tế và một công cụ máy tính để bàn là câu trả lời. Không có gì về mật khẩu sai có thể được phân biệt từ một biến thể không được hỗ trợ với sự chắc chắn, vì vậy thông báo lỗi nói cả hai.
+
+## Lưu trữ có được tải lên máy chủ không?
+
+Không. Tệp được đọc bởi trang này, giải nén trong tab này (trong một Web Worker cho các định dạng WebAssembly), và mọi liên kết tải xuống trỏ vào một blob trình duyệt của bạn giữ locally. Tệp nhị phân WebAssembly và worker của nó được phục vụ từ gốc của trang web này, không phải từ CDN — vì vậy mở một lưu trữ không liên hệ bên thứ ba ở tất cả. Bạn có thể kiểm tra trong tab Network, hoặc mở một sau khi đi offline.
+
+## Tại sao "extract all" trao lại cho tôi một zip khác?
+
+Vì trình duyệt triệt tiêu thứ hai và các lần tải xuống tiếp theo khi một trang bắt đầu nhiều cái cùng một lúc, vì vậy các tệp âm thầm biến mất. Đóng gói lại mọi thứ vào một zip là cách duy nhất đáng tin cậy để cho bạn nhiều hơn một tệp. Mỗi mục cũng có liên kết tải xuống riêng của nó nếu bạn chỉ muốn một hoặc hai.
+
+Khi tool xây dựng zip đó nó viết lại mọi đường dẫn: bất cứ điều gì chứa `../`, một `/` đứng đầu, hoặc một ký tự ổ đĩa Windows bị làm phẳng. Lưu trữ thực sự mang những đường dẫn như vậy — đó là cách loại lỗ hổng Zip Slip của lỗ hổng nhận các tệp được viết bên ngoài thư mục bạn giải nén vào — và không có gì trang web này tạo ra sẽ vượt qua một.
+
+## Nó hết bộ nhớ trên điện thoại của tôi. Tại sao?
+
+Vì mọi thứ được giữ trong RAM. Một tab trên Chrome máy tính để bàn hoặc Firefox sẽ xử lý một vài trăm megabyte mà không có khiếu nại; Safari trên iOS chặt hơn nhiều và có thể loại trang tốt hơn dưới điều đó, đặc biệt với người đọc WebAssembly giữ bản sao riêng của lưu trữ bên cạnh các tệp được trích xuất. Nếu một lưu trữ lớn tải lại trang trên điện thoại, đó là những gì xảy ra, và một trình duyệt máy tính để bàn hoặc một công cụ gốc là cách thông qua.
+
+## Còn về ISO, CAB, DMG hoặc một lưu trữ tách biệt?
+
+libarchive chính nó hiểu nhiều định dạng hơn năm cái tool này quảng cáo, nhưng chỉ năm cái đó được phát hiện và cung cấp ở đây — các byte đầu tiên của tệp được so khớp với năm chữ ký đó và không có gì khác, vì vậy một ISO hoặc CAB bị quay trở lại cửa ngay cả khi người đọc đằng sau nó có thể có thể đối phó.
+
+Đang chính xác về "cung cấp": zip, tar và gzip mỗi cái đã được mở ở đây với các tệp thực, bao gồm một zip được mã hóa và `.tar.gz`. RAR và 7z được định tuyến đến cùng bản dựng libarchive, cái tài liệu hỗ trợ cho cả hai, nhưng không có tệp `.rar` hoặc `.7z` đã được chạy qua trang này — chúng được cung cấp trên danh tiếng của thư viện, không phải trên một kiểm tra thực hiện ở đây. Nếu một không mở được, đó là đáng để báo cáo thay vì làm việc xung quanh.
+
+Multi-part archives (`.z01`, `.part1.rar`) không được hỗ trợ: chúng cần mọi phần có mặt cùng một lúc, và tool này lấy một tệp duy nhất.

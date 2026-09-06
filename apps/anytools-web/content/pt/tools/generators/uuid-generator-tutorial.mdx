@@ -1,0 +1,71 @@
+---
+title: UUIDs explicados — v4 vs v7 vs v1 e qual usar em 2026
+description: Como versões UUID diferem, por que v7 é o novo padrão para chaves de banco de dados, e a diferença entre UUID e ULID.
+updated: 2026-05-25
+---
+
+## O que um UUID realmente é
+
+Um UUID é um número de 128-bit que é, com probabilidade extremamente alta, globalmente único sem coordenação. Você consegue gerar um no seu laptop agora e ter confiança de erro de arredondamento que nenhuma máquina na terra jamais gerou o mesmo valor. O formato ([RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122), atualizado por [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562)) é 32 dígitos hexadecimais divididos em cinco grupos por dashes: `8-4-4-4-12`.
+
+O formato em si não muda entre versões. O que muda é **como os bits são gerados**, o que tem consequências reais para performance de banco de dados, ordenabilidade, e privacidade.
+
+## v4 — aleatório
+
+O clássico. 122 bits de aleatoriedade criptográfica, com 6 bits reservados para indicar "isso é um v4". Universalmente suportado, trivial de gerar, e um bom padrão para IDs opacos.
+
+A desvantagem: IDs aleatórios são **terríveis para localidade de índice B-tree**. Inserir UUIDs aleatórios em um banco de dados que os usa como chaves primárias causa o índice a fragmentar, desacelerando inserções conforme a tabela cresce. Para tabelas pequenas (sob 1M linhas) você nunca notará. Em escala você notará.
+
+## v7 — ordenado por tempo
+
+A versão mais nova (2024) que resolve o problema de v4. Os primeiros 48 bits são um timestamp Unix em milissegundos, seguido por 74 bits de aleatoriedade. Resultado: ordem de classificação lexicográfica corresponde a tempo de inserção, índices B-tree ficam compactos, e você ainda obtém valores efetivamente únicos.
+
+**Padrão v7 para novas chaves de banco de dados em 2026** a menos que você tenha uma razão específica para não. Postgres adicionou suporte nativo na 17; bibliotecas na maioria das linguagens o suportam agora.
+
+## v1 — timestamp + MAC
+
+Legado. Combina um timestamp com o endereço MAC da máquina hospedeira. Ordenável por tempo (bom para índices) mas vaza o MAC do gerador (ruim para privacidade — historicamente usado em ataques de atribuição). Use v7 ao invés disso — mesma ordenabilidade, sem vazamento de MAC.
+
+## v3, v5 — baseados em nome
+
+v3 (MD5) e v5 (SHA-1) fazem hash de um namespace + nome em um UUID. Útil quando você quer que a mesma entrada produz determinaticamente o mesmo UUID entre sistemas. Menos comum em código de app; aparece em DNS, OIDs, fingerprints de certificado.
+
+## Performance: UUID como chave primária
+
+Os dois argumentos comuns:
+
+| Preocupação | Veredicto |
+|---|---|
+| Tamanho de armazenamento | UUID = 16 bytes vs bigint 8 bytes. Índice ~2× maior. Disco é barato. |
+| Velocidade de inserção (v4) | Ruim para B-tree com IDs aleatórios em escala. Use v7 para consertar. |
+| Velocidade de inserção (v7) | Essencialmente igual a auto-increment para inserções sequenciais por tempo. |
+| Ordenabilidade | v7 ordena por tempo. v4 não. |
+| Unicidade entre-shards | UUIDs vencem — sem coordenação necessária. |
+| Debugabilidade | Auto-increment IDs são mais fáceis de digitar em URLs. |
+
+A resposta certa para a maioria de novos esquemas de app em 2026: **UUID v7 para IDs visíveis por aplicação, bigint auto-increment para tabelas de join apenas-internas.**
+
+## UUID vs ULID vs CUID2
+
+- **ULID** — mesma ideia ordenável-por-tempo, codificado como 26-caracteres Crockford Base32. Mais limpo de digitar que UUID, mas **não-padrão** (sem RFC), então suporte de biblioteca + tipo de BD é mais estreito. UUID v7 obsoleta a maioria dos casos de uso de ULID.
+- **CUID2** — ID resistente a colisão enfatizando escalabilidade horizontal e resistência a enumeração. Diferentes objetivos de design; escolha se você especificamente precisa das propriedades de cuid2.
+
+Para 99% dos casos de "me dê um ID único", **UUID v7 com a biblioteca padrão**.
+
+## Uso nesta ferramenta
+
+- Escolha uma versão (v7, v4, v1).
+- Configure a contagem (1–100).
+- Alterne maiúsculas ou dashes se seu sistema downstream tiver opiniões.
+- Gere, copie tudo.
+
+Modo validação analisa qualquer UUID e lhe diz que versão + variante é — útil quando você está olhando para um ID e se perguntando de onde veio.
+
+## Privacidade
+
+Gerado inteiramente no seu navegador via o pacote open-source [`uuid`](https://github.com/uuidjs/uuid) usando `crypto.getRandomValues` para aleatoriedade. Nenhum valor é registrado ou transmitido.
+
+## Ferramentas relacionadas
+
+- **Gerador de hash** — faça hash de um UUID para um ID fixo de tamanho menor.
+- **Gerador de senhas** — quando você precisa de uma string aleatória forte, não um ID estruturado.

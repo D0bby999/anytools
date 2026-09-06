@@ -1,0 +1,39 @@
+---
+title: Calculadora de Subred IP (CIDR) — Preguntas frecuentes
+---
+
+## ¿Qué reporta?
+
+Para una dirección IPv4 y un prefijo CIDR: la dirección de red, dirección de transmisión, máscara de red en forma punteada y binaria, el rango de host utilizable, el recuento de hosts y la clase de dirección heredada.
+
+## ¿Por qué el recuento de host utilizable es dos menos que el total?
+
+Porque la primera dirección en un bloque identifica la red misma y la última es la dirección de transmisión — ninguna puede asignarse a una máquina. Un /24 contiene 256 direcciones y 254 hosts utilizables.
+
+## ¿Por qué esa resta no se aplica a /31 y /32?
+
+Porque son casos especiales y la herramienta los maneja. Un /31 no tiene espacio para una división de red y transmisión, y RFC 3021 lo define como un enlace punto a punto donde ambas direcciones son utilizables — así es como se numeran comúnmente los interconexiones de enrutador. Un /32 es una ruta de un solo host. Restar dos de cualquiera daría un recuento sin sentido de cero o negativo.
+
+## ¿Qué significa realmente la longitud del prefijo?
+
+Cuántos bits iniciales se fijan como la porción de red. Un /24 fija los primeros 24 bits, dejando 8 para hosts; cada bit que devuelves a la porción de host duplica el bloque. Por eso los tamaños van 256, 512, 1024 en lugar de en pasos decimales redondos.
+
+## ¿Por qué mostrar la máscara de red en binario?
+
+Porque la forma binaria es donde la subred deja de ser memorización. Ver 255.255.255.0 como veinticuatro unos seguidos de ocho ceros hace obvio por qué /25 divide un bloque por la mitad y por qué la máscara debe ser unos contiguos.
+
+## ¿Siguen siendo relevantes las clases de dirección?
+
+No operacionalmente. El direccionamiento con clase fue reemplazado por CIDR en los años 90, y el enrutamiento moderno no tiene concepto de clase A, B o C. La clase se reporta porque la documentación más antigua y las preguntas de entrevista aún usan los términos, no porque algo se enrute por ellos.
+
+## ¿Maneja IPv6?
+
+No — esto es solo IPv4. La subred IPv6 usa notación hexadecimal y un espacio vastamente más grande, donde la aritmética de recuento de host aquí sería sin sentido.
+
+## ¿Por qué rechaza mi dirección?
+
+Cada octeto debe ser un número decimal de 0 a 255 sin texto inicial. Las direcciones con más o menos de cuatro octetos, o un octeto superior a 255, son rechazadas en lugar de silenciosamente envueltas.
+
+## ¿Se transmite mi entrada?
+
+No. La aritmética es matemática pura de enteros en tu navegador.

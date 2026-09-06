@@ -1,0 +1,31 @@
+---
+title: Gerador de UUID — Perguntas frequentes
+---
+
+## Qual versão de UUID devo usar?
+
+Para novas chaves primárias de aplicação em 2026: **v7**. Ordenável por hora de criação, amigável a índices B-tree, sem vazamento de endereço MAC. Caia de volta para v4 se sua stack ainda não suportar v7.
+
+## UUIDs são realmente únicos?
+
+Praticamente sim. v4 tem 122 bits de entropia — para ter uma chance de 50% de qualquer colisão você precisaria de ~2.7 quintilhões (10^18) IDs. A porção aleatória de v7 é 74 bits, ainda bem no território "nunca colidir" para qualquer aplicação abaixo de tráfego de escala planetária.
+
+## Posso usar UUID como chave primária de banco de dados?
+
+Sim. O aviso de performance histórico se aplica a **v4 especificamente** em tabelas grandes com cargas de trabalho de inserção aleatória. Use v7 para evitar esse problema. O custo de armazenamento é 16 bytes vs 8 para bigint — negligenciável para tabelas de app, vale a pena pensar para tabelas de bilhões de linhas.
+
+## v7 ou ULID?
+
+v7 a menos que você especificamente precise da forma de encoding de ULID. ULID precede UUID v7 e era popular em parte porque v7 não existia ainda. Com v7 agora padrão, ULID tem suporte de biblioteca + banco de dados mais estreito e nenhuma vantagem de spec.
+
+## A aleatoriedade nesta ferramenta é criptográfica?
+
+Sim. A biblioteca [`uuid`](https://github.com/uuidjs/uuid) subjacente usa `crypto.getRandomValues`, o CSPRNG do navegador. Adequado para tokens de segurança, IDs de sessão, etc.
+
+## Por que v1 vaza um endereço MAC?
+
+v1 foi projetado em uma era onde o MAC do host era uma fonte fácil de unicidade. As bibliotecas modernas geralmente aleatorizam o ID do nó para evitar o vazamento, mas a intenção de design incluía identificar a máquina geradora. Não use v1 em contextos sensíveis à privacidade — use v7 ao invés disso.
+
+## Conseguo gerar milhões nesta ferramenta?
+
+O campo Count está limitado em 100. Gerar milhões em uma aba do navegador é um risco de memória; para essa escala use uma CLI como `uuidgen` em um loop ou seu código de aplicação.

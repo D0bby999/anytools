@@ -1,0 +1,53 @@
+---
+title: OCR de un PDF escaneado — Preguntas frecuentes
+---
+
+## ¿Se sube mi documento a algún lado?
+
+No. Cada página se renderiza a un lienzo por `pdf.js`, se reconoce por Tesseract compilado a WebAssembly, y — si pides un PDF buscable — se reensamble por `pdf-lib`. Los tres se ejecutan dentro de esta pestaña del navegador. Nada del documento llega a un servidor, así que no hay copia almacenada para retener, registrar o borrar.
+
+Esta es la razón completa por la que la herramienta existe en esta forma. Cada otro servicio gratuito de "OCR PDF" sube tu archivo a una máquina que no controlas, y los PDFs escaneados son abrumadoramente los documentos que menos querías entregar: contratos, registros médicos, extractos bancarios, títulos de propiedad, presentaciones judiciales. Puedes verificarlo: abre la pestaña Red, ejecuta la herramienta, y después de que se carga el archivo de idioma no verás ninguna solicitud que lleve el PDF.
+
+## ¿Qué es un "PDF buscable" y qué cambia realmente la opción?
+
+Es el mismo escaneo, visualmente sin cambios, con las palabras reconocidas escritas sobre la imagen en texto invisible. Tu lector puede entonces encontrar, seleccionar y copiar palabras que solo existen en el documento como píxeles.
+
+Nada se redibuja o se recomprime. La herramienta carga tu archivo original, y por cada palabra que Tesseract encontró dibuja esa palabra a opacidad cero, posicionada sobre el lugar en la página donde está la tinta. El escaneo que ves después es byte-idéntico en apariencia; solo se ha agregado una capa de texto. Eso significa que el archivo crece por algunos decenas de kilobytes en lugar de ser recodificado — y también significa que la calidad de la imagen es exactamente con la que empezaste, para mejor o peor.
+
+Si dejas la opción apagada obtienes `.txt` simple con un marcador `--- Página n ---` antes de cada página, que es la salida mejor cuando tienes la intención de editar o reutilizar el texto en lugar de mantener el escaneo.
+
+## ¿Por qué tarda tanto, y puedo detenerlo?
+
+El reconocimiento es genuinamente costoso: aproximadamente uno a cinco segundos por página en una laptop moderna, más en un teléfono, más un costo de inicio único la primera vez. Un escaneo de cincuenta páginas es algunos minutos de trabajo real, y es tu propio CPU haciendo — un servicio del lado del servidor se siente más rápido porque el trabajo sucede en la máquina de otro.
+
+Hay un botón **Detener**. Termina la ejecución: la página siendo leída se abandona, el motor de reconocimiento se apaga, y el bucle no se mueve a la siguiente página. Lo que no hace es entregarte las páginas que ya había terminado — una ejecución detenida no produce texto en absoluto, y el botón se queda en su estado "deteniendo" hasta que la ejecución realmente se haya desenvuelto, que normalmente es una fracción de segundo.
+
+Así que si solo quieres parte de un documento, usa el campo de rango de página en lugar de Detener: leer páginas 12–14 de un escaneo de 200 páginas tarda segundos y te da esas tres páginas.
+
+## ¿Qué se descarga la primera vez?
+
+Nada hasta que presionas **Reconocer texto**. Entonces, desde este sitio y nunca de un CDN: el script del worker (~110 KB), el motor WebAssembly (~3,8 MB), y los datos de idioma (0,5–4 MB dependiendo del idioma). El archivo de idioma se almacena en IndexedDB de tu navegador, así que el segundo documento en el mismo idioma no descarga nada. Elegir la opción de PDF buscable en vietnamita además obtiene un archivo Noto Sans de 421 KB, porque las fuentes PDF integradas no pueden escribir vietnamita; los otros tres idiomas usan una fuente que cada lector PDF ya tiene.
+
+## ¿Por qué 200 DPI, y importa la resolución?
+
+Cada página tiene que convertirse en píxeles antes del reconocimiento, así que la herramienta la rasteriza con `pdf.js`. La escala que usa es 200 puntos por pulgada, y ambas direcciones desde allí son peor.
+
+Menor, y las letras caen por debajo de la altura de píxeles que los modelos necesitan. Mayor, y estás ampliando una fotografía: si el escaneo integrado es 200 DPI, renderizar la página a 400 no inventa nuevo detalle, solo cuadruplica el trabajo. Ya que un PDF escaneado es usualmente 200–300 DPI para empezar, 200 es donde la precisión deja de mejorar y el costo sigue subiendo.
+
+Lo que sí importa es el escaneo con el que comenzaste. Un escaneo en escala de grises de 150 DPI de una página impresa limpia hará muy bien. Una fotografía de una página tomada en ángulo, un fax, o un escaneo que alguien ya ha comprimido a un JPEG pequeño hará notablemente peor, y ninguna configuración aquí puede recuperar información que el escaneo no capturó. Las páginas se convierten a escala de grises antes del reconocimiento, que es aproximadamente dos veces más rápido y no menos preciso, ya que Tesseract descarta el color internamente de todos modos.
+
+## ¿Por qué algunas palabras desaparecen de la capa buscable?
+
+Dos razones, ambas reportadas en lugar de ocultas. Las palabras que el reconocedor tenía menos del 30% de confianza se dejan fuera a propósito: a ese nivel suelen ser motas leídas como puntuación, e incluirlas hace que seleccionar una línea copie basura.
+
+La otra razón es la fuente. Para inglés, español y portugués la capa invisible se dibuja en Helvetica, cuyo conjunto de caracteres es aproximadamente Latin-1. El vietnamita usa Noto Sans integrado en su lugar, que cubre aproximadamente tres mil puntos de código — el alfabeto latino con cada marca tonal vietnamita, griego, cirílico y puntuación común. De cualquier forma, una palabra que contiene un carácter que la fuente no tiene glifo se deja fuera y se cuenta, y el conteo aparece sobre el texto. Los caracteres que caen fuera de ambos son raros en la práctica y generalmente mal leídos para empezar: CJK, flechas y líneas de cuadro que OCR extrajo de un sello o un borde de tabla. La salida `.txt` no tiene tal límite — contiene cada palabra sin importar la fuente.
+
+## ¿Qué pasa si el PDF buscable no se puede construir?
+
+Aún obtienes el texto. La herramienta verifica tu original antes de que empiece a leer — un archivo con permisos o una contraseña en él se puede mostrar pero no se le puede escribir una capa de texto, y eso se rechaza por adelantado en lugar de después de varios minutos de reconocimiento. Si algo sale mal después, en el paso de ensamblaje, el texto reconocido y la descarga `.txt` se quedan en la página y un mensaje explica por qué falta el PDF.
+
+Un original protegido con contraseña es el caso común. Elimina la protección primero, o apaga la opción de PDF buscable y toma el texto por sí solo.
+
+## ¿Cuán preciso es?
+
+Los archivos de idioma son los modelos `tessdata_fast` de Tesseract — cuantizados para velocidad y tamaño. En una página impresa limpia espera los altos noventa por ciento de caracteres; la herramienta reporta una confianza promedio por página así que puedes ver qué páginas son débiles. `tessdata_best` sería aproximadamente dos a tres por ciento mejor y cuatro veces la descarga, que no es un trato que valga la pena hacer para cada visitante. La escritura a mano no funciona en absoluto, y tablas densas, diseños de varias columnas con canaletas estrechas, y texto impreso sobre imágenes son todo notablemente peor que texto de cuerpo simple.

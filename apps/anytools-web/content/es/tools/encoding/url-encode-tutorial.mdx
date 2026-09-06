@@ -1,0 +1,53 @@
+---
+title: Codificación de URL explicada
+description: Cuándo usar encodeURIComponent vs encodeURI, por qué + se convierte en un espacio, y cómo hacer round-trip de no-ASCII de forma segura.
+updated: 2026-05-25
+---
+
+## Qué es la codificación de URL
+
+Las URL se restringen a un pequeño conjunto de caracteres ASCII. El RFC para la sintaxis de URL — [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) — reserva un puñado de caracteres (`/`, `?`, `#`, `&`, `=`, etc.) para significado estructural, y prohíbe espacios, caracteres de control y la mayoría de bytes no-ASCII de aparecer literalmente. **Codificación de URL** (también llamada *codificación de porcentaje*) es el mecanismo de escape: cada byte prohibido se reemplaza por `%` seguido de su valor hex de dos dígitos.
+
+Así que un espacio se convierte en `%20`, un ampersand `%26`, un carácter chino `世` se convierte en `%E4%B8%96` (sus tres bytes UTF-8, cada uno codificado en porcentaje). El resultado es siempre ASCII-seguro.
+
+## `encodeURIComponent` vs `encodeURI`
+
+JavaScript expone dos funciones diferentes, y no son intercambiables:
+
+- **`encodeURIComponent`** codifica *todo* que no sea un carácter no reservado. Úsalo para **una pieza** de una URL — un valor de parámetro de consulta, un segmento de ruta, un campo de formulario.
+- **`encodeURI`** preserva caracteres estructurales de URL (`:/?#&=+$,`) en la suposición de que le estás pasando una URL completa y ya estructurada. Úsalo cuando tienes una URL completa con contenido no-ASCII y quieres hacerla segura para transporte sin romper su estructura.
+
+Ejemplo de elección incorrecta: si haces `encodeURI("a=1&b=2")`, el `=` y `&` se preservan tal cual — está bien si esa cadena es una consulta, roto si es un *valor* que se supone que contiene `=` o `&` literales.
+
+Esta herramienta te da ambos, más un modo de decodificación que acepta cualquiera de los dos tipos.
+
+## La peculiaridad del `+`
+
+Históricamente, los formularios HTML codifican espacios como `+` (este es el tipo MIME `application/x-www-form-urlencoded`). Los estándares URL modernos codifican espacios como `%20`. Ambos están en la naturaleza — cuando decodificas una cadena de consulta, debes aceptar ambos. Nuestro decodificador lo hace.
+
+Cuando *codificas*, siempre emitimos `%20` (el estándar moderno). No emitas `+` para espacios a menos que específicamente necesites compatibilidad codificada en formulario.
+
+## Ejemplos
+
+| Entrada | codificar componente | codificar URL completa |
+|---|---|---|
+| `hello world` | `hello%20world` | `hello%20world` |
+| `a=1&b=2` | `a%3D1%26b%3D2` | `a=1&b=2` |
+| `https://x.com/a?b=1` | `https%3A%2F%2Fx.com%2Fa%3Fb%3D1` | `https://x.com/a?b=1` |
+| `café` | `caf%C3%A9` | `caf%C3%A9` |
+
+## Cuándo usarás esto
+
+- Construir cadenas de consulta programáticamente sin un enrutador/biblioteca.
+- Inspeccionar una URL codificada que alguien te pegó.
+- Depuración "¿por qué mi backend ve `+` en lugar de espacio?"
+- Generar URL canónicas en mapas de sitio y `<link rel="canonical">`.
+
+## Privacidad
+
+100% en navegador vía las funciones nativas `encodeURIComponent` / `decodeURIComponent`. Sin solicitudes de red, sin registros.
+
+## Herramientas relacionadas
+
+- **Codificador Base64** — codificación diferente, a menudo encadenada con codificación de URL para transporte compacto.
+- **Slugify** — convierte texto arbitrario en slugs de URL seguros (una operación de nivel superior que la codificación simple).

@@ -1,0 +1,39 @@
+---
+title: Sorteador aleatório — Dados, moeda, número, nome — Perguntas frequentes
+---
+
+## O que ela pode escolher?
+
+Quatro coisas: lançamentos de dados com qualquer número de dados e qualquer número de lados, um cara-ou-coroa, um número inteiro aleatório em um intervalo, e uma escolha aleatória de uma lista que você cola.
+
+## O intervalo é inclusivo?
+
+Sim. Tanto o mínimo quanto o máximo podem sair. Inserir os limites de forma errada também é bom — a ferramenta os ordena antes de escolher.
+
+## De onde vem a aleatoriedade?
+
+Do gerador integrado do seu navegador. É um algoritmo pseudo-aleatório semeado pelo navegador, que é perfeitamente adequado para escolher quem começa primeiro, escolher um vencedor entre amigos, ou lançar dados para um jogo de tabuleiro.
+
+## Posso usá-la para algo relacionado à segurança?
+
+Não. Um gerador pseudo-aleatório de propósito geral não foi projetado para resistir a um atacante prevendo sua saída, portanto não o use para gerar senhas, tokens, chaves ou qualquer outra coisa que deva ser inprevisível. Para senhas use o [gerador de senhas](/en/generators/password-generator), que foi construído para esse fim.
+
+## É adequada para um sorteio de prêmios público?
+
+Trate com cuidado. Não há trilha de auditoria, sem seed que você possa publicar, e nenhuma forma para qualquer outra pessoa verificar se o sorteio aconteceu conforme descrito — o resultado aparece e se vai. Para um sorteio onde o resultado importa para outras pessoas, use um método que produza evidências.
+
+## Por que o mesmo número saiu duas vezes seguidas?
+
+Porque é assim que a aleatoriedade é. Escolhas independentes não têm memória, então repetições são esperadas — com seis lados, dois lançamentos correspondentes acontecem cerca de uma em seis vezes. Um gerador que evitou repetições seria menos aleatório, não mais.
+
+## O lançador de dados mostra resultados individuais?
+
+Sim, cada dado separadamente junto com o total. Isso importa para jogos em que valores individuais são usados em vez de apenas a soma.
+
+## Escolher de uma lista remove o item depois?
+
+Não — cada escolha é independente e a lista não muda, portanto a mesma entrada pode ser sorteada novamente. Para sortear sem reposição, remova o vencedor da lista antes de escolher novamente.
+
+## Algo que eu colo é enviado para algum lugar?
+
+Não. A lista fica no seu navegador e nada é transmitido.

@@ -1,0 +1,37 @@
+---
+title: Redimensionar Imagen — Preguntas frecuentes
+---
+
+## ¿Cuál es la diferencia entre "ajustarse dentro de una caja" y "tamaño exacto"?
+
+Ajustarse mantiene la relación de aspecto: das un máximo para el lado más largo y la imagen se escala hacia abajo hasta que ambas dimensiones estén dentro de él. Una foto de 4000×3000 ajustada a 1920 se convierte en 1920×1440. Nada se estira y nada se corta.
+
+Exacto toma los dos números que das y los usa, sean lo que sean. Si no coinciden con la proporción original, la imagen se aplasta o se estira. Úsalo solo cuando algo realmente requiere un tamaño de píxel fijo — y si necesitas dimensiones exactas *sin* distorsión, recorta primero, luego redimensiona.
+
+## ¿Por qué el modo de ajuste no hará mi imagen más grande?
+
+Porque ampliar inventa detalles que nunca fueron capturados. Escalar una imagen de 400px a 1920px produce una imagen blanda y esponjosa de 1920px, no una más nítida — los píxeles adicionales se interpolan de sus vecinos. El modo de ajuste por lo tanto se detiene al 100%.
+
+El modo de porcentaje permite valores por encima del 100%, porque explícitamente lo solicitaste. La herramienta dice qué sucederá en lugar de simplemente rechazarlo.
+
+## ¿Se envía mi imagen a un servidor?
+
+No. Se decodifica, se redibuja al nuevo tamaño y se recodifica completamente dentro de esta pestaña del navegador, y el enlace de descarga apunta a un blob que tu navegador creó localmente. Nada se transmite. Puedes confirmarlo en la pestaña Red de las herramientas de desarrollador de tu navegador, o yendo sin conexión después de que la página se cargue.
+
+## ¿Redimensionar rota mis fotos de teléfono correctamente?
+
+Sí. Una foto de un teléfono normalmente se almacena de la manera en que el sensor la leyó — horizontal — con una bandera separada registrando cómo se sostenía el dispositivo. El software que ignora esa bandera entrega fotos verticales de lado. Esta herramienta aplica la bandera mientras decodifica, así que el resultado coincide con lo que viste en tu teléfono.
+
+## ¿Qué formato de salida debo elegir?
+
+WebP para casi todo en la web: es más pequeño que JPEG con la misma calidad visual y admite transparencia. JPEG cuando algo antiguo necesita leer el archivo. PNG cuando la imagen es una captura de pantalla, un diagrama, o tiene áreas planas de color o transparencia que necesitas mantener exactamente.
+
+Redimensionar siempre recodifica, así que un JPEG que se redimensiona se comprime una segunda vez. Eso es inevitable en cualquier redimensionamiento, pero es una razón para no redimensionar el mismo archivo repetidamente.
+
+## ¿Por qué el archivo redimensionado no es mucho más pequeño?
+
+Las dimensiones y el tamaño del archivo están relacionados pero no proporcionales. Reducir a la mitad ambas dimensiones reduce el recuento de píxeles en una cuarta parte, lo que generalmente corta sustancialmente el archivo — pero si la fuente ya estaba fuertemente comprimida, o el contenido es ruidoso, el ahorro es menor de lo que sugiere la aritmética. Si el tamaño en lugar de dimensiones es el objetivo, Comprimir Imagen con un presupuesto de tamaño es la herramienta directa.
+
+## ¿Cuál es la imagen más grande que puede manejar?
+
+Cualquier tamaño. Alrededor de 16.7 megapíxeles es el límite del lienzo en Safari y por lo tanto el techo seguro en navegadores, y más allá los lienzos producen silenciosamente salida en blanco en lugar de fallar — así que una imagen más grande se decodifica a un tamaño reducido que se ajuste, con las dimensiones originales reportadas al lado. El modo de porcentaje aún mide contra el tamaño verdadero de la foto en lugar de la decodificación interna, así que pedir el 50% de una imagen de 48 megapíxeles te da la mitad de lo que realmente capturaste, no la mitad de una copia de trabajo interna. Una foto de 12 megapíxeles está bien dentro del rango y se redimensiona desde la decodificación completa.

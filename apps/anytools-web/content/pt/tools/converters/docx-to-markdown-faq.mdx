@@ -1,0 +1,59 @@
+---
+title: Conversor de DOCX para Markdown — Perguntas frequentes
+---
+
+## O que sobrevive à conversão e o que se perde?
+
+O que sobrevive é a estrutura. Títulos se tornam `#` e `##` — e se tornam títulos porque o parágrafo carrega o estilo *Heading 1* do Word, não porque é grande e negrito. Negrito e itálico sobrevivem, assim como listas com marcadores e numeradas, incluindo seu aninhamento, hiperlinks com seus alvos, citações em bloco, sobrescrito e subscrito e tabelas.
+
+O que se perde é tudo o que Markdown não tem como dizer. Fontes, tamanhos, cores, destaque, alinhamento, espaçamento de linha, quebras de página, colunas, cabeçalhos e rodapés, números de página, caixas de texto, formas, SmartArt, equações, gráficos e comentários desaparecem. Notas de rodapé e notas finais são convertidas para texto, mas seu posicionamento exato muda. As alterações rastreadas são achatadas: o documento é convertido como se cada alteração tivesse sido aceita, então revise um documento com alterações rastreadas antes de confiar na saída.
+
+Uma ressalva que vale a pena conhecer sobre estilos. Documentos do Word feitos a partir de um modelo frequentemente usam nomes de estilos personalizados — um título estilizado como *Report Heading 2* em vez de *Heading 2*. Esses não são reconhecidos, e o parágrafo é convertido como texto comum. Quando isso acontece, o conversor relata isso nas notas sob a saída, listando cada estilo que não compreendeu. Se seus títulos saíram planos, essa lista é onde a razão estará.
+
+## Por que a primeira linha da minha tabela está sendo usada como cabeçalho?
+
+Porque GitHub Flavored Markdown não tem tabela sem um. Cada tabela GFM é uma linha de cabeçalho, um separador `| --- | --- |` e depois linhas de corpo; não há sintaxe para uma tabela sem cabeçalho. Word, enquanto isso, só registra uma linha como cabeçalho se o autor tiver marcado explicitamente *Repeat as header row* nas propriedades da tabela, o que quase ninguém faz.
+
+Deixado sozinho, essa combinação significa que a maioria das tabelas reais não pode ser expressa de forma alguma, e o conversor subjacente recua para emitir HTML bruto `<table>` no meio do seu Markdown. Portanto, esta ferramenta promove a primeira linha de qualquer tabela que não tem linha de cabeçalho marcada e a trata como o cabeçalho.
+
+Essa é uma suposição, e pode estar errada. Se sua tabela começar direto com dados, a primeira linha de dados se tornará o cabeçalho e você precisará adicionar uma linha de volta à mão. É uma troca deliberada: uma linha editável versus um bloco de HTML que nenhum renderizador Markdown vai estilizar.
+
+Mais duas coisas acontecem com as tabelas aqui. Uma célula cujo texto o Word dividiu entre vários parágrafos é unida com `<br>`, porque uma quebra de linha real dentro de uma linha de tabela Markdown termina a linha e destrói a tabela. E um `|` literal dentro do texto da célula é escapado para `\|`, pois um não escapado adicionaria silenciosamente uma coluna a essa linha.
+
+## O que acontece com células mescladas em uma tabela?
+
+Elas são desunidas. Markdown não tem mesclagem em tudo: cada linha de uma tabela é o mesmo número de campos separados por `|`, alinhados por posição, e não há sintaxe que diga "este cabeçalho cobre duas colunas".
+
+Então, uma célula mesclada em duas colunas se torna duas células — a primeira mantém o texto, a segunda fica vazia — e uma célula mesclada em duas linhas se torna a célula mais uma vazia diretamente abaixo dela. O resultado é um retângulo, com as colunas ainda alinhadas sob os cabeçalhos corretos. Lê diferente do original do Word, mas nada se perde, e é uma tabela que seu renderizador desenha.
+
+Isso importa mais do que parece. Deixada sozinha, uma célula de cabeçalho mesclada em duas colunas produz uma linha de cabeçalho mais estreita do que as linhas de corpo, e Markdown com sabor GitHub resolve isso truncando cada linha para a largura do cabeçalho — portanto, uma tabela de três colunas com um cabeçalho mesclado silenciosamente é enviada com sua última coluna deletada.
+
+Duas tabelas não podem ser resgatadas dessa forma, e ambas são emitidas como HTML ordinário em vez de uma tabela Markdown distorcida: uma tabela contendo outra tabela dentro de uma de suas células, que Markdown não tem como expressar, e uma tabela cujas mesclagens reivindicam mais colunas do que qualquer documento real tem. HTML dentro de um arquivo Markdown renderiza corretamente no GitHub e na maioria dos geradores de sites estáticos; uma tabela de tubo quebrada não renderiza em lugar nenhum.
+
+## O que acontece com as imagens do meu documento?
+
+Por padrão, elas são descartadas e a ferramenta informa quantas descartou. Há um alternador para incorporá-las, como dados base64 URIs dentro do Markdown.
+
+O padrão está desligado por uma razão prática. Base64 é cerca de um terço maior do que os bytes que codifica, então uma única foto de 2 MB se torna aproximadamente 2,7 MB de texto ilegível sentado no meio do seu documento. Três fotos e o Markdown não é mais algo que uma pessoa pode abrir em um editor. Data URIs também não funcionam em todos os lugares: GitHub as remove do Markdown renderizado, e vários geradores de sites estáticos fazem o mesmo.
+
+Ative o alternador quando o documento tiver uma ou duas imagens pequenas — um logotipo, um diagrama — e você quer um único arquivo independente. Deixe desligado quando as imagens importam, e coloque-as de volta como arquivos ordinários com caminhos ordinários depois.
+
+## Meus documentos são carregados em algum lugar?
+
+Não. O `.docx` é lido nesta aba do navegador. Ele vai do seletor de arquivo para a página através da API de Arquivo, é descompactado e analisado na própria memória da página, e o resultado é texto que nunca deixa sua máquina. Você pode confirmar isso na aba de Rede de suas ferramentas de desenvolvedor, ou desconectando-se da rede após a página ter carregado e convertendo mesmo assim.
+
+A visualização é renderizada dentro de um frame com sandbox com scripts desabilitados, portanto, nada que chegou no seu documento pode executar. O frame também é bloqueado de carregar qualquer coisa pela rede. Essa segunda parte é a que importa na prática: um documento contendo o texto de uma tag de imagem apontando para algum outro site faria, em um frame sem esse bloqueio, fazer seu navegador buscar essa imagem — dizendo a quem executa esse servidor que você havia aberto o documento. Não pode. Imagens já incorporadas no documento, como URIs `data:`, ainda são exibidas.
+
+O comércio pela privacidade é memória. Tudo acontece no thread principal da página, portanto a aba para de responder enquanto um documento grande é convertido. Acima de 20 MB você verá um aviso dizendo assim; esse é um aviso, não uma recusa. Passado 50 MB o documento é recusado antes de ser aberto, porque o XML descompactado, o HTML e o Markdown devem ser mantidos na aba ao mesmo tempo e a página ficaria sem memória no meio do caminho sem nada a mostrar por isso.
+
+## Por que não abrirá meu arquivo .doc, .odt, .rtf ou Pages?
+
+Porque são formatos não relacionados. Um `.docx` é um arquivo zip de XML, o formato que Word escreve por padrão desde 2007, e é o único que a biblioteca subjacente — mammoth — lê. O `.doc` mais antigo é um formato de documento composto binário que não compartilha nada com ele a não ser três letras da extensão. `.odt` é OpenDocument, `.rtf` é uma marcação de texto simples dos anos 1980, e os arquivos Pages são o formato de pacote próprio da Apple.
+
+Cada um desses pode ser convertido em dez segundos pela aplicação que o fez: abra o arquivo no Word, LibreOffice Writer, Google Docs ou Pages e use *Save As* ou *Export* para produzir um `.docx`. Então coloque o resultado aqui.
+
+## O que posso fazer com a saída?
+
+A aba Markdown é a saída principal — copie-a ou baixe como um arquivo `.md`. A aba HTML é o HTML limpo que o conversor produziu no caminho, que geralmente é o que você quer se o destino é um CMS em vez de um repositório. A aba de visualização renderiza o Markdown para que você possa ver como ficará.
+
+A partir daqui, [Markdown ↔ HTML](/en/converters/md-html) converterá entre os dois formulários novamente após você editá-los, [Word Counter](/en/lifestyle/word-counter) fornecerá uma contagem de palavras e tempo de leitura para o texto convertido, e [XLSX para CSV / JSON](/en/converters/xlsx-to-csv) faz o trabalho equivalente para uma pasta de trabalho Excel.

@@ -1,0 +1,61 @@
+---
+title: Imagen a texto (OCR) — Preguntas frecuentes
+---
+
+## ¿Mi foto se carga a algún lugar?
+
+No. El reconocedor es Tesseract, compilado a WebAssembly y ejecutado dentro de esta pestaña del navegador por `tesseract.js`. Tu imagen se decodifica a un lienzo, se entrega a ese módulo WebAssembly como píxeles sin procesar, y el texto regresa en la misma pestaña. Ninguna solicitud lleva la imagen.
+
+Eso importa más aquí que en la mayoría de las herramientas, porque las imágenes que la gente ejecuta a través de OCR raramente son neutrales: una nómina, una receta, una página de pasaporte, un contrato que alguien fotografió en un escritorio, una captura de pantalla de una conversación privada. La mayoría de sitios OCR gratuitos son un formulario que publica tu archivo a un servidor y, en varios casos, a una API pago detrás. Abre tus herramientas de desarrollador, cambia a la pestaña Red, y ve este: después de que se cargan los archivos de idioma, nada se va.
+
+## ¿Qué realmente se descarga y cuándo?
+
+Nada relacionado con OCR carga cuando abres la página. En el momento en que presionas **Reconocer texto**, se obtienen tres cosas de este sitio — nunca de un CDN:
+
+- el script del worker, aproximadamente 110 KB;
+- el motor de reconocimiento WebAssembly, aproximadamente 3.8 MB;
+- los datos del idioma para el idioma que elegiste, entre 0.5 MB y 4 MB.
+
+El archivo de idioma se almacena entonces en IndexedDB de tu navegador, así que la segunda ejecución de ese idioma no descarga nada en absoluto. El inglés es el más grande con aproximadamente 4 MB; el vietnamita es el más pequeño con aproximadamente 0.5 MB. Borrar datos del sitio los elimina, y se descargarán nuevamente en la próxima ejecución. Todo se sirve desde este origen, así que el hecho de que estés leyendo un documento no se divulga a Google, jsDelivr o a nadie más.
+
+## ¿Por qué solo inglés, vietnamita, español y portugués?
+
+Porque esos cuatro archivos de idioma se envían con el sitio y por lo tanto están disponibles sin conexión e instantáneamente. Tesseract admite más de cien idiomas, pero cada uno es una descarga separada que tendría que obtenerse de un tercero en el momento en que lo elegiste — que es exactamente la solicitud que esta herramienta existe para evitar.
+
+Si tu texto está en un idioma no listado, el resultado será pobre en lugar de vacío: el reconocedor asignará las formas al alfabeto que conoce. Los idiomas de alfabeto latino cercanos a los cuatro listados (italiano, francés, catalán) a menudo salen sorprendentemente utilizables con español o portugués seleccionado, porque las formas de letra son las mismas y solo el diccionario difiere. Los scripts no latinos no funcionarán en absoluto.
+
+## ¿Qué precisión debo esperar?
+
+Para una página limpia, recta y bien iluminada de texto impreso a una resolución razonable, espera algo en los noventa por ciento altos de caracteres — lo suficientemente bueno para leer y corregir en lugar de reescribir. La herramienta muestra una cifra de confianza promedio para que puedas juzgar antes de confiar en ella; por debajo de aproximadamente el 70% la salida generalmente necesita corrección real.
+
+Tres cosas la degradan marcadamente, en orden de severidad. **Sesgo**: una página fotografiada en ángulo es mucho más difícil que una página fotografiada cuadrada, y no se aplica ningún enderezamiento automático aquí. **Resolución**: el texto más pequeño que aproximadamente 20 píxeles de alto en la imagen a menudo no es legible para el reconocedor incluso cuando se ve bien en tu pantalla. **Contraste y brillo**: un flash de teléfono en papel brillante borra líneas completas.
+
+La escritura a mano no funciona. Los modelos de Tesseract se entrenan en tipo impreso; las notas cursivas e impresas a mano producen sinsentidos con alta confianza, que es la peor combinación. Las fuentes de visualización altamente estilizadas, las tablas densas y el texto sobre fotografías son todas considerablemente peores que el texto del cuerpo simple.
+
+## ¿Qué formatos de imagen puedo soltar aquí y por qué no TIFF?
+
+PNG, JPEG, WebP, GIF, AVIF y BMP — los formatos que un navegador puede decodificar por sí solo. El reconocimiento sucede en la pestaña, así que la imagen tiene que alcanzar un lienzo antes de que Tesseract la vea, y los únicos decodificadores disponibles son los que el navegador envía.
+
+TIFF no es uno de ellos, en ningún navegador actual, lo que es incómodo porque los escáneres lo producen constantemente y TIFF multipágina es una forma normal de contener un documento escaneado. Convierte primero: muchas utilidades de escáner pueden generar PDF en su lugar, y un PDF escaneado puede pasar por la herramienta OCR PDF en este sitio sin un paso de conversión en absoluto. TIFF solía estar listado en el selector de archivos de esta herramienta, que solo significaba que el archivo se aceptaba y luego fallaba.
+
+## Un archivo en mi lote falló. ¿Qué sucede con el resto?
+
+Se leen normalmente. Cada imagen se maneja por su cuenta: un archivo que no se puede decodificar — una descarga corrupta, algo renombrado a `.png` que no es PNG, un formato que el navegador no admite — obtiene una línea propia en la lista bajo el texto que dice qué salió mal, y todas las demás imágenes en el lote aún producen su texto. Los archivos que fallaron se omiten del `.txt` completamente en lugar de aparecer como una sección vacía, y no cuentan hacia la confianza promedio.
+
+Dos cosas terminan toda la ejecución en lugar de un archivo: presionar **Detener**, y el motor de reconocimiento falla al empezar en absoluto. El segundo significa que algo está mal con los activos de esta página, no con tu imagen, e intentar los diecinueve archivos restantes solo repetiría el mismo fracaso.
+
+## ¿Qué hace realmente Detener?
+
+Apaga el reconocedor y abandona la ejecución. La imagen que se está leyendo se descarta, el lote no continúa al siguiente archivo, y no obtienes texto — incluso para las imágenes ya terminadas. El botón muestra "Deteniendo..." hasta que la ejecución se haya desenredado realmente, así que no puedes comenzar una segunda ejecución sobre una que aún está terminando.
+
+Si un lote es demasiado largo para estar sentado, ejecútalo en grupos más pequeños en lugar de confiar en Detener para salvar parte de él.
+
+## ¿Por qué la opción "mantener saltos de línea"?
+
+Porque el texto impreso se envuelve en el borde de la columna, y esos saltos son un artefacto de la página, no de la oración. Por defecto la herramienta une las líneas dentro de cada bloque detectado en paragráfos continuos, así que pegar el resultado en un documento te da prosa en lugar de texto con un retorno duro cada ocho palabras.
+
+Activa la opción cuando los saltos de línea son significativos: poesía, direcciones, código, recibos, tablas, formularios. Alternar la opción reformatea el texto que ya tienes — no ejecuta el reconocimiento de nuevo.
+
+## ¿Qué modelo se utiliza y podría ser más preciso?
+
+Los archivos de idioma son del conjunto `tessdata_fast` de Tesseract: modelos cuantizados en enteros construidos para velocidad y tamaño. La alternativa, `tessdata_best`, es aproximadamente dos a tres por ciento más precisa en escaneos difíciles y aproximadamente cuatro veces más grande — solo el inglés sería aproximadamente 15 MB descargados por visitante. Ese intercambio no vale la pena para el caso común, así que `fast` es lo que se envía. El resultado es un techo de precisión real, si bien pequeño, y es mejor declarado que ocultado.

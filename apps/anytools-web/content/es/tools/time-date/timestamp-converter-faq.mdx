@@ -1,0 +1,31 @@
+---
+title: Conversor de timestamps — Preguntas frecuentes
+---
+
+## ¿Segundos o milisegundos?
+
+Depende de la fuente. `time(2)` de Unix y la mayoría de formatos de registro usan segundos (10 dígitos hoy). `Date.now()` de JavaScript y muchas API originarias de JS usan milisegundos (13 dígitos). Esta herramienta detecta automáticamente por conteo de dígitos; puede pegar cualquiera.
+
+## ¿Qué es UTC versus GMT versus Z?
+
+Prácticamente idéntico. GMT es el nombre heredado (Hora de Greenwich Meridiano), UTC es el estándar coordinado moderno, y `Z` es el sufijo de abreviatura ISO 8601 que significa "desplazamiento UTC cero". En marcas de tiempo puede tratarlos como lo mismo.
+
+## ¿Cómo manejo el horario de verano de forma segura?
+
+Almacene en UTC, calcule en UTC, convierta a local solo en visualización. Programe trabajos cron en UTC, no en hora local. La hora de "retroceso" se repite y la hora de "avance" se salta — ambas son trampas de errores si su almacenamiento o programador piensan en hora local.
+
+## ¿Debería preocuparme por Y2K38?
+
+Solo si está construyendo en sistemas de 32 bits o usando almacenamiento de enteros de 32 bits para marcas de tiempo. Los sistemas modernos de 64 bits y columnas `BIGINT` empujan el desbordamiento cómodamente más allá del año 292 mil millones. Código nuevo: no se preocupe. Sistemas heredados: auditar.
+
+## ¿Por qué JavaScript Date usa meses indexados en cero?
+
+Accidente histórico de las API originales de Java/Netscape en los años 90. No hay forma de repararlo ahora — `new Date(2026, 4, 25)` significa 25 de mayo, no 25 de abril. Use `Date.UTC(2026, 4, 25)` para la misma trampa con UTC explícito, o simplemente use cadenas ISO 8601 y deje que el analizador haga lo correcto.
+
+## ¿Puedo almacenar una zona horaria en un parámetro de consulta de URL?
+
+Sí — use el nombre de IANA codificado por URL: `?tz=Asia%2FHo_Chi_Minh`. No almacene el desplazamiento (`?tz=%2B07%3A00`) — deja de ser correcto si las reglas de horario de verano cambian.
+
+## ¿Qué pasa con fechas anteriores a 1970?
+
+Las marcas de tiempo de Unix son negativas para fechas anteriores a 1970. La mayoría de sistemas modernos manejan esto bien; el código C/C++ antiguo con marcas de tiempo sin signo no. ISO 8601 no tiene tal problema.

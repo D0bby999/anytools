@@ -1,0 +1,37 @@
+---
+title: Criar ZIP — Perguntas frequentes
+---
+
+## Qual nível de compressão devo usar?
+
+O nível 6 é o padrão DEFLATE e é quase sempre a resposta certa. O nível 9 gasta consideravelmente mais tempo por um ganho que é geralmente menos de um por cento em documentos ordinários, porque a janela DEFLATE é apenas 32 KB — passado certo ponto simplesmente não há nada deixado para encontrar. O nível 0 armazena os arquivos sem compactá-los, que é a escolha honesta quando a entrada já está compactada: produz o arquivo em uma fração do tempo e o resultado tem o mesmo tamanho de qualquer forma.
+
+## Por que meu zip é mal menor que os arquivos que coloquei nele?
+
+Porque JPEG, PNG, GIF, WebP, MP3, MP4 e a maioria dos formatos de escritório modernos (`.docx`, `.xlsx`, `.pptx` já são contêineres zip) são compactados. Zipando dados compactados não pode ajudar — a redundância que DEFLATE procura já foi removida, e o arquivo acaba um pouco maior que a soma das entradas porque cada entrada carrega cerca de 100 bytes de cabeçalho.
+
+Texto, CSV, JSON, XML, logs, SVG, código-fonte, BMP e WAV descompactado compactam dramaticamente, muitas vezes para um quinto do tamanho ou menos. Se seu objetivo é fotos menores, comprimir as imagens em si é a alavanca que funciona; zipá-las não é.
+
+## Posso colocar uma senha no arquivo?
+
+Não, e esta ferramenta não fingirá o contrário. Usa JSZip, que não consegue escrever entradas criptografadas. A própria criptografia legada do Zip (ZipCrypto) está quebrada e não deveria ser recomendada a ninguém; a criptografia de zip AES-256 está bem além do que esta biblioteca faz. Se você precisa que o conteúdo esteja protegido, criptografe o arquivo após baixá-lo com uma ferramenta construída para esse trabalho, ou use uma transferência criptografada de ponta a ponta em vez de depender do contêiner.
+
+## Os arquivos são carregados em algum lugar?
+
+Não. O arquivo é montado nesta aba do navegador. Seus arquivos são lidos com a API de Arquivo, compactados por JSZip na página, e o link de download aponta para um blob que seu navegador está mantendo na memória. Nada atravessa a rede — você pode confirmar isso na aba de Rede das ferramentas de desenvolvedor, ou desconectando após a página ter carregado e zipando mesmo assim.
+
+Essa é também a limitação: tudo deve caber na memória da aba. Alguns cem megabytes é rotina em um desktop; vários gigabytes não é, e o Safari móvel desiste muito mais cedo do que um navegador desktop. Se a aba se recarregar durante a execução, foi isso que aconteceu.
+
+## O que acontece com dois arquivos com o mesmo nome?
+
+Ambos são mantidos. Um zip é uma lista plana de caminhos, então um segundo `photo.jpg` substituiria silenciosamente o primeiro — em vez disso, a ferramenta o renomeia para `photo (2).jpg` e mostra a lista final de nomes de entrada antes que você baixe. Qualquer `../` ou `/` inicial em um nome é removido pela mesma razão que importa na outra direção: um caminho que escapa de sua pasta é como a classe de bugs Zip Slip funciona, e nenhum arquivo construído aqui carregará um.
+
+## Para que é a opção "pasta dentro do zip"?
+
+Ela aninha cada entrada em um diretório, para que extrair o arquivo crie uma única pasta em vez de espalhando quarenta arquivos soltos no diretório que o usuário estava. Muitos extratores de linha de comando não criam uma pasta envolvente para você, e este é o conserto que viaja dentro do arquivo.
+
+## Existem limites de tamanho?
+
+Dois reais. A memória da aba é o teto prático: cada arquivo é lido na memória antes de ser compactado, e o arquivo acabado é mantido lá também, então o uso de pico é aproximadamente as entradas mais a saída. Alguns cem megabytes é rotina em um desktop; o Safari móvel desiste muito mais cedo.
+
+O limite rígido é 4 GB. Isso escreve um arquivo padrão não-ZIP64, cujos campos de tamanho e deslocamento são de 32 bits — passado 4 GB eles envolvem, e o resultado é um arquivo que os extratores rejeitam como corrompido ou, pior, descompactam em arquivos truncados sem dizer nada. Então uma seleção totalizando 4 GB ou mais é rejeitada antes da compressão começar, com uma mensagem dizendo isso, em vez de produzir um arquivo que parece bom até que alguém precise do que está dentro. Zip em dois lotes, ou use um arquivador desktop que escreva ZIP64.

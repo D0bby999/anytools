@@ -1,0 +1,42 @@
+---
+title: Leitor de QR e Código de Barras — Perguntas frequentes
+---
+
+## Quais códigos ela pode ler?
+
+QR (incluindo Micro QR e rMQR), Data Matrix, Aztec, PDF417 e MaxiCode entre os formatos 2D; EAN-13, EAN-8, UPC-A, UPC-E, Code 39, Code 93, Code 128, Codabar, ITF, DX Film Edge e a família GS1 DataBar entre os formatos 1D. Este é o conjunto de leitura completo do ZXing C++, que é o mecanismo aqui.
+
+Ela escaneia em qualquer orientação e também tenta a imagem invertida, portanto um código branco sobre preto — comum em embalagens e em telas em modo escuro — lê sem você ter que fazer nada.
+
+## Ela não encontrou nada na minha foto. Por quê?
+
+Geralmente uma de quatro coisas. O código é uma pequena parte de uma foto grande, portanto depois que a imagem é redimensionada para velocidade, não há pixels suficientes deixados em cada barra; corte mais perto do código e tente novamente — a [ferramenta de corte](/en/image/crop-image) está ao lado. A foto está desfocada ou fotografada em um ângulo íngreme para que as barras se mesclem. Não há zona silenciosa, porque o código foi cortado na ponta da borda ou é impresso sobre artwork. Ou é uma simbologia que este mecanismo não lê — algumas existem, principalmente códigos postais.
+
+Imagens grandes são redimensionadas para 2000 pixels na borda longa antes de escanear. Essa é uma troca deliberada: em resolução completa, uma foto de telefone moderno leva dezenas de segundos, o que as pessoas razoavelmente leem como "quebrado". Se um código falha e você suspeita do downscale, corte primeiro — uma imagem cortada abaixo desse tamanho é transmitida intacta.
+
+## O que acontece se o código for um link?
+
+Você recebe o endereço como texto e recebe um link que você tem que clicar. Nada se abre por conta própria, e nada além de um endereço `http://` ou `https://` é oferecido como link — uma carga `javascript:` ou `data:` é exibida como texto simples e permanece inerte.
+
+Isso não é cautela por si só. Um código QR impresso é dados não confiáveis de um estranho, e "quishing" — adesivos colados sobre códigos legítimos em medidores de estacionamento, mesas de restaurante e armários de entrega — é um ataque real e barato. Ler o endereço antes de segui-lo é toda a defesa, portanto esta ferramenta a faz ler.
+
+## Por que um código Wi-Fi aparece como campos de rede e senha?
+
+Porque o texto bruto de um código QR Wi-Fi é um registro estruturado, não uma mensagem: `WIFI:T:WPA;S:Cafe Guest;P:flat\;white;;`. Passar essa string para você seria uma resposta pior do que as duas coisas que você realmente quer. O parser trata as regras de escape corretamente, portanto uma senha contendo um ponto e vírgula, dois pontos, vírgula ou barra invertida volta exatamente como era — uma divisão ingênua em `;` a mutila, e senhas como essas são perfeitamente ordinárias.
+
+Códigos de contato vCard são quebrados da mesma forma, em nome, organização, telefone, email e endereço da web. Ambos os formatos são aqueles que nosso próprio [gerador de código QR](/en/generators/qr-code-generator) escreve, portanto um código feito lá lê de volta nos mesmos campos em que foi construído.
+
+## Ela pode ler vários códigos em uma imagem?
+
+Sim, até 32 em uma única imagem, e cada um é listado separadamente com sua simbologia, seu texto, sua posição na imagem e seu próprio botão de cópia. Um rótulo de envio com um Code 128 e um Data Matrix lado a lado, ou uma página de rótulos impressos fotografados juntos, volta como uma lista em vez de qual código o detector aconteceu de encontrar primeiro.
+
+## O que o botão da câmera faz e ele fica ligado?
+
+Pressioná-lo pede ao navegador acesso à câmera; nada antes desse ponto toca a câmera. Frames são capturados aproximadamente sete vezes por segundo e decodificados nessa aba. No momento em que um código é lido, a câmera para e seus rastros são lançados — o que desliga o indicador — e também para se você pressionar o botão novamente ou sair.
+
+Os navegadores só permitem acesso à câmera em uma origem segura, portanto funciona em `https://` e em `localhost`, e é bloqueado em um endereço `http://` simples. Se o acesso for negado, solte uma foto em vez disso; o resultado é idêntico.
+
+## A imagem é enviada para algum lugar?
+
+Não. A imagem é decodificada por esta página, e tanto a decodificação quanto o mecanismo de código de barras são executados nesta aba. O mecanismo é zxing-wasm, uma construção WebAssembly do ZXing C++; seu binário de 1,5 MB é servido do próprio domínio do site em vez de um CDN, e só é buscado a primeira vez que você realmente escaneia algo. Frames da câmera também nunca saem da aba — eles são desenhados em uma tela na memória e entregues diretamente ao decodificador.
+

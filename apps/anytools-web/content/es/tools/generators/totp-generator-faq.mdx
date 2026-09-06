@@ -1,0 +1,35 @@
+---
+title: Generador de Códigos TOTP (2FA) — Preguntas frecuentes
+---
+
+## ¿Qué genera?
+
+Contraseñas de una sola vez basadas en el tiempo como se define en RFC 6238 — los códigos de seis dígitos que muestra una aplicación de autenticador. Déle un secreto base32 y produce el código actual más los segundos restantes antes de que cambie.
+
+## ¿Cuáles son las opciones configurables?
+
+Dígitos (6 u 8), período (30 o 60 segundos), y algoritmo (SHA1, SHA256 o SHA512). Los predeterminados son 6 dígitos, 30 segundos y SHA1 — lo que casi todos los servicios emiten, y lo que Google Authenticator asume.
+
+## ¿Por qué SHA1 sigue siendo el predeterminado cuando está roto en otros lugares?
+
+Porque las debilidades en SHA1 son ataques de colisión, que no se aplican a cómo HMAC lo usa aquí, y porque la compatibilidad gobierna en la práctica: muchos servicios solo aceptan TOTP SHA1. Use SHA256 cuando el servicio lo admita explícitamente, no como una actualización general — una falta de coincidencia solo produce códigos incorrectos.
+
+## ¿Qué cuenta como un secreto válido?
+
+Base32: las letras A–Z y dígitos 2–7. La herramienta convierte su entrada a mayúsculas, elimina espacios y guiones, y elimina el relleno `=` final, por lo que un secreto copiado de una página de configuración en forma agrupada funciona tal cual. Cualquier cosa que contenga 0, 1, 8 o 9 no es base32 válido y será rechazada.
+
+## ¿Por qué el servicio rechaza mi código?
+
+Casi siempre desfase de reloj. TOTP deriva el código de la hora actual, por lo que si su reloj de dispositivo está desfasado más que la tolerancia del servicio, cada código será incorrecto mientras se ve perfectamente plausible. Verifique el reloj antes de asumir que el secreto es incorrecto.
+
+## ¿Qué produce el generador de secreto aleatorio?
+
+Un secreto de 160 bits de su fuente de aleatorio criptográfica del navegador, expresado en base32 — del mismo tamaño que usa Google Authenticator. Esa es aleatoriedad criptográfica genuina, a diferencia del generador de propósito general detrás del [selector aleatorio](/en/lifestyle/random-picker).
+
+## ¿Es seguro pegar aquí mi secreto real de 2FA?
+
+El cálculo es completamente en el lado del cliente y nada se transmite. Pero sea claro sobre qué es un secreto TOTP: cualquiera que lo tenga puede generar sus códigos para siempre. Pegarlo en cualquier página web — incluyendo esta — es un hábito que vale la pena evitar para cuentas que importan. Use esto para desarrollo, pruebas y comprensión, no para su banco.
+
+## ¿Puede reemplazar mi aplicación de autenticador?
+
+No. No guarda nada: cierre la página y el secreto desaparece, sin copia de seguridad y sin enlace de dispositivo. Es una herramienta de depuración y aprendizaje, no un lugar para almacenar factores secundos.

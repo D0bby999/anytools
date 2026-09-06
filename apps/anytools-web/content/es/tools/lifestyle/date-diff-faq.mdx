@@ -1,0 +1,35 @@
+---
+title: Calculadora de diferencia entre fechas — Preguntas frecuentes
+---
+
+## ¿Qué informa?
+
+La brecha entre dos fechas como años, meses y días de calendario, junto con el total bruto en días. Ambas lecturas son útiles para cosas diferentes: la descomposición del calendario es cómo la gente describe una duración, el recuento de días es lo que necesita para aritmética.
+
+## ¿Importa el orden de las dos fechas?
+
+No. La herramienta las ordena internamente y siempre informa un resultado no negativo, por lo que ingresar la fecha posterior primero da la misma respuesta.
+
+## ¿Por qué la descomposición del calendario no es simplemente el recuento de días dividido?
+
+Porque los meses tienen diferentes longitudes. Ir del 31 de enero al 1 de marzo es un mes y un día en términos de calendario, pero 29 o 30 días dependiendo del año. La herramienta toma prestado de la longitud real del mes anterior en lugar de asumir un 30 fijo, por lo que la descomposición coincide con cómo funciona un calendario.
+
+## ¿Se cuentan ambos extremos?
+
+El resultado es la diferencia entre las dos fechas, por lo que excluye un extremo, el espacio de lunes a miércoles es dos días, no tres. Si necesita un recuento inclusivo, como días facturables o días de estadía, agregue uno.
+
+## ¿Puedo usarlo para contar días laborales?
+
+No. Cuenta cada día de calendario, sin concepto de fines de semana o días festivos. Los recuentos de días laborales dependen de la jurisdicción y de qué feriados se apliquen, lo que está fuera de lo que esto calcula.
+
+## ¿Maneja fechas anteriores a 1970, o muy lejanas en el futuro?
+
+Sí. La aritmética se realiza en campos de calendario con un total en milisegundos junto a él, por lo que las fechas históricas y las fechas lejanas del futuro funcionan.
+
+## ¿Qué pasa con las zonas horarias y el horario de verano?
+
+El cálculo es en fechas, no en instantes, por lo que un cambio de reloj no añade ni quita un día. Si necesita el tiempo exacto transcurrido entre dos momentos entre zonas, el [convertidor de zona horaria](/en/time-date/timezone-converter) es más apropiado.
+
+## ¿Se transmite algo que ingreso?
+
+No. Todo se ejecuta en su navegador.

@@ -1,0 +1,39 @@
+---
+title: Gerador de box-shadow CSS — Perguntas frequentes
+---
+
+## O que os quatro números significam?
+
+Em ordem: deslocamento horizontal, deslocamento vertical, raio de desfoque, dispersão. Deslocamentos positivos movem a sombra para direita e para baixo. O raio de desfoque é a largura do desvanecimento — grosso modo, a sombra se estende metade do desfoque além da borda da forma. Dispersão cresce (ou, quando negativa, encolhe) a sombra antes do desfoque ser aplicado, o que é como você consegue uma sombra apertada e escura que não se espalha por baixo do elemento. Dispersão é opcional na sintaxe, então o gerador a deixa de fora quando é zero.
+
+## Por que uma camada se vê plana e três se veem reais?
+
+Porque luz real produz mais de uma sombra. Os presets de elevação do Material empilham três: uma camada pequena e mais escura diretamente sob o elemento (a umbra da luz-chave), uma camada do meio mais larga (a penumbra), e uma camada grande e fraca que se espalha (luz ambiente). Cada uma sozinha parece um borrão cinzento; juntas, elas leem como altura. Esse é o truque inteiro por trás de sombras que parecem projetadas em vez de aplicadas.
+
+## A ordem da camada importa?
+
+Sim. A primeira camada na lista pinta em cima da segunda, e assim por diante — a mesma ordem de empilhamento que múltiplos fundos. Com camadas translúcidas, reordenar muda o resultado composto, então o gerador nunca as ordena. Coloque a camada mais apertada e mais escura primeiro.
+
+## Muitas camadas são caras?
+
+Podem ser. Cada camada é uma rasterização borrada separada da caixa de borda, e o custo de desfoque cresce com o raio, não com o tamanho do elemento. Em um cartão estático, cinco camadas custam nada que você consiga medir. Em algo que anima, rola sob `position: fixed`, ou se repete cem vezes em uma lista, sombras com raio grande são uma das razões clássicas por que uma página cai de quadros. As correções usuais: anime `transform` e `opacity` em vez de fazer a sombra animar, mantenha o raio de desfoque modesto, ou faça uma transição cruzada entre uma sombra "em repouso" e "elevada" pré-estabelecida em um pseudo-elemento em vez de fazer a sombra animar.
+
+## O que `inset` muda?
+
+Ele pinta a sombra dentro da caixa de borda em vez de fora, então o elemento parece pressionado em vez de elevado. Deslocamentos ainda funcionam da mesma forma, mas a borda visível é a oposta: um `y` de 4 com `inset` escurece a borda interna superior. Você pode misturar camadas inset e externas em um único valor, que é como um botão pressionado com um brilho externo suave é construído.
+
+## Por que `box-shadow` segue meus cantos arredondados mas não minha forma recortada?
+
+Porque segue a *caixa de borda*, incluindo `border-radius`. Não conhece `clip-path`, uma máscara SVG ou pixels transparentes em uma imagem de fundo — você terá uma sombra em forma de retângulo atrás de um elemento em forma de estrela. Para esses casos a resposta é `filter: drop-shadow()`, que segue o canal alfa do que é realmente pintado. Não leva um valor de dispersão e apenas uma sombra por função, mas é a ferramenta certa quando a silhueta não é um retângulo.
+
+## Posso animar uma sombra?
+
+Você consegue — `box-shadow` é animável, e camadas se interpolam um-a-um quando ambos os lados têm o mesmo número delas. Mas animar desfoque significa rasterizar novamente cada quadro. A alternativa comum é colocar a sombra elevada em um pseudo-elemento com `opacity: 0` e desvanecê-la, que fica no compositor.
+
+## Por que uma prévia clara e uma escura?
+
+Porque uma sombra ajustada em branco geralmente desaparece em um fundo escuro. Preto em 12% de opacidade sobre `#0b1220` é quase invisível, e é por isso que temas escuros tendem a usar bordas, superfícies mais claras ou um brilho colorido em vez de uma sombra preta. Ver ambos ao mesmo tempo é mais rápido que mudar temas e torcer.
+
+## Algo é enviado?
+
+Não. O valor é montado em seu navegador e nada sai da página.

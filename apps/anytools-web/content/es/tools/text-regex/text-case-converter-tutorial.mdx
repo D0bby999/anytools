@@ -1,0 +1,70 @@
+---
+title: Convenciones de mayúsculas y minúsculas de texto en todos los lenguajes — elige la correcta
+description: Por qué JavaScript usa camelCase, Python usa snake_case, CSS usa kebab-case, y qué sucede cuando los mezclas.
+updated: 2026-05-25
+---
+
+## Qué "case" realmente significa en código
+
+Cuando un nombre contiene múltiples palabras, necesitas un separador y una regla de mayúsculas/minúsculas. Diferentes comunidades de lenguajes se asentaron en diferentes combinaciones, y las convenciones son notoriamente estables en décadas de código:
+
+- **JavaScript / Java / Swift**: `camelCase` para variables y funciones, `PascalCase` para tipos y clases.
+- **Python / Ruby / Rust**: `snake_case` para variables y funciones, `PascalCase` para clases.
+- **CSS / atributos HTML / URL**: `kebab-case` porque el carácter de espacio está reservado.
+- **Variables de entorno / palabras clave SQL / Constantes**: `CONSTANT_CASE` (o `SCREAMING_SNAKE`).
+- **Rutas del sistema de archivos**: `path/case` con separadores `/`.
+- **Notación de punto** (claves de configuración, espacios de nombres): `dot.case`.
+
+Elige la convención del archivo que estás editando. No luches contra ella — la convención es lo que permite que el código se lea como prosa para la gente que conoce el lenguaje.
+
+## Cuándo alcanzarás un convertidor
+
+- **Generar variables de entorno de claves de configuración** (`api.timeout` → `API_TIMEOUT`).
+- **Construir nombres de clase CSS de propiedades de componentes React** (`primaryButton` → `primary-button`).
+- **Nombrar columnas de base de datos de propiedades de objetos** (`firstName` → `first_name`).
+- **Generación de código entre lenguajes** (TypeScript → Python ORM, Swagger → cliente JS).
+- **Renombrar variables consistentemente** en toda una refactorización.
+
+## La trampa del acrónimo
+
+¿Cuál es la versión snake_case de `XMLHttpRequest`? Dos respuestas razonables:
+
+- `xml_http_request` — trata cada acrónimo como una palabra separada
+- `x_m_l_http_request` — trata cada letra mayúscula como un límite de palabra
+
+La mayoría de bibliotecas modernas (incluyendo la que esta herramienta envuelve, `change-case`) hacen la primera — reconocen ejecuciones de letras mayúsculas como un acrónimo único. Esta es la convención que casi siempre quieres. Si una biblioteca produce la segunda forma, cambia de biblioteca.
+
+El camelCase correspondiente: `xmlHttpRequest`. PascalCase: `XmlHttpRequest`. Nota las letras minúsculas dentro del acrónimo — eso es deliberado y coincide con cómo el navegador realmente expone el nombre (`window.xmlHttpRequest` después de transformaciones Babel, etc.).
+
+## Patrones comunes por ecosistema
+
+| Caso de uso | Convención | Ejemplo |
+|---|---|---|
+| Variable JS | camelCase | `firstName` |
+| Clase/tipo JS | PascalCase | `UserService` |
+| Const JS (global) | CONSTANT_CASE | `MAX_RETRIES` |
+| Variable Python | snake_case | `first_name` |
+| Clase Python | PascalCase | `UserService` |
+| Clase CSS | kebab-case | `btn-primary` |
+| Atributo HTML | kebab-case | `data-user-id` |
+| Slug de URL | kebab-case | `/my-blog-post` |
+| Nombre de archivo | kebab-case (web), snake_case (Python) | `user-profile.tsx` / `user_profile.py` |
+| Variable de entorno | CONSTANT_CASE | `DATABASE_URL` |
+| Campo GraphQL | camelCase | `userName` |
+| Campo API JSON | camelCase o snake_case (elección del proyecto) | `firstName` / `first_name` |
+
+## Sensibilidad a mayúsculas/minúsculas del archivo
+
+macOS por defecto tiene un sistema de archivos insensible a mayúsculas/minúsculas (`HFS+`/`APFS` formateado de esa forma). Linux es sensible a mayúsculas/minúsculas. Windows NTFS es insensible pero conservador de mayúsculas/minúsculas. Esto muerde proyectos multiplataforma: un archivo nombrado `Button.tsx` importado como `./button.tsx` funciona en macOS, se rompe en CI en Linux. Establece tu CI para Linux desde el primer día para atraparlo inmediatamente.
+
+## Cómo ayuda esta herramienta
+
+- Pega texto una vez, ve todas las 12 variantes de case al mismo tiempo.
+- Haz clic en cualquier salida para copiar.
+- Maneja acrónimos correctamente (usa [`change-case`](https://github.com/blakeembrey/change-case)).
+- Funciona en entrada de múltiples líneas (cada línea convertida independientemente).
+
+## Herramientas relacionadas
+
+- **Slugify** — cuando necesitas salida segura para URL (maneja diacríticos, unicode, emoji).
+- **Probador de expresiones regulares** — cuando necesitas encontrar/reemplazar patrones de case programáticamente.

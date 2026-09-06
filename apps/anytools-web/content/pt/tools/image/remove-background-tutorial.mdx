@@ -1,0 +1,46 @@
+---
+title: Como remover um fundo e salvar um PNG transparente
+---
+
+A ferramenta é um botão, mas o resultado depende quase inteiramente da foto que você fornece e de duas configurações depois. Esta é a ordem que obtém um corte utilizável na primeira vez.
+
+## 1. Escolha uma foto que o modelo possa lidar
+
+u2netp encontra o objeto mais proeminente em um quadro. Faz bem quando o assunto e o fundo diferem em cor ou brilho, e mal quando não diferem. Antes de executar qualquer coisa, examine sua imagem e pergunte-se se *você* poderia traçar o contorno do assunto em um traço. Um sapato em um piso de madeira, uma pessoa contra uma parede, uma garrafa em uma mesa: sim. Um gato cinzento em um sofá cinzento, uma taça de vinho, uma pessoa com cabelos esvoaçantes contra uma rua movimentada: espere estar desapontado.
+
+Se o assunto for pequeno no quadro, corte mais perto primeiro com [Cortar Imagem](/en/image/crop-image). O modelo funciona em 320×320 independentemente do tamanho da sua imagem, portanto um assunto que ocupa um décimo do quadro está sendo julgado a partir de um número muito pequeno de pixels.
+
+## 2. Execute-o e aguarde o primeiro download
+
+A primeira execução busca o mecanismo WebAssembly de 14 MB e depois o modelo de 4,4 MB, e a barra de progresso nomeia qual está chegando. Um botão **Cancelar download** fica ao lado do principal enquanto isso acontece, caso você prefira não gastar os bytes agora; nada muda se você usá-lo. Ambos os arquivos são armazenados no cache do seu navegador depois, portanto o download acontece uma vez, não uma vez por imagem e não uma vez por visita. Nas execuções que se seguem, a barra mal aparece e o todo leva um ou dois segundos — durante os quais a página não responderá aos cliques, porque o modelo é executado na mesma thread que o desenha.
+
+## 3. Leia os números, não apenas a imagem
+
+Abaixo da visualização, a ferramenta relata quanto da imagem foi mantido e quanto foi removido. Essa linha captura os dois modos de falha que uma visualização de tabuleiro esconde em uma tela pequena: uma máscara que manteve quase tudo (o fundo não foi removido) e uma que manteve quase nada (o assunto foi tratado como fundo). Se qualquer número parecer absurdo para sua foto, a máscara está errada e os próximos dois passos não a salvarão — mude a foto em vez disso.
+
+A mesma linha relata o tamanho de saída e diz explicitamente quando o corte saiu menor do que o que você forneceu. Qualquer coisa acima de 8 megapixels é produzida em um tamanho reduzido: a máscara é prevista em 320×320 não importa o que você insira, portanto os pixels extras não agudizam nada sobre a borda enquanto custam memória e uma pausa mais longa.
+
+## 4. Defina o corte
+
+O corte decide o quão confiante o modelo precisa ser antes de manter um pixel. 50% é um padrão sensível e fornece um fundo limpo e totalmente transparente.
+
+- **Aumente-o** (60–80%) quando um halo de fundo sobrevive ao redor do assunto.
+- **Abaixe-o** (20–40%) quando partes do assunto foram comidas.
+- **Defina como 0** para manter a máscara suave bruta. Pele, penas e bordas desfocadas por movimento parecem mais naturais dessa forma, ao custo de um fundo que é levemente translúcido em vez de realmente desaparecido.
+
+## 5. Suavize a borda
+
+Um corte duro deixa um contorno em degraus, visível assim que o corte é colocado em um fundo diferente. Um ou dois pixels de suavidade de borda o corrigem. Mais de cerca de quatro começa a fazer o assunto parecer um adesivo com brilho, e — porque o desfoque amostra de fora da tela — desbotará as bordas onde o assunto sai do lado do quadro.
+
+## 6. Escolha transparência ou uma cor
+
+Deixe o fundo transparente para logotipos, fotos de produtos e qualquer coisa que você colocará em outro design. Escolha branco para listagens de mercado que exigem, ou uma cor sólida para fazer um crachá rápido ou avatar. O arquivo é PNG de qualquer forma, já que é o único formato comum aqui que armazena transparência.
+
+## 7. Baixe e então organize
+
+O download é um PNG no tamanho nomeado no painel de resultados — sua resolução original ou o limite de 8 megapixels se você estava acima. PNGs transparentes são grandes — um corte de 8 megapixels pode ter 8 MB ou mais — portanto [Comprimir Imagem](/en/image/compress-image) é geralmente a próxima parada, e mantém o canal alfa se você escolher WebP ou PNG. Se você cortar uma série de produtos, [Imagem para PDF](/en/pdf/image-to-pdf) os coleta em um documento na ordem que você definir.
+
+## Quando parar de tentar
+
+Se duas ou três tentativas com diferentes cortes todas der a forma errada, o modelo não consegue ver seu assunto e nenhuma configuração mudará isso. Essa é uma limitação real de um modelo de 4 MB com uma licença permissiva o suficiente para ser executada em seu navegador, não algo que você configurou errado.
+

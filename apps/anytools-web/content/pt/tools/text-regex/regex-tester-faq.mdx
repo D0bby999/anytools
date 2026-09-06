@@ -1,0 +1,35 @@
+---
+title: Testador de expressões regulares — Perguntas frequentes
+---
+
+## O que é rastreamento catastrófico?
+
+Uma patologia de desempenho de regex onde o mecanismo explora exponencialmente muitas maneiras de particionar entrada através de quantificadores aninhados. Padrões como `(a+)+b` contra `aaaaaaaa…` (sem `b`) ficam indefinidamente. Esta ferramenta limita a execução a 1 segundo e relata o problema.
+
+## Quantificador ganancioso versus preguiçoso?
+
+`*` e `+` são gananciosos — eles correspondem o máximo possível. Adicione `?` (`*?`, `+?`) para torná-los preguiçosos — corresponda o mínimo possível. Para `<.*>` em `<a><b>` você obtém a string inteira; `<.*?>` fornece apenas `<a>`.
+
+## Por que corresponder HTML é difícil?
+
+HTML não é uma linguagem regular — tem aninhamento arbitrário que regex não consegue (formalmente) lidar. Você pode corresponder casos simples muito específicos, mas HTML do mundo real tem comentários, CDATA, tags malformadas e espaço em branco estranho. Use `DOMParser` no navegador ou `cheerio` no Node em vez disso.
+
+## Como faço para corresponder caracteres Unicode?
+
+Adicione a bandeira `u`. Então `\w` cobre mais caracteres, e você pode usar `\p{Letter}` / `\p{Script=Vietnamese}` estilo escape de propriedade Unicode (Node 10+/todos os navegadores modernos).
+
+## Diferença entre `(?:…)` e `(…)`?
+
+`(…)` cria um grupo de captura numerado, acessível como `$1` etc. `(?:…)` agrupa para o quantificador sem capturar. Use não-captura quando você não precisa do valor — é ligeiramente mais rápido e mantém seus índices de captura limpos.
+
+## O que são lookahead e lookbehind?
+
+Afirmações zero-width: `(?=…)` corresponde se `…` segue mas não o consome; `(?!…)` corresponde se `…` NÃO segue; `(?<=…)` e `(?<!…)` são o mesmo para o que precede. Útil para "corresponder X mas apenas quando não seguido por Y" sem consumir Y.
+
+## JS regex vs PCRE — qual é a diferença?
+
+JS é principalmente um subconjunto de PCRE com algumas diferenças. Sem comentários inline `(?#…)`, sem quantificadores possessivos, grupos nomeados usam `(?<name>…)` não `(?P<name>…)` (que é Python). Não cole regex aleatório da internet em JS sem verificar.
+
+## Por que meu padrão não corresponde quebras de linha?
+
+`.` não corresponde `\n` por padrão. Adicione a bandeira `s` (dotAll) para fazer `.` corresponder qualquer caractere incluindo quebra de linha. Alternativa: use `[\s\S]` que sempre corresponde a qualquer coisa.

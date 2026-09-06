@@ -1,0 +1,50 @@
+---
+title: Slugs de URL — transliteração, diacríticos e SEO
+description: Como transformar texto arbitrário (vietnamita, alemão, francês) em um slug seguro para URL sem perder significado.
+updated: 2026-05-26
+---
+
+## O que é um slug
+
+Um slug é a porção legível por humanos, segura para URL de uma URL — `/blog/my-post-title` tem slug `my-post-title`. Ele identifica o recurso e contribui para SEO (Google lê palavras de slug). Deve ser ASCII-safe, minúsculo por convenção, e usar um separador que navegadores não vão adulterar (`-` vence).
+
+A transformação de texto arbitrário em slug envolve três passos:
+
+1. **Transliterar** caracteres não-ASCII em equivalentes ASCII (`café` → `cafe`, `Tiếng Việt` → `tieng-viet`, `Schöner Tag` → `schoner-tag`).
+2. **Normalizar** espaço em branco e pontuação para seu separador escolhido.
+3. **Minúsculas** (quase universalmente — mecanismos de busca case-fold URLs de qualquer forma).
+
+Esta ferramenta trata todos os três. Escolha a locale correta para o texto de entrada para que a transliteração use as regras corretas — vietnamita `ư` é `u`, não `w`; alemão `ü` é `ue` tradicionalmente mas `u` é mais comum em URLs modernas.
+
+## Por que hífen sobre sublinhado
+
+Google indexa hífens como separadores de palavras (`my-blog-post` = três palavras) mas sublinhados como juntadores (`my_blog_post` = uma palavra). Para SEO, **sempre use hífen** em slugs de URL. Sublinhados estão OK para nomes de arquivo ou identificadores, não URLs.
+
+## Diacríticos: remover ou transliterar
+
+Dois pontos de vista:
+
+- **Remover**: `Café` → `caf`. Perde o `é` inteiramente. Errado — deixa cair uma letra.
+- **Transliterar**: `Café` → `cafe`. Mantém a letra, deixa cair o diacrítico. Certo.
+
+Esta ferramenta translitere. Para vietnamita, a locale-specific map transforma `đ` → `d` (a biblioteca padrão `slugify` lidar com o resto dos diacríticos vietnamitas via normalização NFD).
+
+## Comprimento e SEO
+
+A maioria das orientações de SEO chega em **3–5 palavras** para o slug (~30–60 caracteres). Slugs mais longos não são penalizados mas são mais feios em compartilhamentos sociais. Não preencha com palavras de parada ("the", "a", "an") — elas adicionam comprimento sem significado.
+
+## Casos de uso
+
+- Gerando caminhos de URL para conteúdo orientado por CMS
+- Construindo nomes de arquivo a partir de títulos humanos
+- Criando IDs amigáveis ao usuário a partir de entrada arbitrária
+- Gerando slugs em massa para um lote de importação (use a aba Bulk)
+
+## Privacidade
+
+Todo processamento no seu navegador via [`slugify`](https://github.com/simov/slugify). Nenhuma solicitação de rede.
+
+## Relacionado
+
+- **Text Case Converter** — mude para minúscula antes de slugificar, ou inverta a ordem.
+- **URL Encoder** — para parâmetros de consulta e composição de URL completa.

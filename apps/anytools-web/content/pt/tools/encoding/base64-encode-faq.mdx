@@ -1,0 +1,35 @@
+---
+title: Codificar e decodificar Base64 — Perguntas frequentes
+---
+
+## Base64 é criptografia?
+
+Não. Base64 é uma codificação reversível — qualquer pessoa que tenha a string codificada pode decodificá-la de volta ao original sem uma chave. Use-a para transportar dados binários através de canais somente texto, não para manter segredos.
+
+## Por que `btoa()` quebra em emoji ou texto vietnamita?
+
+O `btoa()` nativo do navegador lida apenas com Latin-1 (bytes 0–255). Caracteres como `世` ou `🌏` são multi-byte em UTF-8 e não cabem, portanto `btoa` lança. Esta ferramenta codifica UTF-8 primeiro, depois aplica Base64 — então unicode sobrevive à viagem de ida e volta.
+
+## Qual é a diferença entre Base64 padrão e Base64URL?
+
+Base64 padrão usa `+` e `/` e preenche com `=`. Base64URL substitui `+/` por `-_` e descarta o preenchimento, tornando o resultado seguro para usar em URLs, segmentos JWT ou nomes de arquivo. Alterne "URL-safe" acima para trocar alfabetos.
+
+## Por que vejo `=` no final de algumas strings codificadas?
+
+Base64 codifica cada 3 bytes de entrada como 4 caracteres de saída. Quando o comprimento de entrada não é múltiplo de 3, o codificador preenche a saída com um ou dois caracteres `=` para que o comprimento total permaneça divisível por 4. Base64URL omite este preenchimento.
+
+## Minha entrada é enviada para um servidor?
+
+Não. Todo processamento acontece no seu navegador via biblioteca [`js-base64`](https://github.com/dankogai/js-base64). Abra a aba de rede do seu navegador — você verá zero solicitações enquanto digita. Depois que a página está carregada, você pode desconectar-se inteiramente e a ferramenta continua funcionando.
+
+## Qual é a entrada maior que isso consegue lidar?
+
+Praticamente, alguns megabytes por operação. Além de ~10 MB você pode notar a aba do navegador pausando enquanto a conversão é executada sincronamente. Para arquivos de vários cem MB, prefira um decodificador de streaming em um Web Worker ou uma ferramenta do lado do servidor.
+
+## Meu texto decodificado parece lixo — o que deu errado?
+
+Quase sempre uma de três coisas: (1) a entrada é codificada com um alfabeto diferente (URL-safe vs padrão — tente alternar), (2) a entrada foi truncada e está faltando preenchimento, ou (3) o original não era texto UTF-8 mas binário que acontece de ser UTF-8 inválido (então "texto decodificado" é sem sentido; você quer os bytes brutos).
+
+## Posso usar Base64 para compactar dados?
+
+Não — Base64 torna dados ~33% **maiores**, não menores. Se você precisa encolher, use gzip, brotli ou um codec específico de domínio, depois Base64-codifique os bytes compactados se precisar transportá-los como texto.

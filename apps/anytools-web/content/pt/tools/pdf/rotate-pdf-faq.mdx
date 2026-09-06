@@ -1,0 +1,35 @@
+---
+title: Girar PDF — Perguntas frequentes
+---
+
+## Por que minha varredura está de lado em primeiro lugar?
+
+Uma página PDF carrega um valor de rotação — 0, 90, 180 ou 270 graus — separado da imagem nela. Scanners e aplicativos de scanning de telefone o definem baseado em como o papel foi através ou como o dispositivo foi segurado, e o acertam errado frequentemente, particularmente em documentos alimentados em paisagem. Alguns leitores honram o valor e alguns o ignoram, que é por que o mesmo arquivo consegue parecer em pé em uma aplicação e de lado em outra.
+
+Girar aqui define esse valor corretamente, então cada leitor concorda.
+
+## Girar re-renderiza a página ou perde qualidade?
+
+Não. Apenas o atributo de rotação muda. Texto permanece selecionável, imagens mantêm sua resolução original e compressão, e o conteúdo de página é intacto — nada é rasterizado ou re-codificado. Um arquivo girado é o mesmo tamanho que o original, mais ou menos alguns bytes.
+
+Isso também significa que rotação é completamente reversível: girar 90 graus e depois 270 retorna a página exatamente aonde começou.
+
+## E se algumas páginas já estão giradas e outras não?
+
+A rotação é *adicionada* ao que quer que cada página já carregue, não atribuída sobre. Uma página em 270 graus girada por 90 se torna 0; uma página em 0 girada por 90 se torna 90. Isso importa para documentos mistos, que são comuns em varreduras — uma ferramenta que atribuísse em vez de adicionasse silenciosamente desfaria correções que um scanner já fez enquanto parecia funcionar.
+
+Se apenas algumas páginas estão erradas, escolha "Apenas essas páginas" e digite seus números como `1-3, 7, 9-12`.
+
+## Como giro anti-horário?
+
+Gire por 270 graus. Três quartos-de-volta no sentido horário é um quarto-de-volta anti-horário — o formato PDF apenas armazena rotações em unidades de 90, então não há operação anti-horária separada para expor. Girar por 180 vira a página de cabeça para baixo independentemente de direção.
+
+## Meu documento é enviado para algum lugar?
+
+Não. O arquivo é lido por JavaScript nesta aba do navegador usando `pdf-lib`, a rotação é aplicada na memória, e o link de download aponta para uma URL de blob que seu navegador criou localmente. Nenhuma solicitação transporta o documento, então não há cópia do servidor para ser retida ou deletada. Verifique a aba Rede do seu navegador, ou desconecte da rede depois que a página carrega — a ferramenta ainda funciona.
+
+## Marcadores, campos de formulário ou assinaturas quebram?
+
+Marcadores e campos de formulário sobrevivem; rotação não reestrutura o documento. As assinaturas digitais são a exceção. Uma assinatura cobre um layout de byte específico, e salvar o arquivo com um valor de rotação alterado produz um layout diferente, então uma assinatura que cobriu o original não mais validará. Cada ferramenta de rotação tem este efeito — é uma propriedade do formato, não uma limitação aqui. Se uma assinatura deve permanecer válida, mantenha o original assinado e gire uma cópia.
+
+Arquivos protegidos por senha são recusados em vez de desbloqueados. Remova a senha primeiro.

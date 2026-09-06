@@ -1,0 +1,33 @@
+---
+title: Generador de slugs — Preguntas frecuentes
+---
+
+## ¿Guión o subrayado?
+
+Guión. Google indexa guiones como separadores de palabras y guiones bajos como unidos — para SEO casi siempre quieres separación de palabras.
+
+## ¿Deberían los slugs mantener diacríticos?
+
+Técnicamente sí (`/café`), SEO-wise no (`/cafe`) — la mayoría de audiencias en inglés y la mayoría de navegadores no latinos verán `%C3%A9` codificado en lugar de `é`. Elimina diacríticos para portabilidad.
+
+## ¿Cuál es la longitud máxima del slug?
+
+Sin límite difícil, pero ~60 caracteres es el techo práctico para SEO (Google trunca la visualización en SERPs después de ~50–60). Mantente con 3–5 palabras significativas.
+
+## ¿Cómo funciona la transliteración vietnamita aquí?
+
+La biblioteca subyacente translittera diacríticos vietnamitas estándar vía normalización NFD (`ế` → `e`, `ư` → `u`). Agregamos un pequeño mapa para casos especiales (`đ` → `d`) que NFD no maneja por defecto.
+
+## ¿Slug para scripts no latinos (Chino, Japonés, Árabe)?
+
+La transliteración Pinyin/romaji es posible pero no está habilitada aquí por defecto. Para Chino: usa una biblioteca pinyin antes de slugificar. Para Japonés: conversión romaji. Para Árabe: la transliteración es debatible — muchos sitios simplemente mantienen los caracteres originales codificados en URL.
+
+## ¿Por qué mi slug todavía contiene un signo de exclamación?
+
+Porque algunos caracteres de puntuación sobreviven a menos que marques **estricto**. Por defecto `Hello World!! 2026` se convierte en `hello-world!!-2026`; con estricto activado, el conjunto `*+~.()'"!:@` se elimina y obtienes `hello-world-2026`.
+
+La mayoría de puntuación ya se elimina sin estricto — `What? Really!` da `what-really!`, así que el signo de interrogación se va mientras el signo de exclamación se queda. Estricto está desactivado por defecto porque eliminar caracteres es destructivo, pero para cualquier cosa que vaya a una URL, actívalo.
+
+## ¿Por qué `&` se convirtió en la palabra "and"?
+
+Porque el slugificador subyacente translittera símbolos en palabras en lugar de eliminarlos, así que `a/b&c` se convierte en `abandc`. Esto sucede en ambos modos. Si quieres que el símbolo desaparezca en lugar de ser deletreado, elimínalo antes de slugificar.

@@ -1,0 +1,37 @@
+---
+title: Calculadora científica — Perguntas frequentes
+---
+
+## As funções trigonométricas usam graus ou radianos?
+
+**Radianos.** `sin(pi/2)` fornece 1; `sin(90)` não. Esta é a surpresa mais comum com qualquer calculadora programável, portanto se seus ângulos estão em graus, converta primeiro multiplicando por `pi/180`.
+
+## Quais funções estão disponíveis?
+
+`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`, `ln`, `sqrt`, `exp`, `abs` e `pow`, além das constantes `pi` e `e`.
+
+## Qual é a diferença entre `log` e `ln`?
+
+`ln` é o logaritmo natural, base *e*. `log` aqui é base 10. A notação difere por campo — matemáticos frequentemente escrevem `log` para o logaritmo natural enquanto engenheiros significam base 10 — portanto esta calculadora os separa explicitamente em vez de deixar ambíguo.
+
+## Ela respeita a ordem de operações?
+
+Sim. Ela analisa a expressão em vez de aplicar operações da esquerda para a direita conforme são digitadas, portanto `2 + 3 * 4` é 14, não 20. Use parênteses quando você quiser substituir a precedência padrão.
+
+## Posso digitar uma expressão inteira em vez de pressionar teclas uma de cada vez?
+
+Essa é a forma pretendida de usá-la. Escrever `sqrt(16) + pow(2, 10)` de uma vez é mais rápido do que passar por ela, e mais fácil de verificar depois porque toda a expressão permanece visível.
+
+## Por que minha expressão retornou um erro?
+
+Geralmente um parêntese desbalanceado, um nome de função desconhecido, ou uma operação sem resposta real — a raiz quadrada de um número negativo, ou `asin` de um valor fora de −1 a 1. O analisador rejeita o que não pode avaliar em vez de retornar um número enganoso.
+
+## Qual é a precisão?
+
+Ela computa em ponto flutuante de dupla precisão padrão, o mesmo que todas as outras calculadoras executando em um navegador, portanto os artefatos familiares existem internamente: 0,1 mais 0,2 realmente é 0,30000000000000004 na aritmética.
+
+O que você vê é arredondado antes da exibição. Um resultado não inteiro é escrito para oito casas decimais e zeros à direita são removidos, portanto essa expressão aparece como `0,3`. O arredondamento é apenas de apresentação e tem duas consequências que valem a pena saber. Diferenças menores que a nona casa decimal são invisíveis, portanto dois resultados que aparecem de forma idêntica não são garantidos serem iguais. E um resultado muito pequeno e não-zero pode aparecer como `0` uma vez arredondado, que vale a pena lembrar ao subtrair dois números quase iguais.
+
+## Minha entrada é enviada para algum lugar?
+
+Não. Análise e avaliação acontecem inteiramente no seu navegador.

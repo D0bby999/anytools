@@ -1,0 +1,120 @@
+---
+title: JSON profundamente — sintaxe, pegadinhas, performance, e os casos que mordem
+description: Um longo e opinado tour de JSON em 2026 — o que é, o que JSON5 conserta, para que é JSON Schema, e por que JSON.parse consegue silenciosamente perder dados.
+updated: 2026-05-25
+---
+
+## O que JSON é, e por que grudou
+
+JSON (JavaScript Object Notation) foi extraído de JavaScript por Douglas Crockford no início dos 2000s, formalizado como [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259), e adotado com velocidade embaraçosa como o formato padrão de intercâmbio de dados para a web. As razões são mundanas: é **mínimo** (seis produções de gramática), **textual** (debugável com grep), **agnóstico de linguagem** (parsers existem para cada linguagem jamais enviada), e **deliberadamente menos expressivo que XML** (que a maioria largou para novas APIs).
+
+A gramática é pequena o bastante para digitar de memória: um valor JSON é um de `null`, `true`, `false`, um número, uma string, um array de valores, ou um objeto de valores com chaves string. Strings são double-quoted com escapes de backslash. Números são decimal, opcionalmente com uma parte fracionária, opcionalmente com um expoente. Espaço em branco entre tokens é ignorado. Isso é tudo.
+
+O que **não** está em JSON é interessante também: sem comentários, sem vírgulas à direita, sem binário nativo, sem tipo de data nativo, sem schemas, sem `undefined`, sem funções, sem referências entre valores. JSON5 (que esta ferramenta suporta como "modo tolerante") adiciona os dois primeiros. JSON Schema adiciona validação externa. O resto você constrói no topo.
+
+## Regras de sintaxe estrita (as que mordem)
+
+Essas cinco regras causam 95% das questões "por que meu JSON não analisa?":
+
+1. **Strings devem usar aspas duplas.** `{'a': 1}` é inválido. Literais de objeto JavaScript aceitam aspas simples; JSON não.
+2. **Sem vírgulas à direita.** `{"a": 1,}` é inválido. Fácil introduzir quando você delete a última propriedade; alguns IDEs adicionam uma configuração apenas para arquivo de config para remover automaticamente.
+3. **Sem comentários.** Nem mesmo `//` ou `/* */`. JSON foi projetado para dados, não configuração. Se você precisa de comentários, você precisa de um formato diferente (TOML, YAML) ou você o falsifica com um campo `_comment`.
+4. **As chaves de propriedade devem ser strings quoted.** `{a: 1}` é inválido. Novamente, literais de objeto JavaScript são mais lenientes que JSON.
+5. **Números são decimais.** Sem `NaN`, sem `Infinity`, sem literais hex `0x1A`. Algumas extensões de não-spec aceitam estes; a maioria dos parsers não.
+
+JSON5 relaxa todos esses cinco (é por isso que esta ferramenta o oferece como um toggle). O tradeoff: um arquivo JSON5 não é mais parseável por cada parser JSON na terra. Use-o para arquivos de config onde humanos editam à mão. Use JSON estrito para tudo lado de fio.
+
+## JSONC, JSON5, NDJSON — conhecendo qual dialeto
+
+- **JSON** — RFC 8259, estrito, a língua franca para APIs.
+- **JSONC** — "JSON com Comentários" de Microsoft. Idêntico a JSON exceto que `//` e `/* */` comentários são permitidos. Usado em configurações VS Code.
+- **JSON5** — superconjunto abençoado por Crockford adicionando comentários, vírgulas à direita, aspas simples, chaves unquoted, literais hex, strings multi-linha. Usado por ferramentas de build (config Babel), e agora a importação de `--experimental-vm-modules` JSON do ECMAScript permite `with { type: 'json5' }`.
+- **NDJSON / JSON Lines** — um valor JSON por linha, delimitado por newline. Streamable, append-only amigável, usado para logs e streams de evento.
+
+O modo "tolerante" desta ferramenta usa o parser [`json5`](https://github.com/json5/json5), que também aceita JSON estrito, então é um superconjunto estrito.
+
+## Pretty-printing: estratégias de indent
+
+Indent de dois espaços é o padrão de ecossistema JavaScript. Quatro espaços é a norma de Python/Ruby/Java. Tabs são uma disputa religiosa que não resolveremos aqui, mas arquivos JSON em codebases indentados com tabs tendem a parecer mais limpos; em todo lugar, dois espaços vencem em eficiência de espaço.
+
+Se você está checkando arquivos JSON em git: escolha um estilo de indent para seu projeto e fique com ele. Um formatter em pre-commit (Prettier, Biome, API desta ferramenta) torna diffs sãos.
+
+## Minificação
+
+`JSON.stringify(value)` sem terceiro argumento produz saída minificada — sem espaço em branco, sem newlines. Use para:
+
+- Transporte de fio onde cada byte importa (mobile, baixa largura de banda)
+- Embutindo JSON em fonte JavaScript onde menor bundle vence
+- Caching de estruturas idênticas (chave de cache menor depois de hashing)
+
+Não minifique para armazenamento em disco ou em bancos de dados a menos que você esteja constrangido de espaço. JSON pretty-printed é grep-amigável e diffable; minificado não é.
+
+## Ordenar chaves — quando e por quê
+
+A ordem de chaves do objeto em JSON **não é significativa** por spec — `{"a":1,"b":2}` e `{"b":2,"a":1}` representam os mesmos dados. Mas: diffs de arquivo são textuais, hashes são baseados em bytes, e argumentos de "igualdade de dados" em revisão de código descem rápido.
+
+Ordenar chaves antes de serialização lhe dá:
+
+- **Diffs estáveis**: mesmos dados → mesmos bytes → mesmo diff de git
+- **Estabilidade de chave de cache**: `hash(json_of(data))` corresponde entre chamadas
+- **Reproduzibilidade de manifesto**: artefatos de build que contêm JSON (package.json, package-lock.json, Cargo.lock) se beneficiam de ordenação estável
+
+A classificação aqui é alfabética, recursiva (profunda). Arrays preservam sua ordem — arrays JSON são sequências, não conjuntos.
+
+## Validação: JSON Schema vs verificação de formato
+
+Esta ferramenta responde "isso é JSON sintaticamente válido?" — uma questão sim/não sem conhecimento de schema. Pipelines de dados de produção geralmente precisam de mais: **isso JSON corresponde à forma esperada?** Para isso:
+
+- **JSON Schema** ([json-schema.org](https://json-schema.org/)) — o padrão. Expresse tipos, campos necessários, restrições enum, padrões regex, intervalos de valor. Ferramentas: `ajv` (Node), `jsonschema` (Python), a maioria das linguagens tem algo.
+- **Zod** (TypeScript) — schema + validação em tempo de execução + tipos estáticos em uma biblioteca; o padrão moderno para TS.
+- **Yup, Joi, io-ts** — bibliotecas mais antigas no mesmo espaço.
+
+Use JSON Schema quando você precisa de validação entre linguagens (ex., uma API pública). Use Zod quando você é TypeScript de ponta a ponta.
+
+## Notas de performance
+
+`JSON.parse` é implementado em C++ em V8 / SpiderMonkey / JavaScriptCore — mesuravelmente mais rápido que qualquer parser puro-JS. Para parses de uma só vez, você não consegue bater isso.
+
+Onde ele funciona mal: documentos muito grandes (>100 MB) e leituras parciais. O parser constrói a árvore de objeto inteira na memória antes de retornar. Para JSON multi-GB ou cenários de streaming:
+
+- **`stream-json`** (Node) — token-por-token streaming
+- **`jq`** — ferramenta CLI que faz stream e filtra
+- **NDJSON** — mude seu formato para um documento por linha então você consegue fazer parse de uma linha de cada vez
+
+A outra armadilha de performance: objetos profundamente aninhados. Stringify-ing ou parsing estruturas profundamente aninhadas atinge limites de stack eventualmente. Se você está atingindo isso, seu modelo de dados provavelmente está errado; nivele.
+
+## Segurança: as coisas que JSON.parse não fará por você
+
+`JSON.parse` é **seguro por padrão**. Não executa código; não chama construtores; não invoca setters `__proto__` em engines modernos. O antigo ataque `__proto__` pollution via `JSON.parse('{"__proto__":{"x":1}}')` foi patchado no nível de spec; o parse silenciosamente descarta a chave `__proto__`.
+
+O que ele **não** protege você de:
+
+- **Parse bombs**: uns poucos KB de entrada que decodificam para gigabytes de arrays aninhadas. Limite tamanho de entrada antes de fazer parse se entrada não é confiada.
+- **Perda de ponto flutuante**: `JSON.parse('{"id": 9007199254740993}')` retorna `9007199254740992` porque 64-bit Number não consegue representar inteiros acima de 2^53. APIs com grandes IDs inteiros (Twitter, Discord) os enviam como strings por essa razão.
+- **`__proto__` em runtimes mais antigos**: confirme que você está em Node 12+ / navegadores modernos; o comportamento de silent-drop é recente-ish.
+
+## Formas comuns que você encontrará
+
+- **Respostas de API**: geralmente um objeto com envelope `data` e siblings `meta`/`error`.
+- **Payloads JWT**: um objeto plano de claims, decodificado do segundo chunk Base64URL.
+- **`package.json`**: ordenado alfabeticamente por convenção (npm não força); tem muitos campos string-valued.
+- **Spec OpenAPI**: profundamente aninhado, grande; use JSON Schema para validá-lo.
+- **GeoJSON**: geometria etiquetada — `{"type": "Point", "coordinates": [lng, lat]}`. Nota: longitude primeiro.
+
+## Como usar esta ferramenta
+
+- Cole JSON bruto ou editado à mão no painel esquerdo.
+- Saída aparece ao vivo no direito, pretty-printed.
+- Erros mostram line:col então você consegue pular para eles no seu editor de código-fonte.
+- Alterne JSON5 se você estiver trabalhando com arquivos de config que usam comentários ou vírgulas à direita.
+- Alterne "Ordenar chaves" antes de salvar para diffs estáveis.
+- Botão "Minify" para JSON ligado à fio.
+
+## Privacidade
+
+100% browser-local via `JSON.parse`/`stringify` nativo e a biblioteca open-source [`json5`](https://github.com/json5/json5). Nenhuma solicitação de rede.
+
+## Ferramentas relacionadas
+
+- **Codificador Base64** — corrente serialização JSON com Base64 para data URIs ou parâmetros de query.
+- **Decodificador JWT** — payloads JWT são JSON; decodifique então formate aqui.

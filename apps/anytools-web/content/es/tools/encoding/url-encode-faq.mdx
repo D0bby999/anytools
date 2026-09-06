@@ -1,0 +1,29 @@
+---
+title: Codificación de URL — Preguntas frecuentes
+---
+
+## ¿Cuándo debo usar encodeURIComponent vs encodeURI?
+
+`encodeURIComponent` para una sola pieza (valor de consulta, segmento de ruta, campo de formulario). `encodeURI` para una cadena URL completa cuya estructura no quieras romper. Cuando no estés seguro, usa `encodeURIComponent` en cada pieza y ensambla manualmente.
+
+## ¿Por qué mi valor decodificado tiene `+` donde deberían haber espacios?
+
+Porque fue codificado por un codificador de formulario en lugar de un codificador de URL, y esta herramienta deliberadamente lo deja solo. Los formularios HTML codifican espacios como `+` bajo el tipo MIME `application/x-www-form-urlencoded`, pero esa convención se aplica **solo** dentro de una cadena de consulta codificada en formulario — en cualquier otro lugar de una URL, `+` es un carácter literal ordinario. Un decodificador general que silenciosamente convirtiera cada `+` en un espacio corrompería cualquier ruta o valor que legítimamente contenga uno.
+
+Así que decodificar `hello+world` aquí devuelve `hello+world`, mientras que `hello%20world` devuelve `hello world`. Si tu entrada realmente es una cadena de consulta codificada en formulario, reemplaza `+` con `%20` antes de decodificar, o con un espacio después.
+
+## ¿Cómo codifico caracteres especiales en claves versus valores?
+
+Ambos. Codifica cada clave y cada valor independientemente con `encodeURIComponent`, luego une con `=` y `&`. El modo "construir consulta" en esta herramienta hace exactamente eso.
+
+## ¿Cuál es la longitud máxima de una URL?
+
+La especificación no tiene límite, pero en práctica ~2.000 caracteres es el techo seguro en navegadores + servidores + proxies. Para cargas útiles más largas, usa un cuerpo POST en su lugar.
+
+## ¿Se envían mis datos a algún lugar?
+
+No. La página usa funciones nativas del navegador para todo. Abre DevTools Network — verás cero solicitudes mientras escribes.
+
+## ¿Por qué `café` produce seis bytes cuando se codifica?
+
+`é` es dos bytes en UTF-8 (`0xC3 0xA9`), así que se codifica en porcentaje a `%C3%A9` — seis caracteres. ASCII de un solo byte como `a` se mantiene como un carácter.

@@ -1,0 +1,35 @@
+---
+title: Formateador y validador de JSON — Preguntas frecuentes
+---
+
+## ¿Por qué falla la coma final al analizar?
+
+Porque RFC 8259 la prohíbe. Los literales de objeto de JavaScript aceptan comas finales (al igual que JSON5 y JSONC), pero JSON estricto no. Alterne el modo JSON5 si su entrada las usa.
+
+## JSON5 versus JSON — ¿cuál debería usar?
+
+JSON para formatos de conexión (API, configuraciones que intercambian máquinas). JSON5 para archivos de configuración editados por humanos donde desea comentarios y comas finales. No envíe JSON5 a un analizador JSON genérico — fallará con los comentarios.
+
+## ¿Cuál es el tamaño máximo de JSON que esta herramienta puede manejar?
+
+Unos pocos MB se formatea con sangría al instante; decenas de MB toman unos pocos segundos. Más allá de ~100 MB el navegador puede congelarse. Para documentos muy grandes use un CLI como `jq`, que transmite.
+
+## ¿Por qué ordenar claves?
+
+Para diffs estables y hashes reproducibles. Técnicamente el orden de clave de objeto JSON es insignificante, pero diffs de archivo y hashes son basados en bytes — los mismos datos con orden de clave diferente producen bytes diferentes. Ordenar normaliza eso.
+
+## ¿Puede JSON contener comentarios?
+
+JSON estricto: no. JSON5 y JSONC: sí. Alterne el modo JSON5 arriba para aceptarlos.
+
+## ¿Qué es JSONC?
+
+JSON con Comentarios — la variante de Microsoft utilizada en configuraciones de VS Code y tsconfig.json. Idéntico a JSON excepto que se permiten comentarios `//` y `/* */`. JSON5 es un superconjunto de JSONC.
+
+## ¿Cómo valido JSON contra un esquema?
+
+Esta herramienta valida *sintaxis* (¿es este JSON analizable?), no *forma* (¿coincide con una estructura esperada?). Para validación de forma use JSON Schema (`ajv`, `jsonschema`) o, en TypeScript, Zod.
+
+## ¿Por qué mi entero grande regresa incorrecto?
+
+El tipo `Number` de JavaScript no puede representar con precisión enteros por encima de 2^53. Las API que devuelven ID grandes (Twitter, Discord, ID de formato Snowflake) los envían como **cadenas** por esta razón. Si su JSON tiene `"id": 9007199254740993`, eso es intencional — no convierta a número en el cliente.

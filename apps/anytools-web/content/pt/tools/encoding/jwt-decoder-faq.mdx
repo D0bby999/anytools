@@ -1,0 +1,31 @@
+---
+title: Decodificador de JWT — Perguntas frequentes
+---
+
+## É seguro colar um JWT em um decodificador?
+
+Decodificar o *header e payload* é seguro no sentido de que foram já projetados para serem legíveis. Mas se o token concede acesso a qualquer coisa real, trate o ato de colá-lo em uma ferramenta de terceiros como um vazamento de credencial — assuma que o operador da ferramenta (ou qualquer pessoa com acesso à rede entre você e eles) agora o tem. Decodifique tokens de produção localmente com `jq` ou seu IDE em vez disso.
+
+## Por que esta ferramenta não verifica a assinatura?
+
+Para verificar, precisaríamos de sua chave de assinatura (HS256) ou chave pública (RS256). Solicitar chaves em uma ferramenta de navegador seria uma gigantesca bandeira vermelha. Verificação pertence no seu código de aplicação usando uma biblioteca verificada, não em uma página web pública.
+
+## Por que meu token tem caracteres `=`?
+
+Não tem — JWT usa Base64URL, que remove preenchimento. Se você vê `=`, o token foi provavelmente re-codificado em algum lugar como Base64 padrão. A maioria dos decodificadores (este incluído) tolera isso, mas JWT em conformidade com spec não deveria ter.
+
+## Qual é a vulnerabilidade alg=none?
+
+Bibliotecas mais antigas aceitavam tokens onde o header declarava `"alg": "none"` e pulavam verificação de assinatura inteiramente. Atacantes exploravam isso forjando payloads arbitrários. O conserto é validar com uma lista explícita de algoritmo permitido em seu verificador — nunca confie no campo alg no header.
+
+## HS256 ou RS256?
+
+Simétrico (HS256) quando ambos os lados se confiam plenamente um ao outro e podem compartilhar um segredo. Assimétrico (RS256/ES256) quando você não quer que verificadores sejam capazes de forjar tokens, ou quando as chaves cruzam um limite de confiança.
+
+## Como revogar um JWT?
+
+Você não consegue, não diretamente — JWTs são stateless. Workarounds: manter tokens curta vida e usar tokens de atualização; manter uma lista de bloqueio lado do servidor com chave por `jti`; ou usar tokens opacos com sessões lado do servidor em vez de JWT.
+
+## Qual é a diferença entre exp e nbf?
+
+`exp` é a última vez que o token é válido (após isso ele expira). `nbf` é a primeira vez que é válido (antes disso não deveria ser aceito). Ambos são Unix timestamps em segundos. `iat` é quando o token foi emitido — informacional.

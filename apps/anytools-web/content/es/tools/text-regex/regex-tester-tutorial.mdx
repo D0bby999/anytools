@@ -1,0 +1,89 @@
+---
+title: Regex en JavaScript — las partes que realmente importan
+description: Un recorrido práctico de regex con las trampas señaladas (backtracking catastrófico, punto sin coincidir salto de línea). Hoja de trucos al final.
+updated: 2026-05-25
+---
+
+## Por qué regex vale la pena aprender (y cuándo no usarlo)
+
+Las expresiones regulares son la herramienta universal de análisis de texto — todos los lenguajes modernos las tienen, la sintaxis se transfiere principalmente, y son la respuesta correcta para ~80% de trabajos "encuentra este patrón". Los 20% restantes:
+
+- **Parsear HTML o XML** con regex — no lo hagas. Usa un analizador real (`DOMParser` en el navegador, `cheerio` en Node).
+- **Parsear JSON** con regex — no lo hagas. Usa `JSON.parse`.
+- **Validación de correo** con regex — generalmente incorrecto; usa una biblioteca o el sistema integrado de tu proveedor de autenticación.
+- **Delimitadores profundamente anidados o balanceados** — regex no puede (formalmente) coincidir con estos. Usa un analizador.
+
+Para todo lo demás: extrayendo URL, dividiendo texto tipo CSV, validando formatos de teléfono, coincidiendo líneas de log, encontrando comentarios TODO — regex es la herramienta correcta.
+
+## Los cinco conceptos que vale la pena memorizar
+
+Puedes escribir 90% de regex útil con estos cinco primitivos:
+
+1. **Clases de caracteres**: `\d` (dígito), `\w` (carácter de palabra), `\s` (espacio en blanco), y sus negaciones en mayúsculas. Más clases personalizadas: `[a-z]`, `[^xyz]`.
+2. **Cuantificadores**: `*` (0+), `+` (1+), `?` (0 o 1), `{n,m}` (entre n y m). Agrega `?` para hacerlos perezosos: `*?`, `+?`.
+3. **Anclajes**: `^` (inicio), `$` (fin), `\b` (límite de palabra).
+4. **Grupos**: `(…)` captura, `(?:…)` no captura (más barato), `(?<name>…)` captura con nombre.
+5. **Alternancia**: `a|b` — `a` o `b`.
+
+Combina estos y puedes coincidir con la mayoría de cosas. El resto de la sintaxis de regex (lookahead, referencias inversas, clases unicode, etc.) es ocasionalmente útil pero evitable para el trabajo diario.
+
+## Las peculiaridades específicas de JavaScript
+
+JS regex (según ECMAScript) es *casi* PCRE pero no exactamente:
+
+- **Sin `(?#comment)`** — JS regex no tiene sintaxis de comentario. Comenta tu código en su lugar.
+- **`.` NO coincide con saltos de línea** a menos que establezcas la bandera `s` (dotAll). Fuente frecuente de "¿por qué esto no coincide?".
+- **`\b` usa límites de palabra ASCII** por defecto. Establecer la bandera `u` cambia esto. Agrega `u` siempre que manejes texto no-ASCII.
+- **Los grupos nombrados usan `(?<name>…)`** — estilo Python. JS adoptó esto en 2018; asume navegadores modernos/Node.
+- **Las referencias inversas en replace** usan `$1`, `$2`, `$<name>` — no `\1` como Perl.
+
+Otros lenguajes hacen las cosas ligeramente diferentes. PCRE es un superconjunto casi de JS regex; Python `re` es similar pero usa `(?P<name>…)` para grupos nombrados; el paquete `regexp` de Go es RE2 (sin referencias inversas, sin lookahead, pero tiempo lineal garantizado). No pegues una regex de Python en JS sin verificar.
+
+## Backtracking catastrófico — la única trampa de rendimiento
+
+Un patrón como `(a+)+b` coincidiendo contra `aaaaaaaaaaaaaaaaaaaaa` (sin `b` final) toma **tiempo exponencial** conforme crece la entrada. El motor de regex intenta cada forma posible de particionar las `a`s entre los dos cuantificadores, se rinde, luego intenta la siguiente combinación. Con 20 `a`s y sin `b`, eso son millones de intentos.
+
+Esta herramienta establece un límite de ejecución de 1 segundo precisamente porque los patrones patológicos pueden colgar una pestaña del navegador indefinidamente.
+
+Reglas de evitación:
+
+- **No anides cuantificadores** sin pensar. `(a+)+`, `(a*)*`, `(a|aa)+` son banderas rojas.
+- **Usa grupos atómicos o cuantificadores posesivos** si tu motor los soporta (JS no — usa trucos de lookahead).
+- **Sé específico.** `[^"]*"` coincide hasta la siguiente comilla; mejor que `.*"` que puede retroceder.
+- **Prueba con entrada adversaria.** Un patrón que maneja tu caso feliz puede explotar en entrada terminando en pocos caracteres sin coincidencia.
+
+Si un patrón está tomando demasiado tiempo, la respuesta raramente es "agrega más `+`" — normalmente es "reescribe para ser lineal", o "usa un analizador real".
+
+## Cómo ayuda esta herramienta
+
+- Pega un patrón y texto; las coincidencias se destacan en vivo.
+- Las banderas se pueden alternar; las ves en la vista previa del patrón (`/foo/gi`).
+- Los grupos de captura y grupos nombrados aparecen debajo de cada coincidencia.
+- El modo de reemplazo previsualizaiza el resultado de `text.replace(pattern, replacement)`.
+- El límite de ejecución de 1 segundo atrapa backtracking catastrófico antes de que tu pestaña se congele.
+
+## Una hoja de trucos de patrones que funcionan
+
+| Objetivo | Patrón |
+|---|---|
+| Coincidir dígitos | `\d+` |
+| Coincidir una palabra | `\w+` |
+| Coincidir una cadena tipo correo | `[\w.+-]+@[\w-]+\.[\w.-]+` |
+| Coincidir una cadena tipo URL | `https?:\/\/[^\s)]+` |
+| Coincidir una fecha ISO | `\d{4}-\d{2}-\d{2}` |
+| Coincidir una IPv4 | `\b(?:\d{1,3}\.){3}\d{1,3}\b` |
+| Coincidir un código de estado HTTP | `\b[1-5]\d{2}\b` |
+| Eliminar espacios iniciales/finales | reemplazar `^\s+|\s+$` con `` |
+| Colapsar múltiples espacios | reemplazar `\s+` con ` ` |
+
+No a prueba de balas — el de correo acepta muchas direcciones inválidas — pero lo suficientemente bueno para filtrado y extracción.
+
+## Privacidad
+
+Toda coincidencia de regex se ejecuta en el navegador vía el motor nativo `RegExp`. No enviamos tus patrones o texto a ningún lugar.
+
+## Herramientas relacionadas
+
+- **Conversor de mayúsculas y minúsculas** — cambia la mayúscula/minúscula del texto coincidido.
+- **Slugify** — convierte texto arbitrario en slugs seguros para URL (una transformación regex de nivel superior).
+- **Formateador JSON** — cuando tus coincidencias terminan necesitando formato JSON.

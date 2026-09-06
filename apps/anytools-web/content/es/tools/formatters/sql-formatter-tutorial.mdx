@@ -1,0 +1,97 @@
+---
+title: Formato SQL — por qué importa, diferencias de dialecto, e integración CI
+description: Cómo un estilo SQL consistente acelera la revisión de código, por qué la elección de dialecto importa, y la regla única que previene la mayoría de los incidentes de formato-luego-ruptura.
+updated: 2026-05-25
+---
+
+## Por qué molestarse en formatear SQL
+
+No formatea su código de aplicación a ojo — deja que Prettier o Biome lo haga en guardar. SQL merece el mismo trato, y por las mismas razones:
+
+- **Legibilidad de diff.** Un cambio SQL bien formateado muestra el diff significativo (una nueva unión, una cláusula WHERE cambiada), no ruido de espacio en blanco.
+- **Velocidad de revisión de código.** Un revisor escanea SQL formateado en segundos; SQL formateado ad-hoc toma un minuto de entrecerrar los ojos por cambio.
+- **Incorporación de nuevos miembros.** Los nuevos miembros del equipo leen SQL consistente tan rápido como el inglés; SQL inconsistente se siente como leer correo de cinco personas diferentes.
+- **Visibilidad de errores.** El SQL formateado expone errores estructurales (condición JOIN faltante, AND pendiente) inmediatamente.
+
+El costo del formato es cero — su editor lo hace en guardar, su CI lo hace en PR. El costo de *no* formatear se compone con cada consulta que envía.
+
+## Los 10 dialectos que esta herramienta admite
+
+Cada base de datos tiene su propio dialecto SQL con diferencias sutiles. Elegir el dialecto incorrecto hace que el formateador produzca una salida que es válida pero estilísticamente incorrecta para su objetivo.
+
+- **SQL Estándar** — más cercano a la especificación ANSI. Use cuando no conoce el objetivo.
+- **PostgreSQL** — sintaxis `::cast`, `RETURNING`, CTE en todas partes, JSONB.
+- **MySQL / MariaDB** — identificadores entre comillas invertidas, `LIMIT n OFFSET m`, sin `RETURNING` (hasta 8.0+ en MariaDB).
+- **SQLite** — dialecto mínimo, bases de datos conectadas, sin tipos estrictos históricamente.
+- **BigQuery** — sintaxis de array, sintaxis struct, pistas de particionamiento.
+- **Snowflake** — cláusula `QUALIFY`, sintaxis de viaje en el tiempo.
+- **Redshift** — derivado de Postgres pero con peculiaridades.
+- **T-SQL (SQL Server)** — identificadores `[bracket]`, `TOP n`, `OUTER APPLY`.
+- **PL/SQL (Oracle)** — sintaxis `MERGE`, sin `LIMIT` (use `ROWNUM` o `FETCH FIRST`).
+
+Cuando dude, elija el dialecto de su base de datos de producción. Si está escribiendo SQL portátil destinado a ejecutarse en múltiples, use SQL Estándar — obtendrá un formato más conservador.
+
+## Convenciones que vale la pena adoptar
+
+Los predeterminados que esta herramienta emite son sensatos para la mayoría de equipos; ajuste lo que necesita:
+
+- **Palabras clave MAYÚSCULAS.** Tradición desde SQL-86. Ayuda a los lectores a separar palabras estructurales (`SELECT`, `JOIN`) de identificadores.
+- **Una cláusula principal por línea.** `SELECT … FROM … WHERE … GROUP BY …` cada una comienza en la columna 0.
+- **JOINs indentados + condición en la misma línea.** Más fácil de seguir qué tabla se unió a cuál.
+- **Indentación de dos espacios.** Coincide con la mayoría de proyectos JS/TS; algunos equipos prefieren cuatro.
+- **Comas finales en listas de columnas** (donde sea compatible). Diffs más limpios al agregar columnas.
+
+La única convención que **no** debería perseguir: alinear nombres de columnas por espacios ("SQL vertical"). Se ve hermoso aislado, envejece mal con el identificador más largo, y se rompe cada vez que alguien agrega una columna más larga. Deje que el formateador maneje la alineación horizontal; no luche contra él.
+
+## Cuándo **NO** formatear
+
+Algunos casos:
+
+- **SQL generado** — deje la salida del ORM en paz; nadie lo lee.
+- **Consultas ad-hoc de una sola vez** en un REPL — formate si va a confirmarlo, de lo contrario no.
+- **SQL incrustado en literales de plantilla etiquetada** en código — herramientas como `eslint-plugin-sql` formatean en línea, pero la herramienta que está sosteniendo solo maneja SQL sin procesar.
+
+## La regla formato-luego-ruptura
+
+La regla única que previene la mayoría de los incidentes de formato-luego-ruptura: **los formateadores preservan semántica, no espacio en blanco dentro de cadenas**. Si tiene:
+
+```sql
+SELECT 'multi
+line
+string' FROM t;
+```
+
+Un formateador puede o no preservar las nuevas líneas literales dentro de la cadena dependiendo de las reglas de entrecomillado de dialecto. **Siempre verifique que una consulta formateada analiza y se ejecute** antes de fusionar — `EXPLAIN` es su amigo.
+
+Para comentarios en línea (`-- comment` o `/* */`), la mayoría de los formateadores los preservan en la misma línea, pero su posición puede cambiar relativa al código circundante. Releia la salida formateada antes de asumir que la intención se preserva.
+
+## Integración CI
+
+No confíe en que los desarrolladores recuerden formatear. Agregue a su cadena de herramientas:
+
+```yaml
+# .github/workflows/sql.yml
+- run: npx sql-formatter-cli --check schema/**/*.sql
+```
+
+O pre-commit:
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/sql-formatter-org/sql-formatter
+    rev: v15
+    hooks:
+      - id: sql-formatter
+```
+
+La misma biblioteca que esta página usa, ejecutada automáticamente en commit / CI. Los nuevos desarrolladores no necesitan saberlo.
+
+## Privacidad
+
+El formateador se ejecuta completamente en su navegador a través de la biblioteca de código abierto [`sql-formatter`](https://github.com/sql-formatter-org/sql-formatter). No ejecutamos su SQL, no nos conectamos a su base de datos, no registramos consultas.
+
+## Herramientas relacionadas
+
+- **Formateador JSON** — para las columnas JSON que sus consultas Postgres devuelven.
+- **Probador de Regex** — construir patrones para SQL `LIKE` y `SIMILAR TO`.

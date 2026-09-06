@@ -1,0 +1,39 @@
+---
+title: Generador y Verificador de Bcrypt — Preguntas frecuentes
+---
+
+## ¿Qué hace esta herramienta?
+
+Dos cosas: hashear una contraseña con bcrypt a un factor de coste que elija, y verificar si una contraseña coincide con un hash existente. También lee el factor de coste de un hash que pegue.
+
+## ¿Qué es el factor de coste?
+
+El parámetro de trabajo incrustado en el hash. Es una potencia de dos — coste 10 significa 2¹⁰ iteraciones — así que cada paso hacia arriba **duplica** el tiempo para calcular. Esta herramienta permite de 4 a 15 y por defecto es 10.
+
+## ¿Por qué se detiene en 15?
+
+Porque esto se ejecuta en su navegador en JavaScript puro, y más allá de 15 un único hash bloquea la pestaña durante muchos segundos. Ese es un límite de hacerlo en el lado del cliente, no una declaración sobre lo que su servidor debe usar.
+
+## ¿Qué coste debería usar la producción?
+
+Más alto que el predeterminado de esta herramienta si su hardware lo permite. La orientación habitual es elegir el coste más alto que su servidor pueda absorber dentro de una latencia de inicio de sesión aceptable, y revisarlo a medida que el hardware mejora — todo el punto de un coste ajustable es que puede aumentarse con el tiempo.
+
+## ¿Por qué el hash es diferente cada vez para la misma contraseña?
+
+Porque bcrypt genera una sal aleatoria por hash y la almacena dentro de la cadena de salida. Esto es deliberado: contraseñas idénticas producen diferentes hashes, por lo que un atacante no puede identificar repeticiones ni usar tablas precomputadas. También es por qué no puede comparar dos hashes por igualdad — use el modo verificar, que extrae la sal y recalcula.
+
+## ¿Qué significan las partes de una cadena bcrypt?
+
+`$2b$10$` seguido de 53 caracteres: la variante del algoritmo, el factor de coste, luego sal y hash juntos. Las variantes `2a`, `2b`, `2x` y `2y` existen por razones de compatibilidad histórica; `2b` es la actual.
+
+## ¿Bcrypt trunca las contraseñas largas?
+
+Sí — solo considera aproximadamente los primeros 72 bytes. Nada más allá de eso tiene efecto en el hash, lo que importa si permite frases de contraseña largas o pre-hashea contraseñas antes de bcrypt.
+
+## ¿Es seguro pegar una contraseña real aquí?
+
+El hashing se ejecuta completamente en su navegador a través de una implementación en JavaScript puro, sin solicitud de red — puede confirmarlo en la pestaña de red de su navegador. Aun así, el hábito sensato es no escribir credenciales de producción en vivo en ninguna página web, incluyendo esta. Use un valor desechable cuando experimente.
+
+## ¿Debería usar bcrypt para nuevos sistemas?
+
+Sigue siendo una opción razonable y es ampliamente compatible. La orientación moderna a menudo prefiere alternativas resistentes a la memoria como Argon2 o scrypt, que resisten mejor los ataques de GPU porque demandan memoria además de tiempo.

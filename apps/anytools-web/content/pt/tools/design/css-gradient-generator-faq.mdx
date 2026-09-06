@@ -1,0 +1,45 @@
+---
+title: Gerador de gradientes CSS — Perguntas frequentes
+---
+
+## Por que a saída tem duas linhas de `background`?
+
+A primeira linha é uma cor sólida, a segunda o gradiente. Qualquer mecanismo que entenda `linear-gradient` aplica a segunda declaração e a cor plana nunca mostra. Um mecanismo que não consegue fazer parsing do valor de gradiente o deixa cair durante a recuperação de erro de CSS e mantém a cor plana que já aceitou. Custa uma linha e remove o pior modo de falha — texto branco em um fundo que nunca foi pintado. O gerador usa sua primeira parada de cor para essa linha; se seu texto fica sobre o meio do gradiente, edite-a para uma cor de lá em vez disso.
+
+## Quais navegadores suportam gradientes cônicos?
+
+`conic-gradient()` é o mais novo dos três: Chrome 69, Safari 12.1 e Firefox 83 o enviaram, então qualquer coisa lançada desde final de 2020 o tem. Nunca esteve no Internet Explorer e nenhum prefixo ajuda lá. `linear-gradient()` e `radial-gradient()` são muito mais antigos e sem prefixo em qualquer lugar que importa hoje. Se seu tráfego inclui navegadores mais antigos que o ponto de corte cônico, a linha de fallback acima é o que aqueles visitantes veem.
+
+## O que o ângulo significa?
+
+Em CSS, `0deg` aponta para o topo da caixa e o ângulo aumenta no sentido dos ponteiros do relógio, então `90deg` funciona da esquerda para direita e `180deg` funciona de cima para baixo — que é também o padrão quando você omite o ângulo. Isso é rotacionado da convenção matemática, e é a razão mais única e comum por que um gradiente sai de lado.
+
+## Por que o gerador escreve `135deg` em vez de `to bottom right`?
+
+Porque não são a mesma coisa. As palavras-chave de canto direcionam a linha de gradiente para que o canto fique exatamente na parada final, o que significa que o ângulo real depende da largura e altura da caixa — `to bottom right` é 135° apenas em um quadrado. Este editor armazena um ângulo, então colar uma palavra-chave de canto a converte para o equivalente de caixa quadrada. Se você especificamente quer que o canto rastreie a forma da caixa, mantenha a palavra-chave em sua folha de estilos à mão.
+
+## Posso usar um gradiente em qualquer lugar que uma cor va?
+
+Não. Um gradiente é um valor de imagem, não uma cor. Funciona em `background-image` (e o atalho `background`), `border-image`, `mask-image` e `list-style-image`, mas não em `color`, `border-color` ou `box-shadow`. Texto de gradiente é a exceção usual que as pessoas procuram: defina o gradiente como o fundo, então `background-clip: text` com uma cor de texto transparente — e dê-lhe um `color` real de fallback, porque um navegador que ignora o recorte pintará texto transparente sobre o gradiente.
+
+## Por que gradientes amplos e sutis parecem estriados?
+
+Banding. Uma tela de 8 bits por canal tem 256 passos por canal; um gradiente que cruza apenas alguns desses passos em mil pixels mostra cada passo como uma faixa visível. Nada no CSS está errado. Adicionar paradas intermediárias não ajuda — a exibição é o limite. Correções práticas são aumentar a distância de cor, sobrepor uma textura de ruído fraco, ou aceitá-la nos fundos amplos onde é menos perceptível.
+
+## Para que servem paradas sem uma posição?
+
+Se você deixar a posição vazia, o navegador espaça essa parada uniformemente entre os vizinhos que têm uma. Mantém o CSS curto e sobrevive você inserir outra cor depois. Posições são úteis quando você quer um ponto de transição específico — ou uma borda dura: dê a duas paradas a mesma percentagem e a cor muda sem nenhuma mistura, que é como listras, barras de progresso e a predefinição de repetição são construídas. Os puxadores na fita sob a prévia ficam onde o navegador colocaria cada parada, então uma não posicionada ainda tem um puxador; arrastar (ou empurrar com as setas, Home e End) escreve uma percentagem explícita, porque é o que uma posição arrastada significa.
+
+## Por que só posso digitar percentuais?
+
+Porque percentuais são o que o editor consegue fazer viagem de ida e volta. CSS também aceita comprimentos (`red 20px`) e dicas de interpolação (um `40%` simples entre duas paradas), e colar qualquer um desses retorna um erro de parsing em vez de um resultado errado. Isso é deliberado: silenciosamente transformar `20px` em `20%` mudaria o design sem contar a você.
+
+## O que mais colar no CSS recusa, e por quê?
+
+Mais quatro coisas, cada uma porque o editor não tem lugar para colocá-las: um método de interpolação de cor (`linear-gradient(in oklab, red, blue)` mistura através de um espaço de cor diferente), um valor calculado em qualquer lugar na declaração (`calc()`, `var()` — não há número fixo para mostrar), mais de uma camada de fundo separada por vírgula, e raios explícitos em um gradiente radial (`radial-gradient(200px 100px at 50% 50%, …)`). Cada recusa imprime a razão acima do campo, e a mensagem limpa assim que você edita o texto. A alternativa — aceitar o valor e deixar cair a parte que não consegue manter — é como um gerador entrega CSS que você nunca escreveu: uma versão anterior dessa ferramenta transformou `in oklab` em uma parada de cor chamada "in oklab" e pintou um gradiente que ninguém pediu.
+
+Um limite vale a pena declarar claramente: o parser não tem uma lista dos 148 nomes de cores CSS, então uma única palavra que não reconhece é passada como um nome de cor em vez de rejeitada. `blurple` sobrevive a viagem de ida e volta intacto, e a prévia simplesmente não mostra nada para aquela parada — a mesma coisa que o navegador faz com ela.
+
+## Algo é enviado?
+
+Não. A string de gradiente é montada em seu navegador, e nada sobre ela sai da página.

@@ -16,7 +16,7 @@ No. This page loads a WebAssembly build of libheif from this site and decodes th
 
 Detail, in a way you may or may not see. The HEIC has already been through one lossy compression; decoding it and re-encoding as JPEG applies a second, different one, and each pass discards information the previous pass kept. At a high quality setting the difference is hard to spot on a photograph, but it is a copy of a copy — keep the original HEIC if the photo matters.
 
-The file will very often be **larger** than the HEIC, sometimes twice the size, because JPEG is simply a less efficient codec. That is expected, not a bug. If the size matters, take the result to [Compress Image](/tools/compress-image), or drop the dimensions with [Resize Image](/tools/resize-image) first. To collect a set of converted photos into one document, [Image to PDF](/tools/image-to-pdf) takes JPGs a page at a time.
+The file will very often be **larger** than the HEIC, sometimes twice the size, because JPEG is simply a less efficient codec. That is expected, not a bug. If the size matters, take the result to [Compress Image](/en/image/compress-image), or drop the dimensions with [Resize Image](/en/image/resize-image) first. To collect a set of converted photos into one document, [Image to PDF](/en/pdf/image-to-pdf) takes JPGs a page at a time.
 
 Depth maps, HDR gain maps, edit history and burst frames stored beside the picture do not survive: JPEG has nowhere to keep them. Choosing PNG gives you a lossless copy of the decoded pixels, but PNG is a poor fit for photographs and the files are usually several times larger than the JPEG.
 
@@ -32,7 +32,7 @@ No. HEIF stores rotation and mirroring as `irot` and `imir` properties on the im
 
 ## Which files does it accept?
 
-`.heic`, `.heif` and Canon's `.hif`, checked by reading the `ftyp` box rather than trusting the extension — Windows often reports no MIME type at all for these. AVIF is refused straight away, on its major brand: it uses the same container but the AV1 codec, which this decoder does not contain, and browsers open AVIF natively, so the [Image Format Converter](/tools/image-format-converter) handles it — that tool deliberately does not take HEIC, because a browser canvas cannot decode one.
+`.heic`, `.heif` and Canon's `.hif`, checked by reading the `ftyp` box rather than trusting the extension — Windows often reports no MIME type at all for these. AVIF is refused straight away, on its major brand: it uses the same container but the AV1 codec, which this decoder does not contain, and browsers open AVIF natively, so the [Image Format Converter](/en/converters/image-format-converter) handles it — that tool deliberately does not take HEIC, because a browser canvas cannot decode one.
 
 Photos above about 16.7 megapixels — Safari's canvas ceiling, which a 24 MP iPhone photo passes — are scaled down to fit rather than refused, and the result says by how much. Below that nothing is resized.
 

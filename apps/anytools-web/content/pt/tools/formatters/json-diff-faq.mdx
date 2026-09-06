@@ -1,0 +1,39 @@
+---
+title: Comparador de JSON — Perguntas frequentes
+---
+
+## Como isso é diferente do verificador de diff de texto?
+
+Ele compara estrutura, não linhas. Reformatar um arquivo, mudar indentação, ou reordenar as chaves de um objeto produz **zero** diferenças aqui — tudo o que acenderia em um diff baseado em linha. Se você quer saber o que mudou nos dados em vez de no arquivo, esta é a ferramenta; para prosa ou código, use o [verificador de diff](/en/text-regex/diff-checker).
+
+## A ordem das chaves do objeto é sensível?
+
+Não. Objetos JSON são desordenados por definição, então `{"a":1,"b":2}` e `{"b":2,"a":1}` são idênticos e relatados como tal.
+
+## A ordem das arrays é sensível?
+
+Sim. Arrays são comparados por índice, então mover um elemento conta como uma mudança em ambas as posições. Essa é a leitura correta da semântica JSON — ordem é significativa em uma array — mas isso significa uma lista reordenada produz um diff barulhento em vez de uma nota "movida".
+
+## O que os quatro tipos de mudança significam?
+
+**adicionado** — a chave existe apenas no lado direito. **removido** — apenas no lado esquerdo. **mudado** — presente em ambos com valores diferentes do mesmo tipo. **type-changed** — presente em ambos mas o tipo difere, como a string `"5"` se tornando o número `5`. Esse último é chamado separadamente porque é uma fonte comum e facilmente perdida de bugs.
+
+## Como leio os caminhos?
+
+Como uma trilha estilo JSONPath da raiz: `$` é o documento em si, `$.user.email` é uma chave aninhada, e `$.user.emails[2].label` indexa em uma array. Você consegue colar o caminho em a maioria das ferramentas de query JSON.
+
+## Por que ele reportou um erro ao invés de um diff?
+
+Porque um lado não é JSON válido. A ferramenta lhe diz qual lado falhou em vez de adivinhar — as causas mais comuns são vírgulas à direita, aspas simples ao invés de duplas, e chaves sem aspas, nenhum dos quais são JSON legal mesmo que JavaScript os aceite.
+
+## Ele detecta uma chave renomeada?
+
+Não. Um renomeamento aparece como uma remoção e uma adição, porque não há forma confiável de dizer um renomeamento de um par desrelacionado de mudanças sem adivinhar na intenção.
+
+## Ordem de chave ou espaço em branco afeta o resultado de forma alguma?
+
+Apenas dentro de strings. Espaço em branco entre tokens é insignificante para JSON e é ignorado; espaço em branco dentro de um valor de string é parte desse valor e será reportado.
+
+## Meus dados são carregados?
+
+Não. Ambos os documentos são analisados e comparados no seu navegador.

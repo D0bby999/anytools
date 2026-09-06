@@ -1,0 +1,39 @@
+---
+title: Códigos de Status HTTP e Tipos MIME — Perguntas frequentes
+---
+
+## O que é essa página?
+
+Uma referência pesquisável de códigos de status HTTP e tipos MIME comuns. Pesquise por número, por nome ou filtre por classe — 1xx informacional, 2xx sucesso, 3xx redirecionamento, 4xx erro do cliente, 5xx erro do servidor.
+
+## Como faço para ler o primeiro dígito?
+
+Ele tells you who to talk to. Um 4xx diz que o pedido estava errado — conserte o chamador. Um 5xx diz que o servidor falhou enquanto lidava com um pedido válido — conserte o servidor. Acertar esse limite é a maior parte do valor no esquema, e é por isso que retornar 200 com um corpo de erro torna sistemas difíceis de operar: cada monitor e cache a jusante agora acredita que a chamada succeeded.
+
+## Qual é a diferença entre 301 e 302?
+
+301 é permanente e 302 é temporário. Navegadores e mecanismos de busca armazenam agressivamente um 301 — geralmente indefinidamente — portanto um 301 emitido por engano é genuinamente difícil de desfazer, porque os clientes param de perguntar a URL antiga. Use 302 (ou 307) enquanto você está inseguro.
+
+## E quanto a 307 e 308?
+
+São as versões rígidas de 302 e 301. Os códigos mais antigos permitiam que os clientes mudassem um POST para um GET ao seguir o redirecionamento; 307 e 308 proíbem isso, preservando o método e o corpo. Se você está redirecionando qualquer coisa que não seja um GET, prefira-os.
+
+## Quando devo usar 401 versus 403?
+
+401 significa "não autenticado" — você não provou quem é, e um cabeçalho `WWW-Authenticate` deve acompanhá-lo. 403 significa "autenticado, mas não permitido". Um vazamento comum é retornar 403 onde 404 seria melhor: informar a um usuário não autorizado que um recurso existe é informação em si.
+
+## Para o que é 304 Not Modified?
+
+Pedidos condicionais. O cliente envia um validador como `If-None-Match`, e se nada mudou o servidor responde 304 sem corpo — salvando a transferência enquanto confirma que a cópia em cache ainda é boa.
+
+## 418 é real?
+
+É um código genuinamente registrado de uma RFC do Dia da Mentira — "Sou uma chaleira" — e periodicamente é proposto para remoção. Não o use em produção; ele aparece na lista por completude.
+
+## Por que preciso de tipos MIME ao lado de códigos de status?
+
+Porque ambos fazem parte de acertar uma resposta corretamente. Um status correto com `text/plain` em JSON deixa os clientes adivinhando, e os navegadores podem farejar o conteúdo e se comportar de formas que você não pretendia.
+
+## Algo é enviado para um servidor?
+
+Não. A lista é empacotada com a página e pesquisada localmente.

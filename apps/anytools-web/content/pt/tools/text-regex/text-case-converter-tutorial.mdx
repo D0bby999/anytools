@@ -1,0 +1,70 @@
+---
+title: Convenções de caso de texto em linguagens — escolha a correta
+description: Por que JavaScript usa camelCase, Python usa snake_case, CSS usa kebab-case e o que acontece quando você os mistura.
+updated: 2026-05-25
+---
+
+## O que "caso" realmente significa em código
+
+Quando um nome contém múltiplas palavras, você precisa de um separador e uma regra de casing. Diferentes comunidades linguísticas acertaram em diferentes combinações, e as convenções são notavelmente estáveis ao longo de décadas de código:
+
+- **JavaScript / Java / Swift**: `camelCase` para variáveis e funções, `PascalCase` para tipos e classes.
+- **Python / Ruby / Rust**: `snake_case` para variáveis e funções, `PascalCase` para classes.
+- **CSS / Atributos HTML / URLs**: `kebab-case` porque o caractere de espaço é reservado.
+- **Variáveis de ambiente / Palavras-chave SQL / Constantes**: `CONSTANT_CASE` (ou `SCREAMING_SNAKE`).
+- **Caminhos do sistema de arquivo**: `path/case` com separadores `/`.
+- **Notação de ponto** (chaves de config, namespaces): `dot.case`.
+
+Escolha a convenção do arquivo que você está editando. Não lute contra isso — convenção é o que permite que o código seja lido como prosa por pessoas que conhecem a linguagem.
+
+## Quando você vai usar um conversor
+
+- **Gerando variáveis de ambiente a partir de chaves de config** (`api.timeout` → `API_TIMEOUT`).
+- **Construindo nomes de classe CSS a partir de props de componentes React** (`primaryButton` → `primary-button`).
+- **Nomeando colunas de banco de dados a partir de propriedades de objeto** (`firstName` → `first_name`).
+- **Geração de código entre linguagens** (TypeScript → Python ORM, Swagger → cliente JS).
+- **Renomeando variáveis consistentemente** em uma refatoração.
+
+## A armadilha do acrônimo
+
+Qual é a versão snake_case de `XMLHttpRequest`? Duas respostas razoáveis:
+
+- `xml_http_request` — trate cada acrônimo como uma palavra separada
+- `x_m_l_http_request` — trate cada letra de capital como um limite de palavra
+
+A maioria das bibliotecas modernas (incluindo a que esta ferramenta embrulha, `change-case`) fazem o primeiro — elas reconhecem runs de letras de capital como um único acrônimo. Esta é a convenção que você quase sempre quer. Se uma biblioteca produzir a segunda forma, troque de bibliotecas.
+
+O camelCase correspondente: `xmlHttpRequest`. PascalCase: `XmlHttpRequest`. Note as letras minúsculas dentro do acrônimo — isso é deliberado e corresponde à forma como o navegador realmente expõe o nome (`window.xmlHttpRequest` após transformações Babel, etc.).
+
+## Padrões comuns por ecossistema
+
+| Caso de uso | Convenção | Exemplo |
+|---|---|---|
+| Variável JS | camelCase | `firstName` |
+| Classe/tipo JS | PascalCase | `UserService` |
+| Const JS (global) | CONSTANT_CASE | `MAX_RETRIES` |
+| Variável Python | snake_case | `first_name` |
+| Classe Python | PascalCase | `UserService` |
+| Classe CSS | kebab-case | `btn-primary` |
+| Atributo HTML | kebab-case | `data-user-id` |
+| Slug de URL | kebab-case | `/my-blog-post` |
+| Nome de arquivo | kebab-case (web), snake_case (Python) | `user-profile.tsx` / `user_profile.py` |
+| Variável de ambiente | CONSTANT_CASE | `DATABASE_URL` |
+| Campo GraphQL | camelCase | `userName` |
+| Campo API JSON | camelCase ou snake_case (escolha do projeto) | `firstName` / `first_name` |
+
+## Sensibilidade de caso do arquivo
+
+macOS por padrão tem um sistema de arquivo case-insensitive (`HFS+`/`APFS` formatado dessa forma). Linux é case-sensitive. Windows NTFS é case-insensitive mas case-preserving. Isso morde projetos entre plataformas: um arquivo nomeado `Button.tsx` importado como `./button.tsx` funciona no macOS, quebra em CI no Linux. Defina seu CI para Linux desde o primeiro dia para pegar isso imediatamente.
+
+## Como esta ferramenta ajuda
+
+- Cole texto uma vez, veja todas as 12 variantes de caso ao mesmo tempo.
+- Clique em qualquer saída para copiar.
+- Lida com acrônimos corretamente (usa [`change-case`](https://github.com/blakeembrey/change-case)).
+- Funciona em entrada multi-linha (cada linha convertida independentemente).
+
+## Ferramentas relacionadas
+
+- **Slugify** — quando você precisa de saída segura para URL (lida com diacríticos, unicode, emoji).
+- **Regex Tester** — quando você precisa encontrar/substituir padrões de caso programaticamente.

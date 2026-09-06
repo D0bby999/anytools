@@ -1,0 +1,43 @@
+---
+title: Calculadora de cartão de ponto — Perguntas frequentes
+---
+
+## O que ela totaliza?
+
+Horas trabalhadas por dia a partir de tempos de entrada e saída, somadas na semana, depois divididas em horas regulares e extras com pagamento para cada uma.
+
+## Como o trabalho extra é decidido?
+
+Qualquer coisa além de 40 horas na semana é trabalho extra, pago em 1,5 vezes a taxa base. Esse é o padrão semanal comum dos EUA e é o que esta ferramenta aplica.
+
+## Ela lida com regras de trabalho extra diário?
+
+Não. Algumas jurisdições exigem trabalho extra após um determinado número de horas em um único dia independentemente do total semanal, e algumas têm limiares de tempo duplo. Esta calculadora apenas aplica a regra semanal de 40 horas, portanto subestamar o que você é devido onde uma regra diária se aplica.
+
+## Qual formato de hora devo usar?
+
+Vinte e quatro horas, como `HH:MM` — portanto 17h é `17:00`. Inserir um tempo que não pode ser analisado contribui zero horas para esse dia em vez de um número errado.
+
+## Como faço para inserir um turno que atravessa meia-noite?
+
+Como uma única linha. Quando a hora de saída é anterior à hora de entrada, o cálculo do dia adiciona 24 horas em vez de retornar um intervalo negativo, portanto `22:00` a `06:00` é lido como oito horas, não menos dezesseis. Você não precisa dividir o turno em duas linhas.
+
+O limite dessa regra é que ela assume que qualquer par para trás significa um turno noturno. Um erro de digitação que coloca a hora de saída antes da hora de entrada em um dia comum é, portanto, lido como um turno muito longo em vez de ser sinalizado, portanto um dia que retorna bem maior que o esperado vale a pena reler em vez de confiar.
+
+## As pausas não remuneradas são deduzidas?
+
+Sim. Cada linha tem seu próprio campo de pausa em minutos, e esse número de minutos é subtraído do intervalo entre entrada e saída antes do total do dia ser calculado. Começa em 30 minutos por dia, que é um padrão em vez de uma sugestão — defina para 0 em dias que você trabalhou sem pausar, e para a figura real em dias que você não fez.
+
+A subtração se limita a zero, portanto uma pausa mais longa que o turno produz um dia de zero hora em vez de um negativo que silenciosamente cancelaria horas em outro lugar na semana.
+
+## Isto é antes ou depois dos impostos?
+
+Antes. Ela multiplica horas por taxas e nada mais — sem imposto, sem deduções, sem benefícios. Seu salário líquido será menor.
+
+## Posso usá-la para verificar meu contracheque?
+
+Como verificação de sanidade, sim, e uma incompatibilidade vale a pena investigar. Mas não é autoritativa: seu empregador pode aplicar trabalho extra diário, arredondamento diferente de tempos de relógio, ou termos contratuais que isso não conhece. Leve uma discrepância real ao seu departamento de folha de pagamento ou a um assessor trabalhista em vez de para uma calculadora.
+
+## Meus dados de cartão de ponto são armazenados?
+
+Não. Eles ficam no seu navegador e nada é transmitido.

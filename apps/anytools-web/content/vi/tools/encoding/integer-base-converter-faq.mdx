@@ -1,0 +1,33 @@
+---
+title: Chuyển Đổi Cơ Số — Câu hỏi thường gặp
+---
+
+## Nó có thể xử lý những cơ số nào?
+
+Bất cứ thứ gì từ 2 đến 36. Binary, octal, decimal và hex được hiển thị cùng nhau trên mỗi chuyển đổi vì đó là bốn cái mà mọi người thực sự chuyển động giữa; hàng cuối cùng lấy bất kỳ cơ số nào bạn gõ. Trần là 36 vì đó là bao nhiêu ký tự riêng biệt bảng chữ số tiêu chuẩn có — 0-9 theo sau là a-z. Không có quy ước nhất trí phía trên điều đó.
+
+## Tại sao nó lấy những con số lớn đúng khi những trình chuyển đổi khác không?
+
+Vì nó phân tích cú pháp thành một số nguyên có độ chính xác tùy ý thay vì một số JavaScript. JavaScript của `Number` là một float 64-bit, chính xác chỉ lên đến 2^53 — vì vậy `parseInt('9007199254740993')` trả về 9007199254740992. Đó là một câu trả lời sai với không có lỗi được đính kèm, mà đối với một công cụ có toàn bộ mục đích là sự chính xác là lỗi tồi tệ nhất có thể. Hashes, database IDs và 64-bit flags thường vượt quá phạm vi đó.
+
+Thử `9007199254740993` trong decimal: bạn nên nhận được `20000000000001` trong hex, và trở lại lần nữa không thay đổi.
+
+## Tôi có thể dán các tiền tố 0x, 0b hoặc 0o không?
+
+Có, và dấu gạch dưới quá — `0xFF`, `0b1010`, `0o17` và `1_000_000` đều hoạt động. Tiền tố chỉ được loại bỏ khi nó khớp với cơ số bạn đã chọn, điều này quan trọng hơn nó nghe có vẻ: `0b1010` đọc là hexadecimal là một số hex hoàn hảo (0xb1010), không phải một cái được dán nhãn binary. Loại bỏ nó bất kể sẽ âm thầm thay đổi giá trị của bạn.
+
+## Thông báo lỗi "not a valid digit in base 8" có nghĩa gì?
+
+Mỗi cơ số chỉ có các chữ số nhất định sẵn có. Base 8 sử dụng 0-7, vì vậy một `9` không thể xuất hiện trong một số octal; base 2 chỉ sử dụng 0 và 1. Thông báo đặt tên cho ký tự gây khó chịu và liệt kê những gì được phép, vì nguyên nhân thường gặp là có cơ số đầu vào sai được chọn thay vì một lỗi đánh máy trong số.
+
+## Nó có xử lý số âm không?
+
+Có. Một dấu trừ hàng đầu được bảo tồn thông qua chuyển đổi — `-FF` trong hex là `-255` trong decimal. Lưu ý đây là một dấu thuần túy, không phải two's complement: nếu bạn đang nhìn vào một biểu diễn raw 32-bit hoặc 64-bit của một số âm, mô hình bit là một giá trị dương lớn trong tool này, đó chính xác là những gì nó ở trong bộ nhớ.
+
+## Có điều gì được gửi tới máy chủ không?
+
+Không. Chuyển đổi là một vài dòng số học chạy trong tab trình duyệt này. Không có yêu cầu để thực hiện, và không có gì bạn gõ rời khỏi trang. Điều đó quan trọng hơn nó có vẻ như đối với tool này — những số mà mọi người chuyển đổi thường là IDs, keys và các định danh nội bộ.
+
+## Tại sao hex được hiển thị bằng chữ thường?
+
+Vì đó là những gì `toString(16)` tạo ra và những gì hầu hết các ngôn ngữ và định dạng tệp phát ra. Hex không phân biệt chữ hoa chữ thường, vì vậy `FF` và `ff` là cùng một giá trị; nếu bạn cần chữ hoa cho một định dạng cụ thể, thay đổi nó sau khi sao chép. Đầu vào được chấp nhận ở cả hai trường hợp.

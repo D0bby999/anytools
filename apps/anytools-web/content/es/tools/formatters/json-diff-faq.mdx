@@ -1,0 +1,39 @@
+---
+title: Comparador de JSON — Preguntas frecuentes
+---
+
+## ¿En qué se diferencia esto del verificador de diferencias de texto?
+
+Compara la estructura, no las líneas. Reformatear un archivo, cambiar la indentación, o reordenar las claves de un objeto produce **cero** diferencias aquí — todo lo cual iluminaría un diff basado en líneas. Si desea saber qué cambió en los datos en lugar de en el archivo, esta es la herramienta; para prosa o código, use el [verificador de diff](/en/text-regex/diff-checker).
+
+## ¿Son sensibles al orden las claves de objetos?
+
+No. Los objetos JSON son desordenados por definición, por lo que `{"a":1,"b":2}` y `{"b":2,"a":1}` son idénticos y se informan como tales.
+
+## ¿Son sensibles al orden los arrays?
+
+Sí. Los arrays se comparan por índice, por lo que mover un elemento cuenta como un cambio en ambas posiciones. Esa es la lectura correcta de la semántica JSON — el orden es significativo en un array — pero significa que una lista reordenada produce un diff ruidoso en lugar de una nota "movida".
+
+## ¿Qué significan los cuatro tipos de cambio?
+
+**added** — la clave existe solo a la derecha. **removed** — solo a la izquierda. **changed** — presente en ambos con diferentes valores del mismo tipo. **type-changed** — presente en ambos pero el tipo difiere, como la cadena `"5"` convirtiéndose en el número `5`. Ese último se llama aparte porque es una fuente común y fácilmente pasada por alto de errores.
+
+## ¿Cómo leo las rutas?
+
+Como un rastro de estilo JSONPath desde la raíz: `$` es el documento en sí, `$.user.email` es una clave anidada, y `$.user.emails[2].label` indexa un array. Puede pegar la ruta en la mayoría de herramientas de consulta JSON.
+
+## ¿Por qué informó un error en lugar de un diff?
+
+Porque uno de los lados no es JSON válido. La herramienta le dice qué lado falló en lugar de adivinar — las causas más comunes son comas finales, comillas simples en lugar de dobles, y claves sin comillas, ninguna de las cuales es JSON legal aunque JavaScript las acepte.
+
+## ¿Detecta una clave renombrada?
+
+No. Un cambio de nombre aparece como una eliminación y una adición, porque no hay forma confiable de distinguir un cambio de nombre de un par de cambios no relacionados sin adivinar la intención.
+
+## ¿Afecta el orden de clave o el espacio en blanco al resultado?
+
+Solo dentro de cadenas. El espacio en blanco entre tokens es insignificante para JSON y se ignora; el espacio en blanco dentro del valor de una cadena es parte de ese valor y será informado.
+
+## ¿Se cargan mis datos?
+
+No. Ambos documentos se analizan y comparan en su navegador.

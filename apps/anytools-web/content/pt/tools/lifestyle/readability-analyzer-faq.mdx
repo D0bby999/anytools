@@ -1,0 +1,39 @@
+---
+title: Analisador de legibilidade (Flesch-Kincaid) — Perguntas frequentes
+---
+
+## Quais pontuações ela reporta?
+
+Flesch Reading Ease, Flesch-Kincaid Grade Level e o índice Gunning Fog, junto com as contagens brutas em que se baseiam: palavras, frases e sílabas.
+
+## Como leio o número de Flesch Reading Ease?
+
+Mais alto é mais fácil. Funciona em uma escala onde aproximadamente 60–70 é inglês simples adequado para um público geral, números mais altos são mais simples, e pontuações abaixo de cerca de 30 indicam prosa densa e especializada. Ao contrário dos outros dois, não é um nível de série, é por isso que se move na direção oposta.
+
+## O que os scores de nível de série significam?
+
+Tanto Flesch-Kincaid quanto Gunning Fog aproximam os anos de escolaridade que um leitor precisaria. Eles discordam ligeiramente por design: Flesch-Kincaid pondera sílabas por palavra, enquanto Gunning Fog conta palavras "complexas" — aqui, qualquer palavra com três ou mais sílabas.
+
+## Como as sílabas são contadas?
+
+Por uma heurística: conta grupos de vogais e depois remove um "e" silencioso no final apenas no padrão vogal-consoante-e, portanto "make" conta como um enquanto "simple" mantém sua sílaba final. Esta é uma aproximação, não uma consulta de dicionário, portanto palavras e nomes incomuns às vezes serão contados incorretamente.
+
+## Por que minha pontuação muda tanto quando adiciono um ponto final?
+
+Porque a contagem de frases é um denominador em cada uma dessas fórmulas. Dividir uma frase longa em duas imediatamente reduz o comprimento médio da frase e melhora cada pontuação, sem alterar uma única palavra. Essa sensibilidade é a limitação honesta das métricas de legibilidade.
+
+## Posso melhorar a pontuação sem melhorar a escrita?
+
+Facilmente, e vale a pena saber. Dividir frases arbitrariamente e trocar palavras longas por curtas moverá os números enquanto deixa a prosa pior — as fórmulas contam sílabas e comprimentos, não clareza, lógica ou se o argumento faz sentido. Use-as para pegar prosa que se tornou densa, não como um alvo para otimizar.
+
+## Ela funciona em idiomas diferentes do inglês?
+
+Não. A heurística de sílabas assume padrões de vogais em inglês e todas as três fórmulas foram ajustadas ao texto em inglês. Pontuações para outros idiomas serão produzidas, mas não significarão nada.
+
+## O que conta como uma frase?
+
+Uma sequência terminada em ponto final, ponto de interrogação ou ponto de exclamação. Abreviações, decimais e elipses podem, portanto, inflar a contagem de frases, o que favorece levemente a pontuação.
+
+## Meu texto é enviado?
+
+Não. A análise funciona inteiramente no seu navegador; nada que você cola é transmitido ou armazenado.

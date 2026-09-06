@@ -1,0 +1,41 @@
+---
+title: Gerador de paleta de cores — Perguntas frequentes
+---
+
+## Quais harmonias ela gera?
+
+Cinco, cada uma uma regra diferente para se mover em torno da roda de matiz a partir de sua cor semente:
+
+- **Análoga** — cinco cores a −30°, −15°, 0°, +15° e +30°
+- **Complementar** — a semente e seu oposto em +180°
+- **Triádica** — três espaçadas uniformemente em 0°, 120°, 240°
+- **Tetrádica** — quatro em 0°, 90°, 180°, 270°
+- **Monocromática** — um matiz em cinco níveis de claridade: 20%, 35%, 50%, 65%, 80%
+
+## O que fica fixo quando o matiz muda?
+
+Saturação e claridade. Toda harmonia exceto monocromática mantém aquelas de sua semente e rotaciona apenas o matiz, e é por isso que os resultados se parecem com um conjunto em vez de cores não relacionadas. Monocromática faz o inverso: ela mantém o matiz e move claridade.
+
+## Qual harmonia devo escolher?
+
+Análoga é a segura — matizes vizinhos raramente brigam. Complementar dá separação máxima e é melhor usada parcimoniamente, geralmente uma cor de sotaque contra uma cor dominante em vez de uma divisão 50/50. Triádica e tetrádica são vívidas e difíceis de equilibrar; funcionam quando uma cor domina e as outras são usadas em pequena área. Monocromática é o cavalo de trabalho para escalas de interface.
+
+## Posso usar essas cores diretamente como cores da UI?
+
+Não sem verificar contraste. Uma harmonia é sobre relações de matiz; ela não diz nada sobre se o texto nessas cores será legível. Execute qualquer par que você planejar colocar texto em via o [verificador de contraste](/en/design/wcag-contrast-checker) antes de se comprometer.
+
+## Por que algumas cores geradas parecem mais sem brilho que a semente?
+
+Porque valores de saturação iguais não parecem igualmente saturados em toda a roda. Um amarelo e um azul na mesma saturação HSL leem muito diferentemente, já que HSL é um modelo conveniente em vez de um modelo perceptual. Espere ajustar à mão depois de gerar.
+
+## Isso é suficiente para um sistema de design completo?
+
+Não. Uma paleta funcionante também precisa de neutros, uma escala de claridade para cada cor, e designações semânticas — qual cor significa "perigo", qual é uma superfície. Isso lhe dá as relações de matiz para construir a partir, não o conjunto terminado.
+
+## Por que cinco cores para análoga mas duas para complementar?
+
+Porque é isso que cada regra significa. Complementar é um par por definição; preenchê-lo com matizes extras o faria algo diferente.
+
+## Algo é enviado para um servidor?
+
+Não. A paleta é calculada em seu navegador.

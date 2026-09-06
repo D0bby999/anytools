@@ -1,0 +1,50 @@
+---
+title: Slugs de URL — transliteración, diacríticos y SEO
+description: Cómo convertir texto arbitrario (vietnamita, alemán, francés) en un slug seguro para URL sin perder significado.
+updated: 2026-05-26
+---
+
+## Qué es un slug
+
+Un slug es la porción legible por humanos y segura para URL de una URL — `/blog/my-post-title` tiene slug `my-post-title`. Identifica el recurso y contribuye al SEO (Google lee palabras del slug). Debe ser ASCII-seguro, minúsculas por convención, y usar un separador que los navegadores no mantendrán (`-` gana).
+
+La transformación de texto arbitrario a slug implica tres pasos:
+
+1. **Transliterar** caracteres no-ASCII a equivalentes ASCII (`café` → `cafe`, `Tiếng Việt` → `tieng-viet`, `Schöner Tag` → `schoner-tag`).
+2. **Normalizar** espacios en blanco y puntuación a tu separador elegido.
+3. **Minúsculas** (casi universalmente — los motores de búsqueda de todas formas pliegan mayúsculas/minúsculas en URL).
+
+Esta herramienta maneja los tres. Elige la configuración regional correcta para el texto de entrada para que la transliteración use las reglas correctas — vietnamita `ư` es `u`, no `w`; alemán `ü` es tradicionalmente `ue` pero `u` es más común en URL modernas.
+
+## Por qué guión sobre subrayado
+
+Google indexa guiones como separadores de palabras (`my-blog-post` = tres palabras) pero guiones bajos como unidos (`my_blog_post` = una palabra). Para SEO, **siempre usa guión** en slugs de URL. Los guiones bajos están bien para nombres de archivo o identificadores, no URL.
+
+## Diacríticos: eliminar o transliterar
+
+Dos escuelas de pensamiento:
+
+- **Eliminar**: `Café` → `caf`. Pierde la `é` completamente. Incorrecto — suelta una letra.
+- **Transliterar**: `Café` → `cafe`. Mantiene la letra, suelta el diacrítico. Correcto.
+
+Esta herramienta translittera. Para vietnamita, el mapa específico de la configuración regional convierte `đ` → `d` (la biblioteca `slugify` estándar maneja el resto de diacríticos vietnamitas vía normalización NFD).
+
+## Longitud y SEO
+
+La mayoría de orientación SEO aterrizó en **3–5 palabras** para el slug (~30–60 caracteres). Los slugs más largos no se penalizan pero son más feos en comparticiones sociales. No rellenes con palabras de parada ("the", "a", "an") — agregan longitud sin significado.
+
+## Casos de uso
+
+- Generar rutas de URL para contenido impulsado por CMS
+- Construir nombres de archivo a partir de títulos humanos
+- Crear IDs amigables con el usuario a partir de entrada arbitraria
+- Generar slugs en masa para un lote de importación (usa la pestaña Bulk)
+
+## Privacidad
+
+Todo procesamiento en tu navegador vía [`slugify`](https://github.com/simov/slugify). Sin solicitudes de red.
+
+## Relacionadas
+
+- **Conversor de mayúsculas y minúsculas** — cambia a minúsculas antes de slugificar, o invierte el orden.
+- **Codificador de URL** — para parámetros de consulta y composición de URL completa.

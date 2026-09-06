@@ -1,0 +1,39 @@
+---
+title: Phân Tích User Agent — Câu hỏi thường gặp
+---
+
+## Tại sao mọi trình duyệt đều tuyên bố là Mozilla?
+
+Lịch sử. Trong những năm 1990, các máy chủ kiểm tra "Mozilla" trước khi phục vụ khung, vì vậy mọi trình duyệt cạnh tranh đều thêm nó để có được phiên bản tốt của trang. Cùng một mô hình lặp lại: Chrome thêm "Safari" vì các trang đang ngửi WebKit, Edge thêm "Chrome" vì các trang đang ngửi Chrome. Không có gì bao giờ được loại bỏ, vì loại bỏ nó phá vỡ bất cứ điều gì vẫn đang kiểm tra.
+
+Kết quả là một Chrome UA hiện đại tuyên bố là Mozilla, KHTML, Gecko và Safari cùng một lúc. Đó là các lớp của hư cấu tương thích, và đọc nó đòi hỏi biết thứ tự các tuyên bố được thêm vào.
+
+## Vì vậy, trình phân tích cú pháp phân biệt Edge từ Chrome như thế nào?
+
+Bằng cách kiểm tra cụ thể nhất trước tiên. Chuỗi của Edge chứa chuỗi Chrome hoàn chỉnh cộng với `Edg/124`, vì vậy một trình phân tích kiểm tra Chrome trước Edge báo cáo Chrome cho mỗi người dùng Edge — và nó sẽ trông đúng trong thử nghiệm, vì người dùng Chrome nhận được câu trả lời đúng. Các bảng phát hiện ở đây được sắp xếp cố ý: Edge, Opera, Samsung Internet, Vivaldi và Brave đều được kiểm tra trước Chrome, và Chrome trước Safari.
+
+Vấn đề tương tự xuất hiện trong các hệ điều hành. iPadOS 13 trở lên báo cáo "Macintosh", vì vậy iPad phải được kiểm tra trước macOS hoặc mỗi iPad được báo cáo như một Mac.
+
+## Tại sao nó nói "Windows 10 hoặc 11" thay vì chọn một?
+
+Vì chuỗi không nói. Windows 11 vẫn báo cáo `Windows NT 10.0` — Microsoft không tăng nó. Bất kỳ công cụ nào tự tin cho bạn biết "Windows 11" từ chuỗi UA một mình là đoán, thường từ gợi ý không liên quan phá vỡ. Nói lên là hữu ích hơn hơn là tự tin sai.
+
+Phân biệt chúng yêu cầu Client Hints (`Sec-CH-UA-Platform-Version`), cái là một cơ chế khác mà trình duyệt gửi riêng biệt.
+
+## Tôi có thể tin cậy cái này để kiểm soát truy cập hoặc cấp phép không?
+
+Không. User-Agent là một chuỗi mà máy khách chọn gửi, và bất kỳ ai cũng có thể gửi bất cứ điều gì — thay đổi nó chỉ mất một dòng mã hoặc một cài đặt trình duyệt. Coi kết quả là một gợi ý cho các vé hỗ trợ và phân tích đại khái.
+
+Nếu bạn cần biết liệu một khả năng tồn tại, hãy phát hiện tính năng nó trong JavaScript thay vào đó. Cái đó trả lời câu hỏi thực tế và không thể bị làm giả, vì nó kiểm tra thứ chính nó thay vì một tuyên bố về nó.
+
+## Tại sao trường được điền sẵn?
+
+Với User-Agent của trình duyệt riêng của bạn, vì đó là chuỗi hầu hết mọi người đến muốn thấy — kiểm tra những gì một trang nhìn thấy khi bạn truy cập, hoặc nắm lấy UA của bạn để dán vào một báo cáo lỗi. Thay thế nó bằng bất kỳ chuỗi nào khác để phân tích cái đó thay vào đó.
+
+## User-Agent của tôi có được gửi đến máy chủ không?
+
+Không. Phân tích cú pháp là so khớp regex trong tab này; không có gì được truyền. Trình duyệt của bạn tất nhiên gửi User-Agent thực của nó đến mọi trang bạn truy cập, bao gồm cái này, như một phần của HTTP thông thường — nhưng trang này không ghi lại, lưu trữ hoặc chuyển tiếp nó.
+
+## Tại sao không sử dụng một thư viện phân tích có sẵn?
+
+Nó sẽ xung quanh 20 KB cho một tool, và phần khó là không phải mã. Phân tích UA là một bảng các mô hình trong thứ tự đúng, cộng với biết những tuyên bố tương thích nào mà mỗi trình duyệt thực hiện. Bảng ở đây trong nguồn, đã có chú thích, vì vậy khi một trình duyệt mới xuất hiện sửa chữa là một dòng thay vì chờ một bản phát hành.

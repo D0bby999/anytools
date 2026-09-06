@@ -1,0 +1,33 @@
+---
+title: Analizador de URL — Preguntas frecuentes
+---
+
+## ¿En qué divide una URL?
+
+Protocolo, nombre de usuario y contraseña si están presentes, nombre de host, puerto, origen, ruta, cadena de consulta y fragmento — además la ruta dividida en segmentos individuales y la consulta dividida en pares clave/valor. Es la forma más rápida de ver qué hay realmente en una URL larga sin contar barras y ampersands a ojo.
+
+## ¿Por qué mantiene las claves de consulta repetidas separadas?
+
+Porque `?tag=a&tag=b` es legal, común y significativo. Los marcos lo leen como una lista. Un analizador que almacena parámetros en un objeto simple silenciosamente mantiene solo uno de ellos, generalmente el último, y esa discrepancia es exactamente el tipo de cosa para la cual usas un analizador. Aquí cada par es su propia fila, en el orden en que apareció.
+
+## Escribí una URL sin https:// y aún funcionó. ¿Es eso seguro?
+
+Solo adivina `https://` cuando la entrada no tiene esquema en absoluto. Si escribes algo que *parece* que tiene un esquema — `htp://example.com`, digamos — reporta el error en lugar de adivinar, porque silenciosamente corregir un error de escritura en un esquema oculta el error que viniste aquí a encontrar.
+
+## ¿De dónde viene el puerto cuando no escribí uno?
+
+Ambos se muestran. El valor `puerto` es lo que tu URL literalmente contiene, que a menudo está vacío; el puerto efectivo es el predeterminado para el protocolo — 443 para https, 80 para http, 21 para ftp. Mantenerlos separados importa cuando estás comparando una URL contra algo que hace coincidencia exacta de cadena, donde `https://example.com` y `https://example.com:443` son cadenas diferentes para el mismo destino.
+
+## ¿Se decodifican los segmentos de ruta?
+
+Sí. `/hello%20world/caf%C3%A9` se muestra como `hello world` y `café`, porque eso es lo que significa el segmento. Si un segmento contiene un signo de porcentaje errante que no es un escape válido — `/100%` — se muestra como se escribió en lugar de causar un error.
+
+Los valores de parámetros de consulta se decodifican de la misma manera, por el propio analizador de URL del navegador.
+
+## ¿Se envía mi URL a algún lugar?
+
+No. El análisis sucede en esta pestaña del navegador usando la clase `URL` de la plataforma — la misma implementación conforme que el navegador usa para cada enlace en cada página. Nada se transmite. Las URL con frecuencia llevan tokens de sesión, parámetros firmados y nombres de host internos, que es una buena razón para que un analizador no sea un servicio de red.
+
+## ¿Por qué usar el analizador incorporado en lugar de una expresión regular?
+
+Porque la sintaxis de URL es mucho más extraña de lo que parece, y el navegador ya contiene un analizador que sigue el estándar WHATWG exactamente. Una regex escrita a mano no está de acuerdo en los bordes — en hosts IPv6, en dominios internacionalizados, en segmentos de ruta vacíos — y luego tienes una herramienta que te dice algo diferente de lo que tu código hará.

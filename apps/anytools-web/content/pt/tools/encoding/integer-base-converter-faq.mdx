@@ -1,0 +1,33 @@
+---
+title: Conversor de Base — Perguntas frequentes
+---
+
+## Quais bases ela consegue lidar?
+
+Qualquer coisa de 2 a 36. Binário, octal, decimal e hex são mostrados juntos em cada conversão porque aqueles são os quatro que as pessoas realmente se movem; a última linha leva qualquer base que você digita. O teto é 36 porque é quantos caracteres distintos o alfabeto de dígitos padrão tem — 0-9 seguido de a-z. Não há convenção acordada acima disso.
+
+## Por que acerta números grandes quando outros conversores não acertam?
+
+Porque ela analisa um inteiro de precisão arbitrária em vez de um número JavaScript. O `Number` do JavaScript é um float de 64-bit, exato apenas até 2^53 — então `parseInt('9007199254740993')` retorna 9007199254740992. Essa é uma resposta errada sem nenhum erro anexado, que para uma ferramenta cuja único propósito é exatidão é a pior falha possível. Hashes, IDs de banco de dados e flags de 64-bit rotineiramente excedem esse intervalo.
+
+Tente `9007199254740993` em decimal: você deve obter `20000000000001` em hex, e voltar novamente inalterado.
+
+## Posso colar prefixos 0x, 0b ou 0o?
+
+Sim, e underscores também — `0xFF`, `0b1010`, `0o17` e `1_000_000` todos funcionam. O prefixo só é removido quando corresponde à base que você selecionou, o que importa mais do que parece: `0b1010` lido como hexadecimal é um número hex perfeitamente bom (0xb1010), não um binário prefixado. Removê-lo independentemente mudaria silenciosamente seu valor.
+
+## O que significa o erro "not a valid digit in base 8"?
+
+Cada base tem apenas certos dígitos disponíveis. Base 8 usa 0-7, portanto um `9` não pode aparecer em um número octal; base 2 usa apenas 0 e 1. A mensagem nomeia o caractere ofensivo e lista o que é permitido, porque a causa habitual é ter a base de entrada errada selecionada em vez de um erro de digitação no número.
+
+## Ela lida com números negativos?
+
+Sim. Um menos inicial é preservado através da conversão — `-FF` em hex é `-255` em decimal. Note que isso é um sinal simples, não complemento de dois: se você está olhando para uma representação bruta de 32-bit ou 64-bit de um número negativo, o padrão de bit é um grande valor positivo nesta ferramenta, que é exatamente o que é na memória.
+
+## Algo é enviado para um servidor?
+
+Não. A conversão é algumas linhas de aritmética executando nesta aba do navegador. Não há solicitação a fazer, e nada que você digita deixa a página. Isso importa mais do que pode parecer para esta ferramenta — os números que as pessoas convertem geralmente são IDs, chaves e identificadores internos.
+
+## Por que hex é mostrado em minúsculas?
+
+Porque é o que `toString(16)` produz e o que a maioria das linguagens e formatos de arquivo emitem. Hex é case-insensitive, portanto `FF` e `ff` são o mesmo valor; se você precisa de maiúsculas para um formato particular, mude depois de copiar. A entrada é aceita em qualquer caso.

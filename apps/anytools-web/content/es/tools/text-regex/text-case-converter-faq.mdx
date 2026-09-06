@@ -1,0 +1,23 @@
+---
+title: Conversor de mayúsculas y minúsculas — Preguntas frecuentes
+---
+
+## ¿camelCase vs PascalCase?
+
+Mismos límites de palabra, carácter inicial diferente. `helloWorld` es camelCase (primera minúscula), `HelloWorld` es PascalCase (primera mayúscula). Convención de JavaScript/Java: camelCase para variables, PascalCase para clases/tipos.
+
+## ¿Por qué CSS usa kebab-case?
+
+Porque `_` y otros caracteres tenían significados específicos en CSS temprano, y `-` ya se usaba como carácter de sintaxis. CSS moderno todavía usa kebab-case para nombres de clase y propiedades (`background-color`, no `backgroundColor`).
+
+## ¿Convención de nombre de variable de entorno?
+
+`CONSTANT_CASE` (mayúsculas con guiones bajos). Universal en shells, lenguajes de programación, tiempos de ejecución de contenedores. `DATABASE_URL`, `API_KEY`, `NODE_ENV`.
+
+## Manejo de acrónimos — Url o URL?
+
+Estilo moderno: `Url` (trata acrónimo como una palabra normal). Estilo antiguo: `URL` (preserva todo mayúsculas). La stdlib de JavaScript mayormente usa `Url` (XMLHttpRequest es la excepción famosa — y puedes ver por qué la gente se arrepiente). Elige uno y aplícalo consistentemente.
+
+## ¿Se envía mi texto a algún lugar?
+
+No — toda conversión se ejecuta en tu navegador usando la biblioteca de código abierto [`change-case`](https://github.com/blakeembrey/change-case). La pestaña de red mostrará cero solicitudes.
