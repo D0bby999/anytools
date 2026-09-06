@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* Dark mode follows the `.dark` class, not the OS setting.
+ *
+ * Tailwind v4's stock `dark:` variant is `@media (prefers-color-scheme: dark)`,
+ * but the theme here is class-driven (next-themes, attribute="class",
+ * defaultTheme="light"). The two disagreed for the most common visitor there is:
+ * a dark-OS machine on the default light theme. CSS variables — cards, page
+ * background, text — came out light because no `.dark` class was on <html>,
+ * while every `dark:` utility fired anyway from the media query. On the homepage
+ * that rendered each cluster badge as `text-{hue}-300` (a pastel meant for a
+ * slate-800 card) sitting on a white card: about 1.6:1, effectively invisible.
+ * Binding the variant to the class makes the utilities and the variables agree
+ * in every combination, including an explicit Dark pick on a light OS, which
+ * previously got dark cards with light-mode utility colours. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Scan this package's own components. Tailwind v4 auto-detects sources from the
  * importing app, which in a workspace stops at the app boundary — so any utility
  * used ONLY inside packages/ui was silently dropped from the generated CSS. It

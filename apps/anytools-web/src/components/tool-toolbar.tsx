@@ -1,5 +1,6 @@
 'use client';
 import { useFavoriteTools } from '@/hooks/use-favorite-tools';
+import { clusterBadgeClass } from '@/lib/cluster-badge-colors';
 import { Badge, Button } from '@anytools/ui';
 import { BookOpen, Check, Copy, HelpCircle, Link2, Share2, Star, Wrench } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -55,7 +56,14 @@ export function ToolToolbar({ slug, cluster, hasTutorial, hasFaq }: Props) {
       <div className="flex items-center justify-between gap-3">
         {/* Left: cluster badge + jump links */}
         <div className="flex items-center gap-2 overflow-x-auto">
-          <Badge variant="secondary" className="text-[11px] uppercase tracking-wide shrink-0">
+          {/* Same cluster colours as the catalogue cards. It was a flat grey
+              `secondary` badge, which read as chrome rather than as the cluster
+              the page belongs to, and disagreed with the coloured chip the user
+              had just clicked on the homepage. */}
+          <Badge
+            variant="secondary"
+            className={`text-[11px] uppercase tracking-wide shrink-0 ${clusterBadgeClass(cluster)}`}
+          >
             {cluster}
           </Badge>
           <button
