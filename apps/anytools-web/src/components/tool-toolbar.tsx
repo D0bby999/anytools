@@ -60,10 +60,7 @@ export function ToolToolbar({ slug, cluster, hasTutorial, hasFaq }: Props) {
               `secondary` badge, which read as chrome rather than as the cluster
               the page belongs to, and disagreed with the coloured chip the user
               had just clicked on the homepage. */}
-          <Badge
-            variant="secondary"
-            className={`text-[11px] uppercase tracking-wide shrink-0 ${clusterBadgeClass(cluster)}`}
-          >
+          <Badge variant="secondary" className={`shrink-0 ${clusterBadgeClass(cluster)}`}>
             {cluster}
           </Badge>
           <button
