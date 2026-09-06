@@ -1,11 +1,16 @@
 /**
  * Parse X.509 certificates (PEM or DER) with `@peculiar/x509` — imported dynamically, and only
  * for its exported classes; the ASN.1 walk itself is entirely the library's, per the phase
- * brief ("đừng tự viết parser ASN.1"). See `./reflect-metadata-stub.ts` for why importing that
- * library needs a small polyfill first.
+ * brief ("đừng tự viết parser ASN.1").
+ *
+ * `@peculiar/x509` pulls in `tsyringe`, which throws at import time ("tsyringe requires a
+ * reflect polyfill") unless `Reflect.getMetadata` already exists. `reflect-metadata` is only a
+ * devDependency of tsyringe, so nothing installs it transitively — it is a direct dependency
+ * here, imported for its side effect immediately before the library loads. An earlier revision
+ * hand-wrote a stand-in for the two calls tsyringe makes; that shimmed another package's
+ * internals and would have broken silently the day tsyringe reached for a third.
  */
 import { ToolError } from '../shared/tool-error';
-import { ensureReflectMetadataStub } from './reflect-metadata-stub';
 
 export type X509SanEntry = { type: string; value: string };
 export type X509PublicKeyInfo = { algorithm: string; keySize?: number; curve?: string };
@@ -93,7 +98,7 @@ function describeSignatureAlgorithm(algorithm: { name: string; hash?: { name: st
 }
 
 async function parseOneCertificate(raw: string | ArrayBuffer): Promise<X509ParsedCert> {
-  ensureReflectMetadataStub();
+  await import('reflect-metadata');
   const {
     X509Certificate,
     KeyUsagesExtension,
