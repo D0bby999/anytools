@@ -152,6 +152,7 @@ const LOADERS: Record<string, ComponentType> = {
   'rsa-keypair-generator': dynamic(() =>
     import('@anytools/tools/rsa-keypair-generator').then(pick),
   ),
+  'hmac-generator': dynamic(() => import('@anytools/tools/hmac-generator').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
