@@ -7,6 +7,7 @@
 import { meta as addPageNumbers } from './add-page-numbers/meta';
 import { meta as aesTextEncrypt } from './aes-text-encrypt/meta';
 import { meta as ageCalculator } from './age-calculator/meta';
+import { meta as audioTrim } from './audio-trim/meta';
 import { meta as barcodeGenerator } from './barcode-generator/meta';
 import { meta as base64Encode } from './base64-encode/meta';
 import { meta as bcryptGenerator } from './bcrypt-generator/meta';
@@ -284,6 +285,7 @@ export const toolMetas: ToolMeta[] = [
   // Phase 8 (batch-ab, 260906) — media tools with third-party deps (vtracer, harfbuzzjs,
   // wavesurfer.js, three); image-to-svg dropped, see phase-08 file for why
   fontConverter,
+  audioTrim,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {

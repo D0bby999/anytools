@@ -134,7 +134,8 @@
     "./jwt-sign-verify": "./src/jwt-sign-verify/index.ts",
     "./x509-certificate-decoder": "./src/x509-certificate-decoder/index.ts",
     "./bip39-mnemonic": "./src/bip39-mnemonic/index.ts",
-    "./font-converter": "./src/font-converter/index.ts"
+    "./font-converter": "./src/font-converter/index.ts",
+    "./audio-trim": "./src/audio-trim/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

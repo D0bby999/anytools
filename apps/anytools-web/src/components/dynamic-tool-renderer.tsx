@@ -191,6 +191,9 @@ const LOADERS: Record<string, ComponentType> = {
   // font-converter: harfbuzzjs is imported inside the run path only, no window access at
   // import time, so no ssr:false needed.
   'font-converter': dynamic(() => import('@anytools/tools/font-converter').then(pick)),
+  // audio-trim: wavesurfer.js is dynamically imported inside an effect; the module itself
+  // touches no browser global at import time.
+  'audio-trim': dynamic(() => import('@anytools/tools/audio-trim').then(pick)),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {
