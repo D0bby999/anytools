@@ -10,14 +10,20 @@ import { buildRouteInventory } from './route-inventory.mjs';
 describe('buildRouteInventory', () => {
   const inventory = buildRouteInventory();
 
-  it('finds all 107 published tool meta files', () => {
-    expect(inventory.counts.toolMetaFiles).toBe(107);
+  // These assertions are deliberately arithmetic rather than literal counts. Every phase that
+  // ships a tool moves 107/413/513, so hardcoding them turned this file into a merge conflict
+  // on every branch and, worse, into a number people bumped without reading. What actually
+  // needs guarding is that the parts still add up — a tool that lands in the registry but not
+  // in the route list, or a locale gate that silently stops applying, breaks the arithmetic.
+  it('counts one meta file per published tool, and never fewer than the 107 that shipped by 2026-09-06', () => {
+    expect(inventory.counts.toolMetaFiles).toBeGreaterThanOrEqual(107);
   });
 
-  it("counts the 5 tools restricted to English only (availableLocales: ['en'])", () => {
+  it("counts the tools restricted to English only (availableLocales: ['en'])", () => {
     // 2026-09-05: widgets are localized, so the 30 tools that were gated to English while
     // their widget was English-only now serve in every locale (noindex until a body lands,
-    // see has-localized-tool-body.ts). Only the five with English-only meta keep the gate.
+    // see has-localized-tool-body.ts). Only the five with English-only meta keep the gate,
+    // and tools added since then ship all four locales.
     expect(inventory.counts.localeRestrictedTools).toBe(5);
   });
 
@@ -26,21 +32,30 @@ describe('buildRouteInventory', () => {
     expect(inventory.counts.guideSlugs).toBe(7);
   });
 
-  it('computes 413 tool routes: 107 English + 102 each for vi/es/pt', () => {
-    // 107 tools all ship English; 5 of them stop there, so the other 3 locales
-    // get 107 - 5 = 102 tool routes each. 107 + 102*3 = 413.
-    expect(inventory.counts.toolPages).toBe(413);
+  it('computes tool routes as English for every tool plus vi/es/pt for the unrestricted ones', () => {
+    const { toolMetaFiles, localeRestrictedTools, toolPages } = inventory.counts;
+    const unrestricted = toolMetaFiles - localeRestrictedTools;
+    expect(toolPages).toBe(toolMetaFiles + unrestricted * (inventory.locales.length - 1));
   });
 
-  it('adds up to 513 expect200 routes (4 home + 52 cluster + 413 tool + 4 guide index + 28 guide slug + 8 locale utility + 4 single-asset)', () => {
-    expect(inventory.counts.home).toBe(4);
-    expect(inventory.counts.clusterPages).toBe(52);
-    expect(inventory.counts.guideIndexPages).toBe(4);
-    expect(inventory.counts.guideSlugPages).toBe(28);
-    expect(inventory.counts.localeUtilityPages).toBe(8);
-    expect(inventory.counts.singleAssetPages).toBe(4);
-    expect(inventory.counts.total200).toBe(513);
-    expect(inventory.expect200).toHaveLength(513);
+  it('adds up: total200 is the sum of every route family, and matches the emitted list', () => {
+    const c = inventory.counts;
+    expect(c.home).toBe(inventory.locales.length);
+    expect(c.clusterPages).toBe(inventory.locales.length * c.clusters);
+    expect(c.guideIndexPages).toBe(inventory.locales.length);
+    expect(c.guideSlugPages).toBe(inventory.locales.length * c.guideSlugs);
+    expect(c.localeUtilityPages).toBe(8);
+    expect(c.singleAssetPages).toBe(4);
+    expect(c.total200).toBe(
+      c.home +
+        c.clusterPages +
+        c.toolPages +
+        c.guideIndexPages +
+        c.guideSlugPages +
+        c.localeUtilityPages +
+        c.singleAssetPages,
+    );
+    expect(inventory.expect200).toHaveLength(c.total200);
   });
 
   it('serves the service worker offline fallback and favorites in every locale', () => {
@@ -88,9 +103,22 @@ describe('buildRouteInventory', () => {
     }
   });
 
-  it('the /en/pdf/ slice is exactly 10 routes (10 PDF tools)', () => {
-    const enPdf = inventory.expect200.filter((r) => r.path.startsWith('/en/pdf/'));
-    expect(enPdf).toHaveLength(10);
+  it('every PDF tool served in English is also served in vi/es/pt, except the gated one', () => {
+    const enPdf = inventory.expect200
+      .filter((r) => r.method === 'GET' && r.path.startsWith('/en/pdf/'))
+      .map((r) => r.path.slice('/en/pdf/'.length));
+    expect(new Set(enPdf).size).toBe(enPdf.length);
+    expect(enPdf.length).toBeGreaterThanOrEqual(10);
+    // pdf-to-png is one of the five availableLocales: ['en'] tools; everything else in the
+    // cluster must reach all four locales, or the locale gate has started leaking.
+    const gated = ['pdf-to-png'];
+    for (const slug of enPdf) {
+      for (const l of ['vi', 'es', 'pt']) {
+        const route = { path: `/${l}/pdf/${slug}`, method: 'GET' };
+        if (gated.includes(slug)) expect(inventory.expect200).not.toContainEqual(route);
+        else expect(inventory.expect200).toContainEqual(route);
+      }
+    }
   });
 
   it('includes the 4 single-asset surfaces with no locale prefix', () => {
