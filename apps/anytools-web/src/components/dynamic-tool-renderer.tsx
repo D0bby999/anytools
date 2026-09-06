@@ -156,6 +156,19 @@ const LOADERS: Record<string, ComponentType> = {
   // OSS tool batch A/B, phase 2 (260906)
   'unicode-cleaner': dynamic(() => import('@anytools/tools/unicode-cleaner').then(pick)),
   'token-counter': dynamic(() => import('@anytools/tools/token-counter').then(pick)),
+  // Design + time-date + image, 0-dependency batch (260906).
+  'cubic-bezier-generator': dynamic(() =>
+    import('@anytools/tools/cubic-bezier-generator').then(pick),
+  ),
+  'color-blindness-simulator': dynamic(() =>
+    import('@anytools/tools/color-blindness-simulator').then(pick),
+  ),
+  'discord-timestamp-generator': dynamic(() =>
+    import('@anytools/tools/discord-timestamp-generator').then(pick),
+  ),
+  'youtube-thumbnail-grabber': dynamic(() =>
+    import('@anytools/tools/youtube-thumbnail-grabber').then(pick),
+  ),
 };
 
 export function DynamicToolRenderer({ slug }: { slug: string }) {

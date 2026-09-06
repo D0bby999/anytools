@@ -18,6 +18,7 @@ import { meta as boxShadowGenerator } from './box-shadow-generator/meta';
 import { meta as calorieCalculator } from './calorie-calculator/meta';
 import { meta as chmodCalculator } from './chmod-calculator/meta';
 import { meta as clipPathGenerator } from './clip-path-generator/meta';
+import { meta as colorBlindnessSimulator } from './color-blindness-simulator/meta';
 import { meta as colorConverter } from './color-converter/meta';
 import { meta as colorPalette } from './color-palette/meta';
 import { meta as compoundInterest } from './compound-interest/meta';
@@ -29,10 +30,12 @@ import { meta as cropImage } from './crop-image/meta';
 import { meta as cssBeautifier } from './css-beautifier/meta';
 import { meta as cssGradientGenerator } from './css-gradient-generator/meta';
 import { meta as csvJson } from './csv-json/meta';
+import { meta as cubicBezierGenerator } from './cubic-bezier-generator/meta';
 import { meta as curlConverter } from './curl-converter/meta';
 import { meta as currencyConverter } from './currency-converter/meta';
 import { meta as dateDiff } from './date-diff/meta';
 import { meta as diffChecker } from './diff-checker/meta';
+import { meta as discordTimestampGenerator } from './discord-timestamp-generator/meta';
 import { meta as discountCalculator } from './discount-calculator/meta';
 import { meta as docxToMarkdown } from './docx-to-markdown/meta';
 import { meta as ethWeiConverter } from './eth-wei-converter/meta';
@@ -117,6 +120,7 @@ import { meta as wordCounter } from './word-counter/meta';
 import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
 import { meta as yamlFormatter } from './yaml-formatter/meta';
+import { meta as youtubeThumbnailGrabber } from './youtube-thumbnail-grabber/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
@@ -244,6 +248,11 @@ export const toolMetas: ToolMeta[] = [
   // OSS tool batch A/B, phase 2 (260906)
   unicodeCleaner,
   tokenCounter,
+  // Design + time-date + image, 0-dependency batch (260906)
+  cubicBezierGenerator,
+  colorBlindnessSimulator,
+  discordTimestampGenerator,
+  youtubeThumbnailGrabber,
 ];
 
 export function getToolMeta(cluster: string, slug: string): ToolMeta | undefined {
