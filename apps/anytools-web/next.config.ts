@@ -147,6 +147,17 @@ const nextConfig: NextConfig = {
           // blob: is what the PDF and image tools use for their output; worker-src is
           // what pdf.js needs for pdf.worker.
           "worker-src 'self' blob:",
+          // No blob: here, and no media-src at all (so media falls back to default-src 'self').
+          // Measured 2026-09-07 while building audio-trim: that combination blocks BOTH
+          // fetch(blobUrl) and <audio src="blob:...">, which is how most audio libraries load a
+          // local file — wavesurfer.js's loadBlob() does exactly that and fails silently except
+          // for a securitypolicyviolation event. The fix there was to stop round-tripping through
+          // a blob URL (decode the bytes with AudioContext.decodeAudioData directly), which is
+          // better code anyway, so nothing here was loosened. A future audio/video tool will hit
+          // the same wall: decode from bytes, or argue for media-src — do not quietly add blob:
+          // to connect-src. Note <img src="blob:"> and workers are already allowed above, and a
+          // MediaStream attached via srcObject (qr-barcode-scanner's camera) is not URL-governed
+          // at all, so neither is affected.
           `connect-src 'self'${adHostSuffix(AD_ANALYTICS_CONNECT_HOSTS)}`,
           `frame-src 'self'${adHostSuffix(AD_ANALYTICS_FRAME_HOSTS)}`,
           "font-src 'self' data:",
