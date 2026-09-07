@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./styles": "./src/styles/globals.css",
@@ -12,6 +14,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "build": "echo 'no build step (consumed by Next transpilePackages)'"
   },
   "dependencies": {
@@ -34,11 +37,16 @@
   },
   "devDependencies": {
     "@anytools/config": "workspace:*",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.7",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
+    "happy-dom": "16.5.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "tailwindcss": "^4.0.6",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
   }
 }
