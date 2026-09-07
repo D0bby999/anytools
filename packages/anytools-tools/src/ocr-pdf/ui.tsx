@@ -1,13 +1,18 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  CheckboxField,
   CopyButton,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -124,11 +129,9 @@ export function OcrPdfUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -139,159 +142,148 @@ export function OcrPdfUi() {
           multiple={false}
           label={s.dropLabel}
         />
-
-        <div className="flex flex-wrap items-end gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">{s.language}</span>
-            <select
-              value={lang}
-              onChange={(e) => {
-                setLang(e.target.value as OcrLanguage);
-                reset();
-              }}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {OCR_LANGUAGES.map((l) => (
-                <option key={l} value={l}>
-                  {langLabel[l] ?? OCR_LANGUAGE_LABELS[l]}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">
-              {pagesBefore}
-              <code>1-3, 7</code>
-              {pagesAfter}
-            </span>
-            <input
-              type="text"
-              value={range}
-              onChange={(e) => setRange(e.target.value)}
-              placeholder="1-3, 7"
-              className="h-10 w-40 rounded-md border border-input bg-background px-3 text-sm"
-            />
-          </label>
-        </div>
-
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={searchable}
-            onChange={(e) => {
-              setSearchable(e.target.checked);
-              reset();
-            }}
-            className="mt-1"
-          />
-          <span>
-            {s.searchable}
-            <span className="block text-xs text-muted-foreground">{s.searchableNote}</span>
-          </span>
-        </label>
-
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={run}
-            disabled={!file || busy}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-          >
-            {busy ? s.reading : s.recognize}
-          </button>
-          {busy && (
-            <button
-              type="button"
-              onClick={stop}
-              disabled={stopping}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
-            >
-              {stopping ? s.stopping : ui.stop}
-            </button>
-          )}
-        </div>
-
-        {stopping && <p className="text-sm text-muted-foreground">{s.stoppingNote}</p>}
-
-        {progress && !stopping && (
-          <p className="text-sm text-muted-foreground">
-            {s.progressLine
-              .replace('{stage}', stageLabel[progress.stage.status] ?? s.stage_working)
-              .replace('{page}', String(progress.pageNumber))
-              .replace('{done}', String(progress.done))
-              .replace('{total}', String(progress.total))
-              .replace('{pct}', String(Math.round((progress.stage.progress ?? 0) * 100)))}
-          </p>
-        )}
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {(result.pages.length === 1 ? s.readSummaryOne : s.readSummaryMany)
-                .replace('{n}', String(result.pages.length))
-                .replace('{conf}', result.confidence.toFixed(0))}
-            </p>
-
-            {result.skipped > 0 && (
-              <p className="text-sm text-muted-foreground">
-                {(result.skipped === 1 ? s.skippedOne : s.skippedMany).replace(
-                  '{n}',
-                  String(result.skipped),
-                )}
-              </p>
-            )}
-
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              spellCheck={false}
-              rows={14}
-              aria-label={s.recognisedText}
-              className="w-full rounded-md border border-input bg-background p-3 font-mono text-sm"
-            />
-
-            <div className="flex flex-wrap gap-2">
-              <CopyButton text={text} size="default" />
-              <button
-                type="button"
-                onClick={downloadText}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
+      }
+      result={
+        <>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="ocr-lang">{s.language}</Label>
+              <Select
+                value={lang}
+                onValueChange={(v) => {
+                  setLang(v as OcrLanguage);
+                  reset();
+                }}
               >
-                {s.downloadTxt}
-              </button>
-              {pdfUrl && file && (
-                <a
-                  href={pdfUrl}
-                  download={outputName(file.name, 'searchable', 'pdf')}
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-                >
-                  {s.downloadSearchable}
-                </a>
-              )}
+                <SelectTrigger id="ocr-lang" className="min-w-44">
+                  <SelectValue>{langLabel[lang] ?? OCR_LANGUAGE_LABELS[lang]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {OCR_LANGUAGES.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {langLabel[l] ?? OCR_LANGUAGE_LABELS[l]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <ul className="space-y-1 text-xs text-muted-foreground">
-              {result.pages.map((p) => (
-                <li key={p.pageNumber}>
-                  {s.pageLine
-                    .replace('{n}', String(p.pageNumber))
-                    .replace('{words}', String(p.words))
-                    .replace('{conf}', p.confidence.toFixed(0))}
-                </li>
-              ))}
-            </ul>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-muted-foreground">
+                {pagesBefore}
+                <code>1-3, 7</code>
+                {pagesAfter}
+              </span>
+              <input
+                type="text"
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                placeholder="1-3, 7"
+                className="h-10 w-40 rounded-md border border-input bg-background px-3 text-sm"
+              />
+            </label>
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <CheckboxField
+            label={s.searchable}
+            description={s.searchableNote}
+            checked={searchable}
+            onCheckedChange={(v) => {
+              setSearchable(v === true);
+              reset();
+            }}
+          />
+
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={run} disabled={!file || busy}>
+              {busy ? s.reading : s.recognize}
+            </Button>
+            {busy && (
+              <button
+                type="button"
+                onClick={stop}
+                disabled={stopping}
+                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
+              >
+                {stopping ? s.stopping : ui.stop}
+              </button>
+            )}
+          </div>
+
+          {stopping && <p className="text-sm text-muted-foreground">{s.stoppingNote}</p>}
+
+          {progress && !stopping && (
+            <p className="text-sm text-muted-foreground">
+              {s.progressLine
+                .replace('{stage}', stageLabel[progress.stage.status] ?? s.stage_working)
+                .replace('{page}', String(progress.pageNumber))
+                .replace('{done}', String(progress.done))
+                .replace('{total}', String(progress.total))
+                .replace('{pct}', String(Math.round((progress.stage.progress ?? 0) * 100)))}
+            </p>
+          )}
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {(result.pages.length === 1 ? s.readSummaryOne : s.readSummaryMany)
+                  .replace('{n}', String(result.pages.length))
+                  .replace('{conf}', result.confidence.toFixed(0))}
+              </p>
+
+              {result.skipped > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {(result.skipped === 1 ? s.skippedOne : s.skippedMany).replace(
+                    '{n}',
+                    String(result.skipped),
+                  )}
+                </p>
+              )}
+
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                spellCheck={false}
+                rows={14}
+                aria-label={s.recognisedText}
+                className="w-full rounded-md border border-input bg-background p-3 font-mono text-sm"
+              />
+
+              <div className="flex flex-wrap gap-2">
+                <CopyButton text={text} size="default" />
+                <Button type="button" onClick={downloadText}>
+                  {s.downloadTxt}
+                </Button>
+                {pdfUrl && file && (
+                  <Button asChild>
+                    <a href={pdfUrl} download={outputName(file.name, 'searchable', 'pdf')}>
+                      {s.downloadSearchable}
+                    </a>
+                  </Button>
+                )}
+              </div>
+
+              <ul className="space-y-1 text-xs text-muted-foreground">
+                {result.pages.map((p) => (
+                  <li key={p.pageNumber}>
+                    {s.pageLine
+                      .replace('{n}', String(p.pageNumber))
+                      .replace('{words}', String(p.words))
+                      .replace('{conf}', p.confidence.toFixed(0))}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

@@ -1,12 +1,14 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  ColorInput,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
+  RangeSlider,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useMemo, useState } from 'react';
@@ -156,11 +158,9 @@ export function WatermarkPdfUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -171,258 +171,240 @@ export function WatermarkPdfUi() {
           multiple={false}
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          {pageCount !== null && (
+            <p className="text-sm text-muted-foreground">
+              {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                '{n}',
+                String(pageCount),
+              )}
+            </p>
+          )}
 
-        {pageCount !== null && (
-          <p className="text-sm text-muted-foreground">
-            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
-          </p>
-        )}
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">{s.watermark}</legend>
+            <RadioGroup
+              value={kind}
+              onValueChange={(v) => {
+                setKind(v as 'text' | 'image');
+                reset();
+              }}
+              aria-label={s.watermark}
+              className="flex gap-3"
+            >
+              <RadioGroupField value="text" label={s.kindText} />
+              <RadioGroupField value="image" label={s.kindImage} />
+            </RadioGroup>
+          </fieldset>
 
-        <fieldset className="space-y-2">
-          <legend className="text-sm font-medium">{s.watermark}</legend>
-          <div className="flex gap-4 text-sm">
-            {(['text', 'image'] as const).map((k) => (
-              <label key={k} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="watermark-kind"
-                  checked={kind === k}
-                  onChange={() => {
-                    setKind(k);
-                    reset();
-                  }}
-                  className="h-4 w-4"
-                />
-                {k === 'text' ? s.kindText : s.kindImage}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+          <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+            <div className="space-y-4">
+              {kind === 'text' ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-1 text-sm sm:col-span-2">
+                    <span className="font-medium">{s.text}</span>
+                    <input
+                      type="text"
+                      value={text}
+                      onChange={(e) => {
+                        setText(e.target.value);
+                        reset();
+                      }}
+                      className={fieldClass}
+                    />
+                  </label>
 
-        <div className="grid gap-4 md:grid-cols-[1fr_auto]">
-          <div className="space-y-4">
-            {kind === 'text' ? (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="space-y-1 text-sm sm:col-span-2">
-                  <span className="font-medium">{s.text}</span>
-                  <input
-                    type="text"
-                    value={text}
-                    onChange={(e) => {
-                      setText(e.target.value);
-                      reset();
-                    }}
-                    className={fieldClass}
-                  />
-                </label>
+                  <label className="space-y-1 text-sm">
+                    <span className="font-medium">{s.fontSize}</span>
+                    <input
+                      type="number"
+                      min={4}
+                      max={200}
+                      value={fontSize}
+                      onChange={(e) => {
+                        setFontSize(Number(e.target.value));
+                        reset();
+                      }}
+                      className={fieldClass}
+                    />
+                  </label>
 
-                <label className="space-y-1 text-sm">
-                  <span className="font-medium">{s.fontSize}</span>
-                  <input
-                    type="number"
-                    min={4}
-                    max={200}
-                    value={fontSize}
-                    onChange={(e) => {
-                      setFontSize(Number(e.target.value));
-                      reset();
-                    }}
-                    className={fieldClass}
-                  />
-                </label>
-
-                <label className="space-y-1 text-sm">
-                  <span className="font-medium">{s.colour}</span>
-                  <input
-                    type="color"
+                  <ColorInput
+                    label={s.colour}
                     value={color}
-                    onChange={(e) => {
-                      setColor(e.target.value);
+                    onChange={(v) => {
+                      setColor(v);
                       reset();
                     }}
-                    className="h-10 w-full rounded-md border border-input bg-background px-1"
                   />
-                </label>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <MultiFileDropzone
-                  files={markFiles}
-                  onChange={(f) => {
-                    setMarkFiles(f);
-                    reset();
-                  }}
-                  accept="image/*"
-                  multiple={false}
-                  label={s.imageDropLabel}
-                />
-                <label className="space-y-1 text-sm">
-                  <span className="font-medium">
-                    {s.width.replace('{n}', String(scalePercent))}
-                  </span>
-                  <input
-                    type="range"
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <MultiFileDropzone
+                    files={markFiles}
+                    onChange={(f) => {
+                      setMarkFiles(f);
+                      reset();
+                    }}
+                    accept="image/*"
+                    multiple={false}
+                    label={s.imageDropLabel}
+                  />
+                  <RangeSlider
+                    label={s.widthLabel}
+                    unit="%"
+                    value={scalePercent}
                     min={5}
                     max={100}
                     step={5}
-                    value={scalePercent}
-                    onChange={(e) => {
-                      setScalePercent(Number(e.target.value));
+                    onChange={(v) => {
+                      setScalePercent(v);
                       reset();
                     }}
-                    className="w-full"
                   />
-                </label>
-              </div>
-            )}
+                </div>
+              )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="space-y-1 text-sm">
-                <span className="font-medium">{s.angle.replace('{n}', String(rotation))}</span>
-                <input
-                  type="range"
+              <div className="grid gap-4 sm:grid-cols-2">
+                <RangeSlider
+                  label={s.angleLabel}
+                  unit="°"
+                  value={rotation}
                   min={-90}
                   max={90}
                   step={5}
-                  value={rotation}
-                  onChange={(e) => {
-                    setRotation(Number(e.target.value));
+                  onChange={(v) => {
+                    setRotation(v);
                     reset();
                   }}
-                  className="w-full"
                 />
-              </label>
 
-              <label className="space-y-1 text-sm">
-                <span className="font-medium">
-                  {s.opacity.replace('{n}', String(Math.round(opacity * 100)))}
-                </span>
-                <input
-                  type="range"
+                <RangeSlider
+                  label={s.opacityLabel}
+                  unit="%"
+                  value={Math.round(opacity * 100)}
                   min={5}
                   max={100}
                   step={5}
-                  value={Math.round(opacity * 100)}
-                  onChange={(e) => {
-                    setOpacity(Number(e.target.value) / 100);
+                  onChange={(v) => {
+                    setOpacity(v / 100);
                     reset();
                   }}
-                  className="w-full"
                 />
-              </label>
 
-              <label className="space-y-1 text-sm sm:col-span-2">
-                <span className="font-medium">{s.pagesToStamp}</span>
-                <input
-                  type="text"
-                  value={range}
-                  placeholder={
-                    pageCount
-                      ? s.rangePlaceholderAll.replace('{n}', String(pageCount))
-                      : s.rangePlaceholder
-                  }
-                  onChange={(e) => {
-                    setRange(e.target.value);
-                    reset();
-                  }}
-                  className={fieldClass}
-                />
-              </label>
-            </div>
-          </div>
-
-          {preview && (
-            <figure className="space-y-1">
-              <div
-                className="relative overflow-hidden rounded-md border bg-white"
-                style={{
-                  width: preview.width * previewScale,
-                  height: preview.height * previewScale,
-                }}
-              >
-                <img
-                  src={preview.url}
-                  alt={s.previewAlt}
-                  className="absolute inset-0 h-full w-full"
-                />
-                {/* The overlay is CSS, not a second PDF render: moving a slider must not cost
-                    a page render. It is an approximation of the output, not the output. */}
-                <div
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{ opacity }}
-                >
-                  <div
-                    style={{
-                      transform: `rotate(${-rotation}deg)`,
-                      transformOrigin: 'center',
-                      whiteSpace: 'nowrap',
+                <label className="space-y-1 text-sm sm:col-span-2">
+                  <span className="font-medium">{s.pagesToStamp}</span>
+                  <input
+                    type="text"
+                    value={range}
+                    placeholder={
+                      pageCount
+                        ? s.rangePlaceholderAll.replace('{n}', String(pageCount))
+                        : s.rangePlaceholder
+                    }
+                    onChange={(e) => {
+                      setRange(e.target.value);
+                      reset();
                     }}
+                    className={fieldClass}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {preview && (
+              <figure className="space-y-1">
+                <div
+                  className="relative overflow-hidden rounded-md border bg-white"
+                  style={{
+                    width: preview.width * previewScale,
+                    height: preview.height * previewScale,
+                  }}
+                >
+                  <img
+                    src={preview.url}
+                    alt={s.previewAlt}
+                    className="absolute inset-0 h-full w-full"
+                  />
+                  {/* The overlay is CSS, not a second PDF render: moving a slider must not cost
+                    a page render. It is an approximation of the output, not the output. */}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ opacity }}
                   >
-                    {kind === 'text' ? (
-                      <span
-                        style={{
-                          // The page was rendered at PREVIEW_DPI, so one point of font size is
-                          // PREVIEW_DPI/72 CSS pixels before the fit-to-column scale.
-                          fontSize: fontSize * (PREVIEW_DPI / 72) * previewScale,
-                          color,
-                          fontFamily: 'Helvetica, Arial, sans-serif',
-                        }}
-                      >
-                        {text}
-                      </span>
-                    ) : (
-                      markUrl && (
-                        <img
-                          src={markUrl}
-                          alt=""
-                          style={{ width: preview.width * previewScale * (scalePercent / 100) }}
-                        />
-                      )
-                    )}
+                    <div
+                      style={{
+                        transform: `rotate(${-rotation}deg)`,
+                        transformOrigin: 'center',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {kind === 'text' ? (
+                        <span
+                          style={{
+                            // The page was rendered at PREVIEW_DPI, so one point of font size is
+                            // PREVIEW_DPI/72 CSS pixels before the fit-to-column scale.
+                            fontSize: fontSize * (PREVIEW_DPI / 72) * previewScale,
+                            color,
+                            fontFamily: 'Helvetica, Arial, sans-serif',
+                          }}
+                        >
+                          {text}
+                        </span>
+                      ) : (
+                        markUrl && (
+                          <img
+                            src={markUrl}
+                            alt=""
+                            style={{ width: preview.width * previewScale * (scalePercent / 100) }}
+                          />
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <figcaption className="text-xs text-muted-foreground">{s.previewCaption}</figcaption>
-            </figure>
-          )}
-        </div>
-
-        <p className="text-sm text-muted-foreground">{s.fontNote}</p>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy || (kind === 'image' && !markImage)}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.stamping : s.addWatermark}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && downloadUrl && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm font-medium">
-              {(result.pages === 1 ? s.stampedOne : s.stampedMany)
-                .replace('{n}', String(result.stamped))
-                .replace('{total}', String(result.pages))}
-            </div>
-            <a
-              href={downloadUrl}
-              download="watermarked.pdf"
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.download}
-            </a>
+                <figcaption className="text-xs text-muted-foreground">
+                  {s.previewCaption}
+                </figcaption>
+              </figure>
+            )}
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <p className="text-sm text-muted-foreground">{s.fontNote}</p>
+
+          <Button
+            type="button"
+            onClick={run}
+            disabled={!file || busy || (kind === 'image' && !markImage)}
+          >
+            {busy ? s.stamping : s.addWatermark}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && downloadUrl && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm font-medium">
+                {(result.pages === 1 ? s.stampedOne : s.stampedMany)
+                  .replace('{n}', String(result.stamped))
+                  .replace('{total}', String(result.pages))}
+              </div>
+              <Button asChild>
+                <a href={downloadUrl} download="watermarked.pdf">
+                  {s.download}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

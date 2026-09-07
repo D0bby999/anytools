@@ -1,9 +1,7 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
   useLocalized,
@@ -70,11 +68,9 @@ export function RemovePdfPagesUi() {
   const outName = file ? file.name.replace(/\.pdf$/i, '') : 'document';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -90,64 +86,63 @@ export function RemovePdfPagesUi() {
           multiple={false}
           label={s.dropLabel}
         />
-
-        {pageCount !== null && (
-          <p className="text-sm text-muted-foreground">
-            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
-          </p>
-        )}
-
-        <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">
-            {deleteBefore}
-            <code>1, 4-6, 12</code>
-            {deleteAfter}
-          </span>
-          <input
-            type="text"
-            value={range}
-            onChange={(e) => setRange(e.target.value)}
-            placeholder={pageCount ? `1-${pageCount}` : '1, 4-6'}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          />
-        </label>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy || !range.trim()}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.removing : s.removePages}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && url && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {(result.removed === 1 ? s.removedOne : s.removedMany).replace(
+      }
+      result={
+        <>
+          {pageCount !== null && (
+            <p className="text-sm text-muted-foreground">
+              {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
                 '{n}',
-                String(result.removed),
-              )}{' '}
-              — {(result.pages === 1 ? s.leftOne : s.leftMany).replace('{n}', String(result.pages))}
-            </div>
-            <a
-              href={url}
-              download={`${outName}-edited.pdf`}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.download.replace('{name}', `${outName}-edited.pdf`)}
-            </a>
-          </div>
-        )}
+                String(pageCount),
+              )}
+            </p>
+          )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">
+              {deleteBefore}
+              <code>1, 4-6, 12</code>
+              {deleteAfter}
+            </span>
+            <input
+              type="text"
+              value={range}
+              onChange={(e) => setRange(e.target.value)}
+              placeholder={pageCount ? `1-${pageCount}` : '1, 4-6'}
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            />
+          </label>
+
+          <Button type="button" onClick={run} disabled={!file || busy || !range.trim()}>
+            {busy ? s.removing : s.removePages}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && url && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {(result.removed === 1 ? s.removedOne : s.removedMany).replace(
+                  '{n}',
+                  String(result.removed),
+                )}{' '}
+                —{' '}
+                {(result.pages === 1 ? s.leftOne : s.leftMany).replace('{n}', String(result.pages))}
+              </div>
+              <Button asChild>
+                <a href={url} download={`${outName}-edited.pdf`}>
+                  {s.download.replace('{name}', `${outName}-edited.pdf`)}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

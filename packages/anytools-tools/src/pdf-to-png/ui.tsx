@@ -1,11 +1,11 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
@@ -70,11 +70,9 @@ export function PdfToPngUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -87,74 +85,72 @@ export function PdfToPngUi() {
           multiple={false}
           label={s.dropLabel}
         />
-
-        <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">{s.resolution}</legend>
-          {DPIS.map((d) => (
-            <label key={d} className="flex items-center gap-2 text-sm">
-              <input type="radio" name="dpi" checked={dpi === d} onChange={() => setDpi(d)} />
-              {dpiLabel[d]}
-            </label>
-          ))}
-        </fieldset>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.rendering : s.render}
-        </button>
-
-        {progress && progress.total > 0 && (
-          <p className="text-sm text-muted-foreground">
-            {s.pageOf
-              .replace('{n}', String(progress.done))
-              .replace('{total}', String(progress.total))}
-          </p>
-        )}
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && (
-          <div className="space-y-3">
-            {zipUrl && (
-              <a
-                href={zipUrl}
-                download="pages.zip"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.downloadAllZip.replace('{n}', String(result.pages.length))}
-              </a>
-            )}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {result.pages.map((p, i) => (
-                <figure key={p.name} className="space-y-1">
-                  {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-                  <img
-                    src={urls[i]}
-                    alt={s.pageAlt.replace('{n}', String(p.pageNumber))}
-                    className="w-full rounded border"
-                  />
-                  <figcaption className="text-xs text-muted-foreground">
-                    p{p.pageNumber} · {p.width}×{p.height}{' '}
-                    <a href={urls[i]} download={p.name} className="underline">
-                      {s.downloadLink}
-                    </a>
-                  </figcaption>
-                </figure>
+      }
+      result={
+        <>
+          <div className="space-y-1.5">
+            <span className="block text-sm font-medium">{s.resolution}</span>
+            <RadioGroup
+              value={String(dpi)}
+              onValueChange={(v) => setDpi(Number(v) as (typeof DPIS)[number])}
+              aria-label={s.resolution}
+            >
+              {DPIS.map((d) => (
+                <RadioGroupField key={d} value={String(d)} label={dpiLabel[d]} />
               ))}
-            </div>
+            </RadioGroup>
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.rendering : s.render}
+          </Button>
+
+          {progress && progress.total > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {s.pageOf
+                .replace('{n}', String(progress.done))
+                .replace('{total}', String(progress.total))}
+            </p>
+          )}
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && (
+            <div className="space-y-3">
+              {zipUrl && (
+                <Button asChild>
+                  <a href={zipUrl} download="pages.zip">
+                    {s.downloadAllZip.replace('{n}', String(result.pages.length))}
+                  </a>
+                </Button>
+              )}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {result.pages.map((p, i) => (
+                  <figure key={p.name} className="space-y-1">
+                    {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+                    <img
+                      src={urls[i]}
+                      alt={s.pageAlt.replace('{n}', String(p.pageNumber))}
+                      className="w-full rounded border"
+                    />
+                    <figcaption className="text-xs text-muted-foreground">
+                      p{p.pageNumber} · {p.width}×{p.height}{' '}
+                      <a href={urls[i]} download={p.name} className="underline">
+                        {s.downloadLink}
+                      </a>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

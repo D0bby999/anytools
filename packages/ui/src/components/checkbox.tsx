@@ -52,27 +52,54 @@ Checkbox.displayName = CheckboxPrimitive.Root.displayName;
  */
 type CheckboxFieldProps = ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> & {
   label: string;
+  /**
+   * Secondary line under the label, wired through `aria-describedby`. Mirrors
+   * RadioGroupField. Putting the note inside the label instead — which is what the tools did —
+   * folds a whole sentence into the control's accessible name, so a screen reader announces
+   * the explanation every time it announces the checkbox.
+   */
+  description?: string;
   /** Wrapper class, not the control's — the control is positioned by this component. */
   containerClassName?: string;
 };
 
 const CheckboxField = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxFieldProps>(
-  ({ label, containerClassName, id, className, ...props }, ref) => {
+  ({ label, description, containerClassName, id, className, ...props }, ref) => {
     // useId, not a slug of the label. `\W` is ASCII-only, so "Số trang" and "Sổ trang" both
     // collapse to "cb-s-trang" — duplicate ids, and <label for> binds to whichever came first,
     // so tapping one option toggles the other. This app ships vi/es/pt; the collision is a
     // matter of which labels a future tool happens to use.
     const generatedId = useId();
     const inputId = id ?? generatedId;
+    const descId = `${inputId}-desc`;
     return (
-      <div className={cn('relative flex min-h-11 items-center gap-2', containerClassName)}>
-        <Checkbox ref={ref} id={inputId} className={className} {...props} />
-        <Label
-          htmlFor={inputId}
-          className="cursor-pointer select-none after:absolute after:inset-0 after:content-['']"
-        >
-          {label}
-        </Label>
+      <div
+        className={cn(
+          'relative flex min-h-11 gap-2',
+          description ? 'items-start py-1' : 'items-center',
+          containerClassName,
+        )}
+      >
+        <Checkbox
+          ref={ref}
+          id={inputId}
+          aria-describedby={description ? descId : undefined}
+          className={cn(description && 'mt-0.5', className)}
+          {...props}
+        />
+        <div className="grid gap-0.5">
+          <Label
+            htmlFor={inputId}
+            className="cursor-pointer select-none after:absolute after:inset-0 after:content-['']"
+          >
+            {label}
+          </Label>
+          {description && (
+            <span id={descId} className="text-xs text-muted-foreground">
+              {description}
+            </span>
+          )}
+        </div>
       </div>
     );
   },

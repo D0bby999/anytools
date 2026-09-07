@@ -72,6 +72,7 @@ export { CalculatorTemplate } from './components/tool-templates/calculator-templ
 export { ConverterTemplate } from './components/tool-templates/converter-template';
 export { PickerTemplate } from './components/tool-templates/picker-template';
 export { GeneratorTemplate } from './components/tool-templates/generator-template';
+export { FilePipelineTemplate } from './components/tool-templates/file-pipeline-template';
 
 // Locale hand-off from the page to tool widgets + shared widget labels.
 export {

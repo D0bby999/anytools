@@ -1,12 +1,13 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  CheckboxField,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
@@ -128,31 +129,9 @@ export function PdfPasswordUi() {
   const outName = file ? file.name.replace(/\.pdf$/i, '') : 'document';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <fieldset className="space-y-2">
-          <div className="flex gap-4 text-sm">
-            {(['lock', 'unlock'] as const).map((m) => (
-              <label key={m} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="pdf-password-mode"
-                  checked={mode === m}
-                  onChange={() => {
-                    setMode(m);
-                    clearAll();
-                  }}
-                  className="h-4 w-4"
-                />
-                {m === 'lock' ? s.modeLock : s.modeUnlock}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -163,168 +142,157 @@ export function PdfPasswordUi() {
           multiple={false}
           label={mode === 'lock' ? s.dropLabelLock : s.dropLabelUnlock}
         />
+      }
+      result={
+        <>
+          {mode === 'lock' ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="space-y-1 text-sm">
+                  <span className="font-medium">{s.userPasswordLabel}</span>
+                  <input
+                    type="password"
+                    value={userPassword}
+                    onChange={(e) => {
+                      setUserPassword(e.target.value);
+                      clearOutcome();
+                    }}
+                    className={fieldClass}
+                    autoComplete="new-password"
+                  />
+                </label>
+                <label className="space-y-1 text-sm">
+                  <span className="font-medium">{s.ownerPasswordLabel}</span>
+                  <input
+                    type="password"
+                    value={ownerPassword}
+                    onChange={(e) => {
+                      setOwnerPassword(e.target.value);
+                      clearOutcome();
+                    }}
+                    className={fieldClass}
+                    autoComplete="new-password"
+                  />
+                  <span className="block text-xs text-muted-foreground">{s.ownerPasswordHint}</span>
+                </label>
+              </div>
 
-        {mode === 'lock' ? (
-          <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="space-y-1 text-sm">
-                <span className="font-medium">{s.userPasswordLabel}</span>
-                <input
-                  type="password"
-                  value={userPassword}
-                  onChange={(e) => {
-                    setUserPassword(e.target.value);
-                    clearOutcome();
-                  }}
-                  className={fieldClass}
-                  autoComplete="new-password"
-                />
-              </label>
-              <label className="space-y-1 text-sm">
-                <span className="font-medium">{s.ownerPasswordLabel}</span>
-                <input
-                  type="password"
-                  value={ownerPassword}
-                  onChange={(e) => {
-                    setOwnerPassword(e.target.value);
-                    clearOutcome();
-                  }}
-                  className={fieldClass}
-                  autoComplete="new-password"
-                />
-                <span className="block text-xs text-muted-foreground">{s.ownerPasswordHint}</span>
-              </label>
-            </div>
-
-            <fieldset className="space-y-2">
-              <legend className="text-sm font-medium">{s.permissionsLegend}</legend>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {PERMISSION_ROWS.map(([key, labelKey]) => (
-                  <label key={key} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+              <fieldset className="space-y-2">
+                <legend className="text-sm font-medium">{s.permissionsLegend}</legend>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {PERMISSION_ROWS.map(([key, labelKey]) => (
+                    <CheckboxField
+                      key={key}
+                      label={s[labelKey]}
                       checked={permissions[key]}
-                      onChange={(e) => {
-                        setPermissions((p) => ({ ...p, [key]: e.target.checked }));
+                      onCheckedChange={(v) => {
+                        setPermissions((p) => ({ ...p, [key]: v === true }));
                         clearOutcome();
                       }}
-                      className="h-4 w-4"
                     />
-                    {s[labelKey]}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <button
-              type="button"
-              onClick={runLock}
-              disabled={!file || busy || !userPassword.trim()}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-            >
-              {busy ? s.locking : s.lockButton}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">{s.unlockPasswordLabel}</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPendingInspection(null);
-                  clearOutcome();
-                }}
-                className={fieldClass}
-                autoComplete="current-password"
-              />
-            </label>
-
-            {pendingInspection ? (
-              <output className="block space-y-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-                <p>
-                  {(pendingInspection.fieldCount === 1
-                    ? s.formWarningOne
-                    : s.formWarningMany
-                  ).replace('{n}', String(pendingInspection.fieldCount))}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={runUnlock}
-                    disabled={busy}
-                    className="inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-                  >
-                    {s.continueAnyway}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPendingInspection(null)}
-                    className="inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-medium hover:bg-muted"
-                  >
-                    {s.cancel}
-                  </button>
+                  ))}
                 </div>
-              </output>
-            ) : (
-              <button
+              </fieldset>
+
+              <Button
                 type="button"
-                onClick={runUnlock}
-                disabled={!file || busy || !password.trim()}
-                className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
+                onClick={runLock}
+                disabled={!file || busy || !userPassword.trim()}
               >
-                {busy ? s.unlocking : s.unlockButton}
-              </button>
-            )}
-          </div>
-        )}
+                {busy ? s.locking : s.lockButton}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <label className="space-y-1 text-sm">
+                <span className="font-medium">{s.unlockPasswordLabel}</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPendingInspection(null);
+                    clearOutcome();
+                  }}
+                  className={fieldClass}
+                  autoComplete="current-password"
+                />
+              </label>
 
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {lockResult && downloadUrl && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {(lockResult.pages === 1 ? s.lockedOne : s.lockedMany).replace(
-                '{n}',
-                String(lockResult.pages),
+              {pendingInspection ? (
+                <output className="block space-y-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+                  <p>
+                    {(pendingInspection.fieldCount === 1
+                      ? s.formWarningOne
+                      : s.formWarningMany
+                    ).replace('{n}', String(pendingInspection.fieldCount))}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm" onClick={runUnlock} disabled={busy}>
+                      {s.continueAnyway}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setPendingInspection(null)}
+                    >
+                      {s.cancel}
+                    </Button>
+                  </div>
+                </output>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={runUnlock}
+                  disabled={!file || busy || !password.trim()}
+                >
+                  {busy ? s.unlocking : s.unlockButton}
+                </Button>
               )}
             </div>
-            <a
-              href={downloadUrl}
-              download={`${outName}-locked.pdf`}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.downloadLocked.replace('{name}', `${outName}-locked.pdf`)}
-            </a>
-          </div>
-        )}
+          )}
 
-        {unlockResult && downloadUrl && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {(unlockResult.pages === 1 ? s.unlockedOne : s.unlockedMany).replace(
-                '{n}',
-                String(unlockResult.pages),
-              )}
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {lockResult && downloadUrl && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {(lockResult.pages === 1 ? s.lockedOne : s.lockedMany).replace(
+                  '{n}',
+                  String(lockResult.pages),
+                )}
+              </div>
+              <Button asChild>
+                <a href={downloadUrl} download={`${outName}-locked.pdf`}>
+                  {s.downloadLocked.replace('{name}', `${outName}-locked.pdf`)}
+                </a>
+              </Button>
             </div>
-            <a
-              href={downloadUrl}
-              download={`${outName}-unlocked.pdf`}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.downloadUnlocked.replace('{name}', `${outName}-unlocked.pdf`)}
-            </a>
-          </div>
-        )}
+          )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          {unlockResult && downloadUrl && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {(unlockResult.pages === 1 ? s.unlockedOne : s.unlockedMany).replace(
+                  '{n}',
+                  String(unlockResult.pages),
+                )}
+              </div>
+              <Button asChild>
+                <a href={downloadUrl} download={`${outName}-unlocked.pdf`}>
+                  {s.downloadUnlocked.replace('{name}', `${outName}-unlocked.pdf`)}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

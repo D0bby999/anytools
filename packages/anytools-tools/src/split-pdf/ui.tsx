@@ -1,11 +1,11 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -87,11 +87,9 @@ export function SplitPdfUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -104,102 +102,94 @@ export function SplitPdfUi() {
           multiple={false}
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          {pageCount !== null && (
+            <p className="text-sm text-muted-foreground">
+              {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                '{n}',
+                String(pageCount),
+              )}
+            </p>
+          )}
 
-        {pageCount !== null && (
-          <p className="text-sm text-muted-foreground">
-            {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace('{n}', String(pageCount))}
-          </p>
-        )}
-
-        <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">{s.whatToProduce}</legend>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="split-mode"
-              checked={mode === 'ranges'}
-              onChange={() => setMode('ranges')}
-            />
-            {s.extractRanges}
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="split-mode"
-              checked={mode === 'each'}
-              onChange={() => setMode('each')}
-            />
-            {s.onePerPage}
-          </label>
-        </fieldset>
-
-        {mode === 'ranges' && (
-          <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {rangesBefore}
-              <code>1-3, 7, 9-12</code>
-              {rangesAfter}
-            </span>
-            <input
-              type="text"
-              value={range}
-              onChange={(e) => setRange(e.target.value)}
-              placeholder={pageCount ? `1-${pageCount}` : '1-3, 7'}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            />
-          </label>
-        )}
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy || (mode === 'ranges' && !range.trim())}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.splitting : s.split}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && (
-          <div className="space-y-3">
-            {zipUrl && (
-              <a
-                href={zipUrl}
-                download="split.zip"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.downloadAllZip.replace('{n}', String(result.parts.length))}
-              </a>
-            )}
-            <ul className="space-y-1">
-              {result.parts.map((p, i) => (
-                <li
-                  key={p.name}
-                  className="flex items-center justify-between gap-3 rounded-md border bg-muted/40 px-3 py-2 text-sm"
-                >
-                  <span className="truncate">
-                    {p.name} —{' '}
-                    {(p.pages === 1 ? s.pageCountOne : s.pageCountMany).replace(
-                      '{n}',
-                      String(p.pages),
-                    )}
-                  </span>
-                  <a href={urls[i]} download={p.name} className="shrink-0 underline">
-                    {ui.download}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <div className="space-y-1.5">
+            <span className="block text-sm font-medium">{s.whatToProduce}</span>
+            <RadioGroup
+              value={mode}
+              onValueChange={(v) => setMode(v as 'ranges' | 'each')}
+              aria-label={s.whatToProduce}
+            >
+              <RadioGroupField value="ranges" label={s.extractRanges} />
+              <RadioGroupField value="each" label={s.onePerPage} />
+            </RadioGroup>
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          {mode === 'ranges' && (
+            <label className="block text-sm">
+              <span className="mb-1 block text-muted-foreground">
+                {rangesBefore}
+                <code>1-3, 7, 9-12</code>
+                {rangesAfter}
+              </span>
+              <input
+                type="text"
+                value={range}
+                onChange={(e) => setRange(e.target.value)}
+                placeholder={pageCount ? `1-${pageCount}` : '1-3, 7'}
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              />
+            </label>
+          )}
+
+          <Button
+            type="button"
+            onClick={run}
+            disabled={!file || busy || (mode === 'ranges' && !range.trim())}
+          >
+            {busy ? s.splitting : s.split}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && (
+            <div className="space-y-3">
+              {zipUrl && (
+                <Button asChild>
+                  <a href={zipUrl} download="split.zip">
+                    {s.downloadAllZip.replace('{n}', String(result.parts.length))}
+                  </a>
+                </Button>
+              )}
+              <ul className="space-y-1">
+                {result.parts.map((p, i) => (
+                  <li
+                    key={p.name}
+                    className="flex items-center justify-between gap-3 rounded-md border bg-muted/40 px-3 py-2 text-sm"
+                  >
+                    <span className="truncate">
+                      {p.name} —{' '}
+                      {(p.pages === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                        '{n}',
+                        String(p.pages),
+                      )}
+                    </span>
+                    <a href={urls[i]} download={p.name} className="shrink-0 underline">
+                      {ui.download}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

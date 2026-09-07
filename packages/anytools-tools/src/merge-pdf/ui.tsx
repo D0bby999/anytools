@@ -1,9 +1,7 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
   useLocalized,
@@ -62,11 +60,9 @@ export function MergePdfUi() {
         : s.mergeMany.replace('{n}', String(files.length));
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -82,26 +78,24 @@ export function MergePdfUi() {
           reorderable
           label={s.dropLabel}
         />
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={files.length < 2 || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+      }
+      action={
+        <Button type="button" onClick={run} disabled={files.length < 2 || busy}>
           {busy ? s.merging : mergeLabel}
-        </button>
-
-        {files.length === 1 && <p className="text-sm text-muted-foreground">{s.addMore}</p>}
-
-        {error && (
+        </Button>
+      }
+      progress={files.length === 1 && <p className="text-sm text-muted-foreground">{s.addMore}</p>}
+      error={
+        error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </output>
-        )}
-
-        {result && downloadUrl && (
-          <div className="space-y-3">
+        )
+      }
+      result={
+        result &&
+        downloadUrl && (
+          <>
             <div className="rounded-md border bg-muted p-3 text-sm">
               <div className="font-medium">{s.totalPages.replace('{n}', String(result.pages))}</div>
               <ul className="mt-1 text-muted-foreground">
@@ -116,18 +110,15 @@ export function MergePdfUi() {
                 ))}
               </ul>
             </div>
-            <a
-              href={downloadUrl}
-              download="merged.pdf"
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.download}
-            </a>
-          </div>
-        )}
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+            <Button asChild>
+              <a href={downloadUrl} download="merged.pdf">
+                {s.download}
+              </a>
+            </Button>
+          </>
+        )
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

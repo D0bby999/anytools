@@ -1,12 +1,17 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
@@ -70,11 +75,9 @@ export function CompressPdfUi() {
     : '';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -86,91 +89,91 @@ export function CompressPdfUi() {
           multiple={false}
           label={s.dropLabel}
         />
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {s.quality.replace('{n}', String(quality))}
-            </span>
-            <input
-              type="range"
-              min={10}
-              max={95}
-              step={5}
-              value={quality}
-              onChange={(e) => setQuality(Number(e.target.value))}
-              className="w-full"
-            />
-            <span className="mt-1 block text-xs text-muted-foreground">{s.qualityHint}</span>
-          </label>
-
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.maxDpi}</span>
-            <select
-              value={maxDpi ?? ''}
-              onChange={(e) => setMaxDpi(e.target.value ? Number(e.target.value) : null)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {DPI_OPTIONS.map((dpi) => (
-                <option key={dpi ?? 'none'} value={dpi ?? ''}>
-                  {dpi === null ? s.maxDpiNone : s.maxDpiValue.replace('{n}', String(dpi))}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.compressing : s.compress}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {(result.pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
-                '{n}',
-                String(result.pageCount),
-              )}
-            </p>
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {s.summary
-                .replace('{recompressed}', String(result.imagesRecompressed))
-                .replace('{total}', String(result.imagesRecompressed + result.imagesSkipped))
-                .replace('{skipped}', String(result.imagesSkipped))
-                .replace('{before}', kb(result.sizeBefore))
-                .replace('{after}', kb(result.sizeAfter))
-                .replace('{pct}', pct)}
+      }
+      result={
+        <>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="space-y-1">
+              <RangeSlider
+                label={s.qualityLabel}
+                unit="%"
+                value={quality}
+                min={10}
+                max={95}
+                step={5}
+                onChange={setQuality}
+              />
+              <p className="text-xs text-muted-foreground">{s.qualityHint}</p>
             </div>
-            {result.imagesRecompressed === 0 && (
-              <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-                {s.noImages}
-              </output>
-            )}
-            {url && (
-              <a
-                href={url}
-                download={outName}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.download.replace('{name}', outName)}
-              </a>
-            )}
-          </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+            <div className="space-y-1.5">
+              <Label htmlFor="cpdf-dpi">{s.maxDpi}</Label>
+              {/* Radix reserves the empty string for "nothing selected", so "no cap" needs a real
+                sentinel value rather than ''. */}
+              <Select
+                value={maxDpi === null ? 'none' : String(maxDpi)}
+                onValueChange={(v) => setMaxDpi(v === 'none' ? null : Number(v))}
+              >
+                <SelectTrigger id="cpdf-dpi">
+                  <SelectValue>
+                    {maxDpi === null ? s.maxDpiNone : s.maxDpiValue.replace('{n}', String(maxDpi))}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {DPI_OPTIONS.map((dpi) => (
+                    <SelectItem key={dpi ?? 'none'} value={dpi === null ? 'none' : String(dpi)}>
+                      {dpi === null ? s.maxDpiNone : s.maxDpiValue.replace('{n}', String(dpi))}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.compressing : s.compress}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {(result.pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                  '{n}',
+                  String(result.pageCount),
+                )}
+              </p>
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {s.summary
+                  .replace('{recompressed}', String(result.imagesRecompressed))
+                  .replace('{total}', String(result.imagesRecompressed + result.imagesSkipped))
+                  .replace('{skipped}', String(result.imagesSkipped))
+                  .replace('{before}', kb(result.sizeBefore))
+                  .replace('{after}', kb(result.sizeAfter))
+                  .replace('{pct}', pct)}
+              </div>
+              {result.imagesRecompressed === 0 && (
+                <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+                  {s.noImages}
+                </output>
+              )}
+              {url && (
+                <Button asChild>
+                  <a href={url} download={outName}>
+                    {s.download.replace('{name}', outName)}
+                  </a>
+                </Button>
+              )}
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

@@ -1,9 +1,7 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
   useLocalized,
@@ -65,11 +63,9 @@ export function ExtractImagesFromPdfUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -82,72 +78,67 @@ export function ExtractImagesFromPdfUi() {
           multiple={false}
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.scanning : s.extract}
+          </Button>
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.scanning : s.extract}
-        </button>
+          {progress && progress.total > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {s.pageOf
+                .replace('{n}', String(progress.done))
+                .replace('{total}', String(progress.total))}
+            </p>
+          )}
 
-        {progress && progress.total > 0 && (
-          <p className="text-sm text-muted-foreground">
-            {s.pageOf
-              .replace('{n}', String(progress.done))
-              .replace('{total}', String(progress.total))}
-          </p>
-        )}
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
 
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
+          {result && result.images.length === 0 && (
+            // Not an error: a text-only PDF genuinely has no embedded images, and saying so
+            // is more useful than an empty panel that looks like a failure.
+            <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
+              {s.noImages}
+            </output>
+          )}
 
-        {result && result.images.length === 0 && (
-          // Not an error: a text-only PDF genuinely has no embedded images, and saying so
-          // is more useful than an empty panel that looks like a failure.
-          <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            {s.noImages}
-          </output>
-        )}
-
-        {result && result.images.length > 0 && (
-          <div className="space-y-3">
-            {zipUrl && (
-              <a
-                href={zipUrl}
-                download="images.zip"
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.downloadAllZip.replace('{n}', String(result.images.length))}
-              </a>
-            )}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {result.images.map((img, i) => (
-                <figure key={img.name} className="space-y-1">
-                  {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-                  <img
-                    src={urls[i]}
-                    alt={s.extractedAlt.replace('{n}', String(img.pageNumber))}
-                    className="w-full rounded border"
-                  />
-                  <figcaption className="text-xs text-muted-foreground">
-                    p{img.pageNumber} · {img.width}×{img.height}{' '}
-                    <a href={urls[i]} download={img.name} className="underline">
-                      {s.downloadLink}
-                    </a>
-                  </figcaption>
-                </figure>
-              ))}
+          {result && result.images.length > 0 && (
+            <div className="space-y-3">
+              {zipUrl && (
+                <Button asChild>
+                  <a href={zipUrl} download="images.zip">
+                    {s.downloadAllZip.replace('{n}', String(result.images.length))}
+                  </a>
+                </Button>
+              )}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {result.images.map((img, i) => (
+                  <figure key={img.name} className="space-y-1">
+                    {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+                    <img
+                      src={urls[i]}
+                      alt={s.extractedAlt.replace('{n}', String(img.pageNumber))}
+                      className="w-full rounded border"
+                    />
+                    <figcaption className="text-xs text-muted-foreground">
+                      p{img.pageNumber} · {img.width}×{img.height}{' '}
+                      <a href={urls[i]} download={img.name} className="underline">
+                        {s.downloadLink}
+                      </a>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

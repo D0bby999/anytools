@@ -3,7 +3,7 @@ import type { LocalizedStrings } from '@anytools/ui';
 const EN = {
   title: 'Compress PDF',
   dropLabel: 'PDF to compress',
-  quality: 'JPEG quality: {n}%',
+  qualityLabel: 'JPEG quality',
   qualityHint: 'Lower is smaller and blurrier. Text stays sharp; photos lose detail first.',
   maxDpi: 'Cap image resolution',
   maxDpiNone: 'No cap (quality only)',
@@ -30,7 +30,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
   vi: {
     title: 'Nén PDF',
     dropLabel: 'PDF cần nén',
-    quality: 'Chất lượng JPEG: {n}%',
+    qualityLabel: 'Chất lượng JPEG',
     qualityHint: 'Càng thấp file càng nhỏ và càng mờ. Chữ vẫn nét; ảnh chụp mất chi tiết trước.',
     maxDpi: 'Giới hạn độ phân giải ảnh',
     maxDpiNone: 'Không giới hạn (chỉ giảm chất lượng)',
@@ -54,7 +54,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
   es: {
     title: 'Comprimir PDF',
     dropLabel: 'PDF a comprimir',
-    quality: 'Calidad JPEG: {n}%',
+    qualityLabel: 'Calidad JPEG',
     qualityHint:
       'Cuanto más baja, más pequeño y borroso. El texto se mantiene nítido; las fotos pierden detalle primero.',
     maxDpi: 'Limitar la resolución de las imágenes',
@@ -79,7 +79,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
   pt: {
     title: 'Comprimir PDF',
     dropLabel: 'PDF a comprimir',
-    quality: 'Qualidade JPEG: {n}%',
+    qualityLabel: 'Qualidade JPEG',
     qualityHint:
       'Quanto mais baixa, menor e mais borrada. O texto continua nítido; as fotos perdem detalhe primeiro.',
     maxDpi: 'Limitar a resolução das imagens',
