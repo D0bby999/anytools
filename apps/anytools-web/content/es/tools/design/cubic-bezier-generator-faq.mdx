@@ -1,0 +1,27 @@
+---
+title: Generador de Cubic Bezier — Preguntas frecuentes
+---
+
+## ¿Por qué la coordenada X de los puntos de control está limitada a [0,1] y la Y no?
+
+Porque el eje X representa tiempo, y el tiempo solo avanza hacia adelante. En una curva cúbica de Bézier general, la posición horizontal no tiene por qué crecer de forma monótona: si x1 o x2 quedaran fuera de [0,1], la curva podría retroceder sobre sí misma, y entonces la pregunta "¿en qué momento se alcanza tal progreso?" tendría más de una respuesta posible, o ninguna. La especificación de CSS evita todo ese problema exigiendo que x1 y x2 permanezcan dentro de [0,1], lo que garantiza que la curva sea siempre una función válida del tiempo. El eje Y no tiene esa restricción, porque el "progreso" es solo un número que se interpola — puede pasarse de 1 y volver a asentarse (un rebote), o bajar de 0 antes de subir (un efecto de retroceso antes del impulso), y el navegador calcula ambos casos sin problema. Esta herramienta aplica esa restricción a x mediante la función `clampX`, y deja y completamente libre a propósito.
+
+## ¿Qué números hay detrás de las cinco palabras clave de CSS (ease, ease-in, etc.)?
+
+Matemáticamente son idénticas a una llamada `cubic-bezier()` cualquiera — cada palabra clave está definida en la propia especificación CSS Easing Functions como cuatro números concretos. `linear` es (0, 0, 1, 1): los dos puntos de control caen justo sobre la diagonal, por eso la velocidad es constante. `ease` es (0.25, 0.1, 0.25, 1). `ease-in` es (0.42, 0, 1, 1). `ease-out` es (0, 0, 0.58, 1). `ease-in-out` es (0.42, 0, 0.58, 1). Los botones de preset de esta herramienta cargan exactamente esos valores, para que veas la forma detrás del nombre antes de empezar a ajustarla a tu gusto.
+
+## ¿De dónde salen los presets de rebote (ease-in-back, ease-out-back)?
+
+Son las curvas "back" publicadas en easings.net (`easeInBack`, `easeOutBack`, `easeInOutBack`), que a su vez son una aproximación en cubic-bezier de las ecuaciones de easing originales que Robert Penner publicó en 2001. Las ecuaciones de Penner son una fórmula cerrada, no una curva de Bézier, pero una curva de Bézier se acerca lo suficiente para lo que necesita CSS — por eso estos números concretos (`ease-in-back` = 0.36, 0, 0.66, -0.56; `ease-out-back` = 0.34, 1.56, 0.64, 1; `ease-in-out-back` = 0.68, -0.6, 0.32, 1.6) aparecen prácticamente en cualquier ejemplo de "easing con rebote" en CSS. Fíjate que la y2 de `ease-in-back` es -0.56 y la y1 de `ease-out-back` es 1.56 — ambos fuera de [0,1], que es justo el caso de overshoot descrito en la pregunta anterior. En la vista previa esto se ve como un movimiento con carácter: con `ease-out-back` el bloque se pasa ligeramente de su posición final y luego se asienta, como una tapa con resorte; con `ease-in-back` retrocede de forma visible antes de comprometerse con el movimiento hacia adelante — el tipo de gesto que se usa para paneles con resorte, encajes o la aparición de un tooltip.
+
+## ¿La vista previa en vivo usa exactamente el mismo cálculo que el motor CSS del navegador?
+
+En principio sí, aunque no es literalmente la misma implementación en C++ del navegador — esta herramienta resuelve la misma ecuación. Dado un instante t, la función `solveU` busca el parámetro u donde la coordenada X(u) de la curva es igual a t, mediante bisección durante 30 iteraciones, suficiente para una precisión de aproximadamente una milmillonésima — barato de sobra para llamarlo en cada fotograma de una animación. Esa bisección funciona porque X(u) es estrictamente monótona en u, consecuencia directa de que x1 y x2 ya están limitados a [0,1] como se explicó arriba. Con u resuelto, se lee la coordenada Y(u) en ese punto — que es exactamente lo que significa "el valor animado al 30% de la duración" para un `transition-timing-function`, así que el movimiento del bloque en la vista previa debería coincidir con lo que la misma curva produce en una transición CSS real.
+
+## ¿Puedo pegar estos números en una librería de animación de JavaScript en vez de usarlos en CSS?
+
+Sí, los cuatro números son portables — la mayoría de las librerías de animación en JS (Framer Motion, GSAP, la Web Animations API) aceptan un arreglo `[x1, y1, x2, y2]` o cuatro argumentos separados que significan los mismos puntos de control. Lo único que conviene revisar es si esa librería también restringe x a [0,1]: algunas sí lo hacen, y otras — al tratarlo como una curva paramétrica genérica en vez de una función de temporización CSS — no lo imponen, en cuyo caso el comportamiento con x fuera de rango depende de cada librería y ya no sigue el estándar de CSS.
+
+## ¿Se envía a algún servidor la curva que estoy arrastrando?
+
+No. Todo el cálculo — resolver la curva, animar la vista previa, formatear la salida CSS — ocurre enteramente en tu navegador con JavaScript. Ninguna petición de red transmite los cuatro números que acabas de arrastrar a ningún sitio; puedes comprobarlo con la pestaña Network abierta mientras mueves los puntos de control.

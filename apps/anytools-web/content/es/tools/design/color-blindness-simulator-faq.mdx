@@ -1,0 +1,27 @@
+---
+title: Simulador de daltonismo — Preguntas frecuentes
+---
+
+## ¿Qué le pasa exactamente a un píxel cuando lo simulas?
+
+El valor sRGB de cada píxel pasa por una cadena de conversiones: primero a luz lineal (se retira la corrección gamma), luego al espacio CIE XYZ, y de ahí al espacio LMS — tres números que representan cuánto responderían los conos L, M y S de la retina ante ese color exacto. Para un dicrómata (alguien sin uno de esos tres tipos de cono), ese eje que falta se reconstruye proyectándolo sobre la línea que une los otros dos ejes — la llamada "línea de confusión", que es la dirección del espacio de color donde esa persona no percibe ninguna diferencia. El resultado se convierte de vuelta a XYZ, luego a RGB lineal y finalmente a sRGB para poder mostrarlo en pantalla. Es exactamente el método publicado por Brettel, Viénot y Mollon en su artículo de 1997 sobre simulación de la apariencia del color para dicrómatas, que ellos mismos simplificaron en 1999 a una sola multiplicación de matriz 3×3 por tipo — las cinco matrices de la cadena se combinan en una sola porque la multiplicación de matrices es asociativa, algo que importa cuando esto corre sobre cada píxel de una foto entera.
+
+## ¿De dónde salen los números de las matrices de proyección?
+
+Están transcritos de la derivación completa que publicó Martin Krzywinski, especialista en visualización de datos en el BC Genome Sciences Centre, en una página donde muestra cada matriz intermedia del recorrido sRGB→LMS→sRGB paso a paso. La forma de confiar en que no son números inventados para esta herramienta es que las matrices sRGB↔XYZ de esa página coinciden con los valores de referencia estándar usados en toda la ciencia del color — los mismos que publica la tabla de Bruce Lindbloom, ampliamente citada. Si algún coeficiente se hubiera transcrito mal, esa comparación cruzada lo habría dejado en evidencia.
+
+## ¿Por qué la acromatopsia no sigue el mismo camino LMS que las otras tres?
+
+Porque la acromatopsia no es una dicromacia — no queda ningún eje de cono funcionando sobre el cual proyectar los otros, ya que los tres tipos están ausentes por completo. Alguien con acromatopsia total ve únicamente a través de los bastones de la retina, que solo transmiten brillo, sin ninguna información de color. Por eso esta herramienta convierte la imagen directamente a escala de grises usando los pesos de luminancia estándar ITU-R BT.709: luminancia = 0,2126×rojo + 0,7152×verde + 0,0722×azul. El peso del verde es el más alto porque el ojo humano es más sensible a la luz verde en casi cualquier nivel de luminosidad, y el del azul es el más bajo por la razón opuesta — es la misma fórmula detrás del filtro de escala de grises de cualquier navegador, no un número elegido a mano para este simulador.
+
+## ¿Qué tan precisa es esta simulación — puedo confiar en ella al 100%?
+
+No al 100%, y esto importa para cómo interpretas el resultado. Hay dos simplificaciones reconocidas directamente en el código. La primera: la proyección a veces produce un color que cae fuera del gamut que una pantalla sRGB puede mostrar, y aquí simplemente se recorta el valor a [0, 255] en lugar de aplicar el paso de "compresión de gamut" a nivel de imagen completa que usan algunas implementaciones de investigación, el cual necesita conocer el rango de color de toda la foto y no solo de un píxel aislado. La segunda, más de fondo: esta herramienta solo simula dicromacía, es decir, la ausencia total de un tipo de cono. En la práctica, la forma más común y más leve de deficiencia visual del color es la tricromacía anómala — los tres tipos de cono siguen presentes, pero uno tiene su sensibilidad espectral desplazada en vez de estar ausente — y eso no se simula aquí. El resultado hay que leerlo como "así se vería aproximadamente para alguien sin ningún funcionamiento de este cono", no como un diagnóstico preciso para una persona concreta.
+
+## ¿Debería reemplazar las pruebas con usuarios daltónicos reales por esta herramienta?
+
+No — úsala como un primer filtro rápido, no como sustituto. Es útil para atrapar errores obvios pronto: un indicador de estado que depende solo de rojo contra verde, un gráfico donde dos series de datos únicamente se distinguen por el tono. Pero ninguna simulación matemática captura todo el rango de la visión humana real, que varía con la iluminación ambiental, la calibración de cada pantalla y la severidad específica de la deficiencia de cada persona — y como se explicó arriba, esta herramienta ni siquiera cubre las formas anómalas más leves y más frecuentes. Si el producto realmente importa, probarlo con personas daltónicas reales sigue siendo la verificación más confiable que existe.
+
+## ¿Se sube mi imagen a algún servidor?
+
+No. La decodificación de la imagen, todo el cálculo por píxel y el panel de comparación se ejecutan enteramente en tu navegador usando la Canvas API. El modo de código de color llama a esa misma función por píxel, solo que una única vez en vez de millones de veces, así que ambos modos siempre dan resultados coherentes entre sí — no son dos fórmulas distintas escritas por separado. Ninguna imagen, nombre de archivo o color que escribas sale de tu equipo; puedes comprobarlo abriendo la pestaña Network del navegador antes de subir una imagen, o desconectando internet después de que la página cargue — el simulador sigue funcionando igual, porque no hay nada que enviar a ningún lado.

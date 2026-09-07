@@ -1,0 +1,29 @@
+---
+title: Visualizador STL/OBJ — Perguntas frequentes
+---
+
+## Em que unidade está o volume mostrado na tela?
+
+Nem STL nem OBJ carregam uma unidade dentro do próprio arquivo — os dois formatos armazenam apenas números crus para cada coordenada de vértice, sem nenhum campo dizendo "isto é milímetro" ou "isto é polegada". Esta ferramenta rotula o volume como milímetros porque essa é a convenção dominante em impressão 3D, o uso mais comum de STL, e as ferramentas CAD que exportam para STL (Fusion 360, SolidWorks, FreeCAD, Blender com a configuração certa) também assumem isso por padrão. Se o seu modelo na verdade foi criado em outra unidade — polegadas, metros, unidades CAD arbitrárias — a geometria dos triângulos em si não é afetada, mas o número reportado aqui precisa da conversão de unidade correspondente feita por você; não existe forma de um visualizador adivinhar qual unidade você tinha em mente.
+
+## Como o volume é calculado, e quando esse número não significa nada?
+
+Pelo teorema da divergência, aplicado diretamente sobre a malha: cada triângulo contribui com o volume com sinal do tetraedro formado por ele e a origem das coordenadas, e para uma superfície fechada com orientação (winding) consistente, esses volumes com sinal somam exatamente seis vezes o volume encerrado, qualquer que seja o formato. É por isso que arquivos STL — que definem os vértices de cada triângulo separadamente, sem índice compartilhado — e arquivos OBJ carregados com vértices indexados e compartilhados alimentam exatamente o mesmo cálculo sem nenhum caso especial. A função no código recebe só dois arrays — posições de vértices e, opcionalmente, índices de triângulos — totalmente independente do three.js, o que a torna testável sem contexto WebGL algum.
+
+A fórmula assume que a malha é estanque (watertight, sem buracos) e que a orientação de cada triângulo é consistente — todas para fora, ou todas para dentro, nunca misturadas. Um modelo com um buraco na superfície, com algumas normais invertidas misturadas entre as corretas, ou com geometria que se autointersecta, ainda vai gerar um número — esta ferramenta não detecta esses defeitos — mas esse número não será o volume real do modelo. Se você precisa de um volume confiável para uma malha geometricamente quebrada, o passo de "reparo" de um fatiador (slicer) ou uma ferramenta dedicada de reparo de malha precisa rodar antes.
+
+## Por que meu arquivo OBJ mostra mais triângulos do que eu esperava?
+
+Duas razões, ambas reais. Primeiro, parte do conteúdo 3D é criado com faces de quatro lados (quads) em vez de triângulos, e cada quad se divide em 2 triângulos quando triangulado para renderização — um modelo com 500 quads vira 1.000 triângulos aqui, o que está correto, não é um bug. Segundo, um arquivo OBJ pode definir vários objetos nomeados ou grupos de material dentro de um único arquivo (blocos `o` e `g`, ou um `usemtl` por seção); este visualizador percorre cada malha do arquivo e reporta a contagem combinada de triângulos de todas elas, porque é exatamente isso que acaba sendo renderizado na tela.
+
+## Os materiais ou texturas do arquivo .mtl do OBJ aparecem?
+
+Não. Este visualizador aplica uma única cor plana e ajustável ao modelo inteiro, e ignora qualquer arquivo de material `.mtl` referenciado, mapa de textura, ou atribuição de material por face que o formato OBJ suporte. Carregar e mapear texturas corretamente (incluindo resolver caminhos relativos para arquivos de imagem que não foram enviados junto com o `.obj`) é uma funcionalidade bem maior do que o que um inspetor de geometria precisa — o que esta ferramenta responde é "quantos triângulos, qual o tamanho, aproximadamente qual volume", não "como esse recurso aparece totalmente texturizado".
+
+## Meu modelo é enviado para algum servidor?
+
+Não. O arquivo é analisado e renderizado inteiramente nesta aba do navegador com three.js e WebGL; nada sobre a geometria, o nome do arquivo, ou o screenshot que você salva sai do seu dispositivo. Dá para conferir abrindo a aba Network antes de carregar um modelo, ou desligando a internet depois que a página já carregou e carregando o modelo mesmo assim — continua funcionando normalmente.
+
+## Por que não há suporte para STEP, 3MF ou GLTF?
+
+Cada um desses é um formato fundamentalmente diferente. STEP é um formato CAD completo de representação por fronteiras (superfícies curvas, montagens com várias peças, não apenas triângulos), enquanto 3MF e GLTF são formatos próprios de contêiner JSON/XML combinados com dados binários, cada um com seu próprio analisador. Adicionar suporte real e correto para qualquer um deles é um escopo de trabalho totalmente separado do que esta ferramenta faz hoje, que é deliberadamente restrito: dois formatos de malha triangular bem compreendidos, lidos e medidos corretamente, em vez de um leitor superficial para muitos formatos.

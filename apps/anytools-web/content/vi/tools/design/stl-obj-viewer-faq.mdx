@@ -1,0 +1,29 @@
+---
+title: Xem STL/OBJ — Câu hỏi thường gặp
+---
+
+## Thể tích hiển thị tính theo đơn vị gì?
+
+Cả STL lẫn OBJ đều không mang theo đơn vị đo trong bản thân file — hai định dạng này chỉ lưu số thô cho từng toạ độ đỉnh, không có trường nào ghi "đây là milimet" hay "đây là inch" cả. Tool này gắn nhãn thể tích là milimet vì đó là quy ước áp đảo trong in 3D, ứng dụng phổ biến nhất của STL, và các phần mềm CAD xuất ra STL (Fusion 360, SolidWorks, FreeCAD, Blender với thiết lập xuất đúng) cũng mặc định theo đơn vị này. Nếu mô hình của bạn thực ra được tạo theo đơn vị khác — inch, mét, hay đơn vị CAD tuỳ ý — thì hình học tam giác không hề bị ảnh hưởng, nhưng con số thể tích tool báo ra cần bạn tự quy đổi lại; không có cách nào để một trình xem tự đoán ra đơn vị bạn định dùng.
+
+## Thể tích được tính bằng cách nào, và khi nào con số đó vô nghĩa?
+
+Bằng định lý divergence, áp dụng trực tiếp lên lưới tam giác: mỗi tam giác đóng góp thể tích có dấu của tứ diện tạo bởi nó với gốc toạ độ, và với một mặt kín, các thể tích có dấu này cộng lại đúng bằng sáu lần thể tích thật của khối, bất kể hình dạng thế nào. Đây là lý do file STL (mỗi tam giác tự khai báo đỉnh riêng, không dùng chỉ mục chung) và file OBJ (thường dùng chỉ mục đỉnh chung) đều chạy qua đúng một công thức mà không cần xử lý riêng — code chỉ nhận vào mảng vị trí đỉnh và mảng chỉ mục tam giác (tuỳ chọn), tách biệt hoàn toàn khỏi three.js.
+
+Công thức này giả định lưới kín hoàn toàn (không có lỗ hổng) và pháp tuyến của mọi tam giác nhất quán (đều hướng ra ngoài, hoặc đều hướng vào trong — không lẫn lộn). Một mô hình bị thủng bề mặt, lẫn vài tam giác pháp tuyến bị đảo ngược, hay có hình học tự cắt nhau vẫn sẽ cho ra một con số — tool không phát hiện được các lỗi này — nhưng con số đó không phải thể tích thật của mô hình. Nếu cần thể tích đáng tin cho một lưới bị hỏng về mặt hình học, bước "repair" trong phần mềm cắt lớp (slicer) hoặc một tool sửa lưới chuyên dụng cần chạy trước.
+
+## Vì sao file OBJ của tôi lại hiện nhiều tam giác hơn tôi tưởng?
+
+Có hai lý do, cả hai đều thật. Thứ nhất, một số nội dung 3D được tạo bằng mặt tứ giác (quad, 4 cạnh) thay vì tam giác, và mỗi quad tách thành 2 tam giác khi được tam giác hoá để render — mô hình có 500 quad sẽ hiện 1.000 tam giác ở đây, đúng như vậy chứ không phải lỗi. Thứ hai, một file OBJ có thể định nghĩa nhiều đối tượng hoặc nhóm vật liệu riêng trong cùng một file (khối `o` và `g`, hoặc `usemtl` cho từng đoạn); tool này duyệt qua mọi mesh trong file và báo tổng số tam giác gộp lại của tất cả, vì đó chính xác là những gì thực sự được render lên màn hình.
+
+## Vật liệu hay texture từ file .mtl đi kèm OBJ có được hiển thị không?
+
+Không. Tool chỉ áp một màu phẳng, chỉnh được, lên toàn bộ mô hình, và bỏ qua mọi file vật liệu `.mtl` được tham chiếu, bản đồ texture, hay gán vật liệu theo từng mặt mà định dạng OBJ hỗ trợ. Việc nạp và ánh xạ texture đúng cách (bao gồm cả việc giải quyết đường dẫn tương đối tới file ảnh không được tải lên kèm `.obj`) là một hạng mục lớn hơn hẳn nhu cầu của một công cụ kiểm tra hình học — tool này trả lời câu "bao nhiêu tam giác, kích thước bao nhiêu, thể tích ước chừng ra sao", không phải "vật thể trông như thế nào khi lên texture đầy đủ".
+
+## Mô hình của tôi có bị tải lên máy chủ nào không?
+
+Không. File được phân tích và render hoàn toàn trong tab trình duyệt này bằng three.js và WebGL; không có gì về hình học, tên file, hay ảnh chụp màn hình bạn lưu lại rời khỏi thiết bị. Bạn kiểm chứng được bằng cách mở tab Network trước khi tải model lên, hoặc ngắt mạng sau khi trang đã tải xong rồi thử tải model — vẫn xem được bình thường.
+
+## Vì sao tool không hỗ trợ STEP, 3MF hay GLTF?
+
+Mỗi định dạng đó khác về bản chất so với STL/OBJ. STEP là định dạng CAD boundary-representation đầy đủ (mặt cong, assembly nhiều bộ phận, không chỉ tam giác thuần), còn 3MF và GLTF là các định dạng container JSON/XML kết hợp nhị phân với bộ phân tích riêng của chúng. Thêm hỗ trợ đúng nghĩa cho bất kỳ định dạng nào trong số này là một khối lượng công việc hoàn toàn khác so với những gì tool đang làm hôm nay — phạm vi cố tình thu hẹp lại: hai định dạng lưới tam giác dễ hiểu, đọc và đo đúng, thay vì một trình đọc hời hợt cho thật nhiều định dạng.

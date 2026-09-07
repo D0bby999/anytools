@@ -1,0 +1,27 @@
+---
+title: Trình tạo Cubic Bezier — Câu hỏi thường gặp
+---
+
+## `cubic-bezier()` trong CSS thực chất mô tả cái gì?
+
+Một đường cong đi từ điểm cố định (0,0) tới điểm cố định (1,1), được uốn bởi hai điểm điều khiển bạn tự chọn: P1=(x1,y1) và P2=(x2,y2). Trục hoành là thời gian đã trôi qua tính theo tỷ lệ trên tổng thời lượng transition, từ 0 lúc bắt đầu tới 1 lúc kết thúc. Trục tung là mức độ hoàn thành của thuộc tính đang được animate, cũng chạy từ 0 tới 1 trong trường hợp thông thường. Khi bạn viết `transition-timing-function: cubic-bezier(x1, y1, x2, y2)`, trình duyệt hiểu là "tại 30% thời lượng, giá trị animate phải tương ứng với tung độ của đường cong tại hoành độ 30% đó" — và trình duyệt tự giải phương trình này ở mỗi khung hình.
+
+## Vì sao x1, x2 chỉ được nằm trong [0,1] nhưng y1, y2 thì tuỳ ý?
+
+Vì trục X là thời gian, mà thời gian chỉ trôi về một chiều. Với một cubic bezier bất kỳ, hoành độ không nhất thiết tăng đơn điệu — nếu x1 hoặc x2 nằm ngoài [0,1], đường cong có thể quay đầu, khiến câu hỏi "thời điểm nào ứng với mức tiến độ như vậy" có nhiều hơn một đáp án, hoặc không có đáp án nào. Đặc tả CSS né hẳn vấn đề này bằng cách buộc x1 và x2 phải nằm trong [0,1], nhờ vậy đường cong luôn là một hàm số hợp lệ theo thời gian. Trục Y không bị ràng buộc tương tự, vì "tiến độ" chỉ là một con số được nội suy — nó có thể vọt qua 1 rồi lắng lại (hiệu ứng nảy), hoặc tụt xuống dưới 0 trước khi tiến lên (hiệu ứng lùi trước khi bật), và trình duyệt tính cả hai trường hợp bình thường. Tool này áp đúng ràng buộc x bằng hàm `clampX`, còn y thì cố tình để nguyên không đụng tới, đúng như comment trong code ghi rõ.
+
+## 5 từ khoá CSS quen thuộc (ease, ease-in…) tương ứng với con số nào?
+
+Về mặt toán học, chúng không khác gì `cubic-bezier()` cả — mỗi từ khoá thực chất được định nghĩa sẵn bằng bốn con số cụ thể trong đặc tả CSS Easing Functions. `linear` là (0, 0, 1, 1) — hai điểm điều khiển nằm đúng trên đường chéo nên tốc độ không đổi. `ease` là (0.25, 0.1, 0.25, 1). `ease-in` là (0.42, 0, 1, 1). `ease-out` là (0, 0, 0.58, 1). `ease-in-out` là (0.42, 0, 0.58, 1). Các nút preset trong tool nạp thẳng đúng những con số này, để bạn thấy hình dạng đằng sau cái tên quen thuộc, rồi từ đó chỉnh tiếp thành đường cong riêng của mình.
+
+## Các preset "overshoot" như ease-in-back, ease-out-back lấy từ đâu?
+
+Đây là các đường cong "back" được công bố trên easings.net (`easeInBack`, `easeOutBack`, `easeInOutBack`), vốn là bản xấp xỉ bằng cubic bezier cho các công thức easing gốc của Robert Penner năm 2001. Công thức gốc của Penner là một biểu thức đóng, không phải đường bezier, nhưng một đường bezier có thể xấp xỉ đủ sát cho nhu cầu của CSS — đó là lý do đúng những con số này (`ease-in-back` = 0.36, 0, 0.66, -0.56; `ease-out-back` = 0.34, 1.56, 0.64, 1; `ease-in-out-back` = 0.68, -0.6, 0.32, 1.6) xuất hiện gần như ở mọi nơi cần một ví dụ "easing CSS có độ nảy". Để ý y2 của `ease-in-back` là -0.56 và y1 của `ease-out-back` là 1.56 — cả hai đều nằm ngoài [0,1], đúng là trường hợp overshoot mà câu hỏi ở trên giải thích.
+
+## Cách tool tính giá trị easing tại một thời điểm t có giống hệt trình duyệt không?
+
+Về nguyên lý là giống, dù không phải chạy chung đúng dòng code C++ bên trong trình duyệt — tool giải cùng một phương trình. Cho một tỷ lệ thời gian t, hàm `solveU` tìm tham số u sao cho hoành độ X(u) của đường cong bằng t, bằng phương pháp chia đôi khoảng (bisection) 30 lần liên tiếp, đủ cho độ chính xác khoảng 1 phần tỷ — rẻ đến mức gọi được ở mỗi khung hình animate. Việc chia đôi này chạy đúng vì X(u) đảm bảo tăng đơn điệu theo u, hệ quả trực tiếp của việc x1, x2 đã bị kẹp trong [0,1] như câu trả lời phía trên. Sau khi có u, hàm đọc tung độ Y(u) tại đúng điểm đó — chính là ý nghĩa của "giá trị animate tại 30% thời lượng" mà `transition-timing-function` áp dụng, nên chuyển động của khối vuông trong phần xem trước phải khớp với những gì cùng đường cong đó tạo ra trong một transition CSS thật.
+
+## Dữ liệu đường cong tôi kéo thả có bị gửi lên server nào không?
+
+Không. Mọi phép tính — giải phương trình đường cong, chạy animation xem trước, định dạng chuỗi CSS đầu ra — đều thực hiện ngay trong trình duyệt bằng JavaScript thuần. Không có request nào mang bốn con số x1, y1, x2, y2 bạn vừa kéo đi đâu cả. Bốn con số đó cũng có thể mang thẳng sang các thư viện animation JavaScript khác như Framer Motion, GSAP hay Web Animations API — hầu hết chấp nhận mảng `[x1, y1, x2, y2]` hoặc bốn tham số tương đương — chỉ cần lưu ý một số thư viện áp dụng lại đúng ràng buộc x trong [0,1] của CSS, còn một số coi đây là đường cong tham số chung nên không ép buộc, khi đó hành vi với x ngoài khoảng sẽ tuỳ vào riêng thư viện đó chứ không còn theo chuẩn CSS nữa.

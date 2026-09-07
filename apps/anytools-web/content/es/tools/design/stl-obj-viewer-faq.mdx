@@ -1,0 +1,27 @@
+---
+title: Visor STL/OBJ — Preguntas frecuentes
+---
+
+## ¿Cómo se calcula el volumen a partir de una malla de triángulos?
+
+Mediante el teorema de la divergencia, aplicado directamente a la malla: cada triángulo aporta el volumen con signo del tetraedro que forma junto con el origen de coordenadas, y para una superficie cerrada y con un devanado (winding) consistente, esos volúmenes con signo suman exactamente seis veces el volumen encerrado, sea cual sea la forma. Por eso los archivos STL — que definen los vértices de cada triángulo por separado, sin índices compartidos — y los archivos OBJ cargados con vértices indexados y compartidos alimentan exactamente el mismo cálculo sin ningún caso especial: la función recorre cada triángulo, calcula ese volumen con signo mediante un producto vectorial y otro escalar entre las tres posiciones, y acumula la suma antes de dividir entre seis al final. La función que hace esto en el código recibe solo dos arreglos: posiciones de vértices y, opcionalmente, índices de triángulos, completamente al margen de three.js — el resultado es tan comprobable sin un contexto WebGL como sin la propia three.js, porque no depende de ninguna de las dos.
+
+## ¿Cuándo da un número sin sentido ese cálculo de volumen?
+
+La fórmula asume que la malla es estanca (watertight, sin agujeros) y que el devanado de cada triángulo es consistente — todos hacia afuera, o todos hacia adentro, nunca mezclados. Un modelo con un agujero en la superficie, con algunas normales invertidas mezcladas entre las correctas, o con geometría que se autointersecta, seguirá produciendo un número — esta herramienta no detecta esos defectos — pero ese número no será el volumen real del modelo. Si necesitas un volumen confiable para una malla con problemas geométricos, primero hace falta pasar por el paso de "reparación" de un slicer, o por una herramienta dedicada de reparación de mallas. Esta herramienta valida la forma de los datos — que la cantidad de posiciones sea múltiplo de tres, que cada índice de triángulo apunte a un vértice que realmente existe — pero eso es una comprobación estructural, no geométrica; un archivo bien formado, sin errores de índice, puede seguir siendo una superficie abierta, y la herramienta no tiene manera de saberlo con solo mirar los números.
+
+## ¿En qué unidad está el volumen que se muestra?
+
+Ni STL ni OBJ llevan una unidad dentro del propio archivo — ambos formatos solo almacenan números puros para cada coordenada de vértice, sin ningún campo que diga "esto son milímetros" o "esto son pulgadas". Esta herramienta etiqueta el volumen como milímetros porque es la convención abrumadoramente dominante en impresión 3D, el uso más común de STL, y las herramientas CAD que exportan a STL (Fusion 360, SolidWorks, FreeCAD, Blender con la configuración correcta) también asumen esa unidad por defecto. Si tu modelo en realidad se creó en otra unidad — pulgadas, metros, unidades CAD arbitrarias — la geometría de los triángulos no se ve afectada en absoluto, pero el número que reporta esta herramienta necesita la conversión de unidad correspondiente hecha por ti; no hay forma de que un visor adivine cuál unidad tenías en mente.
+
+## ¿Por qué mi archivo OBJ muestra más triángulos de los que esperaba?
+
+Por dos razones reales. Primero, parte del contenido 3D se crea con caras de cuatro lados (quads) en vez de triángulos, y cada quad se divide en 2 triángulos al triangularse para renderizar — un modelo de 500 quads se convierte en 1.000 triángulos aquí, y eso es correcto, no un error. Segundo, un archivo OBJ puede definir varios objetos con nombre o grupos de materiales dentro de un mismo archivo (bloques `o` y `g`, o un `usemtl` por sección); este visor recorre cada malla del archivo y reporta el conteo combinado de triángulos de todas ellas, porque eso es exactamente lo que termina renderizándose en pantalla.
+
+## ¿Se muestran los materiales o texturas del archivo .mtl del OBJ?
+
+No. Este visor aplica un solo color plano y ajustable a todo el modelo, e ignora cualquier archivo de material `.mtl` referenciado, mapa de textura, o asignación de material por cara que soporte el formato OBJ. Cargar y mapear texturas correctamente (incluyendo resolver rutas relativas a archivos de imagen que no se subieron junto con el `.obj`) es una función bastante más grande de lo que necesita un inspector de geometría — lo que esta herramienta responde es "cuántos triángulos, qué tan grande, aproximadamente qué volumen", no "cómo se ve este recurso completamente texturizado".
+
+## ¿Se sube mi modelo a algún servidor?
+
+No. El archivo se analiza y se renderiza enteramente en esta pestaña del navegador con three.js y WebGL; nada sobre la geometría, el nombre del archivo, o la captura de pantalla que guardes sale nunca de tu dispositivo. Puedes comprobarlo con la pestaña Network abierta antes de cargar un modelo, o desconectando internet después de que la página haya cargado y cargando el modelo de todas formas — funciona exactamente igual.
