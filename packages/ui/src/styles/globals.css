@@ -62,7 +62,7 @@
    * largest, most important element on every page — the main CTA — was the one
    * place the brand never appeared, while carrying a cyan glow underneath it.
    * White on cyan-700 is 5.36:1. */
-  --color-primary: oklch(0.520 0.094 223); /* #0E7490 cyan-700 */
+  --color-primary: oklch(0.52 0.094 223); /* #0E7490 cyan-700 */
   --color-primary-foreground: oklch(1 0 0);
 
   /* Secondary = lighter slate for muted buttons */
@@ -76,13 +76,13 @@
   /* Accent = logo cyan (CTA, links, focus rings). Light uses deep cyan-700 so
    * white-on-accent clears WCAG AA at 5.36:1 — the logo's own cyan manages only
    * 2.43:1 and would fail. */
-  --color-accent: oklch(0.520 0.094 223); /* #0E7490 cyan-700 — 5.36:1 on white */
+  --color-accent: oklch(0.52 0.094 223); /* #0E7490 cyan-700 — 5.36:1 on white */
   --color-accent-foreground: oklch(1 0 0);
 
   /* Brand signature gradient (teal→cyan), both stops drawn from the logo's own
    * range. BRAND-ONLY: logo + hero glow. Never used in cluster chrome
    * (preserves per-cluster hue identity). */
-  --color-brand-from: oklch(0.705 0.120 192); /* #0AB7B3 logo teal */
+  --color-brand-from: oklch(0.705 0.12 192); /* #0AB7B3 logo teal */
   --color-brand-to: oklch(0.713 0.121 207); /* #08B7C9 logo cyan */
 
   /* Destructive = red */
@@ -104,7 +104,7 @@
   /* Borders + inputs = slate-200 (subtle) */
   --color-border: oklch(0.91 0.013 249); /* #E2E8F0 slate-200 */
   --color-input: oklch(0.91 0.013 249);
-  --color-ring: oklch(0.520 0.094 223); /* matches accent — cyan focus ring */
+  --color-ring: oklch(0.52 0.094 223); /* matches accent — cyan focus ring */
 
   /* Typography — Inter for UI, JetBrains Mono for code */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -240,9 +240,8 @@
 
   /* Cyan glow for brand CTAs (sanctioned shadow exception) */
   .brand-glow {
-    box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--color-accent) 35%, transparent),
-      0 10px 30px -10px color-mix(in oklab, var(--color-accent) 60%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-accent) 35%, transparent), 0 10px 30px
+      -10px color-mix(in oklab, var(--color-accent) 60%, transparent);
   }
 
   /* Hero aurora backdrop — cyan radial glow, blurred, decorative */

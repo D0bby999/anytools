@@ -9,6 +9,10 @@ import { defineConfig } from 'vitest/config';
  * happy-dom environment) so there is one testing story, not two.
  */
 export default defineConfig({
+  // The shared tsconfig sets `jsx: "preserve"` because Next owns the transform in the app.
+  // esbuild honours that and leaves JSX untouched, so a test file blows up with
+  // "React is not defined". Tests need the runtime transform of their own.
+  esbuild: { jsx: 'automatic' },
   test: {
     environment: 'happy-dom',
     globals: true,

@@ -22,6 +22,19 @@ export {
 } from './components/dialog';
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/tooltip';
 export { Badge, badgeVariants } from './components/badge';
+export { Label } from './components/label';
+export { Checkbox, CheckboxField } from './components/checkbox';
+export { RadioGroup, RadioGroupItem, RadioGroupField } from './components/radio-group';
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+} from './components/select';
 export { CopyButton } from './components/copy-button';
 export { PrivacyNote } from './components/privacy-note';
 export {
@@ -39,6 +52,7 @@ export {
 export { NumberStepper } from './components/inputs/number-stepper';
 export { CurrencyInput } from './components/inputs/currency-input';
 export { RangeSlider } from './components/inputs/range-slider';
+export { ColorInput } from './components/inputs/color-input';
 export { SegmentedControl } from './components/inputs/segmented-control';
 export { HeightInput } from './components/inputs/height-input';
 export { WeightInput } from './components/inputs/weight-input';
