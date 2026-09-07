@@ -1,0 +1,27 @@
+---
+title: Imagem para Base64 — Perguntas frequentes
+---
+
+## O que é exatamente um data URI em base64?
+
+É uma forma de escrever dados binários — no caso, os bytes exatos de um arquivo de imagem — como texto puro, para poder ser colado em qualquer lugar em que um navegador espere uma URL: um atributo `src` de `img`, um `url()` de CSS, um link de imagem em Markdown, até um campo JSON. O texto sempre segue a mesma forma: `data:image/png;base64,` seguido dos bytes codificados. Os navegadores reconhecem esse prefixo e decodificam a imagem direto da string, sem precisar de um arquivo separado nem de nenhuma requisição de rede para exibi-la. É a mesma técnica usada por muitos e-mails em HTML para embutir o logo do remetente sem depender de o cliente de e-mail carregar imagens externas, e a que alguns frameworks de CSS usam para empacotar ícones pequenos direto dentro de uma folha de estilos compilada.
+
+## Por que o texto codificado fica cerca de 33% maior que o arquivo original?
+
+Porque o base64 codifica cada 3 bytes do arquivo original como 4 caracteres de texto, já que se limita a 64 caracteres ASCII imprimíveis para que o resultado possa ser embutido com segurança em formatos que nunca foram pensados para carregar binário — HTML, CSS, Markdown, JSON. Essa proporção fixa acrescenta quase exatamente um terço ao tamanho: um PNG de 90 KB vira cerca de 120 KB de texto base64. O valor `sizeAfter` mostrado pela ferramenta não é uma estimativa — é o comprimento real da string base64 gerada (`base64.length`, e como é ASCII, um caractere equivale a um byte). O aviso aparece a partir de 100 KB (`BASE64_SIZE_WARN_BYTES`): passado esse ponto, embutir o data URI direto no HTML, CSS ou Markdown deixa a página visivelmente mais pesada para cada visitante, enquanto um arquivo de imagem ligado é armazenado em cache e compartilhado entre páginas.
+
+## Minha imagem é enviada para algum servidor nesse processo?
+
+Não. Toda a leitura do arquivo usa `FileReader.readAsDataURL`, uma API padrão do navegador que não passa pela rede. O caminho inverso (colar um data URI para recuperar o arquivo) usa `atob()`, também puro JavaScript dentro da aba. Dá para confirmar abrindo a aba Rede antes de soltar a imagem, ou desconectando da internet depois que a página carregou e tentando codificar ou decodificar mesmo assim.
+
+## Codificar para base64 recomprime a imagem ou remove metadados?
+
+Não. Esta é a única ferramenta de imagem de toda a coleção que nunca toca um canvas. Todas as outras ferramentas de imagem redesenham pixels — redimensionar, girar, aplicar marca d'água — e isso é inevitável para o que elas fazem, mas também significa que um JPEG que passa por um canvas é recodificado e pode perder seus dados EXIF nesse processo. Codificar para base64 é diferente: lê os bytes exatos do arquivo original com `FileReader.readAsDataURL` e os codifica como estão, então a imagem decodificada do outro lado é idêntica byte a byte ao que foi enviado, metadados EXIF incluídos. Não existe nenhuma etapa de "escolher formato de saída" aqui, porque a ferramenta não gera pixels novos — ela só muda a representação dos mesmos bytes que já existiam. A única validação aplicada antes de codificar é conferir se `file.type` começa com `image/`; se você enviar algo que o navegador não reconhece como imagem, a ferramenta recusa com uma mensagem clara em vez de tentar codificar mesmo assim e gerar um data URI inútil.
+
+## Dá para fazer o caminho inverso, de base64 para um arquivo baixável?
+
+Sim, é para isso que serve a aba "Base64 → Imagem". Cole qualquer data URI que comece com `data:image/` e inclua `;base64,` — copiado do DevTools, de uma imagem embutida num e-mail, de um arquivo CSS, de onde for — e ela é decodificada de volta aos bytes originais, mostra a pré-visualização e oferece um download direto com uma extensão calculada a partir do tipo MIME presente no próprio data URI (`image/png` → `.png`, `image/jpeg` → `.jpg`, e assim por diante; um MIME desconhecido cai em `.bin` em vez de arriscar um palpite errado). Se o que foi colado não for um data URI de imagem em base64 válido — falta a marca `;base64`, o tipo não é `image/*`, ou o payload foi cortado ao copiar e o `atob()` falha — a ferramenta aponta exatamente o que está errado, em vez de falhar silenciosamente.
+
+## Qual a diferença entre isso e a ferramenta genérica Base64 Encode?
+
+O Base64 Encode trabalha sobre texto que você digita ou cola — ele não sabe o que é uma imagem, e gera uma string base64 nua, sem prefixo `data:` nem tipo MIME. Esta ferramenta foi feita especificamente para imagens: verifica se `file.type` começa com `image/` antes de codificar, embrulha os bytes num `data:image/...;base64,...` correto, e entrega prontos para colar os trechos para uma tag `img` do HTML, um `background-image` de CSS, um `url()` de CSS e Markdown — além do caminho de decodificação inversa que uma ferramenta de texto genérica não tem motivo para oferecer.

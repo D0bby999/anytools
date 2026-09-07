@@ -1,0 +1,27 @@
+---
+title: Conversor de Fontes — Perguntas frequentes
+---
+
+## Entre quais formatos esta ferramenta realmente converte?
+
+O escopo real é TTF/OTF para WOFF 1.0 e vice-versa, mais a opção de subconjunto — nada além disso. WOFF, no fundo, é só um envelope: pega as tabelas que já existem dentro da fonte, comprime cada uma com DEFLATE e adiciona um cabeçalho pequeno por cima; desembrulhar faz o caminho inverso. As duas direções são operações sem perda sobre o contêiner, não sobre os contornos das letras. Se você envia uma fonte TrueType (com tabela `glyf`), qualquer saída — WOFF ou bruta — continua TrueType; uma fonte CFF (assinatura `OTTO`) continua CFF. Leia "TTF" ou "OTF" no resultado como "o que seu arquivo já era", não como uma escolha que você fez.
+
+## Por que não existe suporte a WOFF2?
+
+Porque o WOFF2 comprime suas tabelas com Brotli, e ainda reescreve `glyf`/`loca` numa forma transposta comprimida com Brotli em cima disso — um nível a mais de complexidade em relação ao WOFF1. O problema é que os navegadores não expõem um codec Brotli para o JavaScript do mesmo jeito que fazem com gzip/deflate: a Compression Streams API só suporta `gzip`, `deflate` e `deflate-raw`, nada chamado `br`. Adicionar suporte a Brotli significaria empacotar uma implementação WASM inteira como nova dependência, o que ficou fora do escopo desta versão. Se sua fonte está em WOFF2, envie em vez disso um TTF, OTF ou WOFF1 — a maioria das ferramentas que geram WOFF2 também consegue gerar WOFF comum.
+
+## "Converter" TTF para OTF muda de verdade o contorno das letras?
+
+Não de verdade. Esse é o ponto que mais confunde. TTF usa contornos `glyf`/`loca` com curvas quadráticas; OTF (CFF) usa curvas cúbicas ao estilo PostScript. Converter de fato entre os dois exige reescrever a forma matemática de cada glifo — trabalho de um motor de engenharia de fontes dedicado, não a manipulação em nível de contêiner que esta ferramenta faz. Por isso, mesmo escolhendo exportar "fonte bruta" para um arquivo OTF, o resultado continua sendo OTF; nenhum botão aqui converte de verdade TTF em OTF ou o contrário. Se você realmente precisa mudar o contorno, é necessária uma ferramenta completa de engenharia de fontes, como o FontForge, não algo que roda numa aba do navegador.
+
+## Como funciona o subconjunto (subsetting) de caracteres, e por que prestar atenção à licença?
+
+Você digita os caracteres que quer manter — uma frase, uma lista de glifos, o que a sua página realmente usa — e a ferramenta pede ao [HarfBuzz](https://harfbuzz.github.io/) (o mesmo motor de composição de texto por trás do Chrome, Firefox, Android e LibreOffice) para manter só os glifos que esses pontos de código precisam, além de todos os recursos de layout do OpenType (ligaduras, kerning, posicionamento de marcas para acentos) em vez de manter apenas o que o HarfBuzz manteria por padrão. Esse último detalhe importa para o português: descartar os dados GPOS de posicionamento deixaria os acentos presentes como glifos, mas posicionados errado. Um ponto à parte: gerar um subconjunto é uma forma de modificação da fonte. A maioria das licenças de webfont permite isso explicitamente — é a forma normal de publicar fontes web mais leves —, mas algumas licenças de fontes comerciais restringem modificação ou redistribuição, e algumas exigem que o subconjunto carregue uma atribuição ou um nome alterado. Esta ferramenta não tem como saber qual licença se aplica ao arquivo que você enviou; essa verificação é sua, antes de publicar o resultado.
+
+## Por que às vezes o WOFF final fica maior que o arquivo original?
+
+Em fontes pequenas — uma fonte de ícones com umas quarenta glifos, ou uma fonte já reduzida antes — o custo fixo do WOFF às vezes supera o que a compressão economiza: cada arquivo WOFF carrega 44 bytes de cabeçalho mais 20 bytes de entrada de diretório por tabela. Se o DEFLATE não conseguir reduzir uma tabela abaixo do tamanho original, a ferramenta guarda essa tabela como está em vez de pagar o custo de comprimir à toa — mas o cabeçalho fixo é inevitável, e numa fonte pequena o bastante ele pode pesar mais do que foi economizado em outro lugar. Com algumas centenas de glifos isso praticamente não acontece; o DEFLATE ganha com folga em dados reais de contorno de glifo.
+
+## Minha fonte é enviada para algum servidor?
+
+Não. O arquivo é lido com a File API, e cada etapa — análise do contêiner, compressão DEFLATE, geração do subconjunto — roda dentro desta própria aba. A etapa de subsetting chama uma build WebAssembly do HarfBuzz servida a partir do próprio domínio do site, não de um CDN externo, então nada sobre sua fonte, nem quais caracteres você manteve, sai da sua máquina. A pré-visualização carrega o arquivo convertido pela API `FontFace` padrão do navegador — o mesmo mecanismo que uma regra `@font-face` real usaria — então, se ela não conseguir renderizar, é um sinal genuíno de que o resultado também falharia numa página real, não um bug exclusivo da pré-visualização.

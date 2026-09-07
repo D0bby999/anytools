@@ -1,0 +1,27 @@
+---
+title: MessagePack ↔ JSON — Câu hỏi thường gặp
+---
+
+## Vì sao MessagePack thường nhỏ hơn JSON tương đương?
+
+JSON tốn byte cho phần cú pháp không mang dữ liệu gì cả: mỗi key chuỗi lặp lại nguyên văn và bọc trong dấu ngoặc kép ở từng object, mỗi số được viết ra dưới dạng chữ số thập phân, các ký tự cấu trúc (`{`, `}`, `[`, `]`, `,`, `:`) cộng dồn lại trên một tài liệu lớn. MessagePack thay tất cả bằng một byte header kiểu dữ liệu rồi tới giá trị thô ngay sau đó — một số nguyên nhỏ thường chỉ tốn một byte thay vì vài chữ số ASCII, một chuỗi ngắn tốn đúng độ dài byte của nó cộng một byte header thay vì cộng thêm hai dấu ngoặc kép. Dòng so sánh kích thước dưới kết quả (`sizeComparison`) hiển thị đúng con số tiết kiệm được cho payload bạn dán vào; phần trăm cụ thể phụ thuộc nhiều vào dữ liệu của bạn có bao nhiêu số nhỏ và key ngắn so với chuỗi dài — càng nhiều chuỗi dài, hai định dạng càng gần nhau.
+
+## Nếu tôi dán nhiều giá trị MessagePack nối liền nhau, tool có tự lấy giá trị đầu tiên không?
+
+Không. Đây là một hành vi cần biết trước khi dùng: hàm `decode()` của thư viện `@msgpack/msgpack` chỉ chấp nhận đúng một giá trị MessagePack độc lập. Nếu payload bạn dán vào thực chất là nhiều giá trị nối liền nhau — trường hợp hay gặp khi copy dữ liệu từ một luồng ghi log hoặc một transport đóng khung theo kiểu length-prefixed — tool sẽ ném lỗi (mã `decodeFailed`, kèm chi tiết thật của lỗi decode) thay vì âm thầm lấy giá trị đầu tiên rồi bỏ qua phần còn lại. Cách xử lý đúng là tách payload thành từng giá trị riêng trước khi dán vào đây, hoặc gỡ lớp framing bên ngoài nếu có.
+
+## "Timestamp extension" là gì, vì sao nó tự hiện ra thành ngày tháng đọc được?
+
+Các kiểu dữ liệu gốc của MessagePack — string, integer, float, boolean, array, map, binary, nil — không có khái niệm "thời điểm". Bản sửa đổi spec tháng 8/2017 thêm một extension type dành riêng (type `-1`) cho việc này, đóng gói số giây và nano-giây kể từ Unix epoch vào 4, 8 hoặc 12 byte tuỳ khoảng giá trị cần biểu diễn. Bộ giải mã của thư viện tool dùng nhận ra extension này tự động và ánh xạ nó sang đối tượng `Date` của JavaScript; vì `JSON.stringify` tự gọi `Date#toJSON` khi serialize, kết quả hiện ra ngay thành chuỗi ISO 8601 dễ đọc trong JSON đầu ra — không cần thêm bước xử lý riêng nào trong code của tool.
+
+## Đi vòng qua JSON rồi mã hoá lại có mất thông tin gì của MessagePack không?
+
+Có. JSON có hệ kiểu hẹp hơn MessagePack đáng kể. MessagePack tách riêng `bin` (nhị phân thô) khỏi `str` (văn bản) thành hai wire type khác nhau, và chia số nguyên thành 15 độ rộng khác nhau (từ fixint một byte tới int/uint 64-bit đầy đủ) tách biệt với kiểu số thực. JSON chỉ có đúng một kiểu chuỗi và một kiểu số — nên khi mã hoá lại JSON về MessagePack sau một vòng round-trip, tool không thể khôi phục lại đúng độ rộng số nguyên gốc hay việc giá trị đó vốn là `bin` hay `str`. Nếu việc giữ đúng phân biệt đó quan trọng với bạn, hãy làm việc trực tiếp trên payload nhị phân gốc thay vì đi qua bản JSON trung gian.
+
+## Tool có xử lý được mọi loại extension type không?
+
+Không, và có chủ đích. Spec MessagePack để ngỏ type 0 tới 127 cho từng ứng dụng tự định nghĩa ý nghĩa riêng — chỉ có type `-1` (timestamp) là dành riêng theo spec, còn lại không có quy ước chung nào cả. Không biết ứng dụng gốc tạo ra payload dùng quy ước gì, tool hiện ra số type thô và byte thô của một extension chưa nhận diện được, thay vì đoán một cách giải mã gần như chắc chắn sai với đúng payload của bạn.
+
+## Có giới hạn dung lượng payload không, và tool giải mã ở đâu?
+
+Có, giới hạn 10 MB. Mọi thứ chạy trong tab trình duyệt của bạn thay vì trên server, và việc parse hàng chục megabyte văn bản hex hoặc base64 trong một ô input là đúng kiểu thao tác có thể khiến tab bị đứng hình thấy rõ. Payload vượt mốc đó bị từ chối trước khi bắt đầu giải mã (`error_payloadTooLarge`), chứ không phải bị cắt bớt hay xử lý một phần. Nếu cần kiểm tra file lớn hơn, một công cụ dòng lệnh giải mã MessagePack theo kiểu streaming sẽ phù hợp hơn một tool chạy trong trình duyệt.
