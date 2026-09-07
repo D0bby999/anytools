@@ -254,6 +254,37 @@ message form carries a tool-specific warning; the bare form silently downgrades 
 sentence while leaving `strings.ts` untouched, so nothing catches it. `rsa-keypair-generator`
 ("do not use browser-generated keys for high-value production systems") is the worked example.
 
+### Which container a tool uses
+
+Decided in Phase 1 after auditing the generators cluster; recorded so later phases do not
+re-litigate it per tool.
+
+| Shape | Container |
+|---|---|
+| One form → one text output | `GeneratorTemplate` |
+| Source ↔ target, two panes | `ConverterTemplate` |
+| Numeric inputs → a headline figure | `CalculatorTemplate` |
+| Anything else | `Card`, laid out per the section order above |
+
+`GeneratorTemplate` takes a single `output: string` and renders one copy button, so it does not
+fit — and must not be forced onto — tools with **several outputs** (`hash-generator` shows up to
+five hashes, each with its own copy), an **image output plus a download** (`qr-code-generator`,
+`barcode-generator`), or **two distinct modes** (`bcrypt-generator` hashes and verifies).
+
+So a cluster carrying more than one container is expected, not a defect. What must stay uniform
+inside a cluster is the **section order, spacing and affordances** above — not the wrapper.
+
+### "Try example" is a paste-tool affordance
+
+It belongs on tools where the user supplies a payload whose shape is not obvious: beautifiers,
+decoders, regex, jq. All ten current users are that kind of tool.
+
+It does **not** belong on generators. They take structured options that already have working
+defaults and produce output immediately, and where they do accept a value —
+`qr-code-generator`, `barcode-generator`, `meta-tag-generator` — a placeholder and a
+format-specific hint sit next to the field and say the same thing without a button. Its absence
+across all twelve generators is the rule applied correctly, not a gap.
+
 ### Content that looks like chrome but is not
 
 Delete none of the following while restyling:
