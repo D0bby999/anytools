@@ -49,17 +49,21 @@ const AD_ANALYTICS_FRAME_HOSTS = [
   // ad-bearing page, not just one (2026-09-06).
   'https://www.google.com',
 ];
-// Deliberately no CDN host for Excalidraw fonts, despite /design/whiteboard producing 230
-// font-src reports. Measured 2026-09-06 before widening anything: across four fresh page
-// loads the browser made ZERO font requests to that CDN and zero to our own copy, while
-// reporting 230 violations every time. The reports come from FontFace construction, not
-// from fetching — Excalidraw bakes a CDN fallback into each FontFace's source list, and the
-// browser CSP-checks every source when the object is built. `window.EXCALIDRAW_ASSET_PATH`
-// is set correctly (whiteboard/ui.tsx), so the first source is our own origin and the
-// fallback is never reached.
-// Enforcing therefore drops the fallback entry instead of breaking the tool, which is the
-// behaviour this site promises. vendor-assets.test.ts also greps this file for CDN
-// hostnames precisely to stop one being written here.
+// Deliberately no CDN host for Excalidraw fonts. Measured 2026-09-06: across four fresh
+// /design/whiteboard loads the browser made ZERO font requests to that CDN while reporting
+// 230 violations every time. The reports come from FontFace construction, not from fetching —
+// Excalidraw bakes a CDN fallback into each FontFace's source list, and the browser CSP-checks
+// every source when the object is built.
+// Re-measured 2026-09-07, because the earlier walk never created a text element and so read as
+// "no font is fetched at all": once text exists, Excalifont IS fetched, once, from our own
+// /third-party/excalidraw/ copy. `window.EXCALIDRAW_ASSET_PATH` (whiteboard/ui.tsx) works, the
+// tool is not degraded, and the fallback is never reached.
+// The 230 checks themselves are now gone at the source: whiteboard/same-origin-font-guard.ts
+// wraps FontFace and strips cross-origin entries before construction, so the browser has
+// nothing cross-origin left to check — and no longer POSTs 230 reports per whiteboard load,
+// which was drowning any real violation. This directive stays tight either way; the guard is
+// defence in depth, not a licence to widen it. vendor-assets.test.ts also greps this file for
+// CDN hostnames precisely to stop one being written here.
 // Appends a leading space + the host list when hosted, or nothing at all in
 // self-host — string-identical to the old hard-coded directive when hosted.
 const adHostSuffix = (hosts: string[]) => (IS_SELF_HOSTED ? '' : ` ${hosts.join(' ')}`);
@@ -138,9 +142,11 @@ const nextConfig: NextConfig = {
       //     1x  script-src-elem  https://static.cloudflareinsights.com
       //
       // The last two are now allowed. The first is deliberately NOT — see the note above
-      // EXCALIDRAW's font handling: those reports come from FontFace construction, not from
-      // a fetch, and enforcing simply drops a fallback the tool never uses. Nothing else in
-      // the app tripped the policy, and the browser reported no non-CSP console errors
+      // EXCALIDRAW's font handling: those reports came from FontFace construction, not from
+      // a fetch, and enforcing simply drops a fallback the tool never uses. As of 2026-09-07
+      // the font guard removes those sources before construction, so that count should now be
+      // zero — if it climbs back, upstream changed and the guard stopped matching. Nothing
+      // else in the app tripped the policy, and the browser reported no non-CSP console errors
       // during the same walk. `report-uri` stays so a regression still surfaces.
       { key: 'Reporting-Endpoints', value: 'csp="/api/csp-report"' },
       {

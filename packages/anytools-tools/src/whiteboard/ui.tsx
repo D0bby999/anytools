@@ -26,6 +26,7 @@ import {
   serializeScene,
   storageKey,
 } from './logic';
+import { installSameOriginFontGuard } from './same-origin-font-guard';
 import { STRINGS } from './strings';
 import { WhiteboardToolbar } from './whiteboard-toolbar';
 
@@ -55,6 +56,10 @@ type WindowWithAssetPath = Window & { EXCALIDRAW_ASSET_PATH?: string | string[] 
 // the ES module semantics and would read an unset value.
 if (typeof window !== 'undefined') {
   (window as WindowWithAssetPath).EXCALIDRAW_ASSET_PATH = EXCALIDRAW_ASSET_PATH;
+  // Same reason this block runs before the lazy import: the CDN entry `createUrls` appends is
+  // baked in at FontFace construction too, and only a wrapper installed first can drop it.
+  // Without this the browser CSP-checks 230 cross-origin sources on every whiteboard load.
+  installSameOriginFontGuard();
 }
 
 // React.lazy rather than next/dynamic: `next` is not a dependency of this package, and the

@@ -283,7 +283,7 @@ the catalogue are options in a row of options, not settings toggles) · no `Slid
 
 | Tool | Why |
 |---|---|
-| `whiteboard` | Full-screen canvas; owns a lazy Excalidraw API and a debounced autosave |
+| `whiteboard` | Full-screen canvas; owns a lazy Excalidraw API, a debounced autosave, and the FontFace guard below |
 | `stl-obj-viewer` | Full-screen 3D canvas |
 | `scientific-calculator` | Keypad layout |
 | `pomodoro-timer` | Timer face |
@@ -397,3 +397,14 @@ Before delivering any UI code, verify:
 - [ ] Responsive: 375px, 768px, 1024px, 1440px
 - [ ] No content hidden behind fixed navbars
 - [ ] No horizontal scroll on mobile
+
+### Excalidraw fonts never reach a CDN
+
+`ExcalidrawFontFace.createUrls` always appends the upstream CDN as a second `src` in every
+FontFace, and `window.EXCALIDRAW_ASSET_PATH` only controls the first. The browser CSP-checks
+every source at construction, so `/design/whiteboard` was emitting **230 `font-src` violations
+and 230 POSTs to `/api/csp-report` on each load** — enough to bury a real violation, on every
+visit. `whiteboard/same-origin-font-guard.ts` wraps `FontFace` before the Excalidraw module is
+evaluated and drops cross-origin entries; measured after, both counts are 0 and Excalifont still
+loads (once, from `/third-party/excalidraw/`). It filters by origin, never by hostname —
+`vendor-assets.test.ts` fails the build if a CDN name is written into this tree.
