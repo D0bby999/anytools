@@ -1,0 +1,27 @@
+---
+title: Đếm Token — Câu hỏi thường gặp
+---
+
+## Token là gì, sao không dùng luôn số từ cho tiện?
+
+Token là đơn vị mà model ngôn ngữ thực sự "đọc" văn bản, không phải ký tự và cũng không hẳn là từ. Các model của OpenAI dùng byte-pair encoding: từ một lượng văn bản huấn luyện khổng lồ, thuật toán xây một bộ từ vựng gồm những chuỗi ký tự xuất hiện thường xuyên, rồi biểu diễn bất kỳ đoạn input nào thành một dãy mảnh ghép lấy từ bộ từ vựng đó. Một từ ngắn và phổ biến như "the" là một token. Một từ dài hoặc hiếm hơn thường bị tách làm hai, ba mảnh. Khoảng trắng, dấu câu, thậm chí một phần của số cũng tính là token riêng. Đó là lý do một câu 9 từ có thể tốn 12-15 token, và token — không phải số từ hay số ký tự — mới là con số quyết định giá API cũng như giới hạn context window thật sự.
+
+## Nên chọn bộ mã hoá cl100k_base hay o200k_base?
+
+Chọn theo đúng model bạn đang muốn ước lượng. `o200k_base` là bộ mã hoá đứng sau GPT-4o, GPT-4.1, dòng GPT-5, và các model suy luận dòng o — chọn cái này cho hầu hết mọi thứ hiện tại. `cl100k_base` là bộ mã hoá cũ hơn, dùng cho GPT-4 bản gốc, GPT-3.5-turbo, và model embedding `text-embedding-ada-002`. Hai bộ mã hoá có bộ từ vựng khác nhau hoàn toàn, nên cùng một câu có thể ra số token khác nhau ở mỗi bộ — không có công thức quy đổi cố định giữa hai bên, chọn sai bộ là con số hiện ra sẽ lệch với thực tế bạn cần biết.
+
+## Công cụ này dùng được cho prompt của Claude hay Gemini không?
+
+Chỉ để ước lượng thô, và nói khác đi thì không trung thực. Claude và Gemini dùng tokenizer riêng, bộ từ vựng riêng, huấn luyện trên dữ liệu khác với luật ghép mảnh khác. Tool này đếm bằng đúng tokenizer của OpenAI, vì đó là bộ có bản mã nguồn mở chạy được hoàn toàn trong một tab trình duyệt. Với văn bản tiếng Anh thông thường, số token giữa các tokenizer khác nhau thường nằm trong khoảng gần nhau, nhưng với code, văn bản không phải tiếng Anh, hay định dạng lạ thì khoảng lệch có thể đáng kể. Nếu một dự án tính phí theo số token của riêng Claude hay Gemini, hãy dùng công cụ đếm chính chủ của nhà cung cấp đó cho con số thật sự quan trọng.
+
+## Vì sao tool không hiện luôn số tiền ước tính?
+
+Đây là lựa chọn có chủ đích, không phải thiếu sót. Giá theo token của các model đổi khá thường xuyên — model mới ra mắt, giá cũ giảm, có gói giá riêng cho input/output khác nhau — nên một con số tiền hiển thị ngay trên trang rất dễ trở thành sai lệch chỉ sau vài tuần mà không ai buồn cập nhật, và một con số sai còn tệ hơn không có con số nào. Tool dừng lại ở phần dữ kiện ổn định — số token, ký tự, từ — và để việc nhân với đơn giá hiện hành cho người dùng tự tra ở trang giá chính thức của từng nhà cung cấp.
+
+## Vì sao lần đầu mở tool lại thấy dòng chữ "đang tải"?
+
+Bảng rank byte-pair-encoding cho một bộ mã hoá nặng khoảng 1 đến 2 megabyte, vì nó phải mô tả hàng chục nghìn token khả dĩ dưới dạng chuỗi byte kèm thứ tự rank. Tải nó ngay khi trang mở ra nghĩa là ai ghé trang cũng phải tải xuống dù có gõ chữ nào hay không, nên bảng rank chỉ được tải sau khi bạn thực sự mở tool, và chỉ tải đúng một bảng ứng với bộ mã hoá đang chọn. Sau lần tải đầu, bảng được giữ lại trong bộ nhớ của tab, nên chuyển qua lại giữa hai bộ mã hoá hay gõ thêm chữ trong cùng phiên không tải lại gì cả.
+
+## Số ký tự và số từ được tính theo cách nào?
+
+Số ký tự lấy trực tiếp độ dài chuỗi văn bản, tức đơn vị mã UTF-16 của JavaScript — một emoji hay một số ký tự CJK hiếm có thể chiếm hai đơn vị dù mắt thường chỉ thấy một ký tự, nên con số này không hẳn trùng khớp với "số ký tự" bạn đếm bằng mắt. Số từ được định nghĩa theo đúng quy ước các tool văn bản khác trên trang này dùng: đếm các cụm ký tự không-phải-khoảng-trắng liên tiếp; input rỗng hoặc chỉ toàn khoảng trắng cho ra 0 từ, không phải 1 từ như một số cách đếm ngây thơ hay mắc lỗi. Cả ba con số — token, ký tự, từ — được tính trong cùng một lượt gọi, nên luôn khớp với đúng nội dung bạn vừa dán vào, không có độ trễ giữa các con số với nhau.

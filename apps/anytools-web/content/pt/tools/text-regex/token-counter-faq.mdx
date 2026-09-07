@@ -1,0 +1,27 @@
+---
+title: Contador de tokens — Perguntas frequentes
+---
+
+## O que é um token, afinal, e por que não é a mesma coisa que uma palavra?
+
+Token é a unidade que um modelo de linguagem realmente lê no texto — não é um caractere, nem exatamente uma palavra. Os modelos da OpenAI usam codificação por pares de bytes (BPE): a partir de uma quantidade enorme de texto de treino, o algoritmo monta um vocabulário de pedaços frequentes e representa qualquer entrada como uma sequência de fragmentos desse vocabulário. Uma palavra curta e comum vira um único token; uma palavra mais longa ou incomum costuma se quebrar em dois ou três pedaços. Espaços, pontuação e até partes de um número contam como tokens separados. É por isso que uma frase de 9 palavras pode custar 12 a 15 tokens sem nenhum erro envolvido, e é a contagem de tokens — não de palavras nem de caracteres — que realmente determina o preço da API e os limites da janela de contexto.
+
+## Qual codificação eu devo escolher?
+
+Depende do modelo que você está comparando. `o200k_base` é a codificação por trás do GPT-4o, GPT-4.1, da família GPT-5 e dos modelos de raciocínio da série o — é a escolha certa para praticamente tudo atual. `cl100k_base` é a codificação mais antiga, usada pelo GPT-4 original, GPT-3.5-turbo e pelo modelo de embeddings `text-embedding-ada-002`. Os vocabulários das duas são diferentes entre si, então a mesma frase pode resultar numa contagem de tokens diferente dependendo de qual você escolhe — não existe uma taxa de conversão fixa entre elas, e escolher a codificação errada dá um número que não corresponde ao modelo que realmente interessa.
+
+## Funciona para calcular prompts do Claude ou do Gemini?
+
+Só como estimativa aproximada, e seria falso dizer outra coisa. Claude e Gemini usam tokenizadores próprios, com vocabulários próprios treinados em dados e regras de fusão diferentes. Esta ferramenta conta com o tokenizador da OpenAI especificamente porque é o que tem uma implementação de código aberto capaz de rodar inteiramente dentro de uma aba do navegador. Para texto em inglês comum, as contagens entre tokenizadores diferentes costumam ficar numa faixa parecida, mas para código, texto em outro idioma ou formatação incomum a diferença pode ser bem grande. Se um projeto cobra com base na contagem de tokens específica do Claude ou do Gemini, o certo é usar a ferramenta de contagem própria daquele provedor para o número que de fato importa.
+
+## Por que a ferramenta não mostra logo um custo estimado?
+
+Essa é uma escolha deliberada, não um descuido. Os preços por token dos modelos mudam com uma frequência considerável — sai modelo novo, caem preços antigos, surgem tarifas diferentes para entrada e saída — então um valor de custo fixo nesta página ficaria desatualizado em poucas semanas sem que ninguém atualizasse, e um número errado é pior do que nenhum número. A ferramenta para nos dados que realmente são estáveis — tokens, caracteres, palavras — e deixa que multiplicar pelo preço vigente seja algo que cada pessoa confira direto na página de preços oficial do provedor escolhido.
+
+## Por que aparece "carregando" na primeira vez que abro a ferramenta?
+
+A tabela de ranks da codificação por pares de bytes pesa entre 1 e 2 megabytes, porque precisa descrever dezenas de milhares de tokens possíveis como sequências de bytes com uma ordem de prioridade. Carregar isso incondicionalmente faria com que qualquer visita à página baixasse esse peso todo, digitando algo ou não, então ela só é buscada depois que você realmente abre a ferramenta, e apenas a tabela referente à codificação selecionada. Depois da primeira carga, ela fica em cache na própria aba, então alternar entre as duas codificações ou digitar mais texto na mesma sessão não recarrega nada.
+
+## Como são calculados os números de caracteres e de palavras?
+
+A contagem de caracteres usa diretamente o comprimento da string em unidades UTF-16 do JavaScript — um emoji ou algum caractere CJK raro pode ocupar duas unidades mesmo parecendo um único caractere a olho nu, então o número nem sempre bate exatamente com o que você contaria manualmente. A contagem de palavras segue a mesma definição usada pelas outras ferramentas de texto deste site: conta sequências de caracteres que não são espaço em branco; um texto vazio ou só com espaços resulta em 0 palavras, não em 1 como algumas contagens ingênuas fariam. Os três números — tokens, caracteres, palavras — são calculados na mesma passada, então sempre correspondem exatamente ao texto que você acabou de colar. Nada disso é enviado para fora: tanto a lógica de codificação quanto suas tabelas de vocabulário rodam como JavaScript comum dentro desta aba, usando a mesma biblioteca de código aberto que a OpenAI publica para quem precisa contar tokens localmente.
