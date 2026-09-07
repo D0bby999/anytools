@@ -1,0 +1,27 @@
+---
+title: Limpiador de Unicode oculto — Preguntas frecuentes
+---
+
+## ¿Las letras acentuadas del español se confunden con caracteres sospechosos?
+
+No. La definición de "latino" en esta herramienta es amplia: ASCII, Latin-1 Supplement, Latin Extended A/B, y también el rango Latin Extended Additional (U+1E00 a U+1EFF). La á, é, í, ó, ú, ü y ñ del español entran directamente dentro de ese rango como letras latinas normales desde el primer momento, no como una excepción tratada aparte — así que nunca se marcan como "parecen latinas pero no lo son", porque de hecho sí lo son. La misma lógica aplica al francés, al portugués o a cualquier otro idioma que use diacríticos dentro del alfabeto latino extendido.
+
+## ¿Qué detecta exactamente esta herramienta en un texto que parece completamente normal?
+
+Dos problemas sin relación entre sí que se esconden en texto que a simple vista luce impecable. El primero son los caracteres invisibles: espacios de ancho cero, uniones de ancho cero, controles de dirección de texto (bidi), una marca de orden de bytes, un guion suave, y más de una docena de "espacios" Unicode que no son el U+0020 normal del teclado. Ninguno se ve en pantalla, pero son bytes reales, y rompen la búsqueda de coincidencia exacta, las comparaciones diff, y a veces el parseo de JSON o la generación de slugs de URL construidos a partir de ese texto. El segundo son los homoglifos: letras cirílicas o griegas dibujadas de forma idéntica a una letra latina (la а cirílica es indistinguible de la a latina; la Ρ griega, de la P latina). Un homoglifo colado en una palabra en español la hace fallar contra sí misma en un buscador, aunque a simple vista nadie note nada raro.
+
+## ¿Por qué los espacios raros como el NBSP se convierten en un espacio normal en vez de eliminarse?
+
+Porque no todos los caracteres invisibles se pueden tratar igual con seguridad. Los que de verdad tienen ancho cero — espacio de ancho cero, unión de ancho cero, los controles bidi, la marca de orden de bytes, el guion suave — se eliminan directamente, porque quitarlos no cambia nada en cómo se ve el texto. Los espacios raros como el espacio de no separación, la familia en/em-espacio, o los espacios ideográficos y matemáticos son distintos: sí ocupan ancho visual, así que borrarlos pegaría dos palabras sin que nadie lo note — "10 km" se volvería "10km". Por eso la limpieza normaliza ese grupo a un único espacio normal, corrigiendo la inconsistencia sin fusionar nada.
+
+## ¿Cómo funciona la heurística de "script mixto", y por qué un párrafo real en ruso o griego no dispara falsas alarmas?
+
+La detección usa el resto del texto pegado como contexto: una letra cirílica o griega parecida a una latina solo se marca cuando la mayoría del texto que la rodea pertenece a otro alfabeto. Pega un párrafo completo de ruso o griego real, y cada letra concuerda con el alfabeto dominante de ese mismo párrafo, así que nada destaca como "ajeno" y nada se marca — sin importar que el cirílico sea mayoría absoluta. Pega una frase en español con una sola letra cirílica colada, y esa letra sí contradice todo lo que la rodea, que es exactamente la señal que busca esta heurística. Aquí también está el lado débil que conviene conocer: si un texto mezcla varios alfabetos en proporciones realmente parecidas, o no hay un alfabeto claramente dominante, la herramienta no tiene con qué comparar, y un homoglifo genuino puede pasar sin marcarse.
+
+## Al limpiar el texto, ¿puedo ver exactamente qué carácter Unicode se marcó?
+
+Sí, en un formato estándar. Cada problema detectado incluye un código de punto en formato `U+XXXX` — cuatro dígitos hexadecimales en mayúscula, la forma habitual de anotar un punto de código junto a su carácter — además de la posición dentro de la cadena original, el nombre completo del carácter, y en el caso de un homoglifo, la letra latina a la que se hace pasar. La tabla de detalles debajo del cuadro de texto lista cada problema en el mismo orden en que aparece, mientras que la vista previa resalta el carácter exacto en su lugar, para comparar visualmente antes de decidir limpiar.
+
+## ¿Por qué solo cubre cirílico y griego, y no cualquier otro alfabeto?
+
+Porque la tabla de homoglifos cubre los pares que la gente realmente encuentra en la práctica: letras parecidas a las latinas provenientes del cirílico y del griego, las dos fuentes principales detrás de la suplantación de dominios y de la corrupción por copiar y pegar desde una fuente con una fuente tipográfica rota. La herramienta no intenta cubrir cada alfabeto que tenga alguna letra parecida a una latina — el armenio, el cherokee y algún otro tienen sus propios casos ocasionales, pero quedan fuera del alcance actual. Si un documento necesita certeza absoluta en lugar de una heurística, la tabla de puntos de código debajo del texto muestra el valor Unicode exacto de cada carácter marcado, algo que cualquier editor o script puede usar directamente.

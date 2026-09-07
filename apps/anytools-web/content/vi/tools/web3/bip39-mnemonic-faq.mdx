@@ -1,0 +1,27 @@
+---
+title: Công cụ cụm từ BIP-39 — Câu hỏi thường gặp
+---
+
+## Cụm từ tạo ra ở đây dùng được cho ví đang giữ tiền thật không?
+
+**Không, tuyệt đối không.** Đây không phải một câu cảnh báo cho có — đó là điều quan trọng nhất trên trang này. Một cụm từ hạt giống sinh ra trong bất kỳ tab trình duyệt nào, kể cả tab này, tồn tại — dù chỉ trong chốc lát — trong bộ nhớ của tab đó, có thể bị một extension trình duyệt độc hại nhìn thấy, và có thể bị phần mềm theo dõi clipboard chộp lấy ngay khoảnh khắc bạn copy nó. Cụm từ của một ví thật nên được sinh ra trên chính thiết bị phần cứng của ví, hoặc trên một máy air-gapped chưa từng chạm mạng — không bao giờ trên một máy tính phổ thông đang mở hàng chục tab web khác. Tool này tồn tại để bạn *hiểu* cách BIP-39 hoạt động — thấy tận mắt một checksum sai, xem entropy biến thành chữ — chứ không phải để tạo ra một cụm từ rồi đem gửi tiền vào đó. Coi mọi thứ sinh ra ở đây là đã bị lộ ngay từ khoảnh khắc nó hiện lên màn hình.
+
+## Vì sao chỉ có wordlist tiếng Anh, dán cụm từ tiếng Nhật hay tiếng Pháp hợp lệ vào lại báo sai?
+
+Chuẩn BIP-39 thật ra có định nghĩa wordlist cho cả tiếng Trung (giản thể và phồn thể), Séc, Pháp, Ý, Nhật, Hàn, Bồ Đào Nha và Tây Ban Nha, mỗi bộ 2048 từ riêng, kèm những vấn đề chuẩn hoá Unicode riêng của từng bộ — ví dụ cụm từ tiếng Nhật nối các từ bằng khoảng trắng ideographic chứ không phải khoảng trắng thường, một chi tiết dễ làm sai nếu không xử lý riêng. Bản build hiện tại của tool chỉ triển khai wordlist tiếng Anh — làm đúng những wordlist còn lại nghĩa là kiểm thử từng trường hợp chuẩn hoá cho từng bảng chữ cái, một khối lượng công việc thật sự chưa được làm ở phiên bản này. Nếu bạn có một cụm từ thuộc wordlist ngôn ngữ khác, việc kiểm tra checksum và chuyển sang entropy ở đây sẽ không nhận ra nó là hợp lệ, dù cụm từ đó hoàn toàn đúng trong chính wordlist của nó.
+
+## Entropy (độ ngẫu nhiên) của cụm từ được sinh ra được lấy từ đâu?
+
+Từ `crypto.getRandomValues` — API ngẫu nhiên mật mã học có sẵn trong mọi trình duyệt hiện đại — thông qua hàm `randomBytes` của thư viện `@noble/hashes`. Điểm đáng chú ý: hàm này chủ động throw lỗi nếu `crypto.getRandomValues` không khả dụng, thay vì âm thầm rơi về `Math.random` — một nguồn ngẫu nhiên không đủ mạnh cho mục đích mật mã học. Nói cách khác, tool thà báo lỗi và dừng lại còn hơn sinh ra một cụm từ trông có vẻ ngẫu nhiên nhưng thực ra dễ đoán. Thư viện nền `@scure/bip39` cũng được chọn thay vì gói `bip39` cũ hơn vì lý do liên quan: gói cũ cần một shim giả lập `Buffer` toàn cục vốn không tồn tại trong trình duyệt, còn `@scure/bip39` viết thẳng cho trình duyệt bằng `Uint8Array`, không có side effect toàn cục nào.
+
+## 12 từ khác 24 từ ở điểm gì?
+
+Số từ là hàm trực tiếp của số bit entropy đưa vào: BIP-39 gắn thêm một checksum bằng `entropy_bits / 32` vào sau chuỗi entropy, rồi chia toàn bộ thành các khối 11 bit, mỗi khối ứng với một từ. 128 bit entropy (16 byte) cộng 4 bit checksum ra 132 bit, đúng bằng 12 từ x 11 bit; 256 bit entropy (32 byte) cộng 8 bit checksum ra 264 bit, đúng bằng 24 từ. Không có tuỳ chọn 13 hay 20 từ vì những số bit đó không chia hết cho 11 theo đúng tỷ lệ checksum hợp lệ — chỉ 12, 15, 18, 21, 24 từ ứng với các mức entropy hợp lệ (128, 160, 192, 224, 256 bit). Càng nhiều từ càng nhiều entropy càng nhiều tổ hợp phải dò — nhưng ngay cả 12 từ (128 bit) cũng đã vượt xa khả năng dò brute-force trong thực tế.
+
+## Vì sao kiểm tra một cụm từ toàn từ đúng trong wordlist mà vẫn báo "không hợp lệ"?
+
+Mọi từ đều nằm trong wordlist là điều kiện cần, chưa đủ — từ cuối cùng (hoặc vài bit cuối của nó, tuỳ số từ) mã hoá một checksum tính từ hash SHA-256 của phần entropy phía trước, và checksum đó phải khớp chính xác. Đây là chủ đích: nó bắt được lỗi phổ biến nhất trong thực tế — gõ nhầm hay nghe nhầm một từ khi cụm từ được chép tay hoặc đọc miệng lại. Đổi bất kỳ từ nào sang một từ hợp lệ khác trong wordlist, hay đảo vị trí hai từ, gần như chắc chắn làm checksum sai — đó chính là lý do checksum tồn tại. Nếu cụm từ của bạn báo không hợp lệ ở đây, đừng đoán mò sửa từng từ — quay lại đúng chỗ đã ghi cụm từ và đối chiếu lại từng từ cùng đúng thứ tự, tốt nhất là đọc lại từ đúng bảng wordlist đánh số thay vì dựa vào trí nhớ.
+
+## "Seed" khác gì "mnemonic", và passphrase (từ thứ 25) là gì?
+
+Mnemonic — chính các từ — chỉ là một cách mã hoá entropy thô cho dễ đọc dễ chép lại, không hơn. Seed là một giá trị 64 byte hoàn toàn khác, sinh ra bằng cách chạy mnemonic (cộng thêm một passphrase tuỳ chọn) qua PBKDF2 với 2048 vòng HMAC-SHA512, và chính seed — không phải các từ — mới thực sự nạp vào BIP-32 để dẫn xuất cả cây khoá riêng cho mọi địa chỉ một ví quản lý. Thiết kế hai bước này tồn tại một phần để hỗ trợ passphrase tuỳ chọn mà BIP-39 gọi là "từ thứ 25": cùng 12 hay 24 từ đó nhưng với passphrase khác sẽ sinh ra một seed hoàn toàn khác, kéo theo một bộ địa chỉ ví hoàn toàn khác — một tính năng "ví ẩn" hữu ích, nhưng cũng là nguyên nhân phổ biến của những trường hợp "tiền của tôi biến mất" khi ai đó quên mất mình từng đặt passphrase. Tool này chỉ dừng lại ở bước tính seed, không dẫn xuất tiếp khoá hay địa chỉ cho một loại tiền cụ thể — đó là một bước BIP-32/BIP-44 riêng, nằm ngoài phạm vi tool.

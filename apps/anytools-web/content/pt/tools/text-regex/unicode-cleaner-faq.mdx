@@ -1,0 +1,27 @@
+---
+title: Limpador de Unicode oculto — Perguntas frequentes
+---
+
+## O que essa ferramenta encontra num texto que parece completamente normal?
+
+Dois problemas sem relação entre si que se escondem num texto que, a olho nu, parece impecável. O primeiro são caracteres invisíveis: espaços de largura zero, junções de largura zero, controles de direção de texto (bidi), uma marca de ordem de bytes, um hífen suave, e mais de uma dúzia de "espaços" Unicode que não são o U+0020 comum do teclado. Nenhum deles aparece na tela, mas são bytes reais, e quebram busca por correspondência exata, comparações diff, e às vezes até o parse de JSON ou a geração de slugs de URL a partir desse texto. O segundo são os homóglifos: letras cirílicas ou gregas desenhadas de forma idêntica a uma letra latina (о cirílico é indistinguível do o latino; o Ρ grego, do P latino). Um homóglifo infiltrado numa palavra em português faz essa palavra falhar contra si mesma numa busca, mesmo que ninguém note nada estranho ao ler.
+
+## Letras acentuadas do português são confundidas com caracteres suspeitos?
+
+Não. A definição de "latino" nesta ferramenta é ampla: ASCII, Latin-1 Supplement, Latin Extended A/B, e também a faixa Latin Extended Additional (U+1E00 a U+1EFF). Á, é, í, õ, ç e ü do português entram direto nessa faixa como letras latinas normais desde o início, não como uma exceção tratada à parte — então nunca são marcadas como "parecem latinas mas não são", porque de fato são. A mesma lógica vale para o espanhol, o francês ou qualquer outro idioma que use diacríticos dentro do alfabeto latino estendido.
+
+## Como funciona a heurística de "script misturado", e por que um parágrafo real em russo ou grego não dispara alarme falso?
+
+A detecção usa o resto do texto colado como contexto: uma letra cirílica ou grega parecida com uma latina só é marcada quando a maior parte do texto ao redor pertence a outro alfabeto. Cole um parágrafo inteiro de russo ou grego de verdade, e cada letra concorda com o alfabeto dominante daquele próprio parágrafo, então nada se destaca como "estranho" e nada é marcado — mesmo que o cirílico seja maioria absoluta ali. Cole uma frase em português com uma única letra cirílica intrometida, e essa letra contraria tudo ao redor dela, que é exatamente o sinal que essa heurística procura. Esse é também o lado fraco que vale conhecer: se um texto mistura vários alfabetos em proporções realmente parecidas, ou não existe um alfabeto claramente dominante, a ferramenta não tem com o que comparar, e um homóglifo genuíno pode passar sem ser marcado.
+
+## Por que espaços estranhos como o NBSP viram um espaço comum em vez de serem apagados?
+
+Porque nem todo caractere invisível pode ser tratado da mesma forma com segurança. Os que realmente têm largura zero — espaço de largura zero, junção de largura zero, os controles bidi, a marca de ordem de bytes, o hífen suave — são apagados direto, porque removê-los não muda nada na aparência do texto. Já os espaços estranhos como o espaço inseparável, a família en/em-espaço, ou os espaços ideográficos e matemáticos são diferentes: eles realmente ocupam largura visual, então apagá-los colaria duas palavras sem ninguém perceber — "10 km" viraria "10km". Por isso a limpeza normaliza esse grupo para um único espaço comum, corrigindo a inconsistência sem grudar nada.
+
+## Ao limpar o texto, dá para ver exatamente qual caractere Unicode foi marcado?
+
+Sim, num formato padronizado. Cada problema encontrado vem com um código de ponto no formato `U+XXXX` — quatro dígitos hexadecimais maiúsculos, a forma convencional de anotar um ponto de código ao lado do seu caractere — além da posição no texto original, o nome completo do caractere, e, no caso de um homóglifo, a letra latina que ele está imitando. A tabela de detalhes abaixo da caixa de texto lista cada problema na ordem em que aparece, enquanto a pré-visualização destaca o caractere exato no lugar onde está, para comparação visual antes de decidir limpar.
+
+## Por que só cobre cirílico e grego, e não qualquer outro alfabeto?
+
+Porque a tabela de homóglifos cobre os pares que as pessoas realmente encontram na prática: letras parecidas com as latinas vindas do cirílico e do grego, as duas fontes principais por trás da falsificação de domínios e da corrupção por copiar e colar de fontes com mapeamento de fonte quebrado. A ferramenta não tenta cobrir todo alfabeto que tenha alguma letra parecida com uma latina — armênio, cherokee e alguns outros têm seus próprios casos ocasionais, mas ficam fora do escopo atual. Se um documento precisa de certeza absoluta em vez de uma heurística, a tabela de pontos de código abaixo do texto mostra o valor Unicode exato de cada caractere marcado, algo que qualquer editor ou script pode usar diretamente.
