@@ -12,10 +12,10 @@ export const meta: ToolMeta = {
     pt: 'Comprimir PDF',
   },
   description: {
-    en: 'Shrink a scanned or photo-heavy PDF by recompressing its embedded JPEG images with MozJPEG, optionally capping their resolution. Runs in your browser — the file is never uploaded.',
-    vi: 'Nén PDF bằng cách mã hoá lại ảnh JPEG nhúng trong file với MozJPEG, có thể hạ độ phân giải. Chạy trong trình duyệt, không tải file lên.',
-    es: 'Reduce un PDF escaneado recodificando sus imágenes JPEG incrustadas con MozJPEG, con opción de limitar la resolución. Se ejecuta en tu navegador.',
-    pt: 'Reduza um PDF escaneado recodificando suas imagens JPEG incorporadas com MozJPEG, com opção de limitar a resolução. Roda no navegador.',
+    en: 'Shrink a scanned or image-heavy PDF by recompressing its embedded JPEG and raw (FlateDecode) images with MozJPEG or lossless PNG, optionally capping their resolution. Runs in your browser — the file is never uploaded.',
+    vi: 'Nén PDF bằng cách mã hoá lại ảnh JPEG và ảnh thô (FlateDecode) nhúng trong file với MozJPEG hoặc PNG không mất dữ liệu, có thể hạ độ phân giải. Chạy trong trình duyệt, không tải file lên.',
+    es: 'Reduce un PDF escaneado o con muchas imágenes recodificando sus imágenes JPEG y sin comprimir (FlateDecode) con MozJPEG o PNG sin pérdida, con opción de limitar la resolución. Se ejecuta en tu navegador.',
+    pt: 'Reduza um PDF escaneado ou com muitas imagens recodificando suas imagens JPEG e brutas (FlateDecode) com MozJPEG ou PNG sem perdas, com opção de limitar a resolução. Roda no navegador.',
   },
   keywords: [
     'compress pdf',

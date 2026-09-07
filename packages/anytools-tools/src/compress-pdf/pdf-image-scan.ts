@@ -15,8 +15,12 @@ type Name = ReturnType<PdfLib['PDFName']['of']>;
 type Page = ReturnType<PdfLib['PDFPage']['of']>;
 
 /**
- * Every ref used as an `/SMask` or `/Mask` (a transparency channel) anywhere in the document.
- * These must never be recompressed on their own — see logic.ts's module comment for why.
+ * Every ref used as an `/SMask` or `/Mask` (a transparency channel) anywhere in the document,
+ * mapped to how many TIMES it is used that way. These refs must never be recompressed on their
+ * own — see logic.ts's module comment for why. The count also lets a caller that just folded an
+ * `/SMask` into a combined image (compress-pdf's FlateDecode path) safely delete the
+ * now-orphaned original: only when the count is exactly 1 is it certain nothing else in the
+ * document still points to it as a mask.
  */
 export function collectMaskRefs(
   objects: [Ref, unknown][],
@@ -24,16 +28,16 @@ export function collectMaskRefs(
   PDFRef: PdfLib['PDFRef'],
   smaskKey: Name,
   maskKey: Name,
-): Set<Ref> {
-  const refs = new Set<Ref>();
+): Map<Ref, number> {
+  const counts = new Map<Ref, number>();
   for (const [, obj] of objects) {
     if (!(obj instanceof PDFRawStream)) continue;
     for (const key of [smaskKey, maskKey]) {
       const v = obj.dict.get(key);
-      if (v instanceof PDFRef) refs.add(v);
+      if (v instanceof PDFRef) counts.set(v, (counts.get(v) ?? 0) + 1);
     }
   }
-  return refs;
+  return counts;
 }
 
 /**

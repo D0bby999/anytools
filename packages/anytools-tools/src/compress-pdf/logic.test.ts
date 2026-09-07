@@ -5,7 +5,7 @@
 // pipeline (pdf-lib load → recompress → save, on a real scanned PDF) is verified in the browser
 // lane; see the phase's Verify notes for the measured before/after numbers.
 import { describe, expect, it } from 'vitest';
-import { dpiCappedSize, isGrayColorSpaceName } from './logic';
+import { dpiCappedSize, isGrayColorSpaceName, shouldKeepOriginal } from './logic';
 
 describe('dpiCappedSize', () => {
   it('shrinks a 300 DPI scan down to a 150 DPI cap', () => {
@@ -56,5 +56,19 @@ describe('isGrayColorSpaceName', () => {
     expect(isGrayColorSpaceName(undefined)).toBe(false);
     // Missing the leading slash is not a valid PDF name — must not false-positive.
     expect(isGrayColorSpaceName('DeviceGray')).toBe(false);
+  });
+});
+
+describe('shouldKeepOriginal', () => {
+  it('keeps the original when the recompressed image is bigger', () => {
+    expect(shouldKeepOriginal(2000, 1000)).toBe(true);
+  });
+
+  it('keeps the original when the recompressed image is exactly the same size (no point swapping)', () => {
+    expect(shouldKeepOriginal(1000, 1000)).toBe(true);
+  });
+
+  it('replaces the original only when recompression actually shrank it', () => {
+    expect(shouldKeepOriginal(900, 1000)).toBe(false);
   });
 });
