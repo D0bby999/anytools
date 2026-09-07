@@ -219,8 +219,14 @@ export function QrCodeGeneratorUi() {
               value={wifi.encryption}
               onValueChange={(v) => setWifi({ ...wifi, encryption: v as 'WPA' | 'WEP' | 'nopass' })}
             >
-              <SelectTrigger aria-label={s.wifiPassword}>
-                <SelectValue />
+              <SelectTrigger aria-label={s.wifiEncryption}>
+                <SelectValue>
+                  {wifi.encryption === 'nopass'
+                    ? s.wifiOpen
+                    : wifi.encryption === 'WEP'
+                      ? 'WEP'
+                      : 'WPA/WPA2/WPA3'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="WPA">WPA/WPA2/WPA3</SelectItem>
@@ -275,7 +281,13 @@ export function QrCodeGeneratorUi() {
             <Label htmlFor="qr-ecc">{s.errorCorrection}</Label>
             <Select value={ecc} onValueChange={(v) => setEcc(v as typeof ecc)}>
               <SelectTrigger id="qr-ecc">
-                <SelectValue />
+                <SelectValue>
+                  {ecc === 'M'
+                    ? s.eccDefault
+                    : ecc === 'H'
+                      ? s.eccLogos
+                      : `${ecc} (~${ecc === 'L' ? 7 : 25}%)`}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="L">L (~7%)</SelectItem>

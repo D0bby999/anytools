@@ -1,6 +1,6 @@
 'use client';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
-import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, useId } from 'react';
 import { cn } from '../lib/cn';
 import { Label } from './label';
 
@@ -46,8 +46,12 @@ const RadioGroupItem = forwardRef<
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
 /**
- * One option row: control, label, optional description. Whole row is a ≥44px touch target,
- * which the `<label><input type="radio"></label>` pattern it replaces was not.
+ * One option row: control, label, optional description.
+ *
+ * The row is hittable via a stretched label (`after:absolute after:inset-0`), not just a tall
+ * wrapper — a `min-h-11` div with no handler is a large target in the markup and a 20px one
+ * under a thumb. The description is wired through `aria-describedby`, or a screen-reader user
+ * picking "Page range" never hears "e.g. 2-5, 8", which is the whole point of the prop.
  */
 type RadioGroupFieldProps = ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
   label: string;
@@ -59,21 +63,31 @@ const RadioGroupField = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupFieldProps
 >(({ label, description, containerClassName, id, className, value, ...props }, ref) => {
-  const inputId = id ?? `rg-${String(value).replace(/\W+/g, '-').toLowerCase()}`;
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const descId = `${inputId}-desc`;
   return (
-    <div className={cn('flex min-h-11 items-start gap-2 py-1', containerClassName)}>
+    <div className={cn('relative flex min-h-11 items-start gap-2 py-1', containerClassName)}>
       <RadioGroupItem
         ref={ref}
         id={inputId}
         value={value}
+        aria-describedby={description ? descId : undefined}
         className={cn('mt-0.5', className)}
         {...props}
       />
       <div className="grid gap-0.5">
-        <Label htmlFor={inputId} className="cursor-pointer select-none">
+        <Label
+          htmlFor={inputId}
+          className="cursor-pointer select-none after:absolute after:inset-0 after:content-['']"
+        >
           {label}
         </Label>
-        {description && <span className="text-xs text-muted-foreground">{description}</span>}
+        {description && (
+          <span id={descId} className="text-xs text-muted-foreground">
+            {description}
+          </span>
+        )}
       </div>
     </div>
   );

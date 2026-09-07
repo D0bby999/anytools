@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { Label } from './label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
@@ -29,6 +30,34 @@ function Harness({ onValueChange }: { onValueChange?: (v: string) => void } = {}
     </div>
   );
 }
+
+describe('Select server rendering', () => {
+  // Every tool page here is prerendered. Radix resolves the trigger's text by portalling
+  // SelectItemText into the value node, which is a client-only effect — so a bare
+  // <SelectValue /> ships an EMPTY trigger in the static HTML and only fills in after
+  // hydration. The native <select> it replaces put the selected option in the markup, so
+  // this would be a visible regression: a page of blank boxes on a slow connection. No
+  // browser smoke can catch it, because smoke runs post-hydration.
+  const markup = (child: React.ReactNode) =>
+    renderToString(
+      <Select value="hex">
+        <SelectTrigger aria-label="Encoding">{child}</SelectTrigger>
+        <SelectContent>
+          <SelectItem value="hex">Hex</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+
+  it('renders the current label into the static HTML when given children', () => {
+    expect(markup(<SelectValue>Hex</SelectValue>)).toContain('Hex');
+  });
+
+  it('documents that a bare SelectValue does NOT', () => {
+    // Kept as an executable note: if a future Radix release fixes this, the assertion fails
+    // and the workaround at every call site can be dropped.
+    expect(markup(<SelectValue />)).not.toContain('Hex');
+  });
+});
 
 describe('Select', () => {
   it('shows the selected value on the trigger', () => {

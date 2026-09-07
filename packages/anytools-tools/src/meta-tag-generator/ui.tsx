@@ -105,7 +105,9 @@ export function MetaTagGeneratorUi() {
               onValueChange={(v) => set('cardType', v as MetaInput['cardType'])}
             >
               <SelectTrigger id="meta-card-type">
-                <SelectValue />
+                <SelectValue>
+                  {input.cardType === 'summary' ? s.cardSummary : s.cardLargeImage}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="summary_large_image">{s.cardLargeImage}</SelectItem>
@@ -120,7 +122,7 @@ export function MetaTagGeneratorUi() {
               onValueChange={(v) => set('robots', v as MetaInput['robots'])}
             >
               <SelectTrigger id="meta-robots">
-                <SelectValue />
+                <SelectValue>{input.robots}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="index, follow">index, follow</SelectItem>

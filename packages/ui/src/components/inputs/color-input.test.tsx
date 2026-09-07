@@ -22,6 +22,33 @@ function Harness({
 }
 
 describe('ColorInput', () => {
+  it('does not call back when focus-and-blur changes nothing but the case', async () => {
+    // Callers store hex however they like. qr-code-generator holds '#FFFFFF'; comparing the
+    // lowercased parse against the raw value made a bare tab-through emit onChange, which
+    // re-ran QR generation because the colour is in that effect's dependency array.
+    const onChange = vi.fn();
+    render(<ColorInput label="Light" value="#FFFFFF" onChange={onChange} />);
+
+    await userEvent.click(screen.getByLabelText('Light'));
+    await userEvent.tab();
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('re-seats the box on the committed value when the caller rejects a change', async () => {
+    // A caller that ignores onChange never updates `value`, so the [value] effect never
+    // fires and the box would keep showing a colour nothing is using — with aria-invalid
+    // unset, i.e. silently claiming to be committed.
+    render(<ColorInput label="Fixed" value="#0e7490" onChange={() => {}} />);
+    const hex = screen.getByLabelText('Fixed');
+
+    await userEvent.clear(hex);
+    await userEvent.paste('#b45309');
+    await userEvent.tab();
+
+    expect(hex).toHaveValue('#0e7490');
+  });
+
   it('accepts a pasted hex — the reason this exists over a bare swatch', async () => {
     const onChange = vi.fn();
     render(<Harness onChange={onChange} />);

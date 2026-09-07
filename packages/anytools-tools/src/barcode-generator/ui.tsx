@@ -161,7 +161,9 @@ export function BarcodeGeneratorUi() {
           <Label htmlFor="barcode-format">{s.symbology}</Label>
           <Select value={format} onValueChange={(v) => pickFormat(v as BarcodeFormatId)}>
             <SelectTrigger id="barcode-format">
-              <SelectValue />
+              <SelectValue>
+                {BARCODE_FORMATS.find((f) => f.id === format)?.label ?? format}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {BARCODE_FORMATS.map((f) => (

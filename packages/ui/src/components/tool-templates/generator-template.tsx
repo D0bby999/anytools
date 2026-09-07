@@ -13,13 +13,15 @@ type Props = {
   output: string;
   /** Display element for the output (e.g. <pre>{output}</pre>) */
   outputDisplay: ReactNode;
-  primaryActionLabel?: string;
+  /** Required: an untranslated default here ships literal English into vi/es/pt pages. */
+  primaryActionLabel: string;
   /**
    * Omit for generators that recompute as you type. The button is then not rendered at all —
    * a disabled or no-op "Generate" on a live tool is a control that lies about what it does.
    */
   onGenerate?: () => void;
-  outputLabel?: string;
+  /** Required, same reason as primaryActionLabel. `ui.output` is already translated. */
+  outputLabel: string;
 };
 
 /**
@@ -36,9 +38,9 @@ export function GeneratorTemplate({
   form,
   output,
   outputDisplay,
-  primaryActionLabel = 'Generate',
+  primaryActionLabel,
   onGenerate,
-  outputLabel = 'Output',
+  outputLabel,
 }: Props) {
   return (
     <div className="space-y-6">

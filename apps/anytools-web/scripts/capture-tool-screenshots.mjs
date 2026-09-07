@@ -21,8 +21,11 @@
  *   - the theme is set through localStorage before first paint, because next-themes reads it
  *     there; flipping a toggle after load would capture the transition.
  *
- * Chrome is launched with `channel: 'chrome'` on purpose: Playwright's cached headless-shell is
- * missing on this machine and only the real Chrome channel launches.
+ * Chrome channel: this machine's Playwright install has no cached headless-shell, so
+ * `channel: 'chrome'` is tried first. It is a fallback, not a requirement — CI and any second
+ * machine get Playwright's bundled Chromium instead, or you can force either with
+ * `PW_CHANNEL=chrome` / `PW_CHANNEL=bundled`. A baseline nobody else can regenerate is not a
+ * baseline.
  *
  * Usage:
  *   # against an already-running server
@@ -86,9 +89,12 @@ function parseArgs(argv) {
       continue;
     }
     const [key, value] = arg.replace(/^--/, '').split('=');
-    if (key === 'base') out.base = value;
-    else if (key === 'out') out.out = resolve(process.cwd(), value);
-    else if (key === 'all-clusters') out.slugs.push(...CLUSTER_REPRESENTATIVES);
+    // `--base` without `=` used to leave base undefined and surface as an opaque
+    // "Invalid URL" thirty lines later.
+    if (key === 'base' || key === 'out') {
+      if (!value) throw new Error(`--${key} needs a value, e.g. --${key}=...`);
+      out[key === 'base' ? 'base' : 'out'] = key === 'base' ? value : resolve(process.cwd(), value);
+    } else if (key === 'all-clusters') out.slugs.push(...CLUSTER_REPRESENTATIVES);
     else if (key === 'full') out.full = true;
     else throw new Error(`unknown flag: --${key}`);
   }
@@ -176,6 +182,19 @@ async function captureOne(browser, { base, outDir, slug, theme, full }) {
   }
 }
 
+/** Real Chrome where it exists, Playwright's bundled Chromium otherwise. */
+async function launchBrowser() {
+  const forced = process.env.PW_CHANNEL;
+  if (forced === 'bundled') return chromium.launch();
+  if (forced) return chromium.launch({ channel: forced });
+  try {
+    return await chromium.launch({ channel: 'chrome' });
+  } catch {
+    console.log('  (no Chrome channel found — falling back to bundled Chromium)');
+    return chromium.launch();
+  }
+}
+
 async function main() {
   const { base, out: outDir, slugs, full } = parseArgs(process.argv.slice(2));
   await mkdir(outDir, { recursive: true });
@@ -183,7 +202,7 @@ async function main() {
   // Resolve every slug up front: a typo should fail before Chrome starts, not halfway through.
   for (const slug of slugs) pathForSlug(slug);
 
-  const browser = await chromium.launch({ channel: 'chrome' });
+  const browser = await launchBrowser();
   const results = [];
   try {
     for (const slug of slugs) {

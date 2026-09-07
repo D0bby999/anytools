@@ -51,6 +51,7 @@ export function UuidGeneratorUi() {
       <GeneratorTemplate
         title={s.title}
         primaryActionLabel={ui.generate}
+        outputLabel={ui.output}
         onGenerate={handleGenerate}
         output={generated.join('\n')}
         form={

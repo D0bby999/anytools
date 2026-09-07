@@ -1,6 +1,5 @@
 'use client';
 import {
-  CopyButton,
   GeneratorTemplate,
   Input,
   Label,
@@ -64,7 +63,7 @@ export function LoremIpsumGeneratorUi() {
             <Label htmlFor="lorem-variant">{s.variant}</Label>
             <Select value={variant} onValueChange={(v) => setVariant(v as LoremVariant)}>
               <SelectTrigger id="lorem-variant">
-                <SelectValue />
+                <SelectValue>{variantLabel[variant]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {VARIANTS.map((v) => (
@@ -80,7 +79,7 @@ export function LoremIpsumGeneratorUi() {
             <Label htmlFor="lorem-unit">{s.unit}</Label>
             <Select value={unit} onValueChange={(v) => setUnit(v as LoremUnit)}>
               <SelectTrigger id="lorem-unit">
-                <SelectValue />
+                <SelectValue>{unitLabel[unit]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {UNITS.map((u) => (
@@ -108,7 +107,7 @@ export function LoremIpsumGeneratorUi() {
             <Label htmlFor="lorem-output">{ui.output}</Label>
             <Select value={output} onValueChange={(v) => setOutput(v as LoremOutput)}>
               <SelectTrigger id="lorem-output">
-                <SelectValue />
+                <SelectValue>{outputLabel[output]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {OUTPUTS.map((o) => (

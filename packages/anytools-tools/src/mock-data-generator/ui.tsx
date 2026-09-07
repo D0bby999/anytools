@@ -98,7 +98,7 @@ export function MockDataGeneratorUi() {
                 onValueChange={(v) => updateField(i, { type: v as FieldType })}
               >
                 <SelectTrigger aria-label={s.fieldType} className="max-w-[200px]">
-                  <SelectValue />
+                  <SelectValue>{field.type}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {FIELD_TYPES.map((t) => (
@@ -139,7 +139,7 @@ export function MockDataGeneratorUi() {
             <Label htmlFor="mock-locale">{s.locale}</Label>
             <Select value={locale} onValueChange={(v) => setLocale(v as FakerLocale)}>
               <SelectTrigger id="mock-locale" className="min-w-24">
-                <SelectValue />
+                <SelectValue>{locale.toUpperCase()}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {['en', 'vi', 'es', 'pt', 'fr', 'de', 'ja'].map((l) => (
@@ -154,7 +154,7 @@ export function MockDataGeneratorUi() {
             <Label htmlFor="mock-format">{s.format}</Label>
             <Select value={format} onValueChange={(v) => setFormat(v as typeof format)}>
               <SelectTrigger id="mock-format" className="min-w-32">
-                <SelectValue />
+                <SelectValue>{format === 'sql' ? 'SQL INSERT' : format.toUpperCase()}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="json">JSON</SelectItem>

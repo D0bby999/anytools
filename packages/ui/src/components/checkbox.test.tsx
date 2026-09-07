@@ -68,4 +68,24 @@ describe('CheckboxField', () => {
 
     expect(screen.getByRole('checkbox', { name: 'Numbers 0–9' })).toBeTruthy();
   });
+
+  it('gives distinct ids to labels that differ only by diacritics', async () => {
+    // The first version derived the id from the label with /\W+/g, which is ASCII-only, so
+    // "Số trang" and "Sổ trang" both became "cb-s-trang". Duplicate ids mean <label for>
+    // binds to whichever came first and tapping one option toggles the other. This app ships
+    // vi/es/pt, so it was a matter of which labels a future tool happened to use.
+    const first = vi.fn();
+    const second = vi.fn();
+    render(
+      <>
+        <CheckboxField label="Số trang" checked={false} onCheckedChange={first} />
+        <CheckboxField label="Sổ trang" checked={false} onCheckedChange={second} />
+      </>,
+    );
+
+    await userEvent.click(screen.getByText('Sổ trang'));
+
+    expect(second).toHaveBeenCalledWith(true);
+    expect(first).not.toHaveBeenCalled();
+  });
 });

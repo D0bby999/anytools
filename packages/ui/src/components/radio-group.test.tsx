@@ -62,10 +62,15 @@ describe('RadioGroup', () => {
     expect(screen.getByRole('radiogroup', { name: 'Pages' })).toBeInTheDocument();
   });
 
-  it('renders the description as part of the option, not a separate control', () => {
+  it('announces the description through the option, not merely beside it', () => {
+    // Asserting the text is "in the document" passes for any visually-present string and
+    // proves nothing: a screen-reader user picking "Page range" still would not hear
+    // "e.g. 2-5, 8", which is the entire point of the prop.
     render(<Harness />);
 
-    expect(screen.getByText('e.g. 2-5, 8')).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', { name: /Page range/, description: 'e.g. 2-5, 8' }),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('radio')).toHaveLength(3);
   });
 

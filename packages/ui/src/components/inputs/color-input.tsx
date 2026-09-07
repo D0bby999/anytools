@@ -31,14 +31,11 @@ type Props = {
   value: string;
   onChange: (next: string) => void;
   label?: string;
-  /** Allow 8-digit #RRGGBBAA. The native swatch cannot express alpha, the hex box can. */
-  allowAlpha?: boolean;
   disabled?: boolean;
   className?: string;
 };
 
 const HEX6 = /^#[0-9a-f]{6}$/i;
-const HEX8 = /^#[0-9a-f]{8}$/i;
 
 /** `#abc` -> `#aabbcc`. The native input only accepts the long form. */
 function expandShorthand(raw: string): string {
@@ -50,22 +47,13 @@ function expandShorthand(raw: string): string {
  * @param expandShort resolve `#abc` to `#aabbcc`. False while typing (see the note above),
  * true on blur and for validity display.
  */
-function normalize(raw: string, allowAlpha: boolean, expandShort: boolean): string | null {
+function normalize(raw: string, expandShort: boolean): string | null {
   const withHash = raw.startsWith('#') ? raw : `#${raw}`;
   const candidate = expandShort ? expandShorthand(withHash.trim()) : withHash.trim();
-  if (HEX6.test(candidate)) return candidate.toLowerCase();
-  if (allowAlpha && HEX8.test(candidate)) return candidate.toLowerCase();
-  return null;
+  return HEX6.test(candidate) ? candidate.toLowerCase() : null;
 }
 
-export function ColorInput({
-  value,
-  onChange,
-  label,
-  allowAlpha = false,
-  disabled,
-  className,
-}: Props) {
+export function ColorInput({ value, onChange, label, disabled, className }: Props) {
   const id = useId();
   const [draft, setDraft] = useState(value);
 
@@ -74,20 +62,23 @@ export function ColorInput({
 
   const commitDraft = (raw: string) => {
     setDraft(raw);
-    const parsed = normalize(raw, allowAlpha, false);
-    if (parsed) onChange(parsed);
+    const parsed = normalize(raw, false);
+    // Compare against the normalised current value, not the raw one: a caller holding
+    // '#FFFFFF' would otherwise get an onChange for '#ffffff' on every focus-and-tab, and
+    // anything keyed on that value (a QR re-render, a canvas redraw) would run for nothing.
+    if (parsed && parsed !== normalize(value, true)) onChange(parsed);
   };
 
-  // Blur is where shorthand resolves, and where a draft that never parsed snaps back to the
-  // committed value rather than sitting there as stranded red text.
+  // Blur resolves shorthand, and snaps a draft that never parsed back to the committed value
+  // rather than leaving it stranded as red text.
   const handleBlur = () => {
-    const parsed = normalize(draft, allowAlpha, true);
-    if (parsed && parsed !== value) {
-      onChange(parsed);
-      setDraft(parsed);
-      return;
-    }
-    setDraft(parsed ?? value);
+    const parsed = normalize(draft, true);
+    const current = normalize(value, true);
+    if (parsed && parsed !== current) onChange(parsed);
+    // Always re-seat the draft on what the caller actually holds. If it ignored or rejected
+    // the commit, `value` never changes, the [value] effect never fires, and the box would
+    // otherwise keep displaying a colour nothing is using.
+    setDraft(parsed && parsed === current ? parsed : (current ?? value));
   };
 
   const handleSwatch = (e: ChangeEvent<HTMLInputElement>) => {
@@ -97,10 +88,10 @@ export function ColorInput({
 
   // Validity display DOES accept shorthand — `#abc` should not read as an error while the
   // user is looking at it, even though it does not commit until blur.
-  const invalid = normalize(draft, allowAlpha, true) === null;
+  const invalid = normalize(draft, true) === null;
   // The native swatch rejects anything but #RRGGBB, so feed it the last good value while the
   // hex box holds a half-typed one.
-  const swatchValue = normalize(draft, false, true) ?? normalize(value, false, true) ?? '#000000';
+  const swatchValue = normalize(draft, true) ?? normalize(value, true) ?? '#000000';
 
   return (
     <div className={cn('space-y-1.5', className)}>
@@ -133,7 +124,7 @@ export function ColorInput({
           autoComplete="off"
           inputMode="text"
           aria-invalid={invalid || undefined}
-          placeholder={allowAlpha ? '#0e7490ff' : '#0e7490'}
+          placeholder="#0e7490"
           className={cn(
             'h-11 w-full rounded-md border bg-background px-3 font-mono text-sm uppercase ring-offset-background',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
