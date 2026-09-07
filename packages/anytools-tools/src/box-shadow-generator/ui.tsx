@@ -6,9 +6,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
+  ColorInput,
   CopyButton,
   Input,
   PrivacyNote,
+  RangeSlider,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -135,41 +138,28 @@ export function BoxShadowGeneratorUi() {
                       />
                     </div>
                   ))}
-                  <div>
-                    <span className="block text-xs font-medium mb-1">{s.colour}</span>
-                    <input
-                      type="color"
-                      value={hex}
-                      onChange={(e) => update(i, { color: joinColor(e.target.value, alpha) })}
-                      aria-label={s.layerColour.replace('{n}', n)}
-                      className="h-11 w-11 cursor-pointer rounded-md border border-input bg-transparent p-1"
-                    />
-                  </div>
+                  <ColorInput
+                    label={s.colour}
+                    value={hex}
+                    onChange={(next) => update(i, { color: joinColor(next, alpha) })}
+                    className="w-48"
+                  />
                   <div className="w-32">
-                    <span className="block text-xs font-medium mb-1">
-                      {s.alpha.replace('{pct}', String(Math.round(alpha * 100)))}
-                    </span>
-                    <input
-                      type="range"
+                    <RangeSlider
+                      label={s.alphaLabel}
+                      unit="%"
+                      value={Math.round(alpha * 100)}
                       min={0}
                       max={100}
-                      value={Math.round(alpha * 100)}
-                      onChange={(e) =>
-                        update(i, { color: joinColor(hex, Number(e.target.value) / 100) })
-                      }
-                      aria-label={s.layerAlpha.replace('{n}', n)}
-                      className="h-11 w-full"
+                      ariaLabel={s.layerAlpha.replace('{n}', n)}
+                      onChange={(v) => update(i, { color: joinColor(hex, v / 100) })}
                     />
                   </div>
-                  <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4"
-                      checked={layer.inset}
-                      onChange={(e) => update(i, { inset: e.target.checked })}
-                    />
-                    {s.inset}
-                  </label>
+                  <CheckboxField
+                    label={s.inset}
+                    checked={layer.inset}
+                    onCheckedChange={(v) => update(i, { inset: v === true })}
+                  />
                   <Button
                     variant="outline"
                     size="sm"

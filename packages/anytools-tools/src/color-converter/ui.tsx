@@ -1,5 +1,5 @@
 'use client';
-import { CalculatorTemplate, Input, TableResult, useLocalized } from '@anytools/ui';
+import { CalculatorTemplate, ColorInput, Input, TableResult, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { contrastRatio, hexToRgb, rgbToHsl } from './logic';
 import { STRINGS } from './strings';
@@ -24,22 +24,7 @@ export function ColorConverterUi() {
       inputs={
         <div className="space-y-4">
           <div>
-            <span className="block text-sm font-medium mb-1.5">{s.foreground}</span>
-            <div className="flex gap-2">
-              <input
-                type="color"
-                value={fg}
-                onChange={(e) => setFg(e.target.value.toUpperCase())}
-                className="h-11 w-14 rounded border bg-card cursor-pointer"
-                aria-label={s.foregroundColor}
-              />
-              <Input
-                value={fg}
-                onChange={(e) => setFg(e.target.value)}
-                className="h-11 font-mono tabular-nums"
-                aria-label={s.foregroundHex}
-              />
-            </div>
+            <ColorInput label={s.foreground} value={fg} onChange={setFg} />
             {fgRgb && fgHsl && (
               <p className="text-xs text-muted-foreground mt-1 font-mono">
                 rgb({fgRgb.r}, {fgRgb.g}, {fgRgb.b}) · hsl({fgHsl.h}, {fgHsl.s}%, {fgHsl.l}%)
@@ -47,22 +32,7 @@ export function ColorConverterUi() {
             )}
           </div>
           <div>
-            <span className="block text-sm font-medium mb-1.5">{s.background}</span>
-            <div className="flex gap-2">
-              <input
-                type="color"
-                value={bg}
-                onChange={(e) => setBg(e.target.value.toUpperCase())}
-                className="h-11 w-14 rounded border bg-card cursor-pointer"
-                aria-label={s.backgroundColor}
-              />
-              <Input
-                value={bg}
-                onChange={(e) => setBg(e.target.value)}
-                className="h-11 font-mono tabular-nums"
-                aria-label={s.backgroundHex}
-              />
-            </div>
+            <ColorInput label={s.background} value={bg} onChange={setBg} />
             {bgRgb && bgHsl && (
               <p className="text-xs text-muted-foreground mt-1 font-mono">
                 rgb({bgRgb.r}, {bgRgb.g}, {bgRgb.b}) · hsl({bgHsl.h}, {bgHsl.s}%, {bgHsl.l}%)

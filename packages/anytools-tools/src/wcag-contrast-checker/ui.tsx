@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  ColorInput,
   Input,
   PrivacyNote,
   useLocalized,
@@ -14,41 +15,6 @@ import {
 import { useMemo, useState } from 'react';
 import { contrastRatio, parseHex, rateContrast, suggestForeground, toHex } from './logic';
 import { STRINGS } from './strings';
-
-function ColorField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  const s = useLocalized(STRINGS);
-  const valid = parseHex(value) !== null;
-  return (
-    <div className="flex-1 min-w-[10rem]">
-      <span className="block text-sm font-medium mb-1.5">{label}</span>
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          value={valid ? toHex(parseHex(value) as never) : '#000000'}
-          onChange={(e) => onChange(e.target.value)}
-          aria-label={s.picker.replace('{label}', label)}
-          className="h-11 w-11 shrink-0 cursor-pointer rounded-md border border-input bg-transparent p-1"
-        />
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="#0f172a"
-          aria-label={s.hex.replace('{label}', label)}
-          aria-invalid={!valid}
-          className="h-11 font-mono"
-        />
-      </div>
-    </div>
-  );
-}
 
 function PassBadge({ pass, label }: { pass: boolean; label: string }) {
   return (
@@ -84,7 +50,7 @@ export function WcagContrastCheckerUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-end gap-3">
-          <ColorField label={s.textColor} value={fgHex} onChange={setFgHex} />
+          <ColorInput label={s.textColor} value={fgHex} onChange={setFgHex} />
           <Button
             variant="outline"
             size="icon"
@@ -99,7 +65,7 @@ export function WcagContrastCheckerUi() {
               ⇄
             </span>
           </Button>
-          <ColorField label={s.backgroundColor} value={bgHex} onChange={setBgHex} />
+          <ColorInput label={s.backgroundColor} value={bgHex} onChange={setBgHex} />
         </div>
 
         {fg && bg && result ? (

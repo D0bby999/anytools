@@ -6,6 +6,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
+  ColorInput,
   Input,
   MultiFileDropzone,
   PrivacyNote,
@@ -239,28 +241,12 @@ export function StlObjViewerUi() {
         {stats && (
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3 text-sm">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={wireframe}
-                  onChange={(e) => setWireframe(e.target.checked)}
-                />
-                {s.wireframe}
-              </label>
-              <div className="flex items-center gap-2">
-                {/* htmlFor rather than wrapping: <Input> is a component, and the a11y rule
-                    (rightly) cannot see an input inside it. */}
-                <label htmlFor="stl-obj-viewer-color" className="text-sm">
-                  {s.colorLabel}
-                </label>
-                <Input
-                  id="stl-obj-viewer-color"
-                  type="color"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  className="h-8 w-14 p-1"
-                />
-              </div>
+              <CheckboxField
+                label={s.wireframe}
+                checked={wireframe}
+                onCheckedChange={(v) => setWireframe(v === true)}
+              />
+              <ColorInput label={s.colorLabel} value={color} onChange={setColor} className="w-48" />
               <button
                 type="button"
                 onClick={() => sceneRef.current?.fitCamera()}

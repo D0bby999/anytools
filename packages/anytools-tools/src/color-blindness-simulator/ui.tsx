@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  ColorInput,
   CopyButton,
   Input,
   MultiFileDropzone,
@@ -158,24 +159,13 @@ export function ColorBlindnessSimulatorUi() {
           </div>
         ) : (
           <div className="space-y-3">
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">{s.colorLabel}</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={colorRgb ? rgbToHex(colorRgb) : '#000000'}
-                  onChange={(e) => setColorText(e.target.value)}
-                  className="h-11 w-11 cursor-pointer rounded border"
-                  aria-label={s.colorLabel}
-                />
-                <Input
-                  value={colorText}
-                  onChange={(e) => setColorText(e.target.value)}
-                  placeholder={s.colorPlaceholder}
-                  className="h-11 max-w-[10rem] font-mono"
-                />
-              </div>
-            </label>
+            <ColorInput
+              acceptAnyCssColor
+              label={s.colorLabel}
+              value={colorText}
+              onChange={setColorText}
+              className="max-w-sm"
+            />
             {!colorRgb ? (
               <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {s.error_invalidColor}

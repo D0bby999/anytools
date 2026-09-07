@@ -6,11 +6,19 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
+  ColorInput,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
   RangeSlider,
   SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useRef, useState } from 'react';
@@ -49,16 +57,6 @@ function parseFailureText(failure: ParseFailure, s: Record<string, string>): str
 
 const SLUG = 'css-gradient-generator';
 const SIZES: RadialSize[] = ['closest-side', 'closest-corner', 'farthest-side', 'farthest-corner'];
-
-/**
- * Reuses color-converter's hex parser so `#abc` and `#AABBCC` both drive the native
- * swatch. Non-hex colours (named, rgb(), hsl()) keep working in the text field — the
- * swatch just falls back to black, since <input type="color"> only speaks #rrggbb.
- */
-function swatchHex(color: string): string {
-  const rgb = hexToRgb(color.trim());
-  return rgb ? rgbToHex(rgb).toLowerCase() : '#000000';
-}
 
 export function CssGradientGeneratorUi() {
   const s = useLocalized(STRINGS);
@@ -125,15 +123,11 @@ export function CssGradientGeneratorUi() {
               { value: 'conic', label: s.conic },
             ]}
           />
-          <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
-            <input
-              type="checkbox"
-              className="h-4 w-4"
-              checked={g.repeating}
-              onChange={(e) => setG({ ...g, repeating: e.target.checked })}
-            />
-            {s.repeating}
-          </label>
+          <CheckboxField
+            label={s.repeating}
+            checked={g.repeating}
+            onCheckedChange={(v) => setG({ ...g, repeating: v === true })}
+          />
         </div>
 
         {'angle' in g && (
@@ -158,20 +152,20 @@ export function CssGradientGeneratorUi() {
                 { value: 'ellipse', label: s.ellipse },
               ]}
             />
-            <div className="flex-1 min-w-[12rem]">
-              <span className="block text-sm font-medium mb-1.5">{s.size}</span>
-              <select
-                aria-label={s.radialSize}
-                value={g.size}
-                onChange={(e) => setG({ ...g, size: e.target.value as RadialSize })}
-                className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
+            <div className="min-w-[12rem] flex-1 space-y-1.5">
+              <Label htmlFor="grad-size">{s.size}</Label>
+              <Select value={g.size} onValueChange={(v) => setG({ ...g, size: v as RadialSize })}>
+                <SelectTrigger id="grad-size" aria-label={s.radialSize}>
+                  <SelectValue>{g.size}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {SIZES.map((size) => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
@@ -202,18 +196,12 @@ export function CssGradientGeneratorUi() {
             // Keyed by a row id, never by the colour: a key that changes as you type
             // remounts the row and the field loses focus after one character.
             <div key={stop.id} className="flex items-center gap-2">
-              <input
-                type="color"
-                value={swatchHex(stop.color)}
-                onChange={(e) => updateStop(i, { color: e.target.value.toUpperCase() })}
-                aria-label={s.stopPicker.replace('{n}', String(i + 1))}
-                className="h-11 w-11 shrink-0 cursor-pointer rounded-md border border-input bg-transparent p-1"
-              />
-              <Input
+              <ColorInput
+                acceptAnyCssColor
+                label={s.stopColour.replace('{n}', String(i + 1))}
                 value={stop.color}
-                onChange={(e) => updateStop(i, { color: e.target.value })}
-                aria-label={s.stopColour.replace('{n}', String(i + 1))}
-                className="h-11 font-mono"
+                onChange={(color) => updateStop(i, { color })}
+                className="flex-1"
               />
               <Input
                 type="number"

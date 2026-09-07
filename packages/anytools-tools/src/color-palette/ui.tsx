@@ -1,5 +1,5 @@
 'use client';
-import { Input, SegmentedControl, useLocalized } from '@anytools/ui';
+import { ColorInput, Input, SegmentedControl, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { type Harmony, generatePalette } from './logic';
 import { STRINGS } from './strings';
@@ -17,24 +17,7 @@ export function ColorPaletteUi() {
         <p className="text-sm text-muted-foreground">{s.description}</p>
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <span className="block text-sm font-medium mb-1.5">{s.seedColor}</span>
-          <div className="flex gap-2">
-            <input
-              type="color"
-              value={seed}
-              onChange={(e) => setSeed(e.target.value.toUpperCase())}
-              className="h-11 w-14 rounded border bg-card cursor-pointer"
-              aria-label={s.seedColor}
-            />
-            <Input
-              value={seed}
-              onChange={(e) => setSeed(e.target.value)}
-              className="h-11 font-mono"
-              aria-label={s.seedHex}
-            />
-          </div>
-        </div>
+        <ColorInput label={s.seedColor} value={seed} onChange={setSeed} />
         <SegmentedControl
           value={harmony}
           onChange={setHarmony}

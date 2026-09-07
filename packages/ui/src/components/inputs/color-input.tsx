@@ -31,6 +31,14 @@ type Props = {
   value: string;
   onChange: (next: string) => void;
   label?: string;
+  /**
+   * Accept any CSS colour in the text field — `rebeccapurple`, `rgb(1 2 3)`, `hsl(...)` — not
+   * just hex. The swatch can only show `#rrggbb`, so it falls back to black for anything else,
+   * exactly as the hand-rolled pairs in css-gradient-generator and color-blindness-simulator
+   * did. Without this, moving those two onto the primitive would silently drop named and
+   * functional colours, which is a feature, not chrome.
+   */
+  acceptAnyCssColor?: boolean;
   disabled?: boolean;
   className?: string;
 };
@@ -53,7 +61,14 @@ function normalize(raw: string, expandShort: boolean): string | null {
   return HEX6.test(candidate) ? candidate.toLowerCase() : null;
 }
 
-export function ColorInput({ value, onChange, label, disabled, className }: Props) {
+export function ColorInput({
+  value,
+  onChange,
+  label,
+  acceptAnyCssColor = false,
+  disabled,
+  className,
+}: Props) {
   const id = useId();
   const [draft, setDraft] = useState(value);
 
@@ -62,6 +77,11 @@ export function ColorInput({ value, onChange, label, disabled, className }: Prop
 
   const commitDraft = (raw: string) => {
     setDraft(raw);
+    if (acceptAnyCssColor) {
+      // The caller owns validation here; anything non-empty is passed straight through.
+      if (raw.trim()) onChange(raw.trim());
+      return;
+    }
     const parsed = normalize(raw, false);
     // Compare against the normalised current value, not the raw one: a caller holding
     // '#FFFFFF' would otherwise get an onChange for '#ffffff' on every focus-and-tab, and
@@ -72,6 +92,7 @@ export function ColorInput({ value, onChange, label, disabled, className }: Prop
   // Blur resolves shorthand, and snaps a draft that never parsed back to the committed value
   // rather than leaving it stranded as red text.
   const handleBlur = () => {
+    if (acceptAnyCssColor) return;
     const parsed = normalize(draft, true);
     const current = normalize(value, true);
     if (parsed && parsed !== current) onChange(parsed);
@@ -88,7 +109,7 @@ export function ColorInput({ value, onChange, label, disabled, className }: Prop
 
   // Validity display DOES accept shorthand — `#abc` should not read as an error while the
   // user is looking at it, even though it does not commit until blur.
-  const invalid = normalize(draft, true) === null;
+  const invalid = acceptAnyCssColor ? false : normalize(draft, true) === null;
   // The native swatch rejects anything but #RRGGBB, so feed it the last good value while the
   // hex box holds a half-typed one.
   const swatchValue = normalize(draft, true) ?? normalize(value, true) ?? '#000000';
@@ -124,7 +145,7 @@ export function ColorInput({ value, onChange, label, disabled, className }: Prop
           autoComplete="off"
           inputMode="text"
           aria-invalid={invalid || undefined}
-          placeholder="#0e7490"
+          placeholder={acceptAnyCssColor ? 'rebeccapurple' : '#0e7490'}
           className={cn(
             'h-11 w-full rounded-md border bg-background px-3 font-mono text-sm uppercase ring-offset-background',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
