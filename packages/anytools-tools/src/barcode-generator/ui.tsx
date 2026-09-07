@@ -1,7 +1,6 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -19,7 +18,7 @@ import {
   useLocalized,
   useToolLocale,
 } from '@anytools/ui';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {
@@ -107,6 +106,13 @@ export function BarcodeGeneratorUi() {
   // someone press a button to be told the 13th digit is wrong.
   const preflight = value.trim() ? validateBarcodeInput(format, value) : null;
 
+  // Live preview, learned from iib0011/omni-tools' QR tool (MIT): it has no Generate button and
+  // recomputes behind a debounce. Encoding here is a WASM call, so the debounce is doing real
+  // work, and `generation` discards a result that landed after the inputs moved on — without it
+  // a slow encode of an old value can overwrite a newer one.
+  const generation = useRef(0);
+  const trackedRef = useRef(false);
+
   const clearResult = () => {
     setResult(null);
     setNote(null);
@@ -127,8 +133,29 @@ export function BarcodeGeneratorUi() {
     clearResult();
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run() closes over every input it
+  // needs; listing it here instead would re-fire the effect on each render.
+  useEffect(() => {
+    if (!preflight?.ok) {
+      clearResult();
+      return;
+    }
+    const id = ++generation.current;
+    const timer = setTimeout(() => {
+      if (id === generation.current) void run();
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [format, value, scale, quietZone, humanReadable, preflight?.ok]);
+
   const run = async () => {
-    trackEvent('tool_run', { tool: 'barcode-generator' });
+    // Live preview fires this on every settled edit, so gate the analytics event on the first
+    // success per mount. Firing per keystroke would turn "someone used the tool" into "someone
+    // typed", and dropping it entirely (which is what the other live tools here do) would
+    // silently remove a signal the owner may still want.
+    if (!trackedRef.current) {
+      trackEvent('tool_run', { tool: 'barcode-generator' });
+      trackedRef.current = true;
+    }
     setBusy(true);
     setError(null);
     clearResult();
@@ -231,9 +258,7 @@ export function BarcodeGeneratorUi() {
           />
         </div>
 
-        <Button type="button" onClick={run} disabled={busy || !preflight?.ok}>
-          {busy ? s.encoding : s.generate}
-        </Button>
+        {busy && <p className="text-sm text-muted-foreground">{s.encoding}</p>}
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

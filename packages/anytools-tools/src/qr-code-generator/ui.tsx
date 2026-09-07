@@ -8,6 +8,7 @@ import {
   Input,
   Label,
   PrivacyNote,
+  RangeSlider,
   Select,
   SelectContent,
   SelectItem,
@@ -54,6 +55,9 @@ export function QrCodeGeneratorUi() {
   const [ecc, setEcc] = useState<'L' | 'M' | 'Q' | 'H'>('M');
   const [darkColor, setDarkColor] = useState('#000000');
   const [lightColor, setLightColor] = useState('#FFFFFF');
+  // Explicit pixel size, learned from iib0011/omni-tools (MIT): without it the output is
+  // whatever the library defaults to, which is the wrong size for both print and a slide.
+  const [size, setSize] = useState(320);
 
   const [pngUrl, setPngUrl] = useState<string | null>(null);
   const [svg, setSvg] = useState<string | null>(null);
@@ -107,8 +111,8 @@ export function QrCodeGeneratorUi() {
     }
     let cancelled = false;
     Promise.all([
-      generateQrDataUrl(payload, { errorCorrectionLevel: ecc, darkColor, lightColor }),
-      generateQrSvg(payload, { errorCorrectionLevel: ecc, darkColor, lightColor }),
+      generateQrDataUrl(payload, { errorCorrectionLevel: ecc, darkColor, lightColor, width: size }),
+      generateQrSvg(payload, { errorCorrectionLevel: ecc, darkColor, lightColor, width: size }),
     ])
       .then(([png, sv]) => {
         if (cancelled) return;
@@ -126,7 +130,21 @@ export function QrCodeGeneratorUi() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, text, url, email, tel, wifi, vcard, ecc, darkColor, lightColor, s, ui.invalidInput]);
+  }, [
+    kind,
+    text,
+    url,
+    email,
+    tel,
+    wifi,
+    vcard,
+    ecc,
+    darkColor,
+    lightColor,
+    size,
+    s,
+    ui.invalidInput,
+  ]);
 
   const downloadSvg = () => {
     if (!svg) return;
@@ -299,6 +317,15 @@ export function QrCodeGeneratorUi() {
           </div>
           <ColorInput label={s.darkColor} value={darkColor} onChange={setDarkColor} />
           <ColorInput label={s.lightColor} value={lightColor} onChange={setLightColor} />
+          <RangeSlider
+            label={s.size}
+            unit="px"
+            value={size}
+            min={120}
+            max={1000}
+            step={20}
+            onChange={setSize}
+          />
         </div>
 
         {error && (
