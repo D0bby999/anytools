@@ -2,6 +2,7 @@
 import '@excalidraw/excalidraw/index.css';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -26,6 +27,7 @@ import {
   storageKey,
 } from './logic';
 import { STRINGS } from './strings';
+import { WhiteboardToolbar } from './whiteboard-toolbar';
 
 /**
  * Where Excalidraw looks for its canvas fonts (Excalifont, Virgil, Cascadia, Xiaolai…).
@@ -112,9 +114,6 @@ function loadSavedScene(): { data: ImportedDataState; raw: string } | null {
 }
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
-
-const buttonClass =
-  'inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-muted disabled:opacity-40';
 
 // Excalidraw's own chrome (menus, tooltips) in the page language. Codes per its locales list.
 const EXCALIDRAW_LANG: Record<string, string> = { en: 'en', vi: 'vi-VN', es: 'es-ES', pt: 'pt-BR' };
@@ -397,97 +396,19 @@ export function WhiteboardUi() {
         <CardTitle className="text-xl">{s.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {confirming === 'new' ? (
-            <>
-              <span className="text-sm text-muted-foreground">{s.eraseQuestion}</span>
-              <button type="button" onClick={newBoard} className={buttonClass}>
-                {s.yesErase}
-              </button>
-              <button type="button" onClick={() => setConfirming(null)} className={buttonClass}>
-                {ui.cancel}
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setConfirming('new')}
-              className={buttonClass}
-              disabled={busy}
-            >
-              {s.newBoard}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => runExport('png')}
-            className={buttonClass}
-            disabled={busy}
-          >
-            {s.exportPng}
-          </button>
-          <button
-            type="button"
-            onClick={() => runExport('svg')}
-            className={buttonClass}
-            disabled={busy}
-          >
-            {s.exportSvg}
-          </button>
-          <button
-            type="button"
-            onClick={() => runExport('excalidraw')}
-            className={buttonClass}
-            disabled={busy}
-          >
-            {s.exportExcalidraw}
-          </button>
-          {/*
-            Opening a file REPLACES the board, exactly like "New board" does, so it asks first for
-            the same reason — but only when there is something to lose. On an empty canvas the
-            question would be noise, so the picker opens straight away.
-          */}
-          {confirming === 'import' ? (
-            <>
-              <span className="text-sm text-muted-foreground">{s.replaceQuestion}</span>
-              <button type="button" onClick={openFilePicker} className={buttonClass}>
-                {s.yesChooseFile}
-              </button>
-              <button type="button" onClick={() => setConfirming(null)} className={buttonClass}>
-                {ui.cancel}
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                if (boardHasContent()) setConfirming('import');
-                else openFilePicker();
-              }}
-              className={buttonClass}
-              disabled={busy}
-            >
-              {s.openExcalidraw}
-            </button>
-          )}
-          {/*
-            Driven by the button above rather than a <label for>, because the button has to decide
-            whether to ask first. It keeps an aria-label: the input stays in the accessibility tree
-            (sr-only, not hidden), and the label it used to borrow from the <label> is gone.
-          */}
-          <input
-            ref={fileInputRef}
-            id="whiteboard-import"
-            type="file"
-            aria-label={s.chooseFileAria}
-            accept=".excalidraw,application/json"
-            className="sr-only"
-            onChange={(e) => {
-              void importScene(e.target.files?.[0]);
-              e.target.value = '';
-            }}
-          />
-        </div>
+        <WhiteboardToolbar
+          s={s}
+          ui={ui}
+          busy={busy}
+          confirming={confirming}
+          setConfirming={setConfirming}
+          newBoard={newBoard}
+          runExport={runExport}
+          openFilePicker={openFilePicker}
+          boardHasContent={boardHasContent}
+          importScene={importScene}
+          fileInputRef={fileInputRef}
+        />
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -504,13 +425,11 @@ export function WhiteboardUi() {
         )}
 
         {exported && (
-          <a
-            href={exported.url}
-            download={exported.filename}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-          >
-            {s.downloadFile.replace('{name}', exported.filename)}
-          </a>
+          <Button asChild>
+            <a href={exported.url} download={exported.filename}>
+              {s.downloadFile.replace('{name}', exported.filename)}
+            </a>
+          </Button>
         )}
 
         {/*
