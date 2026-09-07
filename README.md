@@ -1,13 +1,13 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/home-dark.png">
-    <img src=".github/readme/home-light.png" alt="AnyTools home page — 107 browser-side tools" width="820">
+    <img src=".github/readme/home-light.png" alt="AnyTools home page — 132 browser-side tools" width="820">
   </picture>
 </p>
 
 # AnyTools
 
-107 browser-based calculators, converters and developer tools, MIT-licensed and
+132 browser-based calculators, converters and developer tools, MIT-licensed and
 self-hostable in one command — [anytools.world](https://anytools.world).
 
 ```bash
@@ -44,7 +44,7 @@ Almost every tool runs entirely in your browser: what you paste stays on your de
 Two exceptions are documented in the section below — they are not the same kind of
 exception, and one of them matters if you paste secrets.
 
-## 107 tools across 13 clusters
+## 132 tools across 13 clusters
 
 Counted straight from the registry (`packages/anytools-tools/src/*/meta.ts`), not from
 memory:
@@ -55,13 +55,14 @@ grep -rho "cluster: '[a-z0-9-]*'" packages/anytools-tools/src/*/meta.ts | sort |
 
 | Cluster | Tools | | Cluster | Tools |
 |---|---:|---|---|---:|
-| Lifestyle | 16 | | Image | 7 |
-| Converters | 12 | | Health | 7 |
-| PDF | 10 | | Design | 7 |
-| Generators | 10 | | Text & regex | 6 |
-| Finance | 9 | | Time & date | 4 |
-| Encoding | 9 | | Web3 | 2 |
-| Formatters | 8 | | **Total** | **107** |
+| Converters | 17 | | Image | 10 |
+| Lifestyle | 16 | | Design | 10 |
+| PDF | 12 | | Finance | 9 |
+| Generators | 12 | | Text & regex | 8 |
+| Encoding | 12 | | Health | 7 |
+| Formatters | 11 | | Time & date | 5 |
+| | | | Web3 | 3 |
+| | | | **Total** | **132** |
 
 <p align="center">
   <img src=".github/readme/catalog.png" alt="AnyTools PDF cluster page listing its tools" width="820">
@@ -102,7 +103,7 @@ the linked source before quoting these elsewhere.
 |---|---|---|---|---|
 | Licence | MIT ([`LICENSE`](LICENSE)) | **GPL-3.0** ([source](https://github.com/CorentinTh/it-tools/blob/main/LICENSE)) | MIT ([source](https://github.com/iib0011/omni-tools/blob/main/LICENSE)) | open-core: MIT with several proprietary carve-out directories, e.g. `engine/`, `app/saas/` ([source](https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/LICENSE)) |
 | GitHub stars (2026-09-03) | 0 | 40,448 | 10,126 | 91,208 |
-| Tools | 107 (counted from `meta-registry.ts`, see above) | 86 folders under `src/tools` | not published; organized into 12 groups | "50+ PDF tools" (per its own README) |
+| Tools | 132 (counted from `meta-registry.ts`, see above) | 86 folders under `src/tools` | not published; organized into 12 groups | "50+ PDF tools" (per its own README) |
 | Scope | dev + PDF + image + **finance/health/lifestyle** | dev/IT tools only | audio, converters, csv, image, json, list, number, pdf, string, time, video, xml | PDF only |
 | Where it runs | in the browser (2 exceptions, see above) | in the browser | in the browser | **server-side** (Java) |
 | UI languages | 4 (en, vi, es, pt) | 9 locales (de, en, es, fr, no, pt, uk, vi, zh) | not published | "40+ languages" (per its own README) |
@@ -149,7 +150,7 @@ self-hosting problems included.
 
 ```
 apps/anytools-web            Next.js 15 app (App Router, next-intl, 4 locales)
-packages/anytools-tools      the 107 tools: pure logic + UI, one directory each
+packages/anytools-tools      the 132 tools: pure logic + UI, one directory each
 packages/ui                  shared components and the design tokens
 packages/anytools-i18n       locale list and helpers
 packages/anytools-analytics  Umami event wrapper
