@@ -4,6 +4,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   Input,
   PrivacyNote,
@@ -74,15 +75,11 @@ export function HexEncodeUi() {
                 placeholder={ui.none}
               />
             </label>
-            <label className="flex items-center gap-2 text-sm pt-6">
-              <input
-                type="checkbox"
-                checked={uppercase}
-                onChange={(e) => setUppercase(e.target.checked)}
-                className="h-4 w-4"
-              />
-              {ui.uppercase}
-            </label>
+            <CheckboxField
+              label={ui.uppercase}
+              checked={uppercase}
+              onCheckedChange={(v) => setUppercase(v === true)}
+            />
           </div>
         )}
 

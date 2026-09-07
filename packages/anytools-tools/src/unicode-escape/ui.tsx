@@ -4,8 +4,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -50,27 +57,30 @@ export function UnicodeEscapeUi() {
         </Tabs>
         {mode === 'escape' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">{s.mode}</span>
-              <select
-                value={escapeMode}
-                onChange={(e) => setEscapeMode(e.target.value as EscapeMode)}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="json">{s.modeJson}</option>
-                <option value="es6">{s.modeEs6}</option>
-                <option value="all">{s.modeAll}</option>
-              </select>
-            </label>
-            <label className="flex items-center gap-2 text-sm pt-6">
-              <input
-                type="checkbox"
-                checked={uppercase}
-                onChange={(e) => setUppercase(e.target.checked)}
-                className="h-4 w-4"
-              />
-              {s.uppercaseHex}
-            </label>
+            <div className="space-y-1.5">
+              <Label htmlFor="ue-mode">{s.mode}</Label>
+              <Select value={escapeMode} onValueChange={(v) => setEscapeMode(v as EscapeMode)}>
+                <SelectTrigger id="ue-mode">
+                  <SelectValue>
+                    {escapeMode === 'json'
+                      ? s.modeJson
+                      : escapeMode === 'es6'
+                        ? s.modeEs6
+                        : s.modeAll}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="json">{s.modeJson}</SelectItem>
+                  <SelectItem value="es6">{s.modeEs6}</SelectItem>
+                  <SelectItem value="all">{s.modeAll}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <CheckboxField
+              label={s.uppercaseHex}
+              checked={uppercase}
+              onCheckedChange={(v) => setUppercase(v === true)}
+            />
           </div>
         )}
         <Textarea

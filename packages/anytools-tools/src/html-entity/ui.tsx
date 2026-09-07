@@ -4,6 +4,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   PrivacyNote,
   Tabs,
@@ -55,24 +56,16 @@ export function HtmlEntityUi() {
               placeholder="<script>alert('xss')</script>"
               rows={5}
             />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={encodeNonAscii}
-                onChange={(e) => setEncodeNonAscii(e.target.checked)}
-                className="h-4 w-4"
-              />
-              {s.encodeNonAscii}
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={encodeEverything}
-                onChange={(e) => setEncodeEverything(e.target.checked)}
-                className="h-4 w-4"
-              />
-              {s.encodeEverything}
-            </label>
+            <CheckboxField
+              label={s.encodeNonAscii}
+              checked={encodeNonAscii}
+              onCheckedChange={(v) => setEncodeNonAscii(v === true)}
+            />
+            <CheckboxField
+              label={s.encodeEverything}
+              checked={encodeEverything}
+              onCheckedChange={(v) => setEncodeEverything(v === true)}
+            />
           </TabsContent>
           <TabsContent value="decode">
             <Textarea

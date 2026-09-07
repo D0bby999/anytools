@@ -6,7 +6,13 @@ import {
   CardTitle,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
@@ -49,20 +55,26 @@ export function EthWeiConverterUi() {
               className="font-mono"
             />
           </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.unit}</span>
-            <select
-              value={unit}
-              onChange={(e) => setUnit(e.target.value as EthUnit)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {UNITS.map((u) => (
-                <option key={u.key} value={u.key}>
-                  {unitLabel(u)}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="eth-unit">{s.unit}</Label>
+            <Select value={unit} onValueChange={(v) => setUnit(v as EthUnit)}>
+              <SelectTrigger id="eth-unit" className="min-w-36">
+                <SelectValue>
+                  {(() => {
+                    const u = UNITS.find((x) => x.key === unit);
+                    return u ? unitLabel(u) : unit;
+                  })()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {UNITS.map((u) => (
+                  <SelectItem key={u.key} value={u.key}>
+                    {unitLabel(u)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="space-y-2">
           {UNITS.map((u) => (

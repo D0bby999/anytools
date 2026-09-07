@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   PrivacyNote,
   Tabs,
@@ -50,15 +51,11 @@ export function Base64ToolUi() {
     <Card>
       <CardHeader className="flex-row items-center justify-between gap-4 space-y-0">
         <CardTitle className="text-xl">{s.title}</CardTitle>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={urlSafe}
-            onChange={(e) => setUrlSafe(e.target.checked)}
-            className="h-4 w-4 rounded border-input"
-          />
-          {s.urlSafe}
-        </label>
+        <CheckboxField
+          label={s.urlSafe}
+          checked={urlSafe}
+          onCheckedChange={(v) => setUrlSafe(v === true)}
+        />
       </CardHeader>
       <CardContent className="space-y-4">
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>

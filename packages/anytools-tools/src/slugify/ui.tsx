@@ -4,8 +4,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Tabs,
   TabsContent,
   TabsList,
@@ -66,55 +73,58 @@ export function SlugifyUi() {
         </Tabs>
 
         <div className="flex flex-wrap gap-4 text-sm">
-          <label className="flex items-center gap-1">
-            {s.separator}
-            <select
+          <div className="space-y-1.5">
+            <Label htmlFor="slug-separator">{s.separator}</Label>
+            <Select
               value={options.separator}
-              onChange={(e) =>
-                setOptions({ ...options, separator: e.target.value as '-' | '_' | '.' })
-              }
-              className="h-8 rounded border border-input bg-background px-2"
+              onValueChange={(v) => setOptions({ ...options, separator: v as '-' | '_' | '.' })}
             >
-              <option value="-">{s.hyphen}</option>
-              <option value="_">{s.underscore}</option>
-              <option value=".">{s.dot}</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1">
-            {s.locale}
-            <select
+              <SelectTrigger id="slug-separator" className="min-w-32">
+                <SelectValue>
+                  {options.separator === '-'
+                    ? s.hyphen
+                    : options.separator === '_'
+                      ? s.underscore
+                      : s.dot}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="-">{s.hyphen}</SelectItem>
+                <SelectItem value="_">{s.underscore}</SelectItem>
+                <SelectItem value=".">{s.dot}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="slug-locale">{s.locale}</Label>
+            <Select
               value={options.locale}
-              onChange={(e) =>
-                setOptions({ ...options, locale: e.target.value as SlugifyOptions['locale'] })
+              onValueChange={(v) =>
+                setOptions({ ...options, locale: v as SlugifyOptions['locale'] })
               }
-              className="h-8 rounded border border-input bg-background px-2"
             >
-              <option value="en">EN</option>
-              <option value="vi">VI</option>
-              <option value="de">DE</option>
-              <option value="fr">FR</option>
-              <option value="es">ES</option>
-              <option value="pt">PT</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              checked={options.lowercase}
-              onChange={(e) => setOptions({ ...options, lowercase: e.target.checked })}
-              className="h-4 w-4"
-            />
-            {s.lowercase}
-          </label>
-          <label className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              checked={options.strict}
-              onChange={(e) => setOptions({ ...options, strict: e.target.checked })}
-              className="h-4 w-4"
-            />
-            {s.strict}
-          </label>
+              <SelectTrigger id="slug-locale" className="min-w-24">
+                <SelectValue>{String(options.locale).toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {['en', 'vi', 'de', 'fr', 'es', 'pt'].map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <CheckboxField
+            label={s.lowercase}
+            checked={options.lowercase}
+            onCheckedChange={(v) => setOptions({ ...options, lowercase: v === true })}
+          />
+          <CheckboxField
+            label={s.strict}
+            checked={options.strict}
+            onCheckedChange={(v) => setOptions({ ...options, strict: v === true })}
+          />
         </div>
 
         {mode === 'single' ? (

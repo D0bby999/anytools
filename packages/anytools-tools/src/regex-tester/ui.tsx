@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   Input,
   Tabs,
   TabsContent,
@@ -16,7 +17,7 @@ import {
   useToolLocale,
   useUiStrings,
 } from '@anytools/ui';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { richText } from '../shared/rich-text';
 import { type RegexFailure, type RegexFlags, type TestResult, flagString } from './logic';
 import { runRegexInWorker } from './regex-worker';
@@ -45,6 +46,31 @@ const FLAG_LETTERS: { key: keyof RegexFlags; letter: string }[] = [
 ];
 
 const MAX_TEXT_LEN = 10_240;
+
+/**
+ * Render `text` with every match wrapped in a <mark>, so a hit is visible where it happens
+ * rather than only as an offset in the list below.
+ *
+ * Matches arrive sorted and non-overlapping from the worker, but a zero-length match (`a*`
+ * against an empty run) would otherwise emit an empty <mark> and stall the cursor, so those
+ * are skipped rather than rendered.
+ */
+function highlightMatches(text: string, matches: { index: number; length: number }[]) {
+  const out: ReactNode[] = [];
+  let at = 0;
+  for (const m of matches) {
+    if (m.length <= 0 || m.index < at) continue;
+    if (m.index > at) out.push(text.slice(at, m.index));
+    out.push(
+      <mark key={`${m.index}-${m.length}`} className="rounded bg-accent/25 text-foreground">
+        {text.slice(m.index, m.index + m.length)}
+      </mark>,
+    );
+    at = m.index + m.length;
+  }
+  if (at < text.length) out.push(text.slice(at));
+  return out;
+}
 const EXAMPLE_PATTERN = '(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})';
 const EXAMPLE_TEXT = 'Today is 2026-05-25 and tomorrow is 2026-05-26.';
 
@@ -141,21 +167,13 @@ export function RegexTesterUi() {
         <div className="flex flex-wrap gap-3 items-center text-sm">
           <span className="text-muted-foreground">{s.flags}</span>
           {FLAG_LETTERS.map(({ key, letter }) => (
-            <label key={key} className="flex items-center gap-1 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={flags[key]}
-                onChange={() => toggleFlag(key)}
-                className="h-4 w-4"
-              />
-              <span className="text-xs">
-                {letter} — {flagDescription[key]}
-              </span>
-            </label>
+            <CheckboxField
+              key={key}
+              label={`${letter} — ${flagDescription[key]}`}
+              checked={flags[key]}
+              onCheckedChange={() => toggleFlag(key)}
+            />
           ))}
-          <Button variant="ghost" size="sm" onClick={tryExample}>
-            {ui.tryExample}
-          </Button>
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
@@ -193,6 +211,9 @@ export function RegexTesterUi() {
           <Button onClick={handleRun} disabled={pattern.length === 0 || running}>
             {running ? s.running : ui.run}
           </Button>
+          <Button variant="ghost" size="sm" onClick={tryExample}>
+            {ui.tryExample}
+          </Button>
           {truncated && (
             <span className="text-xs text-destructive">{s.capped.replace('{n}', maxLen)}</span>
           )}
@@ -218,6 +239,15 @@ export function RegexTesterUi() {
                   : s.matchMany.replace('{n}', String(testResult.matches.length))}
               </Badge>
             </div>
+            {/* The matches shown in place, not only as a list below. Learned from OpenRegex
+                (Apache-2.0): a list of offsets makes you count characters to see WHERE a
+                pattern hit, which is most of what you are trying to learn. The match data
+                already carries index and length, so this needs nothing from the worker. */}
+            {testResult.matches.length > 0 && (
+              <div className="max-h-60 overflow-auto whitespace-pre-wrap break-words rounded-md border bg-muted px-3 py-2 font-mono text-sm">
+                {highlightMatches(text.slice(0, MAX_TEXT_LEN), testResult.matches)}
+              </div>
+            )}
             {testResult.matches.length > 0 && (
               <div className="space-y-2 max-h-80 overflow-auto">
                 {testResult.matches.slice(0, 50).map((m) => (

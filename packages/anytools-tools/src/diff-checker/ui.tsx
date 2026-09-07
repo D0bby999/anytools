@@ -6,7 +6,13 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Tabs,
   TabsContent,
   TabsList,
@@ -38,29 +44,33 @@ export function DiffCheckerUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-center text-sm">
-          <label className="flex items-center gap-1">
-            {s.granularity}
-            <select
-              value={granularity}
-              onChange={(e) => setGranularity(e.target.value as Granularity)}
-              className="h-8 rounded border border-input bg-background px-2"
-            >
-              <option value="line">{s.line}</option>
-              <option value="word">{s.word}</option>
-              <option value="char">{s.character}</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-1">
-            {s.view}
-            <select
-              value={view}
-              onChange={(e) => setView(e.target.value as 'inline' | 'patch')}
-              className="h-8 rounded border border-input bg-background px-2"
-            >
-              <option value="inline">{s.inlineColor}</option>
-              <option value="patch">{s.unifiedPatch}</option>
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="diff-granularity">{s.granularity}</Label>
+            <Select value={granularity} onValueChange={(v) => setGranularity(v as Granularity)}>
+              <SelectTrigger id="diff-granularity" className="min-w-32">
+                <SelectValue>
+                  {granularity === 'line' ? s.line : granularity === 'word' ? s.word : s.character}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="line">{s.line}</SelectItem>
+                <SelectItem value="word">{s.word}</SelectItem>
+                <SelectItem value="char">{s.character}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="diff-view">{s.view}</Label>
+            <Select value={view} onValueChange={(v) => setView(v as 'inline' | 'patch')}>
+              <SelectTrigger id="diff-view" className="min-w-36">
+                <SelectValue>{view === 'inline' ? s.inlineColor : s.unifiedPatch}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inline">{s.inlineColor}</SelectItem>
+                <SelectItem value="patch">{s.unifiedPatch}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           {(a || b) && (
             <>
               <Badge variant="default">+{stats.added}</Badge>

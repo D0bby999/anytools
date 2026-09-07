@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   PrivacyNote,
   Tabs,
@@ -72,15 +73,11 @@ export function UrlEncodeUi() {
           <TabsContent value="full">{textarea}</TabsContent>
           <TabsContent value="decode" className="space-y-3">
             {textarea}
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={plusAsSpace}
-                onChange={(e) => setPlusAsSpace(e.target.checked)}
-                className="h-4 w-4"
-              />
-              {s.plusAsSpace}
-            </label>
+            <CheckboxField
+              label={s.plusAsSpace}
+              checked={plusAsSpace}
+              onCheckedChange={(v) => setPlusAsSpace(v === true)}
+            />
           </TabsContent>
         </Tabs>
 
