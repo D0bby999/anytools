@@ -199,14 +199,9 @@ export function OcrPdfUi() {
               {busy ? s.reading : s.recognize}
             </Button>
             {busy && (
-              <button
-                type="button"
-                onClick={stop}
-                disabled={stopping}
-                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
-              >
+              <Button variant="outline" type="button" onClick={stop} disabled={stopping}>
                 {stopping ? s.stopping : ui.stop}
-              </button>
+              </Button>
             )}
           </div>
 

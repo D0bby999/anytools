@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -183,14 +184,9 @@ export function XlsxToCsvUi() {
           </output>
         )}
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy || tooLarge}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={run} disabled={!file || busy || tooLarge}>
           {busy ? s.reading : s.readWorkbook}
-        </button>
+        </Button>
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -281,21 +277,17 @@ export function XlsxToCsvUi() {
 
             <div className="flex flex-wrap items-center gap-2">
               <CopyButton text={output} />
-              <button
+              <Button
+                size="sm"
                 type="button"
                 onClick={() => download(output, `${safeName(sheet.name)}.${format}`)}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
                 {s.downloadSheet}
-              </button>
+              </Button>
               {sheets.length > 1 && (
-                <button
-                  type="button"
-                  onClick={downloadAll}
-                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-                >
+                <Button variant="outline" size="sm" type="button" onClick={downloadAll}>
                   {s.downloadAllSheets.replace('{n}', String(sheets.length))}
-                </button>
+                </Button>
               )}
             </div>
 

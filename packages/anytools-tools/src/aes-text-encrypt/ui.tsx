@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -101,14 +102,13 @@ export function AesTextEncryptUi() {
                 className="font-mono"
               />
             </div>
-            <button
+            <Button
               type="button"
               onClick={runEncrypt}
               disabled={!plaintext || !encryptPassword || encrypting}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
             >
               {encrypting ? s.encrypting : s.encryptButton}
-            </button>
+            </Button>
 
             {encryptError && (
               <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -149,14 +149,13 @@ export function AesTextEncryptUi() {
                 className="font-mono"
               />
             </div>
-            <button
+            <Button
               type="button"
               onClick={runDecrypt}
               disabled={!ciphertext || !decryptPassword || decrypting}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
             >
               {decrypting ? s.decrypting : s.decryptButton}
-            </button>
+            </Button>
 
             {decryptError && (
               <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

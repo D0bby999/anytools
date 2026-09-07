@@ -249,14 +249,17 @@ export function WatermarkImageUi() {
           <fieldset className="flex gap-2">
             <legend className="mb-1 block text-sm text-muted-foreground">{s.markKind}</legend>
             {(['text', 'image'] as const).map((k) => (
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 key={k}
                 type="button"
                 onClick={() => setMarkKind(k)}
-                className={`h-9 rounded-md border px-3 text-sm ${markKind === k ? 'border-primary bg-primary/10' : 'border-input'}`}
+                aria-pressed={markKind === k}
+                className={markKind === k ? 'border-primary bg-primary/10' : undefined}
               >
                 {k === 'text' ? s.markKindText : s.markKindImage}
-              </button>
+              </Button>
             ))}
           </fieldset>
 
@@ -296,34 +299,43 @@ export function WatermarkImageUi() {
           <fieldset className="space-y-2">
             <legend className="text-sm text-muted-foreground">{s.positionLabel}</legend>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
                 onClick={() => setPositionMode('grid')}
-                className={`h-9 rounded-md border px-3 text-sm ${positionMode === 'grid' ? 'border-primary bg-primary/10' : 'border-input'}`}
+                aria-pressed={positionMode === 'grid'}
+                className={positionMode === 'grid' ? 'border-primary bg-primary/10' : undefined}
               >
                 {s.positionLabel}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
                 onClick={() => setPositionMode('custom')}
-                className={`h-9 rounded-md border px-3 text-sm ${positionMode === 'custom' ? 'border-primary bg-primary/10' : 'border-input'}`}
+                aria-pressed={positionMode === 'custom'}
+                className={positionMode === 'custom' ? 'border-primary bg-primary/10' : undefined}
               >
                 {s.positionCustom}
-              </button>
+              </Button>
             </div>
             {positionMode === 'grid' ? (
               <div className="grid w-40 grid-cols-3 gap-1">
                 {GRID.map((g) => (
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     key={g}
                     type="button"
                     title={gridLabel[g]}
                     aria-label={gridLabel[g]}
                     onClick={() => setGrid(g)}
-                    className={`h-9 rounded-md border text-xs ${grid === g ? 'border-primary bg-primary/10' : 'border-input'}`}
+                    aria-pressed={grid === g}
+                    className={grid === g ? 'border-primary bg-primary/10' : undefined}
                   >
                     ●
-                  </button>
+                  </Button>
                 ))}
               </div>
             ) : (
@@ -449,13 +461,9 @@ export function WatermarkImageUi() {
           {results.length > 0 && (
             <div className="space-y-3">
               {results.length > 1 && (
-                <button
-                  type="button"
-                  onClick={downloadAll}
-                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-                >
+                <Button variant="outline" size="sm" type="button" onClick={downloadAll}>
                   {s.downloadAllZip.replace('{n}', String(results.length))}
-                </button>
+                </Button>
               )}
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {results.map((r, i) => (

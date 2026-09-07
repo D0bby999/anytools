@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -167,14 +168,9 @@ export function DocxToMarkdownUi() {
           </output>
         )}
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy || tooLarge}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={run} disabled={!file || busy || tooLarge}>
           {busy ? s.converting : s.convert}
-        </button>
+        </Button>
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -204,28 +200,25 @@ export function DocxToMarkdownUi() {
 
             <div className="flex flex-wrap gap-2">
               {VIEWS.map((v) => (
-                <button
+                <Button
                   key={v}
                   type="button"
+                  // Single-choice group: the pressed one is the filled variant, the rest outline.
+                  variant={view === v ? 'default' : 'outline'}
+                  size="sm"
+                  aria-pressed={view === v}
                   onClick={() => setView(v)}
-                  className={`h-9 rounded-md border px-3 text-sm ${
-                    view === v ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                  }`}
                 >
                   {viewLabel[v]}
-                </button>
+                </Button>
               ))}
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <CopyButton text={view === 'html' ? result.html : result.markdown} />
-              <button
-                type="button"
-                onClick={downloadMarkdown}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
+              <Button size="sm" type="button" onClick={downloadMarkdown}>
                 {s.downloadMd}
-              </button>
+              </Button>
             </div>
 
             {view === 'preview' ? (

@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -241,21 +242,12 @@ export function AudioTrimUi() {
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={playPause}
-                className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-              >
+              <Button variant="outline" size="sm" type="button" onClick={playPause}>
                 {isPlaying ? s.pause : s.play}
-              </button>
-              <button
-                type="button"
-                onClick={cut}
-                disabled={!selection || busy}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-              >
+              </Button>
+              <Button size="sm" type="button" onClick={cut} disabled={!selection || busy}>
                 {busy ? s.cutting : s.cut}
-              </button>
+              </Button>
             </div>
 
             {cutError && (
@@ -272,13 +264,14 @@ export function AudioTrimUi() {
                     .replace('{in}', fmtSize(file?.size ?? 0))
                     .replace('{out}', fmtSize(result.outputBytes))}
                 </p>
-                <a
-                  href={url}
-                  download={`${(file?.name ?? 'clip').replace(/\.[^.]+$/, '')}-trim.wav`}
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-                >
-                  {s.downloadWav}
-                </a>
+                <Button asChild size="sm">
+                  <a
+                    href={url}
+                    download={`${(file?.name ?? 'clip').replace(/\.[^.]+$/, '')}-trim.wav`}
+                  >
+                    {s.downloadWav}
+                  </a>
+                </Button>
               </div>
             )}
           </div>

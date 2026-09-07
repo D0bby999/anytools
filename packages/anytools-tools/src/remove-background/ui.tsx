@@ -205,13 +205,9 @@ export function RemoveBackgroundUi() {
               cancel — the WASM call blocks this thread until it returns — and a dead button is
               worse than none. */}
             {busy && progress && progress.stage !== 'inference' && (
-              <button
-                type="button"
-                onClick={() => abort.current?.abort()}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-input px-4 text-sm font-medium hover:bg-accent"
-              >
+              <Button variant="outline" type="button" onClick={() => abort.current?.abort()}>
                 {s.cancelDownload}
-              </button>
+              </Button>
             )}
           </div>
 

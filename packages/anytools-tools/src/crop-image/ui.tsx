@@ -169,7 +169,9 @@ export function CropImageUi() {
             <>
               <div className="flex flex-wrap gap-2">
                 {ASPECT_PRESETS.map((p) => (
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     key={p.label}
                     type="button"
                     onClick={() => {
@@ -177,12 +179,11 @@ export function CropImageUi() {
                       if (p.ratio && natural)
                         setRect((r) => applyAspect(r, p.ratio as number, natural.w, natural.h));
                     }}
-                    className={`h-9 rounded-md border px-3 text-sm ${
-                      aspect === p.ratio ? 'border-primary bg-primary/10' : 'border-input'
-                    }`}
+                    aria-pressed={aspect === p.ratio}
+                    className={aspect === p.ratio ? 'border-primary bg-primary/10' : undefined}
                   >
                     {aspectLabel[p.label] ?? p.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
 
@@ -241,13 +242,9 @@ export function CropImageUi() {
                     </SelectContent>
                   </Select>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setRect(FULL)}
-                  className="h-10 rounded-md border border-input px-3 text-sm"
-                >
+                <Button variant="outline" type="button" onClick={() => setRect(FULL)}>
                   {s.resetSelection}
-                </button>
+                </Button>
                 <Button type="button" onClick={run} disabled={busy || !usableSelection}>
                   {busy ? s.cropping : s.crop}
                 </Button>

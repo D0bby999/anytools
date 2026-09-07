@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -97,14 +98,9 @@ export function RsaKeypairGeneratorUi() {
           />
         )}
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={run} disabled={busy}>
           {busy ? s.generating : s.generateButton}
-        </button>
+        </Button>
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

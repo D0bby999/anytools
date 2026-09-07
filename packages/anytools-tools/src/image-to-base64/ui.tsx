@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -203,13 +204,9 @@ export function ImageToBase64Ui() {
                   alt={s.decodePreviewAlt}
                   className="max-h-64 rounded border"
                 />
-                <button
-                  type="button"
-                  onClick={downloadDecoded}
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-                >
+                <Button size="sm" type="button" onClick={downloadDecoded}>
                   {s.downloadDecoded}
-                </button>
+                </Button>
               </div>
             )}
           </TabsContent>

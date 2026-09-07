@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -160,14 +161,9 @@ export function UnzipArchiveUi() {
           />
         </div>
 
-        <button
-          type="button"
-          onClick={open}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={open} disabled={!file || busy}>
           {busy ? s.working : s.openArchive}
-        </button>
+        </Button>
 
         {status && <p className="text-sm text-muted-foreground">{status}</p>}
 
@@ -188,24 +184,26 @@ export function UnzipArchiveUi() {
             </p>
 
             {session.entries.length > 0 && (
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
                 onClick={downloadAll}
                 disabled={busy}
-                className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
               >
                 {s.extractAll}
-              </button>
+              </Button>
             )}
 
             {zipUrl && (
-              <a
-                href={zipUrl}
-                download={`${(file?.name ?? 'archive').replace(/\.[^.]+$/, '')}-extracted.zip`}
-                className="ml-2 inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.downloadZip}
-              </a>
+              <Button asChild size="sm" className="ml-2">
+                <a
+                  href={zipUrl}
+                  download={`${(file?.name ?? 'archive').replace(/\.[^.]+$/, '')}-extracted.zip`}
+                >
+                  {s.downloadZip}
+                </a>
+              </Button>
             )}
 
             <ul className="max-h-96 divide-y overflow-auto rounded-md border text-sm">

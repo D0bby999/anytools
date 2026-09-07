@@ -200,13 +200,13 @@ export function QrBarcodeScannerUi() {
       result={
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <button
+            <Button
+              variant="outline"
               type="button"
               onClick={() => (camera === 'off' ? void startCamera() : stopCamera())}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
             >
               {camera === 'off' ? s.scanWithCamera : s.stopCamera}
-            </button>
+            </Button>
             {files[0] && (
               <Button
                 type="button"

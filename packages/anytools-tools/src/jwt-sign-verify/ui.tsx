@@ -2,6 +2,7 @@
 import { trackEvent } from '@anytools/analytics';
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -172,14 +173,9 @@ export function JwtSignVerifyUi() {
               <p className="mt-1 text-xs text-muted-foreground">{s.expiresInHint}</p>
             </div>
 
-            <button
-              type="button"
-              onClick={runSign}
-              disabled={signing || !payloadJson || !signKey}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-            >
+            <Button type="button" onClick={runSign} disabled={signing || !payloadJson || !signKey}>
               {signing ? s.signing : s.signButton}
-            </button>
+            </Button>
 
             {signError && (
               <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -239,14 +235,9 @@ export function JwtSignVerifyUi() {
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={runVerify}
-              disabled={verifying || !token || !verifyKey}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-            >
+            <Button type="button" onClick={runVerify} disabled={verifying || !token || !verifyKey}>
               {verifying ? s.verifying : s.verifyButton}
-            </button>
+            </Button>
 
             {verifyError && (
               <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

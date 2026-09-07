@@ -2,6 +2,7 @@
 import { trackEvent } from '@anytools/analytics';
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -152,14 +153,9 @@ export function Bip39MnemonicUi() {
               onChange={(v) => setWordCount(Number(v) as WordCount)}
               options={WORD_COUNT_OPTIONS}
             />
-            <button
-              type="button"
-              onClick={runGenerate}
-              disabled={generating}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-            >
+            <Button type="button" onClick={runGenerate} disabled={generating}>
               {generating ? s.generating : s.generateButton}
-            </button>
+            </Button>
             {generateError && <ErrorBox text={generateError} />}
             {phrase && (
               <div className="space-y-1.5">
@@ -182,14 +178,9 @@ export function Bip39MnemonicUi() {
                 className="font-mono text-sm"
               />
             </div>
-            <button
-              type="button"
-              onClick={runCheck}
-              disabled={checking || !checkInput.trim()}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-            >
+            <Button type="button" onClick={runCheck} disabled={checking || !checkInput.trim()}>
               {s.validateButton}
-            </button>
+            </Button>
             {checkError && <ErrorBox text={checkError} />}
             {checkResult !== null && (
               <Badge variant={checkResult ? 'default' : 'destructive'}>
@@ -208,14 +199,14 @@ export function Bip39MnemonicUi() {
                 rows={2}
                 className="font-mono text-sm"
               />
-              <button
+              <Button
+                size="sm"
                 type="button"
                 onClick={runMnemonicToEntropy}
                 disabled={!m2eInput.trim()}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
               >
                 {s.convertButton}
-              </button>
+              </Button>
               {m2eError && <ErrorBox text={m2eError} />}
               {m2eOutput && (
                 <div className="flex items-center gap-2">
@@ -235,14 +226,14 @@ export function Bip39MnemonicUi() {
                 placeholder={s.entropyInputLabel}
                 className="font-mono text-sm"
               />
-              <button
+              <Button
+                size="sm"
                 type="button"
                 onClick={runEntropyToMnemonic}
                 disabled={!e2mInput.trim()}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
               >
                 {s.convertButton}
-              </button>
+              </Button>
               {e2mError && <ErrorBox text={e2mError} />}
               {e2mOutput && (
                 <div className="flex items-center gap-2">
@@ -275,14 +266,13 @@ export function Bip39MnemonicUi() {
               />
               <p className="mt-1 text-xs text-muted-foreground">{s.seedPassphraseHint}</p>
             </div>
-            <button
+            <Button
               type="button"
               onClick={runDeriveSeed}
               disabled={deriving || !seedMnemonic.trim()}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
             >
               {deriving ? s.generating : s.seedButton}
-            </button>
+            </Button>
             {seedError && <ErrorBox text={seedError} />}
             {seedOutput && (
               <div className="space-y-1.5">

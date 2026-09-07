@@ -184,52 +184,62 @@ export function RotateImageUi() {
           )}
 
           <div className="flex flex-wrap gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={() => setRotate((r) => ((r + 270) % 360) as RotateAngle)}
-              className="h-9 rounded-md border border-input px-3 text-sm"
             >
               {s.rotateLeft}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={() => setRotate((r) => ((r + 90) % 360) as RotateAngle)}
-              className="h-9 rounded-md border border-input px-3 text-sm"
             >
               {s.rotateRight}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={() => setRotate((r) => ((r + 180) % 360) as RotateAngle)}
-              className="h-9 rounded-md border border-input px-3 text-sm"
             >
               {s.rotate180}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={() => setFlipHorizontal((v) => !v)}
-              className={`h-9 rounded-md border px-3 text-sm ${flipHorizontal ? 'border-primary bg-primary/10' : 'border-input'}`}
+              aria-pressed={flipHorizontal}
+              className={flipHorizontal ? 'border-primary bg-primary/10' : undefined}
             >
               {s.flipHorizontal}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={() => setFlipVertical((v) => !v)}
-              className={`h-9 rounded-md border px-3 text-sm ${flipVertical ? 'border-primary bg-primary/10' : 'border-input'}`}
+              aria-pressed={flipVertical}
+              className={flipVertical ? 'border-primary bg-primary/10' : undefined}
             >
               {s.flipVertical}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
               onClick={() => {
                 setRotate(0);
                 setFlipHorizontal(false);
                 setFlipVertical(false);
               }}
-              className="h-9 rounded-md border border-input px-3 text-sm"
             >
               {ui.reset}
-            </button>
+            </Button>
           </div>
           <p className="text-sm text-muted-foreground">
             {s.currentState.replace('{rotate}', String(rotate)).replace('{flip}', flipLabel)}
@@ -301,13 +311,9 @@ export function RotateImageUi() {
           {results.length > 0 && (
             <div className="space-y-3">
               {results.length > 1 && (
-                <button
-                  type="button"
-                  onClick={downloadAll}
-                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-                >
+                <Button variant="outline" size="sm" type="button" onClick={downloadAll}>
                   {s.downloadAllZip.replace('{n}', String(results.length))}
-                </button>
+                </Button>
               )}
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {results.map((r, i) => (

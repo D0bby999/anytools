@@ -292,6 +292,34 @@ the catalogue are options in a row of options, not settings toggles) · no `Slid
 | `json-diff`, `json-schema-validator`, `jq-playground`, `sql-playground` | Two-inputs-one-result and playground shapes, not source→target |
 | the four CSS generators | Preview-first; a form-first template would put the parameters above the thing they change |
 
+### Buttons and download links: what is a `Button`, and what is deliberately not
+
+Every control shaped like a button is one. 2026-09-07 converted the last 47 hand-rolled ones —
+39 `<button className="inline-flex h-10 … bg-primary …">`, 8 `<a download>` carrying the same
+class string — onto `Button` / `Button asChild`. They were pixel-identical to a variant already
+in the file, minus the hover, focus ring and `:disabled` handling that `buttonVariants` supplies,
+so the swap is what made the focus ring universal rather than incidental.
+
+Mapping, if a new tool needs it: `bg-primary` → default variant · `border`/`border-input` →
+`variant="outline"` · `h-10` → default size · `h-9`/`h-8` → `size="sm"` · a download →
+`<Button asChild><a href download>`.
+
+**A one-of-several toggle is `variant="outline"` plus `aria-pressed`,** keeping the
+`border-primary bg-primary/10` tint for the active one (6 tools: resize-image, rotate-image,
+watermark-image, crop-image, docx-to-markdown, and the view switcher there, which is filled
+rather than tinted so it uses `variant={active ? 'default' : 'outline'}`). Before this the
+active state was colour only — a screen reader was told nothing at all. `SegmentedControl`
+remains the right answer when the group wants radiogroup semantics and full width; these are
+inline chip rows, and converting them would be a redesign, not an adoption.
+
+**Nine `<button>` remain in tool code, all correctly so.** Any grep should expect exactly these:
+four canvas drag handles (`clip-canvas` ×2, `bezier-canvas`, `stop-track`) that are hit targets
+positioned absolutely, not chrome; two pill filters (`http-status-codes`, `crontab-generator`)
+whose `rounded-full` chip shape is its own pattern; two text-link buttons (`unzip-archive`,
+`color-palette`); and `css-gradient-generator`'s `h-11` swatch preview, which is a colour, not a
+label. No `<a download>` carries button classes any more — the remaining bare ones are inside
+`Button asChild`, and the underlined ones are meant to read as links.
+
 ### The one native control left in tool code
 
 `whiteboard`'s `<input type="file" className="sr-only">`. It is opened programmatically by a

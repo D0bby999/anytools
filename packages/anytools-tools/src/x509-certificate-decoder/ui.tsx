@@ -2,6 +2,7 @@
 import { trackEvent } from '@anytools/analytics';
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -81,14 +82,9 @@ export function X509CertificateDecoderUi() {
           label={s.uploadLabel}
         />
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={busy || (!files[0] && !pemText.trim())}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={run} disabled={busy || (!files[0] && !pemText.trim())}>
           {busy ? s.decoding : s.decodeButton}
-        </button>
+        </Button>
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

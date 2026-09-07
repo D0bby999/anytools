@@ -2,6 +2,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -247,20 +248,24 @@ export function StlObjViewerUi() {
                 onCheckedChange={(v) => setWireframe(v === true)}
               />
               <ColorInput label={s.colorLabel} value={color} onChange={setColor} className="w-48" />
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
                 onClick={() => sceneRef.current?.fitCamera()}
-                className="inline-flex h-8 items-center justify-center rounded-md border px-3 text-sm hover:bg-muted"
+                className="h-8"
               >
                 {s.resetView}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
                 onClick={screenshot}
-                className="inline-flex h-8 items-center justify-center rounded-md border px-3 text-sm hover:bg-muted"
+                className="h-8"
               >
                 {s.screenshot}
-              </button>
+              </Button>
             </div>
 
             <p className="text-sm text-muted-foreground">

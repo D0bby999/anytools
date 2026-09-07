@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -286,20 +287,16 @@ export function BarcodeGeneratorUi() {
               {note ? ` · ${note}` : ''}
             </p>
             <div className="flex flex-wrap gap-2">
-              <a
-                href={pngUrl}
-                download={`${result.value}-${format}.png`}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.downloadPng}
-              </a>
-              <a
-                href={svgUrl}
-                download={`${result.value}-${format}.svg`}
-                className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-              >
-                {s.downloadSvg}
-              </a>
+              <Button asChild size="sm">
+                <a href={pngUrl} download={`${result.value}-${format}.png`}>
+                  {s.downloadPng}
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <a href={svgUrl} download={`${result.value}-${format}.svg`}>
+                  {s.downloadSvg}
+                </a>
+              </Button>
             </div>
           </div>
         )}

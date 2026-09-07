@@ -1,5 +1,6 @@
 'use client';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -339,20 +340,14 @@ export function QrCodeGeneratorUi() {
             {/* biome-ignore lint/performance/noImgElement: data URI, not optimizable by next/image */}
             <img src={pngUrl} alt={s.previewAlt} className="rounded border bg-white p-2 max-w-xs" />
             <div className="flex gap-2">
-              <a
-                href={pngUrl}
-                download={`qr-${kind}-${Date.now()}.png`}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                {s.downloadPng}
-              </a>
-              <button
-                type="button"
-                onClick={downloadSvg}
-                className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent"
-              >
+              <Button asChild size="sm">
+                <a href={pngUrl} download={`qr-${kind}-${Date.now()}.png`}>
+                  {s.downloadPng}
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" type="button" onClick={downloadSvg}>
                 {s.downloadSvg}
-              </button>
+              </Button>
             </div>
           </div>
         )}

@@ -121,16 +121,17 @@ export function ResizeImageUi() {
               <span className="mb-1 block text-muted-foreground">{s.longestSide}</span>
               <div className="flex flex-wrap gap-2">
                 {PRESETS.map((p) => (
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     key={p}
                     type="button"
                     onClick={() => setMaxSide(p)}
-                    className={`h-9 rounded-md border px-3 text-sm ${
-                      maxSide === p ? 'border-primary bg-primary/10' : 'border-input'
-                    }`}
+                    aria-pressed={maxSide === p}
+                    className={maxSide === p ? 'border-primary bg-primary/10' : undefined}
                   >
                     {p}
-                  </button>
+                  </Button>
                 ))}
                 <input
                   type="number"

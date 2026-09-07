@@ -206,13 +206,9 @@ export function HeicToJpgUi() {
           {results.length > 0 && (
             <div className="space-y-3">
               {results.length > 1 && (
-                <button
-                  type="button"
-                  onClick={downloadAll}
-                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-                >
+                <Button variant="outline" size="sm" type="button" onClick={downloadAll}>
                   {s.downloadAllZip.replace('{n}', String(results.length))}
-                </button>
+                </Button>
               )}
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {results.map((r, i) => (

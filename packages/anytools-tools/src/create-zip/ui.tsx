@@ -1,6 +1,7 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -109,18 +110,13 @@ export function CreateZipUi() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={files.length === 0 || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={run} disabled={files.length === 0 || busy}>
           {busy
             ? s.zipping
             : files.length
               ? s.createZipFrom.replace('{n}', String(files.length))
               : s.createZip}
-        </button>
+        </Button>
 
         {percent !== null && <p className="text-sm text-muted-foreground">{percent}%</p>}
 
@@ -144,13 +140,11 @@ export function CreateZipUi() {
                 </>
               )}
             </p>
-            <a
-              href={url}
-              download={`${rootFolder.trim() || 'archive'}.zip`}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.downloadZip}
-            </a>
+            <Button asChild size="sm">
+              <a href={url} download={`${rootFolder.trim() || 'archive'}.zip`}>
+                {s.downloadZip}
+              </a>
+            </Button>
             <ul className="max-h-64 space-y-1 overflow-auto rounded-md border p-2 text-sm">
               {result.paths.map((p) => (
                 <li key={p} className="truncate font-mono text-xs">

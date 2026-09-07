@@ -2,6 +2,7 @@
 import { trackEvent } from '@anytools/analytics';
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -194,14 +195,13 @@ export function HmacGeneratorUi() {
               />
             </div>
             <div className="flex items-center gap-3">
-              <button
+              <Button
                 type="button"
                 onClick={runVerify}
                 disabled={!message || !key || !expected || verifying}
-                className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
               >
                 {verifying ? s.verifying : s.verifyButton}
-              </button>
+              </Button>
               {verdict !== null && (
                 <Badge
                   className={
