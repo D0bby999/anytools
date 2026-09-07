@@ -71,6 +71,15 @@ const nextConfig: NextConfig = {
   // Monorepo: include workspace files in standalone trace.
   outputFileTracingRoot: process.cwd() + '/../..',
   transpilePackages: ['@anytools/ui', '@anytools/tools', '@anytools/i18n', '@anytools/analytics'],
+  experimental: {
+    // `@anytools/ui` is a barrel, and the eagerly-loaded shell (tool-toolbar, the tool page,
+    // the header) imports from it — so adding Radix Select/Checkbox/RadioGroup/Label to the
+    // barrel put all four into the tool route's first load, +23 kB, even on the ~90 tools that
+    // use none of them. Measured: tool route 196 kB -> 219 kB after Phase 1, while the
+    // shared-by-all chunk stayed at 111 kB. This rewrites barrel imports to deep ones at build
+    // time so only what a module actually names gets bundled.
+    optimizePackageImports: ['@anytools/ui'],
+  },
   serverExternalPackages: [
     'curlconverter',
     'tree-sitter',
