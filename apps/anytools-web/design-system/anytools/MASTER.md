@@ -177,6 +177,95 @@
 
 ---
 
+## Tool UI Layout Contract
+
+> **Scope:** every `packages/anytools-tools/src/<slug>/ui.tsx` and its sibling modules.
+> Added 2026-09-07 (plan `plans/260906-1735-tool-ui-upgrade-per-tool`, Phase 1).
+>
+> **Why this exists:** the UI upgrade calls `ak:ui-ux-pro-max` roughly 120 times, once per tool.
+> That skill is a style/palette/typography database, so 120 unguided calls produce 120 locally
+> plausible and mutually inconsistent layouts. **Pass this section into every call, together with
+> the sentence: "design tokens are locked — do not propose palettes or fonts."**
+
+### Source of truth
+
+`packages/ui/src/styles/globals.css` is authoritative for every token. This file is a copy for
+humans. If the two disagree, the CSS is right and this file is stale.
+
+### Section order (top to bottom)
+
+1. **Title + one-line description** — only when the tool page does not already render them.
+2. **Input** — the thing the user acts on: textarea, dropzone, or the primary field.
+3. **Options** — secondary controls, below the input, never above it.
+4. **Action row** — primary button, then `Try example`, then `Clear`, left to right.
+5. **Output** — label row (uppercase, `text-xs tracking-wide text-muted-foreground`) with
+   `CopyButton` right-aligned, then the result surface.
+6. **Footer notes** — `PrivacyNote`, disclaimers, cross-links.
+
+**One exception, and it is load-bearing:** a warning about what the user is *about to* paste goes
+**above** the input. A warning placed after the paste is useless. `curl-converter` is the worked
+example.
+
+### Spacing
+
+| Where | Class |
+|---|---|
+| Between major sections | `space-y-6` |
+| Within a section | `space-y-4` |
+| Between related controls | `space-y-3` |
+| Inline gaps (button rows, chips) | `gap-2` |
+| Card padding | inherited from `CardContent`, do not override |
+
+### Controls — use the primitive, never the native element
+
+| Need | Use | Never |
+|---|---|---|
+| Choose one from a list | `Select` | `<select>` |
+| Choose many | `Checkbox` | `<input type="checkbox">` |
+| Choose one, ≤4 visible options | `RadioGroup` or `SegmentedControl` | `<input type="radio">` |
+| Toggle a mode on/off | `Switch` *(added in Phase 3, `base64-encode` is the pilot)* | a checkbox pretending to be a toggle |
+| Numeric range | `RangeSlider` | `<input type="range">` |
+| Colour | `ColorInput` | `<input type="color">` |
+| Files | `MultiFileDropzone` (`multiple={false}` for single-file tools) | `<input type="file">` |
+| Label | `Label` | a bare `<span>` next to an input |
+
+Every control needs a programmatic label — `Label` + `htmlFor`, or `aria-label`. Every tappable
+target is ≥44px.
+
+### Affordances — when each one appears
+
+| Affordance | Rule |
+|---|---|
+| `CopyButton` | Any output the user would plausibly paste elsewhere. |
+| `Try example` | Any tool whose input format is not self-evident. Uses `ui.tryExample`. |
+| `PrivacyNote` | **Only** tools that genuinely run entirely in the browser. |
+
+**`PrivacyNote` carve-outs — never add it to these:**
+
+- `curl-converter` — POSTs the pasted command, which routinely carries an
+  `Authorization: Bearer` header, to the server. Keeps its own `serverNote`, above the input.
+- `currency-converter` — calls `/api/fx`.
+
+Its default text is *"Runs entirely in your browser. Your input never leaves your device."*
+Putting that on a tool that sends data is a false claim, not an inconsistency.
+
+**Never replace `<PrivacyNote message={s.something} />` with a bare `<PrivacyNote />`.** The
+message form carries a tool-specific warning; the bare form silently downgrades it to the generic
+sentence while leaving `strings.ts` untouched, so nothing catches it. `rsa-keypair-generator`
+("do not use browser-generated keys for high-value production systems") is the worked example.
+
+### Content that looks like chrome but is not
+
+Delete none of the following while restyling:
+
+- `type="password"` and its `autoComplete` hint.
+- Any string key matching `privacy` or `warning*` — a key that stops being *referenced* is a lost
+  warning even though the string table still contains it.
+- Teardown state: camera generation counters, `AbortController`s, worker `terminate()` calls in
+  `useEffect` cleanup, and guard constants such as `MIN_CROP_PX` or `PREVIEW_MAX_SIDE`.
+
+---
+
 ## Anti-Patterns (Do NOT Use)
 
 - ❌ Light mode default
