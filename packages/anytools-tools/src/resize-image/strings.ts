@@ -10,6 +10,7 @@ const EN = {
   mode_exact: 'Exact width and height',
   longestSide: 'Longest side (px)',
   scale: 'Scale: {n}%',
+  scaleLabel: 'Scale',
   enlargeNote: 'Above 100% the image is enlarged. Nothing new is added — it will look softer.',
   width: 'Width (px)',
   height: 'Height (px)',
@@ -34,6 +35,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     mode_exact: 'Chiều rộng và chiều cao chính xác',
     longestSide: 'Cạnh dài nhất (px)',
     scale: 'Tỷ lệ: {n}%',
+    scaleLabel: 'Tỷ lệ',
     enlargeNote: 'Trên 100% ảnh sẽ được phóng to. Không có chi tiết mới — ảnh sẽ trông mềm hơn.',
     width: 'Chiều rộng (px)',
     height: 'Chiều cao (px)',
@@ -55,6 +57,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     mode_exact: 'Ancho y alto exactos',
     longestSide: 'Lado más largo (px)',
     scale: 'Escala: {n}%',
+    scaleLabel: 'Escala',
     enlargeNote:
       'Por encima del 100% la imagen se amplía. No se añade nada nuevo — se verá más suave.',
     width: 'Ancho (px)',
@@ -77,6 +80,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     mode_exact: 'Largura e altura exatas',
     longestSide: 'Lado mais longo (px)',
     scale: 'Escala: {n}%',
+    scaleLabel: 'Escala',
     enlargeNote:
       'Acima de 100% a imagem é ampliada. Nada novo é adicionado — ela ficará mais suave.',
     width: 'Largura (px)',

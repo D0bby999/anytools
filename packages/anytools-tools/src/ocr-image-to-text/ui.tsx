@@ -1,13 +1,18 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  CheckboxField,
   CopyButton,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -129,11 +134,9 @@ export function OcrImageToTextUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -144,137 +147,132 @@ export function OcrImageToTextUi() {
           multiple
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="oit-lang">{s.language}</Label>
+              <Select
+                value={lang}
+                onValueChange={(v) => {
+                  setLang(v as OcrLanguage);
+                  reset();
+                }}
+              >
+                <SelectTrigger id="oit-lang" className="min-w-44">
+                  <SelectValue>{langLabel[lang] ?? OCR_LANGUAGE_LABELS[lang]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {OCR_LANGUAGES.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {langLabel[l] ?? OCR_LANGUAGE_LABELS[l]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="flex flex-wrap items-end gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-muted-foreground">{s.language}</span>
-            <select
-              value={lang}
-              onChange={(e) => {
-                setLang(e.target.value as OcrLanguage);
-                reset();
-              }}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {OCR_LANGUAGES.map((l) => (
-                <option key={l} value={l}>
-                  {langLabel[l] ?? OCR_LANGUAGE_LABELS[l]}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex items-center gap-2 pb-2 text-sm">
-            <input
-              type="checkbox"
+            <CheckboxField
+              label={s.keepLineBreaks}
               checked={keepLineBreaks}
-              onChange={(e) => {
-                const next = e.target.checked;
+              onCheckedChange={(v) => {
+                const next = v === true;
                 setKeepLineBreaks(next);
                 // Re-joins the blocks already recognised — no second OCR pass. Any manual edit
                 // in the textarea is replaced, which is why the toggle sits above it.
                 if (items) setText(combineText(items, next));
               }}
+              containerClassName="pb-2"
             />
-            {s.keepLineBreaks}
-          </label>
-        </div>
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={run}
-            disabled={files.length === 0 || busy}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-          >
-            {busy ? s.reading : s.recognize}
-          </button>
-          {busy && (
-            <button
-              type="button"
-              onClick={stop}
-              disabled={stopping}
-              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
-            >
-              {stopping ? s.stopping : ui.stop}
-            </button>
-          )}
-        </div>
-
-        {stopping && <p className="text-sm text-muted-foreground">{s.stoppingNote}</p>}
-
-        {progress && !stopping && (
-          <p className="text-sm text-muted-foreground">
-            {s.progressLine
-              .replace('{stage}', stageLabel[progress.stage.status] ?? s.stage_working)
-              .replace('{index}', String(progress.index))
-              .replace('{total}', String(progress.total))
-              .replace('{pct}', String(Math.round((progress.stage.progress ?? 0) * 100)))}
-          </p>
-        )}
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {items && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {s.avgConfidence.replace('{conf}', confidence.toFixed(0))}
-              {read > 1 && s.acrossImages.replace('{n}', String(read))}.{' '}
-              {failed > 0 &&
-                `${s.failedNote
-                  .replace('{failed}', String(failed))
-                  .replace('{total}', String(items.length))} `}
-              {confidence > 0 && confidence < 70 ? s.lowConfidence : s.checkText}
-            </p>
-
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              spellCheck={false}
-              rows={14}
-              aria-label={s.recognisedText}
-              className="w-full rounded-md border border-input bg-background p-3 font-mono text-sm"
-            />
-
-            <div className="flex flex-wrap gap-2">
-              <CopyButton text={text} size="default" />
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={run} disabled={files.length === 0 || busy}>
+              {busy ? s.reading : s.recognize}
+            </Button>
+            {busy && (
               <button
                 type="button"
-                onClick={download}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
+                onClick={stop}
+                disabled={stopping}
+                className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-40"
               >
-                {s.downloadTxt}
+                {stopping ? s.stopping : ui.stop}
               </button>
-            </div>
-
-            {/* A file that failed is listed even when it is the only one: silently returning an
-                empty textarea would look like the image had no text in it. */}
-            {(items.length > 1 || failed > 0) && (
-              <ul className="space-y-1 text-xs">
-                {items.map((i) => (
-                  <li
-                    key={i.name}
-                    className={i.error ? 'text-destructive' : 'text-muted-foreground'}
-                  >
-                    {i.name} —{' '}
-                    {i.error === undefined
-                      ? s.itemLine
-                          .replace('{words}', String(i.words))
-                          .replace('{conf}', i.confidence.toFixed(0))
-                      : returnedErrorText(errorStrings, i.errorCode, i.errorParams, i.error)}
-                  </li>
-                ))}
-              </ul>
             )}
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          {stopping && <p className="text-sm text-muted-foreground">{s.stoppingNote}</p>}
+
+          {progress && !stopping && (
+            <p className="text-sm text-muted-foreground">
+              {s.progressLine
+                .replace('{stage}', stageLabel[progress.stage.status] ?? s.stage_working)
+                .replace('{index}', String(progress.index))
+                .replace('{total}', String(progress.total))
+                .replace('{pct}', String(Math.round((progress.stage.progress ?? 0) * 100)))}
+            </p>
+          )}
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {items && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {s.avgConfidence.replace('{conf}', confidence.toFixed(0))}
+                {read > 1 && s.acrossImages.replace('{n}', String(read))}.{' '}
+                {failed > 0 &&
+                  `${s.failedNote
+                    .replace('{failed}', String(failed))
+                    .replace('{total}', String(items.length))} `}
+                {confidence > 0 && confidence < 70 ? s.lowConfidence : s.checkText}
+              </p>
+
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                spellCheck={false}
+                rows={14}
+                aria-label={s.recognisedText}
+                className="w-full rounded-md border border-input bg-background p-3 font-mono text-sm"
+              />
+
+              <div className="flex flex-wrap gap-2">
+                <CopyButton text={text} size="default" />
+                <Button type="button" onClick={download}>
+                  {s.downloadTxt}
+                </Button>
+              </div>
+
+              {/* A file that failed is listed even when it is the only one: silently returning an
+                empty textarea would look like the image had no text in it. */}
+              {(items.length > 1 || failed > 0) && (
+                <ul className="space-y-1 text-xs">
+                  {items.map((i) => (
+                    <li
+                      key={i.name}
+                      className={i.error ? 'text-destructive' : 'text-muted-foreground'}
+                    >
+                      {i.name} —{' '}
+                      {i.error === undefined
+                        ? s.itemLine
+                            .replace('{words}', String(i.words))
+                            .replace('{conf}', i.confidence.toFixed(0))
+                        : returnedErrorText(errorStrings, i.errorCode, i.errorParams, i.error)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

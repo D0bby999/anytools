@@ -1,11 +1,18 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
@@ -79,11 +86,9 @@ export function ResizeImageUi() {
     : 'image';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -95,144 +100,135 @@ export function ResizeImageUi() {
           multiple={false}
           label={s.dropLabel}
         />
-
-        <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">{s.howToSize}</legend>
-          {MODES.map((k) => (
-            <label key={k} className="flex items-center gap-2 text-sm">
-              <input
-                type="radio"
-                name="resize-mode"
-                checked={kind === k}
-                onChange={() => setKind(k)}
-              />
-              {modeLabel[k]}
-            </label>
-          ))}
-        </fieldset>
-
-        {kind === 'fit' && (
-          <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.longestSide}</span>
-            <div className="flex flex-wrap gap-2">
-              {PRESETS.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setMaxSide(p)}
-                  className={`h-9 rounded-md border px-3 text-sm ${
-                    maxSide === p ? 'border-primary bg-primary/10' : 'border-input'
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-              <input
-                type="number"
-                min={1}
-                value={maxSide}
-                onChange={(e) => setMaxSide(Number(e.target.value))}
-                className="h-9 w-28 rounded-md border border-input bg-background px-3 text-sm"
-              />
-            </div>
-          </label>
-        )}
-
-        {kind === 'percent' && (
-          <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {s.scale.replace('{n}', String(percent))}
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={200}
-              value={percent}
-              onChange={(e) => setPercent(Number(e.target.value))}
-              className="w-full"
-            />
-            {percent > 100 && (
-              <span className="mt-1 block text-xs text-muted-foreground">{s.enlargeNote}</span>
-            )}
-          </label>
-        )}
-
-        {kind === 'exact' && (
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">{s.width}</span>
-              <input
-                type="number"
-                min={1}
-                value={width}
-                onChange={(e) => setWidth(Number(e.target.value))}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              />
-            </label>
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">{s.height}</span>
-              <input
-                type="number"
-                min={1}
-                value={height}
-                onChange={(e) => setHeight(Number(e.target.value))}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              />
-            </label>
-          </div>
-        )}
-
-        <label className="block text-sm md:w-48">
-          <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
-          <select
-            value={format}
-            onChange={(e) => setFormat(e.target.value as OutputFormat)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          >
-            <option value="webp">WEBP</option>
-            <option value="jpeg">JPEG</option>
-            <option value="png">PNG</option>
-          </select>
-        </label>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.resizing : s.resize}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && url && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {result.widthBefore} × {result.heightBefore} → {result.width} × {result.height} px ·{' '}
-              {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
-              {result.scaledFrom && result.width * result.height > MAX_CANVAS_PIXELS
-                ? ` · ${s.cappedNote}`
-                : ''}
-            </div>
-            {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-            <img src={url} alt={s.resultAlt} className="max-h-80 rounded border" />
-            <a
-              href={url}
-              download={outName}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
+      }
+      result={
+        <>
+          <div className="space-y-1.5">
+            <span className="block text-sm font-medium">{s.howToSize}</span>
+            <RadioGroup
+              value={kind}
+              onValueChange={(v) => setKind(v as (typeof MODES)[number])}
+              aria-label={s.howToSize}
             >
-              {s.download.replace('{name}', outName)}
-            </a>
+              {MODES.map((k) => (
+                <RadioGroupField key={k} value={k} label={modeLabel[k]} />
+              ))}
+            </RadioGroup>
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          {kind === 'fit' && (
+            <label className="block text-sm">
+              <span className="mb-1 block text-muted-foreground">{s.longestSide}</span>
+              <div className="flex flex-wrap gap-2">
+                {PRESETS.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setMaxSide(p)}
+                    className={`h-9 rounded-md border px-3 text-sm ${
+                      maxSide === p ? 'border-primary bg-primary/10' : 'border-input'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <input
+                  type="number"
+                  min={1}
+                  value={maxSide}
+                  onChange={(e) => setMaxSide(Number(e.target.value))}
+                  className="h-9 w-28 rounded-md border border-input bg-background px-3 text-sm"
+                />
+              </div>
+            </label>
+          )}
+
+          {kind === 'percent' && (
+            <div className="space-y-1">
+              <RangeSlider
+                label={s.scaleLabel}
+                unit="%"
+                value={percent}
+                min={1}
+                max={200}
+                onChange={setPercent}
+              />
+              {percent > 100 && (
+                <span className="mt-1 block text-xs text-muted-foreground">{s.enlargeNote}</span>
+              )}
+            </div>
+          )}
+
+          {kind === 'exact' && (
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">{s.width}</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={width}
+                  onChange={(e) => setWidth(Number(e.target.value))}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">{s.height}</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={height}
+                  onChange={(e) => setHeight(Number(e.target.value))}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                />
+              </label>
+            </div>
+          )}
+
+          <div className="space-y-1.5 md:w-48">
+            <Label htmlFor="ri-format">{s.outputFormat}</Label>
+            <Select value={format} onValueChange={(v) => setFormat(v as OutputFormat)}>
+              <SelectTrigger id="ri-format">
+                <SelectValue>{format.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="webp">WEBP</SelectItem>
+                <SelectItem value="jpeg">JPEG</SelectItem>
+                <SelectItem value="png">PNG</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.resizing : s.resize}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && url && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {result.widthBefore} × {result.heightBefore} → {result.width} × {result.height} px ·{' '}
+                {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
+                {result.scaledFrom && result.width * result.height > MAX_CANVAS_PIXELS
+                  ? ` · ${s.cappedNote}`
+                  : ''}
+              </div>
+              {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+              <img src={url} alt={s.resultAlt} className="max-h-80 rounded border" />
+              <Button asChild>
+                <a href={url} download={outName}>
+                  {s.download.replace('{name}', outName)}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

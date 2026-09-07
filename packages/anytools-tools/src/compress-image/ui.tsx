@@ -1,11 +1,17 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  CheckboxField,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useMemo, useState } from 'react';
@@ -78,11 +84,9 @@ export function CompressImageUi() {
   const alphaLoss = result?.sourceHasAlpha && result.format === 'jpeg';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -94,149 +98,140 @@ export function CompressImageUi() {
           multiple={false}
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="ci-format">{s.outputFormat}</Label>
+              <Select value={format} onValueChange={(v) => setFormat(v as OutputFormat)}>
+                <SelectTrigger id="ci-format">
+                  <SelectValue>
+                    {format.toUpperCase()}
+                    {format === 'png' ? ` ${s.lossless}` : ''}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {FORMATS.map((f) => (
+                    <SelectItem key={f} value={f}>
+                      {f.toUpperCase()}
+                      {f === 'png' ? ` ${s.lossless}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
-            <select
-              value={format}
-              onChange={(e) => setFormat(e.target.value as OutputFormat)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {FORMATS.map((f) => (
-                <option key={f} value={f}>
-                  {f.toUpperCase()}
-                  {f === 'png' ? ` ${s.lossless}` : ''}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          {format !== 'png' &&
-            (byTarget ? (
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">{s.targetSize}</span>
-                <input
-                  type="number"
+            {format !== 'png' &&
+              (byTarget ? (
+                <label className="text-sm">
+                  <span className="mb-1 block text-muted-foreground">{s.targetSize}</span>
+                  <input
+                    type="number"
+                    min={10}
+                    value={targetKb}
+                    onChange={(e) => setTargetKb(Number(e.target.value))}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  />
+                </label>
+              ) : (
+                <RangeSlider
+                  label={s.qualityLabel}
+                  unit="%"
+                  value={Math.round(quality * 100)}
                   min={10}
-                  value={targetKb}
-                  onChange={(e) => setTargetKb(Number(e.target.value))}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  max={100}
+                  step={5}
+                  onChange={(v) => setQuality(v / 100)}
                 />
-              </label>
-            ) : (
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">
-                  {s.quality.replace('{n}', String(Math.round(quality * 100)))}
-                </span>
-                <input
-                  type="range"
-                  min={0.1}
-                  max={1}
-                  step={0.05}
-                  value={quality}
-                  onChange={(e) => setQuality(Number(e.target.value))}
-                  className="w-full"
-                />
-              </label>
-            ))}
-        </div>
-
-        {format !== 'png' && (
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={byTarget}
-              onChange={(e) => setByTarget(e.target.checked)}
-            />
-            {s.sizeBudget}
-          </label>
-        )}
-
-        {format === 'png' && <p className="text-sm text-muted-foreground">{s.pngNote}</p>}
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!file || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy ? s.compressing : s.compress}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {alphaLoss && (
-          <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            {s.alphaLoss}
-          </output>
-        )}
-
-        {result?.targetMet === false && (
-          // Without this the panel below reports the saving against the ORIGINAL, so a user
-          // who asked for 500 KB and got 3 MB reads "40% smaller" next to a download button.
-          <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            {s.targetMissed
-              .replace('{target}', String(targetKb))
-              .replace('{actual}', (result.sizeAfter / 1024).toFixed(0))}
-          </output>
-        )}
-
-        {result && url && srcUrl && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {result.width} × {result.height} px
-              {result.scaledFrom
-                ? ` ${s.decodedDown
-                    .replace('{w}', String(result.scaledFrom.width))
-                    .replace('{h}', String(result.scaledFrom.height))}`
-                : ''}{' '}
-              · {kb(result.sizeBefore)} → {kb(result.sizeAfter)} (
-              {result.sizeAfter <= result.sizeBefore
-                ? s.smaller.replace(
-                    '{n}',
-                    ((1 - result.sizeAfter / result.sizeBefore) * 100).toFixed(0),
-                  )
-                : s.larger.replace(
-                    '{n}',
-                    ((result.sizeAfter / result.sizeBefore - 1) * 100).toFixed(0),
-                  )}
-              )
-            </div>
-            {/* Before and after together: a percentage alone does not tell you whether the
-                result still looks acceptable, which is the only question that matters. */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <figure className="space-y-1">
-                {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-                <img src={srcUrl} alt={s.original} className="w-full rounded border" />
-                <figcaption className="text-xs text-muted-foreground">
-                  {s.originalSize.replace('{size}', kb(result.sizeBefore))}
-                </figcaption>
-              </figure>
-              <figure className="space-y-1">
-                {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-                <img src={url} alt={s.compressed} className="w-full rounded border" />
-                <figcaption className="text-xs text-muted-foreground">
-                  {s.compressedSize.replace('{size}', kb(result.sizeAfter))}
-                </figcaption>
-              </figure>
-            </div>
-            <a
-              href={url}
-              download={outName}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.download.replace('{name}', outName)}
-            </a>
+              ))}
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          {format !== 'png' && (
+            <CheckboxField
+              label={s.sizeBudget}
+              checked={byTarget}
+              onCheckedChange={(v) => setByTarget(v === true)}
+            />
+          )}
+
+          {format === 'png' && <p className="text-sm text-muted-foreground">{s.pngNote}</p>}
+
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.compressing : s.compress}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {alphaLoss && (
+            <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {s.alphaLoss}
+            </output>
+          )}
+
+          {result?.targetMet === false && (
+            // Without this the panel below reports the saving against the ORIGINAL, so a user
+            // who asked for 500 KB and got 3 MB reads "40% smaller" next to a download button.
+            <output className="block rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {s.targetMissed
+                .replace('{target}', String(targetKb))
+                .replace('{actual}', (result.sizeAfter / 1024).toFixed(0))}
+            </output>
+          )}
+
+          {result && url && srcUrl && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {result.width} × {result.height} px
+                {result.scaledFrom
+                  ? ` ${s.decodedDown
+                      .replace('{w}', String(result.scaledFrom.width))
+                      .replace('{h}', String(result.scaledFrom.height))}`
+                  : ''}{' '}
+                · {kb(result.sizeBefore)} → {kb(result.sizeAfter)} (
+                {result.sizeAfter <= result.sizeBefore
+                  ? s.smaller.replace(
+                      '{n}',
+                      ((1 - result.sizeAfter / result.sizeBefore) * 100).toFixed(0),
+                    )
+                  : s.larger.replace(
+                      '{n}',
+                      ((result.sizeAfter / result.sizeBefore - 1) * 100).toFixed(0),
+                    )}
+                )
+              </div>
+              {/* Before and after together: a percentage alone does not tell you whether the
+                result still looks acceptable, which is the only question that matters. */}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <figure className="space-y-1">
+                  {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+                  <img src={srcUrl} alt={s.original} className="w-full rounded border" />
+                  <figcaption className="text-xs text-muted-foreground">
+                    {s.originalSize.replace('{size}', kb(result.sizeBefore))}
+                  </figcaption>
+                </figure>
+                <figure className="space-y-1">
+                  {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+                  <img src={url} alt={s.compressed} className="w-full rounded border" />
+                  <figcaption className="text-xs text-muted-foreground">
+                    {s.compressedSize.replace('{size}', kb(result.sizeAfter))}
+                  </figcaption>
+                </figure>
+              </div>
+              <Button asChild>
+                <a href={url} download={outName}>
+                  {s.download.replace('{name}', outName)}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

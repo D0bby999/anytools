@@ -1,12 +1,17 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -139,11 +144,9 @@ export function RotateImageUi() {
   const previewTransform = `rotate(${rotate}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={onFilesChange}
@@ -151,197 +154,188 @@ export function RotateImageUi() {
           multiple
           label={s.dropLabel}
         />
-
-        {liveUrl && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <span className="block text-xs uppercase tracking-wide text-muted-foreground">
-                {s.before}
-              </span>
-              <div className="flex h-40 items-center justify-center overflow-hidden rounded border bg-muted">
-                <img src={liveUrl} alt={s.before} className="max-h-full max-w-full" />
+      }
+      result={
+        <>
+          {liveUrl && (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+                  {s.before}
+                </span>
+                <div className="flex h-40 items-center justify-center overflow-hidden rounded border bg-muted">
+                  <img src={liveUrl} alt={s.before} className="max-h-full max-w-full" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+                  {s.afterPreview}
+                </span>
+                <div className="flex h-40 items-center justify-center overflow-hidden rounded border bg-muted">
+                  <img
+                    src={liveUrl}
+                    alt={s.afterPreview}
+                    style={{ transform: previewTransform }}
+                    className="max-h-32 max-w-32"
+                  />
+                </div>
               </div>
             </div>
-            <div className="space-y-1">
-              <span className="block text-xs uppercase tracking-wide text-muted-foreground">
-                {s.afterPreview}
-              </span>
-              <div className="flex h-40 items-center justify-center overflow-hidden rounded border bg-muted">
-                <img
-                  src={liveUrl}
-                  alt={s.afterPreview}
-                  style={{ transform: previewTransform }}
-                  className="max-h-32 max-w-32"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+          )}
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setRotate((r) => ((r + 270) % 360) as RotateAngle)}
-            className="h-9 rounded-md border border-input px-3 text-sm"
-          >
-            {s.rotateLeft}
-          </button>
-          <button
-            type="button"
-            onClick={() => setRotate((r) => ((r + 90) % 360) as RotateAngle)}
-            className="h-9 rounded-md border border-input px-3 text-sm"
-          >
-            {s.rotateRight}
-          </button>
-          <button
-            type="button"
-            onClick={() => setRotate((r) => ((r + 180) % 360) as RotateAngle)}
-            className="h-9 rounded-md border border-input px-3 text-sm"
-          >
-            {s.rotate180}
-          </button>
-          <button
-            type="button"
-            onClick={() => setFlipHorizontal((v) => !v)}
-            className={`h-9 rounded-md border px-3 text-sm ${flipHorizontal ? 'border-primary bg-primary/10' : 'border-input'}`}
-          >
-            {s.flipHorizontal}
-          </button>
-          <button
-            type="button"
-            onClick={() => setFlipVertical((v) => !v)}
-            className={`h-9 rounded-md border px-3 text-sm ${flipVertical ? 'border-primary bg-primary/10' : 'border-input'}`}
-          >
-            {s.flipVertical}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setRotate(0);
-              setFlipHorizontal(false);
-              setFlipVertical(false);
-            }}
-            className="h-9 rounded-md border border-input px-3 text-sm"
-          >
-            {ui.reset}
-          </button>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {s.currentState.replace('{rotate}', String(rotate)).replace('{flip}', flipLabel)}
-        </p>
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
-            <select
-              value={format}
-              onChange={(e) => setFormat(e.target.value as FormatChoice)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setRotate((r) => ((r + 270) % 360) as RotateAngle)}
+              className="h-9 rounded-md border border-input px-3 text-sm"
             >
-              <option value="original">{s.formatOriginal}</option>
-              <option value="webp">WEBP</option>
-              <option value="jpeg">JPEG</option>
-              <option value="png">PNG</option>
-            </select>
-          </label>
-          {format === 'jpeg' || format === 'webp' ? (
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">
-                {s.quality.replace('{n}', String(Math.round(quality * 100)))}
-              </span>
-              <input
-                type="range"
-                min={0.1}
-                max={1}
-                step={0.05}
-                value={quality}
-                onChange={(e) => setQuality(Number(e.target.value))}
-                className="w-full"
-              />
-            </label>
-          ) : null}
-        </div>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={files.length === 0 || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy
-            ? progress
-              ? s.rotatingProgress
-                  .replace('{done}', String(progress.done))
-                  .replace('{total}', String(progress.total))
-              : s.rotating
-            : rotateLabel}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {failures.length > 0 && (
-          <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            {failures.map((f) => (
-              <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
-            ))}
-          </output>
-        )}
-
-        {scaled.length > 0 && (
-          <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            {(scaled.length === 1 ? s.scaledOne : s.scaledMany).replace(
-              '{n}',
-              String(scaled.length),
-            )}
-          </output>
-        )}
-
-        {results.length > 0 && (
-          <div className="space-y-3">
-            {results.length > 1 && (
-              <button
-                type="button"
-                onClick={downloadAll}
-                className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-              >
-                {s.downloadAllZip.replace('{n}', String(results.length))}
-              </button>
-            )}
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {results.map((r, i) => (
-                <li key={r.name} className="space-y-1 rounded-md border p-2">
-                  <div className="grid grid-cols-2 gap-1">
-                    <img src={befores[i]} alt={s.before} className="w-full rounded border" />
-                    <img src={previews[i]} alt={r.name} className="w-full rounded border" />
-                  </div>
-                  <p className="truncate text-sm">{r.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {r.widthBefore} × {r.heightBefore} → {r.width} × {r.height} px
-                    {r.scaledDown &&
-                      ` ${s.scaledFrom
-                        .replace('{w}', String(r.widthBefore))
-                        .replace('{h}', String(r.heightBefore))}`}{' '}
-                    · {kb(r.sizeBefore)} → {kb(r.sizeAfter)}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => saveBlob(r.blob, r.name)}
-                    className="inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
-                  >
-                    {ui.download}
-                  </button>
-                </li>
-              ))}
-            </ul>
+              {s.rotateLeft}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRotate((r) => ((r + 90) % 360) as RotateAngle)}
+              className="h-9 rounded-md border border-input px-3 text-sm"
+            >
+              {s.rotateRight}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRotate((r) => ((r + 180) % 360) as RotateAngle)}
+              className="h-9 rounded-md border border-input px-3 text-sm"
+            >
+              {s.rotate180}
+            </button>
+            <button
+              type="button"
+              onClick={() => setFlipHorizontal((v) => !v)}
+              className={`h-9 rounded-md border px-3 text-sm ${flipHorizontal ? 'border-primary bg-primary/10' : 'border-input'}`}
+            >
+              {s.flipHorizontal}
+            </button>
+            <button
+              type="button"
+              onClick={() => setFlipVertical((v) => !v)}
+              className={`h-9 rounded-md border px-3 text-sm ${flipVertical ? 'border-primary bg-primary/10' : 'border-input'}`}
+            >
+              {s.flipVertical}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRotate(0);
+                setFlipHorizontal(false);
+                setFlipVertical(false);
+              }}
+              className="h-9 rounded-md border border-input px-3 text-sm"
+            >
+              {ui.reset}
+            </button>
           </div>
-        )}
+          <p className="text-sm text-muted-foreground">
+            {s.currentState.replace('{rotate}', String(rotate)).replace('{flip}', flipLabel)}
+          </p>
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="rotimg-format">{s.outputFormat}</Label>
+              <Select value={format} onValueChange={(v) => setFormat(v as FormatChoice)}>
+                <SelectTrigger id="rotimg-format">
+                  <SelectValue>
+                    {format === 'original' ? s.formatOriginal : format.toUpperCase()}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="original">{s.formatOriginal}</SelectItem>
+                  <SelectItem value="webp">WEBP</SelectItem>
+                  <SelectItem value="jpeg">JPEG</SelectItem>
+                  <SelectItem value="png">PNG</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {format === 'jpeg' || format === 'webp' ? (
+              <RangeSlider
+                label={s.qualityLabel}
+                unit="%"
+                value={Math.round(quality * 100)}
+                min={10}
+                max={100}
+                step={5}
+                onChange={(v) => setQuality(v / 100)}
+              />
+            ) : null}
+          </div>
+
+          <Button type="button" onClick={run} disabled={files.length === 0 || busy}>
+            {busy
+              ? progress
+                ? s.rotatingProgress
+                    .replace('{done}', String(progress.done))
+                    .replace('{total}', String(progress.total))
+                : s.rotating
+              : rotateLabel}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {failures.length > 0 && (
+            <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {failures.map((f) => (
+                <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
+              ))}
+            </output>
+          )}
+
+          {scaled.length > 0 && (
+            <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
+              {(scaled.length === 1 ? s.scaledOne : s.scaledMany).replace(
+                '{n}',
+                String(scaled.length),
+              )}
+            </output>
+          )}
+
+          {results.length > 0 && (
+            <div className="space-y-3">
+              {results.length > 1 && (
+                <button
+                  type="button"
+                  onClick={downloadAll}
+                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
+                >
+                  {s.downloadAllZip.replace('{n}', String(results.length))}
+                </button>
+              )}
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {results.map((r, i) => (
+                  <li key={r.name} className="space-y-1 rounded-md border p-2">
+                    <div className="grid grid-cols-2 gap-1">
+                      <img src={befores[i]} alt={s.before} className="w-full rounded border" />
+                      <img src={previews[i]} alt={r.name} className="w-full rounded border" />
+                    </div>
+                    <p className="truncate text-sm">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {r.widthBefore} × {r.heightBefore} → {r.width} × {r.height} px
+                      {r.scaledDown &&
+                        ` ${s.scaledFrom
+                          .replace('{w}', String(r.widthBefore))
+                          .replace('{h}', String(r.heightBefore))}`}{' '}
+                      · {kb(r.sizeBefore)} → {kb(r.sizeAfter)}
+                    </p>
+                    <Button type="button" size="sm" onClick={() => saveBlob(r.blob, r.name)}>
+                      {ui.download}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

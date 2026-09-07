@@ -8,6 +8,7 @@ const EN = {
   lossless: '(lossless)',
   targetSize: 'Target size (KB)',
   quality: 'Quality: {n}%',
+  qualityLabel: 'Quality',
   sizeBudget: 'Hit a size budget instead — finds the best quality that fits',
   pngNote:
     'PNG is lossless, so there is no quality setting. For photographs WebP will be far smaller at the same visual quality.',
@@ -37,6 +38,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     lossless: '(không mất dữ liệu)',
     targetSize: 'Dung lượng mục tiêu (KB)',
     quality: 'Chất lượng: {n}%',
+    qualityLabel: 'Chất lượng',
     sizeBudget: 'Đặt ngưỡng dung lượng thay vì chất lượng — tự tìm chất lượng cao nhất vừa ngưỡng',
     pngNote:
       'PNG không mất dữ liệu nên không có tùy chọn chất lượng. Với ảnh chụp, WebP sẽ nhỏ hơn nhiều ở cùng chất lượng nhìn thấy.',
@@ -63,6 +65,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     lossless: '(sin pérdida)',
     targetSize: 'Tamaño objetivo (KB)',
     quality: 'Calidad: {n}%',
+    qualityLabel: 'Calidad',
     sizeBudget: 'Ajustar a un tamaño máximo — busca la mejor calidad que quepa',
     pngNote:
       'PNG es sin pérdida, así que no hay ajuste de calidad. Para fotografías, WebP será mucho más pequeño con la misma calidad visual.',
@@ -89,6 +92,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     lossless: '(sem perdas)',
     targetSize: 'Tamanho alvo (KB)',
     quality: 'Qualidade: {n}%',
+    qualityLabel: 'Qualidade',
     sizeBudget: 'Definir um limite de tamanho — encontra a melhor qualidade que cabe',
     pngNote:
       'PNG é sem perdas, então não há ajuste de qualidade. Para fotografias, WebP será bem menor com a mesma qualidade visual.',

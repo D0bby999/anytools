@@ -1,12 +1,19 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  CheckboxField,
+  ColorInput,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -223,11 +230,9 @@ export function WatermarkImageUi() {
     files.length > 0 && (markKind === 'text' ? text.trim().length > 0 : Boolean(logoFiles[0]));
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -238,282 +243,239 @@ export function WatermarkImageUi() {
           multiple
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          <fieldset className="flex gap-2">
+            <legend className="mb-1 block text-sm text-muted-foreground">{s.markKind}</legend>
+            {(['text', 'image'] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setMarkKind(k)}
+                className={`h-9 rounded-md border px-3 text-sm ${markKind === k ? 'border-primary bg-primary/10' : 'border-input'}`}
+              >
+                {k === 'text' ? s.markKindText : s.markKindImage}
+              </button>
+            ))}
+          </fieldset>
 
-        <fieldset className="flex gap-2">
-          <legend className="mb-1 block text-sm text-muted-foreground">{s.markKind}</legend>
-          {(['text', 'image'] as const).map((k) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => setMarkKind(k)}
-              className={`h-9 rounded-md border px-3 text-sm ${markKind === k ? 'border-primary bg-primary/10' : 'border-input'}`}
-            >
-              {k === 'text' ? s.markKindText : s.markKindImage}
-            </button>
-          ))}
-        </fieldset>
-
-        {markKind === 'text' ? (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">{s.textLabel}</span>
-              <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder={s.textPlaceholder}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              />
-            </label>
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">{s.colorLabel}</span>
-              <input
-                type="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-background px-1"
-              />
-            </label>
-          </div>
-        ) : (
-          <MultiFileDropzone
-            files={logoFiles}
-            onChange={setLogoFiles}
-            accept="image/*"
-            multiple={false}
-            label={s.logoDropLabel}
-          />
-        )}
-
-        <label className="block text-sm">
-          <span className="mb-1 block text-muted-foreground">
-            {s.sizeLabel.replace('{n}', String(sizePercent))}
-          </span>
-          <input
-            type="range"
-            min={1}
-            max={50}
-            value={sizePercent}
-            onChange={(e) => setSizePercent(Number(e.target.value))}
-            className="w-full"
-          />
-        </label>
-
-        <fieldset className="space-y-2">
-          <legend className="text-sm text-muted-foreground">{s.positionLabel}</legend>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setPositionMode('grid')}
-              className={`h-9 rounded-md border px-3 text-sm ${positionMode === 'grid' ? 'border-primary bg-primary/10' : 'border-input'}`}
-            >
-              {s.positionLabel}
-            </button>
-            <button
-              type="button"
-              onClick={() => setPositionMode('custom')}
-              className={`h-9 rounded-md border px-3 text-sm ${positionMode === 'custom' ? 'border-primary bg-primary/10' : 'border-input'}`}
-            >
-              {s.positionCustom}
-            </button>
-          </div>
-          {positionMode === 'grid' ? (
-            <div className="grid w-40 grid-cols-3 gap-1">
-              {GRID.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  title={gridLabel[g]}
-                  aria-label={gridLabel[g]}
-                  onClick={() => setGrid(g)}
-                  className={`h-9 rounded-md border text-xs ${grid === g ? 'border-primary bg-primary/10' : 'border-input'}`}
-                >
-                  ●
-                </button>
-              ))}
+          {markKind === 'text' ? (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">{s.textLabel}</span>
+                <input
+                  type="text"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder={s.textPlaceholder}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                />
+              </label>
+              <ColorInput label={s.colorLabel} value={color} onChange={setColor} />
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">
-                  {s.xPercent.replace('{n}', String(xPercent))}
-                </span>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={xPercent}
-                  onChange={(e) => setXPercent(Number(e.target.value))}
-                  className="w-full"
-                />
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">
-                  {s.yPercent.replace('{n}', String(yPercent))}
-                </span>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={yPercent}
-                  onChange={(e) => setYPercent(Number(e.target.value))}
-                  className="w-full"
-                />
-              </label>
-            </div>
+            <MultiFileDropzone
+              files={logoFiles}
+              onChange={setLogoFiles}
+              accept="image/*"
+              multiple={false}
+              label={s.logoDropLabel}
+            />
           )}
-        </fieldset>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {s.opacityLabel.replace('{n}', String(opacityPct))}
-            </span>
-            <input
-              type="range"
-              min={1}
-              max={100}
-              value={opacityPct}
-              onChange={(e) => setOpacityPct(Number(e.target.value))}
-              className="w-full"
-            />
-          </label>
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {s.rotationLabel.replace('{n}', String(rotation))}
-            </span>
-            <input
-              type="range"
-              min={-180}
-              max={180}
-              value={rotation}
-              onChange={(e) => setRotation(Number(e.target.value))}
-              className="w-full"
-            />
-          </label>
-        </div>
-
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={tile}
-            onChange={(e) => setTile(e.target.checked)}
-            className="h-4 w-4 rounded border-input"
+          <RangeSlider
+            label={s.sizeLabel}
+            unit="%"
+            value={sizePercent}
+            min={1}
+            max={50}
+            onChange={setSizePercent}
           />
-          {s.tileLabel}
-        </label>
 
-        {files[0] && (
-          <div className="space-y-1">
-            <span className="block text-xs uppercase tracking-wide text-muted-foreground">
-              {s.livePreview}
-            </span>
-            <p className="text-xs text-muted-foreground">{s.previewHint}</p>
-            <div className="flex min-h-40 items-center justify-center overflow-hidden rounded border bg-muted p-2">
-              {previewUrl ? (
-                <img src={previewUrl} alt={s.livePreview} className="max-h-72 max-w-full" />
-              ) : (
-                <span className="text-xs text-muted-foreground">{previewError ?? '…'}</span>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
-            <select
-              value={format}
-              onChange={(e) => setFormat(e.target.value as WatermarkOptions['format'])}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="original">{s.formatOriginal}</option>
-              <option value="webp">WEBP</option>
-              <option value="jpeg">JPEG</option>
-              <option value="png">PNG</option>
-            </select>
-          </label>
-          {format === 'jpeg' || format === 'webp' ? (
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">
-                {s.quality.replace('{n}', String(Math.round(quality * 100)))}
-              </span>
-              <input
-                type="range"
-                min={0.1}
-                max={1}
-                step={0.05}
-                value={quality}
-                onChange={(e) => setQuality(Number(e.target.value))}
-                className="w-full"
-              />
-            </label>
-          ) : null}
-        </div>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={!canRun || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy
-            ? progress
-              ? s.watermarkingProgress
-                  .replace('{done}', String(progress.done))
-                  .replace('{total}', String(progress.total))
-              : s.watermarking
-            : runLabel}
-        </button>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {failures.length > 0 && (
-          <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            {failures.map((f) => (
-              <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
-            ))}
-          </output>
-        )}
-
-        {results.length > 0 && (
-          <div className="space-y-3">
-            {results.length > 1 && (
+          <fieldset className="space-y-2">
+            <legend className="text-sm text-muted-foreground">{s.positionLabel}</legend>
+            <div className="flex gap-2">
               <button
                 type="button"
-                onClick={downloadAll}
-                className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
+                onClick={() => setPositionMode('grid')}
+                className={`h-9 rounded-md border px-3 text-sm ${positionMode === 'grid' ? 'border-primary bg-primary/10' : 'border-input'}`}
               >
-                {s.downloadAllZip.replace('{n}', String(results.length))}
+                {s.positionLabel}
               </button>
-            )}
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {results.map((r, i) => (
-                <li key={r.name} className="space-y-1 rounded-md border p-2">
-                  <img src={previews[i]} alt={r.name} className="w-full rounded border" />
-                  <p className="truncate text-sm">{r.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {r.width} × {r.height} px · {kb(r.sizeBefore)} → {kb(r.sizeAfter)}
-                  </p>
+              <button
+                type="button"
+                onClick={() => setPositionMode('custom')}
+                className={`h-9 rounded-md border px-3 text-sm ${positionMode === 'custom' ? 'border-primary bg-primary/10' : 'border-input'}`}
+              >
+                {s.positionCustom}
+              </button>
+            </div>
+            {positionMode === 'grid' ? (
+              <div className="grid w-40 grid-cols-3 gap-1">
+                {GRID.map((g) => (
                   <button
+                    key={g}
                     type="button"
-                    onClick={() => saveBlob(r.blob, r.name)}
-                    className="inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+                    title={gridLabel[g]}
+                    aria-label={gridLabel[g]}
+                    onClick={() => setGrid(g)}
+                    className={`h-9 rounded-md border text-xs ${grid === g ? 'border-primary bg-primary/10' : 'border-input'}`}
                   >
-                    {ui.download}
+                    ●
                   </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <RangeSlider
+                  label={s.xPercentLabel}
+                  unit="%"
+                  value={xPercent}
+                  min={0}
+                  max={100}
+                  onChange={setXPercent}
+                />
+                <RangeSlider
+                  label={s.yPercentLabel}
+                  unit="%"
+                  value={yPercent}
+                  min={0}
+                  max={100}
+                  onChange={setYPercent}
+                />
+              </div>
+            )}
+          </fieldset>
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <RangeSlider
+              label={s.opacityLabel}
+              unit="%"
+              value={opacityPct}
+              min={1}
+              max={100}
+              onChange={setOpacityPct}
+            />
+            <RangeSlider
+              label={s.rotationLabel}
+              unit="°"
+              value={rotation}
+              min={-180}
+              max={180}
+              onChange={setRotation}
+            />
+          </div>
+
+          <CheckboxField
+            label={s.tileLabel}
+            checked={tile}
+            onCheckedChange={(v) => setTile(v === true)}
+          />
+
+          {files[0] && (
+            <div className="space-y-1">
+              <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+                {s.livePreview}
+              </span>
+              <p className="text-xs text-muted-foreground">{s.previewHint}</p>
+              <div className="flex min-h-40 items-center justify-center overflow-hidden rounded border bg-muted p-2">
+                {previewUrl ? (
+                  <img src={previewUrl} alt={s.livePreview} className="max-h-72 max-w-full" />
+                ) : (
+                  <span className="text-xs text-muted-foreground">{previewError ?? '…'}</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="wmi-format">{s.outputFormat}</Label>
+              <Select
+                value={format}
+                onValueChange={(v) => setFormat(v as WatermarkOptions['format'])}
+              >
+                <SelectTrigger id="wmi-format">
+                  <SelectValue>
+                    {format === 'original' ? s.formatOriginal : String(format).toUpperCase()}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="original">{s.formatOriginal}</SelectItem>
+                  <SelectItem value="webp">WEBP</SelectItem>
+                  <SelectItem value="jpeg">JPEG</SelectItem>
+                  <SelectItem value="png">PNG</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {format === 'jpeg' || format === 'webp' ? (
+              <RangeSlider
+                label={s.qualityLabel}
+                unit="%"
+                value={Math.round(quality * 100)}
+                min={10}
+                max={100}
+                step={5}
+                onChange={(v) => setQuality(v / 100)}
+              />
+            ) : null}
+          </div>
+
+          <Button type="button" onClick={run} disabled={!canRun || busy}>
+            {busy
+              ? progress
+                ? s.watermarkingProgress
+                    .replace('{done}', String(progress.done))
+                    .replace('{total}', String(progress.total))
+                : s.watermarking
+              : runLabel}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {failures.length > 0 && (
+            <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {failures.map((f) => (
+                <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
+              ))}
+            </output>
+          )}
+
+          {results.length > 0 && (
+            <div className="space-y-3">
+              {results.length > 1 && (
+                <button
+                  type="button"
+                  onClick={downloadAll}
+                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
+                >
+                  {s.downloadAllZip.replace('{n}', String(results.length))}
+                </button>
+              )}
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {results.map((r, i) => (
+                  <li key={r.name} className="space-y-1 rounded-md border p-2">
+                    <img src={previews[i]} alt={r.name} className="w-full rounded border" />
+                    <p className="truncate text-sm">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {r.width} × {r.height} px · {kb(r.sizeBefore)} → {kb(r.sizeAfter)}
+                    </p>
+                    <Button type="button" size="sm" onClick={() => saveBlob(r.blob, r.name)}>
+                      {ui.download}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

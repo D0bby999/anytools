@@ -18,6 +18,12 @@ type Props = {
    */
   progress?: ReactNode;
   error?: ReactNode;
+  /**
+   * Before/after view that updates as the options change, shown between the action and the
+   * result. Added for the image cluster, where seeing the effect of a slider is the point;
+   * the PDF tools leave it empty.
+   */
+  preview?: ReactNode;
   /** Result summary and the download control. */
   result?: ReactNode;
   disclaimer?: ReactNode;
@@ -27,7 +33,7 @@ type Props = {
  * Drop files → set options → run → see progress → take the result.
  *
  * Written for the PDF cluster, where all twelve tools were hand-rolling that sequence, and
- * reused by the image cluster in the phase after. The order is the layout contract's: input,
+ * reused by the image cluster, which added the `preview` slot. The order is the layout contract's: input,
  * then the options that shape it, then the action, then what came out.
  *
  * There is no Card here, matching the other tool templates — see `docs`/MASTER.md on why
@@ -41,6 +47,7 @@ export function FilePipelineTemplate({
   action,
   progress,
   error,
+  preview,
   result,
   disclaimer,
 }: Props) {
@@ -65,6 +72,8 @@ export function FilePipelineTemplate({
       )}
 
       {error}
+
+      {preview}
 
       {result && <div className="space-y-3">{result}</div>}
 

@@ -1,12 +1,17 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -108,11 +113,9 @@ export function HeicToJpgUi() {
     files.length > 1 ? s.convertMany.replace('{n}', String(files.length)) : s.convertOne;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -127,128 +130,117 @@ export function HeicToJpgUi() {
           multiple
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="heic-format">{s.saveAs}</Label>
+              <Select value={format} onValueChange={(v) => setFormat(v as HeicFormat)}>
+                <SelectTrigger id="heic-format">
+                  <SelectValue>{format === 'png' ? s.pngOption : s.jpgOption}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="jpeg">{s.jpgOption}</SelectItem>
+                  <SelectItem value="png">{s.pngOption}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.saveAs}</span>
-            <select
-              value={format}
-              onChange={(e) => setFormat(e.target.value as HeicFormat)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="jpeg">{s.jpgOption}</option>
-              <option value="png">{s.pngOption}</option>
-            </select>
-          </label>
-
-          {format === 'jpeg' && (
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">
-                {s.quality.replace('{n}', String(Math.round(quality * 100)))}
-              </span>
-              <input
-                type="range"
-                min={0.1}
-                max={1}
-                step={0.05}
-                value={quality}
-                onChange={(e) => setQuality(Number(e.target.value))}
-                className="w-full"
+            {format === 'jpeg' && (
+              <RangeSlider
+                label={s.qualityLabel}
+                unit="%"
+                value={Math.round(quality * 100)}
+                min={10}
+                max={100}
+                step={5}
+                onChange={(v) => setQuality(v / 100)}
               />
-            </label>
-          )}
-        </div>
-
-        <button
-          type="button"
-          onClick={run}
-          disabled={files.length === 0 || busy}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
-          {busy
-            ? progress
-              ? s.convertingProgress
-                  .replace('{done}', String(progress.done))
-                  .replace('{total}', String(progress.total))
-              : s.converting
-            : convertLabel}
-        </button>
-
-        <p className="text-sm text-muted-foreground">{s.decoderNote}</p>
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {failures.length > 0 && (
-          <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            {failures.map((f) => (
-              <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
-            ))}
-          </output>
-        )}
-
-        {burst.length > 0 && (
-          <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            {burst.length === 1 ? s.burstOne : s.burstMany.replace('{n}', String(burst.length))}
-          </output>
-        )}
-
-        {scaled.length > 0 && (
-          <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
-            {(scaled.length === 1 ? s.scaledOne : s.scaledMany)
-              .replace('{n}', String(scaled.length))
-              .replace('{sw}', String(scaled[0]?.sourceWidth))
-              .replace('{sh}', String(scaled[0]?.sourceHeight))
-              .replace('{w}', String(scaled[0]?.width))
-              .replace('{h}', String(scaled[0]?.height))}
-          </output>
-        )}
-
-        {results.length > 0 && (
-          <div className="space-y-3">
-            {results.length > 1 && (
-              <button
-                type="button"
-                onClick={downloadAll}
-                className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-              >
-                {s.downloadAllZip.replace('{n}', String(results.length))}
-              </button>
             )}
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {results.map((r, i) => (
-                // Output names are made unique per batch, so two IMG_0001.HEIC are two keys.
-                <li key={r.name} className="space-y-1 rounded-md border p-2">
-                  {/* A plain <img>: the source is a blob URL in this tab, which next/image cannot
-                      optimise and must not try to fetch. */}
-                  <img src={previews[i]} alt={r.name} className="w-full rounded border" />
-                  <p className="truncate text-sm">{r.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {r.width} × {r.height} px
-                    {(r.width !== r.sourceWidth || r.height !== r.sourceHeight) &&
-                      ` ${s.scaledFrom
-                        .replace('{w}', String(r.sourceWidth))
-                        .replace('{h}', String(r.sourceHeight))}`}{' '}
-                    · {kb(r.sourceSize)} → {kb(r.blob.size)}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => saveBlob(r.blob, r.name)}
-                    className="inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
-                  >
-                    {ui.download}
-                  </button>
-                </li>
-              ))}
-            </ul>
           </div>
-        )}
 
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <Button type="button" onClick={run} disabled={files.length === 0 || busy}>
+            {busy
+              ? progress
+                ? s.convertingProgress
+                    .replace('{done}', String(progress.done))
+                    .replace('{total}', String(progress.total))
+                : s.converting
+              : convertLabel}
+          </Button>
+
+          <p className="text-sm text-muted-foreground">{s.decoderNote}</p>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {failures.length > 0 && (
+            <output className="block space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {failures.map((f) => (
+                <p key={f.name}>{returnedErrorText(errorStrings, f.code, f.params, f.message)}</p>
+              ))}
+            </output>
+          )}
+
+          {burst.length > 0 && (
+            <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
+              {burst.length === 1 ? s.burstOne : s.burstMany.replace('{n}', String(burst.length))}
+            </output>
+          )}
+
+          {scaled.length > 0 && (
+            <output className="block rounded-md border bg-muted px-3 py-2 text-sm">
+              {(scaled.length === 1 ? s.scaledOne : s.scaledMany)
+                .replace('{n}', String(scaled.length))
+                .replace('{sw}', String(scaled[0]?.sourceWidth))
+                .replace('{sh}', String(scaled[0]?.sourceHeight))
+                .replace('{w}', String(scaled[0]?.width))
+                .replace('{h}', String(scaled[0]?.height))}
+            </output>
+          )}
+
+          {results.length > 0 && (
+            <div className="space-y-3">
+              {results.length > 1 && (
+                <button
+                  type="button"
+                  onClick={downloadAll}
+                  className="inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
+                >
+                  {s.downloadAllZip.replace('{n}', String(results.length))}
+                </button>
+              )}
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {results.map((r, i) => (
+                  // Output names are made unique per batch, so two IMG_0001.HEIC are two keys.
+                  <li key={r.name} className="space-y-1 rounded-md border p-2">
+                    {/* A plain <img>: the source is a blob URL in this tab, which next/image cannot
+                      optimise and must not try to fetch. */}
+                    <img src={previews[i]} alt={r.name} className="w-full rounded border" />
+                    <p className="truncate text-sm">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {r.width} × {r.height} px
+                      {(r.width !== r.sourceWidth || r.height !== r.sourceHeight) &&
+                        ` ${s.scaledFrom
+                          .replace('{w}', String(r.sourceWidth))
+                          .replace('{h}', String(r.sourceHeight))}`}{' '}
+                      · {kb(r.sourceSize)} → {kb(r.blob.size)}
+                    </p>
+                    <Button type="button" size="sm" onClick={() => saveBlob(r.blob, r.name)}>
+                      {ui.download}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

@@ -1,11 +1,15 @@
 'use client';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -144,11 +148,9 @@ export function CropImageUi() {
     : 'image';
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -160,131 +162,128 @@ export function CropImageUi() {
           multiple={false}
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          {srcUrl && (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {ASPECT_PRESETS.map((p) => (
+                  <button
+                    key={p.label}
+                    type="button"
+                    onClick={() => {
+                      setAspect(p.ratio);
+                      if (p.ratio && natural)
+                        setRect((r) => applyAspect(r, p.ratio as number, natural.w, natural.h));
+                    }}
+                    className={`h-9 rounded-md border px-3 text-sm ${
+                      aspect === p.ratio ? 'border-primary bg-primary/10' : 'border-input'
+                    }`}
+                  >
+                    {aspectLabel[p.label] ?? p.label}
+                  </button>
+                ))}
+              </div>
 
-        {srcUrl && (
-          <>
-            <div className="flex flex-wrap gap-2">
-              {ASPECT_PRESETS.map((p) => (
-                <button
-                  key={p.label}
-                  type="button"
-                  onClick={() => {
-                    setAspect(p.ratio);
-                    if (p.ratio && natural)
-                      setRect((r) => applyAspect(r, p.ratio as number, natural.w, natural.h));
-                  }}
-                  className={`h-9 rounded-md border px-3 text-sm ${
-                    aspect === p.ratio ? 'border-primary bg-primary/10' : 'border-input'
-                  }`}
-                >
-                  {aspectLabel[p.label] ?? p.label}
-                </button>
-              ))}
-            </div>
-
-            {/* biome-ignore lint/a11y/noStaticElementInteractions: a crop surface is inherently pointer-driven; the numeric readout below reports the selection for non-pointer users */}
-            <div
-              ref={frameRef}
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={endDrag}
-              onPointerCancel={endDrag}
-              className="relative inline-block max-w-full touch-none select-none overflow-hidden rounded border"
-            >
-              {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-              <img
-                src={srcUrl}
-                alt={s.imageAlt}
-                onLoad={(e) =>
-                  setNatural({
-                    w: e.currentTarget.naturalWidth,
-                    h: e.currentTarget.naturalHeight,
-                  })
-                }
-                className="block max-h-96 w-auto"
-                draggable={false}
-              />
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: a crop surface is inherently pointer-driven; the numeric readout below reports the selection for non-pointer users */}
               <div
-                className="pointer-events-none absolute border-2 border-primary bg-primary/10"
-                style={{
-                  left: `${rect.x * 100}%`,
-                  top: `${rect.y * 100}%`,
-                  width: `${rect.width * 100}%`,
-                  height: `${rect.height * 100}%`,
-                }}
-              />
-            </div>
+                ref={frameRef}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+                className="relative inline-block max-w-full touch-none select-none overflow-hidden rounded border"
+              >
+                {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+                <img
+                  src={srcUrl}
+                  alt={s.imageAlt}
+                  onLoad={(e) =>
+                    setNatural({
+                      w: e.currentTarget.naturalWidth,
+                      h: e.currentTarget.naturalHeight,
+                    })
+                  }
+                  className="block max-h-96 w-auto"
+                  draggable={false}
+                />
+                <div
+                  className="pointer-events-none absolute border-2 border-primary bg-primary/10"
+                  style={{
+                    left: `${rect.x * 100}%`,
+                    top: `${rect.y * 100}%`,
+                    width: `${rect.width * 100}%`,
+                    height: `${rect.height * 100}%`,
+                  }}
+                />
+              </div>
 
-            <p className="text-sm text-muted-foreground">
-              {usableSelection ? s.dragHint : s.dragHintSmall}
-              {cropPx &&
-                ` ${s.selection.replace('{w}', String(cropPx.w)).replace('{h}', String(cropPx.h))}`}
-              {natural &&
-                ` ${s.ofSize.replace('{w}', String(natural.w)).replace('{h}', String(natural.h))}`}
-            </p>
+              <p className="text-sm text-muted-foreground">
+                {usableSelection ? s.dragHint : s.dragHintSmall}
+                {cropPx &&
+                  ` ${s.selection.replace('{w}', String(cropPx.w)).replace('{h}', String(cropPx.h))}`}
+                {natural &&
+                  ` ${s.ofSize.replace('{w}', String(natural.w)).replace('{h}', String(natural.h))}`}
+              </p>
 
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="text-sm">
-                <span className="mb-1 block text-muted-foreground">{s.outputFormat}</span>
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value as OutputFormat)}
-                  className="h-10 w-40 rounded-md border border-input bg-background px-3 text-sm"
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="crop-format">{s.outputFormat}</Label>
+                  <Select value={format} onValueChange={(v) => setFormat(v as OutputFormat)}>
+                    <SelectTrigger id="crop-format" className="w-40">
+                      <SelectValue>{format.toUpperCase()}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="png">PNG</SelectItem>
+                      <SelectItem value="webp">WEBP</SelectItem>
+                      <SelectItem value="jpeg">JPEG</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRect(FULL)}
+                  className="h-10 rounded-md border border-input px-3 text-sm"
                 >
-                  <option value="png">PNG</option>
-                  <option value="webp">WEBP</option>
-                  <option value="jpeg">JPEG</option>
-                </select>
-              </label>
-              <button
-                type="button"
-                onClick={() => setRect(FULL)}
-                className="h-10 rounded-md border border-input px-3 text-sm"
-              >
-                {s.resetSelection}
-              </button>
-              <button
-                type="button"
-                onClick={run}
-                disabled={busy || !usableSelection}
-                className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-              >
-                {busy ? s.cropping : s.crop}
-              </button>
+                  {s.resetSelection}
+                </button>
+                <Button type="button" onClick={run} disabled={busy || !usableSelection}>
+                  {busy ? s.cropping : s.crop}
+                </Button>
+              </div>
+            </>
+          )}
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && outUrl && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {result.width} × {result.height} px · {kb(result.sizeBefore)} →{' '}
+                {kb(result.sizeAfter)}
+                {result.scaledFrom
+                  ? ` · ${s.scaledNote
+                      .replace('{w}', String(result.scaledFrom.width))
+                      .replace('{h}', String(result.scaledFrom.height))}`
+                  : ''}
+              </div>
+              {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+              <img src={outUrl} alt={s.resultAlt} className="max-h-80 rounded border" />
+              <Button asChild>
+                <a href={outUrl} download={outName}>
+                  {s.download.replace('{name}', outName)}
+                </a>
+              </Button>
             </div>
-          </>
-        )}
-
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && outUrl && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {result.width} × {result.height} px · {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
-              {result.scaledFrom
-                ? ` · ${s.scaledNote
-                    .replace('{w}', String(result.scaledFrom.width))
-                    .replace('{h}', String(result.scaledFrom.height))}`
-                : ''}
-            </div>
-            {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
-            <img src={outUrl} alt={s.resultAlt} className="max-h-80 rounded border" />
-            <a
-              href={outUrl}
-              download={outName}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.download.replace('{name}', outName)}
-            </a>
-          </div>
-        )}
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

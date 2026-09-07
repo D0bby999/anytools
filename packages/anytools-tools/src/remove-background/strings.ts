@@ -9,8 +9,10 @@ const EN = {
     'The first run downloads a 4.4 MB model and a 14 MB runtime and keeps both in your browser’s cache — later runs, in this tab or after a reload, download nothing. The image itself is never uploaded.',
   // {v} is either the soft-mask label or a percentage such as "50%".
   cutoff: 'Cut-off: {v}',
+  cutoffLabel: 'Cut-off',
   softMask: 'soft mask',
   edgeSoftness: 'Edge softness: {n} px',
+  edgeSoftnessLabel: 'Edge softness',
   background: 'Background',
   bg_transparent: 'Transparent',
   bg_white: 'White',
@@ -47,8 +49,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     firstRunNote:
       'Lần chạy đầu tải một mô hình 4,4 MB và một runtime 14 MB rồi giữ cả hai trong bộ nhớ đệm của trình duyệt — các lần sau, trong tab này hay sau khi tải lại trang, không tải gì thêm. Ảnh của bạn không bao giờ được tải lên.',
     cutoff: 'Ngưỡng cắt: {v}',
+    cutoffLabel: 'Ngưỡng cắt',
     softMask: 'mặt nạ mềm',
     edgeSoftness: 'Độ mềm viền: {n} px',
+    edgeSoftnessLabel: 'Độ mềm viền',
     background: 'Nền',
     bg_transparent: 'Trong suốt',
     bg_white: 'Trắng',
@@ -82,8 +86,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     firstRunNote:
       'La primera ejecución descarga un modelo de 4,4 MB y un runtime de 14 MB y guarda ambos en la caché de tu navegador — las siguientes, en esta pestaña o tras recargar, no descargan nada. La imagen en sí nunca se sube.',
     cutoff: 'Umbral: {v}',
+    cutoffLabel: 'Umbral',
     softMask: 'máscara suave',
     edgeSoftness: 'Suavidad del borde: {n} px',
+    edgeSoftnessLabel: 'Suavidad del borde',
     background: 'Fondo',
     bg_transparent: 'Transparente',
     bg_white: 'Blanco',
@@ -118,8 +124,10 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     firstRunNote:
       'A primeira execução baixa um modelo de 4,4 MB e um runtime de 14 MB e mantém ambos no cache do navegador — as seguintes, nesta aba ou após recarregar, não baixam nada. A imagem em si nunca é enviada.',
     cutoff: 'Limiar: {v}',
+    cutoffLabel: 'Limiar',
     softMask: 'máscara suave',
     edgeSoftness: 'Suavidade da borda: {n} px',
+    edgeSoftnessLabel: 'Suavidade da borda',
     background: 'Fundo',
     bg_transparent: 'Transparente',
     bg_white: 'Branco',

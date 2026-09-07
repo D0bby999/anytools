@@ -1,11 +1,9 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
   CopyButton,
+  FilePipelineTemplate,
   MultiFileDropzone,
   PrivacyNote,
   useLocalized,
@@ -184,11 +182,9 @@ export function QrBarcodeScannerUi() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -200,151 +196,152 @@ export function QrBarcodeScannerUi() {
           multiple={false}
           label={s.dropLabel}
         />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => (camera === 'off' ? void startCamera() : stopCamera())}
-            className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
-          >
-            {camera === 'off' ? s.scanWithCamera : s.stopCamera}
-          </button>
-          {files[0] && (
+      }
+      result={
+        <>
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => {
-                const file = files[0];
-                if (file) void scanFile(file);
-              }}
-              disabled={busy}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
+              onClick={() => (camera === 'off' ? void startCamera() : stopCamera())}
+              className="inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium hover:bg-muted"
             >
-              {busy ? s.scanning : s.scanAgain}
+              {camera === 'off' ? s.scanWithCamera : s.stopCamera}
             </button>
-          )}
-          <span className="text-xs text-muted-foreground">{s.cameraNote}</span>
-        </div>
+            {files[0] && (
+              <Button
+                type="button"
+                onClick={() => {
+                  const file = files[0];
+                  if (file) void scanFile(file);
+                }}
+                disabled={busy}
+              >
+                {busy ? s.scanning : s.scanAgain}
+              </Button>
+            )}
+            <span className="text-xs text-muted-foreground">{s.cameraNote}</span>
+          </div>
 
-        {/* Kept mounted so the ref exists before getUserMedia resolves; hidden while off.
+          {/* Kept mounted so the ref exists before getUserMedia resolves; hidden while off.
             No <track>: a live camera preview has no captions to offer, and it carries no
             information — every result is rendered as text below. */}
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          className={
-            camera === 'off'
-              ? 'hidden'
-              : 'w-full max-w-md rounded-md border bg-black object-contain'
-          }
-        />
-        {camera === 'starting' && (
-          <p className="text-sm text-muted-foreground">{s.startingCamera}</p>
-        )}
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            className={
+              camera === 'off'
+                ? 'hidden'
+                : 'w-full max-w-md rounded-md border bg-black object-contain'
+            }
+          />
+          {camera === 'starting' && (
+            <p className="text-sm text-muted-foreground">{s.startingCamera}</p>
+          )}
 
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
 
-        {symbols?.length === 0 && (
-          <output className="block rounded-md border bg-muted/40 px-3 py-2 text-sm">
-            {s.noBarcode}
-          </output>
-        )}
+          {symbols?.length === 0 && (
+            <output className="block rounded-md border bg-muted/40 px-3 py-2 text-sm">
+              {s.noBarcode}
+            </output>
+          )}
 
-        {symbols && symbols.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {(symbols.length === 1 ? s.readOne : s.readMany)
-                .replace('{n}', String(symbols.length))
-                .replace('{source}', source === 'camera' ? s.sourceCamera : s.sourceImage)}
-            </p>
-            <ul className="space-y-3">
-              {symbols.map((sym, i) => (
-                <li
-                  key={`${sym.format}-${sym.center.x}-${sym.center.y}-${i}`}
-                  className="space-y-2 rounded-md border p-3 text-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">
-                      {sym.format}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {s.at
-                        .replace('{x}', String(sym.center.x))
-                        .replace('{y}', String(sym.center.y))}
-                    </span>
-                    <CopyButton text={sym.text} className="ml-auto" />
-                  </div>
-                  <pre className="overflow-x-auto whitespace-pre-wrap break-all font-mono text-xs">
-                    {sym.text}
-                  </pre>
-                  {sym.payload.kind === 'url' && (
-                    <p className="text-xs">
-                      {s.webAddress}{' '}
-                      {/* Never opened automatically, and never anything but http(s): a code
+          {symbols && symbols.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {(symbols.length === 1 ? s.readOne : s.readMany)
+                  .replace('{n}', String(symbols.length))
+                  .replace('{source}', source === 'camera' ? s.sourceCamera : s.sourceImage)}
+              </p>
+              <ul className="space-y-3">
+                {symbols.map((sym, i) => (
+                  <li
+                    key={`${sym.format}-${sym.center.x}-${sym.center.y}-${i}`}
+                    className="space-y-2 rounded-md border p-3 text-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">
+                        {sym.format}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {s.at
+                          .replace('{x}', String(sym.center.x))
+                          .replace('{y}', String(sym.center.y))}
+                      </span>
+                      <CopyButton text={sym.text} className="ml-auto" />
+                    </div>
+                    <pre className="overflow-x-auto whitespace-pre-wrap break-all font-mono text-xs">
+                      {sym.text}
+                    </pre>
+                    {sym.payload.kind === 'url' && (
+                      <p className="text-xs">
+                        {s.webAddress}{' '}
+                        {/* Never opened automatically, and never anything but http(s): a code
                           printed by a stranger must not be able to navigate this page. */}
-                      <a
-                        href={sym.payload.url}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        className="underline"
-                      >
-                        {s.openNewTab}
-                      </a>
-                      {s.checkFirst}
-                    </p>
-                  )}
-                  {sym.payload.kind === 'wifi' && (
-                    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                      <dt className="text-muted-foreground">{s.network}</dt>
-                      <dd className="font-mono">{sym.payload.wifi.ssid}</dd>
-                      <dt className="text-muted-foreground">{s.password}</dt>
-                      <dd className="font-mono">
-                        {sym.payload.wifi.password || <span className="italic">{s.none}</span>}
-                      </dd>
-                      <dt className="text-muted-foreground">{s.security}</dt>
-                      <dd className="font-mono">{sym.payload.wifi.encryption}</dd>
-                      {sym.payload.wifi.hidden && (
-                        <>
-                          <dt className="text-muted-foreground">{s.hidden}</dt>
-                          <dd>{s.yes}</dd>
-                        </>
-                      )}
-                    </dl>
-                  )}
-                  {sym.payload.kind === 'vcard' && (
-                    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-                      {Object.entries(sym.payload.vcard).map(([k, v]) => (
-                        <span key={k} className="contents">
-                          <dt className="text-muted-foreground capitalize">{k}</dt>
-                          <dd className="font-mono">{v}</dd>
-                        </span>
-                      ))}
-                    </dl>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                        <a
+                          href={sym.payload.url}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          className="underline"
+                        >
+                          {s.openNewTab}
+                        </a>
+                        {s.checkFirst}
+                      </p>
+                    )}
+                    {sym.payload.kind === 'wifi' && (
+                      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                        <dt className="text-muted-foreground">{s.network}</dt>
+                        <dd className="font-mono">{sym.payload.wifi.ssid}</dd>
+                        <dt className="text-muted-foreground">{s.password}</dt>
+                        <dd className="font-mono">
+                          {sym.payload.wifi.password || <span className="italic">{s.none}</span>}
+                        </dd>
+                        <dt className="text-muted-foreground">{s.security}</dt>
+                        <dd className="font-mono">{sym.payload.wifi.encryption}</dd>
+                        {sym.payload.wifi.hidden && (
+                          <>
+                            <dt className="text-muted-foreground">{s.hidden}</dt>
+                            <dd>{s.yes}</dd>
+                          </>
+                        )}
+                      </dl>
+                    )}
+                    {sym.payload.kind === 'vcard' && (
+                      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                        {Object.entries(sym.payload.vcard).map(([k, v]) => (
+                          <span key={k} className="contents">
+                            <dt className="text-muted-foreground capitalize">{k}</dt>
+                            <dd className="font-mono">{v}</dd>
+                          </span>
+                        ))}
+                      </dl>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-        <p className="text-sm text-muted-foreground">
-          {noteBefore}
-          <a href={`/${locale}/generators/barcode-generator`} className="underline">
-            {s.barcodeGenerator}
-          </a>
-          {noteMiddle}
-          <a href={`/${locale}/generators/qr-code-generator`} className="underline">
-            {s.qrGenerator}
-          </a>
-          {noteAfter}
-        </p>
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          <p className="text-sm text-muted-foreground">
+            {noteBefore}
+            <a href={`/${locale}/generators/barcode-generator`} className="underline">
+              {s.barcodeGenerator}
+            </a>
+            {noteMiddle}
+            <a href={`/${locale}/generators/qr-code-generator`} className="underline">
+              {s.qrGenerator}
+            </a>
+            {noteAfter}
+          </p>
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

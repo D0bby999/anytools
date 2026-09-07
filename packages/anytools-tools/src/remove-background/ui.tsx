@@ -1,12 +1,18 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Button,
+  ColorInput,
+  FilePipelineTemplate,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useMemo, useRef, useState } from 'react';
@@ -117,11 +123,9 @@ export function RemoveBackgroundUi() {
         : s.loadingFirstRun;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
         <MultiFileDropzone
           files={files}
           onChange={(f) => {
@@ -133,152 +137,137 @@ export function RemoveBackgroundUi() {
           multiple={false}
           label={s.dropLabel}
         />
+      }
+      result={
+        <>
+          <p className="rounded-md border bg-muted px-3 py-2 text-sm text-muted-foreground">
+            {s.firstRunNote}
+          </p>
 
-        <p className="rounded-md border bg-muted px-3 py-2 text-sm text-muted-foreground">
-          {s.firstRunNote}
-        </p>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="space-y-1">
+              <RangeSlider
+                label={s.cutoffLabel}
+                unit="%"
+                value={Math.round(threshold * 100)}
+                min={0}
+                max={90}
+                step={5}
+                onChange={(v) => setThreshold(v / 100)}
+              />
+              {/* 0 is not "0% cut-off", it means the soft mask is used as-is — worth saying,
+                since a slider at its minimum otherwise reads as "off". */}
+              {threshold === 0 && <p className="text-xs text-muted-foreground">{s.softMask}</p>}
+            </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {s.cutoff.replace(
-                '{v}',
-                threshold === 0 ? s.softMask : `${Math.round(threshold * 100)}%`,
-              )}
-            </span>
-            <input
-              type="range"
-              min={0}
-              max={0.9}
-              step={0.05}
-              value={threshold}
-              onChange={(e) => setThreshold(Number(e.target.value))}
-              className="w-full"
-            />
-          </label>
-
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">
-              {s.edgeSoftness.replace('{n}', String(feather))}
-            </span>
-            <input
-              type="range"
+            <RangeSlider
+              label={s.edgeSoftnessLabel}
+              unit="px"
+              value={feather}
               min={0}
               max={8}
-              step={1}
-              value={feather}
-              onChange={(e) => setFeather(Number(e.target.value))}
-              className="w-full"
+              onChange={setFeather}
             />
-          </label>
 
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.background}</span>
-            <select
-              value={background}
-              onChange={(e) => setBackground(e.target.value as Background)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="transparent">{s.bg_transparent}</option>
-              <option value="white">{s.bg_white}</option>
-              <option value="custom">{s.bg_custom}</option>
-            </select>
-          </label>
-        </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="rbg-background">{s.background}</Label>
+              <Select value={background} onValueChange={(v) => setBackground(v as Background)}>
+                <SelectTrigger id="rbg-background">
+                  <SelectValue>
+                    {background === 'white'
+                      ? s.bg_white
+                      : background === 'custom'
+                        ? s.bg_custom
+                        : s.bg_transparent}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="transparent">{s.bg_transparent}</SelectItem>
+                  <SelectItem value="white">{s.bg_white}</SelectItem>
+                  <SelectItem value="custom">{s.bg_custom}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        {background === 'custom' && (
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="color"
-              value={colour}
-              onChange={(e) => setColour(e.target.value)}
-              className="h-9 w-16 rounded border border-input bg-background"
-            />
-            {s.fillWith.replace('{colour}', colour)}
-          </label>
-        )}
+          {background === 'custom' && (
+            <ColorInput label={s.bg_custom} value={colour} onChange={setColour} />
+          )}
 
-        <p className="text-sm text-muted-foreground">{s.cutoffNote}</p>
+          <p className="text-sm text-muted-foreground">{s.cutoffNote}</p>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={run}
-            disabled={!file || busy}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-          >
-            {busy ? s.working : s.removeBackground}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" onClick={run} disabled={!file || busy}>
+              {busy ? s.working : s.removeBackground}
+            </Button>
 
-          {/* Only offered while bytes are moving. Once inference starts there is nothing left to
+            {/* Only offered while bytes are moving. Once inference starts there is nothing left to
               cancel — the WASM call blocks this thread until it returns — and a dead button is
               worse than none. */}
-          {busy && progress && progress.stage !== 'inference' && (
-            <button
-              type="button"
-              onClick={() => abort.current?.abort()}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-input px-4 text-sm font-medium hover:bg-accent"
-            >
-              {s.cancelDownload}
-            </button>
+            {busy && progress && progress.stage !== 'inference' && (
+              <button
+                type="button"
+                onClick={() => abort.current?.abort()}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-input px-4 text-sm font-medium hover:bg-accent"
+              >
+                {s.cancelDownload}
+              </button>
+            )}
+          </div>
+
+          {progress && (
+            <output className="block space-y-2 text-sm">
+              <span className="block text-muted-foreground">{progressLabel(progress)}</span>
+              <span className="block h-2 w-full overflow-hidden rounded bg-muted">
+                <span
+                  className="block h-full bg-primary transition-[width]"
+                  style={{ width: progress.stage === 'inference' ? '100%' : `${pct(progress)}%` }}
+                />
+              </span>
+            </output>
           )}
-        </div>
 
-        {progress && (
-          <output className="block space-y-2 text-sm">
-            <span className="block text-muted-foreground">{progressLabel(progress)}</span>
-            <span className="block h-2 w-full overflow-hidden rounded bg-muted">
-              <span
-                className="block h-full bg-primary transition-[width]"
-                style={{ width: progress.stage === 'inference' ? '100%' : `${pct(progress)}%` }}
-              />
-            </span>
-          </output>
-        )}
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
 
-        {error && (
-          <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
-          </output>
-        )}
-
-        {result && url && (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-muted p-3 text-sm">
-              {s.resultLine
-                .replace('{w}', String(result.width))
-                .replace('{h}', String(result.height))
-                .replace('{kept}', String(Math.round(result.opaque * 100)))
-                .replace('{removed}', String(Math.round(result.transparent * 100)))
-                .replace('{ms}', String(result.inferenceMs))}
-              {result.scaledFrom && (
-                <span className="mt-1 block text-muted-foreground">
-                  {s.scaledNote
-                    .replace('{w}', String(result.scaledFrom.width))
-                    .replace('{h}', String(result.scaledFrom.height))}
-                </span>
-              )}
-            </div>
-            <div className="rounded border p-2" style={CHECKERBOARD}>
-              {/* A plain img, not next/image: this is a blob URL for bytes the browser already
+          {result && url && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {s.resultLine
+                  .replace('{w}', String(result.width))
+                  .replace('{h}', String(result.height))
+                  .replace('{kept}', String(Math.round(result.opaque * 100)))
+                  .replace('{removed}', String(Math.round(result.transparent * 100)))
+                  .replace('{ms}', String(result.inferenceMs))}
+                {result.scaledFrom && (
+                  <span className="mt-1 block text-muted-foreground">
+                    {s.scaledNote
+                      .replace('{w}', String(result.scaledFrom.width))
+                      .replace('{h}', String(result.scaledFrom.height))}
+                  </span>
+                )}
+              </div>
+              <div className="rounded border p-2" style={CHECKERBOARD}>
+                {/* A plain img, not next/image: this is a blob URL for bytes the browser already
                   holds, so there is nothing for the image optimiser to fetch or resize. No lint
                   suppression here on purpose — the rule category the sibling image tools name in
                   theirs does not exist in biome 1.9.4, so those files fail `biome check` parsing. */}
-              <img src={url} alt={s.cutoutAlt} className="mx-auto max-h-[28rem] w-auto" />
+                <img src={url} alt={s.cutoutAlt} className="mx-auto max-h-[28rem] w-auto" />
+              </div>
+              <Button asChild>
+                <a href={url} download={outName}>
+                  {s.download.replace('{name}', outName)}
+                </a>
+              </Button>
+              <p className="text-sm text-muted-foreground">{s.modelNote}</p>
             </div>
-            <a
-              href={url}
-              download={outName}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              {s.download.replace('{name}', outName)}
-            </a>
-            <p className="text-sm text-muted-foreground">{s.modelNote}</p>
-          </div>
-        )}
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }
