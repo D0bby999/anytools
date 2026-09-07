@@ -1,12 +1,21 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   Input,
+  Label,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useToolLocale,
 } from '@anytools/ui';
@@ -149,21 +158,19 @@ export function BarcodeGeneratorUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1 text-sm">
-          <label htmlFor="barcode-format" className="block text-muted-foreground">
-            {s.symbology}
-          </label>
-          <select
-            id="barcode-format"
-            value={format}
-            onChange={(e) => pickFormat(e.target.value as BarcodeFormatId)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          >
-            {BARCODE_FORMATS.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+          <Label htmlFor="barcode-format">{s.symbology}</Label>
+          <Select value={format} onValueChange={(v) => pickFormat(v as BarcodeFormatId)}>
+            <SelectTrigger id="barcode-format">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BARCODE_FORMATS.map((f) => (
+                <SelectItem key={f.id} value={f.id}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <p className="text-xs text-muted-foreground">{hints[format] ?? spec.hint}</p>
         </div>
 
@@ -200,47 +207,31 @@ export function BarcodeGeneratorUi() {
         </div>
 
         <div className="flex flex-wrap items-end gap-4 text-sm">
-          <div className="space-y-1">
-            <label htmlFor="barcode-scale" className="block text-muted-foreground">
-              {s.moduleSize.replace('{n}', String(scale))}
-            </label>
-            <input
-              id="barcode-scale"
-              type="range"
-              min={1}
-              max={16}
-              value={scale}
-              onChange={(e) => setScale(Number(e.target.value))}
-              className="w-48"
-            />
-          </div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={quietZone}
-              onChange={(e) => setQuietZone(e.target.checked)}
-            />
-            {s.quietZone}
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={humanReadable}
-              onChange={(e) => setHumanReadable(e.target.checked)}
-              disabled={!HRT_FORMATS.has(format)}
-            />
-            {s.printDigits}
-          </label>
+          <RangeSlider
+            className="w-48"
+            label={s.moduleSizeLabel}
+            unit="px"
+            value={scale}
+            min={1}
+            max={16}
+            onChange={setScale}
+          />
+          <CheckboxField
+            label={s.quietZone}
+            checked={quietZone}
+            onCheckedChange={(v) => setQuietZone(v === true)}
+          />
+          <CheckboxField
+            label={s.printDigits}
+            checked={humanReadable}
+            onCheckedChange={(v) => setHumanReadable(v === true)}
+            disabled={!HRT_FORMATS.has(format)}
+          />
         </div>
 
-        <button
-          type="button"
-          onClick={run}
-          disabled={busy || !preflight?.ok}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40"
-        >
+        <Button type="button" onClick={run} disabled={busy || !preflight?.ok}>
           {busy ? s.encoding : s.generate}
-        </button>
+        </Button>
 
         {error && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

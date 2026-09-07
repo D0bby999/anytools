@@ -7,7 +7,13 @@ import {
   CardTitle,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -87,18 +93,21 @@ export function MockDataGeneratorUi() {
                 placeholder={s.fieldName}
                 className="max-w-[180px]"
               />
-              <select
+              <Select
                 value={field.type}
-                aria-label={s.fieldType}
-                onChange={(e) => updateField(i, { type: e.target.value as FieldType })}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                onValueChange={(v) => updateField(i, { type: v as FieldType })}
               >
-                {FIELD_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger aria-label={s.fieldType} className="max-w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FIELD_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 size="sm"
                 variant="ghost"
@@ -126,34 +135,34 @@ export function MockDataGeneratorUi() {
               onChange={(e) => setCount(Number(e.target.value))}
             />
           </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.locale}</span>
-            <select
-              value={locale}
-              onChange={(e) => setLocale(e.target.value as FakerLocale)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="en">EN</option>
-              <option value="vi">VI</option>
-              <option value="es">ES</option>
-              <option value="pt">PT</option>
-              <option value="fr">FR</option>
-              <option value="de">DE</option>
-              <option value="ja">JA</option>
-            </select>
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.format}</span>
-            <select
-              value={format}
-              onChange={(e) => setFormat(e.target.value as typeof format)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="json">JSON</option>
-              <option value="csv">CSV</option>
-              <option value="sql">SQL INSERT</option>
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="mock-locale">{s.locale}</Label>
+            <Select value={locale} onValueChange={(v) => setLocale(v as FakerLocale)}>
+              <SelectTrigger id="mock-locale" className="min-w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {['en', 'vi', 'es', 'pt', 'fr', 'de', 'ja'].map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="mock-format">{s.format}</Label>
+            <Select value={format} onValueChange={(v) => setFormat(v as typeof format)}>
+              <SelectTrigger id="mock-format" className="min-w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="json">JSON</SelectItem>
+                <SelectItem value="csv">CSV</SelectItem>
+                <SelectItem value="sql">SQL INSERT</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button onClick={generate}>{ui.generate}</Button>
         </div>
 

@@ -1,13 +1,14 @@
 'use client';
 import {
   Badge,
-  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  CopyButton,
+  CheckboxField,
+  GeneratorTemplate,
   Input,
+  Label,
   PrivacyNote,
   Tabs,
   TabsContent,
@@ -16,13 +17,14 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { type UuidVersion, formatUuid, generateUuid, inspectUuid } from './logic';
 import { STRINGS } from './strings';
 
 export function UuidGeneratorUi() {
   const s = useLocalized(STRINGS);
   const ui = useUiStrings();
+  const countId = useId();
   const [version, setVersion] = useState<UuidVersion>('v7');
   const [count, setCount] = useState(5);
   const [uppercase, setUppercase] = useState(false);
@@ -45,73 +47,66 @@ export function UuidGeneratorUi() {
   };
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">{s.title}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Tabs value={version} onValueChange={(v) => setVersion(v as UuidVersion)}>
-            <TabsList>
-              <TabsTrigger value="v7">{s.v7}</TabsTrigger>
-              <TabsTrigger value="v4">{s.v4}</TabsTrigger>
-              <TabsTrigger value="v1">{s.v1}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="v7">
-              <p className="text-xs text-muted-foreground">{s.v7Note}</p>
-            </TabsContent>
-            <TabsContent value="v4">
-              <p className="text-xs text-muted-foreground">{s.v4Note}</p>
-            </TabsContent>
-            <TabsContent value="v1">
-              <p className="text-xs text-muted-foreground">{s.v1Note}</p>
-            </TabsContent>
-          </Tabs>
+    <div className="space-y-6">
+      <GeneratorTemplate
+        title={s.title}
+        primaryActionLabel={ui.generate}
+        onGenerate={handleGenerate}
+        output={generated.join('\n')}
+        form={
+          <>
+            <Tabs value={version} onValueChange={(v) => setVersion(v as UuidVersion)}>
+              <TabsList>
+                <TabsTrigger value="v7">{s.v7}</TabsTrigger>
+                <TabsTrigger value="v4">{s.v4}</TabsTrigger>
+                <TabsTrigger value="v1">{s.v1}</TabsTrigger>
+              </TabsList>
+              <TabsContent value="v7">
+                <p className="text-xs text-muted-foreground">{s.v7Note}</p>
+              </TabsContent>
+              <TabsContent value="v4">
+                <p className="text-xs text-muted-foreground">{s.v4Note}</p>
+              </TabsContent>
+              <TabsContent value="v1">
+                <p className="text-xs text-muted-foreground">{s.v1Note}</p>
+              </TabsContent>
+            </Tabs>
 
-          <div className="grid grid-cols-3 gap-3 items-end">
-            {/* biome-ignore lint/a11y/noLabelWithoutControl: wraps Input forwardRef which biome can't detect statically */}
-            <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">{s.count}</span>
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                value={count}
-                onChange={(e) => setCount(Number(e.target.value))}
-              />
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+            <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor={countId}>{s.count}</Label>
+                <Input
+                  id={countId}
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={count}
+                  onChange={(e) => setCount(Number(e.target.value))}
+                />
+              </div>
+              <CheckboxField
+                label={ui.uppercase}
                 checked={uppercase}
-                onChange={(e) => setUppercase(e.target.checked)}
-                className="h-4 w-4"
+                onCheckedChange={(v) => setUppercase(v === true)}
               />
-              {ui.uppercase}
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+              <CheckboxField
+                label={s.showDashes}
                 checked={dashes}
-                onChange={(e) => setDashes(e.target.checked)}
-                className="h-4 w-4"
+                onCheckedChange={(v) => setDashes(v === true)}
               />
-              {s.showDashes}
-            </label>
-          </div>
-
-          <div className="flex gap-2">
-            <Button onClick={handleGenerate}>{ui.generate}</Button>
-            {generated.length > 0 && <CopyButton text={generated.join('\n')} />}
-          </div>
-
-          {generated.length > 0 && (
-            <pre className="rounded-md border bg-muted p-3 text-sm font-mono whitespace-pre-wrap break-all">
+            </div>
+          </>
+        }
+        outputDisplay={
+          generated.length > 0 ? (
+            <pre className="whitespace-pre-wrap break-all font-mono text-sm">
               {generated.join('\n')}
             </pre>
-          )}
-        </CardContent>
-      </Card>
+          ) : (
+            <span className="text-sm italic text-muted-foreground">{ui.waitingForInput}</span>
+          )
+        }
+      />
 
       <Card>
         <CardHeader>
@@ -122,9 +117,10 @@ export function UuidGeneratorUi() {
             value={validateInput}
             onChange={(e) => setValidateInput(e.target.value)}
             placeholder={s.validatePlaceholder}
+            aria-label={s.validateTitle}
           />
           {inspection && (
-            <div className="flex gap-2 items-center text-sm">
+            <div className="flex items-center gap-2 text-sm">
               {inspection.valid ? (
                 <>
                   <Badge>v{inspection.version}</Badge>

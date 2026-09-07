@@ -4,8 +4,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  ColorInput,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Tabs,
   TabsContent,
   TabsList,
@@ -208,17 +215,19 @@ export function QrCodeGeneratorUi() {
               placeholder={s.wifiPassword}
               type="password"
             />
-            <select
+            <Select
               value={wifi.encryption}
-              onChange={(e) =>
-                setWifi({ ...wifi, encryption: e.target.value as 'WPA' | 'WEP' | 'nopass' })
-              }
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              onValueChange={(v) => setWifi({ ...wifi, encryption: v as 'WPA' | 'WEP' | 'nopass' })}
             >
-              <option value="WPA">WPA/WPA2/WPA3</option>
-              <option value="WEP">WEP</option>
-              <option value="nopass">{s.wifiOpen}</option>
-            </select>
+              <SelectTrigger aria-label={s.wifiPassword}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="WPA">WPA/WPA2/WPA3</SelectItem>
+                <SelectItem value="WEP">WEP</SelectItem>
+                <SelectItem value="nopass">{s.wifiOpen}</SelectItem>
+              </SelectContent>
+            </Select>
           </TabsContent>
           <TabsContent value="vcard" className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
@@ -262,37 +271,22 @@ export function QrCodeGeneratorUi() {
         </Tabs>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.errorCorrection}</span>
-            <select
-              value={ecc}
-              onChange={(e) => setEcc(e.target.value as typeof ecc)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="L">L (~7%)</option>
-              <option value="M">{s.eccDefault}</option>
-              <option value="Q">Q (~25%)</option>
-              <option value="H">{s.eccLogos}</option>
-            </select>
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.darkColor}</span>
-            <Input
-              type="color"
-              value={darkColor}
-              onChange={(e) => setDarkColor(e.target.value)}
-              className="h-10"
-            />
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.lightColor}</span>
-            <Input
-              type="color"
-              value={lightColor}
-              onChange={(e) => setLightColor(e.target.value)}
-              className="h-10"
-            />
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="qr-ecc">{s.errorCorrection}</Label>
+            <Select value={ecc} onValueChange={(v) => setEcc(v as typeof ecc)}>
+              <SelectTrigger id="qr-ecc">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="L">L (~7%)</SelectItem>
+                <SelectItem value="M">{s.eccDefault}</SelectItem>
+                <SelectItem value="Q">Q (~25%)</SelectItem>
+                <SelectItem value="H">{s.eccLogos}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <ColorInput label={s.darkColor} value={darkColor} onChange={setDarkColor} />
+          <ColorInput label={s.lightColor} value={lightColor} onChange={setLightColor} />
         </div>
 
         {error && (

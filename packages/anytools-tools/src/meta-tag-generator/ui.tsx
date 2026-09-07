@@ -5,7 +5,13 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
   useLocalized,
 } from '@anytools/ui';
@@ -92,29 +98,37 @@ export function MetaTagGeneratorUi() {
           {field('siteName', s.siteName, 'Example')}
           {field('author', s.author, s.optional)}
           {field('twitterHandle', s.twitterHandle, '@example')}
-          <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.cardType}</span>
-            <select
+          <div className="space-y-1.5">
+            <Label htmlFor="meta-card-type">{s.cardType}</Label>
+            <Select
               value={input.cardType}
-              onChange={(e) => set('cardType', e.target.value as MetaInput['cardType'])}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              onValueChange={(v) => set('cardType', v as MetaInput['cardType'])}
             >
-              <option value="summary_large_image">{s.cardLargeImage}</option>
-              <option value="summary">{s.cardSummary}</option>
-            </select>
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.robots}</span>
-            <select
+              <SelectTrigger id="meta-card-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="summary_large_image">{s.cardLargeImage}</SelectItem>
+                <SelectItem value="summary">{s.cardSummary}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="meta-robots">{s.robots}</Label>
+            <Select
               value={input.robots}
-              onChange={(e) => set('robots', e.target.value as MetaInput['robots'])}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              onValueChange={(v) => set('robots', v as MetaInput['robots'])}
             >
-              <option value="index, follow">index, follow</option>
-              <option value="noindex, follow">noindex, follow</option>
-              <option value="noindex, nofollow">noindex, nofollow</option>
-            </select>
-          </label>
+              <SelectTrigger id="meta-robots">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="index, follow">index, follow</SelectItem>
+                <SelectItem value="noindex, follow">noindex, follow</SelectItem>
+                <SelectItem value="noindex, nofollow">noindex, nofollow</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           {field('locale', 'og:locale', 'en_US')}
         </div>
 

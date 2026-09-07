@@ -5,8 +5,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
+  MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
   Tabs,
   TabsContent,
   TabsList,
@@ -121,10 +125,12 @@ export function HashGeneratorUi() {
             />
           </TabsContent>
           <TabsContent value="file" className="space-y-3">
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm"
+            <MultiFileDropzone
+              files={file ? [file] : []}
+              onChange={(files) => setFile(files[0] ?? null)}
+              accept="*/*"
+              multiple={false}
+              label={s.tabFile}
             />
             <Button onClick={handleFile} disabled={!file || busy}>
               {busy ? s.hashing : s.hashFile}
@@ -157,28 +163,24 @@ export function HashGeneratorUi() {
         <div className="flex flex-wrap gap-3">
           <span className="text-sm text-muted-foreground">{s.algorithms}</span>
           {ALL_ALGOS.map((algo) => (
-            <label key={algo} className="flex items-center gap-1 text-sm cursor-pointer">
-              <input
-                type="checkbox"
-                checked={enabled.has(algo)}
-                onChange={() => toggle(algo)}
-                className="h-4 w-4"
-              />
-              {algo.toUpperCase()}
-            </label>
+            <CheckboxField
+              key={algo}
+              label={algo.toUpperCase()}
+              checked={enabled.has(algo)}
+              onCheckedChange={() => toggle(algo)}
+            />
           ))}
           <span className="ml-auto text-sm text-muted-foreground">{ui.output}:</span>
-          {(['hex', 'base64'] as HashEncoding[]).map((enc) => (
-            <label key={enc} className="flex items-center gap-1 text-sm cursor-pointer">
-              <input
-                type="radio"
-                checked={encoding === enc}
-                onChange={() => setEncoding(enc)}
-                className="h-4 w-4"
-              />
-              {enc}
-            </label>
-          ))}
+          <RadioGroup
+            value={encoding}
+            onValueChange={(v) => setEncoding(v as HashEncoding)}
+            aria-label={ui.output}
+            className="flex gap-3"
+          >
+            {(['hex', 'base64'] as HashEncoding[]).map((enc) => (
+              <RadioGroupField key={enc} value={enc} label={enc} />
+            ))}
+          </RadioGroup>
         </div>
 
         <div className="space-y-2">

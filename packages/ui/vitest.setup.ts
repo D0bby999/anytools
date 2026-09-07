@@ -14,8 +14,9 @@ afterEach(cleanup);
  *
  * Polyfilling the gap is deliberate, and different from asserting behaviour the environment
  * cannot produce: these stand in for real browser APIs so the component's own logic runs.
- * Where no such stand-in exists — Radix's roving focus, see radio-group.test.tsx — the
- * assertion is dropped and moved to a browser smoke check rather than faked.
+ * Where no such stand-in exists — arrow-key movement inside a radio group, see
+ * radio-group.test.tsx — the assertion is dropped and moved to a browser smoke check rather
+ * than faked.
  */
 if (!Element.prototype.hasPointerCapture) {
   Element.prototype.hasPointerCapture = () => false;

@@ -14,13 +14,21 @@ type Props = {
   /** Display element for the output (e.g. <pre>{output}</pre>) */
   outputDisplay: ReactNode;
   primaryActionLabel?: string;
-  onGenerate: () => void;
+  /**
+   * Omit for generators that recompute as you type. The button is then not rendered at all —
+   * a disabled or no-op "Generate" on a live tool is a control that lies about what it does.
+   */
+  onGenerate?: () => void;
   outputLabel?: string;
 };
 
 /**
- * Form → output flow. Inputs at top, generate button, then output card
- * with copy-to-clipboard. UUID, lorem ipsum, slugify, etc.
+ * Form → output flow. Inputs at top, generate button, then output card with copy-to-clipboard.
+ *
+ * Written before any tool used it and left with zero consumers for months. Adopted in Phase 1
+ * of the UI upgrade rather than deleted, because it is the right shape for the generators
+ * cluster it was named after — but `onGenerate` had to become optional first, since several
+ * generators recompute live and had no button to give it.
  */
 export function GeneratorTemplate({
   title,
@@ -41,10 +49,12 @@ export function GeneratorTemplate({
         </header>
       )}
       <section className="space-y-3">{form}</section>
-      <Button type="button" size="lg" onClick={onGenerate} className="w-full h-12">
-        <Sparkles className="h-4 w-4 mr-2" />
-        {primaryActionLabel}
-      </Button>
+      {onGenerate && (
+        <Button type="button" size="lg" onClick={onGenerate} className="w-full h-12">
+          <Sparkles className="h-4 w-4 mr-2" />
+          {primaryActionLabel}
+        </Button>
+      )}
       <section className="rounded-lg border bg-card overflow-hidden">
         <div className="flex items-center justify-between border-b px-4 py-2 bg-muted/30">
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

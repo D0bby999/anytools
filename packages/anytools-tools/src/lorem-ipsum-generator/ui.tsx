@@ -1,29 +1,31 @@
 'use client';
 import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
   CopyButton,
+  GeneratorTemplate,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { type LoremOutput, type LoremUnit, type LoremVariant, generateLorem } from './logic';
 import { STRINGS } from './strings';
 
 const VARIANTS: LoremVariant[] = ['classic', 'vietnamese', 'spanish', 'hipster'];
-
 const UNITS: LoremUnit[] = ['paragraphs', 'sentences', 'words'];
 const OUTPUTS: LoremOutput[] = ['plain', 'html'];
 
 export function LoremIpsumGeneratorUi() {
   const s = useLocalized(STRINGS);
   const ui = useUiStrings();
+  const countId = useId();
   const variantLabel: Record<LoremVariant, string> = {
     classic: s.variantClassic,
     vietnamese: s.variantVietnamese,
@@ -50,75 +52,81 @@ export function LoremIpsumGeneratorUi() {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.variant}</span>
-            <select
-              value={variant}
-              onChange={(e) => setVariant(e.target.value as LoremVariant)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {VARIANTS.map((v) => (
-                <option key={v} value={v}>
-                  {variantLabel[v]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.unit}</span>
-            <select
-              value={unit}
-              onChange={(e) => setUnit(e.target.value as LoremUnit)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {UNITS.map((u) => (
-                <option key={u} value={u}>
-                  {unitLabel[u]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.count}</span>
+    <GeneratorTemplate
+      title={s.title}
+      primaryActionLabel={s.regenerate}
+      onGenerate={() => setRegenKey((k) => k + 1)}
+      outputLabel={ui.output}
+      output={text}
+      form={
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="lorem-variant">{s.variant}</Label>
+            <Select value={variant} onValueChange={(v) => setVariant(v as LoremVariant)}>
+              <SelectTrigger id="lorem-variant">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {VARIANTS.map((v) => (
+                  <SelectItem key={v} value={v}>
+                    {variantLabel[v]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="lorem-unit">{s.unit}</Label>
+            <Select value={unit} onValueChange={(v) => setUnit(v as LoremUnit)}>
+              <SelectTrigger id="lorem-unit">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {UNITS.map((u) => (
+                  <SelectItem key={u} value={u}>
+                    {unitLabel[u]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor={countId}>{s.count}</Label>
             <Input
+              id={countId}
               type="number"
               min={1}
               max={500}
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
             />
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{ui.output}</span>
-            <select
-              value={output}
-              onChange={(e) => setOutput(e.target.value as LoremOutput)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {OUTPUTS.map((o) => (
-                <option key={o} value={o}>
-                  {outputLabel[o]}
-                </option>
-              ))}
-            </select>
-          </label>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="lorem-output">{ui.output}</Label>
+            <Select value={output} onValueChange={(v) => setOutput(v as LoremOutput)}>
+              <SelectTrigger id="lorem-output">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {OUTPUTS.map((o) => (
+                  <SelectItem key={o} value={o}>
+                    {outputLabel[o]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-
-        <div className="flex gap-2">
-          <Button onClick={() => setRegenKey((k) => k + 1)}>{s.regenerate}</Button>
-          <CopyButton text={text} />
+      }
+      outputDisplay={
+        <div className="space-y-3">
+          <Textarea value={text} readOnly rows={12} className="font-mono text-sm" />
+          <PrivacyNote />
         </div>
-
-        <Textarea value={text} readOnly rows={12} className="font-mono text-sm" />
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+      }
+    />
   );
 }

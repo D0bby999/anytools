@@ -6,9 +6,11 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   Input,
   PrivacyNote,
+  RangeSlider,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
@@ -92,45 +94,39 @@ export function PasswordGeneratorUi() {
           )}
         </div>
 
-        <label className="block text-sm">
-          <span className="block mb-1 text-muted-foreground">
-            {s.length} <span className="text-foreground">{options.length}</span>
-          </span>
-          <input
-            type="range"
-            min={4}
-            max={128}
-            value={options.length}
-            onChange={(e) => update({ length: Number(e.target.value) })}
-            className="w-full"
-          />
-        </label>
+        <RangeSlider
+          label={s.length}
+          value={options.length}
+          min={4}
+          max={128}
+          onChange={(length) => update({ length })}
+        />
 
-        <div className="grid grid-cols-2 gap-2">
-          <Toggle
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+          <CheckboxField
             label={s.lowercase}
             checked={options.lowercase}
-            onChange={(v) => update({ lowercase: v })}
+            onCheckedChange={(v) => update({ lowercase: v === true })}
           />
-          <Toggle
+          <CheckboxField
             label={s.uppercase}
             checked={options.uppercase}
-            onChange={(v) => update({ uppercase: v })}
+            onCheckedChange={(v) => update({ uppercase: v === true })}
           />
-          <Toggle
+          <CheckboxField
             label={s.numbers}
             checked={options.numbers}
-            onChange={(v) => update({ numbers: v })}
+            onCheckedChange={(v) => update({ numbers: v === true })}
           />
-          <Toggle
+          <CheckboxField
             label={s.symbols}
             checked={options.symbols}
-            onChange={(v) => update({ symbols: v })}
+            onCheckedChange={(v) => update({ symbols: v === true })}
           />
-          <Toggle
+          <CheckboxField
             label={s.excludeAmbiguous}
             checked={options.excludeAmbiguous}
-            onChange={(v) => update({ excludeAmbiguous: v })}
+            onCheckedChange={(v) => update({ excludeAmbiguous: v === true })}
           />
         </div>
 
@@ -144,23 +140,5 @@ export function PasswordGeneratorUi() {
         <PrivacyNote />
       </CardContent>
     </Card>
-  );
-}
-
-function Toggle({
-  label,
-  checked,
-  onChange,
-}: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <label className="flex items-center gap-2 text-sm cursor-pointer">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4"
-      />
-      {label}
-    </label>
   );
 }
