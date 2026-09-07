@@ -38,13 +38,21 @@ export function TimezoneConverterUi() {
   useEffect(() => {
     if (now) setDatetime((current) => current || dateTimeInputValue(now));
   }, [now]);
-  const [fromTz, setFromTz] = useState(detectLocalZone());
+  // 'UTC' until mount, then the browser's own zone. The detected zone cannot be guessed during
+  // a prerendered (clock-less, zone-less) server render, and Select now shows the value as TEXT
+  // on its trigger — where a server/client difference is a hydration mismatch (React #418),
+  // not the silent property patch the old native <select value={...}> got away with.
+  const [fromTz, setFromTz] = useState('UTC');
   const [selectedTzs, setSelectedTzs] = useState<string[]>([
     'UTC',
     'America/New_York',
     'Europe/London',
     'Asia/Tokyo',
   ]);
+
+  useEffect(() => {
+    setFromTz((current) => (current === 'UTC' ? detectLocalZone() : current));
+  }, []);
 
   const rows = useMemo(() => {
     try {

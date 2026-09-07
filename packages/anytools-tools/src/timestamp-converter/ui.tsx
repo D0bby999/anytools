@@ -17,7 +17,7 @@ import {
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toolErrorText } from '../shared/tool-error';
 import {
   COMMON_TIMEZONES,
@@ -44,7 +44,13 @@ export function TimestampConverterUi() {
   const s = useLocalized(STRINGS);
   const ui = useUiStrings();
   const [input, setInput] = useState('');
-  const [zone, setZone] = useState<string>(detectLocalZone());
+  // 'UTC' until mount — see the note in timezone-converter: the Select trigger renders this as
+  // text, so a server/client difference is a hydration mismatch rather than a silent patch.
+  const [zone, setZone] = useState<string>('UTC');
+
+  useEffect(() => {
+    setZone((current) => (current === 'UTC' ? detectLocalZone() : current));
+  }, []);
 
   const parsed = useMemo(() => {
     if (input.trim().length === 0) return null;
