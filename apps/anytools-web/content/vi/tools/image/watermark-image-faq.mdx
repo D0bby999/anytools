@@ -1,0 +1,27 @@
+---
+title: Đóng dấu mờ lên ảnh — Câu hỏi thường gặp
+---
+
+## Có gõ được tiếng Việt, chữ Hán hay các chữ không phải Latin làm watermark không?
+
+Có, và đáng tin cậy — khác hẳn với tool đóng dấu lên PDF. Tool này vẽ chữ thẳng lên canvas HTML bằng `ctx.fillText`, đúng đường vẽ chữ mà trình duyệt dùng để hiển thị mọi văn bản trên mọi trang web, không hề nhúng font riêng. Bất cứ chữ nào bộ máy render font của hệ điều hành hiển thị được thì tool vẽ được — trên thực tế bao gồm cả dấu tiếng Việt, chữ Hán, Nhật, Hàn, Cyrillic, Ả Rập lẫn emoji — giới hạn duy nhất là font nào đang cài trên máy đang chạy tool, không phải giới hạn từ chính trang web. Còn với tool đóng dấu mờ lên PDF, cấu trúc vẽ chữ của PDF buộc phải nhúng nguyên một file font vào tài liệu mới vẽ được chữ, nên tool đó chỉ đảm bảo hỗ trợ chữ Latin, Hy Lạp và Cyrillic — chữ Hán, Nhật, Hàn bị từ chối thẳng ở đó vì không có font nào nhúng sẵn đủ nhỏ và đủ đầy đủ glyph. Cùng là "đóng dấu chữ lên ảnh", nhưng cơ chế vẽ khác nhau dẫn đến khả năng hỗ trợ ngôn ngữ khác hẳn nhau.
+
+## Vì sao logo PNG nền trong suốt không bị viền đen khi dán vào ảnh?
+
+Vì logo được vẽ bằng lệnh `drawImage` bình thường, và lệnh này tôn trọng đúng kênh alpha của chính ảnh logo — vùng trong suốt trong file PNG của bạn vẫn trong suốt khi ghép lên ảnh nền, không có gì tô thêm ở bước này. Vấn đề viền đen mà các tool canvas viết ẩu hay mắc phải nằm ở phía đầu ra, không phải ở bước ghép logo: nó chỉ xuất hiện khi ảnh có vùng trong suốt được xuất ra JPEG — định dạng này không biểu diễn được trong suốt nên cần tô một màu nền trước khi vẽ. Tool chỉ tô nền khi định dạng xuất bạn chọn là JPEG, và tô màu trắng chứ không phải đen, đúng như cách mọi phần mềm ảnh xử lý khi xuất JPEG. Ảnh nền của bạn thì luôn được vẽ đầy đủ trước, sau đó logo mới chồng lên trên với đúng độ trong suốt gốc của nó.
+
+## Lưới 9 vị trí khác gì so với "vị trí tự do"?
+
+Lưới 9 ô đặt dấu theo các điểm quy chiếu trên ảnh — bốn góc, giữa bốn cạnh, và chính giữa — với một khoảng cách lề cố định bằng 4% cạnh ngắn hơn của ảnh để dấu không bao giờ dính sát biên. Vị trí tự do thì lấy thẳng một phần trăm ngang và một phần trăm dọc theo đúng những gì bạn kéo, ví dụ đặt chữ ký ở 15% từ trái và 92% từ trên xuống, thay vì chỉ chọn được một trong chín điểm cố định. Cả hai cách đều tính theo tỷ lệ trên kích thước thật của từng ảnh, nên cùng một cài đặt sẽ rơi vào đúng vị trí tương đối dù ảnh gốc là 800px hay 8000px chiều ngang.
+
+## Chế độ lặp kín (tile) hoạt động thế nào, và có chỉnh được kích thước, góc xoay không?
+
+Bật tile sẽ lặp lại chữ hoặc logo của bạn khắp toàn bộ ảnh theo dạng lưới thay vì chỉ đặt một lần — kiểu watermark "xem trước, đừng lấy trộm" hay thấy trên ảnh stock. Độ mờ, góc xoay và kích thước vẫn áp dụng cho từng lần lặp như nhau, nên một watermark xoay 30 độ, mờ 50% khi bật tile sẽ trông giống hệt nhau ở mọi vị trí nó lặp lại. Khoảng cách giữa các lần lặp được tính theo 1,8 lần kích thước của dấu, để giữa các bản lặp còn khoảng trống nhìn thấy được thay vì các dấu dính sát nhau. Khi tile đang bật, tuỳ chọn vị trí bị bỏ qua hoàn toàn vì không còn một điểm duy nhất nào để đặt nữa.
+
+## Có đóng dấu được cả loạt ảnh cùng lúc với một logo và một bộ cài đặt không?
+
+Có. Chọn chữ hoặc logo, chỉnh vị trí, kích thước, độ mờ, màu và góc xoay một lần duy nhất trên bản xem trước hiển thị ở ảnh đầu tiên bạn thả vào, rồi chạy — mọi file trong lô sẽ được đóng dấu giống hệt nhau. Kết quả liệt kê từng ảnh kèm so sánh dung lượng trước/sau, và khi có nhiều hơn một kết quả, một nút "tải tất cả dạng .zip" sẽ xuất hiện. Nếu logo được dùng, nó chỉ được giải mã một lần cho cả lô chứ không giải mã lại cho từng ảnh, giúp xử lý hàng loạt nhanh hơn đáng kể so với việc bạn tự lặp lại thao tác cho từng file.
+
+## Ảnh và logo của tôi có bị gửi lên máy chủ nào không?
+
+Không. Mọi bước — giải mã ảnh gốc, giải mã logo, vẽ dấu lên canvas, rồi mã hoá lại thành file kết quả — đều chạy trên canvas ngay trong tab trình duyệt này. Không có gì được gửi lên máy chủ; bạn tự kiểm chứng được bằng cách mở DevTools, sang tab Network rồi đóng dấu thử một ảnh, hoặc chắc chắn hơn là ngắt mạng sau khi trang đã tải xong rồi thử lại — tool vẫn hoạt động bình thường.
