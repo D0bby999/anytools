@@ -223,7 +223,7 @@ example.
 | Choose one from a list | `Select` | `<select>` |
 | Choose many | `Checkbox` | `<input type="checkbox">` |
 | Choose one, ≤4 visible options | `RadioGroup` or `SegmentedControl` | `<input type="radio">` |
-| Toggle a mode on/off | `Switch` *(added in Phase 3, `base64-encode` is the pilot)* | a checkbox pretending to be a toggle |
+| A boolean option | `Checkbox` / `CheckboxField` | a `Switch` — see below |
 | Numeric range | `RangeSlider` | `<input type="range">` |
 | Colour | `ColorInput` | `<input type="color">` |
 | Files | `MultiFileDropzone` (`multiple={false}` for single-file tools) | `<input type="file">` |
@@ -273,6 +273,23 @@ five hashes, each with its own copy), an **image output plus a download** (`qr-c
 
 So a cluster carrying more than one container is expected, not a defect. What must stay uniform
 inside a cluster is the **section order, spacing and affordances** above — not the wrapper.
+
+### There is no `Switch`, on purpose
+
+Every boolean in the catalogue — all 25 of them — is the same shape: an option that modifies a
+conversion, sitting in a row of other options. `sortKeys`, `quoteAll`, `bom`, `gfm`,
+`mangleNames`, `urlSafe`, `uppercase`, `plusAsSpace`, `excludeAmbiguous`… none is a
+settings-style toggle that applies something immediately and stands alone.
+
+Two tools (`hex-encode`, `unicode-escape`) even carry the same `uppercase` option that is
+already a `CheckboxField` elsewhere — making one a Switch and the other a Checkbox would put two
+widgets on one concept.
+
+So: **use `Checkbox`.** A second boolean primitive would hand every future tool a coin-flip
+decision, which is the inconsistency this whole effort exists to remove. If a genuinely
+settings-like toggle ever appears — something that applies instantly, stands alone, and is not
+one option among several — revisit this with that case in hand, the way Phase 3 revisited it
+with `base64-encode`.
 
 ### "Try example" is a paste-tool affordance
 
