@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `compress-pdf` now recompresses `/FlateDecode` images too, not only already-JPEG ones —
+  DeviceGray/CalGray, DeviceRGB/CalRGB, DeviceCMYK, ICCBased (by `/N`) and Indexed, with PNG
+  predictors and `/SMask` alpha recombined. Measured on real files: a 9.2 MB screenshot report
+  to 817 KB (91%), a 2.2 MB 262-image contract to 1.9 MB (13%), a 326 KB dashboard export to
+  266 KB (18%). Colour spaces it cannot prove it decodes correctly (TIFF predictors, `/Decode`
+  arrays, stencil `/Mask`, filter chains, `Separation`/`DeviceN`/`Lab`) are still skipped
+  rather than guessed at.
+
+
 ## [1.1.0] - 2026-09-07
 
 The first release that actually reaches anyone. 1.0.0 below was built, documented and
@@ -43,12 +54,14 @@ builds the image never ran: there was no GitHub Release and nothing at
 
 ### Known limitations — stated because they are easy to hit
 
-- `compress-pdf` only recompresses `/DCTDecode` (already-JPEG) images. A PDF whose images are
-  `/FlateDecode`, `/CCITTFaxDecode`, `/JPXDecode` or `/JBIG2Decode`, or that uses an `/SMask`,
-  is left alone: measured on a real 924 KB form, the reduction is 0.2%. Scans and photos are
-  usually JPEG and do compress (78% on a 1.2 MB three-page scan at quality 60 / 150 DPI). The
-  tool says so on screen when it recompresses nothing rather than handing back a "compressed"
-  file.
+- `compress-pdf` only recompresses `/DCTDecode` (already-JPEG) images in this version. A PDF
+  whose images are `/FlateDecode`, `/CCITTFaxDecode`, `/JPXDecode` or `/JBIG2Decode`, or that
+  uses an `/SMask`, is left alone — and across 40 real PDFs sampled on one machine, Flate
+  images outnumber JPEG ones 317 to 49, so that is the common case rather than the rare one.
+  Scans and photos are usually JPEG and do compress well: a 902 KB scanned IRS form goes to
+  211 KB (77%) at quality 60 with a 150 DPI cap. The tool says so on screen when it
+  recompresses nothing rather than handing back a "compressed" file. (`/FlateDecode` support
+  landed after this tag — see Unreleased.)
 - `font-converter` does not do WOFF2 (that needs Brotli, which browsers do not expose as a
   compression codec) and does not convert TTF ⇄ OTF outlines.
 - `audio-trim` exports WAV only; MP3 encoding would mean an LGPL dependency this repo cannot
