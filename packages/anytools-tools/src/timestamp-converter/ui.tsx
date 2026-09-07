@@ -7,7 +7,13 @@ import {
   CardTitle,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -89,20 +95,21 @@ export function TimestampConverterUi() {
           </Button>
         </div>
 
-        <label className="block text-sm">
-          <span className="block mb-1 text-muted-foreground">{s.timezone}</span>
-          <select
-            value={zone}
-            onChange={(e) => setZone(e.target.value)}
-            className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-          >
-            {COMMON_TIMEZONES.map((tz) => (
-              <option key={tz} value={tz}>
-                {tz}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="space-y-1.5">
+          <Label htmlFor="ts-zone">{s.timezone}</Label>
+          <Select value={zone} onValueChange={setZone}>
+            <SelectTrigger id="ts-zone">
+              <SelectValue>{zone}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {COMMON_TIMEZONES.map((tz) => (
+                <SelectItem key={tz} value={tz}>
+                  {tz}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {!parsed ? (
           <p className="text-sm text-muted-foreground italic">{s.enterHint}</p>

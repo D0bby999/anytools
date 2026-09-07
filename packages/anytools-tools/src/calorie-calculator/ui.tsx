@@ -4,6 +4,11 @@ import {
   HeightInput,
   NumberStepper,
   SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   TableResult,
   WeightInput,
   useLocalized,
@@ -68,18 +73,18 @@ export function CalorieCalculatorUi() {
           />
           <div>
             <span className="block text-sm font-medium mb-1.5">{s.activityLevel}</span>
-            <select
-              value={activity}
-              onChange={(e) => setActivity(e.target.value as Activity)}
-              className="w-full h-11 rounded-md border bg-background px-3 text-sm"
-              aria-label={s.activityLevel}
-            >
-              {(Object.keys(ACTIVITY_FACTOR) as Activity[]).map((a) => (
-                <option key={a} value={a}>
-                  {activityLabel[a] ?? ACTIVITY_LABEL[a]}
-                </option>
-              ))}
-            </select>
+            <Select value={activity} onValueChange={(v) => setActivity(v as Activity)}>
+              <SelectTrigger aria-label={s.activityLevel}>
+                <SelectValue>{activityLabel[activity] ?? ACTIVITY_LABEL[activity]}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(ACTIVITY_FACTOR) as Activity[]).map((a) => (
+                  <SelectItem key={a} value={a}>
+                    {activityLabel[a] ?? ACTIVITY_LABEL[a]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </>
       }

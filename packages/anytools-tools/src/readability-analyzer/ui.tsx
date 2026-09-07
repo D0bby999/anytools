@@ -1,5 +1,11 @@
 'use client';
-import { TableResult, Textarea, useLocalized, useToolLocale } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  TableResult,
+  Textarea,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { type ReadingLevelId, analyze } from './logic';
 import { STRINGS } from './strings';
@@ -24,21 +30,21 @@ export function ReadabilityAnalyzerUi() {
   };
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
-        <p className="text-sm text-muted-foreground">{s.description}</p>
-      </header>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
+    <CalculatorTemplate
+      title={s.title}
+      description={s.description}
+      inputs={
+        <>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="min-h-[300px] font-mono text-sm"
             aria-label={s.text}
           />
-        </div>
-        <div className="lg:col-span-2 lg:sticky lg:top-20 lg:self-start">
+        </>
+      }
+      result={
+        <>
           {r ? (
             <TableResult
               rows={[
@@ -56,8 +62,8 @@ export function ReadabilityAnalyzerUi() {
               {s.enterText}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

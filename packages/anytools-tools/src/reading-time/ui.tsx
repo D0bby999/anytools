@@ -1,5 +1,12 @@
 'use client';
-import { RangeSlider, TableResult, Textarea, useLocalized, useToolLocale } from '@anytools/ui';
+import {
+  CalculatorTemplate,
+  RangeSlider,
+  TableResult,
+  Textarea,
+  useLocalized,
+  useToolLocale,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { durationParts, estimateReadingTime } from './logic';
 import { STRINGS } from './strings';
@@ -26,13 +33,11 @@ export function ReadingTimeUi() {
   };
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
-        <p className="text-sm text-muted-foreground">{s.description}</p>
-      </header>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 space-y-4">
+    <CalculatorTemplate
+      title={s.title}
+      description={s.description}
+      inputs={
+        <>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -49,8 +54,10 @@ export function ReadingTimeUi() {
             label={s.readingSpeed}
             unit="WPM"
           />
-        </div>
-        <div className="lg:col-span-2 lg:sticky lg:top-20 lg:self-start">
+        </>
+      }
+      result={
+        <>
           <TableResult
             rows={[
               { label: s.words, value: words.toLocaleString(locale), emphasis: true },
@@ -63,8 +70,8 @@ export function ReadingTimeUi() {
               { label: s.skim, value: duration(skimSec) },
             ]}
           />
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

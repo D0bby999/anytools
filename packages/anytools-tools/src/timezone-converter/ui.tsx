@@ -7,7 +7,13 @@ import {
   CardTitle,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useMemo, useState } from 'react';
@@ -68,20 +74,21 @@ export function TimezoneConverterUi() {
               onChange={(e) => setDatetime(e.target.value)}
             />
           </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.fromTimezone}</span>
-            <select
-              value={fromTz}
-              onChange={(e) => setFromTz(e.target.value)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {COMMON_TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="tzc-from">{s.fromTimezone}</Label>
+            <Select value={fromTz} onValueChange={setFromTz}>
+              <SelectTrigger id="tzc-from">
+                <SelectValue>{fromTz}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {COMMON_TIMEZONES.map((tz) => (
+                  <SelectItem key={tz} value={tz}>
+                    {tz}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button variant="outline" onClick={() => setDatetime(dateTimeInputValue(new Date()))}>
             {s.now}
           </Button>

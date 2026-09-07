@@ -1,5 +1,16 @@
 'use client';
-import { Button, CalculatorTemplate, Input, NumericPrimary, useLocalized } from '@anytools/ui';
+import {
+  Button,
+  CalculatorTemplate,
+  Input,
+  NumericPrimary,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useLocalized,
+} from '@anytools/ui';
 import { useState } from 'react';
 import { GRADES, calculateGpa } from './logic';
 import type { Course } from './logic';
@@ -32,18 +43,18 @@ export function GpaCalculatorUi() {
                 className="col-span-6 h-11"
                 aria-label={s.courseName}
               />
-              <select
-                value={c.grade}
-                onChange={(e) => update(c.id, { grade: e.target.value })}
-                className="col-span-3 h-11 rounded-md border bg-background px-2 text-sm"
-                aria-label={s.grade}
-              >
-                {GRADES.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
+              <Select value={c.grade} onValueChange={(grade) => update(c.id, { grade })}>
+                <SelectTrigger className="col-span-3" aria-label={s.grade}>
+                  <SelectValue>{c.grade}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADES.map((g) => (
+                    <SelectItem key={g} value={g}>
+                      {g}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Input
                 type="number"
                 value={c.credits}

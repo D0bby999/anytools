@@ -8,7 +8,13 @@ import {
   CardTitle,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -65,10 +71,11 @@ export function DiscordTimestampGeneratorUi() {
   };
 
   // The detected zone is not always one of COMMON_TIMEZONES (some platforms report legacy
-  // aliases like "Asia/Saigon" instead of "Asia/Ho_Chi_Minh") — without this, the <select>'s
-  // value would not match any <option>, and browsers silently fall back to showing the FIRST
-  // option instead, so the dropdown reads "UTC" while the codes are actually computed for the
-  // real detected zone. Folding it into the list keeps what is shown and what is used in sync.
+  // aliases like "Asia/Saigon" instead of "Asia/Ho_Chi_Minh"). Folding it into the list keeps
+  // what is shown and what is used in sync. Still required after the move to Radix Select, and
+  // the failure is louder: a native select silently showed the FIRST option for an unmatched
+  // value, so the dropdown read "UTC" while the codes were computed for the real zone; Radix
+  // renders an empty trigger instead.
   const zoneOptions = useMemo(
     () =>
       COMMON_TIMEZONES.includes(inputZone) ? COMMON_TIMEZONES : [inputZone, ...COMMON_TIMEZONES],
@@ -108,20 +115,21 @@ export function DiscordTimestampGeneratorUi() {
               onChange={(e) => setDatetime(e.target.value)}
             />
           </label>
-          <label className="text-sm">
-            <span className="mb-1 block text-muted-foreground">{s.timezone}</span>
-            <select
-              value={inputZone}
-              onChange={(e) => setInputZone(e.target.value)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {zoneOptions.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="dts-zone">{s.timezone}</Label>
+            <Select value={inputZone} onValueChange={setInputZone}>
+              <SelectTrigger id="dts-zone">
+                <SelectValue>{inputZone}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {zoneOptions.map((tz) => (
+                  <SelectItem key={tz} value={tz}>
+                    {tz}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             variant="outline"
             onClick={() => now && setDatetime(dateTimeInputValue(now))}

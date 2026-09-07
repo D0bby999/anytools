@@ -1,5 +1,5 @@
 'use client';
-import { CurrencyInput, Input, TableResult, useLocalized } from '@anytools/ui';
+import { CalculatorTemplate, CurrencyInput, Input, TableResult, useLocalized } from '@anytools/ui';
 import { useState } from 'react';
 import { type TimeCardDay, dayHours, summariseWeek } from './logic';
 import { STRINGS } from './strings';
@@ -36,13 +36,11 @@ export function TimeCardCalculatorUi() {
     s.hoursAtRate.replace('{h}', h.toFixed(2)).replace('{rate}', String(r));
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
-        <p className="text-sm text-muted-foreground">{s.description}</p>
-      </header>
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 space-y-2">
+    <CalculatorTemplate
+      title={s.title}
+      description={s.description}
+      inputs={
+        <>
           {days.map((d, i) => (
             <div key={d.label} className="grid grid-cols-12 gap-2 items-center">
               <div className="col-span-3 text-sm font-medium">{dayName(d)}</div>
@@ -74,8 +72,10 @@ export function TimeCardCalculatorUi() {
               </div>
             </div>
           ))}
-        </div>
-        <div className="lg:col-span-2 space-y-4 lg:sticky lg:top-20 lg:self-start">
+        </>
+      }
+      result={
+        <>
           <CurrencyInput value={rate} onChange={setRate} label={s.hourlyRate} />
           <TableResult
             rows={[
@@ -85,8 +85,8 @@ export function TimeCardCalculatorUi() {
               { label: s.pay, value: `$${pay.toFixed(2)}`, emphasis: true },
             ]}
           />
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

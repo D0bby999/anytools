@@ -1,5 +1,16 @@
 'use client';
-import { ConverterTemplate, Input, useLocalized, useToolLocale, useUiStrings } from '@anytools/ui';
+import {
+  ConverterTemplate,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useLocalized,
+  useToolLocale,
+  useUiStrings,
+} from '@anytools/ui';
 import { useEffect, useState } from 'react';
 import { convertCurrency, extractRate } from './logic';
 import { STRINGS } from './strings';
@@ -99,18 +110,18 @@ export function CurrencyConverterUi() {
       <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <select
-        value={selected}
-        onChange={(e) => onSelect(e.target.value)}
-        className="w-full h-11 rounded-md border bg-background px-2 text-sm font-mono"
-        aria-label={currencyAria}
-      >
-        {COMMON.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
+      <Select value={selected} onValueChange={onSelect}>
+        <SelectTrigger aria-label={currencyAria} className="font-mono">
+          <SelectValue>{selected}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {COMMON.map((c) => (
+            <SelectItem key={c} value={c} className="font-mono">
+              {c}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Input
         type="number"
         inputMode="decimal"

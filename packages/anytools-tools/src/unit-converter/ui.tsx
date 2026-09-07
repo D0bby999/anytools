@@ -3,6 +3,11 @@ import {
   ConverterTemplate,
   Input,
   SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -67,18 +72,23 @@ export function UnitConverterUi() {
       <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
-      <select
-        value={selected}
-        onChange={(e) => onSelect(e.target.value)}
-        className="w-full h-11 rounded-md border bg-background px-2 text-sm"
-        aria-label={s.unitFor.replace('{label}', label)}
-      >
-        {units.map((u) => (
-          <option key={u.id} value={u.id}>
-            {unitLabel(u.id, u.label)}
-          </option>
-        ))}
-      </select>
+      <Select value={selected} onValueChange={onSelect}>
+        <SelectTrigger aria-label={s.unitFor.replace('{label}', label)}>
+          <SelectValue>
+            {(() => {
+              const u = units.find((x) => x.id === selected);
+              return u ? unitLabel(u.id, u.label) : selected;
+            })()}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {units.map((u) => (
+            <SelectItem key={u.id} value={u.id}>
+              {unitLabel(u.id, u.label)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Input
         type="number"
         inputMode="decimal"

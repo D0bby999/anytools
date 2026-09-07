@@ -1,9 +1,9 @@
 'use client';
 import {
-  Button,
   Input,
   NumberStepper,
   NumericPrimary,
+  PickerTemplate,
   SegmentedControl,
   Textarea,
   useLocalized,
@@ -41,27 +41,35 @@ export function RandomPickerUi() {
   };
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
-        <p className="text-sm text-muted-foreground">{s.description}</p>
-      </header>
-      <SegmentedControl
-        value={mode}
-        onChange={(m) => {
-          setMode(m);
-          setResult('—');
-        }}
-        options={[
-          { value: 'dice', label: s.dice },
-          { value: 'coin', label: s.coin },
-          { value: 'number', label: s.number },
-          { value: 'pick', label: s.pick },
-        ]}
-        label={s.mode}
-      />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
+    <PickerTemplate
+      title={s.title}
+      description={s.description}
+      primaryActionLabel={
+        mode === 'dice'
+          ? s.roll
+          : mode === 'coin'
+            ? s.flip
+            : mode === 'number'
+              ? ui.generate
+              : s.pick
+      }
+      onPrimary={pick}
+      config={
+        <>
+          <SegmentedControl
+            value={mode}
+            onChange={(m) => {
+              setMode(m);
+              setResult('—');
+            }}
+            options={[
+              { value: 'dice', label: s.dice },
+              { value: 'coin', label: s.coin },
+              { value: 'number', label: s.number },
+              { value: 'pick', label: s.pick },
+            ]}
+            label={s.mode}
+          />
           {mode === 'dice' && (
             <>
               <NumberStepper
@@ -83,7 +91,7 @@ export function RandomPickerUi() {
           {mode === 'number' && (
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="block text-sm font-medium mb-1.5">{s.min}</span>
+                <span className="mb-1.5 block text-sm font-medium">{s.min}</span>
                 <Input
                   type="number"
                   value={min}
@@ -93,7 +101,7 @@ export function RandomPickerUi() {
                 />
               </div>
               <div>
-                <span className="block text-sm font-medium mb-1.5">{s.max}</span>
+                <span className="mb-1.5 block text-sm font-medium">{s.max}</span>
                 <Input
                   type="number"
                   value={max}
@@ -106,7 +114,7 @@ export function RandomPickerUi() {
           )}
           {mode === 'pick' && (
             <div>
-              <span className="block text-sm font-medium mb-1.5">{s.itemsOnePerLine}</span>
+              <span className="mb-1.5 block text-sm font-medium">{s.itemsOnePerLine}</span>
               <Textarea
                 value={list}
                 onChange={(e) => setList(e.target.value)}
@@ -115,19 +123,9 @@ export function RandomPickerUi() {
               />
             </div>
           )}
-          <Button type="button" size="lg" onClick={pick} className="w-full h-12">
-            🎲{' '}
-            {mode === 'dice'
-              ? s.roll
-              : mode === 'coin'
-                ? s.flip
-                : mode === 'number'
-                  ? ui.generate
-                  : s.pick}
-          </Button>
-        </div>
-        <NumericPrimary label={ui.result} value={result} />
-      </div>
-    </div>
+        </>
+      }
+      result={<NumericPrimary label={ui.result} value={result} />}
+    />
   );
 }
