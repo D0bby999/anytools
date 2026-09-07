@@ -209,7 +209,10 @@ export function ToolCatalog({ metas, locale }: Props) {
                     <CardTitle className="text-base group-hover:text-accent transition-colors duration-150">
                       {m.title[locale] ?? m.title.en}
                     </CardTitle>
-                    <Badge variant="secondary" className={`shrink-0 ${clusterBadgeClass(m.cluster)}`}>
+                    <Badge
+                      variant="secondary"
+                      className={`shrink-0 ${clusterBadgeClass(m.cluster)}`}
+                    >
                       {m.cluster}
                     </Badge>
                   </div>

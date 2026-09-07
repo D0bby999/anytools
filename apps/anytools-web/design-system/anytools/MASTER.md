@@ -21,16 +21,18 @@
 | Primary | `#475569` | `--color-primary` |
 | On Primary | `#FFFFFF` | `--color-on-primary` |
 | Secondary | `#64748B` | `--color-secondary` |
-| Accent/CTA (brand) | `#047857` light / `#10B981` dark | `--color-accent` |
-| Brand gradient | `#10B981` → `#06B6D4` (emerald→cyan) | `--color-brand-from/to` |
+| Accent/CTA (brand) | `#0E7490` light / `#08B7C9` dark | `--color-accent` |
+| Brand gradient | `#0AB7B3` → `#08B7C9` (teal→cyan, both from the logo) | `--color-brand-from/to` |
 | Background | `#F8FAFC` | `--color-background` |
 | Foreground | `#1E293B` | `--color-foreground` |
 | Muted | `#EAEFF3` | `--color-muted` |
 | Border | `#E2E8F0` | `--color-border` |
 | Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#047857` light / `#10B981` dark | `--color-ring` |
+| Ring | `#0E7490` light / `#08B7C9` dark | `--color-ring` |
 
-**Color Notes:** Neutral slate chrome + **emerald brand accent** (deep emerald-700 in light for WCAG AA, vivid emerald-500 in dark). Brand-only emerald→cyan gradient for logo + hero. Per-cluster accent hues stay distinct from the brand accent.
+**Color Notes:** Neutral slate chrome + **cyan brand accent taken from the logo mark itself**. The shade per mode is contrast-driven, not aesthetic: the logo's own cyan carries white text at only 2.43:1, so light mode drops to cyan-700 (`#0E7490`, 5.36:1 on white) while dark mode can show the true logo cyan (7.33:1 on slate-900). Brand-only teal→cyan gradient for logo + hero. Per-cluster accent hues stay distinct from the brand accent.
+
+> **`packages/ui/src/styles/globals.css` is the source of truth for every token.** This table is a copy for humans. It said emerald for months after the CSS moved to cyan; if the two disagree again, the CSS is right.
 
 ### Typography
 
@@ -72,9 +74,9 @@
 ### Buttons
 
 ```css
-/* Primary CTA Button (brand accent = emerald) */
+/* Primary CTA Button (brand accent = cyan) */
 .btn-primary {
-  background: #047857;
+  background: #0E7490;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -254,6 +256,48 @@ message form carries a tool-specific warning; the bare form silently downgrades 
 sentence while leaving `strings.ts` untouched, so nothing catches it. `rsa-keypair-generator`
 ("do not use browser-generated keys for high-value production systems") is the worked example.
 
+### The component catalogue
+
+Only what exists and has consumers. A catalogue listing something nothing uses is how the next
+person adopts a dead component.
+
+**Primitives** (`packages/ui/src/components/`): `Button` (`asChild` for download links) ·
+`Input` · `Textarea` · `Label` · `Select` (+ `SelectTrigger`/`Content`/`Item`/`Value`) ·
+`Checkbox` / `CheckboxField` · `RadioGroup` / `RadioGroupItem` / `RadioGroupField` · `Badge` ·
+`Card` · `Dialog` · `Tooltip` · `DropdownMenu` · `Tabs` · `CopyButton` · `PrivacyNote`.
+
+**Inputs** (`components/inputs/`): `NumberStepper` · `CurrencyInput` · `RangeSlider` ·
+`SegmentedControl` · `HeightInput` · `WeightInput` · `ColorInput` · `MultiFileDropzone`.
+
+**Result primitives**: `NumericPrimary` · `TableResult` · `ChartFallback`.
+
+**Templates** (`components/tool-templates/`): `CalculatorTemplate` · `ConverterTemplate` (with a
+`toolbar` slot) · `GeneratorTemplate` · `PickerTemplate` · `FilePipelineTemplate` (with `preview`).
+
+**Deliberately absent, each after checking the real population:** no `Switch` (all 25 booleans in
+the catalogue are options in a row of options, not settings toggles) · no `Slider` separate from
+`RangeSlider` · no `FileInput` separate from `MultiFileDropzone multiple={false}` · no `Combobox`
+(the longest list in the product is nineteen timezones).
+
+### Tools exempt from a template, and why
+
+| Tool | Why |
+|---|---|
+| `whiteboard` | Full-screen canvas; owns a lazy Excalidraw API and a debounced autosave |
+| `stl-obj-viewer` | Full-screen 3D canvas |
+| `scientific-calculator` | Keypad layout |
+| `pomodoro-timer` | Timer face |
+| `shoe-size-converter` | Lookup table across four sizing systems |
+| `youtube-thumbnail-grabber` | Takes a URL, not files, so the file pipeline does not apply |
+| `json-diff`, `json-schema-validator`, `jq-playground`, `sql-playground` | Two-inputs-one-result and playground shapes, not source→target |
+| the four CSS generators | Preview-first; a form-first template would put the parameters above the thing they change |
+
+### The one native control left in tool code
+
+`whiteboard`'s `<input type="file" className="sr-only">`. It is opened programmatically by a
+button that first decides whether to ask before replacing the board, which a visible field
+cannot do. Any repo-wide grep for native controls should expect exactly this one hit.
+
 ### Which container a tool uses
 
 Decided in Phase 1 after auditing the generators cluster; recorded so later phases do not
@@ -323,8 +367,8 @@ Delete none of the following while restyling:
 
 The "minimal glow / sparing animation" rules are **intentionally relaxed** for these brand surfaces (and nowhere else):
 - ✅ Morphing-module **logo** animation (load + hover)
-- ✅ Hero **emerald aurora glow** backdrop + gradient headline
-- ✅ Subtle emerald glow on **primary buttons + ⌘K** trigger
+- ✅ Hero **cyan aurora glow** backdrop + gradient headline
+- ✅ Subtle cyan glow on **primary buttons + ⌘K** trigger
 
 All gated by `prefers-reduced-motion: reduce`. Do **not** apply motion/glow to cluster or tool-page chrome — those stay Swiss-clean.
 

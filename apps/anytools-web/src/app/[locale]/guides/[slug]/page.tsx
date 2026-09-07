@@ -5,12 +5,7 @@ import { GUIDE_SLUGS, loadGuide } from '@/lib/load-guide-content';
 import { jsonLdSafe } from '@/lib/schema';
 import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { fitTitle } from '@/lib/seo-metadata';
-import {
-  METADATA_BASE,
-  SITE_URL,
-  selfHostSafeAlternates,
-  selfHostSafeUrl,
-} from '@/lib/site-url';
+import { METADATA_BASE, SITE_URL, selfHostSafeAlternates, selfHostSafeUrl } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
