@@ -1,12 +1,15 @@
 'use client';
 import {
   Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  ConverterTemplate,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
   useLocalized,
   useUiStrings,
@@ -49,49 +52,61 @@ export function SqlFormatterUi() {
   const doMinify = () => setOutput(minifySql(output || input));
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-3 items-end">
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.dialect}</span>
-            <select
-              value={dialect}
-              onChange={(e) => setDialect(e.target.value as SqlDialect)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm min-w-[180px]"
-            >
-              {DIALECTS.map((d) => (
-                <option key={d.value} value={d.value}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{ui.indent}</span>
-            <select
-              value={tabWidth}
-              onChange={(e) => setTabWidth(Number(e.target.value))}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value={2}>{ui.spaces2}</option>
-              <option value={4}>{ui.spaces4}</option>
-            </select>
-          </label>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.keywords}</span>
-            <select
+    <ConverterTemplate
+      title={s.title}
+      toolbar={
+        <>
+          <div className="space-y-1.5">
+            <Label htmlFor="sql-dialect">{s.dialect}</Label>
+            <Select value={dialect} onValueChange={(v) => setDialect(v as SqlDialect)}>
+              <SelectTrigger id="sql-dialect" className="min-w-44">
+                <SelectValue>
+                  {DIALECTS.find((d) => d.value === dialect)?.label ?? dialect}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {DIALECTS.map((d) => (
+                  <SelectItem key={d.value} value={d.value}>
+                    {d.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sql-indent">{ui.indent}</Label>
+            <Select value={String(tabWidth)} onValueChange={(v) => setTabWidth(Number(v))}>
+              <SelectTrigger id="sql-indent" className="min-w-28">
+                <SelectValue>{tabWidth === 4 ? ui.spaces4 : ui.spaces2}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2">{ui.spaces2}</SelectItem>
+                <SelectItem value="4">{ui.spaces4}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sql-keywords">{s.keywords}</Label>
+            <Select
               value={keywordCase}
-              onChange={(e) => setKeywordCase(e.target.value as 'upper' | 'lower' | 'preserve')}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              onValueChange={(v) => setKeywordCase(v as 'upper' | 'lower' | 'preserve')}
             >
-              <option value="upper">{s.upper}</option>
-              <option value="lower">{s.lower}</option>
-              <option value="preserve">{s.preserve}</option>
-            </select>
-          </label>
+              <SelectTrigger id="sql-keywords" className="min-w-32">
+                <SelectValue>
+                  {keywordCase === 'upper'
+                    ? s.upper
+                    : keywordCase === 'lower'
+                      ? s.lower
+                      : s.preserve}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="upper">{s.upper}</SelectItem>
+                <SelectItem value="lower">{s.lower}</SelectItem>
+                <SelectItem value="preserve">{s.preserve}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button variant="ghost" size="sm" onClick={() => setInput(EXAMPLE)}>
             {ui.tryExample}
           </Button>
@@ -103,53 +118,59 @@ export function SqlFormatterUi() {
           >
             {ui.clear}
           </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {ui.input}
-              </span>
-            </div>
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={s.pasteSql}
-              rows={14}
-            />
+        </>
+      }
+      source={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.input}
+            </span>
           </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {ui.output}
-              </span>
-              <div className="flex gap-2">
-                {output && (
-                  <Button variant="outline" size="sm" onClick={doMinify}>
-                    {ui.minify}
-                  </Button>
-                )}
-                {output && <CopyButton text={output} />}
-              </div>
-            </div>
-            {error ? (
-              <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </output>
-            ) : (
-              <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all min-h-[336px]">
-                {output || (
-                  <span className="text-muted-foreground italic">{s.outputPlaceholder}</span>
-                )}
-              </pre>
-            )}
-          </div>
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={s.pasteSql}
+            rows={14}
+            className="h-full"
+            aria-label={ui.input}
+          />
         </div>
-
-        <p className="text-xs text-muted-foreground">{s.note}</p>
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+      }
+      target={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center justify-between">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
+            <div className="flex gap-2">
+              {output && (
+                <Button variant="outline" size="sm" onClick={doMinify}>
+                  {ui.minify}
+                </Button>
+              )}
+              {output && <CopyButton text={output} />}
+            </div>
+          </div>
+          {error ? (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          ) : (
+            <pre className="min-h-[336px] whitespace-pre-wrap break-all rounded-md border bg-muted px-3 py-2 font-mono text-sm">
+              {output || (
+                <span className="italic text-muted-foreground">{s.outputPlaceholder}</span>
+              )}
+            </pre>
+          )}
+        </div>
+      }
+      disclaimer={
+        <>
+          <p>{s.note}</p>
+          <PrivacyNote />
+        </>
+      }
+    />
   );
 }

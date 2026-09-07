@@ -1,12 +1,15 @@
 'use client';
 import {
   Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  ConverterTemplate,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
   useLocalized,
   useUiStrings,
@@ -28,24 +31,26 @@ export function XmlFormatterUi() {
   }, [input, indent, minified]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-3 items-center text-sm">
-          <label className="flex items-center gap-1">
-            {ui.indent}:
-            <select
-              value={indent}
-              onChange={(e) => setIndent(Number(e.target.value) as 2 | 4)}
+    <ConverterTemplate
+      title={s.title}
+      toolbar={
+        <>
+          <div className="space-y-1.5">
+            <Label htmlFor="xml-indent">{ui.indent}</Label>
+            <Select
+              value={String(indent)}
+              onValueChange={(v) => setIndent(Number(v) as 2 | 4)}
               disabled={minified}
-              className="h-8 rounded border border-input bg-background px-2"
             >
-              <option value={2}>{ui.spaces2}</option>
-              <option value={4}>{ui.spaces4}</option>
-            </select>
-          </label>
+              <SelectTrigger id="xml-indent" className="min-w-28">
+                <SelectValue>{indent === 4 ? ui.spaces4 : ui.spaces2}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2">{ui.spaces2}</SelectItem>
+                <SelectItem value="4">{ui.spaces4}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             variant={minified ? 'default' : 'outline'}
             size="sm"
@@ -53,39 +58,45 @@ export function XmlFormatterUi() {
           >
             {minified ? s.minifyOn : s.minifyOff}
           </Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+        </>
+      }
+      source={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
               {ui.input}
             </span>
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="<root>...</root>"
-              rows={12}
-            />
           </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {ui.output}
-              </span>
-              {result.ok && result.value && <CopyButton text={result.value} />}
-            </div>
-            {result.ok ? (
-              <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all min-h-[280px]">
-                {result.value || <span className="text-muted-foreground italic">—</span>}
-              </pre>
-            ) : (
-              <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {result.error}
-              </output>
-            )}
-          </div>
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="<root>...</root>"
+            rows={14}
+            className="h-full"
+            aria-label={ui.input}
+          />
         </div>
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+      }
+      target={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center justify-between">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.output}
+            </span>
+            {result.ok && result.value && <CopyButton text={result.value} />}
+          </div>
+          {result.ok ? (
+            <pre className="min-h-[336px] whitespace-pre-wrap break-all rounded-md border bg-muted px-3 py-2 font-mono text-sm">
+              {result.value || <span className="italic text-muted-foreground">—</span>}
+            </pre>
+          ) : (
+            <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {result.error}
+            </output>
+          )}
+        </div>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

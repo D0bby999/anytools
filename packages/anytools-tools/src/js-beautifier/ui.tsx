@@ -1,13 +1,13 @@
 'use client';
 import {
   Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  CheckboxField,
+  ConverterTemplate,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  SegmentedControl,
   Textarea,
   useLocalized,
   useUiStrings,
@@ -62,31 +62,23 @@ export function JsBeautifierUi() {
   }, [input, indentSize, mode, mangle, ui.formatFailed, ui.minifyFailed]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="flex gap-1 rounded-md border p-0.5">
-            <button
-              type="button"
-              onClick={() => setMode('beautify')}
-              className={`px-3 py-1 text-sm rounded ${mode === 'beautify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-            >
-              {ui.beautify}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('minify')}
-              className={`px-3 py-1 text-sm rounded ${mode === 'minify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-            >
-              {s.minifyTerser}
-            </button>
-          </div>
+    <ConverterTemplate
+      title={s.title}
+      toolbar={
+        <>
+          <SegmentedControl
+            value={mode}
+            onChange={setMode}
+            ariaLabel={ui.beautify}
+            className="w-auto min-w-56"
+            options={[
+              { value: 'beautify', label: ui.beautify },
+              { value: 'minify', label: s.minifyTerser },
+            ]}
+          />
           {mode === 'beautify' && (
-            <label className="text-sm" htmlFor={indentId}>
-              <span className="block mb-1 text-muted-foreground">{ui.indentSize}</span>
+            <div className="space-y-1.5">
+              <Label htmlFor={indentId}>{ui.indentSize}</Label>
               <Input
                 id={indentId}
                 type="number"
@@ -96,39 +88,40 @@ export function JsBeautifierUi() {
                 onChange={(e) => setIndentSize(Number(e.target.value))}
                 className="w-24"
               />
-            </label>
+            </div>
           )}
           {mode === 'minify' && (
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={mangle}
-                onChange={(e) => setMangle(e.target.checked)}
-                className="h-4 w-4"
-              />
-              {s.mangleNames}
-            </label>
+            <CheckboxField
+              label={s.mangleNames}
+              checked={mangle}
+              onCheckedChange={(v) => setMangle(v === true)}
+            />
           )}
           <Button variant="outline" size="sm" onClick={() => setInput(EXAMPLE)}>
             {ui.tryExample}
           </Button>
-        </div>
-
-        <div>
-          <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            {ui.input}
-          </span>
+        </>
+      }
+      source={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.input}
+            </span>
+          </div>
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            rows={8}
-            className="font-mono text-sm"
+            rows={14}
+            className="h-full font-mono text-sm"
             placeholder={EXAMPLE}
+            aria-label={ui.input}
           />
         </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1">
+      }
+      target={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center justify-between">
             <span className="text-xs uppercase tracking-wide text-muted-foreground">
               {ui.output}
             </span>
@@ -144,12 +137,13 @@ export function JsBeautifierUi() {
             <Textarea
               value={output?.mode === 'beautify' || output?.mode === 'minify' ? output.code : ''}
               readOnly
-              rows={10}
-              className="font-mono text-sm"
+              rows={14}
+              className="h-full font-mono text-sm"
+              aria-label={ui.output}
             />
           )}
           {output?.mode === 'minify' && output.before > 0 && (
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="mt-2 text-xs text-muted-foreground">
               {s.sizeNote
                 .replace('{before}', String(output.before))
                 .replace('{after}', String(output.after))
@@ -157,9 +151,8 @@ export function JsBeautifierUi() {
             </p>
           )}
         </div>
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

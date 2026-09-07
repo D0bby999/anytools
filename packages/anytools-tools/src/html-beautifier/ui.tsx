@@ -1,13 +1,12 @@
 'use client';
 import {
   Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  ConverterTemplate,
   CopyButton,
   Input,
+  Label,
   PrivacyNote,
+  SegmentedControl,
   Textarea,
   useLocalized,
   useUiStrings,
@@ -36,31 +35,23 @@ export function HtmlBeautifierUi() {
   }, [input, indentSize, mode, ui.formatFailed]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">{s.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="flex gap-1 rounded-md border p-0.5">
-            <button
-              type="button"
-              onClick={() => setMode('beautify')}
-              className={`px-3 py-1 text-sm rounded ${mode === 'beautify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-            >
-              {ui.beautify}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('minify')}
-              className={`px-3 py-1 text-sm rounded ${mode === 'minify' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-            >
-              {ui.minify}
-            </button>
-          </div>
+    <ConverterTemplate
+      title={s.title}
+      toolbar={
+        <>
+          <SegmentedControl
+            value={mode}
+            onChange={setMode}
+            ariaLabel={ui.beautify}
+            className="w-auto min-w-56"
+            options={[
+              { value: 'beautify', label: ui.beautify },
+              { value: 'minify', label: ui.minify },
+            ]}
+          />
           {mode === 'beautify' && (
-            <label className="text-sm" htmlFor={indentId}>
-              <span className="block mb-1 text-muted-foreground">{ui.indentSize}</span>
+            <div className="space-y-1.5">
+              <Label htmlFor={indentId}>{ui.indentSize}</Label>
               <Input
                 id={indentId}
                 type="number"
@@ -70,44 +61,56 @@ export function HtmlBeautifierUi() {
                 onChange={(e) => setIndentSize(Number(e.target.value))}
                 className="w-24"
               />
-            </label>
+            </div>
           )}
           <Button variant="outline" size="sm" onClick={() => setInput(EXAMPLE)}>
             {ui.tryExample}
           </Button>
-        </div>
-
-        <div>
-          <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
-            {ui.input}
-          </span>
+        </>
+      }
+      source={
+        <div className="space-y-1.5">
+          {/* Same min-h-8 header row as the output pane. Without it the two column labels sit
+              at different heights, because only the output side carries a CopyButton. */}
+          <div className="flex min-h-8 items-center">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.input}
+            </span>
+          </div>
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            rows={8}
-            className="font-mono text-sm"
+            rows={14}
+            className="h-full font-mono text-sm"
             placeholder={EXAMPLE}
+            aria-label={ui.input}
           />
         </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1">
+      }
+      target={
+        <div className="space-y-1.5">
+          <div className="flex min-h-8 items-center justify-between">
             <span className="text-xs uppercase tracking-wide text-muted-foreground">
               {ui.output}
             </span>
             {output.ok && output.value && <CopyButton text={output.value} />}
           </div>
           {output.ok ? (
-            <Textarea value={output.value} readOnly rows={10} className="font-mono text-sm" />
+            <Textarea
+              value={output.value}
+              readOnly
+              rows={14}
+              className="h-full font-mono text-sm"
+              aria-label={ui.output}
+            />
           ) : (
             <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {output.error}
             </output>
           )}
         </div>
-
-        <PrivacyNote />
-      </CardContent>
-    </Card>
+      }
+      disclaimer={<PrivacyNote />}
+    />
   );
 }

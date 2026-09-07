@@ -7,6 +7,13 @@ import { Button } from '../button';
 type Props = {
   title?: string;
   description?: string;
+  /**
+   * Controls that apply to the whole conversion — mode, indent width, "Try example".
+   * Sits above both panes, because it governs both. Added in Phase 2 of the UI upgrade:
+   * every beautifier and formatter has such a row, and without a slot each was hand-rolling
+   * one inside its own `source` pane, where it read as an input-only option.
+   */
+  toolbar?: ReactNode;
   /** Left input pane (source) */
   source: ReactNode;
   /** Right output pane (target) */
@@ -23,6 +30,7 @@ type Props = {
 export function ConverterTemplate({
   title,
   description,
+  toolbar,
   source,
   target,
   onSwap,
@@ -38,6 +46,7 @@ export function ConverterTemplate({
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </header>
       )}
+      {toolbar && <div className="flex flex-wrap items-end gap-3">{toolbar}</div>}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 md:gap-4 items-stretch">
         <div className="space-y-3">{source}</div>
         {onSwap ? (
@@ -59,8 +68,14 @@ export function ConverterTemplate({
         <div className="space-y-3">{target}</div>
       </div>
       {actions && <div className="flex items-center gap-2 justify-end">{actions}</div>}
+      {/* A div, not a p: `disclaimer` is a ReactNode and the obvious thing to pass is
+          PrivacyNote, which renders its own paragraph. A nested paragraph is invalid HTML — the
+          parser closes the outer one, so server markup and client tree diverge and React throws
+          a hydration error. Found the first time a tool actually passed it, in Phase 2. */}
       {disclaimer && (
-        <p className="text-xs text-muted-foreground border-t pt-4 leading-relaxed">{disclaimer}</p>
+        <div className="border-t pt-4 text-xs leading-relaxed text-muted-foreground">
+          {disclaimer}
+        </div>
       )}
     </div>
   );

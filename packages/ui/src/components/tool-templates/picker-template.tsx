@@ -51,8 +51,14 @@ export function PickerTemplate({
         )}
       </div>
       <section>{result}</section>
+      {/* A div, not a p: `disclaimer` is a ReactNode and the obvious thing to pass is
+          PrivacyNote, which renders its own paragraph. A nested paragraph is invalid HTML — the
+          parser closes the outer one, so server markup and client tree diverge and React throws
+          a hydration error. Found the first time a tool actually passed it, in Phase 2. */}
       {disclaimer && (
-        <p className="text-xs text-muted-foreground border-t pt-4 leading-relaxed">{disclaimer}</p>
+        <div className="border-t pt-4 text-xs leading-relaxed text-muted-foreground">
+          {disclaimer}
+        </div>
       )}
     </div>
   );
