@@ -1,0 +1,27 @@
+---
+title: Kiểm tra JSON theo Schema — Câu hỏi thường gặp
+---
+
+## Nút "Suy ra schema từ dữ liệu" có thay được việc viết schema tay không?
+
+Không, và đây là điều nên hiểu trước khi bấm nút đó. Cơ chế suy luận chỉ nhìn thấy đúng một mẫu JSON bạn đưa vào: mọi key có mặt trong mẫu đó lập tức bị đánh dấu `required`, một số như `42` biến thành `"type": "integer"` dù trường đó ở bản ghi khác hoàn toàn có thể là số thập phân, và không có cách nào để biết một trường có nên là `enum` giới hạn vài giá trị hay không — vì bạn chỉ đưa đúng một giá trị. Nói cách khác, kết quả suy ra trả lời câu "dữ liệu này trông giống mẫu tôi vừa dán" chứ không trả lời "cái gì thực sự được phép ở đây". Nếu đưa vào một mảng nhiều object thay vì một object đơn, tool sẽ hợp nhất thuộc tính của tất cả phần tử và chỉ giữ một key là `required` khi mọi phần tử trong mảng đều có key đó — cải thiện đáng kể độ chính xác, nhưng vẫn không biết gì về những hình dạng dữ liệu chưa từng xuất hiện trong mẫu bạn đưa. Hãy coi schema suy ra là bản nháp đầu tiên: nới `required` cho trường bạn biết đôi khi vắng mặt, và mở rộng `type` (JSON Schema cho phép mảng như `["integer", "number"]`) cho trường có thể mang nhiều kiểu.
+
+## Nên chọn draft-07 hay 2020-12?
+
+Chọn đúng bản mà nơi tạo ra schema của bạn đã dùng. draft-07 (2018) vẫn là bản phổ biến nhất trong thực tế — phần lớn file cấu hình `.json` có dòng `"$schema"` tham chiếu tới nó, và nhiều công cụ IDE mặc định suy luận theo bản này khi không thấy dòng `$schema`. 2020-12 là bản đặc tả hiện hành, có thêm những từ khoá draft-07 không có: `prefixItems` cho mảng kiểu tuple, `unevaluatedProperties`/`unevaluatedItems`, và `$dynamicRef`/`$dynamicAnchor` cho schema cơ sở có thể mở rộng. Tool dùng đúng hai bản dựng khác nhau của thư viện `ajv` cho hai lựa chọn này — không phải một cấu hình chung tự chuyển đổi ngầm. Nếu bạn chọn nhầm draft-07 cho một schema có từ khoá chỉ 2020-12 mới hiểu, ajv (chạy ở chế độ `strict: false`) sẽ lặng lẽ bỏ qua từ khoá lạ thay vì báo lỗi to — nên nếu việc kiểm tra "đậu" một cách đáng ngờ, việc đầu tiên cần soát lại là ô chọn phiên bản.
+
+## Vì sao lỗi chỉ chỉ vào một trường trong khi tôi biết mấy trường đều sai?
+
+Về nguyên tắc thì không nên như vậy — tool luôn yêu cầu `ajv` trả về toàn bộ lỗi cùng lúc (`allErrors: true`), không dừng ở lỗi đầu tiên. Nếu bạn chỉ thấy đúng một lỗi dù chắc chắn có nhiều trường sai, nguyên nhân phổ biến nhất là một object cha đã vi phạm một ràng buộc cấu trúc (như `additionalProperties: false`) khiến bộ kiểm tra không còn đi sâu vào các trường con của nhánh đó nữa — kiểm tra hình dạng của một đứa con không còn ý nghĩa gì một khi hình dạng của cha nó đã bị từ chối.
+
+## `instancePath` trong kết quả lỗi có nghĩa là gì?
+
+Đó là một JSON Pointer theo RFC 6901, đọc từ trái sang phải bắt đầu từ gốc dữ liệu JSON bạn đưa vào — không phải một biểu thức JavaScript. `/user/address/0/zip` nghĩa là: đi vào `user`, rồi `address`, rồi phần tử mảng chỉ số `0`, rồi trường `zip`; chỉ số mảng luôn là số trần chứ không viết dạng `[0]`. Một path rỗng (`/`) nghĩa là chính giá trị ở cấp cao nhất bị từ chối, không phải một thứ gì đó nằm lồng bên trong.
+
+## Tool kiểm tra cú pháp JSON hay chỉ kiểm tra cấu trúc theo schema?
+
+Chỉ cấu trúc, không kiểm cú pháp trước đó — mà thật ra thứ tự còn ngược lại: cú pháp phải đúng trước thì mới tới lượt schema được xét tới. Nếu phần dữ liệu JSON bạn dán có dấu phẩy thừa cuối mảng hay một dấu ngoặc kép quên escape, `JSON.parse` sẽ từ chối nó ngay từ bước đầu tiên, trước khi schema kịp được biên dịch — bạn sẽ nhận thông báo "Dữ liệu không phải JSON hợp lệ" chứ không phải một lỗi validate theo schema. Cùng logic đó áp dụng cho chính ô schema: schema sai cú pháp JSON cũng bị chặn lại ở bước parse, tách biệt hoàn toàn khỏi lỗi biên dịch schema (`schemaCompileError` — khi cú pháp JSON đúng nhưng cấu trúc không phải một JSON Schema hợp lệ). Nếu không chắc dữ liệu của mình có parse được không, dùng `json-formatter` để kiểm tra trước cho nhanh.
+
+## Schema có tham chiếu được tới một file khác bằng `$ref` không?
+
+Không, trong phạm vi tool này thì không. Mọi thứ chạy từ đúng một schema bạn dán vào ô văn bản, nên `$ref` chỉ có thể trỏ tới một vị trí bên trong chính document đó — kiểu `#/definitions/address` hay `#/$defs/user` — chứ không thể là một URL hay đường dẫn file bên ngoài, vì tool không có bước nào đi tải một tài liệu thứ hai về để giải quyết tham chiếu đó. Một `$ref` trỏ ra ngoài sẽ khiến bước biên dịch schema thất bại thay vì âm thầm bỏ qua.

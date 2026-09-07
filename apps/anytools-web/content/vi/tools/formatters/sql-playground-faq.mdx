@@ -1,0 +1,27 @@
+---
+title: Playground SQL — Câu hỏi thường gặp
+---
+
+## Đây có phải một cơ sở dữ liệu SQLite thật, hay chỉ giả lập cú pháp?
+
+Thật. Tool nạp `sql.js` — bản SQLite biên dịch sang WebAssembly — và mọi câu lệnh bạn chạy (`CREATE TABLE`, `INSERT`, `SELECT` phức tạp, join, subquery) đều thực thi trên một engine SQLite thật ngay trong trình duyệt, không phải một trình thông dịch tự viết chỉ trông giống SQL. Gọi thử `SELECT sqlite_version()` sẽ trả về đúng phiên bản SQLite mà bản `sql.js` này nhúng bên trong (3.49.1 tại thời điểm viết bài này) — con số đó tự nó là bằng chứng bạn đang chạy engine thật, không phải một lớp mô phỏng.
+
+## Database này có giới hạn kích thước không, và tại sao?
+
+Có — 50MB cho file `.sqlite`/`.db` bạn upload lên. `sql.js` phải nạp toàn bộ file vào bộ nhớ của module WebAssembly trước khi chạy được bất kỳ query nào — không có cơ chế đọc từng phần hay stream — nên một file lớn hơn nhiều so với mức đó có nguy cơ ăn hết bộ nhớ của tab và làm treo cả trang thay vì báo lỗi gọn gàng. Tool kiểm tra dung lượng file ngay khi bạn chọn, trước cả khi đọc nội dung vào bộ nhớ, nên một file quá khổ bị chặn lại tức thì chứ không đợi tới lúc nạp xong mới báo. Nếu database thật của bạn lớn hơn 50MB, cách hợp lý là export một bản con nhỏ hơn hoặc lọc bớt bảng trước khi mang vào đây.
+
+## Dữ liệu tôi thao tác có được lưu lại không, hay tự mất khi đóng tab?
+
+Tự mất — đây là chủ đích, không phải thiếu sót. Toàn bộ database chỉ tồn tại trong bộ nhớ của tab hiện tại; đóng tab hay tải lại trang là mất sạch, không có cơ chế nào tự lưu xuống đĩa hay gửi lên server nào cả (đây cũng chính là lý do dữ liệu của bạn an toàn — nó không đi đâu). Muốn giữ lại kết quả, bấm nút "Tải .sqlite" để xuất bộ nhớ hiện tại thành một file SQLite thật, mở được bằng bất kỳ công cụ SQLite nào khác; hoặc đơn giản là giữ lại đúng những câu lệnh `CREATE`/`INSERT` trong ô SQL để lần sau dán lại chạy y hệt.
+
+## Import CSV thành bảng hoạt động ra sao, vì sao đôi khi báo lỗi?
+
+Tool đọc dòng đầu tiên của CSV làm tên cột, rồi dùng đúng bộ phân tích kiểu dữ liệu của tool `csv-json` trên trang này để suy ra kiểu mỗi ô (số, boolean, hay text) — không đọc theo một schema định sẵn nào. Vì suy luận theo từng dòng, một cột hầu hết là số nhưng lỡ có một ô lạc là chữ sẽ khiến cả cột đó bị import thành text hết. Trước khi tạo bảng, tool luôn `DROP TABLE IF EXISTS` cùng tên rồi mới `CREATE TABLE` lại từ đầu — nghĩa là import CSV trùng tên bảng cũ sẽ ghi đè hoàn toàn, không gộp thêm dữ liệu. Hai trường hợp bị chặn thẳng: tên bảng bỏ trống, và CSV chỉ có dòng tiêu đề mà không có dòng dữ liệu nào — cả hai bị coi là lỗi nhập liệu chứ không âm thầm tạo ra một bảng rỗng.
+
+## Có hỗ trợ full-text search (FTS5) hay các hàm JSON không?
+
+Hàm JSON thì có — `json_extract`, `json_each` và phần còn lại của extension JSON1 trong SQLite hoạt động bình thường, vì đây là phần lõi được biên dịch sẵn vào bản `sql.js`. FTS5 thì không — bản `sql.js` cụ thể mà tool này dùng không biên dịch kèm module FTS5, nên `CREATE VIRTUAL TABLE ... USING fts5(...)` sẽ báo lỗi "no such module: fts5" thay vì tạo bảng ảo thành công. Ràng buộc khoá ngoại (foreign key) hoạt động bình thường một khi bạn tự bật bằng `PRAGMA foreign_keys = ON;` — mặc định tắt, giống hệt hành vi gốc của SQLite khi không cấu hình gì thêm.
+
+## Thông báo lỗi SQL có nguyên văn từ SQLite không, và nhiều người dùng chung một phiên được không?
+
+Thông báo lỗi hiển thị nguyên văn, không chỉnh sửa gì cả. Câu lệnh gõ nhầm `SELEKT` sẽ báo đúng cái mà chính engine SQLite trả về (kiểu `near "SELEKT": syntax error`) chứ không phải một câu tool này diễn giải lại theo ý riêng — có lợi thực tế vì cùng một engine SQLite được dùng trong vô số công cụ khác nhau trên thế giới, nên một thông báo lỗi khó hiểu ở đây tìm trên mạng kèm từ khoá "sqlite" gần như luôn ra lời giải thích. Còn việc dùng chung một phiên hay kết nối vào database sản xuất thật thì không, cả hai đều không được, và đây là giới hạn có chủ đích chứ không phải tính năng còn thiếu: mọi thứ chạy đơn tab, đơn người dùng, hoàn toàn phía client — không có thành phần server nào để một database sản xuất thật có thể kết nối tới, và cũng không có cơ chế nào để hai tab trình duyệt chia sẻ cùng một trạng thái bộ nhớ. Tool này hợp cho việc thử schema, kiểm tra một query trên dữ liệu mẫu, hoặc soi một file `.sqlite` đã export sẵn — không phải chỗ để quản trị một database đang phục vụ người dùng thật.

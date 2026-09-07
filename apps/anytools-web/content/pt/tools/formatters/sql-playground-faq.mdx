@@ -1,0 +1,27 @@
+---
+title: Playground de SQL — Perguntas frequentes
+---
+
+## É um banco de dados SQLite real, ou só um simulador de sintaxe?
+
+Real. A ferramenta carrega o `sql.js` — SQLite compilado para WebAssembly — e cada comando que você roda (`CREATE TABLE`, `INSERT`, `SELECT` com joins e subconsultas) executa contra um motor SQLite de verdade dentro do seu navegador, não um interpretador caseiro que só parece SQL. Rodar `SELECT sqlite_version()` retorna a versão exata do SQLite empacotada neste build do `sql.js` (3.49.1 no momento em que isso foi escrito) — esse número é, por si só, a prova de que é o motor real, não uma camada que imita o comportamento dele.
+
+## Existe um limite de tamanho para o banco, e por que ele existe?
+
+Sim — 50 MB para arquivos `.sqlite`/`.db` enviados. O `sql.js` precisa carregar o arquivo inteiro na memória do módulo WebAssembly antes de conseguir rodar uma única consulta — não há carregamento parcial nem em streaming — então um arquivo bem maior arrisca esgotar a memória da aba e travar a página inteira em vez de falhar de forma controlada. A ferramenta checa o tamanho do arquivo assim que você o seleciona, antes mesmo de ler o conteúdo, então um arquivo grande demais é rejeitado na hora, sem esperar o carregamento terminar. Se seu banco real for maior que isso, exporte uma parte menor ou filtre as tabelas antes de trazer para cá.
+
+## Os dados que eu manipulo ficam salvos, ou somem ao fechar a aba?
+
+Somem — e isso é intencional, não uma limitação por acidente. O banco inteiro vive só na memória desta aba; fechá-la ou recarregar a página apaga tudo, sem nenhum mecanismo que salve algo em disco ou envie a um servidor (que é exatamente por que seus dados estão seguros: eles não vão para lugar nenhum). Para guardar algo, use o botão "Baixar .sqlite" para exportar a memória atual como um arquivo SQLite de verdade, que abre em qualquer outra ferramenta SQLite; ou simplesmente mantenha os comandos `CREATE`/`INSERT` na caixa de SQL para rodar de novo da próxima vez.
+
+## Como funciona importar CSV como tabela, e por que às vezes falha?
+
+A ferramenta lê a primeira linha do CSV como cabeçalhos de coluna, e usa o mesmo analisador de tipos do conversor CSV↔JSON deste site para inferir o tipo de cada célula (número, booleano ou texto) — não lê nenhum esquema predefinido. Como a inferência é linha a linha, uma coluna numérica na maioria das linhas mas com um único valor de texto solto é importada como texto inteira. Antes de criar a tabela, sempre roda `DROP TABLE IF EXISTS` seguido de `CREATE TABLE` do zero — importar um CSV com o nome de uma tabela já existente a substitui completamente, não adiciona linhas por cima. Dois casos são rejeitados direto: nome de tabela vazio, e um CSV que só tem cabeçalhos sem nenhuma linha de dados — ambos tratados como erro de entrada, em vez de criar silenciosamente uma tabela vazia.
+
+## Tem suporte a busca full-text (FTS5) ou funções JSON?
+
+Funções JSON, sim — `json_extract`, `json_each` e o resto da extensão JSON1 do SQLite funcionam porque vêm compiladas junto neste build do `sql.js`. FTS5, não — este build específico não compila o módulo FTS5, então `CREATE VIRTUAL TABLE ... USING fts5(...)` falha com "no such module: fts5" em vez de criar a tabela virtual. Restrições de chave estrangeira funcionam assim que você mesmo as ativa com `PRAGMA foreign_keys = ON;` — desativadas por padrão, igual ao comportamento padrão do SQLite sem configuração extra.
+
+## As mensagens de erro de SQL vêm do SQLite direto, e várias pessoas podem compartilhar uma sessão?
+
+As mensagens vêm direto, sem edição nenhuma. Um `SELEKT` digitado errado retorna exatamente o que o motor SQLite reporta (algo como "near \"SELEKT\": syntax error"), não uma versão reformulada por este site — vantagem prática, já que o mesmo motor SQLite é usado em incontáveis outras ferramentas pelo mundo, então buscar uma mensagem de erro confusa junto com a palavra "sqlite" quase sempre encontra uma explicação. Sobre compartilhar sessão ou conectar num banco de produção, não, em nenhum dos dois casos, e isso é proposital, não uma funcionalidade que falta: tudo roda numa única aba, com um único usuário, inteiramente do lado do cliente — não existe nenhum componente de servidor ao qual um banco de produção real possa se conectar, e nenhum mecanismo para duas abas compartilharem estado. Esta ferramenta serve para prototipar um esquema, testar uma consulta contra dados de amostra, ou inspecionar um `.sqlite` já exportado — não para administrar um banco que está servindo tráfego real.

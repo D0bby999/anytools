@@ -1,0 +1,27 @@
+---
+title: Tạo & xác minh HMAC — Câu hỏi thường gặp
+---
+
+## Tool `hash-generator` cũng có tab HMAC — khác gì với tool này?
+
+Tab HMAC của `hash-generator` phục vụ trường hợp phổ biến nhất: khoá dạng text, output hex hoặc base64 — đọc code của nó thì thấy hàm `hmac()` luôn `ENCODER.encode(key)`, tức luôn coi khoá là chuỗi văn bản thuần, không có lựa chọn nào khác. Tool này thêm hai thứ tab kia không có: khoá có thể nhập ở dạng hex (cần thiết khi nhà cung cấp webhook đưa cho bạn một secret đã hex-encode sẵn thay vì một chuỗi văn bản thuần — không ít API ký request theo kiểu này), và một chế độ Xác minh riêng dùng phép so sánh hằng thời gian thay vì so hai chuỗi bằng `===`. Nếu chỉ cần tính nhanh một digest với khoá text, dùng tool nào cũng ra kết quả giống nhau; tool này tồn tại cho đúng những trường hợp định dạng khoá hoặc bước xác minh thật sự quan trọng.
+
+## Vì sao chế độ Xác minh dùng `crypto.subtle.verify` thay vì so hai chuỗi bằng `===`?
+
+Vì so hai chuỗi hex hay base64 bằng `===` sẽ dừng lại ngay tại ký tự đầu tiên khác nhau — engine JavaScript không cam kết tiếp tục so sánh sau khi phát hiện một điểm sai lệch. Điều đó nghĩa là *thời gian* phép so sánh mất đi có thể tiết lộ có bao nhiêu byte đầu của một lần đoán đã đúng — một kênh rò rỉ thông tin có thật (timing side-channel): kẻ tấn công đo được độ trễ phản hồi đủ chính xác có thể dò ra chữ ký hợp lệ từng byte một, thay vì phải đoán nguyên khối cùng lúc. `crypto.subtle.verify` tính lại HMAC ngay bên trong WebCrypto và chỉ trả về đúng một giá trị boolean, không để lộ khoảng thời gian khác biệt đó ra ngoài. Đây chính là lớp bảo vệ mà mọi đoạn code tự viết `===` để so sánh chữ ký thường thiếu, và cũng là lý do tool này không bao giờ dùng cách so sánh ngây thơ đó.
+
+## Vì sao phải chọn định dạng khoá (text hay hex)?
+
+Vì hai lựa chọn cho ra hai chuỗi byte hoàn toàn khác nhau từ cùng một chuỗi ký tự. Chuỗi bốn ký tự `"abcd"` ở dạng text là bốn byte ASCII `0x61 0x62 0x63 0x64`; cùng chuỗi đó ở dạng hex lại giải mã thành hai byte `0xAB 0xCD`. Nếu tài liệu của nhà cung cấp ghi secret dạng như `3a7f01...` và gọi nó là "hex-encoded", bạn cần chọn chế độ Hex — đưa vào ở chế độ Text sẽ sinh ra HMAC từ một khoá hoàn toàn sai, và chữ ký sẽ không bao giờ khớp dù thử lại bao nhiêu lần. Ô nhập khoá hex còn được kiểm tra chặt: chỉ chấp nhận ký tự `0-9`/`a-f` và số lượng ký tự phải chẵn, sai một trong hai điều kiện đó sẽ bị chặn lại ngay trước khi tính toán, không âm thầm cắt bớt hay đệm thêm.
+
+## Nên chọn thuật toán nào?
+
+SHA-256 là mặc định ở gần như mọi nơi — webhook của Stripe, GitHub, Shopify, phần lớn luồng JWT HS256, và đa số cơ chế ký API tự viết đều dùng HMAC-SHA-256. SHA-1 được giữ lại chỉ để tương thích với tích hợp cũ; bản thân HMAC-SHA-1 không hỏng theo kiểu SHA-1 trần bị hỏng (cấu trúc HMAC chịu được một hash nền yếu hơn tốt hơn nhiều so với hash trực tiếp), nhưng không có lý do gì để chọn nó cho một hệ thống mới. SHA-384 và SHA-512 xuất hiện ở những ngữ cảnh yêu cầu bảo mật cao hơn và một số API doanh nghiệp. Đáng chú ý: WebCrypto — nền tảng duy nhất tool này dùng để tính HMAC — không hỗ trợ HMAC-MD5 ở bất kỳ đâu; tool `hash-generator` phải dùng một thư viện JavaScript riêng (`js-md5`) chỉ để tính MD5 trần, và ngay cả tab HMAC của tool đó cũng khai báo kiểu dữ liệu loại trừ hẳn `md5` ra khỏi danh sách thuật toán được phép — nên nếu bạn cần HMAC-MD5, không công cụ nào trên trang này làm được, vì trình duyệt không có sẵn hàm đó.
+
+## HMAC tôi tính ra không khớp với giá trị mong đợi, nguyên nhân thường gặp là gì?
+
+Gần như luôn là một trong số này: byte của message không khớp chính xác (một body JSON bị serialize lại, dù giá trị từng trường giống hệt, vẫn cho ra hash khác với byte thô ban đầu — luôn ký hoặc xác minh trên đúng byte thô của request gốc, đừng parse rồi stringify lại); định dạng khoá chọn sai (text với hex, xem câu trên); một khoảng trắng hay ký tự xuống dòng thừa mà trình soạn thảo âm thầm thêm vào khoá hoặc message; hoặc định dạng output bị lệch (hex và base64 của cùng một digest trông không giống nhau chút nào). Kiểm tra byte thô của message trước tiên — đây là nguyên nhân phổ biến nhất, chênh lệch khá xa so với các nguyên nhân còn lại.
+
+## Khoá bí mật hay message của tôi có được gửi đi đâu không?
+
+Không. Cả việc tính HMAC lẫn việc xác minh đều chạy hoàn toàn cục bộ bằng WebCrypto của trình duyệt; không có request mạng nào phát sinh từ bất kỳ thao tác nào trên tool này. Đây cũng là lý do tool yêu cầu chạy trong "secure context" (HTTPS hoặc localhost) — không phải một ràng buộc tuỳ tiện, mà vì chính API `crypto.subtle` của trình duyệt chỉ tồn tại trong ngữ cảnh đó; mở trang qua HTTP thường (không phải localhost) sẽ khiến `crypto.subtle` là `undefined` và tool báo lỗi ngay trước khi kịp tính toán gì.
