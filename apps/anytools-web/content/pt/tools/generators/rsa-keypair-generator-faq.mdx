@@ -1,0 +1,27 @@
+---
+title: Gerador de par de chaves RSA — Perguntas frequentes
+---
+
+## Devo escolher 2048, 3072 ou 4096 bits?
+
+2048 bits continua sendo o mínimo aceito para RSA e é o padrão da maioria dos serviços — o NIST considera hoje o RSA de 2048 bits adequado pelo menos até 2030. Se a chave precisa continuar confiável muito depois dessa data, ou se você vai assinar algo que precisa manter validade por muitos anos, 3072 bits é a escolha mais prudente, sem um custo desproporcional. 4096 bits faz mais sentido para chaves raiz do tipo CA ou chaves de vida muito longa; para TLS ou SSH do dia a dia costuma ser exagero, porque uma chave maior deixa assinatura e verificação mais lentas sem um ganho real proporcional para a maioria dos usos pessoais. A ferramenta simplesmente repassa o tamanho escolhido para o parâmetro `modulusLength` de `crypto.subtle.generateKey`, sem nenhuma restrição própria além dessa.
+
+## Por que gerar uma chave de 4096 bits demora tanto mais que uma de 2048?
+
+Gerar uma chave RSA significa procurar dois números primos grandes ao acaso e verificar rigorosamente que são mesmo primos, e essa busca fica mais cara bem mais rápido do que o tamanho da chave cresce — ao passar de 2048 para 4096 bits, o tempo de espera pode triplicar ou quadruplicar, não apenas dobrar. É por isso que a interface mostra "Gerando… chaves RSA grandes podem levar alguns segundos": `crypto.subtle.generateKey` é assíncrona, então a aba não trava enquanto espera, mas quem escolhe 4096 bits deve contar com alguns segundos de espera em vez da resposta quase instantânea de uma chave de 2048 bits.
+
+## Qual é a diferença real entre RSA para assinar e RSA para criptografar?
+
+É a mesma matemática RSA por baixo, mas com um esquema de padding diferente, e o WebCrypto se recusa deliberadamente a misturar os dois. RSASSA-PKCS1-v1_5 serve para assinar: provar que uma mensagem realmente veio de quem tem a chave privada, útil para assinar um JWT tipo RS256 ou assinar documentos. RSA-OAEP serve para criptografar: qualquer pessoa com a chave pública consegue enviar algo que só a chave privada consegue ler. No código isso aparece nos `KeyUsage` atribuídos na chamada a `generateKey`: `['sign', 'verify']` para o modo de assinatura, `['encrypt', 'decrypt']` para o de criptografia, e uma chave gerada para um uso não serve para o outro. Vale lembrar que o RSA nunca é usado para criptografar dados volumosos diretamente: TLS e PGP usam RSA só para criptografar uma chave simétrica curta, e o conteúdo real fica por conta do AES.
+
+## O que é Ed25519 e por que às vezes essa opção não aparece?
+
+Ed25519 é um esquema de assinatura moderno baseado em curvas elípticas (EdDSA sobre Curve25519). No mesmo nível de segurança, suas chaves e assinaturas são muito menores que as do RSA, e assinar/verificar é mais rápido — mas ele só serve para assinar e verificar, sem nenhum modo de criptografia equivalente ao RSA-OAEP. Essa opção só aparece quando o navegador realmente a suporta, e a ferramenta não confia em nenhuma flag de compatibilidade declarada: existem navegadores que aceitam o nome do algoritmo `'Ed25519'` sem reclamar, mas lançam um `NotSupportedError` assim que `generateKey` roda de verdade. Por isso `isEd25519Supported` tenta gerar um par de chaves Ed25519 real (barato, descartável) para checar isso na prática, e guarda o resultado após a primeira checagem, então a interface só pergunta uma vez ao montar em vez de gerar uma chave descartável a cada renderização.
+
+## Por que exportar em PEM em vez de outro formato?
+
+PEM — texto em Base64 envolto entre `-----BEGIN ... -----END-----`, com 64 caracteres por linha — é o padrão de fato para trocar chaves com OpenSSL, a maioria das bibliotecas TLS e arquivos de configuração versionados no Git. O WebCrypto não tem exportação nativa para PEM: `crypto.subtle.exportKey` só devolve bytes DER brutos, em SPKI para a chave pública e PKCS8 para a privada. A própria ferramenta monta o PEM: converte esse DER para Base64 com `btoa`, corta em linhas de exatamente 64 caracteres e adiciona o cabeçalho e o rodapé correspondentes — o resultado bate exatamente com o formato que o `openssl` produz para as mesmas estruturas SPKI/PKCS8, então dá para colar direto num arquivo `.pem` e funciona.
+
+## É seguro usar uma chave gerada numa aba do navegador?
+
+Matematicamente, sim: `crypto.subtle.generateKey` tira sua aleatoriedade do gerador criptográfico (CSPRNG) do próprio sistema operacional, a mesma fonte que o navegador usa em tudo mais. O que muda é o contexto de uso: uma aba de navegador não tem armazenamento de chaves em hardware, não mantém um log de auditoria, e basta uma extensão maliciosa ou uma máquina comprometida para a chave privada vazar no exato momento em que é gerada. Para aprender, testar localmente, chaves descartáveis ou fixtures de CI, isso é perfeitamente válido. Mas para proteger tráfego de produção de verdade ou assinar algo de valor, não use uma chave gerada neste site: gere-a em (ou transfira-a imediatamente para) um módulo de segurança de hardware (HSM), uma máquina offline isolada da rede, ou uma ferramenta de linha de comando auditada como `openssl genrsa` ou `ssh-keygen`, rodando numa máquina que você controla do início ao fim. A chave privada não sai da aba durante a geração — nenhuma requisição de rede acontece ao criar ou exibir o par de chaves — mas "não sair da aba" e "ser segura para produção" são duas afirmações diferentes; não confunda uma com a outra.

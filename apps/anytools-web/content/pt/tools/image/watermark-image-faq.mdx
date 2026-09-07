@@ -1,0 +1,27 @@
+---
+title: Marca d'água em imagem — Perguntas frequentes
+---
+
+## Dá para escrever em português com acentos, chinês ou outros textos não latinos como marca d'água?
+
+Dá, e de forma confiável — diferente de colocar marca d'água num PDF. Esta ferramenta desenha o texto direto num canvas HTML com `ctx.fillText`, o mesmo caminho que o navegador usa para mostrar qualquer texto em qualquer página da web, sem incorporar nenhuma fonte própria. Tudo o que o mecanismo de renderização de fontes do sistema operacional souber exibir, esta ferramenta desenha — na prática isso cobre acentos do português, chinês, japonês, coreano, cirílico, árabe e emoji — o único limite são as fontes instaladas na máquina que está rodando a ferramenta, não algo imposto pelo próprio site. Já a versão para PDF precisa incorporar um arquivo de fonte inteiro dentro do documento só para conseguir desenhar texto, então ela garante cobertura apenas de latim, grego e cirílico — chinês, japonês e coreano são recusados diretamente ali por falta de uma fonte incorporada com esses glifos. É "colocar texto sobre uma imagem" nos dois casos, mas o mecanismo de desenho é diferente, e isso muda completamente quais idiomas cada um suporta.
+
+## Por que meu logo em PNG com transparência não sai com uma caixa preta ao redor?
+
+Porque o logo é desenhado com uma chamada `drawImage` normal, que respeita o canal alfa próprio dessa imagem — os pixels transparentes do seu PNG continuam transparentes ao serem compostos sobre a foto de fundo, sem nada adicionado nessa etapa. O problema da caixa preta que atinge ferramentas de canvas malfeitas acontece na saída, não aqui: aparece quando uma imagem com áreas transparentes é exportada como JPEG, formato que não representa transparência e precisa de uma cor de fundo preenchida antes de desenhar. Esta ferramenta só faz esse preenchimento quando o formato de saída escolhido é JPEG, e preenche de branco, nunca de preto, exatamente como qualquer editor de imagens faz ao exportar para JPEG. Sua foto de fundo é sempre desenhada por completo primeiro, e o logo é sobreposto depois mantendo sua transparência original.
+
+## Qual a diferença entre a grade de 9 posições e a "posição livre"?
+
+A grade de nove células posiciona a marca com base em pontos de referência da imagem — os quatro cantos, o meio de cada lado e o centro — com uma margem fixa de 4% do lado mais curto para nunca encostar na borda. A posição livre, por sua vez, usa diretamente uma porcentagem horizontal e outra vertical que você arrasta, por exemplo colocando uma assinatura a 15% da esquerda e 92% do topo, em vez de ficar limitado a um dos nove pontos fixos. As duas são calculadas sobre as dimensões reais de cada imagem, então o mesmo ajuste cai no mesmo lugar relativo tanto numa foto de 800px quanto numa de 8000px de largura.
+
+## Como funciona o modo mosaico (tile), e ainda dá para controlar tamanho e ângulo?
+
+Ativar o mosaico repete seu texto ou logo por *toda* a imagem num padrão de grade em vez de colocar uma única instância — o visual clássico de "amostra, não copie" usado em fotos de banco de imagens. Opacidade, rotação e tamanho se aplicam igualmente a cada repetição, então uma marca inclinada 30° com 50% de opacidade fica idêntica em todas as posições em que se repete. O espaçamento entre repetições é 1,8 vezes o tamanho da marca, deixando vãos visíveis entre as cópias em vez de encostarem umas nas outras. Enquanto o mosaico está ativo, o ajuste de posição é ignorado por completo, já que não há mais um único ponto onde colocar a marca.
+
+## Dá para marcar um lote de fotos com um logo e um único conjunto de ajustes?
+
+Sim. Escolha seu texto ou logo e ajuste posição, tamanho, opacidade, cor e rotação uma única vez sobre a pré-visualização ao vivo mostrada na primeira foto que você soltou, e ao rodar a ferramenta cada arquivo do lote é marcado exatamente da mesma forma. Os resultados são listados um a um com uma comparação de tamanho antes/depois, e assim que houver mais de um resultado aparece a opção "baixar tudo em .zip". Se um logo for usado, ele é decodificado só uma vez para o lote inteiro em vez de ser decodificado de novo a cada foto, o que torna o processamento em lote bem mais rápido do que repetir a operação manualmente foto por foto.
+
+## Minha foto ou meu logo são enviados para algum servidor?
+
+Não. Cada etapa — decodificar a foto, decodificar o logo, desenhar a marca e recodificar o resultado — acontece num canvas dentro desta mesma aba do navegador. Nada é enviado a nenhum servidor; você pode confirmar isso abrindo as ferramentas de desenvolvedor, observando o painel de Rede enquanto aplica uma marca d'água, ou de forma ainda mais conclusiva, desconectando da internet depois que a página carregar e vendo que a ferramenta continua funcionando normalmente.

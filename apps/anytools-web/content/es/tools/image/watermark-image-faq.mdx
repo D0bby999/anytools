@@ -1,0 +1,27 @@
+---
+title: Marca de agua en imagen — Preguntas frecuentes
+---
+
+## ¿Puedo escribir vietnamita, chino u otros textos no latinos como marca de agua?
+
+Sí, y de forma fiable — a diferencia de poner una marca de agua en un PDF. Esta herramienta dibuja el texto directamente en un canvas HTML con `ctx.fillText`, la misma vía que usa el navegador para mostrar cualquier texto en cualquier página web, sin incrustar ninguna fuente propia. Todo lo que el motor de renderizado de fuentes del sistema operativo sepa mostrar, esta herramienta lo dibuja — en la práctica eso cubre tildes y ñ en español, chino, japonés, coreano, cirílico, árabe y emoji — el único límite son las fuentes instaladas en el equipo que ejecuta la herramienta, no algo que imponga el propio sitio. La versión para PDF, en cambio, tiene que incrustar un archivo de fuente completo en el documento para poder dibujar texto, así que solo garantiza cobertura de latín, griego y cirílico — el chino, japonés y coreano se rechazan directamente ahí porque no hay ninguna fuente incrustada con esos glifos. Es "poner texto sobre una imagen" en los dos casos, pero el mecanismo de dibujo es distinto y eso cambia por completo qué idiomas admite cada uno.
+
+## ¿Por qué mi logo PNG con transparencia no sale con un recuadro negro alrededor?
+
+Porque el logo se dibuja con una llamada `drawImage` normal, que respeta el canal alfa propio de esa imagen — los píxeles transparentes de tu PNG siguen transparentes al componerse sobre la foto de fondo, sin nada añadido en este paso. El problema del recuadro negro que sufren las herramientas de canvas mal hechas aparece en la salida, no aquí: ocurre cuando una imagen con zonas transparentes se exporta a JPEG, un formato que no puede representar transparencia y necesita un color de fondo antes de dibujar. Esta herramienta solo rellena el fondo cuando el formato de salida elegido es JPEG, y lo rellena de blanco, nunca de negro, igual que hace cualquier editor de imágenes al exportar a JPEG. Tu foto de fondo se dibuja siempre completa primero, y el logo se superpone después conservando su transparencia original.
+
+## ¿Qué diferencia hay entre la cuadrícula de 9 posiciones y la "posición libre"?
+
+La cuadrícula de nueve celdas coloca la marca según puntos de referencia de la imagen — las cuatro esquinas, el punto medio de cada lado y el centro — con un margen fijo del 4% del lado más corto para que nunca toque el borde. La posición libre, en cambio, toma directamente un porcentaje horizontal y otro vertical que tú arrastras, por ejemplo colocar una firma al 15% desde la izquierda y al 92% desde arriba, en vez de limitarte a uno de los nueve puntos fijos. Ambas se calculan sobre las dimensiones reales de cada imagen, así que el mismo ajuste cae en el mismo lugar relativo tanto si la foto original mide 800px como 8000px de ancho.
+
+## ¿Cómo funciona el mosaico (tile), y puedo seguir controlando su tamaño y ángulo?
+
+Activar el mosaico repite tu texto o logo por *toda* la imagen en un patrón de cuadrícula en vez de colocar una sola instancia — el típico aspecto de "muestra, no robes" que se ve en las fotos de stock. Opacidad, rotación y tamaño se aplican igual a cada repetición, así que una marca inclinada 30° al 50% de opacidad se ve idéntica en todas las posiciones donde se repite. La separación entre repeticiones es 1,8 veces el tamaño de la marca, dejando huecos visibles entre copias en vez de que se toquen entre sí. Mientras el mosaico está activo, el ajuste de posición se ignora por completo, porque ya no hay un único punto donde colocar nada.
+
+## ¿Puedo marcar un lote de fotos con un logo y un mismo conjunto de ajustes?
+
+Sí. Elige tu texto o logo y ajusta posición, tamaño, opacidad, color y rotación una sola vez sobre la vista previa en directo que se muestra en la primera foto que soltaste, y al ejecutar la herramienta cada archivo del lote queda marcado exactamente igual. Los resultados se listan uno por uno con una comparación de peso antes/después, y en cuanto hay más de un resultado aparece la opción de "descargar todo como .zip". Si usas un logo, se decodifica una sola vez para todo el lote en lugar de volver a decodificarlo por cada foto, lo que hace el procesamiento por lotes notablemente más rápido que repetir la operación foto a foto a mano.
+
+## ¿Se sube mi foto o mi logo a algún servidor?
+
+No. Cada paso — decodificar la foto, decodificar el logo, dibujar la marca y volver a codificar el resultado — ocurre en un canvas dentro de esta misma pestaña del navegador. Nada se envía a ningún servidor; puedes comprobarlo abriendo las herramientas de desarrollador, mirando el panel de Red mientras aplicas una marca de agua, o de forma más concluyente, desconectándote de internet después de que la página cargue y comprobando que la herramienta sigue funcionando igual.

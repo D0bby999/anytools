@@ -1,0 +1,27 @@
+---
+title: Girar imagem — Perguntas frequentes
+---
+
+## A ferramenta corrige fotos que saem de lado do meu celular?
+
+Sim, e é exatamente esse o caso para o qual ela foi construída. A câmera de um celular quase sempre grava o quadro bruto do sensor na horizontal, junto com uma flag EXIF que registra como o aparelho estava posicionado no momento da foto. Uma ferramenta que ignora essa flag decodifica o quadro bruto e entrega uma foto de lado mesmo que qualquer visualizador de fotos do celular a mostre em pé. Esta ferramenta decodifica com `createImageBitmap` usando a opção `imageOrientation: 'from-image'`, ou seja, aplica a flag EXIF já na leitura do arquivo, então o ponto de partida já bate com o que você viu no celular, e qualquer rotação extra que você aplicar aqui soma-se a essa correção em vez de substituí-la. Há um detalhe técnico real aqui: algumas versões de navegador rejeitam esse valor de `imageOrientation` diretamente em vez de ignorar uma opção que não implementam; nesse caso o código tenta de novo sem essa opção, aceitando uma foto possivelmente de lado em vez de recusar um JPEG perfeitamente válido com uma mensagem de erro.
+
+## Qual a diferença entre girar e espelhar, e em que ordem são aplicados?
+
+Girar rotaciona a imagem inteira ao redor do seu centro, como girar uma foto impressa nas mãos — 90° para a esquerda ou direita troca largura por altura. Espelhar reflete a imagem em torno de um eixo sem mudar suas dimensões: espelhar na horizontal troca esquerda e direita (útil para uma foto que sai invertida, como uma tirada através de um espelho), espelhar na vertical troca cima e baixo. No código a ordem é espelhar primeiro e girar depois — especificamente `ctx.scale`, responsável pelo espelhamento, é chamado antes de `ctx.rotate`, e só então o quadro é desenhado com `drawImage` — ou seja, a imagem é refletida na sua orientação original e é esse quadro já refletido que gira em seguida. Dá para combinar as duas coisas ao mesmo tempo, e a pré-visualização atualiza na hora para confirmar o resultado antes de baixar.
+
+## Por que meu JPEG sai com fundo branco mas meu PNG continua transparente?
+
+JPEG não tem canal alfa — ele só sabe representar cores, não "aqui não há cor nenhuma". Um canvas deixado sem preenchimento codifica por padrão qualquer área transparente como preto na maioria dos navegadores, um erro comum em ferramentas de imagem caseiras. Antes de desenhar, se o formato de saída for JPEG, a ferramenta preenche todo o canvas de branco (`ctx.fillStyle = '#ffffff'` seguido de `fillRect`), exatamente como qualquer editor de imagens faz ao exportar para JPEG. PNG e WebP suportam transparência, então girar um PNG com fundo transparente mantém essa transparência intacta, sem nenhum preenchimento adicionado.
+
+## Ela recusa uma foto muito grande?
+
+Não — ela não recusa, ela reduz antes de processar. Os navegadores limitam quantos pixels um canvas pode conter, e o Safari é o mais rígido entre os principais navegadores, com um teto de cerca de 16.777.216 pixels (~16,7 megapixels, equivalente a um quadrado de 4096px de lado); ultrapassar esse limite não gera um erro, produz silenciosamente um canvas em branco. Em vez de recusar uma foto de 24, 48 ou 60 megapixels — algo comum nas configurações padrão das câmeras de celular atuais — a ferramenta decodifica de novo numa largura reduzida que fique abaixo desse teto, e avisa que isso aconteceu, mostrando as dimensões originais ao lado do resultado já girado. A foto continua girando corretamente; só que o arquivo final fica com um tamanho em pixels um pouco menor que o original enviado.
+
+## Dá para girar um lote de fotos de uma vez, com um ajuste só?
+
+Sim. Solte quantas imagens quiser, escolha a rotação e o espelhamento desejados, e cada arquivo do lote recebe exatamente a mesma transformação numa única passada — um arquivo que falhar é pulado e registrado à parte, sem estragar o resto do lote. Os resultados aparecem um a um, cada um com sua própria miniatura antes/depois, dimensões e tamanho, e havendo mais de um resultado dá para baixar tudo junto num único .zip em vez de salvar um por um manualmente. Nomes repetidos dentro do mesmo lote são renomeados automaticamente com "(2)", "(3)"… para não serem sobrescritos ao descompactar em sistemas onde o nome da pasta não diferencia maiúsculas de minúsculas.
+
+## Alguma das minhas fotos é enviada para um servidor?
+
+Não. Decodificar, girar e recodificar acontece tudo num canvas dentro desta mesma aba do navegador, usando a Canvas API que já vem em qualquer navegador moderno — nenhum pixel ou arquivo sai do seu aparelho. Você mesmo pode conferir abrindo as ferramentas de desenvolvedor, observando a aba Rede enquanto gira uma foto e vendo que nenhuma requisição de upload aparece; ou de forma ainda mais conclusiva, desconectando da internet depois que a página carregar e girando uma foto mesmo assim — a ferramenta continua funcionando porque não há nada para enviar a lugar nenhum.
