@@ -1,0 +1,27 @@
+---
+title: Chuyển đổi Font — Câu hỏi thường gặp
+---
+
+## Tool này thực sự chuyển đổi được giữa những định dạng nào?
+
+Phạm vi thật của tool là TTF/OTF chuyển qua lại WOFF 1.0, cộng thêm tính năng rút gọn (subset) — không hơn. WOFF về bản chất chỉ là một lớp bọc: nó lấy các bảng dữ liệu (table) đã có sẵn trong font, nén từng bảng bằng DEFLATE rồi ghi thêm một header nhỏ lên trên; gỡ bọc (unwrap) làm ngược lại. Cả hai chiều đều là thao tác không mất dữ liệu (lossless) trên phần container, không đụng vào hình dạng chữ (outline) bên trong. Nếu bạn tải lên một font kiểu TrueType (bảng `glyf`), mọi kết quả xuất ra — dù là WOFF hay dạng gốc — vẫn giữ nguyên là TrueType; font kiểu CFF (chữ ký `OTTO`) cũng giữ nguyên là CFF. Đọc chữ "TTF" hay "OTF" hiển thị trong kết quả như "font của bạn vốn đã là loại này", chứ không phải một lựa chọn bạn được chọn.
+
+## Vì sao không hỗ trợ WOFF2?
+
+Vì WOFF2 nén bảng dữ liệu bằng Brotli, và sau đó còn viết lại `glyf`/`loca` thành một dạng transposed nén Brotli riêng nữa — phức tạp hơn WOFF1 hẳn một bậc. Vấn đề là trình duyệt không lộ bộ giải mã Brotli ra cho JavaScript theo cách nó làm với gzip/deflate: Compression Streams API chỉ hỗ trợ `gzip`, `deflate` và `deflate-raw`, không có `br`. Muốn thêm hỗ trợ Brotli sẽ phải đóng gói cả một bản WASM Brotli làm dependency mới, việc đó nằm ngoài phạm vi của tool ở đợt này. Nếu font của bạn đang ở WOFF2, hãy tải lên bản TTF, OTF hoặc WOFF1 thay thế — hầu hết công cụ tạo ra WOFF2 cũng xuất được WOFF thường.
+
+## "Chuyển TTF sang OTF" ở đây có thật sự đổi được outline không?
+
+Không. Đây là chỗ dễ hiểu lầm nhất. TTF dùng outline dạng `glyf`/`loca` — đường cong bậc hai (quadratic); OTF (CFF) dùng đường cong bậc ba theo kiểu PostScript. Chuyển thật giữa hai kiểu này đòi hỏi viết lại toàn bộ hình dạng từng glyph theo một hệ toán học khác — đây là công việc của phần mềm biên soạn font chuyên dụng, không phải việc container-level mà tool này làm. Vì vậy dù bạn chọn xuất "font gốc" cho một file OTF, kết quả vẫn là OTF; không có nút nào ở đây thật sự đổi TTF thành OTF hay ngược lại. Nếu bạn thực sự cần đổi outline, cần một công cụ font-engineering đầy đủ như FontForge, không phải một tool chạy trong tab trình duyệt.
+
+## Rút gọn (subset) font hoạt động thế nào, và vì sao cần cẩn thận về giấy phép?
+
+Bạn gõ những ký tự cần giữ lại — một câu, một danh sách glyph, bất cứ gì trang của bạn thực sự dùng tới — và tool gọi [HarfBuzz](https://harfbuzz.github.io/) (chính engine dàn chữ đứng sau Chrome, Firefox, Android và LibreOffice) để chỉ giữ lại glyph cần cho những code point đó, cộng thêm toàn bộ tính năng layout của OpenType (ligature, kerning, định vị dấu — mark positioning) thay vì chỉ giữ những gì HarfBuzz mặc định giữ. Chi tiết cuối cùng này quan trọng với tiếng Việt: nếu bỏ dữ liệu GPOS định vị dấu, glyph dấu vẫn còn đó nhưng đặt sai vị trí. Về giấy phép: rút gọn cũng là một hình thức chỉnh sửa (modification) font. Phần lớn giấy phép webfont cho phép việc này — đó là cách bình thường để đưa webfont lên trang cho nhẹ — nhưng một số giấy phép font thương mại cấm chỉnh sửa hoặc phân phối lại dưới dạng khác, và vài giấy phép yêu cầu bản rút gọn phải ghi tên tác giả hoặc đổi tên font. Tool không có cách nào biết giấy phép nào áp dụng cho file bạn tải lên — việc kiểm tra đó là của bạn, trước khi công bố kết quả.
+
+## Vì sao có lúc file WOFF xuất ra lại nặng hơn file gốc?
+
+Với font nhỏ — một icon font vài chục glyph, hoặc một font đã được rút gọn từ trước — chi phí cố định của WOFF đôi khi thắng phần tiết kiệm được từ nén: mỗi file WOFF cõng thêm 44 byte header cộng 20 byte mục lục cho mỗi bảng. Nếu DEFLATE không nén được một bảng nào đó nhỏ hơn kích thước gốc, tool lưu nguyên bảng đó (raw) thay vì cố nén cho có; nhưng chi phí header cố định thì không tránh được, và trên một font đủ nhỏ, nó có thể lớn hơn phần đã tiết kiệm được ở chỗ khác. Với font có vài trăm glyph trở lên, chuyện này gần như không xảy ra — DEFLATE thắng đậm trên dữ liệu outline glyph thật.
+
+## Font của tôi có bị tải lên đâu không?
+
+Không. File được đọc bằng File API, và mọi bước — phân tích container, nén DEFLATE, rút gọn glyph — đều chạy ngay trong tab trình duyệt này. Bước rút gọn gọi vào một bản WebAssembly của HarfBuzz được phục vụ từ chính domain của trang (không phải từ CDN bên ngoài), nên không có gì về font của bạn, hay bạn giữ ký tự nào, rời khỏi máy. Phần xem trước (preview) tải font đã chuyển đổi qua API `FontFace` chuẩn của trình duyệt — đúng cơ chế một rule `@font-face` thật dùng — nên nếu preview không hiện được, đó là tín hiệu thật rằng file cũng sẽ lỗi trên một trang web thật, chứ không phải lỗi riêng của preview.
