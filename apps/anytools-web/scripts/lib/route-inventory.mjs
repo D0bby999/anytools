@@ -101,7 +101,7 @@ function readLocales(repoRoot) {
 }
 
 /** One row per `packages/anytools-tools/src/<dir>/meta.ts` that ships a published tool. */
-function enumerateTools(repoRoot, locales) {
+export function enumerateTools(repoRoot, locales) {
   const toolsSrcDir = path.join(repoRoot, 'packages/anytools-tools/src');
   const dirs = readdirSync(toolsSrcDir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
