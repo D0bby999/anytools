@@ -1,0 +1,27 @@
+---
+title: Playground de jq — Perguntas frequentes
+---
+
+## O JSON que eu colo sai do meu navegador?
+
+Não. O jq aqui não é uma API que chama um servidor para rodar seu filtro por você — é o próprio `jq-wasm`, compilado para WebAssembly, carregado do servidor estático deste site e executado com a CPU da sua máquina dentro da aba. O JSON que você digita e o filtro que testa nunca atravessam a rede; nenhuma requisição envia esse conteúdo para lugar nenhum. Dá para conferir sozinho: abra o DevTools, aba Network, rode um filtro, e você só vai ver o arquivo `.wasm` sendo baixado uma vez no início (cerca de 900KB) — nenhuma execução seguinte gera uma nova requisição.
+
+## Isso é jq de verdade, ou só algo que imita a sintaxe?
+
+É jq de verdade, compilado com Emscripten para WebAssembly, não um interpretador de JavaScript reescrevendo a sintaxe do jq. O pacote `jq-wasm` sobre o qual esta ferramenta é construída empacota exatamente o jq 1.8.2, então toda função padrão (`select`, `map`, `group_by`, `to_entries`, o operador `?//`, interpolação de string…) se comporta igual ao binário `jq` que você instalaria via Homebrew ou apt. Se um filtro se comportar diferente aqui do que no seu terminal, o primeiro passo é checar qual versão o seu `jq` local reporta com `jq --version` — a sintaxe do jq cresceu entre versões maiores, e um script escrito contra uma versão diferente pode aparecer como "filtro desconhecido" aqui.
+
+## Por que às vezes um filtro demora segundos para falhar, em vez de falhar na hora?
+
+Porque não é um erro de sintaxe, e sim um filtro que nunca termina — o exemplo clássico é uma função recursiva sem caso base, como `def f: f; f`. Esse filtro roda como código WebAssembly nativo, sem nenhum ponto onde o JavaScript consiga entrar no meio do caminho para checar um relógio. A única forma de pará-lo sem travar a aba inteira é encerrar o Web Worker onde ele roda, o que esta ferramenta faz automaticamente após 8 segundos: um Worker novo é criado para cada execução, com esse limite de tempo, e se ele não responder a tempo é chamado `terminate()` imediatamente, mostrando uma mensagem de timeout em vez de a aba travar. É por isso que esse mecanismo de cancelamento automático existe — um filtro jq infinito não pode ser interrompido "de dentro", só matando o processo inteiro que o executa. Um erro de sintaxe, por outro lado, é detectado pelo próprio compilador do jq na hora.
+
+## Existe um limite de tamanho para o JSON que posso colar?
+
+Sim — 5 MB de texto de entrada. O `jq-wasm` carrega o documento inteiro na memória do módulo WebAssembly antes de conseguir rodar qualquer filtro (não processa em streaming), então um documento bem maior arrisca esgotar a memória da aba em vez de dar um erro claro. Se você precisa trabalhar com algo maior, filtre antes com uma ferramenta de streaming, ou divida em partes menores.
+
+## Dá para usar flags de linha de comando como `-r`, `-s` ou `--arg`?
+
+Não, a partir desta interface. O playground sempre roda seu filtro com o modo de saída padrão do jq (compacto onde o próprio jq compactaria, indentado no resto) e não passa nenhuma flag extra ou variável externa. Se seu fluxo depende de `-r` (saída de string crua), `-s` (juntar toda a entrada em um único array) ou `--arg nome valor` (vincular uma variável de shell dentro do filtro), você vai precisar do binário `jq` de verdade ou do pacote npm `jq-wasm` diretamente, onde isso é suportado.
+
+## Um filtro consegue ler arquivos ou rodar comandos de shell, e por que o resultado às vezes parece diferente do esperado?
+
+Não, ler arquivos ou chamar um comando de shell não é possível, e isso é proposital, não um descuido. Este build do jq roda sem sistema de arquivos e sem acesso à rede de dentro do sandbox WebAssembly, então um filtro que tentasse ler outro arquivo, fazer `import "foo" as bar;` de um módulo jq externo, ou chamar um comando de shell fica limitado ao que a biblioteca padrão do jq já traz embutido — os filtros comuns de transformação de dados, exatamente o que os botões de exemplo da página demonstram, não são afetados em nada por essa restrição. Sobre o resultado parecer diferente, duas causas são comuns. Primeiro, o jq trata cada valor de nível superior como um resultado independente, então um filtro que não está envolto em `[...]` imprime um valor JSON por correspondência, e não um único array — o exemplo `.[] | select(...)` desta página faz exatamente isso de propósito. Segundo, o pretty-printer padrão do jq indenta objetos e arrays aninhados em várias linhas; se você esperava JSON compacto em uma linha só, isso é uma escolha de formatação do playground para legibilidade, não uma diferença no resultado real calculado pelo jq. Além disso, qualquer mensagem de erro é mostrada literalmente como o jq escreveu no `stderr`, sem reescrever ou parafrasear — leia como leria a saída do `jq` num terminal.
