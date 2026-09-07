@@ -4,12 +4,12 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useMemo, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';

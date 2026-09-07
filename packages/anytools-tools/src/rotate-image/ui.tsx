@@ -5,13 +5,13 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
 import { useMemo, useState } from 'react';
 import type { OutputFormat } from '../shared/canvas-image';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { SHARED_ERROR_STRINGS, returnedErrorText } from '../shared/shared-error-strings';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';

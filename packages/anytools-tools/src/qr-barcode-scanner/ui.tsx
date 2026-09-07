@@ -6,12 +6,12 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
   useToolLocale,
 } from '@anytools/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
 import { toolErrorText } from '../shared/tool-error';
 import { type DecodedSymbol, decodeBarcodeImage, decodeImageData } from './logic';

@@ -1,8 +1,8 @@
 'use client';
-import { Button } from '../button';
-import { CopyButton } from '../copy-button';
 import { Sparkles } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Button } from '../button';
+import { CopyButton } from '../copy-button';
 
 type Props = {
   title?: string;

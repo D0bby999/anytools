@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
 } from '@anytools/ui';
@@ -19,7 +20,6 @@ import type {
   Scene,
   WebGLRenderer,
 } from 'three';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { toolErrorText } from '../shared/tool-error';
 import { type MeshStats, computeMeshStats, detectMeshKind } from './logic';
 import { STRINGS } from './strings';

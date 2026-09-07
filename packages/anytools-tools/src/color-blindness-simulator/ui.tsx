@@ -7,13 +7,13 @@ import {
   CardTitle,
   CopyButton,
   Input,
+  MultiFileDropzone,
   PrivacyNote,
   SegmentedControl,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useMemo, useState } from 'react';
 import { fitWithin, loadBitmap } from '../shared/canvas-image';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';

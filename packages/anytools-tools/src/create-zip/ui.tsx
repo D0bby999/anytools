@@ -6,11 +6,11 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
 } from '@anytools/ui';
 import { useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type CompressionLevel, type CreateZipResult, createZip } from './logic';

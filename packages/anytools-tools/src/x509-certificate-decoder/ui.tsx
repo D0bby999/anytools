@@ -7,13 +7,13 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  MultiFileDropzone,
   PrivacyNote,
   Textarea,
   useLocalized,
   useToolLocale,
 } from '@anytools/ui';
 import { useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { toolErrorText } from '../shared/tool-error';
 import {
   type KeyUsageId,

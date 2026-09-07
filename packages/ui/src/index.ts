@@ -42,6 +42,11 @@ export { RangeSlider } from './components/inputs/range-slider';
 export { SegmentedControl } from './components/inputs/segmented-control';
 export { HeightInput } from './components/inputs/height-input';
 export { WeightInput } from './components/inputs/weight-input';
+export {
+  MultiFileDropzone,
+  LARGE_FILE_WARN_BYTES,
+} from './components/inputs/multi-file-dropzone';
+export type { MultiFileDropzoneProps } from './components/inputs/multi-file-dropzone';
 
 // Result card primitives
 export { NumericPrimary } from './components/results/numeric-primary';

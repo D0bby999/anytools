@@ -1,8 +1,15 @@
 'use client';
 import { trackEvent } from '@anytools/analytics';
-import { Card, CardContent, CardHeader, CardTitle, PrivacyNote, useLocalized } from '@anytools/ui';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  MultiFileDropzone,
+  PrivacyNote,
+  useLocalized,
+} from '@anytools/ui';
 import { useMemo, useRef, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { isAbortError } from '../shared/onnx-loader';
 import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
 import { toolErrorText } from '../shared/tool-error';

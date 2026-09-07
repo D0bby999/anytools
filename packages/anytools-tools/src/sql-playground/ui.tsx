@@ -7,13 +7,13 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  MultiFileDropzone,
   PrivacyNote,
   Textarea,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
 import { useRef, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { richText } from '../shared/rich-text';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';

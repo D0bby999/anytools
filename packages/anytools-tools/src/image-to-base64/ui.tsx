@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  MultiFileDropzone,
   PrivacyNote,
   Tabs,
   TabsContent,
@@ -15,7 +16,6 @@ import {
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useMemo, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import {

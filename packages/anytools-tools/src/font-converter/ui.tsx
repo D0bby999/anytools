@@ -6,12 +6,12 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  MultiFileDropzone,
   PrivacyNote,
   SegmentedControl,
   useLocalized,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ConvertTarget, type FontConvertResult, convertFont } from './logic';

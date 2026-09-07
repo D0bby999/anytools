@@ -6,12 +6,12 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { richText } from '../shared/rich-text';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';

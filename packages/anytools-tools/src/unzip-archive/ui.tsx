@@ -6,12 +6,12 @@ import {
   CardHeader,
   CardTitle,
   Input,
+  MultiFileDropzone,
   PrivacyNote,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
 import { useEffect, useRef, useState } from 'react';
-import { MultiFileDropzone } from '../shared/multi-file-dropzone';
 import { toolErrorText } from '../shared/tool-error';
 import { useObjectUrls } from '../shared/use-object-urls';
 import { type ArchiveSession, openArchive, repackAll } from './logic';

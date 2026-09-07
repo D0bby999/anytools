@@ -1,7 +1,7 @@
 'use client';
-import { Button } from '../button';
 import { Shuffle } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Button } from '../button';
 
 type Props = {
   title?: string;
