@@ -1,0 +1,27 @@
+---
+title: Nén PDF — Câu hỏi thường gặp
+---
+
+## File của tôi có bị tải lên đâu không?
+
+Không. Việc đọc và nén PDF diễn ra ngay trong tab trình duyệt này, bằng `pdf-lib` để đọc/ghi cấu trúc file, một bản WebAssembly của MozJPEG để mã hoá lại ảnh chụp, và một bản WebAssembly của oxipng để nén PNG không mất dữ liệu. Kết quả trả về là blob URL do chính trình duyệt tạo ra, không phải link tải từ server. Mở DevTools, sang tab Network rồi bấm Nén — sẽ không thấy request nào mang nội dung file đi; ngắt mạng hoàn toàn, tool vẫn chạy bình thường vì chẳng còn gì để gửi.
+
+## Vì sao PDF của tôi không nhỏ đi bao nhiêu?
+
+Vì một PDF chủ yếu là chữ vốn đã không nặng, và tool này không làm chữ nhỏ lại được — nó chỉ nén lại **ảnh nhúng bên trong file**. Trước khi làm tool, chúng tôi đã đo trực tiếp: nén cấu trúc PDF thuần tuý (viết lại object stream, gộp font trùng) trên file thật chỉ giảm 0,2% trên một PDF 924 KB toàn chữ và 1,8% trên một chứng chỉ 284 KB. Thứ thật sự làm PDF nặng là một trang scan lưu thành ảnh toàn trang, hoặc ảnh chụp màn hình dán vào báo cáo ở đúng độ phân giải gốc — đó mới là thứ đáng nén. File có ít hoặc không có ảnh thuộc phạm vi tool xử lý được (xem câu tiếp theo) thì đừng kỳ vọng giảm nhiều — tool nói thẳng điều đó trong kết quả, không bịa số. Vài số đo thật: một hợp đồng có chữ ký số với 262 ảnh nhúng (chủ yếu logo nhỏ, hình đóng dấu chữ ký) giảm từ 2,2 MB còn 1,9 MB; một báo cáo toàn ảnh chụp màn hình độ phân giải gốc giảm từ 9,2 MB xuống 817 KB — giảm 91%, vì cả 17 ảnh đều to hơn nhiều so với khổ trang cần.
+
+## Tool nén những gì, bỏ qua những gì?
+
+Hai loại ảnh, giải mã hai cách. Loại thứ nhất có `/Filter` là `DCTDecode` — vốn đã là JPEG, giải mã bằng bộ giải mã JPEG có sẵn của trình duyệt. Loại thứ hai có `/Filter` là `FlateDecode` — pixel thô chỉ được nén dữ liệu bằng zlib, tool tự giải mã lấy: tách bit theo độ sâu 1, 2, 4, 8 hoặc 16 bit/thành phần màu, hoàn tác bộ lọc dự đoán kiểu PNG khi có (Predictor 10–15 — rất phổ biến khi PDF dựng từ một ảnh PNG, kiểu LibreOffice hay các tool chụp-màn-hình-thành-PDF hay làm), và hiểu đúng các không gian màu `DeviceGray`, `DeviceRGB`, `DeviceCMYK`, `CalGray`, `CalRGB`, `ICCBased` (theo số thành phần `/N` khai báo) và `Indexed` (ảnh dùng bảng màu). Ảnh có kênh trong suốt riêng (`/SMask`) cũng được ghép vào kết quả, nhưng **chỉ khi** mặt nạ đó cũng là một ảnh `FlateDecode` hệ `DeviceGray` cùng kích thước pixel với ảnh gốc — mặt nạ mã hoá bằng JPEG, hoặc kích thước không khớp tuyệt đối, là hình dạng tool chưa chứng minh ghép đúng, nên cả ảnh bị bỏ qua nguyên vẹn thay vì liều làm mất độ trong suốt âm thầm. Cũng bị bỏ qua vì lý do tương tự: bộ lọc dự đoán kiểu TIFF (giá trị 2), mảng `/Decode` khác mặc định, `/Mask` (mặt nạ stencil hay color-key, khác `/SMask`), chuỗi nhiều filter kiểu `[/ASCII85Decode /FlateDecode]` thay vì `FlateDecode` đơn thuần, và ảnh có không gian màu không xếp được vào các loại trên (`Separation`, `DeviceN`, `Lab`, `Indexed` dựng trên nền `DeviceCMYK`). Kết quả luôn ghi rõ đã nén lại bao nhiêu ảnh và giữ nguyên bao nhiêu.
+
+## Nén có làm mất dữ liệu không? Ảnh có xấu đi không?
+
+Tuỳ loại ảnh. Ảnh chụp liên tục sắc độ — hệ `DeviceGray`, `DeviceRGB` hay `DeviceCMYK`, không kênh trong suốt — được mã hoá lại thành JPEG, mất dữ liệu mỗi lần mã hoá; dù để chất lượng cao, nén lại một JPEG đã từng nén một lần vẫn mất thêm chút so với lần đầu. Thanh trượt chất lượng đánh đổi dung lượng lấy độ chi tiết, chữ trong trang scan thường vẫn đọc rõ dù để chất lượng khá thấp. Ảnh `DeviceCMYK` còn được quy đổi sang RGB bằng công thức xấp xỉ mọi trình xem không có bộ quản lý màu đầy đủ vẫn dùng — không chính xác màu, tool này không dành cho kiểm màu trước khi in. Ảnh có kênh trong suốt, hoặc dùng bảng màu (`Indexed`) — icon, logo, đồ hoạ phẳng — được mã hoá lại thành **PNG tối ưu, không mất dữ liệu**: không pixel nào bị bỏ, chỉ nén chặt hơn, nên đôi khi giảm rất ít. Tool không đánh đổi tuyên bố "độ phân giải thấp hơn" lấy file to hơn: bản nén to hơn gốc thì giữ nguyên bản gốc. Cần giữ pixel gốc tuyệt đối thì lưu một bản sao trước khi nén.
+
+## Giới hạn độ phân giải (DPI cap) làm gì?
+
+Nó hạ kích thước pixel của ảnh xuống mức tương ứng một DPI mục tiêu, dựa trên giả định — như một trang scan hay ảnh chụp màn hình toàn trang thường vậy — ảnh phủ kín trang nó nằm trên. Với tài liệu chỉ đọc trên màn hình, 150 DPI thường không khác gì bản gốc bằng mắt thường, và đây là đòn giảm dung lượng mạnh nhất cho tài liệu scan hay đầy ảnh chụp màn hình, mạnh hơn cả thanh chất lượng. Giới hạn áp dụng như nhau cho cả ảnh đi đường JPEG lẫn PNG. Ảnh không được trang nào tham chiếu trực tiếp trong `Resources` (ví dụ nằm lồng trong một form) thì bỏ qua giới hạn DPI, chỉ còn thanh chất lượng có tác dụng.
+
+## Số trang hay bố cục có thay đổi không?
+
+Không. Tool này không đụng vào content stream của trang — chuỗi lệnh quyết định chữ, hình vẽ, ảnh nằm ở đâu — nên vị trí mọi thứ, số trang, nội dung chữ đều không đổi. Chỉ có byte của những ảnh đủ điều kiện bị thay thế tại chỗ, vẫn đúng tham chiếu mà phần còn lại của file đang trỏ tới. Có một thay đổi cấu trúc tool CHỦ ĐỘNG làm: khi mặt nạ trong suốt được ghép vào một ảnh PNG kết hợp, object chứa mặt nạ cũ bị xoá khỏi file thay vì để lại làm rác — đo trên một PDF thật 262 ảnh, chỉ riêng bỏ qua bước dọn rác này đã khiến file "đã nén" to hơn file gốc tới 7%.

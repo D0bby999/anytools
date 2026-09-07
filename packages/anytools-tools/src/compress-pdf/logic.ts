@@ -1,5 +1,6 @@
 /**
- * Recompress a PDF's embedded JPEG images with MozJPEG, in place.
+ * Recompress a PDF's embedded images, in place: MozJPEG for opaque continuous-tone images,
+ * oxipng (lossless) for anything with an alpha channel or a palette ("Indexed") colour space.
  *
  * Why this shape, not "extract images then rebuild the PDF": pdf.js (extract-images-from-pdf's
  * approach) hands back a SYNTHETIC per-page id for each image (`img_p${pageIndex}_${counter}`,
@@ -9,24 +10,40 @@
  * that mixes a photo with a caption.
  *
  * So this walks the file the other way: pdf-lib's own object graph, never pdf.js. Every
- * `/Subtype /Image` stream whose `/Filter` is `/DCTDecode` (it already IS a JPEG) is decoded,
- * resized, re-encoded with MozJPEG, and written back to the SAME indirect reference via
- * `JpegEmbedder(...).embedIntoContext(ctx, ref)`. The page's content stream — and any text,
- * vector graphics or annotations on it — is never touched, because nothing here rewrites it.
+ * `/Subtype /Image` stream is decoded, resized, re-encoded, and written back to the SAME
+ * indirect reference via `(Jpeg|Png)Embedder(...).embedIntoContext(ctx, ref)`. The page's
+ * content stream — and any text, vector graphics or annotations on it — is never touched,
+ * because nothing here rewrites it.
+ *
+ * Two source filters are handled, each decoded a different way but joined into one shared
+ * resize/encode/embed tail below:
+ *  - `/DCTDecode` (already a JPEG): decoded with the browser's own `createImageBitmap`.
+ *  - `/FlateDecode` (raw pixel samples, deflate-compressed): decoded by pdf-flate-image-decode.ts
+ *    — see that file's module comment for exactly which `/ColorSpace`/predictor/`/SMask` shapes
+ *    are supported and why. Proven against two real, unrelated production PDFs before shipping:
+ *    a government tax form (`ICCBased(N=3)` RGB + its own `DeviceGray` `/SMask`, no predictor)
+ *    and a digitally-signed contract's signature-stamp image (`DeviceRGB` + `/SMask`, PNG
+ *    predictor 15/"Optimum") — both decoded pixel-correct and are how this tool's own claims
+ *    about FlateDecode support were verified, not guessed at.
  *
  * Deliberately NOT recompressed (left byte-for-byte, `imagesSkipped` counts them): anything
- * used as, or itself using, an `/SMask`/`/Mask` (recompressing a colour channel independently
- * of its alpha mask risks a corrupted composite this tool cannot verify); anything not
- * `/DCTDecode` (`/FlateDecode`, `/CCITTFaxDecode`, `/JPXDecode`, `/JBIG2Decode` all need their
- * `/ColorSpace`/`/BitsPerComponent` interpreted by hand — scanners overwhelmingly emit
- * `/DCTDecode`, so this covers the case that matters without guessing at colour data this tool
- * cannot verify); and anything `createImageBitmap` fails to decode (e.g. a CMYK JPEG many
- * browsers reject).
+ * used as, or itself using, an `/SMask`/`/Mask` this tool cannot verify (see
+ * pdf-flate-image-decode.ts for the FlateDecode-specific rules — DCTDecode images with any
+ * `/SMask`/`/Mask` are always skipped, unchanged from before); any filter besides `/DCTDecode`
+ * or `/FlateDecode` (`/CCITTFaxDecode`, `/JPXDecode`, `/JBIG2Decode`, `/LZWDecode`, multi-filter
+ * chains); and anything the relevant decoder fails to decode.
  */
 import { drawToImageData } from '../shared/canvas-image';
-import { encodeJpegMozjpeg } from '../shared/jsquash-loader';
+import { encodeJpegMozjpeg, encodeOptimizedPng } from '../shared/jsquash-loader';
 import { ToolError } from '../shared/tool-error';
+import { decodeImageForCompression, shouldKeepOriginal } from './pdf-compress-image-decode';
+import type { FlateDecodeDeps } from './pdf-flate-image-decode';
 import { collectMaskRefs, findHostPageSize } from './pdf-image-scan';
+
+// Re-exported so callers (including logic.test.ts) keep a single import path for compress-pdf's
+// pure helpers — the implementation lives in pdf-compress-image-decode.ts, split out to keep
+// this file under this repo's ~200-line module budget.
+export { isGrayColorSpaceName, shouldKeepOriginal } from './pdf-compress-image-decode';
 
 const POINTS_PER_INCH = 72;
 
@@ -38,7 +55,7 @@ export class PdfCompressError extends ToolError {
 }
 
 export type CompressPdfOptions = {
-  /** 1–100 — MozJPEG's own quality scale. */
+  /** 1–100 — MozJPEG's own quality scale. Ignored for images encoded as PNG (lossless). */
   quality: number;
   /** Cap resolution assuming the image fills the page it is first found on. `null` = no cap. */
   maxDpi: number | null;
@@ -75,20 +92,25 @@ export function dpiCappedSize(
   };
 }
 
-/** Is this PDF `/ColorSpace` name one this tool preserves as grayscale rather than upgrading
- *  to a 3-component JPEG (which would triple the size of a black-and-white scan for nothing)? */
-export function isGrayColorSpaceName(name: string | undefined): boolean {
-  return name === '/DeviceGray' || name === '/CalGray';
-}
-
 export async function compressPdf(
   file: File,
   options: CompressPdfOptions,
 ): Promise<CompressPdfResult> {
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const { PDFDocument, PDFName, PDFDict, PDFRawStream, PDFRef, JpegEmbedder } = await import(
-    'pdf-lib'
-  );
+  const {
+    PDFDocument,
+    PDFName,
+    PDFDict,
+    PDFRawStream,
+    PDFRef,
+    PDFArray,
+    PDFNumber,
+    PDFHexString,
+    PDFString,
+    JpegEmbedder,
+    PngEmbedder,
+    decodePDFRawStream,
+  } = await import('pdf-lib');
 
   let pdfDoc: Awaited<ReturnType<typeof PDFDocument.load>>;
   try {
@@ -115,12 +137,23 @@ export async function compressPdf(
   const IMAGE = PDFName.of('Image');
   const FILTER = PDFName.of('Filter');
   const DCT = PDFName.of('DCTDecode');
+  const FLATE = PDFName.of('FlateDecode');
   const SMASK = PDFName.of('SMask');
   const MASK = PDFName.of('Mask');
   const COLOR_SPACE = PDFName.of('ColorSpace');
   const XOBJECT = PDFName.of('XObject');
 
   const maskRefs = collectMaskRefs(objects, PDFRawStream, PDFRef, SMASK, MASK);
+  const flateDeps: FlateDecodeDeps = {
+    PDFName,
+    PDFArray,
+    PDFRawStream,
+    PDFHexString,
+    PDFString,
+    PDFNumber,
+    PDFDict,
+    decodePDFRawStream,
+  };
 
   let imagesRecompressed = 0;
   let imagesSkipped = 0;
@@ -129,15 +162,20 @@ export async function compressPdf(
     if (!(obj instanceof PDFRawStream)) continue;
     const dict = obj.dict;
     if (dict.get(SUBTYPE) !== IMAGE) continue;
-    if (maskRefs.has(ref) || dict.has(SMASK) || dict.has(MASK) || dict.get(FILTER) !== DCT) {
-      imagesSkipped++;
+    if (maskRefs.has(ref)) {
+      imagesSkipped++; // consumed as another image's own /SMask or /Mask
       continue;
     }
 
-    let bitmap: ImageBitmap;
-    try {
-      bitmap = await createImageBitmap(new Blob([obj.getContents()], { type: 'image/jpeg' }));
-    } catch {
+    const filter = dict.get(FILTER);
+    const decoded = await decodeImageForCompression(
+      obj,
+      dict,
+      filter,
+      { DCT, FLATE, SMASK, MASK, COLOR_SPACE },
+      flateDeps,
+    );
+    if (!decoded) {
       imagesSkipped++;
       continue;
     }
@@ -146,35 +184,52 @@ export async function compressPdf(
     const target =
       pageSize && options.maxDpi
         ? dpiCappedSize(
-            bitmap.width,
-            bitmap.height,
+            decoded.bitmap.width,
+            decoded.bitmap.height,
             pageSize.width,
             pageSize.height,
             options.maxDpi,
           )
-        : { width: bitmap.width, height: bitmap.height };
+        : { width: decoded.bitmap.width, height: decoded.bitmap.height };
 
-    const grayscale = isGrayColorSpaceName(dict.get(COLOR_SPACE)?.toString());
-    const imageData = drawToImageData(bitmap, target.width, target.height);
-    bitmap.close();
+    const imageData = drawToImageData(decoded.bitmap, target.width, target.height, {
+      whiteBackground: !decoded.pngLossless,
+    });
+    decoded.bitmap.close();
 
-    let jpegBytes: ArrayBuffer;
+    let encodedBytes: ArrayBuffer;
     try {
-      jpegBytes = await encodeJpegMozjpeg(imageData, options.quality, grayscale);
+      encodedBytes = decoded.pngLossless
+        ? await encodeOptimizedPng(imageData)
+        : await encodeJpegMozjpeg(imageData, options.quality, decoded.grayscale);
     } catch {
       imagesSkipped++;
       continue;
     }
 
-    // Never trade a smaller resolution claim for a bigger file — only keep it if it helped.
-    if (jpegBytes.byteLength >= obj.getContentsSize()) {
+    if (shouldKeepOriginal(encodedBytes.byteLength, decoded.originalSize)) {
       imagesSkipped++;
       continue;
     }
 
-    const embedder = await JpegEmbedder.for(new Uint8Array(jpegBytes));
+    const embedder = decoded.pngLossless
+      ? await PngEmbedder.for(new Uint8Array(encodedBytes))
+      : await JpegEmbedder.for(new Uint8Array(encodedBytes));
     await embedder.embedIntoContext(context, ref);
     imagesRecompressed++;
+
+    // Combining a /SMask (FlateDecode path) always registers a BRAND NEW alpha object at embed
+    // time (see PngEmbedder in pdf-lib) — the OLD one is now unreachable from this image's dict,
+    // but pdf-lib does not garbage-collect on save. Delete it ourselves, and only when we are
+    // SURE nothing else in the document still points to it as a mask (count === 1): measured on
+    // a real 262-image production PDF, skipping this step made the "compressed" file 7% BIGGER
+    // than the input, from dozens of orphaned alpha streams left behind.
+    if (
+      decoded.consumedSmaskRef instanceof PDFRef &&
+      maskRefs.get(decoded.consumedSmaskRef) === 1
+    ) {
+      context.delete(decoded.consumedSmaskRef);
+    }
   }
 
   let outBytes: Uint8Array;

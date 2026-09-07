@@ -19,7 +19,7 @@ const EN = {
   larger: '{n}% larger',
   aboutSame: 'about the same size',
   noImages:
-    'No JPEG image in this PDF could be recompressed. This is expected for a text-only PDF, or one whose images are already small, non-JPEG, or transparency masks — see the FAQ below for the exact scope.',
+    'No embedded image in this PDF could be recompressed. This is expected for a text-only PDF, or one whose images are already small, use an unsupported filter or colour space, or are transparency masks — see the FAQ below for the exact scope.',
   download: 'Download {name}',
   error_pdfSaveFailed:
     'Could not save the compressed PDF ({detail}). This is a bug on our side, not a problem with your file.',
@@ -46,7 +46,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     larger: 'lớn hơn {n}%',
     aboutSame: 'gần như không đổi',
     noImages:
-      'Không có ảnh JPEG nào trong PDF này nén lại được. Đây là điều bình thường với PDF toàn chữ, hoặc PDF có ảnh đã nhỏ sẵn, không phải JPEG, hay là mặt nạ trong suốt — xem FAQ bên dưới để biết đúng phạm vi tool xử lý.',
+      'Không có ảnh nào trong PDF này nén lại được. Đây là điều bình thường với PDF toàn chữ, hoặc PDF có ảnh đã nhỏ sẵn, dùng bộ lọc/không gian màu chưa hỗ trợ, hay là mặt nạ trong suốt — xem FAQ bên dưới để biết đúng phạm vi tool xử lý.',
     download: 'Tải {name}',
     error_pdfSaveFailed:
       'Không lưu được PDF đã nén ({detail}). Đây là lỗi phía chúng tôi, không phải do file của bạn.',
@@ -71,7 +71,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     larger: '{n}% más grande',
     aboutSame: 'casi el mismo tamaño',
     noImages:
-      'Ninguna imagen JPEG de este PDF se pudo recomprimir. Es normal en un PDF solo de texto, o con imágenes ya pequeñas, que no son JPEG, o que son máscaras de transparencia — ve el FAQ abajo para el alcance exacto.',
+      'Ninguna imagen de este PDF se pudo recomprimir. Es normal en un PDF solo de texto, o con imágenes ya pequeñas, con un filtro o espacio de color no compatible, o que son máscaras de transparencia — ve el FAQ abajo para el alcance exacto.',
     download: 'Descargar {name}',
     error_pdfSaveFailed:
       'No se pudo guardar el PDF comprimido ({detail}). Es un fallo nuestro, no un problema de tu archivo.',
@@ -96,7 +96,7 @@ export const STRINGS: LocalizedStrings<typeof EN> = {
     larger: '{n}% maior',
     aboutSame: 'quase o mesmo tamanho',
     noImages:
-      'Nenhuma imagem JPEG deste PDF pôde ser recomprimida. Isso é esperado num PDF só de texto, ou com imagens já pequenas, que não são JPEG, ou que são máscaras de transparência — veja o FAQ abaixo para o escopo exato.',
+      'Nenhuma imagem deste PDF pôde ser recomprimida. Isso é esperado num PDF só de texto, ou com imagens já pequenas, com um filtro ou espaço de cor não suportado, ou que são máscaras de transparência — veja o FAQ abaixo para o escopo exato.',
     download: 'Baixar {name}',
     error_pdfSaveFailed:
       'Não foi possível salvar o PDF comprimido ({detail}). Isso é um erro nosso, não um problema com o seu arquivo.',
