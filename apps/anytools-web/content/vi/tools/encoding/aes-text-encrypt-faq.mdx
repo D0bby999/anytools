@@ -1,0 +1,27 @@
+---
+title: Mã hoá / Giải mã text AES — Câu hỏi thường gặp
+---
+
+## Tool này dùng thuật toán mã hoá gì, cụ thể ra sao?
+
+AES-256-GCM cho phần mã hoá thực sự, với khoá được suy ra từ mật khẩu bạn nhập bằng PBKDF2-HMAC-SHA256, chạy 310.000 vòng lặp. GCM là chế độ mã hoá có xác thực (authenticated encryption): nó không chỉ che giấu nội dung text mà còn tự phát hiện nếu ciphertext bị chỉnh sửa sau khi mã hoá — điều mà một cấu hình AES-CBC thuần không tự làm được. Mỗi lần mã hoá, tool tạo mới hoàn toàn một salt 16 byte và một IV (initialization vector) 12 byte bằng `crypto.getRandomValues`, rồi mới suy khoá và mã hoá — nghĩa là quy trình này chạy đúng hai bước bắt buộc của một hệ mã hoá đối xứng hiện đại: suy khoá đủ chậm để chống brute-force, và mã hoá có xác thực để chống giả mạo âm thầm.
+
+## Vì sao chọn đúng 310.000 vòng lặp PBKDF2?
+
+Con số này lấy thẳng từ khuyến nghị tối thiểu của OWASP (bản 2023) cho tổ hợp PBKDF2-HMAC-SHA256, không phải một số tuỳ chọn của riêng tool. Càng nhiều vòng lặp, kẻ tấn công lấy được đoạn ciphertext của bạn càng phải tốn nhiều tài nguyên tính toán hơn cho mỗi lần đoán mật khẩu khi brute-force ngoại tuyến — chi phí tăng gần như tuyến tính theo số vòng. Hệ quả trực tiếp là mỗi lần bạn bấm mã hoá hoặc giải mã, tool mất một khoảng thời gian rất nhỏ nhưng có chủ đích chứ không phải tức thời — độ trễ đó chính là mục đích của việc chọn 310.000, không phải một hiệu ứng phụ cần tối ưu đi.
+
+## Tôi có thể giải mã kết quả này bằng openssl hay 7-zip không?
+
+Không. Kết quả đầu ra là chuỗi Base64 của `salt (16 byte) || IV (12 byte) || ciphertext` nối liền nhau — một bố cục tool tự định nghĩa cho riêng mình, để có thể tự giải mã lại mà chỉ cần hỏi bạn mật khẩu, không cần thêm tham số nào khác. Đây không phải định dạng PKCS#7, không phải header của lệnh `openssl enc`, cũng không phải archive AES của 7-Zip — không công cụ ngoài nào đọc hiểu được cấu trúc byte này. Nếu bạn cần một định dạng liên thông được với công cụ khác, hãy dùng tính năng mã hoá tích hợp sẵn của một trình nén tổng quát; tool này đánh đổi khả năng liên thông để lấy sự đơn giản: dán chuỗi Base64 vào, dán mật khẩu vào, xong.
+
+## Vì sao nhập sai mật khẩu chỉ báo đúng một lỗi chung chung?
+
+Vì bước kiểm tra thẻ xác thực (authentication tag) của GCM chỉ trả về đúng/sai, WebCrypto không cho biết *vì sao* nó sai, và tool truyền thẳng sự mơ hồ đó ra thay vì tự đoán thêm. Sai mật khẩu, dán thiếu một đoạn do lỗi copy-paste, hay một bit trong ciphertext bị ai đó chỉnh sửa — cả ba trường hợp đều cho ra đúng một thông báo giải mã thất bại giống hệt nhau. Đây là chủ đích chứ không phải thiếu sót: nếu thông báo lỗi cụ thể hơn, nó sẽ vô tình tiết lộ cho kẻ tấn công biết chính xác họ đang gặp phải kiểu thất bại nào trong ba kiểu đó.
+
+## Mã hoá cùng một đoạn text hai lần có ra cùng kết quả Base64 không?
+
+Không, và đây là chủ đích. Mỗi lần mã hoá đều rút một salt và một IV ngẫu nhiên hoàn toàn mới, nên cùng một cặp plaintext và mật khẩu sẽ cho ra một chuỗi Base64 khác nhau mỗi lần chạy. Nếu không làm vậy, bất kỳ ai nhìn thấy hai kết quả mã hoá giống hệt nhau sẽ suy ra được rằng hai đoạn plaintext gốc trùng nhau — một điểm yếu có thật của kiểu mã hoá tất định (deterministic encryption), dù bản thân thuật toán AES vẫn mạnh.
+
+## Mã hoá trong trình duyệt như thế này có thực sự an toàn không?
+
+Để bảo vệ một ghi chú hay một bí mật nhỏ trong lúc nó được copy giữa các thiết bị của chính bạn, hay nằm trong file text, ghi chú, hay lịch sử chat — có, đây là mã hoá có xác thực đúng chuẩn, không phải trò tự chế yếu ớt. Nhưng nó không bảo vệ được nếu chính thiết bị bạn đang dùng đã bị chiếm quyền từ trước: mã độc hay keylogger đang theo dõi đúng tab trình duyệt đó đọc được thẳng mật khẩu và text gốc bạn gõ vào, không thuật toán mã hoá nào chống lại được kiểu tấn công này. Ngoài ra, dữ liệu cũng chưa từng rời khỏi máy bạn ngay từ đầu — mã hoá và giải mã đều chạy cục bộ bằng WebCrypto (đòi hỏi ngữ cảnh an toàn HTTPS hoặc localhost, nếu không `crypto.subtle` sẽ không tồn tại), nên không có gì để chặn trên đường truyền mạng cả. Mật khẩu bạn nhập chỉ được dùng đúng một lần trong bộ nhớ để suy ra khoá rồi bị bỏ đi ngay — đóng tab lại là mọi thứ, kể cả khoá đã suy ra, biến mất hoàn toàn.

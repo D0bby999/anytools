@@ -1,0 +1,27 @@
+---
+title: Mô phỏng mù màu — Câu hỏi thường gặp
+---
+
+## Sự khác nhau giữa protanopia, deuteranopia, tritanopia và achromatopsia là gì?
+
+Bốn cái tên này ứng với bốn kiểu thiếu tế bào nón (cone cell) khác nhau ở võng mạc. Protanopia là mất hẳn nón L — loại nhạy với bước sóng dài, thường gọi là nón "đỏ". Deuteranopia là mất nón M — bước sóng trung, nón "lục". Tritanopia là mất nón S — bước sóng ngắn, nón "lam", và hiếm hơn hẳn hai loại kia vì cơ chế di truyền khác biệt (gene nằm trên nhiễm sắc thể số 7, không phải nhiễm sắc thể X như protanopia/deuteranopia). Protanopia và deuteranopia hay bị gộp chung thành "mù màu đỏ-lục" vì cả hai đều làm khó phân biệt đỏ với lục, dù cặp màu cụ thể bị lẫn không hoàn toàn giống nhau giữa hai loại. Achromatopsia đứng riêng hẳn: đây không phải mất một loại nón, mà là mất khả năng nhìn màu hoàn toàn — không còn nón nào hoạt động, chỉ còn tế bào que (rod) chỉ truyền được độ sáng. Vì vậy tool xếp achromatopsia là lựa chọn thứ tư, tách biệt về mặt tính toán với ba loại dichromacy (mù một loại nón) còn lại, như phần dưới sẽ giải thích.
+
+## Phép toán đằng sau việc mô phỏng màu sắc hoạt động thế nào?
+
+Với ba loại dichromacy (protanopia, deuteranopia, tritanopia), mỗi điểm ảnh sRGB được đưa qua một chuỗi biến đổi: chuyển sang RGB tuyến tính (bỏ gamma), sang không gian CIE XYZ, rồi sang không gian LMS — ba con số biểu diễn phản ứng của nón L, M, S trước màu đó. Khi một loại nón không tồn tại, giá trị của trục đó được "dựng lại" bằng cách chiếu nó lên đường thẳng nối hai trục còn lại — gọi là "đường lẫn lộn" (confusion line), tức hướng trong không gian màu mà một người thiếu loại nón đó không phân biệt được. Sau khi chiếu xong, kết quả đi ngược lại qua XYZ và RGB tuyến tính để ra sRGB hiển thị được. Đây chính là phương pháp trong bài báo của Brettel, Viénot và Mollon, "Computerized simulation of color appearance for dichromats" (J. Opt. Soc. Am. A, 1997), được đơn giản hoá năm 1999 xuống còn đúng một phép nhân ma trận 3×3 cho mỗi loại mù màu — năm ma trận liên tiếp gộp thành một do phép nhân ma trận có tính kết hợp, giúp xử lý nhanh trên từng điểm ảnh của một tấm ảnh lớn.
+
+## Vì sao achromatopsia lại tính theo cách khác hẳn ba loại mù màu kia?
+
+Vì achromatopsia không còn loại nón nào để "chiếu lên" cả — công thức LMS ở trên cần ít nhất hai trục còn hoạt động để dựng lại trục thứ ba, nhưng achromatopsia mất cả ba. Một người achromatopsia hoàn toàn chỉ nhìn bằng tế bào que, vốn chỉ mang thông tin độ sáng chứ không mang màu sắc. Vì vậy tool chuyển thẳng ảnh sang thang xám bằng công thức luma chuẩn ITU-R BT.709: độ sáng = 0,2126×đỏ + 0,7152×lục + 0,0722×lam. Trọng số lục cao nhất vì mắt người nhạy với ánh sáng lục nhất ở mọi mức sáng, còn lam thấp nhất vì mắt kém nhạy với lam hơn hẳn. Đây đúng là công thức mà chính bộ lọc grayscale của trình duyệt và nhiều chuẩn video dùng, không phải một con số tự chọn riêng cho tool này.
+
+## Các ma trận hệ số dùng trong tool lấy từ nguồn nào?
+
+Toàn bộ ma trận số (sRGB↔XYZ, ma trận Hunt-Pointer-Estevez cho XYZ↔LMS, và ba ma trận chiếu dichromat) được chép lại từ trang tính toán chi tiết của Martin Krzywinski, chuyên gia trực quan hoá dữ liệu sinh học tại BC Genome Sciences Centre (mk.bcgsc.ca/colorblind/math.mhtml), nơi trình bày từng bước của cả chuỗi biến đổi kèm ma trận trung gian. Cách để tin đây không phải số bịa: ma trận sRGB→XYZ trên trang đó khớp với bảng tham chiếu chuẩn dùng chung trong ngành khoa học màu sắc, cùng loại số liệu Bruce Lindbloom công bố và được trích dẫn rộng rãi — nếu số bị chép sai, phép so khớp chéo này sẽ lộ ra ngay.
+
+## Đây có phải phép mô phỏng chính xác tuyệt đối không, hay chỉ là xấp xỉ?
+
+Chỉ là xấp xỉ, và điều này ảnh hưởng đến cách bạn nên dùng kết quả. Có hai giới hạn được ghi rõ trong code chứ không giấu đi. Thứ nhất, phép chiếu đôi khi cho ra một màu nằm ngoài dải màu (gamut) mà màn hình sRGB hiển thị được — tool xử lý bằng cách kẹp giá trị về [0, 255], đơn giản hơn nhiều so với bước "nén gamut toàn ảnh" một số công trình nghiên cứu áp dụng, vốn cần xử lý cả dải màu toàn ảnh chứ không chỉ một điểm ảnh riêng lẻ. Thứ hai — và quan trọng hơn — tool chỉ mô phỏng dichromacy, tức mất hoàn toàn một loại nón. Trên thực tế, dạng phổ biến và nhẹ hơn của rối loạn thị giác màu là "anomalous trichromacy" — vẫn còn cả ba loại nón nhưng một loại lệch phổ nhạy, chứ không mất hẳn. Tool này không mô phỏng được mức độ nhẹ đó. Nên hiểu kết quả là "cái nhìn gần đúng của người mất hoàn toàn loại nón này", không phải kết quả kiểm định chính xác cho một cá nhân cụ thể.
+
+## Ảnh tôi tải lên để mô phỏng có rời khỏi máy không?
+
+Không. Việc giải mã ảnh, toàn bộ phép tính trên từng điểm ảnh, và khung so sánh hiển thị đều chạy bằng Canvas API ngay trong tab trình duyệt. Chế độ nhập mã màu hex cũng gọi đúng hàm tính từng điểm ảnh đó — chỉ chạy đúng một lần thay vì hàng triệu lần cho cả bức ảnh — nên hai chế độ luôn cho kết quả nhất quán với nhau, không phải hai công thức khác nhau được viết riêng. Không có ảnh, tên file hay mã màu nào bạn nhập được gửi đi đâu cả; bạn có thể tự kiểm chứng bằng cách mở tab Network trong DevTools trước khi tải ảnh lên, hoặc ngắt mạng sau khi trang đã tải xong rồi thử — tool vẫn mô phỏng bình thường vì không có gì cần gửi đi.

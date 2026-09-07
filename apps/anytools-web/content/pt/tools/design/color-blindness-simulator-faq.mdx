@@ -1,0 +1,27 @@
+---
+title: Simulador de daltonismo — Perguntas frequentes
+---
+
+## O que diferencia protanopia, deuteranopia, tritanopia e acromatopsia?
+
+São quatro tipos diferentes de ausência de cones na retina. Protanopia é a falta total do cone L, sensível a comprimentos de onda longos (o cone "vermelho"). Deuteranopia é a falta do cone M, de comprimento médio (o "verde"). Tritanopia é a falta do cone S, de comprimento curto (o "azul"), e é bem mais rara que as outras duas por ter uma base genética diferente — o gene fica no cromossomo 7, não no X como nas outras duas. Protanopia e deuteranopia costumam ser chamadas juntas de "daltonismo vermelho-verde" porque ambas dificultam distinguir essas cores, mesmo que os pares exatos confundidos não sejam idênticos entre os dois tipos. Já a acromatopsia é um caso à parte: não é a falta de um cone específico, é a ausência completa de visão de cor — nenhum dos três tipos de cone funciona, sobrando apenas os bastonetes, que só carregam informação de brilho. Por isso a acromatopsia é calculada de um jeito totalmente diferente das outras três, como a próxima pergunta explica.
+
+## Como a simulação converte uma cor, matematicamente?
+
+Para as três dicromacias (protanopia, deuteranopia, tritanopia), o valor sRGB de cada pixel passa por uma cadeia de conversões: primeiro para luz linear (removendo a correção gama), depois para o espaço CIE XYZ, e então para o espaço LMS — três números que representam a resposta dos cones L, M e S àquela cor. Quando um tipo de cone está ausente, o eixo correspondente é reconstruído projetando-o sobre a linha que liga os outros dois eixos — a chamada "linha de confusão", a direção do espaço de cor em que essa pessoa não percebe diferença nenhuma. O resultado volta por XYZ e RGB linear até chegar de novo em sRGB, pronto para exibir na tela. Esse é exatamente o método do artigo de Brettel, Viénot e Mollon de 1997 sobre simulação da aparência de cores para dicromatas, que os próprios autores simplificaram em 1999 para uma única multiplicação de matriz 3×3 por tipo — as cinco matrizes da cadeia se combinam numa só porque multiplicação de matrizes é associativa, o que importa quando isso roda em cada pixel de uma foto inteira.
+
+## De onde vêm os números das matrizes usadas aqui?
+
+Foram transcritos da derivação publicada por Martin Krzywinski, especialista em visualização de dados no BC Genome Sciences Centre, numa página que mostra passo a passo cada matriz intermediária do caminho sRGB→LMS→sRGB. A forma de confiar que não são números inventados para esta ferramenta é que as matrizes sRGB↔XYZ dessa página batem com os valores de referência padrão usados em toda a ciência da cor — os mesmos publicados na tabela de Bruce Lindbloom, amplamente citada. Se algum coeficiente tivesse sido copiado errado, essa verificação cruzada teria denunciado.
+
+## A acromatopsia usa o mesmo cálculo LMS das outras deficiências?
+
+Não. Como não sobra nenhum eixo de cone funcionando, não há sobre o que projetar — a matemática LMS descrita acima depende de pelo menos dois eixos vivos para reconstruir o terceiro, e a acromatopsia total elimina os três. Por isso a ferramenta converte a imagem direto para tons de cinza usando os pesos de luminância padrão ITU-R BT.709: luminância = 0,2126×vermelho + 0,7152×verde + 0,0722×azul. O peso do verde é o maior porque o olho humano é mais sensível à luz verde em praticamente qualquer nível de brilho, e o do azul é o menor pelo motivo oposto — é a mesma fórmula por trás do próprio filtro de escala de cinza dos navegadores, não um número escolhido à mão para este simulador.
+
+## Essa simulação é exata ou uma aproximação — o que fica de fora?
+
+É uma aproximação, e isso importa para como você deve interpretar o resultado. Duas simplificações estão registradas diretamente no código, sem esconder nada. A primeira: a projeção às vezes gera uma cor fora do gamut que uma tela sRGB consegue exibir, e aqui o valor é simplesmente cortado para [0, 255], em vez de aplicar o passo de "compressão de gamut" da imagem inteira que algumas implementações acadêmicas usam — esse passo precisa conhecer a faixa de cor de toda a foto, não de um pixel isolado. A segunda, mais de fundo: esta ferramenta simula apenas dicromacia, ou seja, ausência total de um tipo de cone. Na prática, a forma mais comum e mais leve de deficiência de visão de cor é a tricromacia anômala — os três cones continuam presentes, só que um deles tem a sensibilidade espectral deslocada em vez de estar ausente — e essa forma não é simulada aqui. Leia o resultado como "aproximadamente o que alguém sem nenhum funcionamento desse cone veria", não como um diagnóstico preciso para uma pessoa específica.
+
+## O modo de cor única usa a mesma matemática do modo imagem, e algo é enviado a um servidor?
+
+Sim para a primeira parte, não para a segunda. O modo de código de cor chama exatamente a mesma função por pixel usada no modo imagem, só que uma única vez em vez de milhões de vezes — por isso os dois modos sempre dão resultados coerentes entre si, não são duas fórmulas escritas separadamente. E não, nada sai do seu computador: a decodificação da imagem, todo o cálculo pixel a pixel e o painel de comparação rodam inteiramente no navegador usando a Canvas API. Você pode conferir abrindo a aba Network do navegador antes de enviar uma imagem, ou desligando a internet depois que a página carregar — o simulador continua funcionando normalmente, porque não há nada para enviar a lugar nenhum.
