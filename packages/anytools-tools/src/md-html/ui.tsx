@@ -4,6 +4,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   PrivacyNote,
   Tabs,
@@ -50,15 +51,7 @@ export function MdHtmlUi() {
           </TabsList>
         </Tabs>
         {mode === 'md-to-html' && (
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={gfm}
-              onChange={(e) => setGfm(e.target.checked)}
-              className="h-4 w-4"
-            />
-            {s.gfm}
-          </label>
+          <CheckboxField label={s.gfm} checked={gfm} onCheckedChange={(v) => setGfm(v === true)} />
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

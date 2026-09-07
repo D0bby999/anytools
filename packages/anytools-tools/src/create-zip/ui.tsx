@@ -8,6 +8,7 @@ import {
   Input,
   MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
   useLocalized,
 } from '@anytools/ui';
 import { useState } from 'react';
@@ -80,22 +81,18 @@ export function CreateZipUi() {
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="space-y-1 text-sm">
-            <span className="block text-muted-foreground">
-              {s.compressionLevel}: {level}
-              {level === 0 ? ` — ${s.levelStore}` : ''}
-            </span>
-            <input
-              type="range"
+          <div className="space-y-1">
+            <RangeSlider
+              label={s.compressionLevel}
+              value={level}
               min={0}
               max={9}
-              step={1}
-              value={level}
-              onChange={(e) => setLevel(Number(e.target.value) as CompressionLevel)}
-              className="w-full"
-              aria-label={s.compressionLevel}
+              onChange={(v) => setLevel(v as CompressionLevel)}
             />
-          </label>
+            {/* Level 0 means "store, do not compress" — worth spelling out, because a slider
+                at its minimum otherwise reads as "least compression" rather than "none". */}
+            {level === 0 && <p className="text-xs text-muted-foreground">{s.levelStore}</p>}
+          </div>
 
           <div className="space-y-1 text-sm">
             {/* htmlFor rather than wrapping: <Input> is a component, and the a11y rule (rightly)

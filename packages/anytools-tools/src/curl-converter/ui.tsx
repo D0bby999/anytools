@@ -1,10 +1,17 @@
 'use client';
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CopyButton,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
   useLocalized,
   useUiStrings,
@@ -56,27 +63,24 @@ export function CurlConverterUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.target}</span>
-            <select
-              value={target}
-              onChange={(e) => setTarget(e.target.value as Target)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {TARGETS.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={() => setCurl(EXAMPLE)}
-            className="text-sm text-primary hover:underline"
-          >
+          <div className="space-y-1.5">
+            <Label htmlFor="curl-target">{s.target}</Label>
+            <Select value={target} onValueChange={(v) => setTarget(v as Target)}>
+              <SelectTrigger id="curl-target" className="min-w-36">
+                <SelectValue>{target}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {TARGETS.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setCurl(EXAMPLE)}>
             {ui.tryExample}
-          </button>
+          </Button>
         </div>
         {/* Unlike the rest of the catalogue this tool cannot run client-side — parsing curl
             needs tree-sitter on the server. This sits above the input, not below it: a warning

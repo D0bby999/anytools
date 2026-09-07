@@ -4,7 +4,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Label,
+  MultiFileDropzone,
   PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -82,47 +90,41 @@ export function ImageFormatConverterUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.sourceImage}</span>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:opacity-90"
-            />
-          </label>
+          <MultiFileDropzone
+            files={file ? [file] : []}
+            onChange={(files) => setFile(files[0] ?? null)}
+            accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
+            multiple={false}
+            label={s.sourceImage}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{s.targetFormat}</span>
-            <select
-              value={target}
-              onChange={(e) => setTarget(e.target.value as TargetFormat)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {FORMATS.map((f) => (
-                <option key={f} value={f}>
-                  {f.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="ifc-target">{s.targetFormat}</Label>
+            <Select value={target} onValueChange={(v) => setTarget(v as TargetFormat)}>
+              <SelectTrigger id="ifc-target">
+                <SelectValue>{target.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {FORMATS.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {(target === 'jpeg' || target === 'webp') && (
-            <label className="text-sm">
-              <span className="block mb-1 text-muted-foreground">
-                {s.quality.replace('{p}', String(Math.round(quality * 100)))}
-              </span>
-              <input
-                type="range"
-                min={0.1}
-                max={1}
-                step={0.05}
-                value={quality}
-                onChange={(e) => setQuality(Number(e.target.value))}
-                className="w-full"
-              />
-            </label>
+            <RangeSlider
+              label={s.qualityLabel}
+              unit="%"
+              value={Math.round(quality * 100)}
+              min={10}
+              max={100}
+              step={5}
+              onChange={(v) => setQuality(v / 100)}
+            />
           )}
         </div>
 

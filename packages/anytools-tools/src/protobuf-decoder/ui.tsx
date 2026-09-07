@@ -7,6 +7,11 @@ import {
   CardTitle,
   PrivacyNote,
   SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Tabs,
   TabsContent,
   TabsList,
@@ -168,17 +173,18 @@ export function ProtobufDecoderUi() {
               {messageTypes.length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">{s.noTypesFound}</p>
               ) : (
-                <select
-                  value={messageType}
-                  onChange={(e) => setMessageType(e.target.value)}
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-mono"
-                >
-                  {messageTypes.map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
+                <Select value={messageType} onValueChange={setMessageType}>
+                  <SelectTrigger aria-label={s.messageTypeLabel} className="font-mono">
+                    <SelectValue>{messageType}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {messageTypes.map((name) => (
+                      <SelectItem key={name} value={name} className="font-mono">
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
           </TabsContent>

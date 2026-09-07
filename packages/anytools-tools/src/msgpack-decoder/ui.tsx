@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  MultiFileDropzone,
   PrivacyNote,
   SegmentedControl,
   Textarea,
@@ -168,18 +169,16 @@ export function MsgpackDecoderUi() {
               className="font-mono text-sm"
               aria-label={s.payloadLabel}
             />
-            <label className="block text-sm text-muted-foreground">
-              {s.uploadFile}
-              <input
-                type="file"
-                accept=".msgpack,application/x-msgpack,application/octet-stream"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void handleFile(file);
-                }}
-                className="block w-full text-sm mt-1"
-              />
-            </label>
+            <MultiFileDropzone
+              files={[]}
+              onChange={(files) => {
+                const file = files[0];
+                if (file) void handleFile(file);
+              }}
+              accept=".msgpack,application/x-msgpack,application/octet-stream"
+              multiple={false}
+              label={s.uploadFile}
+            />
           </div>
         ) : (
           <div>

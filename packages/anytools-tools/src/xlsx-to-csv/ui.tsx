@@ -5,9 +5,18 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
+  Label,
   MultiFileDropzone,
   PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useLocalized,
   useUiStrings,
 } from '@anytools/ui';
@@ -191,83 +200,79 @@ export function XlsxToCsvUi() {
 
         {sheets && sheet && (
           <div className="space-y-4">
-            <label className="block text-sm">
-              <span className="mb-1 block text-muted-foreground">
+            <div className="space-y-1.5">
+              <Label htmlFor="xlsx-sheet">
                 {s.sheetLabel.replace('{n}', String(sheets.length))}
-              </span>
-              <select
-                value={active}
-                onChange={(e) => setActive(Number(e.target.value))}
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {sheets.map((sh, i) => (
-                  <option key={sh.name} value={i}>
-                    {sh.name} —{' '}
-                    {(sh.rows.length === 1 ? s.rowOne : s.rowMany).replace(
-                      '{n}',
-                      String(sh.rows.length),
-                    )}
-                  </option>
-                ))}
-              </select>
-            </label>
+              </Label>
+              <Select value={String(active)} onValueChange={(v) => setActive(Number(v))}>
+                <SelectTrigger id="xlsx-sheet">
+                  <SelectValue>{sheets[active]?.name ?? ''}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {sheets.map((sh, i) => (
+                    <SelectItem key={sh.name} value={String(i)}>
+                      {sh.name} —{' '}
+                      {(sh.rows.length === 1 ? s.rowOne : s.rowMany).replace(
+                        '{n}',
+                        String(sh.rows.length),
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <fieldset className="space-y-2">
-              <legend className="text-sm text-muted-foreground">{ui.output}</legend>
-              <div className="flex gap-4">
+            <div className="space-y-1.5">
+              <span className="block text-sm font-medium">{ui.output}</span>
+              <RadioGroup
+                value={format}
+                onValueChange={(v) => setFormat(v as 'csv' | 'json')}
+                aria-label={ui.output}
+                className="flex gap-3"
+              >
                 {(['csv', 'json'] as const).map((f) => (
-                  <label key={f} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="xlsx-format"
-                      checked={format === f}
-                      onChange={() => setFormat(f)}
-                    />
-                    {f.toUpperCase()}
-                  </label>
+                  <RadioGroupField key={f} value={f} label={f.toUpperCase()} />
                 ))}
-              </div>
-            </fieldset>
+              </RadioGroup>
+            </div>
 
             {format === 'csv' ? (
               <div className="space-y-2">
-                <label className="block text-sm">
-                  <span className="mb-1 block text-muted-foreground">{s.delimiter}</span>
-                  <select
-                    value={delimiter}
-                    onChange={(e) => setDelimiter(e.target.value as Delimiter)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                  >
-                    {DELIMITERS.map((d) => (
-                      <option key={d.key} value={d.value}>
-                        {s[d.key]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={quoteAll}
-                    onChange={(e) => setQuoteAll(e.target.checked)}
-                  />
-                  {s.quoteAll}
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={bom} onChange={(e) => setBom(e.target.checked)} />
-                  {s.bom}
-                </label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="xlsx-delimiter">{s.delimiter}</Label>
+                  <Select value={delimiter} onValueChange={(v) => setDelimiter(v as Delimiter)}>
+                    <SelectTrigger id="xlsx-delimiter">
+                      <SelectValue>
+                        {s[DELIMITERS.find((d) => d.value === delimiter)?.key ?? 'comma']}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DELIMITERS.map((d) => (
+                        <SelectItem key={d.key} value={d.value}>
+                          {s[d.key]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <CheckboxField
+                  label={s.quoteAll}
+                  checked={quoteAll}
+                  onCheckedChange={(v) => setQuoteAll(v === true)}
+                />
+                <CheckboxField
+                  label={s.bom}
+                  checked={bom}
+                  onCheckedChange={(v) => setBom(v === true)}
+                />
               </div>
             ) : (
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={firstRowAsKeys}
-                    onChange={(e) => setFirstRowAsKeys(e.target.checked)}
-                  />
-                  {s.firstRowKeys}
-                </label>
+                <CheckboxField
+                  label={s.firstRowKeys}
+                  checked={firstRowAsKeys}
+                  onCheckedChange={(v) => setFirstRowAsKeys(v === true)}
+                />
                 <p className="text-sm text-muted-foreground">
                   {richText(s.jsonNote, { link: csvJsonLink })}
                 </p>

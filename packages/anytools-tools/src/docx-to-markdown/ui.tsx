@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   MultiFileDropzone,
   PrivacyNote,
@@ -143,17 +144,14 @@ export function DocxToMarkdownUi() {
           })}
         </p>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={includeImages}
-            onChange={(e) => {
-              setIncludeImages(e.target.checked);
-              setResult(null);
-            }}
-          />
-          {s.embedImages}
-        </label>
+        <CheckboxField
+          label={s.embedImages}
+          checked={includeImages}
+          onCheckedChange={(v) => {
+            setIncludeImages(v === true);
+            setResult(null);
+          }}
+        />
 
         {tooLarge && (
           <output className="block rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

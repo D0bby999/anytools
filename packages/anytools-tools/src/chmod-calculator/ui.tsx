@@ -4,6 +4,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Checkbox,
+  CheckboxField,
   CopyButton,
   Input,
   PrivacyNote,
@@ -61,17 +63,15 @@ export function ChmodCalculatorUi() {
                   <td className="py-2 pr-4 capitalize font-medium">{s[who]}</td>
                   {PERMS.map((perm) => (
                     <td key={perm} className="py-2 px-3">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={state[who][perm]}
-                        onChange={(e) =>
+                        onCheckedChange={(v) =>
                           applyState({
                             ...state,
-                            [who]: { ...state[who], [perm]: e.target.checked },
+                            [who]: { ...state[who], [perm]: v === true },
                           })
                         }
                         aria-label={`${s[who]} ${s[perm]}`}
-                        className="h-4 w-4 accent-[var(--color-accent)]"
                       />
                     </td>
                   ))}
@@ -83,15 +83,12 @@ export function ChmodCalculatorUi() {
 
         <div className="flex flex-wrap gap-4 text-sm">
           {(['setuid', 'setgid', 'sticky'] as const).map((bit) => (
-            <label key={bit} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={state[bit]}
-                onChange={(e) => applyState({ ...state, [bit]: e.target.checked })}
-                className="h-4 w-4 accent-[var(--color-accent)]"
-              />
-              {bit}
-            </label>
+            <CheckboxField
+              key={bit}
+              label={bit}
+              checked={state[bit]}
+              onCheckedChange={(v) => applyState({ ...state, [bit]: v === true })}
+            />
           ))}
         </div>
 

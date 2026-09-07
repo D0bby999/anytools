@@ -6,7 +6,13 @@ import {
   CardHeader,
   CardTitle,
   CopyButton,
+  Label,
   PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
   useLocalized,
   useUiStrings,
@@ -48,37 +54,39 @@ export function JsonYamlTomlUi() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-3 items-end">
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{ui.from}</span>
-            <select
-              value={from}
-              onChange={(e) => setFrom(e.target.value as Format)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {FORMATS.map((f) => (
-                <option key={f} value={f}>
-                  {f.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="jyt-from">{ui.from}</Label>
+            <Select value={from} onValueChange={(v) => setFrom(v as Format)}>
+              <SelectTrigger id="jyt-from" className="min-w-28">
+                <SelectValue>{from.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {FORMATS.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button variant="outline" onClick={swap}>
             {s.swap}
           </Button>
-          <label className="text-sm">
-            <span className="block mb-1 text-muted-foreground">{ui.to}</span>
-            <select
-              value={to}
-              onChange={(e) => setTo(e.target.value as Format)}
-              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {FORMATS.map((f) => (
-                <option key={f} value={f}>
-                  {f.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="jyt-to">{ui.to}</Label>
+            <Select value={to} onValueChange={(v) => setTo(v as Format)}>
+              <SelectTrigger id="jyt-to" className="min-w-28">
+                <SelectValue>{to.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {FORMATS.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button variant="ghost" onClick={autoDetect}>
             {s.autoDetect}
           </Button>

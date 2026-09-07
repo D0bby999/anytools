@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   CopyButton,
   PrivacyNote,
   Tabs,
@@ -56,15 +57,11 @@ export function CsvJsonUi() {
           </TabsList>
         </Tabs>
         {mode === 'csv-to-json' && (
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={hasHeader}
-              onChange={(e) => setHasHeader(e.target.checked)}
-              className="h-4 w-4"
-            />
-            {s.firstRowHeader}
-          </label>
+          <CheckboxField
+            label={s.firstRowHeader}
+            checked={hasHeader}
+            onCheckedChange={(v) => setHasHeader(v === true)}
+          />
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
