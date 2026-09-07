@@ -7,7 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-09-04
+## [1.1.0] - 2026-09-07
+
+The first release that actually reaches anyone. 1.0.0 below was built, documented and
+gated on 2026-09-04 but never published — no git tag was ever pushed, so the workflow that
+builds the image never ran: there was no GitHub Release and nothing at
+`ghcr.io/d0bby999/anytools`. This release ships that work plus everything since.
+
+### Added
+
+- **25 tools**, taking the catalog from 107 to 132 across the same 13 clusters. All still
+  browser-side, MIT, no upload:
+  - *Crypto/security*: `aes-text-encrypt` (AES-256-GCM, PBKDF2), `rsa-keypair-generator`
+    (RSA + Ed25519 where the browser has it), `hmac-generator` (hex keys, constant-time
+    verify), `jwt-sign-verify` (HS/RS/ES; `alg: none` refused), `x509-certificate-decoder`,
+    `bip39-mnemonic`.
+  - *Data*: `json-schema-validator` (draft-07 + 2020-12), `protobuf-decoder` (with and
+    without a `.proto`), `msgpack-decoder`, `jq-playground` (real jq in a cancellable
+    worker), `sql-playground` (SQLite in the tab), `token-counter`.
+  - *PDF*: `pdf-password` (set and remove), `compress-pdf` (recompresses embedded JPEGs).
+  - *Image*: `rotate-image`, `watermark-image`, `image-to-base64`,
+    `youtube-thumbnail-grabber`.
+  - *Files/media*: `font-converter` (TTF/OTF ⇄ WOFF1 + real subsetting), `audio-trim`,
+    `stl-obj-viewer`.
+  - *Text/design/time*: `unicode-cleaner` (invisible characters + homoglyphs),
+    `cubic-bezier-generator`, `color-blindness-simulator`, `discord-timestamp-generator`.
+- **Vietnamese tool content**: 56 hand-written FAQ bodies (~49,900 words), which moved those
+  pages from `noindex` to indexable.
+
+### Changed
+
+- `compress-image` now encodes with mozjpeg and oxipng instead of `canvas.toBlob`. Measured
+  on the same source at the same quality: JPEG 159.6 KB → 105 KB, PNG 160 KB → 34 KB.
+- The Content-Security-Policy is enforced rather than report-only.
+
+### Known limitations — stated because they are easy to hit
+
+- `compress-pdf` only recompresses `/DCTDecode` (already-JPEG) images. A PDF whose images are
+  `/FlateDecode`, `/CCITTFaxDecode`, `/JPXDecode` or `/JBIG2Decode`, or that uses an `/SMask`,
+  is left alone: measured on a real 924 KB form, the reduction is 0.2%. Scans and photos are
+  usually JPEG and do compress (78% on a 1.2 MB three-page scan at quality 60 / 150 DPI). The
+  tool says so on screen when it recompresses nothing rather than handing back a "compressed"
+  file.
+- `font-converter` does not do WOFF2 (that needs Brotli, which browsers do not expose as a
+  compression codec) and does not convert TTF ⇄ OTF outlines.
+- `audio-trim` exports WAV only; MP3 encoding would mean an LGPL dependency this repo cannot
+  take. A trimmed WAV is usually larger than the source file.
+- `image-to-svg` was cut: `@visioncortex/vtracer` publishes only a Node build that reads its
+  own `.wasm` off disk at load, so it cannot run in a browser bundle at all.
+- The 25 tools above ship English FAQ bodies. Their `/vi`, `/es` and `/pt` pages serve
+  `noindex` until a translated body exists.
+
+### Verified
+
+Release gate run against this build in self-host mode: **613 routes expected to serve did
+serve, 11 expected to be blocked were blocked, 0 failures** (1.0.0's numbers were 415 and 11).
+Test suite: 1844 + 185 + 86 passing.
+
+
+## [1.0.0] - 2026-09-04 (built, never published)
 
 First self-host release. AnyTools has run at [anytools.world](https://anytools.world)
 for months; this is the first version anyone can also run on their own machine,
