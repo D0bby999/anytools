@@ -196,6 +196,26 @@ const nextConfig: NextConfig = {
           (h) => !(IS_SELF_HOSTED && h.key === 'Strict-Transport-Security'),
         ),
       },
+      // sitemap.xml is `force-dynamic` (src/app/sitemap.ts explains why it must never be
+      // baked at build time: CI runners have no DB, and an ISR sitemap ships a truncated
+      // 29-URL copy — shipped and reverted the same day, 2026-08-05). The cost is that
+      // Next then sends `max-age=0, must-revalidate`, so Cloudflare marks it DYNAMIC and
+      // every Googlebot fetch rebuilds 698 URLs at the origin: measured 1.9s, 431KB.
+      // Googlebot demotes slow sitemap fetches.
+      //
+      // `s-maxage` fixes that without reintroducing the bug: it is a SHARED-cache
+      // directive, so Cloudflare serves a cached copy while the origin still computes
+      // from the live DB on revalidation. `max-age=0` keeps browsers honest, and
+      // stale-while-revalidate means a crawler never waits on the rebuild.
+      {
+        source: '/sitemap.xml',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
     ];
   },
 };
