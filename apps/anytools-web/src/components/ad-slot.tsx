@@ -1,11 +1,13 @@
 'use client';
 import { useCookieConsent } from '@/hooks/use-cookie-consent';
-import Script from 'next/script';
+import { ADSENSE_CLIENT_ID, AD_SLOT_IDS } from '@/lib/adsense';
+import { IS_SELF_HOSTED } from '@/lib/self-hosted';
 import { useEffect, useRef } from 'react';
 
 type AdFormat = 'auto' | 'rectangle' | 'horizontal' | 'vertical';
 
 type AdSlotProps = {
+  /** Placement name — a key of AD_SLOT_IDS, not the numeric ID Google issues. */
   slotId: string;
   format?: AdFormat;
   className?: string;
@@ -16,8 +18,6 @@ declare global {
     adsbygoogle?: object[];
   }
 }
-
-const CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 
 // Reserve vertical space to prevent CLS when ad loads.
 // Heights match Google AdSense recommended responsive minimums.
@@ -31,19 +31,28 @@ const MIN_HEIGHT: Record<AdFormat, string> = {
 export function AdSlot({ slotId, format = 'auto', className }: AdSlotProps) {
   const { adsAllowed } = useCookieConsent();
   const pushedRef = useRef(false);
+  // Placement name → the numeric unit ID from the dashboard. Undefined until the
+  // account is approved and adsense.ts is filled in; see the comment on AD_SLOT_IDS
+  // for why an <ins> with a non-numeric slot must never reach the page.
+  const numericSlot = AD_SLOT_IDS[slotId];
+  const active = !IS_SELF_HOSTED && Boolean(numericSlot);
 
   useEffect(() => {
-    if (!adsAllowed || !CLIENT_ID || pushedRef.current) return;
+    if (!active || !adsAllowed || pushedRef.current) return;
     try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      // The loader itself is <AdSenseScript> in the root layout, already in the
+      // server-rendered <head>; this only queues the unit for it to fill.
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle.push({});
       pushedRef.current = true;
     } catch {
-      // AdSense not yet loaded — Script onLoad will retry implicitly via push order
+      // Loader not parsed yet — it drains the queue on load, so the push order holds.
     }
-  }, [adsAllowed]);
+  }, [active, adsAllowed]);
 
-  // If AdSense not configured at all, render nothing (clean dev/pre-approval UX).
-  if (!CLIENT_ID) return null;
+  // No unit configured (pre-approval) or self-host build: render nothing at all, not
+  // even reserved space, so pages look finished rather than gap-ridden.
+  if (!active) return null;
 
   // Reserve space even when consent denied so toggling consent does not jump layout.
   const reservedStyle = { minHeight: MIN_HEIGHT[format] };
@@ -53,22 +62,13 @@ export function AdSlot({ slotId, format = 'auto', className }: AdSlotProps) {
   }
 
   return (
-    <>
-      <Script
-        id={`adsense-${slotId}`}
-        async
-        strategy="afterInteractive"
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${CLIENT_ID}`}
-        crossOrigin="anonymous"
-      />
-      <ins
-        className={`adsbygoogle block ${className ?? ''}`}
-        style={{ display: 'block', ...reservedStyle }}
-        data-ad-client={CLIENT_ID}
-        data-ad-slot={slotId}
-        data-ad-format={format}
-        data-full-width-responsive="true"
-      />
-    </>
+    <ins
+      className={`adsbygoogle block ${className ?? ''}`}
+      style={{ display: 'block', ...reservedStyle }}
+      data-ad-client={ADSENSE_CLIENT_ID}
+      data-ad-slot={numericSlot}
+      data-ad-format={format}
+      data-full-width-responsive="true"
+    />
   );
 }

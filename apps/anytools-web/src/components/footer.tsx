@@ -43,6 +43,12 @@ export function Footer() {
               already installed) never see this. */}
           <InstallPrompt />
           <nav className="flex flex-wrap gap-4 md:justify-end">
+            <Link href="/guides" className="hover:text-foreground">
+              {t('guides')}
+            </Link>
+            <Link href={'/blog' as never} className="hover:text-foreground">
+              {t('blog')}
+            </Link>
             <Link href="/about" className="hover:text-foreground">
               {t('about')}
             </Link>

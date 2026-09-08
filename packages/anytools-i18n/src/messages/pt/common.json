@@ -8,6 +8,7 @@
     "tools": "Ferramentas",
     "pricing": "Preços",
     "blog": "Blog",
+    "guides": "Guias",
     "github": "GitHub",
     "favorites": "Favoritos"
   },
@@ -25,6 +26,8 @@
   },
   "footer": {
     "rights": "Todos os direitos reservados",
+    "guides": "Guias",
+    "blog": "Blog",
     "privacy": "Privacidade",
     "terms": "Termos",
     "about": "Sobre",

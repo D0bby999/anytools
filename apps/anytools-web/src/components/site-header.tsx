@@ -58,6 +58,15 @@ export function SiteHeader() {
               href="/guides"
               className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors duration-150"
             >
+              {t('nav.guides')}
+            </Link>
+            {/* /blog was reachable only from the sitemap until this link existed: 68 posts
+                with no path from any page, which reads as orphaned content to a reviewer
+                clicking around the site. */}
+            <Link
+              href={'/blog' as never}
+              className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/10 transition-colors duration-150"
+            >
               {t('nav.blog')}
             </Link>
             <Link

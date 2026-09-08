@@ -20,7 +20,7 @@ const ITEMS: NavItem[] = [
     matchPrefix:
       '/(encoding|formatters|generators|converters|text-regex|time-date|web3|finance|health|lifestyle|design)',
   },
-  { href: '/guides', labelKey: 'nav.blog', Icon: BookOpen, matchPrefix: '/guides' },
+  { href: '/guides', labelKey: 'nav.guides', Icon: BookOpen, matchPrefix: '/guides' },
   { href: '/favorites', labelKey: 'nav.favorites', Icon: Star, matchPrefix: '/favorites' },
 ];
 

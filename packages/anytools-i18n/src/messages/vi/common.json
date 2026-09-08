@@ -8,6 +8,7 @@
     "tools": "Công cụ",
     "pricing": "Bảng giá",
     "blog": "Blog",
+    "guides": "Hướng dẫn",
     "github": "GitHub",
     "favorites": "Yêu thích"
   },
@@ -25,6 +26,8 @@
   },
   "footer": {
     "rights": "Bảo lưu mọi quyền",
+    "guides": "Hướng dẫn",
+    "blog": "Blog",
     "privacy": "Quyền riêng tư",
     "terms": "Điều khoản",
     "about": "Giới thiệu",
