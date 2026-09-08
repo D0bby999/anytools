@@ -288,7 +288,6 @@ the catalogue are options in a row of options, not settings toggles) · no `Slid
 | `scientific-calculator` | Keypad layout |
 | `pomodoro-timer` | Timer face |
 | `shoe-size-converter` | Lookup table across four sizing systems |
-| `youtube-thumbnail-grabber` | Takes a URL, not files, so the file pipeline does not apply |
 | `json-diff`, `json-schema-validator`, `jq-playground`, `sql-playground` | Two-inputs-one-result and playground shapes, not source→target |
 | the four CSS generators | Preview-first; a form-first template would put the parameters above the thing they change |
 

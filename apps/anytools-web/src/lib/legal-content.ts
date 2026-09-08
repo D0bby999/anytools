@@ -8,7 +8,7 @@ export type LegalPage = {
   lastUpdated: string;
 };
 
-export const LAST_UPDATED = '2026-09-03';
+export const LAST_UPDATED = '2026-09-08';
 
 const PRIVACY: Record<Locale, LegalPage> = {
   en: {
@@ -50,6 +50,9 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'Third parties',
         body: [
           'Hosting: Hetzner (Germany, EU). Analytics: Umami (self-hosted, EU). Email: Resend / Loops (US). Ads: Google AdSense — its script is present on every page, including before you make a cookie choice. CDN: Cloudflare. Each operates under its own privacy policy.',
+          // Required by the AdSense programme policies: the privacy policy must say that
+          // third-party vendors use cookies to serve ads and point users at the opt-outs.
+          'Google, as a third-party vendor, uses cookies to serve ads on this site. Those advertising cookies let Google and its partners serve ads based on your visits here and to other sites on the internet. You can switch off personalised advertising in Google Ads Settings at https://www.google.com/settings/ads , opt out of third-party vendor cookies entirely at https://www.aboutads.info/choices/ , and read what Google collects from sites using its services at https://policies.google.com/technologies/partner-sites .',
         ],
       },
       {
@@ -118,6 +121,9 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'Bên thứ ba',
         body: [
           'Hosting: Hetzner (Đức, EU). Analytics: Umami (self-hosted, EU). Email: Resend / Loops (US). Ads: Google AdSense — script có mặt trên mọi trang, kể cả trước khi bạn chọn cookie. CDN: Cloudflare. Mỗi đơn vị vận hành theo chính sách riêng.',
+          // Required by the AdSense programme policies: the privacy policy must say that
+          // third-party vendors use cookies to serve ads and point users at the opt-outs.
+          'Google, với tư cách nhà cung cấp bên thứ ba, dùng cookie để phân phối quảng cáo trên trang này. Những cookie quảng cáo đó cho phép Google và đối tác hiển thị quảng cáo dựa trên các lần bạn truy cập trang này và những trang khác trên internet. Bạn có thể tắt quảng cáo cá nhân hoá trong Cài đặt quảng cáo của Google tại https://www.google.com/settings/ads , từ chối hoàn toàn cookie của nhà cung cấp bên thứ ba tại https://www.aboutads.info/choices/ , và đọc những gì Google thu thập từ các trang dùng dịch vụ của họ tại https://policies.google.com/technologies/partner-sites .',
         ],
       },
       {
@@ -183,6 +189,9 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'Terceros',
         body: [
           'Hospedaje: Hetzner (Alemania, UE). Analítica: Umami (self-hosted, UE). Email: Resend / Loops (US). Anuncios: Google AdSense — su script está presente en todas las páginas, incluso antes de que elijas sobre cookies. CDN: Cloudflare. Cada uno opera bajo su propia política.',
+          // Required by the AdSense programme policies: the privacy policy must say that
+          // third-party vendors use cookies to serve ads and point users at the opt-outs.
+          'Google, como proveedor externo, utiliza cookies para publicar anuncios en este sitio. Esas cookies publicitarias permiten a Google y a sus socios mostrar anuncios basados en tus visitas a este y a otros sitios de internet. Puedes desactivar la publicidad personalizada en la Configuración de anuncios de Google en https://www.google.com/settings/ads , rechazar por completo las cookies de proveedores externos en https://www.aboutads.info/choices/ y leer qué recopila Google de los sitios que usan sus servicios en https://policies.google.com/technologies/partner-sites .',
         ],
       },
       {
@@ -248,6 +257,9 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'Terceiros',
         body: [
           'Hospedagem: Hetzner (Alemanha, UE). Analítica: Umami (self-hosted, UE). Email: Resend / Loops (US). Anúncios: Google AdSense — o script está presente em todas as páginas, inclusive antes de você escolher sobre cookies. CDN: Cloudflare. Cada um opera sob sua própria política.',
+          // Required by the AdSense programme policies: the privacy policy must say that
+          // third-party vendors use cookies to serve ads and point users at the opt-outs.
+          'O Google, como fornecedor terceirizado, usa cookies para exibir anúncios neste site. Esses cookies de publicidade permitem que o Google e seus parceiros exibam anúncios com base nas suas visitas a este e a outros sites da internet. Você pode desativar a publicidade personalizada nas Configurações de anúncios do Google em https://www.google.com/settings/ads , recusar totalmente os cookies de fornecedores terceirizados em https://www.aboutads.info/choices/ e ler o que o Google coleta de sites que usam seus serviços em https://policies.google.com/technologies/partner-sites .',
         ],
       },
       {

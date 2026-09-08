@@ -167,9 +167,6 @@ const LOADERS: Record<string, ComponentType> = {
   'discord-timestamp-generator': dynamic(() =>
     import('@anytools/tools/discord-timestamp-generator').then(pick),
   ),
-  'youtube-thumbnail-grabber': dynamic(() =>
-    import('@anytools/tools/youtube-thumbnail-grabber').then(pick),
-  ),
   // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
   'rotate-image': dynamic(() => import('@anytools/tools/rotate-image').then(pick)),
   'watermark-image': dynamic(() => import('@anytools/tools/watermark-image').then(pick)),

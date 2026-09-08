@@ -253,10 +253,15 @@ describe('legal-content.ts — self-host privacy variant (review finding #3)', (
   });
 
   // Stored SHA-256 of the hosted EN privacy page's full text (title + every section's
-  // heading/body), computed from the text as it existed before this phase's fix —
-  // this is the byte-identical proof the phase's gate row requires: the hosted branch
-  // must produce EXACTLY this text, not merely "some text that mentions Hetzner".
-  it('hosted (flag off): EN privacy text hashes to the pre-fix value (byte-identical)', async () => {
+  // heading/body). The point is that the hosted branch produces EXACTLY this text, not
+  // merely "some text that mentions Hetzner" — the self-host override must never bleed
+  // into it.
+  //
+  // Re-pinned 2026-09-08 when the Third-parties section gained the disclosure the
+  // AdSense programme policies require (third-party vendors use cookies for ads; here
+  // are the opt-outs) and LAST_UPDATED moved with it. Editing the privacy text is
+  // supposed to fail this test — recompute the digest deliberately, never delete it.
+  it('hosted (flag off): EN privacy text hashes to the pinned value (byte-identical)', async () => {
     vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '');
     vi.resetModules();
     const { getLegalPage } = await import('./legal-content');
@@ -267,7 +272,7 @@ describe('legal-content.ts — self-host privacy variant (review finding #3)', (
       sections: page.sections.map((s) => ({ heading: s.heading, body: s.body })),
     });
     const hash = createHash('sha256').update(canonical).digest('hex');
-    expect(hash).toBe('ae9acb33a20e140f99f6a999072abc15f4f42a7eecf8b4763e787a8875769454');
+    expect(hash).toBe('b3fe4f49f6299ed5ca835dc4e1fd317bf0df94ae9031bd9d70ff8b4f1f246547');
   });
 });
 

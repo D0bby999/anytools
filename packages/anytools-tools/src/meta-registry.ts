@@ -139,7 +139,6 @@ import { meta as x509CertificateDecoder } from './x509-certificate-decoder/meta'
 import { meta as xlsxToCsv } from './xlsx-to-csv/meta';
 import { meta as xmlFormatter } from './xml-formatter/meta';
 import { meta as yamlFormatter } from './yaml-formatter/meta';
-import { meta as youtubeThumbnailGrabber } from './youtube-thumbnail-grabber/meta';
 
 export const toolMetas: ToolMeta[] = [
   mergePdf,
@@ -271,7 +270,6 @@ export const toolMetas: ToolMeta[] = [
   cubicBezierGenerator,
   colorBlindnessSimulator,
   discordTimestampGenerator,
-  youtubeThumbnailGrabber,
   // Phase 3 (batch-ab, 260906) — image tools built on the shared canvas helper
   rotateImage,
   watermarkImage,

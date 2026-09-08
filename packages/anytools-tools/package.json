@@ -123,7 +123,6 @@
     "./cubic-bezier-generator": "./src/cubic-bezier-generator/index.ts",
     "./color-blindness-simulator": "./src/color-blindness-simulator/index.ts",
     "./discord-timestamp-generator": "./src/discord-timestamp-generator/index.ts",
-    "./youtube-thumbnail-grabber": "./src/youtube-thumbnail-grabber/index.ts",
     "./rotate-image": "./src/rotate-image/index.ts",
     "./watermark-image": "./src/watermark-image/index.ts",
     "./image-to-base64": "./src/image-to-base64/index.ts",
