@@ -1,4 +1,4 @@
-import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { ACCOUNTS_DISABLED } from '@/lib/accounts';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 
@@ -8,17 +8,17 @@ import type { ReactNode } from 'react';
 // not-found UI but the response has already committed to HTTP 200 (a documented Next.js
 // limitation: vercel/next.js#45801, still open). A layout's own body runs BEFORE the
 // Suspense boundary it wraps `children` in, so gating here produces a real 404 status —
-// the same mechanism `admin/distribution/layout.tsx` already relies on. No-op for hosted
-// requests (IS_SELF_HOSTED is false): renders `children` straight through.
+// the same mechanism `admin/distribution/layout.tsx` already relies on. Renders `children`
+// straight through only if accounts are ever switched back on (see lib/accounts.ts).
 //
 // The rule this file exists to enforce: a route segment that is gated with
-// `if (IS_SELF_HOSTED) notFound()` inside page.tsx/generateMetadata must NOT also gain a
+// `if (ACCOUNTS_DISABLED) notFound()` inside page.tsx/generateMetadata must NOT also gain a
 // `loading.tsx` sibling without a layout guard like this one — `loading.tsx` is what
 // triggers the Suspense-streaming trap above. `self-hosted.test.ts` has a test that
 // fails the build the moment a `loading.tsx` appears under `sign-in/`, `sign-up/`,
 // `blog/**`, or `admin/**` (the other self-host-gated subtrees, none of which have one
 // today), so this class of regression is caught before it ships silently.
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  if (IS_SELF_HOSTED) notFound();
+  if (ACCOUNTS_DISABLED) notFound();
   return children;
 }

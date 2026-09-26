@@ -8,7 +8,7 @@ export type LegalPage = {
   lastUpdated: string;
 };
 
-export const LAST_UPDATED = '2026-09-08';
+export const LAST_UPDATED = '2026-09-26';
 
 const PRIVACY: Record<Locale, LegalPage> = {
   en: {
@@ -26,30 +26,29 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'What we collect',
         body: [
           'Aggregate, anonymized analytics through Umami Analytics: page views, referrer, country (from IP), device type. No personally identifiable information, no cookies, no cross-site tracking. You can opt out at any time via our cookie consent banner.',
-          'If you join the waitlist or newsletter, we collect the email address you provide. Used only to send you product updates. Stored at our email provider (Resend / Loops). You can unsubscribe from any email or request deletion at any time.',
-          'If you submit a contact form or report a bug, we collect what you write so we can respond.',
-          'If you create an account, we store your email address and a hashed password on our server so you can sign in. Social sign-in stores the identifier your provider returns instead. Ask us and we will delete the account and its data.',
+          'If you subscribe to the newsletter, we collect the email address you provide. Used only to send you product updates. Stored at our email provider (Resend). You can unsubscribe from any email or request deletion at any time.',
+          'If you email us or report a bug, we keep what you write so we can respond.',
         ],
       },
       {
         heading: 'What we do not collect',
         body: [
           'Your tool inputs — these stay in your browser. We do not have copies of the JSON you formatted, the regexes you tested, the passwords you generated, the files you converted, or anything else.',
-          'Personally identifiable information beyond what you explicitly provide (email for waitlist, message body for contact).',
+          'Personally identifiable information beyond what you explicitly provide (newsletter email, contents of emails you send us).',
           'Behavior tracking that we run ourselves. We operate no trackers, ad pixels, or session-replay tools of our own. We do embed one third-party script: Google AdSense loads on every page — see “Third parties” below for what that means.',
         ],
       },
       {
         heading: 'Cookies',
         body: [
-          'We set one first-party cookie to remember your locale. Your cookie choice is not a cookie — it is kept in your browser’s local storage. If you sign in, we also set a session cookie. Tool history, favourites and recent tools are stored in your browser only and never reach us. If you consent to ads, AdSense may set additional cookies governed by Google’s policies.',
+          'We set one first-party cookie to remember your locale. Your cookie choice is not a cookie — it is kept in your browser’s local storage. Tool history, favourites and recent tools are stored in your browser only and never reach us. If you consent to ads, AdSense may set additional cookies governed by Google’s policies.',
           'You can revoke consent at any time. Our analytics stays off until you consent. The AdSense script itself loads on every page regardless of your choice, so Google may set its own cookies before you decide — your consent controls whether we show ads and whether analytics runs, not whether Google’s script is present.',
         ],
       },
       {
         heading: 'Third parties',
         body: [
-          'Hosting: Hetzner (Germany, EU). Analytics: Umami (self-hosted, EU). Email: Resend / Loops (US). Ads: Google AdSense — its script is present on every page, including before you make a cookie choice. CDN: Cloudflare. Each operates under its own privacy policy.',
+          'Hosting: Hetzner (Germany, EU). Analytics: Umami (self-hosted, EU). Email: Resend (US). Ads: Google AdSense — its script is present on every page, including before you make a cookie choice. CDN: Cloudflare. Each operates under its own privacy policy.',
           // Required by the AdSense programme policies: the privacy policy must say that
           // third-party vendors use cookies to serve ads and point users at the opt-outs.
           'Google, as a third-party vendor, uses cookies to serve ads on this site. Those advertising cookies let Google and its partners serve ads based on your visits here and to other sites on the internet. You can switch off personalised advertising in Google Ads Settings at https://www.google.com/settings/ads , opt out of third-party vendor cookies entirely at https://www.aboutads.info/choices/ , and read what Google collects from sites using its services at https://policies.google.com/technologies/partner-sites .',
@@ -97,30 +96,29 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'Chúng tôi thu thập gì',
         body: [
           'Analytics aggregate, ẩn danh qua Umami Analytics: lượt xem trang, referrer, quốc gia (từ IP), loại thiết bị. Không có thông tin cá nhân, không cookie, không tracking cross-site. Bạn có thể opt out bất cứ lúc nào qua banner cookie consent.',
-          'Nếu bạn vào waitlist hoặc newsletter, chúng tôi thu thập email bạn cung cấp. Chỉ dùng để gửi cập nhật sản phẩm. Lưu tại nhà cung cấp email (Resend / Loops). Có thể unsubscribe từ bất kỳ email nào hoặc yêu cầu xóa bất cứ lúc nào.',
-          'Nếu bạn gửi form liên hệ hoặc báo lỗi, chúng tôi lưu nội dung để phản hồi.',
-          'Nếu bạn tạo tài khoản, chúng tôi lưu email và mật khẩu đã băm trên máy chủ để bạn đăng nhập được. Đăng nhập bằng mạng xã hội thì lưu định danh do nhà cung cấp trả về. Bạn yêu cầu là chúng tôi xoá tài khoản cùng dữ liệu của nó.',
+          'Nếu bạn đăng ký newsletter, chúng tôi thu thập email bạn cung cấp. Chỉ dùng để gửi cập nhật sản phẩm. Lưu tại nhà cung cấp email (Resend). Có thể unsubscribe từ bất kỳ email nào hoặc yêu cầu xóa bất cứ lúc nào.',
+          'Nếu bạn email cho chúng tôi hoặc báo lỗi, chúng tôi lưu nội dung để phản hồi.',
         ],
       },
       {
         heading: 'Chúng tôi KHÔNG thu thập',
         body: [
           'Input tool của bạn — toàn bộ ở trong browser. Chúng tôi không có bản sao của JSON bạn format, regex bạn test, password bạn tạo, file bạn convert, hay bất kỳ thứ gì khác.',
-          'Thông tin định danh cá nhân ngoài những gì bạn chủ động cung cấp (email waitlist, nội dung contact).',
+          'Thông tin định danh cá nhân ngoài những gì bạn chủ động cung cấp (email newsletter, nội dung email bạn gửi chúng tôi).',
           'Tracking hành vi do chính chúng tôi thực hiện. Chúng tôi không tự vận hành tracker, ad pixel, hay session replay nào. Nhưng chúng tôi CÓ nhúng một script bên thứ ba: Google AdSense tải trên mọi trang — xem mục “Bên thứ ba” bên dưới.',
         ],
       },
       {
         heading: 'Cookies',
         body: [
-          'Chúng tôi đặt một cookie first-party để nhớ ngôn ngữ. Lựa chọn cookie của bạn KHÔNG phải cookie — nó nằm trong local storage của trình duyệt. Nếu bạn đăng nhập, chúng tôi đặt thêm một cookie phiên. Lịch sử tool, tool yêu thích và tool vừa dùng chỉ nằm trong trình duyệt bạn, không gửi về chúng tôi. Nếu bạn đồng ý nhận ads, AdSense có thể đặt thêm cookie theo chính sách của Google.',
+          'Chúng tôi đặt một cookie first-party để nhớ ngôn ngữ. Lựa chọn cookie của bạn KHÔNG phải cookie — nó nằm trong local storage của trình duyệt. Lịch sử tool, tool yêu thích và tool vừa dùng chỉ nằm trong trình duyệt bạn, không gửi về chúng tôi. Nếu bạn đồng ý nhận ads, AdSense có thể đặt thêm cookie theo chính sách của Google.',
           'Bạn có thể thu hồi consent bất cứ lúc nào. Analytics của chúng tôi tắt cho tới khi bạn đồng ý. Nhưng script AdSense thì tải trên mọi trang bất kể bạn chọn gì, nên Google có thể đặt cookie riêng trước khi bạn quyết định — consent của bạn quyết định việc chúng tôi hiển thị quảng cáo và chạy analytics, không quyết định việc script của Google có mặt hay không.',
         ],
       },
       {
         heading: 'Bên thứ ba',
         body: [
-          'Hosting: Hetzner (Đức, EU). Analytics: Umami (self-hosted, EU). Email: Resend / Loops (US). Ads: Google AdSense — script có mặt trên mọi trang, kể cả trước khi bạn chọn cookie. CDN: Cloudflare. Mỗi đơn vị vận hành theo chính sách riêng.',
+          'Hosting: Hetzner (Đức, EU). Analytics: Umami (self-hosted, EU). Email: Resend (US). Ads: Google AdSense — script có mặt trên mọi trang, kể cả trước khi bạn chọn cookie. CDN: Cloudflare. Mỗi đơn vị vận hành theo chính sách riêng.',
           // Required by the AdSense programme policies: the privacy policy must say that
           // third-party vendors use cookies to serve ads and point users at the opt-outs.
           'Google, với tư cách nhà cung cấp bên thứ ba, dùng cookie để phân phối quảng cáo trên trang này. Những cookie quảng cáo đó cho phép Google và đối tác hiển thị quảng cáo dựa trên các lần bạn truy cập trang này và những trang khác trên internet. Bạn có thể tắt quảng cáo cá nhân hoá trong Cài đặt quảng cáo của Google tại https://www.google.com/settings/ads , từ chối hoàn toàn cookie của nhà cung cấp bên thứ ba tại https://www.aboutads.info/choices/ , và đọc những gì Google thu thập từ các trang dùng dịch vụ của họ tại https://policies.google.com/technologies/partner-sites .',
@@ -165,30 +163,29 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'Qué recopilamos',
         body: [
           'Analítica agregada y anónima mediante Umami Analytics: vistas de página, referente, país (por IP), tipo de dispositivo. Sin información personal identificable, sin cookies, sin seguimiento entre sitios. Puedes desactivarlo en cualquier momento desde el banner de consentimiento.',
-          'Si te unes a la lista de espera o boletín, recopilamos el correo que proporcionas. Usado solo para enviarte actualizaciones del producto. Almacenado en el proveedor de email (Resend / Loops). Puedes darte de baja desde cualquier email o solicitar borrado en cualquier momento.',
-          'Si envías un formulario de contacto o reportas un bug, guardamos lo que escribes para responderte.',
-          'Si creas una cuenta, guardamos tu correo y una contraseña cifrada (hash) en nuestro servidor para que puedas iniciar sesión. El inicio de sesión social guarda el identificador que devuelve tu proveedor. Si nos lo pides, eliminamos la cuenta y sus datos.',
+          'Si te suscribes al boletín, recopilamos el correo que proporcionas. Usado solo para enviarte actualizaciones del producto. Almacenado en el proveedor de email (Resend). Puedes darte de baja desde cualquier email o solicitar borrado en cualquier momento.',
+          'Si nos escribes por email o reportas un bug, guardamos lo que escribes para responderte.',
         ],
       },
       {
         heading: 'Qué NO recopilamos',
         body: [
           'Tus datos de entrada — permanecen en tu navegador. No tenemos copias del JSON que formateaste, los regex que probaste, las contraseñas que generaste, los archivos que convertiste, ni nada más.',
-          'Información personal identificable más allá de lo que proporcionas explícitamente (email de lista, cuerpo del mensaje de contacto).',
+          'Información personal identificable más allá de lo que proporcionas explícitamente (correo del boletín, contenido de los correos que nos envías).',
           'Seguimiento de comportamiento realizado por nosotros. No operamos rastreadores, píxeles de anuncios ni herramientas de session replay propios. Sí incrustamos un script de terceros: Google AdSense se carga en todas las páginas — consulta «Terceros» más abajo.',
         ],
       },
       {
         heading: 'Cookies',
         body: [
-          'Establecemos una cookie propia para recordar tu idioma. Tu elección sobre cookies NO es una cookie: se guarda en el almacenamiento local de tu navegador. Si inicias sesión, añadimos una cookie de sesión. El historial de herramientas, los favoritos y las herramientas recientes se guardan solo en tu navegador y nunca llegan a nosotros. Si consientes anuncios, AdSense puede establecer cookies adicionales regidas por las políticas de Google.',
+          'Establecemos una cookie propia para recordar tu idioma. Tu elección sobre cookies NO es una cookie: se guarda en el almacenamiento local de tu navegador. El historial de herramientas, los favoritos y las herramientas recientes se guardan solo en tu navegador y nunca llegan a nosotros. Si consientes anuncios, AdSense puede establecer cookies adicionales regidas por las políticas de Google.',
           'Puedes revocar el consentimiento en cualquier momento. Nuestra analítica permanece desactivada hasta que consientas. El script de AdSense, en cambio, se carga en todas las páginas independientemente de tu elección, por lo que Google puede establecer sus propias cookies antes de que decidas: tu consentimiento controla si mostramos anuncios y si se ejecuta la analítica, no si el script de Google está presente.',
         ],
       },
       {
         heading: 'Terceros',
         body: [
-          'Hospedaje: Hetzner (Alemania, UE). Analítica: Umami (self-hosted, UE). Email: Resend / Loops (US). Anuncios: Google AdSense — su script está presente en todas las páginas, incluso antes de que elijas sobre cookies. CDN: Cloudflare. Cada uno opera bajo su propia política.',
+          'Hospedaje: Hetzner (Alemania, UE). Analítica: Umami (self-hosted, UE). Email: Resend (US). Anuncios: Google AdSense — su script está presente en todas las páginas, incluso antes de que elijas sobre cookies. CDN: Cloudflare. Cada uno opera bajo su propia política.',
           // Required by the AdSense programme policies: the privacy policy must say that
           // third-party vendors use cookies to serve ads and point users at the opt-outs.
           'Google, como proveedor externo, utiliza cookies para publicar anuncios en este sitio. Esas cookies publicitarias permiten a Google y a sus socios mostrar anuncios basados en tus visitas a este y a otros sitios de internet. Puedes desactivar la publicidad personalizada en la Configuración de anuncios de Google en https://www.google.com/settings/ads , rechazar por completo las cookies de proveedores externos en https://www.aboutads.info/choices/ y leer qué recopila Google de los sitios que usan sus servicios en https://policies.google.com/technologies/partner-sites .',
@@ -233,30 +230,29 @@ const PRIVACY: Record<Locale, LegalPage> = {
         heading: 'O que coletamos',
         body: [
           'Análise agregada e anônima via Umami Analytics: visualizações de página, referência, país (por IP), tipo de dispositivo. Sem informações pessoais identificáveis, sem cookies, sem rastreamento entre sites. Você pode optar por sair a qualquer momento pelo banner de consentimento.',
-          'Se entrar na lista de espera ou newsletter, coletamos o email que você fornece. Usado apenas para enviar atualizações do produto. Armazenado no provedor de email (Resend / Loops). Você pode cancelar inscrição em qualquer email ou pedir exclusão a qualquer momento.',
-          'Se enviar formulário de contato ou reportar bug, guardamos o que escreve para responder.',
-          'Se criar uma conta, guardamos seu e-mail e uma senha com hash em nosso servidor para você poder entrar. O login social guarda o identificador devolvido pelo seu provedor. Se pedir, excluímos a conta e seus dados.',
+          'Se assinar a newsletter, coletamos o email que você fornece. Usado apenas para enviar atualizações do produto. Armazenado no provedor de email (Resend). Você pode cancelar inscrição em qualquer email ou pedir exclusão a qualquer momento.',
+          'Se nos enviar um email ou reportar bug, guardamos o que escreve para responder.',
         ],
       },
       {
         heading: 'O que NÃO coletamos',
         body: [
           'Seus dados de entrada — permanecem no seu navegador. Não temos cópias do JSON que você formatou, regex testou, senhas gerou, arquivos converteu, ou qualquer outra coisa.',
-          'Informações pessoais identificáveis além do que você fornece explicitamente (email da lista, corpo do contato).',
+          'Informações pessoais identificáveis além do que você fornece explicitamente (email da newsletter, conteúdo dos emails que você nos envia).',
           'Rastreamento de comportamento feito por nós. Não operamos rastreadores, pixels de anúncio ou ferramentas de session replay próprios. Incorporamos, sim, um script de terceiros: o Google AdSense carrega em todas as páginas — veja “Terceiros” abaixo.',
         ],
       },
       {
         heading: 'Cookies',
         body: [
-          'Definimos um cookie próprio para lembrar seu idioma. Sua escolha sobre cookies NÃO é um cookie: fica no armazenamento local do seu navegador. Se você entrar na conta, adicionamos um cookie de sessão. Histórico de ferramentas, favoritos e ferramentas recentes ficam só no seu navegador e nunca chegam até nós. Se consentir anúncios, AdSense pode definir cookies adicionais governados pelas políticas do Google.',
+          'Definimos um cookie próprio para lembrar seu idioma. Sua escolha sobre cookies NÃO é um cookie: fica no armazenamento local do seu navegador. Histórico de ferramentas, favoritos e ferramentas recentes ficam só no seu navegador e nunca chegam até nós. Se consentir anúncios, AdSense pode definir cookies adicionais governados pelas políticas do Google.',
           'Você pode revogar o consentimento a qualquer momento. Nossa analítica fica desligada até você consentir. O script do AdSense, porém, carrega em todas as páginas independentemente da sua escolha, então o Google pode definir cookies próprios antes de você decidir — seu consentimento controla se exibimos anúncios e se a analítica roda, não se o script do Google está presente.',
         ],
       },
       {
         heading: 'Terceiros',
         body: [
-          'Hospedagem: Hetzner (Alemanha, UE). Analítica: Umami (self-hosted, UE). Email: Resend / Loops (US). Anúncios: Google AdSense — o script está presente em todas as páginas, inclusive antes de você escolher sobre cookies. CDN: Cloudflare. Cada um opera sob sua própria política.',
+          'Hospedagem: Hetzner (Alemanha, UE). Analítica: Umami (self-hosted, UE). Email: Resend (US). Anúncios: Google AdSense — o script está presente em todas as páginas, inclusive antes de você escolher sobre cookies. CDN: Cloudflare. Cada um opera sob sua própria política.',
           // Required by the AdSense programme policies: the privacy policy must say that
           // third-party vendors use cookies to serve ads and point users at the opt-outs.
           'O Google, como fornecedor terceirizado, usa cookies para exibir anúncios neste site. Esses cookies de publicidade permitem que o Google e seus parceiros exibam anúncios com base nas suas visitas a este e a outros sites da internet. Você pode desativar a publicidade personalizada nas Configurações de anúncios do Google em https://www.google.com/settings/ads , recusar totalmente os cookies de fornecedores terceirizados em https://www.aboutads.info/choices/ e ler o que o Google coleta de sites que usam seus serviços em https://policies.google.com/technologies/partner-sites .',
@@ -309,8 +305,7 @@ const PRIVACY_SELF_HOST_TEXT: Record<Locale, Partial<Record<string, string[]>>> 
     'What we collect': [
       'This is a self-hosted install, run by its own operator — not by the AnyTools.world team. There is no Umami Analytics and no cookie consent banner in this build; those surfaces are compiled out entirely, not merely hidden.',
       'There is no waitlist or newsletter in this build — the subscribe endpoint is disabled, so no email address is ever collected or sent anywhere.',
-      'If you submit a contact form or report a bug, we collect what you write so we can respond.',
-      'If you create an account, we store your email address and a hashed password on our server so you can sign in. Social sign-in stores the identifier your provider returns instead. Ask us and we will delete the account and its data.',
+      'If you email us or report a bug, we keep what you write so we can respond.',
     ],
     'What we do not collect': [
       'Your tool inputs — these stay in your browser. We do not have copies of the JSON you formatted, the regexes you tested, the passwords you generated, the files you converted, or anything else.',
@@ -328,8 +323,7 @@ const PRIVACY_SELF_HOST_TEXT: Record<Locale, Partial<Record<string, string[]>>> 
     'Chúng tôi thu thập gì': [
       'Đây là bản self-host, do người vận hành riêng của họ triển khai — không phải team AnyTools.world. Bản build này không có Umami Analytics và không có banner cookie consent; các bề mặt đó bị loại bỏ hoàn toàn khỏi bản build, không chỉ ẩn đi.',
       'Bản build này không có waitlist hay newsletter — endpoint subscribe bị tắt, nên không email nào được thu thập hay gửi đi đâu cả.',
-      'Nếu bạn gửi form liên hệ hoặc báo lỗi, chúng tôi lưu nội dung để phản hồi.',
-      'Nếu bạn tạo tài khoản, chúng tôi lưu email và mật khẩu đã băm trên máy chủ để bạn đăng nhập được. Đăng nhập bằng mạng xã hội thì lưu định danh do nhà cung cấp trả về. Bạn yêu cầu là chúng tôi xoá tài khoản cùng dữ liệu của nó.',
+      'Nếu bạn email cho chúng tôi hoặc báo lỗi, chúng tôi lưu nội dung để phản hồi.',
     ],
     'Chúng tôi KHÔNG thu thập': [
       'Input tool của bạn — toàn bộ ở trong browser. Chúng tôi không có bản sao của JSON bạn format, regex bạn test, password bạn tạo, file bạn convert, hay bất kỳ thứ gì khác.',
@@ -347,8 +341,7 @@ const PRIVACY_SELF_HOST_TEXT: Record<Locale, Partial<Record<string, string[]>>> 
     'Qué recopilamos': [
       'Esta es una instalación autoalojada (self-host), operada por su propio administrador — no por el equipo de AnyTools.world. Esta build no tiene Umami Analytics ni banner de consentimiento de cookies; esas superficies se eliminan por completo de la build, no solo se ocultan.',
       'Esta build no tiene lista de espera ni boletín — el endpoint de suscripción está desactivado, así que ningún correo se recopila ni se envía a ningún lado.',
-      'Si envías un formulario de contacto o reportas un bug, guardamos lo que escribes para responderte.',
-      'Si creas una cuenta, guardamos tu correo y una contraseña cifrada (hash) en nuestro servidor para que puedas iniciar sesión. El inicio de sesión social guarda el identificador que devuelve tu proveedor. Si nos lo pides, eliminamos la cuenta y sus datos.',
+      'Si nos escribes por email o reportas un bug, guardamos lo que escribes para responderte.',
     ],
     'Qué NO recopilamos': [
       'Tus datos de entrada — permanecen en tu navegador. No tenemos copias del JSON que formateaste, los regex que probaste, las contraseñas que generaste, los archivos que convertiste, ni nada más.',
@@ -366,8 +359,7 @@ const PRIVACY_SELF_HOST_TEXT: Record<Locale, Partial<Record<string, string[]>>> 
     'O que coletamos': [
       'Esta é uma instalação self-hosted, operada pelo seu próprio administrador — não pela equipe do AnyTools.world. Esta build não tem Umami Analytics nem banner de consentimento de cookies; essas superfícies são removidas completamente da build, não apenas ocultadas.',
       'Esta build não tem lista de espera nem newsletter — o endpoint de inscrição está desativado, então nenhum email é coletado ou enviado a lugar nenhum.',
-      'Se enviar formulário de contato ou reportar bug, guardamos o que escreve para responder.',
-      'Se criar uma conta, guardamos seu e-mail e uma senha com hash em nosso servidor para você poder entrar. O login social guarda o identificador devolvido pelo seu provedor. Se pedir, excluímos a conta e seus dados.',
+      'Se nos enviar um email ou reportar bug, guardamos o que escreve para responder.',
     ],
     'O que NÃO coletamos': [
       'Seus dados de entrada — permanecem no seu navegador. Não temos cópias do JSON que você formatou, regex testou, senhas gerou, arquivos converteu, ou qualquer outra coisa.',

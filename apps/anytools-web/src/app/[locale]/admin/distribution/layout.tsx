@@ -1,5 +1,5 @@
 import { requireAdmin } from '@/lib/auth-guards';
-import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { ACCOUNTS_DISABLED } from '@/lib/accounts';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -24,7 +24,7 @@ export default async function DistributionAdminLayout({ children, params }: Prop
   // subtree (page, brands, posts, templates, etc. all render inside it). requireAdmin()
   // itself also throws when self-hosted (auth-guards.ts) as a second gate for the
   // server actions those pages call directly, which run even if this page 404s.
-  if (IS_SELF_HOSTED) notFound();
+  if (ACCOUNTS_DISABLED) notFound();
   // Guard: must be called before any rendering. Redirects to /sign-in if the
   // session is absent or the email is not in DISTRIBUTION_ADMIN_EMAILS.
   const session = await requireAdmin();

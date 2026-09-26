@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { IS_SELF_HOSTED } from './self-hosted';
+import { ACCOUNTS_DISABLED } from './accounts';
 
 // Admin email allowlist: comma-separated list of lowercase email addresses.
 // Set DISTRIBUTION_ADMIN_EMAILS in Coolify env, e.g.:
@@ -43,7 +43,7 @@ const ADMIN_EMAILS: ReadonlySet<string> = new Set(
  * (and touching a DB) in a self-host build.
  */
 export async function requireAdmin() {
-  if (IS_SELF_HOSTED) throw new Error('admin disabled');
+  if (ACCOUNTS_DISABLED) throw new Error('admin disabled');
   const { auth } = await import('./auth');
   const session = await auth.api.getSession({ headers: await headers() });
 

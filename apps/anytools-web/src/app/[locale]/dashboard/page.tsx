@@ -1,7 +1,7 @@
 import { DashboardToolsPanel } from '@/components/dashboard-tools-panel';
 import { SignOutButton } from '@/components/sign-out-button';
 import { redirect } from '@/i18n/routing';
-import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { ACCOUNTS_DISABLED } from '@/lib/accounts';
 import { toolMetasClient } from '@anytools/tools/meta';
 import { Card, CardContent, CardHeader, CardTitle } from '@anytools/ui';
 import type { Metadata } from 'next';
@@ -20,7 +20,7 @@ export async function generateMetadata({
   // response and would otherwise lock the status at 200 even when notFound() renders
   // the not-found UI). Gating here too costs nothing and avoids an unnecessary
   // getTranslations() call.
-  if (IS_SELF_HOSTED) notFound();
+  if (ACCOUNTS_DISABLED) notFound();
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'auth' });
   // Auth-gated personal page — keep out of the index (no SEO value, avoids
@@ -33,7 +33,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   // here too): gated before the `@/lib/auth` import below so better-auth never
   // initializes (no BETTER_AUTH_SECRET required, no auth.db written) in a self-host
   // build, even though the layout above already stops rendering from reaching here.
-  if (IS_SELF_HOSTED) notFound();
+  if (ACCOUNTS_DISABLED) notFound();
   const { locale } = await params;
   const { auth } = await import('@/lib/auth');
   const session = await auth.api.getSession({ headers: await headers() });

@@ -1,5 +1,5 @@
 import { SignUpForm } from '@/components/sign-up-form';
-import { IS_SELF_HOSTED } from '@/lib/self-hosted';
+import { ACCOUNTS_DISABLED } from '@/lib/accounts';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -15,7 +15,7 @@ export async function generateMetadata({
 
 export default async function SignUpPage({ params }: { params: Promise<{ locale: string }> }) {
   // Self-host builds never initialize better-auth (see auth-guards.ts, api/auth route).
-  if (IS_SELF_HOSTED) notFound();
+  if (ACCOUNTS_DISABLED) notFound();
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'auth' });
   return (

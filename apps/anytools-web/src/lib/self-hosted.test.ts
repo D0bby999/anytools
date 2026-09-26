@@ -261,6 +261,9 @@ describe('legal-content.ts — self-host privacy variant (review finding #3)', (
   // AdSense programme policies require (third-party vendors use cookies for ads; here
   // are the opt-outs) and LAST_UPDATED moved with it. Editing the privacy text is
   // supposed to fail this test — recompute the digest deliberately, never delete it.
+  // Re-pinned 2026-09-26: accounts switched off (lib/accounts.ts), so the account and
+  // session-cookie sentences went, the waitlist and Loops mentions went (neither exists),
+  // and "contact form" became "email us" (/contact has no form).
   it('hosted (flag off): EN privacy text hashes to the pinned value (byte-identical)', async () => {
     vi.stubEnv('NEXT_PUBLIC_SELF_HOSTED', '');
     vi.resetModules();
@@ -272,7 +275,7 @@ describe('legal-content.ts — self-host privacy variant (review finding #3)', (
       sections: page.sections.map((s) => ({ heading: s.heading, body: s.body })),
     });
     const hash = createHash('sha256').update(canonical).digest('hex');
-    expect(hash).toBe('b3fe4f49f6299ed5ca835dc4e1fd317bf0df94ae9031bd9d70ff8b4f1f246547');
+    expect(hash).toBe('6a341d0c09c46146d298e3812a49f84b7ea948ba9e454367e948366510823294');
   });
 });
 
