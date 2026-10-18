@@ -170,7 +170,10 @@ checked on every main page, in both themes.
    current tab is tinted and outlined, **never underlined**.
 8. **The cover:** ink panels for AnyProfile (rail, More, tools home, landing, its own
    page) and for the sign-in book. It is the one block that is not paper.
-9. **Fields:** white (`bg-card`), with a 3:1 control outline. On a phone they are 16px,
+9. **Share cards:** the site card is drawn from `deploy/og/og.html` (title beside the contents I to IV). A tool's
+   card is rendered by `lib/tools/og-image.server.ts` with the part tab of the appendix. Bump `OG_VERSION` in
+   `lib/tools/seo.ts` whenever either changes look, or caches serve the old card for a day.
+10. **Fields:** white (`bg-card`), with a 3:1 control outline. On a phone they are 16px,
    from an unlayered rule, so iOS does not zoom.
 
 ## Anti-patterns for this project
