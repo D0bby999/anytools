@@ -81,8 +81,15 @@ func TestMigrationsAreInCommitOrder(t *testing.T) {
 		}
 	}
 
+	// The public repository starts at its own first commit, which holds every
+	// migration up to it (scripts/export-public.sh). ruleSince is not in that
+	// history, so there the baseline is the first commit.
+	since := ruleSince
+	if exec.Command("git", "-C", filepath.Join("..", ".."), "cat-file", "-e", ruleSince+"^{commit}").Run() != nil {
+		since = gitLines(t, "rev-list", "--max-parents=0", "HEAD")[0]
+	}
 	baseline := map[string]bool{}
-	for _, c := range gitLines(t, "rev-list", "--first-parent", ruleSince) {
+	for _, c := range gitLines(t, "rev-list", "--first-parent", since) {
 		baseline[c] = true
 	}
 
