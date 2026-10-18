@@ -167,7 +167,8 @@ func newLinkHarness(t *testing.T) *linkHarness {
 	h := &linkHarness{
 		store: pg.NewKnowledgeStore(pool), jobs: &memJobs{}, objects: blobs, site: st,
 		yt: yt, ytMode: &mode, gemini: &fakeTranscribers{}, user: testutil.NewUser(t, pool),
-		now: time.Now().UTC(),
+		// Microseconds, as Postgres keeps them: Linux clocks carry nanoseconds.
+		now: time.Now().UTC().Truncate(time.Microsecond),
 	}
 	h.svc = knowledge.NewService(knowledge.Config{
 		Store: h.store, Chunks: pg.NewChunkStore(pool), Blobs: blobs, Jobs: h.jobs,

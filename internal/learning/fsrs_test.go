@@ -3,6 +3,7 @@ package learning
 import (
 	"encoding/json"
 	"flag"
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -168,13 +169,23 @@ func TestFSRSNextMatchesRecordedFixtures(t *testing.T) {
 				t.Fatalf("no recorded fixture for %q; regenerate with -update", sc.Name)
 			}
 			got := run(t, s, sc)
-			if got != fixture.Want {
+			if !sameSchedule(got, fixture.Want) {
 				t.Errorf("scheduling changed for %s\n  got  %+v\n  want %+v\n"+
 					"If this is intended, regenerate with -update and say why in the commit: "+
 					"every learner's review dates just moved.", sc.Name, got, fixture.Want)
 			}
 		})
 	}
+}
+
+// sameSchedule compares exactly, except stability and difficulty, which may
+// differ in their last bit between architectures: Go fuses multiply-adds on
+// arm64 and not on amd64. A relative 1e-9 is far below any change to a
+// learner's review dates, which the due offset pins exactly.
+func sameSchedule(got, want recorded) bool {
+	close := func(a, b float64) bool { return math.Abs(a-b) <= 1e-9*math.Max(math.Abs(a), math.Abs(b)) }
+	return got.DueOffset == want.DueOffset && got.State == want.State && got.Lapses == want.Lapses &&
+		close(got.Stability, want.Stability) && close(got.Difficulty, want.Difficulty)
 }
 
 func recordFixtures(t *testing.T, s *Scheduler) {
