@@ -16,6 +16,7 @@ import { ActionError } from "~/components/loop/action-error";
 import { ChainColumns } from "~/components/loop/chain-columns";
 import { Metric } from "~/components/loop/metric";
 import { SuggestionRow } from "~/components/loop/suggestion-row";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Evidence chain · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -64,14 +65,12 @@ export default function LoopChain({ loaderData, actionData }: Route.ComponentPro
   const busy = useNavigation().state === "submitting";
   const { chain, recent } = loaderData;
   const filled = chain.columns.filter((c) => c.refs.some((r) => r.status === "accepted")).length;
-  const box = "mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm";
+  const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
   return (
     <div>
       <div className="lp-measure">
-        <div className="lp-prose">
-          <h1>{chain.question}</h1>
-        </div>
+        <PageHeader title={chain.question} />
         <Link to={`/loop/state/${chain.state_id}`} className="text-sm text-primary underline underline-offset-4">
           {t("cycle.backToGoal")}
         </Link>
@@ -80,7 +79,7 @@ export default function LoopChain({ loaderData, actionData }: Route.ComponentPro
       </div>
 
       <section aria-labelledby="lp-chain-cols" className="mt-8">
-        <h2 id="lp-chain-cols" className="lp-kicker">
+        <h2 id="lp-chain-cols" className="lp-section">
           {t("chainPage.timeline")}
         </h2>
         <ChainColumns chain={chain} />
@@ -88,10 +87,10 @@ export default function LoopChain({ loaderData, actionData }: Route.ComponentPro
 
       <div className="lp-measure">
         <section aria-labelledby="lp-chain-add" className="mt-10">
-          <h2 id="lp-chain-add" className="lp-kicker">
+          <h2 id="lp-chain-add" className="lp-section">
             {t("chainPage.add")}
           </h2>
-          {recent.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">{t("review.noSuggestions")}</p> : null}
+          {recent.length === 0 ? <p className="mt-3 lp-empty">{t("review.noSuggestions")}</p> : null}
           <ul className="mt-3 border-t">
             {recent.map((c) => (
               <SuggestionRow key={`${c.kind}:${c.ref_id}`} item={c} />
@@ -100,7 +99,7 @@ export default function LoopChain({ loaderData, actionData }: Route.ComponentPro
         </section>
 
         <section aria-labelledby="lp-chain-split" className="mt-10">
-          <h2 id="lp-chain-split" className="lp-kicker">
+          <h2 id="lp-chain-split" className="lp-section">
             {t("chainPage.split")}
           </h2>
           <Form method="post" className="mt-3 space-y-3">

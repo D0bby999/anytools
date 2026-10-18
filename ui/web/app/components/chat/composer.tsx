@@ -117,7 +117,7 @@ export function Composer({
             }}
             placeholder={t("chat.placeholder")}
             className={
-              "min-h-10 max-h-40 flex-1 resize-y rounded-md border border-control-border bg-background " +
+              "min-h-10 max-h-40 flex-1 resize-y rounded-md border border-control-border bg-card " +
               "px-3 py-2 text-sm leading-ui text-foreground placeholder:text-faint " +
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
               "focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"

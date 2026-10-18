@@ -23,7 +23,7 @@ export function LastClose({ previous, busy }: { previous: PreviousClose; busy: b
             {previous.offers.map((o) => (
               <li key={o.row} className="flex flex-wrap items-start justify-between gap-3 border-b py-3">
                 <div className="min-w-0 grow">
-                  <p className="font-mono text-2xs uppercase tracking-wide text-faint">
+                  <p className="text-xs font-semibold text-faint">
                     {t(`cycleClose.destination.${o.destination}`, { defaultValue: o.destination })}
                     {o.result ? ` · ${o.result}` : ""}
                   </p>
@@ -54,12 +54,12 @@ export function LastClose({ previous, busy }: { previous: PreviousClose; busy: b
       ) : null}
       {previous.reduce_first.length > 0 ? (
         <div className="mt-4">
-          <p className="font-mono text-2xs uppercase tracking-wide text-faint">{t("cycleClose.reduceFirst")}</p>
+          <p className="text-xs font-semibold text-faint">{t("cycleClose.reduceFirst")}</p>
           <ul className="mt-2 border-t">
             {previous.reduce_first.map((r) => (
               <li key={r.row} className="border-b py-2 text-sm">
                 {r.result}
-                {r.next_step ? <span className="text-muted-foreground"> — {r.next_step}</span> : null}
+                {r.next_step ? <span className="text-muted-foreground"> · {r.next_step}</span> : null}
               </li>
             ))}
           </ul>

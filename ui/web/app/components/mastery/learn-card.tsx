@@ -44,13 +44,13 @@ export function LearnCard({
 
   return (
     <article aria-labelledby={`lp-learn-${pointId}`} className="rounded-lg border bg-card p-4 sm:p-5">
-      <p className="font-mono text-2xs uppercase tracking-wide text-faint">{t("learn.label")}</p>
+      <p className="text-xs font-semibold text-faint">{t("learn.label")}</p>
       <h3 id={`lp-learn-${pointId}`} className="mt-2 font-serif text-lg leading-snug">
         {pointName}
       </h3>
 
       {explanation.stale ? (
-        <div role="note" className="mt-3 border-l-2 border-warning pl-3 text-sm leading-snug">
+        <div role="note" className="mt-3 rounded-md border border-warning/40 bg-warning-soft px-3 py-2 text-sm leading-snug">
           <p>{t("learn.stale")}</p>
           <Button
             type="button"

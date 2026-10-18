@@ -4301,9 +4301,9 @@ ships with it in the image's `node_modules`.
 | [@floating-ui/dom](https://floating-ui.com) | 1.8.0 | MIT |
 | [@floating-ui/react-dom](https://floating-ui.com/docs/react-dom) | 2.1.9 | MIT |
 | [@floating-ui/utils](https://floating-ui.com) | 0.2.12 | MIT |
+| [@fontsource/be-vietnam-pro](https://fontsource.org/fonts/be-vietnam-pro) | 5.3.0 | OFL-1.1 |
 | [@fontsource/ibm-plex-mono](https://fontsource.org/fonts/ibm-plex-mono) | 5.3.0 | OFL-1.1 |
-| [@fontsource/ibm-plex-sans](https://fontsource.org/fonts/ibm-plex-sans) | 5.3.0 | OFL-1.1 |
-| [@fontsource/ibm-plex-serif](https://fontsource.org/fonts/ibm-plex-serif) | 5.3.0 | OFL-1.1 |
+| [@fontsource/literata](https://fontsource.org/fonts/literata) | 5.3.0 | OFL-1.1 |
 | [@iarna/toml](https://github.com/iarna/iarna-toml#readme) | 2.2.5 | ISC |
 | [@iconify/types](https://github.com/iconify/iconify) | 2.0.0 | MIT |
 | [@iconify/utils](https://iconify.design/docs/libraries/utils/) | 3.1.7 | MIT |

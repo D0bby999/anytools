@@ -61,7 +61,7 @@ export function BookProposalEditor({ book }: { book: Book }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={200}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
           />
         </label>
         <label className="text-sm">
@@ -70,12 +70,12 @@ export function BookProposalEditor({ book }: { book: Book }) {
             value={audience}
             onChange={(e) => setAudience(e.target.value)}
             maxLength={300}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
           />
         </label>
       </div>
 
-      <h2 className="lp-kicker mt-8">{t("editor.chapters")}</h2>
+      <h2 className="lp-section mt-8">{t("editor.chapters")}</h2>
       <ol className="mt-3 border-t">
         {chapters.map((c, i) => (
           <li key={c.key} className="border-b py-4" aria-label={t("editor.chapterLabel", { n: i + 1 })}>
@@ -87,7 +87,7 @@ export function BookProposalEditor({ book }: { book: Book }) {
                 maxLength={200}
                 aria-label={t("editor.chapterTitle")}
                 placeholder={t("editor.chapterTitle")}
-                className="min-h-11 min-w-48 flex-1 rounded-md border border-control-border bg-background px-3 font-serif"
+                className="min-h-11 min-w-48 flex-1 rounded-md border border-control-border bg-card px-3 font-serif"
               />
               <Button type="button" variant="ghost" size="icon" disabled={i === 0} onClick={() => move(i, -1)} aria-label={t("editor.up")}>
                 <ArrowUp aria-hidden="true" />
@@ -120,7 +120,7 @@ export function BookProposalEditor({ book }: { book: Book }) {
                 value={c.objectives}
                 onChange={(e) => update(c.key, { objectives: e.target.value })}
                 rows={Math.max(2, c.objectives.split("\n").length)}
-                className="mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose"
+                className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose"
               />
             </label>
 

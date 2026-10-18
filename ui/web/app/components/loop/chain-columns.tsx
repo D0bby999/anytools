@@ -16,7 +16,7 @@ export function ChainColumns({ chain }: { chain: ChainDetail }) {
     <div className="mt-3 grid gap-6 md:grid-cols-4 md:gap-4">
       {chain.columns.map((col) => (
         <section key={col.timepoint} aria-labelledby={`lp-col-${col.timepoint}`}>
-          <h3 id={`lp-col-${col.timepoint}`} className="lp-kicker border-b pb-2">
+          <h3 id={`lp-col-${col.timepoint}`} className="lp-section border-b pb-2">
             {labels[col.timepoint]}
           </h3>
           {col.refs.length === 0 ? (

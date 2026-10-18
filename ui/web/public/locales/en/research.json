@@ -1,6 +1,6 @@
 {
   "title": "Research",
-  "lead": "Ask a question and get a short report that cites every claim — from your own documents and from the web (through your own search key, or DuckDuckGo if you have none). Each claim is then checked against the source it cites.",
+  "lead": "Ask a question and get a short report that cites every claim, from your own documents and from the web (through your own search key, or DuckDuckGo if you have none). Each claim is then checked against the source it cites.",
   "form": {
     "query": "What should be researched?",
     "queryPlaceholder": "e.g. How does retrieval-augmented generation reduce hallucination?",
@@ -10,7 +10,7 @@
     "deep": "Deep",
     "deepHint": "Up to 20 sources, and it reads the best pages in full.",
     "kb": "Include my documents from",
-    "kbNone": "None — the web only",
+    "kbNone": "None (the web only)",
     "allowWeb": "Also search the web when my documents are included",
     "allowWebHint": "Off by default: once your documents are read, a page on the web could be used to carry their contents out. Turn this on only if you trust the question.",
     "submit": "Research",

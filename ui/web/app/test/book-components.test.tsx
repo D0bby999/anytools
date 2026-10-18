@@ -271,7 +271,7 @@ describe("the chapter page", () => {
   it("says when its sources changed since it was written", async () => {
     view({ stale: true });
     // The first render of the route module is slow on a loaded machine.
-    expect(await screen.findByText("Sources changed since this was written — refresh.", {}, { timeout: 8000 })).toBeInTheDocument();
+    expect(await screen.findByText("Sources changed since this was written. Refresh.", {}, { timeout: 8000 })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Refresh this chapter" })).toBeInTheDocument();
   });
 

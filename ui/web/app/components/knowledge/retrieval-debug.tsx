@@ -23,7 +23,7 @@ export function RetrievalDebug({ kbId, blocked }: { kbId: string; blocked: boole
 
   return (
     <section aria-labelledby="lp-retrieval-debug" className="mt-10">
-      <h2 id="lp-retrieval-debug" className="lp-kicker">
+      <h2 id="lp-retrieval-debug" className="lp-section">
         {t("debug.title")}
       </h2>
       <p className="mt-2 max-w-prose text-sm leading-prose text-muted-foreground">
@@ -96,7 +96,7 @@ export function RetrievalDebug({ kbId, blocked }: { kbId: string; blocked: boole
                   {/* The passage itself, quoted. The one coloured left rule the
                       world permits is on a blockquote, and it means exactly
                       this: text taken from a source document. */}
-                  <blockquote className="mt-2 border-l-[3px] border-primary pl-3 text-sm leading-prose text-muted-foreground">
+                  <blockquote className="mt-2 rounded-md border border-part-line bg-part-soft px-3 py-2 text-sm leading-prose text-muted-foreground">
                     {hit.text.length > 600 ? `${hit.text.slice(0, 600)}…` : hit.text}
                   </blockquote>
                 </li>

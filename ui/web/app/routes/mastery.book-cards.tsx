@@ -16,6 +16,7 @@ import { dueCards, reviewCard } from "~/lib/vocab.server";
 import { RATINGS, type Rating } from "~/lib/vocab-types";
 import { MasteryTabs } from "~/components/vocab/mastery-tabs";
 import { ReviewSession } from "~/components/vocab/review-session";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -52,13 +53,10 @@ export default function BookCards({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("vocab");
   return (
     <div className="lp-measure">
+      <PageHeader title={t("bookCards.title")} lede={t("bookCards.lead")} />
       <MasteryTabs vocabDue={loaderData.vocabDue} bookDue={loaderData.dueCount} />
-      <div className="lp-prose">
-        <h1>{t("bookCards.title")}</h1>
-        <p>{t("bookCards.lead")}</p>
-      </div>
       <section aria-labelledby="lp-book-cards-due" className="mt-8">
-        <h2 id="lp-book-cards-due" className="lp-kicker">
+        <h2 id="lp-book-cards-due" className="lp-section">
           {t("session.title")}
         </h2>
         <ReviewSession cards={loaderData.cards} total={loaderData.dueCount} />

@@ -61,7 +61,7 @@ export function RouteChainEditor({
               <select
                 name={`connection_${index}`}
                 defaultValue={entry?.connection_id ?? ""}
-                className="h-10 w-56 max-w-full rounded-md border bg-sunken px-2 text-sm"
+                className="h-10 w-56 max-w-full rounded-md border bg-card px-2 text-sm"
               >
                 <option value="">{t("settings.routes.none")}</option>
                 {connections.map((c) => (
@@ -81,7 +81,7 @@ export function RouteChainEditor({
                 name={`model_${index}`}
                 defaultValue={entry?.model ?? ""}
                 placeholder={t("settings.routes.modelPlaceholder")}
-                className="h-10 w-64 max-w-full rounded-md border bg-sunken px-3 font-mono text-sm"
+                className="h-10 w-64 max-w-full rounded-md border bg-card px-3 font-mono text-sm"
               />
             </label>
           </li>

@@ -25,13 +25,13 @@ export function WeeklyQuestions({ questions, busy }: { questions: WeeklyQuestion
               aria-label={t("cycle.questionFor", { week: i + 1 })}
               defaultValue={questions[i]?.question ?? ""}
               maxLength={1000}
-              className="min-h-11 rounded-md border border-control-border bg-background px-2 text-sm"
+              className="min-h-11 rounded-md border border-control-border bg-card px-2 text-sm"
             />
             <select
               name="capacity"
               aria-label={t("cycle.capacityFor", { week: i + 1 })}
               defaultValue={questions[i]?.capacity ?? "full"}
-              className="min-h-11 rounded-md border border-control-border bg-background px-2 text-sm"
+              className="min-h-11 rounded-md border border-control-border bg-card px-2 text-sm"
             >
               <option value="full">{t("cycle.full")}</option>
               <option value="reduced">{t("cycle.reduced")}</option>

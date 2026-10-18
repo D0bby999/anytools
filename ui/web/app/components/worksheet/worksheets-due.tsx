@@ -27,17 +27,17 @@ export function WorksheetsDue({ count, private: privateCount = 0 }: { count: num
   const { t } = useTranslation("toolkit");
   if (count <= 0 && privateCount <= 0) return null;
   return (
-    <section aria-labelledby="lp-worksheets-home" className="mt-10">
-      <h2 id="lp-worksheets-home" className="lp-kicker">
+    <section aria-labelledby="lp-worksheets-home">
+      <h3 id="lp-worksheets-home" className="font-sans text-sm font-semibold">
         {t("home.title")}
-      </h2>
-      {count > 0 ? <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("home.count", { count })}</p> : null}
+      </h3>
+      {count > 0 ? <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{t("home.count", { count })}</p> : null}
       {privateCount > 0 ? (
-        <p className="mt-3 text-sm leading-prose text-muted-foreground">
+        <p className="mt-0.5 text-sm leading-snug text-muted-foreground">
           {t("life.homePrivate", { count: privateCount })}
         </p>
       ) : null}
-      <Link to="/toolkit" className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">
+      <Link to="/toolkit" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover">
         {t("home.open")}
       </Link>
     </section>

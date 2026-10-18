@@ -16,12 +16,12 @@ export function ToolRows({ locale, tools, showCluster = false }: { locale: strin
         <li key={tool.slug} className="border-b">
           <Link
             to={`/${locale}/${tool.cluster}/${tool.slug}`}
-            className="group flex h-full flex-col gap-1 px-1 py-3 transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="group flex h-full flex-col gap-1 px-1 py-3.5 transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <span className="flex items-baseline justify-between gap-3">
-              <span className="font-medium group-hover:text-primary">{tool.title}</span>
+              <span className="font-serif text-lg leading-snug font-semibold group-hover:text-primary">{tool.title}</span>
               {showCluster && (
-                <span className="shrink-0 font-mono text-2xs uppercase tracking-label text-faint">
+                <span className="shrink-0 text-xs text-faint">
                   {t(`catalog.cluster.${tool.cluster}`)}
                 </span>
               )}

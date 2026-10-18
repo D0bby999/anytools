@@ -51,7 +51,7 @@ export function WritingDiagnosisPanel({ worksheetId, section, diagnoses, editor 
   const passes = section.fields.find((f) => f.key === PASSES_FIELD)?.rows ?? [];
   return (
     <section aria-labelledby="ws-diagnosis" className="mt-6">
-      <h3 id="ws-diagnosis" className="lp-kicker">
+      <h3 id="ws-diagnosis" className="lp-section">
         {t("writingDiagnosis.title")}
       </h3>
       <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("writingDiagnosis.lead")}</p>
@@ -124,7 +124,7 @@ function PassDiagnosis({ worksheetId, pass, row, label, stored, editor }: PassPr
             })}
           </p>
           {diagnosis.issues.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">{t("writingDiagnosis.none")}</p>
+            <p className="mt-2 lp-empty">{t("writingDiagnosis.none")}</p>
           ) : (
             <ul className="mt-2 space-y-4" aria-label={t("writingDiagnosis.issues", { n: pass })}>
               {diagnosis.issues.map((issue, i) => (
@@ -134,11 +134,11 @@ function PassDiagnosis({ worksheetId, pass, row, label, stored, editor }: PassPr
                   </blockquote>
                   <p className="mt-2 text-sm">{issue.problem}</p>
                   <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
-                    <dt className="font-mono text-xs uppercase text-faint">{t("writingDiagnosis.basis")}</dt>
+                    <dt className="text-xs font-semibold text-xs text-faint">{t("writingDiagnosis.basis")}</dt>
                     <dd>{issue.basis}</dd>
-                    <dt className="font-mono text-xs uppercase text-faint">{t("writingDiagnosis.confidence")}</dt>
+                    <dt className="text-xs font-semibold text-xs text-faint">{t("writingDiagnosis.confidence")}</dt>
                     <dd>{t(`writingDiagnosis.levels.${issue.confidence}`, { defaultValue: issue.confidence })}</dd>
-                    <dt className="font-mono text-xs uppercase text-faint">{t("writingDiagnosis.mightBeWrong")}</dt>
+                    <dt className="text-xs font-semibold text-xs text-faint">{t("writingDiagnosis.mightBeWrong")}</dt>
                     <dd>{issue.might_be_wrong}</dd>
                   </dl>
                   <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => copyQuote(issue.quote)}>

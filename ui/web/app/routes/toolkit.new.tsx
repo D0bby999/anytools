@@ -28,6 +28,7 @@ import {
   versionsAnswers,
   type VersionsPrefill,
 } from "~/lib/consistency-plan";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "New worksheet · Toolkit · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -108,11 +109,8 @@ export default function ToolkitNew({ loaderData, actionData }: Route.ComponentPr
   if (!kind) {
     return (
       <div className="lp-measure">
-        <div className="lp-prose">
-          <h1>{t("new.chooseTitle")}</h1>
-          <p>{t("new.chooseLead")}</p>
-        </div>
-        {kinds.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">{t("index.noKinds")}</p> : null}
+        <PageHeader title={t("new.chooseTitle")} lede={t("new.chooseLead")} />
+        {kinds.length === 0 ? <p className="mt-6 lp-empty">{t("index.noKinds")}</p> : null}
         <ul className="mt-6 border-t">
           {kinds.map((k) => (
             <li key={k.kind} className="border-b">
@@ -132,10 +130,7 @@ export default function ToolkitNew({ loaderData, actionData }: Route.ComponentPr
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("new.title", { name: kind.name })}</h1>
-        <p>{kind.summary}</p>
-      </div>
+      <PageHeader title={t("new.title", { name: kind.name })} lede={kind.summary} />
       {kind.private ? <PrivateNote kind={kind} /> : null}
       <ActionError result={actionData} />
       <Form method="post" className="mt-6 space-y-4">

@@ -52,7 +52,7 @@ export function DriveConnectionCard({ status, storage }: { status: DriveStatus; 
 
   return (
     <section aria-labelledby="lp-drive" className="mt-10">
-      <h2 id="lp-drive" className="lp-kicker">
+      <h2 id="lp-drive" className="lp-section">
         {t("settings.connections.drive.title")}
       </h2>
 
@@ -162,7 +162,7 @@ function DisconnectWithFiles({ busy, onKeep }: { busy: boolean; onKeep: () => vo
   const { t } = useTranslation("common");
   return (
     <div role="region" aria-labelledby="lp-drive-disconnect" className="mt-4 rounded-md border px-4 py-3">
-      <h3 id="lp-drive-disconnect" className="lp-kicker">
+      <h3 id="lp-drive-disconnect" className="lp-section">
         {t("settings.connections.drive.disconnectFilesTitle")}
       </h3>
       <ul className="mt-2 max-w-(--lp-measure-read) list-disc space-y-1 pl-5 text-sm leading-prose">

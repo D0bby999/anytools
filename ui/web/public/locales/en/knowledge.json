@@ -94,7 +94,7 @@
   },
   "drive": {
     "label": "Google Drive",
-    "connectBody": "Connect Google Drive to add documents straight from it. AnyTools asks only for the files you pick — it cannot see anything else in your Drive.",
+    "connectBody": "Connect Google Drive to add documents straight from it. AnyTools asks only for the files you pick; it cannot see anything else in your Drive.",
     "connect": "Connect Google Drive",
     "reconnect": "Reconnect Google Drive",
     "needsReconnect": "Google stopped accepting this Drive connection, so nothing here is syncing. Reconnect to continue.",
@@ -110,7 +110,7 @@
     "lastSync": "Last synced",
     "synced": "Synced",
     "inFolder": "In",
-    "pickMoreHint": "Picked files, and a picked folder's contents as of the moment you picked it, stay in sync: an edit in Drive re-indexes only that document. Files added to the folder later are not picked up on their own — use Pick more to add them.",
+    "pickMoreHint": "Picked files, and a picked folder's contents as of the moment you picked it, stay in sync: an edit in Drive re-indexes only that document. Files added to the folder later are not picked up on their own. Use Pick more to add them.",
     "empty": "Nothing picked from Drive yet.",
     "grantsLabel": "Picked from Google Drive",
     "unavailable": "Google Drive could not be loaded right now. Your documents are unaffected.",
@@ -164,7 +164,7 @@
     "submit": "Add link",
     "adding": "Adding…",
     "added": "Added “{{title}}”.",
-    "needsTranscript": "Added “{{title}}”. It needs a transcript before it can be searched — open it to add one."
+    "needsTranscript": "Added “{{title}}”. It needs a transcript before it can be searched. Open it to add one."
   },
   "source": {
     "web": "Web",

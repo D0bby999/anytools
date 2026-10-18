@@ -17,6 +17,7 @@ import { createKB, listKBs } from "~/lib/kb.server";
 import { ApiError } from "~/lib/api.server";
 import { Button } from "~/components/ui/button";
 import { KBCard } from "~/components/knowledge/kb-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -62,10 +63,7 @@ export default function KnowledgeIndex({ loaderData, actionData }: Route.Compone
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("index.title")}</h1>
-        <p>{t("index.lead")}</p>
-      </div>
+      <PageHeader title={t("index.title")} lede={t("index.lead")} />
 
       <div className="mt-8">
         {creating ? (
@@ -85,7 +83,7 @@ export default function KnowledgeIndex({ loaderData, actionData }: Route.Compone
                 maxLength={200}
                 autoFocus
                 placeholder={t("index.namePlaceholder")}
-                className="mt-1 min-h-11 w-full rounded-md border bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                className="mt-1 min-h-11 w-full rounded-md border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               />
             </div>
             <div className="flex gap-2">
@@ -112,7 +110,7 @@ export default function KnowledgeIndex({ loaderData, actionData }: Route.Compone
       </div>
 
       {loaderData.summaries.length === 0 ? (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">{t("index.empty")}</p>
+        <p className="mt-8 lp-empty">{t("index.empty")}</p>
       ) : (
         <ul className="mt-8 border-t">
           {loaderData.summaries.map((summary) => (

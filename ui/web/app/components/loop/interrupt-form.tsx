@@ -16,7 +16,7 @@ import { useResistanceLabels } from "~/components/loop/interruption-list";
 import { RESISTANCES } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
 
-const input = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm";
+const input = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
 export function InterruptForm({ minimum, busy }: { minimum: string; busy: boolean }) {
   const { t } = useTranslation("loop");

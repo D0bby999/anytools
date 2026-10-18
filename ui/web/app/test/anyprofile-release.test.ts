@@ -34,7 +34,9 @@ function manifest(over: Record<string, unknown> = {}) {
     date: "2026-10-20T08:00:00Z",
     notes: "Fixes.",
     assets: {
-      "darwin-arm64": { url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: SHA_MAC, sig: "c2ln" },
+      // The updater's package; the page never links it.
+      "darwin-arm64": { url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: "c".repeat(64), sig: "c2ln" },
+      "darwin-arm64-dmg": { url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256: SHA_MAC, sig: "c2ln" },
       "windows-amd64": { url: `${BASE}/AnyProfile-amd64-installer.exe`, sha256: SHA_WIN, sig: "c2ln" },
     },
     engines: [],
@@ -55,7 +57,7 @@ describe("parseManifest", () => {
       version: "1.4.0",
       date: "2026-10-20",
       assets: {
-        mac: { url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: SHA_MAC },
+        mac: { url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256: SHA_MAC },
         windows: { url: `${BASE}/AnyProfile-amd64-installer.exe`, sha256: SHA_WIN },
       },
     });
@@ -86,7 +88,7 @@ describe("parseManifest", () => {
     ];
     for (const url of hostile) {
       expect(safeAssetUrl(url), url).toBeNull();
-      const parsed = parseManifest(manifest({ assets: { "darwin-arm64": { url, sha256: SHA_MAC }, "windows-amd64": { url: `${BASE}/AnyProfile-amd64-installer.exe`, sha256: SHA_WIN } } }));
+      const parsed = parseManifest(manifest({ assets: { "darwin-arm64-dmg": { url, sha256: SHA_MAC }, "windows-amd64": { url: `${BASE}/AnyProfile-amd64-installer.exe`, sha256: SHA_WIN } } }));
       expect(parsed?.assets.mac, url).toBeNull();
       expect(parsed?.assets.windows?.sha256).toBe(SHA_WIN);
     }
@@ -94,8 +96,8 @@ describe("parseManifest", () => {
 
   it("shows no checksum that is not 64 hex digits", () => {
     for (const sha256 of ["abc", "g".repeat(64), `${SHA_MAC}0`, 42, null]) {
-      const parsed = parseManifest(manifest({ assets: { "darwin-arm64": { url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256 } } }));
-      expect(parsed?.assets.mac).toEqual({ url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: null });
+      const parsed = parseManifest(manifest({ assets: { "darwin-arm64-dmg": { url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256 } } }));
+      expect(parsed?.assets.mac).toEqual({ url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256: null });
     }
   });
 });
@@ -178,16 +180,20 @@ describe("latestRelease", () => {
 describe("downloadsFor", () => {
   it("links the release's own builds when it is known", () => {
     const d = downloadsFor(parseManifest(manifest()));
-    expect(d.links.mac).toEqual({ url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: SHA_MAC });
+    expect(d.links.mac).toEqual({ url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256: SHA_MAC });
     expect(d.links.windows.url).toBe(`${BASE}/AnyProfile-amd64-installer.exe`);
   });
 
   it("falls back to GitHub's latest-release redirect, per platform", () => {
     expect(downloadsFor(null).links).toEqual({
-      mac: { url: "https://github.com/D0bby999/anyprofile/releases/latest/download/AnyProfile-macos-arm64.zip", sha256: null },
+      mac: { url: "https://github.com/D0bby999/anyprofile/releases/latest/download/AnyProfile-macos-arm64.dmg", sha256: null },
       windows: { url: "https://github.com/D0bby999/anyprofile/releases/latest/download/AnyProfile-amd64-installer.exe", sha256: null },
     });
-    const macOnly = parseManifest(manifest({ assets: { "darwin-arm64": { url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: SHA_MAC } } }));
+    const macOnly = parseManifest(manifest({ assets: { "darwin-arm64-dmg": { url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256: SHA_MAC } } }));
     expect(downloadsFor(macOnly).links.windows).toEqual({ url: ANYPROFILE_FALLBACK.windows, sha256: null });
+    // A release made before the disk image (0.1.1's latest.json) lists only the
+    // updater's .zip: the Mac button still gets the image, by the redirect.
+    const zipOnly = parseManifest(manifest({ assets: { "darwin-arm64": { url: `${BASE}/AnyProfile-macos-arm64.zip`, sha256: SHA_MAC } } }));
+    expect(downloadsFor(zipOnly).links.mac).toEqual({ url: ANYPROFILE_FALLBACK.mac, sha256: null });
   });
 });

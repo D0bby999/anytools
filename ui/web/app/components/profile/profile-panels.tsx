@@ -22,7 +22,7 @@ export function AddEntryForm({ kbs, maxText }: { kbs: KBOption[]; maxText: numbe
 
   return (
     <section aria-labelledby="lp-profile-add">
-      <h2 id="lp-profile-add" className="lp-kicker">
+      <h2 id="lp-profile-add" className="lp-section">
         {t("add.title")}
       </h2>
       <fetcher.Form ref={form} method="post" className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -73,7 +73,7 @@ export function ConsolidationPanel({ on, lastRun }: { on: boolean; lastRun: Prof
   const fetcher = useFetcher<ProfileActionData>();
   return (
     <section aria-labelledby="lp-profile-nightly">
-      <h2 id="lp-profile-nightly" className="lp-kicker">
+      <h2 id="lp-profile-nightly" className="lp-section">
         {t("consolidation.title")}
       </h2>
       <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
@@ -109,16 +109,16 @@ function RunSummary({ run }: { run: ProfileRun }) {
     <div className="mt-1">
       <p className="text-sm text-muted-foreground">
         {t("consolidation.ranAt", { when, status: t(`consolidation.status.${run.status}`) })}
-        {run.error ? ` — ${run.error}` : ""}
+        {run.error ? ` · ${run.error}` : ""}
       </p>
       {run.status === "succeeded" && run.ops.length === 0 ? (
-        <p className="mt-1 text-sm text-muted-foreground">{t("consolidation.noOps")}</p>
+        <p className="mt-1 lp-empty">{t("consolidation.noOps")}</p>
       ) : null}
       {run.ops.length > 0 ? (
         <ul className="mt-2 border-t">
           {run.ops.map((op, i) => (
             <li key={i} className="border-b py-2 text-sm">
-              <span className="font-mono text-2xs uppercase text-muted-foreground">
+              <span className="text-xs font-semibold text-muted-foreground">
                 {op.status === "proposed" ? t("consolidation.proposed") : t("consolidation.dropped")} · {op.op}
                 {op.section ? ` · ${op.section}` : ""}
               </span>
@@ -139,7 +139,7 @@ export function ClearProfile({ count }: { count: number }) {
   const [confirming, setConfirming] = useState(false);
   return (
     <section aria-labelledby="lp-profile-clear">
-      <h2 id="lp-profile-clear" className="lp-kicker">
+      <h2 id="lp-profile-clear" className="lp-section">
         {t("clear.title")}
       </h2>
       <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("clear.body")}</p>

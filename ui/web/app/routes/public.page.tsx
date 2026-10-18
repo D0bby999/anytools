@@ -53,9 +53,9 @@ export default function StaticPage() {
 
   return (
     <article className="lp-measure px-4 py-8 lg:py-12">
-      <header className="lp-prose">
-        <h1>{title}</h1>
-        {updated && <p className="font-mono text-2xs uppercase tracking-label text-faint">{t("legal.updated", { date: updated })}</p>}
+      <header className="lp-page-enter">
+        <h1 className="text-3xl leading-tight lg:text-4xl">{title}</h1>
+        {updated && <p className="mt-3 text-sm text-faint">{t("legal.updated", { date: updated })}</p>}
       </header>
       <div className="mt-6">
         <Article source={source} standalone />

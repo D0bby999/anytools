@@ -55,7 +55,7 @@
   },
   "consolidation": {
     "title": "Nightly suggestions",
-    "body": "When this is on, AnyTools looks once a night, at 02:00 in your time zone and only after a day with new activity, at your quiz, mastery, vocabulary and skill-card results, and proposes entries. It makes one call on your own chat model and reads counts and results only — never your documents or anything you wrote. Nothing it proposes is used until you accept it.",
+    "body": "When this is on, AnyTools looks once a night, at 02:00 in your time zone and only after a day with new activity, at your quiz, mastery, vocabulary and skill-card results, and proposes entries. It makes one call on your own chat model and reads counts and results only, never your documents or anything you wrote. Nothing it proposes is used until you accept it.",
     "stateOn": "Nightly suggestions are on.",
     "stateOff": "Nightly suggestions are off.",
     "turnOn": "Turn on",

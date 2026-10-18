@@ -6,7 +6,7 @@ export function ToolkitLink() {
   const { t } = useTranslation("toolkit");
   return (
     <section aria-labelledby="lp-loop-toolkit" className="mt-10">
-      <h2 id="lp-loop-toolkit" className="lp-kicker">
+      <h2 id="lp-loop-toolkit" className="lp-section">
         {t("loop.title")}
       </h2>
       <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("loop.body")}</p>

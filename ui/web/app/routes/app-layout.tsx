@@ -12,7 +12,7 @@
  * that order, which is also their DOM order.
  */
 import { useEffect } from "react";
-import { Outlet, useFetcher, useMatches } from "react-router";
+import { Outlet, useFetcher, useLocation, useMatches } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/app-layout";
 import { requireUser } from "~/lib/auth.server";
@@ -20,6 +20,7 @@ import { Sidebar } from "~/components/layout/sidebar";
 import { Topbar } from "~/components/layout/topbar";
 import { RightPanel } from "~/components/layout/right-panel";
 import { ReadingProgress } from "~/components/layout/reading-progress";
+import { partOf } from "~/lib/parts";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
@@ -61,10 +62,14 @@ export type PanelHandle = { ownsPanel?: boolean };
 export default function AppLayout({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
   const ownsPanel = useMatches().some((m) => (m.handle as PanelHandle | undefined)?.ownsPanel);
+  // The textbook part this page belongs to (lib/parts.ts). Everything inside
+  // takes its colour for wayfinding: the running head's tab, a page's
+  // key-concept boxes, the reading progress.
+  const part = partOf(useLocation().pathname);
   useReportTimezone(loaderData.timezoneSet);
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden lg:flex-row">
+    <div data-part={part} className="flex h-dvh flex-col overflow-hidden lg:flex-row">
       <ReadingProgress containerSelector="[data-lp-scroll]" />
 
       {/* First thing in the tab order, invisible until it has focus. Without

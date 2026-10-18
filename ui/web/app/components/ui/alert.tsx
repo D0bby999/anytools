@@ -8,16 +8,18 @@ import { cn } from "~/lib/utils";
  */
 const Alert = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { variant?: "default" | "destructive" }
+  React.HTMLAttributes<HTMLDivElement> & { variant?: "default" | "warning" | "destructive" }
 >(({ className, variant = "default", ...props }, ref) => (
   <div
     ref={ref}
     role="alert"
     className={cn(
-      "rounded-md border px-4 py-3 text-sm",
+      "rounded-md border px-4 py-3 text-sm leading-snug",
       variant === "destructive"
-        ? "border-destructive/40 bg-destructive/10 text-destructive"
-        : "bg-muted text-foreground",
+        ? "border-destructive/40 bg-destructive-soft text-destructive"
+        : variant === "warning"
+          ? "border-warning/40 bg-warning-soft text-foreground"
+          : "bg-muted text-foreground",
       className,
     )}
     {...props}

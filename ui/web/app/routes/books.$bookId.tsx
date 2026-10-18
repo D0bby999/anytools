@@ -19,6 +19,7 @@ import type { ProposedChapter } from "~/lib/book-types";
 import { Button } from "~/components/ui/button";
 import { BookProposalEditor } from "~/components/book/proposal-editor";
 import { ChapterList } from "~/components/book/chapter-list";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
@@ -97,11 +98,11 @@ export default function BookPage({ loaderData }: Route.ComponentProps) {
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("book.back")}
       </Link>
-      <p className="lp-kicker mt-2">{book.status === "proposed" ? t("book.outlineKicker") : t("book.kicker")}</p>
-      <h1 className="mt-1 font-serif text-2xl font-semibold">{book.title}</h1>
-      {book.proposal.audience ? (
-        <p className="mt-2 text-sm leading-prose text-muted-foreground">{book.proposal.audience}</p>
-      ) : null}
+      <PageHeader title={book.title} className="mt-2" lede={book.proposal.audience || undefined}>
+        <p className="mt-3">
+          <span className="lp-tab">{book.status === "proposed" ? t("book.outlineKicker") : t("book.kicker")}</span>
+        </p>
+      </PageHeader>
 
       {book.status === "proposed" ? (
         <>

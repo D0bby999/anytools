@@ -66,7 +66,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
   }, [fetcher.state, fetcher.data, card]);
 
   if (cards.length === 0) {
-    return <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("session.empty")}</p>;
+    return <p className="mt-3 lp-empty">{t("session.empty")}</p>;
   }
   if (!card) {
     return (
@@ -95,7 +95,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
 
   return (
     <div className="mt-3 border-t pt-4" aria-live="polite">
-      <p className="font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+      <p className="text-xs font-semibold text-muted-foreground">
         {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind}
         {card.lang ? ` · ${card.lang}` : ""}
       </p>
@@ -169,7 +169,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
                 autoCapitalize="off"
                 spellCheck={false}
                 maxLength={200}
-                className="min-h-11 w-64 max-w-full rounded-md border border-control-border bg-background px-3 text-base text-foreground"
+                className="min-h-11 w-64 max-w-full rounded-md border border-control-border bg-card px-3 text-base text-foreground"
               />
             </label>
             {!revealed ? <Button type="submit">{t("session.check")}</Button> : null}

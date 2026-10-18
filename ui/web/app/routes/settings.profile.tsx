@@ -101,7 +101,7 @@ export default function SettingsProfile({ loaderData }: Route.ComponentProps) {
 
       {proposals.length > 0 ? (
         <section aria-labelledby="lp-profile-proposals">
-          <h2 id="lp-profile-proposals" className="lp-kicker">
+          <h2 id="lp-profile-proposals" className="lp-section">
             {t("proposals.title")}
           </h2>
           <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
@@ -121,7 +121,7 @@ export default function SettingsProfile({ loaderData }: Route.ComponentProps) {
         return (
           <section key={section} aria-labelledby={id} className="border-t pt-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 id={id} className="lp-kicker">
+              <h2 id={id} className="lp-section">
                 {t(`sections.${section}.title`)}
               </h2>
               <span className="font-mono text-2xs text-muted-foreground">

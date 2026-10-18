@@ -7,7 +7,7 @@
 import { useTranslation } from "react-i18next";
 import type { ReviewError } from "~/lib/loop-types";
 
-const cell = "min-h-11 w-full rounded-md border border-control-border bg-background px-2 text-sm";
+const cell = "min-h-11 w-full rounded-md border border-control-border bg-card px-2 text-sm";
 const BLANK: ReviewError = { evidence: "", cause: "", confidence: "", next_test: "", stop_condition: "" };
 
 export function MistakeRows({ errors }: { errors: ReviewError[] }) {

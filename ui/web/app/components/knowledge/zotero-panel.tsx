@@ -52,7 +52,7 @@ export function ZoteroPanel({ kbId }: { kbId: string }) {
             onChange={(e) => setQuery(e.target.value)}
             maxLength={200}
             placeholder={t("zotero.searchPlaceholder")}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
           />
         </label>
         <Button type="submit" disabled={busy || query.trim() === ""}>

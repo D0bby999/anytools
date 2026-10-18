@@ -15,6 +15,7 @@ import { cancelTemplate, deleteTemplate, getTemplate, reviewTemplate, type Templ
 import { templateWorking } from "~/lib/exam-types";
 import { Button } from "~/components/ui/button";
 import { TemplateEditor } from "~/components/exam/template-editor";
+import { PageHeader } from "~/components/ui/page-header";
 
 /** How often a running extraction is re-read. */
 const POLL_MS = 3000;
@@ -88,10 +89,7 @@ export default function ExamTemplatePage({ loaderData }: Route.ComponentProps) {
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("exams.back")}
       </Link>
-      <div className="lp-prose mt-2">
-        <h1>{template.title}</h1>
-        <p>{t("exams.review.lead")}</p>
-      </div>
+      <PageHeader title={template.title} lede={t("exams.review.lead")} />
       <p className="mt-2 text-xs text-muted-foreground">
         {t("exams.review.meta", { file: template.filename, pages: template.page_count })}
         {template.parsed_by ? ` · ${t("exams.review.readBy", { by: template.parsed_by })}` : ""}
@@ -99,7 +97,7 @@ export default function ExamTemplatePage({ loaderData }: Route.ComponentProps) {
 
       {working ? (
         <section aria-labelledby="lp-exam-working" className="mt-8 border-y py-4">
-          <h2 id="lp-exam-working" className="lp-kicker">
+          <h2 id="lp-exam-working" className="lp-section">
             {t(`exams.status.${template.status}`)}
           </h2>
           <p role="status" className="mt-2 text-sm leading-prose">

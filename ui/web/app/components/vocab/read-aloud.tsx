@@ -129,7 +129,7 @@ export function ReadAloudBar({ text, lang: givenLang, onClose }: { text: string;
         className="pointer-events-auto w-full max-w-xl rounded-lg border bg-card p-3 shadow-sm"
       >
         <div className="flex items-center justify-between gap-2">
-          <h2 id="lp-read-aloud" className="lp-kicker">
+          <h2 id="lp-read-aloud" className="lp-section">
             {t("speech.title")} <span className="font-mono">{lang}</span>
           </h2>
           <Button type="button" size="icon" variant="ghost" aria-label={t("speech.close")} onClick={onClose}>
@@ -165,7 +165,7 @@ export function ReadAloudBar({ text, lang: givenLang, onClose }: { text: string;
               <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs text-muted-foreground">
                 {t("speech.voice")}
                 <select
-                  className="h-9 min-w-0 rounded-md border border-control-border bg-background px-2 text-sm text-foreground"
+                  className="h-9 min-w-0 rounded-md border border-control-border bg-card px-2 text-sm text-foreground"
                   value={voiceURI}
                   onChange={(e) => {
                     stop();

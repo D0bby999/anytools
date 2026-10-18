@@ -22,6 +22,7 @@
     "downloadWindows": "Download for Windows",
     "downloadWindowsNote": "Windows 10 or 11, 64-bit",
     "allReleases": "All releases and release notes",
+    "howToInstall": "How to install and open it the first time",
     "featuresTitle": "What it does",
     "features": [
       {
@@ -54,8 +55,8 @@
       {
         "os": "Mac",
         "steps": [
-          "Unzip the download and move AnyProfile.app into Applications.",
-          "The first time, macOS says it cannot verify the app. Open System Settings → Privacy & Security and choose Open Anyway.",
+          "Open the downloaded AnyProfile-macos-arm64.dmg and drag AnyProfile onto Applications.",
+          "Open AnyProfile. The first time, macOS says “Apple could not verify…”: choose Done (not Move to Trash), then open System Settings → Privacy & Security, scroll to Security, choose Open Anyway and enter your password. You do this once.",
           "When macOS asks whether AnyProfile may use the Keychain, choose Always Allow."
         ]
       },

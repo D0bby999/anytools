@@ -37,6 +37,14 @@ import { ToolActivityPanel } from "~/components/chat/tool-activity";
 import { WaitForInputCard } from "~/components/chat/wait-for-input-card";
 import { RightPanel } from "~/components/layout/right-panel";
 
+export function meta({ data }: Route.MetaArgs) {
+  const title = data?.session.title;
+  return [
+    { title: title ? `${title} · Chat · AnyTools` : "Chat · AnyTools" },
+    { name: "robots", content: "noindex, nofollow" },
+  ];
+}
+
 /** This route renders its own panel (sources and stream activity). */
 export const handle = { ownsPanel: true };
 

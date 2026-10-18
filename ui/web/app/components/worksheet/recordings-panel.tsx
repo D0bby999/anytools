@@ -66,7 +66,7 @@ export function RecordingsPanel({ worksheetId, kind, answers, recordings }: Prop
 
   return (
     <section aria-labelledby="ws-recordings" className="mt-10">
-      <h2 id="ws-recordings" className="lp-kicker">
+      <h2 id="ws-recordings" className="lp-section">
         {t("recordings.title")}
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">{t("recordings.lead")}</p>
@@ -82,11 +82,11 @@ export function RecordingsPanel({ worksheetId, kind, answers, recordings }: Prop
             ].map((side) => (
               <div key={side.label} className="space-y-2">
                 <label className="block text-xs font-medium">
-                  <span className="font-mono uppercase tracking-wide text-faint">{side.label}</span>
+                  <span className="text-xs font-semibold text-faint">{side.label}</span>
                   <select
                     value={side.value}
                     onChange={(e) => side.set(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm"
+                    className="mt-1 block w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm"
                   >
                     {recordings.map((r) => (
                       <option key={r.id} value={r.id}>

@@ -45,7 +45,7 @@ export function EvidenceRow({ item, editable }: { item: EvidenceRef; editable: b
         ) : (
           <span className="text-sm font-medium">{item.target?.label ?? t("evidence.gone")}</span>
         )}
-        <span className="font-mono text-2xs uppercase tracking-wide text-faint">
+        <span className="text-xs font-semibold text-faint">
           {kinds[item.kind]} · {statusLabel}
           {item.suggested_by === "job" ? ` · ${t("evidence.byJob")}` : ""}
         </span>

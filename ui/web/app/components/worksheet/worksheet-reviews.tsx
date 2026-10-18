@@ -27,7 +27,7 @@ export function WorksheetReviews({
   if (list.length === 0) return null;
   return (
     <section aria-labelledby="ws-reviews" className="mt-8">
-      <h2 id="ws-reviews" className="lp-kicker">
+      <h2 id="ws-reviews" className="lp-section">
         {t("reviews.title")}
       </h2>
       <ul className="mt-3 border-t">

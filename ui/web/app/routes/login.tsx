@@ -12,6 +12,7 @@ import type { Route } from "./+types/login";
 import { configuredProviders, localSignInEnabled } from "~/lib/env.server";
 import { sanitizeNextPath } from "~/lib/safe-redirect-target";
 import { Button } from "~/components/ui/button";
+import { PARTS } from "~/lib/parts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Alert } from "~/components/ui/alert";
 
@@ -59,18 +60,31 @@ export default function Login({ loaderData }: Route.ComponentProps) {
     // A landmark, not a fragment: auth-layout.tsx wraps this in plain divs, so
     // without it the sign-in page has no <main> and every element on it sits
     // outside any landmark. axe flags both (landmark-one-main, region).
-    <main>
-      {/* The only page an outside visitor sees before the shell, so it is the
-          only place the wordmark gets to be the loudest thing. Serif, because
-          the world's voice is a book's. */}
-      <div className="mb-8 text-center">
-        <p translate="no" className="font-serif text-2xl font-semibold">
+    <main className="grid overflow-hidden rounded-xl border bg-card shadow-md lg:grid-cols-[1.1fr_1fr]">
+      {/* The book's cover: the only page an outside visitor sees before the
+          shell, so the wordmark is the loudest thing on it, and the four parts
+          say what is inside. */}
+      <div className="bg-foreground px-6 py-8 text-background sm:px-10 sm:py-12">
+        <p translate="no" className="font-serif text-4xl font-semibold tracking-display sm:text-5xl">
           {tc("app.name")}
         </p>
-        <p className="mt-2 text-sm leading-prose text-muted-foreground">{tc("app.tagline")}</p>
+        <p className="mt-3 max-w-[30ch] font-serif text-lg leading-snug italic opacity-90">{tc("app.tagline")}</p>
+        <ol className="mt-8 hidden space-y-3 sm:block">
+          {PARTS.map((part) => (
+            <li key={part.id} data-part={part.id} className="flex items-baseline gap-3">
+              <span aria-hidden="true" className="lp-tab min-w-8 justify-center">
+                {part.numeral}
+              </span>
+              <span>
+                <span className="font-semibold">{tc(part.labelKey)}</span>
+                <span className="opacity-80"> · {tc(part.bodyKey)}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
       </div>
 
-      <Card>
+      <Card className="flex flex-col justify-center rounded-none border-0 py-4 shadow-none sm:px-4">
         <CardHeader>
           <CardTitle>{t("login.title")}</CardTitle>
           <CardDescription>{t("login.subtitle")}</CardDescription>

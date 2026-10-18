@@ -55,12 +55,12 @@ export function ErrorBoundary() {
     <I18nextProvider i18n={toolsI18n(data.locale, data.messages)}>
       <PublicShell locale={data.locale}>
         <div className="lp-measure px-4 py-12">
-          <div className="lp-prose">
-            <h1>{missing ? t("notFound.title") : t("error.title")}</h1>
-            <p>{missing ? t("notFound.description") : t("error.description")}</p>
-          </div>
+          <h1 className="text-3xl leading-tight lg:text-4xl">{missing ? t("notFound.title") : t("error.title")}</h1>
+          <p className="mt-3 text-lg leading-snug text-muted-foreground">
+            {missing ? t("notFound.description") : t("error.description")}
+          </p>
           <p className="mt-6">
-            <Link to={`/${data.locale}`} className="text-primary underline underline-offset-4">
+            <Link to={`/${data.locale}`} className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
               {t("notFound.ctaHome")}
             </Link>
           </p>

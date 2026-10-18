@@ -9,7 +9,7 @@ import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 
-const input = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm";
+const input = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
 export function StartForm({ busy }: { busy: boolean }) {
   const { t } = useTranslation("loop");

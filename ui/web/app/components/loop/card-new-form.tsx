@@ -11,7 +11,7 @@ import type { CardKind } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
 import { DiagnosticPrompt, needsDiagnostic, type DiagnosticNeed } from "~/components/worksheet/diagnostic-prompt";
 
-const box = "mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm";
+const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 type Props = { kinds: CardKind[]; busy: boolean; diagnostic?: DiagnosticNeed };
 
@@ -40,7 +40,7 @@ export function CardNewForm({ kinds, busy, diagnostic }: Props) {
                 <span>
                   <span className="block text-sm font-medium">{k.name}</span>
                   <span className="block text-sm text-muted-foreground">{k.summary}</span>
-                  <span className="mt-1 block font-mono text-2xs uppercase tracking-wide text-faint">
+                  <span className="text-xs font-semibold mt-1 block text-faint">
                     {t("cards.retestAfter", { count: k.retest_delay_days })}
                   </span>
                 </span>

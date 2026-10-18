@@ -4,6 +4,7 @@
  * evidence, the four scores, and the writeback into the learning state —
  * refused, with reasons, until the review is complete.
  */
+import { ArrowLeft } from "lucide-react";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.review.$id";
@@ -18,6 +19,7 @@ import { EvidenceRow } from "~/components/loop/evidence-row";
 import { Metric } from "~/components/loop/metric";
 import { ScoreForm } from "~/components/loop/score-form";
 import { SuggestionRow } from "~/components/loop/suggestion-row";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Weekly review · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -96,20 +98,21 @@ export default function LoopReview({ loaderData, actionData }: Route.ComponentPr
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("review.title", { week: review.week_no })}</h1>
-        <p>{cycle.goal}</p>
-      </div>
-      <Link to={`/loop/cycle/${cycle.id}`} className="text-sm text-primary underline underline-offset-4">
+      <Link
+        to={`/loop/cycle/${cycle.id}`}
+        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft aria-hidden="true" className="size-4" />
         {t("review.backToCycle")}
       </Link>
+      <PageHeader title={t("review.title", { week: review.week_no })} lede={cycle.goal} numeral={review.week_no} className="mt-2" />
       <ActionError result={actionData} />
 
       <section aria-labelledby="lp-rv-evidence" className="mt-8">
-        <h2 id="lp-rv-evidence" className="lp-kicker">
+        <h2 id="lp-rv-evidence" className="lp-section">
           {t("review.evidence")}
         </h2>
-        {evidence.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">{t("review.noEvidence")}</p> : null}
+        {evidence.length === 0 ? <p className="mt-3 lp-empty">{t("review.noEvidence")}</p> : null}
         <ul className="mt-3 border-t">
           {evidence.map((e) => (
             <EvidenceRow key={e.id} item={e} editable={!review.writeback_done} />
@@ -119,12 +122,12 @@ export default function LoopReview({ loaderData, actionData }: Route.ComponentPr
 
       {!review.writeback_done ? (
         <section aria-labelledby="lp-rv-suggest" className="mt-10">
-          <h2 id="lp-rv-suggest" className="lp-kicker">
+          <h2 id="lp-rv-suggest" className="lp-section">
             {t("review.suggested")}
           </h2>
           <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("review.suggestedLead")}</p>
           {suggestions.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">{t("review.noSuggestions")}</p>
+            <p className="mt-3 lp-empty">{t("review.noSuggestions")}</p>
           ) : (
             <ul className="mt-3 border-t">
               {suggestions.map((s) => (
@@ -136,7 +139,7 @@ export default function LoopReview({ loaderData, actionData }: Route.ComponentPr
       ) : null}
 
       <section aria-labelledby="lp-rv-scores" className="mt-10">
-        <h2 id="lp-rv-scores" className="lp-kicker">
+        <h2 id="lp-rv-scores" className="lp-section">
           {t("review.scores")}
         </h2>
         <Metric
@@ -148,7 +151,7 @@ export default function LoopReview({ loaderData, actionData }: Route.ComponentPr
       </section>
 
       <section aria-labelledby="lp-rv-writeback" className="mt-10">
-        <h2 id="lp-rv-writeback" className="lp-kicker">
+        <h2 id="lp-rv-writeback" className="lp-section">
           {t("review.writeback")}
         </h2>
         {review.writeback_done ? (

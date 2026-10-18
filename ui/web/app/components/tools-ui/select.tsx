@@ -29,9 +29,9 @@ const SelectTrigger = forwardRef<
     ref={ref}
     className={cn(
       // h-11 not h-10: this is a touch target, unlike Input which is typed into.
-      'flex h-11 w-full items-center justify-between gap-2 rounded-md border border-control-border bg-background px-3 py-2 text-sm',
+      'flex h-11 w-full items-center justify-between gap-2 rounded-md border border-control-border bg-card px-3 py-2 text-sm',
       'ring-offset-background placeholder:text-muted-foreground',
-      'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
       'disabled:cursor-not-allowed disabled:opacity-50',
       '[&>span]:line-clamp-1 [&>span]:text-left',
       className,

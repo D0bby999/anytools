@@ -18,6 +18,7 @@ import { field, orNotFound } from "~/lib/loop-actions.server";
 import { ActionError } from "~/components/loop/action-error";
 import { CardTimeline } from "~/components/loop/card-timeline";
 import type { LinkChoice } from "~/components/loop/card-entry-form";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Evidence card · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -79,11 +80,11 @@ export default function LoopCard({ loaderData, actionData }: Route.ComponentProp
   const { detail, recent } = loaderData;
   return (
     <div className="lp-measure">
-      <p className="lp-kicker">{detail.kind.name}</p>
-      <div className="lp-prose">
-        <h1>{detail.card.title}</h1>
-        <p>{detail.kind.summary}</p>
-      </div>
+      <PageHeader title={detail.card.title} lede={detail.kind.summary}>
+        <p className="mt-3">
+          <span className="lp-tab">{detail.kind.name}</span>
+        </p>
+      </PageHeader>
       <Link to={`/loop/state/${detail.card.state_id}`} className="text-sm text-primary underline underline-offset-4">
         {t("cards.backToGoal")}
       </Link>

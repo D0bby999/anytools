@@ -40,9 +40,9 @@ export function TodayBlock({ today, lowDay }: { today: TodayState | null; lowDay
       ];
 
   return (
-    <section aria-labelledby="lp-today" className="mt-10">
+    <section aria-labelledby="lp-today">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="lp-today" className="lp-kicker">
+        <h2 id="lp-today" className="lp-section text-xl">
           {t("today.title")}
         </h2>
         <fetcher.Form method="post" action="/app/api/low-day">
@@ -51,7 +51,7 @@ export function TodayBlock({ today, lowDay }: { today: TodayState | null; lowDay
             type="submit"
             aria-pressed={low}
             aria-describedby="lp-today-low-hint"
-            className="inline-flex min-h-11 items-center rounded-md border border-control-border px-3 text-sm transition-colors hover:bg-primary-soft aria-pressed:bg-selected aria-pressed:text-selected-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="inline-flex min-h-11 items-center rounded-md border border-control-border bg-card px-4 text-sm font-medium transition-colors hover:bg-hover aria-pressed:border-primary aria-pressed:bg-selected aria-pressed:text-selected-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             {t("today.lowDay")}
           </button>
@@ -60,24 +60,23 @@ export function TodayBlock({ today, lowDay }: { today: TodayState | null; lowDay
       <p id="lp-today-low-hint" className="mt-1 text-xs text-muted-foreground">
         {t("today.lowDayHint")}
       </p>
-
       <Link
         to={`/loop/state/${today.id}`}
-        className="mt-3 inline-block font-serif text-lg underline-offset-4 hover:underline"
+        className="mt-4 block font-serif text-2xl leading-snug font-semibold text-balance underline-offset-4 hover:text-primary hover:underline"
       >
         {today.goal}
       </Link>
-      <dl className="mt-2 border-t">
+      <dl className="mt-3 border-t border-part-line">
         {rows.map((r) => (
-          <div key={r.label} className="grid grid-cols-[10rem_1fr] gap-x-3 border-b py-2 text-sm">
+          <div key={r.label} className="grid gap-x-4 border-b border-part-line py-2.5 text-sm sm:grid-cols-[10rem_1fr]">
             <dt className="text-muted-foreground">{r.label}</dt>
-            <dd>{r.value || <span className="text-faint">{t("today.none")}</span>}</dd>
+            <dd className="font-medium">{r.value || <span className="font-normal text-faint">{t("today.none")}</span>}</dd>
           </div>
         ))}
       </dl>
       <Link
         to={`/loop/state/${today.id}#lp-state-interrupt`}
-        className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
+        className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
       >
         {t("today.interrupt")}
       </Link>

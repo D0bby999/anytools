@@ -78,7 +78,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
 
       {replacing || !picker || !transcribe ? null : (
         <section aria-labelledby="lp-transcribe" className="border-t pt-6">
-          <h3 id="lp-transcribe" className="lp-kicker">
+          <h3 id="lp-transcribe" className="lp-section">
             {t("engines.title")}
           </h3>
           <EnginePicker estimate={transcribe} recording={recording} />
@@ -87,7 +87,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
 
       {replacing || picker ? null : (
       <section aria-labelledby="lp-transcribe" className="border-t pt-6">
-        <h3 id="lp-transcribe" className="lp-kicker">
+        <h3 id="lp-transcribe" className="lp-section">
           {t("video.needs.gemini")}
         </h3>
         {transcribe?.available ? (
@@ -128,7 +128,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
 
       {tracks.length > 0 ? (
         <section aria-labelledby="lp-track" className="border-t pt-6">
-          <h3 id="lp-track" className="lp-kicker">
+          <h3 id="lp-track" className="lp-section">
             {t("video.needs.track")}
           </h3>
           <fetcher.Form method="post" className="mt-3 flex flex-wrap items-center gap-2">
@@ -152,7 +152,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
       ) : null}
 
       <section aria-labelledby="lp-upload-subs" className="border-t pt-6">
-        <h3 id="lp-upload-subs" className="lp-kicker">
+        <h3 id="lp-upload-subs" className="lp-section">
           {t("video.needs.upload")}
         </h3>
         <fetcher.Form method="post" encType="multipart/form-data" className="mt-3 flex flex-wrap items-center gap-2">
@@ -176,7 +176,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
       </section>
 
       <section aria-labelledby="lp-paste" className="border-t pt-6">
-        <h3 id="lp-paste" className="lp-kicker">
+        <h3 id="lp-paste" className="lp-section">
           {t("video.needs.paste")}
         </h3>
         <fetcher.Form method="post" className="mt-3 space-y-2">

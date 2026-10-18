@@ -120,7 +120,7 @@ describe("Sites and repositories", () => {
     expect(loads[0]).toBe("?site=s1");
     const old = screen.getByRole("link", { name: "Old page" }).closest("li") as HTMLElement;
     expect(within(old).getByText("Removed from the site")).toBeInTheDocument();
-    expect(screen.getByText(/Skipped — the site's robots.txt/)).toBeInTheDocument();
+    expect(screen.getByText(/Skipped · the site's robots.txt/)).toBeInTheDocument();
 
     expect(screen.getByText("acme/docs")).toBeInTheDocument();
     expect(screen.getByText(/main @ 0123456/)).toBeInTheDocument();

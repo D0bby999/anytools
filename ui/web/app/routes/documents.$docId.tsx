@@ -104,6 +104,7 @@ import {
 import { BARRIERS, PASSES, closedForRebuild } from "~/lib/reading-passes";
 import { ClosedForRebuild, ReadingPasses } from "~/components/reading/reading-passes";
 import { DriveFileNotice, useDriveReason } from "~/components/storage/drive-file-notice";
+import { PageHeader } from "~/components/ui/page-header";
 
 const NO_PASSES: ReadingPassesData = { allowed: false, sheet: null };
 
@@ -595,7 +596,7 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
               <ArrowLeft aria-hidden="true" className="size-4" />
               {t("viewer.back")}
             </Link>
-            <h1 className="mt-2 font-serif text-2xl font-semibold">{video.document.title}</h1>
+            <PageHeader title={video.document.title} className="mt-2 mb-0" />
           </>
         ) : null}
         <div className="mt-6">
@@ -673,9 +674,9 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
             {t("viewer.back")}
           </Link>
 
-          <header className="mt-2">
-            <h1 className="font-serif text-2xl font-semibold">{doc.title}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <header className="lp-page-enter mt-2">
+            <h1 className="text-3xl leading-tight break-words lg:text-4xl">{doc.title}</h1>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <span>
                 {t("viewer.pages")}: {doc.page_count}
               </span>
@@ -771,7 +772,7 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
             ) : null}
             {closed ? null : passesOn ? (
               <section aria-labelledby="lp-tutor">
-                <h2 id="lp-tutor" className="lp-kicker">
+                <h2 id="lp-tutor" className="lp-section">
                   {tr("tutor.title")}
                 </h2>
                 <TutorPane exchanges={exchanges} failure={failure} sessionId={loaderData.workspace?.session_id} />

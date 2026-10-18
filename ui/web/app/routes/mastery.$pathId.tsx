@@ -25,6 +25,7 @@ import { parseApproval } from "~/lib/mastery-form";
 import { Button } from "~/components/ui/button";
 import { ProposalEditor } from "~/components/mastery/proposal-editor";
 import { QuestionCard } from "~/components/quiz/question-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
@@ -101,11 +102,16 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
         {t("path.back")}
       </Link>
 
-      <h1 className="mt-2 font-serif text-2xl font-semibold">{detail.path.goal}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {detail.kb_name}
-        {planned ? ` · ${t("path.overall", { mastery: percent(detail.mastery), due: detail.due_count })}` : ""}
-      </p>
+      <PageHeader
+        title={detail.path.goal}
+        className="mt-2 mb-0"
+        lede={
+          <>
+            {detail.kb_name}
+            {planned ? ` · ${t("path.overall", { mastery: percent(detail.mastery), due: detail.due_count })}` : ""}
+          </>
+        }
+      />
 
       {planned ? (
         <div className="mt-6 flex flex-wrap gap-2">
@@ -121,7 +127,7 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
         </div>
       ) : (
         <section aria-labelledby="lp-path-plan" className="mt-8">
-          <h2 id="lp-path-plan" className="lp-kicker">
+          <h2 id="lp-path-plan" className="lp-section">
             {t("path.proposalTitle")}
           </h2>
           {fetcher.data?.proposal ? (
@@ -149,7 +155,7 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
 
       {fetcher.data?.diagnostic ? (
         <section aria-labelledby="lp-path-diagnostic" className="mt-8">
-          <h2 id="lp-path-diagnostic" className="lp-kicker">
+          <h2 id="lp-path-diagnostic" className="lp-section">
             {t("path.diagnostic")}
           </h2>
           <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("path.diagnosticLead")}</p>
@@ -165,7 +171,7 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
 
       {planned ? (
         <section aria-labelledby="lp-path-modules" className="mt-10">
-          <h2 id="lp-path-modules" className="lp-kicker">
+          <h2 id="lp-path-modules" className="lp-section">
             {t("path.modules")}
           </h2>
           {detail.explain_gate ? (
@@ -215,11 +221,11 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
       ) : null}
 
       <section aria-labelledby="lp-path-errors" className="mt-10">
-        <h2 id="lp-path-errors" className="lp-kicker">
+        <h2 id="lp-path-errors" className="lp-section">
           {t("path.errors")}
         </h2>
         {errors.length === 0 ? (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("path.noErrors")}</p>
+          <p className="mt-3 lp-empty">{t("path.noErrors")}</p>
         ) : (
           <>
             <p className="mt-2 text-sm">

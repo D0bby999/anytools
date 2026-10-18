@@ -125,7 +125,7 @@ describe("DriveGrants", () => {
     expect(screen.getByRole("button", { name: "Sync now" })).toBeInTheDocument();
     // AC2, fallback wording: the page says that later files need Pick more.
     expect(screen.getByText(/Files added to the folder later are not picked up on their own/)).toHaveTextContent(
-      "use Pick more to add them",
+      "Use Pick more to add them",
     );
   });
 

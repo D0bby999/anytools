@@ -37,7 +37,7 @@ export function ScoreForm({ review, busy }: { review: WeeklyReview; busy: boolea
               {levels.map((word, n) => (
                 <label key={word} className="flex min-h-11 items-center gap-2 text-sm">
                   <input type="radio" name={c} value={n} defaultChecked={review[c] === n} />
-                  {n} — {word}
+                  {n} · {word}
                 </label>
               ))}
             </div>
@@ -53,7 +53,7 @@ export function ScoreForm({ review, busy }: { review: WeeklyReview; busy: boolea
             name="energy"
             defaultValue={review.energy}
             maxLength={1000}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
           />
         </div>
         <div>
@@ -66,7 +66,7 @@ export function ScoreForm({ review, busy }: { review: WeeklyReview; busy: boolea
             name="one_variable_change"
             defaultValue={review.one_variable_change}
             maxLength={1000}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
           />
         </div>
         <Button type="submit" disabled={busy}>

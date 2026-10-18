@@ -7,7 +7,7 @@
     "photo": "Photo of the problem",
     "photoHint": "PNG, JPEG, WebP or GIF, up to 5 MB. It is sent to your own model and not stored.",
     "kb": "Look things up in",
-    "kbNone": "Nothing — solve from the problem alone",
+    "kbNone": "Nothing (solve from the problem alone)",
     "variant": "What do you want?",
     "variantSolve": "Solve it",
     "variantCheck": "Check my answer",

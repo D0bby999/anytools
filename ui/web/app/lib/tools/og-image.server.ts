@@ -5,7 +5,7 @@
  *
  * Satori lays the card out as SVG with the text already turned into paths,
  * and resvg (wasm, no native binary) rasterises it. Both are server-only, so
- * no page's bundle grows. The fonts are the app's own IBM Plex cuts from
+ * no page's bundle grows. The fonts are the app's own Literata and Be Vietnam Pro cuts from
  * @fontsource, in .woff (satori cannot read woff2), latin and Vietnamese
  * subsets both, so a Vietnamese title draws its own glyphs.
  *
@@ -34,9 +34,9 @@ function fonts(): Font[] {
     readFileSync(require.resolve(`@fontsource/${pkg}/files/${base}-${subset}-${weight}-normal.woff`));
   const out: Font[] = [];
   for (const subset of ["latin", "latin-ext", "vietnamese"]) {
-    out.push({ name: "Serif", data: file("ibm-plex-serif", "ibm-plex-serif", subset, 600), weight: 600, style: "normal" });
-    out.push({ name: "Sans", data: file("ibm-plex-sans", "ibm-plex-sans", subset, 400), weight: 400, style: "normal" });
-    out.push({ name: "Mono", data: file("ibm-plex-mono", "ibm-plex-mono", subset, 600), weight: 600, style: "normal" });
+    out.push({ name: "Serif", data: file("literata", "literata", subset, 600), weight: 600, style: "normal" });
+    out.push({ name: "Sans", data: file("be-vietnam-pro", "be-vietnam-pro", subset, 400), weight: 400, style: "normal" });
+    out.push({ name: "Sans", data: file("be-vietnam-pro", "be-vietnam-pro", subset, 600), weight: 600, style: "normal" });
   }
   return out;
 }
@@ -61,6 +61,8 @@ const el = (type: string, style: Record<string, unknown>, children?: Node | Node
 export async function renderToolCard(input: { title: string; description: string; cluster: string }): Promise<Uint8Array> {
   const loaded = await setup();
   const ink = token("ink");
+  // A page of the book's tools appendix: the slate part tab, the title in the
+  // book face, the description, and a running foot.
   const card = el(
     "div",
     {
@@ -69,36 +71,48 @@ export async function renderToolCard(input: { title: string; description: string
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
-      padding: "80px 96px",
+      padding: "72px 96px",
       background: token("paper"),
       color: ink,
-      borderTop: `10px solid ${token("brand")}`,
-      borderBottom: `10px solid ${token("brand")}`,
     },
     [
-      el("div", { fontFamily: "Serif", fontSize: 40, fontWeight: 600 }, "AnyTools"),
+      el("div", { display: "flex", alignItems: "center", gap: 20 }, [
+        el("div", { fontFamily: "Serif", fontSize: 40, fontWeight: 600 }, "AnyTools"),
+        el(
+          "div",
+          {
+            fontFamily: "Sans",
+            fontSize: 20,
+            fontWeight: 600,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            padding: "4px 14px",
+            borderRadius: 8,
+            background: token("part-tools"),
+            color: token("part-tools-fg"),
+          },
+          input.cluster,
+        ),
+      ]),
       el("div", { display: "flex", flexDirection: "column", gap: 24 }, [
-        el("div", { fontFamily: "Serif", fontSize: 64, fontWeight: 600, lineHeight: 1.15 }, input.title),
-        el("div", { fontFamily: "Sans", fontSize: 28, color: token("ink-2"), lineHeight: 1.4 }, input.description),
+        el("div", { fontFamily: "Serif", fontSize: 64, fontWeight: 600, lineHeight: 1.12 }, input.title),
+        el("div", { fontFamily: "Sans", fontSize: 28, color: token("ink-2"), lineHeight: 1.45 }, input.description),
       ]),
       el(
         "div",
         {
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           borderTop: `1px solid ${token("border")}`,
           paddingTop: 24,
-          fontFamily: "Mono",
-          fontSize: 20,
-          letterSpacing: 2,
-          textTransform: "uppercase",
-          color: token("brand"),
+          fontFamily: "Sans",
+          fontSize: 22,
+          color: token("ink-2"),
         },
-        [el("div", {}, input.cluster), el("div", {}, "anytools.world")],
+        [el("div", { color: token("brand"), fontWeight: 600 }, "anytools.world")],
       ),
     ],
   );
-  // satori's types want a ReactNode; a {type, props} tree is what JSX compiles to.
   const svg = await satori(card as unknown as Parameters<typeof satori>[0], { width: 1200, height: 630, fonts: loaded });
   return new Resvg(svg).render().asPng();
 }

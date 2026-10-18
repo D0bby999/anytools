@@ -21,11 +21,11 @@ export function ReportList({ reports }: { reports: ReportSummary[] }) {
 
   return (
     <section aria-labelledby="lp-research-list" className="mt-12">
-      <h2 id="lp-research-list" className="lp-kicker">
+      <h2 id="lp-research-list" className="lp-section">
         {t("list.title")}
       </h2>
       {reports.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">{t("list.empty")}</p>
+        <p className="mt-2 lp-empty">{t("list.empty")}</p>
       ) : (
         <ul className="mt-3 divide-y rounded-lg border bg-card">
           {reports.map((r) => (

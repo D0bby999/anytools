@@ -23,7 +23,7 @@ export function ExamResult({ exam }: { exam: ExamView }) {
   return (
     <div>
       <section aria-labelledby="lp-exam-score" className="mt-6 border-y py-4">
-        <h2 id="lp-exam-score" className="lp-kicker">
+        <h2 id="lp-exam-score" className="lp-section">
           {t("exams.result.title")}
         </h2>
         <p className="mt-2 font-serif text-3xl">
@@ -79,7 +79,7 @@ function ResultItem({ item, sources }: { item: ExamItemView; sources: Source[] }
 
   return (
     <article className="text-sm leading-prose">
-      <p className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-wide text-faint">
+      <p className="text-xs font-semibold flex flex-wrap items-center gap-2 text-faint">
         {t("exams.take.item", { number: item.number, count: item.points })}
       </p>
       <div className="mt-2 font-serif text-lg leading-snug">

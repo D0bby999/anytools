@@ -15,6 +15,7 @@ import { Button } from "~/components/ui/button";
 import { ActionError } from "~/components/loop/action-error";
 import { BriefForm } from "~/components/loop/brief-form";
 import { ThreeWayTable } from "~/components/loop/three-way-table";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "AI brief · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -91,16 +92,14 @@ export default function LoopBrief({ loaderData, actionData }: Route.ComponentPro
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{brief.task}</h1>
-      </div>
+      <PageHeader title={brief.task} />
       <Link to={`/loop/state/${brief.state_id}`} className="text-sm text-primary underline underline-offset-4">
         {t("cycle.backToGoal")}
       </Link>
       <ActionError result={actionData} />
 
       <section aria-labelledby="lp-brief-form" className="mt-8">
-        <h2 id="lp-brief-form" className="lp-kicker">
+        <h2 id="lp-brief-form" className="lp-section">
           {t("brief.title")}
         </h2>
         {unchecked.length > 0 ? (
@@ -110,7 +109,7 @@ export default function LoopBrief({ loaderData, actionData }: Route.ComponentPro
       </section>
 
       <section aria-labelledby="lp-brief-logs" className="mt-10">
-        <h2 id="lp-brief-logs" className="lp-kicker">
+        <h2 id="lp-brief-logs" className="lp-section">
           {t("log.title")}
         </h2>
         <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("log.lead")}</p>

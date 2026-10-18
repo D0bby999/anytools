@@ -1,179 +1,218 @@
-# AnyTools — visual world
+# AnyTools: visual world
 
-Written from the built shell on 2026-09-16, not before it. Every number here was
-read off the running app (its screenshots and measurements are kept in the
-maintainers' planning record).
+Written on 2026-10-19 from the built app, not before it. Every number here was read
+off the running pages or measured by a test.
 
-**Superseded convention.** This file is corrected in place, never silently. When
-a rule stops being true, strike it and say why:
+**Superseded convention.** This file is corrected in place, never silently. When a
+rule stops being true, strike it and say why:
 
-> ~~Old rule.~~ **Superseded 2026-09-16:** what replaced it, and the evidence.
+> ~~Old rule.~~ **Superseded 2026-10-19:** what replaced it, and the evidence.
 
 A rule with no strike is a rule the code currently obeys.
 
+> ~~The reading world of `byoungd/up`, pinned by the owner (2026-09-16).~~
+> **Superseded 2026-10-19:** the owner asked for the whole UI to be rebuilt in a study
+> style, with the study app as the main surface, the tools as a secondary section and
+> AnyProfile leading the tools. design-world rolled the direction (dice key
+> `018be165`, assigned 3 of 7). The owner accepted the recommendation: the modern
+> textbook, plus the highlighter from the notebook comp. Three things were kept from
+> `up`: the reading measure, the prose leading and the reading-progress hairline.
+
 ## The world
 
-The reading world of [`byoungd/up`](https://github.com/byoungd/up), pinned by the
-owner (plan.md, Validation Session 2). No dice roll: a user pin beats the dice.
-`up`'s theme code is MIT and its values are ported here with attribution; its
-prose is CC BY-NC and is never used.
+**A premium printed study guide turned into software.** The page is warm white. Titles
+and reading are set in a book face, and the interface in a sans made for Vietnamese.
+The app is divided into four **parts**, like a textbook. Each part owns one colour,
+used only to show where you are. The tools are the book's **appendix**, and AnyProfile
+is its feature.
 
-A calm book site, not a dashboard. Paper ground, one deep green ink, generous
-leading, hairlines instead of shadows. The product's claim is that an answer is
-worth what its source is worth, so the surface reads like something you check,
-not something that performs.
+The product's claim is that an answer is worth what its source is worth. So the
+surface reads like a book you check, not a dashboard that performs.
 
-**Refused by choice:** the AI-SaaS default (dark hero, violet gradient, glow,
-glass), and gamification of every kind. No streaks, no confetti, no XP, no
-mascot. Progress here is evidence, and evidence does not celebrate itself.
+**Refused by choice:**
+
+- The AI-SaaS default: dark hero, violet gradient, glow, glass.
+- Gamification: no streaks, confetti, XP or mascot.
+- A grid of identical cards as page structure.
 
 ## Tokens
 
-Raw values live in `app/tokens.css` as `--lp-*`. `app/app.css` is the only file
-that reads them, mapping them onto the semantic names components already use.
-**No component contains a colour** (enforced: `app/test/no-raw-colour.test.ts`).
+Raw values live in `app/tokens.css` as `--lp-*`. `app/app.css` is the only file that
+reads them, mapping them onto semantic names. **No component contains a colour**
+(`app/test/no-raw-colour.test.ts`). Every text pair, including the part colours on
+their own tints, is measured in both themes by `app/test/theme-contrast.test.ts`.
 
 ### Colour, and what each ink means
 
+Strategy: **Full palette, disciplined**. Neutrals carry the page. One navy is the only
+action ink. Four part colours are used for wayfinding only, and one highlighter means
+"this needs you now".
+
 | Token | Light | Dark | Means |
 |---|---|---|---|
-| `--lp-paper` | `#fcfbf9` | `#1a1917` | The page |
-| `--lp-surface` | `#ffffff` | `#232220` | A card on the page |
-| `--lp-surface-soft` | `#f4f2ee` | `#141312` | Rail and activity panel: one step away from the page |
-| `--lp-surface-sunken` | `#eae6df` | `#2b2a27` | Inset blocks (quotes, inputs) |
-| `--lp-border` | `#e4e0d8` | `#34322e` | Hairline. Decorative, never identifies a control |
-| `--lp-border-control` | `#8d887e` | `#767168` | The outline of something operable. Held to 3:1 |
-| `--lp-ink` / `-2` / `-3` | `#1d211f` / `#555c57` / `#666d68` | `#ece8e1` / `#aca79e` / `#97928a` | Body, secondary, metadata. All three pass 4.5:1 on all three surfaces |
-| `--lp-brand` | `#176f5b` | `#5ab99d` | **The only action ink.** Primary button, focus ring, links in prose, "ready" |
-| `--lp-selected` + `-fg` | `#d5e0d9` + `#0f5c4a` | `#1f2e28` + `#79cbb3` | The current row in the rail |
-| `--lp-accent` | `#c0523a` | `#d4694f` | **Reading progress only.** Never on a control |
-| `--lp-warning` | `#8a5c00` | `#d6a22a` | Needs your attention. Deliberately not red |
-| `--lp-danger` | `#93142f` | `#e88c97` | Destructive, or failed |
+| `--lp-paper` | `#fbfaf6` | `#16171b` | The page |
+| `--lp-surface` | `#ffffff` | `#1f2026` | A card or a field |
+| `--lp-surface-soft` | `#f3f0e7` | `#111216` | Rail, bands: one step away from the page |
+| `--lp-surface-sunken` | `#ebe6d9` | `#272830` | Inset (code, pressed) |
+| `--lp-border` / `-control` | `#e2dccd` / `#8a8476` | `#30323b` / `#737786` | Hairline (decorative) / outline of an operable thing (3:1) |
+| `--lp-ink` / `-2` / `-3` | `#1a1e29` / `#4d5262` / `#5c6170` | `#ece8df` / `#b0ab9f` / `#9a968b` | Body, secondary, metadata |
+| `--lp-brand` | `#1f3d78` | `#8fb0f0` | **The only action ink.** Primary button, link, focus ring, current section tab, "ready" |
+| `--lp-selected` + `-fg` | `#e1e8f5` + `#18325f` | `#232d45` + `#a9c2f5` | The selected option of a control (section tabs, filters) |
+| `--lp-hover` | `#ebe8df` | `#1a1d25` | A hovered row: one step darker, no hue |
+| `--lp-part-read` | `#0b6762` teal | `#5cc0b6` | Part I, Read: Knowledge, documents, books, feeds, Notebook |
+| `--lp-part-ask` | `#a8461a` brick | `#e9935a` | Part II, Ask: Chat, Solve, Research |
+| `--lp-part-practise` | `#7a3570` plum | `#c896e6` | Part III, Practise: Quiz, exams, Mastery, vocabulary |
+| `--lp-part-reflect` | `#2c663a` forest | `#7cc58c` | Part IV, Reflect: Loop, Toolkit |
+| `--lp-part-tools` | `#4a5363` slate | `#a3abba` | The appendix: public tools, AnyProfile |
+| `--lp-highlight` | `#fbe36b` | `#e9d45a` | **Needs you now**: a due count, the selection. A fill behind ink, never a text colour |
+| `--lp-warning` | `#7a5200` on `#fef5cb` | `#e2b84a` on `#3f3d2e` | Attention. Deliberately the highlighter's family |
+| `--lp-danger` | `#9e0b3c` | `#f08a9c` | Destructive or failed, and nothing else |
 
-Strategy is **Restrained**: neutrals plus one accent. There is deliberately no
-second green: "ready" and "current" and "primary action" are the same ink,
-because in this product they are the same idea.
+Each part also has `-soft` (the fill of its key-concept box), `-line` (that box's full
+outline) and `-fg` (text on a solid tab). Translucent tints are **frozen to hex**, so
+their contrast is measured, not guessed.
 
-Dark is composed, not inverted. `up` ships one brand green for both themes; on
-this dark canvas it measures **2.82:1** as text, so dark has its own ramp. The
-rail goes darker than the page in dark and lighter in light: in both, it
-recedes.
+**How a part reaches a component.** An element with
+`data-part="read|ask|practise|reflect|tools|home"` sets `--lp-part*` for everything
+inside it. The utilities `text-part`, `bg-part-soft`, `border-part-line` and `lp-tab`
+paint in whichever part they sit in. The shell sets the part from the route
+(`lib/parts.ts`). The rail sets it per group. Front matter (Today, More, Settings) is
+`home`: ink, with a white card for its box.
 
-`--lp-warning` has no consumer yet. Phase 4's readiness matrix is the first.
+Dark is composed for a desk lamp at night, not inverted. Each part colour is lifted
+until it reads as text, and the highlighter stays the same yellow with dark ink on it.
 
 ### Type
 
-Three faces, three jobs, all verified to carry Vietnamese (U+1EA0–U+1EF9,
-U+20AB) before they were chosen, because a display face without Vietnamese
-glyphs is a bug this project has already paid for once (ucdaigym).
+Three faces, three jobs. All carry Vietnamese (U+1EA0 to U+1EF9 and U+20AB),
+self-hosted through `@fontsource`.
 
-| Role | Family | Used for |
-|---|---|---|
-| Reading | IBM Plex Serif | `h1`–`h3`, long prose, the wordmark |
-| Interface | IBM Plex Sans | body, labels, buttons, data |
-| Region label | IBM Plex Mono | the small uppercase kickers, measured values |
+| Role | Family | Cuts | Used for |
+|---|---|---|---|
+| Book | Literata | 400, 400 italic, 600, 800 | `h1` to `h3`, prose, margin notes, the chapter numeral (800), the wordmark |
+| Interface | Be Vietnam Pro | 400, 500, 600 | Body, labels, buttons, data |
+| Code and data | IBM Plex Mono | 400 | Code, hashes, model ids. Never a label |
 
-Fixed rem scale, ~1.2 ratio, `--lp-text-2xs` (0.6875rem) to `--lp-text-3xl`
-(2.625rem, `up`'s h1). No fluid clamp: an Operate surface with this many text
-elements reads as noise when every size moves with the viewport.
-
-Leading: `1.5` interface, **`1.85` prose** (`up`), `1.18` on h1. Dark raises
-prose leading to `1.9` and label tracking to `0.09em`, because light ink on a
-dark ground eats both.
-
-Only the cuts actually painted are requested: Sans 400/500, Serif 400/600 plus
-400 italic, Mono 600. Measured with `document.fonts.check`.
-**2026-09-26:** self-hosted through `@fontsource` instead of Google Fonts. The
-cross-origin stylesheet was the largest render-blocker on the landing page
-(~940 ms on a throttled phone); the latin Serif 600 cut is preloaded because it
-paints the landing h1. Vietnamese re-verified on all three faces.
+The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Leading is
+1.5 for the interface, **1.85 for prose** (from `up`) and 1.12 for titles. `h1` tracks
+`-0.02em`. The latin Literata 600 cut is preloaded because it paints the landing h1.
 
 ### Space, radius, depth, motion
 
-4pt scale (`--lp-space-1` … `-8`); 8-only loses the useful middle steps.
-Radius: **16px cards, 8px controls** (`up`). Depth is a whisper, two shadows,
-neither a lift: this world separates by tone and hairline. Motion is state
-feedback only, 100–180ms, exit faster than entrance,
-`cubic-bezier(0.16, 1, 0.3, 1)`. No page-load choreography. Reduced motion
-drops movement and keeps colour and state.
+- **Space:** a 4pt scale.
+- **Radius:** 12px for cards, 8px for controls, 6px for tabs.
+- **Depth:** a page lying on a desk. A card is lifted one sheet (`shadow-sm`), and the
+  feature covers and the sign-in book use `shadow-md`.
+- **Motion:** state feedback at 100 to 200ms, exit faster than entrance,
+  `cubic-bezier(0.16, 1, 0.3, 1)`. One entrance per page, the **page turn**
+  (`lp-page-enter`, 420ms, 6px rise) on the page header. Reduced motion keeps the fade
+  and drops the travel.
 
 ## Geometry
 
-Measured at 1440 (light and dark, identical): rail `0–240`, topbar `240–1440`,
-workspace `240–1120`, **reading measure exactly 780 wide**, activity panel
-`1120–1440`. At 390: everything full-bleed with 16px gutters, no horizontal
-scroll.
+Measured at 1440:
 
-- **Rail** 15rem, `--lp-surface-soft`. Below `lg` it becomes a **bottom bar**,
-  not a drawer.
-  ~~The bottom bar keeps every destination visible.~~ **Superseded 2026-09-26:**
-  with ten destinations each slot shrank to 46px at 390 wide and Loop and
-  Settings fell off the edge, unreachable. The bar now carries the four
-  destinations marked `phone: true` in `NAV_ITEMS` plus **More**, a plain page
-  (`/more`) listing all of them — still no drawer and no focus trap, and every
-  destination is at most two taps away. A structural test caps the bar at four. A nav hidden behind a hamburger is how a shell ends up looking
-  empty on a phone, and it costs a focus trap to do properly.
-  **Added 2026-10-18 (AnyTools phase 2):** a **Tools** slot sits beside More
-  (`TOOLS_ITEM`, not one of the four), so the bar holds six slots, about 65px
-  each at 390 wide; slot padding on the phone went from 8px to 4px a side so
-  "Knowledge" keeps its whole label. On the rail Tools is the last row. It
-  leads out of the app to the public tool pages (`/tools` picks the locale).
-- **Workspace** widens to `--lp-layout-max` (1480). Read content inside it holds
-  `--lp-measure-read` (780).
-- **Activity panel** 20rem, always present. Below `lg` it stacks under the
-  workspace in the same DOM order. It is the product's thesis as furniture: a
-  rail that only appears when a citation exists reads as optional chrome.
+- **Rail:** 256 wide.
+- **Workspace:** padded by 32.
+- **Reading measure:** 780.
+- **Margin:** 320.
+
+At 390, everything is full-bleed with 16px gutters and no horizontal scroll. This is
+checked on every main page, in both themes.
+
+- **The rail is a table of contents.** It runs, in order:
+  - the wordmark;
+  - Today;
+  - Parts I to IV, each under its numeral tab;
+  - Settings;
+  - then, pushed to the foot, **Appendix: tools**. It holds the **AnyProfile cover**
+    (ink card) and "All free tools".
+
+  The current row takes its part's tint, a full outline, weight and a screen-reader
+  "Current section". Part groups are `role="group"`, not landmarks.
+- **The phone bar** has four destinations plus Tools and More. Its tests cap the bar at
+  four destinations. **More** is the phone's table of contents: the same parts,
+  then the study tools, then the appendix with the AnyProfile cover.
+- **The running head** (topbar) shows the part's tab and the section name, like the top
+  of a textbook page. It replaces a breadcrumb.
+- **The margin** (right panel) is always present. It shows sources in Read and Ask,
+  and the part's own margin note elsewhere (Practise: how review works; Reflect: the
+  5-minute / 14-day / 90-day pace from `up`). A page can pass its own content.
 
 ### Visitor mode per surface
 
-Operate everywhere except long-form reading. Read surfaces (notebook, document
-viewer, research report, weekly review text) keep the 780 measure and the
-progress hairline; Operate surfaces widen with the same tokens. Full inventory:
-`reports/design-world-interview.md` §10.
+- **Persuade:** the landing (`/`). It shows the study app first, the book's contents
+  I to IV, then the appendix led by AnyProfile.
+- **Operate:** every app page.
+- **Read:** documents, books, notebooks, reports and guides. They keep the 780 measure
+  and the progress hairline, in the part's colour.
+- **Public tools:** the appendix. Its header's one filled button leads back to the
+  study app, and a study band sits above every footer.
 
-## Signature moves
+## Components and moves
 
-1. **A narrow reading column inside a wide workspace.** The workspace is 880
-   wide and the text is 780. That gap is the world.
-2. **The mono region label.** `SOURCES`, `WHAT COMES FIRST`. It is always the
-   real heading of its region, carrying an `id` that `aria-labelledby` points
-   at.
-3. **The terracotta hairline.** 2px at the top edge, tracking progress through
-   long content. Verified running: `scaleX(0.45)` at 45% scroll, `#c0523a`.
+1. **The page header** (`components/ui/page-header.tsx`): a book-face title, a lede
+   and the page's actions. A **chapter numeral** appears only when the number means
+   something: a book chapter's position, a review's week. Nothing floats above a title.
+   A kind or status sits below it as a part tab.
+2. **The part tab** (`lp-tab`): a small solid label in the part's colour, like a
+   chapter's edge tab. It does wayfinding and is never a control.
+3. **The key-concept box** (`lp-keybox`): the part's tint with a full outline. It is
+   used for Today's next step and due box, the Loop's goal, book definitions, and the
+   AnyProfile install steps.
+4. **The highlighter** (`lp-highlight`): a marker stroke behind a due count. Selection
+   is the highlighter too.
+5. **The workbook empty state** (`lp-empty`): a dashed answer box in italic book face.
+   It says what will appear and how to put it there.
+6. **The dot leader** (`lp-leader`): drawn dots between a name and its count, used in
+   the tools index.
+7. **Section tabs** (`components/ui/section-tabs.tsx`): Settings and Mastery. The
+   current tab is tinted and outlined, **never underlined**.
+8. **The cover:** ink panels for AnyProfile (rail, More, tools home, landing, its own
+   page) and for the sign-in book. It is the one block that is not paper.
+9. **Fields:** white (`bg-card`), with a 3:1 control outline. On a phone they are 16px,
+   from an unlayered rule, so iOS does not zoom.
 
 ## Anti-patterns for this project
 
-- A kicker floating above a page heading. The mono label is a region's heading,
-  never an eyebrow decorating someone else's title.
-- A grid of identical icon-and-heading cards as page structure. Sequences are
-  hairline rows; the home steps are numbered only because the order is real.
-- Terracotta anywhere except reading progress; green as decoration.
-- A second green, or a state colour taken from a Tailwind palette entry.
-- Colour as the only carrier of meaning. The current nav row has tint, weight,
-  and a screen-reader-only "Current section".
-- Numbered `01/02/03` where the order carries no information.
-- The one permitted coloured left rule is on `blockquote` (3px brand), marking
-  text quoted from a source document.
+- **One-sided borders.** Callouts, quotes, tabs and timelines all use full outlines or
+  tints. `detect.mjs` reports none.
+- **An eyebrow above a title.** The part tab goes below it, or in the running head.
+- **Misused part colours.** A part colour never goes on a button or a link; navy is
+  the only action ink. The highlighter is never text, and red is never "attention".
+- **Mono as a costume.** Plex Mono is for code and data. Labels are sans, in sentence
+  case.
+- **Em dashes in the app's English copy.** Rendered joins use ` · `. A bare `—` still
+  marks a missing value, and the indexed page titles keep theirs.
+- **Colour as the only carrier of meaning.** The current row has tint, outline, weight
+  and screen-reader text.
 
-## Verified
+## Verified (2026-10-19)
 
-axe-core 4.10.2, 0 violations: shell at 1440 light, 1440 dark, 390 light, and
-the sign-in page. No horizontal scroll at any of them. Contrast is a test, not
-an opinion: `app/test/theme-contrast.test.ts` measures every text pair in both
-themes and composites the translucent tints against what is behind them.
+- **axe-core 4.10.2, 0 violations** on:
+  - the app at 1440 light: Today, Loop, a goal, a knowledge base, Settings, Quiz,
+    Mastery, Chat;
+  - the app at 1440 dark: Today, a goal, Settings, Chat, Knowledge;
+  - the app at 390: Today, More, Settings, Loop (light) and Today (dark);
+  - the public side at 1440: landing, sign-in, tools home, AnyProfile, a tool page,
+    guides, privacy, a cluster;
+  - the public side at 390 dark: landing, sign-in, tools home, AnyProfile.
+- **No horizontal scroll** at any of them.
+- `theme-contrast.test.ts`: 28 checks, every part on every surface and on its own box,
+  in both themes.
+- Full web suite: 5979 passed.
 
 ## Open follow-ups
 
-- The reading measure is 780px, about 85ch in Plex Serif, wider than the 45–75ch
-  craft floor. Kept because the world pins it, and compensated with 1.85
-  leading. Revisit on the phase 8 reading surfaces with real documents.
-- The activity panel stacks below the workspace on a phone. Phase 6 should
-  decide whether a sheet is better once it holds live citations.
-- `--lp-warning` and `--lp-surface-sunken` have no consumer until phase 4.
-- No `<meta name="theme-color">`, so mobile browser chrome does not match the
-  page. Doing it properly needs a colour literal in `root.tsx`, which the
-  no-raw-colour guard forbids on purpose. The right fix is to inject it from
-  `tokens.css` at build time; not worth the machinery before the app is
-  deployed.
-- Only the shell and sign-in have had a design pass. Phases 4–10 inherit the
-  world through tokens and each needs its own pass.
+- The deep study components (question card, chat transcript, document reader, mastery
+  learn and explain-back cards) took the world through tokens and primitives. Without
+  an AI key on the verifying machine they were not seen with real content; each needs
+  a look once a provider is connected.
+- The 137 tool UIs (`app/tools/*`) keep their own copy, which still has 34 em dashes,
+  and small uppercase labels in some templates. Their primitives (`tools-ui`) are on
+  the world.
+- `--lp-warning` and the highlighter are one family on purpose. If a page ever needs
+  "due" and "warning" side by side, it should separate them with a label, not a
+  second yellow.
+- There is still no `<meta name="theme-color">`. Injecting it from `tokens.css` at
+  build time is the right fix.

@@ -45,7 +45,7 @@ export function ToolActivityPanel({
 
       {(tools.length > 0 || stage) && (
         <section aria-labelledby="lp-activity-heading">
-          <h3 id="lp-activity-heading" className="lp-kicker">
+          <h3 id="lp-activity-heading" className="lp-section">
             {t("chat.activity.title")}
           </h3>
           <ol className="mt-2 flex flex-col gap-1">

@@ -68,19 +68,19 @@ export function WordPicker({ selection, page }: { selection: string; page: numbe
   return (
     <section aria-label={t("picker.title")} className="mt-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="lp-kicker">{t("picker.title")}</h3>
+        <h3 className="lp-section">{t("picker.title")}</h3>
         <label className="flex items-center gap-2 text-xs text-muted-foreground">
           {t("picker.language")}
           <input
             value={shownLang}
             onChange={(e) => setLang(e.target.value.trim())}
             maxLength={11}
-            className="h-8 w-16 rounded-md border border-control-border bg-background px-2 font-mono text-xs text-foreground"
+            className="h-8 w-16 rounded-md border border-control-border bg-card px-2 font-mono text-xs text-foreground"
           />
         </label>
       </div>
       {data.terms.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">{t("picker.none")}</p>
+        <p className="mt-2 lp-empty">{t("picker.none")}</p>
       ) : (
         <ul className="mt-2 border-t">
           {data.terms.map((term) => (

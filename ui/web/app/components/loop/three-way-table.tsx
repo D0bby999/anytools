@@ -11,7 +11,7 @@ import type { LogDetail, LogMetric, ThreeWayRow } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
 import { Metric } from "~/components/loop/metric";
 
-const num = "min-h-11 w-full rounded-md border border-control-border bg-background px-2 text-sm";
+const num = "min-h-11 w-full rounded-md border border-control-border bg-card px-2 text-sm";
 
 export function ThreeWayTable({ detail, busy }: { detail: LogDetail; busy: boolean }) {
   const { t } = useTranslation("loop");
@@ -35,7 +35,7 @@ export function ThreeWayTable({ detail, busy }: { detail: LogDetail; busy: boole
     <Form method="post" className="mt-3">
       <input type="hidden" name="intent" value="log" />
       <input type="hidden" name="log_id" value={detail.log.id} />
-      <div className="hidden grid-cols-[1fr_5rem_5rem_5rem] gap-2 font-mono text-2xs uppercase tracking-wide text-faint sm:grid">
+      <div className="text-xs font-semibold hidden grid-cols-[1fr_5rem_5rem_5rem] gap-2 text-faint sm:grid">
         <span>{t("log.measure")}</span>
         <span>{t("log.noAI")}</span>
         <span>{t("log.withAI")}</span>
@@ -58,7 +58,7 @@ export function ThreeWayTable({ detail, busy }: { detail: LogDetail; busy: boole
           name="next_cycle_decision"
           rows={2}
           defaultValue={detail.log.next_cycle_decision}
-          className="mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm"
+          className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm"
         />
       </label>
       <Button type="submit" variant="outline" className="mt-2" disabled={busy}>

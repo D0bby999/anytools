@@ -110,7 +110,7 @@ export function AddRepo({ kbId, defaults }: { kbId: string; defaults: RepoDefaul
 function ExtensionGroup({ label, extensions, checked }: { label: string; extensions: string[]; checked: boolean }) {
   return (
     <div className="space-y-1">
-      <p className="font-mono text-2xs tracking-label text-faint uppercase">{label}</p>
+      <p className="text-xs font-semibold text-faint">{label}</p>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {extensions.map((ext) => (
           <label key={ext} className="inline-flex min-h-11 items-center gap-1.5 font-mono text-xs">

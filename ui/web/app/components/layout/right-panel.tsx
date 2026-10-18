@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
+import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import { partOf } from "~/lib/parts";
 
 /**
- * The activity rail.
+ * The margin: the column a textbook keeps beside its text for sources and
+ * notes. It is the activity rail of earlier phases, set as a margin.
  *
  * It renders whether or not a feature has filled it yet, because this is the
  * one piece of furniture that states what the product is: an answer here is
@@ -15,27 +18,32 @@ import { useTranslation } from "react-i18next";
  */
 export function RightPanel({ title, children }: { title?: string; children?: ReactNode }) {
   const { t } = useTranslation("common");
+  const part = partOf(useLocation().pathname);
+  // With nothing passed in, the margin says what this part of the book is
+  // for. Read and Ask are about sources, so it explains citations there.
+  const note =
+    part === "practise"
+      ? t("panel.margin.practise")
+      : part === "reflect"
+        ? t("panel.margin.reflect")
+        : part === "home" || part === "tools"
+          ? t("panel.margin.home")
+          : null;
+  const heading = title ?? (note ? t("panel.margin.title") : t("panel.sources.title"));
 
   return (
     <aside
       aria-labelledby="lp-panel-heading"
-      className="shrink-0 border-t bg-muted lg:w-(--lp-panel-w) lg:border-t-0 lg:border-l"
+      className="shrink-0 border-t bg-muted lg:w-(--lp-panel-w) lg:border-t-0 lg:border-l lg:bg-background"
     >
       {/* The aside stretches so its hairline runs the full height of the
           workspace; the content inside it sticks to the top as the single
           scroll region moves underneath. */}
-      <div className="p-5 lg:sticky lg:top-0 lg:max-h-dvh lg:overflow-y-auto">
-        {/* The mono label is the region's real heading, not an eyebrow floating
-            above someone else's title. */}
-        <h2 id="lp-panel-heading" className="lp-kicker">
-          {title ?? t("panel.sources.title")}
+      <div className="px-5 py-6 lg:sticky lg:top-0 lg:max-h-dvh lg:overflow-y-auto lg:px-6 lg:py-8">
+        <h2 id="lp-panel-heading" className="font-serif text-xl font-semibold">
+          {children ? (title ?? t("panel.sources.title")) : heading}
         </h2>
-
-        {children ?? (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">
-            {t("panel.sources.empty")}
-          </p>
-        )}
+        {children ?? <p className="mt-3 lp-margin-note">{note ?? t("panel.sources.empty")}</p>}
       </div>
     </aside>
   );

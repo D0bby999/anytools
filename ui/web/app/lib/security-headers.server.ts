@@ -19,7 +19,7 @@
  *  - styles: our own, and 'unsafe-inline' because React renders
  *    `style=` attributes (pdf.js page geometry, the reading progress bar);
  *    style injection cannot run script under this policy;
- *  - fonts: self-hosted IBM Plex, plus data: for fonts pdf.js embeds;
+ *  - fonts: self-hosted Literata, Be Vietnam Pro and Plex Mono, plus data: for fonts pdf.js embeds;
  *  - frames: the Picker's docs.google.com dialog, and YouTube's
  *    privacy-enhanced player (www.youtube-nocookie.com) for video documents —
  *    a plain iframe, so no YouTube script runs in this origin;

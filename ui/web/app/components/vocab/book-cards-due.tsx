@@ -9,14 +9,14 @@ export function BookCardsDue({ count }: { count: number }) {
   const { t } = useTranslation("vocab");
   if (count <= 0) return null;
   return (
-    <section aria-labelledby="lp-book-cards-home" className="mt-10">
-      <h2 id="lp-book-cards-home" className="lp-kicker">
+    <section aria-labelledby="lp-book-cards-home">
+      <h3 id="lp-book-cards-home" className="font-sans text-sm font-semibold">
         {t("bookCards.home.title")}
-      </h2>
-      <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("bookCards.home.count", { count })}</p>
+      </h3>
+      <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{t("bookCards.home.count", { count })}</p>
       <Link
         to="/mastery/book-cards"
-        className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
+        className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
       >
         {t("bookCards.home.open")}
       </Link>

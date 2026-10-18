@@ -58,7 +58,7 @@ export function ExplainBackCard({
 
   return (
     <article aria-labelledby={`${ids}-title`} className="rounded-lg border bg-card p-4 sm:p-5">
-      <p className="font-mono text-2xs uppercase tracking-wide text-faint">{t("explain.label")}</p>
+      <p className="text-xs font-semibold text-faint">{t("explain.label")}</p>
       <h3 id={`${ids}-title`} className="mt-2 font-serif text-lg leading-snug">
         {pointName}
       </h3>
@@ -66,7 +66,7 @@ export function ExplainBackCard({
 
       {lastAttempt && !result && lastAttempt.gaps.length > 0 ? (
         <section aria-labelledby={`${ids}-last`} className="mt-4 border-t pt-3">
-          <h4 id={`${ids}-last`} className="font-mono text-2xs uppercase tracking-wide text-faint">
+          <h4 id={`${ids}-last`} className="text-xs font-semibold text-faint">
             {t("explain.lastTime")}
           </h4>
           <Findings items={lastAttempt.gaps} sources={lastAttempt.sources} />
@@ -99,7 +99,7 @@ export function ExplainBackCard({
               // Edited text is a new explanation, with a new key.
               requestId.current = null;
             }}
-            className="w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           />
           <p className="text-xs text-faint tabular-nums">
             {t("explain.count", { count: length, min: EXPLAIN_MIN, max: EXPLAIN_MAX })}
@@ -190,13 +190,13 @@ function Verdict({
 
       {attempt.gaps.length > 0 ? (
         <section>
-          <h4 className="font-mono text-2xs uppercase tracking-wide text-faint">{t("explain.gaps")}</h4>
+          <h4 className="text-xs font-semibold text-faint">{t("explain.gaps")}</h4>
           <Findings items={attempt.gaps} sources={attempt.sources} />
         </section>
       ) : null}
       {attempt.misconceptions.length > 0 ? (
         <section>
-          <h4 className="font-mono text-2xs uppercase tracking-wide text-faint">{t("explain.misconceptions")}</h4>
+          <h4 className="text-xs font-semibold text-faint">{t("explain.misconceptions")}</h4>
           <Findings items={attempt.misconceptions} sources={attempt.sources} />
         </section>
       ) : null}

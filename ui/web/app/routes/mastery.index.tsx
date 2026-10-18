@@ -20,6 +20,7 @@ import { ProposalEditor } from "~/components/mastery/proposal-editor";
 import { MasteryTabs } from "~/components/vocab/mastery-tabs";
 import { ReviewAllLink } from "~/components/mastery/review-all-link";
 import { dueCards } from "~/lib/vocab.server";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -74,14 +75,11 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
 
   return (
     <div className="lp-measure">
+      <PageHeader title={t("mastery.title")} lede={t("mastery.lead")} />
       <MasteryTabs vocabDue={loaderData.vocabDue} bookDue={loaderData.bookDue} />
-      <div className="lp-prose">
-        <h1>{t("mastery.title")}</h1>
-        <p>{t("mastery.lead")}</p>
-      </div>
 
       <section aria-labelledby="lp-mastery-due" className="mt-8">
-        <h2 id="lp-mastery-due" className="lp-kicker">
+        <h2 id="lp-mastery-due" className="lp-section">
           {t("mastery.due")}
         </h2>
         <ReviewAllLink count={dueTotal} paths={duePaths.length} />
@@ -107,11 +105,11 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
       </section>
 
       <section aria-labelledby="lp-mastery-paths" className="mt-10">
-        <h2 id="lp-mastery-paths" className="lp-kicker">
+        <h2 id="lp-mastery-paths" className="lp-section">
           {t("mastery.paths")}
         </h2>
         {loaderData.paths.length === 0 ? (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("mastery.noPaths")}</p>
+          <p className="mt-3 lp-empty">{t("mastery.noPaths")}</p>
         ) : (
           <ul className="mt-3 border-t">
             {loaderData.paths.map((p) => (
@@ -139,11 +137,11 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
       </section>
 
       <section aria-labelledby="lp-mastery-new" className="mt-10">
-        <h2 id="lp-mastery-new" className="lp-kicker">
+        <h2 id="lp-mastery-new" className="lp-section">
           {t("mastery.new")}
         </h2>
         {loaderData.kbs.length === 0 ? (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("quiz.noKb")}</p>
+          <p className="mt-3 lp-empty">{t("quiz.noKb")}</p>
         ) : (
           <Form method="post" className="mt-3 space-y-4 rounded-lg border bg-card p-4">
             <div>
@@ -154,7 +152,7 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
                 id="lp-path-kb"
                 name="kb_id"
                 required
-                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
               >
                 {loaderData.kbs.map((kb) => (
                   <option key={kb.id} value={kb.id}>
@@ -173,7 +171,7 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
                 required
                 maxLength={500}
                 placeholder={t("mastery.goalPlaceholder")}
-                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
               />
             </div>
             <Button type="submit" disabled={creating}>

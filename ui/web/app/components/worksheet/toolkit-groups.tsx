@@ -44,12 +44,12 @@ export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: W
     projects: t("groups.projects"),
     life: t("groups.life"),
   };
-  if (kinds.length === 0) return <p className="mt-6 text-sm text-muted-foreground">{t("index.noKinds")}</p>;
+  if (kinds.length === 0) return <p className="mt-6 lp-empty">{t("index.noKinds")}</p>;
   return (
     <>
       {groupKinds(kinds).map(({ group, kinds: inGroup }) => (
         <section key={group} aria-labelledby={`tk-${group}`} className="mt-10">
-          <h2 id={`tk-${group}`} className="lp-kicker">
+          <h2 id={`tk-${group}`} className="lp-section">
             {groupTitle[group]}
           </h2>
           {group === "life" ? <LifeHowTo /> : null}
@@ -60,7 +60,7 @@ export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: W
                   <h3 className="font-sans text-base font-medium">
                     {k.name}
                     {k.private ? (
-                      <span className="ml-2 font-mono text-2xs uppercase tracking-wide text-faint">
+                      <span className="text-xs font-semibold ml-2 text-faint">
                         {t("index.private")}
                       </span>
                     ) : null}

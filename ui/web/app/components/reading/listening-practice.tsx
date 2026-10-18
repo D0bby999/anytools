@@ -186,7 +186,7 @@ export function ListeningPractice({ data, moment, onPlay, onView }: Props) {
       {audit && w ? (
         <>
           <section aria-labelledby="lp-ladder-now" className="space-y-2 rounded-md border bg-sunken p-3">
-            <h3 id="lp-ladder-now" className="lp-kicker">
+            <h3 id="lp-ladder-now" className="lp-section">
               {view.stage > LADDER_STAGES ? t("ladderDone") : t("stage", { n: view.stage, of: LADDER_STAGES })}
             </h3>
             {view.stage <= LADDER_STAGES ? <p className="text-sm">{stageAction(view.stage)}</p> : null}
@@ -243,7 +243,7 @@ export function ListeningPractice({ data, moment, onPlay, onView }: Props) {
 
       {earlier.length > 0 ? (
         <section aria-labelledby="lp-listening-earlier">
-          <h3 id="lp-listening-earlier" className="lp-kicker">
+          <h3 id="lp-listening-earlier" className="lp-section">
             {t("earlier")}
           </h3>
           <WorksheetList worksheets={earlier} />
@@ -251,7 +251,7 @@ export function ListeningPractice({ data, moment, onPlay, onView }: Props) {
       ) : null}
 
       <section aria-labelledby="lp-listening-experiment" className="space-y-2">
-        <h3 id="lp-listening-experiment" className="lp-kicker">
+        <h3 id="lp-listening-experiment" className="lp-section">
           {t("experiment.title")}
         </h3>
         <p className="text-sm leading-prose text-muted-foreground">{t("experiment.lead")}</p>

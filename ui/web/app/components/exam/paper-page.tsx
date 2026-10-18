@@ -57,7 +57,7 @@ export function PaperPage({ url, page, label }: { url: string; page: number; lab
         <canvas ref={canvasRef} role="img" aria-label={label} className="max-w-full rounded-md border bg-card" />
       )}
       {state === "loading" ? <p className="mt-1 text-xs text-muted-foreground">{t("exams.pageLoading", { page })}</p> : null}
-      <figcaption className="mt-1 font-mono text-2xs uppercase tracking-wide text-faint">
+      <figcaption className="text-xs font-semibold mt-1 text-faint">
         {t("exams.pageCaption", { page })}
       </figcaption>
     </figure>

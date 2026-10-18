@@ -19,6 +19,7 @@ import type { ExamView } from "~/lib/exam-types";
 import { Button } from "~/components/ui/button";
 import { ExamSheet } from "~/components/exam/exam-sheet";
 import { ExamResult } from "~/components/exam/exam-result";
+import { PageHeader } from "~/components/ui/page-header";
 
 const POLL_MS = 3000;
 
@@ -111,9 +112,7 @@ export default function ExamPage({ loaderData }: Route.ComponentProps) {
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("exams.back")}
       </Link>
-      <div className="lp-prose mt-2">
-        <h1>{exam.title}</h1>
-      </div>
+      <PageHeader title={exam.title} />
 
       {exam.status === "generating" ? (
         <Generating exam={exam} />
@@ -156,7 +155,7 @@ function Generating({ exam }: { exam: ExamView }) {
   const done = exam.progress?.done ?? exam.generated + exam.dropped.length;
   return (
     <section aria-labelledby="lp-exam-generating" className="mt-6 border-y py-4">
-      <h2 id="lp-exam-generating" className="lp-kicker">
+      <h2 id="lp-exam-generating" className="lp-section">
         {t("exams.generate.title")}
       </h2>
       <p role="status" className="mt-2 text-sm leading-prose">
@@ -183,7 +182,7 @@ function DroppedList({ exam }: { exam: ExamView }) {
         {exam.dropped.map((d) => (
           <li key={d.ord} className="py-2">
             <span className="font-medium">{t("exams.review.item", { number: d.number || d.ord + 1 })}</span>
-            <span className="text-muted-foreground"> — {d.reason}</span>
+            <span className="text-muted-foreground"> · {d.reason}</span>
           </li>
         ))}
       </ul>
@@ -197,7 +196,7 @@ function Ready({ exam }: { exam: ExamView }) {
   const starting = navigation.state === "submitting" && navigation.formData?.get("intent") === "start";
   return (
     <section aria-labelledby="lp-exam-ready" className="mt-6">
-      <h2 id="lp-exam-ready" className="lp-kicker">
+      <h2 id="lp-exam-ready" className="lp-section">
         {t("exams.ready.title")}
       </h2>
       <p className="mt-2 text-sm leading-prose">
@@ -219,7 +218,7 @@ function Ready({ exam }: { exam: ExamView }) {
             max={600}
             defaultValue={exam.time_limit_minutes ?? ""}
             placeholder={t("exams.review.noLimit")}
-            className="mt-1 min-h-11 w-32 rounded-md border border-control-border bg-background px-3 text-sm tabular-nums"
+            className="mt-1 min-h-11 w-32 rounded-md border border-control-border bg-card px-3 text-sm tabular-nums"
           />
         </div>
         <Button type="submit" disabled={starting}>

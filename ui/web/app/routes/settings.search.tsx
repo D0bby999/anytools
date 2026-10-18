@@ -111,7 +111,7 @@ export default function SearchKeys({ loaderData, actionData }: Route.ComponentPr
               pattern="[0-9]{1,12}"
               autoComplete="off"
               aria-describedby="lp-zotero-user-hint"
-              className="h-10 w-full rounded-md border bg-sunken px-3 font-mono text-sm"
+              className="h-10 w-full rounded-md border bg-card px-3 font-mono text-sm"
             />
             <span id="lp-zotero-user-hint" className="text-xs text-muted-foreground">
               {t("zoteroKey.userHint")}
@@ -125,7 +125,7 @@ export default function SearchKeys({ loaderData, actionData }: Route.ComponentPr
             name="secret"
             required
             autoComplete="off"
-            className="h-10 w-full rounded-md border bg-sunken px-3 font-mono text-sm"
+            className="h-10 w-full rounded-md border bg-card px-3 font-mono text-sm"
           />
         </label>
         <div>
@@ -136,7 +136,7 @@ export default function SearchKeys({ loaderData, actionData }: Route.ComponentPr
       </Form>
 
       <section aria-labelledby="lp-search-keys" className="mt-10">
-        <h2 id="lp-search-keys" className="lp-kicker">
+        <h2 id="lp-search-keys" className="lp-section">
           {t("settings.search.savedTitle")}
         </h2>
 

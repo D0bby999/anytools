@@ -26,6 +26,7 @@ import { listWorksheets } from "~/lib/worksheets.server";
 import type { WorksheetSummary } from "~/lib/worksheet-types";
 import { DIAGNOSTIC_KIND } from "~/lib/english-diagnostic";
 import { StateWorksheets } from "~/components/worksheet/state-worksheets";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Goal · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -126,12 +127,13 @@ export default function LoopState({ loaderData, actionData }: Route.ComponentPro
 
   return (
     <div className="lp-measure">
-      <StateCard state={state} linked={false} />
+      <PageHeader title={state.goal} className="mb-2" />
+      <StateCard state={state} linked={false} showGoal={false} />
       <ActionError result={actionData} />
 
       {cycle && gate ? (
         <section aria-labelledby="lp-state-cycle" className="mt-10">
-          <h2 id="lp-state-cycle" className="lp-kicker">
+          <h2 id="lp-state-cycle" className="lp-section">
             {t("home.cycle")}
           </h2>
           <div className="mt-3">
@@ -141,7 +143,7 @@ export default function LoopState({ loaderData, actionData }: Route.ComponentPro
       ) : null}
 
       <section aria-labelledby="lp-state-interrupt" className="mt-10">
-        <h2 id="lp-state-interrupt" className="lp-kicker">
+        <h2 id="lp-state-interrupt" className="lp-section">
           {t("interrupt.title")}
         </h2>
         {loaderData.repeated_resistance && cycle ? (
@@ -151,7 +153,7 @@ export default function LoopState({ loaderData, actionData }: Route.ComponentPro
       </section>
 
       <section aria-labelledby="lp-state-resume" className="mt-10">
-        <h2 id="lp-state-resume" className="lp-kicker">
+        <h2 id="lp-state-resume" className="lp-section">
           {t("resume.title")}
         </h2>
         <HandoverForm result={handover} busy={busy} />
@@ -160,7 +162,7 @@ export default function LoopState({ loaderData, actionData }: Route.ComponentPro
       <StateLists detail={loaderData} busy={busy} />
 
       <section aria-labelledby="lp-state-cards" className="mt-10">
-        <h2 id="lp-state-cards" className="lp-kicker">
+        <h2 id="lp-state-cards" className="lp-section">
           {t("cards.title")}
         </h2>
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("cards.lead")}</p>
@@ -174,7 +176,7 @@ export default function LoopState({ loaderData, actionData }: Route.ComponentPro
       <StateWorksheets stateId={state.id} worksheets={loaderData.worksheets} />
 
       <section aria-labelledby="lp-state-edit" className="mt-10">
-        <h2 id="lp-state-edit" className="lp-kicker">
+        <h2 id="lp-state-edit" className="lp-section">
           {t("state.edit")}
         </h2>
         <StateEditForm state={state} busy={busy} />

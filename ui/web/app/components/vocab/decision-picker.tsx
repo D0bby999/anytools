@@ -10,7 +10,7 @@ import {
   type Decision,
 } from "~/lib/vocab-types";
 
-const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm text-foreground";
+const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm text-foreground";
 
 /** What a note already holds, when its decision is being changed. */
 export type DecisionInitial = {

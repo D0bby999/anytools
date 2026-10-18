@@ -23,8 +23,17 @@ export function pickPublicLocale(acceptLanguage: string | null): PublicLng {
   return ranked.map((x) => x.lang).find(isPublicLng) ?? "en";
 }
 
+/**
+ * Public pages the app links to by name rather than by locale (the rail's
+ * AnyProfile feature). An allowlist, so `?page=` can never become an open
+ * redirect or reach a path the public layout does not serve.
+ */
+const PAGES = ["anyprofile"] as const;
+
 export function loader({ request }: Route.LoaderArgs) {
-  return redirect(`/${pickPublicLocale(request.headers.get("Accept-Language"))}`, {
+  const page = new URL(request.url).searchParams.get("page");
+  const suffix = PAGES.find((p) => p === page) ? `/${page}` : "";
+  return redirect(`/${pickPublicLocale(request.headers.get("Accept-Language"))}${suffix}`, {
     headers: { Vary: "Accept-Language", "Cache-Control": "private, no-cache" },
   });
 }

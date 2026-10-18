@@ -11,11 +11,10 @@
  * production: every accent-as-text pairing passed in dark and every one FAILED
  * in light, because the light palette reused saturated chart hues for text.
  *
- * It also pins the finding that produced the dark ramp in tokens.css: `up`
- * ships ONE brand green for both themes, and on a dark canvas that green
- * measures 2.82:1 as text. Light and dark are composed separately here, so
- * this file is what stops the next person from "simplifying" them back
- * together.
+ * Light and dark are composed separately in tokens.css (the textbook world,
+ * 2026-10-19), and this file is what stops the next person from "simplifying"
+ * them back together: every part colour, lifted for the dark page, is measured
+ * as text in both.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -83,6 +82,9 @@ function contrast(a: Rgb, b: Rgb): number {
 /** The three backdrops any text in this app can land on. */
 const SURFACES = ["lp-paper", "lp-surface", "lp-surface-soft"] as const;
 
+/** The textbook's four parts and its tools appendix (tokens.css). */
+const PARTS = ["read", "ask", "practise", "reflect", "tools"] as const;
+
 const THEMES: ReadonlyArray<readonly [string, Record<string, string>]> = [
   ["light", light],
   ["dark", dark],
@@ -100,7 +102,10 @@ describe("tokens parse", () => {
       "lp-brand",
       "lp-brand-soft",
       "lp-brand-fg",
-      "lp-accent",
+      "lp-hover",
+      "lp-selected",
+      "lp-highlight",
+      ...PARTS.flatMap((p) => [`lp-part-${p}`, `lp-part-${p}-soft`, `lp-part-${p}-line`, `lp-part-${p}-fg`]),
       "lp-warning",
       "lp-danger",
       "lp-border-control",
@@ -139,20 +144,15 @@ describe("the action ink is legible as text", () => {
     }
   });
 
-  // A hovered (not current) nav row paints ordinary ink on the translucent
-  // brand tint. That pairing is invisible to a naive hex check because the tint
-  // has to be composited against the rail first. Measured 2026-09-16: painting
-  // --lp-brand itself here reached only 4.48:1, which is why the current row
-  // uses the frozen --lp-selected pair instead of the live tint.
-  it.each(THEMES)("%s: ink stays legible on a hovered row", (_mode, t) => {
-    const rail = flatten(t["lp-surface-soft"]!, [255, 255, 255]);
-    const tint = flatten(t["lp-brand-soft"]!, rail);
-    for (const ink of ["lp-ink", "lp-ink-2"]) {
-      const ratio = contrast(flatten(t[ink]!, tint), tint);
-      expect(
-        ratio,
-        `--${ink} on --lp-brand-soft over the rail = ${ratio.toFixed(2)}:1`,
-      ).toBeGreaterThanOrEqual(AA_TEXT);
+  // A hovered row, the current row and a soft action tint all carry ordinary
+  // ink as well as their own: each is measured as the hex it paints.
+  it.each(THEMES)("%s: ink stays legible on hovered, selected and soft rows", (_mode, t) => {
+    for (const fill of ["lp-hover", "lp-selected", "lp-brand-soft"]) {
+      const bg = flatten(t[fill]!, [255, 255, 255]);
+      for (const ink of ["lp-ink", "lp-ink-2", "lp-brand"]) {
+        const ratio = contrast(flatten(t[ink]!, bg), bg);
+        expect(ratio, `--${ink} on --${fill} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+      }
     }
   });
 
@@ -163,6 +163,30 @@ describe("the action ink is legible as text", () => {
       expect(ratio, `--${step} on the page = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
         AA_TEXT,
       );
+    }
+  });
+});
+
+describe("the parts are legible as text", () => {
+  // A part's colour titles its numeral, its tab and its section names, so it
+  // is held to text contrast on every surface and on its own key-concept box.
+  it.each(THEMES)("%s: each part on every surface", (_mode, t) => {
+    for (const part of PARTS) {
+      for (const surface of SURFACES) {
+        const bg = flatten(t[surface]!, [255, 255, 255]);
+        const ratio = contrast(flatten(t[`lp-part-${part}`]!, bg), bg);
+        expect(ratio, `--lp-part-${part} on --${surface} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+  });
+
+  it.each(THEMES)("%s: ink and the part stay legible inside a key-concept box", (_mode, t) => {
+    for (const part of PARTS) {
+      const box = flatten(t[`lp-part-${part}-soft`]!, [255, 255, 255]);
+      for (const ink of ["lp-ink", "lp-ink-2", `lp-part-${part}`, "lp-brand"]) {
+        const ratio = contrast(flatten(t[ink]!, box), box);
+        expect(ratio, `--${ink} on --lp-part-${part}-soft = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+      }
     }
   });
 });
@@ -225,12 +249,12 @@ describe("things you can see but not read", () => {
     }
   });
 
-  it.each(THEMES)("%s: the reading-progress hairline reads against the page", (_mode, t) => {
+  it.each(THEMES)("%s: the reading-progress hairline reads against the page in every part", (_mode, t) => {
     const bg = flatten(t["lp-paper"]!, [255, 255, 255]);
-    const ratio = contrast(flatten(t["lp-accent"]!, bg), bg);
-    expect(ratio, `--lp-accent on --lp-paper = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
-      AA_NON_TEXT,
-    );
+    for (const part of PARTS) {
+      const ratio = contrast(flatten(t[`lp-part-${part}`]!, bg), bg);
+      expect(ratio, `--lp-part-${part} on --lp-paper = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_NON_TEXT);
+    }
   });
 
   it.each(THEMES)("%s: the focus ring reads against every surface", (_mode, t) => {
@@ -244,17 +268,16 @@ describe("things you can see but not read", () => {
   });
 });
 
-describe("the two accent inks stay distinguishable", () => {
-  // Terracotta (reading progress) and the danger red are adjacent hues. They
-  // never share an element, but if they drift together the "progress" hairline
-  // and an error start reading as the same signal.
+describe("no part reads as an error", () => {
+  // Brick (Ask) and plum (Practise) sit near the danger red. They never share
+  // an element, but if they drift together a part's numeral and an error start
+  // reading as the same signal.
   it.each(THEMES)("%s", (_mode, t) => {
-    const accent = parseColor(t["lp-accent"]!).rgb;
     const danger = parseColor(t["lp-danger"]!).rgb;
-    const distance = Math.hypot(...accent.map((c, i) => c - danger[i]!));
-    expect(
-      distance,
-      `--lp-accent ${t["lp-accent"]} and --lp-danger ${t["lp-danger"]} are ${distance.toFixed(0)} apart in RGB`,
-    ).toBeGreaterThan(60);
+    for (const part of PARTS) {
+      const ink = parseColor(t[`lp-part-${part}`]!).rgb;
+      const distance = Math.hypot(...ink.map((c, i) => c - danger[i]!));
+      expect(distance, `--lp-part-${part} and --lp-danger are ${distance.toFixed(0)} apart in RGB`).toBeGreaterThan(60);
+    }
   });
 });

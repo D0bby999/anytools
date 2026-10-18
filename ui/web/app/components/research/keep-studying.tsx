@@ -26,11 +26,11 @@ export function KeepStudying({ kbs, hasWebSources }: { kbs: { id: string; name: 
   const fetcher = useFetcher<ToKnowledgeResult>();
   const result = fetcher.data;
   const busy = fetcher.state !== "idle";
-  const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm";
+  const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
   return (
     <section aria-labelledby="lp-keep-studying" className="rounded-lg border bg-card p-4">
-      <h2 id="lp-keep-studying" className="lp-kicker">
+      <h2 id="lp-keep-studying" className="lp-section">
         {t("keep.title")}
       </h2>
       <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("keep.body")}</p>
@@ -113,7 +113,7 @@ export function OpenQuestions({ questions }: { questions: string[] }) {
   if (questions.length === 0) return null;
   return (
     <section aria-labelledby="lp-open-questions" className="rounded-lg border bg-card p-4">
-      <h2 id="lp-open-questions" className="lp-kicker">
+      <h2 id="lp-open-questions" className="lp-section">
         {t("open.title")}
       </h2>
       <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("open.body")}</p>

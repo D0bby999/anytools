@@ -216,5 +216,21 @@
   "error": {
     "title": "Something went wrong",
     "description": "The page could not be shown. Reload it to try again."
+  },
+  "feature": {
+    "anyprofile": {
+      "title": "AnyProfile",
+      "kind": "Desktop app",
+      "tagline": "One browser per account, side by side.",
+      "badge": "Free · Open source · Beta",
+      "body": "AnyProfile is a free desktop app for creators and sellers who run several TikTok, YouTube, Shopee or Amazon accounts. Each profile is a separate browser with its own cookies, its own proxy and a consistent device fingerprint, so sessions never mix.",
+      "cta": "Download AnyProfile"
+    },
+    "study": {
+      "title": "AnyTools is a study app first",
+      "body": "Upload what you are learning from. Get answers that cite the page, quizzes written from it, and reviews timed to just before you forget, on your own AI account.",
+      "cta": "Open the study app"
+    },
+    "appendix": "Appendix"
   }
 }

@@ -47,7 +47,7 @@ export function SolutionView({
 
   return (
     <section aria-labelledby="lp-solve-result" className="mt-10">
-      <h2 id="lp-solve-result" className="lp-kicker">
+      <h2 id="lp-solve-result" className="lp-section">
         {t("result.title")}
       </h2>
 

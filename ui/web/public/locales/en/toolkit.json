@@ -140,7 +140,7 @@
   },
   "writingDiagnosis": {
     "title": "AI diagnosis",
-    "lead": "Ask your chat model to diagnose one pass of your saved draft. It points at up to three places, says why, how sure it is and how it could be wrong — and never rewrites anything. Before and After are yours to write.",
+    "lead": "Ask your chat model to diagnose one pass of your saved draft. It points at up to three places, says why, how sure it is and how it could be wrong. It never rewrites anything. Before and After are yours to write.",
     "pass": "Pass {{n}} · {{label}}",
     "diagnose": "Diagnose",
     "working": "Diagnosing…",

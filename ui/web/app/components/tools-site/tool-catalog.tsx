@@ -117,22 +117,24 @@ export function ToolCatalog({
               sync({ cluster: c.id });
             }}
             className={cn(
-              "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors",
+              "inline-flex min-h-10 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors",
               cluster === c.id
-                ? "border-primary bg-selected font-medium text-selected-foreground"
-                : "bg-card hover:bg-primary-soft",
+                ? "border-primary-line bg-selected font-semibold text-selected-foreground"
+                : "border-border bg-card hover:bg-hover",
             )}
           >
             {c.id === "all" ? t("catalog.clusterAll") : t(`catalog.cluster.${c.id}`)}
-            <span className="font-mono text-2xs text-muted-foreground">{c.count}</span>
+            <span data-numeric className="text-xs text-muted-foreground">
+              {c.count}
+            </span>
           </button>
         ))}
       </div>
 
       {visible.length === 0 ? (
-        <div role="status" className="border-y py-10 text-center">
-          <p className="font-medium">{t("catalog.emptyTitle")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("catalog.emptyBody")}</p>
+        <div role="status" className="lp-empty py-8 text-center not-italic">
+          <p className="font-semibold text-foreground">{t("catalog.emptyTitle")}</p>
+          <p className="mt-1 italic">{t("catalog.emptyBody")}</p>
         </div>
       ) : (
         <ToolRows locale={locale} tools={visible} showCluster={cluster === "all"} />

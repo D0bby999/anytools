@@ -216,5 +216,21 @@
   "error": {
     "title": "Algo deu errado",
     "description": "Não foi possível mostrar a página. Recarregue para tentar de novo."
+  },
+  "feature": {
+    "anyprofile": {
+      "title": "AnyProfile",
+      "kind": "App para desktop",
+      "tagline": "Um navegador por conta, lado a lado.",
+      "badge": "Grátis · Código aberto · Beta",
+      "body": "AnyProfile é um app de desktop gratuito para criadores e vendedores que gerem várias contas de TikTok, YouTube, Shopee ou Amazon. Cada perfil é um navegador separado, com os seus próprios cookies, o seu próprio proxy e uma impressão digital de dispositivo coerente, para que as sessões nunca se misturem.",
+      "cta": "Baixar AnyProfile"
+    },
+    "study": {
+      "title": "AnyTools é, antes de tudo, um app de estudo",
+      "body": "Envie o material que você está estudando. Receba respostas que citam a página, quizzes escritos a partir dele e revisões marcadas para pouco antes de você esquecer, com a sua própria conta de IA.",
+      "cta": "Abrir o app de estudo"
+    },
+    "appendix": "Apêndice"
   }
 }

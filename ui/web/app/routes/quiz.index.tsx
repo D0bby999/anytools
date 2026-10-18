@@ -16,6 +16,7 @@ import { generateQuiz } from "~/lib/quiz.server";
 import { GENERATABLE_TYPES, type QuestionType } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -80,10 +81,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("quiz.title")}</h1>
-        <p>{t("quiz.lead")}</p>
-      </div>
+      <PageHeader title={t("quiz.title")} lede={t("quiz.lead")} />
 
       <p className="mt-2 text-sm">
         <Link to="/quiz/bank" className="text-primary underline underline-offset-4">
@@ -108,7 +106,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
         </p>
       ) : (
         <section aria-labelledby="lp-quiz-generate" className="mt-8">
-          <h2 id="lp-quiz-generate" className="lp-kicker">
+          <h2 id="lp-quiz-generate" className="lp-section">
             {t("quiz.generate")}
           </h2>
           <Form method="post" className="mt-3 space-y-4 rounded-lg border bg-card p-4">
@@ -122,7 +120,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
                   name="kb_id"
                   required
                   defaultValue={loaderData.selectedKb}
-                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
                 >
                   {loaderData.kbs.map((kb) => (
                     <option key={kb.id} value={kb.id}>
@@ -142,7 +140,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
                   min={1}
                   max={20}
                   defaultValue={5}
-                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm tabular-nums"
+                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm tabular-nums"
                 />
               </div>
             </div>
@@ -155,7 +153,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
                 name="topic"
                 maxLength={300}
                 placeholder={t("quiz.topicPlaceholder")}
-                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
               />
             </div>
             <fieldset>
@@ -188,7 +186,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
 
       {result ? (
         <section aria-labelledby="lp-quiz-set" className="mt-10">
-          <h2 id="lp-quiz-set" className="lp-kicker">
+          <h2 id="lp-quiz-set" className="lp-section">
             {t("quiz.set")}
           </h2>
           <p className="mt-2 text-xs leading-snug text-muted-foreground">

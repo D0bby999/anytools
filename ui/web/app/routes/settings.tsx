@@ -10,7 +10,8 @@
  */
 import { NavLink, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
-import { cn } from "~/lib/utils";
+import { PageHeader } from "~/components/ui/page-header";
+import { sectionTabClass, SECTION_TABS_ROW } from "~/components/ui/section-tabs";
 
 export function meta() {
   return [{ title: "Settings · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -31,26 +32,16 @@ export default function Settings() {
 
   return (
     <div className="lp-layout">
-      <h1 className="font-serif text-2xl">{t("settings.title")}</h1>
-      <p className="mt-2 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
-        {t("settings.lead")}
-      </p>
+      <PageHeader title={t("settings.title")} lede={t("settings.lead")} className="mb-6" />
 
-      <nav aria-label={t("settings.nav.label")} className="mt-6 border-b">
-        <ul className="flex flex-wrap gap-1">
+      <nav aria-label={t("settings.nav.label")}>
+        <ul className={SECTION_TABS_ROW}>
           {SECTIONS.map(({ to, labelKey, end }) => (
             <li key={to}>
               <NavLink
                 to={to}
                 end={end}
-                className={({ isActive }) =>
-                  cn(
-                    "inline-flex min-h-11 items-center rounded-t-md px-3 py-2 text-sm transition-colors",
-                    isActive
-                      ? "bg-selected font-medium text-selected-foreground"
-                      : "text-muted-foreground hover:bg-primary-soft hover:text-foreground",
-                  )
-                }
+                className={sectionTabClass}
               >
                 {({ isActive }) => (
                   <>
@@ -66,7 +57,7 @@ export default function Settings() {
         </ul>
       </nav>
 
-      <div className="mt-6">
+      <div>
         <Outlet />
       </div>
     </div>

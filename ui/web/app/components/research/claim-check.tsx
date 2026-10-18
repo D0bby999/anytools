@@ -28,7 +28,7 @@ export function ClaimCheck({ check, sources }: { check: Verification; sources: S
   if (check.status !== "checked") {
     return (
       <section aria-labelledby="lp-claim-check" className="rounded-lg border bg-card p-4">
-        <h2 id="lp-claim-check" className="lp-kicker">
+        <h2 id="lp-claim-check" className="lp-section">
           {t("check.title")}
         </h2>
         <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("check.unavailable")}</p>
@@ -56,7 +56,7 @@ export function ClaimCheck({ check, sources }: { check: Verification; sources: S
 
   return (
     <section aria-labelledby="lp-claim-check" className="rounded-lg border bg-card p-4">
-      <h2 id="lp-claim-check" className="lp-kicker">
+      <h2 id="lp-claim-check" className="lp-section">
         {t("check.title")}
       </h2>
       <p className="mt-2 text-sm font-medium">

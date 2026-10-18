@@ -53,7 +53,7 @@ export function SubscriptionLaneCards({
 
   return (
     <section aria-labelledby="lp-experimental" className="mt-10">
-      <h2 id="lp-experimental" className="lp-kicker">
+      <h2 id="lp-experimental" className="lp-section">
         {t("settings.experimental.title")}
       </h2>
 

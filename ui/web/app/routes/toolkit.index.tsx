@@ -13,6 +13,7 @@ import * as worksheets from "~/lib/worksheets.server";
 import type { DueReview } from "~/lib/worksheet-types";
 import { DueReviewList } from "~/components/worksheet/worksheet-list";
 import { ToolkitGroups } from "~/components/worksheet/toolkit-groups";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Toolkit · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -33,12 +34,9 @@ export default function ToolkitIndex({ loaderData }: Route.ComponentProps) {
   const { kinds, list, due } = loaderData;
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("index.title")}</h1>
-        <p>{t("index.lead")}</p>
-      </div>
+      <PageHeader title={t("index.title")} lede={t("index.lead")} />
       <section aria-labelledby="tk-due" className="mt-8">
-        <h2 id="tk-due" className="lp-kicker">
+        <h2 id="tk-due" className="lp-section">
           {t("due.title")}
         </h2>
         <DueReviewList due={due} />

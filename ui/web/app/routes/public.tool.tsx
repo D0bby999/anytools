@@ -103,16 +103,19 @@ export default function ToolPage() {
 
   return (
     <div className="lp-layout px-4 py-5 lg:px-6 lg:py-8">
-      <nav aria-label={t("tool.breadcrumb")} className="text-xs text-muted-foreground">
+      <nav aria-label={t("tool.breadcrumb")} className="text-sm text-muted-foreground">
         <ol className="flex flex-wrap items-center gap-x-2">
           <li>
-            <Link to={`/${locale}`} className="hover:text-foreground hover:underline">
+            <Link to={`/${locale}`} className="inline-flex min-h-11 items-center gap-2 hover:text-foreground">
+              <span aria-hidden="true" className="lp-tab">
+                {t("feature.appendix")}
+              </span>
               AnyTools
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
-            <Link to={`/${locale}/${data.cluster}`} className="hover:text-foreground hover:underline">
+            <Link to={`/${locale}/${data.cluster}`} className="inline-flex min-h-11 items-center hover:text-foreground hover:underline">
               {data.clusterLabel}
             </Link>
           </li>
@@ -123,19 +126,20 @@ export default function ToolPage() {
         </ol>
       </nav>
 
-      <header className="mt-3 max-w-(--lp-measure-read)">
-        <h1 className="font-serif text-2xl leading-tight font-semibold md:text-3xl">{data.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground md:text-base">{data.description}</p>
+      <header className="lp-page-enter mt-1 max-w-(--lp-measure-read)">
+        <h1 className="text-3xl leading-tight md:text-4xl">{data.title}</h1>
+        <p className="mt-2 text-base leading-snug text-muted-foreground md:text-lg">{data.description}</p>
       </header>
 
-      {/* The tool first: a visitor who searched for it wants it above the fold. */}
-      <section id="tool" aria-label={data.title} className="mt-5 max-w-5xl scroll-mt-4">
+      {/* The tool first: a visitor who searched for it wants it above the
+          fold. Each tool draws its own sheet (tools-ui Card). */}
+      <section id="tool" aria-label={data.title} className="mt-6 max-w-5xl scroll-mt-4">
         <ToolFrame slug={data.slug} locale={locale} />
       </section>
 
       {data.next.length > 0 && (
         <section aria-labelledby="tool-next" className="mt-10 max-w-5xl">
-          <h2 id="tool-next" className="lp-kicker mb-3">
+          <h2 id="tool-next" className="lp-section mb-3">
             {t("tool.whatNext")}
           </h2>
           <ToolRows locale={locale} tools={data.next} />
@@ -144,7 +148,7 @@ export default function ToolPage() {
 
       {data.tutorial && (
         <section id="tutorial" aria-labelledby="tool-tutorial" className="mt-12 max-w-(--lp-measure-read) scroll-mt-4">
-          <h2 id="tool-tutorial" className="lp-kicker">
+          <h2 id="tool-tutorial" className="lp-section">
             {t("tool.tutorial")}
           </h2>
           <Article source={data.tutorial} />
@@ -153,7 +157,7 @@ export default function ToolPage() {
 
       {data.faq && (
         <section id="faq" aria-labelledby="tool-faq" className="mt-12 max-w-(--lp-measure-read) scroll-mt-4">
-          <h2 id="tool-faq" className="lp-kicker">
+          <h2 id="tool-faq" className="lp-section">
             {t("tool.faq")}
           </h2>
           <Article source={data.faq} />
@@ -162,7 +166,7 @@ export default function ToolPage() {
 
       {data.related.length > 0 && (
         <section aria-labelledby="tool-related" className="mt-12 max-w-5xl">
-          <h2 id="tool-related" className="lp-kicker mb-3">
+          <h2 id="tool-related" className="lp-section mb-3">
             {t("tool.related", { cluster: data.clusterLabel })}
           </h2>
           <ToolRows locale={locale} tools={data.related} />

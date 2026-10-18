@@ -55,7 +55,7 @@ export function ReadingPasses({ sheet, busy, error, askLayer, onStart, onSave }:
   if (!sheet) {
     return (
       <section aria-labelledby="lp-passes" className="mb-8">
-        <h2 id="lp-passes" className="lp-kicker">
+        <h2 id="lp-passes" className="lp-section">
           {t("passes.title")}
         </h2>
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("passes.intro")}</p>
@@ -87,7 +87,7 @@ export function ReadingPasses({ sheet, busy, error, askLayer, onStart, onSave }:
 
   return (
     <section aria-labelledby="lp-passes" className="mb-8">
-      <h2 id="lp-passes" className="lp-kicker">
+      <h2 id="lp-passes" className="lp-section">
         {t("passes.title")}
       </h2>
 
@@ -233,7 +233,7 @@ function Barriers({
     <div className="mt-6">
       <h3 className="text-sm font-semibold">{t("passes.barriers")}</h3>
       {rows.length === 0 ? (
-        <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("passes.barriersEmpty")}</p>
+        <p className="mt-1 lp-empty">{t("passes.barriersEmpty")}</p>
       ) : (
         <ul className="mt-2 border-t">
           {shown.map(({ row, index }) => {

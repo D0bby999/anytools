@@ -12,7 +12,7 @@ export type SheetActionData = { ok: boolean; saved?: boolean; error?: string };
 export const AUTOSAVE_MS = 1200;
 
 const input =
-  "mt-2 w-full rounded-md border border-control-border bg-background px-3 text-sm " +
+  "mt-2 w-full rounded-md border border-control-border bg-card px-3 text-sm " +
   "focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
 
 /**
@@ -128,7 +128,7 @@ function SheetItem({
 
   return (
     <fieldset disabled={disabled} aria-labelledby={`${ids}-q`}>
-      <p className="font-mono text-2xs uppercase tracking-wide text-faint">
+      <p className="text-xs font-semibold text-faint">
         {t("exams.take.item", { number: item.number, count: item.points })}
       </p>
       <div id={`${ids}-q`} className="mt-2 font-serif text-lg leading-snug">

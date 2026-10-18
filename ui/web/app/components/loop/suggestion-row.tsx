@@ -24,7 +24,7 @@ export function SuggestionRow({ item }: { item: Candidate }) {
         ) : (
           <span className="text-sm font-medium">{item.label}</span>
         )}
-        <span className="font-mono text-2xs uppercase tracking-wide text-faint">{kinds[item.kind]}</span>
+        <span className="text-xs font-semibold text-faint">{kinds[item.kind]}</span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
       <Form method="post" className="mt-2 flex flex-wrap items-center gap-2">

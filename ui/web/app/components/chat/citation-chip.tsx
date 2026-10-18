@@ -65,10 +65,10 @@ export function CitationChip({ source, index }: { source: Source; index: number 
         <span className="shrink-0 text-muted-foreground">p.{page}</span>
       ) : null}
       {source.ai_transcript ? (
-        <span className="shrink-0 font-mono text-2xs text-faint uppercase">{t("source.aiTranscript")}</span>
+        <span className="text-xs font-semibold shrink-0 text-faint">{t("source.aiTranscript")}</span>
       ) : null}
       {photoBy ? (
-        <span className="shrink-0 font-mono text-2xs text-faint uppercase">
+        <span className="text-xs font-semibold shrink-0 text-faint">
           {t("photos.readByShort")}
         </span>
       ) : null}
@@ -94,7 +94,7 @@ export function CitationChip({ source, index }: { source: Source; index: number 
         rel="noopener noreferrer nofollow"
         referrerPolicy="no-referrer"
         aria-label={`Open ${label} (${host}) in a new tab`}
-        title={`${label} — ${host}`}
+        title={`${label} · ${host}`}
         className={
           shape +
           " border-control-border bg-card text-foreground transition-colors " +
@@ -146,13 +146,13 @@ export function CitationChip({ source, index }: { source: Source; index: number 
       aria-label={`Open ${label}${where}${aiNote}`}
       title={`${label}${
         clock !== undefined
-          ? ` — ${clock}`
+          ? ` · ${clock}`
           : lines !== undefined
-            ? ` — ${lines}`
+            ? ` · ${lines}`
             : sheet !== undefined
-              ? ` — ${sheet}`
+              ? ` · ${sheet}`
               : page !== undefined
-                ? ` — page ${page}`
+                ? ` · page ${page}`
                 : ""
       }${aiNote}`}
       className={

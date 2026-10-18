@@ -41,7 +41,7 @@ export function SolveForm<T>({
   const ownReady = !ownVersionFirst || ownVersionComplete(own);
   const submitting = fetcher.state !== "idle";
   const field =
-    "mt-1 w-full rounded-md border border-control-border bg-background px-3 text-sm";
+    "mt-1 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
   return (
     <fetcher.Form

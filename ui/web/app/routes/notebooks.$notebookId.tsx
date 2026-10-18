@@ -30,6 +30,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { NoteEditor } from "~/components/notebook/note-editor";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
@@ -129,8 +130,8 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
         {t("notebook.back")}
       </Link>
 
-      <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <h1 className="font-serif text-2xl font-semibold">{notebook.name}</h1>
+      <div className="lp-page-enter mt-2 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+        <h1 className="text-3xl leading-tight break-words lg:text-4xl">{notebook.name}</h1>
         <div className="flex flex-wrap items-center gap-x-4">
           <a
             href={`/notebooks/${notebook.id}/export.md`}
@@ -152,7 +153,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
       ) : null}
 
       <section aria-labelledby="lp-nb-categories" className="mt-6">
-        <h2 id="lp-nb-categories" className="lp-kicker">
+        <h2 id="lp-nb-categories" className="lp-section">
           {t("notebook.categories")}
         </h2>
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -196,7 +197,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
               required
               maxLength={100}
               placeholder={t("notebook.newCategory")}
-              className="min-h-9 w-36 rounded-md border border-control-border bg-background px-2 text-xs"
+              className="min-h-9 w-36 rounded-md border border-control-border bg-card px-2 text-xs"
             />
             <Button type="submit" size="sm" variant="ghost" aria-label={t("notebook.addCategory")}>
               <Plus aria-hidden="true" />
@@ -207,7 +208,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
 
       <section aria-labelledby="lp-nb-notes" className="mt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          <h2 id="lp-nb-notes" className="lp-kicker">
+          <h2 id="lp-nb-notes" className="lp-section">
             {t("notebook.notes")}
           </h2>
           <Form method="post">
@@ -219,7 +220,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
           </Form>
         </div>
         {notes.length === 0 ? (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("notebook.noNotes")}</p>
+          <p className="mt-3 lp-empty">{t("notebook.noNotes")}</p>
         ) : (
           <ul className="mt-3 border-t">
             {notes.map((n) => (
@@ -252,7 +253,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
       ) : null}
 
       <section aria-labelledby="lp-nb-manage" className="mt-12 border-t pt-6">
-        <h2 id="lp-nb-manage" className="lp-kicker">
+        <h2 id="lp-nb-manage" className="lp-section">
           {t("notebook.manage")}
         </h2>
         <Form method="post" className="mt-3 flex flex-wrap items-end gap-2">
@@ -267,7 +268,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
               required
               maxLength={200}
               defaultValue={notebook.name}
-              className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3 text-sm"
+              className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
             />
           </div>
           <Button type="submit" variant="outline">

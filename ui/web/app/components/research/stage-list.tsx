@@ -27,7 +27,7 @@ export function StageList({
 
   return (
     <section aria-labelledby={`lp-${ns}-stages`}>
-      <h3 id={`lp-${ns}-stages`} className="lp-kicker">
+      <h3 id={`lp-${ns}-stages`} className="lp-section">
         {t("stages.title")}
       </h3>
       <ol className="mt-2 flex flex-col gap-1.5" aria-live="polite">

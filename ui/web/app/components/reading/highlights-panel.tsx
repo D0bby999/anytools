@@ -18,11 +18,11 @@ export function HighlightsPanel({ highlights }: { highlights: Highlight[] }) {
 
   return (
     <section aria-labelledby="lp-highlights" className="mt-8">
-      <h2 id="lp-highlights" className="lp-kicker">
+      <h2 id="lp-highlights" className="lp-section">
         {t("highlights.title")}
       </h2>
       {sorted.length === 0 ? (
-        <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("highlights.empty")}</p>
+        <p className="mt-3 lp-empty">{t("highlights.empty")}</p>
       ) : (
         <ul className="mt-3 border-t">
           {sorted.map((h) => (

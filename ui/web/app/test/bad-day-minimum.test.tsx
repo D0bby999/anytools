@@ -58,7 +58,7 @@ const learningState: LearningState = {
 describe("Home's Today block", () => {
   it("shows the next task and its minimum", () => {
     inRouter(<TodayBlock today={today} lowDay={false} />);
-    expect(screen.getByRole("heading", { name: "Today" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your next step" })).toBeInTheDocument();
     expect(screen.getByText("Read a full article")).toBeInTheDocument();
     expect(screen.getByText("Read one headline")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Low day" })).toHaveAttribute("aria-pressed", "false");
@@ -79,7 +79,7 @@ describe("Home's Today block", () => {
 
   it("renders nothing without a learning state", () => {
     const { container } = inRouter(<TodayBlock today={null} lowDay={false} />);
-    expect(screen.queryByRole("heading", { name: "Today" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Your next step" })).not.toBeInTheDocument();
     expect(container.querySelector("#lp-today")).toBeNull();
   });
 

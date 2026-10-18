@@ -35,7 +35,7 @@ export function NoteEditor({
 
   return (
     <article aria-labelledby="lp-note-editor" className="rounded-lg border bg-card p-4 sm:p-5">
-      <h2 id="lp-note-editor" className="lp-kicker">
+      <h2 id="lp-note-editor" className="lp-section">
         {t("note.editing")}
       </h2>
       <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
@@ -64,7 +64,7 @@ export function NoteEditor({
             name="title"
             defaultValue={note.title}
             maxLength={300}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
           />
         </div>
 
@@ -88,7 +88,7 @@ export function NoteEditor({
           onChange={(e) => setBody(e.target.value)}
           rows={12}
           hidden={preview}
-          className="w-full rounded-md border border-control-border bg-background px-3 py-2 font-mono text-sm leading-prose"
+          className="w-full rounded-md border border-control-border bg-card px-3 py-2 font-mono text-sm leading-prose"
         />
         {preview ? (
           <div className="min-h-40 rounded-md border px-3 py-2">
@@ -129,7 +129,7 @@ export function NoteEditor({
               <select
                 id="lp-note-target"
                 name="notebookId"
-                className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3 text-sm"
+                className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
               >
                 {targets.map((nb) => (
                   <option key={nb.id} value={nb.id}>

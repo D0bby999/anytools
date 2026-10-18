@@ -53,7 +53,7 @@ export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal:
                   name={`module-${i}-name`}
                   defaultValue={m.name}
                   maxLength={200}
-                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
                 />
               </div>
               <div>
@@ -65,7 +65,7 @@ export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal:
                   name={`module-${i}-objective`}
                   defaultValue={m.objective}
                   maxLength={1000}
-                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                  className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
                 />
               </div>
               <div>
@@ -77,7 +77,7 @@ export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal:
                   name={`module-${i}-points`}
                   defaultValue={m.knowledge_points.map((kp) => kp.name).join("\n")}
                   rows={Math.max(3, m.knowledge_points.length)}
-                  className="mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose"
+                  className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose"
                 />
                 <p className="mt-1 text-xs text-muted-foreground">{t("path.pointsHint")}</p>
               </div>

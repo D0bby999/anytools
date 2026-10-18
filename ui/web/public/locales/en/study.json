@@ -32,7 +32,7 @@
     "overridden": "you corrected the marking",
     "backSoon": "This point comes back later today, so it is fresh before it fades.",
     "scheduled": "This point comes back when you are about to forget it.",
-    "markRight": "I was right — count it",
+    "markRight": "I was right. Count it",
     "markWrong": "Count this as wrong",
     "next": "Next question"
   },
@@ -154,7 +154,7 @@
     "status": {
       "active": "wrong once",
       "retrying": "wrong {{count}} times",
-      "review": "right once — once more to fix it"
+      "review": "right once, once more to fix it"
     },
     "done": "That was the last one for now.",
     "again": "Check for more",
@@ -179,7 +179,7 @@
     "judging": "Reading your explanation…",
     "lastTime": "Last time, these were missing",
     "passed": "You explained it",
-    "failed": "Not yet — there are gaps",
+    "failed": "Not yet: there are gaps",
     "unjudged": "This explanation could not be judged",
     "gaps": "What is missing",
     "misconceptions": "What is not right",
@@ -303,7 +303,7 @@
       "overLabel": "Over time:",
       "saving": "Saving…",
       "saved": "Answers saved",
-      "notSaved": "Not saved — the next change tries again",
+      "notSaved": "Not saved. The next change tries again",
       "locked": "Handed in; answers are locked",
       "partial": "Marking stopped after {{marked}} of {{total}} answers. Your answers are kept; press the button to mark the rest.",
       "submit": "Hand in and mark",

@@ -169,7 +169,7 @@ export function AudioCell({ value, onChange, label }: Props) {
           value=""
           onChange={(e) => e.target.value && onChange(e.target.value, true)}
           aria-label={`${t("recordings.useKept")}: ${label}`}
-          className="w-auto min-w-40 rounded-md border border-control-border bg-background px-3 py-2 text-sm"
+          className="w-auto min-w-40 rounded-md border border-control-border bg-card px-3 py-2 text-sm"
         >
           <option value="">{t("recordings.useKept")}</option>
           {media.recordings.map((r) => (

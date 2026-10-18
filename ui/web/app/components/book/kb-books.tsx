@@ -24,7 +24,7 @@ export function KbBooks({ kbId, books }: { kbId: string; books: Book[] }) {
 
   return (
     <section aria-labelledby="lp-kb-books" className="mt-10">
-      <h2 id="lp-kb-books" className="lp-kicker">
+      <h2 id="lp-kb-books" className="lp-section">
         {t("kb.title")}
       </h2>
       <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("kb.lead")}</p>
@@ -38,7 +38,7 @@ export function KbBooks({ kbId, books }: { kbId: string; books: Book[] }) {
             name="goal"
             maxLength={500}
             placeholder={t("kb.goalPlaceholder")}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
           />
         </label>
         <label className="text-sm">
@@ -46,7 +46,7 @@ export function KbBooks({ kbId, books }: { kbId: string; books: Book[] }) {
           <select
             name="chapters"
             defaultValue="6"
-            className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3"
           >
             {LENGTHS.map((n) => (
               <option key={n} value={n}>

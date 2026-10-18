@@ -112,21 +112,13 @@ describe("secrets are read only in env.server.ts", () => {
  * ships a link that 404s.
  */
 describe("navigation links resolve", () => {
-  it("every enabled nav destination is a registered route", () => {
+  it("every nav destination is a registered route", async () => {
     const routes = read(join(APP_DIR, "routes.ts"));
-    const sidebar = read(join(APP_DIR, "components/layout/sidebar.tsx"));
+    const { NAV_ITEMS } = await import("~/components/layout/sidebar");
 
-    // Only entries in the AVAILABLE list render as real links today.
-    const availableBlock = /const AVAILABLE: readonly string\[\] = \[([^\]]*)\]/.exec(sidebar)?.[1] ?? "";
-    const available = [...availableBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1] ?? "");
-
-    expect(available.length).toBeGreaterThan(0);
-    for (const dest of available) {
-      if (dest === "/") {
-        expect(routes, "index route missing").toMatch(/index\(/);
-        continue;
-      }
-      expect(routes, `no route registered for ${dest}`).toContain(`"${dest.replace(/^\//, "")}"`);
+    expect(NAV_ITEMS.length).toBeGreaterThan(0);
+    for (const { to } of NAV_ITEMS) {
+      expect(routes, `no route registered for ${to}`).toContain(`"${to.replace(/^\//, "")}"`);
     }
   });
 });

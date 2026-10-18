@@ -40,19 +40,21 @@ export function GatePanel({
 
   return (
     <div>
-      <ol className="grid grid-cols-3 border-t" aria-label={t("gate.timeline")}>
+      {/* Three phases in a real order, so they are numbered. The current one
+          is the part's tinted box; past ones are done, future ones faint. */}
+      <ol className="grid grid-cols-3 gap-1.5" aria-label={t("gate.timeline")}>
         {PHASES.map((p, i) => (
           <li
             key={p}
             aria-current={i === current ? "step" : undefined}
             className={cn(
-              "border-b border-t-2 py-2 pr-2 text-sm",
-              i < current && "border-t-border text-muted-foreground",
-              i === current && "border-t-accent font-medium",
-              i > current && "border-t-transparent text-faint",
+              "flex items-baseline gap-2 rounded-md border px-3 py-2 text-sm",
+              i < current && "border-border text-muted-foreground",
+              i === current && "border-part-line bg-part-soft font-semibold",
+              i > current && "border-dashed border-border text-faint",
             )}
           >
-            <span className="font-mono text-2xs uppercase tracking-wide">{String(i + 1).padStart(2, "0")}</span>{" "}
+            <span className="font-serif text-base font-semibold text-part">{i + 1}</span>
             {phaseLabel[p]}
           </li>
         ))}

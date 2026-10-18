@@ -22,6 +22,7 @@
     "downloadWindows": "Tải cho Windows",
     "downloadWindowsNote": "Windows 10 hoặc 11, 64-bit",
     "allReleases": "Mọi phiên bản và ghi chú thay đổi",
+    "howToInstall": "Cách cài và mở lần đầu",
     "featuresTitle": "App làm được gì",
     "features": [
       {
@@ -54,8 +55,8 @@
       {
         "os": "Mac",
         "steps": [
-          "Giải nén file tải về và kéo AnyProfile.app vào thư mục Applications.",
-          "Lần đầu mở, macOS báo không xác minh được app. Vào System Settings → Privacy & Security và chọn Open Anyway.",
+          "Mở file AnyProfile-macos-arm64.dmg vừa tải, rồi kéo AnyProfile vào thư mục Applications.",
+          "Mở AnyProfile. Lần đầu, macOS báo “Apple could not verify…”: bấm Done (đừng bấm Move to Trash), rồi vào System Settings → Privacy & Security, kéo xuống mục Security, bấm Open Anyway và nhập mật khẩu máy. Chỉ cần làm một lần.",
           "Khi macOS hỏi AnyProfile có được dùng Keychain không, chọn Always Allow."
         ]
       },

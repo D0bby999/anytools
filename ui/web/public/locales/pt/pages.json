@@ -22,6 +22,7 @@
     "downloadWindows": "Baixar para Windows",
     "downloadWindowsNote": "Windows 10 ou 11, 64 bits",
     "allReleases": "Todas as versões e notas",
+    "howToInstall": "Como instalar e abrir pela primeira vez",
     "featuresTitle": "O que faz",
     "features": [
       {
@@ -54,8 +55,8 @@
       {
         "os": "Mac",
         "steps": [
-          "Descompacte o download e mova AnyProfile.app para Aplicativos.",
-          "Na primeira vez, o macOS diz que não consegue verificar o app. Abra Ajustes do Sistema → Privacidade e Segurança e escolha Abrir Mesmo Assim.",
+          "Abra o AnyProfile-macos-arm64.dmg baixado e arraste o AnyProfile para Aplicativos.",
+          "Abra o AnyProfile. Na primeira vez, o macOS diz que a Apple não conseguiu verificar o app: feche o aviso (sem mover o app para o Lixo), abra Ajustes do Sistema → Privacidade e Segurança, role até Segurança, escolha Abrir Mesmo Assim e digite sua senha. Só uma vez.",
           "Quando o macOS perguntar se o AnyProfile pode usar as Chaves, escolha Permitir Sempre."
         ]
       },

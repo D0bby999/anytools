@@ -13,6 +13,7 @@ import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { createNotebook, listNotebooks } from "~/lib/notebook.server";
 import { Button } from "~/components/ui/button";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -46,10 +47,7 @@ export default function NotebooksIndex({ loaderData, actionData }: Route.Compone
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("notebook.title")}</h1>
-        <p>{t("notebook.lead")}</p>
-      </div>
+      <PageHeader title={t("notebook.title")} lede={t("notebook.lead")} />
 
       <Form method="post" className="mt-8 flex flex-wrap items-end gap-3">
         <div className="min-w-0 flex-1">
@@ -61,7 +59,7 @@ export default function NotebooksIndex({ loaderData, actionData }: Route.Compone
             name="name"
             required
             maxLength={200}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
           />
         </div>
         <Button type="submit" disabled={navigation.formMethod === "POST"}>
@@ -76,7 +74,7 @@ export default function NotebooksIndex({ loaderData, actionData }: Route.Compone
       ) : null}
 
       {loaderData.notebooks.length === 0 ? (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">{t("notebook.empty")}</p>
+        <p className="mt-8 lp-empty">{t("notebook.empty")}</p>
       ) : (
         <ul className="mt-8 border-t">
           {loaderData.notebooks.map((nb) => (

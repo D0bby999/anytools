@@ -56,7 +56,7 @@ export function ToolFrame({ slug, locale }: { slug: string; locale: PublicLng })
     </p>
   );
   const failed = (
-    <p role="alert" className="rounded-lg border border-destructive bg-destructive-soft px-5 py-4 text-sm text-destructive-foreground">
+    <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive-soft px-5 py-4 text-sm text-destructive">
       {t("tool.failed")}
     </p>
   );

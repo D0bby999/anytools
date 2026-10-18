@@ -23,9 +23,13 @@ export const ANYPROFILE_REPO = "https://github.com/D0bby999/anyprofile";
 export const ANYPROFILE_RELEASES = `${ANYPROFILE_REPO}/releases/latest`;
 export const ANYPROFILE_MANIFEST_URL = `${ANYPROFILE_REPO}/releases/latest/download/latest.json`;
 
-/** The manifest's platform keys, and the file each one is published as. */
+/**
+ * The manifest's platform keys, and the file each one is published as. The Mac
+ * button gets the disk image (open it, drag the app onto Applications); the
+ * release's .zip is the in-app updater's package, listed as "darwin-arm64".
+ */
 export const ANYPROFILE_PLATFORMS = {
-  mac: { key: "darwin-arm64", file: "AnyProfile-macos-arm64.zip" },
+  mac: { key: "darwin-arm64-dmg", file: "AnyProfile-macos-arm64.dmg" },
   windows: { key: "windows-amd64", file: "AnyProfile-amd64-installer.exe" },
 } as const;
 export type AnyProfilePlatform = keyof typeof ANYPROFILE_PLATFORMS;

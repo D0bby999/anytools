@@ -22,7 +22,7 @@ type AuditData = { auditAdded?: number; auditFull?: boolean; errorKey?: string; 
 /** The form the rows' audit checkboxes belong to. */
 const AUDIT_FORM = "lp-vocab-audit";
 
-const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm text-foreground";
+const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm text-foreground";
 
 /**
  * The learner's words: search, edit, suspend and delete. Hairline rows, the
@@ -81,7 +81,7 @@ export function WordList({
         </p>
       ) : (
         <>
-          <h3 className="lp-kicker mt-6">
+          <h3 className="lp-section mt-6">
             {t("byDecision.learnTitle")} · {t("byDecision.count", { count: learning.length })}
           </h3>
           <ul className="mt-2 border-t">
@@ -91,13 +91,13 @@ export function WordList({
           </ul>
           {others.length > 0 ? (
             <section aria-labelledby="lp-vocab-others" className="mt-8">
-              <h3 id="lp-vocab-others" className="lp-kicker">
+              <h3 id="lp-vocab-others" className="lp-section">
                 {t("byDecision.title")}
               </h3>
               <p className="mt-1 text-xs leading-snug text-muted-foreground">{t("byDecision.lead")}</p>
               {others.map((g) => (
                 <div key={g.decision} className="mt-4">
-                  <h4 className="font-mono text-2xs uppercase tracking-wide text-muted-foreground">
+                  <h4 className="text-xs font-semibold text-muted-foreground">
                     {t(`decide.options.${g.decision}`)} · {t("byDecision.count", { count: g.notes.length })}
                   </h4>
                   <ul className="mt-1 border-t">
@@ -127,7 +127,7 @@ function AuditCopy({ audits }: { audits: WorksheetSummary[] }) {
   const data = fetcher.data;
   return (
     <section aria-labelledby="lp-vocab-audit-title" className="mt-8 border-t pt-4">
-      <h3 id="lp-vocab-audit-title" className="lp-kicker">
+      <h3 id="lp-vocab-audit-title" className="lp-section">
         {t("audit.title")}
       </h3>
       <p className="mt-1 text-xs leading-snug text-muted-foreground">{t("audit.lead")}</p>
@@ -199,13 +199,13 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
             />
           ) : null}
           {note.term}
-          <span className="ml-2 font-mono text-2xs uppercase text-muted-foreground">{note.lang}</span>
+          <span className="text-xs font-semibold ml-2 text-muted-foreground">{note.lang}</span>
           {note.pos ? <span className="ml-2 text-xs text-muted-foreground">{note.pos}</span> : null}
           {learning && note.suspended ? (
-            <span className="ml-2 font-mono text-2xs uppercase text-muted-foreground">{t("list.suspended")}</span>
+            <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("list.suspended")}</span>
           ) : null}
           {learning && note.production ? (
-            <span className="ml-2 font-mono text-2xs uppercase text-muted-foreground">{t("practise.on")}</span>
+            <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("practise.on")}</span>
           ) : null}
         </p>
         <span className="text-xs text-muted-foreground">

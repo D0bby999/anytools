@@ -27,7 +27,7 @@
     "deleteConfirm": "Delete this book, its chapters and its cards? Questions it added to your bank stay there."
   },
   "editor": {
-    "lead": "Edit the outline — rename, reorder, cut or add chapters, and choose the passages each is written from — then confirm it. Confirming creates the chapters; nothing is written until you open one.",
+    "lead": "Edit the outline: rename, reorder, cut or add chapters, and choose the passages each is written from. Then confirm it. Confirming creates the chapters; nothing is written until you open one.",
     "title": "Title",
     "audience": "Who it is for",
     "chapters": "Chapters",
@@ -58,7 +58,7 @@
     "kicker": "Chapter {{n}}",
     "blocksWritten": "{{ready}} of {{total}} blocks",
     "staleShort": "sources changed",
-    "stale": "Sources changed since this was written — refresh.",
+    "stale": "Sources changed since this was written. Refresh.",
     "compile": "Write this chapter",
     "refresh": "Refresh this chapter",
     "cost": "{{count}} call on your key.",

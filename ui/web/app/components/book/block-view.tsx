@@ -97,8 +97,16 @@ function BlockBody({ block }: { block: Block }) {
       const c = p as CalloutPayload;
       const label = { definition: t("block.definition"), warning: t("block.warning"), tip: t("block.tip") }[c.variant];
       return (
-        <aside className="border-l-2 border-primary pl-4">
-          <p className="lp-kicker">
+        // The textbook's boxed callout: a definition is the key-concept box in
+        // the part's tint, a warning takes the highlighter's family.
+        <aside
+          className={
+            c.variant === "warning"
+              ? "rounded-lg border border-warning/40 bg-warning-soft px-4 py-3"
+              : "lp-keybox px-4 py-3"
+          }
+        >
+          <p className="font-sans text-sm font-semibold text-part">
             {label}
             {c.title ? ` · ${c.title}` : ""}
           </p>

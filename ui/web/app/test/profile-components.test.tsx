@@ -72,7 +72,7 @@ describe("evidence", () => {
     );
     expect(screen.getByRole("link", { name: "Knowledge point: Parametric memory" })).toHaveAttribute("href", "/mastery/path-1");
     expect(screen.getByRole("link", { name: /Mistake: Where does/ })).toHaveAttribute("href", "/quiz/practice?kb_id=kb-1");
-    expect(screen.getByText(/Skill card — no longer exists/)).toBeInTheDocument();
+    expect(screen.getByText(/Skill card · no longer exists/)).toBeInTheDocument();
     expect(screen.getAllByRole("link")).toHaveLength(2);
   });
 

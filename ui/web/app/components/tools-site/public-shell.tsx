@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import type { PublicLng } from "~/lib/i18n";
 import { ThemeToggle } from "~/components/layout/theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
+import { StudyBand } from "./anyprofile-feature";
 
 /** Source of the open-source repository (phase 5 publishes it). */
 export const SOURCE_URL = "https://github.com/D0bby999/anytools";
@@ -62,20 +63,46 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
   useSearchShortcut();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="border-b">
-        <div className="lp-layout flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 lg:px-6">
+    // The tools are the book's appendix: everything here sits in its part.
+    <div data-part="tools" className="flex min-h-screen flex-col bg-background">
+      <header className="border-b bg-background">
+        <div className="lp-layout flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 lg:px-6">
           <Link
             to={`/${locale}`}
             translate="no"
             aria-label={t("site.home")}
-            className="font-serif text-lg font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            AnyTools
+            <span className="font-serif text-xl font-semibold tracking-display">AnyTools</span>
+            <span aria-hidden="true" className="lp-tab hidden sm:inline-flex">
+              {t("feature.appendix")}
+            </span>
           </Link>
 
+          <nav aria-label={t("feature.appendix")} className="hidden items-center gap-1 md:flex">
+            <Link to={`/${locale}/guides`} className={NAV_LINK}>
+              {t("nav.guides")}
+            </Link>
+            <Link to={`/${locale}/anyprofile`} className={NAV_LINK}>
+              {t("footer.anyprofile")}
+            </Link>
+          </nav>
+
+          {/* Phone: the wordmark and the study app on the first row; search,
+              language and theme on the second. */}
+          <div className="ml-auto sm:order-last sm:ml-0">
+            <ThemeToggle labels={{ useLight: t("site.useLight"), useDark: t("site.useDark") }} />
+          </div>
+          <a
+            href="/"
+            className="inline-flex min-h-11 items-center rounded-md border border-primary bg-primary px-4 text-sm font-semibold whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:order-last"
+          >
+            {t("site.openApp")}
+          </a>
+          <span aria-hidden="true" className="basis-full sm:hidden" />
+
           {!ownSearch && (
-            <Form method="get" action={`/${locale}`} role="search" className="order-last w-full sm:order-none sm:w-auto sm:flex-1 sm:max-w-sm">
+            <Form method="get" action={`/${locale}`} role="search" className="min-w-0 flex-1 sm:max-w-xs">
               <label className="relative block">
                 <span className="sr-only">{t("site.search")}</span>
                 <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -94,15 +121,10 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
             </Form>
           )}
 
-          <div className="ml-auto flex items-center gap-1">
+          {/* The study app is the product; the tools are its appendix. So the
+              one filled button on every tools page (above) leads back to it. */}
+          <div className="flex items-center gap-1 sm:ml-auto">
             <LocaleSwitcher locale={locale} />
-            <ThemeToggle labels={{ useLight: t("site.useLight"), useDark: t("site.useDark") }} />
-            <Link
-              to="/"
-              className="inline-flex min-h-11 items-center rounded-md px-3 text-sm text-muted-foreground hover:bg-primary-soft hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              {t("site.openApp")}
-            </Link>
           </div>
         </div>
       </header>
@@ -111,6 +133,8 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
         {children}
       </main>
 
+      <StudyBand />
+
       <footer className="border-t">
         <div className="lp-layout flex flex-col gap-3 px-4 py-6 text-sm text-muted-foreground lg:px-6">
           <p className="max-w-(--lp-measure-read)">{t("site.footerNote")}</p>
@@ -118,11 +142,11 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
             {FOOTER_LINKS.map((l) => (
               <li key={l.labelKey}>
                 {l.external ? (
-                  <a href={l.to(locale)} rel="noopener noreferrer" className="underline-offset-4 hover:text-foreground hover:underline">
+                  <a href={l.to(locale)} rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline">
                     {t(l.labelKey)}
                   </a>
                 ) : (
-                  <Link to={l.to(locale)} className="underline-offset-4 hover:text-foreground hover:underline">
+                  <Link to={l.to(locale)} className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline">
                     {t(l.labelKey)}
                   </Link>
                 )}
@@ -134,3 +158,6 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
     </div>
   );
 }
+
+const NAV_LINK =
+  "inline-flex min-h-11 items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";

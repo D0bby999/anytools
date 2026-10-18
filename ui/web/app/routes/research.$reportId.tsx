@@ -5,6 +5,7 @@
  * here opens something: a document page (chunk) or the web page it was
  * gathered from (url). The sources list in the right panel is the same set.
  */
+import { ArrowLeft } from "lucide-react";
 import { Link, redirect, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/research.$reportId";
@@ -24,6 +25,7 @@ import { RightPanel } from "~/components/layout/right-panel";
 import { kbOnlyReasonKey } from "~/lib/research-types";
 import { ClaimCheck } from "~/components/research/claim-check";
 import { KeepStudying, OpenQuestions, type ToKnowledgeResult } from "~/components/research/keep-studying";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Report · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -112,11 +114,14 @@ export default function ResearchReport({ loaderData }: Route.ComponentProps) {
     <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
       <div className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
         <article className="lp-measure">
-          <p className="text-sm">
-            <Link to="/research" className="text-primary underline underline-offset-4">
-              {t("report.back")}
-            </Link>
-          </p>
+          <Link
+            to="/research"
+            className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft aria-hidden="true" className="size-4" />
+            {t("report.back")}
+          </Link>
+          <PageHeader title={report.query} className="mt-2 mb-0" />
           <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             <span>
               {t("report.mode")}: {t(`form.${report.mode}`)}
@@ -168,7 +173,7 @@ export default function ResearchReport({ loaderData }: Route.ComponentProps) {
 
       <RightPanel>
         {report.sources.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("report.noSources")}</p>
+          <p className="mt-3 lp-empty">{t("report.noSources")}</p>
         ) : (
           <ol className="mt-3 flex flex-col gap-2">
             {report.sources.map((source, i) => (

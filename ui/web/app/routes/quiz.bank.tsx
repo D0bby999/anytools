@@ -17,6 +17,7 @@ import { listBank } from "~/lib/quiz.server";
 import { QUESTION_TYPES, type QuestionType } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -58,10 +59,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("bank.title")}</h1>
-        <p>{t("bank.lead")}</p>
-      </div>
+      <PageHeader title={t("bank.title")} lede={t("bank.lead")} />
       <p className="mt-2 text-sm">
         <Link to="/quiz" className="text-primary underline underline-offset-4">
           {t("bank.generateMore")}
@@ -81,7 +79,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
             id="lp-bank-kb"
             name="kb"
             defaultValue={params.get("kb") ?? ""}
-            className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
           >
             <option value="">{t("bank.allKbs")}</option>
             {loaderData.kbs.map((kb) => (
@@ -99,7 +97,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
             id="lp-bank-answered"
             name="answered"
             defaultValue={params.get("answered") ?? ""}
-            className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
           >
             <option value="">{t("bank.any")}</option>
             <option value="no">{t("bank.unanswered")}</option>
@@ -114,7 +112,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
             id="lp-bank-type"
             name="type"
             defaultValue={params.get("type") ?? ""}
-            className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3 text-sm"
+            className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
           >
             <option value="">{t("bank.allTypes")}</option>
             {QUESTION_TYPES.map((type) => (
@@ -130,7 +128,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
       </Form>
 
       {loaderData.entries.length === 0 ? (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">{t("bank.empty")}</p>
+        <p className="mt-8 lp-empty">{t("bank.empty")}</p>
       ) : (
         <ol className="mt-8 space-y-4">
           {loaderData.entries.map((entry) => (

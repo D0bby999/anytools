@@ -56,7 +56,7 @@ export function QuestionCard({
 
   return (
     <article aria-labelledby={`${ids}-prompt`} className="rounded-lg border bg-card p-4 sm:p-5">
-      <p className="font-mono text-2xs uppercase tracking-wide text-faint">
+      <p className="text-xs font-semibold text-faint">
         {typeLabel} · {difficultyLabel}
       </p>
       <h3 id={`${ids}-prompt`} className="mt-2 font-serif text-lg leading-snug">
@@ -87,7 +87,7 @@ export function QuestionCard({
                 id={`${ids}-attr`}
                 name="self_attribution"
                 defaultValue=""
-                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm sm:w-auto"
+                className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm sm:w-auto"
               >
                 <option value="">{t("attribution.none")}</option>
                 <option value="confident">{t("attribution.confident")}</option>
@@ -179,7 +179,7 @@ function AnswerInput({ question, idBase }: { question: QuestionView; idBase: str
           // its rubric: it gets the room one needs.
           rows={question.type === "written" ? 10 : 3}
           maxLength={question.type === "written" ? 20000 : 4000}
-          className="mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
         />
       ) : (
         <input
@@ -188,7 +188,7 @@ function AnswerInput({ question, idBase }: { question: QuestionView; idBase: str
           required
           maxLength={400}
           autoComplete="off"
-          className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
         />
       )}
     </div>

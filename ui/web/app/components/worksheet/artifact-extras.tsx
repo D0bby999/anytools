@@ -37,7 +37,7 @@ export function useArtifactExtras(kind: WorksheetKind): FormExtras | undefined {
                 {column.text?.[row.row] ?? ""}
                 {/* The row's current, unsaved evidence decides it. */}
                 {filledText(row.cells.evidence) ? null : (
-                  <span className="mt-1 block font-mono text-xs uppercase tracking-wide text-warning">
+                  <span className="text-xs font-semibold mt-1 block text-xs text-warning">
                     {t("artifact.unverified")}
                   </span>
                 )}
@@ -63,7 +63,7 @@ function AddToEvidence({ worksheet, chains }: { worksheet: Worksheet; chains: Ch
   const [only, ...more] = chains;
   return (
     <section aria-labelledby="ws-artifact-evidence" className="mt-6 rounded-md border bg-muted px-4 py-3">
-      <h3 id="ws-artifact-evidence" className="lp-kicker">
+      <h3 id="ws-artifact-evidence" className="lp-section">
         {t("artifact.evidenceTitle")}
       </h3>
       <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("artifact.evidenceLead")}</p>
@@ -84,7 +84,7 @@ function AddToEvidence({ worksheet, chains }: { worksheet: Worksheet; chains: Ch
               {t("artifact.chain")}
               <select
                 name="chain_id"
-                className="mt-1 block min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                className="mt-1 block min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
               >
                 {chains.map((c) => (
                   <option key={c.id} value={c.id}>

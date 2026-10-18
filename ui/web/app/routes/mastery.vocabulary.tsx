@@ -22,6 +22,7 @@ import { auditRow, decisionBody, RATINGS, type Rating } from "~/lib/vocab-types"
 import { MasteryTabs } from "~/components/vocab/mastery-tabs";
 import { ReviewSession } from "~/components/vocab/review-session";
 import { WordList } from "~/components/vocab/word-list";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -134,21 +135,18 @@ export default function Vocabulary({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("vocab");
   return (
     <div className="lp-measure">
+      <PageHeader title={t("page.title")} lede={t("page.lead")} />
       <MasteryTabs vocabDue={loaderData.dueCount} bookDue={loaderData.bookDue} />
-      <div className="lp-prose">
-        <h1>{t("page.title")}</h1>
-        <p>{t("page.lead")}</p>
-      </div>
 
       <section aria-labelledby="lp-vocab-due" className="mt-8">
-        <h2 id="lp-vocab-due" className="lp-kicker">
+        <h2 id="lp-vocab-due" className="lp-section">
           {t("session.title")}
         </h2>
         <ReviewSession cards={loaderData.cards} total={loaderData.dueCount} />
       </section>
 
       <section aria-labelledby="lp-vocab-words" className="mt-10">
-        <h2 id="lp-vocab-words" className="lp-kicker">
+        <h2 id="lp-vocab-words" className="lp-section">
           {t("list.title")}
         </h2>
         <WordList

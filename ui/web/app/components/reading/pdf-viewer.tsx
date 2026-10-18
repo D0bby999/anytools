@@ -185,7 +185,7 @@ export function PdfViewer({
             >
               {/* The same mono page label the text renderer uses: the page
                   number IS this region's heading. */}
-              <h2 id={`page-${n}-label`} className="lp-kicker mb-2">
+              <h2 id={`page-${n}-label`} className="lp-section mb-2">
                 {n}
               </h2>
               <div

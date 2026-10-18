@@ -31,7 +31,7 @@ export function LiveReport({
   return (
     <section aria-labelledby="lp-research-live" className="mt-10">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id="lp-research-live" className="lp-kicker">
+        <h2 id="lp-research-live" className="lp-section">
           {t("report.live")}
         </h2>
         {kbOnly && <KBOnlyBadge reason={reason} />}

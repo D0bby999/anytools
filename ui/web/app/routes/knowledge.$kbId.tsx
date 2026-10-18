@@ -80,6 +80,7 @@ import { loadSources } from "~/lib/sources.server";
 import type { SourcesData } from "~/lib/sources-types";
 import { DriveGrants, DriveNoticeLine } from "~/components/knowledge/drive-grants";
 import { driveReason } from "~/lib/drive-storage";
+import { PageHeader } from "~/components/ui/page-header";
 
 /** How often the document list is refetched when the stream is not available. */
 const POLL_MS = 2500;
@@ -417,12 +418,11 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
         {t("detail.back")}
       </Link>
 
-      <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <h1 className="font-serif text-2xl font-semibold">{kb.name}</h1>
-        <p className="font-mono text-2xs text-faint">
+      <PageHeader title={kb.name} className="mt-2">
+        <p className="mt-2 font-mono text-xs text-faint">
           {kb.embedding_model ? `${kb.embedding_model} · ${kb.dims}d` : t("detail.notIndexed")}
         </p>
-      </div>
+      </PageHeader>
 
       {kb.needs_reembed ? (
         // The block is stated, and so is the reason for it. Ranking a new
@@ -444,7 +444,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
       ) : null}
 
       <section aria-labelledby="lp-kb-upload" className="mt-8">
-        <h2 id="lp-kb-upload" className="lp-kicker">
+        <h2 id="lp-kb-upload" className="lp-section">
           {t("upload.label")}
         </h2>
         <div className="mt-3">
@@ -453,7 +453,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
       </section>
 
       <section aria-labelledby="lp-kb-link" className="mt-8">
-        <h2 id="lp-kb-link" className="lp-kicker">
+        <h2 id="lp-kb-link" className="lp-section">
           {t("link.label")}
         </h2>
         <div className="mt-3">
@@ -462,7 +462,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
       </section>
 
       <section aria-labelledby="lp-kb-zotero" className="mt-8">
-        <h2 id="lp-kb-zotero" className="lp-kicker">
+        <h2 id="lp-kb-zotero" className="lp-section">
           {t("zotero.label")}
         </h2>
         <div className="mt-3">
@@ -473,7 +473,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
       {loaderData.sources ? (
         <>
           <section aria-labelledby="lp-kb-site" className="mt-8">
-            <h2 id="lp-kb-site" className="lp-kicker">
+            <h2 id="lp-kb-site" className="lp-section">
               {t("site.label")}
             </h2>
             <div className="mt-3">
@@ -481,7 +481,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
             </div>
           </section>
           <section aria-labelledby="lp-kb-repo" className="mt-8">
-            <h2 id="lp-kb-repo" className="lp-kicker">
+            <h2 id="lp-kb-repo" className="lp-section">
               {t("repo.label")}
             </h2>
             <div className="mt-3">
@@ -489,7 +489,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
             </div>
           </section>
           <section aria-labelledby="lp-kb-sources" className="mt-8">
-            <h2 id="lp-kb-sources" className="lp-kicker">
+            <h2 id="lp-kb-sources" className="lp-section">
               {t("sources.label")}
             </h2>
             <div className="mt-3">
@@ -503,7 +503,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
 
       <section aria-labelledby="lp-kb-feeds" className="mt-8">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 id="lp-kb-feeds" className="lp-kicker">
+          <h2 id="lp-kb-feeds" className="lp-section">
             {t("feed.label")}
           </h2>
           {loaderData.feeds && loaderData.feeds.new > 0 ? (
@@ -528,7 +528,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
 
       <section aria-labelledby="lp-kb-documents" className="mt-10">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          <h2 id="lp-kb-documents" className="lp-kicker">
+          <h2 id="lp-kb-documents" className="lp-section">
             {t("detail.documents")}
           </h2>
           <reindexFetcher.Form method="post">

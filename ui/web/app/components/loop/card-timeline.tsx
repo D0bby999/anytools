@@ -15,7 +15,7 @@ import type { CardDetail, CardEntry, Timepoint } from "~/lib/loop-types";
 import { CardEntryForm, type LinkChoice } from "~/components/loop/card-entry-form";
 import { Button } from "~/components/ui/button";
 
-const box = "mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm";
+const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 function useStepLabels(): Record<Timepoint, string> {
   const { t } = useTranslation("loop");
@@ -49,7 +49,7 @@ function EntryItem({ entry }: { entry: CardEntry }) {
   }
   return (
     <li className="border-b py-3">
-      <p className="font-mono text-2xs uppercase tracking-wide text-faint">
+      <p className="text-xs font-semibold text-faint">
         {new Date(entry.created_at).toLocaleDateString()} · {t("cards.cueNote", { level: levels[entry.prompt_level] ?? entry.prompt_level })}
       </p>
       {/* The learner's own text, shown as text: no markdown, no HTML. */}
@@ -94,7 +94,7 @@ export function CardTimeline({ detail, recent, busy }: { detail: CardDetail; rec
     <ol className="mt-6">
       <li>
         <section aria-labelledby="lp-card-setup" className="border-t py-4">
-          <h2 id="lp-card-setup" className="lp-kicker">
+          <h2 id="lp-card-setup" className="lp-section">
             {t("cards.setup")}
           </h2>
           <dl className="mt-2 space-y-2">
@@ -116,7 +116,7 @@ export function CardTimeline({ detail, recent, busy }: { detail: CardDetail; rec
         return (
           <li key={tp}>
             <section aria-labelledby={`lp-card-${tp}`} className="border-t py-4">
-              <h2 id={`lp-card-${tp}`} className="lp-kicker">
+              <h2 id={`lp-card-${tp}`} className="lp-section">
                 {steps[tp]}
               </h2>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
@@ -146,7 +146,7 @@ export function CardTimeline({ detail, recent, busy }: { detail: CardDetail; rec
 
       <li>
         <section aria-labelledby="lp-card-reflect" className="border-t py-4">
-          <h2 id="lp-card-reflect" className="lp-kicker">
+          <h2 id="lp-card-reflect" className="lp-section">
             {t("cards.step.reflection")}
           </h2>
           {card.status === "closed" ? (

@@ -44,6 +44,7 @@ import * as loop from "~/lib/loop.server";
 import type { Chain } from "~/lib/loop-types";
 import { ARTIFACT_BRIEF, artifactSectionExtra, useArtifactExtras } from "~/components/worksheet/artifact-extras";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Worksheet · Toolkit · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -218,10 +219,7 @@ export default function ToolkitWorksheet({ loaderData, actionData }: Route.Compo
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{w.title}</h1>
-        <p>{kind ? kind.name : t("sheet.unknownKind")}</p>
-      </div>
+      <PageHeader title={w.title} lede={kind ? kind.name : t("sheet.unknownKind")} />
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
         <Link to="/toolkit" className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">
           {t("sheet.back")}
@@ -300,7 +298,7 @@ export default function ToolkitWorksheet({ loaderData, actionData }: Route.Compo
 
       {earlier.length > 0 ? (
         <section aria-labelledby="ws-earlier" className="mt-10">
-          <h2 id="ws-earlier" className="lp-kicker">
+          <h2 id="ws-earlier" className="lp-section">
             {t("sheet.earlier")}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("sheet.earlierLead")}</p>
@@ -321,7 +319,7 @@ export default function ToolkitWorksheet({ loaderData, actionData }: Route.Compo
       ) : null}
 
       <section aria-labelledby="ws-manage" className="mt-10">
-        <h2 id="ws-manage" className="lp-kicker">
+        <h2 id="ws-manage" className="lp-section">
           {t("sheet.manage")}
         </h2>
         <Form method="post" className="mt-3 flex flex-wrap items-end gap-2">

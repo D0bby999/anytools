@@ -47,7 +47,7 @@ export function OwnVersionFields({
             value={value[key]}
             onChange={(e) => onChange({ ...value, [key]: e.target.value })}
             className={
-              "mt-1 min-h-10 w-full resize-y rounded-md border border-control-border bg-background " +
+              "mt-1 min-h-10 w-full resize-y rounded-md border border-control-border bg-card " +
               "px-3 py-2 text-sm leading-ui text-foreground " +
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
               "focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"

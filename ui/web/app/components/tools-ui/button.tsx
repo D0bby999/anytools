@@ -4,22 +4,22 @@ import { type ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from '~/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:opacity-90',
-        destructive: 'bg-destructive text-primary-foreground hover:opacity-90',
-        outline: 'border border-control-border bg-background hover:bg-muted',
-        secondary: 'bg-muted text-foreground hover:opacity-80',
-        ghost: 'hover:bg-muted',
+        default: 'border border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover active:bg-primary-active',
+        destructive: 'border border-destructive bg-destructive text-destructive-foreground hover:opacity-90',
+        outline: 'border border-control-border bg-card text-foreground hover:bg-hover active:bg-sunken',
+        secondary: 'border border-border bg-muted text-foreground hover:bg-hover',
+        ghost: 'hover:bg-hover',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 px-4 py-2',
+        default: 'h-11 px-5',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10',
+        icon: 'h-11 w-11',
       },
     },
     defaultVariants: { variant: 'default', size: 'default' },

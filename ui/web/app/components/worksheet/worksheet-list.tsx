@@ -38,7 +38,7 @@ export function WorksheetList({
             >
               <span className="font-medium">{w.title}</span>
               {kindNames?.[w.kind] ? <span className="text-muted-foreground">{kindNames[w.kind]}</span> : null}
-              <span className="font-mono text-2xs uppercase tracking-wide text-faint">
+              <span className="text-xs font-semibold text-faint">
                 {w.status === "done" ? t("list.done") : t("list.open")}
               </span>
               {next ? <span className="text-xs text-faint">{t("list.nextReview", { date: next })}</span> : null}
@@ -53,7 +53,7 @@ export function WorksheetList({
 /** "To revisit": reviews due on the learner's day or earlier. */
 export function DueReviewList({ due }: { due: DueReview[] }) {
   const { t } = useTranslation("toolkit");
-  if (due.length === 0) return <p className="mt-3 text-sm text-muted-foreground">{t("due.none")}</p>;
+  if (due.length === 0) return <p className="mt-3 lp-empty">{t("due.none")}</p>;
   return (
     <ul className="mt-3 border-t">
       {due.map((d) => (

@@ -28,6 +28,7 @@ import { WeeklyQuestions } from "~/components/loop/weekly-questions";
 import { InterruptionList } from "~/components/loop/interruption-list";
 import { CycleCloseLink } from "~/components/loop/cycle-close-link";
 import { LastClose } from "~/components/loop/last-close";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Cycle · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -123,17 +124,14 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{c.goal}</h1>
-        <p>{t("cycle.lead", { date: c.started_at.slice(0, 10), week: c.current_week })}</p>
-      </div>
+      <PageHeader title={c.goal} lede={t("cycle.lead", { date: c.started_at.slice(0, 10), week: c.current_week })} />
       <Link to={`/loop/state/${c.state_id}`} className="text-sm text-primary underline underline-offset-4">
         {t("cycle.backToGoal")}
       </Link>
       <ActionError result={errorKey ? { error: t(errorKey) } : actionData} />
 
       <section aria-labelledby="lp-cycle-gate" className="mt-8">
-        <h2 id="lp-cycle-gate" className="lp-kicker">
+        <h2 id="lp-cycle-gate" className="lp-section">
           {t("cycle.gate")}
         </h2>
         <div className="mt-3">
@@ -142,17 +140,17 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
       </section>
 
       <section aria-labelledby="lp-cycle-week" className="mt-10">
-        <h2 id="lp-cycle-week" className="lp-kicker">
+        <h2 id="lp-cycle-week" className="lp-section">
           {t("home.thisWeek")}
         </h2>
         <WeekCard cycleId={c.id} week={c.current_week} review={thisWeek} cannotProve={t("week.cannotProve")} />
       </section>
 
       <section aria-labelledby="lp-cycle-reviews" className="mt-10">
-        <h2 id="lp-cycle-reviews" className="lp-kicker">
+        <h2 id="lp-cycle-reviews" className="lp-section">
           {t("cycle.reviews")}
         </h2>
-        {c.reviews.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">{t("cycle.noReviews")}</p> : null}
+        {c.reviews.length === 0 ? <p className="mt-3 lp-empty">{t("cycle.noReviews")}</p> : null}
         <div className="mt-3">
           {c.reviews.map((r) => (
             <Link key={r.id} to={`/loop/review/${r.id}`} className="block transition-colors hover:bg-primary-soft">
@@ -168,7 +166,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
 
       {c.closes.previous && weekOneIsEmpty(c.weekly_questions) ? (
         <section aria-labelledby="lp-cycle-last-close" className="mt-10">
-          <h2 id="lp-cycle-last-close" className="lp-kicker">
+          <h2 id="lp-cycle-last-close" className="lp-section">
             {t("cycleClose.fromLast")}
           </h2>
           <LastClose previous={c.closes.previous} busy={busy} />
@@ -176,7 +174,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
       ) : null}
 
       <section aria-labelledby="lp-cycle-questions" className="mt-10">
-        <h2 id="lp-cycle-questions" className="lp-kicker">
+        <h2 id="lp-cycle-questions" className="lp-section">
           {t("cycle.questions")}
         </h2>
         <WeeklyQuestions questions={c.weekly_questions} busy={busy} />
@@ -184,7 +182,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
 
       {c.interruptions.length > 0 ? (
         <section aria-labelledby="lp-cycle-int" className="mt-10">
-          <h2 id="lp-cycle-int" className="lp-kicker">
+          <h2 id="lp-cycle-int" className="lp-section">
             {t("cycle.interruptions")}
           </h2>
           <InterruptionList items={c.interruptions} />
@@ -192,7 +190,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
       ) : null}
 
       <section aria-labelledby="lp-cycle-close" className="mt-10">
-        <h2 id="lp-cycle-close" className="lp-kicker">
+        <h2 id="lp-cycle-close" className="lp-section">
           {t("cycleClose.region")}
         </h2>
         <CycleCloseLink
@@ -205,7 +203,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
       </section>
 
       <section aria-labelledby="lp-cycle-90" className="mt-10">
-        <h2 id="lp-cycle-90" className="lp-kicker">
+        <h2 id="lp-cycle-90" className="lp-section">
           {t("cycleClose.notes")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("cycleClose.notesLead")}</p>
@@ -216,7 +214,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
             aria-label={t("cycleClose.notes")}
             rows={6}
             defaultValue={c.day90_review_md}
-            className="w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm"
+            className="w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm"
           />
           <Button type="submit" variant="outline" className="mt-2" disabled={busy}>
             {t("state.save")}

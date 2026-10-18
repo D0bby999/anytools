@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { PRE_START_CHECKS, type Brief } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
 
-const box = "mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm";
+const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 export function BriefForm({ brief, busy }: { brief: Brief; busy: boolean }) {
   const { t } = useTranslation("loop");

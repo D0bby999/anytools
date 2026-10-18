@@ -250,7 +250,8 @@ describe("the AnyProfile page", () => {
     version: "1.4.0",
     date: "2026-10-20",
     assets: {
-      "darwin-arm64": { url: "https://github.com/D0bby999/anyprofile/releases/download/v1.4.0/AnyProfile-macos-arm64.zip", sha256: SHA },
+      "darwin-arm64": { url: "https://github.com/D0bby999/anyprofile/releases/download/v1.4.0/AnyProfile-macos-arm64.zip", sha256: "c".repeat(64) },
+      "darwin-arm64-dmg": { url: "https://github.com/D0bby999/anyprofile/releases/download/v1.4.0/AnyProfile-macos-arm64.dmg", sha256: SHA },
       "windows-amd64": { url: "https://github.com/D0bby999/anyprofile/releases/download/v1.4.0/AnyProfile-amd64-installer.exe", sha256: SHA },
     },
   };
@@ -260,7 +261,7 @@ describe("the AnyProfile page", () => {
     await renderRoute(anyprofile, "/vi/anyprofile", "/:locale/anyprofile", { locale: "vi" });
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("AnyProfile");
     const mac = screen.getByRole("link", { name: /Mac/ });
-    expect(mac.getAttribute("href")).toBe(release.assets["darwin-arm64"].url);
+    expect(mac.getAttribute("href")).toBe(release.assets["darwin-arm64-dmg"].url);
     expect(screen.getByText("Phiên bản 1.4.0, phát hành 2026-10-20")).toBeTruthy();
     const sums = screen.getByRole("region", { name: "Mã kiểm tra SHA-256" });
     expect(within(sums).getAllByText(SHA)).toHaveLength(2);
@@ -307,7 +308,7 @@ describe("the merged landing page", () => {
     const Stub = createRoutesStub([{ path: "/", Component: landing.default as never, loader: () => data }]);
     render(<Stub initialEntries={["/"]} />);
     await screen.findByRole("heading", { level: 1 });
-    const tools = screen.getByRole("region", { name: "Free tools, no account" });
+    const tools = screen.getByRole("region", { name: "Appendix: free tools, no account" });
     expect(within(tools).getByRole("link", { name: /Time & Date/ }).getAttribute("href")).toBe("/es/time-date");
     expect(within(tools).getByRole("link", { name: "Browse all tools" }).getAttribute("href")).toBe("/es");
     const nav = screen.getByRole("navigation", { name: "More from AnyTools" });

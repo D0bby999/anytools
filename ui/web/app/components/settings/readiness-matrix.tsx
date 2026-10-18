@@ -71,7 +71,7 @@ export function ReadinessMatrix({
             <h3 className="font-sans text-base font-medium">
               {t(`settings.functions.${row.function}` as never, { defaultValue: row.function })}
               {optional.includes(row.function) ? (
-                <span className="ml-2 font-mono text-2xs font-semibold uppercase tracking-label text-faint">
+                <span className="text-xs font-semibold ml-2 text-faint">
                   {t("readinessExtra.optional")}
                 </span>
               ) : null}

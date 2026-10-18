@@ -27,6 +27,7 @@ import {
   setFeedAutoAdd,
 } from "~/lib/feeds.server";
 import { entryState, type FeedActionData } from "~/lib/feeds-types";
+import { PageHeader } from "~/components/ui/page-header";
 
 /** How often the list refreshes while entries are being added. */
 const POLL_MS = 2500;
@@ -132,18 +133,21 @@ export default function FeedPage({ loaderData }: Route.ComponentProps) {
         {t("feed.back")}
       </Link>
 
-      <p className="mt-2 font-mono text-2xs tracking-label text-faint uppercase">{t(`feed.kind.${feed.kind}`)}</p>
-      <h1 className="font-serif text-2xl font-semibold">{feed.title || feed.url}</h1>
-      <p className="mt-1 truncate font-mono text-2xs text-muted-foreground">
-        <span className="sr-only">{t("feed.source")}: </span>
-        {feed.url}
-      </p>
+      <PageHeader title={feed.title || feed.url} className="mt-2 mb-4">
+        <p className="mt-3 flex min-w-0 items-center gap-3">
+          <span className="lp-tab shrink-0">{t(`feed.kind.${feed.kind}`)}</span>
+          <span className="truncate font-mono text-xs text-muted-foreground">
+            <span className="sr-only">{t("feed.source")}: </span>
+            {feed.url}
+          </span>
+        </p>
+      </PageHeader>
 
       <FeedNotice feed={feed} limits={limits} />
       <FeedControls feed={feed} limits={limits} />
 
       <section aria-labelledby="lp-feed-entries" className="mt-8">
-        <h2 id="lp-feed-entries" className="lp-kicker">
+        <h2 id="lp-feed-entries" className="lp-section">
           {t("feed.entriesLabel")}
         </h2>
         <p className="mt-2 text-xs leading-snug text-muted-foreground">{t("feed.pickHint")}</p>

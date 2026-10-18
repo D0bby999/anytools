@@ -63,7 +63,7 @@ export function StoragePanel({
   return (
     <div className="mt-8 space-y-10">
       <section aria-labelledby="lp-storage-where">
-        <h2 id="lp-storage-where" className="lp-kicker">
+        <h2 id="lp-storage-where" className="lp-section">
           {t("title")}
         </h2>
         <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">{t("lead")}</p>
@@ -91,7 +91,7 @@ export function StoragePanel({
                     <span className="block text-sm font-medium">
                       {o.label}
                       {status.storage === o.value ? (
-                        <span className="ml-2 font-mono text-2xs uppercase text-muted-foreground">{t("choice.current")}</span>
+                        <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("choice.current")}</span>
                       ) : null}
                     </span>
                     <span className="block text-sm text-muted-foreground">{o.hint}</span>
@@ -137,7 +137,7 @@ function Usage({ status }: { status: StorageStatus }) {
   const u = status.usage;
   return (
     <section aria-labelledby="lp-storage-usage" className="border-t pt-6">
-      <h2 id="lp-storage-usage" className="lp-kicker">
+      <h2 id="lp-storage-usage" className="lp-section">
         {t("usage.title")}
       </h2>
       <dl className="mt-3 border-t text-sm">
@@ -168,7 +168,7 @@ function Move({ status, pending, result }: { status: StorageStatus; pending: boo
 
   return (
     <section aria-labelledby="lp-storage-move" className="border-t pt-6">
-      <h2 id="lp-storage-move" className="lp-kicker">
+      <h2 id="lp-storage-move" className="lp-section">
         {t("move.title")}
       </h2>
       <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">{t("move.body")}</p>

@@ -9,7 +9,9 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/more";
-import { NAV_ITEMS } from "~/components/layout/sidebar";
+import { ANYPROFILE_HREF, NAV_ITEMS, TOOLS_ITEM } from "~/components/layout/sidebar";
+import { PARTS } from "~/lib/parts";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -28,40 +30,74 @@ export const TOOL_ITEMS = [
   { to: "/toolkit", labelKey: "toolkit:moreItem" },
 ] as const;
 
+const ROW =
+  "flex min-h-12 items-center gap-3 px-1 py-3 text-base transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
+
+/**
+ * The phone's table of contents: the same order as the rail (Today, the four
+ * parts under their tabs, Settings), then the study tools that have no rail
+ * row, then the tools appendix led by AnyProfile.
+ */
 export default function More() {
   const { t } = useTranslation("common");
+  const item = (n: (typeof NAV_ITEMS)[number]) => (
+    <li key={n.to} className="border-b">
+      <Link to={n.to} className={ROW}>
+        <n.icon aria-hidden="true" className="size-5 text-part" />
+        {t(n.labelKey)}
+      </Link>
+    </li>
+  );
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("more.title")}</h1>
-        <p>{t("more.lead")}</p>
-      </div>
-      <ul className="mt-6 border-t">
-        {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
-          <li key={to} className="border-b">
-            <Link
-              to={to}
-              className="flex min-h-12 items-center gap-3 px-1 py-3 text-base transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            >
-              <Icon aria-hidden="true" className="size-5 text-muted-foreground" />
-              {t(labelKey)}
-            </Link>
-          </li>
-        ))}
+      <PageHeader title={t("more.title")} lede={t("more.lead")} />
+      <ul className="border-t" data-part="home">
+        {NAV_ITEMS.filter((n) => n.to === "/home").map(item)}
       </ul>
-      <h2 className="lp-kicker mt-10">{t("more.toolsTitle")}</h2>
+      {PARTS.map((part) => (
+        <section key={part.id} data-part={part.id} aria-labelledby={`lp-more-${part.id}`} className="mt-8">
+          <h2 id={`lp-more-${part.id}`} className="flex items-center gap-2 font-serif text-lg font-semibold text-part">
+            <span aria-hidden="true" className="lp-tab min-w-7 justify-center">
+              {part.numeral}
+            </span>
+            <span className="sr-only">{t("parts.part", { numeral: part.numeral })}: </span>
+            {t(part.labelKey)}
+          </h2>
+          <ul className="mt-2 border-t">{NAV_ITEMS.filter((n) => n.part === part.id).map(item)}</ul>
+        </section>
+      ))}
+      <ul className="mt-8 border-t" data-part="home">
+        {NAV_ITEMS.filter((n) => n.to === "/settings").map(item)}
+      </ul>
+
+      <h2 className="lp-section mt-10">{t("more.toolsTitle")}</h2>
       <ul className="mt-3 border-t">
         {TOOL_ITEMS.map(({ to, labelKey }) => (
           <li key={to} className="border-b">
-            <Link
-              to={to}
-              className="flex min-h-12 items-center px-1 py-3 text-base transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            >
+            <Link to={to} className={ROW}>
               {t(labelKey)}
             </Link>
           </li>
         ))}
       </ul>
+
+      <section data-part="tools" aria-labelledby="lp-more-appendix" className="mt-10">
+        <h2 id="lp-more-appendix" className="lp-section text-part">
+          {t("appendix.title")}
+        </h2>
+        <a
+          href={ANYPROFILE_HREF}
+          className="mt-3 block rounded-lg border border-foreground bg-foreground p-5 text-background transition-colors hover:border-primary hover:bg-primary"
+        >
+          <span className="text-xs font-semibold tracking-label uppercase opacity-80">{t("appendix.anyprofile.kind")}</span>
+          <span className="mt-1 block font-serif text-2xl font-semibold">{t("appendix.anyprofile.title")}</span>
+          <span className="mt-1 block text-sm opacity-90">{t("appendix.anyprofile.tagline")}</span>
+        </a>
+        <a href={TOOLS_ITEM.to} className={`${ROW} mt-2 border-b`}>
+          <TOOLS_ITEM.icon aria-hidden="true" className="size-5 text-part" />
+          {t("appendix.all")}
+        </a>
+      </section>
     </div>
   );
 }

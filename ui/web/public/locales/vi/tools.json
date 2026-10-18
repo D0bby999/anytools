@@ -215,5 +215,21 @@
   "error": {
     "title": "Đã có lỗi",
     "description": "Không hiển thị được trang này. Hãy tải lại để thử lại."
+  },
+  "feature": {
+    "anyprofile": {
+      "title": "AnyProfile",
+      "kind": "Ứng dụng máy tính",
+      "tagline": "Mỗi tài khoản một trình duyệt, chạy song song.",
+      "badge": "Miễn phí · Mã nguồn mở · Beta",
+      "body": "AnyProfile là ứng dụng máy tính miễn phí cho nhà sáng tạo và người bán hàng dùng nhiều tài khoản TikTok, YouTube, Shopee hay Amazon. Mỗi profile là một trình duyệt riêng, có cookie riêng, proxy riêng và fingerprint thiết bị nhất quán, nên các phiên đăng nhập không bao giờ lẫn vào nhau.",
+      "cta": "Tải AnyProfile"
+    },
+    "study": {
+      "title": "AnyTools trước hết là một ứng dụng học",
+      "body": "Tải lên tài liệu bạn đang học. Nhận câu trả lời trích đúng trang, câu hỏi luyện tập viết từ chính tài liệu đó, và lịch ôn đúng lúc bạn sắp quên, chạy trên tài khoản AI của chính bạn.",
+      "cta": "Mở ứng dụng học"
+    },
+    "appendix": "Phụ lục"
   }
 }

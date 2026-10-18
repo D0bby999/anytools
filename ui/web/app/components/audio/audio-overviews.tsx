@@ -42,7 +42,7 @@ export function AudioOverviews({
 
   return (
     <section aria-labelledby="lp-audio-title" className="mt-10">
-      <h2 id="lp-audio-title" className="lp-kicker">
+      <h2 id="lp-audio-title" className="lp-section">
         {t("audio.title")}
       </h2>
       <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("audio.lead")}</p>
@@ -72,7 +72,7 @@ function NewOverview({ kbId, reportId }: { kbId?: string; reportId?: string }) {
       {reportId ? <input type="hidden" name="reportId" value={reportId} /> : null}
       <label className="text-sm">
         <span className="block font-medium">{t("audio.minutes")}</span>
-        <select name="minutes" defaultValue="5" className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3">
+        <select name="minutes" defaultValue="5" className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3">
           {[3, 5, 10, 15].map((m) => (
             <option key={m} value={m}>
               {t("audio.minutesValue", { count: m })}
@@ -82,7 +82,7 @@ function NewOverview({ kbId, reportId }: { kbId?: string; reportId?: string }) {
       </label>
       <label className="text-sm">
         <span className="block font-medium">{t("audio.language")}</span>
-        <select name="language" defaultValue="" className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3">
+        <select name="language" defaultValue="" className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3">
           <option value="">{t("audio.languageAuto")}</option>
           <option value="en">English</option>
           <option value="vi">Tiếng Việt</option>
@@ -95,7 +95,7 @@ function NewOverview({ kbId, reportId }: { kbId?: string; reportId?: string }) {
             name="topic"
             maxLength={200}
             placeholder={t("audio.topicPlaceholder")}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
           />
         </label>
       ) : null}

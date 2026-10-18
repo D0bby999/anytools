@@ -30,17 +30,22 @@
     "sources": {
       "title": "Sources",
       "empty": "Nothing is cited yet. When an answer quotes one of your documents, the passage and its page number appear here, so you can check the claim against the original instead of trusting the summary."
+    },
+    "margin": {
+      "title": "In the margin",
+      "practise": "A point you get wrong comes back the same day. A point you know comes back just before you would forget it. Mastery is counted from answers, never from time spent.",
+      "reflect": "Five minutes to start, fourteen days to test one change, ninety days to decide whether to keep it. The loop only moves on evidence you have already recorded.",
+      "home": "AnyTools runs on your own AI accounts and answers only from documents you give it. Nothing here is a plan or a credit balance."
     }
   },
   "home": {
-    "title": "AnyTools answers only from documents you give it.",
-    "lead": "That is the whole product, and it is also the whole limit. Until you connect an AI account and add a document, there is nothing for AnyTools to read and nothing it can prove.",
+    "lead": "Choose one thing to do first, then decide how far to go.",
     "body": "Every answer it does give carries the passage it came from, down to the page. The same rule holds for progress later on: a quiz result, a mastery level or a finished cycle has to point at the work that earned it.",
     "next": {
       "title": "What comes first",
       "provider": {
         "title": "Connect an AI account",
-        "body": "AnyTools runs on your own AI account — Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral and more. There are no platform keys, so nothing runs until one of yours is connected."
+        "body": "AnyTools runs on your own AI account: Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral and more. There are no platform keys, so nothing runs until one of yours is connected."
       },
       "documents": {
         "title": "Add your documents",
@@ -53,7 +58,7 @@
       "status": "The card below says what AnyTools can do with the accounts you have connected so far, and what is still missing."
     },
     "due": {
-      "title": "Due now",
+      "title": "Due for review",
       "none": "Nothing is due. Points you get wrong come back the same day; points you know come back later, when you are about to forget them.",
       "count": "{{count}} knowledge point is due for review.",
       "count_other": "{{count}} knowledge points are due for review.",
@@ -63,12 +68,35 @@
       "openRetests": "Open the learning loop",
       "mistakes": "{{count}} mistake is waiting to be practised.",
       "mistakes_other": "{{count}} mistakes are waiting to be practised.",
-      "openMistakes": "Practise your mistakes"
+      "openMistakes": "Practise your mistakes",
+      "total": "{{count}} thing is waiting for you.",
+      "total_other": "{{count}} things are waiting for you.",
+      "clear": "Nothing is waiting. Points you get wrong come back the same day; points you know come back just before you would forget them.",
+      "review": "Start review"
     },
     "loop": {
       "title": "Learning loop",
       "body": "Set one goal, and let your quiz answers, notes and weekly reviews show whether it is moving.",
       "open": "Open the learning loop"
+    },
+    "claim": "AnyTools answers only from documents you give it.",
+    "title": "Today",
+    "noGoal": {
+      "title": "No goal yet",
+      "body": "Write one goal and the smallest task that moves it. The loop keeps the evidence for you.",
+      "open": "Set a goal"
+    },
+    "contents": {
+      "title": "Contents"
+    },
+    "margin": {
+      "title": "In the margin",
+      "path": [
+        "Five minutes to start.",
+        "Fourteen days to test one change.",
+        "Ninety days to decide whether to keep it."
+      ],
+      "pathLabel": "The pace this book keeps"
     }
   },
   "errors": {
@@ -77,7 +105,7 @@
   },
   "settings": {
     "title": "Settings",
-    "lead": "AnyTools runs on your own AI accounts. There are no platform keys and no credits, so nothing here is a plan or an upgrade — it is which of your accounts does which job.",
+    "lead": "AnyTools runs on your own AI accounts. There are no platform keys and no credits, so nothing here is a plan or an upgrade. It is which of your accounts does which job.",
     "nav": {
       "label": "Settings sections",
       "connections": "Connections",
@@ -92,7 +120,7 @@
       "attention": "Needs attention",
       "blocked": "Blocked",
       "allReady": "Every core capability has a connection that answers. Documents can be read, indexed and asked about.",
-      "notReady": "Something core is missing. Until it is fixed, the affected parts of AnyTools cannot run at all — they will not quietly fall back to anything.",
+      "notReady": "Something core is missing. Until it is fixed, the affected parts of AnyTools cannot run at all. They will not quietly fall back to anything.",
       "unavailable": "AnyTools could not reach its API just now, so it cannot say what is ready.",
       "manage": "Open Settings"
     },
@@ -124,7 +152,7 @@
     },
     "connections": {
       "addTitle": "Add a key",
-      "addBody": "Paste a key from Google AI Studio, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen (Alibaba Cloud), Mistral, xAI, Groq or Z.AI — or the base URL of any OpenAI-compatible endpoint. The key is encrypted before it is stored and is never shown again, here or anywhere else.",
+      "addBody": "Paste a key from Google AI Studio, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen (Alibaba Cloud), Mistral, xAI, Groq or Z.AI, or the base URL of any OpenAI-compatible endpoint. The key is encrypted before it is stored and is never shown again, here or anywhere else.",
       "provider": "Provider",
       "name": "Name",
       "namePlaceholder": "What you will call this key",
@@ -174,7 +202,7 @@
     "routes": {
       "lead": "Each capability runs on the connections you list, in order: if the first is out of quota or refuses, AnyTools tries the next. Leave a position empty to end the chain.",
       "noConnections": "There is nothing to route yet. Add a key under Connections first.",
-      "none": "— none —",
+      "none": "None",
       "connectionAt": "Connection at position {{position}}",
       "modelAt": "Model at position {{position}}",
       "modelPlaceholder": "Leave empty for the default",
@@ -182,7 +210,7 @@
       "editorsTitle": "Chains"
     },
     "search": {
-      "lead": "Research can read the web as well as your documents, using a search key of your own. There is no shared key: without one, research still works — it just answers from your documents only. An OpenAlex key is optional and only for scholarly papers: without one, AnyTools uses OpenAlex's free daily allowance, shared by everyone on this server.",
+      "lead": "Research can read the web as well as your documents, using a search key of your own. There is no shared key: without one, research still works; it just answers from your documents only. An OpenAlex key is optional and only for scholarly papers: without one, AnyTools uses OpenAlex's free daily allowance, shared by everyone on this server.",
       "provider": "Search provider",
       "key": "API key",
       "save": "Save key",
@@ -193,7 +221,7 @@
     },
     "experimental": {
       "title": "Experimental subscription lanes",
-      "warning": "These lanes are unofficial. They make AnyTools sign in as software the provider made for your own machine — the ChatGPT and Codex CLI, VS Code's Copilot extension, Claude Code, the Gemini tools — which none of OpenAI, GitHub, Anthropic or Google licenses for use through another app. Your account may be restricted or closed as a result. The Gemini lane also asks for broad Google Cloud access, so the token stored here can reach far more than AI. An ordinary API key is the reliable choice; use these only if you accept that.",
+      "warning": "These lanes are unofficial. They make AnyTools sign in as software the provider made for your own machine (the ChatGPT and Codex CLI, VS Code's Copilot extension, Claude Code, the Gemini tools), which none of OpenAI, GitHub, Anthropic or Google licenses for use through another app. Your account may be restricted or closed as a result. The Gemini lane also asks for broad Google Cloud access, so the token stored here can reach far more than AI. An ordinary API key is the reliable choice; use these only if you accept that.",
       "connect": "Connect",
       "chatgpt": {
         "title": "ChatGPT subscription (relay)",
@@ -217,7 +245,7 @@
         "start": "Start sign-in",
         "enterCode": "Enter this code at",
         "codeLabel": "Code to enter on GitHub",
-        "finish": "I approved it — finish"
+        "finish": "I approved it. Finish"
       },
       "claude": {
         "title": "Claude Pro or Max",
@@ -301,9 +329,9 @@
     }
   },
   "landing": {
-    "title": "Study from your own documents, and check every answer against the page it came from.",
-    "lead": "AnyTools is free tools that run in your browser with no account, and a study app for what you are learning. Upload the material you are learning from, and AnyTools answers questions about it with citations that open the exact page, writes quizzes from it, schedules what you are about to forget, and keeps a 90-day record of what you can actually do — all on the AI accounts you already pay for.",
-    "cta": "Sign in to start",
+    "title": "Study from your own documents.",
+    "lead": "AnyTools is free tools that run in your browser with no account, and a study app for what you are learning. Upload the material you are learning from, and AnyTools answers questions about it with citations that open the exact page, writes quizzes from it, schedules what you are about to forget, and keeps a 90-day record of what you can actually do, all on the AI accounts you already pay for.",
+    "cta": "Start studying",
     "ctaNote": "Free. Google or GitHub sign-in; no password.",
     "whatTitle": "What it does",
     "points": {
@@ -321,14 +349,14 @@
       },
       "evidence": {
         "title": "Progress backed by evidence",
-        "body": "A 90-day learning loop moves forward only when quiz results, reviews and notes show it should — not when a box is ticked."
+        "body": "A 90-day learning loop moves forward only when quiz results, reviews and notes show it should, not when a box is ticked."
       }
     },
     "notTitle": "What it will not do",
-    "notBody": "AnyTools does not answer from its own general knowledge when your documents are silent; it says they do not cover the question. It does not keep streaks, points or badges. And it cannot promise that a file never reaches an AI provider — reading a document means sending it to the model you chose, and every document shows which one read it.",
+    "notBody": "AnyTools does not answer from its own general knowledge when your documents are silent; it says they do not cover the question. It does not keep streaks, points or badges. And it cannot promise that a file never reaches an AI provider: reading a document means sending it to the model you chose, and every document shows which one read it.",
     "footer": "AnyTools is in early access. Your documents and connected accounts stay yours; you can remove any of them at any time.",
     "tools": {
-      "title": "Free tools, no account",
+      "title": "Appendix: free tools, no account",
       "body": "More than a hundred everyday tools: formatters, encoders, converters, calculators, and PDF and image tools. They run in your browser, need no sign-in, and come in English, Vietnamese, Spanish and Portuguese.",
       "count_one": "{{count}} tool",
       "count_other": "{{count}} tools",
@@ -343,6 +371,15 @@
       "terms": "Terms",
       "contact": "Contact",
       "source": "Source code"
+    },
+    "subtitle": "Check every answer against the page it came from.",
+    "lede": "Answers that cite the page, quizzes written from your material, and reviews timed to just before you forget.",
+    "contentsTitle": "What is inside",
+    "nav": {
+      "tools": "Tools",
+      "guides": "Guides",
+      "signIn": "Sign in",
+      "label": "Site"
     }
   },
   "more": {
@@ -438,5 +475,34 @@
     "reconnectLink": "Reconnect Google Drive",
     "removed": "This file was removed from your Drive. Upload it again to put it back, or delete it from AnyTools. Search still uses its text.",
     "full": "Your Google Drive is full, so this file was not kept. Free some space in your Drive and try again."
+  },
+  "parts": {
+    "part": "Part {{numeral}}",
+    "read": {
+      "title": "Read",
+      "body": "Your documents, notebooks and living books."
+    },
+    "ask": {
+      "title": "Ask",
+      "body": "Answers with citations, worked solutions and research reports."
+    },
+    "practise": {
+      "title": "Practise",
+      "body": "Quizzes, exams and spaced review, until a point stays."
+    },
+    "reflect": {
+      "title": "Reflect",
+      "body": "One goal, the evidence that it is moving, and worksheets."
+    }
+  },
+  "appendix": {
+    "title": "Appendix: tools",
+    "anyprofile": {
+      "title": "AnyProfile",
+      "kind": "Desktop app",
+      "tagline": "One browser per account, side by side.",
+      "open": "Download"
+    },
+    "all": "All free tools"
   }
 }

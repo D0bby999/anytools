@@ -29,6 +29,7 @@ import { SolutionView, type FollowUpResult } from "~/components/solve/solution-v
 import { StageList } from "~/components/research/stage-list";
 import { ToolActivityPanel } from "~/components/chat/tool-activity";
 import { RightPanel } from "~/components/layout/right-panel";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Solve · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -142,10 +143,7 @@ export default function Solve({ loaderData }: Route.ComponentProps) {
     <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
       <div className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
         <div className="lp-measure">
-          <div className="lp-prose">
-            <h1>{t("title")}</h1>
-            <p>{t("lead")}</p>
-          </div>
+          <PageHeader title={t("title")} lede={t("lead")} />
 
           <div className="mt-8">
             <SolveForm

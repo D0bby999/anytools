@@ -40,7 +40,7 @@ export function WeekCard({
       <Metric label={t("week.scored", { week: review.week_no })} value={`${done}/4`} cannotProve={cannotProve} />
       <p className="mt-2 text-sm text-muted-foreground">
         {scored.map(scoreText).join(" · ")}
-        {review.writeback_done ? ` — ${t("week.writtenBack")}` : ""}
+        {review.writeback_done ? ` · ${t("week.writtenBack")}` : ""}
       </p>
       <Link
         to={`/loop/review/${review.id}`}

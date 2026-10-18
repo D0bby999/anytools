@@ -14,8 +14,8 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function AuthLayout() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-10 lg:px-8">
+      <div className="w-full max-w-5xl">
         <Outlet />
       </div>
     </div>

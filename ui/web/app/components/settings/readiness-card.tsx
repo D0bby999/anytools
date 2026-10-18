@@ -25,7 +25,7 @@ export function ReadinessCard({ readiness }: { readiness: Readiness | null }) {
     // from an absence of bad news.
     return (
       <section aria-labelledby="lp-readiness" className="mt-8 rounded-lg border bg-card p-5">
-        <h2 id="lp-readiness" className="lp-kicker">
+        <h2 id="lp-readiness" className="lp-section">
           {t("settings.readiness.title")}
         </h2>
         <p className="mt-2 text-sm leading-prose text-muted-foreground">
@@ -46,7 +46,7 @@ export function ReadinessCard({ readiness }: { readiness: Readiness | null }) {
   return (
     <section aria-labelledby="lp-readiness" className="mt-8 rounded-lg border bg-card p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="lp-readiness" className="lp-kicker">
+        <h2 id="lp-readiness" className="lp-section">
           {t("settings.readiness.title")}
         </h2>
         <StatusPill status={readiness.core} label={statusLabel} />
@@ -61,7 +61,7 @@ export function ReadinessCard({ readiness }: { readiness: Readiness | null }) {
       <ul className="mt-3 space-y-1">
         {core.map((row) => (
           <li key={row.function} className="flex flex-wrap items-baseline gap-2 text-sm">
-            <span className="w-16 font-sans text-foreground">
+            <span className="w-32 shrink-0 font-sans font-medium text-foreground">
               {t(`settings.functions.${row.function}` as never, { defaultValue: row.function })}
             </span>
             <span className="text-muted-foreground">

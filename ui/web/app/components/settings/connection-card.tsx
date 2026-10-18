@@ -124,7 +124,7 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
               name="secret"
               required
               autoComplete="off"
-              className="h-10 w-72 max-w-full rounded-md border bg-sunken px-3 font-mono text-sm"
+              className="h-10 w-72 max-w-full rounded-md border bg-card px-3 font-mono text-sm"
             />
           </label>
           <Button type="submit" variant="outline" size="sm" disabled={busy}>

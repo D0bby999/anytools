@@ -20,6 +20,7 @@ import { addNote, compileChapter, getBook, getChapter, regenerateBlock, setInRev
 import { Button } from "~/components/ui/button";
 import { BlockView } from "~/components/book/block-view";
 import { ChapterState } from "~/components/book/chapter-list";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
@@ -100,11 +101,14 @@ export default function ChapterPage({ loaderData }: Route.ComponentProps) {
         <ArrowLeft aria-hidden="true" className="size-4" />
         {book.title}
       </Link>
-      <p className="lp-kicker mt-2">{t("chapter.kicker", { n: chapter.ord })}</p>
-      <h1 className="mt-1 font-serif text-2xl font-semibold">{chapter.title}</h1>
-      <p className="mt-1 font-mono text-2xs text-muted-foreground">
-        <ChapterState chapter={chapter} />
-      </p>
+      {/* The chapter's position is the numeral; the sentence form stays for
+          screen readers, which the numeral is hidden from. */}
+      <PageHeader title={chapter.title} numeral={chapter.ord} className="mt-2 mb-4">
+        <p className="sr-only">{t("chapter.kicker", { n: chapter.ord })}</p>
+        <p className="mt-2 font-mono text-xs text-muted-foreground">
+          <ChapterState chapter={chapter} />
+        </p>
+      </PageHeader>
       {chapter.objectives.length > 0 ? (
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-prose text-muted-foreground">
           {chapter.objectives.map((o, i) => (
@@ -233,7 +237,7 @@ function NoteForm() {
           name="markdown"
           rows={3}
           maxLength={5000}
-          className="mt-2 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose"
+          className="mt-2 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose"
         />
       </label>
       <Button type="submit" variant="outline" size="sm" className="mt-2" disabled={fetcher.state !== "idle"}>

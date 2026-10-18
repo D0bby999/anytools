@@ -26,7 +26,7 @@ export function CardList({ cards, kinds, diagnostic }: CardListProps) {
   const { t } = useTranslation("loop");
   const status = useStatusLabels();
   const names = new Map(kinds.map((k) => [k.kind, k.name]));
-  if (cards.length === 0) return <p className="mt-3 text-sm text-muted-foreground">{t("cards.none")}</p>;
+  if (cards.length === 0) return <p className="mt-3 lp-empty">{t("cards.none")}</p>;
   return (
     <>
       {diagnostic && needsDiagnostic(diagnostic, cards.map((c) => c.kind)) ? (
@@ -37,7 +37,7 @@ export function CardList({ cards, kinds, diagnostic }: CardListProps) {
           <li key={c.id} className="border-b">
             <Link to={`/loop/cards/${c.id}`} className={row}>
               <span className="text-sm font-medium">{c.title}</span>
-              <span className="font-mono text-2xs uppercase tracking-wide text-faint">
+              <span className="text-xs font-semibold text-faint">
                 {names.get(c.kind) ?? c.kind} · {status[c.status] ?? c.status}
                 {c.status === "retest_due" ? ` · ${t("cards.dueOn", { date: c.retest_due_on })}` : ""}
               </span>
@@ -52,14 +52,14 @@ export function CardList({ cards, kinds, diagnostic }: CardListProps) {
 export function RetestsDueList({ retests, kinds }: { retests: RetestDue[]; kinds: CardKind[] }) {
   const { t } = useTranslation("loop");
   const names = new Map(kinds.map((k) => [k.kind, k.name]));
-  if (retests.length === 0) return <p className="mt-3 text-sm text-muted-foreground">{t("cards.retests.none")}</p>;
+  if (retests.length === 0) return <p className="mt-3 lp-empty">{t("cards.retests.none")}</p>;
   return (
     <ul className="mt-3 border-t">
       {retests.map((r) => (
         <li key={r.card_id} className="border-b">
           <Link to={`/loop/cards/${r.card_id}`} className={row} aria-label={`${t("cards.retests.open")}: ${r.title}`}>
             <span className="text-sm font-medium">{r.title}</span>
-            <span className="font-mono text-2xs uppercase tracking-wide text-faint">
+            <span className="text-xs font-semibold text-faint">
               {names.get(r.kind) ?? r.kind} · {t("cards.dueOn", { date: r.retest_due_on })}
             </span>
           </Link>

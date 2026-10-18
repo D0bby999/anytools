@@ -3,7 +3,7 @@
  * `/{locale}/{cluster}`: one cluster's tools, then the prose on choosing
  * between them. A cluster with no published tool here is a 404.
  */
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/public.cluster";
 import { ToolRows } from "~/components/tools-site/tool-rows";
@@ -72,14 +72,22 @@ export default function ClusterPage() {
 
   return (
     <div className="lp-layout px-4 py-8 lg:px-6 lg:py-12">
-      <div className="lp-prose max-w-(--lp-measure-read)">
-        <h1>{t(`catalog.cluster.${cluster}`)}</h1>
-        <p className="text-lg">{t(`clusterLanding.${cluster}.tagline`)}</p>
-        <p>{t(`clusterLanding.${cluster}.intro`)}</p>
-      </div>
+      <nav aria-label={t("tool.breadcrumb")} className="text-sm text-muted-foreground">
+        <Link to={`/${locale}`} className="inline-flex min-h-11 items-center gap-2 hover:text-foreground">
+          <span aria-hidden="true" className="lp-tab">
+            {t("feature.appendix")}
+          </span>
+          {t("nav.tools")}
+        </Link>
+      </nav>
+      <header className="lp-page-enter mt-2 max-w-(--lp-measure-read)">
+        <h1 className="text-3xl leading-tight lg:text-4xl">{t(`catalog.cluster.${cluster}`)}</h1>
+        <p className="mt-3 text-lg leading-snug text-muted-foreground">{t(`clusterLanding.${cluster}.tagline`)}</p>
+        <p className="mt-3 font-serif leading-prose">{t(`clusterLanding.${cluster}.intro`)}</p>
+      </header>
 
-      <section aria-labelledby="cluster-tools" className="mt-8">
-        <h2 id="cluster-tools" className="lp-kicker mb-3">
+      <section aria-labelledby="cluster-tools" className="mt-10">
+        <h2 id="cluster-tools" className="lp-section mb-4 text-xl">
           {t("clusterLanding.toolCount", { count: tools.length })}
         </h2>
         <ToolRows locale={locale} tools={tools} />
@@ -87,7 +95,7 @@ export default function ClusterPage() {
 
       {body.length > 0 && (
         <section aria-labelledby="cluster-body" className="mt-12 max-w-(--lp-measure-read)">
-          <h2 id="cluster-body" className="lp-kicker">
+          <h2 id="cluster-body" className="lp-section">
             {t("clusterLanding.bodyHeading")}
           </h2>
           <div className="lp-prose">

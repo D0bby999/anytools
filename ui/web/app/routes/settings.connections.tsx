@@ -206,7 +206,7 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
       {driveNotice ? <DriveNoticeLine notice={driveNotice} /> : null}
 
       <section aria-labelledby="lp-add-key">
-        <h2 id="lp-add-key" className="lp-kicker">
+        <h2 id="lp-add-key" className="lp-section">
           {t("settings.connections.addTitle")}
         </h2>
         <p className="mt-2 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
@@ -266,7 +266,7 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
       </section>
 
       <section aria-labelledby="lp-connected" className="mt-10">
-        <h2 id="lp-connected" className="lp-kicker">
+        <h2 id="lp-connected" className="lp-section">
           {t("settings.connections.connectedTitle")}
         </h2>
 

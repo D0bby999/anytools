@@ -20,7 +20,7 @@ export function OwnVersionSetting({
   const { t } = useTranslation("ownversion");
   return (
     <section aria-labelledby="lp-account-own" className="border-t pt-6">
-      <h2 id="lp-account-own" className="lp-kicker">
+      <h2 id="lp-account-own" className="lp-section">
         {t("settings.title")}
       </h2>
       <p id="lp-account-own-body" className="mt-3 text-sm leading-prose text-muted-foreground">

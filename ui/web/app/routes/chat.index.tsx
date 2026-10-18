@@ -14,6 +14,14 @@ import { requireUserId } from "~/lib/auth.server";
 import { createSession, deleteSession, listSessions } from "~/lib/chat.server";
 import { Button } from "~/components/ui/button";
 import { requireUUID } from "~/lib/turns";
+import { PageHeader } from "~/components/ui/page-header";
+
+export function meta(_: Route.MetaArgs) {
+  return [
+    { title: "Chat · AnyTools" },
+    { name: "robots", content: "noindex, nofollow" },
+  ];
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   const userId = await requireUserId(request);
@@ -42,26 +50,29 @@ export default function ChatIndex({ loaderData }: Route.ComponentProps) {
   const busy = navigation.state !== "idle";
 
   return (
-    <div className="max-w-(--lp-measure-read)">
-      <h1 className="font-serif text-2xl">{t("chat.title")}</h1>
-      <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("chat.lead")}</p>
-
-      <Form method="post" className="mt-5">
-        <Button type="submit" disabled={busy}>
-          <MessageSquarePlus aria-hidden="true" />
-          {t("chat.new")}
-        </Button>
-      </Form>
+    <div className="lp-measure">
+      <PageHeader
+        title={t("chat.title")}
+        lede={t("chat.lead")}
+        actions={
+          <Form method="post">
+            <Button type="submit" disabled={busy}>
+              <MessageSquarePlus aria-hidden="true" />
+              {t("chat.new")}
+            </Button>
+          </Form>
+        }
+      />
 
       {loaderData.sessions.length === 0 ? (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">{t("chat.noSessions")}</p>
+        <p className="lp-empty">{t("chat.noSessions")}</p>
       ) : (
-        <ul className="mt-8 divide-y border-y">
+        <ul className="divide-y border-y">
           {loaderData.sessions.map((session) => (
-            <li key={session.id} className="flex items-center gap-3 py-3">
+            <li key={session.id} className="flex items-center gap-3 py-2">
               <Link
                 to={`/chat/${session.id}`}
-                className="min-w-0 flex-1 truncate text-sm hover:underline"
+                className="min-h-11 min-w-0 flex-1 truncate py-2.5 font-serif text-lg hover:text-primary hover:underline"
               >
                 {session.title || t("chat.untitled")}
               </Link>

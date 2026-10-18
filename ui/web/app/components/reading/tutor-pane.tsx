@@ -37,7 +37,7 @@ export function TutorPane({
   const { t } = useTranslation("reading");
 
   if (exchanges.length === 0 && !failure) {
-    return <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("tutor.empty")}</p>;
+    return <p className="mt-3 lp-empty">{t("tutor.empty")}</p>;
   }
 
   return (

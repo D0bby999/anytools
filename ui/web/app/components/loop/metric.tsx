@@ -15,7 +15,7 @@ export function CannotProve({ children, className }: { children: string; classNa
   const { t } = useTranslation("loop");
   return (
     <p className={cn("text-xs leading-snug text-muted-foreground", className)}>
-      <span className="font-mono text-2xs font-semibold uppercase tracking-wide text-faint">
+      <span className="text-xs font-semibold text-faint">
         {t("cannotProve.label")}
       </span>{" "}
       {children}

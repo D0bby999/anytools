@@ -130,7 +130,7 @@ export function EntryPicker({ feedId, entries, limits }: { feedId: string; entri
   }, [fetcher.data]);
 
   if (entries.length === 0) {
-    return <p className="mt-3 text-sm text-muted-foreground">{t("feed.noEntries")}</p>;
+    return <p className="mt-3 lp-empty">{t("feed.noEntries")}</p>;
   }
   const queued = entries.filter((e) => entryState(e) === "queued").length;
   const full = picked.size >= limits.max_pick;

@@ -105,7 +105,7 @@ describe("QuestionCard", () => {
 
     await userEvent.click(screen.getByLabelText(/In the retrieved passages/));
     await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
-    await userEvent.click(await screen.findByRole("button", { name: "I was right — count it" }));
+    await userEvent.click(await screen.findByRole("button", { name: "I was right. Count it" }));
 
     await screen.findByText(/you corrected the marking/);
     expect(posts[1]).toMatchObject({ intent: "override", attemptId: "a1", isCorrect: "true" });

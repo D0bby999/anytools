@@ -270,7 +270,7 @@ export function VideoViewer({
 
       {timed && chosen && !hidden ? (
         <section aria-labelledby="lp-video-ask" className="space-y-2">
-          <h2 id="lp-video-ask" className="lp-kicker">
+          <h2 id="lp-video-ask" className="lp-section">
             {t("video.about", { time: formatClock(moment ?? chosen.start) })}
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -299,7 +299,7 @@ export function VideoViewer({
       ) : null}
 
       {timed ? (
-        <div role="tablist" aria-label={t("video.views")} className="flex gap-1 border-b">
+        <div role="tablist" aria-label={t("video.views")} className="flex flex-wrap gap-1 border-b pb-2">
           {tabs.map((v) => (
             <button
               key={v}
@@ -309,7 +309,7 @@ export function VideoViewer({
               aria-selected={tab === v}
               aria-controls={`lp-video-panel-${v}`}
               onClick={() => setTab(v)}
-              className="-mb-px inline-flex min-h-11 items-center border-b-2 border-transparent px-3 text-sm transition-colors aria-selected:border-primary aria-selected:font-medium hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+              className="inline-flex min-h-11 items-center rounded-md border border-transparent px-4 text-sm text-muted-foreground transition-colors hover:bg-hover hover:text-foreground aria-selected:border-primary-line aria-selected:bg-selected aria-selected:font-semibold aria-selected:text-selected-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             >
               {v === "notes" ? t("video.notes.title") : v === "transcript" ? t("video.transcript") : tl("tab")}
             </button>
@@ -330,7 +330,7 @@ export function VideoViewer({
         hidden={timed ? tab !== "transcript" || hidden : hidden}
       >
         {timed ? null : (
-          <h2 id="lp-video-transcript" className="lp-kicker">
+          <h2 id="lp-video-transcript" className="lp-section">
             {t("video.transcript")}
           </h2>
         )}
@@ -387,7 +387,7 @@ export function VideoViewer({
           hidden={timed && tab !== "listening"}
         >
           {timed ? null : (
-            <h2 id="lp-video-listening" className="lp-kicker mb-3">
+            <h2 id="lp-video-listening" className="lp-section mb-3">
               {tl("tab")}
             </h2>
           )}

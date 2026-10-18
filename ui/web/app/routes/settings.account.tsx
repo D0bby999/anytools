@@ -108,7 +108,7 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
   return (
     <div className="mt-8 space-y-10">
       <section aria-labelledby="lp-account-who">
-        <h2 id="lp-account-who" className="lp-kicker">
+        <h2 id="lp-account-who" className="lp-section">
           {t("settings.account.signedIn")}
         </h2>
         <p className="mt-3 text-sm">
@@ -118,7 +118,7 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
       </section>
 
       <section aria-labelledby="lp-account-zone" className="border-t pt-6">
-        <h2 id="lp-account-zone" className="lp-kicker">
+        <h2 id="lp-account-zone" className="lp-section">
           {t("settings.account.zoneTitle")}
         </h2>
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("settings.account.zoneBody")}</p>
@@ -136,7 +136,7 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
               autoComplete="off"
               spellCheck={false}
               defaultValue={loaderData.timezone}
-              className="mt-1 min-h-11 w-full max-w-sm rounded-md border border-control-border bg-background px-3 text-sm"
+              className="mt-1 min-h-11 w-full max-w-sm rounded-md border border-control-border bg-card px-3 text-sm"
             />
             <datalist id="lp-account-zone-list">
               {zones.map((z) => (
@@ -168,7 +168,7 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
       />
 
       <section aria-labelledby="lp-account-delete" className="border-t pt-6">
-        <h2 id="lp-account-delete" className="lp-kicker">
+        <h2 id="lp-account-delete" className="lp-section">
           {t("settings.account.deleteTitle")}
         </h2>
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("settings.account.deleteBody")}</p>
@@ -184,7 +184,7 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
               name="confirm"
               required
               autoComplete="off"
-              className="mt-1 min-h-11 w-full max-w-sm rounded-md border border-control-border bg-background px-3 text-sm"
+              className="mt-1 min-h-11 w-full max-w-sm rounded-md border border-control-border bg-card px-3 text-sm"
             />
           </div>
           <Button type="submit" variant="destructive" disabled={navigation.state !== "idle"}>

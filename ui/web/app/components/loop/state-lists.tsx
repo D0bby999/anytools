@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import type { StateDetail } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
 
-const input = "min-h-11 flex-1 rounded-md border border-control-border bg-background px-3 text-sm";
+const input = "min-h-11 flex-1 rounded-md border border-control-border bg-card px-3 text-sm";
 const row = "flex min-h-11 items-baseline justify-between gap-x-4 py-3 transition-colors hover:bg-primary-soft";
 
 function NewForm({ intent, name, label, submit, busy }: {
@@ -31,11 +31,11 @@ export function StateLists({ detail, busy }: { detail: StateDetail; busy: boolea
   return (
     <>
       <section aria-labelledby="lp-state-hyp" className="mt-10">
-        <h2 id="lp-state-hyp" className="lp-kicker">
+        <h2 id="lp-state-hyp" className="lp-section">
           {t("state.hypotheses")}
         </h2>
         {state.hypotheses.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("state.noHypotheses")}</p>
+          <p className="mt-3 lp-empty">{t("state.noHypotheses")}</p>
         ) : (
           <ul className="mt-3 border-t">
             {state.hypotheses.map((h, i) => (
@@ -65,7 +65,7 @@ export function StateLists({ detail, busy }: { detail: StateDetail; busy: boolea
       </section>
 
       <section aria-labelledby="lp-state-chains" className="mt-10">
-        <h2 id="lp-state-chains" className="lp-kicker">
+        <h2 id="lp-state-chains" className="lp-section">
           {t("chain.title")}
         </h2>
         <ul className="mt-3 border-t">
@@ -81,7 +81,7 @@ export function StateLists({ detail, busy }: { detail: StateDetail; busy: boolea
       </section>
 
       <section aria-labelledby="lp-state-briefs" className="mt-10">
-        <h2 id="lp-state-briefs" className="lp-kicker">
+        <h2 id="lp-state-briefs" className="lp-section">
           {t("brief.title")}
         </h2>
         <ul className="mt-3 border-t">

@@ -20,6 +20,7 @@ import { CardList, RetestsDueList } from "~/components/loop/card-list";
 import { listWorksheets } from "~/lib/worksheets.server";
 import { DIAGNOSTIC_KIND } from "~/lib/english-diagnostic";
 import { ToolkitLink } from "~/components/worksheet/toolkit-link";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
@@ -60,16 +61,13 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("home.title")}</h1>
-        <p>{t("home.lead")}</p>
-      </div>
+      <PageHeader title={t("home.title")} lede={t("home.lead")} />
       <ActionError result={actionData} />
 
       {/* Retests first: a retest is the one thing here with a day attached. */}
       {retests.length > 0 ? (
         <section aria-labelledby="lp-loop-retests" className="mt-8">
-          <h2 id="lp-loop-retests" className="lp-kicker">
+          <h2 id="lp-loop-retests" className="lp-section">
             {t("cards.retests.title")}
           </h2>
           <RetestsDueList retests={retests} kinds={kinds} />
@@ -77,8 +75,8 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
       ) : null}
 
       {detail ? (
-        <section aria-labelledby="lp-loop-state" className="mt-8">
-          <h2 id="lp-loop-state" className="lp-kicker">
+        <section aria-labelledby="lp-loop-state" className="mt-8 lp-keybox p-5 sm:p-6">
+          <h2 id="lp-loop-state" className="font-sans text-sm font-semibold text-part">
             {t("home.current")}
           </h2>
           <StateCard state={detail.state} />
@@ -88,7 +86,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
       {cycle ? (
         <>
           <section aria-labelledby="lp-loop-cycle" className="mt-10">
-            <h2 id="lp-loop-cycle" className="lp-kicker">
+            <h2 id="lp-loop-cycle" className="lp-section">
               {t("home.cycle")}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -101,7 +99,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
             </div>
           </section>
           <section aria-labelledby="lp-loop-week" className="mt-10">
-            <h2 id="lp-loop-week" className="lp-kicker">
+            <h2 id="lp-loop-week" className="lp-section">
               {t("home.thisWeek")}
             </h2>
             <WeekCard cycleId={cycle.id} week={cycle.current_week} review={thisWeek} cannotProve={t("week.cannotProve")} />
@@ -111,7 +109,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
 
       {detail ? (
         <section aria-labelledby="lp-loop-cards" className="mt-10">
-          <h2 id="lp-loop-cards" className="lp-kicker">
+          <h2 id="lp-loop-cards" className="lp-section">
             {t("cards.title")}
           </h2>
           <CardList cards={detail.cards} kinds={kinds} diagnostic={loaderData.diagnostic} />
@@ -125,11 +123,11 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
       ) : null}
 
       <section aria-labelledby="lp-loop-due" className="mt-10">
-        <h2 id="lp-loop-due" className="lp-kicker">
+        <h2 id="lp-loop-due" className="lp-section">
           {t("home.due")}
         </h2>
         {due.length === 0 ? (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("home.nothingDue")}</p>
+          <p className="mt-3 lp-empty">{t("home.nothingDue")}</p>
         ) : (
           <ul className="mt-3 border-t">
             {due.map((item) => (
@@ -149,7 +147,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
 
       {states.length > 1 ? (
         <section aria-labelledby="lp-loop-goals" className="mt-10">
-          <h2 id="lp-loop-goals" className="lp-kicker">
+          <h2 id="lp-loop-goals" className="lp-section">
             {t("home.goals")}
           </h2>
           <ul className="mt-3 border-t">
@@ -160,7 +158,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
                   className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 py-3 transition-colors hover:bg-primary-soft"
                 >
                   <span className="text-sm font-medium">{s.goal}</span>
-                  <span className="font-mono text-2xs uppercase tracking-wide text-faint">{s.phase ? phases[s.phase] : ""}</span>
+                  <span className="text-xs font-semibold text-faint">{s.phase ? phases[s.phase] : ""}</span>
                 </Link>
               </li>
             ))}
@@ -171,7 +169,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
       <ToolkitLink />
 
       <section aria-labelledby="lp-loop-start" className="mt-10">
-        <h2 id="lp-loop-start" className="lp-kicker">
+        <h2 id="lp-loop-start" className="lp-section">
           {states.length === 0 ? t("start.first") : t("start.another")}
         </h2>
         <StartForm busy={busy} />

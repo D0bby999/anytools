@@ -18,7 +18,7 @@ export type ProfileActionData = { ok?: string; errorKey?: string };
 export type KBOption = { id: string; name: string };
 
 export const field =
-  "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm text-foreground";
+  "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm text-foreground";
 
 /** The evidence an entry cites, as links. */
 export function RefLinks({ refs }: { refs: RefView[] }) {
@@ -26,7 +26,7 @@ export function RefLinks({ refs }: { refs: RefView[] }) {
   if (refs.length === 0) return null;
   return (
     <p className="mt-1 text-xs leading-snug text-muted-foreground">
-      <span className="font-mono text-2xs uppercase">{t("entry.evidence")}</span>{" "}
+      <span className="text-xs font-semibold">{t("entry.evidence")}</span>{" "}
       {refs.map((ref, i) => {
         const href = refHref(ref);
         const kind = t(`refKinds.${ref.kind}`);
@@ -40,7 +40,7 @@ export function RefLinks({ refs }: { refs: RefView[] }) {
               </Link>
             ) : (
               <span className="text-faint">
-                {kind} — {t("entry.gone")}
+                {kind} · {t("entry.gone")}
               </span>
             )}
           </span>
@@ -122,7 +122,7 @@ export function EntryRow({ entry, kbs, maxText }: { entry: ProfileEntry; kbs: KB
         <>
           <p className="text-sm leading-prose">{entry.text}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            <span className="font-mono text-2xs uppercase">
+            <span className="text-xs font-semibold">
               {entry.origin === "learner" ? t("entry.yours") : t("entry.fromActivity")}
             </span>
             {entry.kb_name ? ` · ${t("entry.kb", { name: entry.kb_name })}` : null}
@@ -170,7 +170,7 @@ export function ProposalRow({ entry }: { entry: ProfileEntry }) {
 
   return (
     <li className="border-b py-3">
-      <p className="font-mono text-2xs uppercase text-muted-foreground">{t(`proposals.${entry.op}`, { section })}</p>
+      <p className="text-xs font-semibold text-muted-foreground">{t(`proposals.${entry.op}`, { section })}</p>
       <p className={entry.op === "remove" ? "mt-1 text-sm leading-prose line-through" : "mt-1 text-sm leading-prose"}>
         {entry.text}
       </p>

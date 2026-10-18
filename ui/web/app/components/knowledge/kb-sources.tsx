@@ -72,7 +72,7 @@ function SiteRow({ site }: { site: Site }) {
     <li className="py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
-          <p className="font-mono text-2xs tracking-label text-faint uppercase">{t("sources.siteKind")}</p>
+          <p className="text-xs font-semibold text-faint">{t("sources.siteKind")}</p>
           <p className="truncate font-medium">{site.title || site.start_url}</p>
           <p className="truncate font-mono text-2xs text-muted-foreground">{site.start_url}</p>
         </div>
@@ -138,7 +138,7 @@ function PageList({ data, loading }: { data?: SitePagesData; loading: boolean })
             </span>
             <span className={removed ? "text-warning" : "text-muted-foreground"}>
               {removed ? t("sources.removed") : t(`sources.pageStatus.${page.status}`)}
-              {page.reason && !removed ? ` — ${page.reason}` : ""}
+              {page.reason && !removed ? ` · ${page.reason}` : ""}
             </span>
           </li>
         );
@@ -155,7 +155,7 @@ function RepoRow({ repo }: { repo: Repo }) {
     <li className="py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
-          <p className="font-mono text-2xs tracking-label text-faint uppercase">{t("sources.repoKind")}</p>
+          <p className="text-xs font-semibold text-faint">{t("sources.repoKind")}</p>
           <p className="truncate font-medium">
             {repo.owner}/{repo.name}
             {repo.path_prefix ? <span className="text-muted-foreground"> / {repo.path_prefix}</span> : null}

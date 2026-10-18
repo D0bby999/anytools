@@ -14,11 +14,11 @@ export function StateWorksheets({ stateId, worksheets }: { stateId: string; work
   const { t } = useTranslation("toolkit");
   return (
     <section aria-labelledby="lp-state-worksheets" className="mt-10">
-      <h2 id="lp-state-worksheets" className="lp-kicker">
+      <h2 id="lp-state-worksheets" className="lp-section">
         {t("state.title")}
       </h2>
       {worksheets.length === 0 ? (
-        <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("state.none")}</p>
+        <p className="mt-3 lp-empty">{t("state.none")}</p>
       ) : (
         <WorksheetList worksheets={worksheets} />
       )}

@@ -6,6 +6,7 @@
 import { Link, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/public.home";
+import { AnyProfileFeature } from "~/components/tools-site/anyprofile-feature";
 import { ToolCatalog } from "~/components/tools-site/tool-catalog";
 import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
@@ -80,34 +81,43 @@ export default function ToolsHome() {
   const { t } = useTranslation("tools");
 
   return (
-    <div className="lp-layout px-4 py-8 lg:px-6 lg:py-12">
-      <div className="lp-prose max-w-(--lp-measure-read)">
-        <h1>{t("home.heroTitle")}</h1>
-        <p>{t("home.heroSubtitle")}</p>
-      </div>
-      <p className="mt-2 text-sm text-muted-foreground">{t("home.eyebrow", { count: entries.length })}</p>
+    <div className="lp-layout px-4 py-8 lg:px-6 lg:py-10">
+      {/* AnyProfile leads the appendix (owner, 2026-10-18). */}
+      <AnyProfileFeature locale={locale} />
+
+      <header className="mt-12 grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="max-w-(--lp-measure-read)">
+          <h1 className="text-3xl leading-tight lg:text-4xl">{t("home.heroTitle")}</h1>
+          <p className="mt-3 text-lg leading-snug text-muted-foreground">{t("home.heroSubtitle")}</p>
+        </div>
+        <p className="text-sm text-muted-foreground lg:text-right">{t("home.eyebrow", { count: entries.length })}</p>
+      </header>
 
       <section aria-labelledby="tools-clusters" className="mt-10">
-        <h2 id="tools-clusters" className="lp-kicker">
+        <h2 id="tools-clusters" className="lp-section text-xl">
           {t("catalog.clustersTitle")}
         </h2>
-        <ul className="mt-3 grid grid-cols-2 gap-x-6 border-t sm:grid-cols-3 lg:grid-cols-5">
+        {/* The appendix's sections, as an index: name, then how many tools. */}
+        <ul className="mt-3 grid grid-cols-1 gap-x-8 border-t sm:grid-cols-2 lg:grid-cols-3">
           {clusters.map((c) => (
             <li key={c.id} className="border-b">
               <Link
                 to={`/${locale}/${c.id}`}
-                className="flex min-h-11 items-baseline justify-between gap-2 px-1 py-2 text-sm transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                className="group flex min-h-12 items-baseline gap-2 px-1 py-3 text-base transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               >
-                <span>{t(`catalog.cluster.${c.id}`)}</span>
-                <span className="font-mono text-2xs text-muted-foreground">{c.count}</span>
+                <span className="font-serif font-semibold group-hover:text-primary">{t(`catalog.cluster.${c.id}`)}</span>
+                <span aria-hidden="true" className="lp-leader" />
+                <span data-numeric className="text-sm text-muted-foreground">
+                  {c.count}
+                </span>
               </Link>
             </li>
           ))}
         </ul>
       </section>
 
-      <section aria-labelledby="tools-all" className="mt-10">
-        <h2 id="tools-all" className="lp-kicker mb-3">
+      <section aria-labelledby="tools-all" className="mt-12">
+        <h2 id="tools-all" className="lp-section mb-4 text-xl">
           {t("catalog.allTitle")}
         </h2>
         <ToolCatalog locale={locale} entries={entries} clusters={clusters} initial={initial} />

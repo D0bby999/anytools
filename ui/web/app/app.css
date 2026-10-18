@@ -7,16 +7,18 @@
  * app.css — the single adapter between the world (tokens.css) and the utility
  * layer components use.
  *
- * Phase 1 promised that the token NAMES are the contract and that phase 3
- * could swap the palette without touching a component. This file is where that
- * promise is kept: every mapping below points a semantic name at a `--lp-*`
- * value, and no component file in the app contains a colour. The no-raw-hex
- * guard in app/test/no-raw-colour.test.ts enforces the second half.
+ * The token NAMES are the contract: every mapping below points a semantic
+ * name at a `--lp-*` value, and no component file contains a colour
+ * (app/test/no-raw-colour.test.ts). `@theme inline` compiles a utility
+ * straight to `var(--lp-...)`, so the `.dark` block in tokens.css is the only
+ * place a theme is described.
  *
- * `@theme inline` matters here. Without `inline`, Tailwind would emit its own
- * `--color-*` properties on :root and the `.dark` class would have to restate
- * every one of them; with it, a utility compiles straight to `var(--lp-...)`
- * and the `.dark` block in tokens.css is the only place a theme is described.
+ * The world is the modern textbook (tokens.css). Its one structural idea is
+ * the PART: an element carrying `data-part="read|ask|practise|reflect|tools"`
+ * sets `--lp-part*` for everything inside it, and the `part` utilities
+ * (`text-part`, `bg-part-soft`, `border-part-line`, ...) paint in whichever
+ * part they sit in. The shell sets it per route (lib/parts.ts); the rail sets
+ * it per row.
  */
 @theme inline {
   /* Surfaces and ink */
@@ -27,6 +29,7 @@
   --color-muted-foreground: var(--lp-ink-2);
   --color-faint: var(--lp-ink-3);
   --color-sunken: var(--lp-surface-sunken);
+  --color-hover: var(--lp-hover);
 
   /* Lines. `border` is the hairline; `control-border` outlines things you
      operate and is the one held to 3:1. */
@@ -36,13 +39,25 @@
   /* The one action ink */
   --color-primary: var(--lp-brand);
   --color-primary-hover: var(--lp-brand-hover);
+  --color-primary-active: var(--lp-brand-active);
   --color-primary-foreground: var(--lp-brand-fg);
   --color-primary-soft: var(--lp-brand-soft);
+  --color-primary-line: var(--lp-brand-line);
   --color-selected: var(--lp-selected);
   --color-selected-foreground: var(--lp-selected-fg);
 
-  /* Reading progress, and nothing else */
-  --color-accent: var(--lp-accent);
+  /* The part this element sits in: wayfinding only, never a control */
+  --color-part: var(--lp-part);
+  --color-part-soft: var(--lp-part-soft);
+  --color-part-line: var(--lp-part-line);
+  --color-part-foreground: var(--lp-part-fg);
+
+  /* Reading progress runs in the colour of the part being read */
+  --color-accent: var(--lp-part);
+
+  /* The highlighter: this needs you now */
+  --color-highlight: var(--lp-highlight);
+  --color-highlight-foreground: var(--lp-highlight-fg);
 
   /* States */
   --color-warning: var(--lp-warning);
@@ -65,42 +80,39 @@
   --text-xl: var(--lp-text-xl);
   --text-2xl: var(--lp-text-2xl);
   --text-3xl: var(--lp-text-3xl);
+  --text-4xl: var(--lp-text-4xl);
+  --text-numeral: var(--lp-text-numeral);
 
   --leading-tight: var(--lp-leading-tight);
   --leading-snug: var(--lp-leading-snug);
   --leading-ui: var(--lp-leading-ui);
   --leading-prose: var(--lp-leading-prose);
   --tracking-label: var(--lp-tracking-label);
+  --tracking-display: var(--lp-tracking-display);
 
   /* 4pt base, so every spacing utility lands on the world's rhythm */
   --spacing: var(--lp-space-1);
 
-  /* Radius: 16 for a card, 8 for a control. `rounded-lg` and `rounded-md` are
-     already what the phase-1 components ask for, so they are pointed at the
-     right end of the scale rather than renamed. */
+  --radius-xs: var(--lp-radius-tab);
   --radius-sm: calc(var(--lp-radius-control) - 2px);
   --radius-md: var(--lp-radius-control);
   --radius-lg: var(--lp-radius-card);
+  --radius-xl: calc(var(--lp-radius-card) + 4px);
   --radius-full: var(--lp-radius-pill);
 
   --shadow-sm: var(--lp-shadow-card);
   --shadow-md: var(--lp-shadow-raised);
 
-  /* Motion: every `transition-*` utility inherits the world's timing instead
-     of Tailwind's 150ms linear default. */
   --default-transition-duration: var(--lp-motion-fast);
   --default-transition-timing-function: var(--lp-ease);
 
-  /* Layout widths, so a route can ask for a measure by name */
   --container-measure: var(--lp-measure-read);
   --container-layout: var(--lp-layout-max);
   --container-form: var(--lp-measure-form);
 }
 
 @layer base {
-  /* Tailwind v4 dropped v3's default border color, so a bare `border` utility
-     falls back to currentColor — near-black hairlines wherever a border class
-     lacks an explicit color. Restore the token default. */
+  /* Tailwind v4 dropped v3's default border colour; restore the hairline. */
   *,
   ::after,
   ::before,
@@ -109,10 +121,7 @@
     border-color: var(--lp-border);
   }
 
-  /* Anything operable gets the heavier outline. WCAG 1.4.11 asks for 3:1 on
-     the boundary that identifies a control, and the decorative hairline is
-     nowhere near that. Doing it here rather than in button.tsx keeps the
-     component files colour-free. */
+  /* Anything operable gets the heavier outline (WCAG 1.4.11, 3:1). */
   button,
   input,
   select,
@@ -121,9 +130,52 @@
     border-color: var(--lp-border-control);
   }
 
+  /* The parts. Outside any part, an element sits in the book's front matter:
+     ink, and a plain white card for its box. */
+  :root,
+  [data-part="home"] {
+    --lp-part: var(--lp-ink);
+    --lp-part-soft: var(--lp-surface);
+    --lp-part-line: var(--lp-border);
+    --lp-part-fg: var(--lp-paper);
+  }
+
+  [data-part="read"] {
+    --lp-part: var(--lp-part-read);
+    --lp-part-soft: var(--lp-part-read-soft);
+    --lp-part-line: var(--lp-part-read-line);
+    --lp-part-fg: var(--lp-part-read-fg);
+  }
+
+  [data-part="ask"] {
+    --lp-part: var(--lp-part-ask);
+    --lp-part-soft: var(--lp-part-ask-soft);
+    --lp-part-line: var(--lp-part-ask-line);
+    --lp-part-fg: var(--lp-part-ask-fg);
+  }
+
+  [data-part="practise"] {
+    --lp-part: var(--lp-part-practise);
+    --lp-part-soft: var(--lp-part-practise-soft);
+    --lp-part-line: var(--lp-part-practise-line);
+    --lp-part-fg: var(--lp-part-practise-fg);
+  }
+
+  [data-part="reflect"] {
+    --lp-part: var(--lp-part-reflect);
+    --lp-part-soft: var(--lp-part-reflect-soft);
+    --lp-part-line: var(--lp-part-reflect-line);
+    --lp-part-fg: var(--lp-part-reflect-fg);
+  }
+
+  [data-part="tools"] {
+    --lp-part: var(--lp-part-tools);
+    --lp-part-soft: var(--lp-part-tools-soft);
+    --lp-part-line: var(--lp-part-tools-line);
+    --lp-part-fg: var(--lp-part-tools-fg);
+  }
+
   html {
-    /* The reading world is a light world by default; this tells the browser so
-       its own form controls and scrollbars follow. */
     color-scheme: light;
   }
 
@@ -141,8 +193,8 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Headings carry the serif. This is the world's loudest single move, so it
-     is stated once here rather than as a class on every title. */
+  /* Titles are set in the book face. Stated once here rather than as a class
+     on every title. */
   h1,
   h2,
   h3 {
@@ -152,19 +204,22 @@
     text-wrap: balance;
   }
 
-  /* Numbers that sit in a column (page numbers, scores, dates) must not dance
-     as they change. */
+  h1 {
+    letter-spacing: var(--lp-tracking-display);
+  }
+
+  /* Numbers that sit in a column must not dance as they change. */
   time,
   output,
   [data-numeric] {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Browser surfaces. The cheapest signal that a page was built rather than
-     assembled, and the one most often skipped. */
+  /* Browser surfaces: selection is the highlighter, the caret and the
+     scrollbar take the world's inks. */
   ::selection {
-    background-color: var(--lp-selected);
-    color: var(--lp-selected-fg);
+    background-color: var(--lp-highlight);
+    color: var(--lp-highlight-fg);
   }
 
   :root {
@@ -177,9 +232,6 @@
     text-underline-offset: 0.2em;
   }
 
-  /* Kills the 300ms double-tap-zoom wait on touch, and makes the tap flash a
-     deliberate colour from the world rather than the platform's default blue
-     rectangle. */
   a,
   button,
   [role="button"],
@@ -189,14 +241,11 @@
     -webkit-tap-highlight-color: var(--lp-brand-soft);
   }
 
-  /* A scroll region that reaches its end should stop, not hand the gesture to
-     the page behind it and drag the whole shell. */
   [data-lp-scroll] {
     overscroll-behavior: contain;
   }
 
-  /* One focus ring for the whole app, painted in the action ink, appearing
-     instantly. It is deliberately not part of any transition. */
+  /* One focus ring for the whole app, in the action ink, appearing instantly. */
   :focus-visible {
     outline: 2px solid var(--lp-brand);
     outline-offset: 2px;
@@ -205,12 +254,11 @@
 }
 
 /**
- * Signature moves. Three, so they stay recognisable.
+ * Signature moves of the textbook world.
  */
 
-/* 1. The reading measure. A Read surface holds 780px no matter how wide the
-   workspace gets; an Operate surface widens to the layout max. Both are the
-   world's numbers, ported from up. */
+/* The reading measure (from up). A Read surface holds 780px however wide the
+   workspace; an Operate surface widens to the layout max. */
 @utility lp-measure {
   max-width: var(--lp-measure-read);
   margin-inline: auto;
@@ -221,20 +269,134 @@
   margin-inline: auto;
 }
 
-/* 2. The mono region label. In `up` this labels a group of links; here it
-   names a region of the shell, and it is always the accessible name of that
-   region rather than decoration floating above a heading. */
-@utility lp-kicker {
-  font-family: var(--lp-font-mono);
-  font-size: var(--lp-text-2xs);
+/* A section heading inside a page: the book face, one step above body. It is
+   the region's real heading and carries the id aria-labelledby points at. */
+@utility lp-section {
+  font-family: var(--lp-font-serif);
+  font-size: var(--lp-text-lg);
   font-weight: 600;
-  letter-spacing: var(--lp-tracking-label);
-  text-transform: uppercase;
-  color: var(--lp-ink-3);
+  line-height: var(--lp-leading-snug);
+  color: var(--lp-ink);
 }
 
-/* 3. Long-form prose. Everything a Read surface needs, taken from up's
-   `.vp-doc` rules: the 1.85 leading, the 22ch headline, the quote rule. */
+/* A field or data label: the interface face, small and secondary. */
+@utility lp-kicker {
+  font-family: var(--lp-font-sans);
+  font-size: var(--lp-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--lp-ink-2);
+}
+
+/* The part tab: a small solid label in the part's colour, like the coloured
+   edge tab of a textbook chapter. Wayfinding, never a control. */
+@utility lp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lp-space-1);
+  padding: 0.125rem var(--lp-space-2);
+  border-radius: var(--lp-radius-tab);
+  background: var(--lp-part);
+  color: var(--lp-part-fg);
+  font-family: var(--lp-font-sans);
+  font-size: var(--lp-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--lp-tracking-label);
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+/* The chapter numeral: the book face at its heaviest, in the part's colour. */
+@utility lp-numeral {
+  font-family: var(--lp-font-serif);
+  font-size: var(--lp-text-numeral);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--lp-part);
+}
+
+/* The key-concept box: a tinted fill and a full outline in the part's
+   colour. Never a one-sided rule. */
+@utility lp-keybox {
+  border: 1px solid var(--lp-part-line);
+  border-radius: var(--lp-radius-card);
+  background: var(--lp-part-soft);
+}
+
+/* The highlighter stroke behind a count or a phrase that needs you now. A
+   marker does not cover the whole line height, so the fill starts low. */
+@utility lp-highlight {
+  padding-inline: 0.2em;
+  margin-inline: -0.1em;
+  border-radius: 0.2em;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 18%,
+    var(--lp-highlight) 18%,
+    var(--lp-highlight) 92%,
+    transparent 92%
+  );
+  color: var(--lp-highlight-fg);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* An empty state: the dashed box a workbook leaves for your answer. It says
+   what will appear here and how to put it there. Full outline, never a rule
+   on one side. */
+@utility lp-empty {
+  padding: var(--lp-space-4) var(--lp-space-5);
+  border: 1px dashed var(--lp-border-control);
+  border-radius: var(--lp-radius-control);
+  font-family: var(--lp-font-serif);
+  font-size: var(--lp-text-sm);
+  font-style: italic;
+  line-height: var(--lp-leading-snug);
+  color: var(--lp-ink-2);
+}
+
+/* The dot leader of a table of contents: name, dots, number. Drawn, not a
+   border, so it sits on the text's baseline. */
+@utility lp-leader {
+  flex: 1 1 0%;
+  min-width: var(--lp-space-4);
+  height: 0.25em;
+  margin-inline: var(--lp-space-1);
+  background-image: radial-gradient(circle, var(--lp-border-control) 1px, transparent 1.5px);
+  background-size: 6px 3px;
+  background-repeat: repeat-x;
+  background-position: left bottom;
+}
+
+/* A margin note: the book face in italic, secondary ink. */
+@utility lp-margin-note {
+  font-family: var(--lp-font-serif);
+  font-size: var(--lp-text-sm);
+  font-style: italic;
+  line-height: var(--lp-leading-snug);
+  color: var(--lp-ink-2);
+}
+
+/* The page turn: the ONE entrance a page gets, on its header. Reduced motion
+   keeps the fade and drops the travel. */
+@keyframes lp-page-turn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility lp-page-enter {
+  animation: lp-page-turn var(--lp-motion-enter) var(--lp-ease) both;
+}
+
+/* Long-form prose (the 1.85 leading is from up). */
 @utility lp-prose {
   font-family: var(--lp-font-serif);
   font-size: var(--lp-text-base);
@@ -245,7 +407,6 @@
     max-width: var(--lp-headline-measure);
     font-size: var(--lp-text-3xl);
     line-height: var(--lp-leading-tight);
-    letter-spacing: 0;
   }
 
   & p {
@@ -257,13 +418,14 @@
     text-decoration: underline;
   }
 
-  /* The one place a coloured left rule is allowed: it marks text quoted from a
-     source document, which is this product's whole subject. */
+  /* Text quoted from a source: a tinted box with a full outline, in the
+     colour of the part it is quoted in. */
   & blockquote {
     margin-block: var(--lp-space-5);
     padding: var(--lp-space-3) var(--lp-space-4);
-    border-left: 3px solid var(--lp-brand);
-    background: var(--lp-surface-soft);
+    border: 1px solid var(--lp-part-line);
+    border-radius: var(--lp-radius-control);
+    background: var(--lp-part-soft);
   }
 
   & blockquote > p {
@@ -435,15 +597,15 @@
   }
 }
 
-/* The hairline that tracks how far through a long document you are. Terracotta
-   lives here and nowhere else. Ported from up's ReadingProgress.vue (MIT). */
+/* The hairline that tracks how far through a long document you are, in the
+   colour of the part being read. Ported from up's ReadingProgress.vue (MIT). */
 @utility lp-progress-track {
   position: fixed;
   inset-block-start: 0;
   inset-inline-start: 0;
   z-index: 1100;
   width: 100%;
-  height: 2px;
+  height: 3px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -452,7 +614,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--lp-accent);
+  background: var(--lp-part);
   transform-origin: left center;
   transition: transform 80ms linear;
 }
@@ -547,4 +709,14 @@
 input[type="radio"],
 input[type="checkbox"] {
   accent-color: var(--color-primary);
+}
+
+/* iOS Safari zooms the page into any field set below 16px. Unlayered, so it
+   wins over a `text-sm` utility on a phone without touching each field. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"]),
+  textarea,
+  select {
+    font-size: max(1rem, 1em);
+  }
 }

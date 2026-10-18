@@ -18,6 +18,7 @@ import { requireUser } from "~/lib/auth.server";
 import { listPractice } from "~/lib/quiz.server";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -64,10 +65,7 @@ export default function QuizPractice({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("practice.title")}</h1>
-        <p>{t("practice.lead")}</p>
-      </div>
+      <PageHeader title={t("practice.title")} lede={t("practice.lead")} />
 
       {items.length === 0 ? (
         <div className="mt-8">
@@ -80,7 +78,7 @@ export default function QuizPractice({ loaderData }: Route.ComponentProps) {
         </div>
       ) : current ? (
         <section aria-labelledby="lp-practice-current" className="mt-8">
-          <h2 id="lp-practice-current" className="lp-kicker flex flex-wrap gap-x-3">
+          <h2 id="lp-practice-current" className="lp-section flex flex-wrap gap-x-3">
             <span>{t("practice.left", { count: Math.max(remaining - index, 1) })}</span>
             <span className="text-muted-foreground">
               {current.kb_name}

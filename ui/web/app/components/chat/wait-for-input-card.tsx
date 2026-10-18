@@ -73,7 +73,7 @@ export function WaitForInputCard({
           onChange={(e) => setValue(e.target.value)}
           placeholder={t("chat.question.placeholder")}
           className={
-            "h-10 flex-1 rounded-md border border-control-border bg-background px-3 text-sm " +
+            "h-10 flex-1 rounded-md border border-control-border bg-card px-3 text-sm " +
             "text-foreground placeholder:text-faint focus-visible:outline-none " +
             "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 " +
             "focus-visible:ring-offset-background disabled:opacity-50"

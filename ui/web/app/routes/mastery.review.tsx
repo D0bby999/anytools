@@ -23,6 +23,7 @@ import { ApiError } from "~/lib/api.server";
 import { reviewNext } from "~/lib/mastery.server";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -64,19 +65,16 @@ export default function MasteryReview({ loaderData }: Route.ComponentProps) {
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("review.back")}
       </Link>
-      <div className="lp-prose mt-2">
-        <h1>{t("review.title")}</h1>
-        <p>{t("review.lead")}</p>
-      </div>
+      <PageHeader title={t("review.title")} lede={t("review.lead")} />
 
       {next ? (
         <>
           {/* Path and module first, in the same place every time: the
               switch from one subject to the next is the point of this page. */}
           <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-4 border-y py-3 text-sm">
-            <dt className="font-mono text-xs uppercase tracking-wide text-faint">{t("review.path")}</dt>
+            <dt className="text-xs font-semibold text-xs text-faint">{t("review.path")}</dt>
             <dd data-testid="review-path">{next.path_goal}</dd>
-            <dt className="mt-1 font-mono text-xs uppercase tracking-wide text-faint">{t("review.module")}</dt>
+            <dt className="text-xs font-semibold mt-1 text-xs text-faint">{t("review.module")}</dt>
             <dd data-testid="review-module" className="mt-1">
               {next.module_name} · <span className="text-muted-foreground">{next.knowledge_point.name}</span>
             </dd>

@@ -10,7 +10,7 @@ import { PaperPage } from "~/components/exam/paper-page";
 export type ReviewActionData = { ok: boolean; error?: string };
 
 const field =
-  "mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3 text-sm " +
+  "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm " +
   "focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
 
 /**
@@ -63,7 +63,7 @@ export function TemplateEditor({ template, paperUrl }: { template: ExamTemplate;
     <div className="mt-6">
       {template.warnings.length > 0 ? (
         <section aria-labelledby="lp-exam-warnings" className="rounded-lg border border-warning bg-warning-soft p-4">
-          <h2 id="lp-exam-warnings" className="lp-kicker text-warning">
+          <h2 id="lp-exam-warnings" className="lp-section text-warning">
             {t("exams.review.warnings")}
           </h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
@@ -99,7 +99,7 @@ export function TemplateEditor({ template, paperUrl }: { template: ExamTemplate;
       </div>
 
       <section aria-labelledby="lp-exam-items" className="mt-8">
-        <h2 id="lp-exam-items" className="lp-kicker">
+        <h2 id="lp-exam-items" className="lp-section">
           {t("exams.review.questions", { count: items.length, points: Math.round(total * 100) / 100 })}
         </h2>
         <ol className="mt-3 border-t">
@@ -180,7 +180,7 @@ function ItemEditor({
         <h3 id={`${ids}-title`} className="font-serif text-lg">
           {t("exams.review.item", { number: item.number || "?" })}
         </h3>
-        <p className="font-mono text-2xs uppercase tracking-wide text-faint">
+        <p className="text-xs font-semibold text-faint">
           {t("exams.review.onPage", { page: item.source_page })}
           {item.figure_page ? ` · ${t("exams.review.figureOn", { page: item.figure_page })}` : ""}
         </p>
@@ -254,7 +254,7 @@ function ItemEditor({
           rows={Math.min(10, Math.max(3, Math.ceil(item.stem_md.length / 80)))}
           maxLength={8000}
           onChange={(e) => onChange({ stem_md: e.target.value })}
-          className="mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
         />
       </div>
 
@@ -271,7 +271,7 @@ function ItemEditor({
             onChange={(e) =>
               onChange({ options: e.target.value.split("\n").map((text, i) => ({ label: String.fromCharCode(65 + i), text_md: text })) })
             }
-            className="mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           />
           <p id={`${ids}-options-hint`} className="mt-1 text-xs text-muted-foreground">
             {t("exams.review.optionsHint")}

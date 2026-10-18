@@ -34,7 +34,7 @@ export function TimepointSelect({
       name={name}
       aria-label={label}
       defaultValue={defaultValue ?? ""}
-      className="min-h-11 rounded-md border border-control-border bg-background px-2 text-sm"
+      className="min-h-11 rounded-md border border-control-border bg-card px-2 text-sm"
     >
       {allowNone ? <option value="">{t("timepoint.none")}</option> : null}
       {TIMEPOINTS.map((tp) => (

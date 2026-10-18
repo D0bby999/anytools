@@ -21,7 +21,7 @@ export function RelatedPapers({ kbId }: { kbId: string }) {
 
   return (
     <section aria-labelledby="lp-related-title" className="mt-10">
-      <h2 id="lp-related-title" className="lp-kicker">
+      <h2 id="lp-related-title" className="lp-section">
         {t("related.title")}
       </h2>
       <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("related.lead")}</p>
@@ -39,7 +39,7 @@ export function RelatedPapers({ kbId }: { kbId: string }) {
             onChange={(e) => setFocus(e.target.value)}
             maxLength={80}
             placeholder={t("related.focusPlaceholder")}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-background px-3"
+            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
           />
         </label>
         <Button type="submit" disabled={busy}>
@@ -54,7 +54,7 @@ export function RelatedPapers({ kbId }: { kbId: string }) {
       ) : null}
       {data?.ok ? (
         data.list.papers.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">{t("related.none")}</p>
+          <p className="mt-4 lp-empty">{t("related.none")}</p>
         ) : (
           <>
             <p className="mt-4 text-xs text-muted-foreground">

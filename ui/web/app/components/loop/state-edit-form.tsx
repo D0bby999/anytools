@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import type { LearningState } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
 
-const box = "mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm";
+const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 export function StateEditForm({ state, busy }: { state: LearningState; busy: boolean }) {
   const { t } = useTranslation("loop");

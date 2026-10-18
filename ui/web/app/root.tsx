@@ -4,20 +4,22 @@ import { I18nextProvider } from "react-i18next";
 
 import type { Route } from "./+types/root";
 import { initI18n } from "~/lib/i18n";
-// IBM Plex, three cuts: serif reads, sans operates, mono labels regions
-// (ui/web/DESIGN.md). Only the weights the world actually uses. Self-hosted
-// rather than from Google Fonts: its stylesheet blocked rendering for ~940 ms
-// on a throttled phone (two extra origins), and the CSP no longer needs a
-// third-party font host. Each file's unicode-range includes Vietnamese
-// (U+1EA0-1EF9, U+20AB), so the browser fetches that subset only when a page
-// uses it — the ucdaigym bug was a display face with no Vietnamese glyphs.
-import "@fontsource/ibm-plex-sans/400.css";
-import "@fontsource/ibm-plex-sans/500.css";
-import "@fontsource/ibm-plex-serif/400.css";
-import "@fontsource/ibm-plex-serif/400-italic.css";
-import "@fontsource/ibm-plex-serif/600.css";
-import "@fontsource/ibm-plex-mono/600.css";
-import serifSemibold from "@fontsource/ibm-plex-serif/files/ibm-plex-serif-latin-600-normal.woff2?url";
+// The textbook world's three faces (ui/web/DESIGN.md): Literata titles and
+// reads, Be Vietnam Pro operates, Plex Mono carries code and data. Only the
+// weights the world paints. Self-hosted rather than from Google Fonts: its
+// stylesheet blocked rendering for ~940 ms on a throttled phone, and the CSP
+// needs no third-party font host. Each file's unicode-range includes
+// Vietnamese (U+1EA0-1EF9, U+20AB), so the browser fetches that subset only
+// when a page uses it.
+import "@fontsource/literata/400.css";
+import "@fontsource/literata/400-italic.css";
+import "@fontsource/literata/600.css";
+import "@fontsource/literata/800.css";
+import "@fontsource/be-vietnam-pro/400.css";
+import "@fontsource/be-vietnam-pro/500.css";
+import "@fontsource/be-vietnam-pro/600.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import serifSemibold from "@fontsource/literata/files/literata-latin-600-normal.woff2?url";
 // KaTeX's stylesheet for rendered math (components/rich-text.tsx). Vite bundles
 // the font files it references as local assets, so `font-src 'self'` holds.
 import "katex/dist/katex.min.css";

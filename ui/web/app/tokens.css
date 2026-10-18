@@ -1,85 +1,115 @@
 /**
  * tokens.css — the committed visual world.
  *
- * World: the reading world of `byoungd/up` (github.com/byoungd/up), pinned by
- * the owner rather than rolled (plan.md, Validation Session 2). `up`'s theme
- * code is MIT (plans/.../reports/design-ref-up/LICENSE-CODE.md); the values
- * marked "from up" below are ported from its
- * `docs/.vitepress/theme/styles.css`. Its prose is CC BY-NC and is not used.
+ * World (2026-10-19): the modern textbook. A premium printed study guide
+ * turned into software: a warm white page, a book face for titles and
+ * reading, a Vietnamese-made sans for the interface, and an app divided into
+ * four PARTS like a textbook, each owning one colour that is used only for
+ * wayfinding. Chosen by design-world (dice key 018be165, assigned 3 of 7) and
+ * accepted by the owner, with one move borrowed from the notebook comp: the
+ * highlighter, which means "this needs you now".
+ * (plans/261018-2339-study-redesign/plan.md)
+ *
+ * Kept from `byoungd/up` (MIT theme code): the 780px reading measure, the
+ * 1.85 prose leading and the reading-progress hairline. Everything else
+ * replaced the reading world it ported.
  *
  * Everything here is a RAW value. Nothing in this file references Tailwind and
  * nothing outside app.css should reference `--lp-*` directly: app.css is the
- * single adapter that maps these onto the semantic names components already
- * use (`--color-primary`, `--color-card`, ...). That indirection is the reason
- * a palette change never reaches a component file.
+ * single adapter that maps these onto the semantic names components use.
  *
  * Adding a colour: give it a ROLE name, not a hue name, and add it to both
- * blocks. Light and dark are composed separately, not derived from each other,
- * because `up`'s own brand green fails AA on a dark canvas (measured 2.82:1)
- * and a mechanical inversion would have shipped that.
+ * blocks. Light and dark are composed separately, not derived from each
+ * other. Translucent tints are FROZEN to the hex they paint, so their contrast
+ * can be measured without knowing what is behind them.
  *
  * Every text-bearing pair below is measured by app/test/theme-contrast.test.ts.
  * Do not hand-tune a hue here without running it.
  */
 
 :root {
-  /* ── Surfaces: paper, then a second neutral layer for rails and panels ── */
-  --lp-paper: #fcfbf9;
+  /* ── Surfaces: the page, a card on it, the rail and margin one step away,
+       and the inset of a quote or an input. ── */
+  --lp-paper: #fbfaf6;
   --lp-surface: #ffffff;
-  --lp-surface-soft: #f4f2ee;
-  --lp-surface-sunken: #eae6df;
+  --lp-surface-soft: #f3f0e7;
+  --lp-surface-sunken: #ebe6d9;
 
-  /* ── Lines. `border` is a hairline and decorative; `border-control` is the
-       outline of something you can operate, and is held to 3:1. ── */
-  --lp-border: #e4e0d8;
-  --lp-border-control: #8d887e;
+  /* ── Lines. `border` is a printed hairline and decorative; `border-control`
+       outlines something you can operate, and is held to 3:1. ── */
+  --lp-border: #e2dccd;
+  --lp-border-control: #8a8476;
 
-  /* ── Ink: three levels, all held to 4.5:1 on all three surfaces ── */
-  --lp-ink: #1d211f;
-  --lp-ink-2: #555c57;
-  --lp-ink-3: #666d68;
+  /* ── Ink: textbook blue-black, then secondary and metadata. All three hold
+       4.5:1 on all three surfaces. ── */
+  --lp-ink: #1a1e29;
+  --lp-ink-2: #4d5262;
+  --lp-ink-3: #5c6170;
 
-  /* ── Brand green (from up). The ONLY action ink: primary buttons, the
-       current nav row, focus rings, links in prose, and "ready" state. There
-       is deliberately no second green. ── */
-  --lp-brand: #176f5b;
-  --lp-brand-hover: #0f5c4a;
-  --lp-brand-active: #0b493c;
-  --lp-brand-soft: rgba(23, 111, 91, 0.14);
+  /* ── Navy: the ONLY action ink. Primary buttons, links, the focus ring, the
+       current row, and "ready". No part colour ever lands on a control. ── */
+  --lp-brand: #1f3d78;
+  --lp-brand-hover: #18325f;
+  --lp-brand-active: #122749;
+  --lp-brand-soft: #edeff4;
+  --lp-brand-line: #bcc5d7;
   --lp-brand-fg: #ffffff;
 
-  /* The current row in the rail. This is `--lp-brand-soft` painted on
-     `--lp-surface-soft` and then FROZEN to the resulting hex, because a
-     translucent tint cannot be measured for contrast without knowing what is
-     behind it, and "what is behind it" is exactly the thing a later refactor
-     changes silently. Measured, not guessed: theme-contrast.test.ts. */
-  --lp-selected: #d5e0d9;
-  --lp-selected-fg: #0f5c4a;
+  /* The current row in the rail and the selected option of a control. */
+  --lp-selected: #e1e8f5;
+  --lp-selected-fg: #18325f;
+  /* A hovered row: one step darker than the rail, no hue. */
+  --lp-hover: #ebe8df;
 
-  /* ── Terracotta (from up). Reading progress ONLY. It never lands on a
-       control, which is why it can sit near the green without the pair
-       reading as decoration. ── */
-  --lp-accent: #c0523a;
+  /* ── The four parts, and the tools appendix. Wayfinding ONLY: a part's tab,
+       its numeral, its key-concept box and the reading progress inside it.
+       `-soft` is the box fill, `-line` its full outline (decorative), `-fg`
+       the text on a solid tab. ── */
+  --lp-part-read: #0b6762;
+  --lp-part-read-soft: #ebf3f2;
+  --lp-part-read-line: #b6d1d0;
+  --lp-part-read-fg: #ffffff;
+  --lp-part-ask: #a8461a;
+  --lp-part-ask-soft: #f8f0ed;
+  --lp-part-ask-line: #e5c8ba;
+  --lp-part-ask-fg: #ffffff;
+  --lp-part-practise: #7a3570;
+  --lp-part-practise-soft: #f4eff4;
+  --lp-part-practise-line: #d7c2d4;
+  --lp-part-practise-fg: #ffffff;
+  --lp-part-reflect: #2c663a;
+  --lp-part-reflect-soft: #eef3ef;
+  --lp-part-reflect-line: #c0d1c4;
+  --lp-part-reflect-fg: #ffffff;
+  --lp-part-tools: #4a5363;
+  --lp-part-tools-soft: #f1f1f3;
+  --lp-part-tools-line: #c9cbd0;
+  --lp-part-tools-fg: #ffffff;
 
-  /* ── States the reading world does not supply. Amber is the "needs your
-       attention" ink and is deliberately not red; red is reserved for
-       destructive and failed. ── */
-  --lp-warning: #8a5c00;
-  --lp-warning-soft: rgba(138, 92, 0, 0.12);
+  /* ── The highlighter: "this needs you now". A due count, a warning. It is a
+       fill behind ink, never a text colour. ── */
+  --lp-highlight: #fbe36b;
+  --lp-highlight-fg: #1a1e29;
+
+  /* ── States. Warning is the highlighter's family on purpose: needing your
+       attention and being due are the same idea here. Red is destructive or
+       failed, and nothing else. ── */
+  --lp-warning: #7a5200;
+  --lp-warning-soft: #fef5cb;
   --lp-warning-fg: #ffffff;
-  --lp-danger: #93142f;
-  --lp-danger-soft: rgba(147, 20, 47, 0.1);
+  --lp-danger: #9e0b3c;
+  --lp-danger-soft: #f5e7ec;
   --lp-danger-fg: #ffffff;
 
-  /* ── Type. One serif for reading, one sans for operating, one mono for
-       region labels and measured values. All three verified to carry the
-       Vietnamese range (U+1EA0-1EF9, U+20AB) before selection. ── */
-  --lp-font-serif: "IBM Plex Serif", Charter, Georgia, "Times New Roman", serif;
-  --lp-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* ── Type. A book face reads and titles, a sans made for Vietnamese
+       operates, a mono carries code and measured data only. All three carry
+       U+1EA0-1EF9 and U+20AB. ── */
+  --lp-font-serif: "Literata", Charter, Georgia, "Times New Roman", serif;
+  --lp-font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --lp-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Fixed rem scale, ~1.2 ratio. No fluid clamp: an Operate surface with many
-     text elements reads as noise when every size breathes with the viewport. */
+  /* Fixed rem scale, ~1.2 ratio, with two display steps for titles and the
+     chapter numeral. No fluid clamp on an Operate surface. */
   --lp-text-2xs: 0.6875rem;
   --lp-text-xs: 0.75rem;
   --lp-text-sm: 0.875rem;
@@ -87,16 +117,19 @@
   --lp-text-lg: 1.125rem;
   --lp-text-xl: 1.375rem;
   --lp-text-2xl: 1.75rem;
-  --lp-text-3xl: 2.625rem; /* from up: h1 */
+  --lp-text-3xl: 2.25rem;
+  --lp-text-4xl: 3rem;
+  --lp-text-numeral: 4.5rem;
 
-  --lp-leading-tight: 1.18; /* from up: h1 */
-  --lp-leading-snug: 1.35;
+  --lp-leading-tight: 1.12;
+  --lp-leading-snug: 1.3;
   --lp-leading-ui: 1.5;
-  --lp-leading-prose: 1.85; /* from up: body and list */
-  --lp-tracking-label: 0.08em; /* from up: mono kicker labels */
-  --lp-headline-measure: 22ch; /* from up: h1 max-width */
+  --lp-leading-prose: 1.85; /* from up */
+  --lp-tracking-label: 0.06em;
+  --lp-tracking-display: -0.02em;
+  --lp-headline-measure: 24ch;
 
-  /* ── Space. 4pt scale: 8-only loses the useful middle steps. ── */
+  /* ── Space. 4pt scale. ── */
   --lp-space-1: 0.25rem;
   --lp-space-2: 0.5rem;
   --lp-space-3: 0.75rem;
@@ -107,70 +140,94 @@
   --lp-space-8: 4rem;
 
   /* ── Layout. Read surfaces hold the measure; Operate surfaces widen. ── */
-  --lp-layout-max: 1480px; /* from up */
+  --lp-layout-max: 1280px;
   --lp-measure-read: 780px; /* from up */
   --lp-measure-form: 28rem;
-  --lp-rail-w: 15rem;
+  --lp-rail-w: 16rem;
   --lp-panel-w: 20rem;
   --lp-topbar-h: 3.5rem;
 
-  /* ── Radius (from up): 16px for cards, 8px for anything you operate. ── */
-  --lp-radius-card: 16px;
+  /* ── Radius: a printed box has a small corner. Tabs are the tightest. ── */
+  --lp-radius-card: 12px;
   --lp-radius-control: 8px;
+  --lp-radius-tab: 6px;
   --lp-radius-pill: 999px;
 
-  /* ── Depth: a whisper. This world separates by tone and hairline, not by
-       shadow, so there are only two and neither is a lift. ── */
-  --lp-shadow-card: 0 1px 2px rgba(20, 22, 21, 0.04);
-  --lp-shadow-raised: 0 2px 10px rgba(20, 22, 21, 0.07);
+  /* ── Depth: a page lying on a desk. A card is lifted a sheet, never more. ── */
+  --lp-shadow-card: 0 1px 2px rgba(26, 30, 41, 0.05), 0 2px 6px rgba(26, 30, 41, 0.04);
+  --lp-shadow-raised: 0 4px 16px rgba(26, 30, 41, 0.08), 0 1px 3px rgba(26, 30, 41, 0.06);
 
-  /* ── Motion: state feedback only. Exit is faster than entrance. ── */
+  /* ── Motion: state feedback, and one page-turn entrance per page. ── */
   --lp-motion-exit: 100ms;
   --lp-motion-fast: 140ms;
-  --lp-motion-base: 180ms;
+  --lp-motion-base: 200ms;
+  --lp-motion-enter: 420ms;
   --lp-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark {
-  /* Composed for a lamp-lit room, not inverted. The rail goes DARKER than the
-     page while in light mode it goes lighter: in both themes the rail recedes
-     from the page rather than floating above it. */
-  --lp-paper: #1a1917;
-  --lp-surface: #232220;
-  --lp-surface-soft: #141312;
-  --lp-surface-sunken: #2b2a27;
+  /* Composed for a desk lamp at night, not inverted: blue-black paper, warm
+     ink, and each part colour lifted until it reads as text. The rail goes
+     darker than the page, so in both themes it recedes. */
+  --lp-paper: #16171b;
+  --lp-surface: #1f2026;
+  --lp-surface-soft: #111216;
+  --lp-surface-sunken: #272830;
 
-  --lp-border: #34322e;
-  --lp-border-control: #767168;
+  --lp-border: #30323b;
+  --lp-border-control: #737786;
 
-  --lp-ink: #ece8e1;
-  --lp-ink-2: #aca79e;
-  --lp-ink-3: #97928a;
+  --lp-ink: #ece8df;
+  --lp-ink-2: #b0ab9f;
+  --lp-ink-3: #9a968b;
 
-  /* up ships one brand green for both themes; at #176f5b on this canvas it
-     measures 2.82:1 and fails as text, so dark gets its own ramp. */
-  --lp-brand: #5ab99d;
-  --lp-brand-hover: #79cbb3;
-  --lp-brand-active: #97d9c5;
-  --lp-brand-soft: rgba(90, 185, 157, 0.16);
-  --lp-brand-fg: #0b2620;
-  --lp-selected: #1f2e28;
-  --lp-selected-fg: #79cbb3;
+  --lp-brand: #8fb0f0;
+  --lp-brand-hover: #a9c2f5;
+  --lp-brand-active: #c2d4f8;
+  --lp-brand-soft: #2e3340;
+  --lp-brand-line: #4c5a77;
+  --lp-brand-fg: #0e1a33;
+  --lp-selected: #232d45;
+  --lp-selected-fg: #a9c2f5;
+  --lp-hover: #1a1d25;
 
-  --lp-accent: #d4694f;
+  --lp-part-read: #5cc0b6;
+  --lp-part-read-soft: #273539;
+  --lp-part-read-line: #376060;
+  --lp-part-read-fg: #111216;
+  --lp-part-ask: #e9935a;
+  --lp-part-ask-soft: #392f2d;
+  --lp-part-ask-line: #704e3b;
+  --lp-part-ask-fg: #111216;
+  --lp-part-practise: #c896e6;
+  --lp-part-practise-soft: #352f3f;
+  --lp-part-practise-line: #634f73;
+  --lp-part-practise-fg: #111216;
+  --lp-part-reflect: #7cc58c;
+  --lp-part-reflect-soft: #2b3533;
+  --lp-part-reflect-line: #44624f;
+  --lp-part-reflect-fg: #111216;
+  --lp-part-tools: #a3abba;
+  --lp-part-tools-soft: #303239;
+  --lp-part-tools-line: #545861;
+  --lp-part-tools-fg: #111216;
 
-  --lp-warning: #d6a22a;
-  --lp-warning-soft: rgba(214, 162, 42, 0.14);
+  /* A highlighter does not change colour at night: the same yellow, the same
+     dark ink on it. */
+  --lp-highlight: #e9d45a;
+  --lp-highlight-fg: #1a1e29;
+
+  --lp-warning: #e2b84a;
+  --lp-warning-soft: #3f3d2e;
   --lp-warning-fg: #241a00;
-  --lp-danger: #e88c97;
-  --lp-danger-soft: rgba(232, 140, 151, 0.14);
+  --lp-danger: #f08a9c;
+  --lp-danger-soft: #342b32;
   --lp-danger-fg: #2a0a10;
 
-  /* Light ink on a dark canvas needs the leading and tracking back that the
-     dark background eats (craft-rules: compensate on all three axes). */
+  /* Light ink on a dark ground eats leading and tracking; give both back. */
   --lp-leading-prose: 1.9;
-  --lp-tracking-label: 0.09em;
+  --lp-tracking-label: 0.07em;
 
-  --lp-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --lp-shadow-raised: 0 2px 10px rgba(0, 0, 0, 0.45);
+  --lp-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --lp-shadow-raised: 0 6px 20px rgba(0, 0, 0, 0.5);
 }

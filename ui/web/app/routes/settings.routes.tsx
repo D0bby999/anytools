@@ -81,7 +81,7 @@ export default function Routes({ loaderData, actionData }: Route.ComponentProps)
           same screen, and splitting them means reading one and scrolling to the
           other. */}
       <section aria-labelledby="lp-readiness-matrix" className="mt-8">
-        <h2 id="lp-readiness-matrix" className="lp-kicker">
+        <h2 id="lp-readiness-matrix" className="lp-section">
           {t("settings.readiness.title")}
         </h2>
         <div className="mt-3">
@@ -92,7 +92,7 @@ export default function Routes({ loaderData, actionData }: Route.ComponentProps)
         </div>
       </section>
 
-      <h2 className="lp-kicker mt-10">{t("settings.routes.editorsTitle")}</h2>
+      <h2 className="lp-section mt-10">{t("settings.routes.editorsTitle")}</h2>
 
       {loaderData.connections.length === 0 ? (
         <p className="mt-4 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">

@@ -47,7 +47,7 @@ export function DriveGrants({
 
   return (
     <section aria-labelledby="lp-kb-drive" className="mt-8">
-      <h2 id="lp-kb-drive" className="lp-kicker">
+      <h2 id="lp-kb-drive" className="lp-section">
         {t("drive.label")}
       </h2>
 
@@ -167,7 +167,7 @@ function LastSync({ status }: { status: DriveStatus }) {
 export function GrantList({ grants }: { grants: DriveGrant[] }) {
   const { t } = useTranslation("knowledge");
   if (grants.length === 0) {
-    return <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("drive.empty")}</p>;
+    return <p className="mt-3 lp-empty">{t("drive.empty")}</p>;
   }
 
   const folderNames = new Map(grants.filter((g) => g.kind === "folder").map((g) => [g.file_id, g.name]));
@@ -185,7 +185,7 @@ export function GrantList({ grants }: { grants: DriveGrant[] }) {
           <li key={grant.id} className="border-b py-3">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-sans text-sm font-medium">
-                <span className="mr-2 font-mono text-2xs font-semibold tracking-label text-faint uppercase">
+                <span className="text-xs font-semibold mr-2 text-faint">
                   {grant.kind === "folder" ? t("drive.kind.folder") : t("drive.kind.file")}
                 </span>
                 {grant.document_id ? (

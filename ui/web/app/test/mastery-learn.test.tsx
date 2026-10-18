@@ -137,7 +137,7 @@ describe("ExplainBackCard", () => {
     await userEvent.type(screen.getByLabelText("Your explanation"), longEnough);
     await userEvent.click(screen.getByRole("button", { name: "Check my explanation" }));
 
-    await screen.findByText("Not yet — there are gaps");
+    await screen.findByText("Not yet: there are gaps");
     expect(posts[0]).toMatchObject({ intent: "explain", text: longEnough });
     expect(posts[0]?.request_id).toMatch(/^[0-9a-f-]{36}$/);
     expect(screen.getByText(/did not say where it is stored/)).toBeInTheDocument();
@@ -148,7 +148,7 @@ describe("ExplainBackCard", () => {
     await screen.findByText(/counted as explained, on your word/);
     expect(posts[1]).toMatchObject({ intent: "override", attemptId: "e1" });
     // The judge's verdict stays on screen; the learner's sits beside it.
-    expect(screen.getByText("Not yet — there are gaps")).toBeInTheDocument();
+    expect(screen.getByText("Not yet: there are gaps")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole("button", { name: /Judged wrong/ })).toBeNull());
   });
 

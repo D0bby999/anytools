@@ -52,7 +52,7 @@
   },
   "home": {
     "title": "Learning loop",
-    "lead": "One goal at a time, in cycles of ninety days. Each phase opens only on evidence — answers, notes and reviews the product already recorded — and every number here says what it cannot show.",
+    "lead": "One goal at a time, in cycles of ninety days. Each phase opens only on evidence (answers, notes and reviews the product already recorded), and every number here says what it cannot show.",
     "current": "Current goal",
     "cycle": "Cycle",
     "week": "Week {{week}} of this cycle",
@@ -172,7 +172,7 @@
     "noEvidence": "Nothing attached yet. Accept a suggestion below, or add one.",
     "suggested": "From this week",
     "suggestedLead": "Things you did in this week of the cycle. Nothing counts until you add it; a nightly pass also proposes these for you to accept or dismiss.",
-    "noSuggestions": "Nothing recorded this week yet — answer a quiz question or write a note, and it will show up here.",
+    "noSuggestions": "Nothing recorded this week yet. Answer a quiz question or write a note, and it will show up here.",
     "scores": "Scores",
     "total": "Total across the four checks",
     "completion": "Completion",
@@ -354,7 +354,7 @@
     "capacity": "Plan this cycle's weekly capacity"
   },
   "today": {
-    "title": "Today",
+    "title": "Your next step",
     "lowDay": "Low day",
     "lowDayHint": "Shows only the minimum. It resets at the end of the day, and nothing about it is recorded.",
     "nextTask": "Next task",

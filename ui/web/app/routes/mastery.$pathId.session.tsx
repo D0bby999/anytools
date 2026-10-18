@@ -20,6 +20,7 @@ import { nextQuestion } from "~/lib/mastery.server";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
 import { ExplainBackCard } from "~/components/mastery/explain-back-card";
+import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -65,13 +66,17 @@ export default function MasterySession({ loaderData, params }: Route.ComponentPr
 
       {next ? (
         <>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {next.module_name} · {next.knowledge_point.name}
-            {next.due ? ` · ${t("session.review")}` : ""}
-          </p>
-          <p className="mt-1 text-xs text-faint tabular-nums">
-            {t("session.remaining", { count: next.remaining_due })}
-          </p>
+          <PageHeader
+            title={next.knowledge_point.name}
+            className="mt-2 mb-0"
+            lede={`${next.module_name}${next.due ? ` · ${t("session.review")}` : ""}`}
+          >
+            <p className="mt-3 text-sm tabular-nums">
+              <span className={next.remaining_due > 0 ? "lp-highlight" : undefined}>
+                {t("session.remaining", { count: next.remaining_due })}
+              </span>
+            </p>
+          </PageHeader>
           <div className="mt-4">
             {/* Keyed by what they show: the next card is a new card with no
                 leftover answer or verdict from the last one. */}

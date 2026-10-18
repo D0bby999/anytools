@@ -16,7 +16,7 @@ import { Button } from "~/components/ui/button";
 /** Something of the learner's an entry may link to. */
 export type LinkChoice = { kind: CardLinkKind; id: string; label: string };
 
-const box = "mt-1 w-full rounded-md border border-control-border bg-background px-3 py-2 text-sm";
+const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 export function CardEntryForm({ timepoint, recent, busy }: { timepoint: Timepoint; recent: LinkChoice[]; busy: boolean }) {
   const { t } = useTranslation("loop");
@@ -49,7 +49,7 @@ export function CardEntryForm({ timepoint, recent, busy }: { timepoint: Timepoin
           <select
             name="prompt_level"
             defaultValue="unaided"
-            className="mt-1 block min-h-11 rounded-md border border-control-border bg-background px-2 text-sm"
+            className="mt-1 block min-h-11 rounded-md border border-control-border bg-card px-2 text-sm"
           >
             {PROMPT_LEVELS.map((l) => (
               <option key={l} value={l}>

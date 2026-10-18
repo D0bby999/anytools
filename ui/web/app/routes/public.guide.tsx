@@ -89,16 +89,16 @@ export default function GuidePage() {
 
   return (
     <article className="lp-measure px-4 py-8 lg:py-12">
-      <header className="lp-prose">
-        <h1>{title}</h1>
-        {description && <p className="text-lg">{description}</p>}
-        {facts.length > 0 && <p className="font-mono text-2xs uppercase tracking-label text-faint">{facts.join(" · ")}</p>}
+      <header className="lp-page-enter">
+        <h1 className="text-3xl leading-tight lg:text-4xl">{title}</h1>
+        {description && <p className="mt-3 text-lg leading-snug text-muted-foreground">{description}</p>}
+        {facts.length > 0 && <p className="mt-3 text-sm text-faint">{facts.join(" · ")}</p>}
       </header>
       <div className="mt-8">
         <Article source={source} standalone />
       </div>
       <p className="mt-12 border-t pt-6 text-sm">
-        <Link to={`/${locale}/guides`} className="text-primary underline underline-offset-4">
+        <Link to={`/${locale}/guides`} className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
           {t("guides.all")}
         </Link>
       </p>

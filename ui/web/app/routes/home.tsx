@@ -26,6 +26,11 @@ import { TodayBlock, type TodayState } from "~/components/home/today-block";
 import { dueWorksheets } from "~/lib/worksheets.server";
 import { dueCounts, WorksheetsDue, type DueCounts } from "~/components/worksheet/worksheets-due";
 import { duePathCount, ReviewAllLink } from "~/components/mastery/review-all-link";
+import { Button } from "~/components/ui/button";
+import { PageHeader } from "~/components/ui/page-header";
+import { RightPanel } from "~/components/layout/right-panel";
+import { NAV_ITEMS } from "~/components/layout/sidebar";
+import { PARTS } from "~/lib/parts";
 
 export function meta(_: Route.MetaArgs) {
   return [
@@ -87,9 +92,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, mistakes, today, lowDay, worksheetsDue };
 }
 
+/** Home draws its own margin: the pace the book keeps, and its one claim. */
+export const handle = { ownsPanel: true };
+
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-
+  const { readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, worksheetsDue, today, lowDay } = loaderData;
+  const ready = readiness?.core === "green";
   // Written as literal t() calls rather than a key built from a loop variable:
   // the i18n guard in app/test/structural-guards.test.ts can only verify keys
   // it can see, and a key it cannot see is a key that ships as raw text.
@@ -98,100 +107,235 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     { title: t("home.next.documents.title"), body: t("home.next.documents.body") },
     { title: t("home.next.ask.title"), body: t("home.next.ask.body") },
   ];
+  const pace = t("home.margin.path", { returnObjects: true }) as string[];
+  const total =
+    (due ?? 0) + mistakes + retests + (vocabDue ?? 0) + bookDue + worksheetsDue.count + worksheetsDue.private;
 
   return (
-    <div className="lp-measure">
-      {/* Read column: the workspace is wide, the text is not. The measure and
-          the leading are the world's, ported from up. */}
-      <div className="lp-prose">
-        <h1>{t("home.title")}</h1>
-        <p>{t("home.lead")}</p>
-        <p>{t("home.body")}</p>
+    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
+      <div className="min-w-0 flex-1 px-4 py-6 lg:px-10 lg:py-10">
+        <div className="lp-measure">
+          <PageHeader title={t("home.title")} lede={t("home.lead")} />
+
+          {/* Until a provider is connected nothing else on this page can run,
+              so the steps come first. Once it is, they shrink to the
+              readiness card at the end. */}
+          {!ready ? (
+            <>
+              <Setup steps={steps} />
+              <div className="mb-8 -mt-4">
+                <ReadinessCard readiness={readiness} />
+              </div>
+            </>
+          ) : null}
+
+          {/* Reflect: the next step of the goal touched last. */}
+          <div data-part="reflect">
+            {today ? (
+              <div className="lp-keybox p-5 sm:p-6">
+                <TodayBlock today={today} lowDay={lowDay} />
+              </div>
+            ) : (
+              <section aria-labelledby="lp-no-goal" className="lp-keybox p-5 sm:p-6">
+                <h2 id="lp-no-goal" className="lp-section">
+                  {t("home.noGoal.title")}
+                </h2>
+                <p className="mt-2 max-w-[60ch] text-sm leading-prose text-muted-foreground">{t("home.noGoal.body")}</p>
+                <Button asChild variant="outline" className="mt-4">
+                  <Link to="/loop">{t("home.noGoal.open")}</Link>
+                </Button>
+              </section>
+            )}
+          </div>
+
+          {/* Practise: everything due, behind one highlighted count. */}
+          <section data-part="practise" aria-labelledby="lp-due" className="mt-6 lp-keybox p-5 sm:p-6">
+            <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
+              <span aria-hidden="true" className="lp-numeral text-4xl">
+                <span className={total > 0 ? "lp-highlight" : undefined}>{total}</span>
+              </span>
+              <div className="min-w-0 flex-1 basis-60">
+                <h2 id="lp-due" className="lp-section text-xl">
+                  {t("home.due.title")}
+                </h2>
+                <p className="mt-1 text-sm leading-snug text-muted-foreground">
+                  {total > 0 ? t("home.due.total", { count: total }) : t("home.due.clear")}
+                </p>
+              </div>
+              {due !== null && due > 0 ? (
+                <Button asChild>
+                  <Link to={duePaths > 1 ? "/mastery/review" : "/mastery"}>{t("home.due.review")}</Link>
+                </Button>
+              ) : null}
+            </div>
+
+            {total > 0 ? (
+              <ul className="mt-5 divide-y divide-part-line border-y border-part-line">
+                {due ? (
+                  <DueRow count={due} text={t("home.due.count", { count: due })}>
+                    <Link to="/mastery" className={LINK}>
+                      {t("home.due.open")}
+                    </Link>
+                    <ReviewAllLink count={due} paths={duePaths} />
+                  </DueRow>
+                ) : null}
+                {mistakes > 0 ? (
+                  <DueRow count={mistakes} text={t("home.due.mistakes", { count: mistakes })}>
+                    <Link to="/quiz/practice" className={LINK}>
+                      {t("home.due.openMistakes")}
+                    </Link>
+                  </DueRow>
+                ) : null}
+                {retests > 0 ? (
+                  <DueRow count={retests} text={t("home.due.retests", { count: retests })}>
+                    <Link to="/loop" className={LINK}>
+                      {t("home.due.openRetests")}
+                    </Link>
+                  </DueRow>
+                ) : null}
+                {vocabDue ? (
+                  <CountRow count={vocabDue}>
+                    <VocabDue count={vocabDue} />
+                  </CountRow>
+                ) : null}
+                {bookDue > 0 ? (
+                  <CountRow count={bookDue}>
+                    <BookCardsDue count={bookDue} />
+                  </CountRow>
+                ) : null}
+                {worksheetsDue.count > 0 || worksheetsDue.private > 0 ? (
+                  <CountRow count={worksheetsDue.count + worksheetsDue.private}>
+                    <WorksheetsDue {...worksheetsDue} />
+                  </CountRow>
+                ) : null}
+              </ul>
+            ) : (
+              // Nothing due: the places to go still exist, as one quiet line.
+              <p className="mt-3 flex flex-wrap gap-x-5 pl-0 sm:pl-[calc(2.5rem+1.5rem)]">
+                <Link to="/mastery" className={LINK}>
+                  {t("home.due.open")}
+                </Link>
+                <Link to="/mastery/vocabulary" className={LINK}>
+                  {t("vocab:home.open")}
+                </Link>
+              </p>
+            )}
+          </section>
+
+          <Contents />
+
+          {ready ? <ReadinessCard readiness={readiness} /> : null}
+        </div>
       </div>
 
-      <TodayBlock today={loaderData.today} lowDay={loaderData.lowDay} />
-
-      <section aria-labelledby="lp-next" className="mt-10">
-        <h2 id="lp-next" className="lp-kicker">
-          {t("home.next.title")}
-        </h2>
-
-        {/* Hairline rows, not a grid of identical cards. These are steps in one
-            sequence and should read as one thing; three cards would read as
-            three products. The numbers earn their place because the order is
-            real: there is nothing to ask about until a document exists. */}
-        <ol className="mt-4 border-t">
-          {steps.map((step, index) => (
-            <li key={step.title} className="grid grid-cols-[2rem_1fr] gap-x-3 border-b py-4">
-              <span
-                aria-hidden="true"
-                className="font-mono text-xs font-semibold tabular-nums text-faint"
-              >
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className="font-sans text-base font-medium">{step.title}</h3>
-                <p className="mt-1 text-sm leading-prose text-muted-foreground">{step.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-
-        {/* The habit this product borrows from `up`: say what is not proven
-            yet, in the same voice as everything else. */}
-        <p className="mt-4 text-sm leading-prose text-muted-foreground">{t("home.next.status")}</p>
-
-        <ReadinessCard readiness={loaderData.readiness} />
-      </section>
-
-      <section aria-labelledby="lp-loop" className="mt-10">
-        <h2 id="lp-loop" className="lp-kicker">
-          {t("home.loop.title")}
-        </h2>
-        <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("home.loop.body")}</p>
-        <Link to="/loop" className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">
-          {t("home.loop.open")}
-        </Link>
-      </section>
-
-      {loaderData.due !== null ? (
-        <section aria-labelledby="lp-due" className="mt-10">
-          <h2 id="lp-due" className="lp-kicker">
-            {t("home.due.title")}
-          </h2>
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">
-            {loaderData.due > 0 ? t("home.due.count", { count: loaderData.due }) : t("home.due.none")}
-          </p>
-          <Link to="/mastery" className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">
-            {t("home.due.open")}
-          </Link>
-          <ReviewAllLink count={loaderData.due} paths={loaderData.duePaths} />
-          {loaderData.mistakes > 0 ? (
-            <>
-              <p className="mt-3 text-sm leading-prose text-muted-foreground">
-                {t("home.due.mistakes", { count: loaderData.mistakes })}
-              </p>
-              <Link to="/quiz/practice" className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">
-                {t("home.due.openMistakes")}
-              </Link>
-            </>
-          ) : null}
-          {loaderData.retests > 0 ? (
-            <>
-              <p className="mt-3 text-sm leading-prose text-muted-foreground">
-                {t("home.due.retests", { count: loaderData.retests })}
-              </p>
-              <Link to="/loop" className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">
-                {t("home.due.openRetests")}
-              </Link>
-            </>
-          ) : null}
+      <RightPanel title={t("home.margin.title")}>
+        <p className="mt-3 lp-margin-note">{t("home.claim")}</p>
+        <p className="mt-3 lp-margin-note">{t("home.body")}</p>
+        <section aria-labelledby="lp-pace" className="mt-6">
+          <h3 id="lp-pace" className="lp-section">
+            {t("home.margin.pathLabel")}
+          </h3>
+          <ol className="mt-2 space-y-2">
+            {pace.map((line) => (
+              <li key={line} className="font-serif text-sm leading-snug">
+                {line}
+              </li>
+            ))}
+          </ol>
         </section>
-      ) : null}
-
-      {loaderData.vocabDue !== null ? <VocabDue count={loaderData.vocabDue} /> : null}
-      <BookCardsDue count={loaderData.bookDue} />
-      <WorksheetsDue {...loaderData.worksheetsDue} />
+      </RightPanel>
     </div>
+  );
+}
+
+const LINK = "inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover";
+
+/** One line of the due list: the count in the margin of the row, then the rest. */
+function CountRow({ count, children }: { count: number; children: React.ReactNode }) {
+  return (
+    <li className="grid grid-cols-[2.5rem_1fr] items-baseline gap-x-3 py-3">
+      <span data-numeric aria-hidden="true" className="text-right font-serif text-lg font-semibold text-part">
+        {count}
+      </span>
+      <div className="min-w-0">{children}</div>
+    </li>
+  );
+}
+
+/** A due line Home writes itself: the sentence, then where to go. */
+function DueRow({ count, text, children }: { count: number; text: string; children: React.ReactNode }) {
+  return (
+    <CountRow count={count}>
+      <p className="text-sm leading-snug">{text}</p>
+      <div className="flex flex-wrap items-center gap-x-4">{children}</div>
+    </CountRow>
+  );
+}
+
+/**
+ * The table of contents: the four parts, what each is for, and its sections.
+ * A sequence of rows, not a grid of cards: the order is the book's.
+ */
+function Contents() {
+  const { t } = useTranslation("common");
+  return (
+    <section aria-labelledby="lp-contents" className="mt-10">
+      <h2 id="lp-contents" className="lp-section text-xl">
+        {t("home.contents.title")}
+      </h2>
+      <ol className="mt-3 border-t">
+        {PARTS.map((part) => (
+          <li key={part.id} data-part={part.id} className="grid grid-cols-[3rem_1fr] gap-x-4 border-b py-4">
+            <span aria-hidden="true" className="lp-numeral text-3xl">
+              {part.numeral}
+            </span>
+            <div className="min-w-0">
+              <h3 className="font-serif text-lg font-semibold text-part">
+                <span className="sr-only">{t("parts.part", { numeral: part.numeral })}: </span>
+                {t(part.labelKey)}
+              </h3>
+              <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{t(part.bodyKey)}</p>
+              <ul className="mt-1 flex flex-wrap gap-x-5">
+                {NAV_ITEMS.filter((n) => n.part === part.id).map((n) => (
+                  <li key={n.to}>
+                    <Link to={n.to} className={LINK}>
+                      {t(n.labelKey)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+/** Before anything runs: the three steps, in their real order, and readiness. */
+function Setup({ steps }: { steps: { title: string; body: string }[] }) {
+  const { t } = useTranslation("common");
+  return (
+    <section aria-labelledby="lp-next" className="mb-8 lp-keybox p-5 sm:p-6">
+      <h2 id="lp-next" className="lp-section text-xl">
+        {t("home.next.title")}
+      </h2>
+      {/* Numbered because the order is real: there is nothing to ask about
+          until a document exists, and nothing runs before a provider. */}
+      <ol className="mt-3">
+        {steps.map((step, index) => (
+          <li key={step.title} className="grid grid-cols-[2rem_1fr] gap-x-3 border-t py-3 first:border-t-0">
+            <span aria-hidden="true" className="font-serif text-xl font-semibold text-part">
+              {index + 1}
+            </span>
+            <div>
+              <h3 className="font-sans text-base font-semibold">{step.title}</h3>
+              <p className="mt-1 text-sm leading-prose text-muted-foreground">{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("home.next.status")}</p>
+    </section>
   );
 }

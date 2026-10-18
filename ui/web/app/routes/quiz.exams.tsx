@@ -19,6 +19,7 @@ import type { Exam, ExamTemplate } from "~/lib/exam-types";
 import { driveReason } from "~/lib/drive-storage";
 import { Button } from "~/components/ui/button";
 import { DriveFileNotice } from "~/components/storage/drive-file-notice";
+import { PageHeader } from "~/components/ui/page-header";
 
 /** The most items one mock exam generates (exam.MaxGenerate). */
 const MAX_GENERATE = 60;
@@ -92,10 +93,7 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
 
   return (
     <div className="lp-measure">
-      <div className="lp-prose">
-        <h1>{t("exams.title")}</h1>
-        <p>{t("exams.lead")}</p>
-      </div>
+      <PageHeader title={t("exams.title")} lede={t("exams.lead")} />
       <p className="mt-2 text-sm">
         <Link to="/quiz" className="text-primary underline underline-offset-4">
           {t("exams.toQuiz")}
@@ -107,7 +105,7 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
       </p>
 
       <section aria-labelledby="lp-exams-upload" className="mt-8">
-        <h2 id="lp-exams-upload" className="lp-kicker">
+        <h2 id="lp-exams-upload" className="lp-section">
           {t("exams.upload.title")}
         </h2>
         <Form method="post" encType="multipart/form-data" className="mt-3 space-y-3 rounded-lg border bg-card p-4">
@@ -144,11 +142,11 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
       </section>
 
       <section aria-labelledby="lp-exams-papers" className="mt-10">
-        <h2 id="lp-exams-papers" className="lp-kicker">
+        <h2 id="lp-exams-papers" className="lp-section">
           {t("exams.papers")}
         </h2>
         {templates.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("exams.noPapers")}</p>
+          <p className="mt-3 lp-empty">{t("exams.noPapers")}</p>
         ) : (
           <ul className="mt-3 border-t">
             {templates.map((tmpl) => (
@@ -161,11 +159,11 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
       </section>
 
       <section aria-labelledby="lp-exams-list" className="mt-10">
-        <h2 id="lp-exams-list" className="lp-kicker">
+        <h2 id="lp-exams-list" className="lp-section">
           {t("exams.exams")}
         </h2>
         {exams.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">{t("exams.noExams")}</p>
+          <p className="mt-3 lp-empty">{t("exams.noExams")}</p>
         ) : (
           <ul className="mt-3 border-t">
             {exams.map((exam) => (
@@ -190,7 +188,7 @@ function TemplateRow({ template, kbs }: { template: ExamTemplate; kbs: { id: str
         <Link to={`/quiz/exams/templates/${template.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
           {template.title}
         </Link>
-        <span className="font-mono text-2xs uppercase tracking-wide text-faint">{t(`exams.status.${template.status}`)}</span>
+        <span className="text-xs font-semibold text-faint">{t(`exams.status.${template.status}`)}</span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {t("exams.paperMeta", { pages: template.page_count, count, points: template.total_points })}
@@ -210,7 +208,7 @@ function TemplateRow({ template, kbs }: { template: ExamTemplate; kbs: { id: str
                 id={`lp-exams-kb-${template.id}`}
                 name="kbId"
                 required
-                className="mt-1 min-h-11 rounded-md border border-control-border bg-background px-3 text-sm"
+                className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
               >
                 {kbs.map((kb) => (
                   <option key={kb.id} value={kb.id}>

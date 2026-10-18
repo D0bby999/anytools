@@ -33,7 +33,7 @@ export function ResearchForm<T>({
 }) {
   const { t } = useTranslation("research");
   const submitting = fetcher.state !== "idle";
-  const field = "mt-1 w-full rounded-md border border-control-border bg-background px-3 text-sm";
+  const field = "mt-1 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
   return (
     <fetcher.Form method="post" className="space-y-4 rounded-lg border bg-card p-4">

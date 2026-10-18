@@ -57,22 +57,22 @@ export default function GuidesPage() {
 
   return (
     <div className="lp-layout px-4 py-8 lg:px-6 lg:py-12">
-      <div className="lp-prose max-w-(--lp-measure-read)">
-        <h1>{t("guides.title")}</h1>
-        <p className="text-lg">{t("guides.description")}</p>
-      </div>
+      <header className="lp-page-enter max-w-(--lp-measure-read)">
+        <h1 className="text-3xl leading-tight lg:text-4xl">{t("guides.title")}</h1>
+        <p className="mt-3 text-lg leading-snug text-muted-foreground">{t("guides.description")}</p>
+      </header>
 
-      <ul className="mt-8 max-w-(--lp-measure-read) border-t">
+      <ul className="mt-10 max-w-(--lp-measure-read) border-t">
         {guides.map((g) => (
           <li key={g.slug} className="border-b">
             <Link
               to={`/${locale}/guides/${g.slug}`}
-              className="group flex flex-col gap-1 px-1 py-4 transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+              className="group flex flex-col gap-1 px-1 py-5 transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             >
-              <span className="font-medium group-hover:text-primary">{g.title}</span>
+              <span className="font-serif text-xl leading-snug font-semibold group-hover:text-primary">{g.title}</span>
               {g.description && <span className="text-sm text-muted-foreground">{g.description}</span>}
               {g.readingTime !== null && (
-                <span className="font-mono text-2xs uppercase tracking-label text-faint">
+                <span className="text-xs text-faint">
                   {t("guides.readingTime", { count: g.readingTime })}
                 </span>
               )}
