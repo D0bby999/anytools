@@ -62,7 +62,7 @@ jobs:
       ANYTOOLS_HEAVY_TESTS: "1"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # TestMigrationsAreInCommitOrder walks main's history; a shallow
           # clone would skip it, and a skip fails this job.
@@ -73,7 +73,7 @@ jobs:
       - name: Install ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           # One source of truth: go.mod's `toolchain` line (phase 11 pinned it
           # to a patch release with the stdlib security fixes).
@@ -178,13 +178,13 @@ jobs:
         working-directory: ui/web
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: pnpm
@@ -218,7 +218,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # The history scan below needs every commit.
           fetch-depth: 0

@@ -3,7 +3,7 @@
 // runs it once for its source and commits the result unedited:
 //
 //	go run ./internal/learning/worksheet/testdata/gen \
-//	    -up ~/.longplay-refs/up -file docs/en/templates/artifact-brief.md \
+//	    -up ~/.anytools-refs/up -file docs/en/templates/artifact-brief.md \
 //	    -sections 1-5 -kind artifact_brief
 //
 // -sections picks `##` sections by their order in the file, from 1 ("" for
@@ -38,7 +38,7 @@ import (
 const upCommit = "f13ff2d"
 
 func main() {
-	up := flag.String("up", filepath.Join(os.Getenv("HOME"), ".longplay-refs", "up"), "the up checkout")
+	up := flag.String("up", filepath.Join(os.Getenv("HOME"), ".anytools-refs", "up"), "the up checkout")
 	file := flag.String("file", "", "the Markdown file, relative to -up")
 	sections := flag.String("sections", "", `the "##" sections to read, by order in the file ("" = all)`)
 	kind := flag.String("kind", "", "the kind id; the outline is written to testdata/outlines/<kind>.txt")

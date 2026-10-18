@@ -30,8 +30,6 @@ var brandKeptEverywhere = []string{
 	// the plaintext whose ciphertext every existing database holds; a new
 	// plaintext would read as a wrong encryption key at boot.
 	"longplay-encryption-key-sentinel-v1",
-	// the owner's local reference checkouts, outside the repo.
-	".longplay-refs",
 	// links to plan folders, which keep their names.
 	"260916-1225-longplay-self-learning-platform",
 }
