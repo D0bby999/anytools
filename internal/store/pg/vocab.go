@@ -690,6 +690,10 @@ func (s *VocabStore) Review(ctx context.Context, w vocab.ReviewWrite) (*vocab.Re
 	if err != nil {
 		return nil, err
 	}
+	// Postgres keeps microseconds. Rounded here, the answer is the value the
+	// row holds, so a replay of this request (read back from the row) answers
+	// the same due_at. Linux clocks carry nanoseconds; macOS's do not.
+	next.Due = next.Due.UTC().Round(time.Microsecond)
 	nextRaw, _ := json.Marshal(next)
 	res := &vocab.ReviewResult{
 		CardID: w.CardID, Rating: w.Rating, Matched: w.Matched,
