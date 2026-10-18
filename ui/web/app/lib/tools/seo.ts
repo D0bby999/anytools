@@ -10,6 +10,18 @@ import type { PublicLng } from "~/lib/i18n";
 
 /** Google cuts titles around 60 characters, and what it cuts is the brand. */
 export const MAX_TITLE_CHARS = 60;
+
+/**
+ * Bumped whenever the share cards change look. Cloudflare and the social
+ * networks cache an og:image for a day or more; a new query string is the
+ * only way a redesign reaches a link that was already shared.
+ */
+export const OG_VERSION = "20261019";
+
+/** The share card under `base`: the site's (`/og.png`) or a tool page's. */
+export function ogImage(base: string): string {
+  return `${base}/og.png?v=${OG_VERSION}`;
+}
 export const MAX_DESCRIPTION_CHARS = 155;
 const BRAND = "AnyTools";
 

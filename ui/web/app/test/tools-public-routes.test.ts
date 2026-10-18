@@ -10,6 +10,7 @@ import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it, vi } from "vitest";
+import { OG_VERSION } from "~/lib/tools/seo";
 
 vi.mock("~/lib/env.server", () => ({ APP_URL: "https://anytools.example", API_BASE: "", API_TOKEN: "" }));
 
@@ -164,7 +165,7 @@ describe("tool pages", () => {
       "pt https://anytools.example/pt/time-date/timezone-converter",
       "x-default https://anytools.example/en/time-date/timezone-converter",
     ]);
-    expect(content(tags, "property", "og:image")).toBe(`${self}/og.png`);
+    expect(content(tags, "property", "og:image")).toBe(`${self}/og.png?v=${OG_VERSION}`);
     expect(content(tags, "property", "og:locale")).toBe("vi");
     expect(content(tags, "name", "robots")).toMatch(/^index/);
     expect(ldTypes(tags)).toEqual(["SoftwareApplication", "BreadcrumbList", "FAQPage"]);

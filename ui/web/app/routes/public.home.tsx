@@ -12,7 +12,7 @@ import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
 import { catalogEntries, POPULATED_CLUSTERS, SORTS, type Sort } from "~/lib/tools/catalog";
 import { publicLocale, toolsT } from "~/lib/tools/route.server";
-import { alternateLinks, pageMeta } from "~/lib/tools/seo";
+import { alternateLinks, pageMeta, ogImage } from "~/lib/tools/seo";
 
 /** The page has its own search box; the header leaves its one out. */
 export const handle = { ownSearch: true };
@@ -53,7 +53,7 @@ export function meta({ data }: Route.MetaArgs) {
       title: seo.title,
       description: seo.description,
       url: `${origin}${path(locale)}`,
-      image: `${origin}/og.png`,
+      image: ogImage(origin),
       locale,
       indexable: true,
       alternateLocales: publicLngs,

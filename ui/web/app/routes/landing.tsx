@@ -26,6 +26,7 @@ import { PARTS } from "~/lib/parts";
 import { SOURCE_URL } from "~/components/tools-site/public-shell";
 import { catalogEntries, CLUSTER_ORDER } from "~/lib/tools/catalog";
 import { pickPublicLocale } from "./tools";
+import { ogImage } from "~/lib/tools/seo";
 
 export async function loader({ request }: Route.LoaderArgs) {
   if (await getUserId(request)) throw redirect("/home");
@@ -63,7 +64,7 @@ export function meta({ data }: Route.MetaArgs) {
     { property: "og:title", content: TITLE },
     { property: "og:description", content: DESCRIPTION },
     { property: "og:url", content: `${url}/` },
-    { property: "og:image", content: `${url}/og.png` },
+    { property: "og:image", content: ogImage(url) },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { name: "twitter:card", content: "summary_large_image" },

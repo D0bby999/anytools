@@ -5,6 +5,7 @@
  * it and about nothing else.
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { OG_VERSION } from "~/lib/tools/seo";
 
 vi.mock("~/lib/env.server", () => ({ APP_URL: "https://learn.example.com", API_BASE: "", API_TOKEN: "" }));
 const getUserId = vi.fn();
@@ -32,7 +33,7 @@ describe("landing", () => {
     const data = await landing.loader(args);
     const tags = landing.meta({ data } as unknown as Parameters<typeof landing.meta>[0]) as Record<string, unknown>[];
     expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://learn.example.com/" });
-    expect(tags).toContainEqual({ property: "og:image", content: "https://learn.example.com/og.png" });
+    expect(tags).toContainEqual({ property: "og:image", content: `https://learn.example.com/og.png?v=${OG_VERSION}` });
     const ld = tags.find((t) => "script:ld+json" in t)?.["script:ld+json"] as Record<string, unknown>;
     expect(ld["@type"]).toBe("SoftwareApplication");
     expect(tags.some((t) => t.name === "robots")).toBe(false);

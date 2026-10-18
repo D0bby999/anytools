@@ -12,7 +12,7 @@ import { APP_URL } from "~/lib/env.server";
 import { catalogEntries, isPopulatedCluster } from "~/lib/tools/catalog";
 import { clusterIsIndexable } from "~/lib/tools/content.server";
 import { notFound, publicLocale, toolsT } from "~/lib/tools/route.server";
-import { alternateLinks, breadcrumbSchema, buildToolTitle, clampMetaDescription, clusterPageNoun, pageMeta } from "~/lib/tools/seo";
+import { alternateLinks, breadcrumbSchema, buildToolTitle, clampMetaDescription, clusterPageNoun, pageMeta, ogImage } from "~/lib/tools/seo";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = publicLocale(params);
@@ -51,7 +51,7 @@ export function meta({ data }: Route.MetaArgs) {
       title: seo.title,
       description: seo.description,
       url: `${origin}${path(locale)}`,
-      image: `${origin}/og.png`,
+      image: ogImage(origin),
       locale,
       indexable: data.indexable,
       alternateLocales: data.alternates,

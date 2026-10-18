@@ -12,7 +12,7 @@ import { addPagesBundle } from "~/lib/tools/i18n";
 import { pagesMessages } from "~/lib/tools/messages.server";
 import { listGuides } from "~/lib/tools/pages.server";
 import { pagesT, publicLocale } from "~/lib/tools/route.server";
-import { alternateLinks, breadcrumbSchema, clampMetaDescription, pageMeta } from "~/lib/tools/seo";
+import { alternateLinks, breadcrumbSchema, clampMetaDescription, pageMeta, ogImage } from "~/lib/tools/seo";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = publicLocale(params);
@@ -35,7 +35,7 @@ export function meta({ data }: Route.MetaArgs) {
       title: seo.title,
       description: seo.description,
       url: `${origin}${path(locale)}`,
-      image: `${origin}/og.png`,
+      image: ogImage(origin),
       locale,
       indexable: true,
       alternateLocales: publicLngs,

@@ -23,6 +23,7 @@ import {
   clusterSeoLabel,
   faqSchema,
   pageMeta,
+  ogImage,
   softwareAppSchema,
 } from "~/lib/tools/seo";
 import { isPorted } from "~/tools/ui-registry";
@@ -74,7 +75,7 @@ export function meta({ data }: Route.MetaArgs) {
       title: data.seoTitle,
       description: data.description,
       url,
-      image: `${url}/og.png`,
+      image: ogImage(url),
       locale,
       indexable: data.indexable,
       alternateLocales: data.alternates,

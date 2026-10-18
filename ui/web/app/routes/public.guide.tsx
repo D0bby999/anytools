@@ -15,7 +15,7 @@ import { localizeArticleLinks } from "~/lib/tools/links.server";
 import { pagesMessages } from "~/lib/tools/messages.server";
 import { guideLocales, loadGuide } from "~/lib/tools/pages.server";
 import { notFound, pagesT, publicLocale } from "~/lib/tools/route.server";
-import { alternateLinks, breadcrumbSchema, clampMetaDescription, MAX_TITLE_CHARS, pageMeta } from "~/lib/tools/seo";
+import { alternateLinks, breadcrumbSchema, clampMetaDescription, MAX_TITLE_CHARS, pageMeta, ogImage } from "~/lib/tools/seo";
 
 /** Guide titles are long; the brand suffix goes where it would push past what Google shows. */
 function guideTitle(title: string): string {
@@ -54,7 +54,7 @@ export function meta({ data }: Route.MetaArgs) {
       title: guideTitle(data.title),
       description: clampMetaDescription(data.description),
       url,
-      image: `${origin}/og.png`,
+      image: ogImage(origin),
       locale,
       indexable: true,
       alternateLocales: data.locales,

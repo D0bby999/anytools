@@ -15,7 +15,7 @@ import { addPagesBundle } from "~/lib/tools/i18n";
 import { pagesMessages } from "~/lib/tools/messages.server";
 import { isStaticPage, loadPage } from "~/lib/tools/pages.server";
 import { notFound, publicLocale } from "~/lib/tools/route.server";
-import { alternateLinks, clampMetaDescription, MAX_TITLE_CHARS, pageMeta } from "~/lib/tools/seo";
+import { alternateLinks, clampMetaDescription, MAX_TITLE_CHARS, pageMeta, ogImage } from "~/lib/tools/seo";
 
 export function loader({ request, params }: Route.LoaderArgs) {
   const locale = publicLocale(params);
@@ -37,7 +37,7 @@ export function meta({ data }: Route.MetaArgs) {
       title: full.length <= MAX_TITLE_CHARS ? full : data.title,
       description: clampMetaDescription(data.description),
       url: `${origin}${path(locale)}`,
-      image: `${origin}/og.png`,
+      image: ogImage(origin),
       locale,
       indexable: true,
       alternateLocales: publicLngs,
