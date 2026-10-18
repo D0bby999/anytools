@@ -29,17 +29,28 @@ function token(name: string): string {
 
 type Font = { name: string; data: Buffer; weight: 400 | 500 | 600; style: "normal" };
 
+const SUBSETS = ["latin", "latin-ext", "vietnamese"] as const;
+
+/**
+ * Each subset is registered under its own name, and a face is asked for as
+ * the list of them (SERIF, SANS below). Registered under one shared name,
+ * satori kept the latin file only and drew a Vietnamese title with holes
+ * where Đ and ị belong (seen on anytools.world, 2026-10-19).
+ */
 function fonts(): Font[] {
-  const file = (pkg: string, base: string, subset: string, weight: number) =>
-    readFileSync(require.resolve(`@fontsource/${pkg}/files/${base}-${subset}-${weight}-normal.woff`));
+  const file = (pkg: string, subset: string, weight: number) =>
+    readFileSync(require.resolve(`@fontsource/${pkg}/files/${pkg}-${subset}-${weight}-normal.woff`));
   const out: Font[] = [];
-  for (const subset of ["latin", "latin-ext", "vietnamese"]) {
-    out.push({ name: "Serif", data: file("literata", "literata", subset, 600), weight: 600, style: "normal" });
-    out.push({ name: "Sans", data: file("be-vietnam-pro", "be-vietnam-pro", subset, 400), weight: 400, style: "normal" });
-    out.push({ name: "Sans", data: file("be-vietnam-pro", "be-vietnam-pro", subset, 600), weight: 600, style: "normal" });
+  for (const subset of SUBSETS) {
+    out.push({ name: `Serif-${subset}`, data: file("literata", subset, 600), weight: 600, style: "normal" });
+    out.push({ name: `Sans-${subset}`, data: file("be-vietnam-pro", subset, 400), weight: 400, style: "normal" });
+    out.push({ name: `Sans-${subset}`, data: file("be-vietnam-pro", subset, 600), weight: 600, style: "normal" });
   }
   return out;
 }
+
+const SERIF = SUBSETS.map((s) => `Serif-${s}`).join(", ");
+const SANS = SUBSETS.map((s) => `Sans-${s}`).join(", ");
 
 let ready: Promise<Font[]> | null = null;
 
@@ -77,11 +88,11 @@ export async function renderToolCard(input: { title: string; description: string
     },
     [
       el("div", { display: "flex", alignItems: "center", gap: 20 }, [
-        el("div", { fontFamily: "Serif", fontSize: 40, fontWeight: 600 }, "AnyTools"),
+        el("div", { fontFamily: SERIF, fontSize: 40, fontWeight: 600 }, "AnyTools"),
         el(
           "div",
           {
-            fontFamily: "Sans",
+            fontFamily: SANS,
             fontSize: 20,
             fontWeight: 600,
             letterSpacing: 2,
@@ -95,8 +106,8 @@ export async function renderToolCard(input: { title: string; description: string
         ),
       ]),
       el("div", { display: "flex", flexDirection: "column", gap: 24 }, [
-        el("div", { fontFamily: "Serif", fontSize: 64, fontWeight: 600, lineHeight: 1.12 }, input.title),
-        el("div", { fontFamily: "Sans", fontSize: 28, color: token("ink-2"), lineHeight: 1.45 }, input.description),
+        el("div", { fontFamily: SERIF, fontSize: 64, fontWeight: 600, lineHeight: 1.12 }, input.title),
+        el("div", { fontFamily: SANS, fontSize: 28, color: token("ink-2"), lineHeight: 1.45 }, input.description),
       ]),
       el(
         "div",
@@ -105,7 +116,7 @@ export async function renderToolCard(input: { title: string; description: string
           justifyContent: "flex-end",
           borderTop: `1px solid ${token("border")}`,
           paddingTop: 24,
-          fontFamily: "Sans",
+          fontFamily: SANS,
           fontSize: 22,
           color: token("ink-2"),
         },
