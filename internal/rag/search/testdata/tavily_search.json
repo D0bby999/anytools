@@ -1,0 +1,23 @@
+{
+  "query": "retrieval augmented generation",
+  "follow_up_questions": null,
+  "answer": null,
+  "images": [],
+  "results": [
+    {
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "url": "https://arxiv.org/abs/2005.11401",
+      "content": "We explore a general-purpose fine-tuning recipe for retrieval-augmented generation (RAG) — models which combine pre-trained parametric and non-parametric memory for language generation.",
+      "score": 0.93,
+      "raw_content": null
+    },
+    {
+      "title": "What is retrieval-augmented generation?",
+      "url": "https://research.ibm.com/blog/retrieval-augmented-generation-RAG",
+      "content": "RAG is an AI framework for retrieving facts from an external knowledge base to ground large language models on the most accurate information.",
+      "score": 0.88,
+      "raw_content": null
+    }
+  ],
+  "response_time": 1.21
+}

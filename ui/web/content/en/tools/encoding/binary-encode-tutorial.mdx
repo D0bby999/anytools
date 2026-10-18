@@ -1,0 +1,91 @@
+---
+title: Complete guide to Binary encode / decode
+description: How binary text encoding works, why 8 bits became a byte, UTF-8 multi-byte gotchas, and when a binary dump is actually useful.
+updated: 2026-05-27
+---
+
+## What binary encoding actually is
+
+Binary encoding converts each byte of data into its eight-character binary representation (`0` and `1`). The character `A` (ASCII 65) becomes `01000001`. The byte `0xFF` becomes `11111111`. The output is a string of ASCII characters that is eight times the length of the original byte sequence.
+
+This is **not** compression, **not** encryption, and **not** commonly used in production systems. It is primarily a **pedagogical and debugging tool** — the most transparent possible way to inspect what bits actually live inside a byte.
+
+## Why 8 bits became a byte
+
+The 8-bit byte was not inevitable. Early computing used 6-bit, 7-bit, 9-bit, and even 36-bit words depending on the machine architecture. IBM's System/360 (1964) popularised the 8-bit byte, and the ASCII standard (1963, revised 1967) cemented 7-bit characters as the baseline for text. The extra bit gave room for parity checking, then for extended character sets (Latin-1 / ISO 8859-1), and eventually became the foundation of UTF-8.
+
+By the early 1980s the 8-bit byte had won: Intel's 8080, Motorola's 6800, the MOS 6502 (inside the Apple II and NES) — all 8-bit. The IEEE 1003.1 (POSIX) standard formally defined `CHAR_BIT` as 8 in 1988. Today the assumption is so universal that "byte" and "octet" are used interchangeably in most networking RFCs, even though "octet" (RFC 791, RFC 793) was originally chosen precisely to avoid the ambiguity.
+
+## Understanding bitwise operations visually
+
+Binary text is the fastest way to understand what bitwise operators do:
+
+```
+  A  = 01000001
+  B  = 01000010
+A & B = 01000000   (AND: both bits must be 1)
+A | B = 01000011   (OR: either bit is 1)
+A ^ B = 00000011   (XOR: bits differ)
+ ~A   = 10111110   (NOT: flip every bit)
+A << 1= 10000010   (left shift by 1 = multiply by 2)
+A >> 1= 00100000   (right shift by 1 = divide by 2)
+```
+
+Seeing the bit positions directly eliminates guessing. This is why computer-science courses that teach bit manipulation often ask students to write out binary representations by hand before running code.
+
+## Network protocol debugging
+
+Protocols often pack multiple flags or small values into a single byte. The TCP header, for example, has a 9-bit flags field where individual bits signal SYN, ACK, FIN, RST, PSH, URG, ECE, CWR, and NS. When a packet capture shows a TCP segment with a flags byte of `0x12`, converting to binary — `00010010` — immediately reveals bits 1 and 4 are set: SYN and ACK.
+
+Similarly, packed structures in embedded systems (MQTT connect flags, I²C register bitmasks, CAN bus data frames) are most readable in binary. A single byte controlling eight independent hardware signals is incomprehensible as decimal `147` but instantly legible as `10010011`.
+
+DNS, IP headers (version + IHL packed into one byte), IPv4 ToS/DSCP fields, and USB descriptor flags all use bit-packed bytes. Binary encoding lets you read these directly without calculating powers of two.
+
+## UTF-8 multi-byte characters
+
+For ASCII text (codepoints 0–127), every character is one byte, so binary encoding produces eight characters per input character. For anything outside ASCII, UTF-8 uses multiple bytes:
+
+| Character | Codepoint | UTF-8 bytes | Binary output length |
+|-----------|-----------|-------------|----------------------|
+| `A` | U+0041 | 1 byte | 8 chars |
+| `é` | U+00E9 | 2 bytes | 16 chars |
+| `中` | U+4E2D | 3 bytes | 24 chars |
+| `😀` | U+1F600 | 4 bytes | 32 chars |
+
+This is correct and expected. If you encode `😀` and get a 32-character binary string, the tool is working as designed. The four bytes `11110000 10011111 10011000 10000000` encode the UTF-8 representation of the emoji.
+
+**UTF-8 byte structure:** The leading bits of each byte tell the decoder how many bytes belong to this codepoint. `0xxxxxxx` is a single-byte ASCII character. `110xxxxx` starts a two-byte sequence. `1110xxxx` starts three bytes. `11110xxx` starts four. Continuation bytes always begin with `10xxxxxx`. Seeing this in binary makes the encoding immediately tangible.
+
+## When is this actually useful?
+
+**Learning environments.** Computer science courses, coding bootcamps, and self-study — anywhere a learner is trying to build intuition for binary arithmetic, ASCII tables, or character encoding.
+
+**Bit manipulation debugging.** When writing a bitmask and the result is wrong, pasting the bytes into a binary viewer instantly shows which bit is unexpectedly set or cleared.
+
+**Protocol specification work.** Drafting or reviewing an RFC, a proprietary protocol spec, or a hardware interface description: showing the bit layout in binary alongside the C struct definition is clearer than a table of hex values.
+
+**CTF (Capture The Flag) challenges.** Binary-encoded messages appear frequently in beginner-level challenges. Pasting a binary string and decoding to text is a common first step.
+
+## Production use cases (rare but real)
+
+Binary encoding is almost never used as a serialisation format in production because of the 700% overhead. The main exception is **human-readable binary literals in code**:
+
+```python
+flags = 0b10010011   # Python binary literal
+mask  = 0b00001111   # lower nibble mask
+```
+
+```javascript
+const flags = 0b10010011;  // JavaScript binary literal (ES2015+)
+```
+
+These are binary numbers in source code, not binary-encoded strings — but they rely on the same mental model this tool exercises.
+
+## Privacy
+
+All encoding and decoding runs entirely in your browser. Your text is never sent to a server, never logged, and never leaves your device.
+
+## Related tools
+
+- **Hex Encode/Decode** — two characters per byte (100% overhead), the practical choice for inspecting raw bytes.
+- **Base64 Encode/Decode** — four characters per three bytes (33% overhead), the standard for transporting binary over text channels.

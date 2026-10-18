@@ -1,0 +1,36 @@
+---
+title: Calculadora de desconto — Perguntas frequentes
+---
+
+## O que ela calcula?
+
+O dinheiro economizado, o preço após o desconto, qualquer imposto sobre esse preço reduzido e o valor final — mais quanto você economizou em relação ao original. O imposto é opcional; deixe-o em zero e a ferramenta apenas lida com o desconto.
+
+## O imposto é aplicado antes ou depois do desconto?
+
+Depois. A sequência é `desconto = original × pct`, depois `apósDesconto = original − desconto`, depois `imposto = apósDesconto × pctImposto`. Essa ordem importa, porque o imposto normalmente é cobrado sobre o que você realmente paga, não sobre o preço de tabela pré-venda — então um desconto reduz o imposto também.
+
+## Por que 20% de desconto e depois 10% de desconto não é o mesmo que 30% de desconto?
+
+Porque o segundo desconto se aplica ao preço já reduzido, não ao original. Vinte por cento e depois dez por cento deixa você pagando `0,8 × 0,9 = 0,72` do original — uma economia de 28%, não 30%. O modo de desconto empilhado faz isso corretamente. Este é o erro mais comum nas contas de venda e sempre favorece a loja.
+
+## A ordem de dois descontos empilhados muda o resultado?
+
+Não. A multiplicação é comutativa, portanto 20% e depois 10%, e 10% e depois 20% deixam ambos em 72%. Onde a ordem importa é quando um deles é um valor fixo de desconto em vez de uma porcentagem — esse é um cálculo diferente e esta ferramenta não o modela.
+
+## Como verifico um "preço final" anunciado?
+
+Digite o preço original e o desconto reivindicado, depois compare o valor final da ferramenta com o preço na prateleira. Uma discrepância geralmente significa que o desconto está sendo aplicado a um preço "era" que nunca foi realmente cobrado, ou que o imposto está sendo tratado de forma diferente do que você assumiu.
+
+## Posso trabalhar de trás para frente a partir do preço de venda até o desconto?
+
+Não diretamente — essa ferramenta vai para frente a partir de um preço original. Para encontrar a porcentagem, divida a economia pelo preço original e multiplique por 100. Se o que você realmente quer é remover o imposto de um total, a [calculadora de imposto sobre vendas](/en/finance/sales-tax-calculator) tem um modo reverso exatamente para isso.
+
+## Ela arredonda da mesma forma que um caixa faz?
+
+Ela não força nenhuma regra de arredondamento particular. Caixas reais arredondam em pontos definidos e podem calcular o imposto por linha em vez de no total, portanto uma diferença de centavo final em relação a um recibo é normal.
+
+## Algo é enviado para um servidor?
+
+Não. A aritmética é executada em seu navegador.
+

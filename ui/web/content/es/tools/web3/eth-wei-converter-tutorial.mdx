@@ -1,0 +1,120 @@
+---
+title: Conversor ETH / Wei — unidades, precios de gas, BigInt y EIP-1559
+description: Convierte entre wei, gwei y ether. Entiende la jerarquía de unidades ETH, el cálculo de gas, las trampas de precisión en JS y la estructura de comisiones EIP-1559.
+updated: 2026-05-26
+---
+
+## La jerarquía de unidades de ETH
+
+Ether (ETH) es divisible hasta 18 decimales. La unidad más pequeña es **wei** — en honor a Wei Dai, el criptógrafo que propuso b-money. La jerarquía completa:
+
+| Unidad | Valor en wei | Uso común |
+|--------|-------------|-----------|
+| wei | 1 | Aritmética interna de smart contracts |
+| kwei (babbage) | 10³ | Raramente usado |
+| mwei (lovelace) | 10⁶ | Raramente usado |
+| gwei (shannon) | 10⁹ | Precios de gas |
+| microether (szabo) | 10¹² | Ocasionalmente en DeFi |
+| milliether (finney) | 10¹⁵ | Raramente usado |
+| ether | 10¹⁸ | Saldos para el usuario final |
+
+En la práctica, trabajarás casi exclusivamente con tres unidades: **wei** para la aritmética dentro de contratos, **gwei** para los precios de gas, y **ether** para mostrar saldos a los usuarios.
+
+## Por qué existe wei y por qué importa
+
+Solidity y la EVM operan completamente con enteros — no hay tipos de punto flotante. Todas las transferencias de valor ocurren en wei. Si un contrato recibe 1 ETH, la EVM ve el entero `1000000000000000000` (10¹⁸). Este diseño elimina errores de redondeo en la lógica financiera, a costa de requerir que cada developer trabaje con enteros muy grandes.
+
+Las consecuencias son reales: un bug de decimal equivocado no pierde unos céntimos — puede perder 10× o 100× la cantidad prevista. Una función que espera wei pero recibe gwei interpretará 1 gwei (10⁹ wei) como 0.000000001 ETH, no 1 ETH.
+
+## La trampa de precisión de JavaScript Number
+
+El tipo `Number` de JavaScript es un double IEEE 754 de 64 bits. Solo puede representar enteros exactamente hasta **2⁵³ − 1 = 9,007,199,254,740,991**. Un ether en wei es `1,000,000,000,000,000,000` (10¹⁸) — mayor que ese límite. La aritmética sobre valores wei usando `Number` ordinario **pierde precisión silenciosamente**:
+
+```javascript
+// MAL — pérdida de precisión silenciosa
+const weirdAmt = 1.5e18 + 1;
+console.log(1500000000000000001) // → 1500000000000000000 ✗ (perdió el +1)
+```
+
+La solución es **BigInt** (nativo en todos los entornos JS/TS modernos) o una biblioteca que lo envuelva:
+
+```javascript
+// BIEN — usando BigInt
+const oneEther = 1_000_000_000_000_000_000n;
+const result = oneEther + 1n;  // 1000000000000000001n ✓
+```
+
+Esta herramienta usa `ethers.js` v6 internamente, que representa todas las cantidades como `BigInt`. Los resultados de conversión se formatean como cadenas decimales, no como floats — por lo que la visualización es exacta.
+
+## parseUnits y formatUnits de ethers.js
+
+Las dos funciones que usarás a diario en cualquier dapp de Ethereum:
+
+```typescript
+import { parseUnits, formatUnits } from "ethers";
+
+// El usuario escribe "1.5" ETH → BigInt interno en wei
+const weiAmount = parseUnits("1.5", "ether");
+// → 1500000000000000000n
+
+// El contrato devuelve un BigInt en wei → mostrar al usuario
+const display = formatUnits(weiAmount, "ether");
+// → "1.5"
+
+// Precio de gas: gwei ↔ wei
+const gasPrice = parseUnits("20", "gwei");       // → 20000000000n
+const gasPriceGwei = formatUnits(gasPrice, "gwei"); // → "20.0"
+```
+
+El segundo argumento acepta el nombre de la unidad (`"ether"`, `"gwei"`, `"wei"`) o el número de decimales como entero. Esto se generaliza a tokens ERC-20: `parseUnits("100", 6)` para USDC (6 decimales), `parseUnits("100", 18)` para la mayoría de tokens.
+
+## Cálculo del costo de gas
+
+El costo en ETH de una transacción es:
+
+```
+costo de gas (ETH) = gas usado × precio de gas (en gwei) × 10⁻⁹
+```
+
+O en wei:
+
+```
+costo de gas (wei) = gas usado × precio de gas (en wei)
+```
+
+Una transferencia ETH estándar usa 21,000 gas. Con un precio de gas de 20 gwei:
+
+```
+costo = 21,000 × 20 × 10⁻⁹ ETH = 0.00042 ETH = 420,000,000,000,000 wei
+```
+
+Un swap DeFi complejo puede usar 150,000–500,000 gas. Usa el conversor para verificar costos al precio de gas actual sin hacer cálculos mentales.
+
+## EIP-1559: tarifa base + tarifa de prioridad
+
+Desde el hard fork London (agosto 2021), el precio de gas de Ethereum usa un modelo de dos componentes:
+
+- **Tarifa base** — establecida algorítmicamente por el protocolo por bloque, quemada (no pagada a los validadores). Se denomina en gwei.
+- **Tarifa de prioridad (propina)** — pagada directamente al validador. Se denomina en gwei. Rango típico: 0.1–2 gwei en condiciones normales, hasta 10+ gwei durante congestión.
+
+Tu wallet establece una **tarifa máxima por gas** (el techo que pagarás) y una **tarifa de prioridad máxima**. La tarifa real pagada es:
+
+```
+tarifa real por gas = min(tarifa_máx, tarifa_base + tarifa_prioridad)
+```
+
+Al depurar un recibo de transacción, el campo `effectiveGasPrice` es la tarifa real por gas en wei. Usa este conversor para traducirla a gwei y compararla con las tarifas base actuales.
+
+## Errores comunes de developers
+
+1. **Dividir por `1e18` en lugar de `10n**18n`** en contexto JS. El float `1e18` está bien para ese valor específico, pero la aritmética alrededor pierde bits. Usa siempre BigInt o `formatUnits`.
+
+2. **Confundir los decimales de tokens ERC-20 con los decimales de ETH.** USDC usa 6 decimales; DAI usa 18; algunos activos puente usan 8. `parseUnits("1", 6)` para 1 USDC no es lo mismo que `parseUnits("1", 18)` para 1 ETH.
+
+3. **Mostrar wei crudo a los usuarios.** Un saldo de `50000000000000000` wei parece texto sin sentido. Usa siempre `formatUnits` antes de mostrar.
+
+4. **Almacenar cantidades en wei en una columna SQL `INTEGER`.** El `BIGINT` de PostgreSQL llega a ~9.2 × 10¹⁸ — apenas caben ~9 ETH. Usa `NUMERIC` o almacena como cadena decimal `TEXT`.
+
+## Privacidad
+
+Todas las conversiones se ejecutan localmente en tu navegador mediante `ethers.js`. Ningún valor se envía a ningún servidor.

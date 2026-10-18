@@ -1,0 +1,37 @@
+---
+title: Dividir PDF — Perguntas frequentes
+---
+
+## Como escrevo um intervalo de páginas?
+
+Use números de página como seu leitor de PDF os mostra, separados por vírgulas, com hífens para execuções: `1-3, 7, 9-12`. Espaços são ignorados, duplicatas são recolhidas, e um intervalo invertido como `5-2` é lido como `2-5` em vez de rejeitado. As páginas começam em 1, não 0.
+
+Cada *execução de páginas consecutivas* vira seu próprio arquivo. `1-3, 7, 9-12` lhe dá três documentos — um de três páginas, uma página única, e um de quatro páginas — não um documento de oito páginas. Se você quer essas oito páginas juntas em vez disso, extraia-as e então use Juntar PDF.
+
+## Por que recebi um .zip em vez de PDFs?
+
+Porque há mais de um arquivo de saída. Navegadores bloqueiam uma página de disparar vários downloads seguidos — os segundo e subsequentes são silenciosamente suprimidos, que parece a ferramenta perdendo seus arquivos. Empacotar eles em um arquivo é a única forma confiável de entregar-lhe múltiplos documentos. Quando a divisão produz um único arquivo você recebe esse arquivo diretamente, sem arquivo.
+
+Cada parte também está listada individualmente com seu próprio link de download, então você consegue pegar apenas um sem desempacotar o arquivo.
+
+## O arquivo é enviado para um servidor?
+
+Não. O PDF é analisado por JavaScript nesta aba usando `pdf-lib`, os novos documentos são construídos na memória, e os links de download apontam para URLs de blob que seu próprio navegador criou. Nada é transmitido. Você consegue verificar na aba Rede do seu navegador, ou simplesmente ir offline depois que a página carrega — a ferramenta ainda funciona.
+
+O arquivo zip também é construído localmente, por `jszip`, e é apenas carregado em tudo quando uma divisão produz mais de um arquivo.
+
+## Qual é o maior PDF que consigo dividir?
+
+Não há limite configurado, porque não há upload para limitar. O que o limita é memória: o documento de origem e as cópias sendo construídas ambas vivem na aba, então pico de uso é aproximadamente duas vezes o tamanho do arquivo mais overhead. Uma varredura de 100 MB é realista em um desktop e arriscada em um telefone. Acima de 100 MB você recebe um aviso, mas a operação ainda funciona — o aviso é sobre seu hardware, não uma regra.
+
+Dividir em um arquivo por página é o modo mais pesado, porque constrói tantos documentos quanto há páginas antes do arquivo ser montado.
+
+## Dividir reduz qualidade ou muda as páginas?
+
+Não. As páginas são copiadas no atacado, não renderizadas. O texto permanece selecionável, as imagens mantêm sua resolução original e compressão, e nada é rasterizado. As páginas extraídas são byte-por-byte o mesmo conteúdo, em um novo recipiente.
+
+O que nem sempre sobrevive é estrutura de nível de documento: marcadores apontando para páginas que não estão no extrato não têm para onde ir, e uma assinatura digital cobrindo o documento original não validará contra um fragmento dele. Os campos de formulário nas páginas extraídas são normalmente mantidos.
+
+## Consigo dividir um PDF protegido por senha?
+
+Não. Se o documento estiver criptografado a ferramenta para e diz assim em vez de contornar a proteção. Remova a senha em qualquer aplicação que criou ou abriu o arquivo, depois divida a cópia desbloqueada.

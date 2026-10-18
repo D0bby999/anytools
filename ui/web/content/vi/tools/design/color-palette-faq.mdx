@@ -1,0 +1,35 @@
+---
+title: Color Palette Generator — Câu hỏi thường gặp
+---
+
+## Tool sinh ra những kiểu phối màu nào?
+
+Năm kiểu, mỗi kiểu là một quy tắc di chuyển trên vòng tròn hue tính từ màu gốc bạn nhập:
+
+- **Analogous** — năm màu ở −30°, −15°, 0°, +15° và +30°
+- **Complementary** — màu gốc và màu đối diện ở +180°
+- **Triadic** — ba màu cách đều ở 0°, 120°, 240°
+- **Tetradic** — bốn màu ở 0°, 90°, 180°, 270°
+- **Monochromatic** — một hue duy nhất ở năm mức lightness: 20%, 35%, 50%, 65%, 80%
+
+Số lượng màu khác nhau giữa các kiểu không phải do thiếu sót mà do định nghĩa: complementary vốn dĩ là một cặp, độn thêm hue nữa thì nó thành thứ khác rồi. Góc hue được chuẩn hoá về khoảng 0–360 trước khi tính, nên `−30°` hay `+390°` đều ra đúng màu.
+
+## Dán mã màu ba ký tự như `#f60` có được không?
+
+Không, và đây là giới hạn thật của tool cần biết trước: ô seed chỉ nhận hex đủ sáu ký tự, dạng `#FF6600`. Shorthand ba ký tự bị bộ parse từ chối, và khi từ chối thì tool trả về đúng một ô màu — chính là chuỗi bạn vừa nhập — thay vì một bảng màu. Nếu bạn thấy kết quả chỉ có một swatch duy nhất thì gần như chắc chắn là do input, không phải do harmony. Cách xử lý nhanh là viết đủ sáu ký tự bằng cách nhân đôi từng chữ số. Mã hex xuất ra luôn viết hoa, nên nếu codebase quy ước chữ thường thì nhớ hạ về cho khớp linter.
+
+## Khi hue xoay thì cái gì được giữ nguyên?
+
+Saturation và lightness. Mọi harmony trừ monochromatic đều lấy nguyên hai giá trị đó từ màu gốc và chỉ xoay hue, đó là lý do kết quả cảm giác như một bộ chứ không phải mấy màu rời rạc ghép lại. Monochromatic thì làm ngược: giữ hue và saturation, chỉ chạy lightness qua năm nấc cố định. Chính vì vậy monochromatic là kiểu duy nhất cho ra một thang màu dùng được ngay cho interface — surface, border, text — còn bốn kiểu kia cho bạn quan hệ hue để chọn màu nhấn.
+
+## Nên chọn kiểu phối màu nào khi tạo bảng màu từ một màu chủ đạo?
+
+Analogous là lựa chọn an toàn: các hue cạnh nhau hiếm khi "đánh nhau", rất hợp cho landing page cần cảm giác êm. Complementary cho độ tách biệt tối đa và nên dùng dè: một màu nhấn trên một màu chủ đạo, chứ đừng chia 50/50 vì mắt sẽ mỏi rất nhanh. Triadic và tetradic rực và khó cân — chúng chỉ chạy khi một màu chiếm ưu thế còn các màu kia dùng ở diện tích nhỏ. Monochromatic là con ngựa kéo cày cho hệ thống giao diện, ít ai khen nhưng dùng nhiều nhất. Một mẹo thực dụng: chọn harmony để tìm hue, rồi mới dùng monochromatic trên từng hue đó để dựng thang.
+
+## Có dùng thẳng mấy màu này làm màu UI được không?
+
+Không nên, chưa kiểm tra tương phản thì chưa dùng. Harmony chỉ nói về quan hệ giữa các hue; nó hoàn toàn không nói gì về việc chữ đặt trên nền màu đó có đọc được hay không. Hãy đẩy mọi cặp màu bạn định đặt chữ lên qua trang kiểm tra độ tương phản màu trước khi chốt. Một điểm nữa hay làm người ta hụt hẫng: cùng một giá trị saturation nhưng các hue không "rực" như nhau — vàng và xanh dương ở cùng mức saturation trong HSL đọc ra rất khác, vì HSL là mô hình tiện tính toán chứ không phải mô hình theo cảm nhận thị giác. Chỉnh tay lại sau khi sinh là chuyện bình thường, đừng coi output là đích.
+
+## Bảng màu này đã đủ cho một design system chưa, và dữ liệu có rời máy không?
+
+Không có gì rời khỏi trình duyệt — bảng màu được tính ngay trong trang, không có request nào mang màu của bạn đi. Nhưng nó chưa đủ cho một design system hoàn chỉnh: bạn còn cần dải neutral, một thang lightness cho từng màu, và phần gán ngữ nghĩa — màu nào là "danger", màu nào là surface, màu nào là focus ring. Cái tool cho bạn là quan hệ hue để bắt đầu, không phải bộ token thành phẩm. So với việc mở Figma rồi tự xoay hue bằng tay, ưu điểm ở đây là quy tắc được áp chính xác và lặp lại được: `+120°` luôn là đúng `+120°`, còn kéo tay trên color wheel thì lần nào cũng lệch một ít.

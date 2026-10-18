@@ -1,0 +1,35 @@
+---
+title: Wallet Address Checker — Preguntas frecuentes
+---
+
+## ¿Pueden dos cadenas distintas usar el mismo formato de dirección?
+
+Sí — esta es la advertencia más importante. Todas las cadenas EVM-compatibles (Ethereum, Polygon, Arbitrum, BNB Smart Chain, Base, etc.) comparten un formato `0x…` idéntico. La misma cadena de texto es una dirección válida en todas las cadenas EVM simultáneamente. La herramienta reporta "EVM-compatible" en lugar de una cadena específica porque el formato solo no puede distinguirlas. Usa el chainId en el contexto de tu aplicación para desambiguar.
+
+## ¿Un checksum válido significa que la dirección es segura para enviar fondos?
+
+No. La validación de checksum (EIP-55 para Ethereum, Base58Check para Bitcoin, Bech32 para SegWit) solo confirma que la cadena de dirección no fue corrompida accidentalmente en tránsito. No dice nada sobre si alguien controla esa dirección, si es un contrato, o si pertenece al destinatario que intentas alcanzar. Siempre confirma las direcciones por un canal separado antes de enviar cantidades importantes.
+
+## ¿Por qué mi dirección de Solana se parece a una Bitcoin Legacy?
+
+Tanto Bitcoin Legacy como Solana usan codificación Base58 sin un prefijo fijo, por lo que las direcciones cortas de Solana (32–36 caracteres) pueden parecerse visualmente a las Bitcoin `1…`. La herramienta desambigua por longitud y verificando que el Base58 decodifica exactamente a 32 bytes (Solana) frente a 25 bytes con byte de versión y checksum (Bitcoin). Si persiste la ambigüedad, la herramienta reporta ambas posibilidades.
+
+## ¿Qué es EIP-55 y por qué importa?
+
+EIP-55 es una codificación de checksum para direcciones Ethereum donde ciertas letras hex se escriben en mayúsculas basándose en el hash Keccak-256 de la dirección en minúsculas. Una dirección mixed-case que pasa EIP-55 tiene una probabilidad de 1/2⁴⁰ de ser producida por corrupción aleatoria. Almacena y muestra siempre las direcciones Ethereum en formato mixed-case EIP-55, no en minúsculas ni en mayúsculas completas.
+
+## ¿Esta herramienta hace alguna solicitud de red?
+
+No. Toda la validación se realiza en el lado del cliente usando coincidencia de patrones y algoritmos de checksum. Ninguna dirección se envía a un servidor, nodo blockchain o API de terceros. Puedes usarla sin conexión una vez que la página esté cargada.
+
+## ¿Puedo verificar direcciones de testnet?
+
+Las direcciones de testnet generalmente comparten el mismo formato que mainnet. Las direcciones de Ethereum Sepolia tienen el mismo formato `0x…`; Bitcoin testnet usa `m…` o `n…` para P2PKH y `tb1…` para Bech32. La herramienta detecta tanto patrones de mainnet como de testnet y los etiqueta en consecuencia.
+
+## ¿Qué ocurre si pego una dirección de contrato?
+
+Las direcciones de smart contracts en cadenas EVM son indistinguibles de las cuentas de propiedad externa (EOA) solo por el formato — ambas son cadenas hex de 20 bytes con checksum EIP-55 opcional. La herramienta la identificará correctamente como dirección EVM válida. Determinar si es un contrato o una EOA requiere una llamada RPC `eth_getCode`.
+
+## ¿Por qué la herramienta dice que mi dirección es inválida si la copié de mi wallet?
+
+Las causas más comunes: se copió espacio en blanco o un salto de línea junto con la dirección, la dirección contiene un carácter que parece un dígito hex válido pero es un lookalike Unicode (por ejemplo, una "о" cirílica en lugar de una "o" latina), o la dirección fue truncada al copiar. Intenta seleccionar el texto de la dirección cuidadosamente y copiar la cadena completa.

@@ -1,0 +1,31 @@
+---
+title: JWT — FAQ
+---
+
+## Is it safe to paste a JWT into a decoder?
+
+Decoding the *header and payload* is safe in the sense that they were already designed to be readable. But if the token grants access to anything real, treat the act of pasting it into a third-party tool as a credential leak — assume the tool's operator (or anyone with network access between you and them) now has it. Decode production tokens locally with `jq` or your IDE instead.
+
+## Why does this tool not verify the signature?
+
+To verify, we'd need your signing key (HS256) or public key (RS256). Asking for keys in a browser tool would be a giant red flag. Verification belongs in your application code using a vetted library, not a public webpage.
+
+## Why does my token have `=` characters?
+
+It doesn't — JWT uses Base64URL, which strips padding. If you see `=`, the token was probably re-encoded somewhere as standard Base64. Most decoders (this one included) tolerate it, but spec-compliant JWT shouldn't have it.
+
+## What is the alg=none vulnerability?
+
+Older libraries accepted tokens where the header declared `"alg": "none"` and skipped signature verification entirely. Attackers exploited this by forging arbitrary payloads. The fix is to validate with an explicit allowed-algorithm list in your verifier — never trust the alg field in the header.
+
+## HS256 or RS256?
+
+Symmetric (HS256) when both sides fully trust each other and can share a secret. Asymmetric (RS256/ES256) when you don't want verifiers to be able to forge tokens, or when keys cross a trust boundary.
+
+## How do I revoke a JWT?
+
+You can't, not directly — JWTs are stateless. Workarounds: keep tokens short-lived and use refresh tokens; maintain a server-side blocklist keyed by `jti`; or use opaque tokens with server-side sessions instead of JWT.
+
+## What's the difference between exp and nbf?
+
+`exp` is the latest time the token is valid (after this it expires). `nbf` is the earliest time it's valid (before this it shouldn't be accepted). Both are Unix timestamps in seconds. `iat` is when the token was issued — informational.

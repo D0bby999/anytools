@@ -1,0 +1,41 @@
+---
+title: Marca de agua en PDF — Preguntas frecuentes
+---
+
+## ¿Se sube mi documento a algún lado?
+
+No. El PDF se lee por JavaScript dentro de esta pestaña del navegador, se sella usando la biblioteca `pdf-lib`, y se devuelve como una URL blob que tu navegador crea localmente. La página uno se renderiza para la vista previa por `pdf.js`, también en la pestaña. Ninguna solicitud lleva el archivo, así que no hay copia del servidor para retener, registrar o eliminar. Abre tus herramientas de desarrollador, cambia a la pestaña Red, y ejecuta la herramienta — no verás ninguna carga, y funciona con la red desconectada.
+
+Marcar con agua es usualmente el paso final antes de que un documento vaya a alguien fuera de tu organización: un contrato borrador, una licitación, un conjunto de pruebas de diseño, un manuscrito previo a la publicación. Esos son precisamente los archivos que no deberían entregarse a un tercero para sellar "CONFIDENCIAL" en ellos.
+
+## ¿Una marca de agua realmente protege el documento?
+
+No de la forma que la gente a veces espera, y vale la pena ser directo sobre esto.
+
+Una marca de agua se dibuja *encima* del contenido de página existente. Marca un documento como borrador o confidencial, y hace que una captura de pantalla casual o fotocopia sea obviamente derivada de tu archivo. Es un disuasivo y una etiqueta.
+
+No es encriptación y no es redacción. Todo bajo la marca de agua sigue ahí y aún se puede seleccionar, copiar y buscar. Alguien determinado puede eliminar la marca, porque un PDF la almacena como una operación de dibujo separada en lugar de quemarla en los píxeles — eso es exactamente por qué el texto bajo ella se mantiene seleccionable, que es normalmente lo que quieres. Si el contenido no debe ser legible, elimínalo antes de exportar; si un archivo no debe abrirse, encriptalo en la aplicación que lo produjo.
+
+## ¿Qué caracteres puede usar la marca de texto?
+
+Texto latino — incluyendo acentos de Europa Occidental como `BRÖTCHEN` y `ÉTÉ` — se dibuja en Helvetica, una de las catorce fuentes que todo lector PDF debe tener integradas. Nada se incrusta, así que el archivo de salida apenas crece y se renderiza igual en todas partes.
+
+Las marcas tonales vietnamitas, griego y cirílico están fuera de esa fuente, así que para esas la herramienta incrusta Noto Sans en su lugar — solo los glifos que tu marca realmente usa, que agrega algunos kilobytes. `BẢN NHÁP`, `Tài liệu mật` y `КОНФИДЕНЦИАЛЬНО` todos funcionan. Chino, japonés, coreano, árabe, hebreo, tailandés y emoji no se cubren; escribe cualquiera de esos y la herramienta se detiene con un mensaje nombrando los caracteres exactos en lugar de dibujar cajas vacías.
+
+## ¿Cuán precisa es la vista previa?
+
+Cercana, y honesta sobre dónde no lo es. La vista previa renderiza la página uno a través de `pdf.js` a 96 dpi y dibuja la marca sobre ella con CSS, así que mover el deslizador de ángulo u opacidad es instantáneo — rerenderizar la página para cada marca de deslizador haría que los controles fueran inutilizables en un documento real.
+
+La consecuencia es que el texto de la vista previa se establece en *tu Helvetica o Arial del sistema*, mientras que la salida usa Helvetica estándar de PDF. Los anchos de letra difieren muy ligeramente, así que una marca larga puede ubicarse unos pocos puntos diferente en el archivo final. La posición, ángulo, color y opacidad son precisos. La vista previa también muestra solo la página uno; si estableciste un rango de páginas que la excluye, la vista previa aún muestra la marca.
+
+## ¿Qué pasa con las páginas que mi escáner guardó giradas?
+
+Se manejan. Una página PDF lleva una caja con un ancho y un alto, más una rotación que el lector aplica antes de mostrar, y una página escaneada de lado usualmente se almacena como una caja vertical con una rotación de un cuarto de giro. Una herramienta que ignora eso colocaría la marca relativa a la caja, así que en esas páginas sale con el ángulo incorrecto y corriendo fuera del borde.
+
+La marca se centra en la página como *la ves tú*, y el ángulo que eliges es el ángulo que obtienes en pantalla, sin importar qué rotación lleve la página. El tamaño de la imagen es un porcentaje del ancho visible de la página, medido de la misma forma, así que un documento mixto sale consistente.
+
+## ¿Puedo sellar solo algunas páginas, y qué hay del tamaño y color?
+
+Sí. "Páginas a sellar" toma rangos en la forma ordinaria — `1-5`, o `1, 4-6, 9` — y por defecto es cada página. Las marcas de texto toman un tamaño de fuente en puntos, cualquier color, un ángulo de -90 a 90 grados, y una opacidad de 5% a 100%. Las marcas de imagen toman un ancho como un porcentaje de la página, mantienen su relación de aspecto, y soportan PNGs transparentes, que es lo que un logo normalmente quiere.
+
+Las imágenes WebP, GIF y AVIF se aceptan aunque el PDF en sí solo pueda llevar PNG y JPEG: la imagen se redibuja a través de un lienzo primero, que también aplica la bandera de rotación EXIF que una cámara de teléfono escribe. La imagen se incrusta una vez y se referencia desde cada página sellada, así que un logo de 200 KB agrega 200 KB a un documento de cincuenta páginas en lugar de 10 MB.

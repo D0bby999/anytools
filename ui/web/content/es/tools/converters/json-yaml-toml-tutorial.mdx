@@ -1,0 +1,126 @@
+---
+title: Guía completa para convertir entre JSON, YAML y TOML
+description: Fortalezas de cada formato, el problema Norway de YAML, el tipado estricto de TOML y qué se pierde en la conversión.
+updated: 2026-05-26
+---
+
+## Tres formatos, tres filosofías de diseño
+
+JSON, YAML y TOML son formatos de serialización de datos que representan básicamente la misma información — estructuras clave-valor anidadas, arrays, strings, números, booleanos — pero con prioridades distintas.
+
+**JSON** fue diseñado para el intercambio entre máquinas: sintaxis mínima, parsing sin ambigüedades, sin comentarios. Todo parser JSON en cualquier lenguaje produce output idéntico para el mismo input. Es la lengua franca de las APIs.
+
+**YAML** fue diseñado para la legibilidad humana: indentación significativa en lugar de corchetes, comentarios, strings multilínea sin escapado. Es el formato dominante para archivos de configuración en el ecosistema cloud-native (GitHub Actions, Docker Compose, manifiestos de Kubernetes, playbooks de Ansible).
+
+**TOML** fue diseñado específicamente para archivos de configuración: tipado explícito, sin ambigüedad, sin espacios en blanco significativos. Es el formato de configuración nativo de proyectos Rust (`Cargo.toml`), packaging de Python (`pyproject.toml`) y sitios Hugo.
+
+## Cuándo usar cada formato
+
+| | JSON | YAML | TOML |
+|---|---|---|---|
+| APIs REST / GraphQL | ✓ mejor | — | — |
+| GitHub Actions | — | ✓ mejor | — |
+| Docker Compose | — | ✓ mejor | — |
+| Manifiestos Kubernetes | — | ✓ mejor | — |
+| Cargo de Rust | — | — | ✓ mejor |
+| pyproject.toml de Python | — | — | ✓ mejor |
+| Config de app editada a mano | — | ✓ | ✓ |
+| Datos generados por máquina | ✓ mejor | — | — |
+
+## El problema Norway de YAML
+
+YAML tiene una trampa de parsing bien conocida: los valores escalares sin comillas se interpretan por tipo. El código de país ISO de dos letras `NO` — que usa Noruega — se parsea como el booleano `false` en YAML 1.1. Del mismo modo, `YES`, `ON`, `OFF`, `TRUE`, `FALSE`, `yes`, `no`, `on`, `off`, `true`, `false` son todos booleanos en YAML 1.1.
+
+```yaml
+# YAML 1.1 (usado por la mayoría de parsers antes de 2022)
+country: NO      # parseado como boolean false — BUG
+enabled: yes     # parseado como boolean true
+debug: off       # parseado como boolean false
+```
+
+YAML 1.2 lo corrigió: solo `true` y `false` (minúsculas) son booleanos. Pero la mayoría de parsers (PyYAML, `gopkg.in/yaml.v2` de Go, Psych de Ruby) aún usan por defecto el comportamiento 1.1. La solución segura: **siempre entrecomillar strings que puedan malinterpretarse**.
+
+## El tipado más estricto de TOML
+
+TOML es deliberadamente inequívoco respecto a los tipos. Donde YAML infiere el tipo del valor, TOML requiere que seas explícito:
+
+```toml
+# TOML — los tipos no son ambiguos
+name = "Alice"          # string
+age = 30                # integer
+height = 1.75           # float
+active = true           # boolean
+joined = 2024-01-15     # date (RFC 3339)
+tags = ["rust", "dev"]  # array — todos los elementos deben ser del mismo tipo
+```
+
+Los arrays de TOML exigen tipos homogéneos (todos strings o todos integers — no mezclados). JSON y YAML permiten arrays heterogéneos. Esto significa que convertir `[1, "two", true]` de JSON a TOML requiere dividir en arrays tipados separados o rechazar la conversión — la herramienta marcará este caso.
+
+## Qué se pierde en la conversión
+
+### Comentarios
+
+JSON no tiene comentarios. YAML y TOML sí. Al convertir YAML→JSON o TOML→JSON, todos los comentarios se pierden permanentemente. Si tu config YAML depende de comentarios para documentar valores, convierte una copia y conserva el original.
+
+### Orden de claves
+
+Los objetos JSON son técnicamente desordenados. Los mappings YAML son similares. Las secciones TOML aparecen en el orden del documento. Al convertir entre formatos, el orden de las claves puede cambiar.
+
+### Strings multilínea
+
+YAML tiene un soporte elegante para strings multilínea con `|` (bloque literal) y `>` (bloque plegado). TOML tiene strings básicos multilínea (`"""…"""`). JSON no tiene sintaxis para strings multilínea — usa secuencias de escape `\n`. Convertir un bloque literal YAML a JSON lo colapsa en un string de una sola línea con `\n`.
+
+## Ejemplos prácticos
+
+**Convertir un fragmento de Docker Compose a JSON:**
+
+```yaml
+# Input YAML
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    environment:
+      NODE_ENV: production
+```
+
+Se convierte en:
+```json
+{
+  "services": {
+    "web": {
+      "image": "nginx:latest",
+      "ports": ["80:80"],
+      "environment": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
+```
+
+**Convertir dependencias de Cargo.toml a YAML:**
+
+```toml
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+```
+
+Se convierte en:
+```yaml
+dependencies:
+  serde:
+    version: "1.0"
+    features:
+      - derive
+  tokio:
+    version: "1"
+    features:
+      - full
+```
+
+## Privacidad
+
+Toda la conversión se ejecuta en tu navegador. El input nunca se envía a nuestros servidores. La herramienta usa `js-yaml` para parsear YAML e `@iarna/toml` para TOML — ambas son librerías MIT-licensed bien probadas.

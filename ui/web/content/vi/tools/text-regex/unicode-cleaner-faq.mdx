@@ -1,0 +1,27 @@
+---
+title: Dọn ký tự Unicode ẩn — Câu hỏi thường gặp
+---
+
+## Tool này tìm ra vấn đề gì trong văn bản trông hoàn toàn bình thường?
+
+Hai vấn đề không liên quan gì đến nhau nhưng đều ẩn trong văn bản trông sạch sẽ. Thứ nhất là ký tự vô hình: khoảng trắng độ rộng bằng không, ký tự nối/không nối độ rộng bằng không, các control điều khiển chiều viết (bidi), byte-order mark, dấu gạch nối mềm, và cả chục ký tự "khoảng trắng" Unicode không phải U+0020 mà bàn phím thường gõ ra. Không cái nào trong số này hiện lên màn hình, nhưng vẫn là byte thật, và chúng phá vỡ tìm kiếm khớp chính xác, so sánh diff, đôi khi cả việc parse JSON hay tạo slug URL từ văn bản đó. Thứ hai là homoglyph — chữ cái Cyrillic hoặc Hy Lạp được vẽ giống hệt một chữ Latin (Cyrillic а giống hệt Latin a, Hy Lạp Ρ giống hệt Latin P). Một chữ giả dạng lọt vào một từ tiếng Anh hay tiếng Việt khiến chính từ đó không khớp với bản thân nó trong ô tìm kiếm, dù mắt người đọc chẳng thấy gì bất thường.
+
+## Vì sao khoảng trắng lạ (như NBSP) chỉ bị đổi thành khoảng trắng thường chứ không bị xoá?
+
+Vì không phải mọi ký tự ẩn đều có cùng cách xử lý an toàn. Những ký tự thật sự có độ rộng bằng không — zero-width space, zero-width joiner, các control bidi, byte-order mark, dấu gạch nối mềm — bị xoá thẳng, vì xoá chúng không làm thay đổi gì cách văn bản hiển thị. Nhóm khoảng trắng lạ như no-break space, họ en/em-space, khoảng trắng ideographic hay toán học thì khác: chúng thực sự chiếm độ rộng trên dòng, nên nếu xoá đi sẽ âm thầm dính hai từ lại với nhau — "10 km" sẽ thành "10km", biến một lỗi vô hình thành một lỗi hiển nhiên khác. Vì vậy bước làm sạch chuẩn hoá nhóm này về đúng một dấu cách thường, sửa đúng chỗ bất nhất mà không làm dính chữ.
+
+## Cơ chế "script trộn" hoạt động thế nào, và vì sao văn bản tiếng Nga hay Hy Lạp thật không bị báo động sai?
+
+Việc phát hiện dựa vào chính phần còn lại của đoạn văn bản làm ngữ cảnh: một chữ giả dạng Cyrillic hay Hy Lạp chỉ bị đánh dấu khi phần lớn văn bản xung quanh thuộc một script khác. Dán nguyên một đoạn tiếng Nga hay tiếng Hy Lạp thật, mọi chữ trong đó đều đồng thuận với script chiếm đa số của chính đoạn văn, nên không có gì nổi bật lên như "lạ" và không có gì bị đánh dấu — kể cả khi số lượng chữ Cyrillic áp đảo tuyệt đối. Dán một câu tiếng Việt hay tiếng Anh với một chữ Cyrillic lạc vào, chữ đó đi ngược lại mọi thứ xung quanh nó, và đó chính xác là tín hiệu heuristic này tìm. Đây cũng là mặt trái cần biết: nếu văn bản trộn thật sự nhiều script với tỉ lệ gần bằng nhau, hoặc không có script nào chiếm đa số rõ rệt, tool không xác định được "đâu là chuẩn" để so sánh, và một chữ giả dạng thật có thể lọt qua mà không bị gắn cờ.
+
+## Chữ tiếng Việt có dấu có bị nhầm thành ký tự lạ không?
+
+Không. Latin trong tool này được định nghĩa rộng: ASCII, Latin-1 Supplement, Latin Extended A/B, và cả dải Latin Extended Additional (U+1E00 đến U+1EFF) — đúng dải chứa các nguyên âm tiếng Việt tổ hợp sẵn dấu như ệ, ồ, ữ. Những ký tự này được xếp thẳng vào script Latin ngay từ đầu, không phải trường hợp ngoại lệ được xử lý riêng, nên chúng không bao giờ bị coi là "trông giống Latin nhưng thực ra không phải" — vì chúng đúng là Latin. Cùng logic áp dụng cho chữ Pháp hay Tây Ban Nha có dấu.
+
+## Bấm "Làm sạch văn bản" thì các vị trí ký tự bị đánh dấu có được hiển thị rõ ràng không?
+
+Có, và theo một định dạng chuẩn. Mỗi vấn đề tìm được đi kèm mã codepoint dạng `U+XXXX` — bốn chữ số hex viết hoa, đúng cách người ta thường ghi một codepoint bên cạnh ký tự của nó — cùng vị trí trong chuỗi gốc, tên đầy đủ của ký tự, và với homoglyph là chữ Latin nó đang giả dạng. Bảng chi tiết bên dưới ô nhập liệt kê từng vấn đề theo đúng thứ tự xuất hiện trong văn bản, còn phần preview tô sáng chính ký tự đó ngay tại chỗ nó nằm, để bạn đối chiếu trực quan trước khi quyết định làm sạch.
+
+## Vì sao chỉ phát hiện Cyrillic và Hy Lạp mà không phải mọi bảng chữ cái khác?
+
+Bảng homoglyph bao phủ đúng những cặp người dùng thực tế hay gặp nhất: các chữ giống Latin từ Cyrillic và Hy Lạp, hai nguồn gốc chính của kiểu tấn công giả mạo tên miền và lỗi copy-paste từ nguồn hỏng font. Tool không cố phủ toàn bộ mọi script có chữ hao hao Latin — Armenia, Cherokee và một vài script khác cũng có vài chữ giống Latin, nhưng nằm ngoài phạm vi hiện tại. Nếu một tài liệu cần độ chắc chắn tuyệt đối thay vì một heuristic, bảng codepoint hiển thị đúng mã Unicode của từng ký tự bị đánh dấu, thứ mà bất kỳ trình soạn thảo hay script nào cũng dùng trực tiếp được.

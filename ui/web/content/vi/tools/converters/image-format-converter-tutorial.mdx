@@ -1,0 +1,91 @@
+---
+title: Hướng dẫn đầy đủ về Image Format Converter
+description: Sự khác biệt giữa PNG, JPEG, WebP, AVIF, khi nào nên chuyển đổi giữa chúng, và cách Canvas API re-encode hoàn toàn trong trình duyệt.
+updated: 2026-05-27
+---
+
+## Tool này làm gì
+
+Tool này chuyển đổi ảnh raster giữa các định dạng PNG, JPEG, WebP, và AVIF hoàn toàn trong trình duyệt bằng HTML Canvas API. Không có file nào được upload lên server. Kéo thả ảnh, chọn định dạng đích, điều chỉnh quality nếu cần, và tải về kết quả.
+
+Giới hạn 10 MB cho input tồn tại vì ảnh lớn khi decode thành raw pixel data (RGBA) có thể làm hết bộ nhớ trình duyệt. Một JPEG 10 MB có thể giải nén thành 50–100 MB raw pixel trong Canvas buffer.
+
+## Tổng quan về các định dạng
+
+### JPEG — chuẩn cho ảnh chụp
+
+JPEG (Joint Photographic Experts Group, 1992) dùng nén lossy DCT (Discrete Cosine Transform). Nó chia ảnh thành các block 8×8 pixel, biến đổi chúng thành frequency component, và bỏ đi chi tiết tần số cao mà mắt người ít nhạy cảm hơn. Kết quả là nén tuyệt vời cho ảnh chụp — ảnh thông thường ở quality 80 nhỏ hơn 5–10× so với PNG tương đương với loss hầu như không nhận ra.
+
+JPEG **rất tệ cho screenshot, diagram, và text**. Các block artifact 8×8 (gọi là "ringing") rất rõ ở cạnh sắc và vùng màu đồng nhất — chính xác là những gì screenshot và diagram chứa. Dùng PNG cho những loại này.
+
+JPEG không có alpha channel (transparency). Nếu ảnh nguồn có vùng trong suốt, chuyển sang JPEG sẽ fill chúng bằng màu trắng (background mặc định của Canvas).
+
+### PNG — chuẩn lossless
+
+PNG (Portable Network Graphics, 1996) là lossless — mọi pixel được giữ nguyên chính xác. Nó dùng nén DEFLATE (cùng thuật toán với gzip) trên filtered pixel data. Tỷ lệ nén tốt cho ảnh có vùng đồng nhất lớn (diagram, screenshot, logo) nhưng kém cho ảnh chụp.
+
+PNG hỗ trợ full alpha transparency (RGBA). Đây là lựa chọn đúng cho logo, UI asset, icon, và bất kỳ ảnh nào cần độ chính xác pixel hoàn hảo hoặc transparency.
+
+### WebP — người kế nhiệm hiệu quả của Google
+
+WebP được Google phát triển và phát hành năm 2010 từ công nghệ VP8 video codec. Nó hỗ trợ cả lossy và lossless compression, cũng như transparency và animation.
+
+Con số benchmark: WebP lossy **nhỏ hơn 25–34% so với JPEG** ở chất lượng tương đương. WebP lossless **nhỏ hơn 26% so với PNG** trung bình (theo đo lường của chính Google). Browser support hiện đã phổ quát — Chrome, Firefox, Safari (từ 14.0, 2020), Edge.
+
+Cho web delivery, WebP hầu như luôn tốt hơn JPEG hoặc PNG khi bạn kiểm soát server và biết client hỗ trợ nó. Hầu hết CDN và image optimisation pipeline ngày nay mặc định output WebP.
+
+**WebP lossless** có thể dùng qua MIME type `image/webp` với quality hint 1.0 trên Canvas — dù hỗ trợ lossless flag chính xác phụ thuộc vào browser; implementation Canvas của Chrome expose nó, của Safari có thể tạo output lossy dù thế.
+
+### AVIF — codec thế hệ tiếp theo
+
+AVIF (AV1 Image File Format) được dẫn xuất từ AV1 video codec phát triển bởi Alliance for Open Media. Ảnh được encode dạng AVIF thường **nhỏ hơn 50% so với JPEG** ở chất lượng hình ảnh tương đương.
+
+Hạn chế: AVIF encoding rất tốn tài nguyên tính toán. Decoding nhanh và được hardware accelerate trên thiết bị hiện đại; encoding có thể mất vài giây đến vài phút cho ảnh lớn trên CPU. Vì lý do này, Canvas API không hỗ trợ AVIF **encoding** trong bất kỳ trình duyệt nào tính đến 2026 — `canvas.toBlob('image/avif')` chưa được implement. Tool này có thể **decode** (hiển thị) AVIF input nhưng không thể tạo AVIF output. Các định dạng output là PNG, JPEG, và WebP.
+
+Browser support: Chrome 85+, Firefox 93+, Safari 16+ (2022).
+
+## Cơ chế Canvas API
+
+Pipeline chuyển đổi gồm ba bước:
+
+1. **Decode** — trình duyệt decode file nguồn thành raw RGBA pixel data bằng image decoder tích hợp. Bước này hỗ trợ mọi định dạng trình duyệt xử lý: PNG, JPEG, WebP, AVIF (đọc), GIF, BMP.
+
+2. **Draw** — ảnh đã decode được vẽ lên một `<canvas>` off-screen ở kích thước pixel gốc. Canvas giữ raw pixel buffer trong bộ nhớ.
+
+3. **Re-encode** — `canvas.toBlob(mimeType, quality)` re-encode pixel buffer thành định dạng đích bằng encoder tích hợp của trình duyệt. Tham số quality (0.0–1.0) điều khiển lossy compression cho JPEG và WebP.
+
+Cơ chế này có nghĩa là chất lượng chuyển đổi được quyết định hoàn toàn bởi encoder của trình duyệt — các trình duyệt khác nhau có thể tạo ra file size hơi khác ở cùng quality setting.
+
+## Ma trận browser support
+
+| Định dạng | Decode | Encode (Canvas) |
+|-----------|--------|-----------------|
+| PNG | Mọi trình duyệt | Mọi trình duyệt |
+| JPEG | Mọi trình duyệt | Mọi trình duyệt |
+| WebP | Chrome 32+, Firefox 65+, Safari 14+ | Chrome, Firefox, Safari 14+ |
+| AVIF | Chrome 85+, Firefox 93+, Safari 16+ | Chưa hỗ trợ (2026) |
+| GIF | Mọi trình duyệt | Không qua Canvas |
+| SVG | Mọi trình duyệt | Không qua Canvas (rasterise) |
+
+## Quality slider
+
+Quality slider (0.1–1.0) chỉ áp dụng cho **định dạng output lossy**: JPEG và WebP lossy. Với PNG output, quality không có tác dụng — PNG luôn lossless. Hướng dẫn thực tế:
+
+- **0.9–1.0** — gần như lossless, file lớn, phù hợp cho source asset hoặc in ấn
+- **0.75–0.85** — điểm ngọt cho web delivery, hầu như không thể phân biệt với gốc cho hầu hết ảnh chụp
+- **0.5–0.7** — rõ ràng đã nén, phù hợp cho thumbnail hoặc delivery băng thông hạn chế
+- **Dưới 0.5** — artifact nặng, chỉ phù hợp cho preview hoặc fallback băng thông thấp
+
+## Tại sao không có SVG hay GIF output?
+
+**SVG** là định dạng vector — nó lưu trữ mô tả hình dạng toán học, không phải pixel. Canvas API rasterise SVG input thành lưới pixel khi bạn vẽ nó, bỏ đi toàn bộ vector data. Chuyển đổi bitmap kết quả thành "SVG" sẽ tạo ra file SVG chứa ảnh raster — lớn hơn và không còn scalable. Không có con đường từ raster sang SVG mà không cần AI vectorizer.
+
+**GIF** output không được expose bởi `canvas.toBlob()` trong bất kỳ trình duyệt nào. GIF giới hạn 256 màu và hỗ trợ animation — cả hai thuộc tính đều không thể truy cập qua Canvas encode path.
+
+## Quyền riêng tư
+
+Tool này chạy hoàn toàn trong trình duyệt của bạn. Ảnh được decode và re-encode locally bằng Canvas API. Không có pixel data, nội dung file, hay metadata nào được truyền qua mạng. Tool hoạt động offline sau khi trang đã load.
+
+## Công cụ liên quan
+
+- **Base64 Encode/Decode** — encode ảnh đã chuyển đổi thành Base64 data URI để inline trong CSS hoặc HTML.

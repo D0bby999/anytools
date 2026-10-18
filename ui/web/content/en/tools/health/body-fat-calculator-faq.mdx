@@ -1,0 +1,39 @@
+---
+title: Body fat calculator — Frequently asked questions
+---
+
+## Which method does this calculator use?
+
+The US Navy circumference method, published by Hodgdon and Beckett in 1984. It estimates body fat percentage from tape measurements and height rather than from weight, which is why it can distinguish two people of identical BMI.
+
+## What measurements do I need, and where exactly?
+
+Height, neck and waist for everyone, plus hip circumference for women. Measure the neck just below the larynx, the waist at the navel for men and at the narrowest point for women, and the hips at the widest point. Keep the tape level and snug without compressing the skin, and measure at the end of a normal exhale.
+
+## Why does it ask women for a hip measurement too?
+
+The two variants of the formula use different circumference terms. For men it works from `waist − neck`; for women it works from `waist + hip − neck`. Both are then combined with the base-10 logarithm of height. Drop the hip measurement and the female equation has nothing to work with.
+
+## Why did it refuse to give me a result?
+
+The formula takes a logarithm, so the circumference term has to be positive. If your waist measurement is not larger than your neck — or, for women, if waist plus hip does not exceed neck — the maths has no valid answer and the tool says so instead of printing a nonsense number. Re-check that you measured in the same units and at the right landmarks.
+
+## How are the categories decided?
+
+Using the American Council on Exercise ranges. For men: under 6% essential fat, 6–13% athletic, 14–17% fitness, 18–24% average, 25% and above high. For women, each band sits roughly eight points higher: under 14% essential, 14–20% athletic, 21–24% fitness, 25–31% average, 32% and above high. Very low body fat is flagged as a caution, not an achievement — essential fat exists for a reason.
+
+## How accurate is a tape measure compared with a DEXA scan?
+
+Less accurate, and the gap is mostly your own measuring technique. The formula was fitted to a military population, so it performs best on bodies resembling that sample and drifts on people who are very lean, very heavy, or shaped unusually relative to that group. Its real strength is repeatability: measure the same way each time and the trend is informative even when the absolute number is off.
+
+## Can I compare this with a smart scale reading?
+
+Expect them to disagree. Bioelectrical impedance scales infer fat from how a current passes through you, which shifts with hydration, recent meals and exercise — you can get different readings from the same scale hours apart. Pick one method and track it consistently rather than switching between them.
+
+## Do my measurements get uploaded?
+
+No. Everything is computed in your browser; nothing is sent anywhere.
+
+## Should I act on this number?
+
+Not on its own. Body composition targets depend on your health history, training and goals — discuss them with a doctor or a qualified professional rather than chasing a percentage from a tape measure.

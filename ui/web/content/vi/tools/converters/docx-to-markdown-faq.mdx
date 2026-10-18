@@ -1,0 +1,59 @@
+---
+title: Chuyển DOCX sang Markdown — Câu hỏi thường gặp
+---
+
+## Những gì còn lại sau chuyển đổi, và cái gì bị mất?
+
+Những gì còn lại là cấu trúc. Các tiêu đề trở thành `#` và `##` — và chúng trở thành tiêu đề vì đoạn văn mang kiểu *Heading 1* của Word, không phải vì nó tình cờ là lớn và đậm. Chữ đậm và chữ nghiêng còn lại, cũng như danh sách dấu đầu dòng và được đánh số bao gồm lồng nhau, siêu liên kết với đích của chúng, dấu ngoặc kép, chỉ số trên và chỉ số dưới, và bảng.
+
+Những gì bị mất là tất cả những gì Markdown không có cách nào để nói. Phông chữ, kích thước, màu sắc, làm nổi bật, căn chỉnh, khoảng cách dòng, ngắt trang, cột, đầu trang và chân trang, số trang, hộp văn bản, hình dạng, SmartArt, phương trình, biểu đồ và nhận xét đều biến mất. Chú thích cuối trang và chú thích cuối được chuyển đổi thành văn bản nhưng vị trí chính xác của chúng thay đổi. Các thay đổi được theo dõi được làm phẳng: tài liệu chuyển đổi như thể mọi thay đổi đã được chấp nhận, vì vậy hãy xem lại tài liệu có các thay đổi được theo dõi trước khi tin tưởng đầu ra.
+
+Một lưu ý đáng biết về kiểu. Các tài liệu Word được tạo từ một mẫu thường sử dụng tên kiểu tùy chỉnh — một tiêu đề được tạo kiểu *Report Heading 2* thay vì *Heading 2*. Những cái đó không được nhận dạng, và đoạn văn được chuyển đổi thành văn bản thường. Khi điều đó xảy ra, trình chuyển đổi báo cáo nó trong ghi chú dưới đầu ra, liệt kê từng kiểu nó không hiểu. Nếu các tiêu đề của bạn trở nên phẳng, danh sách đó là nơi bạn sẽ tìm thấy lý do.
+
+## Tại sao hàng đầu tiên của bảng tôi đang được sử dụng làm tiêu đề?
+
+Vì GitHub Flavored Markdown không có bảng nào mà không có nó. Mỗi bảng GFM là một hàng tiêu đề, một bộ phân tách `| --- | --- |`, rồi là các hàng nội dung; không có cú pháp cho một bảng không có tiêu đề. Word, trong khi đó, chỉ ghi lại một hàng làm tiêu đề nếu tác giả rõ ràng đánh dấu *Repeat as header row* trong các thuộc tính bảng, điều hầu như không ai làm.
+
+Nếu để nguyên, sự kết hợp đó có nghĩa là hầu hết các bảng thực tế không thể được biểu diễn, và trình chuyển đổi cơ bản rơi lại để phát ra HTML `<table>` thô trong giữa Markdown của bạn. Vì vậy, tool này thúc đẩy hàng đầu tiên của bất kỳ bảng nào không có hàng tiêu đề được đánh dấu, và coi nó là tiêu đề.
+
+Đó là một giả định, và nó có thể sai. Nếu bảng của bạn bắt đầu ngay vào dữ liệu, hàng dữ liệu đầu tiên sẽ trở thành tiêu đề và bạn sẽ cần thêm hàng trở lại bằng tay. Đó là một thương mại có ý định: một hàng có thể chỉnh sửa so với một khối HTML mà không có trình kết xuất Markdown nào sẽ tạo kiểu.
+
+Hai điều khác xảy ra với bảng ở đây. Một ô có văn bản mà Word chia thành nhiều đoạn được nối với `<br>`, vì một ngắt dòng thực sự bên trong hàng bảng Markdown kết thúc hàng và phá hủy bảng. Và một `|` theo nghĩa đen bên trong văn bản ô được thoát sang `\|`, vì một cái chưa được thoát sẽ âm thầm thêm một cột vào hàng đó.
+
+## Điều gì xảy ra với các ô được hợp nhất trong bảng?
+
+Chúng được bỏ hợp nhất. Markdown không có hợp nhất ở tất cả: mỗi hàng của một bảng có cùng số lượng trường được phân tách `|`, xếp hàng theo vị trí, và không có cú pháp nào nói "tiêu đề này bao gồm hai cột".
+
+Vì vậy, một ô hợp nhất trên hai cột trở thành hai ô — cái đầu tiên giữ văn bản, cái thứ hai trống — và một ô hợp nhất xuống hai hàng trở thành ô cộng với một ô trống ngay bên dưới nó. Kết quả là một hình chữ nhật, với các cột vẫn xếp hàng dưới các tiêu đề đúng. Nó đọc khác với bản gốc Word, nhưng không có gì bị mất, và nó là một bảng mà trình kết xuất của bạn sẽ vẽ.
+
+Điều đó quan trọng hơn nó nghe có vẻ. Nếu để nguyên, một tiêu đề hợp nhất trên hai cột tạo ra một hàng tiêu đề hẹp hơn các hàng nội dung, và GitHub-flavoured Markdown giải quyết điều đó bằng cách cắt ngắn mỗi hàng thành chiều rộng của tiêu đề — vì vậy một bảng ba cột với tiêu đề hợp nhất âm thầm vận chuyển với cột cuối cùng của nó bị xóa.
+
+Hai bảng không thể được cứu theo cách này, và cả hai đều được phát ra dưới dạng HTML thông thường thay vì một bảng Markdown bị xào lên: một bảng chứa một bảng khác bên trong một trong các ô của nó, cái Markdown không có cách nào để biểu diễn ở tất cả, và một bảng có các phép hợp nhất tuyên bố nhiều cột hơn bất kỳ tài liệu thực tế nào có. HTML bên trong tệp Markdown kết xuất chính xác trên GitHub và trong hầu hết các trình tạo trang web tĩnh; một bảng ống bị hỏng không kết xuất ở bất kỳ nơi nào.
+
+## Điều gì xảy ra với các hình ảnh trong tài liệu của tôi?
+
+Theo mặc định, chúng bị loại bỏ, và tool cho bạn biết nó đã loại bỏ bao nhiêu. Có một chuyển đổi để nhúng chúng thay vào đó, dưới dạng dữ liệu base64 URIs trong Markdown.
+
+Mặc định là tắt vì lý do thực tế. Base64 lớn hơn khoảng một phần ba so với các byte nó mã hóa, vì vậy một bức ảnh 2 MB duy nhất trở thành khoảng 2,7 MB của văn bản không thể đọc được ngồi giữa tài liệu của bạn. Ba bức ảnh và Markdown không còn là cái mà một người có thể mở trong trình soạn thảo. Dữ liệu URIs cũng không hoạt động ở mọi nơi: GitHub loại bỏ chúng khỏi Markdown được kết xuất, và một số trình tạo trang web tĩnh cũng vậy.
+
+Bật chuyển đổi khi tài liệu có một hoặc hai hình ảnh nhỏ — một logo, một sơ đồ — và bạn muốn một tệp tự chứa duy nhất. Để nó tắt khi các hình ảnh quan trọng, và đặt chúng trở lại dưới dạng các tệp thông thường với các đường dẫn thông thường sau đó.
+
+## Các tài liệu của tôi có được tải lên bất kỳ nơi nào không?
+
+Không. `.docx` được đọc trong tab trình duyệt này. Nó đi từ bộ chọn tệp vào trang thông qua File API, được giải nén và phân tích cú pháp trong bộ nhớ riêng của trang, và kết quả là văn bản không bao giờ rời khỏi máy của bạn. Bạn có thể xác nhận điều đó trong tab Network của các công cụ nhà phát triển của bạn, hoặc bằng cách ngắt kết nối mạng sau khi trang đã tải và chuyển đổi dù sao.
+
+Bản xem trước được kết xuất bên trong một khung được cách ly với tập lệnh bị vô hiệu hóa, vì vậy không có gì đến trong tài liệu của bạn có thể thực thi. Khung cũng bị chặn khỏi việc tải bất cứ điều gì qua mạng. Phần thứ hai là phần quan trọng trong thực hành: một tài liệu chứa văn bản của một thẻ hình ảnh trỏ vào một số trang web khác sẽ, trong một khung không có khối đó, làm cho trình duyệt của bạn tìm nạp hình ảnh đó — cho ai chạy máy chủ đó biết rằng bạn đã mở tài liệu. Nó không thể. Hình ảnh đã được nhúng trong tài liệu, như `data:` URIs, vẫn hiển thị.
+
+Giao dịch cho quyền riêng tư là bộ nhớ. Tất cả xảy ra trên chuỗi chính của trang, vì vậy tab ngừng phản hồi trong khi một tài liệu lớn chuyển đổi. Trên 20 MB bạn sẽ thấy một cảnh báo nói rõ điều đó; cái đó là một cảnh báo, không phải từ chối. Quá 50 MB tài liệu bị từ chối trước khi nó được mở, vì XML giải nén, HTML và Markdown đều phải được giữ trong tab cùng một lúc và trang sẽ hết bộ nhớ ở giữa chừng mà không có gì để hiển thị cho nó.
+
+## Tại sao nó sẽ không mở `.doc`, `.odt`, `.rtf` hoặc tệp Pages của tôi?
+
+Vì chúng là các định dạng không liên quan. Một `.docx` là một kho lưu trữ zip của XML, định dạng Word đã viết theo mặc định kể từ năm 2007, và nó là cái duy nhất mà thư viện cơ bản — mammoth — đọc. `.doc` cũ hơn là một định dạng tài liệu hợp chất nhị phân chia sẻ không có gì với nó ngoài ba chữ cái của phần mở rộng. `.odt` là OpenDocument, `.rtf` là một đánh dấu văn bản thuần túy từ những năm 1980, và các tệp Pages là định dạng gói riêng của Apple.
+
+Mỗi cái có thể được chuyển đổi trong mười giây bởi ứng dụng đã tạo ra nó: mở tệp trong Word, LibreOffice Writer, Google Docs hoặc Pages và sử dụng *Save As* hoặc *Export* để tạo ra một `.docx`. Sau đó, thả kết quả ở đây.
+
+## Tôi có thể làm gì với đầu ra?
+
+Tab Markdown là đầu ra chính — sao chép nó, hoặc tải xuống dưới dạng tệp `.md`. Tab HTML là HTML sạch mà trình chuyển đổi đã tạo ra trên đường đi, đó thường là những gì bạn muốn nếu điểm đến là một CMS thay vì một kho. Tab xem trước kết xuất Markdown để bạn có thể thấy nó sẽ trông như thế nào.
+
+Từ đây, [Markdown ↔ HTML](/en/converters/md-html) sẽ chuyển đổi giữa hai dạng lại sau khi bạn đã chỉnh sửa chúng, [Word Counter](/en/lifestyle/word-counter) sẽ cung cấp cho bạn số từ và thời gian đọc cho văn bản được chuyển đổi, và [XLSX to CSV / JSON](/en/converters/xlsx-to-csv) làm công việc tương đương cho một sổ làm việc Excel.

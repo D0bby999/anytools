@@ -1,0 +1,62 @@
+---
+title: "Conversor de cor e contraste WCAG — Guia pra designers"
+description: "Conversão HEX, RGB, HSL mais ratios de contraste WCAG 2.1 AA/AAA — o que significam, quando importa cada teste, como ler os números."
+keywords: ["conversor de cor", "contraste wcag", "hex rgb hsl", "acessibilidade", "paleta de cores"]
+updated: 2026-05-29
+readingTime: 5
+---
+
+# Conversor de cor e contraste WCAG
+
+Ferramentas de cor se dividem em dois grupos: as que traduzem entre codificações (HEX, RGB, HSL) e as que pontuam acessibilidade. Nosso [conversor de cor](/pt/design/color-converter) faz os dois numa tela só.
+
+---
+
+## O lado da codificação
+
+### HEX
+
+`#1E293B` são três bytes hex pra vermelho, verde, azul. Cada byte 0-255, expresso em dois dígitos hex. Compacto e copiável, mas a intuição humana não chega: você não consegue olhar pra `#3B7AC9` e prever a aparência.
+
+### RGB
+
+`rgb(30, 41, 59)` — os mesmos números em decimal. Melhor pra aritmética.
+
+### HSL
+
+`hsl(217, 33%, 17%)` — hue (0-360°), saturation, lightness. O formato que você realmente quer quando ajusta cor à mão. Mais escuro? Diminua lightness. Menos saturado? Diminua saturation.
+
+---
+
+## O lado do contraste WCAG
+
+WCAG 2.1 especifica ratios mínimos de contraste:
+
+- **AA Normal** — 4.5:1 — piso legal pra quase todo conteúdo público.
+- **AA Large** — 3:1 — pra texto 18pt+ ou 14pt+ bold.
+- **AAA Normal** — 7:1 — nível reforçado.
+- **AAA Large** — 4.5:1 — nível reforçado pra texto grande.
+
+A matemática usa **luminância relativa** com linearização sRGB — NÃO a diferença ingênua de RGB. Nossa calculadora usa a fórmula canônica de WCAG 2.1 e a verificamos contra [WebAIM contrast checker](https://webaim.org/resources/contrastchecker/).
+
+---
+
+## Combinações práticas
+
+- **Slate-900 sobre branco**: 20:1, passa tudo.
+- **Slate-600 sobre branco**: 6.8:1, passa AA Normal mas só AAA Large.
+- **Blue-600 sobre branco**: 5.2:1, passa AA Normal.
+- **Amarelo sobre branco**: geralmente falha.
+
+---
+
+## Em breve
+
+- **Gerador de paleta de cores** — pick família de hue e ganhe 5 cores harmonizadas.
+- **Simulador de daltonismo** — preview deuteranopia/protanopia/tritanopia.
+
+---
+
+## Privacidade
+
+Toda conversão e matemática de contraste roda localmente no seu navegador.

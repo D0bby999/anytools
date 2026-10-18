@@ -1,0 +1,35 @@
+---
+title: cURL Converter — Preguntas frecuentes
+---
+
+## ¿Por qué el convertidor se ejecuta en el servidor en lugar del navegador?
+
+El parser está construido sobre [tree-sitter](https://tree-sitter.github.io/tree-sitter/) con gramática Bash, que compila a un binario nativo de Node.js (módulo `.node`). Los binarios nativos no pueden ejecutarse dentro del sandbox del navegador. La ejecución en servidor te da un parseo real respaldado por AST — el mismo que produciría un shell real — en lugar de una aproximación con regex que puede parsear incorrectamente strings con comillas complejas o comandos multilínea.
+
+## ¿Mi comando curl se almacena o registra en algún lugar?
+
+No. Tu comando se envía al servidor solo para ser parseado y convertido. Existe en memoria durante la duración de esa solicitud — típicamente unos pocos milisegundos — y luego se descarta. Nunca se escribe en disco, nunca se asocia con tu dirección IP o sesión, y nunca se incluye en ningún registro. La respuesta del servidor contiene únicamente el código convertido.
+
+## ¿A qué lenguajes puedo convertir?
+
+`fetch` del navegador, Node.js `node-fetch`, Python `requests`, PHP cURL (funciones `curl_*`) y Go `net/http`. Estos cubren los casos de uso más comunes para desarrolladores que copian solicitudes de DevTools o documentación de API. La biblioteca `curlconverter` subyacente soporta más lenguajes que pueden agregarse en el futuro.
+
+## El código generado no tiene el body de la solicitud — ¿qué salió mal?
+
+La causa más común es que tu valor `-d` o `--data` contiene comillas sin escapar que rompen el parseo. Intenta envolver todo el comando curl entre comillas dobles, o escapa las comillas internas. También verifica que no hayas usado `--data-binary` con un argumento `@filename` — las referencias a archivos no pueden resolverse en el servidor y se preservarán como comentario en la salida.
+
+## ¿Cómo se convierte `-u user:password`?
+
+El flag `-u` produce un header `Authorization: Basic <base64(user:password)>` en la salida. En Python `requests`, se convierte en el argumento `auth=('user', 'password')`, que la biblioteca codifica automáticamente. Siempre mueve las credenciales hardcodeadas del código generado a variables de entorno antes de hacer commit.
+
+## ¿Puede manejar uploads multipart (`-F`)?
+
+Sí. El flag `-F name=value` genera `FormData` en JavaScript (`fetch`/`node-fetch`), `files={'name': ...}` en Python `requests` y las llamadas apropiadas `CURLOPT_HTTPPOST` / `curl_mime_*` en PHP. Los archivos referenciados con `@filepath` se convierten a comentarios indicando que se necesita un file handle en tiempo de ejecución.
+
+## La salida para Go usa `ioutil.ReadAll` — ¿está deprecado?
+
+`ioutil.ReadAll` fue deprecado suavemente en Go 1.16 en favor de `io.ReadAll`. Si estás en Go 1.16 o posterior, reemplaza `ioutil.ReadAll(resp.Body)` con `io.ReadAll(resp.Body)` y elimina el import `io/ioutil`. El código generado prioriza compatibilidad amplia; ajústalo a tu versión objetivo de Go.
+
+## ¿Por qué el código fetch generado no incluye manejo de errores?
+
+El convertidor produce la traducción mínima fiel de tu comando curl — refleja lo que curl hace por defecto, que es tener éxito o fallar sin lógica de reintentos. Agrega `if (!response.ok) throw new Error(response.statusText)` (o equivalente) apropiado a tu estrategia de manejo de errores. Incorporar un patrón con opinión para cada lenguaje y base de código está fuera del alcance de un convertidor.

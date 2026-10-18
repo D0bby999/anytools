@@ -1,0 +1,35 @@
+---
+title: Unit converter — Frequently asked questions
+---
+
+## What can it convert?
+
+Five categories: length, weight, temperature, volume and speed. Each category converts between its own units; you cannot convert across categories, because there is no meaningful answer to "how many litres is a kilometre".
+
+## How does the conversion work internally?
+
+Every unit defines how to reach a canonical unit for its category and how to come back from it. A conversion is therefore two steps — into the canonical unit, then out to the target — which means every pair in a category is supported without needing a table of every combination.
+
+## Why is temperature handled differently from the others?
+
+Because temperature scales have offsets, not just multipliers. Length is purely proportional — doubling metres doubles feet — but Fahrenheit to Celsius is `(F − 32) × 5/9`, and Kelvin is Celsius plus 273.15. A unit system that only multiplied would get temperature wrong, so the converter carries an offset alongside the factor.
+
+## Is a US gallon the same as a UK gallon?
+
+No, and the difference is large enough to matter — roughly a fifth. Recipes and fuel figures crossing the Atlantic go wrong on exactly this. Check which one a source means before converting; a "gallon" with no qualifier is ambiguous.
+
+## What about ounces — weight or volume?
+
+Both exist and they are not interchangeable. A fluid ounce measures volume and appears under volume; an ounce of weight appears under weight. Converting a recipe's "8 oz of flour" as though it were fluid ounces is a common and silent error.
+
+## Why does converting there and back sometimes not return the exact original?
+
+Floating-point rounding. Each step introduces a tiny representational error, so a round trip can land a fraction away from where it started. The difference is far below any practical measurement precision, but it is why the last decimal place may wobble.
+
+## How many decimal places should I trust?
+
+No more than your input had. Converting a measurement of "3 metres" to eight decimal places in feet implies a precision the original never carried. The extra digits are arithmetic, not knowledge.
+
+## Is anything transmitted?
+
+No. All conversion runs in your browser.

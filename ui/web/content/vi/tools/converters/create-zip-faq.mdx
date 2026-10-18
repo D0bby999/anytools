@@ -1,0 +1,37 @@
+---
+title: Tạo File ZIP — Câu hỏi thường gặp
+---
+
+## Tôi nên sử dụng mức nén nào?
+
+Mức 6 là mặc định DEFLATE và gần như luôn là câu trả lời đúng. Mức 9 dành thêm thời gian đáng kể cho một lợi ích thường dưới một phần trăm trên các tài liệu thông thường, vì cửa sổ DEFLATE chỉ là 32 KB — đến một điểm nào đó thì không còn gì để nó tìm. Mức 0 lưu trữ các tệp mà không nén chúng, đó là lựa chọn trung thực khi đầu vào đã được nén: nó tạo ra lưu trữ trong một phần nhỏ của thời gian và kết quả cũng có kích thước như vậy.
+
+## Tại sao file zip của tôi chỉ nhỏ hơn một chút so với các tệp tôi đã đặt vào?
+
+Vì JPEG, PNG, GIF, WebP, MP3, MP4, và hầu hết các định dạng office hiện đại (`.docx`, `.xlsx`, `.pptx` là các container zip rồi) đã được nén. Nén dữ liệu đã nén không thể giúp được — thừa dữ liệu mà DEFLATE tìm kiếm đã bị loại bỏ, và lưu trữ kết thúc lớn hơn một chút so với tổng các đầu vào vì mỗi entry mang khoảng 100 byte header.
+
+Text, CSV, JSON, XML, logs, SVG, source code, BMP và WAV chưa nén được nén rất mạnh, thường chỉ còn một phần năm kích thước hoặc ít hơn. Nếu mục tiêu của bạn là ảnh nhỏ hơn, nén bản thân các hình ảnh là đòn bẩy hoạt động; nén chúng vào zip thì không.
+
+## Tôi có thể đặt mật khẩu trên lưu trữ không?
+
+Không, và tool này sẽ không giả vờ như vậy. Nó sử dụng JSZip, không thể viết các entry được mã hóa. Mã hóa legacy của Zip (ZipCrypto) bị phá vỡ và không nên được khuyến cáo cho ai; mã hóa zip AES-256 hoàn toàn nằm ngoài những gì thư viện này làm. Nếu bạn cần nội dung được bảo vệ, hãy mã hóa lưu trữ sau khi tải xuống bằng một công cụ được xây dựng cho công việc đó, hoặc sử dụng chuyển transfer được mã hóa từ đầu đến cuối thay vì dựa vào container.
+
+## Các tệp có được tải lên bất kỳ nơi nào không?
+
+Không. Lưu trữ được lắp ráp trong tab trình duyệt này. Các tệp của bạn được đọc bằng File API, được nén bởi JSZip trong trang, và liên kết tải xuống trỏ vào một blob mà trình duyệt của bạn đang giữ trong bộ nhớ. Không có gì đi qua mạng — bạn có thể xác nhận nó trong tab Network của công cụ nhà phát triển, hoặc bằng cách ngắt kết nối sau khi trang đã tải và nén dù sao.
+
+Đó cũng là ràng buộc: tất cả phải phù hợp với bộ nhớ của tab. Một vài trăm megabyte là thông thường trên máy tính để bàn; vài gigabyte là không, và mobile Safari từ bỏ sớm hơn nhiều so với trình duyệt máy tính để bàn. Nếu tab tải lại chính nó giữa chừng, đó là điều đã xảy ra.
+
+## Điều gì xảy ra với hai tệp có cùng tên?
+
+Cả hai đều được giữ. Một zip là danh sách phẳng các đường dẫn, vì vậy một `photo.jpg` thứ hai sẽ thay thế ngầm cái đầu tiên — thay vào đó tool đổi tên nó thành `photo (2).jpg` và hiển thị danh sách cuối cùng của tên entry trước khi bạn tải xuống. Bất kỳ `../` hoặc `/` đứng đầu nào trong một tên đều bị loại bỏ vì cùng lý do nó quan trọng theo hướng khác: một đường dẫn thoát ra khỏi thư mục của nó là cách các lỗi loại Zip Slip hoạt động, và không có lưu trữ được xây dựng ở đây sẽ mang một cái.
+
+## Tùy chọn "folder inside the zip" dùng để làm gì?
+
+Nó lồng mỗi entry dưới một thư mục, vì vậy việc giải nén lưu trữ tạo ra một thư mục duy nhất thay vì phân tán bốn mươi tệp lỏng lẻo vào bất kỳ thư mục nào mà người dùng tình cờ đang ở. Nhiều công cụ trích xuất dòng lệnh không tạo thư mục bao bọc cho bạn, và đây là điều khắc phục mà di chuyển bên trong tệp.
+
+## Có giới hạn kích thước không?
+
+Hai cái thực tế. Bộ nhớ của tab là trần thực tế: mỗi tệp được đọc vào bộ nhớ trước khi nó được nén, và lưu trữ hoàn thành cũng được giữ ở đó, vì vậy sử dụng cao nhất là khoảng đầu vào cộng với đầu ra. Một vài trăm megabyte là thông thường trên máy tính để bàn; mobile Safari từ bỏ sớm hơn nhiều.
+
+Giới hạn cứng là 4 GB. Điều này viết một lưu trữ tiêu chuẩn, non-ZIP64, với các trường kích thước và offset là 32 bit — quá 4 GB chúng sẽ quấn quanh, và kết quả là một lưu trữ mà các công cụ trích xuất hoặc từ chối là hỏng hoặc, tệ hơn, giải nén thành các tệp bị cắt ngắn mà không nói gì. Vì vậy, một lựa chọn tổng cộng 4 GB hoặc hơn bị từ chối trước khi nén bắt đầu, với một thông báo nói rõ điều đó, thay vì tạo một tệp trông ổn cho đến khi ai đó cần những gì bên trong nó. Nén thành hai lô, hoặc sử dụng một công cụ lưu trữ máy tính để bàn ghi ZIP64.

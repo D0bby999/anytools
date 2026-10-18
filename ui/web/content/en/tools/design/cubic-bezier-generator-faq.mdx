@@ -1,0 +1,39 @@
+---
+title: Cubic Bezier Generator — Frequently asked questions
+---
+
+## What does a CSS cubic-bezier() actually describe?
+
+A curve from the fixed point (0,0) to the fixed point (1,1), shaped by two control points you choose: P1=(x1,y1) and P2=(x2,y2). The horizontal axis is elapsed time as a fraction of the transition's duration, from 0 at the start to 1 at the end. The vertical axis is progress through the animated property, also from 0 to 1 in the ordinary case. `transition-timing-function: cubic-bezier(x1, y1, x2, y2)` tells the browser "at 30% of the way through the duration, the animated value should be however far along the curve's Y is at that X" — the browser solves the curve for you every frame.
+
+## Why can x1 and x2 only be between 0 and 1, but y1 and y2 can go outside that range?
+
+Because the X axis is time, and time only moves forward. A cubic bezier's horizontal position does not have to increase monotonically for arbitrary control points — with x1 or x2 outside [0,1] the curve could double back on itself, so "the point in time where progress equals such-and-such" would have more than one answer, or none. The CSS specification sidesteps this entirely by requiring x1 and x2 to stay in [0,1], which keeps the curve a proper function of time. The Y axis has no equivalent constraint, because "progress" is just a number being interpolated — it can overshoot past 1 and settle back (a bounce), or dip below 0 before rising (an anticipation wind-up), and the browser is happy to compute either. This tool enforces the x constraint by clamping, and deliberately does not touch y.
+
+## What is the difference between this and the five CSS keywords (ease, ease-in, etc.)?
+
+Nothing, mathematically — each keyword is itself defined as a specific `cubic-bezier()` call. `ease` is `cubic-bezier(0.25, 0.1, 0.25, 1)`, `ease-in` is `cubic-bezier(0.42, 0, 1, 1)`, and so on, per the CSS Easing Functions specification. The preset buttons load those exact numbers so you can see the shape behind the name, then nudge it into something custom.
+
+## What are the overshoot presets built from?
+
+They are the "back" easing curves published on easings.net (`easeInBack`, `easeOutBack`, `easeInOutBack`), which are themselves a cubic-bezier approximation of Robert Penner's original 2001 easing equations. Penner's equations are a small closed-form formula, not a bezier curve, but a bezier can get close enough for CSS's purposes, which is why these specific numbers show up nearly everywhere a "bouncy CSS easing" example is needed.
+
+## Why does the preview block sometimes move past the end of the track, or backward at the start?
+
+That is the overshoot the y-outside-[0,1] answer above describes, made visible. `ease-out-back` peaks above 1 partway through — the block runs slightly past its final resting position and settles back, the way a spring-loaded panel does. `ease-in-back` dips below 0 right at the start — the block visibly backs up before committing to the forward motion. Both are intentional design choices for exactly this kind of clip-in-place, spring-arm, tooltip-pop motion.
+
+## Does the live preview use the exact same math the browser's CSS engine uses?
+
+Yes, though not literally the browser's own C++ implementation — this tool solves the same equation. Given a time fraction t, it finds the bezier parameter u where the curve's X(u) equals t (t is guaranteed to have exactly one matching u, per the point above about x1/x2 staying in [0,1]), then reads off Y(u) at that u. That is precisely what "the animated value at 30% through the duration" means for a `transition-timing-function`, so the ball's motion in the preview should match what the same curve produces in a real CSS transition or animation.
+
+## Should I use the CSS variable output or the transition-timing-function output?
+
+Use the custom property (`--ease-custom: cubic-bezier(...)`) when the same easing needs to be reused across several transitions or animations in a stylesheet — set it once on `:root` or a component, then write `transition-timing-function: var(--ease-custom)` wherever it applies. Use the direct declaration when a single rule needs the curve and nothing else references it. Functionally the two produce identical motion; the difference is purely about not repeating the same eight numbers in five different rules.
+
+## Can I paste one of these curves into a JavaScript animation library instead of CSS?
+
+The four numbers are portable — most JS animation libraries (Framer Motion, GSAP, Web Animations API) accept a `[x1, y1, x2, y2]` array or four separate arguments meaning the same control points. The one thing to check is whether that library also restricts x to [0,1]; some do, some (accepting it as a general parametric curve rather than a CSS timing function) do not enforce it, in which case behavior for out-of-range x is library-specific rather than standardized.
+
+## Does this tool send my curve anywhere?
+
+No. Every computation — solving the curve, animating the preview, formatting the CSS — runs in your browser. Nothing about the shape you drag is transmitted anywhere.

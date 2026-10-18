@@ -1,0 +1,27 @@
+---
+title: Xoá Trang PDF — Câu hỏi thường gặp
+---
+
+## Tôi khai báo trang cần xoá thế nào?
+
+Gõ đúng số trang mà phần mềm đọc PDF đang hiển thị, ngăn nhau bằng dấu phẩy, dùng gạch nối cho dãy liên tiếp: `1, 4-6, 12`. Khoảng trắng thừa không ảnh hưởng gì, gõ trùng một số cũng không gây tác dụng phụ, và dãy viết ngược như `6-4` được hiểu là `4-6`. Trang đánh số từ 1, nên `1` là trang đầu tiên chứ không phải trang thứ hai. Mọi trang bạn liệt kê sẽ bị bỏ đi, mọi trang còn lại được giữ nguyên đúng thứ tự cũ. Trước khi bạn bấm xử lý, tool đã đọc sẵn tổng số trang của tài liệu để kiểm tra khoảng bạn gõ có hợp lệ hay không, nên lỗi gõ nhầm được báo ngay chứ không phải chờ đến lúc tải file về mới phát hiện.
+
+## Tôi xoá trang 1, 3, 5 nhưng ra kết quả sai — đây có phải lỗi thường gặp không?
+
+Ở đây thì không, nhưng đó đúng là lỗi kinh điển của loại công cụ này và rất đáng hiểu rõ. Xoá một trang sẽ đánh số lại toàn bộ các trang phía sau nó. Bỏ trang 1 khỏi tài liệu sáu trang thì trang 3 cũ trở thành trang 2 — nên công cụ nào duyệt danh sách từ nhỏ đến lớn sẽ xoá nhầm thành trang 1, 4 và 6 trong khi vẫn báo cáo rằng đã xoá 1, 3, 5. Tool này xoá từ số trang lớn nhất trở xuống, nên không trang nào đang chờ bị xoá bị dịch chỉ số. Có hẳn một test bao đúng tình huống này: xoá `1, 3, 5` khỏi tài liệu sáu trang phải còn lại đúng các trang 2, 4, 6 của bản gốc.
+
+## Tôi có thể xoá hết mọi trang không?
+
+Không. Một file PDF bắt buộc phải còn ít nhất một trang, nên khoảng trang phủ trọn tài liệu sẽ bị từ chối kèm thông báo rõ ràng, thay vì cho ra một file rỗng hoặc hỏng mà bạn chỉ phát hiện khi mở lên. Nếu bạn không cần gì trong tài liệu nữa thì xoá thẳng file đi là xong. Còn nếu ý bạn thực ra là chỉ muốn giữ lại vài trang, công cụ Tách PDF hợp hơn: khai báo "trích trang 2, 5" rõ ràng và ít rủi ro gõ nhầm hơn nhiều so với việc liệt kê tất cả những trang cần bỏ.
+
+## Tôi tìm "xoá trang pdf" thấy toàn dịch vụ phải tải file lên — ở đây thì sao?
+
+Không. `pdf-lib` đọc tài liệu ngay trong tab trình duyệt này, các trang được bỏ đi trong bộ nhớ, và link tải về là một blob URL do chính trình duyệt bạn tạo ra. Không có gì được gửi đi, nên cũng không có bản sao phía máy chủ nào để phải giữ hay phải xoá. Bạn kiểm chứng bằng tab Network trong DevTools, hoặc bằng cách ngắt mạng sau khi trang đã tải xong — tool vẫn xoá trang bình thường. Đây là khác biệt lớn nhất so với các dịch vụ quen thuộc như iLovePDF hay Smallpdf: ở đó file được gửi lên máy chủ và bạn chỉ còn cách tin vào lời hứa xoá sau vài giờ, thứ không ai bên ngoài kiểm chứng được.
+
+## Xoá bớt trang thì file có nhẹ đi không?
+
+Thường là có, nhưng nhẹ ít hơn bạn tưởng. Trang bị gỡ khỏi cây trang của tài liệu, nhưng các tài nguyên dùng chung — font nhúng, profile màu, ảnh được tham chiếu từ nhiều trang — không nhất thiết bị bỏ theo. Một tài liệu 40 trang mang theo một bộ font nhúng lớn có thể mất mười trang mà dung lượng gần như không đổi. Nếu mục tiêu thật sự của bạn là giảm dung lượng chứ không phải giảm số trang, thì xoá trang là cái đòn bẩy sai; hãy dùng công cụ nén ảnh hoặc xuất lại PDF với thiết lập nén phù hợp.
+
+## Bookmark, biểu mẫu và chữ ký số thì sao?
+
+Bookmark và link nội bộ trỏ tới trang đã bị xoá thì không còn đích, và mỗi phần mềm đọc xử lý một kiểu — có cái lờ đi, có cái nhảy tới trang gần nhất còn sống. Bookmark trỏ tới các trang bạn giữ lại vẫn hoạt động bình thường. Trường biểu mẫu trên những trang còn lại thường được bảo toàn. Chữ ký số thì sẽ không xác thực được nữa: chữ ký bảo chứng cho một bố cục tài liệu cụ thể, mà bỏ đi một trang tất yếu làm bố cục đó thay đổi. Điều này đúng với mọi công cụ xoá trang chứ không riêng gì ở đây. PDF đặt mật khẩu cũng bị từ chối theo tên file thay vì bị phá khoá.

@@ -1,0 +1,89 @@
+{
+  "guides": {
+    "title": "Guides",
+    "metaTitle": "Guides — AnyTools",
+    "description": "In-depth guides to JSON, regular expressions, encodings, and the calculators and design tools on AnyTools.",
+    "readingTime": "{{count}} min read",
+    "updated": "Updated {{date}}",
+    "all": "All guides"
+  },
+  "legal": {
+    "updated": "Last updated {{date}}"
+  },
+  "anyprofile": {
+    "metaTitle": "AnyProfile — multi-profile browser for creators (macOS, Windows)",
+    "metaDescription": "Free, open-source app that gives every account its own browser: separate cookies, its own proxy and a consistent fingerprint. For macOS and Windows.",
+    "title": "AnyProfile",
+    "tagline": "One browser per account, side by side.",
+    "intro": "AnyProfile is a free desktop app for creators and sellers who run several TikTok, YouTube, Shopee or Amazon accounts. Each profile is a separate browser with its own cookies, its own proxy and a consistent device fingerprint, so sessions never mix.",
+    "badge": "Free · Open source · Beta",
+    "downloadMac": "Download for Mac",
+    "downloadMacNote": "Apple Silicon (M1 or newer), macOS 13+",
+    "downloadWindows": "Download for Windows",
+    "downloadWindowsNote": "Windows 10 or 11, 64-bit",
+    "allReleases": "All releases and release notes",
+    "featuresTitle": "What it does",
+    "features": [
+      {
+        "title": "Separate profiles",
+        "body": "Every profile keeps its own logins, cookies, history and extensions. Open as many as you like at once."
+      },
+      {
+        "title": "A proxy per profile",
+        "body": "Timezone and languages follow the proxy’s exit IP. The app warns when the IP changes country or timezone, or when its IPv6 exit is somewhere else."
+      },
+      {
+        "title": "A consistent fingerprint",
+        "body": "Each profile looks like the same real computer every time it opens, built on the operating system you actually run."
+      },
+      {
+        "title": "Start pages by country",
+        "body": "Pick the platforms a profile works on; seller centers of TikTok Shop, Shopee, Lazada and Amazon open for the proxy’s country."
+      },
+      {
+        "title": "Accounts and 2FA",
+        "body": "Keep each platform’s login, password and 2FA secret with the profile, stored in the system keychain; copy codes with one click."
+      },
+      {
+        "title": "Updates and automation",
+        "body": "Signed in-app updates, snapshots of a profile, bookmark import and a local API for Puppeteer, Playwright or n8n."
+      }
+    ],
+    "installTitle": "Installing",
+    "install": [
+      {
+        "os": "Mac",
+        "steps": [
+          "Unzip the download and move AnyProfile.app into Applications.",
+          "The first time, macOS says it cannot verify the app. Open System Settings → Privacy & Security and choose Open Anyway.",
+          "When macOS asks whether AnyProfile may use the Keychain, choose Always Allow."
+        ]
+      },
+      {
+        "os": "Windows",
+        "steps": [
+          "Run AnyProfile-amd64-installer.exe. No administrator rights are needed.",
+          "If Windows shows “Windows protected your PC”, choose More info → Run anyway.",
+          "On first start, AnyProfile downloads its browser engine (about 180 MB)."
+        ]
+      }
+    ],
+    "requirementsTitle": "Good to know",
+    "requirements": [
+      "The builds are not yet signed by Apple or Microsoft, hence the warnings above.",
+      "A profile opens only on the operating system that created it.",
+      "Bring your own proxies; residential proxies work best with social and shopping sites."
+    ],
+    "privacyTitle": "Privacy",
+    "privacy": [
+      "Everything stays on your computer: profiles, proxies and settings in the app’s folder, passwords in the macOS Keychain or Windows Credential Manager.",
+      "There is no account, no server, no analytics and no crash reporting. The app only checks GitHub once a day for a new version."
+    ],
+    "openSourceTitle": "Open source",
+    "openSource": "AnyProfile is free software under the GNU AGPL v3. Read the code, report a bug or follow development on GitHub.",
+    "sourceLink": "Source code on GitHub",
+    "responsibility": "You are responsible for following the rules of every platform you use. Many limit how many accounts one person may run; AnyProfile does not change those rules.",
+    "latest": "Version {{version}}, released {{date}}",
+    "checksums": "SHA-256 checksums"
+  }
+}

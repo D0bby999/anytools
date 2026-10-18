@@ -1,0 +1,19 @@
+# Web build context.
+#
+# node_modules MUST be excluded. The build stage runs `COPY . .` on top of the
+# Linux modules installed in the `deps` stage, so a host node_modules built on
+# macOS would overwrite them with binaries for the wrong platform — esbuild and
+# friends then fail at build time with an architecture error that points nowhere
+# near the real cause.
+
+node_modules
+build
+.react-router
+test-results
+playwright-report
+.env
+.env.local
+*.md
+
+# Staged by the build itself (scripts/stage-tool-runtime.mjs).
+tool-runtime

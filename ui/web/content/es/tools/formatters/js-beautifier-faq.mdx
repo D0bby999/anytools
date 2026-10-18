@@ -1,0 +1,35 @@
+---
+title: Embellecedor JS — Preguntas frecuentes
+---
+
+## ¿Cuál es la diferencia entre embellecer y minificar?
+
+Embellecer es cosmético: añade indentación, normaliza espacios e inserta saltos de línea para que el código sea legible. Los tokens JavaScript no cambian y el comportamiento de ejecución es idéntico. Minificar es compresión: elimina el espacio en blanco, renombra variables locales a nombres más cortos y elimina código muerto. La salida es funcionalmente equivalente pero los tokens cambian y el código es intencionalmente ilegible. La minificación es una transformación unidireccional — no puedes recuperar los nombres de variables originales sin un source map.
+
+## ¿Por qué esta herramienta usa Terser para minificar en lugar de solo eliminar espacios en blanco?
+
+La sola eliminación de espacio en blanco ahorra un 15–25% del tamaño del archivo. La minificación completa de Terser (espacio en blanco + name mangling + constant folding + eliminación de código muerto) ahorra un 45–65% para código de aplicación típico. La diferencia está en el name mangling: renombrar `calculateMonthlyInterestRate` a `a` en todo un archivo produce ahorros sustanciales porque los identificadores aparecen muchas veces. Terser usa un parser AST real para renombrar de forma segura solo los identificadores locales, nunca los nombres exportados o globales.
+
+## ¿Qué significa "mangle"?
+
+El mangling renombra variables locales, parámetros de funciones y nombres de funciones internas a los identificadores más cortos posibles — típicamente caracteres únicos. `function processUserInput(rawValue, options)` se convierte en `function a(b,c)`. Los exports y globales se preservan porque renombrarlos rompería a los consumidores. Activa mangle para bundles de producción en navegadores; desactívalo si tu código inspecciona `Function.prototype.name` en tiempo de ejecución o usa `eval()` referenciando nombres de variables locales como cadenas.
+
+## ¿Puede Terser eliminar funciones no usadas de una librería?
+
+Solo dentro de un solo archivo. Terser elimina código muerto que puede probar que es inalcanzable — p.ej., bloques `if (false) { ... }`, constantes que evalúan a falsy. No realiza tree shaking entre archivos (eliminar funciones exportadas que ningún módulo importa). Eso requiere análisis a nivel de bundler de Rollup, Vite o webpack. Para eliminar exports no usados de una librería, usa un bundler con un punto de entrada apropiado.
+
+## ¿La minificación funciona correctamente con la sintaxis JavaScript moderna?
+
+Sí. Terser soporta hasta ES2024 incluyendo optional chaining (`?.`), nullish coalescing (`??`), asignación lógica (`&&=`, `||=`, `??=`), campos privados de clase (`#field`), `await` de nivel superior y la propuesta de Explicit Resource Management (`using`). Establece `ecma: 2024` en las opciones de Terser para optimizaciones específicas de sintaxis moderna.
+
+## ¿Por qué el código embellecido a veces difiere de la salida de Prettier?
+
+`js-beautify` y Prettier toman diferentes decisiones de estilo. Prettier es dogmático y produce un único formato canónico sin configuración. `js-beautify` es configurable y puede diferir en cosas como el espaciado de objetos, el espaciado de argumentos de funciones o el estilo de llaves. Para un proyecto con una configuración de Prettier, ejecuta Prettier en su lugar. Usa esta herramienta para formateo rápido puntual cuando no quieres instalar nada.
+
+## ¿Cómo depuro errores de producción en JavaScript minificado?
+
+Genera un source map durante la minificación y súbelo a tu servicio de monitoreo de errores (Sentry, Datadog, Bugsnag) o alójalo junto al archivo minificado. El source map codifica el mapeo desde cada posición de carácter minificado de vuelta a la línea y columna fuente original. Las DevTools del navegador y los servicios de monitoreo de errores usan automáticamente los source maps para mostrar stack traces y archivos fuente originales al depurar.
+
+## ¿Mi código JavaScript se envía a un servidor?
+
+No. Tanto `js-beautify` como Terser se ejecutan completamente en tu navegador compilados a WebAssembly y JavaScript. Ningún código se transmite a ningún servidor. Esto aplica incluso a código privado, utilidades internas o lógica de aplicación propietaria — nada sale de tu dispositivo.

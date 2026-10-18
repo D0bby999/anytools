@@ -1,0 +1,39 @@
+---
+title: IP subnet calculator — Frequently asked questions
+---
+
+## What does it report?
+
+For an IPv4 address and CIDR prefix: the network address, broadcast address, netmask in dotted and binary form, the usable host range, the host count, and the legacy address class.
+
+## Why is the usable host count two fewer than the total?
+
+Because the first address in a block identifies the network itself and the last is the broadcast address — neither can be assigned to a machine. A /24 holds 256 addresses and 254 usable hosts.
+
+## Why doesn't that subtraction apply to /31 and /32?
+
+Because those are special cases and the tool handles them. A /31 has no room for a network-and-broadcast split, and RFC 3021 defines it as a point-to-point link where both addresses are usable — that is how router interconnects are commonly numbered. A /32 is a single host route. Subtracting two from either would give a nonsensical zero or negative count.
+
+## What does the prefix length actually mean?
+
+How many leading bits are fixed as the network portion. A /24 fixes the first 24 bits, leaving 8 for hosts; every bit you give back to the host portion doubles the block. That is why sizes go 256, 512, 1024 rather than in round decimal steps.
+
+## Why show the netmask in binary?
+
+Because the binary form is where subnetting stops being memorisation. Seeing 255.255.255.0 as twenty-four ones followed by eight zeros makes it obvious why /25 splits a block in half and why the mask must be contiguous ones.
+
+## Are address classes still relevant?
+
+Not operationally. Classful addressing was replaced by CIDR in the 1990s, and modern routing has no concept of class A, B or C. The class is reported because older documentation and interview questions still use the terms, not because anything routes by them.
+
+## Does it handle IPv6?
+
+No — this is IPv4 only. IPv6 subnetting uses hexadecimal notation and a vastly larger space, where the host-count arithmetic here would be meaningless.
+
+## Why does it reject my address?
+
+Each octet must be a decimal number from 0 to 255 with no leading text. Addresses with more or fewer than four octets, or an octet above 255, are rejected rather than silently wrapped.
+
+## Is my input transmitted?
+
+No. The arithmetic is pure integer maths in your browser.

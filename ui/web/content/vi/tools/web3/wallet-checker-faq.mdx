@@ -1,0 +1,35 @@
+---
+title: Wallet Address Checker — Câu hỏi thường gặp
+---
+
+## Hai chain khác nhau có thể dùng cùng format địa chỉ không?
+
+Có — đây là lưu ý quan trọng nhất. Tất cả EVM-compatible chain (Ethereum, Polygon, Arbitrum, BNB Smart Chain, Base, v.v.) dùng chung format `0x…` giống hệt nhau. Cùng một chuỗi là địa chỉ hợp lệ trên mọi EVM chain đồng thời. Tool báo "EVM-compatible" thay vì chain cụ thể vì format một mình không thể phân biệt được. Dùng chainId trong context ứng dụng của bạn để phân biệt.
+
+## Checksum hợp lệ có nghĩa là địa chỉ an toàn để gửi tiền không?
+
+Không. Checksum validation (EIP-55 cho Ethereum, Base58Check cho Bitcoin, Bech32 cho SegWit) chỉ xác nhận chuỗi địa chỉ không bị corrupt trong quá trình truyền. Nó không nói gì về việc địa chỉ có được ai kiểm soát không, có phải contract không, hay có thuộc người nhận bạn định gửi không. Luôn xác nhận địa chỉ out-of-band trước khi gửi số tiền lớn.
+
+## Tại sao địa chỉ Solana của tôi trông giống Bitcoin Legacy?
+
+Cả Bitcoin Legacy và Solana đều dùng Base58 encoding không có fixed prefix, nên địa chỉ Solana ngắn (32–36 ký tự) có thể trông giống địa chỉ Bitcoin `1…`. Tool phân biệt bằng độ dài và xác nhận Base58 decode ra đúng 32 byte (Solana) so với 25 byte với version byte và checksum (Bitcoin). Nếu vẫn mơ hồ, tool báo cả hai khả năng.
+
+## EIP-55 là gì và tại sao quan trọng?
+
+EIP-55 là checksum encoding cho địa chỉ Ethereum trong đó một số ký tự hex được viết hoa dựa trên Keccak-256 hash của địa chỉ viết thường. Địa chỉ mixed-case pass EIP-55 có xác suất 1/2⁴⁰ để được tạo ra bởi corrupt ngẫu nhiên — gần như bằng 0. Luôn lưu và hiển thị địa chỉ Ethereum ở dạng EIP-55 mixed-case, không phải toàn thường hoặc toàn hoa.
+
+## Tool có thực hiện request mạng không?
+
+Không. Toàn bộ validation được thực hiện client-side dùng pattern matching và checksum algorithm. Không có địa chỉ nào được gửi đến server, blockchain node, hoặc third-party API. Bạn có thể dùng offline khi trang đã được load.
+
+## Tôi có thể kiểm tra địa chỉ testnet không?
+
+Địa chỉ testnet thường dùng cùng format với mainnet. Địa chỉ Ethereum Sepolia cùng format `0x…`; Bitcoin testnet dùng `m…` hoặc `n…` cho P2PKH và `tb1…` cho Bech32. Tool nhận diện cả pattern mainnet và testnet, và ghi nhãn tương ứng.
+
+## Điều gì xảy ra khi tôi paste contract address?
+
+Smart contract address trên EVM chain không thể phân biệt với externally owned account (EOA) address chỉ từ format — cả hai đều là 20-byte hex string với EIP-55 checksum tùy chọn. Tool sẽ nhận dạng đúng là EVM address hợp lệ. Để biết có phải contract hay EOA cần gọi RPC `eth_getCode`.
+
+## Tool báo địa chỉ không hợp lệ dù tôi copy từ wallet app — tại sao?
+
+Nguyên nhân phổ biến nhất: có thêm whitespace hoặc ký tự newline bị copy cùng địa chỉ, địa chỉ chứa ký tự trông giống hex digit nhưng thực ra là Unicode lookalike (ví dụ chữ "о" Cyrillic thay vì "o" Latin), hoặc địa chỉ bị cắt ngắn khi copy. Thử chọn lại text địa chỉ cẩn thận và copy toàn bộ chuỗi.

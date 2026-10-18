@@ -1,0 +1,35 @@
+---
+title: Reading time estimator — Frequently asked questions
+---
+
+## What speeds does it use?
+
+Reading defaults to 238 words per minute, speaking aloud is fixed at 150, and skimming at 450. The reading speed is adjustable; the other two are there for comparison.
+
+## Why 238 and not a round 200?
+
+Because it comes from a meta-analysis of silent reading studies rather than a guess. Round numbers like 200 or 250 are common on other sites precisely because they are round. If your audience is slower or faster, change the figure — that is what the control is for.
+
+## Why are speaking and skimming shown too?
+
+Because they answer different questions. If you are writing a script, the number that matters is the spoken one — roughly two-thirds the reading speed, which is why a five-minute article becomes an eight-minute talk. Skimming is what most people actually do with a web page.
+
+## Does it account for images, code blocks or tables?
+
+No. It counts words. An article dense with code samples or diagrams takes longer to work through than its word count suggests, because those are read differently — often slower than prose, sometimes skipped entirely.
+
+## How does it count words?
+
+By splitting on whitespace, so hyphenated compounds count as one and a numeral counts as a word. That is the same convention most word counters use, which keeps the estimate comparable to other tools.
+
+## Should I put a reading time on my articles?
+
+It tends to help readers decide whether to start, and an honest one builds more trust than an optimistic one. If your content is technical, consider rounding up rather than down — under-promising the time and over-running is worse than the reverse.
+
+## Why does the estimate differ from the one my CMS shows?
+
+Different assumed speed, almost always. Many platforms hardcode 200 or 250 words per minute and some strip markup differently before counting. Neither is more correct; they are different assumptions about the same text.
+
+## Is my text sent anywhere?
+
+No. Counting happens in your browser and nothing is stored or transmitted.

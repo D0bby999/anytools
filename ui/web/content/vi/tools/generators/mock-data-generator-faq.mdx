@@ -1,0 +1,49 @@
+---
+title: Mock Data Generator — Câu hỏi thường gặp
+---
+
+## Dữ liệu được generate có phải dữ liệu thật không? Có vô tình trùng với người thật không?
+
+Không. faker.js xây dựng giá trị bằng thuật toán — chọn từ word lists, áp dụng format patterns, và kết hợp các thành phần. Xác suất vô tình generate ra tên + email + địa chỉ của một người thật là cực kỳ thấp. Tuy nhiên, không bao giờ dùng dữ liệu generate trong production context yêu cầu danh tính thật.
+
+## Set seed làm gì?
+
+Seed khởi tạo random number generator của faker ở một trạng thái cố định, nên mọi lần chạy với cùng seed đều cho output giống hệt nhau. Điều này quan trọng cho reproducible test fixtures — nếu test của bạn assert các giá trị cụ thể, fixture phải ổn định qua các lần chạy. Dùng số nguyên nào cũng được. Đổi seed, bạn sẽ nhận dataset hoàn toàn khác (nhưng lại reproducible).
+
+## Có thể generate nested JSON objects không?
+
+Tool hiện tại generate flat records theo schema. Với cấu trúc nested, dùng faker.js trong Node.js script cho phép bạn compose objects tự do:
+
+```javascript
+const user = {
+  id: faker.string.uuid(),
+  profile: {
+    name: faker.person.fullName(),
+    avatar: faker.image.avatar(),
+  },
+  address: {
+    city: faker.location.city(),
+    country: faker.location.country(),
+  },
+}
+```
+
+## Tại sao số rows của CSV và JSON đôi khi khác nhau?
+
+Chúng không khác nhau — cả hai mode generate cùng số records. Điều có thể khác biệt là row count *hiển thị* nếu bạn mở CSV trong Excel và Excel tự convert values (ví dụ UUID trông như số bị truncate). File gốc đúng; hiển thị là do Excel interpret.
+
+## Tối đa nên generate bao nhiêu rows trong browser?
+
+Khoảng 10.000 rows là thoải mái. Trên mức đó, vòng lặp generation và JSON serialization bắt đầu tiêu thụ memory đáng kể và UI có thể lag. Với 100k+ rows, cài `@faker-js/faker` qua npm và chạy Node.js script — có thể generate hàng triệu rows, giới hạn chỉ là dung lượng ổ đĩa.
+
+## Làm sao generate dữ liệu theo locale cụ thể như CPF của Brazil hay postal code Đức?
+
+Set locale thành `pt_BR` hay `de` trong dropdown. Các locale module của faker.js bao gồm format đặc thù vùng cho số điện thoại, zip code, và ID. Không phải mọi locale đều implement mọi field — nếu locale-specific implementation thiếu, faker sẽ fallback về giá trị tiếng Anh mặc định.
+
+## Có thể dùng tool này cho load testing không?
+
+Được, với một lưu ý. Tool này generate data trong browser cho fixture files và seeding scripts. Với load testing (gửi hàng nghìn requests mỗi giây), generate fixture files ở đây, rồi feed vào load testing tool của bạn (k6, Artillery, Locust). Không nên drive load testing trực tiếp từ browser.
+
+## Số credit card được generate ở đây có valid không?
+
+Các số này pass Luhn algorithm (kiểm tra checksum) vì faker generate chúng trông thực tế. Chúng không phải số card thật và sẽ bị từ chối bởi mọi payment processor thật. Không bao giờ dùng chúng trong production payment flow.

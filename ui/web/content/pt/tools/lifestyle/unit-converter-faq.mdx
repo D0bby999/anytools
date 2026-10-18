@@ -1,0 +1,35 @@
+---
+title: Conversor de unidades — Perguntas frequentes
+---
+
+## O que pode converter?
+
+Cinco categorias: comprimento, peso, temperatura, volume e velocidade. Cada categoria converte entre suas próprias unidades; você não pode converter entre categorias, porque não há resposta significativa para "quantos litros é um quilômetro".
+
+## Como a conversão funciona internamente?
+
+Cada unidade define como chegar a uma unidade canônica de sua categoria e como voltar dela. Uma conversão é, portanto, dois passos — na unidade canônica, depois para a meta — o que significa que cada par em uma categoria é suportado sem precisar de uma tabela de cada combinação.
+
+## Por que a temperatura é tratada de forma diferente das outras?
+
+Porque escalas de temperatura têm deslocamentos, não apenas multiplicadores. O comprimento é puramente proporcional — dobrar metros dobra pés — mas Fahrenheit para Celsius é `(F − 32) × 5/9`, e Kelvin é Celsius mais 273,15. Um sistema de unidades que apenas multiplicasse teria temperatura errada, portanto o conversor carrega um deslocamento junto com o fator.
+
+## Um galão dos EUA é o mesmo que um galão britânico?
+
+Não, e a diferença é grande o suficiente para importar — aproximadamente um quinto. Receitas e números de combustível cruzando o Atlântico dão errado nisto. Verifique qual um significado de fonte antes de converter; um "galão" sem qualificador é ambíguo.
+
+## E quanto às onças — peso ou volume?
+
+Ambos existem e eles não são intercambiáveis. Uma onça fluida mede volume e aparece sob volume; uma onça de peso aparece sob peso. Converter "8 oz de farinha" de uma receita como se fosse onças fluidas é um erro comum e silencioso.
+
+## Por que converter lá e voltar às vezes não retorna exatamente o original?
+
+Arredondamento de ponto flutuante. Cada passo introduz um pequeno erro representacional, portanto uma volta redonda pode pousar uma fração longe de onde começou. A diferença é bem abaixo de qualquer precisão de medição prática, mas é por isso que a última casa decimal pode oscilar.
+
+## Quantas casas decimais devo confiar?
+
+Não mais do que a sua entrada tinha. Converter uma medida de "3 metros" para oito casas decimais em pés implica uma precisão que a original nunca carregou. Os dígitos extras são aritmética, não conhecimento.
+
+## Algo é transmitido?
+
+Não. Toda conversão funciona no seu navegador.

@@ -1,0 +1,37 @@
+---
+title: Calculadora científica — Preguntas frecuentes
+---
+
+## ¿Las funciones trigonométricas usan grados o radianes?
+
+**Radianes.** `sin(pi/2)` da 1; `sin(90)` no. Esta es la sorpresa más común con cualquier calculadora programable, así que si tus ángulos están en grados, convierte primero multiplicando por `pi/180`.
+
+## ¿Qué funciones están disponibles?
+
+`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`, `ln`, `sqrt`, `exp`, `abs` y `pow`, más las constantes `pi` y `e`.
+
+## ¿Cuál es la diferencia entre `log` y `ln`?
+
+`ln` es el logaritmo natural, base *e*. `log` aquí es base 10. La notación difiere por campo, los matemáticos a menudo escriben `log` para el log natural mientras que los ingenieros significan base 10, así que esta calculadora los separa explícitamente en lugar de dejarlos ambiguos.
+
+## ¿Respeta el orden de operaciones?
+
+Sí. Analiza la expresión en lugar de aplicar operaciones de izquierda a derecha mientras se escriben, así que `2 + 3 * 4` es 14, no 20. Usa paréntesis cuando quieras anular la precedencia predeterminada.
+
+## ¿Puedo escribir una expresión completa en lugar de presionar teclas una a una?
+
+Esa es la forma prevista de usarla. Escribir `sqrt(16) + pow(2, 10)` de una sola vez es más rápido que pasar por ella, y más fácil de verificar después porque la expresión completa permanece visible.
+
+## ¿Por qué mi expresión devolvió un error?
+
+Usualmente un paréntesis desequilibrado, un nombre de función desconocido, u una operación sin respuesta real, la raíz cuadrada de un número negativo, o `asin` de un valor fuera de −1 a 1. El analizador rechaza lo que no puede evaluar en lugar de devolver un número engañoso.
+
+## ¿Cuál es la precisión?
+
+Calcula en punto flotante de precisión doble estándar, igual que cualquier otra calculadora en un navegador, por lo que los artefactos familiares existen internamente: 0.1 más 0.2 realmente es 0.30000000000000004 en la aritmética.
+
+Lo que ves se redondea antes de la visualización. Un resultado no entero se escribe a ocho decimales y los ceros finales se eliminan, así que esa expresión se muestra como `0.3`. El redondeo es solo presentacional y tiene dos consecuencias que vale la pena conocer. Las diferencias menores que el noveno lugar decimal son invisibles, así que dos resultados que se muestran idénticamente no se garantiza que sean iguales. Y un resultado muy pequeño no cero puede mostrarse como `0` una vez redondeado, que vale la pena recordar cuando restas dos números casi iguales.
+
+## ¿Se envía mi entrada a algún lugar?
+
+No. El análisis y la evaluación ocurren completamente en tu navegador.

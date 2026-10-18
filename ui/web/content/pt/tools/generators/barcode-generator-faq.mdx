@@ -1,0 +1,37 @@
+---
+title: Gerador de Código de Barras — Perguntas frequentes
+---
+
+## Quais simbologias ele consegue fazer?
+
+Dez: EAN-13, EAN-8, UPC-A e ITF-14 para varejo e caixas; ITF (Interleaved 2 of 5), Code 128 e Code 39 para etiquetagem de armazém, ativo e industrial; e Data Matrix, PDF417 e Aztec para os casos 2D — peças pequenas, etiquetas de envio, cartões de embarque e passagens.
+
+Não QR. Isso pertence ao [gerador de código QR](/en/generators/qr-code-generator), que possui modelos para credenciais Wi-Fi, contatos vCard e e-mail pré-preenchido que uma simples caixa "codifique esta string" não pode oferecer. Duas ferramentas, sem sobreposição.
+
+## O que é um dígito verificador e por que ele rejeitou meu número?
+
+O último dígito de um EAN-13, EAN-8, UPC-A ou ITF-14 não é dado. É uma aritmética sobre os dígitos anteriores: cada um é multiplicado por 3 ou 1 em alternação da direita, os produtos são somados, e o dígito verificador é o que traz essa soma ao próximo múltiplo de dez. Um scanner o recalcula a cada leitura e recusa qualquer coisa que não corresponda, o que impede que um código de barras manchado ou mal lido registre o produto errado.
+
+Então um número que "parece correto" mas termina no dígito errado produz um código de barras que nenhum caixa aceitará. Esta ferramenta faz essa aritmética em JavaScript antes de codificar qualquer coisa, e se o dígito for errado ela lhe diz qual deve ser o final do código.
+
+Se você colar o número *sem* o dígito final — 12 dígitos para um EAN-13, 11 para um UPC-A — ela calcula o dígito verificador e o adiciona. Isso é geralmente o que você quer: os números de produtos dos fabricantes são citados de ambas as formas, e a ferramenta diz qual valor ela realmente codificou.
+
+## Posso vender um produto com um código de barras que fiz aqui?
+
+Você pode imprimir um, e um scanner o lerá. Se uma loja o aceitará é uma pergunta diferente. Os números EAN e UPC de varejo são emitidos pela GS1, que aloca um prefixo a cada empresa; um número que você inventa pode já pertencer a alguém, e a maioria dos varejistas verifica a propriedade antes de listar um produto. Esta ferramenta codifica o número que você dá — ela não pode, e não pode, dizer se o número é seu.
+
+Para uso interno — controle de estoque, etiquetas de ativo, prateleiras de biblioteca, seu próprio armazém — nada disso se aplica. Code 128 e Code 39 não têm nenhum registro central e são a escolha certa lá.
+
+## Qual formato devo escolher?
+
+Embalagem de varejo na Europa e na maioria do mundo: EAN-13. Varejo da América do Norte: UPC-A. Um pacote pequeno sem espaço para treze dígitos: EAN-8. Caixas externas e casos de envio: ITF-14, que é o número de varejo com um dígito de nível de embalagem na frente.
+
+Para qualquer coisa não vendida em um caixa, Code 128 é o padrão usual — aceita letras bem como dígitos e os embrulha densamente. Code 39 é mais antigo, menos denso, limitado a maiúsculas, dígitos e alguns sinais de pontuação, mas ainda é o que muito equipamento industrial duradouro espera. Data Matrix é o indicado para usar quando o rótulo é minúsculo; PDF417 contém o máximo de texto; Aztec é comum em passagens de transporte porque não precisa de zona silenciosa ao seu redor.
+
+## Por que o código de barras impresso não escaneia?
+
+Três causas representam quase tudo. A zona silenciosa — a margem branca simples de cada lado das barras — foi cortada ou preenchida com arte; deixe a opção "zona silenciosa" ativada. A imagem foi ampliada de um PNG pequeno e as bordas das barras estão desfocadas; baixe o SVG em vez disso, que é independente de resolução e é o que você quer para impressão. Ou as barras são simplesmente muito finas para a impressora, caso em que aumente o tamanho do módulo.
+
+## Algo sai do meu navegador?
+
+Não. O codificador é zxing-wasm, uma compilação WebAssembly da biblioteca C++ ZXing, e funciona nesta aba. O arquivo WebAssembly de 1,5 MB é servido do próprio domínio deste site, não de uma CDN, e é apenas obtido quando você pressiona Gerar — abra a página e nunca gere nada, e ele nunca é solicitado. O valor que você digita nunca é enviado para lugar nenhum.

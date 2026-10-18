@@ -1,0 +1,35 @@
+---
+title: JS Beautifier — Frequently asked questions
+---
+
+## What is the difference between beautify and minify?
+
+Beautify is cosmetic: it adds indentation, normalizes spacing, and inserts newlines to make code readable. The JavaScript tokens are unchanged and execution behavior is identical. Minify is compression: it removes whitespace, renames local variables to shorter names, and eliminates dead code. The output is functionally equivalent but tokens change and the code is intentionally unreadable. Minification is a one-way transformation — you cannot recover the original variable names without a source map.
+
+## Why does this tool use Terser for minification instead of just removing whitespace?
+
+Whitespace removal alone saves 15–25% of file size. Terser's full minification (whitespace + name mangling + constant folding + dead code elimination) saves 45–65% for typical application code. The difference is name mangling: renaming `calculateMonthlyInterestRate` to `a` across an entire file produces substantial savings because identifiers appear many times. Terser uses a real AST parser so it safely renames only local identifiers, never exported names or globals.
+
+## What does "mangle" mean?
+
+Mangling renames local variables, function parameters, and internal function names to the shortest possible identifiers — typically single characters. `function processUserInput(rawValue, options)` becomes `function a(b,c)`. Exports and globals are preserved because renaming them would break callers. Enable mangle for production browser bundles; disable it if your code inspects `Function.prototype.name` at runtime or uses `eval()` referencing local variable names by string.
+
+## Can Terser remove unused functions from a library?
+
+Only within a single file. Terser eliminates dead code it can prove is unreachable — e.g., `if (false) { ... }` blocks, constants that evaluate to falsy. It does not perform cross-file tree shaking (removing exported functions no one imports). That requires bundler-level analysis from Rollup, Vite, or webpack. For removing unused library exports, use a bundler with a proper entry point rather than this tool.
+
+## Does minification work correctly with modern JavaScript syntax?
+
+Yes. Terser supports through ES2024 including optional chaining (`?.`), nullish coalescing (`??`), logical assignment (`&&=`, `||=`, `??=`), class private fields (`#field`), top-level `await`, and the Explicit Resource Management proposal (`using`). Set `ecma: 2024` in Terser options for modern-syntax-specific optimizations.
+
+## Why does beautified code sometimes differ from Prettier's output?
+
+`js-beautify` and Prettier make different style decisions. Prettier is opinionated and produces a single canonical format with no configuration. `js-beautify` is configurable and may differ on things like object spacing, function argument spacing, or brace style. For a codebase with a Prettier config, run Prettier instead. Use this tool for quick one-off formatting where you don't want to install anything.
+
+## How do I debug production errors in minified JavaScript?
+
+Generate a source map during minification and upload it to your error monitoring service (Sentry, Datadog, Bugsnag) or host it alongside the minified file. The source map encodes the mapping from each minified character position back to the original source line and column. Browser DevTools and error monitoring services automatically use source maps to show original stack traces and the original source file when debugging.
+
+## Is my JavaScript code sent to a server?
+
+No. Both `js-beautify` and Terser run entirely in your browser compiled to WebAssembly and JavaScript. No code is transmitted to any server. This applies even to private code, internal utilities, or proprietary application logic — nothing leaves your device.

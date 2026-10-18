@@ -1,0 +1,53 @@
+{
+  "title": "Solve",
+  "lead": "Type a problem or photograph it. You get a worked solution, step by step, grounded in your own notes when they help.",
+  "form": {
+    "problem": "Problem",
+    "problemPlaceholder": "e.g. Solve 2x + 3 = 11 for x",
+    "photo": "Photo of the problem",
+    "photoHint": "PNG, JPEG, WebP or GIF, up to 5 MB. It is sent to your own model and not stored.",
+    "kb": "Look things up in",
+    "kbNone": "Nothing — solve from the problem alone",
+    "variant": "What do you want?",
+    "variantSolve": "Solve it",
+    "variantCheck": "Check my answer",
+    "userAnswer": "Your answer",
+    "userAnswerPlaceholder": "e.g. x = 7, and how you got there",
+    "submit": "Solve",
+    "submitCheck": "Check my answer",
+    "starting": "Starting…",
+    "stop": "Stop",
+    "cost": "Runs on your own solve model: three calls per problem."
+  },
+  "stages": {
+    "title": "Progress",
+    "plan": "Reading the problem",
+    "reason": "Working it out",
+    "write": "Writing it up",
+    "pending": "Waiting",
+    "running": "In progress",
+    "done": "Done"
+  },
+  "result": {
+    "title": "Solution",
+    "verdict": "Your answer",
+    "verdicts": {
+      "correct": "Correct",
+      "incorrect": "Not correct",
+      "partly": "Partly correct",
+      "unclear": "Could not be judged"
+    },
+    "finalAnswer": "Answer",
+    "saveNote": "Save to notebook",
+    "toQuestion": "Turn into a question",
+    "openChat": "Open the conversation",
+    "noteSaved": "Saved to your notebook.",
+    "questionSaved": "Added to your question bank.",
+    "openBank": "Open the bank"
+  },
+  "errors": {
+    "empty": "Type a problem or attach a photo of one.",
+    "tooLarge": "That photo is larger than 5 MB.",
+    "failed": "The solve could not be started."
+  }
+}

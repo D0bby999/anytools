@@ -1,0 +1,13 @@
+{"meta":{"count":2},"results":[
+ {"id":"https://openalex.org/W3027879771","doi":"https://doi.org/10.48550/arxiv.2005.11401","title":"Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks","publication_year":2020,"cited_by_count":2600,
+  "authorships":[{"author":{"display_name":"Patrick Lewis"}},{"author":{"display_name":"Ethan Perez"}}],
+  "open_access":{"is_oa":true,"oa_url":"https://arxiv.org/pdf/2005.11401"},
+  "primary_location":{"landing_page_url":"https://arxiv.org/abs/2005.11401","pdf_url":"https://arxiv.org/pdf/2005.11401","license":null},
+  "best_oa_location":{"landing_page_url":"https://arxiv.org/abs/2005.11401","pdf_url":"https://arxiv.org/pdf/2005.11401","license":"cc-by"},
+  "abstract_inverted_index":{"Large":[0],"pre-trained":[1],"language":[2],"models":[3],"store":[4],"knowledge.":[5]}},
+ {"id":"https://openalex.org/W2000000001","doi":null,"title":"A closed paper","publication_year":2023,"cited_by_count":3,
+  "authorships":[],"open_access":{"is_oa":false,"oa_url":null},
+  "primary_location":{"landing_page_url":"https://publisher.example/p/1","pdf_url":null,"license":null},
+  "best_oa_location":null,"abstract_inverted_index":null},
+ {"id":"https://openalex.org/W1","doi":null,"title":"","publication_year":2023}
+]}

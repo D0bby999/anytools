@@ -1,0 +1,60 @@
+---
+title: Desenhando um diagrama no navegador, e mantendo-o
+description: Como o quadro Excalidraw embutido armazena seu trabalho neste navegador, o que exportar para PNG, SVG e .excalidraw cada um oferece, e como mover um quadro entre máquinas sem uma conta.
+updated: 2026-09-03
+---
+
+## Para que esta ferramenta é
+
+Um diagrama rápido: caixas e setas para um layout de serviço, um wireframe de uma tela, um esboço colado em um pull request. O tipo de desenho onde abrir uma ferramenta de design, fazer login e escolher um modelo custa mais do que o desenho vale.
+
+O editor é [Excalidraw](https://github.com/excalidraw/excalidraw) 0.18.1 embutido diretamente na página. Seu visual desenhado à mão não é decoração — um esboço que parece provisório convida as pessoas a argumentar com ele, que é geralmente o que você quer de um diagrama de arquitetura na semana um.
+
+## Onde o desenho vive
+
+Esta é a parte que vale a pena entender antes de confiar nela.
+
+Cada mudança que você faz é salva em `localStorage` deste navegador, sob a chave `anytools:whiteboard:v1`, aproximadamente meio segundo depois que você para de mover o mouse — formas e texto, mas também a cor de fundo da tela, a grade, o zoom e onde você havia rolado. Essa é a história de persistência inteira. Não há conta, nenhuma cópia do servidor, e nenhuma sincronização:
+
+- Recarregue a página, feche a aba, reinicie o navegador — o quadro volta.
+- Abra a mesma URL em um navegador diferente, um perfil diferente, ou em seu telefone — o quadro não está lá. Ele nunca deixou a máquina em que foi desenhado.
+- Limpe dados do site, use "deletar cookies e dados do site", ou feche uma janela privada — o quadro se foi, permanentemente.
+
+A linha de status sob a barra de ferramentas diz "Salvo neste navegador" cada vez que um salve chega, então você consegue ver o mecanismo funcionando em vez de confiar nele.
+
+Há um limite de tamanho: cerca de 5 MB. Isso é uma restrição do navegador, não nossas — `localStorage` limita cada origem a aproximadamente isso. Formas e texto são minúsculos, então você não chegará perto disso desenhando; você chegará perto colando fotografias, que são armazenadas como base64 dentro da cena. Deletar uma imagem colada devolve seu espaço no próximo salve: apenas as imagens que o quadro ainda mostra são escritas. Se um quadro passa do limite mesmo assim, a ferramenta para de fazer salvamento automático e diz — incluindo que a cópia ainda no navegador agora é a mais antiga — em vez de falhar silenciosamente em alguma edição posterior não relacionada.
+
+## Exportando: três formatos, três propósitos
+
+**PNG** é para colar em um chat, um tíquete ou um documento. É uma imagem plana nas cores atuais da tela, com 16 px de preenchimento ao redor do conteúdo. Não consegue ser editada depois.
+
+**SVG** é para qualquer coisa que será redimensionada ou impressa — sites de documentação, slides, um README. A exportação embutiu as fontes que ela usou, então o arquivo renderiza identicamente em uma máquina que nunca ouviu falar de Excalifont. Isso também torna exportações SVG notavelmente maiores do que você poderia esperar.
+
+**`.excalidraw`** é o único que ainda é um desenho. É JSON, escrito pelo próprio serializador do Excalidraw, e abre novamente aqui ou em excalidraw.com com cada forma ainda editável. Se você se importa com um quadro, esta é a exportação que importa; PNG e SVG são figuras disso.
+
+Cada exportação produz um link de download sob a barra de ferramentas em vez de iniciar um download imediatamente, então um clique acidental não preenche sua pasta Downloads.
+
+## Movendo um quadro para outra máquina
+
+Não há sincronização, então o movimento é manual e leva três passos: exporte `.excalidraw` aqui, leve o arquivo para a outra máquina como você normalmente move arquivos, então use **Open .excalidraw** lá. O importador verifica o envelope antes de carregar qualquer coisa — que é JSON, que seu campo `type` diz `excalidraw` em vez de `excalidrawlib`, que sua versão é uma que este build entende, e que está sob o limite de tamanho — e diz qual desses falhou em vez de mostrar uma tela em branco.
+
+Abrir um arquivo substitui o que está no quadro, então pede primeiro, da mesma forma que **Novo quadro** faz — a menos que a tela esteja vazia, onde não há nada para perguntar.
+
+Cenas importadas são executadas através do `restore()` do Excalidraw, que melhora elementos escritos por versões mais antigas e descarta os malformados. Uma cena de 2021 abre bem. Conteúdo web embutido é o único coisa que não sobrevive à viagem: veja abaixo.
+
+## Começando de novo
+
+**Novo quadro** pede primeiro, então apaga tanto a tela quanto a cópia salva. Não há desfazer para isso e nenhum histórico de versão — o salvamento automático mantém um estado, o atual. Exporte antes de apagar se há qualquer dúvida.
+
+## O que está desligado e por quê
+
+Excalidraw envia vários recursos que precisam de um servidor. Todos eles são desligados aqui em vez de deixados ao acaso:
+
+- **Web embeds** — Excalidraw consegue colocar um `<iframe>` ao vivo na tela segurando um vídeo do YouTube, um frame do Figma, um gist ou um tweet. Deixado em seu padrão o componente permite sua própria lista desses hosts, e três rotas a alcançam sem perguntar: a ferramenta Web Embed da barra de ferramentas, colar um link, e abrir um arquivo `.excalidraw` que já contém um. Todos os três estão fechados aqui — a entrada da barra de ferramentas é escondida, links colados ficam links, e embeds em um arquivo aberto são removidos antes dele carregar, com uma contagem então você sabe que seu arquivo foi mudado.
+- **Colaboração ao vivo** — nunca inicializada, então nenhum socket é aberto.
+- **Wireframe-para-código** — isto posta a tela para o endpoint de IA do Excalidraw. Está ativado por padrão no componente; está explicitamente desativado aqui.
+- **Links compartilháveis e exportação Excalidraw+** — o diálogo de exportação salva para disco apenas.
+- **Navegando a biblioteca de formas pública** — o link para fora é escondido; importar um arquivo `.excalidrawlib` de seu disco ainda funciona.
+- **Fontes CDN** — as fontes desenhadas à mão são servidas deste domínio, não de `esm.sh`.
+
+Se você quer colaboração em tempo real, [excalidraw.com](https://excalidraw.com) faz bem e é grátis. Esta página é para o caso em que você preferiria que nada deixasse a máquina.

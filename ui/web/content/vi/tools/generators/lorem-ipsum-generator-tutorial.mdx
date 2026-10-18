@@ -1,0 +1,93 @@
+---
+title: Hướng dẫn toàn diện về tạo Lorem Ipsum
+description: Nguồn gốc Lorem Ipsum, tại sao placeholder text quan trọng trong design, các biến thể hiện đại, và khi nào không nên dùng.
+updated: 2026-05-27
+---
+
+## Nguồn gốc của Lorem Ipsum
+
+Đoạn text "Lorem ipsum dolor sit amet..." không phải là ký tự vô nghĩa — đây là tiếng Latin bị biến dạng. Nguồn gốc là tác phẩm *De finibus bonorum et malorum* ("Về mục đích của điều tốt và điều xấu"), một luận văn triết học do Cicero viết năm 45 trước Công nguyên.
+
+Vào thế kỷ 16, một thợ sắp chữ vô danh lấy đoạn văn này, đảo lộn các từ, và dùng nó để trình bày mẫu typeface. Đoạn text tồn tại như tiêu chuẩn ngành vì nó trông giống ngôn ngữ tự nhiên khi nhìn từ xa — có sự pha trộn tự nhiên giữa từ ngắn và dài — mà không thực sự đọc được trong bất kỳ ngôn ngữ nào, nên không làm người xem mất tập trung.
+
+Richard McClintock, nhà nghiên cứu Latin tại Hampden-Sydney College, đã xác định nguồn gốc này vào những năm 1990.
+
+## Tại sao placeholder text quan trọng trong design
+
+Mục đích của placeholder text là giúp designer và stakeholder đánh giá **layout, typography và hierarchy** mà không bị phân tâm bởi nội dung thực. Khi đọc được text thực, người xem bắt đầu đánh giá nội dung thay vì design trực quan.
+
+Placeholder text tốt cần:
+- Có độ biến thiên độ dài từ tự nhiên (pha trộn từ ngắn và dài, phù hợp ngôn ngữ đích).
+- Lấp đầy không gian giống như copy thực — xuống dòng, nhịp đoạn văn, nối chữ.
+- Trung tính về mặt thị giác — không có cụm từ quen thuộc, không hài hước, không tạo điểm nhấn.
+
+Đây là lý do "Nội dung ở đây" lặp đi lặp lại trong ô là placeholder tệ hơn Lorem Ipsum: nó tạo ra các điểm xuống dòng không tự nhiên và không cho cảm giác về hình dạng đoạn văn.
+
+## Các chế độ output
+
+**Từ (Words)** — hữu ích khi test độ rộng trường nhập và container nhãn.
+
+**Câu (Sentences)** — hữu ích cho input một đoạn văn, meta description, nội dung card.
+
+**Đoạn văn (Paragraphs)** — hữu ích cho layout bài viết, email template, trang nhiều section.
+
+**HTML** — bọc output trong thẻ `<p>` để paste trực tiếp vào HTML template, tránh phải bọc thủ công.
+
+## Các biến thể và khi nào dùng
+
+**Lorem Ipsum cổ điển** là mặc định phổ quát. Dùng khi khán giả là những người quen với design và ngay lập tức hiểu đây là placeholder.
+
+**Tiếng Việt** — Lorem Ipsum tiếng Việt đặc biệt quan trọng khi sản phẩm của bạn có ngôn ngữ chính là tiếng Việt. Tiếng Việt dài hơn tiếng Anh đáng kể cho cùng một ý nghĩa: dấu thanh và từ ghép có nghĩa là một câu vừa gọn trong tiếng Anh có thể xuống thêm một dòng trong tiếng Việt. Thiết kế UI tiếng Việt với placeholder tiếng Anh là cách đáng tin cậy để gặp bất ngờ về layout trong QA.
+
+**Tiếng Tây Ban Nha** — Vấn đề tương tự: câu tiếng Tây Ban Nha trung bình dài hơn tiếng Anh 15–25% với ý nghĩa tương đương.
+
+**Hipster Ipsum** — dùng tiếng lóng Anh hiện đại ("artisan," "craft beer," "normcore"). Hữu ích trong các buổi wireframe review với stakeholder có thể hỏi "trang này thực sự nói gì?" — nội dung vừa quen thuộc vừa vô lý báo hiệu rõ đây là placeholder.
+
+## Khớp độ dài: best practice quan trọng nhất
+
+Sai lầm thực tế lớn nhất với placeholder text là generate sai ngôn ngữ so với locale đích:
+
+| Khái niệm | Tiếng Anh | Tiếng Việt |
+|-----------|-----------|-----------|
+| "Settings" | 8 ký tự | "Cài đặt" — 7 ký tự nhưng cao hơn do dấu |
+| Nhãn nav thông thường | ~6–10 ký tự | ~8–16 ký tự |
+| Meta description 160 ký tự | ~28–32 từ | ~20–25 từ (từ dài hơn) |
+
+Nếu bạn thiết kế sản phẩm đa ngôn ngữ, generate placeholder cho từng locale và kiểm tra layout có vẫn đúng không. Làm điều này ở giai đoạn wireframe, không phải sau khi UI đã được handoff.
+
+## Khi KHÔNG nên dùng Lorem Ipsum
+
+**A/B test cho conversion.** Placeholder text trong một variant test sẽ cho dữ liệu click-through vô nghĩa.
+
+**Review accessibility.** Kiểm tra screen reader và keyboard navigation cần content giống production để reviewer phát hiện lỗi labeling và heading hierarchy.
+
+**Review content strategy.** Khi stakeholder đánh giá kiến trúc thông tin, placeholder không cho họ gì để phản hồi.
+
+**Deploy production.** Lorem Ipsum đã lên production nhiều lần hơn bất kỳ ai muốn thừa nhận — trong website, app mobile, và tài liệu in.
+
+**SEO.** Lorem Ipsum trên trang được crawl báo hiệu với search engine rằng trang không có nội dung có nghĩa.
+
+## Sử dụng thư viện `lorem-ipsum`
+
+```javascript
+import { LoremIpsum } from 'lorem-ipsum';
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: { max: 8, min: 4 },
+  wordsPerSentence: { max: 16, min: 4 },
+});
+
+console.log(lorem.generateWords(5));
+console.log(lorem.generateSentences(3));
+console.log(lorem.generateParagraphs(2));
+```
+
+Để dùng word pool tùy chỉnh (ví dụ placeholder chuyên ngành):
+
+```javascript
+const lorem = new LoremIpsum({}, 'word', '\n', mangWordArray, mangWordArray);
+```
+
+## Quyền riêng tư
+
+Toàn bộ quá trình generate chạy phía client. Không có dữ liệu nào được gửi đi.

@@ -1,0 +1,39 @@
+---
+title: Analisador de User Agent — Perguntas frequentes
+---
+
+## Por que cada navegador alega ser Mozilla?
+
+História. Nos anos 1990 os servidores verificavam "Mozilla" antes de servir frames, portanto cada navegador concorrente adicionava para obter a boa versão das páginas. O mesmo padrão se repetiu: Chrome adicionou "Safari" porque sites estava sondando para WebKit, Edge adicionou "Chrome" porque sites estavam sondando para Chrome. Nada foi jamais removido, porque removê-lo quebra qualquer coisa que ainda está verificando.
+
+O resultado é que uma UA Chrome moderna alega ser Mozilla, KHTML, Gecko e Safari simultaneamente. É camadas de ficção de compatibilidade, e lê-la requer conhecer a ordem em que as reivindicações foram adicionadas.
+
+## Então como o analisador diferencia Edge de Chrome?
+
+Verificando mais específico primeiro. A string do Edge contém a string Chrome completa mais `Edg/124`, portanto um analisador que testa Chrome antes de Edge relata Chrome para cada usuário de Edge — e parecerá correto em testes, porque usuários de Chrome obtêm a resposta correta. As tabelas de detecção aqui são ordenadas deliberadamente: Edge, Opera, Samsung Internet, Vivaldi e Brave são todos testados antes de Chrome, e Chrome antes de Safari.
+
+O mesmo problema aparece em sistemas operacionais. iPadOS 13 e posterior relata "Macintosh", portanto iPad tem que ser verificado antes de macOS ou cada iPad é relatado como um Mac.
+
+## Por que diz "Windows 10 ou 11" em vez de escolher um?
+
+Porque a string não diz. Windows 11 ainda relata `Windows NT 10.0` — Microsoft não incrementou. Qualquer ferramenta que confiantemente lhe diz "Windows 11" a partir de uma string UA sozinha está adivinhando, geralmente a partir de dicas não relacionadas que quebram. Dizer assim é mais útil que estar confiantemente errado.
+
+Diferenciá-los requer Client Hints (`Sec-CH-UA-Platform-Version`), que é um mecanismo diferente que o navegador envia separadamente.
+
+## Posso confiar nisso para controle de acesso ou licenciamento?
+
+Não. Um User-Agent é uma string que o cliente escolhe enviar, e qualquer um pode enviar qualquer coisa — mudar leva uma linha de código ou uma configuração do navegador. Trate o resultado como uma dica para tíquetes de suporte e análises aproximadas.
+
+Se você precisa saber se uma capacidade existe, faça detecção de recurso em JavaScript em vez disso. Isso responde a pergunta real e não consegue ser falsificado, porque testa a coisa em si em vez de uma reivindicação sobre isso.
+
+## Por que o campo é pré-preenchido?
+
+Com o User-Agent do seu próprio navegador, porque essa é a string que a maioria das pessoas chega querendo ver — verificando o que um site vê quando você visita, ou pegando seu UA para colar em um relatório de bug. Substitua-o por qualquer outra string para analisar isso em vez disso.
+
+## Meu User-Agent é enviado para um servidor?
+
+Não. A análise é correspondência de regex nesta aba; nada é transmitido. Seu navegador obviamente envia seu User-Agent real para cada site que você visita, incluindo este, como parte de HTTP ordinário — mas esta página não o registra, não o armazena ou o encaminha.
+
+## Por que não usar uma biblioteca de análise pronta?
+
+Seria cerca de 20 KB para uma ferramenta, e a parte difícil não é o código. A análise de UA é uma tabela de padrões na ordem certa, mais sabendo quais reivindicações de compatibilidade cada navegador faz. A tabela está aqui na fonte, comentada, portanto quando um novo navegador aparece a correção é uma linha em vez de esperar por uma versão.

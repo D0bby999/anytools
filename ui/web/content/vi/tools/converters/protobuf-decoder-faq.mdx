@@ -1,0 +1,27 @@
+---
+title: Giải mã Protobuf — Câu hỏi thường gặp
+---
+
+## Vì sao chế độ không có schema ("mù") lại hiện nhiều cách đoán cho cùng một trường?
+
+Vì bản thân wire format thật sự không đủ thông tin để trả lời chắc chắn. Protocol Buffers chỉ có 4 wire type ở tầng byte — varint, 64-bit, length-delimited, 32-bit — và mỗi loại đó phủ nhiều kiểu dữ liệu Protobuf cùng lúc. Một varint (wire type 0) dùng chung cho `int32`, `int64`, `uint32`, `uint64`, `sint32`, `sint64`, `bool`, và mọi `enum`; không có gì trong chuỗi byte tự nói cho bạn biết đây là số có dấu hay không dấu, hay zigzag-encode hay không. Vì vậy ở chế độ mù, hàm `varintGuesses` trong code trả về đồng thời ba cách đọc — uint64 thô, int64 hai's-complement, sint64 zigzag — cộng thêm cách đọc `bool` nếu giá trị đúng bằng 0 hoặc 1, và để bạn chọn cách khớp với những gì bạn mong đợi.
+
+## Dữ liệu này có phân biệt được string với bytes với message lồng bên trong không?
+
+Không, và đây là chỗ dễ hiểu lầm nhất. Wire type 2 (length-delimited) là cách mã hoá dùng chung cho cả `string`, `bytes` và bất kỳ message lồng nào — không có byte nào trong payload tự nói lên nó thuộc loại nào trong ba loại đó. Vì vậy với mỗi trường wire type 2, tool luôn hiện dạng hex thô, thử decode UTF-8 (chỉ hiện nếu decode thành công, dùng `TextDecoder` với cờ `fatal: true` để không lặng lẽ trả về chuỗi rác khi bytes không phải UTF-8 hợp lệ), và thử đệ quy parse chính những byte đó như thể chúng là một message con — chỉ giữ lại kết quả nếu việc đó thực sự parse ra được ít nhất một trường. Một khối byte ngắn kiểu `0x08 0x0A` vừa là một submessage hợp lệ (field 1 = 10) vừa là hai ký tự điều khiển UTF-8 hợp lệ cùng lúc — cả hai cách đọc đều "đúng" về mặt cú pháp, chỉ có schema thật mới nói được cách nào đúng về ý nghĩa.
+
+## Vì sao phải chọn cả message type, không chỉ dán .proto là xong?
+
+Vì một file .proto thường khai báo nhiều hơn một `message`, còn payload thô trên wire thì không mang theo tên loại nào cả — Protobuf cố tình bỏ luôn phần đó để giữ payload gọn, khác hẳn JSON là hình dạng dữ liệu hiện ngay trong chính văn bản. Sau khi bạn dán .proto, tool duyệt qua cây namespace đã parse (`listMessageTypes`, gồm cả message lồng ghi theo đường dẫn có dấu chấm như `Outer.Inner`) và liệt kê ra toàn bộ để bạn chọn đúng loại mà payload thực sự được mã hoá từ đó — thiếu bước chọn này, tool không có cách nào biết field 3 nghĩa là gì.
+
+## Payload có giới hạn độ sâu lồng nhau và số trường không, vì sao?
+
+Có, cả hai. Độ sâu tối đa là 8 cấp (`MAX_DEPTH`), và tổng số trường được xử lý qua toàn bộ lần gọi (kể cả các lần đoán message lồng) không vượt quá 100.000 (`MAX_FIELDS`). Cả hai giới hạn này tồn tại vì lý do an toàn, không phải vì Protobuf thật sự giới hạn độ sâu — chế độ mù phải tự đoán "đoạn byte length-delimited này có phải một message khác không" theo kiểu đệ quy, và nếu không chặn lại, một payload cố tình ác ý có thể làm tràn call stack hoặc treo tab. Qua khỏi 8 cấp, tool vẫn hiện byte thô ở tầng đó, chỉ dừng đoán tiếp xem chúng có phải message hay không; schema thật ngoài đời gần như không bao giờ lồng sâu đến vậy.
+
+## Tool có hỗ trợ nhóm trường kiểu "group" (wire type 3/4) cũ không?
+
+Không. Wire type 3 và 4 (`group`) là cách mã hoá cũ, đã bị loại bỏ khỏi proto3 và gần như không còn thấy trong payload hiện đại — code parse (`parseFields`) chủ động ném lỗi ngay khi gặp một trong hai giá trị đó thay vì cố đoán nghĩa của chúng. Đây là giới hạn có chủ đích, không phải thiếu sót: implement lại `group` sẽ tốn công cho một tính năng gần như không ai còn dùng.
+
+## Dán .proto có `import` file khác thì có chạy được không?
+
+Dòng `import "other.proto";` vẫn parse được bình thường — tool không tải bất kỳ file nào qua mạng, nên câu lệnh import chỉ đơn giản không được resolve sang file thứ hai. Việc này có ảnh hưởng hay không tuỳ vào bạn decode message nào: một message không thật sự tham chiếu tới kiểu nào từ file bị thiếu vẫn decode bình thường. Còn một message có trường kiểu `other.Bar` sẽ lỗi ngay lúc decode với tên kiểu bị thiếu trong thông báo, vì không có file thứ hai nào để lấy định nghĩa của `Bar`. Cách né vấn đề: gộp hết mọi thứ mà message bạn muốn decode thật sự cần vào một file .proto duy nhất trước khi dán vào đây.

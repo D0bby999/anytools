@@ -1,0 +1,44 @@
+{
+  "kind": "drive#fileList",
+  "incompleteSearch": false,
+  "files": [
+    {
+      "kind": "drive#file",
+      "id": "1Doc_WeekOne_Notes",
+      "name": "Week 1 — notes",
+      "mimeType": "application/vnd.google-apps.document",
+      "modifiedTime": "2026-09-16T09:01:11.000Z",
+      "trashed": false,
+      "parents": ["1Folder_AnyTools_KB"]
+    },
+    {
+      "kind": "drive#file",
+      "id": "1Pdf_Attention",
+      "name": "attention.pdf",
+      "mimeType": "application/pdf",
+      "md5Checksum": "9a1f2c47b3de5e6f7a8b9c0d1e2f3a4b",
+      "modifiedTime": "2026-09-02T11:20:45.000Z",
+      "trashed": false,
+      "parents": ["1Folder_AnyTools_KB"]
+    },
+    {
+      "kind": "drive#file",
+      "id": "1Sheet_Syllabus",
+      "name": "Syllabus",
+      "mimeType": "application/vnd.google-apps.spreadsheet",
+      "modifiedTime": "2026-09-05T16:02:00.000Z",
+      "trashed": false,
+      "parents": ["1Folder_AnyTools_KB"]
+    },
+    {
+      "kind": "drive#file",
+      "id": "1Pdf_AddedAfterPick",
+      "name": "added-after-pick.pdf",
+      "mimeType": "application/pdf",
+      "md5Checksum": "f00dcafe1234567890abcdef00112233",
+      "modifiedTime": "2026-09-16T10:30:00.000Z",
+      "trashed": false,
+      "parents": ["1Folder_AnyTools_KB"]
+    }
+  ]
+}

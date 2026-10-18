@@ -1,0 +1,100 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '~/components/tools-ui';
+import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
+import { MAX_ROMAN, fromRoman, toRoman } from './logic';
+import { STRINGS } from './strings';
+
+export function RomanNumeralConverterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const [numberInput, setNumberInput] = useState('2026');
+  const [romanInput, setRomanInput] = useState('MMXXVI');
+
+  const toRomanResult = useMemo(() => {
+    try {
+      return { value: toRoman(Number(numberInput)), error: null as string | null };
+    } catch (e) {
+      return { value: '', error: toolErrorText(e, s, ui.invalidInput) };
+    }
+  }, [numberInput, s, ui.invalidInput]);
+
+  const fromRomanResult = useMemo(() => {
+    try {
+      return { value: String(fromRoman(romanInput)), error: null as string | null };
+    } catch (e) {
+      return { value: '', error: toolErrorText(e, s, ui.invalidInput) };
+    }
+  }, [romanInput, s, ui.invalidInput]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="space-y-2">
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">
+              {s.numberToRoman.replace('{max}', String(MAX_ROMAN))}
+            </span>
+            <input
+              type="number"
+              value={numberInput}
+              onChange={(e) => setNumberInput(e.target.value)}
+              className="h-10 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+            />
+          </label>
+          {toRomanResult.error ? (
+            <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+              {toRomanResult.error}
+            </output>
+          ) : (
+            <div className="flex items-center gap-3 rounded-md border bg-muted/40 px-3 py-2">
+              <code className="min-w-0 flex-1 truncate font-mono text-lg tracking-wide">
+                {toRomanResult.value}
+              </code>
+              <CopyButton text={toRomanResult.value} />
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">{s.romanToNumber}</span>
+            <input
+              value={romanInput}
+              onChange={(e) => setRomanInput(e.target.value)}
+              placeholder="MCMXCIV"
+              className="h-10 w-full rounded-md border border-control-border bg-background px-3 font-mono text-sm uppercase"
+            />
+          </label>
+          {fromRomanResult.error ? (
+            <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+              {fromRomanResult.error}
+            </output>
+          ) : (
+            <div className="flex items-center gap-3 rounded-md border bg-muted/40 px-3 py-2">
+              <code className="min-w-0 flex-1 truncate font-mono text-lg">
+                {fromRomanResult.value}
+              </code>
+              <CopyButton text={fromRomanResult.value} />
+            </div>
+          )}
+        </div>
+
+        <p className="text-sm text-muted-foreground">{s.note}</p>
+
+        <PrivacyNote />
+      </CardContent>
+    </Card>
+  );
+}

@@ -1,0 +1,27 @@
+---
+title: URL encoding — Câu hỏi thường gặp
+---
+
+## Khi nào dùng encodeURIComponent vs encodeURI?
+
+`encodeURIComponent` cho một mảnh đơn lẻ (giá trị query, path segment, form field). `encodeURI` cho chuỗi URL đầy đủ mà bạn không muốn phá cấu trúc. Khi không chắc, dùng `encodeURIComponent` cho từng mảnh rồi tự ghép.
+
+## Vì sao decoded value có `+` thay vì dấu cách?
+
+Bị decode bằng form-encoder thay vì URL-encoder. HTML form lịch sử encode dấu cách thành `+` (kiểu MIME `application/x-www-form-urlencoded`). Decoder của chúng tôi chấp nhận cả `%20` và `+`.
+
+## Encode ký tự đặc biệt trong key vs value như thế nào?
+
+Cả hai. Encode mọi key và mọi value độc lập bằng `encodeURIComponent`, rồi join bằng `=` và `&`. Chế độ "build query" của tool này làm đúng vậy.
+
+## Độ dài URL tối đa?
+
+Spec không giới hạn, nhưng thực tế ~2,000 ký tự là trần an toàn trên các browser + server + proxy. Payload dài hơn nên dùng POST body.
+
+## Dữ liệu của tôi có được gửi đi đâu không?
+
+Không. Trang dùng hàm browser native cho mọi thứ. Mở DevTools Network — bạn sẽ thấy zero request khi gõ.
+
+## Vì sao `café` cho ra sáu byte khi encode?
+
+`é` là hai byte trong UTF-8 (`0xC3 0xA9`), nên percent-encode thành `%C3%A9` — sáu ký tự. ASCII đơn byte như `a` giữ một ký tự.

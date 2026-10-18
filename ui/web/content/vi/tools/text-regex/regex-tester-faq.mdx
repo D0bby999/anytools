@@ -1,0 +1,35 @@
+---
+title: Regex Tester — Câu hỏi thường gặp
+---
+
+## Catastrophic backtracking là gì?
+
+Bệnh hiệu năng regex nơi engine explore exponentially nhiều cách phân chia input qua quantifier lồng. Pattern như `(a+)+b` chống `aaaaaaaa…` (không `b`) treo vô hạn. Tool này cap thực thi 1 giây và báo cáo issue.
+
+## Greedy vs lazy quantifier?
+
+`*` và `+` là greedy — match nhiều nhất có thể. Thêm `?` (`*?`, `+?`) làm lazy — match ít nhất có thể. Cho `<.*>` trên `<a><b>` bạn được cả chuỗi; `<.*?>` cho chỉ `<a>`.
+
+## Vì sao match HTML khó?
+
+HTML không phải ngôn ngữ regular — có nesting tùy ý mà regex (chính thức) không xử lý. Bạn match được case đơn giản rất cụ thể, nhưng HTML thực tế có comment, CDATA, tag malformed, whitespace lạ. Dùng `DOMParser` trong browser hoặc `cheerio` trong Node.
+
+## Làm sao match ký tự Unicode?
+
+Thêm flag `u`. Khi đó `\w` phủ nhiều ký tự hơn, và bạn dùng được Unicode property escape kiểu `\p{Letter}` / `\p{Script=Vietnamese}` (Node 10+/mọi browser hiện đại).
+
+## Khác biệt giữa `(?:…)` và `(…)`?
+
+`(…)` tạo capture group đánh số, truy cập bằng `$1` v.v. `(?:…)` group cho quantifier mà không capture. Dùng non-capturing khi không cần value — hơi nhanh hơn và giữ capture index sạch.
+
+## Lookahead và lookbehind là gì?
+
+Assertion zero-width: `(?=…)` match nếu `…` theo sau nhưng không tiêu thụ; `(?!…)` match nếu `…` KHÔNG theo sau; `(?<=…)` và `(?<!…)` tương tự cho trước. Hữu ích cho "match X nhưng chỉ khi không theo sau Y" mà không tiêu thụ Y.
+
+## JS regex vs PCRE — khác gì?
+
+JS hầu hết là subset của PCRE với một số khác biệt. Không có inline comment `(?#…)`, không possessive quantifier, named group dùng `(?<name>…)` không phải `(?P<name>…)` (vốn là Python). Đừng paste regex random từ internet vào JS mà không check.
+
+## Vì sao pattern của tôi không match newline?
+
+`.` không match `\n` mặc định. Thêm flag `s` (dotAll) làm `.` match ký tự bất kỳ kể cả newline. Alternative: dùng `[\s\S]` luôn match mọi thứ.

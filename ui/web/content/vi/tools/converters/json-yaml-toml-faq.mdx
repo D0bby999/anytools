@@ -1,0 +1,35 @@
+---
+title: JSON ↔ YAML ↔ TOML Converter — Câu hỏi thường gặp
+---
+
+## Tại sao boolean values của YAML bị convert ra kết quả bất ngờ?
+
+Bạn đang gặp "Norway problem" của YAML 1.1. Trong YAML 1.1 (vẫn là mặc định của hầu hết parsers), các unquoted values như `NO`, `YES`, `ON`, `OFF`, `True`, `False` được xử lý là boolean thay vì string. Nên `country: NO` thành `{"country": false}` trong JSON. Cách fix: quote các strings có thể bị misinterpret — `country: "NO"` là string rõ ràng trong mọi phiên bản YAML.
+
+## Comments có được giữ lại khi convert không?
+
+Không. JSON không có cú pháp comment, nên mọi comment trong YAML hay TOML đều bị mất khi convert sang JSON. Khi convert YAML→TOML hay ngược lại, comments cũng bị mất vì parser loại bỏ chúng. Nếu config files của bạn có comments quan trọng, giữ nguyên bản gốc và coi output convert là bản phái sinh riêng.
+
+## Tại sao TOML từ chối mixed-type array của tôi?
+
+TOML yêu cầu arrays phải đồng nhất kiểu — tất cả phần tử phải cùng kiểu. `[1, "two", true]` valid trong JSON và YAML nhưng invalid trong TOML. Nếu cần mixed types trong TOML, dùng array of inline tables: `[{val = 1}, {val = "two"}]`. Đây là thiết kế có chủ đích của TOML để kiểu dữ liệu không mơ hồ.
+
+## Có thể convert multi-document YAML file (phân cách bởi ---) không?
+
+Multi-document YAML (nhiều documents trong một file phân cách bởi `---`) không được hỗ trợ trong tool này — chỉ convert single documents. Tách multi-document YAML thành các files riêng lẻ trước, convert từng cái, rồi kết hợp lại nếu cần.
+
+## Output JSON→YAML có quotes quanh values không cần thiết. Vậy có sai không?
+
+Không. YAML cho phép cả quoted và unquoted strings. Converter quote tất cả strings là producing valid, conservative YAML. Unquoted strings chỉ là tối ưu hóa cho dễ đọc, không phải yêu cầu. Giá trị parsed là giống hệt nhau trong cả hai trường hợp.
+
+## Điều gì xảy ra với JSON null values khi convert sang TOML?
+
+TOML không có kiểu `null`. Đây là sự không tương thích thực sự: JSON `null` không có tương đương trong TOML. Tool bỏ qua null-valued keys trong quá trình JSON→TOML conversion và ghi chú điều này trong output. Nếu cần biểu diễn "absent" trong TOML, dùng sentinel value hoặc cấu trúc lại data để đơn giản là bỏ qua key đó.
+
+## Tool này dùng phiên bản YAML nào?
+
+Tool dùng YAML 1.2 semantics qua `js-yaml` ở strict mode khi có thể, nghĩa là chỉ `true` và `false` (chữ thường) mới được parse là boolean. Điều này tránh Norway problem mặc định. Tuy nhiên, nếu bạn paste YAML được generate bởi YAML 1.1 parser (PyYAML, Ruby Psych), values có thể đã bị typed sai từ upstream — kiểm tra JSON output để xác nhận.
+
+## Tool này có phù hợp cho Kubernetes hay GitHub Actions YAML không?
+
+Có, để đọc và hiểu các files đó. Convert chúng *sang* JSON hay TOML chủ yếu hữu ích để xử lý bằng script (ví dụ feed Kubernetes manifest vào script cần JSON). Đừng convert rồi dùng kết quả lại làm Kubernetes manifest — YAML của Kubernetes có field semantics cụ thể cần round-trip cẩn thận.

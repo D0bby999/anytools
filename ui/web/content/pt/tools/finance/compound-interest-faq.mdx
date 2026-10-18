@@ -1,0 +1,36 @@
+---
+title: Calculadora de juros compostos — Perguntas frequentes
+---
+
+## O que está sendo projetado exatamente?
+
+O valor futuro de um valor inicial mais uma contribuição mensal regular, com taxa anual fixa. A ferramenta relata o saldo final, o total que você realmente investiu e a diferença entre eles — a parte gerada pelos juros.
+
+## Com que frequência é capitalizado e quando as contribuições são adicionadas?
+
+Mensalmente, e as contribuições chegam ao final de cada mês — uma anuidade ordinária. Isso importa: um depósito feito no final de um mês não gera nada para esse mês. Se seu plano real paga no início de cada mês, o resultado verdadeiro é ligeiramente superior ao mostrado.
+
+## Qual é a fórmula?
+
+Duas partes somadas. O valor inicial cresce como `P × (1 + r)^n`. As contribuições crescem como `PMT × ((1 + r)^n − 1) / r`. Em ambas, `r` é a taxa anual dividida por 12 e `n` é o número de meses. Com taxa zero, a segunda parte se reduz a `PMT × n`, que a ferramenta trata de forma apropriada em vez de dividir por zero.
+
+## Por que o saldo sobe em curva em vez de subir uniformemente?
+
+Porque os juros de cada período são calculados sobre um saldo que já inclui juros anteriores. No início, o crescimento é dominado pelo que você contribui; depois, os retornos sobre os retornos acumulados assumem o controle. Defina um horizonte longo na calculadora e observe quando a linha de juros ultrapassa a linha de contribuições — esse cruzamento é o argumento inteiro para começar cedo.
+
+## Considera inflação, impostos ou taxas?
+
+Não. O resultado é uma figura nominal. A inflação reduz o que esse saldo pode comprar, impostos sobre investimentos reduzem o que você mantém, e taxas de plataforma ou fundo são deduzidas dos retornos antes de você vê-los. Um ponto percentual de taxas anuais se capitaliza contra você exatamente da maneira que os retornos se capitalizam para você.
+
+## Qual taxa devo usar?
+
+Qualquer taxa que você insira, a ferramenta trata como certa e constante, o que nenhum investimento real é. Uma taxa de poupança fixa é conhecida; um retorno de mercado não é, e sequências reais incluem anos de queda que uma média suave oculta. Modelar uma taxa pessimista ao lado de uma otimista é mais informativo do que um número único confiante.
+
+## Meus dados são enviados para algum lugar?
+
+Não. A projeção é executada inteiramente em seu navegador.
+
+## Posso planejar minhas finanças com isso?
+
+Use-a para entender como a capitalização funciona, não como previsão. Os resultados reais dependem de mercados, impostos, taxas e seu próprio comportamento durante crises. Fale com um consultor financeiro licenciado antes de se comprometer com um plano. *Esta é uma estimativa, não aconselhamento financeiro.*
+

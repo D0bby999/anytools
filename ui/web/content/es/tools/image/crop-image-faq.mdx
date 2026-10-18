@@ -1,0 +1,37 @@
+---
+title: Recortar Imagen — Preguntas frecuentes
+---
+
+## ¿Cómo selecciono el área?
+
+Arrastra en cualquier lugar de la imagen. La caja sigue tu puntero, y la lectura debajo muestra la selección en píxeles de la imagen *original*, no de la vista previa — así que puedes ver exactamente lo que obtendrás antes de recortar. Elige un preestablecido de aspecto primero si necesitas una forma fija; la selección se restringe entonces mientras arrastras.
+
+Funciona con un ratón, un trackpad, un dedo y un lápiz. La herramienta utiliza eventos de puntero, que cubren los cuatro con una ruta de código, y captura el puntero para que el arrastre sobreviva a tu dedo dejando la imagen.
+
+## ¿Recortar reduce la calidad?
+
+Los píxeles dentro de tu selección se copian sin cambios; nada se escala. Lo que puede costar calidad es el formato de salida. PNG no tiene pérdidas, así que un recorte PNG de un PNG es idéntico en píxeles a la región que seleccionaste. Elegir JPEG o WebP recodifica, lo que en una foto que ya era JPEG significa una segunda ronda de compresión con pérdidas.
+
+PNG es el predeterminado aquí por esa razón. Si el recorte es una fotografía y el tamaño del archivo importa, WebP es el mejor intercambio.
+
+## ¿Por qué el preestablecido 1:1 no se ve cuadrado en mi foto ancha?
+
+Debería serlo, y lo es — pero vale la pena explicar porque es donde las herramientas de recorte comúnmente se equivocan. La selección se almacena como fracciones de la imagen, y fracciones iguales de una foto de 2000×1000 no son un cuadrado: el 50% del ancho es 1000px mientras que el 50% del alto es 500px. La herramienta se convierte a través de las dimensiones de píxeles reales antes de aplicar una proporción, así que 1:1 significa 1:1 en pantalla y en el archivo.
+
+Si un recorte alguna vez sale con la proporción equivocada, esa conversión es el primer lugar para buscar.
+
+## ¿Se carga mi imagen?
+
+No. El archivo se decodifica en tu navegador, la región seleccionada se dibuja en un lienzo y se codifica allí, y el enlace de descarga apunta a un blob que tu navegador mantiene localmente. Ninguna solicitud lleva la imagen. Verifica la pestaña Red en herramientas de desarrollador, o simplemente ve sin conexión una vez que la página se haya cargado — el recorte aún funciona.
+
+## ¿Están orientadas correctamente las fotos del teléfono?
+
+Sí. Las cámaras de teléfono almacenan el marco horizontal del sensor más una bandera que dice de qué lado va. Ignorar esa bandera es por qué algunos herramientas recortan la parte incorrecta de una foto vertical — la imagen visible y los píxeles almacenados no están de acuerdo. Esta herramienta decodifica con la orientación aplicada, así que la región que seleccionas es la región que obtienes.
+
+## ¿Puedo recortar varias imágenes a la vez?
+
+No aquí. Un rectángulo de recorte es específico para el encuadre de una imagen, así que agrupar significaría aplicar la selección de una persona a fotos para las que no fue dibujada. Si necesitas el mismo *tamaño* en muchas imágenes, Redimensionar Imagen lo maneja adecuadamente.
+
+## ¿Cuál es la imagen más grande que puedo recortar?
+
+Cualquier tamaño, pero no siempre en resolución completa. Los lienzos devuelven salida en blanco en lugar de un error más allá de aproximadamente 16.7 megapíxeles — el techo en Safari, el más estricto de los navegadores principales — así que una foto más grande se decodifica más pequeña para mantenerse debajo de él, y la herramienta muestra las dimensiones originales junto con las que están en uso. La consecuencia que vale la pena saber: tu recorte se corta de esa decodificación reducida, así que la región que seleccionas sale con menos píxeles que el mismo recorte tomado en un editor de escritorio. Para un recorte destinado a la web eso generalmente es invisible; para uno que pretendes imprimir, comienza desde una herramienta de escritorio.

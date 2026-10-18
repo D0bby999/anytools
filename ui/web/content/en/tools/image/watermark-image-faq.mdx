@@ -1,0 +1,27 @@
+---
+title: Watermark Image — Frequently asked questions
+---
+
+## Can I write Vietnamese, Chinese, or other non-Latin text as a watermark?
+
+Yes, and reliably — unlike watermarking a PDF, this tool does not embed a font at all. It draws your text straight onto an HTML canvas using `ctx.fillText`, the same rendering path a browser uses to draw any text on any web page. Whatever the operating system's font-rendering stack can display, this can draw, which in practice covers Vietnamese diacritics, Chinese, Japanese, Korean, Cyrillic, Arabic and emoji — limited only by which fonts are installed on the computer running the tool, not by anything this site ships. If you need the same watermark burned into a PDF instead, the PDF version has to embed a font file to draw text at all, which is why it only guarantees Latin, Greek and Cyrillic coverage; see Watermark PDF's own FAQ for that limit.
+
+## Why doesn't my transparent PNG logo get a black box around it?
+
+Because the logo is drawn with a normal `drawImage` call that respects its own alpha channel — the transparent pixels in your PNG stay transparent when composited onto the photo underneath. The black-box problem that trips up naive canvas tools happens on the *output* side, not here: it shows up when a transparent image is exported as JPEG, which cannot represent transparency at all and needs a background colour filled in first. This tool only does that fill when JPEG is your chosen output format, and it fills white — never black — matching what any image editor does on JPEG export.
+
+## What is the difference between the 9-position grid and "free position"?
+
+The nine-cell grid places your mark relative to the image's edges — corners, edge midpoints, or dead centre — with a small consistent margin so it never touches the border. Free position instead takes an exact horizontal and vertical percentage of the image, so you can put a signature at, say, 15% from the left and 92% from the top rather than being limited to the nine preset spots. Both are measured against the image's own dimensions, so the same setting lands in the same relative place whether the source photo is 800px wide or 8000px wide.
+
+## What does tiling do, and can I still control its size and angle?
+
+Turning on tile repeats your text or logo across the *entire* image in a grid pattern instead of placing one instance — the classic "sample, do not steal" watermark look used on stock photography previews. Opacity, rotation and size all still apply to every repeat, so a 30° tilted, half-opacity tiled watermark looks the same in every position it repeats to. Position settings are ignored while tiling is on, since there is no single spot left to place.
+
+## Can I watermark a batch of photos with one logo and one set of settings?
+
+Yes. Choose your text or logo and adjust position, size, opacity, colour and rotation once against a live preview shown on the first photo you dropped in, then run it and every file in the batch gets stamped identically. Results list individually with a before/after size comparison, and a "download all as .zip" option appears once there is more than one result.
+
+## Is my photo or logo uploaded anywhere?
+
+No. Every step — decoding your photos, decoding your logo, drawing the mark, and re-encoding the result — runs on a canvas inside this browser tab. Nothing is sent to a server; you can confirm this in your browser's developer tools by watching the Network panel while you watermark an image, or by disconnecting from the internet after the page loads.

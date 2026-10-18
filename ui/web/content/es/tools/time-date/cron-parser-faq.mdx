@@ -1,0 +1,35 @@
+---
+title: Cron Parser — Preguntas frecuentes
+---
+
+## ¿Por qué `0 0 1 * 1` no significa "el primer lunes del mes"?
+
+En Vixie cron (usado por la mayoría de sistemas Linux), cuando se especifican tanto día-del-mes como día-de-semana — ninguno es `*` — el scheduler se dispara cuando **cualquiera** de las condiciones es verdadera, no ambas. Por lo tanto `0 0 1 * 1` significa "medianoche del día 1 de cualquier mes O medianoche de cualquier lunes." Para programar el primer lunes del mes necesitas un workaround: ejecutar diariamente los lunes y verificar dentro del script si `date +%d` está entre 1 y 7. Quartz Scheduler evita esta ambigüedad con el marcador de posición `?`.
+
+## ¿Cuál es la diferencia entre cron-parser y Quartz cron?
+
+El cron estándar/Vixie tiene cinco campos: minuto, hora, día del mes, mes, día de semana. Quartz agrega un campo de **segundos** al inicio y un campo de **año** opcional al final, dando seis o siete campos. Quartz también agrega caracteres especiales: `L` (último día), `W` (día laborable más cercano), `#` (enésimo día de semana del mes) y `?` (no especificado). La expresión Quartz `0 30 9 * * MON-FRI` no es cron válido de cinco campos — el `0` inicial son segundos. Siempre verifica qué variante espera tu plataforma.
+
+## ¿Esta herramienta soporta los alias `@yearly`, `@daily`, etc.?
+
+Sí. Tanto `cronstrue` como `cron-parser` reconocen los alias estándar `@yearly`, `@annually`, `@monthly`, `@weekly`, `@daily`, `@midnight` y `@hourly`. El parser los traduce a sus equivalentes de cinco campos antes de calcular las próximas ejecuciones. Ten en cuenta que `@reboot` no tiene significado basado en tiempo y no puede producir tiempos de próxima ejecución.
+
+## ¿Cómo afecta el DST a los schedules cron?
+
+Cron evalúa los schedules contra el tiempo de reloj de pared en la timezone configurada del daemon. Durante una transición de adelanto de primavera, la hora que "no existe" se omite — cualquier trabajo programado en esa ventana no se ejecutará. Durante el atraso de otoño, la hora repetida puede disparar un trabajo dos veces. La mitigación más segura es programar trabajos en UTC, aceptando que el tiempo local de reloj de pared cambie una hora dos veces al año.
+
+## ¿Por qué mi Kubernetes CronJob no se ejecuta en el tiempo local esperado?
+
+Los schedules de Kubernetes CronJob siempre se evalúan en **UTC**, independientemente de la timezone del sistema del nodo. Si esperas que `0 9 * * *` se dispare a las 9 AM en Ciudad de México (UTC−6), necesitas `0 15 * * *`. El campo `timeZone` disponible en Kubernetes 1.27+ permite especificar la timezone directamente. La herramienta muestra las próximas ejecuciones tanto en UTC como en la timezone local del navegador para ayudarte a detectar este desfase.
+
+## ¿Cuál es el intervalo mínimo para workflows programados de GitHub Actions?
+
+GitHub Actions aplica un intervalo mínimo de schedule de **5 minutos** (`*/5 * * * *`). Los schedules más frecuentes son rechazados silenciosamente. Además, las ejecuciones programadas en la rama predeterminada pueden retrasarse hasta una hora durante períodos de alta carga en la infraestructura de GitHub. Para triggers con timing crítico, usa un scheduler externo (AWS EventBridge, Google Cloud Scheduler) que llame a la API de GitHub Actions.
+
+## ¿Pueden las expresiones cron manejar intervalos sub-minuto?
+
+El cron estándar de cinco campos no puede — la granularidad más fina es un minuto. Para ejecutar una tarea cada 10 segundos necesitas un mecanismo diferente: un bucle dentro del propio trabajo, un timer systemd con `OnCalendar=*:*:0/10` o un job scheduler como Quartz (Java) que soporta scheduling a nivel de segundos. Si ingresas una expresión Quartz de seis campos, la herramienta intentará parsearlo como expresión Quartz y mostrará el campo de segundos explícitamente.
+
+## Mi cron job se ejecutó en el horario incorrecto después de migrar el servidor — ¿qué debo verificar?
+
+Tres cosas en orden: (1) **Timezone** — verifica que el `timedatectl` o `/etc/timezone` del nuevo servidor coincida con el antiguo; (2) **Sincronización de reloj** — confirma que `ntpd`/`chronyd` esté corriendo y el reloj sea preciso; (3) **Offset DST** — si la migración ocurrió alrededor de un fin de semana de cambio de hora, la diferencia de offset entre la configuración de timezone antigua y nueva puede explicar un desfase de una hora. Siempre programa trabajos críticos en UTC para eliminar completamente la ambigüedad de timezone.

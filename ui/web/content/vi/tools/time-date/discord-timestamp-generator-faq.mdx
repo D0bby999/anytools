@@ -1,0 +1,27 @@
+---
+title: Trình tạo Timestamp Discord — Câu hỏi thường gặp
+---
+
+## Chuỗi `<t:1735689600:F>` dán vào Discord nghĩa là gì?
+
+`t` đánh dấu đây là một thẻ timestamp của Discord, `1735689600` là timestamp Unix — số giây tính từ 0h ngày 1/1/1970 UTC — còn `F` là một trong bảy kiểu hiển thị Discord định nghĩa, ở đây là "ngày/giờ dài". Khi client Discord render tin nhắn, nó đọc con số này, quy đổi sang múi giờ riêng của người đọc, rồi định dạng theo đúng chữ cái kiểu và ngôn ngữ hiển thị của thiết bị người đọc đó. Bản thân chuỗi không hề ghi múi giờ nào cả, vì nó cố tình không cần: đúng một con số 1735689600 là đúng một thời điểm tuyệt đối ở khắp mọi nơi, chỉ có phần hiển thị là khác nhau theo từng người đọc — đây chính là lý do tool này hữu ích hơn gõ tay "7 giờ tối giờ Việt Nam".
+
+## Vì sao đúng cùng một mã lại hiện ra chữ khác nhau với mỗi người?
+
+Vì timestamp Unix là một điểm trên trục thời gian tuyệt đối, không phải một con số đồng hồ treo tường. `1735689600` là 00:00:00 UTC ngày 1/1/2025 — nhưng đúng thời điểm đó lại là 19:00 ngày 31/12/2024 ở New York và 07:00 ngày 1/1/2025 ở TP.HCM, cùng một khoảnh khắc thật. Client Discord tự làm phép quy đổi múi giờ ngay tại máy hoặc app của người đọc, dựa theo múi giờ thiết bị đó đang đặt. Đó là toàn bộ giá trị so với việc gõ "họp lúc 7 giờ tối giờ Việt Nam" vào tin nhắn: mỗi người đọc thấy đúng giờ địa phương của họ mà không ai phải tự quy đổi.
+
+## Bảy kiểu định dạng khác nhau ở điểm nào?
+
+Đọc từ code xác nhận đúng bảy kiểu, không hơn không kém: `t` và `T` chỉ hiện giờ (ngắn và dài, có thêm giây). `d` và `D` chỉ hiện ngày (ngắn dạng số, dài viết đủ tên tháng). `f` và `F` gộp cả ngày lẫn giờ, riêng `F` còn thêm cả tên thứ trong tuần. `R` là kiểu tương đối — "2 giờ nữa", "3 ngày trước" — và tự cập nhật theo thời gian trôi qua, vì client Discord tính lại nó dựa trên đồng hồ hiện tại của người đọc mỗi lần tin nhắn được mở ra, chứ không đóng băng dòng chữ tại thời điểm gửi.
+
+## Vì sao tool bắt chọn cả ngày giờ lẫn một múi giờ riêng, thay vì chỉ ngày giờ thôi?
+
+Vì "6 giờ chiều" vô nghĩa nếu không biết đó là 6 giờ chiều của ai. Nếu bạn hẹn việc gì đó lúc 6 giờ chiều giờ Los Angeles, bạn chọn đúng ngày giờ đó và đặt ô múi giờ thành America/Los_Angeles — tool sẽ tính ra đúng một thời điểm tuyệt đối mà con số đồng hồ đó tương ứng tại múi giờ ấy, và chính thời điểm đó được mã hoá vào con số Unix. Chọn sai múi giờ ở bước này thì timestamp sinh ra sai với tất cả mọi người, giống hệt việc đặt lịch bay sai múi giờ làm sai lịch trình với mọi người đọc nó.
+
+## Đổi múi giờ trên máy tính của tôi có làm thay đổi mã đã tạo không?
+
+Không — và đây là chủ đích chứ không phải lỗi. Chuỗi `<t:...:...>` chỉ được tính từ đúng ngày, giờ và múi giờ bạn chọn tay ở hai ô nhập phía trên, không phụ thuộc gì vào múi giờ hệ điều hành máy bạn đang đặt. Phần THỰC SỰ phụ thuộc vào múi giờ máy bạn là dòng xem trước "hiện tại trông thế nào với bạn" nằm bên dưới các mã — dòng đó cố tình dùng múi giờ trình duyệt phát hiện được để minh hoạ đúng luận điểm của cả tool: đổi múi giờ hệ điều hành rồi tải lại trang, dòng xem trước đó đổi theo, còn chuỗi `<t:...>` thì giữ nguyên byte-for-byte.
+
+## Kiểu tương đối (R) có bị lỗi thời theo thời gian không?
+
+Không, và đó chính là lý do nó tồn tại: client Discord tính lại "2 giờ nữa" hay "3 ngày trước" dựa trên đồng hồ hiện tại của người đọc mỗi khi tin nhắn được render, nên mở lại đúng tin nhắn đó một tuần sau sẽ thấy "một tuần trước" thay vì con số đúng tại lúc gửi. Bên dưới, việc tính khoảng cách dùng các mốc ngưỡng theo giây: dưới 60 giây tính theo giây, dưới 3600 giây tính theo phút, dưới 86.400 giây tính theo giờ, và các mốc lớn hơn dùng độ dài trung bình của tháng (~2.629.800 giây) và năm (~31.557.600 giây) để bù cho số ngày không đều giữa các tháng. Nhờ vậy `R` là kiểu đúng cho các thông báo kiểu đếm ngược ("sự kiện bắt đầu lúc `<t:...:R>`"), nơi một chuỗi ngày cố định sẽ cần chỉnh tay liên tục mới còn đúng nghĩa.

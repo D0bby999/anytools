@@ -1,0 +1,37 @@
+---
+title: Remove PDF Pages — Frequently asked questions
+---
+
+## How do I say which pages to delete?
+
+Type the page numbers your reader shows, separated by commas, with hyphens for runs: `1, 4-6, 12`. Spaces do not matter, repeating a number does nothing extra, and a reversed range like `6-4` is read as `4-6`. Pages are one-based — `1` is the first page, not the second.
+
+Everything you list is removed and everything else is kept, in its original order.
+
+## I deleted pages 1, 3 and 5 and got the wrong ones. Is that a known bug?
+
+Not here, but it is the classic bug in this kind of tool and worth understanding. Deleting a page renumbers every page after it. Remove page 1 from a six-page document and the old page 3 becomes page 2 — so a tool that works through your list from lowest to highest ends up deleting pages 1, 4 and 6 while reporting that it deleted 1, 3 and 5.
+
+This tool removes from the highest page number downwards, so no page still waiting to be removed has shifted. There is a test covering exactly this case: removing `1, 3, 5` from a six-page document must leave the original pages 2, 4 and 6.
+
+## Can I delete every page?
+
+No. A PDF must contain at least one page, so a range covering the whole document is refused rather than producing an empty or corrupt file. If you want nothing from the document, delete the file itself.
+
+If you meant to keep only a few pages, Split PDF is the better tool — extracting `2, 5` is clearer than deleting everything else.
+
+## Does removing pages make the file smaller?
+
+Usually, but by less than you might expect. The page is dropped from the document's page tree, but shared resources — embedded fonts, colour profiles, images referenced from more than one page — are not necessarily discarded with it. A 40-page document with one large embedded font set may lose ten pages and only a little size.
+
+If size is the goal rather than page count, removing pages is the wrong lever.
+
+## Is my file uploaded?
+
+No. `pdf-lib` reads the document inside this browser tab, the pages are removed in memory, and the download link is a blob URL your browser created locally. Nothing is sent anywhere, so there is no server-side copy to be kept or deleted. You can confirm this in your browser's Network tab, or by going offline once the page has loaded.
+
+## What happens to bookmarks and links pointing at deleted pages?
+
+Bookmarks and internal links that targeted a removed page have nothing to point at, and behaviour there varies by viewer — some ignore them, some jump to the nearest surviving page. Bookmarks pointing at pages you kept continue to work.
+
+Form fields on surviving pages are normally preserved. Digital signatures will not validate afterwards: a signature covers a specific document layout, and removing a page necessarily changes it. That applies to every page-removal tool, not just this one.

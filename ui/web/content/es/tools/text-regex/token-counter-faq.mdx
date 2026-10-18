@@ -1,0 +1,27 @@
+---
+title: Contador de tokens — Preguntas frecuentes
+---
+
+## ¿Por qué no muestra directamente un costo estimado en dólares?
+
+Es una decisión deliberada, no un descuido. Los precios por token cambian con bastante frecuencia — sale un modelo nuevo, bajan tarifas antiguas, aparecen precios distintos para entrada y salida — así que una cifra de costo fija en esta página se volvería incorrecta en cuestión de semanas sin que nadie la actualizara, y un número equivocado es peor que ningún número. La herramienta se detiene en los datos que sí son estables — tokens, caracteres, palabras — y deja que multiplicarlos por la tarifa vigente lo haga cada quien consultando la página de precios oficial del proveedor que use.
+
+## ¿Qué es un token exactamente, y por qué no coincide con el número de palabras?
+
+Un token es la unidad en la que un modelo de lenguaje realmente procesa el texto: ni un carácter ni tampoco una palabra completa. Los modelos de OpenAI usan codificación por pares de bytes (BPE), que construye un vocabulario de fragmentos frecuentes a partir de enormes cantidades de texto de entrenamiento y representa cualquier entrada como una secuencia de piezas de ese vocabulario. Una palabra corta y común se convierte en un solo token; una palabra larga o poco común suele partirse en dos o tres fragmentos. Los espacios, la puntuación e incluso partes de un número cuentan como tokens aparte. Por eso una frase de nueve palabras puede costar 12 o 15 tokens sin ningún error de por medio, y es el conteo de tokens — no de palabras ni de caracteres — el que en realidad determina el precio de la API y los límites de la ventana de contexto.
+
+## ¿Cuál codificación debería elegir?
+
+Depende del modelo contra el que estés comparando. `o200k_base` es la codificación detrás de GPT-4o, GPT-4.1, la familia GPT-5 y los modelos de razonamiento de la serie o — es la opción correcta para casi todo lo actual. `cl100k_base` es la codificación anterior, usada por el GPT-4 original, GPT-3.5-turbo y el modelo de embeddings `text-embedding-ada-002`. Los vocabularios de ambas son distintos entre sí, así que la misma oración puede arrojar un conteo de tokens diferente según cuál elijas — no existe una tasa de conversión fija entre las dos, y elegir la codificación equivocada da un número que no corresponde al modelo real que te interesa.
+
+## ¿Sirve para calcular prompts de Claude o Gemini?
+
+Solo como una estimación aproximada, y sería deshonesto decir otra cosa. Claude y Gemini usan sus propios tokenizadores, con vocabularios propios entrenados con datos y reglas de fusión distintas. Esta herramienta cuenta con el tokenizador de OpenAI específicamente porque es el que tiene una implementación de código abierto capaz de correr por completo dentro de una pestaña de navegador. Para prosa en inglés los conteos entre distintos tokenizadores suelen quedar en un rango parecido, pero con código, texto en otro idioma o formatos poco habituales la diferencia puede ser considerable. Si un proyecto factura contra el conteo de tokens específico de Claude o Gemini, conviene usar la herramienta de conteo propia de ese proveedor para el número que realmente importa.
+
+## ¿Por qué la primera vez que abro la herramienta aparece "cargando"?
+
+La tabla de rangos de la codificación por pares de bytes pesa entre 1 y 2 megabytes, porque tiene que describir decenas de miles de tokens posibles como secuencias de bytes con un orden asignado. Cargarla sin condición alguna significaría que cualquiera que visite la página la descarga escriba o no algo, así que se obtiene solo después de que abres la herramienta, y únicamente la tabla correspondiente a la codificación seleccionada. Una vez cargada queda en caché dentro de la pestaña, así que cambiar entre las dos codificaciones o seguir escribiendo texto durante la misma sesión no vuelve a descargar nada.
+
+## ¿Cómo se calculan los caracteres y las palabras que muestra?
+
+El conteo de caracteres toma directamente la longitud de la cadena de texto en unidades UTF-16 de JavaScript — un emoji o algún carácter CJK poco común puede ocupar dos unidades aunque a simple vista se vea como un solo carácter, así que el número no siempre coincide exactamente con lo que contarías a mano. El conteo de palabras sigue la misma definición que el resto de herramientas de texto de este sitio: cuenta tramos consecutivos de caracteres que no son espacio en blanco; un texto vacío o con solo espacios da 0 palabras, no 1 como haría un conteo ingenuo. Los tres números — tokens, caracteres, palabras — se calculan en la misma pasada, así que siempre corresponden exactamente al texto que acabas de pegar.

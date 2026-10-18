@@ -1,0 +1,63 @@
+---
+title: Converter CSV ↔ JSON
+description: Como lidar com aspas, vírgulas em valores, encoding, e os diferentes "dialetos" de CSV no mundo real.
+updated: 2026-05-27
+---
+
+## CSV não é tão simples quanto parece
+
+"Comma-separated values" parece trivial — quebra por vírgula, quebra por linha, pronto. Na prática, CSV é um pântano: vírgulas dentro de campos precisam de aspas, aspas dentro de campos precisam de aspas duplicadas (`""`), quebras de linha podem aparecer dentro de strings entre aspas, e Excel exporta em formatos sutilmente diferentes do RFC 4180.
+
+A biblioteca [Papa Parse](https://www.papaparse.com/) usada aqui implementa o parsing correto e detecta delimitadores automaticamente (vírgula, tab, ponto-e-vírgula, pipe).
+
+## O dialeto Excel
+
+Excel em locale brasileiro usa **ponto-e-vírgula** como separador (porque vírgula é decimal). Locale inglês usa vírgula. Salvando como "CSV UTF-8" vs "CSV" muda o encoding. Resultado: arquivos chamados `.csv` que não se entendem.
+
+Esta ferramenta detecta o delimiter automaticamente lendo a primeira linha. Se errar, force manualmente.
+
+## Header row
+
+Por convenção, a primeira linha é cabeçalho (nome das colunas). O conversor usa esses nomes como chaves no JSON. Sem header, gera chaves numéricas (`_0`, `_1`).
+
+```csv
+name,age,email
+Alice,30,alice@example.com
+Bob,25,bob@example.com
+```
+
+Vira:
+
+```json
+[
+  { "name": "Alice", "age": "30", "email": "alice@example.com" },
+  { "name": "Bob", "age": "25", "email": "bob@example.com" }
+]
+```
+
+Note que `age` vira string. Ative "dynamic typing" para que Papa Parse infira números, booleans, datas.
+
+## JSON → CSV: o problema do nesting
+
+JSON pode aninhar (`{"user": {"name": "Alice"}}`). CSV é plano. O conversor faz flatten com dot-notation: `user.name`. Arrays viram strings JSON: `"[1,2,3]"`. Você perde a estrutura — é uma transformação lossy por design.
+
+Para JSONs muito aninhados, considere normalizar antes (transformar em tabela relacional) ou usar JSONL (uma linha JSON por record) ao invés de CSV.
+
+## Caracteres especiais
+
+Strings com vírgulas, aspas, ou newlines precisam de quoting:
+
+```csv
+name,bio
+"Alice, the explorer","She said ""hello"""
+```
+
+Papa Parse gera quoting automático quando necessário. Você não precisa pensar nisso.
+
+## Encoding
+
+UTF-8 é seguro para acentos, emoji e qualquer caractere Unicode. Arquivos legados podem ser Latin-1 (ISO-8859-1) ou Windows-1252. Se acentos aparecem corrompidos, abra o original em editor com encoding detectado e re-salve como UTF-8.
+
+## Limites
+
+~5MB de CSV processa rápido. Acima disso, considere streaming. Tudo client-side — nenhum dado sai do navegador.

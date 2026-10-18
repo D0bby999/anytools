@@ -1,0 +1,39 @@
+---
+title: Adicionar números de página a um PDF — Perguntas frequentes
+---
+
+## O meu documento é enviado para algum lugar?
+
+Não. O PDF é lido por JavaScript dentro desta aba do navegador, usando a biblioteca `pdf-lib`, e o resultado numerado é devolvido a você como uma URL de blob que seu navegador cria localmente. Nenhuma solicitação transporta o arquivo, então não há cópia do servidor para ser retida, registrada ou excluída. Abra as ferramentas de desenvolvedor do seu navegador, mude para a aba Rede, e execute a ferramenta — você não verá nenhum upload. Também pode desconectar da rede depois que a página carregar e ela ainda funciona.
+
+Isso importa para os documentos que costumam precisar de numeração: contratos, encartes de tribunal, apresentações de concorrência, dissertações e anexos de provas. Esses são exatamente os arquivos que não deveriam passar pela fila de processamento de outra pessoa.
+
+## Por que diz apenas caracteres latinos?
+
+Porque os números são desenhados em Helvetica, uma das quatorze fontes que todos os leitores de PDF são obrigados a ter incorporadas. Nada é incorporado, então o arquivo de saída cresce muito pouco e abre de forma idêntica em qualquer lugar.
+
+A compensação é o conjunto de caracteres. Uma fonte PDF padrão usa codificação WinAnsi, que é aproximadamente Latin-1: o alfabeto latino não acentuado, dígitos, pontuação e acentos da Europa Ocidental. Não consegue desenhar marcas de tom vietnamita, chinês, japonês, coreano, grego, cirílico, árabe, hebraico, tailandês ou emoji. Como os três formatos oferecidos são `1`, `1 / 10` e `Página 1`, esta não é uma limitação que você encontrará por acaso hoje — mas se encontrar, a ferramenta o diz em palavras em vez de falhar com um erro interno.
+
+Suportar outros scripts significa incorporar uma fonte Unicode, que tem um a dois megabytes baixados por cada visitante da página. Esse é um custo real para uma funcionalidade que ninguém pediu ainda, então é deliberadamente adiada em vez de estar quietamente ausente.
+
+## O que acontece com as páginas que meu scanner salvou de lado?
+
+Elas são tratadas, e isso vale a pena explicar porque é onde a maioria das ferramentas de numeração de página falha.
+
+Uma página PDF tem duas coisas separadas: uma caixa com uma largura e uma altura, e uma rotação que o leitor aplica antes de exibir. Uma página digitalizada de lado é comumente armazenada como uma caixa ereta mais um quarto de volta de rotação. Uma ferramenta que simplesmente desenha "no canto inferior direito da caixa" coloca o número em um canto que não é o inferior direito na tela, girado noventa graus em relação a todas as outras páginas do documento.
+
+Esta ferramenta lê a rotação de cada página e coloca o número no canto *que você* vê, do jeito certo. Posição e distância da borda são medidas em relação à página como exibida, então um documento misto — algumas páginas eretas, algumas de lado — sai com os números em um lugar consistente.
+
+## Posso começar em um número diferente de 1, ou numerar apenas parte do documento?
+
+Sim para ambos, e eles se combinam. "Começar a numeração em" define o número impresso na primeira página que recebe um, que é o que você quer quando uma página de capa e um índice vêm antes da página 1 do corpo, ou quando este arquivo continua de outro. "Páginas a numerar" aceita intervalos da forma ordinária — `3-12`, ou `1, 4-6, 9` — e deixa todas as outras páginas intactas.
+
+Quando ambos são usados com o formato `1 / 10`, `{total}` é o **último número impresso**, não a contagem de páginas do documento. Numerar páginas 5 a 12 de um arquivo de vinte páginas começando do 1 dá `1 / 8` a `8 / 8`. Isso lê corretamente para alguém segurando essas oito páginas; `1 / 20` referiria-se a uma numeração que não aparece em nenhum lugar do arquivo. Para o caso ordinário — cada página, começando em 1 — as duas definições são as mesmas.
+
+## Muda algo mais no documento?
+
+Não. Contagem de páginas, ordem de páginas, tamanho de páginas, rotação, marcadores e conteúdo existente são todos deixados como estavam; o número é desenhado no topo do que já está lá. A ferramenta não consegue detectar um número de página existente, então executá-la duas vezes deixa dois números em cada página — desfaça começando novamente do seu original.
+
+Há uma coisa a saber sobre assinaturas: uma assinatura digital cobre um layout de byte específico de um documento específico, e adicionar qualquer coisa a uma página necessariamente o reescreve. Uma assinatura que cobriu o original não mais validará. Essa é uma propriedade do formato PDF em vez desta ferramenta, e se aplica igualmente aos servidores. Se uma assinatura deve permanecer válida, numere o documento antes de ser assinado.
+
+Arquivos protegidos por senha são recusados pelo nome em vez de processados. É tecnicamente possível carregar um PDF criptografado ignorando sua proteção, mas a saída teria as restrições removidas — não é o que ninguém quer dizer por adicionar um número de página. Remova a senha no aplicativo que criou o arquivo primeiro.

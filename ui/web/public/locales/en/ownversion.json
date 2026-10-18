@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "title": "Own version first",
+    "label": "Write my own version first",
+    "body": "A smooth answer that arrives too soon can paper over what you were unsure of, and afterwards it is hard to tell what you really learned. With this on, Solve and chat ask for three short lines before you send: what you understand now, what you are least sure of, and what would show you have learned it. After an answer you can close it and retell it in your own words, without looking.",
+    "save": "Save",
+    "saved": "Saved.",
+    "failed": "The setting could not be saved."
+  },
+  "fields": {
+    "legend": "Your own version, before you ask",
+    "hint": "Three short lines in your own words. The answer will start from them.",
+    "understanding": "What I understand now",
+    "uncertain": "What I am least sure of",
+    "proof": "What would show I have learned it",
+    "required": "Fill in all three lines to send."
+  },
+  "shown": {
+    "title": "Your own version"
+  },
+  "retell": {
+    "open": "Close it and retell",
+    "hidden": "The answer is hidden while you retell it.",
+    "label": "Your retell, without looking",
+    "hint": "Explain, work or decide it again in your own words. If you cannot go on without the answer, it is still a scaffold, not yet your own.",
+    "save": "Save retell",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "title": "Your retell",
+    "again": "Retell again",
+    "failed": "The retell could not be saved."
+  }
+}

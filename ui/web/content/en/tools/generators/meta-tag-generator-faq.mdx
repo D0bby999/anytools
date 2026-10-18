@@ -1,0 +1,39 @@
+---
+title: Meta Tag Generator — Frequently asked questions
+---
+
+## Why is the description repeated three times?
+
+Because three different consumers read three different tags and none of them falls back to the others. `<meta name="description">` is what search engines read for the snippet. `og:description` is what Facebook, LinkedIn, Slack, WhatsApp and most link unfurlers read. `twitter:description` is what X reads. Omitting one means that platform shows nothing, or invents something from your page text.
+
+The duplication is unavoidable and is why generating these by hand is tedious enough to want a tool for.
+
+## What do the 60 and 160 character counts mean?
+
+They are where truncation usually starts, not hard limits. Google renders titles into a pixel width rather than counting characters, so a title of wide capitals gets cut sooner than one of narrow lowercase — 60 is a reliable rule of thumb. Descriptions are cut around 160, sometimes shorter on mobile.
+
+Nothing is enforced. Going over is a legitimate choice if the important words come first; the counter is there so it is a choice rather than an accident.
+
+## Why does it warn about a relative image URL?
+
+Because `og:image` is fetched by a crawler that has only that string — it has no page to resolve `/og.png` against, and no reliable notion of your origin. A relative URL is the single most common reason a link preview shows no image, and it is invisible in testing because the page itself renders fine.
+
+The same applies to `og:url`, which must be absolute for the same reason.
+
+## What is the difference between the two card types?
+
+`summary_large_image` renders a wide image above the text; `summary` renders a small square thumbnail beside it. Large is right for articles and product pages; summary is right when you have no strong image or the image is a logo.
+
+Requesting a large-image card without providing an image is warned about, because platforms quietly fall back to a plain summary card and the preview looks broken rather than intentional.
+
+## Are the tags escaped properly?
+
+Yes. Ampersands, quotes and angle brackets are escaped in every attribute value. This matters more than it sounds: a title like `Bob & "Widgets"` written unescaped closes the attribute early, and the rest of the tag becomes stray markup in your `<head>`. Titles containing quotes are common and the breakage is easy to miss.
+
+## Should I still add a canonical link?
+
+Yes, and it is included when you fill in the URL. `og:url` and `<link rel="canonical">` do related but different jobs — the first tells social platforms which URL to attribute a share to, the second tells search engines which of several similar URLs is the real one. Both should point at the same address.
+
+## Is anything sent to a server?
+
+No. The tags are assembled from your input by string concatenation in this browser tab. Nothing is transmitted, which is worth knowing given that unpublished page titles and URLs are frequently the first thing anyone types into a tool like this.

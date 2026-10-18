@@ -1,0 +1,79 @@
+---
+title: Guía completa del convertidor de comandos cURL
+description: Cómo se parsean los comandos curl con tree-sitter, por qué la conversión se ejecuta en el servidor, y qué casos borde vigilar en cada lenguaje destino.
+updated: 2026-05-26
+---
+
+## Qué hace esta herramienta
+
+Pega cualquier comando `curl` y esta herramienta lo convierte a una solicitud HTTP equivalente en el lenguaje de tu elección: `fetch` del navegador, Node.js `node-fetch`, Python `requests`, PHP cURL o Go `net/http`. El código generado está listo para pegar en tu proyecto — headers, body, auth y parámetros de consulta, todo traducido fielmente.
+
+Esto es útil cuando copias una solicitud desde las DevTools del navegador ("Copy as cURL"), de la documentación de una API o del terminal de un colega, y necesitas código funcional en tu lenguaje sin mapear manualmente cada flag.
+
+## Por qué el parseo se ejecuta en el servidor
+
+La mayoría de las herramientas en navegador se ejecutan completamente en JavaScript del lado del cliente. Este convertidor es diferente: el parseo ocurre en el servidor.
+
+La razón es [tree-sitter](https://tree-sitter.github.io/tree-sitter/). La biblioteca [`curlconverter`](https://github.com/curlconverter/curlconverter) usa la gramática Bash de tree-sitter para parsear comandos `curl` como un árbol de sintaxis real en lugar de usar expresiones regulares. El binding de Node.js de tree-sitter compila a un módulo nativo `.node` — requiere binarios nativos que no pueden ejecutarse en un contexto de navegador. Ejecutar en el servidor proporciona un parseo correcto respaldado por AST en lugar de una regex frágil que se rompe con casos borde de comillas.
+
+**Tu comando se parsea en el servidor y el resultado se devuelve. El comando nunca se registra, almacena ni asocia con tu sesión.** Solo existe en memoria durante la duración de la conversión y se descarta inmediatamente.
+
+## Lenguajes destino soportados
+
+| Destino | Notas |
+|---|---|
+| `fetch` (navegador) | Usa `fetch()` con `Promise`; sin dependencias adicionales |
+| `node-fetch` | CommonJS `require('node-fetch')`, Node 14 e inferior; Node 18+ usa `fetch` nativo |
+| Python `requests` | El cliente HTTP más popular de Python |
+| PHP cURL | Llamadas directas a funciones `curl_*`; compatible con PHP 7.4+ |
+| Go `net/http` | Solo librería estándar, sin dependencias de terceros |
+
+## Cómo tree-sitter parsea curl
+
+Un comando `curl` es una invocación de comando Bash. Tree-sitter lo parsea en un árbol de sintaxis concreto (CST) que captura el nombre del comando, flags, valores de flags, estilo de comillas y posiciones de argumentos — exactamente como lo vería un shell. Esto significa que el parser maneja correctamente:
+
+- Strings de comillas simples (`'value with spaces'`)
+- Strings de comillas dobles con secuencias de escape (`"value \"with\" quotes"`)
+- Comillas ANSI-C (`$'value\twith\ttabs'`)
+- Comandos multilínea con continuaciones `\`
+- Flags en cualquier orden
+
+Un parser basado en regex necesitaría lógica especial para cada uno de estos casos. El enfoque de tree-sitter los maneja como consecuencia natural de parsear la gramática Bash real.
+
+## Flags comunes y cómo se traducen
+
+**`-H` / `--header`** se convierte en un par clave-valor en el objeto `headers` de `fetch`, una entrada de lista en `requests.get(..., headers=...)` o una llamada `curl_setopt(CURLOPT_HTTPHEADER, ...)` en PHP.
+
+**`-d` / `--data`** envía un body de solicitud. El convertidor detecta el tipo de contenido de tu header `Content-Type`: si es `application/json`, el body se emite como objeto parseado (`JSON.stringify(...)` en JS, un diccionario en Python); si es `application/x-www-form-urlencoded`, usa la API de codificación de formularios apropiada.
+
+**`--data-raw`** es similar a `-d` pero omite la interpretación `@filename` — el valor siempre se trata como string literal, nunca se lee de un archivo.
+
+**`-u` / `--user`** se traduce a un header `Authorization: Basic <base64(user:pass)>` (`btoa(user:pass)` en JS, `auth=(user, pass)` en requests, `CURLOPT_USERPWD` en PHP).
+
+**`-X` / `--request`** establece el método HTTP explícitamente. El convertidor respeta esto incluso cuando se podría inferir un valor predeterminado.
+
+**`-F` / `--form`** genera código multipart/form-data — `FormData` en fetch, `files=` en requests, `CURLFORM_*` en PHP.
+
+## Casos borde a conocer
+
+**`--compressed`** indica a curl que solicite respuestas comprimidas con gzip. Fetch y requests manejan la descompresión automáticamente; el convertidor emite una nota pero no agrega código de descompresión explícito ya que las bibliotecas lo manejan de forma transparente.
+
+**Cookie jars (`-b` con filename).** El convertidor traduce cookies en línea `-b 'key=val'` a un header `Cookie`, pero no puede replicar archivos de cookie-jar — esa es una característica específica de curl que requiere almacenamiento persistente.
+
+**Certificados de cliente (`--cert`, `--key`).** Son opciones TLS que requieren configuración a nivel del cliente HTTP, no a nivel de solicitud. El convertidor incluye un comentario apuntando a la documentación de la biblioteca relevante cuando encuentra estos flags.
+
+**Múltiples URLs.** Si un comando curl lista más de una URL, el convertidor procesa la primera URL y emite una advertencia.
+
+## Leer el código generado críticamente
+
+El convertidor hace lo mejor que puede, pero trata la salida como un **punto de partida**, no como código listo para producción:
+
+- Agrega manejo de errores (`try/catch`, verificaciones de estado de respuesta) apropiado para tu base de código.
+- Revisa las credenciales hardcodeadas en `-u` o headers `Authorization` — muévelas a variables de entorno.
+- En Python, considera `requests.Session()` para múltiples solicitudes al mismo host (connection pooling, headers compartidos).
+- En Go, reutiliza una instancia `http.Client` en lugar de crear una por solicitud.
+
+## Herramientas relacionadas
+
+- **URL Encoder** — codifica valores individuales de query-string antes de insertarlos en una URL.
+- **JWT Decoder** — inspecciona bearer tokens que ves en headers `Authorization` de curl.

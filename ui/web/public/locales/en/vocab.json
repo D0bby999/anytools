@@ -1,0 +1,216 @@
+{
+  "tabs": {
+    "label": "Mastery sections",
+    "paths": "Paths",
+    "vocabulary": "Vocabulary",
+    "dueBadge": "{{count}} due",
+    "bookCards": "Book cards"
+  },
+  "page": {
+    "title": "Vocabulary",
+    "lead": "Words you saved while reading. Each comes back on its own schedule twice: once to recall its meaning, once to type it into the sentence you met it in."
+  },
+  "session": {
+    "title": "Due today",
+    "progress": "{{done}} of {{total}}",
+    "more": "{{count}} more are due today after this session.",
+    "empty": "Nothing is due today.",
+    "finished": "That is everything due today.",
+    "recognitionPrompt": "What does this mean here?",
+    "clozePrompt": "Type the missing word.",
+    "reveal": "Show the meaning",
+    "check": "Check",
+    "answerLabel": "Your answer",
+    "matched": "That matches.",
+    "notMatched": "The word was:",
+    "suggested": "suggested",
+    "rateLabel": "How well did you know it?",
+    "again": "Again",
+    "hard": "Hard",
+    "good": "Good",
+    "easy": "Easy",
+    "failed": "That review was not saved. Try again.",
+    "from": "From {{title}}",
+    "revealBack": "Show the answer"
+  },
+  "list": {
+    "title": "Your words",
+    "search": "Search words and meanings",
+    "language": "Language",
+    "anyLanguage": "Any",
+    "apply": "Search",
+    "empty": "No words saved yet. Select a passage while reading, choose Vocabulary, then Find words to save.",
+    "noMatch": "No words match.",
+    "suspended": "suspended",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "suspend": "Suspend",
+    "resume": "Resume",
+    "delete": "Delete",
+    "confirmDelete": "Delete for good",
+    "meaning": "Meaning",
+    "reading": "Reading",
+    "pos": "Part of speech",
+    "lang": "Language code",
+    "contexts": "{{count}} sentence",
+    "contexts_other": "{{count}} sentences",
+    "failed": "That change was not saved."
+  },
+  "picker": {
+    "find": "Find words to save",
+    "finding": "Finding words…",
+    "cost": "Asks your reading model once for a list of terms from this passage.",
+    "title": "Words in this passage",
+    "none": "The model found no words in this passage to save.",
+    "language": "Language",
+    "save": "Save",
+    "saved": "Saved",
+    "added": "Added a sentence",
+    "failed": "Could not find words."
+  },
+  "speech": {
+    "readAloud": "Read aloud",
+    "readPage": "Read this page",
+    "listen": "Listen",
+    "stop": "Stop",
+    "close": "Close the reader",
+    "title": "Reading aloud",
+    "voice": "Voice",
+    "rate": "Speed",
+    "local": "on this device",
+    "remote": "online: the text is sent to your browser's maker",
+    "remoteNote": "Voices marked online send the text to your browser's maker to be spoken. Voices on this device do not.",
+    "noVoice": "Your browser has no voice for {{lang}}. Choose a voice for another language to hear it anyway.",
+    "failed": "Reading aloud stopped: {{error}}",
+    "unsupported": "This browser cannot read aloud."
+  },
+  "home": {
+    "title": "Vocabulary due",
+    "count": "{{count}} word card is due today.",
+    "count_other": "{{count}} word cards are due today.",
+    "none": "No word cards are due today.",
+    "open": "Review vocabulary"
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again."
+  },
+  "bookCards": {
+    "title": "Book cards",
+    "lead": "Cards from the living books you have written. They come back on the same schedule as your words, in a queue of their own.",
+    "empty": "No book cards yet. Open a book made from a knowledge base; its flash-card blocks add their cards here.",
+    "home": {
+      "title": "Book cards",
+      "count": "{{count}} book card is due today.",
+      "count_other": "{{count}} book cards are due today.",
+      "open": "Review book cards"
+    }
+  },
+  "decide": {
+    "legend": "What will you do with this word?",
+    "hint": "Decide before you look the meaning up. Only a word you choose to learn comes back for review.",
+    "options": {
+      "skip": "Skip",
+      "infer": "Infer",
+      "lookup": "Quick lookup",
+      "learn": "Learn deliberately",
+      "verify": "Verify professionally"
+    },
+    "when": {
+      "skip": "It does not change the gist, the next step or anyone's safety.",
+      "infer": "The sentence, a contrast or an example gives you enough to go on.",
+      "lookup": "It blocks you now but you are unlikely to need it again.",
+      "learn": "It keeps coming back, matters to the task, and you will use it within two weeks.",
+      "verify": "Safety, law, health, money, versions or someone's responsibility depends on it."
+    },
+    "fields": {
+      "why": "Why it can wait",
+      "sense": "Your candidate sense",
+      "confidence": "Confidence",
+      "source": "Source of the current sense",
+      "sound": "Sound",
+      "collocation": "Collocation",
+      "cue": "Retrieval cue",
+      "definition": "Primary definition",
+      "scope": "Scope",
+      "owner": "Accountable owner"
+    },
+    "fieldHints": {
+      "sound": "How it sounds: stress, or a respelling.",
+      "collocation": "The words it usually comes with.",
+      "cue": "The situation that should bring it to mind.",
+      "learnRetest": "The retest is the review schedule: two cards come back from tomorrow.",
+      "owner": "Who answers for this term in your situation."
+    },
+    "confidences": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "meaning": "Current sense",
+    "suggestion": "Suggested meaning",
+    "suggestionHidden": "Write your candidate sense first; the suggestion appears after.",
+    "suggestionNote": "A model's suggestion is a candidate, not a source.",
+    "impact": "Task impact",
+    "impactNone": "Not said",
+    "impacts": {
+      "blocking": "Blocking",
+      "important": "Important",
+      "minor": "Minor",
+      "none": "None"
+    },
+    "save": "Save the decision",
+    "saving": "Saving…",
+    "change": "Change the decision",
+    "cancel": "Cancel",
+    "savedAs": "Saved as {{decision}}.",
+    "already": "You already decided on this word: {{decision}}.",
+    "changed": "Decision changed to {{decision}}.",
+    "failed": "That decision was not saved."
+  },
+  "week": {
+    "select": "That is {{count}} words to learn this week. Five to eight a cycle is plenty: keep the ones that recur, matter to the task and that you will use soon.",
+    "over": "That is {{count}} words to learn this week, more than the five to eight a cycle can hold. Consider skipping, inferring or looking some of them up instead."
+  },
+  "production": {
+    "kind": "production",
+    "prompt": "Type the expression that fits.",
+    "scenario": "Situation",
+    "sense": "Meaning",
+    "confusable": "Not to be confused with"
+  },
+  "practise": {
+    "start": "Practise using it",
+    "hint": "A production card starts from a situation and asks you to produce the word. Write a situation of your own where you would use it.",
+    "scenario": "Your situation",
+    "confusable": "A confusable expression, and the difference (optional)",
+    "save": "Make the production card",
+    "stop": "Stop practising",
+    "on": "practising",
+    "cancel": "Cancel",
+    "failed": "The production card was not saved."
+  },
+  "byDecision": {
+    "title": "Other decisions",
+    "lead": "Words you decided not to learn deliberately. They have no review cards.",
+    "learnThis": "Learn this",
+    "record": "Record",
+    "learnTitle": "Learning",
+    "count": "{{count}} word",
+    "count_other": "{{count}} words"
+  },
+  "audit": {
+    "title": "Add to a vocabulary audit",
+    "lead": "Copy the selected words into the decision queue of an open vocabulary audit, with their task impact, decision and basis. The audit keeps its own copy.",
+    "select": "Select {{term}} for the audit",
+    "worksheet": "Vocabulary audit",
+    "add": "Add selected words",
+    "none": "You have no open vocabulary audit.",
+    "start": "Start a vocabulary audit",
+    "added": "{{count}} word added to the audit.",
+    "added_other": "{{count}} words added to the audit.",
+    "full": "The audit's queue is full after {{count}} words; the rest were not added.",
+    "nothing": "Select at least one word first.",
+    "failed": "The words were not added."
+  }
+}

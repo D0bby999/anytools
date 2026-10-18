@@ -1,0 +1,35 @@
+---
+title: XML Formatter — Câu hỏi thường gặp
+---
+
+## Tại sao XML của tôi bị lỗi parse dù trông có vẻ đúng?
+
+XML parser tuân thủ spec bắt buộc phải từ chối input không hợp lệ, khác với HTML parser cố gắng đoán ý. Nguyên nhân phổ biến nhất: ký tự `&` hoặc `<` trong text content chưa được escape (dùng `&amp;` và `&lt;`), tag chưa đóng, sai case giữa tag mở và đóng (XML phân biệt hoa thường), hoặc có nhiều hơn một root element. Thông báo lỗi có kèm số dòng và cột — hãy nhảy đến vị trí đó trước.
+
+## Tool có giữ lại XML comment không?
+
+Có. Tool dùng `fast-xml-parser` với chế độ bảo toàn comment, nên các node `<!-- comment của bạn -->` tồn tại qua quá trình reformat. Một số thư viện XML bỏ qua comment vì chúng không mang ý nghĩa ngữ nghĩa — nếu comment quan trọng với workflow của bạn, hãy xác nhận lại với parser downstream của bạn.
+
+## Việc reformat có thay đổi ý nghĩa XML không?
+
+Với element-only content thì không. Whitespace giữa các element không có ý nghĩa ngữ nghĩa, nên thêm hay xóa indent là an toàn. Ngoại lệ là **mixed content** — element chứa cả child element lẫn text node. Với `<p>Xin chào <b>thế giới</b></p>`, khoảng trắng trước `<b>` có ý nghĩa và được giữ nguyên.
+
+## Namespace là gì và tại sao quan trọng?
+
+Namespace cho phép nhiều XML vocabulary cùng tồn tại trong một document mà không xung đột tên. Prefix như `soap:` hay `xsi:` được bind đến URI qua attribute `xmlns:`. Formatter giữ nguyên toàn bộ namespace declaration và prefix binding — reorder hay xóa chúng sẽ làm hỏng XPath query và parser downstream phụ thuộc vào expanded name.
+
+## Tôi có thể format file SVG bằng tool này không?
+
+Có. SVG là XML, nên formatter xử lý hoàn toàn đúng. Paste source SVG vào, chọn indent width, và nhấn format. Rất hữu ích khi muốn SVG hand-edited dễ diff trước khi check vào version control.
+
+## CDATA section là gì và khi nào nên dùng?
+
+`<![CDATA[…]]>` bọc literal character data không cần parse như markup. Dùng khi cần nhúng HTML fragment, SQL, hoặc code chứa `<`, `>`, `&` mà không muốn escape từng ký tự. Chuỗi duy nhất không thể có bên trong CDATA là `]]>`. Formatter giữ nguyên CDATA section không thay đổi.
+
+## Có giới hạn kích thước file không?
+
+Tool chạy trên browser, nên giới hạn thực tế phụ thuộc vào thiết bị của bạn. File đến khoảng 5 MB hoạt động mượt mà trên hầu hết trình duyệt hiện đại. File lớn hơn có thể gây pause vài giây trong khi parser đồng bộ chạy. Với file trên 10 MB, `xmllint --format` trên command line nhanh hơn.
+
+## Document có `<?xml version="1.0"?>` ở đầu — có bắt buộc không?
+
+XML declaration là tùy chọn với document encode UTF-8 hoặc UTF-16 (có BOM). Trong thực tế, luôn nên thêm khi document chứa ký tự non-ASCII và có thể được xử lý bởi strict parser — nó loại bỏ sự mơ hồ về encoding và phiên bản XML.

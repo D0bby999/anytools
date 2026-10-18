@@ -1,0 +1,65 @@
+---
+title: Guia completo de codificação e decodificação hexadecimal
+description: Como funciona a codificação hexadecimal, quando usá-la em vez de Base64 ou binário, armadilhas com UTF-8 e convenções de separador e prefixo.
+updated: 2026-05-27
+---
+
+## O que é realmente a codificação hexadecimal
+
+A codificação hexadecimal representa cada byte de dados binários como exatamente dois dígitos hexadecimais (`0–9`, `a–f`). Como um dígito hex cobre quatro bits (um nibble), dois dígitos hex cobrem todos os 256 valores possíveis de um byte. O resultado é uma string de caracteres ASCII que sempre tem o dobro do comprimento da sequência de bytes original.
+
+Isso **não** é compressão nem criptografia — é puramente um formato de exibição. Qualquer string hexadecimal pode ser decodificada de volta aos bytes exatos de que foi construída, sem necessidade de chave.
+
+## Por que hexadecimal e não decimal ou octal?
+
+Computadores armazenam dados em binário (base 2). O hexadecimal (base 16) é uma potência de dois, então cada dígito hex mapeia limpa mente para exatamente quatro bits binários. O decimal não tem esse alinhamento, razão pela qual programadores usam hex para inspecionar bytes brutos. `0xFF` significa `11111111` em binário — essa relação é imediatamente evidente.
+
+## Comparação de overhead: Hex vs Base64 vs Binário
+
+| Formato | Bytes → chars de saída | Overhead |
+|---------|------------------------|----------|
+| Hex | 1 byte → 2 chars | +100% |
+| Base64 | 3 bytes → 4 chars | +33% |
+| Binário | 1 byte → 8 chars | +700% |
+
+Base64 vence quando minimizar o tamanho importa (JWT, data URIs, anexos MIME). Hex vence quando a **legibilidade e depuração em nível de byte** são mais importantes: um dump hexadecimal permite detectar um byte `0x00` nulo ou sentinela `0xFF` de relance.
+
+## Casos de uso reais comuns
+
+**Dumps de memória e arquivos.** Depuradores, editores hex (`xxd`, `hexdump -C`) e ferramentas de dump de falhas usam hex para que desenvolvedores possam inspecionar memória bruta byte a byte. O prefixo `0x` é a língua franca da programação de baixo nível.
+
+**Códigos de cor CSS.** A cor `#ff6b6b` são três valores de um byte: vermelho=255, verde=107, azul=107. O `#` substitui `0x` como convenção de prefixo. Todo desenvolvedor web lê códigos de cor hexadecimais dezenas de vezes por dia.
+
+**Endereços MAC.** Endereços de hardware Ethernet são seis bytes, convencionalmente escritos como `aa:bb:cc:dd:ee:ff` com dois pontos como separador. A opção **Separador** desta ferramenta permite produzir exatamente esse formato.
+
+**Resumos de hash criptográfico.** SHA-256 produz 32 bytes; SHA-512 produz 64 bytes. Ambos são exibidos quase universalmente como strings hexadecimais. O hash de commit do `git` como `4c1502f` são os primeiros sete caracteres de um resumo SHA-1 em hex.
+
+**Ethereum e blockchain.** Hashes de transações, endereços de carteira e calldata ABI-encoded são todos hexadecimais — tipicamente com prefixo `0x`. A caixa de seleção `0x` nesta ferramenta ativa esse prefixo em cada par de bytes.
+
+**Depuração de protocolos de rede.** Capturas de pacotes no Wireshark mostram payloads em hex. O byte de flags TCP `0x12` (SYN+ACK) é muito mais fácil de ler do que `00010010` em binário ou `18` em decimal.
+
+## A armadilha do UTF-8
+
+Quando você digita um caractere como `é` (U+00E9), o texto são dois bytes UTF-8: `0xc3 0xa9`. Isso é correto — `é` genuinamente ocupa dois bytes em UTF-8. Um emoji como `😀` (U+1F600) são quatro bytes UTF-8: `0xf0 0x9f 0x98 0x80` → oito dígitos hexadecimais.
+
+**Texto somente ASCII** produz exatamente dois dígitos hex por caractere, porque cada ponto de código ASCII é ≤127 e cabe em um byte.
+
+## A convenção do prefixo 0x
+
+O prefixo `0x` origina-se em C (padronizado em 1989 como ANSI C). Sinaliza "este literal é hexadecimal" tanto para o compilador quanto para o leitor. A convenção se espalhou para C++, Java, JavaScript, Go, Rust e Python. Em contextos onde a base já está implícita (códigos de cor, endereços MAC, saídas de hash), o prefixo é omitido.
+
+## Configurando a ferramenta
+
+- **Separador** — vazio para string hex compacta (`48656c6c6f`), espaço para estilo dump (`48 65 6c 6c 6f`), `:` para estilo endereço MAC.
+- **Prefixo 0x** — adiciona `0x` antes de cada par de bytes, útil para literais de array em C ou input para Ethereum.
+- **Maiúsculas/minúsculas** — minúsculas são a convenção para a maioria das ferramentas Unix; maiúsculas correspondem à saída do `certutil` do Windows.
+
+## Privacidade
+
+Toda a codificação e decodificação roda completamente no seu navegador. Seu texto nunca é enviado a um servidor.
+
+## Ferramentas relacionadas
+
+- **Base64 Encode/Decode** — menor overhead (33%) para transportar binário por canais de texto.
+- **Binary Encode/Decode** — oito caracteres por byte, útil para entender posições individuais de bits.
+- **URL Encode/Decode** — codificação percentual para parâmetros de query e componentes URI.

@@ -1,0 +1,37 @@
+---
+title: Generador de Códigos de Barras — Preguntas frecuentes
+---
+
+## ¿Cuáles son las simbologías que puede generar?
+
+Diez: EAN-13, EAN-8, UPC-A e ITF-14 para comercio minorista y cartones; ITF (Interleaved 2 of 5), Code 128 y Code 39 para almacenes, etiquetado de activos y aplicaciones industriales; y Data Matrix, PDF417 y Aztec para los casos 2D — piezas pequeñas, etiquetas de envío, pases de embarque y boletos.
+
+No QR. Eso pertenece al [generador de códigos QR](/en/generators/qr-code-generator), que tiene plantillas para credenciales Wi-Fi, contactos vCard y correos electrónicos pre-rellenados que una simple caja "codifica esta cadena" no puede ofrecer. Dos herramientas, sin solapamiento.
+
+## ¿Qué es un dígito de control y por qué rechazó mi número?
+
+El último dígito de un EAN-13, EAN-8, UPC-A o ITF-14 no es un dato. Es una operación aritmética sobre los dígitos anteriores: cada uno se multiplica por 3 o 1 en alternancia desde la derecha, los productos se suman, y el dígito de control es lo que lleva esa suma al siguiente múltiplo de diez. Un escáner recalcula esto en cada lectura y rechaza cualquier código que no coincida, lo que impide que un código de barras manchado o mal leído registre el producto incorrecto.
+
+Así que un número que "se ve bien" pero termina en el dígito incorrecto produce un código de barras que ninguna caja registradora aceptará. Esta herramienta realiza esa operación aritmética en JavaScript antes de codificar cualquier cosa, y si el dígito es incorrecto, le indica cuál debería ser.
+
+Si pega el número *sin* el dígito final — 12 dígitos para un EAN-13, 11 para un UPC-A — la herramienta calcula el dígito de control y lo añade. Esto es generalmente lo que desea: los números de producto de los fabricantes se citan de ambas formas, y la herramienta le indica qué valor realmente codificó.
+
+## ¿Puedo vender un producto con un código de barras que hice aquí?
+
+Puede imprimirlo, y un escáner lo leerá. Que una tienda lo acepte es una pregunta diferente. Los números EAN y UPC de comercio minorista son emitidos por GS1, que asigna a cada empresa un prefijo; un número que invente puede pertenecer ya a otra persona, y la mayoría de los minoristas verifican la propiedad antes de listar un producto. Esta herramienta codifica el número que proporciona — no puede, ni tiene la capacidad de, indicarle si el número es suyo.
+
+Para uso interno — control de existencias, etiquetas de activos, estantes de bibliotecas, su propio almacén — nada de eso se aplica. Code 128 y Code 39 no tienen registro central alguno y son la opción correcta allí.
+
+## ¿Qué formato debo elegir?
+
+Empaque de comercio minorista en Europa y la mayoría del mundo: EAN-13. Comercio minorista en América del Norte: UPC-A. Un paquete pequeño sin espacio para trece dígitos: EAN-8. Cartones externos y cajas de envío: ITF-14, que es el número de comercio minorista con un dígito de nivel de empaque al frente.
+
+Para cualquier cosa que no se venda en una caja registradora, Code 128 es la opción por defecto habitual — acepta letras así como dígitos y los empaca densamente. Code 39 es más antiguo, menos denso, limitado a mayúsculas, dígitos y algunos signos de puntuación, pero es lo que aún espera mucho equipo industrial de larga vida. Data Matrix es el que se debe usar cuando la etiqueta es muy pequeña; PDF417 contiene el máximo de texto; Aztec es común en boletos de transporte porque no necesita una zona silenciosa a su alrededor.
+
+## ¿Por qué el código de barras impreso no escanea?
+
+Tres causas representan casi todos los casos. La zona silenciosa — el margen blanco liso a ambos lados de las barras — ha sido recortada o rellenada con obra de arte; mantenga la opción "zona silenciosa" activada. La imagen ha sido ampliada desde un PNG pequeño y los bordes de las barras están borrosos; descargue el SVG en su lugar, que es independiente de la resolución y es lo que desea para imprimir. O simplemente las barras son demasiado estrechas para la impresora, en cuyo caso aumente el tamaño del módulo.
+
+## ¿Sale algo de mi navegador?
+
+No. El codificador es zxing-wasm, una compilación de WebAssembly de la biblioteca C++ de ZXing, y se ejecuta en esta pestaña. El archivo WebAssembly de 1,5 MB se sirve desde el propio dominio de este sitio, no desde un CDN, y solo se obtiene cuando presiona Generar — abra la página y nunca genere nada, nunca se solicita. El valor que escribe nunca se envía a ningún lugar.

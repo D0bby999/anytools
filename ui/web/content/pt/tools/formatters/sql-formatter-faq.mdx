@@ -1,0 +1,35 @@
+---
+title: Formatador de SQL — Perguntas frequentes
+---
+
+## Esta ferramenta executa meu SQL?
+
+Não. A ferramenta apenas formata sintaxe — ela não tem conexão de banco de dados e nenhuma capacidade de execução. Suas queries nunca deixam seu navegador.
+
+## Qual dialeto devo escolher?
+
+O que combina com seu banco de dados de produção. Se você não sabe ou seu SQL é feito para ser portável, escolha "Standard SQL" — você obtém um formato mais conservador, agnóstico de dialeto.
+
+## Por que maiúsculas em palavras-chave?
+
+Tradição (desde SQL-86) e legibilidade. Ajuda leitores visualmente separar palavras estruturais (`SELECT`, `FROM`, `JOIN`) de identificadores. Alguns guias de estilo preferem minúsculas; escolha um e aplique consistentemente.
+
+## Consegue formatar múltiplas declarações de uma vez?
+
+Sim — separe com ponto-e-vírgula e o formatador manipula cada um. Útil para arquivos de migração.
+
+## Consegue lidar com stored procedures / funções?
+
+Na maioria sim. Dialetos PL/SQL (Oracle) e T-SQL (SQL Server) incluem extensões procedurais; escolha o dialeto correspondente. Casos extremos com blocos BEGIN/END profundamente aninhados podem não formatar perfeitamente — file an issue com a biblioteca `sql-formatter` upstream se você atingir um.
+
+## Preservará meus comentários inline?
+
+Geralmente, em sua posição original relativa a código circundante. Verifique a saída formatada se comentários codificam informação significativa de posição (ex., desabilitando uma cláusula).
+
+## Como adiciono isso a CI?
+
+Use a versão CLI: `npx sql-formatter-cli --check schema/**/*.sql`. Mesma biblioteca por baixo. Adicione como hook pre-commit ou verificação de PR.
+
+## E sobre SQL dentro de strings backticked TS/JS?
+
+Esta página lida com SQL bruto apenas. Para SQL inline em código, olhe para `eslint-plugin-sql` ou `prettier-plugin-sql` que se integram ao seu formatador de código.

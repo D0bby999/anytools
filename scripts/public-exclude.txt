@@ -1,0 +1,20 @@
+# Paths left out of the public repository by scripts/export-public.sh.
+# One path per line, relative to the repository root; # starts a comment.
+# Each entry says why it is private.
+
+# Plans, briefs and reports: the private working record (owner decision 2).
+plans/
+
+# Agent harness state and worktrees.
+.claude/
+
+# Every spike is private.
+# - spikes/creds reads the owner's local dotenv files and router database.
+# - spikes/providers, spikes/parse and spikes/drive import spikes/creds.
+# - spikes/stream and spikes/retrieval are evidence for verdicts written in
+#   plans/, which are not published either.
+# Product code never imports a spike (spikes/README.md).
+spikes/
+
+# The owner's design-tool log (comp prompts, local router lanes).
+.design-world/

@@ -1,0 +1,47 @@
+---
+title: Gerador de hash (MD5, SHA-1/256/384/512) — Perguntas frequentes
+---
+
+## Devo fazer hash de senhas com SHA-256?
+
+Não. SHA-256 é muito rápido — um atacante com um banco de dados roubado consegue fazer força bruta em bilhões de palpites de senha por segundo. Use uma função de hash de senha lenta (Argon2id, bcrypt, scrypt) através de uma biblioteca. SHA-256 é para *integridade de dados*, não *armazenamento de senha*.
+
+## MD5 é seguro?
+
+Para integridade de dados contra corrupção acidental: sim. Para qualquer coisa onde um atacante possa construir colisões (assinaturas, certificados, usos criptográficos): quebrado desde 2004. Não use para novo código de segurança.
+
+## Qual é a diferença entre SHA-256 e SHA-3?
+
+Ambos são modernos e seguros. SHA-256 é parte da família SHA-2, amplamente implantada desde 2001. SHA-3 (Keccak) foi padronizado depois como um backup com uma construção fundamentalmente diferente. SHA-256 é o padrão prático; SHA-3 é bom quando especificamente necessário.
+
+## Por que mesma entrada = mesmo hash?
+
+Essa é a definição de uma função de hash — determinística. Se você quer saídas diferentes para a mesma entrada, você quer HMAC (adicione uma chave secreta) ou apenas acrescente um salt aleatório antes de fazer hash.
+
+## E sobre colisões de hash?
+
+Para SHA-256, a probabilidade de encontrar quaisquer duas entradas que colidam é tão baixa (1 em 2^128 para um ataque de aniversário) que nunca foi observada. Para MD5, colisões podem ser construídas em minutos em um laptop. Colisões SHA-1 custam cerca de $110k de tempo de GPU a partir de 2017.
+
+## HMAC vs hash puro?
+
+Hash puro: qualquer um consegue calculá-lo da mesma entrada. HMAC: requer uma chave secreta compartilhada, então também autentica que a mensagem veio de alguém com a chave. Use HMAC para assinaturas de webhook, assinatura de solicitação de API e JWT HS256.
+
+## Hashing de arquivo funciona em arquivos grandes?
+
+Até alguns centenas de MB confortavelmente. Além disso, o navegador carrega o arquivo inteiro na memória o que fica lento. Para arquivos multi-GB, prefira uma CLI de streaming: `shasum -a 256` (Unix) ou `Get-FileHash` (PowerShell).
+
+## Para que é a aba HMAC?
+
+Um hash puro prova que uma mensagem não mudou. Não prova quem a produziu — qualquer um consegue fazer hash de qualquer coisa. HMAC adiciona uma chave secreta compartilhada, então um resumo correspondente também prova que o remetente possuía essa chave. É por isso que provedores de webhook a assinam: Stripe, GitHub e Shopify todos enviam um cabeçalho HMAC-SHA-256 que você recalcula sobre o corpo bruto da solicitação para confirmar que a solicitação realmente veio deles.
+
+Cole a mensagem e a chave, e o resumo aparece para cada algoritmo que você selecionou. Ambos ficam no seu navegador — a computação usa WebCrypto localmente, e nada é transmitido.
+
+## Por que MD5 está faltando da aba HMAC?
+
+WebCrypto não oferece HMAC-MD5, e seria a escolha errada mesmo se oferecesse. HMAC-MD5 não é quebrado da forma que MD5 puro é, mas não há razão para começar uma nova integração com ele. SHA-256 é o padrão moderno e o que cada provedor importante usa.
+
+## Por que meu HMAC não corresponde ao que o servidor calculou?
+
+Quase sempre uma de três coisas. Primeiro, os bytes exatos: HMAC é calculado sobre o corpo bruto da solicitação, então um payload JSON que foi analisado e re-serializado — mesmo com campos idênticos — produz um resumo diferente. Segundo, a codificação: alguns provedores comparam hex, outros base64, e o mesmo resumo fica totalmente diferente em cada um. Terceiro, espaço em branco ou uma quebra de linha que seu editor adicionou à chave.
+
+Verifique o corpo bruto primeiro; é a causa muito mais frequentemente que as outras duas combinadas.

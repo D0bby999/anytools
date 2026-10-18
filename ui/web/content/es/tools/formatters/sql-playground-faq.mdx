@@ -1,0 +1,27 @@
+---
+title: Playground de SQL — Preguntas frecuentes
+---
+
+## ¿Es una base de datos SQLite real, o solo un simulador de sintaxis?
+
+Real. La herramienta carga `sql.js` — SQLite compilado a WebAssembly — y cada sentencia que ejecutas (`CREATE TABLE`, `INSERT`, `SELECT` con joins y subconsultas) corre contra un motor SQLite genuino dentro de tu navegador, no un intérprete casero que solo se parece a SQL. Ejecutar `SELECT sqlite_version()` devuelve la versión exacta de SQLite que trae empaquetada este build de `sql.js` (3.49.1 al momento de escribir esto) — esa cifra es en sí misma la prueba de que es el motor real, no una capa que imita su comportamiento.
+
+## ¿Hay un límite de tamaño para la base de datos, y por qué existe?
+
+Sí — 50 MB para los archivos `.sqlite`/`.db` que subas. `sql.js` tiene que cargar el archivo completo en la memoria del módulo WebAssembly antes de poder ejecutar una sola consulta — no hay carga parcial ni en streaming — así que un archivo mucho más grande arriesga agotar la memoria de la pestaña y colgar toda la página en vez de fallar de forma controlada. La herramienta revisa el tamaño del archivo apenas lo seleccionas, antes incluso de leer su contenido, así que un archivo demasiado grande se rechaza de inmediato en vez de esperar a que termine de cargar. Si tu base real supera ese tamaño, exporta una porción más pequeña o filtra las tablas antes de traerla aquí.
+
+## ¿Los datos que trabajo se guardan, o se pierden al cerrar la pestaña?
+
+Se pierden — y es intencional, no una limitación accidental. Toda la base de datos vive únicamente en la memoria de esta pestaña; cerrarla o recargar la página lo borra todo, sin ningún mecanismo que guarde algo en disco o lo envíe a un servidor (que es justo la razón por la que tus datos están seguros: no van a ningún lado). Para conservar algo, usa el botón "Descargar .sqlite" para exportar la memoria actual como un archivo SQLite real, abrible con cualquier otra herramienta SQLite; o simplemente guarda las sentencias `CREATE`/`INSERT` en el cuadro de SQL para volver a ejecutarlas la próxima vez.
+
+## ¿Cómo funciona importar CSV como tabla, y por qué a veces falla?
+
+La herramienta lee la primera fila del CSV como encabezados de columna, y usa el mismo analizador de tipos del conversor CSV↔JSON de este sitio para inferir el tipo de cada celda (número, booleano o texto) — no lee ningún esquema predefinido. Como infiere fila por fila, una columna que es numérica en casi todas las filas pero tiene un valor de texto suelto se importa como texto en toda la columna. Antes de crear la tabla, siempre se ejecuta `DROP TABLE IF EXISTS` seguido de `CREATE TABLE` desde cero — importar un CSV con el nombre de una tabla existente la reemplaza por completo, no agrega filas encima. Dos casos se rechazan directamente: nombre de tabla vacío, y un CSV que solo tiene encabezados sin ninguna fila de datos — ambos se tratan como errores de entrada en vez de crear silenciosamente una tabla vacía.
+
+## ¿Soporta búsqueda de texto completo (FTS5) o funciones JSON?
+
+Funciones JSON sí — `json_extract`, `json_each` y el resto de la extensión JSON1 de SQLite funcionan porque vienen compiladas dentro de este build de `sql.js`. FTS5 no — este build específico no incluye el módulo FTS5, así que `CREATE VIRTUAL TABLE ... USING fts5(...)` falla con "no such module: fts5" en vez de crear la tabla virtual. Las restricciones de clave foránea funcionan una vez que las activas tú mismo con `PRAGMA foreign_keys = ON;` — desactivadas por defecto, igual que el comportamiento estándar de SQLite sin configuración adicional.
+
+## ¿Los mensajes de error de SQL son de SQLite tal cual, y varias personas pueden compartir una sesión?
+
+Los mensajes de error se muestran tal cual, sin editar nada. Un `SELEKT` mal escrito devuelve exactamente lo que reporta el motor SQLite (algo como "near \"SELEKT\": syntax error"), no una versión reformulada por este sitio — ventaja práctica, porque como el mismo motor SQLite se usa en incontables herramientas alrededor del mundo, buscar un mensaje de error confuso junto con la palabra "sqlite" casi siempre encuentra una explicación. Sobre compartir sesión o conectarse a una base de producción, no, en ninguno de los dos casos, y esto es deliberado, no una función que falte: todo corre en una sola pestaña, con un solo usuario, completamente del lado del cliente — no hay ningún componente de servidor al que una base de producción real pueda conectarse, ni ningún mecanismo para que dos pestañas compartan estado. Esta herramienta sirve para prototipar un esquema, probar una consulta contra datos de muestra, o inspeccionar un `.sqlite` ya exportado — no para administrar una base de datos que está sirviendo tráfico real.

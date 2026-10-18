@@ -1,0 +1,29 @@
+---
+title: Codificação de URL — Perguntas frequentes
+---
+
+## Quando devo usar encodeURIComponent vs encodeURI?
+
+`encodeURIComponent` para uma peça única (valor de consulta, segmento de caminho, campo de formulário). `encodeURI` para uma string URL completa que você não quer quebrar a estrutura. Quando em dúvida, use `encodeURIComponent` em cada peça e monte manualmente.
+
+## Por que meu valor decodificado tem `+` onde espaços deveriam estar?
+
+Porque foi codificado por um codificador de formulário em vez de um codificador de URL, e esta ferramenta deliberadamente deixa sozinho. Formulários HTML codificam espaços como `+` sob o tipo MIME `application/x-www-form-urlencoded`, mas essa convenção se aplica **apenas** dentro de uma string de consulta codificada em formulário — em qualquer outro lugar em uma URL, `+` é um caractere literal ordinário. Um decodificador geral que silenciosamente transformasse cada `+` em espaço corromperia qualquer caminho ou valor que legitimamente contenha um.
+
+Portanto, decodificar `hello+world` aqui retorna `hello+world`, enquanto `hello%20world` retorna `hello world`. Se sua entrada realmente é uma string de consulta codificada em formulário, substitua `+` por `%20` antes de decodificar, ou por um espaço depois.
+
+## Como codifico caracteres especiais em chaves versus valores?
+
+Ambos. Codifique cada chave e cada valor independentemente com `encodeURIComponent`, depois una com `=` e `&`. O modo "build query" nesta ferramenta faz exatamente isso.
+
+## Qual é o comprimento máximo de uma URL?
+
+A especificação não tem limite, mas na prática ~2.000 caracteres é o teto seguro em navegadores + servidores + proxies. Para payloads mais longas, use um corpo POST em vez disso.
+
+## Meus dados são enviados em algum lugar?
+
+Não. A página usa funções nativas do navegador para tudo. Abra DevTools Network — você verá zero solicitações enquanto digita.
+
+## Por que `café` produz seis bytes quando codificado?
+
+`é` é dois bytes em UTF-8 (`0xC3 0xA9`), portanto percent-encodes para `%C3%A9` — seis caracteres. ASCII de byte único como `a` permanece como um caractere.

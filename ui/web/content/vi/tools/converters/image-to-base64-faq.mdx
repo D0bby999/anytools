@@ -1,0 +1,27 @@
+---
+title: Ảnh sang Base64 — Câu hỏi thường gặp
+---
+
+## Base64 là gì, và vì sao chuỗi mã hoá lại dài hơn file gốc tới khoảng 33%?
+
+Base64 mã hoá cứ mỗi 3 byte dữ liệu gốc thành 4 ký tự văn bản, vì nó chỉ dùng 64 ký tự ASCII in được để đảm bảo chuỗi kết quả nhúng an toàn vào những định dạng vốn không sinh ra để mang dữ liệu nhị phân — HTML, CSS, Markdown, JSON. Tỷ lệ cố định đó cộng thêm gần đúng một phần ba dung lượng: một file PNG 90 KB sẽ ra khoảng 120 KB văn bản base64. Con số `sizeAfter` mà tool hiển thị không phải ước lượng — nó đo đúng độ dài chuỗi base64 thật sự sinh ra (`base64.length`, vì đây là ASCII nên 1 ký tự đúng bằng 1 byte). Ngưỡng cảnh báo được đặt ở 100 KB (`BASE64_SIZE_WARN_BYTES`): qua mốc đó, nhúng thẳng data URI vào HTML/CSS/Markdown sẽ làm trang nặng thêm rõ rệt cho mọi người xem, trong khi một file ảnh liên kết bình thường được trình duyệt cache và dùng chung được giữa nhiều trang.
+
+## Ảnh của tôi có bị đưa lên máy chủ nào không?
+
+Không. Toàn bộ việc đọc file dùng `FileReader.readAsDataURL` — một API chuẩn của trình duyệt, không đi qua mạng. Việc giải mã chiều ngược lại (dán data URI để lấy về file) dùng `atob()`, cũng thuần JavaScript trong tab. Bạn kiểm chứng được bằng cách mở tab Network trước khi thả ảnh vào, hoặc ngắt mạng sau khi trang đã tải xong rồi thử encode/decode bình thường.
+
+## Mã hoá ảnh sang base64 có làm hỏng hay nén lại ảnh không?
+
+Không. Đây là tool ảnh duy nhất trong bộ công cụ này không đi qua canvas. Mọi tool ảnh khác đều phải vẽ lại pixel lên canvas — resize, xoay, đóng watermark — và việc đó không tránh được với những gì chúng làm, nhưng hệ quả là một file JPEG đi qua canvas sẽ bị mã hoá lại (re-encode) và có thể mất dữ liệu EXIF trong quá trình đó. Mã hoá base64 hoạt động khác hẳn: nó đọc đúng byte gốc của file bằng `FileReader.readAsDataURL` rồi mã hoá y nguyên, nên ảnh giải mã lại ở đầu bên kia giống hệt byte-for-byte với ảnh bạn tải lên, kể cả metadata EXIF. Không có bước "chọn định dạng đầu ra" nào ở đây cả, vì tool không tạo ra pixel mới — nó chỉ đổi cách biểu diễn của đúng những byte đã có.
+
+## Khi nào nên nhúng ảnh trực tiếp (inline), khi nào nên dùng link?
+
+Đáng nhúng khi ảnh nhỏ và quan trọng cho lần render đầu tiên của trang — một icon bé, một placeholder mờ, một hình SVG-kiểu-inline, hoặc một ảnh cần dùng bên trong file CSS mà bản thân CSS không tự tham chiếu ra một file upload ngoài được. Hết ý nghĩa khi ảnh lớn hoặc dùng lại ở nhiều trang: mỗi trang nhúng cùng một logo sẽ tự mang theo bản sao đầy đủ của chuỗi base64 đó, trong khi một file liên kết chỉ tải một lần và được trình duyệt cache lại cho mọi trang sau đó.
+
+## Tôi có thể chuyển ngược từ base64 về file ảnh không?
+
+Có, đó chính là việc của tab "Base64 → Ảnh". Dán bất kỳ data URI nào bắt đầu bằng `data:image/` và có `;base64,` — copy từ DevTools, từ ảnh nhúng trong email, từ file CSS, ở đâu cũng được — tool sẽ giải mã ngược lại đúng byte gốc, hiện ảnh preview và cho tải về với phần mở rộng đoán từ MIME type ghi trong chính data URI (theo bảng map cố định như `image/png` → `.png`, `image/jpeg` → `.jpg`…; MIME lạ thì rơi về `.bin` thay vì đoán bừa). Nếu chuỗi dán vào không đúng định dạng — thiếu cờ `;base64`, hoặc MIME không phải `image/*`, hoặc phần base64 bị cắt xén khi copy khiến `atob()` ném lỗi — tool nói thẳng chỗ sai thay vì âm thầm thất bại.
+
+## Tool này khác gì tool Base64 Encode thông thường?
+
+Base64 Encode thường xử lý văn bản bạn gõ hoặc dán vào — nó không biết gì về khái niệm "ảnh", chỉ ra một chuỗi base64 trần, không có tiền tố `data:` hay MIME type nào cả. Tool này được dựng riêng cho ảnh: nó kiểm tra `file.type` phải bắt đầu bằng `image/` trước khi cho encode, bọc byte ảnh vào đúng dạng `data:image/...;base64,...`, rồi tạo sẵn cho bạn các đoạn dùng ngay được cho thẻ HTML `img`, CSS `background-image`, CSS `url()` và Markdown — cộng thêm chiều giải mã ngược mà tool văn bản thuần không có lý do gì để làm.

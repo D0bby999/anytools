@@ -1,0 +1,21 @@
+{
+  "_note": "The generateContent body for window 1200s-2400s of jNQXAC9IVRw. Field names from https://ai.google.dev/api/generate-content, read 2026-09-27: Part.fileData.fileUri, Part.videoMetadata.startOffset/endOffset (Duration strings), GenerationConfig.mediaResolution = MEDIA_RESOLUTION_LOW, GenerationConfig.responseMimeType. Parts use proto snake_case, as the parse lane's inline_data does; the video part comes before the text, as the video guide advises. PROMPT is replaced by youtube.Prompt(window) in the test.",
+  "contents": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "file_data": {"file_uri": "https://www.youtube.com/watch?v=jNQXAC9IVRw"},
+          "video_metadata": {"start_offset": "1200s", "end_offset": "2400s"}
+        },
+        {"text": "PROMPT"}
+      ]
+    }
+  ],
+  "generationConfig": {
+    "mediaResolution": "MEDIA_RESOLUTION_LOW",
+    "responseMimeType": "application/json",
+    "temperature": 0,
+    "maxOutputTokens": 65536
+  }
+}

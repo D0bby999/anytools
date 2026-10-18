@@ -1,0 +1,23 @@
+---
+title: Slugify — Câu hỏi thường gặp
+---
+
+## Hyphen hay underscore?
+
+Hyphen. Google index hyphen là word separator và underscore là joiner — cho SEO bạn hầu như luôn muốn tách từ.
+
+## Slug có nên giữ dấu?
+
+Tech-wise có (`/café`), SEO-wise không (`/cafe`) — hầu hết khán giả tiếng Anh và browser non-Latin sẽ thấy `%C3%A9` encode thay vì `é`. Strip dấu cho portability.
+
+## Slug dài tối đa bao nhiêu?
+
+Không có giới hạn cứng, nhưng ~60 ký tự là trần thực tiễn cho SEO (Google cắt display SERP sau ~50–60). Giữ 3–5 từ có nghĩa.
+
+## Transliteration tiếng Việt ở đây work thế nào?
+
+Library underlying transliterate dấu tiếng Việt chuẩn qua NFD normalization (`ế` → `e`, `ư` → `u`). Chúng tôi thêm map nhỏ cho case đặc biệt (`đ` → `d`) mà NFD không xử lý mặc định.
+
+## Slug cho script non-Latin (Trung, Nhật, Ả Rập)?
+
+Transliteration Pinyin/romaji có thể nhưng không enable mặc định ở đây. Cho Trung: dùng library pinyin trước khi slugify. Cho Nhật: convert romaji. Cho Ả Rập: transliteration tranh cãi — nhiều site chỉ giữ ký tự gốc URL-encoded.

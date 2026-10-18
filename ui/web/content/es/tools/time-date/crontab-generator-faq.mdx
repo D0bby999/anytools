@@ -1,0 +1,39 @@
+---
+title: Generador de Crontab — Preguntas frecuentes
+---
+
+## ¿Qué produce?
+
+Una expresión cron de cinco campos, una descripción en inglés simple de qué significa, y las próximas cinco veces que realmente se dispararía — que es la forma más rápida de confirmar que una programación hace lo que pretendía.
+
+## ¿Cuáles son los cinco campos?
+
+Minuto, hora, día del mes, mes, día de la semana, en ese orden. Tenga en cuenta que no hay campo de segundos: la granularidad más fina del cron estándar es un minuto, por lo que cualquier cosa más frecuente necesita un mecanismo diferente.
+
+## ¿Qué significan los caracteres especiales?
+
+`*` es cada valor. `*/5` es cada quinto valor — por lo que `*/5` en el campo de minutos es cada cinco minutos. `1,15` es una lista, `1-5` es un rango, y se combinan: `1-5,20` es válido.
+
+## ¿Por qué mi trabajo se ejecutó más a menudo de lo esperado?
+
+Casi siempre la trampa de día del mes y día de la semana. Cuando **ambos** están restringidos, cron los trata como OR, no AND — `0 0 13 * 5` se ejecuta el 13 *y* cada viernes, no solo el viernes 13. Es la regla única más sorprendente en cron, y la razón por la cual esta herramienta le muestra las próximas ejecuciones en lugar de solo la expresión.
+
+## ¿Qué zona horaria usa la programación?
+
+Lo que sea que la máquina que ejecuta cron use, que frecuentemente es UTC en un servidor y hora local en una computadora portátil. La vista previa aquí se calcula en la zona horaria de su navegador, por lo que si su servidor ejecuta UTC, lea los tiempos en consecuencia.
+
+## ¿Qué sucede en un cambio de horario de verano?
+
+El comportamiento varía según la implementación de cron. Los trabajos programados en la hora que se salta en primavera pueden no ejecutarse en absoluto, y los trabajos en la hora repetida de otoño pueden ejecutarse dos veces. Si un trabajo no debe dispararse dos veces, ya sea programarlo fuera de las horas de transición o hágalo idempotente.
+
+## ¿Es `0 0 * * *` medianoche?
+
+Sí — minuto 0 de hora 0, cada día. Un error frecuente es escribir `* * * * *` teniendo la intención de "una vez al día"; eso se dispara cada minuto, 1.440 veces al día.
+
+## ¿Se admiten `@daily` y otros atajos?
+
+El generador emite la forma de cinco campos, que es portátil en todas partes. Los atajos como `@daily` y `@reboot` son conveniencias que no todas las implementaciones de cron aceptan, y `@reboot` en particular significa cosas diferentes en diferentes sistemas.
+
+## ¿Se envía algo a un servidor?
+
+No. La expresión y su vista previa se calculan en su navegador.

@@ -1,0 +1,35 @@
+---
+title: XML Formatter — Frequently asked questions
+---
+
+## Why does my XML fail to parse when it looks fine?
+
+XML parsers are strict by the spec — they must reject malformed input rather than guess. The most common culprits are an unescaped `&` or `<` in text content (use `&amp;` and `&lt;`), a missing closing tag, mismatched case between opening and closing tags (XML is case-sensitive), or more than one root element. The error message includes a line and column number; jump to that position first.
+
+## Does the formatter preserve XML comments?
+
+Yes. This tool uses `fast-xml-parser` with comment-preservation enabled, so `<!-- your comment -->` nodes survive the reformat round-trip. Some XML libraries discard comments as semantically inert — if comments matter to you, always verify with your downstream parser.
+
+## Will reformatting change the meaning of my XML?
+
+For element-only content, no. Whitespace between elements is not significant per the XML spec, so adding or removing indentation is safe. The exception is **mixed content** — elements that contain both child elements and text nodes. If your document has `<p>Hello <b>world</b></p>`, the space before `<b>` is significant and is preserved as-is.
+
+## What are namespaces and why do they matter?
+
+Namespaces let multiple XML vocabularies coexist in one document without name collisions. A prefix like `soap:` or `xsi:` is bound to a URI via an `xmlns:` attribute. The formatter preserves all namespace declarations and prefix bindings exactly as written — reordering or removing them would break XPath queries and downstream parsers that depend on the expanded name.
+
+## Can I format SVG files with this tool?
+
+Yes. SVG is XML, so the formatter handles it correctly. Paste your SVG source, choose an indent width, and click format. This is useful for making hand-edited SVGs diff-friendly before checking them into version control.
+
+## What is a CDATA section and when should I use one?
+
+`<![CDATA[…]]>` wraps literal character data that should not be parsed as markup. Use it when you need to embed HTML fragments, SQL, or code containing `<`, `>`, or `&` without escaping every character. The only sequence you cannot put inside CDATA is `]]>` (the closing delimiter). The formatter preserves CDATA sections intact.
+
+## Is there a file size limit?
+
+The tool runs entirely in your browser, so practical limits depend on your device. Up to ~5 MB works smoothly in most modern browsers. Larger files may cause a multi-second pause while the synchronous parser runs. For files above 10 MB, `xmllint --format` on the command line is faster.
+
+## My document has `<?xml version="1.0"?>` at the top — is that required?
+
+The XML declaration is optional for documents encoded in UTF-8 or UTF-16 (which carry a BOM). In practice, always include it when your document contains non-ASCII characters and may be processed by strict parsers — it removes ambiguity about the encoding and the XML version.

@@ -1,0 +1,27 @@
+---
+title: Máy tính khoa học — Câu hỏi thường gặp
+---
+
+## Tính sin cos tan ở đây dùng độ hay radian?
+
+Radian. `sin(pi/2)` trả về 1, còn `sin(90)` thì không — nó cho khoảng 0.894, vì 90 radian là một góc hoàn toàn khác 90 độ. Đây là chỗ gây bất ngờ nhiều nhất với mọi máy tính chạy theo biểu thức, kể cả trên máy tính cầm tay khi bạn quên đổi chế độ DEG sang RAD. Nếu góc của bạn ghi bằng độ, nhân với `pi/180` trước: `sin(90 * pi / 180)` mới ra đúng 1. Các hàm ngược `asin`, `acos`, `atan` cũng trả kết quả bằng radian, nên muốn đọc ra độ thì nhân ngược lại với `180/pi`.
+
+## Có sẵn những hàm và hằng số nào?
+
+Các hàm một tham số gồm `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sqrt`, `exp`, `abs`, `ln` và `log`. Riêng `pow` nhận hai tham số, viết `pow(2, 10)`. Hai hằng số có sẵn là `pi` và `e`. Giai thừa viết bằng dấu chấm than đặt sau số, kiểu `5!`, và chỉ chấp nhận số nguyên không âm không quá 170 — vượt ngưỡng đó kết quả tràn khỏi dải số thực của JavaScript nên tool báo lỗi thay vì trả về vô cực. Về logarit: `ln` là logarit tự nhiên cơ số e, còn `log` ở đây là cơ số 10. Ký hiệu này khác nhau tuỳ ngành nên tool tách hẳn hai tên cho khỏi mơ hồ.
+
+## Máy tính có tôn trọng thứ tự ưu tiên phép toán không?
+
+Có, và đây là điểm khác biệt so với máy tính bỏ túi rẻ tiền. Biểu thức được phân tích cú pháp thành cây chứ không tính tuần tự từ trái sang phải, nên `2 + 3 * 4` ra 14 chứ không ra 20. Thứ tự trong code là: cộng trừ thấp nhất, rồi nhân chia, rồi luỹ thừa `^`, rồi giai thừa `!`. Luỹ thừa kết hợp từ phải sang trái nên `2^3^2` bằng 512 chứ không phải 64. Một quy ước cần nhớ: dấu trừ đơn gắn vào số ngay sau nó trước khi luỹ thừa được áp dụng, nên `-2^2` cho 4 chứ không phải −4. Muốn ra −4 hãy viết `-(2^2)`.
+
+## Vì sao biểu thức báo lỗi, và kết quả chính xác tới đâu?
+
+Lỗi thường đến từ việc thiếu dấu đóng ngoặc, gõ sai tên hàm, hoặc dùng ký tự lạ như `$` — bộ phân tích từ chối mọi thứ nằm ngoài danh sách cho phép thay vì đoán ý bạn. Có hai loại: lỗi cú pháp nghĩa là biểu thức viết sai, còn lỗi giá trị nghĩa là viết đúng nhưng không có kết quả hữu hạn, chẳng hạn chia cho 0, căn bậc hai của số âm, hay `asin` của giá trị ngoài khoảng từ −1 đến 1. Về độ chính xác, phép tính chạy trên số dấu phẩy động chuẩn nhưng phần hiển thị cắt còn 8 chữ số thập phân rồi bỏ số 0 thừa, nên `0.1 + 0.2` hiện là `0.3` chứ không phải chuỗi `0.30000000000000004` quen thuộc. Số nguyên thì kèm dấu phân cách hàng nghìn theo ngôn ngữ trình duyệt.
+
+## Sao không dùng máy tính cầm tay hay Excel?
+
+Máy cầm tay bắt bạn bấm từng phím, và sai một phím giữa chừng thì phải nhập lại từ đầu vì bạn không nhìn thấy toàn bộ biểu thức. Ở đây bạn gõ nguyên câu `sqrt(16) + pow(2, 10)` rồi sửa tại chỗ, biểu thức luôn hiển thị nên kiểm tra lại rất nhanh. Excel thì mạnh nhưng cú pháp khác hẳn: nó dùng `LOG` cho cơ số 10, `LN` cho tự nhiên, `POWER` thay `pow`, và bắt buộc mọi công thức bắt đầu bằng dấu bằng. Với một phép tính lẻ, mở bảng tính là quá nặng tay.
+
+## Biểu thức tôi nhập có bị gửi lên server không?
+
+Không. Việc tách token, phân tích cú pháp và tính toán đều chạy trong trình duyệt. Đáng nói hơn: tool không dùng `eval` hay hàm dựng `Function` để tính — nó tự viết bộ phân tích với danh sách trắng các token hợp lệ, nên văn bản bạn dán vào không thể trở thành mã chạy được. Đây là lý do bạn dán được cả một biểu thức lấy từ nguồn lạ mà không phải lo. Không có gì được lưu lại, đóng tab là mất hết.

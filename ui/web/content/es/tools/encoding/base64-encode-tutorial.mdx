@@ -1,0 +1,76 @@
+---
+title: Guía completa de codificar/decodificar Base64
+description: Cómo funciona Base64, cuándo usarlo, la trampa UTF-8 que rompe `btoa()` y cómo difiere Base64URL.
+updated: 2026-05-25
+---
+
+## Qué es realmente Base64
+
+Base64 es una **codificación** — una forma de representar datos binarios arbitrarios usando solo los 64 caracteres ASCII imprimibles `A–Z`, `a–z`, `0–9`, `+`, `/`. Se define por [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) e fue inventado en los años 80 para que los adjuntos binarios pudieran sobrevivir a los sistemas de correo electrónico que solo manejaban texto de 7 bits.
+
+**No es encriptación**. Cualquiera con la cadena codificada puede decodificarla de vuelta al original — no hay clave, no hay secreto. Si necesitas confidencialidad, usa AES o tu capa TLS; Base64 solo resuelve "¿cómo transporto bytes a través de un canal solo de texto?".
+
+La transformación en sí es mecánica: cada 3 bytes de entrada se convierten en 4 caracteres de salida. La entrada que no se divide uniformemente en grupos de 3 bytes se rellena con `=` para que la longitud de salida siempre sea un múltiplo de 4. Por eso ves `=` al final de algunas cadenas codificadas (cero, uno o dos de ellas).
+
+## Cuándo lo necesitarás
+
+- **URIs de datos.** Insertar una pequeña imagen en CSS o HTML: `url("data:image/png;base64,iVBOR…")`.
+- **JWT.** Cada segmento de un JSON Web Token está codificado en Base64URL como JSON.
+- **Autenticación HTTP Basic.** El encabezado `Authorization: Basic …` es `user:pass` codificado en Base64.
+- **Adjuntos de correo (MIME).** Los archivos binarios sobreviven al tránsito siendo envueltos en Base64.
+- **Cargas útiles de API.** Enviar blobs binarios sobre JSON (que no tiene tipo binario nativo).
+- **Almacenar binario en bases de datos o variables de entorno** que esperan texto.
+
+**No debes** usar Base64 para "encoger" datos — agrega ~33% de sobrecarga. Es una codificación de transporte, no compresión.
+
+## La trampa UTF-8
+
+La función incorporada `btoa()` del navegador parece hacer lo correcto — y silenciosamente produce basura el momento en que la alimentas con un carácter que no es ASCII:
+
+```javascript
+btoa('Hello')      // "SGVsbG8="              ✓
+btoa('世界')        // InvalidCharacterError   ✗
+btoa('🌏')         // InvalidCharacterError   ✗
+```
+
+La razón: `btoa` opera en Latin-1 (bytes 0–255), no en UTF-8. El carácter `世` no cabe en un byte, así que la función se niega. Lo mismo para emoji, vietnamita con diacríticos, árabe, cualquier cosa fuera del latín básico.
+
+La solución es codificar primero la cadena en UTF-8 en una secuencia de bytes, luego codificar esos bytes en Base64. Eso es exactamente lo que hace esta herramienta — cada entrada se trata como UTF-8 por defecto, así que emoji y unicode hacen el viaje de ida y vuelta limpiamente.
+
+## Base64 vs Base64URL
+
+Base64 estándar usa `+` y `/`, que ambos tienen significados especiales en URL y nombres de archivo. Base64URL (RFC 4648 §5) los intercambia por `-` y `_`, y elimina el relleno final `=`. Esto hace que las cadenas codificadas sean seguras para insertar en un parámetro de consulta URL, un segmento JWT, o un nombre de archivo.
+
+Si activas **URL-safe** arriba, la herramienta emite `-` y `_` en lugar de `+` y `/`, sin relleno. La decodificación acepta cualquiera de los dos tipos — auto-detectamos.
+
+## Ejemplos
+
+**Codificar texto plano:**
+
+Entrada: `Hello, World!`
+Salida: `SGVsbG8sIFdvcmxkIQ==`
+
+**Codificar vietnamita con diacríticos:**
+
+Entrada: `Tiếng Việt có dấu`
+Salida: `VGnhur9uZyBWaeG7h3QgY8OzIGThuqV1`
+
+**Decodificar un fragmento de carga útil JWT (Base64URL):**
+
+Entrada: `eyJzdWIiOiIxMjM0NTY3ODkwIn0`
+Salida: `{"sub":"1234567890"}`
+
+## Notas de seguridad
+
+- **Nunca almacenes contraseñas como Base64.** Es reversible. Usa una función hash de contraseña (bcrypt, argon2, scrypt) en su lugar.
+- **No confíes en JSON decodificado de Base64 sin re-validar.** Una firma JWT es lo que prueba integridad; la capa Base64 sola no prueba nada.
+- **Vigila el tamaño de entrada al decodificar.** Unos pocos KB de Base64 se expanden a unos pocos KB de bytes — está bien — pero unos pocos cientos de MB a la vez pueden bloquear una pestaña del navegador. Esta herramienta procesa la entrada sincrónicamente; para archivos muy grandes prefiere un enfoque de transmisión.
+
+## Privacidad
+
+Esta página ejecuta la lógica de codificación/decodificación completamente en tu navegador usando la biblioteca de código abierto [`js-base64`](https://github.com/dankogai/js-base64). Tu entrada nunca se envía a nuestros servidores, nunca se registra, y nunca deja tu dispositivo. Abre la pestaña de red e intenta — verás cero solicitudes.
+
+## Herramientas relacionadas
+
+- **Decodificador de JWT** — inspecciona un JSON Web Token (que son tres fragmentos de Base64URL).
+- **Codificador de URL** — para codificación de porcentaje en URL, una codificación diferente (a menudo complementaria).

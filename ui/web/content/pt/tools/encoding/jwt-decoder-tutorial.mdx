@@ -1,0 +1,74 @@
+---
+title: JWT decodificado — estrutura, claims e a armadilha alg=none
+description: Como JSON Web Tokens são construídos, o que cada segmento contém e por que decodificar não é a mesma coisa que confiar.
+updated: 2026-05-25
+---
+
+## O que um JWT realmente é
+
+Um JSON Web Token ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)) é três segmentos codificados em Base64URL unidos por pontos:
+
+```
+<header>.<payload>.<signature>
+```
+
+Os dois primeiros segmentos são objetos JSON. O terceiro é uma assinatura binária que prova que os dois primeiros vieram de alguém que tem a chave de assinatura do emissor. Qualquer pessoa pode jogar um JWT em um decodificador — incluindo este — e ler o header e payload. Apenas alguém com a chave de verificação pode confirmar a assinatura.
+
+Trate JWTs decodificados como **entrada do usuário não confiável** a menos que você também tenha verificado a assinatura. Esta ferramenta apenas decodifica — por design nós não pedimos chaves, porque colar seu segredo HMAC de produção em um site aleatório é um pesadelo de segurança.
+
+## O que vai no header
+
+Tipicamente dois campos:
+
+- `alg` — o algoritmo de assinatura (`HS256`, `RS256`, `ES256`, etc.).
+- `typ` — geralmente `"JWT"`.
+
+Às vezes você verá `kid` (ID de chave) quando o emissor rotaciona chaves, ou `x5t` quando certificados X.509 estão envolvidos. Qualquer outra coisa é específica de implementação.
+
+## O que vai no payload (os claims)
+
+O payload é apenas um objeto. RFC 7519 reserva alguns nomes de campo com significados padrão:
+
+| Claim | Significado |
+|---|---|
+| `iss` | Issuer (quem criou o token) |
+| `sub` | Subject (o usuário ou entidade que o token representa) |
+| `aud` | Audience (quem o token é destinado) |
+| `exp` | Expiration (Unix timestamp em segundos) |
+| `iat` | Issued-at (Unix timestamp em segundos) |
+| `nbf` | Not-before (token é inválido até este tempo) |
+| `jti` | Token ID (para listas de revogação) |
+| `scope` / `scp` | OAuth scopes |
+
+Além desses, emissores adicionam claims personalizados livremente: IDs de usuário, roles, nível de plano, qualquer coisa. Esta ferramenta destaca os padrão e mostra status de expiração em primeiro plano.
+
+## O desastre alg=none
+
+Historicamente, bibliotecas JWT aceitavam tokens com `"alg": "none"` e os tratavam como autenticados. Combinado com o fato de que qualquer um pode criar um header, isso significava que atacantes podiam forjar tokens que burlavam verificação inteiramente.
+
+Bibliotecas modernas rejeitam `none` por padrão, mas a lição permanece: **sempre verifique com o algoritmo esperado explicitamente**, nunca confie no algoritmo declarado dentro do header. Se sua biblioteca tem uma opção `algorithms: ['RS256']`, defina.
+
+## HS256 vs RS256
+
+`HS256` é simétrico — o mesmo segredo assina e verifica. Rápido, simples, mas o verificador deve ter o segredo, o que significa que também pode forjar tokens. Use para serviços de primeira parte que se confiam plenamente.
+
+`RS256` (e `ES256`) é assimétrico — uma chave privada assina, uma chave pública verifica. Verificadores apenas recebem a chave pública, portanto não conseguem forjar. Use para tokens cruzando limites de confiança (APIs de terceiros, serviços distribuídos).
+
+## Casos de uso comuns
+
+- **Tokens de autenticação** emitidos após login (geralmente via OAuth2 / OIDC).
+- **Tokens de acesso API** para chamadas de serviço-para-serviço stateless.
+- **Magic links** para login por e-mail sem senha.
+- **Email verification** e fluxos **password reset**.
+- **Webhook signatures** (menos comum; HMAC simples é mais típico).
+
+## Privacidade nesta página
+
+A ferramenta decodifica no seu navegador via Base64URL + JSON.parse. Nós não salvamos seu token, não registramos solicitações e não temos um endpoint de servidor para enviá-lo. Abra DevTools Network e observe — zero tráfego.
+
+Se seu token contém segredos reais de produção, prefira decodificar localmente com um CLI como `jq`. Decodificadores públicos (este incluído) são convenientes mas não apropriados para credenciais ao vivo.
+
+## Ferramentas relacionadas
+
+- **Base64 Encode** — veja como cada segmento se parece antes/depois.
+- **Hash Generator** — calcule HMAC manualmente para verificação HS256.

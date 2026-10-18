@@ -1,0 +1,33 @@
+---
+title: Conversor de Base — Preguntas frecuentes
+---
+
+## ¿Qué bases puede manejar?
+
+Cualquier cosa de 2 a 36. Binario, octal, decimal y hex se muestran juntos en cada conversión porque esos son los cuatro entre los que las personas realmente se mueven; la última fila toma cualquier base que escribas. El techo es 36 porque eso es cuántos caracteres distintos tiene el alfabeto de dígitos estándar — 0-9 seguido de a-z. No hay convención acordada por encima de eso.
+
+## ¿Por qué obtiene números grandes correctamente cuando otros convertidores no?
+
+Porque analiza a un entero de precisión arbitraria en lugar de un número de JavaScript. El `Number` de JavaScript es un flotante de 64 bits, exacto solo hasta 2^53 — así que `parseInt('9007199254740993')` devuelve 9007199254740992. Esa es una respuesta incorrecta sin error adjunto, que para una herramienta cuyo propósito entero es exactitud es el peor fracaso posible. Hashes, IDs de base de datos y banderas de 64 bits rutinariamente exceden ese rango.
+
+Intenta `9007199254740993` en decimal: deberías obtener `20000000000001` en hex, y de nuevo sin cambios.
+
+## ¿Puedo pegar prefijos 0x, 0b u 0o?
+
+Sí, y guiones bajos también — `0xFF`, `0b1010`, `0o17` y `1_000_000` funcionan todos. El prefijo solo se elimina cuando coincide con la base que seleccionaste, lo que importa más de lo que parece: `0b1010` leído como hexadecimal es un número hex perfectamente bueno (0xb1010), no uno binario con prefijo. Eliminarlo de todas formas cambiaría silenciosamente tu valor.
+
+## ¿Qué significa el error "no es un dígito válido en base 8"?
+
+Cada base tiene solo ciertos dígitos disponibles. Base 8 usa 0-7, así que un `9` no puede aparecer en un número octal; base 2 usa solo 0 y 1. El mensaje nombra el carácter ofensivo y lista qué se permite, porque la causa usual es tener la base de entrada incorrecta seleccionada en lugar de un error de escritura en el número.
+
+## ¿Maneja números negativos?
+
+Sí. Un signo menos inicial se preserva a través de la conversión — `-FF` en hex es `-255` en decimal. Nota que esto es un signo simple, no complemento de dos: si estás viendo una representación cruda de 32 bits o 64 bits de un número negativo, el patrón de bits es un valor positivo grande en esta herramienta, que es exactamente lo que es en memoria.
+
+## ¿Se envía algo a un servidor?
+
+No. La conversión es un par de líneas de aritmética ejecutando en esta pestaña del navegador. No hay solicitud que hacer, y nada que escribas deja la página. Eso importa más de lo que podría parecer para esta herramienta — los números que la gente convierte son a menudo IDs, claves e identificadores internos.
+
+## ¿Por qué el hex se muestra en minúsculas?
+
+Porque eso es lo que `toString(16)` produce y lo que la mayoría de lenguajes y formatos de archivo emiten. Hex es insensible a mayúsculas, así que `FF` y `ff` son el mismo valor; si necesitas mayúsculas para un formato particular, cámbialo después de copiar. La entrada se acepta en cualquiera de los dos casos.

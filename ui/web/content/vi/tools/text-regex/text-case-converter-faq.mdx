@@ -1,0 +1,23 @@
+---
+title: Text Case Converter — Câu hỏi thường gặp
+---
+
+## camelCase vs PascalCase?
+
+Cùng biên từ, khác ký tự đầu. `helloWorld` là camelCase (đầu thường), `HelloWorld` là PascalCase (đầu hoa). Convention JavaScript/Java: camelCase cho biến, PascalCase cho class/type.
+
+## Vì sao CSS dùng kebab-case?
+
+Vì `_` và ký tự khác có ý nghĩa cụ thể trong CSS đầu, và `-` đã dùng làm syntax character. CSS hiện đại vẫn dùng kebab-case cho class name và property (`background-color`, không phải `backgroundColor`).
+
+## Convention đặt tên env var?
+
+`CONSTANT_CASE` (chữ hoa với underscore). Universal qua shell, ngôn ngữ lập trình, container runtime. `DATABASE_URL`, `API_KEY`, `NODE_ENV`.
+
+## Xử lý acronym — Url hay URL?
+
+Style hiện đại: `Url` (xem acronym như từ thường). Style cũ: `URL` (giữ all-caps). Stdlib JavaScript hầu hết dùng `Url` (XMLHttpRequest là ngoại lệ nổi tiếng — và bạn thấy vì sao người ta tiếc nuối). Chọn một và áp dụng nhất quán.
+
+## Văn bản của tôi có được gửi đi đâu không?
+
+Không — mọi conversion chạy trong browser dùng library mã nguồn mở [`change-case`](https://github.com/blakeembrey/change-case). Network tab sẽ thấy zero request.

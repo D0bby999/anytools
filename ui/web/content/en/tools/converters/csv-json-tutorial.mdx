@@ -1,0 +1,108 @@
+---
+title: Complete guide to converting CSV to JSON and JSON to CSV
+description: CSV variants, RFC 4180, Papa Parse, header inference, escaping quirks, nested object flattening, and large file handling explained.
+updated: 2026-05-26
+---
+
+## Why these two formats coexist
+
+JSON is the native language of APIs and JavaScript applications. CSV is the native language of spreadsheets, data exports, and bulk database operations. In practice, almost every data pipeline crosses this boundary at least once: you export a database table to CSV for an analyst, or you receive a CSV from a partner and need to import it into your API. This tool handles that conversion in both directions, entirely in the browser.
+
+## CSV is less standard than you think
+
+There is an official RFC for CSV — [RFC 4180](https://datatracker.ietf.org/doc/html/rfc4180) — but most CSV files in the wild deviate from it in small ways. Key variants to know:
+
+**Delimiters** — The "comma" in CSV isn't always a comma. European locales commonly use semicolons (`;`) because commas are decimal separators there. Tabs (`\t`) produce TSV (tab-separated values), which avoids quoting issues but looks identical in many tools. The tool auto-detects the delimiter by scanning the first few lines.
+
+**Line endings** — RFC 4180 specifies `\r\n` (CRLF). Unix files use `\n`. Windows files use `\r\n`. Some old Mac files used `\r` alone. Parsers need to handle all three; Papa Parse does.
+
+**Quoting** — Fields containing the delimiter, a newline, or a double-quote must be enclosed in double quotes. A literal double-quote inside a quoted field is escaped by doubling it: `"He said ""hello"""`. Single-quoted fields are not RFC 4180 — some Excel exports produce them anyway.
+
+**Header row** — RFC 4180 doesn't mandate a header row, but the convention is universal. The tool assumes the first row is headers by default; you can toggle this off if your file has no headers, in which case column names are auto-generated (`col_0`, `col_1`, …).
+
+**Excel quirks** — Excel adds a BOM (byte order mark, `\xEF\xBB\xBF`) to UTF-8 CSV files. It also auto-converts values that look like numbers or dates: `1-2` becomes January 2nd, `0001` loses its leading zero. If you open a converted CSV in Excel and values look wrong, the issue is Excel's auto-conversion, not the CSV content.
+
+## The Papa Parse library
+
+This tool uses [Papa Parse](https://www.papaparse.com/), the de-facto standard CSV parser for JavaScript. It handles all RFC 4180 edge cases, auto-detects delimiters, streams large files without blocking the browser thread, and provides structured error reporting for malformed rows.
+
+Key Papa Parse behaviors that affect conversion:
+
+- **Type inference** — By default, Papa Parse converts `"true"` → `true`, `"42"` → `42`, and `""` → `null`. This is usually what you want for JSON, but if you need all strings preserved, disable dynamic typing.
+- **Skipping empty lines** — Empty lines in CSV are skipped by default; they'd produce `null` rows in JSON otherwise.
+- **Error rows** — Rows with the wrong number of fields are reported as errors rather than silently skipped or truncated.
+
+## CSV to JSON conversion
+
+The most common direction. Each CSV row becomes a JSON object; column headers become keys.
+
+```
+Input CSV:
+name,email,age
+Alice,alice@example.com,30
+Bob,bob@example.com,25
+
+Output JSON:
+[
+  { "name": "Alice", "email": "alice@example.com", "age": 30 },
+  { "name": "Bob", "email": "bob@example.com", "age": 25 }
+]
+```
+
+Note that `age` is parsed as a number (not the string `"30"`) because Papa Parse's type inference is on by default.
+
+## JSON to CSV conversion
+
+Converting JSON arrays to CSV is straightforward when the objects are flat. Nested objects require flattening.
+
+**Flat objects** — Each key becomes a column header, values become cells. Arrays of primitives become a semicolon-joined string within the cell.
+
+**Nested objects** — `{ "address": { "city": "Austin", "zip": "78701" } }` is flattened to two columns: `address.city` and `address.zip`. The dot-notation path becomes the column header.
+
+**Heterogeneous arrays** — If objects in the JSON array have different keys, the union of all keys becomes the header row, and missing values produce empty cells. This handles real-world API responses where optional fields are omitted rather than null.
+
+```json
+Input JSON:
+[
+  { "id": 1, "name": "Alice", "role": "admin" },
+  { "id": 2, "name": "Bob" }
+]
+
+Output CSV:
+id,name,role
+1,Alice,admin
+2,Bob,
+```
+
+## Escaping: what happens with commas and newlines in values
+
+If a value contains the delimiter, a double-quote, or a newline, it must be quoted:
+
+```
+"Smith, John","He said ""hello""","Line 1
+Line 2"
+```
+
+The middle cell contains an escaped double-quote (doubled). The last cell contains a literal newline inside the quoted field — this is valid RFC 4180 and Papa Parse handles it correctly. When you convert this to JSON, newlines in cells become `\n` in the string value.
+
+## Large file handling
+
+Papa Parse uses a streaming parser that processes the file in chunks rather than loading the entire content into memory at once. This lets it handle files in the tens of megabytes in the browser without crashing the tab. For files larger than ~50 MB, a server-side or Node.js approach is more appropriate:
+
+```javascript
+import Papa from 'papaparse'
+import fs from 'fs'
+
+Papa.parse(fs.createReadStream('large.csv'), {
+  header: true,
+  step: (row) => {
+    // Process one row at a time — constant memory usage
+    processRow(row.data)
+  },
+  complete: () => console.log('Done')
+})
+```
+
+## Privacy
+
+All parsing and conversion runs in your browser using Papa Parse. Your CSV and JSON data is never uploaded to our servers. The tool works offline once the page is loaded.

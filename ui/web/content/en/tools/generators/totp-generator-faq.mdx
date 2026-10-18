@@ -1,0 +1,35 @@
+---
+title: TOTP generator — Frequently asked questions
+---
+
+## What does it generate?
+
+Time-based one-time passwords as defined in RFC 6238 — the six-digit codes an authenticator app shows. Give it a base32 secret and it produces the current code plus the seconds remaining before it rolls.
+
+## Which options are configurable?
+
+Digits (6 or 8), period (30 or 60 seconds), and algorithm (SHA1, SHA256 or SHA512). The defaults are 6 digits, 30 seconds and SHA1 — what almost every service issues, and what Google Authenticator assumes.
+
+## Why is SHA1 still the default when it is broken elsewhere?
+
+Because the weaknesses in SHA1 are collision attacks, which do not apply to how HMAC uses it here, and because compatibility rules in practice: a great many services only accept SHA1 TOTP. Use SHA256 when the service explicitly supports it, not as a blanket upgrade — a mismatch just produces wrong codes.
+
+## What counts as a valid secret?
+
+Base32: the letters A–Z and digits 2–7. The tool uppercases your input, strips spaces and dashes, and removes trailing `=` padding, so a secret copied from a setup page in grouped form works as-is. Anything containing 0, 1, 8 or 9 is not valid base32 and will be rejected.
+
+## Why is my code rejected by the service?
+
+Almost always clock skew. TOTP derives the code from the current time, so if your device clock is off by more than the service's tolerance, every code will be wrong while looking perfectly plausible. Check the clock before assuming the secret is bad.
+
+## What does the random secret generator produce?
+
+A 160-bit secret from your browser's cryptographic random source, expressed in base32 — the same size Google Authenticator uses. That is genuine cryptographic randomness, unlike the general-purpose generator behind the [random picker](/en/lifestyle/random-picker).
+
+## Is it safe to paste my real 2FA secret here?
+
+The computation is entirely client-side and nothing is transmitted. But be clear about what a TOTP secret is: anyone holding it can generate your codes forever. Pasting it into any web page — this one included — is a habit worth avoiding for accounts that matter. Use this for development, testing and understanding, not for your bank.
+
+## Can this replace my authenticator app?
+
+No. It keeps nothing: close the page and the secret is gone, with no backup and no device binding. It is a debugging and learning tool, not a place to store second factors.

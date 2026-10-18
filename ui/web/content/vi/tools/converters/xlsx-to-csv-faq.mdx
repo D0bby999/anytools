@@ -1,0 +1,49 @@
+---
+title: Chuyển XLSX sang CSV / JSON — Câu hỏi thường gặp
+---
+
+## Tại sao nó sẽ không mở `.xls`, `.ods` hoặc tệp Numbers của tôi?
+
+Vì chúng không phải là cùng một định dạng, và tool này đọc chính xác một trong số chúng. `.xlsx` là một container zip đầy XML — định dạng Excel đã viết theo mặc định kể từ năm 2007. `.xls` cũ hơn là một định dạng tài liệu hợp chất nhị phân không có gì chung với nó ngoài tên. `.ods` là OpenDocument, một cái khác zip đầy XML nhưng với XML hoàn toàn khác bên trong. Các tệp Apple Numbers là một gói của ảnh chụp được mã hóa protobuf riêng của Apple và không được công khai chỉ định.
+
+Thư viện ở đây, ExcelJS, đọc `.xlsx` và không có gì khác. Có một thư viện JavaScript nổi tiếng đọc tất cả chúng, và nó đã được xem xét và từ chối: bản dựng cộng đồng hiện tại được phân phối dưới dạng tarball từ CDN của chính nhà cung cấp thay vì từ npm, cái có nghĩa là lockfile mà chứa nó không mang hash toàn vẹn, và mọi cài đặt trong CI phải chấp nhận bất kỳ byte nào mà máy chủ đó trả lại ngày hôm đó. Đó không phải là giao dịch đáng để thực hiện cho một trình chuyển đổi.
+
+Giải pháp thay thế mất mười giây: mở tệp trong Excel, LibreOffice Calc, Google Sheets hoặc Numbers, và sử dụng *Save As* hoặc *Export* để tạo ra một `.xlsx`. Mỗi ứng dụng đó có thể viết nó. Sau đó, thả kết quả ở đây.
+
+## Tại sao cột ngày của tôi xuất hiện dưới dạng số trong các trình chuyển đổi khác?
+
+Vì một ngày trong một bảng tính không phải là một ngày — nó là một số có trang phục. Excel lưu trữ 3 tháng 9 năm 2026 dưới dạng `46264`, số ngày kể từ 30 tháng 12 năm 1899, và hình thức lịch đến từ một định dạng hiển thị được gắn vào ô, không phải từ giá trị. Một trình chuyển đổi đọc giá trị thô và viết nó ra được `46264`, về mặt kỹ thuật là những gì ở trong tệp và vô ích cho mọi người.
+
+Tool này hỏi ExcelJS cho giá trị được phân tích cú pháp, cái quay trở lại dưới dạng JavaScript `Date`, và viết nó dưới dạng `2026-09-03`. Nếu ô cũng mang một thời gian, bạn nhận được `2026-09-03T14:30:05`. Cả hai đều là ISO 8601, cái được sắp xếp chính xác như văn bản và không rõ ràng về thứ tự ngày và tháng — không giống như `03/09/2026`, cái có nghĩa là hai ngày khác nhau tuỳ theo bên nào của Đại Tây Dương bạn đọc nó.
+
+Một cảnh báo đáng để nói rõ ràng: chuyển đổi được thực hiện trong UTC. Giá trị lưu trữ của Excel không có múi giờ ở tất cả, vì vậy bất kỳ lựa chọn nào là tùy ý, và đọc nó trong vùng địa phương của bạn sẽ di chuyển ngày lùi lại một ngày cho bất kỳ ai ở phía tây của Greenwich. UTC giữ ngày lịch được gõ.
+
+## Điều gì xảy ra với công thức, ô được hợp nhất và định dạng?
+
+Công thức được thay thế bằng **kết quả được lưu trong bộ nhớ cache** của chúng — giá trị Excel tính toán lần cuối và lưu trữ trong tệp. Đó là những gì bạn thấy trên màn hình, vì vậy nó là những gì một CSV nên chứa. Không có gì ở đây đánh giá công thức: nếu một sổ làm việc được lưu bởi một công cụ không viết giá trị được lưu trong bộ nhớ cache, những ô đó đến trống thay vì sai. Các lỗi công thức được vượt qua dưới dạng văn bản, vì vậy một `#DIV/0!` vẫn là `#DIV/0!` thay vì âm thầm trở thành trống.
+
+Các ô được hợp nhất mất sự hợp nhất của chúng. Một khối được hợp nhất giữ giá trị của nó chỉ trong ô trên cùng bên trái, và các ô dưới nó thực sự trống trong tệp — vì vậy một tiêu đề được hợp nhất trên bốn cột tạo ra một giá trị và ba khoảng trắng. CSV không có khái niệm về một ô được hợp nhất, vì vậy không có gì tốt hơn để làm; nếu hình dạng của kết quả gây ngạc nhiên cho bạn, đó là lý do.
+
+Mọi thứ trực quan bị loại bỏ, vì CSV không thể mang nó: phông chữ, màu sắc, đường viền, định dạng số, định dạng có điều kiện, độ rộng cột, ngăn đông, bộ lọc, biểu đồ, bảng pivot, hình ảnh và nhận xét. Văn bản phong phú bên trong một ô giữ các ký tự của nó và mất kiểu dáng — chạy đậm và không đậm được nối vào một chuỗi. Siêu liên kết giữ văn bản bạn thấy, không phải URL đích.
+
+## Các tệp của tôi có được tải lên bất kỳ nơi nào không?
+
+Không. Sổ làm việc được đọc trong tab trình duyệt này. Tệp đi từ bộ chọn vào trang thông qua File API, ExcelJS phân tích nó trong bộ nhớ riêng của trang, và liên kết tải xuống trỏ vào một blob trình duyệt của bạn đang giữ. Không có gì được gửi đến máy chủ, cái bạn có thể xác nhận bằng cách mở tab Network của các công cụ nhà phát triển, hoặc bằng cách ngắt kết nối mạng sau khi trang đã tải và chuyển đổi dù sao.
+
+Đó cũng là giới hạn của tool. Mọi thứ phải phù hợp với tab, và phân tích chạy trên chuỗi chính, vì vậy một sổ làm việc lớn làm đông chân trang. Trên 20 MB bạn sẽ thấy một cảnh báo về điều đó. Nó là một cảnh báo và không phải từ chối — một tệp 30 MB thường sẽ hoàn thành, nó sẽ chỉ mất một thời gian đáng kể. Quá 50 MB tệp bị từ chối hoàn toàn, trước khi nó được mở: một `.xlsx` là XML được nén mở rộng vài lần sau khi được phân tích cú pháp, và bắt đầu một tệp cỡ như vậy chỉ mua cho bạn một trang đông chân và sau đó một sự cố.
+
+## Tại sao nó nói sheet của tôi quá rộng?
+
+Có một trần 2 triệu ô trên một sổ làm việc, được tính là chiều rộng được sử dụng lần chiều cao được sử dụng của mỗi sheet. Quá nó chuyển đổi dừng lại và nói rõ thay vì làm đông chân tab.
+
+Hầu hết các tệp đánh nó không thực sự lớn. Một bảng tính có 16.384 cột và một triệu hàng sẵn có, và một sheet ghi nhớ cái xa nhất bất cứ điều gì đã chạm — một giá trị dán vào bên phải xa và xóa, một màu nền được áp dụng cho một hàng toàn bộ, một định dạng lạc. Từ đó trở đi tệp tuyên bố rộng như vậy, và một trình chuyển đổi tin cậy khẳng định cố gắng xây dựng mỗi ô giữa. Đó là tại sao một tệp 62 KB có thể yêu cầu hàng chục triệu chuỗi trống.
+
+Tool này đo chiều rộng từ các ô thực sự giữ một giá trị, vì vậy phiên bản thông thường của vấn đề đó chỉ không có chi phí: một định dạng còn lại bên phải xa bị bỏ qua, và hàng trống và cột ở cuối được cắt bỏ từ kết quả. Các ô trống *bên trong* dữ liệu được giữ, vì chúng là các vị trí — loại bỏ một sẽ dịch chuyển mỗi giá trị sau nó một cột sang trái. Các tắc chỉ bắn lửa khi ô bên phải xa là dữ liệu thực và sheet thực sự lớn như vậy. Nếu bạn bắn nó, chọn các cột và hàng ngoài dữ liệu của bạn trong Excel, xóa chúng, lưu, và thử lại.
+
+## Tôi có nên sử dụng đầu ra CSV hoặc đầu ra JSON?
+
+Sử dụng CSV khi điểm đến là một bảng tính khác, nhập cơ sở dữ liệu, hoặc bất kỳ công cụ nào đó mong đợi văn bản dạng bảng. Đặt dấu phân cách để phù hợp với những gì điểm đến mong đợi: dấu phẩy là tiêu chuẩn, dấu chấm phẩy là những gì Excel mong đợi trong miền sử dụng dấu phẩy làm dấu phân tách thập phân, và tab tránh câu hỏi hoàn toàn. Đánh dấu tùy chọn BOM nếu tệp quay lại Excel và chứa các ký tự có dấu thanh hoặc tập lệnh không phải Latinh — nếu không, Excel trên Windows đoán mã hóa và thường đoán sai.
+
+Sử dụng JSON khi điểm đến là mã. Hàng đầu tiên trở thành khóa đối tượng theo mặc định; tiêu đề trống trở thành `column_3` theo vị trí, và tiêu đề lặp lại trở thành `name_2` vì vậy không có cột nào bị âm thầm nuốt bởi một khóa trùng lặp.
+
+Điều duy nhất cần biết về đầu ra JSON là mỗi giá trị đều là một chuỗi, bao gồm cả những con số. Một ô bảng tính không mang loại JSON, và đoán sẽ làm hỏng dữ liệu thực — một số bộ phận như `007` trở thành `7`, một số điện thoại trở thành một float. Nếu bạn muốn các giá trị được nhập, lấy CSV vào [CSV ↔ JSON converter](/en/converters/csv-json), cái suy ra các loại trong khi nó phân tích cú pháp, hoặc vào [JSON Formatter](/en/formatters/json-formatter) để kiểm tra kết quả. Để biến một tài liệu Word thành văn bản theo cách tương tự, hãy xem [DOCX to Markdown](/en/converters/docx-to-markdown).

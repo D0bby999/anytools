@@ -1,0 +1,145 @@
+# AnyTools — local and single-VPS deployment.
+#
+# THE TRUST BOUNDARY IS IN THIS FILE. Only `web` publishes a host port. `api`
+# has no `ports:` entry at all, so it is reachable exclusively from other
+# services on the `anytools` network. That is what makes the
+# `X-AnyTools-User-Id` header safe to trust: nothing outside this network can
+# set it. postclaw relied on an nginx rule for the same property; a compose file
+# with no published port cannot be misconfigured by editing a vhost.
+
+name: anytools
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-anytools}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-anytools}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # `api` waits for this, so a cold start does not fail on a database that
+      # is up but not yet accepting connections.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-anytools} -d ${POSTGRES_DB:-anytools}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [anytools]
+    restart: unless-stopped
+
+  # One-shot: applies migrations, then exits. Migrations are never run by
+  # `serve`, so a restart of the API can never become a schema change.
+  migrate:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    command: ["migrate", "up"]
+    environment:
+      ANYTOOLS_POSTGRES_DSN: ${ANYTOOLS_POSTGRES_DSN:?ANYTOOLS_POSTGRES_DSN is required}
+      ANYTOOLS_MIGRATIONS_DIR: /app/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [anytools]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    # NO `ports:` — deliberate, load-bearing, and asserted by a test. Publishing
+    # this port would expose an API whose only authentication is a shared bearer
+    # plus a caller-asserted user id.
+    environment:
+      ANYTOOLS_SERVER_ADDR: ":8080"
+      ANYTOOLS_POSTGRES_DSN: ${ANYTOOLS_POSTGRES_DSN:?ANYTOOLS_POSTGRES_DSN is required}
+      ANYTOOLS_GATEWAY_TOKEN: ${ANYTOOLS_GATEWAY_TOKEN:?ANYTOOLS_GATEWAY_TOKEN is required}
+      ANYTOOLS_ENCRYPTION_KEY: ${ANYTOOLS_ENCRYPTION_KEY:?ANYTOOLS_ENCRYPTION_KEY is required}
+      # Defaults to production: ANYTOOLS_ENV is what refuses
+      # ANYTOOLS_ALLOW_NO_AUTH=1 (internal/config/config.go). Defaulting it to
+      # development put that refusal behind the operator remembering to set a
+      # variable on the real host — the wrong way round for a safety check.
+      # Local work opts OUT explicitly via .env.
+      ANYTOOLS_ENV: ${ANYTOOLS_ENV:-production}
+      # BYOK (phase 4). All three are OFF unless explicitly set, and the
+      # defaults here are the safe ones: no experimental lanes, no private-range
+      # egress. See .env.example for what each one actually permits.
+      ANYTOOLS_EXPERIMENTAL_SUBSCRIPTION_LANES: ${ANYTOOLS_EXPERIMENTAL_SUBSCRIPTION_LANES:-0}
+      ANYTOOLS_GEMINI_SUB_CLIENT_ID: ${ANYTOOLS_GEMINI_SUB_CLIENT_ID:-}
+      ANYTOOLS_GEMINI_SUB_CLIENT_SECRET: ${ANYTOOLS_GEMINI_SUB_CLIENT_SECRET:-}
+      ANYTOOLS_GEMINI_SUB_REDIRECT_URIS: ${ANYTOOLS_GEMINI_SUB_REDIRECT_URIS:-}
+      # Google Drive (phase 13). The API refreshes and revokes Drive tokens
+      # itself, so it needs the same OAuth client the web container signs in
+      # with. Empty means the Drive routes are not registered at all.
+      ANYTOOLS_GOOGLE_CLIENT_ID: ${ANYTOOLS_GOOGLE_CLIENT_ID:-}
+      ANYTOOLS_GOOGLE_CLIENT_SECRET: ${ANYTOOLS_GOOGLE_CLIENT_SECRET:-}
+      # Files kept in learners' Drives are cached under the data directory's
+      # cache/, up to this many MB (empty: 2048). Backups leave cache/ out.
+      ANYTOOLS_DRIVE_CACHE_MB: ${ANYTOOLS_DRIVE_CACHE_MB:-}
+      # Uploaded documents and parsed Markdown. On a named volume, NOT a bind
+      # mount into the repo and NOT inside any web root: `web` serves its own
+      # build directory, so nothing here is reachable by URL. Phase 12's backup
+      # unit must cover this volume as well as the database — a restore with the
+      # rows but not the files leaves every document unopenable.
+      ANYTOOLS_DATA_DIR: /var/lib/anytools/data
+      ANYTOOLS_JOB_WORKERS: ${ANYTOOLS_JOB_WORKERS:-2}
+      ANYTOOLS_JOB_LEASE_SECONDS: ${ANYTOOLS_JOB_LEASE_SECONDS:-120}
+    volumes:
+      - anytools-data:/var/lib/anytools/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      # EXACTLY ONE. The API keeps runtime state in process: the rate-limiter
+      # buckets, the job workers, the document event fan-out, and from phase 6
+      # the stream bus and cancel registry.
+      #
+      # Phase 5 removed one reason this is pinned — jobs now take a database
+      # LEASE rather than an in-memory lock, so two replicas would compete for
+      # rows through FOR UPDATE SKIP LOCKED rather than double-parse. What still
+      # splits is the event fan-out and, from phase 6, turns. Raising this needs
+      # those solved first, not just this line changed.
+      replicas: 1
+    networks: [anytools]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./ui/web
+      dockerfile: Dockerfile
+    # The ONLY published port in the stack, and on the loopback interface by
+    # default: in production nginx (deploy/docker-compose.prod.yml) reaches
+    # `web` over the compose network and is the only thing on 80/443, so this
+    # port is for the operator on the box, never for the internet.
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      ANYTOOLS_API_URL: http://api:8080
+      ANYTOOLS_GATEWAY_TOKEN: ${ANYTOOLS_GATEWAY_TOKEN:?ANYTOOLS_GATEWAY_TOKEN is required}
+      ANYTOOLS_SESSION_SECRET: ${ANYTOOLS_SESSION_SECRET:?ANYTOOLS_SESSION_SECRET is required}
+      ANYTOOLS_APP_URL: ${ANYTOOLS_APP_URL:-http://localhost:3000}
+      ANYTOOLS_GOOGLE_CLIENT_ID: ${ANYTOOLS_GOOGLE_CLIENT_ID:-}
+      ANYTOOLS_GOOGLE_CLIENT_SECRET: ${ANYTOOLS_GOOGLE_CLIENT_SECRET:-}
+      ANYTOOLS_GITHUB_CLIENT_ID: ${ANYTOOLS_GITHUB_CLIENT_ID:-}
+      ANYTOOLS_GITHUB_CLIENT_SECRET: ${ANYTOOLS_GITHUB_CLIENT_SECRET:-}
+      # The Google Picker's browser-side values (phase 13). Optional.
+      ANYTOOLS_GOOGLE_API_KEY: ${ANYTOOLS_GOOGLE_API_KEY:-}
+      ANYTOOLS_GOOGLE_PICKER_APP_ID: ${ANYTOOLS_GOOGLE_PICKER_APP_ID:-}
+    depends_on:
+      - api
+    networks: [anytools]
+    restart: unless-stopped
+
+networks:
+  anytools:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  # Uploaded originals and parsed Markdown. Backed up alongside the database:
+  # restoring one without the other leaves rows pointing at files that are gone.
+  anytools-data:

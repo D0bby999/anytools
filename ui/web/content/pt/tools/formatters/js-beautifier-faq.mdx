@@ -1,0 +1,35 @@
+---
+title: Embelezador JS — Perguntas frequentes
+---
+
+## Qual é a diferença entre embelezar e minificar?
+
+Embelezar é cosmético: adiciona indentação, normaliza espaços e inserta quebras de linha para tornar o código legível. Os tokens JavaScript não mudam e o comportamento de execução é idêntico. Minificar é compressão: remove espaço em branco, renomeia variáveis locais para nomes mais curtos e elimina código morto. A saída é funcionalmente equivalente mas os tokens mudam e o código é intencionalmente ilegível. Minificação é uma transformação unidirecional — você não pode recuperar os nomes de variáveis originais sem um source map.
+
+## Por que esta ferramenta usa Terser para minificar em vez de apenas remover espaços em branco?
+
+A remoção simples de espaço em branco economiza 15–25% do tamanho do arquivo. A minificação completa do Terser (espaço em branco + name mangling + constant folding + eliminação de código morto) economiza 45–65% para código de aplicação típico. A diferença está no name mangling: renomear `calculateMonthlyInterestRate` para `a` em todo um arquivo produz economias substanciais porque identificadores aparecem muitas vezes. O Terser usa um parser AST real para renomear com segurança apenas identificadores locais, nunca nomes exportados ou globais.
+
+## O que significa "mangle"?
+
+Mangling renomeia variáveis locais, parâmetros de funções e nomes de funções internas para os identificadores mais curtos possíveis — tipicamente caracteres únicos. `function processUserInput(rawValue, options)` torna-se `function a(b,c)`. Exports e globais são preservados porque renomeá-los quebraria os consumidores. Ative mangle para bundles de produção no navegador; desative se seu código inspeciona `Function.prototype.name` em tempo de execução ou usa `eval()` referenciando nomes de variáveis locais como strings.
+
+## O Terser pode remover funções não usadas de uma biblioteca?
+
+Apenas dentro de um único arquivo. O Terser elimina código morto que pode provar ser inalcançável — p.ex., blocos `if (false) { ... }`, constantes que avaliam para falsy. Ele não faz tree shaking entre arquivos (remover funções exportadas que nenhum módulo importa). Isso requer análise no nível do bundler do Rollup, Vite ou webpack. Para remover exports não usados de uma biblioteca, use um bundler com um ponto de entrada apropriado.
+
+## A minificação funciona corretamente com a sintaxe JavaScript moderna?
+
+Sim. O Terser suporta até ES2024 incluindo optional chaining (`?.`), nullish coalescing (`??`), atribuição lógica (`&&=`, `||=`, `??=`), campos privados de classe (`#field`), `await` de nível superior e a proposta de Explicit Resource Management (`using`). Defina `ecma: 2024` nas opções do Terser para otimizações específicas de sintaxe moderna.
+
+## Por que o código embelezado às vezes difere da saída do Prettier?
+
+O `js-beautify` e o Prettier tomam decisões de estilo diferentes. O Prettier é dogmático e produz um único formato canônico sem configuração. O `js-beautify` é configurável e pode diferir em coisas como espaçamento de objetos, espaçamento de argumentos de funções ou estilo de chaves. Para um projeto com uma configuração do Prettier, execute o Prettier. Use esta ferramenta para formatação rápida pontual quando não quer instalar nada.
+
+## Como depuro erros de produção em JavaScript minificado?
+
+Gere um source map durante a minificação e faça upload para seu serviço de monitoramento de erros (Sentry, Datadog, Bugsnag) ou hospede junto ao arquivo minificado. O source map codifica o mapeamento de cada posição de caractere minificado de volta à linha e coluna de fonte originais. As DevTools do navegador e os serviços de monitoramento de erros usam automaticamente os source maps para mostrar stack traces e arquivos fonte originais ao depurar.
+
+## Meu código JavaScript é enviado a um servidor?
+
+Não. Tanto o `js-beautify` quanto o Terser são executados completamente no seu navegador compilados para WebAssembly e JavaScript. Nenhum código é transmitido a nenhum servidor. Isso se aplica mesmo a código privado, utilitários internos ou lógica de aplicação proprietária — nada sai do seu dispositivo.

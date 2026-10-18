@@ -1,0 +1,27 @@
+---
+title: Trình tạo box-shadow CSS — Câu hỏi thường gặp
+---
+
+## Bốn con số trong một layer box-shadow nghĩa là gì?
+
+Theo đúng thứ tự: offset ngang, offset dọc, blur radius và spread. Offset dương đẩy bóng sang phải và xuống dưới. Blur radius là độ rộng của vùng loang — nôm na bóng lan ra khỏi mép element khoảng một nửa giá trị blur. Spread thì phình to (hoặc thu nhỏ khi để số âm) hình bóng trước khi blur được áp vào, đây là cách để có một cái bóng đậm và sát mép mà không bị "tràn" ra ngoài element. Trong cú pháp CSS, spread là phần tuỳ chọn, nên tool sẽ bỏ hẳn nó khỏi output khi bạn để 0 — một layer mặc định ra `0px 4px 12px rgba(0, 0, 0, 0.15)` chứ không kèm thêm số 0 thừa.
+
+## Nhập blur âm thì sao, và tại sao xoá hết layer lại ra `none`?
+
+Đây là hai quy ước bạn nên biết trước khi ngồi chỉnh. Blur âm là CSS không hợp lệ, và điều tệ nhất là nó không chỉ hỏng một layer — trình duyệt vứt luôn cả danh sách shadow, tức là toàn bộ bóng biến mất chứ không phải chỉ layer sai. Vì vậy tool kẹp blur về 0 khi xuất CSS, bạn không bao giờ copy ra được một giá trị làm chết cả khai báo. Tương tự, khi bạn xoá sạch layer, output là `box-shadow: none;` chứ không phải chuỗi rỗng, vì `box-shadow: ;` cũng là cú pháp lỗi. Còn giá trị Tailwind thì mọi khoảng trắng bị thay bằng dấu gạch dưới, đúng như cú pháp arbitrary value mà Tailwind yêu cầu.
+
+## Vì sao một layer trông bẹt còn ba layer lại ra chiều sâu?
+
+Vì ngoài đời ánh sáng không tạo ra đúng một cái bóng. Các preset elevation kiểu Material xếp ba lớp: một lớp nhỏ và đậm nằm ngay dưới element, một lớp trung gian rộng hơn, và một lớp rất lớn nhưng mờ để mô phỏng ánh sáng môi trường. Tách riêng từng lớp thì lớp nào cũng chỉ là một vệt xám vô hồn; chồng lại mới đọc ra được độ cao. Thứ tự cũng quan trọng: layer đầu tiên trong danh sách vẽ đè lên layer thứ hai, giống hệt cách nhiều background xếp chồng. Tool giữ nguyên thứ tự bạn sắp, không tự sort lại — nên hãy đặt lớp sát nhất, đậm nhất lên đầu.
+
+## Muốn tạo box shadow CSS thì lấy từ Figma ra có nhanh hơn không?
+
+Không hẳn. Figma xuất shadow theo mô hình riêng của nó, và khi copy sang CSS bạn thường phải sửa lại: Figma không có khái niệm spread giống hệt CSS trong mọi trường hợp, giá trị màu ra dạng rgba với alpha lẻ, và nhiều lớp bóng thì phải ghép tay thành một chuỗi ngăn cách bằng dấu phẩy. Còn gõ tay thì rất dễ nhầm thứ tự offset với blur. Ở đây bạn kéo slider và nhìn thẳng vào chuỗi CSS thật sẽ được dán vào stylesheet, đồng thời xem preview trên cả nền sáng lẫn nền tối — vì một cái bóng đen 12% opacity nhìn rất ổn trên nền trắng nhưng gần như tàng hình trên nền `#0b1220`.
+
+## `inset` khác gì bóng thường?
+
+`inset` vẽ bóng vào bên trong border box thay vì bên ngoài, nên element trông như bị ấn lõm xuống thay vì nổi lên. Offset vẫn hoạt động y hệt nhưng cạnh nhìn thấy bị đảo: `y` bằng 4 kèm `inset` sẽ làm tối mép trong phía trên. Bạn hoàn toàn có thể trộn layer inset và layer thường trong cùng một giá trị — đó chính là cách dựng một nút bấm ở trạng thái pressed mà vẫn giữ được quầng sáng mềm bên ngoài. Trong tool, `inset` là một checkbox trên từng layer, và khi bật thì từ khoá được đẩy lên đầu chuỗi của layer đó.
+
+## Màu bóng xử lý ra sao, và dữ liệu của tôi có bị gửi đi đâu không?
+
+Không có gì rời khỏi trình duyệt — chuỗi CSS được ghép ngay trong trang, không có request nào mang giá trị của bạn đi. Về màu: ô chọn màu của trình duyệt không có kênh alpha, nên tool tách màu thành một swatch `#rrggbb` và một slider alpha riêng, rồi ghép lại khi xuất. Quy ước ghép rất đơn giản: alpha bằng 1 thì xuất hex gọn, alpha nhỏ hơn 1 thì xuất `rgba()` với alpha làm tròn hai chữ số. Khi đọc vào, tool chấp nhận cả `#abc`, `abc`, `#AABBCC` lẫn `rgba()` với alpha ghi theo phần trăm, nên bạn dán shadow cũ từ codebase vào để sửa được luôn.

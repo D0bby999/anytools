@@ -1,0 +1,89 @@
+{
+  "guides": {
+    "title": "Hướng dẫn",
+    "metaTitle": "Hướng dẫn — AnyTools",
+    "description": "Hướng dẫn chuyên sâu về JSON, biểu thức chính quy, mã hóa, cùng các máy tính và công cụ thiết kế trên AnyTools.",
+    "readingTime": "{{count}} phút đọc",
+    "updated": "Cập nhật {{date}}",
+    "all": "Tất cả hướng dẫn"
+  },
+  "legal": {
+    "updated": "Cập nhật lần cuối {{date}}"
+  },
+  "anyprofile": {
+    "metaTitle": "AnyProfile — trình duyệt nhiều profile cho nhà sáng tạo (macOS, Windows)",
+    "metaDescription": "Ứng dụng miễn phí, mã nguồn mở: mỗi tài khoản một trình duyệt riêng, cookie riêng, proxy riêng và fingerprint nhất quán. Cho macOS và Windows.",
+    "title": "AnyProfile",
+    "tagline": "Mỗi tài khoản một trình duyệt, chạy song song.",
+    "intro": "AnyProfile là ứng dụng máy tính miễn phí cho nhà sáng tạo và người bán hàng dùng nhiều tài khoản TikTok, YouTube, Shopee hay Amazon. Mỗi profile là một trình duyệt riêng, có cookie riêng, proxy riêng và fingerprint thiết bị nhất quán, nên các phiên đăng nhập không bao giờ lẫn vào nhau.",
+    "badge": "Miễn phí · Mã nguồn mở · Beta",
+    "downloadMac": "Tải cho Mac",
+    "downloadMacNote": "Chip Apple (M1 trở lên), macOS 13 trở lên",
+    "downloadWindows": "Tải cho Windows",
+    "downloadWindowsNote": "Windows 10 hoặc 11, 64-bit",
+    "allReleases": "Mọi phiên bản và ghi chú thay đổi",
+    "featuresTitle": "App làm được gì",
+    "features": [
+      {
+        "title": "Profile tách biệt",
+        "body": "Mỗi profile giữ đăng nhập, cookie, lịch sử và extension riêng. Mở bao nhiêu cùng lúc cũng được."
+      },
+      {
+        "title": "Mỗi profile một proxy",
+        "body": "Múi giờ và ngôn ngữ theo IP ra của proxy. App cảnh báo khi IP đổi nước, đổi múi giờ, hoặc khi IPv6 của proxy ra ở nơi khác."
+      },
+      {
+        "title": "Fingerprint nhất quán",
+        "body": "Mỗi lần mở, profile đều trông như cùng một máy tính thật, dựa trên chính hệ điều hành bạn đang dùng."
+      },
+      {
+        "title": "Trang mở đầu theo nước",
+        "body": "Chọn các nền tảng profile làm việc; Seller Center của TikTok Shop, Shopee, Lazada và Amazon mở đúng nước của proxy."
+      },
+      {
+        "title": "Tài khoản và 2FA",
+        "body": "Lưu tên đăng nhập, mật khẩu và khoá 2FA của từng nền tảng cùng profile, cất trong kho mật khẩu của hệ điều hành; sao chép mã chỉ với một cú bấm."
+      },
+      {
+        "title": "Cập nhật và tự động hoá",
+        "body": "Tự cập nhật có chữ ký, chụp lại profile, nhập bookmark, và API trên máy cho Puppeteer, Playwright hay n8n."
+      }
+    ],
+    "installTitle": "Cài đặt",
+    "install": [
+      {
+        "os": "Mac",
+        "steps": [
+          "Giải nén file tải về và kéo AnyProfile.app vào thư mục Applications.",
+          "Lần đầu mở, macOS báo không xác minh được app. Vào System Settings → Privacy & Security và chọn Open Anyway.",
+          "Khi macOS hỏi AnyProfile có được dùng Keychain không, chọn Always Allow."
+        ]
+      },
+      {
+        "os": "Windows",
+        "steps": [
+          "Chạy AnyProfile-amd64-installer.exe. Không cần quyền quản trị.",
+          "Nếu Windows hiện “Windows protected your PC”, chọn More info → Run anyway.",
+          "Lần mở đầu, AnyProfile tải engine trình duyệt (khoảng 180 MB)."
+        ]
+      }
+    ],
+    "requirementsTitle": "Cần biết",
+    "requirements": [
+      "Các bản build chưa có chữ ký của Apple hay Microsoft, nên mới có các cảnh báo ở trên.",
+      "Profile chỉ mở được trên hệ điều hành đã tạo ra nó.",
+      "Bạn tự chuẩn bị proxy; proxy dân cư hợp nhất với các trang mạng xã hội và bán hàng."
+    ],
+    "privacyTitle": "Quyền riêng tư",
+    "privacy": [
+      "Mọi thứ nằm trên máy bạn: profile, proxy và cài đặt trong thư mục của app, mật khẩu trong Keychain của macOS hoặc Windows Credential Manager.",
+      "Không tài khoản, không máy chủ, không thống kê, không báo cáo lỗi tự động. App chỉ hỏi GitHub mỗi ngày một lần xem có phiên bản mới không."
+    ],
+    "openSourceTitle": "Mã nguồn mở",
+    "openSource": "AnyProfile là phần mềm tự do theo giấy phép GNU AGPL v3. Đọc mã nguồn, báo lỗi hay theo dõi quá trình phát triển trên GitHub.",
+    "sourceLink": "Mã nguồn trên GitHub",
+    "responsibility": "Bạn tự chịu trách nhiệm tuân thủ quy định của mọi nền tảng bạn dùng. Nhiều nền tảng giới hạn số tài khoản một người được dùng; AnyProfile không thay đổi các quy định đó.",
+    "latest": "Phiên bản {{version}}, phát hành {{date}}",
+    "checksums": "Mã kiểm tra SHA-256"
+  }
+}

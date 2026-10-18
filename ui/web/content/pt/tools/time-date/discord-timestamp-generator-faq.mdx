@@ -1,0 +1,27 @@
+---
+title: Gerador de timestamp do Discord — Perguntas frequentes
+---
+
+## O que significa exatamente o código `<t:1735689600:F>`?
+
+`t` marca que é uma tag de timestamp do Discord, `1735689600` é um timestamp Unix — o número de segundos desde 1º de janeiro de 1970 às 00:00 UTC —, e `F` é um dos sete estilos de exibição que o próprio Discord define, aqui "data/hora longa". Quando o cliente do Discord renderiza a mensagem, ele lê esse número, converte para o fuso horário de quem está lendo, e formata de acordo com a letra do estilo e as configurações regionais daquele dispositivo. A tag em si não especifica fuso nenhum, porque propositalmente não precisa: o mesmo 1735689600 é o mesmo instante em qualquer lugar do mundo, só muda como é exibido para cada leitor.
+
+## Por que o mesmo código aparece com texto diferente para pessoas diferentes?
+
+Porque um timestamp Unix é um ponto no tempo absoluto, não uma leitura de relógio de parede. `1735689600` são 00:00:00 UTC de 1º de janeiro de 2025 — mas esse mesmo instante são 19:00 de 31 de dezembro de 2024 em Nova York e 09:00 de 1º de janeiro em Tóquio, exatamente ao mesmo tempo real. O cliente do Discord faz essa conversão de fuso localmente, no navegador ou app de quem está lendo, usando o fuso que aquele dispositivo tem configurado. Essa é toda a vantagem sobre escrever "reunião às 19h horário de Brasília" numa mensagem: cada leitor vê seu próprio horário local correto sem que ninguém precise fazer a conta.
+
+## Em que os sete estilos disponíveis se diferenciam?
+
+Lendo o código dá para confirmar que são exatamente sete, nem um a mais: `t` e `T` mostram só a hora (curta e longa, esta com segundos). `d` e `D` mostram só a data (curta em formato numérico, longa com o mês por extenso). `f` e `F` combinam data e hora, e `F` ainda inclui o dia da semana. `R` é o estilo relativo — "em 2 horas", "há 3 dias" — e se recalcula com a passagem do tempo, porque o cliente do Discord o recalcula contra o relógio atual de quem lê toda vez que a mensagem é aberta, em vez de congelar o texto no momento do envio.
+
+## Por que a ferramenta pede tanto uma data/hora quanto um fuso horário separado?
+
+Porque "18h" não quer dizer nada sem saber de quem são essas 18h. Se você está agendando algo para as 18h no horário de Los Angeles, escolhe essa data/hora e define o seletor de fuso como America/Los_Angeles — a ferramenta calcula então o único instante absoluto ao qual aquele horário de relógio corresponde naquele fuso, e é esse instante que fica codificado no número Unix. Errar o fuso nesse passo faz o timestamp gerado ficar errado para todo mundo, exatamente como agendar um voo com o fuso horário errado bagunça o itinerário para qualquer pessoa que o leia.
+
+## Se eu mudar o fuso horário do meu computador, o código gerado muda junto?
+
+Não — e isso é intencional, não um bug. O código `<t:...:...>` é calculado só a partir da data, hora e fuso que você escolheu explicitamente nos dois campos acima; não depende em nada do fuso que o seu sistema operacional está configurado. O que DEPENDE do fuso do seu dispositivo é a pré-visualização "como isso aparece para você agora" logo abaixo dos códigos, que é renderizada usando o fuso detectado pelo navegador especificamente para demonstrar toda a premissa da ferramenta — mude o fuso do seu sistema e recarregue a página, e essa linha de pré-visualização se atualiza, enquanto o texto `<t:...>` em si permanece idêntico byte a byte.
+
+## O estilo relativo (R) fica desatualizado com o tempo?
+
+Não, e essa é justamente a razão de escolhê-lo em vez de uma data fixa: o cliente do Discord recalcula "em 2 horas" ou "há 3 dias" contra o relógio atual de quem lê toda vez que a mensagem é renderizada, então abrir a mesma mensagem uma semana depois vai mostrar "há uma semana" em vez do texto que era verdade no momento do envio. Por baixo, o cálculo usa limites em segundos: abaixo de 60 segundos mostra em segundos, abaixo de 3.600 em minutos, abaixo de 86.400 em horas, e os intervalos maiores usam a duração média de um mês (~2.629.800 segundos) e de um ano (~31.557.600 segundos) para compensar que os meses não têm todos a mesma quantidade de dias. Por isso `R` é o estilo certo para anúncios estilo contagem regressiva ("o evento começa `<t:...:R>`"), onde uma data fixa exigiria edição manual constante para continuar fazendo sentido.

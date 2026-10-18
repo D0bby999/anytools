@@ -1,0 +1,35 @@
+---
+title: Unicode Escape / Unescape — Preguntas frecuentes
+---
+
+## ¿Por qué mi emoji aparece como dos secuencias `\u` en modo JSON?
+
+Porque el escape `\u` de JSON solo acepta exactamente cuatro dígitos hexadecimales, cubriendo puntos de código hasta U+FFFF. Los emoji viven en los planos astrales (por encima de U+FFFF) y deben representarse como pares sustitutos UTF-16 — dos secuencias `\u` consecutivas. Por ejemplo, `😀` (U+1F600) se convierte en `😀`. Usa el modo ES6 para obtener la forma más limpia `\u{1F600}`, pero nota que los analizadores JSON no aceptan la sintaxis de llaves.
+
+## ¿Cuál es la diferencia entre `\uXXXX` y `\u{XXXXX}`?
+
+`\uXXXX` es la sintaxis original de cuatro dígitos hex de ECMAScript 1 (1997) y la especificación JSON (RFC 8259). Solo cubre el Plano Multilingüe Básico (U+0000–U+FFFF). `\u{XXXXX}` es la sintaxis de llaves de ES6 que acepta cualquier número de dígitos hex y cubre el rango Unicode completo hasta U+10FFFF. La forma de llaves es válida en JavaScript ES6+ y muchos lenguajes modernos, pero **no** en JSON — la especificación JSON nunca fue actualizada para incluirla.
+
+## ¿Por qué `"😀".length` devuelve 2 en JavaScript?
+
+Las cadenas JavaScript son internamente UTF-16. Los puntos de código por encima de U+FFFF se almacenan como dos unidades de código de 16 bits (un par sustituto), por lo que `String.prototype.length` cuenta unidades de código, no caracteres. Usa `[...str].length` (el spread usa el iterador de cadena, que es consciente de puntos de código) o `Array.from(str).length` para obtener el conteo de caracteres correcto. `Intl.Segmenter` da conteos de clústeres de grafemas, que es lo que los usuarios perciben como "número de caracteres".
+
+## ¿Cuándo necesito realmente escapar Unicode en JavaScript?
+
+Raramente en código moderno. Los archivos fuente ES6+ guardados como UTF-8 pueden contener caracteres Unicode directamente. Necesitas escapes `\u` cuando: (1) el archivo debe ser solo ASCII para una cadena de herramientas antigua, (2) estás construyendo una cadena JSON programáticamente y necesitas incrustar contenido no ASCII de forma segura, (3) el entorno destino tiene soporte Unicode incompleto, o (4) estás depurando un punto de código específico y quieres hacerlo explícito.
+
+## ¿Requiere JSON escapar los caracteres no ASCII?
+
+No — RFC 8259 permite que cualquier carácter Unicode codificado como UTF-8 aparezca sin escapar en una cadena JSON, excepto los caracteres de control (U+0000–U+001F). Muchos serializadores JSON escapan el rango no ASCII completo igualmente, por seguridad en transportes solo ASCII o para evitar riesgos de inyección HTML. Ambas representaciones son idénticas para un analizador conforme.
+
+## ¿Qué es `String.fromCodePoint` y por qué debería preferirlo sobre `String.fromCharCode`?
+
+`String.fromCharCode` (ES1) opera en unidades de código UTF-16 crudas y trunca silenciosamente los valores por encima de 0xFFFF. `String.fromCodePoint` (ES6) maneja el rango Unicode completo — pasa `0x1F600` y obtienes `😀`, no basura. Usa siempre `fromCodePoint` al convertir un número de punto de código a un carácter, especialmente si el punto de código puede estar en el plano astral.
+
+## ¿Qué hace el modo "all" que los modos JSON y ES6 no hacen?
+
+El modo all escapa cada carácter — incluidas las letras y dígitos ASCII ordinarios — no solo los no ASCII o no imprimibles. El resultado es una cadena puramente ASCII donde cada carácter se representa como `\uXXXX`. Útil para incrustar en literales de cadena C que deben ser solo ASCII, ciertos formatos de archivos `.properties` (la herramienta `native2ascii` de Java produce esto), o para depurar secuencias de caracteres donde quieres ver cada punto de código explícitamente.
+
+## ¿Puede dividir una cadena en un emoji romperla?
+
+Sí. Dado que muchos emoji son pares sustitutos (dos unidades de código UTF-16), las operaciones que trabajan a nivel de unidad de código — `str[i]`, `str.substring()`, `str.split('')` — pueden cortar entre las dos mitades de un par, produciendo sustitutos sueltos y salida corrupta. Alternativas seguras: el operador spread `[...str]` itera por punto de código, e `Intl.Segmenter` itera por clúster de grafemas (teniendo en cuenta los modificadores de emoji y las secuencias ZWJ).

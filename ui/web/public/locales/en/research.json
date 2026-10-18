@@ -1,0 +1,103 @@
+{
+  "title": "Research",
+  "lead": "Ask a question and get a short report that cites every claim — from your own documents and from the web (through your own search key, or DuckDuckGo if you have none). Each claim is then checked against the source it cites.",
+  "form": {
+    "query": "What should be researched?",
+    "queryPlaceholder": "e.g. How does retrieval-augmented generation reduce hallucination?",
+    "mode": "Depth",
+    "quick": "Quick",
+    "quickHint": "Up to 5 sources, a few minutes of reading.",
+    "deep": "Deep",
+    "deepHint": "Up to 20 sources, and it reads the best pages in full.",
+    "kb": "Include my documents from",
+    "kbNone": "None — the web only",
+    "allowWeb": "Also search the web when my documents are included",
+    "allowWebHint": "Off by default: once your documents are read, a page on the web could be used to carry their contents out. Turn this on only if you trust the question.",
+    "submit": "Research",
+    "starting": "Starting…",
+    "stop": "Stop"
+  },
+  "web": {
+    "available": "Web search runs on your own search key.",
+    "missing": "No web search key is connected, so research runs on your knowledge base only (KB-only).",
+    "connect": "Connect Tavily or Brave",
+    "keyless": "No search key is connected, so the web is searched through DuckDuckGo. It needs no key but can be slow or refuse; a Tavily or Brave key is more reliable.",
+    "connectKey": "Connect a search key"
+  },
+  "kbOnly": {
+    "badge": "KB-only",
+    "noSearchKey": "KB-only: no web search key is connected.",
+    "webOff": "KB-only: the web stays off once your documents are included, unless you allow it.",
+    "searchFailed": "KB-only: the web search failed.",
+    "generic": "KB-only: this report did not use the web."
+  },
+  "stages": {
+    "title": "Progress",
+    "rephrase": "Framing the question",
+    "decompose": "Splitting it into sub-questions",
+    "gather": "Gathering sources",
+    "synthesize": "Writing the report",
+    "pending": "Waiting",
+    "running": "In progress",
+    "done": "Done",
+    "verify": "Checking claims against sources"
+  },
+  "report": {
+    "live": "Report",
+    "open": "Open the report",
+    "sources": "Sources",
+    "noSources": "This report cites no sources.",
+    "mode": "Mode",
+    "created": "Written",
+    "save": "Save to notebook",
+    "saved": "Saved to your notebook.",
+    "back": "All research",
+    "engineKeyless": "Web searched through DuckDuckGo (no search key).",
+    "rounds": "Searched in {{count}} rounds"
+  },
+  "list": {
+    "title": "Earlier reports",
+    "empty": "No reports yet.",
+    "sources": "sources"
+  },
+  "errors": {
+    "empty": "Write what you want researched.",
+    "failed": "The research could not be started."
+  },
+  "check": {
+    "title": "Claim check",
+    "summary": "{{supported}} of {{total}} claims are supported by the sources they cite.",
+    "allSupported": "Every checked claim is supported by the source it cites.",
+    "caveat": "Checked by an AI against the cited text, not proof that a claim is true. Open the source before you rely on a claim, especially one marked below.",
+    "unavailable": "The claim check could not run for this report, so nothing in it has been checked.",
+    "needsChecking": "Needs checking",
+    "verdict": {
+      "supported": "Supported",
+      "partial": "Partly supported",
+      "unsupported": "Not in the source",
+      "uncited": "No source"
+    },
+    "all": "All {{count}} checked claims"
+  },
+  "open": {
+    "title": "Worth researching next",
+    "body": "Gaps the search still saw when it stopped.",
+    "research": "Research this"
+  },
+  "keep": {
+    "title": "Keep studying this",
+    "body": "Add the report to a knowledge base and it becomes a document like any other: quiz yourself on it, build a mastery path, or ask about it in chat.",
+    "kb": "Knowledge base",
+    "includeSources": "Also add the web pages it cites",
+    "includeSourcesHint": "Each page is fetched once and indexed with your embedding model, so its passages can be cited later.",
+    "add": "Add to knowledge base",
+    "adding": "Adding…",
+    "added": "Added to {{kb}}. Indexing takes a moment.",
+    "already": "This report is already in {{kb}}.",
+    "pages": "{{added}} page(s) added, {{already}} already there, {{failed}} could not be read.",
+    "quiz": "Quiz me on it",
+    "chat": "Ask about it",
+    "noKbs": "You have no knowledge base yet.",
+    "createKb": "Create one"
+  }
+}

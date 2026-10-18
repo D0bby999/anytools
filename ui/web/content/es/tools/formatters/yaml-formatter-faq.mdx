@@ -1,0 +1,35 @@
+---
+title: YAML Formatter — Preguntas frecuentes
+---
+
+## ¿Por qué `NO` se convierte en `false` en mi YAML?
+
+Este es el "problema de Noruega." YAML 1.1 — que implementó la mayoría de parsers durante años — trata `yes`, `no`, `on`, `off`, `true` y `false` como booleanos. El código de país ISO para Noruega es `NO`, que coincide con `no`, convirtiéndose en el booleano `false`. La solución es entrecomillarlo: `country: "NO"`. YAML 1.2 restringe los booleanos a solo `true`/`false`, pero muchas herramientas siguen usando parsers 1.1.
+
+## ¿El formatter preserva los comentarios?
+
+Con el mejor esfuerzo posible, sí. Los parsers YAML — incluido `js-yaml` — descartan los comentarios al construir el AST, por lo que los workflows de parseo y volcado puros los pierden. Este formatter los preserva trabajando a nivel de texto antes y después del parseo. Los comentarios inline en claves reordenadas por "sort keys" pueden desplazarse; los comentarios de bloque encima de una clave se preservan.
+
+## ¿Cuál es la diferencia entre `|` y `>` para strings multilínea?
+
+`|` (literal block) preserva cada salto de línea exactamente. `>` (folded block) convierte los saltos de línea simples en espacios y solo preserva las líneas en blanco como saltos de párrafo. Usa `|` para código, SQL o contenido de logs donde los saltos son semánticos. Usa `>` para descripciones en prosa que deben fluir al ancho de columna del lector.
+
+## ¿Se preservan anchors (`&`) y aliases (`*`) después de formatear?
+
+Sí. El formatter parsea el documento con conocimiento de anchors y lo re-serializa con todas las definiciones de anchor y referencias de alias intactas. Si también activas "sort keys", la estructura de anchors se mantiene — solo cambia el orden de las claves.
+
+## ¿Es seguro procesar manifests de Kubernetes con esta herramienta?
+
+Sí. El formatter es de solo lectura desde la perspectiva de red — nada sale de tu navegador. Para manifests k8s específicamente, ten en cuenta que algunos parches de Kustomize usan tags `!!`; el formatter los preserva como strings literales en lugar de lanzar un error.
+
+## ¿Por qué mi valor `010` cambió a `8` después de formatear?
+
+En YAML 1.1, un `010` sin comillas es un literal octal y se parsea como el entero `8`. Tras el round-trip del formatter por `js-yaml`, serializa de vuelta el entero `8` — la notación octal desaparece. Entrecomilla el valor (`"010"`) si necesitas preservarlo como string, o comprueba si tu parser downstream usa YAML 1.2.
+
+## ¿Puedo usar tabs para la indentación en YAML?
+
+La especificación YAML prohíbe los tabs en la indentación. La mayoría de parsers lanzarán un error de parseo si encuentran un tab al inicio de una línea usada para indentación estructural. Usa siempre espacios. El formatter genera 2 o 4 espacios y marcará como error el input indentado con tabs.
+
+## Mi workflow de GitHub Actions falla con un error de indentación — ¿cómo lo depuro?
+
+Pega el YAML completo del workflow en este formatter. Los errores de indentación aparecen como errores de parseo con referencia de línea:columna. Las causas más comunes son: mezclar indentación de 2 y 4 espacios, indentar accidentalmente una lista `steps:` bajo `runs-on:` en lugar de bajo el objeto job, o un bloque `run:` multilínea con indentación inconsistente respecto al indicador `|`.

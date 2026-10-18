@@ -1,0 +1,108 @@
+---
+title: Hướng dẫn chuyển đổi CSV sang JSON và ngược lại
+description: Các biến thể CSV, RFC 4180, Papa Parse, phát hiện header, escaping, flatten nested objects, và xử lý file lớn.
+updated: 2026-05-26
+---
+
+## Tại sao hai format này tồn tại song song
+
+JSON là ngôn ngữ tự nhiên của APIs và ứng dụng JavaScript. CSV là ngôn ngữ tự nhiên của spreadsheets, data exports, và bulk database operations. Trong thực tế, hầu hết mọi data pipeline đều vượt qua ranh giới này ít nhất một lần: bạn export bảng database sang CSV cho analyst, hay nhận CSV từ đối tác và cần import vào API. Tool này xử lý conversion theo cả hai hướng, hoàn toàn trong browser.
+
+## CSV ít chuẩn hơn bạn nghĩ
+
+Có RFC chính thức cho CSV — [RFC 4180](https://datatracker.ietf.org/doc/html/rfc4180) — nhưng hầu hết CSV files trong thực tế đều lệch khỏi nó theo những cách nhỏ.
+
+**Delimiters** — "Dấu phẩy" trong CSV không phải lúc nào cũng là dấu phẩy. Locale châu Âu thường dùng dấu chấm phẩy (`;`) vì dấu phẩy là ký tự phân cách thập phân ở đó. Tab (`\t`) tạo ra TSV (tab-separated values), tránh được quoting issues. Tool tự động phát hiện delimiter bằng cách scan vài dòng đầu tiên.
+
+**Line endings** — RFC 4180 quy định `\r\n` (CRLF). Unix dùng `\n`. Windows dùng `\r\n`. Mac cũ dùng `\r` riêng. Parser cần xử lý cả ba; Papa Parse làm được điều đó.
+
+**Quoting** — Fields chứa delimiter, newline, hay double-quote phải được bọc trong double quotes. Double-quote literal trong quoted field được escape bằng cách double nó: `"He said ""hello"""`. Single-quoted fields không phải RFC 4180 — nhưng một số Excel export vẫn tạo ra chúng.
+
+**Header row** — RFC 4180 không bắt buộc header row, nhưng convention là phổ biến. Tool giả định dòng đầu là headers theo mặc định; bạn có thể tắt nếu file không có headers, khi đó tên column sẽ được tự động tạo (`col_0`, `col_1`, …).
+
+**Quirks của Excel** — Excel thêm BOM (byte order mark, `\xEF\xBB\xBF`) vào UTF-8 CSV files. Excel cũng tự convert values trông như số hay ngày tháng: `1-2` thành January 2nd, `0001` mất số 0 đầu. Nếu CSV bị sai sau khi mở bằng Excel, nguyên nhân là auto-conversion của Excel, không phải nội dung CSV.
+
+## Thư viện Papa Parse
+
+Tool này dùng [Papa Parse](https://www.papaparse.com/), CSV parser de-facto chuẩn cho JavaScript. Nó xử lý tất cả RFC 4180 edge cases, tự động phát hiện delimiters, stream large files không block browser thread, và cung cấp structured error reporting cho malformed rows.
+
+Các behavior của Papa Parse ảnh hưởng đến conversion:
+
+- **Type inference** — Mặc định, Papa Parse convert `"true"` → `true`, `"42"` → `42`, `""` → `null`. Thường đây là điều bạn muốn cho JSON, nhưng nếu cần giữ tất cả dưới dạng strings, tắt dynamic typing.
+- **Bỏ qua empty lines** — Empty lines bị bỏ qua mặc định.
+- **Error rows** — Rows với số fields sai được report là errors thay vì silently skip.
+
+## CSV sang JSON
+
+Hướng phổ biến nhất. Mỗi CSV row thành một JSON object; column headers thành keys.
+
+```
+CSV Input:
+ten,email,tuoi
+Alice,alice@example.com,30
+Bob,bob@example.com,25
+
+JSON Output:
+[
+  { "ten": "Alice", "email": "alice@example.com", "tuoi": 30 },
+  { "ten": "Bob", "email": "bob@example.com", "tuoi": 25 }
+]
+```
+
+Lưu ý `tuoi` được parse thành number (không phải string `"30"`) vì type inference mặc định của Papa Parse.
+
+## JSON sang CSV
+
+Convert JSON arrays sang CSV đơn giản với flat objects. Nested objects cần flatten.
+
+**Flat objects** — Mỗi key thành column header, values thành cells.
+
+**Nested objects** — `{ "address": { "city": "Hà Nội", "zip": "100000" } }` được flatten thành hai columns: `address.city` và `address.zip`. Dot-notation path thành column header.
+
+**Heterogeneous arrays** — Nếu objects trong JSON array có keys khác nhau, union của tất cả keys thành header row, values thiếu tạo ra empty cells.
+
+```json
+JSON Input:
+[
+  { "id": 1, "ten": "Alice", "vai_tro": "admin" },
+  { "id": 2, "ten": "Bob" }
+]
+
+CSV Output:
+id,ten,vai_tro
+1,Alice,admin
+2,Bob,
+```
+
+## Escaping: dấu phẩy và newline trong values
+
+Nếu một value chứa delimiter, double-quote, hay newline, nó phải được quoted:
+
+```
+"Nguyễn, Văn A","Anh nói ""xin chào""","Dòng 1
+Dòng 2"
+```
+
+Cell giữa chứa escaped double-quote (doubled). Cell cuối chứa literal newline trong quoted field — valid theo RFC 4180 và Papa Parse xử lý đúng. Khi convert sang JSON, newlines trong cells thành `\n` trong string value.
+
+## Xử lý file lớn
+
+Papa Parse dùng streaming parser xử lý file theo chunks thay vì load toàn bộ vào memory. Điều này cho phép xử lý files cỡ chục megabytes trong browser mà không crash tab. Với files lớn hơn ~50 MB, cách server-side hoặc Node.js phù hợp hơn:
+
+```javascript
+import Papa from 'papaparse'
+import fs from 'fs'
+
+Papa.parse(fs.createReadStream('large.csv'), {
+  header: true,
+  step: (row) => {
+    // Xử lý từng row — memory không tăng
+    processRow(row.data)
+  },
+  complete: () => console.log('Xong')
+})
+```
+
+## Privacy
+
+Toàn bộ parsing và conversion chạy trong browser dùng Papa Parse. CSV và JSON data của bạn không bao giờ được upload lên server.

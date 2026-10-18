@@ -1,0 +1,41 @@
+---
+title: Color palette generator — Frequently asked questions
+---
+
+## Which harmonies does it generate?
+
+Five, each a different rule for moving around the hue wheel from your seed colour:
+
+- **Analogous** — five colours at −30°, −15°, 0°, +15° and +30°
+- **Complementary** — the seed and its opposite at +180°
+- **Triadic** — three evenly spaced at 0°, 120°, 240°
+- **Tetradic** — four at 0°, 90°, 180°, 270°
+- **Monochromatic** — one hue at five lightness levels: 20%, 35%, 50%, 65%, 80%
+
+## What stays fixed when the hue moves?
+
+Saturation and lightness. Every harmony except monochromatic keeps those from your seed and rotates only the hue, which is why the results feel like a set rather than unrelated colours. Monochromatic does the reverse: it holds the hue and moves lightness.
+
+## Which harmony should I pick?
+
+Analogous is the safe one — neighbouring hues rarely fight. Complementary gives maximum separation and is best used sparingly, usually one accent against a dominant colour rather than a 50/50 split. Triadic and tetradic are vivid and hard to balance; they work when one colour dominates and the others are used at small area. Monochromatic is the workhorse for interface scales.
+
+## Can I use these directly as UI colours?
+
+Not without checking contrast. A harmony is about hue relationships; it says nothing about whether text on those colours will be readable. Run any pair you plan to put text on through the [contrast checker](/en/design/wcag-contrast-checker) before committing.
+
+## Why do some generated colours look duller than the seed?
+
+Because equal saturation values do not look equally saturated across the wheel. A yellow and a blue at the same HSL saturation read very differently, since HSL is a convenient model rather than a perceptual one. Expect to hand-tune after generating.
+
+## Is this enough for a full design system?
+
+No. A working palette also needs neutrals, a lightness scale for each colour, and semantic assignments — which colour means "danger", which is a surface. This gives you the hue relationships to build from, not the finished set.
+
+## Why five colours for analogous but two for complementary?
+
+Because that is what each rule means. Complementary is a pair by definition; padding it out with extra hues would make it something else.
+
+## Is anything sent to a server?
+
+No. The palette is computed in your browser.

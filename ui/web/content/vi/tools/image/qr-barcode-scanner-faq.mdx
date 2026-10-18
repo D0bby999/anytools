@@ -1,0 +1,27 @@
+---
+title: Quét Mã QR & Mã Vạch — Câu hỏi thường gặp
+---
+
+## Quét bằng camera thì trình duyệt xin quyền thế nào, ảnh có rời máy không?
+
+Bấm nút camera thì trình duyệt mới hiện hộp thoại xin quyền — trước thời điểm đó không có gì chạm tới camera. Bạn cấp quyền cho chính trình duyệt, không phải cho một app cài trong máy, nên thu lại lúc nào cũng được và quyền không tồn tại ngoài phiên làm việc này. Khung hình được lấy khoảng bảy lần mỗi giây, vẽ vào một canvas trong bộ nhớ và đưa thẳng cho bộ giải mã ngay trong tab; không khung hình nào được gửi đi đâu cả. Ngay khi đọc được một mã, camera dừng và các track được giải phóng — đó là lúc đèn báo camera tắt — và nó cũng dừng khi bạn bấm nút lần nữa hoặc rời trang. Trình duyệt chỉ cho phép truy cập camera trên kết nối bảo mật, tức `https://` hoặc `localhost`.
+
+## Tool đọc được những loại mã nào?
+
+Nhóm mã hai chiều: QR (kể cả Micro QR và rMQR), Data Matrix, Aztec, PDF417 và MaxiCode. Nhóm mã vạch một chiều: EAN-13, EAN-8, UPC-A, UPC-E, Code 39, Code 93, Code 128, Codabar, ITF, DX Film Edge và họ GS1 DataBar. Đó là trọn bộ khả năng đọc của ZXing C++, engine dùng ở đây. Mã nằm nghiêng hay ngược chiều đều đọc được, và tool thử luôn cả ảnh đảo màu, nên mã trắng trên nền đen — rất phổ biến trên bao bì và trên màn hình ở chế độ tối — không cần bạn làm gì thêm. Một ảnh có thể chứa tới 32 mã, mỗi mã được liệt kê riêng kèm loại mã, nội dung, vị trí trong ảnh và nút sao chép của nó.
+
+## Quét ảnh mà không ra mã nào, vì sao?
+
+Thường là một trong bốn lý do. Một, mã chỉ chiếm một góc nhỏ trong tấm ảnh lớn: ảnh được thu về tối đa 2000 pixel cạnh dài trước khi quét, nên sau khi thu nhỏ mỗi vạch không còn đủ pixel để phân biệt — hãy cắt sát vào mã rồi quét lại, ảnh đã cắt nhỏ hơn ngưỡng đó được giữ nguyên không đụng tới. Hai, ảnh bị mờ hoặc chụp quá chéo làm các vạch dính vào nhau. Ba, mã không còn vùng lề trắng xung quanh vì bị cắt sát rìa hoặc in đè lên hình nền. Bốn, đó là loại mã engine này không đọc, chủ yếu là vài chuẩn mã bưu chính. Giới hạn 2000 pixel là đánh đổi có chủ ý: quét ở độ phân giải đầy đủ, một ảnh điện thoại đời mới mất hàng chục giây, đủ lâu để người dùng nghĩ tool bị treo.
+
+## Mã QR chứa link thì tool có tự mở không?
+
+Không, và đây là điểm cố ý. Địa chỉ được hiện ra dưới dạng chữ để bạn đọc trước, kèm một liên kết bạn phải tự bấm. Chỉ địa chỉ `http://` hoặc `https://` mới được dựng thành liên kết; các payload kiểu `javascript:` hay `data:` hiện dưới dạng văn bản thuần và nằm im. Lý do rất thực tế: mã QR in trên giấy là dữ liệu do người lạ đưa cho bạn, và chiêu dán đè mã QR giả lên mã thật — trên máy đỗ xe, bàn quán ăn, tủ giao hàng, và ở Việt Nam là mã chuyển khoản dán tại quầy — rẻ và phổ biến. Đọc địa chỉ trước khi bấm chính là toàn bộ hàng phòng thủ, nên tool bắt bạn đọc.
+
+## Vì sao mã Wi-Fi lại hiện thành tên mạng và mật khẩu riêng?
+
+Vì nội dung thô của một mã QR Wi-Fi là một bản ghi có cấu trúc chứ không phải câu chữ: `WIFI:T:WPA;S:Cafe Guest;P:flat\;white;;`. Đưa nguyên chuỗi đó cho bạn là câu trả lời tệ hơn hai thứ bạn thật sự cần. Bộ phân tích xử lý đúng quy tắc thoát ký tự, nên mật khẩu có chứa dấu chấm phẩy, hai chấm, dấu phẩy hay gạch chéo ngược trả về nguyên vẹn — cách cắt chuỗi ngây thơ theo dấu `;` sẽ làm hỏng những mật khẩu hoàn toàn bình thường như vậy. Mã danh thiếp vCard cũng được tách tương tự thành tên, tổ chức, điện thoại, email và website. Đây đúng là các định dạng mà công cụ tạo mã QR trên site này viết ra, nên mã tạo ở đó đọc ngược lại đúng từng trường.
+
+## Vì sao không dùng app quét QR trên điện thoại?
+
+Camera trong app quét QR miễn phí là một quyền bạn cấp vĩnh viễn cho một phần mềm lạ đã nằm sẵn trong máy, và phần lớn app loại này sống bằng quảng cáo, thống kê hành vi, đôi khi gửi cả nội dung mã quét được về server của họ. Tệ hơn, nhiều app tự động mở luôn link vừa đọc — đúng thứ khiến chiêu dán đè mã QR giả có tác dụng. Các web quét QR kiểu tải ảnh lên thì lại đẩy tấm ảnh của bạn lên máy chủ, dù ảnh đó có thể là mã QR trên hoá đơn hay vé máy bay có tên bạn. Ở đây engine là zxing-wasm, bản WebAssembly khoảng 1,5 MB phục vụ từ chính tên miền này, chỉ tải lần đầu bạn thật sự quét, và không mở gì thay bạn.

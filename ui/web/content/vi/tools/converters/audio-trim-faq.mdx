@@ -1,0 +1,27 @@
+---
+title: Cắt Audio — Câu hỏi thường gặp
+---
+
+## Vì sao tool chỉ xuất ra file .wav, không có .mp3?
+
+Đây là giới hạn giấy phép, không phải giới hạn kỹ thuật. Muốn ghi ra MP3 thật sự cần một bộ mã hoá (encoder), và lựa chọn JavaScript thuần khả dĩ duy nhất cho việc này là `lamejs`. Vấn đề nằm ở giấy phép của `lamejs`: LGPL-3.0. LGPL cho phép dùng chung với mã nguồn cấp phép khác, nhưng với điều kiện người dùng cuối phải thay được thư viện đó bằng một bản khác — nghĩa là phải có một artifact biên dịch riêng (object file, `.so`, `.dll`…) để "relink". Một bản build JavaScript thuần không có khái niệm đó: `lamejs` sẽ bị bundle thẳng vào cùng file JavaScript chạy trên trang, không tách rời được, nên không có cách nào thoả điều kiện LGPL đưa ra. Kết quả là dùng `lamejs` ở đây đồng nghĩa phải đổi giấy phép cả tool sang LGPL, hoặc lặng lẽ trộn một thư viện copyleft vào code đang phân phối theo MIT. Cả hai đều không chấp nhận được cho một repo MIT, nên tool ghi thẳng ra WAV — định dạng không cần bộ mã hoá nào cả, chỉ là mẫu PCM 16-bit cộng với một header RIFF/WAVE dài 44 byte, tự viết tay ngay trong code của tool (hàm `encodeWav`). Nếu bạn cần MP3 sau khi cắt, hãy mã hoá lại file .wav bằng công cụ khác — desktop app, hoặc `ffmpeg`, cả hai đều liên kết một encoder thật (thường là GPL) đúng theo cách LGPL/GPL kỳ vọng.
+
+## File .wav tải về nặng hơn file gốc bao nhiêu, vì sao?
+
+Đáng kể — đây là đánh đổi trực tiếp của quyết định ở trên. MP3 sống được nhờ vứt bỏ phần dữ liệu tai người khó nghe ra (nén tâm lý âm học), còn WAV ở đây giữ nguyên toàn bộ mẫu PCM 16-bit không nén. Công thức tool dùng để ước tính kích thước đầu ra, `estimateWavBytes`, rất đơn giản: 44 byte header cộng với số mẫu nhân số kênh nhân 2 byte — không có bước nén nào chen vào giữa. Một đoạn MP3 3 phút ở 192 kbps nặng khoảng 4 MB; cùng 3 phút đó ở WAV 16-bit stereo 44.1kHz nặng khoảng 30 MB — gấp bảy, tám lần. Con số này không phải lỗi hay bug, nó là bản chất của việc không nén: bù lại, không có bước mã hoá nào có thể làm hỏng chất lượng âm thanh giữa chừng.
+
+## File âm thanh tôi tải lên có rời khỏi máy không?
+
+Không. File được đọc bằng File API rồi đưa thẳng cho `AudioContext.decodeAudioData` của chính trình duyệt — không có request mạng nào tham gia vào bước giải mã. Việc cắt và ghi WAV sau đó cũng là phép toán thuần trên mảng mẫu (`Float32Array`) chạy trong cùng tab. Bạn kiểm chứng được bằng DevTools: mở tab Network trước khi tải file lên, sẽ không thấy request nào mang nội dung audio đi đâu cả. Đáng chú ý hơn, chính vì không đi qua mạng nên bước giải mã này hoàn toàn không bị ảnh hưởng bởi Content-Security-Policy `connect-src 'self'` của trang — điều mà câu hỏi tiếp theo sẽ giải thích tại sao lại quan trọng.
+
+## Vì sao nghe thử đoạn đã chọn không dùng thẻ `audio` HTML như hầu hết web player khác?
+
+Vì CSP của trang này chặn đúng con đường đó. Cách phổ biến nhất để phát lại một file cục bộ là tạo một blob URL rồi gán vào `src` của thẻ `audio`, hoặc `fetch()` chính blob URL đó để lấy lại bytes — thư viện dựng dạng sóng `wavesurfer.js` mà tool dùng để vẽ waveform, qua hàm `loadBlob`, làm đúng như vậy theo mặc định. Nhưng CSP của site set `connect-src 'self'` và cố tình không có entry `blob:`, cũng không set `media-src` nào (nên audio/video rơi về mặc định `default-src 'self'`) — nghĩa là cả `fetch(blobUrl)` lẫn `audio.src = "blob:..."` đều bị Chrome từ chối, xác nhận bằng sự kiện `securitypolicyviolation` đo được trong lúc build tool này, không phải suy đoán. Cách né hoàn toàn khác được chọn: tool tự giải mã file bằng `AudioContext.decodeAudioData`, chỉ dùng wavesurfer để vẽ waveform từ dữ liệu đã giải mã sẵn (không đưa URL nào cho nó cả), còn lúc bạn bấm nghe thử, code gọi thẳng `ctx.createBufferSource()` với `AudioBuffer` đang có trong bộ nhớ rồi `start()` — không có blob URL, không có thẻ `audio` nào trong toàn bộ luồng phát lại.
+
+## Vì sao có giới hạn đoạn cắt tối thiểu?
+
+20 mili-giây (`MIN_TRIM_SECONDS`). Dưới ngưỡng đó, cái bạn chọn không còn là một đoạn audio nghe được nữa — nó gần như chỉ là vài chục mẫu PCM, đủ ngắn để tai người nghe ra thành một tiếng tách chứ không phải âm thanh có nghĩa. Việc chặn lại (ném lỗi `rangeTooShort`) trung thực hơn là âm thầm trả về một file .wav hợp lệ về mặt định dạng nhưng vô dụng về mặt nội dung. Tool còn xử lý một chuyện tinh vi hơn ở hàm `validateRange`: khi bạn kéo vùng chọn sát mép sóng, số thực dấu phẩy động hay lệch ra kiểu 29.999999997 giây thay vì đúng 30 — nếu không kẹp (clamp) lại trong khoảng `[0, durationSec]`, việc này có thể khiến vùng chọn hợp lệ trong mắt bạn bị tool coi là nằm ngoài đoạn audio và từ chối oan.
+
+## Cắt xong một đoạn, tôi cắt tiếp đoạn khác từ cùng file được không? Định dạng nào tải lên được?
+
+Được, và không cần tải file lên lại. File nguồn vẫn nằm trong bộ nhớ tab suốt phiên làm việc — sau khi tải file .wav đầu tiên về, bạn chỉ cần kéo vùng chọn (region) sang một khoảng thời gian khác trên cùng dạng sóng rồi bấm cắt lần nữa. Về định dạng đầu vào, tool không tự giữ danh sách "định dạng được hỗ trợ" — nó chuyển thẳng file cho `AudioContext` của trình duyệt và tin những gì trình duyệt trả về; trên thực tế mọi trình duyệt desktop và mobile hiện đại đều giải mã được mp3, wav, ogg (Vorbis/Opus) và m4a/aac. Nếu một file giải mã thất bại, tool báo thẳng lỗi đó (`decodeFailed`) thay vì đoán mò lý do.

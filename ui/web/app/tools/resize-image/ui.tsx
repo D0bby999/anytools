@@ -1,0 +1,234 @@
+import {
+  Button,
+  FilePipelineTemplate,
+  Label,
+  MultiFileDropzone,
+  PrivacyNote,
+  RadioGroup,
+  RadioGroupField,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useLocalized,
+} from '~/components/tools-ui';
+import { useMemo, useState } from 'react';
+import { MAX_CANVAS_PIXELS, type OutputFormat } from '../shared/canvas-image';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
+import { useObjectUrls } from '../shared/use-object-urls';
+import { type ResizeMode, type ResizeResult, resizeImage } from './logic';
+import { STRINGS } from './strings';
+
+const PRESETS = [1920, 1280, 1080, 800, 400];
+const MODES: ResizeMode['kind'][] = ['fit', 'percent', 'exact'];
+const kb = (n: number) => `${(n / 1024).toFixed(0)} KB`;
+
+export function ResizeImageUi() {
+  const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
+  const [files, setFiles] = useState<File[]>([]);
+  const [kind, setKind] = useState<ResizeMode['kind']>('fit');
+  const [maxSide, setMaxSide] = useState(1920);
+  const [percent, setPercent] = useState(50);
+  const [width, setWidth] = useState(800);
+  const [height, setHeight] = useState(600);
+  const [format, setFormat] = useState<OutputFormat>('webp');
+  const [result, setResult] = useState<ResizeResult | null>(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const file = files[0] ?? null;
+
+  const modeLabel: Record<ResizeMode['kind'], string> = {
+    fit: s.mode_fit,
+    percent: s.mode_percent,
+    exact: s.mode_exact,
+  };
+
+  const mode = (): ResizeMode =>
+    kind === 'fit'
+      ? { kind: 'fit', maxWidth: maxSide, maxHeight: maxSide }
+      : kind === 'percent'
+        ? { kind: 'percent', percent }
+        : { kind: 'exact', width, height };
+
+  const run = async () => {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await resizeImage(file, mode(), format);
+      setResult(r);
+      setUrl((prev) => {
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
+      });
+    } catch (e) {
+      setResult(null);
+      setError(toolErrorText(e, errorStrings, s.failed));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const outName = file
+    ? `${file.name.replace(/\.[^.]+$/, '')}-resized.${format === 'jpeg' ? 'jpg' : format}`
+    : 'image';
+
+  return (
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
+        <MultiFileDropzone
+          files={files}
+          onChange={(f) => {
+            setFiles(f);
+            setResult(null);
+            setError(null);
+          }}
+          accept="image/*"
+          multiple={false}
+          label={s.dropLabel}
+        />
+      }
+      result={
+        <>
+          <div className="space-y-1.5">
+            <span className="block text-sm font-medium">{s.howToSize}</span>
+            <RadioGroup
+              value={kind}
+              onValueChange={(v) => setKind(v as (typeof MODES)[number])}
+              aria-label={s.howToSize}
+            >
+              {MODES.map((k) => (
+                <RadioGroupField key={k} value={k} label={modeLabel[k]} />
+              ))}
+            </RadioGroup>
+          </div>
+
+          {kind === 'fit' && (
+            <label className="block text-sm">
+              <span className="mb-1 block text-muted-foreground">{s.longestSide}</span>
+              <div className="flex flex-wrap gap-2">
+                {PRESETS.map((p) => (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    key={p}
+                    type="button"
+                    onClick={() => setMaxSide(p)}
+                    aria-pressed={maxSide === p}
+                    className={maxSide === p ? 'border-primary bg-primary-soft' : undefined}
+                  >
+                    {p}
+                  </Button>
+                ))}
+                <input
+                  type="number"
+                  min={1}
+                  value={maxSide}
+                  onChange={(e) => setMaxSide(Number(e.target.value))}
+                  className="h-9 w-28 rounded-md border border-control-border bg-background px-3 text-sm"
+                />
+              </div>
+            </label>
+          )}
+
+          {kind === 'percent' && (
+            <div className="space-y-1">
+              <RangeSlider
+                label={s.scaleLabel}
+                unit="%"
+                value={percent}
+                min={1}
+                max={200}
+                onChange={setPercent}
+              />
+              {percent > 100 && (
+                <span className="mt-1 block text-xs text-muted-foreground">{s.enlargeNote}</span>
+              )}
+            </div>
+          )}
+
+          {kind === 'exact' && (
+            <div className="grid grid-cols-2 gap-3">
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">{s.width}</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={width}
+                  onChange={(e) => setWidth(Number(e.target.value))}
+                  className="h-10 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">{s.height}</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={height}
+                  onChange={(e) => setHeight(Number(e.target.value))}
+                  className="h-10 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+                />
+              </label>
+            </div>
+          )}
+
+          <div className="space-y-1.5 md:w-48">
+            <Label htmlFor="ri-format">{s.outputFormat}</Label>
+            <Select value={format} onValueChange={(v) => setFormat(v as OutputFormat)}>
+              <SelectTrigger id="ri-format">
+                <SelectValue>{format.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="webp">WEBP</SelectItem>
+                <SelectItem value="jpeg">JPEG</SelectItem>
+                <SelectItem value="png">PNG</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.resizing : s.resize}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && url && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {result.widthBefore} × {result.heightBefore} → {result.width} × {result.height} px ·{' '}
+                {kb(result.sizeBefore)} → {kb(result.sizeAfter)}
+                {result.scaledFrom && result.width * result.height > MAX_CANVAS_PIXELS
+                  ? ` · ${s.cappedNote}`
+                  : ''}
+              </div>
+              {/* biome-ignore lint/performance/noImgElement: blob URL preview, not optimizable */}
+              <img src={url} alt={s.resultAlt} className="max-h-80 rounded border" />
+              <Button asChild>
+                <a href={url} download={outName}>
+                  {s.download.replace('{name}', outName)}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
+  );
+}

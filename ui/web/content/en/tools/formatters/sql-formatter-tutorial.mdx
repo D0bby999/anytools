@@ -1,0 +1,97 @@
+---
+title: SQL formatting — why it matters, dialect differences, and CI integration
+description: How a consistent SQL style speeds up code review, why dialect choice matters, and the one rule that prevents most format-then-break incidents.
+updated: 2026-05-25
+---
+
+## Why bother formatting SQL
+
+You don't format your application code by eye — you let Prettier or Biome do it on save. SQL deserves the same treatment, and for the same reasons:
+
+- **Diff readability.** A well-formatted SQL change shows the meaningful diff (a new join, a changed WHERE clause), not whitespace noise.
+- **Code review speed.** A reviewer scans formatted SQL in seconds; ad-hoc-formatted SQL takes a minute of squinting per change.
+- **Onboarding.** New team members read consistent SQL as fast as English; inconsistent SQL feels like reading mail from five different people.
+- **Bug visibility.** Formatted SQL exposes structural mistakes (missing JOIN condition, dangling AND) immediately.
+
+The cost of formatting is zero — your editor does it on save, your CI does it on PR. The cost of *not* formatting compounds with every query you ship.
+
+## The 10 dialects this tool supports
+
+Each database has its own SQL dialect with subtle differences. Picking the wrong dialect makes the formatter produce output that's valid but stylistically wrong for your target.
+
+- **Standard SQL** — closest to the ANSI spec. Use when you don't know the target.
+- **PostgreSQL** — `::cast` syntax, `RETURNING`, CTEs everywhere, JSONB.
+- **MySQL / MariaDB** — backtick identifiers, `LIMIT n OFFSET m`, no `RETURNING` (until 8.0+ in MariaDB).
+- **SQLite** — minimal dialect, attached databases, no strict types historically.
+- **BigQuery** — array syntax, struct syntax, partitioning hints.
+- **Snowflake** — `QUALIFY` clause, time travel syntax.
+- **Redshift** — Postgres-derived but with quirks.
+- **T-SQL (SQL Server)** — `[bracket]` identifiers, `TOP n`, `OUTER APPLY`.
+- **PL/SQL (Oracle)** — `MERGE` syntax, no `LIMIT` (use `ROWNUM` or `FETCH FIRST`).
+
+When in doubt, pick the dialect of your production database. If you're writing portable SQL meant to run on multiple, use Standard SQL — you'll get a more conservative format.
+
+## Conventions worth adopting
+
+The defaults this tool emits are sensible for most teams; tweak what you need:
+
+- **Keywords UPPERCASE.** Tradition since SQL-86. Helps readers separate structural words (`SELECT`, `JOIN`) from identifiers.
+- **One major clause per line.** `SELECT … FROM … WHERE … GROUP BY …` each starts at column 0.
+- **JOINs indented + condition on same line.** Easier to follow which table joined to which.
+- **Two-space indent.** Matches most JS/TS projects; some teams prefer four.
+- **Trailing commas in column lists** (where supported). Cleaner diffs when adding columns.
+
+The one convention you should NOT chase: aligning column names by spaces ("vertical SQL"). It looks pretty in isolation, ages badly with the longest identifier, and breaks every time someone adds a longer column. Let the formatter handle horizontal alignment; don't fight it.
+
+## When NOT to format
+
+A few cases:
+
+- **Generated SQL** — leave the ORM's output alone; nobody reads it.
+- **One-off ad-hoc queries** in a REPL — format if you're going to commit it, otherwise no.
+- **SQL embedded in tagged template literals** in code — tools like `eslint-plugin-sql` format inline, but the tool you're holding only handles raw SQL.
+
+## The format-then-break rule
+
+The one rule that prevents most format-then-break incidents: **formatters preserve semantics, not whitespace inside strings**. If you have:
+
+```sql
+SELECT 'multi
+line
+string' FROM t;
+```
+
+A formatter may or may not preserve the literal newlines inside the string depending on dialect quoting rules. **Always verify a formatted query parses and runs** before merging — `EXPLAIN` is your friend.
+
+For inline comments (`-- comment` or `/* */`), most formatters preserve them on the same line, but their position may shift relative to surrounding code. Re-read the formatted output before assuming intent is preserved.
+
+## CI integration
+
+Don't rely on developers remembering to format. Add it to your toolchain:
+
+```yaml
+# .github/workflows/sql.yml
+- run: npx sql-formatter-cli --check schema/**/*.sql
+```
+
+Or pre-commit:
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/sql-formatter-org/sql-formatter
+    rev: v15
+    hooks:
+      - id: sql-formatter
+```
+
+Same library this page uses, run automatically on commit / CI. New devs don't need to know about it.
+
+## Privacy
+
+The formatter runs entirely in your browser via the open-source [`sql-formatter`](https://github.com/sql-formatter-org/sql-formatter) library. We don't execute your SQL, we don't connect to your database, we don't log queries.
+
+## Related tools
+
+- **JSON Formatter** — for the JSON columns your Postgres queries return.
+- **Regex Tester** — build patterns for SQL `LIKE` and `SIMILAR TO`.

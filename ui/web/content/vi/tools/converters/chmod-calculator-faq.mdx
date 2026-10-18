@@ -1,0 +1,39 @@
+---
+title: Tính quyền Chmod — Câu hỏi thường gặp
+---
+
+## Nó chuyển đổi giữa những gì?
+
+Ký hiệu octal, ký hiệu symbolic và các hộp kiểm quyền cá nhân — thay đổi bất kỳ cái nào và những cái khác sẽ theo. Nó cũng bao gồm ba bit đặc biệt: setuid, setgid và sticky.
+
+## Các chữ số octal hoạt động như thế nào?
+
+Mỗi chữ số là tổng của ba bit: read là 4, write là 2, execute là 1. Vì vậy 7 là cả ba, 6 là read cộng write, 5 là read cộng execute. Ba chữ số theo thứ tự là owner, group và others — cái làm cho 755 là "owner làm mọi thứ, mọi người khác có thể read và execute".
+
+## Tại sao octal đôi khi có bốn chữ số?
+
+Vì một chữ số đứng đầu mang theo các bit đặc biệt: setuid là 4, setgid là 2, sticky là 1, được cộng lại theo cách tương tự. Tool tuân theo quy ước thông thường là bỏ qua nó khi bằng không, vì vậy `0755` và `755` có nghĩa giống nhau trong khi `4755` có nghĩa là setuid được đặt.
+
+## Các bit đặc biệt thực sự làm gì?
+
+**setuid** trên một tệp thực thi làm cho nó chạy như là chủ sở hữu tệp chứ không phải người gọi. **setgid** làm điều tương tự cho group, và trên một thư mục nó làm cho các tệp mới kế thừa group của thư mục đó. **sticky** trên một thư mục có nghĩa là chỉ chủ sở hữu tệp có thể xóa nó — lý do tại sao ai cũng có thể viết vào `/tmp` mà không xóa các tệp của những người khác.
+
+## Tại sao setuid nguy hiểm?
+
+Vì nó trao các đặc quyền của chủ sở hữu tệp cho bất kỳ ai chạy nó. Một tệp nhị phân setuid-root có lỗi là một lỗ hổng nâng cao đặc quyền, đó là lý do tại sao nó đáng để cố ý trước khi đặt bit đó và tại sao nhiều hệ thống bỏ qua nó trên hệ thống tệp được gắn kết.
+
+## Bit execute trên một thư mục có ý nghĩa gì?
+
+Quyền để di chuyển nó — để vào và tiếp cận những gì bên trong. Read trên một thư mục cho phép bạn liệt kê các tên; execute cho phép bạn sử dụng chúng. Một thư mục có read nhưng không execute cho bạn một danh sách các tệp mà bạn không thể mở, cái này là một nguồn phổ biến gây nhầm lẫn.
+
+## 777 có bao giờ là câu trả lời đúng không?
+
+Hầu như không bao giờ. Nó cấp cho mỗi người dùng trên hệ thống quyền để sửa đổi và chạy tệp. Đó là "fix" phổ biến cho lỗi quyền, và nó thường thay thế một vấn đề nhỏ bằng một vấn đề lớn hơn — sửa chữa thực tế thường là sửa quyền sở hữu.
+
+## Điều này có áp dụng cho Windows không?
+
+Không. Windows sử dụng ACLs, một mô hình khác và chi tiết hơn. Những số này là cho Unix, Linux và macOS.
+
+## Có điều gì được gửi tới máy chủ không?
+
+Không. Phép tính chạy trong trình duyệt của bạn.

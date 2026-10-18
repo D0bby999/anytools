@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <title>arXiv Query</title>
+  <entry>
+    <id>http://arxiv.org/abs/2005.11401v4</id>
+    <published>2020-05-22T17:34:36Z</published>
+    <title>Retrieval-Augmented Generation for
+      Knowledge-Intensive NLP Tasks</title>
+    <summary>  Large pre-trained language models store factual knowledge. </summary>
+    <author><name>Patrick Lewis</name></author>
+    <author><name>Ethan Perez</name></author>
+    <arxiv:doi>10.48550/arXiv.2005.11401</arxiv:doi>
+  </entry>
+</feed>

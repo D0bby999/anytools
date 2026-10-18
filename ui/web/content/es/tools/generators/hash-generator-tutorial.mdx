@@ -1,0 +1,71 @@
+---
+title: Algoritmos hash — para qué sirven y cuándo cada uno es incorrecto
+description: MD5, SHA-1, SHA-256, SHA-512, HMAC. Cuál usar, cuál evitar, y el error que todo backend ha cometido al menos una vez.
+updated: 2026-05-25
+---
+
+## Qué hace realmente el hash
+
+Una función hash toma cualquier entrada y produce una salida de tamaño fijo. La salida parece aleatoria pero es completamente determinista — la misma entrada siempre produce el mismo hash. Los buenos hashes tienen tres propiedades: **resistencia preimagen** (dado un hash, no puede revertirlo a la entrada), **resistencia colisión** (no puede encontrar dos entradas que produzcan el mismo hash), y **avalancha** (un bit cambiado en la entrada voltea ~la mitad de los bits en la salida).
+
+Lo que el hash **no es**: cifrado. No hay clave. No hay "descifrando" un hash. Si alguien le dice que está "cifrando contraseñas con SHA-256", está utilizando mal ambos términos y probablemente también su sistema de autenticación.
+
+## Los cinco algoritmos en esta herramienta
+
+| Algoritmo | Tamaño de salida | ¿Seguro para la seguridad en 2026? | Usar para |
+|---|---|---|---|
+| **MD5** | 128 bits | **No** | Checksums no relacionados con seguridad (deduplicación de archivos, claves de caché) |
+| **SHA-1** | 160 bits | **No** | Solo compatibilidad heredada |
+| **SHA-256** | 256 bits | Sí | Predeterminado para código nuevo |
+| **SHA-384** | 384 bits | Sí | Regímenes de cumplimiento que lo exigen |
+| **SHA-512** | 512 bits | Sí | Cuando necesita más tamaño de salida (raro) |
+
+MD5 y SHA-1 están **rotos** para usos criptográficos porque los ataques de colisión contra ellos son prácticos. No están rotos para usos **no relacionados con seguridad** como detectar corrupción accidental de archivos o generar claves de caché, donde un atacante no intenta activamente construir colisiones.
+
+## El error: hashear contraseñas con SHA-256
+
+Todo desarrollador de backend ha hecho esto una vez y ha aprendido a no hacerlo:
+
+```javascript
+// NO HAGAS ESTO
+const hashed = sha256(password);
+```
+
+SHA-256 es *rápido* — una GPU moderna puede calcular miles de millones por segundo. Eso es exactamente lo que no quiere para el almacenamiento de contraseñas, porque un atacante que roba su base de datos puede hacer fuerza bruta a los hashes a la misma velocidad.
+
+Use **funciones de hash de contraseña** diseñadas para ser lentas:
+
+- **bcrypt** — estándar antiguo, bien entendido, está bien para la mayoría de los casos
+- **scrypt** — resistente a la memoria, más difícil de atacar con GPU que bcrypt
+- **Argon2id** — estado actual del arte, ganador de la Competencia de Hash de Contraseña
+
+Estos toman ~100ms para calcular, lo que es invisible para un usuario que inicia sesión pero catastrófico para un atacante que intenta miles de millones de intentos. Use una biblioteca: `argon2` (Node), `bcrypt` (Python/Go/etc.), o la incorporada de su framework. **Nunca llame a SHA-256 en una contraseña.**
+
+## HMAC — hash con clave
+
+HMAC ("Hash-based Message Authentication Code") combina un hash con una clave secreta. El verificador necesita la misma clave para confirmar la firma. Usos comunes:
+
+- Firmas de webhook (Stripe, GitHub, etc. usan HMAC-SHA-256)
+- Firma de solicitudes API (derivados de AWS SigV4)
+- JWT HS256 (esto es solo HMAC-SHA-256 sobre header+payload)
+
+Para HMAC, el algoritmo importa menos que la **longitud y secreto de la clave**. HMAC-SHA-256 con una clave aleatoria de 32 bytes está sin romper; HMAC-MD5 con una clave de 16 bytes sigue sin romperse (el ataque de colisión de MD5 no se traduce a HMAC). Aun así, use SHA-256 o superior para código nuevo.
+
+## Hash de archivos
+
+Esta herramienta lee archivos en memoria y los hashea — está bien para archivos de hasta unos pocos cientos de MB en una máquina típica. Para archivos de varios GB, use un CLI de transmisión como `shasum -a 256 file.bin` (macOS/Linux) o `Get-FileHash` (PowerShell). La transmisión evita cargar el archivo completo a la vez.
+
+Los hashes producidos aquí coinciden con lo que su herramienta CLI le dará. Útil para verificar descargas — encuentre el hash publicado del editor, luego calcule el mismo algoritmo aquí y compare.
+
+## Salida hex versus Base64
+
+El mismo hash, visualización diferente. Hex es universal pero detallado (SHA-256 = 64 caracteres). Base64 es más corto (SHA-256 = 44 caracteres) y aparece en cosas como atributos de Subresource Integrity. Cambie el interruptor anterior.
+
+## Privacidad
+
+Todo el cálculo ocurre en su navegador. Familia SHA a través de la API WebCrypto nativa (`crypto.subtle.digest`), MD5 a través de la biblioteca de código abierto [`js-md5`](https://github.com/emn178/js-md5). Nunca se hace una solicitud a nuestro servidor.
+
+## Herramientas relacionadas
+
+- **Generador de contraseñas** — genere una cadena aleatoria fuerte (que luego hashea con bcrypt/argon2, nunca SHA sin procesar).
+- **Generador de UUID** — cuando necesita un ID único, no un hash.

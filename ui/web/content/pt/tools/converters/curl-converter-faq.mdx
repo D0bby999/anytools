@@ -1,0 +1,27 @@
+---
+title: curl Converter — Perguntas frequentes
+---
+
+## Meu curl com Bearer token é seguro?
+
+O comando passa pelo nosso servidor durante o parse (HTTPS), é processado em memória, e descartado. Não logamos nem armazenamos. Mas se o secret é altamente sensível, rode `curlconverter` localmente via `npm install -g curlconverter`.
+
+## Por que não roda no browser?
+
+Curlconverter usa tree-sitter-bash para parsear shell, e tree-sitter precisa de native bindings (`.node`) que browsers não executam. Alternativa seria reescrever o parser puro JS — muito trabalho para benefício marginal.
+
+## Quais flags do curl funcionam?
+
+A maioria: `-X`, `-H`, `-d`, `--data-raw`, `--data-urlencode`, `-u`, `--cookie`, `-F`, `--form`, `-A` (user-agent), `--compressed`, etc. Flags muito recentes ou raras podem não ter mapeamento.
+
+## Posso adicionar curl multi-linha com `\`?
+
+Sim. O parser entende line continuations. Cole o comando inteiro mesmo que ocupe várias linhas.
+
+## Por que o código gerado tem `$VAR`?
+
+Se seu curl referencia `$TOKEN` ou `$API_KEY`, o conversor preserva como variável no target (`os.environ['TOKEN']` em Python, `process.env.TOKEN` em fetch, etc.). Substitua pelo seu segredo real depois.
+
+## Funciona com Postman/Insomnia exports?
+
+Eles exportam curl que esta ferramenta entende. Cole direto. Para colocar o reverso (Postman export → outro client), Postman tem geradores nativos.

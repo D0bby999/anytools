@@ -1,0 +1,118 @@
+---
+title: Guia completo para embelezar e minificar JavaScript
+description: Formatação baseada em AST com js-beautify, minificação real com Terser, estratégia de mangle, código morto, source maps e suporte a ES2024.
+updated: 2026-05-27
+---
+
+## Dois problemas diferentes: formatação e minificação
+
+Formatação e minificação de JavaScript soam como opostos da mesma operação, mas envolvem técnicas fundamentalmente diferentes.
+
+**Formatação** (beautify) é cosmética: adiciona indentação, normaliza espaços, inserta quebras de linha em limites lógicos. A saída é JavaScript semanticamente idêntico — mesmos tokens, mesmo comportamento.
+
+**Minificação** é compressão semântica: remove todo o espaço em branco, renomeia identificadores locais para nomes mais curtos, elimina caminhos de código mortos, colapsa expressões constantes. A saída é JavaScript funcionalmente equivalente mas os tokens mudam. Você não pode reverter a minificação de volta a código legível (daí a necessidade de source maps).
+
+Esta ferramenta usa `js-beautify` para formatação e **Terser** para minificação. São os melhores em sua classe para cada função.
+
+## Formatadores baseados em AST vs regex
+
+Um formatador baseado em regex processa JavaScript como texto: busca padrões como `{` seguido por uma quebra de linha e insere indentação. Funciona para casos simples mas falha em casos extremos:
+
+- Template literals contendo `{` — um regex ingênuo pode inserir indentação dentro de uma template string, corrompendo seu conteúdo.
+- Padrões de destructuring — `{` aninhados em `const { a: { b } } = obj` são mal interpretados.
+- Expressões regulares literais — `/[{(]/g` parece um bloco de abertura para um parser de texto.
+
+Um formatador baseado em AST primeiro **faz o parse** do JavaScript em uma Abstract Syntax Tree — uma representação estruturada onde cada nó conhece seu tipo (FunctionDeclaration, ArrowFunctionExpression, TemplateLiteral, etc.). As decisões de formatação são tomadas sobre a árvore, não sobre o texto. Template literals nunca são incorretamente indentadas porque o parser conhece seus limites.
+
+O `js-beautify` usa uma abordagem ciente do AST e trata a sintaxe ES2024 incluindo optional chaining, nullish coalescing, atribuição lógica, `await` de nível superior e campos de classe.
+
+## Terser: minificação real baseada em AST
+
+O Terser é o minificador JavaScript padrão para builds web de produção. É o que Vite, webpack (via `terser-webpack-plugin`) e esbuild usam internamente.
+
+**Remoção de espaço em branco** — todo o espaço em branco, comentários e quebras de linha insignificantes são removidos.
+
+**Name mangling** — nomes de variáveis locais são renomeados para um ou dois caracteres: `function calculateTaxableIncome(amount, rate)` torna-se `function a(b,c)`. Esta é a maior contribuição para a redução de tamanho além do espaço em branco. Nomes exportados são preservados por padrão porque renomeá-los quebraria os consumidores. O mangle aplica-se apenas a nomes locais no scope.
+
+**Eliminação de código morto** — branches inalcançáveis são removidos:
+```javascript
+// Antes
+if (false) {
+  console.log('nunca executa');
+}
+const DEBUG = false;
+if (DEBUG) { heavyOperation(); }
+
+// Depois (Terser com evaluate: true)
+// Ambos os blocos removidos completamente
+```
+
+**Constant folding** — expressões que avaliam para uma constante em tempo de parse são colapsadas:
+```javascript
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+// Torna-se:
+const MS_PER_DAY = 86400000;
+```
+
+## Toggle de mangle: quando ativar e quando não
+
+A opção **mangle** renomeia identificadores locais. Ative-a para bundles de produção no navegador — é a maior redução de tamanho após a remoção de espaço em branco.
+
+Desative mangle quando:
+- Minifica código Node.js que usa `Function.prototype.name` para identificar funções pelo nome em tempo de execução.
+- O código usa `eval()` ou `new Function()` com argumentos de string referenciando nomes de variáveis locais.
+- Precisa que a saída minificada seja depurável sem source maps.
+
+## Contagem de bytes antes/depois
+
+A ferramenta mostra a contagem de bytes de entrada, saída e a porcentagem economizada:
+
+| Tipo de código | Economia (só whitespace) | Com mangle |
+|----------------|--------------------------|-----------|
+| Biblioteca de utilitários | 20–30% | 50–65% |
+| Componente React | 25–35% | 45–60% |
+| Arquivo com muita configuração | 15–20% | 20–30% |
+
+## Tree shaking: o que o Terser não consegue fazer
+
+Um mal-entendido comum: o Terser pode eliminar código morto *dentro de um arquivo* mas não pode fazer tree shaking entre arquivos. Tree shaking — remover funções exportadas que nenhum módulo importa — requer análise no nível do bundler (Rollup, Vite, webpack). O Terser vê um arquivo de cada vez.
+
+## Source maps para depuração em produção
+
+Código minificado em produção é ilegível nos stack traces. Source maps resolvem isso mapeando posições de bytes minificados de volta às linhas de código fonte originais:
+
+```javascript
+import Terser from 'terser';
+
+const result = await Terser.minify(code, {
+  mangle: true,
+  compress: true,
+  sourceMap: {
+    filename: 'app.min.js',
+    url: 'app.min.js.map',
+  },
+});
+```
+
+Faça upload de ambos os arquivos. O comentário `sourceMappingURL` no final do arquivo minificado aponta as DevTools para o map. Serviços de monitoramento de erros (Sentry, Datadog) podem consumir source maps do lado do servidor para mostrar stack frames originais nos alertas.
+
+## Suporte à sintaxe ES2024
+
+O Terser suporta JavaScript moderno até ES2024:
+- Optional chaining (`?.`) e nullish coalescing (`??`)
+- Atribuição lógica (`&&=`, `||=`, `??=`)
+- `await` de nível superior
+- Campos de classe (públicos, privados `#field`, estáticos)
+- `using` / `await using` (Explicit Resource Management)
+
+## Alternativas mais rápidas: SWC e esbuild
+
+Para pipelines de build onde a velocidade importa mais que a compressão máxima:
+- **esbuild** (Go) — 10–100× mais rápido que o Terser, boa minificação para a maioria dos apps.
+- **SWC** (Rust) — usado pelo Next.js e Parcel, muito rápido.
+
+Para uma ferramenta de uso único no navegador, a velocidade não é o gargalo — a otimização mais agressiva do Terser é preferível.
+
+## Privacidade
+
+Todo o processamento JavaScript é executado no seu navegador. Seu código nunca é transmitido a um servidor.

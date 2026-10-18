@@ -1,0 +1,27 @@
+---
+title: Gerador de Cubic Bezier — Perguntas frequentes
+---
+
+## O que uma curva `cubic-bezier()` do CSS realmente descreve?
+
+Uma curva que vai do ponto fixo (0,0) até o ponto fixo (1,1), moldada por dois pontos de controle escolhidos por você: P1=(x1,y1) e P2=(x2,y2). O eixo horizontal é o tempo decorrido como fração da duração da transição, de 0 no início a 1 no fim. O eixo vertical é o progresso da propriedade animada, também de 0 a 1 no caso comum. Ao escrever `transition-timing-function: cubic-bezier(x1, y1, x2, y2)`, o navegador entende "em 30% da duração, o valor animado deve corresponder à altura da curva nesse ponto do tempo" — e resolve essa equação a cada quadro sozinho.
+
+## Por que x1 e x2 só podem ficar entre 0 e 1, mas y1 e y2 não têm esse limite?
+
+Porque o eixo X é tempo, e tempo só anda para frente. Numa curva cúbica de Bézier qualquer, a posição horizontal não precisa crescer de forma monótona — com x1 ou x2 fora de [0,1], a curva poderia voltar sobre si mesma, e aí a pergunta "em que instante o progresso vale tanto" teria mais de uma resposta, ou nenhuma. A especificação do CSS evita esse problema inteiro exigindo que x1 e x2 fiquem dentro de [0,1], o que garante que a curva seja sempre uma função válida do tempo. O eixo Y não tem essa restrição, porque "progresso" é só um número sendo interpolado — pode ultrapassar 1 e assentar de volta (um efeito de mola), ou cair abaixo de 0 antes de subir (um recuo antes do impulso), e o navegador calcula os dois casos sem problema. Esta ferramenta aplica essa restrição em x com a função `clampX`, e deixa y totalmente livre de propósito.
+
+## Quais números estão por trás das cinco palavras-chave do CSS (ease, ease-in etc.)?
+
+Matematicamente, nada as diferencia de uma chamada `cubic-bezier()` qualquer — cada palavra-chave é definida na própria especificação CSS Easing Functions como quatro números concretos. `linear` é (0, 0, 1, 1): os dois pontos de controle caem exatamente sobre a diagonal, por isso a velocidade é constante. `ease` é (0.25, 0.1, 0.25, 1). `ease-in` é (0.42, 0, 1, 1). `ease-out` é (0, 0, 0.58, 1). `ease-in-out` é (0.42, 0, 0.58, 1). Os botões de preset desta ferramenta carregam exatamente esses valores, para você ver a forma por trás do nome antes de ajustá-la do seu jeito.
+
+## De onde vêm os presets de "overshoot" como ease-in-back e ease-out-back?
+
+São as curvas "back" publicadas no easings.net (`easeInBack`, `easeOutBack`, `easeInOutBack`), que por sua vez são uma aproximação em cubic-bezier das equações de easing originais que Robert Penner publicou em 2001. As equações de Penner são uma fórmula fechada, não uma curva de Bézier, mas uma curva de Bézier chega perto o suficiente para o que o CSS precisa — por isso esses números específicos (`ease-in-back` = 0.36, 0, 0.66, -0.56; `ease-out-back` = 0.34, 1.56, 0.64, 1; `ease-in-out-back` = 0.68, -0.6, 0.32, 1.6) aparecem em praticamente todo exemplo de "easing com efeito de mola" em CSS. Repare que o y2 de `ease-in-back` é -0.56 e o y1 de `ease-out-back` é 1.56 — os dois fora de [0,1], exatamente o caso de overshoot da pergunta anterior. Na pré-visualização isso vira um movimento com personalidade: com `ease-out-back` o bloco passa um pouco do ponto final e depois assenta, como uma tampa com mola; com `ease-in-back` ele recua visivelmente antes de se comprometer com o movimento para frente.
+
+## A pré-visualização ao vivo usa exatamente o mesmo cálculo do motor CSS do navegador?
+
+Em princípio sim, ainda que não seja literalmente a mesma implementação em C++ do navegador — esta ferramenta resolve a mesma equação. Dado um instante t, a função `solveU` procura o parâmetro u onde a coordenada X(u) da curva é igual a t, usando bissecção por 30 iterações, suficiente para uma precisão de cerca de uma bilionésima — barato o bastante para chamar a cada quadro de uma animação. Essa bissecção funciona porque X(u) é estritamente monótona em u, consequência direta de x1 e x2 já estarem limitados a [0,1] como explicado acima. Com u resolvido, a função lê a coordenada Y(u) naquele ponto — que é exatamente o significado de "valor animado a 30% da duração" para um `transition-timing-function`, então o movimento do bloco na pré-visualização deve coincidir com o que a mesma curva produz numa transição CSS real.
+
+## A curva que estou arrastando é enviada para algum servidor?
+
+Não. Todo o cálculo — resolver a curva, animar a pré-visualização, formatar a saída CSS — acontece inteiramente no seu navegador com JavaScript. Nenhuma requisição de rede leva os quatro números que você acabou de arrastar para lugar nenhum; dá para conferir com a aba Network aberta enquanto move os pontos de controle, ou desligando a internet depois que a página já carregou — a ferramenta continua funcionando normalmente. Os quatro números também são portáveis para fora do CSS: a maioria das bibliotecas de animação em JS (Framer Motion, GSAP, a Web Animations API) aceita um array `[x1, y1, x2, y2]` com o mesmo significado, mas vale checar se a biblioteca escolhida também restringe x a [0,1] — algumas tratam isso como uma curva paramétrica genérica e não impõem nada, caso em que o comportamento fora do intervalo já não segue o padrão do CSS.

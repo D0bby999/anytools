@@ -1,0 +1,147 @@
+---
+title: YAML Formatter — indentation, quirks, anchors, and real-world use cases
+description: Format YAML, sort keys, understand the Norway problem, multi-line scalars, anchors, and js-yaml internals.
+updated: 2026-05-26
+---
+
+## Why YAML exists and where you'll find it
+
+YAML ("YAML Ain't Markup Language") was designed as a human-friendly data serialization format — a reaction to XML's verbosity and JSON's lack of comments. It reads cleanly, supports multi-line strings naturally, and has first-class notions of comments and anchors that JSON entirely lacks. The trade-off is a surprisingly complex specification that has tripped up nearly every implementation at some point.
+
+In 2026 you'll encounter YAML constantly as a developer: Kubernetes manifests, GitHub Actions workflows, Docker Compose files, Helm charts, Ansible playbooks, Hugo and Jekyll frontmatter, and virtually every CI/CD tool that accepts human-authored configuration. If you work in the cloud-native ecosystem, you write YAML every day.
+
+## The Norway problem (and other implicit type traps)
+
+YAML 1.1 — the version most parsers implemented for years — applies **implicit type coercion** to unquoted scalars. This means certain bare strings are silently converted to other types:
+
+```yaml
+# YAML 1.1 implicit conversions — all of these become non-strings
+country: NO          # → boolean false  (!!!)
+count: 010           # → integer 8 (octal)
+ratio: 1e3           # → float 1000.0
+enabled: yes         # → boolean true
+timestamp: 2026-05-26 # → date object
+```
+
+The "Norway problem" is the canonical example: the ISO 3166-1 alpha-2 code for Norway is `NO`, which YAML 1.1 parsers interpret as the boolean `false`. This has broken countless country-dropdown configs, environment variable files, and locale mappings.
+
+YAML 1.2 (ratified 2009, adopted slowly) restricts booleans to `true` and `false` only, making `yes`, `no`, `on`, `off` safe to use unquoted. The formatter will warn you if it detects values that differ between 1.1 and 1.2 parsing.
+
+**Rule of thumb:** quote any string that could be misread as a boolean, number, or date.
+
+## Block style vs flow style
+
+YAML supports two presentation styles for mappings and sequences:
+
+**Block style** — each entry on its own line with indentation. Human-readable, git-diff-friendly, preferred for config files:
+
+```yaml
+server:
+  host: localhost
+  port: 8080
+  tags:
+    - api
+    - v2
+```
+
+**Flow style** — JSON-like, compact, all on one line. Useful for short inline values:
+
+```yaml
+server: {host: localhost, port: 8080, tags: [api, v2]}
+```
+
+This formatter normalizes output to block style, which is almost always what you want for config files checked into version control. Inline flow sequences inside block mappings (a common mix) are also supported and preserved when they occur inside a larger block document.
+
+## Multi-line scalars
+
+YAML has two multi-line scalar indicators:
+
+**Literal block (`|`)** — newlines are preserved as-is:
+
+```yaml
+message: |
+  Line one
+  Line two
+  Line three
+```
+
+The resulting string has a trailing newline. Use `|-` to strip it or `|+` to keep all trailing newlines.
+
+**Folded block (`>`)** — single newlines become spaces; blank lines become newlines:
+
+```yaml
+description: >
+  This long description will be folded
+  into a single line when parsed.
+
+  A blank line creates a real paragraph break.
+```
+
+Choose `|` when formatting preserves semantic line breaks (code, logs, SQL). Choose `>` for prose that wraps at arbitrary column widths. The formatter preserves whichever indicator is already in use.
+
+## Anchors and aliases
+
+YAML anchors (`&name`) and aliases (`*name`) let you define a value once and reference it multiple times — the closest thing YAML has to a variable:
+
+```yaml
+defaults: &defaults
+  timeout: 30
+  retries: 3
+
+production:
+  <<: *defaults
+  host: prod.example.com
+
+staging:
+  <<: *defaults
+  host: staging.example.com
+```
+
+The `<<` merge key is a widely-supported extension that merges the referenced mapping's keys into the current one. Note: merge keys are not part of the core YAML spec — they're in a separate "Recommended Schema" document. Most tools support them; a few strict parsers do not.
+
+Anchors are parsed correctly by this formatter and survive round-trips. If you use "sort keys", the anchor/alias structure is preserved; only the key order changes.
+
+## Comments — the thing YAML has that JSON doesn't
+
+YAML comments start with `#` and run to end of line:
+
+```yaml
+# This is a top-level comment
+port: 8080  # inline comment
+```
+
+Here's the bad news: **most YAML parsers discard comments** when they load a document. The parsed data structure carries no trace of them. If you load YAML, modify it programmatically, and dump it back, all comments are gone. This is a known pain point in tools like Helm and Ansible that round-trip YAML.
+
+`js-yaml` (the library this formatter uses) discards comments during parsing — they're not present in the AST it produces. The formatter therefore preserves comments by working at the text level before parsing, re-injecting them at the original positions. This is a best-effort approach; heavily restructured documents (e.g., after key sorting with significant comment relocation) may lose inline comments.
+
+## Security: the `!!python` tag warning
+
+YAML supports **tags** — annotations that tell a parser how to construct a typed object from a scalar:
+
+```yaml
+!!python/object/apply:os.system ['rm -rf /']
+```
+
+This is the infamous "YAML deserialization attack." A Python YAML parser loaded in unsafe mode (`yaml.load()` without `Loader=SafeLoader`) will execute arbitrary Python when it sees `!!python/…` tags. JavaScript parsers cannot execute Python, but if your pipeline passes YAML through a Python tool, the risk is real.
+
+`js-yaml` raises an error on unknown tags by default. Always use `yaml.load(input, { schema: yaml.DEFAULT_SAFE_SCHEMA })` (or `yaml.safeLoad()` in older versions) when processing untrusted input.
+
+## Using js-yaml
+
+This tool is powered by [`js-yaml`](https://github.com/nodeca/js-yaml), the most widely-used JavaScript YAML library. It supports YAML 1.2 with the JSON schema by default. Options exposed by this formatter:
+
+- **Indent width** — 2 or 4 spaces (tabs are technically valid YAML but cause parser compatibility issues; avoid them).
+- **Sort keys** — recursively alphabetizes mapping keys. Useful for stable diffs in k8s manifests and GitHub Actions files.
+- **Line width** — maximum column width before folded scalars wrap. Default 80; set to 0 to disable.
+
+## Common use cases
+
+- **Kubernetes manifests**: paste a raw `kubectl get -o yaml` output, format it, and check it in.
+- **GitHub Actions workflows**: verify your `on:`, `jobs:`, and `steps:` indentation before a push that triggers a run.
+- **Docker Compose**: fix a `services:` block that broke because of an accidental tab character.
+- **Helm values files**: sort keys before diffing two environments.
+- **Hugo/Jekyll frontmatter**: the `---` delimited block at the top of a Markdown file is YAML; this formatter handles the inner block.
+
+## Privacy
+
+All processing runs in your browser via `js-yaml`. No content is sent to a server.

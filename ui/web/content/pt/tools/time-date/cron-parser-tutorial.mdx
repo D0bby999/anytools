@@ -1,0 +1,63 @@
+---
+title: Parser de expressões cron — entender e prever execuções
+description: Sintaxe cron explicada em português, próximas execuções calculadas, e os gotchas (DST, dia da semana vs dia do mês).
+updated: 2026-05-27
+---
+
+## Sintaxe cron
+
+Uma expressão cron clássica tem 5 campos:
+
+```
+* * * * *
+│ │ │ │ │
+│ │ │ │ └── dia da semana (0–6, 0=domingo, ou SUN-SAT)
+│ │ │ └──── mês (1–12, ou JAN-DEC)
+│ │ └────── dia do mês (1–31)
+│ └──────── hora (0–23)
+└────────── minuto (0–59)
+```
+
+Cada campo aceita: número (`5`), lista (`1,15,30`), range (`0-12`), step (`*/15` a cada 15), ou combinações (`0-30/5`).
+
+Algumas implementações (Quartz, AWS EventBridge, Kubernetes recentes) adicionam segundos como sexto campo opcional ou ano como sétimo.
+
+## Aliases comuns
+
+- `@yearly` ou `@annually` = `0 0 1 1 *` (à meia-noite de 1º janeiro)
+- `@monthly` = `0 0 1 * *`
+- `@weekly` = `0 0 * * 0`
+- `@daily` ou `@midnight` = `0 0 * * *`
+- `@hourly` = `0 * * * *`
+- `@reboot` = a cada boot (não tem next execution previsível)
+
+## O gotcha do dia do mês + dia da semana
+
+Quando **ambos** os campos estão especificados (não `*`), a maioria dos parsers (Vixie cron, padrão Linux) usa **OR**: execute se for o dia do mês OU o dia da semana. Quartz usa **AND**. Esta ferramenta segue Vixie (mais comum).
+
+Exemplo: `0 0 15 * 1` no Linux = todo dia 15 OU toda segunda. Em Quartz = apenas dia 15 que cai numa segunda.
+
+## DST e fuso horário
+
+Cron roda no fuso horário do servidor. Em zonas com DST, a hora `02:30` pode não existir (spring forward) ou existir duas vezes (fall back). Comportamento varia por implementação:
+
+- Vixie cron: pula a hora que não existe; executa duas vezes na hora repetida (geralmente indesejado)
+- systemd timers: trata melhor com `OnCalendar=` e timezone explícito
+- Kubernetes CronJob: usa UTC por padrão (`spec.timeZone` desde 1.27)
+
+Recomendação geral: configure jobs em UTC para evitar surpresas.
+
+## Casos de uso
+
+- Backup diário às 3 AM: `0 3 * * *`
+- A cada 15 min em horário comercial seg-sex: `*/15 9-18 * * 1-5`
+- Primeira segunda do mês: complicado — não é direto em cron padrão; em Quartz: `0 0 9 ? * MON#1`
+- Última sexta do mês: também não-trivial; geralmente requer wrapper de aplicação
+
+## Próximas execuções
+
+Esta ferramenta calcula as próximas N execuções (default 5), útil para validar visualmente que sua expressão faz o que você quer antes de deployar no k8s ou crontab.
+
+## Bibliotecas
+
+`cron-parser` (cálculo de próximas execuções) + `cronstrue` (descrição em linguagem natural). Ambas rodam no navegador.

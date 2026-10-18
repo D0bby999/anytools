@@ -1,0 +1,16 @@
+{
+  "_note": "Shape of the Files API's answer to the resumable upload's final 'upload, finalize' request: {\"file\": File}, per https://ai.google.dev/api/files (File: name, displayName, mimeType, sizeBytes, createTime, updateTime, expirationTime, sha256Hash, uri, state, source), read 2026-10-16. Constructed, not recorded live: no working Gemini key exists on this machine. {{BASE}} is the test server's API base.",
+  "file": {
+    "name": "files/k3x9q2m7ab",
+    "displayName": "anytools-recording",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": "12608",
+    "createTime": "2026-10-16T08:41:02.123456Z",
+    "updateTime": "2026-10-16T08:41:02.123456Z",
+    "expirationTime": "2026-10-18T08:41:02.100000Z",
+    "sha256Hash": "ZjJmNDJhYjM1YzE4OGI2MDk3ZTI0YTc2NzA5ZDg1ZTNkMjQxYTc5OWE1NDRkNWVjZjE2NGY0MmQwZDU3OGRmMQ==",
+    "uri": "{{BASE}}/files/k3x9q2m7ab",
+    "state": "PROCESSING",
+    "source": "UPLOADED"
+  }
+}

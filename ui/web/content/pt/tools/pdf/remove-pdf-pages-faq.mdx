@@ -1,0 +1,37 @@
+---
+title: Remover Páginas de PDF — Perguntas frequentes
+---
+
+## Como digo quais páginas deletar?
+
+Digite os números de página que seu leitor mostra, separados por vírgulas, com hífens para execuções: `1, 4-6, 12`. Espaços não importam, repetir um número não faz nada extra, e um intervalo invertido como `6-4` é lido como `4-6`. As páginas começam em um — `1` é a primeira página, não a segunda.
+
+Tudo o que você lista é removido e tudo mais é mantido, em sua ordem original.
+
+## Deletei páginas 1, 3 e 5 e recebi as erradas. Isso é um bug conhecido?
+
+Não aqui, mas é o bug clássico neste tipo de ferramenta e vale a pena entender. Deletar uma página renumera cada página depois dela. Remova página 1 de um documento de seis páginas e a antiga página 3 vira página 2 — então uma ferramenta que trabalha através de sua lista de mais baixa para mais alta termina deletando páginas 1, 4 e 6 enquanto relata que deletou 1, 3 e 5.
+
+Esta ferramenta remove da página de número mais alto para baixo, então nenhuma página ainda esperando ser removida se deslocou. Há um teste cobrindo exatamente este caso: remover `1, 3, 5` de um documento de seis páginas deve deixar as páginas originais 2, 4 e 6.
+
+## Posso deletar cada página?
+
+Não. Um PDF deve conter pelo menos uma página, então um intervalo cobrindo o documento todo é recusado em vez de produzir um arquivo vazio ou corrupto. Se você quer nada do documento, delete o arquivo em si.
+
+Se você pretendia manter apenas algumas páginas, Dividir PDF é a ferramenta melhor — extraindo `2, 5` é mais claro do que deletar tudo mais.
+
+## Remover páginas torna o arquivo menor?
+
+Geralmente, mas por menos do que você pode esperar. A página é caída da árvore de páginas do documento, mas recursos compartilhados — fontes incorporadas, perfis de cor, imagens referenciadas de mais de uma página — não são necessariamente descartados com ela. Um documento de 40 páginas com um conjunto de fonte incorporada grande pode perder dez páginas e apenas um pouco de tamanho.
+
+Se o tamanho é o objetivo em vez da contagem de páginas, remover páginas é a alavanca errada.
+
+## Meu arquivo é enviado?
+
+Não. `pdf-lib` lê o documento dentro desta aba do navegador, as páginas são removidas na memória, e o link de download é uma URL de blob que seu navegador criou localmente. Nada é enviado em nenhum lugar, então não há cópia do lado do servidor para ser mantida ou deletada. Você consegue confirmar isso na aba Rede do seu navegador, ou indo offline uma vez que a página carrega.
+
+## O que acontece com marcadores e links apontando para páginas deletadas?
+
+Marcadores e links internos que almejavam uma página removida não têm nada para apontar, e o comportamento lá varia por leitor — alguns os ignoram, alguns pulam para a página sobrevivente mais próxima. Marcadores apontando para páginas que você manteve continuam a funcionar.
+
+Campos de formulário em páginas sobreviventes são normalmente preservados. Assinaturas digitais não validarão depois: uma assinatura cobre um layout de documento específico, e remover uma página necessariamente o muda. Isso se aplica a cada ferramenta de remoção de página, não apenas esta.

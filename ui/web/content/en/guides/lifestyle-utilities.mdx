@@ -1,0 +1,71 @@
+---
+title: "Everyday Utility Tools — Age, Unit Converter, GPA, and More"
+description: "Small tools that save you a Google search: age in days, unit converter, GPA calculator, percentage math, reading time, and word count."
+keywords: ["age calculator", "unit converter", "gpa calculator", "word counter", "reading time", "everyday calculator", "lifestyle tools"]
+updated: 2026-05-29
+readingTime: 5
+---
+
+# Everyday Utility Tools
+
+This is the catch-all category. Each tool here is small enough to feel trivial, but they're trivial in a way that adds up. The kind of thing you reach for several times a week, do once, and move on.
+
+---
+
+## Age Calculator
+
+The [age calculator](/en/lifestyle/age-calculator) takes a birth date and returns your age in years/months/days, plus total days, total hours, total minutes — all the way down. It uses the calendar correctly: months are not assumed to be 30 days, leap years are honored, and the rollover math accounts for short months.
+
+Use cases that come up more than you'd expect:
+
+- Insurance forms that want exact age in years
+- "How old will I be on [date]?" planning
+- Birthday milestone calculations (10,000 days old happens around age 27.4)
+- Childcare paperwork ("age in months" for under-2s)
+
+---
+
+## Unit Converter
+
+The [unit converter](/en/lifestyle/unit-converter) covers length, weight, temperature, volume, and speed, with both metric and imperial units in each category.
+
+A few non-obvious notes:
+
+- **US gallon vs UK gallon**: Different by about 20%. The US uses 3.785 liters per gallon; the UK uses 4.546. If a recipe says "gallon" and you're not sure which side of the Atlantic the author is on, it almost always means US.
+- **Knots**: One nautical mile per hour, where a nautical mile is 1,852 meters (one minute of arc on a great circle). Mostly comes up in sailing and aviation contexts.
+- **Temperature conversion is offset, not just multiplicative**: 0°C is 32°F, not 0°F. The calculator handles this correctly via piecewise functions.
+
+---
+
+## GPA Calculator
+
+The [GPA calculator](/en/lifestyle/gpa-calculator) computes a cumulative GPA on the US 4.0 scale, weighted by credit hours. Add or remove courses, pick grades from a dropdown, see the weighted average.
+
+This tool is **English-only** because GPA conventions vary widely by country:
+
+- US: 4.0 scale, A=4.0, A−=3.7, etc.
+- UK: First-class honours / 2:1 / 2:2 / Third (no GPA)
+- India: 10-point scale, often institution-specific
+- Australia: WAM (Weighted Average Mark) on a 100-point scale
+
+We'd rather show no result than the wrong scale. If you need a non-US version, open an issue.
+
+---
+
+## Percentage Calculator
+
+The [percentage calculator](/en/lifestyle/percentage-calculator) handles three common modes: X% of Y, X is what % of Y, and % change from X to Y. Discount math, grade calculation, growth rate — it all funnels through this one tool.
+
+The most common error in percentage math is the asymmetry of percent change. A 50% increase followed by a 50% decrease does *not* return you to the starting value (it returns to 75% of the original). The calculator's "% change" mode makes that explicit.
+
+---
+
+## A Note on What Makes a Good Utility
+
+Across all four tools, the design rule is the same: the answer should be visible without scrolling. The inputs are stacked, the result is sticky on desktop, and copy-to-clipboard is one tap away. If a tool here ever makes you scroll to see the number, that's a bug — open an issue.
+
+---
+
+## Privacy
+
+These tools run entirely in your browser. Your birthday, GPA, conversions, percentages — none of it leaves your machine. The site loads, the JavaScript runs locally, no server roundtrip happens for any computation. The only network call is the initial page load.

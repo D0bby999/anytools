@@ -1,0 +1,65 @@
+---
+title: Guía completa de codificación y decodificación hexadecimal
+description: Cómo funciona la codificación hexadecimal, cuándo usarla frente a Base64 o binario, problemas con UTF-8 y convenciones de separador y prefijo.
+updated: 2026-05-27
+---
+
+## Qué es realmente la codificación hexadecimal
+
+La codificación hexadecimal representa cada byte de datos binarios como exactamente dos dígitos hexadecimales (`0–9`, `a–f`). Dado que un dígito hex cubre cuatro bits (un nibble), dos dígitos hex cubren los 256 valores posibles de un byte. El resultado es una cadena de caracteres ASCII que siempre tiene el doble de longitud que la secuencia de bytes original.
+
+Esto **no** es compresión ni cifrado — es puramente un formato de visualización. Cualquier cadena hexadecimal se puede decodificar de forma inequívoca a los bytes exactos de los que se construyó, sin necesidad de clave.
+
+## Por qué hexadecimal y no decimal u octal
+
+Las computadoras almacenan datos en binario (base 2). El hexadecimal (base 16) es una potencia de dos, por lo que cada dígito hex se mapea limpiamente a exactamente cuatro bits binarios. El decimal no comparte esa alineación limpia, razón por la cual los programadores usan hex para inspeccionar bytes crudos. `0xFF` significa `11111111` en binario — esta relación es inmediatamente evidente.
+
+## Comparación de overhead: Hex vs Base64 vs Binario
+
+| Formato | Bytes → chars de salida | Overhead |
+|---------|------------------------|----------|
+| Hex | 1 byte → 2 chars | +100% |
+| Base64 | 3 bytes → 4 chars | +33% |
+| Binario | 1 byte → 8 chars | +700% |
+
+Base64 gana cuando minimizar el tamaño importa (JWT, data URIs, adjuntos MIME). Hex gana cuando la **legibilidad y depuración a nivel de byte** son lo más importante: un volcado hexadecimal permite detectar un byte `0x00` nulo o un centinela `0xFF` de un vistazo.
+
+## Casos de uso reales comunes
+
+**Volcados de memoria y archivos.** Los depuradores, editores hexadecimales (`xxd`, `hexdump -C`) y herramientas de volcado de fallos usan hex para que los desarrolladores puedan inspeccionar la memoria cruda byte por byte. El prefijo `0x` es la lengua franca de la programación de bajo nivel.
+
+**Códigos de color CSS.** El color `#ff6b6b` son tres valores de un byte: rojo=255, verde=107, azul=107. El `#` reemplaza `0x` como convención de prefijo. Todo desarrollador web lee códigos de color hexadecimales docenas de veces al día.
+
+**Direcciones MAC.** Las direcciones de hardware Ethernet son seis bytes, convencionalmente escritas como `aa:bb:cc:dd:ee:ff` con dos puntos como separador. La opción **Separador** de esta herramienta permite producir exactamente este formato.
+
+**Resúmenes de hash criptográfico.** SHA-256 produce 32 bytes; SHA-512 produce 64 bytes. Ambos se muestran casi universalmente como cadenas hexadecimales. El hash de commit de `git` como `4c1502f` son los primeros siete caracteres de un resumen SHA-1 en hex.
+
+**Ethereum y blockchain.** Los hashes de transacciones, direcciones de monedero y datos de llamada ABI son todos hexadecimales — típicamente con prefijo `0x`. La casilla `0x` de esta herramienta activa ese prefijo en cada par de bytes.
+
+**Depuración de protocolos de red.** Las capturas de paquetes en Wireshark muestran las cargas útiles en hex. El byte de flags TCP `0x12` (SYN+ACK) es mucho más fácil de leer que `00010010` en binario o `18` en decimal.
+
+## El problema con UTF-8
+
+Cuando escribes un carácter como `é` (U+00E9), el texto son dos bytes UTF-8: `0xc3 0xa9`. Esto es correcto — `é` genuinamente ocupa dos bytes en UTF-8. Un emoji como `😀` (U+1F600) son cuatro bytes UTF-8: `0xf0 0x9f 0x98 0x80` → ocho dígitos hexadecimales.
+
+El **texto solo ASCII** produce exactamente dos dígitos hex por carácter, porque cada punto de código ASCII es ≤127 y cabe en un byte.
+
+## La convención del prefijo 0x
+
+El prefijo `0x` se origina en C (estandarizado en 1989 como ANSI C). Señala "este literal es hexadecimal" tanto para el compilador como para el lector. La convención se extendió a C++, Java, JavaScript, Go, Rust y Python. En contextos donde la base ya está implícita (códigos de color, direcciones MAC, salidas de hash), el prefijo se omite.
+
+## Configuración de la herramienta
+
+- **Separador** — vacío para cadena hex compacta (`48656c6c6f`), espacio para estilo volcado (`48 65 6c 6c 6f`), `:` para estilo dirección MAC.
+- **Prefijo 0x** — antepone `0x` antes de cada par de bytes, útil para literales de arrays en C o datos de entrada de Ethereum.
+- **Mayúsculas/minúsculas** — las minúsculas son la convención para la mayoría de herramientas Unix; las mayúsculas coinciden con la salida de `certutil` de Windows.
+
+## Privacidad
+
+Toda la codificación y decodificación se ejecuta completamente en tu navegador. El texto nunca se envía a un servidor.
+
+## Herramientas relacionadas
+
+- **Base64 Encode/Decode** — menor overhead (33%) para transportar binario por canales de texto.
+- **Binary Encode/Decode** — ocho caracteres por byte, útil para entender posiciones de bits individuales.
+- **URL Encode/Decode** — codificación porcentual para parámetros de consulta y componentes URI.

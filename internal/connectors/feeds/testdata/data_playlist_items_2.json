@@ -1,0 +1,12 @@
+{
+  "kind": "youtube#playlistItemListResponse",
+  "etag": "fixture-etag-2",
+  "items": [
+    {"kind": "youtube#playlistItem", "id": "item-3",
+     "snippet": {"publishedAt": "2026-01-04T10:00:00Z", "title": "Lesson 2: Stress", "position": 2,
+                 "resourceId": {"kind": "youtube#video", "videoId": "aaaaaaaaaa3"}},
+     "contentDetails": {"videoId": "aaaaaaaaaa3", "videoPublishedAt": "2026-01-04T09:00:00Z"},
+     "status": {"privacyStatus": "unlisted"}}
+  ],
+  "pageInfo": {"totalResults": 3, "resultsPerPage": 50}
+}

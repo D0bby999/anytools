@@ -1,0 +1,43 @@
+---
+title: Extraer Imágenes de PDF — Preguntas frecuentes
+---
+
+## ¿Qué diferencia hay con PDF a PNG?
+
+PDF a PNG renderiza cada *página* en una imagen — texto, arte vectorial y fotografías aplanadas juntos a cualquier resolución que elijas. Esta herramienta extrae los *archivos de imagen que estaban integrados en el documento*, a la resolución a la que se almacenaron.
+
+Para un informe escaneado, la extracción te da el escaneo original; renderizar lo remuestrearía a tu DPI elegido, que es o un desperdicio o con pérdida dependiendo de cómo adivinases. Para una foto dentro de un conjunto de diapositivas, la extracción te da la foto sin la diapositiva alrededor.
+
+## ¿Por qué dice que no se encontraron imágenes?
+
+Porque el PDF genuinamente no tiene ninguna integrada. Un documento producido desde un procesador de palabras o LaTeX es texto e instrucciones de dibujo vectorial — no hay archivo de imagen dentro para extraer, aunque la página obviamente se vea como algo. Por eso el mensaje lo dice claramente y señala a PDF a PNG, que renderiza la página en su lugar.
+
+Es un resultado legítimo en lugar de un fracaso, así que no se muestra como un error.
+
+## ¿Por qué obtuve menos imágenes que las que el documento tiene?
+
+Dos razones probables. La primera es deliberada: una imagen referenciada en muchas páginas — un membrete, un logo, una marca de agua — se almacena una vez y se dibuja repetidamente, así que un informe de 40 páginas da una copia en lugar de 40. La herramienta deduplica por el nombre del objeto interno.
+
+La segunda es un fracaso honesto. pdf.js devuelve datos de píxeles sin procesar cuyo número de canales depende del espacio de color de origen, y algunas imágenes CMYK llegan en una forma que no se puede convertir a colores de pantalla sin adivinar. Esas se saltan en lugar de convertirse aproximadamente, porque un color confiablemente incorrecto es peor que un archivo faltante.
+
+## ¿Las imágenes extraídas están en calidad completa?
+
+Son los píxeles almacenados, así que nada se remuestrea o reescala. Se escriben como PNG, que es sin pérdidas, así que no se aplica compresión adicional de camino.
+
+Eso sí significa que una imagen almacenada como JPEG dentro del PDF sale como un PNG que contiene exactamente esos píxeles decodificados — visualmente idéntico, usualmente un archivo más grande. Si el tamaño importa, ejecuta el resultado a través de Comprimir Imagen.
+
+## ¿Recupera imágenes que fueron recortadas en el documento?
+
+Sí, normalmente a tu ventaja. Los PDFs frecuentemente almacenan una fotografía completa y muestran solo parte de ella a través de una ruta de recorte. La extracción devuelve la imagen almacenada, así que puedes obtener más de la foto que la página mostró. Ocasionalmente eso es sorprendente; normalmente es lo que querías.
+
+## ¿Se sube mi PDF a algún lado?
+
+No. El documento se analiza por pdf.js dentro de esta pestaña del navegador, usando un worker servido desde el origen de este sitio, y las imágenes se reconstruyen en un lienzo en la página. Los enlaces de descarga apuntan a blobs que tu navegador creó. Nada se transmite — verifica en la pestaña Red, o ve sin conexión después de que la página carga.
+
+## ¿Es seguro abrir un PDF que no conozco aquí?
+
+Razonablemente, con una advertencia que vale la pena establecer. Analizar un PDF desconocido es verdadera superficie de ataque — pdf.js ha tenido errores que permiten ejecución de script a través del manejo de fuentes. Esta herramienta fija pdf.js a una versión exacta en lugar de un rango que podría desplazarse hacia atrás, desactiva la ruta de fuente basada en eval, desactiva la instalación de fuentes, y el sitio envía una Política de Seguridad de Contenido. Eso es una reducción significativa en riesgo, no una garantía.
+
+## ¿Puedo extraer de varios PDFs a la vez?
+
+No actualmente — un documento a la vez. La salida de un solo PDF ya es a menudo decenas de archivos, y el procesamiento por lotes lo haría difícil saber qué imagen vino de dónde.

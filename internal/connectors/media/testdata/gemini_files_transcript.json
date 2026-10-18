@@ -1,0 +1,23 @@
+{
+  "_note": "Shape of a generateContent response per https://ai.google.dev/api/generate-content, read 2026-10-16, answering the Transcribe prompt on an uploaded file. Constructed, not recorded live.",
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "{\"language\": \"en\", \"cues\": [{\"start\": \"00:00\", \"text\": \"Welcome back to the class.\"}, {\"start\": \"00:04\", \"text\": \"Today we look at how a river carves a valley.\"}, {\"start\": \"00:11\", \"text\": \"Start with the water, not the rock.\"}]}"
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 640,
+    "candidatesTokenCount": 58,
+    "totalTokenCount": 698
+  },
+  "modelVersion": "gemini-3.6-flash"
+}

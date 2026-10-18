@@ -1,0 +1,35 @@
+---
+title: Rotar PDF — Preguntas frecuentes
+---
+
+## ¿Por qué mi escaneo está de lado en primer lugar?
+
+Una página PDF lleva un valor de rotación — 0, 90, 180 o 270 grados — separado de la imagen en él. Los escáneres y aplicaciones de escaneo de teléfonos lo establecen según cómo pasó el papel o cómo se sostuvo el dispositivo, y lo aciertan a menudo, particularmente en documentos alimentados en paisaje. Algunos visualizadores honran el valor y algunos lo ignoran, que es por qué el mismo archivo puede verse vertical en una aplicación y de lado en otra.
+
+Rotar aquí establece ese valor correctamente, así que cada visualizador está de acuerdo.
+
+## ¿Rerotariza la rotación la página o pierde calidad?
+
+No. Solo el atributo de rotación cambia. El texto se mantiene seleccionable, las imágenes mantienen su resolución y compresión originales, y el contenido de la página no se toca — nada se rasteriza o se recodifica. Un archivo rotado es el mismo tamaño que el original, más o menos algunos bytes.
+
+Eso también significa que la rotación es completamente reversible: rotar 90 grados y luego 270 devuelve la página exactamente a donde comenzó.
+
+## ¿Qué pasa si algunas páginas ya están rotadas y otras no?
+
+La rotación se *agrega* a lo que cada página ya lleva, no se asigna sobre ella. Una página a 270 grados rotada por 90 se convierte en 0; una página a 0 rotada por 90 se convierte en 90. Esto importa para documentos mixtos, que son comunes en escaneos — una herramienta que asignara en lugar de agregar silenciosamente desharía correcciones que un escáner ya había hecho mientras parecía estar funcionando.
+
+Si solo algunas páginas son incorrectas, elige "Solo estas páginas" e ingresa sus números como `1-3, 7, 9-12`.
+
+## ¿Cómo roto en sentido antihorario?
+
+Rota por 270 grados. Tres giros de un cuarto de vuelta en el sentido de las agujas del reloj es un giro de un cuarto de vuelta en sentido antihorario — el formato PDF solo almacena rotaciones en unidades de 90, así que no hay una operación antihoraria separada para exponer. Rotar por 180 voltea la página al revés sin importar la dirección.
+
+## ¿Se sube mi documento a algún lado?
+
+No. El archivo se lee por JavaScript en esta pestaña del navegador usando `pdf-lib`, la rotación se aplica en memoria, y el enlace de descarga apunta a una URL blob que tu navegador creó localmente. Ninguna solicitud lleva el documento, así que no hay copia del servidor para retener o eliminar. Verifica la pestaña Red de tu navegador, o desconéctate de la red después de que la página carga — la herramienta aún funciona.
+
+## ¿Se romperán los marcadores, campos de formulario o firmas?
+
+Los marcadores y campos de formulario sobreviven; la rotación no reestructura el documento. Las firmas digitales son la excepción. Una firma cubre un diseño de bytes específico, y guardar el archivo con un valor de rotación cambiado produce un diseño diferente, así que una firma que cubría el original ya no validará. Cada herramienta de rotación tiene este efecto — es una propiedad del formato, no una limitación aquí. Si una firma debe mantenerse válida, mantén el original firmado y rota una copia.
+
+Los archivos protegidos con contraseña se rechazan en lugar de desbloquearse. Elimina la contraseña primero.

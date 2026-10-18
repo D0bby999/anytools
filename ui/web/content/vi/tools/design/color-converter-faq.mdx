@@ -1,0 +1,27 @@
+---
+title: Color converter & kiểm tra contrast — Câu hỏi thường gặp
+---
+
+## Tool chuyển đổi được giữa những không gian màu nào?
+
+HEX, RGB và HSL, theo mọi chiều. Ngoài ra tool còn tính relative luminance của từng màu và contrast ratio của cặp màu, nên bạn đánh giá được độ dễ đọc mà không phải nhảy sang tool khác. Cần nói rõ giới hạn: đây là ba format và chỉ ba format đó. Tool không nhận `oklch()`, `lab()` hay `color()`, và cũng không nhận hex 8 chữ số kèm alpha — bộ parse chỉ khớp đúng chuỗi 3 hoặc 6 ký tự hex, có hoặc không có dấu `#`. Lý do bỏ alpha không phải vì lười: một màu trong suốt chưa có diện mạo cố định cho tới khi nó được composite lên một thứ gì đó, nên contrast của nó phụ thuộc vào cái nằm phía sau chứ không phải vào bản thân màu.
+
+## Chuyển mã màu hex sang rgb rồi ngược lại có ra đúng giá trị cũ không?
+
+HEX sang RGB rồi về HEX thì luôn khớp, vì cả hai đều là số nguyên 0–255 và phép chuyển chỉ là dịch bit. Riêng đường vòng qua HSL thì không đảm bảo. Ba thành phần HSL ở đây được làm tròn về số nguyên, và bản thân khối lập phương sRGB cũng không ánh xạ gọn ghẽ lên hình trụ HSL, nên đi một vòng có thể lệch một đơn vị. Mắt thường không thấy khác biệt, nhưng nó có nghĩa là bạn nên giữ đúng một format chuẩn trong bộ design token thay vì chuyển qua chuyển lại. Một chi tiết nhỏ nữa: hex xuất ra luôn viết hoa (`#3B82F6`), nên nếu codebase của bạn quy ước chữ thường thì nhớ hạ về cho khớp linter.
+
+## Khi nào HSL hữu ích hơn HEX?
+
+Bất cứ khi nào bạn đang chỉnh chứ không phải đang khai báo. HSL tách hue khỏi saturation và lightness, nên việc làm một màu sáng lên 10% chỉ là sửa một con số thay vì ba con số chẳng liên quan gì tới nhau. Đó là lý do dựng thang màu (50, 100, 200… 900) cho design system gần như luôn làm trong HSL: giữ nguyên h và s, chỉ chạy l. Ngược lại HEX gọn, ai cũng đọc được, dán vào đâu cũng chạy, nên nó vẫn là format để lưu giá trị cuối cùng. Cách dùng hợp lý là: thiết kế trong HSL, chốt và lưu bằng HEX.
+
+## Vì sao tool hiện cả luminance chứ không chỉ mã màu?
+
+Vì lightness trong HSL và độ sáng cảm nhận được là hai thứ khác nhau. Hai màu cùng `L: 50%` có thể trông chênh nhau rất xa, bởi HSL bỏ qua chuyện mắt người nhạy với xanh lá hơn hẳn xanh dương. Relative luminance thì có áp trọng số đó — kênh đỏ 0,2126, xanh lá 0,7152, xanh dương 0,0722, sau khi mỗi kênh đã được tuyến tính hoá qua đường cong gamma sRGB. Đây chính là đại lượng mà các chuẩn accessibility dùng, không phải HSL lightness. Nhìn thấy con số này ngay cạnh mã màu giúp bạn phát hiện sớm những cặp màu "nhìn thì tương phản" nhưng thực ra không.
+
+## Contrast ratio được tính thế nào?
+
+Bằng đúng định nghĩa của WCAG: `(lighter + 0.05) / (darker + 0.05)`, trong đó hai giá trị là relative luminance của hai màu. Kết quả nằm trong khoảng từ 1:1 (hai màu y hệt nhau) đến 21:1 (đen tuyệt đối trên trắng tuyệt đối). Con số 0,05 cộng vào là để mô phỏng ánh sáng môi trường phản xạ trên màn hình, nó cũng là thứ khiến tỉ lệ không bao giờ chia cho 0. Ở đây tool chỉ báo con số; nếu bạn cần biết cặp màu đó đạt AA hay AAA cho chữ thường và chữ lớn, hãy dùng trang kiểm tra độ tương phản màu chuyên biệt, nơi từng ngưỡng được báo pass/fail riêng.
+
+## Có chuyển sang CMYK hay Pantone được không, và dữ liệu có bị gửi đi đâu không?
+
+Không có gì rời khỏi trình duyệt — toàn bộ phép tính chạy trong trang. Còn CMYK và Pantone thì không hỗ trợ, và lý do đáng nói: đó là hệ màu in, gắn với mực và vật liệu vật lý. Muốn quy đổi một màu màn hình sang CMYK cho ra kết quả có nghĩa thì cần color profile và một máy in đích cụ thể — bài toán hoàn toàn khác với phép số học giữa các format màn hình. Đây cũng là điểm khác biệt so với việc mở Photoshop chỉ để đọc một mã màu: Photoshop mạnh ở khâu in ấn và xử lý ảnh, nhưng để lấy nhanh một cặp HEX/HSL kèm contrast ratio khi đang code thì mở một trang web nhẹ hơn nhiều so với chờ một phần mềm vài GB khởi động.

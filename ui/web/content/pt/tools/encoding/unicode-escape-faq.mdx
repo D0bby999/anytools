@@ -1,0 +1,35 @@
+---
+title: Unicode Escape / Unescape — Perguntas frequentes
+---
+
+## Por que meu emoji aparece como duas sequências `\u` no modo JSON?
+
+Porque o escape `\u` do JSON só aceita exatamente quatro dígitos hexadecimais, cobrindo pontos de código até U+FFFF. Emoji vivem nos planos astrais (acima de U+FFFF) e devem ser representados como pares substitutos UTF-16 — duas sequências `\u` consecutivas. Por exemplo, `😀` (U+1F600) se torna `😀`. Use o modo ES6 para obter a forma mais limpa `\u{1F600}`, mas note que parsers JSON não aceitam a sintaxe de chaves.
+
+## Qual é a diferença entre `\uXXXX` e `\u{XXXXX}`?
+
+`\uXXXX` é a sintaxe original de quatro dígitos hex do ECMAScript 1 (1997) e da especificação JSON (RFC 8259). Cobre apenas o Plano Multilíngue Básico (U+0000–U+FFFF). `\u{XXXXX}` é a sintaxe de chaves do ES6 que aceita qualquer número de dígitos hex e cobre o intervalo Unicode completo até U+10FFFF. A forma de chaves é válida em JavaScript ES6+ e muitas linguagens modernas, mas **não** em JSON — a especificação JSON nunca foi atualizada para incluí-la.
+
+## Por que `"😀".length` retorna 2 em JavaScript?
+
+Strings JavaScript são internamente UTF-16. Pontos de código acima de U+FFFF são armazenados como dois code units de 16 bits (um par substituto), então `String.prototype.length` conta code units, não caracteres. Use `[...str].length` (o spread usa o iterador de string, que reconhece pontos de código) ou `Array.from(str).length` para obter a contagem correta de caracteres. `Intl.Segmenter` fornece contagens de clusters de grafemas, que é o que os usuários percebem como "número de caracteres".
+
+## Quando realmente preciso escapar Unicode em JavaScript?
+
+Raramente em código moderno. Arquivos-fonte ES6+ salvos como UTF-8 podem conter caracteres Unicode diretamente. Você precisa de escapes `\u` quando: (1) o arquivo deve ser somente ASCII para um toolchain legado, (2) você está construindo uma string JSON programaticamente e precisa incorporar conteúdo não ASCII de forma segura, (3) o ambiente de destino tem suporte Unicode incompleto, ou (4) você está depurando um ponto de código específico e quer torná-lo explícito no código-fonte.
+
+## JSON exige que caracteres não ASCII sejam escapados?
+
+Não — o RFC 8259 permite que qualquer caractere Unicode codificado como UTF-8 apareça sem escape em uma string JSON, exceto caracteres de controle (U+0000–U+001F). Muitos serializadores JSON escapam todo o intervalo não ASCII de qualquer forma, por segurança em transportes somente ASCII ou para evitar riscos de injeção HTML. Ambas as representações são idênticas para um parser em conformidade.
+
+## O que é `String.fromCodePoint` e por que devo preferir ao invés de `String.fromCharCode`?
+
+`String.fromCharCode` (ES1) opera em code units UTF-16 brutos e trunca silenciosamente valores acima de 0xFFFF. `String.fromCodePoint` (ES6) lida com o intervalo Unicode completo — passe `0x1F600` e você obtém `😀`, não lixo. Use sempre `fromCodePoint` ao converter um número de ponto de código em um caractere, especialmente se o ponto de código pode estar no plano astral.
+
+## O que o modo "all" faz que os modos JSON e ES6 não fazem?
+
+O modo all escapa todo caractere — incluindo letras e dígitos ASCII comuns — não apenas os não ASCII ou não imprimíveis. O resultado é uma string puramente ASCII onde cada caractere é representado como `\uXXXX`. Útil para incorporar em literais de string C que devem ser somente ASCII, certos formatos de arquivos `.properties` (a ferramenta `native2ascii` do Java produz isso), ou para depurar sequências de caracteres onde você quer ver cada ponto de código explicitamente.
+
+## Dividir uma string em um emoji pode quebrá-la?
+
+Sim. Como muitos emoji são pares substitutos (dois code units UTF-16), operações que trabalham no nível de code unit — `str[i]`, `str.substring()`, `str.split('')` — podem cortar entre as duas metades de um par, produzindo substitutos soltos e saída corrompida. Alternativas seguras: o operador spread `[...str]` itera por ponto de código, e `Intl.Segmenter` itera por cluster de grafemas (levando em conta modificadores de emoji e sequências ZWJ como emoji de família compostos de múltiplos pontos de código).

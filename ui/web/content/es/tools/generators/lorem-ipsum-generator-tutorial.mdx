@@ -1,0 +1,95 @@
+---
+title: Guía completa para generar Lorem Ipsum
+description: El origen del Lorem Ipsum, por qué el texto de relleno importa en diseño, variantes modernas, y cuándo no deberías usarlo.
+updated: 2026-05-27
+---
+
+## El origen del Lorem Ipsum
+
+El texto "Lorem ipsum dolor sit amet..." no es texto aleatorio — es latín alterado. La fuente es *De finibus bonorum et malorum* ("Sobre los fines del bien y el mal"), un tratado filosófico escrito por Cicerón en el 45 a.C. El pasaje original de la sección 1.10.32 lee, en parte:
+
+> "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+
+En el siglo XVI, un tipógrafo desconocido tomó este pasaje, mezcló las palabras y lo usó para demostrar un tipo de letra. El texto sobrevivió como estándar de la industria porque parece lenguaje natural a distancia — tiene una mezcla realista de palabras cortas y largas — sin ser legible en ningún idioma real, por lo que no distrae a los revisores.
+
+Richard McClintock, estudioso del latín en el Hampden-Sydney College, identificó la fuente en los años 1990.
+
+## Por qué el texto de relleno importa en diseño
+
+El propósito del texto de relleno es permitir que diseñadores y partes interesadas evalúen **layout, tipografía y jerarquía** sin la distracción del contenido real. El texto real activa la lectura. Un revisor que puede leer el texto comenzará a evaluar el contenido en lugar del diseño visual — y esa conversación pertenece a una etapa posterior del proceso.
+
+Un buen texto de relleno:
+- Tiene variación natural en la longitud de palabras (mezcla de palabras cortas y largas, adecuada al idioma objetivo).
+- Llena el espacio como lo hará el copy real — saltos de línea, ritmo del párrafo, guionado.
+- Es visualmente neutro — sin frases reconocibles, sin humor, sin nada que desvíe la atención.
+
+Por eso "Contenido Aquí" repetido en cajas es peor relleno que Lorem Ipsum: produce saltos de línea artificiales que no reflejan cómo fluirá el texto real.
+
+## Modos de salida
+
+**Palabras** — útil para probar anchos de campos e inputs cortos.
+
+**Oraciones** — útil para inputs de un párrafo, meta descripciones, cuerpos de tarjetas.
+
+**Párrafos** — útil para layouts de artículos, plantillas de email, páginas con múltiples secciones.
+
+**HTML** — envuelve la salida en etiquetas `<p>` para pegar directamente en plantillas HTML. Evita el paso extra de envolver manualmente.
+
+## Variantes y cuándo usarlas
+
+**Lorem Ipsum clásico** es el estándar universal. Úsalo cuando tu audiencia está familiarizada con el diseño y entiende inmediatamente que es texto de relleno.
+
+**Español** — generar relleno en español es importante cuando tu producto tiene el español como idioma principal. El español es sistemáticamente más largo que el inglés para el mismo concepto: los sustantivos y artículos hacen que la longitud media de las oraciones sea un 15-25% mayor. Diseñar con relleno en inglés para una UI en español es una forma confiable de encontrar sorpresas de layout en QA.
+
+**Vietnamita** — problema similar: los signos diacríticos y las palabras compuestas del vietnamita hacen que las oraciones sean visualmente más altas y anchen más espacio vertical.
+
+**Hipster Ipsum** — usa jerga contemporánea en inglés ("artisan," "craft beer," "normcore"). Útil en presentaciones de wireframes a partes interesadas que podrían preguntar "¿pero qué dice realmente esta página?" — el contenido reconocible pero absurdo señala claramente que el copy está pendiente.
+
+## Coincidencia de longitud: la mejor práctica más importante
+
+El mayor error práctico con texto de relleno es generarlo en el idioma equivocado para el locale de destino:
+
+| Concepto | Inglés | Español |
+|----------|--------|---------|
+| "Settings" | 8 caracteres | "Configuración" — 14 caracteres |
+| Etiqueta nav típica | ~6–10 chars | ~10–18 chars |
+| Meta descripción 160 chars | ~28–32 palabras | ~22–27 palabras |
+
+Si estás diseñando un producto multi-locale, genera relleno en cada idioma de destino y verifica que tus layouts se mantengan. Hazlo en la etapa de wireframe, no después de que la UI se haya entregado.
+
+## Cuándo NO usar Lorem Ipsum
+
+**Pruebas A/B para conversión.** El texto de relleno en una variante de prueba producirá datos de clics sin sentido. Se requiere copy real — aunque sea aproximado — para pruebas de conversión.
+
+**Revisiones de accesibilidad.** Las auditorías de lectores de pantalla y las pruebas de navegación por teclado deben usar contenido que se parezca al copy de producción.
+
+**Revisiones de estrategia de contenido.** Cuando una parte interesada evalúa la arquitectura de la información, el relleno no le da nada a lo que reaccionar.
+
+**Despliegues de producción.** Lorem Ipsum ha llegado a producción en sitios web publicados, apps móviles y materiales impresos más veces de las que nadie quiere admitir.
+
+**SEO.** Lorem Ipsum en una página rastreada señala a los motores de búsqueda que la página no tiene contenido significativo.
+
+## Uso de la librería `lorem-ipsum`
+
+```javascript
+import { LoremIpsum } from 'lorem-ipsum';
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: { max: 8, min: 4 },
+  wordsPerSentence: { max: 16, min: 4 },
+});
+
+console.log(lorem.generateWords(5));
+console.log(lorem.generateSentences(3));
+console.log(lorem.generateParagraphs(2));
+```
+
+Para un pool de palabras personalizado (relleno específico del dominio):
+
+```javascript
+const lorem = new LoremIpsum({}, 'word', '\n', misTerminos, misTerminos);
+```
+
+## Privacidad
+
+Toda la generación se ejecuta en el lado del cliente. No se transmiten datos al servidor.

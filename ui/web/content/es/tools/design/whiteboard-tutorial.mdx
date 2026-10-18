@@ -1,0 +1,100 @@
+---
+title: Esbozar un diagrama en el navegador, y guardarlo
+description: Cómo la pizarra Excalidraw incrustada almacena tu trabajo en este navegador, qué da exportar a PNG, SVG y .excalidraw cada uno, y cómo mover una pizarra entre máquinas sin una cuenta.
+updated: 2026-09-03
+---
+
+## Para qué es esta herramienta
+
+Un diagrama rápido: cajas y flechas para un diseño de servicio, un wireframe de una pantalla, un esbozo pegado
+en una solicitud de extracción. El tipo de dibujo donde abrir una herramienta de diseño, iniciar sesión y elegir una
+plantilla cuesta más de lo que vale el dibujo.
+
+El editor es [Excalidraw](https://github.com/excalidraw/excalidraw) 0.18.1 incrustado directamente en
+la página. Su aspecto dibujado a mano no es decoración — un esbozo que se ve provisional invita a la gente
+a discutir con él, que es usualmente lo que quieres de un diagrama de arquitectura en la primera semana.
+
+## Dónde vive el dibujo
+
+Esta es la parte que vale la pena entender antes de que dependas de ella.
+
+Cada cambio que haces se guarda en `localStorage` de este navegador, bajo la clave
+`anytools:whiteboard:v1`, aproximadamente medio segundo después de que dejes de mover el ratón — formas y texto,
+pero también el color de fondo del lienzo, la cuadrícula, el zoom y dónde habías desplazado. Esa es
+la historia de persistencia completa. No hay cuenta, no hay copia de servidor, y no hay sincronización:
+
+- Recarga la página, cierra la pestaña, reinicia el navegador — la pizarra vuelve.
+- Abre la misma URL en un navegador diferente, un perfil diferente, o en tu teléfono — la pizarra no
+  está allí. Nunca salió de la máquina en la que se dibujó.
+- Borra datos del sitio, usa "borrar cookies y datos del sitio", o cierra una ventana privada — la pizarra se
+  ha ido, permanentemente.
+
+La línea de estado bajo la barra de herramientas dice "Guardado en este navegador" cada vez que se guarda un cambio, por lo que puedes
+ver el mecanismo funcionando en lugar de confiar en él.
+
+Hay un límite de tamaño: aproximadamente 5 MB. Esa es una restricción del navegador, no nuestra — `localStorage` limita
+cada origen a aproximadamente eso. Las formas y el texto son pequeños, así que no te acercarás editando; te
+acercarás pegando fotografías, que se almacenan como base64 dentro de la escena. Eliminar una
+imagen pegada devuelve su espacio en el siguiente guardado: solo las imágenes que la pizarra aún muestra se
+escriben. Si una pizarra pasa el límite de todas formas, la herramienta detiene el guardado automático y lo dice — incluyendo
+que la copia aún en el navegador es ahora la más antigua — en lugar de fallar silenciosamente en algún
+editar posterior no relacionado.
+
+## Exportación: tres formatos, tres propósitos
+
+**PNG** es para pegar en un chat, un ticket o un documento. Es una imagen plana con los colores actuales del lienzo,
+con 16 px de relleno alrededor del contenido. No se puede editar después.
+
+**SVG** es para cualquier cosa que se redimensione o imprima — sitios de documentación, diapositivas, un README.
+La exportación incorpora las fuentes que utilizó, por lo que el archivo se renderiza idénticamente en una máquina que nunca
+ha oído hablar de Excalifont. Eso también hace que las exportaciones SVG sean notablemente más grandes de lo que podrías esperar.
+
+**`.excalidraw`** es la única que sigue siendo un dibujo. Es JSON, escrito por el propio serializador de Excalidraw, y se
+abre nuevamente aquí o en excalidraw.com con cada forma aún editable. Si te importa una pizarra, esta es
+la exportación que importa; PNG y SVG son imágenes de ella.
+
+Cada exportación produce un enlace de descarga bajo la barra de herramientas en lugar de comenzar una descarga
+inmediatamente, por lo que un clic accidental no llena tu carpeta de Descargas.
+
+## Mover una pizarra a otra máquina
+
+No hay sincronización, por lo que el movimiento es manual y toma tres pasos: exporta `.excalidraw` aquí, obtén el
+archivo en la otra máquina de la manera que normalmente mueves archivos, luego usa **Abrir .excalidraw** allá.
+El importador verifica la envoltura antes de cargar cualquier cosa — que sea JSON, que su campo `type` diga
+`excalidraw` en lugar de `excalidrawlib`, que su versión sea una que esta compilación entienda, y
+que esté bajo el límite de tamaño — y te dice cuál de esos falló en lugar de mostrar un lienzo vacío.
+
+Abrir un archivo reemplaza lo que hay en la pizarra, por lo que pregunta primero, de la misma manera que **Nueva pizarra**
+— a menos que el lienzo esté vacío, donde no hay nada que preguntar.
+
+Las escenas importadas se ejecutan a través de `restore()` de Excalidraw, que actualiza elementos escritos por versiones anteriores
+y descarta los malformados. Una escena de 2021 se abre bien. El contenido web incrustado es lo único
+que no sobrevive el viaje: ver abajo.
+
+## Empezar de nuevo
+
+**Nueva pizarra** pregunta primero, luego borra tanto el lienzo como la copia guardada. No hay deshacer para ello
+y no hay historial de versiones — el guardado automático mantiene un estado, el actual. Exporta antes de borrar si
+hay alguna duda.
+
+## Qué se apaga y por qué
+
+Excalidraw envía varias características que necesitan un servidor. Todas ellas se desactivan aquí en lugar de
+dejarse al azar:
+
+- **Incrustaciones web** — Excalidraw puede colocar un `<iframe>` en vivo en el lienzo que contenga un video de YouTube, un
+  marco de Figma, una esencia o un tweet. Dejado en su comportamiento predeterminado el componente permite su propia lista de esos
+  hosts, y tres rutas la alcanzan sin preguntar: la herramienta Web Embed de la barra de herramientas, pegar un enlace,
+  y abrir un archivo `.excalidraw` que ya contiene uno. Los tres están cerrados aquí — la
+  entrada de la barra de herramientas está oculta, los enlaces pegados siguen siendo enlaces, e incrustaciones en un archivo abierto se eliminan
+  antes de que cargue, con un conteo para que sepas que tu archivo fue modificado.
+- **Colaboración en vivo** — nunca inicializada, por lo que ningún socket se abre.
+- **Wireframe-a-código** — esto publica el lienzo en el endpoint de IA de Excalidraw. Está activado de manera predeterminada
+  en el componente; está explícitamente desactivado aquí.
+- **Enlaces compartibles y exportación Excalidraw+** — el diálogo de exportación solo guarda en disco.
+- **Navegar por la biblioteca de formas pública** — el enlace externo está oculto; importar un archivo `.excalidrawlib`
+  desde tu disco aún funciona.
+- **Fuentes CDN** — las fuentes manuscritas se sirven desde este dominio, no desde `esm.sh`.
+
+Si quieres colaboración en tiempo real, [excalidraw.com](https://excalidraw.com) lo hace correctamente y
+de forma gratuita. Esta página es para el caso en el que prefieres que nada salga de la máquina.

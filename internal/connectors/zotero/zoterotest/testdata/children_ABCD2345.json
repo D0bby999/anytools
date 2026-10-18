@@ -1,0 +1,20 @@
+[
+  {
+    "key": "NOTE2345",
+    "version": 1205,
+    "links": {"up": {"href": "https://api.zotero.org/users/475425/items/ABCD2345", "type": "application/json"}},
+    "meta": {},
+    "data": {"key": "NOTE2345", "version": 1205, "parentItem": "ABCD2345", "itemType": "note", "note": "<p>My reading notes</p>"}
+  },
+  {
+    "key": "PDFK2345",
+    "version": 1206,
+    "links": {"enclosure": {"href": "https://api.zotero.org/users/475425/items/PDFK2345/file/view", "type": "application/pdf", "title": "Lewis - 2020.pdf", "length": 2048}},
+    "meta": {"numChildren": 0},
+    "data": {
+      "key": "PDFK2345", "version": 1206, "parentItem": "ABCD2345", "itemType": "attachment",
+      "linkMode": "imported_url", "title": "Full Text PDF", "contentType": "application/pdf",
+      "charset": "", "filename": "Lewis - 2020.pdf", "md5": "9b2a0b7c1e2f3a4b5c6d7e8f90a1b2c3", "mtime": 1704164645000
+    }
+  }
+]

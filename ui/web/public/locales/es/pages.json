@@ -1,0 +1,89 @@
+{
+  "guides": {
+    "title": "Guías",
+    "metaTitle": "Guías — AnyTools",
+    "description": "Guías a fondo sobre JSON, expresiones regulares, codificaciones y las calculadoras y herramientas de diseño de AnyTools.",
+    "readingTime": "{{count}} min de lectura",
+    "updated": "Actualizado el {{date}}",
+    "all": "Todas las guías"
+  },
+  "legal": {
+    "updated": "Última actualización: {{date}}"
+  },
+  "anyprofile": {
+    "metaTitle": "AnyProfile — navegador multiperfil para creadores (macOS, Windows)",
+    "metaDescription": "App gratuita y de código abierto que da a cada cuenta su propio navegador: cookies separadas, su propio proxy y una huella coherente. Para macOS y Windows.",
+    "title": "AnyProfile",
+    "tagline": "Un navegador por cuenta, uno al lado del otro.",
+    "intro": "AnyProfile es una app de escritorio gratuita para creadores y vendedores que gestionan varias cuentas de TikTok, YouTube, Shopee o Amazon. Cada perfil es un navegador independiente con sus propias cookies, su propio proxy y una huella de dispositivo coherente, para que las sesiones nunca se mezclen.",
+    "badge": "Gratis · Código abierto · Beta",
+    "downloadMac": "Descargar para Mac",
+    "downloadMacNote": "Apple Silicon (M1 o posterior), macOS 13+",
+    "downloadWindows": "Descargar para Windows",
+    "downloadWindowsNote": "Windows 10 u 11, 64 bits",
+    "allReleases": "Todas las versiones y notas",
+    "featuresTitle": "Qué hace",
+    "features": [
+      {
+        "title": "Perfiles separados",
+        "body": "Cada perfil guarda sus propios inicios de sesión, cookies, historial y extensiones. Abre tantos como quieras a la vez."
+      },
+      {
+        "title": "Un proxy por perfil",
+        "body": "La zona horaria y los idiomas siguen la IP de salida del proxy. La app avisa si la IP cambia de país o de zona horaria, o si su salida IPv6 está en otro lugar."
+      },
+      {
+        "title": "Una huella coherente",
+        "body": "Cada perfil parece el mismo ordenador real cada vez que se abre, basado en el sistema operativo que usas."
+      },
+      {
+        "title": "Páginas de inicio por país",
+        "body": "Elige las plataformas de cada perfil; los seller centers de TikTok Shop, Shopee, Lazada y Amazon se abren para el país del proxy."
+      },
+      {
+        "title": "Cuentas y 2FA",
+        "body": "Guarda el usuario, la contraseña y el secreto 2FA de cada plataforma con el perfil, en el llavero del sistema; copia los códigos con un clic."
+      },
+      {
+        "title": "Actualizaciones y automatización",
+        "body": "Actualizaciones firmadas dentro de la app, instantáneas de perfiles, importación de marcadores y una API local para Puppeteer, Playwright o n8n."
+      }
+    ],
+    "installTitle": "Instalación",
+    "install": [
+      {
+        "os": "Mac",
+        "steps": [
+          "Descomprime la descarga y mueve AnyProfile.app a Aplicaciones.",
+          "La primera vez, macOS dice que no puede verificar la app. Abre Ajustes del Sistema → Privacidad y seguridad y elige Abrir igualmente.",
+          "Cuando macOS pregunte si AnyProfile puede usar el llavero, elige Permitir siempre."
+        ]
+      },
+      {
+        "os": "Windows",
+        "steps": [
+          "Ejecuta AnyProfile-amd64-installer.exe. No hace falta ser administrador.",
+          "Si Windows muestra «Windows protegió su PC», elige Más información → Ejecutar de todas formas.",
+          "Al abrirla por primera vez, AnyProfile descarga su motor de navegador (unos 180 MB)."
+        ]
+      }
+    ],
+    "requirementsTitle": "Conviene saber",
+    "requirements": [
+      "Las versiones aún no están firmadas por Apple ni Microsoft; de ahí los avisos anteriores.",
+      "Un perfil solo se abre en el sistema operativo que lo creó.",
+      "Usa tus propios proxies; los residenciales funcionan mejor con redes sociales y tiendas."
+    ],
+    "privacyTitle": "Privacidad",
+    "privacy": [
+      "Todo se queda en tu ordenador: perfiles, proxies y ajustes en la carpeta de la app; contraseñas en el llavero de macOS o en el Administrador de credenciales de Windows.",
+      "Sin cuenta, sin servidor, sin analítica y sin informes de errores. La app solo consulta GitHub una vez al día por si hay una versión nueva."
+    ],
+    "openSourceTitle": "Código abierto",
+    "openSource": "AnyProfile es software libre bajo la licencia GNU AGPL v3. Lee el código, informa de un error o sigue el desarrollo en GitHub.",
+    "sourceLink": "Código fuente en GitHub",
+    "responsibility": "Eres responsable de cumplir las normas de cada plataforma que uses. Muchas limitan cuántas cuentas puede tener una persona; AnyProfile no cambia esas normas.",
+    "latest": "Versión {{version}}, publicada el {{date}}",
+    "checksums": "Sumas de comprobación SHA-256"
+  }
+}

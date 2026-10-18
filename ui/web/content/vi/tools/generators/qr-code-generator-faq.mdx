@@ -1,0 +1,35 @@
+---
+title: QR Code Generator — Câu hỏi thường gặp
+---
+
+## Nên chọn mức sửa lỗi nào?
+
+Dùng **L** cho màn hình kỹ thuật số hoặc bản in sạch không bị che khuất. Dùng **M** cho tài liệu in đa năng — đây là điểm cân bằng tốt nhất. Dùng **Q** hoặc **H** khi bề mặt có thể bị bẩn, mài mòn, hoặc khi bạn chèn logo vào giữa. Mức cao hơn thêm nhiều module dự phòng cho phép máy quét phục hồi đến 30% dữ liệu bị hỏng, nhưng cũng làm mã lớn hơn với cùng payload.
+
+## Có thể chèn logo vào giữa mã QR không?
+
+Được — đây là kỹ thuật branding phổ biến. Đặt mức sửa lỗi **H** (30% khả năng phục hồi) trước khi thêm logo. Logo không nên che quá 20–25% diện tích mã. Đặt logo ở trung tâm vùng dữ liệu, không che lên ba finder pattern ở góc. Sau khi thêm logo, luôn test quét bằng nhiều thiết bị khác nhau.
+
+## Tại sao mã QR màu của tôi không quét được?
+
+Hầu hết các lỗi quét với mã màu là do độ tương phản không đủ. Tiêu chuẩn ISO 18004 khuyến nghị tỷ lệ độ sáng tối thiểu 4:1 giữa module tối và sáng. Foreground pastel trên nền trắng nhạt là lỗi phổ biến nhất. Nên dùng foreground tối trên nền sáng, tránh đảo ngược (sáng trên tối fail trên nhiều máy quét). Sau khi chọn màu, test trong điều kiện nắng trực tiếp và ánh sáng yếu.
+
+## Định dạng Wi-Fi QR chính xác là gì?
+
+Format: `WIFI:T:WPA;S:TenMang;P:MatKhau;;` — `T` là loại bảo mật (`WPA`, `WEP`, hoặc `nopass`), `S` là SSID, `P` là mật khẩu. Kết thúc bằng hai dấu chấm phẩy. Nếu SSID hoặc mật khẩu có `;`, `,`, `"`, hoặc `\`, escape bằng backslash. Ứng dụng camera iOS và Android nhận diện format này mà không cần cài thêm ứng dụng.
+
+## Nên export PNG hay SVG?
+
+**SVG** cho mọi thứ liên quan đến in ấn (name card, biển hiệu, bao bì) — vector, sắc nét ở mọi kích thước. **PNG** cho chia sẻ kỹ thuật số qua email, app nhắn tin, hoặc trang web với kích thước hiển thị xác định. Khi dùng PNG, export ở 2× hoặc 3× kích thước hiển thị dự kiến để sắc nét trên màn hình retina/HDPI.
+
+## Dữ liệu của tôi có được gửi lên server không?
+
+Không. Tạo QR chạy hoàn toàn trên trình duyệt sử dụng thư viện [`qrcode`](https://www.npmjs.com/package/qrcode) biên dịch sang JavaScript. Payload nhạy cảm như mật khẩu Wi-Fi, thông tin liên lạc vCard, hoặc URL riêng tư không bao giờ rời khỏi thiết bị của bạn. Mở tab Network của trình duyệt để kiểm tra — không có request nào được gửi đi.
+
+## Tại sao mã QR có viền trắng xung quanh?
+
+Đó là **quiet zone** — viền trắng bắt buộc ít nhất 4 module ở tất cả các cạnh. Không có viền này, máy quét không thể xác định điểm bắt đầu và kết thúc của mã, dẫn đến lỗi quét. Quiet zone được tự động thêm vào trong tất cả các file export. Không crop viền này khi đặt mã QR vào layout in ấn.
+
+## Mã QR chứa được tối đa bao nhiêu dữ liệu?
+
+Mã QR Version 40 (lớn nhất, 177×177 module) với mức sửa lỗi L chứa tối đa 7.089 ký tự số, 4.296 ký tự alphanumeric, hoặc 2.953 byte dữ liệu nhị phân. Thực tế, payload dài tạo ra mã dày đặc hơn, khó quét hơn trên điện thoại tầm trung. Nên rút ngắn URL (dùng URL shortener nếu cần) và giữ vCard gọn gàng.

@@ -1,0 +1,121 @@
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  useLocalized,
+  useUiStrings,
+} from '~/components/tools-ui';
+import { useEffect, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
+import { type Target, convertCurl } from './logic';
+import { STRINGS } from './strings';
+
+const TARGETS: Target[] = ['fetch', 'node-fetch', 'python', 'php', 'go'];
+
+const EXAMPLE = `curl -X POST 'https://api.example.com/users' \\
+  -H 'Content-Type: application/json' \\
+  -H 'Authorization: Bearer TOKEN' \\
+  -d '{"name":"Alice","age":30}'`;
+
+export function CurlConverterUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const [curl, setCurl] = useState('');
+  const [target, setTarget] = useState<Target>('fetch');
+  const [result, setResult] = useState<{ ok: true; value: string } | { ok: false; error: string }>({
+    ok: true,
+    value: '',
+  });
+
+  useEffect(() => {
+    if (!curl.trim()) {
+      setResult({ ok: true, value: '' });
+      return;
+    }
+    let cancelled = false;
+    convertCurl(curl, target)
+      .then((value) => {
+        if (!cancelled) setResult({ ok: true, value });
+      })
+      .catch((e) => {
+        if (!cancelled) setResult({ ok: false, error: toolErrorText(e, s, ui.conversionFailed) });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [curl, target, s, ui.conversionFailed]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-3 items-end">
+          <div className="space-y-1.5">
+            <Label htmlFor="curl-target">{s.target}</Label>
+            <Select value={target} onValueChange={(v) => setTarget(v as Target)}>
+              <SelectTrigger id="curl-target" className="min-w-36">
+                <SelectValue>{target}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {TARGETS.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setCurl(EXAMPLE)}>
+            {ui.tryExample}
+          </Button>
+        </div>
+        {/* Unlike the rest of the catalogue this tool cannot run client-side — parsing curl
+            needs tree-sitter on the server. This sits above the input, not below it: a warning
+            about what you are about to paste is useless after you have pasted it, and curl
+            commands routinely carry tokens, cookies and API keys. */}
+        <p className="text-xs text-muted-foreground border border-border rounded-md px-3 py-2">
+          {s.serverNote}
+        </p>
+        <div>
+          <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+            {s.curlCommand}
+          </span>
+          <Textarea
+            value={curl}
+            onChange={(e) => setCurl(e.target.value)}
+            placeholder={EXAMPLE}
+            rows={6}
+            className="font-mono"
+          />
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">{target}</span>
+            {result.ok && result.value && <CopyButton text={result.value} />}
+          </div>
+          {result.ok ? (
+            <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all min-h-[200px]">
+              {result.value || <span className="text-muted-foreground italic">—</span>}
+            </pre>
+          ) : (
+            <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+              {result.error}
+            </output>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

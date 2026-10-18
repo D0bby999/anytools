@@ -1,0 +1,79 @@
+---
+title: Unix timestamp, ISO 8601, và bug timezone chúng gây ra
+description: Vì sao mọi developer cuối cùng đều cãi nhau với timezone, Y2K38 thực sự là gì, và một quy tắc lưu trữ ngăn hầu hết bug ngày.
+updated: 2026-05-25
+---
+
+## Bốn format tool này nói
+
+Hầu hết tranh cãi về ngày tháng quy về việc bạn dùng cái nào trong bốn format này:
+
+- **Unix giây** — `1779451200`. Số nguyên đếm giây từ 1970-01-01 UTC. Gọn, dễ so sánh và sort. "Mặc định" trong database, log, và API thiết kế trước mobile.
+- **Unix milli giây** — `1779451200000`. Cùng ý tưởng, độ phân giải mịn hơn. `Date.now()` của JavaScript trả về cái này. API từ môi trường JS-heavy (Stripe, Firebase) thường dùng cái này.
+- **ISO 8601** — `2026-05-25T12:00:00Z`. Người đọc được, sort được như string, không ambiguity. Format bạn nên dùng trong JSON API.
+- **RFC 2822** — `Mon, 25 May 2026 12:00:00 GMT`. Format header email/HTTP. Bạn sẽ thấy trong header `Date` và `Last-Modified`.
+
+Tool này tự nhận diện format bạn paste vào và chuyển sang cả bốn, cộng render người đọc được trong timezone IANA bất kỳ.
+
+## Quy tắc duy nhất ngăn hầu hết bug ngày
+
+**Lưu mọi thứ ở UTC. Chuyển sang local time chỉ khi display.**
+
+Mọi bug ngày tháng tái diễn đều từ vi phạm quy tắc này. Lưu "2026-05-25 09:00" trong database mà không có timezone nghĩa là bạn không biết instant nào trong thời gian được biểu diễn. Lưu ở giờ Đông Mỹ nghĩa là ai ở Việt Nam đọc value phải biết convention. Lưu Unix timestamp (hoặc ISO 8601 với `Z`) nghĩa là mọi người đồng thuận về instant, và mỗi viewer render ở zone local của họ.
+
+Hai format lưu trữ chấp nhận được:
+
+```
+1779451200            # Unix giây (hoặc millis), unambiguous UTC
+2026-05-25T12:00:00Z  # ISO 8601 với Z (nghĩa UTC)
+```
+
+Các format không chấp nhận:
+
+```
+2026-05-25 12:00:00       # không có timezone — zone nào?
+05/25/2026 12:00 PM       # cũng không có timezone, format ngày ambiguous
+1779451200 (Asia/Tokyo)   # Unix timestamp kèm "zone" — sai về cấu trúc; epoch theo định nghĩa là UTC
+```
+
+## Vấn đề Y2K38
+
+Unix timestamp trong số nguyên signed 32 bit tràn vào 2038-01-19 lúc 03:14:07 UTC. Sau khoảnh khắc đó, `time_t` 32 bit wrap về số âm biểu diễn 1901. Hệ thống còn dùng lưu trữ time 32 bit sẽ misbehave hoặc crash.
+
+Hệ thống hiện đại dùng `time_t` 64 bit, đẩy overflow tới năm 292 tỷ — thoải mái quá nền văn minh. Nhưng vẫn còn legacy embedded systems, database với cột timestamp `INT(11)`, và file format binary cũ. Xây thứ gì hôm nay, dùng 64-bit và bạn sẽ không bao giờ nghĩ tới nữa.
+
+## DST: vì sao cron job chạy lúc 1 giờ sáng hai lần
+
+Hai lần mỗi năm, vùng theo Daylight Saving Time hoặc nhảy một giờ tới (xuân) hoặc lùi (thu). Vào fall transition, cùng giờ wall-clock (1am–2am ở US Eastern) xảy ra hai lần. Vào spring transition, 2am không tồn tại.
+
+Nếu bạn có cron job scheduled `0 1 * * *` trên server set ở timezone observe DST:
+
+- Spring forward: job bị skip (1am không bao giờ xảy ra ngày đó).
+- Fall back: job chạy hai lần (1am xảy ra hai lần).
+
+Cách fix: **schedule cron job ở UTC**, không phải local time. Hầu hết cron implementation hỗ trợ; check của bạn. Nếu kiểm soát ứng dụng, lưu và tính ở UTC, chỉ convert sang user-local khi display.
+
+## Timezone: IANA vs offset
+
+`+07:00` là **offset** — số giờ cố định từ UTC. `Asia/Ho_Chi_Minh` là **timezone** — toàn bộ tập quy tắc lịch sử của cách local time vùng đó liên quan tới UTC, bao gồm DST transition và thay đổi chính trị lịch sử.
+
+Với display, cả hai work. Với lưu trữ và tính toán, **luôn dùng tên timezone IANA** (`Asia/Ho_Chi_Minh`, không phải `+07:00`). Offset có thể thay đổi do DST hoặc quyết định chính trị; tên IANA tiếp tục mang ý nghĩa đúng.
+
+Việt Nam không observe DST, nên `Asia/Ho_Chi_Minh` và `+07:00` trông giống hệt hôm nay. Nhưng tương đương US/EU cần IANA — `America/New_York` đúng shift giữa `-05:00` (EST) và `-04:00` (EDT); pin về một offset là sai.
+
+## Use case cho tool này
+
+- Decode JWT và xem `exp` timestamp rơi vào lúc nào.
+- Đọc payload webhook Stripe ship `created` dưới dạng Unix millis.
+- Cross-check timestamp server log với timezone local của bạn.
+- Build helper thời gian họp xuyên lục địa.
+- Sanity check timestamp code bạn write thực sự biểu diễn cái bạn muốn.
+
+## Quyền riêng tư
+
+Mọi chuyển đổi local qua native `Date` + API `Intl` và library mã nguồn mở [`date-fns-tz`](https://github.com/marnusw/date-fns-tz). Không request tới server.
+
+## Công cụ liên quan
+
+- **JWT Decoder** — phân tích claim `iat`/`exp` của token.
+- **UUID Generator** — UUID v7 có prefix timestamp; hữu ích cho ID sortable theo thời gian.

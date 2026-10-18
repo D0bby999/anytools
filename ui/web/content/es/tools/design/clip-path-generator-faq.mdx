@@ -1,0 +1,39 @@
+---
+title: Generador de clip-path CSS — Preguntas frecuentes
+---
+
+## ¿El recorte cambia dónde aterrizan los clics?
+
+Sí, y esta es la parte que sorprende a la gente. La región recortada ya no recibe eventos de puntero en absoluto: un botón recortado a un triángulo solo responde dentro del triángulo, y las esquinas que cortas dejan de ser clicables — aunque nada más del diseño haya cambiado. Esto es usualmente lo que quieres, pero también significa que una forma decorativa grande deja de atrapar clics que visualmente parece cubrir, y una superposición recortada puede dejar el elemento debajo de ella alcanzable en lugares que no pretendías. Prueba las partes interactivas, no solo la imagen.
+
+## ¿El elemento sigue ocupando su espacio completo?
+
+Sí. `clip-path` es una operación de tiempo de pintura. El diseño se ejecuta primero, la caja mantiene su ancho y alto completo, y luego parte de ella no se pinta. Los elementos vecinos no se mueven hacia el espacio, y la forma no encoge el área desplazable. Si necesitas que el texto circundante se envuelva alrededor de la forma, eso es `shape-outside`, una propiedad diferente que toma los mismos valores `<basic-shape>`.
+
+## ¿Porcentajes o px?
+
+Los porcentajes se resuelven contra la caja de referencia, por lo que la forma escala con el elemento — un triángulo sigue siendo un triángulo en cualquier ancho. Los valores en píxeles están congelados: aún miden desde la esquina superior izquierda de la caja, por lo que una forma dibujada para una tarjeta de 400px se verá mal en el momento en que la tarjeta sea de 320px de ancho. Usa px solo cuando la geometría genuinamente no debe escalar. El generador almacena porcentajes internamente y convierte al salida, que es por qué cambiar de unidades nunca distorsiona la forma que dibujaste.
+
+## ¿Cuál es la caja de referencia?
+
+Por defecto la caja de borde. Puedes cambiarla añadiendo una palabra clave — `clip-path: polygon(…) padding-box` — para que las coordenadas se resuelvan contra la caja de relleno, contenido o margen en su lugar. Importa tan pronto como el elemento tiene un borde: `0% 0%` es el borde exterior del borde por defecto, no la esquina interior.
+
+## ¿Por qué mi círculo es una elipse?
+
+No lo es — el radio de un círculo se resuelve contra la diagonal de la caja de referencia, específicamente `sqrt(ancho² + alto²) / sqrt(2)`, y el resultado siempre es un círculo. En una caja ancha un radio del 50% es por lo tanto más grande que la mitad de la altura, por lo que el círculo se corta por los bordes superior e inferior y se lee como una banda horizontal. Reduce el radio, o usa `ellipse()` con radios x e y separados si quieres que la forma se estire con la caja.
+
+## ¿Puedo animar entre formas?
+
+Solo entre polígonos con el mismo número de vértices, en la misma dirección de bobinado; el navegador entonces interpola cada punto. Diferentes conteos de vértices, o un polígono a un círculo, es un intercambio discreto sin fotogramas intermedios. Una solución común es dar a la forma "simple" vértices repetidos para que ambos estados tengan el mismo conteo.
+
+## ¿Aún necesito el prefijo `-webkit-`?
+
+Para estas formas básicas, no. El `clip-path` sin prefijo funciona en Chrome, Edge, Firefox y Safari actuales. El prefijo es una reliquia de Safari más antiguo, y nunca fue compatible con la sintaxis completa sin prefijo de todas formas. Lo que sí difiere es `clip-path: url(#svgShape)`, que referencia un elemento SVG `<clipPath>` y tiene un historial de soporte más áspero que las formas básicas que esta herramienta escribe.
+
+## ¿Puede la forma tener un borde o una sombra?
+
+No directamente. Un borde se pinta antes del recorte, por lo que se corta con todo lo demás, y `box-shadow` sigue la caja de borde rectangular en lugar de la silueta recortada. Para esbozar una forma recortada, apila un elemento recortado ligeramente más grande detrás de él en el color del contorno; para una sombra que siga la silueta, envuelve el elemento y pon `filter: drop-shadow()` en el envoltorio.
+
+## ¿Se carga algo?
+
+No. La forma se edita y el CSS se genera completamente en tu navegador.

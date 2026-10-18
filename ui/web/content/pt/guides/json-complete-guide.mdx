@@ -1,0 +1,183 @@
+---
+title: "Guia completo de JSON em 2026"
+description: "Mergulho profundo em JSON: história, sintaxe, variantes (JSON5, NDJSON, BSON), validação, performance e segurança. Com exemplos práticos e 10+ FAQs."
+keywords: ["guia json", "tutorial json", "json schema", "validação json", "parsing json", "json5", "ndjson", "bson", "segurança json"]
+updated: 2026-05-27
+readingTime: 18
+---
+
+# Guia completo de JSON em 2026
+
+JSON parece simples. Você já leu e escreveu milhares de objetos. Mas debaixo da superfície há decisões de design dos anos 2000, bugs de segurança que ainda derrubam servidores em 2026, e variantes (NDJSON, JSON5, BSON) que existem por bons motivos. Este guia cobre o que importa saber.
+
+---
+
+## 1. História e RFC
+
+JSON nasceu em 2001, formalizado por Douglas Crockford a partir de literais de objeto JavaScript. Foi padronizado em [RFC 4627](https://datatracker.ietf.org/doc/html/rfc4627) (2006) e o padrão atual é [RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) (2017).
+
+Crockford projetou JSON ser o **subconjunto mínimo** de JS que pudesse ser parseado com `eval()` (não recomendado hoje, mas era a ideia original). Por isso a sintaxe é tão restrita: sem comentários, sem trailing commas, chaves devem ser strings com aspas duplas. Ele queria que o formato sobrevivesse intacto por décadas — e sobreviveu.
+
+---
+
+## 2. Sintaxe core
+
+Seis tipos primitivos:
+
+- **string**: `"hello"` — aspas duplas obrigatórias, escapes `\"`, `\\`, `\n`, `\uXXXX`
+- **number**: `42`, `-3.14`, `1.5e10` — sem `NaN`, `Infinity`, `+0` ou octais
+- **boolean**: `true`, `false` — lowercase
+- **null**: `null`
+- **array**: `[1, 2, 3]`
+- **object**: `{"key": "value"}` — chaves SEMPRE strings, SEMPRE com aspas duplas
+
+Sem comentários. Sem trailing commas. Sem chaves sem aspas (`{name: "Alice"}` é JS, não JSON).
+
+---
+
+## 3. Variantes que você vai encontrar
+
+**JSON5**: relaxa as regras — comentários, trailing commas, chaves sem aspas, números hex, strings com `'` single quotes. Usado em configs (`.babelrc`, alguns lockfiles). Não é JSON padrão; precisa de parser específico.
+
+**JSONC** (JSON with Comments): JSON + comentários `//` e `/* */`. Usado pelo VSCode (`settings.json`, `tasks.json`). Mais conservador que JSON5.
+
+**NDJSON / JSON Lines**: um objeto JSON por linha, sem array wrapper. Streaming-friendly. Cada linha é processável independentemente.
+
+```
+{"id":1,"name":"Alice"}
+{"id":2,"name":"Bob"}
+```
+
+Usado em logs (Bunyan, Pino), big data (Apache Spark, BigQuery), streaming APIs.
+
+**BSON** (Binary JSON): formato binário do MongoDB. Suporta tipos extra (ObjectId, Date, Binary). Não é texto.
+
+**MessagePack**: outro formato binário, mais compacto que BSON. Usado em Redis, alguns RPCs.
+
+---
+
+## 4. Validação com JSON Schema
+
+JSON puro não tem schema. Você não pode dizer "esse campo é obrigatório" ou "esse número deve ser >= 0" só no JSON. **JSON Schema** ([json-schema.org](https://json-schema.org)) é a especificação de validação:
+
+```json
+{
+  "type": "object",
+  "required": ["name", "age"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "age": { "type": "integer", "minimum": 0, "maximum": 150 },
+    "email": { "type": "string", "format": "email" }
+  }
+}
+```
+
+Bibliotecas validadoras: Ajv (JS, padrão de facto), jsonschema (Python), everit-org/json-schema (Java). OpenAPI 3.x usa JSON Schema para definir request/response.
+
+Drafts diferentes (Draft 4, 6, 7, 2019-09, 2020-12) têm sutis incompatibilidades. Use sempre a versão mais recente para projetos novos.
+
+---
+
+## 5. Performance: parse vs stream
+
+`JSON.parse()` no JS carrega tudo na memória. Para responses de API < 10MB, está ótimo. Para arquivos grandes (logs, dumps), você quer **streaming**:
+
+- `stream-json` (Node) — parser de stream que emite eventos por chave/valor
+- `simdjson` (C++ com bindings) — usa instruções SIMD; 4-5x mais rápido que parsers tradicionais
+- `JSON.parseFromAsync` (proposta TC39) — async iterator nativo para JSON enorme
+
+Para NDJSON, basta processar linha por linha:
+
+```js
+for await (const line of readline.createInterface({ input: stream })) {
+  const obj = JSON.parse(line)
+  // process obj
+}
+```
+
+Performance de write: `JSON.stringify` com replacer custom pode ser mais lento que esperado. Para pipelines de alta vazão (>100k ops/s), considere `fast-json-stringify` que pré-compila do schema.
+
+---
+
+## 6. Segurança
+
+**Prototype pollution:** parsers JSON em JavaScript que não validam podem permitir injeção de `__proto__`:
+
+```json
+{"__proto__": {"isAdmin": true}}
+```
+
+Se você faz `Object.assign({}, parsedJson)`, polui o protótipo de TODOS os objetos. Mitigação: validar contra schema, usar `Object.create(null)` para objetos sem prototype, ou bibliotecas como Hono/Fastify que protegem por padrão.
+
+**Parse bombs:** JSON aninhado profundo (`{"a":{"a":{"a":...}}}`) pode estourar a stack ou consumir memória excessiva. Limite a profundidade máxima no parser.
+
+**Billion laughs (XXE equivalente):** menos aplicável a JSON puro, mas algumas variantes (com aliases) podem ter problemas similares.
+
+**Information leak via floats:** JSON tem só "number". Números muito grandes (acima de 2^53) perdem precisão. Para IDs/wei/saldos financeiros, use string ou BigInt + transformação manual.
+
+---
+
+## 7. Edge cases que mordem
+
+**Duplicate keys**: `{"a":1,"a":2}` é tecnicamente JSON válido. Parsers diferentes lidam de jeitos diferentes — alguns mantêm o último, outros lançam erro, outros mantêm o primeiro. Nunca confie nesse comportamento.
+
+**Encoding**: JSON deve ser UTF-8 (UTF-16/32 também permitidos por RFC, mas raros). Detect BOM e remova antes de parse.
+
+**Trailing whitespace**: permitido entre tokens, ignorado.
+
+**Empty input**: `""` não é JSON válido. `null` é. `""` (string vazia) é.
+
+**Number formats**: `1.` (sem digit depois do ponto) e `.1` (sem digit antes) NÃO são JSON válidos. `1.0` e `0.1` são.
+
+---
+
+## 8. Ferramentas relacionadas no AnyTools
+
+- [JSON Formatter](/pt/formatters/json-formatter) — pretty-print, validate, minify
+- [JSON ↔ YAML ↔ TOML](/pt/converters/json-yaml-toml) — converter entre formatos
+- [CSV ↔ JSON](/pt/converters/csv-json) — tabular ↔ document
+- [Mock Data Generator](/pt/generators/mock-data-generator) — JSON fake para testes
+
+---
+
+## FAQ
+
+### Por que JSON não tem comentários?
+
+Decisão de design de Crockford para manter o formato mínimo e interoperável. Para configs com comentários, use JSONC ou YAML.
+
+### Posso confiar em parsers de qualquer linguagem?
+
+Maioria sim, para JSON bem-formado. Cuidado com edge cases: trailing commas (não permitidas mas alguns parsers toleram), duplicate keys (comportamento varia), grandes números (precisão pode ser perdida).
+
+### Como lidar com BigInt em JSON?
+
+JSON não tem inteiro arbitrário. Soluções: serializar como string (`"123456789012345"`), usar JSON com replacer custom, ou usar BSON/MessagePack.
+
+### `JSON.stringify` muito lento — alternativas?
+
+`fast-json-stringify` (pré-compila do schema), `JSON.stringify` com replacer otimizado, ou serializar partes pré-renderizadas + concat manual. Para 99% dos casos, JSON.stringify nativo está ótimo.
+
+### Posso usar JSON Schema para validar runtime?
+
+Sim. Ajv é o validador JS mais rápido. Compile o schema uma vez (resultado é função JS), reuse para cada request. Em hot paths, ~1µs por validação.
+
+### NDJSON é melhor que JSON array para streaming?
+
+Sim. Cada linha pode ser processada independentemente, sem esperar o close `]`. Tools como `jq`, `mlr`, `head`, `tail` funcionam linha-a-linha — perfeito para NDJSON.
+
+### Como evito prototype pollution?
+
+Use schema validation antes de Object.assign/spread. Rejeite chaves `__proto__`, `constructor.prototype`, `prototype`. Frameworks modernos (Hono, Fastify) já fazem isso.
+
+### Qual o limite de profundidade seguro?
+
+Browsers travam ao redor de 1000 níveis aninhados (stack overflow). Para input não-confiável, limite a profundidade explicitamente (ex: 100 níveis).
+
+### JSON vs XML em 2026?
+
+JSON ganhou para APIs REST e web. XML ainda relevante em SOAP, SVG, OOXML (docx/xlsx), RSS/Atom, e onde namespaces importam. Para greenfield: JSON ou Protocol Buffers (binário).
+
+### Como diffar dois JSONs?
+
+Não diffe textual — formate ambos primeiro (sort keys, mesmo indent). Tools: `json-diff` CLI, [Diff Checker do AnyTools](/pt/text-regex/diff-checker), ou parse e comparar estruturalmente.

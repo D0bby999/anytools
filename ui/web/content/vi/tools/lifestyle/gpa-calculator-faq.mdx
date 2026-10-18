@@ -1,0 +1,27 @@
+---
+title: Tính điểm GPA — Câu hỏi thường gặp
+---
+
+## Công cụ dùng thang điểm nào?
+
+Thang 4.0 không trọng số kiểu Mỹ, với bảng quy đổi cố định trong code: A và A+ đều bằng 4.0, A− bằng 3.7, B+ bằng 3.3, B bằng 3.0, B− bằng 2.7, C+ bằng 2.3, C bằng 2.0, C− bằng 1.7, D+ bằng 1.3, D bằng 1.0 và F bằng 0. Không có mục nào cao hơn 4.0, kể cả A+ — nhiều trường Mỹ cho A+ ăn 4.3, và nếu trường bạn nằm trong số đó thì kết quả ở đây sẽ thấp hơn bảng điểm chính thức một chút. Đây là thang phổ biến nhất khi nộp hồ sơ du học và làm CV tiếng Anh, nên nó được chọn làm mặc định.
+
+## Đây có phải thang 10 của trường đại học Việt Nam không?
+
+Không, và tool cũng không tự quy đổi hộ bạn. Trường Việt Nam chấm theo thang 10, rồi quy sang điểm chữ và thang 4 theo quy chế riêng của từng trường — ngưỡng để được A, B+ hay C ở mỗi nơi mỗi khác, có trường A bắt đầu từ 8.5, có trường từ 9.0, có trường còn xét theo phổ điểm cả lớp. Vì vậy bạn phải tự tra bảng quy đổi trong quy chế đào tạo của trường mình, đổi từng môn sang điểm chữ trước, rồi mới nhập vào đây. Nếu bạn nhập thẳng điểm 8.5 hay 7.0 của thang 10, con số hiện ra sẽ hoàn toàn vô nghĩa.
+
+## Số tín chỉ ảnh hưởng thế nào đến kết quả?
+
+Rất mạnh, vì đây là trung bình có trọng số chứ không phải trung bình cộng. Mỗi môn đóng góp điểm chữ nhân với số tín chỉ của nó; GPA bằng tổng các tích đó chia cho tổng số tín chỉ. Một môn 4 tín chỉ bị điểm C kéo GPA xuống mạnh gấp bốn lần một môn 1 tín chỉ cũng điểm C. Hệ quả thực tế: nhập đúng số tín chỉ quan trọng hơn nhập đủ mọi môn. Nếu tổng số tín chỉ bằng 0 — chẳng hạn bạn mới thêm dòng mà chưa điền gì — tool trả về 0 thay vì báo lỗi chia cho 0, nên con số 0 ở đây nghĩa là "chưa đủ dữ liệu", không phải "GPA của bạn bằng 0".
+
+## Vì sao GPA chính thức trong bảng điểm lại khác kết quả này?
+
+Thường là do những luật nằm ngoài phép tính. Tool không xử lý GPA có trọng số cho các lớp nâng cao hay AP, nơi nhà trường cộng thêm cả một điểm cho môn khó. Nó cũng không mô hình hóa môn đạt/không đạt, môn rút giữa kỳ, tín chỉ chuyển đổi từ trường khác, hay chính sách học lại — nhiều trường lấy điểm lần thi sau thay hẳn lần trước, nhiều trường lại tính trung bình cả hai. Bản thân phép nhân chia ở đây là chuẩn; thứ không chuẩn giữa các trường là bộ quy định bao quanh nó. Khi hai con số lệch nhau, hãy tin bảng điểm của phòng đào tạo và dùng kết quả ở đây như một bản ước lượng.
+
+## Bảng điểm tôi nhập có bị gửi lên máy chủ không?
+
+Không. Tên môn, điểm chữ và số tín chỉ chỉ tồn tại trong bộ nhớ tab trình duyệt của bạn; phép tính chạy tại chỗ, không có lời gọi mạng nào và không có gì được lưu lại sau khi bạn đóng trang. Điều đó cũng có nghĩa là danh sách môn sẽ biến mất khi bạn tải lại trang, nên nếu đang dựng bảng điểm nhiều học kỳ thì hãy chép kết quả ra chỗ khác trước. Với dữ liệu học tập, đây là đánh đổi đáng giá: không có bản sao nào của bảng điểm nằm trên máy chủ người khác chỉ vì bạn muốn tính nhanh một con số.
+
+## Tính bằng Excel hay máy tính tay có nhanh hơn không?
+
+Hiếm khi. Trên máy tính tay bạn phải tự nhớ bảng quy đổi điểm chữ, tự nhân từng môn với tín chỉ rồi cộng dồn hai cột song song — chỉ cần bấm sai một lần là phải làm lại từ đầu mà không hề biết mình sai. Trong Excel bạn phải tự dựng bảng tra, viết công thức `SUMPRODUCT` chia cho `SUM`, và cẩn thận với dòng trống làm lệch vùng dữ liệu. Ở đây bảng quy đổi đã nằm sẵn trong code, bạn chọn điểm chữ từ danh sách nên không gõ nhầm được, và kết quả cập nhật ngay khi sửa một môn — rất tiện lúc đang thử xem cần điểm gì ở kỳ tới để kéo GPA lên.

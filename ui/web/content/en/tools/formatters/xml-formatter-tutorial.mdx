@@ -1,0 +1,96 @@
+---
+title: XML Formatter — complete guide to pretty-printing and minifying XML
+description: How XML parsing works, namespace quirks, CDATA, self-closing tags, and when XML still matters in 2026.
+updated: 2026-05-26
+---
+
+## What XML is, and why it's still everywhere
+
+XML (Extensible Markup Language) was standardized by the W3C in 1998 and promptly became the universal envelope for structured data — until JSON arrived and took over REST APIs. Today, XML is pronounced "legacy" at conferences but still processes an enormous share of real-world data: SOAP web services in banking and healthcare, RSS and Atom feeds, SVG graphics, OOXML (`.docx`, `.xlsx`), Android layout files, Maven build configs, and virtually every enterprise integration bus you'll find in a Fortune 500 company.
+
+Understanding the format well — and having a reliable formatter to hand — is not optional for a working developer.
+
+## The XML rules that trip people up
+
+XML is more strictly specified than HTML. A parser conforming to the spec is required to **reject** malformed input, not try to infer your intent. The most common reasons a document fails to parse:
+
+1. **Unclosed tags.** Every opening tag needs a matching close or must be self-closing: `<br/>`. Unlike HTML, `<br>` is not valid XML.
+2. **Case sensitivity.** `<Item>` and `<item>` are different elements. Mix them and the document is invalid.
+3. **Only one root element.** A valid XML document has exactly one top-level element. Multiple root-level elements — even with a declaration — are not well-formed.
+4. **Attribute values must be quoted.** `<img width=300>` is HTML shorthand; in XML it must be `width="300"`.
+5. **Reserved characters in content.** Literal `<`, `>`, and `&` inside text content must be escaped as `&lt;`, `&gt;`, and `&amp;`. Or wrap the block in a CDATA section (see below).
+
+## Namespaces — the biggest source of confusion
+
+XML namespaces let different vocabularies coexist in one document without name collisions. A namespace is a URI bound to a prefix:
+
+```xml
+<root xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Envelope>
+    <soap:Body xsi:type="xs:string">Hello</soap:Body>
+  </soap:Envelope>
+</root>
+```
+
+The URI itself is just a unique identifier — it doesn't need to resolve to anything at that URL. A formatter that doesn't understand namespaces may re-order or collapse attributes in ways that break namespace bindings. This formatter preserves all namespace declarations exactly as written.
+
+The default namespace (`xmlns="…"`) applies to the element it appears on and all descendants that don't have a prefix — which is a common surprise when you query with XPath and wonder why your selector doesn't match.
+
+## CDATA sections
+
+A CDATA section tells the parser to treat everything inside it as literal character data, not markup:
+
+```xml
+<script><![CDATA[
+  if (a < b && c > d) {
+    doSomething();
+  }
+]]></script>
+```
+
+Without CDATA, those `<`, `>`, and `&` would need escaping. CDATA is useful for embedding HTML snippets, JavaScript, or SQL inside XML. The only string you cannot put inside a CDATA section is `]]>` (the closing delimiter itself).
+
+## Comments and processing instructions
+
+XML comments `<!-- like this -->` are semantically inert — parsers are allowed to discard them. If you need to survive a serialization round-trip with comments intact, use a parser that explicitly preserves them. This tool's underlying library (`fast-xml-parser`) operates in an attribute-aware mode that retains comment nodes.
+
+Processing instructions `<?xml-stylesheet type="text/xsl" href="style.xsl"?>` are directives to the consuming application. The XML declaration `<?xml version="1.0" encoding="UTF-8"?>` is technically a processing instruction, though it's treated specially. Always include the declaration when your document may contain non-ASCII characters.
+
+## Self-closing tags and attribute ordering
+
+Self-closing tags (`<element/>`) and their two-token equivalents (`<element></element>`) are semantically identical in XML. The formatter normalizes short empty elements to self-closing form, which reduces visual noise. Attribute ordering within a tag carries no semantic meaning per the spec, so formatters may reorder attributes alphabetically for readability — this tool preserves the original order to avoid surprises in workflows that diff attribute position.
+
+## Pretty-print vs minify trade-offs
+
+**Pretty-printing** adds indentation and newlines so the structure is scannable. Use it for:
+- Checking into version control (diffs become human-readable)
+- Debugging SOAP envelopes and API responses
+- Editing configuration files by hand
+
+**Minifying** removes all non-significant whitespace. Use it for:
+- Wire transport in bandwidth-constrained environments
+- Embedding XML in environments where whitespace might be misinterpreted (some SOAP implementations are whitespace-sensitive)
+- Reducing storage size for large XML archives
+
+One subtlety: whitespace inside a `<![CDATA[…]]>` block, or inside mixed-content elements (elements that contain both text and child elements), is **significant** and must not be stripped. The formatter respects this by preserving text-node whitespace.
+
+## When XML still beats JSON
+
+- **SOAP services.** Financial, government, and healthcare systems often mandate WSDL-described SOAP. There is no JSON equivalent.
+- **RSS/Atom feeds.** Syndication is still XML-native; the tooling ecosystem expects it.
+- **SVG.** Scalable Vector Graphics is XML. Formatting an SVG file the same way you'd format an API response is perfectly valid.
+- **OOXML.** `.docx` and `.xlsx` files are ZIP archives containing XML. Unzip one and you'll see `word/document.xml` — which this tool can reformat.
+- **Complex document models.** XML's mixed content, namespaces, and schema languages (XSD, Relax NG) handle document authoring scenarios that JSON's flat key-value model doesn't cover gracefully.
+
+## Using fast-xml-parser
+
+This tool is powered by [`fast-xml-parser`](https://github.com/NaturalIntelligence/fast-xml-parser), a zero-dependency JavaScript library with streaming support and configurable attribute handling. It preserves namespace prefixes, attribute order, CDATA sections, and XML comments when configured correctly. Input is parsed to an internal AST and then re-serialized with the chosen indent width — either 2 or 4 spaces, or a tab.
+
+## Input size and performance
+
+The formatter runs entirely in your browser. Input up to approximately **5 MB** is handled comfortably in most modern browsers. Beyond that, the synchronous parse-and-serialize cycle may freeze the tab for several seconds. For very large XML files (log exports, database dumps), consider a CLI tool (`xmllint --format`) or a streaming pipeline.
+
+## Privacy
+
+All processing is local — your XML never leaves the browser. No server request is made; you can verify this in your browser's network tab.

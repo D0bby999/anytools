@@ -1,0 +1,252 @@
+{
+  "barriers": {
+    "barriers": [
+      {
+        "row": "listening",
+        "cells": {
+          "barrier": "device",
+          "impact": "v1 barriers barriers listening impact",
+          "repair": "v1 barriers barriers listening repair",
+          "sample": "v1 barriers barriers listening sample"
+        }
+      },
+      {
+        "row": "reading",
+        "cells": {
+          "barrier": "capacity",
+          "impact": "v1 barriers barriers reading impact",
+          "repair": "v1 barriers barriers reading repair",
+          "sample": "v1 barriers barriers reading sample"
+        }
+      },
+      {
+        "row": "speaking",
+        "cells": {
+          "barrier": "follow-up",
+          "impact": "v1 barriers barriers speaking impact",
+          "repair": "v1 barriers barriers speaking repair",
+          "sample": "v1 barriers barriers speaking sample"
+        }
+      },
+      {
+        "row": "writing",
+        "cells": {
+          "barrier": "delivery",
+          "impact": "v1 barriers barriers writing impact",
+          "repair": "v1 barriers barriers writing repair",
+          "sample": "v1 barriers barriers writing sample"
+        }
+      }
+    ]
+  },
+  "boundary": {
+    "audience": "v1 boundary audience",
+    "boundary": "v1 boundary boundary",
+    "context": "life",
+    "dates": "v1 boundary dates",
+    "delivery": "v1 boundary delivery",
+    "help": "v1 boundary help",
+    "limits": "v1 boundary limits",
+    "material": "v1 boundary material",
+    "topic": "v1 boundary topic"
+  },
+  "cefr": {
+    "baseline_saved": true,
+    "delayed_retest": true,
+    "goal_context": "v1 cefr goal context",
+    "goal_deadline": "2026-01-05",
+    "goal_evidence": "v1 cefr goal evidence",
+    "goal_task": "v1 cefr goal task",
+    "goal_threshold": "v1 cefr goal threshold",
+    "immediate_recorded": true,
+    "levels": [
+      {
+        "row": "listening",
+        "cells": {
+          "level": "not sure"
+        }
+      },
+      {
+        "row": "reading",
+        "cells": {
+          "level": "not sure"
+        }
+      },
+      {
+        "row": "speaking",
+        "cells": {
+          "level": "not sure"
+        }
+      },
+      {
+        "row": "writing",
+        "cells": {
+          "level": "not sure"
+        }
+      }
+    ],
+    "transfer_check": true
+  },
+  "feedback": {
+    "before": "v1 feedback before",
+    "check": "v1 feedback check",
+    "decisions": "v1 feedback decisions",
+    "did": [
+      "diagnosis",
+      "feedback"
+    ],
+    "disclosure": "v1 feedback disclosure",
+    "independent": "v1 feedback independent",
+    "scope": "v1 feedback scope",
+    "tool": "v1 feedback tool"
+  },
+  "first_version": {
+    "cannot_support": "v1 first version cannot support",
+    "change": "v1 first version change",
+    "explain": "v1 first version explain",
+    "first_version_on": "2026-01-05",
+    "versions": [
+      {
+        "row": "listening",
+        "cells": {
+          "completed": true,
+          "location": "v1 first version versions listening location",
+          "start_end": "v1 first version versions listening start end",
+          "tools": "v1 first version versions listening tools",
+          "uncertainty": "v1 first version versions listening uncertainty"
+        }
+      },
+      {
+        "row": "reading",
+        "cells": {
+          "completed": true,
+          "location": "v1 first version versions reading location",
+          "start_end": "v1 first version versions reading start end",
+          "tools": "v1 first version versions reading tools",
+          "uncertainty": "v1 first version versions reading uncertainty"
+        }
+      },
+      {
+        "row": "speaking",
+        "cells": {
+          "completed": true,
+          "location": "v1 first version versions speaking location",
+          "start_end": "v1 first version versions speaking start end",
+          "tools": "v1 first version versions speaking tools",
+          "uncertainty": "v1 first version versions speaking uncertainty"
+        }
+      },
+      {
+        "row": "writing",
+        "cells": {
+          "completed": true,
+          "location": "v1 first version versions writing location",
+          "start_end": "v1 first version versions writing start end",
+          "tools": "v1 first version versions writing tools",
+          "uncertainty": "v1 first version versions writing uncertainty"
+        }
+      }
+    ]
+  },
+  "next": {
+    "change": "v1 next change",
+    "continue": "v1 next continue",
+    "direction": "v1 next direction",
+    "downgrade": "v1 next downgrade",
+    "next_review": "2026-01-05",
+    "next_task": "v1 next next task",
+    "pause": "v1 next pause",
+    "strongest": "v1 next strongest",
+    "weakest": "v1 next weakest"
+  },
+  "repair": {
+    "action": "v1 repair action",
+    "barrier": "v1 repair barrier",
+    "feedback": "v1 repair feedback",
+    "material": "v1 repair material",
+    "samples": "v1 repair samples",
+    "scaffold": "v1 repair scaffold",
+    "standard": "v1 repair standard"
+  },
+  "retest": {
+    "cannot_prove": "v1 retest cannot prove",
+    "day30_error": "v1 retest day30 error",
+    "day7_alone": "v1 retest day7 alone",
+    "extra_time": "v1 retest extra time",
+    "familiar_only": "v1 retest familiar only",
+    "timeline": [
+      {
+        "row": "day1",
+        "cells": {
+          "result": "v1 retest timeline day1 result"
+        }
+      },
+      {
+        "row": "day7",
+        "cells": {
+          "result": "v1 retest timeline day7 result"
+        }
+      },
+      {
+        "row": "day30",
+        "cells": {
+          "result": "v1 retest timeline day30 result"
+        }
+      },
+      {
+        "row": "week12",
+        "cells": {
+          "result": "v1 retest timeline week12 result"
+        }
+      }
+    ]
+  },
+  "scores": {
+    "scores": [
+      {
+        "row": "listening",
+        "cells": {
+          "accuracy": 1,
+          "comprehensibility": 1,
+          "independence": 1,
+          "organisation": 1,
+          "reason": "v1 scores scores listening reason",
+          "task": 1
+        }
+      },
+      {
+        "row": "reading",
+        "cells": {
+          "accuracy": 1,
+          "comprehensibility": 1,
+          "independence": 1,
+          "organisation": 1,
+          "reason": "v1 scores scores reading reason",
+          "task": 1
+        }
+      },
+      {
+        "row": "speaking",
+        "cells": {
+          "accuracy": 1,
+          "comprehensibility": 1,
+          "independence": 1,
+          "organisation": 1,
+          "reason": "v1 scores scores speaking reason",
+          "task": 1
+        }
+      },
+      {
+        "row": "writing",
+        "cells": {
+          "accuracy": 1,
+          "comprehensibility": 1,
+          "independence": 1,
+          "organisation": 1,
+          "reason": "v1 scores scores writing reason",
+          "task": 1
+        }
+      }
+    ]
+  }
+}

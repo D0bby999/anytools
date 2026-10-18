@@ -1,0 +1,45 @@
+---
+title: Descomprimir Archivo — Preguntas frecuentes
+---
+
+## ¿Qué formatos puede abrir?
+
+ZIP, 7z, RAR (tanto los formatos versión 4 como versión 5), TAR y gzip — incluyendo las combinaciones comunes `.tar.gz` y `.tgz`. El formato se decide por los primeros bytes del archivo, no por su extensión, así que un archivo que llegó con nombre `download` o `photos.zip` cuando es realmente un RAR todavía se abre correctamente.
+
+Un zip simple se lee por JSZip, una biblioteca de JavaScript. Todo lo demás se lee por libarchive, la misma biblioteca C que usa `bsdtar`, compilada a WebAssembly. Esa construcción es aproximadamente 1 MB, así que solo se obtiene cuando realmente sueltas un archivo no-zip — abre un zip y nunca se solicita en absoluto.
+
+## ¿Por qué rechaza un archivo que dice que contiene 3 GB?
+
+Porque desempaquetarlo sucedería en la memoria de esta pestaña del navegador, y la pestaña moriría. La herramienta lee el tamaño que cada entrada declara en el directorio propio del archivo — lo que no cuesta nada y no requiere descomprimir nada — y se detiene antes de la extracción si el total excede 2 GB o el recuento de entradas excede 50.000.
+
+Esos tamaños declarados se escriben por quien construyó el archivo, así que una bomba puede simplemente sub-informar: declarar 1 KB y entregar una secuencia que se expande a gigabytes. Un segundo techo maneja ese, contando los bytes que realmente salen y deteniéndose cuando el total pasa 2 GB sin importar qué reclamen los encabezados. En la ruta de zip el recuento se ejecuta conforme llegan los datos, en pasos aproximadamente de 16 KB, así que una sola entrada mentirosa se corta a mitad de camino en lugar de después de que ya haya llenado la pestaña; en la ruta de WebAssembly el lector devuelve un archivo completo a la vez, así que la verificación solo puede aterrizar entre entradas.
+
+Hay una complicación más que vale la pena declarar claramente. Un zip pasado 4 GB registra sus tamaños en campos ZIP64, y la biblioteca de zip de JavaScript usada aquí los lee mal — una entrada de 5 GB regresa como 1 GB, y una de 4 GB regresa sin tamaño en absoluto. Así que esta herramienta analiza el directorio del archivo en sí, antes de entregar cualquier cosa a esa biblioteca, y una entrada cuyo tamaño real no puede establecerse es rechazada en lugar de asumirse que es pequeña. Un archivo legítimo grande es rechazado por las mismas reglas. Es un compromiso deliberado: una pestaña que dice que no es mejor que una pestaña que se cuelga y pierde todo lo demás que tenías abierto.
+
+## ¿Puede abrir un archivo protegido con contraseña?
+
+Zips encriptados, sí: ingresa la contraseña y abre el archivo de nuevo. Esto pasa por libarchive, que maneja tanto el cifrado legado de ZipCrypto como el cifrado AES de zip. JSZip no puede leer entradas encriptadas en absoluto, por eso un zip encriptado te pide una contraseña antes de que nada se cargue.
+
+RAR es donde la respuesta honesta se vuelve más larga. RAR puede encriptar el *contenido* del archivo mientras deja los *encabezados* legibles, o puede encriptar los encabezados también. El primer tipo lista y extrae con la contraseña correcta. El segundo tipo ni siquiera puede ser listado sin la contraseña, y el soporte para ello en esta construcción de WebAssembly no es confiable — si un RAR con encabezados encriptados rechaza abrir aquí, esa es una limitación real y una herramienta de escritorio es la respuesta. Nada acerca de una contraseña incorrecta puede distinguirse de una variante no soportada con certeza, así que el mensaje de error dice ambas.
+
+## ¿Se carga el archivo a un servidor?
+
+No. El archivo se lee por esta página, se descomprime en esta pestaña (en un Web Worker para los formatos de WebAssembly), y cada enlace de descarga apunta a un blob que tu navegador mantiene localmente. El binario de WebAssembly y su worker se sirven desde la propia origen de este sitio, no desde un CDN — así que abrir un archivo no contacta a ningún tercero en absoluto. Puedes verificar en la pestaña Network, u abrir uno después de desconectarte.
+
+## ¿Por qué "extraer todo" me devuelve otro zip?
+
+Porque un navegador suprime la descarga segunda y subsecuente cuando una página inicia varias a la vez, así que los archivos desaparecen silenciosamente. Reempacar todo en un zip es la única forma confiable de darte más de un archivo. Cada entrada también tiene su propio enlace de descarga si solo quieres uno o dos.
+
+Cuando la herramienta construye ese zip reescribe cada ruta: cualquier cosa que contenga `../`, un `/` inicial, o una letra de unidad de Windows se aplana. Los archivos realmente llevan tales rutas — es cómo la clase de vulnerabilidades Zip Slip obtiene archivos escritos fuera de la carpeta en la que extraiste — y nada que este sitio produce pasará uno.
+
+## Se quedó sin memoria en mi teléfono. ¿Por qué?
+
+Porque todo se mantiene en RAM. Una pestaña en Chrome o Firefox de escritorio manejará unos pocos cientos de megabytes sin queja; Safari en iOS es mucho más apretado y puede descartar la página muy por debajo de eso, especialmente con el lector de WebAssembly manteniendo su propia copia del archivo junto a los archivos extraídos. Si un archivo grande recarga la página en un teléfono, eso es lo que sucedió, y un navegador de escritorio o una herramienta nativa es la forma de atravesarlo.
+
+## ¿Qué hay de ISO, CAB, DMG o un archivo dividido?
+
+libarchive en sí entiende muchos más formatos que estos cinco que anuncia la herramienta, pero solo esos cinco se detectan y ofrecen aquí — los primeros bytes del archivo se comparan contra esos cinco firmas y nada más, así que un ISO o un CAB se rechaza en la puerta aunque el lector detrás probablemente pudiera hacerlo.
+
+Siendo preciso acerca de "ofrecido": zip, tar y gzip cada uno ha sido abierto aquí con archivos reales, incluyendo un zip encriptado y un `.tar.gz`. RAR y 7z se enrutan a la misma construcción de libarchive, que documenta soporte para ambos, pero ningún archivo `.rar` o `.7z` ha sido ejecutado por esta página — se ofrecen en la reputación de la biblioteca, no en una verificación realizada aquí. Si uno falla al abrir, eso vale la pena reportar en lugar de trabajar alrededor.
+
+Los archivos de múltiples partes (`.z01`, `.part1.rar`) no son soportados: necesitan cada parte presente a la vez, y esta herramienta toma un solo archivo.

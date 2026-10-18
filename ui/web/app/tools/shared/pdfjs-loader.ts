@@ -1,0 +1,110 @@
+/**
+ * Load pdf.js and open a document with the hardening these tools require.
+ *
+ * SECURITY. This is the first place the site parses a file supplied by a stranger with a
+ * complex parser. pdf.js has a documented class of arbitrary-JS-execution bugs reached through
+ * the font path — CVE-2024-4367 evaluated an attacker-controlled FontMatrix, patched in
+ * 4.2.67 — and this origin also holds the learning app's session cookie. A successful escape
+ * would act as the signed-in learner.
+ *
+ * Hence, in order of importance:
+ *   1. `pdfjs-dist` is the app's own copy (the reader and the exam paper use it too), and the
+ *      lockfile pins it. The old site pinned 5.4.149; this is 6.x, which no longer has the
+ *      eval-based font compilation path at all, so the old `isEvalSupported: false` has
+ *      nothing left to switch off (pdf.js 6 dropped the option with the path).
+ *   2. `disableFontFace: true` keeps fonts from being installed into the document at all;
+ *      pdf.js falls back to drawing glyph paths, which is slower and visually equivalent for
+ *      the raster output these tools produce.
+ *   3. The Content-Security-Policy in lib/security-headers.server.ts: no inline script without
+ *      the request's nonce, no eval.
+ *
+ * Callers must additionally never render a user-supplied filename as HTML. React escapes text
+ * children by default, so this only means: no dangerouslySetInnerHTML.
+ */
+
+import { ToolError } from './tool-error';
+import { PDFJS_ASSETS } from './tool-runtime';
+
+export class PdfRenderError extends ToolError {
+  constructor(code: string, message: string, params: Record<string, string | number> = {}) {
+    super(code, message, params);
+    this.name = 'PdfRenderError';
+  }
+}
+
+type PdfjsModule = typeof import('pdfjs-dist');
+let cached: PdfjsModule | null = null;
+
+/**
+ * Import pdf.js and point it at its worker.
+ *
+ * `?url` makes Vite emit the worker as a hashed asset of this origin and hand back its URL, the
+ * same way the reader's PDF viewer loads it. Nothing here is fetched from a third party.
+ */
+export async function loadPdfjs(): Promise<PdfjsModule> {
+  if (cached) return cached;
+  const [pdfjs, worker] = await Promise.all([
+    import('pdfjs-dist'),
+    import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
+  ]);
+  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+  cached = pdfjs;
+  return pdfjs;
+}
+
+/**
+ * pdf.js fetches these resource sets by URL at runtime rather than importing them, so a
+ * bundler never sees them and they are simply absent unless copied. They are staged under
+ * /tool-runtime/pdfjs-dist@<version>/ by scripts/stage-tool-runtime.mjs (manifest:
+ * scripts/tool-runtime.json), which runs before build and dev. pdf.js 6 adds a fourth, the ICC
+ * profiles for CMYK images.
+ *
+ * Without cMapUrl, a PDF using CJK text with non-embedded fonts makes the worker throw
+ * "Built-in CMap parameters are not provided." — from page.render(), which is OUTSIDE this
+ * function's catch, so the raw internal message reaches the user. Without wasmUrl, JPEG 2000
+ * images (routine in scans) do not decode. Served from our own origin, never a CDN.
+ */
+const ASSET_BASE = PDFJS_ASSETS;
+
+/** Open a document with the hardened options. Always use this rather than getDocument directly. */
+export async function openPdf(file: File) {
+  const pdfjs = await loadPdfjs();
+  try {
+    return await pdfjs.getDocument({
+      data: new Uint8Array(await file.arrayBuffer()),
+      disableFontFace: true,
+      cMapUrl: `${ASSET_BASE}cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `${ASSET_BASE}standard_fonts/`,
+      wasmUrl: `${ASSET_BASE}wasm/`,
+      iccUrl: `${ASSET_BASE}iccs/`,
+      // Selects the ImageBitmap transfer path for decoded images. NOTE: with this on, the
+      // worker returns `{ data: null, …, bitmap }` rather than raw pixels — see
+      // extract-images-from-pdf, which must handle both shapes. It is NOT a security control;
+      // an earlier comment here claimed it stopped documents fetching remote resources, which
+      // it does not, and that wrong comment hid a bug that made image extraction return
+      // nothing on every input.
+      isOffscreenCanvasSupported: true,
+    }).promise;
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/password/i.test(msg)) {
+      throw new PdfRenderError(
+        'pdfPasswordProtected',
+        `"${file.name}" is password-protected. Remove the password and try again.`,
+        { name: file.name },
+      );
+    }
+    if (/worker/i.test(msg)) {
+      // Distinctive enough to recognise instantly: this is a build/bundler problem, not a
+      // problem with the user's file, and the two look identical from the UI.
+      throw new PdfRenderError(
+        'pdfWorkerFailed',
+        'The PDF renderer failed to start (worker could not load). This is a bug on our side, not a problem with your file.',
+      );
+    }
+    throw new PdfRenderError('pdfUnreadable', `"${file.name}" could not be read as a PDF.`, {
+      name: file.name,
+    });
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "query": {"original": "retrieval augmented generation", "more_results_available": true},
+  "mixed": {"type": "mixed", "main": [{"type": "web", "index": 0, "all": false}]},
+  "type": "search",
+  "web": {
+    "type": "search",
+    "results": [
+      {
+        "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+        "url": "https://arxiv.org/abs/2005.11401",
+        "is_source_local": false,
+        "is_source_both": false,
+        "description": "We explore a general-purpose fine-tuning recipe for <strong>retrieval-augmented generation</strong> (RAG).",
+        "language": "en",
+        "family_friendly": true,
+        "type": "search_result"
+      },
+      {
+        "title": "Retrieval-augmented generation - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Retrieval-augmented_generation",
+        "description": "<strong>Retrieval-augmented generation</strong> is a technique that grants generative AI models information retrieval capabilities.",
+        "language": "en",
+        "type": "search_result"
+      }
+    ],
+    "family_friendly": true
+  }
+}

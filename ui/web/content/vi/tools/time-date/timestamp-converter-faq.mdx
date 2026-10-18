@@ -1,0 +1,31 @@
+---
+title: Timestamp Converter — Câu hỏi thường gặp
+---
+
+## Giây hay milli giây?
+
+Tùy nguồn. Unix `time(2)` và hầu hết format log dùng giây (10 chữ số hôm nay). `Date.now()` của JavaScript và nhiều API gốc JS dùng milli giây (13 chữ số). Tool này tự nhận diện theo số chữ số; bạn có thể paste cái nào cũng được.
+
+## UTC vs GMT vs Z là gì?
+
+Thực tế giống nhau. GMT là tên legacy (Greenwich Mean Time), UTC là chuẩn coordinated hiện đại, và `Z` là hậu tố shorthand ISO 8601 nghĩa "UTC offset zero". Trong timestamp bạn có thể coi chúng cùng một thứ.
+
+## Xử lý DST an toàn thế nào?
+
+Lưu ở UTC, tính ở UTC, convert sang local chỉ khi display. Schedule cron job ở UTC, không phải local time. Giờ "fall back" lặp và giờ "spring forward" bị skip — cả hai là nam châm bug nếu lưu trữ hoặc scheduler của bạn nghĩ theo local time.
+
+## Có nên lo về Y2K38?
+
+Chỉ nếu bạn xây trên hệ thống 32 bit hoặc dùng lưu trữ số nguyên 32 bit cho timestamp. Hệ thống 64 bit hiện đại và cột `BIGINT` đẩy overflow thoải mái qua năm 292 tỷ. Code mới: đừng lo. Hệ thống legacy: audit.
+
+## Vì sao Date của JavaScript dùng tháng 0-indexed?
+
+Tai nạn lịch sử từ API Java/Netscape gốc thập niên 1990. Không fix được — `new Date(2026, 4, 25)` nghĩa là 25 tháng 5, không phải 25 tháng 4. Dùng `Date.UTC(2026, 4, 25)` cho cùng cái bẫy với UTC explicit, hoặc đơn giản dùng chuỗi ISO 8601 và để parser làm đúng.
+
+## Có thể lưu timezone trong URL query parameter không?
+
+Có — dùng tên IANA URL-encoded: `?tz=Asia%2FHo_Chi_Minh`. Đừng lưu offset (`?tz=%2B07%3A00`) — nó không còn đúng nếu quy tắc DST thay đổi.
+
+## Còn ngày trước 1970?
+
+Unix timestamp đi âm cho ngày trước 1970. Hầu hết hệ thống hiện đại xử lý ổn; code C/C++ cũ với timestamp unsigned thì không. ISO 8601 không có vấn đề này.

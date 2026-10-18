@@ -1,0 +1,39 @@
+---
+title: Generador de box-shadow CSS — Preguntas frecuentes
+---
+
+## ¿Qué significan los cuatro números?
+
+En orden: desplazamiento horizontal, desplazamiento vertical, radio de desenfoque, propagación. Los desplazamientos positivos mueven la sombra hacia la derecha y hacia abajo. El radio de desenfoque es el ancho del desvanecimiento — aproximadamente, la sombra se extiende la mitad del desenfoque más allá del borde de la forma. La propagación crece (o, cuando es negativa, encoge) la sombra antes de que se aplique el desenfoque, que es cómo obtienes una sombra apretada y oscura que no se cuela de debajo del elemento. La propagación es opcional en la sintaxis, por lo que el generador la deja fuera cuando es cero.
+
+## ¿Por qué una capa se ve plana y tres se ven reales?
+
+Porque la luz real produce más de una sombra. Las predefiniciones de elevación de Material apilan tres: una capa pequeña y más oscura directamente bajo el elemento (la umbra de la luz clave), una capa media más ancha (la penumbra), y una capa grande y tenue que se extiende (luz ambiental). Cada una sola se ve como un manchón gris; juntas se leen como altura. Ese es todo el truco detrás de sombras que se ven diseñadas en lugar de aplicadas.
+
+## ¿Importa el orden de las capas?
+
+Sí. La primera capa en la lista se pinta encima de la segunda, y así sucesivamente — el mismo orden de apilamiento que múltiples fondos. Con capas translúcidas, reordenar cambia el resultado compuesto, por lo que el generador nunca las ordena. Pon la capa más apretada y oscura primero.
+
+## ¿Son caras muchas capas?
+
+Pueden serlo. Cada capa es una rasterización desenfocada separada de la caja de borde, y el costo del desenfoque crece con el radio, no con el tamaño del elemento. En una tarjeta estática, cinco capas no cuestan nada que puedas medir. En algo que se anima, se desplaza bajo `position: fixed`, o se repite cien veces en una lista, las sombras de gran radio son una de las razones clásicas por las que una página pierde fotogramas. Los arreglos habituales: anima `transform` y `opacity` en lugar de la sombra en sí, mantén el radio de desenfoque modesto, o desvanecimiento cruzado entre una sombra predefinida "en reposo" y "elevada" en un pseudo-elemento en lugar de animar el desenfoque.
+
+## ¿Qué cambia `inset`?
+
+Pinta la sombra dentro de la caja de borde en lugar de fuera de ella, por lo que el elemento se ve presionado en lugar de elevado. Los desplazamientos funcionan de la misma manera, pero el borde visible es el opuesto: una `y` de 4 con `inset` oscurece el borde interior superior. Puedes mezclar capas inset y exteriores en un valor único, que es cómo se construye un botón presionado con un brillo exterior suave.
+
+## ¿Por qué `box-shadow` sigue mis esquinas redondeadas pero no mi forma recortada?
+
+Porque sigue la *caja de borde*, incluyendo `border-radius`. No sabe nada de `clip-path`, una máscara SVG, o píxeles transparentes en una imagen de fondo — obtendrás una sombra de forma rectangular detrás de un elemento en forma de estrella. Para esos casos la respuesta es `filter: drop-shadow()`, que sigue el canal alfa de lo que está realmente pintado. No toma un valor de propagación y solo una sombra por función, pero es la herramienta correcta cuando la silueta no es un rectángulo.
+
+## ¿Puedo animar una sombra?
+
+Puedes — `box-shadow` es animable, y las capas interpolan de uno a uno cuando ambos lados tienen el mismo número de ellas. Pero animar el desenfoque significa re-rasterizar cada fotograma. La alternativa común es poner la sombra elevada en un pseudo-elemento con `opacity: 0` y desvanecerla, que se mantiene en el compositor.
+
+## ¿Por qué una vista previa clara y oscura?
+
+Porque una sombra afinada en blanco usualmente desaparece en un fondo oscuro. Negro al 12% de opacidad sobre `#0b1220` es casi invisible, que es por eso que los temas oscuros tienden a usar bordes, superficies más claras o un brillo coloreado en lugar de una sombra negra. Ver ambas a la vez es más rápido que cambiar temas y esperar.
+
+## ¿Se carga algo?
+
+No. El valor se ensambla en tu navegador y nada sale de la página.

@@ -1,0 +1,27 @@
+---
+title: JSON Schema Validator — FAQ
+---
+
+## draft-07 vs 2020-12 — which one should I pick?
+
+Pick whichever your producer wrote against. draft-07 (2018) is still the most common version in the wild — it's what most `.json` config files with a `"$schema"` line reference, and what tools like VS Code's JSON language server default to when they infer a version. 2020-12 is the current spec and adds keywords draft-07 doesn't have: `prefixItems` for tuple-typed arrays, `unevaluatedProperties`/`unevaluatedItems`, and `$dynamicRef`/`$dynamicAnchor` for extensible base schemas. If your schema uses any of those and you pick draft-07, this tool will simply ignore the keyword it doesn't recognize rather than fail loudly — so if validation passes when you expected it to catch something, check the draft selector first.
+
+## Why does the error only point at one field when several are wrong?
+
+It shouldn't — this tool asks the validator for every error at once (`allErrors`), not just the first. If you're only seeing one, the most likely cause is that a parent object failed a structural check (like `additionalProperties: false`) that makes the validator stop descending into that branch, since checking a child's shape is meaningless once the parent shape itself is rejected.
+
+## What does the instance path actually mean?
+
+`/user/address/0/zip` reads left to right from the root of your JSON data: go into `user`, then `address`, then array index `0`, then the `zip` field. It's a JSON Pointer (RFC 6901), not a JavaScript expression — array indices are plain numbers, not `[0]`. An empty path (`/`) means the top-level value itself failed, not something nested inside it.
+
+## The schema inference button gave me a schema that's too strict. Why?
+
+Because it only saw one example. Every key present in your sample gets marked `required`, and a number typed `42` becomes `"type": "integer"` even if the field can genuinely hold a decimal in other records — there is no way to know that from a single value. Treat the inferred schema as a first draft: loosen `required` for fields you know are sometimes absent, and widen `type` (JSON Schema allows an array like `["integer", "number"]`) for fields that vary. Feeding it an array of several sample objects helps some — the tool unions their properties and only keeps a key `required` if every sampled object actually had it — but it still can't know about shapes it never saw.
+
+## Does this validate syntax or structure?
+
+Structure only. If your JSON data has a stray trailing comma or an unescaped quote, `JSON.parse` will reject it before the schema is even consulted, and you'll get a "Data is not valid JSON" message rather than a schema error. Use `json-formatter` first if you're not sure the JSON itself parses.
+
+## Can a schema reference another file with `$ref`?
+
+Not in this tool. Everything runs from the single schema you pasted, so a `$ref` has to point somewhere inside that same document (like `#/definitions/address`) — an external URL or file path in `$ref` will fail to compile, since there is no second file to fetch.

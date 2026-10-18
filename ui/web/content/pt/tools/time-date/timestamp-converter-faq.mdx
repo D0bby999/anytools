@@ -1,0 +1,31 @@
+---
+title: Conversor de timestamps — Perguntas frequentes
+---
+
+## Segundos ou milissegundos?
+
+Depende da fonte. Unix `time(2)` e a maioria dos formatos de logging usam segundos (10 dígitos hoje). JavaScript's `Date.now()` e muitas APIs originadas de JS usam milissegundos (13 dígitos). Esta ferramenta auto-detecta pela contagem de dígitos; você consegue colar qualquer um.
+
+## Qual é a diferença entre UTC vs GMT vs Z?
+
+Praticamente idênticos. GMT é o nome legado (Hora de Greenwich), UTC é o padrão coordenado moderno, e `Z` é o sufixo ISO 8601 shorthand significando "deslocamento UTC zero". Em timestamps você consegue tratá-los como a mesma coisa.
+
+## Como lido com DST com segurança?
+
+Armazene em UTC, calcule em UTC, converta para local apenas ao exibir. Agende trabalhos cron em UTC, não hora local. A hora de "cair de volta" se repete e a hora de "pular para frente" é pulada — ambas são armadilhas de bug se seu armazenamento ou agendador pensa em hora local.
+
+## Devo me preocupar com Y2K38?
+
+Apenas se você está construindo em sistemas de 32 bits ou usando armazenamento de inteiros de 32 bits para timestamps. Sistemas modernos de 64 bits e colunas `BIGINT` empurram o overflow confortavelmente passado ano 292 bilhões. Novo código: não se preocupe. Sistemas legados: audite.
+
+## Por que JavaScript Date usa meses indexados em zero?
+
+Acidente histórico das APIs Java/Netscape originais dos anos 1990. Não há como consertar agora — `new Date(2026, 4, 25)` significa 25 de maio, não 25 de abril. Use `Date.UTC(2026, 4, 25)` para a mesma armadilha com UTC explícito, ou apenas use strings ISO 8601 e deixe o parser fazer a coisa certa.
+
+## Consigo armazenar uma zona de tempo em um parâmetro de query de URL?
+
+Sim — use o nome IANA URL-encoded: `?tz=Asia%2FHo_Chi_Minh`. Não armazene o deslocamento (`?tz=%2B07%3A00`) — para de estar correto se regras de DST mudarem.
+
+## E sobre datas pré-1970?
+
+Timestamps Unix ficam negativos para datas antes de 1970. A maioria dos sistemas modernos lida bem com isso; código C/C++ antigo com timestamps sem-sinal não. ISO 8601 não tem tal questão.

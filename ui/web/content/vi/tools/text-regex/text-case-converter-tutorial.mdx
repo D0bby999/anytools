@@ -1,0 +1,70 @@
+---
+title: Convention case văn bản qua các ngôn ngữ — chọn đúng cái
+description: Vì sao JavaScript dùng camelCase, Python dùng snake_case, CSS dùng kebab-case, và chuyện gì xảy ra khi trộn.
+updated: 2026-05-25
+---
+
+## "Case" trong code thực ra là gì
+
+Khi tên chứa nhiều từ, bạn cần separator và quy tắc viết hoa. Cộng đồng ngôn ngữ khác nhau chọn combination khác nhau, và convention ổn định đáng kể qua nhiều thập kỷ code:
+
+- **JavaScript / Java / Swift**: `camelCase` cho biến và hàm, `PascalCase` cho type và class.
+- **Python / Ruby / Rust**: `snake_case` cho biến và hàm, `PascalCase` cho class.
+- **CSS / HTML attribute / URL**: `kebab-case` vì dấu cách bị reserve.
+- **Env var / SQL keyword / Constant**: `CONSTANT_CASE` (hoặc `SCREAMING_SNAKE`).
+- **Filesystem path**: `path/case` với separator `/`.
+- **Dot notation** (config key, namespace): `dot.case`.
+
+Chọn convention của file bạn đang edit. Đừng đánh — convention là thứ giúp code đọc như văn xuôi với người biết ngôn ngữ.
+
+## Khi nào cần converter
+
+- **Tạo env var từ config key** (`api.timeout` → `API_TIMEOUT`).
+- **Build CSS class name từ React prop** (`primaryButton` → `primary-button`).
+- **Đặt tên cột database từ object property** (`firstName` → `first_name`).
+- **Code generation xuyên ngôn ngữ** (TypeScript → Python ORM, Swagger → JS client).
+- **Rename biến nhất quán** qua refactor.
+
+## Bẫy acronym
+
+Phiên bản snake_case của `XMLHttpRequest` là gì? Hai đáp án hợp lý:
+
+- `xml_http_request` — xem mỗi acronym là một từ
+- `x_m_l_http_request` — xem mỗi chữ hoa là biên từ
+
+Hầu hết library hiện đại (kể cả cái tool này wrap, `change-case`) làm cái đầu — chúng nhận diện run chữ hoa là acronym. Đó là convention bạn hầu như luôn muốn. Nếu library cho dạng thứ hai, đổi library.
+
+camelCase tương ứng: `xmlHttpRequest`. PascalCase: `XmlHttpRequest`. Lưu ý chữ thường trong acronym — cố ý và khớp cách browser thực sự expose tên.
+
+## Pattern thông dụng theo ecosystem
+
+| Use case | Convention | Ví dụ |
+|---|---|---|
+| Biến JS | camelCase | `firstName` |
+| Class/type JS | PascalCase | `UserService` |
+| Const JS (global) | CONSTANT_CASE | `MAX_RETRIES` |
+| Biến Python | snake_case | `first_name` |
+| Class Python | PascalCase | `UserService` |
+| Class CSS | kebab-case | `btn-primary` |
+| HTML attribute | kebab-case | `data-user-id` |
+| URL slug | kebab-case | `/my-blog-post` |
+| Filename | kebab-case (web), snake_case (Python) | `user-profile.tsx` / `user_profile.py` |
+| Env var | CONSTANT_CASE | `DATABASE_URL` |
+| GraphQL field | camelCase | `userName` |
+| JSON API field | camelCase hoặc snake_case (chọn theo project) | `firstName` / `first_name` |
+
+## Tính nhạy case file
+
+macOS mặc định filesystem không phân biệt case (`HFS+`/`APFS` format vậy). Linux phân biệt case. NTFS Windows không phân biệt nhưng giữ case. Cắn project cross-platform: file `Button.tsx` import là `./button.tsx` work trên macOS, vỡ trong CI trên Linux. Set CI là Linux từ ngày đầu để bắt ngay.
+
+## Tool này giúp thế nào
+
+- Paste văn bản một lần, thấy cả 12 biến thể case cùng lúc.
+- Click bất cứ output nào để copy.
+- Xử lý acronym đúng (dùng [`change-case`](https://github.com/blakeembrey/change-case)).
+- Work trên input nhiều dòng (mỗi dòng convert độc lập).
+
+## Công cụ liên quan
+
+- **Slugify** — khi cần output URL-safe (xử lý dấu, unicode, emoji).
+- **Regex Tester** — khi cần find/replace pattern case lập trình.

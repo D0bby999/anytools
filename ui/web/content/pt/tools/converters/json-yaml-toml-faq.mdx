@@ -1,0 +1,27 @@
+---
+title: Conversor JSON ↔ YAML ↔ TOML — Perguntas frequentes
+---
+
+## Por que JSON não tem comentários?
+
+Decisão original do Douglas Crockford (criador do JSON) para manter o formato simples e ferramentas interoperáveis. Variantes como JSON5 e JSONC adicionam comentários, mas não são JSON padrão (RFC 8259). Para configs com comentários, use YAML ou TOML.
+
+## Posso converter YAML com anchors para JSON?
+
+Sim — os anchors (`&name`) e references (`*name`) são resolvidos durante o parsing. O JSON resultante terá os objetos duplicados (não referência). Se o tamanho importa, considere manter YAML.
+
+## Por que minha string `yes` virou true?
+
+YAML 1.1 trata `yes/no/on/off/true/false` como booleans. Coloque em aspas: `"yes"`. Ou migre para parser YAML 1.2 strict. É o famoso "Norway problem".
+
+## Conversão perde precisão de números?
+
+JavaScript usa `Number` (double 64-bit IEEE 754) para todos os números. Inteiros acima de 2^53 perdem precisão. Para BigInts ou decimais financeiros, mantenha como string no JSON e parse manualmente.
+
+## Algum desses suporta binário?
+
+Não nativamente. Para binário em JSON, use Base64 string. YAML tem `!!binary` (Base64). TOML não tem binário. Em todos os casos, é Base64 disfarçado.
+
+## Tudo client-side?
+
+Sim. As três libs (`json5`, `js-yaml`, `@iarna/toml`) rodam no navegador. Nada vai para servidor. Network tab vazio durante conversão.

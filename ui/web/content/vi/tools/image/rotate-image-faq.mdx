@@ -1,0 +1,27 @@
+---
+title: Xoay ảnh — Câu hỏi thường gặp
+---
+
+## Tool có tự sửa ảnh chụp bị nghiêng từ điện thoại không?
+
+Có, và đây chính là trường hợp tool được xây để xử lý. Camera điện thoại gần như luôn ghi khung hình gốc theo hướng ngang của cảm biến, kèm theo một cờ EXIF ghi lại tư thế cầm máy lúc chụp. Nếu một tool bỏ qua cờ đó, nó sẽ giải mã đúng khung hình gốc và trả ra một bức ảnh nằm nghiêng dù mọi app xem ảnh trên điện thoại đều hiển thị nó thẳng đứng bình thường. Tool này giải mã bằng `createImageBitmap` với tuỳ chọn `imageOrientation: 'from-image'`, tức là áp cờ EXIF ngay từ bước đọc file — nên điểm xuất phát đã khớp với những gì bạn thấy trên điện thoại, và bất kỳ góc xoay nào bạn chọn thêm trong tool sẽ cộng dồn lên trên phần đã sửa đó chứ không thay thế nó. Có một chi tiết kỹ thuật đáng nói: một số phiên bản trình duyệt từ chối thẳng giá trị `imageOrientation` này thay vì bỏ qua tuỳ chọn lạ; gặp trường hợp đó, code thử lại lần hai không kèm tuỳ chọn, chấp nhận ảnh có thể bị nghiêng còn hơn báo lỗi "không đọc được ảnh" cho một file JPEG hoàn toàn hợp lệ.
+
+## Xoay ảnh khác gì lật ảnh, và hai thao tác này áp dụng theo thứ tự nào?
+
+Xoay quay cả bức ảnh quanh tâm, giống như bạn cầm một tấm ảnh in xoay trong tay — xoay 90° trái hoặc phải sẽ hoán đổi chiều rộng và chiều cao. Lật thì phản chiếu ảnh qua một trục mà không đổi kích thước: lật ngang đảo trái-phải (hữu ích với ảnh bị ngược như chụp qua gương), lật dọc đảo trên-dưới. Trong code, thứ tự áp dụng là lật trước rồi xoay sau — cụ thể là `ctx.scale` để lật được gọi trước `ctx.rotate`, rồi `drawImage` mới vẽ khung ảnh — nghĩa là ảnh được phản chiếu ở tư thế gốc trước, sau đó cả khung đã phản chiếu đó mới bị xoay. Bạn có thể kết hợp cả lật lẫn xoay cùng lúc, và phần xem trước cập nhật ngay để thấy đúng kết quả trước khi tải file.
+
+## Vì sao ảnh JPEG xuất ra bị tô nền trắng còn PNG thì vẫn trong suốt?
+
+JPEG không có kênh alpha — định dạng này chỉ biết biểu diễn màu sắc, không biết biểu diễn "không có màu ở đây". Một canvas để trống sẽ mặc định mã hoá vùng trong suốt thành màu đen ở hầu hết trình duyệt, đây là lỗi rất phổ biến ở các tool ảnh tự viết. Trước khi vẽ ảnh, tool kiểm tra nếu định dạng xuất là JPEG thì tô kín canvas màu trắng (`ctx.fillStyle = '#ffffff'` rồi `fillRect`) trước, giống hệt cách các phần mềm chỉnh ảnh desktop xử lý khi xuất JPEG. PNG và WebP đều hỗ trợ trong suốt nên xoay một PNG có nền trong suốt sẽ giữ nguyên trong suốt — không có gì bị tô thêm.
+
+## Ảnh quá lớn có bị từ chối xử lý không?
+
+Không — ảnh không bị từ chối, mà bị thu nhỏ trước khi xử lý. Trình duyệt giới hạn số điểm ảnh tối đa mà một canvas chứa được, và Safari là trình duyệt khắt khe nhất trong số các trình duyệt phổ biến với mức trần khoảng 16.777.216 điểm ảnh (~16,7 triệu điểm ảnh, tương đương một ảnh vuông cạnh 4096px) — vượt ngưỡng này không văng lỗi mà lặng lẽ cho ra một canvas trắng trơn. Thay vì từ chối một bức ảnh 24, 48 hay 60 megapixel — điều máy ảnh điện thoại đời mới tạo ra thường xuyên — tool giải mã lại ảnh đó ở một chiều rộng nhỏ hơn vừa đủ lọt dưới ngưỡng này, rồi báo cho bạn biết việc đó đã xảy ra, kèm kích thước gốc hiển thị cạnh kết quả đã xoay. Ảnh vẫn xoay đúng hướng; chỉ là kích thước điểm ảnh ghi ra file nhỏ hơn một chút so với file gốc bạn tải lên.
+
+## Có xoay được cả loạt ảnh cùng lúc, mỗi ảnh cùng một cài đặt không?
+
+Có. Kéo thả vào bao nhiêu ảnh tuỳ ý, chọn một góc xoay và tuỳ chọn lật muốn áp dụng, mọi file trong lô sẽ nhận đúng phép biến đổi đó trong một lượt chạy — file nào lỗi thì bị bỏ qua và ghi nhận riêng chứ không làm hỏng cả lô. Kết quả hiện ra từng ảnh một, mỗi ảnh có thẻ riêng kèm ảnh trước/sau, kích thước và dung lượng, và nếu có nhiều hơn một kết quả, bạn tải tất cả gộp thành một file .zip thay vì phải lưu từng ảnh tay. Tên file trùng nhau trong cùng một lô cũng được tự động đổi thành dạng "(2)", "(3)"… để tránh ghi đè khi giải nén trên các hệ điều hành có tên thư mục không phân biệt hoa thường.
+
+## Ảnh của tôi có bị tải lên máy chủ nào không?
+
+Không. Toàn bộ việc giải mã, xoay và mã hoá lại đều diễn ra trên canvas ngay trong tab trình duyệt này, dùng Canvas API có sẵn trên mọi trình duyệt hiện đại — không có pixel hay file nào rời khỏi thiết bị của bạn. Bạn tự kiểm chứng được bằng cách mở DevTools, sang tab Network rồi xoay thử một ảnh — sẽ không thấy request upload nào; hoặc chắc chắn hơn nữa, ngắt kết nối mạng sau khi trang đã tải xong rồi thử xoay ảnh — tool vẫn chạy bình thường vì không có gì cần gửi đi đâu cả.

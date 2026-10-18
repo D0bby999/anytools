@@ -1,0 +1,27 @@
+---
+title: Giải mã chứng chỉ X.509 — Câu hỏi thường gặp
+---
+
+## Tool có nói được chứng chỉ này có "hợp lệ" với một domain cụ thể hay không?
+
+Không. Đây là giới hạn quan trọng nhất cần hiểu trước khi dùng: tool chỉ đọc và hiển thị các trường bên trong một chứng chỉ X.509, chứ không làm bất kỳ bước xác thực nào mà trình duyệt thật sự làm khi mở HTTPS. Một trình duyệt khi kiểm tra chứng chỉ của website sẽ dựng lại toàn bộ chuỗi tin cậy lên tới root certificate có sẵn trong kho tin cậy, kiểm tra Basic Constraints/Key Usage của từng chứng chỉ trung gian, rồi còn tra cứu tình trạng thu hồi qua OCSP hoặc CRL. Công cụ này không làm việc nào trong số đó — không danh sách root, không request mạng nào để hỏi "chứng chỉ này còn hiệu lực không", không path validation. Bạn dán vào một chứng chỉ, tool chỉ trả lời đúng một câu: "chứng chỉ này tự khai những gì", không phải "chứng chỉ này có nên được tin hay không". Muốn biết câu thứ hai, hãy chạy `openssl verify` với đúng bundle CA, hoặc mở domain đó bằng trình duyệt thật.
+
+## Vì sao tool đôi khi gắn nhãn một chứng chỉ là "Tự ký"?
+
+Nhãn đó xuất phát từ đúng một phép so sánh: trường issuer và trường subject giống hệt nhau, cộng với chữ ký được tạo bằng chính private key của chứng chỉ đó chứ không phải bởi một CA riêng biệt. Tool cố gọi `cert.isSelfSigned()` của `@peculiar/x509` để xác minh bằng chữ ký thật; nếu WebCrypto không hỗ trợ thuật toán đó, tool rơi về cách đơn giản hơn — so sánh chuỗi subject với chuỗi issuer, đúng phương án dự phòng mà trình duyệt cũng dùng. Tự ký hoàn toàn bình thường với chứng chỉ root CA (đỉnh mọi chuỗi tin cậy bắt buộc phải tự ký, theo định nghĩa) và với chứng chỉ nội bộ tự tạo để test. Nó chỉ đáng lo trong đúng một tình huống: trình duyệt cảnh báo bảo mật cho một website công khai và chứng chỉ server trả về là tự ký — nghĩa là không CA nào bảo chứng, không bên thứ ba nào xác nhận server đúng là nó tự xưng.
+
+## Dán một file chứa nhiều khối `BEGIN CERTIFICATE` thì tool đọc theo thứ tự nào?
+
+Đúng thứ tự chúng xuất hiện trong file, không hơn không kém. Tool tìm mọi khối `-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----` bằng một biểu thức chính quy, giải mã lần lượt, và hiển thị lại với nhãn "Chứng chỉ 1/N", "Chứng chỉ 2/N" đúng thứ tự đọc được — không sắp xếp lại theo quan hệ issuer/subject. Quy ước phổ biến khi ghép `fullchain.pem` là leaf trước, trung gian tiếp theo, root ở cuối. Nếu file bị ghép sai thứ tự, tool hiển thị đúng cái sai đó chứ không âm thầm sửa lại — cách khá nhanh để phát hiện một chain lắp lộn.
+
+## Tải file `.der`/`.crt`/`.cer` lên khác gì so với dán PEM vào ô văn bản?
+
+Ô dán văn bản luôn coi nội dung là PEM — chuỗi ASCII bọc trong `-----BEGIN CERTIFICATE-----`. Còn khi upload file, tool không tin vào đuôi file: phần lớn file `.cer`/`.crt`/`.der` là DER nhị phân, nhưng cũng có không ít file PEM dạng text được lưu nhầm với những đuôi đó. Tool giải quyết bằng cách đọc toàn bộ byte của file, thử decode chúng thành UTF-8, rồi kiểm tra xem chuỗi kết quả có chứa `-----BEGIN CERTIFICATE-----` hay không. Có thì xử lý y hệt đường dán PEM (kể cả tách nhiều khối nếu là một chain), không có thì coi nguyên buffer nhị phân đó là DER và đưa thẳng cho `X509Certificate` của `@peculiar/x509` phân tích. Cách "đánh hơi" nội dung này an toàn hơn suy luận theo đuôi file, và cũng là lý do bạn có thể đổi tên một file `.pem` thành `.crt` mà tool vẫn đọc đúng.
+
+## SHA-1 và SHA-256 fingerprint khác gì nhau, nên dùng cái nào?
+
+Fingerprint là hash của toàn bộ byte DER thô của chứng chỉ — dùng để nhận diện chính xác một chứng chỉ cụ thể, giống hệt checksum nhận diện một file cụ thể. Hai chứng chỉ trùng fingerprint nghĩa là giống nhau từng byte một; chỉ cần cấp lại chứng chỉ với cùng subject cũng đã ra fingerprint khác hoàn toàn. Tool tính cả hai bằng `cert.getThumbprint('SHA-1')` và `cert.getThumbprint('SHA-256')`, rồi hiển thị dưới dạng hex viết hoa, cách nhau bởi dấu hai chấm — định dạng quy ước mà hầu hết công cụ khác cũng dùng. SHA-1 vẫn được giữ lại vì không ít tài liệu cũ, cấu hình certificate pinning, hay công cụ legacy vẫn tham chiếu tới nó, nhưng bản thân SHA-1 đã bị coi là hỏng về mặt chống va chạm (collision resistance) và không nên dùng cho việc gì mang tính bảo mật nữa. SHA-256 mới là giá trị nên đối chiếu khi làm việc với certificate transparency log, cấu hình pinning hiện đại, hay bất kỳ công cụ nào được viết trong vài năm gần đây.
+
+## "Còn X ngày" và các cờ Key Usage được tính/đọc như thế nào?
+
+Số ngày còn lại lấy từ hiệu số giữa `notAfter` của chứng chỉ và thời điểm bạn bấm giải mã, quy đổi theo múi giờ mà `Date` của trình duyệt bạn báo cáo — thường là giờ địa phương, không phải UTC. Hai người ở hai múi giờ khác nhau xem cùng một chứng chỉ có thể thấy con số lệch nhau một ngày, thuần tuý vì mốc nửa đêm UTC đã trôi qua với người này nhưng chưa với người kia; việc gì cần chính xác tới từng giây thì nên so trực tiếp với `notAfter` dạng UTC, không dùng số ngày đã làm tròn. Key Usage là bitmask 9 cờ theo RFC 5280 (Digital Signature, Key Encipherment, Certificate Signing…) do bên phát hành nhúng vào để khai báo khoá được phép làm gì; Extended Key Usage thu hẹp mục đích hơn bằng OID cụ thể như "TLS Server Authentication" hay "Code Signing". Tool có bảng ánh xạ sáu OID EKU phổ biến nhất; OID nào không nằm trong bảng vẫn hiển thị nguyên dạng số thay vì bị ẩn.

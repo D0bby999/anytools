@@ -1,0 +1,27 @@
+---
+title: Đếm chữ & ký tự — Câu hỏi thường gặp
+---
+
+## Đếm số từ với văn bản tiếng Việt có chính xác không?
+
+Cần hiểu đúng quy ước thì mới dùng được con số. Code cắt bỏ khoảng trắng thừa hai đầu rồi tách chuỗi theo mọi cụm khoảng trắng, mỗi mảnh là một từ. Với tiếng Anh cách này chuẩn vì mỗi từ là một khối liền. Với tiếng Việt thì không: "công cụ" bị tính là 2 từ, "trường đại học" là 3 từ, dù về mặt từ vựng chúng là một đơn vị. Nói cách khác, tool đang đếm âm tiết chứ không đếm từ. Đây không phải lỗi riêng của trang này — Microsoft Word, Google Docs và hầu hết bộ đếm khác cũng làm y hệt, nên con số của bạn sẽ khớp với chúng. Khi giáo viên hay biên tập yêu cầu "800 từ", gần như chắc chắn họ cũng đang dựa trên con số kiểu này.
+
+## Tool đếm những chỉ số nào, và nền tảng thường giới hạn theo cái nào?
+
+Bảy chỉ số cập nhật ngay khi bạn gõ: số ký tự tính cả khoảng trắng, số ký tự không tính khoảng trắng, số từ, số câu, số đoạn, số dòng, và độ dài trung bình của một từ. Trong đó cái đáng theo dõi nhất khi viết để đăng là số ký tự tính cả khoảng trắng — mạng xã hội, thẻ mô tả SEO và phần lớn ô nhập trên form đều giới hạn theo ký tự chứ không theo từ. Số từ phổ biến hơn ở môi trường học thuật và biên tập. Hai con số ký tự chênh nhau nhiều hơn bạn tưởng vì mọi khoảng trắng đều được tính, kể cả xuống dòng, tab và khoảng trắng thừa cuối dòng mà văn bản dán vào thường mang theo rất nhiều.
+
+## Câu và đoạn được nhận diện thế nào?
+
+Câu được đếm bằng cách tìm dấu chấm, chấm hỏi hoặc chấm than có khoảng trắng hoặc kết thúc văn bản ngay sau đó. Quy ước này kéo theo vài hệ quả cụ thể: "T.P." hay số thập phân viết theo kiểu Anh như `3.5` làm số câu tăng lên, vì tool không có cách nào biết đó không phải chỗ kết câu; ngược lại "Xin chào.Tạm biệt" thiếu khoảng trắng sau dấu chấm nên chỉ tính là một câu; và cụm "Tuyệt vời!!!" chỉ tính một câu chứ không phải ba. Đoạn thì được tách bởi một dòng trống, còn dòng là mọi thứ kết thúc bằng một lần xuống dòng. Một bài thơ không có dòng trống vì thế là nhiều dòng nhưng chỉ một đoạn — đúng cái phân biệt bạn cần khi đề bài yêu cầu số đoạn.
+
+## Emoji và chữ tiếng Việt có dấu được đếm là mấy ký tự?
+
+Số ký tự được đo bằng đơn vị lưu trữ của JavaScript, không phải bằng "ký tự" theo cảm nhận mắt thường. Phần lớn emoji chiếm hai đơn vị, còn emoji ghép như tông màu da hay biểu tượng gia đình chiếm nhiều hơn nữa — có cái lên tới bảy. Chữ tiếng Việt có dấu thường chiếm một đơn vị vì được lưu ở dạng dựng sẵn, nhưng văn bản sao chép từ một số nguồn lại ở dạng tổ hợp, khi đó "ế" thành ba đơn vị và tổng số ký tự vọt lên bất thường mà nhìn bằng mắt không thấy gì khác. Các nền tảng lại có cách đếm riêng của họ. Kết luận thực dụng: khi viết sát giới hạn và có emoji hoặc dấu tiếng Việt, hãy chừa dư ra vài ký tự.
+
+## Sao không dùng thanh đếm chữ có sẵn của Word?
+
+Word đếm được từ và ký tự, nhưng bạn phải mở hộp thoại mới thấy đủ, và nó không tách đoạn với dòng theo cách bạn cần khi viết cho web. Quan trọng hơn, mở Word chỉ để đếm một đoạn caption hay một thẻ mô tả là quá chậm, chưa kể Word tự sửa dấu nháy và dấu gạch ngang khiến văn bản dán ngược lại nền tảng bị lệch. Excel còn tệ hơn cho việc này: hàm `LEN` đếm được ký tự, nhưng đếm từ phải ghép `LEN` với `SUBSTITUTE` và công thức đó sai ngay khi văn bản có hai khoảng trắng liền nhau hoặc xuống dòng. Ở đây bạn dán vào là có ngay, cập nhật theo từng phím gõ.
+
+## Văn bản tôi dán vào có bị gửi đi đâu không?
+
+Không. Việc đếm chạy bằng JavaScript trong trình duyệt, tính lại sau mỗi lần bạn gõ, và không có request nào mang nội dung ra khỏi máy. Không lưu bản nháp, không log, không tài khoản. Ngắt mạng rồi gõ tiếp, tool vẫn đếm bình thường — đó là cách tự kiểm chứng nhanh nhất. Điều này đáng để ý vì thứ người ta hay dán vào bộ đếm chữ lại là bản thảo chưa công bố, thư xin việc, hợp đồng hay bài luận sắp nộp. Đóng tab là mọi thứ biến mất, nên nhớ lưu bản gốc ở nơi khác.

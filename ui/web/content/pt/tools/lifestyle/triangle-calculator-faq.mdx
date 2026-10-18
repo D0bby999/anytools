@@ -1,0 +1,41 @@
+---
+title: Calculadora de triângulo — Perguntas frequentes
+---
+
+## O que ela trabalha a partir de três lados?
+
+Área, perímetro, todos os três ângulos, se o triângulo é retângulo e se é equilátero, isósceles ou escaleno.
+
+## Como a área é calculada sem uma altura?
+
+Fórmula de Herão. Com `s` como meia o perímetro, a área é `√(s(s−a)(s−b)(s−c))`. Ela precisa apenas dos três comprimentos de lado, é por isso que você não é perguntado por uma altura.
+
+## Como os ângulos são encontrados?
+
+A lei dos cossenos, reorganizada para o ângulo: cada ângulo é o arco-cosseno de `(b² + c² − a²) / 2bc`, convertido de radianos para graus. O terceiro ângulo é então tomado como 180 menos os outros dois, o que também protege contra pequena deriva de arredondamento.
+
+## Por que ela recusou meus três números?
+
+Porque eles não podem formar um triângulo. Quaisquer dois lados juntos devem exceder o terceiro — a desigualdade triangular — portanto 1, 2 e 5 não tem solução. Em vez de retornar uma área absurda, a ferramenta recusa. Um comprimento negativo ou zero é rejeitado pela mesma razão.
+
+## Como ela decide que um triângulo é retângulo?
+
+Olhando os ângulos que já resolveu, não testando Pitágoras nos lados. Todos os três ângulos vêm da lei dos cossenos primeiro, e o triângulo é relatado como retângulo quando qualquer um deles está a menos de 0,01 graus de 90.
+
+Trabalhar a partir dos ângulos é o que torna a verificação utilizável em entrada medida. Uma comparação exata baseada em lado quase nunca relata verdadeiro, porque lados tomados de medições reais raramente satisfazem a equação exatamente. Um centésimo de grau é apertado o suficiente para que nada visualmente desalinhado passe, e solto o suficiente que 3-4-5 e seus primos escalados sejam reconhecidos apesar do arredondamento no meio.
+
+## Qual é a diferença entre isósceles e equilátero aqui?
+
+Equilátero significa todos os três lados iguais; isósceles significa pelo menos dois. Um triângulo com todos os três iguais satisfaz ambos, e a ferramenta relata o mais específico — equilátero.
+
+## Posso resolver a partir de dois lados e um ângulo em vez disso?
+
+Não nesta ferramenta. Ela funciona apenas a partir de três lados, o caso em que o triângulo é completamente determinado sem ambiguidade. Outras combinações às vezes admitem dois triângulos válidos, o que precisa de uma interface diferente para resolver.
+
+## Os ângulos sempre somam 180?
+
+Na saída, sim, porque o terceiro é computado como o restante em vez de independentemente. Isso é deliberado — mantém o resultado internamente consistente em vez de mostrar 179,9999 do arredondamento acumulado.
+
+## Algo é enviado para um servidor?
+
+Não. A geometria funciona no seu navegador.

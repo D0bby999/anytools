@@ -1,0 +1,27 @@
+---
+title: Wallet Checker — Perguntas frequentes
+---
+
+## Verifica saldo on-chain?
+
+Não. Apenas valida formato e checksum. Para saldo, integre um RPC provider (Alchemy para EVM, Helius para Solana, BTCpay para BTC) no seu app.
+
+## Por que checksum inválido em EVM?
+
+EIP-55 codifica checksum nas maiúsculas/minúsculas das letras hex. `0xAbC123...` com capitalização errada é tecnicamente um endereço válido (lowercase funciona), mas wallets modernas alertam. Se vier de copy-paste de um explorer, deveria estar capitalizado corretamente.
+
+## Como diferencio Solana de BTC?
+
+Heurística por comprimento e charset. Solana = 32–44 chars base58. BTC legacy = 26–35. Em casos ambíguos (`1...` com 32–35 chars), priorizamos SOL se válido. Sempre confirme pelo contexto (qual chain seu usuário disse usar).
+
+## Suporta ENS (`name.eth`)?
+
+Não. ENS exige lookup on-chain (RPC). Resolva primeiro via `ethers.resolveName()` ou viem, depois passe o endereço resolvido aqui.
+
+## Funciona com endereços de contrato?
+
+Sim, mas trata como EVM normal. Não diferenciamos wallet vs contract (isso exige `eth_getCode != "0x"` via RPC).
+
+## Algum dado é enviado?
+
+Não. Regex puro no JS. Network tab vazio. Funciona offline.

@@ -1,0 +1,27 @@
+---
+title: Criptografar / Descriptografar texto AES — Perguntas frequentes
+---
+
+## Qual algoritmo essa ferramenta realmente usa?
+
+AES-256-GCM para a criptografia em si, com a chave derivada da sua senha por PBKDF2-HMAC-SHA256 rodando 310.000 iterações — o mínimo atual recomendado pela OWASP (edição de 2023) para essa combinação específica. GCM é um modo de criptografia autenticada: ele não só esconde o texto, mas também detecta se o texto cifrado foi alterado depois do fato, algo que um AES-CBC simples não verificaria sozinho. A cada operação, um salt novo de 16 bytes e um IV novo de 12 bytes são gerados com `crypto.getRandomValues` antes de derivar a chave, então cada criptografia começa do zero criptograficamente, sem reaproveitar nada da vez anterior.
+
+## Por que exatamente 310.000 iterações de PBKDF2?
+
+Esse número vem diretamente da folha de referência de armazenamento de senhas da OWASP, vigente desde 2023, para PBKDF2-HMAC-SHA256. Mais iterações significa que quem roubar seu texto cifrado precisa gastar proporcionalmente mais poder computacional a cada tentativa de senha num ataque de força bruta offline. Também significa que cada operação de criptografar ou descriptografar nesta ferramenta leva uma fração de segundo pequena, mas deliberada — esse atraso é exatamente o propósito, não um problema de desempenho a corrigir.
+
+## Dá para descriptografar esse resultado com OpenSSL ou 7-Zip?
+
+Não. A saída é Base64 de `salt (16 bytes) || IV (12 bytes) || texto cifrado`, tudo concatenado — um formato que esta ferramenta inventou para si mesma, para conseguir descriptografar o que ela própria criptografou pedindo só a senha, nada mais. Não é PKCS#7, não é o cabeçalho do `openssl enc`, também não é um arquivo AES do 7-Zip: nenhuma ferramenta externa entende essa estrutura de bytes, mesmo o algoritmo por trás (AES-256-GCM) sendo totalmente padrão. Ao decodificar o Base64, os primeiros 16 bytes são lidos como o salt, os próximos 12 como o IV, e o resto como o texto cifrado, nessa ordem exata — é assim que a própria ferramenta reconstrói tudo na hora de descriptografar. Se você precisa de um formato que outras ferramentas consigam abrir, use a criptografia embutida de um compactador de uso geral; esta ferramenta troca interoperabilidade por simplicidade.
+
+## Por que digitar a senha errada mostra só um erro genérico?
+
+Porque a verificação da tag de autenticação do GCM só retorna aprovado ou rejeitado; o WebCrypto não informa *por que* falhou, e esta ferramenta repassa essa mesma ambiguidade em vez de tentar adivinhar. Uma senha incorreta, um texto colado pela metade, e um único bit alterado por alguém adulterando o texto cifrado produzem exatamente a mesma rejeição na descriptografia. Isso é proposital: uma mensagem de erro mais específica vazaria informação útil para um atacante sobre qual desses três cenários ele está enfrentando de fato.
+
+## Criptografar o mesmo texto duas vezes gera o mesmo resultado em Base64?
+
+Não, e isso é intencional. Cada criptografia sorteia um salt e um IV totalmente novos e aleatórios, então o mesmo texto puro com a mesma senha produz uma string Base64 diferente a cada execução. Se não fosse assim, qualquer pessoa que visse duas saídas idênticas saberia que os textos originais eram iguais — uma fraqueza real da criptografia determinística, mesmo que o algoritmo AES em si continue sólido. É por isso que dois colegas criptografando a mesma senha de Wi-Fi com a mesma frase-senha, em momentos diferentes, terão duas strings completamente diferentes para colar no chat — nenhum dos dois pode comparar visualmente os resultados para confirmar que digitaram a mesma coisa, e essa é a intenção.
+
+## Isso é seguro o suficiente para algo importante?
+
+Para proteger uma anotação ou um segredo pequeno enquanto ele é copiado entre seus próprios dispositivos, ou enquanto vive num arquivo de texto, app de notas ou histórico de conversa — sim, isso é criptografia autenticada real e padrão, não uma versão caseira frágil. O que ela não faz é proteger você se o dispositivo que está usando já estiver comprometido: um malware ou keylogger observando essa aba do navegador consegue ler sua senha e o texto puro diretamente enquanto você digita, antes mesmo de chegarem ao WebCrypto, e nenhuma criptografia evita isso — ela protege dados em trânsito ou em repouso, não um ambiente de execução já hostil. Nada sai do seu computador para começar — a criptografia e a descriptografia acontecem localmente com WebCrypto (que exige um contexto seguro, HTTPS ou localhost; sem isso, `crypto.subtle` nem existe, e a ferramenta avisa em vez de falhar silenciosamente), então não há nada para interceptar na rede durante o processo. A senha que você digita é usada uma única vez em memória para derivar a chave e depois é descartada — fechar a aba apaga tudo, inclusive a chave derivada.

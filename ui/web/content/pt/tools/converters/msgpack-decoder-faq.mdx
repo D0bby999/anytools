@@ -1,0 +1,27 @@
+---
+title: MessagePack ↔ JSON — Perguntas frequentes
+---
+
+## Por que o MessagePack costuma pesar menos que o JSON equivalente?
+
+O JSON gasta bytes com sintaxe que não carrega dado nenhum: cada chave de texto se repete por inteiro entre aspas em cada objeto, cada número é escrito como dígitos decimais, e os caracteres estruturais (`{`, `}`, `[`, `]`, `,`, `:`) se acumulam num documento grande. O MessagePack troca tudo isso por um byte de cabeçalho de tipo seguido direto do valor bruto — um inteiro pequeno costuma custar um único byte em vez de vários dígitos ASCII, e uma string curta custa seu tamanho em bytes mais um byte de cabeçalho, em vez disso mais duas aspas. A linha de comparação de tamanho abaixo do resultado (`sizeComparison`) mostra exatamente quanto foi economizado para o que você colou; a porcentagem exata depende muito de quantos números e chaves curtas seu dado tem em relação a strings longas — com textos longos, os dois formatos ficam mais parecidos. Essa eficiência é justamente por que o MessagePack é usado como formato de transporte em sistemas onde o tamanho da mensagem importa em volume — filas de eventos de alta vazão, comunicação entre microsserviços, ou o próprio protocolo interno do Fluentd — mais do que como um formato pensado para edição manual.
+
+## Se eu colar vários valores MessagePack colados um atrás do outro, a ferramenta pega só o primeiro?
+
+Não. É um comportamento bom de saber de antemão: a função `decode()` da biblioteca `@msgpack/msgpack` aceita exatamente um valor MessagePack independente, nada além disso. Se o que você colou na verdade são vários valores concatenados — algo comum ao copiar dados de um fluxo de log ou de um transporte com quadros prefixados por tamanho — a ferramenta lança um erro (código `decodeFailed`, com o detalhe real da falha de decodificação) em vez de silenciosamente pegar o primeiro valor e ignorar o resto. O certo é separar o payload em valores individuais antes de colar aqui, ou remover o framing externo, se houver. A mesma mensagem de erro também aparece, com um detalhe diferente, para qualquer outro payload que simplesmente não seja MessagePack válido — por exemplo, texto colado por engano no campo errado.
+
+## O que é a "extensão de timestamp" e por que ela aparece como uma data legível?
+
+Os tipos básicos do MessagePack — string, integer, float, boolean, array, map, binary, nil — não incluem um conceito nativo de "momento no tempo". A revisão da especificação de agosto de 2017 adicionou um tipo de extensão reservado (tipo `-1`) justamente para isso, empacotando segundos e nanossegundos desde o epoch Unix em 4, 8 ou 12 bytes dependendo do intervalo necessário. O decodificador da biblioteca usada por esta ferramenta reconhece essa extensão automaticamente e a transforma num objeto `Date` do JavaScript; como o `JSON.stringify` chama `Date#toJSON` ao serializar, o resultado já sai como uma data ISO 8601 legível no JSON de saída, sem nenhum tratamento extra no código da ferramenta.
+
+## Existe limite de tamanho para o que posso colar ou enviar?
+
+Sim, 10 MB. Tudo roda na sua aba do navegador em vez de num servidor, e analisar dezenas de megabytes de texto hex ou base64 num único campo de entrada é exatamente o tipo de operação capaz de travar a aba visivelmente. Um payload acima desse limite é rejeitado antes de a decodificação começar (`error_payloadTooLarge`), não é cortado nem processado parcialmente. Se precisar inspecionar algo maior, uma ferramenta de linha de comando para MessagePack que processe o fluxo aos poucos é mais adequada do que uma baseada no navegador.
+
+## Ao ir e voltar pelo JSON, alguma distinção que o MessagePack tinha se perde?
+
+Sim. O JSON tem um sistema de tipos bem mais estreito que o MessagePack. O MessagePack separa `bin` (binário bruto) de `str` (texto) como dois tipos de wire distintos, e distingue 15 larguras diferentes de inteiro (de um fixint de um byte até um int/uint completo de 64 bits) do tipo de ponto flutuante. O JSON tem exatamente um tipo de string e um tipo de número — então, ao recodificar para MessagePack depois de um round-trip pelo JSON, a ferramenta não consegue recuperar qual largura exata de inteiro ou qual distinção binário-vs-texto o payload original tinha. Se preservar essa distinção importa para você, trabalhe direto sobre o payload binário original em vez de passar pelo JSON intermediário.
+
+## A ferramenta entende qualquer tipo de extensão, não só o timestamp?
+
+Não, e isso é proposital. A especificação do MessagePack deixa os tipos 0 a 127 livres para cada aplicação definir seu próprio significado — só o tipo `-1` (timestamp) é reservado pela especificação; o resto não tem nenhuma convenção universal. Sem saber qual convenção a aplicação que gerou o payload usou, a ferramenta mostra o número de tipo e os bytes brutos de uma extensão não reconhecida, em vez de arriscar uma decodificação que quase certamente estaria errada para o seu produtor específico.

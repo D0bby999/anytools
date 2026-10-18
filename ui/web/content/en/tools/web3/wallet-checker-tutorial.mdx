@@ -1,0 +1,91 @@
+---
+title: Wallet Address Checker — detect blockchain networks from address patterns
+description: How EVM, BTC, Solana, and Tron address formats work, checksum validation, disambiguation, and real-world use cases.
+updated: 2026-05-26
+---
+
+## Why address format detection matters
+
+Every blockchain defines its own address format — a consequence of different cryptographic choices, encoding schemes, and design philosophies. When you're building a multi-chain wallet, a payment form, a fraud-detection layer, or a data pipeline that ingests user-submitted addresses, you need to know which network an address belongs to before you can do anything useful with it.
+
+Submitting a Solana address to an Ethereum node, or a Bitcoin address to a Solana RPC, will either error silently or produce a nonsensical result. Client-side format detection catches these mistakes at the boundary, before any on-chain call is made.
+
+## EVM chains — the `0x` prefix family
+
+Ethereum and every EVM-compatible chain (Polygon, BNB Smart Chain, Arbitrum, Optimism, Avalanche C-Chain, Base, etc.) share an identical address format: a `0x` prefix followed by 40 lowercase hexadecimal characters, representing 20 raw bytes derived from the last 20 bytes of the Keccak-256 hash of the public key.
+
+```
+0x742d35Cc6634C0532925a3b8D4C9b74b49F1234c
+```
+
+**EIP-55 checksum.** Ethereum addresses are case-insensitive at the protocol level, but EIP-55 defines a checksum encoding where specific hex letters are capitalized based on the Keccak hash of the lowercase address. A mixed-case address that passes EIP-55 validation has almost certainly been typed or generated correctly — a random corruption of one character almost never produces a valid checksum.
+
+This tool validates EIP-55 when the address contains at least one uppercase letter. A fully lowercase or fully uppercase `0x` address is reported as valid (no checksum) but flagged as lacking checksum protection.
+
+## Bitcoin — three generations of address format
+
+Bitcoin has evolved through three address formats, all still in active use:
+
+**P2PKH (Legacy) — `1…`**
+Starts with `1`, Base58Check encoded, 25–34 characters. The oldest format, highest fees because scripts are larger. Example: `1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf Na`.
+
+**P2SH (Script Hash) — `3…`**
+Starts with `3`, Base58Check encoded. Used for multisig wallets and wrapped SegWit (P2SH-P2WPKH). Slightly ambiguous — a `3…` address could be either a multisig or a wrapped SegWit; the chain data resolves which.
+
+**Bech32 (Native SegWit) — `bc1q…`**
+Human-readable part `bc`, separator `1`, then a Bech32-encoded program. Lower fees, stronger error detection (Bech32 can detect and locate up to 4 errors). `bc1q` addresses are P2WPKH (single key); `bc1p` addresses (Taproot, BIP-341) are P2TR.
+
+This tool detects all three formats and reports the specific type.
+
+## Solana — Base58, 32 bytes
+
+Solana addresses are the Base58 encoding of a 32-byte Ed25519 public key, yielding strings of 32–44 characters. They contain no fixed prefix, which creates an ambiguity: some Solana addresses look superficially similar to Bitcoin Legacy (`1…` addresses) because both use Base58.
+
+The disambiguation is by **length and character set**. A valid Solana address is 32–44 Base58 characters (no `0`, `O`, `I`, or `l` — those are excluded from Base58). Bitcoin Legacy addresses are 25–34 characters. An address of length 43–44 that is valid Base58 and contains no `0/O/I/l` is almost certainly Solana; shorter overlapping lengths require context or an explicit network selector.
+
+## Tron — `T` prefix, Base58Check, 21 bytes
+
+Tron addresses start with `T`, are Base58Check encoded, and are 34 characters long. Internally Tron uses an EVM-compatible 20-byte address (same derivation as Ethereum), but prepends a `0x41` network byte before encoding. You can convert between a Tron address and its hex equivalent with a Base58Check decode followed by stripping the first byte.
+
+```
+TJCnKsPa7y5okkXvQAidZijX6KgBCjQceC  ← Tron
+0x...                                  ← the same key, Ethereum style
+```
+
+## Other chains detected
+
+- **Litecoin** — Legacy `L…` (P2PKH), `M…` (P2SH), `ltc1…` (Bech32)
+- **Dogecoin** — `D…` (P2PKH)
+- **XRP (Ripple)** — Base58Check with a different alphabet, starts with `r`
+- **Cardano** — Bech32 with HRP `addr1` (shelley) or `Ae2…` (Byron era)
+- **Cosmos/ATOM** — Bech32 with HRP `cosmos1`
+
+## What this tool does NOT do
+
+This is a **format validator**, not a chain oracle. It checks:
+- Does the string match a known address pattern?
+- Does the checksum (EIP-55, Base58Check, Bech32) validate?
+- What network(s) is this format consistent with?
+
+It does **not**:
+- Make any RPC or API call to any blockchain node
+- Check whether the address exists on-chain or has ever had a transaction
+- Verify a balance or token holdings
+- Validate a signature or prove key ownership
+- Distinguish between mainnet and testnet (testnet addresses often share the same format)
+
+For on-chain state, use a block explorer or a node RPC call after confirming the address format here.
+
+## Use cases
+
+**Payment form validation.** Before submitting a withdrawal, confirm the user-entered address matches the expected network. Sending ETH to a BTC address format will error at the node; sending to the wrong EVM chain (same format, different chainId) silently succeeds and funds are unrecoverable.
+
+**Multi-chain wallet UX.** Auto-detect which network the user is targeting and pre-select the right chain in the UI.
+
+**Fraud detection at ingress.** In a KYC or compliance pipeline, flag addresses that don't match any known format — likely typos or intentionally malformed submissions.
+
+**Data cleanup.** Normalize a mixed CSV of wallet addresses by network before routing to per-chain enrichment services.
+
+## Privacy
+
+Address strings are validated locally in the browser using regex patterns and checksum algorithms. No address is transmitted to any server.

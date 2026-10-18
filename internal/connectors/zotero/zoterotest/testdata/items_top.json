@@ -1,0 +1,56 @@
+[
+  {
+    "key": "ABCD2345",
+    "version": 1204,
+    "library": {"type": "user", "id": 475425, "name": "learner", "links": {"alternate": {"href": "https://www.zotero.org/learner", "type": "text/html"}}},
+    "links": {
+      "self": {"href": "https://api.zotero.org/users/475425/items/ABCD2345", "type": "application/json"},
+      "alternate": {"href": "https://www.zotero.org/learner/items/ABCD2345", "type": "text/html"},
+      "attachment": {"href": "https://api.zotero.org/users/475425/items/PDFK2345", "type": "application/json", "attachmentType": "application/pdf", "attachmentSize": 2048}
+    },
+    "meta": {"creatorSummary": "Lewis et al.", "parsedDate": "2020-05-22", "numChildren": 2},
+    "data": {
+      "key": "ABCD2345",
+      "version": 1204,
+      "itemType": "journalArticle",
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "creators": [
+        {"creatorType": "author", "firstName": "Patrick", "lastName": "Lewis"},
+        {"creatorType": "author", "firstName": "Ethan", "lastName": "Perez"},
+        {"creatorType": "author", "name": "Facebook AI Research"}
+      ],
+      "abstractNote": "Large pre-trained language models store factual knowledge in their parameters.",
+      "publicationTitle": "Advances in Neural Information Processing Systems",
+      "date": "2020-05-22",
+      "DOI": "10.48550/arXiv.2005.11401",
+      "url": "https://arxiv.org/abs/2005.11401",
+      "tags": [],
+      "collections": ["COLL2345"],
+      "relations": {},
+      "dateAdded": "2024-01-02T03:04:05Z",
+      "dateModified": "2024-01-02T03:04:05Z"
+    }
+  },
+  {
+    "key": "NOPD2345",
+    "version": 1100,
+    "library": {"type": "user", "id": 475425, "name": "learner"},
+    "links": {"alternate": {"href": "https://www.zotero.org/learner/items/NOPD2345", "type": "text/html"}},
+    "meta": {"creatorSummary": "Vaswani", "parsedDate": "2017", "numChildren": 0},
+    "data": {
+      "key": "NOPD2345",
+      "version": 1100,
+      "itemType": "conferencePaper",
+      "title": "Attention Is All You Need",
+      "creators": [{"creatorType": "author", "firstName": "Ashish", "lastName": "Vaswani"}],
+      "abstractNote": "The dominant sequence transduction models are based on recurrent networks.",
+      "date": "June 2017",
+      "DOI": "",
+      "url": "https://papers.nips.cc/paper/7181",
+      "proceedingsTitle": "NeurIPS",
+      "tags": [],
+      "collections": [],
+      "relations": {}
+    }
+  }
+]

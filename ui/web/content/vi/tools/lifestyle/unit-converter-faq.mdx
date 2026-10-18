@@ -1,0 +1,27 @@
+---
+title: Chuyển đổi đơn vị — Câu hỏi thường gặp
+---
+
+## Đổi được những đơn vị nào — kg sang pound, cm sang inch?
+
+Được cả hai, và tổng cộng có năm nhóm: chiều dài, khối lượng, nhiệt độ, thể tích, tốc độ. Chiều dài gồm mm, cm, m, km, inch, foot, yard, mile; khối lượng gồm mg, g, kg, tấn, pound, ounce; tốc độ có m/s, km/h, mph, hải lý và ft/s. Bạn chỉ đổi được trong cùng một nhóm, vì không có câu trả lời có nghĩa cho "một kilomet bằng bao nhiêu lít". Cần nói thẳng phần thiếu: tool chưa có nhóm diện tích, nên mét vuông, hecta hay sào, mẫu không quy đổi được ở đây; các đơn vị dân gian Việt Nam như lạng hay cây vàng cũng không nằm trong bảng.
+
+## Bên trong công cụ quy đổi bằng cách nào?
+
+Mỗi đơn vị khai báo hai việc: cách đi về đơn vị chuẩn của nhóm và cách quay ngược trở ra. Đơn vị chuẩn là mét cho chiều dài, kilogram cho khối lượng, độ C cho nhiệt độ, lít cho thể tích và mét trên giây cho tốc độ. Một lần đổi vì thế luôn gồm hai bước: đưa giá trị về đơn vị chuẩn rồi trải ra đơn vị đích. Cách này nghe vòng vo nhưng lợi ở chỗ mọi cặp đơn vị trong một nhóm đều dùng được mà không cần bảng liệt kê từng tổ hợp — thêm một đơn vị mới chỉ tốn một dòng khai báo thay vì hàng chục hệ số. Hệ số dùng là giá trị định nghĩa chính thức, ví dụ một pound đúng bằng 0.45359237 kg.
+
+## Vì sao nhiệt độ được xử lý khác các nhóm còn lại?
+
+Vì thang nhiệt độ có điểm gốc lệch nhau chứ không chỉ khác hệ số nhân. Chiều dài thì tỉ lệ thuần: gấp đôi số mét là gấp đôi số foot. Nhiệt độ thì không — Fahrenheit sang Celsius là `(F − 32) × 5/9`, còn Kelvin là Celsius cộng 273.15. Nếu hệ thống chỉ biết nhân hệ số, mọi con số nhiệt độ sẽ sai, nên trong code ba đơn vị này mang hàm chuyển đổi riêng thay vì dùng hệ số chung. Hệ quả dễ thấy khi kiểm tra: 0 độ C ra 32 độ F chứ không ra 0, và chênh lệch 10 độ C tương ứng 18 độ F chứ không phải 10.
+
+## Gallon Mỹ và gallon Anh có giống nhau không?
+
+Không, và chênh lệch đủ lớn để làm hỏng việc: gallon Anh là 4.54609 lít, gallon Mỹ chỉ 3.785412 lít, tức lệch khoảng một phần năm. Công thức nấu ăn và số liệu tiêu hao nhiên liệu dịch qua lại giữa hai bờ Đại Tây Dương sai chính vì chỗ này, nên khi nguồn chỉ ghi "gallon" trống không, hãy xác định nó là loại nào trước. Một bẫy tương tự là ounce: ounce khối lượng nằm ở nhóm cân nặng, còn fluid ounce đo thể tích nằm ở nhóm thể tích, và hai con số hoàn toàn khác nhau. Đổi "8 oz bột mì" như thể đó là fluid ounce là lỗi phổ biến mà không có gì báo cho bạn biết.
+
+## Sao không dùng hàm CONVERT của Excel hay gõ thẳng vào ô tìm kiếm?
+
+Hàm `CONVERT` của Excel dùng được nhưng bắt bạn nhớ mã đơn vị dạng chuỗi như `"lbm"`, `"gal"`, `"km/h"`, gõ sai một ký tự là ra lỗi chứ không gợi ý gì; nó cũng không phân biệt giúp bạn gallon Mỹ với gallon Anh trừ khi bạn chọn đúng mã. Ô tìm kiếm thì tiện cho một phép lẻ nhưng phải gõ lại nguyên câu mỗi lần đổi số, và kết quả gửi truy vấn của bạn ra ngoài. Ở đây bạn chọn nhóm và hai đơn vị một lần, sau đó chỉ đổi con số và kết quả cập nhật ngay. Về số chữ số thập phân: đừng tin nhiều hơn độ chính xác của số bạn nhập vào — đổi "3 mét" ra tám chữ số thập phân là tạo ra độ chính xác mà phép đo ban đầu không hề có. Đổi đi rồi đổi lại đôi khi lệch ở chữ số cuối do làm tròn dấu phẩy động, mức lệch đó nằm xa dưới mọi sai số đo thực tế.
+
+## Giá trị tôi nhập có được gửi đi đâu không?
+
+Không. Toàn bộ bảng hệ số nằm trong mã trang và phép đổi chạy bằng JavaScript trong trình duyệt, không có lệnh gọi mạng nào khi bạn gõ số. Không tài khoản, không lưu lịch sử quy đổi, không thống kê đơn vị bạn hay dùng. Ngắt mạng rồi thử lại, tool vẫn chạy — đó là cách kiểm chứng nhanh nhất. Khác biệt so với ô tìm kiếm là ở đây phép tính không trở thành một truy vấn gắn với hồ sơ của bạn.

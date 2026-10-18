@@ -1,0 +1,80 @@
+---
+title: Guia completo para OCR de um PDF digitalizado no navegador
+description: O que separa uma varredura de um PDF de texto, como qualidade de varredura e DPI decidem o resultado, por que os modelos de idioma aqui são os rápidos, o que um PDF pesquisável realmente é, e o que o primeiro run baixa.
+updated: 2026-09-03
+---
+
+## Primeiro, trabalhe se você precisa de OCR em tudo
+
+Um PDF consegue manter texto de duas formas completamente diferentes, e parecem idênticas na tela.
+
+Um **PDF digital** — qualquer coisa exportada do Word, um navegador, LaTeX ou uma ferramenta de design — armazena os próprios caracteres. Abra-o e tente selecionar uma frase: se o cursor destaca palavras, o texto já está lá. Você não precisa de OCR, e executá-lo seria um desperdício de vários minutos. Copie o texto, ou use uma ferramenta de PDF para texto.
+
+Um **PDF digitalizado** armazena uma fotografia de uma página. Selecionar uma frase destaca nada, ou destaca um retângulo cobrindo toda a imagem de página. Pesquisar encontra nada. É para isso que OCR é: ler as formas na imagem e descobrir quais caracteres elas são.
+
+Documentos mistos existem e são comuns — um contrato digital com uma página de assinatura digitalizada anexada, por exemplo. Executar OCR sobre tudo é inofensivo mas lento; o campo de intervalo de páginas permite fazer apenas as páginas digitalizadas.
+
+## Qualidade de varredura decide a maior parte do resultado
+
+Reconhecimento óptico de caracteres é correspondência de padrão sobre pixels. Nada a jusante consegue recuperar detalhe que a varredura nunca capturou, então a qualidade da origem domina tudo mais que você consegue controlar.
+
+**Resolução.** A figura útil não é o DPI do arquivo mas a altura de uma letra minúscula em pixels. Abaixo aproximadamente 20 pixels, reconhecimento degrada mal; ao redor de 30 a 40 pixels é confortável. Tipo de corpo ordinário de 10 pontos chega a isso em cerca de 200–300 DPI. Uma varredura de 600 DPI da mesma página é quatro vezes os dados para nenhum ganho em precisão.
+
+**Retidão.** Uma página alimentada torta em um scanner, ou fotografada em um ângulo, é muito mais difícil do que uma quadrada. Tesseract tolera um grau ou dois e luta além disso. Esta ferramenta não desinclinação: endireitamento automático precisa de uma estimativa de ângulo, e uma estimativa errada piora as coisas silenciosamente, que é um compromisso ruim para uma ferramenta que você não consegue inspecionar. Se suas páginas estão visivelmente tortas, re-digitalizar elas em linha reta vale mais do que qualquer configuração.
+
+**Contraste e uniformidade.** Texto cinzento em fundo cinzento, um flash de telefone explodindo o meio de uma página brilhante, uma sombra da própria cabeça do fotógrafo — cada uma dessas remove linhas inteiras. Um scanner de vidro plano ou um aplicativo de telefone de scanning de documento bate uma fotografia casual por uma margem ampla.
+
+**Compressão.** Uma varredura já salva como JPEG pequeno carrega artefatos de toque em volta de cada letra. Eles são invisíveis à primeira vista e muito visíveis para um classificador de caracteres.
+
+**Layout.** Texto de corpo de coluna única simples é o caso fácil. Tabelas densas, layouts multicolunares com sarjetas estreitas, texto impresso sobre fotografias, e faces de exibição estilizadas são todos consideravelmente mais difíceis. Escrita à mão não funciona em tudo — os modelos do Tesseract são treinados em tipo impresso, e cursiva produz lixo confiante.
+
+## Por que a ferramenta renderiza cada página a 200 DPI
+
+Antes do reconhecimento cada página tem que se tornar pixels, então a ferramenta a rasteriza com `pdf.js`. A escala que usa é 200 DPI, e ambas as direções de lá são piores.
+
+Mais baixa, e letras caem sob a altura de pixel que os modelos precisam. Mais alta, e você está ampliando uma fotografia: se a varredura incorporada é 200 DPI, renderizar a página em 400 não inventa nenhum novo detalhe, só quadruplica o trabalho. Já que um PDF digitalizado é geralmente 200–300 DPI para começar, 200 é onde a precisão para de melhorar e o custo continua subindo.
+
+Dois ajustes acontecem automaticamente. As páginas são convertidas em escala de cinza, que aproximadamente reduz o tempo de reconhecimento pela metade e não perde nada — Tesseract descarta cor internamente de qualquer forma. E uma página grande o suficiente para exceder o que os navegadores alocarão para um canvas (um plano A0 a 200 DPI seria cerca de 119 megapixels) é renderizado em uma escala reduzida em vez de falhar; as posições das palavras são mapeadas de volta através do tamanho real da imagem, então a camada pesquisável permanece correta.
+
+## Por que os modelos de idioma aqui são os "rápidos"
+
+Tesseract publica seus modelos treinados em três conjuntos. `tessdata_best` é o mais preciso e o maior. `tessdata` é o meio. `tessdata_fast` é quantizado inteiro para velocidade e tamanho.
+
+Este site envia `fast`, e a razão é aritmética em vez de preferência. Inglês em `fast` é cerca de 4 MB; em `best` é aproximadamente quatro vezes isso. Todo visitante que pressiona o botão o baixa. A diferença de precisão é real mas pequena — na ordem de dois a três por cento dos caracteres, concentrado nas varreduras difíceis onde a saída precisa de correção de qualquer forma. Pagar 15 MB por visitante para isso em cada idioma seria a configuração padrão errada, então não é. É também um teto genuíno no que esta ferramenta consegue fazer, que é por que está escrito aqui em vez de deixado para você descobrir.
+
+Quatro idiomas estão disponíveis — inglês, vietnamita, espanhol e português — porque esses quatro arquivos de modelo são enviados com o site. Tesseract suporta mais de cem, mas cada um adicional teria que ser buscado de um CDN de terceiros no momento que você o selecionasse, que vazaria o fato de que você está lendo um documento naquele idioma. Essa é a solicitação que esta ferramenta existe para evitar, então a lista para no que consegue ser servido daqui.
+
+## O que "PDF pesquisável" realmente significa
+
+Essa é a opção que a maioria das pessoas está procurando, e o nome está fazendo muito trabalho.
+
+A ferramenta carrega seu arquivo original com `pdf-lib` e, para cada palavra que o reconhecedor localizou, desenha essa palavra com opacidade zero no lugar na página onde a tinta está. A varredura abaixo é intacta: não rerenderizada, não re-comprimida, não convertida. O que você recupera parece pixel-por-pixel como o que você colocou, mas Ctrl+F encontra palavras, seleção de texto funciona, e qualquer coisa que indexe PDFs — Spotlight, Windows Search, um sistema de gerenciamento de documentos — consegue lê-lo.
+
+Três detalhes valem a pena saber:
+
+- **Posição vem do reconhecedor, não de adivinhação.** Cada caixa de palavra está em pixels da imagem renderizada, origem no canto superior esquerdo; coordenadas de PDF são pontos, origem no inferior esquerdo; e uma página pode carregar uma flag `/Rotate` que o leitor aplica mas a camada de desenho não. Todas as três conversões acontecem por página, usando a largura real da imagem renderizada em vez de um DPI assumido.
+- **Palavras de baixa confiança são deixadas de fora.** Abaixo de 30% de confiança, saída é geralmente speckles lidos como pontuação, e incluir faz seleção de linha copiar lixo entre as palavras reais.
+- **A camada é apenas tão boa quanto a OCR.** Uma palavra lida errado é pesquisável sob a ortografia errada. Texto invisível esconde seus próprios erros, que é uma razão para verificar a saída `.txt` em uma página ou duas antes de confiar em um grande lote.
+
+Para inglês, espanhol e português o texto invisível usa Helvetica, uma das fontes que cada leitor de PDF já tem, então o arquivo cresce por dezenas de kilobytes. O vietnamita precisa de uma fonte Unicode incorporada — o conjunto de caracteres de Helvetica não consegue soletrar — então um arquivo Noto Sans de 421 KB é buscado deste site e subconjunto até apenas os glifos usados.
+
+## O que o primeiro run baixa, e para onde vai
+
+Abrir a página não baixa nenhuma maquinaria de OCR. Pressione **Reconhecer texto** e três coisas chegam, todas desta origem:
+
+| O que | Tamanho | Armazenado em cache depois |
+|---|---|---|
+| Script worker | ~110 KB | Cache HTTP normal |
+| Mecanismo WebAssembly | ~3,8 MB | Cache HTTP normal |
+| Dados de idioma | 0,5–4 MB | IndexedDB, em seu navegador |
+
+O arquivo de idioma é escrito no IndexedDB do seu navegador por `tesseract.js`, que é por que o segundo documento no mesmo idioma começa a reconhecer imediatamente. É seu próprio armazenamento; limpar dados do site remove-o e o próximo run o busca novamente. Nada é enviado em qualquer lugar — o único tráfego de rede são esses downloads do site que você já está em.
+
+## Uma ordem de operações que funciona
+
+1. Tente selecionar texto em seu PDF primeiro. Se seleciona, você não precisa desta ferramenta.
+2. Escolha o idioma do documento, não seu próprio idioma.
+3. Execute uma página — coloque `1` no intervalo de páginas — e leia a saída. Trinta segundos aqui lhe diz se a varredura é boa o suficiente antes de você gastar dez minutos em 200 páginas.
+4. Se confiança está sob cerca de 70%, corrija a entrada em vez das configurações: digitalize novamente em linha reta, em 300 DPI, em escala de cinza.
+5. Decida o que você realmente quer. `.txt` se o texto vai ser editado ou reutilizado; PDF pesquisável se o documento tem que permanecer um documento e apenas precisa ser encontrável.
+6. Para trabalhos longos, use o intervalo de páginas para trabalhar em lotes. **Parar** abandona o run se você mudar de ideia — não entrega as páginas lidas até agora, que é exatamente por que lotes valem o incômodo.

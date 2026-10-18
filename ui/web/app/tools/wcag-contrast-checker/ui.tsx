@@ -1,0 +1,130 @@
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  ColorInput,
+  Input,
+  PrivacyNote,
+  useLocalized,
+  useUiStrings,
+} from '~/components/tools-ui';
+import { useMemo, useState } from 'react';
+import {
+  DEFAULT_BACKGROUND,
+  DEFAULT_FOREGROUND,
+  contrastRatio,
+  parseHex,
+  rateContrast,
+  suggestForeground,
+  toHex,
+} from './logic';
+import { STRINGS } from './strings';
+
+function PassBadge({ pass, label }: { pass: boolean; label: string }) {
+  return (
+    <Badge
+      className={
+        pass ? 'bg-primary-soft text-primary border-0' : 'bg-destructive-soft text-destructive border-0'
+      }
+    >
+      {label} {pass ? '✓' : '✗'}
+    </Badge>
+  );
+}
+
+export function WcagContrastCheckerUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const [fgHex, setFgHex] = useState(DEFAULT_FOREGROUND);
+  const [bgHex, setBgHex] = useState(DEFAULT_BACKGROUND);
+
+  const fg = parseHex(fgHex);
+  const bg = parseHex(bgHex);
+  const result = useMemo(() => {
+    if (!fg || !bg) return null;
+    const rating = rateContrast(contrastRatio(fg, bg));
+    const suggestion = rating.aaNormal ? null : suggestForeground(fg, bg, 4.5);
+    return { rating, suggestion };
+  }, [fg, bg]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <ColorInput label={s.textColor} value={fgHex} onChange={setFgHex} />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-11 w-11 shrink-0"
+            aria-label={s.swapColors}
+            onClick={() => {
+              setFgHex(bgHex);
+              setBgHex(fgHex);
+            }}
+          >
+            <span aria-hidden className="text-base leading-none">
+              ⇄
+            </span>
+          </Button>
+          <ColorInput label={s.backgroundColor} value={bgHex} onChange={setBgHex} />
+        </div>
+
+        {fg && bg && result ? (
+          <>
+            <div
+              className="rounded-lg border p-6 space-y-1"
+              style={{ backgroundColor: toHex(bg), color: toHex(fg) }}
+            >
+              <p className="text-2xl font-semibold">{s.largeText}</p>
+              <p className="text-sm">{s.normalText}</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-3xl font-bold tabular-nums">
+                {result.rating.ratio.toFixed(2)}:1
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <PassBadge pass={result.rating.aaNormal} label={s.aa} />
+                <PassBadge pass={result.rating.aaLarge} label={s.aaLarge} />
+                <PassBadge pass={result.rating.aaaNormal} label={s.aaa} />
+                <PassBadge pass={result.rating.aaaLarge} label={s.aaaLarge} />
+              </div>
+            </div>
+
+            {result.suggestion && (
+              <div className="flex flex-wrap items-center gap-3 rounded-lg border p-4">
+                <span
+                  className="h-8 w-8 rounded-md border"
+                  style={{ backgroundColor: toHex(result.suggestion) }}
+                  aria-hidden
+                />
+                <div className="text-sm">
+                  <p className="font-medium">
+                    {s.closestPassing} <code>{toHex(result.suggestion)}</code>
+                  </p>
+                  <p className="text-muted-foreground">{s.sameHue}</p>
+                </div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setFgHex(toHex(result.suggestion as never))}
+                >
+                  {ui.apply}
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">{s.enterHex}</p>
+        )}
+        <PrivacyNote />
+      </CardContent>
+    </Card>
+  );
+}

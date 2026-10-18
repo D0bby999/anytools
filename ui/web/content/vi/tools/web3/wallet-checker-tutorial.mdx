@@ -1,0 +1,91 @@
+---
+title: Wallet Address Checker — nhận diện mạng blockchain từ định dạng địa chỉ
+description: Cách hoạt động của địa chỉ EVM, BTC, Solana, Tron; checksum validation, phân biệt address, và use case thực tế.
+updated: 2026-05-26
+---
+
+## Tại sao cần nhận diện định dạng địa chỉ
+
+Mỗi blockchain định nghĩa format địa chỉ riêng — hệ quả của các lựa chọn cryptographic, encoding scheme, và triết lý thiết kế khác nhau. Khi xây dựng multi-chain wallet, form thanh toán, lớp fraud detection, hoặc data pipeline nhận địa chỉ từ người dùng, bạn cần biết địa chỉ thuộc mạng nào trước khi làm bất cứ điều gì với nó.
+
+Gửi địa chỉ Solana đến Ethereum node, hoặc địa chỉ Bitcoin vào Solana RPC, sẽ báo lỗi hoặc trả kết quả vô nghĩa. Format detection phía client phát hiện những nhầm lẫn này tại boundary, trước khi bất kỳ on-chain call nào được thực hiện.
+
+## EVM chains — họ prefix `0x`
+
+Ethereum và mọi EVM-compatible chain (Polygon, BNB Smart Chain, Arbitrum, Optimism, Avalanche C-Chain, Base, v.v.) dùng chung một format địa chỉ: prefix `0x` theo sau bởi 40 ký tự hex viết thường, đại diện cho 20 byte lấy từ 20 byte cuối của Keccak-256 hash của public key.
+
+```
+0x742d35Cc6634C0532925a3b8D4C9b74b49F1234c
+```
+
+**EIP-55 checksum.** Địa chỉ Ethereum case-insensitive ở protocol level, nhưng EIP-55 định nghĩa checksum encoding trong đó một số ký tự hex được viết hoa dựa trên Keccak hash của địa chỉ viết thường. Địa chỉ mixed-case pass EIP-55 có xác suất gần như bằng 0 để là kết quả của việc nhập sai ngẫu nhiên.
+
+Tool này validate EIP-55 khi địa chỉ chứa ít nhất một chữ hoa. Địa chỉ `0x` toàn chữ thường hoặc toàn chữ hoa được báo là hợp lệ (không có checksum) nhưng được đánh dấu là thiếu checksum protection.
+
+## Bitcoin — ba thế hệ format địa chỉ
+
+Bitcoin đã phát triển qua ba format địa chỉ, tất cả vẫn đang được dùng:
+
+**P2PKH (Legacy) — `1…`**
+Bắt đầu bằng `1`, Base58Check encoded, 25–34 ký tự. Format cũ nhất, phí cao nhất vì script lớn hơn.
+
+**P2SH (Script Hash) — `3…`**
+Bắt đầu bằng `3`, Base58Check encoded. Dùng cho multisig wallet và wrapped SegWit (P2SH-P2WPKH). Hơi mơ hồ — địa chỉ `3…` có thể là multisig hoặc wrapped SegWit; dữ liệu on-chain mới xác định được.
+
+**Bech32 (Native SegWit) — `bc1q…`**
+Human-readable part `bc`, separator `1`, theo sau là Bech32-encoded program. Phí thấp hơn, error detection mạnh hơn. `bc1q` là P2WPKH; `bc1p` (Taproot, BIP-341) là P2TR.
+
+Tool nhận diện cả ba format và báo loại cụ thể.
+
+## Solana — Base58, 32 byte
+
+Địa chỉ Solana là Base58 encoding của 32-byte Ed25519 public key, cho ra chuỗi 32–44 ký tự. Không có prefix cố định, tạo ra sự mơ hồ: một số địa chỉ Solana trông giống Bitcoin Legacy (`1…`) vì cả hai dùng Base58.
+
+Phân biệt bằng **độ dài và character set**. Địa chỉ Solana hợp lệ là 32–44 ký tự Base58 (không có `0`, `O`, `I`, `l` — bị loại khỏi Base58). Địa chỉ Bitcoin Legacy là 25–34 ký tự. Địa chỉ 43–44 ký tự là Base58 hợp lệ và không chứa `0/O/I/l` hầu như chắc chắn là Solana.
+
+## Tron — prefix `T`, Base58Check, 21 byte
+
+Địa chỉ Tron bắt đầu bằng `T`, Base58Check encoded, 34 ký tự. Bên trong, Tron dùng EVM-compatible 20-byte address (cùng cách derive như Ethereum), nhưng prepend network byte `0x41` trước khi encode.
+
+```
+TJCnKsPa7y5okkXvQAidZijX6KgBCjQceC  ← Tron
+0x...                                  ← cùng key, style Ethereum
+```
+
+## Các chain khác được nhận diện
+
+- **Litecoin** — Legacy `L…` (P2PKH), `M…` (P2SH), `ltc1…` (Bech32)
+- **Dogecoin** — `D…` (P2PKH)
+- **XRP (Ripple)** — Base58Check với alphabet khác, bắt đầu bằng `r`
+- **Cardano** — Bech32 với HRP `addr1` (shelley) hoặc `Ae2…` (Byron era)
+- **Cosmos/ATOM** — Bech32 với HRP `cosmos1`
+
+## Tool này KHÔNG làm gì
+
+Đây là **format validator**, không phải chain oracle. Tool kiểm tra:
+- Chuỗi có khớp pattern địa chỉ đã biết không?
+- Checksum (EIP-55, Base58Check, Bech32) có hợp lệ không?
+- Format này nhất quán với mạng nào?
+
+Tool **không**:
+- Thực hiện bất kỳ RPC hoặc API call nào đến blockchain node
+- Kiểm tra địa chỉ có tồn tại on-chain không hoặc đã có transaction chưa
+- Verify balance hoặc token holding
+- Validate signature hoặc chứng minh quyền sở hữu key
+- Phân biệt mainnet và testnet (địa chỉ testnet thường dùng cùng format)
+
+Để kiểm tra on-chain state, dùng block explorer hoặc RPC call sau khi xác nhận format địa chỉ ở đây.
+
+## Use case thực tế
+
+**Validate form thanh toán.** Trước khi submit withdrawal, xác nhận địa chỉ người dùng nhập khớp với mạng mong đợi. Gửi ETH đến format địa chỉ BTC sẽ lỗi ở node; gửi sang EVM chain sai (cùng format, khác chainId) silently succeed và fund không thể lấy lại.
+
+**Multi-chain wallet UX.** Tự động nhận diện mạng người dùng đang nhắm đến và pre-select chain đúng trong UI.
+
+**Fraud detection tại ingress.** Trong pipeline KYC hoặc compliance, flag địa chỉ không khớp bất kỳ format đã biết — có thể là typo hoặc submission cố tình sai.
+
+**Data cleanup.** Normalize CSV hỗn hợp địa chỉ wallet theo mạng trước khi route đến per-chain enrichment service.
+
+## Quyền riêng tư
+
+Địa chỉ được validate locally trong browser dùng regex pattern và checksum algorithm. Không có địa chỉ nào được gửi đến server.

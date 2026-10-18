@@ -1,0 +1,43 @@
+---
+title: Calculadora de tarjeta de tiempo — Preguntas frecuentes
+---
+
+## ¿Qué totaliza?
+
+Horas trabajadas por día de tiempos de entrada y salida, sumadas durante la semana, luego divididas en horas ordinarias y de tiempo extra con pago para cada una.
+
+## ¿Cómo se decide el tiempo extra?
+
+Cualquier cosa más allá de 40 horas en la semana es tiempo extra, pagado a 1.5 veces la tasa base. Ese es el estándar semanal estadounidense común y es lo que aplica esta herramienta.
+
+## ¿Maneja reglas de tiempo extra diario?
+
+No. Algunas jurisdicciones requieren tiempo extra después de un número establecido de horas en un solo día independientemente del total semanal, y algunas tienen umbrales de doble tiempo. Esta calculadora solo aplica la regla semanal de 40 horas, así que subestimará lo que se debe donde aplica una regla diaria.
+
+## ¿Qué formato de hora debo usar?
+
+Veinticuatro horas, como `HH:MM`, por lo que 5pm es `17:00`. Ingresar una hora que no puede ser analizada contribuye cero horas para ese día en lugar de un número incorrecto.
+
+## ¿Cómo ingreso un turno que cruza medianoche?
+
+Como una única fila. Cuando el tiempo de salida es anterior al tiempo de entrada, el cálculo del día añade 24 horas en lugar de devolver un span negativo, así que `22:00` a `06:00` se lee como ocho horas, no menos dieciséis. No necesitas dividir el turno entre dos filas.
+
+El límite de esa regla es que asume que cualquier par hacia atrás significa un turno de noche. Un error de tipografía que pone la salida antes de la entrada en un día ordinario se lee como un turno muy largo en lugar de ser marcado, así que un día que regresa mucho más grande de lo esperado vale la pena releer en lugar de confiar.
+
+## ¿Se deducen los descansos sin pagar?
+
+Sí. Cada fila tiene su propio campo de descanso en minutos, y esos minutos se restan del span entre entrada y salida antes de que se resuelva el total del día. Comienza a 30 minutos por día, que es un valor predeterminado en lugar de una sugerencia, establécelo a 0 para días que trabajaste a través, y a la cifra real en días que no lo hiciste.
+
+La resta se fija en cero, así que un descanso más largo que el turno produce un día de cero horas en lugar de uno negativo que cancelen silenciosamente las horas en otro lugar de la semana.
+
+## ¿Es esto antes o después de impuestos?
+
+Antes. Multiplica horas por tasas y nada más, sin impuestos, sin deducciones, sin beneficios. Tu salario neto será más bajo.
+
+## ¿Puedo usar esto para verificar mi nómina?
+
+Como una verificación de cordura, sí, y una discrepancia vale la pena investigar. Pero no es autoritario: tu empleador puede aplicar tiempo extra diario, redondeo diferente de tiempos de reloj, o términos contractuales que esto no conoce. Toma una discrepancia real al departamento de nómina o a un asesor laboral en lugar de a una calculadora.
+
+## ¿Se almacenan mis datos de horario?
+
+No. Se quedan en tu navegador y nada se transmite.

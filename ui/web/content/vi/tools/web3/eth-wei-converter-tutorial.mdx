@@ -1,0 +1,131 @@
+---
+title: ETH / Wei Converter — đơn vị, gas pricing, BigInt, và EIP-1559
+description: Chuyển đổi giữa wei, gwei, và ether. Hiểu hệ thống đơn vị ETH, tính toán gas, bẫy precision trong JS, và fee structure EIP-1559.
+updated: 2026-05-26
+---
+
+## Hệ thống đơn vị ETH
+
+Ether (ETH) có thể chia đến 18 chữ số thập phân. Đơn vị nhỏ nhất là **wei** — đặt theo tên Wei Dai, nhà mật mã học đề xuất b-money. Toàn bộ hệ thống:
+
+| Đơn vị | Giá trị wei | Dùng khi nào |
+|--------|-------------|-------------|
+| wei | 1 | Toán học nội bộ smart contract |
+| kwei (babbage) | 10³ | Hiếm dùng |
+| mwei (lovelace) | 10⁶ | Hiếm dùng |
+| gwei (shannon) | 10⁹ | Gas price |
+| microether (szabo) | 10¹² | Đôi khi trong DeFi |
+| milliether (finney) | 10¹⁵ | Hiếm dùng |
+| ether | 10¹⁸ | Hiển thị balance cho người dùng |
+
+Trong thực tế, bạn làm việc với ba đơn vị gần như duy nhất: **wei** cho arithmetic trong contract, **gwei** cho gas pricing, và **ether** để hiển thị balance. Các đơn vị trung gian (kwei, mwei, szabo, finney) chủ yếu xuất hiện trong tài liệu cũ và EIP cũ.
+
+## Tại sao wei tồn tại và tại sao quan trọng
+
+Solidity và EVM hoạt động hoàn toàn bằng số nguyên — không có kiểu dữ liệu floating-point. Mọi value transfer xảy ra trong wei. Nếu contract nhận 1 ETH, EVM thấy số nguyên `1000000000000000000` (10¹⁸). Thiết kế này loại bỏ rounding error trong financial logic với chi phí là mọi developer phải suy nghĩ về số nguyên rất lớn.
+
+Hệ quả rất thực tế: lỗi sai một chữ số thập phân không mất vài xu — nó có thể mất 10× hoặc 100× số tiền dự định. Function nhận wei nhưng nhận được gwei sẽ đọc 1 gwei (10⁹ wei) như 0.000000001 ETH, không phải 1 ETH mà người gọi muốn.
+
+## Bẫy precision của JavaScript Number
+
+`Number` trong JavaScript là 64-bit IEEE 754 double. Nó chỉ biểu diễn chính xác số nguyên đến **2⁵³ − 1 = 9,007,199,254,740,991**. Một ether trong wei là `1,000,000,000,000,000,000` (10¹⁸) — lớn hơn giới hạn đó. Phép tính trên giá trị wei dùng `Number` thông thường sẽ **silently mất precision**:
+
+```javascript
+// SAI — mất precision ngầm
+const oneEther = 1e18;          // 1000000000000000000 ✓ (đúng, may mắn)
+const weirdAmt = 1.5e18 + 1;    // 1500000000000000001? Không:
+console.log(1500000000000000001) // → 1500000000000000000 ✗ (mất +1)
+```
+
+Cách sửa là dùng **BigInt** (native trong mọi JS/TS hiện đại) hoặc thư viện bọc nó:
+
+```javascript
+// ĐÚNG — dùng BigInt
+const oneEther = 1_000_000_000_000_000_000n;
+const result = oneEther + 1n;  // 1000000000000000001n ✓
+```
+
+Tool này dùng `ethers.js` v6 bên trong, biểu diễn mọi amount như `BigInt`. Kết quả conversion được format dưới dạng decimal string, không phải float — nên hiển thị là chính xác.
+
+## parseUnits và formatUnits của ethers.js
+
+Hai function bạn dùng hàng ngày trong bất kỳ Ethereum dapp nào:
+
+```typescript
+import { parseUnits, formatUnits } from "ethers";
+
+// Người dùng nhập "1.5" ETH → BigInt trong wei
+const weiAmount = parseUnits("1.5", "ether");
+// → 1500000000000000000n
+
+// Contract trả BigInt wei → hiển thị cho người dùng
+const display = formatUnits(weiAmount, "ether");
+// → "1.5"
+
+// Gas price: gwei ↔ wei
+const gasPrice = parseUnits("20", "gwei");      // → 20000000000n
+const gasPriceGwei = formatUnits(gasPrice, "gwei"); // → "20.0"
+```
+
+Argument thứ hai nhận tên đơn vị (`"ether"`, `"gwei"`, `"wei"`) hoặc số decimal dưới dạng integer. Cách này tổng quát cho ERC-20 token: `parseUnits("100", 6)` cho USDC (6 decimals), `parseUnits("100", 18)` cho hầu hết token khác.
+
+## Tính toán gas cost
+
+Chi phí ETH của một transaction là:
+
+```
+gas cost (ETH) = gas used × gas price (gwei) × 10⁻⁹
+```
+
+Hoặc trong wei:
+
+```
+gas cost (wei) = gas used × gas price (wei)
+```
+
+Một ETH transfer tiêu chuẩn dùng 21,000 gas. Ở gas price 20 gwei:
+
+```
+cost = 21,000 × 20 × 10⁻⁹ ETH = 0.00042 ETH = 420,000,000,000,000 wei
+```
+
+DeFi swap phức tạp có thể dùng 150,000–500,000 gas. Dùng converter này để kiểm tra cost ở gas price hiện tại mà không cần tính nhẩm.
+
+## EIP-1559: base fee + priority fee
+
+Kể từ London hard fork (tháng 8/2021), Ethereum dùng mô hình hai thành phần:
+
+- **Base fee** — được protocol đặt theo thuật toán mỗi block, bị đốt (không trả cho validator). Tính bằng gwei.
+- **Priority fee (tip)** — trả thẳng cho validator như khuyến khích. Tính bằng gwei. Thường: 0.1–2 gwei lúc bình thường, lên đến 10+ gwei khi tắc nghẽn.
+
+Wallet của bạn đặt **max fee per gas** (mức tối đa bạn trả) và **max priority fee**. Phí thực tế là:
+
+```
+actual fee per gas = min(max_fee, base_fee + priority_fee)
+```
+
+Khi debug transaction receipt, field `effectiveGasPrice` là phí thực tế per gas tính bằng wei. Dùng converter này để chuyển về gwei so sánh với base fee hiện tại.
+
+## Debug transaction receipt
+
+Khi inspect raw transaction receipt từ `eth_getTransactionReceipt`, nhiều field tính bằng wei:
+
+- `value` — ETH được chuyển, tính bằng wei
+- `gasPrice` / `effectiveGasPrice` — phí per gas unit, tính bằng wei
+- `cumulativeGasUsed` — gas tích lũy trong block đến tx này
+
+Chuyển `effectiveGasPrice` sang gwei để so sánh với block explorer. Nhân `effectiveGasPrice × gasUsed` để tính tổng phí tính bằng wei, rồi chuyển sang ETH để kiểm tra chi phí bằng tiền thật.
+
+## Lỗi developer phổ biến
+
+1. **Chia cho `1e18` thay vì `10n**18n`** trong JS.** Float `1e18` đúng cho giá trị cụ thể 10¹⁸, nhưng phép tính quanh nó mất bit. Luôn dùng BigInt hoặc `formatUnits`.
+
+2. **Nhầm ERC-20 token decimals với ETH decimals.** USDC dùng 6 decimals; DAI dùng 18; một số token dùng 8. `parseUnits("1", 6)` cho 1 USDC không giống `parseUnits("1", 18)` cho 1 ETH.
+
+3. **Hiển thị wei thô cho người dùng.** Balance `50000000000000000` wei trông vô nghĩa. Luôn `formatUnits` trước khi hiển thị.
+
+4. **Lưu wei trong cột SQL `INTEGER`.** PostgreSQL `INTEGER` tối đa ~2.1 tỷ; `BIGINT` ~9.2 × 10¹⁸ — vừa đủ chứa ~9 ETH. Dùng `NUMERIC` hoặc lưu dưới dạng `TEXT` decimal string.
+
+## Quyền riêng tư
+
+Toàn bộ conversion chạy locally trong browser qua `ethers.js`. Không có giá trị nào được gửi đến server.

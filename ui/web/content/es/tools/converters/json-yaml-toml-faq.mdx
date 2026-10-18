@@ -1,0 +1,35 @@
+---
+title: Conversor JSON ↔ YAML ↔ TOML — Preguntas frecuentes
+---
+
+## ¿Por qué mis valores booleanos de YAML se convierten con resultados inesperados?
+
+Probablemente estás experimentando el problema Norway de YAML 1.1. En YAML 1.1 (aún el comportamiento por defecto de la mayoría de parsers), valores sin comillas como `NO`, `YES`, `ON`, `OFF`, `True`, `False` se tratan como booleanos en lugar de strings. Entonces `country: NO` se convierte en `{"country": false}` en JSON. La solución: entrecomilla los strings que puedan malinterpretarse — `country: "NO"` es inequívocamente un string en todas las versiones de YAML.
+
+## ¿Se preservan los comentarios al convertir?
+
+No. JSON no tiene sintaxis de comentarios, por lo que cualquier comentario de YAML o TOML se pierde al convertir a JSON. Al convertir YAML→TOML o viceversa, los comentarios también se pierden porque los parsers los descartan. Si tus archivos de config tienen comentarios importantes, conserva el original y trata el output convertido como un derivado separado.
+
+## ¿Por qué TOML rechaza mi array de tipos mixtos?
+
+TOML requiere que los arrays sean homogéneos — todos los elementos deben ser del mismo tipo. `[1, "two", true]` es válido en JSON y YAML pero inválido en TOML. Si necesitas tipos mixtos en TOML, usa un array de tablas inline: `[{val = 1}, {val = "two"}]`. Esta es una decisión de diseño deliberada en TOML para que los tipos sean inequívocos.
+
+## ¿Puedo convertir un archivo YAML multi-documento (separado por ---)?
+
+El YAML multi-documento (múltiples documentos en un archivo separados por `---`) no está soportado en esta herramienta — solo convierte documentos únicos. Divide tu YAML multi-documento en archivos individuales primero, convierte cada uno y combínalos si es necesario.
+
+## El output JSON→YAML tiene comillas alrededor de valores que no las necesitaban. ¿Está mal?
+
+No. YAML permite tanto strings con comillas como sin ellas. Un conversor que entrecomilla todos los strings produce YAML válido y conservador. Los strings sin comillas son una optimización de legibilidad, no un requisito. El valor parseado es idéntico en ambos casos.
+
+## ¿Qué pasa con los valores JSON null al convertir a TOML?
+
+TOML no tiene tipo `null`. Esta es una incompatibilidad real: JSON `null` no tiene equivalente directo en TOML. La herramienta omite las claves con valor null durante la conversión JSON→TOML y lo indica en el output. Si necesitas representar "ausente" en TOML, usa un valor sentinel o reestructura tus datos para simplemente omitir la clave.
+
+## ¿Qué versión de YAML usa esta herramienta?
+
+La herramienta usa semántica YAML 1.2 mediante `js-yaml` en modo estricto cuando es posible, lo que significa que solo `true` y `false` (minúsculas) se parsean como booleanos. Esto evita el problema Norway por defecto. Sin embargo, si pegas YAML generado por un parser 1.1 (PyYAML, Psych de Ruby), los valores pueden haber sido tipados incorrectamente en el origen — inspecciona el output JSON para verificar.
+
+## ¿Es adecuado para YAML de Kubernetes o GitHub Actions?
+
+Sí, para leer y entender esos archivos. Convertirlos *a* JSON o TOML es principalmente útil para procesamiento programático (por ejemplo, alimentar un manifest de Kubernetes a un script que espera JSON). No conviertas y luego intentes usar el resultado de vuelta como un manifest de Kubernetes — el YAML de Kubernetes tiene semánticas de campo específicas que requieren round-tripping cuidadoso.

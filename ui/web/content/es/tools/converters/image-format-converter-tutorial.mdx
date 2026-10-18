@@ -1,0 +1,87 @@
+---
+title: Guía completa del Conversor de Formatos de Imagen
+description: Diferencias entre PNG, JPEG, WebP y AVIF, cuándo convertir entre ellos, y cómo la Canvas API recodifica imágenes completamente en tu navegador.
+updated: 2026-05-27
+---
+
+## Qué hace esta herramienta
+
+Esta herramienta convierte imágenes raster entre los formatos PNG, JPEG, WebP y AVIF completamente dentro de tu navegador usando la HTML Canvas API. Ningún archivo se sube jamás a un servidor. Arrastra una imagen, elige el formato de destino, ajusta la calidad si es necesario y descarga el resultado.
+
+El límite de 10 MB para la entrada existe porque las imágenes grandes decodificadas en datos de píxeles crudos (RGBA) pueden agotar la memoria del navegador. Un JPEG de 10 MB puede descomprimirse a 50–100 MB de píxeles crudos en el buffer del Canvas.
+
+## Descripción general de los formatos
+
+### JPEG — el estándar para fotografías
+
+JPEG (Joint Photographic Experts Group, 1992) usa compresión DCT (Transformada Discreta del Coseno) con pérdida. Divide la imagen en bloques de 8×8 píxeles, los transforma en componentes de frecuencia y descarta los detalles de alta frecuencia a los que el ojo humano es menos sensible. El resultado es una compresión excelente para fotografías — una foto típica a calidad 80 es 5–10× más pequeña que su equivalente PNG con pérdida imperceptible.
+
+JPEG es **terrible para capturas de pantalla, diagramas y texto**. Los artefactos de bloque 8×8 (llamados "ringing") son muy visibles en bordes nítidos y regiones de color sólido. Usa PNG para esos casos.
+
+JPEG no tiene canal alfa (transparencia). Si tu imagen fuente tiene regiones transparentes, convertir a JPEG las rellenará con blanco.
+
+### PNG — el estándar sin pérdida
+
+PNG (Portable Network Graphics, 1996) es sin pérdida — cada píxel se preserva exactamente. Usa compresión DEFLATE (el mismo algoritmo que gzip). La compresión es buena para imágenes con regiones uniformes grandes (diagramas, capturas de pantalla, logos) pero deficiente para fotografías.
+
+PNG soporta transparencia alfa completa (RGBA). Es la elección correcta para logos, assets de UI, iconos y cualquier imagen que requiera precisión de píxeles perfecta o transparencia.
+
+### WebP — el sucesor eficiente de Google
+
+WebP fue desarrollado por Google y lanzado en 2010 a partir de la tecnología del códec de vídeo VP8. Soporta modos de compresión con y sin pérdida, transparencia y animación.
+
+Cifras de referencia: WebP con pérdida es **25–34% más pequeño que JPEG** a calidad percibida equivalente. WebP sin pérdida es **26% más pequeño que PNG** en promedio. El soporte de navegadores es ahora universal — Chrome, Firefox, Safari (desde 14.0, 2020), Edge.
+
+Para la entrega web, WebP es casi siempre preferible a JPEG o PNG cuando controlas el servidor. La mayoría de CDN y pipelines de optimización de imágenes generan WebP por defecto hoy en día.
+
+### AVIF — el códec de nueva generación
+
+AVIF (AV1 Image File Format) se deriva del códec de vídeo AV1 desarrollado por la Alliance for Open Media. Las imágenes codificadas como AVIF son típicamente **50% más pequeñas que JPEG** a calidad visual equivalente.
+
+La limitación: la codificación AVIF es computacionalmente costosa. La decodificación es rápida y acelerada por hardware en dispositivos modernos; la codificación puede tardar segundos o minutos para imágenes grandes. Por esta razón, la Canvas API no soporta **codificación** AVIF en ningún navegador a fecha de 2026 — `canvas.toBlob('image/avif')` no está implementado. Esta herramienta puede **decodificar** (mostrar) imágenes AVIF de entrada pero no puede producir salida AVIF. Las opciones de formato de salida son PNG, JPEG y WebP.
+
+Soporte de navegadores: Chrome 85+, Firefox 93+, Safari 16+ (2022).
+
+## El mecanismo de la Canvas API
+
+El pipeline de conversión tiene tres pasos:
+
+1. **Decodificar** — el navegador decodifica el archivo fuente en datos de píxeles RGBA crudos usando su decodificador de imágenes integrado.
+
+2. **Dibujar** — la imagen decodificada se dibuja en un elemento `<canvas>` fuera de pantalla en las dimensiones de píxeles originales.
+
+3. **Recodificar** — `canvas.toBlob(mimeType, quality)` recodifica el buffer de píxeles al formato de destino usando el codificador integrado del navegador. El parámetro quality (0.0–1.0) controla la compresión con pérdida para JPEG y WebP.
+
+## Matriz de soporte de navegadores
+
+| Formato | Decodificar | Codificar (Canvas) |
+|---------|-------------|-------------------|
+| PNG | Todos | Todos |
+| JPEG | Todos | Todos |
+| WebP | Chrome 32+, Firefox 65+, Safari 14+ | Chrome, Firefox, Safari 14+ |
+| AVIF | Chrome 85+, Firefox 93+, Safari 16+ | No soportado (2026) |
+| GIF | Todos | No vía Canvas |
+| SVG | Todos | No vía Canvas (rasteriza) |
+
+## Control deslizante de calidad
+
+El control de calidad (0.1–1.0) solo aplica a **formatos de salida con pérdida**: JPEG y WebP con pérdida. Para PNG, la calidad no tiene efecto. Orientación práctica:
+
+- **0.9–1.0** — casi sin pérdida, archivos grandes, apropiado para assets fuente
+- **0.75–0.85** — punto óptimo para entrega web, visualmente indistinguible del original para la mayoría de fotografías
+- **0.5–0.7** — compresión visible, apropiado para miniaturas
+- **Por debajo de 0.5** — artefactos fuertes, solo para previsualizaciones
+
+## Por qué no hay salida SVG ni GIF
+
+**SVG** es un formato vectorial — almacena descripciones matemáticas de formas, no píxeles. La Canvas API rasteriza la entrada SVG a una cuadrícula de píxeles al dibujarla, descartando todos los datos vectoriales. No hay camino de raster a SVG sin un vectorizador de IA.
+
+**GIF** no está expuesto por `canvas.toBlob()` en ningún navegador. GIF está limitado a 256 colores y soporta animación — ninguna propiedad es accesible a través de la ruta de codificación Canvas.
+
+## Privacidad
+
+Esta herramienta se ejecuta completamente en tu navegador. Ningún dato de píxeles, contenido de archivo o metadatos se transmite a través de la red. Funciona sin conexión una vez cargada la página.
+
+## Herramientas relacionadas
+
+- **Base64 Encode/Decode** — codifica una imagen convertida como data URI Base64 para incrustar en CSS o HTML.

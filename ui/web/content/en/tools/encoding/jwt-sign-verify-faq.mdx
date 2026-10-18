@@ -1,0 +1,35 @@
+---
+title: JWT Sign & Verify — FAQ
+---
+
+## How is this different from the JWT Decoder tool?
+
+The [JWT Decoder](/tools/encoding/jwt-decoder) only reads a token — it Base64URL-decodes the header and payload and shows you the claims, but it never checks the signature. That is fine for "what does this token say", but it cannot answer "is this token legitimate", because a completely forged token with any payload you like decodes just as cleanly as a real one. This tool actually runs the cryptographic verification: it re-derives the signature from the header and payload using the secret or public key you supply, compares it byte-for-byte against the signature in the token, and only then reports the timestamp claims. If you just want to inspect a token's contents and don't have a key handy, the decoder is the right tool; if you need to know whether a token is trustworthy, use this one.
+
+## Why do I get three different results instead of just "valid" or "invalid"?
+
+Because "invalid" is genuinely three different failure modes with three different fixes. A signature mismatch means the token was signed with a different key than the one you gave — wrong secret, wrong public key, or someone tampered with the payload. An expired token has a perfectly valid signature; the person who issued it did everything right, and the token simply outlived its "exp" claim — the fix is to get a new token, not to suspect forgery. A rejected algorithm means the token's header claims an algorithm this tool was not asked to check, which is either a configuration mismatch or, in the worst case, an attack. Collapsing all three into one "invalid" badge would tell a developer debugging a 401 nothing useful about which of those three very different problems they're looking at.
+
+## What is the "alg: none" vulnerability, and how does this tool avoid it?
+
+Some early JWT libraries would accept a token whose header declared `"alg": "none"` and treat an empty signature as automatically valid — the library saw "no algorithm requested" and skipped verification entirely, which meant anyone could forge a token with any claims by just setting that one header field and appending nothing after the last dot. This tool sidesteps the whole class of bug by never asking "does the algorithm in the header say to skip verification" in the first place: you pick the algorithm you expect (HS256, RS256, etc.) before verifying, and that expectation is enforced as an explicit allow-list. If the token's header says anything else — `none` included — verification is rejected before any key material is even touched, the same way a security-conscious backend library should behave. Never write code that reads the algorithm out of the token itself and uses that to decide how to check the signature; the algorithm must always be a property of your own configuration, never of untrusted input.
+
+## Why does verifying an RS256-signed token with an HS256 secret sometimes still "succeed" in badly written code?
+
+This is the classic "algorithm confusion" attack, and it is a direct cousin of the `alg: none` issue above. If a server is coded to accept whatever algorithm the token claims and blindly use its RS256 public key as an HMAC secret when the header says `HS256`, an attacker who knows the (public, by definition) RSA public key can forge a valid-looking HS256 signature using that public key as the shared secret — because HMAC just needs *some* bytes, and a public key is bytes anyone can read. This tool prevents that by requiring you to pick the algorithm before verification starts and refusing to verify against any other algorithm the token might claim, exactly the defence real backend JWT libraries are supposed to implement (and sometimes don't).
+
+## Can I sign a token that never expires?
+
+Yes — leave the "Expires in" field empty and no `exp` claim is added at all, matching what `jose`'s `setExpirationTime` does when it is never called. A token without `exp` is valid indefinitely as far as this tool's own checks go. That is rarely what you want for anything resembling a real credential: an unexpiring token that leaks (in a log, a browser extension, a misconfigured proxy) stays usable forever. This field exists mainly for testing edge cases and building example tokens for documentation, not as a recommendation to skip expiry in production.
+
+## What key formats does the RS256 / ES256 path expect?
+
+Signing expects a PEM-encoded PKCS#8 private key (the block starts with `-----BEGIN PRIVATE KEY-----`), and verifying expects a PEM-encoded SPKI public key (`-----BEGIN PUBLIC KEY-----`). These are the exact formats WebCrypto's `crypto.subtle.importKey` understands natively and the exact formats this site's own [RSA Key Pair Generator](/tools/generators/rsa-keypair-generator) produces, so a key pair made there drops straight into both tabs of this tool. Older PKCS#1 keys (`-----BEGIN RSA PRIVATE KEY-----`) are a different, older encoding that WebCrypto does not read directly; convert one with `openssl pkcs8 -topk8 -nocrypt` before pasting it in.
+
+## Is it safe to sign or verify a production key in a browser tool?
+
+Verifying is low-risk: you are pasting a *public* key or a shared secret you already trust the recipient of, and nothing you type is sent off the page — the check runs with the browser's native WebCrypto API entirely inside this tab. Signing is the case to think twice about. A private key you paste into any browser tab is exposed to that tab's JavaScript for as long as the tab is open, and to anyone with access to that device or a malicious browser extension during that time. For a throwaway test token this is a reasonable trade for convenience; for a private key that protects a real production system, sign it in your backend or CI pipeline with a vetted server-side library instead, the same caution this site's key generators already carry.
+
+## Does this tool check anything beyond the signature, exp, and nbf?
+
+No, and that is intentional. The JWT spec defines other optional claims — `iss` (issuer), `aud` (audience), `sub` (subject) — whose *correct* value depends entirely on your application's own trust model, which this generic tool has no way to know. `jose`, the library this tool is built on, supports validating those too, but doing so here would mean guessing what issuer or audience you expect, which is guaranteed to be wrong for someone. If your application needs issuer/audience checks, that validation belongs in your server code where the expected values are actually known, using the same options `jose` exposes for exactly that purpose.

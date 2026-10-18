@@ -1,0 +1,39 @@
+---
+title: Verificador de Contraste WCAG — Perguntas frequentes
+---
+
+## Quais limiares ele verifica?
+
+Quatro, direto do WCAG: **texto normal AA** precisa de uma taxa de 4,5 ou acima, **texto grande AA** precisa de 3, **AAA normal** precisa de 7, e **AAA grande** precisa de 4,5. Cada um é relatado separadamente, então você consegue ver exatamente qual nível um par passa.
+
+## O que conta como "texto grande"?
+
+Pelo menos 18pt, ou 14pt quando em negrito — aproximadamente 24px e 18.66px em CSS. Essa é a razão inteira por que texto grande recebe uma barra mais baixa: glifos maiores têm traços mais grossos e ficam legíveis em contraste mais baixo. Aplicar o limiar de texto grande para cópia do corpo é a forma mais comum de um design passar no papel e falhar no uso.
+
+## Como a taxa é calculada?
+
+A partir de luminância relativa, não de como as cores parecem diferentes. Cada canal é linearizado — dividido por 12,92 abaixo do limiar sRGB, senão elevado através da curva gama — depois ponderado 0,2126 vermelho, 0,7152 verde, 0,0722 azul. A taxa é `(mais claro + 0,05) / (mais escuro + 0,05)`.
+
+## Por que o verde pesa muito mais que o azul?
+
+Porque a visão humana é muito mais sensível à luz verde. Essa ponderação é por que trocar azul por verde no mesmo "brilho" hex muda a taxa dramaticamente, e por que amarelo pálido em branco falha enquanto a mesma claridade em azul pode passar.
+
+## Uma taxa de aprovação significa que o design é acessível?
+
+Não. Contraste é um critério entre muitos. Indicadores de foco, tamanhos de alvo, movimento, acesso por teclado e alternativas de texto todos ficam fora desse número. Uma página pode atingir AAA em todos os pares de cores e ainda ser inutilizável com um teclado.
+
+## Ele verifica texto em imagens ou gradientes?
+
+Não — compara duas cores sólidas. Texto sobre uma fotografia ou um gradiente tem uma taxa efetiva diferente em cada pixel, e é por isso que tais designs geralmente precisam de um scrim ou de um fundo sólido por trás do texto.
+
+## E quanto a controles desabilitados e logos?
+
+WCAG os isenta do mínimo de contraste. Isso é um piso, não um objetivo: um controle desabilitado que ninguém consegue ler é ainda um problema de usabilidade, mesmo onde é tecnicamente em conformidade.
+
+## Qual versão WCAG isso segue?
+
+As definições de contraste 2.x, que são inalteradas entre 2.0, 2.1 e 2.2. As fórmulas são fatos de especificação em vez de uma interpretação.
+
+## Algo é enviado para um servidor?
+
+Não. A matemática é executada em seu navegador.

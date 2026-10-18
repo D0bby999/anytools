@@ -1,0 +1,22 @@
+{
+  "kind": "drive#changeList",
+  "nextPageToken": "90213",
+  "changes": [
+    {
+      "kind": "drive#change",
+      "changeType": "file",
+      "time": "2026-09-16T09:01:11.482Z",
+      "removed": false,
+      "fileId": "1Doc_WeekOne_Notes",
+      "file": {
+        "kind": "drive#file",
+        "id": "1Doc_WeekOne_Notes",
+        "name": "Week 1 — notes",
+        "mimeType": "application/vnd.google-apps.document",
+        "modifiedTime": "2026-09-16T09:01:11.000Z",
+        "trashed": false,
+        "parents": ["1Folder_AnyTools_KB"]
+      }
+    }
+  ]
+}

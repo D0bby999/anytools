@@ -1,0 +1,35 @@
+---
+title: Color converter — Frequently asked questions
+---
+
+## Which formats does it convert between?
+
+HEX, RGB and HSL, in any direction. It also reports the pair's relative luminance and contrast ratio, so you can judge legibility without moving to another tool.
+
+## When is HSL more useful than HEX?
+
+Whenever you are adjusting rather than specifying. HSL separates hue from saturation and lightness, so making a colour 10% lighter is one number instead of three unrelated ones. HEX is compact and universally understood; HSL is what you want while designing a scale.
+
+## Does converting HEX to HSL and back always return the same value?
+
+Not always. HSL components are rounded to whole numbers here, and the sRGB cube does not map cleanly onto the HSL cylinder, so a round trip can land a digit away. The difference is imperceptible, but it means you should keep one canonical format in your tokens rather than converting back and forth.
+
+## Why does the tool show luminance as well?
+
+Because lightness in HSL and perceived brightness are not the same thing. Two colours at `L: 50%` can look very different, since HSL lightness ignores how much more sensitive the eye is to green than to blue. Relative luminance applies that weighting, which is why it — not HSL lightness — is what accessibility standards use.
+
+## How is the contrast ratio computed?
+
+`(lighter + 0.05) / (darker + 0.05)` on the relative luminances, the WCAG definition. If you are checking a text colour against a background specifically, the [contrast checker](/en/design/wcag-contrast-checker) reports the pass/fail levels alongside it.
+
+## Does it handle alpha or 8-digit hex?
+
+No — it works on opaque colours. A colour with transparency has no fixed appearance until it is composited over something, so its contrast depends on what is behind it.
+
+## What about CMYK or Pantone?
+
+Not supported, and the reason matters: those are print systems tied to inks and physical media. Converting a screen colour to CMYK meaningfully needs a colour profile and a target press, which is a different problem from arithmetic between screen formats.
+
+## Is my input sent anywhere?
+
+No. All conversion happens in your browser.

@@ -1,0 +1,35 @@
+---
+title: SQL Playground — FAQ
+---
+
+## Is this a real database, or a syntax simulator?
+
+A real one. This tool loads `sql.js` — SQLite compiled to WebAssembly — and every statement you run (`CREATE TABLE`, `INSERT`, arbitrary `SELECT`s, joins, subqueries) executes against an actual SQLite engine inside your browser. It reports SQLite version 3.49.1 (checked via `sqlite_version()` at the time this was written). It is not a mock, and it is not a text formatter that only looks like SQL.
+
+## Does my data leave my browser?
+
+No. The database, whatever you type, any CSV you import, and any `.sqlite`/`.db` file you upload all stay in the tab's memory. Nothing is sent to a server. If you want a copy outside the tab, use the "Download .sqlite" button, which writes the in-memory database out as a real SQLite file you can open with any other SQLite tool.
+
+## Does my database persist if I reload the page or close the tab?
+
+No — this is intentionally an in-memory, per-session database, not a permanent one. Closing the tab or reloading the page discards everything. If you built something worth keeping, download it as a `.sqlite` file before you leave, or keep the CREATE/INSERT statements in the SQL box so you can re-run them next time.
+
+## What's the largest database I can upload?
+
+50 MB. sql.js has to read the whole file into the WebAssembly module's memory before it can run a single query against it — there's no partial/streaming load — so a much larger upload risks running the tab's memory (and the whole page) into the ground rather than failing cleanly. If your real database is bigger than that, query a smaller export or a filtered subset instead.
+
+## Does it support full-text search (FTS5) or JSON functions?
+
+JSON functions, yes — `json_extract`, `json_each`, and the rest of SQLite's JSON1 extension work, confirmed by running them directly against this build. FTS5 virtual tables, no — this build of sql.js does not compile the FTS5 module in, so `CREATE VIRTUAL TABLE ... USING fts5(...)` fails with "no such module: fts5". Foreign key constraints work once you turn them on with `PRAGMA foreign_keys = ON;` (off by default, same as stock SQLite).
+
+## Why did my CSV import fail, or import fewer columns than I expected?
+
+The CSV importer reads the first row as column headers and infers a plain type (number, boolean, or text) per cell using the same parser as this site's CSV↔JSON tool — it does not read a schema, so a column that's numeric in most rows but has one stray text value in it will import as text throughout. A completely empty CSV (headers with no data rows) is rejected outright rather than silently creating an empty table, since that's almost always a mistake rather than the intent.
+
+## My query returned an error I don't understand — is that this tool's wording?
+
+No — SQL error messages shown here are SQLite's own, passed through unedited (a `SELEKT` typo reports "near \"SELEKT\": syntax error" because that's literally what the SQLite engine says, not a paraphrase this site wrote). If a message looks cryptic, searching it alongside "sqlite" will generally find an explanation, since it's the same engine used across countless other tools and applications.
+
+## Can multiple people share one session, or query my production database?
+
+No, on both counts, and this is by design rather than a missing feature. Everything runs single-tab, single-user, entirely client-side — there's no server component to connect a real production database to, and no mechanism for two browser tabs to share state. This tool is for prototyping schema, testing a query against sample data, or poking at an exported `.sqlite` file, not for administering a live database.

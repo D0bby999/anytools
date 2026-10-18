@@ -1,0 +1,35 @@
+---
+title: Gerador de QR Code — Perguntas frequentes
+---
+
+## Qual nível de correção de erros devo escolher?
+
+Use **L** para telas digitais limpas ou impressões perfeitas sem obstruções. Use **M** para materiais impressos de uso geral — é o equilíbrio ideal. Use **Q** ou **H** quando a superfície puder estar suja, desgastada, ou quando for sobrepor um logo no centro. Níveis mais altos adicionam módulos redundantes que permitem ao scanner reconstruir até 30% dos dados danificados, mas também aumentam o tamanho físico do código para o mesmo payload.
+
+## Posso sobrepor um logo sobre um QR code?
+
+Sim — é uma técnica de branding comum. Defina a correção de erros como **H** (30% de capacidade de recuperação) antes de adicionar o logo. O logo não deve cobrir mais de 20-25% da área do código. Posicione-o centralizado sobre a região de dados, não sobre os três padrões de busca nos cantos. Depois de adicionar o logo, sempre teste a leitura com vários dispositivos.
+
+## Por que meu QR code colorido não é lido?
+
+A maioria das falhas com códigos coloridos se deve a contraste insuficiente. O padrão ISO 18004 recomenda uma relação de luminância mínima de 4:1 entre módulos escuros e claros. Fundos pastel com cores claras são o erro mais comum. Use fundo claro com elementos escuros em vez de inverter. Após escolher cores personalizadas, teste sob luz solar direta e em condições de pouca luz.
+
+## Qual é exatamente o formato Wi-Fi para QR code?
+
+O formato é: `WIFI:T:WPA;S:NomeDaRede;P:Senha;;` — `T` é o tipo de segurança (`WPA`, `WEP` ou `nopass`), `S` é o SSID, `P` é a senha. Termine com ponto e vírgula duplo. Se seu SSID ou senha contiver `;`, `,`, `"` ou `\`, escape com backslash. Os apps de câmera do iOS e Android reconhecem esse formato nativamente, sem precisar instalar nenhum app.
+
+## Devo exportar em PNG ou SVG?
+
+**SVG** para tudo relacionado a impressão (cartões de visita, sinalização, embalagens) — é vetorial e escala para qualquer tamanho sem perder nitidez. **PNG** para compartilhamento digital por e-mail, apps de mensagem ou páginas web com tamanho de exibição conhecido. Com PNG, exporte a 2× ou 3× o tamanho de exibição pretendido para telas retina/HDPI.
+
+## Meus dados são enviados para um servidor?
+
+Não. A geração de QR é executada completamente no seu navegador usando a biblioteca [`qrcode`](https://www.npmjs.com/package/qrcode) compilada para JavaScript. Payloads sensíveis como senhas Wi-Fi, dados de contato vCard ou URLs privadas nunca saem do seu dispositivo. Você pode verificar abrindo a aba de rede do navegador — nenhuma requisição é feita.
+
+## Por que o QR code tem uma borda branca ao redor?
+
+Essa borda é a **zona de silêncio** — uma margem em branco obrigatória de pelo menos 4 módulos em todos os lados. Sem ela, os scanners não conseguem detectar onde o código começa e termina, causando falhas de leitura. A zona de silêncio é incluída automaticamente em todas as exportações. Não corte essa borda ao inserir o código em layouts de impressão.
+
+## Quantos dados um QR code pode armazenar?
+
+Um QR code Versão 40 (o maior, 177×177 módulos) com correção de erros L pode armazenar até 7.089 caracteres numéricos, 4.296 alfanuméricos ou 2.953 bytes de dados binários. Na prática, payloads mais longos geram códigos mais densos e difíceis de ler. Mantenha URLs curtas (use um encurtador se necessário) e vCards concisos para leitura confiável em celulares intermediários.

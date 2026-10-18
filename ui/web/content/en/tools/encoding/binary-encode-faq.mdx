@@ -1,0 +1,31 @@
+---
+title: Binary Encode / Decode — Frequently asked questions
+---
+
+## Is binary encoding used in real production systems?
+
+Rarely as a serialisation format, because it produces 700% overhead — one byte becomes eight characters. Where it appears in production is as binary literals in source code (`0b10010011` in Python or JavaScript) and in protocol documentation showing bit-field layouts. As a transport format it has no practical advantage over hex (100% overhead) or Base64 (33% overhead). Think of this tool as a learning aid and debugger, not a data transport choice.
+
+## Why does my emoji produce 32 binary characters?
+
+Because the emoji occupies four bytes in UTF-8. Binary encoding converts each byte to eight binary characters, so four bytes produce 32 characters. For example, `😀` (U+1F600) encodes to `11110000 10011111 10011000 10000000` — four UTF-8 bytes visible as four 8-character groups. This is correct; the tool is showing you the actual UTF-8 byte structure of the character.
+
+## What does the leading bit pattern tell me about a UTF-8 byte?
+
+UTF-8 encodes the byte count in the leading bits: `0xxxxxxx` is a single-byte ASCII character; `110xxxxx` starts a two-byte sequence; `1110xxxx` starts three bytes; `11110xxx` starts four bytes. Continuation bytes always start with `10xxxxxx`. When you see a binary dump of a multi-byte string, these prefixes let you identify byte boundaries and codepoint widths without any additional table lookup.
+
+## How do I use this to understand a bitmask?
+
+Encode the byte value you're working with and the mask separately, then compare them visually. For example, the TCP flags byte `0x12` is `00010010` — bits 1 and 4 are set, corresponding to SYN and ACK. A mask of `0x0F` is `00001111` — it isolates the lower nibble. Seeing both as eight-character binary strings makes AND, OR, and XOR operations self-evident without calculating powers of two.
+
+## Why is a byte always 8 bits?
+
+It wasn't always. Early computers used 6, 7, 9, even 36-bit words. The 8-bit byte was popularised by IBM's System/360 in 1964 and codified by the ASCII standard. By the early 1980s, 8-bit microprocessors (Intel 8080, MOS 6502) had made it universal. POSIX formalised `CHAR_BIT = 8` in 1988. Today the assumption is so entrenched that networking RFCs use "octet" to mean "8-bit byte" explicitly — preserving the original precision even though no ambiguity remains in practice.
+
+## Can I decode arbitrary binary strings that aren't valid UTF-8?
+
+The decoder will attempt to interpret the binary bits as bytes and then decode those bytes as UTF-8. If the byte sequence is not valid UTF-8, you'll see replacement characters (``) or garbled output. Binary encoding and decoding of text is only meaningful when the bytes represent a valid string encoding. For raw binary data (images, executables), hex is a more appropriate tool.
+
+## Is the separator between byte groups required?
+
+No. A separator (space, newline, or any delimiter) is cosmetic — it groups the eight-character chunks for readability but carries no information. When decoding, this tool strips whitespace and splits on any non-binary character, so `01000001 01000010` and `0100000101000010` both decode to `AB`. Use a space separator when reading the output yourself; omit it when passing binary strings between programs.

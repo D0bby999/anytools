@@ -1,0 +1,27 @@
+---
+title: Tách PDF — Câu hỏi thường gặp
+---
+
+## Viết khoảng trang thế nào cho đúng?
+
+Dùng đúng số trang mà phần mềm đọc PDF của bạn đang hiển thị, ngăn nhau bằng dấu phẩy, dùng gạch nối cho một dãy liên tiếp: `1-3, 7, 9-12`. Khoảng trắng bị bỏ qua, số lặp lại được gộp, và một dãy viết ngược như `5-2` sẽ được đọc thành `2-5` chứ không bị từ chối — vì ý định của người gõ là rõ ràng. Trang bắt đầu từ 1, không phải 0. Điều cần nhớ: mỗi dãy trang liên tiếp thành một file riêng. `1-3, 7, 9-12` cho ra ba tài liệu — một file ba trang, một file một trang và một file bốn trang — chứ không phải một file tám trang. Muốn tám trang đó nằm chung, hãy tách rồi dùng tiếp công cụ Gộp PDF.
+
+## Tôi tìm "tách trang pdf" và toàn ra dịch vụ phải tải file lên. Vì sao ở đây không cần?
+
+Vì việc tách hoàn toàn nằm trong khả năng của trình duyệt. Tài liệu được `pdf-lib` đọc ngay trong tab này, các tài liệu con được dựng trong bộ nhớ, và link tải về trỏ tới blob URL do chính trình duyệt bạn tạo. Không có gì được truyền đi. Các dịch vụ tách PDF phổ biến thì gửi cả file lên máy chủ của họ chỉ để làm một việc mà máy bạn tự làm được, rồi để lại một bản sao mà bạn không kiểm soát và không kiểm chứng được ngày xoá. Cách tự xác minh: mở tab Network trong DevTools, hoặc đơn giản hơn là ngắt mạng sau khi trang đã tải xong — tool vẫn tách bình thường.
+
+## Vì sao tôi nhận về file .zip thay vì nhiều file PDF?
+
+Vì kết quả có nhiều hơn một file. Trình duyệt chặn việc một trang web kích hoạt liên tiếp nhiều lượt tải: lượt thứ hai trở đi bị chặn im lặng, và người dùng chỉ thấy như tool làm mất file của mình. Đóng gói tất cả vào một archive là cách duy nhất đáng tin để trao lại nhiều tài liệu cùng lúc. Khi kết quả chỉ có một file, bạn nhận thẳng file đó, không có archive nào. Ngoài ra mỗi phần vẫn được liệt kê riêng kèm link tải của nó, nên bạn có thể lấy đúng một phần mà không cần giải nén. Thư viện nén `jszip` cũng chạy tại máy bạn, và chỉ được tải về khi thật sự cần đến.
+
+## File lớn nhất tôi tách được là bao nhiêu?
+
+Không có giới hạn cấu hình sẵn, vì không có bước upload nào để giới hạn. Thứ ràng buộc bạn là bộ nhớ: tài liệu gốc và các bản sao đang được dựng cùng tồn tại trong tab, nên mức tiêu thụ đỉnh vào khoảng gấp đôi dung lượng file cộng thêm phần dôi dư. Một bản scan 100 MB là khả thi trên máy để bàn và mạo hiểm trên điện thoại. Trên 100 MB bạn nhận cảnh báo nhưng thao tác vẫn chạy. Chế độ nặng nhất là "mỗi trang một file", vì nó dựng đúng bằng số tài liệu với số trang trước khi đóng gói archive.
+
+## Tách xong có bị giảm chất lượng không?
+
+Không. Các trang được sao chép nguyên khối chứ không hề được vẽ lại. Chữ vẫn chọn và copy được, ảnh giữ nguyên độ phân giải và cách nén ban đầu, không có gì bị rasterise. Nội dung các trang trích ra giống hệt bản gốc, chỉ nằm trong một vỏ tài liệu mới. Thứ không phải lúc nào cũng sống sót là cấu trúc ở mức tài liệu: bookmark trỏ tới những trang không nằm trong phần trích thì không còn đích để nhảy tới, và chữ ký số bảo chứng cho tài liệu gốc sẽ không xác thực được với một mảnh của nó. Các trường biểu mẫu nằm trên trang được trích thường vẫn giữ nguyên.
+
+## PDF có mật khẩu tách được không?
+
+Không. Nếu tài liệu đã được mã hoá, tool dừng lại và nói rõ điều đó thay vì tìm cách đi vòng qua lớp bảo vệ. Bỏ qua mã hoá về mặt kỹ thuật là làm được, nhưng kết quả sẽ là các file con đã bị tước hết hạn chế mà người tạo file cố tình đặt vào — đó không còn là tách trang nữa. Hãy gỡ mật khẩu trong phần mềm đã tạo hoặc đang mở được file, rồi tách bản đã mở khoá. Cùng lý do đó, tool cũng không hỏi bạn mật khẩu: một trang web không cần biết mật khẩu tài liệu của bạn thì tốt hơn là một trang web hứa sẽ quên nó.

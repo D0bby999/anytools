@@ -1,0 +1,89 @@
+---
+title: Regex em JavaScript — as partes que realmente importam
+description: Um tour prático de regex com as pegadinhas (rastreamento catastrófico, dot-não-corresponde-newline) chamadas. Cheatsheet na parte inferior.
+updated: 2026-05-25
+---
+
+## Por que regex vale a pena aprender (e quando não usar)
+
+Expressões regulares são a ferramenta universal de análise de texto — cada linguagem moderna tem elas, a sintaxe geralmente se transfere, e são a resposta certa para ~80% de trabalhos "encontre este padrão". Os 20% restantes:
+
+- **Analisar HTML ou XML** com regex — não. Use um analisador real (`DOMParser` no navegador, `cheerio` no Node).
+- **Analisar JSON** com regex — não. Use `JSON.parse`.
+- **Validação de email** com regex — geralmente errado; use uma biblioteca ou o built-in do seu provedor de autenticação.
+- **Delimitadores aninhados profundos ou equilibrados** — regex não consegue (formalmente) corresponder esses. Use um analisador.
+
+Para tudo mais: extraindo URLs, dividindo texto tipo CSV, validando formatos de telefone, correspondendo linhas de log, encontrando comentários TODO — regex é a ferramenta certa.
+
+## Os cinco conceitos que valem a pena memorizar
+
+Você pode escrever 90% de regex útil com essas cinco primitivas:
+
+1. **Classes de caractere**: `\d` (dígito), `\w` (caractere de palavra), `\s` (espaço em branco) e suas negações em maiúsculas. Mais classes personalizadas: `[a-z]`, `[^xyz]`.
+2. **Quantificadores**: `*` (0+), `+` (1+), `?` (0 ou 1), `{n,m}` (entre n e m). Adicione `?` para torná-los preguiçosos: `*?`, `+?`.
+3. **Âncoras**: `^` (início), `$` (fim), `\b` (limite de palavra).
+4. **Grupos**: `(…)` captura, `(?:…)` não captura (mais barato), `(?<name>…)` captura com um nome.
+5. **Alternação**: `a|b` — `a` ou `b`.
+
+Combine esses e você pode corresponder a maioria das coisas. O resto da sintaxe regex (lookahead, backreferences, classes unicode, etc.) é ocasionalmente útil mas pulável para trabalho diário.
+
+## Os quirks específicos do JavaScript
+
+JS regex (por ECMAScript) é *quase* PCRE mas não exatamente:
+
+- **Sem `(?#comment)`** — JS regex não tem sintaxe de comentário. Comente seu código em vez disso.
+- **`.` NÃO corresponde quebras de linha** a menos que você defina a bandeira `s` (dotAll). Frequente fonte de "por que isso não está correspondendo?".
+- **`\b` usa limites de palavra ASCII** por padrão. Definir a bandeira `u` muda isso. Adicione `u` sempre que manipular texto não-ASCII.
+- **Grupos nomeados usam `(?<name>…)`** — estilo Python. JS adotou isso em 2018; assuma navegadores/Node modernos.
+- **Backreferences em replace** usam `$1`, `$2`, `$<name>` — não `\1` como Perl.
+
+Outras linguagens fazem as coisas um pouco diferente. PCRE é um quase-superset de JS regex; Python `re` é similar mas usa `(?P<name>…)` para grupos nomeados; o pacote `regexp` do Go é RE2 (sem backreferences, sem lookahead, mas tempo linear garantido). Não cole uma regex Python em JS sem verificar.
+
+## Rastreamento catastrófico — a única pegadilha de desempenho
+
+Um padrão como `(a+)+b` correspondido contra `aaaaaaaaaaaaaaaaaaaaa` (sem `b` final) leva **tempo exponencial** conforme a entrada cresce. O mecanismo de regex tenta todas as maneiras possíveis de particionar os `a`s entre os dois quantificadores, desiste, depois tenta a próxima combinação. Com 20 `a`s e sem `b`, isso é milhões de tentativas.
+
+Esta ferramenta define um teto de execução de 1 segundo precisamente porque padrões patológicos podem travar uma aba de navegador indefinidamente.
+
+Regras de evitação:
+
+- **Não aninhe quantificadores** sem pensar. `(a+)+`, `(a*)*`, `(a|aa)+` são bandeiras vermelhas.
+- **Use grupos atômicos ou quantificadores possessivos** se seu mecanismo suportar (JS não — use truques de lookahead).
+- **Seja específico.** `[^"]*"` corresponde até a próxima aspas; melhor que `.*"` que pode fazer rastreamento.
+- **Teste com entrada adversarial.** Um padrão que manipula seu caminho feliz pode explodir em entrada terminando em alguns caracteres não correspondidos.
+
+Se um padrão está levando muito tempo, a resposta raramente é "adicione mais `+`" — geralmente é "reescreva para ser linear", ou "use um analisador real".
+
+## Como esta ferramenta ajuda
+
+- Cole um padrão e texto; correspondências destacam ao vivo.
+- As bandeiras são alternáveis; você as vê na visualização do padrão (`/foo/gi`).
+- Grupos de captura e grupos nomeados aparecem sob cada correspondência.
+- Modo de substituição visualiza o resultado de `text.replace(pattern, replacement)`.
+- Teto de execução de 1 segundo pega rastreamento catastrófico antes que sua aba congele.
+
+## Um cheatsheet de padrões que funcionam
+
+| Objetivo | Padrão |
+|---|---|
+| Corresponder dígitos | `\d+` |
+| Corresponder uma palavra | `\w+` |
+| Corresponder uma string tipo email | `[\w.+-]+@[\w-]+\.[\w.-]+` |
+| Corresponder uma string tipo URL | `https?:\/\/[^\s)]+` |
+| Corresponder uma data ISO | `\d{4}-\d{2}-\d{2}` |
+| Corresponder um IPv4 | `\b(?:\d{1,3}\.){3}\d{1,3}\b` |
+| Corresponder um código de status HTTP | `\b[1-5]\d{2}\b` |
+| Remover espaço em branco inicial/final | substitua `^\s+|\s+$` por `` |
+| Colapsar múltiplos espaços | substitua `\s+` por ` ` |
+
+Não à prova de bala — aquele de email aceita muitos endereços inválidos — mas bom o suficiente para filtrar e extração.
+
+## Privacidade
+
+Toda correspondência de regex é executada no navegador via mecanismo nativo `RegExp`. Nós não enviamos seus padrões ou texto para lugar nenhum.
+
+## Ferramentas relacionadas
+
+- **Text Case Converter** — mude o caso do texto correspondido.
+- **Slugify** — transforme texto arbitrário em slugs seguros para URL (uma transformação regex de nível mais alto).
+- **JSON Formatter** — quando suas correspondências acabam precisando formatação JSON.

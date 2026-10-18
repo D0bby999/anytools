@@ -1,0 +1,71 @@
+---
+title: UUID giải thích — v4 vs v7 vs v1 dùng gì năm 2026
+description: Khác biệt giữa các version UUID, vì sao v7 là mặc định mới cho database key, và khác biệt giữa UUID và ULID.
+updated: 2026-05-25
+---
+
+## UUID thực ra là gì
+
+UUID là số 128 bit, với xác suất cực cao là duy nhất toàn cầu mà không cần coordinate. Bạn tạo trên laptop ngay bây giờ và có niềm tin cỡ sai số làm tròn rằng không máy nào trên trái đất từng tạo ra cùng giá trị. Format ([RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122), update bởi [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562)) là 32 chữ số hex chia thành 5 nhóm bằng dấu nối: `8-4-4-4-12`.
+
+Format không thay đổi giữa các version. Cái thay đổi là **cách các bit được tạo**, có hệ quả thật cho hiệu năng database, khả năng sort, và quyền riêng tư.
+
+## v4 — random
+
+Cổ điển. 122 bit randomness mã hóa, 6 bit dành để chỉ "đây là v4". Hỗ trợ phổ quát, dễ tạo, mặc định tốt cho ID opaque.
+
+Nhược: random ID **rất tệ cho B-tree index locality**. Insert UUID random vào database dùng nó làm primary key gây phân mảnh index, làm chậm insert khi bảng to lên. Bảng nhỏ (dưới 1M dòng) sẽ không nhận ra. Quy mô lớn sẽ thấy.
+
+## v7 — thứ tự thời gian
+
+Version mới (2024) giải bài toán locality của v4. 48 bit đầu là timestamp Unix mili giây, sau là 74 bit random. Kết quả: thứ tự sort lexicographic khớp thứ tự insert, B-tree giữ chặt, vẫn unique hiệu quả.
+
+**Mặc định v7 cho database key mới năm 2026** trừ khi có lý do cụ thể không. Postgres hỗ trợ native từ phiên bản 17; library hầu hết ngôn ngữ đã có.
+
+## v1 — timestamp + MAC
+
+Legacy. Kết hợp timestamp với MAC address máy host. Sortable theo thời gian (tốt cho index) nhưng lộ MAC của generator (xấu cho privacy — lịch sử bị dùng tấn công attribution). Dùng v7 thay — cùng sortability, không lộ MAC.
+
+## v3, v5 — dựa trên tên
+
+v3 (MD5) và v5 (SHA-1) hash namespace + name thành UUID. Hữu ích khi muốn cùng input deterministically cho cùng UUID trên các hệ thống. Ít gặp trong code app; xuất hiện ở DNS, OID, fingerprint chứng chỉ.
+
+## Hiệu năng: UUID làm primary key
+
+Hai luận điểm thường gặp:
+
+| Mối quan tâm | Phán xét |
+|---|---|
+| Dung lượng | UUID = 16 byte vs bigint 8 byte. Index ~2× lớn hơn. Đĩa rẻ. |
+| Tốc độ insert (v4) | Xấu cho B-tree với ID random ở quy mô lớn. Dùng v7 để fix. |
+| Tốc độ insert (v7) | Bằng auto-increment cho insert tuần tự thời gian. |
+| Khả năng sort | v7 sort theo thời gian. v4 không. |
+| Unique cross-shard | UUID thắng — không cần coordinate. |
+| Dễ debug | ID auto-increment dễ gõ trong URL hơn. |
+
+Đáp án đúng cho hầu hết schema app mới năm 2026: **v7 UUID cho ID hiển thị app, auto-increment bigint cho bảng join nội bộ.**
+
+## UUID vs ULID vs CUID2
+
+- **ULID** — cùng ý tưởng sortable-by-time, encode 26 ký tự Crockford Base32. Sạch hơn UUID khi gõ, nhưng **không chuẩn** (không có RFC), nên hỗ trợ library + DB hẹp hơn. UUID v7 thay thế hầu hết use case ULID.
+- **CUID2** — ID collision-resistant nhấn mạnh scale horizontal và chống enumerate. Mục tiêu thiết kế khác; chọn nếu cần cụ thể tính chất cuid2.
+
+Với 99% trường hợp "cho tôi ID unique", **UUID v7 với library chuẩn**.
+
+## Dùng trong tool này
+
+- Chọn version (v7, v4, v1).
+- Đặt count (1–100).
+- Toggle uppercase hoặc dashes nếu hệ thống downstream có ý kiến.
+- Generate, copy all.
+
+Mode validate parse UUID bất kỳ và cho biết version + variant — hữu ích khi đang nhìn ID và tự hỏi nó từ đâu.
+
+## Quyền riêng tư
+
+Tạo hoàn toàn trong browser qua package mã nguồn mở [`uuid`](https://github.com/uuidjs/uuid) dùng `crypto.getRandomValues` cho randomness. Không value nào được log hay truyền.
+
+## Công cụ liên quan
+
+- **Hash Generator** — hash UUID cho ID kích thước cố định ngắn hơn.
+- **Password Generator** — khi cần chuỗi random mạnh, không phải ID có cấu trúc.

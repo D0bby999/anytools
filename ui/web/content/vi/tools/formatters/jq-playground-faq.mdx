@@ -1,0 +1,27 @@
+---
+title: Playground jq — Câu hỏi thường gặp
+---
+
+## JSON tôi dán vào có rời khỏi trình duyệt không?
+
+Không. jq ở đây không phải một API gọi ra server để chạy hộ bạn — nó là bản `jq-wasm` biên dịch sang WebAssembly, nạp thẳng từ chính server tĩnh của trang này, rồi chạy trong tab bằng chính CPU của máy bạn. JSON bạn gõ vào và filter bạn viết không bao giờ đi qua mạng; không có request nào mang nội dung đó đi đâu cả. Bạn tự kiểm chứng được bằng DevTools: mở tab Network, chạy thử một filter, sẽ chỉ thấy file `.wasm` được tải một lần lúc khởi động (nặng khoảng 900KB), sau đó mọi lần chạy tiếp theo không sinh thêm request nào.
+
+## Đây là jq thật hay chỉ mô phỏng cú pháp?
+
+jq thật, biên dịch bằng Emscripten sang WebAssembly — không phải một trình thông dịch JavaScript viết lại cú pháp jq. Gói `jq-wasm` mà tool dùng đóng gói đúng jq 1.8.2, nên mọi hàm chuẩn (`select`, `map`, `group_by`, `to_entries`, toán tử `?//`, string interpolation…) hoạt động giống hệt bản `jq` bạn cài qua Homebrew hay apt. Nếu một filter chạy khác trên đây so với máy bạn, khả năng cao là phiên bản `jq` hệ thống của bạn cũ hoặc mới hơn 1.8.2 — kiểm tra bằng `jq --version` trước khi nghi ngờ tool này viết sai cú pháp.
+
+## Vì sao có filter chạy vài giây mới báo lỗi, thay vì báo ngay?
+
+Vì đó không phải lỗi cú pháp mà là filter không bao giờ dừng — ví dụ kinh điển là một hàm đệ quy không có điểm dừng như `def f: f; f`. WebAssembly chạy filter đó dưới dạng mã máy thuần, không có chỗ nào để JavaScript chen vào kiểm tra đồng hồ giữa chừng, nên cách duy nhất chặn nó lại mà không treo cả tab là buộc phải `terminate()` cả Web Worker đang chạy nó. Tool spawn một Worker mới cho mỗi lần chạy, đặt hạn 8 giây; hết 8 giây mà Worker chưa trả kết quả, nó bị huỷ ngay lập tức và bạn nhận thông báo timeout thay vì tab đứng hình. Đây là lý do cơ chế huỷ tồn tại: một filter jq vô hạn không có cách nào bị chặn "từ bên trong" cả, chỉ có thể giết nguyên tiến trình đang chạy nó. Ngược lại, lỗi cú pháp bị bộ biên dịch jq bắt và báo về ngay lập tức, không cần chờ 8 giây.
+
+## Input JSON có giới hạn dung lượng không?
+
+Có — 5MB. `jq-wasm` nạp toàn bộ document vào bộ nhớ của module WebAssembly trước khi chạy bất kỳ filter nào (không xử lý dạng stream từng phần), nên một file lớn hơn nhiều so với mức đó có nguy cơ làm cạn bộ nhớ của tab thay vì báo lỗi gọn gàng. Nếu dữ liệu thật sự lớn hơn, cách hợp lý là lọc bớt bằng một công cụ xử lý stream trước, hoặc chia nhỏ ra rồi dán từng phần vào đây.
+
+## Có dùng được các cờ dòng lệnh như `-r`, `-s`, `--arg` không?
+
+Không, từ giao diện này thì không. Playground luôn chạy filter với chế độ output mặc định của jq (nén một dòng ở những chỗ jq tự nén, và pretty-print có thụt lề ở chỗ khác) và không truyền thêm cờ hay biến ngoài nào. Nếu quy trình của bạn cần `-r` (in ra chuỗi thô, bỏ dấu ngoặc kép), `-s` (gộp toàn bộ input thành một mảng), hay `--arg name value` (gán một biến shell vào filter), bạn sẽ cần bản `jq` thật cài trên máy, hoặc gọi thẳng gói npm `jq-wasm` trong code của mình — cả hai chỗ đó đều hỗ trợ các cờ này.
+
+## Vì sao kết quả trông khác với tôi tưởng tượng, và filter có đọc file hay chạy lệnh shell được không?
+
+Hai nguyên nhân phổ biến nhất khiến output trông lạ. Thứ nhất, jq coi mỗi giá trị cấp cao nhất là một kết quả riêng biệt — một filter không được bọc trong `[...]` sẽ in ra nhiều giá trị JSON rời rạc, mỗi giá trị một khối, chứ không gộp lại thành một mảng duy nhất; ví dụ nút `.[] | select(...)` trong danh sách mẫu của tool cố tình làm đúng như vậy để minh hoạ. Thứ hai, jq mặc định pretty-print — thụt lề nhiều dòng cho object và mảng lồng nhau; nếu bạn kỳ vọng một dòng JSON nén gọn thì đó là lựa chọn hiển thị của playground để dễ đọc, không phải khác biệt trong giá trị thật jq trả về. Mọi thông báo lỗi hiển thị đúng nguyên văn từ `stderr` của jq, tool không viết lại hay diễn giải theo cách riêng — nên đọc thẳng thông báo đó như đang đọc output của `jq` trên terminal. Còn việc đọc file khác, `import "foo" as bar;` một module jq riêng, hay shell ra ngoài — tất cả đều bị chặn theo chủ đích: bản jq chạy trong WebAssembly ở đây không có filesystem, không có quyền truy cập mạng từ bên trong sandbox, chỉ còn dùng được những gì thư viện chuẩn của jq có sẵn. Các filter biến đổi dữ liệu thông thường — đúng loại mà năm nút ví dụ trên trang minh hoạ — không bị ảnh hưởng gì bởi giới hạn này, và đây cũng là lựa chọn nhất quán với toàn bộ tool trên trang: mọi thứ chạy cục bộ, không có đường nào để filter "gọi ra ngoài" kể cả khi kỹ thuật jq cho phép cú pháp đó.

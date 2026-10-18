@@ -1,0 +1,35 @@
+---
+title: JS Beautifier — Câu hỏi thường gặp
+---
+
+## Sự khác nhau giữa beautify và minify là gì?
+
+Beautify chỉ là thẩm mỹ: thêm thụt lề, chuẩn hóa khoảng cách, chèn newline để code dễ đọc. JavaScript token không thay đổi và hành vi thực thi giống hệt. Minify là nén: loại bỏ whitespace, đổi tên biến cục bộ thành tên ngắn hơn, và loại bỏ dead code. Output tương đương về chức năng nhưng token thay đổi và code cố tình không thể đọc được. Minification là biến đổi một chiều — bạn không thể khôi phục tên biến gốc mà không có source map.
+
+## Tại sao tool này dùng Terser để minify thay vì chỉ loại whitespace?
+
+Loại whitespace một mình tiết kiệm 15–25% kích thước file. Minify đầy đủ của Terser (whitespace + mangle tên + constant folding + loại dead code) tiết kiệm 45–65% cho code ứng dụng thông thường. Sự khác biệt đến từ name mangling: đổi `calculateMonthlyInterestRate` thành `a` trên toàn file tạo ra tiết kiệm đáng kể vì identifier xuất hiện nhiều lần. Terser dùng parser AST thực sự để đổi tên an toàn chỉ identifier cục bộ, không bao giờ tên export hay global.
+
+## "Mangle" nghĩa là gì?
+
+Mangle đổi tên biến cục bộ, tham số function, và tên function nội bộ thành identifier ngắn nhất có thể — thường là một ký tự. `function processUserInput(rawValue, options)` trở thành `function a(b,c)`. Export và global được giữ nguyên vì đổi tên chúng sẽ phá vỡ caller. Bật mangle cho production browser bundle; tắt nếu code inspect `Function.prototype.name` lúc runtime hoặc dùng `eval()` tham chiếu tên biến cục bộ bằng string.
+
+## Terser có thể loại bỏ function không dùng khỏi library không?
+
+Chỉ trong một file. Terser loại bỏ dead code nó có thể chứng minh không thể đến được — ví dụ block `if (false) { ... }`, hằng số evaluate ra falsy. Nó không thực hiện cross-file tree shaking (loại exported function không có module nào import). Điều đó cần phân tích ở mức bundler từ Rollup, Vite, hoặc webpack. Để loại export library không dùng, dùng bundler với entry point đúng.
+
+## Minify có hoạt động đúng với cú pháp JavaScript hiện đại không?
+
+Có. Terser hỗ trợ đến ES2024 bao gồm optional chaining (`?.`), nullish coalescing (`??`), logical assignment (`&&=`, `||=`, `??=`), class private field (`#field`), top-level `await`, và đề xuất Explicit Resource Management (`using`). Đặt `ecma: 2024` trong option Terser để tối ưu hóa đặc thù cú pháp hiện đại.
+
+## Tại sao code đã beautify đôi khi khác output của Prettier?
+
+`js-beautify` và Prettier đưa ra các quyết định style khác nhau. Prettier có quan điểm riêng và tạo ra một format chuẩn duy nhất không cần cấu hình. `js-beautify` có thể cấu hình và có thể khác về khoảng cách object, khoảng cách argument function, hoặc brace style. Với codebase có Prettier config, chạy Prettier thay thế. Dùng tool này để format nhanh một lần khi không muốn cài gì.
+
+## Làm sao debug lỗi production trong JavaScript đã minify?
+
+Generate source map trong quá trình minify và upload lên dịch vụ error monitoring (Sentry, Datadog, Bugsnag) hoặc host cùng với file đã minify. Source map mã hóa ánh xạ từ mỗi vị trí ký tự đã minify về dòng và cột source gốc. Browser DevTools và error monitoring service tự động dùng source map để hiển thị stack trace gốc và file source gốc khi debug.
+
+## Code JavaScript của tôi có được gửi lên server không?
+
+Không. Cả `js-beautify` lẫn Terser đều chạy hoàn toàn trên trình duyệt biên dịch sang WebAssembly và JavaScript. Không có code nào được gửi lên server. Điều này áp dụng cho cả code riêng tư, utility nội bộ, hoặc logic ứng dụng độc quyền — không gì rời khỏi thiết bị của bạn.

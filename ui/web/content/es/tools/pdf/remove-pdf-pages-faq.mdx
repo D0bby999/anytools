@@ -1,0 +1,37 @@
+---
+title: Eliminar Páginas de PDF — Preguntas frecuentes
+---
+
+## ¿Cómo digo qué páginas borrar?
+
+Escribe los números de página que tu lector muestra, separados por comas, con guiones para series: `1, 4-6, 12`. Los espacios no importan, repetir un número no hace nada extra, y un rango invertido como `6-4` se lee como `4-6` en lugar de rechazarse. Las páginas comienzan en 1, no en 0.
+
+Todo lo que listes se elimina y todo lo demás se mantiene, en su orden original.
+
+## Borré las páginas 1, 3 y 5 y obtuve las incorrectas. ¿Ese es un error conocido?
+
+No aquí, pero es el error clásico en este tipo de herramienta y vale la pena entender. Borrar una página renumera cada página después de ella. Elimina la página 1 de un documento de seis páginas y la vieja página 3 se convierte en página 2 — así que una herramienta que trabaja a través de tu lista de más bajo a más alto termina borrando las páginas 1, 4 y 6 mientras reporta que borró 1, 3 y 5.
+
+Esta herramienta elimina del número de página más alto hacia abajo, así que ninguna página aún esperando ser eliminada se ha desplazado. Hay una prueba cubriendo exactamente este caso: eliminar `1, 3, 5` de un documento de seis páginas debe dejar las páginas originales 2, 4 y 6.
+
+## ¿Puedo borrar cada página?
+
+No. Un PDF debe contener al menos una página, así que un rango cubriendo el documento completo se rechaza en lugar de producir un archivo vacío o corrupto. Si quieres nada del documento, borra el archivo en sí.
+
+Si quisiste mantener solo algunas páginas, Dividir PDF es la herramienta mejor — extraer `2, 5` es más claro que borrar todo lo demás.
+
+## ¿Hace que el archivo sea más pequeño borrar páginas?
+
+Usualmente, pero por menos de lo que podrías esperar. La página se elimina del árbol de páginas del documento, pero los recursos compartidos — fuentes integradas, perfiles de color, imágenes referenciadas desde más de una página — no necesariamente se descartan con ella. Un documento de 40 páginas con un conjunto grande de fuentes integradas puede perder diez páginas y solo un poco de tamaño.
+
+Si el tamaño es el objetivo en lugar del número de páginas, eliminar páginas es la palanca incorrecta.
+
+## ¿Se sube mi archivo?
+
+No. `pdf-lib` lee el documento dentro de esta pestaña del navegador, las páginas se eliminan en memoria, y el enlace de descarga es una URL blob que tu navegador creó localmente. Nada se envía a ningún lado, así que no hay copia del lado del servidor a conservar o eliminar. Puedes confirmarlo en la pestaña Red de tu navegador, o desconectándote una vez que la página haya cargado.
+
+## ¿Qué pasa con los marcadores y enlaces que apuntan a páginas eliminadas?
+
+Los marcadores y enlaces internos que apuntaban a una página eliminada no tienen nada a lo que señalar, y el comportamiento allí varía según el visualizador — algunos los ignoran, algunos saltan a la página sobreviviente más cercana. Los marcadores que apuntan a páginas que mantuviste continúan funcionando.
+
+Los campos de formulario en páginas sobrevivientes normalmente se conservan. Las firmas digitales no validarán después: una firma cubre un diseño de documento específico, y eliminar una página necesariamente lo cambia. Eso aplica a cada herramienta de eliminación de páginas, no solo esta.

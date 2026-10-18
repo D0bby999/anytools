@@ -1,0 +1,10 @@
+[
+  {
+    "key": "COLL2345",
+    "version": 900,
+    "library": {"type": "user", "id": 475425, "name": "learner"},
+    "links": {"self": {"href": "https://api.zotero.org/users/475425/collections/COLL2345", "type": "application/json"}},
+    "meta": {"numCollections": 1, "numItems": 12},
+    "data": {"key": "COLL2345", "version": 900, "name": "Retrieval", "parentCollection": false, "relations": {}}
+  }
+]

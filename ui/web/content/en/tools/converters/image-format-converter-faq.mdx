@@ -1,0 +1,35 @@
+---
+title: Image Format Converter — Frequently asked questions
+---
+
+## Why can't I export to AVIF if my browser supports it?
+
+AVIF decoding (reading) is supported in Chrome 85+, Firefox 93+, and Safari 16+, but AVIF encoding via the Canvas API (`canvas.toBlob('image/avif')`) is not implemented in any browser as of 2026. Encoding AVIF requires the computationally expensive AV1 encoder, which browsers have not yet exposed through the Canvas API. You can convert AVIF input to PNG, JPEG, or WebP — just not the other direction. For AVIF encoding, use a server-side tool like `libavif`, `sharp`, or Squoosh's CLI.
+
+## My transparent PNG turned white after converting to JPEG. Is that a bug?
+
+No — JPEG does not support an alpha channel. When the Canvas draws your transparent PNG and then encodes to JPEG, transparent pixels are composited over the default white Canvas background. To preserve transparency, convert to PNG (lossless, full alpha) or WebP (supports alpha in both lossy and lossless modes). If you need JPEG but want a specific background colour, consider adding a background fill step in an image editor first.
+
+## What quality setting should I use for web images?
+
+For photographs: 0.80–0.85 in JPEG or WebP produces files that are visually indistinguishable from the original to most viewers at 5–10× smaller than PNG. For images with text, sharp lines, or UI elements, use PNG (lossless) instead of adjusting quality — lossy compression creates visible block artifacts on sharp edges regardless of the quality value. WebP at 0.85 is a good default for modern web delivery.
+
+## Why does my 10 MB file get rejected?
+
+The 10 MB limit is on the input file size. Large images decoded into raw RGBA pixel data can be much larger in memory — a 10 MB JPEG may expand to 50–100 MB as a raw pixel buffer in the Canvas. Exceeding available browser memory causes the tab to crash or the conversion to fail silently. If you need to convert larger files, use a server-side tool like ImageMagick, `sharp` (Node.js), or PIL/Pillow (Python).
+
+## How much smaller will my image be after converting to WebP?
+
+It depends on the source content and quality setting. Typical results: lossy WebP at quality 0.80 produces files 25–34% smaller than equivalent-quality JPEG, and WebP lossless is about 26% smaller than PNG. Results vary — photographs compress better than diagrams, and images with large uniform regions may see smaller gains. Converting JPEG to WebP at the same quality will almost always yield a smaller file; converting PNG to WebP lossless yields moderate savings.
+
+## Does converting JPEG to PNG make my image lossless?
+
+No. PNG is a lossless format, but converting a JPEG to PNG does not recover the detail already discarded by JPEG compression. The conversion captures the current degraded pixel values losslessly — it does not reverse the original lossy compression. The result is a larger file with no quality improvement. Only use JPEG→PNG when you need alpha channel support or need to make further edits without introducing additional JPEG re-compression artifacts.
+
+## Can I convert GIF or SVG files?
+
+GIF input decodes in the browser (animated GIFs are flattened to the first frame), and the resulting pixels can be exported to PNG, JPEG, or WebP. SVG input is also rasterised to pixels at its natural size when drawn to the Canvas. Neither GIF animation nor SVG vector data survives the conversion — the output is always a static raster image. GIF and SVG output are not available because the Canvas API does not expose encoders for them.
+
+## Is my image sent to a server at any point?
+
+No. The entire conversion pipeline — file reading, decoding, Canvas drawing, and re-encoding — runs in your browser. No pixel data, EXIF metadata, or file content is transmitted over the network. You can verify this by opening your browser's network tab while converting; you will see zero requests. The tool works offline once the page has loaded.

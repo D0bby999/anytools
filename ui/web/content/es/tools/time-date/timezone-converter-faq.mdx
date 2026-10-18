@@ -1,0 +1,35 @@
+---
+title: Timezone Converter — Preguntas frecuentes
+---
+
+## ¿Qué es la base de datos de zonas horarias IANA y por qué importa?
+
+La Base de Datos de Zonas Horarias IANA (también llamada base de datos Olson) es la fuente autoritativa para reglas de timezone en todo el mundo. Codifica no solo los offsets UTC actuales sino el historial completo de cada timezone — cada cambio de regla DST, cada decisión política de cambiar los relojes. Sin ella, convertir un timestamp de 1985 en `America/Mexico_City` (que ha cambiado sus reglas DST varias veces) sería una suposición. Todos los sistemas operativos, navegadores y bibliotecas de fechas importantes incluyen una copia de esta base de datos.
+
+## ¿Por qué usar `America/Mexico_City` en lugar de `CST`?
+
+`CST` es ambiguo — puede referirse a Central Standard Time (UTC−6, América del Norte), China Standard Time (UTC+8) o Cuba Standard Time (UTC−5). Más importante, `CST` solo es válido en invierno; México usa `CDT` (UTC−5) en verano. El identificador IANA `America/Mexico_City` codifica ambos offsets y las reglas de transición precisas, por lo que el sistema aplica automáticamente el offset correcto para cualquier momento en el tiempo.
+
+## ¿Cuál es la diferencia entre UTC y GMT?
+
+UTC (Tiempo Universal Coordinado) es un estándar de tiempo mantenido con relojes atómicos y no observa el horario de verano. GMT (Tiempo Medio de Greenwich) es una timezone en el Observatorio Real de Greenwich que técnicamente observa el horario de verano británico en verano. En uso común se tratan como sinónimos, pero técnicamente UTC es la línea base correcta para timestamps. Usa `UTC` en código; `GMT` es aceptable en cadenas de visualización donde el usuario lo espera.
+
+## ¿Qué le pasa a una cita de las 2:30 AM durante la transición de adelanto de primavera en México?
+
+Esa hora local no existe — a las 2:00 AM, los relojes saltan a las 3:00 AM, por lo que las 2:30 AM nunca ocurre. Si un sistema almacenó eso como timestamp local sin un equivalente UTC, el tiempo es inválido. La mayoría de las aplicaciones de calendario y sistemas de scheduling almacenan el equivalente UTC en el momento en que se creó la cita, por lo que las transiciones DST no corrompen las entradas existentes.
+
+## ¿Por qué sumar 24 horas a una fecha a veces da el día incorrecto?
+
+En los días de transición DST, un día calendario dura 23 o 25 horas. Sumar `24 * 60 * 60 * 1000` milisegundos a un timestamp local cruza un número diferente de días calendario del esperado. El enfoque correcto es sumar un día calendario usando la función `addDays` de una biblioteca de fechas (que maneja DST), o hacer la aritmética en UTC y convertir a hora local para mostrar.
+
+## ¿Qué significa la `Z` al final de un timestamp?
+
+`Z` significa "tiempo Zulu" — la designación militar para UTC. En formato ISO 8601, `2026-05-26T14:30:00Z` significa las 2:30 PM UTC. Es funcionalmente equivalente a `2026-05-26T14:30:00+00:00`, aunque `Z` es la forma preferida para timestamps UTC ya que es inequívoca y más corta. Siempre incluye `Z` o un offset explícito al serializar timestamps; un `2026-05-26T14:30:00` sin indicador de zona es un datetime naive y una fuente de bugs.
+
+## ¿Cómo convierto un timestamp Unix a un datetime con timezone?
+
+Un timestamp Unix siempre es segundos (o milisegundos) desde el epoch Unix — 1970-01-01T00:00:00Z — en UTC. Para mostrarlo en una timezone local, construye un objeto `Date` a partir de él y formatea con `Intl.DateTimeFormat` especificando la opción `timeZone`, o usa la función `format` de `date-fns-tz`. Ejemplo: `format(new Date(epochMs), 'yyyy-MM-dd HH:mm:ss', { timeZone: 'America/Mexico_City' })`. El valor epoch en sí es agnóstico de timezone.
+
+## ¿Esta herramienta maneja correctamente los cambios históricos de timezone?
+
+Sí, dentro de los límites de la versión de la base de datos IANA incluida con el runtime de JavaScript de tu navegador. La base de datos cubre transiciones históricas desde finales del siglo XIX para la mayoría de las regiones. Para fechas muy antiguas (anteriores a 1970) los datos pueden ser escasos, pero para cualquier timestamp moderno práctico (posterior a 1970) las conversiones son autoritativas. Si los datos IANA de tu navegador están desactualizados, las reglas de timezone recientemente cambiadas pueden no reflejarse correctamente — raro, típicamente solo un problema en sistemas operativos antiguos.

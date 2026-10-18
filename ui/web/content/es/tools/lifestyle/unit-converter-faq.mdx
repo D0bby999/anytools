@@ -1,0 +1,35 @@
+---
+title: Conversor de unidades — Preguntas frecuentes
+---
+
+## ¿Qué puede convertir?
+
+Cinco categorías: longitud, peso, temperatura, volumen y velocidad. Cada categoría convierte entre sus propias unidades; no puedes convertir entre categorías, porque no hay una respuesta significativa a "cuántos litros es un kilómetro".
+
+## ¿Cómo funciona la conversión internamente?
+
+Cada unidad define cómo llegar a una unidad canónica para su categoría y cómo volver de ella. Una conversión es por lo tanto dos pasos, en la unidad canónica, luego fuera al destino, lo que significa que cada pareja en una categoría es compatible sin necesitar una tabla de cada combinación.
+
+## ¿Por qué la temperatura se maneja diferente de las otras?
+
+Porque las escalas de temperatura tienen desplazamientos, no solo multiplicadores. La longitud es puramente proporcional, duplicar metros duplica pies, pero Fahrenheit a Celsius es `(F − 32) × 5/9`, y Kelvin es Celsius más 273.15. Un sistema de unidades que solo multiplicara obtendría la temperatura incorrectamente, así que el conversor lleva un desplazamiento junto con el factor.
+
+## ¿Un galón estadounidense es igual a un galón británico?
+
+No, y la diferencia es lo suficientemente grande para importar, aproximadamente una quinta. Las recetas y cifras de combustible que cruzan el Atlántico se equivocan en exactamente esto. Verifica cuál de ellos significa una fuente antes de convertir; un "galón" sin calificativo es ambiguo.
+
+## ¿Qué hay de las onzas, peso o volumen?
+
+Ambas existen y no son intercambiables. Una onza fluida mide volumen y aparece bajo volumen; una onza de peso aparece bajo peso. Convertir las "8 oz de harina" de una receta como si fueran onzas fluidas es un error común y silencioso.
+
+## ¿Por qué convertir allí y de vuelta a veces no regresa exactamente el original?
+
+Redondeo de punto flotante. Cada paso introduce un pequeño error representacional, por lo que un viaje de ida y vuelta puede aterrizar una fracción lejos de dónde comenzó. La diferencia está muy por debajo de cualquier precisión de medición práctica, pero es por eso que el último lugar decimal puede tambalearse.
+
+## ¿Cuántos lugares decimales debo confiar?
+
+No más de lo que tu entrada tenía. Convertir una medida de "3 metros" a ocho lugares decimales en pies implica una precisión que el original nunca llevaba. Los dígitos extra son aritmética, no conocimiento.
+
+## ¿Se transmite algo?
+
+No. Toda conversión se ejecuta en tu navegador.

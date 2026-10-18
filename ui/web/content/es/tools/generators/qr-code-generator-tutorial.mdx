@@ -1,0 +1,114 @@
+---
+title: Guía completa para generar códigos QR
+description: Cómo funcionan los códigos QR, niveles de corrección de errores, formatos de payload para vCard/Wi-Fi/email, y cuándo elegir PNG vs SVG.
+updated: 2026-05-27
+---
+
+## Un poco de historia
+
+Los códigos QR fueron inventados en 1994 por Masahiro Hara en Denso Wave, subsidiaria de Toyota, para rastrear piezas automotrices en líneas de ensamblaje. El objetivo era un código de barras capaz de almacenar mucho más datos y ser escaneado desde cualquier ángulo. "QR" son las siglas de Quick Response (Respuesta Rápida); el objetivo de diseño era decodificar en menos de una décima de segundo.
+
+Denso Wave liberó el formato sin regalías en 1999, lo que permitió que se expandiera mucho más allá de la fábrica. El estándar internacional ISO/IEC 18004 especifica el formato completo. Hoy los smartphones escanean códigos QR nativamente desde la app de cámara, eliminando la necesidad de una app dedicada.
+
+## Estructura de un código QR
+
+Un código QR es una matriz bidimensional de módulos (cuadrados) negros y blancos. Los tres grandes cuadrados en las esquinas son los **patrones de búsqueda** — permiten al escáner identificar posición y orientación sin importar la rotación o la perspectiva. El **patrón de temporización** ancla la cuadrícula de coordenadas. La **franja de formato** codifica el nivel de corrección de errores y el patrón de máscara en uso.
+
+Los datos reales ocupan los módulos restantes en uno de cuatro modos de codificación:
+- **Numérico** — solo dígitos, más compacto.
+- **Alfanumérico** — letras mayúsculas, dígitos y algunos caracteres especiales.
+- **Byte** — bytes sin procesar; la herramienta usa UTF-8 por defecto para soporte Unicode completo.
+- **Kanji** — codificación compacta para caracteres de doble byte en japonés.
+
+Para URLs y la mayoría de los payloads de texto modernos, el modo Byte con UTF-8 es la opción segura.
+
+## Niveles de corrección de errores
+
+Una de las propiedades más inteligentes de los códigos QR es la corrección de errores Reed-Solomon integrada. Se elige cuánta capacidad sacrificar a cambio de resiliencia:
+
+| Nivel | Capacidad de corrección | Caso de uso típico |
+|-------|------------------------|--------------------|
+| L (Bajo) | ~7% de módulos dañados | Pantallas digitales limpias, impresiones perfectas |
+| M (Medio) | ~15% | Uso general, tickets, pósters |
+| Q (Cuartil) | ~25% | Etiquetas industriales, desgaste moderado |
+| H (Alto) | ~30% | Logos superpuestos, superficies sucias, cobertura parcial |
+
+Mayor corrección significa más datos redundantes, lo que aumenta el tamaño físico para el mismo payload. Si vas a insertar un logo en el centro del código QR — técnica de branding popular — usa **H** para que el logo ocluya módulos de datos que el lector pueda reconstruir.
+
+## Formatos de payload estándar
+
+**URL** — simplemente la URL completa con protocolo:
+```
+https://ejemplo.com/promo?ref=qr
+```
+
+**Red Wi-Fi** — reconocido por la app de cámara de Android e iOS:
+```
+WIFI:T:WPA;S:MiRed;P:MiContraseña;;
+```
+`T` es el tipo de seguridad (`WPA`, `WEP` o `nopass`), `S` es el SSID, `P` es la contraseña. Doble punto y coma al final. Escapa con backslash cualquier `;`, `,`, `"` o `\` en los valores.
+
+**vCard 3.0** — tarjeta de contacto compatible con iOS y Android:
+```
+BEGIN:VCARD
+VERSION:3.0
+FN:María García
+ORG:Empresa S.A.
+TEL;TYPE=CELL:+52-555-000-0000
+EMAIL:maria@empresa.com
+END:VCARD
+```
+
+**Email:**
+```
+mailto:soporte@ejemplo.com?subject=Hola&body=Mensaje%20aqui
+```
+
+## Tamaño, contraste y zona de silencio
+
+**Tamaño mínimo.** Un código QR impreso de menos de ~2 cm × 2 cm empieza a fallar en cámaras de smartphones de gama media.
+
+**Contraste.** El estándar recomienda una relación de luminancia de al menos 4:1 entre módulos oscuros y claros — negro sobre blanco es ideal. Los códigos QR de colores con fondos pastel suelen fallar. Si usas colores personalizados, prueba con múltiples modelos de teléfonos.
+
+**Zona de silencio.** Todo código QR requiere un borde en blanco de al menos 4 módulos en todos los lados. Sin él, los escáneres no pueden localizar los patrones de búsqueda. La herramienta incluye este margen automáticamente en las exportaciones PNG y SVG.
+
+## PNG vs SVG — cuándo usar cada uno
+
+**PNG** es un formato raster: una cuadrícula de píxeles de color a una resolución fija.
+- Ideal para: archivos adjuntos en email, apps de mensajería, etiquetas `<img>` con tamaño de visualización fijo.
+- Limitación: ampliar introduce pixelado. Exporta a 2× o 3× el tamaño de visualización previsto para pantallas retina.
+
+**SVG** es un formato vectorial: el código se describe como rutas matemáticas que se renderizan nítidamente a cualquier tamaño.
+- Ideal para: materiales impresos (tarjetas, señalización), logos, incrustación CSS.
+- Limitación: algunos clientes de email antiguos no renderizan SVG inline; usa PNG para email.
+
+Cuando controlas el caso de uso de extremo a extremo, SVG es la elección profesional. Para compartir con destinatarios desconocidos o apps sociales, PNG es más seguro.
+
+## Uso de la librería `qrcode`
+
+Esta herramienta está construida sobre el paquete npm [`qrcode`](https://www.npmjs.com/package/qrcode). Para generar códigos de forma programática:
+
+```javascript
+import QRCode from 'qrcode';
+
+// Generar string SVG
+const svg = await QRCode.toString('https://ejemplo.com', {
+  type: 'svg',
+  errorCorrectionLevel: 'H',
+  color: { dark: '#1a1a1a', light: '#ffffff' },
+  margin: 4,
+});
+
+// Generar data URL PNG
+const dataUrl = await QRCode.toDataURL('https://ejemplo.com', {
+  type: 'image/png',
+  width: 400,
+  errorCorrectionLevel: 'M',
+});
+```
+
+La opción `margin` corresponde a la zona de silencio en unidades de módulo (mínimo recomendado: 4).
+
+## Privacidad
+
+Toda la generación de QR se ejecuta localmente en tu navegador. Tus URLs, contraseñas y datos de contacto nunca se transmiten a un servidor.

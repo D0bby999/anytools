@@ -1,0 +1,35 @@
+---
+title: Date difference calculator — Frequently asked questions
+---
+
+## What does it report?
+
+The gap between two dates as calendar years, months and days, alongside the raw total in days. Both readings are useful for different things: the calendar breakdown is how people describe a duration, the day count is what you need for arithmetic.
+
+## Does the order of the two dates matter?
+
+No. The tool sorts them internally and always reports a non-negative result, so entering the later date first gives the same answer.
+
+## Why is the calendar breakdown not just the day count divided up?
+
+Because months have different lengths. Going from 31 January to 1 March is one month and one day in calendar terms, but 29 or 30 days depending on the year. The tool borrows from the real length of the preceding month rather than assuming a fixed 30, so the breakdown matches how a calendar behaves.
+
+## Are both endpoints counted?
+
+The result is the difference between the two dates, so it excludes one endpoint — the gap from Monday to Wednesday is two days, not three. If you need an inclusive count, such as billable days or days of a stay, add one.
+
+## Can I use it to count working days?
+
+No. It counts every calendar day, with no concept of weekends or public holidays. Working-day counts depend on jurisdiction and on which holidays apply, which is outside what this calculates.
+
+## Does it handle dates before 1970, or far in the future?
+
+Yes. The arithmetic is done on calendar fields with a millisecond total alongside, so historical dates and distant future dates both work.
+
+## What about time zones and daylight saving?
+
+The calculation is on dates, not instants, so a clock change does not add or remove a day. If you need the exact elapsed time between two moments across zones, the [timezone converter](/en/time-date/timezone-converter) is the better fit.
+
+## Is anything I enter transmitted?
+
+No. Everything runs in your browser.

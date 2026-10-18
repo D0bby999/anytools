@@ -1,0 +1,35 @@
+---
+title: Conversor de Formatos de Imagen — Preguntas frecuentes
+---
+
+## ¿Por qué no puedo exportar a AVIF si mi navegador lo soporta?
+
+La decodificación (lectura) de AVIF está soportada en Chrome 85+, Firefox 93+ y Safari 16+, pero la codificación AVIF vía Canvas API (`canvas.toBlob('image/avif')`) no está implementada en ningún navegador a fecha de 2026. Codificar AVIF requiere el costoso codificador AV1, que los navegadores aún no han expuesto a través de la Canvas API. Puedes convertir entrada AVIF a PNG, JPEG o WebP — pero no en la dirección contraria. Para codificación AVIF, usa una herramienta del lado del servidor como `libavif`, `sharp` o el CLI de Squoosh.
+
+## Mi PNG transparente quedó blanco al convertirlo a JPEG. ¿Es un error?
+
+No — JPEG no soporta canal alfa. Cuando el Canvas dibuja tu PNG transparente y luego codifica a JPEG, los píxeles transparentes se componen sobre el fondo blanco predeterminado del Canvas. Para preservar la transparencia, convierte a PNG (sin pérdida, alfa completo) o WebP (soporta alfa en modos con y sin pérdida). Si necesitas JPEG con un color de fondo específico, añade un paso de relleno de fondo en un editor de imágenes primero.
+
+## ¿Qué configuración de calidad debo usar para imágenes web?
+
+Para fotografías: 0.80–0.85 en JPEG o WebP produce archivos 5–10× más pequeños que PNG con pérdida prácticamente imperceptible. Para imágenes con texto, líneas nítidas o elementos de UI, usa PNG (sin pérdida) en lugar de ajustar la calidad — la compresión con pérdida crea artefactos de bloque visibles en bordes nítidos independientemente del valor de calidad. WebP a 0.85 es un buen valor predeterminado para entrega web moderna.
+
+## ¿Por qué se rechaza mi archivo de 10 MB?
+
+El límite de 10 MB es para el tamaño del archivo de entrada. Las imágenes grandes decodificadas en datos de píxeles RGBA crudos pueden ser mucho mayores en memoria — un JPEG de 10 MB puede expandirse a 50–100 MB como buffer de píxeles crudos en el Canvas. Superar la memoria disponible del navegador provoca que la pestaña se bloquee o que la conversión falle silenciosamente. Para archivos más grandes, usa una herramienta del lado del servidor como ImageMagick, `sharp` (Node.js) o PIL/Pillow (Python).
+
+## ¿Cuánto más pequeña será mi imagen al convertir a WebP?
+
+Depende del contenido fuente y la configuración de calidad. Resultados típicos: WebP con pérdida a calidad 0.80 produce archivos un 25–34% más pequeños que JPEG equivalente. WebP sin pérdida es aproximadamente un 26% más pequeño que PNG. Los resultados varían — las fotografías se comprimen mejor que los diagramas. Convertir JPEG a WebP a la misma calidad casi siempre produce un archivo más pequeño.
+
+## ¿Convirtiendo JPEG a PNG se obtiene una imagen sin pérdida?
+
+No. PNG es un formato sin pérdida, pero convertir un JPEG a PNG no recupera el detalle ya descartado por la compresión JPEG. La conversión captura los valores de píxeles degradados actuales de forma sin pérdida — no revierte la compresión con pérdida original. El resultado es un archivo más grande sin mejora de calidad. Solo usa JPEG→PNG cuando necesites soporte de canal alfa o necesites hacer más ediciones sin introducir artefactos adicionales de recompresión JPEG.
+
+## ¿Puedo convertir archivos GIF o SVG?
+
+La entrada GIF se decodifica en el navegador (los GIF animados se aplanan al primer fotograma), y los píxeles resultantes se pueden exportar a PNG, JPEG o WebP. La entrada SVG también se rasteriza a píxeles en su tamaño natural al dibujarla en el Canvas. Ni la animación GIF ni los datos vectoriales SVG sobreviven a la conversión — la salida es siempre una imagen raster estática. La salida GIF y SVG no están disponibles porque la Canvas API no expone codificadores para ellos.
+
+## ¿Se envía mi imagen a un servidor en algún momento?
+
+No. Todo el pipeline de conversión — lectura de archivos, decodificación, dibujo en Canvas y recodificación — se ejecuta en tu navegador. Ningún dato de píxeles, metadatos EXIF o contenido de archivo se transmite por la red. Puedes verificarlo abriendo la pestaña de red de tu navegador mientras conviertes; verás cero solicitudes. La herramienta funciona sin conexión una vez cargada la página.

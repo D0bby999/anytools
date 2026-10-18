@@ -1,0 +1,189 @@
+# AnyTools — anytools.world as a Coolify "Docker Compose" resource.
+#
+# The host already runs Coolify, whose Traefik (coolify-proxy) holds 80/443,
+# terminates TLS and routes other sites by labels. So this file brings no
+# nginx and no certbot, publishes no port at all, and builds nothing: the api
+# and web images come from GHCR, built by .github/workflows/images.yml.
+#
+# The trust boundary of the base docker-compose.yml holds here too, and
+# internal/api/deploy_invariants_test.go asserts it for this file:
+#   - `api` has no `ports:`; only `web` is reachable, and only through Traefik;
+#   - exactly one `api` replica;
+#   - every container is memory-capped for a 4 GB host it shares with other
+#     sites: api 768 MB, web 384 MB, postgres 256 MB;
+#   - the built-in Whisper and Kokoro engines are absent. Learners use their
+#     own transcription and speech keys on this host.
+#
+# Set the variables below in Coolify's Environment Variables tab; the ones
+# marked `:?` are required, and .env.example says what each one is.
+#
+# deploy/scripts/deploy-host.sh runs this same file without Coolify or GHCR:
+# it builds the images on this machine's artifacts, tags them
+# ghcr.io/d0bby999/anytools-*:host-<sha>, and sets ANYTOOLS_PULL_POLICY=never
+# so compose never pulls a same-named image from the registry.
+
+x-hardened: &hardened
+  pids_limit: 512
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "20m", max-file: "5" }
+
+services:
+  # Its own database, not the host's shared platform-postgres: AnyTools needs
+  # pgvector, and the other sites' databases stay out of its reach.
+  postgres:
+    image: pgvector/pgvector:pg16
+    mem_limit: 256m
+    # Sized to the 256 MB cap: the defaults assume a machine of their own.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - effective_cache_size=128MB
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - max_connections=40
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-anytools}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-anytools}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-anytools} -d ${POSTGRES_DB:-anytools}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [anytools]
+    restart: unless-stopped
+    logging: *logging
+
+  # One-shot: applies migrations, then exits. `serve` never migrates.
+  migrate:
+    <<: *hardened
+    image: ghcr.io/d0bby999/anytools-api:${ANYTOOLS_IMAGE_TAG:-latest}
+    pull_policy: ${ANYTOOLS_PULL_POLICY:-always}
+    mem_limit: 256m
+    command: ["migrate", "up"]
+    environment:
+      ANYTOOLS_ENV: production
+      ANYTOOLS_POSTGRES_DSN: ${ANYTOOLS_POSTGRES_DSN:?ANYTOOLS_POSTGRES_DSN is required}
+      ANYTOOLS_MIGRATIONS_DIR: /app/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [anytools]
+    restart: "no"
+    logging: *logging
+
+  api:
+    <<: *hardened
+    image: ghcr.io/d0bby999/anytools-api:${ANYTOOLS_IMAGE_TAG:-latest}
+    pull_policy: ${ANYTOOLS_PULL_POLICY:-always}
+    # NO `ports:` and no Traefik labels: the API trusts the user id header
+    # the BFF sets, which is safe only while nothing but `web` can reach it.
+    mem_limit: 768m
+    environment:
+      ANYTOOLS_ENV: production
+      ANYTOOLS_SERVER_ADDR: ":8080"
+      ANYTOOLS_POSTGRES_DSN: ${ANYTOOLS_POSTGRES_DSN:?ANYTOOLS_POSTGRES_DSN is required}
+      ANYTOOLS_GATEWAY_TOKEN: ${ANYTOOLS_GATEWAY_TOKEN:?ANYTOOLS_GATEWAY_TOKEN is required}
+      ANYTOOLS_ENCRYPTION_KEY: ${ANYTOOLS_ENCRYPTION_KEY:?ANYTOOLS_ENCRYPTION_KEY is required}
+      ANYTOOLS_GOOGLE_CLIENT_ID: ${ANYTOOLS_GOOGLE_CLIENT_ID:-}
+      ANYTOOLS_GOOGLE_CLIENT_SECRET: ${ANYTOOLS_GOOGLE_CLIENT_SECRET:-}
+      ANYTOOLS_DRIVE_CACHE_MB: ${ANYTOOLS_DRIVE_CACHE_MB:-512}
+      ANYTOOLS_DATA_DIR: /var/lib/anytools/data
+      # Two workers on two shared vCPUs; a parse waits rather than starving
+      # the other sites.
+      ANYTOOLS_JOB_WORKERS: ${ANYTOOLS_JOB_WORKERS:-2}
+      ANYTOOLS_JOB_LEASE_SECONDS: ${ANYTOOLS_JOB_LEASE_SECONDS:-120}
+    # Nothing in the image is written at runtime: data goes to the volume,
+    # multipart spill to /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    volumes:
+      - anytools-data:/var/lib/anytools/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      # EXACTLY ONE: rate-limit buckets, the stream bus and the cancel
+      # registry live in the process (see the base docker-compose.yml).
+      replicas: 1
+    networks: [anytools]
+    restart: unless-stopped
+    logging: *logging
+
+  web:
+    <<: *hardened
+    image: ghcr.io/d0bby999/anytools-web:${ANYTOOLS_IMAGE_TAG:-latest}
+    pull_policy: ${ANYTOOLS_PULL_POLICY:-always}
+    # No `ports:` either: Coolify's Traefik reaches it over the `coolify`
+    # network, by the labels below.
+    mem_limit: 384m
+    environment:
+      NODE_ENV: production
+      # Keeps V8's heap well inside the container cap.
+      NODE_OPTIONS: --max-old-space-size=256
+      ANYTOOLS_API_URL: http://api:8080
+      ANYTOOLS_APP_URL: https://anytools.world
+      ANYTOOLS_GATEWAY_TOKEN: ${ANYTOOLS_GATEWAY_TOKEN:?ANYTOOLS_GATEWAY_TOKEN is required}
+      ANYTOOLS_SESSION_SECRET: ${ANYTOOLS_SESSION_SECRET:?ANYTOOLS_SESSION_SECRET is required}
+      ANYTOOLS_GOOGLE_CLIENT_ID: ${ANYTOOLS_GOOGLE_CLIENT_ID:-}
+      ANYTOOLS_GOOGLE_CLIENT_SECRET: ${ANYTOOLS_GOOGLE_CLIENT_SECRET:-}
+      ANYTOOLS_GITHUB_CLIENT_ID: ${ANYTOOLS_GITHUB_CLIENT_ID:-}
+      ANYTOOLS_GITHUB_CLIENT_SECRET: ${ANYTOOLS_GITHUB_CLIENT_SECRET:-}
+      ANYTOOLS_GOOGLE_API_KEY: ${ANYTOOLS_GOOGLE_API_KEY:-}
+      ANYTOOLS_GOOGLE_PICKER_APP_ID: ${ANYTOOLS_GOOGLE_PICKER_APP_ID:-}
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.services.anytools-web.loadbalancer.server.port=3000
+      # HTTP answers with a redirect to HTTPS.
+      - traefik.http.routers.anytools-http.entrypoints=http
+      - traefik.http.routers.anytools-http.rule=Host(`anytools.world`) || Host(`www.anytools.world`)
+      - traefik.http.routers.anytools-http.middlewares=anytools-to-https
+      - traefik.http.middlewares.anytools-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.anytools-to-https.redirectscheme.permanent=true
+      # HTTPS, with Coolify's Let's Encrypt resolver. www answers with a
+      # redirect to the apex, the one origin the OAuth apps and the session
+      # cookie know.
+      - traefik.http.routers.anytools-https.entrypoints=https
+      - traefik.http.routers.anytools-https.rule=Host(`anytools.world`) || Host(`www.anytools.world`)
+      - traefik.http.routers.anytools-https.tls=true
+      - traefik.http.routers.anytools-https.tls.certresolver=letsencrypt
+      - traefik.http.routers.anytools-https.service=anytools-web
+      - traefik.http.routers.anytools-https.middlewares=anytools-www-to-apex
+      - traefik.http.middlewares.anytools-www-to-apex.redirectregex.regex=^https?://www\.anytools\.world/(.*)
+      - traefik.http.middlewares.anytools-www-to-apex.redirectregex.replacement=https://anytools.world/$${1}
+      - traefik.http.middlewares.anytools-www-to-apex.redirectregex.permanent=true
+    depends_on:
+      - api
+    networks: [anytools, coolify]
+    restart: unless-stopped
+    logging: *logging
+
+networks:
+  anytools:
+    driver: bridge
+  # Coolify's proxy network, which coolify-proxy already joins.
+  coolify:
+    external: true
+
+volumes:
+  postgres-data:
+  # Uploaded originals and parsed Markdown, backed up with the database.
+  anytools-data:

@@ -1,0 +1,67 @@
+---
+title: Hướng dẫn đầy đủ về Hex encode / decode
+description: Cách mã hóa hex hoạt động, khi nào dùng thay vì Base64 hoặc binary, các vấn đề với UTF-8, và quy ước separator / prefix.
+updated: 2026-05-27
+---
+
+## Hex encoding thực sự là gì
+
+Hex encoding (mã hóa thập lục phân) biến mỗi byte dữ liệu thành đúng hai ký tự hex (`0–9`, `a–f`). Vì một chữ số hex biểu diễn 4 bit (một nibble), hai chữ số hex bao phủ tất cả 256 giá trị có thể của một byte. Kết quả là một chuỗi ASCII có độ dài luôn bằng hai lần chuỗi byte gốc.
+
+Đây **không phải** nén dữ liệu và **không phải** mã hóa bảo mật — đây thuần túy là định dạng hiển thị. Bất kỳ chuỗi hex nào cũng có thể decode ngược lại byte gốc mà không cần key hay secret.
+
+## Tại sao dùng hex thay vì decimal hay octal?
+
+Máy tính lưu trữ dữ liệu dưới dạng nhị phân (cơ số 2). Hexadecimal (cơ số 16) là lũy thừa của 2, nên mỗi chữ số hex ánh xạ chính xác vào 4 bit nhị phân. Decimal không có sự căn chỉnh đó, đó là lý do lập trình viên dùng hex để kiểm tra raw bytes thay vì decimal. `0xFF` nghĩa là `11111111` trong binary — liên hệ này rõ ràng ngay lập tức.
+
+## So sánh overhead: Hex vs Base64 vs Binary
+
+| Format | Bytes → ký tự output | Overhead |
+|--------|----------------------|----------|
+| Hex | 1 byte → 2 ký tự | +100% |
+| Base64 | 3 bytes → 4 ký tự | +33% |
+| Binary | 1 byte → 8 ký tự | +700% |
+
+Base64 thắng khi cần tối thiểu kích thước dữ liệu truyền tải (JWT, data URI, MIME). Hex thắng khi **khả năng đọc và debug từng byte** quan trọng hơn: hex dump cho phép nhìn thấy byte `0x00` null hay byte `0xFF` sentinel ngay lập tức.
+
+## Các use case thực tế phổ biến
+
+**Memory dump và file dump.** Debugger, hex editor (như `xxd`, `hexdump -C`), và crash dump tool đều output hex để developer kiểm tra raw memory từng byte. Prefix `0x` (`0x48 0x65 0x6c 0x6c 0x6f` = `Hello`) là ngôn ngữ chung của lập trình low-level.
+
+**Mã màu CSS.** Màu `#ff6b6b` là ba giá trị một byte: red=255, green=107, blue=107. Ký tự `#` thay thế prefix `0x`. Developer web đọc hex color code hàng chục lần mỗi ngày.
+
+**Địa chỉ MAC.** Hardware address Ethernet gồm sáu byte, thường viết dạng `aa:bb:cc:dd:ee:ff` với dấu hai chấm làm separator. Option **Separator** trong tool này cho phép tạo chính xác định dạng này.
+
+**Hash digest mật mã.** SHA-256 output 32 bytes; SHA-512 output 64 bytes. Cả hai đều được hiển thị dưới dạng hex string — 64 hoặc 128 ký tự hex. Commit hash trong `git` như `4c1502f` là bảy ký tự đầu của SHA-1 digest dạng hex.
+
+**Ethereum và blockchain.** Transaction hash, địa chỉ ví, ABI-encoded calldata đều là hex — thường có prefix `0x`. Checkbox `0x` trong tool này bật/tắt prefix đó cho mỗi cặp byte.
+
+**Debug network protocol.** Packet capture trong Wireshark hiển thị payload dạng hex. TCP flags trong packet header là một byte; giá trị hex `0x12` (SYN+ACK) dễ đọc hơn nhiều so với `00010010` binary hay `18` decimal.
+
+## Vấn đề với UTF-8
+
+Khi gõ ký tự như `é` (U+00E9), text là hai byte UTF-8: `0xc3 0xa9`. Nếu encode string đó sang hex mà kỳ vọng một byte mỗi ký tự, bạn nhận được bốn chữ số hex, không phải hai. Điều này **đúng** — `é` thực sự chiếm hai byte trong UTF-8.
+
+Emoji như `😀` (U+1F600) là bốn byte UTF-8: `0xf0 0x9f 0x98 0x80` → tám chữ số hex. Tool này luôn xử lý input dạng UTF-8. Nếu hệ thống nguồn dùng encoding khác (Windows-1252, Latin-1), hãy convert sang UTF-8 trước.
+
+**Text thuần ASCII** cho đúng hai chữ số hex mỗi ký tự vì mọi codepoint ASCII đều ≤127 và vừa một byte.
+
+## Quy ước prefix 0x
+
+Prefix `0x` xuất phát từ ngôn ngữ C (chuẩn hóa năm 1989 trong ANSI C / C89). Nó báo hiệu "literal này là hexadecimal" cho cả compiler và người đọc. Quy ước này lan sang hầu hết ngôn ngữ có cú pháp dựa trên C: C++, Java, JavaScript, Go, Rust, Python. Trong các ngữ cảnh mà cơ số đã ngầm định (mã màu, địa chỉ MAC, hash output), prefix bị bỏ và dùng separator hoặc quy ước độ dài thay thế.
+
+## Cấu hình tool
+
+- **Separator** — để trống cho chuỗi hex liền (`48656c6c6f`), dùng space cho kiểu hex dump (`48 65 6c 6c 6f`), dùng `:` cho kiểu MAC address, dùng `\n` cho một byte mỗi dòng.
+- **0x prefix** — thêm `0x` trước mỗi cặp byte, hữu ích cho C array literal hoặc Ethereum input.
+- **Case** — chữ thường là quy ước cho hầu hết Unix tool và crypto output; chữ hoa phù hợp với `certutil` của Windows và một số toolchain vi điều khiển.
+
+## Quyền riêng tư
+
+Toàn bộ encode và decode chạy trong trình duyệt của bạn. Text hoặc hex string không bao giờ được gửi đến server, không bao giờ được log, và không bao giờ rời khỏi thiết bị của bạn.
+
+## Công cụ liên quan
+
+- **Base64 Encode/Decode** — overhead thấp hơn (33%) để vận chuyển binary qua kênh text.
+- **Binary Encode/Decode** — tám ký tự mỗi byte, hữu ích để hiểu từng vị trí bit.
+- **URL Encode/Decode** — percent-encoding cho query parameter và URI component.

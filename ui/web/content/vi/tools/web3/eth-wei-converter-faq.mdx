@@ -1,0 +1,35 @@
+---
+title: ETH / Wei Converter — Câu hỏi thường gặp
+---
+
+## Wei là gì và tại sao Ethereum dùng nó?
+
+Wei là đơn vị nhỏ nhất không thể chia của ether — 1 ETH bằng 10¹⁸ wei. EVM không có arithmetic floating-point, nên mọi value transfer on-chain là số nguyên wei. Dùng đơn vị nhỏ nhất cho toán học nội bộ loại bỏ rounding error trong financial logic. Tên đặt theo Wei Dai, nhà mật mã học mô tả b-money, tiền thân khái niệm của Bitcoin.
+
+## Tại sao không dùng JavaScript `Number` cho giá trị wei?
+
+`Number` trong JavaScript là 64-bit IEEE 754 double, chỉ biểu diễn chính xác số nguyên đến 2⁵³ − 1 (khoảng 9 × 10¹⁵). Một ETH tính bằng wei là 10¹⁸ — lớn hơn giới hạn đó. Phép tính wei dùng `Number` thông thường silently mất precision với bất kỳ amount nào trên ~9 ETH. Luôn dùng `BigInt` hoặc thư viện như `ethers.js` bọc BigInt bên trong.
+
+## Gwei là gì và khi nào dùng?
+
+Gwei (gigawei) bằng 10⁹ wei. Đây là đơn vị tiêu chuẩn cho gas price vì nó ở quy mô dễ đọc cho người — gas price Ethereum hiện tại dao động từ vài digit đến vài trăm gwei. Khi wallet hiển thị "gas price: 15 gwei", đó là 15,000,000,000 wei per unit gas tiêu thụ.
+
+## Tính tổng phí của một transaction thế nào?
+
+Nhân gas used với effective gas price: `fee (wei) = gasUsed × effectiveGasPrice`. Cả hai giá trị xuất hiện trong transaction receipt. Chuyển kết quả từ wei sang ETH dùng tool này để có cost dễ đọc. Với ETH transfer tiêu chuẩn (21,000 gas) ở 20 gwei, phí là 0.00042 ETH.
+
+## EIP-1559 thay đổi gì?
+
+EIP-1559 (London fork, tháng 8/2021) thay thế đấu giá gas price đơn bằng mô hình base fee cộng priority fee. Base fee bị đốt và được điều chỉnh theo thuật toán mỗi block; priority fee (tip) đến validator. Bạn đặt max fee per gas như mức trần. Phí thực tế là `min(maxFee, baseFee + priorityFee)`. Điều này khiến estimate phí dự đoán được hơn và giảm overpayment.
+
+## Converter này có hoạt động với ERC-20 token không?
+
+Một phần. ERC-20 token dùng cùng pattern wei/unit nhưng với số decimal riêng — USDC có 6 decimal, hầu hết token có 18, một số wrapped asset có 8. Mode "custom decimals" của converter nhận bất kỳ số decimal nào để bạn convert amount ERC-20 bất kỳ. Tên đơn vị (wei, gwei, ether) ở phía ETH chỉ là label cho lũy thừa của 10 — cùng toán học áp dụng.
+
+## Nên lưu giá trị wei trong database thế nào?
+
+Không dùng cột SQL `INTEGER` hay `BIGINT` — PostgreSQL BIGINT tối đa ~9.2 × 10¹⁸, chỉ chứa ~9 ETH trước khi overflow. Dùng `NUMERIC` (arbitrary precision) hoặc lưu amount dưới dạng `TEXT` decimal string. Khi đọc lại, parse với `BigInt()` hoặc `ethers.parseUnits` trước khi làm arithmetic.
+
+## Tại sao smart contract của tôi nhận sai amount?
+
+Hầu như luôn là unit mismatch. Nếu frontend gửi `parseUnits("1", "gwei")` (= 10⁹ wei) nhưng contract mong đợi amount tính bằng wei và nghĩ đó là 1 ETH, bạn đã gửi 10⁻⁹ ETH thay vì 1 ETH. Quyết định nhất quán ở mọi layer xem bạn đang làm việc bằng wei hay ether, thêm unit suffix vào tên biến (`amountWei`, `priceGwei`), và validate bằng converter này trước khi deploy.

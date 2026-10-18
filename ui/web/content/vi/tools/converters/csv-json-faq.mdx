@@ -1,0 +1,35 @@
+---
+title: CSV ↔ JSON Converter — Câu hỏi thường gặp
+---
+
+## CSV của tôi dùng dấu chấm phẩy thay vì dấu phẩy. Tool có xử lý được không?
+
+Được. Tool tự động phát hiện delimiter bằng cách scan vài dòng đầu của input. Dấu chấm phẩy, tab, pipe (`|`), và dấu phẩy đều được phát hiện tự động. Nếu phát hiện thất bại (file rất ngắn hoặc delimiter bất thường), bạn có thể chỉ định delimiter thủ công trong options panel.
+
+## Tại sao numbers xuất hiện dưới dạng strings trong JSON output?
+
+Type inference đang bị tắt trong settings hiện tại. Bật "Dynamic typing" để Papa Parse tự động convert `"42"` thành `42`, `"3.14"` thành `3.14`, và `"true"` thành `true`. Nếu bạn cần tất cả values dưới dạng strings — ví dụ để giữ số 0 đầu trong IDs như `"0042"` — hãy giữ dynamic typing tắt.
+
+## Nested JSON objects bị xử lý thế nào khi convert sang CSV?
+
+Nested objects được flatten dùng dot-notation keys. `{ "user": { "name": "Alice", "city": "Hà Nội" } }` thành hai columns: `user.name` và `user.city`. Arrays of primitives trong object được join bằng dấu chấm phẩy thành một cell value. Cấu trúc lồng sâu có thể tạo ra CSV rộng với column headers dài — đây là giới hạn cơ bản của flat CSV format.
+
+## Tại sao CSV của tôi bị sai khi mở trong Excel sau khi convert?
+
+Excel tự áp dụng auto-conversion khi mở CSV files: values trông như ngày tháng (`1-2`, `Jan-2024`), numbers với số 0 đầu (`0042`), và scientific notation triggers (`1E10`) đều bị transform. Đây là hành vi của Excel, không phải lỗi của CSV. Để tránh, import CSV qua wizard "Get Data" của Excel và set column types thủ công, hoặc lưu thẳng dưới dạng XLSX.
+
+## Có thể convert CSV không có header row không?
+
+Được. Tắt "First row is header" trong options. Tool tự tạo tên column (`col_0`, `col_1`, `col_2`, …). Bạn có thể đổi tên sau khi convert nếu cần.
+
+## Tool xử lý cells có dấu phẩy hay line breaks bên trong thế nào?
+
+Theo RFC 4180, các cells như vậy phải được bọc trong double quotes trong CSV. Parser của tool (Papa Parse) xử lý đúng — `"Hà Nội, Việt Nam"` là một cell value `Hà Nội, Việt Nam`, không phải hai cells. Line breaks trong quoted cells được giữ nguyên dưới dạng `\n` trong JSON string value. Nếu CSV không được quote đúng quanh các values này, parse sẽ báo lỗi ở các rows đó.
+
+## File lớn nhất tôi có thể convert trong browser là bao nhiêu?
+
+Papa Parse stream file theo chunks, nên memory usage gần như cố định bất kể kích thước file. Thực tế, files đến ~50 MB convert không vấn đề. Trên đó, bước JSON serialization (build toàn bộ output string) có thể spike memory. Với files rất lớn, dùng Papa Parse trong Node.js script với streaming output.
+
+## JSON-to-CSV output có extra empty columns cho một số rows. Tại sao?
+
+JSON array của bạn có objects với inconsistent keys — một số objects có fields mà những cái khác không có. Converter dùng union của tất cả keys làm header row và điền empty strings cho values thiếu. Đây là behavior đúng cho heterogeneous data. Nếu không muốn empty columns, filter JSON về schema nhất quán trước khi convert.

@@ -1,0 +1,74 @@
+---
+title: JWT giải mã — cấu trúc, claim, và bẫy alg=none
+description: JSON Web Token được xây dựng ra sao, mỗi segment chứa gì, và vì sao decode không có nghĩa là tin tưởng.
+updated: 2026-05-25
+---
+
+## JWT thực ra là gì
+
+JSON Web Token ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)) là ba đoạn Base64URL nối bằng dấu chấm:
+
+```
+<header>.<payload>.<signature>
+```
+
+Hai đoạn đầu là JSON object. Đoạn thứ ba là chữ ký nhị phân chứng minh hai đoạn đầu đến từ người giữ key ký. Ai cũng có thể bỏ JWT vào decoder — kể cả tool này — và đọc header với payload. Chỉ người có verification key mới xác nhận được chữ ký.
+
+Coi JWT đã decode là **input user không tin được** trừ khi bạn cũng đã verify chữ ký. Tool này chỉ decode — chủ ý không hỏi key, vì paste HMAC secret production lên website lạ là ác mộng bảo mật.
+
+## Header chứa gì
+
+Thường hai field:
+
+- `alg` — thuật toán ký (`HS256`, `RS256`, `ES256`, v.v.).
+- `typ` — thường là `"JWT"`.
+
+Đôi khi sẽ thấy `kid` (key ID) khi issuer rotate key, hoặc `x5t` khi liên quan X.509. Khác đi là implementation-specific.
+
+## Payload chứa gì (các claim)
+
+Payload chỉ là một object. RFC 7519 dành một số tên field chuẩn:
+
+| Claim | Ý nghĩa |
+|---|---|
+| `iss` | Issuer (ai tạo token) |
+| `sub` | Subject (user hoặc thực thể token đại diện) |
+| `aud` | Audience (token dành cho ai) |
+| `exp` | Expiration (Unix timestamp giây) |
+| `iat` | Issued-at (Unix timestamp giây) |
+| `nbf` | Not-before (token không hợp lệ trước thời điểm này) |
+| `jti` | Token ID (cho revocation list) |
+| `scope` / `scp` | OAuth scope |
+
+Ngoài ra issuer thoải mái thêm claim tùy ý: user ID, role, plan tier, gì cũng được. Tool này highlight các claim chuẩn và hiển thị trạng thái expiry ngay đầu.
+
+## Thảm họa alg=none
+
+Lịch sử, các library JWT chấp nhận token với `"alg": "none"` và coi như đã được xác thực. Kết hợp việc ai cũng tạo header được, attacker có thể forge token bỏ qua verification hoàn toàn.
+
+Library hiện đại từ chối `none` mặc định, nhưng bài học còn nguyên: **luôn verify với algorithm mong đợi rõ ràng**, đừng tin algorithm khai trong header. Nếu library có option `algorithms: ['RS256']`, set nó.
+
+## HS256 vs RS256
+
+`HS256` là đối xứng — cùng secret để ký và verify. Nhanh, đơn giản, nhưng verifier phải có secret, nghĩa là cũng có thể forge token. Dùng cho service first-party tin tưởng hoàn toàn nhau.
+
+`RS256` (và `ES256`) là bất đối xứng — private key ký, public key verify. Verifier chỉ nhận public key nên không forge được. Dùng cho token vượt biên giới tin tưởng (API thứ ba, distributed service).
+
+## Use case phổ biến
+
+- **Token xác thực** sau login (thường qua OAuth2 / OIDC).
+- **Token truy cập API** cho gọi service-to-service stateless.
+- **Magic link** cho passwordless email login.
+- **Verify email** và **reset password**.
+- **Webhook signature** (ít gặp hơn; HMAC trần thông dụng hơn).
+
+## Quyền riêng tư trên trang này
+
+Tool decode trong browser qua Base64URL + JSON.parse. Chúng tôi không lưu token, không log request, không có server endpoint để gửi tới. Mở DevTools Network và xem — zero traffic.
+
+Nếu token chứa secret production thật, ưu tiên decode local bằng CLI như `jq`. Decoder công khai (kể cả cái này) tiện nhưng không phù hợp cho credential live.
+
+## Công cụ liên quan
+
+- **Base64 Encode** — xem từng segment trông như thế nào trước/sau.
+- **Hash Generator** — tính HMAC thủ công để verify HS256.

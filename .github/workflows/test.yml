@@ -1,0 +1,235 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A superseded run on the same branch has nothing left to prove.
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+# Read-only: this workflow needs no secret and no write scope, so it runs the
+# same in the public repository and on a fork's pull request.
+permissions:
+  contents: read
+
+# One gitleaks release, checked against its published checksum, for both jobs
+# that scan (the Go suite's export test and the secrets job).
+env:
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
+jobs:
+  go:
+    name: Go (vet + race tests against a real Postgres)
+    runs-on: ubuntu-latest
+
+    services:
+      # A REAL database, not a mock and not a skip.
+      #
+      # postclaw's testutil.TestDB skipped whenever no database was reachable,
+      # so on a runner without one every DB-backed assertion silently
+      # evaporated and the build went green having proven nothing about the
+      # code that touches Postgres. This service plus CI=1 below makes that
+      # impossible: testutil.TestDB calls t.Fatal instead of t.Skip in CI.
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: anytools
+          POSTGRES_PASSWORD: anytools
+          POSTGRES_DB: anytools_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U anytools -d anytools_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      CI: "1"
+      ANYTOOLS_TEST_DSN: postgres://anytools:anytools@localhost:5432/anytools_test?sslmode=disable
+      ANYTOOLS_POSTGRES_DSN: postgres://anytools:anytools@localhost:5432/anytools_test?sslmode=disable
+      # The 50 000-chunk recall corpus is opt-in for developers (227 s, on a
+      # database several agents share) and MANDATORY here. The seeder honours
+      # either this or CI=1, so removing one of them does not quietly delete the
+      # recall claim — and the skip guard below would catch it if it did.
+      ANYTOOLS_HEAVY_TESTS: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          # One source of truth: go.mod's `toolchain` line (phase 11 pinned it
+          # to a patch release with the stdlib security fixes).
+          go-version-file: go.mod
+          cache: true
+
+      - name: Verify formatting
+        run: |
+          unformatted=$(gofmt -l cmd internal scripts)
+          if [ -n "$unformatted" ]; then
+            echo "These files are not gofmt'd:"; echo "$unformatted"; exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      # internal/api/public_export_test.go runs scripts/export-public.sh, which
+      # refuses without gitleaks; under CI=1 a missing binary fails the test
+      # instead of skipping it.
+      - name: Install gitleaks
+        run: |
+          curl -fsSLo /tmp/gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tgz" | sha256sum -c -
+          sudo tar -xzf /tmp/gitleaks.tgz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      # Phase 11: fails on any vulnerability our code actually reaches, in a
+      # module or in the standard library of the pinned toolchain.
+      - name: govulncheck
+        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
+      - name: Apply migrations
+        run: go run ./cmd/anytools migrate up
+
+      # `shell: bash` is load-bearing, not decoration. The runner's DEFAULT shell
+      # is `bash -e` WITHOUT pipefail; naming bash explicitly is what makes
+      # GitHub add `-o pipefail`. Without it a pipeline's exit status is the LAST
+      # command's — `tee` — so the entire Go suite could fail and this step would
+      # still pass, taking every other guarantee in this file down with it.
+      # -timeout is explicit because the default is 10 minutes PER PACKAGE and
+      # internal/rag/retrieve seeds 50 000 chunks across 20 knowledge bases and
+      # builds 20 HNSW indexes: ~200 s on a developer laptop, and a CI runner is
+      # slower. Hitting the default would kill the package mid-seed and report a
+      # panic rather than "this is slow", which is the worst way to learn it.
+      - name: go test -race
+        shell: bash
+        run: go test -race -v -timeout 20m ./... 2>&1 | tee test-output.txt
+
+      # A run whose DB tests all skipped is the exact failure this job exists to
+      # prevent, and a skip does not fail a build on its own.
+      #
+      # `-v` above is also load-bearing: non-verbose `go test` never prints the
+      # word SKIP — a package with every test skipped still reports `ok`. Without
+      # it this guard matches nothing and silently approves the situation it was
+      # written to catch.
+      - name: Assert DB-backed tests actually ran
+        shell: bash
+        run: |
+          # TestLive* is the ONE allowed exception, and a narrow one: those
+          # tests spend the owner's real provider quota and are gated behind
+          # ANYTOOLS_LIVE_TESTS=1, which CI never sets. Everything else that
+          # skips here is a DB-backed test that silently proved nothing.
+          if grep -- "--- SKIP" test-output.txt | grep -qv -- "--- SKIP: TestLive"; then
+            echo "A test was skipped in CI. DB-backed tests must run for real."
+            grep -- "--- SKIP" test-output.txt | grep -v -- "--- SKIP: TestLive"
+            exit 1
+          fi
+          echo "No unexpected skips."
+
+          # Prove the DB-backed suite actually executed, rather than trusting
+          # the absence of a marker: these names only pass with a live Postgres.
+          # One name per subsystem that CANNOT pass without a live Postgres.
+          for name in \
+            TestUpsertIdentityCreatesNewUser \
+            TestUpsertIdentityRefusesTakeoverWhenSignedOut \
+            TestConnectionSecretIsEncryptedAtRest \
+            TestCooldownSurvivesAProcessRestart \
+            TestFiveConcurrentCallersCauseExactlyOneRefresh \
+            TestSettingsFlowGeminiKeyToGreenReadiness \
+            TestUserIsolationAcrossEveryStoreMethod \
+            TestRecallForASmallKBInsideALargeTable \
+            TestKillWorkerMidParseNeverLeavesADocumentParsing \
+            TestUploadToCitationEndToEnd \
+            TestEveryRouteWithAnIDRefusesAnotherUser \
+            TestEveryBodyIDRefusesAnotherUser \
+            TestQueryStringIDsNeverReturnAnotherUsersRows \
+            TestDeleteRemovesEverythingTheUserOwnsAndNothingElse \
+            TestPublicExportIsOneCleanCommit \
+            TestNoticesAreCurrent; do
+            if ! grep -q -- "--- PASS: ${name}" test-output.txt; then
+              echo "Expected DB-backed test ${name} did not run and pass."
+              exit 1
+            fi
+          done
+          echo "DB-backed tests confirmed to have executed."
+
+  web:
+    name: Web (typecheck + build + vitest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ui/web/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      # The production server build, loaded by plain Node as in the image,
+      # answers every public URL of the old site without a 5xx (Vitest's Vite
+      # forgives imports Node does not).
+      - name: SSR smoke
+        run: node scripts/ssr-smoke.mjs
+
+      - name: Unit tests
+        run: pnpm test
+
+      # Phase 11: a known vulnerability in a production dependency fails the
+      # build. Dev-only tooling is reported by Dependabot, not gated here.
+      - name: Dependency audit
+        run: pnpm audit --prod --audit-level=low
+
+  secrets:
+    name: Secrets (gitleaks over what the public repository holds)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The history scan below needs every commit.
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          curl -fsSLo /tmp/gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tgz" | sha256sum -c -
+          sudo tar -xzf /tmp/gitleaks.tgz -C /usr/local/bin gitleaks
+
+      # The tree exactly as the public repository would receive it: the export
+      # script leaves out the private paths, then refuses on any gitleaks hit
+      # or any macOS home path.
+      - name: Scan the exported tree
+        run: scripts/export-public.sh "$RUNNER_TEMP/public"
+
+      # In the public repository every commit is public, so its whole history
+      # is scanned too. The private repository's history holds plans/, which
+      # is never published; the tree scan above covers what is.
+      - name: Scan the history
+        run: |
+          if [ -d plans ]; then
+            echo "Private repository: plans/ is never published; the exported tree was scanned above."
+          else
+            gitleaks git . --no-banner --redact --config .gitleaks.toml
+          fi

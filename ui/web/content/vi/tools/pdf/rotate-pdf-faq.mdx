@@ -1,0 +1,27 @@
+---
+title: Xoay PDF — Câu hỏi thường gặp
+---
+
+## Vì sao bản scan của tôi bị nằm ngang ngay từ đầu?
+
+Một trang PDF mang theo một giá trị xoay — 0, 90, 180 hoặc 270 độ — tách rời khỏi nội dung vẽ trên trang. Máy scan và các app scan trên điện thoại tự đặt giá trị này dựa vào chiều tờ giấy đi qua khay nạp hoặc cách bạn cầm máy, và chúng đặt sai khá thường xuyên, nhất là với tài liệu nạp theo chiều ngang. Rắc rối hơn nữa: có phần mềm tôn trọng giá trị đó, có phần mềm lờ đi, nên cùng một file mà mở bằng Preview thì đứng còn mở bằng trình duyệt lại nằm ngang. Xoay ở đây là đặt lại đúng giá trị ấy, để mọi phần mềm đọc đều nhất trí với nhau.
+
+## Xoay có làm giảm chất lượng hay vẽ lại trang không?
+
+Không. Chỉ duy nhất thuộc tính xoay thay đổi. Chữ vẫn chọn và tìm kiếm được, ảnh giữ nguyên độ phân giải và cách nén gốc, nội dung trang không bị đụng tới — không có gì bị rasterise hay mã hoá lại. File sau khi xoay có dung lượng gần như y hệt bản gốc, chênh nhau vài byte. Hệ quả dễ chịu: thao tác này hoàn toàn đảo ngược được. Xoay 90 độ rồi xoay tiếp 270 độ thì trang trở về đúng vị trí ban đầu, không mất mát gì. Đây cũng là lý do xoay là thao tác an toàn nhất trong cả nhóm công cụ PDF ở đây.
+
+## Tài liệu tôi có trang đã xoay sẵn, trang chưa — có bị loạn không?
+
+Không, vì góc xoay được cộng thêm vào giá trị mà mỗi trang đang mang, chứ không phải gán đè lên. Trang đang ở 270 độ mà xoay thêm 90 sẽ thành 0; trang đang ở 0 xoay thêm 90 thành 90. Chi tiết này quan trọng với tài liệu hỗn hợp, vốn rất phổ biến trong các bản scan: một công cụ gán đè thay vì cộng dồn sẽ âm thầm huỷ đúng những chỉnh sửa mà máy scan đã làm sẵn, trong khi vẫn trông như đang chạy đúng. Giá trị kết quả còn được chuẩn hoá về đúng 0, 90, 180 hoặc 270, vì số âm hay lớn hơn 360 tuy hợp lệ theo đặc tả nhưng các phần mềm đọc không thống nhất cách hiểu. Nếu chỉ vài trang bị sai, hãy chọn "chỉ những trang này" và gõ `1-3, 7, 9-12`.
+
+## Muốn xoay ngược chiều kim đồng hồ thì làm sao?
+
+Chọn 270 độ. Ba lần quay một phần tư theo chiều kim đồng hồ chính là một lần quay một phần tư ngược chiều kim đồng hồ — định dạng PDF chỉ lưu góc xoay theo bội số của 90, nên không tồn tại một phép "xoay ngược" riêng để đưa ra thành nút bấm. Xoay 180 độ thì lật ngược trang, kết quả như nhau bất kể bạn nghĩ theo chiều nào. Ba lựa chọn 90, 180, 270 là toàn bộ những gì định dạng cho phép, không phải là tool cắt bớt tính năng.
+
+## Tôi hay gõ "xoay file pdf online" — file có bị tải lên máy chủ không?
+
+Không. File được JavaScript đọc ngay trong tab này bằng `pdf-lib`, góc xoay được áp trong bộ nhớ, và link tải về trỏ tới một blob URL do chính trình duyệt bạn tạo. Không request nào mang tài liệu đi, nên không có bản sao trên server để phải lưu hay phải xoá. Bạn kiểm chứng bằng tab Network trong DevTools, hoặc ngắt mạng sau khi trang đã tải xong rồi xoay — tool vẫn chạy. Đây chính là chỗ khác biệt so với các dịch vụ xoay PDF phải upload: với chúng, một thao tác chỉ đổi một con số trong file lại kéo theo việc gửi trọn cả tài liệu cho một bên thứ ba, chỉ để nhận về đúng cái file đó với một byte khác đi.
+
+## Bookmark, biểu mẫu và chữ ký số có sao không?
+
+Bookmark và trường biểu mẫu vẫn sống, vì xoay không tái cấu trúc tài liệu. Ngoại lệ là chữ ký số. Chữ ký bảo chứng cho một bố cục byte cụ thể, mà lưu lại file với giá trị xoay mới sẽ tạo ra một bố cục khác, nên chữ ký cũ không còn xác thực được. Mọi công cụ xoay đều gây ra hệ quả này — đó là đặc tính của định dạng chứ không phải hạn chế riêng ở đây. Nếu chữ ký buộc phải còn hiệu lực, hãy giữ bản gốc đã ký và chỉ xoay một bản sao. PDF đặt mật khẩu thì bị từ chối chứ không bị mở khoá: hãy gỡ mật khẩu ở phần mềm tạo file trước.

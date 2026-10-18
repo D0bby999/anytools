@@ -1,0 +1,76 @@
+---
+title: Hướng dẫn đầy đủ về mã hóa / giải mã Base64
+description: Base64 hoạt động ra sao, khi nào cần dùng, lý do `btoa()` của trình duyệt vỡ với tiếng Việt và emoji, và Base64URL khác gì.
+updated: 2026-05-25
+---
+
+## Base64 thực ra là gì
+
+Base64 là một **encoding** — cách biểu diễn dữ liệu nhị phân bất kỳ bằng đúng 64 ký tự ASCII in được: `A–Z`, `a–z`, `0–9`, `+`, `/`. Chuẩn này được mô tả trong [RFC 4648](https://datatracker.ietf.org/doc/html/rfc4648) và ra đời từ thập niên 1980 để file đính kèm nhị phân có thể đi qua email mà không bị hỏng.
+
+Base64 **không phải mã hóa bảo mật**. Ai có chuỗi đã mã hóa đều giải mã lại được mà không cần key. Khi cần bảo mật, dùng AES hoặc tầng TLS — Base64 chỉ giải bài toán "làm sao đẩy bytes qua kênh chỉ chấp nhận text".
+
+Phép biến đổi rất cơ học: mỗi 3 byte đầu vào thành 4 ký tự đầu ra. Nếu đầu vào không chia hết cho 3, đầu ra được đệm `=` để tổng độ dài luôn chia hết cho 4. Đó là lý do bạn thấy `=` cuối một số chuỗi đã mã hóa (không có, một, hoặc hai dấu).
+
+## Khi nào bạn cần Base64
+
+- **Data URI**: nhúng ảnh nhỏ trực tiếp vào CSS/HTML: `url("data:image/png;base64,iVBOR…")`.
+- **JWT**: mỗi phần của JSON Web Token là JSON được mã hóa Base64URL.
+- **HTTP Basic auth**: header `Authorization: Basic …` chính là `user:pass` đã Base64.
+- **Đính kèm email (MIME)**: file nhị phân được wrap Base64 để qua mail server an toàn.
+- **Payload API**: gửi blob nhị phân qua JSON (vốn không có kiểu binary).
+- **Lưu nhị phân trong database hoặc biến môi trường** vốn chỉ chấp nhận text.
+
+Không dùng Base64 để "thu gọn" dữ liệu — nó **làm to thêm ~33%**. Đây là encoding cho transport, không phải nén.
+
+## Lỗ hổng UTF-8
+
+Hàm `btoa()` có sẵn của trình duyệt nhìn có vẻ làm đúng việc — và lặng lẽ tạo rác ngay khi bạn nhập ký tự không phải ASCII:
+
+```javascript
+btoa('Hello')      // "SGVsbG8="              ✓
+btoa('Tiếng Việt') // InvalidCharacterError   ✗
+btoa('🌏')         // InvalidCharacterError   ✗
+```
+
+Lý do: `btoa` thao tác trên Latin-1 (byte 0–255), không phải UTF-8. Ký tự `ế` không nằm trong một byte nên hàm từ chối. Tương tự cho emoji, chữ Trung, chữ Ả Rập, mọi thứ ngoài Latin cơ bản.
+
+Cách fix: encode chuỗi sang chuỗi byte UTF-8 trước, rồi mới Base64 các byte đó. Công cụ này làm đúng việc đó mặc định — mọi input được xem là UTF-8, nên emoji và unicode round-trip sạch sẽ.
+
+## Base64 vs Base64URL
+
+Base64 chuẩn dùng `+` và `/`, đều có ý nghĩa đặc biệt trong URL và tên file. Base64URL (RFC 4648 §5) thay bằng `-` và `_`, và bỏ luôn padding `=`. Nhờ vậy chuỗi an toàn để gắn vào query parameter, đoạn JWT, hoặc tên file.
+
+Khi bạn bật **URL-safe** ở trên, công cụ phát ra `-` và `_` thay vì `+` và `/`, không có padding. Khi decode, công cụ chấp nhận cả hai bộ — tự nhận diện.
+
+## Ví dụ
+
+**Mã hóa văn bản thường:**
+
+Input: `Hello, World!`
+Output: `SGVsbG8sIFdvcmxkIQ==`
+
+**Mã hóa tiếng Việt có dấu:**
+
+Input: `Tiếng Việt có dấu`
+Output: `VGnhur9uZyBWaeG7h3QgY8OzIGThuqV1`
+
+**Giải mã 1 đoạn payload JWT (Base64URL):**
+
+Input: `eyJzdWIiOiIxMjM0NTY3ODkwIn0`
+Output: `{"sub":"1234567890"}`
+
+## Lưu ý bảo mật
+
+- **Đừng lưu mật khẩu dưới dạng Base64.** Hoàn toàn có thể đảo ngược. Dùng hàm hash mật khẩu (bcrypt, argon2, scrypt) thay thế.
+- **Đừng tin JSON đã giải mã từ Base64 mà không validate lại.** Chữ ký của JWT mới là thứ chứng minh tính toàn vẹn; lớp Base64 không chứng minh được gì.
+- **Cẩn thận kích thước input khi decode.** Vài KB ổn, nhưng vài trăm MB cùng lúc có thể làm sập tab. Công cụ này xử lý đồng bộ; với file rất lớn nên dùng cách streaming.
+
+## Quyền riêng tư
+
+Trang này chạy toàn bộ logic mã hóa/giải mã trong trình duyệt của bạn bằng thư viện mã nguồn mở [`js-base64`](https://github.com/dankogai/js-base64). Dữ liệu không được gửi lên server, không được log, không rời khỏi máy bạn. Mở tab Network của trình duyệt và thử đi — sẽ thấy zero request.
+
+## Công cụ liên quan
+
+- **JWT Decoder** — phân tích JSON Web Token (gồm ba đoạn Base64URL).
+- **URL Encoder** — percent-encoding cho URL, một loại encoding khác (thường dùng bổ sung).

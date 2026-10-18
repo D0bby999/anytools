@@ -1,0 +1,35 @@
+---
+title: Timezone Converter — Frequently asked questions
+---
+
+## What is the IANA timezone database and why does it matter?
+
+The IANA Time Zone Database (also called the Olson database) is the authoritative source for timezone rules worldwide. It encodes not just current UTC offsets but the full history of every timezone — every DST rule change, every political decision to shift a country's clocks. Without it, converting a timestamp from 1985 in `America/Indiana/Indianapolis` (which has changed DST rules multiple times) would be guesswork. All major operating systems, browsers, and date libraries ship with a copy of this database.
+
+## Why should I use `America/New_York` instead of `EST`?
+
+`EST` is ambiguous — it can refer to Eastern Standard Time (UTC−5, North America) or Eastern Standard Time (UTC+10, Australia). More importantly, `EST` is only valid in winter; New York uses `EDT` (UTC−4) in summer. The IANA identifier `America/New_York` encodes both offsets and the precise transition rules, so the system automatically applies the correct offset for any moment in time without you tracking which abbreviation applies.
+
+## What is the difference between UTC and GMT?
+
+UTC (Coordinated Universal Time) is a time standard maintained with atomic clocks and does not observe daylight saving time. GMT (Greenwich Mean Time) is a timezone at the Royal Observatory in Greenwich that technically observes British Summer Time in summer. In common usage they are treated as synonymous, but technically UTC is the correct baseline for timestamps. Use `UTC` in code; `GMT` is acceptable in display strings where the user expects it.
+
+## What happens to a 2:30 AM appointment during the US spring-forward transition?
+
+That local time does not exist — at 2:00 AM, US clocks jump to 3:00 AM, so 2:30 AM never occurs. If a system stored that as a local timestamp without a UTC equivalent, the time is invalid. Most calendar applications and scheduling systems store the UTC equivalent at the time the appointment was created, so DST transitions do not corrupt existing entries — but newly created entries during the ambiguous window may behave unexpectedly.
+
+## Why does adding 24 hours to a date sometimes give the wrong day?
+
+On DST transition days, a calendar day is either 23 or 25 hours long. Adding `24 * 60 * 60 * 1000` milliseconds to a local timestamp crosses a different number of calendar days than you expect. The correct approach is to add one calendar day using a date library's `addDays` function (which handles DST), or to do the arithmetic in UTC and convert back to local time for display.
+
+## What does `Z` at the end of a timestamp mean?
+
+`Z` stands for "Zulu time" — the military designation for UTC. In ISO 8601 format, `2026-05-26T14:30:00Z` means 2:30 PM UTC. It is functionally equivalent to `2026-05-26T14:30:00+00:00`, though `Z` is the preferred form for UTC timestamps as it is unambiguous and shorter. Always include `Z` or an explicit offset when serializing timestamps; a bare `2026-05-26T14:30:00` with no zone indicator is a naive datetime and a source of bugs.
+
+## How do I convert a Unix timestamp to a timezone-aware datetime?
+
+A Unix timestamp is always seconds (or milliseconds) since the Unix epoch — 1970-01-01T00:00:00Z — in UTC. To display it in a local timezone, construct a `Date` object from it and format with `Intl.DateTimeFormat` specifying the `timeZone` option, or use `date-fns-tz`'s `format` function. Example: `format(new Date(epochMs), 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Asia/Tokyo' })`. The epoch value itself is timezone-agnostic.
+
+## Does this tool handle historical timezone changes correctly?
+
+Yes, within the limits of the IANA database version bundled with your browser's JavaScript runtime. The database covers historical transitions back to the late 19th century for most regions. For very old dates (pre-1970) the data can be sparse or contested, but for any practically relevant modern timestamp (post-1970) the conversions are authoritative. If your browser's IANA data is outdated (rare, typically only an issue on old operating systems), recently changed timezone rules may not reflect correctly.

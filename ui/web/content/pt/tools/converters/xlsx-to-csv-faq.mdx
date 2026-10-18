@@ -1,0 +1,49 @@
+---
+title: Conversor de XLSX para CSV / JSON — Perguntas frequentes
+---
+
+## Por que não abrirá meu arquivo .xls, .ods ou Numbers?
+
+Porque não são o mesmo formato, e esta ferramenta lê exatamente um deles. `.xlsx` é um contêiner zip cheio de XML — o formato que Excel escreve por padrão desde 2007. O `.xls` mais antigo é um formato de documento composto binário sem nada em comum com ele além do nome. `.ods` é OpenDocument, outro zip cheio de XML mas com XML completamente diferente dentro. Os arquivos Apple Numbers são um pacote de snapshots codificados em protobuf próprio da Apple e não são especificados publicamente.
+
+A biblioteca aqui, ExcelJS, lê `.xlsx` e nada mais. Há uma biblioteca JavaScript bem conhecida que lê todos eles, e foi considerada e rejeitada: seu build de comunidade atual é distribuído como tarball do próprio CDN do vendedor em vez de npm, o que significa que o lockfile que o fixa não carrega hash de integridade, e cada instalação em CI teria que aceitar quaisquer bytes que esse host devolvesse naquele dia. Essa não é uma troca que vale a pena fazer para um conversor.
+
+A solução leva dez segundos: abra o arquivo no Excel, LibreOffice Calc, Google Sheets ou Numbers, e use *Save As* ou *Export* para produzir um `.xlsx`. Cada um desses aplicativos pode escrevê-lo. Então coloque o resultado aqui.
+
+## Por que minha coluna de data sai como um número em outros conversores?
+
+Porque uma data em uma planilha não é uma data — é um número com uma fantasia. Excel armazena 3 de setembro de 2026 como `46264`, a contagem de dias desde 30 de dezembro de 1899, e a aparência de calendário vem de um formato de exibição anexado à célula, não do valor. Um conversor que lê o valor bruto e o escreve sai com `46264`, que é tecnicamente o que estava no arquivo e inútil para todos.
+
+Esta ferramenta pede a ExcelJS pelo valor analisado, que volta como uma `Date` JavaScript, e o escreve como `2026-09-03`. Se a célula também carrega uma hora, você obtém `2026-09-03T14:30:05`. Ambos são ISO 8601, que classificam corretamente como texto e são inequívocos sobre ordem de dia e mês — diferente de `03/09/2026`, que significa dois dias diferentes dependendo de qual lado do Atlântico você leia.
+
+Uma ressalva que vale a pena declarar claramente: a conversão é feita em UTC. O valor armazenado do Excel não tem zona de tempo em tudo, portanto qualquer escolha é arbitrária, e lê-la em sua zona local moveria datas para trás por um dia para qualquer pessoa a oeste de Greenwich. UTC mantém a data do calendário que foi digitada.
+
+## O que acontece com fórmulas, células mescladas e formatação?
+
+As fórmulas são substituídas pelo seu **resultado em cache** — o valor que Excel calculou e armazenou pela última vez no arquivo. É o que você vê na tela, portanto é o que um CSV deveria conter. Nada aqui avalia fórmulas: se uma pasta de trabalho foi salva por uma ferramenta que não escreveu valores em cache, essas células chegam vazias em vez de erradas. Erros de fórmula são passados como texto, portanto um `#DIV/0!` permanece um `#DIV/0!` em vez de se tornar silenciosamente um branco.
+
+Células mescladas perdem sua mesclagem. Um bloco mesclado mantém seu valor apenas na célula superior esquerda, e as células abaixo dele estão genuinamente vazias no arquivo — portanto um título mesclado em quatro colunas produz um valor e três brancos. CSV não tem conceito de uma célula mesclada, portanto não há nada melhor a fazer; se a forma do resultado o surpreender, é por isso.
+
+Tudo visual é descartado, porque CSV não consegue carregar: fontes, cores, bordas, formatos de número, formatação condicional, larguras de coluna, painéis congelados, filtros, gráficos, tabelas dinâmicas, imagens e comentários. Texto rico dentro de uma célula mantém seus caracteres e perde seu estilo — as execuções em negrito e não-negrito são unidas em uma string. Os hiperlinks mantêm o texto que você vê, não a URL de destino.
+
+## Meus arquivos são carregados em algum lugar?
+
+Não. A pasta de trabalho é lida nesta aba do navegador. O arquivo vai do seletor para a página através da API de Arquivo, ExcelJS a analisa na própria memória da página, e o link de download aponta para um blob que seu navegador mantém. Nada é enviado a um servidor, que você pode confirmar abrindo a aba de Rede de suas ferramentas de desenvolvedor, ou desconectando-se da rede após a página ter carregado e convertendo mesmo assim.
+
+Esse também é o limite da ferramenta. Tudo deve caber na aba, e a análise é executada no thread principal, portanto uma grande pasta de trabalho congela a página enquanto funciona. Acima de 20 MB você verá um aviso para esse efeito. É um aviso e não uma recusa — um arquivo de 30 MB geralmente ainda terminará, apenas levará notavelmente mais tempo. Passado 50 MB o arquivo é recusado pura e simplesmente, antes de ser aberto: um `.xlsx` é XML comprimido que se expande várias vezes uma vez analisado, e iniciar um arquivo desse tamanho apenas compra uma página congelada e depois um crash.
+
+## Por que diz que minha planilha é muito ampla?
+
+Existe um teto de dois milhões de células em uma pasta de trabalho, contados como a largura usada vezes a altura usada de cada planilha. Passado ele a conversão para e diz assim em vez de congelar a aba.
+
+A maioria dos arquivos que acertam não são realmente grandes. Uma planilha tem 16.384 colunas e um milhão de linhas disponíveis, e uma folha se lembra da mais distante qualquer coisa sempre tocou — um valor colado no extremo direito e deletado, uma cor de fundo aplicada a uma linha inteira, um formato vago. A partir de então o arquivo reclama ser tão amplo, e um conversor que confia na reivindicação tenta construir cada célula no meio. É por isso que um arquivo de 62 KB pode pedir dezenas de milhões de strings vazias.
+
+Esta ferramenta mede a largura a partir das células que realmente contêm um valor, portanto a versão habitual daquele problema não custa nada: um resíduo de formatação no extremo direito é ignorado, e linhas e colunas vazias à direita são aparadas do resultado. Células vazias *dentro* dos dados são mantidas, porque são posições — soltar uma moveria cada valor depois dela uma coluna para a esquerda. O teto só dispara quando a célula mais à direita é dados reais e a folha genuinamente é tão grande. Se você acertar, selecione as colunas e linhas além de seus dados no Excel, delete-as, salve e tente novamente.
+
+## Devo usar a saída CSV ou a saída JSON?
+
+Use CSV quando o destino é outra planilha, uma importação de banco de dados ou qualquer ferramenta que espere texto tabular. Defina o delimitador para corresponder ao que o destino espera: vírgula é padrão, ponto-e-vírgula é o que Excel espera em locales que usam uma vírgula como separador decimal, e tab evita a pergunta inteiramente. Marque a opção BOM se o arquivo vai de volta para Excel e contém caracteres acentuados ou script não-Latino — sem ele, Excel no Windows adivinha a codificação e geralmente erra.
+
+Use JSON quando o destino é código. A primeira linha se torna as chaves de objeto por padrão; um cabeçalho em branco se torna `column_3` por posição, e um cabeçalho repetido se torna `name_2` para que nenhuma coluna seja silenciosamente engolida por uma chave duplicada.
+
+A única coisa a saber sobre a saída JSON é que cada valor é uma string, incluindo números. Uma célula de planilha não carrega tipo JSON, e adivinhar corromperia dados reais — um número de peça como `007` se torna `7`, um número de telefone se torna float. Se você quer valores digitados, pegue o CSV no [conversor CSV ↔ JSON](/en/converters/csv-json), que infere tipos enquanto analisa, ou em [JSON Formatter](/en/formatters/json-formatter) para verificar o resultado. Para transformar um documento do Word em texto da mesma forma, veja [DOCX para Markdown](/en/converters/docx-to-markdown).

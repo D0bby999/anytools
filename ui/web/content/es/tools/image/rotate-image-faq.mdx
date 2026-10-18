@@ -1,0 +1,27 @@
+---
+title: Rotar imagen — Preguntas frecuentes
+---
+
+## ¿Corrige las fotos que salen giradas desde mi teléfono?
+
+Sí, y es exactamente el caso para el que está pensada la herramienta. La cámara de un teléfono casi siempre guarda el fotograma en bruto del sensor en orientación horizontal, junto con un indicador EXIF que registra cómo se sostenía el teléfono al disparar. Una herramienta que ignore ese indicador decodifica el fotograma en bruto y entrega una foto girada aunque cualquier visor de fotos del teléfono la muestre derecha. Esta herramienta decodifica con `createImageBitmap` usando la opción `imageOrientation: 'from-image'`, es decir, aplica el indicador EXIF ya en el momento de leer el archivo, así que el punto de partida coincide con lo que viste en el teléfono, y cualquier rotación adicional que apliques se suma a esa corrección en vez de sustituirla. Hay un matiz técnico real aquí: algunas versiones de navegador rechazan directamente ese valor de `imageOrientation` en vez de ignorar una opción que no implementan; para ese caso el código reintenta sin esa opción, aceptando una foto posiblemente girada antes que rechazar un JPEG perfectamente válido con un mensaje de error.
+
+## ¿Qué diferencia hay entre rotar y voltear, y en qué orden se aplican?
+
+Rotar gira toda la imagen alrededor de su centro, como girar una foto impresa en las manos — 90° a izquierda o derecha intercambia ancho y alto. Voltear refleja la imagen respecto a un eje sin cambiar sus dimensiones: voltear horizontal intercambia izquierda y derecha (útil para una foto que sale al revés, como una tomada a través de un espejo), voltear vertical intercambia arriba y abajo. En el código el orden es voltear primero y rotar después — concretamente `ctx.scale`, que produce el volteo, se llama antes que `ctx.rotate`, y solo entonces se dibuja el fotograma con `drawImage` — es decir, la imagen se refleja en su orientación original y después ese fotograma ya reflejado es el que gira. Se pueden combinar ambos a la vez, y la vista previa se actualiza al instante para confirmar el resultado antes de descargar.
+
+## ¿Por qué mi JPEG sale con fondo blanco pero mi PNG sigue transparente?
+
+JPEG no tiene canal alfa: solo sabe representar colores, no "aquí no hay color". Un canvas que se deja sin rellenar codifica por defecto cualquier zona transparente como negro en la mayoría de navegadores, un error muy común en herramientas de imagen caseras. Antes de dibujar, si el formato de salida es JPEG la herramienta rellena todo el canvas de blanco (`ctx.fillStyle = '#ffffff'` seguido de `fillRect`), exactamente como hace cualquier editor de imágenes al exportar a JPEG. PNG y WebP sí admiten transparencia, así que rotar un PNG con fondo transparente conserva esa transparencia intacta, sin ningún relleno añadido.
+
+## ¿Rechaza las fotos muy grandes?
+
+No — no las rechaza, las reduce antes de procesarlas. Los navegadores limitan cuántos píxeles puede contener un canvas, y Safari es el más estricto de los navegadores principales, con un tope de unos 16.777.216 píxeles (~16,7 megapíxeles, equivalente a un cuadrado de 4096px de lado); superarlo no lanza un error, produce en silencio un canvas en blanco. En vez de rechazar una foto de 24, 48 o 60 megapíxeles — algo habitual con la configuración por defecto de las cámaras de móviles actuales — la herramienta la decodifica de nuevo a un ancho reducido que quede justo por debajo de ese límite, y te avisa de que eso ocurrió, mostrando las dimensiones originales junto al resultado ya rotado. La foto sigue rotando correctamente; solo que el archivo final tiene un tamaño en píxeles algo menor que el original que subiste.
+
+## ¿Puedo rotar un lote de fotos a la vez con un único ajuste?
+
+Sí. Suelta tantas imágenes como quieras, elige la rotación y el volteo deseados, y cada archivo del lote recibe exactamente la misma transformación en una sola pasada — si un archivo falla, se salta y queda registrado aparte sin arruinar el resto del lote. Los resultados aparecen uno por uno, cada uno con su propia miniatura antes/después, dimensiones y peso, y si hay más de uno puedes descargarlos todos juntos en un único .zip en vez de guardarlos a mano de uno en uno. Los nombres repetidos dentro de un mismo lote se renombran automáticamente con "(2)", "(3)"… para evitar que se sobrescriban al descomprimir en sistemas donde el nombre de carpeta no distingue mayúsculas de minúsculas.
+
+## ¿Se sube alguna de mis fotos a un servidor?
+
+No. Decodificar, rotar y volver a codificar ocurre todo en un canvas dentro de esta misma pestaña, usando la Canvas API que trae cualquier navegador moderno — ningún píxel ni archivo sale de tu dispositivo. Puedes comprobarlo tú mismo abriendo las herramientas de desarrollador, mirando la pestaña Red mientras rotas una foto y viendo que no aparece ninguna petición de subida; o de forma aún más concluyente, desconectándote de internet después de cargar la página y rotando una foto igualmente — la herramienta sigue funcionando porque no hay nada que enviar a ningún sitio.

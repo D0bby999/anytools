@@ -1,0 +1,66 @@
+---
+title: Complete guide to Timezone Converter
+description: How the IANA timezone database works, why UTC beats "EST", DST transition edge cases, and the most common developer mistakes with time.
+updated: 2026-05-26
+---
+
+## The IANA timezone database
+
+Every timezone name you see in this tool — `America/New_York`, `Europe/Paris`, `Asia/Ho_Chi_Minh` — comes from the **IANA Time Zone Database**, also called the **Olson database** after its original maintainer Arthur David Olson. It is published at [https://www.iana.org/time-zones](https://www.iana.org/time-zones) and updated several times a year as governments change their timezone rules.
+
+The database does far more than list UTC offsets. It encodes the complete history of every timezone's rules: when DST transitions occurred, how offsets changed due to political decisions, and when countries adopted or abandoned daylight saving time entirely. This is why `America/New_York` knows that the US switched its DST start from the last Sunday in April to the second Sunday in March in 2007, and why it can correctly convert a timestamp from 1985.
+
+This tool uses [`date-fns-tz`](https://github.com/marnusw/date-fns-tz) and the browser's built-in `Intl.DateTimeFormat` API, both of which derive their timezone data from the IANA database bundled with the operating system or the JavaScript runtime.
+
+## Why "America/New_York" and not "EST"
+
+The abbreviation `EST` stands for "Eastern Standard Time" — UTC−5. But it is ambiguous: `EST` is also used for Australian Eastern Standard Time (UTC+10). More critically, `EST` does not say anything about daylight saving time. When New York is on EDT (Eastern Daylight Time, UTC−4) in summer, using `EST` gives you the wrong offset.
+
+The IANA identifier `America/New_York` has no such ambiguity. It refers to a geographic region whose offset rules are fully specified in the Olson database. The system knows automatically whether the moment in question falls under EST or EDT. Always use IANA identifiers in application code; use abbreviations only for display.
+
+The same principle applies to `GMT` vs `UTC`. GMT is a timezone (the one at the Royal Observatory in Greenwich) and technically observes British Summer Time in summer. UTC is a time standard, not a timezone — it never changes, has no DST, and is the correct baseline for storing timestamps.
+
+## Daylight saving time transitions
+
+DST creates two notoriously tricky moments every year:
+
+**Spring forward.** At 2:00 AM local time, clocks advance to 3:00 AM. The hour from 2:00 to 3:00 does not exist. A meeting scheduled for 2:30 AM on that date is ambiguous — no such wall-clock moment exists. Most systems skip the missing hour silently.
+
+**Fall back.** At 2:00 AM local time, clocks revert to 1:00 AM. The hour from 1:00 to 2:00 occurs twice. A timestamp of "1:30 AM" on that date is ambiguous — it could be either the first or second occurrence. The `date-fns-tz` library resolves this by using the pre-transition offset for the first occurrence; the `Intl` API behaves similarly.
+
+When converting times that fall in or near a DST transition, this tool indicates whether the target time is ambiguous and shows both possible UTC equivalents where applicable.
+
+## UTC vs local time: the most important developer rule
+
+**Always store timestamps as UTC.** This is the single most impactful rule in time handling. Local time stored in a database is meaningless without its timezone, and timezone rules change — a timestamp stored as "09:00 EST" becomes wrong if the US changes its DST rules again or if the server moves to a different region.
+
+In practice:
+- Store `TIMESTAMPTZ` (or equivalent) in PostgreSQL, which converts to UTC on insert.
+- In JavaScript, `Date` objects internally store UTC milliseconds — use `toISOString()` for serialization (`2026-05-26T14:30:00.000Z`).
+- In Python, use `datetime.now(timezone.utc)` not `datetime.now()` — the naive (no-tzinfo) form is a trap.
+- Display in local time only at the UI layer, never in business logic or storage.
+
+## Common developer mistakes
+
+**Storing local time without timezone context.** A `datetime` column containing `2026-03-08 02:30:00` in a US-based app is corrupt data — that local time doesn't exist (it was skipped by DST). Store UTC; convert at display time.
+
+**Conflating "+00:00" with "Z".** Both mean UTC, but `Z` (Zulu time) is strictly an ISO 8601 designation for UTC. `+00:00` means an offset of zero hours, which is the same numeric value but different semantics — it does not guarantee the timezone rules of UTC. In practice most systems treat them identically, but be explicit: prefer `Z` for UTC timestamps.
+
+**Using fixed-offset timezones in code.** `new Date().toLocaleString('en-US', {timeZone: 'UTC+5'})` will silently fail or behave incorrectly in many environments. Always use an IANA name (`Asia/Karachi` for PKT, `Asia/Kolkata` for IST, etc.).
+
+**Assuming DST transitions happen at midnight.** In the US, the switch happens at 2:00 AM. In the EU, at 1:00 AM UTC (which is 2:00 or 3:00 AM local, depending on timezone). Brazil historically switched at midnight. Never hardcode the transition time.
+
+**Arithmetic on local timestamps.** Adding 24 hours to a local timestamp across a DST boundary gives the wrong result — a day that's 23 or 25 real hours long. Do arithmetic in UTC, then convert to local time for display.
+
+## Using this tool for scheduling across timezones
+
+A common use case: scheduling a meeting or a deployment window that works for teams in multiple timezones. Enter the proposed time and your local timezone, add the timezones of your teammates, and the tool shows the corresponding local times for each. Combined with the Cron Parser tool (which shows next run times in UTC), you can verify that a scheduled job fires at an acceptable local time in every region where it matters.
+
+## Privacy
+
+All conversions run in your browser using `date-fns-tz` and the `Intl.DateTimeFormat` API. No timestamps or timezone queries are sent to a server.
+
+## Related tools
+
+- **Cron Parser** — translate cron expressions into next-run timestamps and understand their UTC timing.
+- **Timestamp Converter** — convert Unix epoch integers to and from human-readable dates in any timezone.

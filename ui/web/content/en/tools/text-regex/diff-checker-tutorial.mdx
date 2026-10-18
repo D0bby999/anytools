@@ -1,0 +1,60 @@
+---
+title: Complete guide to Diff Checker — comparing text the right way
+description: How line-by-line and word-level diffs work, the LCS algorithm, unified vs side-by-side formats, and when to reach for a diff tool.
+updated: 2026-05-26
+---
+
+## What a diff actually is
+
+A diff is a minimal description of how to transform one text into another. Rather than showing you two whole documents, a diff highlights only what changed — additions, deletions, and context lines around them. This is the same concept behind `git diff`, `patch(1)`, and every code-review tool you've used.
+
+The underlying algorithm in most modern diff tools, including the [`diff`](https://github.com/kpdecker/jsdiff) library powering this tool, is **Longest Common Subsequence (LCS)**. LCS finds the longest sequence of elements present in both inputs in the same order, then treats everything not in that sequence as either added or removed. Computing LCS is O(n²) in the worst case, but practical implementations use optimizations (Myers' algorithm, diagonal forward search) that run efficiently on typical file sizes.
+
+## Line-level vs word-level diff
+
+There are two granularities you'll care about:
+
+**Line-level diff** splits each text into lines, runs LCS over those lines, and reports whole lines as added, removed, or unchanged. This is the `git diff` default. It's ideal for source code because lines are the natural unit of change — adding a function means adding multiple lines, and line-level diff captures that cleanly.
+
+**Word-level diff** (also called "intra-line diff") splits the text further and computes the LCS over individual words (or even characters). This reveals *which words* inside a changed line were modified. It's invaluable for prose, contracts, and JSON blobs where a line might have 200 characters but only one value changed.
+
+Use line-level diff when reviewing code or configuration. Use word-level diff when comparing documents, markdown, API responses, or any text where sub-line precision matters.
+
+## Unified vs side-by-side format
+
+**Unified format** is the traditional `diff -u` output: context lines prefixed with a space, removals with `-`, additions with `+`. A unified diff hunk header looks like `@@ -12,7 +12,9 @@`, meaning "starting at line 12 in the old file, 7 lines; starting at line 12 in the new file, 9 lines." This format is compact and grep-friendly; it's what `git diff` produces and what `patch` consumes.
+
+**Side-by-side format** shows the old version on the left and the new version on the right, with deleted lines highlighted in the left column and inserted lines in the right. Side-by-side is easier to read for humans reviewing large diffs — you can see both before and after without mentally context-switching. Most web-based code review UIs (GitHub, GitLab, Bitbucket) default to side-by-side.
+
+This tool supports both formats. Unified mode is a faithful implementation of the standard format; side-by-side mode adds color highlighting for quick scanning.
+
+## When to use a diff tool
+
+**Code review prep.** Before opening a pull request, paste both versions of a critical function into a diff checker to verify the delta is exactly what you intended — no accidental whitespace changes, no debugging `console.log` left behind.
+
+**Content QA.** Comparing two drafts of a blog post or documentation page is much faster with a word-level diff than reading both manually. A single changed sentence jumps out immediately.
+
+**Contract and legal text.** Law firms and compliance teams regularly use diff tools to audit changes between contract versions. Even changing "shall" to "may" has legal significance; a word-level diff catches it instantly.
+
+**Configuration drift.** When a server's config file diverges from the version in source control, a line-level diff pinpoints which lines were touched — often the difference between a working and broken deployment.
+
+**API response changes.** Paste yesterday's API response alongside today's to spot schema drift. Particularly useful during third-party API upgrades where you need to verify backwards compatibility.
+
+## Limitations to understand
+
+**Textual, not semantic.** A diff tool compares character sequences. It has no understanding of meaning. Renaming a function from `getUser` to `fetchUser` throughout a 500-line file looks like 50 separate changes even though it's logically one refactor. Tools like AST-aware diff (e.g., `difftastic`) attempt semantic diffing, but they require language-specific parsers.
+
+**Whitespace sensitivity.** By default, a trailing space or a tab-vs-space mismatch counts as a change. Most diff tools offer a flag to ignore whitespace (the `-w` flag in GNU diff). This tool applies the same whitespace-normalization option when you enable it.
+
+**Large inputs.** The LCS algorithm's complexity means that comparing two 50,000-line files takes noticeably longer than two 500-line files. For very large documents, a hash-based pre-filter (like the one git uses) can narrow the diff to only changed regions before running LCS.
+
+**No merge logic.** A diff shows what changed. It does not automatically merge two diverged versions or resolve conflicts — that's a three-way merge problem (the common ancestor plus both changes), which tools like `git merge` and `diff3` handle.
+
+## Privacy
+
+All diff computation happens entirely in your browser using the open-source [`diff`](https://github.com/kpdecker/jsdiff) library. Neither version of your text is ever transmitted to a server. This is particularly important when comparing sensitive documents — confidential contracts, credentials files, or private source code. Open your browser's network tab while running a diff: you will see zero outbound requests.
+
+## Related tools
+
+- **Regex Tester** — validate and iterate on regular expressions before using them in find-and-replace workflows.
+- **Text Case Converter** — normalize casing inconsistencies before diffing to reduce noise.

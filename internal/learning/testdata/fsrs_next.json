@@ -1,0 +1,350 @@
+[
+  {
+    "name": "new/again",
+    "setup": null,
+    "elapsed_ns": 0,
+    "rating": "again",
+    "want": {
+      "due_offset_ns": 60000000000,
+      "state": "Learning",
+      "stability": 0.212,
+      "difficulty": 6.4133,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "learning/again",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      }
+    ],
+    "elapsed_ns": 600000000000,
+    "rating": "again",
+    "want": {
+      "due_offset_ns": 60000000000,
+      "state": "Learning",
+      "stability": 0.7750839828558984,
+      "difficulty": 7.394502741279718,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "review/again",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      }
+    ],
+    "elapsed_ns": 1036800000000000,
+    "rating": "again",
+    "want": {
+      "due_offset_ns": 600000000000,
+      "state": "Relearning",
+      "stability": 1.737597987375309,
+      "difficulty": 7.389975788014607,
+      "lapses": 1
+    }
+  },
+  {
+    "name": "relearning/again",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      },
+      {
+        "rating": "again",
+        "elapsed_ns": 1036800000000000
+      }
+    ],
+    "elapsed_ns": 1037400000000000,
+    "rating": "again",
+    "want": {
+      "due_offset_ns": 600000000000,
+      "state": "Relearning",
+      "stability": 0.5948922094199915,
+      "difficulty": 9.127331158981882,
+      "lapses": 1
+    }
+  },
+  {
+    "name": "new/hard",
+    "setup": null,
+    "elapsed_ns": 0,
+    "rating": "hard",
+    "want": {
+      "due_offset_ns": 360000000000,
+      "state": "Learning",
+      "stability": 1.2931,
+      "difficulty": 5.112170705601055,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "learning/hard",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      }
+    ],
+    "elapsed_ns": 600000000000,
+    "rating": "hard",
+    "want": {
+      "due_offset_ns": 360000000000,
+      "state": "Learning",
+      "stability": 2.3065,
+      "difficulty": 4.7528584885325555,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "review/hard",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      }
+    ],
+    "elapsed_ns": 1036800000000000,
+    "rating": "hard",
+    "want": {
+      "due_offset_ns": 2851200000000000,
+      "state": "Review",
+      "stability": 33.246096856755095,
+      "difficulty": 4.743715608383524,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "relearning/hard",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      },
+      {
+        "rating": "again",
+        "elapsed_ns": 1036800000000000
+      }
+    ],
+    "elapsed_ns": 1037400000000000,
+    "rating": "hard",
+    "want": {
+      "due_offset_ns": 900000000000,
+      "state": "Relearning",
+      "stability": 1.737597987375309,
+      "difficulty": 8.252572670252656,
+      "lapses": 1
+    }
+  },
+  {
+    "name": "new/good",
+    "setup": null,
+    "elapsed_ns": 0,
+    "rating": "good",
+    "want": {
+      "due_offset_ns": 600000000000,
+      "state": "Learning",
+      "stability": 2.3065,
+      "difficulty": 2.118103970459015,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "learning/good",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      }
+    ],
+    "elapsed_ns": 600000000000,
+    "rating": "good",
+    "want": {
+      "due_offset_ns": 172800000000000,
+      "state": "Review",
+      "stability": 2.3065,
+      "difficulty": 2.1112142357853942,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "review/good",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      }
+    ],
+    "elapsed_ns": 1036800000000000,
+    "rating": "good",
+    "want": {
+      "due_offset_ns": 3888000000000000,
+      "state": "Review",
+      "stability": 44.55196368026266,
+      "difficulty": 2.097455428752439,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "relearning/good",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      },
+      {
+        "rating": "again",
+        "elapsed_ns": 1036800000000000
+      }
+    ],
+    "elapsed_ns": 1037400000000000,
+    "rating": "good",
+    "want": {
+      "due_offset_ns": 172800000000000,
+      "state": "Review",
+      "stability": 1.760547692415435,
+      "difficulty": 7.377814181523431,
+      "lapses": 1
+    }
+  },
+  {
+    "name": "new/easy",
+    "setup": null,
+    "elapsed_ns": 0,
+    "rating": "easy",
+    "want": {
+      "due_offset_ns": 691200000000000,
+      "state": "Review",
+      "stability": 8.2956,
+      "difficulty": 1,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "learning/easy",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      }
+    ],
+    "elapsed_ns": 600000000000,
+    "rating": "easy",
+    "want": {
+      "due_offset_ns": 345600000000000,
+      "state": "Review",
+      "stability": 3.946054067969477,
+      "difficulty": 1,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "review/easy",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      }
+    ],
+    "elapsed_ns": 1036800000000000,
+    "rating": "easy",
+    "want": {
+      "due_offset_ns": 5961600000000000,
+      "state": "Review",
+      "stability": 69.31084764975526,
+      "difficulty": 1,
+      "lapses": 0
+    }
+  },
+  {
+    "name": "relearning/easy",
+    "setup": [
+      {
+        "rating": "good",
+        "elapsed_ns": 0
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 600000000000
+      },
+      {
+        "rating": "good",
+        "elapsed_ns": 345600000000000
+      },
+      {
+        "rating": "again",
+        "elapsed_ns": 1036800000000000
+      }
+    ],
+    "elapsed_ns": 1037400000000000,
+    "rating": "easy",
+    "want": {
+      "due_offset_ns": 259200000000000,
+      "state": "Review",
+      "stability": 3.028674150039228,
+      "difficulty": 6.503055692794205,
+      "lapses": 1
+    }
+  }
+]

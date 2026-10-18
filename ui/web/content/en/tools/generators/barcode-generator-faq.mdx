@@ -1,0 +1,37 @@
+---
+title: Barcode Generator — Frequently asked questions
+---
+
+## Which symbologies can it make?
+
+Ten: EAN-13, EAN-8, UPC-A and ITF-14 for retail and cartons; ITF (Interleaved 2 of 5), Code 128 and Code 39 for warehouse, asset and industrial labelling; and Data Matrix, PDF417 and Aztec for the 2D cases — small parts, shipping labels, boarding passes and tickets.
+
+Not QR. That belongs to the [QR code generator](/en/generators/qr-code-generator), which has templates for Wi-Fi credentials, vCard contacts and pre-filled email that a plain "encode this string" box cannot offer. Two tools, no overlap.
+
+## What is a check digit and why did it reject my number?
+
+The last digit of an EAN-13, EAN-8, UPC-A or ITF-14 is not data. It is arithmetic over the digits before it: each is multiplied by 3 or 1 in alternation from the right, the products are summed, and the check digit is whatever brings that sum up to the next multiple of ten. A scanner recomputes it on every read and refuses anything that does not match, which is what stops a smudged or misread barcode from ringing up the wrong product.
+
+So a number that "looks fine" but ends in the wrong digit produces a barcode no till will accept. This tool does that arithmetic in JavaScript before it encodes anything, and if the digit is wrong it tells you which one the code should end in.
+
+If you paste the number *without* the final digit — 12 digits for an EAN-13, 11 for a UPC-A — it works out the check digit and adds it. That is usually what you want: manufacturers' product numbers are quoted both ways, and the tool says which value it actually encoded.
+
+## Can I sell a product with a barcode I made here?
+
+You can print one, and a scanner will read it. Whether a shop will accept it is a different question. Retail EAN and UPC numbers are issued by GS1, which allocates each company a prefix; a number you invent may already belong to someone else, and most retailers verify ownership before listing a product. This tool encodes the number you give it — it does not, and cannot, tell you whether the number is yours.
+
+For internal use — stock control, asset tags, library shelves, your own warehouse — none of that applies. Code 128 and Code 39 have no central registry at all and are the right choice there.
+
+## Which format should I pick?
+
+Retail packaging in Europe and most of the world: EAN-13. North American retail: UPC-A. A small package with no room for thirteen digits: EAN-8. Outer cartons and shipping cases: ITF-14, which is the retail number with a packaging-level digit in front.
+
+For anything not sold at a till, Code 128 is the usual default — it takes letters as well as digits and packs them densely. Code 39 is older, less dense, limited to capitals, digits and a few punctuation marks, but is still what a lot of long-lived industrial equipment expects. Data Matrix is the one to use when the label is tiny; PDF417 holds the most text; Aztec is common on transport tickets because it needs no quiet zone around it.
+
+## Why does the printed barcode not scan?
+
+Three causes account for nearly all of it. The quiet zone — the plain white margin either side of the bars — has been cropped away or filled with artwork; leave the "quiet zone" option on. The image has been scaled up from a small PNG and the bar edges are blurred; download the SVG instead, which is resolution-independent and is what you want for print. Or the bars are simply too narrow for the printer, in which case raise the module size.
+
+## Does anything leave my browser?
+
+No. The encoder is zxing-wasm, a WebAssembly build of the ZXing C++ library, and it runs in this tab. The 1.5 MB WebAssembly file is served from this site's own domain, not from a CDN, and it is only fetched when you press Generate — open the page and never generate anything, and it is never requested. The value you type is never sent anywhere.

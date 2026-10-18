@@ -1,0 +1,33 @@
+---
+title: Phân Tích URL — Câu hỏi thường gặp
+---
+
+## Nó chia một URL thành cái gì?
+
+Protocol, username và password nếu có, hostname, port, origin, path, query string và fragment — cộng với đường dẫn chia thành các phân đoạn riêng lẻ và truy vấn chia thành các cặp khóa/giá trị. Đó là cách nhanh nhất để xem những gì thực sự ở trong một URL dài mà không đếm dấu gạch chéo và ký hiệu & bằng mắt.
+
+## Tại sao nó giữ các khóa truy vấn lặp lại riêng biệt?
+
+Vì `?tag=a&tag=b` là hợp pháp, phổ biến và có ý nghĩa. Các khung đọc nó như một danh sách. Một trình phân tích cú pháp lưu trữ các tham số trong một đối tượng đơn giản âm thầm giữ chỉ một trong số chúng, thường là cuối cùng, và sự khác biệt đó chính xác là loại điều bạn sử dụng trình phân tích cú pháp để tìm. Ở đây mỗi cặp là hàng của chính nó, theo thứ tự nó xuất hiện.
+
+## Tôi gõ một URL mà không có https:// và nó vẫn hoạt động. Có an toàn không?
+
+Nó chỉ đoán `https://` khi đầu vào không có chương trình nào ở tất cả. Nếu bạn gõ cái gì *trông giống* nó có một chương trình — `htp://example.com`, hãy nói — nó báo cáo lỗi thay vì đoán, vì sửa âm thầm một lỗi đánh máy trong một chương trình ẩn sai bạn đến đây để tìm.
+
+## Port đến từ đâu khi tôi không gõ một?
+
+Cả hai đều được hiển thị. Giá trị `port` là những gì URL của bạn theo nghĩa đen chứa, thường trống; cổng hiệu quả là mặc định cho giao thức — 443 cho https, 80 cho http, 21 cho ftp. Giữ chúng riêng biệt quan trọng khi bạn so sánh một URL chống lại cái gì làm so sánh chuỗi chính xác, nơi `https://example.com` và `https://example.com:443` là các chuỗi khác nhau cho cùng một điểm đến.
+
+## Các phân đoạn đường dẫn có được giải mã không?
+
+Có. `/hello%20world/caf%C3%A9` được hiển thị là `hello world` và `café`, vì đó là những gì phân đoạn có ý nghĩa. Nếu một phân đoạn chứa một dấu phần trăm lạc lõng không phải là một thoát hợp lệ — `/100%` — nó được hiển thị như được viết thay vì gây ra lỗi.
+
+Giá trị tham số truy vấn được giải mã theo cách tương tự, bởi trình phân tích cú pháp URL riêng của trình duyệt.
+
+## URL của tôi có được gửi bất kỳ nơi nào không?
+
+Không. Phân tích cú pháp xảy ra trong tab trình duyệt này bằng cách sử dụng lớp URL nền tảng — cùng một triển khai tuân thủ mà trình duyệt sử dụng cho mọi liên kết trên mọi trang. Không có gì được truyền. URL thường mang token phiên, tham số được ký và tên máy chủ nội bộ, đó là lý do tốt cho một trình phân tích không phải là một dịch vụ mạng.
+
+## Tại sao sử dụng trình phân tích cú pháp dựng sẵn thay vì biểu thức thông thường?
+
+Vì cú pháp URL là ngoài cạnh hơn nó trông, và trình duyệt đã chứa một trình phân tích cú pháp theo tiêu chuẩn WHATWG chính xác. Một regex viết tay bất đồng ý với nó ở các cạnh — trên máy chủ IPv6, trên các miền quốc tế hóa, trên các phân đoạn đường dẫn trống — và sau đó bạn có một công cụ cho bạn biết cái gì khác từ những gì mã của bạn sẽ làm.

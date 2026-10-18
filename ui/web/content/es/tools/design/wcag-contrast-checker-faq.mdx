@@ -1,0 +1,39 @@
+---
+title: Verificador de Contraste WCAG — Preguntas frecuentes
+---
+
+## ¿Qué umbrales verifica?
+
+Cuatro, directamente de WCAG: **texto normal AA** necesita una relación de 4.5 o superior, **texto grande AA** necesita 3, **normal AAA** necesita 7, y **grande AAA** necesita 4.5. Cada uno se informa por separado, para que puedas ver exactamente qué nivel pasa una pareja.
+
+## ¿Qué cuenta como "texto grande"?
+
+Al menos 18pt, o 14pt cuando es negrita — aproximadamente 24px y 18.66px en CSS. Esa es toda la razón por la que el texto grande obtiene una barra más baja: los glifos más grandes tienen trazos más gruesos y permanecen legibles a menor contraste. Aplicar el umbral de texto grande a la copia del cuerpo es la forma más común en que un diseño pasa en papel y falla en uso.
+
+## ¿Cómo se calcula la relación?
+
+De luminancia relativa, no de cómo se ven de diferentes los colores. Cada canal se linealiza — dividido por 12.92 por debajo del umbral sRGB, de lo contrario elevado a través de la curva gamma — luego ponderado 0.2126 rojo, 0.7152 verde, 0.0722 azul. La relación es `(más clara + 0.05) / (más oscura + 0.05)`.
+
+## ¿Por qué el verde pesa mucho más que el azul?
+
+Porque la visión humana es mucho más sensible a la luz verde. Esa ponderación es por qué cambiar azul por verde al mismo brillo hex "cambia la relación dramáticamente, y por qué el amarillo pálido sobre blanco falla mientras el mismo brillo en azul puede pasar.
+
+## ¿Una relación que aprueba significa que el diseño es accesible?
+
+No. El contraste es un criterio entre muchos. Indicadores de enfoque, tamaños objetivo, movimiento, acceso por teclado y alternativas de texto se sientan fuera de este número. Una página puede golpear AAA en cada pareja de color y aun ser inusable con un teclado.
+
+## ¿Verifica texto sobre imágenes o degradados?
+
+No — compara dos colores sólidos. El texto sobre una fotografía o un degradado tiene una relación efectiva diferente en cada píxel, que es por qué tales diseños usualmente necesitan una pantalla o un fondo sólido detrás del texto.
+
+## ¿Qué hay de controles deshabilitados y logos?
+
+WCAG los exenta del mínimo de contraste. Eso es un piso, no un objetivo: un control deshabilitado que nadie puede leer sigue siendo un problema de usabilidad, incluso donde es técnicamente conforme.
+
+## ¿Qué versión de WCAG sigue esto?
+
+Las definiciones de contraste 2.x, que no cambiaron entre 2.0, 2.1 y 2.2. Las fórmulas son hechos de especificación en lugar de una interpretación.
+
+## ¿Se envía algo a un servidor?
+
+No. Las matemáticas se ejecutan en tu navegador.

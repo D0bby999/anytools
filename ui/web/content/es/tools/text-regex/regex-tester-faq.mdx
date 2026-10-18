@@ -1,0 +1,35 @@
+---
+title: Probador de expresiones regulares — Preguntas frecuentes
+---
+
+## ¿Qué es el backtracking catastrófico?
+
+Una patología de rendimiento de regex donde el motor explora exponencialmente muchas formas de particionar la entrada en cuantificadores anidados. Patrones como `(a+)+b` contra `aaaaaaaa…` (sin `b`) se cuelgan indefinidamente. Esta herramienta limita la ejecución a 1 segundo e informa el problema.
+
+## ¿Cuantificador codicioso vs perezoso?
+
+`*` y `+` son codiciosos — coinciden tanto como sea posible. Agrega `?` (`*?`, `+?`) para hacerlos perezosos — coincide lo menos posible. Para `<.*>` en `<a><b>` obtienes la cadena completa; `<.*?>` da solo `<a>`.
+
+## ¿Por qué es difícil hacer coincidir HTML?
+
+HTML no es un lenguaje regular — tiene anidamiento arbitrario que regex no puede (formalmente) manejar. Puedes hacer coincidir casos simples muy específicos, pero el HTML del mundo real tiene comentarios, CDATA, etiquetas malformadas y espacios en blanco raros. Usa `DOMParser` en el navegador o `cheerio` en Node en su lugar.
+
+## ¿Cómo coincido caracteres Unicode?
+
+Agrega la bandera `u`. Luego `\w` cubre más caracteres, y puedes usar escapes de propiedades Unicode de estilo `\p{Letter}` / `\p{Script=Vietnamese}` (Node 10+/todos los navegadores modernos).
+
+## ¿Diferencia entre `(?:…)` y `(…)`?
+
+`(…)` crea un grupo de captura numerado, accesible como `$1` etc. `(?:…)` agrupa para el cuantificador sin capturar. Usa sin capturar cuando no necesites el valor — es ligeramente más rápido y mantiene tus índices de captura limpios.
+
+## ¿Qué es lookahead y lookbehind?
+
+Afirmaciones de ancho cero: `(?=…)` coincide si `…` sigue pero no lo consume; `(?!…)` coincide si `…` NO sigue; `(?<=…)` y `(?<!…)` son lo mismo para lo que precede. Útil para "coincide X pero solo cuando no seguido de Y" sin consumir Y.
+
+## JS regex vs PCRE — ¿qué es diferente?
+
+JS es principalmente un subconjunto de PCRE con algunas diferencias. Sin comentarios en línea `(?#…)`, sin cuantificadores posesivos, grupos nombrados usan `(?<name>…)` no `(?P<name>…)` (que es Python). No pegues regex aleatorio de internet en JS sin verificar.
+
+## ¿Por qué mi patrón no coincide con saltos de línea?
+
+`.` no coincide con `\n` por defecto. Agrega la bandera `s` (dotAll) para hacer que `.` coincida con cualquier carácter incluyendo salto de línea. Alternativa: usa `[\s\S]` que siempre coincide con cualquier cosa.

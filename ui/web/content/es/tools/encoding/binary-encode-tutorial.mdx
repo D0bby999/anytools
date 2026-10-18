@@ -1,0 +1,72 @@
+---
+title: Guía completa de codificación y decodificación binaria
+description: Cómo funciona la codificación binaria de texto, por qué 8 bits forman un byte, problemas con caracteres UTF-8 multibyte y cuándo un volcado binario es realmente útil.
+updated: 2026-05-27
+---
+
+## Qué es realmente la codificación binaria
+
+La codificación binaria convierte cada byte de datos en su representación de ocho caracteres binarios (`0` y `1`). El carácter `A` (ASCII 65) se convierte en `01000001`. El byte `0xFF` se convierte en `11111111`. La salida es una cadena de caracteres ASCII con una longitud ocho veces mayor que la secuencia de bytes original.
+
+Esto **no** es compresión, **no** es cifrado, y **casi nunca se usa en sistemas de producción**. Es principalmente una **herramienta pedagógica y de depuración** — la forma más transparente posible de inspeccionar qué bits residen realmente dentro de un byte.
+
+## Por qué 8 bits se convirtieron en un byte
+
+El byte de 8 bits no era inevitable. Las computadoras tempranas usaban palabras de 6, 7, 9 e incluso 36 bits según la arquitectura. El System/360 de IBM (1964) popularizó el byte de 8 bits, y el estándar ASCII (1963, revisado en 1967) consolidó los caracteres de 7 bits como base para el texto. El bit extra dio espacio para la verificación de paridad, luego para conjuntos de caracteres extendidos (Latin-1 / ISO 8859-1), y finalmente se convirtió en el fundamento de UTF-8.
+
+A principios de los años 80, el byte de 8 bits había ganado: Intel 8080, Motorola 6800, MOS 6502 (dentro del Apple II y la NES) — todos de 8 bits. El estándar IEEE 1003.1 (POSIX) definió formalmente `CHAR_BIT = 8` en 1988. Hoy la suposición es tan universal que "byte" y "octeto" se usan indistintamente, aunque "octeto" (RFC 791) fue elegido precisamente para preservar la precisión.
+
+## Entender las operaciones bit a bit visualmente
+
+El texto binario es la forma más rápida de entender qué hacen los operadores bit a bit:
+
+```
+  A  = 01000001
+  B  = 01000010
+A & B = 01000000   (AND: ambos bits deben ser 1)
+A | B = 01000011   (OR: cualquier bit es 1)
+A ^ B = 00000011   (XOR: los bits difieren)
+ ~A   = 10111110   (NOT: invierte cada bit)
+A << 1= 10000010   (desplazamiento izquierdo × 2)
+A >> 1= 00100000   (desplazamiento derecho ÷ 2)
+```
+
+Ver las posiciones de los bits directamente elimina las suposiciones. Por eso los cursos de informática que enseñan manipulación de bits suelen pedir a los estudiantes que escriban representaciones binarias a mano antes de ejecutar código.
+
+## Depuración de protocolos de red
+
+Los protocolos a menudo empaquetan múltiples flags o valores pequeños en un solo byte. La cabecera TCP tiene un campo de flags de 9 bits donde bits individuales señalan SYN, ACK, FIN, RST, PSH, URG, ECE, CWR y NS. Cuando una captura de paquetes muestra un byte de flags TCP de `0x12`, convertirlo a binario — `00010010` — revela inmediatamente que los bits 1 y 4 están activados: SYN y ACK.
+
+Del mismo modo, las estructuras empaquetadas en sistemas embebidos (flags de conexión MQTT, máscaras de registro I²C, tramas de datos CAN bus) son más legibles en binario. Un byte que controla ocho señales de hardware independientes es incomprensible como decimal `147` pero inmediatamente legible como `10010011`.
+
+## Caracteres UTF-8 multibyte
+
+Para texto ASCII (puntos de código 0–127), cada carácter es un byte, por lo que la codificación binaria produce ocho caracteres por carácter de entrada. Para todo lo que está fuera del ASCII, UTF-8 usa múltiples bytes:
+
+| Carácter | Punto de código | Bytes UTF-8 | Longitud salida binaria |
+|----------|-----------------|-------------|------------------------|
+| `A` | U+0041 | 1 byte | 8 chars |
+| `é` | U+00E9 | 2 bytes | 16 chars |
+| `中` | U+4E2D | 3 bytes | 24 chars |
+| `😀` | U+1F600 | 4 bytes | 32 chars |
+
+Esto es correcto y esperado. **Estructura de bytes UTF-8:** Los bits iniciales de cada byte indican al decodificador cuántos bytes pertenecen a este punto de código. `0xxxxxxx` es un carácter ASCII de un byte. `110xxxxx` inicia una secuencia de dos bytes. `1110xxxx` inicia tres bytes. `11110xxx` inicia cuatro bytes. Los bytes de continuación siempre comienzan con `10xxxxxx`.
+
+## Cuándo es realmente útil
+
+**Entornos de aprendizaje.** Cursos de informática, bootcamps de programación y estudio autónomo — donde el estudiante está construyendo intuición sobre aritmética binaria, tablas ASCII o codificación de caracteres.
+
+**Depuración de manipulación de bits.** Cuando escribes una máscara de bits y el resultado es incorrecto, pegar los bytes en un visor binario muestra instantáneamente qué bit está incorrectamente activado o desactivado.
+
+**Trabajo con especificaciones de protocolo.** Al redactar o revisar un RFC o una descripción de interfaz de hardware: mostrar el layout de bits en binario junto a la definición de struct de C es más claro que una tabla de valores hex.
+
+**Desafíos CTF.** Los mensajes codificados en binario aparecen frecuentemente en desafíos de nivel principiante. Pegar una cadena binaria y decodificarla a texto es un primer paso habitual.
+
+## Privacidad
+
+Toda la codificación y decodificación se ejecuta completamente en tu navegador. El texto nunca se envía a un servidor.
+
+## Herramientas relacionadas
+
+- **Hex Encode/Decode** — dos caracteres por byte (100% overhead), la opción práctica para inspeccionar bytes crudos.
+- **Base64 Encode/Decode** — cuatro caracteres por tres bytes (33% overhead), el estándar para transportar binario por canales de texto.

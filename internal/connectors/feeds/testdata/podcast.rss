@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A podcast feed in the shape Apple Podcasts documents
+     (https://podcasters.apple.com/support/823-podcast-requirements), written
+     for AnyTools' tests: every field a podcast host commonly sends, with the
+     three itunes:duration forms, an item without an enclosure, and a video
+     enclosure. -->
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Slow English &amp; Friends</title>
+    <link>https://podcast.example.com/</link>
+    <language>en</language>
+    <itunes:author>Example Studio</itunes:author>
+    <description>Short conversations in clear English.</description>
+    <item>
+      <title>Episode 3: Ordering at a café</title>
+      <guid isPermaLink="false">slow-english-0003</guid>
+      <pubDate>Tue, 13 Oct 2026 06:00:00 +0000</pubDate>
+      <enclosure url="https://cdn.example.com/audio/ep3.mp3" length="12608" type="audio/mpeg"/>
+      <itunes:duration>00:24:05</itunes:duration>
+      <description>&lt;p&gt;We order coffee.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Episode 2: Asking for directions</title>
+      <guid isPermaLink="false">slow-english-0002</guid>
+      <pubDate>Tue, 06 Oct 2026 06:00:00 +0000</pubDate>
+      <enclosure url="https://cdn.example.com/audio/ep2.m4a" length="10418" type="audio/x-m4a"/>
+      <itunes:duration>18:30</itunes:duration>
+    </item>
+    <item>
+      <title>Episode 1: Introductions</title>
+      <guid>https://podcast.example.com/episodes/1</guid>
+      <pubDate>Tue, 29 Sep 2026 06:00:00 +0000</pubDate>
+      <enclosure url="https://cdn.example.com/audio/ep1.mp3" length="0" type="audio/mpeg"/>
+      <itunes:duration>1520</itunes:duration>
+    </item>
+    <item>
+      <title>A note from the host (no audio)</title>
+      <guid isPermaLink="false">slow-english-note</guid>
+      <pubDate>Mon, 28 Sep 2026 06:00:00 +0000</pubDate>
+    </item>
+    <item>
+      <title>Bonus: the studio tour (video)</title>
+      <guid isPermaLink="false">slow-english-video</guid>
+      <pubDate>Sun, 27 Sep 2026 06:00:00 +0000</pubDate>
+      <enclosure url="https://cdn.example.com/video/tour.mp4" length="12031" type="video/mp4"/>
+    </item>
+  </channel>
+</rss>

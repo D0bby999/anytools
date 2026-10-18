@@ -1,0 +1,45 @@
+---
+title: Cómo quitar un fondo y guardar un PNG transparente
+---
+
+La herramienta es un botón, pero el resultado depende casi completamente de la foto que le des y de dos configuraciones después. Este es el orden que obtiene un recorte utilizable la primera vez.
+
+## 1. Elige una foto que el modelo pueda manejar
+
+u2netp encuentra el objeto único más prominente en un fotograma. Lo hace bien cuando el sujeto y el fondo difieren en color o brillo, y mal cuando no lo hacen. Antes de ejecutar cualquier cosa, mira tu imagen y pregúntate si *tú* podrías trazar el contorno del sujeto en un trazo. Un zapato en un piso de madera, una persona contra una pared, una botella en una mesa: sí. Un gato gris en un sofá gris, una copa de vino, una persona con cabello volador contra una calle concurrida: espera estar decepcionado.
+
+Si el sujeto es pequeño en el fotograma, recorta más cerca primero con [Recortar Imagen](/en/image/crop-image). El modelo funciona a 320×320 independientemente del tamaño de tu imagen, así que un sujeto que ocupa un décimo del fotograma se está juzgando desde un número muy pequeño de píxeles.
+
+## 2. Ejecútalo y espera la primera descarga
+
+La primera ejecución obtiene el motor WebAssembly de 14 MB y luego el modelo de 4.4 MB, y la barra de progreso nombra cuál sea que esté llegando. Un botón **Cancelar descarga** se sienta junto al principal mientras eso está sucediendo, en caso de que prefieras no gastar los bytes en este momento; nada se cambia si lo usas. Ambos archivos se almacenan en caché de tu navegador después, así que la descarga sucede una vez, no una vez por imagen y no una vez por visita. En las ejecuciones que siguen, la barra apenas aparece y el todo toma un segundo o dos — durante los cuales la página no responderá a clics, porque el modelo se ejecuta en el mismo hilo que lo dibuja.
+
+## 3. Lee los números, no solo la imagen
+
+Bajo la vista previa la herramienta reporta cuánto de la imagen mantuvo y cuánto eliminó. Esa línea atrapa los dos modos de falla que una vista previa de tablero de ajedrez oculta en una pantalla pequeña: una máscara que mantuvo casi todo (el fondo no fue removido en absoluto) y una que mantuvo casi nada (el sujeto fue tratado como fondo). Si cualquiera de los números se ve absurdo para tu foto, la máscara está equivocada, y los próximos dos pasos no lo salvarán — cambia la foto en su lugar.
+
+La misma línea reporta el tamaño de salida, y lo dice explícitamente cuando el recorte salió más pequeño que lo que suministraste. Cualquier cosa por encima de 8 megapíxeles se produce a un tamaño reducido: la máscara se predice a 320×320 sin importar lo que alimentes, así que los píxeles adicionales no agudizar nada sobre el borde mientras cuestan memoria y una pausa más larga.
+
+## 4. Establece el corte
+
+El corte decide qué tan confiado tiene que ser el modelo antes de que se mantenga un píxel. El 50% es un predeterminado sensato y da un fondo limpio y completamente transparente.
+
+- **Sube** (60–80%) cuando un halo de fondo sobrevive alrededor del sujeto.
+- **Baja** (20–40%) cuando partes del sujeto han sido consumidas.
+- **Establécelo en 0** para mantener la máscara suave sin procesar. El pelaje, las plumas, y los bordes borrosos de movimiento se ven más naturales de esta manera, al costo de un fondo que es levemente translúcido en lugar de verdaderamente desaparecido.
+
+## 5. Suaviza el borde
+
+Un corte duro deja un contorno escalonado, visible tan pronto como el recorte se coloca en un fondo diferente. Uno o dos píxeles de suavidad del borde lo arreglan. Más que aproximadamente cuatro comienza a hacer que el sujeto se vea como una calcomanía con un brillo, y — porque el desenfoque muestrea desde fuera del lienzo — desvanecerá los bordes donde el sujeto se sale del lado del fotograma.
+
+## 6. Elige transparencia o un color
+
+Deja el fondo transparente para logotipos, fotos de productos y cualquier cosa que coloques en otro diseño. Elige blanco para listados de mercado que lo requieran, o un color sólido para hacer un insignia rápida o avatar. El archivo es un PNG de cualquier manera, ya que ese es el único formato común aquí que almacena transparencia en absoluto.
+
+## 7. Descarga, luego ordena
+
+La descarga es un PNG en el tamaño nombrado en el panel de resultado — tu resolución original, o el techo de 8 megapíxeles si estabas por encima. Los PNG transparentes son grandes — un recorte de 8 megapíxeles puede ser 8 MB o más — así que [Comprimir Imagen](/en/image/compress-image) es generalmente la próxima parada, y mantiene el canal alfa si eliges WebP o PNG. Si recortas una serie de productos, [Imagen a PDF](/en/pdf/image-to-pdf) los colecciona en un documento en el orden que estableces.
+
+## Cuándo dejar de intentar
+
+Si dos o tres intentos con diferentes cortes todos dan la forma equivocada, el modelo no puede ver tu sujeto y ninguna configuración cambiará eso. Eso es una limitación real de un modelo de 4 MB con una licencia permisiva suficiente para ejecutar en tu navegador, no algo que hayas configurado de manera equivocada.

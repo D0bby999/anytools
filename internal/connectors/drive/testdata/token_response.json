@@ -1,0 +1,7 @@
+{
+  "access_token": "ya29.FAKE-access-token-for-recorded-fixture",
+  "expires_in": 3599,
+  "refresh_token": "1//0gFAKE-refresh-token-for-recorded-fixture",
+  "scope": "https://www.googleapis.com/auth/drive.file",
+  "token_type": "Bearer"
+}

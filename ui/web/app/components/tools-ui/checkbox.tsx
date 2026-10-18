@@ -1,0 +1,108 @@
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { Check } from 'lucide-react';
+import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, useId } from 'react';
+import { cn } from '~/lib/utils';
+import { Label } from './label';
+
+/**
+ * Checkbox — "pick any number of these". For "turn one mode on or off" the answer is a
+ * Switch, and for "pick exactly one" it is RadioGroup or SegmentedControl.
+ *
+ * Replaces the `<input type="checkbox" className="h-4 w-4">` that 28 tools hand-rolled. Those
+ * rendered the operating system's own widget, which is the single loudest reason the tool
+ * pages looked unfinished next to the rest of the design system.
+ *
+ * Note the callback shape: Radix reports the NEXT state via onCheckedChange. Write
+ * `onCheckedChange={(v) => setX(v === true)}`, never `onCheckedChange={() => setX(!x)}` —
+ * the latter reads a stale value out of the closure and desynchronises from the tick.
+ */
+const Checkbox = forwardRef<
+  ElementRef<typeof CheckboxPrimitive.Root>,
+  ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <CheckboxPrimitive.Root
+    ref={ref}
+    className={cn(
+      'peer h-5 w-5 shrink-0 rounded border border-control-border ring-offset-background',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+      'disabled:cursor-not-allowed disabled:opacity-50',
+      'data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+      className,
+    )}
+    {...props}
+  >
+    <CheckboxPrimitive.Indicator className="flex items-center justify-center text-current">
+      <Check className="h-3.5 w-3.5" strokeWidth={3} />
+    </CheckboxPrimitive.Indicator>
+  </CheckboxPrimitive.Root>
+));
+Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+
+/**
+ * Checkbox plus its label, as one ≥44px touch target.
+ *
+ * The hand-rolled version in the tools was `<label class="flex items-center gap-1">` around a
+ * bare input: a ~16px target, below every touch guideline. Almost every call site wants this,
+ * not the bare primitive.
+ *
+ * The row is made hittable by stretching the label over it (`after:absolute after:inset-0`),
+ * not merely by giving the wrapper `min-h-11`. A tall div with no handler looks like a large
+ * target in the markup and is still a 20px one under a thumb.
+ */
+type CheckboxFieldProps = ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> & {
+  label: string;
+  /**
+   * Secondary line under the label, wired through `aria-describedby`. Mirrors
+   * RadioGroupField. Putting the note inside the label instead — which is what the tools did —
+   * folds a whole sentence into the control's accessible name, so a screen reader announces
+   * the explanation every time it announces the checkbox.
+   */
+  description?: string;
+  /** Wrapper class, not the control's — the control is positioned by this component. */
+  containerClassName?: string;
+};
+
+const CheckboxField = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxFieldProps>(
+  ({ label, description, containerClassName, id, className, ...props }, ref) => {
+    // useId, not a slug of the label. `\W` is ASCII-only, so "Số trang" and "Sổ trang" both
+    // collapse to "cb-s-trang" — duplicate ids, and <label for> binds to whichever came first,
+    // so tapping one option toggles the other. This app ships vi/es/pt; the collision is a
+    // matter of which labels a future tool happens to use.
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
+    const descId = `${inputId}-desc`;
+    return (
+      <div
+        className={cn(
+          'relative flex min-h-11 gap-2',
+          description ? 'items-start py-1' : 'items-center',
+          containerClassName,
+        )}
+      >
+        <Checkbox
+          ref={ref}
+          id={inputId}
+          aria-describedby={description ? descId : undefined}
+          className={cn(description && 'mt-0.5', className)}
+          {...props}
+        />
+        <div className="grid gap-0.5">
+          <Label
+            htmlFor={inputId}
+            className="cursor-pointer select-none after:absolute after:inset-0 after:content-['']"
+          >
+            {label}
+          </Label>
+          {description && (
+            <span id={descId} className="text-xs text-muted-foreground">
+              {description}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  },
+);
+CheckboxField.displayName = 'CheckboxField';
+
+export { Checkbox, CheckboxField };

@@ -1,0 +1,18 @@
+# Root build context (used by deploy/Dockerfile.api).
+#
+# The Go image copies only go.mod/go.sum/cmd/internal/migrations, but everything
+# not excluded here is still uploaded to the daemon first. ui/web/node_modules
+# alone is ~200 MB of context for an image that does not use a single byte of it.
+
+.git
+.github
+plans
+docs
+ui/web/node_modules
+ui/web/build
+ui/web/.react-router
+node_modules
+*.md
+.env
+.env.local
+anytools

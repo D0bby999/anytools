@@ -1,0 +1,31 @@
+---
+title: JWT — Câu hỏi thường gặp
+---
+
+## Paste JWT vào decoder có an toàn không?
+
+Decode *header và payload* an toàn theo nghĩa chúng vốn được thiết kế để đọc được. Nhưng nếu token cấp quyền tới thứ gì đó thật, coi hành động paste vào tool thứ ba như credential bị lộ — giả định operator của tool (hoặc ai có network access giữa bạn và họ) giờ có nó. Decode token production bằng `jq` hoặc IDE của bạn thay thế.
+
+## Vì sao tool này không verify chữ ký?
+
+Để verify, chúng tôi cần signing key (HS256) hoặc public key (RS256). Hỏi key trong tool browser là cờ đỏ to. Verification thuộc về code ứng dụng dùng library đã được kiểm chứng, không phải trang web công khai.
+
+## Vì sao token của tôi có ký tự `=`?
+
+Không nên — JWT dùng Base64URL bỏ padding. Nếu thấy `=`, token có lẽ đã được re-encode đâu đó dưới dạng Base64 chuẩn. Hầu hết decoder (tool này included) khoan dung, nhưng JWT đúng spec không nên có.
+
+## Lỗ hổng alg=none là gì?
+
+Library cũ chấp nhận token khai báo `"alg": "none"` ở header và bỏ qua verify chữ ký hoàn toàn. Attacker khai thác bằng cách forge payload bất kỳ. Cách fix là validate với danh sách algorithm cho phép rõ ràng trong verifier — đừng tin field alg trong header.
+
+## HS256 hay RS256?
+
+Đối xứng (HS256) khi cả hai bên tin nhau hoàn toàn và share secret được. Bất đối xứng (RS256/ES256) khi không muốn verifier có khả năng forge, hoặc key vượt biên giới tin tưởng.
+
+## Revoke JWT thế nào?
+
+Không thể trực tiếp — JWT stateless. Cách workaround: giữ token ngắn hạn và dùng refresh token; duy trì blocklist server-side theo `jti`; hoặc dùng opaque token với session server-side thay vì JWT.
+
+## exp và nbf khác nhau gì?
+
+`exp` là thời điểm muộn nhất token hợp lệ (sau đó expire). `nbf` là thời điểm sớm nhất hợp lệ (trước đó không nên chấp nhận). Cả hai là Unix timestamp giây. `iat` là thời điểm issue token — thông tin.

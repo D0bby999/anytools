@@ -1,0 +1,40 @@
+---
+title: Comprimir Imagem — Perguntas frequentes
+---
+
+## Minha foto é enviada para algum lugar?
+
+Não. A imagem é decodificada por seu navegador, desenhada novamente em uma tela e re-codificada lá. O resultado é um blob que seu navegador mantém na memória, e o link de download aponta para isso. Nada é transmitido, portanto não há cópia em um servidor a ser mantida, indexada ou deletada. Você pode verificar na aba Rede do seu navegador, ou desconectar da rede após a página ter carregado — a ferramenta continua funcionando.
+
+## Qual qualidade devo escolher?
+
+Para fotografias, 0,75 a 0,85 é o intervalo útil. Abaixo de cerca de 0,6, você começa a ver artefatos bloqueados em áreas suaves como céus e pele; acima de 0,9, o arquivo cresce rapidamente para uma diferença que quase ninguém consegue ver. A razão pela qual a ferramenta mostra o original e o resultado lado a lado é que uma porcentagem economizada não diz nada sobre se o resultado ainda parece aceitável — que é a única questão que vale a pena responder.
+
+Os números de qualidade não são porcentagens de nada significativo e não são comparáveis entre formatos. WebP em 0,8 e JPEG em 0,8 são operações diferentes que acontecem compartilhar uma escala.
+
+## Por que comprimir meu PNG o tornou maior?
+
+Porque você re-codificou uma imagem sem perda para uma com perda, ou vice-versa, e nenhuma é um compressor no sentido que você queria. PNG armazena pixels exatos e funciona bem em cor plana, arte de linha e capturas de tela; JPEG e WebP descartam detalhes e funcionam bem com fotografias. Executar uma captura de tela através de JPEG pode facilmente produzir um arquivo maior que também parece pior.
+
+Se sua imagem é uma captura de tela, um diagrama ou tem grandes áreas planas, mantenha-a como PNG e use Redimensionar Imagem para cortar suas dimensões — é isso que realmente reduz o tamanho desse tipo de imagem.
+
+## O que faz "atingir um limite de tamanho"?
+
+Você fornece um tamanho máximo de arquivo e ela busca a configuração de qualidade mais alta que se encaixa, por busca binária — cerca de oito codificações em vez de uma varredura linear de 1,0 para baixo. Este é o modo a usar quando um formulário diz "máximo 2 MB" e você não se importa com o número de qualidade que o leva lá.
+
+Se até a qualidade mais baixa não conseguir atingir seu alvo, você obtém essa tentativa de volta com seu tamanho real em vez de um erro, portanto você pode ver o quão longe está e decidir se redimensiona em vez disso.
+
+## Meu PNG transparente saiu com um fundo sólido. Por quê?
+
+JPEG não tem canal alfa. Quando uma imagem transparente é desenhada em uma tela e codificada como JPEG, os pixels transparentes são preenchidos com qualquer que seja o fundo da tela. A ferramenta detecta transparência na fonte e avisa quando isso está prestes a acontecer, e WebP é oferecido porque suporta transparência em ambos os modos com perda e sem perda.
+
+Se você precisa de transparência, escolha WebP ou PNG.
+
+## Minhas fotos estão rotacionadas corretamente?
+
+Sim. Fotos tiradas em um telefone geralmente são armazenadas na orientação de paisagem do sensor com uma bandeira separada dizendo como virá-las. Software que ignora essa bandeira transforma fotos em retrato de lado — o defeito mais comum em ferramentas de imagem do navegador. Esta decodifica com a bandeira aplicada, portanto o que você vê é o que você obtém.
+
+## Qual é o tamanho máximo de imagem que ela pode lidar?
+
+Não há tamanho em que ela recuse. Navegadores limitam quantos pixels uma tela pode conter — cerca de 16,7 megapixels no Safari, o mais restritivo dos principais — e exceder isso produz uma imagem branca em branco em vez de um erro. Portanto, qualquer coisa maior é decodificada em um tamanho reduzido que cabe sob o teto, e a ferramenta relata as dimensões originais ao lado daquelas em que funcionou. Uma foto de telefone com 12 megapixels está confortavelmente dentro do limite e é processada em tamanho completo; uma de 48 megapixels é comprimida a partir de uma decodificação menor, o que é visível se você a compara pixel por pixel com o original.
+

@@ -1,0 +1,27 @@
+---
+title: Gerador e verificador de HMAC — Perguntas frequentes
+---
+
+## A aba HMAC do `hash-generator` também existe — no que essa ferramenta é diferente?
+
+A aba HMAC do `hash-generator` cobre o caso mais comum: chave em texto, saída em hex ou Base64 — olhando o código dela, a função `hmac()` sempre faz `ENCODER.encode(key)`, ou seja, sempre trata a chave como texto puro, sem outra opção. Esta ferramenta adiciona duas coisas que aquela não tem: uma chave que pode ser digitada em hexadecimal (necessário quando um provedor entrega um segredo já codificado em hex em vez de texto simples — alguns esquemas de assinatura de webhook e API fazem exatamente isso), e um modo de Verificação dedicado que usa comparação em tempo constante em vez de comparar duas strings com `===`. Se você só precisa de um digest rápido com chave de texto, qualquer uma das duas serve; esta existe para os casos em que o formato da chave ou a etapa de verificação realmente importam.
+
+## Por que Verificar usa `crypto.subtle.verify` em vez de simplesmente comparar strings?
+
+Porque comparar duas strings hex ou Base64 com `===` para no primeiro caractere que difere — um motor JavaScript não promete continuar comparando depois de encontrar uma diferença. Isso significa que o *tempo* que a comparação leva pode vazar quantos bytes iniciais de uma tentativa estavam corretos, o que é um canal lateral real (timing side-channel): um atacante capaz de medir o tempo de resposta com precisão suficiente poderia recuperar uma assinatura válida byte a byte, em vez de precisar adivinhar tudo de uma vez. O `crypto.subtle.verify` recalcula o HMAC internamente e retorna um booleano sem expor essa diferença de tempo. É exatamente o tipo de falha por trás de relatos de "ataque de temporização" contra código de verificação de assinatura escrito à mão, e por isso esta ferramenta nunca faz a comparação ingênua de strings.
+
+## Por que preciso escolher um formato de chave (texto ou hex)?
+
+Porque os dois produzem bytes de chave completamente diferentes para os mesmos caracteres. A string de quatro caracteres `"abcd"` como texto são os quatro bytes ASCII `0x61 0x62 0x63 0x64`; a mesma string como hex decodifica em apenas dois bytes, `0xAB 0xCD`. Se a documentação do seu provedor mostra o segredo como algo tipo `3a7f01...` e chama isso de "codificado em hex", você precisa do modo Hex — digitá-lo no modo Texto derivaria um HMAC de uma chave completamente errada, e as assinaturas nunca vão bater, não importa quantas vezes tentar. O campo de chave em hex é validado de forma rígida: só aceita caracteres `0-9`/`a-f` e exige um número par de dígitos; se qualquer uma dessas condições falhar, é bloqueado antes de calcular qualquer coisa, sem cortar ou preencher silenciosamente.
+
+## Qual algoritmo devo usar?
+
+SHA-256 é o padrão em praticamente todo lugar — webhooks da Stripe, GitHub e Shopify, a maioria dos fluxos JWT HS256, e a maioria dos esquemas de assinatura de API caseiros usam HMAC-SHA-256. SHA-1 é incluído só por compatibilidade com integrações antigas; o HMAC-SHA-1 em si não está quebrado da mesma forma que o hashing SHA-1 puro (a construção HMAC tolera melhor um hash subjacente mais fraco do que o hashing direto), mas não há motivo para escolhê-lo em algo novo. SHA-384 e SHA-512 aparecem em contextos de segurança mais alta e em algumas APIs corporativas. Vale notar: o WebCrypto — a única base sobre a qual esta ferramenta calcula HMAC — não suporta HMAC-MD5 em nenhum navegador; o `hash-generator` precisa de uma biblioteca JavaScript separada (`js-md5`) só para calcular MD5 puro, e até a aba HMAC dessa mesma ferramenta declara um tipo que exclui explicitamente `md5` dos algoritmos permitidos — então, se você precisar de HMAC-MD5, nenhuma ferramenta deste site faz isso, porque o navegador simplesmente não tem essa função disponível.
+
+## Meu HMAC calculado não bate com o esperado — quais são as causas mais comuns?
+
+Quase sempre uma destas: os bytes da mensagem não coincidem exatamente (um corpo JSON reserializado, mesmo com valores idênticos em cada campo, gera um hash diferente do dos bytes brutos originais — sempre assine ou verifique contra o corpo bruto exato da requisição); o formato da chave está errado (texto vs hex, veja acima); um espaço ou quebra de linha sobrando que seu editor adicionou silenciosamente na chave ou na mensagem; ou a codificação de saída não bate (hex e Base64 do mesmo digest não se parecem em nada). Confira primeiro os bytes brutos da mensagem — é de longe a causa mais comum.
+
+## Minha chave ou mensagem são enviadas para algum lugar?
+
+Não. Tanto o cálculo do digest quanto a verificação rodam totalmente em local com WebCrypto; nenhuma ação nesta ferramenta gera requisição de rede. É por isso que ela exige um "contexto seguro" (HTTPS ou localhost) — não é uma restrição arbitrária, mas sim porque a própria API `crypto.subtle` do navegador só existe nesse contexto; abrir a página por HTTP simples (que não seja localhost) faz `crypto.subtle` ficar `undefined`, e a ferramenta falha na hora, antes mesmo de tentar calcular qualquer coisa.

@@ -1,0 +1,91 @@
+{
+  "page": {
+    "lead": "What AnyTools remembers about how you study. Every entry is yours to edit or delete. Features read it only when they need it: Mastery reads your Preferences and Struggles, Chat reads your Preferences, and Research never reads it.",
+    "count": "{{count}} of {{max}}",
+    "empty": "Nothing here yet."
+  },
+  "sections": {
+    "studying": { "title": "Studying", "hint": "Subjects and goals." },
+    "strengths": { "title": "Strengths", "hint": "What has held up over time." },
+    "struggles": { "title": "Struggles", "hint": "Mistakes or points that keep coming back." },
+    "preferences": { "title": "Preferences", "hint": "How you like things explained: examples, language, pace." },
+    "constraints": { "title": "Constraints", "hint": "Time you have and deadlines." }
+  },
+  "entry": {
+    "yours": "Yours",
+    "fromActivity": "From your activity",
+    "kb": "About {{name}}",
+    "evidence": "Evidence",
+    "gone": "no longer exists",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this entry?",
+    "confirmYes": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "text": "Entry",
+    "section": "Section",
+    "kbLabel": "Knowledge base",
+    "anyKB": "Not about one knowledge base",
+    "editHint": "Once you edit an entry it is yours, and nightly suggestions never change it."
+  },
+  "refKinds": {
+    "mistake": "Mistake",
+    "knowledge_point": "Knowledge point",
+    "knowledge_base": "Knowledge base",
+    "vocab_card": "Word",
+    "skill_card": "Skill card"
+  },
+  "proposals": {
+    "title": "Proposed",
+    "hint": "Suggested from your activity. Nothing here is used by any feature until you accept it; a rejected suggestion is not made again for 30 days.",
+    "add": "Add to {{section}}",
+    "update": "Change an entry in {{section}}",
+    "remove": "Remove from {{section}}",
+    "was": "Now: “{{text}}”",
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "add": {
+    "title": "Add an entry",
+    "section": "Section",
+    "text": "What should AnyTools keep in mind?",
+    "kb": "About a knowledge base (optional)",
+    "submit": "Add"
+  },
+  "consolidation": {
+    "title": "Nightly suggestions",
+    "body": "When this is on, AnyTools looks once a night, at 02:00 in your time zone and only after a day with new activity, at your quiz, mastery, vocabulary and skill-card results, and proposes entries. It makes one call on your own chat model and reads counts and results only — never your documents or anything you wrote. Nothing it proposes is used until you accept it.",
+    "stateOn": "Nightly suggestions are on.",
+    "stateOff": "Nightly suggestions are off.",
+    "turnOn": "Turn on",
+    "turnOff": "Turn off",
+    "lastRun": "Last run",
+    "never": "It has not run yet.",
+    "ranAt": "{{when}} · {{status}}",
+    "noOps": "It proposed nothing.",
+    "proposed": "Proposed",
+    "dropped": "Dropped",
+    "status": {
+      "running": "running",
+      "succeeded": "finished",
+      "skipped": "skipped",
+      "failed": "failed"
+    }
+  },
+  "clear": {
+    "title": "Clear profile",
+    "body": "Removes every entry, proposals included. Your quiz, mastery and vocabulary history is not touched.",
+    "start": "Clear profile",
+    "confirm": "Remove every entry?",
+    "yes": "Yes, clear it",
+    "cancel": "Cancel",
+    "done": "The profile is empty."
+  },
+  "errors": {
+    "generic": "That did not work. Try again.",
+    "full": "That section already holds 12 entries. Delete one first.",
+    "conflict": "That entry changed since this page loaded. It has been refreshed.",
+    "invalid": "An entry needs some text, at most 280 characters."
+  }
+}

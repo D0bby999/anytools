@@ -1,0 +1,33 @@
+---
+title: Chuyển Số La Mã — Câu hỏi thường gặp
+---
+
+## Tại sao nó từ chối IIII khi tôi có thể rõ ràng đọc nó?
+
+Vì ký hiệu chuẩn cho phép một ký tự lặp lại nhiều nhất ba lần, và 4 được viết IV. IIII có thể đọc được và xuất hiện trên mặt đồng hồ — theo truyền thống, để cân bằng trực quan chống lại VIII đối diện — nhưng nó không phải là ký hiệu chuẩn, và một trình chuyển đổi âm thầm chấp nhận nó dạy sai hình thức.
+
+Tool cho bạn biết những gì nó nghĩ bạn có ý định, vì vậy IIII báo cáo "Bạn có ý định IV (4) không?" thay vì từ chối trần trụi.
+
+## Làm thế nào nó quyết định cái gì là hợp lệ?
+
+Bằng cách chuyển đổi đầu vào của bạn thành một số và sau đó chuyển đổi số đó trở lại. Nếu kết quả không phù hợp chính xác những gì bạn gõ, đầu vào không phải là ký hiệu chuẩn. Một quy tắc bắt IIII, IM, VX, XXXX và mọi hình thức có thể đọc nhưng sai cùng một lúc — và nó không thể không đồng ý với hướng số-to-Roman, vì nó sử dụng nó.
+
+## Tại sao nó dừng ở 3999?
+
+Vì số La Mã chuẩn không có ký tự trên M (1000), vì vậy 3999 — MMMCMXCIX — là con số lớn nhất có thể được viết với ba hoặc ít hơn M lặp lại. Các giá trị lớn hơn cần một overline (a vinculum) có nghĩa là "nhân với 1000", đó là một quy ước kiểu chữ thay vì một ký tự, và không có hình thức văn bản thuần túy được đồng ý. Thay vì phát minh một, tool nói nơi giới hạn và tại sao.
+
+## Những cặp trừ nào là hợp lệ?
+
+Chỉ sáu: IV (4), IX (9), XL (40), XC (90), CD (400) và CM (900). Quy tắc là chỉ I, X và C được trừ bao giờ, và chỉ từ hai ký tự tiếp theo lên. Đó là lý do tại sao IM là không hợp lệ cho 999 ngay cả khi nó đọc là 1000 − 1; hình thức đúng là CMXCIX.
+
+## Có thể có không hoặc số âm không?
+
+Không. Số La Mã không có ký tự cho không — khái niệm đó đến Châu Âu sau đó, với ký hiệu vị trí — và không có ký hiệu cho tiêu cực. Tool bao gồm 1 đến 3999 và nói rõ khi bạn đi bên ngoài nó.
+
+## Tôi có thể gõ chữ thường không?
+
+Có. Đầu vào được chuyển đổi thành chữ hoa trước khi phân tích cú pháp, và các khoảng trắng xung quanh bị bỏ qua, vì vậy `mcmxciv` và `  MCMXCIV  ` đều cung cấp 1994. Đầu ra luôn là chữ hoa, cái là hình thức thông thường.
+
+## Có điều gì được gửi tới máy chủ không?
+
+Không. Cả hai hướng là một vòng lặp ngắn trên một bảng tra cứu, chạy trong tab trình duyệt này. Không có gì được truyền và không có gì được lưu trữ.

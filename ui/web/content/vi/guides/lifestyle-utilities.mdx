@@ -1,0 +1,63 @@
+---
+title: "Tool tiện ích hàng ngày — Tính tuổi, đổi đơn vị, GPA"
+description: "Tool nhỏ tiết kiệm bạn 1 lượt Google: tính tuổi theo ngày, đổi đơn vị, calculator GPA, percentage math."
+keywords: ["tính tuổi", "đổi đơn vị", "calculator gpa", "đếm từ", "thời gian đọc", "tool hàng ngày"]
+updated: 2026-05-29
+readingTime: 4
+---
+
+# Tool tiện ích hàng ngày
+
+Đây là cluster catch-all. Mỗi tool nhỏ đến mức cảm giác trivial, nhưng trivial theo cách cộng dồn. Loại tool bạn reach nhiều lần mỗi tuần, làm 1 lần, rồi đi tiếp.
+
+---
+
+## Age Calculator
+
+[Age calculator](/vi/lifestyle/age-calculator) nhận birth date và trả về tuổi theo years/months/days, plus total days, total hours, total minutes — đến tận. Dùng lịch đúng: tháng không phải 30 ngày, leap year được honor.
+
+Use case xuất hiện nhiều hơn bạn nghĩ:
+
+- Form bảo hiểm muốn exact age in years
+- "Tôi bao nhiêu tuổi vào [date]?" planning
+- Tính milestone sinh nhật (10,000 ngày tuổi ~27.4 tuổi)
+- Childcare paperwork ("age in months" cho dưới 2 tuổi)
+
+---
+
+## Unit Converter
+
+[Unit converter](/vi/lifestyle/unit-converter) cover length, weight, temperature, volume, speed với cả metric + imperial trong mỗi category.
+
+Note ít obvious:
+
+- **US gallon vs UK gallon**: Khác ~20%. US 3.785 lít/gallon; UK 4.546. Recipe nói "gallon" mà không chắc author bên nào của Atlantic, hầu như luôn là US.
+- **Temperature conversion là offset, không phải multiplicative**: 0°C = 32°F, không phải 0°F. Calculator xử lý qua piecewise function đúng.
+
+---
+
+## GPA Calculator
+
+[GPA calculator](/vi/lifestyle/gpa-calculator) tính cumulative GPA trên thang US 4.0, weighted theo credit hours. Add/remove courses, chọn grade, xem weighted average.
+
+Tool này **chỉ tiếng Anh** vì GPA convention khác nhau theo quốc gia (US 4.0, UK first/2:1/2:2/Third, India 10-point, Australia WAM). Chúng tôi muốn show no result hơn là show wrong scale.
+
+---
+
+## Percentage Calculator
+
+[Percentage calculator](/vi/lifestyle/percentage-calculator) xử lý 3 mode: X% của Y, X là bao nhiêu % của Y, % change từ X sang Y. Discount math, grade, growth rate.
+
+Lỗi phổ biến nhất trong percentage math là asymmetry của percent change. Tăng 50% rồi giảm 50% KHÔNG trở về starting value (trở về 75% original).
+
+---
+
+## Note về good utility
+
+Across cả 4 tool, design rule giống nhau: câu trả lời phải visible mà không cần scroll. Input stack, result sticky trên desktop, copy-to-clipboard 1 tap.
+
+---
+
+## Privacy
+
+Tool chạy hoàn toàn trong browser. Birthday, GPA, conversion, percentage — không cái nào rời máy bạn.

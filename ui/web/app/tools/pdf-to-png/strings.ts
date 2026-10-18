@@ -1,0 +1,78 @@
+import type { LocalizedStrings } from '~/components/tools-ui';
+
+const EN = {
+  title: 'PDF to PNG',
+  dropLabel: 'PDF to render',
+  failed: 'Render failed',
+  resolution: 'Resolution',
+  dpi_72: '72 — screen',
+  dpi_150: '150 — good print',
+  dpi_300: '300 — full print',
+  rendering: 'Rendering…',
+  render: 'Render to PNG',
+  pageOf: 'Page {n} of {total}',
+  downloadAllZip: 'Download all {n} as .zip',
+  pageAlt: 'Page {n}',
+  downloadLink: 'download',
+  error_pageTooLargeAtDpi:
+    'Page {page} would be {width}x{height} pixels at {dpi} DPI, past what browsers can render. Try a lower DPI.',
+  error_pagePngEncodeFailed: 'Page {page} could not be encoded as PNG.',
+};
+
+export const STRINGS: LocalizedStrings<typeof EN> = {
+  en: EN,
+  vi: {
+    title: 'PDF sang PNG',
+    dropLabel: 'PDF cần kết xuất',
+    failed: 'Kết xuất thất bại',
+    resolution: 'Độ phân giải',
+    dpi_72: '72 — màn hình',
+    dpi_150: '150 — in tốt',
+    dpi_300: '300 — in chất lượng cao',
+    rendering: 'Đang kết xuất…',
+    render: 'Kết xuất sang PNG',
+    pageOf: 'Trang {n}/{total}',
+    downloadAllZip: 'Tải tất cả {n} trang dạng .zip',
+    pageAlt: 'Trang {n}',
+    downloadLink: 'tải xuống',
+    error_pageTooLargeAtDpi:
+      'Trang {page} sẽ có kích thước {width}x{height} pixel ở {dpi} DPI, vượt quá mức trình duyệt kết xuất được. Hãy thử DPI thấp hơn.',
+    error_pagePngEncodeFailed: 'Không mã hóa được trang {page} thành PNG.',
+  },
+  es: {
+    title: 'PDF a PNG',
+    dropLabel: 'PDF a renderizar',
+    failed: 'El renderizado falló',
+    resolution: 'Resolución',
+    dpi_72: '72 — pantalla',
+    dpi_150: '150 — buena impresión',
+    dpi_300: '300 — impresión completa',
+    rendering: 'Renderizando…',
+    render: 'Renderizar a PNG',
+    pageOf: 'Página {n} de {total}',
+    downloadAllZip: 'Descargar las {n} como .zip',
+    pageAlt: 'Página {n}',
+    downloadLink: 'descargar',
+    error_pageTooLargeAtDpi:
+      'La página {page} tendría {width}x{height} píxeles a {dpi} DPI, más de lo que los navegadores pueden renderizar. Prueba un DPI menor.',
+    error_pagePngEncodeFailed: 'La página {page} no se pudo codificar como PNG.',
+  },
+  pt: {
+    title: 'PDF para PNG',
+    dropLabel: 'PDF a renderizar',
+    failed: 'A renderização falhou',
+    resolution: 'Resolução',
+    dpi_72: '72 — tela',
+    dpi_150: '150 — boa impressão',
+    dpi_300: '300 — impressão completa',
+    rendering: 'Renderizando…',
+    render: 'Renderizar para PNG',
+    pageOf: 'Página {n} de {total}',
+    downloadAllZip: 'Baixar todas as {n} como .zip',
+    pageAlt: 'Página {n}',
+    downloadLink: 'baixar',
+    error_pageTooLargeAtDpi:
+      'A página {page} teria {width}x{height} pixels a {dpi} DPI, além do que os navegadores conseguem renderizar. Tente um DPI menor.',
+    error_pagePngEncodeFailed: 'A página {page} não pôde ser codificada como PNG.',
+  },
+};

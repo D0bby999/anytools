@@ -1,0 +1,27 @@
+---
+title: Cron Parser — Perguntas frequentes
+---
+
+## Cron suporta segundos?
+
+Não no padrão Unix (5 campos). Variantes como Quartz (Java) e Spring Cron usam 6 ou 7 campos com segundos e ano. Indique no controle qual flavor está usando se aceitarmos múltiplos.
+
+## Como rodar em um fuso específico?
+
+Cron rodando no servidor segue o TZ do servidor (`/etc/timezone`). Para Kubernetes CronJob, use `spec.timeZone: "America/Sao_Paulo"` (k8s 1.27+). Para systemd timers, `OnCalendar=` com hora local + `[Timer] PersistentTime=true`.
+
+## `*/0` ou `*/100` é válido?
+
+Não. Step deve ser maior que 0 e menor que o range do campo. `*/0` é erro de sintaxe. `*/100` para minutos é inválido (max 59).
+
+## Como agendar para a última sexta do mês?
+
+Cron padrão não suporta. Soluções: rodar diariamente e verificar dentro do job se "hoje é a última sexta do mês". Ou usar Quartz expressions `0 0 18 ? * 6L` (L = last).
+
+## Por que job não rodou no horário do DST?
+
+Spring forward (avança hora): 02:30 não existe; cron pula. Fall back: 02:30 existe duas vezes; pode rodar duas vezes. Sempre prefira UTC para jobs críticos.
+
+## Cron é a melhor escolha?
+
+Para tarefas simples agendadas, sim. Para fluxos complexos com retries, dependências, ou observabilidade, considere Airflow, Temporal, ou Cloud Scheduler. Cron é poderoso mas opaco quando falha.

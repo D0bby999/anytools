@@ -1,0 +1,451 @@
+---
+title: "Regex Mastery: From Beginner to Wizard"
+description: "Master regular expressions: finite automata theory, JS flags, 30 common patterns, lookahead/lookbehind, catastrophic backtracking, Unicode, and performance."
+keywords: ["regex tutorial", "regular expressions", "javascript regex", "regex patterns", "regex lookahead", "redos", "unicode regex", "pcre", "regex tester"]
+updated: 2026-05-26
+readingTime: 20
+---
+
+# Regex Mastery: From Beginner to Wizard
+
+Regular expressions are the closest thing programming has to a superpower — and a liability. A well-written regex solves in one line what would take twenty. A poorly-written one can bring down a production server. This guide covers everything from the theoretical model that makes regex work to the catastrophic backtracking bug that has caused real outages at major tech companies.
+
+---
+
+## 1. What Regex Actually IS: Finite Automata
+
+Most developers treat regex as magic syntax. Understanding the underlying model — finite automata — makes you dramatically better at writing and debugging them.
+
+A regular expression describes a **formal language** (a set of strings). A regex engine processes a string by simulating a finite automaton: a directed graph where nodes are states and edges are character transitions. The engine starts in the initial state, reads characters one by one, follows transitions, and accepts the string if it reaches an accepting state.
+
+There are two types of finite automata relevant here:
+
+**Deterministic Finite Automaton (DFA):** In any state, each input character leads to exactly one next state. DFAs run in O(n) time where n is the input length — guaranteed, no exceptions. Tools like `grep -E`, `awk`, and Go's `regexp` package use DFA-based engines (specifically RE2).
+
+**Nondeterministic Finite Automaton (NFA):** A state can have multiple possible transitions for the same input — the automaton explores all possibilities simultaneously (conceptually). Most programming language regex engines (JavaScript, Python, Ruby, Java, PHP, Perl, .NET) use NFA-based backtracking engines (PCRE-family).
+
+The critical difference: NFA-based engines support **backreferences** and **lookahead/lookbehind** (features DFAs cannot express), but they can exhibit exponential worst-case behavior on certain input patterns. DFA-based engines guarantee linear time but cannot express those features.
+
+This is the root cause of ReDoS (Regular Expression Denial of Service) — covered in section 6.
+
+---
+
+## 2. JavaScript Regex Specifics
+
+JavaScript's `RegExp` is an NFA-based engine that has evolved significantly since ES5. Here's what matters in 2026.
+
+### Creating a Regex
+
+```javascript
+// Literal syntax — preferred for static patterns
+const emailRe = /^[\w.+-]+@[\w-]+\.[a-z]{2,}$/i;
+
+// Constructor — required for dynamic patterns
+const searchRe = new RegExp(escapeRegExp(userInput), 'gi');
+
+// Always escape user input before dropping it into a constructor:
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+```
+
+### Flag Reference
+
+| Flag | ES Version | Meaning |
+|------|-----------|---------|
+| `g` | ES1 | Global — find all matches, not just first |
+| `i` | ES1 | Case-insensitive |
+| `m` | ES1 | Multiline — `^`/`$` match line boundaries, not string start/end |
+| `s` | ES2018 | DotAll — `.` matches `\n` too |
+| `u` | ES2015 | Unicode — enable `\u{XXXX}`, `\p{...}`, treat pattern as UTF-16 code points |
+| `y` | ES2015 | Sticky — anchors match at `lastIndex` only (no search ahead) |
+| `d` | ES2022 | Indices — populate `match.indices` with per-group start/end positions |
+| `v` | ES2024 | Unicode Sets — enhanced `u` mode with set operations `[A&&B]`, `[A--B]` |
+
+**The `g` flag trap:** `RegExp.prototype.test()` with a global regex mutates `lastIndex`. Calling `.test()` in a loop on the same instance can produce alternating true/false:
+
+```javascript
+const re = /a/g;
+re.test('a'); // true  — lastIndex → 1
+re.test('a'); // false — lastIndex → 0 (search started at 1, no match)
+re.test('a'); // true  — cycle repeats
+```
+
+Fix: use `/a/` without `g` for boolean tests, or reset `re.lastIndex = 0` between calls.
+
+**The `u` flag matters more than you think:** Without `u`, the pattern `/./` does NOT match emoji or supplementary Unicode characters — they are seen as two "characters" (a surrogate pair in JS's internal UTF-16). With `u`, they count as one code point. Always use `u` for user-facing text processing.
+
+**The `v` flag (ES2024):** The new `v` flag enables Unicode set notation and string properties of Unicode. It's a strict superset of `u` — you cannot combine both. Key new features:
+
+```javascript
+// Set intersection: characters that are both Letter AND ASCII
+/[\p{Letter}&&[\x00-\x7F]]/v
+
+// Set difference: digits that aren't ASCII digits
+/[\p{Decimal_Number}--[0-9]]/v
+
+// Strings in character class (matching multi-character sequences)
+/[\q{ab|cd|ef}]/v
+```
+
+### Named Capture Groups
+
+ES2018 introduced named groups, massively improving regex readability:
+
+```javascript
+const dateRe = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
+const m = '2026-05-26'.match(dateRe);
+console.log(m.groups.year);  // "2026"
+console.log(m.groups.month); // "05"
+```
+
+Named groups also work in replace:
+```javascript
+'2026-05-26'.replace(
+  /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/,
+  '$<day>/$<month>/$<year>'
+); // "26/05/2026"
+```
+
+---
+
+## 3. Thirty Common Patterns — The Reference Table
+
+| Pattern | Regex | Notes |
+|---------|-------|-------|
+| Email (basic) | `/^[\w.+-]+@[\w-]+\.[a-z]{2,}$/i` | RFC 5322 is complex; this covers 99% of real cases |
+| Email (strict RFC) | Use a library like [`validator.js`](https://github.com/validatorjs/validator.js) | Full RFC 5322 regex is ~6 KB |
+| URL (http/https) | `/^https?:\/\/[\w-]+(\.[\w-]+)+(\/[\w\-./?%&=]*)?$/i` | Does not validate IDN hostnames |
+| IPv4 | `/^(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)$/` | Validates 0–255 each octet |
+| IPv6 | `/^([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$/i` | Simplified; use a library for compressed forms |
+| UUID v4 | `/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i` | Version bit `4`, variant bits `8/9/a/b` |
+| Hex color (3/6 digit) | `/^#([0-9a-f]{3}){1,2}$/i` | CSS hex shorthand |
+| Hex color (3/4/6/8 digit) | `/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i` | Includes alpha channel |
+| ISO 8601 date | `/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/` | Does not validate 30/31 per month |
+| ISO 8601 datetime | `/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/` | Includes milliseconds + timezone |
+| Semver | `/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*))?(?:\+([\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*))?$/` | Full semver spec |
+| Slug | `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` | URL-safe slugs |
+| Username (3–20 chars) | `/^[a-zA-Z0-9_]{3,20}$/` | Alphanumeric + underscore |
+| Password (≥8, mixed) | `/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/` | Uses lookahead — see section 5 |
+| US phone | `/^\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/` | Flexible formatting |
+| Credit card (Luhn) | `/^\d{13,19}$/` + Luhn algorithm | Regex only validates format; Luhn validates checksum |
+| JWT | `/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$/` | Three Base64URL segments |
+| MD5 hash | `/^[0-9a-f]{32}$/i` | |
+| SHA-256 hash | `/^[0-9a-f]{64}$/i` | |
+| Positive integer | `/^\d+$/` | No leading zeros: `/^[1-9]\d*$/` |
+| Decimal number | `/^-?\d+(\.\d+)?$/` | Optional sign, optional decimal |
+| HTML tag (basic) | `/^<([a-z][a-z0-9]*)\b[^>]*>.*?<\/\1>$/is` | Never parse HTML with regex for real use |
+| CDATA/XML entities | Use a proper XML parser | Regex cannot correctly parse recursive structures |
+| Whitespace normalize | `/\s+/g` → replace `' '` | Collapses multiple spaces |
+| Leading/trailing space | `/^\s+|\s+$/g` | Same as `.trim()` |
+| Line endings (CRLF→LF) | `/\r\n/g` → replace `'\n'` | Windows line ending normalization |
+| Repeated words | `/\b(\w+)\s+\1\b/gi` | Finds "the the" typos — uses backreference |
+| Multiline comment | `/\/\*[\s\S]*?\*\//g` | Non-greedy; `[\s\S]` instead of `.` for pre-ES2018 |
+| SQL single-line comment | `/--[^\n]*/g` | |
+| Markdown link | `/\[([^\]]+)\]\(([^)]+)\)/g` | Captures text and URL |
+
+Test and experiment with any of these patterns in the [Regex Tester](/en/text-regex/regex-tester).
+
+---
+
+## 4. Lookahead and Lookbehind — Deep Dive
+
+Lookahead and lookbehind are **zero-width assertions**: they match a position in the string without consuming characters. This means they don't appear in the match result but influence what gets matched.
+
+### Positive Lookahead `(?=...)`
+
+Assert that what follows matches the pattern, without including it in the match:
+
+```javascript
+// Match "foo" only if followed by "bar"
+/foo(?=bar)/.test('foobar'); // true
+/foo(?=bar)/.test('foobaz'); // false
+
+// Practical: split camelCase (insert space before uppercase preceded by lowercase)
+'camelCaseString'.replace(/([a-z])(?=[A-Z])/g, '$1 ');
+// → "camel Case String"
+```
+
+### Negative Lookahead `(?!...)`
+
+Assert that what follows does NOT match:
+
+```javascript
+// Match number NOT followed by "px"
+/\d+(?!px)/.exec('10em');  // matches "10"
+/\d+(?!px)/.exec('10px');  // matches "1" (! matches the "0" position... be careful)
+// Better: /\d+(?!\s*px)/
+```
+
+The subtle trap above: `\d+` is greedy, but the lookahead can cause it to backtrack. On `'10px'`, the engine tries `\d+` = `"10"`, then `(?!px)` fails (because `"px"` follows). Engine backtracks: `\d+` = `"1"`, then `(?!px)` succeeds (because `"0px"` follows, not `"px"` directly). You get `"1"` — probably not what you wanted. Solution: anchor with `\b` or be explicit about what follows.
+
+### Positive Lookbehind `(?<=...)`
+
+ES2018+. Assert that what precedes matches:
+
+```javascript
+// Match USD amounts preceded by "$"
+/(?<=\$)\d+(\.\d{2})?/.exec('Price: $42.99')[0]; // "42.99"
+
+// Extract CSS class names prefixed with "bg-"
+'bg-blue-500 text-white'.match(/(?<=bg-)[a-z]+-\d+/); // ["blue-500"]
+```
+
+### Negative Lookbehind `(?<!...)`
+
+```javascript
+// Match "port" NOT preceded by "trans"
+/(?<!trans)port/.test('transport'); // false
+/(?<!trans)port/.test('seaport');   // true
+```
+
+### Performance Warning
+
+Lookbehind is more expensive than lookahead because the engine must scan backwards. Variable-length lookbehind (which JavaScript supports since ES2018, unlike PCRE's fixed-length restriction) can trigger complex backtracking. Keep lookbehind patterns simple and specific.
+
+### The Password Validation Example
+
+This common pattern uses multiple lookaheads to enforce character class requirements:
+
+```javascript
+// At least 8 chars, one lowercase, one uppercase, one digit, one special char
+const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+```
+
+Each `(?=.*X)` is a lookahead from position 0 that scans the whole string for `X`. With four such lookaheads, a 100-character input scans up to 400 times through the string — still fast for passwords, but illustrates why lookaheads on long inputs need care.
+
+---
+
+## 5. Catastrophic Backtracking — The ReDoS Problem
+
+ReDoS (Regular Expression Denial of Service) is a real attack vector. The [OWASP ReDoS page](https://owasp.org/www-community/attacks/ReDoS) documents incidents at Cloudflare (2019 outage), Stack Overflow, and many other major services.
+
+### How It Happens
+
+The classic vulnerable pattern: nested quantifiers with overlapping matches.
+
+```javascript
+// VULNERABLE — do not use in production
+const re = /^(a+)+$/;
+
+const input = 'a'.repeat(30) + '!';
+re.test(input); // This can take minutes or crash the process
+```
+
+Why? The pattern `(a+)+` on the string `"aaa...a!"` causes exponential backtracking:
+- Outer `+` tries `(a+)` matching all 30 `a`s in one group → `!` fails
+- Backtracks: tries splitting into `[aa...a]` and `[a]` → `!` fails
+- Backtracks again: tries three groups → ... continues for 2^30 combinations
+
+The input length is 30 — the time is 2^30 operations. At 40 characters, it's 2^40 ≈ 1 trillion operations.
+
+### Real-World Examples
+
+**Cloudflare 2019 outage (CVE-2019-15605):** A regex in a WAF rule had catastrophic backtracking. An HTTP request that matched the pathological case caused the regex engine to peg CPU at 100%, taking down the CDN globally for ~27 minutes.
+
+**Stack Overflow 2016 outage:** A regex with the pattern `\s*(\S+\s*)+` (effectively `(a+)+` equivalent) was applied to a long string. The CPU hit 100% and the site went down.
+
+**node-semver CVE-2022-25883:** Regular expression denial of service via specially crafted semver strings.
+
+### Identifying Vulnerable Patterns
+
+Dangerous structure: `(X+)+`, `(X*)*`, `(X|X)+` where X contains overlapping possibilities. The key is when two parts of the pattern can match the same characters, creating ambiguity that forces exponential exploration.
+
+```javascript
+// Dangerous patterns — all equivalent to (a+)+:
+/(a+)+/
+/(a*)+/
+/(\w|\d)+/   // \w already includes \d — overlapping classes
+/([a-zA-Z0-9]+)*/
+/(.*a.*)+/   // any wildcard-inside-quantifier with repetition
+```
+
+### Mitigations
+
+1. **Use RE2/linear-time engine:** Go's `regexp`, Java's `RE2J`, Python's `google-re2`, and the [`re2`](https://www.npmjs.com/package/re2) npm package all guarantee O(n) matching. Trade-off: no backreferences, no lookbehind.
+
+2. **Input length limits:** Cap input before regex evaluation. For a URL validator, reject inputs over 2048 characters before running the regex.
+
+3. **Timeout:** Some engines (Java's `Pattern`, .NET) support match timeouts. V8 does not expose a timeout API directly, but you can run regex in a Worker with a timeout.
+
+4. **Static analysis:** [`vuln-regex-detector`](https://github.com/davisjam/vuln-regex-detector), OWASP's [`RegexStaticAnalysis`](https://github.com/nicowillis/RegexStaticAnalysis), or the VS Code extension "Regexp Preview" can flag vulnerable patterns.
+
+5. **Possessive quantifiers / atomic groups:** PCRE (PHP, Python `regex` library, Perl) supports possessive quantifiers (`a++`, `(?>a+)`) that prevent backtracking. JavaScript does not support these natively.
+
+---
+
+## 6. Unicode Regex — Beyond ASCII
+
+Real-world text is Unicode. JavaScript's regex has strong Unicode support with the `u` and `v` flags.
+
+### Unicode Property Escapes `\p{...}`
+
+ES2018 (with `u` flag). Match characters based on Unicode property:
+
+```javascript
+// Match any Unicode letter (all scripts)
+/^\p{Letter}+$/u.test('Héllo');     // true
+/^\p{Letter}+$/u.test('Привет');    // true (Russian)
+/^\p{Letter}+$/u.test('こんにちは'); // true (Japanese)
+
+// Match any Unicode number
+/\p{Number}/u.test('½');  // true (vulgar fraction)
+/\p{Number}/u.test('²');  // true (superscript)
+
+// Match specific script
+/^\p{Script=Cyrillic}+$/u.test('Привет'); // true
+/^\p{Script=Hangul}+$/u.test('한국어');    // true
+
+// Emoji
+/\p{Emoji}/u.test('😀'); // true
+
+// Punctuation
+/\p{Punctuation}/u.test('!'); // true
+```
+
+### Unicode Categories Reference
+
+| Category | Shorthand | Matches |
+|----------|-----------|---------|
+| `Letter` | `L` | All letters (Lu, Ll, Lt, Lm, Lo) |
+| `Uppercase_Letter` | `Lu` | Uppercase letters |
+| `Lowercase_Letter` | `Ll` | Lowercase letters |
+| `Number` | `N` | All numbers (Nd, Nl, No) |
+| `Decimal_Number` | `Nd` | Decimal digits 0–9 in all scripts |
+| `Punctuation` | `P` | All punctuation |
+| `Separator` | `Z` | Space separators, line/paragraph separators |
+| `Emoji` | — | Emoji characters |
+
+### Matching Grapheme Clusters
+
+One visual character can be multiple code points (base + combining marks). For example: `é` can be U+00E9 (one code point) or `e` + U+0301 (two code points). The `u`/`v` flag handles code points but not grapheme clusters.
+
+For grapheme-aware operations, use the [Intl.Segmenter API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter) (ES2022):
+
+```javascript
+const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+const graphemes = [...segmenter.segment('é')]; // Always 1 grapheme
+```
+
+---
+
+## 7. Engine Comparison: PCRE vs RE2 vs JavaScript
+
+Understanding the differences matters when choosing tools and reasoning about behavior:
+
+| Feature | JavaScript (V8) | PCRE (PHP/Python re) | RE2 (Go/Rust) |
+|---------|----------------|---------------------|---------------|
+| Time complexity | O(2^n) worst case | O(2^n) worst case | O(n) guaranteed |
+| Backreferences `\1` | Yes | Yes | No |
+| Lookahead | Yes | Yes | Yes (limited in some) |
+| Lookbehind | Yes (variable-length since ES2018) | Yes (fixed-length) | No |
+| Unicode properties | Yes (`u`/`v` flag) | Yes (with `u` modifier) | Yes |
+| Possessive quantifiers | No | Yes | N/A |
+| Named groups | Yes | Yes | Yes |
+| Atomic groups | No | Yes (`(?>...)`) | N/A |
+
+**When to use RE2:** Any context where input comes from untrusted users and performance guarantees matter — API endpoints, search boxes, log processors. Use the Node.js [`re2`](https://www.npmjs.com/package/re2) package which wraps Google's RE2 C++ library.
+
+**When PCRE/JS is fine:** Internal scripts, build tooling, config parsing where inputs are controlled and size is bounded.
+
+---
+
+## 8. Testing Strategy for Regex
+
+A regex without tests is a liability. Use these strategies:
+
+### Boundary and Edge Cases
+
+For every regex, test: the happy path, the empty string, minimum/maximum valid length, boundary characters (first/last in a character class), Unicode above U+007F, input with injection-like characters (`\`, `<`, `>`).
+
+```javascript
+// Example test suite for email regex
+const emailRe = /^[\w.+-]+@[\w-]+\.[a-z]{2,}$/i;
+const valid = ['user@example.com', 'a@b.io', 'U+tag+sub@sub.domain.co.uk'];
+const invalid = ['@domain.com', 'user@', 'user@domain', 'user @domain.com', ''];
+
+for (const e of valid) console.assert(emailRe.test(e), `Should match: ${e}`);
+for (const e of invalid) console.assert(!emailRe.test(e), `Should not match: ${e}`);
+```
+
+### Property-Based Testing
+
+Use [`fast-check`](https://github.com/dubzzz/fast-check) to generate arbitrary strings and verify your regex handles them without crashing:
+
+```javascript
+import fc from 'fast-check';
+test('email regex never throws', () => {
+  fc.assert(fc.property(fc.string(), (s) => {
+    expect(() => emailRe.test(s)).not.toThrow();
+  }));
+});
+```
+
+### Performance Testing
+
+For any regex applied to user input, measure with a 10,000-character worst-case input before shipping:
+
+```javascript
+const worstCase = 'a'.repeat(10_000) + '!';
+const start = performance.now();
+vulnerableRe.test(worstCase);
+const elapsed = performance.now() - start;
+if (elapsed > 100) throw new Error(`Regex too slow: ${elapsed}ms`);
+```
+
+Use the [Regex Tester](/en/text-regex/regex-tester) to prototype and check match results interactively.
+
+---
+
+## FAQ
+
+### Q: What's the difference between `.` and `[\s\S]`?
+
+`.` matches any character except newlines. `[\s\S]` (whitespace or non-whitespace) matches truly any character including `\n`. Since ES2018, the `s` (dotAll) flag makes `.` match newlines too — use `/pattern/s` instead of the `[\s\S]` workaround.
+
+### Q: Why does my regex match when I expect it not to?
+
+Most likely: missing anchors. `/\d+/` matches any substring containing digits — `"abc123xyz"` returns `"123"`. Use `^` and `$` anchors (or `\b` word boundaries) to match the full string: `/^\d+$/`.
+
+### Q: What's the difference between `*`, `+`, and `?` quantifiers?
+
+`*` means zero or more, `+` means one or more, `?` means zero or one. All are greedy by default (match as much as possible). Adding `?` makes them lazy (match as little as possible): `*?`, `+?`, `??`.
+
+### Q: What is a non-capturing group `(?:...)`?
+
+A group that matches but doesn't capture to `$1`, `$2` etc. Use it when you need grouping for alternation or quantifiers but don't need the value: `/(?:foo|bar)+/`. This is also slightly faster than capturing groups because the engine doesn't need to store the match.
+
+### Q: How do I match a literal dot, or any other special character?
+
+Escape it with `\`. The special characters that need escaping: `. * + ? ^ $ { } [ ] | ( ) \`. Inside a character class `[...]`, most lose their special meaning except `]`, `\`, `^` (at start), and `-` (between chars).
+
+### Q: Why is `\w` not suitable for matching words in non-English text?
+
+`\w` is equivalent to `[a-zA-Z0-9_]` — it does not match accented letters (`é`, `ñ`, `ü`), Cyrillic, Arabic, CJK, or any non-ASCII word character. For proper Unicode word matching, use `\p{Letter}` with the `u` flag.
+
+### Q: Can regex parse HTML or XML?
+
+No, and this is a famous principle in computer science. HTML is a context-free grammar (requires a stack-based parser); regex is a regular grammar. You cannot reliably parse nested structures with regex. Use a proper DOM parser (`DOMParser` in browsers, `cheerio`/`jsdom` in Node.js, `BeautifulSoup` in Python). The [classic StackOverflow answer](https://stackoverflow.com/a/1732454) on this topic is legendary.
+
+### Q: What is the `sticky` (`y`) flag used for?
+
+The `y` flag forces the match to start exactly at `lastIndex` — it won't search ahead. This is useful for writing custom tokenizers/lexers where you process a string left-to-right and need each match to start exactly where the last one ended. It's significantly faster for tokenizing because there's no searching, just checking the current position.
+
+### Q: How do named groups compare to numbered groups for performance?
+
+Named groups are equal in performance to numbered groups in V8 — the name is just metadata. The slight overhead is in result object creation, not matching. Prefer named groups for any regex with more than two capture groups; readability far outweighs the negligible overhead.
+
+### Q: What are Unicode property escapes for emoji?
+
+Use `\p{Emoji}` with the `u` flag to match emoji characters. However, many emoji are sequences (base + variation selector + ZWJ sequences). To match a full visual emoji (grapheme cluster), use `\p{Emoji_Presentation}` or better yet `Intl.Segmenter` for grapheme-level operations. The `\p{RGI_Emoji}` property (available with the `v` flag in ES2024) matches complete recommended emoji sequences.
+
+### Q: What tools help find ReDoS vulnerabilities?
+
+1. [`safe-regex`](https://github.com/nicolo-ribaudo/safe-regex) — Node.js static analyzer
+2. [`vuln-regex-detector`](https://github.com/davisjam/vuln-regex-detector) — academic tool with high precision
+3. [regex101.com](https://regex101.com) — the debugger tab shows backtracking steps
+4. [Snyk Code](https://snyk.io/product/snyk-code/) — CI integration for security scans including ReDoS
+
+### Q: How do I convert between text case formats programmatically?
+
+For converting camelCase to kebab-case, snake_case to PascalCase, etc., a regex plus replace is the standard approach. See our [Text Case Converter](/en/text-regex/text-case-converter) for a browser tool. For URL-friendly slugs, use the [Slugify tool](/en/text-regex/slugify).

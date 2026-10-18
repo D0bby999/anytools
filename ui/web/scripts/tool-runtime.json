@@ -1,0 +1,170 @@
+{
+  "excalidraw-excalidraw@0.18.1": {
+    "package": "@excalidraw/excalidraw",
+    "copy": [
+      {
+        "from": "dist/prod/fonts",
+        "to": "fonts"
+      }
+    ]
+  },
+  "jq-wasm@3.0.0-jq-1.8.2": {
+    "package": "jq-wasm",
+    "copy": [
+      {
+        "from": "dist/build/jq.wasm",
+        "to": "jq.wasm"
+      }
+    ]
+  },
+  "libarchive.js@2.0.2": {
+    "package": "libarchive.js",
+    "copy": [
+      {
+        "from": "dist/libarchive.wasm",
+        "to": "libarchive.wasm"
+      },
+      {
+        "from": "dist/worker-bundle.js",
+        "to": "worker-bundle.js"
+      }
+    ]
+  },
+  "libheif-js@1.19.8": {
+    "package": "libheif-js",
+    "copy": [
+      {
+        "from": "libheif-wasm/libheif.js",
+        "to": "libheif.js"
+      },
+      {
+        "from": "libheif-wasm/libheif.wasm",
+        "to": "libheif.wasm"
+      },
+      {
+        "from": "libheif-wasm/LICENSE",
+        "to": "LICENSE.txt"
+      }
+    ]
+  },
+  "noto-sans@2.015": {
+    "download": [
+      {
+        "url": "https://github.com/notofonts/notofonts.github.io/raw/28b15b4b43b7bed62b5cf6e6b0b5ff5846270535/fonts/NotoSans/unhinted/ttf/NotoSans-Regular.ttf",
+        "sha256": "f3961a9cde016d41a4879aecda1474d3a36d6bf54fa0e4643de029cc2248b0e8",
+        "to": "NotoSans-Regular.ttf"
+      }
+    ]
+  },
+  "pdfjs-dist@6.3.289": {
+    "package": "pdfjs-dist",
+    "copy": [
+      {
+        "from": "cmaps",
+        "to": "cmaps"
+      },
+      {
+        "from": "standard_fonts",
+        "to": "standard_fonts"
+      },
+      {
+        "from": "iccs",
+        "to": "iccs"
+      },
+      {
+        "from": "wasm/openjpeg.wasm",
+        "to": "wasm/openjpeg.wasm"
+      },
+      {
+        "from": "wasm/openjpeg_nowasm_fallback.js",
+        "to": "wasm/openjpeg_nowasm_fallback.js"
+      },
+      {
+        "from": "wasm/jbig2.wasm",
+        "to": "wasm/jbig2.wasm"
+      },
+      {
+        "from": "wasm/jbig2_nowasm_fallback.js",
+        "to": "wasm/jbig2_nowasm_fallback.js"
+      },
+      {
+        "from": "wasm/qcms_bg.wasm",
+        "to": "wasm/qcms_bg.wasm"
+      }
+    ]
+  },
+  "sql.js@1.14.2": {
+    "package": "sql.js",
+    "copy": [
+      {
+        "from": "dist/sql-wasm-browser.wasm",
+        "to": "sql-wasm-browser.wasm"
+      }
+    ]
+  },
+  "tessdata-fast@4.1.0": {
+    "download": [
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/4.1.0/eng.traineddata",
+        "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+        "to": "eng.traineddata"
+      },
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/4.1.0/vie.traineddata",
+        "sha256": "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1",
+        "to": "vie.traineddata"
+      },
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/4.1.0/spa.traineddata",
+        "sha256": "6f2e04d02774a18f01bed44b1111f2cd7f3ba7ac9dc4373cd3f898a40ea6b464",
+        "to": "spa.traineddata"
+      },
+      {
+        "url": "https://github.com/tesseract-ocr/tessdata_fast/raw/4.1.0/por.traineddata",
+        "sha256": "c4932b937207a9514b7514d518b931a99938c02a28a5a5a553f8599ed58b7deb",
+        "to": "por.traineddata"
+      }
+    ]
+  },
+  "tesseract.js-core@7.0.0": {
+    "package": "tesseract.js-core",
+    "via": "tesseract.js",
+    "copy": [
+      {
+        "from": "tesseract-core-simd-lstm.wasm.js",
+        "to": "tesseract-core-simd-lstm.wasm.js"
+      },
+      {
+        "from": "tesseract-core-lstm.wasm.js",
+        "to": "tesseract-core-lstm.wasm.js"
+      }
+    ]
+  },
+  "tesseract.js@7.0.0": {
+    "package": "tesseract.js",
+    "copy": [
+      {
+        "from": "dist/worker.min.js",
+        "to": "worker.min.js"
+      }
+    ]
+  },
+  "u2netp@0.0.0": {
+    "download": [
+      {
+        "url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx",
+        "sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+        "to": "u2netp.onnx"
+      }
+    ]
+  },
+  "zxing-wasm@3.1.3": {
+    "package": "zxing-wasm",
+    "copy": [
+      {
+        "from": "dist/full/zxing_full.wasm",
+        "to": "zxing_full.wasm"
+      }
+    ]
+  }
+}

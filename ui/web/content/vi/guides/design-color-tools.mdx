@@ -1,0 +1,65 @@
+---
+title: "Color Converter & WCAG Contrast — Hướng dẫn cho designer"
+description: "Chuyển đổi HEX, RGB, HSL plus WCAG 2.1 AA/AAA contrast ratios — ý nghĩa, khi nào dùng, đọc số như thế nào."
+keywords: ["color converter", "wcag contrast", "hex rgb hsl", "accessibility", "color palette", "tool designer"]
+updated: 2026-05-29
+readingTime: 5
+---
+
+# Color Converter & WCAG Contrast
+
+Color tool chia thành 2 group: cái translate giữa encoding (HEX, RGB, HSL, OKLCH) và cái score accessibility. [Color converter](/vi/design/color-converter) của chúng tôi làm cả 2 trên 1 màn hình.
+
+---
+
+## Phần Encoding
+
+### HEX
+
+`#1E293B` là 3 hex byte cho red, green, blue. Mỗi byte 0-255 decimal, expressed như 2 hex digit (00-FF). Convenient vì compact và copy-paste được. Inconvenient vì human intuition không extend đến nó.
+
+### RGB
+
+`rgb(30, 41, 59)` — cùng số như HEX, chỉ decimal. Better cho arithmetic.
+
+### HSL
+
+`hsl(217, 33%, 17%)` — hue (0-360°), saturation (0-100%), lightness (0-100%). Đây là format bạn thực sự muốn khi tweaking color bằng tay. Muốn darker? Giảm lightness. Muốn less-saturated? Giảm saturation.
+
+---
+
+## Phần WCAG Contrast
+
+WCAG 2.1 chỉ định minimum contrast ratio giữa foreground text và background:
+
+- **AA Normal** — 4.5:1 — legal floor cho hầu hết content public-facing.
+- **AA Large** — 3:1 — apply cho text 18pt+ hoặc 14pt+ bold.
+- **AAA Normal** — 7:1 — enhanced level.
+- **AAA Large** — 4.5:1 — enhanced level cho large text.
+
+Math behind ratio này dùng **relative luminance** với sRGB linearization — KHÔNG phải naive RGB difference. Calculator chúng tôi dùng công thức WCAG 2.1 đúng.
+
+Implication: checker quick-and-dirty average RGB sẽ pass/fail color sai ở boundary. Chúng tôi dùng công thức canonical và cross-check với [WebAIM contrast checker](https://webaim.org/resources/contrastchecker/).
+
+---
+
+## Combination thực tế
+
+- **Slate-900 trên white**: 20:1, pass everything.
+- **Slate-600 trên white**: 6.8:1, pass AA Normal nhưng chỉ AAA Large.
+- **Blue-600 trên white**: 5.2:1, pass AA Normal.
+- **Yellow trên white**: thường fail.
+- **Red trên red**: never works.
+
+---
+
+## Sắp ra mắt
+
+- **Color palette generator** — pick hue family + harmonized 5-color palette.
+- **Color blindness simulator** — preview deuteranopia/protanopia/tritanopia.
+
+---
+
+## Privacy
+
+Mọi conversion và contrast math chạy local trong browser. Color bạn test không được gửi đi đâu cả.

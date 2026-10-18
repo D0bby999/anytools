@@ -1,0 +1,26 @@
+{
+  "kind": "drive#fileList",
+  "incompleteSearch": false,
+  "nextPageToken": "~!!~AI9FV7QT8xN2fZ0pYb3kQ1sV",
+  "files": [
+    {
+      "kind": "drive#file",
+      "id": "1Doc_WeekOne_Notes",
+      "name": "Week 1 — notes",
+      "mimeType": "application/vnd.google-apps.document",
+      "modifiedTime": "2026-09-14T08:14:02.113Z",
+      "trashed": false,
+      "parents": ["1Folder_AnyTools_KB"]
+    },
+    {
+      "kind": "drive#file",
+      "id": "1Pdf_Attention",
+      "name": "attention.pdf",
+      "mimeType": "application/pdf",
+      "md5Checksum": "9a1f2c47b3de5e6f7a8b9c0d1e2f3a4b",
+      "modifiedTime": "2026-09-02T11:20:45.000Z",
+      "trashed": false,
+      "parents": ["1Folder_AnyTools_KB"]
+    }
+  ]
+}

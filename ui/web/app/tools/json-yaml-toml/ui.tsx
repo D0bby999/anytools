@@ -1,0 +1,128 @@
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CopyButton,
+  Label,
+  PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  useLocalized,
+  useUiStrings,
+} from '~/components/tools-ui';
+import { useMemo, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
+import { type Format, convertFormat, detectFormat } from './logic';
+import { STRINGS } from './strings';
+
+const FORMATS: Format[] = ['json', 'yaml', 'toml'];
+
+export function JsonYamlTomlUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const [input, setInput] = useState('');
+  const [from, setFrom] = useState<Format>('json');
+  const [to, setTo] = useState<Format>('yaml');
+
+  const result = useMemo(() => {
+    if (!input.trim()) return { ok: true as const, value: '' };
+    try {
+      return { ok: true as const, value: convertFormat(input, from, to) };
+    } catch (e) {
+      return { ok: false as const, error: toolErrorText(e, s, ui.conversionFailed) };
+    }
+  }, [input, from, to, s, ui.conversionFailed]);
+
+  const autoDetect = () => setFrom(detectFormat(input));
+  const swap = () => {
+    setFrom(to);
+    setTo(from);
+    if (result.ok && result.value) setInput(result.value);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-3 items-end">
+          <div className="space-y-1.5">
+            <Label htmlFor="jyt-from">{ui.from}</Label>
+            <Select value={from} onValueChange={(v) => setFrom(v as Format)}>
+              <SelectTrigger id="jyt-from" className="min-w-28">
+                <SelectValue>{from.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {FORMATS.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="outline" onClick={swap}>
+            {s.swap}
+          </Button>
+          <div className="space-y-1.5">
+            <Label htmlFor="jyt-to">{ui.to}</Label>
+            <Select value={to} onValueChange={(v) => setTo(v as Format)}>
+              <SelectTrigger id="jyt-to" className="min-w-28">
+                <SelectValue>{to.toUpperCase()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {FORMATS.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="ghost" onClick={autoDetect}>
+            {s.autoDetect}
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <span className="block mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+              {ui.input} ({from})
+            </span>
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={s.pasteHere.replace('{fmt}', from.toUpperCase())}
+              rows={12}
+            />
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                {ui.output} ({to})
+              </span>
+              {result.ok && result.value && <CopyButton text={result.value} />}
+            </div>
+            {result.ok ? (
+              <pre className="rounded-md border bg-muted px-3 py-2 text-sm font-mono whitespace-pre-wrap break-all min-h-[280px]">
+                {result.value || <span className="text-muted-foreground italic">—</span>}
+              </pre>
+            ) : (
+              <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+                {result.error}
+              </output>
+            )}
+          </div>
+        </div>
+        <PrivacyNote />
+      </CardContent>
+    </Card>
+  );
+}

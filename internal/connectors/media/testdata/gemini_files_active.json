@@ -1,0 +1,14 @@
+{
+  "_note": "Shape of GET {base}/files/{name} once the file can be used: a bare File with state ACTIVE, per https://ai.google.dev/api/files#method:-files.get, read 2026-10-16. Constructed, not recorded live.",
+  "name": "files/k3x9q2m7ab",
+  "displayName": "anytools-recording",
+  "mimeType": "audio/mpeg",
+  "sizeBytes": "12608",
+  "createTime": "2026-10-16T08:41:02.123456Z",
+  "updateTime": "2026-10-16T08:41:04.654321Z",
+  "expirationTime": "2026-10-18T08:41:02.100000Z",
+  "sha256Hash": "ZjJmNDJhYjM1YzE4OGI2MDk3ZTI0YTc2NzA5ZDg1ZTNkMjQxYTc5OWE1NDRkNWVjZjE2NGY0MmQwZDU3OGRmMQ==",
+  "uri": "{{BASE}}/files/k3x9q2m7ab",
+  "state": "ACTIVE",
+  "source": "UPLOADED"
+}

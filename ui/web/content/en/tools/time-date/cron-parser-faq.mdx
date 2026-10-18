@@ -1,0 +1,35 @@
+---
+title: Cron Parser — Frequently asked questions
+---
+
+## Why does `0 0 1 * 1` not mean "the first Monday of the month"?
+
+In Vixie cron (used by most Linux systems), when both day-of-month and day-of-week are specified — neither is `*` — the scheduler fires when **either** condition is true, not both. So `0 0 1 * 1` means "midnight on the 1st of any month OR midnight on any Monday." To schedule the first Monday of the month you need a workaround: run daily on Mondays and check inside the script whether `date +%d` is between 1 and 7. Quartz Scheduler avoids this ambiguity with the `?` placeholder.
+
+## What is the difference between cron-parser and Quartz cron?
+
+Standard/Vixie cron has five fields: minute, hour, day-of-month, month, day-of-week. Quartz adds a **seconds** field at the start and an optional **year** field at the end, giving six or seven fields. Quartz also adds special characters: `L` (last day), `W` (nearest weekday), `#` (Nth weekday of month), and `?` (unspecified). A Quartz expression `0 30 9 * * MON-FRI` is not valid five-field cron — the leading `0` is seconds. Always check which variant your platform expects.
+
+## Does this tool support the `@yearly`, `@daily` etc. aliases?
+
+Yes. The `cronstrue` and `cron-parser` libraries both recognise the standard `@yearly`, `@annually`, `@monthly`, `@weekly`, `@daily`, `@midnight`, and `@hourly` aliases. The parser translates them to their five-field equivalents before computing next runs. Note that `@reboot` has no time-based meaning and cannot produce next-run times — the tool will indicate this if you enter it.
+
+## How does DST affect cron schedules?
+
+Cron evaluates schedules against wall-clock time in the daemon's configured timezone. During a spring-forward transition, the hour that "doesn't exist" is skipped — any job scheduled in that window will not run. During fall-back, the repeated hour may trigger a job twice. The safest mitigation is to schedule jobs in UTC, accepting that the local wall-clock time shifts by one hour twice a year.
+
+## Why is my Kubernetes CronJob not running at the expected local time?
+
+Kubernetes CronJob schedules are always evaluated in **UTC**, regardless of the node's system timezone. If you expect `0 9 * * *` to fire at 9 AM in Paris (UTC+1), you need `0 8 * * *` in winter and `0 7 * * *` in summer — or use the `timeZone` field available in Kubernetes 1.27+. The tool shows next runs in both UTC and your browser's local timezone to help you spot this offset.
+
+## What is the minimum interval for GitHub Actions scheduled workflows?
+
+GitHub Actions enforces a minimum schedule interval of **5 minutes** (`*/5 * * * *`). Schedules more frequent than that are silently rounded or rejected. Additionally, scheduled runs on the default branch may be delayed by up to an hour during periods of heavy load on GitHub's infrastructure. For time-critical triggers, use an external scheduler that calls the GitHub Actions API.
+
+## Can cron expressions handle sub-minute intervals?
+
+Standard five-field cron cannot — the finest granularity is one minute. To run a task every 10 seconds you would need a different mechanism: a loop inside the job itself, a systemd timer with `OnCalendar=*:*:0/10`, or a job scheduler like Quartz (Java) that supports seconds-level scheduling. If you enter a Quartz-style six-field expression this tool will attempt to parse it as a Quartz expression and show the seconds field explicitly.
+
+## My cron job ran at the wrong time after a server migration — what should I check?
+
+Three things in order: (1) **Timezone** — verify the new server's `timedatectl` or `/etc/timezone` matches the old one; (2) **Clock sync** — confirm `ntpd`/`chronyd` is running and the clock is accurate; (3) **DST offset** — if the migration happened around a clock-change weekend, the offset difference between the old and new server timezone setting may account for a one-hour shift. Always schedule critical jobs in UTC to eliminate timezone ambiguity entirely.

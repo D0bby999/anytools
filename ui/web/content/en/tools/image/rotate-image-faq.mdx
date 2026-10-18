@@ -1,0 +1,31 @@
+---
+title: Rotate Image — Frequently asked questions
+---
+
+## Does this fix sideways photos from my phone?
+
+Yes, and this is the case the tool is built around. A phone camera almost always writes the sensor's raw landscape frame to the file, plus a separate EXIF orientation flag recording how the phone was actually held. A tool that ignores that flag decodes the raw frame and gives you a sideways picture even though every photo app on your phone shows it upright. This tool decodes with the flag applied (`imageOrientation: 'from-image'` in the browser's own image decoder), so the starting point already matches what you saw on your phone — and any extra rotation you apply here stacks on top of that correction, not instead of it.
+
+## What is the difference between "rotate left" and "flip horizontal"?
+
+Rotating turns the whole image around its centre, like turning a printed photo in your hands — 90° left or right swaps its width and height. Flipping mirrors the image across an axis without changing its dimensions: flip horizontal swaps left and right (useful for a photo that reads backwards, like one taken through a mirror), flip vertical swaps top and bottom. You can combine a flip with a rotation; the preview updates instantly so you can see the result before committing to it.
+
+## Why does my JPEG get a white background but my PNG stays transparent?
+
+JPEG has no alpha channel — it cannot represent "no colour here," only colours. A canvas left unfilled encodes any transparent area as black by default in most browsers, which is a common and confusing bug in home-grown image tools. This tool fills the canvas white before drawing whenever the output format is JPEG, matching what desktop image editors do on export. PNG and WebP both support transparency, so rotating a PNG with a transparent background keeps it transparent — nothing is added or filled in.
+
+## Will it refuse a very large photo?
+
+No. Browsers cap how many pixels a canvas can hold — Safari's limit, around 16.7 megapixels, is the tightest of the major browsers, and going over it does not throw an error, it silently produces a blank image. Rather than reject a 24, 48, or 60-megapixel photo (which today's default phone camera settings routinely produce), this tool decodes it at a reduced size that fits under that ceiling and tells you when it happened, with the original dimensions shown alongside the rotated result. The photo still rotates correctly; it is written at a slightly smaller pixel size than the original file.
+
+## Can I rotate a batch of photos at once, with one setting each?
+
+Yes. Drop in as many images as you like, choose the rotation and flip you want applied, and every file in the batch gets the same transform in one pass. Results appear individually — each with its own before/after thumbnail, dimensions and file size — and if there is more than one you can download them all together as a single .zip rather than saving each one by hand.
+
+## What output format should I pick?
+
+"Keep original" is the default and reproduces the source format for every file — a JPEG batch stays JPEG, a mixed PNG-and-WebP batch stays mixed. Override it if you want everything unified into one format instead, for example converting a folder of assorted screenshots to WebP while rotating them. Whichever format you choose, quality only matters for JPEG and WebP; PNG output is always lossless.
+
+## Is any of this uploaded to a server?
+
+No. Decoding, rotating and re-encoding all happen on the canvas inside this browser tab using the Canvas API that ships with every modern browser — nothing about the pixels or the file ever leaves your device. You can verify this yourself in your browser's developer tools by watching the Network tab while you rotate a photo, or by disconnecting from the internet after the page has loaded and confirming the tool still works.

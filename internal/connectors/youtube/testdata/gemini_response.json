@@ -1,0 +1,23 @@
+{
+  "_note": "Shape of a generateContent response per https://ai.google.dev/api/generate-content (GenerateContentResponse: candidates[].content.parts[].text, candidates[].finishReason, usageMetadata.promptTokenCount / candidatesTokenCount), read 2026-09-27. Constructed, not recorded live: no working Gemini key exists on this machine. The text is what the Transcribe prompt asks for, for jNQXAC9IVRw, with the words from its recorded captions.",
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "{\"language\": \"en\", \"cues\": [{\"start\": \"00:01\", \"text\": \"All right, so here we are, in front of the elephants\"}, {\"start\": \"00:05\", \"text\": \"the cool thing about these guys is that they have really...\"}, {\"start\": \"00:07\", \"text\": \"really really long trunks\"}, {\"start\": \"00:12\", \"text\": \"and that's cool\"}, {\"start\": \"00:16\", \"text\": \"and that's pretty much all there is to say\"}]}"
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 1987,
+    "candidatesTokenCount": 112,
+    "totalTokenCount": 2099
+  },
+  "modelVersion": "gemini-3.6-flash"
+}

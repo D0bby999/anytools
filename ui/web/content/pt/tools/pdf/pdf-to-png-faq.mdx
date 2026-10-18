@@ -1,0 +1,45 @@
+---
+title: PDF para PNG — Perguntas frequentes
+---
+
+## Qual DPI devo escolher?
+
+72 para qualquer coisa que só será olhada em uma tela — corresponde ao próprio sistema de coordenadas de PDF, então uma página sai no seu tamanho de pixel nominal e os arquivos permanecem pequenos. 150 para um documento que alguém imprimirá casualmente ou zoom. 300 quando a saída vai para produção de impressão, ou quando texto precisa permanecer nítido sob ampliação.
+
+O custo é quadrático: 300 DPI é aproximadamente quatro vezes a contagem de pixels de 150, então uma página A4 vai de cerca de 2 megapixels para cerca de 8,7, e o PNG cresce de acordo. Escolha o mais baixo que faz o trabalho.
+
+## Por que recusa 300 DPI na minha página grande?
+
+Porque o resultado excederia o que um canvas de navegador consegue manter. Um pôster A0 a 300 DPI é cerca de 139 megapixels; o teto é ao redor de 16,7. Acima disso, navegadores retornam um canvas branco em branco em vez de lançar um erro, então a ferramenta trabalha as dimensões antes de desenhar qualquer coisa e lhe diz em vez de entregar uma imagem vazia.
+
+Um DPI mais baixo geralmente resolve. A0 a 72 DPI está confortavelmente dentro do limite.
+
+## Isso é o mesmo que extrair imagens do PDF?
+
+Não, e a diferença importa. Isso renderiza cada *página* — texto, gráficos vetoriais, imagens, tudo composto junto — em uma imagem no DPI que você escolheu. Extrair Imagens de PDF puxa os *arquivos de imagem incorporados* em qualquer resolução que foram armazenados.
+
+Para um documento digitalizado, extração lhe dá a varredura original em sua resolução nativa, enquanto renderização a reamostra para seu DPI escolhido. Para um documento de texto, extração lhe dá nada em tudo — corretamente, porque não há imagens incorporadas — enquanto renderização lhe dá uma imagem do texto.
+
+## Por que falta algum texto na página renderizada?
+
+Quase sempre porque o PDF não incorporou a fonte e esperava que o dispositivo de leitura a fornecesse. Isso é comum para documentos em chinês, japonês e coreano produzidos por ferramentas antigas, e para alguns formulários. Esta ferramenta deliberadamente não deixa um PDF instalar ou usar fontes em sua máquina — esse caminho de fonte é onde pdf.js teve bugs de segurança — então texto definido em uma fonte que o arquivo não carrega não tem nada para desenhar e sai em branco, enquanto fontes incorporadas, imagens e gráficos vetoriais renderizam normalmente. As fontes latinas padrão (Helvetica, Times, Courier e seus parentes) são uma exceção: pdf.js envia substitutos para aqueles, servidos deste site.
+
+Se o texto importa, re-exporte o PDF com fontes incorporadas — todo exportador de PDF moderno tem a opção — e renderize novamente.
+
+## Meu documento é enviado?
+
+Não. A renderização acontece nesta aba do navegador usando pdf.js da Mozilla, que funciona em um Web Worker servido da própria origem deste site. Os PNGs são construídos em um canvas na página, e os links de download apontam para blobs que seu navegador mantém localmente. Nada atravessa a rede. Você consegue verificar na aba Rede, ou indo offline uma vez que a página carregou.
+
+## Por que recebo um .zip para um PDF de múltiplas páginas?
+
+Porque navegadores suprimem o segundo e downloads subsequentes quando uma página dispara vários seguidos — os arquivos parecem desaparecer. Um arquivo é a única forma confiável de entregar mais de um arquivo. Cada página também está listada individualmente com seu próprio link de download se você quer apenas um.
+
+Números de página nos nomes de arquivo são preenchidos com zero até a contagem de páginas do documento, então uma renderização de 100 páginas ordena corretamente em um gerenciador de arquivo em vez de colocar p10 antes de p2.
+
+## Por que o texto no PNG não é selecionável?
+
+Porque um PNG é pixels. Renderizar uma página para uma imagem descarta a camada de texto junto com tudo mais estrutural — é o que "renderizar" significa. Se você precisa de texto selecionável, mantenha o PDF, ou execute a imagem através de OCR depois para reconstruir uma aproximação.
+
+## É seguro abrir um PDF de alguém que eu não conheço?
+
+Mais seguro aqui do que na maioria dos leitores de desktop, mas não sem risco, e vale a pena ser direto sobre isso. Analisar um PDF não confiável é uma superfície de ataque genuína: pdf.js teve bugs permitindo execução de script através do caminho de fonte. Esta ferramenta fixa pdf.js a uma versão exata em vez de um intervalo flutuante, desativa o caminho de fonte baseado em eval (`isEvalSupported: false`), desativa a instalação de fonte, e o site envia um Content-Security-Policy. Essas medidas reduzem o risco; elas não o eliminam.

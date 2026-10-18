@@ -1,0 +1,53 @@
+---
+title: URL encoding explained
+description: When to use encodeURIComponent vs encodeURI, why + becomes a space, and how to round-trip non-ASCII safely.
+updated: 2026-05-25
+---
+
+## What URL encoding is
+
+URLs are restricted to a small set of ASCII characters. The RFC for URL syntax — [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) — reserves a handful of characters (`/`, `?`, `#`, `&`, `=`, etc.) for structural meaning, and forbids spaces, control characters, and most non-ASCII bytes from appearing literally. **URL encoding** (also called *percent encoding*) is the escape mechanism: each forbidden byte is replaced by `%` followed by its two-digit hex value.
+
+So a space becomes `%20`, an ampersand `%26`, a Chinese character `世` becomes `%E4%B8%96` (its three UTF-8 bytes, each percent-encoded). The result is always ASCII-safe.
+
+## `encodeURIComponent` vs `encodeURI`
+
+JavaScript exposes two different functions, and they are not interchangeable:
+
+- **`encodeURIComponent`** encodes *everything* that isn't an unreserved character. Use this for **one piece** of a URL — a query parameter value, a path segment, a form field.
+- **`encodeURI`** preserves URL structural characters (`:/?#&=+$,`) on the assumption you're handing it a full, already-structured URL. Use this when you have a complete URL with non-ASCII content and want to make it transport-safe without breaking its structure.
+
+Wrong choice example: if you `encodeURI("a=1&b=2")`, the `=` and `&` are preserved as-is — fine if that string is a query, broken if it's a *value* meant to contain literal `=` or `&`.
+
+This tool gives you both, plus a decode mode that accepts either flavor.
+
+## The `+` quirk
+
+Historically, HTML forms encode spaces as `+` (this is the `application/x-www-form-urlencoded` MIME type). Modern URL standards encode spaces as `%20`. Both are out in the wild — when decoding a query string, you must accept both. Our decoder does.
+
+When *encoding*, we always emit `%20` (the modern standard). Don't emit `+` for spaces unless you specifically need form-encoded compatibility.
+
+## Examples
+
+| Input | encode component | encode full URL |
+|---|---|---|
+| `hello world` | `hello%20world` | `hello%20world` |
+| `a=1&b=2` | `a%3D1%26b%3D2` | `a=1&b=2` |
+| `https://x.com/a?b=1` | `https%3A%2F%2Fx.com%2Fa%3Fb%3D1` | `https://x.com/a?b=1` |
+| `café` | `caf%C3%A9` | `caf%C3%A9` |
+
+## When you'll use this
+
+- Building query strings programmatically without a router/library.
+- Inspecting an encoded URL someone pasted at you.
+- Debugging "why does my backend see `+` instead of space?"
+- Generating canonical URLs in sitemaps and `<link rel="canonical">`.
+
+## Privacy
+
+100% in-browser via the native `encodeURIComponent` / `decodeURIComponent` functions. No network requests, no logs.
+
+## Related tools
+
+- **Base64 Encoder** — different encoding, often chained with URL encoding for compact transport.
+- **Slugify** — turn arbitrary text into safe URL slugs (a higher-level operation than plain encoding).

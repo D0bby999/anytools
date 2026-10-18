@@ -1,0 +1,31 @@
+---
+title: Timestamp Converter — FAQ
+---
+
+## Seconds or milliseconds?
+
+Depends on the source. Unix `time(2)` and most logging formats use seconds (10 digits today). JavaScript's `Date.now()` and many JS-originated APIs use milliseconds (13 digits). This tool auto-detects by digit count; you can paste either.
+
+## What's UTC vs GMT vs Z?
+
+Practically identical. GMT is the legacy name (Greenwich Mean Time), UTC is the modern coordinated standard, and `Z` is the ISO 8601 shorthand suffix meaning "UTC offset zero". In timestamps you can treat them as the same thing.
+
+## How do I handle DST safely?
+
+Store in UTC, compute in UTC, convert to local only at display. Schedule cron jobs in UTC, not local time. The "fall back" hour repeats and "spring forward" hour is skipped — both are bug magnets if your storage or scheduler thinks in local time.
+
+## Should I worry about Y2K38?
+
+Only if you're building on 32-bit systems or using 32-bit integer storage for timestamps. Modern 64-bit systems and `BIGINT` columns push the overflow comfortably past year 292 billion. New code: don't worry. Legacy systems: audit.
+
+## Why does JavaScript Date use 0-indexed months?
+
+Historical accident from the original Java/Netscape APIs in the 1990s. There's no fixing it now — `new Date(2026, 4, 25)` means May 25, not April 25. Use `Date.UTC(2026, 4, 25)` for the same trap with explicit UTC, or just use ISO 8601 strings and let the parser do the right thing.
+
+## Can I store a timezone in a URL query parameter?
+
+Yes — use the IANA name URL-encoded: `?tz=Asia%2FHo_Chi_Minh`. Don't store the offset (`?tz=%2B07%3A00`) — it stops being correct if DST rules change.
+
+## What about pre-1970 dates?
+
+Unix timestamps go negative for dates before 1970. Most modern systems handle this fine; old C/C++ code with unsigned timestamps does not. ISO 8601 has no such issue.

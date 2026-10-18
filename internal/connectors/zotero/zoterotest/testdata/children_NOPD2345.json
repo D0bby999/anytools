@@ -1,0 +1,12 @@
+[
+  {
+    "key": "LINK2345",
+    "version": 1101,
+    "meta": {"numChildren": 0},
+    "data": {
+      "key": "LINK2345", "version": 1101, "parentItem": "NOPD2345", "itemType": "attachment",
+      "linkMode": "linked_file", "title": "Local copy", "contentType": "application/pdf",
+      "path": "/home/learner/Papers/attention.pdf"
+    }
+  }
+]

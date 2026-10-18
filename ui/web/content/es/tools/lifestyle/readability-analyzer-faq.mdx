@@ -1,0 +1,39 @@
+---
+title: Analizador de legibilidad (Flesch-Kincaid) — Preguntas frecuentes
+---
+
+## ¿Qué puntuaciones informa?
+
+Flesch Reading Ease, Flesch-Kincaid Grade Level, y el índice de Gunning Fog, junto con los recuentos brutos con los que se construyen: palabras, oraciones y sílabas.
+
+## ¿Cómo leo el número de Flesch Reading Ease?
+
+Mayor es más fácil. Se ejecuta en una escala donde aproximadamente 60–70 es inglés sencillo adecuado para una audiencia general, números más altos son más simples, y puntuaciones por debajo de aproximadamente 30 indican prosa densa y especializada. A diferencia de los otros dos no es un nivel de grado, por lo que se mueve en la dirección opuesta.
+
+## ¿Qué significan las puntuaciones de nivel de grado?
+
+Tanto Flesch-Kincaid como Gunning Fog aproximan los años de escolaridad que un lector necesitaría. Difieren ligeramente por diseño: Flesch-Kincaid pondera sílabas por palabra, mientras que Gunning Fog cuenta palabras "complejas" aquí, cualquier palabra de tres o más sílabas.
+
+## ¿Cómo se cuentan las sílabas?
+
+Por heurística: cuenta grupos de vocales y luego elimina una "e" silenciosa al final solo en el patrón vocal-consonante-e, por lo que "make" cuenta como uno mientras que "simple" mantiene su sílaba final. Esta es una aproximación, no una búsqueda de diccionario, por lo que palabras inusuales y nombres a veces se contarán mal.
+
+## ¿Por qué mi puntuación cambia tanto cuando añado un punto?
+
+Porque el recuento de oraciones es un denominador en cada una de estas fórmulas. Dividir una oración larga en dos inmediatamente baja la longitud promedio de la oración y mejora cada puntuación, sin cambiar una sola palabra. Esa sensibilidad es la limitación honesta de las métricas de legibilidad.
+
+## ¿Puedo mejorar la puntuación sin mejorar la escritura?
+
+Fácilmente, y eso vale la pena saber. Cortando oraciones arbitrariamente y cambiando palabras largas por cortas moverá los números mientras deja la prosa peor, las fórmulas cuentan sílabas y longitudes, no claridad, lógica o si el argumento tiene sentido. Úsalas para atrapar prosa que se ha vuelto densa, no como un objetivo para optimizar.
+
+## ¿Funciona en idiomas que no sean inglés?
+
+No. La heurística de sílabas asume patrones de vocales ingleses y las tres fórmulas fueron ajustadas al texto inglés. Las puntuaciones para otros idiomas se producirán pero no significarán nada.
+
+## ¿Qué cuenta como una oración?
+
+Una ejecución que termina en un punto, signo de interrogación o signo de exclamación. Las abreviaturas, decimales y puntos suspensivos pueden, por lo tanto, inflar el recuento de oraciones, lo que favorece la puntuación ligeramente.
+
+## ¿Se carga mi texto?
+
+No. El análisis se ejecuta completamente en tu navegador; nada que pegues se transmite ni se almacena.

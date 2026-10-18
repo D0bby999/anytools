@@ -1,0 +1,39 @@
+---
+title: Retirement calculator — Frequently asked questions
+---
+
+## What does this project?
+
+Your balance at retirement, from what you have saved today plus a monthly contribution compounded at a fixed annual rate. It also shows how much you contributed yourself versus how much the growth added, and an annual withdrawal figure based on the 4% rule.
+
+## What is the 4% rule, and how reliable is it?
+
+A rule of thumb: withdraw 4% of the balance in the first year of retirement, adjusting later years for inflation, and the pot is unlikely to run out over a long retirement. It comes from studies of historical US market returns over 30-year windows. Treat it as a rough sizing device, not a guarantee — it is sensitive to the returns in your first few retirement years, to how long you live, and to whether future markets resemble the historical record it was fitted to. Many planners now use a lower starting rate.
+
+## How is the growth calculated?
+
+Monthly compounding on both parts. The existing savings grow as `S × (1 + r)^n`; the contributions grow as `PMT × ((1 + r)^n − 1) / r`, with `r` the annual rate divided by 12 and `n` the months until retirement. Contributions are treated as arriving at the end of each month.
+
+## Does this include my state or workplace pension?
+
+No. It only knows the savings figure and monthly contribution you enter. Any state pension, defined-benefit scheme or employer match sits outside the calculation. Employer matching in particular can be a large share of real retirement saving, so a projection that ignores it will understate the total — add it into your monthly figure if you want it counted.
+
+## Are these numbers in today's money?
+
+No, they are nominal. A balance decades away will not buy what the same sum buys now. One way to read the result in today's terms is to enter a rate reduced by expected inflation, which gives a rough real-terms projection instead.
+
+## Why does a small change in the rate move the result so much?
+
+Because the rate is compounded over hundreds of months, so differences amplify. A single percentage point over a few decades can change the projection substantially. This is the calculator's most important lesson and also its biggest weakness: nobody knows their future rate, so the output is only as good as that guess.
+
+## Does it model tax, fees or sequence-of-returns risk?
+
+None of them. Tax treatment varies by account type and country, fees compound against you, and real returns arrive in an uneven order — a market fall early in retirement does more damage than the same fall later, which a smooth average cannot express.
+
+## Is my data stored?
+
+No. The projection runs in your browser and nothing is transmitted.
+
+## Can I plan my retirement with this?
+
+No. Retirement planning involves tax, pensions, healthcare and your own risk tolerance. Use this to see how the levers interact, then take a real plan to a licensed financial adviser.

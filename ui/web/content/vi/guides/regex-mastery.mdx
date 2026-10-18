@@ -1,0 +1,337 @@
+---
+title: "Thành Thạo Regex: Từ Cơ Bản Đến Chuyên Gia"
+description: "Regex từ finite automata đến ReDoS: flags JS, 30 pattern thường gặp, lookahead/lookbehind, catastrophic backtracking, Unicode và chiến lược kiểm thử."
+keywords: ["regex", "regular expression", "javascript regex", "regex pattern", "lookahead", "redos", "unicode regex", "pcre", "regex tester"]
+updated: 2026-05-26
+readingTime: 20
+---
+
+# Thành Thạo Regex: Từ Cơ Bản Đến Chuyên Gia
+
+Regular expression là thứ gần nhất với siêu năng lực trong lập trình — và cũng là trách nhiệm. Một regex viết tốt giải quyết trong một dòng điều cần hai mươi dòng thông thường. Một regex viết tệ có thể đánh sập server production. Hướng dẫn này bao quát từ mô hình lý thuyết làm cho regex hoạt động đến lỗi catastrophic backtracking đã gây ra outage thực tế tại các công ty công nghệ lớn.
+
+---
+
+## 1. Regex Thực Chất Là Gì: Finite Automata
+
+Hầu hết lập trình viên coi regex là cú pháp ma thuật. Hiểu mô hình bên dưới — finite automata — giúp bạn giỏi hơn đáng kể trong việc viết và debug regex.
+
+Một regular expression mô tả một **ngôn ngữ hình thức** (tập hợp các string). Regex engine xử lý string bằng cách mô phỏng finite automaton: một đồ thị có hướng trong đó các nút là trạng thái và các cạnh là transition ký tự.
+
+Có hai loại finite automata:
+
+**Deterministic Finite Automaton (DFA):** Ở bất kỳ trạng thái nào, mỗi ký tự đầu vào dẫn đến đúng một trạng thái tiếp theo. DFA chạy trong O(n) — đảm bảo, không có ngoại lệ. Go's `regexp`, `grep -E`, `awk` dùng DFA-based engine (cụ thể là RE2).
+
+**Nondeterministic Finite Automaton (NFA):** Một trạng thái có thể có nhiều transition có thể cho cùng input — automaton khám phá tất cả khả năng đồng thời. Hầu hết regex engine trong ngôn ngữ lập trình (JavaScript, Python, Ruby, Java, PHP, Perl, .NET) dùng NFA-based backtracking engine (họ PCRE).
+
+Sự khác biệt quan trọng: NFA hỗ trợ backreference và lookahead/lookbehind (những tính năng DFA không thể biểu đạt), nhưng có thể có worst-case exponential behavior. DFA đảm bảo linear time nhưng không thể biểu đạt những tính năng đó.
+
+Đây là nguyên nhân gốc rễ của ReDoS — được đề cập ở mục 5.
+
+---
+
+## 2. Regex Trong JavaScript
+
+JavaScript's `RegExp` là NFA-based engine đã phát triển đáng kể. Đây là những điều quan trọng nhất trong 2026.
+
+### Tạo Regex
+
+```javascript
+// Literal syntax — ưu tiên cho pattern tĩnh
+const emailRe = /^[\w.+-]+@[\w-]+\.[a-z]{2,}$/i;
+
+// Constructor — cần cho pattern động
+const searchRe = new RegExp(escapeRegExp(userInput), 'gi');
+
+// Luôn escape user input trước khi đưa vào constructor:
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+```
+
+### Tham Chiếu Flags
+
+| Flag | Phiên bản ES | Ý nghĩa |
+|------|-------------|---------|
+| `g` | ES1 | Global — tìm tất cả match, không chỉ match đầu tiên |
+| `i` | ES1 | Case-insensitive |
+| `m` | ES1 | Multiline — `^`/`$` match ranh giới dòng |
+| `s` | ES2018 | DotAll — `.` match cả `\n` |
+| `u` | ES2015 | Unicode — enable `\u{XXXX}`, `\p{...}` |
+| `y` | ES2015 | Sticky — chỉ match tại `lastIndex` |
+| `d` | ES2022 | Indices — populate `match.indices` |
+| `v` | ES2024 | Unicode Sets — set operations `[A&&B]`, `[A--B]` |
+
+**Cạm bẫy flag `g`:** `RegExp.prototype.test()` với global regex thay đổi `lastIndex`. Gọi `.test()` trong vòng lặp trên cùng instance có thể cho kết quả luân phiên true/false:
+
+```javascript
+const re = /a/g;
+re.test('a'); // true  — lastIndex → 1
+re.test('a'); // false — lastIndex → 0
+re.test('a'); // true  — lặp lại
+```
+
+Cách sửa: dùng `/a/` không có `g` cho boolean test, hoặc reset `re.lastIndex = 0` giữa các lần gọi.
+
+### Named Capture Groups
+
+ES2018 giới thiệu named groups, cải thiện khả năng đọc đáng kể:
+
+```javascript
+const dateRe = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
+const m = '2026-05-26'.match(dateRe);
+console.log(m.groups.year);  // "2026"
+
+// Named groups trong replace:
+'2026-05-26'.replace(
+  /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/,
+  '$<day>/$<month>/$<year>'
+); // "26/05/2026"
+```
+
+---
+
+## 3. Ba Mươi Pattern Thường Gặp — Bảng Tham Chiếu
+
+| Pattern | Regex | Ghi chú |
+|---------|-------|---------|
+| Email (cơ bản) | `/^[\w.+-]+@[\w-]+\.[a-z]{2,}$/i` | Bao quát 99% trường hợp thực tế |
+| URL (http/https) | `/^https?:\/\/[\w-]+(\.[\w-]+)+(\/[\w\-./?%&=]*)?$/i` | |
+| IPv4 | `/^(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)$/` | Validate 0–255 mỗi octet |
+| IPv6 (đơn giản) | `/^([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}$/i` | |
+| UUID v4 | `/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i` | |
+| Hex color | `/^#([0-9a-f]{3}){1,2}$/i` | CSS hex shorthand |
+| ISO 8601 date | `/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/` | |
+| Semver | `/^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-([\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*))?$/` | |
+| Slug | `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` | |
+| Password mạnh | `/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/` | Dùng lookahead |
+| JWT | `/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$/` | |
+| Số nguyên dương | `/^\d+$/` | |
+| Số thập phân | `/^-?\d+(\.\d+)?$/` | |
+| Từ lặp | `/\b(\w+)\s+\1\b/gi` | Tìm lỗi "the the" |
+| Multiline comment | `/\/\*[\s\S]*?\*\//g` | Non-greedy |
+
+Test bất kỳ pattern nào trong [Regex Tester](/vi/text-regex/regex-tester).
+
+---
+
+## 4. Lookahead và Lookbehind — Giải Thích Sâu
+
+Lookahead và lookbehind là **zero-width assertion**: match một vị trí trong string mà không tiêu thụ ký tự.
+
+### Positive Lookahead `(?=...)`
+
+Khẳng định rằng phần theo sau match pattern, không bao gồm nó trong kết quả:
+
+```javascript
+// Match "foo" chỉ khi theo sau là "bar"
+/foo(?=bar)/.test('foobar'); // true
+/foo(?=bar)/.test('foobaz'); // false
+
+// Thực tế: tách camelCase
+'camelCaseString'.replace(/([a-z])(?=[A-Z])/g, '$1 ');
+// → "camel Case String"
+```
+
+### Negative Lookahead `(?!...)`
+
+```javascript
+// Match số KHÔNG theo sau bởi "px"
+/\d+(?!\s*px)/.exec('10em')[0]; // "10"
+```
+
+### Positive Lookbehind `(?<=...)`
+
+ES2018+:
+
+```javascript
+// Match số tiền đi sau "$"
+/(?<=\$)\d+(\.\d{2})?/.exec('Giá: $42.99')[0]; // "42.99"
+```
+
+### Negative Lookbehind `(?<!...)`
+
+```javascript
+/(?<!trans)port/.test('transport'); // false
+/(?<!trans)port/.test('seaport');   // true
+```
+
+### Ví Dụ Validate Password
+
+Pattern phổ biến dùng nhiều lookahead để enforce yêu cầu ký tự:
+
+```javascript
+// Ít nhất 8 ký tự, một chữ thường, một chữ hoa, một số, một ký tự đặc biệt
+const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+```
+
+Mỗi `(?=.*X)` là lookahead từ position 0 scan toàn bộ string tìm `X`. Với bốn lookahead như vậy, input 100 ký tự scan tối đa 400 lần — vẫn nhanh cho password nhưng minh họa tại sao lookahead trên input dài cần cẩn thận.
+
+---
+
+## 5. Catastrophic Backtracking — Vấn Đề ReDoS
+
+ReDoS (Regular Expression Denial of Service) là attack vector thực tế. Cloudflare 2019 (outage toàn cầu 27 phút), Stack Overflow 2016, và nhiều service lớn khác đã bị ảnh hưởng.
+
+### Cơ Chế Hoạt Động
+
+Pattern nguy hiểm kinh điển: nested quantifier với overlapping match.
+
+```javascript
+// NGUY HIỂM — không dùng trong production
+const re = /^(a+)+$/;
+
+const input = 'a'.repeat(30) + '!';
+re.test(input); // Có thể mất hàng phút hoặc crash
+```
+
+Tại sao? Pattern `(a+)+` trên string `"aaa...a!"` gây exponential backtracking:
+- Outer `+` thử `(a+)` match tất cả 30 `a` trong một group → `!` fail
+- Backtrack: thử split thành hai group → `!` fail
+- Backtrack: thử ba group → ... tiếp tục với 2^30 tổ hợp
+
+Input dài 30 ký tự — thời gian 2^30 operations.
+
+### Pattern Nguy Hiểm Cần Nhận Diện
+
+```javascript
+/(a+)+/     // classic
+/(a*)+/
+/(\w|\d)+/  // \w đã bao gồm \d — overlapping classes
+/([a-zA-Z0-9]+)*/
+/(.*a.*)+/  // wildcard-inside-quantifier với lặp lại
+```
+
+### Biện Pháp Phòng Ngừa
+
+1. **Dùng RE2/linear-time engine:** Go's `regexp`, npm package `re2` — đảm bảo O(n). Đánh đổi: không có backreference, không có lookbehind.
+2. **Giới hạn độ dài input:** Cap input trước khi chạy regex. Với URL validator, reject input trên 2048 ký tự.
+3. **Static analysis:** `safe-regex`, `vuln-regex-detector`, hoặc VS Code extension "Regexp Preview".
+4. **Timeout:** Chạy regex trong Worker với timeout nếu cần V8.
+
+---
+
+## 6. Unicode Regex — Vượt Ra Ngoài ASCII
+
+### Unicode Property Escapes `\p{...}`
+
+ES2018 (với flag `u`):
+
+```javascript
+// Match bất kỳ chữ cái Unicode (mọi script)
+/^\p{Letter}+$/u.test('Héllo');     // true
+/^\p{Letter}+$/u.test('Привет');    // true (tiếng Nga)
+/^\p{Letter}+$/u.test('こんにちは'); // true (tiếng Nhật)
+/^\p{Letter}+$/u.test('Xin chào'); // true (tiếng Việt)
+
+// Match emoji
+/\p{Emoji}/u.test('😀'); // true
+
+// Match script cụ thể
+/^\p{Script=Latin}+$/u.test('Hello'); // true
+```
+
+### Tại Sao Flag `u` Quan Trọng Hơn Bạn Nghĩ
+
+Không có `u`, pattern `/./` KHÔNG match emoji hay ký tự Unicode supplementary — chúng được coi là hai "ký tự" (surrogate pair trong UTF-16 internal của JS). Với `u`, chúng được tính là một code point. Luôn dùng `u` cho xử lý text của người dùng.
+
+### Grapheme Cluster
+
+Một ký tự hiển thị có thể là nhiều code point (base + combining marks). `é` có thể là U+00E9 (một code point) hoặc `e` + U+0301 (hai code point). Cho thao tác grapheme-aware, dùng `Intl.Segmenter` API (ES2022):
+
+```javascript
+const segmenter = new Intl.Segmenter('vi', { granularity: 'grapheme' });
+const graphemes = [...segmenter.segment('ế')]; // Luôn 1 grapheme
+```
+
+---
+
+## 7. So Sánh Engine: PCRE vs RE2 vs JavaScript
+
+| Tính năng | JavaScript (V8) | PCRE (PHP/Python re) | RE2 (Go/Rust) |
+|-----------|----------------|---------------------|---------------|
+| Time complexity | O(2^n) worst case | O(2^n) worst case | O(n) đảm bảo |
+| Backreference `\1` | Có | Có | Không |
+| Lookahead | Có | Có | Có (giới hạn) |
+| Lookbehind | Có (variable-length từ ES2018) | Có (fixed-length) | Không |
+| Unicode properties | Có (flag `u`/`v`) | Có (modifier `u`) | Có |
+| Atomic groups | Không | Có (`(?>...)`) | N/A |
+
+**Khi nào dùng RE2:** Mọi context mà input đến từ người dùng không tin cậy và đảm bảo hiệu năng quan trọng — API endpoint, search box, log processor.
+
+---
+
+## 8. Chiến Lược Kiểm Thử Regex
+
+### Boundary và Edge Cases
+
+Với mỗi regex, test: happy path, empty string, độ dài tối thiểu/tối đa hợp lệ, ký tự boundary, Unicode trên U+007F, input với injection-like characters.
+
+```javascript
+const emailRe = /^[\w.+-]+@[\w-]+\.[a-z]{2,}$/i;
+const valid = ['user@example.com', 'a@b.io'];
+const invalid = ['@domain.com', 'user@', 'user@domain', ''];
+
+for (const e of valid) console.assert(emailRe.test(e), `Nên match: ${e}`);
+for (const e of invalid) console.assert(!emailRe.test(e), `Không nên match: ${e}`);
+```
+
+### Kiểm Thử Hiệu Năng
+
+Với bất kỳ regex nào áp dụng cho user input, đo với input worst-case 10.000 ký tự trước khi deploy:
+
+```javascript
+const worstCase = 'a'.repeat(10_000) + '!';
+const start = performance.now();
+vulnerableRe.test(worstCase);
+const elapsed = performance.now() - start;
+if (elapsed > 100) throw new Error(`Regex quá chậm: ${elapsed}ms`);
+```
+
+Dùng [Regex Tester](/vi/text-regex/regex-tester) để prototype và kiểm tra kết quả match tương tác.
+
+---
+
+## FAQ
+
+### Q: Sự khác biệt giữa `.` và `[\s\S]` là gì?
+
+`.` match bất kỳ ký tự nào trừ newline. `[\s\S]` match thực sự bất kỳ ký tự nào kể cả `\n`. Kể từ ES2018, flag `s` (dotAll) làm `.` match cả newline — dùng `/pattern/s` thay vì workaround `[\s\S]`.
+
+### Q: Tại sao regex của tôi match khi tôi không mong đợi?
+
+Rất có thể: thiếu anchor. `/\d+/` match bất kỳ substring nào chứa chữ số — `"abc123xyz"` trả về `"123"`. Dùng `^` và `$` anchors: `/^\d+$/`.
+
+### Q: Sự khác biệt giữa `*`, `+`, `?` là gì?
+
+`*` nghĩa là không hoặc nhiều, `+` nghĩa là một hoặc nhiều, `?` nghĩa là không hoặc một. Tất cả đều greedy mặc định. Thêm `?` làm chúng lazy: `*?`, `+?`, `??`.
+
+### Q: Non-capturing group `(?:...)` là gì?
+
+Group match nhưng không capture vào `$1`, `$2`. Dùng khi cần grouping cho alternation hoặc quantifier nhưng không cần giá trị: `/(?:foo|bar)+/`. Nhanh hơn capturing group vì engine không cần lưu match.
+
+### Q: `\w` có phù hợp để match từ tiếng Việt không?
+
+Không. `\w` tương đương `[a-zA-Z0-9_]` — không match chữ có dấu (`é`, `ñ`, `ü`, `ế`, `ộ`). Dùng `\p{Letter}` với flag `u` cho Unicode word matching đúng.
+
+### Q: Regex có thể parse HTML không?
+
+Không. HTML là context-free grammar cần stack-based parser; regex là regular grammar. Không thể parse cấu trúc lồng nhau bằng regex. Dùng DOM parser thích hợp (`DOMParser` trong browser, `cheerio`/`jsdom` trong Node.js).
+
+### Q: Flag `y` (sticky) dùng để làm gì?
+
+Flag `y` buộc match bắt đầu chính xác tại `lastIndex` — không tìm kiếm phía trước. Hữu ích cho tokenizer/lexer tùy chỉnh xử lý string từ trái sang phải, mỗi match bắt đầu chính xác nơi match trước kết thúc. Nhanh hơn đáng kể cho tokenizing vì không cần tìm kiếm.
+
+### Q: Công cụ nào giúp tìm lỗ hổng ReDoS?
+
+1. `safe-regex` — Node.js static analyzer
+2. `vuln-regex-detector` — công cụ học thuật với độ chính xác cao
+3. [regex101.com](https://regex101.com) — tab debugger hiển thị backtracking steps
+
+### Q: Làm thế nào chuyển đổi giữa các định dạng text case?
+
+Dùng [Text Case Converter](/vi/text-regex/text-case-converter) cho công cụ browser. Để tạo slug URL-friendly, dùng [Slugify](/vi/text-regex/slugify).
+
+### Q: Unicode property escapes nào hữu ích cho tiếng Việt?
+
+`\p{Script=Latin}` match Latin characters (bao gồm chữ có dấu tiếng Việt vì tiếng Việt dùng chữ Latin mở rộng). `\p{Letter}` match mọi chữ cái Unicode. Để match riêng chữ Việt, dùng character class với Unicode range hoặc `\p{Letter}` kết hợp `\p{Script=Latin}`.

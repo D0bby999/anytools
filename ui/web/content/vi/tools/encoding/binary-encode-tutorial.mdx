@@ -1,0 +1,91 @@
+---
+title: Hướng dẫn đầy đủ về Binary encode / decode
+description: Cách binary text encoding hoạt động, tại sao 8 bit thành một byte, các vấn đề UTF-8 multi-byte, và khi nào binary dump thực sự hữu ích.
+updated: 2026-05-27
+---
+
+## Binary encoding thực sự là gì
+
+Binary encoding chuyển mỗi byte dữ liệu thành chuỗi tám ký tự nhị phân (`0` và `1`). Ký tự `A` (ASCII 65) trở thành `01000001`. Byte `0xFF` trở thành `11111111`. Output là một chuỗi ASCII có độ dài bằng tám lần chuỗi byte gốc.
+
+Đây **không phải** nén dữ liệu, **không phải** mã hóa bảo mật, và **hầu như không được dùng trong production**. Đây chủ yếu là **công cụ học tập và debug** — cách minh bạch nhất có thể để kiểm tra những bit thực sự nằm bên trong một byte.
+
+## Tại sao 8 bit trở thành một byte
+
+Byte 8-bit không phải là điều hiển nhiên ngay từ đầu. Máy tính đời đầu dùng word 6-bit, 7-bit, 9-bit, thậm chí 36-bit tùy kiến trúc. IBM System/360 (1964) phổ biến hóa byte 8-bit, và chuẩn ASCII (1963, sửa đổi 1967) củng cố ký tự 7-bit làm nền tảng cho text. Bit thứ tám ban đầu dùng cho parity checking, sau đó cho extended character set (Latin-1 / ISO 8859-1), và cuối cùng trở thành nền tảng của UTF-8.
+
+Đầu những năm 1980, byte 8-bit đã thắng: Intel 8080, Motorola 6800, MOS 6502 (trong Apple II và NES) — tất cả đều 8-bit. Chuẩn IEEE 1003.1 (POSIX) chính thức định nghĩa `CHAR_BIT = 8` năm 1988. Ngày nay giả định này phổ biến đến mức "byte" và "octet" được dùng hoán đổi, dù "octet" (RFC 791) ban đầu được chọn chính xác để tránh sự mơ hồ.
+
+## Hiểu bitwise operation bằng cách nhìn trực tiếp
+
+Binary text là cách nhanh nhất để hiểu các toán tử bitwise làm gì:
+
+```
+  A  = 01000001
+  B  = 01000010
+A & B = 01000000   (AND: cả hai bit phải là 1)
+A | B = 01000011   (OR: một trong hai bit là 1)
+A ^ B = 00000011   (XOR: hai bit khác nhau)
+ ~A   = 10111110   (NOT: đảo mọi bit)
+A << 1= 10000010   (dịch trái 1 = nhân 2)
+A >> 1= 00100000   (dịch phải 1 = chia 2)
+```
+
+Nhìn thấy trực tiếp vị trí bit loại bỏ việc đoán mò. Đây là lý do các khóa học khoa học máy tính dạy bit manipulation thường yêu cầu sinh viên viết ra biểu diễn binary bằng tay trước khi chạy code.
+
+## Debug network protocol
+
+Các protocol thường đóng gói nhiều flag hoặc giá trị nhỏ vào một byte. TCP header có trường flags 9-bit trong đó từng bit báo hiệu SYN, ACK, FIN, RST, PSH, URG, ECE, CWR, và NS. Khi packet capture cho thấy byte flags TCP là `0x12`, chuyển sang binary — `00010010` — ngay lập tức cho thấy bit 1 và 4 được set: SYN và ACK.
+
+Tương tự, các packed structure trong embedded system (MQTT connect flags, I²C register bitmask, CAN bus data frame) dễ đọc nhất ở dạng binary. Một byte duy nhất điều khiển tám tín hiệu phần cứng độc lập thì không thể hiểu dưới dạng decimal `147`, nhưng có thể đọc ngay dưới dạng `10010011`.
+
+DNS, IP header (version + IHL đóng gói trong một byte), IPv4 ToS/DSCP field, và USB descriptor flag đều dùng bit-packed byte. Binary encoding cho phép đọc trực tiếp mà không cần tính lũy thừa của 2.
+
+## Ký tự UTF-8 multi-byte
+
+Với text ASCII (codepoint 0–127), mỗi ký tự là một byte, nên binary encoding tạo ra tám ký tự mỗi ký tự input. Với mọi thứ ngoài ASCII, UTF-8 dùng nhiều byte:
+
+| Ký tự | Codepoint | Bytes UTF-8 | Độ dài binary output |
+|-------|-----------|-------------|----------------------|
+| `A` | U+0041 | 1 byte | 8 ký tự |
+| `é` | U+00E9 | 2 bytes | 16 ký tự |
+| `中` | U+4E2D | 3 bytes | 24 ký tự |
+| `😀` | U+1F600 | 4 bytes | 32 ký tự |
+
+Đây là hành vi đúng và mong đợi. Nếu encode `😀` và nhận được chuỗi binary 32 ký tự, tool đang hoạt động đúng. Bốn byte `11110000 10011111 10011000 10000000` encode biểu diễn UTF-8 của emoji.
+
+**Cấu trúc byte UTF-8:** Các bit đầu của mỗi byte cho decoder biết bao nhiêu byte thuộc codepoint này. `0xxxxxxx` là ký tự ASCII một byte. `110xxxxx` bắt đầu chuỗi hai byte. `1110xxxx` bắt đầu ba byte. `11110xxx` bắt đầu bốn byte. Continuation byte luôn bắt đầu bằng `10xxxxxx`. Nhìn thấy điều này trong binary làm cho encoding trở nên rõ ràng ngay lập tức.
+
+## Khi nào thực sự hữu ích?
+
+**Môi trường học tập.** Các khóa học khoa học máy tính, coding bootcamp, và tự học — bất cứ đâu một người học đang cố gắng xây dựng intuition về binary arithmetic, ASCII table, hoặc character encoding.
+
+**Debug bit manipulation.** Khi viết bitmask và kết quả sai, dán bytes vào binary viewer ngay lập tức cho thấy bit nào đang được set hoặc cleared không đúng.
+
+**CTF (Capture The Flag) challenge.** Binary-encoded message xuất hiện thường xuyên trong các thử thách cấp độ beginner. Dán chuỗi binary và decode sang text là bước đầu tiên phổ biến.
+
+**Đặc tả protocol.** Khi soạn thảo hoặc review một RFC, spec protocol riêng, hoặc mô tả hardware interface: hiển thị bit layout dạng binary bên cạnh C struct definition rõ ràng hơn bảng giá trị hex.
+
+## Use case production (hiếm nhưng có thực)
+
+Binary encoding hầu như không bao giờ được dùng như serialisation format trong production vì overhead 700%. Ngoại lệ chính là **binary literal dễ đọc trong source code**:
+
+```python
+flags = 0b10010011   # Python binary literal
+mask  = 0b00001111   # lower nibble mask
+```
+
+```javascript
+const flags = 0b10010011;  // JavaScript binary literal (ES2015+)
+```
+
+Đây là số nhị phân trong source code, không phải binary-encoded string — nhưng chúng dựa trên cùng mental model mà tool này luyện tập.
+
+## Quyền riêng tư
+
+Toàn bộ encode và decode chạy trong trình duyệt của bạn. Text không bao giờ được gửi đến server.
+
+## Công cụ liên quan
+
+- **Hex Encode/Decode** — hai ký tự mỗi byte (overhead 100%), lựa chọn thực tế để kiểm tra raw bytes.
+- **Base64 Encode/Decode** — bốn ký tự cho ba bytes (overhead 33%), chuẩn để vận chuyển binary qua kênh text.

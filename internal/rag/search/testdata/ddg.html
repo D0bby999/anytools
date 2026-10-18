@@ -1,0 +1,638 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--[if IE 6]><html class="ie6" xmlns="http://www.w3.org/1999/xhtml"><![endif]-->
+<!--[if IE 7]><html class="lt-ie8 lt-ie9" xmlns="http://www.w3.org/1999/xhtml"><![endif]-->
+<!--[if IE 8]><html class="lt-ie9" xmlns="http://www.w3.org/1999/xhtml"><![endif]-->
+<!--[if gt IE 8]><!--><html xmlns="http://www.w3.org/1999/xhtml"><!--<![endif]-->
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=1" />
+  <meta name="referrer" content="origin" />
+  <meta name="HandheldFriendly" content="true" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>spaced repetition forgetting curve at DuckDuckGo</title>
+  <link title="DuckDuckGo (HTML)" type="application/opensearchdescription+xml" rel="search" href="//duckduckgo.com/opensearch_html_v2.xml" />
+  <link href="//duckduckgo.com/favicon.ico" rel="shortcut icon" />
+  <link rel="icon" href="//duckduckgo.com/favicon.ico" type="image/x-icon" />
+  <link id="icon60" rel="apple-touch-icon" href="//duckduckgo.com/assets/icons/meta/DDG-iOS-icon_60x60.png?v=2"/>
+  <link id="icon76" rel="apple-touch-icon" sizes="76x76" href="//duckduckgo.com/assets/icons/meta/DDG-iOS-icon_76x76.png?v=2"/>
+  <link id="icon120" rel="apple-touch-icon" sizes="120x120" href="//duckduckgo.com/assets/icons/meta/DDG-iOS-icon_120x120.png?v=2"/>
+  <link id="icon152" rel="apple-touch-icon" sizes="152x152" href="//duckduckgo.com/assets/icons/meta/DDG-iOS-icon_152x152.png?v=2"/>
+  <link rel="image_src" href="//duckduckgo.com/assets/icons/meta/DDG-icon_256x256.png">
+  <link rel="stylesheet" media="handheld, all" href="//duckduckgo.com/dist/h.7bcf94631b5964fa5ad7.css" type="text/css"/>
+</head>
+
+<body class="body--html">
+  <a name="top" id="top"></a>
+
+  <form action="/html/" method="post">
+    <input type="text" name="state_hidden" id="state_hidden" />
+  </form>
+
+  <div>
+    <div class="site-wrapper-border"></div>
+
+    <div id="header" class="header cw header--html">
+      <a title="DuckDuckGo" href="/html/" class="header__logo-wrap"></a>
+
+      <form name="x" class="header__form" action="/html/" method="post">
+        <div class="search search--header">
+          <input name="q" autocomplete="off" class="search__input" id="search_form_input_homepage" type="text" value="spaced repetition forgetting curve" />
+          <input name="b" id="search_button_homepage" class="search__button search__button--html" value="" title="Search" alt="Search" type="submit" />
+        </div>
+
+        
+        
+        
+        
+
+        <div class="frm__select">
+          <select name="kl">
+            
+              <option value="" >All Regions</option>
+            
+              <option value="ar-es" >Argentina</option>
+            
+              <option value="au-en" >Australia</option>
+            
+              <option value="at-de" >Austria</option>
+            
+              <option value="be-fr" >Belgium (fr)</option>
+            
+              <option value="be-nl" >Belgium (nl)</option>
+            
+              <option value="br-pt" >Brazil</option>
+            
+              <option value="bg-bg" >Bulgaria</option>
+            
+              <option value="ca-en" >Canada (en)</option>
+            
+              <option value="ca-fr" >Canada (fr)</option>
+            
+              <option value="ct-ca" >Catalonia</option>
+            
+              <option value="cl-es" >Chile</option>
+            
+              <option value="cn-zh" >China</option>
+            
+              <option value="co-es" >Colombia</option>
+            
+              <option value="hr-hr" >Croatia</option>
+            
+              <option value="cz-cs" >Czech Republic</option>
+            
+              <option value="dk-da" >Denmark</option>
+            
+              <option value="ee-et" >Estonia</option>
+            
+              <option value="fi-fi" >Finland</option>
+            
+              <option value="fr-fr" >France</option>
+            
+              <option value="de-de" >Germany</option>
+            
+              <option value="gr-el" >Greece</option>
+            
+              <option value="hk-tzh" >Hong Kong</option>
+            
+              <option value="hu-hu" >Hungary</option>
+            
+              <option value="is-is" >Iceland</option>
+            
+              <option value="in-en" >India (en)</option>
+            
+              <option value="id-en" >Indonesia (en)</option>
+            
+              <option value="ie-en" >Ireland</option>
+            
+              <option value="il-en" >Israel (en)</option>
+            
+              <option value="it-it" >Italy</option>
+            
+              <option value="jp-jp" >Japan</option>
+            
+              <option value="kr-kr" >Korea</option>
+            
+              <option value="lv-lv" >Latvia</option>
+            
+              <option value="lt-lt" >Lithuania</option>
+            
+              <option value="my-en" >Malaysia (en)</option>
+            
+              <option value="mx-es" >Mexico</option>
+            
+              <option value="nl-nl" >Netherlands</option>
+            
+              <option value="nz-en" >New Zealand</option>
+            
+              <option value="no-no" >Norway</option>
+            
+              <option value="pk-en" >Pakistan (en)</option>
+            
+              <option value="pe-es" >Peru</option>
+            
+              <option value="ph-en" >Philippines (en)</option>
+            
+              <option value="pl-pl" >Poland</option>
+            
+              <option value="pt-pt" >Portugal</option>
+            
+              <option value="ro-ro" >Romania</option>
+            
+              <option value="ru-ru" >Russia</option>
+            
+              <option value="xa-ar" >Saudi Arabia</option>
+            
+              <option value="sg-en" >Singapore</option>
+            
+              <option value="sk-sk" >Slovakia</option>
+            
+              <option value="sl-sl" >Slovenia</option>
+            
+              <option value="za-en" >South Africa</option>
+            
+              <option value="es-ca" >Spain (ca)</option>
+            
+              <option value="es-es" >Spain (es)</option>
+            
+              <option value="se-sv" >Sweden</option>
+            
+              <option value="ch-de" >Switzerland (de)</option>
+            
+              <option value="ch-fr" >Switzerland (fr)</option>
+            
+              <option value="tw-tzh" >Taiwan</option>
+            
+              <option value="th-en" >Thailand (en)</option>
+            
+              <option value="tr-tr" >Turkey</option>
+            
+              <option value="us-en" >US (English)</option>
+            
+              <option value="us-es" >US (Spanish)</option>
+            
+              <option value="ua-uk" >Ukraine</option>
+            
+              <option value="uk-en" >United Kingdom</option>
+            
+              <option value="vn-en" >Vietnam (en)</option>
+            
+          </select>
+        </div>
+
+        <div class="frm__select frm__select--last">
+          <select class="" name="df">
+            
+              <option value="" selected>Any Time</option>
+            
+              <option value="d" >Past Day</option>
+            
+              <option value="w" >Past Week</option>
+            
+              <option value="m" >Past Month</option>
+            
+              <option value="y" >Past Year</option>
+            
+          </select>
+        </div>
+      </form>
+    </div>
+
+    
+
+    
+      <!-- Web results are present -->
+      <div>
+        <div class="serp__results">
+          <div id="links" class="results">
+            
+
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FForgetting_curve&amp;rut=ffc4c16fc5ce278938871c619cb895e2d6b2ba30c2e469dacb706cb9fb5b989e">Forgetting curve - Wikipedia</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FForgetting_curve&amp;rut=ffc4c16fc5ce278938871c619cb895e2d6b2ba30c2e469dacb706cb9fb5b989e">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/en.wikipedia.org.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FForgetting_curve&amp;rut=ffc4c16fc5ce278938871c619cb895e2d6b2ba30c2e469dacb706cb9fb5b989e">
+                            en.wikipedia.org/wiki/Forgetting_curve
+                          </a>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FForgetting_curve&amp;rut=ffc4c16fc5ce278938871c619cb895e2d6b2ba30c2e469dacb706cb9fb5b989e">He discovered that information is easier to recall when it&#x27;s built upon things you already know, and the <b>forgetting</b> <b>curve</b> was flattened by every <b>repetition</b>. It appeared that by applying frequent training in learning, the information was solidified by repeated recalling.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Factiverecalling.com%2Fblog%2Fspaced%2Drepetition%2Dcomplete%2Dguide&amp;rut=31cc5d2f640681f0656dbe4bce3ce4f25c634a06e5cb3b2026701c9fc480548d">Spaced Repetition Guide (2026): Algorithms, Apps &amp; Schedules</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Factiverecalling.com%2Fblog%2Fspaced%2Drepetition%2Dcomplete%2Dguide&amp;rut=31cc5d2f640681f0656dbe4bce3ce4f25c634a06e5cb3b2026701c9fc480548d">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/activerecalling.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Factiverecalling.com%2Fblog%2Fspaced%2Drepetition%2Dcomplete%2Dguide&amp;rut=31cc5d2f640681f0656dbe4bce3ce4f25c634a06e5cb3b2026701c9fc480548d">
+                            activerecalling.com/blog/spaced-repetition-complete-guide
+                          </a>
+                          
+                            <span>&nbsp; &nbsp; 2026-03-22T00:00:00.0000000</span>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Factiverecalling.com%2Fblog%2Fspaced%2Drepetition%2Dcomplete%2Dguide&amp;rut=31cc5d2f640681f0656dbe4bce3ce4f25c634a06e5cb3b2026701c9fc480548d">Master <b>spaced</b> <b>repetition</b>: how the <b>forgetting</b> <b>curve</b> works, FSRS and SM-2 algorithms explained, and ready-to-use review schedules that beat cramming.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fst3v3nmw%2Fobsidian%2Dspaced%2Drepetition&amp;rut=787dc0eb0331f0db23264795f34e206f54065a75222165ee87ef20845bc88b94">GitHub - st3v3nmw/obsidian-spaced-repetition: Fight the forgetting ...</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fst3v3nmw%2Fobsidian%2Dspaced%2Drepetition&amp;rut=787dc0eb0331f0db23264795f34e206f54065a75222165ee87ef20845bc88b94">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/github.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fst3v3nmw%2Fobsidian%2Dspaced%2Drepetition&amp;rut=787dc0eb0331f0db23264795f34e206f54065a75222165ee87ef20845bc88b94">
+                            github.com/st3v3nmw/obsidian-spaced-repetition
+                          </a>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fgithub.com%2Fst3v3nmw%2Fobsidian%2Dspaced%2Drepetition&amp;rut=787dc0eb0331f0db23264795f34e206f54065a75222165ee87ef20845bc88b94">Fight the <b>forgetting</b> <b>curve</b> by reviewing flashcards &amp; notes using the FSRS or the SM-2 <b>spaced</b> <b>repetition</b> algorithms. For more information on how to use the plugin, check either the TL;DR on this page or the documentation.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.iienstitu.com%2Fen%2Ftools%2Fforgetting%2Dcurve%2Dcalculator&amp;rut=d8cd2bb1974db79017f51ad8c3b6c008720df2ce963148afa4f89b3a398be4bc">Forgetting Curve Calculator &amp; Spaced Repetition Planner</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.iienstitu.com%2Fen%2Ftools%2Fforgetting%2Dcurve%2Dcalculator&amp;rut=d8cd2bb1974db79017f51ad8c3b6c008720df2ce963148afa4f89b3a398be4bc">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/www.iienstitu.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.iienstitu.com%2Fen%2Ftools%2Fforgetting%2Dcurve%2Dcalculator&amp;rut=d8cd2bb1974db79017f51ad8c3b6c008720df2ce963148afa4f89b3a398be4bc">
+                            www.iienstitu.com/en/tools/forgetting-curve-calculator
+                          </a>
+                          
+                            <span>&nbsp; &nbsp; 2026-09-24T00:00:00.0000000</span>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.iienstitu.com%2Fen%2Ftools%2Fforgetting%2Dcurve%2Dcalculator&amp;rut=d8cd2bb1974db79017f51ad8c3b6c008720df2ce963148afa4f89b3a398be4bc">Free <b>forgetting</b> <b>curve</b> calculator: find when to review, your current retention %, and a full SM-2 <b>spaced-repetition</b> schedule for 90 % long-term recall.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmemoryos.com%2Farticle%2Fthe%2Debbinghaus%2Dforgetting%2Dcurve%2Dand%2Dhow%2Dto%2Dhack%2Dit&amp;rut=76f77aa282e53ab42d15c6138c8391c549ef8a0451fffd325741e7f8aa7559ca">The Ebbinghaus Forgetting Curve &amp; Spaced Repetition Guide- memoryOS</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmemoryos.com%2Farticle%2Fthe%2Debbinghaus%2Dforgetting%2Dcurve%2Dand%2Dhow%2Dto%2Dhack%2Dit&amp;rut=76f77aa282e53ab42d15c6138c8391c549ef8a0451fffd325741e7f8aa7559ca">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/memoryos.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmemoryos.com%2Farticle%2Fthe%2Debbinghaus%2Dforgetting%2Dcurve%2Dand%2Dhow%2Dto%2Dhack%2Dit&amp;rut=76f77aa282e53ab42d15c6138c8391c549ef8a0451fffd325741e7f8aa7559ca">
+                            memoryos.com/article/the-ebbinghaus-forgetting-curve-and-how-to-hack-it
+                          </a>
+                          
+                            <span>&nbsp; &nbsp; 2026-03-02T00:00:00.0000000</span>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmemoryos.com%2Farticle%2Fthe%2Debbinghaus%2Dforgetting%2Dcurve%2Dand%2Dhow%2Dto%2Dhack%2Dit&amp;rut=76f77aa282e53ab42d15c6138c8391c549ef8a0451fffd325741e7f8aa7559ca">Why we forget—and how to stop it. Master the <b>forgetting</b> <b>curve</b>, <b>spaced</b> <b>repetition</b>, and memory palace techniques for lasting retention.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Flink.springer.com%2Fchapter%2F10.1007%2F978%2D3%2D030%2D52240%2D7_65&amp;rut=d8a5eca78fb5e1fe61b7bbdb1359536df37f7e9da9ee5cccd0c23eb6b66f4123">Adaptive Forgetting Curves for Spaced Repetition Language Learning</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Flink.springer.com%2Fchapter%2F10.1007%2F978%2D3%2D030%2D52240%2D7_65&amp;rut=d8a5eca78fb5e1fe61b7bbdb1359536df37f7e9da9ee5cccd0c23eb6b66f4123">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/link.springer.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Flink.springer.com%2Fchapter%2F10.1007%2F978%2D3%2D030%2D52240%2D7_65&amp;rut=d8a5eca78fb5e1fe61b7bbdb1359536df37f7e9da9ee5cccd0c23eb6b66f4123">
+                            link.springer.com/chapter/10.1007/978-3-030-52240-7_65
+                          </a>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Flink.springer.com%2Fchapter%2F10.1007%2F978%2D3%2D030%2D52240%2D7_65&amp;rut=d8a5eca78fb5e1fe61b7bbdb1359536df37f7e9da9ee5cccd0c23eb6b66f4123">In this study we explore a variety of <b>forgetting</b> <b>curve</b> models incorporating psychological and linguistic features, and we use these models to predict the probability of word recall by learners of English as a second language.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fyukaichou.com%2Fgamification%2Danalysis%2Fspaced%2Drepetition%2Debbinghaus%2Dforgetting%2Dcurve%2Dlearning%2F&amp;rut=5dea8269a80b202d21841142ef45e1966ab9466e5461f3045941290897b8ef78">Spaced Repetition Schedule: Beat the Forgetting Curve</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fyukaichou.com%2Fgamification%2Danalysis%2Fspaced%2Drepetition%2Debbinghaus%2Dforgetting%2Dcurve%2Dlearning%2F&amp;rut=5dea8269a80b202d21841142ef45e1966ab9466e5461f3045941290897b8ef78">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/yukaichou.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fyukaichou.com%2Fgamification%2Danalysis%2Fspaced%2Drepetition%2Debbinghaus%2Dforgetting%2Dcurve%2Dlearning%2F&amp;rut=5dea8269a80b202d21841142ef45e1966ab9466e5461f3045941290897b8ef78">
+                            yukaichou.com/gamification-analysis/spaced-repetition-ebbinghaus-forgetting-curve-learning/
+                          </a>
+                          
+                            <span>&nbsp; &nbsp; 2026-06-04T00:00:00.0000000</span>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fyukaichou.com%2Fgamification%2Danalysis%2Fspaced%2Drepetition%2Debbinghaus%2Dforgetting%2Dcurve%2Dlearning%2F&amp;rut=5dea8269a80b202d21841142ef45e1966ab9466e5461f3045941290897b8ef78">Why cramming fails and <b>spaced</b> <b>repetition</b> wins. Learn the <b>forgetting</b> <b>curve</b>, the exact review intervals that make learning stick, and the psychology behind it.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fbrainhealthuniversity.com%2Fbrain%2Dexercises%2Dactivities%2Fspaced%2Drepetition%2Dthe%2Dscience%2Dof%2Dnever%2Dforgetting%2Dwhat%2Dyou%2Dlearn%2F&amp;rut=f4611dccb8bf6c61d910078ad317b1c4f06fff2135d860f71631a6c28e2f99b4">Spaced Repetition: The Science of Never Forgetting What You Learn</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fbrainhealthuniversity.com%2Fbrain%2Dexercises%2Dactivities%2Fspaced%2Drepetition%2Dthe%2Dscience%2Dof%2Dnever%2Dforgetting%2Dwhat%2Dyou%2Dlearn%2F&amp;rut=f4611dccb8bf6c61d910078ad317b1c4f06fff2135d860f71631a6c28e2f99b4">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/brainhealthuniversity.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fbrainhealthuniversity.com%2Fbrain%2Dexercises%2Dactivities%2Fspaced%2Drepetition%2Dthe%2Dscience%2Dof%2Dnever%2Dforgetting%2Dwhat%2Dyou%2Dlearn%2F&amp;rut=f4611dccb8bf6c61d910078ad317b1c4f06fff2135d860f71631a6c28e2f99b4">
+                            brainhealthuniversity.com/brain-exercises-activities/spaced-repetition-the-science-of-never-forgetting-what-you-learn/
+                          </a>
+                          
+                            <span>&nbsp; &nbsp; 2026-04-03T00:00:00.0000000</span>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fbrainhealthuniversity.com%2Fbrain%2Dexercises%2Dactivities%2Fspaced%2Drepetition%2Dthe%2Dscience%2Dof%2Dnever%2Dforgetting%2Dwhat%2Dyou%2Dlearn%2F&amp;rut=f4611dccb8bf6c61d910078ad317b1c4f06fff2135d860f71631a6c28e2f99b4"><b>Spaced</b> <b>repetition</b> is a learning technique that schedules review sessions at increasing intervals to defeat the <b>forgetting</b> <b>curve</b>. Learn the science behind it, why it outperforms conventional study methods, and how to use it effectively.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fthelearnerlab.com%2Fscience%2Dspaced%2Drepetition%2Dmemory%2Dretention%2F&amp;rut=d08972ea8103ddead8ee3ff9e252731a4f9921ade19e8f50c6e5d1719bd9bbe6">The Science of Spaced Repetition: How to Remember What You Learn</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fthelearnerlab.com%2Fscience%2Dspaced%2Drepetition%2Dmemory%2Dretention%2F&amp;rut=d08972ea8103ddead8ee3ff9e252731a4f9921ade19e8f50c6e5d1719bd9bbe6">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/thelearnerlab.com.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fthelearnerlab.com%2Fscience%2Dspaced%2Drepetition%2Dmemory%2Dretention%2F&amp;rut=d08972ea8103ddead8ee3ff9e252731a4f9921ade19e8f50c6e5d1719bd9bbe6">
+                            thelearnerlab.com/science-spaced-repetition-memory-retention/
+                          </a>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fthelearnerlab.com%2Fscience%2Dspaced%2Drepetition%2Dmemory%2Dretention%2F&amp;rut=d08972ea8103ddead8ee3ff9e252731a4f9921ade19e8f50c6e5d1719bd9bbe6">The science behind <b>spaced</b> <b>repetition</b>, learning, and retention techniques. Learn how to implement active recall and beat the <b>forgetting</b> <b>curve</b></a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+              
+                <div class="result results_links results_links_deep web-result ">
+                  <div class="links_main links_deep result__body"> <!-- This is the visible part -->
+                    
+                      <h2 class="result__title">
+                        <a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmindfocus.io%2Fposts%2Fthe%2Dforgetting%2Dcurve%2Dand%2Dspaced%2Drepetition%2Dexplained&amp;rut=b15f5e7269a490904663892ca7f407025491405f42e4ad3209cf625f05184ddb">The Forgetting Curve and Spaced Repetition, Explained</a>
+                      </h2>
+
+                    
+
+                    
+                      <div class="result__extras">
+                        <div class="result__extras__url">
+                          <span class="result__icon">
+                            <a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmindfocus.io%2Fposts%2Fthe%2Dforgetting%2Dcurve%2Dand%2Dspaced%2Drepetition%2Dexplained&amp;rut=b15f5e7269a490904663892ca7f407025491405f42e4ad3209cf625f05184ddb">
+                              <img class="result__icon__img" width="16" height="16" alt="" src="//external-content.duckduckgo.com/ip3/mindfocus.io.ico" name="i15" />
+                            </a>
+                          </span>
+                          <a class="result__url" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmindfocus.io%2Fposts%2Fthe%2Dforgetting%2Dcurve%2Dand%2Dspaced%2Drepetition%2Dexplained&amp;rut=b15f5e7269a490904663892ca7f407025491405f42e4ad3209cf625f05184ddb">
+                            mindfocus.io/posts/the-forgetting-curve-and-spaced-repetition-explained
+                          </a>
+                          
+                            <span>&nbsp; &nbsp; 2026-08-22T00:00:00.0000000</span>
+                          
+                        </div>
+                      </div>
+                    
+
+                    
+                      
+                        <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fmindfocus.io%2Fposts%2Fthe%2Dforgetting%2Dcurve%2Dand%2Dspaced%2Drepetition%2Dexplained&amp;rut=b15f5e7269a490904663892ca7f407025491405f42e4ad3209cf625f05184ddb"><b>Spaced</b> <b>repetition</b> fails less often because of a bad schedule, and more often because reviews turn into re-reading, or get abandoned after the first missed one. Consistency with short, <b>spaced</b>, self-tested reviews beats intensity every time.</a>
+                      
+                    
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+              
+            
+
+            
+              
+              
+                <div class="nav-link">
+                  <form action="/html/" method="post">
+                    <input type="submit" class='btn btn--alt' value="Next" />
+                    <input type="hidden" name="q" value="spaced repetition forgetting curve" />
+                    <input type="hidden" name="s" value="10" />
+                    <input type="hidden" name="nextParams" value="" />
+                    <input type="hidden" name="v" value="l" />
+                    <input type="hidden" name="o" value="json" />
+                    <input type="hidden" name="dc" value="11" />
+                    <input type="hidden" name="api" value="d.js" />
+                    <input type="hidden" name="vqd" value="4-338065023305545136318221067525451302080" />
+
+                    
+                    
+                    
+                      <input name="kl" value="wt-wt" type="hidden" />
+                    
+                    
+                    
+                    
+                  </form>
+                </div>
+              
+            
+
+            <div class="feedback-btn">
+              <a rel="nofollow" href="//duckduckgo.com/feedback.html" target="_new">Feedback</a>
+            </div>
+            <div class="clear"></div>
+          </div>
+        </div>
+      </div> <!-- links wrapper //-->
+    
+  </div>
+
+  <div id="bottom_spacing2"></div>
+
+  
+    <img src="//duckduckgo.com/t/sl_h"/>
+  
+</body>
+</html>

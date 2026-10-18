@@ -1,0 +1,18 @@
+{
+  "kind": "youtube#playlistItemListResponse",
+  "etag": "fixture-etag-1",
+  "nextPageToken": "PAGE2",
+  "items": [
+    {"kind": "youtube#playlistItem", "id": "item-1",
+     "snippet": {"publishedAt": "2026-01-02T10:00:00Z", "title": "Lesson 1: Sounds", "position": 0,
+                 "resourceId": {"kind": "youtube#video", "videoId": "aaaaaaaaaa1"}},
+     "contentDetails": {"videoId": "aaaaaaaaaa1", "videoPublishedAt": "2025-12-30T09:00:00Z"},
+     "status": {"privacyStatus": "public"}},
+    {"kind": "youtube#playlistItem", "id": "item-2",
+     "snippet": {"publishedAt": "2026-01-03T10:00:00Z", "title": "Private video", "position": 1,
+                 "resourceId": {"kind": "youtube#video", "videoId": "aaaaaaaaaa2"}},
+     "contentDetails": {"videoId": "aaaaaaaaaa2"},
+     "status": {"privacyStatus": "private"}}
+  ],
+  "pageInfo": {"totalResults": 3, "resultsPerPage": 50}
+}

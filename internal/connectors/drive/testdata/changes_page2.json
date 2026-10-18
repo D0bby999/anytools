@@ -1,0 +1,30 @@
+{
+  "kind": "drive#changeList",
+  "newStartPageToken": "90219",
+  "changes": [
+    {
+      "kind": "drive#change",
+      "changeType": "file",
+      "time": "2026-09-16T10:30:00.921Z",
+      "removed": false,
+      "fileId": "1Pdf_AddedAfterPick",
+      "file": {
+        "kind": "drive#file",
+        "id": "1Pdf_AddedAfterPick",
+        "name": "added-after-pick.pdf",
+        "mimeType": "application/pdf",
+        "md5Checksum": "f00dcafe1234567890abcdef00112233",
+        "modifiedTime": "2026-09-16T10:30:00.000Z",
+        "trashed": false,
+        "parents": ["1Folder_AnyTools_KB"]
+      }
+    },
+    {
+      "kind": "drive#change",
+      "changeType": "file",
+      "time": "2026-09-16T10:41:07.004Z",
+      "removed": true,
+      "fileId": "1Pdf_Attention"
+    }
+  ]
+}

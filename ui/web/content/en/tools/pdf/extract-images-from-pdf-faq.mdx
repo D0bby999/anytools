@@ -1,0 +1,43 @@
+---
+title: Extract Images from PDF — Frequently asked questions
+---
+
+## How is this different from PDF to PNG?
+
+PDF to PNG renders each *page* into a picture — text, vector art and photographs flattened together at whatever resolution you choose. This tool pulls out the *image files that were embedded in the document*, at the resolution they were stored at.
+
+For a scanned report, extraction hands you the original scan; rendering would resample it to your chosen DPI, which is either wasteful or lossy depending on which way you guessed. For a photo inside a slide deck, extraction gives you the photo without the slide around it.
+
+## Why does it say no images were found?
+
+Because the PDF genuinely has none embedded. A document produced from a word processor or LaTeX is text and vector drawing instructions — there is no picture file inside it to extract, even though the page obviously looks like something. That is why the message says so plainly and points at PDF to PNG, which renders the page instead.
+
+It is a legitimate outcome rather than a failure, so it is not shown as an error.
+
+## Why did I get fewer images than the document has pictures?
+
+Two likely reasons. The first is deliberate: an image referenced on many pages — a letterhead, a logo, a watermark — is stored once and drawn repeatedly, so a 40-page report yields one copy rather than 40. The tool de-duplicates by the internal object name.
+
+The second is honest failure. pdf.js hands back raw pixel data whose channel count depends on the source colour space, and some CMYK images arrive in a form that cannot be converted to screen colours without guessing. Those are skipped rather than converted approximately, because a confidently wrong colour is worse than a missing file.
+
+## Are the extracted images at full quality?
+
+They are the stored pixels, so nothing is resampled or re-scaled. They are written out as PNG, which is lossless, so no further compression is applied on the way out.
+
+That does mean an image stored as JPEG inside the PDF comes out as a PNG containing exactly those decoded pixels — visually identical, usually a larger file. If the size matters, run the result through Compress Image.
+
+## Does it recover images that were cropped in the document?
+
+Yes, usually to your advantage. PDFs frequently store a full photograph and display only part of it through a clipping path. Extraction returns the stored image, so you may get more of the picture than the page showed. Occasionally that is surprising; usually it is what you wanted.
+
+## Is my PDF uploaded anywhere?
+
+No. The document is parsed by pdf.js inside this browser tab, using a worker served from this site's own origin, and the images are rebuilt on a canvas in the page. Download links point at blobs your browser created. Nothing is transmitted — verify in the Network tab, or go offline after the page loads.
+
+## Is opening an untrusted PDF here safe?
+
+Reasonably, with a caveat worth stating. Parsing an unknown PDF is real attack surface — pdf.js has had bugs permitting script execution through font handling. This tool pins pdf.js to an exact version rather than a range that could drift backwards, turns off the eval-based font path, disables font installation, and the site sends a Content-Security-Policy. That is a meaningful reduction in risk, not a guarantee.
+
+## Can I extract from several PDFs at once?
+
+Not currently — one document at a time. The output of a single PDF is already often dozens of files, and batching would make it hard to tell which image came from where.

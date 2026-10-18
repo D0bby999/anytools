@@ -1,0 +1,41 @@
+---
+title: Imagem para PDF — Perguntas frequentes
+---
+
+## Minhas fotos são enviadas para algum lugar?
+
+Não. Cada imagem é decodificada e redesenhada por JavaScript dentro desta aba do navegador, montada em um documento com a biblioteca `pdf-lib`, e devolvida a você como uma URL de blob que seu navegador cria localmente. Nenhuma solicitação transporta o arquivo. Você pode verificar isso: abra as ferramentas de desenvolvedor do seu navegador, mude para a aba Rede, e construa um PDF — você não verá nenhum upload. Também pode desconectar da rede depois que a página carregar e a ferramenta ainda funciona.
+
+Essa diferença importa mais aqui do que para a maioria das conversões. As fotos que as pessoas transformam em PDFs são passaportes, carteiras de motorista, recibos, prescrições e formulários assinados — exatamente o conjunto de documentos que você menos gostaria que estivesse na fila de processamento de um estranho atrás de uma política de exclusão que você não consegue auditar.
+
+## Por que a ferramenta re-codifica uma imagem que já é um JPEG?
+
+Porque é o que faz a rotação sair certa, e é o compromisso honesto.
+
+Uma câmera de telefone quase sempre registra o quadro em paisagem do sensor bruto e adiciona uma flag de orientação EXIF dizendo "exiba isso girado". Os visualizadores de imagem honram essa flag. PDF não tem equivalente — um PDF armazena pixels e uma colocação, e nada mais. Então se os bytes originais de uma foto de retrato de telefone fossem copiados diretamente para o documento, a página sairia de lado. Esse é o defeito mais comum em ferramentas de imagem para PDF, e a única correção confiável é decodificar a imagem com a orientação aplicada e redesenhá-la.
+
+O custo: um JPEG é re-codificado uma vez com qualidade 0,92, que é visualmente sem perda no tamanho de visualização normal mas não é idêntico em bits ao seu original. Um PNG re-codifica para PNG, que é sem perda. Redesenhar também é o que permite WebP, GIF, AVIF e BMP como entradas em tudo, já que o próprio PDF só consegue transportar dados de imagem JPEG e PNG.
+
+Imagens que usam transparência são escritas como PNG; tudo mais é escrito como JPEG. Uma fotografia armazenada como PNG é rotineiramente dez vezes o tamanho da mesma fotografia como JPEG, e vinte delas produzem um documento que não abrirá em um telefone.
+
+## O que as opções de tamanho de página fazem?
+
+**A4** e **Carta US** dão a cada página o mesmo tamanho padrão, e cada imagem é escalada para caber dentro das margens com sua proporção preservada. Nada é cortado, então uma imagem cuja forma não corresponde à página deixa barras brancas em dois lados. Com orientação definida como "Corresponder a cada imagem", uma foto em paisagem recebe uma página em paisagem e uma foto em retrato recebe uma página em retrato, então essas barras são geralmente pequenas.
+
+**Ajustar a página a cada imagem** dimensiona cada página a sua própria imagem, então não há barras em tudo e as páginas em um documento podem diferir em tamanho. A conversão usada é 96 pixels por polegada — o pixel CSS, a unidade que sua tela e seu navegador já medem imagens — então uma captura de tela de 1920 × 1080 torna-se uma página de 1440 × 810 pontos. Uma foto grande produz portanto uma página fisicamente grande. Isso é inerente a "sem barras brancas" em vez de uma configuração que poderíamos escolher melhor; escolha A4 ou Carta se o resultado tiver que imprimir em papel ordinário.
+
+## Qual é a opção "reduzir para 150 dpi"?
+
+Um PDF armazena qualquer pixel que você lhe dê. Uma foto de telefone de 48 megapixels colocada em uma página A4 carrega aproximadamente dez megabytes no documento, embora uma página A4 com boa resolução de impressão precise de cerca de 1,5 megapixels. Vinte páginas assim fazem um arquivo muito grande para enviar por email e lento para abrir.
+
+Com a opção ativada, cada imagem é reduzida para que chegue a cerca de 150 pontos por polegada no tamanho que será realmente impresso — boa qualidade de impressão, sem diferença visível na tela. As imagens já menores que esse orçamento nunca são ampliadas. Desative quando precisar da resolução total, por exemplo quando o PDF é uma cópia arquivada de uma varredura. A opção não é usada quando a página é dimensionada para a imagem, porque reduzir a imagem simplesmente reduziria a página e não mudaria nada sobre o resultado.
+
+## Há um limite de tamanho ou contagem?
+
+Não há limite imposto, porque não há upload para limitar. A restrição real é a memória do seu dispositivo: as imagens são decodificadas uma por vez em vez de todas de uma vez, precisamente para que um lote de fotos grandes não aloque vários gigabytes de buffers de pixel e interrompa a aba. Arquivos acima de 100 MB exibem um aviso, mas a ferramenta ainda tenta.
+
+Uma imagem acima de aproximadamente 16,7 megapixels é recusada com uma mensagem nomeando seu tamanho. Esse é um limite do navegador, não nosso — Safari em particular retorna um canvas em branco em vez de um erro acima dessa área, então recusar é a única forma de evitar entregar uma página silenciosamente branca.
+
+## A ordem que defino fica?
+
+Sim. As imagens viram páginas de cima para baixo na ordem mostrada na lista, uma imagem por página. Reordene arrastando uma linha, ou com as setas para cima e para baixo ao seu lado — as setas existem porque arrastar não funciona com um teclado e é incômodo em uma tela sensível ao toque. Depois que o PDF é construído, o painel de resultado lista cada arquivo de origem com o tamanho de pixel que entrou no documento e o tamanho de página em que chegou, então você pode confirmar a ordem e a resolução antes de baixar.

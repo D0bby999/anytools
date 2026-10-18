@@ -1,0 +1,53 @@
+---
+title: URL encoding giải thích
+description: Khi nào dùng encodeURIComponent vs encodeURI, vì sao + thành dấu cách, và làm sao round-trip ký tự non-ASCII an toàn.
+updated: 2026-05-25
+---
+
+## URL encoding là gì
+
+URL chỉ chấp nhận một tập nhỏ ký tự ASCII. [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) dành riêng vài ký tự (`/`, `?`, `#`, `&`, `=`, v.v.) cho ý nghĩa cấu trúc, và cấm dấu cách, ký tự điều khiển, hầu hết byte non-ASCII xuất hiện trực tiếp. **URL encoding** (còn gọi *percent encoding*) là cơ chế escape: mỗi byte bị cấm được thay bằng `%` rồi hai chữ số hex của nó.
+
+Vậy dấu cách thành `%20`, dấu `&` thành `%26`, ký tự `世` thành `%E4%B8%96` (ba byte UTF-8, mỗi byte được percent-encode). Kết quả luôn an toàn ASCII.
+
+## `encodeURIComponent` vs `encodeURI`
+
+JavaScript có hai hàm riêng, không thay thế cho nhau:
+
+- **`encodeURIComponent`** encode *mọi thứ* không phải ký tự unreserved. Dùng cho **một mảnh** của URL — một giá trị query, một path segment, một field form.
+- **`encodeURI`** giữ lại ký tự cấu trúc URL (`:/?#&=+$,`) vì giả định bạn đang đưa một URL hoàn chỉnh đã được cấu trúc. Dùng khi bạn có URL đầy đủ chứa nội dung non-ASCII và muốn an toàn cho transport mà không phá cấu trúc.
+
+Sai ví dụ: nếu bạn `encodeURI("a=1&b=2")`, dấu `=` và `&` giữ nguyên — OK nếu chuỗi này là query, vỡ nếu nó là *value* dự định chứa `=` hoặc `&` literal.
+
+Tool này cung cấp cả hai, cộng chế độ decode chấp nhận cả hai dạng.
+
+## Lưu ý về dấu `+`
+
+Lịch sử: HTML form encode dấu cách thành `+` (loại MIME `application/x-www-form-urlencoded`). Chuẩn URL hiện đại encode dấu cách thành `%20`. Cả hai vẫn tồn tại — khi decode query string, bạn phải chấp nhận cả hai. Decoder của tool nhận cả hai.
+
+Khi *encode*, chúng tôi luôn phát ra `%20` (chuẩn hiện đại). Đừng emit `+` cho dấu cách trừ khi bạn cần tương thích form encoding cụ thể.
+
+## Ví dụ
+
+| Input | encode component | encode full URL |
+|---|---|---|
+| `hello world` | `hello%20world` | `hello%20world` |
+| `a=1&b=2` | `a%3D1%26b%3D2` | `a=1&b=2` |
+| `https://x.com/a?b=1` | `https%3A%2F%2Fx.com%2Fa%3Fb%3D1` | `https://x.com/a?b=1` |
+| `café` | `caf%C3%A9` | `caf%C3%A9` |
+
+## Khi nào bạn cần
+
+- Build query string lập trình mà không dùng router/library.
+- Phân tích URL đã encode mà ai đó paste cho bạn.
+- Debug "tại sao backend thấy `+` thay vì dấu cách?"
+- Tạo canonical URL trong sitemap và `<link rel="canonical">`.
+
+## Quyền riêng tư
+
+100% trong trình duyệt qua hàm native `encodeURIComponent` / `decodeURIComponent`. Không request mạng, không log.
+
+## Công cụ liên quan
+
+- **Base64 Encoder** — encoding khác, thường kết hợp với URL encoding cho transport gọn.
+- **Slugify** — biến text bất kỳ thành slug URL an toàn (operation cao cấp hơn encoding thuần).

@@ -1,0 +1,50 @@
+---
+title: URL slug — transliteration, dấu, và SEO
+description: Cách biến văn bản bất kỳ (tiếng Việt, Đức, Pháp) thành slug URL-safe không mất nghĩa.
+updated: 2026-05-26
+---
+
+## Slug là gì
+
+Slug là phần URL người-đọc-được, an toàn URL — `/blog/my-post-title` có slug `my-post-title`. Nó định danh resource và góp phần SEO (Google đọc từ trong slug). Phải ASCII-safe, lowercase theo convention, và dùng separator browser không phá (`-` thắng).
+
+Biến đổi từ text bất kỳ thành slug qua ba bước:
+
+1. **Transliterate** ký tự non-ASCII thành tương đương ASCII (`café` → `cafe`, `Tiếng Việt` → `tieng-viet`, `Schöner Tag` → `schoner-tag`).
+2. **Normalize** whitespace và dấu câu thành separator bạn chọn.
+3. **Lowercase** (gần như universal — search engine fold case URL).
+
+Tool này xử lý cả ba. Chọn đúng locale cho text input để transliteration dùng đúng quy tắc — `ư` Vietnamese là `u`, không phải `w`; `ü` Đức là `ue` truyền thống nhưng `u` thông dụng hơn trong URL hiện đại.
+
+## Vì sao hyphen thay vì underscore
+
+Google index hyphen là word separator (`my-blog-post` = ba từ) nhưng underscore là joiner (`my_blog_post` = một từ). Cho SEO, **luôn dùng hyphen** trong URL slug. Underscore ổn cho tên file hoặc identifier, không phải URL.
+
+## Dấu: strip hay transliterate
+
+Hai trường phái:
+
+- **Strip**: `Café` → `caf`. Mất `é` hoàn toàn. Sai — bỏ chữ cái.
+- **Transliterate**: `Café` → `cafe`. Giữ chữ cái, bỏ dấu. Đúng.
+
+Tool này transliterate. Cho tiếng Việt, map locale-specific biến `đ` → `d` (library `slugify` chuẩn xử lý phần còn lại của dấu tiếng Việt qua NFD normalization).
+
+## Độ dài và SEO
+
+Hầu hết hướng dẫn SEO rơi vào **3–5 từ** cho slug (~30–60 ký tự). Slug dài không bị penalize nhưng xấu hơn khi share. Đừng pad bằng stop word ("the", "a", "an") — chúng tăng độ dài không thêm nghĩa.
+
+## Use case
+
+- Tạo URL path cho content CMS
+- Build tên file từ title người đọc
+- Tạo ID thân thiện từ input bất kỳ
+- Bulk-generate slug cho batch import (dùng tab Bulk)
+
+## Quyền riêng tư
+
+Mọi xử lý trong browser qua [`slugify`](https://github.com/simov/slugify). Không request mạng.
+
+## Liên quan
+
+- **Text Case Converter** — đổi lowercase trước khi slugify, hoặc đảo thứ tự.
+- **URL Encoder** — cho query parameter và compose URL đầy đủ.

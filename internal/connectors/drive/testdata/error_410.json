@@ -1,0 +1,15 @@
+{
+  "error": {
+    "errors": [
+      {
+        "domain": "global",
+        "reason": "pageTokenInvalid",
+        "message": "Page token is invalid or has expired.",
+        "locationType": "parameter",
+        "location": "pageToken"
+      }
+    ],
+    "code": 410,
+    "message": "Page token is invalid or has expired."
+  }
+}

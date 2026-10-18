@@ -1,0 +1,39 @@
+---
+title: Tạo Thẻ Meta — Câu hỏi thường gặp
+---
+
+## Tại sao mô tả được lặp lại ba lần?
+
+Vì ba người tiêu dùng khác nhau đọc ba thẻ khác nhau và không ai rơi lại vào cái khác. `<meta name="description">` là những gì các công cụ tìm kiếm đọc cho đoạn trích. `og:description` là những gì Facebook, LinkedIn, Slack, WhatsApp và hầu hết các unfolders liên kết đọc. `twitter:description` là những gì X đọc. Bỏ qua cái nào có nghĩa là nền tảng đó không hiển thị gì, hoặc phát minh cái gì từ văn bản trang của bạn.
+
+Sự trùng lặp là không thể tránh được và là lý do tại sao tạo ra những cái này bằng tay khá tẻ nhạt đến mức muốn một tool cho nó.
+
+## Những số đếm 60 và 160 ký tự có ý nghĩa gì?
+
+Chúng là nơi cắt ngắn thường bắt đầu, không phải giới hạn cứng. Google kết xuất các tiêu đề vào một chiều rộng pixel thay vì đếm các ký tự, vì vậy một tiêu đề của các chữ hoa rộng được cắt sớm hơn một cái của chữ thường hẹp — 60 là một quy tắc ngón tay đáng tin cậy. Các mô tả được cắt xung quanh 160, đôi khi ngắn hơn trên di động.
+
+Không có gì được thực thi. Vượt quá là một lựa chọn hợp pháp nếu các từ quan trọng đến trước; bộ đếm ở đó để nó là một lựa chọn thay vì một tai nạn.
+
+## Tại sao nó cảnh báo về một URL hình ảnh tương đối?
+
+Vì `og:image` được tìm nạp bởi một crawler chỉ có chuỗi đó — nó không có trang để giải quyết `/og.png` chống lại, và không có khái niệm đáng tin cậy về nguồn gốc của bạn. Một URL tương đối là nguyên nhân duy nhất phổ biến nhất một bản xem trước liên kết không hiển thị hình ảnh, và nó vô hình trong thử nghiệm vì trang chính nó kết xuất tốt.
+
+Tương tự áp dụng cho `og:url`, phải tuyệt đối vì cùng một lý do.
+
+## Sự khác biệt giữa hai loại thẻ là gì?
+
+`summary_large_image` kết xuất một hình ảnh rộng trên văn bản; `summary` kết xuất một hình nhỏ vuông bên cạnh nó. Large là đúng cho các bài viết và trang sản phẩm; summary là đúng khi bạn không có hình ảnh mạnh hoặc hình ảnh là một logo.
+
+Yêu cầu một thẻ hình ảnh lớn mà không cung cấp hình ảnh được cảnh báo, vì các nền tảng âm thầm quay lại một thẻ summary đơn giản và bản xem trước trông bị hỏng thay vì có ý định.
+
+## Các thẻ có được thoát chính xác không?
+
+Có. Ampersands, dấu ngoặc kép và dấu ngoặc nhọn được thoát ở mỗi giá trị thuộc tính. Điều này quan trọng hơn nó nghe có vẻ: một tiêu đề như `Bob & "Widgets"` được viết mà không được thoát đóng thuộc tính sớm, và phần còn lại của thẻ trở thành markup lạc trong `<head>` của bạn. Các tiêu đề chứa dấu ngoặc kép là phổ biến và sự phá vỡ dễ bỏ sót.
+
+## Tôi vẫn nên thêm một liên kết canonical không?
+
+Có, và nó được bao gồm khi bạn điền vào URL. `og:url` và `<link rel="canonical">` làm những công việc liên quan nhưng khác nhau — cái đầu tiên cho các nền tảng xã hội biết URL nào để ghi một chia sẻ cho, cái thứ hai cho các công cụ tìm kiếm biết cái nào của nhiều URL tương tự là cái thực sự. Cả hai nên trỏ vào cùng một địa chỉ.
+
+## Có điều gì được gửi tới máy chủ không?
+
+Không. Các thẻ được lắp ráp từ đầu vào của bạn bằng nối chuỗi trong tab trình duyệt này. Không có gì được truyền, cái này đáng để biết được đưa ra rằng các tiêu đề trang chưa được xuất bản và URL thường là những thứ đầu tiên bất kỳ ai gõ vào một tool như thế này.

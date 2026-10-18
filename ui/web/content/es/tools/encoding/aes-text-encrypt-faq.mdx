@@ -1,0 +1,27 @@
+---
+title: Cifrar / Descifrar texto AES — Preguntas frecuentes
+---
+
+## ¿Puedo descifrar el resultado de esta herramienta con OpenSSL o 7-Zip?
+
+No. La salida es Base64 de `salt (16 bytes) || IV (12 bytes) || texto cifrado`, todo concatenado — un formato que esta herramienta inventó para sí misma, de modo que pueda descifrar lo que ella misma cifró sin pedirte nada más que la contraseña. No es PKCS#7, no es el encabezado de `openssl enc`, tampoco un archivo AES de 7-Zip: ninguna herramienta externa entiende esta estructura de bytes, aunque el algoritmo de fondo (AES-256-GCM) sea completamente estándar. La única forma de recuperar el texto es pegar ese mismo Base64 en la pestaña de descifrado de esta misma herramienta junto con la contraseña correcta; al decodificar el Base64, los primeros 16 bytes se leen como la sal, los siguientes 12 como el IV, y el resto como el texto cifrado, exactamente en ese orden. Si necesitas un formato que otras herramientas externas puedan abrir, usa el cifrado integrado de un compresor de propósito general — esta herramienta cambia interoperabilidad por simplicidad: pegas el Base64, pegas la contraseña, y listo.
+
+## ¿Qué algoritmo se usa exactamente por debajo?
+
+AES-256-GCM para el cifrado en sí, con la clave derivada de tu contraseña mediante PBKDF2-HMAC-SHA256 a 310.000 iteraciones — el mínimo actual recomendado por OWASP (edición 2023) para esa combinación específica. GCM es un modo de cifrado autenticado: no solo oculta el texto, también detecta si el texto cifrado fue alterado después del hecho, algo que un AES-CBC simple no comprobaría por sí solo. En cada operación de cifrado se genera con `crypto.getRandomValues` una sal nueva de 16 bytes y un IV nuevo de 12 bytes antes de derivar la clave, así que cada cifrado empieza desde cero criptográficamente, sin reutilizar nada de la vez anterior.
+
+## ¿Por qué justo 310.000 iteraciones de PBKDF2?
+
+Ese número sale directamente de la hoja de referencia de almacenamiento de contraseñas de OWASP, vigente desde 2023, para PBKDF2-HMAC-SHA256. Más iteraciones significa que alguien que robe tu texto cifrado tiene que gastar proporcionalmente más cómputo por cada intento de contraseña al hacer fuerza bruta fuera de línea. También implica que cada cifrado o descifrado en esta herramienta toma una fracción de segundo pequeña pero deliberada — ese retraso es justamente el propósito, no un defecto de rendimiento a corregir.
+
+## ¿Por qué descifrar con la contraseña equivocada da un solo error genérico?
+
+Porque la verificación de la etiqueta de autenticación de GCM solo devuelve aprobado o rechazado; WebCrypto no explica *por qué* falló, y esta herramienta transmite esa misma ambigüedad tal cual en vez de adivinar. Una contraseña incorrecta, un pegado incompleto desde el portapapeles, y un solo bit alterado por alguien manipulando el texto cifrado producen exactamente el mismo rechazo de descifrado. Esto es intencional: un mensaje de error más específico filtraría información útil a un atacante sobre cuál de esos tres escenarios está enfrentando realmente.
+
+## ¿Cifrar el mismo texto dos veces da el mismo resultado en Base64?
+
+No, y es a propósito. Cada cifrado extrae una sal y un IV completamente nuevos y aleatorios, así que el mismo texto plano con la misma contraseña produce una cadena Base64 distinta cada vez que se ejecuta. Si no fuera así, cualquiera que viera dos salidas idénticas sabría que los textos originales eran iguales — una debilidad real del cifrado determinista, aunque el algoritmo AES en sí mismo siga siendo sólido.
+
+## ¿Es esto suficientemente seguro para algo importante?
+
+Para proteger una nota o un secreto pequeño mientras se copia entre tus propios dispositivos, o mientras vive en un archivo de texto, una app de notas o un historial de chat — sí, esto es cifrado autenticado real y estándar, no una versión casera débil. Lo que no hace es protegerte si el dispositivo que estás usando ya está comprometido: un malware o un keylogger que esté observando esa pestaña del navegador puede leer directamente tu contraseña y el texto plano según los tecleas, antes incluso de que lleguen a WebCrypto, y ninguna criptografía puede evitar eso — el cifrado protege datos en tránsito o en reposo, no en un entorno de ejecución ya hostil. Tampoco sale nunca de tu equipo para empezar — el cifrado y el descifrado ocurren localmente con WebCrypto (que exige un contexto seguro, HTTPS o localhost; sin eso, `crypto.subtle` ni siquiera existe, y la herramienta lo indica en vez de fallar en silencio), así que no hay nada que interceptar en la red durante el proceso. La contraseña que escribes se usa una sola vez en memoria para derivar la clave y luego se descarta — cerrar la pestaña borra todo, incluida la clave derivada, y no queda ningún registro persistente en disco ni en un servidor que no existe.

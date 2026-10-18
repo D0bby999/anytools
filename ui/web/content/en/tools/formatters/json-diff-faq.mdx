@@ -1,0 +1,39 @@
+---
+title: JSON diff — Frequently asked questions
+---
+
+## How is this different from the text diff checker?
+
+It compares structure, not lines. Reformatting a file, changing indentation, or reordering the keys of an object produces **zero** differences here — all of which would light up a line-based diff. If you want to know what changed in the data rather than in the file, this is the tool; for prose or code, use the [diff checker](/en/text-regex/diff-checker).
+
+## Are object keys order-sensitive?
+
+No. JSON objects are unordered by definition, so `{"a":1,"b":2}` and `{"b":2,"a":1}` are identical and reported as such.
+
+## Are arrays order-sensitive?
+
+Yes. Arrays are compared by index, so moving an element counts as a change at both positions. That is the correct reading of JSON semantics — order is meaningful in an array — but it does mean a reordered list produces a noisy diff rather than a "moved" note.
+
+## What do the four change kinds mean?
+
+**added** — the key exists only on the right. **removed** — only on the left. **changed** — present on both with different values of the same type. **type-changed** — present on both but the type differs, such as the string `"5"` becoming the number `5`. That last one is called out separately because it is a common and easily missed source of bugs.
+
+## How do I read the paths?
+
+As a JSONPath-style trail from the root: `$` is the document itself, `$.user.email` is a nested key, and `$.user.emails[2].label` indexes into an array. You can paste the path into most JSON query tools.
+
+## Why did it report an error instead of a diff?
+
+Because one side is not valid JSON. The tool tells you which side failed rather than guessing — the most common causes are trailing commas, single quotes instead of double, and unquoted keys, none of which are legal JSON even though JavaScript accepts them.
+
+## Does it detect a renamed key?
+
+No. A rename appears as one removal and one addition, because there is no reliable way to tell a rename from an unrelated pair of changes without guessing at intent.
+
+## Does key order or whitespace affect the result at all?
+
+Only inside strings. Whitespace between tokens is insignificant to JSON and is ignored; whitespace within a string value is part of that value and will be reported.
+
+## Is my data uploaded?
+
+No. Both documents are parsed and compared in your browser.

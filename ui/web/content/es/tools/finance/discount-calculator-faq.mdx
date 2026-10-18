@@ -1,0 +1,35 @@
+---
+title: Calculadora de descuento — Preguntas frecuentes
+---
+
+## ¿Qué calcula?
+
+El dinero descontado, el precio después del descuento, cualquier impuesto sobre ese precio reducido, y el monto final — más lo que ahorró en comparación con el original. El impuesto es opcional; déjalo en cero y la herramienta simplemente maneja el descuento.
+
+## ¿Se aplica el impuesto antes o después del descuento?
+
+Después. La secuencia es `descuento = original × pct`, entonces `después del descuento = original − descuento`, entonces `impuesto = después del descuento × pct de impuesto`. Este orden importa, porque el impuesto normalmente se cobra sobre lo que realmente pagas, no sobre el precio original de la etiqueta — así que un descuento reduce también el impuesto.
+
+## ¿Por qué 20% de descuento seguido de 10% de descuento no es lo mismo que 30% de descuento?
+
+Porque el segundo descuento se aplica al precio ya reducido, no al original. Veinte por ciento seguido de diez por ciento te deja pagando `0.8 × 0.9 = 0.72` del original — un ahorro del 28%, no del 30%. El modo de descuento escalonado hace esto correctamente. Es el error más común en las matemáticas de ventas y siempre favorece a la tienda.
+
+## ¿Cambia el resultado el orden de dos descuentos escalonados?
+
+No. La multiplicación es conmutativa, por lo que 20% seguido de 10% y 10% seguido de 20% ambos dejan 72%. Donde el orden importa es cuando uno de ellos es una cantidad fija de descuento en lugar de un porcentaje — eso es un cálculo diferente y esta herramienta no lo modeliza.
+
+## ¿Cómo verifico un "precio final" anunciado?
+
+Ingresa el precio original y el descuento reclamado, luego compara la cifra final de la herramienta con el precio del estante. Una discrepancia usualmente significa que el descuento se está aplicando a un precio "era" que nunca fue realmente cobrado, o que el impuesto se está manejando de manera diferente a la que asumiste.
+
+## ¿Puedo trabajar hacia atrás desde el precio de venta al descuento?
+
+No directamente — esta herramienta va hacia adelante desde un precio original. Para encontrar el porcentaje, divide el ahorro por el precio original y multiplica por 100. Si lo que realmente quieres es quitar el impuesto de un total, la [calculadora de impuesto sobre ventas](/en/finance/sales-tax-calculator) tiene un modo inverso para exactamente eso.
+
+## ¿Redondea de la manera que una caja registradora lo hace?
+
+No fuerza ninguna regla de redondeo en particular. Los registros reales redondean en puntos definidos y pueden calcular el impuesto por línea en lugar del total, así que una diferencia de un centavo final contra un recibo es normal.
+
+## ¿Se envía algo a un servidor?
+
+No. La aritmética se ejecuta en tu navegador.

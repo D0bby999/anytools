@@ -1,0 +1,35 @@
+---
+title: Unicode Escape / Unescape — Frequently asked questions
+---
+
+## Why does my emoji appear as two `\u` sequences in JSON mode?
+
+Because JSON's `\u` escape only accepts exactly four hex digits, which covers codepoints up to U+FFFF. Emoji live in the astral planes (above U+FFFF) and must be represented as UTF-16 surrogate pairs — two consecutive `\u` sequences. For example, `😀` (U+1F600) becomes `😀`. Use ES6 mode to get the cleaner `\u{1F600}` form, but note that JSON parsers do not accept the brace syntax.
+
+## What is the difference between `\uXXXX` and `\u{XXXXX}`?
+
+`\uXXXX` is the original four-hex-digit syntax from ECMAScript 1 (1997) and the JSON spec (RFC 8259). It only covers the Basic Multilingual Plane (U+0000–U+FFFF). `\u{XXXXX}` is the ES6 brace syntax that accepts any number of hex digits and covers the full Unicode range up to U+10FFFF. The brace form is valid in ES6+ JavaScript and many modern languages, but **not** in JSON — the JSON spec has never been updated to include it.
+
+## Why does `"😀".length` return 2 in JavaScript?
+
+JavaScript strings are internally UTF-16. Codepoints above U+FFFF are stored as two 16-bit code units (a surrogate pair), so `String.prototype.length` counts code units, not characters. Use `[...str].length` (spread uses the string iterator, which is codepoint-aware) or `Array.from(str).length` to get the character count. `Intl.Segmenter` gives grapheme cluster counts, which is what users perceive as "number of characters."
+
+## When do I actually need to escape Unicode in JavaScript?
+
+Rarely in modern code. ES6+ source files saved as UTF-8 can contain raw Unicode characters directly. You need `\u` escapes when: (1) the file must be ASCII-only for a legacy toolchain, (2) you're building a JSON string programmatically and need to embed non-ASCII content safely, (3) you're targeting an environment with incomplete Unicode support, or (4) you're debugging a specific codepoint and want to make it visually explicit in source.
+
+## Does JSON require non-ASCII characters to be escaped?
+
+No — RFC 8259 allows any Unicode character encoded as UTF-8 to appear unescaped in a JSON string, except for control characters (U+0000–U+001F). Many JSON serialisers escape all non-ASCII characters anyway, for safety across ASCII-only transports or to avoid HTML-injection risks (`<`, `>`, `&` may be escaped as `<`, etc.). Both representations are identical to a conforming JSON parser.
+
+## What is `String.fromCodePoint` and why should I prefer it over `String.fromCharCode`?
+
+`String.fromCharCode` (ES1) operates on raw UTF-16 code units and silently truncates values above 0xFFFF. `String.fromCodePoint` (ES6) handles the full Unicode range — pass `0x1F600` and you get `😀`, not garbage. Always use `fromCodePoint` when converting a codepoint number to a character, especially if the codepoint may be in the astral plane.
+
+## What does "all" mode do that JSON and ES6 modes don't?
+
+All mode escapes every character — including plain ASCII letters and digits — not just non-ASCII or non-printable ones. The result is a pure-ASCII string where every character is represented as `\uXXXX`. This is useful for embedding in C string literals that must be ASCII-only, for certain `.properties` file formats (Java's `native2ascii` tool produces this), or for debugging character sequences where you want to see every codepoint explicitly.
+
+## Can splitting a string on emoji break it?
+
+Yes. Because many emoji are surrogate pairs (two UTF-16 code units), operations that work at the code-unit level — `str[i]`, `str.substring()`, `str.split('')` — can cut between the two halves of a pair, producing dangling surrogates and garbled output. Safe alternatives: the spread operator `[...str]` iterates by codepoint, and `Intl.Segmenter` iterates by grapheme cluster (accounting for emoji modifiers and ZWJ sequences like family emoji composed from multiple codepoints).

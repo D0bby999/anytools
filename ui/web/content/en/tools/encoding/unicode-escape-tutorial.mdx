@@ -1,0 +1,90 @@
+---
+title: Complete guide to Unicode escape / unescape
+description: When and why to use \\uXXXX and \\u{XXXXX} escapes, how surrogate pairs work, JSON vs ES6 mode differences, and emoji gotchas.
+updated: 2026-05-27
+---
+
+## What Unicode escaping is
+
+Unicode escaping converts characters to their `\uXXXX` (or `\u{XXXXX}`) escape sequence representation — and back. The character `é` becomes `é`; the emoji `👀` becomes `\u{1f440}` in ES6 mode or the surrogate pair `👀` in JSON/ES5 mode.
+
+This is **not** encoding for compression or security. It's a **text-safe representation** that lets you embed any Unicode character in a context that only accepts ASCII — JSON string values, JavaScript source files, C string literals, Java `.properties` files, and similar contexts where arbitrary Unicode may not survive copy-paste, terminal rendering, or protocol transit.
+
+## The two escape syntaxes
+
+### `\uXXXX` — four hex digits (BMP only)
+
+The original Unicode escape syntax, defined in the ECMAScript 1 spec (1997) and required by the JSON specification ([RFC 8259](https://datatracker.ietf.org/doc/html/rfc8259) §7). Works for codepoints U+0000 through U+FFFF — the Basic Multilingual Plane (BMP). For these 65,536 characters, `é` and `é` are exactly equivalent in any compliant parser.
+
+### `\u{XXXXX}` — variable hex digits in braces (full Unicode)
+
+Introduced in ES6 (ECMAScript 2015). Supports the full Unicode range U+000000 through U+10FFFF. This is the correct way to escape astral plane characters — codepoints above U+FFFF that include most emoji, historic scripts, and mathematical symbols. `\u{1f600}` is cleaner and unambiguous; the brace syntax also allows leading-zero omission.
+
+**JSON does not support `\u{}`** — JSON parsers expect exactly four hex digits after `\u`. To embed an astral codepoint in JSON, you must use surrogate pairs.
+
+## The astral plane and surrogate pairs
+
+Unicode's Basic Multilingual Plane holds codepoints U+0000–U+FFFF. Everything above — called the **astral planes** or supplementary characters — requires a different strategy in systems built on UTF-16.
+
+JavaScript strings are internally UTF-16. To represent a codepoint above U+FFFF in UTF-16, two 16-bit code units called a **surrogate pair** are used: a high surrogate (U+D800–U+DBFF) followed by a low surrogate (U+DC00–U+DFFF). The formula:
+
+```
+codepoint = 0x10000 + (high - 0xD800) × 0x400 + (low - 0xDC00)
+```
+
+The emoji `😀` (U+1F600) becomes the pair `😀`. In JSON, this is the only way to represent it since JSON's `\u` escape only takes four hex digits. In ES6 JavaScript, you can use `\u{1F600}` directly.
+
+**The gotcha:** because a surrogate pair is two `\u` sequences, naïve string operations that work character-by-character break. `"😀".length` returns `2` in JavaScript, not `1`. `"😀"[0]` returns the dangling high surrogate `\uD83D`, not the emoji. Splitting on grapheme clusters requires `[...str]` (spread) or `Intl.Segmenter` in ES2022+.
+
+## JSON mode vs ES6 mode vs "all" mode
+
+**JSON mode** — escapes every non-ASCII character using `\uXXXX` only, with surrogate pairs for codepoints above U+FFFF. The output is always valid inside a JSON string literal. Safe for embedding in any JSON-consuming system regardless of parser age.
+
+**ES6 mode** — uses `\u{XXXXX}` for astral characters and `\uXXXX` for BMP characters. Produces shorter, more readable output for emoji-heavy strings. Only valid in ES6+ JavaScript contexts — not in JSON, not in older ES5 environments.
+
+**All mode** — escapes every character, including ASCII. Useful when you need a pure ASCII representation of a string with no raw Unicode at all — for embedding in C strings, Python source files, or debugging character-by-character.
+
+## `String.fromCodePoint` vs `String.fromCharCode`
+
+These two JavaScript functions reveal the surrogate pair complexity directly:
+
+```javascript
+String.fromCharCode(0x1F600)   // "?" — wrong, truncates to U+F600
+String.fromCodePoint(0x1F600)  // "😀" — correct
+
+String.fromCharCode(0xD83D, 0xDE00)  // "😀" — correct via surrogate pair
+String.fromCodePoint(0x1F600)        // "😀" — correct via codepoint
+```
+
+`fromCharCode` predates Unicode's astral planes and operates on raw UTF-16 code units. If you pass it a codepoint above 0xFFFF, it silently truncates. `fromCodePoint` (ES6) handles the full range. When unescaping `\u{1F600}`, always use `fromCodePoint` or the equivalent in your runtime.
+
+## When does JSON force you to escape?
+
+The JSON spec (RFC 8259) requires that control characters U+0000–U+001F be escaped. All other characters **may** be included raw as UTF-8, but many serialisers escape the full non-ASCII range for safety — to survive ASCII-only transport, avoid terminal rendering issues, or prevent injection in HTML contexts (`<`, `>`, `&`, `"` are often escaped as `<`, `>`, `&`, `"`).
+
+If you're receiving a JSON payload and see `à` where you expected `à`, the JSON was produced with a "fully escape non-ASCII" setting. Both representations are identical to a conforming JSON parser.
+
+## Template literals and when you don't need escaping
+
+In ES6 template literals and modern JavaScript string literals, you can embed Unicode directly:
+
+```javascript
+const greeting = `こんにちは`;      // no escaping needed
+const emoji = "😀";               // works in modern JS files
+const escaped = "\u{1F600}";      // identical to above
+```
+
+You need escaping when:
+- The string will be embedded in JSON programmatically
+- The file must be ASCII-only (older toolchains, some `.properties` files)
+- You're debugging a character and want to see its codepoint explicitly
+- You're passing the string through a channel that mangles raw Unicode
+
+## Privacy
+
+All processing runs in your browser. Your text is never sent to a server.
+
+## Related tools
+
+- **URL Encode/Decode** — percent-encoding for URI components, a different escaping scheme.
+- **HTML Entity Encode/Decode** — `&amp;`, `&#x00E9;`, and similar HTML character references.

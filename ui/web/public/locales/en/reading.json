@@ -1,0 +1,120 @@
+{
+  "hint": "Select any passage to explain it, look up its vocabulary, quiz yourself on it, translate it, highlight it or save it to your notebook.",
+  "pdfFallback": "The original file could not be displayed, so this is the text AnyTools extracted from it.",
+  "actions": {
+    "explain": "Explain",
+    "vocab": "Vocabulary",
+    "quiz": "Quiz me",
+    "translate": "Translate",
+    "highlight": "Highlight",
+    "save": "Save to notebook",
+    "draw": "Draw it",
+    "readAloud": "Read aloud",
+    "readPage": "Read this page"
+  },
+  "actionLabels": {
+    "explain": "Explain this",
+    "vocab": "Vocabulary here",
+    "quiz": "Quiz me on this",
+    "translate": "Translate this"
+  },
+  "toolbar": {
+    "label": "Selection actions",
+    "selected": "Text selected",
+    "onPage": "on page {{page}}",
+    "dismiss": "Clear the selection"
+  },
+  "tutor": {
+    "title": "Tutor",
+    "empty": "Select a passage and choose an action. The tutor answers from the passage you chose, and every answer can be saved to your notebook with its page.",
+    "save": "Save answer to notebook",
+    "saved": "Saved",
+    "openInChat": "Continue this in Chat",
+    "videoEmpty": "Choose a moment in the transcript and an action. The tutor answers from what is said around that moment."
+  },
+  "highlights": {
+    "title": "Highlights",
+    "empty": "No highlights yet.",
+    "saved": "In your notebook",
+    "remove": "Remove"
+  },
+  "notebook": {
+    "title": "Notebook",
+    "lead": "What you save while reading, what the tutor writes for you, and your own notes. Each note remembers the page it came from, so it can take you back there.",
+    "newName": "New notebook",
+    "create": "Create",
+    "empty": "No notebooks yet. Saving anything from the reader creates your first one.",
+    "default": "default",
+    "count": "{{count}} note",
+    "count_other": "{{count}} notes",
+    "back": "All notebooks",
+    "export": "Export as Markdown",
+    "categories": "Categories",
+    "allNotes": "All notes",
+    "removeCategory": "Remove the category {{name}}",
+    "newCategory": "New category",
+    "addCategory": "Add category",
+    "notes": "Notes",
+    "newNote": "New note",
+    "noNotes": "No notes here yet.",
+    "manage": "This notebook",
+    "rename": "Name",
+    "renameSubmit": "Rename",
+    "delete": "Delete this notebook",
+    "deleteConfirm": "Delete this notebook and every note in it? This cannot be undone."
+  },
+  "note": {
+    "editing": "Note",
+    "byTutor": "Written by the tutor",
+    "untitled": "Untitled",
+    "source": "Open the source",
+    "sourcePage": "Open the source at page {{page}}",
+    "titleLabel": "Title",
+    "bodyLabel": "Note body",
+    "write": "Write",
+    "preview": "Preview",
+    "categories": "Categories",
+    "save": "Save",
+    "saving": "Saving…",
+    "otherNotebook": "Another notebook",
+    "move": "Move",
+    "copy": "Copy",
+    "delete": "Delete note",
+    "deleteConfirm": "Delete this note? This cannot be undone."
+  },
+  "errors": {
+    "actionFailed": "The tutor could not start.",
+    "saveFailed": "That was not saved.",
+    "nameRequired": "A notebook needs a name.",
+    "generic": "That did not work."
+  },
+  "videoHint": "Choose a line of the transcript to play from it, then ask the tutor about that moment. The tutor hears only the words spoken in the minute either side; it cannot see the video.",
+  "passes": {
+    "panel": "Reading",
+    "title": "Five passes",
+    "intro": "Read this text five times, each time for one job: orient, map the structure, check the key evidence, rebuild it with everything closed, then put it to work. Your passes and the places you got stuck go into a reading evidence card for this document.",
+    "start": "Read in five passes",
+    "position": "Pass {{n}} of {{total}}",
+    "output": "Output",
+    "markDone": "Mark done",
+    "save": "Save",
+    "allDone": "All five passes are done. The retests on the card open on their days.",
+    "rebuildRule": "The text and the tutor are closed for this pass. Write from memory; they come back when you mark it done.",
+    "closedKicker": "Pass 4: tools closed",
+    "closed": "The text is put away while you rebuild it in the panel: problem, claim, evidence, limit and next action, in five sentences of your own. It comes back when you mark the pass done.",
+    "barriers": "Where I got stuck",
+    "barriersEmpty": "Select the words that stopped you and choose \"Mark a barrier\".",
+    "page": "p. {{page}}",
+    "layer": "Barrier layer",
+    "whichLayer": "Which layer is this barrier?",
+    "openCard": "Open the whole card",
+    "unavailable": "This card no longer has its passes.",
+    "stale": "The card changed in another tab or from the toolbar. It has been reloaded; try again.",
+    "failed": "That could not be saved.",
+    "markBarrier": "Mark a barrier"
+  },
+  "barrierWord": {
+    "save": "Save the word",
+    "hide": "Close the word picker"
+  }
+}

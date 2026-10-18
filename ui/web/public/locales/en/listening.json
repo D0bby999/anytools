@@ -1,0 +1,32 @@
+{
+  "tab": "Practise listening",
+  "lead": "Listen to this video in stages: a first pass with no captions, a map of where the meaning went, support added and then taken away again, and retests days later on new material.",
+  "start": "Start listening practice",
+  "startAnother": "Start another",
+  "stage": "Ladder stage {{n}} of {{of}}",
+  "ladderDone": "Every stage of the ladder is done",
+  "markStage": "Stage {{n}} is done",
+  "hidden": {
+    "first": "The transcript, the study notes and the tutor are put away for now. Listen with nothing to read first; they come back at stage 3.",
+    "closed": "The text is closed again for stage 5: listen at normal speed with nothing to read. It comes back once stage 5 is done.",
+    "retelling": "The transcript is put away while you write the retelling."
+  },
+  "playShort": "Play",
+  "nowShort": "Now",
+  "play": "Play: {{field}}",
+  "now": "Now ({{time}}): {{field}}",
+  "rowTime": "row {{n}} timestamp",
+  "playSegment": "Play segment",
+  "segmentFirst": "Write the segment's start above to play it.",
+  "segmentLength": "This segment is {{seconds}} seconds; up suggests 5–20.",
+  "fullPage": "Open as a full page",
+  "finish": "This audit is done",
+  "earlier": "Earlier audits of this video",
+  "experiment": {
+    "title": "14-day listening experiment",
+    "lead": "Two weeks on this video as your main source, one day at a time. Each day's row opens on its day.",
+    "start": "Start a 14-day experiment"
+  },
+  "tutorHidden": "The tutor and your highlights are put away while the listening ladder keeps the transcript out of sight.",
+  "backToVideo": "Back to the video"
+}

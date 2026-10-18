@@ -1,0 +1,35 @@
+---
+title: XML Formatter — Preguntas frecuentes
+---
+
+## ¿Por qué falla el parseo de mi XML si parece correcto?
+
+Los parsers XML conformes a la especificación deben rechazar input malformado en lugar de intentar interpretarlo. Las causas más comunes: un `&` o `<` sin escapar en el contenido de texto (usa `&amp;` y `&lt;`), un tag sin cerrar, diferencia de mayúsculas entre el tag de apertura y el de cierre (XML distingue mayúsculas), o más de un elemento raíz. El mensaje de error incluye número de línea y columna; ve a esa posición primero.
+
+## ¿El formatter preserva los comentarios XML?
+
+Sí. Esta herramienta usa `fast-xml-parser` con preservación de comentarios habilitada, por lo que los nodos `<!-- tu comentario -->` sobreviven al reformateo. Algunas bibliotecas XML descartan comentarios por ser semánticamente inertes — si los comentarios son importantes para tu workflow, verifica también con tu parser downstream.
+
+## ¿Reformatear cambia el significado del XML?
+
+Para contenido solo de elementos, no. El espacio en blanco entre elementos no es significativo según la especificación, por lo que añadir o quitar indentación es seguro. La excepción es el **contenido mixto** — elementos que contienen tanto elementos hijo como nodos de texto. En `<p>Hola <b>mundo</b></p>`, el espacio antes de `<b>` es significativo y se preserva tal cual.
+
+## ¿Qué son los namespaces y por qué importan?
+
+Los namespaces permiten que distintos vocabularios XML coexistan sin colisiones de nombres. Un prefijo como `soap:` o `xsi:` se vincula a un URI mediante un atributo `xmlns:`. El formatter preserva todas las declaraciones de namespace y sus bindings exactamente — reordenarlos o eliminarlos rompería queries XPath y parsers que dependen del nombre expandido.
+
+## ¿Puedo formatear archivos SVG con esta herramienta?
+
+Sí. SVG es XML, así que el formatter lo maneja correctamente. Pega el fuente SVG, elige el ancho de indentación y haz clic en formatear. Es muy útil para hacer que los SVGs editados a mano sean legibles en diffs antes de subirlos a control de versiones.
+
+## ¿Qué es una sección CDATA y cuándo debo usarla?
+
+`<![CDATA[…]]>` envuelve datos de carácter literal que no deben parsearse como marcado. Úsala cuando necesites incrustar fragmentos HTML, SQL o código que contiene `<`, `>` o `&` sin tener que escapar cada carácter. La única secuencia que no puede aparecer dentro de CDATA es `]]>`. El formatter preserva las secciones CDATA intactas.
+
+## ¿Hay un límite de tamaño de archivo?
+
+La herramienta se ejecuta completamente en tu navegador, así que los límites prácticos dependen de tu dispositivo. Hasta ~5 MB funciona bien en la mayoría de navegadores modernos. Archivos más grandes pueden causar una pausa de varios segundos. Para archivos de más de 10 MB, `xmllint --format` en la línea de comandos es más rápido.
+
+## Mi documento tiene `<?xml version="1.0"?>` al principio — ¿es obligatorio?
+
+La declaración XML es opcional para documentos codificados en UTF-8 o UTF-16 con BOM. En la práctica, inclúyela siempre cuando el documento contenga caracteres no ASCII y pueda ser procesado por parsers estrictos — elimina la ambigüedad sobre el encoding y la versión XML.

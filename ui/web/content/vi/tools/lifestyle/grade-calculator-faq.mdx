@@ -1,0 +1,27 @@
+---
+title: Tính điểm thi cuối kỳ cần đạt — Câu hỏi thường gặp
+---
+
+## Công cụ này trả lời câu hỏi gì?
+
+Đúng một câu: "Thi cuối kỳ được bao nhiêu điểm thì tổng kết đạt mức tôi muốn?". Bạn đưa vào ba số — điểm hiện tại, điểm tổng kết mong muốn, và trọng số của bài thi cuối kỳ tính theo phần trăm — rồi nhận về số điểm cần đạt. Công thức nền là `tổng kết = hiện tại × (1 − w) + điểm thi × w`, với `w` là trọng số dạng phân số. Đảo lại để tìm ẩn số, ta có `cần đạt = (mục tiêu − hiện tại × (1 − w)) / w`. Bạn có thể kiểm chứng bất kỳ kết quả nào bằng cách thay ngược vào công thức đầu. Không có phép làm tròn ẩn nào ở giữa, nên con số hiện ra là kết quả thật của phép chia.
+
+## Vì sao đôi khi công cụ báo mục tiêu không thể đạt được?
+
+Vì số điểm cần đạt tính ra vượt quá 100. Tool đánh dấu kết quả là khả thi chỉ khi nó nằm trong khoảng từ 0 đến 100; ngoài khoảng đó nó nói thẳng thay vì in ra một con số đẹp mà vô nghĩa. Ví dụ dễ gặp: bài cuối kỳ chỉ chiếm 20% mà bạn đang thiếu 30 điểm so với mục tiêu — dù được trọn 100 điểm thi thì khoảng cách vẫn không đóng lại. Biết sớm điều này có ích hơn là ôm một con số ảo: bạn còn kịp hạ mục tiêu xuống mức thực tế, hoặc đi hỏi giảng viên xem có bài nào gỡ điểm được không, thay vì học tủ cho một cái đích đã khóa.
+
+## Kết quả âm nghĩa là gì?
+
+Nghĩa là bạn được 0 điểm bài cuối kỳ vẫn đạt mục tiêu. Đó không phải lỗi, mà là phép tính đang nói rằng điểm tổng kết đã chốt rồi. Tool vẫn xếp trường hợp này vào nhóm "không khả thi" vì con số nằm ngoài khoảng 0–100, nhưng lý do trái ngược hẳn với trường hợp vượt quá 100 — hãy nhìn dấu của con số để phân biệt. Có một tình huống đặc biệt nữa: nếu bạn nhập trọng số bằng 0, phép chia sẽ không có nghĩa, nên tool trả về 0 và chỉ coi là đạt khi điểm hiện tại đã lớn hơn hoặc bằng mục tiêu. Nói cách khác, bài thi không có trọng số thì nó không thay đổi được gì.
+
+## Thang chữ A, B, C, D, F ở đây quy đổi thế nào?
+
+Theo các mốc phổ biến ở Mỹ: từ 90 trở lên là A, từ 80 là B, từ 70 là C, từ 60 là D, dưới nữa là F. Đây là bốn mốc cứng trong code, không đổi theo trường. Trường đại học Việt Nam dùng thang khác hẳn: điểm hệ 10 quy sang chữ theo quy chế riêng, nhiều nơi lấy 8.5 hoặc 9.0 làm ngưỡng A, và mốc đạt môn thường là 4.0 chứ không phải 60. Vì vậy hãy coi phần điểm chữ như thông tin tham khảo, còn con số phần trăm mới là thứ đáng tin. Trước khi mừng vì thấy chữ A, đối chiếu lại đề cương môn học của chính bạn.
+
+## Môn của tôi có nhiều đầu điểm chứ không chỉ một bài cuối kỳ thì sao?
+
+Hãy gộp tất cả những phần đã có điểm vào ô "điểm hiện tại". Tự tính trung bình có trọng số của các thành phần đã xong — chuyên cần, giữa kỳ, bài tập nhóm, thực hành — rồi nhập con số đó, và chỉ nhập trọng số của riêng bài cuối kỳ. Phép tính giả định còn đúng một bài chưa thi; nó không biết gì về cấu trúc điểm nhiều thành phần. Nếu bạn còn hai bài chưa làm, hãy giả định điểm cho một bài, gộp nó vào "điểm hiện tại", rồi hỏi công cụ về bài còn lại. Cách này cũng hữu ích khi bạn muốn thử vài kịch bản khác nhau.
+
+## Dữ liệu điểm của tôi có bị gửi đi không, và làm tròn thì sao?
+
+Không có gì rời khỏi trình duyệt: ba con số bạn nhập được tính ngay tại chỗ, không có lời gọi mạng và không có gì lưu lại. Về làm tròn, tool không giả định thay giảng viên. Nếu môn của bạn làm tròn 89,5 lên thành A thì bạn cần ít hơn con số hiện ra một chút; nếu môn cắt phần thập phân thì bạn cần nhiều hơn. An toàn nhất là nhắm cao hơn con số đó vài điểm, vì sai số làm tròn luôn nhỏ hơn sai số của việc học thiếu một buổi. Và nhớ rằng kết quả chỉ đúng bằng độ chính xác của điểm hiện tại bạn nhập vào.

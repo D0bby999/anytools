@@ -1,0 +1,27 @@
+---
+title: CSV ↔ JSON — Perguntas frequentes
+---
+
+## Por que meu CSV brasileiro parece quebrado?
+
+Excel em locale pt-BR usa `;` como separador. O conversor detecta automaticamente, mas se errar, force o delimitador manualmente. Também verifique o encoding — UTF-8 vs Latin-1 muda como acentos aparecem.
+
+## Por que números viram strings?
+
+Por padrão, todos os valores ficam como string para evitar erros de inferência (CEPs com zero à esquerda, telefones, IDs). Ative "dynamic typing" se quiser que Papa Parse converta `"30"` em `30` e `"true"` em `true`.
+
+## JSON aninhado vira o quê em CSV?
+
+Flatten com dot-notation. `{"user": {"name": "Alice"}}` vira coluna `user.name`. Arrays viram string JSON: `"[1,2,3]"`. É lossy — voltar ao JSON original não é exato.
+
+## Strings com vírgulas funcionam?
+
+Sim. Strings que contêm vírgulas, aspas, ou newlines são automaticamente cercadas por aspas duplas, e aspas internas são escapadas (`"`). Conforme RFC 4180.
+
+## CSV gigante (100MB+) trava?
+
+Sim, navegador trava acima de ~10MB. Para arquivos grandes use Papa Parse em streaming via Node, ou divida o CSV em batches.
+
+## Meus dados são enviados para algum servidor?
+
+Não. Papa Parse roda 100% no navegador. Network tab vazio durante conversão. Funciona offline.

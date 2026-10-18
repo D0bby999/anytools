@@ -1,0 +1,71 @@
+---
+title: UUIDs explained — v4 vs v7 vs v1 and which to use in 2026
+description: How UUID versions differ, why v7 is the new default for database keys, and the difference between UUID and ULID.
+updated: 2026-05-25
+---
+
+## What a UUID actually is
+
+A UUID is a 128-bit number that is, with extremely high probability, globally unique without coordination. You can generate one on your laptop right now and have rounding-error-level confidence that no machine on earth has ever generated the same value. The format ([RFC 4122](https://datatracker.ietf.org/doc/html/rfc4122), updated by [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562)) is 32 hex digits split into five groups by dashes: `8-4-4-4-12`.
+
+The format itself doesn't change between versions. What changes is **how the bits are generated**, which has real consequences for database performance, sortability, and privacy.
+
+## v4 — random
+
+The classic. 122 bits of cryptographic randomness, with 6 bits reserved to indicate "this is a v4". Universally supported, trivial to generate, and a good default for opaque IDs.
+
+The downside: random IDs are **terrible for B-tree index locality**. Inserting random UUIDs into a database that uses them as primary keys causes the index to fragment, slowing inserts as the table grows. For small tables (under 1M rows) you'll never notice. At scale you will.
+
+## v7 — time-ordered
+
+The newer (2024) version that solves v4's locality problem. The first 48 bits are a millisecond Unix timestamp, followed by 74 bits of randomness. Result: lexicographic sort order matches insertion time, B-tree indexes stay tight, and you still get effectively-unique values.
+
+**Default v7 for new database keys in 2026** unless you have a specific reason not to. Postgres added native support in 17; libraries in most languages support it now.
+
+## v1 — timestamp + MAC
+
+Legacy. Combines a timestamp with the host machine's MAC address. Time-sortable (good for indexes) but leaks the generator's MAC (bad for privacy — historically used in attribution attacks). Use v7 instead — same sortability, no MAC leak.
+
+## v3, v5 — name-based
+
+v3 (MD5) and v5 (SHA-1) hash a namespace + name into a UUID. Useful when you want the same input to deterministically produce the same UUID across systems. Less common in app code; appears in DNS, OIDs, certificate fingerprints.
+
+## Performance: UUID as primary key
+
+The two common arguments:
+
+| Concern | Verdict |
+|---|---|
+| Storage size | UUID = 16 bytes vs bigint 8 bytes. Index ~2× bigger. Disk is cheap. |
+| Insert speed (v4) | Bad for B-tree with random IDs at scale. Use v7 to fix. |
+| Insert speed (v7) | Essentially equal to auto-increment for time-sequential inserts. |
+| Sortability | v7 sorts by time. v4 does not. |
+| Cross-shard uniqueness | UUIDs win — no coordination needed. |
+| Debuggability | Auto-increment IDs are easier to type in URLs. |
+
+The right answer for most new app schemas in 2026: **v7 UUID for application-visible IDs, auto-increment bigint for internal-only join tables.**
+
+## UUID vs ULID vs CUID2
+
+- **ULID** — same sortable-by-time idea, encoded as 26-char Crockford Base32. Cleaner to type than UUID, but **non-standard** (no RFC), so library + DB type support is narrower. UUID v7 obsoletes most ULID use cases.
+- **CUID2** — collision-resistant ID emphasizing horizontal scalability and resistance to enumeration. Different design goals; choose if you specifically need cuid2's properties.
+
+For 99% of "give me a unique ID" cases, **UUID v7 with the standard library**.
+
+## Use in this tool
+
+- Pick a version (v7, v4, v1).
+- Set count (1–100).
+- Toggle uppercase or dashes if your downstream system has opinions.
+- Generate, copy all.
+
+Validation mode parses any UUID and tells you what version + variant it is — useful when you're staring at an ID and wondering where it came from.
+
+## Privacy
+
+Generated entirely in your browser via the open-source [`uuid`](https://github.com/uuidjs/uuid) package using `crypto.getRandomValues` for randomness. No values are logged or transmitted.
+
+## Related tools
+
+- **Hash Generator** — hash a UUID for a shorter fixed-size ID.
+- **Password Generator** — when you need a strong random string, not a structured ID.

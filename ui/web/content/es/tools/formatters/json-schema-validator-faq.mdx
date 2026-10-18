@@ -1,0 +1,27 @@
+---
+title: Validador de esquema JSON — Preguntas frecuentes
+---
+
+## ¿El botón "Inferir esquema desde los datos" reemplaza escribir un esquema a mano?
+
+No, y conviene entenderlo antes de usarlo. El mecanismo de inferencia solo ve un único ejemplo JSON que le des: cada clave presente en ese ejemplo se marca `required` de inmediato, un número como `42` se convierte en `"type": "integer"` aunque ese campo en otro registro perfectamente pueda ser decimal, y no hay forma de saber si un campo debería restringirse con `enum` a un puñado de valores — porque solo diste un valor. En otras palabras, el esquema inferido responde "¿esto se parece a mi ejemplo?", no "¿qué está realmente permitido aquí?". Si en lugar de un objeto solo pasas un array de varios objetos, la herramienta une las propiedades de todos los elementos y solo marca una clave como `required` si absolutamente todos los elementos muestreados la tenían — mejora bastante la precisión, pero sigue sin saber nada de formas de datos que nunca aparecieron en tu muestra. Trata el esquema inferido como un primer borrador: relaja `required` en los campos que sabes que a veces faltan, y amplía `type` (JSON Schema permite un array como `["integer", "number"]`) en los campos que varían.
+
+## ¿Debería elegir draft-07 o 2020-12?
+
+Elige la que use quien produjo tu esquema. draft-07 (2018) sigue siendo la versión más común en la práctica — es lo que referencia la mayoría de archivos `.json` de configuración con una línea `"$schema"`, y lo que muchos editores infieren por defecto cuando no encuentran esa línea. 2020-12 es la especificación vigente y agrega palabras clave que draft-07 no tiene: `prefixItems` para arrays tipo tupla, `unevaluatedProperties`/`unevaluatedItems`, y `$dynamicRef`/`$dynamicAnchor` para esquemas base extensibles. La herramienta usa dos builds distintos de la biblioteca `ajv` para cada opción — no una configuración compartida que cambia de forma silenciosa. Si eliges draft-07 para un esquema que usa una palabra clave exclusiva de 2020-12, ajv (corriendo con `strict: false`) simplemente ignora la palabra clave que no reconoce en lugar de fallar ruidosamente — así que si una validación pasa de forma sospechosa, lo primero a revisar es el selector de versión.
+
+## ¿Por qué el error solo señala un campo cuando sé que varios están mal?
+
+En principio no debería pasar — la herramienta siempre le pide a `ajv` todos los errores a la vez (`allErrors: true`), no solo el primero. Si solo ves uno pese a estar seguro de que hay más campos incorrectos, la causa más probable es que un objeto padre haya fallado una restricción estructural (como `additionalProperties: false`) que hace que el validador deje de descender a las ramas hijas — verificar la forma de un hijo deja de tener sentido una vez que la forma del padre ya fue rechazada.
+
+## ¿Qué significa exactamente el `instancePath` de un error?
+
+Es un JSON Pointer según RFC 6901, que se lee de izquierda a derecha desde la raíz de tus datos JSON — no es una expresión de JavaScript ni una ruta de acceso al estilo `objeto.propiedad`. `/user/address/0/zip` significa: entra a `user`, luego a `address`, luego al índice `0` del array, luego al campo `zip`; los índices de array siempre son números planos, no `[0]` entre corchetes como en JavaScript. Una ruta vacía (`/`) significa que el propio valor de nivel superior fue rechazado, no algo anidado dentro de él — útil para distinguir un dato mal formado en la raíz de uno mal formado varios niveles abajo.
+
+## ¿Esta herramienta valida sintaxis o estructura?
+
+Solo estructura — y de hecho el orden es al revés: primero tiene que ser sintácticamente válido para que la validación de esquema siquiera empiece. Si tus datos JSON tienen una coma sobrante o una comilla sin escapar, `JSON.parse` los rechaza en el primer paso, antes de que se compile ningún esquema, y verás "Los datos no son JSON válido" en vez de un error de esquema. Lo mismo aplica al propio esquema: un esquema con sintaxis JSON inválida se detiene en ese mismo paso de parseo, algo distinto de un error de compilación del esquema (cuando la sintaxis JSON es correcta pero la estructura no es un JSON Schema válido). Si no estás seguro de que tus datos siquiera parseen, usa `json-formatter` primero.
+
+## ¿Un esquema puede referenciar otro archivo con `$ref`?
+
+No dentro de esta herramienta. Todo corre a partir del único esquema que pegaste, así que un `$ref` solo puede apuntar a un lugar dentro de ese mismo documento — como `#/definitions/address` o `#/$defs/user` — nunca a una URL o ruta de archivo externa, porque no hay ningún paso que vaya a buscar un segundo documento. Un `$ref` que apunte hacia afuera hace que falle la compilación del esquema en vez de ignorarse en silencio.

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An Atom podcast feed (RFC 4287 §4.2.7.2: a link with rel="enclosure"),
+     written for AnyTools' tests. -->
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Listening Lab</title>
+  <id>urn:uuid:5f0e4c1e-0d5e-4d7a-9c2f-1d1b0f2a7e10</id>
+  <updated>2026-10-10T08:00:00Z</updated>
+  <entry>
+    <title>Lab 12: Numbers and prices</title>
+    <id>urn:uuid:1a2b3c4d-0000-4000-8000-000000000012</id>
+    <updated>2026-10-10T08:00:00Z</updated>
+    <published>2026-10-10T08:00:00Z</published>
+    <link rel="alternate" href="https://lab.example.org/12"/>
+    <link rel="enclosure" type="audio/ogg" length="5755" href="https://lab.example.org/audio/12.ogg"/>
+  </entry>
+  <entry>
+    <title>Lab 11: Show notes only</title>
+    <id>urn:uuid:1a2b3c4d-0000-4000-8000-000000000011</id>
+    <updated>2026-10-03T08:00:00Z</updated>
+    <link rel="alternate" href="https://lab.example.org/11"/>
+  </entry>
+</feed>

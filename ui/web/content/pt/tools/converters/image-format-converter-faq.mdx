@@ -1,0 +1,35 @@
+---
+title: Conversor de Formatos de Imagem — Perguntas frequentes
+---
+
+## Por que não consigo exportar para AVIF se meu navegador o suporta?
+
+A decodificação (leitura) de AVIF é suportada no Chrome 85+, Firefox 93+ e Safari 16+, mas a codificação AVIF via Canvas API (`canvas.toBlob('image/avif')`) não está implementada em nenhum navegador até 2026. Codificar AVIF requer o custoso codificador AV1, que os navegadores ainda não expuseram através da Canvas API. Você pode converter entrada AVIF para PNG, JPEG ou WebP — mas não na direção inversa. Para codificação AVIF, use uma ferramenta do lado do servidor como `libavif`, `sharp` ou o CLI do Squoosh.
+
+## Meu PNG transparente ficou branco ao converter para JPEG. É um bug?
+
+Não — JPEG não suporta canal alfa. Quando o Canvas desenha seu PNG transparente e depois codifica para JPEG, os pixels transparentes são compostos sobre o fundo branco padrão do Canvas. Para preservar a transparência, converta para PNG (sem perdas, alfa completo) ou WebP (suporta alfa nos modos com e sem perdas). Se precisar de JPEG com uma cor de fundo específica, adicione uma etapa de preenchimento de fundo em um editor de imagens primeiro.
+
+## Qual configuração de qualidade devo usar para imagens web?
+
+Para fotografias: 0.80–0.85 em JPEG ou WebP produz arquivos 5–10× menores que PNG com perda praticamente imperceptível. Para imagens com texto, linhas nítidas ou elementos de UI, use PNG (sem perdas) em vez de ajustar a qualidade — a compressão com perdas cria artefatos de bloco visíveis em bordas nítidas independentemente do valor de qualidade. WebP a 0.85 é um bom padrão para entrega web moderna.
+
+## Por que meu arquivo de 10 MB é rejeitado?
+
+O limite de 10 MB é para o tamanho do arquivo de entrada. Imagens grandes decodificadas em dados de pixels RGBA brutos podem ser muito maiores na memória — um JPEG de 10 MB pode expandir para 50–100 MB como buffer de pixels brutos no Canvas. Exceder a memória disponível do navegador faz com que a aba trave ou a conversão falhe silenciosamente. Para arquivos maiores, use uma ferramenta do lado do servidor como ImageMagick, `sharp` (Node.js) ou PIL/Pillow (Python).
+
+## Quanto menor será minha imagem ao converter para WebP?
+
+Depende do conteúdo de origem e da configuração de qualidade. Resultados típicos: WebP com perdas na qualidade 0.80 produz arquivos 25–34% menores que JPEG equivalente. WebP sem perdas é aproximadamente 26% menor que PNG. Os resultados variam — fotografias comprimem melhor que diagramas. Converter JPEG para WebP na mesma qualidade quase sempre produz um arquivo menor.
+
+## Converter JPEG para PNG torna a imagem sem perdas?
+
+Não. PNG é um formato sem perdas, mas converter um JPEG para PNG não recupera os detalhes já descartados pela compressão JPEG. A conversão captura os valores de pixels degradados atuais sem perdas — não reverte a compressão com perdas original. O resultado é um arquivo maior sem melhoria de qualidade. Use JPEG→PNG apenas quando precisar de suporte a canal alfa ou precisar fazer mais edições sem introduzir artefatos adicionais de recompressão JPEG.
+
+## Posso converter arquivos GIF ou SVG?
+
+A entrada GIF é decodificada no navegador (GIFs animados são achatados para o primeiro quadro), e os pixels resultantes podem ser exportados para PNG, JPEG ou WebP. A entrada SVG também é rasterizada para pixels em seu tamanho natural ao ser desenhada no Canvas. Nem a animação GIF nem os dados vetoriais SVG sobrevivem à conversão — a saída é sempre uma imagem raster estática. As saídas GIF e SVG não estão disponíveis porque a Canvas API não expõe codificadores para eles.
+
+## Minha imagem é enviada para um servidor em algum momento?
+
+Não. Todo o pipeline de conversão — leitura de arquivo, decodificação, desenho no Canvas e recodificação — roda no seu navegador. Nenhum dado de pixel, metadados EXIF ou conteúdo de arquivo é transmitido pela rede. Você pode verificar isso abrindo a aba de rede do seu navegador durante a conversão; você verá zero requisições. A ferramenta funciona offline após o carregamento da página.

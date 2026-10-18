@@ -1,0 +1,35 @@
+---
+title: Codificação Hexadecimal — Perguntas frequentes
+---
+
+## A codificação hexadecimal é o mesmo que criptografia?
+
+Não. A codificação hexadecimal é puramente um formato de exibição — converte cada byte em dois caracteres ASCII legíveis. Qualquer pessoa com a string hexadecimal pode decodificá-la instantaneamente, sem necessidade de chave. Se precisar de confidencialidade, criptografe os dados primeiro (AES, ChaCha20), depois codifique o texto cifrado em hex se precisar de uma representação imprimível. Codificação e criptografia são preocupações ortogonais.
+
+## Por que meu caractere produz quatro dígitos hexadecimais em vez de dois?
+
+Porque esse caractere ocupa mais de um byte em UTF-8. A letra `é` (U+00E9) codifica em dois bytes (`0xc3 0xa9`), produzindo quatro dígitos hex. Um emoji como `😀` (U+1F600) são quatro bytes UTF-8 — oito dígitos hex. Caracteres ASCII (pontos de código 0–127) sempre produzem exatamente dois dígitos hex porque cabem em um único byte. Este é o comportamento correto, não um bug.
+
+## Quando devo usar hex em vez de Base64?
+
+Escolha hex quando a legibilidade em nível de byte importa: depurar dumps de memória, inspecionar hashes criptográficos, ler capturas de pacotes ou formatar endereços MAC. Base64 é melhor quando minimizar o tamanho importa — adiciona apenas 33% de overhead versus 100% do hex. Para a maioria dos casos de transporte (data URIs, JWT, MIME), Base64 é a ferramenta certa; para inspeção humana de bytes brutos, hex vence.
+
+## O que significa o prefixo 0x?
+
+O prefixo `0x` é uma convenção de C (padronizada em ANSI C89) que marca um literal numérico como hexadecimal. Espalhou-se para C++, Java, JavaScript, Go, Rust e Python. Você o verá em endereços Ethereum, literais de array em C e saídas de depuradores. Em outros contextos — códigos de cor CSS (`#ff6b6b`) ou endereços MAC (`aa:bb:cc`) — um separador ou delimitador diferente indica o formato hex.
+
+## Qual separador devo usar para endereços MAC?
+
+Use `:` como separador e letras minúsculas. O formato padrão de endereço MAC é seis pares de bytes separados por dois pontos: `aa:bb:cc:dd:ee:ff`. Algumas ferramentas de rede mais antigas usam `-` (estilo Windows `ipconfig`: `AA-BB-CC-DD-EE-FF`). Ative maiúsculas se o sistema de destino exigir. Deixe o prefixo 0x desativado — endereços MAC não o utilizam.
+
+## Como hex difere de um dump binário?
+
+Hex representa cada byte com dois caracteres (100% de overhead). Binário representa cada byte com oito caracteres (700% de overhead). Ambos codificam a mesma informação. Binário é útil como ferramenta pedagógica para ver posições individuais de bits; hex é a escolha prática para inspecionar dados reais porque é compacto o suficiente para ser escaneado visualmente. Um resumo SHA-256 de 32 bytes são 64 caracteres hex mas 256 caracteres binários.
+
+## Posso fazer round-trip de texto com caracteres não ASCII?
+
+Sim, desde que ambos os lados concordem em usar UTF-8. Esta ferramenta codifica sua string de entrada para sua representação de bytes UTF-8, depois codifica esses bytes em hex. A decodificação inverte o processo: hex → bytes → string UTF-8. Se o sistema receptor interpretar os bytes como Latin-1 ou Windows-1252, o texto decodificado será diferente. Garanta o acordo de codificação em ambas as extremidades.
+
+## Por que algumas saídas hex parecem `48 65 6c 6c 6f` e outras `48656c6c6f`?
+
+A única diferença é o separador. Um espaço entre cada par de bytes é o estilo usado por `xxd`, `hexdump` e Wireshark — melhora a legibilidade para sequências de bytes longas. Sem separador produz uma string hex compacta comum em resumos de hash, endereços Ethereum e internos de codificação URL. Esta ferramenta permite escolher: vazio para compacto, espaço para estilo dump, `:` para estilo MAC/IPv6.

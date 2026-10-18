@@ -1,0 +1,222 @@
+{
+  "moreItem": "Toolkit",
+  "evidenceKind": "Worksheet",
+  "index": {
+    "title": "Toolkit",
+    "lead": "Worksheets for the methods this app follows: each one a page of headed parts to fill in over days, kept with your learning and returned to on its review dates.",
+    "noKinds": "No worksheets are available yet.",
+    "private": "Private",
+    "new": "New",
+    "newOf": "New {{name}}"
+  },
+  "groups": {
+    "language": "Language",
+    "projects": "Projects",
+    "life": "Life"
+  },
+  "due": {
+    "title": "To revisit",
+    "none": "Nothing is due to revisit today."
+  },
+  "list": {
+    "open": "Open",
+    "done": "Done",
+    "nextReview": "Next review {{date}}"
+  },
+  "new": {
+    "chooseTitle": "New worksheet",
+    "chooseLead": "Choose what to start.",
+    "title": "New: {{name}}",
+    "titleLabel": "Title",
+    "start": "Start"
+  },
+  "sheet": {
+    "unknownKind": "This kind of worksheet is no longer available. What you wrote is kept and can be downloaded.",
+    "back": "All worksheets",
+    "goal": "Its goal",
+    "document": "Its document",
+    "export": "Download as Markdown",
+    "earlier": "From an earlier version",
+    "earlierLead": "This worksheet changed shape after you filled these in. They are kept as you wrote them, and are not edited here.",
+    "manage": "This worksheet",
+    "title": "Title",
+    "rename": "Rename",
+    "markDone": "Mark as done",
+    "reopen": "Reopen",
+    "delete": "Delete this worksheet",
+    "deleteConfirm": "Everything written in it is removed. This cannot be undone.",
+    "deleteNow": "Delete"
+  },
+  "reviews": {
+    "title": "Review dates",
+    "notScheduled": "Not scheduled yet: it counts from something you have not written down.",
+    "done": "reviewed",
+    "move": "Move to",
+    "save": "Move",
+    "markDone": "Mark as reviewed"
+  },
+  "form": {
+    "choose": "Choose…",
+    "otherOption": "Other…",
+    "other": "Other",
+    "yes": "Yes",
+    "no": "No",
+    "audioLater": "Recordings are not available yet.",
+    "rowActions": "Row actions",
+    "rowNumber": "Row {{n}}",
+    "addRow": "Add a row",
+    "removeRow": "Remove",
+    "rowsLeft_one": "{{count}} more row allowed",
+    "rowsLeft_other": "{{count}} more rows allowed",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "conflict": "This part was changed somewhere else. It now shows what was saved there; make your change again."
+  },
+  "private": {
+    "title": "Private",
+    "body": "Nothing in this worksheet is ever sent to an AI model, and it never appears as evidence or by title on Home.",
+    "leaveOut": "Keep it to what you are comfortable storing. Leave out passwords, ID numbers, exact addresses, medical records, client data, and anything about another person who has not agreed to it being written down.",
+    "danger": "If there is immediate danger or violence, if sleeplessness or a very low mood will not lift, or if debt or legal trouble is involved, contact a qualified professional first. A worksheet cannot do that work."
+  },
+  "home": {
+    "title": "To revisit today",
+    "count_one": "{{count}} worksheet review is due.",
+    "count_other": "{{count}} worksheet reviews are due.",
+    "open": "Open the toolkit"
+  },
+  "state": {
+    "title": "Worksheets",
+    "none": "No worksheet is attached to this goal yet.",
+    "new": "New worksheet"
+  },
+  "loop": {
+    "title": "Toolkit",
+    "body": "Worksheets for a project, a language skill or a hard week, each with its own review dates.",
+    "open": "Open the toolkit"
+  },
+  "recordings": {
+    "record": "Record",
+    "stop": "Stop",
+    "limit": "Recording stops by itself at 10 minutes.",
+    "preview": "Your take",
+    "previewHint": "Listen before you keep it. Nothing is uploaded until you press Keep, and the take is kept as it is: no noise suppression, gain or cuts.",
+    "keep": "Keep",
+    "discard": "Discard",
+    "keeping": "Keeping…",
+    "keepFailed": "The recording could not be kept. Try again.",
+    "unsupported": "This browser cannot record here. Upload a file recorded elsewhere instead.",
+    "denied": "The microphone is blocked for this page. Allow it in the browser's site settings, or upload a file recorded elsewhere.",
+    "upload": "Upload a recording",
+    "uploadHint": "WebM, Ogg or MP4 audio, at most 10 MB and 10 minutes.",
+    "unsaved": "Recordings can be added on a saved worksheet.",
+    "clear": "Take out of this cell",
+    "delete": "Delete recording",
+    "deleteFailed": "The recording could not be deleted. Try again.",
+    "missing": "This recording is missing. Take it out of the cell and record again.",
+    "useKept": "Or use a kept take",
+    "takeOption": "Take, {{length}}, {{date}}",
+    "notUsed": "Not used on this row",
+    "see": "Open in your speaking evidence",
+    "title": "Recordings",
+    "lead": "Every take on this worksheet. Deleting one removes its file and takes it out of any cell that held it.",
+    "compare": "Compare",
+    "compareLead": "Play an earlier take beside a later one, such as a baseline beside its retest.",
+    "earlier": "Earlier take",
+    "later": "Later take",
+    "takeLabel": "{{where}} · {{length}} · {{date}}",
+    "unused": "Not in a cell"
+  },
+  "diagnostic": {
+    "total": "Total",
+    "totalOf": "{{total}} of {{max}}",
+    "open": "Open a {{skill}} evidence worksheet",
+    "fromDocument": "Start it from the video or text you practise on.",
+    "prefill": "From the English diagnostic “{{title}}”: the primary barrier is {{barrier}}.",
+    "prefillSample": "Sample or timestamp: {{sample}}.",
+    "cannotOpen": "That evidence worksheet cannot be opened from here.",
+    "notADiagnostic": "Only an English diagnostic opens evidence worksheets.",
+    "start": "Start with an English diagnostic",
+    "startLead": "A first, unpolished sample in all four skills shows which barrier to work on before the cards go further."
+  },
+  "writingDiagnosis": {
+    "title": "AI diagnosis",
+    "lead": "Ask your chat model to diagnose one pass of your saved draft. It points at up to three places, says why, how sure it is and how it could be wrong — and never rewrites anything. Before and After are yours to write.",
+    "pass": "Pass {{n}} · {{label}}",
+    "diagnose": "Diagnose",
+    "working": "Diagnosing…",
+    "by": "Diagnosed by {{model}} on {{date}}",
+    "unknownModel": "your model",
+    "none": "Nothing that matters for this pass was found.",
+    "issues": "Issues for pass {{n}}",
+    "basis": "Basis",
+    "confidence": "Confidence",
+    "mightBeWrong": "Might be wrong",
+    "levels": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "useQuote": "Use this quote as before"
+  },
+  "grammar": {
+    "cardColumn": "Contrast card",
+    "start": "Start a contrast card",
+    "startFor": "Start a contrast card for “{{sample}}”",
+    "needsSample": "Write the sample first: the contrast card starts from it.",
+    "notAMap": "Only a grammar error map starts contrast cards.",
+    "cannotStart": "A grammar evidence card cannot be started from here."
+  },
+  "artifact": {
+    "unverified": "unverified",
+    "evidenceTitle": "Add to evidence",
+    "evidenceLead": "The brief has been delivered. Put it on one of this goal's evidence chains as transfer evidence: what you learned, used in real work.",
+    "chain": "Evidence chain",
+    "addToEvidence": "Add to evidence",
+    "noChain": "This goal has no evidence chain yet.",
+    "openState": "Start one on the goal's page"
+  },
+  "life": {
+    "record": "This is a private record for seeing what actually happened. It is not a daily score to keep up.",
+    "homePrivate_one": "{{count}} private note to revisit.",
+    "homePrivate_other": "{{count}} private notes to revisit.",
+    "safety": {
+      "choice_brief": "When a choice is hard to undo and touches money, health, the law or someone's safety, give it time and ask a relevant professional before you commit further.",
+      "relationship_card": "If there is violence, threats, stalking, or control over your money or accounts, your safety comes before any conversation: get somewhere safe, tell someone you trust, and contact professional help. Do not arrange a last talk alone.",
+      "recovery_reset": "If you have a plan to hurt yourself or someone else, or cannot keep yourself safe, do not stay alone: contact someone near you and local emergency services now. This page can wait.",
+      "life_care_card": "Caring for someone never means giving up your safety. If harm keeps happening or it is not safe to say no, stepping back, getting help or leaving can still be care. When the load is more than you can carry, ask for outside help instead of carrying on alone.",
+      "self_reflection": "If what you notice includes sleep that will not come back, fear that does not ease, thoughts of harming yourself, or everyday tasks slipping out of reach, take these notes to a qualified doctor or mental-health professional near you. They can help that conversation start; they cannot stand in for it."
+    },
+    "howTo": {
+      "title": "How to use these",
+      "step1": "Write the date and what is happening before you explain it to yourself.",
+      "step2": "Fill in only the worksheet that fits the problem in front of you.",
+      "step3": "Leave one action you can actually take, and where its evidence will be kept.",
+      "step4": "Come back on the review date you set, and read the result as information, not a verdict on who you are.",
+      "step5": "Delete what no longer helps; keep the facts that make the next decision better."
+    }
+  },
+  "cycleClose": {
+    "missing": "Still missing",
+    "none": "—",
+    "need": {
+      "condition": "the changed condition",
+      "basis": "the grounds",
+      "archived": "where it is archived",
+      "told": "who was told"
+    },
+    "backToCycle": "Back to the cycle"
+  },
+  "consistency": {
+    "prefillTitle": "From this goal",
+    "prefillLead": "Three versions can start with what this goal already says. You can change them on the plan.",
+    "minimum": "Minimum: the minimum version of the next task",
+    "standard": "Standard: the next task",
+    "prefillConfirm": "Start the three versions with these"
+  },
+  "evaluation": {
+    "counted": "From the case rows",
+    "noAttempts": "No attempts yet",
+    "rates": "{{first}} first pass · {{revised}} after revision",
+    "differs": "What is written here differs from the case rows. The results are saved only with the rates the rows give."
+  }
+}

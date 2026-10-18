@@ -1,0 +1,31 @@
+---
+title: Codificación Binaria — Preguntas frecuentes
+---
+
+## ¿Se usa la codificación binaria en sistemas de producción reales?
+
+Raramente como formato de serialización, porque produce un 700% de overhead — un byte se convierte en ocho caracteres. Donde aparece en producción es como literales binarios en código fuente (`0b10010011` en Python o JavaScript) y en documentación de protocolos que muestra layouts de campos de bits. Como formato de transporte no tiene ventaja práctica sobre hex (100% overhead) o Base64 (33% overhead). Considera esta herramienta como una ayuda de aprendizaje y depurador, no como una opción de transporte de datos.
+
+## ¿Por qué mi emoji produce 32 caracteres binarios?
+
+Porque el emoji ocupa cuatro bytes en UTF-8. La codificación binaria convierte cada byte en ocho caracteres binarios, por lo que cuatro bytes producen 32 caracteres. Por ejemplo, `😀` (U+1F600) se codifica como `11110000 10011111 10011000 10000000` — cuatro bytes UTF-8 visibles como cuatro grupos de 8 caracteres. Esto es correcto; la herramienta te muestra la estructura de bytes UTF-8 real del carácter.
+
+## ¿Qué me dice el patrón de bits inicial sobre un byte UTF-8?
+
+UTF-8 codifica el conteo de bytes en los bits iniciales: `0xxxxxxx` es un carácter ASCII de un byte; `110xxxxx` inicia una secuencia de dos bytes; `1110xxxx` inicia tres bytes; `11110xxx` inicia cuatro bytes. Los bytes de continuación siempre empiezan con `10xxxxxx`. Cuando ves un volcado binario de una cadena multibyte, estos prefijos te permiten identificar los límites de bytes y los anchos de puntos de código sin ninguna tabla de referencia adicional.
+
+## ¿Cómo uso esto para entender una máscara de bits?
+
+Codifica el valor de byte con el que trabajas y la máscara por separado, luego compáralos visualmente. Por ejemplo, el byte de flags TCP `0x12` es `00010010` — los bits 1 y 4 están activados, correspondientes a SYN y ACK. Una máscara de `0x0F` es `00001111` — aísla el nibble inferior. Ver ambos como cadenas binarias de ocho caracteres hace que las operaciones AND, OR y XOR sean autoexplicativas sin calcular potencias de dos.
+
+## ¿Por qué un byte es siempre 8 bits?
+
+No siempre lo fue. Las computadoras tempranas usaban palabras de 6, 7, 9 e incluso 36 bits. El byte de 8 bits fue popularizado por el System/360 de IBM en 1964 y codificado por el estándar ASCII. A principios de los años 80, los microprocesadores de 8 bits lo hicieron universal. POSIX formalizó `CHAR_BIT = 8` en 1988. Hoy la suposición es tan arraigada que los RFC de red usan "octeto" para decir "byte de 8 bits" explícitamente — preservando la precisión original aunque ya no existe ambigüedad.
+
+## ¿Puedo decodificar cadenas binarias arbitrarias que no son UTF-8 válido?
+
+El decodificador intentará interpretar los bits binarios como bytes y luego decodificar esos bytes como UTF-8. Si la secuencia de bytes no es UTF-8 válido, verás caracteres de reemplazo (``) o salida ilegible. La codificación y decodificación binaria de texto solo es significativa cuando los bytes representan una codificación de cadena válida. Para datos binarios crudos (imágenes, ejecutables), hex es una herramienta más apropiada.
+
+## ¿Es obligatorio el separador entre grupos de bytes?
+
+No. Un separador (espacio, nueva línea o cualquier delimitador) es cosmético — agrupa los chunks de ocho caracteres para mayor legibilidad pero no contiene información. Al decodificar, esta herramienta elimina espacios en blanco y divide en cualquier carácter no binario, por lo que `01000001 01000010` y `0100000101000010` ambos decodifican a `AB`. Usa un separador de espacio cuando leas la salida tú mismo; omítelo al pasar cadenas binarias entre programas.

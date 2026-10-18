@@ -1,0 +1,22 @@
+[
+  {"name": "valid bar with an extra callback option", "ok": true,
+   "source": {"type": "bar", "data": {"labels": ["2024", "2025"], "datasets": [{"label": "Readers", "data": [3, 5], "borderColor": "red"}]}, "options": {"onClick": "alert(1)", "plugins": {"title": {"text": "Readers per year"}}}}},
+  {"name": "numeric labels become strings", "ok": true,
+   "source": {"type": "line", "data": {"labels": [1, 2.5], "datasets": [{"label": "s", "data": [1, 2]}]}}},
+  {"name": "scatter points", "ok": true,
+   "source": {"type": "scatter", "data": {"datasets": [{"label": "p", "data": [{"x": 1, "y": 2}]}]}}},
+  {"name": "stacked axis", "ok": true,
+   "source": {"type": "bar", "data": {"labels": ["a"], "datasets": [{"data": [1]}]}, "options": {"scales": {"y": {"stacked": true, "title": {"text": "Count"}}}}}},
+  {"name": "unknown type", "ok": false,
+   "source": {"type": "sankey", "data": {"datasets": [{"data": [1]}]}}},
+  {"name": "function-like string as a value", "ok": false,
+   "source": {"type": "bar", "data": {"datasets": [{"data": ["function(){return 1}"]}]}}},
+  {"name": "scatter with plain numbers", "ok": false,
+   "source": {"type": "scatter", "data": {"datasets": [{"data": [1, 2]}]}}},
+  {"name": "nine datasets", "ok": false,
+   "source": {"type": "bar", "data": {"datasets": [{"data": [1]}, {"data": [1]}, {"data": [1]}, {"data": [1]}, {"data": [1]}, {"data": [1]}, {"data": [1]}, {"data": [1]}, {"data": [1]}]}}},
+  {"name": "no datasets", "ok": false,
+   "source": {"type": "pie", "data": {"labels": ["a"], "datasets": []}}},
+  {"name": "an object label", "ok": false,
+   "source": {"type": "bar", "data": {"labels": [{"toString": "x"}], "datasets": [{"data": [1]}]}}}
+]

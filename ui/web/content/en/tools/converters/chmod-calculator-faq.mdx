@@ -1,0 +1,39 @@
+---
+title: chmod calculator — Frequently asked questions
+---
+
+## What does it convert between?
+
+Octal notation, symbolic notation and individual permission checkboxes — change any one and the others follow. It covers the three special bits as well: setuid, setgid and sticky.
+
+## How do the octal digits work?
+
+Each digit is a sum of three bits: read is 4, write is 2, execute is 1. So 7 is all three, 6 is read plus write, 5 is read plus execute. The three digits are owner, group and others in that order — which makes 755 "owner does everything, everyone else may read and execute".
+
+## Why does the octal sometimes have four digits?
+
+Because a leading digit carries the special bits: setuid is 4, setgid is 2, sticky is 1, summed the same way. The tool follows the usual convention of omitting it when it is zero, so `0755` and `755` mean the same thing while `4755` means setuid is set.
+
+## What do the special bits actually do?
+
+**setuid** on an executable makes it run as the file's owner rather than the caller. **setgid** does the same for the group, and on a directory it makes new files inherit that directory's group. **sticky** on a directory means only a file's owner can delete it — the reason anyone can write to `/tmp` without deleting other people's files.
+
+## Why is setuid dangerous?
+
+Because it hands the file owner's privileges to whoever runs it. A setuid-root binary with a bug is a privilege-escalation vulnerability, which is why it is worth being deliberate before setting that bit and why many systems ignore it on mounted filesystems.
+
+## What does the execute bit mean on a directory?
+
+Permission to traverse it — to enter and reach what is inside. Read on a directory lets you list the names; execute lets you use them. A directory with read but not execute gives you a list of files you cannot open, which is a common source of confusion.
+
+## Is 777 ever the right answer?
+
+Almost never. It grants every user on the system permission to modify and run the file. It is a common "fix" for a permissions error, and it usually replaces a small problem with a larger one — the actual fix is normally correcting ownership.
+
+## Does this apply to Windows?
+
+No. Windows uses ACLs, a different and more granular model. These numbers are Unix, Linux and macOS.
+
+## Is anything sent to a server?
+
+No. The arithmetic runs in your browser.

@@ -1,0 +1,41 @@
+---
+title: QR & Barcode Scanner — Frequently asked questions
+---
+
+## Which codes can it read?
+
+QR (including Micro QR and rMQR), Data Matrix, Aztec, PDF417 and MaxiCode among the 2D formats; EAN-13, EAN-8, UPC-A, UPC-E, Code 39, Code 93, Code 128, Codabar, ITF, DX Film Edge and the GS1 DataBar family among the 1D ones. That is the full read set of ZXing C++, which is the engine here.
+
+It scans in any orientation and tries the inverted image as well, so a white-on-black code — common on packaging and on screens in dark mode — reads without you having to do anything.
+
+## It found nothing in my photo. Why?
+
+Usually one of four things. The code is a small part of a large photo, so after the image is scaled down for speed there are not enough pixels left across each bar; crop closer to the code and try again — the [crop tool](/en/image/crop-image) is next door. The photo is blurred, or shot at a steep angle so the bars merge. There is no quiet zone, because the code was cropped flush to its edge or is printed over artwork. Or it is a symbology this engine does not read — a few exist, mostly postal codes.
+
+Large images are scaled to 2000 pixels on the long edge before scanning. That is a deliberate trade: at full resolution a modern phone photo takes tens of seconds, which people reasonably read as "broken". If a code fails and you suspect the downscale, crop first — a cropped image below that size is passed through untouched.
+
+## What happens if the code is a link?
+
+You are shown the address as text and given a link you have to click. Nothing opens by itself, and nothing but an `http://` or `https://` address is offered as a link at all — a `javascript:` or `data:` payload is displayed as plain text and stays inert.
+
+That is not caution for its own sake. A printed QR code is untrusted data from a stranger, and "quishing" — stickers pasted over legitimate codes on parking meters, restaurant tables and delivery lockers — is a real and cheap attack. Reading the address before you follow it is the entire defence, so this tool makes you read it.
+
+## Why does a Wi-Fi code show up as network and password fields?
+
+Because the raw text of a Wi-Fi QR code is a structured record, not a message: `WIFI:T:WPA;S:Cafe Guest;P:flat\;white;;`. Handing you that string would be a worse answer than the two things you actually want. The parser handles the escaping rules properly, so a password containing a semicolon, colon, comma or backslash comes back exactly as it was — a naive split on `;` mangles it, and passwords like that are perfectly ordinary.
+
+vCard contact codes are broken out the same way, into name, organisation, phone, email and web address. Both formats are the ones our own [QR code generator](/en/generators/qr-code-generator) writes, so a code made there reads back into the same fields it was built from.
+
+## Can it read several codes in one picture?
+
+Yes, up to 32 in a single image, and each one is listed separately with its symbology, its text, its position in the image and its own copy button. A shipping label with a Code 128 and a Data Matrix side by side, or a page of printed labels photographed together, comes back as a list rather than as whichever code the detector happened to find first.
+
+## What does the camera button do, and does it stay on?
+
+Pressing it asks the browser for camera access; nothing before that point touches the camera. Frames are grabbed roughly seven times a second and decoded in this tab. The moment a code is read, the camera stops and its tracks are released — which is what turns the indicator light off — and it also stops if you press the button again or navigate away.
+
+Browsers only allow camera access on a secure origin, so this works on `https://` and on `localhost`, and is blocked on a plain `http://` address. If access is denied, drop a photo instead; the result is identical.
+
+## Is the image uploaded anywhere?
+
+No. The image is decoded by this page, and both the decoding and the barcode engine run in this tab. The engine is zxing-wasm, a WebAssembly build of ZXing C++; its 1.5 MB binary is served from this site's own domain rather than a CDN, and it is only fetched the first time you actually scan something. Camera frames never leave the tab either — they are drawn to a canvas in memory and handed straight to the decoder.

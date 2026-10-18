@@ -1,0 +1,97 @@
+---
+title: Định dạng SQL — vì sao quan trọng, khác biệt dialect, và tích hợp CI
+description: Cách style SQL nhất quán tăng tốc code review, vì sao chọn dialect quan trọng, và một quy tắc ngăn hầu hết sự cố format-then-break.
+updated: 2026-05-25
+---
+
+## Vì sao bận tâm định dạng SQL
+
+Bạn không định dạng code ứng dụng bằng mắt — bạn để Prettier hoặc Biome làm khi save. SQL xứng đáng được đối xử như vậy, vì cùng lý do:
+
+- **Diff dễ đọc.** Thay đổi SQL định dạng đẹp cho thấy diff có ý nghĩa (join mới, WHERE clause đổi), không phải nhiễu whitespace.
+- **Tốc độ code review.** Reviewer scan SQL đã format trong vài giây; SQL format ad-hoc tốn một phút nheo mắt mỗi thay đổi.
+- **Onboarding.** Thành viên team mới đọc SQL nhất quán nhanh như tiếng Anh; SQL không nhất quán cảm giác như đọc mail từ năm người khác nhau.
+- **Bug dễ thấy.** SQL đã format phơi bày lỗi cấu trúc (thiếu JOIN condition, AND treo) ngay.
+
+Chi phí định dạng bằng 0 — editor làm khi save, CI làm khi PR. Chi phí *không* định dạng cộng dồn với mỗi query bạn ship.
+
+## 10 dialect tool này hỗ trợ
+
+Mỗi database có dialect SQL riêng với khác biệt tinh tế. Chọn sai dialect làm formatter cho output hợp lệ nhưng sai stylistic cho target.
+
+- **Standard SQL** — gần spec ANSI nhất. Dùng khi không biết target.
+- **PostgreSQL** — cú pháp `::cast`, `RETURNING`, CTE khắp nơi, JSONB.
+- **MySQL / MariaDB** — định danh backtick, `LIMIT n OFFSET m`, không có `RETURNING` (đến 8.0+ trong MariaDB).
+- **SQLite** — dialect tối giản, attached database, không có type strict lịch sử.
+- **BigQuery** — cú pháp array, cú pháp struct, partitioning hint.
+- **Snowflake** — clause `QUALIFY`, cú pháp time travel.
+- **Redshift** — phái sinh Postgres nhưng có quirk.
+- **T-SQL (SQL Server)** — định danh `[bracket]`, `TOP n`, `OUTER APPLY`.
+- **PL/SQL (Oracle)** — cú pháp `MERGE`, không có `LIMIT` (dùng `ROWNUM` hoặc `FETCH FIRST`).
+
+Khi không chắc, chọn dialect database production của bạn. Nếu viết SQL portable chạy nhiều, dùng Standard SQL — bạn được format conservative hơn.
+
+## Convention đáng adopt
+
+Default tool này emit hợp lý cho hầu hết team; tweak cái cần:
+
+- **Keyword UPPERCASE.** Truyền thống từ SQL-86. Giúp reader tách từ cấu trúc (`SELECT`, `JOIN`) khỏi định danh.
+- **Một major clause mỗi dòng.** `SELECT … FROM … WHERE … GROUP BY …` mỗi cái bắt đầu cột 0.
+- **JOIN indent + condition cùng dòng.** Dễ theo dõi bảng nào join bảng nào.
+- **Indent 2 space.** Khớp hầu hết project JS/TS; một số team thích 4.
+- **Trailing comma trong list cột** (khi hỗ trợ). Diff sạch hơn khi thêm cột.
+
+Convention một bạn KHÔNG nên chạy theo: align tên cột bằng space ("vertical SQL"). Trông đẹp khi đứng riêng, lão hóa tệ với định danh dài nhất, và vỡ mỗi lần ai đó thêm cột dài hơn. Để formatter xử lý align ngang; đừng đánh nó.
+
+## Khi nào KHÔNG format
+
+Vài case:
+
+- **SQL sinh tự động** — để output ORM yên; không ai đọc.
+- **Query ad-hoc một lần** trong REPL — format nếu sẽ commit, ngoài ra không.
+- **SQL nhúng trong tagged template literal** trong code — tool như `eslint-plugin-sql` format inline, nhưng tool bạn đang cầm chỉ xử lý SQL raw.
+
+## Quy tắc format-then-break
+
+Một quy tắc ngăn hầu hết sự cố format-then-break: **formatter bảo toàn ngữ nghĩa, không phải whitespace trong chuỗi**. Nếu bạn có:
+
+```sql
+SELECT 'multi
+line
+string' FROM t;
+```
+
+Formatter có thể hoặc không bảo toàn newline literal trong chuỗi tùy quy tắc quoting dialect. **Luôn verify query đã format parse và chạy được** trước khi merge — `EXPLAIN` là bạn của bạn.
+
+Với inline comment (`-- comment` hoặc `/* */`), hầu hết formatter giữ chúng cùng dòng, nhưng vị trí có thể shift so với code xung quanh. Đọc lại output đã format trước khi giả định intent được bảo toàn.
+
+## Tích hợp CI
+
+Đừng dựa vào dev nhớ format. Thêm vào toolchain:
+
+```yaml
+# .github/workflows/sql.yml
+- run: npx sql-formatter-cli --check schema/**/*.sql
+```
+
+Hoặc pre-commit:
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/sql-formatter-org/sql-formatter
+    rev: v15
+    hooks:
+      - id: sql-formatter
+```
+
+Cùng library trang này dùng, chạy tự động khi commit / CI. Dev mới không cần biết.
+
+## Quyền riêng tư
+
+Formatter chạy hoàn toàn trong browser qua library mã nguồn mở [`sql-formatter`](https://github.com/sql-formatter-org/sql-formatter). Chúng tôi không thực thi SQL, không kết nối database, không log query.
+
+## Công cụ liên quan
+
+- **JSON Formatter** — cho cột JSON query Postgres trả về.
+- **Regex Tester** — build pattern cho SQL `LIKE` và `SIMILAR TO`.

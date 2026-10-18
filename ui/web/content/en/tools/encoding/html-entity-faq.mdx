@@ -1,0 +1,35 @@
+---
+title: HTML Entity Encoder/Decoder — Frequently asked questions
+---
+
+## What's the difference between &amp;lt; and &#60; and &#x3C;?
+
+All three represent the same character: `<`. `&lt;` is the named reference (most readable), `&#60;` is the decimal numeric reference, and `&#x3C;` is the hexadecimal numeric reference. Browsers handle all three identically. Named references are better for hand-written HTML; numeric and hex forms are common in programmatically generated markup because they map directly to Unicode code points without needing a lookup table.
+
+## Does HTML entity encoding prevent XSS?
+
+It prevents XSS **in HTML text content context** — if you're inserting user input between tags, entity-encoding `<`, `>`, `&`, and `"` makes injected markup inert. But it's not a universal XSS fix. If you're inserting user data into a JavaScript string, a `href` attribute, a CSS value, or a URL parameter, each context needs its own escaping. Entity encoding applied to the wrong context either does nothing or breaks your output.
+
+## What causes double-encoding like &amp;amp;amp; showing up on a page?
+
+Double-encoding happens when a string is entity-encoded more than once. `&` becomes `&amp;`, and if that's encoded again it becomes `&amp;amp;`. The page then renders `&amp;` instead of `&`. The fix: decode first to check whether the input is already encoded, then encode exactly once at the point where the string is inserted into HTML — not at storage time and render time both.
+
+## Why should I entity-encode when templating engines auto-escape?
+
+Most templating engines (React JSX, Jinja2, Handlebars, Blade) auto-escape by default, which is great. You need manual entity encoding when: using `dangerouslySetInnerHTML`, `v-html`, `innerHTML`, or any raw-HTML insertion API; generating HTML strings outside a template engine; writing static HTML by hand; or sanitizing stored content that was entered through a rich-text editor.
+
+## Can I use HTML entities inside a URL?
+
+No. URLs use percent-encoding, not HTML entities. `https://example.com/?q=a&b=c` — the `&` here is a URL delimiter, and it must be `%26` if it's literal data. If you put `&amp;` in a URL, browsers interpret it as the four-character string `&amp;`, not `&`. Use URL encoding for query strings and HTML encoding for HTML attributes that happen to contain URLs — they're layered, not interchangeable.
+
+## Is my input sent to a server?
+
+No. All encoding and decoding runs in your browser using the [`he`](https://github.com/mathiasbynens/he) library. Nothing is transmitted. You can verify by opening the network tab while you type — there are zero outbound requests.
+
+## What characters does this tool encode?
+
+By default it encodes the five characters that have structural meaning in HTML: `&`, `<`, `>`, `"`, `'`. For the "encode all non-ASCII" option, every character outside the ASCII range (code points > 127) is additionally emitted as a numeric reference — useful when you need pure-ASCII output, such as embedding HTML inside systems that don't handle UTF-8 reliably.
+
+## Why do some named entities not need a semicolon?
+
+Legacy HTML (before HTML5) allowed certain named references without the trailing semicolon — `&amp` was sometimes accepted alongside `&amp;`. Modern parsers still tolerate the omission for backward compatibility, but it's technically malformed. Always include the semicolon in new code; the `he` library decodes both forms but always emits the correct form with a semicolon.

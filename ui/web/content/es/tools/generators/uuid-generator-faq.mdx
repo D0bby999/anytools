@@ -1,0 +1,31 @@
+---
+title: Generador de UUID — Preguntas frecuentes
+---
+
+## ¿Cuál versión de UUID debería usar?
+
+Para nuevas claves primarias de aplicación en 2026: **v7**. Ordenable por tiempo de creación, amigable con índices B-tree, sin fuga de dirección MAC. Vuelva a v4 si su stack aún no admite v7.
+
+## ¿Los UUID son realmente únicos?
+
+Prácticamente sí. v4 tiene 122 bits de entropía — para tener 50% de probabilidad de cualquier colisión necesitaría ~2.7 quintillones (10^18) ID. La porción aleatoria de v7 es 74 bits, aún bien dentro del territorio "nunca colisionen" para cualquier aplicación por debajo del tráfico de escala planetaria.
+
+## ¿Puedo usar UUID como clave primaria de base de datos?
+
+Sí. La advertencia de rendimiento histórica se aplica a **v4 específicamente** en tablas grandes con cargas de trabajo de inserción aleatoria. Use v7 para evitar ese problema. El costo de almacenamiento es 16 bytes versus 8 para bigint — negligible para tablas de aplicación, vale la pena pensar para tablas de mil millones de filas.
+
+## ¿v7 o ULID?
+
+v7 a menos que necesite específicamente la forma de codificación de ULID. ULID predatea UUID v7 y era popular en parte porque v7 no existía aún. Con v7 ahora estándar, ULID tiene soporte de biblioteca + base de datos más estrecho y sin ventaja de especificación.
+
+## ¿La aleatoriedad en esta herramienta es criptográfica?
+
+Sí. La biblioteca subyacente [`uuid`](https://github.com/uuidjs/uuid) usa `crypto.getRandomValues`, el CSPRNG del navegador. Adecuada para tokens de seguridad, ID de sesión, etc.
+
+## ¿Por qué v1 filtra una dirección MAC?
+
+v1 fue diseñado en una era donde la MAC del host era una fuente de unicidad fácil. Las bibliotecas modernas generalmente aleatorizan el ID del nodo para evitar la fuga, pero la intención de diseño incluyó identificar la máquina generadora. No use v1 en contextos sensibles a la privacidad — use v7 en su lugar.
+
+## ¿Puedo generar millones en esta herramienta?
+
+El campo Contar está limitado a 100. Generar millones en una pestaña del navegador es un peligro de memoria; para esa escala use un CLI como `uuidgen` en un bucle o código de aplicación.

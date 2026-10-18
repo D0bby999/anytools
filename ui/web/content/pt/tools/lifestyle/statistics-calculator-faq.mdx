@@ -1,0 +1,39 @@
+---
+title: Calculadora de estatísticas — Média, mediana, desvio — Perguntas frequentes
+---
+
+## O que ela computa?
+
+Contagem, soma, média, mediana, moda, mínimo, máximo, intervalo, variância, desvio padrão e o primeiro e terceiro quartis — o conjunto descritivo padrão para uma única lista de números.
+
+## Devo escolher amostra ou população?
+
+População se seus números são o grupo inteiro de que você se importa; amostra se são um subconjunto que você está usando para inferir algo sobre um grupo maior. Na prática, amostra é a escolha mais comum, porque dados geralmente são uma amostra de algo.
+
+## O que realmente muda entre os dois?
+
+O denominador na variância. População divide por `n`; amostra divide por `n − 1`. Essa correção — correção de Bessel — existe porque a dispersão de uma amostra sistematicamente subestima a população, e dividir pelo número menor compensa. Com listas grandes a diferença é negligenciável; com pequenas não é.
+
+## Por que ela mostra várias modas?
+
+Porque pode haver várias. A ferramenta coleta cada valor empatado pela frequência mais alta em vez de escolher um arbitrariamente. Se cada valor aparece uma vez, eles são todas as modas — que é a resposta honesta, e um sinal de que a moda não está dizendo nada útil sobre esses dados.
+
+## Por que a mediana é diferente da média?
+
+Porque elas medem coisas diferentes e discordam sempre que os dados são assimétricos. A média é puxada por valores extremos; a mediana não é. Quando elas divergem acentuadamente, essa lacuna é em si a descoberta — geralmente significa valores discrepantes ou uma cauda longa, e é por isso que a renda é relatada como mediana em vez de média.
+
+## Como os quartis são calculados?
+
+A partir dos valores classificados, com a mediana de todo o conjunto como ponto de referência. Tenha em mente que existem várias convenções de quartil aceitas e pacotes estatísticos nem todos concordam, portanto um quartil dessa ferramenta pode diferir ligeiramente de um produzido por outro software. A diferença é método, não erro.
+
+## Para que serve o intervalo?
+
+Muito pouco por conta própria, além de uma verificação rápida de sanidade de que nenhum valor está muito fora do lugar. Depende de exatamente dois números, portanto um único erro de digitação o altera completamente. O desvio padrão é a medida mais informativa de dispersão.
+
+## A ordem dos meus números importa?
+
+Não. A ferramenta ordena internamente, portanto cole-os em qualquer ordem que você tiver.
+
+## Meus dados são enviados?
+
+Não. Tudo é computado no seu navegador e nada é armazenado.

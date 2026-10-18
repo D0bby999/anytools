@@ -1,0 +1,34 @@
+---
+title: Trình tạo gradient CSS — Câu hỏi thường gặp
+---
+
+## Vì sao output lại có hai dòng `background`?
+
+Dòng đầu là một màu phẳng, dòng sau mới là gradient:
+
+```css
+background: #3B82F6;
+background: linear-gradient(135deg, #3B82F6 0%, #A855F7 100%);
+```
+
+Engine nào hiểu `linear-gradient` sẽ áp dòng thứ hai và màu phẳng không bao giờ lộ ra. Engine nào không parse nổi giá trị gradient thì bỏ khai báo đó trong quá trình error recovery của CSS và giữ lại màu phẳng nó đã nhận trước đó. Tốn đúng một dòng nhưng loại bỏ được kiểu hỏng tệ nhất: chữ trắng nằm trên một cái nền chưa từng được vẽ. Tool lấy màu của color stop đầu tiên làm dòng fallback; nếu chữ của bạn nằm ở khoảng giữa gradient, hãy sửa dòng đó thành một màu lấy từ khu vực giữa.
+
+## Góc trong CSS tính thế nào, và vì sao tool ghi `135deg` chứ không ghi `to bottom right`?
+
+Trong CSS, `0deg` chỉ lên đỉnh box và góc tăng theo chiều kim đồng hồ, nên `90deg` chạy từ trái sang phải còn `180deg` chạy từ trên xuống dưới — cũng là mặc định khi bạn bỏ trống góc. Quy ước này xoay khác với quy ước toán học, và đó là lý do phổ biến nhất khiến một gradient ra sai hướng. Còn về từ khoá góc: `to bottom right` không tương đương `135deg`. Từ khoá này ngắm đường gradient sao cho góc box rơi đúng vào stop cuối, tức là góc thật phụ thuộc vào bề rộng và chiều cao — nó chỉ bằng 135° khi box vuông. Editor này lưu một con số góc, nên nếu bạn muốn gradient bám theo tỉ lệ box thì giữ từ khoá đó trong stylesheet bằng tay.
+
+## Color stop để trống vị trí thì sao, và sao chỉ nhập được phần trăm?
+
+Bỏ trống vị trí thì trình duyệt tự chia đều stop đó giữa hai hàng xóm có vị trí — stop đầu mặc định 0%, stop cuối mặc định 100%. Cách này giữ CSS ngắn và sống sót khi bạn chèn thêm màu về sau. Tay cầm dưới ô preview vẫn hiện ở đúng chỗ trình duyệt sẽ đặt stop, nên một stop chưa có vị trí vẫn có tay cầm; kéo nó (hoặc nhích bằng phím mũi tên, Home, End) sẽ ghi ra một phần trăm cụ thể, vì đó chính là ý nghĩa của việc bạn kéo. Còn lý do chỉ nhận phần trăm: đó là đơn vị duy nhất editor round-trip được. CSS cũng cho phép độ dài (`red 20px`) và interpolation hint, nhưng lặng lẽ đổi `20px` thành `20%` sẽ làm hỏng thiết kế của bạn mà không báo — nên tool báo lỗi parse thay vì đoán bừa.
+
+## Gradient có dùng được ở mọi chỗ nhận màu không?
+
+Không. Gradient là một giá trị image chứ không phải color. Nó chạy trong `background-image` (và shorthand `background`), `border-image`, `mask-image`, `list-style-image`, nhưng không chạy trong `color`, `border-color` hay `box-shadow`. Trường hợp mọi người hay tìm là chữ gradient: đặt gradient làm background rồi dùng `background-clip: text` với màu chữ trong suốt — và nhớ khai báo một `color` fallback thật, vì trình duyệt nào bỏ qua phần clip sẽ vẽ chữ trong suốt đè lên gradient, tức là mất chữ. Khi bạn đổi loại gradient trong tool, các color stop được giữ nguyên còn hình học thì chuyển sang mặc định hợp lệ của loại mới.
+
+## Gradient nhạt và rộng của tôi bị sọc ngang, sai ở đâu?
+
+Không sai ở đâu cả, đó là banding. Màn hình 8 bit mỗi kênh chỉ có 256 nấc; một gradient đi qua vài nấc trong suốt cả nghìn pixel sẽ hiện mỗi nấc thành một vệt nhìn thấy được. Thêm color stop trung gian không cứu được, vì giới hạn nằm ở màn hình chứ không ở CSS. Cách xử lý thực dụng: tăng khoảng cách màu giữa hai đầu, phủ một lớp noise rất nhẹ lên trên, hoặc chấp nhận nó ở đúng những cái nền rộng nơi mắt ít để ý nhất. Gradient conic là loại mới nhất trong ba loại — Chrome 69, Safari 12.1, Firefox 83 — nên nếu traffic của bạn còn trình duyệt cũ hơn cuối 2020, dòng fallback ở trên chính là thứ họ nhìn thấy.
+
+## Tạo gradient css ở đây khác gì copy từ Figma, và có gì rời khỏi máy không?
+
+Không có gì rời khỏi trình duyệt — chuỗi gradient được ghép ngay trong trang. Còn khác biệt với Figma: Figma cho bạn hình ảnh, không cho bạn CSS đúng. Panel "Copy as CSS" của nó hay xuất ra ma trận gradient đã bị nướng cứng, không giữ được `repeating-`, không có conic theo cú pháp CSS chuẩn, và tuyệt đối không kèm dòng fallback. Gõ tay thì lại dễ sai đúng chỗ quy ước góc vừa nói ở trên. Ở đây bạn kéo tay cầm, thấy ngay chuỗi CSS thật sẽ dán vào stylesheet, và dán ngược CSS cũ vào để sửa tiếp — cộng thêm bản Tailwind arbitrary value với mọi khoảng trắng đã đổi thành dấu gạch dưới, đúng cú pháp Tailwind yêu cầu.

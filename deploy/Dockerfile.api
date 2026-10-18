@@ -1,0 +1,73 @@
+# syntax=docker/dockerfile:1
+
+# ---- build ------------------------------------------------------------------
+FROM golang:1.26-alpine AS build
+
+# go.mod pins a minimum toolchain patch (security fixes). If this image is older,
+# auto fetches that toolchain instead of building with a vulnerable stdlib.
+ENV GOTOOLCHAIN=auto
+
+WORKDIR /src
+
+# Dependencies first: they change far less often than source, so this layer is
+# reused across almost every rebuild.
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+
+ARG VERSION=dev
+# CGO off produces a static binary that runs on the scratch-like runtime below.
+RUN CGO_ENABLED=0 GOOS=linux go build \
+      -ldflags="-s -w -X github.com/D0bby999/anytools/cmd/anytools/cli.Version=${VERSION}" \
+      -o /out/anytools ./cmd/anytools
+
+# ---- yt-dlp -----------------------------------------------------------------
+# Up-methods phase 21: a public video's audio track, fetched only to be
+# transcribed by an engine that hears audio (internal/connectors/youtube/
+# audio.go). Pinned to one release and checked against its published
+# SHA2-256SUMS, so a rebuild never picks up a different program. The musl
+# build is the standalone one that runs on Alpine without Python.
+FROM alpine:3.21 AS ytdlp
+ARG TARGETARCH
+ARG YTDLP_VERSION=2026.08.19
+RUN apk add --no-cache curl \
+ && case "$TARGETARCH" in \
+      arm64) asset=yt-dlp_musllinux_aarch64; sum=17b164c4d258be92bb1ad146cb7c336b783aedb380814aabbcb7d52937f77e57 ;; \
+      *)     asset=yt-dlp_musllinux;         sum=f3dec9cfeaf304cec98290fe41c6ad465d4b747d302473559643e7af24929722 ;; \
+    esac \
+ && curl -fsSL -o /yt-dlp "https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/${asset}" \
+ && echo "${sum}  /yt-dlp" | sha256sum -c - \
+ && chmod 0755 /yt-dlp
+
+# ---- runtime ----------------------------------------------------------------
+FROM alpine:3.21
+
+# ca-certificates: the API makes no outbound calls in phase 1, but phases 2+
+# reach provider APIs and would otherwise fail TLS with a confusing error.
+# ffmpeg (with ffprobe): audio normalised to 16 kHz mono Opus and cut into
+# windows for a speech engine (internal/media). deno: recent yt-dlp releases
+# need a JavaScript runtime to read YouTube's player, and deno is the one
+# they use by default.
+RUN apk add --no-cache ca-certificates tzdata ffmpeg deno \
+ && addgroup -g 10001 -S anytools \
+ && adduser  -u 10001 -S anytools -G anytools
+
+COPY --from=ytdlp /yt-dlp /usr/local/bin/yt-dlp
+
+WORKDIR /app
+
+COPY --from=build /out/anytools /app/anytools
+# Migrations ship with the image so `anytools migrate up` can run as a
+# one-shot container against the same schema version as the server.
+COPY migrations/ /app/migrations/
+
+# Non-root: a container process that does not need to write to its own
+# filesystem should not be able to.
+USER anytools:anytools
+
+# No EXPOSE and no published port. The API is reachable only from the `web`
+# service on the compose network — see docs/architecture.md.
+ENTRYPOINT ["/app/anytools"]
+CMD ["serve"]

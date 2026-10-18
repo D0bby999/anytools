@@ -1,0 +1,27 @@
+---
+title: Kiểm tra độ tương phản WCAG — Câu hỏi thường gặp
+---
+
+## Tool kiểm tra những ngưỡng nào?
+
+Bốn ngưỡng, lấy thẳng từ WCAG 2.x: **AA cho chữ thường** cần tỉ lệ từ 4,5:1 trở lên, **AA cho chữ lớn** cần 3:1, **AAA cho chữ thường** cần 7:1, và **AAA cho chữ lớn** cần 4,5:1. Bốn ngưỡng được báo riêng từng cái, nên bạn thấy chính xác cặp màu của mình đạt tới đâu chứ không chỉ nhận một chữ "pass" chung chung. Bốn con số này không thay đổi giữa WCAG 2.0, 2.1 và 2.2 — chúng là dữ kiện trong spec chứ không phải cách diễn giải của tool, nên kết quả ở đây khớp với mọi công cụ audit khác nếu cùng nhập một cặp màu đặc.
+
+## "Chữ lớn" được tính từ cỡ bao nhiêu?
+
+Từ 18pt trở lên, hoặc từ 14pt nếu là chữ đậm — quy ra CSS xấp xỉ 24px và 18,66px. Lý do chữ lớn được hạ ngưỡng rất đơn giản: glyph to thì nét dày hơn, vẫn đọc được ở mức tương phản thấp hơn. Nhưng đây cũng là chỗ bị lạm dụng nhiều nhất. Áp ngưỡng chữ lớn (3:1) cho body copy 16px là cách phổ biến nhất để một thiết kế "đạt chuẩn" trên bảng tính rồi thất bại ngoài đời thật. Quy tắc an toàn khi làm giao diện tiếng Việt: mọi đoạn văn bản, label form, caption đều phải qua ngưỡng 4,5:1, chỉ heading thật to mới được hưởng mức 3:1 — dấu thanh tiếng Việt là nét mảnh, càng dễ mất ở tương phản thấp.
+
+## Tỉ lệ tương phản được tính ra sao?
+
+Từ relative luminance chứ không phải từ việc hai màu "nhìn khác nhau nhiều hay ít". Mỗi kênh màu được tuyến tính hoá trước: giá trị 0–255 chia cho 255, nếu nhỏ hơn hoặc bằng 0,04045 thì chia tiếp cho 12,92, còn không thì đi qua đường cong gamma `((c + 0.055) / 1.055) ^ 2.4`. Ba kênh sau đó được cộng theo trọng số 0,2126 đỏ, 0,7152 xanh lá, 0,0722 xanh dương. Cuối cùng tỉ lệ là `(lighter + 0.05) / (darker + 0.05)`. Xanh lá nặng gấp gần mười lần xanh dương vì mắt người nhạy với ánh sáng xanh lá hơn hẳn — đó là lý do vàng nhạt trên nền trắng thì trượt, còn một màu xanh dương cùng mức "sáng" theo cảm giác lại có thể đạt.
+
+## Nút gợi ý màu đạt chuẩn hoạt động thế nào, và khi nào nó chịu thua?
+
+Khi cặp màu chưa đạt, tool chọn hướng đi có lợi hơn — về phía đen hoặc phía trắng, tuỳ hướng nào cho tỉ lệ cao hơn trên chính cái nền của bạn — rồi tìm nhị phân hệ số pha trong 24 vòng lặp để dừng lại ở điểm vừa đủ chạm ngưỡng. Cách này giữ được nhiều nhất phần hồn của màu gốc thay vì quăng thẳng cho bạn màu đen. Sau khi làm tròn về 8 bit, tỉ lệ có thể tụt xuống dưới ngưỡng một chút, nên tool kiểm lại lần nữa và nếu vẫn thiếu thì trả về hẳn màu đen hoặc trắng. Trường hợp nó chịu thua: khi ngay cả đen tuyệt đối lẫn trắng tuyệt đối trên nền đó cũng không đạt mục tiêu — lúc ấy vấn đề nằm ở màu nền, phải đổi nền chứ không đổi chữ.
+
+## Nhập được những định dạng màu nào, và có kiểm tra được chữ trên ảnh hay gradient không?
+
+Chỉ hex, ba hoặc sáu ký tự, có hay không có dấu `#` đều được. Tool không nhận `rgb()`, `hsl()`, `oklch()` hay hex tám ký tự kèm alpha — nhập sai định dạng thì ô đó báo không hợp lệ chứ không âm thầm đoán ra một màu khác. Alpha bị loại có lý do: màu bán trong suốt chưa có tỉ lệ tương phản cố định cho tới khi biết cái gì nằm phía sau. Cũng vì vậy tool chỉ so hai màu đặc, không xử lý chữ đặt trên ảnh hay trên gradient — ở đó mỗi pixel là một tỉ lệ khác nhau. Với thiết kế kiểu đó, cách thực dụng là chèn một lớp scrim hoặc một khối màu đặc phía sau chữ, rồi đem đúng màu đặc ấy vào đây kiểm tra.
+
+## Đạt ngưỡng rồi thì đã accessible chưa, và dữ liệu có rời máy không?
+
+Không có gì rời khỏi trình duyệt — toàn bộ phép tính chạy trong trang, không cần tài khoản, không có request nào mang màu của bạn đi. Nhưng đạt ngưỡng không đồng nghĩa với accessible: tương phản chỉ là một tiêu chí trong rất nhiều tiêu chí. Focus indicator, kích thước vùng chạm, chuyển động, điều hướng bằng bàn phím, text alternative cho ảnh — tất cả nằm ngoài con số này. Một trang có thể đạt AAA ở mọi cặp màu mà vẫn không dùng nổi bằng bàn phím. Ưu điểm khi kiểm tra độ tương phản màu ở đây so với plugin trong Figma là bạn kiểm được đúng giá trị đang nằm trong code — hex trong file token, không phải hex trong bản mockup đã lệch khỏi production từ ba sprint trước.

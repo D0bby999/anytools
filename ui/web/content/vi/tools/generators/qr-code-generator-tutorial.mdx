@@ -1,0 +1,112 @@
+---
+title: Hướng dẫn toàn diện về tạo mã QR
+description: Cách mã QR hoạt động, các mức sửa lỗi, định dạng payload cho vCard/Wi-Fi/email, và khi nào chọn PNG hay SVG.
+updated: 2026-05-27
+---
+
+## Lịch sử mã QR
+
+Mã QR được phát minh năm 1994 bởi Masahiro Hara tại Denso Wave — một công ty con của Toyota — với mục đích ban đầu là theo dõi linh kiện ô tô trên dây chuyền lắp ráp. "QR" là viết tắt của Quick Response (Phản hồi nhanh), mục tiêu thiết kế là giải mã trong chưa đầy một phần mười giây.
+
+Denso Wave công bố định dạng này miễn phí bản quyền năm 1999. Chuẩn quốc tế ISO/IEC 18004 quy định đặc tả kỹ thuật đầy đủ. Ngày nay, smartphone có thể quét mã QR trực tiếp qua ứng dụng camera mà không cần ứng dụng quét riêng.
+
+## Cấu trúc mã QR
+
+Mã QR là ma trận hai chiều gồm các ô vuông đen trắng (module). Ba hình vuông lớn ở góc là **finder pattern** — giúp máy quét nhận diện vị trí và hướng bất kể góc xoay hay phối cảnh. **Timing pattern** (hàng module đen trắng xen kẽ) xác định lưới tọa độ. **Format strip** mã hóa mức sửa lỗi và mask pattern đang sử dụng.
+
+Dữ liệu thực được mã hóa theo một trong bốn chế độ:
+- **Numeric** — chỉ chữ số, compact nhất.
+- **Alphanumeric** — chữ hoa, chữ số và một số ký tự đặc biệt.
+- **Byte** — byte thô; tool mặc định dùng UTF-8 để hỗ trợ Unicode đầy đủ.
+- **Kanji** — mã hóa compact cho ký tự hai byte tiếng Nhật.
+
+Với URL và text thông thường, Byte mode với UTF-8 là lựa chọn an toàn nhất.
+
+## Các mức sửa lỗi (Error Correction Level)
+
+Reed-Solomon error correction là một trong những tính năng thông minh nhất của mã QR. Bạn chọn đánh đổi giữa dung lượng và khả năng phục hồi:
+
+| Mức | Khả năng phục hồi | Trường hợp dùng |
+|-----|------------------|-----------------|
+| L (Low) | ~7% module bị hỏng | Màn hình kỹ thuật số, in ấn hoàn hảo |
+| M (Medium) | ~15% | Đa năng, vé, poster |
+| Q (Quartile) | ~25% | Nhãn công nghiệp, bề mặt dễ mài mòn |
+| H (High) | ~30% | Chèn logo, bề mặt bẩn, che một phần |
+
+Mức sửa lỗi cao hơn đồng nghĩa nhiều dữ liệu dư thừa hơn, dẫn đến kích thước vật lý lớn hơn với cùng payload. Nếu bạn chèn logo vào trung tâm mã QR — kỹ thuật branding phổ biến — hãy dùng **H** để logo che các module dữ liệu mà máy đọc vẫn có thể phục hồi được.
+
+## Định dạng payload chuẩn
+
+**URL** — chỉ cần URL đầy đủ có protocol:
+```
+https://example.com/promo?ref=qr
+```
+
+**Wi-Fi network** — Android và iOS nhận diện tự động:
+```
+WIFI:T:WPA;S:TenMang;P:MatKhau;;
+```
+`T` là loại bảo mật (`WPA`, `WEP`, hoặc `nopass`), `S` là SSID, `P` là mật khẩu. Kết thúc bằng hai dấu chấm phẩy. Escape các ký tự `;`, `,`, `"`, `\` bằng backslash nếu chúng xuất hiện trong SSID hoặc mật khẩu.
+
+**vCard 3.0** — thẻ liên lạc tương thích iOS và Android:
+```
+BEGIN:VCARD
+VERSION:3.0
+FN:Nguyen Van A
+ORG:Cong Ty ABC
+TEL;TYPE=CELL:+84-900-000-000
+EMAIL:a@congty.vn
+END:VCARD
+```
+
+**Email:**
+```
+mailto:support@example.com?subject=Xin%20chao&body=Noi%20dung
+```
+
+## Ràng buộc kích thước, độ tương phản và quiet zone
+
+**Kích thước tối thiểu.** Mã QR in nhỏ hơn ~2 cm × 2 cm bắt đầu fail trên camera smartphone tầm trung.
+
+**Độ tương phản.** Tiêu chuẩn yêu cầu tỷ lệ độ sáng tối thiểu 4:1 giữa module tối và sáng — đen trên trắng là lý tưởng. Mã QR màu với foreground pastel trên nền sáng thường fail. Nếu dùng màu tùy chỉnh, test trên nhiều dòng điện thoại khác nhau.
+
+**Quiet zone.** Mỗi mã QR cần viền trắng ít nhất 4 module ở tất cả các cạnh. Cắt bỏ viền này và máy quét không thể tìm thấy finder pattern. Tool tự động thêm margin này trong cả PNG và SVG.
+
+## PNG hay SVG?
+
+**PNG** là định dạng raster — lưới pixel cố định ở một độ phân giải nhất định.
+- Tốt cho: email, ứng dụng nhắn tin, thẻ `<img>` trên web với kích thước hiển thị cố định.
+- Giới hạn: phóng to sẽ bị mờ. Export ở 2× hoặc 3× kích thước hiển thị dự kiến để sắc nét trên màn hình retina.
+
+**SVG** là định dạng vector — mô tả bằng đường toán học, render sắc nét ở mọi kích thước.
+- Tốt cho: in ấn (name card, biển hiệu, quà tặng in ấn), nhúng vào CSS, logo.
+- Giới hạn: một số email client cũ không render inline SVG; dùng PNG cho email.
+
+Khi kiểm soát được toàn bộ use case, SVG là lựa chọn chuyên nghiệp. Khi chia sẻ cho người nhận không rõ, PNG an toàn hơn.
+
+## Sử dụng thư viện `qrcode`
+
+Tool này được xây dựng trên package [`qrcode`](https://www.npmjs.com/package/qrcode). Nếu bạn cần generate mã QR theo lập trình:
+
+```javascript
+import QRCode from 'qrcode';
+
+// Generate SVG string
+const svg = await QRCode.toString('https://example.com', {
+  type: 'svg',
+  errorCorrectionLevel: 'H',
+  color: { dark: '#1a1a1a', light: '#ffffff' },
+  margin: 4,
+});
+
+// Generate PNG data URL
+const dataUrl = await QRCode.toDataURL('https://example.com', {
+  type: 'image/png',
+  width: 400,
+  errorCorrectionLevel: 'M',
+});
+```
+
+## Quyền riêng tư
+
+Toàn bộ quá trình tạo QR chạy cục bộ trên trình duyệt. URL, mật khẩu Wi-Fi và dữ liệu liên lạc của bạn không bao giờ được gửi lên server.

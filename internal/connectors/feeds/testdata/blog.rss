@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A text-only RSS feed: a blog, not a podcast. -->
+<rss version="2.0">
+  <channel>
+    <title>A blog</title>
+    <link>https://blog.example.com/</link>
+    <item><title>A post</title><link>https://blog.example.com/a-post</link></item>
+  </channel>
+</rss>

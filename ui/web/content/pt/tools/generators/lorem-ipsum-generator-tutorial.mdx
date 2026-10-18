@@ -1,0 +1,95 @@
+---
+title: Guia completo para geração de Lorem Ipsum
+description: A origem do Lorem Ipsum, por que texto de preenchimento importa no design, variantes modernas e quando não usá-lo.
+updated: 2026-05-27
+---
+
+## A origem do Lorem Ipsum
+
+O texto "Lorem ipsum dolor sit amet..." não é um texto aleatório — é latim alterado. A fonte é *De finibus bonorum et malorum* ("Sobre os fins do bem e do mal"), um tratado filosófico escrito por Cícero em 45 a.C. O trecho original da seção 1.10.32 diz, em parte:
+
+> "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
+
+No século XVI, um tipógrafo desconhecido pegou essa passagem, embaralhou as palavras e a usou para demonstrar um tipo de letra. O texto sobreviveu como padrão da indústria porque parece linguagem natural à distância — tem uma mistura realista de palavras curtas e longas — sem ser legível em nenhum idioma real, portanto não distrai revisores.
+
+Richard McClintock, estudioso do latim no Hampden-Sydney College, identificou a fonte na década de 1990.
+
+## Por que texto de preenchimento importa no design
+
+O propósito do texto de preenchimento é permitir que designers e stakeholders avaliem **layout, tipografia e hierarquia** sem a distração do conteúdo real. Texto real ativa a leitura. Um revisor que consegue ler o texto começará a avaliar o conteúdo em vez do design visual — e essa conversa pertence a uma etapa posterior do processo.
+
+Bom texto de preenchimento:
+- Tem variação natural no comprimento das palavras (mistura de palavras curtas e longas, adequada ao idioma alvo).
+- Preenche o espaço como o copy real fará — quebras de linha, ritmo do parágrafo, hifenização.
+- É visualmente neutro — sem frases reconhecíveis, sem humor, sem nada que desvie o foco.
+
+Por isso "Conteúdo Aqui" repetido em caixas é pior do que Lorem Ipsum: produz quebras de linha artificiais que não refletem como o texto real vai fluir.
+
+## Modos de saída
+
+**Palavras** — útil para testar larguras de campos e containers de labels.
+
+**Frases** — útil para inputs de um parágrafo, meta descrições, corpos de cards.
+
+**Parágrafos** — útil para layouts de artigos, templates de e-mail, páginas com múltiplas seções.
+
+**HTML** — envolve a saída em tags `<p>` para colar diretamente em templates HTML. Evita o passo extra de envolver manualmente.
+
+## Variantes e quando usá-las
+
+**Lorem Ipsum clássico** é o padrão universal. Use quando seu público é familiarizado com design e entende imediatamente que é texto de preenchimento.
+
+**Português (Brasil)** — gerar preenchimento em português é importante quando seu produto tem o português como idioma principal. O português brasileiro é sistematicamente mais longo que o inglês para o mesmo conceito: substantivos, artigos e terminações verbais fazem que o comprimento médio das frases seja 15-25% maior. Projetar com preenchimento em inglês para uma UI em português é uma forma confiável de encontrar surpresas de layout na QA.
+
+**Espanhol** — problema semelhante com o mesmo perfil de comprimento.
+
+**Hipster Ipsum** — usa gíria contemporânea em inglês ("artisan," "craft beer," "normcore"). Útil em apresentações de wireframes para stakeholders que podem perguntar "mas o que essa página vai dizer mesmo?" — o conteúdo reconhecível mas absurdo sinaliza claramente que o copy está pendente.
+
+## Correspondência de comprimento: a melhor prática mais importante
+
+O maior erro prático com texto de preenchimento é gerá-lo no idioma errado para o locale alvo:
+
+| Conceito | Inglês | Português |
+|----------|--------|-----------|
+| "Settings" | 8 chars | "Configurações" — 14 chars |
+| Label de nav típico | ~6–10 chars | ~10–18 chars |
+| Meta descrição 160 chars | ~28–32 palavras | ~22–27 palavras |
+
+Se você está projetando um produto multi-locale, gere preenchimento em cada idioma alvo e verifique que seus layouts se mantêm. Faça isso na etapa de wireframe, não após a UI ter sido entregue.
+
+## Quando NÃO usar Lorem Ipsum
+
+**Testes A/B para conversão.** Texto de preenchimento em uma variante de teste produzirá dados de clique sem sentido. Copy real — mesmo que aproximado — é necessário para testes de conversão.
+
+**Revisões de acessibilidade.** Auditorias de leitores de tela e testes de navegação por teclado devem usar conteúdo que se pareça com o copy de produção.
+
+**Revisões de estratégia de conteúdo.** Quando um stakeholder avalia arquitetura de informação, preenchimento não lhe dá nada para reagir.
+
+**Deploys de produção.** Lorem Ipsum chegou acidentalmente à produção em sites publicados, apps mobile e materiais impressos mais vezes do que qualquer um quer admitir.
+
+**SEO.** Lorem Ipsum em uma página rastreada sinaliza aos mecanismos de busca que a página não tem conteúdo significativo.
+
+## Usando a biblioteca `lorem-ipsum`
+
+```javascript
+import { LoremIpsum } from 'lorem-ipsum';
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: { max: 8, min: 4 },
+  wordsPerSentence: { max: 16, min: 4 },
+});
+
+console.log(lorem.generateWords(5));
+console.log(lorem.generateSentences(3));
+console.log(lorem.generateParagraphs(2));
+```
+
+Para um pool de palavras personalizado (preenchimento específico do domínio):
+
+```javascript
+const lorem = new LoremIpsum({}, 'word', '\n', minhasTermos, minhasTermos);
+```
+
+## Privacidade
+
+Toda a geração é executada no lado do cliente. Nenhum dado é transmitido ao servidor.

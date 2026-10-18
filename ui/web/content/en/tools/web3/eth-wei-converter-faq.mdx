@@ -1,0 +1,35 @@
+---
+title: ETH / Wei Converter — Frequently asked questions
+---
+
+## What is wei and why does Ethereum use it?
+
+Wei is the smallest indivisible unit of ether — 1 ETH equals 10¹⁸ wei. The EVM has no floating-point arithmetic, so all on-chain value transfers are integer wei amounts. Using the smallest unit for internal math eliminates rounding errors in financial logic. The name honors Wei Dai, the cryptographer who described b-money, a conceptual predecessor to Bitcoin.
+
+## Why can't I just use JavaScript `Number` for wei values?
+
+JavaScript `Number` is a 64-bit IEEE 754 double, which can represent integers exactly only up to 2⁵³ − 1 (about 9 × 10¹⁵). One ETH in wei is 10¹⁸ — larger than that limit. Arithmetic on wei using plain `Number` silently loses precision for any amount above ~9 ETH. Always use `BigInt` or a library like `ethers.js` that wraps BigInt internally.
+
+## What is gwei and when do I use it?
+
+Gwei (gigawei) equals 10⁹ wei. It is the standard unit for gas prices because it is a human-readable scale — current Ethereum gas prices range from single digits to low hundreds of gwei. When your wallet shows "gas price: 15 gwei", that is 15,000,000,000 wei per unit of gas consumed.
+
+## How do I calculate the total fee for a transaction?
+
+Multiply gas used by the effective gas price: `fee (wei) = gasUsed × effectiveGasPrice`. Both values appear in the transaction receipt. Convert the result from wei to ETH using this tool to get the human-readable cost. For a standard ETH transfer (21,000 gas) at 20 gwei, the fee is 0.00042 ETH.
+
+## What changed with EIP-1559?
+
+EIP-1559 (London fork, August 2021) replaced the single gas price auction with a base fee plus priority fee model. The base fee is burned and algorithmically adjusted per block; the priority fee (tip) goes to the validator. You set a max fee per gas as a ceiling. The actual fee paid is `min(maxFee, baseFee + priorityFee)`. This made fee estimation more predictable and reduced overpayment.
+
+## Does this converter work for ERC-20 tokens?
+
+Partially. ERC-20 tokens use the same wei/unit pattern but with token-specific decimal counts — USDC has 6 decimals, most tokens have 18, some wrapped assets have 8. The converter's "custom decimals" mode accepts any decimal count so you can convert any ERC-20 amount. The unit names (wei, gwei, ether) on the ETH side are just labels for powers of 10 — the same math applies.
+
+## How should I store wei amounts in a database?
+
+Do not use `INTEGER` or `BIGINT` SQL columns — PostgreSQL BIGINT maxes at ~9.2 × 10¹⁸, which fits only ~9 ETH before overflow. Use `NUMERIC` (arbitrary precision) or store amounts as a `TEXT` decimal string. When reading back, parse with `BigInt()` or `ethers.parseUnits` before doing arithmetic.
+
+## Why does my smart contract receive the wrong amount?
+
+Almost always a unit mismatch. If your frontend sends `parseUnits("1", "gwei")` (= 10⁹ wei) but the contract expects the amount in wei thinking it is 1 ETH, you have sent 10⁻⁹ ETH instead of 1 ETH. Systematically decide at every layer whether you are working in wei or ether, add unit suffixes to variable names (`amountWei`, `priceGwei`), and validate with this converter before deploying.

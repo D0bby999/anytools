@@ -1,0 +1,37 @@
+---
+title: Dividir PDF — Preguntas frecuentes
+---
+
+## ¿Cómo escribo un rango de páginas?
+
+Usa números de página como tu lector de PDF los muestra, separados por comas, con guiones para series: `1-3, 7, 9-12`. Los espacios se ignoran, los duplicados se colapsan, y un rango invertido como `5-2` se lee como `2-5` en lugar de rechazarse. Las páginas comienzan en 1, no en 0.
+
+Cada *serie de páginas consecutivas* se convierte en su propio archivo. `1-3, 7, 9-12` te da tres documentos — uno de tres páginas, una página única, y uno de cuatro páginas — no un documento de ocho páginas. Si quieres esas ocho páginas juntas en su lugar, extráelas y luego usa Combinar PDF.
+
+## ¿Por qué obtuve un .zip en lugar de PDFs?
+
+Porque hay más de un archivo de salida. Los navegadores bloquean a una página de disparar varias descargas seguidas — las segunda y posteriores se suprimen silenciosamente, que se ve como la herramienta perdiendo tus archivos. Agruparlos en un archivo es la única forma confiable de entregarte múltiples documentos. Cuando la división produce un solo archivo obtienes ese archivo directamente, sin archivo.
+
+Cada parte también se lista individualmente con su propio enlace de descarga, así que puedes tomar solo uno sin desempacar el archivo.
+
+## ¿Se sube el archivo a un servidor?
+
+No. El PDF se analiza por JavaScript en esta pestaña usando `pdf-lib`, los nuevos documentos se construyen en memoria, y los enlaces de descarga apuntan a URLs blob que tu navegador creó. Nada se transmite. Puedes verificarlo en la pestaña Red de tu navegador, o simplemente desconectarte después de que la página carga — la herramienta aún funciona.
+
+El archivo zip también se construye localmente, por `jszip`, y solo se carga en absoluto cuando una división produce más de un archivo.
+
+## ¿Cuál es el PDF más grande que puedo dividir?
+
+No hay límite configurado, porque no hay carga que limitar. Lo que te restringe es la memoria: el documento fuente y las copias siendo construidas ambos viven en la pestaña, así que el uso máximo es aproximadamente dos veces el tamaño del archivo más sobrecarga. Un escaneo de 100 MB es realista en una computadora de escritorio y riesgoso en un teléfono. Por encima de 100 MB obtienes una advertencia, pero la operación aún se ejecuta — la advertencia es sobre tu hardware, no una regla.
+
+Dividir en un archivo por página es el modo más pesado, porque construye tantos documentos como hay páginas antes de que el archivo se ensambla.
+
+## ¿La división reduce la calidad o cambia las páginas?
+
+No. Las páginas se copian completamente, no se rerenderan. El texto se mantiene seleccionable, las imágenes mantienen su resolución y compresión originales, y nada se rasteriza. Las páginas extraídas son byte-a-byte el mismo contenido, en un nuevo contenedor.
+
+Lo que no siempre sobrevive es la estructura de nivel de documento: los marcadores que apuntaban a páginas que no están en la extracción no tienen a dónde ir, y una firma digital que cubre el documento original no validará contra un fragmento de él. Los campos de formulario en las páginas extraídas normalmente se mantienen.
+
+## ¿Puedo dividir un PDF protegido con contraseña?
+
+No. Si el documento está encriptado la herramienta se detiene y lo dice en lugar de trabajar alrededor de la protección. Elimina la contraseña en cualquier aplicación que creó o abrió el archivo, luego divide la copia desbloqueada.

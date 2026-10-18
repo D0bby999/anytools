@@ -1,0 +1,35 @@
+---
+title: Sales tax calculator — Frequently asked questions
+---
+
+## What are the two modes for?
+
+Adding and removing. **Add** takes a pre-tax amount and gives you the tax and the total. **Remove** takes a tax-inclusive total and works backwards to the pre-tax amount — useful when a receipt shows only the final figure, or when you need the net amount for expenses or bookkeeping.
+
+## How does the reverse calculation work?
+
+By dividing, not by subtracting a percentage. Pre-tax is `total ÷ (1 + rate/100)`, and the tax is what remains. Subtracting 10% from a 10%-inclusive total gives the wrong answer, because the 10% was charged on the smaller pre-tax figure, not on the total.
+
+## Can you show why subtracting the percentage fails?
+
+At a 10% rate, 100 becomes 110. Going back, `110 ÷ 1.10 = 100` — correct. But `110 − 10% of 110 = 99` — a unit short. The larger the rate, the larger the error, which is why the reverse mode exists rather than leaving you to do it by hand.
+
+## Which tax rate should I enter?
+
+Whichever applies to your transaction — the tool has no built-in rate table and does not guess. In the US, sales tax is set by state and often by county and city on top, and what is taxable varies by category. Elsewhere it may be a single national VAT or GST. Look up the rate that actually applies rather than assuming a familiar one.
+
+## Does it handle VAT and GST?
+
+Yes, the arithmetic is identical: both are percentage taxes on a net amount. The distinction that matters is presentation — VAT and GST prices are usually shown tax-inclusive, so the remove mode is the one you will normally want, while US sales tax is typically added at the register, making add mode the default there.
+
+## Why is my figure a cent off the receipt?
+
+Rounding rules. Many jurisdictions require tax to be calculated and rounded per line item rather than once on the basket total, and rounding direction varies. Small discrepancies against a real receipt are expected; sizeable ones usually mean a different rate or a partially exempt item.
+
+## Does it handle items taxed at different rates?
+
+No — it applies one rate to one amount. For a mixed basket, split it by rate and run each group separately.
+
+## Is anything I enter transmitted?
+
+No. The calculation runs in your browser.

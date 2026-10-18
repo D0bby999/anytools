@@ -1,0 +1,393 @@
+{
+  "cannotProve": {
+    "label": "Cannot prove",
+    "fallback": "A number on its own cannot show why it moved."
+  },
+  "phase": {
+    "calibrate": "Calibrate",
+    "stack": "Stack",
+    "deliver": "Deliver"
+  },
+  "gate": {
+    "timeline": "Cycle phases",
+    "req": {
+      "baseline": "Baseline evidence",
+      "weeklyReviews": "Weekly reviews written back",
+      "delayed": "Delayed-check evidence",
+      "transfer": "Transfer evidence"
+    },
+    "missing": "Still needed",
+    "final": "This cycle is in its last phase. Write the 90-day review below, then start a new cycle from the goal's page.",
+    "advance": "Move to {{to}}",
+    "tryAdvance": "Check the gate"
+  },
+  "timepoint": {
+    "none": "No timepoint",
+    "baseline": "Baseline",
+    "immediate": "Right after",
+    "delayed": "Days later",
+    "transfer": "Somewhere new"
+  },
+  "kind": {
+    "question_attempt": "Quiz answer",
+    "kp_state": "Knowledge point",
+    "note": "Note",
+    "research_report": "Research report",
+    "chat_message": "Chat message",
+    "explain_back": "Explain-back",
+    "card_entry": "Skill card entry"
+  },
+  "status": {
+    "suggested": "Suggested",
+    "accepted": "Accepted",
+    "dismissed": "Dismissed"
+  },
+  "evidence": {
+    "gone": "The record this pointed at no longer exists",
+    "byJob": "found for you",
+    "timepoint": "Timepoint",
+    "accept": "Accept",
+    "dismiss": "Dismiss",
+    "add": "Add as evidence"
+  },
+  "home": {
+    "title": "Learning loop",
+    "lead": "One goal at a time, in cycles of ninety days. Each phase opens only on evidence — answers, notes and reviews the product already recorded — and every number here says what it cannot show.",
+    "current": "Current goal",
+    "cycle": "Cycle",
+    "week": "Week {{week}} of this cycle",
+    "thisWeek": "This week",
+    "due": "Due for review",
+    "nothingDue": "Nothing from your mastery paths is waiting right now.",
+    "goals": "All goals"
+  },
+  "start": {
+    "first": "Start a goal",
+    "another": "Start another goal",
+    "goal": "Goal",
+    "scenario": "Where you will use it",
+    "scenarioHint": "A real situation, not a topic: the meeting, the exam, the conversation.",
+    "outcome": "What you can do in twelve weeks",
+    "outcomeHint": "Something someone else could watch you do.",
+    "task": "First small task",
+    "taskHint": "Small enough to do this week, even on a bad week.",
+    "submit": "Start"
+  },
+  "week": {
+    "none": "Week {{week}} has no review yet.",
+    "open": "Open this week's review",
+    "scored": "Week {{week}} checks scored",
+    "writtenBack": "written back",
+    "continue": "Open the review",
+    "cannotProve": "A scored week shows you looked back at it. It cannot show that next week will go better."
+  },
+  "state": {
+    "scenario": "Real scenario",
+    "outcome": "Twelve-week outcome",
+    "nextTask": "Next task",
+    "minimum": "Minimum version",
+    "empty": "Not written yet",
+    "minimumHint": "The smallest version that still counts. \"I got interrupted\" switches to it.",
+    "aiMay": "AI may",
+    "humanConfirm": "A human must confirm",
+    "perLine": "One per line.",
+    "boundariesHint": "One per line. A resumed chat is told these; AnyTools cannot enforce them.",
+    "handover": "Handover note",
+    "handoverHint": "What a fresh conversation should start from. A resumed chat's update can replace it once it passes the check below.",
+    "save": "Save",
+    "edit": "Everything else about this goal",
+    "hypotheses": "Hypotheses",
+    "noHypotheses": "Nothing yet. Writing back a weekly review adds its mistakes and its one change here.",
+    "openCycle": "Open the cycle",
+    "newCycle": "Start a new cycle"
+  },
+  "interrupt": {
+    "title": "Interrupted",
+    "lead": "If this week fell apart, shrink the plan instead of dropping it: the next task becomes its minimum version, and the interruption is logged on the cycle.",
+    "minimum": "Smallest version of your next task",
+    "note": "What happened (optional)",
+    "submit": "I got interrupted"
+  },
+  "resume": {
+    "title": "Resume with AI",
+    "lead": "Opens a new chat that is shown this goal and nothing else. It restates it, runs one short exercise, and ends with an update you can bring back here.",
+    "open": "Open a resume chat",
+    "paste": "Paste the chat's update block",
+    "takeNextTask": "Also take its suggested next task",
+    "check": "Check it",
+    "accept": "Check and accept",
+    "accepted": "Accepted. The handover note is updated.",
+    "valid": "This update passes the check and can be accepted.",
+    "invalid": "This update cannot be accepted:"
+  },
+  "chain": {
+    "title": "Evidence chains",
+    "question": "A question to follow over time",
+    "new": "Start a chain"
+  },
+  "brief": {
+    "title": "AI task briefs",
+    "task": "A task you will hand to AI",
+    "new": "Write a brief",
+    "outputEval": "How the output will be judged",
+    "aiScope": "What the AI may do",
+    "humanGates": "Where a human signs off",
+    "cost": "Cost, and how easy it is to undo",
+    "rollback": "If it goes wrong, how to roll back",
+    "handover": "How the work comes back to you",
+    "dataNote": "Data boundary (note to self)",
+    "dataNoteHint": "The data boundary is a reminder for you. AnyTools cannot control what a model provider does with what you send it.",
+    "preStart": "Before you start",
+    "notReady": "Some of the before-you-start checks are not ticked yet.",
+    "check": {
+      "output_eval_written": "I know how I will judge the output",
+      "human_gates_named": "I have named where I must sign off",
+      "rollback_known": "I know how to undo it",
+      "baseline_recorded": "I did or measured it once without AI first"
+    }
+  },
+  "cycle": {
+    "lead": "Started {{date}}. This is week {{week}}.",
+    "backToGoal": "Back to the goal",
+    "gate": "Phases and gate",
+    "reviews": "Weekly reviews",
+    "noReviews": "No reviews yet.",
+    "reviewRow": "Week {{week}}: completion, quality, retention, transfer",
+    "questions": "Weekly questions",
+    "questionFor": "Question for week {{week}}",
+    "capacityFor": "Capacity for week {{week}}",
+    "full": "Full week",
+    "reduced": "Reduced",
+    "minimum": "Minimum",
+    "saveQuestions": "Save the questions",
+    "interruptions": "Interruptions",
+    "noNote": "no note",
+    "was": "(the task was: {{task}})",
+    "day90": "90-day review"
+  },
+  "review": {
+    "title": "Week {{week}} review",
+    "backToCycle": "Back to the cycle",
+    "evidence": "Evidence",
+    "noEvidence": "Nothing attached yet. Accept a suggestion below, or add one.",
+    "suggested": "From this week",
+    "suggestedLead": "Things you did in this week of the cycle. Nothing counts until you add it; a nightly pass also proposes these for you to accept or dismiss.",
+    "noSuggestions": "Nothing recorded this week yet — answer a quiz question or write a note, and it will show up here.",
+    "scores": "Scores",
+    "total": "Total across the four checks",
+    "completion": "Completion",
+    "completionHint": "Did the planned work happen?",
+    "quality": "Quality",
+    "qualityHint": "Was it done well enough to count, by your own bar?",
+    "retention": "Retention",
+    "retentionHint": "Could you still do last week's material without help?",
+    "transfer": "Transfer",
+    "transferHint": "Did you use it anywhere other than where you learned it?",
+    "level0": "not yet",
+    "level1": "partly",
+    "level2": "clearly",
+    "mistakes": "Mistakes this week",
+    "mistakesHint": "Each one you fill in becomes a hypothesis on the goal when you write the review back.",
+    "errEvidence": "What showed it",
+    "errCause": "Suspected cause",
+    "errNextTest": "Test that would check it",
+    "errStop": "When to drop the idea",
+    "errConfidence": "How sure",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "energy": "Energy this week",
+    "change": "One thing to change next week",
+    "changeHint": "One. Changing several at once makes next week impossible to read.",
+    "save": "Save the review",
+    "writeback": "Write back",
+    "done": "Written back. Its mistakes and its change are now hypotheses on the goal, and the review is frozen.",
+    "ready": "Complete. Writing it back adds its mistakes and its change to the goal's hypotheses.",
+    "writebackSubmit": "Write back to the goal"
+  },
+  "chainPage": {
+    "emptyColumn": "Nothing here yet.",
+    "filled": "Timepoints with accepted evidence",
+    "timeline": "Four timepoints",
+    "add": "Add from this week",
+    "split": "Keep these apart",
+    "fact": "What you saw",
+    "interpretation": "What you take it to mean",
+    "hypothesis": "What you only suspect"
+  },
+  "log": {
+    "title": "AI learning logs",
+    "lead": "Measure the same task three times: without AI, with AI, and alone again a few days later. Only the third run can show what you kept.",
+    "new": "Start a log",
+    "save": "Save the log",
+    "measure": "How it is measured",
+    "measureHint": "How you measure this",
+    "noAI": "No AI",
+    "withAI": "With AI",
+    "later": "Alone, later",
+    "decision": "What changes next cycle",
+    "metric": {
+      "completion": "Completion",
+      "quality": "Quality",
+      "independent_perf": "Independent performance",
+      "rework": "Rework (lower is better)",
+      "cost": "Cost (lower is better)",
+      "transfer": "Transfer"
+    },
+    "reading": {
+      "incomplete": "Not enough runs",
+      "retained": "Kept after AI",
+      "only_with_ai": "Only with AI",
+      "no_gain": "No gain"
+    }
+  },
+  "cards": {
+    "title": "Evidence cards",
+    "lead": "A card follows one skill in one real situation: an attempt made without help, practice, a retest after a delay, and the same skill somewhere new.",
+    "none": "No evidence cards on this goal yet.",
+    "new": "New evidence card",
+    "chooseKind": "What are you practising?",
+    "cardTitle": "A short name for this card",
+    "create": "Start the card",
+    "retestAfter": "Retest after {{count}} day",
+    "retestAfter_other": "Retest after {{count}} days",
+    "backToGoal": "Back to the goal",
+    "setup": "Setup",
+    "status": {
+      "open": "Open",
+      "retest_due": "Retest pending",
+      "closed": "Closed"
+    },
+    "dueOn": "Retest due {{date}}",
+    "step": {
+      "baseline": "First attempt, unaided",
+      "immediate": "Practice",
+      "delayed": "Retest",
+      "transfer": "Somewhere new",
+      "reflection": "Reflection"
+    },
+    "empty": "Nothing written here yet.",
+    "hidden": "Your first attempt is hidden until the retest is saved, so it cannot cue your answer.",
+    "retestOpensOn": "The retest opens on {{date}}. Until then, practise; the first attempt stays hidden.",
+    "retestOpen": "The retest is open. Answer from memory, then say how much help you had.",
+    "transferWaits": "Record a transfer once the retest is saved.",
+    "write": "Write here",
+    "writeHint": "Up to 20,000 characters. It is kept exactly as you save it and cannot be edited later.",
+    "baselineWarning": "Save only what you did without help. If you already looked something up, save it as practice instead.",
+    "save": "Save entry",
+    "promptLevel": "How much help did you have?",
+    "level": {
+      "unaided": "None",
+      "light_cue": "A small cue",
+      "heavy_cue": "A lot of help"
+    },
+    "links": "Link to your work (optional)",
+    "linkRecent": "Recent notes and quiz answers",
+    "linkDocument": "A document page: paste its address",
+    "linkDocumentHint": "For example /documents/…?page=3, copied from the reader.",
+    "linkMissing": "This link points at something that no longer exists.",
+    "linkKind": {
+      "note": "Note",
+      "document": "Document",
+      "quiz_attempt": "Quiz answer"
+    },
+    "pageN": "page {{page}}",
+    "cueNote": "Help: {{level}}",
+    "reflect": {
+      "intro": "Close the card when you are done with it. No more entries can be added afterwards.",
+      "held": "What held",
+      "missed": "What did not",
+      "next": "The next action",
+      "close": "Close the card"
+    },
+    "retests": {
+      "title": "Retests due",
+      "none": "No retests are due today.",
+      "open": "Open the card"
+    },
+    "cannotProve": "A retest on one card shows the skill lasted once, in one situation. It cannot show it will hold under pressure or in a different kind of task."
+  },
+  "contract": {
+    "title": "Minimum contract for bad days",
+    "lead": "Answer these on an ordinary day, so a bad one has nothing left to decide. Shrinking a task is not dodging it: when health, money, safety or the people close to you are at real risk, pausing and asking for help can be the most responsible move for the long run.",
+    "downshift": "When do I shrink the task instead of pushing through?",
+    "downshiftHint": "The signs that pushing would cost more than it gives, such as too little sleep, a deadline at work, or a third failed try.",
+    "keep": "After shrinking it, what small action is still worth keeping?",
+    "keepHint": "The minimum version above is the task itself. Say why it is worth keeping, or what else is.",
+    "help": "When do I ask for help, or hand this to someone qualified?",
+    "helpHint": "Who you would turn to, and what would make you do it.",
+    "shared": "Your first two answers are included when you resume this goal in a chat with your own AI model. The third is never sent to any model; only you see it here."
+  },
+  "interruption": {
+    "lead": "If this week fell apart, shrink the plan instead of dropping it. Write down what happened, then what is left: the next task becomes the reduced one, and the record is kept on the cycle.",
+    "fact": "What happened, as facts",
+    "factHint": "What changed, not a verdict on yourself.",
+    "resistance": "Main resistance",
+    "resistanceNone": "Not sure",
+    "reducedTo": "Task reduced to",
+    "reducedToHint": "This becomes your next task, and its minimum version.",
+    "within24h": "Smallest output you can still make within 24 hours",
+    "notRepaying": "Work I will not make up",
+    "notRepayingHint": "Missed work you are deliberately letting go of, so it does not pile up.",
+    "reviewOn": "Review date",
+    "submit": "Record the interruption",
+    "earlier": "Recorded before the six lines existed.",
+    "resistanceLabel": {
+      "time": "Time",
+      "difficulty": "Difficulty",
+      "energy": "Energy",
+      "environment": "Environment",
+      "responsibility": "Responsibility"
+    },
+    "line": {
+      "resistance": "Resistance",
+      "reducedTo": "Reduced to",
+      "within24h": "Within 24 hours",
+      "notRepaying": "Not making up",
+      "reviewOn": "Review on",
+      "was": "Task before"
+    }
+  },
+  "repeated": {
+    "title": "The same resistance, three times running",
+    "body": "Your last three interruptions all named {{resistance}}. That is a pattern in the setup, not a lack of willpower. Change a condition rather than asking yourself for more force: the time box may be unrealistic, the task may need splitting, a boundary may need saying out loud, or you may need more support around you.",
+    "capacity": "Plan this cycle's weekly capacity"
+  },
+  "today": {
+    "title": "Today",
+    "lowDay": "Low day",
+    "lowDayHint": "Shows only the minimum. It resets at the end of the day, and nothing about it is recorded.",
+    "nextTask": "Next task",
+    "minimum": "Minimum version",
+    "keep": "Still worth keeping",
+    "none": "Not written yet",
+    "interrupt": "Record an interruption"
+  },
+  "cycleClose": {
+    "region": "Close the cycle",
+    "lead": "Close the cycle step by step: the day-ninety review, the books on ability, artifact, cost and unknowns, one destination for every result, three lines for the year, the quarterly review, and thirty days of handover.",
+    "close": "Close this cycle",
+    "title": "Cycle close: {{goal}}",
+    "open": "Open this cycle's close",
+    "openDone": "Open this cycle's close (done)",
+    "notYet": "Day {{day}} of the cycle. The close opens here on day {{from}}.",
+    "notes": "Notes",
+    "notesLead": "Your own free notes on this cycle. The close keeps its day-ninety review as its own section.",
+    "fromLast": "From the last close",
+    "fromLastLead": "Week 1 has no question yet. Start it from a result the last cycle sent on:",
+    "use": "Use for week 1",
+    "useLabel": "Use “{{step}}” as week 1's question",
+    "destination": {
+      "continue": "Continue",
+      "transfer": "Transfer",
+      "repair": "Repair",
+      "stop": "Stop"
+    },
+    "changed": "Changed condition: {{condition}}",
+    "reduceFirst": "Reduce first",
+    "openLast": "Open the last close",
+    "gone": "That result is no longer offered. Reload the page.",
+    "weekOneTaken": "Week 1 already has a question."
+  },
+  "repeatedRecovery": "Or work through a recovery reset (private)"
+}

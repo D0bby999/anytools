@@ -1,0 +1,126 @@
+---
+title: Hướng dẫn chuyển đổi giữa JSON, YAML, và TOML
+description: Điểm mạnh của từng format, "Norway problem" của YAML, typing chặt chẽ của TOML, và những gì bị mất khi convert.
+updated: 2026-05-26
+---
+
+## Ba format, ba triết lý thiết kế
+
+JSON, YAML, và TOML đều là serialization format — đều biểu diễn cấu trúc key-value lồng nhau, arrays, strings, numbers, booleans — nhưng với các ưu tiên khác nhau.
+
+**JSON** được thiết kế cho machine exchange: syntax tối giản, parsing rõ ràng, không comments. Mọi JSON parser ở mọi ngôn ngữ đều cho output giống hệt nhau với cùng input. Đây là ngôn ngữ chung của các API.
+
+**YAML** được thiết kế cho khả năng đọc của con người: indentation có nghĩa thay vì dấu ngoặc, comments, multi-line strings không cần escape. Đây là format config phổ biến nhất trong hệ sinh thái cloud-native (GitHub Actions, Docker Compose, Kubernetes manifests, Ansible playbooks).
+
+**TOML** được thiết kế riêng cho config files: kiểu dữ liệu tường minh, không mơ hồ, không có significant whitespace. Là format config mặc định của Rust (`Cargo.toml`), Python packaging (`pyproject.toml`), và Hugo sites. Tom Preston-Werner (đồng sáng lập GitHub) tạo ra nó như là "config file format dễ đọc nhờ semantics rõ ràng."
+
+## Khi nào dùng format nào
+
+| | JSON | YAML | TOML |
+|---|---|---|---|
+| REST / GraphQL APIs | ✓ tốt nhất | — | — |
+| GitHub Actions | — | ✓ tốt nhất | — |
+| Docker Compose | — | ✓ tốt nhất | — |
+| Kubernetes manifests | — | ✓ tốt nhất | — |
+| Rust Cargo config | — | — | ✓ tốt nhất |
+| Python pyproject.toml | — | — | ✓ tốt nhất |
+| Config app tự edit tay | — | ✓ | ✓ |
+| Dữ liệu generate bằng machine | ✓ tốt nhất | — | — |
+
+## "Norway problem" của YAML
+
+YAML có một cái bẫy parsing nổi tiếng: unquoted scalar values được interpret theo kiểu dữ liệu. Country code hai ký tự `NO` — mà Na Uy dùng — bị parse thành boolean `false` trong YAML 1.1. Tương tự `YES`, `ON`, `OFF`, `TRUE`, `FALSE`, `yes`, `no`, `on`, `off`, `true`, `false` đều là boolean trong YAML 1.1.
+
+```yaml
+# YAML 1.1 (mặc định của hầu hết parsers trước 2022)
+country: NO      # parse thành boolean false — BUG
+enabled: yes     # parse thành boolean true
+debug: off       # parse thành boolean false
+```
+
+YAML 1.2 đã fix: chỉ `true` và `false` (chữ thường) mới là boolean. Nhưng hầu hết parsers (PyYAML, Go's `gopkg.in/yaml.v2`, Ruby's Psych) vẫn mặc định dùng 1.1. Cách fix an toàn: **luôn quote strings có thể bị misinterpret**.
+
+## TOML với typing chặt hơn
+
+TOML không có sự mơ hồ về kiểu dữ liệu. Trong khi YAML suy luận kiểu từ giá trị, TOML yêu cầu bạn rõ ràng:
+
+```toml
+# TOML — kiểu dữ liệu không mơ hồ
+name = "Alice"          # string
+age = 30                # integer
+height = 1.75           # float
+active = true           # boolean
+joined = 2024-01-15     # date (RFC 3339)
+tags = ["rust", "dev"]  # array — tất cả phần tử phải cùng kiểu
+```
+
+TOML arrays bắt buộc phải đồng nhất kiểu (tất cả strings, hoặc tất cả integers — không mixed). JSON và YAML cho phép heterogeneous arrays. Điều này có nghĩa convert `[1, "two", true]` từ JSON sang TOML cần tách thành arrays riêng hoặc từ chối conversion — tool sẽ flag trường hợp này.
+
+## Những gì bị mất khi convert
+
+### Comments
+
+JSON không có comments. YAML và TOML hỗ trợ. Khi convert YAML→JSON hay TOML→JSON, tất cả comments bị mất vĩnh viễn. Nếu YAML config của bạn dùng comments để document values, convert một bản sao và giữ nguyên bản gốc.
+
+### Thứ tự keys
+
+JSON objects về kỹ thuật là unordered. YAML mappings tương tự. TOML sections xuất hiện theo thứ tự document. Khi convert giữa các format, thứ tự keys có thể thay đổi.
+
+### Multi-line strings
+
+YAML có syntax multi-line string gọn với `|` (literal block) và `>` (folded block). TOML có multi-line basic strings (`"""…"""`). JSON không có multi-line string syntax — dùng `\n` escape sequences. Convert YAML literal block sang JSON sẽ nén thành một string một dòng với `\n`.
+
+## Ví dụ thực tế
+
+**Convert một đoạn Docker Compose sang JSON để xử lý bằng script:**
+
+```yaml
+# YAML input
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    environment:
+      NODE_ENV: production
+```
+
+Thành:
+```json
+{
+  "services": {
+    "web": {
+      "image": "nginx:latest",
+      "ports": ["80:80"],
+      "environment": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
+```
+
+**Convert dependencies trong Cargo.toml sang YAML:**
+
+```toml
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+```
+
+Thành:
+```yaml
+dependencies:
+  serde:
+    version: "1.0"
+    features:
+      - derive
+  tokio:
+    version: "1"
+    features:
+      - full
+```
+
+## Privacy
+
+Toàn bộ conversion chạy trong browser. Input không bao giờ được gửi lên server. Tool dùng `js-yaml` để parse YAML và `@iarna/toml` để parse TOML — cả hai đều là MIT-licensed libraries được test kỹ lưỡng.

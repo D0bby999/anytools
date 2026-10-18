@@ -1,0 +1,33 @@
+{
+  "task": "transcribe",
+  "language": "en",
+  "duration": 8.47,
+  "text": "The beach was a popular spot on a hot summer day. People were swimming in the ocean.",
+  "words": null,
+  "segments": [
+    {
+      "id": 1,
+      "seek": 0,
+      "start": 0.0,
+      "end": 3.32,
+      "text": " The beach was a popular spot on a hot summer day.",
+      "tokens": [50365, 440, 7534, 390, 257, 3743, 4008, 322, 257, 2368, 4266, 786, 13],
+      "temperature": 0.0,
+      "avg_logprob": -0.21,
+      "compression_ratio": 1.2,
+      "no_speech_prob": 0.01
+    },
+    {
+      "id": 2,
+      "seek": 0,
+      "start": 3.32,
+      "end": 8.47,
+      "text": " People were swimming in the ocean.",
+      "tokens": [3432, 645, 11989, 294, 264, 7810, 13],
+      "temperature": 0.0,
+      "avg_logprob": -0.21,
+      "compression_ratio": 1.2,
+      "no_speech_prob": 0.01
+    }
+  ]
+}

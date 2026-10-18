@@ -1,0 +1,27 @@
+---
+title: Generador de marcas de tiempo de Discord — Preguntas frecuentes
+---
+
+## ¿Por qué el mismo código muestra un texto distinto a cada persona?
+
+Porque una marca de tiempo Unix es un punto en el tiempo absoluto, no una lectura de reloj de pared. `1735689600` corresponde a las 00:00:00 UTC del 1 de enero de 2025 — pero ese mismo instante son las 19:00 del 31 de diciembre de 2024 en Nueva York y las 09:00 del 1 de enero en Tokio, exactamente al mismo tiempo real. El cliente de Discord hace la conversión de zona localmente, en el navegador o la app de quien lee, usando la zona horaria que ese dispositivo tenga configurada. Esa es toda la ventaja frente a escribir "reunión a las 7pm hora de Madrid" en un mensaje: cada lector ve su propia hora local correcta sin que nadie haga la resta a mano.
+
+## ¿Qué significa exactamente la etiqueta `<t:1735689600:F>`?
+
+`t` marca que es una etiqueta de marca de tiempo de Discord, `1735689600` es una marca de tiempo Unix — el número de segundos desde el 1 de enero de 1970 a las 00:00 UTC —, y `F` es uno de los siete estilos de visualización que define Discord, en este caso "fecha y hora larga". Cuando el cliente de Discord renderiza el mensaje, lee ese número, lo convierte a la zona horaria propia de quien lee, y lo formatea según la letra de estilo y la configuración regional de ese dispositivo. La etiqueta en sí no especifica ninguna zona horaria, porque deliberadamente no la necesita: el mismo 1735689600 es el mismo instante en cualquier lugar del mundo, solo cambia cómo se muestra según quién lo lea.
+
+## ¿En qué se diferencian los siete estilos disponibles?
+
+Revisando el código se confirma que son exactamente siete, ni uno más: `t` y `T` muestran solo la hora (corta y larga, esta última con segundos). `d` y `D` muestran solo la fecha (corta en formato numérico, larga con el mes escrito). `f` y `F` combinan fecha y hora, y `F` además incluye el día de la semana. `R` es el estilo relativo — "en 2 horas", "hace 3 días" — y se vuelve a calcular con el paso del tiempo, porque el cliente de Discord lo recalcula contra el reloj actual de quien lee cada vez que se abre el mensaje, en lugar de congelar el texto en el momento del envío.
+
+## ¿Por qué la herramienta pide tanto una fecha/hora como una zona horaria aparte?
+
+Porque "las 6 de la tarde" no significa nada sin saber de quién son esas 6 de la tarde. Si estás programando algo para las 6pm hora de Los Ángeles, eliges esa fecha y hora y pones el desplegable de zona en America/Los_Angeles — la herramienta calcula entonces el único instante absoluto al que corresponde esa hora de reloj en esa zona, y ese instante es lo que queda codificado en el número Unix. Si te equivocas de zona en este paso, la marca generada queda mal para todo el mundo, exactamente igual que programar un vuelo con la zona horaria equivocada arruina el itinerario para cualquiera que lo lea.
+
+## Si cambio la zona horaria de mi computadora, ¿cambia el código generado?
+
+No — y eso es intencional, no un error. El código `<t:...:...>` se calcula únicamente a partir de la fecha, hora y zona que elegiste explícitamente en los dos campos de arriba; no depende en nada de la zona que tenga configurada tu sistema operativo. Lo que sí depende de la zona de tu dispositivo es la vista previa de "cómo se ve para ti ahora mismo" debajo de los códigos, que se renderiza usando la zona detectada por el navegador específicamente para demostrar la premisa completa de la herramienta — cambia la zona de tu sistema y recarga, y esa línea de vista previa se actualiza, mientras que el texto `<t:...>` en sí queda idéntico byte a byte.
+
+## ¿El estilo relativo (R) se vuelve obsoleto con el tiempo?
+
+No, y esa es justo la razón de elegirlo en vez de una fecha fija: el cliente de Discord recalcula "en 2 horas" o "hace 3 días" contra el reloj actual de quien lee cada vez que el mensaje se renderiza, así que abrir el mismo mensaje una semana después mostrará "hace una semana" en lugar del texto que era cierto al momento de enviarlo. Por debajo, el cálculo usa umbrales en segundos: menos de 60 segundos se expresa en segundos, menos de 3600 en minutos, menos de 86.400 en horas, y los tramos mayores usan la duración promedio de un mes (~2.629.800 segundos) y de un año (~31.557.600 segundos) para compensar que los meses no tienen todos la misma cantidad de días. Por eso `R` es el estilo correcto para anuncios tipo cuenta regresiva ("el evento empieza `<t:...:R>`"), donde una fecha fija necesitaría edición manual constante para seguir siendo útil.

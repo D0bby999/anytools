@@ -1,0 +1,65 @@
+# gitleaks configuration: the default rules, plus the test fixtures that
+# look like keys and are not. Every entry below was read by hand on
+# 2026-10-18: each one is a constant made up for a test (an all-zero
+# encryption key, "sk-test-…", a recorded 401 body), never a real credential.
+#
+# The list names FILES, not a pattern such as `_test\.go$`, so a real key
+# pasted into any other test file still fails the scan. A new fixture that
+# trips a rule is added here with the same care, after reading it.
+#
+# Used by CI (.github/workflows/test.yml) and by scripts/export-public.sh.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Made-up keys in tests and recorded fixtures"
+paths = [
+  '''^internal/account/delete_test\.go$''',
+  '''^internal/app/isolation_test\.go$''',
+  '''^internal/app/transcribe_engines_e2e_test\.go$''',
+  '''^internal/byok/youtube_data_test\.go$''',
+  '''^internal/config/config_test\.go$''',
+  '''^internal/config/legacy_env_test\.go$''',
+  '''^internal/connectors/drive/retry_test\.go$''',
+  '''^internal/connectors/feeds/feeds_test\.go$''',
+  '''^internal/crypto/aes_test\.go$''',
+  '''^internal/logging/redact_test\.go$''',
+  '''^internal/providers/stt/stt_test\.go$''',
+  '''^internal/providers/stt/testdata/openai_401\.json$''',
+  '''^internal/providers/tts/openaicompat_test\.go$''',
+  '''^internal/providers/tts/testdata/openai_401\.json$''',
+  '''^internal/store/pg/sentinel_test\.go$''',
+  '''^internal/testutil/fixtures\.go$''',
+  # AnyTools phase 3b, read by hand on 2026-10-18. The jwt.io example token
+  # (sub 1234567890, John Doe), test vectors made once with jose and openssl
+  # for the jwt tests, RFC 6238's TOTP test secret, and the words
+  # "-----BEGIN PRIVATE KEY-----" in an error message, a placeholder and the
+  # FAQ, with no key after them.
+  '''^ui/web/app/tools/jwt-decoder/logic\.test\.ts$''',
+  '''^ui/web/app/tools/jwt-decoder/ui\.tsx$''',
+  '''^ui/web/app/tools/jwt-sign-verify/logic\.test\.ts$''',
+  '''^ui/web/app/tools/jwt-sign-verify/logic\.ts$''',
+  '''^ui/web/app/tools/jwt-sign-verify/strings\.ts$''',
+  '''^ui/web/app/tools/jwt-sign-verify/ui\.tsx$''',
+  '''^ui/web/app/tools/totp-generator/logic\.test\.ts$''',
+  '''^ui/web/content/(en|es|pt|vi)/tools/encoding/jwt-sign-verify-faq\.mdx$''',
+  # Already failing on main at ebfe830, found by phase 3b: cron expressions
+  # beside a `key:` field, and a comment that says "no-key".
+  '''^ui/web/app/tools/cron-parser/ui\.tsx$''',
+  '''^spikes/parse/parsers\.go$''',
+]
+
+[[allowlists]]
+# AnyTools phase 4. Content and tool code ported from the old AnyTools site,
+# each file read by hand on 2026-10-18; none holds a credential:
+# - the encoding guides show jwt.io's public sample token as an example;
+# - the JWT sign/verify FAQ names the PEM header lines, with no key after them;
+# - cron-parser's presets are i18n keys ("presetEvery5Minutes") beside cron
+#   expressions, which the generic-api-key rule mistakes for an assignment.
+description = "Documentation samples in the ported tool content"
+paths = [
+  '''^ui/web/content/(es|pt)/guides/encoding-encyclopedia\.mdx$''',
+  '''^ui/web/content/(en|vi|es|pt)/tools/encoding/jwt-sign-verify-faq\.mdx$''',
+  '''^ui/web/app/tools/cron-parser/ui\.tsx$''',
+]

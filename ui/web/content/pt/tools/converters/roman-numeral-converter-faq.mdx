@@ -1,0 +1,33 @@
+---
+title: Conversor de Numerais Romanos — Perguntas frequentes
+---
+
+## Por que ele rejeita IIII quando posso obviamente lê-lo?
+
+Porque a notação padrão permite um símbolo se repetir no máximo três vezes, e 4 é escrito IV. IIII é legível e aparece em mostrador de relógios — tradicionalmente, por equilíbrio visual contra o VIII oposto — mas não é notação padrão, e um conversor que silenciosamente aceita isso ensina a forma errada.
+
+A ferramenta informa o que acha que você quis dizer, portanto IIII relata "Você quis dizer IV (4)?" em vez de uma rejeição simples.
+
+## Como ele decide o que é válido?
+
+Convertendo sua entrada em um número e então convertendo esse número de volta. Se o resultado não corresponder exatamente ao que você digitou, a entrada não é notação padrão. Uma regra pega IIII, IM, VX, XXXX e todas as outras formas legíveis mas erradas de uma vez — e não pode discordar da direção número-para-Romano, porque a usa.
+
+## Por que ele para em 3999?
+
+Porque os numerais romanos padrão não têm símbolo acima de M (1000), então 3999 — MMMCMXCIX — é o maior número que pode ser escrito com três ou menos M's repetidos. Valores maiores precisam de uma linha superior (um vinculum) que significa "multiplicar por 1000", que é uma convenção tipográfica em vez de um caractere, e não há forma de texto simples acordada para isso. Em vez de inventar uma, a ferramenta diz onde está o limite e por quê.
+
+## Quais pares subtrativos são válidos?
+
+Apenas seis: IV (4), IX (9), XL (40), XC (90), CD (400) e CM (900). A regra é que apenas I, X e C são jamais subtraídos, e apenas dos próximos dois símbolos para cima. É por isso que IM é inválido para 999 mesmo que leia como 1000 − 1; a forma correta é CMXCIX.
+
+## Zero ou um número negativo é possível?
+
+Não. Os numerais romanos não têm símbolo para zero — o conceito chegou à Europa depois, com notação posicional — e nenhuma notação para negativos. A ferramenta cobre 1 a 3999 e diz quando você sai dela.
+
+## Posso digitar minúsculas?
+
+Sim. A entrada é colocada em maiúsculas antes da análise, e espaços ao redor são ignorados, então `mcmxciv` e `  MCMXCIV  ` ambos dão 1994. A saída é sempre maiúscula, que é a forma convencional.
+
+## Algo é enviado para um servidor?
+
+Não. Ambas as direções são um loop curto sobre uma tabela de pesquisa, executando nesta aba do navegador. Nada é transmitido e nada é armazenado.

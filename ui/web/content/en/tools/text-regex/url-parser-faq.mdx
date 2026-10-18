@@ -1,0 +1,33 @@
+---
+title: URL Parser — Frequently asked questions
+---
+
+## What does it break a URL into?
+
+Protocol, username and password if present, hostname, port, origin, path, query string and fragment — plus the path split into individual segments and the query split into key/value pairs. It is the fastest way to see what is actually in a long URL without counting slashes and ampersands by eye.
+
+## Why does it keep repeated query keys separate?
+
+Because `?tag=a&tag=b` is legal, common and meaningful. Frameworks read it as a list. A parser that stores parameters in a plain object silently keeps only one of them, usually the last, and that discrepancy is exactly the kind of thing you use a parser to find. Here each pair is its own row, in the order it appeared.
+
+## I typed a URL without https:// and it still worked. Is that safe?
+
+It guesses `https://` only when the input has no scheme at all. If you type something that *looks* like it has a scheme — `htp://example.com`, say — it reports the error rather than guessing, because quietly fixing a typo in a scheme hides the mistake you came here to find.
+
+## Where does the port come from when I did not type one?
+
+Both are shown. The `port` value is what your URL literally contains, which is often empty; the effective port is the default for the protocol — 443 for https, 80 for http, 21 for ftp. Keeping them separate matters when you are comparing a URL against something that does exact string matching, where `https://example.com` and `https://example.com:443` are different strings for the same destination.
+
+## Are path segments decoded?
+
+Yes. `/hello%20world/caf%C3%A9` is shown as `hello world` and `café`, because that is what the segment means. If a segment contains a stray percent sign that is not a valid escape — `/100%` — it is shown as written rather than causing an error.
+
+Query parameter values are decoded the same way, by the browser's own URL parser.
+
+## Is my URL sent anywhere?
+
+No. Parsing happens in this browser tab using the platform `URL` class — the same conforming implementation the browser uses for every link on every page. Nothing is transmitted. URLs frequently carry session tokens, signed parameters and internal hostnames, which is a good reason for a parser not to be a network service.
+
+## Why use the built-in parser instead of a regular expression?
+
+Because URL syntax is far stranger than it looks, and the browser already contains a parser that follows the WHATWG standard exactly. A hand-written regex disagrees with it at the edges — on IPv6 hosts, on internationalised domains, on empty path segments — and then you have a tool that tells you something different from what your code will do.

@@ -1,0 +1,27 @@
+---
+title: Decodificador de Protobuf — Preguntas frecuentes
+---
+
+## ¿Por qué el modo sin esquema muestra varias interpretaciones para el mismo campo?
+
+Porque el propio formato binario no tiene suficiente información para responder con certeza. Protocol Buffers solo tiene cuatro wire types a nivel de byte — varint, 64 bits, delimitado por longitud, 32 bits — y cada uno cubre varios tipos de campo de Protobuf a la vez. Un varint (wire type 0) se comparte entre `int32`, `int64`, `uint32`, `uint64`, `sint32`, `sint64`, `bool` y cualquier `enum`; nada en la secuencia de bytes indica por sí mismo si es con signo, sin signo, o codificado en zigzag. Por eso, en modo ciego, la función `varintGuesses` del código devuelve a la vez tres lecturas — uint64 crudo, int64 en complemento a dos, sint64 en zigzag — más una lectura de `bool` si el valor es exactamente 0 o 1, dejando que tú elijas la que coincide con lo que esperas.
+
+## ¿Puede distinguir un string de bytes o de un mensaje anidado?
+
+No, y este es el punto que más confunde. El wire type 2 (delimitado por longitud) es la codificación compartida por `string`, `bytes` y cualquier mensaje anidado — ningún byte del payload indica cuál de los tres es. Por eso, para cada campo de wire type 2, la herramienta siempre muestra el hexadecimal crudo, intenta decodificarlo como UTF-8 (mostrándolo solo si tiene éxito, usando `TextDecoder` con la bandera `fatal: true` para no devolver en silencio texto basura cuando los bytes no son UTF-8 válido), y también intenta interpretar recursivamente esos mismos bytes como si fueran un mensaje anidado — quedándose con el resultado solo si eso realmente logra extraer al menos un campo. Un bloque corto como `0x08 0x0A` es a la vez un submensaje válido (campo 1 = 10) y dos caracteres de control UTF-8 válidos al mismo tiempo — ambas lecturas son "correctas" sintácticamente; solo el esquema real puede decir cuál es correcta en significado.
+
+## ¿Por qué tengo que elegir también un tipo de mensaje, no basta con pegar el .proto?
+
+Porque un solo archivo .proto normalmente declara más de un `message`, y el payload crudo en el wire no lleva ningún nombre de tipo — Protobuf omite eso deliberadamente para mantenerse compacto, a diferencia de JSON, donde la forma de los datos es visible en el propio texto. Después de pegar el .proto, la herramienta recorre el árbol de espacios de nombres ya analizado (`listMessageTypes`, incluidos los mensajes anidados con su ruta con puntos, como `Outer.Inner`) y los lista todos para que elijas el tipo del que en realidad se codificó tu payload — sin ese paso, no hay forma de saber qué significa el campo 3.
+
+## ¿Hay un límite de profundidad o de número de campos al decodificar?
+
+Sí, ambas cosas. La profundidad máxima es de 8 niveles (`MAX_DEPTH`), y el número total de campos procesados en toda la llamada (incluyendo los intentos de mensajes anidados) no supera los 100.000 (`MAX_FIELDS`). Los dos límites existen por seguridad, no porque Protobuf en sí tenga un límite de anidamiento — el modo ciego tiene que adivinar de forma recursiva si "este valor delimitado por longitud es en realidad otro mensaje", y sin un tope, un payload malicioso podría desbordar la pila de llamadas o congelar la pestaña. Pasado el octavo nivel, la herramienta sigue mostrando los bytes crudos en ese punto, solo deja de intentar adivinar si son un mensaje también; los esquemas reales prácticamente nunca anidan tanto.
+
+## ¿Se admite el wire type "group" (3/4) heredado?
+
+No. Los wire types 3 y 4 (`group`) son una codificación heredada, eliminada de proto3 y casi inexistente en payloads modernos — el código de análisis (`parseFields`) lanza un error en cuanto encuentra cualquiera de los dos valores, en vez de intentar adivinar su significado. Es una limitación deliberada, no un descuido: reimplementar `group` costaría esfuerzo para algo que prácticamente nadie usa ya.
+
+## ¿Funciona si mi .proto tiene un `import` de otro archivo?
+
+La línea `import "other.proto";` se analiza sin problema — la herramienta no descarga ningún archivo por red, así que el import simplemente no se resuelve hacia un segundo archivo. Que eso importe o no depende de qué mensaje decodifiques: un mensaje que no referencia realmente ningún tipo del import faltante decodifica con normalidad. Uno que sí lo hace (un campo de tipo `other.Bar`) fallará al decodificar, con el nombre del tipo faltante en el mensaje de error, porque no hay un segundo archivo del que tomar la definición de `Bar`. La forma de evitarlo: incluir dentro del único archivo .proto que pegas todo lo que el mensaje que quieres decodificar realmente necesita.

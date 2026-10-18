@@ -1,0 +1,35 @@
+---
+title: JSON Formatter — Câu hỏi thường gặp
+---
+
+## Vì sao trailing comma fail parse?
+
+Vì RFC 8259 cấm. Object literal JavaScript chấp nhận trailing comma (và JSON5 và JSONC cũng vậy), nhưng JSON strict không. Toggle JSON5 mode nếu input của bạn dùng.
+
+## JSON5 vs JSON — dùng cái nào?
+
+JSON cho wire format (API, config máy trao đổi). JSON5 cho file config người edit muốn có comment và trailing comma. Đừng ship JSON5 tới parser JSON generic — sẽ nghẹn comment.
+
+## Tool này xử lý được JSON to nhất bao nhiêu?
+
+Vài MB pretty-print tức thì; vài chục MB mất vài giây. Vượt ~100 MB browser có thể đóng băng. Cho document rất lớn dùng CLI như `jq`, vốn stream.
+
+## Vì sao sort key?
+
+Cho diff ổn định và hash reproducible. Thứ tự key object JSON kỹ thuật không đáng kể, nhưng diff file và hash dựa byte — cùng dữ liệu với thứ tự key khác cho byte khác. Sort normalize đó.
+
+## JSON có chứa comment được không?
+
+JSON strict: không. JSON5 và JSONC: có. Toggle JSON5 mode ở trên để chấp nhận.
+
+## JSONC là gì?
+
+JSON with Comments — biến thể Microsoft dùng trong VS Code settings và tsconfig.json. Cho phép `//` và `/* */` nhưng không gì khác. JSON5 là superset của JSONC.
+
+## Validate JSON theo schema thế nào?
+
+Tool này validate *cú pháp* (đây có phải JSON parseable?), không *shape* (có khớp cấu trúc mong đợi?). Cho validation shape dùng JSON Schema (`ajv`, `jsonschema`) hoặc, trong TypeScript, Zod.
+
+## Vì sao integer lớn trả về sai?
+
+`Number` của JavaScript không biểu diễn chính xác integer trên 2^53. API trả về ID lớn (Twitter, Discord, ID format Snowflake) ship chúng dưới dạng **chuỗi** vì lý do này. Nếu JSON của bạn có `"id": 9007199254740993`, đó là cố ý — đừng convert sang number ở client.

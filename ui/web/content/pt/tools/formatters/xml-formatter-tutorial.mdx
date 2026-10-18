@@ -1,0 +1,89 @@
+---
+title: XML Formatter — guia completo para formatar e minificar XML
+description: Como funciona o parsing de XML, namespaces, CDATA, self-closing tags e quando o XML ainda importa em 2026.
+updated: 2026-05-26
+---
+
+## O que é XML e por que ainda está em todo lugar
+
+XML (Extensible Markup Language) foi padronizado pelo W3C em 1998 e rapidamente se tornou o formato universal de troca de dados estruturados — até o JSON assumir o controle das APIs REST. Hoje o XML é chamado de "legado" em conferências, mas ainda processa uma enorme quantidade de dados reais: serviços SOAP em bancos e hospitais, feeds RSS e Atom, gráficos SVG, OOXML (`.docx`, `.xlsx`), layouts Android, configurações Maven e praticamente todos os barramentos de integração empresarial.
+
+Como developer, você vai encontrar XML com mais frequência do que imagina.
+
+## As regras do XML que mais causam erros
+
+Um parser XML em conformidade com a especificação é obrigado a **rejeitar** input malformado, não tentar adivinhar sua intenção como um parser HTML faz. As causas mais comuns de falha:
+
+1. **Tags sem fechar.** Todo tag de abertura precisa de um tag de fechamento ou deve ser self-closing: `<br/>`. Diferentemente do HTML, `<br>` não é válido em XML.
+2. **Sensibilidade a maiúsculas.** `<Item>` e `<item>` são elementos distintos. Misturá-los invalida o documento.
+3. **Apenas um elemento raiz.** Um documento XML válido tem exatamente um elemento de nível superior.
+4. **Valores de atributos devem estar entre aspas.** `<img width=300>` é notação HTML; em XML deve ser `width="300"`.
+5. **Caracteres reservados no conteúdo.** Os caracteres `<`, `>` e `&` em texto devem ser escapados como `&lt;`, `&gt;` e `&amp;`, ou envolvidos em uma seção CDATA.
+
+## Namespaces — a maior fonte de confusão
+
+Os namespaces do XML permitem que vocabulários distintos coexistam em um documento sem colisões de nomes. Um namespace é uma URI vinculada a um prefixo:
+
+```xml
+<root xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soap:Envelope>
+    <soap:Body xsi:type="xs:string">Olá</soap:Body>
+  </soap:Envelope>
+</root>
+```
+
+A URI é apenas um identificador único — não precisa resolver para nada real. Um formatter que não entende namespaces pode reordenar atributos de forma a quebrar os bindings. Esta ferramenta preserva todas as declarações de namespace exatamente como estão escritas.
+
+## Seções CDATA
+
+Uma seção CDATA instrui o parser a tratar tudo dentro dela como dados de caractere literal, não como marcação:
+
+```xml
+<script><![CDATA[
+  if (a < b && c > d) {
+    fazerAlgo();
+  }
+]]></script>
+```
+
+Sem CDATA, esses `<`, `>` e `&` precisariam ser escapados. CDATA é útil para incorporar fragmentos HTML, JavaScript ou SQL dentro de XML. A única string que não pode aparecer dentro de CDATA é `]]>` (o delimitador de fechamento).
+
+## Comentários e instruções de processamento
+
+Comentários XML `<!-- assim -->` são semanticamente inertes — parsers podem descartá-los. Esta ferramenta usa `fast-xml-parser` com preservação de comentários habilitada, então os nós de comentário sobrevivem ao reformatamento.
+
+Instruções de processamento `<?xml-stylesheet type="text/xsl" href="style.xsl"?>` são diretivas para a aplicação consumidora. Sempre inclua a declaração XML `<?xml version="1.0" encoding="UTF-8"?>` quando o documento puder conter caracteres não-ASCII.
+
+## Self-closing tags e ordem de atributos
+
+Self-closing tags (`<element/>`) e seu equivalente de dois tokens (`<element></element>`) são semanticamente idênticos em XML. O formatter normaliza elementos vazios curtos para a forma self-closing. A ordem dos atributos não tem significado semântico segundo a especificação, mas esta ferramenta preserva a ordem original para evitar surpresas em workflows que comparam posição de atributos.
+
+## Pretty-print vs minificar
+
+**Pretty-print** adiciona indentação e quebras de linha para que a estrutura seja legível. Use para:
+- Controle de versão (diffs ficam compreensíveis)
+- Depurar envelopes SOAP e respostas de API
+- Editar arquivos de configuração manualmente
+
+**Minificar** remove todos os espaços em branco não significativos. Use para:
+- Transmissão em ambientes com largura de banda limitada
+- Reduzir o tamanho de armazenamento em arquivos XML grandes
+
+Importante: espaços em branco dentro de `<![CDATA[…]]>` ou em elementos de conteúdo misto são **significativos** e não devem ser removidos. O formatter respeita isso.
+
+## Quando o XML ainda é melhor que JSON
+
+- **Serviços SOAP**: sistemas financeiros, governamentais e de saúde frequentemente exigem SOAP. Não há equivalente JSON.
+- **Feeds RSS/Atom**: todo o ecossistema de sindicalização ainda é XML.
+- **SVG**: gráficos vetoriais escaláveis são XML — você pode formatar um arquivo SVG exatamente como qualquer XML.
+- **OOXML**: arquivos `.docx` e `.xlsx` são ZIPs que contêm XML.
+- **Modelos de documento complexos**: conteúdo misto, namespaces e esquemas XSD lidam com cenários que o modelo chave-valor plano do JSON não cobre bem.
+
+## Desempenho e limite de tamanho
+
+O formatter roda completamente no seu navegador. Inputs de até **5 MB** são processados confortavelmente na maioria dos navegadores modernos. Para arquivos maiores, `xmllint --format` na linha de comando é mais eficiente.
+
+## Privacidade
+
+Todo o processamento é local — seu XML nunca sai do navegador. Você pode verificar isso na aba Network do DevTools.

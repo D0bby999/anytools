@@ -1,0 +1,35 @@
+---
+title: YAML Formatter — Câu hỏi thường gặp
+---
+
+## Tại sao `NO` bị convert thành `false` trong YAML của tôi?
+
+Đây là "Norway problem." YAML 1.1 — phiên bản hầu hết parser implement nhiều năm nay — xử lý `yes`, `no`, `on`, `off`, `true`, `false` như boolean. Country code ISO của Na Uy là `NO` khớp với `no`, nên bị thành boolean `false`. Cách sửa: quote nó lại: `country: "NO"`. YAML 1.2 giới hạn boolean chỉ còn `true`/`false`, nhưng nhiều tool vẫn dùng parser 1.1.
+
+## Formatter có giữ comment không?
+
+Best-effort thì có. YAML parser — kể cả `js-yaml` — bỏ comment khi build AST, nên workflow parse-rồi-dump thuần túy sẽ mất comment. Formatter này giữ comment bằng cách làm việc ở text level trước và sau khi parse. Comment inline trên key bị reorder bởi "sort keys" có thể bị dịch chuyển; comment block trên key được giữ nguyên.
+
+## Sự khác biệt giữa `|` và `>` cho multi-line string là gì?
+
+`|` (literal block) giữ nguyên mọi newline. `>` (folded block) convert single newline thành space và chỉ giữ blank line như paragraph break. Dùng `|` cho code, SQL, hoặc log content mà line break có ý nghĩa. Dùng `>` cho mô tả văn xuôi dài muốn flow theo column width của người đọc.
+
+## Anchor (`&`) và alias (`*`) có được giữ sau khi format không?
+
+Có. Formatter parse document với nhận thức về anchor và re-serialize với toàn bộ anchor definition và alias reference nguyên vẹn. Nếu bạn bật "sort keys", cấu trúc anchor vẫn được giữ — chỉ thứ tự key thay đổi.
+
+## Tool có an toàn để dùng với Kubernetes manifest không?
+
+Có. Formatter chỉ đọc từ góc độ network — không có gì rời khỏi browser. Với k8s manifest cụ thể, lưu ý rằng Kustomize patch dùng `!!` tag; formatter giữ nguyên unrecognized tag như literal string thay vì báo lỗi.
+
+## Tại sao giá trị `010` của tôi thành `8` sau khi format?
+
+Trong YAML 1.1, `010` không quoted là octal literal và parse thành integer `8`. Sau khi formatter round-trip qua `js-yaml`, nó serialize integer `8` trở lại — ký hiệu octal biến mất. Quote value (`"010"`) nếu bạn cần giữ nó như string, hoặc kiểm tra xem parser downstream có dùng YAML 1.2 không (trong đó `010` là string).
+
+## Có dùng tab để indent trong YAML không?
+
+YAML spec cấm tab trong indentation. Hầu hết parser sẽ throw parse error khi gặp tab character ở đầu dòng dùng cho structural indentation. Luôn dùng space. Formatter output 2 hoặc 4 space và sẽ báo lỗi với input dùng tab indent.
+
+## GitHub Actions workflow của tôi bị lỗi indentation — debug thế nào?
+
+Paste toàn bộ workflow YAML vào formatter này. Lỗi indentation hiện như parse error với tham chiếu line:column. Nguyên nhân phổ biến nhất: trộn 2-space và 4-space indent, vô tình indent `steps:` list dưới `runs-on:` thay vì dưới job object, hoặc block `run:` multi-line có indent không nhất quán so với `|` indicator.

@@ -1,0 +1,27 @@
+---
+title: Tính tiền tip & chia hóa đơn — Câu hỏi thường gặp
+---
+
+## Chia tiền hóa đơn cho mấy người — tool tính ra sao?
+
+Ba con số: tiền tip, tổng hóa đơn sau khi cộng tip, và phần mỗi người phải trả khi chia đều. Tip bằng `hóa đơn × phần trăm`; phần mỗi người bằng tổng chia cho số người. Đúng như vậy, không phức tạp hơn — nhưng đây chính là ba phép tính người ta hay bấm sai nhất ở bàn ăn sau vài ly, và cũng là ba con số ai cũng muốn thấy cùng lúc thay vì bấm ba lần trên máy tính điện thoại. Bạn có thể chỉnh phần trăm tip rồi thấy ngay phần mỗi người thay đổi, đó là cách nhanh nhất để cả bàn thống nhất một con số tròn trịa.
+
+## Nhập 0 người thì tool có chia cho 0 không?
+
+Không. Code kẹp số người ở mức tối thiểu bằng 1 trước khi chia, nên dù bạn để trống hay gõ 0, kết quả trả về là toàn bộ tổng hóa đơn chứ không phải `Infinity` hay `NaN`. Đây là hành vi cố ý để giao diện không bao giờ hiện ra một con số vô nghĩa giữa lúc bạn đang cần trả tiền. Nó cũng cho bạn một mẹo dùng: đặt số người bằng 1 khi chỉ muốn xem tiền tip và tổng mà không cần chia. Lưu ý thêm, số người **không** ảnh hưởng tới tiền tip — tip chỉ phụ thuộc hóa đơn và phần trăm, số người chỉ đổi cách chia tổng ra.
+
+## Ở Việt Nam có cần tip không, và phụ phí phục vụ tính sao?
+
+Tip không phải tập quán bắt buộc ở Việt Nam như ở Mỹ, và tool cũng không đưa ra quan điểm gì về mức phần trăm nên trả — nó chỉ áp con số bạn nhập. Điều đáng để ý hơn là nhiều nhà hàng và khách sạn ở Việt Nam đã thu sẵn **phụ phí phục vụ** trên hóa đơn, thường là 5%, bên cạnh VAT. Nếu dòng đó đã có, phụ phí phục vụ chính là phần tip, và cộng thêm một lần nữa nghĩa là bạn trả hai lần. Hãy soi hóa đơn tìm dòng "phí phục vụ" hoặc "service charge" trước khi mở tool ra — có nơi in dòng đó rồi vẫn để trống ô tip.
+
+## Nên tính tip trên giá trước thuế hay sau thuế?
+
+Nhập con số nào bạn định tính tip lên con số đó — tool áp phần trăm lên đúng số bạn đưa vào, không tự bóc thuế ra. Tính tip trên phần chưa thuế là cách phổ biến và có lý, vì thuế không phải là dịch vụ. Với hóa đơn lớn ở nơi thuế suất cao thì khoảng chênh là tiền thật, nên đáng để chủ động chọn thay vì tip theo bất kỳ tổng nào máy quẹt thẻ đưa ra. Nếu hóa đơn của bạn chỉ ghi tổng đã gồm VAT và bạn muốn tách phần chưa thuế ra trước, hãy dùng công cụ tính thuế bán hàng ở chế độ tách rồi mang con số đó quay lại đây.
+
+## Có chia được không đều khi một người gọi nhiều hơn không?
+
+Không. Tool chia đều tổng cho số người, đó là toàn bộ những gì nó làm. Với trường hợp chia không đều, cách xử lý là tính riêng phần hóa đơn của từng người rồi áp cùng một tỷ lệ tip lên từng phần — kết quả công bằng hơn và vẫn dùng được tool này bằng cách chạy nhiều lần. Tool cũng không tự làm tròn phần mỗi người về một con số đẹp; việc làm tròn lên để tránh thiếu tiền khi gom lại là chuyện bạn tự quyết. Chia đều là trường hợp phổ biến nhất và là trường hợp duy nhất công cụ này mô hình hóa, một cách có chủ đích.
+
+## Số tiền hóa đơn tôi nhập có gửi đi đâu không?
+
+Không. Toàn bộ phép tính chạy trong trình duyệt, không có request nào rời khỏi máy bạn. Đây là lý do tool này hữu ích hơn một app chia tiền phải đăng nhập: bạn không phải tạo tài khoản, không cấp quyền danh bạ, không để lại lịch sử ăn uống ở đâu cả — mở trang, gõ số, xong. Trang đã tải rồi thì mất mạng vẫn dùng được, tiện cho những quán sóng yếu. Cuối cùng, một lưu ý chung: kết quả ở đây là ước tính số học trên con số bạn nhập, **không phải tư vấn tài chính**, và không thay cho việc đọc kỹ hóa đơn trước khi thanh toán.

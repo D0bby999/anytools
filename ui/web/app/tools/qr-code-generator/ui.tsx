@@ -1,0 +1,365 @@
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  ColorInput,
+  Input,
+  Label,
+  PrivacyNote,
+  RangeSlider,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Textarea,
+  useLocalized,
+  useUiStrings,
+} from '~/components/tools-ui';
+import { useEffect, useState } from 'react';
+import { toolErrorText } from '../shared/tool-error';
+import {
+  DEFAULT_DARK_COLOR,
+  DEFAULT_LIGHT_COLOR,
+  type QrTemplate,
+  buildPayload,
+  generateQrDataUrl,
+  generateQrSvg,
+} from './logic';
+import { STRINGS } from './strings';
+
+type Kind = QrTemplate['kind'];
+
+export function QrCodeGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  const ui = useUiStrings();
+  const [kind, setKind] = useState<Kind>('text');
+  const [text, setText] = useState('');
+  const [url, setUrl] = useState('');
+  const [email, setEmail] = useState({ to: '', subject: '', body: '' });
+  const [tel, setTel] = useState('');
+  const [wifi, setWifi] = useState({
+    ssid: '',
+    password: '',
+    encryption: 'WPA' as 'WPA' | 'WEP' | 'nopass',
+  });
+  const [vcard, setVcard] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    org: '',
+    title: '',
+    url: '',
+  });
+
+  const [ecc, setEcc] = useState<'L' | 'M' | 'Q' | 'H'>('M');
+  const [darkColor, setDarkColor] = useState(DEFAULT_DARK_COLOR);
+  const [lightColor, setLightColor] = useState(DEFAULT_LIGHT_COLOR);
+  // Explicit pixel size, learned from iib0011/omni-tools (MIT): without it the output is
+  // whatever the library defaults to, which is the wrong size for both print and a slide.
+  const [size, setSize] = useState(320);
+
+  const [pngUrl, setPngUrl] = useState<string | null>(null);
+  const [svg, setSvg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const buildTemplate = (): QrTemplate => {
+    switch (kind) {
+      case 'text':
+        return { kind: 'text', text };
+      case 'url':
+        return { kind: 'url', url };
+      case 'email':
+        return {
+          kind: 'email',
+          to: email.to,
+          subject: email.subject || undefined,
+          body: email.body || undefined,
+        };
+      case 'tel':
+        return { kind: 'tel', phone: tel };
+      case 'sms':
+        return { kind: 'sms', phone: tel };
+      case 'wifi':
+        return {
+          kind: 'wifi',
+          ssid: wifi.ssid,
+          password: wifi.password || undefined,
+          encryption: wifi.encryption,
+        };
+      case 'vcard':
+        return { kind: 'vcard', ...vcard };
+    }
+  };
+
+  useEffect(() => {
+    const tmpl = buildTemplate();
+    let payload: string;
+    try {
+      payload = buildPayload(tmpl);
+    } catch (e) {
+      setError(toolErrorText(e, s, ui.invalidInput));
+      setPngUrl(null);
+      setSvg(null);
+      return;
+    }
+    if (!payload.trim()) {
+      setError(null);
+      setPngUrl(null);
+      setSvg(null);
+      return;
+    }
+    let cancelled = false;
+    Promise.all([
+      generateQrDataUrl(payload, { errorCorrectionLevel: ecc, darkColor, lightColor, width: size }),
+      generateQrSvg(payload, { errorCorrectionLevel: ecc, darkColor, lightColor, width: size }),
+    ])
+      .then(([png, sv]) => {
+        if (cancelled) return;
+        setPngUrl(png);
+        setSvg(sv);
+        setError(null);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(toolErrorText(e, s, s.generationFailed));
+        setPngUrl(null);
+        setSvg(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    kind,
+    text,
+    url,
+    email,
+    tel,
+    wifi,
+    vcard,
+    ecc,
+    darkColor,
+    lightColor,
+    size,
+    s,
+    ui.invalidInput,
+  ]);
+
+  const downloadSvg = () => {
+    if (!svg) return;
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = `qr-${kind}-${Date.now()}.svg`;
+    a.click();
+    URL.revokeObjectURL(href);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Tabs value={kind} onValueChange={(v) => setKind(v as Kind)}>
+          <TabsList className="flex-wrap h-auto">
+            <TabsTrigger value="text">{s.tabText}</TabsTrigger>
+            <TabsTrigger value="url">URL</TabsTrigger>
+            <TabsTrigger value="email">{s.tabEmail}</TabsTrigger>
+            <TabsTrigger value="tel">{s.tabPhone}</TabsTrigger>
+            <TabsTrigger value="sms">SMS</TabsTrigger>
+            <TabsTrigger value="wifi">Wi-Fi</TabsTrigger>
+            <TabsTrigger value="vcard">vCard</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="text">
+            <Textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              rows={3}
+              placeholder={s.anyText}
+            />
+          </TabsContent>
+          <TabsContent value="url">
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+            />
+          </TabsContent>
+          <TabsContent value="email" className="space-y-2">
+            <Input
+              value={email.to}
+              onChange={(e) => setEmail({ ...email, to: e.target.value })}
+              placeholder="to@example.com"
+            />
+            <Input
+              value={email.subject}
+              onChange={(e) => setEmail({ ...email, subject: e.target.value })}
+              placeholder={s.subjectOptional}
+            />
+            <Textarea
+              value={email.body}
+              onChange={(e) => setEmail({ ...email, body: e.target.value })}
+              rows={2}
+              placeholder={s.bodyOptional}
+            />
+          </TabsContent>
+          <TabsContent value="tel">
+            <Input
+              value={tel}
+              onChange={(e) => setTel(e.target.value)}
+              placeholder="+84 90 900 0000"
+            />
+          </TabsContent>
+          <TabsContent value="sms">
+            <Input
+              value={tel}
+              onChange={(e) => setTel(e.target.value)}
+              placeholder="+84 90 900 0000"
+            />
+          </TabsContent>
+          <TabsContent value="wifi" className="space-y-2">
+            <Input
+              value={wifi.ssid}
+              onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })}
+              placeholder={s.ssid}
+            />
+            <Input
+              value={wifi.password}
+              onChange={(e) => setWifi({ ...wifi, password: e.target.value })}
+              placeholder={s.wifiPassword}
+              type="password"
+            />
+            <Select
+              value={wifi.encryption}
+              onValueChange={(v) => setWifi({ ...wifi, encryption: v as 'WPA' | 'WEP' | 'nopass' })}
+            >
+              <SelectTrigger aria-label={s.wifiEncryption}>
+                <SelectValue>
+                  {wifi.encryption === 'nopass'
+                    ? s.wifiOpen
+                    : wifi.encryption === 'WEP'
+                      ? 'WEP'
+                      : 'WPA/WPA2/WPA3'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="WPA">WPA/WPA2/WPA3</SelectItem>
+                <SelectItem value="WEP">WEP</SelectItem>
+                <SelectItem value="nopass">{s.wifiOpen}</SelectItem>
+              </SelectContent>
+            </Select>
+          </TabsContent>
+          <TabsContent value="vcard" className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={vcard.firstName}
+                onChange={(e) => setVcard({ ...vcard, firstName: e.target.value })}
+                placeholder={s.firstName}
+              />
+              <Input
+                value={vcard.lastName}
+                onChange={(e) => setVcard({ ...vcard, lastName: e.target.value })}
+                placeholder={s.lastName}
+              />
+            </div>
+            <Input
+              value={vcard.org}
+              onChange={(e) => setVcard({ ...vcard, org: e.target.value })}
+              placeholder={s.organization}
+            />
+            <Input
+              value={vcard.title}
+              onChange={(e) => setVcard({ ...vcard, title: e.target.value })}
+              placeholder={s.jobTitle}
+            />
+            <Input
+              value={vcard.phone}
+              onChange={(e) => setVcard({ ...vcard, phone: e.target.value })}
+              placeholder={s.phone}
+            />
+            <Input
+              value={vcard.email}
+              onChange={(e) => setVcard({ ...vcard, email: e.target.value })}
+              placeholder={s.email}
+            />
+            <Input
+              value={vcard.url}
+              onChange={(e) => setVcard({ ...vcard, url: e.target.value })}
+              placeholder={s.website}
+            />
+          </TabsContent>
+        </Tabs>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="qr-ecc">{s.errorCorrection}</Label>
+            <Select value={ecc} onValueChange={(v) => setEcc(v as typeof ecc)}>
+              <SelectTrigger id="qr-ecc">
+                <SelectValue>
+                  {ecc === 'M'
+                    ? s.eccDefault
+                    : ecc === 'H'
+                      ? s.eccLogos
+                      : `${ecc} (~${ecc === 'L' ? 7 : 25}%)`}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="L">L (~7%)</SelectItem>
+                <SelectItem value="M">{s.eccDefault}</SelectItem>
+                <SelectItem value="Q">Q (~25%)</SelectItem>
+                <SelectItem value="H">{s.eccLogos}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <ColorInput label={s.darkColor} value={darkColor} onChange={setDarkColor} />
+          <ColorInput label={s.lightColor} value={lightColor} onChange={setLightColor} />
+          <RangeSlider
+            label={s.size}
+            unit="px"
+            value={size}
+            min={120}
+            max={1000}
+            step={20}
+            onChange={setSize}
+          />
+        </div>
+
+        {error && (
+          <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+            {error}
+          </output>
+        )}
+
+        {pngUrl && (
+          <div className="flex flex-col items-center gap-3">
+            {/* biome-ignore lint/performance/noImgElement: data URI, not optimizable by next/image */}
+            <img src={pngUrl} alt={s.previewAlt} className="rounded border bg-card p-2 max-w-xs" />
+            <div className="flex gap-2">
+              <Button asChild size="sm">
+                <a href={pngUrl} download={`qr-${kind}-${Date.now()}.png`}>
+                  {s.downloadPng}
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" type="button" onClick={downloadSvg}>
+                {s.downloadSvg}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <PrivacyNote />
+      </CardContent>
+    </Card>
+  );
+}

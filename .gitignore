@@ -1,0 +1,33 @@
+# Go
+/anytools
+*.test
+*.out
+
+# Env / secrets
+.env
+.env.local
+!.env.example
+
+# Node
+node_modules/
+ui/web/build/
+ui/web/.react-router/
+ui/web/test-results/
+ui/web/playwright-report/
+
+# OS / editors
+.DS_Store
+
+# Spike artifacts: parsed output, captured HTTP, generated PDFs.
+spikes/out/
+
+# Agent worktrees created by the harness inside the repo.
+.claude/worktrees/
+
+# Local run-local.sh data directory
+/data/
+/anytools
+
+# Tools' run-time files, staged from ui/web/scripts/tool-runtime.json at build time.
+ui/web/tool-runtime/*
+!ui/web/tool-runtime/.gitkeep

@@ -1,0 +1,176 @@
+/**
+ * tokens.css — the committed visual world.
+ *
+ * World: the reading world of `byoungd/up` (github.com/byoungd/up), pinned by
+ * the owner rather than rolled (plan.md, Validation Session 2). `up`'s theme
+ * code is MIT (plans/.../reports/design-ref-up/LICENSE-CODE.md); the values
+ * marked "from up" below are ported from its
+ * `docs/.vitepress/theme/styles.css`. Its prose is CC BY-NC and is not used.
+ *
+ * Everything here is a RAW value. Nothing in this file references Tailwind and
+ * nothing outside app.css should reference `--lp-*` directly: app.css is the
+ * single adapter that maps these onto the semantic names components already
+ * use (`--color-primary`, `--color-card`, ...). That indirection is the reason
+ * a palette change never reaches a component file.
+ *
+ * Adding a colour: give it a ROLE name, not a hue name, and add it to both
+ * blocks. Light and dark are composed separately, not derived from each other,
+ * because `up`'s own brand green fails AA on a dark canvas (measured 2.82:1)
+ * and a mechanical inversion would have shipped that.
+ *
+ * Every text-bearing pair below is measured by app/test/theme-contrast.test.ts.
+ * Do not hand-tune a hue here without running it.
+ */
+
+:root {
+  /* ── Surfaces: paper, then a second neutral layer for rails and panels ── */
+  --lp-paper: #fcfbf9;
+  --lp-surface: #ffffff;
+  --lp-surface-soft: #f4f2ee;
+  --lp-surface-sunken: #eae6df;
+
+  /* ── Lines. `border` is a hairline and decorative; `border-control` is the
+       outline of something you can operate, and is held to 3:1. ── */
+  --lp-border: #e4e0d8;
+  --lp-border-control: #8d887e;
+
+  /* ── Ink: three levels, all held to 4.5:1 on all three surfaces ── */
+  --lp-ink: #1d211f;
+  --lp-ink-2: #555c57;
+  --lp-ink-3: #666d68;
+
+  /* ── Brand green (from up). The ONLY action ink: primary buttons, the
+       current nav row, focus rings, links in prose, and "ready" state. There
+       is deliberately no second green. ── */
+  --lp-brand: #176f5b;
+  --lp-brand-hover: #0f5c4a;
+  --lp-brand-active: #0b493c;
+  --lp-brand-soft: rgba(23, 111, 91, 0.14);
+  --lp-brand-fg: #ffffff;
+
+  /* The current row in the rail. This is `--lp-brand-soft` painted on
+     `--lp-surface-soft` and then FROZEN to the resulting hex, because a
+     translucent tint cannot be measured for contrast without knowing what is
+     behind it, and "what is behind it" is exactly the thing a later refactor
+     changes silently. Measured, not guessed: theme-contrast.test.ts. */
+  --lp-selected: #d5e0d9;
+  --lp-selected-fg: #0f5c4a;
+
+  /* ── Terracotta (from up). Reading progress ONLY. It never lands on a
+       control, which is why it can sit near the green without the pair
+       reading as decoration. ── */
+  --lp-accent: #c0523a;
+
+  /* ── States the reading world does not supply. Amber is the "needs your
+       attention" ink and is deliberately not red; red is reserved for
+       destructive and failed. ── */
+  --lp-warning: #8a5c00;
+  --lp-warning-soft: rgba(138, 92, 0, 0.12);
+  --lp-warning-fg: #ffffff;
+  --lp-danger: #93142f;
+  --lp-danger-soft: rgba(147, 20, 47, 0.1);
+  --lp-danger-fg: #ffffff;
+
+  /* ── Type. One serif for reading, one sans for operating, one mono for
+       region labels and measured values. All three verified to carry the
+       Vietnamese range (U+1EA0-1EF9, U+20AB) before selection. ── */
+  --lp-font-serif: "IBM Plex Serif", Charter, Georgia, "Times New Roman", serif;
+  --lp-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --lp-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Fixed rem scale, ~1.2 ratio. No fluid clamp: an Operate surface with many
+     text elements reads as noise when every size breathes with the viewport. */
+  --lp-text-2xs: 0.6875rem;
+  --lp-text-xs: 0.75rem;
+  --lp-text-sm: 0.875rem;
+  --lp-text-base: 1rem;
+  --lp-text-lg: 1.125rem;
+  --lp-text-xl: 1.375rem;
+  --lp-text-2xl: 1.75rem;
+  --lp-text-3xl: 2.625rem; /* from up: h1 */
+
+  --lp-leading-tight: 1.18; /* from up: h1 */
+  --lp-leading-snug: 1.35;
+  --lp-leading-ui: 1.5;
+  --lp-leading-prose: 1.85; /* from up: body and list */
+  --lp-tracking-label: 0.08em; /* from up: mono kicker labels */
+  --lp-headline-measure: 22ch; /* from up: h1 max-width */
+
+  /* ── Space. 4pt scale: 8-only loses the useful middle steps. ── */
+  --lp-space-1: 0.25rem;
+  --lp-space-2: 0.5rem;
+  --lp-space-3: 0.75rem;
+  --lp-space-4: 1rem;
+  --lp-space-5: 1.5rem;
+  --lp-space-6: 2rem;
+  --lp-space-7: 3rem;
+  --lp-space-8: 4rem;
+
+  /* ── Layout. Read surfaces hold the measure; Operate surfaces widen. ── */
+  --lp-layout-max: 1480px; /* from up */
+  --lp-measure-read: 780px; /* from up */
+  --lp-measure-form: 28rem;
+  --lp-rail-w: 15rem;
+  --lp-panel-w: 20rem;
+  --lp-topbar-h: 3.5rem;
+
+  /* ── Radius (from up): 16px for cards, 8px for anything you operate. ── */
+  --lp-radius-card: 16px;
+  --lp-radius-control: 8px;
+  --lp-radius-pill: 999px;
+
+  /* ── Depth: a whisper. This world separates by tone and hairline, not by
+       shadow, so there are only two and neither is a lift. ── */
+  --lp-shadow-card: 0 1px 2px rgba(20, 22, 21, 0.04);
+  --lp-shadow-raised: 0 2px 10px rgba(20, 22, 21, 0.07);
+
+  /* ── Motion: state feedback only. Exit is faster than entrance. ── */
+  --lp-motion-exit: 100ms;
+  --lp-motion-fast: 140ms;
+  --lp-motion-base: 180ms;
+  --lp-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  /* Composed for a lamp-lit room, not inverted. The rail goes DARKER than the
+     page while in light mode it goes lighter: in both themes the rail recedes
+     from the page rather than floating above it. */
+  --lp-paper: #1a1917;
+  --lp-surface: #232220;
+  --lp-surface-soft: #141312;
+  --lp-surface-sunken: #2b2a27;
+
+  --lp-border: #34322e;
+  --lp-border-control: #767168;
+
+  --lp-ink: #ece8e1;
+  --lp-ink-2: #aca79e;
+  --lp-ink-3: #97928a;
+
+  /* up ships one brand green for both themes; at #176f5b on this canvas it
+     measures 2.82:1 and fails as text, so dark gets its own ramp. */
+  --lp-brand: #5ab99d;
+  --lp-brand-hover: #79cbb3;
+  --lp-brand-active: #97d9c5;
+  --lp-brand-soft: rgba(90, 185, 157, 0.16);
+  --lp-brand-fg: #0b2620;
+  --lp-selected: #1f2e28;
+  --lp-selected-fg: #79cbb3;
+
+  --lp-accent: #d4694f;
+
+  --lp-warning: #d6a22a;
+  --lp-warning-soft: rgba(214, 162, 42, 0.14);
+  --lp-warning-fg: #241a00;
+  --lp-danger: #e88c97;
+  --lp-danger-soft: rgba(232, 140, 151, 0.14);
+  --lp-danger-fg: #2a0a10;
+
+  /* Light ink on a dark canvas needs the leading and tracking back that the
+     dark background eats (craft-rules: compensate on all three axes). */
+  --lp-leading-prose: 1.9;
+  --lp-tracking-label: 0.09em;
+
+  --lp-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --lp-shadow-raised: 0 2px 10px rgba(0, 0, 0, 0.45);
+}

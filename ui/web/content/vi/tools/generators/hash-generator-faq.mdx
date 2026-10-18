@@ -1,0 +1,31 @@
+---
+title: Hash Generator — Câu hỏi thường gặp
+---
+
+## Có nên hash mật khẩu bằng SHA-256 không?
+
+Không. SHA-256 quá nhanh — attacker với database bị steal có thể brute-force tỷ lần đoán/giây. Dùng hàm hash password chậm (Argon2id, bcrypt, scrypt) qua library. SHA-256 cho *toàn vẹn dữ liệu*, không phải *lưu password*.
+
+## MD5 có an toàn không?
+
+Cho toàn vẹn dữ liệu chống corruption ngẫu nhiên: ổn. Cho bất cứ thứ gì attacker có thể xây collision (chữ ký, chứng chỉ, mã hóa): bị bẻ từ 2004. Đừng dùng cho code bảo mật mới.
+
+## SHA-256 và SHA-3 khác gì?
+
+Cả hai hiện đại và an toàn. SHA-256 thuộc họ SHA-2, triển khai rộng rãi từ 2001. SHA-3 (Keccak) được chuẩn hóa sau như backup với kiến trúc khác hoàn toàn. SHA-256 là mặc định thực tiễn; SHA-3 ổn khi đặc biệt yêu cầu.
+
+## Vì sao cùng input = cùng hash?
+
+Đó là định nghĩa hàm hash — deterministic. Nếu muốn output khác cho cùng input, bạn cần HMAC (thêm secret key) hoặc append salt random trước khi hash.
+
+## Còn collision hash thì sao?
+
+Với SHA-256, xác suất tìm hai input cùng hash thấp (1 trên 2^128 cho birthday attack) chưa từng quan sát. Với MD5, collision dựng trong vài phút trên laptop. Collision SHA-1 tốn khoảng $110k GPU time tính đến 2017.
+
+## HMAC vs hash trần?
+
+Hash trần: ai cũng tính được từ cùng input. HMAC: cần shared secret key, nên cũng xác thực message đến từ người có key. Dùng HMAC cho chữ ký webhook, ký request API, và JWT HS256.
+
+## Hash file có work với file lớn không?
+
+Đến vài trăm MB thoải mái. Vượt thế, browser load cả file vào memory chậm. Cho file vài GB, ưu tiên CLI streaming: `shasum -a 256` (Unix) hoặc `Get-FileHash` (PowerShell).

@@ -1,0 +1,27 @@
+---
+title: Tạo cặp khoá RSA — Câu hỏi thường gặp
+---
+
+## Nên chọn kích thước khoá 2048, 3072 hay 4096-bit?
+
+2048-bit vẫn là mức tối thiểu được chấp nhận rộng rãi cho RSA và là mặc định của phần lớn dịch vụ — NIST hiện coi RSA 2048-bit là đủ an toàn cho tới ít nhất năm 2030. Nếu khoá cần được tin cậy lâu hơn mốc đó, hoặc bạn đang ký thứ gì đó cần giữ giá trị pháp lý trong nhiều năm, 3072-bit là lựa chọn thận trọng hơn với chi phí không quá lớn. 4096-bit chủ yếu có ý nghĩa cho khoá gốc dạng CA hoặc khoá sống rất lâu, còn với SSH hay TLS thường ngày thì nó là dư thừa — khoá càng lớn, chữ ký và thao tác mã hoá càng chậm mà lợi ích thực tế lại không tương xứng cho hầu hết trường hợp dùng cá nhân. Công cụ này cho chọn cả ba mức qua tham số `modulusLength` truyền thẳng vào `crypto.subtle.generateKey`, không giới hạn thêm gì khác.
+
+## Vì sao tạo khoá 4096-bit mất lâu hơn hẳn 2048-bit?
+
+Sinh khoá RSA về bản chất là đi tìm hai số nguyên tố lớn ngẫu nhiên rồi kiểm tra thật kỹ rằng chúng đúng là số nguyên tố — phép thử này không rẻ, và nó đắt lên nhanh hơn nhiều so với việc tăng gấp đôi kích thước khoá, vì số lượng ứng viên phải thử tăng theo cỡ số. Từ 2048 lên 4096-bit, thời gian chờ có thể tăng gấp ba đến bốn lần chứ không chỉ gấp đôi. Giao diện tool hiển thị dòng "Đang tạo… khoá RSA lớn có thể mất vài giây" đúng vì lý do này — `crypto.subtle.generateKey` là hàm bất đồng bộ nên tab không bị đơ trong lúc chờ, nhưng người dùng chọn 4096-bit nên chuẩn bị tinh thần chờ vài giây thay vì thấy kết quả gần như tức thì như với 2048-bit.
+
+## RSA để ký khác RSA để mã hoá ở chỗ nào?
+
+Cùng một phép toán RSA nền tảng nhưng khác lược đồ đệm (padding), và WebCrypto cố tình không cho trộn hai việc này. RSASSA-PKCS1-v1_5 dùng để ký: chứng minh một thông điệp thật sự đến từ người giữ khoá riêng — dùng cho việc như ký JWT kiểu RS256 hay ký tài liệu. RSA-OAEP dùng để mã hoá: bất kỳ ai có khoá công khai đều gửi được thứ mà chỉ người giữ khoá riêng mới đọc nổi. Trong code, sự khác biệt này thể hiện ở `KeyUsage` được gán khi gọi `generateKey` — `['sign', 'verify']` cho kiểu ký, `['encrypt', 'decrypt']` cho kiểu mã hoá — và khoá sinh ra theo kiểu này không dùng được cho việc kia. Một điều cần nhớ: RSA không bao giờ dùng để mã hoá trực tiếp dữ liệu lớn, các hệ như TLS hay PGP chỉ dùng RSA để mã hoá một khoá đối xứng ngắn, còn nội dung thật thì AES lo.
+
+## Ed25519 là gì, và vì sao đôi lúc tôi không thấy tuỳ chọn này?
+
+Ed25519 là một lược đồ chữ ký hiện đại dựa trên đường cong elliptic (EdDSA trên Curve25519). Ở cùng mức an toàn, khoá và chữ ký của nó nhỏ hơn RSA rất nhiều và tốc độ ký/xác minh cũng nhanh hơn — nhưng nó chỉ làm được việc ký/xác minh, không có chế độ mã hoá kiểu RSA-OAEP. Tuỳ chọn này chỉ xuất hiện khi trình duyệt thật sự hỗ trợ, và tool không dựa vào bất kỳ cờ khai báo hỗ trợ (feature flag) nào — có trình duyệt chấp nhận tên thuật toán `'Ed25519'` khi đọc code nhưng lại ném lỗi `NotSupportedError` ngay khi `generateKey` thật sự chạy. Vì vậy hàm `isEd25519Supported` thử sinh một cặp khoá Ed25519 thật (rẻ, dùng một lần) để biết chắc, kết quả được lưu lại sau lần kiểm tra đầu tiên nên giao diện chỉ cần hỏi một lần lúc mount thay vì tạo khoá bỏ đi ở mỗi lần render.
+
+## Vì sao xuất khoá ra định dạng PEM thay vì thứ khác?
+
+PEM — văn bản Base64 được bọc trong khối `-----BEGIN ... -----END-----`, mỗi dòng 64 ký tự — là chuẩn thực tế để trao đổi khoá với OpenSSL, phần lớn thư viện TLS và các file cấu hình lưu trong Git. WebCrypto không có sẵn khả năng xuất PEM: `crypto.subtle.exportKey` chỉ trả về DER thô ở định dạng SPKI cho khoá công khai và PKCS8 cho khoá riêng. Tool tự đóng gói phần này: chuyển DER sang chuỗi Base64 bằng `btoa`, cắt thành từng dòng đúng 64 ký tự, rồi thêm dòng tiêu đề và kết thúc tương ứng — kết quả khớp đúng khuôn dạng mà `openssl` xuất ra cho cùng cấu trúc SPKI/PKCS8, nên dán thẳng vào file `.pem` là dùng được ngay.
+
+## Khoá sinh ra trong tab trình duyệt có an toàn để dùng cho hệ thống thật không?
+
+Về mặt toán học thì có: `crypto.subtle.generateKey` lấy ngẫu nhiên từ bộ sinh số ngẫu nhiên mật mã (CSPRNG) của hệ điều hành, giống hệt nguồn ngẫu nhiên mà trình duyệt dùng ở mọi nơi khác. Cái khác là bối cảnh vận hành: một tab trình duyệt không có kho lưu khoá phần cứng, không có nhật ký kiểm toán, và chỉ cần một extension độc hại hoặc máy bị xâm nhập là khoá riêng có thể rò rỉ ngay lúc vừa sinh ra. Với việc học tập, thử nghiệm cục bộ, khoá dùng một lần, hay fixture cho CI thì hoàn toàn ổn. Nhưng với bất cứ thứ gì bảo vệ traffic production thật hoặc ký nội dung có giá trị, đừng dùng khoá sinh từ trang web này — hãy sinh khoá trên (hoặc chuyển ngay vào) một module bảo mật phần cứng (HSM), một máy offline cách ly mạng, hoặc công cụ dòng lệnh đã qua kiểm định như `openssl genrsa` / `ssh-keygen` chạy trên máy do chính bạn kiểm soát toàn bộ. Khoá riêng không rời khỏi tab trong lúc sinh — không có request mạng nào xảy ra khi tạo hay hiển thị cặp khoá — nhưng "không rời tab" và "an toàn cho production" là hai khẳng định khác nhau, đừng nhầm cái này thành cái kia.

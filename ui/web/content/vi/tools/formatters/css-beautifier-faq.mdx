@@ -1,0 +1,35 @@
+---
+title: CSS Beautifier — Câu hỏi thường gặp
+---
+
+## Beautify CSS có thay đổi cách style áp dụng không?
+
+Không. CSS whitespace bên ngoài giá trị string và property `content` không có ý nghĩa với parser trình duyệt. Thụt lề, newline giữa các rule, và khoảng trắng xung quanh dấu hai chấm đều bị bỏ qua lúc render. Computed style trang của bạn tạo ra hoàn toàn giống nhau trước và sau khi format.
+
+## Tại sao một selector mỗi dòng là mặc định trong CSS đã beautify?
+
+Đặt mỗi selector trên dòng riêng tạo ra git diff sạch hơn. Khi selector nhóm như `h1, h2, h3 { ... }` thêm hoặc bỏ một entry, format một dòng đánh dấu toàn bộ dòng selector là đã thay đổi. Một-selector-mỗi-dòng nghĩa là thêm `h4` hoặc bỏ `h2` hiển thị là diff một dòng không có nhiễu. Đây cũng là lý do Prettier dùng format này cho CSS mặc định.
+
+## CSS minification thực sự tiết kiệm được bao nhiêu?
+
+Loại whitespace thô thường giảm CSS 20–40% tùy style coding. Tuy nhiên, yếu tố quan trọng hơn là HTTP compression: gzip giảm CSS 60–80% vì whitespace rất lặp lại. Minification và gzip bổ sung cho nhau — dùng cả hai trong production. Minify trước trong build pipeline, rồi để CDN hoặc server áp dụng gzip/brotli lên trên. Kết quả kết hợp luôn tốt hơn từng kỹ thuật riêng lẻ.
+
+## Tool này có hỗ trợ CSS Nesting không?
+
+Có. `js-beautify` giữ nguyên cú pháp CSS Nesting (CSS Nesting Module Level 1, được hỗ trợ trên tất cả evergreen browser) bao gồm selector `&`. Cả chế độ beautify lẫn minify đều xử lý rule lồng nhau mà không de-nest chúng về CSS phẳng.
+
+## Tùy chọn selector separator là gì?
+
+Nó kiểm soát cách các selector trong rule nhóm được phân tách. Đặt thành newline (mặc định) cho một selector mỗi dòng — ưu tiên để dễ đọc và diff. Đặt thành khoảng trắng cho selector nhóm compact trên một dòng. Cả hai không thay đổi cách rule được áp dụng; chỉ là preference format.
+
+## Nên dùng tool này hay tích hợp cssnano vào build pipeline?
+
+Cả hai. Dùng tool này cho format ad-hoc — paste CSS snippet, dọn dẹp stylesheet một lần, hoặc kiểm tra CSS bên thứ ba. Để minify production tự động, tích hợp `cssnano` (PostCSS) hoặc `lightningcss` (Rust, cực nhanh) vào build step. Tool pipeline còn có thể merge shorthand, deduplicate và loại bỏ dead code mà browser-based tool không thể làm được.
+
+## Làm sao debug CSS đã minify trong production?
+
+Generate source map trong quá trình build (`--map` flag trong PostCSS, `sourceMap: true` trong lightningcss). File map liên kết byte offset đã minify về dòng source gốc. Browser DevTools tự động fetch map và hiển thị file và số dòng gốc khi bạn inspect element được style, dù trình duyệt đang tải file đã minify.
+
+## Minify CSS có xóa comment không?
+
+Có — CSS minification tiêu chuẩn loại bỏ tất cả comment `/* ... */`. Nếu bạn có comment quan trọng phải giữ lại (copyright header, giấy phép), dùng convention `!`: `/*! Copyright ... */`. Hầu hết minifier giữ lại comment bắt đầu bằng `!`. Để giữ license header trong production, dùng `cssnano` với `{ discardComments: { removeAllButFirst: true } }`.

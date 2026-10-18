@@ -1,0 +1,290 @@
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CheckboxField,
+  ColorInput,
+  CopyButton,
+  Input,
+  Label,
+  PrivacyNote,
+  RangeSlider,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useLocalized,
+} from '~/components/tools-ui';
+import { useState } from 'react';
+import { hexToRgb, rgbToHex } from '../color-converter/logic';
+import {
+  type ColorStop,
+  type GradientKind,
+  type GradientState,
+  type RadialSize,
+  toCss,
+  toCssBlock,
+  toTailwind,
+} from './logic';
+import { type ParseFailure, parseGradient } from './parse';
+import { GRADIENT_PRESETS, IMPORT_PLACEHOLDER, NEW_STOP_COLOR } from './presets';
+import {
+  type GradientEditorState,
+  appendRow,
+  removeRow,
+  switchKind,
+  updateRow,
+  withRowIds,
+} from './stop-rows';
+import { StopTrack } from './stop-track';
+import { STRINGS } from './strings';
+
+/** The rejection in the page's language when the strings table knows its code, else as written. */
+function parseFailureText(failure: ParseFailure, s: Record<string, string>): string {
+  const template = s[`error_${failure.code}`];
+  if (!template) return failure.reason;
+  const params = failure.params ?? {};
+  return template.replace(/\{(\w+)\}/g, (m, key: string) =>
+    key in params ? String(params[key]) : m,
+  );
+}
+
+const SLUG = 'css-gradient-generator';
+const SIZES: RadialSize[] = ['closest-side', 'closest-corner', 'farthest-side', 'farthest-corner'];
+
+export function CssGradientGeneratorUi() {
+  const s = useLocalized(STRINGS);
+  const [g, setG] = useState<GradientEditorState>(() =>
+    withRowIds(GRADIENT_PRESETS[0]?.state as GradientState),
+  );
+  const [importText, setImportText] = useState('');
+  const [importError, setImportError] = useState<string | null>(null);
+
+  const css = toCss(g);
+  // Preset names live in presets.ts in English; look them up by name here.
+  const presetName = (name: string) =>
+    (s as Record<string, string>)[`preset_${name.replace(/\s+/g, '')}`] ?? name;
+  const setStops = (stops: GradientEditorState['stops']) => setG((prev) => ({ ...prev, stops }));
+  const updateStop = (i: number, patch: Partial<ColorStop>) =>
+    setStops(updateRow(g.stops, i, patch));
+  const setAngle = (angle: number) => setG((prev) => ('angle' in prev ? { ...prev, angle } : prev));
+  const setCentre = (c: { cx?: number; cy?: number }) =>
+    setG((prev) => ('cx' in prev ? { ...prev, ...c } : prev));
+
+  const loadCss = () => {
+    const parsed = parseGradient(importText);
+    if (parsed.ok) {
+      setImportError(null);
+      setG(withRowIds(parsed.state));
+    } else {
+      setImportError(parseFailureText(parsed, s));
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">{s.title}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div
+          className="h-48 rounded-lg border"
+          style={{ background: css }}
+          data-testid="gradient-preview"
+          aria-label={s.gradientPreview}
+        />
+        <StopTrack rows={g.stops} onMove={(i, position) => updateStop(i, { position })} />
+
+        <div className="flex flex-wrap items-end gap-3">
+          <SegmentedControl
+            className="flex-1 min-w-[15rem]"
+            label={s.type}
+            value={g.kind}
+            onChange={(kind: GradientKind) => setG(switchKind(g, kind))}
+            options={[
+              { value: 'linear', label: s.linear },
+              { value: 'radial', label: s.radial },
+              { value: 'conic', label: s.conic },
+            ]}
+          />
+          <CheckboxField
+            label={s.repeating}
+            checked={g.repeating}
+            onCheckedChange={(v) => setG({ ...g, repeating: v === true })}
+          />
+        </div>
+
+        {'angle' in g && (
+          <RangeSlider
+            label={g.kind === 'conic' ? s.startAngle : s.angle}
+            unit="deg"
+            min={-180}
+            max={360}
+            value={g.angle}
+            onChange={setAngle}
+          />
+        )}
+        {g.kind === 'radial' && (
+          <div className="flex flex-wrap gap-3">
+            <SegmentedControl
+              className="flex-1 min-w-[12rem]"
+              label={s.shape}
+              value={g.shape}
+              onChange={(shape: 'circle' | 'ellipse') => setG({ ...g, shape })}
+              options={[
+                { value: 'circle', label: s.circle },
+                { value: 'ellipse', label: s.ellipse },
+              ]}
+            />
+            <div className="min-w-[12rem] flex-1 space-y-1.5">
+              <Label htmlFor="grad-size">{s.size}</Label>
+              <Select value={g.size} onValueChange={(v) => setG({ ...g, size: v as RadialSize })}>
+                <SelectTrigger id="grad-size" aria-label={s.radialSize}>
+                  <SelectValue>{g.size}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {SIZES.map((size) => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+        {'cx' in g && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <RangeSlider
+              label={s.centreX}
+              unit="%"
+              min={0}
+              max={100}
+              value={g.cx}
+              onChange={(cx) => setCentre({ cx })}
+            />
+            <RangeSlider
+              label={s.centreY}
+              unit="%"
+              min={0}
+              max={100}
+              value={g.cy}
+              onChange={(cy) => setCentre({ cy })}
+            />
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <span className="block text-sm font-medium">{s.colourStops}</span>
+          {g.stops.map((stop, i) => (
+            // Keyed by a row id, never by the colour: a key that changes as you type
+            // remounts the row and the field loses focus after one character.
+            <div key={stop.id} className="flex items-center gap-2">
+              <ColorInput
+                acceptAnyCssColor
+                label={s.stopColour.replace('{n}', String(i + 1))}
+                value={stop.color}
+                onChange={(color) => updateStop(i, { color })}
+                className="flex-1"
+              />
+              <Input
+                type="number"
+                value={stop.position ?? ''}
+                placeholder="auto"
+                onChange={(e) =>
+                  updateStop(i, {
+                    position: e.target.value === '' ? null : Number(e.target.value),
+                  })
+                }
+                aria-label={s.stopPosition.replace('{n}', String(i + 1))}
+                className="h-11 w-24 shrink-0 font-mono"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-11 w-11 shrink-0"
+                disabled={g.stops.length <= 2}
+                aria-label={s.removeStop.replace('{n}', String(i + 1))}
+                onClick={() => setStops(removeRow(g.stops, i))}
+              >
+                ×
+              </Button>
+            </div>
+          ))}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setStops(appendRow(g.stops, { color: NEW_STOP_COLOR, position: 100 }))}
+          >
+            {s.addStop}
+          </Button>
+        </div>
+
+        <div>
+          <span className="block text-sm font-medium mb-1.5">{s.presets}</span>
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+            {GRADIENT_PRESETS.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                title={presetName(p.name)}
+                aria-label={presetName(p.name)}
+                onClick={() => setG(withRowIds(p.state))}
+                className="h-11 rounded-md border transition-transform hover:scale-105"
+                style={{ background: toCss(p.state) }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-medium">CSS</span>
+            <CopyButton text={toCssBlock(g)} />
+          </div>
+          <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs font-mono">
+            {toCssBlock(g)}
+          </pre>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm font-medium">Tailwind</span>
+            <CopyButton text={toTailwind(g)} />
+          </div>
+          <pre className="overflow-x-auto rounded-md border bg-muted p-3 text-xs font-mono">
+            {toTailwind(g)}
+          </pre>
+        </div>
+
+        <div>
+          <span className="block text-sm font-medium mb-1.5">{s.editExisting}</span>
+          <div className="flex gap-2">
+            <Input
+              value={importText}
+              onChange={(e) => {
+                setImportText(e.target.value);
+                setImportError(null);
+              }}
+              placeholder={IMPORT_PLACEHOLDER}
+              aria-label={s.pasteCss}
+              aria-invalid={importError !== null}
+              className="h-11 font-mono"
+            />
+            <Button className="h-11 shrink-0" onClick={loadCss}>
+              {s.loadCss}
+            </Button>
+          </div>
+          {importError && (
+            <p className="mt-1.5 text-sm text-destructive" data-testid="import-error">
+              {importError}
+            </p>
+          )}
+        </div>
+
+        <PrivacyNote />
+      </CardContent>
+    </Card>
+  );
+}

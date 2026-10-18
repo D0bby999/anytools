@@ -1,0 +1,125 @@
+# Every place a worksheet kind differs from its up outline (AC1).
+# Approved by the owner on 2026-10-18 (54 lines). A new line needs approval again.
+#
+# One line per difference:   kind | element | what differs | why
+#
+#   element is one of: sections, §N labels, §N checks, §N tables, §N options
+#   (N counts the kind's sections that follow up, from 1), or §<key> added
+#   for a section up does not have (Section.Added).
+#
+# TestEveryKindMatchesItsUpOutline fails on a difference with no line here,
+# and on a line here for a registered kind that no longer differs. Adding a
+# line is an owner decision: the reason names the owner's request, or a
+# storage need (up's free-text link turned into a button, for example).
+#
+# Approved by the owner (plan.md, "Approved deviations from up"). Each kind's
+# phase writes the exact line(s) when the kind lands:
+#   english_diagnostic §6 (up's §5; §2A became §3 at f13ff2d): "Evidence card" is a button that opens the matching worksheet instead of a link.
+#     (Phase 1: it stays a label column, so the counts match up and no line is needed;
+#     diagnostic-extras.tsx draws the button in its cells.)
+#   speaking_evidence: the shadowing ladder, from the speaking chapter §6 (owner, 2026-10-01).
+#   grammar_error_map: composed from grammar chapter §2 and §4, since up has no template for it.
+#     (Phase 6: the two grammar_error_map lines below.)
+#   life kinds: the private notice, written fresh from up's opening warning.
+
+# Phase 7: speaking evidence and the fourteen-day speaking experiment.
+speaking_evidence | §shadowing added | the shadowing ladder: material, five levels with a recording, a note and "held", and three rebuild keywords | owner, 2026-10-01 (plan.md "Approved deviations from up"): taken from the speaking chapter §6 (docs/en/threads/part-1/5-speaking.md), which the card does not contain
+speaking_evidence | §7 tables | up 1x5, kind freex5 | storage: up's single body row only lists the break types; each repair the learner records is a row of a free table
+speaking_evidence | §9 tables | up 4x5, kind 4x6 | phase 7 requirement 9: up's "Output" is kept as a recording (audio) beside its written note, so the retest holds the raw take
+speaking_experiment | §1 tables | up 14x3, kind 14x5 | owner, 2026-10-01 (phase 7 requirement 8): up's action and evidence-to-keep are the read-only text of each day; the learner's evidence, a recording on the days whose evidence is one (1, 4, 5, 7, 9, 11, 12) and "done" are the columns
+speaking_experiment | §1 labels | up 0, kind 1 | owner, 2026-10-01 (phase 7 requirement 8): day 14's "keep, adjust or move on" is recorded as a decision
+speaking_experiment | §1 options | up [], kind [3] | the same decision: up's three outcomes on day 14 (keep, adjust, move on) as its options
+english_diagnostic | §cefr added | the CEFR self-check (0-cefr.md: global scale, four-skill evidence, a five-part goal, the four carry-over steps) with a level per skill | owner decision 2, 2026-10-01 ("kèm bảng tự đánh giá CEFR (A1–C2)"); per-skill placement cites the chapter's "rate each skill separately" (docs/threads/part-1/0-cefr.md, after the four-skill table)
+english_diagnostic | §1 labels | up 12, kind 9: the day-7, day-30 and week-12 date lines are not fields | they are the kind's Reviews, counted from the first-version date in up's §3 (§4 here since §2A) and shown under Reviews (phase 1 requirements 1 and 4)
+english_diagnostic | §4 labels | up 3, kind 4: a "First version recorded on" date | the date the three reviews count from (phase 1 requirement 4, Red Team AS-9); up writes the three dates by hand instead
+english_diagnostic | §5 labels | up 5, kind 0: up's "Scoring Meaning" list is not five fields | the list defines the five score columns; the generator counts its questions as labels, and the kind shows each as its column's help
+writing_evidence | §2 labels | up 7, kind 8: the unaided draft itself is a field (up to 20,000 characters), beside up's "Raw draft location" | phase 4 requirement 1: the per-pass diagnosis quotes the draft, so AnyTools must hold it
+# vocabulary_audit (phase 3). Every line is the outline counter, not a change
+# to up's structure: up's "Question? a / b / c" lines are read short by the
+# generator. (Its one-row tables of option lists and its option list wrapped
+# over three lines are counted right since the counter learnt template rows
+# and wrapped lists; the outlines regenerated at f13ff2d dropped those lines.)
+vocabulary_audit | §2 labels | up 7, kind 8 | up's line "Did it complete the real task? yes / partly / no" is a field; the generator counts no label for a "Question? a / b / c" line
+vocabulary_audit | §2 options | up [], kind [3] | the same line's yes / partly / no is a choice of three; the generator counts no options after a question mark
+vocabulary_audit | §7 labels | up 5, kind 6 | up's line "Task completed? yes / partly / no" is a field; the generator counts no label for a "Question? a / b / c" line
+vocabulary_audit | §7 options | up [4 4], kind [3] | the 3 is that line's yes / partly / no; the feedback type (4) and decision (4) options are the free table's choice columns, which the harness does not count
+
+# Phase 2: the listening audit on a video and the fourteen-day listening experiment.
+listening_audit | §6 options | up [4], kind [] | up's "retelling / process / decision / handover" is the read-only output of pass 5 (a label column, phase 2 requirement 1), not something the learner chooses
+listening_audit | §7 labels | up 9, kind 10 | phase 2 requirement 1: the high-impact 5–20 second segment is entered as a start and an end time, so the page can play exactly that segment
+listening_audit | §7 tables | up [], kind [freex4] | phase 2 requirement 1: the listening chapter's four-column dictation table (docs/en/threads/part-1/3-listening.md §7) follows the nine lines, free rows capped at 10
+listening_audit | §7 options | up [], kind [4] | up's "boundary / ending / reduction / stress difference" names its four options in the label itself, which the generator does not count; the kind keeps them as a multi (phase 2 requirement 1)
+listening_experiment | §1 tables | up 14x3, kind 14x5 | owner, 2026-10-01 (phase 2 requirement 4): up's action and evidence-to-keep are the read-only text of each day; the learner's evidence, "done", and a recording on day 5 (dictate and delay-shadow) are the columns
+listening_experiment | §1 labels | up 0, kind 1 | owner, 2026-10-01 (phase 2 requirement 4): day 14's "keep, downgrade or replace" is recorded as a decision
+listening_experiment | §1 options | up [], kind [3] | the same decision: up's three outcomes on day 14 (keep, downgrade, replace) as its options
+
+# Phase 5: reading evidence, with the chapter's five passes.
+reading_evidence | §passes added | the five passes: orient, map the structure, verify key evidence, rebuild with tools closed, move into a task, each with its job, an output and "done" | phase 5 requirement 1 (plan approved by the owner): taken from the reading chapter §4 (docs/en/threads/part-1/4-reading.md), which the card does not contain; the reader's "Read in five passes" walks them
+reading_evidence | §8 tables | up 1x5, kind freex5 | storage: up's single body row only lists the outputs; each output the learner delivers is a row of a free table
+
+# Phase 6: the grammar error map. up has no template for it; the kind is the
+# grammar chapter's §2 table (six meaning decisions) and §4 table (impact
+# types), each kept as a read-only reference table, plus the learner's own map.
+grammar_error_map | §2 tables | up 5x3, kind 5x3 freex6: the learner's error table (sample, meaning decision, impact, priority, what I meant, the contrast I will practise), at most 40 rows, beside up's impact table | owner, 2026-09-30 ("bản đồ lỗi xếp theo loại ý nghĩa"; plan.md "Approved deviations from up": composed from grammar chapter §2 and §4, since up has no template for it). Priority is a label derived from the impact, never stored
+grammar_error_map | §2 options | up [], kind [5 6]: the error table's meaning decision (chapter §2's six) and impact (chapter §4's five) | the same composition: each row is classified by the chapter's two lists, defined once and shared with grammar_evidence (phase 6 requirement 3)
+# Phase 8: artifact brief, interview evidence, AI case review, AI project
+# scorecard and narrative case review. artifact_brief and ai_case_review match
+# up exactly. The two AI templates and the narrative gates are read with the
+# generator's -fenced mode: each is written inside one code block whose own
+# headings are its sections.
+interview_evidence | §5 labels | up 7, kind 0: up's seven story lines are columns of the story table | phase 8 requirement 2: the story bank holds up to twelve stories, so each story is one row carrying up's lines (story name, situation, responsibility, action, result, what to change, evidence location) beside the story table's columns
+interview_evidence | §5 tables | up freex4, kind freex10 | the same row: up's seven story lines plus the story table's three other columns (questions it answers, yes or no after an unfamiliar follow-up, fact and privacy check); up's "Story" column is the story name line
+ai_project_scorecard | §2 options | up [2 2 2 2 2], kind [] | phase 8 requirement 4: up's five "yes / no" gates are yes/no fields; the harness counts options only for choices
+ai_project_scorecard | §3 options | up [2 2 2 2 2], kind [] | phase 8 requirement 4: each release gate's "Pass: yes / no" is a yes/no column; the harness counts options only for choices
+narrative_case_review | §source added | the AI case review's "Source and facts" (docs/en/templates/ai-case-review.md) | narrative-and-evidence.md §6 tells the reader to copy the AI case review template and add two gates; the template's four sections are counted by ai_case_review's outline, not this chapter's
+narrative_case_review | §judgement added | the AI case review's "Judgement" | the same: copied from ai-case-review.md, as §6 says
+narrative_case_review | §result added | the AI case review's "Outcome" | the same: copied from ai-case-review.md, as §6 says
+narrative_case_review | §principles added | the AI case review's "Transferable principle" | the same: copied from ai-case-review.md, as §6 says
+narrative_case_review | §reader added | a reader's three answers: what happened, the line that reads most unproven, what they could do next | phase 8 requirement 5: §6's closing paragraph asks a reader without the background these three things; it is prose, which the generator does not count
+# Phase 9: the life practice toolkit. The private notice that up's opening
+# warning becomes (plan.md, "Approved deviations from up") is page chrome
+# (private-note.tsx), not a section, so it needs no line. Each worksheet's
+# sub-headings and blank-line groups are sections that continue the first
+# (Section.Continues), which the harness counts as up's one section.
+attention_audit | §1 labels | up 6, kind 8: the week's two dates are fields | up writes the week as "YYYY-MM-DD to YYYY-MM-DD" in the worksheet's heading, which the generator does not count; storage: AnyTools' title is free text, so the dates the audit covers are kept as dates (phase 9 requirement 1, "the week range (two dates)")
+recovery_reset | §1 labels | up 27, kind 28: "Review date and person authorised to pause" is a date and a name | phase 9 requirement 1: the review follows "the review date in the thresholds", which needs a date field of its own; the person who may pause is the line beside it
+# Phase 10: the structured day-90 close. The outline is generated from
+# after-90-days.md §2, §3, §9, §10 and §11 (-sections 3,4,10,11,12). §4
+# ("Ability must transfer") has no lines, rows or options of its own in up;
+# its one-condition transfer is the destinations table's "changed condition"
+# column, so it is not a section of the kind and needs no line here.
+cycle_close | §review added | the day-ninety review's seven lines, from docs/en/templates/90-day-cycle.md §7 | phase 10 requirement 1 puts up's template §7 first; it is a second up file, which the generator cannot read into the same outline, so TestCycleCloseFollowsUp pins its seven lines instead
+cycle_close | §2 tables | up 4x3, kind freex7 | phase 10 requirement 1: up's table is the four destinations' reference (when each fits, its next action), now the section's help; the learner's results are free rows (at most 20) of result, destination, next step, the transfer's changed condition (§4) and the stop's three actions (§3's last paragraph)
+cycle_close | §2 options | up [], kind [4] | the same table: up's four destinations (continue, transfer, repair, stop) are the destination column's options
+cycle_close | §3 labels | up 3, kind 4 | phase 10 requirement 1: up's "later is still possible" list (§9's last paragraph, prose with no label line) is kept as a field
+cycle_close | §4 tables | up 4x2, kind 4x3 | phase 10 requirement 1: up's question is the read-only text of each ability; the learner's answer is the added column
+cycle_close | §4 labels | up 0, kind 1 | phase 10 requirement 1: up's note to yourself three months on (§10's last paragraph, prose with no label line) is kept as a field
+cycle_close | §5 tables | up 4x3, kind 4x5 | phase 10 requirement 1: up's central action and evidence of completion are the read-only text of each stage; the learner's "done" and "where" are the added columns
+
+# plans/261017-1828-up-f13ff2d-upgrade, phase 3: the self-reflection cards.
+# The kind gathers the eleven copyable cards of up's part 6 from five files
+# (1-understanding-yourself.md §4, §6; 2-knowing-yourself.md §3, §6;
+# 3-being-kind-to-yourself.md §4, §7; 4-improving-yourself.md §1, §6, §9;
+# 5-being-your-own-lifelong-friend.md §1, §4) into one private worksheet, one
+# section per card in up's order. Why one kind: each card is a few lines,
+# none stands as a worksheet of its own, and the learner keeps them in one
+# private place and fills one at a time (phase 3 requirement 1). The
+# generator reads the five files into one outline (-file a.md,b.md,…
+# -sections '5,7;4,7;…'), so the gathering itself needs no line; every card
+# keeps up's line count.
+self_reflection | §9 labels | up 6, kind 7: "Retest date" is added before the day-30 decision | phase 3 requirement 3: the thirty-day experiment's retest date, if written, is the kind's review, and up's card has no date line to follow
+# Phase 2 of 261017-1828-up-f13ff2d-upgrade: consistency plan, AI evaluation,
+# AI trend radar, startup experiment. startup_experiment matches up exactly:
+# its blank-line groups are sections that continue the first. The consistency
+# plan's heading lines ("Updated", "Cycle", "Review date or condition") are
+# three fields too: up's "Updated" is the worksheet's own updated date, and
+# "Cycle: from to" is the two dates, so the counts match with no line.
+consistency_plan | §7 tables | up 0x5, kind freex5 | storage: up's cycle log is a header with no body row, which the generator counts as zero rows; each session the learner logs is a row of a free table (at most 60)
+ai_evaluation | §3 labels | up 11, kind 0: up's case lines are columns of the attempts table | phase 2 requirement 2 (plan approved by the owner): one row per attempt, so the page and the server count each version's rates from the rows; up copies its case lines once per attempt and its section once per version instead
+ai_evaluation | §3 tables | up [], kind [freex12] | the same rows: up's ten case lines (first pass and its mandatory failures as two columns) plus "Version for this section" as the version column; at most 40 attempts
+ai_evaluation | §3 options | up [], kind [2 3 3] | the same rows: the version (the blank record's current version and candidate), the first pass (pass, fail, timeout; up's "retain failures and timeouts") and the final state (accepted, failed, timed out) are choices, so the rates can be counted
+ai_evaluation | §4 labels | up 7, kind 5: the two rate lines are a table | phase 2 requirement 2, the results rule: "first-pass accepted / all attempts" and "accepted after human revision / all attempts" are kept per version, and the server checks each stored rate against that version's case rows
+ai_evaluation | §4 tables | up [], kind [2x3] | the same rule: one row per version (current, candidate), with the two rates as columns
+ai_evaluation | §5 options | up [], kind [4] | up's "Adopt / retain current version / repair and retest / stop:" is a decision of four; the generator counts no options before a label's colon
+ai_trend_radar | §4 options | up [5], kind [] | up's "Total time: preparation / run / checking / rework / maintenance:" lists the parts of one total to write down, not options to choose from; the kind keeps it a text line
+ai_trend_radar | §5 options | up [], kind [3] | up's "Continue / downgrade / stop:" is the round's decision (6-ai-trends-and-learning-roadmap.md, "Compare All Six Experiments the Same Way"); the generator counts no options before a label's colon

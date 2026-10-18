@@ -1,0 +1,336 @@
+import {
+  Button,
+  FilePipelineTemplate,
+  Label,
+  MultiFileDropzone,
+  PrivacyNote,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useLocalized,
+} from '~/components/tools-ui';
+import { useEffect, useMemo, useState } from 'react';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
+import { useObjectUrls } from '../shared/use-object-urls';
+import {
+  type AddPageNumbersResult,
+  type NumberFormatId,
+  type NumberPosition,
+  addPageNumbers,
+  labelFor,
+  readPageCount,
+} from './logic';
+import { STRINGS } from './strings';
+
+const POSITIONS: NumberPosition[] = [
+  'top-left',
+  'top-center',
+  'top-right',
+  'bottom-left',
+  'bottom-center',
+  'bottom-right',
+];
+
+// The labels are what the PDF will literally print (see `labelFor` in logic.ts), so they are
+// not translated: "Page 1" is the text stamped on the page, in any UI language.
+const FORMATS: { value: NumberFormatId; label: string }[] = [
+  { value: 'plain', label: '1' },
+  { value: 'of-total', label: '1 / 10' },
+  { value: 'page-n', label: 'Page 1' },
+];
+
+const MARGIN_OPTIONS = [
+  { value: 18, label: '18 pt — 6 mm' },
+  { value: 28, label: '28 pt — 10 mm' },
+  { value: 36, label: '36 pt — 13 mm' },
+  { value: 54, label: '54 pt — 19 mm' },
+] as const;
+const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18];
+
+const fieldClass =
+  'h-10 w-full rounded-md border border-control-border bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+
+export function AddPageNumbersUi() {
+  const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
+  const [files, setFiles] = useState<File[]>([]);
+  const [pageCount, setPageCount] = useState<number | null>(null);
+  const [position, setPosition] = useState<NumberPosition>('bottom-center');
+  const [format, setFormat] = useState<NumberFormatId>('plain');
+  const [startAt, setStartAt] = useState(1);
+  const [range, setRange] = useState('');
+  const [fontSize, setFontSize] = useState(11);
+  const [margin, setMargin] = useState(36);
+  const [result, setResult] = useState<AddPageNumbersResult | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const file = files[0] ?? null;
+
+  const positionLabel: Record<NumberPosition, string> = {
+    'top-left': s.pos_topLeft,
+    'top-center': s.pos_topCenter,
+    'top-right': s.pos_topRight,
+    'bottom-left': s.pos_bottomLeft,
+    'bottom-center': s.pos_bottomCenter,
+    'bottom-right': s.pos_bottomRight,
+  };
+
+  // Revoke outside the updater: React may run an updater more than once (and does, in
+  // StrictMode), which would revoke a URL still on screen and leak the extra ones.
+  const reset = () => {
+    objectUrls.revoke(downloadUrl);
+    setDownloadUrl(null);
+    setResult(null);
+    setError(null);
+  };
+
+  // Read the page count as soon as a file lands, so the range field can say what is valid
+  // instead of failing only on submit.
+  useEffect(() => {
+    if (!file) {
+      setPageCount(null);
+      return;
+    }
+    let cancelled = false;
+    readPageCount(file)
+      .then((n) => !cancelled && setPageCount(n))
+      .catch((e) => !cancelled && setError(toolErrorText(e, errorStrings, s.couldNotReadPdf)));
+    return () => {
+      cancelled = true;
+    };
+  }, [file, errorStrings, s.couldNotReadPdf]);
+
+  const run = async () => {
+    if (!file) return;
+    setBusy(true);
+    reset();
+    try {
+      const r = await addPageNumbers(file, {
+        position,
+        format,
+        startAt,
+        range,
+        fontSize,
+        margin,
+      });
+      setResult(r);
+      setDownloadUrl(objectUrls.create(r.blob));
+    } catch (e) {
+      setResult(null);
+      setError(toolErrorText(e, errorStrings, s.failed));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
+        <MultiFileDropzone
+          files={files}
+          onChange={(f) => {
+            setFiles(f);
+            reset();
+          }}
+          accept="application/pdf,.pdf"
+          multiple={false}
+          label={s.dropLabel}
+        />
+      }
+      result={
+        <>
+          {pageCount !== null && (
+            <p className="text-sm text-muted-foreground">
+              {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                '{n}',
+                String(pageCount),
+              )}
+            </p>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="apn-position">{s.position}</Label>
+              <Select
+                value={position}
+                onValueChange={(v) => {
+                  setPosition(v as NumberPosition);
+                  reset();
+                }}
+              >
+                <SelectTrigger id="apn-position">
+                  <SelectValue>{positionLabel[position]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {POSITIONS.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {positionLabel[p]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apn-format">{s.format}</Label>
+              <Select
+                value={format}
+                onValueChange={(v) => {
+                  setFormat(v as NumberFormatId);
+                  reset();
+                }}
+              >
+                <SelectTrigger id="apn-format">
+                  <SelectValue>
+                    {FORMATS.find((o) => o.value === format)?.label ?? format}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {FORMATS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <label className="space-y-1 text-sm">
+              <span className="font-medium">{s.startAt}</span>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={startAt}
+                onChange={(e) => {
+                  // Whole numbers only — `step` governs the spinner, not what can be typed or
+                  // pasted, and "1.5" would otherwise be numbered 1.5, 2.5, 3.5. An empty field
+                  // gives NaN from Number(''), so fall back to the first page.
+                  const typed = Math.trunc(Number(e.target.value));
+                  setStartAt(Number.isFinite(typed) ? Math.max(0, typed) : 1);
+                  reset();
+                }}
+                className={fieldClass}
+              />
+            </label>
+
+            <label className="space-y-1 text-sm">
+              <span className="font-medium">{s.pagesToNumber}</span>
+              <input
+                type="text"
+                value={range}
+                placeholder={
+                  pageCount
+                    ? s.rangePlaceholderAll.replace('{n}', String(pageCount))
+                    : s.rangePlaceholder
+                }
+                onChange={(e) => {
+                  setRange(e.target.value);
+                  reset();
+                }}
+                className={fieldClass}
+              />
+            </label>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apn-font-size">{s.fontSize}</Label>
+              <Select
+                value={String(fontSize)}
+                onValueChange={(v) => {
+                  setFontSize(Number(v));
+                  reset();
+                }}
+              >
+                <SelectTrigger id="apn-font-size">
+                  <SelectValue>{fontSize} pt</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_SIZES.map((size) => (
+                    <SelectItem key={size} value={String(size)}>
+                      {size} pt
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="apn-margin">{s.margin}</Label>
+              <Select
+                value={String(margin)}
+                onValueChange={(v) => {
+                  setMargin(Number(v));
+                  reset();
+                }}
+              >
+                <SelectTrigger id="apn-margin">
+                  <SelectValue>
+                    {MARGIN_OPTIONS.find((o) => o.value === margin)?.label ?? `${margin} pt`}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {MARGIN_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={String(o.value)}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <p className="text-sm text-muted-foreground">{s.fontNote}</p>
+
+          <Button type="button" onClick={run} disabled={!file || busy}>
+            {busy ? s.numbering : s.addNumbers}
+          </Button>
+
+          <p className="text-sm text-muted-foreground">
+            {s.previewFirst}{' '}
+            <span className="font-medium">{labelFor(format, startAt, pageCount ?? 10)}</span>
+          </p>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && downloadUrl && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                <div className="font-medium">
+                  {(result.pages === 1 ? s.numberedOne : s.numberedMany)
+                    .replace('{n}', String(result.numbered))
+                    .replace('{total}', String(result.pages))}
+                </div>
+                <p className="mt-1 text-muted-foreground">
+                  {s.labels
+                    .replace('{first}', result.firstLabel)
+                    .replace('{last}', result.lastLabel)}
+                </p>
+              </div>
+              <Button asChild>
+                <a href={downloadUrl} download="numbered.pdf">
+                  {s.download}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
+  );
+}

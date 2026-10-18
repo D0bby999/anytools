@@ -1,0 +1,37 @@
+---
+title: Tạo Mã Vạch — Câu hỏi thường gặp
+---
+
+## Nó có thể tạo những ký hiệu nào?
+
+Mười loại: EAN-13, EAN-8, UPC-A và ITF-14 cho bán lẻ và hộp carton; ITF (Interleaved 2 of 5), Code 128 và Code 39 cho kho hàng, quản lý tài sản và nhãn công nghiệp; và Data Matrix, PDF417 và Aztec cho các trường hợp 2D — linh kiện nhỏ, nhãn vận chuyển, thẻ lên máy bay và vé.
+
+Không bao gồm QR. Đó là chức năng của [trình tạo mã QR](/en/generators/qr-code-generator), cái có các template cho thông tin Wi-Fi, danh bạ vCard và email được điền sẵn mà một khung "mã hóa chuỗi này" đơn giản không thể cung cấp. Hai tool, không chồng chéo.
+
+## Check digit là gì và tại sao nó từ chối số của tôi?
+
+Chữ số cuối cùng của EAN-13, EAN-8, UPC-A hoặc ITF-14 không phải là dữ liệu. Nó là phép tính trên các chữ số trước: mỗi chữ số được nhân với 3 hoặc 1 xen kẽ từ bên phải, các tích được cộng lại, và check digit là bất cứ điều gì đưa tổng đó đến bội số tiếp theo của mười. Một máy quét tính toán lại nó trên mỗi lần đọc và từ chối bất cứ điều gì không khớp, đó là những gì ngăn một mã vạch bị làm nhòe hoặc sai lệch không rung chuông cho sản phẩm sai.
+
+Vì vậy, một số "trông ổn" nhưng kết thúc bằng chữ số sai sẽ tạo ra một mã vạch mà bất kỳ máy thu ngạn không chấp nhận. Tool này thực hiện phép tính đó trong JavaScript trước khi mã hóa bất cứ điều gì, và nếu chữ số sai nó sẽ cho bạn biết chữ số nào mã phải kết thúc.
+
+Nếu bạn dán số *không* có chữ số cuối cùng — 12 chữ số cho EAN-13, 11 chữ số cho UPC-A — nó sẽ tính toán check digit và thêm vào. Đó thường là những gì bạn muốn: số sản phẩm của nhà sản xuất được trích dẫn theo cả hai cách, và tool sẽ cho bạn biết giá trị nào nó thực sự đã mã hóa.
+
+## Tôi có thể bán một sản phẩm với mã vạch mà tôi tạo ở đây không?
+
+Bạn có thể in một cái, và máy quét sẽ đọc nó. Liệu một cửa hàng có chấp nhận nó hay không là một câu hỏi khác. Số EAN và UPC bán lẻ được cấp bởi GS1, cơ quan cấp cho mỗi công ty một tiền tố; một số mà bạn phát minh có thể đã thuộc về người khác, và hầu hết các nhà bán lẻ xác minh quyền sở hữu trước khi liệt kê sản phẩm. Tool này mã hóa số mà bạn cho nó — nó không thể, và không thể, cho bạn biết số đó có phải của bạn không.
+
+Để sử dụng nội bộ — kiểm soát kho hàng, thẻ tài sản, kệ thư viện, kho của bạn riêng — không có gì trong đó áp dụng. Code 128 và Code 39 không có sổ đăng ký trung tâm nào và là lựa chọn đúng ở đó.
+
+## Tôi nên chọn định dạng nào?
+
+Vỏ bán lẻ ở châu Âu và hầu hết thế giới: EAN-13. Bán lẻ Bắc Mỹ: UPC-A. Một gói nhỏ không có chỗ cho mười ba chữ số: EAN-8. Hộp carton ngoài và thùng vận chuyển: ITF-14, cái là số bán lẻ với một chữ số cấp độ bao bì ở phía trước.
+
+Đối với bất cứ điều gì không được bán tại quầy, Code 128 là mặc định thông thường — nó chấp nhận cả chữ cái và chữ số và đóng gói chúng dày đặc. Code 39 cũ hơn, ít dày đặc hơn, giới hạn ở chữ hoa, chữ số và một số dấu câu, nhưng vẫn là những gì rất nhiều thiết bị công nghiệp lâu dài mong đợi. Data Matrix là cái để sử dụng khi nhãn rất nhỏ; PDF417 giữ nhiều văn bản nhất; Aztec phổ biến trên vé vận chuyển vì nó không cần vùng im lặng xung quanh nó.
+
+## Tại sao mã vạch được in không quét được?
+
+Ba nguyên nhân chiếm gần như tất cả nó. Vùng im lặng — lề trắng đơn thuần ở hai bên của các thanh — đã bị cắt đi hoặc tô đầy bằng tác phẩm nghệ thuật; giữ tùy chọn "quiet zone" bật. Hình ảnh đã được phóng to từ một PNG nhỏ và các cạnh của thanh bị làm mờ; tải SVG thay vào đó, cái là độc lập với độ phân giải và là những gì bạn muốn để in. Hoặc các thanh đơn giản là quá hẹp cho máy in, trong trường hợp đó hãy tăng kích thước mô-đun.
+
+## Có gì rời khỏi trình duyệt của tôi không?
+
+Không. Encoder là zxing-wasm, một bản WebAssembly của thư viện C++ ZXing, và nó chạy trong tab này. Tệp WebAssembly 1,5 MB được phục vụ từ miền riêng của trang web này, không phải từ CDN, và nó chỉ được tìm nạp khi bạn nhấn Generate — mở trang và không bao giờ tạo bất cứ điều gì, nó sẽ không bao giờ được yêu cầu. Giá trị bạn gõ không bao giờ được gửi bất kỳ nơi nào.

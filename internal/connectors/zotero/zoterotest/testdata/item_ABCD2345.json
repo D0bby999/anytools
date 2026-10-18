@@ -1,0 +1,22 @@
+{
+  "key": "ABCD2345",
+  "version": 1204,
+  "library": {"type": "user", "id": 475425, "name": "learner"},
+  "links": {"alternate": {"href": "https://www.zotero.org/learner/items/ABCD2345", "type": "text/html"}},
+  "meta": {"creatorSummary": "Lewis et al.", "parsedDate": "2020-05-22", "numChildren": 2},
+  "data": {
+    "key": "ABCD2345",
+    "version": 1204,
+    "itemType": "journalArticle",
+    "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    "creators": [
+      {"creatorType": "author", "firstName": "Patrick", "lastName": "Lewis"},
+      {"creatorType": "author", "firstName": "Ethan", "lastName": "Perez"}
+    ],
+    "abstractNote": "Large pre-trained language models store factual knowledge in their parameters.",
+    "publicationTitle": "Advances in Neural Information Processing Systems",
+    "date": "2020-05-22",
+    "DOI": "10.48550/arXiv.2005.11401",
+    "url": "https://arxiv.org/abs/2005.11401"
+  }
+}

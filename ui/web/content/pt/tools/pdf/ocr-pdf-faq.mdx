@@ -1,0 +1,51 @@
+---
+title: OCR de um PDF digitalizado — Perguntas frequentes
+---
+
+## Meu documento é enviado para algum lugar?
+
+Não. Cada página é renderizada para um canvas por `pdf.js`, reconhecida por Tesseract compilado para WebAssembly, e — se você pedir um PDF pesquisável — remontada por `pdf-lib`. Todos os três são executados dentro desta aba do navegador. Nada sobre o documento chega a um servidor, então não há cópia armazenada para ser retida, registrada ou excluída.
+
+Essa é a razão inteira pela qual a ferramenta existe nessa forma. Todo outro serviço de "OCR PDF" gratuito publica seu arquivo em uma máquina que você não controla, e PDFs digitalizados são sobretudo os documentos que menos gostaria de entregar: contratos, registros médicos, extratos bancários, títulos de propriedade, ações judiciais. Você pode verificar: abra a aba Rede, execute a ferramenta, e depois que o arquivo de idioma carrega você não verá nenhuma solicitação transportando o PDF.
+
+## O que é um "PDF pesquisável" e o que essa opção realmente muda?
+
+É a mesma varredura, visualmente inalterada, com as palavras reconhecidas escritas sobre a imagem em texto invisível. Seu leitor pode então encontrar, selecionar e copiar palavras que existem apenas no documento como pixels.
+
+Nada é redesenhado ou re-comprimido. A ferramenta carrega seu arquivo original, e para cada palavra que Tesseract encontrou ela desenha essa palavra com opacidade zero, posicionada sobre o lugar na página onde a tinta está. A varredura que você vê depois é byte-idêntica em aparência; apenas uma camada de texto foi adicionada. Isso significa que o arquivo cresce por algumas dezenas de kilobytes em vez de ser re-codificado — e também significa que a qualidade da imagem é exatamente o que você começou, para melhor ou pior.
+
+Se você deixar a opção desligada você recebe `.txt` simples com um marcador `--- Página n ---` antes de cada página, que é a melhor saída quando você pretende editar ou reutilizar o texto em vez de manter a varredura.
+
+## Por que demora tanto, e posso parar?
+
+Reconhecimento é genuinamente caro: aproximadamente um a cinco segundos por página em um laptop moderno, mais em um telefone, mais um custo inicial único na primeira vez. Uma varredura de cinquenta páginas é alguns minutos de trabalho real, e é sua própria CPU fazendo — um serviço do lado do servidor parece mais rápido porque o trabalho acontece na máquina de outra pessoa.
+
+Há um botão **Parar**. Ele encerra a execução: a página sendo lida é abandonada, o mecanismo de reconhecimento é desligado, e o loop não avança para a próxima página. O que não faz é entregar as páginas que já havia terminado — uma execução interrompida não produz texto em tudo, e o botão fica em seu estado "parando" até que a execução realmente se desfaça, que é normalmente uma fração de segundo.
+
+Então se você quer apenas parte de um documento, use o campo de intervalo de páginas em vez de Parar: ler páginas 12–14 de uma varredura de 200 páginas leva segundos e lhe dá essas três páginas.
+
+## O que é baixado na primeira vez?
+
+Nada até você pressionar **Reconhecer texto**. Então, deste site e nunca de um CDN: o script worker (~110 KB), o mecanismo WebAssembly (~3,8 MB), e os dados de idioma (0,5–4 MB dependendo do idioma). O arquivo de idioma é armazenado em cache no IndexedDB do seu navegador, então o segundo documento no mesmo idioma não baixa nada. Escolher a opção PDF pesquisável em vietnamita adicionalmente busca um arquivo Noto Sans de 421 KB, porque as fontes de PDF incorporadas não conseguem soletrar vietnamita; os outros três idiomas usam uma fonte que cada leitor de PDF já tem.
+
+## Por que 200 DPI, e a resolução importa?
+
+Cada página é renderizada a 200 pontos por polegada antes do reconhecimento. Os modelos do Tesseract foram treinados em material ao redor de 300 DPI para tipo de corpo ordinário, e abaixo de cerca de 150 DPI a precisão cai rapidamente. Renderizar *acima* da resolução da varredura original adiciona pixels mas nenhuma informação, então só torna o reconhecimento mais lento — 200 é onde a curva se achata para os documentos que esta ferramenta vê.
+
+O que importa é a varredura com a qual você começou. Uma varredura em escala de cinza de 150 DPI de uma página impressa limpa sairá muito bem. Uma fotografia de uma página tirada em um ângulo, um fax, ou uma varredura que alguém já comprimiu para um JPEG pequeno sairá notavelmente pior, e nenhuma configuração aqui consegue recuperar informação que a varredura não capturou. As páginas são convertidas em escala de cinza antes do reconhecimento, que é aproximadamente duas vezes mais rápido e não menos preciso, já que Tesseract descarta cor internamente de qualquer forma.
+
+## Por que algumas palavras desaparecem da camada pesquisável?
+
+Dois motivos, ambos relatados em vez de ocultos. Palavras que o reconhecedor tinha menos de 30% de confiança são deixadas de fora por propósito: nesse nível são geralmente speckles lidos como pontuação, e incluí-las faz seleção de linha copiar lixo.
+
+O outro motivo é a fonte. Para inglês, espanhol e português a camada invisível é desenhada em Helvetica, cujo conjunto de caracteres é aproximadamente Latin-1. O vietnamita usa um Noto Sans incorporado em vez disso, que cobre cerca de três mil pontos de código — o alfabeto latino com cada marca de tom vietnamita, grego, cirílico e pontuação comum. De qualquer forma, uma palavra contendo um caractere que a fonte não tem um glifo para é deixada de fora e contada, e a contagem aparece acima do texto. Os caracteres que caem fora de ambos são raros na prática e geralmente leituras erradas para começar: CJK, setas e linhas de caixa que OCR extraiu de um carimbo ou uma borda de tabela. A saída `.txt` não tem tal limite — ela contém cada palavra independentemente da fonte.
+
+## E se o PDF pesquisável não conseguir ser construído?
+
+Você ainda recebe o texto. A ferramenta verifica seu original antes de começar a ler — um arquivo com permissões ou uma senha nele pode ser exibido mas não consegue ter uma camada de texto escrita nele, e isso é recusado com antecedência em vez de depois de vários minutos de reconhecimento. Se algo der errado mais tarde, na etapa de montagem, o texto reconhecido e o download `.txt` permanecem na página e uma mensagem explica por que o PDF está faltando.
+
+Um original protegido por senha é o caso comum. Remova a proteção primeiro, ou desative a opção PDF pesquisável e pegue o texto por sua conta.
+
+## Qual é a precisão?
+
+Os arquivos de idioma são modelos `tessdata_fast` do Tesseract — quantizados para velocidade e tamanho. Em uma página impressa limpa espere as altas noventa por cento dos caracteres; a ferramenta relata uma confiança média por página então você consegue ver quais páginas são fracas. `tessdata_best` seria cerca de dois a três por cento melhor e quatro vezes o download, que não é um compromisso que vale a pena fazer para cada visitante. Escrita à mão não funciona em tudo, e tabelas densas, layouts multicolunares com sarjetas estreitas, e texto impresso sobre imagens são todos substancialmente piores do que texto de corpo simples.

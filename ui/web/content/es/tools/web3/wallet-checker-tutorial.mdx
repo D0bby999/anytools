@@ -1,0 +1,89 @@
+---
+title: Wallet Address Checker — detecta redes blockchain a partir del formato de dirección
+description: Cómo funcionan los formatos de dirección en EVM, BTC, Solana y Tron, validación de checksum, desambiguación y casos de uso reales.
+updated: 2026-05-26
+---
+
+## Por qué importa detectar el formato de dirección
+
+Cada blockchain define su propio formato de dirección — consecuencia de distintas elecciones criptográficas, esquemas de codificación y filosofías de diseño. Cuando construyes una wallet multi-chain, un formulario de pago, una capa de detección de fraude o un pipeline de datos que ingiere direcciones enviadas por usuarios, necesitas saber a qué red pertenece una dirección antes de poder hacer algo útil con ella.
+
+Enviar una dirección de Solana a un nodo de Ethereum, o una dirección de Bitcoin a un RPC de Solana, producirá un error o un resultado sin sentido. La detección de formato en el cliente intercepta estos errores en el límite del sistema, antes de que se realice cualquier llamada on-chain.
+
+## Cadenas EVM — la familia con prefijo `0x`
+
+Ethereum y todas las cadenas EVM-compatibles (Polygon, BNB Smart Chain, Arbitrum, Optimism, Avalanche C-Chain, Base, etc.) comparten un formato de dirección idéntico: el prefijo `0x` seguido de 40 caracteres hexadecimales en minúsculas, que representan los últimos 20 bytes del hash Keccak-256 de la clave pública.
+
+```
+0x742d35Cc6634C0532925a3b8D4C9b74b49F1234c
+```
+
+**Checksum EIP-55.** Las direcciones Ethereum son case-insensitive a nivel de protocolo, pero EIP-55 define una codificación de checksum donde ciertas letras hex se escriben en mayúsculas basándose en el hash Keccak de la dirección en minúsculas. Una dirección mixed-case que pasa EIP-55 tiene una probabilidad de 1/2⁴⁰ de haber sido producida por corrupción aleatoria — prácticamente cero.
+
+## Bitcoin — tres generaciones de formatos
+
+Bitcoin ha evolucionado a través de tres formatos de dirección, todos en uso activo:
+
+**P2PKH (Legacy) — `1…`**
+Comienza con `1`, codificado en Base58Check, 25–34 caracteres. El formato más antiguo, con las comisiones más altas.
+
+**P2SH (Script Hash) — `3…`**
+Comienza con `3`, codificado en Base58Check. Usado para wallets multisig y SegWit envuelto (P2SH-P2WPKH). Ligeramente ambiguo — los datos on-chain determinan cuál es cuál.
+
+**Bech32 (Native SegWit) — `bc1q…`**
+Parte legible por humanos `bc`, separador `1`, seguido de un programa codificado en Bech32. Comisiones más bajas y mejor detección de errores. Las direcciones `bc1q` son P2WPKH; las `bc1p` (Taproot, BIP-341) son P2TR.
+
+Esta herramienta detecta los tres formatos e informa el tipo específico.
+
+## Solana — Base58, 32 bytes
+
+Las direcciones de Solana son la codificación Base58 de una clave pública Ed25519 de 32 bytes, produciendo cadenas de 32–44 caracteres. No tienen un prefijo fijo, lo que crea ambigüedad: algunas direcciones de Solana parecen visualmente similares a las Bitcoin Legacy porque ambas usan Base58.
+
+La desambiguación es por **longitud y conjunto de caracteres**. Una dirección Solana válida tiene 32–44 caracteres Base58 (sin `0`, `O`, `I` ni `l`). Las Bitcoin Legacy tienen 25–34 caracteres. Una dirección de 43–44 caracteres que es Base58 válido y no contiene `0/O/I/l` es casi con certeza Solana.
+
+## Tron — prefijo `T`, Base58Check, 21 bytes
+
+Las direcciones Tron comienzan con `T`, están codificadas en Base58Check y tienen 34 caracteres. Internamente Tron usa una dirección EVM de 20 bytes (misma derivación que Ethereum), pero antepone el byte de red `0x41` antes de codificar.
+
+```
+TJCnKsPa7y5okkXvQAidZijX6KgBCjQceC  ← Tron
+0x...                                  ← la misma clave, estilo Ethereum
+```
+
+## Otras cadenas detectadas
+
+- **Litecoin** — Legacy `L…` (P2PKH), `M…` (P2SH), `ltc1…` (Bech32)
+- **Dogecoin** — `D…` (P2PKH)
+- **XRP (Ripple)** — Base58Check con un alfabeto diferente, comienza con `r`
+- **Cardano** — Bech32 con HRP `addr1` (shelley) o `Ae2…` (era Byron)
+- **Cosmos/ATOM** — Bech32 con HRP `cosmos1`
+
+## Lo que esta herramienta NO hace
+
+Es un **validador de formato**, no un oráculo de cadena. Verifica:
+- ¿La cadena coincide con un patrón de dirección conocido?
+- ¿Valida el checksum (EIP-55, Base58Check, Bech32)?
+- ¿Con qué red(es) es compatible este formato?
+
+**No** hace:
+- Ninguna llamada RPC o API a un nodo blockchain
+- Comprobar si la dirección existe on-chain o ha tenido transacciones
+- Verificar saldo o tenencias de tokens
+- Validar una firma ni probar propiedad de la clave
+- Distinguir entre mainnet y testnet
+
+Para estado on-chain, usa un explorador de bloques o una llamada RPC después de confirmar el formato aquí.
+
+## Casos de uso
+
+**Validación de formularios de pago.** Antes de enviar un retiro, confirma que la dirección ingresada corresponde a la red esperada. Enviar ETH a un formato de dirección BTC dará error en el nodo; enviarlo a la cadena EVM equivocada (mismo formato, diferente chainId) tiene éxito silenciosamente y los fondos son irrecuperables.
+
+**UX de wallets multi-chain.** Detecta automáticamente qué red está buscando el usuario y preselecciona la cadena correcta en la UI.
+
+**Detección de fraude en la ingesta.** En un pipeline KYC o de cumplimiento, marca las direcciones que no coinciden con ningún formato conocido.
+
+**Limpieza de datos.** Normaliza un CSV mixto de direcciones wallet por red antes de enrutarlas a servicios de enriquecimiento por cadena.
+
+## Privacidad
+
+Las cadenas de dirección se validan localmente en el navegador usando patrones regex y algoritmos de checksum. Ninguna dirección se transmite a ningún servidor.

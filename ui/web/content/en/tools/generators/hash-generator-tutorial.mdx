@@ -1,0 +1,71 @@
+---
+title: Hash algorithms — what they're for and when each is wrong
+description: MD5, SHA-1, SHA-256, SHA-512, HMAC. Which to use, which to avoid, and the mistake every backend has made at least once.
+updated: 2026-05-25
+---
+
+## What hashing actually does
+
+A hash function takes any input and produces a fixed-size output. The output looks random but is fully deterministic — same input always produces the same hash. Good hashes have three properties: **pre-image resistance** (given a hash, you can't reverse it to the input), **collision resistance** (you can't find two inputs that produce the same hash), and **avalanche** (one bit changed in the input flips ~half the bits in the output).
+
+What hashing is **not**: encryption. There is no key. There is no "decrypting" a hash. If someone tells you they're "encrypting passwords with SHA-256", they are misusing both terms and probably also their authentication system.
+
+## The five algorithms in this tool
+
+| Algorithm | Output size | Safe for security in 2026? | Use for |
+|---|---|---|---|
+| **MD5** | 128 bits | **No** | Non-security checksums (file dedup, cache keys) |
+| **SHA-1** | 160 bits | **No** | Legacy compatibility only |
+| **SHA-256** | 256 bits | Yes | Default for new code |
+| **SHA-384** | 384 bits | Yes | Compliance regimes that mandate it |
+| **SHA-512** | 512 bits | Yes | When you need more output size (rare) |
+
+MD5 and SHA-1 are **broken** for cryptographic uses because collision attacks against them are practical. They are not broken for **non-security** uses like detecting accidental file corruption or generating cache keys, where an attacker isn't actively trying to construct collisions.
+
+## The mistake: hashing passwords with SHA-256
+
+Every backend developer has done this once and learned not to:
+
+```javascript
+// DON'T
+const hashed = sha256(password);
+```
+
+SHA-256 is *fast* — a modern GPU can compute billions per second. That's exactly what you don't want for password storage, because an attacker who steals your database can brute-force the hashes at the same speed.
+
+Use **password hashing functions** designed to be slow:
+
+- **bcrypt** — old standard, well-understood, fine for most cases
+- **scrypt** — memory-hard, harder to GPU-attack than bcrypt
+- **Argon2id** — current state of the art, winner of the Password Hashing Competition
+
+These take ~100ms to compute, which is invisible to a user logging in but catastrophic for an attacker trying billions of guesses. Use a library: `argon2` (Node), `bcrypt` (Python/Go/etc.), or your framework's built-in. **Never call SHA-256 on a password.**
+
+## HMAC — keyed hashing
+
+HMAC ("Hash-based Message Authentication Code") combines a hash with a secret key. The verifier needs the same key to confirm the signature. Common uses:
+
+- Webhook signatures (Stripe, GitHub, etc. use HMAC-SHA-256)
+- API request signing (AWS SigV4 derivatives)
+- JWT HS256 (this is just HMAC-SHA-256 over the header+payload)
+
+For HMAC, the algorithm matters less than the **key length and secrecy**. HMAC-SHA-256 with a 32-byte random key is unbroken; HMAC-MD5 with a 16-byte key is still unbroken (the MD5 collision attack doesn't translate to HMAC). Still, use SHA-256 or higher for new code.
+
+## File hashing
+
+This tool reads files into memory and hashes them — fine for files up to a few hundred MB on a typical machine. For multi-GB files, use a streaming CLI like `shasum -a 256 file.bin` (macOS/Linux) or `Get-FileHash` (PowerShell). Streaming avoids loading the whole file at once.
+
+The hashes produced here match what your CLI tool will give you. Useful for verifying downloads — find the publisher's published hash, then compute the same algorithm here and compare.
+
+## Hex vs Base64 output
+
+Same hash, different display. Hex is universal but verbose (SHA-256 = 64 chars). Base64 is shorter (SHA-256 = 44 chars) and appears in things like Subresource Integrity attributes. Switch the toggle above.
+
+## Privacy
+
+All computation happens in your browser. SHA family via the native WebCrypto API (`crypto.subtle.digest`), MD5 via the open-source [`js-md5`](https://github.com/emn178/js-md5) library. No request to our server is ever made.
+
+## Related tools
+
+- **Password Generator** — generate a strong random string (which you then hash with bcrypt/argon2, never raw SHA).
+- **UUID Generator** — when you need a unique ID, not a hash.

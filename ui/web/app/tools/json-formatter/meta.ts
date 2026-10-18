@@ -1,0 +1,52 @@
+import type { ToolMeta } from '../types';
+
+export const meta: ToolMeta = {
+  slug: 'json-formatter',
+  cluster: 'formatters',
+  title: {
+    en: 'JSON Formatter & Validator',
+    vi: 'Định dạng & Kiểm tra JSON',
+    es: 'Formateador y validador de JSON',
+    pt: 'Formatador e validador de JSON',
+  },
+  description: {
+    en: 'Format, minify, sort, and validate JSON. JSON5 mode accepts comments and trailing commas. Browser-only.',
+    vi: 'Định dạng, minify, sort, validate JSON. Mode JSON5 chấp nhận comment và trailing comma. Chỉ trong browser.',
+    es: 'Formatea, minifica, ordena y valida JSON. El modo JSON5 acepta comentarios y comas finales. Solo en el navegador.',
+    pt: 'Formata, minifica, ordena e valida JSON. O modo JSON5 aceita comentários e vírgulas finais. Só no navegador.',
+  },
+  keywords: [
+    'json formatter',
+    'json validator',
+    'json beautifier',
+    'json minify',
+    'json5',
+    'json pretty print',
+    'định dạng json',
+  ],
+  priority: 'P1',
+  effort: 'M',
+  nextStepSuggestions: [
+    {
+      tool: 'base64-encode',
+      reason: {
+        en: 'Encode the formatted JSON as Base64',
+        vi: 'Encode JSON đã format thành Base64',
+      },
+    },
+    {
+      tool: 'jwt-decoder',
+      reason: {
+        en: 'Inspect JWT payloads (which are JSON)',
+        vi: 'Phân tích payload JWT (vốn là JSON)',
+      },
+    },
+    {
+      tool: 'xlsx-to-csv',
+      reason: {
+        en: 'Get JSON out of an Excel sheet in the first place',
+        vi: 'Lấy JSON từ một sheet Excel',
+      },
+    },
+  ],
+};

@@ -1,0 +1,10 @@
+{
+  "_note": "Constructed: the repairs ParseGeminiResponse must make. Fenced JSON, cues out of order, one timestamp that is not a time, one bare-seconds start, a negative time, with every time measured from the clip start (window 1200s-2400s) as a model may do despite the prompt.",
+  "candidates": [
+    {
+      "content": {"role": "model", "parts": [{"text": "```json\n{\"language\": \"vi\", \"cues\": [{\"start\": \"02:10\", \"text\": \"câu thứ hai\"}, {\"start\": \"00:05\", \"text\": \"câu thứ nhất &amp; <b>đậm</b>\"}, {\"start\": \"soon\", \"text\": \"không có giờ\"}, {\"start\": 200, \"text\": \"giây trần\"}, {\"start\": \"-1:00\", \"text\": \"giờ âm\"}]}\n```"}]},
+      "finishReason": "STOP"
+    }
+  ],
+  "usageMetadata": {"promptTokenCount": 120000, "candidatesTokenCount": 900}
+}

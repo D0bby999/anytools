@@ -1,0 +1,92 @@
+---
+title: Hướng dẫn đầy đủ về HTML entity encoding và decoding
+description: Khi nào cần dùng HTML entities, named vs numeric references, phòng chống XSS, và lỗi double-encoding thường gặp.
+updated: 2026-05-26
+---
+
+## HTML entities là gì
+
+HTML entities là các chuỗi ký tự đặc biệt dùng để biểu diễn những ký tự có ý nghĩa cấu trúc trong HTML — hoặc những ký tự khó gõ trực tiếp. Trình duyệt thấy `&lt;` thì hiển thị `<`; bạn viết `&amp;` trong source code, trang web sẽ hiện `&`. Chúng tồn tại vì HTML dùng `<`, `>`, `&`, và `"` làm ký tự cấu trúc, nên khi bạn muốn hiển thị những ký tự này thay vì để parser xử lý, bạn cần escape chúng.
+
+Có ba dạng entities:
+
+- **Named references** — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` và hàng trăm ký hiệu khác như `&copy;`, `&euro;`, `&mdash;`
+- **Decimal numeric references** — `&#60;` cho `<`, `&#38;` cho `&`
+- **Hexadecimal numeric references** — `&#x3C;` cho `<`, `&#x26;` cho `&`
+
+Cả ba dạng đều tương đương nhau. Named references dễ đọc hơn; numeric references hoạt động ở mọi parser kể cả khi parser đó không nhận ra tên entity.
+
+## Khi nào encoding thực sự quan trọng
+
+### Hiển thị code trong HTML
+
+Nếu bạn đang build blog, trang docs, hay code renderer — mọi ký tự `<` trong ví dụ code đều phải được encode thành `&lt;`, nếu không trình duyệt sẽ cố parse nó như một tag thực sự. Copy một đoạn code vào HTML mà không encode, và Chrome sẽ hiểu `<script>` là tag thật.
+
+### Phòng chống XSS
+
+Tấn công XSS (cross-site scripting) thường inject `<script>` tags hoặc event handlers như `onclick="malicious()"` thông qua input của người dùng. Khi bạn entity-encode tất cả input từ user trước khi đưa vào HTML, các dấu ngoặc nhọn và nháy kép trở thành ký tự văn bản vô hại, không còn là lệnh cho parser nữa.
+
+```html
+<!-- Nguy hiểm: input người dùng chèn thẳng vào -->
+<p>Xin chào, <script>alert('XSS')</script>!</p>
+
+<!-- An toàn: đã entity-encode -->
+<p>Xin chào, &lt;script&gt;alert('XSS')&lt;/script&gt;!</p>
+```
+
+Trình duyệt render phiên bản thứ hai như văn bản thường — script không bao giờ chạy.
+
+**Lưu ý quan trọng:** Entity encoding là đúng khi insert vào *HTML context*. Khi insert user data vào JavaScript string, CSS value, hay URL parameter, mỗi context cần cách escape khác nhau — entity encoding một mình không bảo vệ được những context đó.
+
+### Tránh double-encoding
+
+Double-encoding là bug phổ biến: bạn encode `&` thành `&amp;`, rồi encode lần nữa và ra `&amp;amp;`. Trang hiện `&amp;` thay vì `&`. Điều này xảy ra khi:
+
+- Template tự escape HTML, và bạn cũng gọi hàm encode trên cùng string đó
+- Data được lưu vào database đã encoded sẵn, rồi được encode thêm lần nữa khi render
+
+Cách fix: decode trước (hoặc kiểm tra xem input đã được encode chưa), rồi chỉ encode một lần duy nhất tại điểm cuối khi insert vào HTML.
+
+## Named vs numeric references: chọn cái nào
+
+Dùng **named references** cho file HTML do người viết tay — `&copy;` và `&mdash;` dễ đọc hơn nhiều so với `&#169;` và `&#8212;`. Named references đã được chuẩn hóa trong HTML5 và được hỗ trợ rộng rãi.
+
+Dùng **numeric references** khi:
+- Generate HTML bằng code và không muốn maintain bảng lookup tên entity
+- Ký tự không có named reference (hầu hết Unicode code points trên HTML4 đều không có)
+- Làm việc với XML, nơi chỉ có `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` được đảm bảo nhận dạng
+
+Dùng **hex references** (&#x…) khi làm việc trực tiếp với Unicode code points. Code point U+1F600 (😀) thành `&#x1F600;` ngay lập tức.
+
+## Những trường hợp KHÔNG dùng entity encoding
+
+Entity encoding chỉ dành cho *HTML context*. Dùng ở chỗ khác sẽ gây lỗi:
+
+- **URL parameters** — dùng percent-encoding (`%26` chứ không phải `&amp;`). Đặt `&amp;` trong URL sẽ ra chuỗi literal `&amp;` trong query string.
+- **JavaScript strings** — dùng `\'`, `\"` hoặc template literals. `&quot;` trong JS string là bốn ký tự `&quot;`, không phải dấu nháy.
+- **CSS values** — CSS dùng `\003C` kiểu Unicode escape, không phải `&#x3C;`.
+- **JSON** — JSON dùng `\"` cho nháy kép trong string; HTML entities vô nghĩa ở đây.
+
+## Thư viện `he`
+
+Tool này sử dụng [`he`](https://github.com/mathiasbynens/he) (HTML entities) của Mathias Bynens. Library này cover đầy đủ danh sách HTML5 named character references (hơn 2000 entries), xử lý cả ba dạng entity, và đúng về những edge cases mà các encoder tự viết hay bỏ sót — như dấu chấm phẩy có thể bỏ qua với một số legacy named references. Toàn bộ xử lý chạy trong browser; không có gì gửi ra ngoài.
+
+## Ví dụ thực tế
+
+**Encode đoạn code để đưa vào HTML:**
+
+Input: `if (a < b && c > d) { return "<br>"; }`
+Encoded: `if (a &lt; b &amp;&amp; c &gt; d) { return &quot;&lt;br&gt;&quot;; }`
+
+**Decode một entity string:**
+
+Input: `&lt;script&gt;alert(&quot;hello&quot;)&lt;/script&gt;`
+Decoded: `<script>alert("hello")</script>`
+
+**Numeric reference:**
+
+Input: `&#x1F4BB;` → `💻` (U+1F4BB, PERSONAL COMPUTER)
+
+## Bảo mật và privacy
+
+Toàn bộ encoding và decoding chạy cục bộ trong browser. Input của bạn không bao giờ được gửi lên server. Library `he` là MIT-licensed và có thể audit trên GitHub.

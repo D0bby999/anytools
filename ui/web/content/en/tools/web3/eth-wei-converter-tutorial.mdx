@@ -1,0 +1,132 @@
+---
+title: ETH / Wei Converter — units, gas pricing, BigInt precision, and EIP-1559
+description: Convert between wei, gwei, and ether. Understand the ETH unit hierarchy, gas cost math, JS precision traps, and EIP-1559 fee structure.
+updated: 2026-05-26
+---
+
+## The ETH unit hierarchy
+
+Ether (ETH) is divisible to 18 decimal places. The smallest unit is **wei** — named after Wei Dai, the cryptographer who proposed b-money. The full hierarchy:
+
+| Unit | Wei value | Common use |
+|------|-----------|------------|
+| wei | 1 | Smart contract internal math |
+| kwei (babbage) | 10³ | Rarely used |
+| mwei (lovelace) | 10⁶ | Rarely used |
+| gwei (shannon) | 10⁹ | Gas prices |
+| microether (szabo) | 10¹² | Occasionally in DeFi |
+| milliether (finney) | 10¹⁵ | Rarely used |
+| ether | 10¹⁸ | Human-facing balances |
+
+In practice, you work with three units almost exclusively: **wei** for arithmetic inside contracts, **gwei** for gas pricing, and **ether** for displaying balances to users. The intermediate units (kwei, mwei, szabo, finney) appear mainly in old documentation and EIPs; modern tooling omits them.
+
+## Why wei exists and why it matters
+
+Solidity and the EVM operate entirely in integers — there are no floating-point types. All value transfers happen in wei. If a contract receives 1 ETH, the EVM sees the integer `1000000000000000000` (10¹⁸). This design eliminates rounding errors in financial logic at the cost of requiring every developer to reason about very large integers.
+
+The consequences are real: an off-by-one-decimal bug does not lose a few cents — it can lose 10× or 100× the intended amount. A function that expects wei but receives gwei will interpret 1 gwei (10⁹ wei) as 0.000000001 ETH, not the 1 ETH the caller intended.
+
+## The JavaScript number precision trap
+
+JavaScript's `Number` type is a 64-bit IEEE 754 double. It can represent integers exactly up to **2⁵³ − 1 = 9,007,199,254,740,991**. One ether in wei is `1,000,000,000,000,000,000` (10¹⁸) — larger than 2⁵³. Two ether is `2,000,000,000,000,000,000` — larger still. Any arithmetic on wei values using plain JS `Number` will silently lose precision:
+
+```javascript
+// WRONG — silent precision loss
+const oneEther = 1e18;          // 1000000000000000000 ✓ (exact, lucky)
+const twoEther = 2e18;          // 2000000000000000000 ✓ (exact, lucky)
+const weirdAmt = 1.5e18 + 1;    // 1500000000000000001? No:
+console.log(1500000000000000001) // → 1500000000000000000 ✗ (lost the +1)
+```
+
+The fix is **BigInt** (native in all modern JS/TS environments) or a library that wraps it:
+
+```javascript
+// CORRECT — using BigInt
+const oneEther = 1_000_000_000_000_000_000n;
+const result = oneEther + 1n;  // 1000000000000000001n ✓
+```
+
+This tool uses `ethers.js` v6 under the hood, which represents all amounts as `BigInt` internally. Conversion results are formatted as decimal strings, not floats, so the display is exact.
+
+## Using ethers.js parseUnits and formatUnits
+
+The two functions you'll use daily in any Ethereum dapp:
+
+```typescript
+import { parseUnits, formatUnits } from "ethers";
+
+// User types "1.5" ETH → internal BigInt in wei
+const weiAmount = parseUnits("1.5", "ether");
+// → 1500000000000000000n
+
+// Contract returns a wei BigInt → display to user
+const display = formatUnits(weiAmount, "ether");
+// → "1.5"
+
+// Gas price: gwei ↔ wei
+const gasPrice = parseUnits("20", "gwei");  // → 20000000000n
+const gasPriceGwei = formatUnits(gasPrice, "gwei"); // → "20.0"
+```
+
+The second argument accepts either the unit name (`"ether"`, `"gwei"`, `"wei"`) or the number of decimals as an integer. This generalizes to ERC-20 tokens: `parseUnits("100", 6)` for USDC (6 decimals), `parseUnits("100", 18)` for most other tokens.
+
+## Gas cost calculation
+
+A transaction's ETH cost is:
+
+```
+gas cost (ETH) = gas used × gas price (in gwei) × 10⁻⁹
+```
+
+Or equivalently in wei:
+
+```
+gas cost (wei) = gas used × gas price (in wei)
+```
+
+A standard ETH transfer uses 21,000 gas. At 20 gwei gas price:
+
+```
+cost = 21,000 × 20 × 10⁻⁹ ETH = 0.00042 ETH = 420,000,000,000,000 wei
+```
+
+A complex DeFi swap might use 150,000–500,000 gas. Use the converter to check costs at current gas prices without mental arithmetic.
+
+## EIP-1559 base fee + priority fee
+
+Since the London hard fork (August 2021), Ethereum gas pricing uses a two-component model:
+
+- **Base fee** — algorithmically set by the protocol per block, burned (not paid to validators). Denominated in gwei.
+- **Priority fee (tip)** — paid directly to the validator as an incentive to include your transaction. Denominated in gwei. Typical range: 0.1–2 gwei in calm conditions, up to 10+ gwei during congestion.
+
+Your wallet sets a **max fee per gas** (the ceiling you'll pay) and a **max priority fee**. The actual fee paid is:
+
+```
+actual fee per gas = min(max_fee, base_fee + priority_fee)
+```
+
+When debugging a transaction receipt, the `effectiveGasPrice` field is the actual fee per gas in wei. Use this converter to translate that value to gwei for comparison against current base fees.
+
+## Debugging transaction receipts
+
+When inspecting a raw transaction receipt (from `eth_getTransactionReceipt`), several fields are in wei:
+
+- `value` — ETH transferred, in wei
+- `gasPrice` / `effectiveGasPrice` — fee per gas unit, in wei
+- `cumulativeGasUsed` — gas accumulated in the block up to this tx
+
+Convert `effectiveGasPrice` to gwei to compare it against block explorer readings. Multiply `effectiveGasPrice × gasUsed` to get the total fee paid in wei, then convert to ETH for the dollar-cost sanity check.
+
+## Common developer mistakes
+
+1. **Dividing by 1e18 instead of 10n**¹⁸n** in a JS context.** The float `1e18` is fine for the specific value of 10¹⁸, but arithmetic around it loses bits. Always use BigInt or `formatUnits`.
+
+2. **Confusing ERC-20 token decimals with ETH decimals.** USDC uses 6 decimals; DAI uses 18; some tokens use 8 (like many bridged BTC). `parseUnits("1", 6)` for 1 USDC is not the same as `parseUnits("1", 18)` for 1 ETH.
+
+3. **Displaying raw wei to users.** A balance of `50000000000000000` wei looks like gibberish. Always `formatUnits` before display.
+
+4. **Storing wei amounts in a SQL `INTEGER` column.** PostgreSQL's `INTEGER` tops out at ~2.1 billion; `BIGINT` at ~9.2 × 10¹⁸ — which barely fits 9 ETH in wei. Use `NUMERIC` or store as a `TEXT` decimal string.
+
+## Privacy
+
+All conversions run locally in your browser via `ethers.js`. No values are sent to any server.

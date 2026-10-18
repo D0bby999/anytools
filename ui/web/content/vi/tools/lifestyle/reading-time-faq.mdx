@@ -1,0 +1,27 @@
+---
+title: Ước tính thời gian đọc — Câu hỏi thường gặp
+---
+
+## Làm sao biết bài viết của tôi đọc mất mấy phút?
+
+Dán toàn bộ nội dung vào ô nhập, tool đếm số từ rồi chia cho tốc độ đọc để ra thời gian. Mặc định là 238 từ mỗi phút — con số lấy từ meta-analysis các nghiên cứu về đọc thầm, không phải số tròn cho đẹp như 200 hay 250 mà nhiều nền tảng hay hardcode. Bạn kéo được thanh trượt WPM nếu độc giả của bạn đọc nhanh hoặc chậm hơn. Ngoài thời gian đọc, tool hiện thêm hai mốc nữa: thời gian nói to ở 150 từ mỗi phút và thời gian lướt ở 450 từ mỗi phút. Hai con số này cố định cứng trong code, không chỉnh được, vì chúng chỉ đóng vai trò tham chiếu để so sánh.
+
+## Vì sao kết quả cho bài tiếng Việt trông dài hơn thực tế?
+
+Vì hàm đếm từ tách chuỗi theo khoảng trắng — `trim()` rồi split trên mọi cụm whitespace. Tiếng Anh mỗi từ là một khối nên cách này chính xác. Tiếng Việt thì khác: "công cụ" bị tính là 2 từ, "thời gian đọc" là 3 từ, dù về mặt ngữ nghĩa chúng là một hoặc hai đơn vị. Nói cách khác, tool đang đếm âm tiết chứ không đếm từ vựng, và một bài tiếng Việt sẽ ra số cao hơn bản dịch tiếng Anh tương đương khoảng 30–60 phần trăm. Cách xử lý thực tế: hạ WPM xuống cho khớp, hoặc coi con số là chỉ báo tương đối giữa các bài của chính bạn thay vì con số tuyệt đối.
+
+## Thời gian nói và thời gian lướt dùng để làm gì?
+
+Chúng trả lời hai câu hỏi khác nhau. Nếu bạn đang viết kịch bản video, podcast hay bài thuyết trình, con số đáng quan tâm là thời gian nói — khoảng hai phần ba tốc độ đọc, nên một bài blog "5 phút đọc" khi đọc thành tiếng sẽ thành gần 8 phút. Đây là chỗ nhiều người ước sai và bị cháy giờ khi lên sân khấu. Thời gian lướt thì phản ánh cái mà phần lớn người dùng thực sự làm với một trang web: quét tiêu đề, đọc câu đầu mỗi đoạn, bỏ qua phần còn lại. So ba con số cạnh nhau giúp bạn biết bài của mình chịu được kiểu tiêu thụ nào.
+
+## Tool có tính ảnh, bảng và khối code không?
+
+Không. Nó chỉ đếm từ. Một bài kỹ thuật dày đặc code sample, biểu đồ hay bảng số sẽ ngốn nhiều thời gian hơn số từ gợi ý, vì người đọc xử lý những phần đó theo cách khác — thường chậm hơn văn xuôi, hoặc bỏ qua hẳn rồi quay lại sau. Ngược lại, một danh sách gạch đầu dòng ngắn lại đọc nhanh hơn dự đoán. Nếu nội dung của bạn thiên về kỹ thuật, kinh nghiệm là làm tròn lên thay vì làm tròn xuống: hứa ít mà đọc lâu gây khó chịu hơn hứa nhiều mà đọc nhanh.
+
+## Sao không dùng Word hay Excel cho việc này?
+
+Word đếm được từ nhưng không quy đổi ra thời gian, nên bạn vẫn phải mở máy tính chia tay và tự nhớ nên chia cho 200 hay 238. Excel làm được công thức nhưng bạn phải dán văn bản vào một ô, mà Excel giới hạn nội dung mỗi ô và hay tự cắt xén xuống dòng, đồng thời công thức đếm từ bằng `LEN` trừ `SUBSTITUTE` sai ngay khi văn bản có hai khoảng trắng liền nhau. Tool này cập nhật ngay khi bạn gõ, hiện cùng lúc ba tốc độ, và cho kéo WPM để thấy kết quả đổi theo thời gian thực — thứ mà bảng tính không làm mượt được.
+
+## Văn bản tôi dán vào có bị gửi đi đâu không?
+
+Không. Toàn bộ việc đếm từ và chia tốc độ chạy bằng JavaScript ngay trong trình duyệt của bạn. Không có request nào mang nội dung lên server, không có bản lưu, không log lại. Bạn có thể mở tab, ngắt mạng, rồi vẫn dùng bình thường — đó là cách kiểm chứng nhanh nhất. Điều này quan trọng nếu bài của bạn là nội dung chưa công bố, tài liệu nội bộ hay bản thảo có thông tin khách hàng. Khi đóng tab, mọi thứ bạn dán vào biến mất cùng trang.

@@ -1,0 +1,39 @@
+---
+title: Calculadora de Chmod — Perguntas frequentes
+---
+
+## O que ela converte?
+
+Notação octal, notação simbólica e caixas de permissão individuais — altere qualquer uma e as outras se ajustam. Também cobre os três bits especiais: setuid, setgid e sticky.
+
+## Como funcionam os dígitos octais?
+
+Cada dígito é a soma de três bits: leitura é 4, escrita é 2, execução é 1. Assim, 7 é todos os três, 6 é leitura mais escrita, 5 é leitura mais execução. Os três dígitos são proprietário, grupo e outros nessa ordem — o que torna 755 "proprietário faz tudo, qualquer outra pessoa pode ler e executar".
+
+## Por que o octal às vezes tem quatro dígitos?
+
+Porque um dígito inicial carrega os bits especiais: setuid é 4, setgid é 2, sticky é 1, somados da mesma forma. A ferramenta segue a convenção comum de omiti-lo quando é zero, então `0755` e `755` significam a mesma coisa enquanto `4755` significa que setuid está definido.
+
+## O que os bits especiais realmente fazem?
+
+**setuid** em um executável faz com que ele seja executado como proprietário do arquivo em vez de quem o chama. **setgid** faz o mesmo para o grupo e, em um diretório, faz com que novos arquivos herdem o grupo desse diretório. **sticky** em um diretório significa que apenas o proprietário de um arquivo pode deletá-lo — a razão pela qual qualquer pessoa pode escrever em `/tmp` sem deletar os arquivos de outras pessoas.
+
+## Por que setuid é perigoso?
+
+Porque concede os privilégios do proprietário do arquivo a quem quer que o execute. Um binário setuid-root com um bug é uma vulnerabilidade de escalação de privilégio, por isso é importante ser deliberado antes de definir esse bit e por que muitos sistemas o ignoram em sistemas de arquivos montados.
+
+## O que significa o bit de execução em um diretório?
+
+Permissão para atravessá-lo — para entrar e alcançar o que está dentro. Leitura em um diretório permite listar os nomes; execução permite usá-los. Um diretório com permissão de leitura mas não de execução fornece uma lista de arquivos que você não pode abrir, o que é uma fonte comum de confusão.
+
+## 777 é a resposta correta alguma vez?
+
+Quase nunca. Concede a cada usuário do sistema permissão para modificar e executar o arquivo. É um "conserto" comum para um erro de permissões e geralmente substitui um pequeno problema por um maior — o conserto real é normalmente corrigir a propriedade.
+
+## Isso se aplica ao Windows?
+
+Não. Windows usa ACLs, um modelo diferente e mais granular. Esses números são para Unix, Linux e macOS.
+
+## Algo é enviado para um servidor?
+
+Não. A aritmética é executada no seu navegador.

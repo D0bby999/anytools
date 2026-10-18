@@ -1,0 +1,35 @@
+---
+title: YAML Formatter — Frequently asked questions
+---
+
+## Why does `NO` get converted to `false` in my YAML?
+
+This is the "Norway problem." YAML 1.1 — which most parsers implemented for years — treats `yes`, `no`, `on`, `off`, `true`, and `false` as booleans. The ISO country code `NO` (Norway) matches `no`, so it becomes the boolean `false`. The fix is to quote it: `country: "NO"`. YAML 1.2 restricts booleans to `true`/`false` only, but many tools still ship 1.1 parsers.
+
+## Does the formatter preserve comments?
+
+Best-effort, yes. YAML parsers — including `js-yaml` — discard comments when building the AST, so pure parse-then-dump workflows lose them. This formatter preserves comments by working at the text level before and after parsing. Inline comments on keys that are reordered by "sort keys" may be displaced; block comments above a key are preserved.
+
+## What is the difference between `|` and `>` for multi-line strings?
+
+`|` (literal block) preserves every newline exactly. `>` (folded block) converts single newlines to spaces and only preserves blank lines as paragraph breaks. Use `|` for code, SQL, or log content where line breaks are semantic. Use `>` for long prose descriptions that should flow at the reader's column width.
+
+## Are anchors (`&`) and aliases (`*`) preserved after formatting?
+
+Yes. The formatter parses the document with anchor awareness and re-serializes with all anchor definitions and alias references intact. If you also enable "sort keys", the anchor structure is maintained — only key ordering changes.
+
+## Is it safe to process Kubernetes manifests with this tool?
+
+Yes. The formatter is read-only from a network perspective — nothing leaves your browser. For k8s manifests specifically, be aware that `!!` tags are used by some tooling (e.g., Kustomize patches); the formatter preserves unrecognized tags as literal strings rather than erroring.
+
+## Why did my `010` value change to `8` after formatting?
+
+Under YAML 1.1, a bare `010` is an octal literal and parses to the integer `8`. After the formatter round-trips the document through `js-yaml`, it serializes the parsed integer `8` back — the octal notation is gone. Quote the value (`"010"`) if you need to preserve it as a string, or check if your downstream parser uses YAML 1.2 (where `010` stays a string).
+
+## Can I use tabs for indentation in YAML?
+
+Technically the YAML spec forbids tabs inside indentation. Most parsers will throw a parse error if they encounter a tab character at the start of a line used for structural indentation. Always use spaces. The formatter outputs 2 or 4 spaces and will flag tab-indented input as an error.
+
+## My GitHub Actions workflow failed with an indentation error — how do I debug it?
+
+Paste the entire workflow YAML into this formatter. Indentation errors appear as parse errors with a line:column reference. The most common causes are: mixing 2-space and 4-space indentation, accidentally indenting a `steps:` list under `runs-on:` instead of under the job object, or a multi-line `run:` block that has inconsistent indentation relative to the `|` indicator.

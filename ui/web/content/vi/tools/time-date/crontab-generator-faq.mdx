@@ -1,0 +1,39 @@
+---
+title: Tạo biểu thức Crontab — Câu hỏi thường gặp
+---
+
+## Nó tạo ra cái gì?
+
+Một biểu thức cron năm trường, một mô tả tiếng Anh thuần túy về ý nghĩa của nó, và năm thời gian tiếp theo nó thực sự sẽ kích hoạt — cái là cách nhanh nhất để xác nhận một lịch làm những gì bạn dự định.
+
+## Năm trường là gì?
+
+Phút, giờ, ngày trong tháng, tháng, ngày trong tuần, theo thứ tự đó. Lưu ý rằng không có trường giây: hạt nên tiêu chuẩn cron là một phút, vì vậy bất cứ điều gì thường xuyên hơn cần một cơ chế khác.
+
+## Các ký tự đặc biệt có nghĩa gì?
+
+`*` là mọi giá trị. `*/5` là mọi giá trị thứ năm — vì vậy `*/5` trong trường phút là mỗi năm phút. `1,15` là một danh sách, `1-5` là một phạm vi, và chúng kết hợp: `1-5,20` là hợp lệ.
+
+## Tại sao công việc của tôi chạy thường xuyên hơn dự kiến?
+
+Gần như luôn là cái bẫy day-of-month và day-of-week. Khi **cả hai** bị hạn chế, cron coi chúng là OR, không phải AND — `0 0 13 * 5` chạy vào ngày 13 *và* vào mỗi thứ Sáu, không chỉ vào thứ Sáu ngày 13. Đó là quy tắc đơn lẻ gây ngạc nhiên nhất trong cron, và lý do tại sao tool này hiển thị cho bạn các lần chạy tiếp theo thay vì chỉ biểu thức.
+
+## Lịch sử dụng múi giờ nào?
+
+Bất cứ cái gì máy chạy cron sử dụng, thường là UTC trên máy chủ và giờ địa phương trên laptop. Bản xem trước ở đây được tính toán trong múi giờ của trình duyệt bạn, vì vậy nếu máy chủ của bạn chạy UTC, hãy đọc các thời gian tương ứng.
+
+## Điều gì xảy ra khi thay đổi giờ mùa hè?
+
+Hành vi khác nhau tùy theo triển khai cron. Các công việc được lên lịch trong giờ bị bỏ qua vào mùa xuân có thể không chạy lần nào, và các công việc trong giờ lặp lại mùa thu có thể chạy hai lần. Nếu một công việc không được chạy hai lần, hãy lên lịch cho nó bên ngoài giờ chuyển tiếp hoặc làm cho nó là idempotent.
+
+## `0 0 * * *` có phải là nửa đêm không?
+
+Có — phút 0 của giờ 0, mỗi ngày. Một sai lầm thường gặp là viết `* * * * *` dự định "một lần một ngày"; cái đó kích hoạt mỗi phút, 1.440 lần một ngày.
+
+## `@daily` và các phần tắt khác có được hỗ trợ không?
+
+Trình tạo phát ra dạng năm trường, di động ở mọi nơi. Các phần tắt như `@daily` và `@reboot` là tiện lợi mà không phải mỗi triển khai cron đều chấp nhận, và `@reboot` đặc biệt có nghĩa là những thứ khác nhau trên các hệ thống khác nhau.
+
+## Có điều gì được gửi tới máy chủ không?
+
+Không. Biểu thức và bản xem trước của nó được tính toán trong trình duyệt của bạn.

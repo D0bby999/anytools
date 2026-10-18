@@ -1,0 +1,35 @@
+---
+title: Calculadora de diferença entre datas — Perguntas frequentes
+---
+
+## O que ela reporta?
+
+A lacuna entre duas datas como anos, meses e dias do calendário, junto com o total bruto em dias. Ambas as leituras são úteis para diferentes fins: a divisão do calendário é como as pessoas descrevem uma duração, a contagem de dias é o que você precisa para aritmética.
+
+## A ordem das duas datas importa?
+
+Não. A ferramenta as ordena internamente e sempre relata um resultado não negativo, portanto inserir a data posterior primeiro fornece a mesma resposta.
+
+## Por que a divisão do calendário não é apenas a contagem de dias dividida?
+
+Porque os meses têm comprimentos diferentes. Indo de 31 de janeiro a 1º de março é um mês e um dia em termos de calendário, mas 29 ou 30 dias dependendo do ano. A ferramenta toma emprestado do comprimento real do mês anterior em vez de assumir um 30 fixo, portanto a divisão corresponde a como um calendário se comporta.
+
+## Ambos os pontos finais são contados?
+
+O resultado é a diferença entre as duas datas, portanto exclui um ponto final — a lacuna de segunda para quarta é dois dias, não três. Se você precisar de uma contagem inclusiva, como dias faturáveis ou dias de permanência, adicione um.
+
+## Posso usá-la para contar dias úteis?
+
+Não. Ela conta todos os dias do calendário, sem conceito de finais de semana ou feriados públicos. As contagens de dias úteis dependem da jurisdição e de quais feriados se aplicam, o que está fora do que isso calcula.
+
+## Ela lida com datas antes de 1970, ou longe no futuro?
+
+Sim. A aritmética é feita em campos do calendário com um total em milissegundos ao lado, portanto datas históricas e datas distantes no futuro funcionam.
+
+## E quanto a fusos horários e horário de verão?
+
+O cálculo é em datas, não em instantes, portanto uma mudança de relógio não adiciona ou remove um dia. Se você precisar do tempo exato decorrido entre dois momentos em zonas, a [conversora de fuso horário](/en/time-date/timezone-converter) é a melhor opção.
+
+## Algo que eu insiro é transmitido?
+
+Não. Tudo funciona no seu navegador.

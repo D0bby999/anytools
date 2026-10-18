@@ -1,0 +1,92 @@
+---
+title: Complete guide to Image Format Converter
+description: How PNG, JPEG, WebP, and AVIF differ, when to convert between them, and how the Canvas API re-encodes images entirely in your browser.
+updated: 2026-05-27
+---
+
+## What this tool does
+
+This tool converts raster images between PNG, JPEG, WebP, and AVIF formats entirely inside your browser using the HTML Canvas API. No file is ever uploaded to a server. Drop an image, choose a target format, adjust quality if applicable, and download the result.
+
+The 10 MB input limit exists because large images decoded into raw pixel data (RGBA) can exhaust browser memory. A 10 MB JPEG may decompress to 50–100 MB of raw pixels in the Canvas buffer.
+
+## Format overview
+
+### JPEG — the photograph standard
+
+JPEG (Joint Photographic Experts Group, 1992) uses lossy DCT (Discrete Cosine Transform) compression. It works by dividing the image into 8×8 pixel blocks, transforming them into frequency components, and discarding high-frequency detail the human eye is less sensitive to. The result is excellent compression for photographs — a typical photo at quality 80 is 5–10× smaller than its PNG equivalent with imperceptible loss.
+
+JPEG is **terrible for screenshots, diagrams, and text**. The 8×8 block artifacts (called "ringing") are highly visible at sharp edges and solid colour regions — exactly what screenshots and diagrams contain. Use PNG for those.
+
+JPEG has no alpha channel (transparency). If your source image has transparent regions, converting to JPEG will fill them with white (the default Canvas background).
+
+### PNG — the lossless standard
+
+PNG (Portable Network Graphics, 1996) is lossless — every pixel is preserved exactly. It uses DEFLATE compression (the same algorithm as gzip) on filtered pixel data. Compression ratios are good for images with large uniform regions (diagrams, screenshots, logos) but poor for photographs.
+
+PNG supports full alpha transparency (RGBA). It is the correct choice for logos, UI assets, icons, and any image where pixel-perfect accuracy or transparency is required.
+
+### WebP — Google's efficient successor
+
+WebP was developed by Google and released in 2010 from the VP8 video codec technology. It supports both lossy and lossless compression modes, as well as transparency and animation.
+
+Benchmark numbers: WebP lossy is **25–34% smaller than JPEG** at equivalent perceived quality. WebP lossless is **26% smaller than PNG** on average (per Google's own measurements). Browser support is now universal — Chrome, Firefox, Safari (since 14.0, 2020), Edge.
+
+For web delivery, WebP is almost always preferable to JPEG or PNG when you control the server and know the client supports it. Most CDNs and image optimisation pipelines default to WebP output today.
+
+**Lossless WebP** is available via the `image/webp` MIME type with a quality hint of 1.0 on Canvas — though the exact lossless flag support is browser-dependent; Chrome's Canvas implementation exposes it, Safari's may produce lossy output regardless.
+
+### AVIF — the next-generation codec
+
+AVIF (AV1 Image File Format) is derived from the AV1 video codec developed by the Alliance for Open Media. Images encoded as AVIF are typically **50% smaller than JPEG** at equivalent visual quality — a dramatic improvement.
+
+The catch: AVIF encoding is computationally expensive. Decoding is fast and hardware-accelerated in modern devices; encoding can take seconds to minutes for large images on CPU-only paths. For this reason, the Canvas API does not support AVIF **encoding** in any browser as of 2026 — `canvas.toBlob('image/avif')` is not implemented. This tool can **decode** (display) AVIF input images but cannot produce AVIF output. Output format options are PNG, JPEG, and WebP only.
+
+Browser support: Chrome 85+, Firefox 93+, Safari 16+ (2022).
+
+## The Canvas API mechanism
+
+The conversion pipeline has three steps:
+
+1. **Decode** — the browser decodes the source file into raw RGBA pixel data using its built-in image decoder. This step supports whatever formats the browser natively handles: PNG, JPEG, WebP, AVIF (read), GIF, BMP.
+
+2. **Draw** — the decoded image is drawn onto an off-screen `<canvas>` element at the original pixel dimensions. The Canvas holds the raw pixel buffer in memory.
+
+3. **Re-encode** — `canvas.toBlob(mimeType, quality)` re-encodes the pixel buffer into the target format using the browser's built-in encoder. The quality parameter (0.0–1.0) controls lossy compression for JPEG and WebP.
+
+This mechanism means the conversion quality is determined entirely by the browser's encoder — different browsers may produce slightly different file sizes at the same nominal quality setting.
+
+## Browser support matrix
+
+| Format | Decode | Encode (Canvas) |
+|--------|--------|-----------------|
+| PNG | All browsers | All browsers |
+| JPEG | All browsers | All browsers |
+| WebP | Chrome 32+, Firefox 65+, Safari 14+ | Chrome, Firefox, Safari 14+ |
+| AVIF | Chrome 85+, Firefox 93+, Safari 16+ | Not supported (2026) |
+| GIF | All browsers | Not via Canvas |
+| SVG | All browsers | Not via Canvas (rasterises) |
+
+## Quality slider
+
+The quality slider (0.1–1.0) applies only to **lossy output formats**: JPEG and WebP lossy. For PNG output, quality has no effect — PNG is always lossless. Practical guidance:
+
+- **0.9–1.0** — near-lossless, large files, appropriate for source assets or print
+- **0.75–0.85** — the sweet spot for web delivery, visually indistinguishable from original for most photographs
+- **0.5–0.7** — visibly compressed, appropriate for thumbnails or bandwidth-constrained delivery
+- **Below 0.5** — heavy artifacts, suitable only for previews or low-bandwidth fallbacks
+
+## Why no SVG or GIF output?
+
+**SVG** is a vector format — it stores mathematical shape descriptions, not pixels. The Canvas API rasterises SVG input to a pixel grid when you draw it, discarding all vector data. Converting the resulting bitmap back to "SVG" would produce an SVG file containing a raster image — larger and no longer scalable. There is no path from raster to SVG without an AI vectoriser.
+
+**GIF** output is not exposed by `canvas.toBlob()` in any browser. GIF is limited to 256 colours and supports animation — neither property is accessible through the Canvas encode path. For animated GIFs, use a dedicated tool.
+
+## Privacy
+
+This tool runs entirely in your browser. Your images are decoded and re-encoded locally using the browser's Canvas API. No pixel data, file content, or metadata is transmitted to any server. The tool works offline once the page is loaded.
+
+## Related tools
+
+- **Base64 Encode/Decode** — encode a converted image as a Base64 data URI for inlining in CSS or HTML.
+- **SVG optimiser** — reduce SVG file size while keeping it as a vector format.

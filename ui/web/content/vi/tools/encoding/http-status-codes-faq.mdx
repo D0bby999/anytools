@@ -1,0 +1,39 @@
+---
+title: Mã trạng thái HTTP & MIME Types — Câu hỏi thường gặp
+---
+
+## Cái này là trang gì?
+
+Một tham chiếu có thể tìm kiếm của các mã trạng thái HTTP và các loại MIME phổ biến. Tìm kiếm theo số, theo tên, hoặc lọc theo lớp — 1xx informational, 2xx success, 3xx redirection, 4xx client error, 5xx server error.
+
+## Tôi đọc chữ số đầu tiên như thế nào?
+
+Nó cho bạn biết ai sẽ nói chuyện. Một 4xx nói rằng yêu cầu sai — sửa người gọi. Một 5xx nói rằng máy chủ thất bại trong khi xử lý yêu cầu hợp lệ — sửa máy chủ. Nhận được ranh giới đó đúng là hầu hết giá trị trong sơ đồ, và đó là lý do tại sao trả về 200 với thân lỗi làm cho các hệ thống khó vận hành: mỗi giám sát và bộ nhớ cache phía hạ lưu bây giờ tin rằng cuộc gọi đã thành công.
+
+## Sự khác biệt giữa 301 và 302 là gì?
+
+301 là vĩnh viễn và 302 là tạm thời. Trình duyệt và công cụ tìm kiếm lưu trong bộ nhớ cache một 301 tích cực — thường vô thời hạn — vì vậy một 301 được phát hành nhầm lẫn là thực sự khó để hoàn tác, vì máy khách ngừng hỏi URL cũ. Sử dụng 302 (hoặc 307) khi bạn không chắc chắn.
+
+## Còn về 307 và 308?
+
+Chúng là các phiên bản nghiêm ngặt của 302 và 301. Các mã cũ hơn cho phép máy khách thay đổi POST thành GET khi theo dõi chuyển hướng; 307 và 308 cấm điều đó, bảo toàn phương thức và thân. Nếu bạn đang chuyển hướng bất cứ điều gì khác ngoài GET, ưu tiên chúng.
+
+## Khi nào tôi nên sử dụng 401 so với 403?
+
+401 có nghĩa là "not authenticated" — bạn chưa chứng minh bạn là ai, và một tiêu đề `WWW-Authenticate` nên đi kèm với nó. 403 có nghĩa là "authenticated, but not allowed". Một rò rỉ phổ biến là trả về 403 trong đó 404 sẽ tốt hơn: cho một người dùng không được phép biết rằng một tài nguyên tồn tại là thông tin chính nó.
+
+## 304 Not Modified dùng để làm gì?
+
+Các yêu cầu có điều kiện. Máy khách gửi một trình xác thực như `If-None-Match`, và nếu không có gì thay đổi máy chủ trả lời 304 mà không có thân — tiết kiệm việc chuyển trong khi xác nhận bản sao được lưu trong bộ nhớ cache vẫn tốt.
+
+## 418 có phải là thực tế không?
+
+Nó là một mã đã đăng ký thực tế từ một RFC April Fools' — "I'm a teapot" — và nó định kỳ được đề xuất xóa. Không sử dụng nó trong production; nó xuất hiện trong danh sách để hoàn thiện.
+
+## Tại sao tôi cần các loại MIME bên cạnh mã trạng thái?
+
+Vì cả hai đều là một phần của việc có một phản hồi đúng. Một trạng thái đúng với `text/plain` trên JSON để máy khách đoán, và trình duyệt có thể ngửi nội dung và hoạt động theo những cách bạn không dự định.
+
+## Có điều gì được gửi tới máy chủ không?
+
+Không. Danh sách được gói với trang và được tìm kiếm locally.

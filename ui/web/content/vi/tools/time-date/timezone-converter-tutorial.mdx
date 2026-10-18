@@ -1,0 +1,66 @@
+---
+title: Hướng dẫn đầy đủ về Timezone Converter
+description: Cách IANA timezone database hoạt động, tại sao UTC tốt hơn "EST", edge case khi chuyển DST, và các lỗi developer thường gặp nhất với thời gian.
+updated: 2026-05-26
+---
+
+## IANA timezone database
+
+Mọi tên timezone bạn thấy trong tool này — `America/New_York`, `Europe/Paris`, `Asia/Ho_Chi_Minh` — đều đến từ **IANA Time Zone Database**, còn gọi là **Olson database** theo tên người bảo trì gốc Arthur David Olson. Database được publish tại [https://www.iana.org/time-zones](https://www.iana.org/time-zones) và được cập nhật nhiều lần mỗi năm khi các chính phủ thay đổi quy tắc timezone.
+
+Database này làm nhiều hơn chỉ liệt kê UTC offset. Nó mã hóa toàn bộ lịch sử của quy tắc từng timezone: khi nào DST transition xảy ra, offset thay đổi như thế nào do quyết định chính trị, và khi nào các quốc gia áp dụng hoặc bỏ daylight saving time. Đây là lý do tại sao `Asia/Ho_Chi_Minh` biết rằng Việt Nam đã dùng UTC+8 trước năm 1975 và UTC+7 kể từ đó, và có thể convert chính xác timestamp từ bất kỳ thời điểm nào.
+
+Tool này dùng [`date-fns-tz`](https://github.com/marnusw/date-fns-tz) và API `Intl.DateTimeFormat` tích hợp sẵn của trình duyệt, cả hai đều lấy dữ liệu timezone từ IANA database đi kèm với hệ điều hành hoặc JavaScript runtime.
+
+## Tại sao dùng "America/New_York" thay vì "EST"
+
+Viết tắt `EST` là "Eastern Standard Time" — UTC−5. Nhưng nó mơ hồ: `EST` cũng được dùng cho Australian Eastern Standard Time (UTC+10). Quan trọng hơn, `EST` không nói gì về daylight saving time. Khi New York đang dùng EDT (Eastern Daylight Time, UTC−4) vào mùa hè, dùng `EST` cho bạn offset sai.
+
+IANA identifier `America/New_York` không có sự mơ hồ như vậy. Nó đề cập đến một vùng địa lý có quy tắc offset được chỉ định đầy đủ trong Olson database. Hệ thống tự động biết liệu thời điểm đó có rơi vào EST hay EDT. Luôn dùng IANA identifier trong code; dùng abbreviation chỉ để hiển thị.
+
+Nguyên tắc tương tự áp dụng cho `GMT` vs `UTC`. GMT là một timezone (tại Royal Observatory ở Greenwich) và kỹ thuật mà nói thì có British Summer Time vào mùa hè. UTC là một time standard, không phải timezone — nó không bao giờ thay đổi, không có DST, và là baseline đúng đắn để lưu trữ timestamp.
+
+## DST transition
+
+DST tạo ra hai thời điểm nổi tiếng khó xử lý mỗi năm:
+
+**Spring forward.** Lúc 2:00 SA giờ địa phương, đồng hồ tiến đến 3:00 SA. Giờ từ 2:00 đến 3:00 không tồn tại. Một cuộc họp được lên lịch lúc 2:30 SA vào ngày đó là mơ hồ — không có khoảnh khắc wall-clock nào như vậy tồn tại. Hầu hết hệ thống bỏ qua giờ bị thiếu một cách im lặng.
+
+**Fall back.** Lúc 2:00 SA giờ địa phương, đồng hồ quay lại 1:00 SA. Giờ từ 1:00 đến 2:00 xảy ra hai lần. Timestamp "1:30 SA" vào ngày đó là mơ hồ — có thể là lần đầu hoặc lần thứ hai. Thư viện `date-fns-tz` giải quyết vấn đề này bằng cách dùng offset trước transition cho lần xuất hiện đầu tiên.
+
+Khi convert thời gian rơi vào hoặc gần DST transition, tool này chỉ ra liệu thời gian đích có mơ hồ không và hiển thị cả hai UTC equivalent có thể có khi áp dụng.
+
+## UTC vs giờ địa phương: quy tắc quan trọng nhất
+
+**Luôn lưu timestamp theo UTC.** Đây là quy tắc có tác động lớn nhất trong xử lý thời gian. Giờ địa phương lưu trong database không có ý nghĩa gì nếu thiếu timezone, và quy tắc timezone thay đổi — timestamp lưu dưới dạng "09:00 ICT" trở nên sai nếu Việt Nam đổi quy tắc DST hoặc nếu server chuyển sang vùng khác.
+
+Trong thực tế:
+- Lưu `TIMESTAMPTZ` (hoặc tương đương) trong PostgreSQL, tự động convert sang UTC khi insert.
+- Trong JavaScript, object `Date` lưu UTC millisecond nội bộ — dùng `toISOString()` để serialize (`2026-05-26T14:30:00.000Z`).
+- Trong Python, dùng `datetime.now(timezone.utc)` không phải `datetime.now()` — dạng naive (không có tzinfo) là bẫy.
+- Hiển thị theo giờ địa phương chỉ ở UI layer, không bao giờ trong business logic hay storage.
+
+## Các lỗi developer thường gặp
+
+**Lưu giờ địa phương không có timezone context.** Cột `datetime` chứa `2026-03-08 02:30:00` trong ứng dụng US-based là dữ liệu corrupt — giờ địa phương đó không tồn tại (đã bị DST bỏ qua). Lưu UTC; convert khi hiển thị.
+
+**Nhầm lẫn "+00:00" với "Z".** Cả hai đều có nghĩa UTC, nhưng `Z` (Zulu time) là chỉ định ISO 8601 nghiêm ngặt cho UTC. `+00:00` là offset bằng không giờ — cùng giá trị số nhưng ngữ nghĩa khác. Ưu tiên `Z` cho UTC timestamp.
+
+**Dùng fixed-offset timezone trong code.** `new Date().toLocaleString('en-US', {timeZone: 'UTC+7'})` sẽ fail hoặc hoạt động sai trong nhiều môi trường. Luôn dùng IANA name (`Asia/Ho_Chi_Minh` cho giờ Việt Nam).
+
+**Giả định DST transition xảy ra vào nửa đêm.** Ở Mỹ, switch xảy ra lúc 2:00 SA. Ở EU, lúc 1:00 SA UTC. Đừng bao giờ hardcode thời gian transition.
+
+**Arithmetic trên local timestamp.** Cộng 24 giờ vào local timestamp qua ranh giới DST cho kết quả sai — một ngày có thể dài 23 hoặc 25 giờ thực. Thực hiện arithmetic theo UTC, sau đó convert sang giờ địa phương để hiển thị.
+
+## Dùng tool để lên lịch xuyên timezone
+
+Một use case phổ biến: lên lịch meeting hoặc deployment window phù hợp cho team ở nhiều timezone. Nhập thời gian đề xuất và timezone địa phương của bạn, thêm các timezone của đồng đội, và tool hiển thị giờ địa phương tương ứng cho từng người. Kết hợp với Cron Parser tool (hiển thị next run theo UTC), bạn có thể xác minh rằng scheduled job kích hoạt vào giờ hợp lý ở mọi vùng quan trọng.
+
+## Quyền riêng tư
+
+Tất cả conversion chạy trong trình duyệt của bạn bằng `date-fns-tz` và API `Intl.DateTimeFormat`. Không có timestamp hay timezone query nào được gửi đến server.
+
+## Công cụ liên quan
+
+- **Cron Parser** — dịch cron expression thành next-run timestamp và hiểu timing UTC của chúng.
+- **Timestamp Converter** — convert Unix epoch integer sang và từ ngày đọc được theo bất kỳ timezone nào.

@@ -1,0 +1,39 @@
+---
+title: Generador de Meta Tags — Preguntas frecuentes
+---
+
+## ¿Por qué la descripción se repite tres veces?
+
+Porque tres consumidores diferentes leen tres etiquetas diferentes y ninguno de ellos vuelve a los otros. `<meta name="description">` es lo que los motores de búsqueda leen para el fragmento. `og:description` es lo que Facebook, LinkedIn, Slack, WhatsApp y la mayoría de los desenrolladores de enlaces leen. `twitter:description` es lo que X lee. Omitir uno significa que esa plataforma no muestra nada, o inventa algo de su texto de página.
+
+La duplicación es inevitable y es por eso que generar estas a mano es lo suficientemente tedioso como para querer una herramienta para ello.
+
+## ¿Qué significan los conteos de caracteres 60 y 160?
+
+Son donde el truncamiento generalmente comienza, no límites duros. Google procesa títulos en un ancho de píxel en lugar de contar caracteres, por lo que un título de mayúsculas anchas se corta antes que uno de minúsculas estrechas — 60 es una regla de oro confiable. Las descripciones se cortan alrededor de 160, a veces más cortas en dispositivos móviles.
+
+Nada se aplica. Ir más allá es una opción legítima si las palabras importantes vienen primero; el contador está allí para que sea una opción en lugar de un accidente.
+
+## ¿Por qué advierte sobre una URL de imagen relativa?
+
+Porque `og:image` es obtenida por un rastreador que solo tiene esa cadena — no tiene página para resolver `/og.png` contra, y no tiene noción confiable de su origen. Una URL relativa es la razón más común de por qué una vista previa de enlace no muestra imagen, y es invisible en pruebas porque la página misma se procesa bien.
+
+Lo mismo se aplica a `og:url`, que debe ser absoluto por la misma razón.
+
+## ¿Cuál es la diferencia entre los dos tipos de tarjeta?
+
+`summary_large_image` procesa una imagen ancha por encima del texto; `summary` procesa una pequeña miniatura cuadrada al lado. Grande es adecuado para artículos y páginas de producto; resumen es adecuado cuando no tiene una imagen fuerte o la imagen es un logotipo.
+
+Solicitar una tarjeta de imagen grande sin proporcionar una imagen es advertido, porque las plataformas recurren silenciosamente a una tarjeta de resumen simple y la vista previa se ve rota en lugar de intencional.
+
+## ¿Están las etiquetas escapadas correctamente?
+
+Sí. Los signos de unión, comillas y corchetes angulares se escapan en cada valor de atributo. Esto importa más de lo que parece: un título como `Bob & "Widgets"` escrito sin escape cierra el atributo temprano, y el resto de la etiqueta se convierte en marcado perdido en su `<head>`. Los títulos que contienen comillas son comunes y la rotura es fácil de pasar por alto.
+
+## ¿Debería agregar un enlace canónico?
+
+Sí, e incluido cuando completa la URL. `og:url` y `<link rel="canonical">` hacen trabajos relacionados pero diferentes — el primero le dice a las plataformas sociales qué URL atribuir a una acción compartida, el segundo le dice a los motores de búsqueda cuál de varias URLs similares es la real. Ambos deben apuntar a la misma dirección.
+
+## ¿Se envía algo a un servidor?
+
+No. Las etiquetas se ensamblan desde su entrada por concatenación de cadenas en esta pestaña del navegador. Nada se transmite, lo que vale la pena saber dado que los títulos de página no publicados y las URL son frecuentemente lo primero que alguien escribe en una herramienta como esta.

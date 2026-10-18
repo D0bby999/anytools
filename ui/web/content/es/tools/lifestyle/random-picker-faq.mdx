@@ -1,0 +1,39 @@
+---
+title: Selector aleatorio — Preguntas frecuentes
+---
+
+## ¿Qué puede seleccionar?
+
+Cuatro cosas: lanzamientos de dados con cualquier número de dados y cualquier número de caras, un lanzamiento de moneda, un número entero aleatorio en un rango, y una selección aleatoria de una lista que pegas.
+
+## ¿El rango es inclusivo?
+
+Sí. Tanto el mínimo como el máximo pueden salir. Ingresar los límites al revés también está bien, la herramienta los ordena antes de seleccionar.
+
+## ¿De dónde viene la aleatoriedad?
+
+Del generador integrado de tu navegador. Es un algoritmo pseudoaleatorio inicializado por el navegador, que es perfectamente adecuado para elegir quién va primero, elegir un ganador entre amigos, o tirar para un juego de mesa.
+
+## ¿Puedo usarlo para algo relacionado con seguridad?
+
+No. Un generador pseudoaleatorio de propósito general no está diseñado para resistir que un atacante prediga su salida, así que no lo uses para generar contraseñas, tokens, claves o cualquier otra cosa que deba ser impredecible. Para contraseñas usa el [generador de contraseñas](/en/generators/password-generator), que está construido para ese propósito.
+
+## ¿Es adecuado para un sorteo de premios público?
+
+Trátalo con cuidado. No hay registro de auditoría, sin semilla que puedas publicar, y sin forma para que otros verifiquen que el sorteo sucedió como se describió, el resultado aparece y se ha ido. Para un sorteo donde el resultado importa a otras personas, usa un método que produce evidencia.
+
+## ¿Por qué el mismo número salió dos veces seguidas?
+
+Porque eso es lo que se ve la aleatoriedad. Las selecciones independientes no tienen memoria, por lo que los repetidos son esperados, con seis caras, dos tiradas coincidentes suceden aproximadamente una de cada seis. Un generador que evitara repetidos sería menos aleatorio, no más.
+
+## ¿El lanzador de dados muestra resultados individuales?
+
+Sí, cada dado por separado junto con el total. Eso importa para juegos donde se usan valores individuales en lugar de solo la suma.
+
+## ¿Seleccionar de una lista elimina el elemento después?
+
+No, cada selección es independiente y la lista no cambia, así que la misma entrada puede ser sacada nuevamente. Para sacar sin reemplazo, elimina el ganador de la lista antes de seleccionar de nuevo.
+
+## ¿Se envía algo que pegó?
+
+No. La lista se queda en tu navegador y nada se transmite.

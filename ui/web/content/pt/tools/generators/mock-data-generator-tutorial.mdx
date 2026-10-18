@@ -1,0 +1,39 @@
+---
+title: Gerar dados fake para testes e demos
+description: Use Faker.js para gerar JSON/CSV realista — pessoas, endereços, finanças, internet. Reproduzível via seed.
+updated: 2026-05-27
+---
+
+## Para que serve dado fake
+
+Toda vez que você precisa popular um banco de dev, montar uma demo, ou testar paginação com 10k linhas, criar dados manualmente é tedioso. Mock data resolve isso: você descreve o schema (nome, email, endereço, preço…) e gera N linhas instantâneas.
+
+A biblioteca por trás é o [Faker.js](https://fakerjs.dev) — usado por times de QA e dev em produção há anos. Ela conhece nomes plausíveis em vários idiomas, endereços com CEPs válidos, cartões de crédito que passam pelo algoritmo de Luhn (sem serem reais), e gera consistência cruzada (o email casa com o nome).
+
+## Categorias disponíveis
+
+- **person** — firstName, lastName, fullName, jobTitle, gender, bio
+- **address** — streetAddress, city, state, zipCode, country, coordinates
+- **internet** — email, url, ipv4, ipv6, userName, domainName
+- **finance** — amount, accountNumber, creditCardNumber, currency, iban
+- **company** — name, catchPhrase, bs, suffix
+- **date** — past, future, recent, between, birthdate
+- **lorem** — words, sentence, paragraph, text
+
+Combine categorias livremente: um schema pode ter person + address + finance no mesmo objeto.
+
+## Seed para reprodutibilidade
+
+Sem seed, cada geração é única — útil para varied data em testes de carga. Mas para snapshots de teste, você quer dados determinísticos: defina uma seed numérica (ex: `12345`) e a sequência fica fixa. Mesmo seed = mesmo output, sempre.
+
+## JSON vs CSV
+
+JSON é o output natural para APIs REST e bancos document-oriented. CSV é melhor para Excel, SQL bulk import (`COPY` no Postgres, `LOAD DATA` no MySQL), e ferramentas de BI. O conversor entre os dois também está disponível como tool separado.
+
+## Limites práticos
+
+O navegador processa ~10.000 linhas confortavelmente. Acima de 50.000, considere quebrar em batches ou usar uma ferramenta server-side com streaming. Tudo é gerado localmente — sem requisições — então a velocidade depende só da CPU do seu dispositivo.
+
+## Casos de uso
+
+Testes E2E que precisam de fixtures consistentes. Páginas de demo para clientes. Bancos de staging populados após reset. Datasets para tutoriais. Stress test de paginação. Validação de schemas (gera, valida, falha cedo). Fazer dashboards parecerem cheios em screenshots de marketing.

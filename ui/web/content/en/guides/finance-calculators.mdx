@@ -1,0 +1,87 @@
+---
+title: "Free Finance Calculators — Mortgage, Loan, Tip, Compound Interest"
+description: "A practical guide to free online finance calculators: tip splitter, compound interest, percentage discounts, and more. Pure-browser, no signup, no tracking."
+keywords: ["finance calculator", "compound interest calculator", "tip calculator", "percentage calculator", "bill splitter", "loan calculator", "free finance tools"]
+updated: 2026-05-29
+readingTime: 7
+---
+
+# Free Finance Calculators You'll Actually Use
+
+Most personal finance questions don't need a spreadsheet — they need ten seconds and the right calculator. This guide walks through the calculators we built for AnyTools, when each one is the right answer, and a few mistakes worth avoiding.
+
+---
+
+## When You Need a Calculator vs When You Don't
+
+A calculator is the right tool when:
+
+- The math involves a formula you can't keep in your head (compound interest, amortization, BMI).
+- The inputs change frequently (currency rates, tax brackets).
+- You want a structured result with breakdown rows (tip + tax + total + per-person).
+
+A calculator is *not* the right tool when:
+
+- You need legally binding numbers (consult a CPA or financial advisor).
+- The decision is qualitative ("should I take this job?" — the salary number is one input among many).
+
+All calculators on AnyTools ship with a "For estimation only" disclaimer for exactly that reason. The math is correct; the decision is yours.
+
+---
+
+## Tip Calculator + Bill Splitter
+
+The [tip calculator](/en/finance/tip-calculator) takes a bill amount, a tip percentage, and a number of people. It returns the tip, the total, and the per-person amount.
+
+Three things people get wrong with tip math:
+
+1. **Tipping on tax**: In most US states the customary base for tipping is the pre-tax subtotal, not the post-tax total. Our calculator uses whatever number you type — if you want the lower base, type the subtotal.
+2. **Splitting the total vs splitting the tip**: Some groups split the bill but leave individual tips on the table. Our calculator gives you both numbers; pick the convention your group uses.
+3. **Rounding etiquette**: Round the per-person amount up. The few extra cents are not worth the awkward request for change at the table.
+
+---
+
+## Compound Interest Calculator
+
+The [compound interest calculator](/en/finance/compound-interest) projects the future value of an investment given a principal, monthly contribution, annual interest rate, and time horizon. Compounding is monthly by default.
+
+The single most underrated input here is **time**. A $200/month contribution at 7% over 30 years ends up worth more than the same contribution at 10% over 20 years. If you're new to investing, the conversation worth having with yourself is not "what rate can I get?" but "how do I start sooner?"
+
+A few notes on the assumptions:
+
+- We compound monthly. Daily compounding gives a slightly higher return for the same nominal rate, but the difference at typical retirement-account rates is fractions of a percent.
+- Monthly contributions happen at the end of each month (the conservative assumption). Annuity-due math (contributions at the start of each month) gives a marginally higher final value.
+- Inflation is not built in. A 7% nominal return over 30 years with 2.5% inflation has real purchasing-power growth of roughly 4.4% per year.
+
+---
+
+## Percentage Calculator
+
+The [percentage calculator](/en/lifestyle/percentage-calculator) is in the `lifestyle` cluster but it pulls double-duty for finance work. It handles three modes:
+
+- **X% of Y** — discount math: "what is 30% off $84?"
+- **X is what % of Y** — grade math, savings rate: "I saved $400 out of a $2,000 salary; what percent is that?"
+- **% change from X to Y** — growth math: "my rent went from $1,400 to $1,650; what's the increase?"
+
+The percent-change formula confuses people because the denominator matters: a 50% gain followed by a 33% loss returns you exactly to the starting value, not to a net 17% gain. The calculator makes the asymmetry visible.
+
+---
+
+## What's Coming Next
+
+We are actively building:
+
+- **Mortgage calculator** with amortization schedule and PMI/escrow estimates
+- **Loan calculator** for personal, auto, and student debt
+- **Currency converter** with daily-cached exchange rates
+- **Sales tax calculator** with configurable rate
+
+If a specific calculator would unblock a real decision for you, [star the GitHub repo](https://github.com/D0bby999/anytools) and open an issue — feature requests with a concrete use case ship faster than abstract ones.
+
+---
+
+## Privacy and Disclaimer
+
+Every calculator on AnyTools runs in your browser. Inputs you type are never sent to a server, logged, or persisted across sessions unless you explicitly star a tool. Read our [privacy page](/en/privacy) for the full picture.
+
+Calculator outputs are estimates. For mortgages, retirement planning, tax, and any high-stakes financial decision, confirm with a licensed professional.

@@ -1,0 +1,47 @@
+---
+title: Quadro branco online — Perguntas frequentes
+---
+
+## Onde meu desenho é armazenado?
+
+Neste navegador, neste perfil, neste dispositivo, e em lugar mais nenhum. O quadro é escrito em `localStorage` sob a chave `anytools:whiteboard:v1` cerca de meio segundo depois de você parar de desenhar. Nada é enviado, não há conta, e não há sincronização entre seu telefone e laptop.
+
+A consequência prática vale a pena declarar claramente: limpar dados do site, executar uma ferramenta "dados de navegação limpa", ou usar uma janela privada que você então fecha apagará o quadro sem volta. Se um desenho importa, exporte um arquivo `.excalidraw`. Esse arquivo é a cópia que você possui.
+
+O que é salvo é o quadro como está: formas, texto, a cor de fundo da tela, a configuração de grade e onde você havia rolado. Imagens que você colou e depois deletou não fazem parte — cada salva mantém apenas os dados de imagem que o quadro ainda mostra, então remover uma screenshot devolve o espaço em vez de deixá-lo em armazenamento pela vida útil do perfil do navegador.
+
+## O que é o editor?
+
+[Excalidraw](https://github.com/excalidraw/excalidraw), o editor de código aberto licenciado MIT, embutido como um componente React. A versão aqui é 0.18.1. É a mesma superfície de edição que excalidraw.com, menos cada recurso que precisa de um servidor: sem colaboração ao vivo, sem links compartilháveis, sem "wireframe para código", sem integração Excalidraw+.
+
+## As fontes desenhadas à mão são carregadas de um CDN?
+
+Não. O comportamento padrão do Excalidraw é buscar Excalifont, Virgil, Cascadia Code, Nunito, Lilita One, Comic Shanns, Liberation Sans e Xiaolai de `esm.sh` sob demanda. Este build define `EXCALIDRAW_ASSET_PATH` para `/third-party/excalidraw/` e as serve de este domínio. Se você abrir o painel de rede de seu navegador enquanto digita, cada requisição `.woff2` vai para este site.
+
+Isso inclui a família Xiaolai de 12 MB, que cobre texto chinês, japonês e coreano. Ela é apenas requisitada quando você realmente digita aqueles caracteres — as faces de fonte são divididas por intervalo Unicode — mas é hospedada aqui em vez de ser deixada cair, porque uma fonte faltante não é um espaço em branco: Excalidraw lista o CDN como uma fonte de fallback na mesma regra `@font-face`, então removê-la enviaria usuários de CJK para um terceiro sem contar.
+
+## Posso colaborar com alguém em tempo real?
+
+Não. Colaboração precisa de um servidor para retransmitir a sessão, e este site não tem um para desenhos. Se você precisa disso, excalidraw.com faz bem e é grátis. O que você consegue fazer aqui é exportar um arquivo `.excalidraw` e enviá-lo a alguém, que consegue abri-lo aqui ou lá.
+
+## Um arquivo exportado aqui abrirá em excalidraw.com?
+
+Sim. `.excalidraw` é JSON simples com um envelope documentado, e a exportação usa o próprio serializador do Excalidraw, então o arquivo é compatível byte com o que excalidraw.com escreve. O inverso também funciona — uma cena salva lá abre aqui. Arquivos acima de 5 MB são recusados, que é um limite de armazenamento do navegador em vez de formato.
+
+## Posso embutir um vídeo do YouTube ou um frame do Figma no quadro?
+
+Não. Excalidraw tem um recurso "Web Embed" que coloca um `<iframe>` ao vivo na tela — um vídeo, um arquivo Figma, um gist, um tweet — e ele é desligado completamente aqui. A entrada da barra de ferramentas é escondida, colar um link te dá um link em vez de um leitor, e se você abrir um arquivo `.excalidraw` que já contém embeds, eles são removidos antes do arquivo ser carregado e a ferramenta diz quantos foram removidos.
+
+A razão é a promessa no resto desta página. Um embed é uma página de terceiros rodando dentro desta: ele busca dos servidores desse terceiro, e consegue ver que você abriu. Isso é o oposto de "nada sai do seu dispositivo", e um arquivo `.excalidraw` é um documento JSON simples que qualquer um consegue te enviar por email, então "apenas se você adicionar um você mesmo" não teria sido verdade de qualquer forma. Tudo mais sobre uma cena — formas, texto, imagens, setas, frames — abre normalmente.
+
+## Por que só posso importar `.excalidraw`, não `.excalidrawlib`?
+
+Um arquivo `.excalidrawlib` é uma biblioteca de formas, não um desenho, e vai através do painel de biblioteca no editor em vez do botão "Abrir". Entregar um ao botão Abrir te dá uma mensagem dizendo exatamente isso em vez de um erro genérico.
+
+## Funciona em um telefone?
+
+Renderiza e é usável com um dedo ou caneta, mas uma tela em 70%-da-viewport em uma tela pequena é apertada, e a barra de ferramentas colapsa. Esta é uma ferramenta desktop-first. Desenhos não sincronizam em lugar nenhum, então um quadro começado em um telefone fica naquele telefone.
+
+## Há um limite de desfazer ou um histórico de salvamento automático?
+
+Desfazer é do próprio Excalidraw, em memória, e reseta quando você recarrega a página. Não há histórico de versão — o salvamento automático mantém exatamente um estado, o mais recente. "Novo quadro" o apaga depois de perguntar.

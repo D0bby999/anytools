@@ -1,0 +1,35 @@
+---
+title: SQL Formatter — Câu hỏi thường gặp
+---
+
+## Tool này có chạy SQL của tôi không?
+
+Không. Tool chỉ format cú pháp — không có kết nối database và không có khả năng thực thi. Query của bạn không bao giờ rời khỏi browser.
+
+## Nên chọn dialect nào?
+
+Cái khớp database production. Nếu không biết hoặc SQL của bạn portable, chọn "Standard SQL" — bạn được format conservative hơn, không phụ thuộc dialect.
+
+## Vì sao keyword UPPERCASE?
+
+Truyền thống (từ SQL-86) và dễ đọc. Giúp reader tách trực quan từ cấu trúc (`SELECT`, `FROM`, `JOIN`) khỏi định danh. Một số style guide thích lowercase; chọn một và áp dụng nhất quán.
+
+## Có thể format nhiều statement cùng lúc không?
+
+Có — tách bằng dấu chấm phẩy và formatter xử lý từng cái. Hữu ích cho file migration.
+
+## Có xử lý được stored procedure / function không?
+
+Hầu như có. Dialect PL/SQL (Oracle) và T-SQL (SQL Server) bao gồm extension procedural; chọn dialect khớp. Edge case với BEGIN/END lồng sâu có thể không format hoàn hảo — file issue với library upstream `sql-formatter` nếu gặp.
+
+## Có giữ inline comment không?
+
+Thường có, ở vị trí gốc so với code xung quanh. Verify output đã format nếu comment mã hóa thông tin vị trí có ý nghĩa (e.g., disable một clause).
+
+## Thêm vào CI thế nào?
+
+Dùng CLI version: `npx sql-formatter-cli --check schema/**/*.sql`. Cùng library underneath. Thêm như pre-commit hook hoặc PR check.
+
+## Còn SQL trong chuỗi backtick TS/JS thì sao?
+
+Trang này xử lý SQL raw only. Cho SQL inline trong code, xem `eslint-plugin-sql` hoặc `prettier-plugin-sql` tích hợp vào code formatter.

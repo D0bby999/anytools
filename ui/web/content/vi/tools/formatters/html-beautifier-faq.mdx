@@ -1,0 +1,35 @@
+---
+title: HTML Beautifier — Câu hỏi thường gặp
+---
+
+## Beautify HTML có làm thay đổi cách trang render không?
+
+Hầu như không. Trình duyệt chuẩn hóa whitespace trong HTML: nhiều khoảng trắng, tab và newline trong text content thu gọn thành một khoảng trắng. Thụt lề markup thay đổi whitespace giữa các tag, không phải trong text content hiển thị. Ngoại lệ duy nhất là nội dung bên trong `<pre>`, `<textarea>`, hoặc element được style với `white-space: pre` — tool này giữ nguyên whitespace bên trong các element đó.
+
+## Minification có làm hỏng JavaScript hay CSS inline không?
+
+Không, với các option cẩn thận. Chế độ minify của `js-beautify` chỉ loại bỏ whitespace giữa các tag — không viết lại nội dung của block `<script>` hay `<style>`. Để minify aggressive hơn cũng minify JS và CSS inline, dùng `html-minifier-terser` với `minifyJS: true` và `minifyCSS: true`. Tool này phục vụ cleanup nhanh; với pipeline production, tích hợp `html-minifier-terser` vào build step.
+
+## Void element là gì và tại sao chúng quan trọng?
+
+Void element là HTML tag không có children: `<br>`, `<hr>`, `<img>`, `<input>`, `<meta>`, `<link>`, `<area>`, `<col>`, `<embed>`, `<param>`, `<source>`, `<track>`, và `<wbr>`. Chúng không có closing tag. Formatter không biết danh sách này có thể thụt lề children không tồn tại, tạo ra output sai. Parser nhận thức HTML5 trong `js-beautify` xử lý void element đúng cách.
+
+## Nên dùng thụt lề 2 space hay 4 space?
+
+Khớp với quy ước hiện có của project. Hai space là tiêu chuẩn thống trị trong project JavaScript front-end hiện đại và khớp với default của Prettier. Bốn space phổ biến hơn trong codebase cũ, Python/Django template, và một số style guide doanh nghiệp. Nếu bắt đầu mới, hai space giữ HTML lồng sâu không bị trôi quá xa sang phải.
+
+## Tại sao một số attribute lại xuống dòng mới?
+
+Setting wrap line length kiểm soát điều này. Khi opening tag với nhiều attribute vượt quá độ dài dòng được cấu hình, `js-beautify` wrap attribute sang từng dòng riêng để dễ đọc. Đặt wrap length là 0 để tắt hoàn toàn việc wrap và giữ tất cả attribute inline, hoặc đặt giá trị như 120 để cho phép tag dài trên một dòng trước khi wrap.
+
+## So sánh với Prettier cho HTML formatting?
+
+Prettier là tiêu chuẩn ngành cho format tự động, nhất quán trên toàn codebase — cài một lần per project và mọi developer nhận được output giống nhau. Tool này dành cho format ad-hoc không cần cài đặt hay config. Dùng Prettier trong CI và pre-commit hook; dùng tool này để cleanup nhanh một lần, paste snippet, hoặc khám phá format trên HTML bạn copy từ nơi khác.
+
+## Có format được HTML nhúng trong JavaScript template literal không?
+
+Không trực tiếp — tool này chỉ format HTML độc lập. Với HTML trong file JS/TS (tagged template literal, JSX), Prettier xử lý context đó tự động. Cách khác, extract HTML string, format ở đây, rồi paste lại.
+
+## Có an toàn khi paste HTML nhạy cảm vào đây không?
+
+Toàn bộ xử lý chạy cục bộ trên trình duyệt qua `js-beautify` biên dịch sang JavaScript. Không có nội dung nào được gửi lên server. Bạn có thể kiểm tra bằng cách mở tab Network của trình duyệt — không có request nào được thực hiện khi bạn paste và format.

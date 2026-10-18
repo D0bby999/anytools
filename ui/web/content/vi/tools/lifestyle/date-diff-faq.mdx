@@ -1,0 +1,27 @@
+---
+title: Tính khoảng cách ngày — Câu hỏi thường gặp
+---
+
+## Kết quả gồm những con số nào?
+
+Sáu con số cho cùng một khoảng thời gian. Ba con số đầu là bản chia theo lịch: số năm tròn, số tháng tròn và số ngày còn dư — cách người ta mô tả một quãng khi nói "một năm hai tháng mười ngày". Ba con số sau là các tổng thô: tổng số ngày, tổng số tuần và tổng số giờ, đều lấy hiệu hai mốc tính bằng mili giây rồi chia và làm tròn xuống, nên tổng số tuần chính là tổng số ngày chia bảy bỏ phần dư. Bạn cần bản nào tùy việc: bản theo lịch để viết vào báo cáo hay nói cho người nghe, còn tổng số ngày để nhân với đơn giá, với lãi suất hay đem đi tính tiếp.
+
+## Nhập ngày sau vào ô trước thì có sai không?
+
+Không sao. Tool tự so hai ngày và sắp lại thứ tự trước khi tính, nên kết quả luôn là số dương và không phụ thuộc bạn điền ô nào trước. Nói cách khác, khoảng cách từ 1/3 đến 20/9 và từ 20/9 ngược về 1/3 cho ra đúng một bộ số như nhau. Điều này tiện khi bạn chỉ muốn biết "hai mốc này cách nhau bao lâu" mà không quan tâm chiều nào trước chiều nào sau. Đổi lại, tool không nói cho bạn biết mốc nào sớm hơn — nếu chiều thời gian là thứ bạn cần, chẳng hạn để biết còn bao nhiêu ngày nữa hay đã qua bao nhiêu ngày rồi, bạn phải tự đọc lại hai ô đã nhập.
+
+## Kết quả có tính cả ngày đầu lẫn ngày cuối không?
+
+Không, đây là hiệu giữa hai ngày nên chỉ đếm một đầu mút. Từ thứ Hai đến thứ Tư ra hai ngày, không phải ba. Chỗ này gây nhầm rất nhiều trong thực tế: thuê phòng, thuê xe, tính công tác phí hay đếm ngày nghỉ phép thường tính theo kiểu bao gồm cả hai đầu, tức là phải cộng thêm một vào con số hiện ra. Ngược lại, tiền phòng khách sạn lại tính theo số đêm, đúng bằng con số tool trả về. Trước khi đưa số này vào hóa đơn hay đơn xin nghỉ, xác định rõ bên kia đang đếm theo kiểu nào rồi cộng một hoặc không, chứ đừng mặc định.
+
+## Vì sao phần theo lịch không bằng tổng số ngày chia đều ra?
+
+Vì tháng không dài bằng nhau. Từ 31/1 đến 1/3 là "một tháng một ngày" theo cách nói, nhưng là 29 hoặc 30 ngày tùy năm đó có nhuận hay không. Tool cộng tháng theo độ dài thật của tháng và kẹp về ngày cuối tháng khi ngày đích không tồn tại, chứ không giả định mỗi tháng 30 ngày. Cũng vì thế, đừng nhân số tháng với 30 rồi cộng số ngày để mong ra tổng số ngày — hai con số đó được tính theo hai cách khác nhau và chỉ trùng nhau ngẫu nhiên. Nếu bạn cần một con số duy nhất để tính toán, hãy dùng tổng số ngày.
+
+## Có đếm được số ngày làm việc, trừ thứ Bảy Chủ nhật và ngày lễ không?
+
+Không. Tool đếm mọi ngày trên lịch, không phân biệt cuối tuần hay ngày nghỉ. Lý do là lịch nghỉ phụ thuộc từng nước và từng năm: riêng Việt Nam đã có Tết Nguyên đán trôi theo âm lịch, Giỗ Tổ Hùng Vương mùng 10 tháng Ba âm, cùng các đợt nghỉ bù do Chính phủ công bố hằng năm — không có công thức cố định nào bao được. Nếu bạn cần số ngày công, hãy lấy tổng số ngày ở đây làm điểm xuất phát rồi trừ đi số ngày nghỉ theo lịch cụ thể của cơ quan bạn.
+
+## Múi giờ, giờ mùa hè và dữ liệu của tôi thì sao?
+
+Phép tính chạy trên ngày chứ không trên thời điểm, nên một lần đổi giờ mùa hè ở nước ngoài không làm thừa hay thiếu một ngày. Chuỗi ngày từ ô nhập được đọc thành nửa đêm theo giờ máy bạn, không phải nửa đêm UTC — chi tiết nhỏ này quan trọng vì cách đọc mặc định sẽ lùi một ngày với người ở múi giờ âm. Còn về riêng tư: hai ngày bạn nhập không rời khỏi trình duyệt, không có lời gọi mạng nào và không có gì được lưu lại. Nếu bạn cần khoảng cách chính xác đến từng giờ giữa hai thời điểm ở hai múi giờ khác nhau, công cụ chuyển đổi múi giờ mới là thứ phù hợp.

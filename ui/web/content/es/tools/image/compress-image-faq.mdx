@@ -1,0 +1,39 @@
+---
+title: Comprimir Imagen — Preguntas frecuentes
+---
+
+## ¿Mi foto se carga a algún lugar?
+
+No. La imagen se decodifica por tu navegador, se redibuja en un lienzo, y se recodifica allí. El resultado es un blob que tu navegador mantiene en memoria, y el enlace de descarga apunta a eso. Nada se transmite, así que no hay copia en un servidor para ser almacenada, indexada o eliminada. Puedes verificar en la pestaña Red de tu navegador, o desconectarte de la red después de que la página se haya cargado — la herramienta sigue funcionando.
+
+## ¿Qué calidad debo elegir?
+
+Para fotografías, 0.75 a 0.85 es el rango útil. Por debajo de aproximadamente 0.6 comienzas a ver artefactos bloqueados en áreas suaves como cielos y piel; por encima de 0.9 el archivo crece rápidamente para una diferencia que casi nadie puede ver. La razón por la que la herramienta muestra el original y el resultado lado a lado es que un porcentaje ahorrado no te dice nada sobre si el resultado aún se ve aceptable — que es la única pregunta que vale la pena responder.
+
+Los números de calidad no son porcentajes de nada significativo y no son comparables entre formatos. WebP a 0.8 y JPEG a 0.8 son operaciones diferentes que sucede que comparten una escala.
+
+## ¿Por qué comprimir mi PNG lo hizo más grande?
+
+Porque recodificaste una imagen sin pérdidas en una con pérdidas, o al revés, y ninguna es un compresor en el sentido que querías. PNG almacena píxeles exactos y funciona bien en color plano, arte lineal y capturas de pantalla; JPEG y WebP descartan detalles y funcionan bien en fotografías. Ejecutar una captura de pantalla a través de JPEG puede producir fácilmente un archivo más grande que también se vea peor.
+
+Si tu imagen es una captura de pantalla, un diagrama o tiene grandes áreas planas, mantenla como PNG y usa Redimensionar Imagen para cortar sus dimensiones en su lugar — eso es lo que realmente reduce el tamaño de este tipo de imagen.
+
+## ¿Qué hace "alcanzar un presupuesto de tamaño"?
+
+Le das un tamaño de archivo máximo y busca la configuración de calidad más alta que se ajuste, mediante búsqueda binaria — alrededor de ocho codificaciones en lugar de un barrido lineal de 1.0 hacia abajo. Este es el modo a usar cuando un formulario dice "máximo 2 MB" y no te importa qué número de calidad te lleve allí.
+
+Si incluso la calidad más baja no puede alcanzar tu objetivo, obtienes ese intento de vuelta con su tamaño real en lugar de un error, así que puedes ver cuánto está alejado y decidir si redimensionar en su lugar.
+
+## Mi PNG transparente salió con un fondo sólido. ¿Por qué?
+
+JPEG no tiene canal alfa. Cuando una imagen transparente se dibuja en un lienzo y se codifica como JPEG, los píxeles transparentes se llenan con lo que sea que sea el fondo del lienzo. La herramienta detecta transparencia en la fuente y te advierte cuando esto está a punto de suceder, y WebP se ofrece porque admite transparencia en modos con y sin pérdidas.
+
+Si necesitas transparencia, elige WebP o PNG.
+
+## ¿Mis fotos están rotadas correctamente?
+
+Sí. Las fotos tomadas en un teléfono generalmente se almacenan en la orientación horizontal del sensor con una bandera separada diciendo cómo girarlas. El software que ignora esa bandera gira las tomas verticales de lado — el defecto más común en las herramientas de imagen del navegador. Esta decodifica con la bandera aplicada, así que lo que ves es lo que obtienes.
+
+## ¿Cuán grande puede ser una imagen que maneje?
+
+No hay tamaño en el que se niegue. Los navegadores limitan cuántos píxeles puede mantener un lienzo — aproximadamente 16.7 megapíxeles en Safari, el más estricto de los principales — y superar eso produce una imagen blanca en blanco en lugar de un error. Así que todo lo que es más grande se decodifica en un tamaño reducido que se ajuste bajo el techo, y la herramienta reporta las dimensiones originales junto con las que trabajó. Una foto de teléfono de 12 megapíxeles está cómodamente dentro del límite y se procesa a tamaño completo; una de 48 megapíxeles se comprime desde una decodificación más pequeña, lo que es visible si la compara píxel por píxel con el original.

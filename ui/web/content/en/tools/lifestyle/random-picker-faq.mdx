@@ -1,0 +1,39 @@
+---
+title: Random picker — Frequently asked questions
+---
+
+## What can it pick?
+
+Four things: dice rolls with any number of dice and any number of sides, a coin flip, a random whole number in a range, and a random choice from a list you paste in.
+
+## Is the range inclusive?
+
+Yes. Both the minimum and the maximum can come up. Entering the bounds the wrong way round is also fine — the tool sorts them before picking.
+
+## Where does the randomness come from?
+
+Your browser's built-in generator. It is a pseudo-random algorithm seeded by the browser, which is perfectly adequate for choosing who goes first, picking a winner among friends, or rolling for a board game.
+
+## Can I use it for anything security-related?
+
+No. A general-purpose pseudo-random generator is not designed to resist an attacker predicting its output, so do not use it to generate passwords, tokens, keys or anything else that must be unguessable. For passwords use the [password generator](/en/generators/password-generator), which is built for that purpose.
+
+## Is it suitable for a public prize draw?
+
+Treat it with care. There is no audit trail, no seed you can publish, and no way for anyone else to verify the draw happened as described — the result appears and is gone. For a draw where the outcome matters to other people, use a method that produces evidence.
+
+## Why did the same number come up twice in a row?
+
+Because that is what randomness looks like. Independent picks have no memory, so repeats are expected — with six sides, two matching rolls happen about one time in six. A generator that avoided repeats would be less random, not more.
+
+## Does the dice roller show individual results?
+
+Yes, each die separately alongside the total. That matters for games where individual values are used rather than just the sum.
+
+## Does picking from a list remove the item afterwards?
+
+No — each pick is independent and the list is unchanged, so the same entry can be drawn again. To draw without replacement, remove the winner from the list before picking again.
+
+## Is anything I paste sent anywhere?
+
+No. The list stays in your browser and nothing is transmitted.

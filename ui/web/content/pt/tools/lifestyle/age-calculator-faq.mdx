@@ -1,0 +1,35 @@
+---
+title: Calculadora de idade — Perguntas frequentes
+---
+
+## Como a idade é calculada?
+
+Como anos, meses e dias do calendário — não como um total dividido por 365,25. A ferramenta subtrai a data de nascimento do campo de data de referência campo a campo e toma emprestado quando um campo fica negativo, que é como as pessoas realmente contam a idade.
+
+## Por que não apenas dividir o número de dias por 365?
+
+Porque isso se desvia. Os meses têm comprimentos diferentes e anos bissextos adicionam um dia, portanto uma aproximação de ano decimal discorda do calendário em quantidades crescentes ao longo da vida. Contar pelos campos do calendário fornece a resposta com a qual um passaporte concorda.
+
+## Como ele lida com alguém nascido em 29 de fevereiro?
+
+Tomando emprestado do mês anterior real, seja qual for o comprimento desse mês. Em um ano não bissexto, a contagem de dias toma emprestado 28 dias de fevereiro e, se isso ainda deixar o dia negativo, toma emprestado novamente de 31 de janeiro. O resultado é o tratamento convencional: o aniversário cai no início de março em anos sem 29 de fevereiro.
+
+## E se eu inserir uma data de nascimento no futuro?
+
+Nada é retornado. Uma data de nascimento futura não tem uma idade válida, então a ferramenta se recusa em vez de mostrar um número negativo ou absurdo.
+
+## Posso calcular a idade em uma data passada ou futura?
+
+Sim — a data de referência é uma entrada, não fixada em hoje. É o que você quer ao trabalhar com quanto tempo alguém tinha em uma data específica, ou quantos anos terá em um evento.
+
+## Por que minha idade em meses não corresponde à minha idade em anos vezes doze?
+
+Porque a figura de meses é o resto após anos inteiros, não uma contagem separada. Alguém com 30 anos e 4 meses viveu aproximadamente 364 meses, mas a ferramenta mostra "30 anos, 4 meses e alguns dias" — a divisão do calendário em vez de uma contagem cumulativa.
+
+## O horário do dia importa?
+
+Não. O cálculo funciona em datas, não em carimbos de data/hora, portanto não tenta saber a hora do nascimento. Para a maioria dos fins, é o que você quer; para qualquer coisa que exija precisão por hora, uma calculadora de datas é o instrumento errado.
+
+## Minha data de nascimento é enviada para algum lugar?
+
+Não. Tudo é calculado no seu navegador e nada é armazenado ou transmitido.

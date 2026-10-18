@@ -1,0 +1,35 @@
+---
+title: Calculadora de interés compuesto — Preguntas frecuentes
+---
+
+## ¿Exactamente, qué se está proyectando?
+
+El valor futuro de una cantidad inicial más una contribución mensual regular, a una tasa anual fija. La herramienta reporta el saldo final, el total que realmente aportaste y la diferencia entre ambos — la parte que el interés produjo.
+
+## ¿Con qué frecuencia se capitaliza y cuándo se agregan las contribuciones?
+
+Mensualmente, y las contribuciones se agregan al final de cada mes — una anualidad ordinaria. Esto importa: un depósito realizado al final de un mes no gana nada en ese mes. Si tu plan real paga al inicio de cada mes, el resultado verdadero es ligeramente superior al mostrado.
+
+## ¿Cuál es la fórmula?
+
+Dos partes sumadas. La cantidad inicial crece como `P × (1 + r)^n`. Las contribuciones crecen como `PMT × ((1 + r)^n − 1) / r`. En ambos, `r` es la tasa anual dividida por 12 y `n` es el número de meses. A una tasa de cero, la segunda parte se reduce a `PMT × n`, que la herramienta maneja en lugar de dividir entre cero.
+
+## ¿Por qué el saldo se curva hacia arriba en lugar de subir uniformemente?
+
+Porque el interés de cada período se calcula sobre un saldo que ya incluye interés anterior. Al principio, el crecimiento está dominado por lo que contribuyes; después, los rendimientos sobre los rendimientos acumulados toman control. Establece un horizonte largo en la calculadora y observa cuándo la línea de interés supera la línea de contribuciones — ese cruce es todo el argumento para comenzar temprano.
+
+## ¿Tiene en cuenta la inflación, impuestos o comisiones?
+
+No. El resultado es una cifra nominal. La inflación reduce lo que ese saldo puede comprar, el impuesto de inversión reduce lo que mantienes, y las comisiones de plataforma o fondo se deducen de los rendimientos antes de que los veas. Un punto porcentual de comisiones anuales se capitaliza en tu contra exactamente de la manera en que los rendimientos se capitalizan a tu favor.
+
+## ¿Qué tasa debo usar?
+
+Cualquiera que ingreses, la herramienta la trata como cierta y constante, lo que ninguna inversión real es. Una tasa de ahorro fijo es conocible; un rendimiento de mercado no lo es, y las secuencias reales incluyen años de caída que un promedio suave oculta. Modelar una tasa pesimista junto con una optimista es más informativo que un número único y confiado.
+
+## ¿Se envían mis datos a algún lado?
+
+No. La proyección se ejecuta completamente en tu navegador.
+
+## ¿Puedo planificar mis finanzas con esto?
+
+Úsala para entender cómo se comporta la capitalización, no como un pronóstico. Los resultados reales dependen de mercados, impuestos, comisiones y tu propio comportamiento durante las caídas. Habla con un asesor financiero licenciado antes de comprometerte con un plan.

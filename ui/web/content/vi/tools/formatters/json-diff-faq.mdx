@@ -1,0 +1,39 @@
+---
+title: So sánh JSON — Câu hỏi thường gặp
+---
+
+## Điều này khác với trình kiểm tra diff văn bản như thế nào?
+
+Nó so sánh cấu trúc, không phải dòng. Định dạng lại một tệp, thay đổi indentation, hoặc sắp xếp lại các khóa của một đối tượng tạo ra **không** sự khác biệt ở đây — tất cả những cái này sẽ sáng lên một diff dựa trên dòng. Nếu bạn muốn biết những gì thay đổi trong dữ liệu thay vì trong tệp, đây là tool; cho prose hoặc code, hãy sử dụng [diff checker](/en/text-regex/diff-checker).
+
+## Thứ tự khóa đối tượng có phân biệt thứ tự không?
+
+Không. Các đối tượng JSON không có thứ tự theo định nghĩa, vì vậy `{"a":1,"b":2}` và `{"b":2,"a":1}` giống hệt nhau và được báo cáo như vậy.
+
+## Mảng có phân biệt thứ tự không?
+
+Có. Mảng được so sánh theo chỉ số, vì vậy di chuyển một phần tử tính là một thay đổi ở cả hai vị trí. Đó là cách đọc đúng của ngữ nghĩa JSON — thứ tự là có ý nghĩa trong một mảy — nhưng nó có nghĩa là một danh sách được sắp xếp lại tạo ra một diff rộn ràng thay vì một ghi chú "moved".
+
+## Bốn loại thay đổi có ý nghĩa gì?
+
+**added** — khóa chỉ tồn tại ở bên phải. **removed** — chỉ ở bên trái. **changed** — có mặt trên cả hai với các giá trị khác nhau của cùng một loại. **type-changed** — có mặt trên cả hai nhưng loại khác nhau, chẳng hạn như chuỗi `"5"` trở thành số `5`. Cái cuối cùng được gọi ra riêng biệt vì nó là một nguồn lỗi phổ biến và dễ dàng bị bỏ sót.
+
+## Tôi đọc đường dẫn như thế nào?
+
+Như một đường dẫn kiểu JSONPath từ gốc: `$` là chính tài liệu, `$.user.email` là một khóa lồng nhau, và `$.user.emails[2].label` indexes vào một mảng. Bạn có thể dán đường dẫn vào hầu hết các công cụ truy vấn JSON.
+
+## Tại sao nó báo cáo một lỗi thay vì một diff?
+
+Vì một bên không phải là JSON hợp lệ. Tool cho bạn biết bên nào thất bại thay vì đoán — các nguyên nhân phổ biến nhất là dấu phẩy ở cuối, dấu ngoặc kép đơn thay vì dấu ngoặc kép đôi, và các khóa không được trích dẫn, không ai trong số đó là JSON hợp lệ ngay cả khi JavaScript chấp nhận chúng.
+
+## Nó có phát hiện một khóa được đổi tên không?
+
+Không. Một lần đổi tên xuất hiện như một loại bỏ và một bổ sung, vì không có cách đáng tin cậy để nói một lần đổi tên từ một cặp thay đổi không liên quan mà không đoán ý định.
+
+## Thứ tự khóa hoặc khoảng trắng có ảnh hưởng đến kết quả ở tất cả không?
+
+Chỉ bên trong chuỗi. Khoảng trắng giữa các token là không quan trọng đối với JSON và bị bỏ qua; khoảng trắng trong một giá trị chuỗi là một phần của giá trị đó và sẽ được báo cáo.
+
+## Dữ liệu của tôi có được tải lên không?
+
+Không. Cả hai tài liệu đều được phân tích và so sánh trong trình duyệt của bạn.

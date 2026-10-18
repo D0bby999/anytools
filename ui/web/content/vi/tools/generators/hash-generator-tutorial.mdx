@@ -1,0 +1,71 @@
+---
+title: Thuật toán hash — dùng để làm gì và khi nào dùng sai
+description: MD5, SHA-1, SHA-256, SHA-512, HMAC. Dùng cái nào, tránh cái nào, và sai lầm mọi backend đều mắc ít nhất một lần.
+updated: 2026-05-25
+---
+
+## Hashing thực ra làm gì
+
+Hàm hash nhận input bất kỳ và tạo output kích thước cố định. Output trông ngẫu nhiên nhưng hoàn toàn deterministic — cùng input luôn cho cùng hash. Hash tốt có ba tính chất: **chống pre-image** (cho hash, không đảo ngược về input), **chống collision** (không tìm được hai input cho cùng hash), và **avalanche** (đổi một bit input lật ~một nửa bit output).
+
+Hashing **không phải** mã hóa. Không có key. Không có "giải mã" hash. Nếu ai đó nói họ "mã hóa mật khẩu bằng SHA-256", họ dùng sai cả hai thuật ngữ và có lẽ cả hệ thống xác thực của họ.
+
+## Năm thuật toán trong tool này
+
+| Thuật toán | Kích thước output | An toàn bảo mật 2026? | Dùng cho |
+|---|---|---|---|
+| **MD5** | 128 bit | **Không** | Checksum không bảo mật (dedup file, cache key) |
+| **SHA-1** | 160 bit | **Không** | Tương thích legacy only |
+| **SHA-256** | 256 bit | Có | Mặc định code mới |
+| **SHA-384** | 384 bit | Có | Quy định compliance bắt buộc |
+| **SHA-512** | 512 bit | Có | Khi cần output size lớn (hiếm) |
+
+MD5 và SHA-1 **bị bẻ** cho mục đích mã hóa vì collision attack chống chúng thực hiện được. Chúng không bị bẻ cho mục đích **không bảo mật** như phát hiện corruption file ngẫu nhiên hoặc tạo cache key, nơi attacker không chủ động xây collision.
+
+## Sai lầm: hash mật khẩu bằng SHA-256
+
+Mọi backend dev đều làm một lần và học từ đó:
+
+```javascript
+// ĐỪNG
+const hashed = sha256(password);
+```
+
+SHA-256 *nhanh* — GPU hiện đại tính tỷ lần/giây. Đó chính là thứ bạn không muốn cho password storage, vì attacker steal database có thể brute-force hash với cùng tốc độ.
+
+Dùng **hàm hash password** thiết kế để chậm:
+
+- **bcrypt** — chuẩn cũ, được hiểu rõ, ổn cho hầu hết case
+- **scrypt** — memory-hard, khó GPU-attack hơn bcrypt
+- **Argon2id** — state of the art hiện tại, winner Password Hashing Competition
+
+Mất ~100ms tính, vô hình với user đang đăng nhập nhưng thảm họa với attacker thử hàng tỷ lần. Dùng library: `argon2` (Node), `bcrypt` (Python/Go/v.v.), hoặc built-in của framework. **Không bao giờ gọi SHA-256 trên password.**
+
+## HMAC — hash có key
+
+HMAC ("Hash-based Message Authentication Code") kết hợp hash với secret key. Verifier cần cùng key để xác nhận chữ ký. Use case phổ biến:
+
+- Chữ ký webhook (Stripe, GitHub, v.v. dùng HMAC-SHA-256)
+- Ký request API (các phái sinh AWS SigV4)
+- JWT HS256 (chính là HMAC-SHA-256 trên header+payload)
+
+Với HMAC, thuật toán ít quan trọng hơn **độ dài key và tính bí mật**. HMAC-SHA-256 với key random 32 byte không bị bẻ; HMAC-MD5 với key 16 byte vẫn không bị bẻ (collision attack MD5 không chuyển sang HMAC). Vẫn dùng SHA-256 trở lên cho code mới.
+
+## Hash file
+
+Tool này đọc file vào memory và hash — ổn cho file đến vài trăm MB trên máy thông thường. Với file vài GB, dùng CLI streaming như `shasum -a 256 file.bin` (macOS/Linux) hoặc `Get-FileHash` (PowerShell). Streaming tránh load cả file cùng lúc.
+
+Hash tạo ra ở đây khớp với CLI tool. Hữu ích để verify download — tìm hash publisher công bố, tính cùng thuật toán ở đây và so sánh.
+
+## Hex vs Base64 output
+
+Cùng hash, hiển thị khác. Hex universal nhưng dài (SHA-256 = 64 ký tự). Base64 ngắn hơn (SHA-256 = 44 ký tự) và xuất hiện trong các thứ như Subresource Integrity attribute. Toggle ở trên.
+
+## Quyền riêng tư
+
+Mọi tính toán xảy ra trong browser. Họ SHA qua WebCrypto API native (`crypto.subtle.digest`), MD5 qua library mã nguồn mở [`js-md5`](https://github.com/emn178/js-md5). Không request nào tới server của chúng tôi.
+
+## Công cụ liên quan
+
+- **Password Generator** — tạo chuỗi random mạnh (sau đó hash bằng bcrypt/argon2, không bao giờ SHA trần).
+- **UUID Generator** — khi cần ID unique, không phải hash.

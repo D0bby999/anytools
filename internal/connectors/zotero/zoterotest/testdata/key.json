@@ -1,0 +1,7 @@
+{
+  "key": "KEY0REDACTED0FIXTURE0000",
+  "userID": 475425,
+  "username": "learner",
+  "displayName": "",
+  "access": {"user": {"library": true, "files": true, "notes": false, "write": false}, "groups": {"all": {"library": true, "write": false}}}
+}

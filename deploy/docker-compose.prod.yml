@@ -1,0 +1,180 @@
+# AnyTools — production overlay for one VPS.
+#
+#   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d
+#
+# Adds nginx (TLS, the only thing on 80/443) and certbot, and tightens the two
+# application containers. Everything else — the trust boundary, the single API
+# replica, the volumes — is the base file's and is NOT repeated here, so there
+# is one place each of those is decided. `api` still has no `ports:`; a test
+# asserts that for this file too (internal/api/deploy_invariants_test.go).
+
+# Every application container is capped and unprivileged (security audit F-7):
+# a runaway parse then kills one container, not whatever the host's OOM killer
+# picks — which, uncapped, could be Postgres.
+x-hardened: &hardened
+  pids_limit: 512
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+services:
+  postgres:
+    # Reserved rather than capped: the database is the last thing that should
+    # lose memory to a neighbour.
+    mem_reservation: 512m
+
+  api:
+    <<: *hardened
+    mem_limit: 1536m
+    environment:
+      ANYTOOLS_ENV: production
+      # The built-in transcription engine (the `stt` profile below). Unset,
+      # or set while the profile is off, the built-in option simply does not
+      # appear: the API offers it only while GET {url}/health answers and its
+      # model is downloaded.
+      ANYTOOLS_STT_URL: ${ANYTOOLS_STT_URL:-}
+      ANYTOOLS_STT_MODEL: ${ANYTOOLS_STT_MODEL:-Systran/faster-whisper-small}
+      ANYTOOLS_STT_DAILY_MINUTES: ${ANYTOOLS_STT_DAILY_MINUTES:-120}
+      # The built-in voices (the `tts` profile below), offered on the same
+      # terms: only while GET {url}/health and its model route answer.
+      ANYTOOLS_TTS_URL: ${ANYTOOLS_TTS_URL:-}
+      ANYTOOLS_TTS_DAILY_MINUTES: ${ANYTOOLS_TTS_DAILY_MINUTES:-60}
+    # Nothing in the image is written at runtime: data goes to the volume,
+    # multipart spill to /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m
+    logging: &logging
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }
+
+  web:
+    <<: *hardened
+    mem_limit: 512m
+    environment:
+      ANYTOOLS_APP_URL: https://${ANYTOOLS_DOMAIN:?ANYTOOLS_DOMAIN is required}
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    logging: *logging
+
+  migrate:
+    <<: *hardened
+    mem_limit: 256m
+    environment:
+      ANYTOOLS_ENV: production
+
+  # ── Built-in transcription (up-methods phase 21) ──────────────────────
+  #
+  #   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml \
+  #     --profile stt up -d          # with ANYTOOLS_STT_URL=http://stt:8000 in .env
+  #
+  # speaches: faster-whisper behind an OpenAI-compatible API (MIT). On the
+  # compose network only: no `ports:`, and nginx never proxies to it. No key,
+  # because nothing outside the network can reach it. The model cache is a
+  # volume, so a restart does not download the model again.
+  stt:
+    <<: *hardened
+    profiles: ["stt"]
+    image: ghcr.io/speaches-ai/speaches:0.8.3-cpu
+    mem_limit: 3g
+    environment:
+      WHISPER__INFERENCE_DEVICE: cpu
+      WHISPER__COMPUTE_TYPE: int8
+      ENABLE_UI: "false"
+      LOG_LEVEL: info
+    volumes:
+      - stt-models:/home/ubuntu/.cache/huggingface/hub
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks: [anytools]
+    restart: unless-stopped
+    logging: *logging
+
+  # speaches 0.8 downloads a model only when asked. This one-shot asks for
+  # ANYTOOLS_STT_MODEL once the engine is up (200: downloaded, 201: already
+  # there), and exits. Raise the model to a larger one on a bigger server,
+  # e.g. deepdml/faster-whisper-large-v3-turbo-ct2, and run it again.
+  stt-model:
+    <<: *hardened
+    profiles: ["stt"]
+    image: curlimages/curl:8.11.1
+    mem_limit: 64m
+    command: ["curl", "-fsS", "-X", "POST", "http://stt:8000/v1/models/${ANYTOOLS_STT_MODEL:-Systran/faster-whisper-small}"]
+    depends_on:
+      stt:
+        condition: service_healthy
+    networks: [anytools]
+    restart: "no"
+    logging: *logging
+
+  # ── Built-in voices (up-methods phase 22) ─────────────────────────────
+  #
+  #   docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml \
+  #     --profile tts up -d          # with ANYTOOLS_TTS_URL=http://tts:8880 in .env
+  #
+  # Kokoro-FastAPI: hexgrad/kokoro (82M parameters, Apache-2.0) behind an
+  # OpenAI-compatible POST /v1/audio/speech. v0.9.0, pinned by the digest of
+  # its multi-arch index (linux/amd64 and linux/arm64), read from ghcr on
+  # 2026-10-16. On the compose network only: no `ports:`, no key, and nginx
+  # never proxies to it. The image ships its model; the volume keeps it (and
+  # any re-download the entrypoint makes) across restarts. Kokoro has no
+  # Vietnamese voice: a Vietnamese overview is never sent to it.
+  tts:
+    <<: *hardened
+    profiles: ["tts"]
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.9.0@sha256:ee3111d6a2c903ed62f3b4fa19543c6901205ed39fce3c177e895b34a8386b9c
+    mem_limit: 2g
+    environment:
+      API_LOG_LEVEL: INFO
+    volumes:
+      - tts-models:/app/api/src/models
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8880/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks: [anytools]
+    restart: unless-stopped
+    logging: *logging
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ANYTOOLS_DOMAIN: ${ANYTOOLS_DOMAIN:?ANYTOOLS_DOMAIN is required}
+    volumes:
+      # The official image renders /etc/nginx/templates/*.template with envsubst
+      # at start, filling in the domain. Paths in an overlay resolve from the
+      # PROJECT directory (the repo root), not from this file's directory.
+      - ./deploy/nginx/anytools.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
+    depends_on:
+      - web
+    networks: [anytools]
+    restart: unless-stopped
+    logging: *logging
+
+  certbot:
+    image: certbot/certbot:v3.1.0
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    # Renewal loop. The first certificate is issued by deploy/scripts/setup-server.sh.
+    entrypoint: ["/bin/sh", "-c", "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"]
+    networks: [anytools]
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  certbot-etc:
+  certbot-www:
+  stt-models:
+  tts-models:

@@ -1,0 +1,35 @@
+---
+title: Calculadora de nota final — Perguntas frequentes
+---
+
+## Que pergunta isso responde?
+
+"O que preciso na prova final para terminar com a nota que quero?" Você fornece sua nota atual, a meta e quanto a prova final vale; ela retorna a pontuação necessária.
+
+## Qual é a fórmula?
+
+Sua nota geral final é `atual × (1 − w) + notafinal × w`, onde `w` é o peso da prova final como uma fração. Reorganizada para a incógnita: `necessário = (meta − atual × (1 − w)) / w`. Você pode verificar qualquer resultado substituindo-o de volta.
+
+## Por que ela às vezes me diz que a meta é inatingível?
+
+Porque a pontuação necessária ficou acima de 100. Se a prova final vale 20% e você está 30 pontos abaixo de sua meta, nenhuma pontuação possível nela fecha a lacuna — a ferramenta diz assim em vez de imprimir um número impossível. Ela também sinaliza resultados abaixo de 0, o que significa que você já garantiu a meta não importa qual pontuação você obtém.
+
+## O que uma pontuação necessária negativa significa?
+
+Que você poderia tirar zero na prova final e ainda atingir sua meta. Não é um erro; é a aritmética dizendo que a nota já está travada.
+
+## Quais cutoffs de nota de letra ela usa?
+
+A escala comum dos EUA: 90 ou acima é A, 80 é B, 70 é C, 60 é D, abaixo disso é F. As instituições variam — algumas usam pluses e minuses, algumas definem A em 93 — portanto verifique seu programa antes de confiar na letra em vez do número.
+
+## E se meu curso tiver vários componentes ponderados, não apenas uma prova final?
+
+Dobre-os na figura de "nota atual" primeiro. Calcule sua média ponderada em tudo o que foi concluído até agora, digite isso como atual e insira apenas o peso da prova final. O cálculo assume uma avaliação restante.
+
+## O arredondamento funciona a meu favor?
+
+Isso depende do seu instrutor, e esta ferramenta não assume. Se um curso arredonda 89,5 para A, você precisa de um pouco menos do que a figura mostrada; se truncar, você precisa de um pouco mais. Aponte acima do número em vez de exatamente nele.
+
+## Algo que eu insiro é armazenado?
+
+Não. É calculado no seu navegador e nada é transmitido.

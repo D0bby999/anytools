@@ -1,0 +1,39 @@
+---
+title: Add page numbers to a PDF — Frequently asked questions
+---
+
+## Is my document uploaded anywhere?
+
+No. The PDF is read by JavaScript running inside this browser tab, using the `pdf-lib` library, and the numbered result is handed back to you as a blob URL your browser creates locally. No request carries the file, so there is no server copy to retain, log or delete. Open your browser's developer tools, switch to the Network tab, and run the tool — you will see no upload. You can also disconnect from the network after the page has loaded and it still works.
+
+This matters for the documents that usually need numbering: contracts, court bundles, tender submissions, dissertations and evidence exhibits. Those are exactly the files that should not pass through somebody else's queue.
+
+## Why does it say Latin characters only?
+
+Because the numbers are drawn in Helvetica, one of the fourteen fonts that every PDF reader is required to have built in. Nothing is embedded, so the output file barely grows and it opens identically everywhere.
+
+The trade-off is the character set. A standard PDF font uses WinAnsi encoding, which is roughly Latin-1: the unaccented Latin alphabet, digits, punctuation, and Western European accents. It cannot draw Vietnamese tone marks, Chinese, Japanese, Korean, Greek, Cyrillic, Arabic, Hebrew, Thai or emoji. Since the three formats on offer are `1`, `1 / 10` and `Page 1`, this is not a limitation you can run into by accident today — but if you hit it, the tool says so in words rather than failing with an internal error.
+
+Supporting other scripts means embedding a Unicode font, which is one to two megabytes downloaded by every visitor to the page. That is a real cost for a feature nobody has asked for yet, so it is deliberately deferred rather than quietly missing.
+
+## What happens to pages my scanner saved sideways?
+
+They are handled, and this is worth explaining because it is where most page-numbering tools go wrong.
+
+A PDF page has two separate things: a box with a width and a height, and a rotation the reader applies before displaying it. A page scanned sideways is commonly stored as an upright box plus a quarter-turn rotation. A tool that simply draws at "the bottom right of the box" therefore puts the number in a corner that is not the bottom right on screen, rotated ninety degrees from every other page in the document.
+
+This tool reads each page's rotation and places the number in the corner *you* see, the right way up. Position and distance-from-the-edge are both measured against the page as displayed, so a mixed document — some pages upright, some sideways — comes out with the numbers in a consistent place.
+
+## Can I start at a number other than 1, or number only part of the document?
+
+Yes to both, and they combine. "Start numbering at" sets the number printed on the first page that gets one, which is what you want when a cover page and a table of contents come before page 1 of the body, or when this file continues from another. "Pages to number" takes ranges in the ordinary form — `3-12`, or `1, 4-6, 9` — and leaves every other page untouched.
+
+When both are used with the `1 / 10` format, `{total}` is the **last number printed**, not the document's page count. Numbering pages 5 to 12 of a twenty-page file starting from 1 gives `1 / 8` through `8 / 8`. That reads correctly to somebody holding those eight pages; `1 / 20` would refer to a numbering that appears nowhere in the file. For the ordinary case — every page, starting at 1 — the two definitions are the same.
+
+## Does it change anything else in the document?
+
+No. Page count, page order, page sizes, rotation, bookmarks and existing content are all left as they were; the number is drawn on top of what is already there. The tool cannot detect an existing page number, so running it twice leaves two numbers on each page — undo by starting again from your original.
+
+There is one thing to know about signatures: a digital signature covers a specific byte layout of a specific document, and adding anything to a page necessarily rewrites it. A signature that covered the original will no longer validate. That is a property of the PDF format rather than of this tool, and it applies equally to server-based ones. If a signature has to stay valid, number the document before it is signed.
+
+Password-protected files are refused by name rather than processed. It is technically possible to load an encrypted PDF while ignoring its protection, but the output would have the restrictions stripped out — not what anyone means by adding a page number. Remove the password in the application that created the file first.

@@ -1,0 +1,39 @@
+---
+title: Tạo & kiểm tra hash Bcrypt — Câu hỏi thường gặp
+---
+
+## Tool này làm gì?
+
+Hai thứ: hash một mật khẩu bằng bcrypt với cost factor mà bạn chọn, và xác minh xem mật khẩu có khớp với một hash hiện có hay không. Nó cũng đọc cost factor từ một hash mà bạn dán vào.
+
+## Cost factor là gì?
+
+Tham số công việc được nhúng vào hash. Đó là lũy thừa của hai — cost 10 có nghĩa là 2¹⁰ lần lặp — vì vậy mỗi bước lên **gấp đôi** thời gian tính toán. Tool này cho phép từ 4 đến 15 và mặc định là 10.
+
+## Tại sao nó dừng lại ở 15?
+
+Vì điều này chạy trong trình duyệt của bạn bằng pure JavaScript, và vượt quá 15 một hash duy nhất sẽ chặn tab trong nhiều giây. Đó là giới hạn của việc làm nó phía client, không phải một tuyên bố về những gì server của bạn nên sử dụng.
+
+## Production nên sử dụng cost nào?
+
+Cao hơn mặc định của tool này nếu phần cứng của bạn cho phép. Hướng dẫn thông thường là chọn cost cao nhất mà server của bạn có thể hấp thụ trong độ trễ đăng nhập chấp nhận được, và xem lại khi phần cứng cải thiện — toàn bộ điểm của một cost có thể điều chỉnh là nó có thể được nâng lên theo thời gian.
+
+## Tại sao hash lại khác nhau mỗi lần cho cùng một mật khẩu?
+
+Vì bcrypt tạo một random salt cho mỗi hash và lưu trữ nó bên trong chuỗi đầu ra. Điều đó là cố ý: các mật khẩu giống hệt nhau tạo ra các hash khác nhau, vì vậy kẻ tấn công không thể phát hiện các lần lặp lại hoặc sử dụng các bảng được tính toán trước. Đó cũng là lý do tại sao bạn không thể so sánh hai hash để bằng nhau — hãy sử dụng chế độ verify, cái trích xuất salt và tính toán lại.
+
+## Các phần của một chuỗi bcrypt có ý nghĩa gì?
+
+`$2b$10$` theo sau là 53 ký tự: biến thể thuật toán, cost factor, sau đó là salt và hash cùng nhau. Các biến thể `2a`, `2b`, `2x` và `2y` tồn tại vì lý do tương thích lịch sử; `2b` là biến thể hiện tại.
+
+## Bcrypt có cắt ngắn mật khẩu dài không?
+
+Có — nó chỉ xem xét khoảng 72 byte đầu tiên. Bất cứ điều gì vượt quá điều đó không có hiệu lực trên hash, điều này quan trọng nếu bạn cho phép các cụm từ mật khẩu dài hoặc pre-hash mật khẩu trước bcrypt.
+
+## Có an toàn để dán một mật khẩu thực tế ở đây không?
+
+Việc hash chạy hoàn toàn trong trình duyệt của bạn thông qua một triển khai pure JavaScript, không có yêu cầu mạng — bạn có thể xác nhận điều đó trong tab mạng của trình duyệt. Tuy nhiên, thói quen hợp lý là không gõ thông tin xác thực production thực tế vào bất kỳ trang web nào, bao gồm cái này. Sử dụng một giá trị tạm thời khi thử nghiệm.
+
+## Tôi có nên sử dụng bcrypt cho các hệ thống mới không?
+
+Nó vẫn là một lựa chọn hợp lý và được hỗ trợ rộng rãi. Hướng dẫn hiện đại thường ưa thích các lựa chọn thay thế cứng ở bộ nhớ như Argon2 hoặc scrypt, cái chống lại các cuộc tấn công GPU tốt hơn vì chúng đòi hỏi bộ nhớ cũng như thời gian.

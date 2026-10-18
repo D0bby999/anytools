@@ -1,0 +1,33 @@
+---
+title: Font Converter — Frequently asked questions
+---
+
+## What formats does this actually convert between?
+
+TTF/OTF and WOFF 1.0, in either direction, plus subsetting. That is the honest scope: WOFF wraps a font's existing tables in a small header and compresses each one with DEFLATE, and unwrapping does the reverse — both are lossless, reversible operations on the container, not on the outlines inside it. If you upload a TrueType-flavored (`glyf`) font, every output — WOFF or raw — stays TrueType-flavored; the same is true for a CFF-flavored (`OTTO`) font staying CFF-flavored. This tool does not rewrite one outline format into the other, because that needs real font-engineering code (rewriting `glyf`/`loca` quadratic curves into PostScript `CFF` cubic curves, or back) that is out of scope here. If you see "TTF" or "OTF" in the output, read it as "whichever of the two your input already was," not as a menu choice.
+
+## Why is there no WOFF2 support?
+
+WOFF2 compresses its tables with Brotli, and rewrites `glyf`/`loca` into a further transposed, Brotli-compressed form on top of that. Browsers do not expose a Brotli codec to JavaScript the way they do for gzip/deflate — the Compression Streams API supports `gzip`, `deflate` and `deflate-raw` only, nothing called `br`. Adding Brotli support would mean shipping a WASM Brotli implementation as a new dependency, which was out of scope for this pass. Upload a TTF, OTF or WOFF1 file, or re-export your WOFF2 font as one of those first (most font tools that produce WOFF2 can also produce plain WOFF).
+
+## How does subsetting actually work?
+
+Type the characters you want to keep — a sentence, a list of glyphs, whatever your page actually uses — and the tool asks [HarfBuzz](https://harfbuzz.github.io/) (the same shaping engine behind Chrome, Firefox, Android and LibreOffice's text rendering) to keep only the glyphs those code points need, plus every OpenType layout feature (ligatures, kerning, mark positioning for combining diacritics) rather than only the defaults HarfBuzz would keep on its own. That last part matters for languages like Vietnamese: dropping GPOS mark-positioning data would leave the diacritics present as glyphs but positioned wrong.
+
+Subsetting is not smart about what a *font* needs beyond the characters you list — if your page also uses bold or italic weights, subset each weight file separately with the characters that weight actually renders.
+
+## Why did my WOFF come out bigger than the original?
+
+Small fonts (an icon font with forty glyphs, or an already-subsetted font) can lose the compression argument to WOFF's own overhead: a 44-byte header plus a 20-byte directory entry per table. If DEFLATE cannot shrink a given table below its original size, this tool stores that table raw rather than paying the compression tax for nothing — but the fixed header cost is unavoidable, and on a small enough font it can outweigh what compression saved elsewhere. For anything with more than a couple hundred glyphs this essentially never happens; DEFLATE wins by a wide margin on real glyph outline data.
+
+## Could subsetting break a font I'm allowed to modify but not redistribute differently?
+
+Read your font's license before subsetting and redistributing the result. Subsetting is a form of modification, and while most webfont licenses explicitly permit it (it is the normal way to ship performant webfonts), some commercial font licenses restrict modification or redistribution outright, and a few require the subsetted font to carry specific attribution or a modified name. This tool has no way to know which license applies to the file you uploaded — that check is yours to make before you publish the result.
+
+## Is my font uploaded anywhere?
+
+No. The file is read with the File API and every step — container parsing, DEFLATE compression, subsetting — runs in this browser tab. Subsetting calls into a WebAssembly build of HarfBuzz that is served from this site's own origin (not a CDN), so nothing about your font, or which characters you kept, leaves your device. Check the Network tab, or disconnect after the page loads and convert anyway.
+
+## Why does the preview sometimes not show my font?
+
+The preview loads your converted file through the browser's own `FontFace` API — the same mechanism a real `@font-face` rule uses — so if it fails to render, that is a genuine signal the output would fail to load on a real page too, not a bug specific to the preview. The most common cause is a font whose outline table this tool did not touch but which was already unusual (a malformed table the original authoring tool wrote, for instance); the download still contains exactly the bytes the conversion produced either way, so you can always test it directly in a browser or an OS font viewer.

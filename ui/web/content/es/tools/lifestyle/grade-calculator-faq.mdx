@@ -1,0 +1,35 @@
+---
+title: Calculadora de nota final — Preguntas frecuentes
+---
+
+## ¿Qué pregunta responde?
+
+"¿Qué necesito en el examen final para terminar con la calificación que quiero?" Usted proporciona su calificación actual, el objetivo, y cuánto vale el examen final; devuelve la puntuación requerida.
+
+## ¿Cuál es la fórmula?
+
+Su nota general final es `actual × (1 − w) + notaFinal × w`, donde `w` es el peso del examen final como una fracción. Reorganizada para lo desconocido: `necesaria = (objetivo − actual × (1 − w)) / w`. Puede verificar cualquier resultado sustituyéndolo nuevamente.
+
+## ¿Por qué a veces me dice que el objetivo es inalcanzable?
+
+Porque la puntuación requerida resultó superior a 100. Si el examen final vale 20% y está 30 puntos por debajo de su objetivo, ninguna puntuación posible cierra la brecha, la herramienta lo dice en lugar de imprimir un número imposible. También marca resultados por debajo de 0, que significan que ya ha asegurado el objetivo sin importar cuánto puntúe.
+
+## ¿Qué significa una puntuación requerida negativa?
+
+Que podría puntuar cero en el examen final y aún así alcanzar su objetivo. No es un error; es la aritmética diciéndole que la calificación ya está asegurada.
+
+## ¿Qué cortes de calificación por letra utiliza?
+
+La escala estadounidense común: 90 y más es una A, 80 una B, 70 una C, 60 una D, por debajo una F. Las instituciones varían (algunas usan más y menos, algunas establecen una A en 93), así que compruebe su programa antes de confiar en la letra en lugar del número.
+
+## ¿Qué pasa si mi curso tiene varios componentes ponderados, no solo un examen final?
+
+Dóblelos en la cifra de "calificación actual" primero. Calcule su promedio ponderado entre todo lo completado hasta ahora, ingrese eso como actual, e ingrese solo el peso del examen final. El cálculo asume una evaluación restante.
+
+## ¿El redondeo funciona a mi favor?
+
+Eso depende de su instructor, y esta herramienta no asume. Si un curso redondea 89.5 hacia arriba a una A, necesita ligeramente menos de la cifra mostrada; si trunca, necesita ligeramente más. Apunte por encima del número en lugar de exactamente en él.
+
+## ¿Se almacena algo que ingreso?
+
+No. Se calcula en su navegador y nada se transmite.

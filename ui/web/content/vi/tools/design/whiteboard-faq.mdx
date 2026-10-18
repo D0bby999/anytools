@@ -1,0 +1,27 @@
+---
+title: Bảng vẽ trực tuyến — Câu hỏi thường gặp
+---
+
+## Bản vẽ của tôi được lưu ở đâu, đóng tab có mất không?
+
+Lưu trong `localStorage` của chính trình duyệt này, profile này, máy này, và không ở đâu khác — dưới khoá `anytools:whiteboard:v1`, ghi lại khoảng nửa giây sau khi bạn ngừng thao tác. Không có gì được upload, không có tài khoản, không đồng bộ giữa điện thoại và laptop. Đóng tab bình thường thì bản vẽ vẫn còn khi bạn quay lại. Nhưng cần nói thẳng hệ quả: xoá dữ liệu trang, chạy công cụ dọn trình duyệt, hoặc dùng cửa sổ ẩn danh rồi đóng nó lại thì bản vẽ mất sạch và không có cách nào lấy lại. Bản vẽ nào quan trọng, hãy export ra file `.excalidraw` — đó mới là bản sao thuộc về bạn.
+
+## Bảng lưu lại chính xác những gì?
+
+Toàn bộ shape, chữ, màu nền canvas, thiết lập lưới, mức zoom và vị trí bạn đang cuộn tới. Tool không lưu nguyên cục trạng thái của editor mà chỉ chọn ra những trường có ý nghĩa sau khi reload: chiều rộng, chiều cao, offset của khung nhìn lúc save bị bỏ đi, vì khôi phục chúng trên một cửa sổ kích thước khác sẽ đẩy bản vẽ ra ngoài màn hình. Ảnh cũng được lọc: mỗi lần lưu chỉ giữ đúng dữ liệu ảnh mà bảng còn đang hiển thị. Excalidraw vốn không bao giờ xoá ảnh khỏi bộ nhớ của nó — xoá một ảnh chỉ đánh dấu `isDeleted` để undo còn kéo lại được — nên nếu lưu nguyên si thì mọi ảnh chụp màn hình bạn từng dán vào sẽ ăn hết hạn mức lưu trữ, và triệu chứng đầu tiên là autosave hỏng ở một lần chỉnh sửa chẳng liên quan gì, rất lâu sau đó.
+
+## Mở file `.excalidraw` có giới hạn gì?
+
+Ba giới hạn, tất cả đều báo lý do cụ thể chứ không phải "file không hợp lệ". Thứ nhất, file trên 5 MB bị từ chối trước cả khi parse — kích thước được đo bằng byte UTF-8 chứ không phải số ký tự, vì hạn mức của localStorage đếm theo byte và một nhãn tiếng Việt hay tiếng Trung tốn nhiều byte hơn số ký tự bạn nhìn thấy. Thứ hai, file `.excalidrawlib` bị từ chối kèm lời nhắc rằng đó là thư viện shape chứ không phải bản vẽ, và phải nạp từ panel library trong editor. Thứ ba, scene ghi bằng envelope version mới hơn 2 cũng bị từ chối, kèm số version thật để bạn biết nó được lưu bởi một bản Excalidraw mới hơn.
+
+## Vì sao không nhúng được video YouTube hay khung Figma vào bảng?
+
+Vì tính năng đó bị tắt hoàn toàn ở đây. Excalidraw có "Web Embed" đặt một `iframe` sống lên canvas — video, file Figma, gist, tweet — và nút đó đã bị ẩn. Quan trọng hơn, khi bạn mở một file `.excalidraw` có sẵn embed, các phần tử đó bị gỡ bỏ trước khi scene được nạp, và tool nói rõ nó đã gỡ bao nhiêu cái. Lý do chính là lời hứa ở phần đầu trang này: một embed là trang của bên thứ ba chạy bên trong trang này, nó tải dữ liệu từ máy chủ của họ và biết được bạn vừa mở nó. Mà file `.excalidraw` chỉ là một tài liệu JSON ai cũng có thể gửi cho bạn qua email, nên "chỉ khi bạn tự thêm vào" cũng không đúng nốt. Mọi thứ khác của scene — shape, chữ, ảnh, mũi tên, frame — mở bình thường.
+
+## Vẽ sơ đồ ở đây khác gì Figma hay Miro?
+
+Khác ở chỗ bạn không phải đăng ký, không phải chờ workspace load, và không phải nghĩ xem bản nháp này sẽ nằm trong team file của ai. Editor là Excalidraw 0.18.1, mã nguồn mở giấy phép MIT, nhúng thẳng vào trang — cùng bề mặt vẽ với excalidraw.com, chỉ bỏ đi những tính năng cần máy chủ. Bộ font viết tay cũng được phục vụ từ chính domain này thay vì gọi ra CDN ngoài, nên bạn mở tab Network lên sẽ thấy mọi request `.woff2` đều trỏ về đây. Đổi lại, không có cộng tác thời gian thực và không có link chia sẻ: cộng tác cần một máy chủ trung chuyển phiên làm việc, mà site này không có máy chủ nào cho bản vẽ. Nếu cần đúng thứ đó, excalidraw.com làm rất tốt và miễn phí. Ở đây bạn export file rồi gửi cho người khác, họ mở được ở cả hai nơi vì định dạng là JSON tương thích byte với thứ excalidraw.com ghi ra.
+
+## Có giới hạn undo hay lịch sử phiên bản không?
+
+Undo là của Excalidraw, nằm trong bộ nhớ, và reset khi bạn tải lại trang — nó không được lưu cùng bản vẽ. Không có lịch sử phiên bản: autosave giữ đúng một trạng thái duy nhất, trạng thái mới nhất, ghi đè lên trạng thái cũ. Nút "bảng mới" xoá nó đi sau khi hỏi lại bạn một lần. Nếu bạn cần so sánh hai phương án hoặc quay lại bản nháp cách đây một tiếng, cách duy nhất là export ra file `.excalidraw` ở từng mốc và tự đặt tên. Về điện thoại: bảng vẽ chạy được bằng ngón tay hoặc bút cảm ứng, nhưng canvas chiếm 70% viewport trên màn hình nhỏ thì khá chật và thanh công cụ bị thu gọn — đây là tool ưu tiên desktop, và vì không đồng bộ nên bảng bắt đầu trên điện thoại sẽ ở lại trên điện thoại.

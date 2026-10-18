@@ -1,0 +1,27 @@
+---
+title: Tính BMI — Câu hỏi thường gặp
+---
+
+## BMI bao nhiêu là chuẩn? Tool này chia mức theo ngưỡng nào?
+
+Tool áp đúng ngưỡng người lớn của WHO: dưới 18.5 là thiếu cân, từ 18.5 đến dưới 25 là bình thường, từ 25 đến dưới 30 là thừa cân, và từ 30 trở lên là béo phì — chia tiếp thành độ I (30 đến dưới 35), độ II (35 đến dưới 40) và độ III (từ 40 trở lên). Công thức chỉ có hai biến: cân nặng tính bằng kilogram chia cho bình phương chiều cao tính bằng mét. Không có tuổi, không có giới tính, không có thành phần cơ thể trong đó. Nếu bạn nhập chiều cao bằng centimet, tool đổi sang mét rồi mới chia. Con số này là kết quả sàng lọc, không phải chẩn đoán — muốn biết tình trạng thật của mình, hãy đưa nó cho bác sĩ xem cùng với tiền sử và xét nghiệm.
+
+## Tôi tập gym nhiều năm, BMI vẫn báo "thừa cân". Vậy là sai à?
+
+Không sai, nhưng nó đang đo nhầm thứ. Công thức trong tool chỉ biết tổng khối lượng cơ thể bạn, hoàn toàn không có cách nào phân biệt đâu là cơ, đâu là mỡ, đâu là nước. Cơ nặng hơn mỡ ở cùng thể tích, nên một người tập tạ hoặc chơi thể thao đối kháng với tỷ lệ mỡ rất thấp vẫn có thể rơi vào nhóm thừa cân, thậm chí béo phì độ I. Đây là giới hạn cố hữu của chỉ số BMI, không phải lỗi tính toán. Nếu bạn muốn ước tính thành phần cơ thể thay vì tổng khối lượng, hãy dùng công cụ tính phần trăm mỡ cơ thể theo phương pháp đo vòng của Hải quân Mỹ.
+
+## Người Việt có nên dùng ngưỡng BMI quốc tế không?
+
+Đây là điểm quan trọng nhất cần biết. WHO đã ghi nhận rằng mối liên hệ giữa BMI và nguy cơ sức khỏe khác nhau giữa các nhóm dân cư, và khuyến nghị của Văn phòng WHO khu vực Tây Thái Bình Dương dành cho người châu Á dùng điểm can thiệp thấp hơn: khoảng 23 đã bắt đầu tăng nguy cơ và khoảng 27.5 là nguy cơ cao, bởi vì rủi ro tim mạch và chuyển hóa xuất hiện ở mức BMI thấp hơn so với dân số châu Âu. Tool này hiển thị thang quốc tế chuẩn của WHO. Nếu bác sĩ của bạn đang làm việc theo hướng dẫn dành riêng cho người châu Á, con số bạn thấy ở đây có thể được xếp vào nhóm nguy cơ cao hơn — hãy hỏi rõ họ đang dùng thang nào.
+
+## Nhập chiều cao và cân nặng lên đây, dữ liệu của tôi có bị gửi đi đâu không?
+
+Không. Toàn bộ phép chia được thực hiện ngay trong trình duyệt của bạn, bằng JavaScript chạy trên máy bạn, ngay khi bạn gõ. Không có request nào mang cân nặng hay chiều cao của bạn ra khỏi máy, không có server nào nhận, không có log nào ghi lại, và không có tài khoản nào để đăng ký. Với dữ liệu sức khỏe thì đây là điểm khác biệt đáng kể: bạn có thể tắt mạng hoàn toàn sau khi trang đã tải, tool vẫn chạy bình thường. Bạn cũng có thể tự kiểm chứng bằng tab Network trong DevTools của trình duyệt — sẽ không thấy request nào chứa số liệu bạn vừa nhập.
+
+## App điện thoại và cân thông minh đã tính BMI sẵn rồi, sao còn cần trang web?
+
+Vì cách chúng xử lý dữ liệu khác nhau hoàn toàn. Cân thông minh và các ứng dụng theo dõi sức khỏe thường yêu cầu tạo tài khoản, đồng bộ cân nặng lên máy chủ của hãng, và dữ liệu đó nằm trong chính sách quyền riêng tư mà rất ít người đọc hết. Cân nặng theo thời gian là thông tin sức khỏe nhạy cảm. Trang này thì ngược lại: không tài khoản, không đồng bộ, không lưu gì cả — đổi lại, nó cũng không nhớ số liệu cũ giúp bạn. Nếu bạn chỉ cần một con số nhanh và không muốn nó nằm trong cơ sở dữ liệu của ai đó, đây là lựa chọn đơn giản hơn.
+
+## Trẻ em và phụ nữ mang thai có dùng được công thức này không?
+
+Không dùng theo cách tính ở đây được. Trẻ em và thanh thiếu niên được đánh giá bằng biểu đồ bách phân vị theo tuổi và giới tính chứ không phải các mốc cố định của người lớn — cùng một BMI có thể bình thường ở tuổi này và bất thường ở tuổi khác. Với thai kỳ, BMI không còn ý nghĩa vì cân nặng tăng là điều được mong đợi; bác sĩ theo dõi mức tăng cân so với BMI trước khi mang thai, không phải BMI hiện tại. Công cụ này chỉ cài đặt công thức dành cho người trưởng thành. Trong cả hai trường hợp, hãy để bác sĩ nhi khoa hoặc bác sĩ sản khoa đánh giá thay vì tự suy luận từ con số ở đây.

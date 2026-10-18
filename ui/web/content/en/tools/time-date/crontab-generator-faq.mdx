@@ -1,0 +1,39 @@
+---
+title: Crontab generator — Frequently asked questions
+---
+
+## What does it produce?
+
+A five-field cron expression, a plain-English description of what it means, and the next five times it would actually fire — which is the fastest way to confirm a schedule does what you intended.
+
+## What are the five fields?
+
+Minute, hour, day of month, month, day of week, in that order. Note that there is no seconds field: standard cron's finest granularity is one minute, so anything more frequent needs a different mechanism.
+
+## What do the special characters mean?
+
+`*` is every value. `*/5` is every fifth value — so `*/5` in the minute field is every five minutes. `1,15` is a list, `1-5` is a range, and they combine: `1-5,20` is valid.
+
+## Why did my job run more often than expected?
+
+Almost always the day-of-month and day-of-week trap. When **both** are restricted, cron treats them as OR, not AND — `0 0 13 * 5` runs on the 13th *and* on every Friday, not only on Friday the 13th. It is the single most surprising rule in cron, and the reason this tool shows you the next runs rather than only the expression.
+
+## Which time zone does the schedule use?
+
+Whatever the machine running cron uses, which is frequently UTC on a server and local time on a laptop. The preview here is computed in your browser's time zone, so if your server runs UTC, read the times accordingly.
+
+## What happens across a daylight-saving change?
+
+Behaviour varies by cron implementation. Jobs scheduled in the hour that is skipped in spring may not run at all, and jobs in the repeated autumn hour may run twice. If a job must not double-fire, either schedule it outside the transition hours or make it idempotent.
+
+## Is `0 0 * * *` midnight?
+
+Yes — minute 0 of hour 0, every day. A frequent mistake is writing `* * * * *` intending "once a day"; that fires every minute, 1,440 times a day.
+
+## Are `@daily` and the other shorthands supported?
+
+The generator emits the five-field form, which is portable everywhere. Shorthands like `@daily` and `@reboot` are conveniences that not every cron implementation accepts, and `@reboot` in particular means different things on different systems.
+
+## Is anything sent to a server?
+
+No. The expression and its preview are computed in your browser.

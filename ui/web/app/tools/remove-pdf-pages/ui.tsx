@@ -1,0 +1,147 @@
+import {
+  Button,
+  FilePipelineTemplate,
+  MultiFileDropzone,
+  PrivacyNote,
+  useLocalized,
+} from '~/components/tools-ui';
+import { useEffect, useMemo, useState } from 'react';
+import { SHARED_ERROR_STRINGS } from '../shared/shared-error-strings';
+import { toolErrorText } from '../shared/tool-error';
+import { useObjectUrls } from '../shared/use-object-urls';
+import { type RemoveResult, readPageCount, removePdfPages } from './logic';
+import { STRINGS } from './strings';
+
+export function RemovePdfPagesUi() {
+  const s = useLocalized(STRINGS);
+  const sharedErrors = useLocalized(SHARED_ERROR_STRINGS);
+  // Errors from the shared modules (canvas ceiling, page ranges, pdf.js…) under the tool's own keys.
+  const errorStrings = useMemo(() => ({ ...sharedErrors, ...s }), [sharedErrors, s]);
+  // Revokes every URL this component created when it unmounts; without it each blob
+  // stays pinned for the life of the document, and client-side navigation does not clear it.
+  const objectUrls = useObjectUrls();
+  const [files, setFiles] = useState<File[]>([]);
+  const [pageCount, setPageCount] = useState<number | null>(null);
+  const [range, setRange] = useState('');
+  const [result, setResult] = useState<RemoveResult | null>(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const file = files[0] ?? null;
+  const [deleteBefore, deleteAfter] = s.pagesToDelete.split('{code}');
+
+  useEffect(() => {
+    if (!file) {
+      setPageCount(null);
+      return;
+    }
+    let cancelled = false;
+    readPageCount(file)
+      .then((n) => !cancelled && setPageCount(n))
+      .catch((e) => !cancelled && setError(toolErrorText(e, errorStrings, s.couldNotReadPdf)));
+    return () => {
+      cancelled = true;
+    };
+  }, [file, errorStrings, s.couldNotReadPdf]);
+
+  const run = async () => {
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await removePdfPages(file, range);
+      setResult(r);
+      setUrl((prev) => {
+        if (prev) objectUrls.revoke(prev);
+        return objectUrls.create(r.blob);
+      });
+    } catch (e) {
+      setResult(null);
+      setError(toolErrorText(e, errorStrings, s.failed));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const outName = file ? file.name.replace(/\.pdf$/i, '') : 'document';
+
+  return (
+    <FilePipelineTemplate
+      title={s.title}
+      dropzone={
+        <MultiFileDropzone
+          files={files}
+          onChange={(f) => {
+            setFiles(f);
+            setResult(null);
+            setError(null);
+            setUrl((prev) => {
+              if (prev) objectUrls.revoke(prev);
+              return null;
+            });
+          }}
+          accept="application/pdf,.pdf"
+          multiple={false}
+          label={s.dropLabel}
+        />
+      }
+      result={
+        <>
+          {pageCount !== null && (
+            <p className="text-sm text-muted-foreground">
+              {(pageCount === 1 ? s.pageCountOne : s.pageCountMany).replace(
+                '{n}',
+                String(pageCount),
+              )}
+            </p>
+          )}
+
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">
+              {deleteBefore}
+              <code>1, 4-6, 12</code>
+              {deleteAfter}
+            </span>
+            <input
+              type="text"
+              value={range}
+              onChange={(e) => setRange(e.target.value)}
+              placeholder={pageCount ? `1-${pageCount}` : '1, 4-6'}
+              className="h-10 w-full rounded-md border border-control-border bg-background px-3 text-sm"
+            />
+          </label>
+
+          <Button type="button" onClick={run} disabled={!file || busy || !range.trim()}>
+            {busy ? s.removing : s.removePages}
+          </Button>
+
+          {error && (
+            <output className="block rounded-md border border-destructive/40 bg-destructive-soft px-3 py-2 text-sm text-destructive">
+              {error}
+            </output>
+          )}
+
+          {result && url && (
+            <div className="space-y-3">
+              <div className="rounded-md border bg-muted p-3 text-sm">
+                {(result.removed === 1 ? s.removedOne : s.removedMany).replace(
+                  '{n}',
+                  String(result.removed),
+                )}{' '}
+                —{' '}
+                {(result.pages === 1 ? s.leftOne : s.leftMany).replace('{n}', String(result.pages))}
+              </div>
+              <Button asChild>
+                <a href={url} download={`${outName}-edited.pdf`}>
+                  {s.download.replace('{name}', `${outName}-edited.pdf`)}
+                </a>
+              </Button>
+            </div>
+          )}
+        </>
+      }
+      disclaimer={<PrivacyNote />}
+    />
+  );
+}

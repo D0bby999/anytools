@@ -1,0 +1,35 @@
+---
+title: Image Format Converter — Câu hỏi thường gặp
+---
+
+## Tại sao không thể export sang AVIF dù trình duyệt của tôi hỗ trợ nó?
+
+AVIF decoding (đọc) được hỗ trợ trong Chrome 85+, Firefox 93+, và Safari 16+, nhưng AVIF encoding qua Canvas API (`canvas.toBlob('image/avif')`) chưa được implement trong bất kỳ trình duyệt nào tính đến 2026. Encoding AVIF đòi hỏi AV1 encoder rất tốn tài nguyên, mà các trình duyệt chưa expose qua Canvas API. Bạn có thể chuyển đổi AVIF input sang PNG, JPEG, hoặc WebP — nhưng không theo chiều ngược lại. Để encode AVIF, dùng tool server-side như `libavif`, `sharp`, hoặc Squoosh CLI.
+
+## PNG trong suốt của tôi bị trắng sau khi chuyển sang JPEG. Đó có phải là bug không?
+
+Không — JPEG không hỗ trợ alpha channel. Khi Canvas vẽ PNG trong suốt của bạn rồi encode sang JPEG, các pixel trong suốt được composite lên nền trắng mặc định của Canvas. Để giữ transparency, chuyển sang PNG (lossless, full alpha) hoặc WebP (hỗ trợ alpha cả lossy và lossless). Nếu cần JPEG nhưng muốn màu nền cụ thể, hãy thêm bước fill nền trong image editor trước.
+
+## Nên dùng quality setting nào cho ảnh web?
+
+Với ảnh chụp: 0.80–0.85 trong JPEG hoặc WebP tạo ra file nhỏ hơn 5–10× so với PNG với loss hầu như không thấy được với hầu hết viewer. Với ảnh có text, đường thẳng sắc, hoặc UI element, dùng PNG (lossless) thay vì điều chỉnh quality — lossy compression tạo block artifact rõ ràng ở cạnh sắc bất kể giá trị quality. WebP ở 0.85 là default tốt cho web delivery hiện đại.
+
+## Tại sao file 10 MB của tôi bị từ chối?
+
+Giới hạn 10 MB là cho kích thước file input. Ảnh lớn khi decode thành raw RGBA pixel data có thể lớn hơn nhiều trong bộ nhớ — JPEG 10 MB có thể mở rộng thành 50–100 MB raw pixel buffer trong Canvas. Vượt quá bộ nhớ khả dụng của trình duyệt gây crash tab hoặc chuyển đổi thất bại âm thầm. Nếu cần chuyển đổi file lớn hơn, dùng tool server-side như ImageMagick, `sharp` (Node.js), hoặc PIL/Pillow (Python).
+
+## Ảnh của tôi sẽ nhỏ hơn bao nhiêu sau khi chuyển sang WebP?
+
+Phụ thuộc vào nội dung nguồn và quality setting. Kết quả điển hình: WebP lossy ở quality 0.80 tạo file nhỏ hơn 25–34% so với JPEG tương đương. WebP lossless nhỏ hơn khoảng 26% so với PNG. Kết quả thay đổi — ảnh chụp nén tốt hơn diagram, và ảnh có vùng đồng nhất lớn có thể thấy lợi ích nhỏ hơn. Chuyển JPEG sang WebP ở cùng quality hầu như luôn cho file nhỏ hơn.
+
+## Chuyển JPEG sang PNG có làm ảnh lossless không?
+
+Không. PNG là lossless format, nhưng chuyển JPEG sang PNG không khôi phục chi tiết đã bị loại bỏ bởi nén JPEG. Conversion capture các giá trị pixel đã suy giảm hiện tại theo cách lossless — nó không đảo ngược lossy compression gốc. Kết quả là file lớn hơn mà không cải thiện chất lượng. Chỉ dùng JPEG→PNG khi cần alpha channel support hoặc cần thực hiện thêm chỉnh sửa mà không tạo thêm JPEG re-compression artifact.
+
+## Tôi có thể chuyển đổi file GIF hay SVG không?
+
+GIF input được decode trong trình duyệt (animated GIF được flatten thành frame đầu tiên), và pixel kết quả có thể export sang PNG, JPEG, hoặc WebP. SVG input cũng được rasterise thành pixel ở kích thước tự nhiên khi vẽ lên Canvas. Cả animation GIF lẫn vector data SVG đều không tồn tại sau conversion — output luôn là ảnh raster tĩnh. GIF và SVG output không khả dụng vì Canvas API không expose encoder cho chúng.
+
+## Ảnh của tôi có bị gửi lên server không?
+
+Không. Toàn bộ pipeline chuyển đổi — đọc file, decode, vẽ Canvas, và re-encode — chạy trong trình duyệt của bạn. Không có pixel data, EXIF metadata, hay nội dung file nào được truyền qua mạng. Bạn có thể xác minh bằng cách mở network tab của trình duyệt trong khi chuyển đổi; bạn sẽ thấy zero request. Tool hoạt động offline sau khi trang đã load.

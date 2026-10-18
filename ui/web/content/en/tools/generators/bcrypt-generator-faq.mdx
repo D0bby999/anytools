@@ -1,0 +1,39 @@
+---
+title: bcrypt generator — Frequently asked questions
+---
+
+## What does this tool do?
+
+Two things: hash a password with bcrypt at a cost factor you choose, and verify whether a password matches an existing hash. It also reads the cost factor back out of a hash you paste in.
+
+## What is the cost factor?
+
+The work parameter baked into the hash. It is a power of two — cost 10 means 2¹⁰ iterations — so each step up **doubles** the time to compute. This tool allows 4 to 15 and defaults to 10.
+
+## Why does it stop at 15?
+
+Because this runs in your browser in pure JavaScript, and beyond 15 a single hash blocks the tab for many seconds. That is a limit of doing it client-side, not a statement about what your server should use.
+
+## What cost should production use?
+
+Higher than this tool's default if your hardware allows. The usual guidance is to pick the highest cost your server can absorb within an acceptable login latency, and to revisit it as hardware improves — the whole point of a tunable cost is that it can be raised over time.
+
+## Why is the hash different every time for the same password?
+
+Because bcrypt generates a random salt per hash and stores it inside the output string. That is deliberate: identical passwords produce different hashes, so an attacker cannot spot repeats or use precomputed tables. It is also why you cannot compare two hashes for equality — use the verify mode, which extracts the salt and recomputes.
+
+## What do the parts of a bcrypt string mean?
+
+`$2b$10$` followed by 53 characters: the algorithm variant, the cost factor, then salt and hash together. The `2a`, `2b`, `2x` and `2y` variants exist for historical compatibility reasons; `2b` is the current one.
+
+## Does bcrypt truncate long passwords?
+
+Yes — it only considers roughly the first 72 bytes. Anything beyond that has no effect on the hash, which matters if you allow long passphrases or pre-hash passwords before bcrypt.
+
+## Is it safe to paste a real password here?
+
+The hashing runs entirely in your browser via a pure-JavaScript implementation, with no network request — you can confirm that in your browser's network tab. Even so, the sensible habit is not to type live production credentials into any web page, including this one. Use a throwaway value when experimenting.
+
+## Should I use bcrypt for new systems?
+
+It remains a reasonable choice and is widely supported. Modern guidance often prefers memory-hard alternatives such as Argon2 or scrypt, which resist GPU attacks better because they demand memory as well as time.

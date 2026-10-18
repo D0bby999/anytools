@@ -1,0 +1,49 @@
+---
+title: Convertidor de XLSX a CSV / JSON — Preguntas frecuentes
+---
+
+## ¿Por qué no abrirá mi archivo .xls, .ods o Numbers?
+
+Porque no son el mismo formato, y esta herramienta lee exactamente uno de ellos. `.xlsx` es un contenedor zip lleno de XML — el formato que Excel escribe por defecto desde 2007. El `.xls` anterior es un formato de documento compuesto binario sin nada en común con él más allá del nombre. `.ods` es OpenDocument, otro zip lleno de XML pero con XML completamente diferente adentro. Los archivos de Apple Numbers son un conjunto de capturas codificadas en protobuf propio de Apple y no están especificados públicamente.
+
+La biblioteca aquí, ExcelJS, lee `.xlsx` y nada más. Hay una biblioteca de JavaScript bien conocida que lee todos ellos, y fue considerada y rechazada: su construcción comunitaria actual se distribuye como un tarball desde el propio CDN del vendedor en lugar de desde npm, lo que significa que el archivo de bloqueo que la fija no lleva ningún hash de integridad, y cada instalación en CI tendría que aceptar cualquier byte que ese servidor devolviera ese día. Eso no es un comercio que valga la pena hacer para un convertidor.
+
+La solución alternativa toma diez segundos: abre el archivo en Excel, LibreOffice Calc, Google Sheets o Numbers, y usa *Save As* o *Export* para producir un `.xlsx`. Cada una de esas aplicaciones puede escribirlo. Luego suéltalo aquí.
+
+## ¿Por qué mi columna de fecha sale como un número en otros convertidores?
+
+Porque una fecha en una hoja de cálculo no es una fecha — es un número disfrazado. Excel almacena el 3 de septiembre de 2026 como `46264`, el recuento de días desde el 30 de diciembre de 1899, y la apariencia de calendario viene de un formato de visualización adjunto a la celda, no del valor. Un convertidor que lee el valor sin procesar y lo escribe obtiene `46264`, que es técnicamente lo que estaba en el archivo e inútil para todos.
+
+Esta herramienta pide a ExcelJS el valor analizado, que viene como una `Date` de JavaScript, y lo escribe como `2026-09-03`. Si la celda también lleva una hora, obtienes `2026-09-03T14:30:05`. Ambos son ISO 8601, que ordena correctamente como texto y es inequívoco sobre el orden de día y mes — a diferencia de `03/09/2026`, que significa dos días diferentes dependiendo de qué lado del Atlántico lo leas.
+
+Una advertencia que vale la pena declarar claramente: la conversión se realiza en UTC. El valor almacenado de Excel no tiene zona horaria en absoluto, así que cualquier elección es arbitraria, y leerlo en tu zona local movería las fechas hacia atrás un día para cualquiera al oeste de Greenwich. UTC mantiene la fecha del calendario que fue escrita.
+
+## ¿Qué sucede con las fórmulas, celdas fusionadas y formato?
+
+Las fórmulas se reemplazan por su **resultado en caché** — el valor que Excel calculó por última vez y almacenó en el archivo. Eso es lo que ves en la pantalla, así que es lo que un CSV debe contener. Nada aquí evalúa fórmulas: si un libro fue guardado por una herramienta que no escribió valores en caché, esas celdas llegan vacías en lugar de incorrectas. Los errores de fórmula se pasan como texto, así que un `#DIV/0!` permanece como `#DIV/0!` en lugar de silenciosamente convertirse en un blanco.
+
+Las celdas fusionadas pierden su fusión. Un bloque fusionado mantiene su valor en la celda superior izquierda solamente, y las celdas debajo de él están genuinamente vacías en el archivo — así que un título fusionado en cuatro columnas produce un valor y tres blancos. CSV no tiene concepto de una celda fusionada, así que no hay nada mejor que hacer; si la forma del resultado te sorprende, esa es la razón.
+
+Todo lo visual se descarta, porque CSV no puede llevarlo: fuentes, colores, bordes, formatos de número, formato condicional, anchos de columna, paneles congelados, filtros, gráficos, tablas dinámicas, imágenes y comentarios. Texto enriquecido dentro de una celda mantiene sus caracteres y pierde su estilo — las ejecuciones en negrita y no negrita se unen en una cadena. Los hipervínculos mantienen el texto que ves, no la URL de destino.
+
+## ¿Se cargan mis archivos a algún lugar?
+
+No. El libro se lee en esta pestaña del navegador. El archivo va del selector a la página a través de la File API, ExcelJS lo analiza en la memoria propia de la página, y el enlace de descarga apunta a un blob que tu navegador está manteniendo. Nada se envía a un servidor, que puedes confirmar abriendo la pestaña Network de tus herramientas de desarrollador, o desconectándote de la red después de que la página haya cargado y convirtiendo de todas formas.
+
+Eso es también el límite de la herramienta. Todo debe caber en la pestaña, y el análisis se ejecuta en el hilo principal, así que un libro grande congela la página mientras funciona. Por encima de 20 MB verás una advertencia a ese efecto. Es una advertencia y no un rechazo — un archivo de 30 MB normalmente todavía terminará, solo tomará visiblemente más tiempo. Pasado 50 MB el archivo es rechazado rotundamente, antes de que se abra: un `.xlsx` es XML comprimido que se expande varias veces una vez analizado, e iniciar un archivo de ese tamaño solo te compra una página congelada y luego un crash.
+
+## ¿Por qué dice que mi hoja es demasiado ancha?
+
+Hay un techo de dos millones de celdas en todo un libro, contado como el ancho usado multiplicado por la altura usada de cada hoja. Pasado eso la conversión se detiene y lo dice en lugar de congelar la pestaña.
+
+La mayoría de archivos que lo golpean no son en realidad grandes. Una hoja de cálculo tiene 16.384 columnas y un millón de filas disponibles, y una hoja recuerda la más lejana que algo alguna vez tocó — un valor pegado a la derecha lejana y eliminado, un color de fondo aplicado a una fila completa, un formato errante. A partir de entonces el archivo reclama ser eso de ancho, y un convertidor que confía en el reclamo intenta construir cada celda entre ellas. Por eso un archivo de 62 KB puede pedir decenas de millones de cadenas vacías.
+
+Esta herramienta mide el ancho de las celdas que realmente tienen un valor, así que la versión usual de ese problema no cuesta nada: una sobra de formato a la derecha lejana se ignora, y las filas y columnas vacías al final se recortan del resultado. Las celdas vacías *dentro* de los datos se mantienen, porque son posiciones — soltar una desplazaría cada valor después de ella una columna a la izquierda. El techo solo se dispara cuando la celda más lejana a la derecha es datos reales y la hoja genuinamente es ese grande. Si lo golpeas, selecciona las columnas y filas más allá de tus datos en Excel, elimínalas, guarda e intenta de nuevo.
+
+## ¿Debería usar la salida CSV o la salida JSON?
+
+Usa CSV cuando el destino es otra hoja de cálculo, una importación de base de datos, o cualquier herramienta que espere texto tabular. Establece el delimitador para coincidir con lo que espera el destino: coma es estándar, punto y coma es lo que Excel espera en configuraciones regionales que usan una coma como separador decimal, y la pestaña evita la pregunta completamente. Marca la opción BOM si el archivo vuelve a Excel y contiene caracteres acentuados o escritura no latina — sin él, Excel en Windows adivina la codificación y normalmente adivina mal.
+
+Usa JSON cuando el destino es código. La primera fila se convierte en las claves del objeto por defecto; un encabezado en blanco se convierte en `column_3` por posición, y un encabezado repetido se convierte en `name_2` para que ninguna columna sea silenciosamente tragada por una clave duplicada.
+
+Lo único que debes saber sobre la salida JSON es que cada valor es una cadena, incluyendo números. Una celda de hoja de cálculo no lleva ningún tipo JSON, y adivinar corrompería datos reales — un número de parte como `007` se convierte en `7`, un número telefónico se convierte en un float. Si quieres valores tipificados, lleva el CSV al [convertidor CSV ↔ JSON](/en/converters/csv-json), que infiere tipos mientras analiza, o al [Formateador JSON](/en/formatters/json-formatter) para verificar el resultado. Para convertir un documento de Word a texto de la misma manera, ve [DOCX a Markdown](/en/converters/docx-to-markdown).

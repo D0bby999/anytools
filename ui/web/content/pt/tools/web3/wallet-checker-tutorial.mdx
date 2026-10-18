@@ -1,0 +1,59 @@
+---
+title: Detectar tipo de wallet — EVM, BTC, SOL, TRX e mais
+description: Identificar a blockchain de um endereço pelo padrão, com validação de checksum quando aplicável.
+updated: 2026-05-27
+---
+
+## Por que detectar tipo de wallet
+
+Quando seu usuário cola um endereço, você precisa saber em qual chain operar antes de iniciar uma transação. Mandar USDT-TRX para um endereço EVM perde o dinheiro permanentemente. Validação no lado client antes do submit evita esse desastre.
+
+Esta ferramenta detecta por padrão (regex + comprimento + checksum) sem fazer chamada on-chain. Roda local, instantâneo.
+
+## Formatos por chain
+
+| Chain                 | Prefixo / Padrão                  | Comprimento |
+|-----------------------|-----------------------------------|-------------|
+| EVM (ETH, BSC, Polygon, Arbitrum, etc.) | `0x` + 40 hex chars  | 42          |
+| Bitcoin legacy        | começa com `1`                    | 26–35       |
+| Bitcoin script (P2SH) | começa com `3`                    | 26–35       |
+| Bitcoin bech32 (segwit) | `bc1...`                        | 39–62       |
+| Solana                | base58, sem prefixo               | 32–44       |
+| Tron                  | começa com `T`                    | 34          |
+| Cosmos / Atom         | `cosmos1...` (bech32)             | variável    |
+| BNB Beacon Chain      | `bnb1...` (bech32)                | variável    |
+
+## Validação de checksum
+
+- **EVM**: EIP-55 capitaliza letras hex para incluir checksum. `0xAbC...` capitalizado errado é detectado. Esta ferramenta sinaliza checksum mismatch.
+- **Bitcoin legacy**: Base58Check inclui 4 bytes de SHA256 double-hash no fim. Inválido se mudar uma letra.
+- **Bech32**: BCH code com 6 bytes de detecção de erro. Catches typos comuns.
+- **Solana**: base58 sem checksum embedded; só validação de comprimento e charset.
+
+## Ambiguidade: SOL vs BTC legacy
+
+Solana usa base58 (alfabeto Bitcoin), sem prefixo fixo. Endereços de programa de sistema do Solana começam com `1` (ex: `11111111111111111111111111111111` = system program). Esses colidem com BTC legacy.
+
+Heurística: comprimento. BTC legacy tem 26–35 chars; Solana tem 32–44. Quando ambíguo (comprimento 32–35 começando com `1`), priorizamos SOL se for válido em base58 de 32 bytes; senão BTC. Esta heurística não é 100% — em casos limítrofes, peça o tipo explicitamente ao usuário.
+
+## O que NÃO fazemos
+
+- Não verificamos se o endereço **existe** on-chain. Wallets podem ser válidas em formato mas nunca terem sido usadas.
+- Não fazemos lookup de saldo, histórico, ou ENS reverse.
+- Não validamos assinaturas.
+
+Se você precisa dessas funções, integre RPC providers (Alchemy, Infura, Helius) no seu app.
+
+## Caso de uso típico
+
+Formulário de "Enviar tokens": usuário cola um endereço. Antes do submit, valida tipo + checksum + matching com a chain selecionada. Bloqueia o submit se houver mismatch ou checksum inválido. Salva o usuário de perder fundos.
+
+## Limitações
+
+- Endereços novos de chains menos comuns podem não ter pattern conhecido
+- ENS / Lens / Solana Name Service (`name.eth`, `name.sol`) não são validados aqui — resolva via RPC primeiro
+- Multisigs e smart contract wallets aparecem como EVM normal (o tipo "wallet" vs "contract" exige eth_getCode)
+
+## Tudo client-side
+
+Regex puro no JS. Nenhuma RPC, nenhuma chamada à internet.

@@ -1,0 +1,27 @@
+---
+title: Đánh số trang PDF — Câu hỏi thường gặp
+---
+
+## Tôi gõ "đánh số trang pdf online" và ra toàn dịch vụ phải tải file lên. Ở đây khác gì?
+
+Khác ở chỗ tài liệu không rời khỏi máy bạn. PDF được JavaScript đọc ngay trong tab này bằng thư viện `pdf-lib`, số trang được vẽ lên trong bộ nhớ, và kết quả trả về dưới dạng blob URL do chính trình duyệt bạn tạo. Không request nào mang file đi, nên không tồn tại bản sao trên máy chủ để ai đó phải hứa xoá. Bạn tự kiểm chứng được: mở tab Network trong DevTools rồi chạy tool, sẽ không thấy lượt upload nào; hoặc ngắt mạng sau khi trang đã tải xong, tool vẫn chạy. Điều này quan trọng đúng với loại tài liệu thường cần đánh số: hợp đồng, hồ sơ thầu, hồ sơ toà án, luận văn, tập chứng cứ — những thứ bạn ít muốn để lọt vào hàng đợi xử lý của người lạ nhất.
+
+## Số trang có hiện đúng tiếng Việt không?
+
+Bản thân các con số thì luôn đúng, nhưng phần chữ đi kèm thì cần nói thẳng. Nhãn số trang được vẽ bằng Helvetica, một trong mười bốn font mà mọi phần mềm đọc PDF bắt buộc phải có sẵn. Không có font nào được nhúng vào file, nên tài liệu gần như không phình thêm byte nào và hiển thị giống hệt nhau ở mọi nơi. Cái giá phải trả là bộ ký tự: font PDF chuẩn dùng mã hoá WinAnsi, gần tương đương Latin-1, nên nó vẽ được chữ Latin không dấu, chữ số, dấu câu và dấu tiếng Tây Âu, nhưng không vẽ được dấu thanh tiếng Việt. Ba định dạng nhãn hiện có là `1`, `1 / 10` và `Page 1` — toàn ký tự ASCII — nên trên thực tế bạn không thể vô tình chạm phải giới hạn này. Nếu bạn cần chữ "Trang" có dấu, hiện tool chưa làm được và nó nói thẳng như vậy thay vì vẽ ra mấy ô vuông rỗng.
+
+## Trang máy scan lưu nằm ngang thì số trang đặt vào đâu?
+
+Đúng chỗ bạn nhìn thấy, và đây là điểm hầu hết các công cụ đánh số trang làm sai. Một trang PDF có hai thứ tách biệt: một khung có chiều rộng và chiều cao, và một góc xoay mà phần mềm đọc áp vào trước khi hiển thị. Trang scan nằm ngang thường được lưu là khung đứng cộng thêm một phần tư vòng xoay. Công cụ nào cứ thế vẽ vào "góc dưới bên phải của khung" sẽ đặt con số vào một góc không hề là góc dưới bên phải trên màn hình, lại còn nằm nghiêng 90 độ so với các trang khác. Tool này đọc góc xoay của từng trang và đặt số vào đúng góc bạn thấy, đúng chiều đọc. Nó cũng dùng crop box chứ không phải media box, vì crop box mới là phần thực sự được hiển thị — với các trang đã bình bản hoặc xén, hai khung này khác nhau và con số dễ rơi ra ngoài mép giấy.
+
+## Tôi bắt đầu từ số khác 1, hoặc chỉ đánh số một phần tài liệu được không?
+
+Được cả hai, và hai tuỳ chọn kết hợp được với nhau. Ô "bắt đầu từ" đặt con số in trên trang được đánh số đầu tiên — đúng thứ bạn cần khi có bìa và mục lục đứng trước trang 1 của phần thân, hoặc khi file này nối tiếp một file khác. Ô khoảng trang nhận cú pháp quen thuộc `3-12` hay `1, 4-6, 9` và để yên mọi trang còn lại. Số bắt đầu bắt buộc là số nguyên không âm: trước đây ô nhập cho gõ số lẻ và in ra "1.5", "2.5" — một cách đánh số không ai muốn — nên nay nó bị từ chối thẳng.
+
+## Định dạng `1 / 10` tính tổng theo cái gì?
+
+Theo con số cuối cùng thực sự được in, không phải tổng số trang của tài liệu. Đánh số các trang 5 đến 12 của một file hai mươi trang, bắt đầu từ 1, sẽ cho ra `1 / 8` đến `8 / 8`. Với người đang cầm tám trang đó trên tay thì đây là cách đọc đúng; `1 / 20` sẽ ám chỉ một hệ đánh số không xuất hiện ở bất kỳ đâu trong file. Với trường hợp thông thường — đánh hết mọi trang, bắt đầu từ 1 — hai cách định nghĩa trùng nhau, nên bạn sẽ không thấy khác biệt.
+
+## Thao tác này có làm thay đổi gì khác trong tài liệu không?
+
+Không. Số trang, thứ tự trang, kích thước trang, góc xoay, bookmark và nội dung sẵn có đều giữ nguyên; con số chỉ được vẽ đè lên trên. Tool không phát hiện được số trang đã có từ trước, nên chạy hai lần sẽ để lại hai con số trên mỗi trang — muốn sửa thì làm lại từ file gốc. Về chữ ký số: chữ ký bảo chứng cho một bố cục byte cụ thể, mà thêm bất cứ thứ gì lên trang cũng buộc phải viết lại bố cục đó, nên chữ ký cũ sẽ không còn xác thực được. Hãy đánh số trước khi ký. PDF đặt mật khẩu bị từ chối theo tên file chứ không bị phá khoá.

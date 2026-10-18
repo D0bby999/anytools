@@ -1,0 +1,24 @@
+/**
+ * Swap regex matches out for opaque placeholders so a whitespace-collapsing minifier can
+ * run over the rest of the text without touching them, then put them back.
+ *
+ * Used for the parts of CSS/HTML/SQL whose whitespace is content, not layout: string
+ * literals, `url(...)`, `<pre>`/`<textarea>`, comments that must survive. The placeholder
+ * is built from private-use characters (U+E000), which none of the minifiers' character classes match and which
+ * cannot appear in the source text of any of those languages.
+ */
+export function protectSegments(
+  text: string,
+  pattern: RegExp,
+): { text: string; restore: (processed: string) => string } {
+  const kept: string[] = [];
+  const masked = text.replace(pattern, (match) => {
+    kept.push(match);
+    return `\uE000${kept.length - 1}\uE000`;
+  });
+  return {
+    text: masked,
+    restore: (processed) =>
+      processed.replace(/\uE000(\d+)\uE000/g, (_m, i) => kept[Number(i)] ?? ''),
+  };
+}

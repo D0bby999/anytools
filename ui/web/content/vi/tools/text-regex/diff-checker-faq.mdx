@@ -1,0 +1,35 @@
+---
+title: Diff Checker — Câu hỏi thường gặp
+---
+
+## Tool dùng thuật toán gì để tính diff?
+
+Tool dùng thuật toán **Longest Common Subsequence (LCS)**, cụ thể là thuật toán Myers được implement trong thư viện open-source [`diff`](https://github.com/kpdecker/jsdiff). Thuật toán Myers tìm edit script tối giản giữa hai chuỗi trong thời gian O(ND), trong đó N là tổng độ dài input và D là kích thước diff. Với input thông thường, điều này nhanh hơn nhiều so với độ phức tạp O(n²) của LCS naive.
+
+## Sự khác biệt giữa line-level và word-level diff là gì?
+
+Line-level diff coi mỗi dòng là một đơn vị nguyên tử — toàn bộ dòng được đánh dấu thêm, xóa, hoặc không thay đổi. Word-level diff (intra-line diff) chia nhỏ hơn thành từng token và highlight chính xác những từ nào thay đổi. Dùng line-level cho source code vì dòng là đơn vị tự nhiên; dùng word-level cho văn xuôi, hợp đồng, hay JSON nơi một giá trị quan trọng có thể thay đổi trong một dòng dài.
+
+## Header `@@` trong unified diff output có nghĩa gì?
+
+Header `@@ -12,7 +12,9 @@` nghĩa là: trong file **gốc**, hunk bắt đầu ở dòng 12 và kéo dài 7 dòng; trong file **mới** nó bắt đầu ở dòng 12 và kéo dài 9 dòng. Dòng có tiền tố `-` bị xóa, dòng có `+` được thêm, và dòng có space là context không thay đổi. Đây là format chuẩn của `diff -u` và được `patch` tiêu thụ.
+
+## Tôi có thể dùng tool này để diff source code không?
+
+Được — paste hai phiên bản file vào hai ô text và chạy diff. Đặc biệt hữu ích để chuẩn bị code review, giúp bắt các thay đổi vô tình (log debug bỏ sót, whitespace thay đổi không mong muốn) trước khi mở pull request. Để so sánh toàn bộ repository hoặc theo dõi lịch sử, dùng `git diff` vì nó có access vào toàn bộ commit graph.
+
+## Tại sao diff của tôi hiển thị những thay đổi tôi không thực hiện (whitespace noise)?
+
+Editor thường khác nhau về trailing whitespace, kiểu end-of-line (CRLF vs LF), hay indentation (tabs vs spaces). Bật tùy chọn **Ignore whitespace** để loại bỏ các khác biệt whitespace không đáng kể trước khi chạy LCS. Với vấn đề dai dẳng, chuẩn hóa line ending trước bằng `dos2unix` hoặc tính năng "trim trailing whitespace" của editor.
+
+## Input của tôi có được gửi lên server không?
+
+Không. Toàn bộ diff được tính trong trình duyệt của bạn bởi thư viện [`diff`](https://github.com/kpdecker/jsdiff) — một implementation pure JavaScript không có server call. Input của bạn không rời khỏi thiết bị, điều này an toàn khi dùng với hợp đồng bảo mật, source code riêng tư, hay bất kỳ văn bản nào bạn không muốn truyền qua mạng.
+
+## Giới hạn kích thước input là bao nhiêu?
+
+Thực tế, đến vài trăm kilobyte mỗi bên chạy mượt mà. Vượt quá đó, thời gian tính toán LCS tăng và trình duyệt có thể tạm dừng. Với file lớn (log nhiều MB, SQL dump lớn), `diff` command-line hoặc tool chuyên dụng có streaming support sẽ hiệu quả hơn.
+
+## Diff checker có thể phát hiện các đoạn văn bản bị di chuyển không?
+
+Không — LCS-based diff thuần tuý theo vị trí và thứ tự. Nếu bạn di chuyển một đoạn từ đầu tài liệu xuống cuối, diff sẽ hiển thị vị trí gốc là xóa và vị trí mới là thêm, không phải là "move". Phát hiện di chuyển cần một lớp semantic (similarity hashing, AST analysis) vượt ngoài phạm vi text diff.

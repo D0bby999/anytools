@@ -1,0 +1,71 @@
+{
+  "nav": "Storage",
+  "title": "Where your files are kept",
+  "lead": "Your uploads, recordings, generated audio, exam papers and page photos can stay on AnyTools' server, or live in your own Google Drive inside a folder named “AnyTools”. Files in your Drive are yours to open, download or keep, even after you leave AnyTools.",
+  "stays": "Either way, AnyTools keeps the text it reads out of each file on its own server, along with the search index built from that text. Search, chat and citations read it every time, and it can always be rebuilt from your file.",
+  "choice": {
+    "legend": "Keep my files",
+    "server": "On AnyTools' server",
+    "serverHint": "Nothing goes to Google.",
+    "drive": "In my Google Drive",
+    "driveHint": "New files go into the “AnyTools” folder in your Drive.",
+    "save": "Save",
+    "saved": "Saved. New files now go where you chose; existing ones stay put until you move them.",
+    "current": "current"
+  },
+  "drive": {
+    "unavailable": "Google Drive is not set up on this server, so your files stay on the server.",
+    "notConnected": "Connect Google Drive to keep your files there.",
+    "reconnect": "Google no longer accepts AnyTools' access to your Drive. Reconnect it to keep your files there.",
+    "connect": "Open Connections"
+  },
+  "usage": {
+    "title": "Space used",
+    "server": "On the server",
+    "drive": "In your Drive",
+    "files_one": "{{count}} file, {{size}}",
+    "files_other": "{{count}} files, {{size}}",
+    "missing_one": "{{count}} file was removed from your Drive.",
+    "missing_other": "{{count}} files were removed from your Drive."
+  },
+  "move": {
+    "title": "Files from before",
+    "body": "Changing this does not move what you already have. A move copies each file, checks that the copy matches, and only then removes it from where it was. You can stop it at any time; files already moved stay where they now are.",
+    "toDrive": "Move my files to Drive",
+    "toServer": "Move my files back to the server",
+    "progress": "{{done}} of {{total}} files, {{doneSize}} of {{totalSize}}",
+    "queued": "Waiting to start.",
+    "running": "Moving your files.",
+    "done": "Moved.",
+    "cancelled": "Stopped. Files already moved stay where they now are.",
+    "stopping": "Stopping after the file being moved.",
+    "failed": "The move stopped before it finished. Nothing was lost; start it again to carry on.",
+    "drive_full": "Your Google Drive is full, so the move stopped. Nothing was lost; free some space and start it again.",
+    "drive_reconnect": "Google no longer accepts AnyTools' access to your Drive, so the move stopped. Nothing was lost; reconnect and start it again.",
+    "cancel": "Stop moving",
+    "nothing": "There is nothing to move.",
+    "leftOnServer_one": "{{count}} file is still on the server.",
+    "leftOnServer_other": "{{count}} files are still on the server.",
+    "leftInDrive_one": "{{count}} file is still in your Drive.",
+    "leftInDrive_other": "{{count}} files are still in your Drive."
+  },
+  "errors": {
+    "generic": "That did not work. Try again in a moment.",
+    "running": "Your files are being moved. Wait for the move to finish, or stop it first.",
+    "notConnected": "Connect Google Drive in Connections first.",
+    "reconnect": "Reconnect Google Drive in Connections first.",
+    "full": "Your Google Drive is full.",
+    "unreachable": "Google Drive could not be reached. Try again in a moment.",
+    "unavailable": "Google Drive is not set up on this server."
+  },
+  "export": {
+    "save": "Save to my Drive",
+    "saving": "Saving…",
+    "saved": "Saved to your Drive.",
+    "open": "Open in Drive",
+    "failed": "It could not be saved to your Drive.",
+    "storageOff": "Turn on Drive storage in Settings → Storage first.",
+    "reconnect": "Reconnect Google Drive in Connections first.",
+    "full": "Your Google Drive is full."
+  }
+}
