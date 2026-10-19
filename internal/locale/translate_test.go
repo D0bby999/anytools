@@ -22,14 +22,14 @@ func TestTranslate(t *testing.T) {
 	saved := catalogs["vi"]
 	t.Cleanup(func() { catalogs["vi"] = saved })
 	catalogs["vi"] = compile(map[string]string{
-		"not found":                        "không tìm thấy",
+		"not found":                         "không tìm thấy",
 		"the file must be %d MB or smaller": "tệp phải từ %d MB trở xuống",
-		"%s is due":                        "%s đến hạn",
-		"this review is due on %s":         "bài xem lại này đến hạn vào %s",
-		"%d of %d left":                    "còn %[2]d, đã dùng %[1]d",
-		"the model failed: %s":             "mô hình gặp lỗi: %s",
-		"Key rejected.":                    "Khóa bị từ chối.",
-		"100%% sure":                       "chắc chắn 100%",
+		"%s is due":                         "%s đến hạn",
+		"this review is due on %s":          "bài xem lại này đến hạn vào %s",
+		"%d of %d left":                     "còn %[2]d, đã dùng %[1]d",
+		"the model failed: %s":              "mô hình gặp lỗi: %s",
+		"Key rejected.":                     "Khóa bị từ chối.",
+		"100%% sure":                        "chắc chắn 100%",
 	})
 	cases := []struct{ lang, in, want string }{
 		{"vi", "not found", "không tìm thấy"},
