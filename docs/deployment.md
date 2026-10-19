@@ -47,7 +47,58 @@ This app was called Longplay until October 2026, and its variables used the pref
    ```
    This installs Docker, opens only ports 22, 80 and 443, issues the first certificate, and installs the hourly backup cron.
 
-## Deploying
+## Deploying anytools.world: on every push
+
+anytools.world deploys itself. `scripts/publish-public.sh` pushes a commit to the public
+repository's `main`, and `.github/workflows/deploy.yml` takes it from there, the same way
+postclaw deploys:
+
+1. **Test** and **Images** run (both are called from `deploy.yml`, so a push runs each once).
+   Images pushes `ghcr.io/d0bby999/anytools-api` and `-web`, tagged `sha-<short commit>`.
+2. Only when both pass, the deploy job SSHes to the host with `DEPLOY_SSH_KEY`, sending the
+   commit. One deploy runs at a time, and a running one is never cancelled.
+3. On the host, `/opt/anytools/bin/autodeploy` (`deploy/scripts/autodeploy.sh`):
+   - pulls both images, and `deploy/coolify/docker-compose.yml` at the same commit;
+   - dumps the database to `/opt/anytools/backups/…-pre-sha-<commit>.sql.gz` (it keeps ten);
+   - sets `ANYTOOLS_IMAGE_TAG` and runs the stack, with the one-shot `migrate` before `api`;
+   - waits up to two minutes for the API's `/health`, the web server and `https://anytools.world/`
+     through Traefik;
+   - when anything fails, puts the previous compose file and tag back, restarts `api` and `web`,
+     and prints the dump's path. Migrations are forward-only, so that dump is the way back for the
+     schema.
+4. The job checks `https://anytools.world/` from outside.
+
+A push that changes only `docs/` or a root `*.md` runs none of this. **Run workflow** on the Deploy
+workflow deploys the head of `main` again.
+
+**The deploy key.** `DEPLOY_SSH_KEY` is authorized on the host as
+`restrict,command="/opt/anytools/bin/autodeploy"`: it can deploy a commit and nothing else (no
+shell, no pty, no forwarding). The host runs its installed copy of the script, so after changing
+`autodeploy.sh`, install it again:
+
+```sh
+deploy/scripts/install-autodeploy.sh root@HOST
+```
+
+To replace the key (or set up a new host), make one, authorize it, and give GitHub the private
+half and the host's key; then delete the local copy:
+
+```sh
+ssh-keygen -t ed25519 -N "" -C anytools-autodeploy -f /tmp/k
+deploy/scripts/install-autodeploy.sh root@HOST /tmp/k.pub
+gh secret set DEPLOY_SSH_KEY -R D0bby999/anytools < /tmp/k
+gh secret set DEPLOY_HOST -R D0bby999/anytools --body HOST
+ssh-keyscan -t ed25519 HOST > /tmp/kh   # compare with ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub on the host
+gh secret set DEPLOY_KNOWN_HOSTS -R D0bby999/anytools < /tmp/kh
+rm -f /tmp/k /tmp/k.pub /tmp/kh
+```
+
+**Rolling back by hand.** Set `ANYTOOLS_IMAGE_TAG` in `/opt/anytools/.env` to an earlier
+`sha-…` (or `host-…`) tag and run `docker compose -p anytools up -d` there.
+`deploy/scripts/deploy-host.sh` still builds on the laptop and deploys without the registry, for
+when GitHub is unavailable.
+
+## Deploying a self-hosted copy
 
 ```sh
 deploy/scripts/deploy.sh

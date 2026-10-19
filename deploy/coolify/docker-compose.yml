@@ -93,6 +93,9 @@ services:
     environment:
       ANYTOOLS_ENV: production
       ANYTOOLS_SERVER_ADDR: ":8080"
+      # The public origin: the link in a review reminder, and the VAPID
+      # subject Apple's push service requires to be https.
+      ANYTOOLS_APP_URL: https://anytools.world
       ANYTOOLS_POSTGRES_DSN: ${ANYTOOLS_POSTGRES_DSN:?ANYTOOLS_POSTGRES_DSN is required}
       ANYTOOLS_GATEWAY_TOKEN: ${ANYTOOLS_GATEWAY_TOKEN:?ANYTOOLS_GATEWAY_TOKEN is required}
       ANYTOOLS_ENCRYPTION_KEY: ${ANYTOOLS_ENCRYPTION_KEY:?ANYTOOLS_ENCRYPTION_KEY is required}

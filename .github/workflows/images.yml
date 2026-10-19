@@ -1,13 +1,13 @@
 name: Images
 
 # Builds the api and web images on every pull request and every push to main.
-# Only a push to main pushes them, to ghcr.io/<owner>/anytools-api and
-# -web, tagged sha-<short commit> and latest. The server pulls them; nothing is
-# compiled on the host (deploy/coolify/docker-compose.yml).
+# Only main pushes them, to ghcr.io/<owner>/anytools-api and -web, tagged
+# sha-<short commit> and latest. On main this runs from deploy.yml, whose last
+# job has the server pull the sha- tag; nothing is compiled on the host
+# (deploy/coolify/docker-compose.yml).
 on:
-  push:
-    branches: [main]
   pull_request:
+  workflow_call:
 
 concurrency:
   group: images-${{ github.ref }}
@@ -36,7 +36,7 @@ jobs:
             file: ui/web/Dockerfile
 
     env:
-      PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      PUSH: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
 
     steps:
       - uses: actions/checkout@v7

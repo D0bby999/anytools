@@ -36,3 +36,6 @@ name=${author% <*}; email=${author##*<}; email=${email%>}
 g -c user.name="$name" -c user.email="$email" commit -q -m "$msg"
 g push -q origin HEAD:main
 echo "published $(git -C "$root" rev-parse --short HEAD) as $(g rev-parse --short HEAD): $(g diff --stat HEAD~1 | tail -1)"
+# .github/workflows/deploy.yml takes it from here: Test and Images, then the
+# deploy to anytools.world when both pass (docs-only pushes excepted).
+echo "deploys to anytools.world when Test and Images pass: gh run watch -R ${remote#https://github.com/} \$(gh run list -R ${remote#https://github.com/} -w Deploy -L 1 --json databaseId -q '.[0].databaseId')"

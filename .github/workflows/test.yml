@@ -1,9 +1,10 @@
 name: Test
 
+# A push to main runs this from deploy.yml, which deploys only when it passes;
+# a pull request runs it on its own.
 on:
-  push:
-    branches: [main]
   pull_request:
+  workflow_call:
 
 # A superseded run on the same branch has nothing left to prove.
 concurrency:
