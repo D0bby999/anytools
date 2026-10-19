@@ -10,7 +10,8 @@ import { publicLngs } from "~/lib/i18n";
 
 export function loader() {
   const allow = publicLngs.flatMap((l) => [`Allow: /${l}$`, `Allow: /${l}/`]);
-  const body = ["User-agent: *", "Allow: /$", ...allow, "Disallow: /", "", `Sitemap: ${APP_URL}/sitemap.xml`, ""].join("\n");
+  // `/?lng=` is the landing page in each language (routes/landing.tsx).
+  const body = ["User-agent: *", "Allow: /$", "Allow: /?lng=", ...allow, "Disallow: /", "", `Sitemap: ${APP_URL}/sitemap.xml`, ""].join("\n");
   return new Response(body, {
     headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=3600" },
   });

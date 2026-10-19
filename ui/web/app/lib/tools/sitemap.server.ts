@@ -18,6 +18,20 @@ function entry(path: (l: PublicLng) => string, self: PublicLng, alternates: read
   return `  <url>\n    <loc>${APP_URL}${path(self)}</loc>\n${links.join("\n")}\n  </url>`;
 }
 
+/**
+ * The landing page: `/` (the x-default) and `/?lng=` in each language, every
+ * entry naming all of them, as the page's own hreflang links do.
+ */
+export function landingUrls(): string[] {
+  const links = [
+    ...publicLngs.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${APP_URL}/?lng=${l}"/>`),
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}/"/>`,
+  ].join("\n");
+  return ["/", ...publicLngs.map((l) => `/?lng=${l}`)].map(
+    (path) => `  <url>\n    <loc>${APP_URL}${path}</loc>\n${links}\n  </url>`,
+  );
+}
+
 export function publicUrls(): string[] {
   const out: string[] = [];
   for (const locale of publicLngs) {

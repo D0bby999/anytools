@@ -8,12 +8,12 @@
  * or changefreq on them: Google ignores both.
  */
 import { APP_URL } from "~/lib/env.server";
-import { publicUrls } from "~/lib/tools/sitemap.server";
+import { landingUrls, publicUrls } from "~/lib/tools/sitemap.server";
 
 export function loader() {
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url><loc>${APP_URL}/</loc><changefreq>monthly</changefreq></url>
+${landingUrls().join("\n")}
 ${publicUrls().join("\n")}
 </urlset>
 `;

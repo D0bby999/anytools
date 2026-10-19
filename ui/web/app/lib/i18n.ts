@@ -50,6 +50,13 @@ export type SupportedLng = (typeof supportedLngs)[number];
 export const publicLngs = ["en", "vi", "es", "pt"] as const;
 export type PublicLng = (typeof publicLngs)[number];
 
+/**
+ * Open Graph names a locale as language_TERRITORY (`og:locale`), not a bare
+ * language. The Spanish copy is Spain's ("vídeo"), the Portuguese Brazil's
+ * ("você").
+ */
+export const OG_LOCALE: Record<PublicLng, string> = { en: "en_US", vi: "vi_VN", es: "es_ES", pt: "pt_BR" };
+
 export const fallbackLng: SupportedLng = "en";
 export const defaultNS = "common";
 export const ns = ["common", "auth", "knowledge", "study", "reading", "solve", "research", "loop", "vocab", "profile", "book", "ownversion", "toolkit", "listening", "storage", "tools", "pages"] as const;

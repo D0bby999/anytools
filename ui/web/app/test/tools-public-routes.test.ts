@@ -166,7 +166,7 @@ describe("tool pages", () => {
       "x-default https://anytools.example/en/time-date/timezone-converter",
     ]);
     expect(content(tags, "property", "og:image")).toBe(`${self}/og.png?v=${OG_VERSION}`);
-    expect(content(tags, "property", "og:locale")).toBe("vi");
+    expect(content(tags, "property", "og:locale")).toBe("vi_VN");
     expect(content(tags, "name", "robots")).toMatch(/^index/);
     expect(ldTypes(tags)).toEqual(["SoftwareApplication", "BreadcrumbList", "FAQPage"]);
     const title = tags.find((t) => "title" in t)?.title as string;
@@ -200,9 +200,10 @@ describe("the sitemap", () => {
     const tools = ["en", "vi", "es", "pt"].flatMap((l) =>
       toolMetas.filter((m) => isIndexableTool(m, l)).map((m) => `${l}/${m.cluster}`),
     );
-    // Phase 4: the guides index, seven guides, AnyLearn, AnyProfile and the
-    // four static pages, in four languages.
-    expect(locs).toHaveLength(1 + 4 + new Set(tools).size + tools.length + (1 + 7 + 2 + 4) * 4);
+    // The landing page (/ and /?lng= in four languages); phase 4: the guides
+    // index, seven guides, AnyLearn, AnyProfile and the four static pages, in
+    // four languages.
+    expect(locs).toHaveLength(1 + 4 + 4 + new Set(tools).size + tools.length + (1 + 7 + 2 + 4) * 4);
     // Batch A (phase 3a): finance, health and lifestyle pages, an English-only tool in English only.
     expect(locs).toContain("https://anytools.example/vi/finance/loan-calculator");
     expect(locs).toContain("https://anytools.example/pt/health");

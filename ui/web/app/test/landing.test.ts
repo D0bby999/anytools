@@ -7,7 +7,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OG_VERSION } from "~/lib/tools/seo";
 
-vi.mock("~/lib/env.server", () => ({ APP_URL: "https://learn.example.com", API_BASE: "", API_TOKEN: "" }));
+vi.mock("~/lib/env.server", () => ({ APP_URL: "https://learn.example.com", API_BASE: "", API_TOKEN: "", useSecureCookies: false }));
 const getUserId = vi.fn();
 vi.mock("~/lib/auth.server", () => ({ getUserId: (r: Request) => getUserId(r) }));
 
@@ -30,7 +30,8 @@ describe("landing", () => {
 
   it("renders for a visitor, with a canonical URL, an OG image and SoftwareApplication JSON-LD", async () => {
     getUserId.mockResolvedValue(null);
-    const data = await landing.loader(args);
+    // data() wraps the body beside its headers (the language cookie).
+    const { data } = (await landing.loader(args)) as unknown as { data: unknown };
     const tags = landing.meta({ data } as unknown as Parameters<typeof landing.meta>[0]) as Record<string, unknown>[];
     expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://learn.example.com/" });
     expect(tags).toContainEqual({ property: "og:image", content: `https://learn.example.com/og.png?v=${OG_VERSION}` });
@@ -49,6 +50,7 @@ describe("crawler files", () => {
     expect(body).toContain("Disallow: /");
     expect(body.split("\n").filter((l) => l.startsWith("Allow:"))).toEqual([
       "Allow: /$",
+      "Allow: /?lng=",
       "Allow: /en$", "Allow: /en/", "Allow: /vi$", "Allow: /vi/",
       "Allow: /es$", "Allow: /es/", "Allow: /pt$", "Allow: /pt/",
     ]);
@@ -59,7 +61,8 @@ describe("crawler files", () => {
     const body = await sitemap.loader().text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(locs).toContain("https://learn.example.com/");
-    const priv = locs.filter((l) => !/^https:\/\/learn\.example\.com\/((en|vi|es|pt)(\/.*)?)?$/.test(l ?? ""));
+    for (const l of ["en", "vi", "es", "pt"]) expect(locs).toContain(`https://learn.example.com/?lng=${l}`);
+    const priv = locs.filter((l) => !/^https:\/\/learn\.example\.com\/((en|vi|es|pt)(\/.*)?|\?lng=(en|vi|es|pt))?$/.test(l ?? ""));
     expect(priv).toEqual([]);
   });
 });

@@ -9,9 +9,15 @@ import { LocaleSwitcher, useDisclosureMenu } from "~/components/tools-site/local
 /** The element the "/" and Ctrl+K shortcut focuses (public-shell.tsx). */
 export const SEARCH_ATTR = "data-tools-search";
 
-/** The landing page in a language: English is the plain address. */
+/**
+ * The landing page in a language, English included. Each language has one
+ * address that always shows it; the bare `/` is the x-default, which follows
+ * the visitor's last choice or their browser (routes/landing.tsx). A link that
+ * pointed English at `/` sent a Vietnamese browser straight back to
+ * Vietnamese (2026-10-19).
+ */
 export function homeHref(locale: PublicLng): string {
-  return locale === "en" ? "/" : `/?lng=${locale}`;
+  return `/?lng=${locale}`;
 }
 
 /**

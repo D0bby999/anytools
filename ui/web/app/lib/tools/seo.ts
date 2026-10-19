@@ -6,7 +6,7 @@
  * locales are indexable, and each route's `meta` turns that into tags.
  */
 import type { ClusterId } from "~/tools/types";
-import type { PublicLng } from "~/lib/i18n";
+import { OG_LOCALE, type PublicLng } from "~/lib/i18n";
 
 /** Google cuts titles around 60 characters, and what it cuts is the brand. */
 export const MAX_TITLE_CHARS = 60;
@@ -192,8 +192,8 @@ export function pageMeta(input: {
     { property: "og:title", content: input.title },
     { property: "og:description", content: input.description },
     { property: "og:url", content: input.url },
-    { property: "og:locale", content: input.locale },
-    ...input.alternateLocales.filter((l) => l !== input.locale).map((l) => ({ property: "og:locale:alternate", content: l })),
+    { property: "og:locale", content: OG_LOCALE[input.locale] },
+    ...input.alternateLocales.filter((l) => l !== input.locale).map((l) => ({ property: "og:locale:alternate", content: OG_LOCALE[l] })),
     { property: "og:image", content: input.image },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },

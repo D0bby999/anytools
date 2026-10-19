@@ -7,9 +7,14 @@
  * AnyTools phase 4 merged the old site's front door into it: the tool
  * clusters, in the visitor's language (the same pick as the Tools tab), and
  * the public pages' links. Since 2026-10-19 the page itself is in that
- * language too (`pages.json` → `landing`), chosen by `?lng=` from the site
- * header's language menu or else by the browser; the app behind it is English,
- * and the page says so beside the way in.
+ * language too (`pages.json` → `landing`).
+ *
+ * Addresses, as Google asks of a multilingual page: each language has one that
+ * always shows it, `/?lng=en|vi|es|pt`, canonical to itself; the bare `/` is
+ * the x-default. It shows English to a visitor (and a crawler) with no other
+ * preference, and otherwise sends them on (302) to their language: the one
+ * they last chose here, kept in the `anylearn-lang` cookie that sign-in reads
+ * too, or else their browser's.
  *
  * A signed-in visitor never sees it: the loader sends them to `/home`, so a
  * bookmark of the old address still lands in the app.
@@ -18,13 +23,14 @@
  * green ink, hairline rows — not a marketing hero. The claims are the ones the
  * product can prove, stated with their limits.
  */
-import { Link, redirect, useLoaderData } from "react-router";
+import { data, Link, redirect, useLoaderData } from "react-router";
 import { ArrowUpRight } from "lucide-react";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import type { Route } from "./+types/landing";
 import { getUserId } from "~/lib/auth.server";
 import { APP_URL } from "~/lib/env.server";
-import { isPublicLng, publicLngs, type PublicLng } from "~/lib/i18n";
+import { isPublicLng, OG_LOCALE, publicLngs, type PublicLng } from "~/lib/i18n";
+import { languageCookie } from "~/lib/language.server";
 import { Button } from "~/components/ui/button";
 import { Plate } from "~/components/ui/plate";
 import { AnyProfileFeature } from "~/components/tools-site/anyprofile-feature";
@@ -41,29 +47,51 @@ import { ogImage } from "~/lib/tools/seo";
 export async function loader({ request }: Route.LoaderArgs) {
   if (await getUserId(request)) throw redirect("/home");
   const asked = new URL(request.url).searchParams.get("lng") ?? "";
-  const locale: PublicLng = isPublicLng(asked) ? asked : pickPublicLocale(request.headers.get("Accept-Language"));
+  const kept = (await languageCookie.parse(request.headers.get("Cookie"))) as unknown;
+  const chosen = typeof kept === "string" && isPublicLng(kept) ? kept : null;
+
+  let locale: PublicLng;
+  const headers = new Headers();
+  if (isPublicLng(asked)) {
+    locale = asked;
+    if (chosen !== asked) headers.set("Set-Cookie", await languageCookie.serialize(asked));
+  } else {
+    locale = chosen ?? pickPublicLocale(request.headers.get("Accept-Language"));
+    if (locale !== "en") {
+      throw redirect(homeHref(locale), { headers: { Vary: "Accept-Language, Cookie", "Cache-Control": "private, no-store" } });
+    }
+  }
+
   const clusters = CLUSTER_ORDER.map((id) => ({ id, count: catalogEntries(locale, id).length })).filter((c) => c.count > 0);
   const t = pagesT(locale);
-  return {
-    appUrl: APP_URL,
-    toolsLocale: locale,
-    clusters,
-    messages: toolsMessages(locale),
-    pages: pagesMessages(locale),
-    seo: { title: t("landing.metaTitle"), description: t("landing.metaDescription") },
-  };
+  return data(
+    {
+      appUrl: APP_URL,
+      toolsLocale: locale,
+      // The bare `/` is the x-default and canonical to itself.
+      xDefault: !isPublicLng(asked),
+      clusters,
+      messages: toolsMessages(locale),
+      pages: pagesMessages(locale),
+      seo: { title: t("landing.metaTitle"), description: t("landing.metaDescription") },
+    },
+    { headers },
+  );
 }
 
-/** Without `?lng=` the language follows the browser's, so a cache must key on it. */
-export function headers() {
-  return { Vary: "Accept-Language" };
+/** The bare `/` depends on the browser and the cookie, so a cache must key on both. */
+export function headers({ loaderHeaders }: Route.HeadersArgs) {
+  const out = new Headers({ Vary: "Accept-Language, Cookie" });
+  const cookie = loaderHeaders.get("Set-Cookie");
+  if (cookie) out.set("Set-Cookie", cookie);
+  return out;
 }
 
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [];
   const url = data.appUrl;
   const { title, description } = data.seo;
-  const self = `${url}${homeHref(data.toolsLocale)}`;
+  const self = data.xDefault ? `${url}/` : `${url}${homeHref(data.toolsLocale)}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -85,7 +113,8 @@ export function meta({ data }: Route.MetaArgs) {
     { property: "og:title", content: title },
     { property: "og:description", content: description },
     { property: "og:url", content: self },
-    { property: "og:locale", content: data.toolsLocale },
+    { property: "og:locale", content: OG_LOCALE[data.toolsLocale] },
+    ...publicLngs.filter((l) => l !== data.toolsLocale).map((l) => ({ property: "og:locale:alternate", content: OG_LOCALE[l] })),
     { property: "og:image", content: ogImage(url) },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },

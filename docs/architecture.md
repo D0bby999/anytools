@@ -279,7 +279,16 @@ and by `entry.client.tsx` before hydration, so the first paint is translated
 and hydration matches. Each language is its own i18next instance, never
 switched, because two requests in two languages share one server process.
 `app/test/i18n-app-locales.test.ts` fails on any English string without its
-three translations. Model output follows the conversation's language; API
+three translations.
+
+The public pages have one address per language, for search engines: the tool
+pages `/{en|vi|es|pt}/…`, the landing page `/?lng=…`, each canonical to itself
+with hreflang to the others and to an x-default, all of them in the sitemap.
+The bare `/` is that x-default: English for a visitor or crawler with no other
+preference, else a 302 (`Vary: Accept-Language, Cookie`) to the language last
+chosen there (the same `anylearn-lang` cookie sign-in reads) or the browser's.
+Every link to the landing page names its language (`homeHref`), so a choice
+is never undone by the browser's. Model output follows the conversation's language; API
 sentences shown to learners carry a code the web translates (readiness:
 `reason_code`, `note_code`), and the rest are still English.
 

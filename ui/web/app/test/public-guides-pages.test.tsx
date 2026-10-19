@@ -13,7 +13,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { createRoutesStub } from "react-router";
 
-vi.mock("~/lib/env.server", () => ({ APP_URL: "https://anytools.example", API_BASE: "", API_TOKEN: "" }));
+vi.mock("~/lib/env.server", () => ({ APP_URL: "https://anytools.example", API_BASE: "", API_TOKEN: "", useSecureCookies: false }));
 const getUserId = vi.fn(async (_r: Request) => null as string | null);
 vi.mock("~/lib/auth.server", () => ({ getUserId: (r: Request) => getUserId(r) }));
 
@@ -28,6 +28,7 @@ const guide = await import("~/routes/public.guide");
 const page = await import("~/routes/public.page");
 const anyprofile = await import("~/routes/public.anyprofile");
 const landing = await import("~/routes/landing");
+const { languageCookie } = await import("~/lib/language.server");
 
 /** Rendering tests get room for a loaded machine; the 5-second default is not enough there. */
 const it = (name: string, fn: () => unknown) => baseIt(name, { timeout: 30_000 }, fn);
@@ -289,22 +290,53 @@ describe("the AnyProfile page", () => {
 });
 
 describe("the merged landing page", () => {
-  it("links the tool clusters in the browser's language, and says the page varies by it", async () => {
-    const data = (await call(landing.loader, "/", {}, { "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8" })) as {
-      toolsLocale: string;
-      clusters: { id: string; count: number }[];
-    };
-    expect(data.toolsLocale).toBe("vi");
-    expect(data.clusters.map((c) => c.id)).toContain("time-date");
-    expect(data.clusters.every((c) => c.count > 0)).toBe(true);
-    expect(landing.headers()).toEqual({ Vary: "Accept-Language" });
+  type LandingData = { toolsLocale: string; xDefault: boolean; clusters: { id: string; count: number }[] };
+  // The loader answers with data() (a body and a Set-Cookie); this takes both apart.
+  const landingCall = async (url: string, headers?: HeadersInit) => {
+    const out = (await call(landing.loader, url, {}, headers)) as { data: LandingData; init?: { headers?: HeadersInit } };
+    return { data: out.data, setCookie: new Headers(out.init?.headers).get("Set-Cookie") };
+  };
+  const redirectOf = async (url: string, headers?: HeadersInit) => {
+    const thrown = await Promise.resolve(call(landing.loader, url, {}, headers)).then(
+      () => null,
+      (e: unknown) => e as Response,
+    );
+    return thrown && { status: thrown.status, location: thrown.headers.get("Location"), vary: thrown.headers.get("Vary") };
+  };
+  const chose = async (lng: string) => (await languageCookie.serialize(lng)).split(";")[0]!;
 
-    const en = (await call(landing.loader, "/", {}, { "Accept-Language": "fr-FR" })) as { toolsLocale: string };
-    expect(en.toolsLocale).toBe("en");
+  it("sends a bare / to the browser's language, and keys any cache on it", async () => {
+    expect(await redirectOf("/", { "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8" })).toEqual({
+      status: 302,
+      location: "/?lng=vi",
+      vary: "Accept-Language, Cookie",
+    });
+    const en = await landingCall("/", { "Accept-Language": "fr-FR" });
+    expect(en.data.toolsLocale).toBe("en");
+    expect(en.data.xDefault).toBe(true);
+    expect(en.data.clusters.map((c) => c.id)).toContain("time-date");
+    expect(en.data.clusters.every((c) => c.count > 0)).toBe(true);
   });
 
-  it("is written in the browser's language, with the clusters and the public links", async () => {
-    const data = await call(landing.loader, "/", {}, { "Accept-Language": "es" });
+  // 2026-10-19: choosing English in a Vietnamese browser showed Vietnamese.
+  it("keeps the language the visitor chose, over the browser's", async () => {
+    const pick = await landingCall("/?lng=en", { "Accept-Language": "vi-VN,vi;q=0.9" });
+    expect(pick.data.toolsLocale).toBe("en");
+    expect(pick.setCookie).toMatch(/^anylearn-lang=/);
+
+    const back = await landingCall("/", { "Accept-Language": "vi-VN,vi;q=0.9", Cookie: await chose("en") });
+    expect(back.data.toolsLocale).toBe("en");
+    expect(await redirectOf("/", { "Accept-Language": "en-US", Cookie: await chose("pt") })).toMatchObject({ location: "/?lng=pt" });
+
+    // Asking again for the language already kept sets nothing.
+    expect((await landingCall("/?lng=en", { Cookie: await chose("en") })).setCookie).toBeNull();
+    const h = landing.headers({ loaderHeaders: new Headers({ "Set-Cookie": "anylearn-lang=x" }) } as never);
+    expect(h.get("Vary")).toBe("Accept-Language, Cookie");
+    expect(h.get("Set-Cookie")).toBe("anylearn-lang=x");
+  });
+
+  it("is written in the language asked for, with the clusters and the public links", async () => {
+    const { data } = await landingCall("/?lng=es", { "Accept-Language": "en" });
     const Stub = createRoutesStub([{ path: "/", Component: landing.default as never, loader: () => data }]);
     render(<Stub initialEntries={["/"]} />);
     expect(await screen.findByRole("heading", { level: 1, name: "Estudia con tus propios documentos." })).toBeInTheDocument();
@@ -323,15 +355,26 @@ describe("the merged landing page", () => {
     ]);
     // The header's language menu keeps the visitor on this page.
     const menu = screen.getByRole("navigation", { name: "Idioma" });
-    expect(within(menu).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/", "/?lng=vi", "/?lng=es", "/?lng=pt"]);
+    expect(within(menu).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/?lng=en", "/?lng=vi", "/?lng=es", "/?lng=pt"]);
   });
 
   it("takes the language the visitor chose over the browser's, and names every version", async () => {
-    const data = (await call(landing.loader, "/?lng=vi", {}, { "Accept-Language": "es" })) as { toolsLocale: string };
+    const { data } = await landingCall("/?lng=vi", { "Accept-Language": "es" });
     expect(data.toolsLocale).toBe("vi");
     const tags = landing.meta({ data } as never) as Record<string, unknown>[];
     expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.example/?lng=vi" });
-    expect(tags.filter((t) => t.rel === "alternate").map((t) => t.hrefLang)).toEqual(["en", "vi", "es", "pt", "x-default"]);
+    expect(tags.filter((t) => t.rel === "alternate").map((t) => [t.hrefLang, t.href])).toEqual([
+      ["en", "https://anytools.example/?lng=en"],
+      ["vi", "https://anytools.example/?lng=vi"],
+      ["es", "https://anytools.example/?lng=es"],
+      ["pt", "https://anytools.example/?lng=pt"],
+      ["x-default", "https://anytools.example/"],
+    ]);
+    expect(tags).toContainEqual({ property: "og:locale", content: "vi_VN" });
+    expect(tags.filter((t) => t.property === "og:locale:alternate").map((t) => t.content)).toEqual(["en_US", "es_ES", "pt_BR"]);
+    // The bare / is the x-default, canonical to itself.
+    const bare = await landingCall("/", {});
+    expect(landing.meta({ data: bare.data } as never)).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.example/" });
     expect(tags[0]).toEqual({ title: "AnyTools: công cụ miễn phí, và AnyLearn, ứng dụng học chạy trên AI của bạn" });
   });
 });
