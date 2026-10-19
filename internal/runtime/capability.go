@@ -24,8 +24,16 @@ type Session struct {
 	ModelHint       string
 	AllowWeb        bool
 	LearningStateID *uuid.UUID
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	// Summary stands in for the messages up to and including
+	// SummaryThroughID, which no longer fit a turn's history budget
+	// (capabilities/chat/history.go). Empty until a conversation outgrows it.
+	Summary          string
+	SummaryThroughID *uuid.UUID
+	// ConnectionID is the connection the learner picked for this
+	// conversation. It is tried first, ahead of the rest of the chat route.
+	ConnectionID *uuid.UUID
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 // ChatMessage is one row of the linear transcript.

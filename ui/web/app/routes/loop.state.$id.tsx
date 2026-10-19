@@ -4,7 +4,8 @@
  * protocol, AI resume with its validated paste-back, the hypotheses weekly
  * reviews wrote back, and its evidence chains and AI briefs.
  */
-import { redirect, useNavigation } from "react-router";
+import { redirect, useLocation, useNavigation } from "react-router";
+import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.state.$id";
 import { requireUser } from "~/lib/auth.server";
@@ -29,7 +30,7 @@ import { StateWorksheets } from "~/components/worksheet/state-worksheets";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Goal · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Goal · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -118,6 +119,7 @@ function resistanceOf(v: string): Resistance | "" {
 }
 
 export default function LoopState({ loaderData, actionData }: Route.ComponentProps) {
+  const { hash } = useLocation();
   const { t } = useTranslation("loop");
   const busy = useNavigation().state === "submitting";
   const { state, cycle, gate } = loaderData;
@@ -149,7 +151,18 @@ export default function LoopState({ loaderData, actionData }: Route.ComponentPro
         {loaderData.repeated_resistance && cycle ? (
           <RepeatedResistance resistance={loaderData.repeated_resistance} cycleId={cycle.id} />
         ) : null}
-        <InterruptForm minimum={state.next_task_minimum} busy={busy} />
+        {/* Folded until needed: six fields for a bad week, open on every
+            visit, made the goal page mostly a form. Home's "Record an
+            interruption" link lands here with the hash, and opens it. */}
+        <details className="group mt-3 rounded-lg border bg-card" open={hash === "#lp-state-interrupt"}>
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-medium [&::-webkit-details-marker]:hidden">
+            {t("interrupt.open")}
+            <ChevronDown aria-hidden="true" className="size-4 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="border-t px-4 pb-4">
+            <InterruptForm minimum={state.next_task_minimum} busy={busy} />
+          </div>
+        </details>
       </section>
 
       <section aria-labelledby="lp-state-resume" className="mt-10">

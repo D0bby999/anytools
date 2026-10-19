@@ -21,6 +21,10 @@ import { Topbar } from "~/components/layout/topbar";
 import { RightPanel } from "~/components/layout/right-panel";
 import { ReadingProgress } from "~/components/layout/reading-progress";
 import { partOf } from "~/lib/parts";
+import { PWA_LINKS, useServiceWorker } from "~/lib/pwa";
+
+/** AnyLearn is installable from any page of the study app (lib/pwa.ts). */
+export const links: Route.LinksFunction = () => PWA_LINKS;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
@@ -67,6 +71,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
   // key-concept boxes, the reading progress.
   const part = partOf(useLocation().pathname);
   useReportTimezone(loaderData.timezoneSet);
+  useServiceWorker();
 
   return (
     <div data-part={part} className="flex h-dvh flex-col overflow-hidden lg:flex-row">

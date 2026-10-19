@@ -263,7 +263,7 @@ function UploadFallback({ label, onPick }: { label: string; onPick: (file: File,
         accept="audio/webm,audio/ogg,audio/mp4,audio/x-m4a,.webm,.ogg,.m4a,.mp4"
         disabled={busy}
         aria-label={`${t("recordings.upload")}: ${label}`}
-        className="mt-1 block text-sm"
+        className="mt-1 lp-file"
         onChange={async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;

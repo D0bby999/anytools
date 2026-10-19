@@ -174,8 +174,8 @@ func TestRegistryHasNoBillingGuard(t *testing.T) {
 	}
 }
 
-// AnyTools' own attribution, not postclaw's.
-func TestOpenRouterAttributionIsAnyTools(t *testing.T) {
+// AnyLearn's own attribution, not postclaw's.
+func TestOpenRouterAttributionIsAnyLearn(t *testing.T) {
 	var referer, title string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		referer, title = r.Header.Get("HTTP-Referer"), r.Header.Get("X-Title")
@@ -190,8 +190,8 @@ func TestOpenRouterAttributionIsAnyTools(t *testing.T) {
 	if strings.Contains(strings.ToLower(referer), "postclaw") || strings.Contains(strings.ToLower(title), "postclaw") {
 		t.Fatalf("the port kept postclaw's OpenRouter attribution: %q / %q", referer, title)
 	}
-	if title != "AnyTools" {
-		t.Errorf("X-Title = %q, want AnyTools", title)
+	if title != "AnyLearn" {
+		t.Errorf("X-Title = %q, want AnyLearn", title)
 	}
 }
 

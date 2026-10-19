@@ -26,7 +26,7 @@ import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Vocabulary · AnyTools" },
+    { title: "Vocabulary · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

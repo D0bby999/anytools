@@ -19,6 +19,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/masteryapi"
 	"github.com/D0bby999/anytools/internal/api/notebookapi"
 	"github.com/D0bby999/anytools/internal/api/profileapi"
+	"github.com/D0bby999/anytools/internal/api/pushapi"
 	"github.com/D0bby999/anytools/internal/api/quizapi"
 	"github.com/D0bby999/anytools/internal/api/readingapi"
 	"github.com/D0bby999/anytools/internal/api/relatedapi"
@@ -74,7 +75,9 @@ type Deps struct {
 	// Zotero is up-methods phase 20: "Add from Zotero".
 	Zotero *zoteroapi.Handler
 	// Storage is drive-user-storage phase 2: Settings → Storage.
-	Storage      *storageapi.Handler
+	Storage *storageapi.Handler
+	// Push is Settings → Reminders: the daily review reminder.
+	Push         *pushapi.Handler
 	Users        httpx.UserLookup
 	GatewayToken string
 	AllowNoAuth  bool
@@ -169,6 +172,9 @@ func BuildMux(deps Deps) http.Handler {
 	}
 	if deps.Zotero != nil {
 		deps.Zotero.RegisterRoutes(mux)
+	}
+	if deps.Push != nil {
+		deps.Push.RegisterRoutes(mux)
 	}
 	if deps.Storage != nil {
 		deps.Storage.RegisterRoutes(mux)
@@ -266,6 +272,7 @@ func RegisteredPatterns() []string {
 	patterns = append(patterns, zoteroapi.Patterns()...)
 	// drive-user-storage phase 2: Settings → Storage.
 	patterns = append(patterns, storageapi.Patterns()...)
+	patterns = append(patterns, pushapi.Patterns()...)
 	return patterns
 }
 

@@ -157,6 +157,24 @@ func (h *Handler) resync(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusAccepted, body)
 }
 
+// retry queues a failed document for processing again.
+func (h *Handler) retry(w http.ResponseWriter, r *http.Request) {
+	userID, docID, ok := h.requireDocument(w, r)
+	if !ok {
+		return
+	}
+	res, err := h.svc.Retry(r.Context(), userID, docID)
+	if errors.Is(err, knowledge.ErrNotFailed) {
+		httpx.WriteError(w, http.StatusConflict, err.Error(), "not_failed")
+		return
+	}
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, map[string]any{"document": res.Document, "job_id": res.JobID})
+}
+
 type transcriptRequest struct {
 	Text  string `json:"text"`
 	Track string `json:"track"`

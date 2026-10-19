@@ -86,5 +86,64 @@
     "responsibility": "You are responsible for following the rules of every platform you use. Many limit how many accounts one person may run; AnyProfile does not change those rules.",
     "latest": "Version {{version}}, released {{date}}",
     "checksums": "SHA-256 checksums"
+  },
+  "landing": {
+    "metaTitle": "AnyTools: free tools, and AnyLearn, a study app on your own AI",
+    "metaDescription": "AnyTools is free: everyday tools that run in your browser without an account, and AnyLearn, a self-study app that grounds chat, quizzes, a spaced-repetition mastery path and a 90-day learning loop in the documents you upload, using the AI accounts you already have. Every answer cites the page it came from.",
+    "title": "Study from your own documents.",
+    "subtitle": "Check every answer against the page it came from.",
+    "lede": "Answers that cite the page, quizzes written from your material, and reviews timed to just before you forget.",
+    "cta": "Start studying",
+    "ctaNote": "Free. Google or GitHub sign-in; no password.",
+    "contentsTitle": "What is inside",
+    "part": "Part {{numeral}}",
+    "parts": {
+      "read": {
+        "title": "Read",
+        "body": "Your documents, notebooks and living books."
+      },
+      "ask": {
+        "title": "Ask",
+        "body": "Answers with citations, worked solutions and research reports."
+      },
+      "practise": {
+        "title": "Practise",
+        "body": "Quizzes, exams and spaced review, until a point stays."
+      },
+      "reflect": {
+        "title": "Reflect",
+        "body": "One goal, the evidence that it is moving, and worksheets."
+      }
+    },
+    "whatTitle": "What it does",
+    "lead": "AnyLearn is the study app in AnyTools, beside free tools that run in your browser with no account. Upload the material you are learning from, and AnyLearn answers questions about it with citations that open the exact page, writes quizzes from it, schedules what you are about to forget, and keeps a 90-day record of what you can actually do, all on the AI accounts you already pay for.",
+    "points": {
+      "cite": {
+        "title": "Answers that point at the page",
+        "body": "Chat, quizzes and research cite the passage they used. A citation opens your document at that page, so a claim can be checked instead of trusted."
+      },
+      "practice": {
+        "title": "Practice that schedules itself",
+        "body": "Questions are written from your material and marked with an explanation. A mastery path brings back what you got wrong the same day, and what you know just before you would forget it."
+      },
+      "evidence": {
+        "title": "Progress backed by evidence",
+        "body": "A 90-day learning loop moves forward only when quiz results, reviews and notes show it should, not when a box is ticked."
+      },
+      "byok": {
+        "title": "Your own AI accounts",
+        "body": "Connect a key from Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral or another supported provider. There are no platform keys and no credits: nothing runs until one of yours is connected, and you choose which account does which job."
+      }
+    },
+    "notTitle": "What it will not do",
+    "notBody": "AnyLearn does not answer from its own general knowledge when your documents are silent; it says they do not cover the question. It does not keep streaks, points or badges. And it cannot promise that a file never reaches an AI provider: reading a document means sending it to the model you chose, and every document shows which one read it.",
+    "tools": {
+      "title": "Appendix: free tools, no account",
+      "body": "More than a hundred everyday tools: formatters, encoders, converters, calculators, and PDF and image tools. They run in your browser, need no sign-in, and come in English, Vietnamese, Spanish and Portuguese.",
+      "count_one": "{{count}} tool",
+      "count_other": "{{count}} tools",
+      "all": "Browse all tools"
+    },
+    "footer": "AnyLearn is in early access. Your documents and connected accounts stay yours; you can remove any of them at any time."
   }
 }

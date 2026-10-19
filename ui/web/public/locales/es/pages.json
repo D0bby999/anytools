@@ -86,5 +86,64 @@
     "responsibility": "Eres responsable de cumplir las normas de cada plataforma que uses. Muchas limitan cuántas cuentas puede tener una persona; AnyProfile no cambia esas normas.",
     "latest": "Versión {{version}}, publicada el {{date}}",
     "checksums": "Sumas de comprobación SHA-256"
+  },
+  "landing": {
+    "metaTitle": "AnyTools: herramientas gratis, y AnyLearn, una app de estudio con tu propia IA",
+    "metaDescription": "AnyTools es gratis: herramientas cotidianas que funcionan en tu navegador sin cuenta, y AnyLearn, una app de autoestudio que basa el chat, los cuestionarios, una ruta de repaso espaciado y un ciclo de aprendizaje de 90 días en los documentos que subes, con las cuentas de IA que ya tienes. Cada respuesta cita la página de la que salió.",
+    "title": "Estudia con tus propios documentos.",
+    "subtitle": "Comprueba cada respuesta con la página de la que salió.",
+    "lede": "Respuestas que citan la página, preguntas escritas a partir de tu material y repasos programados justo antes de que olvides.",
+    "cta": "Empezar a estudiar",
+    "ctaNote": "Gratis. Acceso con Google o GitHub, sin contraseña. La app está en inglés.",
+    "contentsTitle": "Qué hay dentro",
+    "part": "Parte {{numeral}}",
+    "parts": {
+      "read": {
+        "title": "Leer",
+        "body": "Tus documentos, cuadernos y libros vivos."
+      },
+      "ask": {
+        "title": "Preguntar",
+        "body": "Respuestas con citas, soluciones paso a paso e informes de investigación."
+      },
+      "practise": {
+        "title": "Practicar",
+        "body": "Cuestionarios, exámenes y repaso espaciado, hasta que algo se quede."
+      },
+      "reflect": {
+        "title": "Reflexionar",
+        "body": "Un objetivo, la evidencia de que avanza, y fichas de trabajo."
+      }
+    },
+    "whatTitle": "Qué hace",
+    "lead": "AnyLearn es la app de estudio de AnyTools, junto a herramientas gratuitas que funcionan en tu navegador sin cuenta. Sube el material con el que aprendes y AnyLearn responde preguntas sobre él con citas que abren la página exacta, escribe cuestionarios a partir de él, programa lo que estás a punto de olvidar y guarda un registro de 90 días de lo que realmente sabes hacer, todo con las cuentas de IA que ya pagas.",
+    "points": {
+      "cite": {
+        "title": "Respuestas que señalan la página",
+        "body": "El chat, los cuestionarios y la investigación citan el pasaje que usaron. Una cita abre tu documento en esa página, así que cada afirmación se puede comprobar en lugar de creerla."
+      },
+      "practice": {
+        "title": "Práctica que se programa sola",
+        "body": "Las preguntas se escriben a partir de tu material y se corrigen con una explicación. Una ruta de dominio te devuelve lo que fallaste el mismo día, y lo que sabes justo antes de que lo olvides."
+      },
+      "evidence": {
+        "title": "Progreso respaldado por evidencia",
+        "body": "Un ciclo de aprendizaje de 90 días avanza solo cuando los resultados, los repasos y las notas muestran que debe hacerlo, no cuando se marca una casilla."
+      },
+      "byok": {
+        "title": "Tus propias cuentas de IA",
+        "body": "Conecta una clave de Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral u otro proveedor compatible. No hay claves de la plataforma ni créditos: nada funciona hasta que conectas una tuya, y tú eliges qué cuenta hace cada tarea."
+      }
+    },
+    "notTitle": "Lo que no hará",
+    "notBody": "AnyLearn no responde con su propio conocimiento general cuando tus documentos no dicen nada; te dice que no cubren la pregunta. No lleva rachas, puntos ni insignias. Y no puede prometer que un archivo nunca llegue a un proveedor de IA: leer un documento significa enviarlo al modelo que elegiste, y cada documento muestra qué modelo lo leyó.",
+    "tools": {
+      "title": "Apéndice: herramientas gratis, sin cuenta",
+      "body": "Más de cien herramientas cotidianas: formateadores, codificadores, conversores, calculadoras y herramientas de PDF e imagen. Funcionan en tu navegador, no piden registro y están en inglés, vietnamita, español y portugués.",
+      "count_one": "{{count}} herramienta",
+      "count_other": "{{count}} herramientas",
+      "all": "Ver todas las herramientas"
+    },
+    "footer": "AnyLearn está en acceso anticipado. Tus documentos y cuentas conectadas siguen siendo tuyos; puedes quitar cualquiera de ellos en cualquier momento."
   }
 }

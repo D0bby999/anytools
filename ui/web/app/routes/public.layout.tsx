@@ -9,6 +9,7 @@ import { I18nextProvider } from "react-i18next";
 import { isRouteErrorResponse, Link, Outlet, useLoaderData, useRouteError, useRouteLoaderData } from "react-router";
 import type { Route } from "./+types/public.layout";
 import { PublicShell } from "~/components/tools-site/public-shell";
+import { Plate } from "~/components/ui/plate";
 import { toolsI18n } from "~/lib/tools/i18n";
 import { toolsMessages } from "~/lib/tools/messages.server";
 import { publicLocale } from "~/lib/tools/route.server";
@@ -40,8 +41,9 @@ export function ErrorBoundary() {
   const missing = isRouteErrorResponse(error) && error.status === 404;
   if (!data) {
     return (
-      <main className="mx-auto max-w-2xl p-8">
-        <h1 className="text-2xl font-semibold">{missing ? "Page not found" : "Something went wrong"}</h1>
+      <main className="mx-auto max-w-2xl px-4 py-12">
+        {missing && <Plate name="notfound" sizes="(min-width: 768px) 36rem, 100vw" className="mb-6" />}
+        <h1 className="text-3xl leading-tight">{missing ? "Page not found" : "Something went wrong"}</h1>
         <p className="mt-4">
           <Link to="/en" className="text-primary underline">
             AnyTools
@@ -55,6 +57,7 @@ export function ErrorBoundary() {
     <I18nextProvider i18n={toolsI18n(data.locale, data.messages)}>
       <PublicShell locale={data.locale}>
         <div className="lp-measure px-4 py-12">
+          {missing && <Plate name="notfound" sizes="(min-width: 768px) 36rem, 100vw" className="mb-6 max-w-xl" />}
           <h1 className="text-3xl leading-tight lg:text-4xl">{missing ? t("notFound.title") : t("error.title")}</h1>
           <p className="mt-3 text-lg leading-snug text-muted-foreground">
             {missing ? t("notFound.description") : t("error.description")}

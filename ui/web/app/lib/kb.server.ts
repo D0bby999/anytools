@@ -51,6 +51,14 @@ export function deleteDocument(userId: string, kbId: string, docId: string) {
   );
 }
 
+/** Queues a failed document for processing again (POST /v1/documents/{id}/retry). */
+export function retryDocument(userId: string, docId: string) {
+  return apiFetch<{ job_id: string }>(`/v1/documents/${encodeURIComponent(docId)}/retry`, userId, {
+    method: "POST",
+    body: {},
+  });
+}
+
 export function reindexKB(userId: string, kbId: string) {
   return apiFetch<{ job_id: string }>(`/v1/kb/${encodeURIComponent(kbId)}/reindex`, userId, {
     method: "POST",

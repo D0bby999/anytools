@@ -1,6 +1,6 @@
 {
   "page": {
-    "lead": "What AnyTools remembers about how you study. Every entry is yours to edit or delete. Features read it only when they need it: Mastery reads your Preferences and Struggles, Chat reads your Preferences, and Research never reads it.",
+    "lead": "What AnyLearn remembers about how you study. Every entry is yours to edit or delete. Features read it only when they need it: Mastery reads your Preferences and Struggles, Chat reads your Preferences, and Research never reads it.",
     "count": "{{count}} of {{max}}",
     "empty": "Nothing here yet."
   },
@@ -49,13 +49,13 @@
   "add": {
     "title": "Add an entry",
     "section": "Section",
-    "text": "What should AnyTools keep in mind?",
+    "text": "What should AnyLearn keep in mind?",
     "kb": "About a knowledge base (optional)",
     "submit": "Add"
   },
   "consolidation": {
     "title": "Nightly suggestions",
-    "body": "When this is on, AnyTools looks once a night, at 02:00 in your time zone and only after a day with new activity, at your quiz, mastery, vocabulary and skill-card results, and proposes entries. It makes one call on your own chat model and reads counts and results only, never your documents or anything you wrote. Nothing it proposes is used until you accept it.",
+    "body": "When this is on, AnyLearn looks once a night, at 02:00 in your time zone and only after a day with new activity, at your quiz, mastery, vocabulary and skill-card results, and proposes entries. It makes one call on your own chat model and reads counts and results only, never your documents or anything you wrote. Nothing it proposes is used until you accept it.",
     "stateOn": "Nightly suggestions are on.",
     "stateOff": "Nightly suggestions are off.",
     "turnOn": "Turn on",

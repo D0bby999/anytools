@@ -22,11 +22,12 @@ export function DrawIt({ messageId, inline = false }: { messageId: string; inlin
   const failed = fetcher.data && !fetcher.data.ok ? fetcher.data : null;
 
   return (
-    <div className="mt-2">
+    <div className={inline ? "mt-2" : "mt-1"}>
       <Button
         type="button"
         variant="ghost"
         size="sm"
+        className="h-8 px-2 text-xs"
         disabled={busy}
         onClick={() => void fetcher.submit({ intent: "draw", messageId }, { method: "post", action: ACTION })}
       >

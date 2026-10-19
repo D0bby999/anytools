@@ -113,7 +113,7 @@ export const handle = { ownsPanel: true };
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: data?.content ? `${data.content.document.title} · AnyTools` : "AnyTools" },
+    { title: data?.content ? `${data.content.document.title} · AnyLearn` : "AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

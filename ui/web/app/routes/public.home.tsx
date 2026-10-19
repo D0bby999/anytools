@@ -5,6 +5,7 @@
  */
 import { Link, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
+import { Plate } from "~/components/ui/plate";
 import type { Route } from "./+types/public.home";
 import { AnyProfileFeature } from "~/components/tools-site/anyprofile-feature";
 import { ToolCatalog } from "~/components/tools-site/tool-catalog";
@@ -85,12 +86,13 @@ export default function ToolsHome() {
       {/* AnyProfile leads the appendix (owner, 2026-10-18). */}
       <AnyProfileFeature locale={locale} />
 
-      <header className="mt-12 grid gap-x-10 gap-y-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <header className="mt-12 grid items-center gap-x-12 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
         <div className="max-w-(--lp-measure-read)">
-          <h1 className="text-3xl leading-tight lg:text-4xl">{t("home.heroTitle")}</h1>
-          <p className="mt-3 text-lg leading-snug text-muted-foreground">{t("home.heroSubtitle")}</p>
+          <h1 className="text-3xl leading-tight lg:text-5xl">{t("home.heroTitle")}</h1>
+          <p className="mt-4 text-lg leading-snug text-muted-foreground">{t("home.heroSubtitle")}</p>
+          <p className="mt-4 text-sm text-muted-foreground">{t("home.eyebrow", { count: entries.length })}</p>
         </div>
-        <p className="text-sm text-muted-foreground lg:text-right">{t("home.eyebrow", { count: entries.length })}</p>
+        <Plate name="tools-hero" sizes="(min-width: 1024px) 38vw, 100vw" className="hidden sm:block" />
       </header>
 
       <section aria-labelledby="tools-clusters" className="mt-10">

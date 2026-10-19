@@ -1,7 +1,7 @@
 import { Form, Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Button } from "~/components/ui/button";
 import { ThemeToggle } from "~/components/layout/theme-toggle";
+import { ACCOUNT_ACTION } from "~/components/layout/site-header";
 import { NAV_ITEMS } from "~/components/layout/sidebar";
 import { PARTS, partOf } from "~/lib/parts";
 
@@ -9,18 +9,39 @@ import { PARTS, partOf } from "~/lib/parts";
  * The running head: what a textbook prints at the top of every page. Which
  * part you are in (its tab) and which section, then the account. It replaces
  * a breadcrumb: the part is the one piece of wayfinding a deep page needs.
+ *
+ * Not the site header (site-header.tsx), on purpose (2026-10-19): the app's
+ * places are the rail's ten rows in four parts and an appendix, which three header links
+ * cannot hold, and the phone already has its bar at the bottom. It ends the
+ * same way, though: the wordmark in the same face and size where the rail is
+ * hidden, the theme switch, and the account action as the same outlined button.
  */
+/**
+ * Pages with no rail row of their own, named by the section they are opened
+ * from: a document and a book from Knowledge, a worksheet from the Loop.
+ * Without this the running head showed the part's tab and nothing after it.
+ */
+const SECTION_OF: Record<string, string> = {
+  documents: "/knowledge",
+  books: "/knowledge",
+  feeds: "/knowledge",
+  toolkit: "/loop",
+};
+
 export function Topbar({ displayName, email }: { displayName: string; email: string }) {
   const { t } = useTranslation("common");
   const { pathname } = useLocation();
   const part = PARTS.find((p) => p.id === partOf(pathname));
-  const section = NAV_ITEMS.find((n) => pathname === n.to || pathname.startsWith(n.to + "/"));
+  const alias = SECTION_OF[pathname.split("/")[1] ?? ""];
+  const section = alias
+    ? NAV_ITEMS.find((n) => n.to === alias)
+    : NAV_ITEMS.find((n) => pathname === n.to || pathname.startsWith(n.to + "/"));
 
   return (
     <header className="flex h-(--lp-topbar-h) shrink-0 items-center gap-3 border-b bg-background px-4 lg:px-8">
       {/* The rail carries the wordmark from `lg` up; below that the rail is a
           bottom bar with no room for it, so the running head holds it. */}
-      <Link to="/home" translate="no" className="font-serif text-lg font-semibold lg:hidden">
+      <Link to="/home" translate="no" className="rounded-md font-serif text-2xl font-semibold tracking-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:hidden">
         {t("app.name")}
       </Link>
 
@@ -44,9 +65,9 @@ export function Topbar({ displayName, email }: { displayName: string; email: str
         {/* A POST, not a link: a GET logout can be fired by any third-party
             <img src="/auth/logout"> the user's browser happens to load. */}
         <Form method="post" action="/auth/logout">
-          <Button type="submit" variant="ghost" size="sm">
+          <button type="submit" className={ACCOUNT_ACTION}>
             {t("actions.signOut")}
-          </Button>
+          </button>
         </Form>
       </div>
     </header>

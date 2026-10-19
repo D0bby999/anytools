@@ -35,7 +35,7 @@ type Reason struct {
 // these are what any other client sees.
 var (
 	ReasonReconnect = Reason{http.StatusConflict, "drive_reconnect",
-		"Reconnect Google Drive to use the files AnyTools keeps there."}
+		"Reconnect Google Drive to use the files AnyLearn keeps there."}
 	ReasonRemoved = Reason{http.StatusGone, "drive_file_removed",
 		"This file was removed from your Drive."}
 	ReasonFull = Reason{http.StatusInsufficientStorage, "drive_full",

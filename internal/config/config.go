@@ -89,6 +89,9 @@ type ServerConfig struct {
 	// RateLimitRPM is the per-user request budget; 0 disables rate limiting.
 	RateLimitRPM   int
 	RateLimitBurst int
+	// AppURL is the site's public origin, the same ANYTOOLS_APP_URL the web
+	// container signs in with. A reminder's push names a page on it.
+	AppURL string
 }
 
 // DatabaseConfig holds the Postgres connection settings.
@@ -160,6 +163,7 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		Server: ServerConfig{
 			Addr:           envOr("SERVER_ADDR", ":8080"),
+			AppURL:         strings.TrimRight(envOr("APP_URL", "http://localhost:3000"), "/"),
 			RateLimitRPM:   envInt("RATE_LIMIT_RPM", 600),
 			RateLimitBurst: envInt("RATE_LIMIT_BURST", 60),
 		},

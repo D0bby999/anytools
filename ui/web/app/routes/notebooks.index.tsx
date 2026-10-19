@@ -6,6 +6,7 @@
  * in the default notebook when none is named, so that one always exists once
  * anything has been saved.
  */
+import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/notebooks.index";
@@ -17,7 +18,7 @@ import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Notebook · AnyTools" },
+    { title: "Notebook · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -74,7 +75,9 @@ export default function NotebooksIndex({ loaderData, actionData }: Route.Compone
       ) : null}
 
       {loaderData.notebooks.length === 0 ? (
-        <p className="mt-8 lp-empty">{t("notebook.empty")}</p>
+        <PlateEmpty name="part-read" className="mt-8">
+          {t("notebook.empty")}
+        </PlateEmpty>
       ) : (
         <ul className="mt-8 border-t">
           {loaderData.notebooks.map((nb) => (

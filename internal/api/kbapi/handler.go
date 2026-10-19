@@ -65,6 +65,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /v1/documents/{id}", h.getDocument)
 	mux.HandleFunc("PATCH /v1/documents/{id}", h.patchDocument)           // budget: none
 	mux.HandleFunc("POST /v1/documents/{id}/resync", h.resync)            // budget: upload
+	mux.HandleFunc("POST /v1/documents/{id}/retry", h.retry)              // budget: upload
 	mux.HandleFunc("POST /v1/documents/{id}/transcript", h.setTranscript) // budget: upload
 	mux.HandleFunc("POST /v1/documents/{id}/transcribe", h.transcribe)    // budget: upload
 	// Audio and video files (up-methods phase 15, media.go).
@@ -93,6 +94,7 @@ func Patterns() []string {
 		"GET /v1/documents/{id}",
 		"PATCH /v1/documents/{id}",
 		"POST /v1/documents/{id}/resync",
+		"POST /v1/documents/{id}/retry",
 		"POST /v1/documents/{id}/transcript",
 		"POST /v1/documents/{id}/transcribe",
 		"GET /v1/documents/{id}/media",

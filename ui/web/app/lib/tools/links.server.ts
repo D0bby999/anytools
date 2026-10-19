@@ -16,7 +16,7 @@ import { findTool, isPopulatedCluster } from "./catalog";
 import { isIndexableTool } from "./content.server";
 
 const SITE_HOST = "anytools.world";
-const PAGE_ROUTES = new Set(["about", "contact", "guides", "privacy", "terms", "tools", "anyprofile"]);
+const PAGE_ROUTES = new Set(["about", "contact", "guides", "privacy", "terms", "tools", "anyprofile", "anylearn"]);
 
 function splitSitePath(href: string): { path: string; suffix: string } | null {
   let rest = href;

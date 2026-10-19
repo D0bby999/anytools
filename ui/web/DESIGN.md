@@ -12,7 +12,7 @@ A rule with no strike is a rule the code currently obeys.
 
 > ~~The reading world of `byoungd/up`, pinned by the owner (2026-09-16).~~
 > **Superseded 2026-10-19:** the owner asked for the whole UI to be rebuilt in a study
-> style, with the study app as the main surface, the tools as a secondary section and
+> style, with the study app (AnyLearn) as the main surface, the tools as a secondary section and
 > AnyProfile leading the tools. design-world rolled the direction (dice key
 > `018be165`, assigned 3 of 7). The owner accepted the recommendation: the modern
 > textbook, plus the highlighter from the notebook comp. Three things were kept from
@@ -81,6 +81,8 @@ paint in whichever part they sit in. The shell sets the part from the route
 
 Dark is composed for a desk lamp at night, not inverted. Each part colour is lifted
 until it reads as text, and the highlighter stays the same yellow with dark ink on it.
+Light is the default (owner, 2026-10-19): dark applies only when the visitor chose it with
+the theme switch, never from the system setting.
 
 ### Type
 
@@ -166,15 +168,58 @@ checked on every main page, in both themes.
    It says what will appear and how to put it there.
 6. **The dot leader** (`lp-leader`): drawn dots between a name and its count, used in
    the tools index.
-7. **Section tabs** (`components/ui/section-tabs.tsx`): Settings and Mastery. The
-   current tab is tinted and outlined, **never underlined**.
-8. **The cover:** ink panels for AnyProfile (rail, More, tools home, landing, its own
-   page) and for the sign-in book. It is the one block that is not paper.
+7. **Section tabs** (`components/ui/section-tabs.tsx`): Settings, Mastery and Quiz
+   (`components/quiz/quiz-tabs.tsx`). The current tab is tinted and outlined, **never
+   underlined**. Ways of doing one thing inside a page (adding to a knowledge base) use
+   the same look as ARIA tabs: `components/ui/panel-tabs.tsx`.
+8. **The cover:** ink panels for AnyProfile (More, tools home, landing, its own page)
+   and for the sign-in book. It is the one block that is not paper. On the rail,
+   beside study pages, AnyProfile is a slate-tinted card instead: the ink block was
+   the heaviest shape on every page.
 9. **Share cards:** the site card is drawn from `deploy/og/og.html` (title beside the contents I to IV). A tool's
    card is rendered by `lib/tools/og-image.server.ts` with the part tab of the appendix. Bump `OG_VERSION` in
    `lib/tools/seo.ts` whenever either changes look, or caches serve the old card for a day.
 10. **Fields:** white (`bg-card`), with a 3:1 control outline. On a phone they are 16px,
-   from an unlayered rule, so iOS does not zoom.
+   from an unlayered rule, so iOS does not zoom. A file input keeps the native control
+   with an outlined button (`lp-file`).
+11. **Lists that open:** a list for finding things (the question bank) is one row per
+   item, opening into the full card. A long form that is needed now and then (a goal's
+   interruption) is folded behind a labelled `<details>`.
+12. **Progress against a mark** (`components/mastery/mastery-meter.tsx`): a bar in the
+   part's colour with an ink tick at the pass threshold, beside the numbers in text.
+13. **Dates** (`components/ui/date-text.tsx`): "19 Oct 2026", never a numeric date.
+   API errors shown after our own sentence go through `lib/sentence.ts`.
+
+14. **The chat surface** (plan 261019-1015, after postclaw's): an answer opens with
+   its **work row** (`components/chat/work-row.tsx`), one folded muted line ("Searched
+   twice · 9 passages · 3.1 s") that opens onto the steps; it names the running step
+   while the turn streams and never spins. Under the answer: Listen, Copy, Ask again
+   (last answer only), Draw it, then **follow-ups** as outlined pill buttons (last
+   answer only). The last question has Edit. The composer sticks above the phone bar,
+   grows to 160px, keeps a draft per conversation, queues up to three messages while
+   a turn runs, and carries the model menu and the keyboard hint underneath. "Jump to
+   latest" appears only when the learner has scrolled away from a streaming answer.
+
+15. **The site header** (`components/layout/site-header.tsx`, owner 2026-10-19): one
+   header on the landing page, every public tool page and sign-in, drawn from the
+   landing page's. Wordmark (to `/` in the visitor's language), Tools / Guides /
+   AnyProfile, then the tools search where the page has none of its own, the
+   **language menu** (a `<details>` naming the current language; pages in one
+   language draw none), the theme switch, and Sign in as an outlined button. On a
+   phone the places and Sign in fold into the ☰ menu and the search takes its own row.
+   The signed-in app keeps its rail and topbar: a workspace, not a site (ten places in
+   four parts do not fit three header links). The topbar ends like the site header: the
+   wordmark in the same size on a phone, the theme switch, and Sign out as the same
+   outlined button (`ACCOUNT_ACTION`). The site
+   **footer** (`SiteFooter`) is one too: wordmark, a sentence, the links.
+16. **Plates** (`components/ui/plate.tsx`, `public/plates/`): textbook figures in pen
+   and ink with flat washes in the parts' colours, made with 9router
+   (`comp-gen.mjs`), each prompt kept beside its file as JSON. The paper is
+   transparent, so on a light page only the drawing shows; in dark mode a plate is
+   printed on `--lp-plate-paper`, rounded. Always decorative (`alt=""`), one per
+   first viewport at most, 600/1200 WebP. A page's first-run empty state is the
+   part's plate beside the sentence (`PlateEmpty`); an empty list inside a busy page
+   stays an `lp-empty` line. A new plate is made the same way, never a stock photo.
 
 ## Anti-patterns for this project
 
@@ -205,12 +250,21 @@ checked on every main page, in both themes.
   in both themes.
 - Full web suite: 5979 passed.
 
+## View-by-view review (2026-10-19)
+
+Every study view was seen with real content (plan `261019-0148-study-ui-review`):
+documents indexed through the real pipeline on a local model, the rest seeded. What
+changed: chat chooses its knowledge bases; the reader renders Markdown; a failed
+document can be retried; a knowledge base leads with its documents and how to study
+them; the question bank is a list; Quiz has section tabs; Today ticks finished setup
+steps; mastery modules show a meter; the margin no longer says "Nothing is cited" on
+pages that never cite. axe 0 on the changed views at 1440 light and 390 dark, apart
+from two findings caused by the seeded answer's own Markdown.
+
 ## Open follow-ups
 
-- The deep study components (question card, chat transcript, document reader, mastery
-  learn and explain-back cards) took the world through tokens and primitives. Without
-  an AI key on the verifying machine they were not seen with real content; each needs
-  a look once a provider is connected.
+- The mastery explain-back verdict and a live (streaming) chat turn were seen only in
+  their empty and stored states; the local model could not produce a real one.
 - The 137 tool UIs (`app/tools/*`) keep their own copy, which still has 34 em dashes,
   and small uppercase labels in some templates. Their primitives (`tools-ui`) are on
   the world.

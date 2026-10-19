@@ -57,7 +57,7 @@ describe("Settings → Storage", () => {
   it("offers both places and posts the choice", async () => {
     const posts: Post[] = [];
     routed(<Wired status={base} />, { posts });
-    const server = screen.getByRole("radio", { name: /On AnyTools' server/ });
+    const server = screen.getByRole("radio", { name: /On AnyLearn's server/ });
     const drive = screen.getByRole("radio", { name: /In my Google Drive/ });
     expect(server).toBeChecked();
     expect(drive).toBeEnabled();
@@ -124,7 +124,7 @@ describe("Settings → Storage", () => {
     expect(bar).toHaveAttribute("aria-valuenow", "142");
     expect(bar).toHaveAttribute("aria-valuemax", "380");
     // The choice cannot change mid-move.
-    expect(screen.getByRole("radio", { name: /On AnyTools' server/ })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: /On AnyLearn's server/ })).toBeDisabled();
     expect(screen.queryByRole("button", { name: /Move my files/ })).toBeNull();
     await userEvent.click(screen.getByRole("button", { name: "Stop moving" }));
     expect(posts).toEqual([{ intent: "cancel" }]);

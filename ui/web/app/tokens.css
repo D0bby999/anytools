@@ -34,6 +34,10 @@
   --lp-surface: #ffffff;
   --lp-surface-soft: #f3f0e7;
   --lp-surface-sunken: #ebe6d9;
+  /* The paper a plate (components/ui/plate.tsx) is printed on in dark mode.
+     Not redefined under .dark on purpose: a plate is a printed figure, and
+     its paper does not turn dark with the page. */
+  --lp-plate-paper: #e4ddcd;
 
   /* ── Lines. `border` is a printed hairline and decorative; `border-control`
        outlines something you can operate, and is held to 3:1. ── */

@@ -114,6 +114,7 @@
     "modules": "Modules",
     "graduated": "Done",
     "moduleState": "{{mastery}}% · needs {{threshold}}%",
+    "meter": "{{name}}: mastery against the pass mark",
     "dueNow": "Due",
     "pointState": "{{mastery}}% · {{reviews}} reviews",
     "errors": "Open mistakes",
@@ -201,7 +202,7 @@
   },
   "exams": {
     "title": "Mock exams",
-    "lead": "Upload a past paper. AnyTools lists its questions for you to check, then writes a mock exam with the same types, difficulty and marks from one of your knowledge bases. You take it against the clock, it is marked, and what you get wrong waits in Practice.",
+    "lead": "Upload a past paper. AnyLearn lists its questions for you to check, then writes a mock exam with the same types, difficulty and marks from one of your knowledge bases. You take it against the clock, it is marked, and what you get wrong waits in Practice.",
     "toQuiz": "Back to Quiz",
     "back": "All mock exams",
     "upload": {
@@ -345,5 +346,12 @@
     "waiting": "An explain-back is waiting in {{path}}.",
     "openWaiting": "Open that path",
     "nothingDue": "Nothing is due on any path right now. Come back when a point is due."
+  },
+  "quizTabs": {
+    "label": "Quiz sections",
+    "new": "New questions",
+    "bank": "Question bank",
+    "mistakes": "Your mistakes",
+    "exams": "Mock exams"
   }
 }

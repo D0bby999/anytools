@@ -60,6 +60,10 @@ The script runs these steps in order:
 4. Start `api`, `web`, `nginx` and `certbot`, and, when `ANYTOOLS_STT_URL` is set, the built-in transcription engine (`stt` and its one-shot `stt-model`).
 5. Wait for `https://DOMAIN/` to answer. If it never answers, the deploy fails and prints the service logs.
 
+## Review reminders
+
+Nothing to configure. The API makes its VAPID key pair on first use and keeps it in `push_vapid`, encrypted under `ANYTOOLS_ENCRYPTION_KEY`; restoring a backup restores it, and losing it means every learner turns reminders on again. The `api` container needs outbound HTTPS to the browser push services (`fcm.googleapis.com`, `*.push.services.mozilla.com`, `*.push.apple.com`, `*.notify.windows.com`), and `ANYTOOLS_APP_URL` must be the public https origin, since Apple refuses a VAPID subject that is not.
+
 ## Built-in transcription
 
 Learners can transcribe a video without captions, an uploaded audio or video file, or a podcast episode in two ways: with their own speech key (Groq, OpenAI, Gemini, or their own OpenAI-compatible Whisper server, under Settings → Connections and the Speech to text route), or with the server's own engine, which needs no key. The server's engine is optional.

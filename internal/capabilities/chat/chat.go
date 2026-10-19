@@ -5,11 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/D0bby999/anytools/internal/citations"
+	"github.com/D0bby999/anytools/internal/providers"
 	"github.com/D0bby999/anytools/internal/runtime"
 )
 
@@ -28,11 +31,6 @@ type MessageStore interface {
 	// AppendMessage writes one message and returns it with its id.
 	AppendMessage(ctx context.Context, m runtime.ChatMessage) (*runtime.ChatMessage, error)
 }
-
-// historyLimit caps how far back a turn reads. Context compaction is a later
-// concern; a hard cap is the honest version of it for now, and it is applied to
-// the OLDEST messages so the recent conversation always survives.
-const historyLimit = 40
 
 // Capability is the grounded chat loop.
 type Capability struct {
@@ -53,8 +51,20 @@ func (c *Capability) Name() string { return "chat" }
 
 // Run implements runtime.Capability: think → tool → observe until the model
 // answers, the round limit is hit, or the budget runs out.
+//
+// What postclaw's agent loop taught, kept here (plan 261019-1015):
+//   - history is sized in tokens against the model's window, and what no
+//     longer fits is summarised rather than forgotten (history.go);
+//   - a "context length exceeded" refusal shrinks the prompt and retries once;
+//   - each tool result is capped before it enters the prompt;
+//   - several calls in one response run concurrently;
+//   - the same call twice in a turn is answered from the first result;
+//   - running out of rounds asks for an answer from what was found, and an
+//     answer cut at the token limit is continued once;
+//   - text that already streamed is kept when the provider fails after it.
 func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
-	provider, err := tc.Providers.ChatFor(ctx, tc.Turn.UserID, "chat")
+	started := time.Now()
+	provider, err := chatProvider(ctx, tc)
 	if err != nil {
 		if errors.Is(err, runtime.ErrNoProvider) {
 			return err
@@ -64,40 +74,118 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 
 	model := resolveModel(tc, provider)
 	tc.RecordProvider(provider.Name(), model)
-	tc.Emit(runtime.Event{
-		Type:     runtime.EvSessionMeta,
-		Source:   c.Name(),
-		Metadata: map[string]any{"provider": provider.Name(), "model": model},
-	})
+	window := contextWindow(model)
 
-	history, err := c.messages.History(ctx, tc.Turn.UserID, tc.Session.ID, historyLimit)
+	history, err := c.messages.History(ctx, tc.Turn.UserID, tc.Session.ID, historyFetch)
 	if err != nil {
 		return fmt.Errorf("load history: %w", err)
 	}
-	msgs := buildMessages(tc.Session, history, tc.Input, tc.InputMessageID)
 
-	// A session linked to a learning state is shown that state, right after
-	// the system prompt and before any history, on every turn.
+	// The notes that sit right after the system prompt: the linked learning
+	// state, then the learner's Preferences. Read once; a rebuild after an
+	// overflow reuses them.
+	var notes []string
 	stateNote, revision, err := c.stateContext(ctx, tc)
 	if err != nil {
 		return err
 	}
-	if stateNote != "" {
-		msgs = append(msgs[:1], append([]runtime.Message{{Role: runtime.RoleSystem, Content: stateNote}}, msgs[1:]...)...)
-	}
-	// The learner's Preferences, when they have set any, go right after the
-	// system prompt too — pulled for this turn, never stored in history.
 	if note := c.profileNote(ctx, tc); note != "" {
-		msgs = append(msgs[:1], append([]runtime.Message{{Role: runtime.RoleSystem, Content: note}}, msgs[1:]...)...)
+		notes = append(notes, note)
 	}
+	if stateNote != "" {
+		notes = append(notes, stateNote)
+	}
+
+	work := &workRecord{}
+	summary := tc.Session.Summary
+	summaryThrough := tc.Session.SummaryThroughID
+
+	// base builds everything before this turn's own tool rounds, inside a
+	// history budget. It summarises what falls out, at most once per budget.
+	base := func(budget int) []runtime.Message {
+		kept, overflow := splitHistory(history, summaryThrough, tc.InputMessageID, budget)
+		if len(overflow) > 0 {
+			if s, ok := c.summarize(ctx, tc, provider, model, summary, overflow); ok {
+				summary = s
+				through := overflow[len(overflow)-1].ID
+				summaryThrough = &through
+				work.Summarised += len(overflow)
+				tc.Emit(runtime.Event{
+					Type: runtime.EvProgress, Stage: stagePlanning, Source: c.Name(),
+					Content:  "summarised earlier messages",
+					Metadata: map[string]any{"kind": "compaction", "messages": len(overflow)},
+				})
+			}
+		}
+		return buildMessages(tc.Session, summary, notes, kept, history, tc.Input, tc.InputMessageID)
+	}
+
+	budget := historyBudget(window)
+	msgs := base(budget)
+	var turnMsgs []runtime.Message
+	overflowRetried := false
+	work.ContextTokens, work.ContextWindow = promptTokens(msgs), window
+
+	tc.Emit(runtime.Event{
+		Type:   runtime.EvSessionMeta,
+		Source: c.Name(),
+		Metadata: map[string]any{
+			"provider": provider.Name(), "model": model,
+			"context_tokens": work.ContextTokens, "context_window": window,
+		},
+	})
 
 	// hasRetrievedContext gates network tools: once untrusted document text is
 	// in the context, a network tool is only mounted with the session's
 	// explicit "allow web" consent (red-team Security 4).
 	hasRetrievedContext := false
+	seen := map[string]string{}
 	var answer string
 
 	tc.Emit(runtime.Event{Type: runtime.EvStageStart, Stage: stagePlanning, Source: c.Name()})
+
+	// call makes one model request over the current prompt. A context
+	// overflow is recovered once: the history is rebuilt at a third of its
+	// budget and this turn's tool output is cut harder, then the call repeats.
+	call := func(tools []runtime.ToolDefinition) (*runtime.ChatResponse, error) {
+		for {
+			req := runtime.ChatRequest{Messages: concat(msgs, turnMsgs), Tools: tools, Model: model}
+			resp, partial, err := c.callProvider(ctx, tc, provider, req)
+			if err == nil {
+				// Re-read the lane AFTER the call. The resolver hands back the
+				// user's whole fallback chain as one provider, so which
+				// connection answered, and on which model, is only knowable
+				// now; writing the first choice onto the turn row is the silent
+				// downgrade RT-14 exists to make visible.
+				tc.RecordProvider(provider.Name(), resolveModel(tc, provider))
+				tc.AddUsage(resp.Usage)
+				return resp, nil
+			}
+			if !overflowRetried && partial == "" && isOverflow(err) {
+				overflowRetried = true
+				budget /= 3
+				msgs = base(budget)
+				for i := range turnMsgs {
+					if turnMsgs[i].Role == runtime.RoleTool {
+						turnMsgs[i].Content = capToolOutput(turnMsgs[i].Content, toolOutputRetryChars)
+					}
+				}
+				tc.Emit(runtime.Event{
+					Type: runtime.EvProgress, Stage: stagePlanning, Source: c.Name(),
+					Content:  "the conversation was too long for the model; shortened it and tried again",
+					Metadata: map[string]any{"kind": "overflow_retry"},
+				})
+				continue
+			}
+			if partial != "" {
+				c.keepPartial(ctx, tc, partial, work, started)
+			}
+			if errors.Is(err, runtime.ErrTurnCancelled) {
+				return nil, err
+			}
+			return nil, fmt.Errorf("%w: %s", runtime.ErrProvider, err)
+		}
+	}
 
 	for round := 0; round < runtime.MaxToolRounds; round++ {
 		if err := ctx.Err(); err != nil {
@@ -106,25 +194,12 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 		if tc.BudgetExceeded() {
 			return runtime.ErrTokenBudget
 		}
+		work.Rounds++
 
-		req := runtime.ChatRequest{
-			Messages: msgs,
-			Tools:    tc.Tools.Definitions(tc.Session.AllowWeb, hasRetrievedContext),
-			Model:    model,
-		}
-
-		resp, err := c.callProvider(ctx, tc, provider, req)
+		resp, err := call(tc.Tools.Definitions(tc.Session.AllowWeb, hasRetrievedContext))
 		if err != nil {
 			return err
 		}
-		// Re-read the lane AFTER the call. The resolver hands back the user's
-		// whole fallback chain as one provider, so which connection actually
-		// answered — and on which model — is not knowable until it has. Writing
-		// only the first choice onto the turn row is precisely the silent
-		// downgrade RT-14 exists to make visible, and AC3 reads this back.
-		tc.RecordProvider(provider.Name(), resolveModel(tc, provider))
-		tc.AddUsage(resp.Usage)
-
 		if resp.Thinking != "" {
 			tc.Emit(runtime.Event{Type: runtime.EvThinking, Stage: stagePlanning,
 				Source: c.Name(), Content: resp.Thinking})
@@ -132,53 +207,117 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 
 		if len(resp.ToolCalls) == 0 {
 			answer = resp.Content
+			if resp.FinishReason == "length" && answer != "" && !tc.BudgetExceeded() {
+				answer = c.continueAnswer(ctx, tc, call, &turnMsgs, answer, work)
+			}
 			break
 		}
 
 		// The model wants tools: record its turn verbatim, then run them.
-		msgs = append(msgs, runtime.Message{
+		turnMsgs = append(turnMsgs, runtime.Message{
 			Role:      runtime.RoleAssistant,
 			Content:   resp.Content,
 			Thinking:  resp.Thinking,
 			ToolCalls: resp.ToolCalls,
 		})
 
-		for _, call := range resp.ToolCalls {
-			result, askErr := c.runTool(ctx, tc, call)
-			if askErr != nil {
-				return askErr
-			}
-			if result.retrieved {
+		outcomes, err := c.runTools(ctx, tc, resp.ToolCalls, seen, work)
+		if err != nil {
+			return err
+		}
+		for i, tcall := range resp.ToolCalls {
+			if outcomes[i].retrieved {
 				hasRetrievedContext = true
 			}
-			msgs = append(msgs, runtime.Message{
+			turnMsgs = append(turnMsgs, runtime.Message{
 				Role:       runtime.RoleTool,
-				ToolCallID: call.ID,
-				Content:    result.content,
+				ToolCallID: tcall.ID,
+				Content:    outcomes[i].content,
 			})
 		}
 	}
 
+	// Out of rounds: one more call, with no tools, for an answer from what
+	// was found. Eight rounds of searching that end in an error and nothing
+	// else are the worst use of a learner's key.
+	if answer == "" && !tc.BudgetExceeded() && ctx.Err() == nil {
+		work.LimitReached = true
+		turnMsgs = append(turnMsgs, runtime.Message{Role: runtime.RoleSystem, Content: roundLimitNote})
+		resp, err := call(nil)
+		if err != nil {
+			return err
+		}
+		if len(resp.ToolCalls) == 0 {
+			answer = resp.Content
+		}
+	}
+
 	if answer == "" {
+		if tc.BudgetExceeded() {
+			return runtime.ErrTokenBudget
+		}
 		return runtime.ErrToolRoundLimit
 	}
 
 	tc.Emit(runtime.Event{Type: runtime.EvStageEnd, Stage: stagePlanning, Source: c.Name()})
-	return c.deliver(ctx, tc, answer, revision)
+	work.MS = time.Since(started).Milliseconds()
+	return c.deliver(ctx, tc, answer, revision, work)
+}
+
+// chatProvider resolves the chat route, with the conversation's picked
+// connection first when it has one and the resolver can honour it.
+func chatProvider(ctx context.Context, tc *runtime.TurnContext) (runtime.ChatProvider, error) {
+	if pin := tc.Session.ConnectionID; pin != nil {
+		if pr, ok := tc.Providers.(runtime.PreferringResolver); ok {
+			return pr.ChatPreferring(ctx, tc.Turn.UserID, "chat", *pin, tc.Session.ModelHint)
+		}
+	}
+	return tc.Providers.ChatFor(ctx, tc.Turn.UserID, "chat")
+}
+
+// roundLimitNote is the instruction for the call after the last tool round.
+const roundLimitNote = "You have used every tool round for this question. Do not call tools. " +
+	"Answer now from what the tools returned above, with its citations, and say plainly what you could not find."
+
+// continueNote asks for the rest of an answer cut at the output limit.
+const continueNote = "Your answer was cut off at the output limit. Continue exactly where it stopped, " +
+	"without repeating anything and without any preamble."
+
+// continueAnswer asks once for the rest of an answer that hit the output
+// limit and appends it. A failed continuation keeps what there is.
+func (c *Capability) continueAnswer(
+	ctx context.Context, tc *runtime.TurnContext,
+	call func([]runtime.ToolDefinition) (*runtime.ChatResponse, error),
+	turnMsgs *[]runtime.Message, answer string, work *workRecord,
+) string {
+	*turnMsgs = append(*turnMsgs,
+		runtime.Message{Role: runtime.RoleAssistant, Content: answer},
+		runtime.Message{Role: runtime.RoleUser, Content: continueNote},
+	)
+	resp, err := call(nil)
+	if err != nil || resp == nil || resp.Content == "" {
+		return answer
+	}
+	work.Continued = true
+	return answer + resp.Content
 }
 
 // callProvider streams one model call, emitting content deltas as they arrive.
 //
 // The deltas are emitted DURING the call rather than after it: that is the
 // whole point of the stream, and a capability that collected the response first
-// would make the SSE endpoint an expensive way to deliver one message.
+// would make the SSE endpoint an expensive way to deliver one message. On an
+// error it also returns the text this call had already streamed, so the
+// caller can keep it.
 func (c *Capability) callProvider(
 	ctx context.Context, tc *runtime.TurnContext,
 	provider runtime.ChatProvider, req runtime.ChatRequest,
-) (*runtime.ChatResponse, error) {
+) (*runtime.ChatResponse, string, error) {
+	var streamed strings.Builder
 	resp, err := provider.ChatStream(ctx, req, func(chunk runtime.StreamChunk) {
 		switch {
 		case chunk.Content != "":
+			streamed.WriteString(chunk.Content)
 			tc.EmitContent(stageAnswering, chunk.Content)
 		case chunk.Thinking != "":
 			tc.Emit(runtime.Event{Type: runtime.EvThinking, Stage: stagePlanning,
@@ -187,14 +326,45 @@ func (c *Capability) callProvider(
 	})
 	if err != nil {
 		if ctx.Err() != nil {
-			return nil, runtime.ErrTurnCancelled
+			return nil, streamed.String(), runtime.ErrTurnCancelled
 		}
-		return nil, fmt.Errorf("%w: %s", runtime.ErrProvider, err)
+		return nil, streamed.String(), err
 	}
 	if resp == nil {
-		return nil, fmt.Errorf("%w: provider returned no response", runtime.ErrProvider)
+		return nil, streamed.String(), errors.New("provider returned no response")
 	}
-	return resp, nil
+	return resp, "", nil
+}
+
+// isOverflow reports a provider refusal because the prompt did not fit.
+func isOverflow(err error) bool {
+	return providers.IsContextOverflow(err)
+}
+
+// keepPartial stores the text a failed or stopped call had already streamed,
+// marked incomplete. The learner watched it arrive; a failure that then erased
+// it would take away something they had already read. The turn still ends as
+// failed or cancelled, so the error and its Retry stay on screen beside it.
+func (c *Capability) keepPartial(ctx context.Context, tc *runtime.TurnContext, partial string, work *workRecord, started time.Time) {
+	res := citations.Validate(partial, citations.Index(tc.Sources()))
+	if strings.TrimSpace(res.Text) == "" {
+		return
+	}
+	work.MS = time.Since(started).Milliseconds()
+	attachments, _ := json.Marshal(map[string]any{"sources": res.Sources, "work": work, "incomplete": true})
+	writeCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+	defer cancel()
+	if _, err := c.messages.AppendMessage(writeCtx, runtime.ChatMessage{
+		UserID: tc.Turn.UserID, SessionID: tc.Session.ID, Role: runtime.RoleAssistant,
+		Content: res.Text, Capability: c.Name(), Attachments: attachments,
+	}); err != nil {
+		slog.Warn("chat: keep partial answer", "error", err, "turn", tc.Turn.ID)
+	}
+}
+
+func concat(a, b []runtime.Message) []runtime.Message {
+	out := make([]runtime.Message, 0, len(a)+len(b))
+	return append(append(out, a...), b...)
 }
 
 // resolveModel is the session's explicit choice, or whatever the provider says
@@ -207,103 +377,6 @@ func resolveModel(tc *runtime.TurnContext, provider runtime.ChatProvider) string
 	return provider.DefaultModel()
 }
 
-type toolOutcome struct {
-	content   string
-	retrieved bool
-}
-
-// runTool executes one tool call and emits the tool_call / tool_result pair.
-//
-// A tool ERROR is returned to the model as tool content, not raised: a foreign
-// id, a bad page number or a malformed argument is something the model should
-// see and correct. Only an infrastructure failure — the retriever's database
-// being down — ends the turn, because retrying that in the loop just burns
-// rounds.
-func (c *Capability) runTool(ctx context.Context, tc *runtime.TurnContext, call runtime.ToolCall) (toolOutcome, error) {
-	tc.Emit(runtime.Event{
-		Type: runtime.EvToolCall, Stage: stagePlanning, Source: c.Name(),
-		Content:  call.Name,
-		Metadata: map[string]any{"tool": call.Name, "call_id": call.ID, "arguments": redactArgs(call.Arguments)},
-	})
-
-	// postclaw's hard-won rule (providers/types.go:170): a call whose argument
-	// JSON did not parse must NOT be dispatched. Arguments is an empty map in
-	// that case, and running rag_search with no arguments is a search the user
-	// never asked for.
-	if call.ArgsParseError != "" {
-		return c.toolFailed(tc, call, "your arguments were not valid JSON; send them again"), nil
-	}
-
-	tool, err := tc.Tools.Get(call.Name)
-	if err != nil {
-		return c.toolFailed(tc, call, fmt.Sprintf("there is no tool called %q in this conversation", call.Name)), nil
-	}
-
-	result, err := tool.Execute(ctx, call.Arguments, runtime.ToolInput{
-		UserID:    tc.Turn.UserID,
-		SessionID: tc.Session.ID,
-		TurnID:    tc.Turn.ID,
-		KBIDs:     tc.Session.KBIDs,
-		AllowWeb:  tc.Session.AllowWeb,
-	})
-	if err != nil {
-		if ctx.Err() != nil {
-			return toolOutcome{}, runtime.ErrTurnCancelled
-		}
-		return toolOutcome{}, fmt.Errorf("tool %s: %w", call.Name, err)
-	}
-
-	// ask_user suspends the turn here. The answer comes back as the tool's
-	// result, so from the model's point of view it asked a question and got one.
-	if result.Ask != nil {
-		answer, err := tc.Ask(ctx, *result.Ask)
-		if err != nil {
-			if errors.Is(err, runtime.ErrNoAnswer) && ctx.Err() != nil {
-				return toolOutcome{}, runtime.ErrTurnCancelled
-			}
-			return toolOutcome{}, err
-		}
-		tc.Emit(runtime.Event{
-			Type: runtime.EvToolResult, Stage: stagePlanning, Source: c.Name(),
-			Content:  "answered",
-			Metadata: map[string]any{"tool": call.Name, "call_id": call.ID},
-		})
-		// The user's answer is a USER instruction, and is labelled as one
-		// rather than wrapped in the untrusted envelope.
-		return toolOutcome{content: "The user answered: " + answer}, nil
-	}
-
-	if result.IsError {
-		return c.toolFailed(tc, call, result.Content), nil
-	}
-
-	tc.AddSources(result.Sources...)
-	tc.Emit(runtime.Event{
-		Type: runtime.EvToolResult, Stage: stagePlanning, Source: c.Name(),
-		Content: summarize(result.Content),
-		Metadata: map[string]any{
-			"tool": call.Name, "call_id": call.ID, "sources": len(result.Sources),
-		},
-	})
-	if len(result.Sources) > 0 {
-		tc.Emit(runtime.Event{
-			Type: runtime.EvObservation, Stage: stagePlanning, Source: c.Name(),
-			Content: fmt.Sprintf("%d passages retrieved", len(result.Sources)),
-		})
-	}
-
-	return toolOutcome{content: result.Content, retrieved: result.Retrieved}, nil
-}
-
-func (c *Capability) toolFailed(tc *runtime.TurnContext, call runtime.ToolCall, msg string) toolOutcome {
-	tc.Emit(runtime.Event{
-		Type: runtime.EvToolResult, Stage: stagePlanning, Source: c.Name(),
-		Content:  msg,
-		Metadata: map[string]any{"tool": call.Name, "call_id": call.ID, "error": true},
-	})
-	return toolOutcome{content: "Tool error: " + msg}
-}
-
 // deliver validates the answer's citations, emits `sources` and `result`, and
 // writes the assistant message.
 //
@@ -311,7 +384,10 @@ func (c *Capability) toolFailed(tc *runtime.TurnContext, call runtime.ToolCall, 
 // never reaches the transcript — not just the screen. A marker dropped here is
 // gone from history too, which is what makes "every citation in this product
 // opens something" a property rather than an aspiration.
-func (c *Capability) deliver(ctx context.Context, tc *runtime.TurnContext, answer, revision string) error {
+//
+// The message also keeps how the answer was found (work) and the follow-ups
+// to offer (suggestions), so a reload shows both without the event log.
+func (c *Capability) deliver(ctx context.Context, tc *runtime.TurnContext, answer, revision string, work *workRecord) error {
 	res := citations.Validate(answer, citations.Index(tc.Sources()))
 
 	if len(res.Sources) > 0 {
@@ -321,9 +397,14 @@ func (c *Capability) deliver(ctx context.Context, tc *runtime.TurnContext, answe
 		})
 	}
 
-	meta := map[string]any{"dropped_citations": len(res.Dropped)}
-	if check := handoverCheck(res.Text, revision, tc.Session.LearningStateID); check != nil {
+	meta := map[string]any{"dropped_citations": len(res.Dropped), "work": work}
+	check := handoverCheck(res.Text, revision, tc.Session.LearningStateID)
+	if check != nil {
 		meta["handover"] = check
+	}
+	followUps := suggestionsFor(len(res.Sources), work, len(tc.Session.KBIDs) > 0, check != nil)
+	if len(followUps) > 0 {
+		meta["suggestions"] = followUps
 	}
 	tc.Emit(runtime.Event{
 		Type: runtime.EvResult, Stage: stageAnswering, Source: c.Name(),
@@ -332,7 +413,11 @@ func (c *Capability) deliver(ctx context.Context, tc *runtime.TurnContext, answe
 	})
 	tc.Emit(runtime.Event{Type: runtime.EvStageEnd, Stage: stageAnswering, Source: c.Name()})
 
-	attachments, _ := json.Marshal(map[string]any{"sources": res.Sources})
+	stored := map[string]any{"sources": res.Sources, "work": work}
+	if len(followUps) > 0 {
+		stored["suggestions"] = followUps
+	}
+	attachments, _ := json.Marshal(stored)
 	if _, err := c.messages.AppendMessage(ctx, runtime.ChatMessage{
 		UserID:      tc.Turn.UserID,
 		SessionID:   tc.Session.ID,

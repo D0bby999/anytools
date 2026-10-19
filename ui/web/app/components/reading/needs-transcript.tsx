@@ -164,7 +164,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
             required
             aria-label={t("video.needs.upload")}
             aria-describedby="lp-upload-subs-hint"
-            className="text-sm"
+            className="lp-file w-auto"
           />
           <Button type="submit" variant="outline" disabled={busy}>
             {t("video.needs.uploadSubmit")}

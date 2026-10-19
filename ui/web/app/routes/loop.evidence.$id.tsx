@@ -19,7 +19,7 @@ import { SuggestionRow } from "~/components/loop/suggestion-row";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Evidence chain · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Evidence chain · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

@@ -76,7 +76,7 @@ export function SolveForm<T>({
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
           aria-describedby="lp-solve-photo-hint"
-          className="mt-1 block min-h-11 w-full text-sm"
+          className="mt-1 lp-file"
         />
         <p id="lp-solve-photo-hint" className="mt-1 text-xs leading-snug text-muted-foreground">
           {t("form.photoHint")}
@@ -88,7 +88,9 @@ export function SolveForm<T>({
           <label htmlFor="lp-solve-kb" className="block text-sm font-medium">
             {t("form.kb")}
           </label>
-          <select id="lp-solve-kb" name="kb_id" defaultValue="" className={field + " min-h-11"}>
+          {/* Grounded in the learner's own notes by default when they have some;
+              "Nothing" stays one choice away. */}
+          <select id="lp-solve-kb" name="kb_id" defaultValue={kbs[0]?.id ?? ""} className={field + " min-h-11"}>
             <option value="">{t("form.kbNone")}</option>
             {kbs.map((kb) => (
               <option key={kb.id} value={kb.id}>

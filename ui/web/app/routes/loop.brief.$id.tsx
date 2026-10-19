@@ -18,7 +18,7 @@ import { ThreeWayTable } from "~/components/loop/three-way-table";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "AI brief · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "AI brief · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

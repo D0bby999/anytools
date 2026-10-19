@@ -200,9 +200,9 @@ describe("the sitemap", () => {
     const tools = ["en", "vi", "es", "pt"].flatMap((l) =>
       toolMetas.filter((m) => isIndexableTool(m, l)).map((m) => `${l}/${m.cluster}`),
     );
-    // Phase 4: the guides index, seven guides, AnyProfile and the four static
-    // pages, in four languages.
-    expect(locs).toHaveLength(1 + 4 + new Set(tools).size + tools.length + (1 + 7 + 1 + 4) * 4);
+    // Phase 4: the guides index, seven guides, AnyLearn, AnyProfile and the
+    // four static pages, in four languages.
+    expect(locs).toHaveLength(1 + 4 + new Set(tools).size + tools.length + (1 + 7 + 2 + 4) * 4);
     // Batch A (phase 3a): finance, health and lifestyle pages, an English-only tool in English only.
     expect(locs).toContain("https://anytools.example/vi/finance/loan-calculator");
     expect(locs).toContain("https://anytools.example/pt/health");

@@ -13,13 +13,14 @@ import { configuredProviders, localSignInEnabled } from "~/lib/env.server";
 import { sanitizeNextPath } from "~/lib/safe-redirect-target";
 import { Button } from "~/components/ui/button";
 import { PARTS } from "~/lib/parts";
+import { Plate } from "~/components/ui/plate";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Alert } from "~/components/ui/alert";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Sign in · AnyTools" },
-    { name: "description", content: "Sign in to AnyTools with Google or GitHub." },
+    { title: "Sign in · AnyLearn" },
+    { name: "description", content: "Sign in to AnyLearn with Google or GitHub." },
     // The app is behind a login; keep it out of search indexes entirely.
     { name: "robots", content: "noindex, nofollow" },
   ];
@@ -62,13 +63,14 @@ export default function Login({ loaderData }: Route.ComponentProps) {
     // outside any landmark. axe flags both (landmark-one-main, region).
     <main className="grid overflow-hidden rounded-xl border bg-card shadow-md lg:grid-cols-[1.1fr_1fr]">
       {/* The book's cover: the only page an outside visitor sees before the
-          shell, so the wordmark is the loudest thing on it, and the four parts
-          say what is inside. */}
-      <div className="bg-foreground px-6 py-8 text-background sm:px-10 sm:py-12">
-        <p translate="no" className="font-serif text-4xl font-semibold tracking-display sm:text-5xl">
+          shell, so the wordmark is the loudest thing on it, the plate sets the
+          desk, and the four parts say what is inside. */}
+      <div className="bg-muted px-6 py-8 sm:px-10 sm:py-10">
+        <Plate name="signin" priority sizes="(min-width: 1024px) 34vw, 100vw" className="mx-auto hidden max-w-sm sm:block" />
+        <p translate="no" className="font-serif text-4xl font-semibold tracking-display sm:mt-2 sm:text-5xl">
           {tc("app.name")}
         </p>
-        <p className="mt-3 max-w-[30ch] font-serif text-lg leading-snug italic opacity-90">{tc("app.tagline")}</p>
+        <p className="mt-3 max-w-[30ch] font-serif text-lg leading-snug text-muted-foreground italic">{tc("app.tagline")}</p>
         <ol className="mt-8 hidden space-y-3 sm:block">
           {PARTS.map((part) => (
             <li key={part.id} data-part={part.id} className="flex items-baseline gap-3">
@@ -76,8 +78,8 @@ export default function Login({ loaderData }: Route.ComponentProps) {
                 {part.numeral}
               </span>
               <span>
-                <span className="font-semibold">{tc(part.labelKey)}</span>
-                <span className="opacity-80"> · {tc(part.bodyKey)}</span>
+                <span className="font-semibold text-part">{tc(part.labelKey)}</span>
+                <span className="text-muted-foreground"> · {tc(part.bodyKey)}</span>
               </span>
             </li>
           ))}

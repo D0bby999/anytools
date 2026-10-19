@@ -303,15 +303,15 @@ describe("the merged landing page", () => {
     expect(en.toolsLocale).toBe("en");
   });
 
-  it("renders the clusters and the public links, in English", async () => {
+  it("is written in the browser's language, with the clusters and the public links", async () => {
     const data = await call(landing.loader, "/", {}, { "Accept-Language": "es" });
     const Stub = createRoutesStub([{ path: "/", Component: landing.default as never, loader: () => data }]);
     render(<Stub initialEntries={["/"]} />);
-    await screen.findByRole("heading", { level: 1 });
-    const tools = screen.getByRole("region", { name: "Appendix: free tools, no account" });
-    expect(within(tools).getByRole("link", { name: /Time & Date/ }).getAttribute("href")).toBe("/es/time-date");
-    expect(within(tools).getByRole("link", { name: "Browse all tools" }).getAttribute("href")).toBe("/es");
-    const nav = screen.getByRole("navigation", { name: "More from AnyTools" });
+    expect(await screen.findByRole("heading", { level: 1, name: "Estudia con tus propios documentos." })).toBeInTheDocument();
+    const tools = screen.getByRole("region", { name: "Apéndice: herramientas gratis, sin cuenta" });
+    expect(within(tools).getByRole("link", { name: /Time & Date|Fecha/ }).getAttribute("href")).toBe("/es/time-date");
+    expect(within(tools).getByRole("link", { name: "Ver todas las herramientas" }).getAttribute("href")).toBe("/es");
+    const nav = screen.getByRole("navigation", { name: "Más de AnyTools" });
     expect(within(nav).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual([
       "/es/guides",
       "/es/anyprofile",
@@ -321,6 +321,18 @@ describe("the merged landing page", () => {
       "/es/contact",
       "https://github.com/D0bby999/anytools",
     ]);
+    // The header's language menu keeps the visitor on this page.
+    const menu = screen.getByRole("navigation", { name: "Idioma" });
+    expect(within(menu).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/", "/?lng=vi", "/?lng=es", "/?lng=pt"]);
+  });
+
+  it("takes the language the visitor chose over the browser's, and names every version", async () => {
+    const data = (await call(landing.loader, "/?lng=vi", {}, { "Accept-Language": "es" })) as { toolsLocale: string };
+    expect(data.toolsLocale).toBe("vi");
+    const tags = landing.meta({ data } as never) as Record<string, unknown>[];
+    expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.example/?lng=vi" });
+    expect(tags.filter((t) => t.rel === "alternate").map((t) => t.hrefLang)).toEqual(["en", "vi", "es", "pt", "x-default"]);
+    expect(tags[0]).toEqual({ title: "AnyTools: công cụ miễn phí, và AnyLearn, ứng dụng học chạy trên AI của bạn" });
   });
 });
 

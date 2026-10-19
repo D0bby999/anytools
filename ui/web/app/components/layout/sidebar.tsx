@@ -160,18 +160,20 @@ function Rail() {
         <h2 id="lp-rail-appendix" className="px-3 pb-2 font-sans text-xs font-semibold text-part">
           {t("appendix.title")}
         </h2>
-        {/* The feature of the appendix: AnyProfile, set like a book's cover so
-            it is the one thing on the rail that is not a row. */}
+        {/* The feature of the appendix: AnyProfile, the one thing on the rail
+            that is a card rather than a row. Tinted in the appendix's slate,
+            not inverted: as a solid ink block (cream in the dark) it was the
+            heaviest shape on every study page, louder than the page itself. */}
         <a
           href={ANYPROFILE_HREF}
-          className="group block rounded-lg border border-foreground bg-foreground p-4 text-background transition-colors hover:border-primary hover:bg-primary"
+          className="group block rounded-lg border border-part-line bg-part-soft p-4 text-foreground transition-colors hover:border-primary hover:bg-card"
         >
-          <span className="flex items-center justify-between font-sans text-2xs font-semibold tracking-label uppercase opacity-80">
+          <span className="flex items-center justify-between font-sans text-2xs font-semibold tracking-label text-part uppercase">
             {t("appendix.anyprofile.kind")}
             <ArrowUpRight aria-hidden="true" className="size-4" />
           </span>
           <span className="mt-2 block font-serif text-xl font-semibold">{t("appendix.anyprofile.title")}</span>
-          <span className="mt-1 block text-xs leading-snug opacity-90">{t("appendix.anyprofile.tagline")}</span>
+          <span className="mt-1 block text-xs leading-snug text-muted-foreground">{t("appendix.anyprofile.tagline")}</span>
         </a>
         <a href={TOOLS_ITEM.to} className={cn(railRowClass(false), "mt-2")}>
           <TOOLS_ITEM.icon aria-hidden="true" className="size-4 shrink-0" />

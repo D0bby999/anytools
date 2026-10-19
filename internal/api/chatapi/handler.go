@@ -26,10 +26,12 @@ import (
 type SessionStore interface {
 	CreateSession(ctx context.Context, s runtime.Session) (*runtime.Session, error)
 	GetSession(ctx context.Context, userID, sessionID uuid.UUID) (*runtime.Session, error)
-	ListSessions(ctx context.Context, userID uuid.UUID, limit int) ([]runtime.Session, error)
+	ListSessions(ctx context.Context, userID uuid.UUID, limit int, query string) ([]runtime.Session, error)
 	UpdateSession(ctx context.Context, userID, sessionID uuid.UUID, patch pg.SessionPatch) (*runtime.Session, error)
 	DeleteSession(ctx context.Context, userID, sessionID uuid.UUID) error
 	TouchSession(ctx context.Context, userID, sessionID uuid.UUID) error
+	SetTitleIfEmpty(ctx context.Context, userID, sessionID uuid.UUID, title string) error
+	RewindTo(ctx context.Context, userID, sessionID, messageID uuid.UUID) (*runtime.ChatMessage, error)
 
 	AppendMessage(ctx context.Context, m runtime.ChatMessage) (*runtime.ChatMessage, error)
 	History(ctx context.Context, userID, sessionID uuid.UUID, limit int) ([]runtime.ChatMessage, error)
@@ -65,11 +67,25 @@ type Handler struct {
 	authz    KBAuthorizer
 	// ownVersion reads the learner's "write your own version first" switch;
 	// nil reads it as off.
-	ownVersion OwnVersionSetting
+	ownVersion  OwnVersionSetting
+	connections ChatConnections
 }
 
 // OwnVersionSetting reads "write your own version first" (up-methods phase
 // 11). pg.UserStore implements it.
+// ChatConnections answers whether a connection is on the caller's chat
+// route: the only connections a conversation may be pinned to.
+type ChatConnections interface {
+	OnChatRoute(ctx context.Context, userID, connectionID uuid.UUID) (bool, error)
+}
+
+// WithChatConnections enables pinning a connection to a conversation.
+// Without it every pin is refused.
+func (h *Handler) WithChatConnections(c ChatConnections) *Handler {
+	h.connections = c
+	return h
+}
+
 type OwnVersionSetting interface {
 	OwnVersionFirst(ctx context.Context, userID uuid.UUID) (bool, error)
 }

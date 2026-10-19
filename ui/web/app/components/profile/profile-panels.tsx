@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { SECTIONS, type ProfileRun } from "~/lib/profile-types";
 import { field, type KBOption, type ProfileActionData } from "./profile-entries";
+import { formatDate } from "~/components/ui/date-text";
 
 /** Add an entry: the learner's own words need no evidence. */
 export function AddEntryForm({ kbs, maxText }: { kbs: KBOption[]; maxText: number }) {
@@ -104,7 +105,7 @@ export function ConsolidationPanel({ on, lastRun }: { on: boolean; lastRun: Prof
 
 function RunSummary({ run }: { run: ProfileRun }) {
   const { t } = useTranslation("profile");
-  const when = new Date(run.started_at).toLocaleString();
+  const when = formatDate(run.started_at, true);
   return (
     <div className="mt-1">
       <p className="text-sm text-muted-foreground">

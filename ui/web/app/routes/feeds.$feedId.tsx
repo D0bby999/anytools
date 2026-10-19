@@ -34,7 +34,7 @@ const POLL_MS = 2500;
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: data?.feed ? `${data.feed.title || data.feed.url} · AnyTools` : "AnyTools" },
+    { title: data?.feed ? `${data.feed.title || data.feed.url} · AnyLearn` : "AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

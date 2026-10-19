@@ -310,7 +310,7 @@ func TestExportCarriesTheDocumentIdAndPage(t *testing.T) {
 		"## Le Chatelier",
 		docID.String(),
 		"page 14",
-		"Written by: AnyTools (agent)",
+		"Written by: AnyLearn (agent)",
 		"Categories: Formulas",
 		"A system at equilibrium opposes the change imposed on it.",
 	} {

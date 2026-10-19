@@ -7,6 +7,7 @@
  * what it must still do is pass the session's user id to every API call, which
  * is the assertion the Go API's RequireUser trusts this process to make.
  */
+import { PlateEmpty } from "~/components/ui/plate";
 import { useState } from "react";
 import { Form, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -21,7 +22,7 @@ import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Knowledge · AnyTools" },
+    { title: "Knowledge · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -110,7 +111,9 @@ export default function KnowledgeIndex({ loaderData, actionData }: Route.Compone
       </div>
 
       {loaderData.summaries.length === 0 ? (
-        <p className="mt-8 lp-empty">{t("index.empty")}</p>
+        <PlateEmpty name="part-read" className="mt-8">
+          {t("index.empty")}
+        </PlateEmpty>
       ) : (
         <ul className="mt-8 border-t">
           {loaderData.summaries.map((summary) => (

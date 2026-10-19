@@ -9,7 +9,7 @@
  */
 import { Form, Link, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Check, X } from "lucide-react";
+import { Check, ChevronRight, X } from "lucide-react";
 import type { Route } from "./+types/quiz.bank";
 import { requireUser } from "~/lib/auth.server";
 import { listKBs } from "~/lib/kb.server";
@@ -18,10 +18,11 @@ import { QUESTION_TYPES, type QuestionType } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { QuizTabs } from "~/components/quiz/quiz-tabs";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Question bank · AnyTools" },
+    { title: "Question bank · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -60,15 +61,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
   return (
     <div className="lp-measure">
       <PageHeader title={t("bank.title")} lede={t("bank.lead")} />
-      <p className="mt-2 text-sm">
-        <Link to="/quiz" className="text-primary underline underline-offset-4">
-          {t("bank.generateMore")}
-        </Link>
-        {" · "}
-        <Link to="/quiz/practice" className="text-primary underline underline-offset-4">
-          {t("bank.practise")}
-        </Link>
-      </p>
+      <QuizTabs />
 
       <Form method="get" className="mt-6 flex flex-wrap items-end gap-3">
         <div>
@@ -130,27 +123,54 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
       {loaderData.entries.length === 0 ? (
         <p className="mt-8 lp-empty">{t("bank.empty")}</p>
       ) : (
-        <ol className="mt-8 space-y-4">
+        // A bank is for finding a question, so each is one row (the prompt and
+        // what is known about it) that opens into the card to answer. Every
+        // card open at once made six questions a page of empty answer boxes.
+        <ol className="mt-8 divide-y border-y">
           {loaderData.entries.map((entry) => (
             <li key={entry.question.id}>
-              <p className="mb-1.5 flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
-                <span>{entry.kb_name}</span>
-                {entry.module_name ? <span>{entry.module_name}</span> : null}
-                {entry.attempts > 0 ? (
-                  <span className="inline-flex items-center gap-1">
-                    {entry.last_correct ? (
-                      <Check aria-hidden="true" className="size-3.5 text-primary" />
-                    ) : (
-                      <X aria-hidden="true" className="size-3.5 text-destructive" />
-                    )}
-                    {entry.last_correct ? t("bank.lastRight") : t("bank.lastWrong")} ·{" "}
-                    {t("bank.attempts", { count: entry.attempts })}
+              <details className="group">
+                <summary className="flex cursor-pointer list-none items-start gap-3 py-3 [&::-webkit-details-marker]:hidden">
+                  <ChevronRight
+                    aria-hidden="true"
+                    className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="line-clamp-2 font-serif text-base leading-snug group-hover:text-primary">
+                      {entry.question.prompt}
+                    </span>
+                    <span className="mt-1 flex flex-wrap items-center gap-x-2 text-xs leading-ui text-muted-foreground">
+                      <span>{typeLabels[entry.question.type]}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{t(`difficulty.${entry.question.difficulty}`)}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{entry.module_name || entry.kb_name}</span>
+                    </span>
                   </span>
-                ) : (
-                  <span>{t("bank.notYet")}</span>
-                )}
-              </p>
-              <QuestionCard question={entry.question} sources={loaderData.sources} />
+                  <span className="shrink-0 pt-0.5 text-xs leading-ui">
+                    {entry.attempts > 0 ? (
+                      <span
+                        className={`inline-flex items-center gap-1 ${entry.last_correct ? "text-primary" : "text-destructive"}`}
+                      >
+                        {entry.last_correct ? (
+                          <Check aria-hidden="true" className="size-3.5" />
+                        ) : (
+                          <X aria-hidden="true" className="size-3.5" />
+                        )}
+                        {entry.last_correct ? t("bank.lastRight") : t("bank.lastWrong")}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">{t("bank.notYet")}</span>
+                    )}
+                  </span>
+                </summary>
+                <div className="pb-5 pl-7">
+                  {entry.attempts > 0 ? (
+                    <p className="mb-2 text-xs text-muted-foreground">{t("bank.attempts", { count: entry.attempts })}</p>
+                  ) : null}
+                  <QuestionCard question={entry.question} sources={loaderData.sources} />
+                </div>
+              </details>
             </li>
           ))}
         </ol>

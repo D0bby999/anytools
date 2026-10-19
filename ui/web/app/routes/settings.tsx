@@ -14,7 +14,7 @@ import { PageHeader } from "~/components/ui/page-header";
 import { sectionTabClass, SECTION_TABS_ROW } from "~/components/ui/section-tabs";
 
 export function meta() {
-  return [{ title: "Settings · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Settings · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 const SECTIONS = [
@@ -24,6 +24,8 @@ const SECTIONS = [
   { to: "/settings/profile", labelKey: "settings.nav.profile", end: false },
   // drive-user-storage phase 2; its label lives in its own namespace.
   { to: "/settings/storage", labelKey: "storage:nav", end: false },
+  // The daily review reminder, and installing AnyLearn on this device.
+  { to: "/settings/reminders", labelKey: "settings.nav.reminders", end: false },
   { to: "/settings/account", labelKey: "settings.nav.account", end: false },
 ] as const;
 

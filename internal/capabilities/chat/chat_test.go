@@ -168,7 +168,9 @@ func events(bus *runtime.StreamBus) []runtime.Event {
 }
 
 // A model that only ever calls tools must be stopped, not indulged: the limit
-// is what stands between a loop and the user's own API bill.
+// is what stands between a loop and the user's own API bill. The same call is
+// run once (repeat guard), and after the last round one call without tools
+// asks for an answer; a model that still answers with nothing fails the turn.
 func TestToolRoundLimitEndsTheTurn(t *testing.T) {
 	tool := &scriptedTool{name: "rag_search", result: runtime.ToolResult{Content: "nothing useful"}}
 	provider := &stubProvider{responses: []*runtime.ChatResponse{{
@@ -182,11 +184,14 @@ func TestToolRoundLimitEndsTheTurn(t *testing.T) {
 	if !errors.Is(err, runtime.ErrToolRoundLimit) {
 		t.Fatalf("Run = %v, want ErrToolRoundLimit", err)
 	}
-	if got := len(provider.sent()); got != runtime.MaxToolRounds {
-		t.Fatalf("the model was called %d times, want exactly MaxToolRounds (%d)", got, runtime.MaxToolRounds)
+	if got := len(provider.sent()); got != runtime.MaxToolRounds+1 {
+		t.Fatalf("the model was called %d times, want MaxToolRounds + the final call (%d)", got, runtime.MaxToolRounds+1)
 	}
-	if tool.callCount() != runtime.MaxToolRounds {
-		t.Fatalf("the tool ran %d times", tool.callCount())
+	if last := provider.sent()[runtime.MaxToolRounds]; len(last.Tools) != 0 {
+		t.Fatalf("the final call still offered %d tools", len(last.Tools))
+	}
+	if tool.callCount() != 1 {
+		t.Fatalf("the same call ran %d times, want once", tool.callCount())
 	}
 }
 
@@ -534,7 +539,8 @@ func TestHistoryOnlyReplaysUserAndAssistantMessages(t *testing.T) {
 		{Role: runtime.RoleUser, Content: "   "},
 	}
 
-	msgs := buildMessages(sess, history, "now", uuid.Nil)
+	kept, _ := splitHistory(history, nil, uuid.Nil, historyBudget(defaultContextWindow))
+	msgs := buildMessages(sess, "", nil, kept, history, "now", uuid.Nil)
 	for _, m := range msgs[2:] {
 		if m.Role == runtime.RoleTool || m.Role == runtime.RoleSystem {
 			t.Fatalf("a %s message was replayed from history: %+v", m.Role, m)

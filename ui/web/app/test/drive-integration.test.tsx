@@ -99,7 +99,7 @@ describe("a parse that could not reach Drive", () => {
     inShell(
       <DocumentTable
         kbId="kb1"
-        documents={[doc({ error: "Reconnect Google Drive to use the files AnyTools keeps there.", error_code: "drive_reconnect" })]}
+        documents={[doc({ error: "Reconnect Google Drive to use the files AnyLearn keeps there.", error_code: "drive_reconnect" })]}
       />,
       "drive",
     );
@@ -131,7 +131,8 @@ describe("a parse that could not reach Drive", () => {
       />,
       "drive",
     );
-    expect(await screen.findByText("the uploaded file is no longer available")).not.toHaveAttribute("data-drive-reason");
+    // Shown as a sentence (lib/sentence.ts): capital, full stop.
+    expect(await screen.findByText("The uploaded file is no longer available.")).not.toHaveAttribute("data-drive-reason");
     expect(screen.queryByRole("link", { name: "Reconnect Google Drive" })).toBeNull();
   });
 });

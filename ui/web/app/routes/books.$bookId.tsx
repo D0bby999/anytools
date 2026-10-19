@@ -23,7 +23,7 @@ import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: data?.book ? `${data.book.title} · AnyTools` : "AnyTools" },
+    { title: data?.book ? `${data.book.title} · AnyLearn` : "AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

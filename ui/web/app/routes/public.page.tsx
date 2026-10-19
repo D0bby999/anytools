@@ -8,6 +8,7 @@
 import { useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/public.page";
+import { Plate } from "~/components/ui/plate";
 import { Article } from "~/components/tools-site/article";
 import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
@@ -47,13 +48,15 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function StaticPage() {
-  const { locale, pages, title, updated, source } = useLoaderData<typeof loader>();
+  const { locale, pages, page, title, updated, source } = useLoaderData<typeof loader>();
   addPagesBundle(locale, pages);
   const { t } = useTranslation("pages");
 
   return (
     <article className="lp-measure px-4 py-8 lg:py-12">
       <header className="lp-page-enter">
+        {/* About is the one page here that tells a story; the legal pages stay plain. */}
+        {page === "about" && <Plate name="about" priority sizes="(min-width: 768px) 42rem, 100vw" className="mb-6" />}
         <h1 className="text-3xl leading-tight lg:text-4xl">{title}</h1>
         {updated && <p className="mt-3 text-sm text-faint">{t("legal.updated", { date: updated })}</p>}
       </header>

@@ -140,7 +140,7 @@ describe("chart fences", () => {
   it("show a spec outside the allow-list as written", () => {
     const bad = JSON.stringify({ type: "sankey", data: { datasets: [{ data: [1] }] } });
     render(<RichText text={fence("chart", bad)} sources={[]} />);
-    expect(screen.getByText(/not in a form AnyTools can draw/)).toBeInTheDocument();
+    expect(screen.getByText(/not in a form AnyLearn can draw/)).toBeInTheDocument();
     expect(charts.made).toHaveLength(0);
   });
 

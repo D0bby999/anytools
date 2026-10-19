@@ -253,6 +253,21 @@ differently on purpose:
 `ANYTOOLS_BYOK_ALLOW_PRIVATE_ENDPOINTS=1` opens both, for an operator running a
 self-hosted model. It must never be set on the hosted deployment.
 
+### Review reminders (web push)
+
+The daily reminder (`internal/push`) is the one outbound call whose address
+comes from the browser: a push subscription's endpoint. Three rules hold it:
+`push.ValidateEndpoint` accepts only https on the browser push services (FCM,
+Mozilla, Apple, Windows), at subscribe time and again at send time; the sender
+is `security.SafeClient`, so a name that resolves to a private address is
+refused at connect time; and the VAPID private key is made on first use and
+stored through `encryptOrFail` (`push_vapid.private_key_enc`). The payload is
+Declarative Web Push JSON, which Safari shows without a service worker and
+`ui/web/public/sw.js` shows everywhere else. `learning.DueDigestJob` ticks
+hourly; `PushStore.ClaimReminder` is one UPDATE that sends only in the
+learner's local hour window and records the local day, so a restart or a
+second tick cannot send twice.
+
 ### Web tools (phase 9)
 
 `web_search` and `web_fetch` are the only tools whose destination is chosen by
@@ -474,6 +489,50 @@ Learning sources added by the same plan:
 | Spreadsheets | `rag/parse` (excelize) | Local, no model; one page per visible sheet. |
 | Zotero | `connectors/zotero`, `capabilities/zoterolib` | The learner's read-only key; a research tool whose result is enveloped. |
 | Built-in engines | `providers/builtin`, `providers/stt`, `providers/tts` | Health and readiness, one job at a time, the metered exception in §3. |
+
+## 7. The chat agent loop (plan 261019-1015)
+
+`internal/capabilities/chat` is still think → tool → observe, with what
+postclaw's agent (`internal/agent`) learned the hard way:
+
+- **History is sized in tokens, not messages.** `context_window.go` keeps
+  postclaw's model-window table, but an unknown model is assumed to have 32k,
+  not 200k: AnyTools is BYOK and its unknown models are mostly self-hosted,
+  where a large guess means a prompt the server silently cuts from the front.
+  Half the window, capped at 24k tokens, goes to earlier messages.
+- **What no longer fits is summarised, once.** `history.go` folds the overflow
+  into `chat_sessions.summary` with the learner's own chat route and records
+  `summary_through_id`; the next turns send the summary and only the messages
+  after it. The kept part is cut back to 60% of the budget, so the summary call
+  is not repeated every turn. A failed summary call trims instead of failing
+  the turn. Rewinding past the summary's last message clears it.
+- **Overflow recovers once.** A provider's "context length" refusal
+  (`providers.IsContextOverflow`) rebuilds the history at a third of the budget,
+  cuts this turn's tool output to 4k characters each, and retries; a second
+  refusal fails the turn.
+- **Tools.** Each result is capped at 16k characters (head and tail) before it
+  enters the prompt. Several calls in one response run concurrently (four at a
+  time), and their results are handled in the model's order, so sources and
+  citation numbers do not depend on timing. The same call twice in a turn is
+  answered from the first result.
+- **Endings.** Running out of rounds makes one call without tools for an answer
+  from what was found. An answer cut at the output limit is continued once.
+  Text that streamed before a provider failure or a stop is stored, marked
+  `incomplete`.
+- **Every answer keeps its work**: `attachments.work` lists the steps, the
+  rounds, what was summarised and the context used; `attachments.suggestions`
+  holds follow-up kinds, picked by rule (postclaw RT#10), never written by the
+  model. The client owns their words.
+- **Asking again** is `POST /v1/chat/sessions/{id}/turns` with `rewind_to_id`:
+  that question and everything after it are deleted in one transaction, then
+  the turn runs (the same text when `message` is empty). Refusals happen before
+  anything is deleted.
+- **A conversation can be pinned** to an entry of the learner's chat route
+  (`chat_sessions.connection_id` + `model_hint`); `byok.Chain.Prefer` moves it
+  to the front and leaves the rest as the fallback. Only connections on the
+  caller's own chat route are accepted (`ChatStore.OnChatRoute`).
+- An untitled conversation is named after its first question, without a model
+  call.
 
 ## Boot sequence
 

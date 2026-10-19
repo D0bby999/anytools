@@ -31,7 +31,7 @@ import {
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "New worksheet · Toolkit · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "New worksheet · Toolkit · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

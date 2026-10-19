@@ -1,6 +1,7 @@
 import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, CheckCircle2, Clock, FileText, Loader2, RefreshCw, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, FileText, Loader2, RefreshCw, RotateCw, Trash2 } from "lucide-react";
+import { asSentence } from "~/lib/sentence";
 import { cn } from "~/lib/utils";
 import { driveReason } from "~/lib/drive-storage";
 import type { DocumentStatus, KBDocument } from "~/lib/kb-types";
@@ -70,7 +71,7 @@ function StatusCell({ document }: { document: KBDocument }) {
             document.status === "failed" ? "text-destructive" : "text-muted-foreground",
           )}
         >
-          {document.error}
+          {asSentence(document.error)}
           {drive === "drive_reconnect" ? (
             <>
               {" "}
@@ -103,7 +104,10 @@ export function DocumentTable({
     // The one horizontally scrollable element on the page. The shell's own
     // rule is that the body never scrolls sideways; a wide table has to carry
     // its own overflow or it breaks that at every phone width.
-    <div className="overflow-x-auto">
+    // `relative` so the header's sr-only label, absolutely positioned, is
+    // clipped by this scroller too; without it that label sat at 752 px and
+    // gave the whole page a sideways scroll on a phone.
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[46rem] border-collapse text-left">
         <thead>
           <tr className="border-b">
@@ -154,6 +158,21 @@ export function DocumentTable({
                   <ProcessedByBadge processedBy={doc.processed_by} />
                 </td>
                 <td className="py-3 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                  {doc.status === "failed" ? (
+                    <fetcher.Form method="post" action={`/knowledge/${kbId}`}>
+                      <input type="hidden" name="intent" value="retry-document" />
+                      <input type="hidden" name="documentId" value={doc.id} />
+                      <button
+                        type="submit"
+                        disabled={fetcher.state !== "idle"}
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-primary transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
+                      >
+                        <RotateCw aria-hidden="true" className="size-4" />
+                        {t("table.retry")}
+                      </button>
+                    </fetcher.Form>
+                  ) : null}
                   <fetcher.Form method="post" action={`/knowledge/${kbId}`}>
                     <input type="hidden" name="intent" value="delete-document" />
                     <input type="hidden" name="documentId" value={doc.id} />
@@ -174,6 +193,7 @@ export function DocumentTable({
                       <span className="sr-only sm:not-sr-only">{t("table.remove")}</span>
                     </button>
                   </fetcher.Form>
+                  </div>
                 </td>
               </tr>
             );

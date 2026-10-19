@@ -29,7 +29,7 @@ type ChatStore struct {
 func NewChatStore(pool *Pool) *ChatStore { return &ChatStore{pool: pool} }
 
 const sessionColumns = `id, user_id, title, kb_ids, model_hint, allow_web,
-	learning_state_id, created_at, updated_at`
+	learning_state_id, summary, summary_through_id, connection_id, created_at, updated_at`
 
 // CreateSession inserts a session.
 func (s *ChatStore) CreateSession(ctx context.Context, sess runtime.Session) (*runtime.Session, error) {
@@ -53,15 +53,18 @@ func (s *ChatStore) GetSession(ctx context.Context, userID, sessionID uuid.UUID)
 	return scanSession(row)
 }
 
-// ListSessions returns a user's sessions, most recently updated first.
-func (s *ChatStore) ListSessions(ctx context.Context, userID uuid.UUID, limit int) ([]runtime.Session, error) {
+// ListSessions returns a user's sessions, most recently updated first. A
+// non-empty query keeps the sessions whose title contains it, ignoring case.
+func (s *ChatStore) ListSessions(ctx context.Context, userID uuid.UUID, limit int, query string) ([]runtime.Session, error) {
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
 	rows, err := s.pool.Query(ctx,
 		`SELECT `+sessionColumns+`
-		   FROM chat_sessions WHERE user_id = $1
-		  ORDER BY updated_at DESC LIMIT $2`, userID, limit)
+		   FROM chat_sessions
+		  WHERE user_id = $1
+		    AND ($3 = '' OR title ILIKE '%' || replace(replace(replace($3, '\', '\\'), '%', '\%'), '_', '\_') || '%')
+		  ORDER BY updated_at DESC LIMIT $2`, userID, limit, query)
 	if err != nil {
 		return nil, fmt.Errorf("list chat sessions: %w", err)
 	}
@@ -86,6 +89,12 @@ type SessionPatch struct {
 	KBIDs     *[]uuid.UUID
 	ModelHint *string
 	AllowWeb  *bool
+	// ConnectionID pins a connection; ClearConnection unpins. ModelHint, when
+	// the pin moves, names the pinned entry's model (a route may hold one
+	// connection twice); unset, it is cleared, because it named a model of
+	// whatever connection used to answer.
+	ConnectionID    *uuid.UUID
+	ClearConnection bool
 }
 
 // UpdateSession applies a patch.
@@ -107,11 +116,109 @@ func (s *ChatStore) UpdateSession(
 		       kb_ids = COALESCE($4::uuid[], kb_ids),
 		       model_hint = COALESCE($5, model_hint),
 		       allow_web = COALESCE($6, allow_web),
+		       connection_id = CASE WHEN $8 THEN NULL ELSE COALESCE($7, connection_id) END,
 		       updated_at = now()
 		 WHERE id = $1 AND user_id = $2
 		RETURNING `+sessionColumns,
-		sessionID, userID, patch.Title, kbIDs, patch.ModelHint, patch.AllowWeb)
+		sessionID, userID, patch.Title, kbIDs, modelHint(patch), patch.AllowWeb,
+		patch.ConnectionID, patch.ClearConnection)
 	return scanSession(row)
+}
+
+// SetTitleIfEmpty names a conversation that has no title yet. A title the
+// learner chose is never replaced.
+func (s *ChatStore) SetTitleIfEmpty(ctx context.Context, userID, sessionID uuid.UUID, title string) error {
+	_, err := s.pool.Exec(ctx,
+		`UPDATE chat_sessions SET title = $3 WHERE id = $1 AND user_id = $2 AND title = ''`,
+		sessionID, userID, title)
+	if err != nil {
+		return fmt.Errorf("title chat session: %w", err)
+	}
+	return nil
+}
+
+// SetSummary records a conversation's rolling summary and the newest message
+// it covers.
+func (s *ChatStore) SetSummary(ctx context.Context, userID, sessionID uuid.UUID, summary string, through uuid.UUID) error {
+	_, err := s.pool.Exec(ctx,
+		`UPDATE chat_sessions SET summary = $3, summary_through_id = $4 WHERE id = $1 AND user_id = $2`,
+		sessionID, userID, summary, through)
+	if err != nil {
+		return fmt.Errorf("store chat summary: %w", err)
+	}
+	return nil
+}
+
+// ErrNotAQuestion is a rewind to a message that is not one of the learner's
+// questions in that conversation.
+var ErrNotAQuestion = errors.New("only a question of yours can be rewound to")
+
+// RewindTo deletes a question and every message after it, so the
+// conversation can be asked again from there (regenerate, edit). It returns
+// the question as it was. A summary that ends on a deleted message is cleared
+// in the same transaction: it would describe messages that no longer exist.
+func (s *ChatStore) RewindTo(ctx context.Context, userID, sessionID, messageID uuid.UUID) (*runtime.ChatMessage, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("rewind: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	question, err := scanMessage(tx.QueryRow(ctx,
+		`SELECT `+messageColumns+` FROM chat_messages
+		  WHERE id = $1 AND session_id = $2 AND user_id = $3 AND role = 'user'
+		  FOR UPDATE`, messageID, sessionID, userID))
+	if errors.Is(err, ErrSessionNotFound) {
+		return nil, ErrNotAQuestion
+	}
+	if err != nil {
+		return nil, err
+	}
+	if _, err := tx.Exec(ctx, `
+		UPDATE chat_sessions SET summary = '', summary_through_id = NULL
+		 WHERE id = $1 AND user_id = $2 AND summary_through_id IN (
+		       SELECT id FROM chat_messages
+		        WHERE session_id = $1 AND user_id = $2 AND (created_at, id) >= ($3, $4))`,
+		sessionID, userID, question.CreatedAt, question.ID); err != nil {
+		return nil, fmt.Errorf("rewind summary: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `
+		DELETE FROM chat_messages
+		 WHERE session_id = $1 AND user_id = $2 AND (created_at, id) >= ($3, $4)`,
+		sessionID, userID, question.CreatedAt, question.ID); err != nil {
+		return nil, fmt.Errorf("rewind messages: %w", err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("rewind: %w", err)
+	}
+	return question, nil
+}
+
+// OnChatRoute reports whether a connection is on the user's chat route: the
+// only connections a conversation may be pinned to. Read from the route rows
+// alone, so nothing is decrypted to answer it.
+func (s *ChatStore) OnChatRoute(ctx context.Context, userID, connectionID uuid.UUID) (bool, error) {
+	var on bool
+	err := s.pool.QueryRow(ctx, `
+		SELECT EXISTS (
+			SELECT 1 FROM function_routes r
+			  JOIN provider_connections c ON c.id = r.connection_id AND c.user_id = r.user_id
+			 WHERE r.user_id = $1 AND r."function" = 'chat' AND r.connection_id = $2)`,
+		userID, connectionID).Scan(&on)
+	if err != nil {
+		return false, fmt.Errorf("check chat route: %w", err)
+	}
+	return on, nil
+}
+
+// modelHint is the patch's model hint; when the patch moves the pin and names
+// no model, "".
+func modelHint(p SessionPatch) *string {
+	if (p.ConnectionID != nil || p.ClearConnection) && p.ModelHint == nil {
+		empty := ""
+		return &empty
+	}
+	return p.ModelHint
 }
 
 // TouchSession bumps updated_at so a session with new activity sorts first.
@@ -295,7 +402,7 @@ func (s *ChatStore) ListTurns(
 func scanSession(row rowScanner) (*runtime.Session, error) {
 	var s runtime.Session
 	err := row.Scan(&s.ID, &s.UserID, &s.Title, &s.KBIDs, &s.ModelHint, &s.AllowWeb,
-		&s.LearningStateID, &s.CreatedAt, &s.UpdatedAt)
+		&s.LearningStateID, &s.Summary, &s.SummaryThroughID, &s.ConnectionID, &s.CreatedAt, &s.UpdatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrSessionNotFound
 	}

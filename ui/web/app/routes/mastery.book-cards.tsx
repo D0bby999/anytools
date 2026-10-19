@@ -20,7 +20,7 @@ import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Book cards · AnyTools" },
+    { title: "Book cards · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

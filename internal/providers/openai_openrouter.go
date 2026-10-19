@@ -24,7 +24,7 @@ const (
 	// Sent as HTTP-Referer / X-Title. Some upstream models gate access on a
 	// declared app identity, and traffic without them is unattributed.
 	openRouterRefererURL = "https://anytools.world"
-	openRouterAppTitle   = "AnyTools"
+	openRouterAppTitle   = "AnyLearn"
 )
 
 // isOpenRouter reports whether this provider instance talks to OpenRouter.

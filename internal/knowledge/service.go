@@ -58,6 +58,9 @@ type Store interface {
 	GetDocument(ctx context.Context, userID, docID uuid.UUID) (*Document, error)
 	SetDocumentStatus(ctx context.Context, userID, docID uuid.UUID, status, errMsg string) error
 	RequeueDocument(ctx context.Context, userID, docID uuid.UUID, reason string) error
+	// ResetDocumentForReprocessing is the one way out of a terminal state:
+	// queued again, version + 1. Retry is its only caller here.
+	ResetDocumentForReprocessing(ctx context.Context, userID, docID uuid.UUID) error
 	FinishDocument(ctx context.Context, userID, docID uuid.UUID, pageCount int, pb ProcessedBy, parsedPath string) error
 	RecordProcessedBy(ctx context.Context, userID, docID uuid.UUID, pb ProcessedBy) error
 	DeleteDocument(ctx context.Context, userID, kbID, docID uuid.UUID) error
@@ -884,7 +887,7 @@ func userFacingParseError(err error) string {
 	case errors.Is(err, parse.ErrUnsupportedType):
 		return "this file type is not supported"
 	case errors.Is(err, parse.ErrTooLarge):
-		return "this file expands to more than AnyTools reads from one document (for a spreadsheet: 200 MB unpacked or 2 million cells)"
+		return "this file expands to more than AnyLearn reads from one document (for a spreadsheet: 200 MB unpacked or 2 million cells)"
 	case errors.Is(err, parse.ErrSheetEmpty):
 		return "this spreadsheet has no cells"
 	case errors.Is(err, parse.ErrPhotoNoModel):

@@ -156,7 +156,7 @@ describe("the panels", () => {
   it("adds an entry and empties the form", async () => {
     const posts: Post[] = [];
     routed(<AddEntryForm kbs={kbs} maxText={280} />, posts);
-    const box = screen.getByRole("textbox", { name: "What should AnyTools keep in mind?" });
+    const box = screen.getByRole("textbox", { name: "What should AnyLearn keep in mind?" });
     await userEvent.type(box, "Worked examples before rules.");
     await userEvent.click(screen.getByRole("button", { name: "Add" }));
     await waitFor(() => expect(box).toHaveValue(""));

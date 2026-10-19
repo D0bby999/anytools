@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { I18nextProvider } from "react-i18next";
 import { createMemoryRouter, createRoutesStub, RouterProvider } from "react-router";
@@ -94,9 +94,12 @@ describe("the language switcher", () => {
     expect(links[1]).toHaveAccessibleName("Tiếng Việt");
   });
 
-  it("offers only the languages a page exists in", () => {
+  it("offers only the languages a page exists in, and no menu when only one is left", () => {
+    routed("/en/lifestyle/gpa-calculator", withTools("en", <LocaleSwitcher locale="en" />), { locales: ["en", "vi"] });
+    expect(within(screen.getByRole("navigation", { name: "Language" })).getAllByRole("link")).toHaveLength(2);
+    cleanup();
     routed("/en/lifestyle/gpa-calculator", withTools("en", <LocaleSwitcher locale="en" />), { locales: ["en"] });
-    expect(within(screen.getByRole("navigation", { name: "Language" })).getAllByRole("link")).toHaveLength(1);
+    expect(screen.queryByRole("navigation", { name: "Language" })).toBeNull();
   });
 });
 

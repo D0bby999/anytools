@@ -31,7 +31,7 @@ import { LastClose } from "~/components/loop/last-close";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Cycle · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Cycle · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

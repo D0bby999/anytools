@@ -195,7 +195,7 @@ export function getReadiness(userId: string) {
 export function formErrorMessage(err: unknown, fallback: string): string {
   if (err instanceof ApiError) {
     if (err.status >= 400 && err.status < 500 && err.message) return err.message;
-    if (err.code === "api_unreachable") return "AnyTools could not reach its API. Try again in a moment.";
+    if (err.code === "api_unreachable") return "AnyLearn could not reach its API. Try again in a moment.";
   }
   return fallback;
 }

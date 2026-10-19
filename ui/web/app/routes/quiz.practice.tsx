@@ -19,10 +19,11 @@ import { listPractice } from "~/lib/quiz.server";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { QuizTabs } from "~/components/quiz/quiz-tabs";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Practise your mistakes · AnyTools" },
+    { title: "Practise your mistakes · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -66,6 +67,7 @@ export default function QuizPractice({ loaderData }: Route.ComponentProps) {
   return (
     <div className="lp-measure">
       <PageHeader title={t("practice.title")} lede={t("practice.lead")} />
+      <QuizTabs />
 
       {items.length === 0 ? (
         <div className="mt-8">

@@ -306,6 +306,17 @@
   text-transform: uppercase;
 }
 
+/* A plate (components/ui/plate.tsx). Its paper is transparent, so on a light
+   page only the drawing shows, wherever it sits. A dark page has no paper for
+   the ink to read on: there it is a printed figure, on its own paper. */
+@utility lp-plate {
+  &:is(.dark *) {
+    background-color: var(--lp-plate-paper);
+    border-radius: var(--radius-xl);
+    filter: brightness(0.9);
+  }
+}
+
 /* The chapter numeral: the book face at its heaviest, in the part's colour. */
 @utility lp-numeral {
   font-family: var(--lp-font-serif);
@@ -355,6 +366,39 @@
   font-style: italic;
   line-height: var(--lp-leading-snug);
   color: var(--lp-ink-2);
+}
+
+/* A file input: the browser's "Choose File  No file chosen" in the world's
+   type and a real outlined button, without replacing the native control (it
+   stays keyboard- and screen-reader-correct, and a drop of a file still works). */
+@utility lp-file {
+  display: block;
+  width: 100%;
+  font-size: var(--lp-text-sm);
+  color: var(--lp-ink-2);
+
+  &::file-selector-button {
+    margin-inline-end: var(--lp-space-3);
+    min-height: 2.75rem;
+    padding-inline: var(--lp-space-4);
+    border: 1px solid var(--lp-border-control);
+    border-radius: var(--lp-radius-control);
+    background: var(--lp-surface);
+    color: var(--lp-ink);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  &::file-selector-button:hover {
+    background: var(--lp-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--lp-brand);
+    outline-offset: 2px;
+    border-radius: var(--lp-radius-control);
+  }
 }
 
 /* The dot leader of a table of contents: name, dots, number. Drawn, not a

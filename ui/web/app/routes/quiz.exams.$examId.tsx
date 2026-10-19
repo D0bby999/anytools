@@ -24,7 +24,7 @@ import { PageHeader } from "~/components/ui/page-header";
 const POLL_MS = 3000;
 
 export function meta({ data }: Route.MetaArgs) {
-  return [{ title: `${data?.exam.title ?? "Mock exam"} · AnyTools` }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: `${data?.exam.title ?? "Mock exam"} · AnyLearn` }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

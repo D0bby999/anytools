@@ -20,9 +20,13 @@ export function RightPanel({ title, children }: { title?: string; children?: Rea
   const { t } = useTranslation("common");
   const part = partOf(useLocation().pathname);
   // With nothing passed in, the margin says what this part of the book is
-  // for. Read and Ask are about sources, so it explains citations there.
+  // for. Ask is about sources, so it explains citations there; Read pages
+  // (a knowledge base, a notebook, a book) never cite anything themselves, and
+  // "Nothing is cited yet" beside a chapter full of citations read as a fault.
   const note =
-    part === "practise"
+    part === "read"
+      ? t("panel.margin.read")
+      : part === "practise"
       ? t("panel.margin.practise")
       : part === "reflect"
         ? t("panel.margin.reflect")

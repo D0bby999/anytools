@@ -28,9 +28,10 @@
  * deployment without a GCP project shows no Drive button at all.
  */
 import { useCallback, useEffect } from "react";
-import { Link, useFetcher, useRevalidator, useSearchParams } from "react-router";
+import { Form, Link, useFetcher, useRevalidator, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ArrowLeft, RefreshCw, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BookMarked, GraduationCap, ListChecks, MessageSquare, RefreshCw, Trash2 } from "lucide-react";
+import { PanelTabs } from "~/components/ui/panel-tabs";
 import type { Route } from "./+types/knowledge.$kbId";
 import { AudioOverviews } from "~/components/audio/audio-overviews";
 import { RelatedPapers } from "~/components/knowledge/related-papers";
@@ -48,6 +49,7 @@ import {
   listDocuments,
   queryKB,
   reindexKB,
+  retryDocument,
   resyncDocument,
   setAutoSync,
   uploadDocument,
@@ -90,7 +92,7 @@ const KB_EVENTS = ["document.status", "document.fallback"] as const;
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: data?.kb ? `${data.kb.name} · AnyTools` : "AnyTools" },
+    { title: data?.kb ? `${data.kb.name} · AnyLearn` : "AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -281,6 +283,17 @@ export async function action({ request, params }: Route.ActionArgs) {
       return null;
     }
 
+    case "retry-document": {
+      const documentId = String(form.get("documentId") ?? "");
+      if (!documentId) return null;
+      try {
+        await retryDocument(user.id, documentId);
+      } catch (error) {
+        return actionFailure("errors.retryFailed", error);
+      }
+      return null;
+    }
+
     case "reindex": {
       try {
         await reindexKB(user.id, kbId);
@@ -408,6 +421,85 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
     return () => window.clearInterval(id);
   }, [working, streamDown, refresh]);
 
+  const addSources = (
+    <section aria-labelledby="lp-kb-add" className="mt-10">
+      <h2 id="lp-kb-add" className="lp-section">
+        {t("add.label")}
+      </h2>
+      <div className="mt-3">
+        <PanelTabs
+          label={t("add.label")}
+          tabs={[
+            {
+              id: "file",
+              label: t("add.file"),
+              panel: (
+                <>
+                  <UploadDropzone kbId={kb.id} />
+                  {driveNotice ? <DriveNoticeLine notice={driveNotice} /> : null}
+                  {drive ? (
+                    <DriveGrants kbId={kb.id} picker={drive.picker} status={drive.status} grants={grants} />
+                  ) : driveUnavailable ? (
+                    <p className="mt-6 text-sm leading-prose text-muted-foreground">{t("drive.unavailable")}</p>
+                  ) : null}
+                </>
+              ),
+            },
+            {
+              id: "link",
+              label: t("add.link"),
+              panel: (
+                <>
+                  <AddLink kbId={kb.id} />
+                  <section aria-labelledby="lp-kb-feeds" className="mt-8">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                      <h3 id="lp-kb-feeds" className="font-serif text-lg font-semibold">
+                        {t("feed.label")}
+                      </h3>
+                      {loaderData.feeds && loaderData.feeds.new > 0 ? (
+                        <p className="font-mono text-2xs text-primary">{t("feed.kbNew", { count: loaderData.feeds.new })}</p>
+                      ) : null}
+                    </div>
+                    <div className="mt-3">
+                      {loaderData.feeds ? (
+                        <FeedPanel feeds={loaderData.feeds.feeds} />
+                      ) : (
+                        <p className="text-sm leading-prose text-muted-foreground">{t("feed.unavailable")}</p>
+                      )}
+                    </div>
+                  </section>
+                </>
+              ),
+            },
+            { id: "zotero", label: t("add.zotero"), panel: <ZoteroPanel kbId={kb.id} /> },
+            {
+              id: "site",
+              label: t("add.siteRepo"),
+              panel: loaderData.sources ? (
+                <>
+                  <h3 className="font-serif text-lg font-semibold">{t("site.label")}</h3>
+                  <div className="mt-3">
+                    <AddSite kbId={kb.id} limits={loaderData.sources.limits} />
+                  </div>
+                  <h3 className="mt-8 font-serif text-lg font-semibold">{t("repo.label")}</h3>
+                  <div className="mt-3">
+                    <AddRepo kbId={kb.id} defaults={loaderData.sources.defaults} />
+                  </div>
+                  <h3 className="mt-8 font-serif text-lg font-semibold">{t("sources.label")}</h3>
+                  <div className="mt-3">
+                    <KbSources sites={loaderData.sources.sites} repos={loaderData.sources.repos} />
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm leading-prose text-muted-foreground">{t("sources.unavailable")}</p>
+              ),
+            },
+          ]}
+        />
+      </div>
+    </section>
+  );
+
   return (
     <div className="lp-measure">
       <Link
@@ -443,88 +535,12 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
         </div>
       ) : null}
 
-      <section aria-labelledby="lp-kb-upload" className="mt-8">
-        <h2 id="lp-kb-upload" className="lp-section">
-          {t("upload.label")}
-        </h2>
-        <div className="mt-3">
-          <UploadDropzone kbId={kb.id} />
-        </div>
-      </section>
+      <StudyActions kbId={kb.id} ready={documents.some((d) => d.status === "ready")} />
 
-      <section aria-labelledby="lp-kb-link" className="mt-8">
-        <h2 id="lp-kb-link" className="lp-section">
-          {t("link.label")}
-        </h2>
-        <div className="mt-3">
-          <AddLink kbId={kb.id} />
-        </div>
-      </section>
-
-      <section aria-labelledby="lp-kb-zotero" className="mt-8">
-        <h2 id="lp-kb-zotero" className="lp-section">
-          {t("zotero.label")}
-        </h2>
-        <div className="mt-3">
-          <ZoteroPanel kbId={kb.id} />
-        </div>
-      </section>
-
-      {loaderData.sources ? (
-        <>
-          <section aria-labelledby="lp-kb-site" className="mt-8">
-            <h2 id="lp-kb-site" className="lp-section">
-              {t("site.label")}
-            </h2>
-            <div className="mt-3">
-              <AddSite kbId={kb.id} limits={loaderData.sources.limits} />
-            </div>
-          </section>
-          <section aria-labelledby="lp-kb-repo" className="mt-8">
-            <h2 id="lp-kb-repo" className="lp-section">
-              {t("repo.label")}
-            </h2>
-            <div className="mt-3">
-              <AddRepo kbId={kb.id} defaults={loaderData.sources.defaults} />
-            </div>
-          </section>
-          <section aria-labelledby="lp-kb-sources" className="mt-8">
-            <h2 id="lp-kb-sources" className="lp-section">
-              {t("sources.label")}
-            </h2>
-            <div className="mt-3">
-              <KbSources sites={loaderData.sources.sites} repos={loaderData.sources.repos} />
-            </div>
-          </section>
-        </>
-      ) : (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">{t("sources.unavailable")}</p>
-      )}
-
-      <section aria-labelledby="lp-kb-feeds" className="mt-8">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h2 id="lp-kb-feeds" className="lp-section">
-            {t("feed.label")}
-          </h2>
-          {loaderData.feeds && loaderData.feeds.new > 0 ? (
-            <p className="font-mono text-2xs text-primary">{t("feed.kbNew", { count: loaderData.feeds.new })}</p>
-          ) : null}
-        </div>
-        <div className="mt-3">
-          {loaderData.feeds ? (
-            <FeedPanel feeds={loaderData.feeds.feeds} />
-          ) : (
-            <p className="text-sm leading-prose text-muted-foreground">{t("feed.unavailable")}</p>
-          )}
-        </div>
-      </section>
-
-      {driveNotice ? <DriveNoticeLine notice={driveNotice} /> : null}
-      {drive ? (
-        <DriveGrants kbId={kb.id} picker={drive.picker} status={drive.status} grants={grants} />
-      ) : driveUnavailable ? (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">{t("drive.unavailable")}</p>
-      ) : null}
+      {/* With nothing in it yet, adding is the only thing to do here, so it
+          comes first; after that the documents lead and adding more waits
+          below them. Five "Add…" forms used to fill 1,500 px above the list. */}
+      {documents.length === 0 ? addSources : null}
 
       <section aria-labelledby="lp-kb-documents" className="mt-10">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
@@ -553,6 +569,8 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
         ) : null}
       </section>
 
+      {documents.length > 0 ? addSources : null}
+
       <AudioOverviews overviews={loaderData.overviews} kbId={kb.id} />
 
       <RelatedPapers kbId={kb.id} />
@@ -563,6 +581,44 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
 
       <DeleteKnowledgeBase />
     </div>
+  );
+}
+
+/**
+ * What this knowledge base is for, at the top of it: the four ways to study
+ * from it. Before, the page was all intake and upkeep, and asking a question
+ * about these documents meant leaving for Chat and finding them again there.
+ */
+function StudyActions({ kbId, ready }: { kbId: string; ready: boolean }) {
+  const { t } = useTranslation("knowledge");
+  const link =
+    "inline-flex min-h-11 items-center gap-2 rounded-md border border-control-border bg-card px-4 text-sm font-medium transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
+
+  if (!ready) {
+    return <p className="mt-6 text-sm leading-prose text-muted-foreground">{t("study.waiting")}</p>;
+  }
+  return (
+    <nav aria-label={t("study.label")} className="mt-6 flex flex-wrap gap-2">
+      <Form method="post" action="/chat">
+        <input type="hidden" name="kb_id" value={kbId} />
+        <Button type="submit">
+          <MessageSquare aria-hidden="true" />
+          {t("study.chat")}
+        </Button>
+      </Form>
+      <Link to={`/quiz?kb=${kbId}#lp-quiz-generate`} className={link}>
+        <ListChecks aria-hidden="true" className="size-4" />
+        {t("study.quiz")}
+      </Link>
+      <Link to={`/mastery?kb=${kbId}#lp-mastery-new`} className={link}>
+        <GraduationCap aria-hidden="true" className="size-4" />
+        {t("study.path")}
+      </Link>
+      <a href="#lp-kb-books" className={link}>
+        <BookMarked aria-hidden="true" className="size-4" />
+        {t("study.book")}
+      </a>
+    </nav>
   );
 }
 

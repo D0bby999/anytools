@@ -21,7 +21,7 @@ import type { LinkChoice } from "~/components/loop/card-entry-form";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Evidence card · Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Evidence card · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

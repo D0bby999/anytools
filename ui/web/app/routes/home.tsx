@@ -10,7 +10,10 @@ import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/home";
 import { requireUser } from "~/lib/auth.server";
-import { getReadiness } from "~/lib/byok.server";
+import { getReadiness, listConnections } from "~/lib/byok.server";
+import { listKBs } from "~/lib/kb.server";
+import { listSessions } from "~/lib/chat.server";
+import { Check } from "lucide-react";
 import { listDue } from "~/lib/mastery.server";
 import { listPractice } from "~/lib/quiz.server";
 import { listRetests } from "~/lib/loop.server";
@@ -22,6 +25,7 @@ import { dueCards } from "~/lib/vocab.server";
 import { listStates } from "~/lib/loop.server";
 import { localDay } from "~/lib/local-day";
 import { isLowDay } from "~/lib/low-day.server";
+import { InstallHint } from "~/components/reminders/install-hint";
 import { TodayBlock, type TodayState } from "~/components/home/today-block";
 import { dueWorksheets } from "~/lib/worksheets.server";
 import { dueCounts, WorksheetsDue, type DueCounts } from "~/components/worksheet/worksheets-due";
@@ -34,7 +38,7 @@ import { PARTS } from "~/lib/parts";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "AnyTools" },
+    { title: "AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -86,10 +90,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     // Worksheet reviews due on the learner's local day (up methods, phase 0).
     dueWorksheets(user.id).then(dueCounts).catch((): DueCounts => ({ count: 0, private: 0 })),
   ]);
+  // Which of the three first steps are already done, so the card can tick
+  // them rather than repeat "Connect an AI account" to someone who has.
+  const [hasProvider, hasDocuments, hasAsked] = await Promise.all([
+    listConnections(user.id).then((r) => r.connections.length > 0).catch(() => false),
+    listKBs(user.id).then((r) => r.knowledge_bases.some((k) => k.ready > 0)).catch(() => false),
+    listSessions(user.id).then((r) => r.sessions.length > 0).catch(() => false),
+  ]);
   const today = await todayP;
   // The low-day switch is a cookie for the learner's local day.
   const lowDay = today ? await isLowDay(request, user.id, localDay(user.timezone)) : false;
-  return { readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, mistakes, today, lowDay, worksheetsDue };
+  const setup = { provider: hasProvider, documents: hasDocuments, asked: hasAsked };
+  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, mistakes, today, lowDay, worksheetsDue };
 }
 
 /** Home draws its own margin: the pace the book keeps, and its one claim. */
@@ -97,16 +109,17 @@ export const handle = { ownsPanel: true };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-  const { readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, worksheetsDue, today, lowDay } = loaderData;
+  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, worksheetsDue, today, lowDay } = loaderData;
   const ready = readiness?.core === "green";
   // Written as literal t() calls rather than a key built from a loop variable:
   // the i18n guard in app/test/structural-guards.test.ts can only verify keys
   // it can see, and a key it cannot see is a key that ships as raw text.
   const steps = [
-    { title: t("home.next.provider.title"), body: t("home.next.provider.body") },
-    { title: t("home.next.documents.title"), body: t("home.next.documents.body") },
-    { title: t("home.next.ask.title"), body: t("home.next.ask.body") },
+    { title: t("home.next.provider.title"), body: t("home.next.provider.body"), to: "/settings", go: t("home.next.provider.go"), done: setup.provider },
+    { title: t("home.next.documents.title"), body: t("home.next.documents.body"), to: "/knowledge", go: t("home.next.documents.go"), done: setup.documents },
+    { title: t("home.next.ask.title"), body: t("home.next.ask.body"), to: "/chat", go: t("home.next.ask.go"), done: setup.asked },
   ];
+  const setupDone = steps.every((s) => s.done);
   const pace = t("home.margin.path", { returnObjects: true }) as string[];
   const total =
     (due ?? 0) + mistakes + retests + (vocabDue ?? 0) + bookDue + worksheetsDue.count + worksheetsDue.private;
@@ -116,14 +129,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <div className="min-w-0 flex-1 px-4 py-6 lg:px-10 lg:py-10">
         <div className="lp-measure">
           <PageHeader title={t("home.title")} lede={t("home.lead")} />
+          <InstallHint />
 
           {/* Until a provider is connected nothing else on this page can run,
               so the steps come first. Once it is, they shrink to the
               readiness card at the end. */}
           {!ready ? (
             <>
-              <Setup steps={steps} />
-              <div className="mb-8 -mt-4">
+              {setupDone ? null : <Setup steps={steps} />}
+              <div className={setupDone ? "mb-8" : "mb-8 -mt-4"}>
                 <ReadinessCard readiness={readiness} />
               </div>
             </>
@@ -313,8 +327,13 @@ function Contents() {
 }
 
 /** Before anything runs: the three steps, in their real order, and readiness. */
-function Setup({ steps }: { steps: { title: string; body: string }[] }) {
+type SetupStep = { title: string; body: string; to: string; go: string; done: boolean };
+
+function Setup({ steps }: { steps: SetupStep[] }) {
   const { t } = useTranslation("common");
+  // The first step not yet done is the one to do now; it alone carries a
+  // button, so the card points at one thing.
+  const current = steps.findIndex((s) => !s.done);
   return (
     <section aria-labelledby="lp-next" className="mb-8 lp-keybox p-5 sm:p-6">
       <h2 id="lp-next" className="lp-section text-xl">
@@ -325,12 +344,26 @@ function Setup({ steps }: { steps: { title: string; body: string }[] }) {
       <ol className="mt-3">
         {steps.map((step, index) => (
           <li key={step.title} className="grid grid-cols-[2rem_1fr] gap-x-3 border-t py-3 first:border-t-0">
-            <span aria-hidden="true" className="font-serif text-xl font-semibold text-part">
-              {index + 1}
-            </span>
+            {step.done ? (
+              <span className="mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-part-soft text-part">
+                <Check aria-hidden="true" className="size-4" />
+                <span className="sr-only">{t("home.next.done")}</span>
+              </span>
+            ) : (
+              <span aria-hidden="true" className="font-serif text-xl font-semibold text-part">
+                {index + 1}
+              </span>
+            )}
             <div>
-              <h3 className="font-sans text-base font-semibold">{step.title}</h3>
-              <p className="mt-1 text-sm leading-prose text-muted-foreground">{step.body}</p>
+              <h3 className={`font-sans text-base font-semibold ${step.done ? "text-muted-foreground" : ""}`}>
+                {step.title}
+              </h3>
+              {step.done ? null : <p className="mt-1 text-sm leading-prose text-muted-foreground">{step.body}</p>}
+              {index === current ? (
+                <Button asChild size="sm" className="mt-3">
+                  <Link to={step.to}>{step.go}</Link>
+                </Button>
+              ) : null}
             </div>
           </li>
         ))}

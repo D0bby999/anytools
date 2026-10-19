@@ -337,6 +337,20 @@ func (m *memStore) RequeueDocument(_ context.Context, _, docID uuid.UUID, reason
 	return nil
 }
 
+// ResetDocumentForReprocessing mirrors the real store: any row, queued again,
+// with a new version.
+func (m *memStore) ResetDocumentForReprocessing(_ context.Context, _, docID uuid.UUID) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	d := m.docs[docID]
+	if d == nil {
+		return errors.New("no doc")
+	}
+	d.Status, d.Error = knowledge.StatusQueued, ""
+	d.Version++
+	return nil
+}
+
 // finishGuard mirrors the real store: only a document that is being worked on
 // can be finished, so a straggler cannot flip a failed document to ready.
 func (m *memStore) finishGuard(d *knowledge.Document) error {

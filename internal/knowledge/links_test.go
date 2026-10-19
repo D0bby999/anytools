@@ -593,3 +593,38 @@ func TestGeminiTranscriptionIsTheFallbackAndIsLabelled(t *testing.T) {
 		t.Fatalf("refused: %s %q", d.Status, d.Error)
 	}
 }
+
+// A failed document's message says "then retry", so there has to be a retry:
+// it queues the stored original again, and only a failed document takes one.
+func TestRetryQueuesAFailedDocumentAgain(t *testing.T) {
+	h := newLinkHarness(t)
+	ctx := context.Background()
+	h.site.set("/retry", page("Retry", "Parsed on the second try."))
+	res, err := h.svc.AddLink(ctx, h.user, h.kb.ID, "https://example.com/retry", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc := res.Document
+
+	if err := h.store.SetDocumentStatus(ctx, h.user, doc.ID, knowledge.StatusFailed,
+		"no embedding model is configured — add one in Settings, then retry"); err != nil {
+		t.Fatal(err)
+	}
+	queuedBefore := len(h.jobs.enqueued)
+	again, err := h.svc.Retry(ctx, h.user, doc.ID)
+	if err != nil {
+		t.Fatalf("Retry: %v", err)
+	}
+	if again.Document.Status != knowledge.StatusQueued || len(h.jobs.enqueued) != queuedBefore+1 {
+		t.Fatalf("not queued: %+v, %d jobs", again.Document, len(h.jobs.enqueued)-queuedBefore)
+	}
+	stored, _ := h.store.GetDocument(ctx, h.user, doc.ID)
+	if stored.Status != knowledge.StatusQueued || stored.Error != "" {
+		t.Fatalf("row after retry: %s %q", stored.Status, stored.Error)
+	}
+	ready := h.parse(t, stored)
+
+	if _, err := h.svc.Retry(ctx, h.user, ready.ID); !errors.Is(err, knowledge.ErrNotFailed) {
+		t.Fatalf("retry of a ready document: %v", err)
+	}
+}

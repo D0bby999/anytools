@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { RefreshCw } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { RichText } from "~/components/rich-text";
+import { ListenButton } from "~/components/vocab/listen-button";
 import { QuestionCard } from "~/components/quiz/question-card";
 import {
   diagramMarkdown,
@@ -43,12 +44,12 @@ export function BlockView({ block }: { block: Block }) {
   return (
     <article className="border-b py-6" aria-labelledby={`lp-block-${block.id}`}>
       <header className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 id={`lp-block-${block.id}`} className="font-serif text-lg font-semibold">
+        <h2 id={`lp-block-${block.id}`} className="font-serif text-lg font-semibold">
           {heading && heading.toLowerCase() !== block.title.trim().toLowerCase() ? (
             <span className="lp-kicker mr-2 align-middle">{heading}</span>
           ) : null}
           {block.type === "note" ? null : block.title}
-        </h3>
+        </h2>
         {block.type !== "note" ? (
           <fetcher.Form method="post">
             <input type="hidden" name="intent" value="regenerate" />
@@ -99,7 +100,10 @@ function BlockBody({ block }: { block: Block }) {
       return (
         // The textbook's boxed callout: a definition is the key-concept box in
         // the part's tint, a warning takes the highlighter's family.
-        <aside
+        // A note inside the chapter, not a complementary landmark: an <aside>
+        // inside <main> is one, and screen readers listed every callout.
+        <div
+          role="note"
           className={
             c.variant === "warning"
               ? "rounded-lg border border-warning/40 bg-warning-soft px-4 py-3"
@@ -111,25 +115,29 @@ function BlockBody({ block }: { block: Block }) {
             {c.title ? ` · ${c.title}` : ""}
           </p>
           <RichText text={c.markdown ?? ""} sources={block.sources} />
-        </aside>
+        </div>
       );
     }
     case "worked_example": {
       const e = p as ExamplePayload;
+      // One Listen for the whole example, problem to answer, rather than one
+      // under each of its parts: a three-step example had five.
+      const spoken = [e.problem, ...(e.steps ?? []), e.answer].filter(Boolean).join("\n\n");
       return (
         <div>
-          <RichText text={e.problem ?? ""} sources={block.sources} />
+          <RichText text={e.problem ?? ""} sources={block.sources} listen={false} />
           <ol className="mt-3 list-decimal space-y-2 pl-6">
             {(e.steps ?? []).map((step, i) => (
               <li key={i}>
-                <RichText text={step} sources={block.sources} />
+                <RichText text={step} sources={block.sources} listen={false} />
               </li>
             ))}
           </ol>
           <div className="mt-3">
             <p className="lp-kicker">{t("block.answer")}</p>
-            <RichText text={e.answer ?? ""} sources={block.sources} />
+            <RichText text={e.answer ?? ""} sources={block.sources} listen={false} />
           </div>
+          <ListenButton text={spoken} />
         </div>
       );
     }

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { DocumentContent } from "~/lib/kb-types";
+import { RichText } from "~/components/rich-text";
 
 /**
  * The parsed-text renderer: every format that is not a PDF, and a PDF whose
@@ -9,9 +10,12 @@ import type { DocumentContent } from "~/lib/kb-types";
  * `data-page`, which the selection toolbar reads to know which page a
  * selection came from.
  *
- * The Markdown is shown as pre-wrapped TEXT, not rendered to HTML: it came out
- * of a language model reading an uploaded file, so it is untrusted from two
- * directions, and React escapes it by construction.
+ * The Markdown is rendered through RichText, the component every model answer
+ * goes through, under the same rules: no raw HTML, no remote images, unsafe
+ * URLs dropped. It came out of a parser or a language model reading an
+ * uploaded file, so it is untrusted from two directions, and those rules are
+ * what make rendering it safe. Shown as pre-wrapped text, a Markdown file read
+ * as its own source: "## 3. Ty thể", "**bold**", a table as rows of pipes.
  */
 export function TextPages({
   pages,
@@ -49,7 +53,7 @@ export function TextPages({
             ) : null}
           </div>
           {page.markdown ? (
-            <p className="whitespace-pre-wrap">{page.markdown}</p>
+            <RichText text={page.markdown} sources={[]} listen={false} />
           ) : (
             <p className="text-muted-foreground">{t("viewer.empty")}</p>
           )}

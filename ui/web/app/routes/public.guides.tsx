@@ -5,6 +5,7 @@
  */
 import { Link, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
+import { Plate } from "~/components/ui/plate";
 import type { Route } from "./+types/public.guides";
 import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
@@ -57,9 +58,12 @@ export default function GuidesPage() {
 
   return (
     <div className="lp-layout px-4 py-8 lg:px-6 lg:py-12">
-      <header className="lp-page-enter max-w-(--lp-measure-read)">
-        <h1 className="text-3xl leading-tight lg:text-4xl">{t("guides.title")}</h1>
-        <p className="mt-3 text-lg leading-snug text-muted-foreground">{t("guides.description")}</p>
+      <header className="lp-page-enter grid items-center gap-x-12 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)]">
+        <div className="max-w-(--lp-measure-read)">
+          <h1 className="text-3xl leading-tight lg:text-5xl">{t("guides.title")}</h1>
+          <p className="mt-4 text-lg leading-snug text-muted-foreground">{t("guides.description")}</p>
+        </div>
+        <Plate name="guides" priority sizes="(min-width: 1024px) 34vw, 100vw" className="hidden sm:block" />
       </header>
 
       <ul className="mt-10 max-w-(--lp-measure-read) border-t">

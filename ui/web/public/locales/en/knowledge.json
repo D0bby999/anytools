@@ -1,7 +1,7 @@
 {
   "index": {
     "title": "Knowledge",
-    "lead": "A knowledge base is a set of documents AnyTools is allowed to answer from. Nothing outside one is ever consulted.",
+    "lead": "A knowledge base is a set of documents AnyLearn is allowed to answer from. Nothing outside one is ever consulted.",
     "empty": "You have no knowledge bases yet. Make one, then add the documents you want to be able to ask about.",
     "create": "New knowledge base",
     "nameLabel": "Name",
@@ -43,6 +43,7 @@
     "processedBy": "Read by",
     "actions": "Actions",
     "remove": "Remove",
+    "retry": "Retry",
     "removeConfirm": "Remove this document and its passages?",
     "view": "Open"
   },
@@ -83,6 +84,7 @@
     "emptyQuery": "Type a question first.",
     "queryFailed": "The search could not be run.",
     "reindexFailed": "The reindex could not be started. Your embedding provider may be rate-limiting; try again in a minute.",
+    "retryFailed": "Could not queue the document again.",
     "deleteFailed": "That document could not be removed.",
     "deleteKbFailed": "The knowledge base could not be deleted.",
     "notFound": "That knowledge base does not exist, or is not yours.",
@@ -94,7 +96,7 @@
   },
   "drive": {
     "label": "Google Drive",
-    "connectBody": "Connect Google Drive to add documents straight from it. AnyTools asks only for the files you pick; it cannot see anything else in your Drive.",
+    "connectBody": "Connect Google Drive to add documents straight from it. AnyLearn asks only for the files you pick; it cannot see anything else in your Drive.",
     "connect": "Connect Google Drive",
     "reconnect": "Reconnect Google Drive",
     "needsReconnect": "Google stopped accepting this Drive connection, so nothing here is syncing. Reconnect to continue.",
@@ -194,9 +196,9 @@
     "replace": "Replace the transcript",
     "needs": {
       "title": "This video needs a transcript",
-      "why": "AnyTools studies a video through its words.",
+      "why": "AnyLearn studies a video through its words.",
       "gemini": "Transcribe with your Gemini key",
-      "geminiBody": "Google fetches the public video, and your own Gemini key writes the transcript. The video is never downloaded to AnyTools.",
+      "geminiBody": "Google fetches the public video, and your own Gemini key writes the transcript. The video is never downloaded to AnyLearn.",
       "estimate": "About {{tokens}} tokens: {{minutes}} min at 100 tokens a second.",
       "estimateUnknown": "The length could not be read here. At 100 tokens a second, 10 minutes is about 60,000 tokens.",
       "freeTier": "The free tier transcribes up to {{hours}} hours of YouTube video a day.",
@@ -266,7 +268,7 @@
     "placeholder": "https://docs.example.com/guide/",
     "depth": "Link depth",
     "pages": "Page limit",
-    "hint": "AnyTools follows links on the same site that sit under the start page's folder, up to {{maxDepth}} links deep and {{maxPages}} pages, and skips what the site's robots.txt asks tools to leave alone. Each page becomes its own document. The site is checked again weekly; only changed pages are re-indexed.",
+    "hint": "AnyLearn follows links on the same site that sit under the start page's folder, up to {{maxDepth}} links deep and {{maxPages}} pages, and skips what the site's robots.txt asks tools to leave alone. Each page becomes its own document. The site is checked again weekly; only changed pages are re-indexed.",
     "submit": "Add site",
     "adding": "Adding…",
     "added": "Started reading “{{title}}”. Its progress is shown under Sites and repositories."
@@ -360,7 +362,7 @@
     "player": "Recording: {{title}}",
     "now": "Now",
     "needsTitle": "This recording needs a transcript",
-    "needsWhy": "AnyTools studies a recording through its words.",
+    "needsWhy": "AnyLearn studies a recording through its words.",
     "none": "Nothing can transcribe this recording yet. Add a Groq, OpenAI or Gemini key under Settings → Connections and route Speech to text to it, or upload subtitles below.",
     "builtinBody": "{{model}} on this server, with no key. The server reads your uploaded file; nothing is sent elsewhere.",
     "audioBody": "The server sends the file's audio to {{provider}} with your key ({{model}}). About {{minutes}} min of audio is billed to your account.",
@@ -420,7 +422,7 @@
   },
   "feed": {
     "label": "Feeds",
-    "linkHint": "It can also be a podcast’s RSS feed, or a YouTube playlist, channel or @handle. AnyTools then lists its episodes or videos, and you pick which to add.",
+    "linkHint": "It can also be a podcast’s RSS feed, or a YouTube playlist, channel or @handle. AnyLearn then lists its episodes or videos, and you pick which to add.",
     "followed": "Following “{{title}}”: {{count}} entries to pick from.",
     "openFeed": "Open the feed",
     "empty": "No feeds yet. Paste a podcast’s RSS link, or a YouTube playlist or channel link, into “Add a link”.",
@@ -441,7 +443,7 @@
     "keylessLimit": "YouTube’s free feed lists only the latest {{limit}} videos.",
     "dataApiHint": "With your own YouTube Data API key (Settings, Search keys) a playlist lists all its videos, up to {{limit}}.",
     "dataApiListed": "Listed through your YouTube Data API key: every video, up to {{limit}}.",
-    "daily": "AnyTools checks this feed once a day and marks what it finds as New.",
+    "daily": "AnyLearn checks this feed once a day and marks what it finds as New.",
     "check": "Check now",
     "checking": "Checking…",
     "checkedNew_one": "Checked: {{count}} new entry.",
@@ -475,5 +477,20 @@
       "updateFailed": "The feed could not be updated.",
       "deleteFailed": "The feed could not be removed."
     }
+  },
+  "add": {
+    "label": "Add to this knowledge base",
+    "file": "File",
+    "link": "Link or feed",
+    "zotero": "Zotero",
+    "siteRepo": "Site or repository"
+  },
+  "study": {
+    "label": "Study from this knowledge base",
+    "chat": "Ask about it",
+    "quiz": "Write questions",
+    "path": "Plan a mastery path",
+    "book": "Write a book",
+    "waiting": "Asking, questions, a path and a book open here once one document is ready."
   }
 }

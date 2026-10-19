@@ -240,6 +240,16 @@ func newChatResolver(svc *byok.Service) runtime.ChatProviderResolver {
 // marks NOT retryable — correct, because the fix is in Settings, not in trying
 // again.
 func (r byokChatResolver) ChatFor(ctx context.Context, userID uuid.UUID, function string) (runtime.ChatProvider, error) {
+	return r.ChatPreferring(ctx, userID, function, uuid.Nil, "")
+}
+
+// ChatPreferring implements runtime.PreferringResolver: the same chain with
+// the learner's pick for the conversation tried first. The rest of the route
+// stays behind it, so a pick in cooldown still gets an answer, and the turn
+// row says which connection gave it (RT-14).
+func (r byokChatResolver) ChatPreferring(
+	ctx context.Context, userID uuid.UUID, function string, connectionID uuid.UUID, model string,
+) (runtime.ChatProvider, error) {
 	fn, ok := byok.ParseFunction(function)
 	if !ok {
 		return nil, fmt.Errorf("%w: %q is not a routable function", runtime.ErrNoProvider, function)
@@ -256,6 +266,9 @@ func (r byokChatResolver) ChatFor(ctx context.Context, userID uuid.UUID, functio
 		// a disabled subscription lane, or a provider with no chat client.
 		// Both are "configure something in Settings".
 		return nil, runtime.ErrNoProvider
+	}
+	if connectionID != uuid.Nil {
+		chain.Prefer(connectionID, model)
 	}
 	first := chain.Entries()[0]
 	return &chatChain{

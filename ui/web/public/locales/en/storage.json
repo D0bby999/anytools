@@ -1,11 +1,11 @@
 {
   "nav": "Storage",
   "title": "Where your files are kept",
-  "lead": "Your uploads, recordings, generated audio, exam papers and page photos can stay on AnyTools' server, or live in your own Google Drive inside a folder named “AnyTools”. Files in your Drive are yours to open, download or keep, even after you leave AnyTools.",
-  "stays": "Either way, AnyTools keeps the text it reads out of each file on its own server, along with the search index built from that text. Search, chat and citations read it every time, and it can always be rebuilt from your file.",
+  "lead": "Your uploads, recordings, generated audio, exam papers and page photos can stay on AnyLearn's server, or live in your own Google Drive inside a folder named “AnyTools”. Files in your Drive are yours to open, download or keep, even after you leave AnyLearn.",
+  "stays": "Either way, AnyLearn keeps the text it reads out of each file on its own server, along with the search index built from that text. Search, chat and citations read it every time, and it can always be rebuilt from your file.",
   "choice": {
     "legend": "Keep my files",
-    "server": "On AnyTools' server",
+    "server": "On AnyLearn's server",
     "serverHint": "Nothing goes to Google.",
     "drive": "In my Google Drive",
     "driveHint": "New files go into the “AnyTools” folder in your Drive.",
@@ -16,7 +16,7 @@
   "drive": {
     "unavailable": "Google Drive is not set up on this server, so your files stay on the server.",
     "notConnected": "Connect Google Drive to keep your files there.",
-    "reconnect": "Google no longer accepts AnyTools' access to your Drive. Reconnect it to keep your files there.",
+    "reconnect": "Google no longer accepts AnyLearn's access to your Drive. Reconnect it to keep your files there.",
     "connect": "Open Connections"
   },
   "usage": {
@@ -41,7 +41,7 @@
     "stopping": "Stopping after the file being moved.",
     "failed": "The move stopped before it finished. Nothing was lost; start it again to carry on.",
     "drive_full": "Your Google Drive is full, so the move stopped. Nothing was lost; free some space and start it again.",
-    "drive_reconnect": "Google no longer accepts AnyTools' access to your Drive, so the move stopped. Nothing was lost; reconnect and start it again.",
+    "drive_reconnect": "Google no longer accepts AnyLearn's access to your Drive, so the move stopped. Nothing was lost; reconnect and start it again.",
     "cancel": "Stop moving",
     "nothing": "There is nothing to move.",
     "leftOnServer_one": "{{count}} file is still on the server.",

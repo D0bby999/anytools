@@ -32,7 +32,7 @@ const maxZipEntries = 5000
 const MaxDecompressedBytes = 96 << 20
 
 // ErrTooLarge is returned when a container inflates past its budget.
-var ErrTooLarge = errors.New("parse: the file expands to more text than AnyTools reads")
+var ErrTooLarge = errors.New("parse: the file expands to more text than AnyLearn reads")
 
 // inflateBudget is the remaining decompressed bytes for one document.
 type inflateBudget struct{ left int64 }

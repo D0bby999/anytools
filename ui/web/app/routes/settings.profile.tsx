@@ -29,7 +29,7 @@ import { EntryRow, ProposalRow, type ProfileActionData } from "~/components/prof
 import { AddEntryForm, ClearProfile, ConsolidationPanel } from "~/components/profile/profile-panels";
 
 export function meta() {
-  return [{ title: "Learning profile · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Learning profile · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

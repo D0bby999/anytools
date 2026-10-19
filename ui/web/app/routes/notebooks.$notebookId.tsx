@@ -31,10 +31,12 @@ import { Button } from "~/components/ui/button";
 import { NoteEditor } from "~/components/notebook/note-editor";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
 import { PageHeader } from "~/components/ui/page-header";
+import { DateText } from "~/components/ui/date-text";
+import { plainText } from "~/lib/speech";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: data?.notebook ? `${data.notebook.name} · AnyTools` : "Notebook · AnyTools" },
+    { title: data?.notebook ? `${data.notebook.name} · AnyLearn` : "Notebook · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -228,17 +230,24 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
                 <Link
                   to={`/notebooks/${notebook.id}?note=${n.id}${activeCategory ? `&category=${activeCategory}` : ""}`}
                   aria-current={n.id === selectedId ? "true" : undefined}
-                  className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-1 py-3 transition-colors hover:bg-primary-soft aria-[current]:bg-selected"
+                  className="grid min-h-11 grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 px-1 py-3 transition-colors hover:bg-primary-soft aria-[current]:bg-selected"
                 >
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                  <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium">
                     {n.created_by === "agent" ? (
-                      <Bot aria-label={t("note.byTutor")} className="size-3.5 text-muted-foreground" />
+                      <Bot aria-label={t("note.byTutor")} className="size-3.5 shrink-0 text-muted-foreground" />
                     ) : null}
-                    {n.title || t("note.untitled")}
+                    <span className="truncate">{n.title || t("note.untitled")}</span>
                   </span>
                   <span className="text-xs text-muted-foreground tabular-nums">
-                    {new Date(n.updated_at).toLocaleDateString()}
+                    <DateText iso={n.updated_at} />
                   </span>
+                  {/* The first line of the note, so a list of titles can be
+                      told apart without opening each. */}
+                  {n.body_md ? (
+                    <span className="col-span-2 truncate text-xs leading-ui text-muted-foreground">
+                      {plainText(n.body_md)}
+                    </span>
+                  ) : null}
                 </Link>
               </li>
             ))}

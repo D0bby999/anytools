@@ -26,9 +26,10 @@ import { kbOnlyReasonKey } from "~/lib/research-types";
 import { ClaimCheck } from "~/components/research/claim-check";
 import { KeepStudying, OpenQuestions, type ToKnowledgeResult } from "~/components/research/keep-studying";
 import { PageHeader } from "~/components/ui/page-header";
+import { DateText } from "~/components/ui/date-text";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Report · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Report · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 /** Renders its own RightPanel (the report's sources); the layout leaves the slot. */
@@ -127,7 +128,7 @@ export default function ResearchReport({ loaderData }: Route.ComponentProps) {
               {t("report.mode")}: {t(`form.${report.mode}`)}
             </span>
             <span>
-              {t("report.created")}: {new Date(report.created_at).toLocaleString("en")}
+              {t("report.created")}: <DateText iso={report.created_at} withTime />
             </span>
             {report.kb_only && <KBOnlyBadge reason={report.kb_only_reason} />}
           </div>

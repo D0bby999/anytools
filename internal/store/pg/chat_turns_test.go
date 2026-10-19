@@ -331,7 +331,7 @@ func TestSessionsAreScopedToTheirOwner(t *testing.T) {
 		t.Fatalf("a stranger deleted the session: %v", err)
 	}
 
-	sessions, err := chat.ListSessions(ctx, stranger, 50)
+	sessions, err := chat.ListSessions(ctx, stranger, 50, "")
 	if err != nil {
 		t.Fatalf("ListSessions: %v", err)
 	}

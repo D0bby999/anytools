@@ -7,6 +7,7 @@
  * learner edits and approves it here. The proposal is not re-requested by any
  * loader: a page reload must not spend a model call on the learner's key.
  */
+import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/mastery.index";
@@ -24,7 +25,7 @@ import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Mastery · AnyTools" },
+    { title: "Mastery · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -44,6 +45,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     due: due.due,
     vocabDue,
     bookDue,
+    // A knowledge base page links here with ?kb= to plan a path from it.
+    selectedKb: new URL(request.url).searchParams.get("kb") ?? "",
   };
 }
 
@@ -109,7 +112,9 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
           {t("mastery.paths")}
         </h2>
         {loaderData.paths.length === 0 ? (
-          <p className="mt-3 lp-empty">{t("mastery.noPaths")}</p>
+          <PlateEmpty name="part-practise" className="mt-3">
+            {t("mastery.noPaths")}
+          </PlateEmpty>
         ) : (
           <ul className="mt-3 border-t">
             {loaderData.paths.map((p) => (
@@ -152,6 +157,7 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
                 id="lp-path-kb"
                 name="kb_id"
                 required
+                defaultValue={loaderData.selectedKb || undefined}
                 className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
               >
                 {loaderData.kbs.map((kb) => (

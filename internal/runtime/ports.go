@@ -39,6 +39,13 @@ type ChatProviderResolver interface {
 // retryable.
 var ErrNoProvider = errors.New("no chat provider configured")
 
+// PreferringResolver resolves a chain with one entry moved to the front: the
+// connection and model a learner picked for a conversation. An entry that is
+// no longer on the route is ignored and the chain is the plain one.
+type PreferringResolver interface {
+	ChatPreferring(ctx context.Context, userID uuid.UUID, function string, connectionID uuid.UUID, model string) (ChatProvider, error)
+}
+
 // ChatProvider mirrors postclaw's providers.Provider (types.go:43).
 type ChatProvider interface {
 	Chat(ctx context.Context, req ChatRequest) (*ChatResponse, error)

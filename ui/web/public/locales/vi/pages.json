@@ -86,5 +86,64 @@
     "responsibility": "Bạn tự chịu trách nhiệm tuân thủ quy định của mọi nền tảng bạn dùng. Nhiều nền tảng giới hạn số tài khoản một người được dùng; AnyProfile không thay đổi các quy định đó.",
     "latest": "Phiên bản {{version}}, phát hành {{date}}",
     "checksums": "Mã kiểm tra SHA-256"
+  },
+  "landing": {
+    "metaTitle": "AnyTools: công cụ miễn phí, và AnyLearn, ứng dụng học chạy trên AI của bạn",
+    "metaDescription": "AnyTools miễn phí: các công cụ thường ngày chạy ngay trong trình duyệt, không cần tài khoản, và AnyLearn, ứng dụng tự học dựa trên chính tài liệu bạn tải lên: hỏi đáp, câu hỏi luyện tập, lộ trình ôn tập ngắt quãng và vòng học 90 ngày, chạy trên tài khoản AI bạn đã có. Mỗi câu trả lời đều dẫn đúng trang nguồn.",
+    "title": "Học từ chính tài liệu của bạn.",
+    "subtitle": "Đối chiếu mọi câu trả lời với đúng trang nó được lấy ra.",
+    "lede": "Câu trả lời có trích dẫn trang, câu hỏi luyện tập viết từ tài liệu của bạn, và lịch ôn rơi đúng lúc bạn sắp quên.",
+    "cta": "Bắt đầu học",
+    "ctaNote": "Miễn phí. Đăng nhập bằng Google hoặc GitHub, không cần mật khẩu. Ứng dụng hiện dùng tiếng Anh.",
+    "contentsTitle": "Bên trong có gì",
+    "part": "Phần {{numeral}}",
+    "parts": {
+      "read": {
+        "title": "Đọc",
+        "body": "Tài liệu, sổ ghi chép và sách sống của bạn."
+      },
+      "ask": {
+        "title": "Hỏi",
+        "body": "Câu trả lời có trích dẫn, lời giải từng bước và báo cáo nghiên cứu."
+      },
+      "practise": {
+        "title": "Luyện",
+        "body": "Câu hỏi, đề thi và ôn tập ngắt quãng, đến khi kiến thức ở lại."
+      },
+      "reflect": {
+        "title": "Nhìn lại",
+        "body": "Một mục tiêu, bằng chứng cho thấy nó đang tiến lên, và các phiếu bài tập."
+      }
+    },
+    "whatTitle": "AnyLearn làm gì",
+    "lead": "AnyLearn là ứng dụng học trong AnyTools, bên cạnh các công cụ miễn phí chạy trong trình duyệt mà không cần tài khoản. Tải lên tài liệu bạn đang học, AnyLearn sẽ trả lời câu hỏi về nó kèm trích dẫn mở đúng trang, viết câu hỏi luyện tập từ nó, lên lịch cho những gì bạn sắp quên, và ghi lại 90 ngày về những gì bạn thực sự làm được, tất cả trên tài khoản AI bạn đang trả tiền.",
+    "points": {
+      "cite": {
+        "title": "Câu trả lời chỉ đúng trang",
+        "body": "Hỏi đáp, câu hỏi luyện tập và nghiên cứu đều trích đoạn văn đã dùng. Bấm trích dẫn là mở tài liệu ngay trang đó, nên mọi khẳng định đều kiểm tra được, không cần tin suông."
+      },
+      "practice": {
+        "title": "Luyện tập tự lên lịch",
+        "body": "Câu hỏi được viết từ tài liệu của bạn và chấm kèm lời giải thích. Lộ trình thành thạo đưa lại câu bạn làm sai ngay trong ngày, và câu bạn đã biết vào đúng lúc trước khi bạn quên."
+      },
+      "evidence": {
+        "title": "Tiến bộ có bằng chứng",
+        "body": "Vòng học 90 ngày chỉ tiến lên khi kết quả làm bài, lượt ôn và ghi chú cho thấy nên tiến, không phải khi bạn đánh dấu một ô."
+      },
+      "byok": {
+        "title": "Tài khoản AI của chính bạn",
+        "body": "Kết nối khoá API của Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral hoặc nhà cung cấp khác được hỗ trợ. Không có khoá của nền tảng, không có tín dụng: chưa kết nối tài khoản của bạn thì chưa có gì chạy, và bạn chọn tài khoản nào làm việc nào."
+      }
+    },
+    "notTitle": "Những gì AnyLearn không làm",
+    "notBody": "AnyLearn không trả lời bằng kiến thức chung của nó khi tài liệu của bạn không nói đến; nó nói rõ tài liệu chưa đề cập câu hỏi đó. Không có chuỗi ngày, điểm thưởng hay huy hiệu. Và nó không thể hứa rằng tệp của bạn không bao giờ đến nhà cung cấp AI: đọc một tài liệu nghĩa là gửi nó cho mô hình bạn chọn, và mỗi tài liệu đều ghi rõ mô hình nào đã đọc.",
+    "tools": {
+      "title": "Phụ lục: công cụ miễn phí, không cần tài khoản",
+      "body": "Hơn một trăm công cụ thường ngày: định dạng, mã hoá, chuyển đổi, máy tính, cùng công cụ PDF và hình ảnh. Tất cả chạy trong trình duyệt, không cần đăng nhập, có tiếng Anh, tiếng Việt, tiếng Tây Ban Nha và tiếng Bồ Đào Nha.",
+      "count_one": "{{count}} công cụ",
+      "count_other": "{{count}} công cụ",
+      "all": "Xem tất cả công cụ"
+    },
+    "footer": "AnyLearn đang trong giai đoạn truy cập sớm. Tài liệu và tài khoản bạn kết nối vẫn là của bạn; bạn có thể gỡ bất kỳ thứ gì vào bất cứ lúc nào."
   }
 }

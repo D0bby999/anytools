@@ -359,3 +359,31 @@ func TestStopChainBenchesTheEntryAndEndsTheWalk(t *testing.T) {
 		}
 	}
 }
+
+// Prefer moves one entry to the front and keeps the rest in order. A
+// connection on the route twice is told apart by its model.
+func TestPreferMovesTheChosenConnectionFirst(t *testing.T) {
+	a, b, c := uuid.New(), uuid.New(), uuid.New()
+	chain := byok.NewChainForTest([]byok.Entry[string]{{ConnectionID: a}, {ConnectionID: b}, {ConnectionID: c}})
+	if !chain.Prefer(c, "") {
+		t.Fatal("c is on the chain")
+	}
+	var got []uuid.UUID
+	for _, e := range chain.Entries() {
+		got = append(got, e.ConnectionID)
+	}
+	if got[0] != c || got[1] != a || got[2] != b {
+		t.Fatalf("order = %v", got)
+	}
+	if chain.Prefer(uuid.New(), "") {
+		t.Fatal("an unknown connection was reported as on the chain")
+	}
+
+	twice := byok.NewChainForTest([]byok.Entry[string]{
+		{ConnectionID: a, Model: "small"}, {ConnectionID: b}, {ConnectionID: a, Model: "large"},
+	})
+	twice.Prefer(a, "large")
+	if e := twice.Entries()[0]; e.ConnectionID != a || e.Model != "large" {
+		t.Fatalf("first = %+v, want the large model", e)
+	}
+}

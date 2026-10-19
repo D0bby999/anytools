@@ -19,13 +19,15 @@ const maxTitle = 200
 
 // SessionJSON is the wire shape of a session.
 type SessionJSON struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	KBIDs     []string  `json:"kb_ids"`
-	ModelHint string    `json:"model_hint,omitempty"`
-	AllowWeb  bool      `json:"allow_web"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        string   `json:"id"`
+	Title     string   `json:"title"`
+	KBIDs     []string `json:"kb_ids"`
+	ModelHint string   `json:"model_hint,omitempty"`
+	// ConnectionID is the connection picked for this conversation, if any.
+	ConnectionID string    `json:"connection_id,omitempty"`
+	AllowWeb     bool      `json:"allow_web"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 func sessionJSON(s runtime.Session) SessionJSON {
@@ -33,10 +35,14 @@ func sessionJSON(s runtime.Session) SessionJSON {
 	for _, id := range s.KBIDs {
 		ids = append(ids, id.String())
 	}
-	return SessionJSON{
+	out := SessionJSON{
 		ID: s.ID.String(), Title: s.Title, KBIDs: ids, ModelHint: s.ModelHint,
 		AllowWeb: s.AllowWeb, CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt,
 	}
+	if s.ConnectionID != nil {
+		out.ConnectionID = s.ConnectionID.String()
+	}
+	return out
 }
 
 type createSessionRequest struct {
@@ -75,7 +81,9 @@ func (h *Handler) createSession(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) listSessions(w http.ResponseWriter, r *http.Request) {
 	userID := httpx.MustUserID(r.Context())
 
-	sessions, err := h.sessions.ListSessions(r.Context(), userID, limitParam(r, 50))
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	query = trimTitle(query)
+	sessions, err := h.sessions.ListSessions(r.Context(), userID, limitParam(r, 50), query)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "could not list sessions", "list_failed")
 		return
@@ -107,6 +115,9 @@ type patchSessionRequest struct {
 	KBIDs     *[]string `json:"kb_ids"`
 	ModelHint *string   `json:"model_hint"`
 	AllowWeb  *bool     `json:"allow_web"`
+	// ConnectionID pins a connection of the caller's chat route to this
+	// conversation; "" unpins it.
+	ConnectionID *string `json:"connection_id"`
 }
 
 func (h *Handler) patchSession(w http.ResponseWriter, r *http.Request) {
@@ -133,6 +144,29 @@ func (h *Handler) patchSession(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		patch.KBIDs = &kbIDs
+	}
+	if req.ConnectionID != nil {
+		if *req.ConnectionID == "" {
+			patch.ClearConnection = true
+		} else {
+			id, err := uuid.Parse(*req.ConnectionID)
+			// Not on the caller's chat route, someone else's, or not an id:
+			// all three answer as a connection that does not exist.
+			if err != nil || h.connections == nil {
+				notFound(w)
+				return
+			}
+			on, err := h.connections.OnChatRoute(r.Context(), userID, id)
+			if err != nil {
+				httpx.WriteError(w, http.StatusInternalServerError, "could not check the connection", "check_failed")
+				return
+			}
+			if !on {
+				notFound(w)
+				return
+			}
+			patch.ConnectionID = &id
+		}
 	}
 
 	sess, err := h.sessions.UpdateSession(r.Context(), userID, sessionID, patch)
@@ -320,6 +354,30 @@ func trimTitle(s string) string {
 		s = string(r[:maxTitle])
 	}
 	return s
+}
+
+// autoTitleRunes is how long a title taken from a question may be.
+const autoTitleRunes = 60
+
+// titleFromQuestion names an untitled conversation after its first question:
+// the first line, whitespace collapsed, cut at a word boundary. No model call:
+// the question is already the best short description there is, and it costs
+// the learner nothing.
+func titleFromQuestion(message string) string {
+	line := message
+	if i := strings.IndexByte(line, '\n'); i >= 0 {
+		line = line[:i]
+	}
+	line = strings.Join(strings.Fields(line), " ")
+	r := []rune(line)
+	if len(r) <= autoTitleRunes {
+		return line
+	}
+	cut := string(r[:autoTitleRunes])
+	if i := strings.LastIndexByte(cut, ' '); i > autoTitleRunes/2 {
+		cut = cut[:i]
+	}
+	return strings.TrimRight(cut, " ,.;:") + "…"
 }
 
 // rawJSON passes a stored jsonb column straight through to the response

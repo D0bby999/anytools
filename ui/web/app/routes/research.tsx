@@ -35,7 +35,7 @@ import { RightPanel } from "~/components/layout/right-panel";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Research · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Research · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 /** Renders its own RightPanel (stages and sources); the layout leaves the slot. */

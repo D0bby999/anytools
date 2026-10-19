@@ -16,7 +16,7 @@ import { ToolkitGroups } from "~/components/worksheet/toolkit-groups";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Toolkit · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Toolkit · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

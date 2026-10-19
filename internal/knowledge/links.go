@@ -1111,3 +1111,28 @@ func (s *Service) dropOriginalIfUnused(ctx context.Context, userID uuid.UUID, di
 		slog.Warn("knowledge: original left behind", "error", err)
 	}
 }
+
+// ErrNotFailed is Retry on a document that has not failed: one still being
+// processed, or one that is ready.
+var ErrNotFailed = errors.New("only a document that failed can be retried")
+
+// Retry queues a failed document for processing again, from the original it
+// already stored. A parse that failed for a reason the learner has since fixed
+// (no embedding model routed, a provider that was down) otherwise left only
+// "Remove" and a second upload, while its message said "then retry".
+func (s *Service) Retry(ctx context.Context, userID, docID uuid.UUID) (*UploadResult, error) {
+	doc, err := s.store.GetDocument(ctx, userID, docID)
+	if err != nil {
+		return nil, err
+	}
+	if doc.Status != StatusFailed || doc.SHA256 == "" {
+		return nil, ErrNotFailed
+	}
+	if err := s.store.ResetDocumentForReprocessing(ctx, userID, doc.ID); err != nil {
+		return nil, err
+	}
+	if doc, err = s.store.GetDocument(ctx, userID, docID); err != nil {
+		return nil, err
+	}
+	return s.queueParse(ctx, doc)
+}

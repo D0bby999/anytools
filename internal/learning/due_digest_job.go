@@ -29,7 +29,8 @@ import (
 // DueDigestLock is the advisory-lock name this job holds while it runs.
 const DueDigestLock = "mastery-due-digest"
 
-// DigestHour is the local hour the digest runs at.
+// DigestHour is the default local hour of a learner's reminder (they can pick
+// another in Settings → Reminders).
 //
 // 07:00 rather than 03:00: the summary is for a person's morning, and a
 // notification composed six hours before anyone reads it can be wrong by then —
@@ -56,12 +57,11 @@ type DueSource interface {
 
 // Notifier delivers one user's summary.
 //
-// AnyTools has no email, no push and no inbox: free + BYOK, no platform
-// services of any kind. LogNotifier is therefore the honest default — the
-// digest is computed and recorded where an operator can see it, and the surface
-// a learner actually reads is the live Due list on the page, which needs no job
-// at all. When a delivery channel exists, it implements this and nothing else
-// in the job changes.
+// The job calls it every hour for every learner with something due; the
+// notifier decides whether this is that learner's hour. internal/push is the
+// production one: a web push at the learner's local reminder hour, at most once
+// a day, and only to browsers they turned reminders on in. LogNotifier is the
+// default for a job built without one.
 type Notifier interface {
 	Notify(ctx context.Context, summary DueSummary) error
 }
@@ -81,13 +81,6 @@ type DueDigestJob struct {
 	source DueSource
 	notify Notifier
 	now    func() time.Time
-
-	// lastRun is the local date of the last completed pass. It stops an hourly
-	// ticker from sending a second digest at 08:00 on the same day. It is
-	// process-local, which is sound here only because the API is single-replica
-	// by rule (plan.md, phase 1); the advisory lock is what makes a second
-	// process safe, and this is what makes a second TICK safe.
-	lastRun string
 }
 
 // NewDueDigestJob builds the job. A nil notifier logs.
@@ -123,18 +116,18 @@ func (j *DueDigestJob) RunOnce(ctx context.Context) (sent int, ran bool, err err
 			}
 			sent++
 		}
-		j.lastRun = j.now().Format(time.DateOnly)
 		return nil
 	})
 	return sent, ran, err
 }
 
-// Start runs the digest once a day, at DigestHour.
+// Start runs a pass every hour.
 //
-// The ticker is hourly rather than a 24-hour timer because a 24-hour timer
-// started at boot fires at whatever time the process happened to restart, which
-// over a month of deploys drifts the "morning summary" to the middle of the
-// night. An hourly tick that checks the clock cannot drift.
+// Hourly because learners live in different zones and pick their own hour: each
+// pass offers every learner with something due to the notifier, which sends
+// only in that learner's hour and only once on their local day (the day it
+// sent is stored, so a restart cannot send it twice). A 24-hour timer started
+// at boot would also drift with every deploy; an hourly tick cannot.
 func (j *DueDigestJob) Start(ctx context.Context) {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -143,9 +136,6 @@ func (j *DueDigestJob) Start(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if !j.dueToRun() {
-				continue
-			}
 			sent, ran, err := j.RunOnce(ctx)
 			switch {
 			case err != nil:
@@ -155,12 +145,4 @@ func (j *DueDigestJob) Start(ctx context.Context) {
 			}
 		}
 	}
-}
-
-func (j *DueDigestJob) dueToRun() bool {
-	now := j.now()
-	if now.Hour() < DigestHour {
-		return false
-	}
-	return j.lastRun != now.Format(time.DateOnly)
 }

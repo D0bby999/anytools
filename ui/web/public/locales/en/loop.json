@@ -91,7 +91,7 @@
     "aiMay": "AI may",
     "humanConfirm": "A human must confirm",
     "perLine": "One per line.",
-    "boundariesHint": "One per line. A resumed chat is told these; AnyTools cannot enforce them.",
+    "boundariesHint": "One per line. A resumed chat is told these; AnyLearn cannot enforce them.",
     "handover": "Handover note",
     "handoverHint": "What a fresh conversation should start from. A resumed chat's update can replace it once it passes the check below.",
     "save": "Save",
@@ -103,6 +103,7 @@
   },
   "interrupt": {
     "title": "Interrupted",
+    "open": "Record an interruption",
     "lead": "If this week fell apart, shrink the plan instead of dropping it: the next task becomes its minimum version, and the interruption is logged on the cycle.",
     "minimum": "Smallest version of your next task",
     "note": "What happened (optional)",
@@ -136,7 +137,7 @@
     "rollback": "If it goes wrong, how to roll back",
     "handover": "How the work comes back to you",
     "dataNote": "Data boundary (note to self)",
-    "dataNoteHint": "The data boundary is a reminder for you. AnyTools cannot control what a model provider does with what you send it.",
+    "dataNoteHint": "The data boundary is a reminder for you. AnyLearn cannot control what a model provider does with what you send it.",
     "preStart": "Before you start",
     "notReady": "Some of the before-you-start checks are not ticked yet.",
     "check": {

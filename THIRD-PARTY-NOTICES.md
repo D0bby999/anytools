@@ -2728,12 +2728,14 @@ The API is one static binary, so the licence of every module it links is reprodu
 | Module | Licence |
 |---|---|
 | Go standard library | BSD-3-Clause |
+| github.com/SherClockHolmes/webpush-go v1.4.0 | MIT |
 | github.com/andybalholm/cascadia v1.3.3 | BSD-2-Clause |
 | github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de | MIT |
 | github.com/dlclark/regexp2 v1.10.0 | MIT |
 | github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c | MIT |
 | github.com/go-shiori/go-readability v0.0.0-20251205110129-5db1dc9836f0 | MIT |
 | github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f | MIT |
+| github.com/golang-jwt/jwt/v5 v5.3.1 | MIT |
 | github.com/golang-migrate/migrate/v4 v4.20.1 | MIT |
 | github.com/google/uuid v1.6.0 | BSD-3-Clause |
 | github.com/hhrutter/lzw v1.0.0 | BSD-3-Clause |
@@ -2807,6 +2809,32 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+### github.com/SherClockHolmes/webpush-go v1.4.0 (LICENSE)
+
+```
+MIT License
+
+Copyright (c) 2016 Ethan Holmes
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
 ### github.com/andybalholm/cascadia v1.3.3 (LICENSE)
@@ -2967,6 +2995,19 @@ SOFTWARE.
 
 Partial of the Software is derived from ICU project. See icu-license.html for
 license of the derivative portions.
+```
+
+### github.com/golang-jwt/jwt/v5 v5.3.1 (LICENSE)
+
+```
+Copyright (c) 2012 Dave Grijalva
+Copyright (c) 2021 golang-jwt maintainers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
 
 ### github.com/golang-migrate/migrate/v4 v4.20.1 (LICENSE)

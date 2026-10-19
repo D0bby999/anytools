@@ -1,5 +1,6 @@
 import { createContext, useContext, type ComponentProps, type ReactNode } from "react";
 import Markdown, { type Components } from "react-markdown";
+import { useTranslation } from "react-i18next";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -10,6 +11,7 @@ import { ChartBlock } from "~/components/diagram/chart-block";
 import { MermaidBlock } from "~/components/diagram/mermaid-block";
 import { DiagramErrorContext } from "~/components/diagram/diagram-error";
 import { protectCitations, remarkCitations } from "~/lib/remark-citations";
+import { CopyText } from "~/components/ui/copy-text";
 import { ListenButton } from "~/components/vocab/listen-button";
 
 /**
@@ -43,12 +45,15 @@ export function RichText({
   streaming = false,
   onDiagramError,
   listen = true,
+  actions,
 }: {
   text: string;
   sources: Source[];
   streaming?: boolean;
   /** Offer read-aloud (default). Off for a line too short to be worth it. */
   listen?: boolean;
+  /** More controls for the answer (chat's "Draw it"), on Listen's line. */
+  actions?: ReactNode;
   /** Called with Mermaid's parse error when a diagram in the text cannot be drawn. */
   onDiagramError?: (error: string) => void;
 }) {
@@ -74,7 +79,12 @@ export function RichText({
           </div>
           {/* Learning depth, phase 7: read the answer aloud; renders nothing
               without speechSynthesis. */}
-          {streaming || !listen ? null : <ListenButton text={text} />}
+          {streaming ? null : listen || actions ? (
+            <div className="mt-1 flex flex-wrap items-start gap-1">
+              {listen ? <ListenButton text={text} /> : null}
+              {actions}
+            </div>
+          ) : null}
         </DiagramErrorContext.Provider>
       </StreamingContext.Provider>
     </SourcesContext.Provider>
@@ -102,7 +112,14 @@ function Fence({ node, children, ...rest }: ComponentProps<"pre"> & { node?: Has
   const fence = streaming ? null : fenceOf(node);
   if (fence?.lang === "mermaid") return <MermaidBlock source={fence.text} />;
   if (fence?.lang === "chart") return <ChartBlock source={fence.text} />;
-  return <pre {...rest}>{children}</pre>;
+  if (!fence || fence.text === "") return <pre {...rest}>{children}</pre>;
+  // A finished code block can be copied exactly, without selecting it.
+  return (
+    <div className="relative">
+      <pre {...rest}>{children}</pre>
+      <CopyText text={fence.text} className="absolute top-1.5 right-1.5 h-7 bg-card px-2 text-xs" />
+    </div>
+  );
 }
 
 /** A `lp-cite` element from remark-citations: its chip, if the source is known. */
@@ -160,10 +177,21 @@ function SafeLink({ href, children, node: _node, ...rest }: ComponentProps<"a"> 
   );
 }
 
-/** A table scrolls sideways inside its own box instead of widening a phone's page. */
+/**
+ * A table scrolls sideways inside its own box instead of widening a phone's
+ * page. The box takes focus, so a keyboard can scroll it too (a scroll region
+ * nobody can focus is out of reach without a pointer).
+ */
 function ScrollingTable({ children, node: _node, ...rest }: ComponentProps<"table"> & { node?: unknown }) {
+  const { t } = useTranslation("common");
   return (
-    <div className="lp-table-scroll" data-lp-scroll="">
+    <div
+      className="lp-table-scroll rounded-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+      data-lp-scroll=""
+      role="region"
+      aria-label={t("richText.table")}
+      tabIndex={0}
+    >
       <table {...rest}>{children}</table>
     </div>
   );

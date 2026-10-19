@@ -65,7 +65,7 @@ func (s *Service) ExportMarkdown(ctx context.Context, userID, notebookID uuid.UU
 			fmt.Fprintf(&b, "- Source: %s\n", line)
 		}
 		if n.CreatedBy == CreatedByAgent {
-			b.WriteString("- Written by: AnyTools (agent)\n")
+			b.WriteString("- Written by: AnyLearn (agent)\n")
 		}
 		if names := categoryNames(n.CategoryIDs, byID); len(names) > 0 {
 			fmt.Fprintf(&b, "- Categories: %s\n", strings.Join(names, ", "))

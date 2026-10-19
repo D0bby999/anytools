@@ -2,14 +2,18 @@
   "site": {
     "home": "Inicio de AnyTools",
     "language": "Idioma",
-    "openApp": "App de estudio",
+    "openApp": "AnyLearn",
     "search": "Buscar herramientas",
     "searchHint": "Pulsa / o Ctrl+K para buscar",
-    "footerNote": "Las herramientas funcionan en tu navegador. La app de estudio está en inglés y usa tus propias cuentas de IA.",
+    "footerNote": "Las herramientas funcionan en tu navegador. AnyLearn, la app de estudio, está en inglés y usa tus propias cuentas de IA.",
     "sourceCode": "Código fuente",
     "tagline": "Herramientas para desarrolladores, multilingüe, offline-first",
     "useLight": "Cambiar al tema claro",
-    "useDark": "Cambiar al tema oscuro"
+    "useDark": "Cambiar al tema oscuro",
+    "signIn": "Iniciar sesión",
+    "menu": "Menú",
+    "places": "Sitio",
+    "more": "Más de AnyTools"
   },
   "nav": {
     "tools": "Herramientas",
@@ -194,8 +198,8 @@
         "Dos cosas sorprenden con frecuencia. Las fotos hechas con el móvil llevan una marca de orientación, y el software que la ignora tumba los retratos; estas herramientas la leen. Y la transparencia no sobrevive al paso a JPEG: un fondo transparente se vuelve negro. Cuando eso va a ocurrir se te avisa antes, y se te ofrece WebP en su lugar."
       ]
     },
-    "toolCount_one": "{{{count}}} herramienta",
-    "toolCount_other": "{{{count}}} herramientas"
+    "toolCount_one": "{{count}} herramienta",
+    "toolCount_other": "{{count}} herramientas"
   },
   "tool": {
     "tutorial": "Cómo funciona",
@@ -227,9 +231,9 @@
       "cta": "Descargar AnyProfile"
     },
     "study": {
-      "title": "AnyTools es, ante todo, una app de estudio",
+      "title": "AnyLearn, la app de estudio de AnyTools",
       "body": "Sube el material con el que estudias. Obtén respuestas que citan la página, cuestionarios escritos a partir de él y repasos justo antes de que lo olvides, con tu propia cuenta de IA.",
-      "cta": "Abrir la app de estudio"
+      "cta": "Abrir AnyLearn"
     },
     "appendix": "Apéndice"
   }

@@ -2,14 +2,18 @@
   "site": {
     "home": "Trang chủ AnyTools",
     "language": "Ngôn ngữ",
-    "openApp": "Ứng dụng học",
+    "openApp": "AnyLearn",
     "search": "Tìm công cụ",
     "searchHint": "Nhấn / hoặc Ctrl+K để tìm",
-    "footerNote": "Các công cụ chạy trong trình duyệt của bạn. Ứng dụng học dùng tiếng Anh và dùng tài khoản AI của chính bạn.",
+    "footerNote": "Các công cụ chạy trong trình duyệt của bạn. Ứng dụng học AnyLearn dùng tiếng Anh và dùng tài khoản AI của chính bạn.",
     "sourceCode": "Mã nguồn",
     "tagline": "Bộ công cụ lập trình đa ngôn ngữ, hoạt động offline",
     "useLight": "Chuyển sang giao diện sáng",
-    "useDark": "Chuyển sang giao diện tối"
+    "useDark": "Chuyển sang giao diện tối",
+    "signIn": "Đăng nhập",
+    "menu": "Menu",
+    "places": "Trang",
+    "more": "Thêm từ AnyTools"
   },
   "nav": {
     "tools": "Công cụ",
@@ -194,7 +198,7 @@
         "Hai chuyện hay làm người dùng bất ngờ. Ảnh chụp điện thoại mang một cờ chiều xoay, phần mềm nào bỏ qua cờ đó sẽ làm ảnh dọc nằm ngang; tool này đọc nó. Và nền trong suốt không sống sót khi chuyển sang JPEG — nền trong sẽ thành đen. Sắp xảy ra chuyện đó thì bạn được báo trước, kèm gợi ý dùng WebP."
       ]
     },
-    "toolCount_other": "{{{count}}} công cụ"
+    "toolCount_other": "{{count}} công cụ"
   },
   "tool": {
     "tutorial": "Cách hoạt động",
@@ -226,9 +230,9 @@
       "cta": "Tải AnyProfile"
     },
     "study": {
-      "title": "AnyTools trước hết là một ứng dụng học",
+      "title": "AnyLearn, ứng dụng học của AnyTools",
       "body": "Tải lên tài liệu bạn đang học. Nhận câu trả lời trích đúng trang, câu hỏi luyện tập viết từ chính tài liệu đó, và lịch ôn đúng lúc bạn sắp quên, chạy trên tài khoản AI của chính bạn.",
-      "cta": "Mở ứng dụng học"
+      "cta": "Mở AnyLearn"
     },
     "appendix": "Phụ lục"
   }

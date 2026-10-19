@@ -6,6 +6,7 @@
  * bank: it is "the questions I just asked for", and every one of them is also
  * in the bank the moment the API stored it.
  */
+import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/quiz.index";
@@ -17,10 +18,12 @@ import { GENERATABLE_TYPES, type QuestionType } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { QuizTabs } from "~/components/quiz/quiz-tabs";
+import { asSentence } from "~/lib/sentence";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Quiz · AnyTools" },
+    { title: "Quiz · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -83,27 +86,15 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
     <div className="lp-measure">
       <PageHeader title={t("quiz.title")} lede={t("quiz.lead")} />
 
-      <p className="mt-2 text-sm">
-        <Link to="/quiz/bank" className="text-primary underline underline-offset-4">
-          {t("quiz.openBank")}
-        </Link>
-        {" · "}
-        <Link to="/quiz/practice" className="text-primary underline underline-offset-4">
-          {t("quiz.practise")}
-        </Link>
-        {" · "}
-        <Link to="/quiz/exams" className="text-primary underline underline-offset-4">
-          {t("quiz.exams")}
-        </Link>
-      </p>
+      <QuizTabs />
 
       {loaderData.kbs.length === 0 ? (
-        <p className="mt-8 text-sm leading-prose text-muted-foreground">
+        <PlateEmpty name="part-practise" className="mt-8">
           {t("quiz.noKb")}{" "}
-          <Link to="/knowledge" className="text-primary underline underline-offset-4">
+          <Link to="/knowledge" className="text-primary not-italic underline underline-offset-4">
             {t("quiz.goKnowledge")}
           </Link>
-        </p>
+        </PlateEmpty>
       ) : (
         <section aria-labelledby="lp-quiz-generate" className="mt-8">
           <h2 id="lp-quiz-generate" className="lp-section">
@@ -178,7 +169,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
           {actionData && "errorKey" in actionData && actionData.errorKey ? (
             <p role="alert" className="mt-3 text-sm leading-snug text-destructive">
               {t(actionData.errorKey)}
-              {actionData.errorDetail ? ` ${actionData.errorDetail}` : ""}
+              {actionData.errorDetail ? ` ${asSentence(actionData.errorDetail)}` : ""}
             </p>
           ) : null}
         </section>

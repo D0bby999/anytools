@@ -38,6 +38,8 @@ export default [
         route("profile", "routes/settings.profile.tsx"),
         // drive-user-storage phase 2: where the learner's own files are kept.
         route("storage", "routes/settings.storage.tsx"),
+        // The daily review reminder (a web push) and installing AnyLearn.
+        route("reminders", "routes/settings.reminders.tsx"),
       ]),
       // Phase 6: grounded chat. Nested under app-layout, so it inherits the
       // session guard rather than remembering to ask for one.
@@ -208,6 +210,8 @@ export default [
     route("guides", "routes/public.guides.tsx"),
     route("guides/:slug", "routes/public.guide.tsx"),
     route("anyprofile", "routes/public.anyprofile.tsx"),
+    // AnyLearn, the study app, beside AnyProfile: what it does and how to install it.
+    route("anylearn", "routes/public.anylearn.tsx"),
     ...STATIC_PAGES.map((page) => route(page, "routes/public.page.tsx", { id: `routes/public.page.${page}` })),
     route(":cluster", "routes/public.cluster.tsx"),
     route(":cluster/:tool", "routes/public.tool.tsx"),

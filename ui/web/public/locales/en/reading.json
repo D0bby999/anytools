@@ -1,6 +1,6 @@
 {
   "hint": "Select any passage to explain it, look up its vocabulary, quiz yourself on it, translate it, highlight it or save it to your notebook.",
-  "pdfFallback": "The original file could not be displayed, so this is the text AnyTools extracted from it.",
+  "pdfFallback": "The original file could not be displayed, so this is the text AnyLearn extracted from it.",
   "actions": {
     "explain": "Explain",
     "vocab": "Vocabulary",

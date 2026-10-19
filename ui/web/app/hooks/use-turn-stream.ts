@@ -59,6 +59,12 @@ export type ToolActivity = {
   name: string;
   status: "running" | "done" | "error";
   detail?: string;
+  /** What the call was for: its query, title or page (chat-work.ts). */
+  argument?: string;
+  /** Passages the call returned. */
+  found?: number;
+  /** The same call was already made in this turn and was not run again. */
+  repeated?: boolean;
 };
 
 /**
@@ -97,6 +103,12 @@ export type TurnState = {
   resultMeta: Record<string, unknown> | null;
   /** Set when the turn ended badly. */
   failure: { message: string; code?: string; retryable?: boolean } | null;
+  /** The turn ended because it was stopped, not because it failed. */
+  cancelled: boolean;
+  /** Earlier messages were summarised to make room (a `progress` frame). */
+  compacted: number;
+  /** The model the turn is using, from `session_meta`. */
+  model: string | null;
   finished: boolean;
   lastSeq: number;
 };
@@ -112,6 +124,9 @@ const EMPTY: TurnState = {
   observations: [],
   resultMeta: null,
   failure: null,
+  cancelled: false,
+  compacted: 0,
+  model: null,
   finished: false,
   lastSeq: 0,
 };
@@ -198,7 +213,12 @@ function reduce(prev: TurnState, ev: TurnEvent, seq: number): TurnState {
       const callId = str(ev.metadata?.call_id) || `call-${seq}`;
       next.tools = [
         ...prev.tools,
-        { callId, name: str(ev.metadata?.tool) || ev.content || "tool", status: "running" },
+        {
+          callId,
+          name: str(ev.metadata?.tool) || ev.content || "tool",
+          status: "running",
+          argument: argumentOf(ev.metadata?.arguments),
+        },
       ];
       return next;
     }
@@ -206,9 +226,16 @@ function reduce(prev: TurnState, ev: TurnEvent, seq: number): TurnState {
     case "tool_result": {
       const callId = str(ev.metadata?.call_id);
       const failed = ev.metadata?.error === true;
+      const found = ev.metadata?.sources;
       next.tools = prev.tools.map((t) =>
         t.callId === callId
-          ? { ...t, status: failed ? "error" : "done", detail: ev.content }
+          ? {
+              ...t,
+              status: failed ? "error" : "done",
+              detail: ev.content,
+              found: typeof found === "number" ? found : undefined,
+              repeated: ev.metadata?.repeated === true,
+            }
           : t,
       );
       return next;
@@ -241,7 +268,20 @@ function reduce(prev: TurnState, ev: TurnEvent, seq: number): TurnState {
       }
       return next;
 
+    case "progress":
+      if (ev.metadata?.kind === "compaction" && typeof ev.metadata.messages === "number") {
+        next.compacted = prev.compacted + ev.metadata.messages;
+      }
+      return next;
+
+    case "session_meta":
+      next.model = str(ev.metadata?.model) || prev.model;
+      return next;
+
     case "error":
+      // A stop arrives as an `error` frame with status `cancelled`. It stays
+      // a failure for the pages that only show one; chat reads `cancelled`.
+      next.cancelled = ev.metadata?.status === "cancelled";
       next.failure = {
         message: ev.content || "This turn stopped before it finished.",
         code: str(ev.metadata?.failure_code) || undefined,
@@ -257,9 +297,21 @@ function reduce(prev: TurnState, ev: TurnEvent, seq: number): TurnState {
       return next;
 
     default:
-      // session, session_meta, progress: nothing on screen depends on them yet.
+      // session: nothing on screen depends on it.
       return next;
   }
+}
+
+/** The argument a reader recognises a call by (mirrors chat/tools.go argDetail). */
+function argumentOf(v: unknown): string | undefined {
+  if (!v || typeof v !== "object") return undefined;
+  const args = v as Record<string, unknown>;
+  for (const key of ["query", "question", "q", "title", "path"]) {
+    const s = args[key];
+    if (typeof s === "string" && s.trim() !== "") return s.trim();
+  }
+  if (typeof args.page === "number") return `p. ${args.page}`;
+  return undefined;
 }
 
 function str(v: unknown): string {

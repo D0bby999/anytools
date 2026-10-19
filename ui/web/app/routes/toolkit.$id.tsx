@@ -47,7 +47,7 @@ import { SaveToDrive } from "~/components/storage/save-to-drive";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Worksheet · Toolkit · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Worksheet · Toolkit · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

@@ -104,6 +104,24 @@ func (c *Chain[T]) Unbuildable() int { return c.unbuildable }
 // expose secrets: Entry carries a built client, never a key.
 func (c *Chain[T]) Entries() []Entry[T] { return c.entries }
 
+// Prefer moves one entry to the front, keeping the others in their order
+// behind it: the entry for connectionID and model, or with model "" the
+// connection's first entry (a route may hold one connection twice, with two
+// models). It reports whether such an entry was on the chain.
+func (c *Chain[T]) Prefer(connectionID uuid.UUID, model string) bool {
+	for i, e := range c.entries {
+		if e.ConnectionID == connectionID && (model == "" || e.Model == model) {
+			reordered := make([]Entry[T], 0, len(c.entries))
+			reordered = append(reordered, e)
+			reordered = append(reordered, c.entries[:i]...)
+			reordered = append(reordered, c.entries[i+1:]...)
+			c.entries = reordered
+			return true
+		}
+	}
+	return false
+}
+
 // Len reports how many entries the chain has.
 func (c *Chain[T]) Len() int { return len(c.entries) }
 

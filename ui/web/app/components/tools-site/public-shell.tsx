@@ -1,10 +1,8 @@
 import { useEffect, type ReactNode } from "react";
-import { Form, Link, useMatches } from "react-router";
+import { Link, useMatches } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Search } from "lucide-react";
 import type { PublicLng } from "~/lib/i18n";
-import { ThemeToggle } from "~/components/layout/theme-toggle";
-import { LocaleSwitcher } from "./locale-switcher";
+import { SEARCH_ATTR, SiteHeader } from "~/components/layout/site-header";
 import { StudyBand } from "./anyprofile-feature";
 
 /** Source of the open-source repository (phase 5 publishes it). */
@@ -25,7 +23,7 @@ export const FOOTER_LINKS: readonly { to: (locale: PublicLng) => string; labelKe
 ];
 
 /** The element the shortcut focuses: the page's own search if it has one. */
-export const SEARCH_ATTR = "data-tools-search";
+export { SEARCH_ATTR };
 
 /**
  * "/" and Ctrl/Cmd+K focus the search box, which is what the old site's
@@ -52,10 +50,11 @@ function useSearchShortcut() {
 }
 
 /**
- * The frame of every public page: wordmark, search, language and theme, the
- * page, and a footer. A route whose page carries its own search (the tools
- * home) sets `handle = { ownSearch: true }` and the header leaves its box out,
- * so a page never shows two.
+ * The frame of every public page: the site header (the landing page's, with
+ * the tools search), the page, the study app's band, and the site footer. A
+ * route whose page carries its own search (the tools home) sets
+ * `handle = { ownSearch: true }` and the header leaves its box out, so a page
+ * never shows two.
  */
 export function PublicShell({ locale, children }: { locale: PublicLng; children: ReactNode }) {
   const { t } = useTranslation("tools");
@@ -65,69 +64,7 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
   return (
     // The tools are the book's appendix: everything here sits in its part.
     <div data-part="tools" className="flex min-h-screen flex-col bg-background">
-      <header className="border-b bg-background">
-        <div className="lp-layout flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 lg:px-6">
-          <Link
-            to={`/${locale}`}
-            translate="no"
-            aria-label={t("site.home")}
-            className="flex items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <span className="font-serif text-xl font-semibold tracking-display">AnyTools</span>
-            <span aria-hidden="true" className="lp-tab hidden sm:inline-flex">
-              {t("feature.appendix")}
-            </span>
-          </Link>
-
-          <nav aria-label={t("feature.appendix")} className="hidden items-center gap-1 md:flex">
-            <Link to={`/${locale}/guides`} className={NAV_LINK}>
-              {t("nav.guides")}
-            </Link>
-            <Link to={`/${locale}/anyprofile`} className={NAV_LINK}>
-              {t("footer.anyprofile")}
-            </Link>
-          </nav>
-
-          {/* Phone: the wordmark and the study app on the first row; search,
-              language and theme on the second. */}
-          <div className="ml-auto sm:order-last sm:ml-0">
-            <ThemeToggle labels={{ useLight: t("site.useLight"), useDark: t("site.useDark") }} />
-          </div>
-          <a
-            href="/"
-            className="inline-flex min-h-11 items-center rounded-md border border-primary bg-primary px-4 text-sm font-semibold whitespace-nowrap text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:order-last"
-          >
-            {t("site.openApp")}
-          </a>
-          <span aria-hidden="true" className="basis-full sm:hidden" />
-
-          {!ownSearch && (
-            <Form method="get" action={`/${locale}`} role="search" className="min-w-0 flex-1 sm:max-w-xs">
-              <label className="relative block">
-                <span className="sr-only">{t("site.search")}</span>
-                <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="search"
-                  name="q"
-                  {...{ [SEARCH_ATTR]: "" }}
-                  placeholder={t("site.search")}
-                  aria-describedby="tools-search-hint"
-                  className="h-11 w-full rounded-md border bg-card pr-3 pl-9 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                />
-              </label>
-              <span id="tools-search-hint" className="sr-only">
-                {t("site.searchHint")}
-              </span>
-            </Form>
-          )}
-
-          {/* The study app is the product; the tools are its appendix. So the
-              one filled button on every tools page (above) leads back to it. */}
-          <div className="flex items-center gap-1 sm:ml-auto">
-            <LocaleSwitcher locale={locale} />
-          </div>
-        </div>
-      </header>
+      <SiteHeader locale={locale} search={!ownSearch} />
 
       <main id="main" className="flex-1">
         {children}
@@ -135,29 +72,48 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
 
       <StudyBand />
 
-      <footer className="border-t">
-        <div className="lp-layout flex flex-col gap-3 px-4 py-6 text-sm text-muted-foreground lg:px-6">
-          <p className="max-w-(--lp-measure-read)">{t("site.footerNote")}</p>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1">
+      <SiteFooter locale={locale} note={t("site.footerNote")} />
+    </div>
+  );
+}
+
+/**
+ * The site's one footer, under the landing page and every public page: the
+ * wordmark and a sentence about the page's place in the site, then the links
+ * to the rest of it.
+ */
+export function SiteFooter({ locale, note }: { locale: PublicLng; note: string }) {
+  const { t } = useTranslation("tools");
+  return (
+    <footer className="border-t bg-muted">
+      <div className="lp-layout grid gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16 lg:px-6">
+        <div>
+          <p translate="no" className="font-serif text-xl font-semibold tracking-display">
+            AnyTools
+          </p>
+          <p className="mt-2 max-w-(--lp-measure-read) text-sm leading-snug text-muted-foreground">{note}</p>
+        </div>
+        <nav aria-label={t("site.more")}>
+          <ul className="grid grid-cols-2 gap-x-10 text-sm sm:grid-cols-3">
             {FOOTER_LINKS.map((l) => (
               <li key={l.labelKey}>
                 {l.external ? (
-                  <a href={l.to(locale)} rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline">
+                  <a href={l.to(locale)} rel="noopener noreferrer" className={FOOTER_LINK}>
                     {t(l.labelKey)}
                   </a>
                 ) : (
-                  <Link to={l.to(locale)} className="inline-flex min-h-11 items-center underline-offset-4 hover:text-foreground hover:underline">
+                  <Link to={l.to(locale)} className={FOOTER_LINK}>
                     {t(l.labelKey)}
                   </Link>
                 )}
               </li>
             ))}
           </ul>
-        </div>
-      </footer>
-    </div>
+        </nav>
+      </div>
+    </footer>
   );
 }
 
-const NAV_LINK =
-  "inline-flex min-h-11 items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+const FOOTER_LINK =
+  "inline-flex min-h-11 items-center text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";

@@ -4,6 +4,7 @@
  * out of the current phase, this week's review, and what is due from the
  * mastery paths. Other goals are listed below; the four-line start is last.
  */
+import { Plate } from "~/components/ui/plate";
 import { Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.index";
@@ -23,7 +24,7 @@ import { ToolkitLink } from "~/components/worksheet/toolkit-link";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Learning loop · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -172,7 +173,15 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
         <h2 id="lp-loop-start" className="lp-section">
           {states.length === 0 ? t("start.first") : t("start.another")}
         </h2>
-        <StartForm busy={busy} />
+        {states.length === 0 ? (
+          // The first visit: the part's plate beside the form that starts it.
+          <div className="grid items-start gap-x-8 gap-y-4 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
+            <Plate name="part-reflect" sizes="(min-width: 640px) 15rem, 60vw" className="mt-3 max-w-60" />
+            <StartForm busy={busy} />
+          </div>
+        ) : (
+          <StartForm busy={busy} />
+        )}
       </section>
     </div>
   );

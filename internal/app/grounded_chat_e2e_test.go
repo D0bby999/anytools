@@ -215,7 +215,7 @@ func buildE2EStorage(t *testing.T, modelURL string, fns []string, clock func() t
 	rt := buildChatRuntime(pool, byokSvc, kb, web, nil, loopStates{loopSvc})
 	t.Cleanup(rt.stop)
 
-	quizHandler, masteryHandler, _ := buildQuizMastery(pool, kb, newChatResolver(byokSvc), clock)
+	quizHandler, masteryHandler, _ := buildQuizMastery(pool, kb, newChatResolver(byokSvc), clock, nil)
 	solveHandler, researchHandler := buildSolveResearch(pool, rt, kb, web)
 	// Learning depth, phase 7: the reading surface and the vocabulary.
 	pages := newPageLoader(pool, kb)

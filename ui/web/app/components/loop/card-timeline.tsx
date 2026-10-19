@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import type { CardDetail, CardEntry, Timepoint } from "~/lib/loop-types";
 import { CardEntryForm, type LinkChoice } from "~/components/loop/card-entry-form";
 import { Button } from "~/components/ui/button";
+import { DateText } from "~/components/ui/date-text";
 
 const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
@@ -50,7 +51,7 @@ function EntryItem({ entry }: { entry: CardEntry }) {
   return (
     <li className="border-b py-3">
       <p className="text-xs font-semibold text-faint">
-        {new Date(entry.created_at).toLocaleDateString()} · {t("cards.cueNote", { level: levels[entry.prompt_level] ?? entry.prompt_level })}
+        <DateText iso={entry.created_at} /> · {t("cards.cueNote", { level: levels[entry.prompt_level] ?? entry.prompt_level })}
       </p>
       {/* The learner's own text, shown as text: no markdown, no HTML. */}
       <p className="mt-1 whitespace-pre-wrap text-sm leading-prose">{entry.body}</p>

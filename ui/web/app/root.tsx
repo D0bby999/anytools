@@ -1,5 +1,7 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from "react-router";
+import { useEffect } from "react";
 import { useNonce } from "~/lib/nonce";
+import { Plate } from "~/components/ui/plate";
 import { I18nextProvider } from "react-i18next";
 
 import type { Route } from "./+types/root";
@@ -33,13 +35,34 @@ export const links: Route.LinksFunction = () => [
   { rel: "preload", href: serifSemibold, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
 ];
 
+/** Same key and rule as useThemeAfterHydration and components/layout/theme-toggle.tsx. */
+const APPLY_THEME = `document.documentElement.classList.toggle("dark",localStorage.getItem("anytools-theme")==="dark")`;
+
+/**
+ * Applies the theme again once React owns the page. When hydration fails on a
+ * page (a date rendered in another zone, say), React renders it again on the
+ * client and the class the pre-paint script set on <html> is gone with it.
+ */
+function useThemeAfterHydration() {
+  useEffect(() => {
+    try {
+      document.documentElement.classList.toggle("dark", localStorage.getItem("anytools-theme") === "dark");
+    } catch {
+      // No storage (Safari private mode): the light default stands.
+    }
+  }, []);
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   // The CSP nonce (entry.server.tsx). Empty in the browser, where the
   // attribute is hidden after parsing — hence suppressHydrationWarning below.
   const nonce = useNonce();
-  // The public tool pages are in the visitor's language (public.layout.tsx);
-  // the app is English.
-  const lang = useRouteLoaderData<{ locale: string }>("routes/public.layout")?.locale ?? "en";
+  useThemeAfterHydration();
+  // The public tool pages and the landing page are in the visitor's language
+  // (public.layout.tsx, landing.tsx); the app is English.
+  const publicLang = useRouteLoaderData<{ locale: string }>("routes/public.layout")?.locale;
+  const landingLang = useRouteLoaderData<{ toolsLocale: string }>("routes/landing")?.toolsLocale;
+  const lang = publicLang ?? landingLang ?? "en";
   return (
     <html lang={lang} suppressHydrationWarning>
       <head>
@@ -53,9 +76,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           // Applies the stored theme before first paint. Without it a dark-mode
           // user sees a white flash on every navigation that triggers a document
           // load, because React only learns the preference after hydration.
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("anytools-theme");if(t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}})()`,
-          }}
+          // Light is the default (owner, 2026-10-19): only a visitor who chose
+          // dark gets it, whatever the system prefers.
+          dangerouslySetInnerHTML={{ __html: `(function(){try{${APPLY_THEME}}catch(e){}})()` }}
         />
       </head>
       <body>
@@ -94,10 +117,17 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     stack = error.stack;
   }
 
+  const missing = isRouteErrorResponse(error) && error.status === 404;
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-semibold">{title}</h1>
-      <p className="mt-2 text-muted-foreground">{detail}</p>
+    <main className="mx-auto max-w-2xl px-4 py-12">
+      {missing && <Plate name="notfound" sizes="(min-width: 768px) 36rem, 100vw" className="mb-6" />}
+      <h1 className="text-3xl leading-tight">{title}</h1>
+      <p className="mt-3 text-lg text-muted-foreground">{detail}</p>
+      <p className="mt-6">
+        <a href="/" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
+          AnyTools
+        </a>
+      </p>
       {stack && (
         <pre className="mt-6 w-full overflow-x-auto rounded-md bg-muted p-4 text-xs">
           <code>{stack}</code>

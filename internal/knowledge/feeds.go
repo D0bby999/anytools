@@ -693,7 +693,7 @@ func entrySentence(err error) string {
 	case errors.Is(err, ErrMediaTooLarge), errors.Is(err, security.ErrStreamTooLarge):
 		return fmt.Sprintf("the episode is larger than %d MB", MaxMediaBytes>>20)
 	case errors.Is(err, parse.ErrUnsupportedType), errors.Is(err, security.ErrPageType):
-		return "the episode's file is not audio or video AnyTools can read"
+		return "the episode's file is not audio or video AnyLearn can read"
 	case IsDuplicateDocument(err):
 		return "this episode's recording is already in this knowledge base"
 	case errors.As(err, &status):

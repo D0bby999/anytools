@@ -25,6 +25,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/feedapi"
 	"github.com/D0bby999/anytools/internal/api/httpx"
 	"github.com/D0bby999/anytools/internal/api/kbapi"
+	"github.com/D0bby999/anytools/internal/api/pushapi"
 	"github.com/D0bby999/anytools/internal/api/sourceapi"
 	"github.com/D0bby999/anytools/internal/api/videonotesapi"
 	"github.com/D0bby999/anytools/internal/api/visualizeapi"
@@ -167,8 +168,12 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 		Providers: newChatResolver(byokService),
 	})
 
+	// The daily review reminder: a web push at the learner's hour. See
+	// wire_push.go.
+	reminders := buildPush(pool, cfg)
+
 	// Phase 7. See wire_quiz.go.
-	quizHandler, masteryHandler, startLearning := buildQuizMastery(pool, kb, newChatResolver(byokService), nil)
+	quizHandler, masteryHandler, startLearning := buildQuizMastery(pool, kb, newChatResolver(byokService), nil, reminders)
 
 	// Phase 9. See wire_research.go.
 	solveHandler, researchHandler := buildSolveResearch(pool, rt, kb, web)
@@ -206,6 +211,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 		Zotero:       buildZotero(pool, kb, byokService, web.zotero), // up methods, phase 20; see wire_zotero.go
 		Feeds:        feedapi.NewHandler(kb.service, kb.authz),
 		Storage:      storageHandler,
+		Push:         pushapi.NewHandler(reminders),
 		Users:        users,
 		GatewayToken: cfg.Security.GatewayToken,
 		AllowNoAuth:  cfg.Security.AllowNoAuth,
@@ -361,7 +367,9 @@ func buildChatRuntime(
 	return chatRuntime{
 		// up-methods phase 11: chat, and solve through it, enforce "write your
 		// own version first".
-		handler:   chatapi.NewHandler(chatStore, turnStore, orch, owner).WithOwnVersion(pg.NewUserStore(pool)),
+		handler: chatapi.NewHandler(chatStore, turnStore, orch, owner).
+			WithOwnVersion(pg.NewUserStore(pool)).
+			WithChatConnections(chatStore),
 		chatStore: chatStore,
 		orch:      orch,
 		notes:     noteWriter,

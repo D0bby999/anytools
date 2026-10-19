@@ -103,7 +103,7 @@ func (h *harness) start(t *testing.T, provider *scriptedProvider) *process {
 	})
 
 	handler := api.BuildMux(api.Deps{
-		Chat:         chatapi.NewHandler(chatStore, turnStore, orch, h.authz).WithOwnVersion(pg.NewUserStore(h.pool)),
+		Chat:         chatapi.NewHandler(chatStore, turnStore, orch, h.authz).WithOwnVersion(pg.NewUserStore(h.pool)).WithChatConnections(chatStore),
 		Users:        stubUsers{live: h.userID},
 		GatewayToken: testGatewayToken,
 	})

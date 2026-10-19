@@ -39,7 +39,7 @@ export function publicUrls(): string[] {
       const alternates = guideLocales(slug);
       if (alternates.includes(locale)) out.push(entry((l) => `/${l}/guides/${slug}`, locale, alternates));
     }
-    for (const page of ["anyprofile", ...STATIC_PAGES]) out.push(entry((l) => `/${l}/${page}`, locale, publicLngs));
+    for (const page of ["anylearn", "anyprofile", ...STATIC_PAGES]) out.push(entry((l) => `/${l}/${page}`, locale, publicLngs));
   }
   return out;
 }

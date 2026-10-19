@@ -15,6 +15,8 @@ export type ChatSession = {
   title: string;
   kb_ids: string[];
   model_hint?: string;
+  /** The connection picked for this conversation, if any. */
+  connection_id?: string;
   allow_web: boolean;
   created_at: string;
   updated_at: string;
@@ -31,7 +33,17 @@ export type ChatMessage = {
    * default `[]`, which reads as none of these keys; read the two through
    * ownVersionOf and retellOf, which check the shape.
    */
-  attachments?: { sources?: Source[]; own_version?: OwnVersion; retell?: Retell } | null;
+  attachments?: {
+    sources?: Source[];
+    own_version?: OwnVersion;
+    retell?: Retell;
+    /** How the answer was found (capabilities/chat/tools.go workRecord). */
+    work?: unknown;
+    /** Follow-up kinds offered for this answer. */
+    suggestions?: unknown;
+    /** Text kept from a turn that failed or was stopped. */
+    incomplete?: boolean;
+  } | null;
   created_at: string;
 };
 
@@ -54,8 +66,12 @@ export type Turn = {
   capability: string;
 };
 
-export function listSessions(userId: string) {
-  return apiFetch<{ sessions: ChatSession[] }>("/v1/chat/sessions", userId);
+export function listSessions(userId: string, query = "") {
+  const q = query.trim();
+  return apiFetch<{ sessions: ChatSession[] }>(
+    q ? `/v1/chat/sessions?q=${encodeURIComponent(q)}` : "/v1/chat/sessions",
+    userId,
+  );
 }
 
 export function createSession(userId: string, body: { title?: string; kb_ids?: string[] }) {
@@ -69,7 +85,7 @@ export function getSession(userId: string, sessionId: string) {
 export function patchSession(
   userId: string,
   sessionId: string,
-  body: { title?: string; kb_ids?: string[]; allow_web?: boolean; model_hint?: string },
+  body: { title?: string; kb_ids?: string[]; allow_web?: boolean; model_hint?: string; connection_id?: string },
 ) {
   return apiFetch<ChatSession>(`/v1/chat/sessions/${sessionId}`, userId, {
     method: "PATCH",
@@ -88,11 +104,25 @@ export function getMessages(userId: string, sessionId: string) {
   );
 }
 
-export function startTurn(userId: string, sessionId: string, message: string, ownVersion?: OwnVersion) {
+/**
+ * Starts a turn. `rewindToId` asks again from one of the learner's questions:
+ * it and everything after it go first; with an empty message the same
+ * question is asked again (regenerate), with one the new text is (edit).
+ */
+export function startTurn(
+  userId: string,
+  sessionId: string,
+  message: string,
+  ownVersion?: OwnVersion,
+  rewindToId?: string,
+) {
+  const body: Record<string, unknown> = { message };
+  if (ownVersion) body.own_version = ownVersion;
+  if (rewindToId) body.rewind_to_id = rewindToId;
   return apiFetch<{ turn_id: string; status: string }>(
     `/v1/chat/sessions/${sessionId}/turns`,
     userId,
-    { method: "POST", body: ownVersion ? { message, own_version: ownVersion } : { message } },
+    { method: "POST", body },
   );
 }
 

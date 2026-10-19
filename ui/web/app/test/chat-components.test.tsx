@@ -6,7 +6,7 @@
  * other test in this phase and defeat the product's entire claim.
  */
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
@@ -194,15 +194,24 @@ describe("ToolActivityPanel", () => {
 });
 
 describe("ContextBar", () => {
-  it("states what the conversation can read", () => {
-    render(<ContextBar title="Retrieval" kbCount={2} allowWeb={false} />);
+  const kbs = [
+    { id: "a", name: "Retrieval papers" },
+    { id: "b", name: "Cell biology" },
+  ];
+
+  it("names what the conversation reads, on the bar itself", () => {
+    renderRouted(<ContextBar title="Retrieval" kbs={kbs} attached={["a", "b"]} allowWeb={false} />);
     expect(screen.getByRole("heading", { name: "Retrieval" })).toBeInTheDocument();
-    expect(screen.getByText("2 knowledge bases attached")).toBeInTheDocument();
+    expect(screen.getByText("Retrieval papers, Cell biology")).toBeInTheDocument();
   });
 
-  it("says plainly when nothing is attached", () => {
-    render(<ContextBar title="" kbCount={0} allowWeb={false} />);
-    expect(screen.getByText("No documents attached")).toBeInTheDocument();
+  it("offers to attach documents when nothing is attached", () => {
+    renderRouted(<ContextBar title="" kbs={kbs} attached={[]} allowWeb={false} />);
+    expect(screen.getByText("Attach documents")).toBeInTheDocument();
+    // Every knowledge base is a choice, none ticked.
+    const boxes = screen.getAllByRole("checkbox", { hidden: true });
+    expect(boxes).toHaveLength(2);
+    expect(boxes.every((b) => !(b as HTMLInputElement).checked)).toBe(true);
   });
 
   /**
@@ -211,11 +220,11 @@ describe("ContextBar", () => {
    * matter.
    */
   it("hides the allow-web toggle until a network tool exists", () => {
-    render(<ContextBar title="x" kbCount={1} allowWeb={false} onToggleWeb={vi.fn()} />);
+    renderRouted(<ContextBar title="x" kbs={kbs} attached={["a"]} allowWeb={false} onToggleWeb={vi.fn()} />);
     expect(screen.queryByLabelText("Allow web in this session")).toBeNull();
 
-    render(
-      <ContextBar title="x" kbCount={1} allowWeb={false} onToggleWeb={vi.fn()} showWebToggle />,
+    renderRouted(
+      <ContextBar title="x" kbs={kbs} attached={["a"]} allowWeb={false} onToggleWeb={vi.fn()} showWebToggle />,
     );
     expect(screen.getByLabelText("Allow web in this session")).toBeInTheDocument();
   });
@@ -253,10 +262,20 @@ describe("Composer", () => {
     expect(onStop).toHaveBeenCalled();
   });
 
-  it("keeps the + affordance visible but inert until references exist", () => {
-    render(<Composer onSend={vi.fn()} busy={false} />);
-    const add = screen.getByRole("button", { name: "Add a reference to this message" });
-    expect(add).toBeDisabled();
-    expect(within(add).getByText("+")).toBeInTheDocument();
+  it("names the model choice only when there is one to make", () => {
+    const { rerender } = render(<Composer onSend={vi.fn()} busy={false} models={[{ id: "a", name: "Key", model: "m" }]} onModel={vi.fn()} />);
+    expect(screen.queryByLabelText("Model")).toBeNull();
+    rerender(
+      <Composer
+        onSend={vi.fn()}
+        busy={false}
+        models={[
+          { id: "a", name: "OpenAI", model: "gpt-4o" },
+          { id: "b", name: "Ollama", model: "qwen" },
+        ]}
+        onModel={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText("Model")).toBeInTheDocument();
   });
 });

@@ -22,7 +22,7 @@ const POLL_MS = 3000;
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: `${data?.template.title ?? "Past paper"} · AnyTools` },
+    { title: `${data?.template.title ?? "Past paper"} · AnyLearn` },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

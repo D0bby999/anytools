@@ -20,12 +20,13 @@ import { driveReason } from "~/lib/drive-storage";
 import { Button } from "~/components/ui/button";
 import { DriveFileNotice } from "~/components/storage/drive-file-notice";
 import { PageHeader } from "~/components/ui/page-header";
+import { QuizTabs } from "~/components/quiz/quiz-tabs";
 
 /** The most items one mock exam generates (exam.MaxGenerate). */
 const MAX_GENERATE = 60;
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Mock exams · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Mock exams · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -94,15 +95,7 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
   return (
     <div className="lp-measure">
       <PageHeader title={t("exams.title")} lede={t("exams.lead")} />
-      <p className="mt-2 text-sm">
-        <Link to="/quiz" className="text-primary underline underline-offset-4">
-          {t("exams.toQuiz")}
-        </Link>
-        {" · "}
-        <Link to="/quiz/practice" className="text-primary underline underline-offset-4">
-          {t("quiz.practise")}
-        </Link>
-      </p>
+      <QuizTabs />
 
       <section aria-labelledby="lp-exams-upload" className="mt-8">
         <h2 id="lp-exams-upload" className="lp-section">
@@ -121,7 +114,7 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
               required
               accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg"
               aria-describedby="lp-exams-file-hint"
-              className="mt-1 block min-h-11 w-full text-sm"
+              className="mt-1 lp-file"
             />
             <p id="lp-exams-file-hint" className="mt-1 text-xs leading-snug text-muted-foreground">
               {t("exams.upload.hint")}

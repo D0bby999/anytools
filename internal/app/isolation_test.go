@@ -936,6 +936,10 @@ func bodyProbes() []bodyProbe {
 		{pattern: "PATCH /v1/chat/sessions/{id}", kind: "kb", body: func(e *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kb_ids": []string{id.String()}}
 		}},
+		// Alice's connection pinned to Bob's conversation.
+		{pattern: "PATCH /v1/chat/sessions/{id}", kind: "connection", body: func(e *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"connection_id": id.String()}
+		}},
 		{pattern: "POST /v1/quiz/generate", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any { return map[string]any{"kb_id": id} }},
 		{pattern: "POST /v1/mastery/paths", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kb_id": id, "goal": "g"}
@@ -1009,6 +1013,10 @@ func bodyProbes() []bodyProbe {
 		}},
 		{pattern: "POST /v1/audio-overviews", kind: "report", body: func(_ *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"report_id": id.String()}
+		}},
+		// Bob's own conversation, rewound to Alice's message (regenerate, edit).
+		{pattern: "POST /v1/chat/sessions/{id}/turns", kind: "message", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"message": "x", "rewind_to_id": id.String()}
 		}},
 		// "Draw it" on Alice's answer.
 		{pattern: "POST /v1/visualize", kind: "message", body: func(_ *isolationEnv, id uuid.UUID) any {
@@ -1139,14 +1147,20 @@ var writesWithoutResourceIDs = map[string]string{
 	"POST /v1/learning/states":                    "creates the caller's own learning state from text fields",
 	// Writes whose PATH names the resource and whose body names no other one.
 	// A route whose body gains an id moves to bodyProbes.
-	"PUT /v1/me/timezone":                          "stores the caller's own zone name",
+	"PUT /v1/me/timezone": "stores the caller's own zone name",
+	// A push endpoint is a browser's capability URL, not a row id: the
+	// delete is scoped to the caller's rows, and a subscribe moves the row
+	// to the caller because only that browser knows its endpoint.
+	"PUT /v1/push/settings":                        "stores the caller's own reminder hour",
+	"POST /v1/push/subscriptions":                  "subscribes the caller's own browser",
+	"DELETE /v1/push/subscriptions":                "unsubscribes one of the caller's own browsers; WHERE user_id",
+	"POST /v1/push/test":                           "pushes to the caller's own browsers",
 	"PUT /v1/byok/connections/{id}":                "renames or re-keys the path's connection; body names nothing else",
 	"DELETE /v1/byok/connections/{id}":             "no body",
 	"POST /v1/byok/connections/{id}/verify":        "no body",
 	"DELETE /v1/byok/search-connections/{id}":      "no body",
 	"POST /v1/byok/search-connections/{id}/verify": "no body",
 	"DELETE /v1/chat/sessions/{id}":                "no body",
-	"POST /v1/chat/sessions/{id}/turns":            "message, capability and the learner's own-version text",
 	"POST /v1/turns/{id}/cancel":                   "no body",
 	"POST /v1/turns/{id}/answer":                   "question_id is matched against the turn's own pending question (requestIDFields)",
 	"DELETE /v1/kb/{id}":                           "no body",
@@ -1214,6 +1228,7 @@ var writesWithoutResourceIDs = map[string]string{
 	"POST /v1/kb/{id}/links":             "a URL and an auto-sync flag; the URL names a page or a video, not a row",
 	"PATCH /v1/documents/{id}":           "an auto-sync flag",
 	"POST /v1/documents/{id}/resync":     "no body",
+	"POST /v1/documents/{id}/retry":      "no body",
 	"POST /v1/documents/{id}/transcript": "a subtitle file, pasted text, or a caption language code",
 	// Up-methods phase 15: stopping a recording's or a video's transcription.
 	"POST /v1/documents/{id}/transcribe/cancel":   "no body; the job is found by the document and the caller",
@@ -1377,12 +1392,13 @@ var requestIDFields = map[string]string{
 	"kb_ids":             "bodyProbes: chat sessions, solve, research",
 	"session_id":         "bodyProbes: solve, research",
 	"document_id":        "bodyProbes: reading/workspaces",
-	"connection_id":      "bodyProbes: byok routes, transcribe (resolved on the caller's own stt route on start and again for every window), audio speak (resolved on the caller's own tts route on start and again for every chunk)",
+	"connection_id":      "bodyProbes: chat session pin (OnChatRoute reads the caller's own route), byok routes, transcribe (resolved on the caller's own stt route on start and again for every window), audio speak (resolved on the caller's own tts route on start and again for every chunk)",
 	"notebook_id":        "bodyProbes: notes move/copy, reading capture",
 	"category_ids":       "bodyProbes: PATCH notes",
 	"note_id":            "bodyProbes: PATCH highlights",
 	"highlight_id":       "bodyProbes: reading capture",
 	"message_id":         "bodyProbes: visualize",
+	"rewind_to_id":       "bodyProbes: chat turns (Bob's conversation, Alice's message); RewindTo also requires the message to be in the path's session",
 	"openalex_id":        "not a row: an OpenAlex work id (W and digits), checked by pattern and re-read from OpenAlex",
 	"report_id":          "bodyProbes: audio overviews",
 	"ref_id":             "bodyProbes: review and chain evidence",

@@ -45,6 +45,8 @@ var RouteClasses = []RouteClass{
 			// Lists the provider's models: the same outbound call to an
 			// endpoint the user named.
 			"GET /v1/byok/connections/{id}/models",
+			// A test reminder: one push per browser the learner subscribed.
+			"POST /v1/push/test",
 		},
 	},
 	{
@@ -63,6 +65,8 @@ var RouteClasses = []RouteClass{
 			// paste re-indexes; an AI transcript is a Gemini call.
 			"POST /v1/kb/{id}/links",
 			"POST /v1/documents/{id}/resync",
+			// A retry re-parses and re-embeds a failed upload.
+			"POST /v1/documents/{id}/retry",
 			"POST /v1/documents/{id}/transcript",
 			"POST /v1/documents/{id}/transcribe",
 			// An exam paper: read by the learner's parse model, then listed

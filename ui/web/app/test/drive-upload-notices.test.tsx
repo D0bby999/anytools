@@ -32,7 +32,7 @@ beforeAll(() => {
   initI18n("en");
 });
 
-const RECONNECT = "AnyTools cannot open this file until you reconnect Google Drive.";
+const RECONNECT = "AnyLearn cannot open this file until you reconnect Google Drive.";
 
 /** The notice for drive_reconnect, with its link to Settings. */
 async function expectReconnectNotice() {
@@ -108,7 +108,7 @@ describe("a worksheet recording take", () => {
   }
 
   it("says the learner's Drive needs reconnecting, and keeps the take to try again", async () => {
-    await keepATake(409, { error: "Reconnect Google Drive to use the files AnyTools keeps there.", code: "drive_reconnect" });
+    await keepATake(409, { error: "Reconnect Google Drive to use the files AnyLearn keeps there.", code: "drive_reconnect" });
     await expectReconnectNotice();
     expect(fetchMock.mock.calls[0]?.[0]).toBe("/toolkit/w1/recordings");
     expect(screen.queryByRole("alert")).toBeNull();

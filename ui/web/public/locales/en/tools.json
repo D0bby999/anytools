@@ -2,14 +2,18 @@
   "site": {
     "home": "AnyTools home",
     "language": "Language",
-    "openApp": "Study app",
+    "openApp": "AnyLearn",
     "search": "Search tools",
     "searchHint": "Press / or Ctrl+K to search",
-    "footerNote": "Tools run in your browser. The study app is in English and uses your own AI accounts.",
+    "footerNote": "Tools run in your browser. AnyLearn, the study app, is in English and uses your own AI accounts.",
     "sourceCode": "Source code",
     "tagline": "Multi-language dev tools, offline-first",
     "useLight": "Switch to light theme",
-    "useDark": "Switch to dark theme"
+    "useDark": "Switch to dark theme",
+    "signIn": "Sign in",
+    "menu": "Menu",
+    "places": "Site",
+    "more": "More from AnyTools"
   },
   "nav": {
     "tools": "Tools",
@@ -194,8 +198,8 @@
         "Two things routinely surprise people. Photographs taken on a phone carry an orientation flag, and software that ignores it turns portrait shots sideways; these tools read it. And transparency does not survive a move to JPEG — a transparent background becomes black. Where that is about to happen you get told first, with WebP offered instead."
       ]
     },
-    "toolCount_one": "{{{count}}} tool",
-    "toolCount_other": "{{{count}}} tools"
+    "toolCount_one": "{{count}} tool",
+    "toolCount_other": "{{count}} tools"
   },
   "tool": {
     "tutorial": "How it works",
@@ -227,9 +231,9 @@
       "cta": "Download AnyProfile"
     },
     "study": {
-      "title": "AnyTools is a study app first",
+      "title": "AnyLearn, the study app in AnyTools",
       "body": "Upload what you are learning from. Get answers that cite the page, quizzes written from it, and reviews timed to just before you forget, on your own AI account.",
-      "cta": "Open the study app"
+      "cta": "Open AnyLearn"
     },
     "appendix": "Appendix"
   }

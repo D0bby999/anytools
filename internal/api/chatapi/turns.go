@@ -2,6 +2,7 @@ package chatapi
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/sse"
 	"github.com/D0bby999/anytools/internal/learning/ownversion"
 	"github.com/D0bby999/anytools/internal/runtime"
+	"github.com/D0bby999/anytools/internal/store/pg"
 )
 
 // maxInput caps a chat message. It is well under httpx's 1 MiB body limit and
@@ -23,6 +25,10 @@ type createTurnRequest struct {
 	// OwnVersion is the learner's three lines, written before asking
 	// (internal/learning/ownversion). Required when their switch is on.
 	OwnVersion *ownversion.Lines `json:"own_version"`
+	// RewindToID asks again from one of the learner's earlier questions: that
+	// question and everything after it are removed first. With no message it
+	// is "regenerate", the same question again; with one it is "edit".
+	RewindToID string `json:"rewind_to_id"`
 }
 
 // createTurn stores the user's message and starts a turn.
@@ -44,7 +50,16 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	message := strings.TrimSpace(req.Message)
-	if message == "" {
+	rewindID := uuid.Nil
+	if req.RewindToID != "" {
+		id, err := uuid.Parse(req.RewindToID)
+		if err != nil {
+			notFound(w)
+			return
+		}
+		rewindID = id
+	}
+	if message == "" && rewindID == uuid.Nil {
 		httpx.WriteError(w, http.StatusBadRequest, "a message is required", "empty_message")
 		return
 	}
@@ -64,7 +79,26 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lines, serr := h.CheckOwnVersion(r.Context(), userID, req.OwnVersion)
+	// The question being rewound to, read (not yet removed) so that every
+	// refusal below happens before anything is deleted.
+	sent := req.OwnVersion
+	if rewindID != uuid.Nil {
+		q, err := h.sessions.GetMessage(r.Context(), userID, rewindID)
+		if err != nil || q.SessionID != sess.ID || q.Role != runtime.RoleUser {
+			notFound(w)
+			return
+		}
+		if message == "" {
+			message = q.Content
+		}
+		// The learner's own attempt stays with the question unless the edit
+		// brought a new one.
+		if sent == nil {
+			sent = ownversion.FromAttachments(q.Attachments)
+		}
+	}
+
+	lines, serr := h.CheckOwnVersion(r.Context(), userID, sent)
 	if serr != nil {
 		httpx.WriteError(w, serr.Status, serr.Message, serr.Code)
 		return
@@ -74,6 +108,27 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 	var attachments []byte
 	if lines != nil {
 		attachments = ownversion.Attachments(*lines)
+	}
+
+	if rewindID != uuid.Nil {
+		// Never under a running turn: its answer would land after a question
+		// that no longer exists.
+		if busy, err := h.sessionIsBusy(r.Context(), userID, sess.ID); err != nil || busy {
+			httpx.WriteError(w, http.StatusConflict, "this conversation already has a turn in progress", "turn_in_progress")
+			return
+		}
+		if _, err := h.sessions.RewindTo(r.Context(), userID, sess.ID, rewindID); err != nil {
+			if errors.Is(err, pg.ErrNotAQuestion) {
+				notFound(w)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, "could not rewind the conversation", "rewind_failed")
+			return
+		}
+		// The summary may have been cleared with the messages it ended on.
+		if fresh, err := h.sessions.GetSession(r.Context(), userID, sess.ID); err == nil {
+			sess = fresh
+		}
 	}
 
 	turn, serr := h.begin(r.Context(), userID, *sess, capability, message, attachments, nil, nil)
@@ -144,6 +199,11 @@ func (h *Handler) begin(
 		return nil, &StartError{http.StatusInternalServerError, "could not store the message", "store_failed"}
 	}
 	_ = h.sessions.TouchSession(ctx, userID, sess.ID)
+	if sess.Title == "" {
+		if title := titleFromQuestion(message); title != "" {
+			_ = h.sessions.SetTitleIfEmpty(ctx, userID, sess.ID, title)
+		}
+	}
 
 	turn, err := h.orch.Run(ctx, runtime.StartTurn{
 		Session:    sess,

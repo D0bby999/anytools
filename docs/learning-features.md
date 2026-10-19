@@ -1,6 +1,6 @@
 # Learning features
 
-A short guide to what each study feature does, what it costs on your own AI key, and where it stops. Every model call uses your connections from Settings; AnyTools has no key of its own.
+A short guide to what each study feature does, what it costs on your own AI key, and where it stops. Every model call uses your connections from Settings; AnyLearn has no key of its own.
 
 | Feature | Where | What it costs on your key |
 |---|---|---|
@@ -47,7 +47,7 @@ For concept and design points, a mastery session first teaches the point from yo
 
 ## Exams
 
-Upload a past paper (PDF, a photo or a document). AnyTools lists its questions for you to check and correct, then writes a new paper of the same shape from a knowledge base. Written answers are marked against a rubric with partial credit; below 70 % counts as a mistake and goes to Practice. The reading of a scanned paper can be wrong: the review step is where you fix it.
+Upload a past paper (PDF, a photo or a document). AnyLearn lists its questions for you to check and correct, then writes a new paper of the same shape from a knowledge base. Written answers are marked against a rubric with partial credit; below 70 % counts as a mistake and goes to Practice. The reading of a scanned paper can be wrong: the review step is where you fix it.
 
 ## Web pages and YouTube
 
@@ -55,9 +55,9 @@ A web page (HTML or PDF, up to 5 MB) becomes a document; it can be re-checked da
 
 A video opens beside its transcript. When the creator's description lists chapters, they head the transcript, and the transcript says whose captions it is (the creator's, YouTube's automatic ones, an AI transcript, or yours).
 
-**Study notes.** Press "Write study notes" to have your reading model split the video into sections, each with a short summary and its key points. Every time in the notes plays that moment. When the video has chapters, the sections are the creator's chapters. Notes can be written in another language (for example Vietnamese notes of an English lecture) and downloaded as a Markdown file whose times link to the video. AnyTools checks every time against the transcript and drops one that is not in it. If the transcript is replaced later, the notes say they may be out of date. Notes cover videos up to about three hours.
+**Study notes.** Press "Write study notes" to have your reading model split the video into sections, each with a short summary and its key points. Every time in the notes plays that moment. When the video has chapters, the sections are the creator's chapters. Notes can be written in another language (for example Vietnamese notes of an English lecture) and downloaded as a Markdown file whose times link to the video. AnyLearn checks every time against the transcript and drops one that is not in it. If the transcript is replaced later, the notes say they may be out of date. Notes cover videos up to about three hours.
 
-**Limits.** YouTube usually blocks caption fetching from servers. AnyTools then offers to have your **Gemini key** transcribe the public video: Google reads it, the video is never downloaded here, and the transcript is labelled "AI transcript" because it can mishear words. The free tier covers about 8 hours of video a day. Private and unlisted videos cannot be transcribed; upload a subtitle file or paste the transcript instead.
+**Limits.** YouTube usually blocks caption fetching from servers. AnyLearn then offers to have your **Gemini key** transcribe the public video: Google reads it, the video is never downloaded here, and the transcript is labelled "AI transcript" because it can mishear words. The free tier covers about 8 hours of video a day. Private and unlisted videos cannot be transcribed; upload a subtitle file or paste the transcript instead.
 
 ## Diagrams
 
@@ -77,7 +77,7 @@ For reading, writing, speaking, listening, vocabulary or grammar: record an unai
 
 ## Learner profile
 
-What AnyTools should remember about how you study: your preferences, goals, what you find hard. You write entries yourself. If you turn on nightly consolidation, it suggests entries from your activity, and nothing is used until you accept it.
+What AnyLearn should remember about how you study: your preferences, goals, what you find hard. You write entries yourself. If you turn on nightly consolidation, it suggests entries from your activity, and nothing is used until you accept it.
 
 ## Audio overview
 
@@ -158,6 +158,10 @@ With Settings → Account → "Write your own version first" on, Chat and Solve 
 
 When due points span two or more mastery paths, Home and Mastery offer "Review everything due". The session never serves two points of the same module in a row while another module has something due, and each item names its path and module. Explain-backs stay in their path.
 
+## Review reminder
+
+Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many mastery review points are due; tapping it opens Review. Nothing is sent on a day with nothing due, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is the mastery points only; Home's total also counts mistakes, vocabulary and book cards.
+
 ## Bad-day minimum
 
 A learning state has a minimum contract: when to downshift, what is still worth keeping on a bad day, and when to ask for help. Home's "Today" shows the next task and its minimum; switching on "Low day" shows only the minimum. An interruption records up's six lines (what happened, the resistance, the task reduced to, within 24 hours, what not to repay, a review date). Three interruptions with the same resistance bring up's advice to change the conditions, with links to the cycle's weekly capacity and to a recovery reset. **"When to ask for help" is never sent to a model**; the other two answers go with a state-linked chat.
@@ -182,7 +186,7 @@ Upload `.png .jpg .jpeg .webp .heic` (up to 20 MB each), each as its own documen
 
 ## Documentation sites and GitHub repositories
 
-**A site:** a start URL, a depth (0–3) and a page limit (50 by default, at most 200). AnyTools follows links under the start URL's path, obeys `robots.txt`, and fetches politely. Each page is a document cited by its URL; sites re-sync weekly, and pages that disappear are marked, never silently deleted.
+**A site:** a start URL, a depth (0–3) and a page limit (50 by default, at most 200). AnyLearn follows links under the start URL's path, obeys `robots.txt`, and fetches politely. Each page is a document cited by its URL; sites re-sync weekly, and pages that disappear are marked, never silently deleted.
 
 **A repository:** a GitHub URL, an optional branch, folder and file types (documentation files by default; code files if you add them). Caps: 2 MB per file, 2,000 files and 100 MB per repository. A private repository needs a **GitHub token** (fine-grained, read-only contents) under Settings → Search keys. Re-sync checks the latest commit and re-indexes only changed files.
 

@@ -2,14 +2,18 @@
   "site": {
     "home": "Início do AnyTools",
     "language": "Idioma",
-    "openApp": "App de estudo",
+    "openApp": "AnyLearn",
     "search": "Buscar ferramentas",
     "searchHint": "Pressione / ou Ctrl+K para buscar",
-    "footerNote": "As ferramentas rodam no seu navegador. O app de estudo é em inglês e usa suas próprias contas de IA.",
+    "footerNote": "As ferramentas rodam no seu navegador. O AnyLearn, app de estudo, é em inglês e usa suas próprias contas de IA.",
     "sourceCode": "Código-fonte",
     "tagline": "Ferramentas para desenvolvedores, multilíngue, offline-first",
     "useLight": "Mudar para o tema claro",
-    "useDark": "Mudar para o tema escuro"
+    "useDark": "Mudar para o tema escuro",
+    "signIn": "Entrar",
+    "menu": "Menu",
+    "places": "Site",
+    "more": "Mais do AnyTools"
   },
   "nav": {
     "tools": "Ferramentas",
@@ -194,8 +198,8 @@
         "Duas coisas surpreendem com frequência. Fotos tiradas no celular carregam uma marca de orientação, e software que a ignora deita os retratos; estas ferramentas leem essa marca. E transparência não sobrevive à ida para JPEG: um fundo transparente vira preto. Quando isso está prestes a acontecer você é avisado antes, com WebP oferecido no lugar."
       ]
     },
-    "toolCount_one": "{{{count}}} ferramenta",
-    "toolCount_other": "{{{count}}} ferramentas"
+    "toolCount_one": "{{count}} ferramenta",
+    "toolCount_other": "{{count}} ferramentas"
   },
   "tool": {
     "tutorial": "Como funciona",
@@ -227,9 +231,9 @@
       "cta": "Baixar AnyProfile"
     },
     "study": {
-      "title": "AnyTools é, antes de tudo, um app de estudo",
+      "title": "AnyLearn, o app de estudo do AnyTools",
       "body": "Envie o material que você está estudando. Receba respostas que citam a página, quizzes escritos a partir dele e revisões marcadas para pouco antes de você esquecer, com a sua própria conta de IA.",
-      "cta": "Abrir o app de estudo"
+      "cta": "Abrir o AnyLearn"
     },
     "appendix": "Apêndice"
   }

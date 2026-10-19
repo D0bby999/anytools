@@ -53,6 +53,8 @@ services:
     # plus a caller-asserted user id.
     environment:
       ANYTOOLS_SERVER_ADDR: ":8080"
+      # The site's origin: a review reminder's push opens a page on it.
+      ANYTOOLS_APP_URL: ${ANYTOOLS_APP_URL:-http://localhost:3000}
       ANYTOOLS_POSTGRES_DSN: ${ANYTOOLS_POSTGRES_DSN:?ANYTOOLS_POSTGRES_DSN is required}
       ANYTOOLS_GATEWAY_TOKEN: ${ANYTOOLS_GATEWAY_TOKEN:?ANYTOOLS_GATEWAY_TOKEN is required}
       ANYTOOLS_ENCRYPTION_KEY: ${ANYTOOLS_ENCRYPTION_KEY:?ANYTOOLS_ENCRYPTION_KEY is required}

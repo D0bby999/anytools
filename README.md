@@ -2,11 +2,11 @@
 
 <!-- Screenshot placeholder: docs/images/screenshot.png (the Tools tab beside the reading view, 1600×1000). Add the file, then turn this comment into ![AnyTools](docs/images/screenshot.png). -->
 
-Free tools that run in your browser without an account, and a self-learning web app that works from **your own documents, with your own AI accounts**. It serves [anytools.world](https://anytools.world).
+Free tools that run in your browser without an account, and **AnyLearn**, a self-learning web app that works from **your own documents, with your own AI accounts**. It serves [anytools.world](https://anytools.world).
 
-The tools (converters, formatters, generators and calculators) are public pages in English, Vietnamese, Spanish and Portuguese, under the app's **Tools** tab. The learning app needs a Google or GitHub sign-in and is in English.
+The tools (converters, formatters, generators and calculators) are public pages in English, Vietnamese, Spanish and Portuguese, under the app's **Tools** tab. AnyLearn needs a Google or GitHub sign-in and is in English.
 
-Upload the material you are studying. AnyTools answers questions about it, and each answer cites the page it came from, so the claim can be checked against the original. It also:
+Upload the material you are studying. AnyLearn answers questions about it, and each answer cites the page it came from, so the claim can be checked against the original. It also:
 - writes quizzes from the material, and explains the marking;
 - schedules what you are about to forget, on a spaced-repetition mastery path (FSRS);
 - solves problems step by step and writes cited research reports;

@@ -17,7 +17,7 @@ import { storageErrorKey } from "~/lib/storage-types";
 import { StoragePanel, type StorageActionData } from "~/components/storage/storage-panel";
 
 export function meta() {
-  return [{ title: "Storage · AnyTools" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Storage · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

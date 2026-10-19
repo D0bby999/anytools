@@ -26,10 +26,11 @@ import { Button } from "~/components/ui/button";
 import { ProposalEditor } from "~/components/mastery/proposal-editor";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { MasteryMeter } from "~/components/mastery/mastery-meter";
 
 export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: data?.detail ? `${data.detail.path.goal} · AnyTools` : "Mastery · AnyTools" },
+    { title: data?.detail ? `${data.detail.path.goal} · AnyLearn` : "Mastery · AnyLearn" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -191,8 +192,13 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
                         })}
                   </p>
                 </div>
+                <MasteryMeter
+                  value={m.graduated ? 1 : m.mastery}
+                  threshold={m.module.pass_threshold}
+                  label={t("path.meter", { name: m.module.name })}
+                />
                 {m.module.objective ? (
-                  <p className="mt-1 text-sm leading-prose text-muted-foreground">{m.module.objective}</p>
+                  <p className="mt-2 text-sm leading-prose text-muted-foreground">{m.module.objective}</p>
                 ) : null}
                 <ul className="mt-2 border-t">
                   {m.knowledge_points.map((kp) => (
