@@ -144,6 +144,12 @@
       "count_other": "{{count}} công cụ",
       "all": "Xem tất cả công cụ"
     },
+    "postclaw": {
+      "title": "Cũng từ chúng tôi: PostClaw",
+      "tagline": "Trợ lý AI viết, lên lịch và đăng bài mạng xã hội cho bạn.",
+      "body": "PostClaw là công cụ lên lịch đăng bài mạng xã hội chạy sẵn trên mây, không cần cài đặt. Trợ lý của nó soạn bài, xếp bài lên lịch và đăng lên 18 nền tảng, gồm 11 mạng xã hội và 7 blog, từ một chỗ. Nó tạo được cả ảnh và video, và dùng được khoá AI của riêng bạn.",
+      "cta": "Xem PostClaw"
+    },
     "footer": "AnyLearn đang trong giai đoạn truy cập sớm. Tài liệu và tài khoản bạn kết nối vẫn là của bạn; bạn có thể gỡ bất kỳ thứ gì vào bất cứ lúc nào."
   }
 }

@@ -144,6 +144,12 @@
       "count_other": "{{count}} herramientas",
       "all": "Ver todas las herramientas"
     },
+    "postclaw": {
+      "title": "También de nosotros: PostClaw",
+      "tagline": "Un agente de IA que escribe, programa y publica tus publicaciones en redes sociales.",
+      "body": "PostClaw es un programador de redes sociales alojado, sin nada que instalar. Su agente redacta tus publicaciones, las organiza en un calendario y las publica en 18 plataformas, 11 redes sociales y 7 blogs, desde un solo lugar. También crea imágenes y vídeo, y funciona con tu propia clave de IA.",
+      "cta": "Visitar PostClaw"
+    },
     "footer": "AnyLearn está en acceso anticipado. Tus documentos y cuentas conectadas siguen siendo tuyos; puedes quitar cualquiera de ellos en cualquier momento."
   }
 }

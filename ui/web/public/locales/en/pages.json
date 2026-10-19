@@ -144,6 +144,12 @@
       "count_other": "{{count}} tools",
       "all": "Browse all tools"
     },
+    "postclaw": {
+      "title": "Also from us: PostClaw",
+      "tagline": "An AI agent that writes, schedules and publishes your social posts.",
+      "body": "PostClaw is a hosted social media scheduler, with nothing to install. Its agent drafts your posts, lays them out on a calendar and publishes them to 18 platforms, 11 social networks and 7 blogs, from one place. It makes images and video too, and works with your own AI key.",
+      "cta": "Visit PostClaw"
+    },
     "footer": "AnyLearn is in early access. Your documents and connected accounts stay yours; you can remove any of them at any time."
   }
 }

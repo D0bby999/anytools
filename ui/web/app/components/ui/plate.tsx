@@ -17,6 +17,7 @@ export const PLATES = [
   "about",
   "signin",
   "notfound",
+  "postclaw",
 ] as const;
 export type PlateName = (typeof PLATES)[number];
 

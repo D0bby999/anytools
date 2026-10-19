@@ -144,6 +144,12 @@
       "count_other": "{{count}} ferramentas",
       "all": "Ver todas as ferramentas"
     },
+    "postclaw": {
+      "title": "Também nosso: PostClaw",
+      "tagline": "Um agente de IA que escreve, agenda e publica seus posts nas redes sociais.",
+      "body": "O PostClaw é um agendador de redes sociais hospedado, sem nada para instalar. O agente dele redige seus posts, organiza tudo em um calendário e publica em 18 plataformas, 11 redes sociais e 7 blogs, a partir de um só lugar. Ele também cria imagens e vídeos e funciona com a sua própria chave de IA.",
+      "cta": "Conhecer o PostClaw"
+    },
     "footer": "O AnyLearn está em acesso antecipado. Seus documentos e contas conectadas continuam seus; você pode remover qualquer um deles a qualquer momento."
   }
 }

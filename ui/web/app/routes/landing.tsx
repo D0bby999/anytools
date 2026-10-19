@@ -19,6 +19,7 @@
  * product can prove, stated with their limits.
  */
 import { Link, redirect, useLoaderData } from "react-router";
+import { ArrowUpRight } from "lucide-react";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import type { Route } from "./+types/landing";
 import { getUserId } from "~/lib/auth.server";
@@ -222,6 +223,32 @@ function LandingPage() {
               {t("landing.tools.all")}
             </Link>
           </p>
+        </section>
+
+        {/* A sibling product from the same maker, after the site's own offer. It
+            leaves the site, so the address is printed beside the button. */}
+        <section aria-labelledby="lp-landing-postclaw" className="border-t bg-muted">
+          <div className="lp-layout grid gap-8 px-4 py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12 lg:px-6">
+            <div>
+              <h2 id="lp-landing-postclaw" className="lp-section text-3xl">
+                {t("landing.postclaw.title")}
+              </h2>
+              <p className="mt-3 max-w-[34ch] font-serif text-xl leading-snug text-muted-foreground italic">{t("landing.postclaw.tagline")}</p>
+              <p className="mt-4 max-w-(--lp-measure-read) text-base leading-prose">{t("landing.postclaw.body")}</p>
+              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <Button asChild size="lg" variant="outline">
+                  <a href="https://postclaw.fun" rel="noopener">
+                    {t("landing.postclaw.cta")}
+                    <ArrowUpRight aria-hidden="true" className="size-4" />
+                  </a>
+                </Button>
+                <span translate="no" className="text-sm text-muted-foreground">
+                  postclaw.fun
+                </span>
+              </div>
+            </div>
+            <Plate name="postclaw" sizes="(min-width: 1024px) 52vw, 100vw" />
+          </div>
         </section>
       </main>
 
