@@ -36,6 +36,7 @@ import (
 
 	"github.com/D0bby999/anytools/internal/api"
 	"github.com/D0bby999/anytools/internal/api/httpx"
+	bodypkg "github.com/D0bby999/anytools/internal/body"
 	"github.com/D0bby999/anytools/internal/capabilities/audio"
 	"github.com/D0bby999/anytools/internal/capabilities/book"
 	"github.com/D0bby999/anytools/internal/capabilities/exam"
@@ -114,11 +115,16 @@ var idKinds = map[string]string{
 	"/v1/repos/": "repo",
 	// Up-methods phase 17: podcast feeds and YouTube playlists.
 	"/v1/feeds/": "feed",
+	// Body: routines, workouts and the coach's proposals.
+	"/v1/body/routines/":        "body_routine",
+	"/v1/body/workouts/":        "body_workout",
+	"/v1/body/coach/proposals/": "body_proposal",
 }
 
 // notResourceIDs are placeholders that do not name another user's resource.
 var notResourceIDs = map[string]string{
 	"PUT /v1/byok/routes/{function}": "names a route function; each user writes only their own row",
+	"DELETE /v1/body/weights/{day}":  "names a calendar day; each user deletes only their own weigh-in",
 }
 
 // bodies are what each write route needs to get PAST validation to the
@@ -182,6 +188,11 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		// the knowledge base's ownership check (which runs before the
 		// learner's key is read or Zotero is called).
 		"POST /v1/kb/{id}/zotero/items": map[string]any{"item_key": "ABCD2345"},
+		// Body: valid bodies, so each probe reaches the owner's row.
+		"PUT /v1/body/routines/{id}":                map[string]any{"name": "x", "exercises": []any{}},
+		"PATCH /v1/body/workouts/{id}":              map[string]any{"note": "x"},
+		"POST /v1/body/workouts/{id}/entries":       map[string]any{"exercise": "0001"},
+		"POST /v1/body/coach/proposals/{id}/refine": map[string]any{"text": "fewer days"},
 	}
 }
 
@@ -437,6 +448,17 @@ func TestEveryRouteWithAnIDRefusesAnotherUser(t *testing.T) {
 		  AND e.is_new AND e.add_status = '' AND e.document_id IS NULL`, alice).Scan(&feedsLeft)
 	if feedsLeft != 1 {
 		t.Errorf("alice's feed changed under bob's probes: %d untouched", feedsLeft)
+	}
+	// Bob's probes left Alice's training as it was: her routine named and
+	// scheduled, her workout open and empty, her proposal waiting.
+	var bodyLeft int
+	_ = pool.QueryRow(ctx, `SELECT count(*) FROM body_routines r
+		JOIN body_week w ON w.routine_id = r.id AND w.weekday = 1
+		JOIN body_workouts o ON o.routine_id = r.id AND o.finished_at IS NULL AND o.entries = '[]'::jsonb AND o.note = ''
+		JOIN body_proposals p ON p.user_id = r.user_id AND p.status = 'proposed'
+		WHERE r.user_id = $1 AND r.name = 'Alice''s legs'`, alice).Scan(&bodyLeft)
+	if bodyLeft != 1 {
+		t.Errorf("alice's training changed under bob's probes")
 	}
 	var diagnoses int
 	_ = pool.QueryRow(ctx, `SELECT count(*) FROM worksheet_diagnoses`).Scan(&diagnoses)
@@ -808,6 +830,23 @@ func seedEverything(t *testing.T, pool *pg.Pool, alice uuid.UUID) resources {
 			MediaURL: "https://podcast.example.com/ep1.mp3", MediaType: "audio/mpeg"}}}, time.Now())
 	must(err)
 	ids["feed"] = feed.ID
+	// Body: a routine on today's plan, an open workout of it, and a coach
+	// proposal waiting for her.
+	bodyStore := pg.NewBodyStore(pool)
+	routine, err := bodyStore.CreateRoutine(ctx, bodypkg.Routine{UserID: alice, Name: "Alice's legs",
+		Exercises: []bodypkg.PlanExercise{{Exercise: "0043", Mode: bodypkg.ModeReps, Sets: 3, Reps: 5}}})
+	must(err)
+	ids["body_routine"] = routine.ID
+	must(bodyStore.SetWeek(ctx, alice, bodypkg.Week{1: &routine.ID}))
+	workout, _, err := bodyStore.CreateWorkout(ctx, bodypkg.Workout{UserID: alice, RoutineID: &routine.ID,
+		RoutineName: routine.Name, Day: "2026-10-19", StartedAt: time.Now(), Entries: []bodypkg.Entry{}})
+	must(err)
+	ids["body_workout"] = workout.ID
+	proposal, err := bodyStore.CreateProposal(ctx, bodypkg.Proposal{UserID: alice, Kind: bodypkg.KindPlan,
+		Status: bodypkg.StatusProposed, Plan: &bodypkg.CoachPlan{Name: "p", Week: [7]string{1: "a"},
+			Routines: []bodypkg.CoachRoutine{{Key: "a", Name: "A", Exercises: routine.Exercises}}}})
+	must(err)
+	ids["body_proposal"] = proposal.ID
 	return ids
 }
 
@@ -1097,6 +1136,13 @@ func bodyProbes() []bodyProbe {
 		{pattern: "POST /v1/worksheets", kind: "cycle", body: func(_ *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kind": "cycle_close", "title": "x", "cycle_id": id}
 		}},
+		// Body: Alice's routine in Bob's week, and as the routine Bob starts.
+		{pattern: "PUT /v1/body/week", kind: "body_routine", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"week": []any{nil, id, nil, nil, nil, nil, nil}}
+		}},
+		{pattern: "POST /v1/body/workouts", kind: "body_routine", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"routine_id": id}
+		}},
 		{pattern: "POST /v1/worksheets", kind: "cycle", body: func(e *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kind": "cycle_close", "title": "x", "cycle_id": id, "state_id": e.bobOwn["learning_state"]}
 		}},
@@ -1297,6 +1343,23 @@ var writesWithoutResourceIDs = map[string]string{
 	"POST /v1/documents/{id}/study-notes/export/drive": "a language query parameter; the path's video is probed",
 	"POST /v1/books/{id}/export/drive":                 "no body; the path's book is probed",
 	"POST /v1/notebooks/{id}/export/drive":             "no body; the path's notebook is probed",
+	// Body. Exercises are library keys ("0043"), never rows.
+	"PUT /v1/body/profile":                       "unit, goal weight and rest time: the caller's own settings",
+	"POST /v1/body/routines":                     "a name, a policy and exercise library keys",
+	"PUT /v1/body/routines/{id}":                 "a name, a policy and exercise library keys; the path's routine is probed",
+	"DELETE /v1/body/routines/{id}":              "no body",
+	"PATCH /v1/body/workouts/{id}":               "entries of exercise library keys, a weigh-in and a note; the path's workout is probed",
+	"POST /v1/body/workouts/{id}/entries":        "an exercise library key; the path's workout is probed",
+	"POST /v1/body/workouts/{id}/finish":         "no body",
+	"DELETE /v1/body/workouts/{id}":              "no body",
+	"POST /v1/body/weights":                      "a day and a weight, the caller's own",
+	"DELETE /v1/body/weights/{day}":              "no body; a day of the caller's own",
+	"POST /v1/body/coach/plan":                   "the intake: choices from closed lists and the learner's words",
+	"POST /v1/body/coach/review":                 "the learner's words",
+	"POST /v1/body/coach/proposals/{id}/refine":  "the learner's words; the path's proposal is probed",
+	"POST /v1/body/coach/proposals/{id}/accept":  "no body",
+	"POST /v1/body/coach/proposals/{id}/decline": "no body",
+	"POST /v1/body/coach/proposals/{id}/revert":  "no body",
 }
 
 func TestEveryBodyIDRefusesAnotherUser(t *testing.T) {
@@ -1414,6 +1477,7 @@ var requestIDFields = map[string]string{
 	"template_id":        "bodyProbes: POST /v1/exams (Alice's template with Bob's knowledge base)",
 	"item_id":            "bodyProbes: PUT /v1/exams/{id}/answers (Alice's item in Bob's exam); resolved with the exam id and the caller's user_id (TestAnswersAreSavedOnlyToTheExamsOwnItems)",
 	"state_id":           "bodyProbes: POST /v1/worksheets; query probe /v1/worksheets?state_id=",
+	"routine_id":         "bodyProbes: POST /v1/body/workouts (Alice's routine started by Bob); resolved with the caller's user_id in Go and again by the composite key (routine_id, user_id)",
 	"cycle_id":           "bodyProbes: POST /v1/worksheets (a cycle close of Alice's cycle, alone and on Bob's own state); resolved with the caller's user_id in Go and again in the INSERT, and by the composite key (cycle_id, user_id)",
 	"answers":            "bodyProbes: PATCH /v1/worksheets/{id} and POST …/rows with Alice's recording in an audio cell (resolved with the worksheet and the caller's user_id under the row lock on save; served only through both ids and the owner), PUT /v1/exams/{id}/answers",
 }

@@ -241,6 +241,7 @@ func buildE2EStorage(t *testing.T, modelURL string, fns []string, clock func() t
 		Exams:        buildExams(pool, kb, newChatResolver(byokSvc)),
 		Worksheets:   buildWorksheets(pool, kb).WithDiagnoser(buildWritingDiagnosis(pool, newChatResolver(byokSvc))),
 		Zotero:       buildZotero(pool, kb, byokSvc, web.zotero), // up methods, phase 20
+		Body:         buildBody(pool, byokSvc),
 		Users:        e2eUsers{pool},
 		GatewayToken: e2eToken,
 	})

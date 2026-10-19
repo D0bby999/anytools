@@ -18,13 +18,18 @@ import { partOf } from "~/lib/parts";
  */
 export function RightPanel({ title, children }: { title?: string; children?: ReactNode }) {
   const { t } = useTranslation("common");
-  const part = partOf(useLocation().pathname);
+  const { pathname } = useLocation();
+  const part = partOf(pathname);
   // With nothing passed in, the margin says what this part of the book is
   // for. Ask is about sources, so it explains citations there; Read pages
   // (a knowledge base, a notebook, a book) never cite anything themselves, and
   // "Nothing is cited yet" beside a chapter full of citations read as a fault.
+  // Body sits in Practise but is not spaced review: its own note says why
+  // training is beside the studying.
   const note =
-    part === "read"
+    pathname === "/body" || pathname.startsWith("/body/")
+      ? t("panel.margin.body")
+      : part === "read"
       ? t("panel.margin.read")
       : part === "practise"
       ? t("panel.margin.practise")

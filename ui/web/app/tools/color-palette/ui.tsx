@@ -12,7 +12,7 @@ export function ColorPaletteUi() {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
+        <h2 data-slot="tool-title" className="text-2xl font-semibold mb-1">{s.title}</h2>
         <p className="text-sm text-muted-foreground">{s.description}</p>
       </header>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

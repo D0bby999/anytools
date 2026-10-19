@@ -10,7 +10,7 @@ import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/more";
 import { appTitle } from "~/lib/app-title";
-import { ANYPROFILE_HREF, NAV_ITEMS, TOOLS_ITEM } from "~/components/layout/sidebar";
+import { NAV_ITEMS, TOOLS_ITEM } from "~/components/layout/sidebar";
 import { PARTS } from "~/lib/parts";
 import { PageHeader } from "~/components/ui/page-header";
 
@@ -37,7 +37,7 @@ const ROW =
 /**
  * The phone's table of contents: the same order as the rail (Today, the four
  * parts under their tabs, Settings), then the study tools that have no rail
- * row, then the tools appendix led by AnyProfile.
+ * row, then the tools appendix.
  */
 export default function More() {
   const { t } = useTranslation("common");
@@ -86,15 +86,7 @@ export default function More() {
         <h2 id="lp-more-appendix" className="lp-section text-part">
           {t("appendix.title")}
         </h2>
-        <a
-          href={ANYPROFILE_HREF}
-          className="mt-3 block rounded-lg border border-foreground bg-foreground p-5 text-background transition-colors hover:border-primary hover:bg-primary"
-        >
-          <span className="text-xs font-semibold tracking-label uppercase opacity-80">{t("appendix.anyprofile.kind")}</span>
-          <span className="mt-1 block font-serif text-2xl font-semibold">{t("appendix.anyprofile.title")}</span>
-          <span className="mt-1 block text-sm opacity-90">{t("appendix.anyprofile.tagline")}</span>
-        </a>
-        <a href={TOOLS_ITEM.to} className={`${ROW} mt-2 border-b`}>
+        <a href={TOOLS_ITEM.to} className={`${ROW} mt-3 border-y`}>
           <TOOLS_ITEM.icon aria-hidden="true" className="size-5 text-part" />
           {t("appendix.all")}
         </a>

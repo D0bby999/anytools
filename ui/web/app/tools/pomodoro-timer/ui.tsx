@@ -92,7 +92,7 @@ export function PomodoroTimerUi() {
   return (
     <div className="space-y-6 max-w-md mx-auto">
       <header className="text-center">
-        <h2 className="text-2xl font-semibold mb-1">{s.title}</h2>
+        <h2 data-slot="tool-title" className="text-2xl font-semibold mb-1">{s.title}</h2>
         <p className="text-sm text-muted-foreground">{s.description}</p>
       </header>
       <SegmentedControl

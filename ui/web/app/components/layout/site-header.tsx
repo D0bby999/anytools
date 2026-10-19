@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Menu, Search } from "lucide-react";
 import type { PublicLng } from "~/lib/i18n";
 import { cn } from "~/lib/utils";
+import { AnyToolsMark } from "~/components/layout/anytools-mark";
 import { ThemeToggle } from "~/components/layout/theme-toggle";
 import { LocaleSwitcher, useDisclosureMenu } from "~/components/tools-site/locale-switcher";
 
@@ -60,8 +61,10 @@ export function SiteHeader({
           to={homeHref(locale)}
           translate="no"
           aria-label={t("site.home")}
-          className="mr-2 rounded-md font-serif text-2xl font-semibold tracking-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="mr-2 inline-flex items-center gap-2 rounded-md font-serif text-2xl font-semibold tracking-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
+          {/* From sm up: on a phone the row has ~9px to spare, and the tiles would push the theme switch to a second row. */}
+          <AnyToolsMark className="hidden size-6 shrink-0 sm:block" />
           AnyTools
         </Link>
 

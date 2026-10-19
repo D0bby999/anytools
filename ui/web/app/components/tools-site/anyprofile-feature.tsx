@@ -19,13 +19,13 @@ export function AnyProfileFeature({ locale, compact = false }: { locale: PublicL
     >
       <div className="grid gap-6 px-6 py-7 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-10 lg:py-9">
         <div className="min-w-0">
-          <p className="text-xs font-semibold tracking-label uppercase opacity-80">
-            {t("feature.anyprofile.kind")} · {t("feature.anyprofile.badge")}
-          </p>
-          <h2 id="tools-anyprofile" className="mt-2 font-serif text-4xl font-semibold tracking-display">
+          <h2 id="tools-anyprofile" className="font-serif text-4xl font-semibold tracking-display">
             {t("feature.anyprofile.title")}
           </h2>
           <p className="mt-2 font-serif text-xl leading-snug italic opacity-95">{t("feature.anyprofile.tagline")}</p>
+          <p className="mt-3 text-sm opacity-80">
+            {t("feature.anyprofile.kind")} · {t("feature.anyprofile.badge")}
+          </p>
           {compact ? null : (
             <p className="mt-4 max-w-[64ch] text-sm leading-prose opacity-90">{t("feature.anyprofile.body")}</p>
           )}

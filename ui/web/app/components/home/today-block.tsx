@@ -11,6 +11,7 @@
  */
 import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
+import { Plate } from "~/components/ui/plate";
 
 /** The fields Home reads from a learning state, and nothing more. */
 export type TodayState = {
@@ -60,26 +61,33 @@ export function TodayBlock({ today, lowDay }: { today: TodayState | null; lowDay
       <p id="lp-today-low-hint" className="mt-1 text-xs text-muted-foreground">
         {t("today.lowDayHint")}
       </p>
-      <Link
-        to={`/loop/state/${today.id}`}
-        className="mt-4 block font-serif text-2xl leading-snug font-semibold text-balance underline-offset-4 hover:text-primary hover:underline"
-      >
-        {today.goal}
-      </Link>
-      <dl className="mt-3 border-t border-part-line">
-        {rows.map((r) => (
-          <div key={r.label} className="grid gap-x-4 border-b border-part-line py-2.5 text-sm sm:grid-cols-[10rem_1fr]">
-            <dt className="text-muted-foreground">{r.label}</dt>
-            <dd className="font-medium">{r.value || <span className="font-normal text-faint">{t("today.none")}</span>}</dd>
-          </div>
-        ))}
-      </dl>
-      <Link
-        to={`/loop/state/${today.id}#lp-state-interrupt`}
-        className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
-      >
-        {t("today.interrupt")}
-      </Link>
+      {/* A low day: the seedling beside the minimum, so the smaller step reads as
+          the plan, not a failure. One plate, from sm up. */}
+      <div className={low ? "grid items-start gap-x-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,9rem)]" : undefined}>
+        <div className="min-w-0">
+          <Link
+            to={`/loop/state/${today.id}`}
+            className="mt-4 block font-serif text-2xl leading-snug font-semibold text-balance underline-offset-4 hover:text-primary hover:underline"
+          >
+            {today.goal}
+          </Link>
+          <dl className="mt-3 border-t border-part-line">
+            {rows.map((r) => (
+              <div key={r.label} className="grid gap-x-4 border-b border-part-line py-2.5 text-sm sm:grid-cols-[10rem_1fr]">
+                <dt className="text-muted-foreground">{r.label}</dt>
+                <dd className="font-medium">{r.value || <span className="font-normal text-faint">{t("today.none")}</span>}</dd>
+              </div>
+            ))}
+          </dl>
+          <Link
+            to={`/loop/state/${today.id}#lp-state-interrupt`}
+            className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover"
+          >
+            {t("today.interrupt")}
+          </Link>
+        </div>
+        {low ? <Plate name="low-day" sizes="9rem" className="mt-4 hidden max-w-36 sm:block" /> : null}
+      </div>
     </section>
   );
 }

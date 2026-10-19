@@ -133,6 +133,7 @@
  "a file part named \"file\" is required": "é preciso uma parte de arquivo chamada \"file\"",
  "a highlight needs a page": "um destaque precisa de uma página",
  "a highlight needs some text": "um destaque precisa de algum texto",
+ "a later change was accepted since; undo that one first": "depois disso outra mudança foi aceita; desfaça essa primeiro",
  "a link is required": "é preciso um link",
  "a link needs an id": "um link precisa de um id",
  "a meaning has at most %d characters": "um significado tem no máximo %d caracteres",
@@ -267,8 +268,10 @@
  "only a document link has a page": "só um link para um documento tem página",
  "only a flash-card block has cards to review": "só um bloco de cartões tem cartões para revisar",
  "only a judged explanation can be disputed": "só uma explicação avaliada pode ser contestada",
+ "only a plan waiting for you can be revised": "só é possível revisar um plano que aguarda sua decisão",
  "only a word you chose to learn has cards to review": "só uma palavra que você escolheu aprender tem cartões para revisar",
  "only a writing evidence card can be diagnosed": "só um cartão de evidência de escrita pode ser diagnosticado",
+ "only an accepted plan change can be undone": "só é possível desfazer uma mudança de plano aceita",
  "only an answer can be retold": "só uma resposta pode ser recontada",
  "only http and https pages can be fetched": "só é possível buscar páginas http e https",
  "only photos can be added together as one document": "só fotos podem ser adicionadas juntas como um documento",
@@ -463,6 +466,8 @@
  "this paper is already in the knowledge base": "este artigo já está na base de conhecimento",
  "this part was changed elsewhere — reload it and try again": "esta parte foi alterada em outro lugar: recarregue e tente de novo",
  "this path is already planned; archive it and start a new one to change the modules": "esta trilha já está planejada; arquive-a e comece outra para mudar os módulos",
+ "this plan was decided meanwhile": "este plano foi decidido nesse meio-tempo",
+ "this proposal was already decided": "esta proposta já foi decidida",
  "this review has been written back and can no longer change": "esta revisão já foi registrada e não pode mais mudar",
  "this review is due on %s": "esta revisão vence em %s",
  "this review is not scheduled yet": "esta revisão ainda não está agendada",
@@ -474,6 +479,7 @@
  "this turn is not waiting for an answer": "este turno não está esperando uma resposta",
  "this verdict has already been disputed once": "este veredito já foi contestado uma vez",
  "this video needs a transcript with times before it can have study notes": "este vídeo precisa de uma transcrição com tempos antes de ter notas de estudo",
+ "this workout is already finished": "este treino já foi concluído",
  "this worksheet's kind is no longer available": "o tipo desta ficha não está mais disponível",
  "token endpoint returned no access token": "o endpoint de token não devolveu um token de acesso",
  "too many AI boundary entries": "entradas demais de limites de IA",
@@ -528,5 +534,6 @@
  "your model did not return a usable word list — try again": "seu modelo não devolveu uma lista de palavras utilizável: tente de novo",
  "your model did not return usable questions — try again": "seu modelo não devolveu perguntas utilizáveis: tente de novo",
  "your model's diagnosis could not be read — try again": "não foi possível ler o diagnóstico do seu modelo: tente de novo",
- "your model's notes could not be read — try again": "não foi possível ler as notas do seu modelo: tente de novo"
+ "your model's notes could not be read — try again": "não foi possível ler as notas do seu modelo: tente de novo",
+ "your model's plan did not fit the exercise library twice — try again, or another model": "o plano do seu modelo não se encaixou na biblioteca de exercícios duas vezes — tente de novo, ou use outro modelo"
 }

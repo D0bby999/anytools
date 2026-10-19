@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import { Link, useMatches } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { PublicLng } from "~/lib/i18n";
+import { AnyToolsMark } from "~/components/layout/anytools-mark";
 import { SEARCH_ATTR, SiteHeader } from "~/components/layout/site-header";
 import { StudyBand } from "./anyprofile-feature";
 
@@ -92,7 +93,8 @@ export function SiteFooter({ locale, note }: { locale: PublicLng; note: string }
     <footer className="border-t bg-muted">
       <div className="lp-layout grid gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16 lg:px-6">
         <div>
-          <p translate="no" className="font-serif text-xl font-semibold tracking-display">
+          <p translate="no" className="flex items-center gap-2 font-serif text-xl font-semibold tracking-display">
+            <AnyToolsMark className="size-5 shrink-0" />
             AnyTools
           </p>
           <p className="mt-2 max-w-(--lp-measure-read) text-sm leading-snug text-muted-foreground">{note}</p>

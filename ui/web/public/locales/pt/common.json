@@ -12,6 +12,7 @@
     "notebooks": "Caderno",
     "quiz": "Quizzes",
     "mastery": "Domínio",
+    "body": "Corpo",
     "solve": "Resolver",
     "research": "Pesquisa",
     "settings": "Configurações",
@@ -36,6 +37,7 @@
       "read": "Cada documento é lido uma vez e dividido em trechos. Esses trechos são tudo o que o AnyLearn cita para você, cada um com sua página, para que qualquer afirmação possa ser conferida no original.",
       "practise": "Um ponto que você erra volta no mesmo dia. Um ponto que você sabe volta pouco antes de você esquecer. O domínio é contado pelas respostas, nunca pelo tempo gasto.",
       "reflect": "Cinco minutos para começar, catorze dias para testar uma mudança, noventa dias para decidir se ela fica. O ciclo só avança com evidências que você já registrou.",
+      "body": "O exercício regular ajuda a concentração e a memória. As metas vêm do que você registrou da última vez, nunca de um palpite, e uma sessão perdida simplesmente espera.",
       "home": "O AnyLearn funciona com suas próprias contas de IA e responde só a partir dos documentos que você fornece. Aqui não há plano nem saldo de créditos."
     }
   },
@@ -59,8 +61,7 @@
         "body": "As citações abrem a página de onde foram tiradas. Quando seus documentos não cobrem uma pergunta, o AnyLearn diz isso em vez de preencher a lacuna.",
         "go": "Iniciar uma conversa"
       },
-      "done": "Concluído",
-      "status": "O cartão abaixo mostra o que o AnyLearn consegue fazer com as contas que você conectou até agora e o que ainda falta."
+      "done": "Concluído"
     },
     "due": {
       "title": "Pendente de revisão",
@@ -102,6 +103,14 @@
         "Noventa dias para decidir se ela fica."
       ],
       "pathLabel": "O ritmo deste livro"
+    },
+    "attention": {
+      "blockedTitle": "Falta um passo para tudo funcionar",
+      "blockedBody": "Estas partes do AnyLearn ainda não funcionam. Cada linha diz por quê, e a correção fica em Configurações.",
+      "warnTitle": "Algo precisa de atenção",
+      "warnBody": "Estas partes funcionam, mas não tão bem quanto poderiam.",
+      "go": "Corrija em Configurações",
+      "unknownTitle": "Não foi possível verificar suas contas de IA"
     }
   },
   "errors": {
@@ -125,10 +134,7 @@
       "ready": "Pronto",
       "attention": "Precisa de atenção",
       "blocked": "Bloqueado",
-      "allReady": "Cada recurso essencial tem uma conexão que responde. Os documentos podem ser lidos, indexados e consultados.",
-      "notReady": "Falta algo essencial. Até ser corrigido, as partes afetadas do AnyLearn não funcionam. Elas não vão recorrer a outra coisa sem avisar.",
-      "unavailable": "O AnyLearn não conseguiu acessar sua API agora, então não sabe dizer o que está pronto.",
-      "manage": "Abrir Configurações"
+      "unavailable": "O AnyLearn não conseguiu acessar sua API agora, então não sabe dizer o que está pronto."
     },
     "functions": {
       "chat": "Chat",
@@ -582,7 +588,7 @@
     },
     "practise": {
       "title": "Praticar",
-      "body": "Quizzes, provas e revisão espaçada, até um ponto ficar."
+      "body": "Quizzes, provas e revisão espaçada, até um ponto ficar; e treino para o corpo que estuda."
     },
     "reflect": {
       "title": "Refletir",
@@ -591,12 +597,6 @@
   },
   "appendix": {
     "title": "Apêndice: ferramentas",
-    "anyprofile": {
-      "title": "AnyProfile",
-      "kind": "App para computador",
-      "tagline": "Um navegador por conta, lado a lado.",
-      "open": "Baixar"
-    },
     "all": "Todas as ferramentas grátis"
   },
   "richText": {
@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Lembrete de revisão",
-      "lead": "Uma vez por dia, na hora que você escolher, o AnyLearn avisa este dispositivo de quantas coisas estão para revisar, o mesmo número do Início. Nada é enviado nos dias sem nada pendente, e não há sequências para manter.",
+      "lead": "Uma vez por dia, na hora que você escolher, o AnyLearn avisa este dispositivo de quantas coisas estão para revisar (o mesmo número do Início) e qual treino sua semana marca para hoje. Nos dias sem nenhum dos dois nada é enviado, e não há sequências para manter.",
       "turnOn": "Ativar neste navegador",
       "turnOff": "Desativar aqui",
       "onHere": "O lembrete está ativado neste navegador.",
@@ -700,5 +700,10 @@
     "not_verified": "Ainda não verificada.",
     "kb_only": "Sem chave de busca: a pesquisa usa só os seus documentos.",
     "keyless_search": "Sem chave de busca: a pesquisa busca na web pelo DuckDuckGo, que pode ser lento ou recusar. Uma chave Tavily ou Brave é mais confiável."
+  },
+  "account": {
+    "menu": "Conta: {{name}}",
+    "settings": "Configurações",
+    "language": "Idioma"
   }
 }

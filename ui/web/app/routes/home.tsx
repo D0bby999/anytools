@@ -27,12 +27,15 @@ import { listStates } from "~/lib/loop.server";
 import { localDay } from "~/lib/local-day";
 import { isLowDay } from "~/lib/low-day.server";
 import { InstallHint } from "~/components/reminders/install-hint";
+import { BodyTodayBlock, type BodyToday } from "~/components/body/body-today";
+import { getOverview } from "~/lib/body.server";
 import { TodayBlock, type TodayState } from "~/components/home/today-block";
 import { dueWorksheets } from "~/lib/worksheets.server";
 import { dueCounts, WorksheetsDue, type DueCounts } from "~/components/worksheet/worksheets-due";
 import { duePathCount, ReviewAllLink } from "~/components/mastery/review-all-link";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
+import { Plate } from "~/components/ui/plate";
 import { RightPanel } from "~/components/layout/right-panel";
 import { NAV_ITEMS } from "~/components/layout/sidebar";
 import { PARTS } from "~/lib/parts";
@@ -75,6 +78,20 @@ export async function loader({ request }: Route.LoaderArgs) {
   // point failed ten minutes ago is here without any job having run. Swallowed
   // to null for the same reason readiness is. The review reminder's push counts
   // these same rows (internal/app/wire_reminders.go); a new row goes in both.
+  // Body: today's training beside the studying. Only what the block shows.
+  const bodyP = getOverview(user.id)
+    .then(({ overview: o }): BodyToday => {
+      const routine = o.routines.find((r) => r.id === o.today.routine_id) ?? null;
+      return {
+        routine: routine?.name ?? null,
+        exercises: routine?.exercises.length ?? 0,
+        trained: o.today.trained,
+        openId: o.open?.id ?? null,
+        thisWeek: o.this_week,
+        hasPlan: o.routines.length > 0,
+      };
+    })
+    .catch((): BodyToday | null => null);
   const [readiness, due, vocabDue, retests, bookDue, mistakes, worksheetsDue] = await Promise.all([
     getReadiness(user.id).catch((): Readiness | null => null),
     // up-methods phase 12: the paths the due points span, too, for the
@@ -99,11 +116,11 @@ export async function loader({ request }: Route.LoaderArgs) {
     listKBs(user.id).then((r) => r.knowledge_bases.some((k) => k.ready > 0)).catch(() => false),
     listSessions(user.id).then((r) => r.sessions.length > 0).catch(() => false),
   ]);
-  const today = await todayP;
+  const [today, body] = await Promise.all([todayP, bodyP]);
   // The low-day switch is a cookie for the learner's local day.
   const lowDay = today ? await isLowDay(request, user.id, localDay(user.timezone)) : false;
   const setup = { provider: hasProvider, documents: hasDocuments, asked: hasAsked };
-  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, mistakes, today, lowDay, worksheetsDue };
+  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, mistakes, today, lowDay, worksheetsDue, body };
 }
 
 /** Home draws its own margin: the pace the book keeps, and its one claim. */
@@ -111,7 +128,7 @@ export const handle = { ownsPanel: true };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, worksheetsDue, today, lowDay } = loaderData;
+  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, worksheetsDue, today, lowDay, body } = loaderData;
   const ready = readiness?.core === "green";
   // Written as literal t() calls rather than a key built from a loop variable:
   // the i18n guard in app/test/structural-guards.test.ts can only verify keys
@@ -133,16 +150,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <PageHeader title={t("home.title")} lede={t("home.lead")} />
           <InstallHint />
 
-          {/* Until a provider is connected nothing else on this page can run,
-              so the steps come first. Once it is, they shrink to the
-              readiness card at the end. */}
+          {/* Until the three first steps are done, they are the page's first
+              thing. After that, only what still cannot run, in plain words;
+              nothing at all once everything core works. */}
           {!ready ? (
-            <>
-              {setupDone ? null : <Setup steps={steps} />}
-              <div className={setupDone ? "mb-8" : "mb-8 -mt-4"}>
+            setupDone ? (
+              <div className="mb-8">
                 <ReadinessCard readiness={readiness} />
               </div>
-            </>
+            ) : (
+              <Setup steps={steps} />
+            )
           ) : null}
 
           {/* Reflect: the next step of the goal touched last. */}
@@ -178,6 +196,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   {total > 0 ? t("home.due.total", { count: total }) : t("home.due.clear")}
                 </p>
               </div>
+              {/* Nothing due: the day's study is closed, and the plate says so.
+                  Not on a low day, whose own plate is the one in view. */}
+              {total === 0 && !lowDay ? (
+                <Plate name="done-today" sizes="10rem" className="hidden max-w-40 shrink-0 sm:block" />
+              ) : null}
               {due !== null && due > 0 ? (
                 <Button asChild>
                   <Link to={duePaths > 1 ? "/mastery/review" : "/mastery"}>{t("home.due.review")}</Link>
@@ -238,9 +261,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             )}
           </section>
 
-          <Contents />
+          {/* Practise, the body: today's training, after the studying due. */}
+          {body ? <BodyTodayBlock body={body} lowDay={lowDay} /> : null}
 
-          {ready ? <ReadinessCard readiness={readiness} /> : null}
+          <Contents />
         </div>
       </div>
 
@@ -370,7 +394,6 @@ function Setup({ steps }: { steps: SetupStep[] }) {
           </li>
         ))}
       </ol>
-      <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("home.next.status")}</p>
     </section>
   );
 }

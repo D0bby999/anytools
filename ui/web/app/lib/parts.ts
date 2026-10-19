@@ -30,6 +30,7 @@ const BY_SEGMENT: Record<string, PartId> = {
   research: "ask",
   quiz: "practise",
   mastery: "practise",
+  body: "practise",
   loop: "reflect",
   toolkit: "reflect",
   tools: "tools",

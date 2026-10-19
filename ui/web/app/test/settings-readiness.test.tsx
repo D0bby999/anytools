@@ -100,28 +100,41 @@ describe("the readiness card on Home", () => {
     ...over,
   });
 
-  it("reports only the three core capabilities", () => {
-    renderWithRouter(<ReadinessCard readiness={readiness({})} />);
+  it("says nothing once everything core works", () => {
+    const { container } = renderWithRouter(<ReadinessCard readiness={readiness({})} />);
+    expect(container.querySelector("section")).toBeNull();
+  });
+
+  it("names only the core capabilities that cannot run, in plain words", () => {
+    renderWithRouter(
+      <ReadinessCard
+        readiness={readiness({
+          core: "blocked",
+          functions: [
+            row({ function: "chat" }),
+            row({ function: "parse", status: "blocked", reason: "No parse route.", reason_code: "no_route" }),
+            row({ function: "embed" }),
+            row({ function: "rerank", status: "blocked", reason: "No rerank route." }),
+          ],
+        })}
+      />,
+    );
     // rerank is blocked but invisible to the user, so putting it on the landing
     // card would teach them to ignore the card.
-    expect(screen.queryByText(/No rerank route/)).toBeNull();
-    expect(screen.getByText("Chat")).toBeTruthy();
+    expect(screen.queryByText(/rerank/i)).toBeNull();
+    expect(screen.queryByText("Chat")).toBeNull();
     expect(screen.getByText("Read documents")).toBeTruthy();
-    expect(screen.getByText("Index")).toBeTruthy();
+    expect(screen.getByText(/One more step/)).toBeTruthy();
+    // No engineering status word on Home: that is the matrix's, in Settings.
+    expect(screen.queryByText(/Blocked/)).toBeNull();
+    // A missing route is chosen on the Routes page.
+    expect(screen.getByRole("link", { name: /Fix it in Settings/ }).getAttribute("href")).toBe("/settings/routes");
   });
 
   it("says it does not know when the API was unreachable", () => {
     renderWithRouter(<ReadinessCard readiness={null} />);
-    // The failure mode this prevents: a green card assembled from an absence of
-    // bad news.
+    // The failure mode this prevents: silence read as "all is well".
     expect(screen.getByText(/could not reach its API/)).toBeTruthy();
-    expect(screen.queryByText(/Every core capability/)).toBeNull();
-  });
-
-  it("links to Settings so the reason can be acted on", () => {
-    renderWithRouter(<ReadinessCard readiness={readiness({ core: "blocked" })} />);
-    const link = screen.getByRole("link", { name: /Open Settings/ });
-    expect(link.getAttribute("href")).toBe("/settings");
   });
 });
 

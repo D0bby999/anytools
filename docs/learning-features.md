@@ -36,6 +36,7 @@ A short guide to what each study feature does, what it costs on your own AI key,
 | Documentation sites and GitHub repositories | A knowledge base → Add a site, Add a repository | An index of every page or file (`embed`); no other call |
 | Spreadsheets | A knowledge base → upload | An index only; read locally |
 | Zotero | A knowledge base → Add from Zotero; Research | An index of each item added; research may search it as a tool |
+| Body (training) | Body, Home → Body today | Nothing to log or progress; the coach is one call on your `chat` model per plan, review or revision, and at most one repair |
 
 ## Practise your mistakes
 
@@ -164,7 +165,7 @@ AnyLearn is written in English, Vietnamese, Spanish and Portuguese. A new accoun
 
 ## Review reminder
 
-Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many things are due for review; tapping it opens Home. Nothing is sent on a day with nothing due, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is Home's "Due for review" total: mastery points, mistakes to practise, skill-card retests, vocabulary, book cards and worksheet reviews.
+Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many things are due for review and, if your training week schedules a workout today that is not done yet, which one; tapping it opens Home. Nothing is sent on a day with neither, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is Home's "Due for review" total: mastery points, mistakes to practise, skill-card retests, vocabulary, book cards and worksheet reviews.
 
 ## Bad-day minimum
 
@@ -204,3 +205,13 @@ Upload `.xlsx`, `.csv` or `.tsv` (up to 50 MB). Each visible sheet becomes a pag
 
 With your Zotero user id and a read-only API key (Settings → Search keys), a knowledge base can add items from your library: one with a PDF in your Zotero storage comes in as that file (up to 50 MB), any other as a note with its metadata, abstract and link. An item is added once. Research may also search your library while a connection exists.
 
+## Body: training beside studying
+
+Body keeps a training log in the same app, because the mind that studies lives in a body that needs moving. Its behaviour follows [openGym](https://github.com/DuarteSantos8/openGym), rewritten (openGym is AGPL-3.0; nothing of its code is reused).
+
+- **Plan.** Routines of exercises from a 1,324-exercise library (exercise names and steps in English, text only; body parts, equipment and muscles in your language), each logged as weight × reps, a timed hold, or cardio. Each weekday trains one routine or rests.
+- **Workout.** Today's routine starts with every target already worked out. Ticking a set starts the rest timer, the screen stays on while the session is open, and finishing it names any new best set (a lift's first session sets its starting point and is not a record).
+- **Progression.** Worked out from the log every time, never stored. Linear adds a step when every rep of every set was done; double climbs a rep range first; a timed hold adds seconds; body-weight work adds reps. A step is 5 kg (10 lb) for legs and 2.5 kg (5 lb) for everything else. A set not ticked, or short, is a miss; three misses in a row bring the weight down about 10 %. Each target says why in a sentence.
+- **Progress.** A year heatmap of minutes trained, body weight against a goal, an estimated one-rep max per lift (Epley, not above 12 reps), and the sets each muscle group got in 7 and 30 days (a set counts once for the exercise's target muscle and half for each secondary one).
+- **Coach.** On your `chat` model: a plan from a short intake (goal, experience, days, minutes, equipment, limits), a review of the last eight weeks that may answer "no change", and revisions in your own words. Each answer is checked against the library and the plan's limits, with one repair; the coach never sets a load for an exercise you have not lifted. It waits for Accept, and an accepted change can be undone. It sends your plan, logged sets, weigh-ins and intake answers, and nothing else of AnyLearn: not your name, your email or your documents.
+- **With the studying.** Home shows "Body today" after what is due. On a low day it asks only for ten minutes of easy movement. Units are kg or lb; switching converts everything logged. The daily reminder (Settings → Reminders) also names the workout your week schedules today, until it is done.

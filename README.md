@@ -17,6 +17,7 @@ Upload the material you are studying. AnyLearn answers questions about it, and e
 - carries up's worksheets in a Toolkit: a four-skill English diagnostic, listening, reading, writing, grammar, speaking and vocabulary evidence (with browser recordings and five-pass writing feedback that never rewrites you), project and case reviews, a structured day-90 close, and a private life toolkit;
 - asks for your own version before AI help when you want it, reviews due points across every mastery path, and keeps a bad-day minimum on Home;
 - adds audio and video files, photos of pages, podcast feeds and YouTube playlists, documentation sites, GitHub repositories, spreadsheets and a Zotero library as sources, transcribed by your own key or the server's built-in Whisper.
+- keeps a training log beside the studying (**Body**): a weekly plan, guided workouts with a rest timer, progression worked out from what you logged, body weight, strength and a year of training at a glance, and a coach on your own model that drafts and revises the plan, applied only when you accept it.
 
 The learning features are described for learners in [docs/learning-features.md](docs/learning-features.md).
 
@@ -41,6 +42,7 @@ It is free and bring-your-own-key: AnyTools holds no AI credential of its own.
 | Own version first, cross-path review, bad-day minimum | `internal/learning/ownversion`, `internal/capabilities/mastery`, `internal/learning/loop` |
 | Media, photos, feeds, sites, repositories, spreadsheets, Zotero | `internal/connectors/{media,feeds,crawl,github,zotero}`, `internal/rag/parse` |
 | Transcription and speech engines (your key, or the built-in Whisper and Kokoro) | `internal/providers/{stt,tts,builtin}`, `internal/media` |
+| Body: training plan, workouts, progression, body weight, coach | `internal/body`, `internal/api/bodyapi`, `ui/web/app/routes/body.*` |
 | Bring your own keys: connections, routes, readiness | `internal/byok`, `internal/providers` |
 
 The stack is a Go 1.26 API, a React Router 7 server (the BFF) with Tailwind v4, and PostgreSQL 16 with pgvector. The browser only ever talks to the BFF, and the API is not reachable from outside the compose network. See [docs/architecture.md](docs/architecture.md).

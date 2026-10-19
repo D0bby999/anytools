@@ -115,10 +115,9 @@ The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Lead
 The products share one tile: AnyProfile's warm-white squircle with a soft shadow,
 one glyph in the product's ink (`public/icons/*.svg`, masters at 1024).
 
-- **AnyTools**: a wildcard asterisk, six round-ended navy arms meeting at the centre,
-  the top one in the highlighter. The `*` that matches anything: any tool, the one
-  needed now marked. Drawn in SVG (comp chosen from four made through 9router,
-  2026-10-19), never traced from the raster.
+- **AnyTools**: four tiles, one navy, two outlined in the selected tint, one in the
+  highlighter. A set of tools, one of them needed now. (The wildcard asterisk tried on
+  2026-10-19 was taken back the same day: the tiles read better.)
 - **AnyLearn**: a navy page with its corner turned, a highlighter line across it, a
   second page behind it (AnyProfile's two tiles, as pages). The product's promise: the
   answer is checked against the page.
@@ -127,6 +126,18 @@ Favicons are the glyph alone, cropped tight, and lift to the dark-theme inks und
 `prefers-color-scheme: dark`, so they read on a dark tab bar. The study app's pages and
 sign-in show AnyLearn's (root.tsx picks by route); everything else shows AnyTools'.
 Icon URLs carry `?v=` so a changed mark replaces the cached one.
+
+The **AnyTools logo** (`public/brand/`) is the four tiles beside the wordmark: Literata
+600 at the site's display tracking (as the header sets it), outlined so it needs no
+font. The tiles are 1.5 times the cap height and centred on the caps, 0.5 cap from the
+word. `anytools-logo.svg` and `-dark.svg` are the horizontal lockup on paper and on
+the dark theme, `-stacked` the tiles over the word, `-mono` one ink with the tint
+tiles left open (print, a single colour); the PNGs are the horizontal lockup at 256 px
+high on a transparent ground. The public site's header and footer draw the same
+lockup live (`components/layout/anytools-mark.tsx`): the tiles inline, in the tokens,
+beside the wordmark as text, at the cap ratio above (24 px beside `text-2xl`, 20 px
+beside `text-xl`, `gap-2`). The header shows the tiles from `sm` up: on a phone its first
+row has about 9 px to spare, and the tiles would push the theme switch to a second row.
 
 ## Geometry
 
@@ -238,6 +249,11 @@ checked on every main page, in both themes.
    first viewport at most, 600/1200 WebP. A page's first-run empty state is the
    part's plate beside the sentence (`PlateEmpty`); an empty list inside a busy page
    stays an `lp-empty` line. A new plate is made the same way, never a stock photo.
+   Three plates mark a moment rather than a part, each on a wide screen only (`sm` up)
+   so a phone's first viewport stays the work: `done-today` beside Home's due count when
+   nothing is due (not on a low day), `low-day` beside the goal in Home's Today block on a
+   low day (the smaller step is the plan, not a failure), and `part-body` on the card a
+   finished workout shows; `part-body` is also Body's first-run plate.
 
 ## Anti-patterns for this project
 

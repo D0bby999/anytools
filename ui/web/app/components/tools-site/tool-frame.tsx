@@ -35,7 +35,8 @@ class ToolBoundary extends Component<{ fallback: ReactNode; children: ReactNode 
  * The tool itself. Its chunk loads on its own page only; the server renders
  * it too (Suspense waits on the server), so the first paint already holds the
  * tool and a crawler sees it. A tool whose UI is not ported yet says it is
- * coming back, and the rest of the page is unchanged.
+ * coming back, and the rest of the page is unchanged. Every tool sits on the
+ * same sheet (`.tool-sheet` in app.css), whether or not it brings a Card.
  */
 export function ToolFrame({ slug, locale }: { slug: string; locale: PublicLng }) {
   const { t } = useTranslation("tools");
@@ -64,8 +65,13 @@ export function ToolFrame({ slug, locale }: { slug: string; locale: PublicLng })
   return (
     <ToolLocaleProvider locale={locale}>
       <ToolBoundary fallback={failed}>
+        {/* The sheet inside Suspense, not around it: wrapped in an element,
+            React outlines a large tool's markup into a hidden div after the
+            loading line (tools-server-render.test.tsx). */}
         <Suspense fallback={loading}>
-          <Tool />
+          <div className="tool-sheet rounded-lg border bg-card p-5 text-foreground shadow-sm md:p-6">
+            <Tool />
+          </div>
         </Suspense>
       </ToolBoundary>
     </ToolLocaleProvider>

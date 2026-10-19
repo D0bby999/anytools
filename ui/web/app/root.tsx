@@ -33,8 +33,8 @@ export const links: Route.LinksFunction = () => [
   { rel: "preload", href: serifSemibold, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
 ];
 
-/** The favicons: AnyTools' wildcard, and AnyLearn's highlighted page (public/icons). */
-const SITE_ICON = { svg: "/favicon.svg?v=3", ico: "/favicon.ico?v=3" };
+/** The favicons: AnyTools' four tiles, and AnyLearn's highlighted page (public/icons). */
+const SITE_ICON = { svg: "/favicon.svg?v=4", ico: "/favicon.ico?v=4" };
 const STUDY_ICON = { svg: "/icons/anylearn-favicon.svg?v=2", ico: "/icons/anylearn.ico?v=2" };
 
 /** Same key and rule as useThemeAfterHydration and components/layout/theme-toggle.tsx. */

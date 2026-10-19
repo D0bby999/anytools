@@ -1,7 +1,7 @@
-import { Form, Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ThemeToggle } from "~/components/layout/theme-toggle";
-import { ACCOUNT_ACTION } from "~/components/layout/site-header";
+import { AccountMenu } from "~/components/layout/account-menu";
 import { NAV_ITEMS } from "~/components/layout/sidebar";
 import { PARTS, partOf } from "~/lib/parts";
 
@@ -14,7 +14,7 @@ import { PARTS, partOf } from "~/lib/parts";
  * places are the rail's ten rows in four parts and an appendix, which three header links
  * cannot hold, and the phone already has its bar at the bottom. It ends the
  * same way, though: the wordmark in the same face and size where the rail is
- * hidden, the theme switch, and the account action as the same outlined button.
+ * hidden, the theme switch, and the account (account-menu.tsx).
  */
 /**
  * Pages with no rail row of their own, named by the section they are opened
@@ -57,18 +57,8 @@ export function Topbar({ displayName, email }: { displayName: string; email: str
       </p>
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="hidden min-w-0 text-right sm:block">
-          <p className="truncate text-sm font-medium">{displayName || email}</p>
-          {displayName && <p className="truncate text-xs text-muted-foreground">{email}</p>}
-        </div>
         <ThemeToggle />
-        {/* A POST, not a link: a GET logout can be fired by any third-party
-            <img src="/auth/logout"> the user's browser happens to load. */}
-        <Form method="post" action="/auth/logout">
-          <button type="submit" className={ACCOUNT_ACTION}>
-            {t("actions.signOut")}
-          </button>
-        </Form>
+        <AccountMenu displayName={displayName} email={email} />
       </div>
     </header>
   );

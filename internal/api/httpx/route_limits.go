@@ -119,6 +119,11 @@ var RouteClasses = []RouteClass{
 			"GET /v1/mastery/paths/{id}/next",
 			// "Draw it": one diagram call, and at most one repair.
 			"POST /v1/visualize",
+			// Body's coach: one call for a plan, a review or a revision, and
+			// at most one repair (body/coach.go).
+			"POST /v1/body/coach/plan",
+			"POST /v1/body/coach/review",
+			"POST /v1/body/coach/proposals/{id}/refine",
 			"POST /v1/visualize/{id}/repair",
 			"POST /v1/reading/{id}/diagram",
 			// A script call, then the learner's TTS in the background.

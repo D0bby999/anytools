@@ -1,8 +1,8 @@
 import { Link, NavLink, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowUpRight,
   BookOpen,
+  Dumbbell,
   GraduationCap,
   Home,
   ListChecks,
@@ -33,6 +33,7 @@ export const NAV_ITEMS = [
   { to: "/research", labelKey: "nav.research", icon: Telescope, end: false, phone: false, part: "ask" },
   { to: "/quiz", labelKey: "nav.quiz", icon: ListChecks, end: false, phone: false, part: "practise" },
   { to: "/mastery", labelKey: "nav.mastery", icon: GraduationCap, end: false, phone: false, part: "practise" },
+  { to: "/body", labelKey: "nav.body", icon: Dumbbell, end: false, phone: false, part: "practise" },
   { to: "/loop", labelKey: "nav.loop", icon: Repeat, end: false, phone: true, part: "reflect" },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, end: false, phone: false, part: "home" },
 ] as const satisfies ReadonlyArray<{ part: PartId; [k: string]: unknown }>;
@@ -46,12 +47,12 @@ export const MORE_ITEM = { to: "/more", labelKey: "nav.more", icon: MoreHorizont
 
 /**
  * The tools are the book's appendix, not one of its parts: they sit after the
- * parts on the rail, led by AnyProfile, and beside More on the phone bar.
- * `/tools` redirects to the tools home in the visitor's language
- * (routes/tools.ts); `?page=anyprofile` to AnyProfile's page there.
+ * parts on the rail and beside More on the phone bar. `/tools` redirects to
+ * the tools home in the visitor's language (routes/tools.ts). AnyProfile is
+ * not on the rail: it is a browser for sellers, not part of studying, and it
+ * stays on the tools site (owner's call, 2026-10-19).
  */
 export const TOOLS_ITEM = { to: "/tools", labelKey: "tools:nav.tools", icon: Wrench } as const;
-export const ANYPROFILE_HREF = "/tools?page=anyprofile";
 
 /** One rail row. The current row takes its part's tint and a full outline. */
 const RAIL_ROW =
@@ -100,7 +101,7 @@ function RailLink({ item }: { item: Item }) {
 /**
  * The rail from `lg` up: a textbook's table of contents. Today first, then the
  * four numbered parts, each under its coloured tab, then Settings, then the
- * tools appendix with AnyProfile as its feature.
+ * tools appendix.
  */
 function Rail() {
   const { t } = useTranslation("common");
@@ -160,22 +161,7 @@ function Rail() {
         <h2 id="lp-rail-appendix" className="px-3 pb-2 font-sans text-xs font-semibold text-part">
           {t("appendix.title")}
         </h2>
-        {/* The feature of the appendix: AnyProfile, the one thing on the rail
-            that is a card rather than a row. Tinted in the appendix's slate,
-            not inverted: as a solid ink block (cream in the dark) it was the
-            heaviest shape on every study page, louder than the page itself. */}
-        <a
-          href={ANYPROFILE_HREF}
-          className="group block rounded-lg border border-part-line bg-part-soft p-4 text-foreground transition-colors hover:border-primary hover:bg-card"
-        >
-          <span className="flex items-center justify-between font-sans text-2xs font-semibold tracking-label text-part uppercase">
-            {t("appendix.anyprofile.kind")}
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </span>
-          <span className="mt-2 block font-serif text-xl font-semibold">{t("appendix.anyprofile.title")}</span>
-          <span className="mt-1 block text-xs leading-snug text-muted-foreground">{t("appendix.anyprofile.tagline")}</span>
-        </a>
-        <a href={TOOLS_ITEM.to} className={cn(railRowClass(false), "mt-2")}>
+        <a href={TOOLS_ITEM.to} className={railRowClass(false)}>
           <TOOLS_ITEM.icon aria-hidden="true" className="size-4 shrink-0" />
           <span className="truncate">{t("appendix.all")}</span>
         </a>

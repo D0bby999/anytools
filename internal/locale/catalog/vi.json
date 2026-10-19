@@ -133,6 +133,7 @@
  "a file part named \"file\" is required": "cần có một phần tệp tên \"file\"",
  "a highlight needs a page": "đoạn đánh dấu cần có trang",
  "a highlight needs some text": "đoạn đánh dấu cần có chữ",
+ "a later change was accepted since; undo that one first": "sau đó đã có một thay đổi khác được dùng; hãy hoàn tác thay đổi đó trước",
  "a link is required": "cần có đường dẫn",
  "a link needs an id": "liên kết cần có id",
  "a meaning has at most %d characters": "nghĩa của từ có tối đa %d ký tự",
@@ -267,8 +268,10 @@
  "only a document link has a page": "chỉ đường dẫn tới tài liệu mới có trang",
  "only a flash-card block has cards to review": "chỉ khối thẻ ghi nhớ mới có thẻ để ôn",
  "only a judged explanation can be disputed": "chỉ phần giải thích đã được chấm mới khiếu nại được",
+ "only a plan waiting for you can be revised": "chỉ sửa được giáo án đang chờ bạn quyết định",
  "only a word you chose to learn has cards to review": "chỉ từ bạn chọn học mới có thẻ để ôn",
  "only a writing evidence card can be diagnosed": "chỉ thẻ bằng chứng bài viết mới chẩn đoán được",
+ "only an accepted plan change can be undone": "chỉ hoàn tác được thay đổi giáo án đã dùng",
  "only an answer can be retold": "chỉ câu trả lời mới kể lại được",
  "only http and https pages can be fetched": "chỉ lấy được trang http và https",
  "only photos can be added together as one document": "chỉ ảnh mới gộp chung thành một tài liệu được",
@@ -463,6 +466,8 @@
  "this paper is already in the knowledge base": "bài báo này đã có trong kho tài liệu",
  "this part was changed elsewhere — reload it and try again": "phần này đã được thay đổi ở nơi khác — hãy tải lại và thử lại",
  "this path is already planned; archive it and start a new one to change the modules": "lộ trình này đã được lên kế hoạch; hãy lưu trữ nó và bắt đầu lộ trình mới để đổi mô-đun",
+ "this plan was decided meanwhile": "giáo án này vừa được quyết định trong lúc đó",
+ "this proposal was already decided": "đề xuất này đã được quyết định",
  "this review has been written back and can no longer change": "bản xem lại này đã được ghi lại và không thể đổi nữa",
  "this review is due on %s": "bản xem lại này đến hạn vào %s",
  "this review is not scheduled yet": "bản xem lại này chưa được lên lịch",
@@ -474,6 +479,7 @@
  "this turn is not waiting for an answer": "lượt này không chờ câu trả lời",
  "this verdict has already been disputed once": "kết luận này đã bị khiếu nại một lần",
  "this video needs a transcript with times before it can have study notes": "video này cần bản ghi lời có mốc thời gian trước khi có ghi chú học tập",
+ "this workout is already finished": "buổi tập này đã kết thúc",
  "this worksheet's kind is no longer available": "loại phiếu học này không còn nữa",
  "token endpoint returned no access token": "endpoint lấy token không trả về access token",
  "too many AI boundary entries": "quá nhiều mục ranh giới AI",
@@ -528,5 +534,6 @@
  "your model did not return a usable word list — try again": "mô hình của bạn không trả về danh sách từ dùng được — hãy thử lại",
  "your model did not return usable questions — try again": "mô hình của bạn không trả về câu hỏi dùng được — hãy thử lại",
  "your model's diagnosis could not be read — try again": "không đọc được kết quả chẩn đoán của mô hình — hãy thử lại",
- "your model's notes could not be read — try again": "không đọc được ghi chú của mô hình — hãy thử lại"
+ "your model's notes could not be read — try again": "không đọc được ghi chú của mô hình — hãy thử lại",
+ "your model's plan did not fit the exercise library twice — try again, or another model": "giáo án của mô hình hai lần không khớp thư viện bài tập — hãy thử lại, hoặc dùng mô hình khác"
 }

@@ -47,6 +47,9 @@ type DueSummary struct {
 	// NextDue is the earliest date among the user's not-yet-due points, so a
 	// digest can say "three waiting, four more tomorrow".
 	NextDue *time.Time `json:"next_due,omitempty"`
+	// Workout names the routine the learner's training week schedules today,
+	// not yet done (internal/body); "" for none. The reminder mentions it.
+	Workout string `json:"workout,omitempty"`
 }
 
 // DueSource is the query the digest reads. It is NOT user-scoped — a digest is

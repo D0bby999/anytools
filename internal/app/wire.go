@@ -171,7 +171,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 
 	// The daily review reminder: a web push at the learner's hour. See
 	// wire_push.go.
-	reminders := buildPush(pool, cfg).WithCounter(newDueTotal(pool, loopSvc))
+	reminders := buildPush(pool, cfg).WithCounter(newDueTotal(pool, loopSvc)).WithPlanner(newTrainingPlanner(pool))
 
 	// Phase 7. See wire_quiz.go.
 	quizHandler, masteryHandler, startLearning := buildQuizMastery(pool, kb, newChatResolver(byokService), nil, reminders)
@@ -214,6 +214,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 		Feeds:        feedapi.NewHandler(kb.service, kb.authz),
 		Storage:      storageHandler,
 		Push:         pushapi.NewHandler(reminders),
+		Body:         buildBody(pool, byokService),
 		Users:        users,
 		GatewayToken: cfg.Security.GatewayToken,
 		AllowNoAuth:  cfg.Security.AllowNoAuth,

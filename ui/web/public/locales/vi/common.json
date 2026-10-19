@@ -12,6 +12,7 @@
     "notebooks": "Sổ ghi chép",
     "quiz": "Câu hỏi",
     "mastery": "Ôn tập",
+    "body": "Thể lực",
     "solve": "Giải bài",
     "research": "Nghiên cứu",
     "settings": "Cài đặt",
@@ -36,6 +37,7 @@
       "read": "Mỗi tài liệu được đọc một lần và cắt thành các đoạn. AnyLearn chỉ trích lại cho bạn đúng những đoạn đó, kèm số trang, để mọi khẳng định đều đối chiếu được với bản gốc.",
       "practise": "Điểm bạn làm sai sẽ quay lại ngay trong ngày. Điểm bạn đã biết sẽ quay lại ngay trước lúc bạn sắp quên. Mức thành thạo được tính từ câu trả lời, không bao giờ từ thời gian bỏ ra.",
       "reflect": "Năm phút để bắt đầu, mười bốn ngày để thử một thay đổi, chín mươi ngày để quyết định có giữ nó hay không. Vòng học chỉ tiến lên dựa trên bằng chứng bạn đã ghi lại.",
+      "body": "Tập luyện đều đặn hỗ trợ sự tập trung và trí nhớ. Mục tiêu tính từ những gì bạn ghi lần trước, không bao giờ đoán, và một buổi lỡ tập chỉ đơn giản là chờ bạn.",
       "home": "AnyLearn chạy trên tài khoản AI của bạn và chỉ trả lời từ tài liệu bạn đưa vào. Ở đây không có gói cước hay số dư tín dụng nào."
     }
   },
@@ -59,8 +61,7 @@
         "body": "Trích dẫn mở đúng trang mà nó được lấy ra. Khi tài liệu của bạn không nói tới một câu hỏi, AnyLearn nói thẳng như vậy thay vì tự lấp chỗ trống.",
         "go": "Bắt đầu trò chuyện"
       },
-      "done": "Xong",
-      "status": "Thẻ dưới đây cho biết AnyLearn làm được gì với các tài khoản bạn đã kết nối, và còn thiếu gì."
+      "done": "Xong"
     },
     "due": {
       "title": "Đến hạn ôn",
@@ -102,6 +103,14 @@
         "Chín mươi ngày để quyết định có giữ nó hay không."
       ],
       "pathLabel": "Nhịp độ của cuốn sách này"
+    },
+    "attention": {
+      "blockedTitle": "Còn một bước nữa là dùng được hết",
+      "blockedBody": "Những phần này của AnyLearn chưa chạy được. Mỗi dòng nói lý do, và bạn sửa trong Cài đặt.",
+      "warnTitle": "Có một việc cần xem lại",
+      "warnBody": "Những phần này vẫn chạy, nhưng chưa tốt bằng mức có thể.",
+      "go": "Sửa trong Cài đặt",
+      "unknownTitle": "Chưa kiểm tra được tài khoản AI của bạn"
     }
   },
   "errors": {
@@ -125,10 +134,7 @@
       "ready": "Sẵn sàng",
       "attention": "Cần xem lại",
       "blocked": "Đang bị chặn",
-      "allReady": "Mọi chức năng cốt lõi đều có kết nối hoạt động. Tài liệu có thể được đọc, lập chỉ mục và hỏi đáp.",
-      "notReady": "Đang thiếu một phần cốt lõi. Cho tới khi được khắc phục, các phần liên quan của AnyLearn sẽ không chạy. Chúng sẽ không âm thầm chuyển sang thứ khác.",
-      "unavailable": "AnyLearn chưa kết nối được tới API của nó, nên chưa thể cho biết phần nào sẵn sàng.",
-      "manage": "Mở Cài đặt"
+      "unavailable": "AnyLearn chưa kết nối được tới API của nó, nên chưa thể cho biết phần nào sẵn sàng."
     },
     "functions": {
       "chat": "Chat",
@@ -582,7 +588,7 @@
     },
     "practise": {
       "title": "Luyện",
-      "body": "Câu hỏi, đề thi và ôn tập ngắt quãng, cho tới khi kiến thức ở lại."
+      "body": "Câu hỏi, đề thi và ôn tập ngắt quãng, cho tới khi kiến thức ở lại; và luyện tập thể lực cho cơ thể đang học."
     },
     "reflect": {
       "title": "Suy ngẫm",
@@ -591,12 +597,6 @@
   },
   "appendix": {
     "title": "Phụ lục: công cụ",
-    "anyprofile": {
-      "title": "AnyProfile",
-      "kind": "Ứng dụng máy tính",
-      "tagline": "Mỗi tài khoản một trình duyệt, chạy song song.",
-      "open": "Tải về"
-    },
     "all": "Mọi công cụ miễn phí"
   },
   "richText": {
@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Nhắc ôn",
-      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu việc cần ôn, đúng con số trên Trang chủ. Ngày nào không có gì đến hạn thì không gửi, và không có chuỗi ngày nào phải giữ.",
+      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu việc cần ôn (đúng con số trên Trang chủ) và hôm nay lịch tuần có buổi tập nào. Ngày nào không có cả hai thì không gửi, và không có chuỗi ngày nào phải giữ.",
       "turnOn": "Bật trên trình duyệt này",
       "turnOff": "Tắt ở đây",
       "onHere": "Lời nhắc đang bật trên trình duyệt này.",
@@ -700,5 +700,10 @@
     "not_verified": "Chưa kiểm tra.",
     "kb_only": "Chưa có khóa tìm kiếm: nghiên cứu chỉ dùng tài liệu của bạn.",
     "keyless_search": "Chưa có khóa tìm kiếm: nghiên cứu tìm trên web qua DuckDuckGo, có thể chậm hoặc bị từ chối. Khóa Tavily hoặc Brave đáng tin cậy hơn."
+  },
+  "account": {
+    "menu": "Tài khoản: {{name}}",
+    "settings": "Cài đặt",
+    "language": "Ngôn ngữ"
   }
 }

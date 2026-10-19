@@ -54,7 +54,7 @@ export function FilePipelineTemplate({
     <div className="space-y-6">
       {(title || description) && (
         <header>
-          {title && <h2 className="mb-1 text-2xl font-semibold">{title}</h2>}
+          {title && <h2 data-slot="tool-title" className="mb-1 text-2xl font-semibold">{title}</h2>}
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </header>
       )}

@@ -21,6 +21,7 @@ import { driveReason } from "~/lib/drive-storage";
 import { Button } from "~/components/ui/button";
 import { DriveFileNotice } from "~/components/storage/drive-file-notice";
 import { PageHeader } from "~/components/ui/page-header";
+import { PlateEmpty } from "~/components/ui/plate";
 import { QuizTabs } from "~/components/quiz/quiz-tabs";
 
 /** The most items one mock exam generates (exam.MaxGenerate). */
@@ -156,7 +157,12 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
         <h2 id="lp-exams-list" className="lp-section">
           {t("exams.exams")}
         </h2>
-        {exams.length === 0 ? (
+        {exams.length === 0 && templates.length === 0 ? (
+          // First run: no paper and no mock yet. Practise's plate over the way in.
+          <PlateEmpty name="part-practise" className="mt-3">
+            {t("exams.noExams")}
+          </PlateEmpty>
+        ) : exams.length === 0 ? (
           <p className="mt-3 lp-empty">{t("exams.noExams")}</p>
         ) : (
           <ul className="mt-3 border-t">

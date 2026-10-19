@@ -12,6 +12,7 @@
     "notebooks": "Cuaderno",
     "quiz": "Cuestionarios",
     "mastery": "Dominio",
+    "body": "Cuerpo",
     "solve": "Resolver",
     "research": "Investigación",
     "settings": "Ajustes",
@@ -36,6 +37,7 @@
       "read": "Cada documento se lee una vez y se divide en pasajes. Esos pasajes son lo único que AnyLearn te cita, cada uno con su página, para que cualquier afirmación se pueda comprobar con el original.",
       "practise": "Un punto que fallas vuelve el mismo día. Un punto que sabes vuelve justo antes de que lo olvides. El dominio se mide por tus respuestas, nunca por el tiempo dedicado.",
       "reflect": "Cinco minutos para empezar, catorce días para probar un cambio, noventa días para decidir si lo mantienes. El ciclo solo avanza con pruebas que ya has registrado.",
+      "body": "El ejercicio regular ayuda a la concentración y la memoria. Los objetivos salen de lo que registraste la última vez, nunca de una suposición, y una sesión perdida simplemente espera.",
       "home": "AnyLearn funciona con tus propias cuentas de IA y responde solo a partir de los documentos que le das. Aquí no hay planes ni saldo de créditos."
     }
   },
@@ -59,8 +61,7 @@
         "body": "Las citas abren la página de la que se tomaron. Cuando tus documentos no cubren una pregunta, AnyLearn lo dice en lugar de rellenar el hueco.",
         "go": "Iniciar una conversación"
       },
-      "done": "Hecho",
-      "status": "La tarjeta de abajo indica qué puede hacer AnyLearn con las cuentas que has conectado hasta ahora y qué falta todavía."
+      "done": "Hecho"
     },
     "due": {
       "title": "Pendiente de repaso",
@@ -102,6 +103,14 @@
         "Noventa días para decidir si lo mantienes."
       ],
       "pathLabel": "El ritmo de este libro"
+    },
+    "attention": {
+      "blockedTitle": "Un paso más para que todo funcione",
+      "blockedBody": "Estas partes de AnyLearn aún no pueden funcionar. Cada línea dice por qué, y se arregla en Ajustes.",
+      "warnTitle": "Algo necesita revisión",
+      "warnBody": "Estas partes funcionan, pero no tan bien como podrían.",
+      "go": "Arréglalo en Ajustes",
+      "unknownTitle": "No se pudieron comprobar tus cuentas de IA"
     }
   },
   "errors": {
@@ -125,10 +134,7 @@
       "ready": "Listo",
       "attention": "Requiere atención",
       "blocked": "Bloqueado",
-      "allReady": "Cada función esencial tiene una conexión que responde. Los documentos se pueden leer, indexar y consultar.",
-      "notReady": "Falta algo esencial. Hasta que se arregle, las partes afectadas de AnyLearn no pueden funcionar en absoluto. No recurrirán a otra cosa sin avisar.",
-      "unavailable": "AnyLearn no pudo comunicarse con su API ahora mismo, así que no puede decir qué está listo.",
-      "manage": "Abrir Ajustes"
+      "unavailable": "AnyLearn no pudo comunicarse con su API ahora mismo, así que no puede decir qué está listo."
     },
     "functions": {
       "chat": "Chat",
@@ -582,7 +588,7 @@
     },
     "practise": {
       "title": "Practicar",
-      "body": "Cuestionarios, exámenes y repaso espaciado, hasta que un punto se queda."
+      "body": "Cuestionarios, exámenes y repaso espaciado, hasta que un punto se queda; y entrenamiento para el cuerpo que estudia."
     },
     "reflect": {
       "title": "Reflexionar",
@@ -591,12 +597,6 @@
   },
   "appendix": {
     "title": "Apéndice: herramientas",
-    "anyprofile": {
-      "title": "AnyProfile",
-      "kind": "App de escritorio",
-      "tagline": "Un navegador por cuenta, uno al lado del otro.",
-      "open": "Descargar"
-    },
     "all": "Todas las herramientas gratis"
   },
   "richText": {
@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Recordatorio de repaso",
-      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántas cosas tienes para repasar, la misma cifra que en Inicio. No se envía nada los días sin nada pendiente, y no hay rachas que mantener.",
+      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántas cosas tienes para repasar (la misma cifra que en Inicio) y qué entrenamiento toca hoy según tu semana. Los días sin ninguna de las dos cosas no se envía nada, y no hay rachas que mantener.",
       "turnOn": "Activar en este navegador",
       "turnOff": "Desactivar aquí",
       "onHere": "El recordatorio está activado en este navegador.",
@@ -700,5 +700,10 @@
     "not_verified": "Aún sin verificar.",
     "kb_only": "No hay clave de búsqueda: la investigación solo usa tus documentos.",
     "keyless_search": "No hay clave de búsqueda: la investigación busca en la web con DuckDuckGo, que puede ser lento o negarse. Una clave de Tavily o Brave es más fiable."
+  },
+  "account": {
+    "menu": "Cuenta: {{name}}",
+    "settings": "Ajustes",
+    "language": "Idioma"
   }
 }

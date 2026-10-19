@@ -95,6 +95,12 @@ type Counter interface {
 	DueTotal(ctx context.Context, userID uuid.UUID) (int, error)
 }
 
+// Planner names the training the learner's week schedules today, not yet
+// done, or "" (internal/body).
+type Planner interface {
+	PlannedToday(ctx context.Context, userID uuid.UUID) (string, error)
+}
+
 // Sender delivers one encrypted message to one subscription.
 type Sender interface {
 	Send(ctx context.Context, sub Subscription, payload []byte, keys Keys) error
@@ -106,6 +112,7 @@ type Service struct {
 	sender  Sender
 	appURL  string
 	counter Counter
+	planner Planner
 
 	mu   sync.Mutex
 	keys *Keys
@@ -124,9 +131,16 @@ func (s *Service) WithCounter(c Counter) *Service {
 	return s
 }
 
+// WithPlanner adds today's training to the reminder; without one it is about
+// review only.
+func (s *Service) WithPlanner(p Planner) *Service {
+	s.planner = p
+	return s
+}
+
 // DueDigests is the due digest's source (learning.DueSource): the learners in
-// their reminder hour with a browser subscribed and something due, each with
-// the total Home shows. Counting only them keeps the hourly pass to a handful
+// their reminder hour with a browser subscribed and something due or a
+// workout scheduled today, each with the total Home shows. Counting only them keeps the hourly pass to a handful
 // of learners rather than everyone with a review point.
 func (s *Service) DueDigests(ctx context.Context, now time.Time) ([]learning.DueSummary, error) {
 	if s.counter == nil {
@@ -144,8 +158,16 @@ func (s *Service) DueDigests(ctx context.Context, now time.Time) ([]learning.Due
 			slog.Warn("push: counting due reviews failed", "user", id, "error", err)
 			continue
 		}
-		if total > 0 {
-			out = append(out, learning.DueSummary{UserID: id, Due: total})
+		workout := ""
+		if s.planner != nil {
+			if workout, err = s.planner.PlannedToday(ctx, id); err != nil {
+				// The review half still goes out without it.
+				slog.Warn("push: reading today's training failed", "user", id, "error", err)
+				workout = ""
+			}
+		}
+		if total > 0 || workout != "" {
+			out = append(out, learning.DueSummary{UserID: id, Due: total, Workout: workout})
 		}
 	}
 	return out, nil
@@ -247,7 +269,7 @@ func (s *Service) Notify(ctx context.Context, summary learning.DueSummary) error
 	if err != nil || !ok {
 		return err
 	}
-	if s.deliver(ctx, subs, s.message(dueBody(summary.Due, language), "/home", summary.Due, language)) == 0 {
+	if s.deliver(ctx, subs, s.message(dueBody(summary.Due, summary.Workout, language), "/home", summary.Due, language)) == 0 {
 		return fmt.Errorf("push: no browser accepted the reminder")
 	}
 	return nil
@@ -287,13 +309,20 @@ func (s *Service) deliver(ctx context.Context, subs []Subscription, payload []by
 // reminderWords is the reminder in one interface language.
 type reminderWords struct {
 	one, other, test string
+	// workout is today's training alone; oneAnd and otherAnd are review and
+	// training together.
+	workout, oneAnd, otherAnd string
 }
 
 var reminderText = map[string]reminderWords{
-	"en": {one: "1 thing is waiting for your review.", other: "%d things are waiting for your review.", test: "This is a test. Your review reminder will look like this."},
-	"vi": {one: "Có 1 việc cần ôn đang chờ bạn.", other: "Có %d việc cần ôn đang chờ bạn.", test: "Đây là thông báo thử. Lời nhắc ôn của bạn sẽ trông như thế này."},
-	"es": {one: "Tienes 1 cosa por repasar.", other: "Tienes %d cosas por repasar.", test: "Esto es una prueba. Así se verá tu recordatorio de repaso."},
-	"pt": {one: "Você tem 1 coisa para revisar.", other: "Você tem %d coisas para revisar.", test: "Isto é um teste. Seu lembrete de revisão vai ficar assim."},
+	"en": {one: "1 thing is waiting for your review.", other: "%d things are waiting for your review.", test: "This is a test. Your review reminder will look like this.",
+		workout: "Today's training: %s.", oneAnd: "1 thing is waiting for your review, and today's training is %s.", otherAnd: "%d things are waiting for your review, and today's training is %s."},
+	"vi": {one: "Có 1 việc cần ôn đang chờ bạn.", other: "Có %d việc cần ôn đang chờ bạn.", test: "Đây là thông báo thử. Lời nhắc ôn của bạn sẽ trông như thế này.",
+		workout: "Hôm nay có buổi tập: %s.", oneAnd: "Có 1 việc cần ôn đang chờ bạn, và hôm nay có buổi tập: %s.", otherAnd: "Có %d việc cần ôn đang chờ bạn, và hôm nay có buổi tập: %s."},
+	"es": {one: "Tienes 1 cosa por repasar.", other: "Tienes %d cosas por repasar.", test: "Esto es una prueba. Así se verá tu recordatorio de repaso.",
+		workout: "Hoy toca entrenar: %s.", oneAnd: "Tienes 1 cosa por repasar, y hoy toca entrenar: %s.", otherAnd: "Tienes %d cosas por repasar, y hoy toca entrenar: %s."},
+	"pt": {one: "Você tem 1 coisa para revisar.", other: "Você tem %d coisas para revisar.", test: "Isto é um teste. Seu lembrete de revisão vai ficar assim.",
+		workout: "Hoje tem treino: %s.", oneAnd: "Você tem 1 coisa para revisar, e hoje tem treino: %s.", otherAnd: "Você tem %d coisas para revisar, e hoje tem treino: %s."},
 }
 
 // words is the reminder's text in language, English for any other.
@@ -304,9 +333,16 @@ func words(language string) reminderWords {
 	return reminderText["en"]
 }
 
-func dueBody(due int, language string) string {
+func dueBody(due int, workout, language string) string {
 	w := words(language)
-	if due == 1 {
+	switch {
+	case workout != "" && due == 0:
+		return fmt.Sprintf(w.workout, workout)
+	case workout != "" && due == 1:
+		return fmt.Sprintf(w.oneAnd, workout)
+	case workout != "":
+		return fmt.Sprintf(w.otherAnd, due, workout)
+	case due == 1:
 		return w.one
 	}
 	return fmt.Sprintf(w.other, due)

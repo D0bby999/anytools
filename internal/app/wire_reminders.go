@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/D0bby999/anytools/internal/body"
 	"github.com/D0bby999/anytools/internal/capabilities/quiz"
 	"github.com/D0bby999/anytools/internal/learning/loop"
 	"github.com/D0bby999/anytools/internal/learning/worksheet"
@@ -79,4 +80,11 @@ func (d dueTotal) DueTotal(ctx context.Context, userID uuid.UUID) (int, error) {
 		}
 	}
 	return total + len(private), nil
+}
+
+// newTrainingPlanner is the reminder's push.Planner: Body's service, which
+// names the routine the learner's week schedules today. Stateless, so a second
+// one beside bodyapi's (wire_body.go) shares nothing that could drift.
+func newTrainingPlanner(pool *pg.Pool) *body.Service {
+	return body.NewService(pg.NewBodyStore(pool), pg.NewUserStore(pool), nil)
 }

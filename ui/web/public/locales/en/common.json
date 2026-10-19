@@ -12,6 +12,7 @@
     "notebooks": "Notebook",
     "quiz": "Quiz",
     "mastery": "Mastery",
+    "body": "Body",
     "solve": "Solve",
     "research": "Research",
     "settings": "Settings",
@@ -36,6 +37,7 @@
       "read": "A document is read once and cut into passages. Those passages are all AnyLearn ever quotes back to you, each with its page, so any claim can be checked against the original.",
       "practise": "A point you get wrong comes back the same day. A point you know comes back just before you would forget it. Mastery is counted from answers, never from time spent.",
       "reflect": "Five minutes to start, fourteen days to test one change, ninety days to decide whether to keep it. The loop only moves on evidence you have already recorded.",
+      "body": "Regular exercise supports focus and memory. Targets come from what you logged last time, never from a guess, and a missed session simply waits.",
       "home": "AnyLearn runs on your own AI accounts and answers only from documents you give it. Nothing here is a plan or a credit balance."
     }
   },
@@ -59,8 +61,7 @@
         "body": "Citations open the page they were taken from. When your documents do not cover a question, AnyLearn says so rather than filling the gap.",
         "go": "Start a conversation"
       },
-      "done": "Done",
-      "status": "The card below says what AnyLearn can do with the accounts you have connected so far, and what is still missing."
+      "done": "Done"
     },
     "due": {
       "title": "Due for review",
@@ -102,6 +103,14 @@
         "Ninety days to decide whether to keep it."
       ],
       "pathLabel": "The pace this book keeps"
+    },
+    "attention": {
+      "blockedTitle": "One more step before everything works",
+      "blockedBody": "These parts of AnyLearn cannot run yet. Each line says why, and Settings is where to fix it.",
+      "warnTitle": "Something needs a look",
+      "warnBody": "These parts work, but not as well as they could.",
+      "go": "Fix it in Settings",
+      "unknownTitle": "Your AI accounts could not be checked"
     }
   },
   "errors": {
@@ -125,10 +134,7 @@
       "ready": "Ready",
       "attention": "Needs attention",
       "blocked": "Blocked",
-      "allReady": "Every core capability has a connection that answers. Documents can be read, indexed and asked about.",
-      "notReady": "Something core is missing. Until it is fixed, the affected parts of AnyLearn cannot run at all. They will not quietly fall back to anything.",
-      "unavailable": "AnyLearn could not reach its API just now, so it cannot say what is ready.",
-      "manage": "Open Settings"
+      "unavailable": "AnyLearn could not reach its API just now, so it cannot say what is ready."
     },
     "functions": {
       "chat": "Chat",
@@ -582,7 +588,7 @@
     },
     "practise": {
       "title": "Practise",
-      "body": "Quizzes, exams and spaced review, until a point stays."
+      "body": "Quizzes, exams and spaced review, until a point stays; and training, for the body that does the studying."
     },
     "reflect": {
       "title": "Reflect",
@@ -591,12 +597,6 @@
   },
   "appendix": {
     "title": "Appendix: tools",
-    "anyprofile": {
-      "title": "AnyProfile",
-      "kind": "Desktop app",
-      "tagline": "One browser per account, side by side.",
-      "open": "Download"
-    },
     "all": "All free tools"
   },
   "richText": {
@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Review reminder",
-      "lead": "Once a day, at the hour you choose, AnyLearn tells this device how many things are due for review: the same count as Home. Nothing is sent on a day when nothing is due, and there are no streaks to keep.",
+      "lead": "Once a day, at the hour you choose, AnyLearn tells this device how many things are due for review (the same count as Home) and which training your week schedules today. Nothing is sent on a day with neither, and there are no streaks to keep.",
       "turnOn": "Turn on in this browser",
       "turnOff": "Turn off here",
       "onHere": "The reminder is on in this browser.",
@@ -700,5 +700,10 @@
     "not_verified": "Not verified yet.",
     "kb_only": "No search key: research uses your documents only.",
     "keyless_search": "No search key: research searches the web through DuckDuckGo, which can be slow or refuse. A Tavily or Brave key is more reliable."
+  },
+  "account": {
+    "menu": "Account: {{name}}",
+    "settings": "Settings",
+    "language": "Language"
   }
 }

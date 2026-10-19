@@ -96,7 +96,19 @@ export default [
       route("toolkit", "routes/toolkit.index.tsx"),
       route("toolkit/new", "routes/toolkit.new.tsx"),
       route("toolkit/:id", "routes/toolkit.$id.tsx"),
+      // Body: the training log beside the studying (plans/261019-1810-body-fitness).
+      // One rail row; its sections are tabs (components/body/body-tabs.tsx).
+      route("body", "routes/body.tsx"),
+      route("body/plan", "routes/body.plan.tsx"),
+      route("body/routines/:id", "routes/body.routines.$id.tsx"),
+      route("body/workouts/:id", "routes/body.workouts.$id.tsx"),
+      route("body/progress", "routes/body.progress.tsx"),
+      route("body/coach", "routes/body.coach.tsx"),
+      route("body/library", "routes/body.library.tsx"),
     ]),
+
+    // Body: the exercise picker's search. Loader only; its loader calls requireUserId.
+    route("body/exercises", "routes/body.exercises.ts"),
 
     // Phase 8 resource routes (loader only), NOT under app-layout: a file and
     // a download must not render a shell. Each loader calls requireUser.

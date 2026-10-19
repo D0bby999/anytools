@@ -146,6 +146,7 @@ describe("i18n keys exist in the en bundle", () => {
     toolkit: JSON.parse(read(join(WEB_DIR, "public/locales/en/toolkit.json"))),
     listening: JSON.parse(read(join(WEB_DIR, "public/locales/en/listening.json"))),
     storage: JSON.parse(read(join(WEB_DIR, "public/locales/en/storage.json"))),
+    body: JSON.parse(read(join(WEB_DIR, "public/locales/en/body.json"))),
     tools: JSON.parse(read(join(WEB_DIR, "public/locales/en/tools.json"))),
     pages: JSON.parse(read(join(WEB_DIR, "public/locales/en/pages.json"))),
   };
@@ -261,8 +262,8 @@ describe("logout is not reachable by GET", () => {
     expect(loaderBody).not.toMatch(/destroySession/);
   });
 
-  it("the topbar submits logout with method=post", () => {
-    const src = read(join(APP_DIR, "components/layout/topbar.tsx"));
+  it("the account menu submits logout with method=post", () => {
+    const src = read(join(APP_DIR, "components/layout/account-menu.tsx"));
     expect(src).toMatch(/method="post"/);
     expect(src).toMatch(/action="\/auth\/logout"/);
   });

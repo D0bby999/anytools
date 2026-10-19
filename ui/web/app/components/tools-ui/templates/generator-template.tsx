@@ -45,7 +45,7 @@ export function GeneratorTemplate({
     <div className="space-y-6">
       {(title || description) && (
         <header>
-          {title && <h2 className="text-2xl font-semibold mb-1">{title}</h2>}
+          {title && <h2 data-slot="tool-title" className="text-2xl font-semibold mb-1">{title}</h2>}
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </header>
       )}

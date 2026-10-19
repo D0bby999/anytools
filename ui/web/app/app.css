@@ -279,6 +279,29 @@
   color: var(--lp-ink);
 }
 
+/* The one sheet a tool sits on, drawn by its page (ToolFrame), so all 132
+   tools look alike. A tool that brings its own Card lies flat on it, and the
+   title a tool repeats from the page's h1 is not shown twice. Only the tool's
+   root Card goes flat; a card nested inside a tool keeps its frame. Unlayered,
+   so it outranks the utilities on those elements. */
+.tool-sheet > [data-slot="card"] {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.tool-sheet > [data-slot="card"] > [data-slot="card-header"] {
+  padding: 0 0 var(--lp-space-4);
+}
+.tool-sheet > [data-slot="card"] > [data-slot="card-header"]:not(:has(> :not([data-slot="card-title"]))),
+.tool-sheet > [data-slot="card"] > [data-slot="card-header"] > [data-slot="card-title"],
+.tool-sheet [data-slot="tool-title"] {
+  display: none;
+}
+.tool-sheet > [data-slot="card"] > [data-slot="card-content"] {
+  padding: 0;
+}
+
 /* A field or data label: the interface face, small and secondary. */
 @utility lp-kicker {
   font-family: var(--lp-font-sans);

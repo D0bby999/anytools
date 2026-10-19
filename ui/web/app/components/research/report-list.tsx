@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+import { PlateEmpty } from "~/components/ui/plate";
 import { kbOnlyReasonKey, type ReportSummary } from "~/lib/research-types";
 
 /** A KB-only marker: the words, not just a tint, with the reason as its title. */
@@ -25,7 +26,9 @@ export function ReportList({ reports }: { reports: ReportSummary[] }) {
         {t("list.title")}
       </h2>
       {reports.length === 0 ? (
-        <p className="mt-2 lp-empty">{t("list.empty")}</p>
+        <PlateEmpty name="part-ask" className="mt-3">
+          {t("list.empty")}
+        </PlateEmpty>
       ) : (
         <ul className="mt-3 divide-y rounded-lg border bg-card">
           {reports.map((r) => (

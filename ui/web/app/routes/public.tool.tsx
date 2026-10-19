@@ -133,7 +133,7 @@ export default function ToolPage() {
       </header>
 
       {/* The tool first: a visitor who searched for it wants it above the
-          fold. Each tool draws its own sheet (tools-ui Card). */}
+          fold, on the one sheet ToolFrame draws for every tool. */}
       <section id="tool" aria-label={data.title} className="mt-6 max-w-5xl scroll-mt-4">
         <ToolFrame slug={data.slug} locale={locale} />
       </section>

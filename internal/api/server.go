@@ -7,6 +7,7 @@ import (
 
 	"github.com/D0bby999/anytools/internal/api/audioapi"
 	"github.com/D0bby999/anytools/internal/api/authapi"
+	"github.com/D0bby999/anytools/internal/api/bodyapi"
 	"github.com/D0bby999/anytools/internal/api/bookapi"
 	"github.com/D0bby999/anytools/internal/api/byokapi"
 	"github.com/D0bby999/anytools/internal/api/chatapi"
@@ -77,7 +78,9 @@ type Deps struct {
 	// Storage is drive-user-storage phase 2: Settings → Storage.
 	Storage *storageapi.Handler
 	// Push is Settings → Reminders: the daily review reminder.
-	Push         *pushapi.Handler
+	Push *pushapi.Handler
+	// Body is the training log and its coach (plans/261019-1810-body-fitness).
+	Body         *bodyapi.Handler
 	Users        httpx.UserLookup
 	GatewayToken string
 	AllowNoAuth  bool
@@ -180,6 +183,9 @@ func BuildMux(deps Deps) http.Handler {
 	if deps.Storage != nil {
 		deps.Storage.RegisterRoutes(mux)
 	}
+	if deps.Body != nil {
+		deps.Body.RegisterRoutes(mux)
+	}
 
 	var handler http.Handler = mux
 	if deps.RouteLimiter != nil {
@@ -278,6 +284,8 @@ func RegisteredPatterns() []string {
 	// drive-user-storage phase 2: Settings → Storage.
 	patterns = append(patterns, storageapi.Patterns()...)
 	patterns = append(patterns, pushapi.Patterns()...)
+	// Body: the training log and its coach. Behind RequireUser; none is allowlisted.
+	patterns = append(patterns, bodyapi.Patterns()...)
 	return patterns
 }
 

@@ -36,6 +36,7 @@ import enOwnVersion from "../../public/locales/en/ownversion.json";
 import enToolkit from "../../public/locales/en/toolkit.json";
 import enListening from "../../public/locales/en/listening.json";
 import enStorage from "../../public/locales/en/storage.json";
+import enBody from "../../public/locales/en/body.json";
 import enTools from "../../public/locales/en/tools.json";
 import enPages from "../../public/locales/en/pages.json";
 
@@ -59,7 +60,7 @@ export const OG_LOCALE: Record<PublicLng, string> = { en: "en_US", vi: "vi_VN", 
 
 export const fallbackLng: SupportedLng = "en";
 export const defaultNS = "common";
-export const ns = ["common", "auth", "knowledge", "study", "reading", "solve", "research", "loop", "vocab", "profile", "book", "ownversion", "toolkit", "listening", "storage", "tools", "pages"] as const;
+export const ns = ["common", "auth", "knowledge", "study", "reading", "solve", "research", "loop", "vocab", "profile", "book", "ownversion", "toolkit", "listening", "storage", "body", "tools", "pages"] as const;
 
 const resources = {
   en: {
@@ -78,6 +79,7 @@ const resources = {
     toolkit: enToolkit,
     listening: enListening,
     storage: enStorage,
+    body: enBody,
     tools: enTools,
     pages: enPages,
   },

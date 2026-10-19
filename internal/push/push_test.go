@@ -77,7 +77,7 @@ func TestDueBody(t *testing.T) {
 		{"fr", 2, "2 things are waiting for your review."},
 	}
 	for _, c := range cases {
-		if got := dueBody(c.due, c.lang); got != c.want {
+		if got := dueBody(c.due, "", c.lang); got != c.want {
 			t.Errorf("dueBody(%d, %s) = %q, want %q", c.due, c.lang, got, c.want)
 		}
 	}
@@ -95,6 +95,37 @@ type fakeStore struct {
 
 func (f *fakeStore) ReminderCandidates(context.Context, time.Time, int) ([]uuid.UUID, error) {
 	return f.due, nil
+}
+
+// fakePlanner is each learner's training today.
+type fakePlanner map[uuid.UUID]string
+
+func (p fakePlanner) PlannedToday(_ context.Context, id uuid.UUID) (string, error) { return p[id], nil }
+
+func TestTheReminderNamesTodaysTraining(t *testing.T) {
+	for _, c := range []struct {
+		due           int
+		workout, lang string
+		want          string
+	}{
+		{0, "Full body", "en", "Today's training: Full body."},
+		{1, "Full body", "en", "1 thing is waiting for your review, and today's training is Full body."},
+		{5, "Toàn thân", "vi", "Có 5 việc cần ôn đang chờ bạn, và hôm nay có buổi tập: Toàn thân."},
+	} {
+		if got := dueBody(c.due, c.workout, c.lang); got != c.want {
+			t.Errorf("dueBody(%d, %q, %s) = %q, want %q", c.due, c.workout, c.lang, got, c.want)
+		}
+	}
+
+	// A learner with nothing to review but a workout today is reminded;
+	// one with neither is not.
+	trains, idle := uuid.New(), uuid.New()
+	s := NewService(&fakeStore{due: []uuid.UUID{trains, idle}}, &fakeSender{}, "https://anytools.world").
+		WithCounter(fakeCounter{trains: 0, idle: 0}).WithPlanner(fakePlanner{trains: "Full body"})
+	got, err := s.DueDigests(context.Background(), time.Now())
+	if err != nil || len(got) != 1 || got[0].UserID != trains || got[0].Workout != "Full body" {
+		t.Fatalf("digests = %+v, %v; want only the learner who trains today", got, err)
+	}
 }
 
 // fakeCounter is each learner's total, or an error for a learner it lacks.
