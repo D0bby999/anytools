@@ -107,7 +107,8 @@ rm -f docker-compose.prev.yml
 # Keep the last three sha- tags of each image; host- tags belong to
 # deploy-host.sh, which prunes its own.
 for img in anytools-api anytools-web; do
-  docker images "$images/$img" --format '{{.Tag}}' | grep '^sha-' | grep -vx "$tag" | tail -n +3 \
+  # `|| true`: grep finding nothing (no older tags yet) is not a failure.
+  { docker images "$images/$img" --format '{{.Tag}}' | grep '^sha-' | grep -vx "$tag" || true; } | tail -n +3 \
     | xargs -r -I{} docker rmi -f "$images/$img:{}" >/dev/null
 done
 
