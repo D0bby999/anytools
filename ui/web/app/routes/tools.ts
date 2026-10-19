@@ -32,7 +32,7 @@ const PAGES = ["anyprofile"] as const;
 
 export function loader({ request }: Route.LoaderArgs) {
   const page = new URL(request.url).searchParams.get("page");
-  const suffix = PAGES.find((p) => p === page) ? `/${page}` : "";
+  const suffix = PAGES.find((p) => p === page) ? `/${page}` : "/tools";
   return redirect(`/${pickPublicLocale(request.headers.get("Accept-Language"))}${suffix}`, {
     headers: { Vary: "Accept-Language", "Cache-Control": "private, no-cache" },
   });

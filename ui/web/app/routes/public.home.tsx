@@ -48,7 +48,7 @@ export function loader({ params, request }: Route.LoaderArgs) {
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [];
   const { origin, locale, seo } = data;
-  const path = (l: string) => `/${l}`;
+  const path = (l: string) => `/${l}/tools`;
   return [
     ...pageMeta({
       title: seo.title,

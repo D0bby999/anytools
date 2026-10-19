@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Lembrete de revisão",
-      "lead": "Uma vez por dia, na hora que você escolher, o AnyLearn avisa este dispositivo de quantos pontos estão para revisar. Nada é enviado nos dias sem nada pendente, e não há sequências para manter.",
+      "lead": "Uma vez por dia, na hora que você escolher, o AnyLearn avisa este dispositivo de quantas coisas estão para revisar, o mesmo número do Início. Nada é enviado nos dias sem nada pendente, e não há sequências para manter.",
       "turnOn": "Ativar neste navegador",
       "turnOff": "Desativar aqui",
       "onHere": "O lembrete está ativado neste navegador.",

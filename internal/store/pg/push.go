@@ -121,6 +121,31 @@ func (s *PushStore) SetHour(ctx context.Context, userID uuid.UUID, hour int) err
 	return nil
 }
 
+// reminderDue is the condition a learner's reminder goes out on, shared by
+// the claim and the candidate list: the local hour is in [reminder_hour,
+// reminder_hour+window), today's has not gone out, and a browser is
+// subscribed. now and window are the query's placeholders for them.
+func reminderDue(now, window string) string {
+	local := now + "::timestamptz AT TIME ZONE u.timezone"
+	return `
+	(24 + extract(hour FROM ` + local + `)::int - u.reminder_hour) % 24 < ` + window + `
+	AND u.reminder_sent_on IS DISTINCT FROM (` + local + `)::date
+	AND EXISTS (SELECT 1 FROM push_subscriptions p WHERE p.user_id = u.id)`
+}
+
+// ReminderCandidates implements push.Store. Not user-scoped: the reminder is
+// by definition across users, and the job calling it holds an advisory lock.
+func (s *PushStore) ReminderCandidates(ctx context.Context, now time.Time, window int) ([]uuid.UUID, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT u.id FROM users u
+		 WHERE`+reminderDue("$1", "$2")+`
+		 ORDER BY u.id`, now, window)
+	if err != nil {
+		return nil, fmt.Errorf("reminder candidates: %w", err)
+	}
+	return pgx.CollectRows(rows, pgx.RowTo[uuid.UUID])
+}
+
 // ClaimReminder implements push.Store. The UPDATE is the claim: its WHERE is
 // every condition, so two ticks racing for the same day update one row once.
 func (s *PushStore) ClaimReminder(ctx context.Context, userID uuid.UUID, now time.Time, window int) ([]push.Subscription, string, bool, error) {
@@ -128,10 +153,7 @@ func (s *PushStore) ClaimReminder(ctx context.Context, userID uuid.UUID, now tim
 	err := s.pool.QueryRow(ctx, `
 		UPDATE users u
 		   SET reminder_sent_on = ($2::timestamptz AT TIME ZONE u.timezone)::date
-		 WHERE u.id = $1
-		   AND (24 + extract(hour FROM $2::timestamptz AT TIME ZONE u.timezone)::int - u.reminder_hour) % 24 < $3
-		   AND u.reminder_sent_on IS DISTINCT FROM ($2::timestamptz AT TIME ZONE u.timezone)::date
-		   AND EXISTS (SELECT 1 FROM push_subscriptions p WHERE p.user_id = u.id)
+		 WHERE u.id = $1 AND`+reminderDue("$2", "$3")+`
 		RETURNING u.language`,
 		userID, now, window).Scan(&language)
 	if errors.Is(err, pgx.ErrNoRows) {

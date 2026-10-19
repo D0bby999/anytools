@@ -314,8 +314,25 @@ func TestDeleteRemovesEverythingTheUserOwnsAndNothingElse(t *testing.T) {
 			attachments, recordings, production)
 	}
 
+	// Each one's knowledge base has its own vector index, which a cascade
+	// cannot drop.
+	kbOf := func(user uuid.UUID) uuid.UUID {
+		var id uuid.UUID
+		if err := pool.QueryRow(context.Background(), `SELECT id FROM knowledge_bases WHERE user_id = $1 LIMIT 1`, user).Scan(&id); err != nil {
+			t.Fatal(err)
+		}
+		return id
+	}
+	aliceKB, bobKB := kbOf(alice), kbOf(bob)
+
 	if err := account.New(pool, files, drive, tokens).Delete(context.Background(), alice); err != nil {
 		t.Fatalf("Delete: %v", err)
+	}
+	if has, _ := pg.HasKBVectorIndex(context.Background(), pool, aliceKB); has {
+		t.Error("alice's vector index outlived her knowledge base")
+	}
+	if has, _ := pg.HasKBVectorIndex(context.Background(), pool, bobKB); !has {
+		t.Error("bob's vector index was dropped")
 	}
 
 	if got := rowsOwnedBy(t, pool, alice); len(got) != 0 {

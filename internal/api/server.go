@@ -89,7 +89,8 @@ type Deps struct {
 // BuildMux registers every route and wraps the WHOLE mux in the auth
 // chokepoint.
 //
-// Order, outermost first: Recover → RequireUser → RateLimiter → routes.
+// Order, outermost first: Recover → RequireUser → Localize → RateLimiter →
+// routes.
 //   - Recover is outermost so a panic anywhere, middleware included, becomes a
 //     500 rather than a process exit.
 //   - RequireUser wraps everything so a route added in a later phase is
@@ -187,6 +188,9 @@ func BuildMux(deps Deps) http.Handler {
 	if deps.RateLimiter != nil {
 		handler = deps.RateLimiter.Middleware(handler)
 	}
+	// Inside RequireUser, which reads the learner's language, and outside the
+	// limiters, so their refusals are translated too.
+	handler = httpx.Localize(handler)
 	handler = httpx.RequireUser(handler, deps.GatewayToken, deps.Users, deps.AllowNoAuth)
 	handler = httpx.Recover(handler)
 	return handler

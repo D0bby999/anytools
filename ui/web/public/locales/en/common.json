@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Review reminder",
-      "lead": "Once a day, at the hour you choose, AnyLearn tells this device how many review points are due. Nothing is sent on a day when nothing is due, and there are no streaks to keep.",
+      "lead": "Once a day, at the hour you choose, AnyLearn tells this device how many things are due for review: the same count as Home. Nothing is sent on a day when nothing is due, and there are no streaks to keep.",
       "turnOn": "Turn on in this browser",
       "turnOff": "Turn off here",
       "onHere": "The reminder is on in this browser.",

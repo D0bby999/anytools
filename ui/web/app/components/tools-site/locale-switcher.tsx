@@ -57,7 +57,7 @@ export function useDisclosureMenu() {
  * language left there is nothing to choose, and the menu is not drawn.
  *
  * `hrefFor` overrides the address of each language, for a page whose language
- * is not the first segment of its path (the landing page uses `/?lng=`).
+ * is not the first segment of its path.
  */
 export function LocaleSwitcher({ locale, hrefFor }: { locale: PublicLng; hrefFor?: (l: PublicLng) => string }) {
   const { t } = useTranslation("tools");

@@ -38,3 +38,17 @@ func MustUserID(ctx context.Context) uuid.UUID {
 	id, _ := UserID(ctx)
 	return id
 }
+
+var languageKey = contextKey{"anytools.language"}
+
+// WithLanguage attaches the learner's interface language (users.language).
+// RequireUser sets it beside the user id; Localize reads it.
+func WithLanguage(ctx context.Context, lang string) context.Context {
+	return context.WithValue(ctx, languageKey, lang)
+}
+
+// Language is the learner's interface language, "" before RequireUser.
+func Language(ctx context.Context) string {
+	lang, _ := ctx.Value(languageKey).(string)
+	return lang
+}

@@ -73,7 +73,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     .catch((): TodayState | null => null);
   // Due is read LIVE from kp_state on every load (phase 7: due-on-read), so a
   // point failed ten minutes ago is here without any job having run. Swallowed
-  // to null for the same reason readiness is.
+  // to null for the same reason readiness is. The review reminder's push counts
+  // these same rows (internal/app/wire_reminders.go); a new row goes in both.
   const [readiness, due, vocabDue, retests, bookDue, mistakes, worksheetsDue] = await Promise.all([
     getReadiness(user.id).catch((): Readiness | null => null),
     // up-methods phase 12: the paths the due points span, too, for the

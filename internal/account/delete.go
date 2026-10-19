@@ -8,6 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/D0bby999/anytools/internal/store/kbindex"
 )
 
 // Deletion order, and why:
@@ -82,6 +84,12 @@ func (s *Service) Delete(ctx context.Context, userID uuid.UUID) error {
 	}
 	if tag.RowsAffected() == 0 {
 		return ErrNotFound
+	}
+	// The cascade removed the learner's knowledge bases but not their vector
+	// indexes, which only DDL can drop. Best effort: a leftover is swept at
+	// the next deletion or boot.
+	if err := kbindex.DropOrphans(ctx, s.pool); err != nil {
+		slog.Warn("account: vector indexes left behind after deletion", "user", userID, "error", err)
 	}
 
 	if err := s.files.DeleteUser(ctx, userID); err != nil {

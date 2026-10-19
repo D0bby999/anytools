@@ -115,8 +115,10 @@ The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Lead
 The products share one tile: AnyProfile's warm-white squircle with a soft shadow,
 one glyph in the product's ink (`public/icons/*.svg`, masters at 1024).
 
-- **AnyTools**: four tiles, one navy, two outlined in the selected tint, one in the
-  highlighter. A set of tools, one of them needed now.
+- **AnyTools**: a wildcard asterisk, six round-ended navy arms meeting at the centre,
+  the top one in the highlighter. The `*` that matches anything: any tool, the one
+  needed now marked. Drawn in SVG (comp chosen from four made through 9router,
+  2026-10-19), never traced from the raster.
 - **AnyLearn**: a navy page with its corner turned, a highlighter line across it, a
   second page behind it (AnyProfile's two tiles, as pages). The product's promise: the
   answer is checked against the page.

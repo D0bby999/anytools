@@ -34,7 +34,7 @@ import (
 // with no chat route gets NO_PROVIDER here exactly as they do in chat.
 func buildQuizMastery(
 	pool *pg.Pool, kb knowledgeSubsystem, resolver runtime.ChatProviderResolver, now func() time.Time,
-	notify learning.Notifier,
+	reminders reminderSource,
 ) (*quizapi.Handler, *masteryapi.Handler, func(context.Context, *sync.WaitGroup)) {
 	masteryStore := pg.NewMasteryStore(pool)
 	retriever := newQuizRetriever(kb)
@@ -68,8 +68,15 @@ func buildQuizMastery(
 		}
 	}
 
-	// The review reminder (internal/push); nil logs instead.
-	digest := learning.NewDueDigestJob(pool, masteryStore, notify)
+	// The review reminder (internal/push): it picks the learners in their hour
+	// and counts everything due for them. Without it the digest logs each
+	// learner's due review points.
+	var digest *learning.DueDigestJob
+	if reminders != nil {
+		digest = learning.NewDueDigestJob(pool, reminders, reminders)
+	} else {
+		digest = learning.NewDueDigestJob(pool, masteryStore, nil)
+	}
 	start := func(ctx context.Context, wg *sync.WaitGroup) {
 		wg.Add(1)
 		go func() {
@@ -80,6 +87,13 @@ func buildQuizMastery(
 	}
 
 	return quizapi.NewHandler(quizSvc, graduate), masteryapi.NewHandler(masterySvc), start
+}
+
+// reminderSource is internal/push's service as the digest sees it: who to
+// remind, and the reminding.
+type reminderSource interface {
+	learning.DueSource
+	learning.Notifier
 }
 
 // newQuizService is the question bank's service. The living books (phase 11

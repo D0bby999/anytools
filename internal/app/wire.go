@@ -47,6 +47,7 @@ import (
 	"github.com/D0bby999/anytools/internal/oauth"
 	"github.com/D0bby999/anytools/internal/rag/retrieve"
 	"github.com/D0bby999/anytools/internal/runtime"
+	"github.com/D0bby999/anytools/internal/store/kbindex"
 	"github.com/D0bby999/anytools/internal/store/pg"
 	"github.com/D0bby999/anytools/internal/tools"
 )
@@ -170,7 +171,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 
 	// The daily review reminder: a web push at the learner's hour. See
 	// wire_push.go.
-	reminders := buildPush(pool, cfg)
+	reminders := buildPush(pool, cfg).WithCounter(newDueTotal(pool, loopSvc))
 
 	// Phase 7. See wire_quiz.go.
 	quizHandler, masteryHandler, startLearning := buildQuizMastery(pool, kb, newChatResolver(byokService), nil, reminders)
@@ -240,6 +241,12 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 	// sitting in `parsing` with nothing working on them.
 	bgCtx, cancel := context.WithCancel(context.Background())
 	app.bgCancel = cancel
+	// The vector indexes account deletions left before they swept their own
+	// (internal/store/kbindex). Best effort, and once: after this, every
+	// deletion cleans up after itself.
+	if err := kbindex.DropOrphans(bgCtx, pool); err != nil {
+		slog.Warn("boot: orphaned vector indexes were not dropped", "error", err)
+	}
 	kb.start(bgCtx, &app.bgDone)
 	startLearning(bgCtx, &app.bgDone)
 	if driveConnector != nil {

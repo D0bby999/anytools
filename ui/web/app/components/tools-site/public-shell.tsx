@@ -58,8 +58,12 @@ function useSearchShortcut() {
  */
 export function PublicShell({ locale, children }: { locale: PublicLng; children: ReactNode }) {
   const { t } = useTranslation("tools");
-  const ownSearch = useMatches().some((m) => (m.handle as { ownSearch?: boolean } | undefined)?.ownSearch);
+  const handles = useMatches().map((m) => m.handle as { ownSearch?: boolean; ownFrame?: boolean } | undefined);
+  const ownSearch = handles.some((h) => h?.ownSearch);
   useSearchShortcut();
+  // The landing page draws its own header, main and footer (`ownFrame`): it is
+  // the study app's front door, so the band pointing at it would repeat it.
+  if (handles.some((h) => h?.ownFrame)) return <>{children}</>;
 
   return (
     // The tools are the book's appendix: everything here sits in its part.
@@ -70,7 +74,7 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
         {children}
       </main>
 
-      <StudyBand />
+      <StudyBand locale={locale} />
 
       <SiteFooter locale={locale} note={t("site.footerNote")} />
     </div>

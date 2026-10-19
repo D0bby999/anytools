@@ -12,20 +12,23 @@ const getUserId = vi.fn();
 vi.mock("~/lib/auth.server", () => ({ getUserId: (r: Request) => getUserId(r) }));
 
 const landing = await import("~/routes/landing");
+const home = await import("~/routes/home-redirect");
 const robots = await import("~/routes/robots[.]txt");
 const sitemap = await import("~/routes/sitemap[.]xml");
 
 type LoaderArgs = Parameters<typeof landing.loader>[0];
-const args = { request: new Request("https://learn.example.com/"), params: {} } as unknown as LoaderArgs;
+const args = { request: new Request("https://learn.example.com/en"), params: { locale: "en" } } as unknown as LoaderArgs;
+const bare = { request: new Request("https://learn.example.com/"), params: {} } as unknown as Parameters<typeof home.loader>[0];
 
 beforeEach(() => getUserId.mockReset());
 
 describe("landing", () => {
   it("sends a signed-in visitor to the app", async () => {
     getUserId.mockResolvedValue("user-1");
-    const thrown = await landing.loader(args).catch((r: unknown) => r);
-    expect(thrown).toBeInstanceOf(Response);
-    expect((thrown as Response).headers.get("Location")).toBe("/home");
+    // `/` sends them on; the landing page itself (/en) is public to anyone.
+    const sent = await home.loader(bare);
+    expect(sent).toBeInstanceOf(Response);
+    expect(sent.headers.get("Location")).toBe("/home");
   });
 
   it("renders for a visitor, with a canonical URL, an OG image and SoftwareApplication JSON-LD", async () => {
@@ -33,7 +36,7 @@ describe("landing", () => {
     // data() wraps the body beside its headers (the language cookie).
     const { data } = (await landing.loader(args)) as unknown as { data: unknown };
     const tags = landing.meta({ data } as unknown as Parameters<typeof landing.meta>[0]) as Record<string, unknown>[];
-    expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://learn.example.com/" });
+    expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://learn.example.com/en" });
     expect(tags).toContainEqual({ property: "og:image", content: `https://learn.example.com/og.png?v=${OG_VERSION}` });
     const ld = tags.find((t) => "script:ld+json" in t)?.["script:ld+json"] as Record<string, unknown>;
     expect(ld["@type"]).toBe("SoftwareApplication");
@@ -60,9 +63,10 @@ describe("crawler files", () => {
   it("sitemap.xml lists the landing page and nothing private", async () => {
     const body = await sitemap.loader().text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-    expect(locs).toContain("https://learn.example.com/");
-    for (const l of ["en", "vi", "es", "pt"]) expect(locs).toContain(`https://learn.example.com/?lng=${l}`);
-    const priv = locs.filter((l) => !/^https:\/\/learn\.example\.com\/((en|vi|es|pt)(\/.*)?|\?lng=(en|vi|es|pt))?$/.test(l ?? ""));
+    // The landing page in each language; `/` only redirects, so it is not listed.
+    for (const l of ["en", "vi", "es", "pt"]) expect(locs).toContain(`https://learn.example.com/${l}`);
+    expect(locs).not.toContain("https://learn.example.com/");
+    const priv = locs.filter((l) => !/^https:\/\/learn\.example\.com\/(en|vi|es|pt)(\/.*)?$/.test(l ?? ""));
     expect(priv).toEqual([]);
   });
 });

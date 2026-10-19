@@ -12,30 +12,19 @@ import { clusterIsIndexable, isIndexableTool, toolLocales } from "./content.serv
 import { toolMetas } from "~/tools/meta-registry";
 import { GUIDE_SLUGS, guideLocales, STATIC_PAGES } from "./pages.server";
 
-function entry(path: (l: PublicLng) => string, self: PublicLng, alternates: readonly PublicLng[]): string {
+function entry(path: (l: PublicLng) => string, self: PublicLng, alternates: readonly PublicLng[], xDefault?: string): string {
   const links = alternates.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${APP_URL}${path(l)}"/>`);
-  if (alternates.includes("en")) links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}${path("en")}"/>`);
+  if (alternates.includes("en")) links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}${xDefault ?? path("en")}"/>`);
   return `  <url>\n    <loc>${APP_URL}${path(self)}</loc>\n${links.join("\n")}\n  </url>`;
-}
-
-/**
- * The landing page: `/` (the x-default) and `/?lng=` in each language, every
- * entry naming all of them, as the page's own hreflang links do.
- */
-export function landingUrls(): string[] {
-  const links = [
-    ...publicLngs.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${APP_URL}/?lng=${l}"/>`),
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}/"/>`,
-  ].join("\n");
-  return ["/", ...publicLngs.map((l) => `/?lng=${l}`)].map(
-    (path) => `  <url>\n    <loc>${APP_URL}${path}</loc>\n${links}\n  </url>`,
-  );
 }
 
 export function publicUrls(): string[] {
   const out: string[] = [];
   for (const locale of publicLngs) {
-    out.push(entry((l) => `/${l}`, locale, publicLngs));
+    // The landing page, whose x-default is `/` (it redirects by language),
+    // and the tools home under it.
+    out.push(entry((l) => `/${l}`, locale, publicLngs, "/"));
+    out.push(entry((l) => `/${l}/tools`, locale, publicLngs));
     for (const cluster of POPULATED_CLUSTERS) {
       if (!clusterIsIndexable(locale, cluster)) continue;
       const alternates = publicLngs.filter((l) => clusterIsIndexable(l, cluster));

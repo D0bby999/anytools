@@ -17,7 +17,7 @@ import { join } from "node:path";
 import { createStaticHandler, type RouteObject } from "react-router";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
-vi.mock("~/lib/env.server", () => ({ APP_URL: "https://anytools.example", API_BASE: "", API_TOKEN: "" }));
+vi.mock("~/lib/env.server", () => ({ APP_URL: "https://anytools.example", API_BASE: "", API_TOKEN: "", useSecureCookies: false, SESSION_SECRET: "continuity-test-secret" }));
 
 type Entry = { id?: string; path?: string; index?: boolean; file: string; children?: Entry[] };
 
@@ -75,8 +75,8 @@ describe("the old site's URLs", () => {
       const first = await answer(path);
       if (DROPPED.test(path)) {
         const locale = path.split("/")[1];
-        if (first.status !== 301 || first.location !== `/${locale}`) {
-          wrong.push(`${path}: ${first.status} ${first.location ?? ""}, want 301 /${locale}`);
+        if (first.status !== 301 || first.location !== `/${locale}/tools`) {
+          wrong.push(`${path}: ${first.status} ${first.location ?? ""}, want 301 /${locale}/tools`);
           continue;
         }
         const landed = await answer(first.location);
@@ -91,6 +91,18 @@ describe("the old site's URLs", () => {
     expect(wrong).toEqual([]);
     // The blog was the only dropped section in the sitemap: 28 + 3 × 21 posts and indexes.
     expect(counts).toEqual({ ok: 704 - 91, moved: 91 });
+  });
+});
+
+describe("the landing page's addresses (2026-10-19)", () => {
+  it("is /{locale}; the tools home is /{locale}/tools; / and /?lng= only redirect", async () => {
+    for (const locale of ["en", "vi", "es", "pt"]) {
+      expect((await answer(`/${locale}`)).status, `/${locale}`).toBe(200);
+      expect((await answer(`/${locale}/tools`)).status, `/${locale}/tools`).toBe(200);
+      expect(await answer(`/?lng=${locale}`)).toEqual({ status: 301, location: `/${locale}` });
+    }
+    expect(await answer("/")).toEqual({ status: 302, location: "/en" });
+    expect((await answer("/fr")).status).toBe(404);
   });
 });
 
@@ -112,7 +124,7 @@ describe("the routes phase 4 added", () => {
   it("send every depth of a dropped section home, and only those sections", async () => {
     for (const path of ["/vi/blog", "/vi/blog/", "/es/blog/a/b/c", "/pt/sign-in", "/en/sign-up", "/en/dashboard", "/en/dashboard/settings", "/en/favorites", "/en/admin/distribution/brands/x/posts", "/en/offline", "/en/newsletter"]) {
       const a = await answer(path);
-      expect(a, path).toEqual({ status: 301, location: `/${path.split("/")[1]}` });
+      expect(a, path).toEqual({ status: 301, location: `/${path.split("/")[1]}/tools` });
     }
     // A name that only looks like one is not caught by the splat.
     expect((await answer("/en/blogs")).status).toBe(404);

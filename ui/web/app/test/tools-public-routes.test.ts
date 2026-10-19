@@ -84,8 +84,8 @@ describe("locales", () => {
 
 describe("the tools home", () => {
   it("lists every tool offered in the locale, and cleans what the URL asks for", async () => {
-    const en = (await call(home.loader, "/en", { locale: "en" })) as { entries: unknown[] };
-    const vi = (await call(home.loader, `/vi?q=${"x".repeat(300)}&cluster=bogus&sort=evil`, { locale: "vi" })) as {
+    const en = (await call(home.loader, "/en/tools", { locale: "en" })) as { entries: unknown[] };
+    const vi = (await call(home.loader, `/vi/tools?q=${"x".repeat(300)}&cluster=bogus&sort=evil`, { locale: "vi" })) as {
       entries: { slug: string }[];
       initial: { query: string; cluster: string; sort: string };
     };
@@ -98,15 +98,15 @@ describe("the tools home", () => {
   });
 
   it("is canonical to itself, with hreflang for all four and x-default", async () => {
-    const data = await call(home.loader, "/es", { locale: "es" });
+    const data = await call(home.loader, "/es/tools", { locale: "es" });
     const tags = metaOf(home.meta, data);
-    expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.example/es" });
+    expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.example/es/tools" });
     expect(hreflangs(tags)).toEqual([
-      "en https://anytools.example/en",
-      "vi https://anytools.example/vi",
-      "es https://anytools.example/es",
-      "pt https://anytools.example/pt",
-      "x-default https://anytools.example/en",
+      "en https://anytools.example/en/tools",
+      "vi https://anytools.example/vi/tools",
+      "es https://anytools.example/es/tools",
+      "pt https://anytools.example/pt/tools",
+      "x-default https://anytools.example/en/tools",
     ]);
     expect(content(tags, "name", "robots")).toMatch(/^index/);
     expect(ldTypes(tags)).toEqual(["WebSite"]);
@@ -196,14 +196,14 @@ describe("the sitemap", () => {
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     // Phase 2's own: two clusters and eight tools in four languages.
     expect(locs.filter((l) => /\/(time-date|web3)(\/|$)/.test(l ?? ""))).toHaveLength(2 * 4 + 8 * 4);
-    // The landing page, four homes, and every indexable cluster and tool in each language.
+    // Every indexable cluster and tool in each language.
     const tools = ["en", "vi", "es", "pt"].flatMap((l) =>
       toolMetas.filter((m) => isIndexableTool(m, l)).map((m) => `${l}/${m.cluster}`),
     );
-    // The landing page (/ and /?lng= in four languages); phase 4: the guides
-    // index, seven guides, AnyLearn, AnyProfile and the four static pages, in
-    // four languages.
-    expect(locs).toHaveLength(1 + 4 + 4 + new Set(tools).size + tools.length + (1 + 7 + 2 + 4) * 4);
+    // The landing page and the tools home in four languages (`/` only
+    // redirects); phase 4: the guides index, seven guides, AnyLearn,
+    // AnyProfile and the four static pages, in four languages.
+    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 7 + 2 + 4) * 4);
     // Batch A (phase 3a): finance, health and lifestyle pages, an English-only tool in English only.
     expect(locs).toContain("https://anytools.example/vi/finance/loan-calculator");
     expect(locs).toContain("https://anytools.example/pt/health");
@@ -234,11 +234,11 @@ describe("the Tools tab", () => {
   };
 
   it("goes to the first language the browser ranks that the tools speak, else English", async () => {
-    expect((await go("vi-VN,vi;q=0.9,en;q=0.8")).location).toBe("/vi");
-    expect((await go("fr-FR,fr;q=0.9,es;q=0.5,en;q=0.4")).location).toBe("/es");
-    expect((await go("en;q=0.1,pt-BR;q=0.8")).location).toBe("/pt");
-    expect((await go("pt;q=0,de")).location).toBe("/en");
-    expect((await go(null)).location).toBe("/en");
+    expect((await go("vi-VN,vi;q=0.9,en;q=0.8")).location).toBe("/vi/tools");
+    expect((await go("fr-FR,fr;q=0.9,es;q=0.5,en;q=0.4")).location).toBe("/es/tools");
+    expect((await go("en;q=0.1,pt-BR;q=0.8")).location).toBe("/pt/tools");
+    expect((await go("pt;q=0,de")).location).toBe("/en/tools");
+    expect((await go(null)).location).toBe("/en/tools");
     expect((await go("de")).vary).toBe("Accept-Language");
   });
 });

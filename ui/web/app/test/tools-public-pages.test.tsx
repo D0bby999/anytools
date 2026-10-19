@@ -107,7 +107,7 @@ describe("the public shell", () => {
   it("has a header search that goes to the tools home, focused by / and Ctrl+K", async () => {
     routed("/es/web3", withTools("en", <PublicShell locale="es">page</PublicShell>));
     const box = screen.getByRole("searchbox", { name: "Search tools" });
-    expect(box.closest("form")).toHaveAttribute("action", "/es");
+    expect(box.closest("form")).toHaveAttribute("action", "/es/tools");
     fireEvent.keyDown(window, { key: "/" });
     expect(box).toHaveFocus();
     box.blur();

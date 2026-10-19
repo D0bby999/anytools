@@ -107,7 +107,7 @@ export default function ToolPage() {
       <nav aria-label={t("tool.breadcrumb")} className="text-sm text-muted-foreground">
         <ol className="flex flex-wrap items-center gap-x-2">
           <li>
-            <Link to={`/${locale}`} className="inline-flex min-h-11 items-center gap-2 hover:text-foreground">
+            <Link to={`/${locale}/tools`} className="inline-flex min-h-11 items-center gap-2 hover:text-foreground">
               <span aria-hidden="true" className="lp-tab">
                 {t("feature.appendix")}
               </span>

@@ -16,5 +16,5 @@ import { publicLocale } from "~/lib/tools/route.server";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = publicLocale(params);
-  return redirect(`/${locale}`, { status: 301 });
+  return redirect(`/${locale}/tools`, { status: 301 });
 }

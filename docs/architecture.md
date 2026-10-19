@@ -266,7 +266,10 @@ Declarative Web Push JSON, which Safari shows without a service worker and
 `ui/web/public/sw.js` shows everywhere else. `learning.DueDigestJob` ticks
 hourly; `PushStore.ClaimReminder` is one UPDATE that sends only in the
 learner's local hour window and records the local day, so a restart or a
-second tick cannot send twice.
+second tick cannot send twice. The job's source is `push.Service.DueDigests`:
+the learners in their hour (`ReminderCandidates`, the claim's own condition
+without the claim), each counted by `app.dueTotal` through the same service
+calls as Home's six due rows, so the push and the page give one number.
 
 ### Interface language
 
@@ -281,16 +284,33 @@ switched, because two requests in two languages share one server process.
 `app/test/i18n-app-locales.test.ts` fails on any English string without its
 three translations.
 
-The public pages have one address per language, for search engines: the tool
-pages `/{en|vi|es|pt}/…`, the landing page `/?lng=…`, each canonical to itself
-with hreflang to the others and to an x-default, all of them in the sitemap.
-The bare `/` is that x-default: English for a visitor or crawler with no other
-preference, else a 302 (`Vary: Accept-Language, Cookie`) to the language last
-chosen there (the same `anylearn-lang` cookie sign-in reads) or the browser's.
-Every link to the landing page names its language (`homeHref`), so a choice
-is never undone by the browser's. Model output follows the conversation's language; API
-sentences shown to learners carry a code the web translates (readiness:
-`reason_code`, `note_code`), and the rest are still English.
+The public pages have one path per language, for search engines: the site's
+home (the landing page) at `/en`, `/vi`, `/es` and `/pt`, the tools home at
+`/{lng}/tools`, and every tool, cluster, guide and page under the same prefix.
+Each is canonical to itself, with hreflang to the others and an x-default, and
+all are in the sitemap. The bare `/` has no page (`routes/home-redirect.ts`): a
+signed-in visitor goes to `/home`; anyone else gets a 302 (`Vary:
+Accept-Language, Cookie`) to the language last opened (the `anylearn-lang`
+cookie the landing page sets, which sign-in reads too), else the browser's,
+else `/en`, which is what a crawler gets. It is the landing page's x-default.
+`/?lng=xx`, the landing page's address for a few hours on 2026-10-19, answers
+301 to `/xx`.
+
+Model output follows the conversation's language. The API's own sentences are
+written in English where they are composed and translated at the edge:
+`httpx.Localize` (inside RequireUser, which reads `users.language` in its
+existence query) rewrites the `error` and `*_error` values of a JSON response
+through `internal/locale`, whose catalogs (`catalog/{vi,es,pt}.json`) map each
+English format string to its translation. A stored failure (a document's parse
+error, a feed's check error) therefore reads in the learner's current
+language; codes such as `drive_full` pass through, and streams are not
+buffered. `internal/locale/catalog_test.go` finds every sentence the API can
+send (by AST: WriteError messages, `%w:` wraps, stored failures, Message
+fields, the `*UserMessage`/`*Reason` sentence functions) and fails on one
+without three translations. The readiness matrix is the exception: its
+`reason`/`note` carry a code the web words itself (`reason_code`,
+`note_code`). Not yet translated: errors inside a stream (chat, live document
+status), which the page shows until it reloads.
 
 ### Web tools (phase 9)
 

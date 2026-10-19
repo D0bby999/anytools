@@ -73,7 +73,7 @@ export default function ClusterPage() {
   return (
     <div className="lp-layout px-4 py-8 lg:px-6 lg:py-12">
       <nav aria-label={t("tool.breadcrumb")} className="text-sm text-muted-foreground">
-        <Link to={`/${locale}`} className="inline-flex min-h-11 items-center gap-2 hover:text-foreground">
+        <Link to={`/${locale}/tools`} className="inline-flex min-h-11 items-center gap-2 hover:text-foreground">
           <span aria-hidden="true" className="lp-tab">
             {t("feature.appendix")}
           </span>

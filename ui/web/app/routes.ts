@@ -17,8 +17,9 @@ export const DROPPED_SECTIONS = ["blog", "sign-in", "sign-up", "dashboard", "fav
 
 export default [
   layout("routes/locale-layout.tsx", [
-    // Phase 12: the one indexable page. Signed-in visitors are sent to /home.
-    index("routes/landing.tsx"),
+    // `/` shows nothing: it sends a visitor to the landing page in their
+    // language (/en, /vi, /es, /pt), and a signed-in one to /home.
+    index("routes/home-redirect.ts"),
     layout("routes/auth-layout.tsx", [route("login", "routes/login.tsx")]),
 
     layout("routes/app-layout.tsx", [
@@ -196,14 +197,18 @@ export default [
   route("robots.txt", "routes/robots[.]txt.ts"),
   route("sitemap.xml", "routes/sitemap[.]xml.ts"),
 
-  // AnyTools phase 2: the app's Tools tab, which picks the visitor's locale.
+  // AnyTools phase 2: the app's Tools tab, which picks the visitor's locale
+  // and goes to /{locale}/tools.
   route("tools", "routes/tools.ts"),
   // AnyTools phase 2: the public tool pages, in en, vi, es and pt, with no
   // sign-in. Outside locale-layout and app-layout (public.layout.tsx says
   // why). Every static first segment above outranks `:locale`, so no app
   // route can be shadowed by it; anything else is a 404 from its loader.
   route(":locale", "routes/public.layout.tsx", [
-    index("routes/public.home.tsx"),
+    // The site's home in each language is the landing page; the tools home
+    // is /{locale}/tools (2026-10-19, one path per language for search).
+    index("routes/landing.tsx"),
+    route("tools", "routes/public.home.tsx"),
     // AnyTools phase 4: the guides, the AnyProfile download page, and the
     // about, privacy, terms and contact pages, at the old site's URLs. Static
     // segments, so they outrank `:cluster`.

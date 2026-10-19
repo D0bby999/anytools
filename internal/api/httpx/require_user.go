@@ -27,6 +27,13 @@ type UserLookup interface {
 	UserExists(ctx context.Context, id uuid.UUID) (bool, error)
 }
 
+// UserLanguageLookup is a UserLookup that reads the learner's interface
+// language in the same query, for Localize. A lookup without it leaves the
+// language unset, which Localize treats as English.
+type UserLanguageLookup interface {
+	UserLanguage(ctx context.Context, id uuid.UUID) (exists bool, language string, err error)
+}
+
 // AllowlistedPaths are the ONLY request paths served without authentication.
 //
 // The list is exactly one entry and a structural test (mux_allowlist_test.go)
@@ -107,7 +114,13 @@ func RequireUser(next http.Handler, gatewayToken string, users UserLookup, allow
 			return
 		}
 
-		exists, err := users.UserExists(r.Context(), userID)
+		var exists bool
+		var language string
+		if ll, ok := users.(UserLanguageLookup); ok {
+			exists, language, err = ll.UserLanguage(r.Context(), userID)
+		} else {
+			exists, err = users.UserExists(r.Context(), userID)
+		}
 		if err != nil {
 			// A lookup failure is not an authorization decision. Answering 401
 			// here would log users out on a database blip; 503 says "retry".
@@ -122,7 +135,7 @@ func RequireUser(next http.Handler, gatewayToken string, users UserLookup, allow
 			return
 		}
 
-		next.ServeHTTP(w, r.WithContext(WithUserID(r.Context(), userID)))
+		next.ServeHTTP(w, r.WithContext(WithLanguage(WithUserID(r.Context(), userID), language)))
 	})
 }
 

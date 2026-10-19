@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Nhắc ôn",
-      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu điểm cần ôn. Ngày nào không có gì đến hạn thì không gửi, và không có chuỗi ngày nào phải giữ.",
+      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu việc cần ôn, đúng con số trên Trang chủ. Ngày nào không có gì đến hạn thì không gửi, và không có chuỗi ngày nào phải giữ.",
       "turnOn": "Bật trên trình duyệt này",
       "turnOff": "Tắt ở đây",
       "onHere": "Lời nhắc đang bật trên trình duyệt này.",

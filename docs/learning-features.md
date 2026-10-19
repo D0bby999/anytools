@@ -164,7 +164,7 @@ AnyLearn is written in English, Vietnamese, Spanish and Portuguese. A new accoun
 
 ## Review reminder
 
-Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many mastery review points are due; tapping it opens Review. Nothing is sent on a day with nothing due, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is the mastery points only; Home's total also counts mistakes, vocabulary and book cards.
+Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many things are due for review; tapping it opens Home. Nothing is sent on a day with nothing due, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is Home's "Due for review" total: mastery points, mistakes to practise, skill-card retests, vocabulary, book cards and worksheet reviews.
 
 ## Bad-day minimum
 

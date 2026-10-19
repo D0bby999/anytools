@@ -2,6 +2,7 @@ package pg_test
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -37,22 +38,34 @@ func TestClaimReminderOncePerLocalDayInTheLearnersHour(t *testing.T) {
 	}
 	// 07:30 in Saigon is 00:30 UTC.
 	at := func(day, hour, minute int) time.Time { return time.Date(2026, 10, day, hour, minute, 0, 0, time.UTC) }
+	// The candidates are exactly who a claim would take, without taking them.
+	candidate := func(now time.Time) bool {
+		t.Helper()
+		ids, err := store.ReminderCandidates(ctx, now, 3)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return slices.Contains(ids, user)
+	}
 
-	if _, _, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3); err != nil || ok {
+	if _, _, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3); err != nil || ok || candidate(at(20, 0, 30)) {
 		t.Fatalf("no subscription yet: ok=%v err=%v", ok, err)
 	}
 	sub := pushSub(t)
 	if err := store.Subscribe(ctx, user, sub); err != nil {
 		t.Fatal(err)
 	}
-	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(19, 23, 30), 3); ok {
+	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(19, 23, 30), 3); ok || candidate(at(19, 23, 30)) {
 		t.Fatal("claimed at 06:30 local, before the learner's hour")
+	}
+	if !candidate(at(20, 0, 30)) || !candidate(at(20, 0, 30)) {
+		t.Fatal("07:30 local is the learner's hour, and listing must not claim it")
 	}
 	subs, language, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3)
 	if err != nil || !ok || len(subs) != 1 || subs[0] != sub || language != "vi" {
 		t.Fatalf("07:30 local: subs=%v language=%q ok=%v err=%v", subs, language, ok, err)
 	}
-	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(20, 1, 30), 3); ok {
+	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(20, 1, 30), 3); ok || candidate(at(20, 1, 30)) {
 		t.Fatal("claimed a second time on the same local day")
 	}
 	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(21, 3, 30), 3); ok {
@@ -143,5 +156,12 @@ func TestSetLanguageKeepsAChosenOne(t *testing.T) {
 	u, err := users.GetUser(ctx, user)
 	if err != nil || u.Language != "pt" || u.LanguageSetAt == nil {
 		t.Fatalf("user = %+v, %v", u, err)
+	}
+	// The auth chokepoint reads it with the existence check, for Localize.
+	if ok, lang, err := users.UserLanguage(ctx, user); err != nil || !ok || lang != "pt" {
+		t.Fatalf("UserLanguage = %v, %q, %v", ok, lang, err)
+	}
+	if ok, _, err := users.UserLanguage(ctx, uuid.New()); err != nil || ok {
+		t.Fatalf("a stranger exists: %v, %v", ok, err)
 	}
 }

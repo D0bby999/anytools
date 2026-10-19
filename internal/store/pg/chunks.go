@@ -3,13 +3,13 @@ package pg
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/D0bby999/anytools/internal/knowledge"
 	"github.com/D0bby999/anytools/internal/rag/embed"
+	"github.com/D0bby999/anytools/internal/store/kbindex"
 )
 
 // ChunkStore writes and deletes chunks.
@@ -25,9 +25,7 @@ func NewChunkStore(pool *Pool) *ChunkStore { return &ChunkStore{pool: pool} }
 // canonical rendering — hex and hyphens — so this cannot become an injection
 // vector no matter what a caller passes: a value that is not a uuid never gets
 // this far.
-func kbIndexName(kbID uuid.UUID) string {
-	return "chunks_emb_hnsw_kb_" + strings.ReplaceAll(kbID.String(), "-", "")
-}
+func kbIndexName(kbID uuid.UUID) string { return kbindex.Name(kbID) }
 
 // CreateKBVectorIndex builds the partial HNSW index for one knowledge base.
 //

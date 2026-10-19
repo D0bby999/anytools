@@ -263,6 +263,22 @@ func (s *UserStore) GetUser(ctx context.Context, id uuid.UUID) (*store.User, err
 	return getUser(ctx, s.pool, id)
 }
 
+// UserLanguage implements httpx.UserLanguageLookup: UserExists, with the
+// learner's interface language from the same row.
+func (s *UserStore) UserLanguage(ctx context.Context, id uuid.UUID) (bool, string, error) {
+	var language string
+	err := s.pool.QueryRow(ctx,
+		`SELECT language FROM users WHERE id = $1 AND deleted_at IS NULL`, id,
+	).Scan(&language)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, "", nil
+	}
+	if err != nil {
+		return false, "", fmt.Errorf("user language: %w", err)
+	}
+	return true, language, nil
+}
+
 // UserExists reports whether id names a live user.
 func (s *UserStore) UserExists(ctx context.Context, id uuid.UUID) (bool, error) {
 	var ok bool

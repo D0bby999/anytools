@@ -66,20 +66,19 @@ func TestMessageIsDeclarativeWebPush(t *testing.T) {
 func TestDueBody(t *testing.T) {
 	cases := []struct {
 		lang string
-		s    learning.DueSummary
+		due  int
 		want string
 	}{
-		{"en", learning.DueSummary{Due: 1, Paths: 1}, "1 review point is due."},
-		{"en", learning.DueSummary{Due: 4, Paths: 1}, "4 review points are due."},
-		{"en", learning.DueSummary{Due: 5, Paths: 2}, "5 review points are due, across 2 paths."},
-		{"vi", learning.DueSummary{Due: 4, Paths: 1}, "Có 4 điểm cần ôn."},
-		{"es", learning.DueSummary{Due: 1, Paths: 1}, "Tienes 1 punto para repasar."},
-		{"pt", learning.DueSummary{Due: 3, Paths: 2}, "Você tem 3 pontos para revisar, em 2 trilhas."},
-		{"fr", learning.DueSummary{Due: 2, Paths: 1}, "2 review points are due."},
+		{"en", 1, "1 thing is waiting for your review."},
+		{"en", 4, "4 things are waiting for your review."},
+		{"vi", 4, "Có 4 việc cần ôn đang chờ bạn."},
+		{"es", 1, "Tienes 1 cosa por repasar."},
+		{"pt", 3, "Você tem 3 coisas para revisar."},
+		{"fr", 2, "2 things are waiting for your review."},
 	}
 	for _, c := range cases {
-		if got := dueBody(c.s, c.lang); got != c.want {
-			t.Errorf("dueBody(%+v, %s) = %q, want %q", c.s, c.lang, got, c.want)
+		if got := dueBody(c.due, c.lang); got != c.want {
+			t.Errorf("dueBody(%d, %s) = %q, want %q", c.due, c.lang, got, c.want)
 		}
 	}
 }
@@ -91,6 +90,22 @@ type fakeStore struct {
 	claimable bool
 	forgotten []string
 	saved     []Subscription
+	due       []uuid.UUID
+}
+
+func (f *fakeStore) ReminderCandidates(context.Context, time.Time, int) ([]uuid.UUID, error) {
+	return f.due, nil
+}
+
+// fakeCounter is each learner's total, or an error for a learner it lacks.
+type fakeCounter map[uuid.UUID]int
+
+func (c fakeCounter) DueTotal(_ context.Context, id uuid.UUID) (int, error) {
+	n, ok := c[id]
+	if !ok {
+		return 0, errors.New("count failed")
+	}
+	return n, nil
 }
 
 func (f *fakeStore) VAPIDKeys(context.Context) (Keys, bool, error) {
@@ -156,7 +171,7 @@ func TestNotifySendsOnlyWhenClaimedAndForgetsGoneBrowsers(t *testing.T) {
 	store := &fakeStore{subs: []Subscription{{Endpoint: chrome}, {Endpoint: iphone}}}
 	sender := &fakeSender{gone: map[string]bool{iphone: true}}
 	s := NewService(store, sender, "https://anytools.world")
-	summary := learning.DueSummary{UserID: uuid.New(), Due: 2, Paths: 1}
+	summary := learning.DueSummary{UserID: uuid.New(), Due: 2}
 
 	if err := s.Notify(context.Background(), summary); err != nil || len(sender.sent) != 0 {
 		t.Fatalf("not this learner's hour: err=%v sent=%v", err, sender.sent)
@@ -169,11 +184,33 @@ func TestNotifySendsOnlyWhenClaimedAndForgetsGoneBrowsers(t *testing.T) {
 	if len(sender.sent) != 1 || sender.sent[0] != chrome {
 		t.Fatalf("sent to %v, want only the Chrome browser", sender.sent)
 	}
-	if !strings.Contains(sender.payload, "Có 2 điểm cần ôn.") || !strings.Contains(sender.payload, `"lang":"vi"`) {
+	if !strings.Contains(sender.payload, "Có 2 việc cần ôn đang chờ bạn.") || !strings.Contains(sender.payload, `"lang":"vi"`) ||
+		!strings.Contains(sender.payload, `"navigate":"https://anytools.world/home"`) {
 		t.Fatalf("payload = %s", sender.payload)
 	}
 	if len(store.forgotten) != 1 || store.forgotten[0] != iphone {
 		t.Fatalf("forgotten = %v, want the gone iPhone", store.forgotten)
+	}
+}
+
+func TestDueDigestsCountEverythingDueForTheLearnersInTheirHour(t *testing.T) {
+	busy, idle, broken := uuid.New(), uuid.New(), uuid.New()
+	store := &fakeStore{due: []uuid.UUID{busy, idle, broken}}
+	s := NewService(store, &fakeSender{}, "https://anytools.world")
+
+	if got, err := s.DueDigests(context.Background(), time.Now()); err != nil || len(got) != 0 {
+		t.Fatalf("without a counter: %v, %v; want nobody", got, err)
+	}
+
+	s.WithCounter(fakeCounter{busy: 7, idle: 0})
+	got, err := s.DueDigests(context.Background(), time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// idle has nothing due, so its day stays unclaimed for a later hour;
+	// broken's count failed, which must not cost busy theirs.
+	if len(got) != 1 || got[0].UserID != busy || got[0].Due != 7 {
+		t.Fatalf("digests = %+v, want only busy with 7", got)
 	}
 }
 

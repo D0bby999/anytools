@@ -618,7 +618,7 @@
     },
     "push": {
       "title": "Recordatorio de repaso",
-      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántos puntos tienes para repasar. No se envía nada los días sin nada pendiente, y no hay rachas que mantener.",
+      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántas cosas tienes para repasar, la misma cifra que en Inicio. No se envía nada los días sin nada pendiente, y no hay rachas que mantener.",
       "turnOn": "Activar en este navegador",
       "turnOff": "Desactivar aquí",
       "onHere": "El recordatorio está activado en este navegador.",

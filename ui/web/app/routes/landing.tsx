@@ -1,35 +1,29 @@
 /**
  * landing.tsx
- * The public front door at `/`: what AnyTools is, what it will not do, and the
- * way in. Indexable, like the public tool pages; everything behind sign-in
- * says `noindex`.
+ * The site's home in each language, at /en, /vi, /es and /pt: what AnyTools
+ * is, what it will not do, and the way in. Indexable, like the public tool
+ * pages; everything behind sign-in says `noindex`.
  *
  * AnyTools phase 4 merged the old site's front door into it: the tool
- * clusters, in the visitor's language (the same pick as the Tools tab), and
- * the public pages' links. Since 2026-10-19 the page itself is in that
- * language too (`pages.json` → `landing`).
+ * clusters and the public pages' links. Since 2026-10-19 the page itself is
+ * in the visitor's language (`pages.json` → `landing`), and each language has
+ * its own path, canonical to itself, with hreflang to the others and x-default
+ * to `/` (routes/home-redirect.ts), which sends a visitor here in their
+ * language. Opening one remembers it in the `anylearn-lang` cookie, which `/`
+ * and sign-in read. The tools home moved to /{locale}/tools to make room.
  *
- * Addresses, as Google asks of a multilingual page: each language has one that
- * always shows it, `/?lng=en|vi|es|pt`, canonical to itself; the bare `/` is
- * the x-default. It shows English to a visitor (and a crawler) with no other
- * preference, and otherwise sends them on (302) to their language: the one
- * they last chose here, kept in the `anylearn-lang` cookie that sign-in reads
- * too, or else their browser's.
- *
- * A signed-in visitor never sees it: the loader sends them to `/home`, so a
- * bookmark of the old address still lands in the app.
+ * It draws its own header and footer (`handle.ownFrame`, public-shell.tsx).
  *
  * Same world as the rest of the product (DESIGN.md): a calm book page, one
  * green ink, hairline rows — not a marketing hero. The claims are the ones the
  * product can prove, stated with their limits.
  */
-import { data, Link, redirect, useLoaderData } from "react-router";
+import { data, Link, useLoaderData } from "react-router";
 import { ArrowUpRight } from "lucide-react";
 import { I18nextProvider, useTranslation } from "react-i18next";
 import type { Route } from "./+types/landing";
-import { getUserId } from "~/lib/auth.server";
 import { APP_URL } from "~/lib/env.server";
-import { isPublicLng, OG_LOCALE, publicLngs, type PublicLng } from "~/lib/i18n";
+import { isPublicLng, OG_LOCALE, publicLngs } from "~/lib/i18n";
 import { languageCookie } from "~/lib/language.server";
 import { Button } from "~/components/ui/button";
 import { Plate } from "~/components/ui/plate";
@@ -40,26 +34,17 @@ import { PARTS } from "~/lib/parts";
 import { catalogEntries, CLUSTER_ORDER } from "~/lib/tools/catalog";
 import { addPagesBundle, toolsI18n } from "~/lib/tools/i18n";
 import { pagesMessages, toolsMessages } from "~/lib/tools/messages.server";
-import { pagesT } from "~/lib/tools/route.server";
-import { pickPublicLocale } from "./tools";
+import { pagesT, publicLocale } from "~/lib/tools/route.server";
 import { ogImage } from "~/lib/tools/seo";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  if (await getUserId(request)) throw redirect("/home");
-  const asked = new URL(request.url).searchParams.get("lng") ?? "";
-  const kept = (await languageCookie.parse(request.headers.get("Cookie"))) as unknown;
-  const chosen = typeof kept === "string" && isPublicLng(kept) ? kept : null;
+export const handle = { ownFrame: true };
 
-  let locale: PublicLng;
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const locale = publicLocale(params);
+  const kept = (await languageCookie.parse(request.headers.get("Cookie"))) as unknown;
   const headers = new Headers();
-  if (isPublicLng(asked)) {
-    locale = asked;
-    if (chosen !== asked) headers.set("Set-Cookie", await languageCookie.serialize(asked));
-  } else {
-    locale = chosen ?? pickPublicLocale(request.headers.get("Accept-Language"));
-    if (locale !== "en") {
-      throw redirect(homeHref(locale), { headers: { Vary: "Accept-Language, Cookie", "Cache-Control": "private, no-store" } });
-    }
+  if (!(typeof kept === "string" && isPublicLng(kept) && kept === locale)) {
+    headers.set("Set-Cookie", await languageCookie.serialize(locale));
   }
 
   const clusters = CLUSTER_ORDER.map((id) => ({ id, count: catalogEntries(locale, id).length })).filter((c) => c.count > 0);
@@ -68,8 +53,6 @@ export async function loader({ request }: Route.LoaderArgs) {
     {
       appUrl: APP_URL,
       toolsLocale: locale,
-      // The bare `/` is the x-default and canonical to itself.
-      xDefault: !isPublicLng(asked),
       clusters,
       messages: toolsMessages(locale),
       pages: pagesMessages(locale),
@@ -79,9 +62,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 }
 
-/** The bare `/` depends on the browser and the cookie, so a cache must key on both. */
+/** The language cookie the loader sets; the page itself is the same for everyone. */
 export function headers({ loaderHeaders }: Route.HeadersArgs) {
-  const out = new Headers({ Vary: "Accept-Language, Cookie" });
+  const out = new Headers();
   const cookie = loaderHeaders.get("Set-Cookie");
   if (cookie) out.set("Set-Cookie", cookie);
   return out;
@@ -91,7 +74,7 @@ export function meta({ data }: Route.MetaArgs) {
   if (!data) return [];
   const url = data.appUrl;
   const { title, description } = data.seo;
-  const self = data.xDefault ? `${url}/` : `${url}${homeHref(data.toolsLocale)}`;
+  const self = `${url}${homeHref(data.toolsLocale)}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -154,7 +137,7 @@ function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader locale={lng} languageHref={homeHref} search />
+      <SiteHeader locale={lng} search />
 
       <main id="main" className="flex-1">
         {/* First viewport: the offer, the one action, and the book on the desk. */}
@@ -248,7 +231,7 @@ function LandingPage() {
             ))}
           </ul>
           <p className="mt-5">
-            <Link to={`/${lng}`} className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover">
+            <Link to={`/${lng}/tools`} className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover">
               {t("landing.tools.all")}
             </Link>
           </p>

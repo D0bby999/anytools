@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/D0bby999/anytools/internal/config"
+	"github.com/D0bby999/anytools/internal/store/kbindex"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -63,6 +64,11 @@ func TestDB(t *testing.T) *pgxpool.Pool {
 			connectErr = err
 			return
 		}
+		// Every test's users are deleted by cascade, which leaves their
+		// knowledge bases' vector indexes behind; thousands of them made every
+		// delete reaching chunks run out of lock slots. Best effort: a
+		// database without the schema yet has nothing to sweep.
+		_ = kbindex.DropOrphans(ctx, pool)
 		sharedPool = pool
 	})
 

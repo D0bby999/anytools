@@ -10,14 +10,12 @@ import { LocaleSwitcher, useDisclosureMenu } from "~/components/tools-site/local
 export const SEARCH_ATTR = "data-tools-search";
 
 /**
- * The landing page in a language, English included. Each language has one
- * address that always shows it; the bare `/` is the x-default, which follows
- * the visitor's last choice or their browser (routes/landing.tsx). A link that
- * pointed English at `/` sent a Vietnamese browser straight back to
- * Vietnamese (2026-10-19).
+ * The site's home in a language: the landing page at /en, /vi, /es or /pt.
+ * The bare `/` only redirects (routes/home-redirect.ts), so a link names its
+ * language and a choice is never undone by the browser's.
  */
 export function homeHref(locale: PublicLng): string {
-  return `/?lng=${locale}`;
+  return `/${locale}`;
 }
 
 /**
@@ -50,7 +48,7 @@ export function SiteHeader({
 }) {
   const { t } = useTranslation("tools");
   const places = [
-    { to: `/${locale}`, label: t("nav.tools"), end: true },
+    { to: `/${locale}/tools`, label: t("nav.tools"), end: true },
     { to: `/${locale}/guides`, label: t("nav.guides"), end: false },
     { to: `/${locale}/anyprofile`, label: t("footer.anyprofile"), end: false },
   ];
@@ -148,7 +146,7 @@ function PlacesMenu({ places, signIn }: { places: { to: string; label: string; e
 function HeaderSearch({ locale, className }: { locale: PublicLng; className?: string }) {
   const { t } = useTranslation("tools");
   return (
-    <Form method="get" action={`/${locale}`} role="search" className={className}>
+    <Form method="get" action={`/${locale}/tools`} role="search" className={className}>
       <label className="relative block">
         <span className="sr-only">{t("site.search")}</span>
         <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
