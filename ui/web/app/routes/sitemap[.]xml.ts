@@ -7,7 +7,6 @@
  * The tool pages' entries come from lib/tools/sitemap.server.ts. No priority
  * or changefreq on them: Google ignores both.
  */
-import { APP_URL } from "~/lib/env.server";
 import { landingUrls, publicUrls } from "~/lib/tools/sitemap.server";
 
 export function loader() {
