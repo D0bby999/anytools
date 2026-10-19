@@ -110,6 +110,22 @@ The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Lead
   (`lp-page-enter`, 420ms, 6px rise) on the page header. Reduced motion keeps the fade
   and drops the travel.
 
+### Marks
+
+The products share one tile: AnyProfile's warm-white squircle with a soft shadow,
+one glyph in the product's ink (`public/icons/*.svg`, masters at 1024).
+
+- **AnyTools**: four tiles, one navy, two outlined in the selected tint, one in the
+  highlighter. A set of tools, one of them needed now.
+- **AnyLearn**: a navy page with its corner turned, a highlighter line across it, a
+  second page behind it (AnyProfile's two tiles, as pages). The product's promise: the
+  answer is checked against the page.
+
+Favicons are the glyph alone, cropped tight, and lift to the dark-theme inks under
+`prefers-color-scheme: dark`, so they read on a dark tab bar. The study app's pages and
+sign-in show AnyLearn's (root.tsx picks by route); everything else shows AnyTools'.
+Icon URLs carry `?v=` so a changed mark replaces the cached one.
+
 ## Geometry
 
 Measured at 1440:

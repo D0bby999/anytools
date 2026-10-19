@@ -9,13 +9,14 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/more";
+import { appTitle } from "~/lib/app-title";
 import { ANYPROFILE_HREF, NAV_ITEMS, TOOLS_ITEM } from "~/components/layout/sidebar";
 import { PARTS } from "~/lib/parts";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "All sections · AnyLearn" },
+    { title: appTitle(matches, "All sections") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

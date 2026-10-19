@@ -1,0 +1,222 @@
+{
+  "moreItem": "Kit de herramientas",
+  "evidenceKind": "Ficha",
+  "index": {
+    "title": "Kit de herramientas",
+    "lead": "Fichas para los métodos que sigue esta app: cada una es una página con apartados que se rellenan durante varios días, se guarda con tu aprendizaje y se retoma en sus fechas de revisión.",
+    "noKinds": "Todavía no hay fichas disponibles.",
+    "private": "Privada",
+    "new": "Nueva",
+    "newOf": "Nueva: {{name}}"
+  },
+  "groups": {
+    "language": "Idioma",
+    "projects": "Proyectos",
+    "life": "Vida"
+  },
+  "due": {
+    "title": "Para retomar",
+    "none": "Hoy no hay nada que retomar."
+  },
+  "list": {
+    "open": "Abierta",
+    "done": "Hecha",
+    "nextReview": "Próxima revisión: {{date}}"
+  },
+  "new": {
+    "chooseTitle": "Nueva ficha",
+    "chooseLead": "Elige qué empezar.",
+    "title": "Nueva: {{name}}",
+    "titleLabel": "Título",
+    "start": "Empezar"
+  },
+  "sheet": {
+    "unknownKind": "Este tipo de ficha ya no está disponible. Lo que escribiste se conserva y se puede descargar.",
+    "back": "Todas las fichas",
+    "goal": "Su objetivo",
+    "document": "Su documento",
+    "export": "Descargar en Markdown",
+    "earlier": "De una versión anterior",
+    "earlierLead": "Esta ficha cambió de forma después de que rellenaras estos apartados. Se conservan tal como los escribiste y no se editan aquí.",
+    "manage": "Esta ficha",
+    "title": "Título",
+    "rename": "Cambiar nombre",
+    "markDone": "Marcar como hecha",
+    "reopen": "Reabrir",
+    "delete": "Eliminar esta ficha",
+    "deleteConfirm": "Se elimina todo lo que contiene. Esto no se puede deshacer.",
+    "deleteNow": "Eliminar"
+  },
+  "reviews": {
+    "title": "Fechas de revisión",
+    "notScheduled": "Aún sin programar: se cuenta desde algo que no has anotado.",
+    "done": "revisada",
+    "move": "Pasar a",
+    "save": "Mover",
+    "markDone": "Marcar como revisada"
+  },
+  "form": {
+    "choose": "Elige…",
+    "otherOption": "Otro…",
+    "other": "Otro",
+    "yes": "Sí",
+    "no": "No",
+    "audioLater": "Las grabaciones aún no están disponibles.",
+    "rowActions": "Acciones de la fila",
+    "rowNumber": "Fila {{n}}",
+    "addRow": "Añadir una fila",
+    "removeRow": "Quitar",
+    "rowsLeft_one": "Se permite {{count}} fila más",
+    "rowsLeft_other": "Se permiten {{count}} filas más",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "conflict": "Este apartado se cambió en otro sitio. Ahora muestra lo que se guardó allí; vuelve a hacer tu cambio."
+  },
+  "private": {
+    "title": "Privada",
+    "body": "Nada de esta ficha se envía nunca a un modelo de IA, y nunca aparece como prueba ni por su título en Inicio.",
+    "leaveOut": "Limítate a lo que te parezca bien guardar. Deja fuera contraseñas, números de identificación, direcciones exactas, historiales médicos, datos de clientes y cualquier cosa sobre otra persona que no haya aceptado que se escriba.",
+    "danger": "Si hay un peligro inmediato o violencia, si el insomnio o un ánimo muy bajo no se van, o si hay deudas o problemas legales, contacta antes con un profesional cualificado. Una ficha no puede hacer ese trabajo."
+  },
+  "home": {
+    "title": "Para retomar hoy",
+    "count_one": "Toca revisar {{count}} ficha.",
+    "count_other": "Toca revisar {{count}} fichas.",
+    "open": "Abrir el kit de herramientas"
+  },
+  "state": {
+    "title": "Fichas",
+    "none": "Este objetivo aún no tiene ninguna ficha.",
+    "new": "Nueva ficha"
+  },
+  "loop": {
+    "title": "Kit de herramientas",
+    "body": "Fichas para un proyecto, una destreza de idioma o una semana difícil, cada una con sus propias fechas de revisión.",
+    "open": "Abrir el kit de herramientas"
+  },
+  "recordings": {
+    "record": "Grabar",
+    "stop": "Detener",
+    "limit": "La grabación se detiene sola a los 10 minutos.",
+    "preview": "Tu toma",
+    "previewHint": "Escúchala antes de guardarla. No se sube nada hasta que pulses Guardar, y la toma se guarda tal cual: sin reducción de ruido, ganancia ni cortes.",
+    "keep": "Guardar",
+    "discard": "Descartar",
+    "keeping": "Guardando…",
+    "keepFailed": "No se pudo guardar la grabación. Vuelve a intentarlo.",
+    "unsupported": "Este navegador no puede grabar aquí. Sube en su lugar un archivo grabado en otro sitio.",
+    "denied": "El micrófono está bloqueado en esta página. Permítelo en los ajustes del sitio del navegador o sube un archivo grabado en otro sitio.",
+    "upload": "Subir una grabación",
+    "uploadHint": "Audio WebM, Ogg o MP4, como máximo 10 MB y 10 minutos.",
+    "unsaved": "Se pueden añadir grabaciones en una ficha guardada.",
+    "clear": "Sacar de esta celda",
+    "delete": "Eliminar la grabación",
+    "deleteFailed": "No se pudo eliminar la grabación. Vuelve a intentarlo.",
+    "missing": "Falta esta grabación. Sácala de la celda y vuelve a grabar.",
+    "useKept": "O usa una toma guardada",
+    "takeOption": "Toma, {{length}}, {{date}}",
+    "notUsed": "No se usa en esta fila",
+    "see": "Abrir en tus pruebas de expresión oral",
+    "title": "Grabaciones",
+    "lead": "Todas las tomas de esta ficha. Eliminar una borra su archivo y la saca de cualquier celda que la tuviera.",
+    "compare": "Comparar",
+    "compareLead": "Reproduce una toma anterior junto a una posterior, por ejemplo una de partida junto a su reevaluación.",
+    "earlier": "Toma anterior",
+    "later": "Toma posterior",
+    "takeLabel": "{{where}} · {{length}} · {{date}}",
+    "unused": "Fuera de cualquier celda"
+  },
+  "diagnostic": {
+    "total": "Total",
+    "totalOf": "{{total}} de {{max}}",
+    "open": "Abrir una ficha de pruebas de {{skill}}",
+    "fromDocument": "Empiézala a partir del vídeo o el texto con el que practicas.",
+    "prefill": "Del diagnóstico de inglés “{{title}}”: la barrera principal es {{barrier}}.",
+    "prefillSample": "Muestra o marca de tiempo: {{sample}}.",
+    "cannotOpen": "Esa ficha de pruebas no se puede abrir desde aquí.",
+    "notADiagnostic": "Solo un diagnóstico de inglés abre fichas de pruebas.",
+    "start": "Empieza con un diagnóstico de inglés",
+    "startLead": "Una primera muestra, sin pulir, de las cuatro destrezas muestra en qué barrera trabajar antes de avanzar con las tarjetas."
+  },
+  "writingDiagnosis": {
+    "title": "Diagnóstico por IA",
+    "lead": "Pide a tu modelo de chat que diagnostique una pasada de tu borrador guardado. Señala hasta tres puntos, dice por qué, con qué seguridad y en qué podría equivocarse. Nunca reescribe nada. El Antes y el Después los escribes tú.",
+    "pass": "Pasada {{n}} · {{label}}",
+    "diagnose": "Diagnosticar",
+    "working": "Diagnosticando…",
+    "by": "Diagnosticado por {{model}} el {{date}}",
+    "unknownModel": "tu modelo",
+    "none": "No se encontró nada importante para esta pasada.",
+    "issues": "Problemas de la pasada {{n}}",
+    "basis": "Fundamento",
+    "confidence": "Seguridad",
+    "mightBeWrong": "Podría estar mal",
+    "levels": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "useQuote": "Usar esta cita como Antes"
+  },
+  "grammar": {
+    "cardColumn": "Tarjeta de contraste",
+    "start": "Empezar una tarjeta de contraste",
+    "startFor": "Empezar una tarjeta de contraste para “{{sample}}”",
+    "needsSample": "Escribe primero la muestra: la tarjeta de contraste parte de ella.",
+    "notAMap": "Solo un mapa de errores gramaticales empieza tarjetas de contraste.",
+    "cannotStart": "No se puede empezar aquí una tarjeta de pruebas gramaticales."
+  },
+  "artifact": {
+    "unverified": "sin verificar",
+    "evidenceTitle": "Añadir a las pruebas",
+    "evidenceLead": "El encargo se ha entregado. Ponlo en una de las cadenas de evidencias de este objetivo como prueba de transferencia: lo que aprendiste, usado en un trabajo real.",
+    "chain": "Cadena de evidencias",
+    "addToEvidence": "Añadir a las pruebas",
+    "noChain": "Este objetivo aún no tiene cadena de evidencias.",
+    "openState": "Empieza una en la página del objetivo"
+  },
+  "life": {
+    "record": "Es un registro privado para ver lo que pasó de verdad. No es una puntuación diaria que mantener.",
+    "homePrivate_one": "{{count}} nota privada para retomar.",
+    "homePrivate_other": "{{count}} notas privadas para retomar.",
+    "safety": {
+      "choice_brief": "Cuando una decisión es difícil de deshacer y afecta al dinero, la salud, la ley o la seguridad de alguien, dale tiempo y consulta a un profesional adecuado antes de comprometerte más.",
+      "relationship_card": "Si hay violencia, amenazas, acoso o control sobre tu dinero o tus cuentas, tu seguridad va antes que cualquier conversación: ponte a salvo, cuéntaselo a alguien de confianza y busca ayuda profesional. No acuerdes una última conversación a solas.",
+      "recovery_reset": "Si tienes un plan para hacerte daño o hacérselo a otra persona, o no puedes mantenerte a salvo, no te quedes a solas: contacta ahora con alguien cercano y con los servicios de emergencia locales. Esta página puede esperar.",
+      "life_care_card": "Cuidar de alguien nunca significa renunciar a tu seguridad. Si el daño se repite o no es seguro decir que no, apartarte, pedir ayuda o irte también puede ser cuidado. Cuando la carga sea mayor de lo que puedes llevar, pide ayuda externa en lugar de seguir solo.",
+      "self_reflection": "Si lo que notas incluye un sueño que no vuelve, un miedo que no cede, pensamientos de hacerte daño o tareas cotidianas que se te escapan, lleva estas notas a un médico o a un profesional de salud mental cualificado cerca de ti. Pueden ayudar a empezar esa conversación; no pueden sustituirla."
+    },
+    "howTo": {
+      "title": "Cómo usarlas",
+      "step1": "Escribe la fecha y lo que está pasando antes de explicártelo.",
+      "step2": "Rellena solo la ficha que encaje con el problema que tienes delante.",
+      "step3": "Deja una acción que puedas hacer de verdad y dónde se guardará su prueba.",
+      "step4": "Vuelve en la fecha de revisión que fijaste y lee el resultado como información, no como un veredicto sobre quién eres.",
+      "step5": "Borra lo que ya no ayude; guarda los hechos que mejoran la siguiente decisión."
+    }
+  },
+  "cycleClose": {
+    "missing": "Todavía falta",
+    "none": "—",
+    "need": {
+      "condition": "la condición cambiada",
+      "basis": "los motivos",
+      "archived": "dónde se archiva",
+      "told": "a quién se avisó"
+    },
+    "backToCycle": "Volver al ciclo"
+  },
+  "consistency": {
+    "prefillTitle": "De este objetivo",
+    "prefillLead": "Tres versiones pueden empezar con lo que ya dice este objetivo. Puedes cambiarlas en el plan.",
+    "minimum": "Mínima: la versión mínima de la siguiente tarea",
+    "standard": "Estándar: la siguiente tarea",
+    "prefillConfirm": "Empezar las tres versiones con esto"
+  },
+  "evaluation": {
+    "counted": "De las filas del caso",
+    "noAttempts": "Aún no hay intentos",
+    "rates": "{{first}} en la primera pasada · {{revised}} tras revisar",
+    "differs": "Lo que hay escrito aquí no coincide con las filas del caso. Los resultados solo se guardan con las proporciones que dan las filas."
+  }
+}

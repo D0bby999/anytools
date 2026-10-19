@@ -8,6 +8,7 @@
  */
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/toolkit.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import * as worksheets from "~/lib/worksheets.server";
 import type { DueReview } from "~/lib/worksheet-types";
@@ -15,8 +16,8 @@ import { DueReviewList } from "~/components/worksheet/worksheet-list";
 import { ToolkitGroups } from "~/components/worksheet/toolkit-groups";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Toolkit · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Toolkit") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

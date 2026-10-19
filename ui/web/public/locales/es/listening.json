@@ -1,0 +1,32 @@
+{
+  "tab": "Practicar la comprensión oral",
+  "lead": "Escucha este vídeo por etapas: una primera pasada sin subtítulos, un mapa de dónde se perdió el sentido, apoyo añadido y luego retirado de nuevo, y reevaluaciones días después con material nuevo.",
+  "start": "Empezar a practicar la escucha",
+  "startAnother": "Empezar otra",
+  "stage": "Escalón {{n}} de {{of}}",
+  "ladderDone": "Todos los escalones están hechos",
+  "markStage": "El escalón {{n}} está hecho",
+  "hidden": {
+    "first": "La transcripción, las notas de estudio y el tutor se guardan por ahora. Escucha primero sin nada que leer; vuelven en el escalón 3.",
+    "closed": "El texto se vuelve a cerrar en el escalón 5: escucha a velocidad normal sin nada que leer. Vuelve cuando termines el escalón 5.",
+    "retelling": "La transcripción se guarda mientras escribes tu versión con tus palabras."
+  },
+  "playShort": "Reproducir",
+  "nowShort": "Ahora",
+  "play": "Reproducir: {{field}}",
+  "now": "Ahora ({{time}}): {{field}}",
+  "rowTime": "marca de tiempo de la fila {{n}}",
+  "playSegment": "Reproducir el fragmento",
+  "segmentFirst": "Escribe arriba el inicio del fragmento para reproducirlo.",
+  "segmentLength": "Este fragmento dura {{seconds}} segundos; up sugiere de 5 a 20.",
+  "fullPage": "Abrir como página completa",
+  "finish": "Esta auditoría está hecha",
+  "earlier": "Auditorías anteriores de este vídeo",
+  "experiment": {
+    "title": "Experimento de escucha de 14 días",
+    "lead": "Dos semanas con este vídeo como fuente principal, un día cada vez. La fila de cada día se abre en su día.",
+    "start": "Empezar un experimento de 14 días"
+  },
+  "tutorHidden": "El tutor y tus resaltados se guardan mientras la escalera de escucha mantiene oculta la transcripción.",
+  "backToVideo": "Volver al vídeo"
+}

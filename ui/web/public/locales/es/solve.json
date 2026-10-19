@@ -1,0 +1,53 @@
+{
+  "title": "Resolver",
+  "lead": "Escribe un problema o hazle una foto. Recibirás una solución paso a paso, apoyada en tus propias notas cuando ayuden.",
+  "form": {
+    "problem": "Problema",
+    "problemPlaceholder": "p. ej., Resuelve 2x + 3 = 11 para x",
+    "photo": "Foto del problema",
+    "photoHint": "PNG, JPEG, WebP o GIF, hasta 5 MB. Se envía a tu propio modelo y no se guarda.",
+    "kb": "Consultar en",
+    "kbNone": "Nada (resolver solo con el enunciado)",
+    "variant": "¿Qué quieres?",
+    "variantSolve": "Resolverlo",
+    "variantCheck": "Comprobar mi respuesta",
+    "userAnswer": "Tu respuesta",
+    "userAnswerPlaceholder": "p. ej., x = 7, y cómo llegaste ahí",
+    "submit": "Resolver",
+    "submitCheck": "Comprobar mi respuesta",
+    "starting": "Iniciando…",
+    "stop": "Detener",
+    "cost": "Usa tu propio modelo de resolución: tres llamadas por problema."
+  },
+  "stages": {
+    "title": "Progreso",
+    "plan": "Leyendo el problema",
+    "reason": "Resolviéndolo",
+    "write": "Redactándolo",
+    "pending": "En espera",
+    "running": "En curso",
+    "done": "Hecho"
+  },
+  "result": {
+    "title": "Solución",
+    "verdict": "Tu respuesta",
+    "verdicts": {
+      "correct": "Correcta",
+      "incorrect": "Incorrecta",
+      "partly": "Correcta en parte",
+      "unclear": "No se pudo evaluar"
+    },
+    "finalAnswer": "Respuesta",
+    "saveNote": "Guardar en el cuaderno",
+    "toQuestion": "Convertir en pregunta",
+    "openChat": "Abrir la conversación",
+    "noteSaved": "Guardado en tu cuaderno.",
+    "questionSaved": "Añadida a tu banco de preguntas.",
+    "openBank": "Abrir el banco"
+  },
+  "errors": {
+    "empty": "Escribe un problema o adjunta una foto de uno.",
+    "tooLarge": "Esa foto pesa más de 5 MB.",
+    "failed": "No se pudo empezar a resolver."
+  }
+}

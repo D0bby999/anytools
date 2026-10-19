@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link, redirect, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/research.$reportId";
+import { appTitle } from "~/lib/app-title";
 import { AudioOverviews } from "~/components/audio/audio-overviews";
 import { loadOverviews } from "~/lib/audio.server";
 import { requireUser } from "~/lib/auth.server";
@@ -28,8 +29,8 @@ import { KeepStudying, OpenQuestions, type ToKnowledgeResult } from "~/component
 import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Report · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Report") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 /** Renders its own RightPanel (the report's sources); the layout leaves the slot. */

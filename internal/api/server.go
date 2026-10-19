@@ -206,6 +206,7 @@ func RegisteredPatterns() []string {
 		"POST /v1/auth/identity",
 		"GET /v1/me",
 		"PUT /v1/me/timezone",
+		"PUT /v1/me/language",
 		"DELETE /v1/me",
 		"GET /v1/auth/session-watermark",
 		"POST /v1/auth/session-watermark",

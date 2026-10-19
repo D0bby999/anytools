@@ -12,9 +12,11 @@ import { NavLink, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "~/components/ui/page-header";
 import { sectionTabClass, SECTION_TABS_ROW } from "~/components/ui/section-tabs";
+import type { Route } from "./+types/settings";
+import { appTitle } from "~/lib/app-title";
 
-export function meta() {
-  return [{ title: "Settings · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Settings") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 const SECTIONS = [

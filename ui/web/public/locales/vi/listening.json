@@ -1,0 +1,32 @@
+{
+  "tab": "Luyện nghe",
+  "lead": "Nghe video này theo từng nấc: lượt đầu không có phụ đề, ghi lại chỗ ý nghĩa bị trôi mất, thêm trợ giúp rồi bỏ dần đi, và kiểm tra lại vài ngày sau trên nội dung mới.",
+  "start": "Bắt đầu luyện nghe",
+  "startAnother": "Bắt đầu lượt khác",
+  "stage": "Nấc {{n}} trên {{of}}",
+  "ladderDone": "Đã xong mọi nấc",
+  "markStage": "Đã xong nấc {{n}}",
+  "hidden": {
+    "first": "Bản chép lời, ghi chú học tập và gia sư được cất đi lúc này. Hãy nghe trước khi có gì để đọc; chúng sẽ quay lại ở nấc 3.",
+    "closed": "Văn bản lại được đóng ở nấc 5: nghe ở tốc độ bình thường, không có gì để đọc. Nó sẽ quay lại khi xong nấc 5.",
+    "retelling": "Bản chép lời được cất đi trong lúc bạn viết lại bằng lời của mình."
+  },
+  "playShort": "Phát",
+  "nowShort": "Bây giờ",
+  "play": "Phát: {{field}}",
+  "now": "Bây giờ ({{time}}): {{field}}",
+  "rowTime": "mốc thời gian của dòng {{n}}",
+  "playSegment": "Phát đoạn",
+  "segmentFirst": "Hãy ghi điểm bắt đầu của đoạn ở trên để phát.",
+  "segmentLength": "Đoạn này dài {{seconds}} giây; up gợi ý 5–20 giây.",
+  "fullPage": "Mở thành trang đầy đủ",
+  "finish": "Bài rà soát này đã xong",
+  "earlier": "Các bài rà soát trước của video này",
+  "experiment": {
+    "title": "Thử nghiệm nghe 14 ngày",
+    "lead": "Hai tuần dùng video này làm nguồn chính, mỗi ngày một bước. Dòng của mỗi ngày sẽ mở vào đúng ngày đó.",
+    "start": "Bắt đầu thử nghiệm 14 ngày"
+  },
+  "tutorHidden": "Gia sư và các đoạn tô sáng được cất đi trong lúc bậc thang luyện nghe che bản chép lời.",
+  "backToVideo": "Về video"
+}

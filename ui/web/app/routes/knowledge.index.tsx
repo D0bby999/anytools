@@ -13,6 +13,7 @@ import { Form, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import type { Route } from "./+types/knowledge.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { createKB, listKBs } from "~/lib/kb.server";
 import { ApiError } from "~/lib/api.server";
@@ -20,9 +21,9 @@ import { Button } from "~/components/ui/button";
 import { KBCard } from "~/components/knowledge/kb-card";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Knowledge · AnyLearn" },
+    { title: appTitle(matches, "Knowledge") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

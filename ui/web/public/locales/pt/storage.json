@@ -1,0 +1,71 @@
+{
+  "nav": "Armazenamento",
+  "title": "Onde seus arquivos ficam",
+  "lead": "Seus envios, gravações, áudios gerados, provas e fotos de páginas podem ficar no servidor do AnyLearn ou no seu próprio Google Drive, numa pasta chamada “AnyTools”. Os arquivos no seu Drive são seus para abrir, baixar ou guardar, mesmo depois de você sair do AnyLearn.",
+  "stays": "De qualquer forma, o AnyLearn guarda no próprio servidor o texto que lê de cada arquivo, junto com o índice de busca feito a partir desse texto. A busca, o chat e as citações sempre o leem, e ele sempre pode ser reconstruído a partir do seu arquivo.",
+  "choice": {
+    "legend": "Guardar meus arquivos",
+    "server": "No servidor do AnyLearn",
+    "serverHint": "Nada vai para o Google.",
+    "drive": "No meu Google Drive",
+    "driveHint": "Os arquivos novos vão para a pasta “AnyTools” do seu Drive.",
+    "save": "Salvar",
+    "saved": "Salvo. Os arquivos novos agora vão para onde você escolheu; os existentes ficam onde estão até você movê-los.",
+    "current": "atual"
+  },
+  "drive": {
+    "unavailable": "O Google Drive não está configurado neste servidor, então seus arquivos ficam no servidor.",
+    "notConnected": "Conecte o Google Drive para guardar seus arquivos lá.",
+    "reconnect": "O Google não aceita mais o acesso do AnyLearn ao seu Drive. Reconecte-o para guardar seus arquivos lá.",
+    "connect": "Abrir Conexões"
+  },
+  "usage": {
+    "title": "Espaço usado",
+    "server": "No servidor",
+    "drive": "No seu Drive",
+    "files_one": "{{count}} arquivo, {{size}}",
+    "files_other": "{{count}} arquivos, {{size}}",
+    "missing_one": "{{count}} arquivo foi removido do seu Drive.",
+    "missing_other": "{{count}} arquivos foram removidos do seu Drive."
+  },
+  "move": {
+    "title": "Arquivos de antes",
+    "body": "Mudar isto não move o que você já tem. Uma migração copia cada arquivo, confere se a cópia bate e só então o remove de onde estava. Você pode parar a qualquer momento; os arquivos já movidos ficam onde estão agora.",
+    "toDrive": "Mover meus arquivos para o Drive",
+    "toServer": "Trazer meus arquivos de volta ao servidor",
+    "progress": "{{done}} de {{total}} arquivos, {{doneSize}} de {{totalSize}}",
+    "queued": "Esperando para começar.",
+    "running": "Movendo seus arquivos.",
+    "done": "Movidos.",
+    "cancelled": "Parado. Os arquivos já movidos ficam onde estão agora.",
+    "stopping": "Vai parar depois do arquivo que está sendo movido.",
+    "failed": "A migração parou antes de terminar. Nada se perdeu; comece de novo para continuar.",
+    "drive_full": "Seu Google Drive está cheio, então a migração parou. Nada se perdeu; libere espaço e comece de novo.",
+    "drive_reconnect": "O Google não aceita mais o acesso do AnyLearn ao seu Drive, então a migração parou. Nada se perdeu; reconecte e comece de novo.",
+    "cancel": "Parar de mover",
+    "nothing": "Não há nada para mover.",
+    "leftOnServer_one": "Ainda há {{count}} arquivo no servidor.",
+    "leftOnServer_other": "Ainda há {{count}} arquivos no servidor.",
+    "leftInDrive_one": "Ainda há {{count}} arquivo no seu Drive.",
+    "leftInDrive_other": "Ainda há {{count}} arquivos no seu Drive."
+  },
+  "errors": {
+    "generic": "Não funcionou. Tente de novo em instantes.",
+    "running": "Seus arquivos estão sendo movidos. Espere a migração terminar ou pare-a antes.",
+    "notConnected": "Conecte antes o Google Drive em Conexões.",
+    "reconnect": "Reconecte antes o Google Drive em Conexões.",
+    "full": "Seu Google Drive está cheio.",
+    "unreachable": "Não foi possível acessar o Google Drive. Tente de novo em instantes.",
+    "unavailable": "O Google Drive não está configurado neste servidor."
+  },
+  "export": {
+    "save": "Salvar no meu Drive",
+    "saving": "Salvando…",
+    "saved": "Salvo no seu Drive.",
+    "open": "Abrir no Drive",
+    "failed": "Não foi possível salvar no seu Drive.",
+    "storageOff": "Ative antes o armazenamento no Drive em Configurações → Armazenamento.",
+    "reconnect": "Reconecte antes o Google Drive em Conexões.",
+    "full": "Seu Google Drive está cheio."
+  }
+}

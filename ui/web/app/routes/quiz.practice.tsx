@@ -14,6 +14,7 @@ import { useState } from "react";
 import { Link, useRevalidator, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/quiz.practice";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { listPractice } from "~/lib/quiz.server";
 import { Button } from "~/components/ui/button";
@@ -21,9 +22,9 @@ import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
 import { QuizTabs } from "~/components/quiz/quiz-tabs";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Practise your mistakes · AnyLearn" },
+    { title: appTitle(matches, "Practise your mistakes") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

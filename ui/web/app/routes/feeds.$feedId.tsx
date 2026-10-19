@@ -14,6 +14,7 @@ import { Form, Link, redirect, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import type { Route } from "./+types/feeds.$feedId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { Button } from "~/components/ui/button";
@@ -32,9 +33,9 @@ import { PageHeader } from "~/components/ui/page-header";
 /** How often the list refreshes while entries are being added. */
 const POLL_MS = 2500;
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.feed ? `${data.feed.title || data.feed.url} · AnyLearn` : "AnyLearn" },
+    { title: data?.feed ? appTitle(matches, raw(data.feed.title || data.feed.url)) : appTitle(matches) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

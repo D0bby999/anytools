@@ -53,7 +53,7 @@ export default function AnyLearnPage() {
         <div className="lp-layout grid gap-10 px-4 py-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:px-6 lg:py-16">
           <div className="lp-page-enter min-w-0">
             <div className="flex items-center gap-4">
-              <img src="/icons/anylearn-192.png" alt="" width={72} height={72} className="size-16 rounded-xl sm:size-18" />
+              <img src="/icons/anylearn.svg" alt="" width={72} height={72} className="size-16 rounded-xl sm:size-18" />
               <p className="text-xs font-semibold tracking-label uppercase opacity-80">{copy.badge}</p>
             </div>
             <h1 translate="no" className="mt-6 font-serif text-5xl leading-tight tracking-display sm:text-6xl">

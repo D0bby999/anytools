@@ -1,0 +1,704 @@
+{
+  "app": {
+    "name": "AnyLearn",
+    "tagline": "Học từ chính tài liệu của bạn, bằng AI của bạn."
+  },
+  "nav": {
+    "label": "Các mục",
+    "current": "Mục hiện tại",
+    "home": "Trang chủ",
+    "knowledge": "Tài liệu",
+    "chat": "Chat",
+    "notebooks": "Sổ ghi chép",
+    "quiz": "Câu hỏi",
+    "mastery": "Ôn tập",
+    "solve": "Giải bài",
+    "research": "Nghiên cứu",
+    "settings": "Cài đặt",
+    "loop": "Vòng học",
+    "comingSoon": "Chưa có",
+    "more": "Thêm"
+  },
+  "actions": {
+    "signOut": "Đăng xuất",
+    "retry": "Thử lại",
+    "skipToContent": "Bỏ qua, tới nội dung",
+    "useDark": "Chuyển sang giao diện tối",
+    "useLight": "Chuyển sang giao diện sáng"
+  },
+  "panel": {
+    "sources": {
+      "title": "Nguồn",
+      "empty": "Chưa có trích dẫn nào. Khi câu trả lời trích một tài liệu của bạn, đoạn trích và số trang sẽ hiện ở đây, để bạn đối chiếu với bản gốc thay vì tin vào phần tóm tắt."
+    },
+    "margin": {
+      "title": "Ghi chú bên lề",
+      "read": "Mỗi tài liệu được đọc một lần và cắt thành các đoạn. AnyLearn chỉ trích lại cho bạn đúng những đoạn đó, kèm số trang, để mọi khẳng định đều đối chiếu được với bản gốc.",
+      "practise": "Điểm bạn làm sai sẽ quay lại ngay trong ngày. Điểm bạn đã biết sẽ quay lại ngay trước lúc bạn sắp quên. Mức thành thạo được tính từ câu trả lời, không bao giờ từ thời gian bỏ ra.",
+      "reflect": "Năm phút để bắt đầu, mười bốn ngày để thử một thay đổi, chín mươi ngày để quyết định có giữ nó hay không. Vòng học chỉ tiến lên dựa trên bằng chứng bạn đã ghi lại.",
+      "home": "AnyLearn chạy trên tài khoản AI của bạn và chỉ trả lời từ tài liệu bạn đưa vào. Ở đây không có gói cước hay số dư tín dụng nào."
+    }
+  },
+  "home": {
+    "lead": "Chọn một việc để làm trước, rồi quyết định đi xa tới đâu.",
+    "body": "Mỗi câu trả lời đều kèm đoạn trích gốc, tới tận số trang. Tiến bộ về sau cũng theo đúng nguyên tắc đó: một kết quả làm bài, một mức thành thạo hay một chu kỳ đã xong đều phải chỉ ra được việc đã làm nên nó.",
+    "next": {
+      "title": "Việc cần làm trước",
+      "provider": {
+        "title": "Kết nối tài khoản AI",
+        "body": "AnyLearn chạy trên tài khoản AI của bạn: Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral và nhiều hơn nữa. Không có khóa của nền tảng, nên chưa có gì chạy được cho tới khi bạn kết nối một tài khoản.",
+        "go": "Kết nối tài khoản"
+      },
+      "documents": {
+        "title": "Thêm tài liệu",
+        "body": "Tải tệp lên, hoặc chọn từ Google Drive. Chỉ những gì bạn thêm mới được lập chỉ mục, và bạn có thể xóa bất cứ lúc nào.",
+        "go": "Thêm tài liệu"
+      },
+      "ask": {
+        "title": "Hỏi, rồi kiểm tra câu trả lời",
+        "body": "Trích dẫn mở đúng trang mà nó được lấy ra. Khi tài liệu của bạn không nói tới một câu hỏi, AnyLearn nói thẳng như vậy thay vì tự lấp chỗ trống.",
+        "go": "Bắt đầu trò chuyện"
+      },
+      "done": "Xong",
+      "status": "Thẻ dưới đây cho biết AnyLearn làm được gì với các tài khoản bạn đã kết nối, và còn thiếu gì."
+    },
+    "due": {
+      "title": "Đến hạn ôn",
+      "none": "Chưa có gì đến hạn. Điểm bạn làm sai sẽ quay lại trong ngày; điểm bạn đã biết sẽ quay lại sau, khi bạn sắp quên.",
+      "count": "{{count}} điểm kiến thức đến hạn ôn.",
+      "count_other": "{{count}} điểm kiến thức đến hạn ôn.",
+      "open": "Mở Ôn tập",
+      "retests": "{{count}} thẻ kỹ năng cần kiểm tra lại hôm nay.",
+      "retests_other": "{{count}} thẻ kỹ năng cần kiểm tra lại hôm nay.",
+      "openRetests": "Mở vòng học",
+      "mistakes": "{{count}} lỗi sai đang chờ bạn luyện lại.",
+      "mistakes_other": "{{count}} lỗi sai đang chờ bạn luyện lại.",
+      "openMistakes": "Luyện lại câu sai",
+      "total": "{{count}} việc đang chờ bạn.",
+      "total_other": "{{count}} việc đang chờ bạn.",
+      "clear": "Không có gì đang chờ. Điểm bạn làm sai sẽ quay lại trong ngày; điểm bạn đã biết sẽ quay lại ngay trước lúc bạn sắp quên.",
+      "review": "Bắt đầu ôn"
+    },
+    "loop": {
+      "title": "Vòng học",
+      "body": "Đặt một mục tiêu, và để kết quả làm bài, ghi chú và các lượt tổng kết tuần cho thấy nó có đang tiến lên hay không.",
+      "open": "Mở vòng học"
+    },
+    "claim": "AnyLearn chỉ trả lời từ tài liệu bạn đưa vào.",
+    "title": "Hôm nay",
+    "noGoal": {
+      "title": "Chưa có mục tiêu",
+      "body": "Viết một mục tiêu và việc nhỏ nhất giúp nó tiến lên. Vòng học sẽ giữ bằng chứng cho bạn.",
+      "open": "Đặt mục tiêu"
+    },
+    "contents": {
+      "title": "Mục lục"
+    },
+    "margin": {
+      "title": "Ghi chú bên lề",
+      "path": [
+        "Năm phút để bắt đầu.",
+        "Mười bốn ngày để thử một thay đổi.",
+        "Chín mươi ngày để quyết định có giữ nó hay không."
+      ],
+      "pathLabel": "Nhịp độ của cuốn sách này"
+    }
+  },
+  "errors": {
+    "notFound": "Không tìm thấy trang đó.",
+    "unexpected": "Đã có lỗi xảy ra."
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "lead": "AnyLearn chạy trên tài khoản AI của bạn. Không có khóa của nền tảng và không có tín dụng, nên ở đây không có gói cước hay nâng cấp nào. Đây là nơi chọn tài khoản nào làm việc gì.",
+    "nav": {
+      "label": "Các mục cài đặt",
+      "connections": "Kết nối",
+      "routes": "Phân việc",
+      "search": "Khóa tìm kiếm",
+      "profile": "Hồ sơ học tập",
+      "account": "Tài khoản",
+      "reminders": "Nhắc ôn"
+    },
+    "readiness": {
+      "title": "Mức sẵn sàng",
+      "ready": "Sẵn sàng",
+      "attention": "Cần xem lại",
+      "blocked": "Đang bị chặn",
+      "allReady": "Mọi chức năng cốt lõi đều có kết nối hoạt động. Tài liệu có thể được đọc, lập chỉ mục và hỏi đáp.",
+      "notReady": "Đang thiếu một phần cốt lõi. Cho tới khi được khắc phục, các phần liên quan của AnyLearn sẽ không chạy. Chúng sẽ không âm thầm chuyển sang thứ khác.",
+      "unavailable": "AnyLearn chưa kết nối được tới API của nó, nên chưa thể cho biết phần nào sẵn sàng.",
+      "manage": "Mở Cài đặt"
+    },
+    "functions": {
+      "chat": "Chat",
+      "parse": "Đọc tài liệu",
+      "embed": "Lập chỉ mục",
+      "quiz": "Câu hỏi",
+      "mastery": "Lộ trình ôn tập",
+      "reading": "Đọc chuyên sâu",
+      "solve": "Giải bài",
+      "research": "Nghiên cứu",
+      "rerank": "Xếp hạng lại",
+      "tts": "Giọng đọc",
+      "stt": "Chuyển giọng nói thành chữ"
+    },
+    "functionHelp": {
+      "chat": "Trả lời câu hỏi từ tài liệu của bạn, kèm trích dẫn.",
+      "parse": "Chuyển một PDF tải lên thành văn bản mà AnyLearn có thể trích, từng trang một.",
+      "embed": "Chuyển tài liệu thành vector để tìm kiếm được. Đổi mô hình ở đây đồng nghĩa với lập chỉ mục lại.",
+      "quiz": "Soạn câu hỏi kèm đáp án và giải thích.",
+      "mastery": "Dựng và chấm điểm lộ trình ôn tập.",
+      "reading": "Chạy giao diện đọc chuyên sâu.",
+      "solve": "Giải một bài toán từng bước.",
+      "research": "Viết một báo cáo có nguồn. Khóa tìm kiếm web của nó được thiết lập riêng, trong Khóa tìm kiếm.",
+      "rerank": "Sắp xếp lại các đoạn tìm được trước khi viết câu trả lời.",
+      "tts": "Đọc bản nghe tổng quan bằng hai giọng: một khóa OpenAI, hoặc máy chủ giọng nói tương thích OpenAI của riêng bạn (ví dụ Kokoro của bạn). Không bắt buộc: giọng có sẵn trên máy chủ hoặc trình duyệt của bạn cũng đọc được kịch bản.",
+      "stt": "Chép lời các video và file âm thanh không có phụ đề. Không bắt buộc: một khóa OpenAI (whisper-1), một khóa Groq (whisper-large-v3-turbo hoặc whisper-large-v3), máy chủ Whisper tương thích OpenAI của riêng bạn (ghi tên mô hình), hoặc một khóa Gemini, có thể đọc URL của một video YouTube công khai. Bộ chép lời có sẵn trên máy chủ, nếu có, không cần khóa."
+    },
+    "connections": {
+      "addTitle": "Thêm khóa",
+      "addBody": "Dán khóa từ Google AI Studio, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen (Alibaba Cloud), Mistral, xAI, Groq hoặc Z.AI, hoặc URL gốc của bất kỳ endpoint tương thích OpenAI nào. Khóa được mã hóa trước khi lưu và không bao giờ hiện lại, ở đây hay ở bất kỳ đâu.",
+      "provider": "Nhà cung cấp",
+      "name": "Tên",
+      "namePlaceholder": "Tên bạn đặt cho khóa này",
+      "baseUrl": "URL gốc",
+      "baseUrlHelp": "Để trống để dùng endpoint của chính nhà cung cấp. Bắt buộc với endpoint tương thích OpenAI. Phải là https, và không được trỏ tới địa chỉ riêng hay nội bộ.",
+      "key": "Khóa API",
+      "keyHelp": "Được lưu dạng mã hóa. AnyLearn không bao giờ gửi nó tới đâu ngoài nhà cung cấp bạn đã chọn.",
+      "add": "Thêm khóa",
+      "connectedTitle": "Đã kết nối",
+      "empty": "Chưa kết nối gì, nên chưa có gì chạy được. Hãy thêm một khóa ở trên.",
+      "verify": "Kiểm tra",
+      "verifiedWith": "Đã kiểm tra với",
+      "notVerified": "Chưa kiểm tra. Nút Kiểm tra sẽ thử khóa với nhà cung cấp bằng một lệnh gọi thật, rất nhỏ.",
+      "needsReconnect": "Mã truy cập của kết nối này đã hết hạn và không gia hạn được. Hãy kết nối lại.",
+      "remove": "Gỡ bỏ",
+      "confirmRemove": "Gỡ kết nối này? Mọi việc đang giao cho nó sẽ dừng cho tới khi bạn giao cho kết nối khác.",
+      "replaceKey": "Thay khóa",
+      "newKey": "Khóa API mới",
+      "save": "Lưu",
+      "drive": {
+        "title": "Tài liệu",
+        "name": "Google Drive",
+        "body": "Kết nối Google Drive để thêm tài liệu từ đó vào kho tài liệu. AnyLearn chỉ đọc được những tệp bạn chọn trong trình chọn của chính Google, và giữ chúng luôn được đồng bộ.",
+        "notConnected": "Chưa kết nối",
+        "account": "Tài khoản",
+        "files": "Tệp đang đồng bộ",
+        "lastSync": "Đồng bộ lần cuối",
+        "connect": "Kết nối Google Drive",
+        "reconnect": "Kết nối lại Google Drive",
+        "disconnect": "Ngắt kết nối",
+        "confirmDisconnect": "Ngắt kết nối Google Drive? Quyền truy cập của AnyLearn sẽ bị thu hồi phía Google và việc đồng bộ dừng lại. Tài liệu đã thêm vẫn nằm trong kho tài liệu của chúng.",
+        "needsReconnect": "Google không còn chấp nhận kết nối này, nên không có gì đang đồng bộ. Hãy kết nối lại để tiếp tục.",
+        "rePick": "Có {{count}} tệp cần được chọn lại từ kho tài liệu đang chứa chúng.",
+        "unavailable": "Hiện chưa tải được trạng thái Google Drive.",
+        "inDrive": "Tệp của bạn được giữ ở đây",
+        "inDriveDisconnected": "AnyLearn đang giữ {{count}} tệp của bạn trong Google Drive, và không mở được chúng cho tới khi bạn kết nối lại.",
+        "disconnectFilesTitle": "Trước khi ngắt kết nối",
+        "disconnectFilesStay": "Tệp của bạn vẫn nằm trong Google Drive, trong thư mục “AnyTools”.",
+        "disconnectFilesClosed": "AnyLearn không mở lại được chúng cho tới khi bạn kết nối lại. Tìm kiếm và chat vẫn chạy dựa trên văn bản của chúng.",
+        "disconnectFilesMove": "Bạn có thể chuyển chúng về máy chủ của AnyLearn trước.",
+        "moveBackFirst": "Chuyển tệp của tôi về trước",
+        "disconnectAnyway": "Vẫn ngắt kết nối",
+        "keepConnected": "Giữ kết nối"
+      },
+      "providerHelp": "Chỉ Gemini, OpenAI và Anthropic đọc được PDF dạng ảnh quét. Để lập chỉ mục tài liệu, bạn cần một nhà cung cấp có embedding: Gemini, OpenAI, Mistral hoặc Qwen. Các nhà cung cấp còn lại dùng để trả lời, soạn câu hỏi, giải bài và nghiên cứu."
+    },
+    "routes": {
+      "lead": "Mỗi chức năng chạy trên các kết nối bạn liệt kê, theo thứ tự: nếu kết nối đầu hết hạn mức hoặc từ chối, AnyLearn thử kết nối tiếp theo. Để trống một vị trí để kết thúc chuỗi.",
+      "noConnections": "Chưa có gì để phân việc. Hãy thêm một khóa trong mục Kết nối trước.",
+      "none": "Không có",
+      "connectionAt": "Kết nối ở vị trí {{position}}",
+      "modelAt": "Mô hình ở vị trí {{position}}",
+      "modelPlaceholder": "Để trống để dùng mặc định",
+      "save": "Lưu chuỗi",
+      "editorsTitle": "Các chuỗi"
+    },
+    "search": {
+      "lead": "Nghiên cứu có thể đọc cả web lẫn tài liệu của bạn, bằng khóa tìm kiếm của riêng bạn. Không có khóa dùng chung: không có khóa thì nghiên cứu vẫn chạy, chỉ là trả lời từ tài liệu của bạn. Khóa OpenAlex là tùy chọn và chỉ dành cho bài báo khoa học: không có khóa, AnyLearn dùng hạn mức miễn phí hằng ngày của OpenAlex, chia chung cho mọi người trên máy chủ này.",
+      "provider": "Nhà cung cấp tìm kiếm",
+      "key": "Khóa API",
+      "save": "Lưu khóa",
+      "savedTitle": "Khóa đã lưu",
+      "empty": "Chưa có khóa tìm kiếm. Nghiên cứu chỉ chạy trên tài liệu của bạn.",
+      "verified": "Đã kiểm tra.",
+      "notVerified": "Chưa kiểm tra."
+    },
+    "experimental": {
+      "title": "Kênh đăng ký thử nghiệm",
+      "warning": "Các kênh này không chính thức. Chúng khiến AnyLearn đăng nhập như phần mềm mà nhà cung cấp làm cho máy của riêng bạn (ChatGPT và Codex CLI, tiện ích Copilot của VS Code, Claude Code, các công cụ Gemini), mà cả OpenAI, GitHub, Anthropic lẫn Google đều không cấp phép để dùng qua ứng dụng khác. Tài khoản của bạn có thể bị hạn chế hoặc bị khóa vì thế. Kênh Gemini còn xin quyền truy cập Google Cloud rộng, nên mã lưu ở đây có thể chạm tới nhiều thứ hơn AI rất nhiều. Một khóa API bình thường là lựa chọn đáng tin cậy; chỉ dùng các kênh này nếu bạn chấp nhận điều đó.",
+      "connect": "Kết nối",
+      "chatgpt": {
+        "title": "Gói ChatGPT (trung chuyển)",
+        "body": "AnyLearn không đăng nhập ChatGPT giúp bạn được: bước đăng nhập đó chỉ hoàn tất trên máy tính của riêng bạn. Hãy tự lấy các mã và dán vào đây. AnyLearn sẽ lưu chúng dạng mã hóa và tự gia hạn.",
+        "accessToken": "Mã truy cập",
+        "refreshToken": "Mã làm mới",
+        "accountId": "Mã tài khoản ChatGPT",
+        "expiresIn": "Số giây tới khi mã truy cập hết hạn"
+      },
+      "gemini": {
+        "title": "Gemini Code Assist",
+        "body": "Hai bước. Nhập một địa chỉ chuyển hướng đã đăng ký với OAuth client Google của bản triển khai này để nhận liên kết xin quyền, rồi dán mã ủy quyền Google trả về. Bạn cũng cần một tài khoản Google có gói Code Assist.",
+        "code": "Mã ủy quyền",
+        "redirectUri": "Redirect URI",
+        "buildUrl": "Tạo liên kết xin quyền",
+        "openConsent": "Mở màn hình xin quyền của Google, rồi sao chép mã nó trả về"
+      },
+      "copilot": {
+        "title": "GitHub Copilot",
+        "body": "Dùng gói Copilot của bạn. Bấm bắt đầu, nhập mã trên GitHub, chấp thuận, rồi hoàn tất ở đây. Cần một suất Copilot đang hoạt động. Chỉ dùng cho việc kiểu chat: không đọc được PDF hay lập chỉ mục tài liệu.",
+        "start": "Bắt đầu đăng nhập",
+        "enterCode": "Nhập mã này tại",
+        "codeLabel": "Mã cần nhập trên GitHub",
+        "finish": "Tôi đã chấp thuận. Hoàn tất"
+      },
+      "claude": {
+        "title": "Claude Pro hoặc Max",
+        "body": "Dùng gói Claude của bạn. Mở liên kết, chấp thuận, rồi dán mã Claude hiện ra (có dạng code#state). Mỗi mã chỉ dùng được một lần và hết hạn sau vài phút. Chỉ dùng cho việc kiểu chat: không đọc được PDF hay lập chỉ mục tài liệu.",
+        "start": "Bắt đầu đăng nhập",
+        "open": "Mở trang chấp thuận của Claude",
+        "code": "Mã từ Claude"
+      }
+    },
+    "account": {
+      "signedIn": "Đăng nhập với tên",
+      "deleteTitle": "Xóa tài khoản",
+      "deleteBody": "Thao tác này xóa tài khoản và mọi thứ bên trong: tài liệu và tệp của chúng, kho tài liệu, cuộc trò chuyện, câu hỏi, ghi chú, lộ trình ôn tập và vòng học của bạn. Quyền truy cập Google Drive và Gemini sẽ bị thu hồi phía Google. Các khóa bạn đã dán bị xóa ở đây; hãy thu hồi cả ở nhà cung cấp nếu bạn không muốn chúng tồn tại nữa. Kết nối gói ChatGPT cũng bị xóa ở đây, nhưng OpenAI không cho AnyLearn cách thu hồi mã của nó, nên hãy đăng xuất ChatGPT trên các thiết bị nếu bạn muốn chấm dứt hẳn phía OpenAI. Không thể hoàn tác.",
+      "confirmLabel": "Nhập địa chỉ email của bạn để xác nhận",
+      "deleteSubmit": "Xóa tài khoản và toàn bộ dữ liệu",
+      "mismatch": "Đó không phải email của tài khoản này.",
+      "failed": "Không xóa được tài khoản.",
+      "zoneTitle": "Múi giờ",
+      "zoneBody": "AnyLearn dùng múi giờ này để quyết định “hôm nay” và “ngày mai” là khi nào: khi nào một lỗi sai được tính là đã sửa, khi nào tới hạn kiểm tra lại, và khi nào ngày ôn của bạn bắt đầu. Múi giờ được lấy từ trình duyệt của bạn ở lần đăng nhập đầu tiên.",
+      "zoneLabel": "Múi giờ",
+      "zoneSave": "Lưu múi giờ",
+      "zoneSaved": "Đã lưu múi giờ.",
+      "zoneInvalid": "AnyLearn không biết múi giờ đó. Hãy chọn một múi giờ trong danh sách, ví dụ Asia/Ho_Chi_Minh.",
+      "deleteDrive": "Các tệp bạn chọn giữ trong Google Drive sẽ không bị xóa: thư mục “AnyTools” vẫn nằm trong Drive của bạn, và bạn tự quyết định giữ hay xóa.",
+      "languageTitle": "Ngôn ngữ",
+      "languageBody": "Ngôn ngữ của các trang và lời nhắc ôn trong AnyLearn. Câu trả lời luôn theo ngôn ngữ bạn hỏi, dù bạn chọn gì ở đây.",
+      "languageLabel": "Hiển thị AnyLearn bằng",
+      "languageSave": "Đổi ngôn ngữ"
+    },
+    "providerNames": {
+      "gemini": "Google Gemini",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
+      "openrouter": "OpenRouter",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)",
+      "mistral": "Mistral",
+      "xai": "xAI (Grok)",
+      "groq": "Groq",
+      "zai": "Z.AI (GLM)",
+      "openai_compat": "Endpoint tương thích OpenAI",
+      "chatgpt_relay": "ChatGPT (gói đăng ký)",
+      "gemini_code_assist": "Gemini (gói đăng ký)",
+      "builtin": "Máy chủ này"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "lead": "Hỏi về các tài liệu bạn đã thêm. Mọi khẳng định lấy từ tài liệu đều kèm đoạn trích gốc, tới tận số trang.",
+    "new": "Cuộc trò chuyện mới",
+    "noSessions": "Chưa có cuộc trò chuyện nào.",
+    "untitled": "Cuộc trò chuyện chưa đặt tên",
+    "delete": "Xóa",
+    "deleteNamed": "Xóa “{{title}}”",
+    "noKnowledge": "Chat trả lời từ kho tài liệu của bạn, và bạn chưa có kho nào.",
+    "noKnowledgeLink": "Thêm những tài liệu đầu tiên",
+    "you": "Bạn",
+    "empty": "Hãy đặt một câu hỏi để bắt đầu. AnyLearn trả lời từ tài liệu của bạn, và nói rõ khi tài liệu không đề cập tới điều gì đó.",
+    "placeholder": "Hỏi về tài liệu của bạn",
+    "composerLabel": "Tin nhắn của bạn",
+    "send": "Gửi",
+    "stop": "Dừng",
+    "context": {
+      "none": "Chưa gắn tài liệu nào",
+      "count": "Đã gắn {{count}} kho tài liệu",
+      "count_other": "Đã gắn {{count}} kho tài liệu",
+      "reads": "Đọc {{count}} kho tài liệu",
+      "reads_other": "Đọc {{count}} kho tài liệu",
+      "readingFrom": "Đang đọc từ",
+      "choose": "Chọn tài liệu cho cuộc trò chuyện này",
+      "chooseNone": "Gắn tài liệu",
+      "chooseHelp": "Câu trả lời chỉ lấy từ các kho tài liệu được đánh dấu ở đây.",
+      "apply": "Dùng các kho này",
+      "noKnowledge": "Bạn chưa có kho tài liệu nào.",
+      "allowWeb": "Cho phép dùng web trong phiên này"
+    },
+    "activity": {
+      "title": "Hoạt động",
+      "running": "đang chạy…",
+      "status": {
+        "running": "Đang chạy",
+        "done": "Đã xong",
+        "error": "Thất bại"
+      }
+    },
+    "thinking": {
+      "show": "Xem quá trình suy luận",
+      "hide": "Ẩn quá trình suy luận"
+    },
+    "question": {
+      "title": "Trước hết, một câu hỏi",
+      "placeholder": "Câu trả lời của bạn",
+      "submit": "Trả lời"
+    },
+    "hint": "Enter để gửi · Shift+Enter để xuống dòng",
+    "hintBusy": "Esc để dừng câu trả lời · Enter để xếp hàng tin nhắn tiếp theo",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "regenerate": "Hỏi lại",
+    "retry": "Thử lại",
+    "stopped": "Đã dừng. Phần đã nhận trước khi bạn dừng vẫn được giữ ở trên.",
+    "incomplete": "Câu trả lời này đã dừng trước khi xong.",
+    "jumpToLatest": "Tới tin mới nhất",
+    "search": "Tìm cuộc trò chuyện",
+    "searchLabel": "Tìm theo tên",
+    "searchClear": "Hiện tất cả",
+    "noMatches": "Không có cuộc trò chuyện nào có “{{query}}” trong tên.",
+    "rename": "Đổi tên",
+    "renameNamed": "Đổi tên “{{title}}”",
+    "renameLabel": "Tên mới",
+    "renameSave": "Lưu",
+    "renameCancel": "Hủy",
+    "groups": {
+      "today": "Hôm nay",
+      "week": "7 ngày trước",
+      "older": "Cũ hơn"
+    },
+    "edit": {
+      "open": "Sửa",
+      "label": "Sửa câu hỏi của bạn",
+      "help": "Hỏi câu này sẽ thay câu hỏi cũ và câu trả lời của nó.",
+      "submit": "Hỏi câu này thay thế",
+      "cancel": "Hủy"
+    },
+    "queue": {
+      "title": "{{count}} tin nhắn đang chờ gửi",
+      "title_other": "{{count}} tin nhắn đang chờ gửi",
+      "remove": "Bỏ “{{message}}” khỏi hàng chờ",
+      "placeholder": "Gõ tin nhắn tiếp theo; nó sẽ được gửi khi câu trả lời này xong",
+      "add": "Xếp hàng tin nhắn",
+      "paused": "{{count}} tin nhắn trong hàng chờ.",
+      "paused_other": "{{count}} tin nhắn trong hàng chờ.",
+      "resume": "Gửi tiếp"
+    },
+    "model": {
+      "label": "Mô hình",
+      "default": "Thứ tự mặc định ({{name}} trước)"
+    },
+    "followUps": {
+      "label": "Bước tiếp theo",
+      "check": {
+        "label": "Kiểm tra xem tôi đã hiểu chưa",
+        "prompt": "Hãy hỏi tôi một câu để kiểm tra xem tôi đã hiểu phần này chưa. Chờ tôi trả lời rồi mới giải thích."
+      },
+      "simpler": {
+        "label": "Giải thích đơn giản hơn",
+        "prompt": "Giải thích phần đó đơn giản hơn, như thể tôi mới bắt đầu học môn này."
+      },
+      "example": {
+        "label": "Cho một ví dụ",
+        "prompt": "Cho tôi một ví dụ cụ thể về phần này từ tài liệu của tôi."
+      },
+      "broaden": {
+        "label": "Tìm bằng từ khác",
+        "prompt": "Tìm lại trong tài liệu của tôi bằng những từ khác cho cùng ý đó, và cho tôi biết bạn tìm thấy gì."
+      }
+    },
+    "starters": {
+      "label": "Cách bắt đầu",
+      "these": "các tài liệu này",
+      "overview": "{{name}} nói về điều gì?",
+      "keyIdeas": "Những ý chính trong {{name}} là gì?",
+      "quiz": "Hỏi tôi ba câu về {{name}}"
+    },
+    "work": {
+      "title": "Câu trả lời này được tạo ra thế nào",
+      "searches": "Đã tìm một lần",
+      "searches_other": "Đã tìm {{count}} lần",
+      "steps": "{{count}} bước",
+      "steps_other": "{{count}} bước",
+      "passages": "{{count}} đoạn",
+      "passages_other": "{{count}} đoạn",
+      "seconds": "{{value}} giây",
+      "repeated": "đã làm, không lặp lại",
+      "failed": "thất bại",
+      "summarised": "Đã tóm tắt {{count}} tin nhắn trước đó cho vừa mô hình",
+      "summarised_other": "Đã tóm tắt {{count}} tin nhắn trước đó cho vừa mô hình",
+      "limitReached": "Đã dùng hết số lượt tìm, rồi trả lời từ những gì tìm được",
+      "continued": "Câu trả lời chạm giới hạn độ dài nên đã được viết tiếp",
+      "context": "Ngữ cảnh đã gửi: khoảng {{used}} trên {{window}} token",
+      "tool": {
+        "rag_search": {
+          "running": "Đang tìm trong tài liệu của bạn",
+          "done": "Đã tìm trong tài liệu của bạn"
+        },
+        "read_source": {
+          "running": "Đang đọc một trang",
+          "done": "Đã đọc một trang"
+        },
+        "kb_files": {
+          "running": "Đang liệt kê các tệp",
+          "done": "Đã liệt kê các tệp"
+        },
+        "write_note": {
+          "running": "Đang lưu một ghi chú",
+          "done": "Đã lưu một ghi chú"
+        },
+        "ask_user": {
+          "running": "Đang hỏi bạn",
+          "done": "Đã hỏi bạn"
+        },
+        "paper_search": {
+          "running": "Đang tìm bài báo",
+          "done": "Đã tìm bài báo"
+        },
+        "zotero_search": {
+          "running": "Đang tìm trong thư viện Zotero của bạn",
+          "done": "Đã tìm trong thư viện Zotero của bạn"
+        },
+        "web_search": {
+          "running": "Đang tìm trên web",
+          "done": "Đã tìm trên web"
+        },
+        "web_fetch": {
+          "running": "Đang mở một trang web",
+          "done": "Đã mở một trang web"
+        },
+        "other": {
+          "running": "Đang dùng {{tool}}",
+          "done": "Đã dùng {{tool}}"
+        }
+      }
+    }
+  },
+  "more": {
+    "title": "Tất cả các mục",
+    "lead": "Mọi thứ trong AnyLearn, trong một danh sách.",
+    "toolsTitle": "Công cụ học",
+    "tools": {
+      "practice": "Luyện lại câu sai",
+      "exams": "Đề thi",
+      "vocabulary": "Từ vựng",
+      "bookCards": "Thẻ sách",
+      "profile": "Hồ sơ người học"
+    }
+  },
+  "diagram": {
+    "drawing": "Đang vẽ sơ đồ…",
+    "mermaidAlt": "Sơ đồ",
+    "chartAlt": "Biểu đồ",
+    "source": "Mã nguồn sơ đồ",
+    "data": "Số liệu",
+    "couldNotDraw": "Không vẽ được sơ đồ này; mã nguồn của nó được hiện thay thế.",
+    "tooLarge": "Sơ đồ này quá lớn để vẽ; mã nguồn của nó được hiện thay thế.",
+    "badChart": "Dữ liệu của biểu đồ này không ở dạng AnyLearn vẽ được; nó được hiện đúng như đã viết.",
+    "drawIt": "Vẽ ra"
+  },
+  "audio": {
+    "title": "Bản nghe tổng quan",
+    "lead": "Hai giọng cùng trò chuyện về nội dung này để bạn nghe mà không cần nhìn màn hình: một người dẫn đặt câu hỏi và một chuyên gia trả lời từ nguồn của bạn, nói rõ khi nguồn không đề cập tới điều gì đó. Kịch bản được viết trước, rồi bạn chọn ai đọc.",
+    "minutes": "Độ dài",
+    "minutesValue": "{{count}} phút",
+    "minutesValue_other": "{{count}} phút",
+    "language": "Ngôn ngữ",
+    "languageAuto": "Giống ngôn ngữ của nguồn",
+    "topic": "Trọng tâm (không bắt buộc)",
+    "topicPlaceholder": "ví dụ: cách truy xuất hoạt động",
+    "create": "Viết kịch bản",
+    "untitled": "Bản nghe tổng quan",
+    "status": {
+      "scripting": "Đang viết kịch bản…",
+      "synthesizing": "Đang đọc {{done}} trên {{total}}…",
+      "ready": "Sẵn sàng",
+      "script_only": "Kịch bản đã sẵn sàng",
+      "failed": "Thất bại"
+    },
+    "speak": "Đọc lên",
+    "speakFailed": "Việc đọc đã dừng: {{reason}}",
+    "cancel": "Dừng",
+    "delete": "Xóa",
+    "deleteConfirm": "Xóa bản tổng quan này và file âm thanh của nó?",
+    "transcript": "Bản chép lời",
+    "host": "Người dẫn",
+    "expert": "Chuyên gia"
+  },
+  "readinessExtra": {
+    "optional": "Không bắt buộc"
+  },
+  "audioEngines": {
+    "lead": "Chọn ai đọc kịch bản này. Chỉ những cách có giọng cho ngôn ngữ của kịch bản mới được liệt kê.",
+    "builtin": "Có sẵn (miễn phí, khoảng {{minutes}} phút)",
+    "builtinNoTime": "Có sẵn (miễn phí)",
+    "builtinBody": "Kokoro trên máy chủ này, giọng {{host}} và {{expert}}. Không có gì được gửi ra ngoài.",
+    "builtinMinutes": "Giữ tối đa {{need}} trong {{daily}} phút có sẵn của bạn hôm nay (đã dùng {{used}}); phần không đọc tới sẽ được trả lại.",
+    "builtinLine_one": "{{count}} việc có sẵn đang chờ hoặc đang chạy trước.",
+    "builtinLine_other": "{{count}} việc có sẵn đang chờ hoặc đang chạy trước.",
+    "yourKey": "Khóa {{provider}} của bạn",
+    "yourServer": "Máy chủ giọng nói của riêng bạn",
+    "keyBody": "Gửi {{chars}} ký tự tới {{provider}} ({{model}}), giọng {{host}} và {{expert}}. Khoảng {{minutes}} phút âm thanh.",
+    "prices": "Bảng giá {{provider}}",
+    "browser": "Đọc trong trình duyệt",
+    "browserBody": "Miễn phí. Trình duyệt của bạn đọc kịch bản ngay bằng giọng của nó; không có gì được lưu lại.",
+    "browserNoVoice": "Trình duyệt của bạn không có giọng cho ngôn ngữ của kịch bản này.",
+    "browserUnsupported": "Trình duyệt này không đọc thành tiếng được.",
+    "browserRead": "Đọc thành tiếng",
+    "browserStop": "Dừng đọc",
+    "noVietnamese": "Các giọng có sẵn không nói tiếng Việt.",
+    "chooseFirst": "Hãy chọn ai đọc trước.",
+    "spokenBuiltin": "Đọc bởi Kokoro có sẵn · {{host}} và {{expert}}",
+    "spokenKey": "Đọc bởi khóa {{provider}} của bạn ({{model}}) · {{host}} và {{expert}}"
+  },
+  "githubToken": {
+    "hint": "Token GitHub chỉ dùng để nhập kho mã riêng tư vào kho tài liệu. Hãy tạo một fine-grained token chỉ có quyền đọc Contents, chọn “github” ở trên rồi dán vào. Token được lưu dạng mã hóa và không bao giờ hiện lại."
+  },
+  "zoteroKey": {
+    "hint": "Khóa Zotero cho phép bạn thêm mục từ thư viện của chính bạn vào kho tài liệu, và cho phép nghiên cứu tìm trong đó. Hãy tạo một khóa chỉ đọc tại zotero.org/settings/keys (cho phép truy cập thư viện, và truy cập tệp nếu cần PDF); cùng trang đó hiện mã người dùng dạng số của bạn.",
+    "userLabel": "Mã người dùng Zotero",
+    "userHint": "Con số mà zotero.org/settings/keys ghi là “Your user ID for use in API calls”."
+  },
+  "youtubeDataKey": {
+    "hint": "Khóa YouTube Data API giúp một danh sách phát YouTube trong kho tài liệu liệt kê đủ mọi video (tối đa 500) thay vì 15 video mới nhất. Hãy tạo khóa cho YouTube Data API v3 trong Google Cloud, chọn “youtube_data” ở trên rồi dán vào. AnyLearn chỉ dùng nó từ máy chủ; khóa được lưu dạng mã hóa và không bao giờ hiện lại."
+  },
+  "driveStorage": {
+    "reconnect": "AnyLearn không mở được tệp này cho tới khi bạn kết nối lại Google Drive. Không có gì bị mất, và tìm kiếm vẫn dùng văn bản của nó.",
+    "reconnectLink": "Kết nối lại Google Drive",
+    "removed": "Tệp này đã bị xóa khỏi Drive của bạn. Hãy tải lên lại để đưa nó trở về, hoặc xóa nó khỏi AnyLearn. Tìm kiếm vẫn dùng văn bản của nó.",
+    "full": "Google Drive của bạn đã đầy, nên tệp này không được giữ lại. Hãy giải phóng bớt dung lượng rồi thử lại."
+  },
+  "parts": {
+    "part": "Phần {{numeral}}",
+    "read": {
+      "title": "Đọc",
+      "body": "Tài liệu, sổ ghi chép và sách sống của bạn."
+    },
+    "ask": {
+      "title": "Hỏi",
+      "body": "Câu trả lời có trích dẫn, lời giải từng bước và báo cáo nghiên cứu."
+    },
+    "practise": {
+      "title": "Luyện",
+      "body": "Câu hỏi, đề thi và ôn tập ngắt quãng, cho tới khi kiến thức ở lại."
+    },
+    "reflect": {
+      "title": "Suy ngẫm",
+      "body": "Một mục tiêu, bằng chứng cho thấy nó đang tiến lên, và các phiếu học."
+    }
+  },
+  "appendix": {
+    "title": "Phụ lục: công cụ",
+    "anyprofile": {
+      "title": "AnyProfile",
+      "kind": "Ứng dụng máy tính",
+      "tagline": "Mỗi tài khoản một trình duyệt, chạy song song.",
+      "open": "Tải về"
+    },
+    "all": "Mọi công cụ miễn phí"
+  },
+  "richText": {
+    "table": "Bảng"
+  },
+  "reminders": {
+    "install": {
+      "title": "AnyLearn trên thiết bị này",
+      "lead": "AnyLearn có thể cài như một ứng dụng: mở trong cửa sổ riêng, từ dock hoặc Màn hình chính, không có khung trình duyệt bao quanh.",
+      "installed": "AnyLearn đã được cài trên thiết bị này.",
+      "button": "Cài AnyLearn",
+      "browser": "Dùng tùy chọn cài đặt của trình duyệt. Trong Chrome hoặc Edge, nó nằm trên thanh địa chỉ hoặc trong menu; trong Safari trên Mac, chọn File, rồi Add to Dock.",
+      "ios": {
+        "safari": "Mở trang này bằng Safari.",
+        "share": "Bấm nút Chia sẻ.",
+        "add": "Chọn Thêm vào Màn hình chính, và để bật Mở dưới dạng ứng dụng web.",
+        "open": "Mở AnyLearn từ Màn hình chính, rồi bật lời nhắc ôn ở đó."
+      }
+    },
+    "push": {
+      "title": "Nhắc ôn",
+      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu điểm cần ôn. Ngày nào không có gì đến hạn thì không gửi, và không có chuỗi ngày nào phải giữ.",
+      "turnOn": "Bật trên trình duyệt này",
+      "turnOff": "Tắt ở đây",
+      "onHere": "Lời nhắc đang bật trên trình duyệt này.",
+      "browsers_one": "Đang bật trên {{count}} trình duyệt tất cả.",
+      "browsers_other": "Đang bật trên {{count}} trình duyệt tất cả.",
+      "iosFirst": "Trên iPhone và iPad, lời nhắc chỉ hoạt động khi AnyLearn đã ở trên Màn hình chính. Hãy cài như hướng dẫn ở trên, rồi mở từ đó.",
+      "unsupported": "Trình duyệt này không nhận được lời nhắc. Chrome, Edge, Firefox và Safari thì nhận được.",
+      "blocked": "Thông báo đang bị chặn cho trang này. Hãy cho phép trong phần cài đặt trang web của trình duyệt, rồi quay lại đây."
+    },
+    "hour": {
+      "title": "Thời gian",
+      "label": "Nhắc tôi lúc",
+      "save": "Lưu",
+      "saved": "Đã lưu.",
+      "zone": "Theo múi giờ của bạn, {{zone}}. Bạn có thể đổi trong Tài khoản."
+    },
+    "test": {
+      "button": "Gửi thử một lời nhắc",
+      "sent_one": "Đã gửi tới {{count}} trình duyệt.",
+      "sent_other": "Đã gửi tới {{count}} trình duyệt."
+    },
+    "errors": {
+      "subscribe": "Trình duyệt này không bật được lời nhắc. Hãy thử lại, hoặc dùng trình duyệt khác.",
+      "generic": "Chưa được. Hãy thử lại sau giây lát."
+    },
+    "hint": {
+      "label": "Cài AnyLearn",
+      "body": "Thêm AnyLearn vào Màn hình chính để nhận lời nhắc ôn mỗi ngày trên thiết bị này.",
+      "how": "Hướng dẫn tôi",
+      "dismiss": "Để sau"
+    }
+  },
+  "titles": {
+    "AI brief": "Tóm tắt cho AI",
+    "All sections": "Tất cả các mục",
+    "Book cards": "Thẻ sách",
+    "Chat": "Chat",
+    "Cycle": "Chu kỳ",
+    "Evidence card": "Thẻ bằng chứng",
+    "Evidence chain": "Chuỗi bằng chứng",
+    "Goal": "Mục tiêu",
+    "Knowledge": "Tài liệu",
+    "Learning loop": "Vòng học",
+    "Learning profile": "Hồ sơ học tập",
+    "Mastery": "Ôn tập",
+    "Mock exam": "Đề thi thử",
+    "Mock exams": "Đề thi thử",
+    "New worksheet": "Phiếu học mới",
+    "Notebook": "Sổ ghi chép",
+    "Past paper": "Đề cũ",
+    "Practise your mistakes": "Luyện lại câu sai",
+    "Question bank": "Ngân hàng câu hỏi",
+    "Quiz": "Câu hỏi",
+    "Reminders": "Nhắc ôn",
+    "Report": "Báo cáo",
+    "Research": "Nghiên cứu",
+    "Review": "Ôn lại",
+    "Settings": "Cài đặt",
+    "Sign in": "Đăng nhập",
+    "Solve": "Giải bài",
+    "Storage": "Lưu trữ",
+    "Study": "Học",
+    "Toolkit": "Bộ công cụ",
+    "Vocabulary": "Từ vựng",
+    "Weekly review": "Tổng kết tuần",
+    "Worksheet": "Phiếu học"
+  },
+  "readinessText": {
+    "no_route": "Chưa có kết nối nào làm việc {{function}}. Hãy chọn một kết nối trong Cài đặt → Phân việc.",
+    "all_unusable": "Mọi kết nối được giao cho {{function}} đều không dùng được.",
+    "some_unusable": "{{unusable}} trên {{total}} kết nối cho {{function}} không dùng được.",
+    "connection_gone": "Kết nối này không còn tồn tại.",
+    "unsupported": "{{provider}} không làm được việc {{function}}.",
+    "lanes_off": "Các kênh đăng ký thử nghiệm đang tắt.",
+    "reconnect": "Kết nối này cần được kết nối lại.",
+    "quota": "Hết hạn mức: đang nghỉ cho tới khi hạn mức được đặt lại.",
+    "rate_limited": "Đang nghỉ sau khi chạm giới hạn tốc độ.",
+    "key_rejected": "Khóa bị từ chối. {{detail}}",
+    "not_verified": "Chưa kiểm tra.",
+    "kb_only": "Chưa có khóa tìm kiếm: nghiên cứu chỉ dùng tài liệu của bạn.",
+    "keyless_search": "Chưa có khóa tìm kiếm: nghiên cứu tìm trên web qua DuckDuckGo, có thể chậm hoặc bị từ chối. Khóa Tavily hoặc Brave đáng tin cậy hơn."
+  }
+}

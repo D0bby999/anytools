@@ -10,14 +10,15 @@
  */
 import { useNavigation } from "react-router";
 import type { Route } from "./+types/settings.storage";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { cancelMove, getStorage, setStorage, startMove } from "~/lib/storage.server";
 import { storageErrorKey } from "~/lib/storage-types";
 import { StoragePanel, type StorageActionData } from "~/components/storage/storage-panel";
 
-export function meta() {
-  return [{ title: "Storage · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Storage") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

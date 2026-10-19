@@ -12,6 +12,7 @@ import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { MessageSquarePlus, Pencil, Search, Trash2 } from "lucide-react";
 import type { Route } from "./+types/chat.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser, requireUserId } from "~/lib/auth.server";
 import { createSession, deleteSession, listSessions, patchSession, type ChatSession } from "~/lib/chat.server";
 import { localDay } from "~/lib/local-day";
@@ -21,9 +22,9 @@ import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
 import { listKBs } from "~/lib/kb.server";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Chat · AnyLearn" },
+    { title: appTitle(matches, "Chat") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

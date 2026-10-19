@@ -33,7 +33,7 @@ function optionValue(o: SpeechEngineOption): string {
  * used up) shows its reason and cannot be picked.
  */
 export function SpeakIt({ overview: o }: { overview: AudioOverview }) {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const fetcher = useFetcher<AudioActionData>();
   const [chosen, setChosen] = useState("");
   const engines = o.engines ?? [];
@@ -62,7 +62,7 @@ export function SpeakIt({ overview: o }: { overview: AudioOverview }) {
     return [
       t("audioEngines.keyBody", {
         ...voices,
-        chars: e.chars.toLocaleString("en"),
+        chars: e.chars.toLocaleString(i18n.language),
         provider: providerName(t, e.provider),
         model: e.model,
         minutes: Math.max(1, e.speech_minutes),

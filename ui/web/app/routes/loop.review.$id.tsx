@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.review.$id";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import * as loop from "~/lib/loop.server";
@@ -21,8 +22,8 @@ import { ScoreForm } from "~/components/loop/score-form";
 import { SuggestionRow } from "~/components/loop/suggestion-row";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Weekly review · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Weekly review", "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

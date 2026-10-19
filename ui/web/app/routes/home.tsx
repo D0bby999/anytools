@@ -9,6 +9,7 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/home";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { getReadiness, listConnections } from "~/lib/byok.server";
 import { listKBs } from "~/lib/kb.server";
@@ -36,9 +37,9 @@ import { RightPanel } from "~/components/layout/right-panel";
 import { NAV_ITEMS } from "~/components/layout/sidebar";
 import { PARTS } from "~/lib/parts";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "AnyLearn" },
+    { title: appTitle(matches) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

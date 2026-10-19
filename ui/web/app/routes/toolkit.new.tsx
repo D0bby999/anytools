@@ -13,6 +13,7 @@
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/toolkit.new";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import * as worksheets from "~/lib/worksheets.server";
@@ -30,8 +31,8 @@ import {
 } from "~/lib/consistency-plan";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "New worksheet · Toolkit · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "New worksheet", "Toolkit") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "title": "Tu versión primero",
+    "label": "Escribir primero mi propia versión",
+    "body": "Una respuesta fluida que llega demasiado pronto puede tapar aquello de lo que no estabas seguro, y luego cuesta saber qué aprendiste de verdad. Con esto activado, Resolver y el chat te piden tres líneas cortas antes de enviar: lo que entiendes ahora, de qué estás menos seguro y qué demostraría que lo has aprendido. Después de una respuesta puedes cerrarla y contarla de nuevo con tus palabras, sin mirar.",
+    "save": "Guardar",
+    "saved": "Guardado.",
+    "failed": "No se pudo guardar el ajuste."
+  },
+  "fields": {
+    "legend": "Tu versión, antes de preguntar",
+    "hint": "Tres líneas cortas con tus palabras. La respuesta partirá de ellas.",
+    "understanding": "Lo que entiendo ahora",
+    "uncertain": "De qué estoy menos seguro",
+    "proof": "Qué demostraría que lo he aprendido",
+    "required": "Rellena las tres líneas para enviar."
+  },
+  "shown": {
+    "title": "Tu versión"
+  },
+  "retell": {
+    "open": "Cerrarla y contarla de nuevo",
+    "hidden": "La respuesta se oculta mientras la cuentas de nuevo.",
+    "label": "Tu versión, sin mirar",
+    "hint": "Explícalo, resuélvelo o decídelo otra vez con tus palabras. Si no puedes seguir sin la respuesta, todavía es un andamio, no algo tuyo.",
+    "save": "Guardar la versión",
+    "saving": "Guardando…",
+    "cancel": "Cancelar",
+    "title": "Tu versión",
+    "again": "Contarla otra vez",
+    "failed": "No se pudo guardar tu versión."
+  }
+}

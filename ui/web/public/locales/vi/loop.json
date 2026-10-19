@@ -1,0 +1,394 @@
+{
+  "cannotProve": {
+    "label": "Không chứng minh được",
+    "fallback": "Riêng một con số không cho biết vì sao nó thay đổi."
+  },
+  "phase": {
+    "calibrate": "Hiệu chỉnh",
+    "stack": "Chồng thói quen",
+    "deliver": "Hoàn thành"
+  },
+  "gate": {
+    "timeline": "Các giai đoạn của chu kỳ",
+    "req": {
+      "baseline": "Bằng chứng mốc ban đầu",
+      "weeklyReviews": "Các lượt tổng kết tuần đã ghi lại",
+      "delayed": "Bằng chứng kiểm tra sau một thời gian",
+      "transfer": "Bằng chứng áp dụng"
+    },
+    "missing": "Vẫn cần",
+    "final": "Chu kỳ này đang ở giai đoạn cuối. Hãy viết bản tổng kết 90 ngày bên dưới, rồi bắt đầu chu kỳ mới từ trang của mục tiêu.",
+    "advance": "Chuyển sang {{to}}",
+    "tryAdvance": "Kiểm tra điều kiện qua giai đoạn"
+  },
+  "timepoint": {
+    "none": "Không có mốc",
+    "baseline": "Ban đầu",
+    "immediate": "Ngay sau đó",
+    "delayed": "Vài ngày sau",
+    "transfer": "Ở chỗ mới"
+  },
+  "kind": {
+    "question_attempt": "Câu trả lời bài làm",
+    "kp_state": "Điểm kiến thức",
+    "note": "Ghi chú",
+    "research_report": "Báo cáo nghiên cứu",
+    "chat_message": "Tin nhắn chat",
+    "explain_back": "Giảng lại",
+    "card_entry": "Mục thẻ kỹ năng"
+  },
+  "status": {
+    "suggested": "Được gợi ý",
+    "accepted": "Đã chấp nhận",
+    "dismissed": "Đã bỏ qua"
+  },
+  "evidence": {
+    "gone": "Bản ghi mà mục này trỏ tới không còn tồn tại",
+    "byJob": "tìm giúp bạn",
+    "timepoint": "Mốc thời gian",
+    "accept": "Chấp nhận",
+    "dismiss": "Bỏ qua",
+    "add": "Thêm làm bằng chứng"
+  },
+  "home": {
+    "title": "Vòng học",
+    "lead": "Mỗi lần một mục tiêu, theo các chu kỳ chín mươi ngày. Mỗi giai đoạn chỉ mở khi có bằng chứng (câu trả lời, ghi chú và bản tổng kết mà sản phẩm đã ghi lại), và mọi con số ở đây đều nói rõ điều nó không chứng minh được.",
+    "current": "Mục tiêu hiện tại",
+    "cycle": "Chu kỳ",
+    "week": "Tuần {{week}} của chu kỳ này",
+    "thisWeek": "Tuần này",
+    "due": "Đến hạn ôn",
+    "nothingDue": "Hiện không có gì từ các lộ trình ôn tập đang chờ bạn.",
+    "goals": "Mọi mục tiêu"
+  },
+  "start": {
+    "first": "Bắt đầu một mục tiêu",
+    "another": "Bắt đầu mục tiêu khác",
+    "goal": "Mục tiêu",
+    "scenario": "Bạn sẽ dùng nó ở đâu",
+    "scenarioHint": "Một tình huống thật, không phải một chủ đề: cuộc họp, kỳ thi, cuộc trò chuyện.",
+    "outcome": "Điều bạn làm được sau mười hai tuần",
+    "outcomeHint": "Một việc mà người khác có thể nhìn thấy bạn làm.",
+    "task": "Việc nhỏ đầu tiên",
+    "taskHint": "Đủ nhỏ để làm trong tuần này, kể cả khi tuần đó tệ.",
+    "submit": "Bắt đầu"
+  },
+  "week": {
+    "none": "Tuần {{week}} chưa có bản tổng kết.",
+    "open": "Mở bản tổng kết tuần này",
+    "scored": "Đã chấm điểm tuần {{week}}",
+    "writtenBack": "đã ghi lại",
+    "continue": "Mở bản tổng kết",
+    "cannotProve": "Một tuần đã chấm điểm cho thấy bạn đã nhìn lại nó. Nó không cho thấy tuần sau sẽ tốt hơn."
+  },
+  "state": {
+    "scenario": "Tình huống thật",
+    "outcome": "Kết quả sau mười hai tuần",
+    "nextTask": "Việc tiếp theo",
+    "minimum": "Phiên bản tối thiểu",
+    "empty": "Chưa viết",
+    "minimumHint": "Phiên bản nhỏ nhất vẫn được tính. Bấm “Tôi bị gián đoạn” sẽ chuyển sang phiên bản này.",
+    "aiMay": "AI được phép",
+    "humanConfirm": "Người phải xác nhận",
+    "perLine": "Mỗi dòng một mục.",
+    "boundariesHint": "Mỗi dòng một mục. Cuộc chat tiếp tục sẽ được cho biết những điều này; AnyLearn không thể bắt buộc chúng.",
+    "handover": "Ghi chú bàn giao",
+    "handoverHint": "Điểm khởi đầu cho một cuộc trò chuyện mới. Bản cập nhật từ cuộc chat tiếp tục có thể thay nó khi qua được bước kiểm tra bên dưới.",
+    "save": "Lưu",
+    "edit": "Mọi thông tin khác về mục tiêu này",
+    "hypotheses": "Giả thuyết",
+    "noHypotheses": "Chưa có gì. Ghi lại một bản tổng kết tuần sẽ thêm các lỗi sai và một thay đổi của nó vào đây.",
+    "openCycle": "Mở chu kỳ",
+    "newCycle": "Bắt đầu chu kỳ mới"
+  },
+  "interrupt": {
+    "title": "Bị gián đoạn",
+    "open": "Ghi lại một lần gián đoạn",
+    "lead": "Nếu tuần này đổ vỡ, hãy thu nhỏ kế hoạch thay vì bỏ nó: việc tiếp theo trở thành phiên bản tối thiểu, và lần gián đoạn được ghi vào chu kỳ.",
+    "minimum": "Phiên bản nhỏ nhất của việc tiếp theo",
+    "note": "Chuyện gì đã xảy ra (không bắt buộc)",
+    "submit": "Tôi bị gián đoạn"
+  },
+  "resume": {
+    "title": "Tiếp tục cùng AI",
+    "lead": "Mở một cuộc chat mới chỉ được cho xem mục tiêu này. Nó nhắc lại mục tiêu, cho một bài tập ngắn, và kết thúc bằng một bản cập nhật bạn có thể mang về đây.",
+    "open": "Mở cuộc chat tiếp tục",
+    "paste": "Dán khối cập nhật từ cuộc chat",
+    "takeNextTask": "Lấy luôn việc tiếp theo mà nó gợi ý",
+    "check": "Kiểm tra",
+    "accept": "Kiểm tra và chấp nhận",
+    "accepted": "Đã chấp nhận. Ghi chú bàn giao đã được cập nhật.",
+    "valid": "Bản cập nhật này qua được bước kiểm tra và có thể chấp nhận.",
+    "invalid": "Không thể chấp nhận bản cập nhật này:"
+  },
+  "chain": {
+    "title": "Chuỗi bằng chứng",
+    "question": "Một câu hỏi để theo dõi theo thời gian",
+    "new": "Bắt đầu một chuỗi"
+  },
+  "brief": {
+    "title": "Tóm tắt việc giao cho AI",
+    "task": "Một việc bạn sẽ giao cho AI",
+    "new": "Viết bản tóm tắt",
+    "outputEval": "Kết quả sẽ được đánh giá thế nào",
+    "aiScope": "AI được phép làm gì",
+    "humanGates": "Chỗ nào cần người duyệt",
+    "cost": "Chi phí, và dễ hoàn tác tới đâu",
+    "rollback": "Nếu hỏng, quay lại thế nào",
+    "handover": "Kết quả sẽ quay về với bạn thế nào",
+    "dataNote": "Ranh giới dữ liệu (ghi chú cho bản thân)",
+    "dataNoteHint": "Ranh giới dữ liệu là lời nhắc cho chính bạn. AnyLearn không kiểm soát được nhà cung cấp mô hình làm gì với những gì bạn gửi.",
+    "preStart": "Trước khi bắt đầu",
+    "notReady": "Một số mục kiểm tra trước khi bắt đầu chưa được đánh dấu.",
+    "check": {
+      "output_eval_written": "Tôi biết mình sẽ đánh giá kết quả thế nào",
+      "human_gates_named": "Tôi đã chỉ rõ chỗ mình phải duyệt",
+      "rollback_known": "Tôi biết cách hoàn tác",
+      "baseline_recorded": "Tôi đã tự làm hoặc tự đo một lần không có AI trước"
+    }
+  },
+  "cycle": {
+    "lead": "Bắt đầu {{date}}. Đây là tuần {{week}}.",
+    "backToGoal": "Về mục tiêu",
+    "gate": "Giai đoạn và điều kiện",
+    "reviews": "Tổng kết tuần",
+    "noReviews": "Chưa có bản tổng kết nào.",
+    "reviewRow": "Tuần {{week}}: hoàn thành, chất lượng, ghi nhớ, áp dụng",
+    "questions": "Câu hỏi hằng tuần",
+    "questionFor": "Câu hỏi cho tuần {{week}}",
+    "capacityFor": "Sức làm của tuần {{week}}",
+    "full": "Cả tuần",
+    "reduced": "Giảm bớt",
+    "minimum": "Tối thiểu",
+    "saveQuestions": "Lưu các câu hỏi",
+    "interruptions": "Các lần gián đoạn",
+    "noNote": "không có ghi chú",
+    "was": "(việc khi đó: {{task}})",
+    "day90": "Tổng kết 90 ngày"
+  },
+  "review": {
+    "title": "Tổng kết tuần {{week}}",
+    "backToCycle": "Về chu kỳ",
+    "evidence": "Bằng chứng",
+    "noEvidence": "Chưa gắn gì. Hãy chấp nhận một gợi ý bên dưới, hoặc tự thêm.",
+    "suggested": "Từ tuần này",
+    "suggestedLead": "Những việc bạn đã làm trong tuần này của chu kỳ. Không có gì được tính cho tới khi bạn thêm vào; một lượt chạy ban đêm cũng đề xuất chúng để bạn chấp nhận hoặc bỏ qua.",
+    "noSuggestions": "Tuần này chưa ghi nhận gì. Hãy trả lời một câu hỏi hoặc viết một ghi chú, nó sẽ hiện ở đây.",
+    "scores": "Điểm",
+    "total": "Tổng của bốn mục kiểm tra",
+    "completion": "Hoàn thành",
+    "completionHint": "Việc đã lên kế hoạch có được làm không?",
+    "quality": "Chất lượng",
+    "qualityHint": "Theo tiêu chuẩn của chính bạn, nó có được làm đủ tốt để tính không?",
+    "retention": "Ghi nhớ",
+    "retentionHint": "Bạn có còn tự làm được nội dung tuần trước mà không cần trợ giúp không?",
+    "transfer": "Áp dụng",
+    "transferHint": "Bạn có dùng nó ở đâu khác ngoài nơi bạn đã học không?",
+    "level0": "chưa",
+    "level1": "một phần",
+    "level2": "rõ ràng",
+    "mistakes": "Lỗi sai tuần này",
+    "mistakesHint": "Mỗi lỗi bạn điền sẽ trở thành một giả thuyết của mục tiêu khi bạn ghi lại bản tổng kết.",
+    "errEvidence": "Điều gì cho thấy nó",
+    "errCause": "Nguyên nhân nghi ngờ",
+    "errNextTest": "Phép thử để kiểm chứng",
+    "errStop": "Khi nào bỏ ý này",
+    "errConfidence": "Chắc chắn tới đâu",
+    "low": "Thấp",
+    "medium": "Trung bình",
+    "high": "Cao",
+    "energy": "Năng lượng tuần này",
+    "change": "Một điều cần đổi trong tuần sau",
+    "changeHint": "Chỉ một. Đổi nhiều thứ cùng lúc sẽ khiến tuần sau không đọc được kết quả.",
+    "save": "Lưu bản tổng kết",
+    "writeback": "Ghi lại",
+    "done": "Đã ghi lại. Các lỗi sai và thay đổi của nó giờ là giả thuyết của mục tiêu, và bản tổng kết đã được khóa.",
+    "ready": "Đã đủ. Ghi lại sẽ thêm các lỗi sai và thay đổi của nó vào giả thuyết của mục tiêu.",
+    "writebackSubmit": "Ghi lại vào mục tiêu"
+  },
+  "chainPage": {
+    "emptyColumn": "Chưa có gì ở đây.",
+    "filled": "Các mốc thời gian có bằng chứng đã chấp nhận",
+    "timeline": "Bốn mốc thời gian",
+    "add": "Thêm từ tuần này",
+    "split": "Tách riêng những điều này",
+    "fact": "Điều bạn đã thấy",
+    "interpretation": "Điều bạn hiểu từ đó",
+    "hypothesis": "Điều bạn chỉ mới nghi ngờ"
+  },
+  "log": {
+    "title": "Nhật ký học cùng AI",
+    "lead": "Đo cùng một việc ba lần: không có AI, có AI, và tự làm lại vài ngày sau. Chỉ lần thứ ba mới cho thấy bạn giữ lại được gì.",
+    "new": "Bắt đầu một nhật ký",
+    "save": "Lưu nhật ký",
+    "measure": "Cách đo",
+    "measureHint": "Bạn đo việc này thế nào",
+    "noAI": "Không có AI",
+    "withAI": "Có AI",
+    "later": "Tự làm, về sau",
+    "decision": "Điều sẽ đổi ở chu kỳ sau",
+    "metric": {
+      "completion": "Hoàn thành",
+      "quality": "Chất lượng",
+      "independent_perf": "Tự làm được",
+      "rework": "Làm lại (càng thấp càng tốt)",
+      "cost": "Chi phí (càng thấp càng tốt)",
+      "transfer": "Áp dụng"
+    },
+    "reading": {
+      "incomplete": "Chưa đủ số lần",
+      "retained": "Giữ được sau khi dùng AI",
+      "only_with_ai": "Chỉ làm được khi có AI",
+      "no_gain": "Không tiến bộ"
+    }
+  },
+  "cards": {
+    "title": "Thẻ bằng chứng",
+    "lead": "Mỗi thẻ theo dõi một kỹ năng trong một tình huống thật: một lần tự làm không trợ giúp, luyện tập, một lần kiểm tra lại sau một thời gian, và cùng kỹ năng đó ở một chỗ mới.",
+    "none": "Mục tiêu này chưa có thẻ bằng chứng nào.",
+    "new": "Thẻ bằng chứng mới",
+    "chooseKind": "Bạn đang luyện gì?",
+    "cardTitle": "Tên ngắn cho thẻ này",
+    "create": "Bắt đầu thẻ",
+    "retestAfter": "Kiểm tra lại sau {{count}} ngày",
+    "retestAfter_other": "Kiểm tra lại sau {{count}} ngày",
+    "backToGoal": "Về mục tiêu",
+    "setup": "Chuẩn bị",
+    "status": {
+      "open": "Đang mở",
+      "retest_due": "Chờ kiểm tra lại",
+      "closed": "Đã đóng"
+    },
+    "dueOn": "Hạn kiểm tra lại {{date}}",
+    "step": {
+      "baseline": "Lần đầu, tự làm",
+      "immediate": "Luyện tập",
+      "delayed": "Kiểm tra lại",
+      "transfer": "Ở chỗ mới",
+      "reflection": "Nhìn lại"
+    },
+    "empty": "Chưa viết gì ở đây.",
+    "hidden": "Lần làm đầu tiên được ẩn cho tới khi lần kiểm tra lại được lưu, để nó không gợi ý câu trả lời cho bạn.",
+    "retestOpensOn": "Lần kiểm tra lại mở vào {{date}}. Từ giờ tới đó, hãy luyện tập; lần làm đầu vẫn được ẩn.",
+    "retestOpen": "Lần kiểm tra lại đã mở. Hãy trả lời theo trí nhớ, rồi cho biết bạn đã được trợ giúp tới đâu.",
+    "transferWaits": "Hãy ghi một lần áp dụng sau khi lần kiểm tra lại được lưu.",
+    "write": "Viết ở đây",
+    "writeHint": "Tối đa 20.000 ký tự. Nội dung được giữ đúng như khi bạn lưu và không sửa được về sau.",
+    "baselineWarning": "Chỉ lưu những gì bạn tự làm không trợ giúp. Nếu đã tra cứu gì đó, hãy lưu nó vào mục luyện tập.",
+    "save": "Lưu mục",
+    "promptLevel": "Bạn đã được trợ giúp tới đâu?",
+    "level": {
+      "unaided": "Không có",
+      "light_cue": "Một gợi ý nhỏ",
+      "heavy_cue": "Rất nhiều trợ giúp"
+    },
+    "links": "Liên kết tới bài làm của bạn (không bắt buộc)",
+    "linkRecent": "Ghi chú và câu trả lời gần đây",
+    "linkDocument": "Một trang tài liệu: dán địa chỉ của nó",
+    "linkDocumentHint": "Ví dụ /documents/…?page=3, sao chép từ trình đọc.",
+    "linkMissing": "Liên kết này trỏ tới thứ không còn tồn tại.",
+    "linkKind": {
+      "note": "Ghi chú",
+      "document": "Tài liệu",
+      "quiz_attempt": "Câu trả lời bài làm"
+    },
+    "pageN": "trang {{page}}",
+    "cueNote": "Trợ giúp: {{level}}",
+    "reflect": {
+      "intro": "Đóng thẻ khi bạn đã xong. Sau đó không thêm được mục nào nữa.",
+      "held": "Điều đã giữ được",
+      "missed": "Điều chưa được",
+      "next": "Hành động tiếp theo",
+      "close": "Đóng thẻ"
+    },
+    "retests": {
+      "title": "Đến hạn kiểm tra lại",
+      "none": "Hôm nay không có lần kiểm tra lại nào.",
+      "open": "Mở thẻ"
+    },
+    "cannotProve": "Một lần kiểm tra lại trên một thẻ cho thấy kỹ năng đã trụ được một lần, trong một tình huống. Nó không cho thấy kỹ năng sẽ vững khi chịu áp lực hay trong một loại việc khác."
+  },
+  "contract": {
+    "title": "Cam kết tối thiểu cho ngày tệ",
+    "lead": "Hãy trả lời những câu này vào một ngày bình thường, để ngày tệ không còn gì phải quyết định. Thu nhỏ việc không phải là trốn tránh: khi sức khỏe, tiền bạc, sự an toàn hay những người thân của bạn thật sự gặp rủi ro, tạm dừng và nhờ giúp đỡ có thể là lựa chọn có trách nhiệm nhất về lâu dài.",
+    "downshift": "Khi nào tôi thu nhỏ việc thay vì cố đẩy qua?",
+    "downshiftHint": "Những dấu hiệu cho thấy cố đẩy sẽ tốn nhiều hơn được, như ngủ quá ít, hạn chót ở chỗ làm, hay lần thử hỏng thứ ba.",
+    "keep": "Sau khi thu nhỏ, hành động nhỏ nào vẫn đáng giữ?",
+    "keepHint": "Phiên bản tối thiểu ở trên chính là việc đó. Hãy nói vì sao nó đáng giữ, hoặc điều gì khác đáng giữ.",
+    "help": "Khi nào tôi nhờ giúp đỡ, hoặc giao việc này cho người có chuyên môn?",
+    "helpHint": "Bạn sẽ tìm tới ai, và điều gì sẽ khiến bạn làm vậy.",
+    "shared": "Hai câu trả lời đầu được gửi kèm khi bạn tiếp tục mục tiêu này trong một cuộc chat với mô hình AI của bạn. Câu thứ ba không bao giờ được gửi tới mô hình nào; chỉ bạn thấy nó ở đây."
+  },
+  "interruption": {
+    "lead": "Nếu tuần này đổ vỡ, hãy thu nhỏ kế hoạch thay vì bỏ nó. Ghi lại chuyện đã xảy ra, rồi điều còn lại: việc tiếp theo trở thành việc đã thu nhỏ, và bản ghi được giữ trong chu kỳ.",
+    "fact": "Chuyện đã xảy ra, theo sự thật",
+    "factHint": "Điều đã thay đổi, không phải lời phán xét bản thân.",
+    "resistance": "Trở ngại chính",
+    "resistanceNone": "Không chắc",
+    "reducedTo": "Việc được thu nhỏ thành",
+    "reducedToHint": "Đây sẽ là việc tiếp theo của bạn, và cũng là phiên bản tối thiểu của nó.",
+    "within24h": "Kết quả nhỏ nhất bạn vẫn làm được trong 24 giờ",
+    "notRepaying": "Phần việc tôi sẽ không bù lại",
+    "notRepayingHint": "Phần việc bị lỡ mà bạn chủ động buông, để nó không dồn lại.",
+    "reviewOn": "Ngày xem lại",
+    "submit": "Ghi lại lần gián đoạn",
+    "earlier": "Được ghi trước khi có sáu dòng này.",
+    "resistanceLabel": {
+      "time": "Thời gian",
+      "difficulty": "Độ khó",
+      "energy": "Năng lượng",
+      "environment": "Môi trường",
+      "responsibility": "Trách nhiệm"
+    },
+    "line": {
+      "resistance": "Trở ngại",
+      "reducedTo": "Thu nhỏ thành",
+      "within24h": "Trong 24 giờ",
+      "notRepaying": "Không bù lại",
+      "reviewOn": "Xem lại vào",
+      "was": "Việc trước đó"
+    }
+  },
+  "repeated": {
+    "title": "Cùng một trở ngại, ba lần liền",
+    "body": "Ba lần gián đoạn gần nhất của bạn đều ghi {{resistance}}. Đó là một mẫu lặp trong cách sắp xếp, không phải thiếu ý chí. Hãy đổi một điều kiện thay vì đòi hỏi bản thân cố hơn: khung thời gian có thể không thực tế, việc có thể cần chia nhỏ, một ranh giới có thể cần nói ra, hoặc bạn có thể cần thêm người hỗ trợ xung quanh.",
+    "capacity": "Lên kế hoạch sức làm hằng tuần cho chu kỳ này"
+  },
+  "today": {
+    "title": "Bước tiếp theo của bạn",
+    "lowDay": "Ngày mệt",
+    "lowDayHint": "Chỉ hiện phần tối thiểu. Nó tự đặt lại vào cuối ngày, và không có gì về nó được ghi lại.",
+    "nextTask": "Việc tiếp theo",
+    "minimum": "Phiên bản tối thiểu",
+    "keep": "Vẫn đáng giữ",
+    "none": "Chưa viết",
+    "interrupt": "Ghi lại một lần gián đoạn"
+  },
+  "cycleClose": {
+    "region": "Kết thúc chu kỳ",
+    "lead": "Kết thúc chu kỳ từng bước: bản tổng kết ngày thứ chín mươi, sổ sách về năng lực, sản phẩm, chi phí và điều chưa biết, một nơi đến cho mỗi kết quả, ba dòng cho cả năm, bản tổng kết quý, và ba mươi ngày bàn giao.",
+    "close": "Kết thúc chu kỳ này",
+    "title": "Kết thúc chu kỳ: {{goal}}",
+    "open": "Mở phần kết thúc chu kỳ này",
+    "openDone": "Mở phần kết thúc chu kỳ này (đã xong)",
+    "notYet": "Ngày {{day}} của chu kỳ. Phần kết thúc mở ở đây vào ngày {{from}}.",
+    "notes": "Ghi chú",
+    "notesLead": "Ghi chú tự do của bạn về chu kỳ này. Phần kết thúc giữ bản tổng kết ngày thứ chín mươi thành một mục riêng.",
+    "fromLast": "Từ lần kết thúc trước",
+    "fromLastLead": "Tuần 1 chưa có câu hỏi. Hãy bắt đầu từ một kết quả mà chu kỳ trước đã chuyển tiếp:",
+    "use": "Dùng cho tuần 1",
+    "useLabel": "Dùng “{{step}}” làm câu hỏi của tuần 1",
+    "destination": {
+      "continue": "Tiếp tục",
+      "transfer": "Áp dụng",
+      "repair": "Sửa chữa",
+      "stop": "Dừng"
+    },
+    "changed": "Điều kiện đã đổi: {{condition}}",
+    "reduceFirst": "Thu nhỏ trước",
+    "openLast": "Mở lần kết thúc trước",
+    "gone": "Kết quả đó không còn được đề xuất nữa. Hãy tải lại trang.",
+    "weekOneTaken": "Tuần 1 đã có câu hỏi."
+  },
+  "repeatedRecovery": "Hoặc làm một lượt phục hồi (riêng tư)"
+}

@@ -9,13 +9,14 @@
  */
 import { useNavigation } from "react-router";
 import type { Route } from "./+types/settings.reminders";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { getPush, parseSubscription, setReminderHour, subscribePush, testPush, unsubscribePush } from "~/lib/push.server";
 import { RemindersPanel, type RemindersActionData } from "~/components/reminders/reminders-panel";
 
-export function meta() {
-  return [{ title: "Reminders · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Reminders") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

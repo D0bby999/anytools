@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.account";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError, apiFetch } from "~/lib/api.server";
+import { isSupportedLng, supportedLngs, type SupportedLng } from "~/lib/i18n";
 import { destroySession, getSession } from "~/lib/session.server";
 import { invalidateWatermark } from "~/lib/session-watermark.server";
 import { Button } from "~/components/ui/button";
@@ -32,8 +33,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     displayName: user.display_name,
     timezone: user.timezone,
     ownVersionFirst: user.own_version_first === true,
+    language: isSupportedLng(user.language ?? "") ? (user.language as SupportedLng) : "en",
   };
 }
+
+/** Each language named in itself, so a learner can find their own in any of them. */
+export const LANGUAGE_NAMES: Record<SupportedLng, string> = { en: "English", vi: "Tiếng Việt", es: "Español", pt: "Português" };
 
 type ActionResult = {
   errorKey: string;
@@ -43,6 +48,14 @@ type ActionResult = {
 };
 
 export async function action({ request }: Route.ActionArgs): Promise<ActionResult | Response> {
+  // The language form is a native post (reloadDocument): the redirect that
+  // follows loads the whole app again in the new language.
+  const language = await peekLanguage(request);
+  if (language) {
+    const { user } = await requireUser(request);
+    await apiFetch("/v1/me/language", user.id, { method: "PUT", body: { language, only_if_unset: false } });
+    return redirect("/settings/account");
+  }
   const { user } = await requireUser(request);
   const form = await request.formData();
   if (form.get("intent") === "timezone") {
@@ -115,6 +128,33 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
           {loaderData.displayName ? `${loaderData.displayName} · ` : ""}
           {loaderData.email}
         </p>
+      </section>
+
+      <section aria-labelledby="lp-account-language" className="border-t pt-6">
+        <h2 id="lp-account-language" className="lp-section">
+          {t("settings.account.languageTitle")}
+        </h2>
+        <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("settings.account.languageBody")}</p>
+        <Form method="post" reloadDocument className="mt-4 flex flex-wrap items-end gap-3">
+          <input type="hidden" name="intent" value="language" />
+          <label className="flex flex-col gap-1.5 text-sm font-medium">
+            {t("settings.account.languageLabel")}
+            <select
+              name="language"
+              defaultValue={loaderData.language}
+              className="min-h-11 min-w-48 rounded-md border border-control-border bg-card px-3 text-sm"
+            >
+              {supportedLngs.map((l) => (
+                <option key={l} value={l} lang={l}>
+                  {LANGUAGE_NAMES[l]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button type="submit" variant="outline">
+            {t("settings.account.languageSave")}
+          </Button>
+        </Form>
       </section>
 
       <section aria-labelledby="lp-account-zone" className="border-t pt-6">
@@ -200,4 +240,11 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
       </section>
     </div>
   );
+}
+
+/** The language form's choice, read from a clone so the rest of the action still has its body. */
+async function peekLanguage(request: Request): Promise<SupportedLng | null> {
+  const form = await request.clone().formData();
+  const language = String(form.get("language") ?? "");
+  return form.get("intent") === "language" && isSupportedLng(language) ? language : null;
 }

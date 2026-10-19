@@ -10,6 +10,7 @@
 import { Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.cards.$id";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import * as loop from "~/lib/loop.server";
@@ -20,8 +21,8 @@ import { CardTimeline } from "~/components/loop/card-timeline";
 import type { LinkChoice } from "~/components/loop/card-entry-form";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Evidence card · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Evidence card", "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

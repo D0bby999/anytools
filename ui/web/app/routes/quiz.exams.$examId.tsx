@@ -12,6 +12,7 @@ import { Form, Link, redirect, useFetcher, useNavigation, useRevalidator, type S
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/quiz.exams.$examId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { cancelExam, deleteExam, getExam, saveAnswers, startExam, submitExam } from "~/lib/exam.server";
@@ -23,8 +24,8 @@ import { PageHeader } from "~/components/ui/page-header";
 
 const POLL_MS = 3000;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: `${data?.exam.title ?? "Mock exam"} · AnyLearn` }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ data, matches }: Route.MetaArgs) {
+  return [{ title: (data?.exam.title ? appTitle(matches, raw(data?.exam.title)) : appTitle(matches, "Mock exam")) }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

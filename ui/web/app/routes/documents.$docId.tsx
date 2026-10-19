@@ -50,6 +50,7 @@ import { Link, redirect, useFetcher, useRevalidator, useSearchParams } from "rea
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/documents.$docId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import {
@@ -111,9 +112,9 @@ const NO_PASSES: ReadingPassesData = { allowed: false, sheet: null };
 /** The tutor lives in the activity panel, so the layout leaves the slot to us. */
 export const handle = { ownsPanel: true };
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.content ? `${data.content.document.title} · AnyLearn` : "AnyLearn" },
+    { title: data?.content ? appTitle(matches, raw(data.content.document.title)) : appTitle(matches) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

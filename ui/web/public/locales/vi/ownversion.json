@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "title": "Tự viết trước",
+    "label": "Tự viết phiên bản của tôi trước",
+    "body": "Một câu trả lời trơn tru tới quá sớm có thể che đi chỗ bạn còn chưa chắc, và sau đó khó biết mình thật sự học được gì. Khi bật, Giải bài và chat sẽ yêu cầu ba dòng ngắn trước khi gửi: điều bạn đang hiểu, điều bạn kém chắc nhất, và điều gì sẽ cho thấy bạn đã học được. Sau câu trả lời, bạn có thể đóng nó lại và tự kể lại bằng lời của mình, không nhìn.",
+    "save": "Lưu",
+    "saved": "Đã lưu.",
+    "failed": "Không lưu được thiết lập."
+  },
+  "fields": {
+    "legend": "Phiên bản của bạn, trước khi hỏi",
+    "hint": "Ba dòng ngắn bằng lời của bạn. Câu trả lời sẽ bắt đầu từ đó.",
+    "understanding": "Điều tôi đang hiểu",
+    "uncertain": "Điều tôi kém chắc nhất",
+    "proof": "Điều sẽ cho thấy tôi đã học được",
+    "required": "Điền đủ cả ba dòng để gửi."
+  },
+  "shown": {
+    "title": "Phiên bản của bạn"
+  },
+  "retell": {
+    "open": "Đóng lại và kể lại",
+    "hidden": "Câu trả lời được ẩn trong lúc bạn kể lại.",
+    "label": "Phần kể lại của bạn, không nhìn",
+    "hint": "Giải thích, làm hoặc quyết định lại bằng lời của bạn. Nếu không đi tiếp được khi thiếu câu trả lời, thì nó vẫn chỉ là giàn giáo, chưa phải của bạn.",
+    "save": "Lưu phần kể lại",
+    "saving": "Đang lưu…",
+    "cancel": "Hủy",
+    "title": "Phần kể lại của bạn",
+    "again": "Kể lại lần nữa",
+    "failed": "Không lưu được phần kể lại."
+  }
+}

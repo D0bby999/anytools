@@ -11,6 +11,7 @@
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/quiz.exams";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { listKBs } from "~/lib/kb.server";
@@ -25,8 +26,8 @@ import { QuizTabs } from "~/components/quiz/quiz-tabs";
 /** The most items one mock exam generates (exam.MaxGenerate). */
 const MAX_GENERATE = 60;
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Mock exams · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Mock exams") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

@@ -16,6 +16,9 @@ import { Outlet, useFetcher, useLocation, useMatches } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/app-layout";
 import { requireUser } from "~/lib/auth.server";
+import { apiFetch } from "~/lib/api.server";
+import { isSupportedLng, loadLanguage, type SupportedLng } from "~/lib/i18n";
+import { visitorLanguage } from "~/lib/language.server";
 import { Sidebar } from "~/components/layout/sidebar";
 import { Topbar } from "~/components/layout/topbar";
 import { RightPanel } from "~/components/layout/right-panel";
@@ -28,6 +31,17 @@ export const links: Route.LinksFunction = () => PWA_LINKS;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
+  // The account's language. An account that never had one takes the
+  // language its sign-in page was shown in (language.server.ts), once.
+  let language: SupportedLng = isSupportedLng(user.language ?? "") ? (user.language as SupportedLng) : "en";
+  if (!user.language_set) {
+    language = await visitorLanguage(request);
+    await apiFetch("/v1/me/language", user.id, { method: "PUT", body: { language, only_if_unset: true } }).catch(() => {
+      // Not saved this time: the page is still in that language, and the
+      // next page load tries again.
+    });
+  }
+  await loadLanguage(language);
   // Only what the shell renders: the API's user shape may grow, and leaking
   // extra fields into the client bundle is how internal data ends up in a page
   // source view.
@@ -38,6 +52,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     // "Save to my Drive" beside each export shows only with Drive storage on
     // (drive-user-storage phase 2); see useFileStorage.
     fileStorage: user.file_storage === "drive" ? ("drive" as const) : ("server" as const),
+    // root.tsx picks the i18n instance and <html lang> from this.
+    language,
   };
 }
 

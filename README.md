@@ -4,7 +4,7 @@
 
 Free tools that run in your browser without an account, and **AnyLearn**, a self-learning web app that works from **your own documents, with your own AI accounts**. It serves [anytools.world](https://anytools.world).
 
-The tools (converters, formatters, generators and calculators) are public pages in English, Vietnamese, Spanish and Portuguese, under the app's **Tools** tab. AnyLearn needs a Google or GitHub sign-in and is in English.
+The tools (converters, formatters, generators and calculators) are public pages in English, Vietnamese, Spanish and Portuguese, under the app's **Tools** tab. AnyLearn needs a Google or GitHub sign-in and speaks the same four languages; each learner picks theirs in Settings → Account.
 
 Upload the material you are studying. AnyLearn answers questions about it, and each answer cites the page it came from, so the claim can be checked against the original. It also:
 - writes quizzes from the material, and explains the marking;

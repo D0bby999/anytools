@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,12 +24,27 @@ type Handler struct {
 	accounts   AccountDeleter
 	sessions   SessionWatermarks
 	zones      TimezoneSetter
+	languages  LanguageSetter
 	ownVersion OwnVersionSetter
 }
 
 // TimezoneSetter stores the learner's zone (learning-depth phase 0).
 type TimezoneSetter interface {
 	SetTimezone(ctx context.Context, id uuid.UUID, zone string, onlyIfUnset bool) (bool, error)
+}
+
+// LanguageSetter stores the learner's interface language.
+type LanguageSetter interface {
+	SetLanguage(ctx context.Context, id uuid.UUID, language string, onlyIfUnset bool) (bool, error)
+}
+
+// Languages are the interface languages AnyLearn is written in.
+var Languages = []string{"en", "vi", "es", "pt"}
+
+// WithLanguages enables PUT /v1/me/language.
+func (h *Handler) WithLanguages(l LanguageSetter) *Handler {
+	h.languages = l
+	return h
 }
 
 // WithTimezones enables PUT /v1/me/timezone.
@@ -78,6 +94,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	}
 	if h.zones != nil {
 		mux.HandleFunc("PUT /v1/me/timezone", h.putTimezone) // budget: none
+	}
+	if h.languages != nil {
+		mux.HandleFunc("PUT /v1/me/language", h.putLanguage) // budget: none
 	}
 	if h.ownVersion != nil {
 		mux.HandleFunc("PUT /v1/me/own-version-first", h.putOwnVersionFirst) // budget: none
@@ -148,6 +167,10 @@ type userResponse struct {
 	// FileStorage is "server" or "drive": where new files are written, and
 	// whether "Save to my Drive" is offered (drive-user-storage phase 2).
 	FileStorage string `json:"file_storage"`
+	// Language is the interface language; LanguageSet is false until the
+	// first sign-in reported one or the learner chose one.
+	Language    string `json:"language"`
+	LanguageSet bool   `json:"language_set"`
 }
 
 func (h *Handler) postIdentity(w http.ResponseWriter, r *http.Request) {
@@ -247,7 +270,34 @@ func toUserResponse(u *store.User) userResponse {
 		TimezoneSet:     u.TimezoneSetAt != nil,
 		OwnVersionFirst: u.OwnVersionFirst,
 		FileStorage:     u.FileStorage,
+		Language:        u.Language,
+		LanguageSet:     u.LanguageSetAt != nil,
 	}
+}
+
+type languageRequest struct {
+	Language    string `json:"language"`
+	OnlyIfUnset bool   `json:"only_if_unset"`
+}
+
+// putLanguage stores the caller's interface language.
+func (h *Handler) putLanguage(w http.ResponseWriter, r *http.Request) {
+	var req languageRequest
+	if err := httpx.DecodeJSON(w, r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "invalid request body", "bad_request")
+		return
+	}
+	if !slices.Contains(Languages, req.Language) {
+		httpx.WriteError(w, http.StatusBadRequest, "language must be en, vi, es or pt", "bad_language")
+		return
+	}
+	changed, err := h.languages.SetLanguage(r.Context(), httpx.MustUserID(r.Context()), req.Language, req.OnlyIfUnset)
+	if err != nil {
+		slog.Error("authapi: set language", "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "could not save the language", "internal")
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"language": req.Language, "changed": changed})
 }
 
 type timezoneRequest struct {

@@ -1,0 +1,32 @@
+{
+  "tab": "Praticar a escuta",
+  "lead": "Ouça este vídeo em etapas: uma primeira passada sem legendas, um mapa de onde o sentido se perdeu, apoio adicionado e depois retirado de novo, e novos testes dias depois com material novo.",
+  "start": "Começar a praticar a escuta",
+  "startAnother": "Começar outra",
+  "stage": "Degrau {{n}} de {{of}}",
+  "ladderDone": "Todos os degraus foram concluídos",
+  "markStage": "O degrau {{n}} foi concluído",
+  "hidden": {
+    "first": "A transcrição, as notas de estudo e o tutor ficam guardados por enquanto. Ouça primeiro sem nada para ler; eles voltam no degrau 3.",
+    "closed": "O texto fecha de novo no degrau 5: ouça na velocidade normal sem nada para ler. Ele volta quando o degrau 5 terminar.",
+    "retelling": "A transcrição fica guardada enquanto você escreve o reconto."
+  },
+  "playShort": "Tocar",
+  "nowShort": "Agora",
+  "play": "Tocar: {{field}}",
+  "now": "Agora ({{time}}): {{field}}",
+  "rowTime": "marca de tempo da linha {{n}}",
+  "playSegment": "Tocar o trecho",
+  "segmentFirst": "Escreva acima o início do trecho para tocá-lo.",
+  "segmentLength": "Este trecho tem {{seconds}} segundos; o up sugere de 5 a 20.",
+  "fullPage": "Abrir como página inteira",
+  "finish": "Esta auditoria foi concluída",
+  "earlier": "Auditorias anteriores deste vídeo",
+  "experiment": {
+    "title": "Experimento de escuta de 14 dias",
+    "lead": "Duas semanas com este vídeo como fonte principal, um dia de cada vez. A linha de cada dia abre no dia dela.",
+    "start": "Começar um experimento de 14 dias"
+  },
+  "tutorHidden": "O tutor e seus destaques ficam guardados enquanto a escada de escuta mantém a transcrição fora de vista.",
+  "backToVideo": "Voltar ao vídeo"
+}

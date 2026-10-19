@@ -10,6 +10,7 @@ import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/quiz.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { listKBs } from "~/lib/kb.server";
@@ -21,9 +22,9 @@ import { PageHeader } from "~/components/ui/page-header";
 import { QuizTabs } from "~/components/quiz/quiz-tabs";
 import { asSentence } from "~/lib/sentence";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Quiz · AnyLearn" },
+    { title: appTitle(matches, "Quiz") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

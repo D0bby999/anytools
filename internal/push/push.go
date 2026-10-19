@@ -75,14 +75,15 @@ type Store interface {
 	Subscriptions(ctx context.Context, userID uuid.UUID) ([]Subscription, error)
 	// Forget deletes a subscription its push service reported gone.
 	Forget(ctx context.Context, endpoint string) error
-	Settings(ctx context.Context, userID uuid.UUID) (hour int, timezone string, err error)
+	Settings(ctx context.Context, userID uuid.UUID) (hour int, timezone, language string, err error)
 	SetHour(ctx context.Context, userID uuid.UUID, hour int) error
 	// ClaimReminder marks today's reminder as sent and returns the learner's
 	// subscriptions, in one statement, when the learner's local hour is in
 	// [hour, hour+window), today's has not gone out yet, and they have at
 	// least one subscription. ok is false otherwise. One statement, so two
-	// ticks cannot both claim the same day.
-	ClaimReminder(ctx context.Context, userID uuid.UUID, now time.Time, window int) (subs []Subscription, ok bool, err error)
+	// ticks cannot both claim the same day. language is the learner's
+	// interface language, which the reminder is written in.
+	ClaimReminder(ctx context.Context, userID uuid.UUID, now time.Time, window int) (subs []Subscription, language string, ok bool, err error)
 }
 
 // Sender delivers one encrypted message to one subscription.
@@ -137,7 +138,7 @@ func (s *Service) Settings(ctx context.Context, userID uuid.UUID) (Settings, err
 	if err != nil {
 		return Settings{}, err
 	}
-	hour, tz, err := s.store.Settings(ctx, userID)
+	hour, tz, _, err := s.store.Settings(ctx, userID)
 	if err != nil {
 		return Settings{}, err
 	}
@@ -187,18 +188,22 @@ func (s *Service) Test(ctx context.Context, userID uuid.UUID) (int, error) {
 	if len(subs) == 0 {
 		return 0, fmt.Errorf("%w: reminders are not on in any browser", ErrInvalid)
 	}
-	payload := s.message("This is a test. Your review reminder will look like this.", "/settings/reminders", 0)
+	_, _, language, err := s.store.Settings(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+	payload := s.message(words(language).test, "/settings/reminders", 0, language)
 	return s.deliver(ctx, subs, payload), nil
 }
 
 // Notify implements learning.Notifier: the due digest calls it hourly for
 // every learner with something due, and it sends at most one reminder a day.
 func (s *Service) Notify(ctx context.Context, summary learning.DueSummary) error {
-	subs, ok, err := s.store.ClaimReminder(ctx, summary.UserID, time.Now(), Window)
+	subs, language, ok, err := s.store.ClaimReminder(ctx, summary.UserID, time.Now(), Window)
 	if err != nil || !ok {
 		return err
 	}
-	if s.deliver(ctx, subs, s.message(dueBody(summary), "/mastery/review", summary.Due)) == 0 {
+	if s.deliver(ctx, subs, s.message(dueBody(summary, language), "/mastery/review", summary.Due, language)) == 0 {
 		return fmt.Errorf("push: no browser accepted the reminder")
 	}
 	return nil
@@ -235,15 +240,36 @@ func (s *Service) deliver(ctx context.Context, subs []Subscription, payload []by
 	return sent
 }
 
-func dueBody(s learning.DueSummary) string {
-	points := "points are"
-	if s.Due == 1 {
-		points = "point is"
+// reminderWords is the reminder in one interface language.
+type reminderWords struct {
+	one, other, paths, test string
+}
+
+var reminderText = map[string]reminderWords{
+	"en": {one: "1 review point is due.", other: "%d review points are due.", paths: "%d review points are due, across %d paths.", test: "This is a test. Your review reminder will look like this."},
+	"vi": {one: "Có 1 điểm cần ôn.", other: "Có %d điểm cần ôn.", paths: "Có %d điểm cần ôn, trong %d lộ trình.", test: "Đây là thông báo thử. Lời nhắc ôn của bạn sẽ trông như thế này."},
+	"es": {one: "Tienes 1 punto para repasar.", other: "Tienes %d puntos para repasar.", paths: "Tienes %d puntos para repasar, en %d rutas.", test: "Esto es una prueba. Así se verá tu recordatorio de repaso."},
+	"pt": {one: "Você tem 1 ponto para revisar.", other: "Você tem %d pontos para revisar.", paths: "Você tem %d pontos para revisar, em %d trilhas.", test: "Isto é um teste. Seu lembrete de revisão vai ficar assim."},
+}
+
+// words is the reminder's text in language, English for any other.
+func words(language string) reminderWords {
+	if w, ok := reminderText[language]; ok {
+		return w
 	}
-	if s.Paths > 1 {
-		return fmt.Sprintf("%d review %s due, across %d paths.", s.Due, points, s.Paths)
+	return reminderText["en"]
+}
+
+func dueBody(s learning.DueSummary, language string) string {
+	w := words(language)
+	switch {
+	case s.Paths > 1:
+		return fmt.Sprintf(w.paths, s.Due, s.Paths)
+	case s.Due == 1:
+		return w.one
+	default:
+		return fmt.Sprintf(w.other, s.Due)
 	}
-	return fmt.Sprintf("%d review %s due.", s.Due, points)
 }
 
 func validKey(k string, minLen, maxLen int) bool {

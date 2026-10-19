@@ -35,7 +35,7 @@ func NewUserStore(pool *Pool) *UserStore { return &UserStore{pool: pool} }
 
 var _ store.UserStore = (*UserStore)(nil)
 
-const userColumns = `id, email, email_verified_at, display_name, created_at, deleted_at, timezone, timezone_set_at, own_version_first, file_storage`
+const userColumns = `id, email, email_verified_at, display_name, created_at, deleted_at, timezone, timezone_set_at, own_version_first, file_storage, language, language_set_at`
 
 // UpsertIdentity applies AnyTools' account-linking policy inside one
 // transaction. The policy, in order:
@@ -290,6 +290,20 @@ func (s *UserStore) SetTimezone(ctx context.Context, id uuid.UUID, zone string, 
 	return tag.RowsAffected() == 1, nil
 }
 
+// SetLanguage stores the learner's interface language (en, vi, es or pt; the
+// column's CHECK refuses anything else). With onlyIfUnset, a language the
+// learner chose is kept, as SetTimezone keeps a chosen zone.
+func (s *UserStore) SetLanguage(ctx context.Context, id uuid.UUID, language string, onlyIfUnset bool) (bool, error) {
+	tag, err := s.pool.Exec(ctx, `
+		UPDATE users SET language = $2, language_set_at = now(), updated_at = now()
+		 WHERE id = $1 AND deleted_at IS NULL AND (NOT $3 OR language_set_at IS NULL)`,
+		id, language, onlyIfUnset)
+	if err != nil {
+		return false, fmt.Errorf("set language: %w", err)
+	}
+	return tag.RowsAffected() == 1, nil
+}
+
 // Timezone returns the learner's zone name ('UTC' until one is set).
 func (s *UserStore) Timezone(ctx context.Context, id uuid.UUID) (string, error) {
 	var zone string
@@ -352,7 +366,7 @@ func getUser(ctx context.Context, q rowQuerier, id uuid.UUID) (*store.User, erro
 	err := q.QueryRow(ctx,
 		`SELECT `+userColumns+` FROM users WHERE id = $1 AND deleted_at IS NULL`, id,
 	).Scan(&u.ID, &u.Email, &u.EmailVerifiedAt, &u.DisplayName, &u.CreatedAt, &u.DeletedAt,
-		&u.Timezone, &u.TimezoneSetAt, &u.OwnVersionFirst, &u.FileStorage)
+		&u.Timezone, &u.TimezoneSetAt, &u.OwnVersionFirst, &u.FileStorage, &u.Language, &u.LanguageSetAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, store.ErrUserNotFound
 	}

@@ -36,6 +36,9 @@ type FunctionReadiness struct {
 	Function Function `json:"function"`
 	Status   Status   `json:"status"`
 	Reason   string   `json:"reason"`
+	// ReasonCode names Reason for a client that words it in the learner's
+	// language; Reason stays the English sentence, and the fallback.
+	ReasonCode string `json:"reason_code,omitempty"`
 	// Entries names the connections routed to this function, in chain order, so
 	// the card can show what would be tried and in which order.
 	Entries []ReadinessEntry `json:"entries"`
@@ -43,12 +46,16 @@ type FunctionReadiness struct {
 
 // ReadinessEntry is one connection as the matrix sees it.
 type ReadinessEntry struct {
-	ConnectionID  uuid.UUID  `json:"connection_id"`
-	Name          string     `json:"name"`
-	Provider      string     `json:"provider"`
-	Model         string     `json:"model"`
-	Status        Status     `json:"status"`
-	Note          string     `json:"note,omitempty"`
+	ConnectionID uuid.UUID `json:"connection_id"`
+	Name         string    `json:"name"`
+	Provider     string    `json:"provider"`
+	Model        string    `json:"model"`
+	Status       Status    `json:"status"`
+	Note         string    `json:"note,omitempty"`
+	// NoteCode names Note, as ReasonCode names a row's Reason. Detail is the
+	// provider's own words where Note quotes them (a rejected key).
+	NoteCode      string     `json:"note_code,omitempty"`
+	Detail        string     `json:"detail,omitempty"`
 	CooldownUntil *time.Time `json:"cooldown_until,omitempty"`
 }
 
@@ -141,6 +148,7 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 	if len(routes) == 0 {
 		row.Status = StatusBlocked
 		row.Reason = fmt.Sprintf("No %s route. Choose a connection for it in Settings → Routes.", fn)
+		row.ReasonCode = "no_route"
 		return row
 	}
 
@@ -153,7 +161,7 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 			// invariant would be visible instead of silent.
 			row.Entries = append(row.Entries, ReadinessEntry{
 				ConnectionID: r.ConnectionID, Model: r.Model,
-				Status: StatusBlocked, Note: "This connection no longer exists.",
+				Status: StatusBlocked, Note: "This connection no longer exists.", NoteCode: "connection_gone",
 			})
 			continue
 		}
@@ -173,26 +181,34 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 		case !ConnectionSupports(conn.Provider, conn.Kind, fn):
 			entry.Status = StatusBlocked
 			entry.Note = conn.Provider + " cannot serve " + string(fn) + "."
+			entry.NoteCode = "unsupported"
 		case isSubscriptionKind(conn.Kind) && !s.lanesEnabled():
 			entry.Status = StatusBlocked
 			entry.Note = "Experimental subscription lanes are turned off."
+			entry.NoteCode = "lanes_off"
 		case conn.Settings.OAuth != nil && conn.Settings.OAuth.NeedsReconnect:
 			entry.Status = StatusBlocked
 			entry.Note = "Relay token needs reconnect."
+			entry.NoteCode = "reconnect"
 		case conn.Settings.CoolingDownAt(now):
 			entry.Status = StatusWarn
 			entry.CooldownUntil = conn.Settings.CooldownUntil
 			if conn.Settings.CooldownReason == "quota" {
 				entry.Note = "Out of quota — resting until the allowance resets."
+				entry.NoteCode = "quota"
 			} else {
 				entry.Note = "Resting after a rate limit."
+				entry.NoteCode = "rate_limited"
 			}
 		case conn.Settings.VerifyStatus == store.VerifyStatusFailed:
 			entry.Status = StatusBlocked
 			entry.Note = "Key rejected. " + conn.LastError
+			entry.NoteCode = "key_rejected"
+			entry.Detail = conn.LastError
 		case conn.VerifiedAt == nil:
 			entry.Status = StatusWarn
 			entry.Note = "Not verified yet."
+			entry.NoteCode = "not_verified"
 		}
 
 		// A cooling-down connection still counts as usable: it will come back,
@@ -207,9 +223,11 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 	case usable == 0:
 		row.Status = StatusBlocked
 		row.Reason = fmt.Sprintf("Every connection routed to %s is unusable.", fn)
+		row.ReasonCode = "all_unusable"
 	case usable < len(routes):
 		row.Status = StatusWarn
 		row.Reason = fmt.Sprintf("%d of %d connections for %s are unusable.", len(routes)-usable, len(routes), fn)
+		row.ReasonCode = "some_unusable"
 	default:
 		row.Status = StatusGreen
 	}
@@ -221,6 +239,7 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 			if e.Status == StatusWarn {
 				row.Status = StatusWarn
 				row.Reason = e.Note
+				row.ReasonCode = e.NoteCode
 				break
 			}
 		}
@@ -239,8 +258,10 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 	if fn == FunctionResearch && webKeys == 0 && row.Status == StatusGreen {
 		row.Status = StatusWarn
 		row.Reason = "No search key: research runs KB-only."
+		row.ReasonCode = "kb_only"
 		if s.keylessSearch {
 			row.Reason = "No search key: research searches the web through DuckDuckGo, which can be slow or refuse. A Tavily or Brave key is more reliable."
+			row.ReasonCode = "keyless_search"
 		}
 	}
 

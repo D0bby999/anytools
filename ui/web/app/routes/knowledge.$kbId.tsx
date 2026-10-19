@@ -33,6 +33,7 @@ import { useTranslation } from "react-i18next";
 import { AlertTriangle, ArrowLeft, BookMarked, GraduationCap, ListChecks, MessageSquare, RefreshCw, Trash2 } from "lucide-react";
 import { PanelTabs } from "~/components/ui/panel-tabs";
 import type { Route } from "./+types/knowledge.$kbId";
+import { appTitle, raw } from "~/lib/app-title";
 import { AudioOverviews } from "~/components/audio/audio-overviews";
 import { RelatedPapers } from "~/components/knowledge/related-papers";
 import { ZoteroPanel } from "~/components/knowledge/zotero-panel";
@@ -90,9 +91,9 @@ const POLL_MS = 2500;
 /** Wire names knowledge.Events publishes. */
 const KB_EVENTS = ["document.status", "document.fallback"] as const;
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.kb ? `${data.kb.name} · AnyLearn` : "AnyLearn" },
+    { title: data?.kb ? appTitle(matches, raw(data.kb.name)) : appTitle(matches) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

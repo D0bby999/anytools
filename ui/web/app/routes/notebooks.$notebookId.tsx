@@ -10,6 +10,7 @@ import { Form, Link, redirect, useFetcher, useSearchParams } from "react-router"
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Bot, Download, Plus, X } from "lucide-react";
 import type { Route } from "./+types/notebooks.$notebookId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import {
@@ -34,9 +35,9 @@ import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
 import { plainText } from "~/lib/speech";
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.notebook ? `${data.notebook.name} · AnyLearn` : "Notebook · AnyLearn" },
+    { title: data?.notebook ? appTitle(matches, raw(data.notebook.name)) : appTitle(matches, "Notebook") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

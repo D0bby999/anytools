@@ -51,12 +51,15 @@ func ValidateEndpoint(raw string) error {
 // message is a Declarative Web Push payload (WebKit, Safari 18.4+): Safari
 // shows it without running any script, and the service worker (public/sw.js)
 // reads the same JSON in every other browser.
-func (s *Service) message(body, path string, badge int) []byte {
+func (s *Service) message(body, path string, badge int, language string) []byte {
+	if _, ok := reminderText[language]; !ok {
+		language = "en"
+	}
 	n := map[string]any{
 		"title":    "AnyLearn",
 		"body":     body,
 		"navigate": s.appURL + path,
-		"lang":     "en",
+		"lang":     language,
 		"dir":      "ltr",
 		"tag":      "anylearn-review",
 	}

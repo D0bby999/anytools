@@ -42,6 +42,10 @@ export type ReadinessEntry = {
   model: string;
   status: ReadinessStatus;
   note?: string;
+  /** Names `note`, for wording it in the learner's language (readiness-text.ts). */
+  note_code?: string;
+  /** The provider's own words a note quotes (a rejected key). */
+  detail?: string;
   cooldown_until?: string;
 };
 
@@ -49,6 +53,8 @@ export type FunctionReadiness = {
   function: string;
   status: ReadinessStatus;
   reason: string;
+  /** Names `reason`, for wording it in the learner's language (readiness-text.ts). */
+  reason_code?: string;
   entries: ReadinessEntry[];
 };
 

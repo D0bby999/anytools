@@ -275,7 +275,11 @@
       "zoneSave": "Save time zone",
       "zoneSaved": "Time zone saved.",
       "zoneInvalid": "That is not a time zone AnyLearn knows. Pick one from the list, such as Asia/Ho_Chi_Minh.",
-      "deleteDrive": "Files you chose to keep in Google Drive are not deleted: the “AnyTools” folder stays in your Drive, and it is yours to keep or delete."
+      "deleteDrive": "Files you chose to keep in Google Drive are not deleted: the “AnyTools” folder stays in your Drive, and it is yours to keep or delete.",
+      "languageTitle": "Language",
+      "languageBody": "The language AnyLearn's pages and reminders are written in. Answers follow the language you ask in, whatever you choose here.",
+      "languageLabel": "Show AnyLearn in",
+      "languageSave": "Change language"
     },
     "providerNames": {
       "gemini": "Google Gemini",
@@ -646,5 +650,55 @@
       "how": "Show me how",
       "dismiss": "Not now"
     }
+  },
+  "titles": {
+    "AI brief": "AI brief",
+    "All sections": "All sections",
+    "Book cards": "Book cards",
+    "Chat": "Chat",
+    "Cycle": "Cycle",
+    "Evidence card": "Evidence card",
+    "Evidence chain": "Evidence chain",
+    "Goal": "Goal",
+    "Knowledge": "Knowledge",
+    "Learning loop": "Learning loop",
+    "Learning profile": "Learning profile",
+    "Mastery": "Mastery",
+    "Mock exam": "Mock exam",
+    "Mock exams": "Mock exams",
+    "New worksheet": "New worksheet",
+    "Notebook": "Notebook",
+    "Past paper": "Past paper",
+    "Practise your mistakes": "Practise your mistakes",
+    "Question bank": "Question bank",
+    "Quiz": "Quiz",
+    "Reminders": "Reminders",
+    "Report": "Report",
+    "Research": "Research",
+    "Review": "Review",
+    "Settings": "Settings",
+    "Sign in": "Sign in",
+    "Solve": "Solve",
+    "Storage": "Storage",
+    "Study": "Study",
+    "Toolkit": "Toolkit",
+    "Vocabulary": "Vocabulary",
+    "Weekly review": "Weekly review",
+    "Worksheet": "Worksheet"
+  },
+  "readinessText": {
+    "no_route": "No connection does {{function}} yet. Choose one in Settings → Routes.",
+    "all_unusable": "Every connection routed to {{function}} is unusable.",
+    "some_unusable": "{{unusable}} of {{total}} connections for {{function}} are unusable.",
+    "connection_gone": "This connection no longer exists.",
+    "unsupported": "{{provider}} cannot do {{function}}.",
+    "lanes_off": "Experimental subscription lanes are turned off.",
+    "reconnect": "This connection needs to be reconnected.",
+    "quota": "Out of quota: resting until the allowance resets.",
+    "rate_limited": "Resting after a rate limit.",
+    "key_rejected": "Key rejected. {{detail}}",
+    "not_verified": "Not verified yet.",
+    "kb_only": "No search key: research uses your documents only.",
+    "keyless_search": "No search key: research searches the web through DuckDuckGo, which can be slow or refuse. A Tavily or Brave key is more reliable."
   }
 }

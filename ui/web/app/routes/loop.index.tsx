@@ -8,6 +8,7 @@ import { Plate } from "~/components/ui/plate";
 import { Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { listDue } from "~/lib/mastery.server";
 import { getCycle, getState, listCardKinds, listRetests, listStates } from "~/lib/loop.server";
@@ -23,8 +24,8 @@ import { DIAGNOSTIC_KIND } from "~/lib/english-diagnostic";
 import { ToolkitLink } from "~/components/worksheet/toolkit-link";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

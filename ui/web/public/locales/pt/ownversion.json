@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "title": "Sua versão primeiro",
+    "label": "Escrever primeiro a minha própria versão",
+    "body": "Uma resposta fluida que chega cedo demais pode encobrir aquilo de que você não tinha certeza, e depois fica difícil saber o que você realmente aprendeu. Com isto ligado, Resolver e o chat pedem três linhas curtas antes de enviar: o que você entende agora, do que tem menos certeza e o que mostraria que você aprendeu. Depois de uma resposta, você pode fechá-la e recontá-la com suas palavras, sem olhar.",
+    "save": "Salvar",
+    "saved": "Salvo.",
+    "failed": "Não foi possível salvar a configuração."
+  },
+  "fields": {
+    "legend": "Sua versão, antes de perguntar",
+    "hint": "Três linhas curtas com suas palavras. A resposta vai partir delas.",
+    "understanding": "O que eu entendo agora",
+    "uncertain": "Do que eu tenho menos certeza",
+    "proof": "O que mostraria que eu aprendi",
+    "required": "Preencha as três linhas para enviar."
+  },
+  "shown": {
+    "title": "Sua versão"
+  },
+  "retell": {
+    "open": "Fechar e recontar",
+    "hidden": "A resposta fica oculta enquanto você reconta.",
+    "label": "Seu reconto, sem olhar",
+    "hint": "Explique, resolva ou decida de novo com suas palavras. Se você não consegue seguir sem a resposta, ela ainda é um andaime, não algo seu.",
+    "save": "Salvar o reconto",
+    "saving": "Salvando…",
+    "cancel": "Cancelar",
+    "title": "Seu reconto",
+    "again": "Recontar de novo",
+    "failed": "Não foi possível salvar o reconto."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "title": "Pesquisa",
+  "lead": "Faça uma pergunta e receba um relatório curto que cita cada afirmação, a partir dos seus próprios documentos e da web (pela sua própria chave de busca, ou pelo DuckDuckGo se você não tiver uma). Depois, cada afirmação é conferida com a fonte que cita.",
+  "form": {
+    "query": "O que deve ser pesquisado?",
+    "queryPlaceholder": "ex.: Como a geração aumentada por recuperação reduz alucinações?",
+    "mode": "Profundidade",
+    "quick": "Rápida",
+    "quickHint": "Até 5 fontes, alguns minutos de leitura.",
+    "deep": "Aprofundada",
+    "deepHint": "Até 20 fontes, e lê as melhores páginas por inteiro.",
+    "kb": "Incluir meus documentos de",
+    "kbNone": "Nenhuma (só a web)",
+    "allowWeb": "Buscar também na web quando meus documentos forem incluídos",
+    "allowWebHint": "Desligado por padrão: depois que seus documentos são lidos, uma página da web poderia ser usada para levar o conteúdo deles para fora. Ligue só se confiar na pergunta.",
+    "submit": "Pesquisar",
+    "starting": "Iniciando…",
+    "stop": "Parar"
+  },
+  "web": {
+    "available": "A busca na web usa a sua própria chave de busca.",
+    "missing": "Nenhuma chave de busca na web está conectada, então a pesquisa usa só a sua base de conhecimento (só BC).",
+    "connect": "Conectar Tavily ou Brave",
+    "keyless": "Nenhuma chave de busca está conectada, então a web é buscada pelo DuckDuckGo. Ele não precisa de chave, mas pode ser lento ou recusar; uma chave Tavily ou Brave é mais confiável.",
+    "connectKey": "Conectar uma chave de busca"
+  },
+  "kbOnly": {
+    "badge": "Só BC",
+    "noSearchKey": "Só BC: nenhuma chave de busca na web está conectada.",
+    "webOff": "Só BC: a web fica desligada quando seus documentos são incluídos, a menos que você permita.",
+    "searchFailed": "Só BC: a busca na web falhou.",
+    "generic": "Só BC: este relatório não usou a web."
+  },
+  "stages": {
+    "title": "Progresso",
+    "rephrase": "Formulando a pergunta",
+    "decompose": "Dividindo em subperguntas",
+    "gather": "Reunindo fontes",
+    "synthesize": "Escrevendo o relatório",
+    "pending": "Esperando",
+    "running": "Em andamento",
+    "done": "Concluído",
+    "verify": "Conferindo as afirmações com as fontes"
+  },
+  "report": {
+    "live": "Relatório",
+    "open": "Abrir o relatório",
+    "sources": "Fontes",
+    "noSources": "Este relatório não cita nenhuma fonte.",
+    "mode": "Modo",
+    "created": "Escrito",
+    "save": "Salvar no caderno",
+    "saved": "Salvo no seu caderno.",
+    "back": "Todas as pesquisas",
+    "engineKeyless": "Busca na web pelo DuckDuckGo (sem chave de busca).",
+    "rounds": "Buscado em {{count}} rodadas"
+  },
+  "list": {
+    "title": "Relatórios anteriores",
+    "empty": "Ainda não há relatórios.",
+    "sources": "fontes"
+  },
+  "errors": {
+    "empty": "Escreva o que você quer pesquisar.",
+    "failed": "Não foi possível iniciar a pesquisa."
+  },
+  "check": {
+    "title": "Conferência das afirmações",
+    "summary": "{{supported}} de {{total}} afirmações são sustentadas pelas fontes que citam.",
+    "allSupported": "Cada afirmação conferida é sustentada pela fonte que cita.",
+    "caveat": "Conferido por uma IA contra o texto citado, não é prova de que a afirmação seja verdadeira. Abra a fonte antes de confiar numa afirmação, principalmente nas marcadas abaixo.",
+    "unavailable": "A conferência não pôde rodar para este relatório, então nada nele foi conferido.",
+    "needsChecking": "Precisa de conferência",
+    "verdict": {
+      "supported": "Sustentada",
+      "partial": "Sustentada em parte",
+      "unsupported": "Não está na fonte",
+      "uncited": "Sem fonte"
+    },
+    "all": "Todas as {{count}} afirmações conferidas"
+  },
+  "open": {
+    "title": "Vale pesquisar em seguida",
+    "body": "Lacunas que a busca ainda via quando parou.",
+    "research": "Pesquisar isto"
+  },
+  "keep": {
+    "title": "Continuar estudando isto",
+    "body": "Adicione o relatório a uma base de conhecimento e ele vira um documento como qualquer outro: faça um quiz sobre ele, monte uma trilha de domínio ou pergunte sobre ele no chat.",
+    "kb": "Base de conhecimento",
+    "includeSources": "Adicionar também as páginas web que ele cita",
+    "includeSourcesHint": "Cada página é buscada uma vez e indexada com o seu modelo de embeddings, para que os trechos dela possam ser citados depois.",
+    "add": "Adicionar à base de conhecimento",
+    "adding": "Adicionando…",
+    "added": "Adicionado a {{kb}}. A indexação leva um instante.",
+    "already": "Este relatório já está em {{kb}}.",
+    "pages": "{{added}} página(s) adicionadas, {{already}} já estavam lá, {{failed}} não puderam ser lidas.",
+    "quiz": "Me teste sobre ele",
+    "chat": "Perguntar sobre ele",
+    "noKbs": "Você ainda não tem nenhuma base de conhecimento.",
+    "createKb": "Criar uma"
+  }
+}

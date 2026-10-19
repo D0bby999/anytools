@@ -12,6 +12,7 @@ import { Link, redirect, useFetcher, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import type { Route } from "./+types/books.$bookId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { cancelBook, compileBook, confirmBook, deleteBook, getBook, saveProposal } from "~/lib/books.server";
@@ -21,9 +22,9 @@ import { BookProposalEditor } from "~/components/book/proposal-editor";
 import { ChapterList } from "~/components/book/chapter-list";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.book ? `${data.book.title} · AnyLearn` : "AnyLearn" },
+    { title: data?.book ? appTitle(matches, raw(data.book.title)) : appTitle(matches) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

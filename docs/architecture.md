@@ -268,6 +268,21 @@ hourly; `PushStore.ClaimReminder` is one UPDATE that sends only in the
 learner's local hour window and records the local day, so a restart or a
 second tick cannot send twice.
 
+### Interface language
+
+AnyLearn speaks en, vi, es and pt (plan 261019-1317). `users.language` is the
+account's; until it is set, app-layout fills it once, `only_if_unset`, from the
+sign-in page's choice (`?lang=`, the cookie it sets, the public page the visitor
+came from, then Accept-Language; `lib/language.server.ts`). English is bundled;
+another language is imported by the layout loaders before the server renders
+and by `entry.client.tsx` before hydration, so the first paint is translated
+and hydration matches. Each language is its own i18next instance, never
+switched, because two requests in two languages share one server process.
+`app/test/i18n-app-locales.test.ts` fails on any English string without its
+three translations. Model output follows the conversation's language; API
+sentences shown to learners carry a code the web translates (readiness:
+`reason_code`, `note_code`), and the rest are still English.
+
 ### Web tools (phase 9)
 
 `web_search` and `web_fetch` are the only tools whose destination is chosen by

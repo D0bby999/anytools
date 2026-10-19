@@ -21,7 +21,7 @@ const fieldClass =
   "min-h-11 w-full min-w-0 rounded-md border border-control-border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
 
 export function AddRepo({ kbId, defaults }: { kbId: string; defaults: RepoDefaults }) {
-  const { t } = useTranslation("knowledge");
+  const { t, i18n } = useTranslation("knowledge");
   const fetcher = useFetcher<SourceActionData>();
   const form = useRef<HTMLFormElement>(null);
   const busy = fetcher.state !== "idle";
@@ -85,7 +85,7 @@ export function AddRepo({ kbId, defaults }: { kbId: string; defaults: RepoDefaul
       </div>
       <p id="lp-repo-hint" className="text-xs leading-snug text-muted-foreground">
         {t("repo.hint", {
-          files: defaults.max_files.toLocaleString("en"),
+          files: defaults.max_files.toLocaleString(i18n.language),
           fileMB: Math.round(defaults.max_file_bytes / (1 << 20)),
           repoMB: Math.round(defaults.max_repo_bytes / (1 << 20)),
         })}

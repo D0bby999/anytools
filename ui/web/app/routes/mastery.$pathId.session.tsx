@@ -14,6 +14,7 @@ import { Link, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/mastery.$pathId.session";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { nextQuestion } from "~/lib/mastery.server";
@@ -22,9 +23,9 @@ import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
 import { ExplainBackCard } from "~/components/mastery/explain-back-card";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Study · AnyLearn" },
+    { title: appTitle(matches, "Study") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

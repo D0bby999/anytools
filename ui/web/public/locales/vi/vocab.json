@@ -1,0 +1,216 @@
+{
+  "tabs": {
+    "label": "Các mục ôn tập",
+    "paths": "Lộ trình",
+    "vocabulary": "Từ vựng",
+    "dueBadge": "{{count}} đến hạn",
+    "bookCards": "Thẻ sách"
+  },
+  "page": {
+    "title": "Từ vựng",
+    "lead": "Những từ bạn đã lưu khi đọc. Mỗi từ quay lại theo lịch riêng của nó hai lần: một lần để nhớ nghĩa, một lần để gõ nó vào đúng câu bạn đã gặp."
+  },
+  "session": {
+    "title": "Đến hạn hôm nay",
+    "progress": "{{done}} trên {{total}}",
+    "more": "Còn {{count}} thẻ đến hạn hôm nay sau buổi này.",
+    "empty": "Hôm nay không có gì đến hạn.",
+    "finished": "Đó là tất cả những gì đến hạn hôm nay.",
+    "recognitionPrompt": "Ở đây từ này nghĩa là gì?",
+    "clozePrompt": "Gõ từ còn thiếu.",
+    "reveal": "Hiện nghĩa",
+    "check": "Kiểm tra",
+    "answerLabel": "Câu trả lời của bạn",
+    "matched": "Khớp rồi.",
+    "notMatched": "Từ đúng là:",
+    "suggested": "gợi ý",
+    "rateLabel": "Bạn nhớ từ này tới đâu?",
+    "again": "Lại",
+    "hard": "Khó",
+    "good": "Được",
+    "easy": "Dễ",
+    "failed": "Lượt ôn đó chưa được lưu. Hãy thử lại.",
+    "from": "Từ {{title}}",
+    "revealBack": "Hiện đáp án"
+  },
+  "list": {
+    "title": "Từ của bạn",
+    "search": "Tìm từ và nghĩa",
+    "language": "Ngôn ngữ",
+    "anyLanguage": "Bất kỳ",
+    "apply": "Tìm",
+    "empty": "Chưa lưu từ nào. Khi đọc, hãy chọn một đoạn, chọn Từ vựng, rồi Tìm từ để lưu.",
+    "noMatch": "Không có từ nào khớp.",
+    "suspended": "đã tạm dừng",
+    "edit": "Sửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "suspend": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "delete": "Xóa",
+    "confirmDelete": "Xóa hẳn",
+    "meaning": "Nghĩa",
+    "reading": "Cách đọc",
+    "pos": "Từ loại",
+    "lang": "Mã ngôn ngữ",
+    "contexts": "{{count}} câu",
+    "contexts_other": "{{count}} câu",
+    "failed": "Thay đổi đó chưa được lưu."
+  },
+  "picker": {
+    "find": "Tìm từ để lưu",
+    "finding": "Đang tìm từ…",
+    "cost": "Hỏi mô hình đọc của bạn một lần để lấy danh sách thuật ngữ trong đoạn này.",
+    "title": "Các từ trong đoạn này",
+    "none": "Mô hình không tìm thấy từ nào trong đoạn này để lưu.",
+    "language": "Ngôn ngữ",
+    "save": "Lưu",
+    "saved": "Đã lưu",
+    "added": "Đã thêm một câu",
+    "failed": "Không tìm được từ."
+  },
+  "speech": {
+    "readAloud": "Đọc thành tiếng",
+    "readPage": "Đọc trang này",
+    "listen": "Nghe",
+    "stop": "Dừng",
+    "close": "Đóng trình đọc",
+    "title": "Đang đọc thành tiếng",
+    "voice": "Giọng",
+    "rate": "Tốc độ",
+    "local": "trên thiết bị này",
+    "remote": "trực tuyến: văn bản được gửi tới hãng làm trình duyệt",
+    "remoteNote": "Giọng có ghi trực tuyến sẽ gửi văn bản tới hãng làm trình duyệt để đọc. Giọng trên thiết bị này thì không.",
+    "noVoice": "Trình duyệt của bạn không có giọng cho {{lang}}. Hãy chọn giọng của ngôn ngữ khác để vẫn nghe được.",
+    "failed": "Việc đọc thành tiếng đã dừng: {{error}}",
+    "unsupported": "Trình duyệt này không đọc thành tiếng được."
+  },
+  "home": {
+    "title": "Từ vựng đến hạn",
+    "count": "{{count}} thẻ từ đến hạn hôm nay.",
+    "count_other": "{{count}} thẻ từ đến hạn hôm nay.",
+    "none": "Hôm nay không có thẻ từ nào đến hạn.",
+    "open": "Ôn từ vựng"
+  },
+  "errors": {
+    "generic": "Đã có lỗi. Hãy thử lại."
+  },
+  "bookCards": {
+    "title": "Thẻ sách",
+    "lead": "Thẻ từ những cuốn sách sống bạn đã viết. Chúng quay lại theo cùng lịch với từ vựng, trong một hàng chờ riêng.",
+    "empty": "Chưa có thẻ sách nào. Hãy mở một cuốn sách tạo từ kho tài liệu; các khối thẻ ghi nhớ trong đó sẽ thêm thẻ vào đây.",
+    "home": {
+      "title": "Thẻ sách",
+      "count": "{{count}} thẻ sách đến hạn hôm nay.",
+      "count_other": "{{count}} thẻ sách đến hạn hôm nay.",
+      "open": "Ôn thẻ sách"
+    }
+  },
+  "decide": {
+    "legend": "Bạn sẽ làm gì với từ này?",
+    "hint": "Hãy quyết định trước khi tra nghĩa. Chỉ từ bạn chọn học mới quay lại để ôn.",
+    "options": {
+      "skip": "Bỏ qua",
+      "infer": "Tự đoán",
+      "lookup": "Tra nhanh",
+      "learn": "Học có chủ đích",
+      "verify": "Kiểm chứng với chuyên gia"
+    },
+    "when": {
+      "skip": "Nó không làm đổi ý chính, bước tiếp theo hay sự an toàn của ai.",
+      "infer": "Câu văn, một phép đối chiếu hay một ví dụ là đủ để bạn hiểu tiếp.",
+      "lookup": "Nó chặn bạn lúc này nhưng có lẽ bạn sẽ không cần lại nữa.",
+      "learn": "Nó cứ lặp lại, quan trọng với việc đang làm, và bạn sẽ dùng nó trong hai tuần tới.",
+      "verify": "Sự an toàn, pháp luật, sức khỏe, tiền bạc, phiên bản hay trách nhiệm của ai đó phụ thuộc vào nó."
+    },
+    "fields": {
+      "why": "Vì sao có thể để sau",
+      "sense": "Nghĩa bạn đoán",
+      "confidence": "Độ chắc chắn",
+      "source": "Nguồn của nghĩa hiện tại",
+      "sound": "Cách đọc",
+      "collocation": "Kết hợp từ",
+      "cue": "Gợi nhớ",
+      "definition": "Định nghĩa chính",
+      "scope": "Phạm vi",
+      "owner": "Người chịu trách nhiệm"
+    },
+    "fieldHints": {
+      "sound": "Cách phát âm: trọng âm, hoặc cách viết theo âm.",
+      "collocation": "Những từ thường đi kèm với nó.",
+      "cue": "Tình huống sẽ khiến bạn nhớ tới nó.",
+      "learnRetest": "Lần kiểm tra lại chính là lịch ôn: hai thẻ sẽ quay lại từ ngày mai.",
+      "owner": "Ai chịu trách nhiệm về thuật ngữ này trong hoàn cảnh của bạn."
+    },
+    "confidences": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao"
+    },
+    "meaning": "Nghĩa hiện tại",
+    "suggestion": "Nghĩa gợi ý",
+    "suggestionHidden": "Hãy viết nghĩa bạn đoán trước; gợi ý sẽ hiện ra sau.",
+    "suggestionNote": "Gợi ý của mô hình chỉ là một khả năng, không phải nguồn.",
+    "impact": "Ảnh hưởng tới việc đang làm",
+    "impactNone": "Không nói",
+    "impacts": {
+      "blocking": "Chặn việc",
+      "important": "Quan trọng",
+      "minor": "Nhỏ",
+      "none": "Không có"
+    },
+    "save": "Lưu quyết định",
+    "saving": "Đang lưu…",
+    "change": "Đổi quyết định",
+    "cancel": "Hủy",
+    "savedAs": "Đã lưu là {{decision}}.",
+    "already": "Bạn đã quyết định cho từ này rồi: {{decision}}.",
+    "changed": "Đã đổi quyết định thành {{decision}}.",
+    "failed": "Quyết định đó chưa được lưu."
+  },
+  "week": {
+    "select": "Tuần này có {{count}} từ cần học. Năm tới tám từ mỗi chu kỳ là đủ: hãy giữ những từ lặp lại, quan trọng với việc đang làm và bạn sẽ sớm dùng.",
+    "over": "Tuần này có {{count}} từ cần học, nhiều hơn năm tới tám từ mà một chu kỳ chứa được. Hãy cân nhắc bỏ qua, tự đoán hoặc tra nhanh một số từ."
+  },
+  "production": {
+    "kind": "vận dụng",
+    "prompt": "Gõ cách diễn đạt phù hợp.",
+    "scenario": "Tình huống",
+    "sense": "Nghĩa",
+    "confusable": "Đừng nhầm với"
+  },
+  "practise": {
+    "start": "Luyện dùng từ",
+    "hint": "Thẻ vận dụng bắt đầu từ một tình huống và yêu cầu bạn tự nói ra từ đó. Hãy viết một tình huống của chính bạn mà bạn sẽ dùng nó.",
+    "scenario": "Tình huống của bạn",
+    "confusable": "Một cách diễn đạt dễ nhầm, và điểm khác nhau (không bắt buộc)",
+    "save": "Tạo thẻ vận dụng",
+    "stop": "Ngừng luyện",
+    "on": "đang luyện",
+    "cancel": "Hủy",
+    "failed": "Thẻ vận dụng chưa được lưu."
+  },
+  "byDecision": {
+    "title": "Các quyết định khác",
+    "lead": "Những từ bạn quyết định không học có chủ đích. Chúng không có thẻ ôn.",
+    "learnThis": "Học từ này",
+    "record": "Ghi lại",
+    "learnTitle": "Đang học",
+    "count": "{{count}} từ",
+    "count_other": "{{count}} từ"
+  },
+  "audit": {
+    "title": "Thêm vào bảng rà soát từ vựng",
+    "lead": "Sao chép các từ đã chọn vào hàng chờ quyết định của một bảng rà soát từ vựng đang mở, kèm ảnh hưởng tới việc đang làm, quyết định và căn cứ. Bảng rà soát giữ bản sao riêng của nó.",
+    "select": "Chọn {{term}} cho bảng rà soát",
+    "worksheet": "Rà soát từ vựng",
+    "add": "Thêm các từ đã chọn",
+    "none": "Bạn chưa có bảng rà soát từ vựng nào đang mở.",
+    "start": "Bắt đầu một bảng rà soát từ vựng",
+    "added": "Đã thêm {{count}} từ vào bảng rà soát.",
+    "added_other": "Đã thêm {{count}} từ vào bảng rà soát.",
+    "full": "Hàng chờ của bảng rà soát đã đầy sau {{count}} từ; số còn lại chưa được thêm.",
+    "nothing": "Hãy chọn ít nhất một từ trước.",
+    "failed": "Các từ chưa được thêm."
+  }
+}

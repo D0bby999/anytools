@@ -1,0 +1,106 @@
+{
+  "page": {
+    "lead": "Những gì AnyLearn ghi nhớ về cách bạn học. Mọi mục đều do bạn sửa hoặc xóa. Các tính năng chỉ đọc khi cần: Ôn tập đọc mục Sở thích và Khó khăn, Chat đọc mục Sở thích, còn Nghiên cứu không bao giờ đọc.",
+    "count": "{{count}} trên {{max}}",
+    "empty": "Chưa có gì ở đây."
+  },
+  "sections": {
+    "studying": {
+      "title": "Đang học",
+      "hint": "Môn học và mục tiêu."
+    },
+    "strengths": {
+      "title": "Điểm mạnh",
+      "hint": "Những gì đã trụ vững theo thời gian."
+    },
+    "struggles": {
+      "title": "Khó khăn",
+      "hint": "Lỗi sai hay những điểm cứ lặp lại."
+    },
+    "preferences": {
+      "title": "Sở thích",
+      "hint": "Bạn thích được giải thích thế nào: ví dụ, ngôn ngữ, nhịp độ."
+    },
+    "constraints": {
+      "title": "Ràng buộc",
+      "hint": "Thời gian bạn có và các hạn chót."
+    }
+  },
+  "entry": {
+    "yours": "Của bạn",
+    "fromActivity": "Từ hoạt động của bạn",
+    "kb": "Về {{name}}",
+    "evidence": "Bằng chứng",
+    "gone": "không còn tồn tại",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "confirmDelete": "Xóa mục này?",
+    "confirmYes": "Xóa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "text": "Mục",
+    "section": "Phần",
+    "kbLabel": "Kho tài liệu",
+    "anyKB": "Không gắn với kho tài liệu nào",
+    "editHint": "Khi bạn sửa một mục, nó thuộc về bạn, và các gợi ý ban đêm không bao giờ đổi nó."
+  },
+  "refKinds": {
+    "mistake": "Lỗi sai",
+    "knowledge_point": "Điểm kiến thức",
+    "knowledge_base": "Kho tài liệu",
+    "vocab_card": "Từ",
+    "skill_card": "Thẻ kỹ năng"
+  },
+  "proposals": {
+    "title": "Đề xuất",
+    "hint": "Gợi ý từ hoạt động của bạn. Không tính năng nào dùng gì ở đây cho tới khi bạn chấp nhận; gợi ý đã bị từ chối sẽ không được đưa lại trong 30 ngày.",
+    "add": "Thêm vào {{section}}",
+    "update": "Đổi một mục trong {{section}}",
+    "remove": "Gỡ khỏi {{section}}",
+    "was": "Hiện tại: “{{text}}”",
+    "accept": "Chấp nhận",
+    "reject": "Từ chối"
+  },
+  "add": {
+    "title": "Thêm một mục",
+    "section": "Phần",
+    "text": "AnyLearn nên ghi nhớ điều gì?",
+    "kb": "Về một kho tài liệu (không bắt buộc)",
+    "submit": "Thêm"
+  },
+  "consolidation": {
+    "title": "Gợi ý ban đêm",
+    "body": "Khi bật, AnyLearn xem lại mỗi đêm một lần, lúc 02:00 theo múi giờ của bạn và chỉ sau một ngày có hoạt động mới, các kết quả làm bài, ôn tập, từ vựng và thẻ kỹ năng của bạn, rồi đề xuất các mục. Nó thực hiện một lệnh gọi tới mô hình chat của chính bạn và chỉ đọc số liệu và kết quả, không bao giờ đọc tài liệu hay bất cứ thứ gì bạn đã viết. Không đề xuất nào được dùng cho tới khi bạn chấp nhận.",
+    "stateOn": "Gợi ý ban đêm đang bật.",
+    "stateOff": "Gợi ý ban đêm đang tắt.",
+    "turnOn": "Bật",
+    "turnOff": "Tắt",
+    "lastRun": "Lần chạy gần nhất",
+    "never": "Chưa chạy lần nào.",
+    "ranAt": "{{when}} · {{status}}",
+    "noOps": "Lần đó không đề xuất gì.",
+    "proposed": "Đã đề xuất",
+    "dropped": "Đã bỏ",
+    "status": {
+      "running": "đang chạy",
+      "succeeded": "đã xong",
+      "skipped": "đã bỏ qua",
+      "failed": "thất bại"
+    }
+  },
+  "clear": {
+    "title": "Xóa hồ sơ",
+    "body": "Xóa mọi mục, kể cả các đề xuất. Lịch sử làm bài, ôn tập và từ vựng của bạn không bị ảnh hưởng.",
+    "start": "Xóa hồ sơ",
+    "confirm": "Xóa mọi mục?",
+    "yes": "Có, xóa đi",
+    "cancel": "Hủy",
+    "done": "Hồ sơ đang trống."
+  },
+  "errors": {
+    "generic": "Chưa được. Hãy thử lại.",
+    "full": "Phần đó đã có 12 mục. Hãy xóa bớt một mục trước.",
+    "conflict": "Mục đó đã thay đổi từ khi trang này được tải. Nó đã được làm mới.",
+    "invalid": "Mỗi mục cần có nội dung, tối đa 280 ký tự."
+  }
+}

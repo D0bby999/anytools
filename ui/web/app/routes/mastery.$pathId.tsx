@@ -10,6 +10,7 @@ import { Link, redirect, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/mastery.$pathId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import {
@@ -28,9 +29,9 @@ import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
 import { MasteryMeter } from "~/components/mastery/mastery-meter";
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.detail ? `${data.detail.path.goal} · AnyLearn` : "Mastery · AnyLearn" },
+    { title: data?.detail ? appTitle(matches, raw(data.detail.path.goal)) : appTitle(matches, "Mastery") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

@@ -29,7 +29,7 @@ func TestClaimReminderOncePerLocalDayInTheLearnersHour(t *testing.T) {
 	ctx := context.Background()
 	store := pg.NewPushStore(pool, pushTestKey)
 	user := testutil.NewUser(t, pool)
-	if _, err := pool.Exec(ctx, `UPDATE users SET timezone = 'Asia/Ho_Chi_Minh' WHERE id = $1`, user); err != nil {
+	if _, err := pool.Exec(ctx, `UPDATE users SET timezone = 'Asia/Ho_Chi_Minh', language = 'vi' WHERE id = $1`, user); err != nil {
 		t.Fatal(err)
 	}
 	if err := store.SetHour(ctx, user, 7); err != nil {
@@ -38,27 +38,27 @@ func TestClaimReminderOncePerLocalDayInTheLearnersHour(t *testing.T) {
 	// 07:30 in Saigon is 00:30 UTC.
 	at := func(day, hour, minute int) time.Time { return time.Date(2026, 10, day, hour, minute, 0, 0, time.UTC) }
 
-	if _, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3); err != nil || ok {
+	if _, _, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3); err != nil || ok {
 		t.Fatalf("no subscription yet: ok=%v err=%v", ok, err)
 	}
 	sub := pushSub(t)
 	if err := store.Subscribe(ctx, user, sub); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok, _ := store.ClaimReminder(ctx, user, at(19, 23, 30), 3); ok {
+	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(19, 23, 30), 3); ok {
 		t.Fatal("claimed at 06:30 local, before the learner's hour")
 	}
-	subs, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3)
-	if err != nil || !ok || len(subs) != 1 || subs[0] != sub {
-		t.Fatalf("07:30 local: subs=%v ok=%v err=%v", subs, ok, err)
+	subs, language, ok, err := store.ClaimReminder(ctx, user, at(20, 0, 30), 3)
+	if err != nil || !ok || len(subs) != 1 || subs[0] != sub || language != "vi" {
+		t.Fatalf("07:30 local: subs=%v language=%q ok=%v err=%v", subs, language, ok, err)
 	}
-	if _, ok, _ := store.ClaimReminder(ctx, user, at(20, 1, 30), 3); ok {
+	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(20, 1, 30), 3); ok {
 		t.Fatal("claimed a second time on the same local day")
 	}
-	if _, ok, _ := store.ClaimReminder(ctx, user, at(21, 3, 30), 3); ok {
+	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(21, 3, 30), 3); ok {
 		t.Fatal("claimed at 10:30 local, after the window")
 	}
-	if _, ok, _ := store.ClaimReminder(ctx, user, at(21, 2, 0), 3); !ok {
+	if _, _, ok, _ := store.ClaimReminder(ctx, user, at(21, 2, 0), 3); !ok {
 		t.Fatal("09:00 local the next day is inside the window and was not claimed")
 	}
 }
@@ -117,5 +117,31 @@ func TestVAPIDPrivateKeyIsStoredEncrypted(t *testing.T) {
 	}
 	if _, err := pool.Exec(ctx, `DELETE FROM push_vapid`); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// The language a learner picks is kept; the automatic report fills only an
+// unset one, and the column refuses a language the app is not written in.
+func TestSetLanguageKeepsAChosenOne(t *testing.T) {
+	pool := testutil.TestDB(t)
+	ctx := context.Background()
+	users := pg.NewUserStore(pool)
+	user := testutil.NewUser(t, pool)
+
+	if changed, err := users.SetLanguage(ctx, user, "vi", true); err != nil || !changed {
+		t.Fatalf("first report: changed=%v err=%v", changed, err)
+	}
+	if changed, _ := users.SetLanguage(ctx, user, "es", true); changed {
+		t.Fatal("an automatic report overwrote a language already set")
+	}
+	if changed, err := users.SetLanguage(ctx, user, "pt", false); err != nil || !changed {
+		t.Fatalf("a choice: changed=%v err=%v", changed, err)
+	}
+	if _, err := users.SetLanguage(ctx, user, "fr", false); err == nil {
+		t.Fatal("the column accepted a language the app is not written in")
+	}
+	u, err := users.GetUser(ctx, user)
+	if err != nil || u.Language != "pt" || u.LanguageSetAt == nil {
+		t.Fatalf("user = %+v, %v", u, err)
 	}
 }

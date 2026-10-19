@@ -1,0 +1,222 @@
+{
+  "moreItem": "Bộ công cụ",
+  "evidenceKind": "Phiếu học",
+  "index": {
+    "title": "Bộ công cụ",
+    "lead": "Phiếu học cho các phương pháp mà ứng dụng này theo: mỗi phiếu là một trang gồm các phần có tiêu đề để điền dần qua nhiều ngày, được giữ cùng việc học của bạn và mở lại vào các ngày xem lại.",
+    "noKinds": "Chưa có phiếu học nào.",
+    "private": "Riêng tư",
+    "new": "Mới",
+    "newOf": "{{name}} mới"
+  },
+  "groups": {
+    "language": "Ngôn ngữ",
+    "projects": "Dự án",
+    "life": "Cuộc sống"
+  },
+  "due": {
+    "title": "Cần xem lại",
+    "none": "Hôm nay không có gì cần xem lại."
+  },
+  "list": {
+    "open": "Đang mở",
+    "done": "Đã xong",
+    "nextReview": "Lần xem lại tiếp theo {{date}}"
+  },
+  "new": {
+    "chooseTitle": "Phiếu học mới",
+    "chooseLead": "Chọn phiếu để bắt đầu.",
+    "title": "Mới: {{name}}",
+    "titleLabel": "Tiêu đề",
+    "start": "Bắt đầu"
+  },
+  "sheet": {
+    "unknownKind": "Loại phiếu này không còn nữa. Những gì bạn đã viết vẫn được giữ và có thể tải về.",
+    "back": "Mọi phiếu học",
+    "goal": "Mục tiêu của nó",
+    "document": "Tài liệu của nó",
+    "export": "Tải về dạng Markdown",
+    "earlier": "Từ phiên bản trước",
+    "earlierLead": "Phiếu này đã đổi cấu trúc sau khi bạn điền các phần này. Chúng được giữ nguyên như bạn đã viết, và không sửa ở đây.",
+    "manage": "Phiếu này",
+    "title": "Tiêu đề",
+    "rename": "Đổi tên",
+    "markDone": "Đánh dấu đã xong",
+    "reopen": "Mở lại",
+    "delete": "Xóa phiếu này",
+    "deleteConfirm": "Mọi nội dung trong đó sẽ bị xóa. Không thể hoàn tác.",
+    "deleteNow": "Xóa"
+  },
+  "reviews": {
+    "title": "Ngày xem lại",
+    "notScheduled": "Chưa lên lịch: nó tính từ một mốc bạn chưa ghi lại.",
+    "done": "đã xem lại",
+    "move": "Dời tới",
+    "save": "Dời",
+    "markDone": "Đánh dấu đã xem lại"
+  },
+  "form": {
+    "choose": "Chọn…",
+    "otherOption": "Khác…",
+    "other": "Khác",
+    "yes": "Có",
+    "no": "Không",
+    "audioLater": "Chưa có tính năng ghi âm.",
+    "rowActions": "Thao tác với dòng",
+    "rowNumber": "Dòng {{n}}",
+    "addRow": "Thêm một dòng",
+    "removeRow": "Gỡ bỏ",
+    "rowsLeft_one": "Được thêm {{count}} dòng nữa",
+    "rowsLeft_other": "Được thêm {{count}} dòng nữa",
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu",
+    "conflict": "Phần này đã được sửa ở nơi khác. Giờ nó hiện nội dung đã lưu ở đó; hãy sửa lại lần nữa."
+  },
+  "private": {
+    "title": "Riêng tư",
+    "body": "Không gì trong phiếu này được gửi tới mô hình AI, và nó không bao giờ xuất hiện làm bằng chứng hay hiện tiêu đề trên Trang chủ.",
+    "leaveOut": "Chỉ ghi những gì bạn thấy thoải mái khi lưu trữ. Đừng ghi mật khẩu, số giấy tờ, địa chỉ cụ thể, hồ sơ bệnh án, dữ liệu khách hàng, hay bất cứ điều gì về người khác mà họ chưa đồng ý cho ghi lại.",
+    "danger": "Nếu có nguy hiểm hay bạo lực trước mắt, nếu mất ngủ hay tâm trạng rất tệ kéo dài không dứt, hoặc nếu có nợ nần hay rắc rối pháp lý, hãy liên hệ người có chuyên môn trước. Một phiếu học không thay được việc đó."
+  },
+  "home": {
+    "title": "Cần xem lại hôm nay",
+    "count_one": "{{count}} phiếu học đến hạn xem lại.",
+    "count_other": "{{count}} phiếu học đến hạn xem lại.",
+    "open": "Mở bộ công cụ"
+  },
+  "state": {
+    "title": "Phiếu học",
+    "none": "Mục tiêu này chưa gắn phiếu học nào.",
+    "new": "Phiếu học mới"
+  },
+  "loop": {
+    "title": "Bộ công cụ",
+    "body": "Phiếu học cho một dự án, một kỹ năng ngôn ngữ hay một tuần khó khăn, mỗi phiếu có ngày xem lại riêng.",
+    "open": "Mở bộ công cụ"
+  },
+  "recordings": {
+    "record": "Ghi âm",
+    "stop": "Dừng",
+    "limit": "Bản ghi tự dừng sau 10 phút.",
+    "preview": "Bản ghi của bạn",
+    "previewHint": "Nghe lại trước khi giữ. Không có gì được tải lên cho tới khi bạn bấm Giữ, và bản ghi được giữ nguyên: không lọc nhiễu, không chỉnh âm lượng, không cắt.",
+    "keep": "Giữ",
+    "discard": "Bỏ",
+    "keeping": "Đang giữ…",
+    "keepFailed": "Không giữ được bản ghi. Hãy thử lại.",
+    "unsupported": "Trình duyệt này không ghi âm được ở đây. Hãy tải lên tệp ghi ở nơi khác.",
+    "denied": "Micro đang bị chặn cho trang này. Hãy cho phép trong phần cài đặt trang web của trình duyệt, hoặc tải lên tệp ghi ở nơi khác.",
+    "upload": "Tải lên bản ghi",
+    "uploadHint": "Âm thanh WebM, Ogg hoặc MP4, tối đa 10 MB và 10 phút.",
+    "unsaved": "Chỉ thêm được bản ghi vào phiếu đã lưu.",
+    "clear": "Gỡ khỏi ô này",
+    "delete": "Xóa bản ghi",
+    "deleteFailed": "Không xóa được bản ghi. Hãy thử lại.",
+    "missing": "Bản ghi này bị thiếu. Hãy gỡ nó khỏi ô và ghi lại.",
+    "useKept": "Hoặc dùng một bản ghi đã giữ",
+    "takeOption": "Bản ghi, {{length}}, {{date}}",
+    "notUsed": "Chưa dùng ở dòng này",
+    "see": "Mở trong bằng chứng nói của bạn",
+    "title": "Bản ghi",
+    "lead": "Mọi bản ghi trên phiếu này. Xóa một bản sẽ xóa tệp của nó và gỡ nó khỏi mọi ô đang dùng.",
+    "compare": "So sánh",
+    "compareLead": "Phát một bản ghi trước cạnh một bản ghi sau, ví dụ bản mốc ban đầu cạnh bản kiểm tra lại.",
+    "earlier": "Bản ghi trước",
+    "later": "Bản ghi sau",
+    "takeLabel": "{{where}} · {{length}} · {{date}}",
+    "unused": "Không nằm trong ô nào"
+  },
+  "diagnostic": {
+    "total": "Tổng",
+    "totalOf": "{{total}} trên {{max}}",
+    "open": "Mở phiếu bằng chứng {{skill}}",
+    "fromDocument": "Bắt đầu từ video hoặc văn bản bạn đang luyện.",
+    "prefill": "Từ bài chẩn đoán tiếng Anh “{{title}}”: rào cản chính là {{barrier}}.",
+    "prefillSample": "Mẫu hoặc mốc thời gian: {{sample}}.",
+    "cannotOpen": "Không mở được phiếu bằng chứng đó từ đây.",
+    "notADiagnostic": "Chỉ bài chẩn đoán tiếng Anh mới mở phiếu bằng chứng.",
+    "start": "Bắt đầu bằng một bài chẩn đoán tiếng Anh",
+    "startLead": "Một mẫu đầu tiên, chưa trau chuốt, ở cả bốn kỹ năng sẽ cho thấy cần xử lý rào cản nào trước khi đi tiếp với các thẻ."
+  },
+  "writingDiagnosis": {
+    "title": "Chẩn đoán bằng AI",
+    "lead": "Nhờ mô hình chat của bạn chẩn đoán một lượt của bản nháp đã lưu. Nó chỉ ra tối đa ba chỗ, nói vì sao, chắc chắn tới đâu và có thể sai thế nào. Nó không bao giờ viết lại gì cả. Phần Trước và Sau là do bạn viết.",
+    "pass": "Lượt {{n}} · {{label}}",
+    "diagnose": "Chẩn đoán",
+    "working": "Đang chẩn đoán…",
+    "by": "{{model}} chẩn đoán ngày {{date}}",
+    "unknownModel": "mô hình của bạn",
+    "none": "Không thấy vấn đề nào đáng kể cho lượt này.",
+    "issues": "Vấn đề ở lượt {{n}}",
+    "basis": "Căn cứ",
+    "confidence": "Độ chắc chắn",
+    "mightBeWrong": "Có thể sai",
+    "levels": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao"
+    },
+    "useQuote": "Dùng trích đoạn này làm phần Trước"
+  },
+  "grammar": {
+    "cardColumn": "Thẻ đối chiếu",
+    "start": "Bắt đầu một thẻ đối chiếu",
+    "startFor": "Bắt đầu thẻ đối chiếu cho “{{sample}}”",
+    "needsSample": "Hãy viết mẫu trước: thẻ đối chiếu bắt đầu từ nó.",
+    "notAMap": "Chỉ bản đồ lỗi ngữ pháp mới bắt đầu thẻ đối chiếu.",
+    "cannotStart": "Không bắt đầu được thẻ bằng chứng ngữ pháp từ đây."
+  },
+  "artifact": {
+    "unverified": "chưa kiểm chứng",
+    "evidenceTitle": "Thêm vào bằng chứng",
+    "evidenceLead": "Bản tóm tắt đã được giao. Hãy đưa nó vào một chuỗi bằng chứng của mục tiêu này làm bằng chứng áp dụng: điều bạn đã học, được dùng trong công việc thật.",
+    "chain": "Chuỗi bằng chứng",
+    "addToEvidence": "Thêm vào bằng chứng",
+    "noChain": "Mục tiêu này chưa có chuỗi bằng chứng nào.",
+    "openState": "Bắt đầu một chuỗi ở trang của mục tiêu"
+  },
+  "life": {
+    "record": "Đây là bản ghi riêng để thấy điều thực sự đã xảy ra. Nó không phải điểm số hằng ngày phải giữ.",
+    "homePrivate_one": "{{count}} ghi chú riêng cần xem lại.",
+    "homePrivate_other": "{{count}} ghi chú riêng cần xem lại.",
+    "safety": {
+      "choice_brief": "Khi một lựa chọn khó hoàn tác và liên quan tới tiền bạc, sức khỏe, pháp luật hay sự an toàn của ai đó, hãy cho nó thêm thời gian và hỏi người có chuyên môn phù hợp trước khi đi tiếp.",
+      "relationship_card": "Nếu có bạo lực, đe dọa, theo dõi, hay bị kiểm soát tiền bạc hoặc tài khoản, sự an toàn của bạn quan trọng hơn mọi cuộc nói chuyện: hãy tới nơi an toàn, kể với người bạn tin, và liên hệ trợ giúp chuyên nghiệp. Đừng hẹn gặp nói chuyện lần cuối một mình.",
+      "recovery_reset": "Nếu bạn có ý định làm hại bản thân hoặc người khác, hoặc không thể giữ an toàn cho mình, đừng ở một mình: hãy liên hệ người ở gần bạn và dịch vụ cấp cứu tại địa phương ngay bây giờ. Trang này có thể chờ.",
+      "life_care_card": "Chăm sóc ai đó không bao giờ có nghĩa là từ bỏ sự an toàn của bạn. Nếu tổn hại cứ tiếp diễn hoặc nói không là không an toàn, lùi lại, tìm giúp đỡ hay rời đi vẫn có thể là sự quan tâm. Khi gánh nặng vượt quá sức, hãy nhờ trợ giúp từ bên ngoài thay vì một mình gồng gánh.",
+      "self_reflection": "Nếu điều bạn nhận thấy có cả mất ngủ không hồi lại, nỗi sợ không dịu đi, ý nghĩ làm hại bản thân, hay việc hằng ngày cứ tuột khỏi tầm tay, hãy mang những ghi chú này tới một bác sĩ hoặc chuyên gia sức khỏe tâm thần gần bạn. Chúng giúp bắt đầu cuộc trò chuyện đó; chúng không thay được nó."
+    },
+    "howTo": {
+      "title": "Cách dùng",
+      "step1": "Ghi ngày và điều đang xảy ra trước khi tự giải thích nó.",
+      "step2": "Chỉ điền phiếu phù hợp với vấn đề trước mắt.",
+      "step3": "Để lại một hành động bạn thực sự làm được, và nơi giữ bằng chứng của nó.",
+      "step4": "Quay lại vào ngày xem lại bạn đã đặt, và đọc kết quả như thông tin, không phải lời phán xét về con người bạn.",
+      "step5": "Xóa những gì không còn giúp ích; giữ những sự thật giúp quyết định tiếp theo tốt hơn."
+    }
+  },
+  "cycleClose": {
+    "missing": "Vẫn còn thiếu",
+    "none": "—",
+    "need": {
+      "condition": "điều kiện đã đổi",
+      "basis": "căn cứ",
+      "archived": "nơi lưu trữ",
+      "told": "đã báo cho ai"
+    },
+    "backToCycle": "Về chu kỳ"
+  },
+  "consistency": {
+    "prefillTitle": "Từ mục tiêu này",
+    "prefillLead": "Ba phiên bản có thể bắt đầu từ những gì mục tiêu này đã ghi. Bạn có thể đổi chúng trong kế hoạch.",
+    "minimum": "Tối thiểu: phiên bản tối thiểu của việc tiếp theo",
+    "standard": "Tiêu chuẩn: việc tiếp theo",
+    "prefillConfirm": "Bắt đầu ba phiên bản bằng những nội dung này"
+  },
+  "evaluation": {
+    "counted": "Từ các dòng tình huống",
+    "noAttempts": "Chưa có lần làm nào",
+    "rates": "{{first}} lần đầu · {{revised}} sau khi sửa",
+    "differs": "Nội dung ghi ở đây khác với các dòng tình huống. Kết quả chỉ được lưu với tỉ lệ mà các dòng cho ra."
+  }
+}

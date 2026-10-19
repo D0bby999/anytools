@@ -18,6 +18,7 @@ import { Link, useNavigate, useNavigation, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/mastery.review";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { reviewNext } from "~/lib/mastery.server";
@@ -25,9 +26,9 @@ import { QuestionCard } from "~/components/quiz/question-card";
 import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Review · AnyLearn" },
+    { title: appTitle(matches, "Review") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

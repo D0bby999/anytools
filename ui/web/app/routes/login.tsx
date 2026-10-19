@@ -9,6 +9,7 @@
 import { Form, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/login";
+import { appTitle } from "~/lib/app-title";
 import { configuredProviders, localSignInEnabled } from "~/lib/env.server";
 import { sanitizeNextPath } from "~/lib/safe-redirect-target";
 import { Button } from "~/components/ui/button";
@@ -17,9 +18,9 @@ import { Plate } from "~/components/ui/plate";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Alert } from "~/components/ui/alert";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Sign in · AnyLearn" },
+    { title: appTitle(matches, "Sign in") },
     { name: "description", content: "Sign in to AnyLearn with Google or GitHub." },
     // The app is behind a login; keep it out of search indexes entirely.
     { name: "robots", content: "noindex, nofollow" },

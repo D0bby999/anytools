@@ -25,6 +25,7 @@ import { useFetcher, useRevalidator, type ShouldRevalidateFunctionArgs } from "r
 import { useTranslation } from "react-i18next";
 import { ArrowDown } from "lucide-react";
 import type { Route } from "./+types/chat.$sessionId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser, requireUserId } from "~/lib/auth.server";
 import {
   answerTurn,
@@ -51,10 +52,10 @@ import { RightPanel } from "~/components/layout/right-panel";
 import { Button } from "~/components/ui/button";
 import { listKBs } from "~/lib/kb.server";
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   const title = data?.session.title;
   return [
-    { title: title ? `${title} · Chat · AnyLearn` : "Chat · AnyLearn" },
+    { title: title ? appTitle(matches, raw(title), "Chat") : appTitle(matches, "Chat") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

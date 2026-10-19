@@ -48,6 +48,10 @@ type User struct {
 	// FileStorage is where the learner's own files are written: "server"
 	// or "drive" (drive-user-storage phase 2, opt-in by owner decision 2).
 	FileStorage string
+	// Language is the interface language: en, vi, es or pt. LanguageSetAt is
+	// nil until the first sign-in reported one or the learner chose one.
+	Language      string
+	LanguageSetAt *time.Time
 }
 
 // IdentityClaims are the verified facts the BFF extracted from a provider.

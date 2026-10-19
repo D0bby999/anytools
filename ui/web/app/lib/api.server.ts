@@ -94,4 +94,8 @@ export type ApiUser = {
   own_version_first?: boolean;
   /** Where new files are written: "server" or "drive" (Settings → Storage). */
   file_storage?: "server" | "drive";
+  /** The interface language: en, vi, es or pt. */
+  language?: string;
+  /** False until the first sign-in reported a language or the learner chose one. */
+  language_set?: boolean;
 };

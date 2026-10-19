@@ -12,7 +12,7 @@ import { useEffect } from "react";
 /** The manifest and the icon iOS uses for a Home Screen web app. */
 export const PWA_LINKS = [
   { rel: "manifest", href: "/manifest.webmanifest" },
-  { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+  { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png?v=2" },
 ];
 
 /** Chromium's install prompt, held until the learner asks for it. */

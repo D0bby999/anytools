@@ -1,0 +1,106 @@
+{
+  "page": {
+    "lead": "O que o AnyLearn lembra sobre como você estuda. Cada entrada é sua para editar ou excluir. Os recursos só leem quando precisam: Domínio lê suas Preferências e Dificuldades, o Chat lê suas Preferências e a Pesquisa nunca lê.",
+    "count": "{{count}} de {{max}}",
+    "empty": "Nada aqui ainda."
+  },
+  "sections": {
+    "studying": {
+      "title": "Estudando",
+      "hint": "Matérias e objetivos."
+    },
+    "strengths": {
+      "title": "Pontos fortes",
+      "hint": "O que se manteve ao longo do tempo."
+    },
+    "struggles": {
+      "title": "Dificuldades",
+      "hint": "Erros ou pontos que sempre voltam."
+    },
+    "preferences": {
+      "title": "Preferências",
+      "hint": "Como você gosta que expliquem: exemplos, idioma, ritmo."
+    },
+    "constraints": {
+      "title": "Restrições",
+      "hint": "O tempo que você tem e os prazos."
+    }
+  },
+  "entry": {
+    "yours": "Suas",
+    "fromActivity": "Da sua atividade",
+    "kb": "Sobre {{name}}",
+    "evidence": "Evidências",
+    "gone": "não existe mais",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirmDelete": "Excluir esta entrada?",
+    "confirmYes": "Excluir",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "text": "Entrada",
+    "section": "Seção",
+    "kbLabel": "Base de conhecimento",
+    "anyKB": "Não é sobre uma base de conhecimento",
+    "editHint": "Depois que você edita uma entrada, ela é sua, e as sugestões noturnas nunca a mudam."
+  },
+  "refKinds": {
+    "mistake": "Erro",
+    "knowledge_point": "Ponto de conhecimento",
+    "knowledge_base": "Base de conhecimento",
+    "vocab_card": "Palavra",
+    "skill_card": "Cartão de habilidade"
+  },
+  "proposals": {
+    "title": "Proposta",
+    "hint": "Sugerido a partir da sua atividade. Nenhum recurso usa nada daqui até você aceitar; uma sugestão rejeitada não é feita de novo por 30 dias.",
+    "add": "Adicionar a {{section}}",
+    "update": "Mudar uma entrada em {{section}}",
+    "remove": "Remover de {{section}}",
+    "was": "Agora: “{{text}}”",
+    "accept": "Aceitar",
+    "reject": "Rejeitar"
+  },
+  "add": {
+    "title": "Adicionar uma entrada",
+    "section": "Seção",
+    "text": "O que o AnyLearn deve ter em mente?",
+    "kb": "Sobre uma base de conhecimento (opcional)",
+    "submit": "Adicionar"
+  },
+  "consolidation": {
+    "title": "Sugestões noturnas",
+    "body": "Com isto ligado, o AnyLearn olha uma vez por noite, às 02:00 no seu fuso horário e só depois de um dia com atividade nova, para os seus resultados de quizzes, domínio, vocabulário e cartões de habilidade, e propõe entradas. Ele faz uma chamada ao seu próprio modelo de chat e lê só contagens e resultados, nunca seus documentos nem nada do que você escreveu. Nada do que ele propõe é usado até você aceitar.",
+    "stateOn": "As sugestões noturnas estão ligadas.",
+    "stateOff": "As sugestões noturnas estão desligadas.",
+    "turnOn": "Ligar",
+    "turnOff": "Desligar",
+    "lastRun": "Última execução",
+    "never": "Ainda não rodou.",
+    "ranAt": "{{when}} · {{status}}",
+    "noOps": "Não propôs nada.",
+    "proposed": "Propostas",
+    "dropped": "Descartadas",
+    "status": {
+      "running": "rodando",
+      "succeeded": "concluída",
+      "skipped": "pulada",
+      "failed": "falhou"
+    }
+  },
+  "clear": {
+    "title": "Limpar o perfil",
+    "body": "Remove todas as entradas, inclusive as propostas. Seu histórico de quizzes, domínio e vocabulário não é tocado.",
+    "start": "Limpar o perfil",
+    "confirm": "Remover todas as entradas?",
+    "yes": "Sim, limpar",
+    "cancel": "Cancelar",
+    "done": "O perfil está vazio."
+  },
+  "errors": {
+    "generic": "Não funcionou. Tente de novo.",
+    "full": "Essa seção já tem 12 entradas. Exclua uma antes.",
+    "conflict": "Essa entrada mudou desde que esta página carregou. Ela foi atualizada.",
+    "invalid": "Uma entrada precisa de texto, com no máximo 280 caracteres."
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "page": {
+    "lead": "Lo que AnyLearn recuerda sobre cómo estudias. Puedes editar o borrar cada entrada. Las funciones solo lo leen cuando lo necesitan: Dominio lee tus Preferencias y Dificultades, el Chat lee tus Preferencias e Investigación nunca lo lee.",
+    "count": "{{count}} de {{max}}",
+    "empty": "Todavía no hay nada aquí."
+  },
+  "sections": {
+    "studying": {
+      "title": "Estudiando",
+      "hint": "Materias y objetivos."
+    },
+    "strengths": {
+      "title": "Fortalezas",
+      "hint": "Lo que se ha mantenido con el tiempo."
+    },
+    "struggles": {
+      "title": "Dificultades",
+      "hint": "Errores o puntos que vuelven una y otra vez."
+    },
+    "preferences": {
+      "title": "Preferencias",
+      "hint": "Cómo te gusta que te expliquen: ejemplos, idioma, ritmo."
+    },
+    "constraints": {
+      "title": "Limitaciones",
+      "hint": "El tiempo que tienes y las fechas límite."
+    }
+  },
+  "entry": {
+    "yours": "Tuyas",
+    "fromActivity": "De tu actividad",
+    "kb": "Sobre {{name}}",
+    "evidence": "Pruebas",
+    "gone": "ya no existe",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar esta entrada?",
+    "confirmYes": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "text": "Entrada",
+    "section": "Sección",
+    "kbLabel": "Base de conocimiento",
+    "anyKB": "Sin base de conocimiento concreta",
+    "editHint": "En cuanto editas una entrada pasa a ser tuya, y las sugerencias nocturnas nunca la cambian."
+  },
+  "refKinds": {
+    "mistake": "Error",
+    "knowledge_point": "Punto de conocimiento",
+    "knowledge_base": "Base de conocimiento",
+    "vocab_card": "Palabra",
+    "skill_card": "Tarjeta de habilidad"
+  },
+  "proposals": {
+    "title": "Propuesta",
+    "hint": "Sugerido a partir de tu actividad. Ninguna función usa nada de esto hasta que lo aceptes; una sugerencia rechazada no se vuelve a proponer en 30 días.",
+    "add": "Añadir a {{section}}",
+    "update": "Cambiar una entrada de {{section}}",
+    "remove": "Quitar de {{section}}",
+    "was": "Ahora: “{{text}}”",
+    "accept": "Aceptar",
+    "reject": "Rechazar"
+  },
+  "add": {
+    "title": "Añadir una entrada",
+    "section": "Sección",
+    "text": "¿Qué debería tener en cuenta AnyLearn?",
+    "kb": "Sobre una base de conocimiento (opcional)",
+    "submit": "Añadir"
+  },
+  "consolidation": {
+    "title": "Sugerencias nocturnas",
+    "body": "Con esto activado, AnyLearn revisa una vez por noche, a las 02:00 en tu zona horaria y solo después de un día con actividad nueva, tus resultados de cuestionarios, dominio, vocabulario y tarjetas de habilidad, y propone entradas. Hace una llamada a tu propio modelo de chat y solo lee recuentos y resultados, nunca tus documentos ni nada de lo que escribiste. No se usa nada de lo que propone hasta que lo aceptes.",
+    "stateOn": "Las sugerencias nocturnas están activadas.",
+    "stateOff": "Las sugerencias nocturnas están desactivadas.",
+    "turnOn": "Activar",
+    "turnOff": "Desactivar",
+    "lastRun": "Última ejecución",
+    "never": "Todavía no se ha ejecutado.",
+    "ranAt": "{{when}} · {{status}}",
+    "noOps": "No propuso nada.",
+    "proposed": "Propuestas",
+    "dropped": "Descartadas",
+    "status": {
+      "running": "en curso",
+      "succeeded": "terminada",
+      "skipped": "omitida",
+      "failed": "fallida"
+    }
+  },
+  "clear": {
+    "title": "Vaciar el perfil",
+    "body": "Elimina todas las entradas, propuestas incluidas. Tu historial de cuestionarios, dominio y vocabulario no se toca.",
+    "start": "Vaciar el perfil",
+    "confirm": "¿Eliminar todas las entradas?",
+    "yes": "Sí, vaciarlo",
+    "cancel": "Cancelar",
+    "done": "El perfil está vacío."
+  },
+  "errors": {
+    "generic": "No funcionó. Vuelve a intentarlo.",
+    "full": "Esa sección ya tiene 12 entradas. Elimina una primero.",
+    "conflict": "Esa entrada cambió desde que se cargó esta página. Se ha actualizado.",
+    "invalid": "Una entrada necesita texto, como máximo 280 caracteres."
+  }
+}

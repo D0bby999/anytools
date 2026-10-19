@@ -9,6 +9,7 @@ import { Form, Link, redirect, useFetcher, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/quiz.exams.templates.$templateId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { cancelTemplate, deleteTemplate, getTemplate, reviewTemplate, type TemplateReview } from "~/lib/exam.server";
@@ -20,9 +21,9 @@ import { PageHeader } from "~/components/ui/page-header";
 /** How often a running extraction is re-read. */
 const POLL_MS = 3000;
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: `${data?.template.title ?? "Past paper"} · AnyLearn` },
+    { title: (data?.template.title ? appTitle(matches, raw(data?.template.title)) : appTitle(matches, "Past paper")) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

@@ -12,6 +12,7 @@
  */
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.profile";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { listKBs } from "~/lib/kb.server";
@@ -28,8 +29,8 @@ import { isSection, SECTIONS } from "~/lib/profile-types";
 import { EntryRow, ProposalRow, type ProfileActionData } from "~/components/profile/profile-entries";
 import { AddEntryForm, ClearProfile, ConsolidationPanel } from "~/components/profile/profile-panels";
 
-export function meta() {
-  return [{ title: "Learning profile · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Learning profile") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

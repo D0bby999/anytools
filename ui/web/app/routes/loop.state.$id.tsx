@@ -8,6 +8,7 @@ import { redirect, useLocation, useNavigation } from "react-router";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.state.$id";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import * as loop from "~/lib/loop.server";
@@ -29,8 +30,8 @@ import { DIAGNOSTIC_KIND } from "~/lib/english-diagnostic";
 import { StateWorksheets } from "~/components/worksheet/state-worksheets";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Goal · Learning loop · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Goal", "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

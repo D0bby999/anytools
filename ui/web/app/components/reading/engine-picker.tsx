@@ -50,7 +50,7 @@ const AUDIO_TOKENS_PER_SECOND = 32;
 const VIDEO_TOKENS_PER_SECOND = 100;
 
 export function EnginePicker({ estimate, recording = false }: { estimate: TranscribeEstimate; recording?: boolean }) {
-  const { t } = useTranslation("knowledge");
+  const { t, i18n } = useTranslation("knowledge");
   const fetcher = useFetcher<TranscriptActionData>();
   const [chosen, setChosen] = useState("");
   const [confirmed, setConfirmed] = useState(false);
@@ -96,14 +96,14 @@ export function EnginePicker({ estimate, recording = false }: { estimate: Transc
       lines.push(t("media.geminiBody"));
       lines.push(
         estimate.duration_seconds > 0
-          ? t("media.geminiEstimate", { tokens: (o.estimated_tokens ?? 0).toLocaleString("en"), minutes, rate })
+          ? t("media.geminiEstimate", { tokens: (o.estimated_tokens ?? 0).toLocaleString(i18n.language), minutes, rate })
           : t("media.geminiEstimateUnknown", { audio: AUDIO_TOKENS_PER_SECOND, video: VIDEO_TOKENS_PER_SECOND }),
       );
     } else {
       lines.push(t("video.needs.geminiBody"));
       lines.push(
         estimate.duration_seconds > 0
-          ? t("video.needs.estimate", { tokens: (o.estimated_tokens ?? 0).toLocaleString("en"), minutes })
+          ? t("video.needs.estimate", { tokens: (o.estimated_tokens ?? 0).toLocaleString(i18n.language), minutes })
           : t("video.needs.estimateUnknown"),
       );
       lines.push(t("video.needs.freeTier", { hours: Math.round(estimate.free_tier_daily_seconds / 3600) }));

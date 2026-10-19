@@ -104,8 +104,8 @@ export function ConsolidationPanel({ on, lastRun }: { on: boolean; lastRun: Prof
 }
 
 function RunSummary({ run }: { run: ProfileRun }) {
-  const { t } = useTranslation("profile");
-  const when = formatDate(run.started_at, true);
+  const { t, i18n } = useTranslation("profile");
+  const when = formatDate(run.started_at, true, i18n.language);
   return (
     <div className="mt-1">
       <p className="text-sm text-muted-foreground">

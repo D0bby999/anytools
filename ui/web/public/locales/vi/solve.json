@@ -1,0 +1,53 @@
+{
+  "title": "Giải bài",
+  "lead": "Gõ đề bài hoặc chụp ảnh nó. Bạn nhận được lời giải từng bước, dựa trên ghi chú của chính bạn khi chúng hữu ích.",
+  "form": {
+    "problem": "Đề bài",
+    "problemPlaceholder": "ví dụ: Giải 2x + 3 = 11 tìm x",
+    "photo": "Ảnh đề bài",
+    "photoHint": "PNG, JPEG, WebP hoặc GIF, tối đa 5 MB. Ảnh được gửi tới mô hình của chính bạn và không được lưu lại.",
+    "kb": "Tra cứu trong",
+    "kbNone": "Không có (giải chỉ từ đề bài)",
+    "variant": "Bạn muốn gì?",
+    "variantSolve": "Giải bài này",
+    "variantCheck": "Kiểm tra đáp án của tôi",
+    "userAnswer": "Đáp án của bạn",
+    "userAnswerPlaceholder": "ví dụ: x = 7, và cách bạn tìm ra",
+    "submit": "Giải",
+    "submitCheck": "Kiểm tra đáp án của tôi",
+    "starting": "Đang bắt đầu…",
+    "stop": "Dừng",
+    "cost": "Chạy trên mô hình giải bài của chính bạn: ba lệnh gọi cho mỗi bài."
+  },
+  "stages": {
+    "title": "Tiến độ",
+    "plan": "Đọc đề bài",
+    "reason": "Đang giải",
+    "write": "Đang trình bày",
+    "pending": "Đang chờ",
+    "running": "Đang làm",
+    "done": "Xong"
+  },
+  "result": {
+    "title": "Lời giải",
+    "verdict": "Đáp án của bạn",
+    "verdicts": {
+      "correct": "Đúng",
+      "incorrect": "Chưa đúng",
+      "partly": "Đúng một phần",
+      "unclear": "Không đánh giá được"
+    },
+    "finalAnswer": "Đáp án",
+    "saveNote": "Lưu vào sổ ghi chép",
+    "toQuestion": "Biến thành câu hỏi",
+    "openChat": "Mở cuộc trò chuyện",
+    "noteSaved": "Đã lưu vào sổ ghi chép của bạn.",
+    "questionSaved": "Đã thêm vào ngân hàng câu hỏi của bạn.",
+    "openBank": "Mở ngân hàng câu hỏi"
+  },
+  "errors": {
+    "empty": "Hãy gõ đề bài hoặc đính kèm ảnh đề bài.",
+    "tooLarge": "Ảnh đó lớn hơn 5 MB.",
+    "failed": "Không bắt đầu giải được."
+  }
+}

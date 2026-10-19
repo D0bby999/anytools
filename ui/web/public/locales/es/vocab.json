@@ -1,0 +1,216 @@
+{
+  "tabs": {
+    "label": "Secciones de dominio",
+    "paths": "Rutas",
+    "vocabulary": "Vocabulario",
+    "dueBadge": "{{count}} pendientes",
+    "bookCards": "Tarjetas de libros"
+  },
+  "page": {
+    "title": "Vocabulario",
+    "lead": "Palabras que guardaste al leer. Cada una vuelve dos veces con su propio calendario: una para recordar su significado y otra para escribirla en la frase donde la encontraste."
+  },
+  "session": {
+    "title": "Pendientes hoy",
+    "progress": "{{done}} de {{total}}",
+    "more": "Hoy quedan {{count}} más después de esta sesión.",
+    "empty": "Hoy no hay nada pendiente.",
+    "finished": "Eso es todo lo pendiente de hoy.",
+    "recognitionPrompt": "¿Qué significa aquí?",
+    "clozePrompt": "Escribe la palabra que falta.",
+    "reveal": "Mostrar el significado",
+    "check": "Comprobar",
+    "answerLabel": "Tu respuesta",
+    "matched": "Coincide.",
+    "notMatched": "La palabra era:",
+    "suggested": "sugerida",
+    "rateLabel": "¿Qué tal la sabías?",
+    "again": "Otra vez",
+    "hard": "Difícil",
+    "good": "Bien",
+    "easy": "Fácil",
+    "failed": "Ese repaso no se guardó. Vuelve a intentarlo.",
+    "from": "De {{title}}",
+    "revealBack": "Mostrar la respuesta"
+  },
+  "list": {
+    "title": "Tus palabras",
+    "search": "Buscar palabras y significados",
+    "language": "Idioma",
+    "anyLanguage": "Cualquiera",
+    "apply": "Buscar",
+    "empty": "Aún no hay palabras guardadas. Selecciona un pasaje mientras lees, elige Vocabulario y luego Buscar palabras para guardar.",
+    "noMatch": "Ninguna palabra coincide.",
+    "suspended": "en pausa",
+    "edit": "Editar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "suspend": "Pausar",
+    "resume": "Reanudar",
+    "delete": "Eliminar",
+    "confirmDelete": "Eliminar para siempre",
+    "meaning": "Significado",
+    "reading": "Lectura",
+    "pos": "Categoría gramatical",
+    "lang": "Código de idioma",
+    "contexts": "{{count}} frase",
+    "contexts_other": "{{count}} frases",
+    "failed": "Ese cambio no se guardó."
+  },
+  "picker": {
+    "find": "Buscar palabras para guardar",
+    "finding": "Buscando palabras…",
+    "cost": "Pide una vez a tu modelo de lectura una lista de términos de este pasaje.",
+    "title": "Palabras de este pasaje",
+    "none": "El modelo no encontró palabras que guardar en este pasaje.",
+    "language": "Idioma",
+    "save": "Guardar",
+    "saved": "Guardada",
+    "added": "Se añadió una frase",
+    "failed": "No se encontraron palabras."
+  },
+  "speech": {
+    "readAloud": "Leer en voz alta",
+    "readPage": "Leer esta página",
+    "listen": "Escuchar",
+    "stop": "Detener",
+    "close": "Cerrar el lector",
+    "title": "Leyendo en voz alta",
+    "voice": "Voz",
+    "rate": "Velocidad",
+    "local": "en este dispositivo",
+    "remote": "en línea: el texto se envía al fabricante de tu navegador",
+    "remoteNote": "Las voces marcadas en línea envían el texto al fabricante de tu navegador para leerlo. Las voces de este dispositivo no.",
+    "noVoice": "Tu navegador no tiene voz para {{lang}}. Elige una voz de otro idioma para oírlo de todos modos.",
+    "failed": "La lectura en voz alta se detuvo: {{error}}",
+    "unsupported": "Este navegador no puede leer en voz alta."
+  },
+  "home": {
+    "title": "Vocabulario pendiente",
+    "count": "Hoy tienes {{count}} tarjeta de palabras pendiente.",
+    "count_other": "Hoy tienes {{count}} tarjetas de palabras pendientes.",
+    "none": "Hoy no hay tarjetas de palabras pendientes.",
+    "open": "Repasar vocabulario"
+  },
+  "errors": {
+    "generic": "Algo salió mal. Vuelve a intentarlo."
+  },
+  "bookCards": {
+    "title": "Tarjetas de libros",
+    "lead": "Tarjetas de los libros vivos que has escrito. Vuelven con el mismo calendario que tus palabras, en una cola propia.",
+    "empty": "Aún no hay tarjetas de libros. Abre un libro hecho a partir de una base de conocimiento; sus bloques de tarjetas añaden aquí sus tarjetas.",
+    "home": {
+      "title": "Tarjetas de libros",
+      "count": "Hoy tienes {{count}} tarjeta de libro pendiente.",
+      "count_other": "Hoy tienes {{count}} tarjetas de libros pendientes.",
+      "open": "Repasar tarjetas de libros"
+    }
+  },
+  "decide": {
+    "legend": "¿Qué harás con esta palabra?",
+    "hint": "Decide antes de buscar su significado. Solo vuelve a repaso una palabra que elijas aprender.",
+    "options": {
+      "skip": "Omitir",
+      "infer": "Deducir",
+      "lookup": "Consulta rápida",
+      "learn": "Aprender a conciencia",
+      "verify": "Verificar con un profesional"
+    },
+    "when": {
+      "skip": "No cambia la idea general, el siguiente paso ni la seguridad de nadie.",
+      "infer": "La frase, un contraste o un ejemplo te dan suficiente para seguir.",
+      "lookup": "Te bloquea ahora, pero es poco probable que la vuelvas a necesitar.",
+      "learn": "Aparece una y otra vez, importa para la tarea y la usarás en dos semanas.",
+      "verify": "De ella dependen la seguridad, la ley, la salud, el dinero, versiones o la responsabilidad de alguien."
+    },
+    "fields": {
+      "why": "Por qué puede esperar",
+      "sense": "Tu significado candidato",
+      "confidence": "Seguridad",
+      "source": "Fuente del significado actual",
+      "sound": "Sonido",
+      "collocation": "Colocación",
+      "cue": "Pista para recordarla",
+      "definition": "Definición principal",
+      "scope": "Ámbito",
+      "owner": "Responsable"
+    },
+    "fieldHints": {
+      "sound": "Cómo suena: el acento o una transcripción.",
+      "collocation": "Las palabras con las que suele ir.",
+      "cue": "La situación que debería traértela a la mente.",
+      "learnRetest": "La reevaluación es el calendario de repaso: dos tarjetas vuelven desde mañana.",
+      "owner": "Quién responde de este término en tu situación."
+    },
+    "confidences": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "meaning": "Significado actual",
+    "suggestion": "Significado sugerido",
+    "suggestionHidden": "Escribe primero tu significado candidato; la sugerencia aparece después.",
+    "suggestionNote": "La sugerencia de un modelo es una candidata, no una fuente.",
+    "impact": "Impacto en la tarea",
+    "impactNone": "Sin indicar",
+    "impacts": {
+      "blocking": "Bloqueante",
+      "important": "Importante",
+      "minor": "Menor",
+      "none": "Ninguno"
+    },
+    "save": "Guardar la decisión",
+    "saving": "Guardando…",
+    "change": "Cambiar la decisión",
+    "cancel": "Cancelar",
+    "savedAs": "Guardada como {{decision}}.",
+    "already": "Ya decidiste sobre esta palabra: {{decision}}.",
+    "changed": "Decisión cambiada a {{decision}}.",
+    "failed": "Esa decisión no se guardó."
+  },
+  "week": {
+    "select": "Son {{count}} palabras para aprender esta semana. De cinco a ocho por ciclo es suficiente: quédate con las que se repiten, importan para la tarea y vas a usar pronto.",
+    "over": "Son {{count}} palabras para aprender esta semana, más de las cinco a ocho que caben en un ciclo. Plantéate omitir, deducir o consultar algunas."
+  },
+  "production": {
+    "kind": "producción",
+    "prompt": "Escribe la expresión que encaja.",
+    "scenario": "Situación",
+    "sense": "Significado",
+    "confusable": "No confundir con"
+  },
+  "practise": {
+    "start": "Practica usándola",
+    "hint": "Una tarjeta de producción parte de una situación y te pide producir la palabra. Escribe una situación propia en la que la usarías.",
+    "scenario": "Tu situación",
+    "confusable": "Una expresión que se presta a confusión, y la diferencia (opcional)",
+    "save": "Crear la tarjeta de producción",
+    "stop": "Dejar de practicar",
+    "on": "practicando",
+    "cancel": "Cancelar",
+    "failed": "La tarjeta de producción no se guardó."
+  },
+  "byDecision": {
+    "title": "Otras decisiones",
+    "lead": "Palabras que decidiste no aprender a conciencia. No tienen tarjetas de repaso.",
+    "learnThis": "Aprender esta",
+    "record": "Registrar",
+    "learnTitle": "Aprendiendo",
+    "count": "{{count}} palabra",
+    "count_other": "{{count}} palabras"
+  },
+  "audit": {
+    "title": "Añadir a una auditoría de vocabulario",
+    "lead": "Copia las palabras seleccionadas en la cola de decisiones de una auditoría de vocabulario abierta, con su impacto en la tarea, su decisión y su fundamento. La auditoría guarda su propia copia.",
+    "select": "Seleccionar {{term}} para la auditoría",
+    "worksheet": "Auditoría de vocabulario",
+    "add": "Añadir las palabras seleccionadas",
+    "none": "No tienes ninguna auditoría de vocabulario abierta.",
+    "start": "Empezar una auditoría de vocabulario",
+    "added": "Se añadió {{count}} palabra a la auditoría.",
+    "added_other": "Se añadieron {{count}} palabras a la auditoría.",
+    "full": "La cola de la auditoría se llenó tras {{count}} palabras; el resto no se añadió.",
+    "nothing": "Selecciona antes al menos una palabra.",
+    "failed": "Las palabras no se añadieron."
+  }
+}

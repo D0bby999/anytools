@@ -54,7 +54,7 @@ func TestMessageIsDeclarativeWebPush(t *testing.T) {
 			AppBadge string `json:"app_badge"`
 		} `json:"notification"`
 	}
-	if err := json.Unmarshal(s.message("3 review points are due.", "/mastery/review", 3), &got); err != nil {
+	if err := json.Unmarshal(s.message("3 review points are due.", "/mastery/review", 3, "en"), &got); err != nil {
 		t.Fatal(err)
 	}
 	if got.WebPush != 8030 || got.Notification.Title != "AnyLearn" ||
@@ -64,14 +64,22 @@ func TestMessageIsDeclarativeWebPush(t *testing.T) {
 }
 
 func TestDueBody(t *testing.T) {
-	cases := map[string]learning.DueSummary{
-		"1 review point is due.":                   {Due: 1, Paths: 1},
-		"4 review points are due.":                 {Due: 4, Paths: 1},
-		"5 review points are due, across 2 paths.": {Due: 5, Paths: 2},
+	cases := []struct {
+		lang string
+		s    learning.DueSummary
+		want string
+	}{
+		{"en", learning.DueSummary{Due: 1, Paths: 1}, "1 review point is due."},
+		{"en", learning.DueSummary{Due: 4, Paths: 1}, "4 review points are due."},
+		{"en", learning.DueSummary{Due: 5, Paths: 2}, "5 review points are due, across 2 paths."},
+		{"vi", learning.DueSummary{Due: 4, Paths: 1}, "Có 4 điểm cần ôn."},
+		{"es", learning.DueSummary{Due: 1, Paths: 1}, "Tienes 1 punto para repasar."},
+		{"pt", learning.DueSummary{Due: 3, Paths: 2}, "Você tem 3 pontos para revisar, em 2 trilhas."},
+		{"fr", learning.DueSummary{Due: 2, Paths: 1}, "2 review points are due."},
 	}
-	for want, s := range cases {
-		if got := dueBody(s); got != want {
-			t.Errorf("dueBody(%+v) = %q, want %q", s, got, want)
+	for _, c := range cases {
+		if got := dueBody(c.s, c.lang); got != c.want {
+			t.Errorf("dueBody(%+v, %s) = %q, want %q", c.s, c.lang, got, c.want)
 		}
 	}
 }
@@ -113,8 +121,12 @@ func (f *fakeStore) Forget(_ context.Context, endpoint string) error {
 	return nil
 }
 
-func (f *fakeStore) ClaimReminder(context.Context, uuid.UUID, time.Time, int) ([]Subscription, bool, error) {
-	return f.subs, f.claimable, nil
+func (f *fakeStore) ClaimReminder(context.Context, uuid.UUID, time.Time, int) ([]Subscription, string, bool, error) {
+	return f.subs, "vi", f.claimable, nil
+}
+
+func (f *fakeStore) Settings(context.Context, uuid.UUID) (int, string, string, error) {
+	return 7, "UTC", "en", nil
 }
 
 type fakeSender struct {
@@ -157,7 +169,7 @@ func TestNotifySendsOnlyWhenClaimedAndForgetsGoneBrowsers(t *testing.T) {
 	if len(sender.sent) != 1 || sender.sent[0] != chrome {
 		t.Fatalf("sent to %v, want only the Chrome browser", sender.sent)
 	}
-	if !strings.Contains(sender.payload, "2 review points are due.") {
+	if !strings.Contains(sender.payload, "Có 2 điểm cần ôn.") || !strings.Contains(sender.payload, `"lang":"vi"`) {
 		t.Fatalf("payload = %s", sender.payload)
 	}
 	if len(store.forgotten) != 1 || store.forgotten[0] != iphone {

@@ -1,11 +1,11 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from "react-router";
-import { useEffect } from "react";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useMatches, useRouteLoaderData } from "react-router";
+import { useEffect, useState } from "react";
 import { useNonce } from "~/lib/nonce";
 import { Plate } from "~/components/ui/plate";
 import { I18nextProvider } from "react-i18next";
 
 import type { Route } from "./+types/root";
-import { initI18n } from "~/lib/i18n";
+import { initI18n, isLoaded, isSupportedLng, loadLanguage, type SupportedLng } from "~/lib/i18n";
 // The textbook world's three faces (ui/web/DESIGN.md): Literata titles and
 // reads, Be Vietnam Pro operates, Plex Mono carries code and data. Only the
 // weights the world paints. Self-hosted rather than from Google Fonts: its
@@ -28,12 +28,14 @@ import "katex/dist/katex.min.css";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-  { rel: "icon", href: "/favicon.ico", sizes: "32x32" },
   // The landing page's LCP is its serif h1; fetching that one face early
   // saves a round trip on a slow connection.
   { rel: "preload", href: serifSemibold, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
 ];
+
+/** The favicons: AnyTools' four tiles, and AnyLearn's highlighted page (public/icons). */
+const SITE_ICON = { svg: "/favicon.svg?v=2", ico: "/favicon.ico?v=2" };
+const STUDY_ICON = { svg: "/icons/anylearn-favicon.svg?v=2", ico: "/icons/anylearn.ico?v=2" };
 
 /** Same key and rule as useThemeAfterHydration and components/layout/theme-toggle.tsx. */
 const APPLY_THEME = `document.documentElement.classList.toggle("dark",localStorage.getItem("anytools-theme")==="dark")`;
@@ -62,12 +64,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   // (public.layout.tsx, landing.tsx); the app is English.
   const publicLang = useRouteLoaderData<{ locale: string }>("routes/public.layout")?.locale;
   const landingLang = useRouteLoaderData<{ toolsLocale: string }>("routes/landing")?.toolsLocale;
-  const lang = publicLang ?? landingLang ?? "en";
+  // The study app's language: the account's, or the sign-in page's.
+  const appLang = useAppLanguage();
+  const lang = publicLang ?? landingLang ?? appLang ?? "en";
+  // The tab shows whose page this is: AnyLearn's inside the study app and on
+  // its sign-in, AnyTools' everywhere else. Here rather than in `links`, which
+  // cannot see the route. `?v=` makes browsers drop the icon they cached.
+  const study = useMatches().some((m) => m.id === "routes/app-layout" || m.id === "routes/auth-layout");
+  const icon = study ? STUDY_ICON : SITE_ICON;
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html lang={lang} data-app-lang={appLang} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <link rel="icon" href={icon.svg} type="image/svg+xml" />
+        <link rel="icon" href={icon.ico} sizes="16x16 32x32 48x48" />
         <Meta />
         <Links />
         <script
@@ -90,10 +101,37 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** The language app-layout or auth-layout chose, if this page is in the study app. */
+function useAppLanguage(): SupportedLng | undefined {
+  const app = useRouteLoaderData<{ language?: string }>("routes/app-layout")?.language;
+  const auth = useRouteLoaderData<{ language?: string }>("routes/auth-layout")?.language;
+  const lang = app ?? auth;
+  return lang && isSupportedLng(lang) ? lang : undefined;
+}
+
+/**
+ * The i18n instance for the page's language. Synchronous on both server and
+ * client, so the server-rendered HTML already contains the real text and
+ * hydration has nothing to correct: the layout loaders loaded the language on
+ * the server, entry.client.tsx before hydrating. A client navigation into a
+ * language not loaded yet (the sign-in page's language menu) renders English
+ * for the moment it takes to import it, then renders again.
+ */
+function useAppI18n(lang: SupportedLng) {
+  const [, setLoaded] = useState(0);
+  useEffect(() => {
+    if (isLoaded(lang)) return;
+    let live = true;
+    void loadLanguage(lang).then(() => live && setLoaded((n) => n + 1));
+    return () => {
+      live = false;
+    };
+  }, [lang]);
+  return initI18n(lang);
+}
+
 export default function App() {
-  // Synchronous on both server and client, so the server-rendered HTML already
-  // contains the real text and hydration has nothing to correct.
-  const i18n = initI18n();
+  const i18n = useAppI18n(useAppLanguage() ?? "en");
 
   return (
     <I18nextProvider i18n={i18n}>

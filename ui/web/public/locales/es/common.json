@@ -1,0 +1,704 @@
+{
+  "app": {
+    "name": "AnyLearn",
+    "tagline": "Aprende con tus propios documentos y tu propia IA."
+  },
+  "nav": {
+    "label": "Secciones",
+    "current": "Sección actual",
+    "home": "Inicio",
+    "knowledge": "Conocimiento",
+    "chat": "Chat",
+    "notebooks": "Cuaderno",
+    "quiz": "Cuestionarios",
+    "mastery": "Dominio",
+    "solve": "Resolver",
+    "research": "Investigación",
+    "settings": "Ajustes",
+    "loop": "Ciclo",
+    "comingSoon": "Aún no disponible",
+    "more": "Más"
+  },
+  "actions": {
+    "signOut": "Cerrar sesión",
+    "retry": "Reintentar",
+    "skipToContent": "Saltar al contenido",
+    "useDark": "Cambiar al tema oscuro",
+    "useLight": "Cambiar al tema claro"
+  },
+  "panel": {
+    "sources": {
+      "title": "Fuentes",
+      "empty": "Todavía no hay citas. Cuando una respuesta cite uno de tus documentos, el pasaje y su número de página aparecerán aquí, para que compruebes la afirmación con el original en lugar de fiarte del resumen."
+    },
+    "margin": {
+      "title": "En el margen",
+      "read": "Cada documento se lee una vez y se divide en pasajes. Esos pasajes son lo único que AnyLearn te cita, cada uno con su página, para que cualquier afirmación se pueda comprobar con el original.",
+      "practise": "Un punto que fallas vuelve el mismo día. Un punto que sabes vuelve justo antes de que lo olvides. El dominio se mide por tus respuestas, nunca por el tiempo dedicado.",
+      "reflect": "Cinco minutos para empezar, catorce días para probar un cambio, noventa días para decidir si lo mantienes. El ciclo solo avanza con pruebas que ya has registrado.",
+      "home": "AnyLearn funciona con tus propias cuentas de IA y responde solo a partir de los documentos que le das. Aquí no hay planes ni saldo de créditos."
+    }
+  },
+  "home": {
+    "lead": "Elige una cosa para hacer primero y luego decide hasta dónde llegar.",
+    "body": "Cada respuesta que da incluye el pasaje del que procede, hasta la página. La misma regla vale después para el progreso: un resultado de cuestionario, un nivel de dominio o un ciclo terminado tienen que señalar el trabajo que los ganó.",
+    "next": {
+      "title": "Lo primero",
+      "provider": {
+        "title": "Conecta una cuenta de IA",
+        "body": "AnyLearn funciona con tu propia cuenta de IA: Gemini, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen, Mistral y más. No hay claves de la plataforma, así que nada funciona hasta que conectes una tuya.",
+        "go": "Conectar una cuenta"
+      },
+      "documents": {
+        "title": "Añade tus documentos",
+        "body": "Sube archivos o elígelos en Google Drive. Solo se indexa lo que añades, y puedes quitar cualquier cosa más tarde.",
+        "go": "Añadir documentos"
+      },
+      "ask": {
+        "title": "Pregunta y comprueba la respuesta",
+        "body": "Las citas abren la página de la que se tomaron. Cuando tus documentos no cubren una pregunta, AnyLearn lo dice en lugar de rellenar el hueco.",
+        "go": "Iniciar una conversación"
+      },
+      "done": "Hecho",
+      "status": "La tarjeta de abajo indica qué puede hacer AnyLearn con las cuentas que has conectado hasta ahora y qué falta todavía."
+    },
+    "due": {
+      "title": "Pendiente de repaso",
+      "none": "No hay nada pendiente. Los puntos que fallas vuelven el mismo día; los que sabes vuelven más tarde, cuando estás a punto de olvidarlos.",
+      "count": "Tienes {{count}} punto de conocimiento pendiente de repaso.",
+      "count_other": "Tienes {{count}} puntos de conocimiento pendientes de repaso.",
+      "open": "Abrir Dominio",
+      "retests": "Hoy toca volver a evaluar {{count}} tarjeta de habilidad.",
+      "retests_other": "Hoy toca volver a evaluar {{count}} tarjetas de habilidad.",
+      "openRetests": "Abrir el ciclo de aprendizaje",
+      "mistakes": "{{count}} error espera a que lo practiques.",
+      "mistakes_other": "{{count}} errores esperan a que los practiques.",
+      "openMistakes": "Practica tus errores",
+      "total": "{{count}} cosa te está esperando.",
+      "total_other": "{{count}} cosas te están esperando.",
+      "clear": "No hay nada esperando. Los puntos que fallas vuelven el mismo día; los que sabes vuelven justo antes de que los olvides.",
+      "review": "Empezar el repaso"
+    },
+    "loop": {
+      "title": "Ciclo de aprendizaje",
+      "body": "Fija un objetivo y deja que tus respuestas, notas y revisiones semanales muestren si avanza.",
+      "open": "Abrir el ciclo de aprendizaje"
+    },
+    "claim": "AnyLearn responde solo a partir de los documentos que le das.",
+    "title": "Hoy",
+    "noGoal": {
+      "title": "Aún no hay objetivo",
+      "body": "Escribe un objetivo y la tarea más pequeña que lo haga avanzar. El ciclo guarda las pruebas por ti.",
+      "open": "Fijar un objetivo"
+    },
+    "contents": {
+      "title": "Índice"
+    },
+    "margin": {
+      "title": "En el margen",
+      "path": [
+        "Cinco minutos para empezar.",
+        "Catorce días para probar un cambio.",
+        "Noventa días para decidir si lo mantienes."
+      ],
+      "pathLabel": "El ritmo de este libro"
+    }
+  },
+  "errors": {
+    "notFound": "No encontramos esa página.",
+    "unexpected": "Algo salió mal."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "lead": "AnyLearn funciona con tus propias cuentas de IA. No hay claves de la plataforma ni créditos, así que aquí no hay planes ni mejoras. Aquí decides qué cuenta hace cada tarea.",
+    "nav": {
+      "label": "Secciones de ajustes",
+      "connections": "Conexiones",
+      "routes": "Rutas",
+      "search": "Claves de búsqueda",
+      "profile": "Perfil de aprendizaje",
+      "account": "Cuenta",
+      "reminders": "Recordatorios"
+    },
+    "readiness": {
+      "title": "Estado",
+      "ready": "Listo",
+      "attention": "Requiere atención",
+      "blocked": "Bloqueado",
+      "allReady": "Cada función esencial tiene una conexión que responde. Los documentos se pueden leer, indexar y consultar.",
+      "notReady": "Falta algo esencial. Hasta que se arregle, las partes afectadas de AnyLearn no pueden funcionar en absoluto. No recurrirán a otra cosa sin avisar.",
+      "unavailable": "AnyLearn no pudo comunicarse con su API ahora mismo, así que no puede decir qué está listo.",
+      "manage": "Abrir Ajustes"
+    },
+    "functions": {
+      "chat": "Chat",
+      "parse": "Leer documentos",
+      "embed": "Indexar",
+      "quiz": "Cuestionarios",
+      "mastery": "Ruta de dominio",
+      "reading": "Lectura inmersiva",
+      "solve": "Resolver",
+      "research": "Investigación",
+      "rerank": "Reordenar",
+      "tts": "Voz",
+      "stt": "Voz a texto"
+    },
+    "functionHelp": {
+      "chat": "Responde preguntas a partir de tus documentos, con citas.",
+      "parse": "Convierte un PDF subido en texto que AnyLearn puede citar, página a página.",
+      "embed": "Convierte tus documentos en vectores para poder buscarlos. Cambiar aquí el modelo obliga a volver a indexar.",
+      "quiz": "Escribe preguntas con respuestas y explicaciones.",
+      "mastery": "Construye y puntúa la ruta de dominio.",
+      "reading": "Impulsa la vista de lectura inmersiva.",
+      "solve": "Resuelve un problema paso a paso.",
+      "research": "Escribe un informe con fuentes. Su clave de búsqueda web va aparte, en Claves de búsqueda.",
+      "rerank": "Reordena los pasajes encontrados antes de escribir una respuesta.",
+      "tts": "Pone voz a los resúmenes en audio con dos voces: una clave de OpenAI o tu propio servidor de voz compatible con OpenAI (tu Kokoro, por ejemplo). Opcional: las voces integradas del servidor o tu navegador también pueden leer un guion.",
+      "stt": "Transcribe vídeos y audios sin subtítulos. Opcional: una clave de OpenAI (whisper-1), una de Groq (whisper-large-v3-turbo o whisper-large-v3), tu propio servidor Whisper compatible con OpenAI (indica su modelo) o una clave de Gemini, que lee la URL de un vídeo público de YouTube. El motor integrado del servidor, si tiene uno, no necesita clave."
+    },
+    "connections": {
+      "addTitle": "Añadir una clave",
+      "addBody": "Pega una clave de Google AI Studio, OpenAI, Anthropic, OpenRouter, DeepSeek, Qwen (Alibaba Cloud), Mistral, xAI, Groq o Z.AI, o la URL base de cualquier endpoint compatible con OpenAI. La clave se cifra antes de guardarse y no se vuelve a mostrar, ni aquí ni en ningún otro sitio.",
+      "provider": "Proveedor",
+      "name": "Nombre",
+      "namePlaceholder": "Cómo llamarás a esta clave",
+      "baseUrl": "URL base",
+      "baseUrlHelp": "Déjalo vacío para usar el endpoint del propio proveedor. Obligatorio para un endpoint compatible con OpenAI. Debe ser https y no puede apuntar a una dirección privada o interna.",
+      "key": "Clave de API",
+      "keyHelp": "Se guarda cifrada. AnyLearn nunca la envía a ningún sitio salvo al proveedor que elegiste.",
+      "add": "Añadir clave",
+      "connectedTitle": "Conectadas",
+      "empty": "Todavía no hay nada conectado, así que nada puede funcionar. Añade una clave arriba.",
+      "verify": "Verificar",
+      "verifiedWith": "Verificada con",
+      "notVerified": "Aún sin verificar. Verificar comprueba la clave con el proveedor mediante una pequeña llamada real.",
+      "needsReconnect": "El token de esta conexión caducó y no se pudo renovar. Vuelve a conectarla.",
+      "remove": "Quitar",
+      "confirmRemove": "¿Quitar esta conexión? Todo lo que se le asignó deja de funcionar hasta que lo asignes a otra.",
+      "replaceKey": "Sustituir la clave",
+      "newKey": "Nueva clave de API",
+      "save": "Guardar",
+      "drive": {
+        "title": "Documentos",
+        "name": "Google Drive",
+        "body": "Conecta Google Drive para añadir documentos desde allí a una base de conocimiento. AnyLearn solo puede leer los archivos que elijas en el selector de Google y los mantiene sincronizados.",
+        "notConnected": "Sin conectar",
+        "account": "Cuenta",
+        "files": "Archivos sincronizados",
+        "lastSync": "Última sincronización",
+        "connect": "Conectar Google Drive",
+        "reconnect": "Volver a conectar Google Drive",
+        "disconnect": "Desconectar",
+        "confirmDisconnect": "¿Desconectar Google Drive? Se revoca el acceso de AnyLearn en Google y la sincronización se detiene. Los documentos ya añadidos siguen en sus bases de conocimiento.",
+        "needsReconnect": "Google dejó de aceptar esta conexión, así que nada se está sincronizando. Vuelve a conectar para continuar.",
+        "rePick": "Hay que volver a elegir {{count}} archivo(s) desde la base de conocimiento que los contiene.",
+        "unavailable": "No se pudo cargar ahora el estado de Google Drive.",
+        "inDrive": "Tus archivos guardados aquí",
+        "inDriveDisconnected": "AnyLearn guarda {{count}} de tus archivos en tu Google Drive y no puede abrirlos hasta que lo vuelvas a conectar.",
+        "disconnectFilesTitle": "Antes de desconectar",
+        "disconnectFilesStay": "Tus archivos siguen en tu Google Drive, en la carpeta “AnyTools”.",
+        "disconnectFilesClosed": "AnyLearn no podrá abrirlos hasta que vuelvas a conectar. La búsqueda y el chat siguen funcionando con su texto.",
+        "disconnectFilesMove": "Puedes devolverlos antes al servidor de AnyLearn.",
+        "moveBackFirst": "Devolver antes mis archivos",
+        "disconnectAnyway": "Desconectar de todos modos",
+        "keepConnected": "Mantener conectado"
+      },
+      "providerHelp": "Solo Gemini, OpenAI y Anthropic pueden leer PDF escaneados. Para indexar documentos necesitas uno que genere embeddings: Gemini, OpenAI, Mistral o Qwen. Los demás responden, crean cuestionarios, resuelven e investigan."
+    },
+    "routes": {
+      "lead": "Cada función usa las conexiones que indiques, en orden: si la primera se queda sin cuota o se niega, AnyLearn prueba la siguiente. Deja una posición vacía para terminar la cadena.",
+      "noConnections": "Todavía no hay nada que asignar. Añade antes una clave en Conexiones.",
+      "none": "Ninguna",
+      "connectionAt": "Conexión en la posición {{position}}",
+      "modelAt": "Modelo en la posición {{position}}",
+      "modelPlaceholder": "Déjalo vacío para usar el predeterminado",
+      "save": "Guardar cadena",
+      "editorsTitle": "Cadenas"
+    },
+    "search": {
+      "lead": "La investigación puede leer la web además de tus documentos, con una clave de búsqueda propia. No hay clave compartida: sin una, la investigación funciona igual, pero solo responde a partir de tus documentos. Una clave de OpenAlex es opcional y solo sirve para artículos académicos: sin ella, AnyLearn usa la cuota diaria gratuita de OpenAlex, compartida por todos en este servidor.",
+      "provider": "Proveedor de búsqueda",
+      "key": "Clave de API",
+      "save": "Guardar clave",
+      "savedTitle": "Claves guardadas",
+      "empty": "No hay clave de búsqueda. La investigación solo usa tus propios documentos.",
+      "verified": "Verificada.",
+      "notVerified": "Aún sin verificar."
+    },
+    "experimental": {
+      "title": "Vías de suscripción experimentales",
+      "warning": "Estas vías no son oficiales. Hacen que AnyLearn inicie sesión como un software que el proveedor creó para tu propio equipo (la CLI de ChatGPT y Codex, la extensión Copilot de VS Code, Claude Code, las herramientas de Gemini), y ni OpenAI, ni GitHub, ni Anthropic, ni Google autorizan usarlo desde otra app. Tu cuenta podría quedar restringida o cerrada por ello. La vía de Gemini además pide un acceso amplio a Google Cloud, así que el token guardado aquí puede llegar mucho más allá de la IA. Una clave de API normal es la opción fiable; usa estas vías solo si lo aceptas.",
+      "connect": "Conectar",
+      "chatgpt": {
+        "title": "Suscripción de ChatGPT (relay)",
+        "body": "AnyLearn no puede iniciar tu sesión en ChatGPT: ese inicio de sesión solo se completa en tu propio equipo. Consigue tú los tokens y pégalos aquí. AnyLearn los guardará cifrados y los renovará.",
+        "accessToken": "Token de acceso",
+        "refreshToken": "Token de actualización",
+        "accountId": "ID de la cuenta de ChatGPT",
+        "expiresIn": "Segundos hasta que caduque el token de acceso"
+      },
+      "gemini": {
+        "title": "Gemini Code Assist",
+        "body": "Dos pasos. Escribe una dirección de redirección registrada en el cliente OAuth de Google de esta instalación para obtener un enlace de consentimiento y luego pega el código de autorización que te da Google. También necesitas una cuenta de Google con un plan de Code Assist.",
+        "code": "Código de autorización",
+        "redirectUri": "URI de redirección",
+        "buildUrl": "Crear enlace de consentimiento",
+        "openConsent": "Abre la pantalla de consentimiento de Google y copia el código que devuelve"
+      },
+      "copilot": {
+        "title": "GitHub Copilot",
+        "body": "Usa tu plan de Copilot. Empieza, escribe el código en GitHub, aprueba y termina aquí. Necesita una licencia de Copilot activa. Solo para tareas de tipo chat: no puede leer PDF ni indexar documentos.",
+        "start": "Iniciar sesión",
+        "enterCode": "Escribe este código en",
+        "codeLabel": "Código para escribir en GitHub",
+        "finish": "Ya lo aprobé. Terminar"
+      },
+      "claude": {
+        "title": "Claude Pro o Max",
+        "body": "Usa tu plan de Claude. Abre el enlace, aprueba y pega el código que muestra Claude (tiene la forma code#state). Los códigos sirven una vez y caducan en minutos. Solo para tareas de tipo chat: no puede leer PDF ni indexar documentos.",
+        "start": "Iniciar sesión",
+        "open": "Abrir la página de aprobación de Claude",
+        "code": "Código de Claude"
+      }
+    },
+    "account": {
+      "signedIn": "Sesión iniciada como",
+      "deleteTitle": "Eliminar la cuenta",
+      "deleteBody": "Esto elimina tu cuenta y todo lo que contiene: documentos y sus archivos, bases de conocimiento, conversaciones, preguntas, notas, rutas de dominio y tu ciclo de aprendizaje. Tus permisos de Google Drive y Gemini se revocan en Google. Las claves que pegaste se eliminan aquí; revócalas también en su proveedor si ya no quieres que existan. Una conexión de suscripción de ChatGPT también se elimina aquí, pero OpenAI no ofrece a AnyLearn forma de revocar su token, así que cierra sesión en ChatGPT en tus dispositivos si quieres terminarla en OpenAI. Esto no se puede deshacer.",
+      "confirmLabel": "Escribe tu dirección de correo para confirmar",
+      "deleteSubmit": "Eliminar mi cuenta y todos sus datos",
+      "mismatch": "Ese no es el correo de esta cuenta.",
+      "failed": "No se pudo eliminar la cuenta.",
+      "zoneTitle": "Zona horaria",
+      "zoneBody": "AnyLearn decide en esta zona qué significan “hoy” y “mañana”: cuándo un error cuenta como corregido, cuándo toca volver a evaluar y cuándo empieza tu día de repaso. Se tomó de tu navegador la primera vez que iniciaste sesión.",
+      "zoneLabel": "Zona",
+      "zoneSave": "Guardar zona horaria",
+      "zoneSaved": "Zona horaria guardada.",
+      "zoneInvalid": "AnyLearn no conoce esa zona horaria. Elige una de la lista, por ejemplo Europe/Madrid.",
+      "deleteDrive": "Los archivos que decidiste guardar en Google Drive no se eliminan: la carpeta “AnyTools” sigue en tu Drive y puedes conservarla o borrarla.",
+      "languageTitle": "Idioma",
+      "languageBody": "El idioma de las páginas y los recordatorios de AnyLearn. Las respuestas siguen el idioma en que preguntas, elijas lo que elijas aquí.",
+      "languageLabel": "Mostrar AnyLearn en",
+      "languageSave": "Cambiar idioma"
+    },
+    "providerNames": {
+      "gemini": "Google Gemini",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
+      "openrouter": "OpenRouter",
+      "deepseek": "DeepSeek",
+      "qwen": "Qwen (Alibaba Cloud)",
+      "mistral": "Mistral",
+      "xai": "xAI (Grok)",
+      "groq": "Groq",
+      "zai": "Z.AI (GLM)",
+      "openai_compat": "Endpoint compatible con OpenAI",
+      "chatgpt_relay": "ChatGPT (suscripción)",
+      "gemini_code_assist": "Gemini (suscripción)",
+      "builtin": "Este servidor"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "lead": "Pregunta sobre los documentos que has añadido. Cada afirmación tomada de uno incluye el pasaje del que procede, hasta la página.",
+    "new": "Nueva conversación",
+    "noSessions": "Todavía no hay conversaciones.",
+    "untitled": "Conversación sin título",
+    "delete": "Eliminar",
+    "deleteNamed": "Eliminar “{{title}}”",
+    "noKnowledge": "El chat responde a partir de tus bases de conocimiento, y aún no tienes ninguna.",
+    "noKnowledgeLink": "Añade tus primeros documentos",
+    "you": "Tú",
+    "empty": "Haz una pregunta para empezar. AnyLearn responde a partir de tus documentos y te lo dice claramente cuando no cubren algo.",
+    "placeholder": "Pregunta sobre tus documentos",
+    "composerLabel": "Tu mensaje",
+    "send": "Enviar",
+    "stop": "Detener",
+    "context": {
+      "none": "No hay documentos adjuntos",
+      "count": "{{count}} base de conocimiento adjunta",
+      "count_other": "{{count}} bases de conocimiento adjuntas",
+      "reads": "Lee {{count}} base de conocimiento",
+      "reads_other": "Lee {{count}} bases de conocimiento",
+      "readingFrom": "Leyendo de",
+      "choose": "Elige qué lee esta conversación",
+      "chooseNone": "Adjuntar documentos",
+      "chooseHelp": "Las respuestas salen solo de las bases de conocimiento marcadas aquí.",
+      "apply": "Usar estas",
+      "noKnowledge": "Todavía no tienes bases de conocimiento.",
+      "allowWeb": "Permitir la web en esta sesión"
+    },
+    "activity": {
+      "title": "Actividad",
+      "running": "en curso…",
+      "status": {
+        "running": "En curso",
+        "done": "Terminado",
+        "error": "Falló"
+      }
+    },
+    "thinking": {
+      "show": "Mostrar el razonamiento",
+      "hide": "Ocultar el razonamiento"
+    },
+    "question": {
+      "title": "Antes, una pregunta",
+      "placeholder": "Tu respuesta",
+      "submit": "Responder"
+    },
+    "hint": "Intro para enviar · Mayús+Intro para una línea nueva",
+    "hintBusy": "Esc detiene la respuesta · Intro pone en cola tu siguiente mensaje",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "regenerate": "Volver a preguntar",
+    "retry": "Reintentar",
+    "stopped": "Detenido. Lo que llegó antes de detenerlo se conserva arriba.",
+    "incomplete": "Esta respuesta se detuvo antes de terminar.",
+    "jumpToLatest": "Ir a lo último",
+    "search": "Buscar conversaciones",
+    "searchLabel": "Buscar por título",
+    "searchClear": "Mostrar todo",
+    "noMatches": "Ninguna conversación tiene “{{query}}” en su título.",
+    "rename": "Cambiar nombre",
+    "renameNamed": "Cambiar el nombre de “{{title}}”",
+    "renameLabel": "Nuevo título",
+    "renameSave": "Guardar",
+    "renameCancel": "Cancelar",
+    "groups": {
+      "today": "Hoy",
+      "week": "Últimos 7 días",
+      "older": "Anteriores"
+    },
+    "edit": {
+      "open": "Editar",
+      "label": "Edita tu pregunta",
+      "help": "Preguntar esto sustituye tu pregunta y su respuesta.",
+      "submit": "Preguntar esto en su lugar",
+      "cancel": "Cancelar"
+    },
+    "queue": {
+      "title": "{{count}} mensaje pendiente de envío",
+      "title_other": "{{count}} mensajes pendientes de envío",
+      "remove": "Quitar “{{message}}” de la cola",
+      "placeholder": "Escribe tu siguiente mensaje; se enviará cuando termine esta respuesta",
+      "add": "Poner en cola",
+      "paused": "Hay {{count}} mensaje en cola.",
+      "paused_other": "Hay {{count}} mensajes en cola.",
+      "resume": "Enviar el siguiente"
+    },
+    "model": {
+      "label": "Modelo",
+      "default": "Orden predeterminado ({{name}} primero)"
+    },
+    "followUps": {
+      "label": "Siguientes pasos",
+      "check": {
+        "label": "Comprueba si lo entendí",
+        "prompt": "Hazme una pregunta para comprobar si entendí esto. Espera mi respuesta antes de explicarlo."
+      },
+      "simpler": {
+        "label": "Explícalo más sencillo",
+        "prompt": "Explica eso de forma más sencilla, como si fuera nuevo en el tema."
+      },
+      "example": {
+        "label": "Dame un ejemplo",
+        "prompt": "Dame un ejemplo concreto de esto sacado de mis documentos."
+      },
+      "broaden": {
+        "label": "Buscar con otras palabras",
+        "prompt": "Vuelve a buscar en mis documentos con otras palabras para lo mismo y dime qué encuentras."
+      }
+    },
+    "starters": {
+      "label": "Para empezar",
+      "these": "estos documentos",
+      "overview": "¿De qué trata {{name}}?",
+      "keyIdeas": "¿Cuáles son las ideas clave de {{name}}?",
+      "quiz": "Hazme tres preguntas sobre {{name}}"
+    },
+    "work": {
+      "title": "Cómo se respondió",
+      "searches": "Una búsqueda",
+      "searches_other": "{{count}} búsquedas",
+      "steps": "{{count}} paso",
+      "steps_other": "{{count}} pasos",
+      "passages": "{{count}} pasaje",
+      "passages_other": "{{count}} pasajes",
+      "seconds": "{{value}} s",
+      "repeated": "ya hecho, no se repite",
+      "failed": "falló",
+      "summarised": "Se resumió {{count}} mensaje anterior para que quepa en el modelo",
+      "summarised_other": "Se resumieron {{count}} mensajes anteriores para que quepan en el modelo",
+      "limitReached": "Agotó las rondas de búsqueda y respondió con lo encontrado",
+      "continued": "La respuesta llegó al límite de longitud y se continuó",
+      "context": "Contexto enviado: unos {{used}} de {{window}} tokens",
+      "tool": {
+        "rag_search": {
+          "running": "Buscando en tus documentos",
+          "done": "Buscó en tus documentos"
+        },
+        "read_source": {
+          "running": "Leyendo una página",
+          "done": "Leyó una página"
+        },
+        "kb_files": {
+          "running": "Listando los archivos",
+          "done": "Listó los archivos"
+        },
+        "write_note": {
+          "running": "Guardando una nota",
+          "done": "Guardó una nota"
+        },
+        "ask_user": {
+          "running": "Preguntándote",
+          "done": "Te preguntó"
+        },
+        "paper_search": {
+          "running": "Buscando artículos",
+          "done": "Buscó artículos"
+        },
+        "zotero_search": {
+          "running": "Buscando en tu biblioteca de Zotero",
+          "done": "Buscó en tu biblioteca de Zotero"
+        },
+        "web_search": {
+          "running": "Buscando en la web",
+          "done": "Buscó en la web"
+        },
+        "web_fetch": {
+          "running": "Abriendo una página web",
+          "done": "Abrió una página web"
+        },
+        "other": {
+          "running": "Usando {{tool}}",
+          "done": "Usó {{tool}}"
+        }
+      }
+    }
+  },
+  "more": {
+    "title": "Todas las secciones",
+    "lead": "Todo lo que hay en AnyLearn, en una sola lista.",
+    "toolsTitle": "Herramientas de estudio",
+    "tools": {
+      "practice": "Practica tus errores",
+      "exams": "Exámenes",
+      "vocabulary": "Vocabulario",
+      "bookCards": "Tarjetas de libros",
+      "profile": "Perfil de aprendizaje"
+    }
+  },
+  "diagram": {
+    "drawing": "Dibujando el diagrama…",
+    "mermaidAlt": "Diagrama",
+    "chartAlt": "Gráfico",
+    "source": "Código del diagrama",
+    "data": "Los números",
+    "couldNotDraw": "No se pudo dibujar este diagrama; se muestra su código en su lugar.",
+    "tooLarge": "Este diagrama es demasiado grande para dibujarlo; se muestra su código en su lugar.",
+    "badChart": "Los datos de este gráfico no tienen una forma que AnyLearn pueda dibujar; se muestran tal como están escritos.",
+    "drawIt": "Dibujarlo"
+  },
+  "audio": {
+    "title": "Resumen en audio",
+    "lead": "Dos voces repasan este material para que lo escuches lejos de la pantalla: una presentadora que pregunta y un experto que responde con tus fuentes, y que lo dice cuando las fuentes no cubren algo. Primero se escribe el guion; luego eliges quién lo lee.",
+    "minutes": "Duración",
+    "minutesValue": "{{count}} minuto",
+    "minutesValue_other": "{{count}} minutos",
+    "language": "Idioma",
+    "languageAuto": "El mismo que las fuentes",
+    "topic": "Enfoque (opcional)",
+    "topicPlaceholder": "p. ej., cómo funciona la recuperación",
+    "create": "Escribir el guion",
+    "untitled": "Resumen en audio",
+    "status": {
+      "scripting": "Escribiendo el guion…",
+      "synthesizing": "Leyendo {{done}} de {{total}}…",
+      "ready": "Listo",
+      "script_only": "Guion listo",
+      "failed": "Falló"
+    },
+    "speak": "Ponerle voz",
+    "speakFailed": "La lectura se detuvo: {{reason}}",
+    "cancel": "Detener",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Eliminar este resumen y su audio?",
+    "transcript": "Transcripción",
+    "host": "Presentadora",
+    "expert": "Experto"
+  },
+  "readinessExtra": {
+    "optional": "Opcional"
+  },
+  "audioEngines": {
+    "lead": "Elige quién lee este guion. Solo aparecen las opciones que tienen voces para su idioma.",
+    "builtin": "Integrado (gratis, unos {{minutes}} minutos)",
+    "builtinNoTime": "Integrado (gratis)",
+    "builtinBody": "Kokoro en este servidor, voces {{host}} y {{expert}}. No se envía nada fuera.",
+    "builtinMinutes": "Reserva hasta {{need}} de tus {{daily}} minutos integrados de hoy ({{used}} usados hasta ahora); lo que no se lea se devuelve.",
+    "builtinLine_one": "Hay {{count}} trabajo integrado esperando o en curso por delante.",
+    "builtinLine_other": "Hay {{count}} trabajos integrados esperando o en curso por delante.",
+    "yourKey": "Tu clave de {{provider}}",
+    "yourServer": "Tu propio servidor de voz",
+    "keyBody": "Envía {{chars}} caracteres a {{provider}} ({{model}}), voces {{host}} y {{expert}}. Unos {{minutes}} min de audio.",
+    "prices": "Precios de {{provider}}",
+    "browser": "Leerlo en el navegador",
+    "browserBody": "Gratis. Tu navegador lee el guion en voz alta ahora con sus propias voces; no se guarda nada.",
+    "browserNoVoice": "Tu navegador no tiene voz para el idioma de este guion.",
+    "browserUnsupported": "Este navegador no puede leer en voz alta.",
+    "browserRead": "Leer en voz alta",
+    "browserStop": "Dejar de leer",
+    "noVietnamese": "Las voces integradas no hablan vietnamita.",
+    "chooseFirst": "Elige primero quién lo lee.",
+    "spokenBuiltin": "Leído por el Kokoro integrado · {{host}} y {{expert}}",
+    "spokenKey": "Leído por tu clave de {{provider}} ({{model}}) · {{host}} y {{expert}}"
+  },
+  "githubToken": {
+    "hint": "Un token de GitHub solo sirve para importar repositorios privados a una base de conocimiento. Crea un token fine-grained con acceso de solo lectura a Contents, elige “github” arriba y pégalo. Se guarda cifrado y no se vuelve a mostrar."
+  },
+  "zoteroKey": {
+    "hint": "Una clave de Zotero te permite añadir elementos de tu biblioteca a una base de conocimiento y que la investigación busque en ella. Crea una clave de solo lectura en zotero.org/settings/keys (permite el acceso a la biblioteca, y a los archivos para los PDF); la misma página muestra tu ID numérico de usuario.",
+    "userLabel": "ID de usuario de Zotero",
+    "userHint": "El número que zotero.org/settings/keys muestra como “Your user ID for use in API calls”."
+  },
+  "youtubeDataKey": {
+    "hint": "Una clave de YouTube Data API permite que una lista de reproducción de YouTube en una base de conocimiento muestre todos sus vídeos (hasta 500) en lugar de los 15 últimos. Crea una clave para YouTube Data API v3 en Google Cloud, elige “youtube_data” arriba y pégala. AnyLearn solo la usa desde su servidor; se guarda cifrada y no se vuelve a mostrar."
+  },
+  "driveStorage": {
+    "reconnect": "AnyLearn no puede abrir este archivo hasta que vuelvas a conectar Google Drive. No se pierde nada y la búsqueda sigue usando su texto.",
+    "reconnectLink": "Volver a conectar Google Drive",
+    "removed": "Este archivo se eliminó de tu Drive. Súbelo de nuevo para recuperarlo o elimínalo de AnyLearn. La búsqueda sigue usando su texto.",
+    "full": "Tu Google Drive está lleno, así que este archivo no se guardó. Libera espacio en tu Drive y vuelve a intentarlo."
+  },
+  "parts": {
+    "part": "Parte {{numeral}}",
+    "read": {
+      "title": "Leer",
+      "body": "Tus documentos, cuadernos y libros vivos."
+    },
+    "ask": {
+      "title": "Preguntar",
+      "body": "Respuestas con citas, soluciones paso a paso e informes de investigación."
+    },
+    "practise": {
+      "title": "Practicar",
+      "body": "Cuestionarios, exámenes y repaso espaciado, hasta que un punto se queda."
+    },
+    "reflect": {
+      "title": "Reflexionar",
+      "body": "Un objetivo, las pruebas de que avanza y fichas de trabajo."
+    }
+  },
+  "appendix": {
+    "title": "Apéndice: herramientas",
+    "anyprofile": {
+      "title": "AnyProfile",
+      "kind": "App de escritorio",
+      "tagline": "Un navegador por cuenta, uno al lado del otro.",
+      "open": "Descargar"
+    },
+    "all": "Todas las herramientas gratis"
+  },
+  "richText": {
+    "table": "Tabla"
+  },
+  "reminders": {
+    "install": {
+      "title": "AnyLearn en este dispositivo",
+      "lead": "AnyLearn se puede instalar como una app: se abre en su propia ventana, desde el Dock o la pantalla de inicio, sin el navegador alrededor.",
+      "installed": "AnyLearn está instalada en este dispositivo.",
+      "button": "Instalar AnyLearn",
+      "browser": "Usa la opción de instalar de tu navegador. En Chrome o Edge está en la barra de direcciones o en el menú; en Safari en un Mac, elige Archivo y luego Añadir al Dock.",
+      "ios": {
+        "safari": "Abre esta página en Safari.",
+        "share": "Toca el botón Compartir.",
+        "add": "Elige Añadir a pantalla de inicio y deja activado Abrir como app web.",
+        "open": "Abre AnyLearn desde la pantalla de inicio y activa allí el recordatorio de repaso."
+      }
+    },
+    "push": {
+      "title": "Recordatorio de repaso",
+      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántos puntos tienes para repasar. No se envía nada los días sin nada pendiente, y no hay rachas que mantener.",
+      "turnOn": "Activar en este navegador",
+      "turnOff": "Desactivar aquí",
+      "onHere": "El recordatorio está activado en este navegador.",
+      "browsers_one": "Está activado en {{count}} navegador en total.",
+      "browsers_other": "Está activado en {{count}} navegadores en total.",
+      "iosFirst": "En iPhone y iPad, el recordatorio funciona cuando AnyLearn está en la pantalla de inicio. Instálala como se indica arriba y ábrela desde allí.",
+      "unsupported": "Este navegador no puede recibir recordatorios. Chrome, Edge, Firefox y Safari sí pueden.",
+      "blocked": "Las notificaciones están bloqueadas para este sitio. Permítelas en los ajustes del navegador para este sitio y vuelve aquí."
+    },
+    "hour": {
+      "title": "Cuándo",
+      "label": "Recuérdame a las",
+      "save": "Guardar",
+      "saved": "Guardado.",
+      "zone": "En tu zona horaria, {{zone}}. Puedes cambiarla en Cuenta."
+    },
+    "test": {
+      "button": "Enviar un recordatorio de prueba",
+      "sent_one": "Enviado a {{count}} navegador.",
+      "sent_other": "Enviado a {{count}} navegadores."
+    },
+    "errors": {
+      "subscribe": "Este navegador no quiso activar el recordatorio. Vuelve a intentarlo o usa otro navegador.",
+      "generic": "No funcionó. Inténtalo de nuevo en un momento."
+    },
+    "hint": {
+      "label": "Instalar AnyLearn",
+      "body": "Añade AnyLearn a tu pantalla de inicio para recibir un recordatorio de repaso diario en este dispositivo.",
+      "how": "Muéstrame cómo",
+      "dismiss": "Ahora no"
+    }
+  },
+  "titles": {
+    "AI brief": "Resumen para la IA",
+    "All sections": "Todas las secciones",
+    "Book cards": "Tarjetas de libros",
+    "Chat": "Chat",
+    "Cycle": "Ciclo",
+    "Evidence card": "Tarjeta de evidencia",
+    "Evidence chain": "Cadena de evidencias",
+    "Goal": "Objetivo",
+    "Knowledge": "Conocimiento",
+    "Learning loop": "Ciclo de aprendizaje",
+    "Learning profile": "Perfil de aprendizaje",
+    "Mastery": "Dominio",
+    "Mock exam": "Examen de práctica",
+    "Mock exams": "Exámenes de práctica",
+    "New worksheet": "Nueva ficha",
+    "Notebook": "Cuaderno",
+    "Past paper": "Examen anterior",
+    "Practise your mistakes": "Practica tus errores",
+    "Question bank": "Banco de preguntas",
+    "Quiz": "Cuestionarios",
+    "Reminders": "Recordatorios",
+    "Report": "Informe",
+    "Research": "Investigación",
+    "Review": "Repaso",
+    "Settings": "Ajustes",
+    "Sign in": "Iniciar sesión",
+    "Solve": "Resolver",
+    "Storage": "Almacenamiento",
+    "Study": "Estudio",
+    "Toolkit": "Kit de herramientas",
+    "Vocabulary": "Vocabulario",
+    "Weekly review": "Revisión semanal",
+    "Worksheet": "Ficha"
+  },
+  "readinessText": {
+    "no_route": "Todavía ninguna conexión hace {{function}}. Elige una en Ajustes → Rutas.",
+    "all_unusable": "Ninguna de las conexiones asignadas a {{function}} se puede usar.",
+    "some_unusable": "{{unusable}} de {{total}} conexiones de {{function}} no se pueden usar.",
+    "connection_gone": "Esta conexión ya no existe.",
+    "unsupported": "{{provider}} no puede hacer {{function}}.",
+    "lanes_off": "Las vías de suscripción experimentales están desactivadas.",
+    "reconnect": "Hay que volver a conectar esta conexión.",
+    "quota": "Sin cuota: en pausa hasta que se renueve el límite.",
+    "rate_limited": "En pausa tras un límite de peticiones.",
+    "key_rejected": "Clave rechazada. {{detail}}",
+    "not_verified": "Aún sin verificar.",
+    "kb_only": "No hay clave de búsqueda: la investigación solo usa tus documentos.",
+    "keyless_search": "No hay clave de búsqueda: la investigación busca en la web con DuckDuckGo, que puede ser lento o negarse. Una clave de Tavily o Brave es más fiable."
+  }
+}

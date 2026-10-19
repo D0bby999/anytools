@@ -14,6 +14,7 @@ import { Link, useFetcher, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/books.$bookId.chapters.$chapterId";
+import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { addNote, compileChapter, getBook, getChapter, regenerateBlock, setInReview } from "~/lib/books.server";
@@ -22,9 +23,9 @@ import { BlockView } from "~/components/book/block-view";
 import { ChapterState } from "~/components/book/chapter-list";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta({ data }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   return [
-    { title: data?.view ? `${data.view.chapter.title} · AnyLearn` : "AnyLearn" },
+    { title: data?.view ? appTitle(matches, raw(data.view.chapter.title)) : appTitle(matches) },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

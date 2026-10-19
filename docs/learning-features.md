@@ -158,6 +158,10 @@ With Settings → Account → "Write your own version first" on, Chat and Solve 
 
 When due points span two or more mastery paths, Home and Mastery offer "Review everything due". The session never serves two points of the same module in a row while another module has something due, and each item names its path and module. Explain-backs stay in their path.
 
+## Language
+
+AnyLearn is written in English, Vietnamese, Spanish and Portuguese. A new account starts in the language its sign-in page was shown in (the language menu there, or the page you came from); Settings → Account changes it, and the review reminder follows it. Your documents can be in any language, and chat answers in the language you ask in.
+
 ## Review reminder
 
 Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many mastery review points are due; tapping it opens Review. Nothing is sent on a day with nothing due, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is the mastery points only; Home's total also counts mistakes, vocabulary and book cards.

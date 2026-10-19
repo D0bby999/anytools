@@ -1,0 +1,120 @@
+{
+  "hint": "Selecciona cualquier pasaje para explicarlo, consultar su vocabulario, ponerte a prueba, traducirlo, resaltarlo o guardarlo en tu cuaderno.",
+  "pdfFallback": "No se pudo mostrar el archivo original, así que este es el texto que AnyLearn extrajo de él.",
+  "actions": {
+    "explain": "Explicar",
+    "vocab": "Vocabulario",
+    "quiz": "Ponme a prueba",
+    "translate": "Traducir",
+    "highlight": "Resaltar",
+    "save": "Guardar en el cuaderno",
+    "draw": "Dibujarlo",
+    "readAloud": "Leer en voz alta",
+    "readPage": "Leer esta página"
+  },
+  "actionLabels": {
+    "explain": "Explica esto",
+    "vocab": "Vocabulario de aquí",
+    "quiz": "Ponme a prueba con esto",
+    "translate": "Traduce esto"
+  },
+  "toolbar": {
+    "label": "Acciones de la selección",
+    "selected": "Texto seleccionado",
+    "onPage": "en la página {{page}}",
+    "dismiss": "Quitar la selección"
+  },
+  "tutor": {
+    "title": "Tutor",
+    "empty": "Selecciona un pasaje y elige una acción. El tutor responde a partir del pasaje que elegiste, y cada respuesta se puede guardar en tu cuaderno con su página.",
+    "save": "Guardar la respuesta en el cuaderno",
+    "saved": "Guardada",
+    "openInChat": "Seguir en el chat",
+    "videoEmpty": "Elige un momento de la transcripción y una acción. El tutor responde a partir de lo que se dice alrededor de ese momento."
+  },
+  "highlights": {
+    "title": "Resaltados",
+    "empty": "Aún no hay resaltados.",
+    "saved": "En tu cuaderno",
+    "remove": "Quitar"
+  },
+  "notebook": {
+    "title": "Cuaderno",
+    "lead": "Lo que guardas mientras lees, lo que el tutor escribe para ti y tus propias notas. Cada nota recuerda la página de la que salió, para poder llevarte de vuelta.",
+    "newName": "Nuevo cuaderno",
+    "create": "Crear",
+    "empty": "Aún no hay cuadernos. Al guardar cualquier cosa desde el lector se crea el primero.",
+    "default": "predeterminado",
+    "count": "{{count}} nota",
+    "count_other": "{{count}} notas",
+    "back": "Todos los cuadernos",
+    "export": "Exportar en Markdown",
+    "categories": "Categorías",
+    "allNotes": "Todas las notas",
+    "removeCategory": "Quitar la categoría {{name}}",
+    "newCategory": "Nueva categoría",
+    "addCategory": "Añadir categoría",
+    "notes": "Notas",
+    "newNote": "Nueva nota",
+    "noNotes": "Aún no hay notas aquí.",
+    "manage": "Este cuaderno",
+    "rename": "Nombre",
+    "renameSubmit": "Cambiar nombre",
+    "delete": "Eliminar este cuaderno",
+    "deleteConfirm": "¿Eliminar este cuaderno y todas sus notas? Esto no se puede deshacer."
+  },
+  "note": {
+    "editing": "Nota",
+    "byTutor": "Escrita por el tutor",
+    "untitled": "Sin título",
+    "source": "Abrir la fuente",
+    "sourcePage": "Abrir la fuente en la página {{page}}",
+    "titleLabel": "Título",
+    "bodyLabel": "Cuerpo de la nota",
+    "write": "Escribir",
+    "preview": "Vista previa",
+    "categories": "Categorías",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "otherNotebook": "Otro cuaderno",
+    "move": "Mover",
+    "copy": "Copiar",
+    "delete": "Eliminar la nota",
+    "deleteConfirm": "¿Eliminar esta nota? Esto no se puede deshacer."
+  },
+  "errors": {
+    "actionFailed": "El tutor no pudo empezar.",
+    "saveFailed": "No se guardó.",
+    "nameRequired": "Un cuaderno necesita un nombre.",
+    "generic": "No funcionó."
+  },
+  "videoHint": "Elige una línea de la transcripción para reproducir desde ahí y luego pregunta al tutor sobre ese momento. El tutor solo oye las palabras dichas un minuto antes y después; no puede ver el vídeo.",
+  "passes": {
+    "panel": "Lectura",
+    "title": "Cinco pasadas",
+    "intro": "Lee este texto cinco veces, cada vez con una tarea: orientarte, trazar la estructura, comprobar las pruebas clave, reconstruirlo con todo cerrado y luego ponerlo en práctica. Tus pasadas y los puntos donde te atascaste van a una tarjeta de evidencia de lectura para este documento.",
+    "start": "Leer en cinco pasadas",
+    "position": "Pasada {{n}} de {{total}}",
+    "output": "Resultado",
+    "markDone": "Marcar como hecha",
+    "save": "Guardar",
+    "allDone": "Las cinco pasadas están hechas. Las reevaluaciones de la tarjeta se abren en sus días.",
+    "rebuildRule": "El texto y el tutor están cerrados en esta pasada. Escribe de memoria; vuelven cuando la marques como hecha.",
+    "closedKicker": "Pasada 4: herramientas cerradas",
+    "closed": "El texto se guarda mientras lo reconstruyes en el panel: problema, tesis, pruebas, límite y siguiente acción, en cinco frases tuyas. Vuelve cuando marques la pasada como hecha.",
+    "barriers": "Dónde me atasqué",
+    "barriersEmpty": "Selecciona las palabras que te frenaron y elige “Marcar un obstáculo”.",
+    "page": "p. {{page}}",
+    "layer": "Capa del obstáculo",
+    "whichLayer": "¿De qué capa es este obstáculo?",
+    "openCard": "Abrir la tarjeta completa",
+    "unavailable": "Esta tarjeta ya no tiene sus pasadas.",
+    "stale": "La tarjeta cambió en otra pestaña o desde la barra de herramientas. Se ha recargado; vuelve a intentarlo.",
+    "failed": "No se pudo guardar.",
+    "markBarrier": "Marcar un obstáculo"
+  },
+  "barrierWord": {
+    "save": "Guardar la palabra",
+    "hide": "Cerrar el selector de palabras"
+  }
+}

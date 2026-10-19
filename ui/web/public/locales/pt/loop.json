@@ -1,0 +1,394 @@
+{
+  "cannotProve": {
+    "label": "Não consegue provar",
+    "fallback": "Um número sozinho não mostra por que mudou."
+  },
+  "phase": {
+    "calibrate": "Calibrar",
+    "stack": "Empilhar",
+    "deliver": "Entregar"
+  },
+  "gate": {
+    "timeline": "Fases do ciclo",
+    "req": {
+      "baseline": "Evidência de partida",
+      "weeklyReviews": "Revisões semanais registradas",
+      "delayed": "Evidência de verificação adiada",
+      "transfer": "Evidência de transferência"
+    },
+    "missing": "Ainda falta",
+    "final": "Este ciclo está na última fase. Escreva abaixo a revisão de 90 dias e depois comece um novo ciclo pela página do objetivo.",
+    "advance": "Passar para {{to}}",
+    "tryAdvance": "Verificar a condição"
+  },
+  "timepoint": {
+    "none": "Sem momento",
+    "baseline": "Ponto de partida",
+    "immediate": "Logo depois",
+    "delayed": "Dias depois",
+    "transfer": "Em outro lugar"
+  },
+  "kind": {
+    "question_attempt": "Resposta de quiz",
+    "kp_state": "Ponto de conhecimento",
+    "note": "Nota",
+    "research_report": "Relatório de pesquisa",
+    "chat_message": "Mensagem de chat",
+    "explain_back": "Explicação com suas palavras",
+    "card_entry": "Entrada de cartão de habilidade"
+  },
+  "status": {
+    "suggested": "Sugerida",
+    "accepted": "Aceita",
+    "dismissed": "Descartada"
+  },
+  "evidence": {
+    "gone": "O registro para o qual isto apontava não existe mais",
+    "byJob": "encontrada para você",
+    "timepoint": "Momento",
+    "accept": "Aceitar",
+    "dismiss": "Descartar",
+    "add": "Adicionar como evidência"
+  },
+  "home": {
+    "title": "Ciclo de aprendizagem",
+    "lead": "Um objetivo por vez, em ciclos de noventa dias. Cada fase só abre com evidências (respostas, notas e revisões que o produto já registrou), e cada número aqui diz o que não consegue mostrar.",
+    "current": "Objetivo atual",
+    "cycle": "Ciclo",
+    "week": "Semana {{week}} deste ciclo",
+    "thisWeek": "Esta semana",
+    "due": "Pendente de revisão",
+    "nothingDue": "Nada das suas trilhas de domínio está esperando agora.",
+    "goals": "Todos os objetivos"
+  },
+  "start": {
+    "first": "Começar um objetivo",
+    "another": "Começar outro objetivo",
+    "goal": "Objetivo",
+    "scenario": "Onde você vai usar",
+    "scenarioHint": "Uma situação real, não um tema: a reunião, a prova, a conversa.",
+    "outcome": "O que você vai conseguir fazer em doze semanas",
+    "outcomeHint": "Algo que outra pessoa poderia ver você fazer.",
+    "task": "Primeira tarefa pequena",
+    "taskHint": "Pequena o bastante para fazer nesta semana, mesmo numa semana ruim.",
+    "submit": "Começar"
+  },
+  "week": {
+    "none": "A semana {{week}} ainda não tem revisão.",
+    "open": "Abrir a revisão desta semana",
+    "scored": "Verificações da semana {{week}} pontuadas",
+    "writtenBack": "registrada",
+    "continue": "Abrir a revisão",
+    "cannotProve": "Uma semana pontuada mostra que você olhou para trás. Não mostra que a próxima vai ser melhor."
+  },
+  "state": {
+    "scenario": "Situação real",
+    "outcome": "Resultado em doze semanas",
+    "nextTask": "Próxima tarefa",
+    "minimum": "Versão mínima",
+    "empty": "Ainda não escrita",
+    "minimumHint": "A menor versão que ainda conta. “Fui interrompido” muda para ela.",
+    "aiMay": "A IA pode",
+    "humanConfirm": "Uma pessoa precisa confirmar",
+    "perLine": "Uma por linha.",
+    "boundariesHint": "Uma por linha. Um chat retomado recebe estas regras; o AnyLearn não consegue garantir que sejam cumpridas.",
+    "handover": "Nota de passagem",
+    "handoverHint": "Por onde uma conversa nova deve começar. A atualização de um chat retomado pode substituí-la quando passar na verificação abaixo.",
+    "save": "Salvar",
+    "edit": "Todo o resto sobre este objetivo",
+    "hypotheses": "Hipóteses",
+    "noHypotheses": "Nada ainda. Registrar uma revisão semanal adiciona aqui os erros e a única mudança dela.",
+    "openCycle": "Abrir o ciclo",
+    "newCycle": "Começar um novo ciclo"
+  },
+  "interrupt": {
+    "title": "Interrompido",
+    "open": "Registrar uma interrupção",
+    "lead": "Se esta semana desandou, reduza o plano em vez de abandoná-lo: a próxima tarefa vira a versão mínima, e a interrupção fica registrada no ciclo.",
+    "minimum": "A menor versão da sua próxima tarefa",
+    "note": "O que aconteceu (opcional)",
+    "submit": "Fui interrompido"
+  },
+  "resume": {
+    "title": "Retomar com IA",
+    "lead": "Abre um novo chat que vê só este objetivo. Ele o resume, faz um exercício curto e termina com uma atualização que você pode trazer para cá.",
+    "open": "Abrir um chat para retomar",
+    "paste": "Cole o bloco de atualização do chat",
+    "takeNextTask": "Pegar também a próxima tarefa sugerida",
+    "check": "Verificar",
+    "accept": "Verificar e aceitar",
+    "accepted": "Aceita. A nota de passagem foi atualizada.",
+    "valid": "Esta atualização passa na verificação e pode ser aceita.",
+    "invalid": "Esta atualização não pode ser aceita:"
+  },
+  "chain": {
+    "title": "Cadeias de evidências",
+    "question": "Uma pergunta para acompanhar ao longo do tempo",
+    "new": "Começar uma cadeia"
+  },
+  "brief": {
+    "title": "Pedidos para a IA",
+    "task": "Uma tarefa que você vai passar para a IA",
+    "new": "Escrever um pedido",
+    "outputEval": "Como o resultado será julgado",
+    "aiScope": "O que a IA pode fazer",
+    "humanGates": "Onde uma pessoa dá o aval",
+    "cost": "O custo, e quão fácil é desfazer",
+    "rollback": "Se der errado, como voltar atrás",
+    "handover": "Como o trabalho volta para você",
+    "dataNote": "Limite dos dados (nota para você)",
+    "dataNoteHint": "O limite dos dados é um lembrete para você. O AnyLearn não controla o que um provedor de modelos faz com o que você envia.",
+    "preStart": "Antes de começar",
+    "notReady": "Algumas verificações iniciais ainda não estão marcadas.",
+    "check": {
+      "output_eval_written": "Sei como vou julgar o resultado",
+      "human_gates_named": "Indiquei onde preciso dar o aval",
+      "rollback_known": "Sei como desfazer",
+      "baseline_recorded": "Fiz ou medi uma vez sem IA antes"
+    }
+  },
+  "cycle": {
+    "lead": "Começou em {{date}}. Esta é a semana {{week}}.",
+    "backToGoal": "Voltar ao objetivo",
+    "gate": "Fases e condição",
+    "reviews": "Revisões semanais",
+    "noReviews": "Ainda sem revisões.",
+    "reviewRow": "Semana {{week}}: conclusão, qualidade, retenção, transferência",
+    "questions": "Perguntas semanais",
+    "questionFor": "Pergunta da semana {{week}}",
+    "capacityFor": "Capacidade da semana {{week}}",
+    "full": "Semana cheia",
+    "reduced": "Reduzida",
+    "minimum": "Mínima",
+    "saveQuestions": "Salvar as perguntas",
+    "interruptions": "Interrupções",
+    "noNote": "sem nota",
+    "was": "(a tarefa era: {{task}})",
+    "day90": "Revisão de 90 dias"
+  },
+  "review": {
+    "title": "Revisão da semana {{week}}",
+    "backToCycle": "Voltar ao ciclo",
+    "evidence": "Evidências",
+    "noEvidence": "Nada anexado ainda. Aceite uma sugestão abaixo ou adicione uma.",
+    "suggested": "Desta semana",
+    "suggestedLead": "O que você fez nesta semana do ciclo. Nada conta até você adicionar; uma passagem noturna também os propõe para você aceitar ou descartar.",
+    "noSuggestions": "Nada registrado nesta semana ainda. Responda a uma pergunta de quiz ou escreva uma nota, e ela aparecerá aqui.",
+    "scores": "Pontuações",
+    "total": "Total das quatro verificações",
+    "completion": "Conclusão",
+    "completionHint": "O trabalho planejado aconteceu?",
+    "quality": "Qualidade",
+    "qualityHint": "Foi bem feito o bastante para contar, pelo seu próprio critério?",
+    "retention": "Retenção",
+    "retentionHint": "Você ainda conseguiria fazer o conteúdo da semana passada sem ajuda?",
+    "transfer": "Transferência",
+    "transferHint": "Você usou isso em algum lugar diferente de onde aprendeu?",
+    "level0": "ainda não",
+    "level1": "em parte",
+    "level2": "claramente",
+    "mistakes": "Erros desta semana",
+    "mistakesHint": "Cada um que você preencher vira uma hipótese do objetivo quando você registrar a revisão.",
+    "errEvidence": "O que mostrou",
+    "errCause": "Causa suspeita",
+    "errNextTest": "Teste que verificaria",
+    "errStop": "Quando abandonar a ideia",
+    "errConfidence": "Certeza",
+    "low": "Baixa",
+    "medium": "Média",
+    "high": "Alta",
+    "energy": "Energia nesta semana",
+    "change": "Uma coisa para mudar na próxima semana",
+    "changeHint": "Uma só. Mudar várias de uma vez torna a próxima semana impossível de ler.",
+    "save": "Salvar a revisão",
+    "writeback": "Registrar",
+    "done": "Registrada. Os erros e a mudança dela agora são hipóteses do objetivo, e a revisão foi congelada.",
+    "ready": "Completa. Registrá-la adiciona os erros e a mudança dela às hipóteses do objetivo.",
+    "writebackSubmit": "Registrar no objetivo"
+  },
+  "chainPage": {
+    "emptyColumn": "Nada aqui ainda.",
+    "filled": "Momentos com evidências aceitas",
+    "timeline": "Quatro momentos",
+    "add": "Adicionar desta semana",
+    "split": "Mantenha isto separado",
+    "fact": "O que você viu",
+    "interpretation": "O que você acha que significa",
+    "hypothesis": "O que você só suspeita"
+  },
+  "log": {
+    "title": "Registros de aprendizado com IA",
+    "lead": "Meça a mesma tarefa três vezes: sem IA, com IA e sozinho de novo alguns dias depois. Só a terceira vez mostra o que ficou.",
+    "new": "Começar um registro",
+    "save": "Salvar o registro",
+    "measure": "Como é medido",
+    "measureHint": "Como você mede isto",
+    "noAI": "Sem IA",
+    "withAI": "Com IA",
+    "later": "Sozinho, depois",
+    "decision": "O que muda no próximo ciclo",
+    "metric": {
+      "completion": "Conclusão",
+      "quality": "Qualidade",
+      "independent_perf": "Desempenho independente",
+      "rework": "Retrabalho (quanto menos, melhor)",
+      "cost": "Custo (quanto menos, melhor)",
+      "transfer": "Transferência"
+    },
+    "reading": {
+      "incomplete": "Tentativas insuficientes",
+      "retained": "Ficou depois da IA",
+      "only_with_ai": "Só com IA",
+      "no_gain": "Sem ganho"
+    }
+  },
+  "cards": {
+    "title": "Cartões de evidência",
+    "lead": "Um cartão acompanha uma habilidade numa situação real: uma tentativa sem ajuda, prática, um novo teste depois de um tempo e a mesma habilidade em outro lugar.",
+    "none": "Este objetivo ainda não tem cartões de evidência.",
+    "new": "Novo cartão de evidência",
+    "chooseKind": "O que você está praticando?",
+    "cardTitle": "Um nome curto para este cartão",
+    "create": "Começar o cartão",
+    "retestAfter": "Novo teste depois de {{count}} dia",
+    "retestAfter_other": "Novo teste depois de {{count}} dias",
+    "backToGoal": "Voltar ao objetivo",
+    "setup": "Preparação",
+    "status": {
+      "open": "Aberto",
+      "retest_due": "Novo teste pendente",
+      "closed": "Fechado"
+    },
+    "dueOn": "Novo teste em {{date}}",
+    "step": {
+      "baseline": "Primeira tentativa, sem ajuda",
+      "immediate": "Prática",
+      "delayed": "Novo teste",
+      "transfer": "Em outro lugar",
+      "reflection": "Reflexão"
+    },
+    "empty": "Nada escrito aqui ainda.",
+    "hidden": "Sua primeira tentativa fica oculta até o novo teste ser salvo, para não dar pistas da resposta.",
+    "retestOpensOn": "O novo teste abre em {{date}}. Até lá, pratique; a primeira tentativa continua oculta.",
+    "retestOpen": "O novo teste está aberto. Responda de memória e depois diga quanta ajuda você teve.",
+    "transferWaits": "Registre uma transferência depois que o novo teste for salvo.",
+    "write": "Escreva aqui",
+    "writeHint": "Até 20.000 caracteres. É guardado exatamente como você salvar e não pode ser editado depois.",
+    "baselineWarning": "Salve só o que você fez sem ajuda. Se já consultou algo, salve como prática.",
+    "save": "Salvar a entrada",
+    "promptLevel": "Quanta ajuda você teve?",
+    "level": {
+      "unaided": "Nenhuma",
+      "light_cue": "Uma pequena dica",
+      "heavy_cue": "Muita ajuda"
+    },
+    "links": "Link para o seu trabalho (opcional)",
+    "linkRecent": "Notas e respostas recentes",
+    "linkDocument": "Uma página de documento: cole o endereço dela",
+    "linkDocumentHint": "Por exemplo /documents/…?page=3, copiado do leitor.",
+    "linkMissing": "Este link aponta para algo que não existe mais.",
+    "linkKind": {
+      "note": "Nota",
+      "document": "Documento",
+      "quiz_attempt": "Resposta de quiz"
+    },
+    "pageN": "página {{page}}",
+    "cueNote": "Ajuda: {{level}}",
+    "reflect": {
+      "intro": "Feche o cartão quando terminar com ele. Depois disso não dá para adicionar entradas.",
+      "held": "O que se manteve",
+      "missed": "O que não se manteve",
+      "next": "A próxima ação",
+      "close": "Fechar o cartão"
+    },
+    "retests": {
+      "title": "Novos testes pendentes",
+      "none": "Nenhum novo teste pendente hoje.",
+      "open": "Abrir o cartão"
+    },
+    "cannotProve": "Um novo teste num cartão mostra que a habilidade durou uma vez, numa situação. Não mostra que ela vai se manter sob pressão ou em outro tipo de tarefa."
+  },
+  "contract": {
+    "title": "Compromisso mínimo para dias ruins",
+    "lead": "Responda a isto num dia normal, para que num dia ruim não sobre nada para decidir. Reduzir uma tarefa não é fugir dela: quando sua saúde, seu dinheiro, sua segurança ou as pessoas próximas correm risco real, parar e pedir ajuda pode ser a atitude mais responsável a longo prazo.",
+    "downshift": "Quando eu reduzo a tarefa em vez de forçar?",
+    "downshiftHint": "Os sinais de que forçar custaria mais do que rende, como dormir muito pouco, um prazo no trabalho ou uma terceira tentativa frustrada.",
+    "keep": "Depois de reduzir, que pequena ação ainda vale a pena manter?",
+    "keepHint": "A versão mínima acima é a própria tarefa. Diga por que vale mantê-la, ou o que mais vale.",
+    "help": "Quando eu peço ajuda, ou passo isto para alguém qualificado?",
+    "helpHint": "A quem você recorreria e o que faria você fazer isso.",
+    "shared": "Suas duas primeiras respostas são incluídas quando você retoma este objetivo num chat com o seu próprio modelo de IA. A terceira nunca é enviada a nenhum modelo; só você a vê aqui."
+  },
+  "interruption": {
+    "lead": "Se esta semana desandou, reduza o plano em vez de abandoná-lo. Anote o que aconteceu e depois o que sobra: a próxima tarefa vira a reduzida, e o registro fica no ciclo.",
+    "fact": "O que aconteceu, em fatos",
+    "factHint": "O que mudou, não um julgamento sobre você.",
+    "resistance": "Resistência principal",
+    "resistanceNone": "Não tenho certeza",
+    "reducedTo": "Tarefa reduzida para",
+    "reducedToHint": "Esta vira sua próxima tarefa e a versão mínima dela.",
+    "within24h": "O menor resultado que você ainda consegue entregar em 24 horas",
+    "notRepaying": "Trabalho que não vou compensar",
+    "notRepayingHint": "Trabalho perdido que você deixa ir de propósito, para não acumular.",
+    "reviewOn": "Data da revisão",
+    "submit": "Registrar a interrupção",
+    "earlier": "Registrada antes de existirem as seis linhas.",
+    "resistanceLabel": {
+      "time": "Tempo",
+      "difficulty": "Dificuldade",
+      "energy": "Energia",
+      "environment": "Ambiente",
+      "responsibility": "Responsabilidade"
+    },
+    "line": {
+      "resistance": "Resistência",
+      "reducedTo": "Reduzida para",
+      "within24h": "Em 24 horas",
+      "notRepaying": "Sem compensar",
+      "reviewOn": "Revisar em",
+      "was": "Tarefa anterior"
+    }
+  },
+  "repeated": {
+    "title": "A mesma resistência, três vezes seguidas",
+    "body": "Suas três últimas interrupções apontaram {{resistance}}. Isso é um padrão na organização, não falta de força de vontade. Mude uma condição em vez de exigir mais esforço de si: o tempo previsto pode não ser realista, a tarefa pode precisar ser dividida, um limite pode precisar ser dito em voz alta, ou você pode precisar de mais apoio ao redor.",
+    "capacity": "Planejar a capacidade semanal deste ciclo"
+  },
+  "today": {
+    "title": "Seu próximo passo",
+    "lowDay": "Dia difícil",
+    "lowDayHint": "Mostra só o mínimo. Zera no fim do dia, e nada sobre ele é registrado.",
+    "nextTask": "Próxima tarefa",
+    "minimum": "Versão mínima",
+    "keep": "Ainda vale manter",
+    "none": "Ainda não escrita",
+    "interrupt": "Registrar uma interrupção"
+  },
+  "cycleClose": {
+    "region": "Encerrar o ciclo",
+    "lead": "Encerre o ciclo passo a passo: a revisão do dia noventa, o balanço de capacidade, artefato, custo e incógnitas, um destino para cada resultado, três linhas para o ano, a revisão trimestral e trinta dias de passagem.",
+    "close": "Encerrar este ciclo",
+    "title": "Encerramento do ciclo: {{goal}}",
+    "open": "Abrir o encerramento deste ciclo",
+    "openDone": "Abrir o encerramento deste ciclo (concluído)",
+    "notYet": "Dia {{day}} do ciclo. O encerramento abre aqui no dia {{from}}.",
+    "notes": "Notas",
+    "notesLead": "Suas notas livres sobre este ciclo. O encerramento mantém a revisão do dia noventa como uma seção própria.",
+    "fromLast": "Do último encerramento",
+    "fromLastLead": "A semana 1 ainda não tem pergunta. Comece por um resultado que o último ciclo deixou encaminhado:",
+    "use": "Usar na semana 1",
+    "useLabel": "Usar “{{step}}” como pergunta da semana 1",
+    "destination": {
+      "continue": "Continuar",
+      "transfer": "Transferir",
+      "repair": "Reparar",
+      "stop": "Parar"
+    },
+    "changed": "Condição alterada: {{condition}}",
+    "reduceFirst": "Reduzir primeiro",
+    "openLast": "Abrir o último encerramento",
+    "gone": "Esse resultado não é mais oferecido. Recarregue a página.",
+    "weekOneTaken": "A semana 1 já tem uma pergunta."
+  },
+  "repeatedRecovery": "Ou faça um recomeço de recuperação (privado)"
+}

@@ -10,15 +10,16 @@ import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/notebooks.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { createNotebook, listNotebooks } from "~/lib/notebook.server";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Notebook · AnyLearn" },
+    { title: appTitle(matches, "Notebook") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

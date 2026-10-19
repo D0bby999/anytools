@@ -1,0 +1,71 @@
+{
+  "nav": "Almacenamiento",
+  "title": "Dónde se guardan tus archivos",
+  "lead": "Tus subidas, grabaciones, audio generado, exámenes y fotos de páginas pueden quedarse en el servidor de AnyLearn o vivir en tu propio Google Drive, dentro de una carpeta llamada “AnyTools”. Los archivos de tu Drive son tuyos para abrirlos, descargarlos o conservarlos, incluso después de dejar AnyLearn.",
+  "stays": "En ambos casos, AnyLearn guarda en su propio servidor el texto que lee de cada archivo, junto con el índice de búsqueda creado a partir de ese texto. La búsqueda, el chat y las citas lo leen siempre, y siempre se puede reconstruir a partir de tu archivo.",
+  "choice": {
+    "legend": "Guardar mis archivos",
+    "server": "En el servidor de AnyLearn",
+    "serverHint": "No se envía nada a Google.",
+    "drive": "En mi Google Drive",
+    "driveHint": "Los archivos nuevos van a la carpeta “AnyTools” de tu Drive.",
+    "save": "Guardar",
+    "saved": "Guardado. Los archivos nuevos van ahora donde elegiste; los existentes se quedan donde están hasta que los muevas.",
+    "current": "actual"
+  },
+  "drive": {
+    "unavailable": "Google Drive no está configurado en este servidor, así que tus archivos se quedan en el servidor.",
+    "notConnected": "Conecta Google Drive para guardar allí tus archivos.",
+    "reconnect": "Google ya no acepta el acceso de AnyLearn a tu Drive. Vuelve a conectarlo para guardar allí tus archivos.",
+    "connect": "Abrir Conexiones"
+  },
+  "usage": {
+    "title": "Espacio usado",
+    "server": "En el servidor",
+    "drive": "En tu Drive",
+    "files_one": "{{count}} archivo, {{size}}",
+    "files_other": "{{count}} archivos, {{size}}",
+    "missing_one": "Se eliminó {{count}} archivo de tu Drive.",
+    "missing_other": "Se eliminaron {{count}} archivos de tu Drive."
+  },
+  "move": {
+    "title": "Archivos de antes",
+    "body": "Cambiar esto no mueve lo que ya tienes. Una migración copia cada archivo, comprueba que la copia coincide y solo entonces lo quita de donde estaba. Puedes detenerla cuando quieras; los archivos ya movidos se quedan donde están ahora.",
+    "toDrive": "Mover mis archivos a Drive",
+    "toServer": "Devolver mis archivos al servidor",
+    "progress": "{{done}} de {{total}} archivos, {{doneSize}} de {{totalSize}}",
+    "queued": "Esperando para empezar.",
+    "running": "Moviendo tus archivos.",
+    "done": "Movidos.",
+    "cancelled": "Detenido. Los archivos ya movidos se quedan donde están ahora.",
+    "stopping": "Se detendrá tras el archivo que se está moviendo.",
+    "failed": "La migración se detuvo antes de terminar. No se perdió nada; vuelve a empezarla para continuar.",
+    "drive_full": "Tu Google Drive está lleno, así que la migración se detuvo. No se perdió nada; libera espacio y vuelve a empezarla.",
+    "drive_reconnect": "Google ya no acepta el acceso de AnyLearn a tu Drive, así que la migración se detuvo. No se perdió nada; vuelve a conectar y empiézala de nuevo.",
+    "cancel": "Dejar de mover",
+    "nothing": "No hay nada que mover.",
+    "leftOnServer_one": "Todavía queda {{count}} archivo en el servidor.",
+    "leftOnServer_other": "Todavía quedan {{count}} archivos en el servidor.",
+    "leftInDrive_one": "Todavía queda {{count}} archivo en tu Drive.",
+    "leftInDrive_other": "Todavía quedan {{count}} archivos en tu Drive."
+  },
+  "errors": {
+    "generic": "No funcionó. Inténtalo de nuevo en un momento.",
+    "running": "Se están moviendo tus archivos. Espera a que termine la migración o detenla primero.",
+    "notConnected": "Conecta antes Google Drive en Conexiones.",
+    "reconnect": "Vuelve a conectar antes Google Drive en Conexiones.",
+    "full": "Tu Google Drive está lleno.",
+    "unreachable": "No se pudo contactar con Google Drive. Inténtalo de nuevo en un momento.",
+    "unavailable": "Google Drive no está configurado en este servidor."
+  },
+  "export": {
+    "save": "Guardar en mi Drive",
+    "saving": "Guardando…",
+    "saved": "Guardado en tu Drive.",
+    "open": "Abrir en Drive",
+    "failed": "No se pudo guardar en tu Drive.",
+    "storageOff": "Activa antes el almacenamiento en Drive en Ajustes → Almacenamiento.",
+    "reconnect": "Vuelve a conectar antes Google Drive en Conexiones.",
+    "full": "Tu Google Drive está lleno."
+  }
+}

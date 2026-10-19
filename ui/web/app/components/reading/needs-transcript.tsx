@@ -41,7 +41,7 @@ function hasAudioEngines(transcribe?: TranscribeEstimate): boolean {
 }
 
 export function NeedsTranscript({ view, replacing = false }: { view: DocumentView; replacing?: boolean }) {
-  const { t } = useTranslation("knowledge");
+  const { t, i18n } = useTranslation("knowledge");
   const fetcher = useFetcher<TranscriptActionData>();
   const { document: doc, transcribe } = view;
   const busy = fetcher.state !== "idle";
@@ -97,7 +97,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
               <li>
                 {transcribe.duration_seconds > 0
                   ? t("video.needs.estimate", {
-                      tokens: transcribe.estimated_tokens.toLocaleString("en"),
+                      tokens: transcribe.estimated_tokens.toLocaleString(i18n.language),
                       minutes,
                     })
                   : t("video.needs.estimateUnknown")}

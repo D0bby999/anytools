@@ -1,0 +1,71 @@
+{
+  "nav": "Lưu trữ",
+  "title": "Nơi giữ tệp của bạn",
+  "lead": "Các tệp tải lên, bản ghi âm, âm thanh được tạo, đề thi và ảnh chụp trang của bạn có thể nằm trên máy chủ của AnyLearn, hoặc trong Google Drive của chính bạn, trong thư mục tên “AnyTools”. Tệp trong Drive là của bạn để mở, tải về hay giữ lại, kể cả khi bạn rời AnyLearn.",
+  "stays": "Dù chọn cách nào, AnyLearn vẫn giữ trên máy chủ của nó phần văn bản đọc từ mỗi tệp, cùng chỉ mục tìm kiếm dựng từ văn bản đó. Tìm kiếm, chat và trích dẫn luôn đọc từ đây, và nó luôn dựng lại được từ tệp của bạn.",
+  "choice": {
+    "legend": "Giữ tệp của tôi",
+    "server": "Trên máy chủ của AnyLearn",
+    "serverHint": "Không có gì được gửi tới Google.",
+    "drive": "Trong Google Drive của tôi",
+    "driveHint": "Tệp mới sẽ vào thư mục “AnyTools” trong Drive của bạn.",
+    "save": "Lưu",
+    "saved": "Đã lưu. Tệp mới giờ sẽ tới nơi bạn chọn; tệp cũ vẫn ở nguyên chỗ cho tới khi bạn chuyển chúng.",
+    "current": "hiện tại"
+  },
+  "drive": {
+    "unavailable": "Máy chủ này chưa thiết lập Google Drive, nên tệp của bạn vẫn ở trên máy chủ.",
+    "notConnected": "Kết nối Google Drive để giữ tệp ở đó.",
+    "reconnect": "Google không còn chấp nhận quyền truy cập Drive của AnyLearn. Hãy kết nối lại để giữ tệp ở đó.",
+    "connect": "Mở Kết nối"
+  },
+  "usage": {
+    "title": "Dung lượng đã dùng",
+    "server": "Trên máy chủ",
+    "drive": "Trong Drive của bạn",
+    "files_one": "{{count}} tệp, {{size}}",
+    "files_other": "{{count}} tệp, {{size}}",
+    "missing_one": "{{count}} tệp đã bị xóa khỏi Drive của bạn.",
+    "missing_other": "{{count}} tệp đã bị xóa khỏi Drive của bạn."
+  },
+  "move": {
+    "title": "Các tệp từ trước",
+    "body": "Đổi lựa chọn này không chuyển những gì bạn đã có. Một lần chuyển sẽ sao chép từng tệp, kiểm tra bản sao khớp, rồi mới xóa tệp ở chỗ cũ. Bạn có thể dừng bất cứ lúc nào; tệp đã chuyển sẽ ở lại chỗ mới.",
+    "toDrive": "Chuyển tệp của tôi sang Drive",
+    "toServer": "Chuyển tệp của tôi về máy chủ",
+    "progress": "{{done}} trên {{total}} tệp, {{doneSize}} trên {{totalSize}}",
+    "queued": "Đang chờ bắt đầu.",
+    "running": "Đang chuyển tệp của bạn.",
+    "done": "Đã chuyển.",
+    "cancelled": "Đã dừng. Tệp đã chuyển sẽ ở lại chỗ mới.",
+    "stopping": "Sẽ dừng sau tệp đang được chuyển.",
+    "failed": "Việc chuyển đã dừng trước khi xong. Không có gì bị mất; hãy bắt đầu lại để làm tiếp.",
+    "drive_full": "Google Drive của bạn đã đầy, nên việc chuyển đã dừng. Không có gì bị mất; hãy giải phóng dung lượng rồi bắt đầu lại.",
+    "drive_reconnect": "Google không còn chấp nhận quyền truy cập Drive của AnyLearn, nên việc chuyển đã dừng. Không có gì bị mất; hãy kết nối lại rồi bắt đầu lại.",
+    "cancel": "Dừng chuyển",
+    "nothing": "Không có gì để chuyển.",
+    "leftOnServer_one": "Còn {{count}} tệp trên máy chủ.",
+    "leftOnServer_other": "Còn {{count}} tệp trên máy chủ.",
+    "leftInDrive_one": "Còn {{count}} tệp trong Drive của bạn.",
+    "leftInDrive_other": "Còn {{count}} tệp trong Drive của bạn."
+  },
+  "errors": {
+    "generic": "Chưa được. Hãy thử lại sau giây lát.",
+    "running": "Tệp của bạn đang được chuyển. Hãy chờ việc chuyển xong, hoặc dừng nó trước.",
+    "notConnected": "Hãy kết nối Google Drive trong Kết nối trước.",
+    "reconnect": "Hãy kết nối lại Google Drive trong Kết nối trước.",
+    "full": "Google Drive của bạn đã đầy.",
+    "unreachable": "Không liên lạc được với Google Drive. Hãy thử lại sau giây lát.",
+    "unavailable": "Máy chủ này chưa thiết lập Google Drive."
+  },
+  "export": {
+    "save": "Lưu vào Drive của tôi",
+    "saving": "Đang lưu…",
+    "saved": "Đã lưu vào Drive của bạn.",
+    "open": "Mở trong Drive",
+    "failed": "Không lưu được vào Drive của bạn.",
+    "storageOff": "Hãy bật lưu trữ trên Drive trong Cài đặt → Lưu trữ trước.",
+    "reconnect": "Hãy kết nối lại Google Drive trong Kết nối trước.",
+    "full": "Google Drive của bạn đã đầy."
+  }
+}

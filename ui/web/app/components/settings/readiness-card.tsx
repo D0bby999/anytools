@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { StatusPill } from "~/components/settings/readiness-matrix";
 import type { Readiness } from "~/lib/byok.types";
+import { rowReason } from "~/lib/readiness-text";
 
 /**
  * The readiness card on Home.
@@ -65,7 +66,7 @@ export function ReadinessCard({ readiness }: { readiness: Readiness | null }) {
               {t(`settings.functions.${row.function}` as never, { defaultValue: row.function })}
             </span>
             <span className="text-muted-foreground">
-              {row.status === "green" ? t("settings.readiness.ready") : row.reason}
+              {row.status === "green" ? t("settings.readiness.ready") : rowReason(t, row)}
             </span>
           </li>
         ))}

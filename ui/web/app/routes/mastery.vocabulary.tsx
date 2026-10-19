@@ -14,6 +14,7 @@
  */
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/mastery.vocabulary";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { deleteWord, dueCards, listWords, practiseWord, reviewCard, updateWord } from "~/lib/vocab.server";
@@ -24,9 +25,9 @@ import { ReviewSession } from "~/components/vocab/review-session";
 import { WordList } from "~/components/vocab/word-list";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Vocabulary · AnyLearn" },
+    { title: appTitle(matches, "Vocabulary") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

@@ -11,6 +11,7 @@ import { Form, Link, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronRight, X } from "lucide-react";
 import type { Route } from "./+types/quiz.bank";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { listKBs } from "~/lib/kb.server";
 import { listBank } from "~/lib/quiz.server";
@@ -20,9 +21,9 @@ import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
 import { QuizTabs } from "~/components/quiz/quiz-tabs";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Question bank · AnyLearn" },
+    { title: appTitle(matches, "Question bank") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

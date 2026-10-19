@@ -10,10 +10,13 @@
  * initI18nClient resolves) — acceptable for a dashboard behind a login, not for
  * the page that IS the login.
  *
- * English is the only locale (brainstorm contract: English first), so bundling
- * costs a few KB. When a second locale lands, keep `en` bundled and load the
- * others through i18next-http-backend from /locales/{lng}/{ns}.json — the
- * namespace layout here already matches that path.
+ * English is bundled. AnyLearn also speaks Vietnamese, Spanish and Portuguese
+ * (plan 261019-1317, phase 2): those are imported per language, by the
+ * server's loaders (app-layout, auth-layout) before they render and by
+ * entry.client.tsx before it hydrates, so a page is translated on its first
+ * paint and hydration matches. English is one instance (the global one,
+ * which tests use); each other language is its own instance, made once and
+ * never switched, so two requests in two languages cannot step on each other.
  */
 import i18next, { type i18n as I18nInstance } from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -36,15 +39,13 @@ import enStorage from "../../public/locales/en/storage.json";
 import enTools from "../../public/locales/en/tools.json";
 import enPages from "../../public/locales/en/pages.json";
 
-export const supportedLngs = ["en"] as const;
+export const supportedLngs = ["en", "vi", "es", "pt"] as const;
 export type SupportedLng = (typeof supportedLngs)[number];
 
 /**
- * The public tool pages (/{locale}/…) speak four languages; the app stays
- * English. Only the `tools` and `pages` namespaces exist in vi, es and pt
- * (`pages`: guides, AnyProfile and the legal pages' chrome), and those
- * bundles are not here: each public page's loader sends its own
- * (lib/tools-i18n.ts), so the app's bundle carries English only.
+ * The public tool pages (/{locale}/…) speak the same four languages. Their
+ * `tools` and `pages` bundles are not here: each public page's loader sends
+ * its own (lib/tools/i18n.ts).
  */
 export const publicLngs = ["en", "vi", "es", "pt"] as const;
 export type PublicLng = (typeof publicLngs)[number];
@@ -75,6 +76,38 @@ const resources = {
   },
 } as const;
 
+/** The study app's namespaces: everything but the public site's two. */
+export const appNs = ns.filter((n) => n !== "tools" && n !== "pages");
+
+/** Every locale file, imported only when its language is first needed. */
+const localeFiles = import.meta.glob<{ default: Record<string, unknown> }>("../../public/locales/*/*.json");
+
+const loaded: Partial<Record<SupportedLng, Record<string, unknown>>> = { en: resources.en };
+const instances = new Map<SupportedLng, I18nInstance>();
+
+/** Whether a language's bundles are in memory (English always is). */
+export function isLoaded(lng: SupportedLng): boolean {
+  return loaded[lng] !== undefined;
+}
+
+/**
+ * Imports a language's app namespaces once, and `tools` with them: the site
+ * header the sign-in page shares with the public pages reads it. A missing
+ * file is left out, and those strings fall back to English rather than
+ * failing the page.
+ */
+export async function loadLanguage(lng: SupportedLng): Promise<void> {
+  if (loaded[lng]) return;
+  const bundles: Record<string, unknown> = {};
+  await Promise.all(
+    [...appNs, "tools"].map(async (n) => {
+      const file = localeFiles[`../../public/locales/${lng}/${n}.json`];
+      if (file) bundles[n] = (await file()).default;
+    }),
+  );
+  loaded[lng] = bundles;
+}
+
 export function isSupportedLng(lng: string): lng is SupportedLng {
   return (supportedLngs as readonly string[]).includes(lng);
 }
@@ -89,9 +122,31 @@ export function isPublicLng(lng: string): lng is PublicLng {
  * module exists to avoid.
  */
 export function initI18n(locale: SupportedLng = fallbackLng): I18nInstance {
+  const bundles = loaded[locale];
+  if (locale !== fallbackLng && bundles) {
+    let instance = instances.get(locale);
+    if (!instance) {
+      instance = i18next.createInstance();
+      void instance.init({
+        lng: locale,
+        fallbackLng,
+        defaultNS,
+        ns: [...ns],
+        supportedLngs: [...supportedLngs],
+        resources: { en: resources.en, [locale]: bundles } as never,
+        interpolation: { escapeValue: false },
+        initImmediate: false,
+        react: { useSuspense: false },
+      });
+      instances.set(locale, instance);
+    }
+    return instance;
+  }
+  // The global instance is English and stays English: a language whose
+  // bundles are not loaded yet falls back here rather than switching it.
   if (!i18next.isInitialized) {
     void i18next.use(initReactI18next).init({
-      lng: locale,
+      lng: fallbackLng,
       fallbackLng,
       defaultNS,
       ns: [...ns],

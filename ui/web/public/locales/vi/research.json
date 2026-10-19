@@ -1,0 +1,103 @@
+{
+  "title": "Nghiên cứu",
+  "lead": "Đặt một câu hỏi và nhận một báo cáo ngắn có trích dẫn cho mọi khẳng định, từ tài liệu của bạn và từ web (qua khóa tìm kiếm của bạn, hoặc DuckDuckGo nếu bạn chưa có). Sau đó mỗi khẳng định được đối chiếu với nguồn mà nó trích.",
+  "form": {
+    "query": "Cần nghiên cứu điều gì?",
+    "queryPlaceholder": "ví dụ: Sinh văn bản có truy xuất (RAG) giảm ảo giác như thế nào?",
+    "mode": "Độ sâu",
+    "quick": "Nhanh",
+    "quickHint": "Tối đa 5 nguồn, đọc vài phút.",
+    "deep": "Sâu",
+    "deepHint": "Tối đa 20 nguồn, và đọc trọn những trang tốt nhất.",
+    "kb": "Bao gồm tài liệu của tôi từ",
+    "kbNone": "Không (chỉ web)",
+    "allowWeb": "Vẫn tìm trên web khi có tài liệu của tôi",
+    "allowWebHint": "Mặc định tắt: một khi tài liệu của bạn đã được đọc, một trang web có thể bị lợi dụng để mang nội dung của chúng ra ngoài. Chỉ bật khi bạn tin câu hỏi.",
+    "submit": "Nghiên cứu",
+    "starting": "Đang bắt đầu…",
+    "stop": "Dừng"
+  },
+  "web": {
+    "available": "Tìm kiếm web chạy bằng khóa tìm kiếm của bạn.",
+    "missing": "Chưa kết nối khóa tìm kiếm web, nên nghiên cứu chỉ chạy trên kho tài liệu của bạn (chỉ kho tài liệu).",
+    "connect": "Kết nối Tavily hoặc Brave",
+    "keyless": "Chưa kết nối khóa tìm kiếm nào, nên web được tìm qua DuckDuckGo. Cách này không cần khóa nhưng có thể chậm hoặc bị từ chối; khóa Tavily hoặc Brave đáng tin cậy hơn.",
+    "connectKey": "Kết nối khóa tìm kiếm"
+  },
+  "kbOnly": {
+    "badge": "Chỉ kho tài liệu",
+    "noSearchKey": "Chỉ kho tài liệu: chưa kết nối khóa tìm kiếm web.",
+    "webOff": "Chỉ kho tài liệu: web được tắt khi có tài liệu của bạn, trừ khi bạn cho phép.",
+    "searchFailed": "Chỉ kho tài liệu: tìm kiếm web bị lỗi.",
+    "generic": "Chỉ kho tài liệu: báo cáo này không dùng web."
+  },
+  "stages": {
+    "title": "Tiến độ",
+    "rephrase": "Định hình câu hỏi",
+    "decompose": "Chia thành các câu hỏi nhỏ",
+    "gather": "Thu thập nguồn",
+    "synthesize": "Viết báo cáo",
+    "pending": "Đang chờ",
+    "running": "Đang làm",
+    "done": "Xong",
+    "verify": "Đối chiếu khẳng định với nguồn"
+  },
+  "report": {
+    "live": "Báo cáo",
+    "open": "Mở báo cáo",
+    "sources": "Nguồn",
+    "noSources": "Báo cáo này không trích nguồn nào.",
+    "mode": "Chế độ",
+    "created": "Đã viết",
+    "save": "Lưu vào sổ ghi chép",
+    "saved": "Đã lưu vào sổ ghi chép của bạn.",
+    "back": "Mọi nghiên cứu",
+    "engineKeyless": "Đã tìm trên web qua DuckDuckGo (không có khóa tìm kiếm).",
+    "rounds": "Đã tìm trong {{count}} vòng"
+  },
+  "list": {
+    "title": "Báo cáo trước đây",
+    "empty": "Chưa có báo cáo nào.",
+    "sources": "nguồn"
+  },
+  "errors": {
+    "empty": "Hãy viết điều bạn muốn nghiên cứu.",
+    "failed": "Không bắt đầu được nghiên cứu."
+  },
+  "check": {
+    "title": "Đối chiếu khẳng định",
+    "summary": "{{supported}} trên {{total}} khẳng định được nguồn trích dẫn hỗ trợ.",
+    "allSupported": "Mọi khẳng định đã kiểm tra đều được nguồn trích dẫn hỗ trợ.",
+    "caveat": "Do AI đối chiếu với văn bản được trích, không phải bằng chứng rằng khẳng định là đúng. Hãy mở nguồn trước khi dựa vào một khẳng định, nhất là những khẳng định được đánh dấu bên dưới.",
+    "unavailable": "Không chạy được bước đối chiếu cho báo cáo này, nên chưa có gì trong đó được kiểm tra.",
+    "needsChecking": "Cần kiểm tra",
+    "verdict": {
+      "supported": "Được hỗ trợ",
+      "partial": "Được hỗ trợ một phần",
+      "unsupported": "Không có trong nguồn",
+      "uncited": "Không có nguồn"
+    },
+    "all": "Cả {{count}} khẳng định đã kiểm tra"
+  },
+  "open": {
+    "title": "Đáng nghiên cứu tiếp",
+    "body": "Những khoảng trống mà việc tìm kiếm vẫn thấy khi dừng lại.",
+    "research": "Nghiên cứu điều này"
+  },
+  "keep": {
+    "title": "Tiếp tục học điều này",
+    "body": "Thêm báo cáo vào một kho tài liệu và nó trở thành tài liệu như mọi tài liệu khác: tự kiểm tra, dựng lộ trình ôn tập, hoặc hỏi về nó trong chat.",
+    "kb": "Kho tài liệu",
+    "includeSources": "Thêm cả các trang web mà nó trích",
+    "includeSourcesHint": "Mỗi trang được tải một lần và lập chỉ mục bằng mô hình embedding của bạn, để các đoạn của nó có thể được trích về sau.",
+    "add": "Thêm vào kho tài liệu",
+    "adding": "Đang thêm…",
+    "added": "Đã thêm vào {{kb}}. Việc lập chỉ mục cần một lát.",
+    "already": "Báo cáo này đã có trong {{kb}}.",
+    "pages": "Đã thêm {{added}} trang, {{already}} trang đã có sẵn, {{failed}} trang không đọc được.",
+    "quiz": "Kiểm tra tôi về nó",
+    "chat": "Hỏi về nó",
+    "noKbs": "Bạn chưa có kho tài liệu nào.",
+    "createKb": "Tạo một kho"
+  }
+}

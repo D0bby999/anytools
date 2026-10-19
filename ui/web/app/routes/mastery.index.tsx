@@ -11,6 +11,7 @@ import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/mastery.index";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { listKBs } from "~/lib/kb.server";
@@ -23,9 +24,9 @@ import { ReviewAllLink } from "~/components/mastery/review-all-link";
 import { dueCards } from "~/lib/vocab.server";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Mastery · AnyLearn" },
+    { title: appTitle(matches, "Mastery") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

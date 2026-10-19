@@ -186,6 +186,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 			WithAccountDeletion(buildAccount(pool, kb, driveConnector, cfg.Security.EncryptionKey)).
 			WithSessionRevocation(users).
 			WithTimezones(users).
+			WithLanguages(users).
 			WithOwnVersionFirst(users),
 		BYOK:         byokapi.NewHandler(byokService),
 		Knowledge:    kb.handler,

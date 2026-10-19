@@ -103,14 +103,14 @@ func (s *PushStore) Forget(ctx context.Context, endpoint string) error {
 }
 
 // Settings implements push.Store.
-func (s *PushStore) Settings(ctx context.Context, userID uuid.UUID) (int, string, error) {
+func (s *PushStore) Settings(ctx context.Context, userID uuid.UUID) (int, string, string, error) {
 	var hour int
-	var tz string
-	err := s.pool.QueryRow(ctx, `SELECT reminder_hour, timezone FROM users WHERE id = $1`, userID).Scan(&hour, &tz)
+	var tz, language string
+	err := s.pool.QueryRow(ctx, `SELECT reminder_hour, timezone, language FROM users WHERE id = $1`, userID).Scan(&hour, &tz, &language)
 	if err != nil {
-		return 0, "", fmt.Errorf("push settings: %w", err)
+		return 0, "", "", fmt.Errorf("push settings: %w", err)
 	}
-	return hour, tz, nil
+	return hour, tz, language, nil
 }
 
 // SetHour implements push.Store.
@@ -123,26 +123,28 @@ func (s *PushStore) SetHour(ctx context.Context, userID uuid.UUID, hour int) err
 
 // ClaimReminder implements push.Store. The UPDATE is the claim: its WHERE is
 // every condition, so two ticks racing for the same day update one row once.
-func (s *PushStore) ClaimReminder(ctx context.Context, userID uuid.UUID, now time.Time, window int) ([]push.Subscription, bool, error) {
-	tag, err := s.pool.Exec(ctx, `
+func (s *PushStore) ClaimReminder(ctx context.Context, userID uuid.UUID, now time.Time, window int) ([]push.Subscription, string, bool, error) {
+	var language string
+	err := s.pool.QueryRow(ctx, `
 		UPDATE users u
 		   SET reminder_sent_on = ($2::timestamptz AT TIME ZONE u.timezone)::date
 		 WHERE u.id = $1
 		   AND (24 + extract(hour FROM $2::timestamptz AT TIME ZONE u.timezone)::int - u.reminder_hour) % 24 < $3
 		   AND u.reminder_sent_on IS DISTINCT FROM ($2::timestamptz AT TIME ZONE u.timezone)::date
-		   AND EXISTS (SELECT 1 FROM push_subscriptions p WHERE p.user_id = u.id)`,
-		userID, now, window)
-	if err != nil {
-		return nil, false, fmt.Errorf("claim reminder: %w", err)
+		   AND EXISTS (SELECT 1 FROM push_subscriptions p WHERE p.user_id = u.id)
+		RETURNING u.language`,
+		userID, now, window).Scan(&language)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, "", false, nil
 	}
-	if tag.RowsAffected() == 0 {
-		return nil, false, nil
+	if err != nil {
+		return nil, "", false, fmt.Errorf("claim reminder: %w", err)
 	}
 	subs, err := s.Subscriptions(ctx, userID)
 	if err != nil {
-		return nil, false, err
+		return nil, "", false, err
 	}
-	return subs, true, nil
+	return subs, language, true, nil
 }
 
 func scanSubscriptions(rows pgx.Rows) ([]push.Subscription, error) {

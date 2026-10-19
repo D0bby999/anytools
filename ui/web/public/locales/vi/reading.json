@@ -1,0 +1,120 @@
+{
+  "hint": "Chọn bất kỳ đoạn nào để giải thích, tra từ vựng, tự kiểm tra, dịch, tô sáng hoặc lưu vào sổ ghi chép.",
+  "pdfFallback": "Không hiển thị được tệp gốc, nên đây là văn bản AnyLearn trích ra từ nó.",
+  "actions": {
+    "explain": "Giải thích",
+    "vocab": "Từ vựng",
+    "quiz": "Kiểm tra tôi",
+    "translate": "Dịch",
+    "highlight": "Tô sáng",
+    "save": "Lưu vào sổ ghi chép",
+    "draw": "Vẽ ra",
+    "readAloud": "Đọc thành tiếng",
+    "readPage": "Đọc trang này"
+  },
+  "actionLabels": {
+    "explain": "Giải thích đoạn này",
+    "vocab": "Từ vựng ở đây",
+    "quiz": "Kiểm tra tôi về đoạn này",
+    "translate": "Dịch đoạn này"
+  },
+  "toolbar": {
+    "label": "Thao tác với đoạn đã chọn",
+    "selected": "Đã chọn văn bản",
+    "onPage": "ở trang {{page}}",
+    "dismiss": "Bỏ chọn"
+  },
+  "tutor": {
+    "title": "Gia sư",
+    "empty": "Chọn một đoạn và chọn thao tác. Gia sư trả lời dựa trên đoạn bạn chọn, và mọi câu trả lời đều lưu được vào sổ ghi chép kèm số trang.",
+    "save": "Lưu câu trả lời vào sổ ghi chép",
+    "saved": "Đã lưu",
+    "openInChat": "Tiếp tục trong Chat",
+    "videoEmpty": "Chọn một khoảnh khắc trong bản chép lời và một thao tác. Gia sư trả lời dựa trên những gì được nói quanh khoảnh khắc đó."
+  },
+  "highlights": {
+    "title": "Đoạn tô sáng",
+    "empty": "Chưa có đoạn tô sáng nào.",
+    "saved": "Trong sổ ghi chép của bạn",
+    "remove": "Gỡ bỏ"
+  },
+  "notebook": {
+    "title": "Sổ ghi chép",
+    "lead": "Những gì bạn lưu khi đọc, những gì gia sư viết cho bạn, và ghi chú của riêng bạn. Mỗi ghi chú nhớ trang mà nó được lấy ra, để đưa bạn quay lại đó.",
+    "newName": "Sổ ghi chép mới",
+    "create": "Tạo",
+    "empty": "Chưa có sổ ghi chép nào. Lưu bất cứ thứ gì từ trình đọc sẽ tạo sổ đầu tiên.",
+    "default": "mặc định",
+    "count": "{{count}} ghi chú",
+    "count_other": "{{count}} ghi chú",
+    "back": "Mọi sổ ghi chép",
+    "export": "Xuất dạng Markdown",
+    "categories": "Danh mục",
+    "allNotes": "Mọi ghi chú",
+    "removeCategory": "Gỡ danh mục {{name}}",
+    "newCategory": "Danh mục mới",
+    "addCategory": "Thêm danh mục",
+    "notes": "Ghi chú",
+    "newNote": "Ghi chú mới",
+    "noNotes": "Chưa có ghi chú nào ở đây.",
+    "manage": "Sổ ghi chép này",
+    "rename": "Tên",
+    "renameSubmit": "Đổi tên",
+    "delete": "Xóa sổ ghi chép này",
+    "deleteConfirm": "Xóa sổ ghi chép này và mọi ghi chú trong đó? Không thể hoàn tác."
+  },
+  "note": {
+    "editing": "Ghi chú",
+    "byTutor": "Do gia sư viết",
+    "untitled": "Chưa đặt tên",
+    "source": "Mở nguồn",
+    "sourcePage": "Mở nguồn ở trang {{page}}",
+    "titleLabel": "Tiêu đề",
+    "bodyLabel": "Nội dung ghi chú",
+    "write": "Viết",
+    "preview": "Xem trước",
+    "categories": "Danh mục",
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "otherNotebook": "Sổ ghi chép khác",
+    "move": "Chuyển",
+    "copy": "Sao chép",
+    "delete": "Xóa ghi chú",
+    "deleteConfirm": "Xóa ghi chú này? Không thể hoàn tác."
+  },
+  "errors": {
+    "actionFailed": "Gia sư chưa bắt đầu được.",
+    "saveFailed": "Chưa lưu được.",
+    "nameRequired": "Sổ ghi chép cần có tên.",
+    "generic": "Chưa được."
+  },
+  "videoHint": "Chọn một dòng trong bản chép lời để phát từ đó, rồi hỏi gia sư về khoảnh khắc ấy. Gia sư chỉ nghe được lời nói trong khoảng một phút trước và sau; nó không xem được video.",
+  "passes": {
+    "panel": "Đọc",
+    "title": "Năm lượt đọc",
+    "intro": "Đọc văn bản này năm lần, mỗi lần cho một việc: định hướng, vẽ ra cấu trúc, kiểm tra bằng chứng chính, tự dựng lại khi đã đóng mọi thứ, rồi đem nó ra dùng. Các lượt đọc và những chỗ bạn bị vướng sẽ được đưa vào một thẻ bằng chứng đọc cho tài liệu này.",
+    "start": "Đọc theo năm lượt",
+    "position": "Lượt {{n}} trên {{total}}",
+    "output": "Kết quả",
+    "markDone": "Đánh dấu xong",
+    "save": "Lưu",
+    "allDone": "Đã xong cả năm lượt. Các lần kiểm tra lại trên thẻ sẽ mở vào ngày của chúng.",
+    "rebuildRule": "Văn bản và gia sư được đóng trong lượt này. Hãy viết theo trí nhớ; chúng sẽ quay lại khi bạn đánh dấu xong.",
+    "closedKicker": "Lượt 4: đóng công cụ",
+    "closed": "Văn bản được cất đi trong lúc bạn dựng lại nó ở bảng bên: vấn đề, luận điểm, bằng chứng, giới hạn và hành động tiếp theo, trong năm câu của chính bạn. Nó sẽ quay lại khi bạn đánh dấu xong lượt này.",
+    "barriers": "Chỗ tôi bị vướng",
+    "barriersEmpty": "Chọn những từ đã làm bạn khựng lại và chọn “Đánh dấu chỗ vướng”.",
+    "page": "tr. {{page}}",
+    "layer": "Tầng của chỗ vướng",
+    "whichLayer": "Chỗ vướng này thuộc tầng nào?",
+    "openCard": "Mở cả thẻ",
+    "unavailable": "Thẻ này không còn các lượt đọc của nó.",
+    "stale": "Thẻ đã thay đổi ở một thẻ trình duyệt khác hoặc từ thanh công cụ. Nó đã được tải lại; hãy thử lại.",
+    "failed": "Không lưu được.",
+    "markBarrier": "Đánh dấu chỗ vướng"
+  },
+  "barrierWord": {
+    "save": "Lưu từ này",
+    "hide": "Đóng bảng chọn từ"
+  }
+}

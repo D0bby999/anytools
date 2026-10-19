@@ -1,0 +1,103 @@
+{
+  "title": "Investigación",
+  "lead": "Haz una pregunta y recibe un informe breve que cita cada afirmación, a partir de tus propios documentos y de la web (con tu propia clave de búsqueda, o DuckDuckGo si no tienes ninguna). Después, cada afirmación se comprueba con la fuente que cita.",
+  "form": {
+    "query": "¿Qué hay que investigar?",
+    "queryPlaceholder": "p. ej., ¿cómo reduce las alucinaciones la generación aumentada por recuperación?",
+    "mode": "Profundidad",
+    "quick": "Rápida",
+    "quickHint": "Hasta 5 fuentes, unos minutos de lectura.",
+    "deep": "A fondo",
+    "deepHint": "Hasta 20 fuentes, y lee completas las mejores páginas.",
+    "kb": "Incluir mis documentos de",
+    "kbNone": "Ninguna (solo la web)",
+    "allowWeb": "Buscar también en la web cuando se incluyen mis documentos",
+    "allowWebHint": "Desactivado por defecto: una vez leídos tus documentos, una página web podría usarse para sacar su contenido. Actívalo solo si confías en la pregunta.",
+    "submit": "Investigar",
+    "starting": "Iniciando…",
+    "stop": "Detener"
+  },
+  "web": {
+    "available": "La búsqueda web usa tu propia clave de búsqueda.",
+    "missing": "No hay ninguna clave de búsqueda web conectada, así que la investigación usa solo tu base de conocimiento (solo BC).",
+    "connect": "Conectar Tavily o Brave",
+    "keyless": "No hay ninguna clave de búsqueda conectada, así que la web se busca con DuckDuckGo. No necesita clave, pero puede ser lento o negarse; una clave de Tavily o Brave es más fiable.",
+    "connectKey": "Conectar una clave de búsqueda"
+  },
+  "kbOnly": {
+    "badge": "Solo BC",
+    "noSearchKey": "Solo BC: no hay ninguna clave de búsqueda web conectada.",
+    "webOff": "Solo BC: la web queda desactivada al incluir tus documentos, salvo que la permitas.",
+    "searchFailed": "Solo BC: la búsqueda web falló.",
+    "generic": "Solo BC: este informe no usó la web."
+  },
+  "stages": {
+    "title": "Progreso",
+    "rephrase": "Planteando la pregunta",
+    "decompose": "Dividiéndola en subpreguntas",
+    "gather": "Reuniendo fuentes",
+    "synthesize": "Escribiendo el informe",
+    "pending": "En espera",
+    "running": "En curso",
+    "done": "Hecho",
+    "verify": "Comprobando las afirmaciones con las fuentes"
+  },
+  "report": {
+    "live": "Informe",
+    "open": "Abrir el informe",
+    "sources": "Fuentes",
+    "noSources": "Este informe no cita ninguna fuente.",
+    "mode": "Modo",
+    "created": "Escrito",
+    "save": "Guardar en el cuaderno",
+    "saved": "Guardado en tu cuaderno.",
+    "back": "Todas las investigaciones",
+    "engineKeyless": "Búsqueda web con DuckDuckGo (sin clave de búsqueda).",
+    "rounds": "Buscado en {{count}} rondas"
+  },
+  "list": {
+    "title": "Informes anteriores",
+    "empty": "Aún no hay informes.",
+    "sources": "fuentes"
+  },
+  "errors": {
+    "empty": "Escribe lo que quieres investigar.",
+    "failed": "No se pudo iniciar la investigación."
+  },
+  "check": {
+    "title": "Comprobación de afirmaciones",
+    "summary": "{{supported}} de {{total}} afirmaciones están respaldadas por las fuentes que citan.",
+    "allSupported": "Cada afirmación comprobada está respaldada por la fuente que cita.",
+    "caveat": "Lo comprueba una IA contra el texto citado; no es una prueba de que la afirmación sea cierta. Abre la fuente antes de fiarte de una afirmación, sobre todo de las marcadas abajo.",
+    "unavailable": "No se pudo hacer la comprobación de este informe, así que nada de él se ha comprobado.",
+    "needsChecking": "Hay que comprobar",
+    "verdict": {
+      "supported": "Respaldada",
+      "partial": "Respaldada en parte",
+      "unsupported": "No está en la fuente",
+      "uncited": "Sin fuente"
+    },
+    "all": "Las {{count}} afirmaciones comprobadas"
+  },
+  "open": {
+    "title": "Vale la pena investigar después",
+    "body": "Huecos que la búsqueda seguía viendo cuando se detuvo.",
+    "research": "Investigar esto"
+  },
+  "keep": {
+    "title": "Seguir estudiando esto",
+    "body": "Añade el informe a una base de conocimiento y se convierte en un documento como cualquier otro: ponte a prueba con él, crea una ruta de dominio o pregunta sobre él en el chat.",
+    "kb": "Base de conocimiento",
+    "includeSources": "Añadir también las páginas web que cita",
+    "includeSourcesHint": "Cada página se obtiene una vez y se indexa con tu modelo de embeddings, para poder citar sus pasajes más adelante.",
+    "add": "Añadir a la base de conocimiento",
+    "adding": "Añadiendo…",
+    "added": "Añadido a {{kb}}. La indexación tarda un momento.",
+    "already": "Este informe ya está en {{kb}}.",
+    "pages": "{{added}} página(s) añadidas, {{already}} ya estaban, {{failed}} no se pudieron leer.",
+    "quiz": "Ponme a prueba con él",
+    "chat": "Preguntar sobre él",
+    "noKbs": "Todavía no tienes ninguna base de conocimiento.",
+    "createKb": "Crear una"
+  }
+}

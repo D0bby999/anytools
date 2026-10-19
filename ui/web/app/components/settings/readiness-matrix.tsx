@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { entryNote, rowReason } from "~/lib/readiness-text";
 import { cn } from "~/lib/utils";
 import type { FunctionReadiness, ReadinessStatus } from "~/lib/byok.types";
 import { providerName } from "~/lib/provider-names";
@@ -80,7 +81,7 @@ export function ReadinessMatrix({
           </div>
 
           {row.reason ? (
-            <p className="mt-1 text-sm leading-prose text-muted-foreground">{row.reason}</p>
+            <p className="mt-1 text-sm leading-prose text-muted-foreground">{rowReason(t, row)}</p>
           ) : null}
 
           {row.entries.length > 0 ? (
@@ -97,7 +98,7 @@ export function ReadinessMatrix({
                     <span className="font-mono text-xs text-faint">{entry.model}</span>
                   ) : null}
                   {entry.note ? (
-                    <span className="text-muted-foreground">{entry.note}</span>
+                    <span className="text-muted-foreground">{entryNote(t, row, entry)}</span>
                   ) : null}
                 </li>
               ))}

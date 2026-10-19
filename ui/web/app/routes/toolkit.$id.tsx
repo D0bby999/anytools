@@ -20,6 +20,7 @@
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/toolkit.$id";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import * as worksheets from "~/lib/worksheets.server";
@@ -46,8 +47,8 @@ import { ARTIFACT_BRIEF, artifactSectionExtra, useArtifactExtras } from "~/compo
 import { SaveToDrive } from "~/components/storage/save-to-drive";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Worksheet · Toolkit · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Worksheet", "Toolkit") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

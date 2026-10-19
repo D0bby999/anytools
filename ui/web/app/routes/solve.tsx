@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/solve";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { cancelTurn } from "~/lib/chat.server";
@@ -31,8 +32,8 @@ import { ToolActivityPanel } from "~/components/chat/tool-activity";
 import { RightPanel } from "~/components/layout/right-panel";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: "Solve · AnyLearn" }, { name: "robots", content: "noindex, nofollow" }];
+export function meta({ matches }: Route.MetaArgs) {
+  return [{ title: appTitle(matches, "Solve") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 /** Renders its own RightPanel (stages and sources); the layout leaves the slot. */

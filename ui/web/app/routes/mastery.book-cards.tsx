@@ -10,6 +10,7 @@
  */
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/mastery.book-cards";
+import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { dueCards, reviewCard } from "~/lib/vocab.server";
@@ -18,9 +19,9 @@ import { MasteryTabs } from "~/components/vocab/mastery-tabs";
 import { ReviewSession } from "~/components/vocab/review-session";
 import { PageHeader } from "~/components/ui/page-header";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ matches }: Route.MetaArgs) {
   return [
-    { title: "Book cards · AnyLearn" },
+    { title: appTitle(matches, "Book cards") },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
