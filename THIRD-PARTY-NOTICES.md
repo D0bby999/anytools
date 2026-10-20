@@ -2796,7 +2796,7 @@ The API is one static binary, so the licence of every module it links is reprodu
 | github.com/pgvector/pgvector-go v0.4.1 | MIT |
 | github.com/pkg/errors v0.9.1 | BSD-2-Clause |
 | github.com/pkoukk/tiktoken-go v0.1.6 | MIT |
-| github.com/richardlehane/mscfb v1.0.7 | Apache-2.0 |
+| github.com/richardlehane/mscfb v1.0.8 | Apache-2.0 |
 | github.com/richardlehane/msoleps v1.0.6 | Apache-2.0 |
 | github.com/rivo/uniseg v0.4.7 | MIT |
 | github.com/spf13/cobra v1.8.1 | Apache-2.0 |
@@ -2804,8 +2804,8 @@ The API is one static binary, so the licence of every module it links is reprodu
 | github.com/taylorskalyo/goreader v1.0.1 | MIT |
 | github.com/tiendc/go-deepcopy v1.7.2 | MIT |
 | github.com/tmc/langchaingo v0.1.14 | MIT |
-| github.com/xuri/efp v0.0.1 | BSD-3-Clause |
-| github.com/xuri/excelize/v2 v2.11.0 | BSD-3-Clause |
+| github.com/xuri/efp v0.0.2 | BSD-3-Clause |
+| github.com/xuri/excelize/v2 v2.11.1-0.20260930021559-01a9ff32fb3c | BSD-3-Clause |
 | github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 | BSD-3-Clause |
 | gitlab.com/golang-commonmark/html v0.0.0-20191124015941-a22733972181 | BSD-2-Clause |
 | gitlab.com/golang-commonmark/linkify v0.0.0-20191026162114-a0c2df6c8f82 | BSD-2-Clause |
@@ -3373,7 +3373,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-### github.com/pdfcpu/pdfcpu v0.11.0 (LICENSE.txt), github.com/richardlehane/mscfb v1.0.7 (LICENSE.txt), github.com/richardlehane/msoleps v1.0.6 (LICENSE.txt)
+### github.com/pdfcpu/pdfcpu v0.11.0 (LICENSE.txt), github.com/richardlehane/mscfb v1.0.8 (LICENSE.txt), github.com/richardlehane/msoleps v1.0.6 (LICENSE.txt)
 
 ```
 Apache License
@@ -3975,12 +3975,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
 
-### github.com/xuri/efp v0.0.1 (LICENSE)
+### github.com/xuri/efp v0.0.2 (LICENSE)
 
 ```
 BSD 3-Clause License
 
-Copyright (c) 2017 - 2025 Ri Xu All rights reserved.
+Copyright (c) 2017 - 2026 Ri Xu All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -4008,7 +4008,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
-### github.com/xuri/excelize/v2 v2.11.0 (LICENSE)
+### github.com/xuri/excelize/v2 v2.11.1-0.20260930021559-01a9ff32fb3c (LICENSE)
 
 ```
 BSD 3-Clause License
