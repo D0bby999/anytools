@@ -206,11 +206,12 @@ curl -sI "$u" | grep -i cf-cache-status   # DYNAMIC again, never HIT
 - **Retention.** 7 days on the box, set by `ANYTOOLS_BACKUP_KEEP_DAYS`.
 - **Off-box copy.** Every unit is `rsync`ed to `ANYTOOLS_BACKUP_REMOTE`. In compose mode `backup.sh` refuses to run without that variable, because a backup that never leaves the VPS dies with the VPS.
 - **Log.** `/var/log/anytools-backup.log`.
-- **anytools.world today.** The hourly unit above is not installed yet, because it needs an `ANYTOOLS_BACKUP_REMOTE` to copy to. Until then the database is dumped twice over:
-  - every night at 03:10 UTC by the host's `/root/nightly-pg-backup.sh`, beside its other sites, to `/var/backups/pg/anytools-<date>.sql.gz`, kept 7 days (log `/var/log/nightly-pg-backup.log`);
-  - before every deploy by `activate`, to `/opt/anytools/backups/` (ten kept).
+- **anytools.world today.** The hourly unit above is not installed; instead:
+  - every night at 03:10 UTC the host's `/root/nightly-pg-backup.sh`, beside its other sites, writes the database (`/var/backups/pg/anytools-<date>.sql.gz`) and the learners' files without the Drive cache (`anytools-data-<date>.tar.gz`), kept 7 days (log `/var/log/nightly-pg-backup.log`);
+  - before every deploy `activate` dumps the database to `/opt/anytools/backups/` (ten kept);
+  - every day at 11:00 the owner's Mac pulls both to `~/Backups/anytools.world/`, kept 30 days (`deploy/scripts/pull-backups.sh`, run by launchd from `deploy/launchd/world.anytools.backup-pull.plist`, whose header says how to install it; log `~/Backups/anytools.world/pull.log`). It checks the newest dump is a real one. A Mac asleep at 11:00 pulls on waking; one away for more than a week misses dumps the host has already dropped.
 
-  Neither copy leaves the box, and the `anytools-data` volume is not in either. Choose an off-box target before learners store anything that matters.
+  The pulled dump of 2026-10-20 restored cleanly into an empty database (83 tables, schema 1790270000). It names the `anytools` role, so a restore elsewhere needs that role, or the dump's `OWNER TO` and `GRANT` lines removed. The encryption key's escrow (`~/.anytools-secrets/`) is on the same Mac: losing the Mac loses both, so keep a copy of the key elsewhere too.
 
 ## Restoring
 
