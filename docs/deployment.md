@@ -202,6 +202,11 @@ Every Drive behaviour has been proven only against a fake of Drive v3 shaped fro
 - **Retention.** 7 days on the box, set by `ANYTOOLS_BACKUP_KEEP_DAYS`.
 - **Off-box copy.** Every unit is `rsync`ed to `ANYTOOLS_BACKUP_REMOTE`. In compose mode `backup.sh` refuses to run without that variable, because a backup that never leaves the VPS dies with the VPS.
 - **Log.** `/var/log/anytools-backup.log`.
+- **anytools.world today.** The hourly unit above is not installed yet, because it needs an `ANYTOOLS_BACKUP_REMOTE` to copy to. Until then the database is dumped twice over:
+  - every night at 03:10 UTC by the host's `/root/nightly-pg-backup.sh`, beside its other sites, to `/var/backups/pg/anytools-<date>.sql.gz`, kept 7 days (log `/var/log/nightly-pg-backup.log`);
+  - before every deploy by `autodeploy`, to `/opt/anytools/backups/` (ten kept).
+
+  Neither copy leaves the box, and the `anytools-data` volume is not in either. Choose an off-box target before learners store anything that matters.
 
 ## Restoring
 

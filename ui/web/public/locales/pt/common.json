@@ -18,7 +18,8 @@
     "settings": "Configurações",
     "loop": "Ciclo",
     "comingSoon": "Ainda não disponível",
-    "more": "Mais"
+    "more": "Mais",
+    "english": "Inglês"
   },
   "actions": {
     "signOut": "Sair",
@@ -684,7 +685,9 @@
     "Toolkit": "Kit de ferramentas",
     "Vocabulary": "Vocabulário",
     "Weekly review": "Revisão semanal",
-    "Worksheet": "Ficha"
+    "Worksheet": "Ficha",
+    "English": "Inglês",
+    "Share": "Compartilhar"
   },
   "readinessText": {
     "no_route": "Nenhuma conexão faz {{function}} ainda. Escolha uma em Configurações → Rotas.",

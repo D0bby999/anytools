@@ -32,5 +32,5 @@ func (h *Handler) exportToDrive(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusConflict, "this worksheet's kind is no longer available", "unknown_kind")
 		return
 	}
-	h.drive.Save(w, r, "worksheet:"+id.String(), worksheet.ExportName(ws), worksheet.Markdown(k, ws))
+	h.drive.Save(w, r, "worksheet:"+id.String(), worksheet.ExportName(ws), worksheet.MarkdownIn(k, ws, httpx.Language(r.Context())))
 }

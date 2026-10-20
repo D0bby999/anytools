@@ -7,7 +7,8 @@
  * talks to no origin but this one.
  */
 import { describe, expect, it } from "vitest";
-import { applySecurityHeaders, contentSecurityPolicy } from "~/lib/security-headers.server";
+import { applyCachePolicy, applySecurityHeaders, contentSecurityPolicy } from "~/lib/security-headers.server";
+import { handleDataRequest } from "~/entry.server";
 
 function directives(policy: string): Map<string, string[]> {
   const out = new Map<string, string[]>();
@@ -117,5 +118,26 @@ describe("tools", () => {
   it("keeps workers to this origin and blob:, and connections to this origin", () => {
     expect(csp.get("worker-src")).toEqual(["'self'", "blob:"]);
     expect(csp.get("connect-src")).toEqual(["'self'"]);
+  });
+});
+
+// Cloudflare kept documents for hours: after a deploy they named scripts that
+// were gone, and a signed-in page could have reached someone else.
+describe("caching", () => {
+  it("lets no shared cache keep a document", () => {
+    const headers = new Headers();
+    applySecurityHeaders(headers, "n", true);
+    expect(headers.get("Cache-Control")).toBe("private, no-cache");
+  });
+
+  it("keeps a route's own Cache-Control", () => {
+    const headers = new Headers({ "Cache-Control": "private, no-store" });
+    applyCachePolicy(headers);
+    expect(headers.get("Cache-Control")).toBe("private, no-store");
+  });
+
+  it("applies to client navigation's data too", () => {
+    const response = handleDataRequest(new Response("{}"));
+    expect(response.headers.get("Cache-Control")).toBe("private, no-cache");
   });
 });

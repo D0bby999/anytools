@@ -187,6 +187,9 @@ type Field struct {
 	// OptionHints are a choice's help per option, shown once that option is
 	// chosen, such as the reading chapter's next step for each barrier layer.
 	OptionHints map[string]string `json:"option_hints,omitempty"`
+	// OptionLabels are the options as the learner reads them, by stored
+	// value, where the interface language differs from English (Localized).
+	OptionLabels map[string]string `json:"option_labels,omitempty"`
 	// ScoreLabels are up's anchors for 0, 1 and 2.
 	ScoreLabels []string `json:"score_labels,omitempty"`
 	// MaxLen raises a long field's limit above MaxLong, up to

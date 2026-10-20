@@ -207,6 +207,9 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
           {learning && note.production ? (
             <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("practise.on")}</span>
           ) : null}
+          {learning && note.listening ? (
+            <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("listen.on")}</span>
+          ) : null}
         </p>
         <span className="text-xs text-muted-foreground">
           {t("list.contexts", { count: note.contexts.length })}
@@ -309,6 +312,23 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
                     {t("practise.start")}
                   </Button>
                 )}
+                {/* A listening card needs a line of a video or a recording to play. */}
+                {note.listening || note.clip ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() =>
+                      fetcher.submit(
+                        { intent: "listening", id: note.id, on: note.listening ? "false" : "true" },
+                        { method: "post" },
+                      )
+                    }
+                  >
+                    {note.listening ? t("listen.stop") : t("listen.start")}
+                  </Button>
+                ) : null}
               </>
             ) : (
               <Button type="button" size="sm" variant="ghost" onClick={() => setPanel("learn")}>

@@ -13,14 +13,11 @@ import { redirect } from "react-router";
 import type { Route } from "./+types/home-redirect";
 import { getUserId } from "~/lib/auth.server";
 import { isPublicLng } from "~/lib/i18n";
-import { languageCookie } from "~/lib/language.server";
-import { pickPublicLocale } from "./tools";
+import { publicLanguage } from "~/lib/language.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   if (await getUserId(request)) return redirect("/home");
   const asked = new URL(request.url).searchParams.get("lng") ?? "";
   if (isPublicLng(asked)) return redirect(`/${asked}`, 301);
-  const kept = (await languageCookie.parse(request.headers.get("Cookie"))) as unknown;
-  const locale = typeof kept === "string" && isPublicLng(kept) ? kept : pickPublicLocale(request.headers.get("Accept-Language"));
-  return redirect(`/${locale}`, { headers: { Vary: "Accept-Language, Cookie", "Cache-Control": "private, no-store" } });
+  return redirect(`/${await publicLanguage(request)}`, { headers: { Vary: "Accept-Language, Cookie", "Cache-Control": "private, no-store" } });
 }

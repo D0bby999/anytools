@@ -7,7 +7,7 @@
  */
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import type { CellValue, WorksheetField } from "~/lib/worksheet-types";
+import { optionLabel, type CellValue, type WorksheetField } from "~/lib/worksheet-types";
 import { AudioCell } from "~/components/worksheet/audio-cell";
 
 export const inputBox =
@@ -124,7 +124,7 @@ function FieldControl({ field, id, value, onChange, options, ariaLabel }: Props)
                 }
                 className="size-4 accent-primary"
               />
-              {o}
+              {optionLabel(field, o)}
             </label>
           ))}
           {field.other ? (
@@ -220,7 +220,7 @@ function ChoiceInput({ field, id, value, onChange, options, ariaLabel }: Props &
         <option value="">{t("form.choose")}</option>
         {options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {optionLabel(field, o)}
           </option>
         ))}
         {field.other ? <option value={OTHER}>{t("form.otherOption")}</option> : null}

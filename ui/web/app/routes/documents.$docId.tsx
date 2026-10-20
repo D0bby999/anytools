@@ -77,6 +77,7 @@ import { READING_ACTIONS, type ReadingAction } from "~/lib/reading-types";
 import { findTerms, listWords, saveWord, updateWord } from "~/lib/vocab.server";
 import { decisionBody } from "~/lib/vocab-types";
 import { ReadAloudBar } from "~/components/vocab/read-aloud";
+import { checkable, ReadAloudCheck } from "~/components/reading/read-aloud-check";
 import { plainText } from "~/lib/speech";
 import { readSelection, transcriptPage, type ReaderSelection } from "~/lib/reading-selection";
 import { liveTurnID } from "~/lib/turns";
@@ -93,7 +94,7 @@ import { VideoViewer } from "~/components/reading/video-viewer";
 import { NeedsTranscript } from "~/components/reading/needs-transcript";
 import { generateVideoNotes, listVideoNotes } from "~/lib/video-notes.server";
 import type { VideoNotes } from "~/lib/video-notes-types";
-import { createWorksheet, getWorksheet, listWorksheets, patchWorksheet } from "~/lib/worksheets.server";
+import { createWorksheet, getWorksheet, listKinds, listWorksheets, patchWorksheet } from "~/lib/worksheets.server";
 import { initialListeningView, type ListeningData } from "~/components/reading/listening-practice";
 import {
   findReadingSheet,
@@ -202,7 +203,7 @@ async function loadListening(userId: string, docId: string): Promise<ListeningDa
   return { audit, audits, experiments };
 }
 
-/** A worksheet's title from the video's: "Listening audit: <title>", at most 200 characters. */
+/** A worksheet's title from the video's: "<kind name>: <title>", at most 200 characters. */
 function sheetTitle(prefix: string, title: string): string {
   return `${prefix}: ${title}`.slice(0, 200);
 }
@@ -279,7 +280,9 @@ export async function action({ request, params }: Route.ActionArgs) {
   // refuses a document that is not a video.
   if (intent === "listening-start" || intent === "experiment-start") {
     try {
-      const view = await getDocument(user.id, params.docId);
+      const [view, kinds] = await Promise.all([getDocument(user.id, params.docId), listKinds(user.id)]);
+      // The kind's name in the learner's language heads the title.
+      const named = (kind: string) => kinds.find((k) => k.kind === kind)?.name ?? kind;
       if (intent === "listening-start") {
         const open = (await listWorksheets(user.id, { kind: LISTENING_AUDIT, documentId: params.docId })).find(
           (a) => a.status === "open",
@@ -287,7 +290,7 @@ export async function action({ request, params }: Route.ActionArgs) {
         if (!open) {
           await createWorksheet(user.id, {
             kind: LISTENING_AUDIT,
-            title: sheetTitle("Listening audit", view.document.title),
+            title: sheetTitle(named(LISTENING_AUDIT), view.document.title),
             document_id: params.docId,
           });
         }
@@ -295,7 +298,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       }
       const made = await createWorksheet(user.id, {
         kind: LISTENING_EXPERIMENT,
-        title: sheetTitle("14-day listening experiment", view.document.title),
+        title: sheetTitle(named(LISTENING_EXPERIMENT), view.document.title),
         document_id: params.docId,
       });
       return redirect(`/toolkit/${made.id}`);
@@ -465,6 +468,7 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
   const [fileReason, checkFileReason] = useDriveReason();
   // Learning depth, phase 7: the text being read aloud, if any.
   const [aloud, setAloud] = useState<string | null>(null);
+  const [checking, setChecking] = useState<{ text: string; page: number } | null>(null);
   // Up-methods phase 2: the listening ladder has put the transcript away, and
   // the tutor with it. From the stored answers first, so nothing flashes.
   const [tutorHidden, setTutorHidden] = useState(() => initialListeningView(loaderData.listening).hidden !== null);
@@ -817,6 +821,15 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
             setAloud(selection.text);
             dismiss();
           }}
+          onCheckAloud={
+            checkable(selection.text)
+              ? () => {
+                  setAloud(null);
+                  setChecking({ text: selection.text, page: selection.page });
+                  dismiss();
+                }
+              : undefined
+          }
           onMarkBarrier={
             passesOn
               ? () => {
@@ -832,6 +845,9 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
       ) : null}
 
       {aloud && !selection && !closed ? <ReadAloudBar text={aloud} onClose={() => setAloud(null)} /> : null}
+      {checking && !selection && !closed ? (
+        <ReadAloudCheck docId={doc.id} page={checking.page} text={checking.text} onClose={() => setChecking(null)} />
+      ) : null}
 
       {toolFetcher.data?.errorKey ? (
         <p role="alert" className="sr-only">

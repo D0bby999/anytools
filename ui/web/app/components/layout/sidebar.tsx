@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import {
+  BookA,
   BookOpen,
   Dumbbell,
   GraduationCap,
@@ -33,6 +34,7 @@ export const NAV_ITEMS = [
   { to: "/research", labelKey: "nav.research", icon: Telescope, end: false, phone: false, part: "ask" },
   { to: "/quiz", labelKey: "nav.quiz", icon: ListChecks, end: false, phone: false, part: "practise" },
   { to: "/mastery", labelKey: "nav.mastery", icon: GraduationCap, end: false, phone: false, part: "practise" },
+  { to: "/english", labelKey: "nav.english", icon: BookA, end: false, phone: false, part: "practise" },
   { to: "/body", labelKey: "nav.body", icon: Dumbbell, end: false, phone: false, part: "practise" },
   { to: "/loop", labelKey: "nav.loop", icon: Repeat, end: false, phone: true, part: "reflect" },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, end: false, phone: false, part: "home" },

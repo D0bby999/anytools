@@ -4726,6 +4726,7 @@ ships with it in the image's `node_modules`.
 | [function.prototype.name](https://github.com/es-shims/Function.prototype.name#readme) | 1.2.0 | MIT |
 | [functions-have-names](https://github.com/inspect-js/functions-have-names#readme) | 1.2.3 | MIT |
 | [fuzzy](https://github.com/mattyork/fuzzy) | 0.1.3 | MIT |
+| [fzstd](https://github.com/101arrowz/fzstd#readme) | 0.1.1 | MIT |
 | [generator-function](https://github.com/TimothyGu/generator-function#readme) | 2.0.1 | MIT |
 | [get-caller-file](https://github.com/stefanpenner/get-caller-file#readme) | 2.0.5 | ISC |
 | [get-intrinsic](https://github.com/ljharb/get-intrinsic#readme) | 1.3.0 | MIT |

@@ -483,7 +483,8 @@
     "file": "Tệp",
     "link": "Liên kết hoặc nguồn theo dõi",
     "zotero": "Zotero",
-    "siteRepo": "Site hoặc kho mã"
+    "siteRepo": "Site hoặc kho mã",
+    "highlights": "Đoạn đánh dấu"
   },
   "study": {
     "label": "Học từ kho tài liệu này",
@@ -492,5 +493,39 @@
     "path": "Lên lộ trình ôn tập",
     "book": "Viết một cuốn sách",
     "waiting": "Hỏi đáp, câu hỏi, lộ trình và sách sẽ mở ở đây khi có một tài liệu sẵn sàng."
+  },
+  "share": {
+    "title": "Thêm vào AnyLearn",
+    "lead": "Thêm thứ bạn vừa chia sẻ vào một kho tài liệu, giống như Thêm liên kết: một trang web, một video, một danh sách phát hay một nguồn podcast.",
+    "noLink": "Nội dung chia sẻ này không có liên kết web. AnyLearn nhận liên kết; còn tệp thì bạn tải lên trong Tài liệu.",
+    "toKnowledge": "Mở Tài liệu",
+    "kb": "Kho tài liệu",
+    "newKb": "Đặt tên cho kho tài liệu đầu tiên của bạn",
+    "newKbName": "Liên kết đã chia sẻ",
+    "add": "Thêm",
+    "adding": "Đang thêm…",
+    "failed": "Chưa thêm được liên kết. Hãy thử lại."
+  },
+  "highlights": {
+    "lead": "Thêm các đoạn bạn đã đánh dấu trên Kindle hoặc KOReader: mỗi cuốn sách thành một tài liệu ở đây, kèm các đoạn đánh dấu và ghi chú, để đọc lại, hỏi đáp, làm câu hỏi và lưu từ. Trên Kindle, tệp nằm ở documents/My Clippings.txt; KOReader thì xuất ra JSON.",
+    "pick": "Chọn My Clippings.txt hoặc tệp xuất từ KOReader",
+    "none": "Không tìm thấy đoạn đánh dấu nào trong tệp này.",
+    "books_one": "{{count}} cuốn sách",
+    "books_other": "{{count}} cuốn sách",
+    "counts_one": "{{count}} đoạn đánh dấu",
+    "counts_other": "{{count}} đoạn đánh dấu",
+    "already": "đã có tài liệu này ở đây",
+    "add_one": "Thêm {{count}} cuốn",
+    "add_other": "Thêm {{count}} cuốn",
+    "adding": "Đang thêm…",
+    "added_one": "Đã thêm {{count}} cuốn. Sách hiện trong danh sách bên dưới trong lúc được đọc.",
+    "added_other": "Đã thêm {{count}} cuốn. Sách hiện trong danh sách bên dưới trong lúc được đọc.",
+    "by": "của",
+    "page": "Trang",
+    "location": "Vị trí",
+    "note": "Ghi chú",
+    "notes": "Ghi chú",
+    "loose_one": "{{count}} ghi chú khác",
+    "loose_other": "{{count}} ghi chú khác"
   }
 }

@@ -251,7 +251,7 @@ function measure(file: File): Promise<number> {
   });
 }
 
-function UploadFallback({ label, onPick }: { label: string; onPick: (file: File, seconds: number) => Promise<boolean> }) {
+export function UploadFallback({ label, onPick }: { label: string; onPick: (file: File, seconds: number) => Promise<boolean> }) {
   const { t } = useTranslation("toolkit");
   const [busy, setBusy] = useState(false);
   return (

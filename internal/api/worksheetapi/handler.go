@@ -102,9 +102,9 @@ func Patterns() []string {
 }
 
 // kinds is every registered kind: the web app renders forms from these and
-// holds no copy of its own.
-func (h *Handler) kinds(w http.ResponseWriter, _ *http.Request) {
-	httpx.WriteJSON(w, http.StatusOK, map[string]any{"kinds": worksheet.Kinds()})
+// holds no copy of its own. They come in the learner's language.
+func (h *Handler) kinds(w http.ResponseWriter, r *http.Request) {
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"kinds": worksheet.LocalizedKinds(httpx.Language(r.Context()))})
 }
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
@@ -184,6 +184,14 @@ func (h *Handler) due(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
+	lang := httpx.Language(r.Context())
+	for i := range list {
+		d := &list[i]
+		d.Name, d.Label = worksheet.TextIn(d.Name, lang), worksheet.TextIn(d.Label, lang)
+		if d.Private {
+			d.Title = worksheet.TextIn(d.Title, lang)
+		}
+	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{"due": list, "count": len(list)})
 }
 
@@ -201,7 +209,7 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	}
 	out := map[string]any{"worksheet": ws, "earlier": []string{}}
 	if k, ok := worksheet.Lookup(ws.Kind); ok {
-		out["kind"] = k
+		out["kind"] = worksheet.Localized(k, httpx.Language(r.Context()))
 		if earlier := worksheet.EarlierKeys(k, ws.Answers); earlier != nil {
 			out["earlier"] = earlier
 		}
@@ -312,7 +320,7 @@ func (h *Handler) export(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
 	w.Header().Set("Content-Disposition", `attachment; filename="`+worksheet.ExportName(ws)+`"`)
-	_, _ = w.Write([]byte(worksheet.Markdown(k, ws)))
+	_, _ = w.Write([]byte(worksheet.MarkdownIn(k, ws, httpx.Language(r.Context()))))
 }
 
 type diagnoseRequest struct {

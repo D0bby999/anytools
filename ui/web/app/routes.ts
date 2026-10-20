@@ -51,6 +51,8 @@ export default [
       // second route, so citations written today keep resolving.
       route("knowledge", "routes/knowledge.index.tsx"),
       route("knowledge/:kbId", "routes/knowledge.$kbId.tsx"),
+      // plans/261020-1155-open-source-adds, phase 4: Share to AnyLearn (the manifest's share_target).
+      route("share", "routes/share.tsx"),
       route("documents/:docId", "routes/documents.$docId.tsx"),
       // Up-methods phase 17: a podcast feed or YouTube playlist to pick from.
       route("feeds/:feedId", "routes/feeds.$feedId.tsx"),
@@ -96,6 +98,8 @@ export default [
       route("toolkit", "routes/toolkit.index.tsx"),
       route("toolkit/new", "routes/toolkit.new.tsx"),
       route("toolkit/:id", "routes/toolkit.$id.tsx"),
+      // English: the English practice above, gathered by skill (routes/english.tsx).
+      route("english", "routes/english.tsx"),
       // Body: the training log beside the studying (plans/261019-1810-body-fitness).
       // One rail row; its sections are tabs (components/body/body-tabs.tsx).
       route("body", "routes/body.tsx"),
@@ -125,6 +129,10 @@ export default [
     // upload streamed to the API rather than buffered here. Each handler
     // calls requireUser.
     route("documents/:docId/media", "routes/documents.$docId.media.ts"),
+    // plans/261020-1155-open-source-adds, phase 2: the read-aloud check.
+    route("documents/:docId/speaking-check", "routes/documents.$docId.speaking-check.ts"),
+    // phase 3: an Anki deck's words in (POST) and out (GET).
+    route("mastery/vocabulary/anki", "routes/mastery.vocabulary.anki.ts"),
     route("knowledge/:kbId/upload", "routes/knowledge.$kbId.upload.ts"),
     // up methods, phase 16: a photo document's page photo. Its loader calls requireUser.
     route("documents/:docId/photo", "routes/documents.$docId.photo.ts"),

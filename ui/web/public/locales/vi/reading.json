@@ -10,7 +10,8 @@
     "save": "Lưu vào sổ ghi chép",
     "draw": "Vẽ ra",
     "readAloud": "Đọc thành tiếng",
-    "readPage": "Đọc trang này"
+    "readPage": "Đọc trang này",
+    "checkAloud": "Kiểm tra đọc to"
   },
   "actionLabels": {
     "explain": "Giải thích đoạn này",
@@ -116,5 +117,29 @@
   "barrierWord": {
     "save": "Lưu từ này",
     "hide": "Đóng bảng chọn từ"
+  },
+  "check": {
+    "title": "Kiểm tra đọc to",
+    "close": "Đóng phần kiểm tra",
+    "privacy": "Bản ghi âm được gửi tới dịch vụ chuyển giọng nói của bạn, hoặc tới bộ chép lời có sẵn của máy chủ nếu bạn chưa có. Bản ghi không được lưu lại.",
+    "record": "Ghi âm",
+    "stop": "Dừng và kiểm tra",
+    "limit": "Tối đa {{seconds}} giây",
+    "sending": "Đang nghe bản ghi của bạn…",
+    "failed": "Chưa kiểm tra được. Hãy thử lại.",
+    "again": "Thử lại",
+    "denied": "Micrô đã bị từ chối. Bạn có thể tải lên một bản ghi âm thay thế.",
+    "unsupported": "Trình duyệt này không ghi âm được ở đây. Bạn có thể tải lên một bản ghi âm thay thế.",
+    "summary_one": "{{ok}} trên {{count}} từ được nghe đúng như chữ viết.",
+    "summary_other": "{{ok}} trên {{count}} từ được nghe đúng như chữ viết.",
+    "missedWord": "không nghe được",
+    "heardAsWord": "nghe thành {{heard}}",
+    "missed": "Không nghe được",
+    "heardAs": "Nghe thành từ khác",
+    "added": "Nghe thấy nhưng không có trong bài",
+    "byOwn": "Do kết nối {{name}} của bạn nghe.",
+    "byBuiltin": "Do bộ chép lời có sẵn của máy chủ nghe.",
+    "heardText": "Nội dung nghe được",
+    "notAScore": "Phần này kiểm tra xem người nghe có hiểu từng từ không, không chấm giọng của bạn giống bản xứ đến đâu. Giọng có hơi lạ mà vẫn hiểu được thì không sao."
   }
 }

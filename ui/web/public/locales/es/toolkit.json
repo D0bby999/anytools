@@ -218,5 +218,52 @@
     "noAttempts": "Aún no hay intentos",
     "rates": "{{first}} en la primera pasada · {{revised}} tras revisar",
     "differs": "Lo que hay escrito aquí no coincide con las filas del caso. Los resultados solo se guardan con las proporciones que dan las filas."
+  },
+  "english": {
+    "title": "Inglés",
+    "lead": "Todo lo que hay aquí para practicar inglés, por habilidad. Practicas con tu propio material: los vídeos, artículos y borradores que ya tienes.",
+    "fromDocument": "Desde un documento",
+    "fromDocumentOf": "Empezar {{name}} desde un documento",
+    "vocabDue_one": "Hoy tienes {{count}} palabra por repasar.",
+    "vocabDue_other": "Hoy tienes {{count}} palabras por repasar.",
+    "start": {
+      "title": "Empieza aquí",
+      "body": "Una primera línea base, sin pulir, en las cuatro habilidades sobre un tema real. Dice qué barrera trabajar primero; las secciones de abajo son donde la trabajas."
+    },
+    "skills": {
+      "listening": {
+        "title": "Comprensión auditiva",
+        "body": "Abre un vídeo en Conocimiento y elige Practicar la comprensión oral: una primera pasada sin subtítulos, luego los segmentos que importan, el dictado y el resumen oral. Una palabra que guardes de su transcripción puede ser una tarjeta de escucha: el repaso reproduce su línea y tú escribes la palabra.",
+        "open": "Elegir un vídeo"
+      },
+      "reading": {
+        "title": "Lectura",
+        "body": "Abre un PDF o un texto en Conocimiento y elige Leer en cinco pasadas. Selecciona un pasaje mientras lees para guardar sus palabras. También puedes traer tus subrayados de Kindle o KOReader, un documento por libro.",
+        "open": "Elegir un documento"
+      },
+      "speaking": {
+        "title": "Expresión oral",
+        "body": "Grábate en una situación real, ponle la grabación a un oyente y vuelve a probar días después en condiciones cambiadas. Mientras lees, selecciona un pasaje y elige Comprobar mi lectura en voz alta para ver qué palabras no entendió un motor de voz."
+      },
+      "writing": {
+        "title": "Escritura",
+        "body": "Tu propio primer borrador, cinco pasadas de revisión y lo que cambiaron los lectores. Tu modelo de chat puede diagnosticar una pasada; nunca reescribe el borrador."
+      },
+      "vocabulary": {
+        "title": "Vocabulario",
+        "body": "Las palabras que guardaste al leer vuelven según su propio calendario, una vez por el significado y otra para escribirlas en la frase donde las encontraste. Puedes traer un mazo de Anki o llevar tus palabras a Anki.",
+        "open": "Abrir vocabulario"
+      },
+      "grammar": {
+        "title": "Gramática",
+        "body": "Ordena tus fallos por lo que le hicieron al lector y luego practica una estructura con una tarjeta de contraste."
+      },
+      "work": {
+        "title": "Inglés para el trabajo",
+        "body": "Para un puesto real: ¿consigues transmitir tu capacidad real en su proceso de selección?"
+      }
+    },
+    "fromRecording": "Desde un vídeo o una grabación",
+    "fromRecordingOf": "Empezar {{name}} desde un vídeo o una grabación"
   }
 }

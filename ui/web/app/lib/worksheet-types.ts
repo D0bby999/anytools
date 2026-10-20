@@ -40,6 +40,8 @@ export type WorksheetField = {
   other?: boolean;
   /** A choice's help per option, shown once that option is chosen (a barrier layer's next step). */
   option_hints?: Record<string, string>;
+  /** The options as the learner reads them, by stored value, outside English. */
+  option_labels?: Record<string, string>;
   /** up's anchors for 0, 1 and 2. */
   score_labels?: string[];
   /** A long field's own limit, above the usual 5,000 characters. */
@@ -174,3 +176,8 @@ export type DueReview = {
   label: string;
   due: string;
 };
+
+/** An option as the learner reads it: its translation, or the stored value itself. */
+export function optionLabel(field: Pick<WorksheetField, "option_labels">, value: string): string {
+  return field.option_labels?.[value] ?? value;
+}

@@ -10,7 +10,8 @@
     "save": "Save to notebook",
     "draw": "Draw it",
     "readAloud": "Read aloud",
-    "readPage": "Read this page"
+    "readPage": "Read this page",
+    "checkAloud": "Check my reading aloud"
   },
   "actionLabels": {
     "explain": "Explain this",
@@ -116,5 +117,29 @@
   "barrierWord": {
     "save": "Save the word",
     "hide": "Close the word picker"
+  },
+  "check": {
+    "title": "Check my reading aloud",
+    "close": "Close the check",
+    "privacy": "Your recording goes to your speech-to-text connection, or to this server's built-in transcription if you have none. It is not kept.",
+    "record": "Record",
+    "stop": "Stop and check",
+    "limit": "At most {{seconds}} seconds",
+    "sending": "Listening to your take…",
+    "failed": "The check did not work. Try again.",
+    "again": "Try again",
+    "denied": "The microphone was refused. You can upload a recording instead.",
+    "unsupported": "This browser cannot record here. You can upload a recording instead.",
+    "summary_one": "{{ok}} of {{count}} word heard as written.",
+    "summary_other": "{{ok}} of {{count}} words heard as written.",
+    "missedWord": "not heard",
+    "heardAsWord": "heard as {{heard}}",
+    "missed": "Not heard",
+    "heardAs": "Heard differently",
+    "added": "Heard but not in the text",
+    "byOwn": "Heard by your connection {{name}}.",
+    "byBuiltin": "Heard by this server's built-in transcription.",
+    "heardText": "What it heard",
+    "notAScore": "This checks whether a listener got each word, not how close your accent is. An accent that is understood is fine."
   }
 }

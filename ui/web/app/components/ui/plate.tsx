@@ -21,8 +21,26 @@ export const PLATES = [
   "signin",
   "notfound",
   "postclaw",
+  // One per tools cluster that has tools (public.cluster.tsx).
+  "cluster-encoding",
+  "cluster-formatters",
+  "cluster-generators",
+  "cluster-converters",
+  "cluster-text-regex",
+  "cluster-time-date",
+  "cluster-web3",
+  "cluster-finance",
+  "cluster-health",
+  "cluster-lifestyle",
+  "cluster-design",
+  "cluster-pdf",
+  "cluster-image",
 ] as const;
 export type PlateName = (typeof PLATES)[number];
+
+export function isPlateName(name: string): name is PlateName {
+  return (PLATES as readonly string[]).includes(name);
+}
 
 /**
  * One plate, at 600 or 1200 pixels wide as the layout needs (`sizes`). Its

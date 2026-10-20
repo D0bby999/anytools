@@ -3,6 +3,7 @@ import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { clozeMatches, RATINGS, suggestedRating, type DueCard, type Rating } from "~/lib/vocab-types";
 import { Button } from "~/components/ui/button";
+import { ClipPlayer } from "~/components/vocab/clip-player";
 
 type ReviewData = { reviewed?: string; errorKey?: string };
 
@@ -34,6 +35,11 @@ export function newRequestID(): string {
  *   learner's own situation and the meaning, with a blank to type the
  *   expression; marked like a cloze. The back adds the reading, the part of
  *   speech, the confusable expression and the sentence it was met in.
+ * - Listen (only when asked for; plans/261020-1155-open-source-adds, phase 1):
+ *   the transcript line the word was saved from is played, and the learner
+ *   types the word heard; marked like a cloze. The line, blanked, is behind
+ *   "Show the line". A card whose video is gone shows the blanked line, and
+ *   says so.
  *
  * Each card's review carries a request id kept until the server confirms it,
  * so a retry after a dropped response cannot schedule the card twice.
@@ -44,6 +50,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [answer, setAnswer] = useState("");
+  const [lineShown, setLineShown] = useState(false);
   const requestIDs = useRef(new Map<string, string>());
   const card = cards[index];
 
@@ -62,6 +69,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
       setIndex((i) => i + 1);
       setRevealed(false);
       setAnswer("");
+      setLineShown(false);
     }
   }, [fetcher.state, fetcher.data, card]);
 
@@ -78,7 +86,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
 
   const busy = fetcher.state !== "idle";
   // The cards answered by typing the term.
-  const typed = card.kind === "cloze" || card.kind === "production";
+  const typed = card.kind === "cloze" || card.kind === "production" || card.kind === "listen";
   const labels: Record<Rating, string> = {
     again: t("session.again"),
     hard: t("session.hard"),
@@ -96,7 +104,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
   return (
     <div className="mt-3 border-t pt-4" aria-live="polite">
       <p className="text-xs font-semibold text-muted-foreground">
-        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind}
+        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind}
         {card.lang ? ` · ${card.lang}` : ""}
       </p>
 
@@ -142,6 +150,20 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
                   <dd>{card.meaning}</dd>
                 </div>
               </dl>
+            </>
+          ) : card.kind === "listen" ? (
+            <>
+              <p className="mt-3 text-sm text-muted-foreground">{t("listen.prompt")}</p>
+              {card.clip ? <ClipPlayer key={card.id} clip={card.clip} /> : <p className="mt-3 text-sm">{t("listen.gone")}</p>}
+              {lineShown || !card.clip || revealed ? (
+                <blockquote className="mt-3 text-base leading-prose" lang={card.lang}>
+                  {card.cloze}
+                </blockquote>
+              ) : (
+                <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => setLineShown(true)}>
+                  {t("listen.showLine")}
+                </Button>
+              )}
             </>
           ) : (
             <>
@@ -207,10 +229,17 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
               ) : null}
             </div>
           ) : (
-            <p className="mt-2 text-base leading-prose">
-              {card.pos ? <span className="mr-2 font-mono text-2xs text-muted-foreground">{card.pos}</span> : null}
-              {card.meaning}
-            </p>
+            <div className="mt-2 text-base leading-prose">
+              <p>
+                {card.pos ? <span className="mr-2 font-mono text-2xs text-muted-foreground">{card.pos}</span> : null}
+                {card.meaning}
+              </p>
+              {card.kind === "listen" && card.context ? (
+                <blockquote className="mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
+                  {card.context}
+                </blockquote>
+              ) : null}
+            </div>
           )}
           {card.book ? (
             <p className="mt-1 text-xs text-muted-foreground">

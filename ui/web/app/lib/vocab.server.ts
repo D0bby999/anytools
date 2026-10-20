@@ -39,9 +39,11 @@ export function saveWord(
  */
 export function listWords(
   userId: string,
-  filter: { q?: string; lang?: string; decision?: Decision; terms?: string[] } = {},
+  filter: { q?: string; lang?: string; decision?: Decision; terms?: string[]; limit?: number; offset?: number } = {},
 ) {
   const params = new URLSearchParams();
+  if (filter.limit) params.set("limit", String(filter.limit));
+  if (filter.offset) params.set("offset", String(filter.offset));
   if (filter.q) params.set("q", filter.q);
   if (filter.lang) params.set("lang", filter.lang);
   if (filter.decision) params.set("decision", filter.decision);
@@ -73,6 +75,7 @@ export function updateWord(
     lang?: string;
     suspended?: boolean;
     production?: boolean;
+    listening?: boolean;
   } & DecisionFields,
 ) {
   return apiFetch<VocabNote & { week?: Week }>(`/v1/vocab/${encodeURIComponent(id)}`, userId, {
@@ -99,4 +102,22 @@ export function reviewCard(
     method: "POST",
     body,
   });
+}
+
+/** One imported batch's outcome (plans/261020-1155-open-source-adds, phase 3). */
+export type ImportResult = { created: number; duplicates: number; invalid: number; first_day?: string; last_day?: string };
+
+/** One batch of an Anki deck's words, as the page mapped them. */
+export function importWords(userId: string, lang: string, notes: { term: string; meaning: string; sentence: string }[]) {
+  return apiFetch<ImportResult>("/v1/vocab/import", userId, { method: "POST", body: { lang, notes } });
+}
+
+/** Every word being learned, read in pages of the API's largest list. */
+export async function allLearningWords(userId: string): Promise<VocabNote[]> {
+  const out: VocabNote[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const { notes } = await listWords(userId, { decision: "learn", limit: 500, offset });
+    out.push(...notes);
+    if (notes.length < 500) return out;
+  }
 }

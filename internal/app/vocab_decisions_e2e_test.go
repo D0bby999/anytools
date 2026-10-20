@@ -116,6 +116,32 @@ func TestVocabularyDecisionsEndToEnd(t *testing.T) {
 		t.Fatalf("production off = %v", off)
 	}
 
+	// The listening card (plans/261020-1155-open-source-adds, phase 1): refused
+	// for a word from a PDF; once the document is a timed video, the note
+	// carries the line and its card plays it.
+	if got := e.status(http.MethodPatch, "/v1/vocab/"+id, map[string]any{"listening": true}); got != http.StatusBadRequest {
+		t.Fatalf("listening on a word from a PDF: %d, want 400", got)
+	}
+	if _, err := e.pool.Exec(e.t.Context(), `
+		UPDATE documents SET source_kind = 'youtube', source_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+		       media_id = 'dQw4w9WgXcQ', timeline = '[[0, 4], [12, 17]]' WHERE id = $1`, docID); err != nil {
+		t.Fatal(err)
+	}
+	heard := e.json(http.MethodPatch, "/v1/vocab/"+id, map[string]any{"listening": true}, http.StatusOK)
+	if clip := mapAt(heard, "clip"); heard["listening"] != true || clip["video_id"] != "dQw4w9WgXcQ" || clip["start"] != float64(12) {
+		t.Fatalf("listening on = %v", heard)
+	}
+	var listen map[string]any
+	for _, c := range e.json(http.MethodGet, "/v1/vocab/due?limit=50", nil, http.StatusOK)["cards"].([]any) {
+		if mapAt(c)["kind"] == "listen" {
+			listen = mapAt(c)
+		}
+	}
+	if listen == nil || mapAt(listen, "clip")["end"] != float64(17) || listen["cloze"] == "" {
+		t.Fatalf("due listening card = %v", listen)
+	}
+	e.json(http.MethodPatch, "/v1/vocab/"+id, map[string]any{"listening": false}, http.StatusOK)
+
 	// A client from before decisions still saves a word to learn.
 	legacy := e.json(http.MethodPost, "/v1/vocab", map[string]any{"workspace_id": ws, "page": 2, "selection": selection,
 		"term": "access mechanisms", "meaning": "The way a model reaches stored knowledge."}, http.StatusCreated)

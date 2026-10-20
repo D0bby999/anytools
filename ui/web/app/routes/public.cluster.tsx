@@ -7,6 +7,7 @@ import { Link, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/public.cluster";
 import { ToolRows } from "~/components/tools-site/tool-rows";
+import { isPlateName, Plate } from "~/components/ui/plate";
 import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
 import { catalogEntries, isPopulatedCluster } from "~/lib/tools/catalog";
@@ -69,6 +70,7 @@ export function meta({ data }: Route.MetaArgs) {
 export default function ClusterPage() {
   const { locale, cluster, tools, body } = useLoaderData<typeof loader>();
   const { t } = useTranslation("tools");
+  const plate = `cluster-${cluster}`;
 
   return (
     <div className="lp-layout px-4 py-8 lg:px-6 lg:py-12">
@@ -80,10 +82,14 @@ export default function ClusterPage() {
           {t("nav.tools")}
         </Link>
       </nav>
-      <header className="lp-page-enter mt-2 max-w-(--lp-measure-read)">
-        <h1 className="text-3xl leading-tight lg:text-4xl">{t(`catalog.cluster.${cluster}`)}</h1>
-        <p className="mt-3 text-lg leading-snug text-muted-foreground">{t(`clusterLanding.${cluster}.tagline`)}</p>
-        <p className="mt-3 font-serif leading-prose">{t(`clusterLanding.${cluster}.intro`)}</p>
+      {/* Laid out like the tools home's header: words, then the cluster's plate. */}
+      <header className="lp-page-enter mt-2 grid items-center gap-x-12 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
+        <div className="max-w-(--lp-measure-read)">
+          <h1 className="text-3xl leading-tight lg:text-4xl">{t(`catalog.cluster.${cluster}`)}</h1>
+          <p className="mt-3 text-lg leading-snug text-muted-foreground">{t(`clusterLanding.${cluster}.tagline`)}</p>
+          <p className="mt-3 font-serif leading-prose">{t(`clusterLanding.${cluster}.intro`)}</p>
+        </div>
+        {isPlateName(plate) && <Plate name={plate} sizes="(min-width: 1024px) 38vw, 100vw" className="hidden sm:block" />}
       </header>
 
       <section aria-labelledby="cluster-tools" className="mt-10">

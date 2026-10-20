@@ -218,5 +218,52 @@
     "noAttempts": "No attempts yet",
     "rates": "{{first}} first pass · {{revised}} after revision",
     "differs": "What is written here differs from the case rows. The results are saved only with the rates the rows give."
+  },
+  "english": {
+    "title": "English",
+    "lead": "Everything here for practising English, by skill. You practise on your own material: the videos, articles and drafts you already have.",
+    "fromDocument": "From a document",
+    "fromDocumentOf": "Start {{name}} from a document",
+    "vocabDue_one": "{{count}} word is due for review today.",
+    "vocabDue_other": "{{count}} words are due for review today.",
+    "start": {
+      "title": "Start here",
+      "body": "A first, rough baseline in all four skills on one real topic. It says which barrier to work on first; the sections below are where you work on it."
+    },
+    "skills": {
+      "listening": {
+        "title": "Listening",
+        "body": "Open a video in Knowledge and choose Practise listening: a first pass with no captions, then the segments that matter, dictation and retelling. A word you save from its transcript can become a listening card: the review plays its line and you type the word.",
+        "open": "Choose a video"
+      },
+      "reading": {
+        "title": "Reading",
+        "body": "Open a PDF or a text in Knowledge and choose Read in five passes. Select a passage while reading to save its words. Your Kindle or KOReader highlights can come in too, one document per book.",
+        "open": "Choose a document"
+      },
+      "speaking": {
+        "title": "Speaking",
+        "body": "Record yourself in a real situation, play it to a listener, and retest days later under changed conditions. While reading, select a passage and choose Check my reading aloud to see which words a speech engine did not get."
+      },
+      "writing": {
+        "title": "Writing",
+        "body": "Your own first draft, five revision passes and what readers changed. Your chat model can diagnose a pass; it never rewrites the draft."
+      },
+      "vocabulary": {
+        "title": "Vocabulary",
+        "body": "Words you saved while reading come back on their own schedule, once for the meaning and once to type them into the sentence you met them in. You can bring in an Anki deck, or take your words to Anki.",
+        "open": "Open vocabulary"
+      },
+      "grammar": {
+        "title": "Grammar",
+        "body": "Sort your slips by what they did to the reader, then practise one structure with a contrast card."
+      },
+      "work": {
+        "title": "English for work",
+        "body": "For one real role: can you get your actual ability across in its hiring process?"
+      }
+    },
+    "fromRecording": "From a video or recording",
+    "fromRecordingOf": "Start {{name}} from a video or recording"
   }
 }

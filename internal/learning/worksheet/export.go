@@ -19,8 +19,13 @@ import (
 // it cannot become a link, an image, HTML, a heading or a table cell break.
 // Front matter values are JSON strings, which YAML reads as quoted scalars.
 
-// Markdown renders w by its kind.
-func Markdown(k *Kind, w *Worksheet) string {
+// Markdown renders w by its kind, in English.
+func Markdown(k *Kind, w *Worksheet) string { return MarkdownIn(k, w, "en") }
+
+// MarkdownIn renders w by its kind in the learner's language. The front
+// matter stays as it is stored (keys, status, option values).
+func MarkdownIn(k *Kind, w *Worksheet, lang string) string {
+	k, tr := Localized(k, lang), translator(lang)
 	var b strings.Builder
 	b.WriteString("---\n")
 	field := func(key, v string) {
@@ -74,10 +79,10 @@ func Markdown(k *Kind, w *Worksheet) string {
 					lines = nil
 				}
 				fmt.Fprintf(&b, "%s\n\n", escape(f.Label))
-				writeTable(&b, f, v, recs)
+				writeTable(&b, f, v, recs, tr)
 				continue
 			}
-			lines = append(lines, fmt.Sprintf("%s: %s", escape(f.Label), inline(f, v, recs)))
+			lines = append(lines, fmt.Sprintf("%s: %s", escape(f.Label), inline(f, v, recs, tr)))
 		}
 		if len(lines) > 0 {
 			b.WriteString(strings.Join(lines, "  \n") + "\n\n")
@@ -85,7 +90,7 @@ func Markdown(k *Kind, w *Worksheet) string {
 	}
 
 	if earlier := earlierKeys(k, w.Answers); len(earlier) > 0 {
-		b.WriteString("## From an earlier version\n\n")
+		fmt.Fprintf(&b, "## %s\n\n", escape(tr("From an earlier version")))
 		for _, path := range earlier {
 			section, key, _ := strings.Cut(path, ".")
 			raw, _ := json.Marshal(w.Answers[section][key])
@@ -98,7 +103,7 @@ func Markdown(k *Kind, w *Worksheet) string {
 
 // inline is one non-table value on a line. An audio value is named by its
 // length and date: the file itself stays on the server.
-func inline(f Field, v any, recs map[string]Recording) string {
+func inline(f Field, v any, recs map[string]Recording, tr func(string) string) string {
 	if v == nil {
 		return ""
 	}
@@ -106,9 +111,9 @@ func inline(f Field, v any, recs map[string]Recording) string {
 	case Audio:
 		r, ok := recs[fmt.Sprint(v)]
 		if !ok {
-			return "recording (missing)"
+			return tr("recording (missing)")
 		}
-		return fmt.Sprintf("recording, %d:%02d, %s", r.DurationSeconds/60, r.DurationSeconds%60,
+		return fmt.Sprintf("%s, %d:%02d, %s", tr("recording"), r.DurationSeconds/60, r.DurationSeconds%60,
 			r.CreatedAt.UTC().Format("2006-01-02"))
 	case Score:
 		n, ok := v.(float64)
@@ -122,9 +127,9 @@ func inline(f Field, v any, recs map[string]Recording) string {
 		return s
 	case YesNo:
 		if b, _ := v.(bool); b {
-			return "yes"
+			return tr("yes")
 		}
-		return "no"
+		return tr("no")
 	case Check:
 		if b, _ := v.(bool); b {
 			return "[x]"
@@ -135,17 +140,20 @@ func inline(f Field, v any, recs map[string]Recording) string {
 		parts := make([]string, 0, len(list))
 		for _, x := range list {
 			if s, ok := x.(string); ok {
-				parts = append(parts, escape(s))
+				parts = append(parts, escape(f.optionText(s)))
 			}
 		}
 		return strings.Join(parts, ", ")
 	}
 	s, _ := v.(string)
+	if f.Type == Choice {
+		s = f.optionText(s)
+	}
 	// A long answer keeps its paragraphs as Markdown line breaks.
 	return strings.ReplaceAll(escape(s), "\n", "  \n")
 }
 
-func writeTable(b *strings.Builder, f Field, v any, recs map[string]Recording) {
+func writeTable(b *strings.Builder, f Field, v any, recs map[string]Recording, tr func(string) string) {
 	rows, _ := v.([]any)
 	var header []string
 	if len(f.Rows) > 0 {
@@ -170,7 +178,7 @@ func writeTable(b *strings.Builder, f Field, v any, recs map[string]Recording) {
 				out = append(out, escape(c.LabelText(rowKey, cells)))
 				continue
 			}
-			out = append(out, strings.ReplaceAll(inline(c, cells[c.Key], recs), "  \n", "<br>"))
+			out = append(out, strings.ReplaceAll(inline(c, cells[c.Key], recs, tr), "  \n", "<br>"))
 		}
 		fmt.Fprintf(b, "| %s |\n", strings.Join(out, " | "))
 	}

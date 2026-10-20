@@ -15,7 +15,7 @@ const kb = { documentContent: vi.fn(), getDocument: vi.fn() };
 vi.mock("~/lib/kb.server", () => kb);
 vi.mock("~/lib/reading.server", () => ({ openWorkspace: vi.fn() }));
 vi.mock("~/lib/chat.server", () => ({ getMessages: vi.fn() }));
-const sheets = { listWorksheets: vi.fn(), createWorksheet: vi.fn(), getWorksheet: vi.fn() };
+const sheets = { listWorksheets: vi.fn(), createWorksheet: vi.fn(), getWorksheet: vi.fn(), listKinds: vi.fn() };
 vi.mock("~/lib/worksheets.server", () => sheets);
 
 const { action } = await import("~/routes/documents.$docId");
@@ -38,9 +38,21 @@ beforeEach(() => {
   requireUser.mockReset().mockResolvedValue({ user: { id: "user-1" } });
   for (const fn of [...Object.values(kb), ...Object.values(sheets)]) fn.mockReset();
   kb.getDocument.mockResolvedValue({ document: { id: DOC, title: "Me at the zoo", source_kind: "youtube" } });
+  sheets.listKinds.mockResolvedValue([
+    { kind: "listening_audit", name: "Listening audit" },
+    { kind: "listening_experiment", name: "14-day listening experiment" },
+  ]);
 });
 
 describe("starting listening practice", () => {
+  it("titles the worksheet with the kind's name in the learner's language", async () => {
+    sheets.listKinds.mockResolvedValue([{ kind: "listening_audit", name: "Kiểm tra kỹ năng nghe" }]);
+    sheets.listWorksheets.mockResolvedValue([]);
+    sheets.createWorksheet.mockResolvedValue({ id: "w1" });
+    await submit({ intent: "listening-start" });
+    expect(sheets.createWorksheet).toHaveBeenCalledWith("user-1", expect.objectContaining({ title: "Kiểm tra kỹ năng nghe: Me at the zoo" }));
+  });
+
   it("creates the audit on THIS video, ignoring any posted document", async () => {
     sheets.listWorksheets.mockResolvedValue([]);
     sheets.createWorksheet.mockResolvedValue({ id: "w1" });

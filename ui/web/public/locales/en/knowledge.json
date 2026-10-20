@@ -483,7 +483,8 @@
     "file": "File",
     "link": "Link or feed",
     "zotero": "Zotero",
-    "siteRepo": "Site or repository"
+    "siteRepo": "Site or repository",
+    "highlights": "Highlights"
   },
   "study": {
     "label": "Study from this knowledge base",
@@ -492,5 +493,39 @@
     "path": "Plan a mastery path",
     "book": "Write a book",
     "waiting": "Asking, questions, a path and a book open here once one document is ready."
+  },
+  "share": {
+    "title": "Add to AnyLearn",
+    "lead": "Add what you shared to a knowledge base, as Add a link does: a page, a video, a playlist or a podcast feed.",
+    "noLink": "This share has no web link. AnyLearn adds links; files can be uploaded in Knowledge.",
+    "toKnowledge": "Go to Knowledge",
+    "kb": "Knowledge base",
+    "newKb": "A name for your first knowledge base",
+    "newKbName": "Shared links",
+    "add": "Add",
+    "adding": "Adding…",
+    "failed": "The link could not be added. Try again."
+  },
+  "highlights": {
+    "lead": "Add your Kindle or KOReader highlights: each book becomes a document here, with its highlights and notes, to read, ask about, quiz and save words from. On a Kindle the file is documents/My Clippings.txt; KOReader exports JSON.",
+    "pick": "Choose My Clippings.txt or a KOReader export",
+    "none": "No highlights were found in this file.",
+    "books_one": "{{count}} book",
+    "books_other": "{{count}} books",
+    "counts_one": "{{count}} highlight",
+    "counts_other": "{{count}} highlights",
+    "already": "already a document here",
+    "add_one": "Add {{count}} book",
+    "add_other": "Add {{count}} books",
+    "adding": "Adding…",
+    "added_one": "{{count}} book added. It appears in the list below while it is being read.",
+    "added_other": "{{count}} books added. They appear in the list below while they are being read.",
+    "by": "by",
+    "page": "Page",
+    "location": "Location",
+    "note": "Note",
+    "notes": "Notes",
+    "loose_one": "{{count}} other note",
+    "loose_other": "{{count}} other notes"
   }
 }

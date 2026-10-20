@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/D0bby999/anytools/internal/config"
+	"github.com/D0bby999/anytools/internal/jobs"
 	"github.com/D0bby999/anytools/internal/store/kbindex"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -69,6 +70,9 @@ func TestDB(t *testing.T) *pgxpool.Pool {
 		// delete reaching chunks run out of lock slots. Best effort: a
 		// database without the schema yet has nothing to sweep.
 		_ = kbindex.DropOrphans(ctx, pool)
+		// Test packages run in parallel on this one database; each process's
+		// workers take only its own users' jobs (jobs/test_scope.go).
+		jobs.ScopeClaimsToThisProcess()
 		sharedPool = pool
 	})
 

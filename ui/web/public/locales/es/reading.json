@@ -10,7 +10,8 @@
     "save": "Guardar en el cuaderno",
     "draw": "Dibujarlo",
     "readAloud": "Leer en voz alta",
-    "readPage": "Leer esta página"
+    "readPage": "Leer esta página",
+    "checkAloud": "Comprobar mi lectura en voz alta"
   },
   "actionLabels": {
     "explain": "Explica esto",
@@ -116,5 +117,29 @@
   "barrierWord": {
     "save": "Guardar la palabra",
     "hide": "Cerrar el selector de palabras"
+  },
+  "check": {
+    "title": "Comprobar mi lectura en voz alta",
+    "close": "Cerrar la comprobación",
+    "privacy": "Tu grabación va a tu conexión de voz a texto, o a la transcripción integrada de este servidor si no tienes ninguna. No se guarda.",
+    "record": "Grabar",
+    "stop": "Parar y comprobar",
+    "limit": "Como máximo {{seconds}} segundos",
+    "sending": "Escuchando tu toma…",
+    "failed": "La comprobación no funcionó. Inténtalo de nuevo.",
+    "again": "Intentar de nuevo",
+    "denied": "Se denegó el micrófono. Puedes subir una grabación en su lugar.",
+    "unsupported": "Este navegador no puede grabar aquí. Puedes subir una grabación en su lugar.",
+    "summary_one": "{{ok}} de {{count}} palabra se oyó tal como está escrita.",
+    "summary_other": "{{ok}} de {{count}} palabras se oyeron tal como están escritas.",
+    "missedWord": "no se oyó",
+    "heardAsWord": "se oyó como {{heard}}",
+    "missed": "No se oyó",
+    "heardAs": "Se oyó distinto",
+    "added": "Se oyó pero no está en el texto",
+    "byOwn": "Lo oyó tu conexión {{name}}.",
+    "byBuiltin": "Lo oyó la transcripción integrada de este servidor.",
+    "heardText": "Lo que oyó",
+    "notAScore": "Esto comprueba si un oyente entendió cada palabra, no lo cerca que está tu acento. Un acento que se entiende está bien."
   }
 }

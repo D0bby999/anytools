@@ -3,6 +3,7 @@
  * /toolkit's body: the served kinds grouped as up groups them (language,
  * projects, life), each with the learner's worksheets of it and "New".
  */
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { WorksheetGroup, WorksheetKind, WorksheetSummary } from "~/lib/worksheet-types";
@@ -37,6 +38,36 @@ function LifeHowTo() {
   );
 }
 
+/**
+ * One kind: its name, "New", its summary and the learner's worksheets of it.
+ * `start` replaces "New" where a kind cannot start here, such as a listening
+ * audit, which starts from its video (the English page, routes/english.tsx).
+ */
+export function KindRow({ kind: k, list, start }: { kind: WorksheetKind; list: WorksheetSummary[]; start?: ReactNode }) {
+  const { t } = useTranslation("toolkit");
+  return (
+    <li className="border-b py-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h3 className="font-sans text-base font-medium">
+          {k.name}
+          {k.private ? <span className="text-xs font-semibold ml-2 text-faint">{t("index.private")}</span> : null}
+        </h3>
+        {start ?? (
+          <Link
+            to={`/toolkit/new?kind=${encodeURIComponent(k.kind)}`}
+            className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
+            aria-label={t("index.newOf", { name: k.name })}
+          >
+            {t("index.new")}
+          </Link>
+        )}
+      </div>
+      <p className="mt-1 text-sm leading-prose text-muted-foreground">{k.summary}</p>
+      <WorksheetList worksheets={list.filter((w) => w.kind === k.kind)} />
+    </li>
+  );
+}
+
 export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: WorksheetSummary[] }) {
   const { t } = useTranslation("toolkit");
   const groupTitle: Record<WorksheetGroup, string> = {
@@ -55,27 +86,7 @@ export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: W
           {group === "life" ? <LifeHowTo /> : null}
           <ul className="mt-3 border-t">
             {inGroup.map((k) => (
-              <li key={k.kind} className="border-b py-4">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <h3 className="font-sans text-base font-medium">
-                    {k.name}
-                    {k.private ? (
-                      <span className="text-xs font-semibold ml-2 text-faint">
-                        {t("index.private")}
-                      </span>
-                    ) : null}
-                  </h3>
-                  <Link
-                    to={`/toolkit/new?kind=${encodeURIComponent(k.kind)}`}
-                    className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
-                    aria-label={t("index.newOf", { name: k.name })}
-                  >
-                    {t("index.new")}
-                  </Link>
-                </div>
-                <p className="mt-1 text-sm leading-prose text-muted-foreground">{k.summary}</p>
-                <WorksheetList worksheets={list.filter((w) => w.kind === k.kind)} />
-              </li>
+              <KindRow key={k.kind} kind={k} list={list} />
             ))}
           </ul>
         </section>

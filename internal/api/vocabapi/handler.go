@@ -40,6 +40,8 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/vocab/cards/{id}/review", h.review) // budget: none
 	// up-methods phase 3: "Practise using it", the production card.
 	mux.HandleFunc("POST /v1/vocab/{id}/production", h.production) // budget: none
+	// plans/261020-1155-open-source-adds, phase 3: an Anki deck's words, in batches.
+	mux.HandleFunc("POST /v1/vocab/import", h.importDeck) // budget: upload
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
@@ -52,7 +54,29 @@ func Patterns() []string {
 		"DELETE /v1/vocab/{id}",
 		"POST /v1/vocab/cards/{id}/review",
 		"POST /v1/vocab/{id}/production",
+		"POST /v1/vocab/import",
 	}
+}
+
+type importRequest struct {
+	Lang  string             `json:"lang"`
+	Notes []vocab.ImportNote `json:"notes"`
+}
+
+// importDeck saves one batch of a deck the page read and mapped.
+func (h *Handler) importDeck(w http.ResponseWriter, r *http.Request) {
+	userID := httpx.MustUserID(r.Context())
+	var req importRequest
+	if err := httpx.DecodeJSON(w, r, &req); err != nil {
+		badRequest(w, "malformed request body")
+		return
+	}
+	res, err := h.svc.Import(r.Context(), userID, req.Lang, req.Notes)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, res)
 }
 
 type saveRequest struct {
@@ -116,7 +140,7 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	userID := httpx.MustUserID(r.Context())
 	q := r.URL.Query()
 	notes, err := h.svc.List(r.Context(), userID, vocab.Filter{
-		Q: q.Get("q"), Lang: q.Get("lang"), Limit: intParam(r, "limit", 200),
+		Q: q.Get("q"), Lang: q.Get("lang"), Limit: intParam(r, "limit", 200), Offset: intParam(r, "offset", 0),
 		Decision: q.Get("decision"), Terms: q["term"],
 	})
 	if err != nil {
@@ -157,6 +181,8 @@ type patchRequest struct {
 	Scenario   *string           `json:"scenario"`
 	Confusable *string           `json:"confusable"`
 	Production *bool             `json:"production"`
+	// The listening card (plans/261020-1155-open-source-adds, phase 1).
+	Listening *bool `json:"listening"`
 }
 
 // patchResponse is the note, and, when this patch made it a word to learn,
@@ -180,6 +206,7 @@ func (h *Handler) patch(w http.ResponseWriter, r *http.Request) {
 		Meaning: req.Meaning, Reading: req.Reading, POS: req.POS, Lang: req.Lang, Suspended: req.Suspended,
 		Decision: req.Decision, Record: req.Record, TaskImpact: req.TaskImpact,
 		Scenario: req.Scenario, Confusable: req.Confusable, Production: req.Production,
+		Listening: req.Listening,
 	})
 	if err != nil {
 		h.fail(w, r, err)

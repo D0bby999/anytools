@@ -138,6 +138,7 @@ func (q *Queue) Enqueue(ctx context.Context, userID uuid.UUID, kind string, payl
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("jobs: enqueue: %w", err)
 	}
+	noteEnqueuedFor(userID)
 	return id, nil
 }
 
@@ -161,6 +162,7 @@ WHERE id = (
     WHERE status = 'queued'
       AND run_after <= now()
       AND kind = ANY($3)
+      AND ($4::uuid[] IS NULL OR user_id = ANY($4))
     ORDER BY run_after, created_at
     FOR UPDATE SKIP LOCKED
     LIMIT 1
@@ -170,7 +172,7 @@ RETURNING id, user_id, kind, payload, status, attempts, max_attempts, last_error
 // Claim takes the next available job of one of the given kinds.
 func (q *Queue) Claim(ctx context.Context, workerID string, kinds []string) (*Job, error) {
 	var j Job
-	err := q.pool.QueryRow(ctx, claimSQL, workerID, q.lease.String(), kinds).
+	err := q.pool.QueryRow(ctx, claimSQL, workerID, q.lease.String(), kinds, claimableUsers()).
 		Scan(&j.ID, &j.UserID, &j.Kind, &j.Payload, &j.Status, &j.Attempts, &j.MaxAttempts, &j.LastError, &j.CreatedAt, &j.Progress)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNoJob

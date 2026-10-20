@@ -31,6 +31,7 @@ const BY_SEGMENT: Record<string, PartId> = {
   quiz: "practise",
   mastery: "practise",
   body: "practise",
+  english: "practise",
   loop: "reflect",
   toolkit: "reflect",
   tools: "tools",

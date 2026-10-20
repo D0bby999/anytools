@@ -17,9 +17,15 @@ A short guide to what each study feature does, what it costs on your own AI key,
 | Audio overview | A knowledge base or a report → Audio overview | One call for the script; then the server's built-in voices (free, daily minutes), your own speech key on the `tts` route, or the browser |
 | Living books | A knowledge base → Make a book | One call for the outline, then one per block |
 | Toolkit (worksheets) | Toolkit, from More, the Loop and a learning state | Nothing, except a writing diagnosis |
-| English diagnostic | Toolkit → Language, a skill card in the Loop | Nothing |
+| English (one page) | English, on the rail in Practise | Nothing: it links what is below |
+| English diagnostic | English, Toolkit → Language, a skill card in the Loop | Nothing |
 | Listening practice | A video or an audio file → Practise listening | Nothing |
 | Unknown-word decisions and production cards | The reader's word picker, Mastery → Vocabulary | One call when you ask for words to save, as before |
+| Listening cards | Mastery → Vocabulary → Practise hearing it | Nothing |
+| Read-aloud check | Reading → select a passage → Check my reading aloud | A transcription on your `stt` key, or the server's built-in engine (free, from the daily minutes) |
+| Anki decks in and out | Mastery → Vocabulary → Anki decks | Nothing: the deck is read and written in your browser |
+| Share to AnyLearn | Android: Share → AnyLearn, with the app installed | As Add a link: a parse and an index |
+| Kindle and KOReader highlights | A knowledge base → Add → Highlights | As an upload: a parse and an index per book |
 | Writing revision | Toolkit → Writing evidence | One call per pass you ask to have diagnosed |
 | Reading in five passes | A PDF or a text document → Read in five passes | Nothing; "Save the word" asks for words like the reader does |
 | Grammar evidence and error map | Toolkit → Language | Nothing |
@@ -104,6 +110,10 @@ The toolkit holds 27 worksheets taken from up's templates (`byoungd/up` at `f13f
 
 Nothing in the toolkit calls a model, except a writing diagnosis that you ask for. **Worksheets are stored like notes: readable by the server, not encrypted at rest.** Do not put passwords, ID numbers, exact addresses or medical details in them.
 
+## English, in one place
+
+The English page gathers the English practice below by skill: the diagnostic first, then listening, reading, speaking, writing, vocabulary, grammar and English for work. Each skill names where its practice is (a video's Practise listening, a document's five passes, the vocabulary deck, with what is due today) and lists its worksheets with yours of each. It adds nothing of its own; a listening or reading worksheet still starts from its video or document.
+
 ## English diagnostic
 
 A four-skill diagnostic with a CEFR self-check rated per skill, never averaged into one level. Each skill's evidence card opens the matching worksheet, prefilled. Listening and reading evidence start from the video or text you practise on, so the diagnostic names them and says where to begin.
@@ -115,6 +125,26 @@ A video or an audio file has a "Practise listening" tab with up's listening audi
 ## Unknown words: five decisions
 
 Saving a word now asks what to do with it first: skip, infer, look it up, learn, or verify. Each decision has its short record, and the suggested meaning stays hidden until you decide (for "infer", until you have written your own guess). **Only "learn" makes review cards.** Up advises five to eight words to learn per cycle; the page says so when you pass that, but does not stop you. "Practise using it" adds a production card: your own second scenario and one easily confused expression.
+
+## Listening cards
+
+A word saved from a video's or a recording's transcript can get a listening card: "Practise hearing it" in Mastery → Vocabulary. The review plays the line the word came from, cut to that line (a YouTube video in its embed, an uploaded file from this site), and you type the word you hear; it is marked like a cloze. The blanked line stays hidden until you ask for it. The moment is not stored with the word: the line's current timing is read from the transcript, so a re-transcribed video still plays the right piece. If the video is deleted, the card stays and is shown as a cloze. The idea is asbplayer's sentence cards; nothing of its code is used.
+
+## Read-aloud check
+
+Select up to 80 words while reading and choose "Check my reading aloud". You record yourself (at most 30 seconds), and the page shows which words a speech engine did not hear, heard as another word, or heard that are not in the text; each state is said in words as well as colour. The passage must be on the stored page, as for saving a word. The take is heard on your own `stt` connection, or, if you have none, on the server's built-in transcription, which spends seconds from the same daily minutes as transcribing a document; the result names which one heard it. Nothing is stored. The comparison is word by word, done by AnyTools and not by a model; a contraction said in full ("do not" for "don't") and a hyphenated word said as two count as heard, but a number said in words is shown as heard differently. This checks whether a listener understood each word, not how close your accent is. The idea is gemini-teacher's and ai-pronunciation-trainer's; nothing of their code is used.
+
+## Anki decks in and out
+
+Mastery → Vocabulary → Anki decks imports an Anki deck (`.apkg`) and exports the words you are learning as one. The deck is read in the browser, from its newest collection (`collection.anki21b` from Anki 2.1.50 on, else `collection.anki21` or `collection.anki2`); you say, per note type, which field is the word, which the meaning and which an example sentence, and see the first ten words before anything is sent. Each word becomes a word to learn with a fresh schedule, a recognition card always and a cloze card when the sentence holds the word; a word already in your vocabulary in that language is left as it is. Imported words come up for review 20 a day from tomorrow, in deck order, and a second import carries on where the first left off, so a big deck does not fill Home's count or the daily reminder at once. They are not counted in the week's "five to eight". Images, sounds and Anki's review history are not imported. The export is one note type "AnyLearn word" (Term, Meaning, Sentence, Source) in a deck "AnyLearn", in Anki's schema 11, which Anki and AnkiDroid open; schedules start new there, and exporting again updates the same notes in Anki rather than doubling them. Written from Anki's documented file format and checked against genanki's schema; no Anki or genanki code is used.
+
+## Share to AnyLearn
+
+With AnyLearn installed on an Android phone (Chrome → Install app), Share from YouTube, a browser or a podcast app lists AnyLearn. It opens a page that shows the link and the knowledge base you used last; Add puts the link there exactly as Knowledge → Add a link does, so a playlist or a podcast feed becomes a feed, and then opens that knowledge base. A share with no web link says so. iPhone and iPad cannot do this: Safari does not let web apps receive shares.
+
+## Kindle and KOReader highlights
+
+A knowledge base's Add → Highlights takes a Kindle's `documents/My Clippings.txt` or a KOReader JSON export. The file is read in the browser; you see the books and tick the ones to add, and each becomes a Markdown document (the title, the author, each highlight quoted with its page, location and date, and the note written on it), uploaded like any file, so it can be read, asked about with citations, quizzed and mined for words. Bookmarks are dropped, and a highlight edited on the Kindle is kept once, as last written. The Kindle's own wording is recognised in English, Spanish, Portuguese, French and German; an entry of a kind not recognised is kept as a highlight. Uploads are not de-duplicated, so a book whose document is already in the knowledge base is shown unticked. The idea is vocabsieve's and fyodor's; nothing of their code is used.
 
 ## Writing revision
 
@@ -161,7 +191,7 @@ When due points span two or more mastery paths, Home and Mastery offer "Review e
 
 ## Language
 
-AnyLearn is written in English, Vietnamese, Spanish and Portuguese. A new account starts in the language its sign-in page was shown in (the language menu there, or the page you came from); Settings → Account changes it, and the review reminder follows it. Your documents can be in any language, and chat answers in the language you ask in.
+AnyLearn is written in English, Vietnamese, Spanish and Portuguese. A new account starts in the language its sign-in page was shown in (the language menu there, or the page you came from); Settings → Account changes it, and the review reminder follows it. The Toolkit's worksheets are in it too, their exports included; what you write in them stays as you wrote it. Your documents can be in any language, and chat answers in the language you ask in.
 
 ## Review reminder
 

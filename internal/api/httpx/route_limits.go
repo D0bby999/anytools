@@ -75,6 +75,11 @@ var RouteClasses = []RouteClass{
 			// Up-methods phase 7: a learner's recording on a worksheet, up
 			// to 10 MB on disk.
 			"POST /v1/worksheets/{id}/recordings",
+			// The read-aloud check: a take of up to 30 s, heard on the
+			// learner's stt route or the server's engine.
+			"POST /v1/speaking/check",
+			// An Anki deck's words: up to 200 notes and their cards a call.
+			"POST /v1/vocab/import",
 			// Up-methods phase 18: a site crawl fetches up to 200 pages and a
 			// repository sync one tarball; each embeds what changed.
 			"POST /v1/kb/{id}/sites",

@@ -206,6 +206,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 		Exams:        examHandler,
 		Loop:         loopHandler,
 		Vocab:        buildVocab(pool, pages),
+		Speak:        buildSpeak(pool, pages, byokService, cfg.Engines),
 		Profile:      profileHandler,
 		Books:        buildBooks(pool, kb, byokService).WithDriveExport(driveExports),
 		Worksheets:   buildWorksheets(pool, kb).WithDiagnoser(buildWritingDiagnosis(pool, newChatResolver(byokService))).WithDriveExport(driveExports), // up methods, phases 0, 4 and 7; see wire_worksheet.go

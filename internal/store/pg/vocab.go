@@ -38,6 +38,7 @@ const noteSelect = `
 	SELECT n.id, n.user_id, n.term, n.lang, n.reading, n.pos, n.meaning, n.contexts,
 	       n.source_document_id, n.source_page, d.title, n.created_at, n.updated_at,
 	       n.decision, n.record, n.task_impact, n.decided_at, n.scenario, n.confusable, n.production,
+	       n.listening, n.origin,
 	       COALESCE((
 	         SELECT jsonb_agg(jsonb_build_object(
 	                  'id', c.id, 'kind', c.kind, 'due_at', c.due_at, 'reps', c.reps,
@@ -283,7 +284,7 @@ func scanVocabNote(row pgx.Row) (*vocab.Note, error) {
 	err := row.Scan(&n.ID, &n.UserID, &n.Term, &n.Lang, &n.Reading, &n.POS, &n.Meaning, &contexts,
 		&docID, &page, &title, &n.CreatedAt, &n.UpdatedAt,
 		&n.Decision, &record, &n.TaskImpact, &n.DecidedAt, &n.Scenario, &n.Confusable, &n.Production,
-		&cards)
+		&n.Listening, &n.Origin, &cards)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, vocab.ErrNotFound
 	}
@@ -326,7 +327,52 @@ func (s *VocabStore) GetNote(ctx context.Context, userID, id uuid.UUID) (*vocab.
 	if err := resolveContexts(ctx, s.pool, userID, &n.Contexts); err != nil {
 		return nil, err
 	}
+	docs, err := timedDocs(ctx, s.pool, userID, n.Contexts)
+	if err != nil {
+		return nil, err
+	}
+	n.Clip = vocab.ClipOf(n.Contexts, docs)
 	return n, nil
+}
+
+// timedDocs reads, with the owner's user_id, the YouTube videos and uploaded
+// recordings these contexts name, with their timelines: what vocab.ClipOf
+// needs to find a line to play.
+func timedDocs(ctx context.Context, q vocabQuerier, userID uuid.UUID, contexts ...[]vocab.Context) (map[uuid.UUID]vocab.TimedDoc, error) {
+	var ids []uuid.UUID
+	for _, l := range contexts {
+		for _, c := range l {
+			if c.DocumentID != nil && c.Page > 0 {
+				ids = append(ids, *c.DocumentID)
+			}
+		}
+	}
+	out := map[uuid.UUID]vocab.TimedDoc{}
+	if len(ids) == 0 {
+		return out, nil
+	}
+	rows, err := q.Query(ctx, `
+		SELECT id, media_id, timeline FROM documents
+		 WHERE user_id = $1 AND id = ANY($2) AND source_kind IN ('youtube', 'media')
+		   AND timeline IS NOT NULL`, userID, ids)
+	if err != nil {
+		return nil, fmt.Errorf("read timed documents: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			id  uuid.UUID
+			d   vocab.TimedDoc
+			raw []byte
+		)
+		if err := rows.Scan(&id, &d.VideoID, &raw); err != nil {
+			return nil, err
+		}
+		if json.Unmarshal(raw, &d.Timeline) == nil && len(d.Timeline) > 0 {
+			out[id] = d
+		}
+	}
+	return out, rows.Err()
 }
 
 // ListNotes implements vocab.Store. q matches the term or the meaning; LIKE's
@@ -347,7 +393,7 @@ func (s *VocabStore) ListNotes(ctx context.Context, userID uuid.UUID, f vocab.Fi
 		   AND ($6 = '' OR n.decision = $6)
 		   AND (cardinality($7::text[]) = 0 OR lower(n.term) = ANY($7))
 		 ORDER BY n.updated_at DESC, n.id
-		 LIMIT $5`, userID, f.Q, like, f.Lang, f.Limit, f.Decision, terms)
+		 LIMIT $5 OFFSET $8`, userID, f.Q, like, f.Lang, f.Limit, f.Decision, terms, max(0, f.Offset))
 	if err != nil {
 		return nil, fmt.Errorf("list vocab notes: %w", err)
 	}
@@ -371,6 +417,17 @@ func (s *VocabStore) ListNotes(ctx context.Context, userID uuid.UUID, f vocab.Fi
 	if err := resolveContexts(ctx, s.pool, userID, lists...); err != nil {
 		return nil, err
 	}
+	all := make([][]vocab.Context, len(out))
+	for i := range out {
+		all[i] = out[i].Contexts
+	}
+	docs, err := timedDocs(ctx, s.pool, userID, all...)
+	if err != nil {
+		return nil, err
+	}
+	for i := range out {
+		out[i].Clip = vocab.ClipOf(out[i].Contexts, docs)
+	}
 	return out, nil
 }
 
@@ -392,13 +449,14 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 	defer tx.Rollback(context.WithoutCancel(ctx)) //nolint:errcheck
 
 	var (
-		cur    vocab.NoteState
-		rawRec []byte
+		cur     vocab.NoteState
+		rawRec  []byte
+		rawCtxs []byte
 	)
 	err = tx.QueryRow(ctx, `
-		SELECT decision, record, meaning, scenario, production FROM vocab_notes
+		SELECT decision, record, meaning, scenario, production, listening, contexts FROM vocab_notes
 		 WHERE id = $1 AND user_id = $2 FOR UPDATE`, id, userID).
-		Scan(&cur.Decision, &rawRec, &cur.Meaning, &cur.Scenario, &cur.Production)
+		Scan(&cur.Decision, &rawRec, &cur.Meaning, &cur.Scenario, &cur.Production, &cur.Listening, &rawCtxs)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, vocab.ErrNotFound
 	}
@@ -406,6 +464,15 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 		return nil, fmt.Errorf("lock vocab note: %w", err)
 	}
 	_ = json.Unmarshal(rawRec, &cur.Record)
+	if p.Listening != nil && *p.Listening {
+		var ctxs []vocab.Context
+		_ = json.Unmarshal(rawCtxs, &ctxs)
+		docs, err := timedDocs(ctx, tx, userID, ctxs)
+		if err != nil {
+			return nil, err
+		}
+		cur.HasClip = vocab.ClipOf(ctxs, docs) != nil
+	}
 
 	next := cur
 	if p.Decision != nil {
@@ -422,6 +489,9 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 	}
 	if p.Production != nil {
 		next.Production = *p.Production
+	}
+	if p.Listening != nil {
+		next.Listening = *p.Listening
 	}
 	if p.Check != nil {
 		if err := p.Check(next); err != nil {
@@ -441,10 +511,10 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 		       decision = COALESCE($7, decision), record = COALESCE($8, record),
 		       task_impact = COALESCE($9, task_impact), scenario = COALESCE($10, scenario),
 		       confusable = COALESCE($11, confusable), production = COALESCE($12, production),
-		       updated_at = now()
+		       listening = COALESCE($13, listening), updated_at = now()
 		 WHERE id = $1 AND user_id = $2`,
 		id, userID, p.Meaning, p.Reading, p.POS, p.Lang,
-		p.Decision, record, p.TaskImpact, p.Scenario, p.Confusable, p.Production); err != nil {
+		p.Decision, record, p.TaskImpact, p.Scenario, p.Confusable, p.Production, p.Listening); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return nil, fmt.Errorf("%w: you already have this word in that language", vocab.ErrInvalid)
@@ -462,7 +532,8 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 }
 
 // applyCardState makes the note's cards follow a patch: its decision, the
-// production card's switch, and the learner's suspend or resume.
+// production and listening cards' switches, and the learner's suspend or
+// resume.
 func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, next vocab.NoteState, p vocab.NotePatch) error {
 	suspend := func(kind string) error {
 		_, err := tx.Exec(ctx, `
@@ -474,11 +545,14 @@ func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, n
 		return nil
 	}
 	// The cards a word being learned has in review: the two every note gets,
-	// and production when the learner asked for it.
+	// and production and listening when the learner asked for them.
 	active := func() []string {
 		kinds := vocab.CardKinds()
 		if next.Production {
 			kinds = append(kinds, vocab.KindProduction)
+		}
+		if next.Listening {
+			kinds = append(kinds, vocab.KindListen)
 		}
 		return kinds
 	}
@@ -495,14 +569,102 @@ func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, n
 			return err
 		}
 	}
-	switch {
-	case p.Production == nil:
-		return nil
-	case *p.Production:
-		return upsertCards(ctx, tx, userID, id, []string{vocab.KindProduction}, p.NewCard, p.Now)
-	default:
-		return suspend(vocab.KindProduction)
+	for kind, on := range map[string]*bool{vocab.KindProduction: p.Production, vocab.KindListen: p.Listening} {
+		var err error
+		switch {
+		case on == nil:
+		case *on:
+			err = upsertCards(ctx, tx, userID, id, []string{kind}, p.NewCard, p.Now)
+		default:
+			err = suspend(kind)
+		}
+		if err != nil {
+			return err
+		}
 	}
+	return nil
+}
+
+// ImportNotes implements vocab.ImportStore: a deck's batch, in one
+// transaction under the user's row lock, so two batches cannot pace into the
+// same days. Each word is inserted ON CONFLICT DO NOTHING (a word already in
+// the vocabulary, in that language, is a duplicate and left as it is), and a
+// created one's cards start on its day: PerDay words a day, from FirstDay or
+// from the last day earlier imports still fill.
+func (s *VocabStore) ImportNotes(ctx context.Context, b vocab.ImportBatch) (*vocab.ImportResult, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("import vocab: %w", err)
+	}
+	defer tx.Rollback(context.WithoutCancel(ctx)) //nolint:errcheck
+	if _, err := tx.Exec(ctx, `SELECT 1 FROM users WHERE id = $1 FOR UPDATE`, b.UserID); err != nil {
+		return nil, fmt.Errorf("lock user for import: %w", err)
+	}
+
+	// Where the earlier imports' unseen words end: the last day one first
+	// comes up, and how many come up that day.
+	day, used := b.FirstDay, 0
+	var (
+		last  *time.Time
+		count int
+	)
+	if err := tx.QueryRow(ctx, `
+		WITH pending AS (
+		  SELECT c.due_at FROM vocab_cards c
+		    JOIN vocab_notes n ON n.id = c.note_id AND n.user_id = c.user_id
+		   WHERE c.user_id = $1 AND n.origin = 'anki' AND c.kind = 'recognition' AND c.reps = 0 AND NOT c.suspended)
+		SELECT max(due_at), count(*) FILTER (WHERE due_at = (SELECT max(due_at) FROM pending)) FROM pending`,
+		b.UserID).Scan(&last, &count); err != nil {
+		return nil, fmt.Errorf("read import pace: %w", err)
+	}
+	if last != nil {
+		if d := learning.LocalDay(*last, b.Zone); !d.Before(b.FirstDay) {
+			day, used = d, count
+		}
+	}
+
+	res := &vocab.ImportResult{}
+	for _, n := range b.Notes {
+		contexts := []vocab.Context{}
+		kinds := []string{vocab.KindRecognition}
+		if n.Context != nil {
+			contexts = append(contexts, *n.Context)
+			kinds = append(kinds, vocab.KindCloze)
+		}
+		raw, _ := json.Marshal(contexts)
+		var id uuid.UUID
+		err := tx.QueryRow(ctx, `
+			INSERT INTO vocab_notes (user_id, term, lang, meaning, contexts, decision, record, origin,
+			                         decided_at, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, 'learn', '{}', 'anki', $6, $6, $6)
+			ON CONFLICT (user_id, lang, lower(term)) DO NOTHING
+			RETURNING id`, b.UserID, n.Term, b.Lang, n.Meaning, raw, b.Now).Scan(&id)
+		if errors.Is(err, pgx.ErrNoRows) {
+			res.Duplicates++
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("import vocab note: %w", err)
+		}
+		if used == b.PerDay {
+			day, used = vocab.AddDays(day, 1), 0
+		}
+		used++
+		card := b.NewCard
+		card.Due = learning.StartOf(day, b.Zone).UTC()
+		if err := upsertCards(ctx, tx, b.UserID, id, kinds, card, b.Now); err != nil {
+			return nil, err
+		}
+		if res.Created == 0 {
+			res.FirstDay = day.String()
+		}
+		res.Created++
+		res.LastDay = day.String()
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("import vocab: %w", err)
+	}
+	return res, nil
 }
 
 // CountLearnSince implements vocab.Store.
@@ -510,7 +672,8 @@ func (s *VocabStore) CountLearnSince(ctx context.Context, userID uuid.UUID, sinc
 	var n int
 	if err := s.pool.QueryRow(ctx, `
 		SELECT count(*) FROM vocab_notes
-		 WHERE user_id = $1 AND decision = 'learn' AND decided_at >= $2`, userID, since).Scan(&n); err != nil {
+		 WHERE user_id = $1 AND decision = 'learn' AND decided_at >= $2
+		   AND origin = ''`, userID, since).Scan(&n); err != nil {
 		return 0, fmt.Errorf("count learn decisions: %w", err)
 	}
 	return n, nil
@@ -553,7 +716,9 @@ func deckFilter(deck string) string {
 	return ` AND c.kind <> 'flash'`
 }
 
-func scanVocabDue(row pgx.Row) (*vocab.DueCard, error) {
+// scanVocabDue reads one card, and its note's contexts for a listening card
+// to find its line in (attachClips).
+func scanVocabDue(row pgx.Row) (*vocab.DueCard, []vocab.Context, error) {
 	var (
 		c         vocab.DueCard
 		fsrsRaw   []byte
@@ -571,13 +736,13 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, error) {
 		&c.Term, &c.Lang, &c.Reading, &c.POS, &c.Meaning, &contexts, &docID, &page, &title,
 		&c.Front, &c.Back, &bookID, &bookTitle, &chapterID, &scenario, &confuse)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, vocab.ErrNotFound
+		return nil, nil, vocab.ErrNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("scan vocab card: %w", err)
+		return nil, nil, fmt.Errorf("scan vocab card: %w", err)
 	}
 	if err := json.Unmarshal(fsrsRaw, &c.FSRS); err != nil {
-		return nil, fmt.Errorf("decode fsrs card: %w", err)
+		return nil, nil, fmt.Errorf("decode fsrs card: %w", err)
 	}
 	c.DueAt = c.DueAt.UTC()
 	var ctxs []vocab.Context
@@ -585,7 +750,8 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, error) {
 	if len(ctxs) > 0 {
 		c.Context = ctxs[0].Sentence
 	}
-	if c.Kind == vocab.KindCloze {
+	// A listening card whose line is gone is shown as a cloze.
+	if c.Kind == vocab.KindCloze || c.Kind == vocab.KindListen {
 		c.Cloze = vocab.Cloze(c.Term, c.Context)
 	}
 	if c.Kind == vocab.KindProduction {
@@ -600,7 +766,36 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, error) {
 	if bookID != nil && bookTitle != nil && chapterID != nil {
 		c.Book = &vocab.BookRef{BookID: *bookID, Title: *bookTitle, ChapterID: *chapterID}
 	}
-	return &c, nil
+	return &c, ctxs, nil
+}
+
+// attachClips gives each listening card the line it plays, and that line's
+// sentence as its context and cloze. The contexts' documents are read with
+// the owner's user_id, so a deleted or foreign one gives no clip.
+func attachClips(ctx context.Context, q vocabQuerier, userID uuid.UUID, cards []vocab.DueCard, contexts [][]vocab.Context) error {
+	var listen [][]vocab.Context
+	for i := range cards {
+		if cards[i].Kind == vocab.KindListen {
+			listen = append(listen, contexts[i])
+		}
+	}
+	if len(listen) == 0 {
+		return nil
+	}
+	docs, err := timedDocs(ctx, q, userID, listen...)
+	if err != nil {
+		return err
+	}
+	for i := range cards {
+		c := &cards[i]
+		if c.Kind != vocab.KindListen {
+			continue
+		}
+		if c.Clip = vocab.ClipOf(contexts[i], docs); c.Clip != nil {
+			c.Context, c.Cloze = c.Clip.Sentence, vocab.Cloze(c.Term, c.Clip.Sentence)
+		}
+	}
+	return nil
 }
 
 // DueCards implements vocab.Store.
@@ -622,20 +817,30 @@ func (s *VocabStore) DueCards(ctx context.Context, userID uuid.UUID, deck string
 	if err != nil {
 		return nil, 0, fmt.Errorf("due vocab cards: %w", err)
 	}
-	defer rows.Close()
+	var contexts [][]vocab.Context
 	for rows.Next() {
-		c, err := scanVocabDue(rows)
+		c, ctxs, err := scanVocabDue(rows)
 		if err != nil {
+			rows.Close()
 			return nil, 0, err
 		}
 		out = append(out, *c)
+		contexts = append(contexts, ctxs)
 	}
-	return out, total, rows.Err()
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+	if err := attachClips(ctx, s.pool, userID, out, contexts); err != nil {
+		return nil, 0, err
+	}
+	return out, total, nil
 }
 
 // GetCard implements vocab.Store.
 func (s *VocabStore) GetCard(ctx context.Context, userID, cardID uuid.UUID) (*vocab.DueCard, error) {
-	return scanVocabDue(s.pool.QueryRow(ctx, dueSelect+` WHERE c.id = $1 AND c.user_id = $2`, cardID, userID))
+	c, _, err := scanVocabDue(s.pool.QueryRow(ctx, dueSelect+` WHERE c.id = $1 AND c.user_id = $2`, cardID, userID))
+	return c, err
 }
 
 // Review implements vocab.Store: record the review, reschedule the card and

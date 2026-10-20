@@ -12,7 +12,20 @@ import { join } from "node:path";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { OG_VERSION } from "~/lib/tools/seo";
 
-vi.mock("~/lib/env.server", () => ({ APP_URL: "https://anytools.example", API_BASE: "", API_TOKEN: "" }));
+vi.mock("~/lib/env.server", () => ({
+  APP_URL: "https://anytools.example",
+  API_BASE: "",
+  API_TOKEN: "",
+  useSecureCookies: false,
+  SESSION_SECRET: "tools-test-secret",
+}));
+// The Tools tab asks who is signed in; nobody is, unless a test says so.
+const signedIn = vi.hoisted(() => ({ userId: null as string | null, language: "" }));
+vi.mock("~/lib/auth.server", () => ({ getUserId: async () => signedIn.userId }));
+vi.mock("~/lib/api.server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("~/lib/api.server")>()),
+  apiFetch: async () => ({ id: signedIn.userId, language: signedIn.language }),
+}));
 
 // Phase 3 ports every tool, which leaves the "not ported yet" pages with no real example. The
 // pdf cluster is held back here, as if its batch had not landed, so they stay exercised.
@@ -30,6 +43,7 @@ const cluster = await import("~/routes/public.cluster");
 const tool = await import("~/routes/public.tool");
 const og = await import("~/routes/public.tool-og");
 const toolsTab = await import("~/routes/tools");
+const { languageCookie } = await import("~/lib/language.server");
 const sitemap = await import("~/routes/sitemap[.]xml");
 const { localizeInternalHref, localizeArticleLinks } = await import("~/lib/tools/links.server");
 const { runtimeFile } = await import("~/lib/tools/runtime-files.server");
@@ -223,8 +237,9 @@ describe("the sitemap", () => {
 });
 
 describe("the Tools tab", () => {
-  const go = async (accept: string | null) => {
+  const go = async (accept: string | null, cookie?: string) => {
     const headers: Record<string, string> = accept === null ? {} : { "Accept-Language": accept };
+    if (cookie) headers.Cookie = cookie;
     const res = (await toolsTab.loader({
       request: new Request("https://anytools.example/tools", { headers }),
       params: {},
@@ -239,7 +254,22 @@ describe("the Tools tab", () => {
     expect((await go("en;q=0.1,pt-BR;q=0.8")).location).toBe("/pt/tools");
     expect((await go("pt;q=0,de")).location).toBe("/en/tools");
     expect((await go(null)).location).toBe("/en/tools");
-    expect((await go("de")).vary).toBe("Accept-Language");
+    expect((await go("de")).vary).toBe("Accept-Language, Cookie");
+  });
+
+  it("follows the language last opened on the public side over the browser's", async () => {
+    const cookie = await languageCookie.serialize("es");
+    expect((await go("vi-VN,vi;q=0.9", cookie)).location).toBe("/es/tools");
+  });
+
+  it("follows a learner's account language over both", async () => {
+    signedIn.userId = "u1";
+    signedIn.language = "pt";
+    try {
+      expect((await go("vi-VN,vi;q=0.9", await languageCookie.serialize("es"))).location).toBe("/pt/tools");
+    } finally {
+      signedIn.userId = null;
+    }
   });
 });
 

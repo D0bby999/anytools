@@ -483,7 +483,8 @@
     "file": "Archivo",
     "link": "Enlace o fuente",
     "zotero": "Zotero",
-    "siteRepo": "Sitio o repositorio"
+    "siteRepo": "Sitio o repositorio",
+    "highlights": "Subrayados"
   },
   "study": {
     "label": "Estudiar con esta base de conocimiento",
@@ -492,5 +493,39 @@
     "path": "Planificar una ruta de dominio",
     "book": "Escribir un libro",
     "waiting": "Las preguntas, el chat, la ruta y el libro se abren aquí en cuanto un documento esté listo."
+  },
+  "share": {
+    "title": "Añadir a AnyLearn",
+    "lead": "Añade lo que compartiste a una base de conocimiento, como hace Añadir un enlace: una página, un vídeo, una lista de reproducción o un feed de pódcast.",
+    "noLink": "Esto que compartiste no tiene un enlace web. AnyLearn añade enlaces; los archivos se suben en Conocimiento.",
+    "toKnowledge": "Ir a Conocimiento",
+    "kb": "Base de conocimiento",
+    "newKb": "Un nombre para tu primera base de conocimiento",
+    "newKbName": "Enlaces compartidos",
+    "add": "Añadir",
+    "adding": "Añadiendo…",
+    "failed": "No se pudo añadir el enlace. Inténtalo de nuevo."
+  },
+  "highlights": {
+    "lead": "Añade tus subrayados de Kindle o KOReader: cada libro se convierte aquí en un documento, con sus subrayados y notas, para leerlo, preguntar, hacer cuestionarios y guardar palabras. En un Kindle el archivo es documents/My Clippings.txt; KOReader exporta JSON.",
+    "pick": "Elige My Clippings.txt o una exportación de KOReader",
+    "none": "No se encontraron subrayados en este archivo.",
+    "books_one": "{{count}} libro",
+    "books_other": "{{count}} libros",
+    "counts_one": "{{count}} subrayado",
+    "counts_other": "{{count}} subrayados",
+    "already": "ya es un documento aquí",
+    "add_one": "Añadir {{count}} libro",
+    "add_other": "Añadir {{count}} libros",
+    "adding": "Añadiendo…",
+    "added_one": "{{count}} libro añadido. Aparece en la lista de abajo mientras se lee.",
+    "added_other": "{{count}} libros añadidos. Aparecen en la lista de abajo mientras se leen.",
+    "by": "de",
+    "page": "Página",
+    "location": "Posición",
+    "note": "Nota",
+    "notes": "Notas",
+    "loose_one": "{{count}} nota suelta",
+    "loose_other": "{{count}} notas sueltas"
   }
 }

@@ -218,5 +218,52 @@
     "noAttempts": "Chưa có lần làm nào",
     "rates": "{{first}} lần đầu · {{revised}} sau khi sửa",
     "differs": "Nội dung ghi ở đây khác với các dòng tình huống. Kết quả chỉ được lưu với tỉ lệ mà các dòng cho ra."
+  },
+  "english": {
+    "title": "Tiếng Anh",
+    "lead": "Mọi thứ ở đây để luyện tiếng Anh, theo từng kỹ năng. Bạn luyện trên tài liệu của chính mình: video, bài đọc và bản nháp bạn đã có.",
+    "fromDocument": "Từ một tài liệu",
+    "fromDocumentOf": "Bắt đầu {{name}} từ một tài liệu",
+    "vocabDue_one": "Hôm nay có {{count}} từ cần ôn.",
+    "vocabDue_other": "Hôm nay có {{count}} từ cần ôn.",
+    "start": {
+      "title": "Bắt đầu từ đây",
+      "body": "Một mốc ban đầu chưa trau chuốt cho cả bốn kỹ năng trên một chủ đề thật. Nó cho biết nên gỡ rào cản nào trước; các mục bên dưới là nơi bạn luyện."
+    },
+    "skills": {
+      "listening": {
+        "title": "Nghe",
+        "body": "Mở một video trong Tài liệu và chọn Luyện nghe: lượt đầu không phụ đề, rồi đến các đoạn quan trọng, chép chính tả và kể lại. Từ bạn lưu từ lời chép của video có thể thành thẻ nghe: khi ôn, app phát đúng câu đó và bạn gõ từ nghe được.",
+        "open": "Chọn một video"
+      },
+      "reading": {
+        "title": "Đọc",
+        "body": "Mở một PDF hoặc văn bản trong Tài liệu và chọn Đọc theo năm lượt. Khi đọc, chọn một đoạn để lưu từ của nó. Bạn cũng có thể đưa các đoạn đánh dấu trên Kindle hoặc KOReader vào, mỗi cuốn sách thành một tài liệu.",
+        "open": "Chọn một tài liệu"
+      },
+      "speaking": {
+        "title": "Nói",
+        "body": "Ghi âm chính mình trong một tình huống thật, phát cho một người nghe, và kiểm tra lại vài ngày sau trong điều kiện đã đổi. Khi đọc, bôi đen một đoạn rồi chọn Kiểm tra đọc to để xem máy chép lời không nghe ra những từ nào."
+      },
+      "writing": {
+        "title": "Viết",
+        "body": "Bản nháp đầu của chính bạn, năm lượt sửa và những gì người đọc đã thay đổi. Mô hình chat của bạn có thể chẩn đoán một lượt; nó không bao giờ viết lại bản nháp."
+      },
+      "vocabulary": {
+        "title": "Từ vựng",
+        "body": "Những từ bạn lưu khi đọc quay lại theo lịch riêng của chúng, một lần để nhớ nghĩa và một lần để gõ vào đúng câu bạn đã gặp. Bạn có thể đưa một bộ thẻ Anki vào, hoặc mang các từ của mình sang Anki.",
+        "open": "Mở Từ vựng"
+      },
+      "grammar": {
+        "title": "Ngữ pháp",
+        "body": "Xếp các lỗi theo việc chúng gây ra cho người đọc, rồi luyện một cấu trúc bằng thẻ đối chiếu."
+      },
+      "work": {
+        "title": "Tiếng Anh cho công việc",
+        "body": "Cho một vị trí thật: bạn có thể hiện được đúng năng lực của mình trong quy trình tuyển dụng của nó không?"
+      }
+    },
+    "fromRecording": "Từ video hoặc bản ghi âm",
+    "fromRecordingOf": "Bắt đầu {{name}} từ một video hoặc bản ghi âm"
   }
 }

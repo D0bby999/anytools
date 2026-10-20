@@ -218,5 +218,52 @@
     "noAttempts": "Ainda sem tentativas",
     "rates": "{{first}} na primeira passada · {{revised}} depois da revisão",
     "differs": "O que está escrito aqui difere das linhas do caso. Os resultados só são salvos com as proporções que as linhas dão."
+  },
+  "english": {
+    "title": "Inglês",
+    "lead": "Tudo o que há aqui para praticar inglês, por habilidade. Você pratica com seu próprio material: os vídeos, artigos e rascunhos que já tem.",
+    "fromDocument": "A partir de um documento",
+    "fromDocumentOf": "Começar {{name}} a partir de um documento",
+    "vocabDue_one": "Hoje há {{count}} palavra para revisar.",
+    "vocabDue_other": "Hoje há {{count}} palavras para revisar.",
+    "start": {
+      "title": "Comece aqui",
+      "body": "Uma primeira linha de base, sem polimento, nas quatro habilidades sobre um tema real. Ela diz qual barreira atacar primeiro; as seções abaixo são onde você trabalha nela."
+    },
+    "skills": {
+      "listening": {
+        "title": "Compreensão oral",
+        "body": "Abra um vídeo em Conhecimento e escolha Praticar a escuta: uma primeira passada sem legendas, depois os trechos que importam, ditado e reconto. Uma palavra que você salvar da transcrição pode virar um cartão de escuta: a revisão toca a linha e você digita a palavra.",
+        "open": "Escolher um vídeo"
+      },
+      "reading": {
+        "title": "Leitura",
+        "body": "Abra um PDF ou um texto em Conhecimento e escolha Ler em cinco passadas. Selecione um trecho durante a leitura para salvar suas palavras. Seus destaques do Kindle ou do KOReader também podem entrar, um documento por livro.",
+        "open": "Escolher um documento"
+      },
+      "speaking": {
+        "title": "Fala",
+        "body": "Grave-se numa situação real, toque a gravação para um ouvinte e teste de novo dias depois em condições mudadas. Enquanto lê, selecione um trecho e escolha Verificar minha leitura em voz alta para ver quais palavras um mecanismo de fala não entendeu."
+      },
+      "writing": {
+        "title": "Escrita",
+        "body": "Seu próprio primeiro rascunho, cinco passadas de revisão e o que os leitores mudaram. Seu modelo de chat pode diagnosticar uma passada; ele nunca reescreve o rascunho."
+      },
+      "vocabulary": {
+        "title": "Vocabulário",
+        "body": "As palavras que você salvou ao ler voltam no próprio calendário delas, uma vez pelo sentido e outra para digitá-las na frase em que você as encontrou. Você pode trazer um baralho do Anki ou levar suas palavras para o Anki.",
+        "open": "Abrir vocabulário"
+      },
+      "grammar": {
+        "title": "Gramática",
+        "body": "Organize seus deslizes pelo que causaram ao leitor e depois pratique uma estrutura com um cartão de contraste."
+      },
+      "work": {
+        "title": "Inglês para o trabalho",
+        "body": "Para uma vaga real: você consegue mostrar sua capacidade real no processo seletivo dela?"
+      }
+    },
+    "fromRecording": "A partir de um vídeo ou gravação",
+    "fromRecordingOf": "Começar {{name}} a partir de um vídeo ou gravação"
   }
 }

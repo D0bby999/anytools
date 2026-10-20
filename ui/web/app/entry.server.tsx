@@ -18,9 +18,15 @@ import { isbot } from "isbot";
 import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
 import { NonceContext } from "~/lib/nonce";
-import { applySecurityHeaders } from "~/lib/security-headers.server";
+import { applyCachePolicy, applySecurityHeaders } from "~/lib/security-headers.server";
 
 export const streamTimeout = 5_000;
+
+/** Client navigation's data (`*.data`) follows the documents' cache policy. */
+export function handleDataRequest(response: Response): Response {
+  applyCachePolicy(response.headers);
+  return response;
+}
 
 export default function handleRequest(
   request: Request,

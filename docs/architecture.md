@@ -271,6 +271,19 @@ the learners in their hour (`ReminderCandidates`, the claim's own condition
 without the claim), each counted by `app.dueTotal` through the same service
 calls as Home's six due rows, so the push and the page give one number.
 
+### Share target
+
+`ui/web/public/manifest.webmanifest` declares a GET `share_target` at
+`/share` (`routes/share.tsx`, inside the app layout, so a signed-out share
+signs in and comes back with its query). GET keeps the service worker out of
+it. The page takes only an http(s) link (`lib/share.ts`: `url`, else the
+first link in `text`, else in `title`) and adds it through the same
+`POST /v1/kb/{id}/links` as the knowledge page, so the API's URL checks
+apply unchanged. The knowledge base used last is an HttpOnly cookie,
+`al_share_kb`, checked against the learner's list on every load. Chrome on
+Android offers installed web apps as share targets; Safari has no share
+target, so iPhone and iPad do not.
+
 ### Interface language
 
 AnyLearn speaks en, vi, es and pt (plan 261019-1317). `users.language` is the
@@ -283,6 +296,15 @@ and hydration matches. Each language is its own i18next instance, never
 switched, because two requests in two languages share one server process.
 `app/test/i18n-app-locales.test.ts` fails on any English string without its
 three translations.
+
+Worksheet kinds are written in English in Go (`internal/learning/worksheet`)
+and served translated: `worksheet.Localized` copies a kind with its display
+text from `i18n/{vi,es,pt}.json`, keyed by the English text, for
+`/v1/worksheet-kinds`, a worksheet's page, the due list and the Markdown
+export. Stored keys and option values stay English, so answers validate
+against the one registered kind; a translated option travels in
+`option_labels`, which the form shows. `TestEveryKindIsTranslated` fails on a
+text without its three translations, or a catalog entry no kind shows.
 
 The public pages have one path per language, for search engines: the site's
 home (the landing page) at `/en`, `/vi`, `/es` and `/pt`, the tools home at

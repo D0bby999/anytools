@@ -58,6 +58,7 @@ import (
 	"github.com/D0bby999/anytools/internal/byok"
 	"github.com/D0bby999/anytools/internal/capabilities/visualize"
 	"github.com/D0bby999/anytools/internal/citations"
+	"github.com/D0bby999/anytools/internal/config"
 	"github.com/D0bby999/anytools/internal/jobs"
 	"github.com/D0bby999/anytools/internal/knowledge"
 	"github.com/D0bby999/anytools/internal/oauth"
@@ -180,8 +181,12 @@ func buildE2EStorage(t *testing.T, modelURL string, fns []string, clock func() t
 		parser:   newReplayParser(t, "rag"),
 		embedder: newHashEmbedder(768),
 	}
-	var linkCfg *knowledge.LinkConfig
+	var (
+		linkCfg *knowledge.LinkConfig
+		engines config.EnginesConfig
+	)
 	if links != nil {
+		engines = links.engines
 		// The engines that hear audio need the database and the queue
 		// (up-methods phase 21); the built-in one only when its URL is set.
 		links.pool, links.queue = pool, queue
@@ -236,6 +241,7 @@ func buildE2EStorage(t *testing.T, modelURL string, fns []string, clock func() t
 		Audio:        buildAudio(pool, kb, byokSvc),
 		Reading:      readingHandler,
 		Vocab:        buildVocab(pool, pages),
+		Speak:        buildSpeak(pool, pages, byokSvc, engines),
 		Profile:      e2eProfile(pool, byokSvc),
 		Books:        buildBooks(pool, kb, byokSvc),
 		Exams:        buildExams(pool, kb, newChatResolver(byokSvc)),

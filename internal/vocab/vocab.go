@@ -12,7 +12,8 @@
 // Since up-methods phase 3 (decisions.go) a note also carries one of up's
 // five decisions about an unknown word, and only a word to "learn" owns
 // cards. A third card, production (a situational cue → the term, typed),
-// exists only when the learner asks for it on one note.
+// exists only when the learner asks for it on one note, and so does a fourth,
+// listen (a video's or a recording's line, played → the term, typed; listen.go).
 //
 // The same card table holds a living book's `flash` cards (phase 11). They
 // have no note, are scheduled by the same scheduler and reviewed by the same
@@ -135,14 +136,22 @@ type Note struct {
 	DecidedAt  time.Time         `json:"decided_at"`
 	// Scenario and Confusable are the production card's back; Production is
 	// whether the learner asked for that card.
-	Scenario   string        `json:"scenario"`
-	Confusable string        `json:"confusable"`
-	Production bool          `json:"production"`
-	Source     *Source       `json:"source,omitempty"`
-	Cards      []CardSummary `json:"cards"`
-	Suspended  bool          `json:"suspended"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  time.Time     `json:"updated_at"`
+	Scenario   string `json:"scenario"`
+	Confusable string `json:"confusable"`
+	Production bool   `json:"production"`
+	// Listening is whether the learner asked for the listening card; Clip is
+	// the line it would play, nil when no context is a line of a video or a
+	// recording that still exists (listen.go).
+	Listening bool `json:"listening"`
+	// Origin is "anki" for a word imported from a deck (import.go), "" for
+	// one saved while reading.
+	Origin    string        `json:"origin"`
+	Clip      *Clip         `json:"clip,omitempty"`
+	Source    *Source       `json:"source,omitempty"`
+	Cards     []CardSummary `json:"cards"`
+	Suspended bool          `json:"suspended"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
 }
 
 // DueCard is one card in a review session, with what it shows.
@@ -167,6 +176,9 @@ type DueCard struct {
 	// the scenario and the meaning, the back adds the confusable expression.
 	Scenario   string `json:"scenario,omitempty"`
 	Confusable string `json:"confusable,omitempty"`
+	// Clip is set on listening cards whose line can still be played; Context
+	// and Cloze are then that line's sentence.
+	Clip *Clip `json:"clip,omitempty"`
 	// Front, Back and Book are set on flash cards only.
 	Front string   `json:"front,omitempty"`
 	Back  string   `json:"back,omitempty"`
@@ -226,6 +238,8 @@ type NotePatch struct {
 	// Production turns the production card on (created, or resumed) or off
 	// (suspended, its schedule kept).
 	Production *bool
+	// Listening turns the listening card on or off, as Production does.
+	Listening *bool
 	// Check runs on the note as the patch would leave it, under the row
 	// lock, before anything is written.
 	Check func(next NoteState) error
@@ -242,6 +256,10 @@ type NoteState struct {
 	Meaning    string
 	Scenario   string
 	Production bool
+	Listening  bool
+	// HasClip is whether one of the note's contexts is a line that can be
+	// played (listen.go).
+	HasClip bool
 }
 
 // Filter narrows the word list.
@@ -249,6 +267,8 @@ type Filter struct {
 	Q     string
 	Lang  string
 	Limit int
+	// Offset skips that many notes of the list, for reading it in pages.
+	Offset int
 	// Decision keeps one decision's notes. Terms keeps the notes of exactly
 	// these terms, case ignored: the word picker's "already saved as".
 	Decision string
@@ -560,7 +580,8 @@ func (s *Service) Update(ctx context.Context, userID, id uuid.UUID, p NotePatch)
 	}
 	decisionSent, recordSent, meaningSent := p.Decision != nil, p.Record != nil, p.Meaning != nil
 	// Cards are a word to learn's only (AC5): nothing else may turn one on.
-	turnsCardsOn := (p.Production != nil && *p.Production) || (p.Suspended != nil && !*p.Suspended)
+	listeningOn := p.Listening != nil && *p.Listening
+	turnsCardsOn := (p.Production != nil && *p.Production) || listeningOn || (p.Suspended != nil && !*p.Suspended)
 	p.Check = func(next NoteState) error {
 		if turnsCardsOn && !HasCards(next.Decision) {
 			return fmt.Errorf("%w: only a word you chose to learn has cards to review", ErrInvalid)
@@ -574,6 +595,11 @@ func (s *Service) Update(ctx context.Context, userID, id uuid.UUID, p NotePatch)
 		}
 		if (decisionSent || meaningSent) && next.Meaning == "" && NeedsMeaning(next.Decision) {
 			return fmt.Errorf("%w: a word to %s needs a meaning", ErrInvalid, next.Decision)
+		}
+		// Asked for only: a video deleted since leaves the card in place,
+		// read back as a cloze, and must not refuse an unrelated edit.
+		if listeningOn && !next.HasClip {
+			return fmt.Errorf("%w: this word was not saved from a line of a video or a recording", ErrInvalid)
 		}
 		return checkProduction(next)
 	}
@@ -751,8 +777,9 @@ func (s *Service) Review(ctx context.Context, userID, cardID uuid.UUID, in Revie
 		return nil, err
 	}
 	var matched *bool
-	// A production card is marked as a cloze is: the typed term, matched.
-	if card.Kind == KindCloze || card.Kind == KindProduction {
+	// Production and listening cards are marked as a cloze is: the typed
+	// term, matched.
+	if Typed(card.Kind) {
 		m := ClozeMatches(answer, card.Term)
 		matched = &m
 	} else {

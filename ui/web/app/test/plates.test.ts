@@ -7,7 +7,8 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { PLATES } from "~/components/ui/plate";
+import { isPlateName, PLATES } from "~/components/ui/plate";
+import { POPULATED_CLUSTERS } from "~/lib/tools/catalog";
 
 const DIR = join(resolve(process.cwd()), "public/plates");
 
@@ -17,5 +18,9 @@ describe("plates", () => {
     expect(existsSync(join(DIR, `${name}-sm.webp`))).toBe(true);
     const sidecar = JSON.parse(readFileSync(join(DIR, `${name}.json`), "utf-8")) as { prompt?: string };
     expect(sidecar.prompt).toMatch(/no text/i);
+  });
+
+  it.each(POPULATED_CLUSTERS)("the %s cluster's page has its plate", (cluster) => {
+    expect(isPlateName(`cluster-${cluster}`)).toBe(true);
   });
 });

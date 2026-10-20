@@ -27,6 +27,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/researchapi"
 	"github.com/D0bby999/anytools/internal/api/solveapi"
 	"github.com/D0bby999/anytools/internal/api/sourceapi"
+	"github.com/D0bby999/anytools/internal/api/speakapi"
 	"github.com/D0bby999/anytools/internal/api/storageapi"
 	"github.com/D0bby999/anytools/internal/api/videonotesapi"
 	"github.com/D0bby999/anytools/internal/api/visualizeapi"
@@ -67,6 +68,8 @@ type Deps struct {
 	Exams *examapi.Handler
 	// Vocab is learning-depth phase 7: vocabulary notes and their cards.
 	Vocab *vocabapi.Handler
+	// Speak is the read-aloud check (plans/261020-1155-open-source-adds, phase 2).
+	Speak *speakapi.Handler
 	// Profile is learning-depth phase 9: the learner profile.
 	Profile *profileapi.Handler
 	// Worksheets is up-methods phase 0: up's worksheets.
@@ -164,6 +167,9 @@ func BuildMux(deps Deps) http.Handler {
 	}
 	if deps.Vocab != nil {
 		deps.Vocab.RegisterRoutes(mux)
+	}
+	if deps.Speak != nil {
+		deps.Speak.RegisterRoutes(mux)
 	}
 	if deps.Profile != nil {
 		deps.Profile.RegisterRoutes(mux)
@@ -269,6 +275,7 @@ func RegisteredPatterns() []string {
 	patterns = append(patterns, feedapi.Patterns()...)
 	// Learning depth, phase 7. Behind RequireUser; none is allowlisted.
 	patterns = append(patterns, vocabapi.Patterns()...)
+	patterns = append(patterns, speakapi.Patterns()...)
 	// Learning depth, phase 9: the learner profile.
 	patterns = append(patterns, profileapi.Patterns()...)
 	// Learning depth, phase 11: living books.

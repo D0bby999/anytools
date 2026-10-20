@@ -15,8 +15,24 @@ export type VocabContext = {
 
 export type VocabSource = { document_id: string; title: string; page?: number };
 
-/** production exists only when the learner asked for it (up-methods phase 3). */
-export type CardKind = "recognition" | "cloze" | "production";
+/**
+ * production and listen exist only when the learner asked for them
+ * (up-methods phase 3; plans/261020-1155-open-source-adds, phase 1).
+ */
+export type CardKind = "recognition" | "cloze" | "production" | "listen";
+
+/**
+ * A transcript line a listening card plays: page `page` of a YouTube video
+ * (video_id) or an uploaded recording (no video_id), from start to end seconds.
+ */
+export type VocabClip = {
+  document_id: string;
+  page: number;
+  video_id?: string;
+  start: number;
+  end: number;
+  sentence: string;
+};
 
 /** A due card is a note's card, or a living book's flash card (phase 11). */
 export type DueKind = CardKind | "flash";
@@ -51,6 +67,9 @@ export type VocabNote = {
   scenario: string;
   confusable: string;
   production: boolean;
+  /** The listening card was asked for; clip is the line it would play. */
+  listening: boolean;
+  clip?: VocabClip;
 };
 
 export type DueCard = {
@@ -68,6 +87,8 @@ export type DueCard = {
   context: string;
   cloze?: string;
   source?: VocabSource;
+  /** Set on listening cards whose line can still be played. */
+  clip?: VocabClip;
   /** Set on production cards only. */
   scenario?: string;
   confusable?: string;

@@ -23,6 +23,7 @@ import { auditRow, decisionBody, RATINGS, type Rating } from "~/lib/vocab-types"
 import { MasteryTabs } from "~/components/vocab/mastery-tabs";
 import { ReviewSession } from "~/components/vocab/review-session";
 import { WordList } from "~/components/vocab/word-list";
+import { AnkiExport, AnkiImport } from "~/components/vocab/anki-decks";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -100,6 +101,9 @@ export async function action({ request }: Route.ActionArgs) {
       case "production-off":
         await updateWord(user.id, id, { production: false });
         return { updated: id };
+      case "listening":
+        await updateWord(user.id, id, { listening: String(form.get("on")) === "true" });
+        return { updated: id };
       case "audit":
         return await copyToAudit(user.id, String(form.get("worksheet") ?? ""), form.getAll("note").map(String));
     }
@@ -157,6 +161,14 @@ export default function Vocabulary({ loaderData }: Route.ComponentProps) {
           langs={loaderData.langs}
           audits={loaderData.audits}
         />
+      </section>
+
+      <section aria-labelledby="lp-vocab-anki" className="mt-10">
+        <h2 id="lp-vocab-anki" className="lp-section">
+          {t("anki.title")}
+        </h2>
+        <AnkiImport langs={loaderData.langs} />
+        <AnkiExport />
       </section>
     </div>
   );

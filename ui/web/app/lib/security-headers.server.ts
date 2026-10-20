@@ -58,6 +58,18 @@ export function contentSecurityPolicy(nonce: string): string {
   ].join("; ");
 }
 
+/**
+ * No shared cache keeps a page or its data. Cloudflare stores whatever the
+ * origin lets it: a stored document names one build's hashed scripts, so after
+ * the next deploy it serves a page whose scripts are gone (every tool on it
+ * dead for hours), and a signed-in page must never reach someone else. The
+ * browser may keep a copy but asks again each time. A route that sets its own
+ * Cache-Control (home-redirect.ts) keeps it.
+ */
+export function applyCachePolicy(headers: Headers): void {
+  if (!headers.has("Cache-Control")) headers.set("Cache-Control", "private, no-cache");
+}
+
 /** Sets the document headers. CSP only in production: Vite's dev client injects scripts with no nonce. */
 export function applySecurityHeaders(headers: Headers, nonce: string, production: boolean): void {
   if (production) headers.set("Content-Security-Policy", contentSecurityPolicy(nonce));
@@ -66,4 +78,5 @@ export function applySecurityHeaders(headers: Headers, nonce: string, production
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=(), payment=()");
   headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  applyCachePolicy(headers);
 }

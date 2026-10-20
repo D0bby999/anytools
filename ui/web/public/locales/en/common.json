@@ -18,7 +18,8 @@
     "settings": "Settings",
     "loop": "Loop",
     "comingSoon": "Not available yet",
-    "more": "More"
+    "more": "More",
+    "english": "English"
   },
   "actions": {
     "signOut": "Sign out",
@@ -684,7 +685,9 @@
     "Toolkit": "Toolkit",
     "Vocabulary": "Vocabulary",
     "Weekly review": "Weekly review",
-    "Worksheet": "Worksheet"
+    "Worksheet": "Worksheet",
+    "English": "English",
+    "Share": "Share"
   },
   "readinessText": {
     "no_route": "No connection does {{function}} yet. Choose one in Settings → Routes.",

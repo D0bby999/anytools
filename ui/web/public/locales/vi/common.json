@@ -18,7 +18,8 @@
     "settings": "Cài đặt",
     "loop": "Vòng học",
     "comingSoon": "Chưa có",
-    "more": "Thêm"
+    "more": "Thêm",
+    "english": "Tiếng Anh"
   },
   "actions": {
     "signOut": "Đăng xuất",
@@ -684,7 +685,9 @@
     "Toolkit": "Bộ công cụ",
     "Vocabulary": "Từ vựng",
     "Weekly review": "Tổng kết tuần",
-    "Worksheet": "Phiếu học"
+    "Worksheet": "Phiếu học",
+    "English": "Tiếng Anh",
+    "Share": "Chia sẻ"
   },
   "readinessText": {
     "no_route": "Chưa có kết nối nào làm việc {{function}}. Hãy chọn một kết nối trong Cài đặt → Phân việc.",

@@ -51,6 +51,7 @@
     "ethers": "6.13.5",
     "exceljs": "4.4.0",
     "fast-xml-parser": "5.11.2",
+    "fzstd": "0.1.1",
     "harfbuzzjs": "1.6.1",
     "he": "1.2.0",
     "i18next": "^25.8.18",

@@ -1307,7 +1307,12 @@ var writesWithoutResourceIDs = map[string]string{
 	// up methods, phase 0.
 	"DELETE /v1/worksheets/{id}": "no body",
 	// Up-methods phase 7. The upload's body is the audio and its length.
-	"POST /v1/worksheets/{id}/recordings":         "a multipart audio part and its duration; the path's worksheet is resolved before the body is read",
+	"POST /v1/worksheets/{id}/recordings": "a multipart audio part and its duration; the path's worksheet is resolved before the body is read",
+	// The read-aloud check names a reading workspace inside a multipart body,
+	// which the JSON probes cannot send; TestTheReadAloudCheckRefusesAnother
+	// UsersWorkspace probes it.
+	"POST /v1/vocab/import":                       "a deck's words for the caller's own vocabulary; names no row",
+	"POST /v1/speaking/check":                     "a multipart take; its workspace_id is resolved with the caller's id before anything is heard (TestTheReadAloudCheckRefusesAnotherUsersWorkspace)",
 	"DELETE /v1/worksheets/{id}/recordings/{rid}": "no body; both path ids probed, mixed owners too",
 	// Up-methods phase 18. Bodies name a URL, limits, a branch, a folder,
 	// file types and ignore patterns: never a row. The path's knowledge base,

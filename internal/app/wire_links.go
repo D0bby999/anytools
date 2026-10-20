@@ -89,24 +89,18 @@ func linkConfig(kbStore *pg.KnowledgeStore, blobs linkStorage, byokSvc *byok.Ser
 	}
 	cfg.AudioTranscribers = byokAudio{svc: byokSvc}
 	if d.engines.STTURL != "" && d.queue != nil {
-		engine := stt.NewBuiltinEngine(d.engines.STTURL, d.engines.STTModel)
-		users, queue := pg.NewUserStore(d.pool), d.queue
-		cfg.Builtin = &knowledge.BuiltinSTT{
-			Engine:       engine,
-			Model:        d.engines.STTModel,
-			Usage:        pg.NewSTTUsage(d.pool),
-			DailySeconds: d.engines.STTDailyMinutes * 60,
-			Zone:         users.Timezone,
-			Line: func(ctx context.Context) (int, error) {
-				return queue.Waiting(ctx, jobs.KindTranscribeBuiltin)
-			},
-			Ahead: func(ctx context.Context, userID, docID uuid.UUID) (int, bool, error) {
-				id, ok, err := queue.ActiveFor(ctx, userID, jobs.KindTranscribeBuiltin, docID)
-				if err != nil || !ok {
-					return 0, false, err
-				}
-				return queue.Ahead(ctx, id)
-			},
+		queue := d.queue
+		cfg.Builtin = newBuiltinSTT(d.pool, d.engines)
+		engine := cfg.Builtin.Engine
+		cfg.Builtin.Line = func(ctx context.Context) (int, error) {
+			return queue.Waiting(ctx, jobs.KindTranscribeBuiltin)
+		}
+		cfg.Builtin.Ahead = func(ctx context.Context, userID, docID uuid.UUID) (int, bool, error) {
+			id, ok, err := queue.ActiveFor(ctx, userID, jobs.KindTranscribeBuiltin, docID)
+			if err != nil || !ok {
+				return 0, false, err
+			}
+			return queue.Ahead(ctx, id)
 		}
 		// The matrix says the server would transcribe for free, while it
 		// answers its health check (byok/builtin.go).
@@ -114,6 +108,19 @@ func linkConfig(kbStore *pg.KnowledgeStore, blobs linkStorage, byokSvc *byok.Ser
 			Label: "Built-in transcription (free, slower)", Available: engine.Available})
 	}
 	return cfg
+}
+
+// newBuiltinSTT is the server's own speech engine with each learner's daily
+// allowance, as a document's transcription and the read-aloud check share it
+// (the same usage rows, so one allowance).
+func newBuiltinSTT(pool *pg.Pool, engines config.EnginesConfig) *knowledge.BuiltinSTT {
+	return &knowledge.BuiltinSTT{
+		Engine:       stt.NewBuiltinEngine(engines.STTURL, engines.STTModel),
+		Model:        engines.STTModel,
+		Usage:        pg.NewSTTUsage(pool),
+		DailySeconds: engines.STTDailyMinutes * 60,
+		Zone:         pg.NewUserStore(pool).Timezone,
+	}
 }
 
 // sweepTranscribeDirs removes job directories a crashed process left behind:

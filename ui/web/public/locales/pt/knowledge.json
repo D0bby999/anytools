@@ -483,7 +483,8 @@
     "file": "Arquivo",
     "link": "Link ou feed",
     "zotero": "Zotero",
-    "siteRepo": "Site ou repositório"
+    "siteRepo": "Site ou repositório",
+    "highlights": "Destaques"
   },
   "study": {
     "label": "Estudar com esta base de conhecimento",
@@ -492,5 +493,39 @@
     "path": "Planejar uma trilha de domínio",
     "book": "Escrever um livro",
     "waiting": "Perguntas, chat, trilha e livro abrem aqui assim que um documento estiver pronto."
+  },
+  "share": {
+    "title": "Adicionar ao AnyLearn",
+    "lead": "Adicione o que você compartilhou a uma base de conhecimento, como faz Adicionar um link: uma página, um vídeo, uma playlist ou um feed de podcast.",
+    "noLink": "Este compartilhamento não tem um link da web. O AnyLearn adiciona links; arquivos são enviados em Conhecimento.",
+    "toKnowledge": "Ir para Conhecimento",
+    "kb": "Base de conhecimento",
+    "newKb": "Um nome para sua primeira base de conhecimento",
+    "newKbName": "Links compartilhados",
+    "add": "Adicionar",
+    "adding": "Adicionando…",
+    "failed": "Não foi possível adicionar o link. Tente de novo."
+  },
+  "highlights": {
+    "lead": "Adicione seus destaques do Kindle ou do KOReader: cada livro vira um documento aqui, com seus destaques e notas, para ler, perguntar, fazer questionários e salvar palavras. No Kindle o arquivo é documents/My Clippings.txt; o KOReader exporta JSON.",
+    "pick": "Escolha My Clippings.txt ou uma exportação do KOReader",
+    "none": "Nenhum destaque foi encontrado neste arquivo.",
+    "books_one": "{{count}} livro",
+    "books_other": "{{count}} livros",
+    "counts_one": "{{count}} destaque",
+    "counts_other": "{{count}} destaques",
+    "already": "já é um documento aqui",
+    "add_one": "Adicionar {{count}} livro",
+    "add_other": "Adicionar {{count}} livros",
+    "adding": "Adicionando…",
+    "added_one": "{{count}} livro adicionado. Ele aparece na lista abaixo enquanto é lido.",
+    "added_other": "{{count}} livros adicionados. Eles aparecem na lista abaixo enquanto são lidos.",
+    "by": "de",
+    "page": "Página",
+    "location": "Posição",
+    "note": "Nota",
+    "notes": "Notas",
+    "loose_one": "{{count}} nota solta",
+    "loose_other": "{{count}} notas soltas"
   }
 }

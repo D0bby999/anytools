@@ -14,6 +14,15 @@
     "education",
     "productivity"
   ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "icons": [
     {
       "src": "/icons/anylearn-192.png?v=2",

@@ -71,6 +71,7 @@ import { useEventStream } from "~/hooks/use-event-stream";
 import { Button } from "~/components/ui/button";
 import { DocumentTable } from "~/components/knowledge/document-table";
 import { UploadDropzone } from "~/components/knowledge/upload-dropzone";
+import { ImportHighlights } from "~/components/knowledge/import-highlights";
 import { RetrievalDebug } from "~/components/knowledge/retrieval-debug";
 import { AddLink } from "~/components/knowledge/add-link";
 import { AddSite } from "~/components/knowledge/add-site";
@@ -473,6 +474,12 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
               ),
             },
             { id: "zotero", label: t("add.zotero"), panel: <ZoteroPanel kbId={kb.id} /> },
+            // plans/261020-1155-open-source-adds, phase 5: Kindle and KOReader highlights.
+            {
+              id: "highlights",
+              label: t("add.highlights"),
+              panel: <ImportHighlights titles={documents.map((d) => d.title)} />,
+            },
             {
               id: "site",
               label: t("add.siteRepo"),

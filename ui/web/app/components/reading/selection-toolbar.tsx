@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { BookmarkPlus, Flag, Highlighter, Shapes, Volume2, X } from "lucide-react";
+import { BookmarkPlus, Flag, Highlighter, Mic, Shapes, Volume2, X } from "lucide-react";
 import type { ReaderSelection } from "~/lib/reading-selection";
 import type { ReadingAction } from "~/lib/reading-types";
 import { Button } from "~/components/ui/button";
@@ -23,6 +23,7 @@ export function SelectionToolbar({
   onDraw,
   onDismiss,
   onReadAloud,
+  onCheckAloud,
   onMarkBarrier,
 }: {
   selection: ReaderSelection;
@@ -35,6 +36,8 @@ export function SelectionToolbar({
   onDismiss: () => void;
   /** Learning depth, phase 7: read the selection aloud (browser voices). */
   onReadAloud?: () => void;
+  /** Record yourself reading the selection (plans/261020-1155-open-source-adds, phase 2). */
+  onCheckAloud?: () => void;
   /** up-methods phase 5: a row in the reading card's barrier map, from this selection and its page. */
   onMarkBarrier?: () => void;
 }) {
@@ -95,6 +98,12 @@ export function SelectionToolbar({
           <Button type="button" size="sm" variant="ghost" onPointerDown={keep} onClick={onReadAloud}>
             <Volume2 aria-hidden="true" />
             {t("actions.readAloud")}
+          </Button>
+        ) : null}
+        {onCheckAloud ? (
+          <Button type="button" size="sm" variant="ghost" onPointerDown={keep} onClick={onCheckAloud}>
+            <Mic aria-hidden="true" />
+            {t("actions.checkAloud")}
           </Button>
         ) : null}
         <Button

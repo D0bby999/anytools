@@ -109,3 +109,37 @@ export function drawSelection(userId: string, workspaceId: string, selection: st
     body: { selection },
   });
 }
+
+/** The largest read-aloud request: a 30-second take (4 MB) and its passage. */
+export const MAX_SPEAKING_REQUEST = 4 * 1024 * 1024 + 64 * 1024;
+
+/**
+ * The read-aloud check (plans/261020-1155-open-source-adds, phase 2): one
+ * take and the passage it reads, forwarded as a multipart form, as
+ * uploadRecording does. The API checks the passage against the stored page;
+ * its answer, or its translated error, comes back as it is.
+ */
+export async function checkReadingAloud(
+  userId: string,
+  workspaceId: string,
+  page: number,
+  text: string,
+  audio: File,
+): Promise<Response> {
+  const body = new FormData();
+  body.set("workspace_id", workspaceId);
+  body.set("page", String(page));
+  body.set("text", text);
+  body.set("audio", audio, audio.name || "take");
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/v1/speaking/check`, {
+      method: "POST",
+      headers: { ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}), [USER_ID_HEADER]: userId },
+      body,
+    });
+  } catch {
+    return Response.json({ error: "The API could not be reached." }, { status: 503 });
+  }
+  return new Response(res.body, { status: res.status, headers: { "Content-Type": "application/json" } });
+}
