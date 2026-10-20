@@ -93,8 +93,13 @@ var (
 	_ ObjectStore = (*Local)(nil)
 )
 
-// Local is a Store backed by a directory tree.
-type Local struct{ root string }
+// Local is a Store backed by a directory tree, or, given a Bucket
+// (bucket.go), by an object store for originals and objects with the tree
+// for the rest.
+type Local struct {
+	root   string
+	bucket Bucket
+}
 
 // NewLocal returns a Local rooted at dir, creating it if needed.
 func NewLocal(dir string) (*Local, error) {
@@ -151,42 +156,50 @@ func (l *Local) objectPath(userID uuid.UUID, namespace string, id uuid.UUID) (st
 }
 
 // PutObject writes (or replaces) one row's file.
-func (l *Local) PutObject(_ context.Context, userID uuid.UUID, namespace string, id uuid.UUID, data []byte) error {
+func (l *Local) PutObject(ctx context.Context, userID uuid.UUID, namespace string, id uuid.UUID, data []byte) error {
 	path, err := l.objectPath(userID, namespace, id)
 	if err != nil {
 		return err
 	}
-	return writeFileAtomic(path, data)
+	return l.putFile(ctx, path, data)
 }
 
 // GetObject reads one row's file back.
-func (l *Local) GetObject(_ context.Context, userID uuid.UUID, namespace string, id uuid.UUID) ([]byte, error) {
+func (l *Local) GetObject(ctx context.Context, userID uuid.UUID, namespace string, id uuid.UUID) ([]byte, error) {
 	path, err := l.objectPath(userID, namespace, id)
 	if err != nil {
 		return nil, err
 	}
-	b, err := os.ReadFile(path)
-	if errors.Is(err, os.ErrNotExist) {
-		return nil, ErrNotFound
-	}
-	return b, err
+	return l.readFile(ctx, path)
 }
 
 // OpenObject opens one row's file for streaming.
-func (l *Local) OpenObject(_ context.Context, userID uuid.UUID, namespace string, id uuid.UUID) (*File, error) {
+func (l *Local) OpenObject(ctx context.Context, userID uuid.UUID, namespace string, id uuid.UUID) (*File, error) {
 	path, err := l.objectPath(userID, namespace, id)
 	if err != nil {
 		return nil, err
 	}
-	return openFile(path)
+	return l.openAt(ctx, path)
 }
 
 // WriteObject streams one row's file through a temp file and renames it into
 // place, so a reader never sees half of it and a failed write leaves nothing.
-func (l *Local) WriteObject(_ context.Context, userID uuid.UUID, namespace string, id uuid.UUID, write func(io.Writer) error) error {
+// With a bucket the finished temp file is uploaded instead.
+func (l *Local) WriteObject(ctx context.Context, userID uuid.UUID, namespace string, id uuid.UUID, write func(io.Writer) error) error {
 	path, err := l.objectPath(userID, namespace, id)
 	if err != nil {
 		return err
+	}
+	if l.bucket != nil {
+		f, err := l.tempFile()
+		if err != nil {
+			return err
+		}
+		defer func() { f.Close(); os.Remove(f.Name()) }()
+		if err := write(f); err != nil {
+			return err
+		}
+		return l.putFrom(ctx, path, f)
 	}
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
@@ -216,15 +229,12 @@ func (l *Local) WriteObject(_ context.Context, userID uuid.UUID, namespace strin
 }
 
 // DeleteObject removes one row's file. A missing file is not an error.
-func (l *Local) DeleteObject(_ context.Context, userID uuid.UUID, namespace string, id uuid.UUID) error {
+func (l *Local) DeleteObject(ctx context.Context, userID uuid.UUID, namespace string, id uuid.UUID) error {
 	path, err := l.objectPath(userID, namespace, id)
 	if err != nil {
 		return err
 	}
-	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	return nil
+	return l.removeAt(ctx, path)
 }
 
 func (l *Local) parsedPath(userID, docID uuid.UUID, version int) string {
@@ -234,38 +244,34 @@ func (l *Local) parsedPath(userID, docID uuid.UUID, version int) string {
 
 // PutOriginal writes data under its own digest. Writing the same bytes twice is
 // a no-op, which is what makes an interrupted upload safe to retry.
-func (l *Local) PutOriginal(_ context.Context, userID uuid.UUID, data []byte) (string, error) {
+func (l *Local) PutOriginal(ctx context.Context, userID uuid.UUID, data []byte) (string, error) {
 	digest := Digest(data)
 	path, err := l.originalPath(userID, digest)
 	if err != nil {
 		return "", err
 	}
-	if err := writeFileAtomic(path, data); err != nil {
+	if err := l.putFile(ctx, path, data); err != nil {
 		return "", err
 	}
 	return digest, nil
 }
 
 // GetOriginal reads bytes back by digest.
-func (l *Local) GetOriginal(_ context.Context, userID uuid.UUID, digest string) ([]byte, error) {
+func (l *Local) GetOriginal(ctx context.Context, userID uuid.UUID, digest string) ([]byte, error) {
 	path, err := l.originalPath(userID, digest)
 	if err != nil {
 		return nil, err
 	}
-	b, err := os.ReadFile(path)
-	if errors.Is(err, os.ErrNotExist) {
-		return nil, ErrNotFound
-	}
-	return b, err
+	return l.readFile(ctx, path)
 }
 
 // OpenOriginal opens an original for streaming.
-func (l *Local) OpenOriginal(_ context.Context, userID uuid.UUID, digest string) (*File, error) {
+func (l *Local) OpenOriginal(ctx context.Context, userID uuid.UUID, digest string) (*File, error) {
 	path, err := l.originalPath(userID, digest)
 	if err != nil {
 		return nil, err
 	}
-	return openFile(path)
+	return l.openAt(ctx, path)
 }
 
 // openFile opens a stored file with its size and time. A missing file is
@@ -397,15 +403,12 @@ func ReadAllLimited(r io.Reader, limit int64) ([]byte, bool, error) {
 
 // DeleteOriginal removes one original. A missing file is not an error: the
 // state asked for is "gone".
-func (l *Local) DeleteOriginal(_ context.Context, userID uuid.UUID, digest string) error {
+func (l *Local) DeleteOriginal(ctx context.Context, userID uuid.UUID, digest string) error {
 	p, err := l.originalPath(userID, digest)
 	if err != nil {
 		return err
 	}
-	if err := os.Remove(p); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-	return nil
+	return l.removeAt(ctx, p)
 }
 
 // CacheDir is the directory under the data directory that holds the cache
@@ -417,7 +420,11 @@ const CacheDir = "cache"
 // so a failure here leaves files nobody can reach rather than rows pointing at
 // missing files. The cache is removed here too, not only by the Drive
 // backend, so a deployment that has since turned Drive off still removes it.
-func (l *Local) DeleteUser(_ context.Context, userID uuid.UUID) error {
+// With a bucket, their keys there go first.
+func (l *Local) DeleteUser(ctx context.Context, userID uuid.UUID) error {
+	if err := l.removeUserKeys(ctx, userID); err != nil {
+		return err
+	}
 	for _, kind := range []string{"originals", "parsed", "objects", CacheDir} {
 		if err := os.RemoveAll(filepath.Join(l.root, kind, userID.String())); err != nil {
 			return err

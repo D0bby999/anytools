@@ -129,7 +129,7 @@ func (r *storageRig) runMove(t *testing.T, user uuid.UUID) map[string]any {
 
 func (r *storageRig) serverFiles(t *testing.T, user uuid.UUID) int {
 	t.Helper()
-	items, err := r.local.ListFiles(user)
+	items, err := r.local.ListFiles(context.Background(), user)
 	if err != nil {
 		t.Fatal(err)
 	}

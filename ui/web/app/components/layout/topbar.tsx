@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ThemeToggle } from "~/components/layout/theme-toggle";
 import { AccountMenu } from "~/components/layout/account-menu";
-import { NAV_ITEMS } from "~/components/layout/sidebar";
+import { NAV_ITEMS, TOOLS_ITEM } from "~/components/layout/sidebar";
 import { PARTS, partOf } from "~/lib/parts";
 
 /**
@@ -14,7 +14,9 @@ import { PARTS, partOf } from "~/lib/parts";
  * places are the rail's ten rows in four parts and an appendix, which three header links
  * cannot hold, and the phone already has its bar at the bottom. It ends the
  * same way, though: the wordmark in the same face and size where the rail is
- * hidden, the theme switch, and the account (account-menu.tsx).
+ * hidden, Free tools (the tools appendix, moved here from the rail on the
+ * owner's call, 2026-10-20), the theme switch, and the account
+ * (account-menu.tsx).
  */
 /**
  * Pages with no rail row of their own, named by the section they are opened
@@ -57,6 +59,16 @@ export function Topbar({ displayName, email }: { displayName: string; email: str
       </p>
 
       <div className="ml-auto flex items-center gap-2">
+        {/* A plain link: /tools is the tools site, outside this app's router. */}
+        <a
+          href={TOOLS_ITEM.to}
+          data-part="tools"
+          aria-label={t("appendix.free")}
+          className="inline-flex h-9 items-center gap-2 rounded-md px-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <TOOLS_ITEM.icon aria-hidden="true" className="size-4 shrink-0 text-part" />
+          <span className="hidden sm:inline">{t("appendix.free")}</span>
+        </a>
         <ThemeToggle />
         <AccountMenu displayName={displayName} email={email} />
       </div>

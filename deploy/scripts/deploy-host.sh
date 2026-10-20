@@ -51,7 +51,7 @@ grep -q '^COPY anytools /app/anytools' "$stage/api/Dockerfile" || { echo "error:
 echo "== build web"
 ( cd "$root/ui/web" && pnpm build >/dev/null && node scripts/ssr-smoke.mjs )
 mkdir -p "$stage/web"
-for d in build public tool-runtime package.json pnpm-lock.yaml; do cp -R "$root/ui/web/$d" "$stage/web/"; done
+for d in build public tool-runtime package.json pnpm-lock.yaml server.mjs; do cp -R "$root/ui/web/$d" "$stage/web/"; done
 cat > "$stage/web/Dockerfile" <<'DOCKERFILE'
 FROM node:22-alpine AS prod-deps
 WORKDIR /app
@@ -66,10 +66,10 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY build ./build
 COPY public ./public
 COPY tool-runtime ./tool-runtime
-COPY package.json ./
+COPY package.json server.mjs ./
 USER node
 EXPOSE 3000
-CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]
+CMD ["node", "server.mjs"]
 DOCKERFILE
 cp "$root/deploy/coolify/docker-compose.yml" "$stage/docker-compose.yml"
 cp "$root/deploy/scripts/activate.sh" "$stage/activate.sh"

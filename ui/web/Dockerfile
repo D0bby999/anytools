@@ -39,10 +39,10 @@ COPY --from=build /app/build ./build
 COPY --from=build /app/public ./public
 # Tools' run-time files (wasm, models, fonts), served by routes/tool-runtime.$.ts.
 COPY --from=build /app/tool-runtime ./tool-runtime
-COPY package.json ./
+COPY package.json server.mjs ./
 
 # node:22-alpine ships an unprivileged `node` user; the server only reads.
 USER node
 
 EXPOSE 3000
-CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]
+CMD ["node", "server.mjs"]

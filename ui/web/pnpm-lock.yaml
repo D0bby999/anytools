@@ -98,6 +98,9 @@ importers:
       '@radix-ui/react-tabs':
         specifier: 1.2.1
         version: 1.2.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@react-router/express':
+        specifier: 7.18.4
+        version: 7.18.4(express@4.22.3)(react-router@7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(typescript@5.9.3)
       '@react-router/node':
         specifier: 7.18.4
         version: 7.18.4(react-router@7.18.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(typescript@5.9.3)
@@ -134,6 +137,9 @@ importers:
       codemirror:
         specifier: 6.0.2
         version: 6.0.2
+      compression:
+        specifier: 1.8.2
+        version: 1.8.2
       cron-parser:
         specifier: 4.9.0
         version: 4.9.0
@@ -155,6 +161,9 @@ importers:
       exceljs:
         specifier: 4.4.0
         version: 4.4.0
+      express:
+        specifier: 4.22.3
+        version: 4.22.3
       fast-xml-parser:
         specifier: 5.11.2
         version: 5.11.2
@@ -233,6 +242,9 @@ importers:
       mermaid:
         specifier: 12.0.0
         version: 12.0.0
+      morgan:
+        specifier: 1.12.1
+        version: 1.12.1
       onnxruntime-web:
         specifier: 1.29.0
         version: 1.29.0

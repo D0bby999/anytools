@@ -27,6 +27,18 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
+	github.com/aws/aws-sdk-go-v2 v1.47.3 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.22 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.20.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.6 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.21 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.11.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.20.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.114.3 // indirect
+	github.com/aws/smithy-go v1.28.5 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect

@@ -135,12 +135,19 @@ type moveFixture struct {
 	// choice is the learner's setting, as the router reads it.
 	choice string
 	router *blob.Router
+	// bucket, when set, holds the server's copies instead of root.
+	bucket *memBucket
 }
 
 func newMoveFixture(t *testing.T) *moveFixture {
 	t.Helper()
 	local, root := newStore(t)
-	f := &moveFixture{local: local, root: root, remote: &movingRemote{fakeRemote: newFakeRemote()},
+	return newMoveFixtureOn(t, local, root, nil)
+}
+
+func newMoveFixtureOn(t *testing.T, local *blob.Local, root string, bucket *memBucket) *moveFixture {
+	t.Helper()
+	f := &moveFixture{local: local, root: root, bucket: bucket, remote: &movingRemote{fakeRemote: newFakeRemote()},
 		index: movingIndex{newFakeIndex()}, user: uuid.New(), choice: blob.StorageServer}
 	cache, err := blob.NewCache(t.TempDir(), 1<<20)
 	if err != nil {
@@ -200,11 +207,14 @@ func (f *moveFixture) moveAll(t *testing.T, dir blob.MoveDirection, items []blob
 }
 
 func (f *moveFixture) onServer(kind, key string) bool {
-	p := filepath.Join(f.root, "objects", f.user.String(), kind, key)
+	rel := filepath.Join("objects", f.user.String(), kind, key)
 	if kind == blob.KindOriginal {
-		p = filepath.Join(f.root, "originals", f.user.String(), key[:2], key)
+		rel = filepath.Join("originals", f.user.String(), key[:2], key)
 	}
-	_, err := os.Stat(p)
+	if f.bucket != nil {
+		return f.bucket.has(filepath.ToSlash(rel))
+	}
+	_, err := os.Stat(filepath.Join(f.root, rel))
 	return err == nil
 }
 

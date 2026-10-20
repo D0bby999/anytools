@@ -104,6 +104,34 @@ func TestSecretsAreNotSerializable(t *testing.T) {
 	}
 }
 
+// R2 is all four settings or none; its credentials never reach JSON.
+func TestR2IsAllOrNothingAndItsKeysStaySecret(t *testing.T) {
+	base := map[string]string{
+		"POSTGRES_DSN":   "postgres://localhost/anytools_test?sslmode=disable",
+		"ENCRYPTION_KEY": "0123456789abcdef0123456789abcdef",
+		"GATEWAY_TOKEN":  "gw-token",
+	}
+	setEnv(t, base)
+	setEnv(t, map[string]string{"R2_BUCKET": "anytools-media", "R2_ACCOUNT_ID": "acct"})
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "R2_SECRET_ACCESS_KEY") {
+		t.Fatalf("a partial R2 setting = %v, want a refusal naming the variables", err)
+	}
+	setEnv(t, map[string]string{"R2_ACCESS_KEY_ID": "r2-key-id-secret", "R2_SECRET_ACCESS_KEY": "r2-secret-value"})
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if !cfg.Storage.R2.Enabled() || cfg.Storage.R2.Bucket != "anytools-media" {
+		t.Fatalf("R2 = %+v", cfg.Storage.R2.Bucket)
+	}
+	blob := mustJSON(t, cfg)
+	for _, secret := range []string{"r2-key-id-secret", "r2-secret-value"} {
+		if strings.Contains(blob, secret) {
+			t.Fatalf("secret %q leaked into JSON", secret)
+		}
+	}
+}
+
 // A present-but-unusable key must fail at config load, naming the variable.
 // Without this the failure surfaces later as a sentinel MISMATCH, which reads
 // as "you used the wrong key" and sends the operator hunting for a different

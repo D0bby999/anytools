@@ -147,7 +147,7 @@ func (d *Drive) EnsureFolders(ctx context.Context, userID uuid.UUID) error {
 func (d *Drive) PlanMove(ctx context.Context, userID uuid.UUID, dir MoveDirection) ([]MoveItem, error) {
 	switch dir {
 	case MoveToDrive:
-		return d.local.ListFiles(userID)
+		return d.local.ListFiles(ctx, userID)
 	case MoveToServer:
 		_, mi, err := d.lookup()
 		if err != nil {
@@ -168,21 +168,33 @@ func (d *Drive) PlanMove(ctx context.Context, userID uuid.UUID, dir MoveDirectio
 	return nil, fmt.Errorf("blob: unknown move direction %q", dir)
 }
 
-// ListFiles lists the learner's own files on the server's disk: their
-// originals and the objects of every kind Drive keeps. Derived files (parsed
-// text, transcript windows, audio parts) are not theirs to move.
-func (l *Local) ListFiles(userID uuid.UUID) ([]MoveItem, error) {
+// ListFiles lists the learner's own files on the server, in its bucket or on
+// its disk: their originals and the objects of every kind Drive keeps.
+// Derived files (parsed text, transcript windows, audio parts) are not
+// theirs to move. A file in both places is listed once, at the bucket's size.
+func (l *Local) ListFiles(ctx context.Context, userID uuid.UUID) ([]MoveItem, error) {
 	if userID == uuid.Nil {
 		return nil, errors.New("blob: nil id")
 	}
 	var out []MoveItem
+	seen := map[[2]string]bool{}
+	add := func(it MoveItem) {
+		if k := [2]string{it.Kind, it.Key}; !seen[k] {
+			seen[k] = true
+			out = append(out, it)
+		}
+	}
 	originals := filepath.Join(l.root, "originals", userID.String())
-	if err := walkFiles(originals, func(path string, size int64) {
+	original := func(path string, size int64) {
 		name := filepath.Base(path)
 		if validDigest(name) == nil && filepath.Base(filepath.Dir(path)) == name[:2] {
-			out = append(out, MoveItem{Kind: KindOriginal, Key: name, Bytes: size})
+			add(MoveItem{Kind: KindOriginal, Key: name, Bytes: size})
 		}
-	}); err != nil {
+	}
+	if err := l.listBucket(ctx, "originals/"+userID.String()+"/", original); err != nil {
+		return nil, err
+	}
+	if err := walkFiles(originals, original); err != nil {
 		return nil, err
 	}
 	for ns := range driveFolders {
@@ -190,11 +202,15 @@ func (l *Local) ListFiles(userID uuid.UUID) ([]MoveItem, error) {
 			continue
 		}
 		dir := filepath.Join(l.root, "objects", userID.String(), ns)
-		if err := walkFiles(dir, func(path string, size int64) {
+		object := func(path string, size int64) {
 			if id, err := uuid.Parse(filepath.Base(path)); err == nil && filepath.Dir(path) == dir && id != uuid.Nil {
-				out = append(out, MoveItem{Kind: ns, Key: id.String(), Bytes: size})
+				add(MoveItem{Kind: ns, Key: id.String(), Bytes: size})
 			}
-		}); err != nil {
+		}
+		if err := l.listBucket(ctx, "objects/"+userID.String()+"/"+ns+"/", object); err != nil {
+			return nil, err
+		}
+		if err := walkFiles(dir, object); err != nil {
 			return nil, err
 		}
 	}
@@ -281,19 +297,19 @@ func (d *Drive) moveToDrive(ctx context.Context, userID uuid.UUID, it MoveItem, 
 		// Already recorded in Drive: an earlier attempt got as far as the
 		// row, or the learner wrote the file again since. Either way the
 		// server's copy is the old one.
-		return true, removeFile(path)
+		return true, d.local.removeAt(ctx, path)
 	case err != nil && !errors.Is(err, ErrNotFound):
 		return false, err
 	}
 
-	f, err := os.Open(path)
+	f, done, err := d.local.moveSource(ctx, path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return false, nil // deleted since the plan
 	}
 	if err != nil {
 		return false, err
 	}
-	defer f.Close()
+	defer done()
 	sum, err := sumFile(f)
 	if err != nil {
 		return false, err
@@ -374,7 +390,7 @@ func (d *Drive) moveToDrive(ctx context.Context, userID uuid.UUID, it MoveItem, 
 	}
 
 	// 5. Only now the old copy.
-	return true, removeFile(path)
+	return true, d.local.removeAt(ctx, path)
 }
 
 func (d *Drive) moveToServer(ctx context.Context, userID uuid.UUID, it MoveItem, path string, rl RemoteLookup, mi MoveIndex) (bool, error) {
@@ -409,7 +425,7 @@ func (d *Drive) moveToServer(ctx context.Context, userID uuid.UUID, it MoveItem,
 
 	// 2–3. Write it beside its place, checking as it goes. It is renamed
 	// into place only once its size and sha256 are the recorded ones.
-	if err := writeChecked(path, src, row.Bytes, row.SHA256); err != nil {
+	if err := d.local.writeCheckedAt(ctx, path, src, row.Bytes, row.SHA256); err != nil {
 		if errors.Is(err, ErrCorrupt) {
 			slog.Warn("blob: a file read from Drive did not match its record and was left there", "user", userID, "kind", it.Kind)
 			return false, nil
@@ -424,7 +440,7 @@ func (d *Drive) moveToServer(ctx context.Context, userID uuid.UUID, it MoveItem,
 		return false, err
 	}
 	if !removed {
-		return false, removeFile(path)
+		return false, d.local.removeAt(ctx, path)
 	}
 
 	// 5. Only now the old copy. If this fails, the rerun finds it by its
@@ -438,7 +454,7 @@ func (d *Drive) moveToServer(ctx context.Context, userID uuid.UUID, it MoveItem,
 // dropMovedCopies finishes a move to the server whose row is already gone:
 // any copy still in Drive whose sha256 matches the server's copy is deleted.
 func (d *Drive) dropMovedCopies(ctx context.Context, userID uuid.UUID, it MoveItem, path string, rl RemoteLookup) (bool, error) {
-	f, err := os.Open(path)
+	f, done, err := d.local.moveSource(ctx, path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return false, nil
 	}
@@ -446,7 +462,7 @@ func (d *Drive) dropMovedCopies(ctx context.Context, userID uuid.UUID, it MoveIt
 		return false, err
 	}
 	sum, err := sumFile(f)
-	f.Close()
+	done()
 	if err != nil {
 		return false, err
 	}

@@ -598,7 +598,8 @@
   },
   "appendix": {
     "title": "Appendix: tools",
-    "all": "All free tools"
+    "all": "All free tools",
+    "free": "Free tools"
   },
   "richText": {
     "table": "Table"

@@ -41,13 +41,18 @@ func verifyCmd() *cobra.Command {
 			if dataDir == "" {
 				return fmt.Errorf("%sDATA_DIR is not set: verify needs the restored data directory", config.EnvPrefix)
 			}
+			// The bucket a server with ANYTOOLS_R2_* keeps originals in.
+			r2, err := config.LoadR2()
+			if err != nil {
+				return err
+			}
 			pool, err := pg.Open(cmd.Context(), dsn)
 			if err != nil {
 				return err
 			}
 			defer pool.Close()
 
-			report, err := app.Verify(cmd.Context(), pool, key, dataDir)
+			report, err := app.Verify(cmd.Context(), pool, key, dataDir, r2)
 			if err != nil {
 				return err
 			}

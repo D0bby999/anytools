@@ -120,6 +120,38 @@ type StorageConfig struct {
 	// DriveCacheMB caps the server's cache of files kept in learners' Google
 	// Drives (drive-user-storage phase 1). Zero or less is the default.
 	DriveCacheMB int
+	// R2, when set, keeps learners' originals and objects in a Cloudflare R2
+	// bucket instead of under DataDir (internal/blob/bucket.go).
+	R2 R2Config
+}
+
+// R2Config names a private R2 bucket and the S3 credentials of an R2 API
+// token scoped to it. All four or none.
+type R2Config struct {
+	AccountID       string
+	Bucket          string
+	AccessKeyID     string `json:"-"`
+	SecretAccessKey string `json:"-"`
+}
+
+// Enabled reports whether any of it is set; Load refuses a partial one.
+func (r R2Config) Enabled() bool {
+	return r.AccountID != "" || r.Bucket != "" || r.AccessKeyID != "" || r.SecretAccessKey != ""
+}
+
+// LoadR2 reads the R2 settings, for the server and for `anytools verify`.
+func LoadR2() (R2Config, error) {
+	r := R2Config{
+		AccountID:       env("R2_ACCOUNT_ID"),
+		Bucket:          env("R2_BUCKET"),
+		AccessKeyID:     env("R2_ACCESS_KEY_ID"),
+		SecretAccessKey: env("R2_SECRET_ACCESS_KEY"),
+	}
+	if r.Enabled() && (r.AccountID == "" || r.Bucket == "" || r.AccessKeyID == "" || r.SecretAccessKey == "") {
+		return R2Config{}, fmt.Errorf("%w%sR2_ACCOUNT_ID, %sR2_BUCKET, %sR2_ACCESS_KEY_ID and %sR2_SECRET_ACCESS_KEY are all needed, or none",
+			errRefused, EnvPrefix, EnvPrefix, EnvPrefix, EnvPrefix)
+	}
+	return r, nil
 }
 
 // JobsConfig tunes the background worker pool.
@@ -221,6 +253,11 @@ func (c *Config) Validate() error {
 	if c.Storage.DataDir == "" {
 		return fmt.Errorf("%w%sDATA_DIR must not be empty", errRefused, EnvPrefix)
 	}
+	r2, err := LoadR2()
+	if err != nil {
+		return err
+	}
+	c.Storage.R2 = r2
 	if c.Jobs.Workers < 1 {
 		c.Jobs.Workers = 1
 	}

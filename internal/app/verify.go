@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
-	"github.com/D0bby999/anytools/internal/blob"
+	"github.com/D0bby999/anytools/internal/config"
 	"github.com/D0bby999/anytools/internal/crypto"
 	"github.com/D0bby999/anytools/internal/store/pg"
 )
@@ -62,7 +62,7 @@ func (r *VerifyReport) add(format string, args ...any) {
 }
 
 // Verify checks a restored database and data directory against a key.
-func Verify(ctx context.Context, pool *pg.Pool, encKey, dataDir string) (VerifyReport, error) {
+func Verify(ctx context.Context, pool *pg.Pool, encKey, dataDir string, r2 config.R2Config) (VerifyReport, error) {
 	var report VerifyReport
 
 	var sentinel string
@@ -81,7 +81,7 @@ func Verify(ctx context.Context, pool *pg.Pool, encKey, dataDir string) (VerifyR
 	if err := verifySecrets(ctx, pool, encKey, &report); err != nil {
 		return report, err
 	}
-	if err := verifyDocuments(ctx, pool, dataDir, &report); err != nil {
+	if err := verifyDocuments(ctx, pool, dataDir, r2, &report); err != nil {
 		return report, err
 	}
 	return report, nil
@@ -144,8 +144,8 @@ func verifySecrets(ctx context.Context, pool *pg.Pool, encKey string, report *Ve
 	return nil
 }
 
-func verifyDocuments(ctx context.Context, pool *pg.Pool, dataDir string, report *VerifyReport) error {
-	store, err := blob.NewLocal(dataDir)
+func verifyDocuments(ctx context.Context, pool *pg.Pool, dataDir string, r2 config.R2Config, report *VerifyReport) error {
+	store, err := openServerStorage(ctx, dataDir, r2)
 	if err != nil {
 		return fmt.Errorf("verify: data directory: %w", err)
 	}
@@ -178,8 +178,11 @@ func verifyDocuments(ctx context.Context, pool *pg.Pool, dataDir string, report 
 		case inDrive:
 			report.InDrive++
 		default:
-			if _, err := store.GetOriginal(ctx, userID, digest); err != nil {
+			// Opened, not read: in a bucket that is one HEAD per document.
+			if f, err := store.OpenOriginal(ctx, userID, digest); err != nil {
 				report.add("document %s (%q): original file missing from the data directory", id, title)
+			} else {
+				f.Close()
 			}
 		}
 		if strings.TrimSpace(parsed) != "" {

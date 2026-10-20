@@ -48,8 +48,8 @@ export const NAV_ITEMS = [
 export const MORE_ITEM = { to: "/more", labelKey: "nav.more", icon: MoreHorizontal } as const;
 
 /**
- * The tools are the book's appendix, not one of its parts: they sit after the
- * parts on the rail and beside More on the phone bar. `/tools` redirects to
+ * The tools are the book's appendix, not one of its parts: the running head
+ * links them as Free tools (topbar.tsx), and More lists them on the phone. `/tools` redirects to
  * the tools home in the visitor's language (routes/tools.ts). AnyProfile is
  * not on the rail: it is a browser for sellers, not part of studying, and it
  * stays on the tools site (owner's call, 2026-10-19).
@@ -102,8 +102,8 @@ function RailLink({ item }: { item: Item }) {
 
 /**
  * The rail from `lg` up: a textbook's table of contents. Today first, then the
- * four numbered parts, each under its coloured tab, then Settings, then the
- * tools appendix.
+ * four numbered parts, each under its coloured tab, scrolling on their own;
+ * Settings stays pinned at the foot, as in postclaw (owner, 2026-10-20).
  */
 function Rail() {
   const { t } = useTranslation("common");
@@ -112,69 +112,61 @@ function Rail() {
   const settings = front.filter((n) => n.to === "/settings");
 
   return (
-    <div className="hidden h-full flex-col overflow-y-auto lg:flex">
-      <div className="px-5 pt-6 pb-4">
+    <div className="hidden h-full flex-col lg:flex">
+      <div className="shrink-0 px-5 pt-6 pb-4">
         <Link to="/home" translate="no" className="font-serif text-2xl font-semibold tracking-display">
           {t("app.name")}
         </Link>
       </div>
 
-      <ul className="flex flex-col gap-0.5 px-3">
-        {today.map((item) => (
-          <li key={item.to} data-part="home">
-            <RailLink item={item} />
-          </li>
-        ))}
-      </ul>
+      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain pb-5">
+        <ul className="flex flex-col gap-0.5 px-3">
+          {today.map((item) => (
+            <li key={item.to} data-part="home">
+              <RailLink item={item} />
+            </li>
+          ))}
+        </ul>
 
-      {PARTS.map((part) => {
-        const items = NAV_ITEMS.filter((n) => n.part === part.id);
-        const headingId = `lp-rail-${part.id}`;
-        return (
-          // A group, not a region: five landmarks inside one nav is noise.
-          <div key={part.id} role="group" data-part={part.id} aria-labelledby={headingId} className="mt-5 px-3">
-            <h2 id={headingId} className="flex items-center gap-2 px-3 pb-1.5 font-sans text-xs font-semibold text-part">
-              <span aria-hidden="true" className="lp-tab min-w-7 justify-center px-1.5">
-                {part.numeral}
-              </span>
-              <span className="sr-only">{t("parts.part", { numeral: part.numeral })}: </span>
-              {t(part.labelKey)}
-            </h2>
-            <ul className="flex flex-col gap-0.5">
-              {items.map((item) => (
-                <li key={item.to}>
-                  <RailLink item={item} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+        {PARTS.map((part) => {
+          const items = NAV_ITEMS.filter((n) => n.part === part.id);
+          const headingId = `lp-rail-${part.id}`;
+          return (
+            // A group, not a region: five landmarks inside one nav is noise.
+            <div key={part.id} role="group" data-part={part.id} aria-labelledby={headingId} className="mt-5 px-3">
+              <h2 id={headingId} className="flex items-center gap-2 px-3 pb-1.5 font-sans text-xs font-semibold text-part">
+                <span aria-hidden="true" className="lp-tab min-w-7 justify-center px-1.5">
+                  {part.numeral}
+                </span>
+                <span className="sr-only">{t("parts.part", { numeral: part.numeral })}: </span>
+                {t(part.labelKey)}
+              </h2>
+              <ul className="flex flex-col gap-0.5">
+                {items.map((item) => (
+                  <li key={item.to}>
+                    <RailLink item={item} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
 
-      <ul className="mt-5 flex flex-col gap-0.5 border-t px-3 pt-3">
+      <ul className="flex shrink-0 flex-col gap-0.5 border-t px-3 pt-3 pb-5">
         {settings.map((item) => (
           <li key={item.to} data-part="home">
             <RailLink item={item} />
           </li>
         ))}
       </ul>
-
-      <div role="group" data-part="tools" aria-labelledby="lp-rail-appendix" className="mt-auto px-3 pt-6 pb-5">
-        <h2 id="lp-rail-appendix" className="px-3 pb-2 font-sans text-xs font-semibold text-part">
-          {t("appendix.title")}
-        </h2>
-        <a href={TOOLS_ITEM.to} className={railRowClass(false)}>
-          <TOOLS_ITEM.icon aria-hidden="true" className="size-4 shrink-0" />
-          <span className="truncate">{t("appendix.all")}</span>
-        </a>
-      </div>
     </div>
   );
 }
 
 /**
  * Below `lg`, a bar along the bottom edge: the four destinations marked
- * `phone`, Tools, and More. Not a drawer behind a hamburger: a collapsed nav
+ * `phone` and More. Not a drawer behind a hamburger: a collapsed nav
  * is how a shell ends up looking empty on a phone.
  */
 function PhoneBar() {
@@ -199,12 +191,6 @@ function PhoneBar() {
           </NavLink>
         </li>
       ))}
-      <li data-part="tools" className="flex flex-1">
-        <a href={TOOLS_ITEM.to} className={phoneSlotClass(false)}>
-          <TOOLS_ITEM.icon aria-hidden="true" className="size-5" />
-          <span className="truncate">{t(TOOLS_ITEM.labelKey)}</span>
-        </a>
-      </li>
       <li data-part={partOf(pathname)} className="flex flex-1">
         <NavLink to={MORE_ITEM.to} className={phoneSlotClass(moreActive)}>
           <MORE_ITEM.icon aria-hidden="true" className="size-5" />

@@ -66,7 +66,9 @@ publishes only after a good deploy, so the public repository never runs ahead of
 3. `activate` dumps the database to `/opt/anytools/backups/…-pre-host-<commit>.sql.gz` (it keeps
    ten), sets `ANYTOOLS_IMAGE_TAG` and runs the stack with the one-shot `migrate` before `api`,
    then waits up to two minutes for the API's `/health`, the web server and
-   `https://anytools.world/` through Traefik. When anything fails it puts the previous compose file
+   `https://anytools.world/` through Traefik. A form posted to the site through Traefik, as a browser posts it, must not be refused:
+   the web server (`ui/web/server.mjs`) trusts the proxy's `X-Forwarded-Proto`, or React Router
+   takes every action for a cross-site one and answers 400. When anything fails it puts the previous compose file
    and tag back, restarts `api` and `web`, and prints the dump's path; migrations are forward-only,
    so that dump is the way back for the schema. It keeps the live images and the two before them.
 4. A failed deploy publishes nothing.
@@ -185,6 +187,17 @@ Every Drive behaviour has been proven only against a fake of Drive v3 shaped fro
 14. **Disconnect with files in Drive.** Disconnect asks first, and offers "Move my files back first".
 15. **Delete the test account.** The "AnyTools" folder and its files are still in that Drive.
 
+## Learners' files in R2
+
+With `ANYTOOLS_R2_ACCOUNT_ID`, `ANYTOOLS_R2_BUCKET`, `ANYTOOLS_R2_ACCESS_KEY_ID` and `ANYTOOLS_R2_SECRET_ACCESS_KEY` set, the API keeps what learners upload and record (originals, recordings, generated audio, exam papers, page photos and the other per-row objects) in a Cloudflare R2 bucket instead of the data volume (`internal/blob/bucket.go`, `internal/connectors/r2`). The volume keeps parsed Markdown, which every search reads, and scratch files. A learner who chose their own Google Drive still has their files there; "the server" now means the bucket.
+
+- **anytools.world.** Bucket `anytools-media` in the owner's Cloudflare account (Dobby999), location hint EEUR, next to the Helsinki host.
+- **Private.** No `r2.dev` URL and no custom domain: a file reaches a browser only through the API, after the same ownership checks as before. Keep it that way; a public bucket would serve one learner's documents to anyone with the key.
+- **The token.** R2 → Manage API tokens → Create: permission *Object Read & Write*, applied to `anytools-media` only. Its Access Key ID and Secret Access Key go in `/opt/anytools/.env` with the account id and the bucket name, then deploy. The API lists the bucket at boot and does not start when it cannot, so a wrong key rolls the deploy back.
+- **Files from before.** Reads look in the bucket, then on the disk; a write to the bucket removes the disk's copy, and deletes remove both. Nothing has to be copied by hand.
+- **Backups.** The nightly `anytools-data` tar no longer holds the files in the bucket. R2 keeps its own copies; what it does not protect against is a delete, by the app or by a token. A restore needs the database and the bucket from the same moment.
+- **Check.** `anytools verify` reads the same four variables and checks every original in the bucket.
+
 ## Cloudflare in front of anytools.world
 
 The web server sends `Cache-Control: private, no-cache` on every page and every `*.data` response (`applyCachePolicy` in `ui/web/app/lib/security-headers.server.ts`). Hashed files under `/assets/` are `immutable` for a year.
@@ -201,7 +214,7 @@ curl -sI "$u" | grep -i cf-cache-status   # DYNAMIC again, never HIT
 
 ## Backups
 
-- **Unit.** One timestamped directory holding `db.dump` (`pg_dump -Fc`), `data.tar.gz` (the `anytools-data` volume: uploaded originals and parsed Markdown, without the Drive cache `cache/`) and `SHA256SUMS`. A unit without `SHA256SUMS` is incomplete and is removed.
+- **Unit.** One timestamped directory holding `db.dump` (`pg_dump -Fc`), `data.tar.gz` (the `anytools-data` volume: uploaded originals and parsed Markdown, without the Drive cache `cache/`; with R2, the originals are in the bucket instead) and `SHA256SUMS`. A unit without `SHA256SUMS` is incomplete and is removed.
 - **Schedule.** Every hour, from `/etc/cron.d/anytools-backup`. The **RPO is 1 hour**.
 - **Retention.** 7 days on the box, set by `ANYTOOLS_BACKUP_KEEP_DAYS`.
 - **Off-box copy.** Every unit is `rsync`ed to `ANYTOOLS_BACKUP_REMOTE`. In compose mode `backup.sh` refuses to run without that variable, because a backup that never leaves the VPS dies with the VPS.

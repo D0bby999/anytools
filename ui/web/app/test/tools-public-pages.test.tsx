@@ -19,6 +19,7 @@ import { LocaleSwitcher } from "~/components/tools-site/locale-switcher";
 import { PublicShell } from "~/components/tools-site/public-shell";
 import { ToolCatalog } from "~/components/tools-site/tool-catalog";
 import { Sidebar, TOOLS_ITEM } from "~/components/layout/sidebar";
+import { Topbar } from "~/components/layout/topbar";
 import { initI18n, publicLngs } from "~/lib/i18n";
 import { catalogEntries } from "~/lib/tools/catalog";
 import { toolsI18n, type ToolsMessages } from "~/lib/tools/i18n";
@@ -206,12 +207,24 @@ describe("a whole tool page", () => {
   });
 });
 
-describe("the app's Tools tab", () => {
-  it("is on the rail and the phone bar, and goes to /tools", () => {
-    const router = createMemoryRouter([{ path: "/home", element: <Sidebar /> }], { initialEntries: ["/home"] });
+describe("the app's Free tools link", () => {
+  it("is in the running head, goes to /tools, and is no longer on the rail", () => {
+    const router = createMemoryRouter(
+      [{ path: "/home", element: (<><Topbar displayName="A" email="a@example.com" /><Sidebar /></>) }],
+      { initialEntries: ["/home"] },
+    );
     render(<RouterProvider router={router} />);
-    expect(screen.getByRole("link", { name: "Tools" })).toHaveAttribute("href", "/tools");
+    expect(screen.getByRole("link", { name: "Free tools" })).toHaveAttribute("href", "/tools");
+    expect(screen.queryByRole("link", { name: /all free tools|^tools$/i })).toBeNull();
     expect(TOOLS_ITEM.to).toBe("/tools");
+  });
+
+  it("keeps Settings outside the rail's scrolling list", () => {
+    const router = createMemoryRouter([{ path: "/home", element: <Sidebar /> }], { initialEntries: ["/home"] });
+    const { container } = render(<RouterProvider router={router} />);
+    const settings = screen.getAllByRole("link", { name: "Settings" })[0]!;
+    expect(settings.closest(".overflow-y-auto")).toBeNull();
+    expect(container.querySelector(".overflow-y-auto")?.textContent).toContain("Part I");
   });
 });
 

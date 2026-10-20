@@ -460,7 +460,7 @@ type knowledgeSubsystem struct {
 // The start is separated from the construction so that a failure to build never
 // leaves goroutines running against a half-wired system.
 func buildKnowledge(cfg *config.Config, pool *pg.Pool, byokService *byok.Service, dc *driveConnector) (knowledgeSubsystem, error) {
-	local, err := blob.NewLocal(cfg.Storage.DataDir)
+	local, err := openServerStorage(context.Background(), cfg.Storage.DataDir, cfg.Storage.R2)
 	if err != nil {
 		return knowledgeSubsystem{}, err
 	}

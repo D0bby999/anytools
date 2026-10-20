@@ -100,6 +100,14 @@ for i in $(seq 1 40); do
   sleep 3
 done
 [[ -n $ok ]] || rollback "health checks did not pass in 2 minutes"
+
+# A form posted from the site, through the proxy, as a browser sends it. React
+# Router refuses an action whose Origin is not the request's own with 400; a
+# web server that loses the proxy's https broke every form on 2026-10-20.
+action=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$domain:443:127.0.0.1" \
+  -X POST -H "Origin: https://$domain" --data 'timezone=UTC' "https://$domain/app/api/timezone.data" || true)
+[[ $action != 400 && $action != 000 ]] || rollback "a same-origin form post answered $action"
+say "  a same-origin form post answers $action"
 rm -f docker-compose.prev.yml
 
 # Keep the live tag and the two before it (rollback targets) of each image;

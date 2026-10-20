@@ -103,6 +103,12 @@ services:
       ANYTOOLS_GOOGLE_CLIENT_SECRET: ${ANYTOOLS_GOOGLE_CLIENT_SECRET:-}
       ANYTOOLS_DRIVE_CACHE_MB: ${ANYTOOLS_DRIVE_CACHE_MB:-512}
       ANYTOOLS_DATA_DIR: /var/lib/anytools/data
+      # Learners' originals and objects in the private R2 bucket when set
+      # (docs/deployment.md, "Files in R2"); the data volume keeps the rest.
+      ANYTOOLS_R2_ACCOUNT_ID: ${ANYTOOLS_R2_ACCOUNT_ID:-}
+      ANYTOOLS_R2_BUCKET: ${ANYTOOLS_R2_BUCKET:-}
+      ANYTOOLS_R2_ACCESS_KEY_ID: ${ANYTOOLS_R2_ACCESS_KEY_ID:-}
+      ANYTOOLS_R2_SECRET_ACCESS_KEY: ${ANYTOOLS_R2_SECRET_ACCESS_KEY:-}
       # Two workers on two shared vCPUs; a parse waits rather than starving
       # the other sites.
       ANYTOOLS_JOB_WORKERS: ${ANYTOOLS_JOB_WORKERS:-2}

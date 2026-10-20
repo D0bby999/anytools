@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/D0bby999/anytools/internal/blob"
+	"github.com/D0bby999/anytools/internal/config"
 	"github.com/D0bby999/anytools/internal/knowledge"
 	"github.com/D0bby999/anytools/internal/store"
 	"github.com/D0bby999/anytools/internal/store/pg"
@@ -74,7 +75,7 @@ func restoredFixture(t *testing.T) (pool *pg.Pool, dataDir string) {
 
 func TestVerifyPassesAGoodRestore(t *testing.T) {
 	pool, dataDir := restoredFixture(t)
-	report, err := Verify(context.Background(), pool, testutil.TestEncryptionKey, dataDir)
+	report, err := Verify(context.Background(), pool, testutil.TestEncryptionKey, dataDir, config.R2Config{})
 	if err != nil {
 		t.Fatalf("Verify: %v", err)
 	}
@@ -126,7 +127,7 @@ func TestVerifyCatchesEachWayARestoreGoesWrong(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			pool, dataDir := restoredFixture(t)
 			key, dir := tc.break_(t, pool, dataDir)
-			report, err := Verify(context.Background(), pool, key, dir)
+			report, err := Verify(context.Background(), pool, key, dir, config.R2Config{})
 			if err != nil {
 				t.Fatalf("Verify: %v", err)
 			}
@@ -168,7 +169,7 @@ func TestVerifyKnowsWhereEachLearnersOriginalsAre(t *testing.T) {
 	if err := files.PutDriveFile(ctx, row); err != nil {
 		t.Fatal(err)
 	}
-	report, err := Verify(ctx, pool, testutil.TestEncryptionKey, dataDir)
+	report, err := Verify(ctx, pool, testutil.TestEncryptionKey, dataDir, config.R2Config{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +181,7 @@ func TestVerifyKnowsWhereEachLearnersOriginalsAre(t *testing.T) {
 	if err := files.PutDriveFile(ctx, row); err != nil {
 		t.Fatal(err)
 	}
-	report, err = Verify(ctx, pool, testutil.TestEncryptionKey, dataDir)
+	report, err = Verify(ctx, pool, testutil.TestEncryptionKey, dataDir, config.R2Config{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +192,7 @@ func TestVerifyKnowsWhereEachLearnersOriginalsAre(t *testing.T) {
 	if err := files.MarkDriveFileMissing(ctx, owner, blob.KindOriginal, digest); err != nil {
 		t.Fatal(err)
 	}
-	report, err = Verify(ctx, pool, testutil.TestEncryptionKey, dataDir)
+	report, err = Verify(ctx, pool, testutil.TestEncryptionKey, dataDir, config.R2Config{})
 	if err != nil {
 		t.Fatal(err)
 	}

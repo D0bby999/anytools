@@ -85,6 +85,12 @@ services:
       # unit must cover this volume as well as the database — a restore with the
       # rows but not the files leaves every document unopenable.
       ANYTOOLS_DATA_DIR: /var/lib/anytools/data
+      # Optional: originals and objects in a private Cloudflare R2 bucket
+      # instead of the volume (.env.example).
+      ANYTOOLS_R2_ACCOUNT_ID: ${ANYTOOLS_R2_ACCOUNT_ID:-}
+      ANYTOOLS_R2_BUCKET: ${ANYTOOLS_R2_BUCKET:-}
+      ANYTOOLS_R2_ACCESS_KEY_ID: ${ANYTOOLS_R2_ACCESS_KEY_ID:-}
+      ANYTOOLS_R2_SECRET_ACCESS_KEY: ${ANYTOOLS_R2_SECRET_ACCESS_KEY:-}
       ANYTOOLS_JOB_WORKERS: ${ANYTOOLS_JOB_WORKERS:-2}
       ANYTOOLS_JOB_LEASE_SECONDS: ${ANYTOOLS_JOB_LEASE_SECONDS:-120}
     volumes:
