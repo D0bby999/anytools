@@ -53,3 +53,18 @@ export async function createUserSession(request: Request, userId: string): Promi
   session.set("sat", Math.floor(Date.now() / 1000));
   return commitSession(session);
 }
+
+/**
+ * Sends a signed-in visitor's session cookie again, its seven days counted
+ * from now, on a response that sets no cookie of its own. No shared cache
+ * stores a response that sets a cookie, whatever else it is told: the CDN in
+ * front of anytools.world stores HTML whatever Cache-Control says, and a
+ * signed-in page must never reach someone else (entry.server.tsx). `sat` is
+ * kept, so the revocation watermark judges the session as before.
+ */
+export async function resendSession(request: Request, headers: Headers): Promise<void> {
+  if (headers.has("Set-Cookie")) return;
+  const session = await getSession(request);
+  if (!session.get("userId")) return;
+  headers.append("Set-Cookie", await commitSession(session));
+}
