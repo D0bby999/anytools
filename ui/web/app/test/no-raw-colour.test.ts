@@ -37,8 +37,11 @@ function code(src: string): string {
   return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 }
 
-/** `#rgb`, `#rrggbb`, `rgb()/rgba()`, `hsl()/hsla()`, `oklch()`. */
-const COLOUR_LITERAL = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|color-mix)\s*\(/;
+/**
+ * `#rgb`, `#rrggbb`, `rgb()/rgba()`, `hsl()/hsla()`, `oklch()`. A `#` after
+ * `&` is an HTML character reference (`&#99999999;`), never a colour.
+ */
+const COLOUR_LITERAL = /(?<!&)#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|color-mix)\s*\(/;
 
 /**
  * Tailwind's own palette. Every one of these is a colour the world did not
