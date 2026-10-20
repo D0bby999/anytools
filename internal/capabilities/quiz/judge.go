@@ -70,6 +70,8 @@ type Judgement struct {
 	// Almost is a maths answer equal to the recorded one but not in the form
 	// the question asks for: right, and scheduled as Hard.
 	Almost bool `json:"almost,omitempty"`
+	// Tests are a code attempt's results, as the browser ran them.
+	Tests []TestResult `json:"tests,omitempty"`
 }
 
 // judgeReply is the model's JSON.
@@ -92,6 +94,8 @@ type AttemptRequest struct {
 	// can fix it or send it as text. The quiz card sets it; an exam's
 	// marking does not, and such an answer goes to the model as before.
 	AskIfUnreadable bool `json:"ask_if_unreadable,omitempty"`
+	// Tests are a code exercise's results; UserAnswer is then the code.
+	Tests []TestResult `json:"tests,omitempty"`
 }
 
 // AttemptResult is what the learner gets back: the verdict, the answer and
@@ -130,7 +134,12 @@ func (s *Service) Attempt(
 
 	answer := capAnswer(strings.TrimSpace(req.UserAnswer), q.Type)
 
-	judgement, err := s.judge(ctx, userID, *q, answer, req.AskIfUnreadable)
+	var judgement Judgement
+	if q.Type == TypeCode {
+		judgement, err = testsJudge(*q, req.Tests)
+	} else {
+		judgement, err = s.judge(ctx, userID, *q, answer, req.AskIfUnreadable)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +193,7 @@ const (
 // capAnswer cuts an answer to its type's cap, on a character boundary.
 func capAnswer(answer, qType string) string {
 	limit := MaxAnswer
-	if qType == TypeWritten {
+	if qType == TypeWritten || qType == TypeCode {
 		limit = MaxWrittenAnswer
 	}
 	if len(answer) <= limit {

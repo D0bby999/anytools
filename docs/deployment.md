@@ -167,6 +167,13 @@ Without the profile, or with `ANYTOOLS_TTS_URL` unset, the built-in option does 
 
 ## Learners' files in their Google Drive
 
+**The data volume must belong to the API's user (uid 10001).** Images from 2026-10-20 on create the mount point with that owner, so a new volume gets it. A volume made by an older image is root's: the API then boots until a Google client is set, and fails with `blob: create cache dir: ... permission denied`. Fix it once:
+
+```sh
+docker run --rm -v anytools_anytools-data:/d alpine chown 10001:10001 /d
+```
+
+
 When Drive is configured, a learner can choose in Settings → Storage to keep their uploads, page photos, recordings, generated audio, exam papers and exports in a "AnyTools" folder in their own Drive instead of in `ANYTOOLS_DATA_DIR`. It is off for everyone until each learner turns it on. Parsed text, chunks, embeddings and every database row stay on the server. See [byok.md](./byok.md#keeping-your-files-in-your-drive) for what learners see.
 
 - **What it needs.** Nothing beyond Drive import: the same OAuth client and the **Google Drive API** enabled on the project. It uses the same `drive.file` scope, so the consent screen and the scopes Google reviews do not change, and learners who connected already do not reconnect. Storage requests reach only `www.googleapis.com`.

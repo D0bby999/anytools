@@ -2782,6 +2782,58 @@ travel with the data: `/tool-runtime/makemeahanzi@0.0.0-bddc96d/ARPHICPL.TXT` an
 `/tool-runtime/animcjk@0.0.0-3e1253b/ARPHICPL.TXT`, `COPYING.txt` and `LGPL.txt`. The quiz itself
 is [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT), listed above.
 
+## Ultimate Geography (text only)
+
+The deck library (plans/261020-1535-beyond-english-learning-areas, phase 5) ships the text of
+[Ultimate Geography](https://github.com/anki-geo/ultimate-geography) v5.3 in English, Spanish and
+Portuguese: country → capital and capital → country cards, written into
+`ui/web/app/data/decks/ultimate-geography-<lang>.json` by `ui/web/scripts/decks/ultimate-geography.mjs`
+from the release's CrowdAnki files. The deck, excluding its images, is released into the public
+domain under the Unlicense; its images (flags and maps) are not included. No notice is required;
+this section records the source.
+
+## Pyodide (Python in the browser)
+
+Code exercises (plans/261020-1535-beyond-english-learning-areas, phase 4) run the learner's Python in
+the browser with [Pyodide](https://github.com/pyodide/pyodide) 314.0.7, which this site
+**redistributes**: `pyodide.mjs`, `pyodide.asm.mjs`, `pyodide.asm.wasm`, `python_stdlib.zip` and
+`pyodide-lock.json` are copied unmodified from the npm package by `ui/web/scripts/tool-runtime.json`
+and served under `/tool-runtime/pyodide@314.0.7/`. Pyodide is under the Mozilla Public License 2.0;
+its source is at the link above, and no file of it is modified here. The Python interpreter and
+standard library it contains are CPython's, under the Python Software Foundation License.
+
+## Exercism's Python track (the starter exercises)
+
+Eighteen exercises (Hello World to Bob) are taken unchanged from
+[exercism/python](https://github.com/exercism/python) at commit
+`6105f6d9d3ef66ce3d5c8f529d2882af3d76b706` by `scripts/quizstarters` into
+`internal/capabilities/quiz/starters/python.json`: their instructions, stubs, tests and example
+solutions. Each exercise names its source on the card. The track is under the MIT licence:
+
+```
+MIT License
+
+Copyright (c) 2021 Exercism
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ---
 
 ## Go modules in the API binary
@@ -4393,6 +4445,15 @@ ships with it in the image's `node_modules`.
 | [@chevrotain/regexp-to-ast](https://github.com/Chevrotain/chevrotain#readme) | 11.0.3, 11.1.2 | Apache-2.0 |
 | [@chevrotain/types](https://chevrotain.io/documentation/) | 11.0.3, 11.1.2 | Apache-2.0 |
 | [@chevrotain/utils](https://github.com/Chevrotain/chevrotain#readme) | 11.0.3, 11.1.2 | Apache-2.0 |
+| @codemirror/autocomplete | 6.20.4 | MIT |
+| @codemirror/commands | 6.11.1 | MIT |
+| [@codemirror/lang-python](https://github.com/codemirror/lang-python#readme) | 6.2.1 | MIT |
+| @codemirror/language | 6.13.1 | MIT |
+| @codemirror/lint | 6.9.7 | MIT |
+| @codemirror/search | 6.7.2 | MIT |
+| @codemirror/state | 6.7.6 | MIT |
+| @codemirror/streamparser | 6.0.0 | MIT |
+| @codemirror/view | 6.43.15 | MIT |
 | [@excalidraw/excalidraw](https://github.com/excalidraw/excalidraw/tree/master/packages/excalidraw) | 0.18.1 | MIT |
 | @excalidraw/laser-pointer | 1.3.1 | MIT |
 | [@excalidraw/markdown-to-text](https://github.com/danestves/markdown-to-text.git) | 0.1.2 | MIT |
@@ -4420,6 +4481,11 @@ ships with it in the image's `node_modules`.
 | [@jsquash/jpeg](https://github.com/jamsinclair/jSquash#readme) | 1.6.0 | Apache-2.0 |
 | @jsquash/oxipng | 2.3.0 | Apache-2.0 |
 | [@kurkle/color](https://github.com/kurkle/color#readme) | 0.3.4 | MIT |
+| @lezer/common | 1.5.3 | MIT |
+| @lezer/highlight | 1.2.5 | MIT |
+| @lezer/lr | 1.4.11 | MIT |
+| @lezer/python | 1.1.19 | MIT |
+| [@marijn/find-cluster-break](https://code.haverbeke.berlin/marijn/find-cluster-break) | 1.0.4 | MIT |
 | [@mermaid-js/parser](https://github.com/mermaid-js/mermaid/tree/develop/packages/mermaid/parser/#readme) | 0.6.3, 1.2.1, 2.0.0 | MIT |
 | [@mixmark-io/domino](https://github.com/mixmark-io/domino#readme) | 2.2.0 | BSD-2-Clause |
 | [@mjackson/node-fetch-server](https://github.com/mjackson/remix-the-web/tree/main/packages/node-fetch-server#readme) | 0.2.0 | MIT |
@@ -4548,6 +4614,7 @@ ships with it in the image's `node_modules`.
 | [@ungap/structured-clone](https://github.com/ungap/structured-clone#readme) | 1.4.0 | ISC |
 | [@upsetjs/venn.js](https://github.com/upsetjs/venn.js) | 2.0.0 | MIT |
 | [@xmldom/xmldom](https://github.com/xmldom/xmldom) | 0.8.15 | MIT |
+| [@zip.js/zip.js](https://gildas-lormeau.github.io/zip.js) | 2.24.0 | BSD-3-Clause |
 | [abbrev](https://github.com/npm/abbrev-js#readme) | 2.0.0 | ISC |
 | [accepts](https://github.com/jshttp/accepts#readme) | 1.3.8 | MIT |
 | [acorn](https://github.com/acornjs/acorn) | 8.19.0 | MIT |
@@ -4606,6 +4673,7 @@ ships with it in the image's `node_modules`.
 | [class-variance-authority](https://github.com/joe-bell/cva#readme) | 0.7.1 | Apache-2.0 |
 | [cliui](https://github.com/yargs/cliui#readme) | 6.0.0 | ISC |
 | [clsx](https://github.com/lukeed/clsx#readme) | 1.1.1, 2.1.1 | MIT |
+| [codemirror](https://github.com/codemirror/basic-setup#readme) | 6.0.2 | MIT |
 | [color](https://github.com/Qix-/color#readme) | 4.2.3 | MIT |
 | [color-convert](https://github.com/Qix-/color-convert#readme) | 2.0.1 | MIT |
 | [color-name](https://github.com/colorjs/color-name) | 1.1.4 | MIT |
@@ -4626,6 +4694,7 @@ ships with it in the image's `node_modules`.
 | [cose-base](https://github.com/iVis-at-Bilkent/cose-base#readme) | 1.0.3, 2.2.0 | MIT |
 | [crc-32](https://sheetjs.com/) | 0.3.0, 1.2.2 | Apache-2.0 |
 | [crc32-stream](https://github.com/archiverjs/node-crc32-stream) | 4.0.3 | MIT |
+| [crelt](https://code.haverbeke.berlin/marijn/crelt) | 1.0.7 | MIT |
 | [cron-parser](https://github.com/harrisiirak/cron-parser#readme) | 4.9.0 | MIT |
 | [cronstrue](https://github.com/bradymholt/cronstrue) | 2.52.0 | MIT |
 | [cross-env](https://github.com/kentcdodds/cross-env#readme) | 7.0.3 | MIT |
@@ -5013,6 +5082,7 @@ ships with it in the image's `node_modules`.
 | [pvtsutils](https://github.com/PeculiarVentures/pvtsutils#readme) | 1.3.6 | MIT |
 | [pvutils](https://github.com/PeculiarVentures/pvutils#readme) | 1.2.0 | MIT |
 | [pwacompat](https://github.com/GoogleChrome/pwacompat) | 2.0.17 | Apache-2.0 |
+| [pyodide](https://github.com/pyodide/pyodide) | 314.0.7 | MPL-2.0 |
 | [qrcode](http://github.com/soldair/node-qrcode) | 1.5.4 | MIT |
 | [qs](https://github.com/ljharb/qs) | 6.16.0 | BSD-3-Clause |
 | [railroad-diagrams](https://github.com/tabatkins/railroad-diagrams) | 1.0.0 | CC0-1.0 |
@@ -5093,6 +5163,7 @@ ships with it in the image's `node_modules`.
 | [stringify-entities](https://github.com/wooorm/stringify-entities#readme) | 4.0.4 | MIT |
 | [strip-ansi](https://github.com/chalk/strip-ansi#readme) | 6.0.1, 7.2.0 | MIT |
 | [strnum](https://github.com/NaturalIntelligence/strnum#readme) | 2.5.1 | MIT |
+| [style-mod](https://code.haverbeke.berlin/marijn/style-mod) | 4.1.4 | MIT |
 | [style-to-js](https://github.com/remarkablemark/style-to-js#readme) | 1.1.21 | MIT |
 | [style-to-object](https://github.com/remarkablemark/style-to-object#readme) | 1.0.14 | MIT |
 | [stylis](https://github.com/thysultan/stylis.js) | 4.4.0 | MIT |
@@ -5158,6 +5229,7 @@ ships with it in the image's `node_modules`.
 | [vscode-languageserver-textdocument](https://github.com/Microsoft/vscode-languageserver-node#readme) | 1.0.15 | MIT |
 | [vscode-languageserver-types](https://github.com/Microsoft/vscode-languageserver-node#readme) | 3.17.5 | MIT |
 | [vscode-uri](https://github.com/microsoft/vscode-uri#readme) | 3.0.8 | MIT |
+| [w3c-keyname](https://github.com/marijnh/w3c-keyname#readme) | 2.2.8 | MIT |
 | [wasm-feature-detect](https://github.com/GoogleChromeLabs/wasm-feature-detect#readme) | 1.9.0 | Apache-2.0 |
 | [wavesurfer.js](https://wavesurfer.xyz) | 7.12.11 | BSD-3-Clause |
 | [web-namespaces](https://github.com/wooorm/web-namespaces#readme) | 2.0.1 | MIT |

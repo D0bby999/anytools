@@ -2770,3 +2770,55 @@ two are joined back into one stroke so that a learner draws it as written. The l
 travel with the data: `/tool-runtime/makemeahanzi@0.0.0-bddc96d/ARPHICPL.TXT` and `COPYING.txt`;
 `/tool-runtime/animcjk@0.0.0-3e1253b/ARPHICPL.TXT`, `COPYING.txt` and `LGPL.txt`. The quiz itself
 is [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT), listed above.
+
+## Ultimate Geography (text only)
+
+The deck library (plans/261020-1535-beyond-english-learning-areas, phase 5) ships the text of
+[Ultimate Geography](https://github.com/anki-geo/ultimate-geography) v5.3 in English, Spanish and
+Portuguese: country → capital and capital → country cards, written into
+`ui/web/app/data/decks/ultimate-geography-<lang>.json` by `ui/web/scripts/decks/ultimate-geography.mjs`
+from the release's CrowdAnki files. The deck, excluding its images, is released into the public
+domain under the Unlicense; its images (flags and maps) are not included. No notice is required;
+this section records the source.
+
+## Pyodide (Python in the browser)
+
+Code exercises (plans/261020-1535-beyond-english-learning-areas, phase 4) run the learner's Python in
+the browser with [Pyodide](https://github.com/pyodide/pyodide) 314.0.7, which this site
+**redistributes**: `pyodide.mjs`, `pyodide.asm.mjs`, `pyodide.asm.wasm`, `python_stdlib.zip` and
+`pyodide-lock.json` are copied unmodified from the npm package by `ui/web/scripts/tool-runtime.json`
+and served under `/tool-runtime/pyodide@314.0.7/`. Pyodide is under the Mozilla Public License 2.0;
+its source is at the link above, and no file of it is modified here. The Python interpreter and
+standard library it contains are CPython's, under the Python Software Foundation License.
+
+## Exercism's Python track (the starter exercises)
+
+Eighteen exercises (Hello World to Bob) are taken unchanged from
+[exercism/python](https://github.com/exercism/python) at commit
+`6105f6d9d3ef66ce3d5c8f529d2882af3d76b706` by `scripts/quizstarters` into
+`internal/capabilities/quiz/starters/python.json`: their instructions, stubs, tests and example
+solutions. Each exercise names its source on the card. The track is under the MIT licence:
+
+```
+MIT License
+
+Copyright (c) 2021 Exercism
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

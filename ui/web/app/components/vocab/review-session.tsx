@@ -110,13 +110,15 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
   return (
     <div className="mt-3 border-t pt-4" aria-live="polite">
       <p className="text-xs font-semibold text-muted-foreground">
-        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind === "write" ? t("write.kind") : card.kind}
+        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind === "write" ? t("write.kind") : card.kind === "card" ? (card.deck?.name ?? "") : card.kind}
         {card.lang ? ` · ${card.lang}` : ""}
       </p>
 
-      {card.kind === "flash" ? (
+      {card.kind === "flash" || card.kind === "card" ? (
         <>
-          <p className="mt-3 font-serif text-xl font-semibold leading-snug">{card.front}</p>
+          <p className="mt-3 font-serif text-xl font-semibold leading-snug" dir="auto">
+            {card.front}
+          </p>
           {!revealed ? (
             <Button type="button" className="mt-3" onClick={() => setRevealed(true)}>
               {t("session.revealBack")}
@@ -244,8 +246,10 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
               <strong lang={card.lang}>{card.term}</strong>
             </p>
           ) : null}
-          {card.kind === "flash" ? (
-            <p className="mt-2 text-base leading-prose">{card.back}</p>
+          {card.kind === "flash" || card.kind === "card" ? (
+            <p className="mt-2 whitespace-pre-line text-base leading-prose" dir="auto">
+              {card.back}
+            </p>
           ) : card.kind === "production" ? (
             <div className="mt-2 text-base leading-prose">
               <p>
@@ -306,7 +310,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
           {card.kind !== "flash" ? <Lookups lang={card.lang} term={card.term} className="mt-1" /> : null}
 
           <fieldset className="mt-4" disabled={busy}>
-            <legend className="text-xs text-muted-foreground">{t("session.rateLabel")}</legend>
+            <legend className="text-xs text-muted-foreground">{card.kind === "flash" || card.kind === "card" ? t("session.rateLabelCard") : t("session.rateLabel")}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {RATINGS.map((rating) => (
                 <Button

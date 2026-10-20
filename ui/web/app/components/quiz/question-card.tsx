@@ -3,11 +3,12 @@ import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Check, X } from "lucide-react";
 import type { Source } from "~/hooks/use-turn-stream";
-import type { AttemptResult, QuestionView } from "~/lib/study-types";
+import { promptLine, type AttemptResult, type QuestionView } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { RichText } from "~/components/rich-text";
 import { RubricList, RubricMarks } from "~/components/quiz/rubric-marks";
 import { MathField } from "~/components/quiz/math-field";
+import { CodeExercise, declaredTests } from "~/components/quiz/code-exercise";
 
 type ActionData = {
   result?: AttemptResult;
@@ -55,6 +56,7 @@ export function QuestionCard({
     short: t("types.short"),
     cloze: t("types.cloze"),
     written: t("types.written"),
+    code: t("types.code"),
   }[question.type];
   const difficultyLabel = {
     easy: t("difficulty.easy"),
@@ -68,10 +70,22 @@ export function QuestionCard({
         {typeLabel} · {difficultyLabel}
       </p>
       <h3 id={`${ids}-prompt`} className="mt-2 font-serif text-lg leading-snug">
-        {question.prompt}
+        {promptLine(question)}
       </h3>
 
-      {question.revealed && !answered ? (
+      {/* A code exercise is answered by its runs; once answered, the verdict says the rest. */}
+      {question.code && answered ? null : question.code && !question.revealed ? (
+        <CodeExercise
+          question={{ ...question, code: question.code }}
+          disabled={submitting}
+          onSubmit={(code, run) =>
+            fetcher.submit(
+              { intent: "attempt", user_answer: code, self_attribution: "", tests: JSON.stringify(run.results) },
+              { method: "post", action },
+            )
+          }
+        />
+      ) : question.revealed && !answered ? (
         <Revealed question={question} sources={sources} />
       ) : (
         <fetcher.Form
@@ -249,6 +263,8 @@ function AnswerInput({ question, idBase }: { question: QuestionView; idBase: str
 }
 
 function answerText(question: QuestionView, answer: string): string {
+  // A code exercise's solution is code: shown as a Python block.
+  if (question.type === "code") return "```python\n" + answer.trimEnd() + "\n```";
   if (question.type !== "mcq") return answer;
   const option = question.options.find((o) => o.label === answer);
   return option ? `${option.label}. ${option.body}` : answer;
@@ -299,6 +315,7 @@ function Verdict({
   const { attempt } = result;
   const correct = attempt.is_correct;
   const almost = correct && attempt.judge.mode === "math" && attempt.judge.almost === true;
+  const testsRun = attempt.judge.mode === "tests" ? (attempt.judge.tests ?? []) : null;
   const math = attempt.judge.mode === "math";
 
   return (
@@ -310,7 +327,14 @@ function Verdict({
         {almost ? t("verdict.almost") : correct ? t("verdict.correct") : t("verdict.incorrect")}
         {overridden ? <span className="font-normal text-muted-foreground">· {t("verdict.overridden")}</span> : null}
       </p>
-      {math ? (
+      {testsRun ? (
+        <p className="text-muted-foreground">
+          {t("code.summary", {
+            passed: testsRun.filter((r) => r.passed).length,
+            total: question.code ? declaredTests(question.code.tests).length : testsRun.length,
+          })}
+        </p>
+      ) : math ? (
         // Marked by value in Go: the reasons are said here, in the learner's language.
         <p className="text-muted-foreground">
           {almost

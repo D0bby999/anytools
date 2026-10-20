@@ -112,11 +112,14 @@ function Fence({ node, children, ...rest }: ComponentProps<"pre"> & { node?: Has
   const fence = streaming ? null : fenceOf(node);
   if (fence?.lang === "mermaid") return <MermaidBlock source={fence.text} />;
   if (fence?.lang === "chart") return <ChartBlock source={fence.text} />;
-  if (!fence || fence.text === "") return <pre {...rest}>{children}</pre>;
+  // A code block can scroll sideways: it takes focus, so a keyboard can scroll it (axe).
+  if (!fence || fence.text === "") return <pre tabIndex={0} {...rest}>{children}</pre>;
   // A finished code block can be copied exactly, without selecting it.
   return (
     <div className="relative">
-      <pre {...rest}>{children}</pre>
+      <pre tabIndex={0} {...rest}>
+        {children}
+      </pre>
       <CopyText text={fence.text} className="absolute top-1.5 right-1.5 h-7 bg-card px-2 text-xs" />
     </div>
   );

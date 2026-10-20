@@ -4,7 +4,8 @@
     "paths": "Rutas",
     "vocabulary": "Vocabulario",
     "dueBadge": "{{count}} pendientes",
-    "bookCards": "Tarjetas de libros"
+    "bookCards": "Tarjetas de libros",
+    "decks": "Mazos"
   },
   "page": {
     "title": "Vocabulario",
@@ -33,7 +34,8 @@
     "from": "De {{title}}",
     "revealBack": "Mostrar la respuesta",
     "onlyLang": "Solo tus palabras en {{name}}.",
-    "allLangs": "Repasar todos los idiomas"
+    "allLangs": "Repasar todos los idiomas",
+    "rateLabelCard": "¿Qué tan bien sabías esta tarjeta?"
   },
   "list": {
     "title": "Tus palabras",
@@ -308,5 +310,87 @@
     "slotEmpty": "Carácter {{n}}, aún sin escribir",
     "pad": "Panel de escritura de {{char}}, carácter {{n}} de {{total}}",
     "keyboard": "Dibujar requiere un dedo, un lápiz o un ratón; Mostrar el carácter y las calificaciones funcionan con teclado."
+  },
+  "decks": {
+    "title": "Mazos",
+    "lead": "Mazos listos y los tuyos, de cualquier tema: cada tarjeta vuelve según su propio calendario, con tus otros repasos.",
+    "noCards": "Aún no hay tarjetas: añade un mazo abajo.",
+    "mine": "Tus mazos",
+    "counts_one": "{{count}} tarjeta · {{due}} para hoy",
+    "counts_other": "{{count}} tarjetas · {{due}} para hoy",
+    "toCome_one": "{{count}} nueva por llegar, la última el {{day}}",
+    "toCome_other": "{{count}} nuevas por llegar, la última el {{day}}",
+    "delete": "Eliminar el mazo",
+    "deleteOf": "Eliminar el mazo {{name}}",
+    "deleteConfirm_one": "¿Eliminar este mazo y su {{count}} tarjeta?",
+    "deleteConfirm_other": "¿Eliminar este mazo y sus {{count}} tarjetas?",
+    "deleteYes": "Eliminar",
+    "keep": "Conservarlo",
+    "library": {
+      "title": "Añadir un mazo listo",
+      "lead": "Cada uno indica su licencia antes de descargar nada. Los libres se añaden con un toque; para los demás, descarga el archivo desde su página y elígelo abajo.",
+      "subjects": {
+        "geography": "Geografía",
+        "languages": "Idiomas",
+        "programming": "Programación"
+      },
+      "add": "Añadir",
+      "addOf": "Añadir {{name}}",
+      "alreadyAdded": "Añadido",
+      "get": "Obtener el mazo",
+      "getOf": "Obtener el mazo {{name}} desde su página",
+      "source": "fuente",
+      "thenFile": "Luego elige el archivo en Desde un archivo.",
+      "language": "Idioma",
+      "about": {
+        "ultimateGeography": "Los países del mundo y sus capitales, en los dos sentidos. Solo texto: no incluye sus banderas ni mapas.",
+        "jlpt": "Vocabulario japonés por nivel JLPT, con audio. Un archivo grande: solo se lee su texto.",
+        "french": "Vocabulario francés por frecuencia.",
+        "coding": "Conceptos y comandos de programación."
+      }
+    },
+    "licence": {
+      "publicDomain": "Dominio público",
+      "ccBy": "Libre, citando la fuente (CC BY)",
+      "ccByNc": "Solo uso no comercial (CC BY-NC)",
+      "none": "Sin licencia indicada"
+    },
+    "cards_one": "{{count}} tarjeta",
+    "cards_other": "{{count}} tarjetas",
+    "adding": "Añadiendo el mazo…",
+    "added_one": "Se añadió {{count}} tarjeta a {{name}}.",
+    "added_other": "Se añadieron {{count}} tarjetas a {{name}}.",
+    "failed": "No se pudo añadir el mazo.",
+    "file": {
+      "title": "Desde un archivo",
+      "lead": "Un mazo de Anki (.apkg) o de CrowdAnki (.zip), de cualquier tema. Un mazo de palabras va al",
+      "vocabulary": "importador de Vocabulario.",
+      "pick": "Elegir un mazo",
+      "notADeck": "Este archivo no es un mazo de Anki (.apkg) ni de CrowdAnki (.zip).",
+      "reading": "Leyendo el mazo ({{size}} MB)…",
+      "importing": "Añadiendo tarjetas: {{done}} de {{total}}.",
+      "failed_one": "La importación se detuvo tras {{count}} tarjeta.",
+      "failed_other": "La importación se detuvo tras {{count}} tarjetas.",
+      "duplicates_one": "{{count}} tarjeta ya estaba en el mazo.",
+      "duplicates_other": "{{count}} tarjetas ya estaban en el mazo.",
+      "skipped_one": "{{count}} nota tenía una cara vacía o demasiado larga y se dejó fuera.",
+      "skipped_other": "{{count}} notas tenían una cara vacía o demasiado larga y se dejaron fuera.",
+      "name": "Nombre del mazo",
+      "none": "— ninguno —",
+      "front": "Anverso",
+      "back": "Reverso",
+      "extra": "También en el reverso",
+      "preview": "Las diez primeras tarjetas",
+      "import_one": "Añadir {{count}} tarjeta",
+      "import_other": "Añadir {{count}} tarjetas"
+    },
+    "home": {
+      "title": "Mazos",
+      "count_one": "{{count}} tarjeta para hoy.",
+      "count_other": "{{count}} tarjetas para hoy.",
+      "open": "Repasar los mazos"
+    },
+    "pace": "Llegan {{perDay}} nuevas al día, del {{first}} al {{last}}.",
+    "paceOneDay": "Llegan el {{day}}."
   }
 }

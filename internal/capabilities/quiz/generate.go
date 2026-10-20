@@ -31,6 +31,9 @@ type draftQuestion struct {
 	Explanation string   `json:"explanation"`
 	Difficulty  string   `json:"difficulty"`
 	ChunkIDs    []string `json:"chunk_ids"`
+	// A code exercise's starting code and tests; its answer is the solution.
+	Starter string `json:"starter"`
+	Tests   string `json:"tests"`
 }
 
 type generationReply struct {
@@ -109,6 +112,7 @@ func buildQuestion(
 	if len(prompt) > 4000 {
 		return Question{}, 0, false
 	}
+	var code *CodeExercise
 
 	// The explanation is validated BEFORE storage, exactly as a chat answer is
 	// (internal/capabilities/chat.deliver). An unverifiable marker that reached
@@ -145,6 +149,13 @@ func buildQuestion(
 		options = nil
 	case TypeShort:
 		options = nil
+	case TypeCode:
+		// The solution is the answer; the tests import it as `solution`.
+		c, err := CleanCode(CodeExercise{Module: "solution", Starter: d.Starter, Tests: d.Tests}, d.Answer)
+		if err != nil {
+			return Question{}, dropped, false
+		}
+		code, options = &c, nil
 	}
 
 	chunkIDs := parseChunkIDs(d.ChunkIDs, known)
@@ -162,6 +173,7 @@ func buildQuestion(
 		Explanation:    res.Text,
 		Difficulty:     normalizeDifficulty(d.Difficulty),
 		SourceChunkIDs: chunkIDs,
+		Code:           code,
 	}, dropped, true
 }
 

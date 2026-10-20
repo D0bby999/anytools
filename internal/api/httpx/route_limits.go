@@ -80,6 +80,8 @@ var RouteClasses = []RouteClass{
 			"POST /v1/speaking/check",
 			// An Anki deck's words: up to 200 notes and their cards a call.
 			"POST /v1/vocab/import",
+			// A general deck's cards: up to 200 a call (vocab/decks.go).
+			"POST /v1/decks/{id}/cards",
 			// Up-methods phase 18: a site crawl fetches up to 200 pages and a
 			// repository sync one tarball; each embeds what changed.
 			"POST /v1/kb/{id}/sites",

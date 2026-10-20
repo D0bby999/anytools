@@ -31,6 +31,8 @@ export async function action({ request, params }: Route.ActionArgs) {
         // (422 unreadable_math) instead of being marked; "Send as text"
         // posts again without it.
         ask_if_unreadable: form.get("ask_if_unreadable") === "1",
+        // A code exercise's tests, as the browser ran them.
+        ...(form.has("tests") ? { tests: parseTests(String(form.get("tests"))) } : {}),
       });
       return { result };
     }
@@ -50,4 +52,19 @@ export async function action({ request, params }: Route.ActionArgs) {
     };
   }
   return { errorKey: "errors.attemptFailed", errorDetail: "" };
+}
+
+/** The tests a code attempt reports, kept to their three fields. */
+function parseTests(raw: string): { name: string; passed: boolean; message: string }[] {
+  try {
+    const list = JSON.parse(raw) as unknown;
+    if (!Array.isArray(list)) return [];
+    return list.slice(0, 200).map((r: { name?: unknown; passed?: unknown; message?: unknown }) => ({
+      name: String(r?.name ?? "").slice(0, 300),
+      passed: r?.passed === true,
+      message: String(r?.message ?? "").slice(0, 1000),
+    }));
+  } catch {
+    return [];
+  }
 }

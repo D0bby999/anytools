@@ -58,7 +58,7 @@ func (d dueTotal) DueTotal(ctx context.Context, userID uuid.UUID) (int, error) {
 		return 0, err
 	}
 	total := len(points) + mistakes.Remaining + len(retests)
-	for _, deck := range []string{vocab.DeckWords, vocab.DeckBook} {
+	for _, deck := range []string{vocab.DeckWords, vocab.DeckBook, vocab.DeckCards} {
 		_, n, err := d.vocab.DueDeck(ctx, userID, deck, 0)
 		if err != nil {
 			return 0, err

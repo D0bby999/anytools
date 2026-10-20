@@ -69,6 +69,8 @@ export default [
       route("mastery/vocabulary", "routes/mastery.vocabulary.tsx"),
       // Learning depth, phase 11: the living books' flash cards.
       route("mastery/book-cards", "routes/mastery.book-cards.tsx"),
+      // General decks (plans/261020-1535-beyond-english-learning-areas, phase 5).
+      route("mastery/decks", "routes/mastery.decks.tsx"),
       // up-methods phase 12: one review across every path, interleaved.
       route("mastery/review", "routes/mastery.review.tsx"),
       route("mastery/:pathId", "routes/mastery.$pathId.tsx"),
@@ -137,6 +139,7 @@ export default [
     route("documents/:docId/speaking-check", "routes/documents.$docId.speaking-check.ts"),
     // phase 3: an Anki deck's words in (POST) and out (GET).
     route("mastery/vocabulary/anki", "routes/mastery.vocabulary.anki.ts"),
+    route("mastery/decks/import", "routes/mastery.decks.import.ts"),
     route("knowledge/:kbId/upload", "routes/knowledge.$kbId.upload.ts"),
     // up methods, phase 16: a photo document's page photo. Its loader calls requireUser.
     route("documents/:docId/photo", "routes/documents.$docId.photo.ts"),

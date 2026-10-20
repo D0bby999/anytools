@@ -4,7 +4,8 @@
     "tf": "True or false",
     "short": "Short answer",
     "cloze": "Fill the blank",
-    "written": "Written answer"
+    "written": "Written answer",
+    "code": "Code (Python)"
   },
   "difficulty": {
     "easy": "Easy",
@@ -84,7 +85,8 @@
     "notYet": "not answered yet",
     "practise": "Practise the ones you got wrong",
     "type": "Type",
-    "allTypes": "All types"
+    "allTypes": "All types",
+    "listHeading": "Questions"
   },
   "mastery": {
     "title": "Mastery",
@@ -360,5 +362,39 @@
     "bank": "Question bank",
     "mistakes": "Your mistakes",
     "exams": "Mock exams"
+  },
+  "code": {
+    "parts": "Parts of the exercise",
+    "tabs": {
+      "instructions": "Instructions",
+      "code": "Code",
+      "tests": "Tests"
+    },
+    "testsTitle_one": "{{count}} test",
+    "testsTitle_other": "{{count}} tests",
+    "editor": "Your code",
+    "keys": "Ctrl+Enter or Cmd+Enter runs the tests. Tab indents; Escape then Tab leaves the editor.",
+    "run": "Run the tests",
+    "running": "Running…",
+    "stop": "Stop",
+    "reset": "Back to the starting code",
+    "resetConfirm": "Replace your code with the starting code?",
+    "resetYes": "Replace it",
+    "keep": "Keep mine",
+    "loading": "Getting Python ready: {{loaded}} of {{total}} MB (once, then it is kept).",
+    "loadFailed": "Python couldn't be loaded. Check the connection and try again.",
+    "timedOut": "Stopped after {{seconds}} seconds. Is there a loop that never ends?",
+    "stopped": "Stopped. Your code is kept.",
+    "showSolution": "Show a solution",
+    "error": "The code did not run:",
+    "summary": "{{passed}} of {{total}} tests passed.",
+    "pass": "passed",
+    "fail": "failed",
+    "output": "What the code printed"
+  },
+  "starter": {
+    "title": "Practise Python",
+    "lead": "Eighteen small exercises from Exercism's Python track, from Hello World to Bob, each checked by its tests in your browser. They go into a knowledge base called Python basics.",
+    "add": "Add the Python exercises"
   }
 }

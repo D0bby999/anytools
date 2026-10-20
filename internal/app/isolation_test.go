@@ -99,6 +99,7 @@ var idKinds = map[string]string{
 	"/v1/audio-overviews/":         "audio",
 	"/v1/vocab/":                   "vocab",
 	"/v1/vocab/cards/":             "vocab_card",
+	"/v1/decks/":                   "deck",
 	"/v1/learning/cards/":          "card",
 	"/v1/profile/entries/":         "profile_entry",
 	"/v1/profile/runs/":            "profile_run",
@@ -163,6 +164,7 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		"POST /v1/reading/{id}/terms":          map[string]any{"selection": "x", "page": 1},
 		"PATCH /v1/vocab/{id}":                 map[string]any{"meaning": "x"},
 		"POST /v1/vocab/cards/{id}/review":     map[string]any{"rating": "good", "request_id": uuid.NewString()},
+		"POST /v1/decks/{id}/cards":            map[string]any{"cards": []map[string]string{{"front": "f", "back": "b"}}},
 		"POST /v1/learning/states/{id}/cards":  isolationCard(),
 		"POST /v1/learning/cards/{id}/entries": map[string]any{"timepoint": "baseline", "body": "x"},
 		"POST /v1/learning/cards/{id}/close":   map[string]any{"held": "x"},
@@ -400,6 +402,12 @@ func TestEveryRouteWithAnIDRefusesAnotherUser(t *testing.T) {
 	_ = pool.QueryRow(ctx, `SELECT reps FROM vocab_cards WHERE id = $1`, ids["vocab_card"]).Scan(&reps)
 	if meaning != "m" || reps != 0 {
 		t.Errorf("alice's vocabulary changed under bob's probes: meaning %q, reps %d", meaning, reps)
+	}
+	var deckCards, decks int
+	_ = pool.QueryRow(ctx, `SELECT count(*) FROM card_decks WHERE id = $1`, ids["deck"]).Scan(&decks)
+	_ = pool.QueryRow(ctx, `SELECT count(*) FROM vocab_cards WHERE deck_id = $1`, ids["deck"]).Scan(&deckCards)
+	if decks != 1 || deckCards != 0 {
+		t.Errorf("alice's deck changed under bob's probes: %d decks, %d cards", decks, deckCards)
 	}
 	var entryText, origin string
 	_ = pool.QueryRow(ctx, `SELECT text, origin FROM profile_entries WHERE id = $1`, ids["profile_entry"]).Scan(&entryText, &origin)
@@ -766,6 +774,10 @@ func seedEverything(t *testing.T, pool *pg.Pool, alice uuid.UUID) resources {
 	})
 	must(err)
 	ids["vocab"], ids["vocab_card"] = word.ID, word.Cards[0].ID
+	// plans/261020-1535-beyond-english-learning-areas, phase 5: a general deck.
+	deck, err := pg.NewVocabStore(pool).CreateDeck(ctx, alice, vocab.NewDeck{Name: "Alice's deck"})
+	must(err)
+	ids["deck"] = deck.ID
 
 	rep, err := pg.NewResearchStore(pool).InsertReport(ctx, research.Report{UserID: alice, SessionID: &sess.ID, Query: "q", Mode: "quick", ReportMD: "r", KBOnly: true, KBOnlyReason: "no_search_key"})
 	must(err)
@@ -980,6 +992,10 @@ func bodyProbes() []bodyProbe {
 			return map[string]any{"connection_id": id.String()}
 		}},
 		{pattern: "POST /v1/quiz/generate", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any { return map[string]any{"kb_id": id} }},
+		// The Python starter set into Alice's knowledge base.
+		{pattern: "POST /v1/quiz/starters", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"kb_id": id, "set": "python"}
+		}},
 		{pattern: "POST /v1/mastery/paths", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kb_id": id, "goal": "g"}
 		}},
@@ -1196,6 +1212,7 @@ var writesWithoutResourceIDs = map[string]string{
 	"PUT /v1/me/timezone":     "stores the caller's own zone name",
 	"PUT /v1/me/language":     "stores the caller's own interface language",
 	"PUT /v1/vocab/languages": "stores the caller's own list of language codes",
+	"POST /v1/decks":          "creates the caller's own deck from text fields",
 	// A push endpoint is a browser's capability URL, not a row id: the
 	// delete is scoped to the caller's rows, and a subscribe moves the row
 	// to the caller because only that browser knows its endpoint.
@@ -1313,6 +1330,8 @@ var writesWithoutResourceIDs = map[string]string{
 	// which the JSON probes cannot send; TestTheReadAloudCheckRefusesAnother
 	// UsersWorkspace probes it.
 	"POST /v1/vocab/import":                       "a deck's words for the caller's own vocabulary; names no row",
+	"POST /v1/decks/{id}/cards":                   "fronts and backs; the path's deck is probed",
+	"DELETE /v1/decks/{id}":                       "no body",
 	"POST /v1/speaking/check":                     "a multipart take; its workspace_id is resolved with the caller's id before anything is heard (TestTheReadAloudCheckRefusesAnotherUsersWorkspace)",
 	"DELETE /v1/worksheets/{id}/recordings/{rid}": "no body; both path ids probed, mixed owners too",
 	// Up-methods phase 18. Bodies name a URL, limits, a branch, a folder,

@@ -181,12 +181,20 @@ type DueCard struct {
 	// Clip is set on listening cards whose line can still be played; Context
 	// and Cloze are then that line's sentence.
 	Clip *Clip `json:"clip,omitempty"`
-	// Front, Back and Book are set on flash cards only.
+	// Front and Back are set on flash and deck cards; Book on a book's flash
+	// card, Deck on a general deck's card.
 	Front string   `json:"front,omitempty"`
 	Back  string   `json:"back,omitempty"`
 	Book  *BookRef `json:"book,omitempty"`
+	Deck  *DeckRef `json:"deck,omitempty"`
 
 	FSRS learning.Card `json:"-"`
+}
+
+// DeckRef is the general deck a card is in.
+type DeckRef struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }
 
 // BookRef is where a flash card came from: the book and its chapter.
@@ -731,8 +739,8 @@ func (s *Service) DueDeck(ctx context.Context, userID uuid.UUID, deck string, li
 // DueIn is DueDeck narrowed to one language's words, for a Languages tab's
 // review; "" is every language. A book's cards have no language.
 func (s *Service) DueIn(ctx context.Context, userID uuid.UUID, deck, lang string, limit int) ([]DueCard, int, error) {
-	if deck != DeckWords && deck != DeckBook {
-		return nil, 0, fmt.Errorf("%w: the deck is words or book", ErrInvalid)
+	if deck != DeckWords && deck != DeckBook && deck != DeckCards {
+		return nil, 0, fmt.Errorf("%w: the deck is words, book or cards", ErrInvalid)
 	}
 	if lang != "" && (deck != DeckWords || !ValidLang(lang)) {
 		return nil, 0, fmt.Errorf("%w: %q is not a language of the words", ErrInvalid, lang)

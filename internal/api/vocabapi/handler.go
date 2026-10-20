@@ -45,11 +45,13 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	// plans/261020-1535-beyond-english-learning-areas, phase 1: the Languages tabs.
 	mux.HandleFunc("GET /v1/vocab/languages", h.languages)
 	mux.HandleFunc("PUT /v1/vocab/languages", h.setLanguages) // budget: none
+	// plans/261020-1535-beyond-english-learning-areas, phase 5: general decks.
+	h.registerDecks(mux)
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
 func Patterns() []string {
-	return []string{
+	return append([]string{
 		"GET /v1/vocab",
 		"POST /v1/vocab",
 		"GET /v1/vocab/due",
@@ -60,7 +62,7 @@ func Patterns() []string {
 		"POST /v1/vocab/import",
 		"GET /v1/vocab/languages",
 		"PUT /v1/vocab/languages",
-	}
+	}, deckPatterns()...)
 }
 
 type importRequest struct {

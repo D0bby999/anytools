@@ -1,0 +1,1750 @@
+{
+ "slug": "ultimate-geography-pt",
+ "name": "Ultimate Geography: capitais",
+ "language": "pt",
+ "version": "v5.3",
+ "source_url": "https://github.com/anki-geo/ultimate-geography",
+ "licence": "Public domain (the Unlicense), images excluded and not included here",
+ "cards": [
+  {
+   "front": "Inglaterra: capital?",
+   "back": "Londres"
+  },
+  {
+   "front": "Londres é a capital de…?",
+   "back": "Inglaterra / Reino Unido"
+  },
+  {
+   "front": "Escócia: capital?",
+   "back": "Edimburgo"
+  },
+  {
+   "front": "Edimburgo é a capital de…?",
+   "back": "Escócia"
+  },
+  {
+   "front": "Reino Unido: capital?",
+   "back": "Londres"
+  },
+  {
+   "front": "Irlanda do Norte: capital?",
+   "back": "Belfaste"
+  },
+  {
+   "front": "Belfaste é a capital de…?",
+   "back": "Irlanda do Norte"
+  },
+  {
+   "front": "França: capital?",
+   "back": "Paris"
+  },
+  {
+   "front": "Paris é a capital de…?",
+   "back": "França"
+  },
+  {
+   "front": "País de Gales: capital?",
+   "back": "Cardife"
+  },
+  {
+   "front": "Cardife é a capital de…?",
+   "back": "País de Gales"
+  },
+  {
+   "front": "Geórgia: capital?",
+   "back": "Tiblissi"
+  },
+  {
+   "front": "Tiblissi é a capital de…?",
+   "back": "Geórgia"
+  },
+  {
+   "front": "Alemanha: capital?",
+   "back": "Berlim"
+  },
+  {
+   "front": "Berlim é a capital de…?",
+   "back": "Alemanha"
+  },
+  {
+   "front": "Grécia: capital?",
+   "back": "Atenas"
+  },
+  {
+   "front": "Atenas é a capital de…?",
+   "back": "Grécia"
+  },
+  {
+   "front": "Groenlândia: capital?",
+   "back": "Nuque"
+  },
+  {
+   "front": "Nuque é a capital de…?",
+   "back": "Groenlândia"
+  },
+  {
+   "front": "Hungria: capital?",
+   "back": "Budapeste"
+  },
+  {
+   "front": "Budapeste é a capital de…?",
+   "back": "Hungria"
+  },
+  {
+   "front": "Albânia: capital?",
+   "back": "Tirana"
+  },
+  {
+   "front": "Tirana é a capital de…?",
+   "back": "Albânia"
+  },
+  {
+   "front": "Andorra: capital?",
+   "back": "Andorra-a-Velha"
+  },
+  {
+   "front": "Andorra-a-Velha é a capital de…?",
+   "back": "Andorra"
+  },
+  {
+   "front": "Áustria: capital?",
+   "back": "Viena"
+  },
+  {
+   "front": "Viena é a capital de…?",
+   "back": "Áustria"
+  },
+  {
+   "front": "Azerbaijão: capital?",
+   "back": "Bacu"
+  },
+  {
+   "front": "Bacu é a capital de…?",
+   "back": "Azerbaijão"
+  },
+  {
+   "front": "Bielorrúsia: capital?",
+   "back": "Minsque"
+  },
+  {
+   "front": "Minsque é a capital de…?",
+   "back": "Bielorrúsia"
+  },
+  {
+   "front": "Bélgica: capital?",
+   "back": "Bruxelas"
+  },
+  {
+   "front": "Bruxelas é a capital de…?",
+   "back": "Bélgica"
+  },
+  {
+   "front": "Bósnia e Herzegovina: capital?",
+   "back": "Sarajevo"
+  },
+  {
+   "front": "Sarajevo é a capital de…?",
+   "back": "Bósnia e Herzegovina"
+  },
+  {
+   "front": "Bulgária: capital?",
+   "back": "Sófia"
+  },
+  {
+   "front": "Sófia é a capital de…?",
+   "back": "Bulgária"
+  },
+  {
+   "front": "Croácia: capital?",
+   "back": "Zagrebe"
+  },
+  {
+   "front": "Zagrebe é a capital de…?",
+   "back": "Croácia"
+  },
+  {
+   "front": "Tchéquia (BR), Chéquia (PT): capital?",
+   "back": "Praga"
+  },
+  {
+   "front": "Praga é a capital de…?",
+   "back": "Tchéquia (BR), Chéquia (PT)"
+  },
+  {
+   "front": "Dinamarca: capital?",
+   "back": "Copenhague (BR), Copenhaga (PT)"
+  },
+  {
+   "front": "Copenhague (BR), Copenhaga (PT) é a capital de…?",
+   "back": "Dinamarca"
+  },
+  {
+   "front": "Estônia (BR), Estónia (PT): capital?",
+   "back": "Talim"
+  },
+  {
+   "front": "Talim é a capital de…?",
+   "back": "Estônia (BR), Estónia (PT)"
+  },
+  {
+   "front": "Ilhas Faroé: capital?",
+   "back": "Tórshavn"
+  },
+  {
+   "front": "Tórshavn é a capital de…?",
+   "back": "Ilhas Faroé"
+  },
+  {
+   "front": "Finlândia: capital?",
+   "back": "Helsinque (BR), Helsínquia (PT)"
+  },
+  {
+   "front": "Helsinque (BR), Helsínquia (PT) é a capital de…?",
+   "back": "Finlândia"
+  },
+  {
+   "front": "Islândia: capital?",
+   "back": "Reiquiavique"
+  },
+  {
+   "front": "Reiquiavique é a capital de…?",
+   "back": "Islândia"
+  },
+  {
+   "front": "Irlanda: capital?",
+   "back": "Dublim"
+  },
+  {
+   "front": "Dublim é a capital de…?",
+   "back": "Irlanda"
+  },
+  {
+   "front": "Itália: capital?",
+   "back": "Roma"
+  },
+  {
+   "front": "Roma é a capital de…?",
+   "back": "Itália"
+  },
+  {
+   "front": "Letônia (BR), Letónia (PT): capital?",
+   "back": "Riga"
+  },
+  {
+   "front": "Riga é a capital de…?",
+   "back": "Letônia (BR), Letónia (PT)"
+  },
+  {
+   "front": "Liechtenstein: capital?",
+   "back": "Vaduz"
+  },
+  {
+   "front": "Vaduz é a capital de…?",
+   "back": "Liechtenstein"
+  },
+  {
+   "front": "Lituânia: capital?",
+   "back": "Vilnius"
+  },
+  {
+   "front": "Vilnius é a capital de…?",
+   "back": "Lituânia"
+  },
+  {
+   "front": "Luxemburgo: capital?",
+   "back": "Luxemburgo"
+  },
+  {
+   "front": "Luxemburgo é a capital de…?",
+   "back": "Luxemburgo"
+  },
+  {
+   "front": "Macedônia do Norte (BR), Macedónia do Norte (PT): capital?",
+   "back": "Escópia"
+  },
+  {
+   "front": "Escópia é a capital de…?",
+   "back": "Macedônia do Norte (BR), Macedónia do Norte (PT)"
+  },
+  {
+   "front": "Malta: capital?",
+   "back": "Valeta"
+  },
+  {
+   "front": "Valeta é a capital de…?",
+   "back": "Malta"
+  },
+  {
+   "front": "Moldávia: capital?",
+   "back": "Quixinau"
+  },
+  {
+   "front": "Quixinau é a capital de…?",
+   "back": "Moldávia"
+  },
+  {
+   "front": "Mônaco (BR), Mónaco (PT): capital?",
+   "back": "Mônaco (BR), Mónaco (PT)"
+  },
+  {
+   "front": "Mônaco (BR), Mónaco (PT) é a capital de…?",
+   "back": "Mônaco (BR), Mónaco (PT)"
+  },
+  {
+   "front": "Montenegro: capital?",
+   "back": "Podgorica. Cetinje é uma capital honorária."
+  },
+  {
+   "front": "Podgorica é a capital de…?",
+   "back": "Montenegro"
+  },
+  {
+   "front": "Países Baixos: capital?",
+   "back": "Amsterdã (BR), Amsterdão (PT). Embora Amsterdã seja a capital oficial, Haia é a sede dos ramos executivo e legislativo."
+  },
+  {
+   "front": "Amsterdã (BR), Amsterdão (PT) é a capital de…?",
+   "back": "Países Baixos"
+  },
+  {
+   "front": "Noruega: capital?",
+   "back": "Oslo"
+  },
+  {
+   "front": "Oslo é a capital de…?",
+   "back": "Noruega"
+  },
+  {
+   "front": "Polônia (BR), Polónia (PT): capital?",
+   "back": "Varsóvia"
+  },
+  {
+   "front": "Varsóvia é a capital de…?",
+   "back": "Polônia (BR), Polónia (PT)"
+  },
+  {
+   "front": "Portugal: capital?",
+   "back": "Lisboa"
+  },
+  {
+   "front": "Lisboa é a capital de…?",
+   "back": "Portugal"
+  },
+  {
+   "front": "Romênia (BR), Roménia (PT): capital?",
+   "back": "Bucareste"
+  },
+  {
+   "front": "Bucareste é a capital de…?",
+   "back": "Romênia (BR), Roménia (PT)"
+  },
+  {
+   "front": "Rússia: capital?",
+   "back": "Moscou (BR), Moscovo (PT)"
+  },
+  {
+   "front": "Moscou (BR), Moscovo (PT) é a capital de…?",
+   "back": "Rússia"
+  },
+  {
+   "front": "São Marinho: capital?",
+   "back": "São Marinho"
+  },
+  {
+   "front": "São Marinho é a capital de…?",
+   "back": "São Marinho"
+  },
+  {
+   "front": "Sérvia: capital?",
+   "back": "Belgrado"
+  },
+  {
+   "front": "Belgrado é a capital de…?",
+   "back": "Sérvia"
+  },
+  {
+   "front": "Eslováquia: capital?",
+   "back": "Bratislava"
+  },
+  {
+   "front": "Bratislava é a capital de…?",
+   "back": "Eslováquia"
+  },
+  {
+   "front": "Eslovênia (BR), Eslovénia (PT): capital?",
+   "back": "Liubliana"
+  },
+  {
+   "front": "Liubliana é a capital de…?",
+   "back": "Eslovênia (BR), Eslovénia (PT)"
+  },
+  {
+   "front": "Espanha: capital?",
+   "back": "Madri (BR), Madrid (PT)"
+  },
+  {
+   "front": "Madri (BR), Madrid (PT) é a capital de…?",
+   "back": "Espanha"
+  },
+  {
+   "front": "Suécia: capital?",
+   "back": "Estocolmo"
+  },
+  {
+   "front": "Estocolmo é a capital de…?",
+   "back": "Suécia"
+  },
+  {
+   "front": "Suíca: capital?",
+   "back": "Berna. A Suíça não tem capital oficial; Berna é apenas considerada a capital."
+  },
+  {
+   "front": "Berna é a capital de…?",
+   "back": "Suíca"
+  },
+  {
+   "front": "Turquia: capital?",
+   "back": "Ancara"
+  },
+  {
+   "front": "Ancara é a capital de…?",
+   "back": "Turquia"
+  },
+  {
+   "front": "Ucrânia: capital?",
+   "back": "Quieve"
+  },
+  {
+   "front": "Quieve é a capital de…?",
+   "back": "Ucrânia"
+  },
+  {
+   "front": "Vaticano: capital?",
+   "back": "Vaticano"
+  },
+  {
+   "front": "Vaticano é a capital de…?",
+   "back": "Vaticano"
+  },
+  {
+   "front": "Armênia (BR), Arménia (PT): capital?",
+   "back": "Erevã"
+  },
+  {
+   "front": "Erevã é a capital de…?",
+   "back": "Armênia (BR), Arménia (PT)"
+  },
+  {
+   "front": "Chipre: capital?",
+   "back": "Nicósia"
+  },
+  {
+   "front": "Nicósia é a capital de…?",
+   "back": "Chipre"
+  },
+  {
+   "front": "Cazaquistão: capital?",
+   "back": "Astana. Conhecida como Nur-Sultã até 2022."
+  },
+  {
+   "front": "Astana é a capital de…?",
+   "back": "Cazaquistão"
+  },
+  {
+   "front": "Egito (BR), Egipto (PT): capital?",
+   "back": "Cairo"
+  },
+  {
+   "front": "Cairo é a capital de…?",
+   "back": "Egito (BR), Egipto (PT)"
+  },
+  {
+   "front": "Argélia: capital?",
+   "back": "Argel"
+  },
+  {
+   "front": "Argel é a capital de…?",
+   "back": "Argélia"
+  },
+  {
+   "front": "Angola: capital?",
+   "back": "Luanda"
+  },
+  {
+   "front": "Luanda é a capital de…?",
+   "back": "Angola"
+  },
+  {
+   "front": "Benim: capital?",
+   "back": "Porto Novo. Embora Porto Novo seja capital oficial, Cotonu é a sede do governo."
+  },
+  {
+   "front": "Porto Novo é a capital de…?",
+   "back": "Benim"
+  },
+  {
+   "front": "Botsuana: capital?",
+   "back": "Gaborone"
+  },
+  {
+   "front": "Gaborone é a capital de…?",
+   "back": "Botsuana"
+  },
+  {
+   "front": "Burquina Fasso: capital?",
+   "back": "Uagadugu"
+  },
+  {
+   "front": "Uagadugu é a capital de…?",
+   "back": "Burquina Fasso"
+  },
+  {
+   "front": "Camarões: capital?",
+   "back": "Iaundé"
+  },
+  {
+   "front": "Iaundé é a capital de…?",
+   "back": "Camarões"
+  },
+  {
+   "front": "Burundi: capital?",
+   "back": "Guitega. A capital oficial foi transferida de Bujumbura para Guitega em 2019."
+  },
+  {
+   "front": "Guitega é a capital de…?",
+   "back": "Burundi"
+  },
+  {
+   "front": "Cabo Verde: capital?",
+   "back": "Praia"
+  },
+  {
+   "front": "Praia é a capital de…?",
+   "back": "Cabo Verde"
+  },
+  {
+   "front": "São Tomé e Príncipe: capital?",
+   "back": "São Tomé"
+  },
+  {
+   "front": "São Tomé é a capital de…?",
+   "back": "São Tomé e Príncipe"
+  },
+  {
+   "front": "República Centro-Africana: capital?",
+   "back": "Bangui"
+  },
+  {
+   "front": "Bangui é a capital de…?",
+   "back": "República Centro-Africana"
+  },
+  {
+   "front": "Chade: capital?",
+   "back": "Jamena"
+  },
+  {
+   "front": "Jamena é a capital de…?",
+   "back": "Chade"
+  },
+  {
+   "front": "Guiné Equatorial: capital?",
+   "back": "Malabo. Cidade da Paz está sendo construída para substituir Malabo como capital."
+  },
+  {
+   "front": "Malabo é a capital de…?",
+   "back": "Guiné Equatorial"
+  },
+  {
+   "front": "Quênia (BR), Quénia (PT): capital?",
+   "back": "Nairóbi"
+  },
+  {
+   "front": "Nairóbi é a capital de…?",
+   "back": "Quênia (BR), Quénia (PT)"
+  },
+  {
+   "front": "Comores: capital?",
+   "back": "Moroni"
+  },
+  {
+   "front": "Moroni é a capital de…?",
+   "back": "Comores"
+  },
+  {
+   "front": "Costa do Marfim: capital?",
+   "back": "Iamussucro. Embora Iamussucro seja a capital oficial, Abidjã é a sede do governo."
+  },
+  {
+   "front": "Iamussucro é a capital de…?",
+   "back": "Costa do Marfim"
+  },
+  {
+   "front": "República Democrática do Congo: capital?",
+   "back": "Quinxassa"
+  },
+  {
+   "front": "Quinxassa é a capital de…?",
+   "back": "República Democrática do Congo"
+  },
+  {
+   "front": "Djibuti (BR), Jibuti (PT): capital?",
+   "back": "Djibuti (BR), Jibuti (PT)"
+  },
+  {
+   "front": "Djibuti (BR), Jibuti (PT) é a capital de…?",
+   "back": "Djibuti (BR), Jibuti (PT)"
+  },
+  {
+   "front": "Guiné-Bissau: capital?",
+   "back": "Bissau"
+  },
+  {
+   "front": "Bissau é a capital de…?",
+   "back": "Guiné-Bissau"
+  },
+  {
+   "front": "Eritreia: capital?",
+   "back": "Asmara"
+  },
+  {
+   "front": "Asmara é a capital de…?",
+   "back": "Eritreia"
+  },
+  {
+   "front": "Etiópia: capital?",
+   "back": "Adis Abeba"
+  },
+  {
+   "front": "Adis Abeba é a capital de…?",
+   "back": "Etiópia"
+  },
+  {
+   "front": "Gabão: capital?",
+   "back": "Librevile"
+  },
+  {
+   "front": "Librevile é a capital de…?",
+   "back": "Gabão"
+  },
+  {
+   "front": "Gâmbia: capital?",
+   "back": "Banjul"
+  },
+  {
+   "front": "Banjul é a capital de…?",
+   "back": "Gâmbia"
+  },
+  {
+   "front": "Lesoto: capital?",
+   "back": "Maseru"
+  },
+  {
+   "front": "Maseru é a capital de…?",
+   "back": "Lesoto"
+  },
+  {
+   "front": "Libéria: capital?",
+   "back": "Monróvia"
+  },
+  {
+   "front": "Monróvia é a capital de…?",
+   "back": "Libéria"
+  },
+  {
+   "front": "Madagascar: capital?",
+   "back": "Antananarivo"
+  },
+  {
+   "front": "Antananarivo é a capital de…?",
+   "back": "Madagascar"
+  },
+  {
+   "front": "Maláui: capital?",
+   "back": "Lilongué"
+  },
+  {
+   "front": "Lilongué é a capital de…?",
+   "back": "Maláui"
+  },
+  {
+   "front": "Mali: capital?",
+   "back": "Bamaco"
+  },
+  {
+   "front": "Bamaco é a capital de…?",
+   "back": "Mali"
+  },
+  {
+   "front": "Mauritânia: capital?",
+   "back": "Nuaquexote"
+  },
+  {
+   "front": "Nuaquexote é a capital de…?",
+   "back": "Mauritânia"
+  },
+  {
+   "front": "Maurício (BR), Maurícia (PT): capital?",
+   "back": "Porto Luís"
+  },
+  {
+   "front": "Porto Luís é a capital de…?",
+   "back": "Maurício (BR), Maurícia (PT)"
+  },
+  {
+   "front": "Marrocos: capital?",
+   "back": "Rabate"
+  },
+  {
+   "front": "Rabate é a capital de…?",
+   "back": "Marrocos"
+  },
+  {
+   "front": "Moçambique: capital?",
+   "back": "Maputo"
+  },
+  {
+   "front": "Maputo é a capital de…?",
+   "back": "Moçambique"
+  },
+  {
+   "front": "Namíbia: capital?",
+   "back": "Vinduque"
+  },
+  {
+   "front": "Vinduque é a capital de…?",
+   "back": "Namíbia"
+  },
+  {
+   "front": "Níger: capital?",
+   "back": "Niamei"
+  },
+  {
+   "front": "Niamei é a capital de…?",
+   "back": "Níger"
+  },
+  {
+   "front": "Nigéria: capital?",
+   "back": "Abuja"
+  },
+  {
+   "front": "Abuja é a capital de…?",
+   "back": "Nigéria"
+  },
+  {
+   "front": "Congo: capital?",
+   "back": "Brazavile"
+  },
+  {
+   "front": "Brazavile é a capital de…?",
+   "back": "Congo"
+  },
+  {
+   "front": "Ruanda: capital?",
+   "back": "Quigali"
+  },
+  {
+   "front": "Quigali é a capital de…?",
+   "back": "Ruanda"
+  },
+  {
+   "front": "Senegal: capital?",
+   "back": "Dacar"
+  },
+  {
+   "front": "Dacar é a capital de…?",
+   "back": "Senegal"
+  },
+  {
+   "front": "Seicheles: capital?",
+   "back": "Vitória"
+  },
+  {
+   "front": "Vitória é a capital de…?",
+   "back": "Seicheles"
+  },
+  {
+   "front": "Serra Leoa: capital?",
+   "back": "Freetown"
+  },
+  {
+   "front": "Freetown é a capital de…?",
+   "back": "Serra Leoa"
+  },
+  {
+   "front": "África do Sul: capital?",
+   "back": "Pretória, Cidade do Cabo, Blumefontaina. A África do Sul não tem capital legalmente definida: os ramos do governo estão divididos em três cidades: Pretória (executivo), Cidade do Cabo (legislativo) e Blumefontaina (judicial)."
+  },
+  {
+   "front": "Pretória, Cidade do Cabo, Blumefontaina é a capital de…?",
+   "back": "África do Sul"
+  },
+  {
+   "front": "Sudão: capital?",
+   "back": "Cartum"
+  },
+  {
+   "front": "Cartum é a capital de…?",
+   "back": "Sudão"
+  },
+  {
+   "front": "Essuatíni: capital?",
+   "back": "Mebabane. Embora Mebabane seja a capital oficial e executiva, Lobamba é a capital tradicional, espiritual e legislativa."
+  },
+  {
+   "front": "Mebabane é a capital de…?",
+   "back": "Essuatíni"
+  },
+  {
+   "front": "Tanzânia: capital?",
+   "back": "Dodoma. Embora Dodoma seja a capital oficial, Dar es Salã é a sede do governo."
+  },
+  {
+   "front": "Dodoma é a capital de…?",
+   "back": "Tanzânia"
+  },
+  {
+   "front": "Togo: capital?",
+   "back": "Lomé"
+  },
+  {
+   "front": "Lomé é a capital de…?",
+   "back": "Togo"
+  },
+  {
+   "front": "Tunísia: capital?",
+   "back": "Tunes"
+  },
+  {
+   "front": "Tunes é a capital de…?",
+   "back": "Tunísia"
+  },
+  {
+   "front": "Uganda: capital?",
+   "back": "Campala"
+  },
+  {
+   "front": "Campala é a capital de…?",
+   "back": "Uganda"
+  },
+  {
+   "front": "República Árabe Saaraui Democrática (RASD): capital?",
+   "back": "Laiune. Embora Laiune, também conhecida como El Aiune, seja a capital declarada, Tifariti é a sede do governo."
+  },
+  {
+   "front": "Laiune é a capital de…?",
+   "back": "República Árabe Saaraui Democrática (RASD)"
+  },
+  {
+   "front": "Zâmbia: capital?",
+   "back": "Lusaca"
+  },
+  {
+   "front": "Lusaca é a capital de…?",
+   "back": "Zâmbia"
+  },
+  {
+   "front": "Zimbábue: capital?",
+   "back": "Harare"
+  },
+  {
+   "front": "Harare é a capital de…?",
+   "back": "Zimbábue"
+  },
+  {
+   "front": "Afeganistão: capital?",
+   "back": "Cabul"
+  },
+  {
+   "front": "Cabul é a capital de…?",
+   "back": "Afeganistão"
+  },
+  {
+   "front": "Barém: capital?",
+   "back": "Manama"
+  },
+  {
+   "front": "Manama é a capital de…?",
+   "back": "Barém"
+  },
+  {
+   "front": "Bangladexe: capital?",
+   "back": "Daca"
+  },
+  {
+   "front": "Daca é a capital de…?",
+   "back": "Bangladexe"
+  },
+  {
+   "front": "Butão: capital?",
+   "back": "Timbu"
+  },
+  {
+   "front": "Timbu é a capital de…?",
+   "back": "Butão"
+  },
+  {
+   "front": "Brunei: capital?",
+   "back": "Bandar Seri Begauã"
+  },
+  {
+   "front": "Bandar Seri Begauã é a capital de…?",
+   "back": "Brunei"
+  },
+  {
+   "front": "China: capital?",
+   "back": "Pequim"
+  },
+  {
+   "front": "Pequim é a capital de…?",
+   "back": "China"
+  },
+  {
+   "front": "Camboja: capital?",
+   "back": "Penome Pene"
+  },
+  {
+   "front": "Penome Pene é a capital de…?",
+   "back": "Camboja"
+  },
+  {
+   "front": "Indonésia: capital?",
+   "back": "Jacarta"
+  },
+  {
+   "front": "Jacarta é a capital de…?",
+   "back": "Indonésia"
+  },
+  {
+   "front": "Índia: capital?",
+   "back": "Nova Deli"
+  },
+  {
+   "front": "Nova Deli é a capital de…?",
+   "back": "Índia"
+  },
+  {
+   "front": "Irã (BR), Irão (PT): capital?",
+   "back": "Teerão"
+  },
+  {
+   "front": "Teerão é a capital de…?",
+   "back": "Irã (BR), Irão (PT)"
+  },
+  {
+   "front": "Israel: capital?",
+   "back": "Jerusalém. Disputado; reivindicado pela Palestina."
+  },
+  {
+   "front": "Jerusalém é a capital de…?",
+   "back": "Israel / Palestina"
+  },
+  {
+   "front": "Iraque: capital?",
+   "back": "Bagdá (BR), Bagdade (PT)"
+  },
+  {
+   "front": "Bagdá (BR), Bagdade (PT) é a capital de…?",
+   "back": "Iraque"
+  },
+  {
+   "front": "Coreia do Sul: capital?",
+   "back": "Seul"
+  },
+  {
+   "front": "Seul é a capital de…?",
+   "back": "Coreia do Sul"
+  },
+  {
+   "front": "Coreia do Norte: capital?",
+   "back": "Pionguiangue"
+  },
+  {
+   "front": "Pionguiangue é a capital de…?",
+   "back": "Coreia do Norte"
+  },
+  {
+   "front": "Jordânia: capital?",
+   "back": "Amã"
+  },
+  {
+   "front": "Amã é a capital de…?",
+   "back": "Jordânia"
+  },
+  {
+   "front": "Japão: capital?",
+   "back": "Tóquio"
+  },
+  {
+   "front": "Tóquio é a capital de…?",
+   "back": "Japão"
+  },
+  {
+   "front": "Líbano: capital?",
+   "back": "Beirute"
+  },
+  {
+   "front": "Beirute é a capital de…?",
+   "back": "Líbano"
+  },
+  {
+   "front": "Laos: capital?",
+   "back": "Vienciana"
+  },
+  {
+   "front": "Vienciana é a capital de…?",
+   "back": "Laos"
+  },
+  {
+   "front": "Quirguistão: capital?",
+   "back": "Bisqueque"
+  },
+  {
+   "front": "Bisqueque é a capital de…?",
+   "back": "Quirguistão"
+  },
+  {
+   "front": "Kuwait: capital?",
+   "back": "Kuwait"
+  },
+  {
+   "front": "Kuwait é a capital de…?",
+   "back": "Kuwait"
+  },
+  {
+   "front": "Mianmar: capital?",
+   "back": "Nepiedó"
+  },
+  {
+   "front": "Nepiedó é a capital de…?",
+   "back": "Mianmar"
+  },
+  {
+   "front": "Mongólia: capital?",
+   "back": "Ulã Bator"
+  },
+  {
+   "front": "Ulã Bator é a capital de…?",
+   "back": "Mongólia"
+  },
+  {
+   "front": "Maldivas: capital?",
+   "back": "Malé"
+  },
+  {
+   "front": "Malé é a capital de…?",
+   "back": "Maldivas"
+  },
+  {
+   "front": "Malásia: capital?",
+   "back": "Quala Lumpur"
+  },
+  {
+   "front": "Quala Lumpur é a capital de…?",
+   "back": "Malásia"
+  },
+  {
+   "front": "Omã (BR), Omão (PT): capital?",
+   "back": "Mascate"
+  },
+  {
+   "front": "Mascate é a capital de…?",
+   "back": "Omã (BR), Omão (PT)"
+  },
+  {
+   "front": "Nepal: capital?",
+   "back": "Catmandu"
+  },
+  {
+   "front": "Catmandu é a capital de…?",
+   "back": "Nepal"
+  },
+  {
+   "front": "Palestina: capital?",
+   "back": "Jerusalém. Disputada; reivindicada por Israel; Ramala é o centro administrativo."
+  },
+  {
+   "front": "Paquistão: capital?",
+   "back": "Islamabade"
+  },
+  {
+   "front": "Islamabade é a capital de…?",
+   "back": "Paquistão"
+  },
+  {
+   "front": "Catar: capital?",
+   "back": "Doa"
+  },
+  {
+   "front": "Doa é a capital de…?",
+   "back": "Catar"
+  },
+  {
+   "front": "Arábia Saudita: capital?",
+   "back": "Riade"
+  },
+  {
+   "front": "Riade é a capital de…?",
+   "back": "Arábia Saudita"
+  },
+  {
+   "front": "Singapura: capital?",
+   "back": "Singapura"
+  },
+  {
+   "front": "Singapura é a capital de…?",
+   "back": "Singapura"
+  },
+  {
+   "front": "Síria: capital?",
+   "back": "Damasco"
+  },
+  {
+   "front": "Damasco é a capital de…?",
+   "back": "Síria"
+  },
+  {
+   "front": "Taiwan: capital?",
+   "back": "Taipé"
+  },
+  {
+   "front": "Taipé é a capital de…?",
+   "back": "Taiwan"
+  },
+  {
+   "front": "Sri Lanka: capital?",
+   "back": "Seri Jaiavardenapura-Cota. Colombo é muitas vezes referido como a capital, mas Seri Jaiavardenapura-Cota, um subúrbio de Colombo, é a capital legislativa oficial."
+  },
+  {
+   "front": "Seri Jaiavardenapura-Cota é a capital de…?",
+   "back": "Sri Lanka"
+  },
+  {
+   "front": "Tajiquistão: capital?",
+   "back": "Duxambé"
+  },
+  {
+   "front": "Duxambé é a capital de…?",
+   "back": "Tajiquistão"
+  },
+  {
+   "front": "Tailândia: capital?",
+   "back": "Bancoque (BR), Banguecoque (PT)"
+  },
+  {
+   "front": "Bancoque (BR), Banguecoque (PT) é a capital de…?",
+   "back": "Tailândia"
+  },
+  {
+   "front": "Timor-Leste: capital?",
+   "back": "Díli"
+  },
+  {
+   "front": "Díli é a capital de…?",
+   "back": "Timor-Leste"
+  },
+  {
+   "front": "Emirados Árabes Unidos: capital?",
+   "back": "Abu Dabi"
+  },
+  {
+   "front": "Abu Dabi é a capital de…?",
+   "back": "Emirados Árabes Unidos"
+  },
+  {
+   "front": "Turcomenistão: capital?",
+   "back": "Asgabate"
+  },
+  {
+   "front": "Asgabate é a capital de…?",
+   "back": "Turcomenistão"
+  },
+  {
+   "front": "Iêmen (BR), Iémen (PT): capital?",
+   "back": "Saná"
+  },
+  {
+   "front": "Saná é a capital de…?",
+   "back": "Iêmen (BR), Iémen (PT)"
+  },
+  {
+   "front": "Vietnã (BR), Vietname (PT): capital?",
+   "back": "Hanói"
+  },
+  {
+   "front": "Hanói é a capital de…?",
+   "back": "Vietnã (BR), Vietname (PT)"
+  },
+  {
+   "front": "Uzbequistão: capital?",
+   "back": "Tasquente"
+  },
+  {
+   "front": "Tasquente é a capital de…?",
+   "back": "Uzbequistão"
+  },
+  {
+   "front": "Fiji: capital?",
+   "back": "Suva"
+  },
+  {
+   "front": "Suva é a capital de…?",
+   "back": "Fiji"
+  },
+  {
+   "front": "Papua-Nova Guiné: capital?",
+   "back": "Porto Moresby"
+  },
+  {
+   "front": "Porto Moresby é a capital de…?",
+   "back": "Papua-Nova Guiné"
+  },
+  {
+   "front": "Austrália: capital?",
+   "back": "Camberra"
+  },
+  {
+   "front": "Camberra é a capital de…?",
+   "back": "Austrália"
+  },
+  {
+   "front": "Ilhas Salomão: capital?",
+   "back": "Honiara"
+  },
+  {
+   "front": "Honiara é a capital de…?",
+   "back": "Ilhas Salomão"
+  },
+  {
+   "front": "Argentina: capital?",
+   "back": "Buenos Aires"
+  },
+  {
+   "front": "Buenos Aires é a capital de…?",
+   "back": "Argentina"
+  },
+  {
+   "front": "Bolívia: capital?",
+   "back": "Sucre. Embora Sucre seja a capital constitucional, La Paz é a sede do governo."
+  },
+  {
+   "front": "Sucre é a capital de…?",
+   "back": "Bolívia"
+  },
+  {
+   "front": "Brasil: capital?",
+   "back": "Brasília"
+  },
+  {
+   "front": "Brasília é a capital de…?",
+   "back": "Brasil"
+  },
+  {
+   "front": "Chile: capital?",
+   "back": "Santiago"
+  },
+  {
+   "front": "Santiago é a capital de…?",
+   "back": "Chile"
+  },
+  {
+   "front": "Colômbia: capital?",
+   "back": "Bogotá"
+  },
+  {
+   "front": "Bogotá é a capital de…?",
+   "back": "Colômbia"
+  },
+  {
+   "front": "Equador: capital?",
+   "back": "Quito"
+  },
+  {
+   "front": "Quito é a capital de…?",
+   "back": "Equador"
+  },
+  {
+   "front": "Guiana: capital?",
+   "back": "Georgetown"
+  },
+  {
+   "front": "Georgetown é a capital de…?",
+   "back": "Guiana"
+  },
+  {
+   "front": "Paraguai: capital?",
+   "back": "Assunção"
+  },
+  {
+   "front": "Assunção é a capital de…?",
+   "back": "Paraguai"
+  },
+  {
+   "front": "Peru: capital?",
+   "back": "Lima"
+  },
+  {
+   "front": "Lima é a capital de…?",
+   "back": "Peru"
+  },
+  {
+   "front": "Suriname: capital?",
+   "back": "Paramaribo"
+  },
+  {
+   "front": "Paramaribo é a capital de…?",
+   "back": "Suriname"
+  },
+  {
+   "front": "Uruguai: capital?",
+   "back": "Montevidéu (BR), Montevideu (PT)"
+  },
+  {
+   "front": "Montevidéu (BR), Montevideu (PT) é a capital de…?",
+   "back": "Uruguai"
+  },
+  {
+   "front": "Venezuela: capital?",
+   "back": "Caracas"
+  },
+  {
+   "front": "Caracas é a capital de…?",
+   "back": "Venezuela"
+  },
+  {
+   "front": "Ilhas Cook: capital?",
+   "back": "Avarua"
+  },
+  {
+   "front": "Avarua é a capital de…?",
+   "back": "Ilhas Cook"
+  },
+  {
+   "front": "Estados Federados da Micronésia: capital?",
+   "back": "Paliquir"
+  },
+  {
+   "front": "Paliquir é a capital de…?",
+   "back": "Estados Federados da Micronésia"
+  },
+  {
+   "front": "Guam: capital?",
+   "back": "Aganha"
+  },
+  {
+   "front": "Aganha é a capital de…?",
+   "back": "Guam"
+  },
+  {
+   "front": "Vanuatu: capital?",
+   "back": "Porto Vila"
+  },
+  {
+   "front": "Porto Vila é a capital de…?",
+   "back": "Vanuatu"
+  },
+  {
+   "front": "Canadá: capital?",
+   "back": "Otava"
+  },
+  {
+   "front": "Otava é a capital de…?",
+   "back": "Canadá"
+  },
+  {
+   "front": "Estados Unidos: capital?",
+   "back": "Washington, D.C."
+  },
+  {
+   "front": "Washington, D.C. é a capital de…?",
+   "back": "Estados Unidos"
+  },
+  {
+   "front": "México: capital?",
+   "back": "Cidade do México"
+  },
+  {
+   "front": "Cidade do México é a capital de…?",
+   "back": "México"
+  },
+  {
+   "front": "Porto Rico: capital?",
+   "back": "São João"
+  },
+  {
+   "front": "São João é a capital de…?",
+   "back": "Porto Rico / Antígua e Barbuda"
+  },
+  {
+   "front": "Cuba: capital?",
+   "back": "Havana"
+  },
+  {
+   "front": "Havana é a capital de…?",
+   "back": "Cuba"
+  },
+  {
+   "front": "República Dominicana: capital?",
+   "back": "São Domingos"
+  },
+  {
+   "front": "São Domingos é a capital de…?",
+   "back": "República Dominicana"
+  },
+  {
+   "front": "Haiti: capital?",
+   "back": "Porto Príncipe"
+  },
+  {
+   "front": "Porto Príncipe é a capital de…?",
+   "back": "Haiti"
+  },
+  {
+   "front": "Jamaica: capital?",
+   "back": "Kingston"
+  },
+  {
+   "front": "Kingston é a capital de…?",
+   "back": "Jamaica"
+  },
+  {
+   "front": "Trindade e Tobago: capital?",
+   "back": "Porto da Espanha"
+  },
+  {
+   "front": "Porto da Espanha é a capital de…?",
+   "back": "Trindade e Tobago"
+  },
+  {
+   "front": "Bahamas: capital?",
+   "back": "Nassau"
+  },
+  {
+   "front": "Nassau é a capital de…?",
+   "back": "Bahamas"
+  },
+  {
+   "front": "Barbados: capital?",
+   "back": "Bridgetown"
+  },
+  {
+   "front": "Bridgetown é a capital de…?",
+   "back": "Barbados"
+  },
+  {
+   "front": "Belize: capital?",
+   "back": "Belmopã"
+  },
+  {
+   "front": "Belmopã é a capital de…?",
+   "back": "Belize"
+  },
+  {
+   "front": "Costa Rica: capital?",
+   "back": "São José"
+  },
+  {
+   "front": "São José é a capital de…?",
+   "back": "Costa Rica"
+  },
+  {
+   "front": "El Salvador: capital?",
+   "back": "São Salvador"
+  },
+  {
+   "front": "São Salvador é a capital de…?",
+   "back": "El Salvador"
+  },
+  {
+   "front": "Guatemala: capital?",
+   "back": "Cidade da Guatemala"
+  },
+  {
+   "front": "Cidade da Guatemala é a capital de…?",
+   "back": "Guatemala"
+  },
+  {
+   "front": "Honduras: capital?",
+   "back": "Tegucigalpa"
+  },
+  {
+   "front": "Tegucigalpa é a capital de…?",
+   "back": "Honduras"
+  },
+  {
+   "front": "Nicarágua: capital?",
+   "back": "Manágua"
+  },
+  {
+   "front": "Manágua é a capital de…?",
+   "back": "Nicarágua"
+  },
+  {
+   "front": "Panamá: capital?",
+   "back": "Cidade do Panamá"
+  },
+  {
+   "front": "Cidade do Panamá é a capital de…?",
+   "back": "Panamá"
+  },
+  {
+   "front": "Antígua e Barbuda: capital?",
+   "back": "São João"
+  },
+  {
+   "front": "Dominica: capital?",
+   "back": "Roseau"
+  },
+  {
+   "front": "Roseau é a capital de…?",
+   "back": "Dominica"
+  },
+  {
+   "front": "São Vicente e Granadinas: capital?",
+   "back": "Kingstown"
+  },
+  {
+   "front": "Kingstown é a capital de…?",
+   "back": "São Vicente e Granadinas"
+  },
+  {
+   "front": "Somália: capital?",
+   "back": "Mogadíscio"
+  },
+  {
+   "front": "Mogadíscio é a capital de…?",
+   "back": "Somália"
+  },
+  {
+   "front": "Gana: capital?",
+   "back": "Acra"
+  },
+  {
+   "front": "Acra é a capital de…?",
+   "back": "Gana"
+  },
+  {
+   "front": "Guiné: capital?",
+   "back": "Conacri"
+  },
+  {
+   "front": "Conacri é a capital de…?",
+   "back": "Guiné"
+  },
+  {
+   "front": "Nova Zelândia: capital?",
+   "back": "Wellington"
+  },
+  {
+   "front": "Wellington é a capital de…?",
+   "back": "Nova Zelândia"
+  },
+  {
+   "front": "Polinésia Francesa: capital?",
+   "back": "Papete"
+  },
+  {
+   "front": "Papete é a capital de…?",
+   "back": "Polinésia Francesa"
+  },
+  {
+   "front": "Filipinas: capital?",
+   "back": "Manila"
+  },
+  {
+   "front": "Manila é a capital de…?",
+   "back": "Filipinas"
+  },
+  {
+   "front": "Kosovo: capital?",
+   "back": "Pristina"
+  },
+  {
+   "front": "Pristina é a capital de…?",
+   "back": "Kosovo"
+  },
+  {
+   "front": "Líbia: capital?",
+   "back": "Trípoli"
+  },
+  {
+   "front": "Trípoli é a capital de…?",
+   "back": "Líbia"
+  },
+  {
+   "front": "Palau: capital?",
+   "back": "Ngerulmud"
+  },
+  {
+   "front": "Ngerulmud é a capital de…?",
+   "back": "Palau"
+  },
+  {
+   "front": "Santa Lúcia: capital?",
+   "back": "Castries"
+  },
+  {
+   "front": "Castries é a capital de…?",
+   "back": "Santa Lúcia"
+  },
+  {
+   "front": "Granada: capital?",
+   "back": "São Jorge"
+  },
+  {
+   "front": "São Jorge é a capital de…?",
+   "back": "Granada"
+  },
+  {
+   "front": "Curaçao: capital?",
+   "back": "Willemstad"
+  },
+  {
+   "front": "Willemstad é a capital de…?",
+   "back": "Curaçao"
+  },
+  {
+   "front": "Quiribati: capital?",
+   "back": "Taraua do Sul"
+  },
+  {
+   "front": "Taraua do Sul é a capital de…?",
+   "back": "Quiribati"
+  },
+  {
+   "front": "Ilhas Marshall: capital?",
+   "back": "Majuro"
+  },
+  {
+   "front": "Majuro é a capital de…?",
+   "back": "Ilhas Marshall"
+  },
+  {
+   "front": "Nauru: capital?",
+   "back": "Iarém. Nauru não tem capital oficial; o distrito de Iarém é apenas considerada a capital."
+  },
+  {
+   "front": "Iarém é a capital de…?",
+   "back": "Nauru"
+  },
+  {
+   "front": "Nova Caledônia: capital?",
+   "back": "Numeá"
+  },
+  {
+   "front": "Numeá é a capital de…?",
+   "back": "Nova Caledônia"
+  },
+  {
+   "front": "Niuê: capital?",
+   "back": "Alofi"
+  },
+  {
+   "front": "Alofi é a capital de…?",
+   "back": "Niuê"
+  },
+  {
+   "front": "Chipre do Norte: capital?",
+   "back": "Nicósia do Norte"
+  },
+  {
+   "front": "Nicósia do Norte é a capital de…?",
+   "back": "Chipre do Norte"
+  },
+  {
+   "front": "São Cristóvão e Névis: capital?",
+   "back": "Basseterre"
+  },
+  {
+   "front": "Basseterre é a capital de…?",
+   "back": "São Cristóvão e Névis"
+  },
+  {
+   "front": "Samoa: capital?",
+   "back": "Apia"
+  },
+  {
+   "front": "Apia é a capital de…?",
+   "back": "Samoa"
+  },
+  {
+   "front": "Somalilândia: capital?",
+   "back": "Hargeisa"
+  },
+  {
+   "front": "Hargeisa é a capital de…?",
+   "back": "Somalilândia"
+  },
+  {
+   "front": "Sudão do Sul: capital?",
+   "back": "Juba"
+  },
+  {
+   "front": "Juba é a capital de…?",
+   "back": "Sudão do Sul"
+  },
+  {
+   "front": "Tuvalu: capital?",
+   "back": "Funafuti"
+  },
+  {
+   "front": "Funafuti é a capital de…?",
+   "back": "Tuvalu"
+  },
+  {
+   "front": "Ilhas Virgens Americanas: capital?",
+   "back": "Carlota Amália"
+  },
+  {
+   "front": "Carlota Amália é a capital de…?",
+   "back": "Ilhas Virgens Americanas"
+  },
+  {
+   "front": "Alanda: capital?",
+   "back": "Marianhamina"
+  },
+  {
+   "front": "Marianhamina é a capital de…?",
+   "back": "Alanda"
+  },
+  {
+   "front": "Ossétia do Sul: capital?",
+   "back": "Tsequinváli"
+  },
+  {
+   "front": "Tsequinváli é a capital de…?",
+   "back": "Ossétia do Sul"
+  },
+  {
+   "front": "Aruba: capital?",
+   "back": "Oranjestade"
+  },
+  {
+   "front": "Oranjestade é a capital de…?",
+   "back": "Aruba"
+  },
+  {
+   "front": "Abecásia: capital?",
+   "back": "Sucumi"
+  },
+  {
+   "front": "Sucumi é a capital de…?",
+   "back": "Abecásia"
+  },
+  {
+   "front": "Tonga: capital?",
+   "back": "Nucualofa"
+  },
+  {
+   "front": "Nucualofa é a capital de…?",
+   "back": "Tonga"
+  },
+  {
+   "front": "Transnístria: capital?",
+   "back": "Tiráspol"
+  },
+  {
+   "front": "Tiráspol é a capital de…?",
+   "back": "Transnístria"
+  }
+ ]
+}

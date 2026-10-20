@@ -17,7 +17,7 @@ Reply with JSON only, no prose around it, in exactly this shape:
   "ideas": [
     {
       "focus": "the one thing this question tests, in a short phrase",
-      "type": "mcq | short | tf | cloze",
+      "type": "mcq | short | tf | cloze | code",
       "difficulty": "easy | medium | hard",
       "chunk_ids": ["the ids of the passages that settle it"]
     }
@@ -32,5 +32,6 @@ Choose `type` to fit the idea rather than to fill a quota:
 - `tf` for a single claim that is clearly true or clearly false in the material. Do not use it where the honest answer is "it depends".
 - `short` when the answer is a sentence the learner should be able to produce unaided.
 - `cloze` when a specific term, number or name is the thing worth remembering.
+- `code` only when the passages teach programming in Python and the point can be practised by writing a small function that tests can check.
 
 Use only the types the request allows.

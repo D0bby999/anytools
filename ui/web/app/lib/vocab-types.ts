@@ -35,7 +35,7 @@ export type VocabClip = {
 };
 
 /** A due card is a note's card, or a living book's flash card (phase 11). */
-export type DueKind = CardKind | "flash";
+export type DueKind = CardKind | "flash" | "card";
 
 export type CardSummary = {
   id: string;
@@ -98,6 +98,8 @@ export type DueCard = {
   front?: string;
   back?: string;
   book?: { book_id: string; title: string; chapter_id: string };
+  /** Set on a general deck's cards. */
+  deck?: { id: string; name: string };
 };
 
 export type ReviewResult = {

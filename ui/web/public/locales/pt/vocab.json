@@ -4,7 +4,8 @@
     "paths": "Trilhas",
     "vocabulary": "Vocabulário",
     "dueBadge": "{{count}} pendentes",
-    "bookCards": "Cartões de livros"
+    "bookCards": "Cartões de livros",
+    "decks": "Baralhos"
   },
   "page": {
     "title": "Vocabulário",
@@ -33,7 +34,8 @@
     "from": "De {{title}}",
     "revealBack": "Mostrar a resposta",
     "onlyLang": "Só suas palavras em {{name}}.",
-    "allLangs": "Revisar todos os idiomas"
+    "allLangs": "Revisar todos os idiomas",
+    "rateLabelCard": "Quão bem você sabia este cartão?"
   },
   "list": {
     "title": "Suas palavras",
@@ -308,5 +310,87 @@
     "slotEmpty": "Caractere {{n}}, ainda não escrito",
     "pad": "Quadro de escrita de {{char}}, caractere {{n}} de {{total}}",
     "keyboard": "Desenhar exige um dedo, uma caneta ou um mouse; Mostrar o caractere e as avaliações funcionam pelo teclado."
+  },
+  "decks": {
+    "title": "Baralhos",
+    "lead": "Baralhos prontos e os seus, de qualquer assunto: cada cartão volta no próprio calendário, com suas outras revisões.",
+    "noCards": "Ainda não há cartões: adicione um baralho abaixo.",
+    "mine": "Seus baralhos",
+    "counts_one": "{{count}} cartão · {{due}} para hoje",
+    "counts_other": "{{count}} cartões · {{due}} para hoje",
+    "toCome_one": "{{count}} novo a chegar, o último em {{day}}",
+    "toCome_other": "{{count}} novos a chegar, o último em {{day}}",
+    "delete": "Excluir o baralho",
+    "deleteOf": "Excluir o baralho {{name}}",
+    "deleteConfirm_one": "Excluir este baralho e seu {{count}} cartão?",
+    "deleteConfirm_other": "Excluir este baralho e seus {{count}} cartões?",
+    "deleteYes": "Excluir",
+    "keep": "Manter",
+    "library": {
+      "title": "Adicionar um baralho pronto",
+      "lead": "Cada um diz sua licença antes de baixar qualquer coisa. Os livres entram com um toque; para os outros, baixe o arquivo da página deles e escolha abaixo.",
+      "subjects": {
+        "geography": "Geografia",
+        "languages": "Idiomas",
+        "programming": "Programação"
+      },
+      "add": "Adicionar",
+      "addOf": "Adicionar {{name}}",
+      "alreadyAdded": "Adicionado",
+      "get": "Obter o baralho",
+      "getOf": "Obter o baralho {{name}} na página dele",
+      "source": "fonte",
+      "thenFile": "Depois escolha o arquivo em De um arquivo.",
+      "language": "Idioma",
+      "about": {
+        "ultimateGeography": "Os países do mundo e suas capitais, nos dois sentidos. Só texto: as bandeiras e os mapas não estão incluídos.",
+        "jlpt": "Vocabulário japonês por nível JLPT, com áudio. Um arquivo grande: só o texto é lido.",
+        "french": "Vocabulário francês por frequência.",
+        "coding": "Conceitos e comandos de programação."
+      }
+    },
+    "licence": {
+      "publicDomain": "Domínio público",
+      "ccBy": "Livre, com crédito (CC BY)",
+      "ccByNc": "Só uso não comercial (CC BY-NC)",
+      "none": "Sem licença indicada"
+    },
+    "cards_one": "{{count}} cartão",
+    "cards_other": "{{count}} cartões",
+    "adding": "Adicionando o baralho…",
+    "added_one": "{{count}} cartão adicionado a {{name}}.",
+    "added_other": "{{count}} cartões adicionados a {{name}}.",
+    "failed": "Não foi possível adicionar o baralho.",
+    "file": {
+      "title": "De um arquivo",
+      "lead": "Um baralho do Anki (.apkg) ou do CrowdAnki (.zip), de qualquer assunto. Um baralho de palavras vai para o",
+      "vocabulary": "importador de Vocabulário.",
+      "pick": "Escolher um baralho",
+      "notADeck": "Este arquivo não é um baralho do Anki (.apkg) nem do CrowdAnki (.zip).",
+      "reading": "Lendo o baralho ({{size}} MB)…",
+      "importing": "Adicionando cartões: {{done}} de {{total}}.",
+      "failed_one": "A importação parou depois de {{count}} cartão.",
+      "failed_other": "A importação parou depois de {{count}} cartões.",
+      "duplicates_one": "{{count}} cartão já estava no baralho.",
+      "duplicates_other": "{{count}} cartões já estavam no baralho.",
+      "skipped_one": "{{count}} nota tinha uma face vazia ou longa demais e ficou de fora.",
+      "skipped_other": "{{count}} notas tinham uma face vazia ou longa demais e ficaram de fora.",
+      "name": "Nome do baralho",
+      "none": "— nenhum —",
+      "front": "Frente",
+      "back": "Verso",
+      "extra": "Também no verso",
+      "preview": "Os dez primeiros cartões",
+      "import_one": "Adicionar {{count}} cartão",
+      "import_other": "Adicionar {{count}} cartões"
+    },
+    "home": {
+      "title": "Baralhos",
+      "count_one": "{{count}} cartão para hoje.",
+      "count_other": "{{count}} cartões para hoje.",
+      "open": "Revisar os baralhos"
+    },
+    "pace": "Chegam {{perDay}} novos por dia, de {{first}} a {{last}}.",
+    "paceOneDay": "Chegam em {{day}}."
   }
 }

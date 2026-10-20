@@ -58,10 +58,10 @@ export function listWords(
  * The deck is the words, or `book` for the living books' flash cards; neither
  * ever holds the other's cards.
  */
-export function dueCards(userId: string, limit?: number, deck: "words" | "book" = "words", lang = "") {
+export function dueCards(userId: string, limit?: number, deck: "words" | "book" | "cards" = "words", lang = "") {
   const params = new URLSearchParams();
   if (limit !== undefined) params.set("limit", String(limit));
-  if (deck === "book") params.set("deck", "book");
+  if (deck !== "words") params.set("deck", deck);
   if (lang) params.set("lang", lang);
   const qs = params.toString();
   return apiFetch<{ cards: DueCard[]; due_count: number }>(`/v1/vocab/due${qs ? `?${qs}` : ""}`, userId);

@@ -4,7 +4,8 @@
     "paths": "Paths",
     "vocabulary": "Vocabulary",
     "dueBadge": "{{count}} due",
-    "bookCards": "Book cards"
+    "bookCards": "Book cards",
+    "decks": "Decks"
   },
   "page": {
     "title": "Vocabulary",
@@ -33,7 +34,8 @@
     "from": "From {{title}}",
     "revealBack": "Show the answer",
     "onlyLang": "Only your {{name}} words.",
-    "allLangs": "Review every language"
+    "allLangs": "Review every language",
+    "rateLabelCard": "How well did you know this card?"
   },
   "list": {
     "title": "Your words",
@@ -308,5 +310,87 @@
     "slotEmpty": "Character {{n}}, not written yet",
     "pad": "Writing pad for {{char}}, character {{n}} of {{total}}",
     "keyboard": "Drawing needs a finger, a pen or a mouse; Show the character and the ratings work by keyboard."
+  },
+  "decks": {
+    "title": "Decks",
+    "lead": "Ready decks and your own, on any subject: each card comes back on its own schedule, with your other reviews.",
+    "noCards": "No cards yet: add a deck below.",
+    "mine": "Your decks",
+    "counts_one": "{{count}} card · {{due}} due today",
+    "counts_other": "{{count}} cards · {{due}} due today",
+    "toCome_one": "{{count}} new to come, the last on {{day}}",
+    "toCome_other": "{{count}} new to come, the last on {{day}}",
+    "delete": "Delete the deck",
+    "deleteOf": "Delete the deck {{name}}",
+    "deleteConfirm_one": "Delete this deck and its {{count}} card?",
+    "deleteConfirm_other": "Delete this deck and its {{count}} cards?",
+    "deleteYes": "Delete",
+    "keep": "Keep it",
+    "library": {
+      "title": "Add a ready deck",
+      "lead": "Each says its licence before anything is fetched. Free decks are added in one tap; for the others, get the file from their page and choose it below.",
+      "subjects": {
+        "geography": "Geography",
+        "languages": "Languages",
+        "programming": "Programming"
+      },
+      "add": "Add",
+      "addOf": "Add {{name}}",
+      "alreadyAdded": "Added",
+      "get": "Get the deck",
+      "getOf": "Get the deck {{name}} from its page",
+      "source": "source",
+      "thenFile": "Then choose the file under From a file.",
+      "language": "Language",
+      "about": {
+        "ultimateGeography": "The world's countries and their capitals, both ways. Text only: its flags and maps are not included.",
+        "jlpt": "Japanese vocabulary by JLPT level, with audio. A large file: only its text is read.",
+        "french": "French vocabulary by frequency.",
+        "coding": "Programming concepts and commands."
+      }
+    },
+    "licence": {
+      "publicDomain": "Public domain",
+      "ccBy": "Free, with credit (CC BY)",
+      "ccByNc": "Non-commercial use only (CC BY-NC)",
+      "none": "No licence given"
+    },
+    "cards_one": "{{count}} card",
+    "cards_other": "{{count}} cards",
+    "adding": "Adding the deck…",
+    "added_one": "Added {{count}} card to {{name}}.",
+    "added_other": "Added {{count}} cards to {{name}}.",
+    "failed": "Could not add the deck.",
+    "file": {
+      "title": "From a file",
+      "lead": "An Anki deck (.apkg) or a CrowdAnki deck (.zip), on any subject. A deck of words to learn goes to",
+      "vocabulary": "Vocabulary's importer instead.",
+      "pick": "Choose a deck",
+      "notADeck": "This file is not an Anki deck (.apkg) or a CrowdAnki deck (.zip).",
+      "reading": "Reading the deck ({{size}} MB)…",
+      "importing": "Adding cards: {{done}} of {{total}}.",
+      "failed_one": "The import stopped after {{count}} card.",
+      "failed_other": "The import stopped after {{count}} cards.",
+      "duplicates_one": "{{count}} card was already in the deck.",
+      "duplicates_other": "{{count}} cards were already in the deck.",
+      "skipped_one": "{{count}} note had an empty or too long face and was left out.",
+      "skipped_other": "{{count}} notes had an empty or too long face and were left out.",
+      "name": "The deck's name",
+      "none": "— none —",
+      "front": "Front",
+      "back": "Back",
+      "extra": "Also on the back",
+      "preview": "The first ten cards",
+      "import_one": "Add {{count}} card",
+      "import_other": "Add {{count}} cards"
+    },
+    "home": {
+      "title": "Decks",
+      "count_one": "{{count}} card due today.",
+      "count_other": "{{count}} cards due today.",
+      "open": "Review the decks"
+    },
+    "pace": "They come up {{perDay}} new a day, from {{first}} to {{last}}.",
+    "paceOneDay": "They come up on {{day}}."
   }
 }

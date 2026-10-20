@@ -54,7 +54,12 @@ export function getQuestion(userId: string, questionId: string) {
 export function attemptQuestion(
   userId: string,
   questionId: string,
-  body: { user_answer: string; self_attribution?: string; ask_if_unreadable?: boolean },
+  body: {
+    user_answer: string;
+    self_attribution?: string;
+    ask_if_unreadable?: boolean;
+    tests?: { name: string; passed: boolean; message?: string }[];
+  },
 ) {
   return apiFetch<AttemptResult>(`/v1/questions/${encodeURIComponent(questionId)}/attempt`, userId, {
     method: "POST",
@@ -66,5 +71,13 @@ export function overrideAttempt(userId: string, attemptId: string, isCorrect: bo
   return apiFetch<AttemptResult>(`/v1/quiz/attempts/${encodeURIComponent(attemptId)}/override`, userId, {
     method: "POST",
     body: { is_correct: isCorrect },
+  });
+}
+
+/** Adds a starter set (the Python exercises) to the learner's knowledge base. */
+export function addStarter(userId: string, kbId: string, set: "python") {
+  return apiFetch<{ added: number; already: number }>("/v1/quiz/starters", userId, {
+    method: "POST",
+    body: { kb_id: kbId, set },
   });
 }

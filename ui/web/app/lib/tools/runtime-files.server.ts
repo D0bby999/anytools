@@ -42,6 +42,7 @@ const TYPES: Record<string, string> = {
   ".traineddata": "application/octet-stream",
   ".onnx": "application/octet-stream",
   ".gz": "application/gzip",
+  ".zip": "application/zip",
   ".txt": "text/plain; charset=utf-8",
 };
 

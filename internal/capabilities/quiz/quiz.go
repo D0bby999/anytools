@@ -30,7 +30,7 @@ const (
 // AllTypes is every question type, in the order the CHECK lists them. A test
 // holds it equal to the migration and to ui/web/app/lib/study-types.ts.
 func AllTypes() []string {
-	return []string{TypeMCQ, TypeShort, TypeTF, TypeCloze, TypeWritten}
+	return []string{TypeMCQ, TypeShort, TypeTF, TypeCloze, TypeWritten, TypeCode}
 }
 
 // Difficulties, exactly as `questions.difficulty` CHECKs them.
@@ -98,8 +98,11 @@ type Question struct {
 	Difficulty     string      `json:"difficulty"`
 	SourceChunkIDs []uuid.UUID `json:"source_chunk_ids"`
 	// Rubric marks a written question; nil for every other type.
-	Rubric    []Criterion `json:"rubric,omitempty"`
-	CreatedAt time.Time   `json:"created_at"`
+	Rubric []Criterion `json:"rubric,omitempty"`
+	// Code is a code exercise's starting code and tests (code.go); nil for
+	// every other type. Its solution is Answer.
+	Code      *CodeExercise `json:"code,omitempty"`
+	CreatedAt time.Time     `json:"created_at"`
 }
 
 // View is the question as the API returns it.
@@ -127,6 +130,11 @@ func (q Question) View(revealed bool) map[string]any {
 	}
 	if q.ModuleID != nil {
 		out["module_id"] = *q.ModuleID
+	}
+	// A code exercise runs in the browser: its starting code and tests are
+	// shown before the attempt. Its solution is Answer, which is not.
+	if q.Code != nil {
+		out["code"] = q.Code
 	}
 	// The card offers a math field when the answer is an expression. It says
 	// what kind of answer is expected, as a numeric box would, not the answer.
@@ -422,7 +430,8 @@ const functionQuiz = "quiz"
 // (internal/capabilities/exam), and a written question without one could
 // not be marked.
 func normalizeTypes(in []string) []string {
-	allowed := map[string]bool{TypeMCQ: true, TypeShort: true, TypeTF: true, TypeCloze: true}
+	// `code` only when asked for: it needs material that teaches Python.
+	allowed := map[string]bool{TypeMCQ: true, TypeShort: true, TypeTF: true, TypeCloze: true, TypeCode: true}
 	seen := map[string]bool{}
 	out := make([]string, 0, len(in))
 	for _, t := range in {

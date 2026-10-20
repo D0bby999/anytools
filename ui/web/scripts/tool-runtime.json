@@ -154,6 +154,35 @@
       }
     ]
   },
+  "pyodide@314.0.7": {
+    "package": "pyodide",
+    "copy": [
+      {
+        "from": "pyodide.mjs",
+        "to": "pyodide.mjs"
+      },
+      {
+        "from": "pyodide.asm.mjs",
+        "to": "pyodide.asm.mjs"
+      },
+      {
+        "from": "pyodide.asm.wasm",
+        "to": "pyodide.asm.wasm"
+      },
+      {
+        "from": "python_stdlib.zip",
+        "to": "python_stdlib.zip"
+      },
+      {
+        "from": "pyodide-lock.json",
+        "to": "pyodide-lock.json"
+      },
+      {
+        "from": "package.json",
+        "to": "package.json"
+      }
+    ]
+  },
   "sql.js@1.14.2": {
     "package": "sql.js",
     "copy": [

@@ -41,7 +41,7 @@ func NewQuestionStore(pool *Pool) *QuestionStore {
 }
 
 const questionColumns = `id, user_id, kb_id, session_id, knowledge_point_id, module_id,
-	prompt, type, options, answer, explanation, difficulty, source_chunk_ids, created_at, rubric`
+	prompt, type, options, answer, explanation, difficulty, source_chunk_ids, created_at, rubric, code`
 
 // qualifiedQuestionColumns is the same list under the bank query's `q` alias.
 // Written out rather than derived from questionColumns by string surgery: the
@@ -49,7 +49,7 @@ const questionColumns = `id, user_id, kb_id, session_id, knowledge_point_id, mod
 // invalid SQL, and it would produce it at runtime, in a query nobody compiles.
 const qualifiedQuestionColumns = `q.id, q.user_id, q.kb_id, q.session_id,
 	q.knowledge_point_id, q.module_id, q.prompt, q.type, q.options, q.answer,
-	q.explanation, q.difficulty, q.source_chunk_ids, q.created_at, q.rubric`
+	q.explanation, q.difficulty, q.source_chunk_ids, q.created_at, q.rubric, q.code`
 
 // InsertQuestions writes a generated batch in one transaction.
 //
@@ -99,14 +99,21 @@ func insertQuestion(ctx context.Context, tx pgx.Tx, q quiz.Question) (*quiz.Ques
 			return nil, fmt.Errorf("insert questions: encode rubric: %w", err)
 		}
 	}
+	// NULL for every type but code; the CHECK holds the two together.
+	var code []byte
+	if q.Code != nil {
+		if code, err = json.Marshal(q.Code); err != nil {
+			return nil, fmt.Errorf("insert questions: encode code: %w", err)
+		}
+	}
 	row := tx.QueryRow(ctx, `
 		INSERT INTO questions
 			(user_id, kb_id, session_id, knowledge_point_id, module_id,
-			 prompt, type, options, answer, explanation, difficulty, source_chunk_ids, rubric)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+			 prompt, type, options, answer, explanation, difficulty, source_chunk_ids, rubric, code)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING `+questionColumns,
 		q.UserID, q.KBID, q.SessionID, q.KnowledgePointID, q.ModuleID,
-		q.Prompt, q.Type, options, q.Answer, q.Explanation, q.Difficulty, chunkIDs, rubric)
+		q.Prompt, q.Type, options, q.Answer, q.Explanation, q.Difficulty, chunkIDs, rubric, code)
 	return scanQuestion(row)
 }
 
@@ -197,12 +204,13 @@ func (s *QuestionStore) ListQuestions(ctx context.Context, userID uuid.UUID, f q
 			lastAt      *time.Time
 			lastID      *uuid.UUID
 			rubric      []byte
+			code        []byte
 		)
 		if err := rows.Scan(
 			&e.Question.ID, &e.Question.UserID, &e.Question.KBID, &sessionID, &kpID, &moduleID,
 			&e.Question.Prompt, &e.Question.Type, &options, &e.Question.Answer,
 			&e.Question.Explanation, &e.Question.Difficulty, &e.Question.SourceChunkIDs,
-			&e.Question.CreatedAt, &rubric,
+			&e.Question.CreatedAt, &rubric, &code,
 			&e.Attempts, &lastCorrect, &lastAt, &lastID,
 			&e.KBName, &e.KPName, &e.ModuleName,
 		); err != nil {
@@ -214,6 +222,12 @@ func (s *QuestionStore) ListQuestions(ctx context.Context, userID uuid.UUID, f q
 		}
 		if err := decodeRubric(rubric, &e.Question); err != nil {
 			return nil, fmt.Errorf("list questions: %w", err)
+		}
+		if len(code) > 0 {
+			e.Question.Code = &quiz.CodeExercise{}
+			if err := json.Unmarshal(code, e.Question.Code); err != nil {
+				return nil, fmt.Errorf("list questions: decode code: %w", err)
+			}
 		}
 		e.LastCorrect, e.LastAttempt, e.LastAnswerID = lastCorrect, lastAt, lastID
 		out = append(out, e)
@@ -534,10 +548,10 @@ func scanQuestion(row pgx.Row, extra ...any) (*quiz.Question, error) {
 		kpID      *uuid.UUID
 		moduleID  *uuid.UUID
 	)
-	var rubric []byte
+	var rubric, code []byte
 	err := row.Scan(append([]any{&q.ID, &q.UserID, &q.KBID, &sessionID, &kpID, &moduleID,
 		&q.Prompt, &q.Type, &options, &q.Answer, &q.Explanation, &q.Difficulty,
-		&q.SourceChunkIDs, &q.CreatedAt, &rubric}, extra...)...)
+		&q.SourceChunkIDs, &q.CreatedAt, &rubric, &code}, extra...)...)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, quiz.ErrNotFound
 	}
@@ -550,6 +564,12 @@ func scanQuestion(row pgx.Row, extra ...any) (*quiz.Question, error) {
 	}
 	if err := decodeRubric(rubric, &q); err != nil {
 		return nil, fmt.Errorf("scan question: %w", err)
+	}
+	if len(code) > 0 {
+		q.Code = &quiz.CodeExercise{}
+		if err := json.Unmarshal(code, q.Code); err != nil {
+			return nil, fmt.Errorf("scan question: decode code: %w", err)
+		}
 	}
 	return &q, nil
 }

@@ -17,6 +17,13 @@ For `mcq`:
 
 For `cloze`, write the sentence with the removed text as `____` (four underscores) and put the removed text in `answer`.
 
+For `code` (only when the passages teach programming in Python): a small exercise the learner solves by writing code that tests check, as on Exercism.
+- `prompt` is the task in Markdown: what to write, its name and arguments, what it returns, one example.
+- `starter` is the starting code: the function's `def` line with a docstring and `pass`, nothing solved.
+- `tests` are three to eight plain test functions (`def test_…():` with `assert`), each named for what it checks, that import the code as `from solution import <name>`. No pytest, no files, no network, no input().
+- `answer` is a correct solution that passes every test.
+- The explanation says how the solution works, citing the passages it applies.
+
 Reply with JSON only, no prose around it:
 
 ```json
@@ -24,8 +31,10 @@ Reply with JSON only, no prose around it:
   "questions": [
     {
       "prompt": "the question as the learner sees it",
-      "type": "mcq | short | tf | cloze",
+      "type": "mcq | short | tf | cloze | code",
       "options": [{"label": "A", "body": "..."}],
+      "starter": "for code only",
+      "tests": "for code only",
       "answer": "...",
       "explanation": "why the answer is right, citing the passages [[cite:chunk:<id>]]",
       "difficulty": "easy | medium | hard",

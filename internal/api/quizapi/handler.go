@@ -49,6 +49,8 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /v1/quiz/practice", h.practice)
 	mux.HandleFunc("POST /v1/questions/{id}/attempt", h.attempt)       // budget: generate
 	mux.HandleFunc("POST /v1/quiz/attempts/{id}/override", h.override) // budget: none
+	// plans/261020-1535-beyond-english-learning-areas, phase 4: a starter set.
+	mux.HandleFunc("POST /v1/quiz/starters", h.addStarter) // budget: none
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
@@ -60,6 +62,7 @@ func Patterns() []string {
 		"GET /v1/quiz/practice",
 		"POST /v1/questions/{id}/attempt",
 		"POST /v1/quiz/attempts/{id}/override",
+		"POST /v1/quiz/starters",
 	}
 }
 
@@ -340,4 +343,24 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
 		slog.Error("quizapi: request failed", "path", r.URL.Path, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "something went wrong", "internal")
 	}
+}
+
+type starterRequest struct {
+	KBID uuid.UUID `json:"kb_id"`
+	Set  string    `json:"set"`
+}
+
+// addStarter adds a starter set's exercises to the caller's knowledge base.
+func (h *Handler) addStarter(w http.ResponseWriter, r *http.Request) {
+	var req starterRequest
+	if err := httpx.DecodeJSON(w, r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "malformed request body", "bad_request")
+		return
+	}
+	res, err := h.svc.AddStarter(r.Context(), httpx.MustUserID(r.Context()), req.KBID, req.Set)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, res)
 }

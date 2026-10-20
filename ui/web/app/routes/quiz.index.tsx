@@ -7,15 +7,15 @@
  * in the bank the moment the API stored it.
  */
 import { PlateEmpty } from "~/components/ui/plate";
-import { Form, Link, useNavigation } from "react-router";
+import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/quiz.index";
 import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
-import { listKBs } from "~/lib/kb.server";
-import { generateQuiz } from "~/lib/quiz.server";
-import { GENERATABLE_TYPES, type QuestionType } from "~/lib/study-types";
+import { createKB, listKBs } from "~/lib/kb.server";
+import { addStarter, generateQuiz } from "~/lib/quiz.server";
+import { DEFAULT_TYPES, GENERATABLE_TYPES, type QuestionType } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
@@ -41,9 +41,24 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { kbs: usable, selectedKb: usable.some((kb) => kb.id === wanted) ? wanted : undefined };
 }
 
+/** The knowledge base the Python starter set goes into, made if missing. */
+const STARTER_KB = "Python basics";
+
 export async function action({ request }: Route.ActionArgs) {
   const { user } = await requireUser(request);
   const form = await request.formData();
+  // plans/261020-1535-beyond-english-learning-areas, phase 4: the starter set.
+  if (form.get("intent") === "starter") {
+    try {
+      const { knowledge_bases } = await listKBs(user.id);
+      const kb = knowledge_bases.find((s) => s.kb.name === STARTER_KB)?.kb ?? (await createKB(user.id, STARTER_KB));
+      await addStarter(user.id, kb.id, "python");
+      throw redirect(`/quiz/bank?kb=${encodeURIComponent(kb.id)}&type=code`);
+    } catch (error) {
+      if (error instanceof Response) throw error;
+      return { errorKey: "errors.generic", errorDetail: error instanceof ApiError ? error.message : "" };
+    }
+  }
   const kbId = String(form.get("kb_id") ?? "");
   if (!kbId) return { errorKey: "errors.chooseKb", errorDetail: "" };
 
@@ -81,6 +96,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
     short: t("types.short"),
     cloze: t("types.cloze"),
     written: t("types.written"),
+    code: t("types.code"),
   };
 
   return (
@@ -153,7 +169,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
               <div className="mt-1 flex flex-wrap gap-x-5 gap-y-1">
                 {GENERATABLE_TYPES.map((type) => (
                   <label key={type} className="flex min-h-11 items-center gap-2 text-sm">
-                    <input type="checkbox" name="types" value={type} defaultChecked />
+                    <input type="checkbox" name="types" value={type} defaultChecked={DEFAULT_TYPES.includes(type)} />
                     {typeLabels[type]}
                   </label>
                 ))}
@@ -199,6 +215,19 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
           </ol>
         </section>
       ) : null}
+
+      <section aria-labelledby="lp-quiz-starter" className="mt-10">
+        <h2 id="lp-quiz-starter" className="lp-section">
+          {t("starter.title")}
+        </h2>
+        <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("starter.lead")}</p>
+        <Form method="post" className="mt-3">
+          <input type="hidden" name="intent" value="starter" />
+          <Button type="submit" variant="outline" disabled={generating}>
+            {t("starter.add")}
+          </Button>
+        </Form>
+      </section>
     </div>
   );
 }

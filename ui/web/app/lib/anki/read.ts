@@ -1,27 +1,38 @@
 /**
  * anki/read.ts
- * Reads an Anki deck (.apkg) in the browser (plans/261020-1155-open-source-
- * adds, phase 3), so the server needs no SQLite and no zstd. Written from
- * Anki's documented file format; no Anki code is used.
+ * Reads an Anki deck in the browser (plans/261020-1155-open-source-adds,
+ * phase 3; CrowdAnki and lazy reading: plans/261020-1535-beyond-english-
+ * learning-areas, phase 5), so the server needs no SQLite and no zstd.
+ * Written from the documented formats; no Anki code is used.
  *
- * An .apkg is a zip. Its collection is a SQLite file in one of three forms,
- * newest first: `collection.anki21b` (zstd-compressed, Anki 2.1.50+, note
- * types in the `notetypes` and `fields` tables), `collection.anki21` and
- * `collection.anki2` (note types as JSON in `col.models`). A new export also
- * carries a legacy `collection.anki2` holding one "please update Anki" note,
- * so the newest form present is the one read.
+ * Two kinds of file, both zips:
+ *  - An .apkg, whose collection is a SQLite file in one of three forms,
+ *    newest first: `collection.anki21b` (zstd-compressed, Anki 2.1.50+, note
+ *    types in the `notetypes` and `fields` tables), `collection.anki21` and
+ *    `collection.anki2` (note types as JSON in `col.models`). A new export
+ *    also carries a legacy `collection.anki2` holding one "please update
+ *    Anki" note, so the newest form present is the one read.
+ *  - A CrowdAnki export, a folder with a `deck.json`: note models with their
+ *    fields, and notes, in sub-decks too (Ultimate Geography ships so).
  *
- * Media (images, sounds) is not imported; how many references were dropped is
- * counted so the page can say so.
+ * The zip is read lazily (zip.js over the File): only its directory and the
+ * one entry needed are read and inflated, never the media, so a 400 MB deck
+ * with audio costs what its text costs. Media is not imported; how many
+ * fields referred to it is counted so the page can say so.
  */
-import JSZip from "jszip";
+import { BlobReader, Uint8ArrayWriter, TextWriter, ZipReader, configure, type Entry, type FileEntry } from "@zip.js/zip.js";
 import { decompress } from "fzstd";
 import type { SqlJsDatabase, SqlJsStatic } from "~/tools/sql-playground/logic";
+
+// One entry inflated on the page's thread: no worker to fetch or allow.
+configure({ useWebWorkers: false });
 
 export type AnkiNoteType = { id: string; name: string; fields: string[] };
 export type AnkiNote = { typeId: string; fields: string[] };
 export type AnkiDeck = {
-  format: "anki21b" | "anki21" | "anki2";
+  format: "anki21b" | "anki21" | "anki2" | "crowdanki";
+  /** The deck's own name, when the file says it (CrowdAnki). */
+  name?: string;
   types: AnkiNoteType[];
   notes: AnkiNote[];
   /** Fields that referred to an image or a sound, which are not imported. */
@@ -49,20 +60,40 @@ function rows(db: SqlJsDatabase, sql: string): Rows {
   return result.values.map((v) => Object.fromEntries(result.columns.map((c, i) => [c, v[i]])));
 }
 
-/** Reads a deck's note types and notes. */
+const isMedia = (f: string) => /<img\b|\[sound:/i.test(f);
+
+/** Reads a deck's note types and notes from bytes (an .apkg or a CrowdAnki zip). */
 export async function readApkg(data: ArrayBuffer | Uint8Array, SQL: SqlJsStatic): Promise<AnkiDeck> {
-  let zip: JSZip;
+  return readDeck(new Blob([data as BlobPart]), SQL);
+}
+
+/** Reads a deck from a file, inflating only the entry it needs. */
+export async function readDeck(file: Blob, SQL: SqlJsStatic): Promise<AnkiDeck> {
+  let entries: Entry[];
+  const reader = new ZipReader(new BlobReader(file));
   try {
-    zip = await JSZip.loadAsync(data);
+    entries = await reader.getEntries();
   } catch {
+    await reader.close().catch(() => undefined);
     throw new AnkiError("not_a_deck");
   }
-  const found = COLLECTIONS.find(([name]) => zip.file(name));
-  if (!found) throw new AnkiError("not_a_deck");
-  const [name, format] = found;
+  try {
+    const files = entries.filter((e): e is FileEntry => !e.directory);
+    const byName = new Map(files.map((e) => [e.filename, e]));
+    const found = COLLECTIONS.find(([name]) => byName.has(name));
+    if (found) return await readCollection(byName.get(found[0])!, found[1], SQL);
+    const deckJson = files.find((e) => /(^|\/)deck\.json$/.test(e.filename));
+    if (deckJson) return await readCrowdAnki(deckJson);
+    throw new AnkiError("not_a_deck");
+  } finally {
+    await reader.close().catch(() => undefined);
+  }
+}
+
+async function readCollection(entry: FileEntry, format: "anki21b" | "anki21" | "anki2", SQL: SqlJsStatic): Promise<AnkiDeck> {
   let db: SqlJsDatabase;
   try {
-    let bytes = await zip.file(name)!.async("uint8array");
+    let bytes: Uint8Array = await entry.getData(new Uint8ArrayWriter());
     if (format === "anki21b") bytes = decompress(bytes);
     db = new SQL.Database(bytes);
   } catch {
@@ -97,7 +128,7 @@ export async function readApkg(data: ArrayBuffer | Uint8Array, SQL: SqlJsStatic)
     let media = 0;
     const notes = rows(db, "SELECT mid, flds FROM notes ORDER BY id").map((r) => {
       const fields = String(r.flds).split("\x1f");
-      media += fields.filter((f) => /<img\b|\[sound:/i.test(f)).length;
+      media += fields.filter(isMedia).length;
       return { typeId: String(r.mid), fields };
     });
     return { format, types: types.filter((t) => notes.some((n) => n.typeId === t.id)), notes, media };
@@ -107,6 +138,42 @@ export async function readApkg(data: ArrayBuffer | Uint8Array, SQL: SqlJsStatic)
   } finally {
     db.close();
   }
+}
+
+type CrowdDeck = {
+  name?: string;
+  note_models?: { crowdanki_uuid: string; name: string; flds: { name: string; ord: number }[] }[];
+  notes?: { note_model_uuid: string; fields: string[] }[];
+  children?: CrowdDeck[];
+};
+
+/** A CrowdAnki deck.json: its models, and its notes and its sub-decks', in order. */
+async function readCrowdAnki(entry: FileEntry): Promise<AnkiDeck> {
+  let deck: CrowdDeck;
+  try {
+    deck = JSON.parse(await entry.getData(new TextWriter())) as CrowdDeck;
+  } catch {
+    throw new AnkiError("unreadable");
+  }
+  const types: AnkiNoteType[] = [];
+  const notes: AnkiNote[] = [];
+  let media = 0;
+  const walk = (d: CrowdDeck) => {
+    for (const m of d.note_models ?? []) {
+      if (!types.some((t) => t.id === m.crowdanki_uuid)) {
+        types.push({ id: m.crowdanki_uuid, name: m.name, fields: [...m.flds].sort((a, b) => a.ord - b.ord).map((f) => f.name) });
+      }
+    }
+    for (const n of d.notes ?? []) {
+      if (!Array.isArray(n.fields)) continue;
+      media += n.fields.filter(isMedia).length;
+      notes.push({ typeId: n.note_model_uuid, fields: n.fields.map(String) });
+    }
+    for (const c of d.children ?? []) walk(c);
+  };
+  walk(deck);
+  if (types.length === 0) throw new AnkiError("unreadable");
+  return { format: "crowdanki", name: deck.name, types: types.filter((t) => notes.some((n) => n.typeId === t.id)), notes, media };
 }
 
 const ENTITIES: Record<string, string> = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
@@ -132,7 +199,8 @@ export function fieldText(html: string): string {
     .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) => {
       if (e[0] === "#") {
         const code = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
-        return Number.isFinite(code) ? String.fromCodePoint(code) : m;
+        // A code point outside Unicode is left as written; fromCodePoint would throw.
+        return Number.isFinite(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : m;
       }
       return ENTITIES[e.toLowerCase()] ?? decodeNamed(m);
     })
@@ -181,4 +249,39 @@ export function mapNotes(deck: AnkiDeck, maps: FieldMap[]): { notes: MappedNote[
     notes.push(word);
   }
   return { notes, skipped };
+}
+
+/** A note type's fields as a general card: which is the front, which the back, and one more for the back. */
+export type CardMap = { typeId: string; front: number; back: number; extra: number };
+
+/** The first field as the front and the second as the back: Anki's Basic. */
+export function guessCardMap(type: AnkiNoteType): CardMap {
+  return { typeId: type.id, front: 0, back: type.fields.length > 1 ? 1 : 0, extra: -1 };
+}
+
+/** A general card's limits, as the API checks them (vocab.MaxDeckFront, MaxDeckBack). */
+export const MAX_FRONT = 500;
+export const MAX_BACK = 2000;
+
+/** The notes as cards; a note with an empty or too long face is skipped and counted. */
+export function mapCards(deck: AnkiDeck, maps: CardMap[]): { cards: { front: string; back: string }[]; skipped: number } {
+  const byType = new Map(maps.map((m) => [m.typeId, m]));
+  const cards: { front: string; back: string }[] = [];
+  let skipped = 0;
+  for (const n of deck.notes) {
+    const m = byType.get(n.typeId);
+    if (!m) continue;
+    const front = fieldText(n.fields[m.front] ?? "");
+    const back = [m.back, m.extra]
+      .filter((i) => i >= 0 && i !== m.front)
+      .map((i) => fieldText(n.fields[i] ?? ""))
+      .filter(Boolean)
+      .join("\n");
+    if (!front || !back || front.length > MAX_FRONT || back.length > MAX_BACK) {
+      skipped++;
+      continue;
+    }
+    cards.push({ front, back });
+  }
+  return { cards, skipped };
 }

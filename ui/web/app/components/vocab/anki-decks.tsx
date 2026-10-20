@@ -47,8 +47,9 @@ export function AnkiImport({ langs }: { langs: string[] }) {
   const pick = async (file: File) => {
     setPhase({ kind: "reading" });
     try {
-      const [{ readApkg, guessMap, mapNotes }, SQL] = await Promise.all([import("~/lib/anki/read"), sqlJs()]);
-      const deck = await readApkg(new Uint8Array(await file.arrayBuffer()), SQL);
+      const [{ readDeck, guessMap, mapNotes }, SQL] = await Promise.all([import("~/lib/anki/read"), sqlJs()]);
+      // Only the collection is read from the file, never its media.
+      const deck = await readDeck(file, SQL);
       if (deck.notes.length === 0 || deck.types.length === 0) {
         setPhase({ kind: "failed", message: t("anki.empty") });
         return;
@@ -97,7 +98,7 @@ export function AnkiImport({ langs }: { langs: string[] }) {
           <span className="font-medium">{t("anki.pick")}</span>
           <input
             type="file"
-            accept=".apkg"
+            accept=".apkg,.zip"
             className="mt-1 lp-file"
             onChange={(e) => {
               const file = e.target.files?.[0];

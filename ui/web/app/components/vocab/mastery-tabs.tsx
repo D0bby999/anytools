@@ -7,7 +7,15 @@ import { sectionTabClass, SECTION_TABS_ROW } from "~/components/ui/section-tabs"
  * Mastery rather than in the rail (DESIGN.md caps the navigation); the count
  * beside each is how many cards are due today — a number, not a streak.
  */
-export function MasteryTabs({ vocabDue, bookDue = null }: { vocabDue: number | null; bookDue?: number | null }) {
+export function MasteryTabs({
+  vocabDue,
+  bookDue = null,
+  deckDue = null,
+}: {
+  vocabDue: number | null;
+  bookDue?: number | null;
+  deckDue?: number | null;
+}) {
   const { t } = useTranslation("vocab");
   const tab = sectionTabClass;
   return (
@@ -28,6 +36,14 @@ export function MasteryTabs({ vocabDue, bookDue = null }: { vocabDue: number | n
         {bookDue ? (
           <span className="rounded-sm bg-highlight px-1.5 text-xs font-semibold text-highlight-foreground tabular-nums">
             {t("tabs.dueBadge", { count: bookDue })}
+          </span>
+        ) : null}
+      </NavLink>
+      <NavLink to="/mastery/decks" className={tab}>
+        {t("tabs.decks")}
+        {deckDue ? (
+          <span className="rounded-sm bg-highlight px-1.5 text-xs font-semibold text-highlight-foreground tabular-nums">
+            {t("tabs.dueBadge", { count: deckDue })}
           </span>
         ) : null}
       </NavLink>

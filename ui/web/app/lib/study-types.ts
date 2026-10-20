@@ -7,16 +7,22 @@
  */
 import type { Source } from "~/hooks/use-turn-stream";
 
-export type QuestionType = "mcq" | "short" | "tf" | "cloze" | "written";
+export type QuestionType = "mcq" | "short" | "tf" | "cloze" | "written" | "code";
 
-export const QUESTION_TYPES: readonly QuestionType[] = ["mcq", "tf", "short", "cloze", "written"];
+export const QUESTION_TYPES: readonly QuestionType[] = ["mcq", "tf", "short", "cloze", "written", "code"];
+
+/** The types an exam item can be: a code exercise is practised, not sat (exam/items.go). */
+export const EXAM_TYPES: readonly QuestionType[] = QUESTION_TYPES.filter((t) => t !== "code");
 
 /**
  * The types a plain quiz can ask for. `written` is not one: its rubric is
  * written and checked by a mock exam (internal/capabilities/exam), and a
  * written question without one could not be marked.
  */
-export const GENERATABLE_TYPES: readonly QuestionType[] = ["mcq", "tf", "short", "cloze"];
+export const GENERATABLE_TYPES: readonly QuestionType[] = ["mcq", "tf", "short", "cloze", "code"];
+
+/** Ticked by default: a code exercise is asked for, for material that teaches Python. */
+export const DEFAULT_TYPES: readonly QuestionType[] = ["mcq", "tf", "short", "cloze"];
 
 /** One line of a written question's rubric. */
 export type Criterion = { criterion: string; points: number };
@@ -50,6 +56,8 @@ export type QuestionView = {
   module_id?: string;
   /** The answer is maths, marked by value: the card offers a math field. */
   math?: boolean;
+  /** A code exercise's starting code and tests, run in the browser; its solution is `answer`. */
+  code?: { module: string; starter: string; tests: string; credit?: string };
 };
 
 /** One open mistake in the practice queue (GET /v1/quiz/practice). */
@@ -65,7 +73,7 @@ export type PracticeQueue = { items: PracticeItem[]; remaining: number };
 
 export type Judgement = {
   correct: boolean;
-  mode: "exact" | "llm" | "rubric" | "user" | "math";
+  mode: "exact" | "llm" | "rubric" | "user" | "math" | "tests";
   reason?: string;
   missing?: string[];
   error_type?: string;
@@ -74,6 +82,8 @@ export type Judgement = {
   criteria?: CriterionResult[];
   /** A maths answer equal to the recorded one but not in the form asked: right, scheduled as Hard. */
   almost?: boolean;
+  /** A code attempt's tests, as the browser ran them. */
+  tests?: { name: string; passed: boolean; message?: string }[];
 };
 
 export type Attempt = {
@@ -281,4 +291,14 @@ export type ErrorRecord = {
 /** Rounds a 0–1 estimate to a whole percentage for display. */
 export function percent(value: number): number {
   return Math.round(Math.max(0, Math.min(1, value)) * 100);
+}
+
+/**
+ * The line a question is listed by. A code exercise's prompt is Markdown
+ * whose first line is its heading ("## Leap"): its title, not the whole text.
+ */
+export function promptLine(q: { prompt: string; type: QuestionType }): string {
+  if (q.type !== "code") return q.prompt;
+  const first = q.prompt.trimStart().split("\n")[0] ?? "";
+  return first.replace(/^#{1,6}\s+/, "").trim() || q.prompt;
 }

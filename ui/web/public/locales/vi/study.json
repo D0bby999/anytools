@@ -4,7 +4,8 @@
     "tf": "Đúng hay sai",
     "short": "Trả lời ngắn",
     "cloze": "Điền vào chỗ trống",
-    "written": "Tự luận"
+    "written": "Tự luận",
+    "code": "Lập trình (Python)"
   },
   "difficulty": {
     "easy": "Dễ",
@@ -84,7 +85,8 @@
     "notYet": "chưa trả lời",
     "practise": "Luyện lại những câu bạn làm sai",
     "type": "Dạng",
-    "allTypes": "Mọi dạng"
+    "allTypes": "Mọi dạng",
+    "listHeading": "Các câu hỏi"
   },
   "mastery": {
     "title": "Ôn tập",
@@ -360,5 +362,39 @@
     "bank": "Ngân hàng câu hỏi",
     "mistakes": "Lỗi sai của bạn",
     "exams": "Đề thi thử"
+  },
+  "code": {
+    "parts": "Các phần của bài tập",
+    "tabs": {
+      "instructions": "Đề bài",
+      "code": "Code",
+      "tests": "Kiểm tra"
+    },
+    "testsTitle_one": "{{count}} bài kiểm tra",
+    "testsTitle_other": "{{count}} bài kiểm tra",
+    "editor": "Code của bạn",
+    "keys": "Ctrl+Enter hoặc Cmd+Enter để chạy kiểm tra. Tab để thụt lề; nhấn Escape rồi Tab để rời khung code.",
+    "run": "Chạy kiểm tra",
+    "running": "Đang chạy…",
+    "stop": "Dừng",
+    "reset": "Về code ban đầu",
+    "resetConfirm": "Thay code của bạn bằng code ban đầu?",
+    "resetYes": "Thay",
+    "keep": "Giữ code của tôi",
+    "loading": "Đang chuẩn bị Python: {{loaded}} trên {{total}} MB (chỉ lần đầu, sau đó được giữ lại).",
+    "loadFailed": "Không tải được Python. Kiểm tra kết nối rồi thử lại.",
+    "timedOut": "Đã dừng sau {{seconds}} giây. Có vòng lặp nào không bao giờ kết thúc không?",
+    "stopped": "Đã dừng. Code của bạn vẫn còn.",
+    "showSolution": "Xem lời giải",
+    "error": "Code không chạy được:",
+    "summary": "{{passed}} trên {{total}} bài kiểm tra đạt.",
+    "pass": "đạt",
+    "fail": "chưa đạt",
+    "output": "Những gì code đã in ra"
+  },
+  "starter": {
+    "title": "Luyện Python",
+    "lead": "Mười tám bài tập nhỏ từ lộ trình Python của Exercism, từ Hello World đến Bob, mỗi bài được kiểm bằng bài kiểm tra ngay trên trình duyệt. Các bài nằm trong knowledge base tên Python basics.",
+    "add": "Thêm bộ bài tập Python"
   }
 }

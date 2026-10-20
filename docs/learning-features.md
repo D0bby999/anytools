@@ -50,6 +50,14 @@ A short or cloze question whose recorded answer is an expression or an equation 
 
 The card offers a MathLive field for such a question (`math: true` in the question's view; the library is a lazy chunk, its fonts under `/tool-runtime/`), which works as a plain box until it loads. A reply the checker cannot read is not marked: the API answers 422 `unreadable_math` when the card asks (`ask_if_unreadable`), and the learner fixes it or sends it as text to the model. An exam's marking does not ask, so its unreadable answers go to the model.
 
+## Code exercises (Python)
+
+A code question (type `code`) is a small Python exercise answered with code that its tests check, in the learner's browser: Pyodide (MPL-2.0, unmodified, under `/tool-runtime/pyodide@314.0.7/`) runs in a Web Worker (`ui/web/app/workers/python.worker.ts`), so Stop ends a run and a run is stopped at 30 seconds. The server never runs code. The question's `code` holds the module the tests import, the starting code and the tests, shown before the attempt; its solution is `answer`, shown after. The harness (`lib/python-harness.ts`) runs plain `test_*` functions and unittest classes and reports each test with its message and line, and what the code printed.
+
+Before an exercise runs, the worker is cut off: `fetch`, `XMLHttpRequest`, `WebSocket`, `caches`, `indexedDB`, `BroadcastChannel` and `Worker` are removed from its global and every prototype behind it, because an exercise may have been written from an untrusted document and the worker shares the app's origin (its code could otherwise call the app's routes with the learner's session). Runs are practice and send nothing. When every declared test passes, the attempt is sent with the results; after a failed run the learner can ask for the solution, which sends it as not passed. Go marks it from the results (`JudgeModeTests`): right only when every `def test_…` the exercise declares was reported passed; the learner can override as on every question. The editor is CodeMirror 6 with the app's ink in both themes; on a phone, instructions, code and tests are tabs.
+
+Code questions come from the learner's Python material (ask for "Code (Python)" when generating a quiz: the model writes starting code, tests importing `solution`, and a solution, checked structurally before saving) or from the starter set: Quiz → "Add the Python exercises" puts 18 exercises from Exercism's Python track (MIT, credited on each) into a knowledge base "Python basics", once (`POST /v1/quiz/starters`). Exams do not use code questions.
+
 ## Practise your mistakes
 
 Every question you answer wrong, in a quiz, an exam or a mastery session, waits in Practice until you get it right twice **on two different days** in your own time zone. Two right answers a minute apart prove the answer was still on screen, not that you remember it. Your time zone is taken from your browser the first time you sign in; change it in Settings → Account.
@@ -153,6 +161,14 @@ Select up to 80 words while reading and choose "Check my reading aloud". You rec
 ## Anki decks in and out
 
 Mastery → Vocabulary → Anki decks imports an Anki deck (`.apkg`) and exports the words you are learning as one. The deck is read in the browser, from its newest collection (`collection.anki21b` from Anki 2.1.50 on, else `collection.anki21` or `collection.anki2`); you say, per note type, which field is the word, which the meaning and which an example sentence, and see the first ten words before anything is sent. Each word becomes a word to learn with a fresh schedule, a recognition card always and a cloze card when the sentence holds the word; a word already in your vocabulary in that language is left as it is. Imported words come up for review 20 a day from tomorrow, in deck order, and a second import carries on where the first left off, so a big deck does not fill Home's count or the daily reminder at once. They are not counted in the week's "five to eight". Images, sounds and Anki's review history are not imported. The export is one note type "AnyLearn word" (Term, Meaning, Sentence, Source) in a deck "AnyLearn", in Anki's schema 11, which Anki and AnkiDroid open; schedules start new there, and exporting again updates the same notes in Anki rather than doubling them. Written from Anki's documented file format and checked against genanki's schema; no Anki or genanki code is used.
+
+## Decks: a library and general cards
+
+Mastery → Decks holds decks that are not vocabulary (owner decision 5): their cards are a front and a back (card kind `card`, no note, in `card_decks`; `GET/POST /v1/decks`, `DELETE /v1/decks/{id}`, `POST /v1/decks/{id}/cards` in batches of 200). They are reviewed in their own queue (`GET /v1/vocab/due?deck=cards`), counted in Home's total and the daily reminder, and come up 20 new a day from tomorrow, continuing after earlier deck imports, in the deck's order; a front the deck already has is a duplicate. Deleting a deck deletes its cards.
+
+The library (`ui/web/app/lib/deck-library.ts`) says each deck's licence before anything is fetched. A deck AnyLearn may ship is bundled as text and added in one tap: Ultimate Geography v5.3 (public domain, images excluded) in English, Spanish and Portuguese, 435–436 country ↔ capital cards, written by `ui/web/scripts/decks/ultimate-geography.mjs`. Others (non-commercial or unlicensed) are links; the learner brings the file to "From a file", which reads an `.apkg` or a CrowdAnki `.zip` in the browser, maps fields to front and back (plus one more for the back), shows the first ten and imports. A vocabulary deck still goes through Mastery → Vocabulary's importer.
+
+Both importers read a deck lazily (zip.js over the file): only the zip's directory and the collection or `deck.json` are read and inflated, never the media, so a deck of several hundred megabytes with audio costs what its text costs.
 
 ## Share to AnyLearn
 

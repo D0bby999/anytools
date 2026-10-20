@@ -23,6 +23,7 @@ import { ReadinessCard } from "~/components/settings/readiness-card";
 import { VocabDue } from "~/components/vocab/vocab-due";
 import { BookCardsDue } from "~/components/vocab/book-cards-due";
 import { dueCards } from "~/lib/vocab.server";
+import { DeckCardsDue } from "~/components/vocab/book-cards-due";
 import { listStates } from "~/lib/loop.server";
 import { localDay } from "~/lib/local-day";
 import { isLowDay } from "~/lib/low-day.server";
@@ -92,7 +93,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       };
     })
     .catch((): BodyToday | null => null);
-  const [readiness, due, vocabDue, retests, bookDue, mistakes, worksheetsDue] = await Promise.all([
+  const [readiness, due, vocabDue, retests, bookDue, mistakes, worksheetsDue, deckDue] = await Promise.all([
     getReadiness(user.id).catch((): Readiness | null => null),
     // up-methods phase 12: the paths the due points span, too, for the
     // cross-path review's link.
@@ -108,7 +109,9 @@ export async function loader({ request }: Route.LoaderArgs) {
     listPractice(user.id).then((q) => q.remaining).catch((): number => 0),
     // Worksheet reviews due on the learner's local day (up methods, phase 0).
     dueWorksheets(user.id).then(dueCounts).catch((): DueCounts => ({ count: 0, private: 0 })),
-  ]);
+      // A general deck's cards due today (plans/261020-1535-beyond-english-learning-areas, phase 5).
+    dueCards(user.id, 0, "cards").then((d) => d.due_count).catch((): number => 0),
+]);
   // Which of the three first steps are already done, so the card can tick
   // them rather than repeat "Connect an AI account" to someone who has.
   const [hasProvider, hasDocuments, hasAsked] = await Promise.all([
@@ -120,7 +123,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // The low-day switch is a cookie for the learner's local day.
   const lowDay = today ? await isLowDay(request, user.id, localDay(user.timezone)) : false;
   const setup = { provider: hasProvider, documents: hasDocuments, asked: hasAsked };
-  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, mistakes, today, lowDay, worksheetsDue, body };
+  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, deckDue, mistakes, today, lowDay, worksheetsDue, body };
 }
 
 /** Home draws its own margin: the pace the book keeps, and its one claim. */
@@ -128,7 +131,7 @@ export const handle = { ownsPanel: true };
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, worksheetsDue, today, lowDay, body } = loaderData;
+  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, deckDue, worksheetsDue, today, lowDay, body } = loaderData;
   const ready = readiness?.core === "green";
   // Written as literal t() calls rather than a key built from a loop variable:
   // the i18n guard in app/test/structural-guards.test.ts can only verify keys
@@ -141,7 +144,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const setupDone = steps.every((s) => s.done);
   const pace = t("home.margin.path", { returnObjects: true }) as string[];
   const total =
-    (due ?? 0) + mistakes + retests + (vocabDue ?? 0) + bookDue + worksheetsDue.count + worksheetsDue.private;
+    (due ?? 0) + mistakes + retests + (vocabDue ?? 0) + bookDue + deckDue + worksheetsDue.count + worksheetsDue.private;
 
   return (
     <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
@@ -240,6 +243,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 {bookDue > 0 ? (
                   <CountRow count={bookDue}>
                     <BookCardsDue count={bookDue} />
+                  </CountRow>
+                ) : null}
+                {deckDue > 0 ? (
+                  <CountRow count={deckDue}>
+                    <DeckCardsDue count={deckDue} />
                   </CountRow>
                 ) : null}
                 {worksheetsDue.count > 0 || worksheetsDue.private > 0 ? (

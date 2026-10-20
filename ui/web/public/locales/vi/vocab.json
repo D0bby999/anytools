@@ -4,7 +4,8 @@
     "paths": "Lộ trình",
     "vocabulary": "Từ vựng",
     "dueBadge": "{{count}} đến hạn",
-    "bookCards": "Thẻ sách"
+    "bookCards": "Thẻ sách",
+    "decks": "Bộ thẻ"
   },
   "page": {
     "title": "Từ vựng",
@@ -33,7 +34,8 @@
     "from": "Từ {{title}}",
     "revealBack": "Hiện đáp án",
     "onlyLang": "Chỉ những từ {{name}} của bạn.",
-    "allLangs": "Ôn mọi ngôn ngữ"
+    "allLangs": "Ôn mọi ngôn ngữ",
+    "rateLabelCard": "Bạn nhớ thẻ này tới đâu?"
   },
   "list": {
     "title": "Từ của bạn",
@@ -308,5 +310,87 @@
     "slotEmpty": "Chữ thứ {{n}}, chưa viết",
     "pad": "Bảng viết chữ {{char}}, chữ {{n}} trên {{total}}",
     "keyboard": "Phần viết cần ngón tay, bút hoặc chuột; nút Hiện chữ và các mức chấm dùng được bằng bàn phím."
+  },
+  "decks": {
+    "title": "Bộ thẻ",
+    "lead": "Bộ thẻ có sẵn và của riêng bạn, về bất kỳ chủ đề nào: mỗi thẻ quay lại theo lịch riêng, cùng các phần ôn khác.",
+    "noCards": "Chưa có thẻ nào: thêm một bộ thẻ bên dưới.",
+    "mine": "Bộ thẻ của bạn",
+    "counts_one": "{{count}} thẻ · hôm nay {{due}} thẻ cần ôn",
+    "counts_other": "{{count}} thẻ · hôm nay {{due}} thẻ cần ôn",
+    "toCome_one": "còn {{count}} thẻ mới, thẻ cuối vào {{day}}",
+    "toCome_other": "còn {{count}} thẻ mới, thẻ cuối vào {{day}}",
+    "delete": "Xoá bộ thẻ",
+    "deleteOf": "Xoá bộ thẻ {{name}}",
+    "deleteConfirm_one": "Xoá bộ thẻ này cùng {{count}} thẻ?",
+    "deleteConfirm_other": "Xoá bộ thẻ này cùng {{count}} thẻ?",
+    "deleteYes": "Xoá",
+    "keep": "Giữ lại",
+    "library": {
+      "title": "Thêm bộ thẻ có sẵn",
+      "lead": "Mỗi bộ ghi rõ giấy phép trước khi tải gì. Bộ miễn phí thêm bằng một chạm; với bộ khác, lấy tệp từ trang của nó rồi chọn ở bên dưới.",
+      "subjects": {
+        "geography": "Địa lý",
+        "languages": "Ngoại ngữ",
+        "programming": "Lập trình"
+      },
+      "add": "Thêm",
+      "addOf": "Thêm {{name}}",
+      "alreadyAdded": "Đã thêm",
+      "get": "Lấy bộ thẻ",
+      "getOf": "Lấy bộ thẻ {{name}} từ trang của nó",
+      "source": "nguồn",
+      "thenFile": "Sau đó chọn tệp ở mục Từ một tệp.",
+      "language": "Ngôn ngữ",
+      "about": {
+        "ultimateGeography": "Các quốc gia trên thế giới và thủ đô, theo cả hai chiều. Chỉ phần chữ: không kèm cờ và bản đồ.",
+        "jlpt": "Từ vựng tiếng Nhật theo cấp JLPT, có âm thanh. Tệp lớn: chỉ phần chữ được đọc.",
+        "french": "Từ vựng tiếng Pháp theo tần suất.",
+        "coding": "Khái niệm và câu lệnh lập trình."
+      }
+    },
+    "licence": {
+      "publicDomain": "Miền công cộng",
+      "ccBy": "Miễn phí, ghi nguồn (CC BY)",
+      "ccByNc": "Chỉ dùng phi thương mại (CC BY-NC)",
+      "none": "Không ghi giấy phép"
+    },
+    "cards_one": "{{count}} thẻ",
+    "cards_other": "{{count}} thẻ",
+    "adding": "Đang thêm bộ thẻ…",
+    "added_one": "Đã thêm {{count}} thẻ vào {{name}}.",
+    "added_other": "Đã thêm {{count}} thẻ vào {{name}}.",
+    "failed": "Không thêm được bộ thẻ.",
+    "file": {
+      "title": "Từ một tệp",
+      "lead": "Bộ thẻ Anki (.apkg) hoặc CrowdAnki (.zip), về bất kỳ chủ đề nào. Bộ thẻ từ vựng thì dùng",
+      "vocabulary": "phần nhập của Từ vựng.",
+      "pick": "Chọn bộ thẻ",
+      "notADeck": "Tệp này không phải bộ thẻ Anki (.apkg) hay CrowdAnki (.zip).",
+      "reading": "Đang đọc bộ thẻ ({{size}} MB)…",
+      "importing": "Đang thêm thẻ: {{done}} trên {{total}}.",
+      "failed_one": "Việc nhập dừng sau {{count}} thẻ.",
+      "failed_other": "Việc nhập dừng sau {{count}} thẻ.",
+      "duplicates_one": "{{count}} thẻ đã có trong bộ.",
+      "duplicates_other": "{{count}} thẻ đã có trong bộ.",
+      "skipped_one": "{{count}} ghi chú có mặt trống hoặc quá dài nên bị bỏ qua.",
+      "skipped_other": "{{count}} ghi chú có mặt trống hoặc quá dài nên bị bỏ qua.",
+      "name": "Tên bộ thẻ",
+      "none": "— không —",
+      "front": "Mặt trước",
+      "back": "Mặt sau",
+      "extra": "Thêm vào mặt sau",
+      "preview": "Mười thẻ đầu",
+      "import_one": "Thêm {{count}} thẻ",
+      "import_other": "Thêm {{count}} thẻ"
+    },
+    "home": {
+      "title": "Bộ thẻ",
+      "count_one": "Hôm nay {{count}} thẻ cần ôn.",
+      "count_other": "Hôm nay {{count}} thẻ cần ôn.",
+      "open": "Ôn bộ thẻ"
+    },
+    "pace": "Mỗi ngày {{perDay}} thẻ mới, từ {{first}} đến {{last}}.",
+    "paceOneDay": "Các thẻ này đến hạn vào {{day}}."
   }
 }

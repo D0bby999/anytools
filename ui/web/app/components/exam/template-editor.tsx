@@ -3,7 +3,7 @@ import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import type { ExamTemplate, TemplateItem } from "~/lib/exam-types";
-import { QUESTION_TYPES, type QuestionType } from "~/lib/study-types";
+import { EXAM_TYPES, type QuestionType } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { PaperPage } from "~/components/exam/paper-page";
 
@@ -169,6 +169,7 @@ function ItemEditor({
     short: t("types.short"),
     cloze: t("types.cloze"),
     written: t("types.written"),
+    code: t("types.code"),
   };
   const renderable = template.kind === "pdf" || template.kind === "image";
   const page = item.figure_page ?? item.source_page;
@@ -205,7 +206,7 @@ function ItemEditor({
             onChange={(e) => onChange({ type: e.target.value as QuestionType })}
             className={field}
           >
-            {QUESTION_TYPES.map((type) => (
+            {EXAM_TYPES.map((type) => (
               <option key={type} value={type}>
                 {typeLabels[type]}
               </option>

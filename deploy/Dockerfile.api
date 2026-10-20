@@ -52,7 +52,13 @@ FROM alpine:3.21
 # they use by default.
 RUN apk add --no-cache ca-certificates tzdata ffmpeg deno \
  && addgroup -g 10001 -S anytools \
- && adduser  -u 10001 -S anytools -G anytools
+ && adduser  -u 10001 -S anytools -G anytools \
+ # The data volume's mount point, owned by the API's user. Docker gives a new
+ # named volume the ownership of the image path it mounts over; without this
+ # path it is root's, and the API could neither store an upload nor make the
+ # Drive cache (boot failed on mkdir cache once a Google client was set).
+ && mkdir -p /var/lib/anytools/data \
+ && chown anytools:anytools /var/lib/anytools/data
 
 COPY --from=ytdlp /yt-dlp /usr/local/bin/yt-dlp
 

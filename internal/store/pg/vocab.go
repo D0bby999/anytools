@@ -710,13 +710,14 @@ const dueSelect = `
 	       COALESCE(n.meaning, ''), COALESCE(n.contexts, '[]'::jsonb),
 	       n.source_document_id, n.source_page, d.title,
 	       COALESCE(c.front, ''), COALESCE(c.back, ''), bk.id, bk.title, ch.id,
-	       COALESCE(n.scenario, ''), COALESCE(n.confusable, '')
+	       COALESCE(n.scenario, ''), COALESCE(n.confusable, ''), cd.id, cd.name
 	  FROM vocab_cards c
 	  LEFT JOIN vocab_notes n ON n.id = c.note_id AND n.user_id = c.user_id
 	  LEFT JOIN documents d ON d.id = n.source_document_id AND d.user_id = n.user_id
 	  LEFT JOIN book_blocks bb ON bb.id = c.book_block_id AND bb.user_id = c.user_id
 	  LEFT JOIN book_chapters ch ON ch.id = bb.chapter_id AND ch.user_id = bb.user_id
-	  LEFT JOIN books bk ON bk.id = ch.book_id AND bk.user_id = ch.user_id`
+	  LEFT JOIN books bk ON bk.id = ch.book_id AND bk.user_id = ch.user_id
+	  LEFT JOIN card_decks cd ON cd.id = c.deck_id AND cd.user_id = c.user_id`
 
 // deckFilter is the WHERE clause that keeps each queue to its own cards.
 // langFilter narrows due cards to the words of language $3; ” is every
@@ -725,10 +726,13 @@ const langFilter = ` AND ($3 = '' OR EXISTS (
 	SELECT 1 FROM vocab_notes ln WHERE ln.id = c.note_id AND ln.user_id = c.user_id AND ln.lang = $3))`
 
 func deckFilter(deck string) string {
-	if deck == vocab.DeckBook {
+	switch deck {
+	case vocab.DeckBook:
 		return ` AND c.kind = 'flash'`
+	case vocab.DeckCards:
+		return ` AND c.kind = 'card'`
 	}
-	return ` AND c.kind <> 'flash'`
+	return ` AND c.kind NOT IN ('flash', 'card')`
 }
 
 // scanVocabDue reads one card, and its note's contexts for a listening card
@@ -746,10 +750,12 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, []vocab.Context, error) {
 		chapterID *uuid.UUID
 		scenario  string
 		confuse   string
+		deckID    *uuid.UUID
+		deckName  *string
 	)
 	err := row.Scan(&c.ID, &c.NoteID, &c.Kind, &c.DueAt, &c.Reps, &fsrsRaw,
 		&c.Term, &c.Lang, &c.Reading, &c.POS, &c.Meaning, &contexts, &docID, &page, &title,
-		&c.Front, &c.Back, &bookID, &bookTitle, &chapterID, &scenario, &confuse)
+		&c.Front, &c.Back, &bookID, &bookTitle, &chapterID, &scenario, &confuse, &deckID, &deckName)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil, vocab.ErrNotFound
 	}
@@ -781,6 +787,9 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, []vocab.Context, error) {
 	}
 	if bookID != nil && bookTitle != nil && chapterID != nil {
 		c.Book = &vocab.BookRef{BookID: *bookID, Title: *bookTitle, ChapterID: *chapterID}
+	}
+	if deckID != nil && deckName != nil {
+		c.Deck = &vocab.DeckRef{ID: *deckID, Name: *deckName}
 	}
 	return &c, ctxs, nil
 }
@@ -828,7 +837,7 @@ func (s *VocabStore) DueCards(ctx context.Context, userID uuid.UUID, deck, lang 
 	}
 	rows, err := s.pool.Query(ctx, dueSelect+`
 		 WHERE c.user_id = $1 AND NOT c.suspended AND c.due_at < $2`+deckFilter(deck)+langFilter+`
-		 ORDER BY c.due_at, c.id
+		 ORDER BY c.due_at, c.created_at, c.id
 		 LIMIT $4`, userID, before, lang, limit)
 	if err != nil {
 		return nil, 0, fmt.Errorf("due vocab cards: %w", err)
