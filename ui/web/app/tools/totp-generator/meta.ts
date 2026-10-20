@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'generators',
   title: {
     en: 'TOTP Code Generator (2FA)',
-    vi: 'Tạo mã TOTP (2FA)',
+    vi: 'Tạo mã 2FA (TOTP)',
     es: 'Generador de Códigos TOTP (2FA)',
     pt: 'Gerador de Códigos TOTP (2FA)',
   },

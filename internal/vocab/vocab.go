@@ -143,6 +143,8 @@ type Note struct {
 	// the line it would play, nil when no context is a line of a video or a
 	// recording that still exists (listen.go).
 	Listening bool `json:"listening"`
+	// Writing is whether the learner asked for the writing card (write.go).
+	Writing bool `json:"writing"`
 	// Origin is "anki" for a word imported from a deck (import.go), "" for
 	// one saved while reading.
 	Origin    string        `json:"origin"`
@@ -240,6 +242,8 @@ type NotePatch struct {
 	Production *bool
 	// Listening turns the listening card on or off, as Production does.
 	Listening *bool
+	// Writing turns the writing card on or off.
+	Writing *bool
 	// Check runs on the note as the patch would leave it, under the row
 	// lock, before anything is written.
 	Check func(next NoteState) error
@@ -257,9 +261,13 @@ type NoteState struct {
 	Scenario   string
 	Production bool
 	Listening  bool
+	Writing    bool
 	// HasClip is whether one of the note's contexts is a line that can be
 	// played (listen.go).
 	HasClip bool
+	// Term and Lang say whether the word can be drawn (write.go).
+	Term string
+	Lang string
 }
 
 // Filter narrows the word list.
@@ -320,8 +328,9 @@ type Store interface {
 	// after since.
 	CountLearnSince(ctx context.Context, userID uuid.UUID, since time.Time) (int, error)
 	// DueCards returns the deck's cards due before `before`, oldest first, at
-	// most limit, and how many are due in all.
-	DueCards(ctx context.Context, userID uuid.UUID, deck string, before time.Time, limit int) ([]DueCard, int, error)
+	// most limit, and how many are due in all. A lang narrows the words to
+	// that language's; "" is every language.
+	DueCards(ctx context.Context, userID uuid.UUID, deck, lang string, before time.Time, limit int) ([]DueCard, int, error)
 	GetCard(ctx context.Context, userID, cardID uuid.UUID) (*DueCard, error)
 	Review(ctx context.Context, w ReviewWrite) (*ReviewResult, error)
 }
@@ -581,7 +590,8 @@ func (s *Service) Update(ctx context.Context, userID, id uuid.UUID, p NotePatch)
 	decisionSent, recordSent, meaningSent := p.Decision != nil, p.Record != nil, p.Meaning != nil
 	// Cards are a word to learn's only (AC5): nothing else may turn one on.
 	listeningOn := p.Listening != nil && *p.Listening
-	turnsCardsOn := (p.Production != nil && *p.Production) || listeningOn || (p.Suspended != nil && !*p.Suspended)
+	writingOn := p.Writing != nil && *p.Writing
+	turnsCardsOn := (p.Production != nil && *p.Production) || listeningOn || writingOn || (p.Suspended != nil && !*p.Suspended)
 	p.Check = func(next NoteState) error {
 		if turnsCardsOn && !HasCards(next.Decision) {
 			return fmt.Errorf("%w: only a word you chose to learn has cards to review", ErrInvalid)
@@ -600,6 +610,9 @@ func (s *Service) Update(ctx context.Context, userID, id uuid.UUID, p NotePatch)
 		// read back as a cloze, and must not refuse an unrelated edit.
 		if listeningOn && !next.HasClip {
 			return fmt.Errorf("%w: this word was not saved from a line of a video or a recording", ErrInvalid)
+		}
+		if writingOn && !Writable(next.Term, next.Lang) {
+			return fmt.Errorf("%w: only a Chinese or Japanese word with characters to draw has a writing card", ErrInvalid)
 		}
 		return checkProduction(next)
 	}
@@ -712,8 +725,17 @@ func (s *Service) Due(ctx context.Context, userID uuid.UUID, limit int) ([]DueCa
 // DueDeck is Due for either deck: DeckWords, or DeckBook for the living
 // books' flash cards.
 func (s *Service) DueDeck(ctx context.Context, userID uuid.UUID, deck string, limit int) ([]DueCard, int, error) {
+	return s.DueIn(ctx, userID, deck, "", limit)
+}
+
+// DueIn is DueDeck narrowed to one language's words, for a Languages tab's
+// review; "" is every language. A book's cards have no language.
+func (s *Service) DueIn(ctx context.Context, userID uuid.UUID, deck, lang string, limit int) ([]DueCard, int, error) {
 	if deck != DeckWords && deck != DeckBook {
 		return nil, 0, fmt.Errorf("%w: the deck is words or book", ErrInvalid)
+	}
+	if lang != "" && (deck != DeckWords || !ValidLang(lang)) {
+		return nil, 0, fmt.Errorf("%w: %q is not a language of the words", ErrInvalid, lang)
 	}
 	if limit < 0 || limit > SessionSize {
 		limit = SessionSize
@@ -722,7 +744,7 @@ func (s *Service) DueDeck(ctx context.Context, userID uuid.UUID, deck string, li
 	if err != nil {
 		return nil, 0, err
 	}
-	return s.store.DueCards(ctx, userID, deck, before, limit)
+	return s.store.DueCards(ctx, userID, deck, lang, before, limit)
 }
 
 // NewCard is the FSRS state a new card starts with, on the vocabulary's

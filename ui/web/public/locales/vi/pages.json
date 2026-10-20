@@ -1,7 +1,7 @@
 {
   "guides": {
     "title": "Hướng dẫn",
-    "metaTitle": "Hướng dẫn — AnyTools",
+    "metaTitle": "Hướng dẫn JSON, regex, mã hóa, tài chính và thiết kế",
     "description": "Hướng dẫn chuyên sâu về JSON, biểu thức chính quy, mã hóa, cùng các máy tính và công cụ thiết kế trên AnyTools.",
     "readingTime": "{{count}} phút đọc",
     "updated": "Cập nhật {{date}}",
@@ -11,7 +11,7 @@
     "updated": "Cập nhật lần cuối {{date}}"
   },
   "anyprofile": {
-    "metaTitle": "AnyProfile — trình duyệt nhiều profile cho nhà sáng tạo (macOS, Windows)",
+    "metaTitle": "AnyProfile — trình duyệt nhiều profile cho macOS & Windows",
     "metaDescription": "Ứng dụng miễn phí, mã nguồn mở: mỗi tài khoản một trình duyệt riêng, cookie riêng, proxy riêng và fingerprint nhất quán. Cho macOS và Windows.",
     "title": "AnyProfile",
     "tagline": "Mỗi tài khoản một trình duyệt, chạy song song.",
@@ -88,8 +88,8 @@
     "checksums": "Mã kiểm tra SHA-256"
   },
   "landing": {
-    "metaTitle": "AnyTools: công cụ miễn phí, và AnyLearn, ứng dụng học chạy trên AI của bạn",
-    "metaDescription": "AnyTools miễn phí: các công cụ thường ngày chạy ngay trong trình duyệt, không cần tài khoản, và AnyLearn, ứng dụng tự học dựa trên chính tài liệu bạn tải lên: hỏi đáp, câu hỏi luyện tập, lộ trình ôn tập ngắt quãng và vòng học 90 ngày, chạy trên tài khoản AI bạn đã có. Mỗi câu trả lời đều dẫn đúng trang nguồn.",
+    "metaTitle": "AnyTools: học từ tài liệu bằng AI và công cụ online miễn phí",
+    "metaDescription": "Tải tài liệu lên, AnyLearn tạo câu hỏi trắc nghiệm, trả lời có dẫn nguồn và lên lịch ôn tập ngắt quãng bằng AI của bạn. Kèm 120+ công cụ online miễn phí.",
     "title": "Học từ chính tài liệu của bạn.",
     "subtitle": "Đối chiếu mọi câu trả lời với đúng trang nó được lấy ra.",
     "lede": "Câu trả lời có trích dẫn trang, câu hỏi luyện tập viết từ tài liệu của bạn, và lịch ôn rơi đúng lúc bạn sắp quên.",

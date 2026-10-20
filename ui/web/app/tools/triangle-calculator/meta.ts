@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'lifestyle',
   title: {
     en: 'Triangle Calculator',
-    vi: 'Calculator tam giác',
+    vi: 'Giải tam giác: góc, diện tích',
     es: 'Calculadora de triángulo',
     pt: 'Calculadora de triângulo',
   },

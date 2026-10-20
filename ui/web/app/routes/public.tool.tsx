@@ -16,16 +16,7 @@ import { findTool, nextSteps, offeredIn, relatedTools, toolDescription, toolTitl
 import { isIndexableTool, loadToolContent, toolLocales } from "~/lib/tools/content.server";
 import { localizeArticleLinks } from "~/lib/tools/links.server";
 import { notFound, publicLocale, toolsT } from "~/lib/tools/route.server";
-import {
-  alternateLinks,
-  breadcrumbSchema,
-  buildToolTitle,
-  clusterSeoLabel,
-  faqSchema,
-  pageMeta,
-  ogImage,
-  softwareAppSchema,
-} from "~/lib/tools/seo";
+import { alternateLinks, breadcrumbSchema, buildToolTitle, clampMetaDescription, clusterSeoLabel, faqSchema, ogImage, pageMeta, softwareAppSchema } from "~/lib/tools/seo";
 import { isPorted } from "~/tools/ui-registry";
 
 export function loader({ params }: Route.LoaderArgs) {
@@ -73,7 +64,8 @@ export function meta({ data }: Route.MetaArgs) {
   const tags = [
     ...pageMeta({
       title: data.seoTitle,
-      description: data.description,
+      // The page's lede stays whole; the snippet is cut where a result page cuts it.
+      description: clampMetaDescription(data.description),
       url,
       image: ogImage(url),
       locale,

@@ -10,11 +10,13 @@ import {
   type Decision,
   type VocabNote,
   type Week,
+  writable,
 } from "~/lib/vocab-types";
 import type { WorksheetSummary } from "~/lib/worksheet-types";
 import { Button } from "~/components/ui/button";
 import { DecisionFields } from "~/components/vocab/decision-picker";
 import { WeekNotice } from "~/components/vocab/week-notice";
+import { languageName, readingKind } from "~/lib/languages";
 
 type ListData = { updated?: string; deleted?: string; week?: Week; errorKey?: string; errorDetail?: string };
 type AuditData = { auditAdded?: number; auditFull?: boolean; errorKey?: string; errorDetail?: string };
@@ -47,7 +49,7 @@ export function WordList({
   /** The learner's open vocabulary audits. */
   audits?: WorksheetSummary[];
 }) {
-  const { t } = useTranslation("vocab");
+  const { t, i18n } = useTranslation("vocab");
   const learning = notes.filter((n) => n.decision === "learn");
   const others = DECISIONS.filter((d) => d !== "learn")
     .map((d) => ({ decision: d, notes: notes.filter((n) => n.decision === d) }))
@@ -65,7 +67,7 @@ export function WordList({
             <option value="">{t("list.anyLanguage")}</option>
             {langs.map((l) => (
               <option key={l} value={l}>
-                {l}
+                {languageName(l, i18n.language)}
               </option>
             ))}
           </select>
@@ -207,6 +209,9 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
           {learning && note.production ? (
             <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("practise.on")}</span>
           ) : null}
+          {learning && note.writing ? (
+            <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("write.on")}</span>
+          ) : null}
           {learning && note.listening ? (
             <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("listen.on")}</span>
           ) : null}
@@ -247,7 +252,7 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
             />
           </label>
           <label className="text-xs text-muted-foreground">
-            {t("list.reading")}
+            {t(`reading.${readingKind(note.lang)}`)}
             <input name="reading" defaultValue={note.reading} maxLength={120} className={field} />
           </label>
           <label className="text-xs text-muted-foreground">
@@ -327,6 +332,23 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
                     }
                   >
                     {note.listening ? t("listen.stop") : t("listen.start")}
+                  </Button>
+                ) : null}
+                {/* A writing card needs a Chinese or Japanese word with characters to draw. */}
+                {note.writing || writable(note.term, note.lang) ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() =>
+                      fetcher.submit(
+                        { intent: "writing", id: note.id, on: note.writing ? "false" : "true" },
+                        { method: "post" },
+                      )
+                    }
+                  >
+                    {note.writing ? t("write.stop") : t("write.start")}
                   </Button>
                 ) : null}
               </>

@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Watermark PDF',
-    vi: 'Đóng dấu mờ lên PDF',
+    vi: 'Chèn watermark vào PDF',
     es: 'Marca de agua en PDF',
     pt: 'Marca d’água em PDF',
   },

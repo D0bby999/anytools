@@ -13,7 +13,7 @@ import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
 import { catalogEntries, POPULATED_CLUSTERS, SORTS, type Sort } from "~/lib/tools/catalog";
 import { publicLocale, toolsT } from "~/lib/tools/route.server";
-import { alternateLinks, pageMeta, ogImage } from "~/lib/tools/seo";
+import { alternateLinks, clampMetaDescription, pageMeta, ogImage } from "~/lib/tools/seo";
 
 /** The page has its own search box; the header leaves its one out. */
 export const handle = { ownSearch: true };
@@ -40,7 +40,7 @@ export function loader({ params, request }: Route.LoaderArgs) {
     },
     seo: {
       title: t("home.metaTitle", { count: entries.length }),
-      description: t("home.metaDescription"),
+      description: clampMetaDescription(t("home.metaDescription")),
     },
   };
 }

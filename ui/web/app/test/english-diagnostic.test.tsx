@@ -193,7 +193,7 @@ describe("the diagnostic's evidence cards", () => {
     const sent = posted.find((p) => p.intent === "openEvidence")!;
     expect(sent.skill).toBe("listening");
     expect(sent.prefill).toBe(
-      "From the English diagnostic “October baseline”: the primary barrier is sound. Sample or timestamp: 01:32.",
+      "From the language diagnostic “October baseline”: the primary barrier is sound. Sample or timestamp: 01:32.",
     );
   });
 
@@ -356,7 +356,7 @@ function inRouter(el: ReactElement) {
 describe("the Loop's pointer to a diagnostic", () => {
   it("appears for a goal with a language card and no diagnostic", () => {
     inRouter(<CardList cards={[card("listening")]} kinds={[]} diagnostic={{ stateId: "s1", missing: true }} />);
-    expect(screen.getByRole("link", { name: "Start with an English diagnostic" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Start with a language diagnostic" })).toHaveAttribute(
       "href",
       "/toolkit/new?kind=english_diagnostic&state=s1",
     );
@@ -366,10 +366,10 @@ describe("the Loop's pointer to a diagnostic", () => {
     const { unmount } = inRouter(
       <CardList cards={[card("writing")]} kinds={[]} diagnostic={{ stateId: "s1", missing: false }} />,
     );
-    expect(screen.queryByRole("link", { name: "Start with an English diagnostic" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Start with a language diagnostic" })).toBeNull();
     unmount();
     inRouter(<CardList cards={[card("field_note")]} kinds={[]} diagnostic={{ stateId: "s1", missing: true }} />);
-    expect(screen.queryByRole("link", { name: "Start with an English diagnostic" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Start with a language diagnostic" })).toBeNull();
   });
 
   it("appears while a language card is being created", () => {
@@ -378,8 +378,8 @@ describe("the Loop's pointer to a diagnostic", () => {
       { kind: "speaking", name: "Speaking", summary: "", retest_delay_days: 7, setup: [], prompts: {} },
     ] as CardKind[];
     inRouter(<CardNewForm kinds={kinds} busy={false} diagnostic={{ stateId: "s1", missing: true }} />);
-    expect(screen.queryByRole("link", { name: "Start with an English diagnostic" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Start with a language diagnostic" })).toBeNull();
     fireEvent.click(screen.getByRole("radio", { name: /Speaking/ }));
-    expect(screen.getByRole("link", { name: "Start with an English diagnostic" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start with a language diagnostic" })).toBeInTheDocument();
   });
 });

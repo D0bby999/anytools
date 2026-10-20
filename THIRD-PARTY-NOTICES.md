@@ -2760,6 +2760,28 @@ the manifest `ui/web/scripts/tool-runtime.json`, and served from this origin und
 jSquash codecs, zxing-wasm, onnxruntime-web) are emitted by Vite into `/assets/`. The bytes, and
 so the notices, are the same.
 
+## Stroke data: Make Me A Hanzi and animCJK
+
+AnyLearn's writing card (plans/261020-1535-beyond-english-learning-areas, phase 3) checks each
+stroke a learner draws against stroke outlines and median lines from two open data sets, which
+this site **redistributes**: they are staged by `ui/web/scripts/tool-runtime.json` and served one
+character at a time by `/strokes/<zh|ja>/<character>` (`ui/web/app/lib/strokes.server.ts`).
+
+- Chinese: [Make Me A Hanzi](https://github.com/skishore/makemeahanzi) `graphics.txt` at commit
+  `bddc96d41bef78427ed0e034e9f7e31d71fd1b92`, pinned by sha256. Its graphics derive from fonts by
+  Arphic Technology and are under the Arphic Public License.
+- Japanese: [animCJK](https://github.com/parsimonhi/animCJK) `graphicsJa.txt` and
+  `graphicsJaKana.txt` at commit `3e1253b341cc7be14c3540bb3c045e6163557777`, pinned by sha256.
+  Its graphics files are under the Arphic Public License; its other files under the GNU LGPL
+  (version 3 or later).
+
+The data is not modified on disk. One change is made when a Japanese character is served: animCJK
+splits a stroke that crosses itself (あ, ぬ, ね, の…) into two shapes for its animation, and the
+two are joined back into one stroke so that a learner draws it as written. The licence texts
+travel with the data: `/tool-runtime/makemeahanzi@0.0.0-bddc96d/ARPHICPL.TXT` and `COPYING.txt`;
+`/tool-runtime/animcjk@0.0.0-3e1253b/ARPHICPL.TXT`, `COPYING.txt` and `LGPL.txt`. The quiz itself
+is [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT), listed above.
+
 ---
 
 ## Go modules in the API binary
@@ -4742,6 +4764,7 @@ ships with it in the image's `node_modules`.
 | [graceful-fs](https://github.com/isaacs/node-graceful-fs#readme) | 4.2.11 | ISC |
 | [guid-typescript](https://github.com/NicolasDeveloper/guid-typescript#readme) | 1.0.9 | ISC |
 | [hachure-fill](https://github.com/pshihn/hachure-fill#readme) | 0.5.2 | MIT |
+| [hanzi-writer](https://github.com/chanind/hanzi-writer#readme) | 3.7.3 | MIT |
 | [harfbuzzjs](https://harfbuzz.github.io/harfbuzzjs) | 1.6.1 | MIT |
 | [has-bigints](https://github.com/ljharb/has-bigints#readme) | 1.1.0 | MIT |
 | [has-property-descriptors](https://github.com/inspect-js/has-property-descriptors#readme) | 1.0.2 | MIT |
@@ -4866,6 +4889,7 @@ ships with it in the image's `node_modules`.
 | [markdown-table](https://github.com/wooorm/markdown-table#readme) | 3.0.4 | MIT |
 | [marked](https://marked.js.org) | 15.0.6, 16.4.2 | MIT |
 | [math-intrinsics](https://github.com/es-shims/math-intrinsics#readme) | 1.1.0 | MIT |
+| [mathlive](https://github.com/arnog/mathlive#readme) | 0.111.1 | MIT |
 | [mdast-util-find-and-replace](https://github.com/syntax-tree/mdast-util-find-and-replace#readme) | 3.0.2 | MIT |
 | [mdast-util-from-markdown](https://github.com/syntax-tree/mdast-util-from-markdown#readme) | 2.0.3 | MIT |
 | [mdast-util-gfm](https://github.com/syntax-tree/mdast-util-gfm#readme) | 3.1.0 | MIT |

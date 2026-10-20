@@ -32,8 +32,9 @@ export function AccountMenu({ displayName, email }: { displayName: string; email
 
   return (
     <details ref={ref} className="group relative">
+      {/* The name is read as text, not aria-label: an aria-label that does not
+          contain the visible initials fails WCAG 2.5.3 (axe). */}
       <summary
-        aria-label={t("account.menu", { name })}
         className={cn(
           "flex size-11 cursor-pointer list-none items-center justify-center rounded-full select-none",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden",
@@ -45,6 +46,7 @@ export function AccountMenu({ displayName, email }: { displayName: string; email
         >
           {initials(displayName, email)}
         </span>
+        <span className="sr-only">{t("account.menu", { name })}</span>
       </summary>
       <div className="absolute right-0 z-50 mt-1 w-64 rounded-lg border bg-card p-1 shadow-md">
         <div className="border-b px-3 pt-2 pb-3">

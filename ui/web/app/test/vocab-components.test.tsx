@@ -247,9 +247,17 @@ describe("WordPicker", () => {
     // up-methods phase 3: the meaning waits for a decision.
     expect(screen.queryByText("A balanced state.")).not.toBeInTheDocument();
 
+    // The language is chosen by name; a code the list lacks goes in "Other…".
     const lang = screen.getByLabelText("Language");
-    await userEvent.clear(lang);
-    await userEvent.type(lang, "en-GB");
+    expect(lang).toHaveDisplayValue("English");
+    expect(screen.getByRole("link", { name: "Look up equilibrium in Cambridge" })).toHaveAttribute(
+      "href",
+      "https://dictionary.cambridge.org/dictionary/english/equilibrium",
+    );
+    await userEvent.selectOptions(lang, "Other…");
+    const code = screen.getByLabelText("Language code");
+    await userEvent.clear(code);
+    await userEvent.type(code, "en-GB");
     await userEvent.click(screen.getByRole("radio", { name: /Quick lookup/ }));
     expect(screen.getByLabelText("Current sense")).toHaveValue("A balanced state.");
     await userEvent.type(screen.getByLabelText("Source of the current sense"), "Cambridge dictionary");

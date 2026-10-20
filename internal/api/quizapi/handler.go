@@ -321,6 +321,8 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case errors.Is(err, quiz.ErrNoAccess), errors.Is(err, quiz.ErrNotFound):
 		notFound(w)
+	case errors.Is(err, quiz.ErrUnreadableMath):
+		httpx.WriteError(w, http.StatusUnprocessableEntity, "this answer could not be read as maths", "unreadable_math")
 	case errors.Is(err, quiz.ErrBadRequest):
 		httpx.WriteError(w, http.StatusBadRequest, strings.TrimPrefix(err.Error(), "quiz: "), "bad_request")
 	case errors.Is(err, runtime.ErrNoProvider):

@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'CSS Gradient Generator',
-    vi: 'Trình tạo gradient CSS',
+    vi: 'Tạo gradient CSS',
     es: 'Generador de degradados CSS',
     pt: 'Gerador de gradientes CSS',
   },

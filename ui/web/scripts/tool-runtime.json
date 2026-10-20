@@ -1,4 +1,33 @@
 {
+  "animcjk@0.0.0-3e1253b": {
+    "download": [
+      {
+        "url": "https://github.com/parsimonhi/animCJK/raw/3e1253b341cc7be14c3540bb3c045e6163557777/graphicsJa.txt",
+        "sha256": "00c4fc7a20cf6b615b9b67d9bc310e38945948e45d77a4b447f2e3255eef381d",
+        "to": "graphicsJa.txt"
+      },
+      {
+        "url": "https://github.com/parsimonhi/animCJK/raw/3e1253b341cc7be14c3540bb3c045e6163557777/graphicsJaKana.txt",
+        "sha256": "50041c8fb477e08d77bcf96716003989b8b1f95a751e4d2628b7339de3b58f38",
+        "to": "graphicsJaKana.txt"
+      },
+      {
+        "url": "https://github.com/parsimonhi/animCJK/raw/3e1253b341cc7be14c3540bb3c045e6163557777/licenses/COPYING.txt",
+        "sha256": "19baa5148c9709776a95d78bf451a909086d7eb424b548c044c70fc1bf8330f2",
+        "to": "COPYING.txt"
+      },
+      {
+        "url": "https://github.com/parsimonhi/animCJK/raw/3e1253b341cc7be14c3540bb3c045e6163557777/licenses/LGPL.txt",
+        "sha256": "a5681bf9b05db14d86776930017c647ad9e6e56ff6bbcfdf21e5848288dfaf1b",
+        "to": "LGPL.txt"
+      },
+      {
+        "url": "https://github.com/parsimonhi/animCJK/raw/3e1253b341cc7be14c3540bb3c045e6163557777/licenses/APL/english/ARPHICPL.TXT",
+        "sha256": "3a5e90c0957524a89e48203febcd4492ca4393678abaa7e5b4d70f3ff32b386d",
+        "to": "ARPHICPL.TXT"
+      }
+    ]
+  },
   "excalidraw-excalidraw@0.18.1": {
     "package": "@excalidraw/excalidraw",
     "copy": [
@@ -43,6 +72,38 @@
       },
       {
         "from": "libheif-wasm/LICENSE",
+        "to": "LICENSE.txt"
+      }
+    ]
+  },
+  "makemeahanzi@0.0.0-bddc96d": {
+    "download": [
+      {
+        "url": "https://github.com/skishore/makemeahanzi/raw/bddc96d41bef78427ed0e034e9f7e31d71fd1b92/graphics.txt",
+        "sha256": "a28c478b5178e98f67f510b2d52fde08a69dc664654ef43498253b9b764d46ee",
+        "to": "graphics.txt"
+      },
+      {
+        "url": "https://github.com/skishore/makemeahanzi/raw/bddc96d41bef78427ed0e034e9f7e31d71fd1b92/COPYING",
+        "sha256": "26fa6b699b32401de4b75a4af574c2e0a99b3df6cb12df9313d257ee4634359c",
+        "to": "COPYING.txt"
+      },
+      {
+        "url": "https://github.com/skishore/makemeahanzi/raw/bddc96d41bef78427ed0e034e9f7e31d71fd1b92/APL/english/ARPHICPL.TXT",
+        "sha256": "3a5e90c0957524a89e48203febcd4492ca4393678abaa7e5b4d70f3ff32b386d",
+        "to": "ARPHICPL.TXT"
+      }
+    ]
+  },
+  "mathlive@0.111.1": {
+    "package": "mathlive",
+    "copy": [
+      {
+        "from": "fonts",
+        "to": "fonts"
+      },
+      {
+        "from": "LICENSE.txt",
         "to": "LICENSE.txt"
       }
     ]

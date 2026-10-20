@@ -86,6 +86,15 @@ export function meta({ data }: Route.MetaArgs) {
     inLanguage: data.toolsLocale,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   };
+  // Who publishes the site and what it is called: Google takes the site name
+  // and the logo beside its results from these, on the home page only.
+  const site = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", "@id": `${url}/#organization`, name: "AnyTools", url: `${url}/`, logo: `${url}/icons/anytools-256.png` },
+      { "@type": "WebSite", "@id": `${url}/#website`, name: "AnyTools", url: `${url}/`, inLanguage: data.toolsLocale, publisher: { "@id": `${url}/#organization` } },
+    ],
+  };
   return [
     { title },
     { name: "description", content: description },
@@ -102,6 +111,7 @@ export function meta({ data }: Route.MetaArgs) {
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { name: "twitter:card", content: "summary_large_image" },
+    { "script:ld+json": site },
     { "script:ld+json": jsonLd },
   ];
 }

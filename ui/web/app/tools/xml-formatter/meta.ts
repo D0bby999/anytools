@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'formatters',
   title: {
     en: 'XML Formatter / Validator',
-    vi: 'Định dạng / Kiểm tra XML',
+    vi: 'Format & kiểm tra XML',
     es: 'Formateador / validador de XML',
     pt: 'Formatador / validador de XML',
   },

@@ -5,6 +5,7 @@
  */
 import { apiFetch } from "~/lib/api.server";
 import type { Decision, DueCard, Rating, ReviewResult, Term, VocabNote, Week } from "~/lib/vocab-types";
+import type { StudiedLanguages } from "~/lib/languages";
 
 /** A decision and its minimum record (up-methods phase 3). */
 type DecisionFields = { decision?: Decision; record?: Record<string, string>; task_impact?: string };
@@ -57,10 +58,11 @@ export function listWords(
  * The deck is the words, or `book` for the living books' flash cards; neither
  * ever holds the other's cards.
  */
-export function dueCards(userId: string, limit?: number, deck: "words" | "book" = "words") {
+export function dueCards(userId: string, limit?: number, deck: "words" | "book" = "words", lang = "") {
   const params = new URLSearchParams();
   if (limit !== undefined) params.set("limit", String(limit));
   if (deck === "book") params.set("deck", "book");
+  if (lang) params.set("lang", lang);
   const qs = params.toString();
   return apiFetch<{ cards: DueCard[]; due_count: number }>(`/v1/vocab/due${qs ? `?${qs}` : ""}`, userId);
 }
@@ -76,6 +78,7 @@ export function updateWord(
     suspended?: boolean;
     production?: boolean;
     listening?: boolean;
+    writing?: boolean;
   } & DecisionFields,
 ) {
   return apiFetch<VocabNote & { week?: Week }>(`/v1/vocab/${encodeURIComponent(id)}`, userId, {
@@ -120,4 +123,17 @@ export async function allLearningWords(userId: string): Promise<VocabNote[]> {
     out.push(...notes);
     if (notes.length < 500) return out;
   }
+}
+
+/** The languages the learner studies, and those their words are in (Languages page). */
+export function studiedLanguages(userId: string) {
+  return apiFetch<StudiedLanguages>("/v1/vocab/languages", userId);
+}
+
+/** Replaces the studied list; `current` is the tab viewed last. */
+export function setStudiedLanguages(userId: string, studied: string[], current = "") {
+  return apiFetch<{ studied: string[]; current: string }>("/v1/vocab/languages", userId, {
+    method: "PUT",
+    body: { studied, current },
+  });
 }

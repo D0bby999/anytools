@@ -1193,8 +1193,9 @@ var writesWithoutResourceIDs = map[string]string{
 	"POST /v1/learning/states":                    "creates the caller's own learning state from text fields",
 	// Writes whose PATH names the resource and whose body names no other one.
 	// A route whose body gains an id moves to bodyProbes.
-	"PUT /v1/me/timezone": "stores the caller's own zone name",
-	"PUT /v1/me/language": "stores the caller's own interface language",
+	"PUT /v1/me/timezone":     "stores the caller's own zone name",
+	"PUT /v1/me/language":     "stores the caller's own interface language",
+	"PUT /v1/vocab/languages": "stores the caller's own list of language codes",
 	// A push endpoint is a browser's capability URL, not a row id: the
 	// delete is scoped to the caller's rows, and a subscribe moves the row
 	// to the caller because only that browser knows its endpoint.

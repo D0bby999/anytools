@@ -16,7 +16,7 @@ package worksheet
 // Version 2 (plans/261017-1828-up-f13ff2d-upgrade, phase 0) adds §2A. A
 // version 1 worksheet keeps every answer where it was; its §2A is empty.
 var englishDiagnostic = Kind{
-	Kind: "english_diagnostic", Name: "English diagnostic", Group: GroupLanguage, Version: 2,
+	Kind: "english_diagnostic", Name: "Language diagnostic", Group: GroupLanguage, Version: 2,
 	Source: "docs/en/templates/english-diagnostic.md",
 	Summary: "A first, unpolished baseline in listening, reading, speaking and writing on one real topic: " +
 		"scores with their evidence, one barrier per skill, one repair, and retests on day 7, day 30 and week 12. " +

@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { clozeMatches, RATINGS, suggestedRating, type DueCard, type Rating } from "~/lib/vocab-types";
 import { Button } from "~/components/ui/button";
 import { ClipPlayer } from "~/components/vocab/clip-player";
+import { WritingPad, writingRating, type Written } from "~/components/vocab/writing-pad";
+import { Lookups } from "~/components/languages/lookups";
+import { readingKind } from "~/lib/languages";
 
 type ReviewData = { reviewed?: string; errorKey?: string };
 
@@ -51,6 +54,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
   const [revealed, setRevealed] = useState(false);
   const [answer, setAnswer] = useState("");
   const [lineShown, setLineShown] = useState(false);
+  const [written, setWritten] = useState<Written | null>(null);
   const requestIDs = useRef(new Map<string, string>());
   const card = cards[index];
 
@@ -70,6 +74,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
       setRevealed(false);
       setAnswer("");
       setLineShown(false);
+      setWritten(null);
     }
   }, [fetcher.state, fetcher.data, card]);
 
@@ -98,13 +103,14 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
       { intent: "review", card_id: card.id, rating, answer: typed ? answer : "", request_id: requestID },
       { method: "post" },
     );
-  const suggested = typed && revealed ? suggestedRating(answer, card.term) : null;
+  const suggested =
+    card.kind === "write" ? (written ? writingRating(written) : null) : typed && revealed ? suggestedRating(answer, card.term) : null;
   const matched = typed && revealed ? clozeMatches(answer, card.term) : null;
 
   return (
     <div className="mt-3 border-t pt-4" aria-live="polite">
       <p className="text-xs font-semibold text-muted-foreground">
-        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind}
+        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind === "write" ? t("write.kind") : card.kind}
         {card.lang ? ` · ${card.lang}` : ""}
       </p>
 
@@ -117,11 +123,42 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
             </Button>
           ) : null}
         </>
+      ) : card.kind === "write" ? (
+        <>
+          <p className="mt-3 text-sm text-muted-foreground">{t("write.prompt")}</p>
+          <p className="mt-2 text-base leading-prose">
+            {card.meaning}
+            {card.reading ? (
+              <span className="ml-3 text-sm text-muted-foreground" lang={card.lang}>
+                {t(`reading.${readingKind(card.lang)}`)}: {card.reading}
+              </span>
+            ) : null}
+          </p>
+          {card.cloze ? (
+            <blockquote className="mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
+              {card.cloze}
+            </blockquote>
+          ) : null}
+          <WritingPad
+            key={card.id}
+            term={card.term}
+            lang={card.lang}
+            onDone={(w) => {
+              setWritten(w);
+              setRevealed(true);
+            }}
+          />
+        </>
       ) : card.kind === "recognition" ? (
         <>
           <p className="mt-3 font-serif text-2xl font-semibold" lang={card.lang}>
             {card.term}
-            {card.reading ? <span className="ml-3 font-sans text-sm font-normal text-muted-foreground">{card.reading}</span> : null}
+            {card.reading ? (
+              <span className="ml-3 font-sans text-sm font-normal text-muted-foreground">
+                <span className="sr-only">{t(`reading.${readingKind(card.lang)}`)}: </span>
+                {card.reading}
+              </span>
+            ) : null}
           </p>
           {card.context ? (
             <blockquote className="mt-3 text-sm leading-prose" lang={card.lang}>
@@ -212,7 +249,12 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
           ) : card.kind === "production" ? (
             <div className="mt-2 text-base leading-prose">
               <p>
-                {card.reading ? <span className="mr-2 text-sm text-muted-foreground">{card.reading}</span> : null}
+                {card.reading ? (
+                  <span className="mr-2 text-sm text-muted-foreground">
+                    <span className="sr-only">{t(`reading.${readingKind(card.lang)}`)}: </span>
+                    {card.reading}
+                  </span>
+                ) : null}
                 {card.pos ? <span className="mr-2 font-mono text-2xs text-muted-foreground">{card.pos}</span> : null}
                 {card.meaning}
               </p>
@@ -261,6 +303,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
               </Link>
             </p>
           ) : null}
+          {card.kind !== "flash" ? <Lookups lang={card.lang} term={card.term} className="mt-1" /> : null}
 
           <fieldset className="mt-4" disabled={busy}>
             <legend className="text-xs text-muted-foreground">{t("session.rateLabel")}</legend>

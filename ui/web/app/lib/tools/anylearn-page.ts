@@ -30,7 +30,7 @@ export type AnyLearnCopy = {
 };
 
 const en: AnyLearnCopy = {
-  metaTitle: "AnyLearn: study from your own documents, on your own AI",
+  metaTitle: "AnyLearn: study your PDFs with AI, with quizzes and review",
   metaDescription:
     "A free study app that answers from your documents with citations to the page, writes quizzes from them, and times your reviews to just before you forget. Runs on your own AI account.",
   badge: "Free · Your own AI · Early access",
@@ -101,7 +101,7 @@ const en: AnyLearnCopy = {
 };
 
 const vi: AnyLearnCopy = {
-  metaTitle: "AnyLearn: học từ chính tài liệu của bạn, bằng AI của bạn",
+  metaTitle: "AnyLearn: học từ tài liệu bằng AI, tạo câu hỏi trắc nghiệm",
   metaDescription:
     "Ứng dụng học miễn phí: trả lời từ tài liệu của bạn kèm trích dẫn tới đúng trang, soạn câu hỏi luyện tập từ tài liệu và hẹn lịch ôn ngay trước lúc bạn sắp quên. Chạy bằng tài khoản AI của chính bạn.",
   badge: "Miễn phí · AI của bạn · Bản dùng sớm",
@@ -174,7 +174,7 @@ const vi: AnyLearnCopy = {
 };
 
 const es: AnyLearnCopy = {
-  metaTitle: "AnyLearn: estudia con tus propios documentos y tu propia IA",
+  metaTitle: "AnyLearn: estudia tus PDF con IA: cuestionarios y repasos",
   metaDescription:
     "Una app de estudio gratuita que responde a partir de tus documentos citando la página, crea cuestionarios con ellos y programa tus repasos justo antes de que olvides. Funciona con tu propia cuenta de IA.",
   badge: "Gratis · Tu propia IA · Acceso anticipado",
@@ -247,7 +247,7 @@ const es: AnyLearnCopy = {
 };
 
 const pt: AnyLearnCopy = {
-  metaTitle: "AnyLearn: estude com seus próprios documentos e sua própria IA",
+  metaTitle: "AnyLearn: estude seus PDFs com IA, com quizzes e revisões",
   metaDescription:
     "Um app de estudo gratuito que responde a partir dos seus documentos citando a página, cria quizzes com eles e marca suas revisões para pouco antes de você esquecer. Funciona com a sua própria conta de IA.",
   badge: "Grátis · Sua própria IA · Acesso antecipado",

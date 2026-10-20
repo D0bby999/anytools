@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'lifestyle',
   title: {
     en: 'Statistics Calculator — Mean, Median, Std Dev',
-    vi: 'Calculator Thống kê — Trung bình, trung vị, độ lệch chuẩn',
+    vi: 'Tính trung bình, trung vị, độ lệch chuẩn',
     es: 'Calculadora de estadísticas — Media, mediana, desviación',
     pt: 'Calculadora de estatísticas — Média, mediana, desvio',
   },

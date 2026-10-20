@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'converters',
   title: {
     en: 'curl → Code Converter',
-    vi: 'Chuyển curl sang Code',
+    vi: 'cURL converter: chuyển curl sang code',
     es: 'Conversor de curl a código',
     pt: 'Conversor de curl para código',
   },

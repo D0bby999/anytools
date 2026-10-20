@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'web3',
   title: {
     en: 'BIP-39 Mnemonic Tool',
-    vi: 'Công cụ cụm từ BIP-39',
+    vi: 'BIP-39: tạo & kiểm tra cụm từ khôi phục ví',
     es: 'Herramienta de frase mnemónica BIP-39',
     pt: 'Ferramenta de frase mnemônica BIP-39',
   },

@@ -15,6 +15,7 @@ const landing = await import("~/routes/landing");
 const home = await import("~/routes/home-redirect");
 const robots = await import("~/routes/robots[.]txt");
 const sitemap = await import("~/routes/sitemap[.]xml");
+const llms = await import("~/routes/llms[.]txt");
 
 type LoaderArgs = Parameters<typeof landing.loader>[0];
 const args = { request: new Request("https://learn.example.com/en"), params: { locale: "en" } } as unknown as LoaderArgs;
@@ -31,15 +32,21 @@ describe("landing", () => {
     expect(sent.headers.get("Location")).toBe("/home");
   });
 
-  it("renders for a visitor, with a canonical URL, an OG image and SoftwareApplication JSON-LD", async () => {
+  it("renders for a visitor, with a canonical URL, an OG image, the site's Organization and WebSite, and AnyLearn's SoftwareApplication", async () => {
     getUserId.mockResolvedValue(null);
     // data() wraps the body beside its headers (the language cookie).
     const { data } = (await landing.loader(args)) as unknown as { data: unknown };
     const tags = landing.meta({ data } as unknown as Parameters<typeof landing.meta>[0]) as Record<string, unknown>[];
     expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://learn.example.com/en" });
     expect(tags).toContainEqual({ property: "og:image", content: `https://learn.example.com/og.png?v=${OG_VERSION}` });
-    const ld = tags.find((t) => "script:ld+json" in t)?.["script:ld+json"] as Record<string, unknown>;
-    expect(ld["@type"]).toBe("SoftwareApplication");
+    const ld = tags.filter((t) => "script:ld+json" in t).map((t) => t["script:ld+json"] as Record<string, unknown>);
+    const graph = (ld.find((b) => "@graph" in b)?.["@graph"] ?? []) as Record<string, unknown>[];
+    expect(graph.map((n) => n["@type"])).toEqual(["Organization", "WebSite"]);
+    expect(graph[0]?.logo).toBe("https://learn.example.com/icons/anytools-256.png");
+    expect(ld.some((b) => b["@type"] === "SoftwareApplication")).toBe(true);
+    // What a result page shows whole (lib/tools/seo.ts).
+    expect(String(tags.find((t) => "title" in t)?.title).length).toBeLessThanOrEqual(60);
+    expect(String(tags.find((t) => t.name === "description")?.content).length).toBeLessThanOrEqual(155);
     expect(tags.some((t) => t.name === "robots")).toBe(false);
   });
 });
@@ -47,7 +54,7 @@ describe("landing", () => {
 describe("crawler files", () => {
   // AnyTools phase 2: the public tool pages joined the landing page here
   // (tools-public-routes.test.ts covers what they list).
-  it("robots.txt allows only the landing page and the public tool pages, and names the sitemap", async () => {
+  it("robots.txt allows only the landing page, the public tool pages and the files they are drawn with, and names the sitemap", async () => {
     const body = await robots.loader().text();
     expect(body).toContain("Allow: /$");
     expect(body).toContain("Disallow: /");
@@ -56,6 +63,8 @@ describe("crawler files", () => {
       "Allow: /?lng=",
       "Allow: /en$", "Allow: /en/", "Allow: /vi$", "Allow: /vi/",
       "Allow: /es$", "Allow: /es/", "Allow: /pt$", "Allow: /pt/",
+      "Allow: /assets/", "Allow: /plates/", "Allow: /brand/", "Allow: /icons/",
+      "Allow: /favicon.svg", "Allow: /favicon.ico", "Allow: /apple-touch-icon.png", "Allow: /og.png", "Allow: /llms.txt",
     ]);
     expect(body).toContain("Sitemap: https://learn.example.com/sitemap.xml");
   });
@@ -68,5 +77,17 @@ describe("crawler files", () => {
     expect(locs).not.toContain("https://learn.example.com/");
     const priv = locs.filter((l) => !/^https:\/\/learn\.example\.com\/(en|vi|es|pt)(\/.*)?$/.test(l ?? ""));
     expect(priv).toEqual([]);
+    // Every entry dates itself, never earlier than the relaunch.
+    const urls = body.split("<url>").slice(1);
+    expect(urls.every((u) => /<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/.exec(u)?.[1]! >= "2026-10-20")).toBe(true);
+  });
+
+  it("llms.txt says what the site is and links AnyLearn, the guides and the tools in English", async () => {
+    const body = await llms.loader().text();
+    expect(body.startsWith("# AnyTools\n\n> ")).toBe(true);
+    expect(body).toContain("(https://learn.example.com/en/anylearn)");
+    expect(body).toContain("(https://learn.example.com/en/guides/regex-mastery)");
+    expect(body).toContain("(https://learn.example.com/en/pdf/merge-pdf)");
+    expect(body).not.toMatch(/\]\(https:\/\/learn\.example\.com\/(vi|es|pt)\//);
   });
 });

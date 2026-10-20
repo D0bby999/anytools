@@ -31,7 +31,9 @@
     "easy": "Dễ",
     "failed": "Lượt ôn đó chưa được lưu. Hãy thử lại.",
     "from": "Từ {{title}}",
-    "revealBack": "Hiện đáp án"
+    "revealBack": "Hiện đáp án",
+    "onlyLang": "Chỉ những từ {{name}} của bạn.",
+    "allLangs": "Ôn mọi ngôn ngữ"
   },
   "list": {
     "title": "Từ của bạn",
@@ -67,7 +69,9 @@
     "save": "Lưu",
     "saved": "Đã lưu",
     "added": "Đã thêm một câu",
-    "failed": "Không tìm được từ."
+    "failed": "Không tìm được từ.",
+    "otherLanguage": "Khác…",
+    "languageCode": "Mã ngôn ngữ"
   },
   "speech": {
     "readAloud": "Đọc thành tiếng",
@@ -270,5 +274,39 @@
     "exporting": "Đang tạo bộ thẻ…",
     "exportEmpty": "Bạn chưa có từ nào đang học để xuất.",
     "exportFailed": "Chưa tạo được bộ thẻ. Hãy thử lại."
+  },
+  "lookup": {
+    "label": "Tra:",
+    "in": "Tra {{term}} trên {{name}}"
+  },
+  "reading": {
+    "pinyin": "Pinyin",
+    "furigana": "Furigana",
+    "reading": "Phiên âm"
+  },
+  "write": {
+    "start": "Luyện viết",
+    "stop": "Tắt thẻ luyện viết",
+    "on": "luyện viết",
+    "kind": "luyện viết",
+    "prompt": "Viết từ này, từng nét một.",
+    "loading": "Đang tải nét chữ…",
+    "strokeRight": "Nét {{n}}/{{total}} đúng.",
+    "strokeWrong": "Chưa đúng nét này.",
+    "charDone": "Xong một chữ.",
+    "done_one": "Xong: {{count}} lỗi.",
+    "done_other": "Xong: {{count}} lỗi.",
+    "mistakes_one": "{{count}} lỗi",
+    "mistakes_other": "{{count}} lỗi",
+    "show": "Hiện chữ",
+    "next": "Chữ tiếp theo",
+    "finish": "Xong",
+    "noData": "Không có dữ liệu nét cho {{char}}: nhìn chữ rồi đi tiếp.",
+    "failed": "Không tải được nét chữ. Nhìn từ này rồi tự chấm.",
+    "rateNow": "Tự chấm",
+    "slots": "Các chữ của từ",
+    "slotEmpty": "Chữ thứ {{n}}, chưa viết",
+    "pad": "Bảng viết chữ {{char}}, chữ {{n}} trên {{total}}",
+    "keyboard": "Phần viết cần ngón tay, bút hoặc chuột; nút Hiện chữ và các mức chấm dùng được bằng bàn phím."
   }
 }

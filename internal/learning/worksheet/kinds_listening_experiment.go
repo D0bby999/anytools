@@ -22,7 +22,7 @@ var listeningDays = []string{
 	"Close the old notes and retest on parallel material. Keep: gist, detail and error categories, side by side.",
 	"Keep the topic, change the speaker. Keep: what familiarity changed.",
 	"Keep the speaker, change the topic. Keep: what background knowledge changed.",
-	"Add one English variety you do not know. Keep: what you recovered and what you were unsure of.",
+	"Add one variety of the language you do not know. Keep: what you recovered and what you were unsure of.",
 	"Repair only the barrier that still comes back. Keep: a third problem segment.",
 	"Have AI or a peer slip in a caption error or a follow-up. Keep: how you checked it, and why you rejected it.",
 	"Finish an action or a handover against the clock. Keep: the decision, who owns it and the next step.",

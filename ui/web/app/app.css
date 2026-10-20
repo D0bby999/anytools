@@ -787,3 +787,46 @@ input[type="checkbox"] {
     font-size: max(1rem, 1em);
   }
 }
+
+/* Han characters in their region's forms (tokens.css, --lp-font-ja-*):
+   inside text marked ja, zh or ko, the book face and the sans fall back to
+   that region's faces before the generic family. Text without a font class
+   still inherits its parent's family; the browser's own fallback follows
+   `lang` there. */
+:lang(ja) {
+  --lp-font-serif: "Literata", var(--lp-font-ja-serif), serif;
+  --lp-font-sans: "Be Vietnam Pro", var(--lp-font-ja-sans), sans-serif;
+  --font-serif: var(--lp-font-serif);
+  --font-sans: var(--lp-font-sans);
+}
+:lang(zh) {
+  --lp-font-serif: "Literata", var(--lp-font-zh-serif), serif;
+  --lp-font-sans: "Be Vietnam Pro", var(--lp-font-zh-sans), sans-serif;
+  --font-serif: var(--lp-font-serif);
+  --font-sans: var(--lp-font-sans);
+}
+:lang(zh-Hant),
+:lang(zh-TW),
+:lang(zh-HK) {
+  --lp-font-serif: "Literata", var(--lp-font-zh-hant-serif), serif;
+  --lp-font-sans: "Be Vietnam Pro", var(--lp-font-zh-hant-sans), sans-serif;
+  --font-serif: var(--lp-font-serif);
+  --font-sans: var(--lp-font-sans);
+}
+:lang(ko) {
+  --lp-font-serif: "Literata", var(--lp-font-ko-serif), serif;
+  --lp-font-sans: "Be Vietnam Pro", var(--lp-font-ko-sans), sans-serif;
+  --font-serif: var(--lp-font-serif);
+  --font-sans: var(--lp-font-sans);
+}
+
+/* The maths answer field (MathLive, components/quiz/math-field.tsx): the
+   app's ink and caret, and no menu (its commands are not part of answering). */
+math-field {
+  --caret-color: var(--color-primary);
+  --selection-background-color: var(--color-selected);
+  --selection-color: var(--color-selected-foreground);
+}
+math-field::part(menu-toggle) {
+  display: none;
+}

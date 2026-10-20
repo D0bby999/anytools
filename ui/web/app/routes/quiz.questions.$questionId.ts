@@ -18,14 +18,19 @@ export async function action({ request, params }: Route.ActionArgs) {
   const form = await request.formData();
   const intent = String(form.get("intent") ?? "");
 
+  const attribution = String(form.get("self_attribution") ?? "");
+  const answer = String(form.get("user_answer") ?? "");
   try {
     if (intent === "attempt") {
-      const attribution = String(form.get("self_attribution") ?? "");
       const result = await attemptQuestion(user.id, params.questionId, {
-        user_answer: String(form.get("user_answer") ?? ""),
+        user_answer: answer,
         // Anything outside the list is dropped here rather than sent: the API
         // would refuse it with a 400 the learner cannot act on.
         self_attribution: (ATTRIBUTIONS as readonly string[]).includes(attribution) ? attribution : "",
+        // A maths answer the checker cannot read comes back to the learner
+        // (422 unreadable_math) instead of being marked; "Send as text"
+        // posts again without it.
+        ask_if_unreadable: form.get("ask_if_unreadable") === "1",
       });
       return { result };
     }
@@ -36,6 +41,9 @@ export async function action({ request, params }: Route.ActionArgs) {
       return { result };
     }
   } catch (error) {
+    if (error instanceof ApiError && error.code === "unreadable_math") {
+      return { unreadable: { answer, attribution } };
+    }
     return {
       errorKey: intent === "override" ? "errors.overrideFailed" : "errors.attemptFailed",
       errorDetail: error instanceof ApiError ? error.message : "",

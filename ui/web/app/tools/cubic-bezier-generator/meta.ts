@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Cubic Bezier Generator',
-    vi: 'Trình tạo Cubic Bezier',
+    vi: 'Tạo cubic-bezier CSS (easing)',
     es: 'Generador de Cubic Bezier',
     pt: 'Gerador de Cubic Bezier',
   },

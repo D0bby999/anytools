@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Box Shadow Generator',
-    vi: 'Trình tạo box-shadow CSS',
+    vi: 'Tạo box-shadow CSS',
     es: 'Generador de box-shadow CSS',
     pt: 'Gerador de box-shadow CSS',
   },

@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'lifestyle',
   title: {
     en: 'Final Grade Calculator',
-    vi: 'Tính điểm thi cuối kỳ cần đạt',
+    vi: 'Tính điểm cuối kỳ cần đạt',
     es: 'Calculadora de nota final',
     pt: 'Calculadora de nota final',
   },

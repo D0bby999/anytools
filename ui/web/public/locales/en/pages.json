@@ -1,7 +1,7 @@
 {
   "guides": {
     "title": "Guides",
-    "metaTitle": "Guides — AnyTools",
+    "metaTitle": "Guides: JSON, regex, encoding, finance and design — AnyTools",
     "description": "In-depth guides to JSON, regular expressions, encodings, and the calculators and design tools on AnyTools.",
     "readingTime": "{{count}} min read",
     "updated": "Updated {{date}}",
@@ -11,7 +11,7 @@
     "updated": "Last updated {{date}}"
   },
   "anyprofile": {
-    "metaTitle": "AnyProfile — multi-profile browser for creators (macOS, Windows)",
+    "metaTitle": "AnyProfile — free multi-profile browser for macOS & Windows",
     "metaDescription": "Free, open-source app that gives every account its own browser: separate cookies, its own proxy and a consistent fingerprint. For macOS and Windows.",
     "title": "AnyProfile",
     "tagline": "One browser per account, side by side.",
@@ -88,8 +88,8 @@
     "checksums": "SHA-256 checksums"
   },
   "landing": {
-    "metaTitle": "AnyTools: free tools, and AnyLearn, a study app on your own AI",
-    "metaDescription": "AnyTools is free: everyday tools that run in your browser without an account, and AnyLearn, a self-study app that grounds chat, quizzes, a spaced-repetition mastery path and a 90-day learning loop in the documents you upload, using the AI accounts you already have. Every answer cites the page it came from.",
+    "metaTitle": "AnyTools: study your documents with AI + free online tools",
+    "metaDescription": "Upload your notes or PDFs and AnyLearn writes quizzes, answers with the page cited and plans spaced repetition on your own AI. Plus 130 free browser tools.",
     "title": "Study from your own documents.",
     "subtitle": "Check every answer against the page it came from.",
     "lede": "Answers that cite the page, quizzes written from your material, and reviews timed to just before you forget.",

@@ -48,6 +48,8 @@ export type QuestionView = {
   rubric?: Criterion[];
   knowledge_point_id?: string;
   module_id?: string;
+  /** The answer is maths, marked by value: the card offers a math field. */
+  math?: boolean;
 };
 
 /** One open mistake in the practice queue (GET /v1/quiz/practice). */
@@ -63,13 +65,15 @@ export type PracticeQueue = { items: PracticeItem[]; remaining: number };
 
 export type Judgement = {
   correct: boolean;
-  mode: "exact" | "llm" | "rubric" | "user";
+  mode: "exact" | "llm" | "rubric" | "user" | "math";
   reason?: string;
   missing?: string[];
   error_type?: string;
   /** A rubric's marking: the share of the points, and each criterion's. */
   score?: number;
   criteria?: CriterionResult[];
+  /** A maths answer equal to the recorded one but not in the form asked: right, scheduled as Hard. */
+  almost?: boolean;
 };
 
 export type Attempt = {

@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'formatters',
   title: {
     en: 'YAML Formatter / Validator',
-    vi: 'Định dạng / Kiểm tra YAML',
+    vi: 'Format & kiểm tra YAML',
     es: 'Formateador / validador de YAML',
     pt: 'Formatador / validador de YAML',
   },

@@ -19,7 +19,7 @@ export type VocabSource = { document_id: string; title: string; page?: number };
  * production and listen exist only when the learner asked for them
  * (up-methods phase 3; plans/261020-1155-open-source-adds, phase 1).
  */
-export type CardKind = "recognition" | "cloze" | "production" | "listen";
+export type CardKind = "recognition" | "cloze" | "production" | "listen" | "write";
 
 /**
  * A transcript line a listening card plays: page `page` of a YouTube video
@@ -70,6 +70,8 @@ export type VocabNote = {
   /** The listening card was asked for; clip is the line it would play. */
   listening: boolean;
   clip?: VocabClip;
+  /** The writing card was asked for (a Chinese or Japanese word with characters). */
+  writing: boolean;
 };
 
 export type DueCard = {
@@ -247,4 +249,15 @@ export function auditRow(note: VocabNote): { row: string; cells: Record<string, 
   if (note.task_impact) cells.impact = note.task_impact;
   if (basis) cells.basis = basis;
   return { row: "", cells };
+}
+
+/** A Han character or a kana: a character with strokes to draw. */
+export function drawable(char: string): boolean {
+  return /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]$/u.test(char);
+}
+
+/** A word the writing card can be for, as vocab.Writable decides it: Chinese or Japanese, with characters. */
+export function writable(term: string, lang: string): boolean {
+  const primary = lang.split("-")[0];
+  return (primary === "zh" || primary === "ja") && [...term].some(drawable);
 }

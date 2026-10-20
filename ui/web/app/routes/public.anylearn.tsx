@@ -40,6 +40,20 @@ export function meta({ data }: Route.MetaArgs) {
       alternateLocales: publicLngs,
     }),
     ...alternateLinks(origin, path, locale, publicLngs),
+    {
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "AnyLearn",
+        applicationCategory: "EducationalApplication",
+        operatingSystem: "Web",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        inLanguage: locale,
+        description: seo.description,
+        url: `${origin}${path(locale)}`,
+        publisher: { "@id": `${origin}/#organization` },
+      },
+    },
   ];
 }
 

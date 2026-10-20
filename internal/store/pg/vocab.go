@@ -38,7 +38,7 @@ const noteSelect = `
 	SELECT n.id, n.user_id, n.term, n.lang, n.reading, n.pos, n.meaning, n.contexts,
 	       n.source_document_id, n.source_page, d.title, n.created_at, n.updated_at,
 	       n.decision, n.record, n.task_impact, n.decided_at, n.scenario, n.confusable, n.production,
-	       n.listening, n.origin,
+	       n.listening, n.writing, n.origin,
 	       COALESCE((
 	         SELECT jsonb_agg(jsonb_build_object(
 	                  'id', c.id, 'kind', c.kind, 'due_at', c.due_at, 'reps', c.reps,
@@ -284,7 +284,7 @@ func scanVocabNote(row pgx.Row) (*vocab.Note, error) {
 	err := row.Scan(&n.ID, &n.UserID, &n.Term, &n.Lang, &n.Reading, &n.POS, &n.Meaning, &contexts,
 		&docID, &page, &title, &n.CreatedAt, &n.UpdatedAt,
 		&n.Decision, &record, &n.TaskImpact, &n.DecidedAt, &n.Scenario, &n.Confusable, &n.Production,
-		&n.Listening, &n.Origin, &cards)
+		&n.Listening, &n.Writing, &n.Origin, &cards)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, vocab.ErrNotFound
 	}
@@ -454,9 +454,10 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 		rawCtxs []byte
 	)
 	err = tx.QueryRow(ctx, `
-		SELECT decision, record, meaning, scenario, production, listening, contexts FROM vocab_notes
+		SELECT decision, record, meaning, scenario, production, listening, writing, term, lang, contexts FROM vocab_notes
 		 WHERE id = $1 AND user_id = $2 FOR UPDATE`, id, userID).
-		Scan(&cur.Decision, &rawRec, &cur.Meaning, &cur.Scenario, &cur.Production, &cur.Listening, &rawCtxs)
+		Scan(&cur.Decision, &rawRec, &cur.Meaning, &cur.Scenario, &cur.Production, &cur.Listening, &cur.Writing,
+			&cur.Term, &cur.Lang, &rawCtxs)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, vocab.ErrNotFound
 	}
@@ -493,6 +494,12 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 	if p.Listening != nil {
 		next.Listening = *p.Listening
 	}
+	if p.Writing != nil {
+		next.Writing = *p.Writing
+	}
+	if p.Lang != nil {
+		next.Lang = *p.Lang
+	}
 	if p.Check != nil {
 		if err := p.Check(next); err != nil {
 			return nil, err
@@ -511,10 +518,10 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 		       decision = COALESCE($7, decision), record = COALESCE($8, record),
 		       task_impact = COALESCE($9, task_impact), scenario = COALESCE($10, scenario),
 		       confusable = COALESCE($11, confusable), production = COALESCE($12, production),
-		       listening = COALESCE($13, listening), updated_at = now()
+		       listening = COALESCE($13, listening), writing = COALESCE($14, writing), updated_at = now()
 		 WHERE id = $1 AND user_id = $2`,
 		id, userID, p.Meaning, p.Reading, p.POS, p.Lang,
-		p.Decision, record, p.TaskImpact, p.Scenario, p.Confusable, p.Production, p.Listening); err != nil {
+		p.Decision, record, p.TaskImpact, p.Scenario, p.Confusable, p.Production, p.Listening, p.Writing); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return nil, fmt.Errorf("%w: you already have this word in that language", vocab.ErrInvalid)
@@ -532,7 +539,7 @@ func (s *VocabStore) UpdateNote(ctx context.Context, userID, id uuid.UUID, p voc
 }
 
 // applyCardState makes the note's cards follow a patch: its decision, the
-// production and listening cards' switches, and the learner's suspend or
+// production, listening and writing cards' switches, and the learner's suspend or
 // resume.
 func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, next vocab.NoteState, p vocab.NotePatch) error {
 	suspend := func(kind string) error {
@@ -545,7 +552,7 @@ func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, n
 		return nil
 	}
 	// The cards a word being learned has in review: the two every note gets,
-	// and production and listening when the learner asked for them.
+	// and production, listening and writing when the learner asked for them.
 	active := func() []string {
 		kinds := vocab.CardKinds()
 		if next.Production {
@@ -553,6 +560,9 @@ func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, n
 		}
 		if next.Listening {
 			kinds = append(kinds, vocab.KindListen)
+		}
+		if next.Writing {
+			kinds = append(kinds, vocab.KindWrite)
 		}
 		return kinds
 	}
@@ -569,7 +579,7 @@ func applyCardState(ctx context.Context, tx pgx.Tx, userID, id uuid.UUID, cur, n
 			return err
 		}
 	}
-	for kind, on := range map[string]*bool{vocab.KindProduction: p.Production, vocab.KindListen: p.Listening} {
+	for kind, on := range map[string]*bool{vocab.KindProduction: p.Production, vocab.KindListen: p.Listening, vocab.KindWrite: p.Writing} {
 		var err error
 		switch {
 		case on == nil:
@@ -709,6 +719,11 @@ const dueSelect = `
 	  LEFT JOIN books bk ON bk.id = ch.book_id AND bk.user_id = ch.user_id`
 
 // deckFilter is the WHERE clause that keeps each queue to its own cards.
+// langFilter narrows due cards to the words of language $3; ” is every
+// language. It reads the note by id, so it holds without dueSelect's join.
+const langFilter = ` AND ($3 = '' OR EXISTS (
+	SELECT 1 FROM vocab_notes ln WHERE ln.id = c.note_id AND ln.user_id = c.user_id AND ln.lang = $3))`
+
 func deckFilter(deck string) string {
 	if deck == vocab.DeckBook {
 		return ` AND c.kind = 'flash'`
@@ -750,8 +765,9 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, []vocab.Context, error) {
 	if len(ctxs) > 0 {
 		c.Context = ctxs[0].Sentence
 	}
-	// A listening card whose line is gone is shown as a cloze.
-	if c.Kind == vocab.KindCloze || c.Kind == vocab.KindListen {
+	// A listening card whose line is gone is shown as a cloze; a writing
+	// card shows the sentence with the word blanked, not given away.
+	if c.Kind == vocab.KindCloze || c.Kind == vocab.KindListen || c.Kind == vocab.KindWrite {
 		c.Cloze = vocab.Cloze(c.Term, c.Context)
 	}
 	if c.Kind == vocab.KindProduction {
@@ -799,11 +815,11 @@ func attachClips(ctx context.Context, q vocabQuerier, userID uuid.UUID, cards []
 }
 
 // DueCards implements vocab.Store.
-func (s *VocabStore) DueCards(ctx context.Context, userID uuid.UUID, deck string, before time.Time, limit int) ([]vocab.DueCard, int, error) {
+func (s *VocabStore) DueCards(ctx context.Context, userID uuid.UUID, deck, lang string, before time.Time, limit int) ([]vocab.DueCard, int, error) {
 	var total int
 	if err := s.pool.QueryRow(ctx,
-		`SELECT count(*) FROM vocab_cards c WHERE c.user_id = $1 AND NOT c.suspended AND c.due_at < $2`+deckFilter(deck),
-		userID, before).Scan(&total); err != nil {
+		`SELECT count(*) FROM vocab_cards c WHERE c.user_id = $1 AND NOT c.suspended AND c.due_at < $2`+deckFilter(deck)+langFilter,
+		userID, before, lang).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count due vocab cards: %w", err)
 	}
 	out := []vocab.DueCard{}
@@ -811,9 +827,9 @@ func (s *VocabStore) DueCards(ctx context.Context, userID uuid.UUID, deck string
 		return out, total, nil
 	}
 	rows, err := s.pool.Query(ctx, dueSelect+`
-		 WHERE c.user_id = $1 AND NOT c.suspended AND c.due_at < $2`+deckFilter(deck)+`
+		 WHERE c.user_id = $1 AND NOT c.suspended AND c.due_at < $2`+deckFilter(deck)+langFilter+`
 		 ORDER BY c.due_at, c.id
-		 LIMIT $3`, userID, before, limit)
+		 LIMIT $4`, userID, before, lang, limit)
 	if err != nil {
 		return nil, 0, fmt.Errorf("due vocab cards: %w", err)
 	}

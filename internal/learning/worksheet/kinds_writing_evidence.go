@@ -120,7 +120,7 @@ var writingEvidence = Kind{
 			Fields: []Field{
 				{Key: "changes", Label: "Meaning changes", Type: Table, MaxRows: 30, Columns: []Field{
 					{Key: "meaning", Label: "What I mean", Type: Text},
-					{Key: "first_draft", Label: "My first English draft", Type: Text},
+					{Key: "first_draft", Label: "My first draft in the language", Type: Text},
 					{Key: "candidate", Label: "Translation or tool candidate", Type: Text},
 					{Key: "decision", Label: "Final decision", Type: Text},
 					{Key: "reason", Label: "Reason", Type: Text},

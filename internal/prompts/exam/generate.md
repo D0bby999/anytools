@@ -14,7 +14,7 @@ Per type:
 - `mcq`: the same number of options as the template (four when it has none), labelled `A`, `B`, …. Exactly one is correct; `answer` is its label. Wrong options must be wrong for a reason the material explains. Keep the options similar in length: the correct one must not be the longest by a wide margin.
 - `tf`: `answer` is exactly `true` or `false`.
 - `cloze`: the prompt contains exactly one blank, written `____`; `answer` is the text that fills it.
-- `short`: `answer` is the model answer a correct response must match in substance.
+- `short`: `answer` is the model answer a correct response must match in substance. A number, an expression or an equation is written alone in plain notation (`2*(x+1)`, `x^2 - 1`, `y = 2x + 1`), with no words, units or `$`: it is compared by value.
 - `written`: `answer` is a model answer or worked solution. `rubric` has 2 to 6 criteria, each a thing a full answer does, with points; the points add up to exactly the template's marks.
 
 Reply with JSON only, no prose around it:

@@ -17,8 +17,8 @@ A short guide to what each study feature does, what it costs on your own AI key,
 | Audio overview | A knowledge base or a report → Audio overview | One call for the script; then the server's built-in voices (free, daily minutes), your own speech key on the `tts` route, or the browser |
 | Living books | A knowledge base → Make a book | One call for the outline, then one per block |
 | Toolkit (worksheets) | Toolkit, from More, the Loop and a learning state | Nothing, except a writing diagnosis |
-| English (one page) | English, on the rail in Practise | Nothing: it links what is below |
-| English diagnostic | English, Toolkit → Language, a skill card in the Loop | Nothing |
+| Languages (one page) | Languages, on the rail in Practise; a tab per language | Nothing: it links what is below |
+| Language diagnostic | Languages, Toolkit → Language, a skill card in the Loop | Nothing |
 | Listening practice | A video or an audio file → Practise listening | Nothing |
 | Unknown-word decisions and production cards | The reader's word picker, Mastery → Vocabulary | One call when you ask for words to save, as before |
 | Listening cards | Mastery → Vocabulary → Practise hearing it | Nothing |
@@ -43,6 +43,12 @@ A short guide to what each study feature does, what it costs on your own AI key,
 | Spreadsheets | A knowledge base → upload | An index only; read locally |
 | Zotero | A knowledge base → Add from Zotero; Research | An index of each item added; research may search it as a tool |
 | Body (training) | Body, Home → Body today | Nothing to log or progress; the coach is one call on your `chat` model per plan, review or revision, and at most one repair |
+
+## Maths answers, marked by value
+
+A short or cloze question whose recorded answer is an expression or an equation is marked in Go, with no model call (`internal/capabilities/quiz/mathcheck`): both are evaluated at the same 24 sample points, so `2(x+1)`, `2x + 2` and `\frac{4x+4}{2}` are one answer, an equation equals any rearrangement of itself, and `x = 3` equals `3`. A bare number is compared by value when the reply is a number. The notation read is what people type and what MathLive writes: decimal commas, implicit multiplication, `^`, roots, `|x|`, the usual functions, π and a LaTeX subset. When the question asks to simplify, factorise or expand, an equal answer in another form is "Almost": right, scheduled as Hard. Units, matrices, intervals, solution sets, inequalities and proofs go to the model as before (owner decision 3).
+
+The card offers a MathLive field for such a question (`math: true` in the question's view; the library is a lazy chunk, its fonts under `/tool-runtime/`), which works as a plain box until it loads. A reply the checker cannot read is not marked: the API answers 422 `unreadable_math` when the card asks (`ask_if_unreadable`), and the learner fixes it or sends it as text to the model. An exam's marking does not ask, so its unreadable answers go to the model.
 
 ## Practise your mistakes
 
@@ -110,13 +116,17 @@ The toolkit holds 27 worksheets taken from up's templates (`byoungd/up` at `f13f
 
 Nothing in the toolkit calls a model, except a writing diagnosis that you ask for. **Worksheets are stored like notes: readable by the server, not encrypted at rest.** Do not put passwords, ID numbers, exact addresses or medical details in them.
 
-## English, in one place
+## Languages, in one place
 
-The English page gathers the English practice below by skill: the diagnostic first, then listening, reading, speaking, writing, vocabulary, grammar and English for work. Each skill names where its practice is (a video's Practise listening, a document's five passes, the vocabulary deck, with what is due today) and lists its worksheets with yours of each. It adds nothing of its own; a listening or reading worksheet still starts from its video or document.
+The Languages page (`/languages`) gathers the language practice below by skill, for every language the learner studies, not only English. A first visit asks which languages: those of the saved words are suggested and ticked, then the often learned, then a search over every ISO 639-1 language, named by the browser (`Intl.DisplayNames`). Each studied language is a tab with its words due; the page opens on the tab viewed last. The list lives in `vocab_languages` (`GET`/`PUT /v1/vocab/languages`); taking a language off hides its tab and keeps its words, which carry their own language as before.
 
-## English diagnostic
+A language's tab puts its vocabulary first, with "Review these" opening Mastery → Vocabulary narrowed to that language (`GET /v1/vocab/due?lang=`), then the diagnostic (a diagnostic started here is titled with the language), then listening, reading, speaking, writing, grammar and language for work. It adds no practice of its own; a listening or reading worksheet still starts from its video or document. The old `/english` answers with English's tab and adds English to the list.
 
-A four-skill diagnostic with a CEFR self-check rated per skill, never averaged into one level. Each skill's evidence card opens the matching worksheet, prefilled. Listening and reading evidence start from the video or text you practise on, so the diagnostic names them and says where to begin.
+Each language has a small profile in `ui/web/app/lib/languages.ts`: a dictionary to look a word up in (Jisho, MDBG, Naver, Cambridge, WordReference) besides Wiktionary in the learner's language, shown when saving a word and on a card's back; and what a reading is called (pinyin, furigana). Text marked `ja`, `zh` or `ko` falls back to that region's faces, so a Han character takes its regional form; foreign text is `dir="auto"` where it is typed.
+
+## Language diagnostic
+
+A four-skill diagnostic (the kind is still `english_diagnostic`; its text says "the language you are learning") with a CEFR self-check rated per skill, never averaged into one level. Each skill's evidence card opens the matching worksheet, prefilled. Listening and reading evidence start from the video or text you practise on, so the diagnostic names them and says where to begin.
 
 ## Listening practice
 
@@ -129,6 +139,12 @@ Saving a word now asks what to do with it first: skip, infer, look it up, learn,
 ## Listening cards
 
 A word saved from a video's or a recording's transcript can get a listening card: "Practise hearing it" in Mastery → Vocabulary. The review plays the line the word came from, cut to that line (a YouTube video in its embed, an uploaded file from this site), and you type the word you hear; it is marked like a cloze. The blanked line stays hidden until you ask for it. The moment is not stored with the word: the line's current timing is read from the transcript, so a re-transcribed video still plays the right piece. If the video is deleted, the card stays and is shown as a cloze. The idea is asbplayer's sentence cards; nothing of its code is used.
+
+## Writing cards (Chinese and Japanese)
+
+A Chinese or Japanese word being learned that has Han characters or kana can have a writing card ("Practise writing it" in the word list, `PATCH /v1/vocab/{id} {writing}`; card kind `write`). Its front is the meaning, the reading and the sentence with the word blanked; the learner draws the word one character at a time on a pad, each stroke checked as it is drawn by [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT). A wrong stroke fades and counts as a mistake; after three misses the stroke's start is hinted, and no stroke is ever forced right. "Show the character" draws it and counts as a miss. The rating is the learner's, suggested from the mistakes: none Good, one to three Hard, more or a character shown Again.
+
+Stroke data is served one character at a time by `/strokes/<zh|ja>/<character>` (`ui/web/app/lib/strokes.server.ts`): Chinese from Make Me A Hanzi (9,574 characters, all 3,755 of GB2312's first level), Japanese from animCJK (all 2,136 jōyō kanji with Japanese stroke forms, and 177 kana). animCJK splits a stroke that crosses itself (あ, ぬ, ね, の…) for its animation; the route joins the parts back, so every basic kana is quizzed with its standard stroke count. Both data sets are Arphic PL (animCJK's other files LGPL), staged under `/tool-runtime/` with their licence texts (THIRD-PARTY-NOTICES.md).
 
 ## Read-aloud check
 

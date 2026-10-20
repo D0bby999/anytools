@@ -8,14 +8,27 @@
 import { APP_URL } from "~/lib/env.server";
 import { publicLngs, type PublicLng } from "~/lib/i18n";
 import { POPULATED_CLUSTERS } from "./catalog";
-import { clusterIsIndexable, isIndexableTool, toolLocales } from "./content.server";
+import { clusterIsIndexable, isIndexableTool, loadToolContent, toolLocales } from "./content.server";
 import { toolMetas } from "~/tools/meta-registry";
 import { GUIDE_SLUGS, guideLocales, STATIC_PAGES } from "./pages.server";
 
-function entry(path: (l: PublicLng) => string, self: PublicLng, alternates: readonly PublicLng[], xDefault?: string): string {
+/**
+ * The day the redesigned site went live: every page's markup, copy and
+ * structure changed then, so no page is older than it. Move it only when the
+ * pages change again as a whole; a single article's `updated:` date, when
+ * later, speaks for that page alone. Never the build date: a sitemap whose
+ * dates move on every deploy teaches Google to ignore them.
+ */
+const SITE_UPDATED = "2026-10-20";
+
+function lastmod(updated?: string): string {
+  return updated && /^\d{4}-\d{2}-\d{2}$/.test(updated) && updated > SITE_UPDATED ? updated : SITE_UPDATED;
+}
+
+function entry(path: (l: PublicLng) => string, self: PublicLng, alternates: readonly PublicLng[], xDefault?: string, updated?: string): string {
   const links = alternates.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${APP_URL}${path(l)}"/>`);
   if (alternates.includes("en")) links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}${xDefault ?? path("en")}"/>`);
-  return `  <url>\n    <loc>${APP_URL}${path(self)}</loc>\n${links.join("\n")}\n  </url>`;
+  return `  <url>\n    <loc>${APP_URL}${path(self)}</loc>\n    <lastmod>${lastmod(updated)}</lastmod>\n${links.join("\n")}\n  </url>`;
 }
 
 export function publicUrls(): string[] {
@@ -33,7 +46,8 @@ export function publicUrls(): string[] {
     for (const m of toolMetas) {
       if (!isIndexableTool(m, locale)) continue;
       const alternates = toolLocales(m).filter((l) => isIndexableTool(m, l));
-      out.push(entry((l) => `/${l}/${m.cluster}/${m.slug}`, locale, alternates));
+      const updated = loadToolContent(locale, m.cluster, m.slug).tutorial?.data.updated;
+      out.push(entry((l) => `/${l}/${m.cluster}/${m.slug}`, locale, alternates, undefined, updated));
     }
     // AnyTools phase 4: the guides, AnyProfile and the about, privacy, terms
     // and contact pages, each written in all four languages.

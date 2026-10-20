@@ -22,7 +22,7 @@ var experimentDays = []struct{ key, action string }{
 	{"day7", "Drop the old script and do the first delayed retest. Keep: a 90–120 second recording on a new topic."},
 	{"day8", "Ask a partner to cause one hearing or scope break. Keep: how you repaired it and how you confirmed it."},
 	{"day9", "Change the listener or the device. Keep: the listener's retelling under the new conditions."},
-	{"day10", "Listen to an English variety you do not know and retell it. Keep: the gist, the details and what you were unsure of."},
+	{"day10", "Listen to a variety of the language you do not know and retell it. Keep: the gist, the details and what you were unsure of."},
 	{"day11", "Repair only the problem that still comes back. Keep: the third version, and the low-impact advice you set aside."},
 	{"day12", "Have AI or a partner ask three follow-ups you did not expect. Keep: the unscripted answers and the transcript errors."},
 	{"day13", "Explain a collaboration or a decision against the clock. Keep: the conclusion, who owns it and the next step."},

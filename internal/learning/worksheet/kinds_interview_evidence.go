@@ -15,9 +15,9 @@ package worksheet
 const InterviewEvidenceKind = "interview_evidence"
 
 var interviewEvidence = Kind{
-	Kind: InterviewEvidenceKind, Name: "Job-search English evidence", Group: GroupLanguage, Version: 1,
+	Kind: InterviewEvidenceKind, Name: "Job-search language evidence", Group: GroupLanguage, Version: 1,
 	Source: "docs/en/templates/interview-evidence.md",
-	Summary: "For one real role and its hiring process: can you get your actual ability across in English? " +
+	Summary: "For one real role and its hiring process: can you get your actual ability across in the language you are learning? " +
 		"An unscripted baseline, real stories, unfamiliar follow-ups, written updates, repair, and a retest two weeks on. " +
 		"It says nothing about whether you will get the job.",
 	Attach: AttachState,
@@ -106,7 +106,7 @@ var interviewEvidence = Kind{
 					{Key: "effect", Label: "Effect on the task", Type: Text},
 					{Key: "next_test", Label: "What to test next", Type: Text},
 				}},
-				{Key: "not_english", Label: "The biggest problem that is not mainly about English", Type: Text},
+				{Key: "not_english", Label: "The biggest problem that is not mainly about the language", Type: Text},
 				{Key: "meaning_error", Label: "A language error that keeps changing the key meaning", Type: Text},
 				{Key: "repair", Label: "A repair move worth keeping", Type: Text},
 			}},
@@ -229,7 +229,7 @@ var interviewEvidence = Kind{
 				{Key: "clarification", Label: "A clarification that worked", Type: Text},
 				{Key: "failed_story", Label: "A story that did not answer the question", Type: Text},
 				{Key: "transferred", Label: "A structure that carried over", Type: Text},
-				{Key: "not_english", Label: "A difficulty not mainly caused by English", Type: Text},
+				{Key: "not_english", Label: "A difficulty not mainly caused by the language", Type: Text},
 				{Key: "feedback", Label: "The recruiter's feedback, in their own words", Type: Long},
 				{Key: "variable", Label: "One variable to change", Type: Text},
 				{Key: "stop", Label: "Preparation to stop doing", Type: Text},

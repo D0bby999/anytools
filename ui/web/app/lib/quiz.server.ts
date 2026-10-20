@@ -54,7 +54,7 @@ export function getQuestion(userId: string, questionId: string) {
 export function attemptQuestion(
   userId: string,
   questionId: string,
-  body: { user_answer: string; self_attribution?: string },
+  body: { user_answer: string; self_attribution?: string; ask_if_unreadable?: boolean },
 ) {
   return apiFetch<AttemptResult>(`/v1/questions/${encodeURIComponent(questionId)}/attempt`, userId, {
     method: "POST",

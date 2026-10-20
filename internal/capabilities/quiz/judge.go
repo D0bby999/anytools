@@ -2,12 +2,14 @@ package quiz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 
 	"github.com/google/uuid"
 
+	"github.com/D0bby999/anytools/internal/capabilities/quiz/mathcheck"
 	"github.com/D0bby999/anytools/internal/citations"
 	"github.com/D0bby999/anytools/internal/learning"
 	quizprompts "github.com/D0bby999/anytools/internal/prompts/quiz"
@@ -43,6 +45,15 @@ const JudgeModeLLM = "llm"
 // JudgeModeUser marks a verdict the learner overrode.
 const JudgeModeUser = "user"
 
+// JudgeModeMath marks a maths answer compared by value, in Go, with no model
+// call (mathcheck; plans/261020-1535-beyond-english-learning-areas, phase 2).
+const JudgeModeMath = "math"
+
+// ErrUnreadableMath answers a maths answer the checker could not read when
+// the client asked to be told (AttemptRequest.AskIfUnreadable). Nothing is
+// recorded: an answer that could not be read is not a wrong answer.
+var ErrUnreadableMath = errors.New("quiz: this answer could not be read as maths")
+
 // Judgement is the record stored in `question_attempts.judge`.
 type Judgement struct {
 	Correct   bool     `json:"correct"`
@@ -56,6 +67,9 @@ type Judgement struct {
 	// the points awarded, and what each criterion earned.
 	Score    *float64          `json:"score,omitempty"`
 	Criteria []CriterionResult `json:"criteria,omitempty"`
+	// Almost is a maths answer equal to the recorded one but not in the form
+	// the question asks for: right, and scheduled as Hard.
+	Almost bool `json:"almost,omitempty"`
 }
 
 // judgeReply is the model's JSON.
@@ -73,6 +87,11 @@ type AttemptRequest struct {
 	// the ONLY extra thing this product asks for after an answer. It feeds both
 	// the error record and the FSRS rating (learning.RatingFor).
 	SelfAttribution string `json:"self_attribution,omitempty"`
+	// AskIfUnreadable: a maths answer the checker cannot read is answered
+	// with ErrUnreadableMath rather than sent to the model, so the learner
+	// can fix it or send it as text. The quiz card sets it; an exam's
+	// marking does not, and such an answer goes to the model as before.
+	AskIfUnreadable bool `json:"ask_if_unreadable,omitempty"`
 }
 
 // AttemptResult is what the learner gets back: the verdict, the answer and
@@ -111,12 +130,15 @@ func (s *Service) Attempt(
 
 	answer := capAnswer(strings.TrimSpace(req.UserAnswer), q.Type)
 
-	judgement, err := s.judge(ctx, userID, *q, answer)
+	judgement, err := s.judge(ctx, userID, *q, answer, req.AskIfUnreadable)
 	if err != nil {
 		return nil, err
 	}
 
 	rating := learning.RatingFor(judgement.Correct, attribution)
+	if judgement.Almost && rating != learning.RatingAgain {
+		rating = learning.RatingHard
+	}
 	errorType := judgement.ErrorType
 	if judgement.Correct {
 		errorType = learning.ErrTypeNone
@@ -238,8 +260,8 @@ func (s *Service) Sources(ctx context.Context, userID uuid.UUID, qs ...Question)
 	return sources
 }
 
-// judge routes to the exact or the model path.
-func (s *Service) judge(ctx context.Context, userID uuid.UUID, q Question, answer string) (Judgement, error) {
+// judge routes to the exact, the maths or the model path.
+func (s *Service) judge(ctx context.Context, userID uuid.UUID, q Question, answer string, askIfUnreadable bool) (Judgement, error) {
 	switch q.Type {
 	case TypeMCQ:
 		return exactJudge(matchesLabel(q.Options, q.Answer, answer)), nil
@@ -248,6 +270,26 @@ func (s *Service) judge(ctx context.Context, userID uuid.UUID, q Question, answe
 		return exactJudge(ok && got == q.Answer), nil
 	case TypeWritten:
 		return s.rubricJudge(ctx, userID, q, answer)
+	}
+	if strings.TrimSpace(answer) != "" {
+		switch mathcheck.Judge(q.Prompt, q.Answer, answer) {
+		case mathcheck.Right:
+			return Judgement{Correct: true, Mode: JudgeModeMath}, nil
+		case mathcheck.Almost:
+			return Judgement{
+				Correct: true, Mode: JudgeModeMath, Almost: true,
+				Reason: "Equal to the answer, but not in the form the question asks for.",
+			}, nil
+		case mathcheck.Wrong:
+			return Judgement{
+				Correct: false, Mode: JudgeModeMath, ErrorType: learning.ErrTypeUnknown,
+				Reason: "The value differs from the recorded answer.",
+			}, nil
+		case mathcheck.Unreadable:
+			if askIfUnreadable {
+				return Judgement{}, ErrUnreadableMath
+			}
+		}
 	}
 	return s.llmJudge(ctx, userID, q, answer)
 }

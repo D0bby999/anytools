@@ -131,11 +131,11 @@
     "totalOf": "{{total}} de {{max}}",
     "open": "Abrir uma ficha de evidências de {{skill}}",
     "fromDocument": "Comece a partir do vídeo ou do texto com que você pratica.",
-    "prefill": "Do diagnóstico de inglês “{{title}}”: a barreira principal é {{barrier}}.",
+    "prefill": "Do diagnóstico de idioma “{{title}}”: a barreira principal é {{barrier}}.",
     "prefillSample": "Amostra ou marca de tempo: {{sample}}.",
     "cannotOpen": "Essa ficha de evidências não pode ser aberta daqui.",
-    "notADiagnostic": "Só um diagnóstico de inglês abre fichas de evidências.",
-    "start": "Comece com um diagnóstico de inglês",
+    "notADiagnostic": "Só um diagnóstico de idioma abre fichas de evidências.",
+    "start": "Comece com um diagnóstico de idioma",
     "startLead": "Uma primeira amostra, sem polimento, nas quatro habilidades mostra em qual barreira trabalhar antes de avançar com os cartões."
   },
   "writingDiagnosis": {
@@ -219,13 +219,54 @@
     "rates": "{{first}} na primeira passada · {{revised}} depois da revisão",
     "differs": "O que está escrito aqui difere das linhas do caso. Os resultados só são salvos com as proporções que as linhas dão."
   },
-  "english": {
-    "title": "Inglês",
-    "lead": "Tudo o que há aqui para praticar inglês, por habilidade. Você pratica com seu próprio material: os vídeos, artigos e rascunhos que já tem.",
+  "languages": {
+    "title": "Idiomas",
+    "lead": "Pratique os idiomas que você está aprendendo, por habilidade, com seu próprio material: os vídeos, artigos e rascunhos que você já tem.",
+    "tabs": {
+      "label": "Idiomas que você está aprendendo",
+      "add": "+ Adicionar um idioma",
+      "due_one": "{{count}} palavra para revisar",
+      "due_other": "{{count}} palavras para revisar"
+    },
+    "picker": {
+      "title": "Quais idiomas você está aprendendo?",
+      "lead": "Escolha um ou mais. Você pode mudar quando quiser.",
+      "suggested": "Sugeridos pelas palavras que você salvou",
+      "words_one": "{{count}} palavra",
+      "words_other": "{{count}} palavras",
+      "common": "Os mais estudados",
+      "other": "Outros idiomas",
+      "search": "Buscar um idioma",
+      "matches_one": "{{count}} idioma corresponde",
+      "matches_other": "{{count}} idiomas correspondem",
+      "noMatch": "Nenhum idioma com esse nome.",
+      "submit": "Começar a aprender",
+      "saving": "Salvando…",
+      "needOne": "Escolha pelo menos um idioma.",
+      "keepsWords": "Tirar um idioma esconde a aba dele; as palavras continuam no seu vocabulário.",
+      "failed": "Não foi possível salvar sua escolha: {{cause}}. Tente de novo.",
+      "offline": "Você está sem conexão. Sua escolha não foi salva.",
+      "back": "Voltar para {{name}}",
+      "failedPlain": "Não foi possível salvar sua escolha. Tente de novo."
+    },
+    "notStudied": "Você ainda não adicionou {{name}}.",
+    "addIt": "Adicionar à minha lista",
+    "vocab": {
+      "due_one": "Hoje há {{count}} palavra em {{name}} para revisar.",
+      "due_other": "Hoje há {{count}} palavras em {{name}} para revisar.",
+      "noneDue": "Hoje não há palavras em {{name}} para revisar.",
+      "none": "Ainda não há palavras em {{name}}. Abra um documento em {{name}}, selecione um trecho e salve as palavras dele.",
+      "review_one": "Revisar esta palavra",
+      "review_other": "Revisar estas {{count}} palavras",
+      "all": "Ver todas as palavras em {{name}}",
+      "anki": "Importar do Anki",
+      "openKnowledge": "Abrir Conhecimento"
+    },
+    "diagnosticTitle": "{{kind}} — {{name}}",
     "fromDocument": "A partir de um documento",
     "fromDocumentOf": "Começar {{name}} a partir de um documento",
-    "vocabDue_one": "Hoje há {{count}} palavra para revisar.",
-    "vocabDue_other": "Hoje há {{count}} palavras para revisar.",
+    "fromRecording": "A partir de um vídeo ou gravação",
+    "fromRecordingOf": "Começar {{name}} a partir de um vídeo ou gravação",
     "start": {
       "title": "Comece aqui",
       "body": "Uma primeira linha de base, sem polimento, nas quatro habilidades sobre um tema real. Ela diz qual barreira atacar primeiro; as seções abaixo são onde você trabalha nela."
@@ -259,11 +300,9 @@
         "body": "Organize seus deslizes pelo que causaram ao leitor e depois pratique uma estrutura com um cartão de contraste."
       },
       "work": {
-        "title": "Inglês para o trabalho",
+        "title": "Idiomas para o trabalho",
         "body": "Para uma vaga real: você consegue mostrar sua capacidade real no processo seletivo dela?"
       }
-    },
-    "fromRecording": "A partir de um vídeo ou gravação",
-    "fromRecordingOf": "Começar {{name}} a partir de um vídeo ou gravação"
+    }
   }
 }

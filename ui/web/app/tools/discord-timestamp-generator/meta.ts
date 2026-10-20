@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Discord Timestamp Generator',
-    vi: 'Trình tạo Timestamp Discord',
+    vi: 'Tạo timestamp Discord',
     es: 'Generador de marcas de tiempo de Discord',
     pt: 'Gerador de timestamp do Discord',
   },

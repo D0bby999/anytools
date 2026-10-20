@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'text-regex',
   title: {
     en: 'Unicode Cleaner',
-    vi: 'Dọn ký tự Unicode ẩn',
+    vi: 'Xóa ký tự ẩn Unicode',
     es: 'Limpiador de Unicode oculto',
     pt: 'Limpador de Unicode oculto',
   },

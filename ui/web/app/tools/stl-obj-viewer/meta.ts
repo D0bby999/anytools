@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'design',
   title: {
     en: 'STL/OBJ Viewer',
-    vi: 'Xem STL/OBJ',
+    vi: 'Xem file STL & OBJ',
     es: 'Visor STL/OBJ',
     pt: 'Visualizador STL/OBJ',
   },

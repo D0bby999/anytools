@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'formatters',
   title: {
     en: 'JSON Formatter & Validator',
-    vi: 'Định dạng & Kiểm tra JSON',
+    vi: 'Format & kiểm tra JSON',
     es: 'Formateador y validador de JSON',
     pt: 'Formatador e validador de JSON',
   },

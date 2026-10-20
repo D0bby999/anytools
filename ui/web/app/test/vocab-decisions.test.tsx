@@ -67,6 +67,7 @@ function note(over: Partial<VocabNote>): VocabNote {
     confusable: "",
     production: false,
     listening: false,
+    writing: false,
     ...over,
   };
 }

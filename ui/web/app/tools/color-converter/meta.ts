@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'design',
   title: {
     en: 'Color Converter & Contrast Checker',
-    vi: 'Color converter & kiểm tra contrast',
+    vi: 'Chuyển mã màu HEX, RGB, HSL',
     es: 'Conversor de color y verificador de contraste',
     pt: 'Conversor de cor e verificador de contraste',
   },

@@ -2748,3 +2748,25 @@ the manifest `ui/web/scripts/tool-runtime.json`, and served from this origin und
 `/tool-runtime/libheif-js@1.19.8/LICENSE.txt`. The single-file binaries a package exports (the
 jSquash codecs, zxing-wasm, onnxruntime-web) are emitted by Vite into `/assets/`. The bytes, and
 so the notices, are the same.
+
+## Stroke data: Make Me A Hanzi and animCJK
+
+AnyLearn's writing card (plans/261020-1535-beyond-english-learning-areas, phase 3) checks each
+stroke a learner draws against stroke outlines and median lines from two open data sets, which
+this site **redistributes**: they are staged by `ui/web/scripts/tool-runtime.json` and served one
+character at a time by `/strokes/<zh|ja>/<character>` (`ui/web/app/lib/strokes.server.ts`).
+
+- Chinese: [Make Me A Hanzi](https://github.com/skishore/makemeahanzi) `graphics.txt` at commit
+  `bddc96d41bef78427ed0e034e9f7e31d71fd1b92`, pinned by sha256. Its graphics derive from fonts by
+  Arphic Technology and are under the Arphic Public License.
+- Japanese: [animCJK](https://github.com/parsimonhi/animCJK) `graphicsJa.txt` and
+  `graphicsJaKana.txt` at commit `3e1253b341cc7be14c3540bb3c045e6163557777`, pinned by sha256.
+  Its graphics files are under the Arphic Public License; its other files under the GNU LGPL
+  (version 3 or later).
+
+The data is not modified on disk. One change is made when a Japanese character is served: animCJK
+splits a stroke that crosses itself (あ, ぬ, ね, の…) into two shapes for its animation, and the
+two are joined back into one stroke so that a learner draws it as written. The licence texts
+travel with the data: `/tool-runtime/makemeahanzi@0.0.0-bddc96d/ARPHICPL.TXT` and `COPYING.txt`;
+`/tool-runtime/animcjk@0.0.0-3e1253b/ARPHICPL.TXT`, `COPYING.txt` and `LGPL.txt`. The quiz itself
+is [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT), listed above.

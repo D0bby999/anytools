@@ -167,7 +167,7 @@ describe("the guides pages", () => {
   it("index: every guide, canonical and four hreflang links", async () => {
     const data = (await call(guides.loader, "/es/guides", { locale: "es" })) as { guides: { slug: string }[]; seo: { title: string } };
     expect(data.guides).toHaveLength(7);
-    expect(data.seo.title).toBe("Guías — AnyTools");
+    expect(data.seo.title).toBe("Guías de JSON, regex, codificación, finanzas y diseño");
     const tags = metaOf(guides.meta, data);
     expect(canonical(tags)).toBe("https://anytools.example/es/guides");
     expect(hreflangs(tags)).toEqual(["en", "vi", "es", "pt", "x-default"]);
@@ -369,7 +369,7 @@ describe("the merged landing page", () => {
     ]);
     expect(tags).toContainEqual({ property: "og:locale", content: "vi_VN" });
     expect(tags.filter((t) => t.property === "og:locale:alternate").map((t) => t.content)).toEqual(["en_US", "es_ES", "pt_BR"]);
-    expect(tags[0]).toEqual({ title: "AnyTools: công cụ miễn phí, và AnyLearn, ứng dụng học chạy trên AI của bạn" });
+    expect(tags[0]).toEqual({ title: "AnyTools: học từ tài liệu bằng AI và công cụ online miễn phí" });
   });
 
 });

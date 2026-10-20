@@ -24,7 +24,10 @@
     "checking": "Comprobando…",
     "true": "Verdadero",
     "false": "Falso",
-    "answer": "Respuesta:"
+    "answer": "Respuesta:",
+    "mathHint": "Escríbelo como lo escribirías a mano: 2(x+1), x^2, sqrt(3)/2, 1/2.",
+    "unreadable": "AnyLearn no pudo leer esto como matemáticas. Revisa los paréntesis y las operaciones, o envíalo como texto para que lo corrija tu modelo de cuestionarios.",
+    "sendAsText": "Enviar como texto"
   },
   "verdict": {
     "correct": "Correcto",
@@ -34,7 +37,11 @@
     "scheduled": "Este punto vuelve cuando estés a punto de olvidarlo.",
     "markRight": "Tenía razón. Que cuente",
     "markWrong": "Contarlo como incorrecto",
-    "next": "Siguiente pregunta"
+    "next": "Siguiente pregunta",
+    "almost": "Casi",
+    "mathAlmost": "Igual a la respuesta, pero no en la forma que pide la pregunta.",
+    "mathEqual": "Tu respuesta {{answer}} es igual a la registrada, {{recorded}}.",
+    "mathWrong": "El valor es distinto de la respuesta registrada."
   },
   "quiz": {
     "title": "Cuestionarios",

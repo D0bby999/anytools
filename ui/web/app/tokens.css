@@ -112,6 +112,18 @@
   --lp-font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --lp-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
+  /* Han characters take their regional forms from the font: a word marked
+     ja, zh or ko is set in that region's system faces after the Latin ones
+     (app.css, :lang). Languages page, phase 1. */
+  --lp-font-ja-serif: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Serif CJK JP";
+  --lp-font-ja-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, "Noto Sans JP", "Noto Sans CJK JP";
+  --lp-font-zh-serif: "Songti SC", SimSun, "Noto Serif SC", "Noto Serif CJK SC";
+  --lp-font-zh-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC";
+  --lp-font-zh-hant-serif: "Songti TC", PMingLiU, "Noto Serif TC", "Noto Serif CJK TC";
+  --lp-font-zh-hant-sans: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Noto Sans CJK TC";
+  --lp-font-ko-serif: AppleMyungjo, Batang, "Noto Serif KR", "Noto Serif CJK KR";
+  --lp-font-ko-sans: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR";
+
   /* Fixed rem scale, ~1.2 ratio, with two display steps for titles and the
      chapter numeral. No fluid clamp on an Operate surface. */
   --lp-text-2xs: 0.6875rem;

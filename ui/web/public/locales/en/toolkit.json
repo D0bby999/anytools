@@ -131,11 +131,11 @@
     "totalOf": "{{total}} of {{max}}",
     "open": "Open a {{skill}} evidence worksheet",
     "fromDocument": "Start it from the video or text you practise on.",
-    "prefill": "From the English diagnostic “{{title}}”: the primary barrier is {{barrier}}.",
+    "prefill": "From the language diagnostic “{{title}}”: the primary barrier is {{barrier}}.",
     "prefillSample": "Sample or timestamp: {{sample}}.",
     "cannotOpen": "That evidence worksheet cannot be opened from here.",
-    "notADiagnostic": "Only an English diagnostic opens evidence worksheets.",
-    "start": "Start with an English diagnostic",
+    "notADiagnostic": "Only a language diagnostic opens evidence worksheets.",
+    "start": "Start with a language diagnostic",
     "startLead": "A first, unpolished sample in all four skills shows which barrier to work on before the cards go further."
   },
   "writingDiagnosis": {
@@ -219,13 +219,54 @@
     "rates": "{{first}} first pass · {{revised}} after revision",
     "differs": "What is written here differs from the case rows. The results are saved only with the rates the rows give."
   },
-  "english": {
-    "title": "English",
-    "lead": "Everything here for practising English, by skill. You practise on your own material: the videos, articles and drafts you already have.",
+  "languages": {
+    "title": "Languages",
+    "lead": "Practise the languages you are learning, by skill, on your own material: the videos, articles and drafts you already have.",
+    "tabs": {
+      "label": "Languages you are learning",
+      "add": "+ Add a language",
+      "due_one": "{{count}} word due",
+      "due_other": "{{count}} words due"
+    },
+    "picker": {
+      "title": "Which languages are you learning?",
+      "lead": "Choose one or more. You can change this at any time.",
+      "suggested": "Suggested from the words you saved",
+      "words_one": "{{count}} word",
+      "words_other": "{{count}} words",
+      "common": "Often learned",
+      "other": "Other languages",
+      "search": "Find a language",
+      "matches_one": "{{count}} language matches",
+      "matches_other": "{{count}} languages match",
+      "noMatch": "No language by that name.",
+      "submit": "Start learning",
+      "saving": "Saving…",
+      "needOne": "Choose at least one language.",
+      "keepsWords": "Taking a language off hides its tab; its words stay in your vocabulary.",
+      "failed": "Could not save your choice: {{cause}}. Try again.",
+      "offline": "You are offline. Your choice has not been saved.",
+      "back": "Back to {{name}}",
+      "failedPlain": "Could not save your choice. Try again."
+    },
+    "notStudied": "You have not added {{name}}.",
+    "addIt": "Add to my list",
+    "vocab": {
+      "due_one": "{{count}} {{name}} word is due for review today.",
+      "due_other": "{{count}} {{name}} words are due for review today.",
+      "noneDue": "No {{name}} words are due today.",
+      "none": "No {{name}} words yet. Open a document in {{name}}, select a passage and save its words.",
+      "review_one": "Review this word",
+      "review_other": "Review these {{count}} words",
+      "all": "See every {{name}} word",
+      "anki": "Import from Anki",
+      "openKnowledge": "Open Knowledge"
+    },
+    "diagnosticTitle": "{{kind}} — {{name}}",
     "fromDocument": "From a document",
     "fromDocumentOf": "Start {{name}} from a document",
-    "vocabDue_one": "{{count}} word is due for review today.",
-    "vocabDue_other": "{{count}} words are due for review today.",
+    "fromRecording": "From a video or recording",
+    "fromRecordingOf": "Start {{name}} from a video or recording",
     "start": {
       "title": "Start here",
       "body": "A first, rough baseline in all four skills on one real topic. It says which barrier to work on first; the sections below are where you work on it."
@@ -259,11 +300,9 @@
         "body": "Sort your slips by what they did to the reader, then practise one structure with a contrast card."
       },
       "work": {
-        "title": "English for work",
+        "title": "Language for work",
         "body": "For one real role: can you get your actual ability across in its hiring process?"
       }
-    },
-    "fromRecording": "From a video or recording",
-    "fromRecordingOf": "Start {{name}} from a video or recording"
+    }
   }
 }

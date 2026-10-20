@@ -24,7 +24,10 @@
     "checking": "Đang kiểm tra…",
     "true": "Đúng",
     "false": "Sai",
-    "answer": "Đáp án:"
+    "answer": "Đáp án:",
+    "mathHint": "Gõ như viết tay: 2(x+1), x^2, sqrt(3)/2, 1/2.",
+    "unreadable": "AnyLearn không đọc được câu này như một biểu thức toán. Kiểm tra lại dấu ngoặc và phép tính, hoặc gửi dạng chữ để model làm bài của bạn chấm.",
+    "sendAsText": "Gửi dạng chữ"
   },
   "verdict": {
     "correct": "Chính xác",
@@ -34,7 +37,11 @@
     "scheduled": "Điểm này sẽ quay lại khi bạn sắp quên.",
     "markRight": "Tôi đã đúng. Tính là đúng",
     "markWrong": "Tính là sai",
-    "next": "Câu tiếp theo"
+    "next": "Câu tiếp theo",
+    "almost": "Gần đúng",
+    "mathAlmost": "Bằng đáp án, nhưng chưa ở dạng đề bài yêu cầu.",
+    "mathEqual": "Câu trả lời {{answer}} của bạn bằng đáp án đã ghi {{recorded}}.",
+    "mathWrong": "Giá trị khác với đáp án đã ghi."
   },
   "quiz": {
     "title": "Câu hỏi",

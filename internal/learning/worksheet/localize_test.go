@@ -94,7 +94,7 @@ func TestTheExportIsInTheLearnersLanguage(t *testing.T) {
 	w := &Worksheet{Kind: k.Kind, Title: "T", Status: "open",
 		Answers: Answers{"boundary": {"context": "work"}}}
 	vi := MarkdownIn(k, w, "vi")
-	for _, want := range []string{"Chẩn đoán tiếng Anh", "Bối cảnh thật: công việc", `kind: "english_diagnostic"`} {
+	for _, want := range []string{"Chẩn đoán ngoại ngữ", "Bối cảnh thật: công việc", `kind: "english_diagnostic"`} {
 		if !strings.Contains(vi, want) {
 			t.Errorf("vi export lacks %q", want)
 		}

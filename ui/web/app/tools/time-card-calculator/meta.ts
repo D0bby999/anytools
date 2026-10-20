@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'lifestyle',
   title: {
     en: 'Time Card Calculator',
-    vi: 'Calculator chấm công',
+    vi: 'Tính giờ làm & chấm công',
     es: 'Calculadora de tarjeta de tiempo',
     pt: 'Calculadora de cartão de ponto',
   },

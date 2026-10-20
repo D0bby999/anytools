@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Meta Tag Generator',
-    vi: 'Tạo Thẻ Meta',
+    vi: 'Tạo thẻ meta (meta tag generator)',
     es: 'Generador de Meta Tags',
     pt: 'Gerador de Meta Tags',
   },

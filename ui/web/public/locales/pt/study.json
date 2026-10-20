@@ -24,7 +24,10 @@
     "checking": "Conferindo…",
     "true": "Verdadeiro",
     "false": "Falso",
-    "answer": "Resposta:"
+    "answer": "Resposta:",
+    "mathHint": "Digite como você escreveria à mão: 2(x+1), x^2, sqrt(3)/2, 1/2.",
+    "unreadable": "O AnyLearn não conseguiu ler isto como matemática. Confira os parênteses e as operações, ou envie como texto para o seu modelo de questionários corrigir.",
+    "sendAsText": "Enviar como texto"
   },
   "verdict": {
     "correct": "Correto",
@@ -34,7 +37,11 @@
     "scheduled": "Este ponto volta quando você estiver prestes a esquecê-lo.",
     "markRight": "Eu estava certo. Contar como certo",
     "markWrong": "Contar como errado",
-    "next": "Próxima pergunta"
+    "next": "Próxima pergunta",
+    "almost": "Quase",
+    "mathAlmost": "Igual à resposta, mas não na forma que a pergunta pede.",
+    "mathEqual": "Sua resposta {{answer}} é igual à registrada, {{recorded}}.",
+    "mathWrong": "O valor é diferente da resposta registrada."
   },
   "quiz": {
     "title": "Quizzes",

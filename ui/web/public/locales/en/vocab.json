@@ -31,7 +31,9 @@
     "easy": "Easy",
     "failed": "That review was not saved. Try again.",
     "from": "From {{title}}",
-    "revealBack": "Show the answer"
+    "revealBack": "Show the answer",
+    "onlyLang": "Only your {{name}} words.",
+    "allLangs": "Review every language"
   },
   "list": {
     "title": "Your words",
@@ -67,7 +69,9 @@
     "save": "Save",
     "saved": "Saved",
     "added": "Added a sentence",
-    "failed": "Could not find words."
+    "failed": "Could not find words.",
+    "otherLanguage": "Other…",
+    "languageCode": "Language code"
   },
   "speech": {
     "readAloud": "Read aloud",
@@ -270,5 +274,39 @@
     "exporting": "Making the deck…",
     "exportEmpty": "You have no words being learned to export yet.",
     "exportFailed": "The deck could not be made. Try again."
+  },
+  "lookup": {
+    "label": "Look up:",
+    "in": "Look up {{term}} in {{name}}"
+  },
+  "reading": {
+    "pinyin": "Pinyin",
+    "furigana": "Furigana",
+    "reading": "Reading"
+  },
+  "write": {
+    "start": "Practise writing it",
+    "stop": "Stop the writing card",
+    "on": "writing",
+    "kind": "writing",
+    "prompt": "Write this word, stroke by stroke.",
+    "loading": "Loading the strokes…",
+    "strokeRight": "Stroke {{n}} of {{total}} right.",
+    "strokeWrong": "Not that stroke.",
+    "charDone": "Character done.",
+    "done_one": "Done: {{count}} mistake.",
+    "done_other": "Done: {{count}} mistakes.",
+    "mistakes_one": "{{count}} mistake",
+    "mistakes_other": "{{count}} mistakes",
+    "show": "Show the character",
+    "next": "Next character",
+    "finish": "Finish",
+    "noData": "No stroke data for {{char}}: look at it and go on.",
+    "failed": "Couldn't load the strokes. Look at the word and rate yourself.",
+    "rateNow": "Rate it",
+    "slots": "Characters of the word",
+    "slotEmpty": "Character {{n}}, not written yet",
+    "pad": "Writing pad for {{char}}, character {{n}} of {{total}}",
+    "keyboard": "Drawing needs a finger, a pen or a mouse; Show the character and the ratings work by keyboard."
   }
 }

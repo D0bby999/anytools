@@ -7,8 +7,15 @@ import type { AttemptResult, QuestionView } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { RichText } from "~/components/rich-text";
 import { RubricList, RubricMarks } from "~/components/quiz/rubric-marks";
+import { MathField } from "~/components/quiz/math-field";
 
-type ActionData = { result?: AttemptResult; errorKey?: string; errorDetail?: string };
+type ActionData = {
+  result?: AttemptResult;
+  errorKey?: string;
+  errorDetail?: string;
+  /** A maths answer the checker could not read: nothing was recorded. */
+  unreadable?: { answer: string; attribution: string };
+};
 
 /**
  * One question, answerable in place.
@@ -36,6 +43,7 @@ export function QuestionCard({
   const ids = useId();
 
   const result = overrideFetcher.data?.result ?? fetcher.data?.result;
+  const unreadable = fetcher.state === "idle" ? fetcher.data?.unreadable : undefined;
   const error = overrideFetcher.data?.errorKey ? overrideFetcher.data : fetcher.data;
   const answered = Boolean(result);
   const submitting = fetcher.state !== "idle";
@@ -75,6 +83,9 @@ export function QuestionCard({
           }}
         >
           <input type="hidden" name="intent" value="attempt" />
+          {question.type === "short" || question.type === "cloze" ? (
+            <input type="hidden" name="ask_if_unreadable" value="1" />
+          ) : null}
           <fieldset disabled={answered || submitting} className="space-y-4">
             <legend className="sr-only">{t("card.yourAnswer")}</legend>
             <AnswerInput question={question} idBase={ids} />
@@ -104,6 +115,27 @@ export function QuestionCard({
           </fieldset>
         </fetcher.Form>
       )}
+
+      {unreadable && !answered ? (
+        <div role="alert" className="mt-3 rounded-md border px-3 py-2 text-sm leading-snug">
+          <p>{t("card.unreadable")}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            disabled={submitting}
+            onClick={() =>
+              fetcher.submit(
+                { intent: "attempt", user_answer: unreadable.answer, self_attribution: unreadable.attribution },
+                { method: "post", action },
+              )
+            }
+          >
+            {t("card.sendAsText")}
+          </Button>
+        </div>
+      ) : null}
 
       {result ? (
         <Verdict
@@ -162,6 +194,27 @@ function AnswerInput({ question, idBase }: { question: QuestionView; idBase: str
           <input type="radio" name="user_answer" value="false" required className="mt-1" />
           {t("card.false")}
         </label>
+      </div>
+    );
+  }
+  const box =
+    "min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
+  if (question.math) {
+    return (
+      <div>
+        <label htmlFor={`${idBase}-answer`} className="block text-sm font-medium">
+          {t("card.yourAnswer")}
+        </label>
+        <p id={`${idBase}-mathhint`} className="mt-0.5 text-xs text-muted-foreground">
+          {t("card.mathHint")}
+        </p>
+        <MathField
+          id={`${idBase}-answer`}
+          name="user_answer"
+          label={t("card.yourAnswer")}
+          describedBy={`${idBase}-mathhint`}
+          className={`${box} py-2 text-base text-foreground`}
+        />
       </div>
     );
   }
@@ -245,6 +298,8 @@ function Verdict({
   const { t } = useTranslation("study");
   const { attempt } = result;
   const correct = attempt.is_correct;
+  const almost = correct && attempt.judge.mode === "math" && attempt.judge.almost === true;
+  const math = attempt.judge.mode === "math";
 
   return (
     <div role="status" className="mt-4 space-y-3 border-t pt-4 text-sm leading-prose">
@@ -252,10 +307,21 @@ function Verdict({
           read; colour is the third channel, not the only one. */}
       <p className={correct ? "flex items-center gap-2 font-medium text-primary" : "flex items-center gap-2 font-medium text-destructive"}>
         {correct ? <Check aria-hidden="true" className="size-4" /> : <X aria-hidden="true" className="size-4" />}
-        {correct ? t("verdict.correct") : t("verdict.incorrect")}
+        {almost ? t("verdict.almost") : correct ? t("verdict.correct") : t("verdict.incorrect")}
         {overridden ? <span className="font-normal text-muted-foreground">· {t("verdict.overridden")}</span> : null}
       </p>
-      {attempt.judge.reason && attempt.judge.mode !== "user" ? (
+      {math ? (
+        // Marked by value in Go: the reasons are said here, in the learner's language.
+        <p className="text-muted-foreground">
+          {almost
+            ? t("verdict.mathAlmost")
+            : correct
+              ? sameText(attempt.user_answer, result.answer)
+                ? null
+                : t("verdict.mathEqual", { answer: attempt.user_answer, recorded: result.answer })
+              : t("verdict.mathWrong")}
+        </p>
+      ) : attempt.judge.reason && attempt.judge.mode !== "user" ? (
         <p className="text-muted-foreground">{attempt.judge.reason}</p>
       ) : null}
       {attempt.judge.criteria && attempt.judge.mode === "rubric" ? (
@@ -291,4 +357,10 @@ function Verdict({
       </div>
     </div>
   );
+}
+
+/** The same text but for spaces and a $…$ wrapper: no need to say the forms differ. */
+function sameText(a: string, b: string): boolean {
+  const norm = (s: string) => s.replace(/^\$+|\$+$/g, "").replace(/\s+/g, "");
+  return norm(a) === norm(b);
 }

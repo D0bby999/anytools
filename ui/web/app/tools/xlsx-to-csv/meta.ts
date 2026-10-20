@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'converters',
   title: {
     en: 'XLSX to CSV / JSON Converter',
-    vi: 'Chuyển XLSX sang CSV / JSON',
+    vi: 'Chuyển Excel sang CSV, JSON',
     es: 'Convertidor de XLSX a CSV / JSON',
     pt: 'Conversor de XLSX para CSV / JSON',
   },

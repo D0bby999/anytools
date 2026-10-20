@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'encoding',
   title: {
     en: 'HTTP Status Codes & MIME Types',
-    vi: 'Mã trạng thái HTTP & MIME Types',
+    vi: 'Mã lỗi HTTP & MIME type',
     es: 'Códigos de Estado HTTP y Tipos MIME',
     pt: 'Códigos de Status HTTP e Tipos MIME',
   },

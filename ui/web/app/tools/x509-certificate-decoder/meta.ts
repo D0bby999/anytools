@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'encoding',
   title: {
     en: 'X.509 Certificate Decoder',
-    vi: 'Giải mã chứng chỉ X.509',
+    vi: 'Giải mã chứng chỉ SSL (X.509)',
     es: 'Decodificador de certificados X.509',
     pt: 'Decodificador de certificados X.509',
   },

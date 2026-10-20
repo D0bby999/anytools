@@ -98,7 +98,11 @@ export default [
       route("toolkit", "routes/toolkit.index.tsx"),
       route("toolkit/new", "routes/toolkit.new.tsx"),
       route("toolkit/:id", "routes/toolkit.$id.tsx"),
-      // English: the English practice above, gathered by skill (routes/english.tsx).
+      // Languages: each studied language's practice, gathered by skill
+      // (plans/261020-1535-beyond-english-learning-areas, phase 1). The old
+      // English page answers with English's tab.
+      route("languages", "routes/languages.tsx"),
+      route("languages/:lang", "routes/languages.$lang.tsx"),
       route("english", "routes/english.tsx"),
       // Body: the training log beside the studying (plans/261019-1810-body-fitness).
       // One rail row; its sections are tabs (components/body/body-tabs.tsx).
@@ -216,6 +220,7 @@ export default [
   // Phase 12: crawler files, generated so they name the configured origin.
   route("robots.txt", "routes/robots[.]txt.ts"),
   route("sitemap.xml", "routes/sitemap[.]xml.ts"),
+  route("llms.txt", "routes/llms[.]txt.ts"),
 
   // AnyTools phase 2: the app's Tools tab, which picks the visitor's locale
   // and goes to /{locale}/tools.
@@ -254,6 +259,9 @@ export default [
   // (/tool-runtime/<pkg>/<file>) outranks `:locale/:cluster/:tool` (phase 3a;
   // tools-server-routes.test.ts matches it against this file).
   route("tool-runtime/:pkg/*", "routes/tool-runtime.$.ts"),
+  // A character's strokes for the writing card (lib/strokes.server.ts); a
+  // static first segment, so it outranks `:locale/:cluster/:tool` too.
+  route("strokes/:lang/:char", "routes/strokes.ts"),
   // AnyTools phase 3a: the two tools that call this server, at the old site's
   // URLs. Public, no sign-in; each address has a budget (public-budget.server.ts).
   route("api/curl-convert", "routes/api.curl-convert.ts"), // budget: curl-convert

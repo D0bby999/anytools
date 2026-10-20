@@ -41,9 +41,21 @@ function LifeHowTo() {
 /**
  * One kind: its name, "New", its summary and the learner's worksheets of it.
  * `start` replaces "New" where a kind cannot start here, such as a listening
- * audit, which starts from its video (the English page, routes/english.tsx).
+ * audit, which starts from its video (the Languages page,
+ * routes/languages.$lang.tsx). `newQuery` adds to "New"'s link, such as the
+ * title a worksheet started from a language's page is given.
  */
-export function KindRow({ kind: k, list, start }: { kind: WorksheetKind; list: WorksheetSummary[]; start?: ReactNode }) {
+export function KindRow({
+  kind: k,
+  list,
+  start,
+  newQuery = "",
+}: {
+  kind: WorksheetKind;
+  list: WorksheetSummary[];
+  start?: ReactNode;
+  newQuery?: string;
+}) {
   const { t } = useTranslation("toolkit");
   return (
     <li className="border-b py-4">
@@ -54,7 +66,7 @@ export function KindRow({ kind: k, list, start }: { kind: WorksheetKind; list: W
         </h3>
         {start ?? (
           <Link
-            to={`/toolkit/new?kind=${encodeURIComponent(k.kind)}`}
+            to={`/toolkit/new?kind=${encodeURIComponent(k.kind)}${newQuery}`}
             className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
             aria-label={t("index.newOf", { name: k.name })}
           >

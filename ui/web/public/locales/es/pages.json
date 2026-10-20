@@ -1,7 +1,7 @@
 {
   "guides": {
     "title": "Guías",
-    "metaTitle": "Guías — AnyTools",
+    "metaTitle": "Guías de JSON, regex, codificación, finanzas y diseño",
     "description": "Guías a fondo sobre JSON, expresiones regulares, codificaciones y las calculadoras y herramientas de diseño de AnyTools.",
     "readingTime": "{{count}} min de lectura",
     "updated": "Actualizado el {{date}}",
@@ -11,7 +11,7 @@
     "updated": "Última actualización: {{date}}"
   },
   "anyprofile": {
-    "metaTitle": "AnyProfile — navegador multiperfil para creadores (macOS, Windows)",
+    "metaTitle": "AnyProfile — navegador multiperfil para macOS y Windows",
     "metaDescription": "App gratuita y de código abierto que da a cada cuenta su propio navegador: cookies separadas, su propio proxy y una huella coherente. Para macOS y Windows.",
     "title": "AnyProfile",
     "tagline": "Un navegador por cuenta, uno al lado del otro.",
@@ -88,8 +88,8 @@
     "checksums": "Sumas de comprobación SHA-256"
   },
   "landing": {
-    "metaTitle": "AnyTools: herramientas gratis, y AnyLearn, una app de estudio con tu propia IA",
-    "metaDescription": "AnyTools es gratis: herramientas cotidianas que funcionan en tu navegador sin cuenta, y AnyLearn, una app de autoestudio que basa el chat, los cuestionarios, una ruta de repaso espaciado y un ciclo de aprendizaje de 90 días en los documentos que subes, con las cuentas de IA que ya tienes. Cada respuesta cita la página de la que salió.",
+    "metaTitle": "AnyTools: estudia tus apuntes con IA + herramientas gratis",
+    "metaDescription": "Sube apuntes o PDF y AnyLearn crea cuestionarios, responde citando la página y planifica repasos espaciados con tu propia IA. Y 120+ herramientas gratis.",
     "title": "Estudia con tus propios documentos.",
     "subtitle": "Comprueba cada respuesta con la página de la que salió.",
     "lede": "Respuestas que citan la página, preguntas escritas a partir de tu material y repasos programados justo antes de que olvides.",

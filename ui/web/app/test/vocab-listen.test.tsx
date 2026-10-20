@@ -106,7 +106,7 @@ function note(over: Partial<VocabNote>): VocabNote {
     id: "n1", term: "equilibrium", lang: "en", reading: "", pos: "noun", meaning: "A balanced state.",
     contexts: [], cards: [], suspended: false, created_at: "2026-10-16T00:00:00Z", updated_at: "2026-10-16T00:00:00Z",
     decision: "learn", record: {}, task_impact: "", decided_at: "2026-10-16T00:00:00Z",
-    scenario: "", confusable: "", production: false, listening: false,
+    scenario: "", confusable: "", production: false, listening: false, writing: false,
     ...over,
   };
 }

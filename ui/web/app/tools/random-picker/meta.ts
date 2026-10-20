@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'lifestyle',
   title: {
     en: 'Random Picker — Dice, Coin, Number, Name',
-    vi: 'Random Picker — Xí ngầu, đồng xu, số, tên',
+    vi: 'Random tên, số, tung đồng xu & xúc xắc',
     es: 'Selector aleatorio — Dados, moneda, número, nombre',
     pt: 'Sorteador aleatório — Dados, moeda, número, nome',
   },

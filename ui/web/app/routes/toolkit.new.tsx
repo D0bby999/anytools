@@ -53,7 +53,9 @@ export async function loader({ request }: Route.LoaderArgs) {
     prefill = prefillFrom(await stateOf(user.id, state));
     if (!hasPrefill(prefill)) prefill = null;
   }
-  return { kinds: offered, kind, state, document, prefill };
+  // A worksheet started from a language's page is named for it (routes/languages.$lang.tsx).
+  const title = (url.searchParams.get("title") ?? "").trim().slice(0, 200);
+  return { kinds: offered, kind, state, document, prefill, title };
 }
 
 /** The caller's own learning state; anyone else's is a 404, like a missing one. */
@@ -99,7 +101,7 @@ export async function action({ request }: Route.ActionArgs) {
 export default function ToolkitNew({ loaderData, actionData }: Route.ComponentProps) {
   const { t } = useTranslation("toolkit");
   const busy = useNavigation().state === "submitting";
-  const { kinds, kind, state, document, prefill } = loaderData;
+  const { kinds, kind, state, document, prefill, title } = loaderData;
   const carry = (k: string) => {
     const params = new URLSearchParams({ kind: k });
     if (state) params.set("state", state);
@@ -140,7 +142,7 @@ export default function ToolkitNew({ loaderData, actionData }: Route.ComponentPr
         <input type="hidden" name="document" value={document} />
         <label className="block text-sm font-medium">
           {t("new.titleLabel")}
-          <input name="title" required maxLength={200} defaultValue={kind.name} className={`${inputBox} mt-1`} />
+          <input name="title" required maxLength={200} defaultValue={title || kind.name} className={`${inputBox} mt-1`} />
         </label>
         {prefill ? <PrefillChoice prefill={prefill} /> : null}
         <Button type="submit" disabled={busy}>

@@ -32,7 +32,8 @@ export function meta({ data }: Route.MetaArgs) {
   if (!data) return [];
   const { origin, locale, page } = data;
   const path = (l: string) => `/${l}/${page}`;
-  const full = `${data.title} — AnyTools`;
+  // "About AnyTools" already says whose page it is.
+  const full = data.title.includes("AnyTools") ? data.title : `${data.title} — AnyTools`;
   return [
     ...pageMeta({
       title: full.length <= MAX_TITLE_CHARS ? full : data.title,

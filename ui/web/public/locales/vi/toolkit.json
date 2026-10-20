@@ -131,11 +131,11 @@
     "totalOf": "{{total}} trên {{max}}",
     "open": "Mở phiếu bằng chứng {{skill}}",
     "fromDocument": "Bắt đầu từ video hoặc văn bản bạn đang luyện.",
-    "prefill": "Từ bài chẩn đoán tiếng Anh “{{title}}”: rào cản chính là {{barrier}}.",
+    "prefill": "Từ bài chẩn đoán ngoại ngữ “{{title}}”: rào cản chính là {{barrier}}.",
     "prefillSample": "Mẫu hoặc mốc thời gian: {{sample}}.",
     "cannotOpen": "Không mở được phiếu bằng chứng đó từ đây.",
-    "notADiagnostic": "Chỉ bài chẩn đoán tiếng Anh mới mở phiếu bằng chứng.",
-    "start": "Bắt đầu bằng một bài chẩn đoán tiếng Anh",
+    "notADiagnostic": "Chỉ bài chẩn đoán ngoại ngữ mới mở phiếu bằng chứng.",
+    "start": "Bắt đầu bằng một bài chẩn đoán ngoại ngữ",
     "startLead": "Một mẫu đầu tiên, chưa trau chuốt, ở cả bốn kỹ năng sẽ cho thấy cần xử lý rào cản nào trước khi đi tiếp với các thẻ."
   },
   "writingDiagnosis": {
@@ -219,13 +219,54 @@
     "rates": "{{first}} lần đầu · {{revised}} sau khi sửa",
     "differs": "Nội dung ghi ở đây khác với các dòng tình huống. Kết quả chỉ được lưu với tỉ lệ mà các dòng cho ra."
   },
-  "english": {
-    "title": "Tiếng Anh",
-    "lead": "Mọi thứ ở đây để luyện tiếng Anh, theo từng kỹ năng. Bạn luyện trên tài liệu của chính mình: video, bài đọc và bản nháp bạn đã có.",
+  "languages": {
+    "title": "Ngoại ngữ",
+    "lead": "Luyện các ngôn ngữ bạn đang học, theo từng kỹ năng, trên tài liệu của chính mình: video, bài đọc và bản nháp bạn đã có.",
+    "tabs": {
+      "label": "Ngôn ngữ đang học",
+      "add": "+ Thêm ngôn ngữ",
+      "due_one": "{{count}} từ cần ôn",
+      "due_other": "{{count}} từ cần ôn"
+    },
+    "picker": {
+      "title": "Bạn đang học ngôn ngữ nào?",
+      "lead": "Chọn một hoặc nhiều. Có thể đổi bất cứ lúc nào.",
+      "suggested": "Gợi ý từ những từ bạn đã lưu",
+      "words_one": "{{count}} từ",
+      "words_other": "{{count}} từ",
+      "common": "Hay học",
+      "other": "Ngôn ngữ khác",
+      "search": "Tìm ngôn ngữ",
+      "matches_one": "{{count}} ngôn ngữ khớp",
+      "matches_other": "{{count}} ngôn ngữ khớp",
+      "noMatch": "Không có ngôn ngữ nào tên như vậy.",
+      "submit": "Bắt đầu học",
+      "saving": "Đang lưu…",
+      "needOne": "Chọn ít nhất một ngôn ngữ.",
+      "keepsWords": "Bỏ chọn một ngôn ngữ chỉ ẩn tab của nó; các từ vẫn nằm trong Từ vựng.",
+      "failed": "Không lưu được lựa chọn: {{cause}}. Thử lại.",
+      "offline": "Bạn đang ngoại tuyến. Lựa chọn chưa được lưu.",
+      "back": "Quay lại {{name}}",
+      "failedPlain": "Không lưu được lựa chọn. Thử lại."
+    },
+    "notStudied": "Bạn chưa thêm {{name}}.",
+    "addIt": "Thêm vào danh sách",
+    "vocab": {
+      "due_one": "Hôm nay có {{count}} từ {{name}} cần ôn.",
+      "due_other": "Hôm nay có {{count}} từ {{name}} cần ôn.",
+      "noneDue": "Hôm nay không có từ {{name}} nào cần ôn.",
+      "none": "Chưa có từ {{name}} nào. Mở một tài liệu {{name}}, chọn một đoạn và lưu từ của nó.",
+      "review_one": "Ôn từ này",
+      "review_other": "Ôn {{count}} từ này",
+      "all": "Xem tất cả từ {{name}}",
+      "anki": "Nhập từ Anki",
+      "openKnowledge": "Mở Tài liệu"
+    },
+    "diagnosticTitle": "{{kind}} — {{name}}",
     "fromDocument": "Từ một tài liệu",
     "fromDocumentOf": "Bắt đầu {{name}} từ một tài liệu",
-    "vocabDue_one": "Hôm nay có {{count}} từ cần ôn.",
-    "vocabDue_other": "Hôm nay có {{count}} từ cần ôn.",
+    "fromRecording": "Từ video hoặc bản ghi âm",
+    "fromRecordingOf": "Bắt đầu {{name}} từ một video hoặc bản ghi âm",
     "start": {
       "title": "Bắt đầu từ đây",
       "body": "Một mốc ban đầu chưa trau chuốt cho cả bốn kỹ năng trên một chủ đề thật. Nó cho biết nên gỡ rào cản nào trước; các mục bên dưới là nơi bạn luyện."
@@ -259,11 +300,9 @@
         "body": "Xếp các lỗi theo việc chúng gây ra cho người đọc, rồi luyện một cấu trúc bằng thẻ đối chiếu."
       },
       "work": {
-        "title": "Tiếng Anh cho công việc",
+        "title": "Ngoại ngữ cho công việc",
         "body": "Cho một vị trí thật: bạn có thể hiện được đúng năng lực của mình trong quy trình tuyển dụng của nó không?"
       }
-    },
-    "fromRecording": "Từ video hoặc bản ghi âm",
-    "fromRecordingOf": "Bắt đầu {{name}} từ một video hoặc bản ghi âm"
+    }
   }
 }

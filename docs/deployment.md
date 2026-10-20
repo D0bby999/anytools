@@ -199,20 +199,15 @@ Every Drive behaviour has been proven only against a fake of Drive v3 shaped fro
 
 The web server sends `Cache-Control: private, no-cache` on every page and every `*.data` response (`applyCachePolicy` in `ui/web/app/lib/security-headers.server.ts`). Hashed files under `/assets/` are `immutable` for a year.
 
-**The zone ignores that today (measured 2026-10-20).** A cache rule stores every 200 response for about two hours, whatever its headers, keyed on the URL alone. A response that sets a cookie is stored too, with the `Set-Cookie` removed. Redirects and errors are not stored (`BYPASS`). Two consequences follow:
+**No cache rule may override it.** Until 2026-10-20 the zone had a "cache everything" rule left from the old Next.js site: it stored every 200 for about two hours whatever its headers, keyed on the URL alone, and stripped `Set-Cookie` from what it stored. Its only bypass was the old site's `better-auth.session_token` cookie. So cached pages named scripts a deploy had removed (tools dead until the copy expired), and a 200 rendered for one session came back as a `HIT` for another session and for an anonymous visitor. Headers from the origin could not stop it (49e32eb tried a `Set-Cookie` on every signed-in response, and was reverted). The owner deleted the rule on 2026-10-20; pages and data are now `DYNAMIC`, and `/assets/` still `HIT`.
 
-- **After each deploy, cached pages name scripts that are gone.** Every tool on such a page is dead until its copy expires.
-- **A signed-in learner's page or data would be served to the next visitor.** A 200 JSON response under `/app/api/` that was rendered for one session came back as a `HIT` for another session and for an anonymous request. Nobody can sign in yet, so nothing has leaked.
-
-**Fix this in Cloudflare before turning sign-in on.** In the anytools.world zone, under Caching → Cache Rules, change the rule that caches HTML so that its Edge TTL is "Use cache-control header if present". Purging the cache once afterwards clears the old copies. Then check it:
+Check it after any change in Cloudflare:
 
 ```sh
 u="https://anytools.world/vi/health?check=$RANDOM"
-curl -sI "$u" | grep -i cf-cache-status   # MISS or DYNAMIC
-curl -sI "$u" | grep -i cf-cache-status   # must not be HIT
+curl -sI "$u" | grep -i cf-cache-status   # DYNAMIC
+curl -sI "$u" | grep -i cf-cache-status   # DYNAMIC again, never HIT
 ```
-
-Headers from the origin cannot fix this. Neither `private, no-cache` nor a `Set-Cookie` on every signed-in response kept a 200 out of the cache (49e32eb tried the second, and was reverted).
 
 ## Backups
 

@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'CSS Clip Path Generator',
-    vi: 'Trình tạo clip-path CSS',
+    vi: 'Tạo clip-path CSS',
     es: 'Generador de clip-path CSS',
     pt: 'Gerador de clip-path CSS',
   },

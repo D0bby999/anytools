@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/D0bby999/anytools/internal/capabilities/quiz/mathcheck"
 	"github.com/D0bby999/anytools/internal/learning"
 	"github.com/D0bby999/anytools/internal/runtime"
 )
@@ -126,6 +127,11 @@ func (q Question) View(revealed bool) map[string]any {
 	}
 	if q.ModuleID != nil {
 		out["module_id"] = *q.ModuleID
+	}
+	// The card offers a math field when the answer is an expression. It says
+	// what kind of answer is expected, as a numeric box would, not the answer.
+	if q.IsMath() {
+		out["math"] = true
 	}
 	if revealed {
 		out["answer"] = q.Answer
@@ -446,3 +452,9 @@ func joinNotes(parts ...string) string {
 // handlers in this package's API have one import for request validation.
 func validAttribution(s string) bool { return learning.ValidAttribution(s) }
 func validErrorType(s string) bool   { return learning.ValidErrorType(s) }
+
+// IsMath reports a short or cloze question whose recorded answer is an
+// expression or an equation, marked by value (mathcheck).
+func (q Question) IsMath() bool {
+	return (q.Type == TypeShort || q.Type == TypeCloze) && mathcheck.KindOf(q.Answer) == mathcheck.Expression
+}

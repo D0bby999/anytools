@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'finance',
   title: {
     en: 'Tip Calculator & Bill Splitter',
-    vi: 'Tính tiền tip & chia hóa đơn',
+    vi: 'Tính tiền tip & chia bill',
     es: 'Calculadora de propina y división de cuenta',
     pt: 'Calculadora de gorjeta e divisão de conta',
   },

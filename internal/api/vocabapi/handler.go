@@ -42,6 +42,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/vocab/{id}/production", h.production) // budget: none
 	// plans/261020-1155-open-source-adds, phase 3: an Anki deck's words, in batches.
 	mux.HandleFunc("POST /v1/vocab/import", h.importDeck) // budget: upload
+	// plans/261020-1535-beyond-english-learning-areas, phase 1: the Languages tabs.
+	mux.HandleFunc("GET /v1/vocab/languages", h.languages)
+	mux.HandleFunc("PUT /v1/vocab/languages", h.setLanguages) // budget: none
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
@@ -55,6 +58,8 @@ func Patterns() []string {
 		"POST /v1/vocab/cards/{id}/review",
 		"POST /v1/vocab/{id}/production",
 		"POST /v1/vocab/import",
+		"GET /v1/vocab/languages",
+		"PUT /v1/vocab/languages",
 	}
 }
 
@@ -151,7 +156,8 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 }
 
 // due is today's session: at most vocab.SessionSize cards, oldest first, and
-// the number due in all. `?limit=0` returns the count alone, for Home.
+// the number due in all. `?limit=0` returns the count alone, for Home;
+// `?lang=ja` only that language's words, for a Languages tab.
 // `?deck=book` is the living books' flash cards (learning-depth phase 11);
 // the default is the words, which never include them.
 func (h *Handler) due(w http.ResponseWriter, r *http.Request) {
@@ -160,7 +166,7 @@ func (h *Handler) due(w http.ResponseWriter, r *http.Request) {
 	if deck == "" {
 		deck = vocab.DeckWords
 	}
-	cards, total, err := h.svc.DueDeck(r.Context(), userID, deck, intParam(r, "limit", vocab.SessionSize))
+	cards, total, err := h.svc.DueIn(r.Context(), userID, deck, r.URL.Query().Get("lang"), intParam(r, "limit", vocab.SessionSize))
 	if err != nil {
 		h.fail(w, r, err)
 		return
@@ -183,6 +189,8 @@ type patchRequest struct {
 	Production *bool             `json:"production"`
 	// The listening card (plans/261020-1155-open-source-adds, phase 1).
 	Listening *bool `json:"listening"`
+	// The writing card (plans/261020-1535-beyond-english-learning-areas, phase 3).
+	Writing *bool `json:"writing"`
 }
 
 // patchResponse is the note, and, when this patch made it a word to learn,
@@ -207,6 +215,7 @@ func (h *Handler) patch(w http.ResponseWriter, r *http.Request) {
 		Decision: req.Decision, Record: req.Record, TaskImpact: req.TaskImpact,
 		Scenario: req.Scenario, Confusable: req.Confusable, Production: req.Production,
 		Listening: req.Listening,
+		Writing:   req.Writing,
 	})
 	if err != nil {
 		h.fail(w, r, err)
@@ -338,4 +347,29 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
 		slog.Error("vocabapi: request failed", "error", err, "path", r.URL.Path, "method", r.Method)
 		httpx.WriteError(w, http.StatusInternalServerError, "something went wrong", "internal")
 	}
+}
+
+// languages is the learner's studied languages and their words' languages.
+func (h *Handler) languages(w http.ResponseWriter, r *http.Request) {
+	out, err := h.svc.Languages(r.Context(), httpx.MustUserID(r.Context()))
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// setLanguages replaces the studied list and the tab viewed last.
+func (h *Handler) setLanguages(w http.ResponseWriter, r *http.Request) {
+	var req vocab.Studied
+	if err := httpx.DecodeJSON(w, r, &req); err != nil {
+		badRequest(w, "malformed request body")
+		return
+	}
+	out, err := h.svc.SetLanguages(r.Context(), httpx.MustUserID(r.Context()), req)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
 }

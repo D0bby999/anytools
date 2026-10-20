@@ -24,7 +24,10 @@
     "checking": "Checking…",
     "true": "True",
     "false": "False",
-    "answer": "Answer:"
+    "answer": "Answer:",
+    "mathHint": "Type it as you would write it: 2(x+1), x^2, sqrt(3)/2, 1/2.",
+    "unreadable": "AnyLearn couldn't read this as maths. Check the brackets and operators, or send it as text to be marked by your quiz model.",
+    "sendAsText": "Send as text"
   },
   "verdict": {
     "correct": "Correct",
@@ -34,7 +37,11 @@
     "scheduled": "This point comes back when you are about to forget it.",
     "markRight": "I was right. Count it",
     "markWrong": "Count this as wrong",
-    "next": "Next question"
+    "next": "Next question",
+    "almost": "Almost",
+    "mathAlmost": "Equal to the answer, but not in the form the question asks for.",
+    "mathEqual": "Your answer {{answer}} equals the recorded {{recorded}}.",
+    "mathWrong": "The value differs from the recorded answer."
   },
   "quiz": {
     "title": "Quiz",

@@ -5,6 +5,8 @@ import type { Decision, Term, VocabNote, Week } from "~/lib/vocab-types";
 import { Button } from "~/components/ui/button";
 import { DecisionFields } from "~/components/vocab/decision-picker";
 import { WeekNotice } from "~/components/vocab/week-notice";
+import { Lookups } from "~/components/languages/lookups";
+import { COMMON_LANGUAGES, isLanguageCode, languageName } from "~/lib/languages";
 
 type TermsData = { terms?: Term[]; lang?: string; existing?: VocabNote[]; errorKey?: string; errorDetail?: string };
 type SaveData = {
@@ -69,15 +71,7 @@ export function WordPicker({ selection, page }: { selection: string; page: numbe
     <section aria-label={t("picker.title")} className="mt-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="lp-section">{t("picker.title")}</h3>
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          {t("picker.language")}
-          <input
-            value={shownLang}
-            onChange={(e) => setLang(e.target.value.trim())}
-            maxLength={11}
-            className="h-8 w-16 rounded-md border border-control-border bg-card px-2 font-mono text-xs text-foreground"
-          />
-        </label>
+        <LanguageField value={shownLang} detected={data.lang ?? ""} onChange={setLang} />
       </div>
       {data.terms.length === 0 ? (
         <p className="mt-2 lp-empty">{t("picker.none")}</p>
@@ -143,10 +137,11 @@ function TermRow({
 
   return (
     <li className="border-b py-3">
-      <p className="text-sm font-medium" lang={lang || undefined}>
+      <p className="text-sm font-medium" lang={lang || undefined} dir="auto">
         {term.term}
         {term.pos ? <span className="ml-2 font-mono text-2xs text-muted-foreground">{term.pos}</span> : null}
       </p>
+      {isLanguageCode(lang) ? <Lookups lang={lang} term={term.term} className="mt-0.5" /> : null}
       {status && !changing ? (
         <p role="status" className="mt-1 text-xs text-muted-foreground">
           {status}
@@ -194,5 +189,48 @@ function TermRow({
         </p>
       ) : null}
     </li>
+  );
+}
+
+/**
+ * The words' language, by name: the one detected on the page first, then the
+ * often learned; "Other…" opens a code box for the rest (Languages, phase 1).
+ */
+function LanguageField({ value, detected, onChange }: { value: string; detected: string; onChange: (l: string) => void }) {
+  const { t, i18n } = useTranslation("vocab");
+  const options = [...new Set([detected, ...COMMON_LANGUAGES].filter(Boolean))];
+  const [other, setOther] = useState(value !== "" && !options.includes(value));
+  const control = "h-8 rounded-md border border-control-border bg-card px-2 text-xs text-foreground";
+  return (
+    <span className="flex items-center gap-2 text-xs text-muted-foreground">
+      <label className="flex items-center gap-2">
+        {t("picker.language")}
+        <select
+          value={other ? "" : value}
+          onChange={(e) => {
+            const v = e.target.value;
+            setOther(v === "");
+            if (v) onChange(v);
+          }}
+          className={control}
+        >
+          {options.map((l) => (
+            <option key={l} value={l}>
+              {languageName(l, i18n.language)}
+            </option>
+          ))}
+          <option value="">{t("picker.otherLanguage")}</option>
+        </select>
+      </label>
+      {other ? (
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value.trim())}
+          maxLength={11}
+          aria-label={t("picker.languageCode")}
+          className={`${control} w-16 font-mono`}
+        />
+      ) : null}
+    </span>
   );
 }

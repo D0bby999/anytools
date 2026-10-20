@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'text-regex',
   title: {
     en: 'Text Case Converter',
-    vi: 'Đổi Case Văn Bản',
+    vi: 'Chuyển chữ hoa, chữ thường, camelCase',
     es: 'Conversor de mayúsculas y minúsculas',
     pt: 'Conversor de maiúsculas e minúsculas',
   },

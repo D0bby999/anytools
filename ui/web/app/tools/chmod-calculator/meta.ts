@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'converters',
   title: {
     en: 'Chmod Calculator',
-    vi: 'Tính quyền Chmod',
+    vi: 'Tính chmod (755, 777, 644)',
     es: 'Calculadora de Chmod',
     pt: 'Calculadora de Chmod',
   },

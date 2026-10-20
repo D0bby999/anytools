@@ -65,7 +65,7 @@ const CLUSTER_SEO_LABEL: Record<PublicLng, Record<ClusterId, string>> = {
     design: "Design Tool", pdf: "PDF Tool", image: "Image Tool",
   },
   vi: {
-    encoding: "Công cụ mã hóa", formatters: "Trình định dạng", generators: "Trình tạo", converters: "Bộ chuyển đổi",
+    encoding: "Công cụ mã hóa", formatters: "Công cụ lập trình", generators: "Công cụ tạo", converters: "Bộ chuyển đổi",
     "text-regex": "Công cụ văn bản", "time-date": "Công cụ ngày giờ", web3: "Công cụ Web3", marketing: "Công cụ marketing",
     "ecommerce-vn": "TMĐT Việt Nam", finance: "Máy tính", health: "Công cụ sức khỏe", lifestyle: "Công cụ",
     design: "Công cụ thiết kế", pdf: "Công cụ PDF", image: "Công cụ ảnh",

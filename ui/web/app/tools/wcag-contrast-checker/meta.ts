@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'design',
   title: {
     en: 'WCAG Contrast Checker',
-    vi: 'Kiểm tra độ tương phản WCAG',
+    vi: 'Kiểm tra độ tương phản màu (WCAG)',
     es: 'Verificador de Contraste WCAG',
     pt: 'Verificador de Contraste WCAG',
   },

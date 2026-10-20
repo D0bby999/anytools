@@ -59,7 +59,7 @@ var listeningAudit = Kind{
 				{Key: "main_source", Label: "Main source: title, origin and date accessed", Type: Text},
 				{Key: "parallel_source", Label: "Parallel source: title, origin and date accessed", Type: Text},
 				{Key: "segment_length", Label: "Segment length", Type: Text},
-				{Key: "transcript", Label: "Reliable English transcript", Type: Choice,
+				{Key: "transcript", Label: "Reliable transcript in the language", Type: Choice,
 					Options: []string{"human", "automatic, needs checking", "none"}},
 				{Key: "familiarity", Label: "How familiar the topic, speaker and accent are", Type: Text},
 				{Key: "environment", Label: "Device, network and room noise", Type: Text},
@@ -134,7 +134,7 @@ var listeningAudit = Kind{
 						{Key: "action", Label: "Action", Type: Label, Text: map[string]string{
 							"stage1": "Listen once with no captions",
 							"stage2": "Replay only the 5–20 second segment that went wrong",
-							"stage3": "Open the English transcript to check boundaries and structure",
+							"stage3": "Open the transcript in the language to check boundaries and structure",
 							"stage4": "Look up the least you need: a definition, background or a translation",
 							"stage5": "Close the text and listen again at normal speed",
 							"stage6": "Three to seven days later, drop the old support and retest on parallel material",

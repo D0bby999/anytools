@@ -5,7 +5,7 @@ export const meta: ToolMeta = {
   cluster: 'generators',
   title: {
     en: 'Mock Data Generator',
-    vi: 'Tạo Dữ Liệu Mock',
+    vi: 'Tạo dữ liệu giả (mock data)',
     es: 'Generador de datos de prueba',
     pt: 'Gerador de dados de teste',
   },

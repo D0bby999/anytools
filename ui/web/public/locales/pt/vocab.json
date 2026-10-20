@@ -31,7 +31,9 @@
     "easy": "Fácil",
     "failed": "Essa revisão não foi salva. Tente de novo.",
     "from": "De {{title}}",
-    "revealBack": "Mostrar a resposta"
+    "revealBack": "Mostrar a resposta",
+    "onlyLang": "Só suas palavras em {{name}}.",
+    "allLangs": "Revisar todos os idiomas"
   },
   "list": {
     "title": "Suas palavras",
@@ -67,7 +69,9 @@
     "save": "Salvar",
     "saved": "Salva",
     "added": "Uma frase foi adicionada",
-    "failed": "Não foi possível encontrar palavras."
+    "failed": "Não foi possível encontrar palavras.",
+    "otherLanguage": "Outro…",
+    "languageCode": "Código do idioma"
   },
   "speech": {
     "readAloud": "Ler em voz alta",
@@ -270,5 +274,39 @@
     "exporting": "Criando o baralho…",
     "exportEmpty": "Você ainda não tem palavras em aprendizado para exportar.",
     "exportFailed": "Não foi possível criar o baralho. Tente de novo."
+  },
+  "lookup": {
+    "label": "Consultar:",
+    "in": "Consultar {{term}} em {{name}}"
+  },
+  "reading": {
+    "pinyin": "Pinyin",
+    "furigana": "Furigana",
+    "reading": "Leitura"
+  },
+  "write": {
+    "start": "Praticar a escrita",
+    "stop": "Tirar o cartão de escrita",
+    "on": "escrita",
+    "kind": "escrita",
+    "prompt": "Escreva esta palavra, traço a traço.",
+    "loading": "Carregando os traços…",
+    "strokeRight": "Traço {{n}} de {{total}} certo.",
+    "strokeWrong": "Esse traço não.",
+    "charDone": "Caractere concluído.",
+    "done_one": "Pronto: {{count}} erro.",
+    "done_other": "Pronto: {{count}} erros.",
+    "mistakes_one": "{{count}} erro",
+    "mistakes_other": "{{count}} erros",
+    "show": "Mostrar o caractere",
+    "next": "Próximo caractere",
+    "finish": "Concluir",
+    "noData": "Não há dados de traços para {{char}}: olhe e siga.",
+    "failed": "Não foi possível carregar os traços. Olhe a palavra e avalie-se.",
+    "rateNow": "Avaliar",
+    "slots": "Caracteres da palavra",
+    "slotEmpty": "Caractere {{n}}, ainda não escrito",
+    "pad": "Quadro de escrita de {{char}}, caractere {{n}} de {{total}}",
+    "keyboard": "Desenhar exige um dedo, uma caneta ou um mouse; Mostrar o caractere e as avaliações funcionam pelo teclado."
   }
 }

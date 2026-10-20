@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'PDF Password — Add or Remove',
-    vi: 'Mật Khẩu PDF — Đặt Hoặc Gỡ',
+    vi: 'Đặt & gỡ mật khẩu PDF',
     es: 'Contraseña de PDF — Añadir o Quitar',
     pt: 'Senha de PDF — Adicionar ou Remover',
   },

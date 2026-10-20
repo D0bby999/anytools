@@ -29,7 +29,10 @@ describe("the account menu", () => {
         <RouterProvider router={router} />
       </I18nextProvider>,
     );
-    expect(container.querySelector("summary")?.getAttribute("aria-label")).toBe("Account: Local owner");
+    // Named by text, with the initials shown and hidden from the name (WCAG 2.5.3).
+    const summary = container.querySelector("summary");
+    expect(summary?.hasAttribute("aria-label")).toBe(false);
+    expect(summary?.querySelector(".sr-only")?.textContent).toBe("Account: Local owner");
     expect(screen.getByText("owner@anytools.local")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Settings" }).getAttribute("href")).toBe("/settings");
     expect(screen.getByRole("link", { name: "Language" }).getAttribute("href")).toBe("/settings/account");

@@ -213,7 +213,7 @@ var readingEvidence = Kind{
 						{Key: "explainable", Label: "Can I explain it with tools closed?", Type: YesNo},
 					}},
 				{Key: "background", Label: "Background the translation filled in for me", Type: Text},
-				{Key: "hidden", Label: "English structure, stance or hedge the translation may hide", Type: Text},
+				{Key: "hidden", Label: "Structure, stance or hedge of the original the translation may hide", Type: Text},
 				{Key: "not_checked", Label: "A word I chose not to check yet", Type: Text},
 			}},
 		// §8

@@ -12,6 +12,7 @@
  * sibling until tomorrow in the learner's zone, so the session never shows the
  * answer to the next card.
  */
+import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/mastery.vocabulary";
 import { appTitle } from "~/lib/app-title";
@@ -25,6 +26,7 @@ import { ReviewSession } from "~/components/vocab/review-session";
 import { WordList } from "~/components/vocab/word-list";
 import { AnkiExport, AnkiImport } from "~/components/vocab/anki-decks";
 import { PageHeader } from "~/components/ui/page-header";
+import { languageNameInSentence } from "~/lib/languages";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -39,7 +41,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const q = (url.searchParams.get("q") ?? "").trim();
   const lang = (url.searchParams.get("lang") ?? "").trim();
   const [due, words, all, bookDue, audits] = await Promise.all([
-    dueCards(user.id),
+    // A language's "Review these" (routes/languages.$lang.tsx) narrows the
+    // session to that language, as it narrows the list.
+    dueCards(user.id, undefined, "words", lang),
     listWords(user.id, { q, lang }),
     // The language filter lists the languages the learner actually has.
     q || lang ? listWords(user.id) : Promise.resolve(null),
@@ -104,6 +108,9 @@ export async function action({ request }: Route.ActionArgs) {
       case "listening":
         await updateWord(user.id, id, { listening: String(form.get("on")) === "true" });
         return { updated: id };
+      case "writing":
+        await updateWord(user.id, id, { writing: String(form.get("on")) === "true" });
+        return { updated: id };
       case "audit":
         return await copyToAudit(user.id, String(form.get("worksheet") ?? ""), form.getAll("note").map(String));
     }
@@ -137,7 +144,7 @@ async function copyToAudit(userId: string, worksheetId: string, ids: string[]) {
 }
 
 export default function Vocabulary({ loaderData }: Route.ComponentProps) {
-  const { t } = useTranslation("vocab");
+  const { t, i18n } = useTranslation("vocab");
   return (
     <div className="lp-measure">
       <PageHeader title={t("page.title")} lede={t("page.lead")} />
@@ -147,7 +154,15 @@ export default function Vocabulary({ loaderData }: Route.ComponentProps) {
         <h2 id="lp-vocab-due" className="lp-section">
           {t("session.title")}
         </h2>
-        <ReviewSession cards={loaderData.cards} total={loaderData.dueCount} />
+        {loaderData.lang ? (
+          <p className="mt-1 text-sm leading-prose text-muted-foreground">
+            {t("session.onlyLang", { name: languageNameInSentence(loaderData.lang, i18n.language) })}{" "}
+            <Link to="/mastery/vocabulary" className="text-primary underline underline-offset-4">
+              {t("session.allLangs")}
+            </Link>
+          </p>
+        ) : null}
+        <ReviewSession key={loaderData.lang} cards={loaderData.cards} total={loaderData.dueCount} />
       </section>
 
       <section aria-labelledby="lp-vocab-words" className="mt-10">

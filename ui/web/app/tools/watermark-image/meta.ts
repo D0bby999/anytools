@@ -7,7 +7,7 @@ export const meta: ToolMeta = {
   // page serves noindex and stays out of the sitemap (has-localized-tool-body.ts).
   title: {
     en: 'Watermark Image',
-    vi: 'Đóng dấu mờ lên ảnh',
+    vi: 'Chèn watermark, logo lên ảnh',
     es: 'Marca de agua en imagen',
     pt: 'Marca d’água em imagem',
   },
