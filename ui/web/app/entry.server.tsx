@@ -2,9 +2,7 @@
  * entry.server.tsx
  * React Router's default Node entry, plus two things phase 11 needs on every
  * HTML document: a per-request CSP nonce, and the security headers
- * (security-headers.server.ts). Documents and data also say no shared cache
- * may keep them, and a signed-in visitor's response sets their session cookie
- * again so none does (session.server.ts, resendSession).
+ * (security-headers.server.ts).
  *
  * The nonce goes three places: the CSP header, React's own streaming inline
  * scripts (`nonce` on renderToPipeableStream and ServerRouter), and root.tsx's
@@ -21,23 +19,16 @@ import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
 import { NonceContext } from "~/lib/nonce";
 import { applyCachePolicy, applySecurityHeaders } from "~/lib/security-headers.server";
-import { resendSession } from "~/lib/session.server";
 
 export const streamTimeout = 5_000;
 
-/**
- * Client navigation's data (`*.data`) follows the documents' cache policy and
- * carries a signed-in visitor's session again (resendSession). A copy, since
- * a response's own headers may be immutable.
- */
-export async function handleDataRequest(response: Response, { request }: { request: Request }): Promise<Response> {
-  const out = new Response(response.body, response);
-  applyCachePolicy(out.headers);
-  await resendSession(request, out.headers);
-  return out;
+/** Client navigation's data (`*.data`) follows the documents' cache policy. */
+export function handleDataRequest(response: Response): Response {
+  applyCachePolicy(response.headers);
+  return response;
 }
 
-export default async function handleRequest(
+export default function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
@@ -46,7 +37,6 @@ export default async function handleRequest(
 ) {
   const nonce = randomBytes(16).toString("base64");
   applySecurityHeaders(responseHeaders, nonce, process.env.NODE_ENV === "production");
-  await resendSession(request, responseHeaders);
 
   // https://httpwg.org/specs/rfc9110.html#HEAD
   if (request.method.toUpperCase() === "HEAD") {

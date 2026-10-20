@@ -195,6 +195,25 @@ Every Drive behaviour has been proven only against a fake of Drive v3 shaped fro
 14. **Disconnect with files in Drive.** Disconnect asks first, and offers "Move my files back first".
 15. **Delete the test account.** The "AnyTools" folder and its files are still in that Drive.
 
+## Cloudflare in front of anytools.world
+
+The web server sends `Cache-Control: private, no-cache` on every page and every `*.data` response (`applyCachePolicy` in `ui/web/app/lib/security-headers.server.ts`). Hashed files under `/assets/` are `immutable` for a year.
+
+**The zone ignores that today (measured 2026-10-20).** A cache rule stores every 200 response for about two hours, whatever its headers, keyed on the URL alone. A response that sets a cookie is stored too, with the `Set-Cookie` removed. Redirects and errors are not stored (`BYPASS`). Two consequences follow:
+
+- **After each deploy, cached pages name scripts that are gone.** Every tool on such a page is dead until its copy expires.
+- **A signed-in learner's page or data would be served to the next visitor.** A 200 JSON response under `/app/api/` that was rendered for one session came back as a `HIT` for another session and for an anonymous request. Nobody can sign in yet, so nothing has leaked.
+
+**Fix this in Cloudflare before turning sign-in on.** In the anytools.world zone, under Caching → Cache Rules, change the rule that caches HTML so that its Edge TTL is "Use cache-control header if present". Purging the cache once afterwards clears the old copies. Then check it:
+
+```sh
+u="https://anytools.world/vi/health?check=$RANDOM"
+curl -sI "$u" | grep -i cf-cache-status   # MISS or DYNAMIC
+curl -sI "$u" | grep -i cf-cache-status   # must not be HIT
+```
+
+Headers from the origin cannot fix this. Neither `private, no-cache` nor a `Set-Cookie` on every signed-in response kept a 200 out of the cache (49e32eb tried the second, and was reverted).
+
 ## Backups
 
 - **Unit.** One timestamped directory holding `db.dump` (`pg_dump -Fc`), `data.tar.gz` (the `anytools-data` volume: uploaded originals and parsed Markdown, without the Drive cache `cache/`) and `SHA256SUMS`. A unit without `SHA256SUMS` is incomplete and is removed.

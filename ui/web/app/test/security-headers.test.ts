@@ -9,7 +9,6 @@
 import { describe, expect, it } from "vitest";
 import { applyCachePolicy, applySecurityHeaders, contentSecurityPolicy } from "~/lib/security-headers.server";
 import { handleDataRequest } from "~/entry.server";
-import { createUserSession, getSession, resendSession } from "~/lib/session.server";
 
 function directives(policy: string): Map<string, string[]> {
   const out = new Map<string, string[]>();
@@ -137,42 +136,8 @@ describe("caching", () => {
     expect(headers.get("Cache-Control")).toBe("private, no-store");
   });
 
-  it("applies to client navigation's data too", async () => {
-    const response = await handleDataRequest(new Response("{}"), { request: new Request("https://a.example/x.data") });
+  it("applies to client navigation's data too", () => {
+    const response = handleDataRequest(new Response("{}"));
     expect(response.headers.get("Cache-Control")).toBe("private, no-cache");
-  });
-});
-
-// Cloudflare's rule stores HTML whatever Cache-Control says, but never a
-// response that sets a cookie: a signed-in visitor's always does.
-describe("a signed-in visitor's response", () => {
-  const signedIn = async () =>
-    new Request("https://a.example/home", { headers: { Cookie: (await createUserSession(new Request("https://a.example/"), "u1")).split(";")[0]! } });
-
-  it("sets their session cookie again, still theirs", async () => {
-    const request = await signedIn();
-    const headers = new Headers();
-    await resendSession(request, headers);
-    const cookie = headers.get("Set-Cookie") ?? "";
-    expect(cookie).toMatch(/^__anytools_session=/);
-    const again = await getSession(new Request("https://a.example/", { headers: { Cookie: cookie.split(";")[0]! } }));
-    expect(again.get("userId")).toBe("u1");
-  });
-
-  it("sets nothing for a visitor who is not signed in", async () => {
-    const headers = new Headers();
-    await resendSession(new Request("https://a.example/vi/tools"), headers);
-    expect(headers.get("Set-Cookie")).toBeNull();
-  });
-
-  it("leaves a route's own cookie alone (signing out)", async () => {
-    const headers = new Headers({ "Set-Cookie": "__anytools_session=; Max-Age=0" });
-    await resendSession(await signedIn(), headers);
-    expect(headers.get("Set-Cookie")).toBe("__anytools_session=; Max-Age=0");
-  });
-
-  it("goes on client navigation's data too", async () => {
-    const response = await handleDataRequest(new Response("{}"), { request: await signedIn() });
-    expect(response.headers.get("Set-Cookie")).toMatch(/^__anytools_session=/);
   });
 });
