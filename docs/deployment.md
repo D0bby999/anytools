@@ -47,56 +47,39 @@ This app was called Longplay until October 2026, and its variables used the pref
    ```
    This installs Docker, opens only ports 22, 80 and 443, issues the first certificate, and installs the hourly backup cron.
 
-## Deploying anytools.world: on every push
+## Deploying anytools.world: from the owner's machine
 
-anytools.world deploys itself. `scripts/publish-public.sh` pushes a commit to the public
-repository's `main`, and `.github/workflows/deploy.yml` takes it from there, the same way
-postclaw deploys:
+Since 2026-10-20 GitHub runs no CI and no deploy; the owner's machine does both, the way postclaw
+does since its Actions minutes ran out. `scripts/publish-public.sh "message"` deploys first and
+publishes only after a good deploy, so the public repository never runs ahead of the site:
 
-1. **Test** and **Images** run (both are called from `deploy.yml`, so a push runs each once).
-   Images pushes `ghcr.io/d0bby999/anytools-api` and `-web`, tagged `sha-<short commit>`.
-2. Only when both pass, the deploy job SSHes to the host with `DEPLOY_SSH_KEY`, sending the
-   commit. One deploy runs at a time, and a running one is never cancelled.
-3. On the host, `/opt/anytools/bin/autodeploy` (`deploy/scripts/autodeploy.sh`):
-   - pulls both images, and `deploy/coolify/docker-compose.yml` at the same commit;
-   - dumps the database to `/opt/anytools/backups/…-pre-sha-<commit>.sql.gz` (it keeps ten);
-   - sets `ANYTOOLS_IMAGE_TAG` and runs the stack, with the one-shot `migrate` before `api`;
-   - waits up to two minutes for the API's `/health`, the web server and `https://anytools.world/`
-     through Traefik;
-   - when anything fails, puts the previous compose file and tag back, restarts `api` and `web`,
-     and prints the dump's path. Migrations are forward-only, so that dump is the way back for the
-     schema.
-4. The job checks `https://anytools.world/` from outside.
+1. It asks the host which commit is live (`ANYTOOLS_IMAGE_TAG=host-<commit>` in
+   `/opt/anytools/.env`). If HEAD changes nothing since then but `docs/`, `plans/`, `.claude/` or a
+   top-level `*.md`, it publishes without a deploy.
+2. Otherwise `deploy/scripts/deploy-host.sh root@157.180.70.19`:
+   - checks, fast: `gofmt`, `go vet ./...`, the web app's typecheck;
+   - builds the API for linux/amd64 and the web app, and renders every old URL against the build
+     (`ssr-smoke.mjs`);
+   - copies both to `/opt/anytools/stage` and builds runtime-only images there, tagged
+     `host-<commit>` (nothing compiles on the host);
+   - runs `/opt/anytools/bin/activate` (`deploy/scripts/activate.sh`, installed by each deploy).
+3. `activate` dumps the database to `/opt/anytools/backups/…-pre-host-<commit>.sql.gz` (it keeps
+   ten), sets `ANYTOOLS_IMAGE_TAG` and runs the stack with the one-shot `migrate` before `api`,
+   then waits up to two minutes for the API's `/health`, the web server and
+   `https://anytools.world/` through Traefik. When anything fails it puts the previous compose file
+   and tag back, restarts `api` and `web`, and prints the dump's path; migrations are forward-only,
+   so that dump is the way back for the schema. It keeps the live images and the two before them.
+4. A failed deploy publishes nothing.
 
-A push that changes only `docs/` or a root `*.md` runs none of this. **Run workflow** on the Deploy
-workflow deploys the head of `main` again.
+`SKIP_DEPLOY=1` publishes without deploying. `deploy-host.sh` can also run on its own, to deploy
+HEAD again. The full suites are not in the deploy path; run them by hand before a release:
+`go test ./...` (with `ANYTOOLS_TEST_DSN`) and `pnpm test` in `ui/web`. The Test and Images
+workflows still exist on GitHub, by hand only (**Run workflow**); Images publishes images for
+self-hosters.
 
-**The deploy key.** `DEPLOY_SSH_KEY` is authorized on the host as
-`restrict,command="/opt/anytools/bin/autodeploy"`: it can deploy a commit and nothing else (no
-shell, no pty, no forwarding). The host runs its installed copy of the script, so after changing
-`autodeploy.sh`, install it again:
-
-```sh
-deploy/scripts/install-autodeploy.sh root@HOST
-```
-
-To replace the key (or set up a new host), make one, authorize it, and give GitHub the private
-half and the host's key; then delete the local copy:
-
-```sh
-ssh-keygen -t ed25519 -N "" -C anytools-autodeploy -f /tmp/k
-deploy/scripts/install-autodeploy.sh root@HOST /tmp/k.pub
-gh secret set DEPLOY_SSH_KEY -R D0bby999/anytools < /tmp/k
-gh secret set DEPLOY_HOST -R D0bby999/anytools --body HOST
-ssh-keyscan -t ed25519 HOST > /tmp/kh   # compare with ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub on the host
-gh secret set DEPLOY_KNOWN_HOSTS -R D0bby999/anytools < /tmp/kh
-rm -f /tmp/k /tmp/k.pub /tmp/kh
-```
-
-**Rolling back by hand.** Set `ANYTOOLS_IMAGE_TAG` in `/opt/anytools/.env` to an earlier
-`sha-…` (or `host-…`) tag and run `docker compose -p anytools up -d` there.
-`deploy/scripts/deploy-host.sh` still builds on the laptop and deploys without the registry, for
-when GitHub is unavailable.
+**Rolling back by hand.** Set `ANYTOOLS_IMAGE_TAG` in `/opt/anytools/.env` to one of the kept
+`host-…` tags (`docker images ghcr.io/d0bby999/anytools-web`) and run
+`docker compose -p anytools up -d` there.
 
 ## Deploying a self-hosted copy
 
@@ -225,7 +208,7 @@ curl -sI "$u" | grep -i cf-cache-status   # DYNAMIC again, never HIT
 - **Log.** `/var/log/anytools-backup.log`.
 - **anytools.world today.** The hourly unit above is not installed yet, because it needs an `ANYTOOLS_BACKUP_REMOTE` to copy to. Until then the database is dumped twice over:
   - every night at 03:10 UTC by the host's `/root/nightly-pg-backup.sh`, beside its other sites, to `/var/backups/pg/anytools-<date>.sql.gz`, kept 7 days (log `/var/log/nightly-pg-backup.log`);
-  - before every deploy by `autodeploy`, to `/opt/anytools/backups/` (ten kept).
+  - before every deploy by `activate`, to `/opt/anytools/backups/` (ten kept).
 
   Neither copy leaves the box, and the `anytools-data` volume is not in either. Choose an off-box target before learners store anything that matters.
 

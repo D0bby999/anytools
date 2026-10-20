@@ -1,13 +1,12 @@
 name: Images
 
-# Builds the api and web images on every pull request and every push to main.
-# Only main pushes them, to ghcr.io/<owner>/anytools-api and -web, tagged
-# sha-<short commit> and latest. On main this runs from deploy.yml, whose last
-# job has the server pull the sha- tag; nothing is compiled on the host
-# (deploy/coolify/docker-compose.yml).
+# Run by hand only (Actions → Images → Run workflow), to publish the api and
+# web images for self-hosters: run on main, it pushes them to
+# ghcr.io/<owner>/anytools-api and -web, tagged sha-<short commit> and latest.
+# anytools.world does not use them; it deploys images built from the owner's
+# machine (deploy/scripts/deploy-host.sh).
 on:
-  pull_request:
-  workflow_call:
+  workflow_dispatch:
 
 concurrency:
   group: images-${{ github.ref }}

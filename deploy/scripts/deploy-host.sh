@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
-# deploy-host.sh HOST [--private]
+# deploy-host.sh HOST
 #
-# Deploys AnyTools to one Docker host that already runs a Traefik on the
-# external `coolify` network (Coolify's proxy), without a registry:
+# Deploys AnyTools from the owner's machine to one Docker host that runs a
+# Traefik on the external `coolify` network (Coolify's proxy). No CI and no
+# registry: since 2026-10-20 this is the only way anytools.world deploys, run
+# by scripts/publish-public.sh after each publish (like postclaw's pre-push).
 #
-#   1. builds here: the Go API for linux/amd64, and the web app (`pnpm build`,
-#      which also stages tool-runtime/);
-#   2. copies those artifacts to HOST:/opt/anytools and wraps them there in
-#      runtime-only images (no compiler runs on the host, so the 4 GB box and
-#      its other sites keep their memory);
-#   3. writes /opt/anytools/.env once, with fresh secrets, and never again
+#   1. checks here, fast: gofmt, go vet, the web app's typecheck. The full
+#      suites (`go test ./...`, `pnpm test`) are run by hand, as in postclaw;
+#   2. builds here: the Go API for linux/amd64, and the web app (`pnpm build`,
+#      which also stages tool-runtime/), then renders every old URL against
+#      the build (ssr-smoke);
+#   3. copies those artifacts to HOST:/opt/anytools/stage and wraps them there
+#      in runtime-only images (no compiler runs on the host, so the 4 GB box
+#      and its other sites keep their memory);
+#   4. writes /opt/anytools/.env once, with fresh secrets, and never again
 #      (ANYTOOLS_ENCRYPTION_KEY must not change after first boot);
-#   4. runs deploy/coolify/docker-compose.yml there.
-#
-# --private starts the stack with Traefik ignoring `web`, so it can be checked
-# from inside the host before it takes the domain. Run again without it to
-# switch the domain over.
+#   5. runs activate.sh there: database dump, migrate, start, health checks,
+#      and a rollback to the previous images if any of it fails.
 set -euo pipefail
 
-host=${1:?usage: deploy-host.sh HOST [--private]}
-private=${2:-}
+host=${1:?usage: deploy-host.sh HOST}
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 sha=$(git -C "$root" rev-parse --short HEAD)
 tag="host-$sha"
@@ -28,6 +29,12 @@ trap 'rm -rf "$stage"' EXIT
 
 [[ -z "$(git -C "$root" status --porcelain -- cmd internal migrations ui/web/app ui/web/package.json)" ]] \
   || { echo "error: uncommitted changes; deploy a commit" >&2; exit 2; }
+
+echo "== check ($sha)"
+unformatted=$(cd "$root" && gofmt -l cmd internal scripts)
+[[ -z $unformatted ]] || { echo "error: not gofmt'd:" >&2; echo "$unformatted" >&2; exit 1; }
+( cd "$root" && go vet ./... )
+( cd "$root/ui/web" && pnpm install --frozen-lockfile --prefer-offline >/dev/null && pnpm typecheck >/dev/null )
 
 echo "== build api ($sha)"
 mkdir -p "$stage/api"
@@ -42,7 +49,7 @@ awk '/^FROM alpine:3.21 AS ytdlp/{p=1} p' "$root/deploy/Dockerfile.api" \
 grep -q '^COPY anytools /app/anytools' "$stage/api/Dockerfile" || { echo "error: Dockerfile.api changed shape" >&2; exit 1; }
 
 echo "== build web"
-( cd "$root/ui/web" && pnpm install --frozen-lockfile --prefer-offline >/dev/null && pnpm build >/dev/null && node scripts/ssr-smoke.mjs )
+( cd "$root/ui/web" && pnpm build >/dev/null && node scripts/ssr-smoke.mjs )
 mkdir -p "$stage/web"
 for d in build public tool-runtime package.json pnpm-lock.yaml; do cp -R "$root/ui/web/$d" "$stage/web/"; done
 cat > "$stage/web/Dockerfile" <<'DOCKERFILE'
@@ -65,16 +72,19 @@ EXPOSE 3000
 CMD ["node_modules/.bin/react-router-serve", "./build/server/index.js"]
 DOCKERFILE
 cp "$root/deploy/coolify/docker-compose.yml" "$stage/docker-compose.yml"
+cp "$root/deploy/scripts/activate.sh" "$stage/activate.sh"
 
 echo "== copy to $host"
 ssh -o BatchMode=yes "$host" 'mkdir -p /opt/anytools && rm -rf /opt/anytools/stage'
 rsync -a --delete "$stage/" "$host:/opt/anytools/stage/"
 
 echo "== images and stack on $host"
-ssh -o BatchMode=yes "$host" TAG="$tag" PRIVATE="$private" 'bash -s' <<'REMOTE'
+ssh -o BatchMode=yes "$host" TAG="$tag" 'bash -s' <<'REMOTE'
 set -euo pipefail
 cd /opt/anytools
-mv stage/docker-compose.yml docker-compose.yml
+mkdir -p bin
+install -m 0755 stage/activate.sh bin/activate
+mv stage/docker-compose.yml docker-compose.next.yml
 docker build -q -t "ghcr.io/d0bby999/anytools-api:$TAG" stage/api >/dev/null
 docker build -q -t "ghcr.io/d0bby999/anytools-web:$TAG" stage/web >/dev/null
 rm -rf stage
@@ -92,19 +102,7 @@ ANYTOOLS_PULL_POLICY=never
 ENV
   echo "wrote /opt/anytools/.env (escrow ANYTOOLS_ENCRYPTION_KEY off this host)"
 fi
-sed -i '/^ANYTOOLS_IMAGE_TAG=/d' .env && echo "ANYTOOLS_IMAGE_TAG=$TAG" >> .env
 
-files=(-f docker-compose.yml)
-if [[ "$PRIVATE" == "--private" ]]; then
-  printf 'services:\n  web:\n    labels:\n      - traefik.enable=false\n' > private.yml
-  files+=(-f private.yml)
-fi
-docker compose -p anytools "${files[@]}" up -d --remove-orphans
-docker compose -p anytools "${files[@]}" ps --format '{{.Service}} {{.State}} {{.Status}}'
-# Keep the last three host-built tags of each image.
-for img in anytools-api anytools-web; do
-  docker images "ghcr.io/d0bby999/$img" --format '{{.Tag}}' | grep '^host-' | tail -n +4 \
-    | xargs -r -I{} docker rmi -f "ghcr.io/d0bby999/$img:{}" >/dev/null
-done
+bin/activate "$TAG"
 REMOTE
 echo "deployed $tag to $host"

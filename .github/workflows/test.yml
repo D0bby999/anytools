@@ -1,10 +1,11 @@
 name: Test
 
-# A push to main runs this from deploy.yml, which deploys only when it passes;
-# a pull request runs it on its own.
+# Run by hand only (Actions → Test → Run workflow). Since 2026-10-20 nothing
+# runs on GitHub by itself: anytools.world deploys from the owner's machine
+# (deploy/scripts/deploy-host.sh, through scripts/publish-public.sh), and the
+# suites below run there by hand, as in postclaw.
 on:
-  pull_request:
-  workflow_call:
+  workflow_dispatch:
 
 # A superseded run on the same branch has nothing left to prove.
 concurrency:

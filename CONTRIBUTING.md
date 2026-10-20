@@ -13,7 +13,7 @@ make setup test-db                   # dependencies, and the anytools_test datab
 
 ## The checks a pull request must pass
 
-CI runs these on every pull request (`.github/workflows/test.yml`), and they are quick to run first:
+Run these before opening a pull request. CI does not run on its own (a maintainer can start `.github/workflows/test.yml` by hand), so a pull request is checked with the same commands:
 
 ```sh
 gofmt -l cmd internal scripts        # prints nothing
@@ -22,7 +22,7 @@ make test                            # go test -race ./... against a real Postgr
 make web-typecheck web-test web-build
 ```
 
-CI also runs `govulncheck`, `pnpm audit --prod` and gitleaks. A database test never skips in CI: if one cannot reach Postgres, it fails.
+The workflow also runs `govulncheck`, `pnpm audit --prod` and gitleaks. A database test never skips in CI: if one cannot reach Postgres, it fails.
 
 After adding or upgrading a dependency, run `make notices` and commit the new `THIRD-PARTY-NOTICES.md`; a test fails when it is stale.
 

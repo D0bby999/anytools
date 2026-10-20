@@ -93,7 +93,7 @@ make test                     # go test -race ./... against a real Postgres
 make web-typecheck web-test web-build
 ```
 
-The DB-backed tests fail rather than skip when CI cannot reach Postgres. CI (`.github/workflows/test.yml`) also runs `govulncheck`, `pnpm audit --prod` and gitleaks, and `images.yml` builds the two images.
+The DB-backed tests fail rather than skip when CI cannot reach Postgres. The Test workflow (`.github/workflows/test.yml`, run by hand) also runs `govulncheck`, `pnpm audit --prod` and gitleaks, and `images.yml`, also by hand, publishes the two images.
 
 ## Contributing
 
