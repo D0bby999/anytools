@@ -166,6 +166,7 @@ export default [
     // Learning depth, phase 0: the browser reports its time zone once.
     // POST-only resource route; its action calls requireUserId.
     route("app/api/timezone", "routes/app.api.timezone.ts"),
+    route("app/api/search-index", "routes/app.api.search-index.ts"),
 
     // Learning depth, phase 5: "Draw it" and its one repair. POST-only
     // resource route; its action calls requireUserId.

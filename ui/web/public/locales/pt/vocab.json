@@ -194,7 +194,13 @@
     "stop": "Parar de praticar",
     "on": "praticando",
     "cancel": "Cancelar",
-    "failed": "O cartão de produção não foi salvo."
+    "failed": "O cartão de produção não foi salvo.",
+    "review": "Revisar",
+    "word": "Palavra",
+    "context": "Contexto",
+    "nextReview": "Próxima revisão",
+    "reviewWords": "Revisar {{count}} palavras",
+    "reviewCards": "Revisar {{count}} cartões"
   },
   "byDecision": {
     "title": "Outras decisões",
@@ -308,7 +314,7 @@
     "rateNow": "Avaliar",
     "slots": "Caracteres da palavra",
     "slotEmpty": "Caractere {{n}}, ainda não escrito",
-    "pad": "Quadro de escrita de {{char}}, caractere {{n}} de {{total}}",
+    "pad": "Quadro de escrita, caractere {{n}} de {{total}}",
     "keyboard": "Desenhar exige um dedo, uma caneta ou um mouse; Mostrar o caractere e as avaliações funcionam pelo teclado."
   },
   "decks": {
@@ -343,17 +349,20 @@
       "thenFile": "Depois escolha o arquivo em De um arquivo.",
       "language": "Idioma",
       "about": {
-        "ultimateGeography": "Os países do mundo e suas capitais, nos dois sentidos. Só texto: as bandeiras e os mapas não estão incluídos.",
+        "ultimateGeography": "Os países do mundo e suas capitais, nos dois sentidos.",
         "jlpt": "Vocabulário japonês por nível JLPT, com áudio. Um arquivo grande: só o texto é lido.",
         "french": "Vocabulário francês por frequência.",
-        "coding": "Conceitos e comandos de programação."
+        "coding": "Conceitos e comandos de programação.",
+        "ultimateGeographyFlags": "Diga o país, território ou organização pela bandeira.",
+        "ultimateGeographyMaps": "Diga o país, região ou oceano destacado no mapa."
       }
     },
     "licence": {
       "publicDomain": "Domínio público",
       "ccBy": "Livre, com crédito (CC BY)",
       "ccByNc": "Só uso não comercial (CC BY-NC)",
-      "none": "Sem licença indicada"
+      "none": "Sem licença indicada",
+      "freePictures": "Livre: texto em domínio público, imagens sob licenças livres (CC BY-SA, CC BY, CC0), com crédito em cada cartão"
     },
     "cards_one": "{{count}} cartão",
     "cards_other": "{{count}} cartões",
@@ -391,6 +400,13 @@
       "open": "Revisar os baralhos"
     },
     "pace": "Chegam {{perDay}} novos por dia, de {{first}} a {{last}}.",
-    "paceOneDay": "Chegam em {{day}}."
+    "paceOneDay": "Chegam em {{day}}.",
+    "overLimit_one": "{{count}} cartão não foi adicionado: seus baralhos comportam no máximo {{limit}} cartões no total. Apague um baralho que não usa mais para abrir espaço.",
+    "overLimit_other": "{{count}} cartões não foram adicionados: seus baralhos comportam no máximo {{limit}} cartões no total. Apague um baralho que não usa mais para abrir espaço.",
+    "picture": {
+      "alt": "A imagem a nomear. Ela não é descrita aqui, porque é a pergunta.",
+      "credit": "Imagem:",
+      "publicDomain": "domínio público"
+    }
   }
 }

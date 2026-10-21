@@ -8,6 +8,9 @@
  * that does not revalidate, so typing is never clobbered). Ticking a set
  * starts the rest timer; the screen is kept awake while a session is open.
  */
+import { StatusLine } from "~/components/doc/status-line";
+import { RefTable } from "~/components/doc/ref-table";
+import { BookMeta } from "~/components/doc/book-meta";
 import { useEffect, useRef, useState } from "react";
 import { Link, redirect, useFetcher, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -17,7 +20,7 @@ import { appTitle } from "~/lib/app-title";
 import { requireUserId } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { addEntry, deleteWorkout, finishWorkout, getOverview, getWorkout, saveWorkout } from "~/lib/body.server";
-import { num, parseJSON, setsDone, type Entry, type Names, type Record_, type Unit, type WorkoutSet } from "~/lib/body-types";
+import { minutesOf, num, parseJSON, setsDone, type Entry, type Names, type Record_, type Unit, type WorkoutSet } from "~/lib/body-types";
 import { AdviceText } from "~/components/body/advice";
 import { BodyTabs } from "~/components/body/body-tabs";
 import { ExercisePicker } from "~/components/body/exercise-picker";
@@ -27,12 +30,10 @@ import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 import { Plate } from "~/components/ui/plate";
+import { ScrollBox } from "~/components/doc/scroll-box";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Workout") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Workout") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -164,12 +165,17 @@ export default function WorkoutPage({ loaderData }: Route.ComponentProps) {
   const ticked = entries.reduce((n, e) => n + setsDone(e), 0);
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader
         title={workout.routine_name || t("today.free")}
         lede={open ? t("workout.lead", { done: ticked, total }) : t("workout.finishedLead", { day: workout.day })}
       />
+      <BookMeta
+        label={t("workout.notes")}
+        items={[{ label: workout.day }, { label: t("recent.summary", { count: entries.length, minutes: minutesOf(workout) }) }]}
+      />
       <BodyTabs />
+      {open ? <RestTimer until={restUntil} onChange={setRestUntil} /> : null}
 
       {error ? (
         <Alert variant="destructive" className="mb-6">
@@ -178,12 +184,11 @@ export default function WorkoutPage({ loaderData }: Route.ComponentProps) {
         </Alert>
       ) : null}
 
-      {done ? <Finished records={done.records ?? []} unit={unit} /> : null}
-
       <ol className="space-y-6">
         {entries.map((e, i) => (
-          <li key={`${e.exercise}-${i}`} className="rounded-lg border bg-card p-4 sm:p-5">
+          <li key={`${e.exercise}-${i}`} className="list-none">
             <EntryCard
+              number={i + 1}
               entry={e}
               names={names}
               unit={unit}
@@ -200,6 +205,18 @@ export default function WorkoutPage({ loaderData }: Route.ComponentProps) {
           </li>
         ))}
       </ol>
+
+      {!open || done ? (
+        <>
+          <StatusLine>{t("finished.title")}</StatusLine>
+          <RefTable
+            caption={t("finished.title")}
+            columns={[t("up.exercise"), t("set.done")]}
+            rows={entries.map((e) => [names[e.exercise]?.name ?? e.exercise, setsDone(e)])}
+          />
+          {done ? <Finished records={done.records ?? []} unit={unit} /> : null}
+        </>
+      ) : null}
 
       <section aria-labelledby="lp-workout-add" className="mt-6">
         <h2 id="lp-workout-add" className="sr-only">
@@ -280,8 +297,6 @@ export default function WorkoutPage({ loaderData }: Route.ComponentProps) {
           {saver.state !== "idle" ? t("workout.saving") : saver.data?.saved ? t("workout.saved") : ""}
         </span>
       </div>
-
-      {open ? <RestTimer until={restUntil} onChange={setRestUntil} /> : null}
     </div>
   );
 }
@@ -295,30 +310,33 @@ function Finished({ records, unit }: { records: Record_[]; unit: Unit }) {
       className="mb-8 grid items-center gap-x-6 lp-keybox p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,12rem)]"
     >
       <div className="min-w-0">
-      <h2 id="lp-workout-done" className="lp-section flex items-center gap-2 text-xl">
-        <Trophy aria-hidden="true" className="size-5 text-part" />
-        {t("finished.title")}
-      </h2>
-      {records.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">{t("finished.noRecords")}</p>
-      ) : (
-        <ul className="mt-3 space-y-1">
-          {records.map((r) => (
-            <li key={r.exercise} className="text-sm">
-              {t("finished.record", { name: r.name, e1rm: num(r.e1rm), unit, weight: num(r.weight), reps: r.reps })}
-            </li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("finished.study")}</p>
-      <p className="mt-2 flex flex-wrap gap-x-5">
-        <Link to="/home" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">
-          {t("finished.home")}
-        </Link>
-        <Link to="/body/progress" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">
-          {t("finished.progress")}
-        </Link>
-      </p>
+        <h2 id="lp-workout-done" className="lp-section flex items-center gap-2 text-xl">
+          <Trophy aria-hidden="true" className="size-5 text-part" />
+          {t("finished.title")}
+        </h2>
+        {records.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">{t("finished.noRecords")}</p>
+        ) : (
+          <ul className="mt-3 space-y-1">
+            {records.map((r) => (
+              <li key={r.exercise} className="text-sm">
+                {t("finished.record", { name: r.name, e1rm: num(r.e1rm), unit, weight: num(r.weight), reps: r.reps })}
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("finished.study")}</p>
+        <p className="mt-2 flex flex-wrap gap-x-5">
+          <Link to="/home" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">
+            {t("finished.home")}
+          </Link>
+          <Link
+            to="/body/progress"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4"
+          >
+            {t("finished.progress")}
+          </Link>
+        </p>
       </div>
       {/* The moment a session ends: Body's plate, beside the words on a wide screen. */}
       <Plate name="part-body" sizes="12rem" className="hidden max-w-48 sm:block" />
@@ -327,6 +345,7 @@ function Finished({ records, unit }: { records: Record_[]; unit: Unit }) {
 }
 
 function EntryCard({
+  number,
   entry,
   names,
   unit,
@@ -335,6 +354,7 @@ function EntryCard({
   onRemoveSet,
   onRemove,
 }: {
+  number: number;
   entry: Entry;
   names: Names;
   unit: Unit;
@@ -356,88 +376,102 @@ function EntryCard({
   return (
     <>
       <div className="flex flex-wrap items-start gap-x-4 gap-y-1">
-        <h3 className="min-w-0 flex-1 font-serif text-lg font-semibold">
+        <h2 className="min-w-0 flex-1">
+          {number}.{" "}
           <Link to={`/body/library?id=${entry.exercise}`} className="hover:underline">
             {name}
           </Link>
-        </h3>
+        </h2>
         <span className="text-sm font-medium tabular-nums">
           {target} {load}
         </span>
       </div>
       <AdviceText advice={entry.advice} unit={unit} />
 
-      <table className="mt-3 w-full text-sm">
-        <thead>
-          <tr className="text-left text-xs text-muted-foreground">
-            <th scope="col" className="w-10 py-1 font-medium">
-              {t("set.number")}
-            </th>
-            {mode === "cardio" ? (
-              <>
-                <th scope="col" className="py-1 font-medium">{t("set.minutes")}</th>
-                <th scope="col" className="py-1 font-medium">{t("set.speed")}</th>
-              </>
-            ) : (
-              <>
-                <th scope="col" className="py-1 font-medium">{t("set.weight", { unit })}</th>
-                <th scope="col" className="py-1 font-medium">{mode === "time" ? t("set.seconds") : t("set.reps")}</th>
-              </>
-            )}
-            <th scope="col" className="min-w-16 py-1 text-right font-medium">
-              {t("set.done")}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {entry.sets.map((s, k) => {
-            const label = t("set.label", { name, n: k + 1 });
-            const numberField = (value: number | undefined, key: keyof WorkoutSet, what: string, step = "1") => (
-              <input
-                type="number"
-                inputMode={step === "1" ? "numeric" : "decimal"}
-                step={step}
-                min="0"
-                aria-label={`${label}: ${what}`}
-                value={value ?? 0}
-                onChange={(e) => onSet(k, { [key]: Number(e.target.value) || 0 })}
-                className={NUMBER}
-              />
-            );
-            return (
-              <tr key={k} className={s.done ? "bg-part-soft" : undefined} data-part={s.done ? "practise" : undefined}>
-                <td className="py-1.5 font-mono text-xs text-muted-foreground">{k + 1}</td>
+      <div className="lp-field-table">
+        <ScrollBox>
+          <table>
+            <caption className="sr-only">{name}</caption>
+            <thead>
+              <tr className="text-left text-xs text-muted-foreground">
+                <th scope="col" className="w-10 py-1 font-medium">
+                  {t("set.number")}
+                </th>
                 {mode === "cardio" ? (
                   <>
-                    <td className="py-1.5">{numberField(s.min, "min", t("set.minutes"), "0.5")}</td>
-                    <td className="py-1.5">{numberField(s.speed, "speed", t("set.speed"), "0.1")}</td>
+                    <th scope="col" className="py-1 font-medium">
+                      {t("set.minutes")}
+                    </th>
+                    <th scope="col" className="py-1 font-medium">
+                      {t("set.speed")}
+                    </th>
                   </>
                 ) : (
                   <>
-                    <td className="py-1.5">{numberField(s.weight, "weight", t("set.weight", { unit }), "0.5")}</td>
-                    <td className="py-1.5">
-                      {mode === "time" ? numberField(s.sec, "sec", t("set.seconds")) : numberField(s.reps, "reps", t("set.reps"))}
-                    </td>
+                    <th scope="col" className="py-1 font-medium">
+                      {t("set.weight", { unit })}
+                    </th>
+                    <th scope="col" className="py-1 font-medium">
+                      {mode === "time" ? t("set.seconds") : t("set.reps")}
+                    </th>
                   </>
                 )}
-                <td className="py-1.5 text-right">
-                  <button
-                    type="button"
-                    aria-pressed={s.done}
-                    aria-label={s.done ? t("set.undo", { label }) : t("set.tick", { label })}
-                    onClick={() => onSet(k, { done: !s.done })}
-                    className={`inline-flex size-11 items-center justify-center rounded-md border transition-colors ${
-                      s.done ? "border-part bg-part text-part-foreground" : "border-control-border bg-card hover:bg-hover"
-                    }`}
-                  >
-                    <Check aria-hidden="true" className="size-5" />
-                  </button>
-                </td>
+                <th scope="col" className="min-w-16 py-1 text-right font-medium">
+                  {t("set.done")}
+                </th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {entry.sets.map((s, k) => {
+                const label = t("set.label", { name, n: k + 1 });
+                const numberField = (value: number | undefined, key: keyof WorkoutSet, what: string, step = "1") => (
+                  <input
+                    type="number"
+                    inputMode={step === "1" ? "numeric" : "decimal"}
+                    step={step}
+                    min="0"
+                    aria-label={`${label}: ${what}`}
+                    value={value ?? 0}
+                    onChange={(e) => onSet(k, { [key]: Number(e.target.value) || 0 })}
+                    className={NUMBER}
+                  />
+                );
+                return (
+                  <tr key={k} className={s.done ? "bg-part-soft" : undefined} data-part={s.done ? "practise" : undefined}>
+                    <td className="py-1.5 font-mono text-xs text-muted-foreground">{k + 1}</td>
+                    {mode === "cardio" ? (
+                      <>
+                        <td className="py-1.5">{numberField(s.min, "min", t("set.minutes"), "0.5")}</td>
+                        <td className="py-1.5">{numberField(s.speed, "speed", t("set.speed"), "0.1")}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="py-1.5">{numberField(s.weight, "weight", t("set.weight", { unit }), "0.5")}</td>
+                        <td className="py-1.5">
+                          {mode === "time" ? numberField(s.sec, "sec", t("set.seconds")) : numberField(s.reps, "reps", t("set.reps"))}
+                        </td>
+                      </>
+                    )}
+                    <td className="py-1.5 text-right">
+                      <button
+                        type="button"
+                        aria-pressed={s.done}
+                        aria-label={s.done ? t("set.undo", { label }) : t("set.tick", { label })}
+                        onClick={() => onSet(k, { done: !s.done })}
+                        className={`inline-flex size-11 items-center justify-center rounded-md border transition-colors ${
+                          s.done ? "border-part bg-part text-part-foreground" : "border-control-border bg-card hover:bg-hover"
+                        }`}
+                      >
+                        <Check aria-hidden="true" className="size-5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </ScrollBox>
+      </div>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="ghost" onClick={onAddSet} disabled={entry.sets.length >= 20}>
           <Plus aria-hidden="true" />

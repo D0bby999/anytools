@@ -3,6 +3,7 @@
  * The general decks' API module (plans/261020-1535-beyond-english-learning-
  * areas, phase 5). Server-side only; every call is scoped by the user id.
  */
+import type { CardImage } from "~/lib/vocab-types";
 import { apiFetch } from "~/lib/api.server";
 import { LIBRARY, LICENCE_TEXT, librarySource } from "~/lib/deck-library";
 
@@ -19,8 +20,16 @@ export type Deck = {
   last_new?: string;
 };
 
-export type DeckCard = { front: string; back: string };
-export type AddResult = { created: number; duplicates: number; invalid: number; first_day?: string; last_day?: string };
+export type DeckCard = { front: string; back: string; image?: CardImage };
+export type AddResult = {
+  created: number;
+  duplicates: number;
+  invalid: number;
+  // Not added: the learner has the most general cards allowed (vocab.MaxDeckCardsPerLearner).
+  over_limit?: number;
+  first_day?: string;
+  last_day?: string;
+};
 
 /** The API's largest batch: vocab.MaxImportBatch. */
 export const DECK_BATCH = 200;
@@ -46,6 +55,12 @@ const BUNDLED: Record<string, () => Promise<{ default: { name: string; cards: De
   "ultimate-geography-en": () => import("~/data/decks/ultimate-geography-en.json"),
   "ultimate-geography-es": () => import("~/data/decks/ultimate-geography-es.json"),
   "ultimate-geography-pt": () => import("~/data/decks/ultimate-geography-pt.json"),
+  "ultimate-geography-flags-en": () => import("~/data/decks/ultimate-geography-flags-en.json"),
+  "ultimate-geography-flags-es": () => import("~/data/decks/ultimate-geography-flags-es.json"),
+  "ultimate-geography-flags-pt": () => import("~/data/decks/ultimate-geography-flags-pt.json"),
+  "ultimate-geography-maps-en": () => import("~/data/decks/ultimate-geography-maps-en.json"),
+  "ultimate-geography-maps-es": () => import("~/data/decks/ultimate-geography-maps-es.json"),
+  "ultimate-geography-maps-pt": () => import("~/data/decks/ultimate-geography-maps-pt.json"),
 };
 
 /** Adds a bundled library deck: the deck, then its cards in batches. */
@@ -60,7 +75,7 @@ export async function addLibraryDeck(userId: string, slug: string) {
     licence: LICENCE_TEXT[entry.licence],
     source_url: entry.sourceUrl,
   });
-  const totals: AddResult = { created: 0, duplicates: 0, invalid: 0 };
+  const totals: AddResult = { created: 0, duplicates: 0, invalid: 0, over_limit: 0 };
   for (let i = 0; i < data.cards.length; i += DECK_BATCH) {
     const r = await addDeckCards(userId, deck.id, data.cards.slice(i, i + DECK_BATCH));
     totals.created += r.created;
@@ -68,6 +83,13 @@ export async function addLibraryDeck(userId: string, slug: string) {
     totals.invalid += r.invalid;
     totals.first_day ??= r.first_day;
     totals.last_day = r.last_day ?? totals.last_day;
+    if (r.over_limit) {
+      // The limit is reached: the cards not yet sent would not be added either.
+      totals.over_limit! += r.over_limit + Math.max(0, data.cards.length - i - DECK_BATCH);
+      break;
+    }
   }
+  // The learner's decks are full: no card fitted, so the empty deck goes.
+  if (totals.created === 0 && totals.over_limit) await deleteDeck(userId, deck.id);
   return { deck, totals };
 }

@@ -8,6 +8,9 @@
  * written now comes from the server too (`allowed`): the page never decides
  * that a retest is due, and while one is pending the API does not send the
  * first attempt at all, so there is nothing here to hide.
+ *
+ * Each step is a numbered section (plan 261020-2246 phase 12) and its
+ * entries up's dated list (P4): **date** · help — what was written.
  */
 import { Form, Link } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -15,8 +18,10 @@ import type { CardDetail, CardEntry, Timepoint } from "~/lib/loop-types";
 import { CardEntryForm, type LinkChoice } from "~/components/loop/card-entry-form";
 import { Button } from "~/components/ui/button";
 import { DateText } from "~/components/ui/date-text";
-
-const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
+import { NumberedSection } from "~/components/doc/numbered-section";
+import { RefTable } from "~/components/doc/ref-table";
+import { InputTable } from "~/components/loop/input-table";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 function useStepLabels(): Record<Timepoint, string> {
   const { t } = useTranslation("loop");
@@ -43,27 +48,30 @@ function EntryItem({ entry }: { entry: CardEntry }) {
   };
   if (entry.withheld) {
     return (
-      <li className="border-b py-3">
-        <p className="text-sm text-muted-foreground">{t("cards.hidden")}</p>
+      <li>
+        <span className="text-muted-foreground">{t("cards.hidden")}</span>
       </li>
     );
   }
   return (
-    <li className="border-b py-3">
-      <p className="text-xs font-semibold text-faint">
-        <DateText iso={entry.created_at} /> · {t("cards.cueNote", { level: levels[entry.prompt_level] ?? entry.prompt_level })}
-      </p>
+    <li>
+      <strong>
+        <DateText iso={entry.created_at} />
+      </strong>
+      {" · "}
+      <span>{t("cards.cueNote", { level: levels[entry.prompt_level] ?? entry.prompt_level })}</span>
+      {NOTE_JOIN}
       {/* The learner's own text, shown as text: no markdown, no HTML. */}
-      <p className="mt-1 whitespace-pre-wrap text-sm leading-prose">{entry.body}</p>
+      <span className="whitespace-pre-wrap">{entry.body}</span>
       {entry.links.length > 0 ? (
-        <ul className="mt-2 space-y-1">
+        <ul className="text-sm">
           {entry.links.map((l) => (
-            <li key={`${l.kind}:${l.id}:${l.page ?? 0}`} className="text-xs">
-              <span className="text-faint">{kinds[l.kind] ?? l.kind}: </span>
+            <li key={`${l.kind}:${l.id}:${l.page ?? 0}`}>
+              <span className="text-muted-foreground">{kinds[l.kind] ?? l.kind}: </span>
               {l.missing || !l.path ? (
                 <span className="text-muted-foreground">{t("cards.linkMissing")}</span>
               ) : (
-                <Link to={l.path} className="text-primary underline underline-offset-4">
+                <Link to={l.path}>
                   {l.label}
                   {l.page ? ` · ${t("cards.pageN", { page: l.page })}` : ""}
                 </Link>
@@ -92,106 +100,89 @@ export function CardTimeline({ detail, recent, busy }: { detail: CardDetail; rec
   };
 
   return (
-    <ol className="mt-6">
-      <li>
-        <section aria-labelledby="lp-card-setup" className="border-t py-4">
-          <h2 id="lp-card-setup" className="lp-section">
-            {t("cards.setup")}
-          </h2>
-          <dl className="mt-2 space-y-2">
-            {kind.setup
-              .filter((f) => card.setup[f.key])
-              .map((f) => (
-                <div key={f.key}>
-                  <dt className="text-xs text-faint">{f.label}</dt>
-                  <dd className="whitespace-pre-wrap text-sm">{card.setup[f.key]}</dd>
-                </div>
-              ))}
-          </dl>
-        </section>
-      </li>
+    <>
+      <NumberedSection n={1} title={t("cards.setup")} id="lp-card-setup">
+        <RefTable
+          caption={t("cards.setup")}
+          columns={[t("up.card.field"), t("up.card.value")]}
+          rows={kind.setup
+            .filter((f) => card.setup[f.key])
+            .map((f) => [f.label, <span key="v" className="whitespace-pre-wrap">{card.setup[f.key]}</span>])}
+        />
+      </NumberedSection>
 
-      {order.map((tp) => {
+      {order.map((tp, i) => {
         const here = entries.filter((e) => e.timepoint === tp);
         const extra = note(tp);
         return (
-          <li key={tp}>
-            <section aria-labelledby={`lp-card-${tp}`} className="border-t py-4">
-              <h2 id={`lp-card-${tp}`} className="lp-section">
-                {steps[tp]}
-              </h2>
-              <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+          <NumberedSection key={tp} n={i + 2} title={steps[tp]} id={`lp-card-${tp}`}>
+            {(kind.prompts[tp] ?? []).length > 0 ? (
+              <ul className="text-muted-foreground">
                 {(kind.prompts[tp] ?? []).map((p) => (
                   <li key={p}>{p}</li>
                 ))}
               </ul>
-              {extra ? <p className="mt-2 text-sm">{extra}</p> : null}
-              {here.length === 0 ? (
-                <p className="mt-2 text-xs text-faint">{t("cards.empty")}</p>
-              ) : (
-                <ul className="mt-2 border-t">
-                  {here.map((e) => (
-                    <EntryItem key={e.id} entry={e} />
-                  ))}
-                </ul>
-              )}
-              {/* Keyed on the step's entry count: a saved entry remounts an empty
-                  form, so saved text is never left looking unsaved. */}
-              {allowed.includes(tp) ? (
-                <CardEntryForm key={`${tp}:${here.length}`} timepoint={tp} recent={recent} busy={busy} />
-              ) : null}
-            </section>
-          </li>
+            ) : null}
+            {extra ? <p>{extra}</p> : null}
+            {here.length === 0 ? (
+              <p className="text-muted-foreground">{t("cards.empty")}</p>
+            ) : (
+              <ul className="lp-dated-list">
+                {here.map((e) => (
+                  <EntryItem key={e.id} entry={e} />
+                ))}
+              </ul>
+            )}
+            {/* Keyed on the step's entry count: a saved entry remounts an empty
+                form, so saved text is never left looking unsaved. */}
+            {allowed.includes(tp) ? (
+              <CardEntryForm key={`${tp}:${here.length}`} timepoint={tp} recent={recent} busy={busy} />
+            ) : null}
+          </NumberedSection>
         );
       })}
 
-      <li>
-        <section aria-labelledby="lp-card-reflect" className="border-t py-4">
-          <h2 id="lp-card-reflect" className="lp-section">
-            {t("cards.step.reflection")}
-          </h2>
-          {card.status === "closed" ? (
-            <dl className="mt-2 space-y-2">
-              {(
+      <NumberedSection n={order.length + 2} title={t("cards.step.reflection")} id="lp-card-reflect">
+        {card.status === "closed" ? (
+          <RefTable
+            caption={t("cards.step.reflection")}
+            columns={[t("up.card.field"), t("up.card.value")]}
+            rows={(
+              [
+                ["held", t("cards.reflect.held")],
+                ["missed", t("cards.reflect.missed")],
+                ["next", t("cards.reflect.next")],
+              ] as const
+            )
+              .filter(([key]) => card.reflection[key])
+              .map(([key, label]) => [label, <span key="v" className="whitespace-pre-wrap">{card.reflection[key]}</span>])}
+          />
+        ) : card.baseline_at ? (
+          <Form method="post">
+            <input type="hidden" name="intent" value="close" />
+            <p className="text-muted-foreground">{t("cards.reflect.intro")}</p>
+            <InputTable
+              caption={t("cards.step.reflection")}
+              rows={(
                 [
                   ["held", t("cards.reflect.held")],
                   ["missed", t("cards.reflect.missed")],
                   ["next", t("cards.reflect.next")],
                 ] as const
-              ).map(([key, label]) =>
-                card.reflection[key] ? (
-                  <div key={key}>
-                    <dt className="text-xs text-faint">{label}</dt>
-                    <dd className="whitespace-pre-wrap text-sm">{card.reflection[key]}</dd>
-                  </div>
-                ) : null,
-              )}
-            </dl>
-          ) : card.baseline_at ? (
-            <Form method="post" className="mt-2 space-y-3">
-              <input type="hidden" name="intent" value="close" />
-              <p className="text-sm text-muted-foreground">{t("cards.reflect.intro")}</p>
-              <label className="block text-sm font-medium">
-                {t("cards.reflect.held")}
-                <textarea name="held" rows={2} maxLength={2000} className={box} />
-              </label>
-              <label className="block text-sm font-medium">
-                {t("cards.reflect.missed")}
-                <textarea name="missed" rows={2} maxLength={2000} className={box} />
-              </label>
-              <label className="block text-sm font-medium">
-                {t("cards.reflect.next")}
-                <textarea name="next" rows={2} maxLength={2000} className={box} />
-              </label>
-              <Button type="submit" variant="outline" disabled={busy}>
-                {t("cards.reflect.close")}
-              </Button>
-            </Form>
-          ) : (
-            <p className="mt-2 text-xs text-faint">{t("cards.empty")}</p>
-          )}
-        </section>
-      </li>
-    </ol>
+              ).map(([key, label]) => ({
+                id: `lp-card-${key}`,
+                label,
+                control: <textarea id={`lp-card-${key}`} name={key} rows={2} maxLength={2000} />,
+              }))}
+            />
+            <Button type="submit" variant="outline" disabled={busy}>
+              {t("cards.reflect.close")}
+            </Button>
+          </Form>
+        ) : (
+          <p className="text-muted-foreground">{t("cards.empty")}</p>
+        )}
+      </NumberedSection>
+    </>
   );
 }

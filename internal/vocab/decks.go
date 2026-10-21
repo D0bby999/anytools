@@ -11,7 +11,9 @@ package vocab
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -27,11 +29,24 @@ const KindCard = "card"
 // DeckCards is the general decks' queue, beside DeckWords and DeckBook.
 const DeckCards = "cards"
 
+// ErrLimit is a store's answer when the learner has all the decks allowed.
+var ErrLimit = errors.New("vocab: limit reached")
+
 // Deck limits, as the tables check them.
 const (
 	MaxDeckName  = 200
 	MaxDeckFront = 500
 	MaxDeckBack  = 2000
+)
+
+// A learner's decks and their cards in all. The largest decks in common use
+// (AnKing's medical deck, about 35,000 notes) fit; past that a deck is not
+// reviewed at 20 new cards a day in a lifetime of study, and storage would
+// grow without bound. Reaching the cards' limit keeps what was added and
+// says how many were not (ImportResult.OverLimit).
+const (
+	MaxDecksPerLearner     = 100
+	MaxDeckCardsPerLearner = 50000
 )
 
 // Deck is one of the learner's general decks, with its counts.
@@ -60,8 +75,28 @@ type NewDeck struct {
 
 // DeckCard is one card as the page mapped it.
 type DeckCard struct {
-	Front string `json:"front"`
-	Back  string `json:"back"`
+	Front string     `json:"front"`
+	Back  string     `json:"back"`
+	Image *CardImage `json:"image,omitempty"`
+}
+
+// CardImage is a picture on a card's front, with its credit: Src is a file
+// staged under /tool-runtime/ (package@version/file), Source the page it
+// came from and Licence its licence's short name.
+type CardImage struct {
+	Src     string `json:"src"`
+	Source  string `json:"source"`
+	Licence string `json:"licence"`
+}
+
+// runtimeImage is a staged file's path: never a URL, so a card cannot load
+// anything from elsewhere.
+var runtimeImage = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]*@[0-9][A-Za-z0-9.+-]*/[A-Za-z0-9][A-Za-z0-9._-]*\.(svg|png)$`)
+
+func validImage(im *CardImage) bool {
+	return im == nil || runtimeImage.MatchString(im.Src) && len(im.Src) <= 200 &&
+		strings.HasPrefix(im.Source, "https://") && len(im.Source) <= 500 &&
+		strings.TrimSpace(im.Licence) != "" && len(im.Licence) <= 60
 }
 
 // DeckBatch is a checked batch of cards, with what the store needs to pace it.
@@ -74,17 +109,21 @@ type DeckBatch struct {
 	PerDay   int
 	NewCard  learning.Card
 	Now      time.Time
+	// Limit is the most general cards the learner may have, this batch included.
+	Limit int
 }
 
 // DeckStore is the persistence decks need. pg.VocabStore implements it.
 type DeckStore interface {
-	CreateDeck(ctx context.Context, userID uuid.UUID, d NewDeck) (*Deck, error)
+	// CreateDeck returns ErrLimit when the learner has `limit` decks already.
+	CreateDeck(ctx context.Context, userID uuid.UUID, d NewDeck, limit int) (*Deck, error)
 	// ListDecks counts each deck's cards due before `before`; zone renders
 	// LastNew.
 	ListDecks(ctx context.Context, userID uuid.UUID, before time.Time, zone string) ([]Deck, error)
 	DeleteDeck(ctx context.Context, userID, id uuid.UUID) error
 	// AddDeckCards inserts the batch, a card whose front the deck already
-	// has counted as a duplicate; ErrNotFound for a deck not the user's.
+	// has counted as a duplicate and one past b.Limit as over the limit;
+	// ErrNotFound for a deck not the user's.
 	AddDeckCards(ctx context.Context, b DeckBatch) (*ImportResult, error)
 }
 
@@ -112,7 +151,11 @@ func (s *Service) CreateDeck(ctx context.Context, userID uuid.UUID, d NewDeck) (
 	case d.SourceURL != "" && !strings.HasPrefix(d.SourceURL, "https://"):
 		return nil, fmt.Errorf("%w: a deck's link starts with https://", ErrInvalid)
 	}
-	return store.CreateDeck(ctx, userID, d)
+	deck, err := store.CreateDeck(ctx, userID, d, MaxDecksPerLearner)
+	if errors.Is(err, ErrLimit) {
+		return nil, fmt.Errorf("%w: at most %d decks", ErrInvalid, MaxDecksPerLearner)
+	}
+	return deck, err
 }
 
 // Decks lists the learner's decks, newest first, with their counts.
@@ -153,20 +196,25 @@ func (s *Service) AddDeckCards(ctx context.Context, userID, deckID uuid.UUID, ca
 	case len(cards) > MaxImportBatch:
 		return nil, fmt.Errorf("%w: at most %d cards a call", ErrInvalid, MaxImportBatch)
 	}
-	b := DeckBatch{UserID: userID, DeckID: deckID, PerDay: ImportPerDay}
+	b := DeckBatch{UserID: userID, DeckID: deckID, PerDay: ImportPerDay, Limit: MaxDeckCardsPerLearner}
 	invalid := 0
 	seen := map[string]bool{}
 	for _, c := range cards {
 		front, back := strings.TrimSpace(c.Front), strings.TrimSpace(c.Back)
-		if front == "" || back == "" || utf8.RuneCountInString(front) > MaxDeckFront || utf8.RuneCountInString(back) > MaxDeckBack {
+		if front == "" || back == "" || utf8.RuneCountInString(front) > MaxDeckFront || utf8.RuneCountInString(back) > MaxDeckBack || !validImage(c.Image) {
 			invalid++
 			continue
 		}
-		if seen[front] {
+		// A card is its front and its picture: every flag card asks the same question.
+		key := front
+		if c.Image != nil {
+			key += "\x00" + c.Image.Src
+		}
+		if seen[key] {
 			continue // twice in one batch: the store counts the first one's duplicate
 		}
-		seen[front] = true
-		b.Cards = append(b.Cards, DeckCard{Front: front, Back: back})
+		seen[key] = true
+		b.Cards = append(b.Cards, DeckCard{Front: front, Back: back, Image: c.Image})
 	}
 	dupes := len(cards) - invalid - len(b.Cards)
 	if len(b.Cards) == 0 {

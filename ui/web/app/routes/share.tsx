@@ -20,11 +20,12 @@ import { addLink, createKB, listKBs } from "~/lib/kb.server";
 import { pickLink, sharedTitle } from "~/lib/share";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
+import { DownloadGrid } from "~/components/doc/download-grid";
+import { Field } from "~/components/doc/field";
 
 /** The knowledge base the last share went to. */
 const LAST_KB = "al_share_kb";
 
-const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm text-foreground";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Share") }, { name: "robots", content: "noindex, nofollow" }];
@@ -75,50 +76,60 @@ export default function Share({ loaderData, actionData }: Route.ComponentProps) 
   const { link, title, kbs, selected } = loaderData;
 
   return (
-    <div className="lp-measure">
+    <div>
       <PageHeader title={t("share.title")} lede={t("share.lead")} />
       {!link ? (
-        <div className="mt-8 space-y-3">
-          <p role="status" className="text-sm leading-prose">
-            {t("share.noLink")}
-          </p>
-          <Link to="/knowledge" className="text-sm text-primary underline underline-offset-4">
+        <p role="status" className="text-base leading-[1.85]">
+          {t("share.noLink")}{" "}
+          <Link to="/knowledge" className="font-medium text-primary underline underline-offset-2 hover:text-primary-hover">
             {t("share.toKnowledge")}
           </Link>
-        </div>
+        </p>
       ) : (
-        <Form method="post" className="mt-8 space-y-4">
-          <input type="hidden" name="url" value={link} />
-          <div className="rounded-md border p-3">
-            {title ? <p className="text-sm font-medium">{title}</p> : null}
-            <p className="break-all font-mono text-xs text-muted-foreground">{link}</p>
-          </div>
-          {kbs.length > 0 ? (
-            <label className="block text-sm">
-              {t("share.kb")}
-              <select name="kb" defaultValue={selected} className={field}>
-                {kbs.map((kb) => (
-                  <option key={kb.id} value={kb.id}>
-                    {kb.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : (
-            <label className="block text-sm">
-              {t("share.newKb")}
-              <input name="name" required defaultValue={t("share.newKbName")} className={field} />
-            </label>
-          )}
-          {actionData && "error" in actionData ? (
-            <p role="alert" className="text-sm text-destructive">
-              {actionData.error || t("share.failed")}
-            </p>
-          ) : null}
-          <Button type="submit" disabled={busy}>
-            {busy ? t("share.adding") : t("share.add")}
-          </Button>
-        </Form>
+        // A download grid (P6) with its one card: what was shared, where it
+        // goes, and the button that adds it.
+        <DownloadGrid
+          cards={[
+            {
+              id: "share-add",
+              title: t("share.add"),
+              description: (
+                <>
+                  {title ? <strong className="block font-semibold text-foreground">{title}</strong> : null}
+                  <span className="break-all">{link}</span>
+                </>
+              ),
+              action: (
+                <Form method="post" className="mt-auto space-y-4">
+                  <input type="hidden" name="url" value={link} />
+                  {kbs.length > 0 ? (
+                    <Field label={t("share.kb")}>
+                      <select name="kb" defaultValue={selected}>
+                        {kbs.map((kb) => (
+                          <option key={kb.id} value={kb.id}>
+                            {kb.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  ) : (
+                    <Field label={t("share.newKb")}>
+                      <input name="name" required defaultValue={t("share.newKbName")} />
+                    </Field>
+                  )}
+                  {actionData && "error" in actionData ? (
+                    <p role="alert" className="text-sm text-destructive">
+                      {actionData.error || t("share.failed")}
+                    </p>
+                  ) : null}
+                  <Button type="submit" disabled={busy}>
+                    {busy ? t("share.adding") : t("share.add")}
+                  </Button>
+                </Form>
+              ),
+            },
+          ]}
+        />
       )}
     </div>
   );

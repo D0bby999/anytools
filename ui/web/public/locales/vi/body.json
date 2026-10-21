@@ -413,5 +413,22 @@
     "inner thighs": "Đùi trong",
     "shins": "Ống chân",
     "core": "Cơ lõi"
+  },
+  "up": {
+    "day": "Ngày",
+    "value": "Giá trị",
+    "dataTable": "Số liệu đã ghi",
+    "restRemaining": "Còn khoảng {{count}} giây nghỉ",
+    "startWorkout": "Bắt đầu buổi tập hôm nay",
+    "status": "Trạng thái",
+    "planned": "Đã lên lịch",
+    "exercise": "Bài tập",
+    "personalBests": "Thành tích tốt nhất",
+    "estimatedMax": "Mức tạ tối đa một lần ước tính",
+    "weekPlan": "Lịch tập lặp lại hằng tuần",
+    "week": "Tuần {{n}}",
+    "target": "Hiệp × lần / thời lượng",
+    "field": "Mục",
+    "why": "Lý do"
   }
 }

@@ -74,6 +74,9 @@ export type VocabNote = {
   writing: boolean;
 };
 
+/** A deck card's picture: a file under /tool-runtime/, with its source and licence. */
+export type CardImage = { src: string; source: string; licence: string };
+
 export type DueCard = {
   id: string;
   /** Absent on a flash card, which has no note. */
@@ -98,8 +101,9 @@ export type DueCard = {
   front?: string;
   back?: string;
   book?: { book_id: string; title: string; chapter_id: string };
-  /** Set on a general deck's cards. */
+  /** Set on a general deck's cards; image on those with a picture. */
   deck?: { id: string; name: string };
+  image?: CardImage;
 };
 
 export type ReviewResult = {

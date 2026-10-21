@@ -1,3 +1,5 @@
+import { DateText } from "~/components/ui/date-text";
+import { DownloadGrid } from "~/components/doc/download-grid";
 /**
  * quiz.exams.tsx
  * Mock exams (learning depth, phase 3): the learner's past papers, and the
@@ -95,11 +97,11 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
   const { templates, exams, kbs, kbNames } = loaderData;
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("exams.title")} lede={t("exams.lead")} />
       <QuizTabs />
 
-      <section aria-labelledby="lp-exams-upload" className="mt-8">
+      <section aria-labelledby="lp-exams-upload" className="lp-quick-start mt-8">
         <h2 id="lp-exams-upload" className="lp-section">
           {t("exams.upload.title")}
         </h2>
@@ -143,13 +145,7 @@ export default function QuizExams({ loaderData, actionData }: Route.ComponentPro
         {templates.length === 0 ? (
           <p className="mt-3 lp-empty">{t("exams.noPapers")}</p>
         ) : (
-          <ul className="mt-3 border-t">
-            {templates.map((tmpl) => (
-              <li key={tmpl.id} className="border-b py-4">
-                <TemplateRow template={tmpl} kbs={kbs} />
-              </li>
-            ))}
-          </ul>
+          <DownloadGrid cards={templates.map((tmpl) => ({ id: tmpl.id, title: <Link to={`/quiz/exams/templates/${tmpl.id}`}>{tmpl.title}</Link>, action: <TemplateRow template={tmpl} kbs={kbs} /> }))} />
         )}
       </section>
 
@@ -185,13 +181,11 @@ function TemplateRow({ template, kbs }: { template: ExamTemplate; kbs: { id: str
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <Link to={`/quiz/exams/templates/${template.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
-          {template.title}
-        </Link>
         <span className="text-xs font-semibold text-faint">{t(`exams.status.${template.status}`)}</span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {t("exams.paperMeta", { pages: template.page_count, count, points: template.total_points })}
+        {template.time_limit_minutes ? ` · ${t("exams.result.limit", { count: template.time_limit_minutes })}` : ""}
       </p>
       {template.status === "ready" ? (
         kbs.length === 0 ? (
@@ -249,6 +243,7 @@ function ExamRow({ exam, kbName }: { exam: Exam; kbName: string }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-2">
       <div>
+        <strong className="text-sm"><DateText iso={exam.created_at} /></strong>{" · "}
         <Link to={`/quiz/exams/${exam.id}`} className="font-medium text-primary underline-offset-4 hover:underline">
           {exam.title}
         </Link>

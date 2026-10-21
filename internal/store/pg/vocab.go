@@ -656,7 +656,7 @@ func (s *VocabStore) ImportNotes(ctx context.Context, b vocab.ImportBatch) (*voc
 		if err != nil {
 			return nil, fmt.Errorf("import vocab note: %w", err)
 		}
-		if used == b.PerDay {
+		if used >= b.PerDay {
 			day, used = vocab.AddDays(day, 1), 0
 		}
 		used++
@@ -710,7 +710,7 @@ const dueSelect = `
 	       COALESCE(n.meaning, ''), COALESCE(n.contexts, '[]'::jsonb),
 	       n.source_document_id, n.source_page, d.title,
 	       COALESCE(c.front, ''), COALESCE(c.back, ''), bk.id, bk.title, ch.id,
-	       COALESCE(n.scenario, ''), COALESCE(n.confusable, ''), cd.id, cd.name
+	       COALESCE(n.scenario, ''), COALESCE(n.confusable, ''), cd.id, cd.name, c.image
 	  FROM vocab_cards c
 	  LEFT JOIN vocab_notes n ON n.id = c.note_id AND n.user_id = c.user_id
 	  LEFT JOIN documents d ON d.id = n.source_document_id AND d.user_id = n.user_id
@@ -752,10 +752,11 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, []vocab.Context, error) {
 		confuse   string
 		deckID    *uuid.UUID
 		deckName  *string
+		image     []byte
 	)
 	err := row.Scan(&c.ID, &c.NoteID, &c.Kind, &c.DueAt, &c.Reps, &fsrsRaw,
 		&c.Term, &c.Lang, &c.Reading, &c.POS, &c.Meaning, &contexts, &docID, &page, &title,
-		&c.Front, &c.Back, &bookID, &bookTitle, &chapterID, &scenario, &confuse, &deckID, &deckName)
+		&c.Front, &c.Back, &bookID, &bookTitle, &chapterID, &scenario, &confuse, &deckID, &deckName, &image)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil, vocab.ErrNotFound
 	}
@@ -766,6 +767,12 @@ func scanVocabDue(row pgx.Row) (*vocab.DueCard, []vocab.Context, error) {
 		return nil, nil, fmt.Errorf("decode fsrs card: %w", err)
 	}
 	c.DueAt = c.DueAt.UTC()
+	if len(image) > 0 {
+		c.Image = &vocab.CardImage{}
+		if err := json.Unmarshal(image, c.Image); err != nil {
+			return nil, nil, fmt.Errorf("decode card image: %w", err)
+		}
+	}
 	var ctxs []vocab.Context
 	_ = json.Unmarshal(contexts, &ctxs)
 	if len(ctxs) > 0 {

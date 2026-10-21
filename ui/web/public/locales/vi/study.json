@@ -41,6 +41,8 @@
     "next": "Câu tiếp theo",
     "almost": "Gần đúng",
     "mathAlmost": "Bằng đáp án, nhưng chưa ở dạng đề bài yêu cầu.",
+    "mathAlmostUnit": "Bằng đáp án, nhưng chưa đúng đơn vị đề bài yêu cầu.",
+    "mathNoUnit": "Con số đúng, nhưng thiếu đơn vị.",
     "mathEqual": "Câu trả lời {{answer}} của bạn bằng đáp án đã ghi {{recorded}}.",
     "mathWrong": "Giá trị khác với đáp án đã ghi."
   },
@@ -382,6 +384,7 @@
     "resetYes": "Thay",
     "keep": "Giữ code của tôi",
     "loading": "Đang chuẩn bị Python: {{loaded}} trên {{total}} MB (chỉ lần đầu, sau đó được giữ lại).",
+    "loadingAnnounce": "Đang chuẩn bị Python. Chỉ tải một lần, rồi được giữ lại.",
     "loadFailed": "Không tải được Python. Kiểm tra kết nối rồi thử lại.",
     "timedOut": "Đã dừng sau {{seconds}} giây. Có vòng lặp nào không bao giờ kết thúc không?",
     "stopped": "Đã dừng. Code của bạn vẫn còn.",
@@ -396,5 +399,29 @@
     "title": "Luyện Python",
     "lead": "Mười tám bài tập nhỏ từ lộ trình Python của Exercism, từ Hello World đến Bob, mỗi bài được kiểm bằng bài kiểm tra ngay trên trình duyệt. Các bài nằm trong knowledge base tên Python basics.",
     "add": "Thêm bộ bài tập Python"
+  },
+  "practise": {
+    "questionOf": "Câu {{n}} trên {{total}}",
+    "explanation": "Giải thích",
+    "question": "Câu hỏi",
+    "openQuestion": "Mở câu hỏi",
+    "open": "Mở",
+    "progress": "Tiến độ",
+    "answerQuestions": "Trả lời câu hỏi hôm nay",
+    "baseline": "Ghi lại mốc ban đầu trong năm phút",
+    "addSource": "Thêm một nguồn vào kho kiến thức.",
+    "chooseSource": "Chọn kho kiến thức đó và tạo vài câu hỏi.",
+    "checkAnswer": "Trả lời một câu hỏi rồi xem giải thích.",
+    "todayQuestions": "Câu hỏi hôm nay",
+    "score": "Điểm",
+    "questions": "{{count}} câu hỏi",
+    "maxScore": "Tối đa {{count}} điểm",
+    "lastAttempt": "Lần trả lời gần nhất",
+    "cardOf": "Thẻ {{n}} trên {{total}}",
+    "session": "Phiên học",
+    "today": "Hôm nay",
+    "practice": "Luyện tập",
+    "chooseAnswer": "Hãy chọn một đáp án.",
+    "answerQuestionsCount": "Trả lời {{count}} câu hỏi hôm nay"
   }
 }

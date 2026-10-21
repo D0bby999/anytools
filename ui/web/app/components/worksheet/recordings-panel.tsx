@@ -4,12 +4,15 @@
  * take beside a later one, so a baseline can be heard next to its retest.
  * Each take is named by the cell that holds it, read from the kind; a take no
  * cell holds is still listed, so it can be used or deleted.
+ *
+ * The takes are a table (P5): take, length, a player and Delete.
  */
 import { useState } from "react";
 import { useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Answers, Recording, TableRow, WorksheetKind } from "~/lib/worksheet-types";
 import { Button } from "~/components/ui/button";
+import { RefTable } from "~/components/doc/ref-table";
 import { clock } from "~/components/worksheet/recorder";
 import { deleteTake, recordingURL } from "~/components/worksheet/audio-cell";
 import { DriveFileNotice, useDriveReason } from "~/components/storage/drive-file-notice";
@@ -65,16 +68,14 @@ export function RecordingsPanel({ worksheetId, kind, answers, recordings }: Prop
   const right = known(b) ? b : last;
 
   return (
-    <section aria-labelledby="ws-recordings" className="mt-10">
-      <h2 id="ws-recordings" className="lp-section">
-        {t("recordings.title")}
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">{t("recordings.lead")}</p>
+    <section aria-labelledby="ws-recordings">
+      <h2 id="ws-recordings">{t("recordings.title")}</h2>
+      <p className="text-muted-foreground">{t("recordings.lead")}</p>
 
       {recordings.length > 1 ? (
         <div className="mt-4">
-          <h3 className="text-sm font-medium">{t("recordings.compare")}</h3>
-          <p className="text-xs text-faint">{t("recordings.compareLead")}</p>
+          <h3>{t("recordings.compare")}</h3>
+          <p className="text-sm text-muted-foreground">{t("recordings.compareLead")}</p>
           <div className="mt-2 grid gap-4 sm:grid-cols-2">
             {[
               { value: left, set: setA, label: t("recordings.earlier") },
@@ -111,30 +112,41 @@ export function RecordingsPanel({ worksheetId, kind, answers, recordings }: Prop
         </div>
       ) : null}
 
-      <ul className="mt-4 border-t text-sm">
-        {recordings.map((r) => (
-          <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 border-b py-2">
-            <span>{name(r)}</span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-destructive"
-              onClick={async () => {
-                const failed = await deleteTake(worksheetId, r.id);
-                if (failed !== null) {
-                  setError(failed || t("recordings.deleteFailed"));
-                  return;
-                }
-                setError(null);
-                revalidator.revalidate();
-              }}
-            >
-              {t("recordings.delete")}
-            </Button>
-          </li>
-        ))}
-      </ul>
+      <RefTable
+        caption={t("recordings.title")}
+        columns={[t("up.recordings.take"), t("up.recordings.length"), t("up.recordings.listen"), t("up.recordings.delete")]}
+        rows={recordings.map((r) => [
+          t("up.recordings.where", { where: places[r.id] ?? t("recordings.unused"), date: r.created_at.slice(0, 10) }),
+          clock(r.duration_seconds),
+          <audio
+            key="listen"
+            controls
+            preload="none"
+            src={recordingURL(worksheetId, r.id)}
+            className="h-9 w-56 max-w-full"
+            aria-label={t("up.recordings.listenTo", { take: name(r) })}
+            onError={() => checkReason(recordingURL(worksheetId, r.id))}
+          />,
+          <Button
+            key="delete"
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-destructive"
+            onClick={async () => {
+              const failed = await deleteTake(worksheetId, r.id);
+              if (failed !== null) {
+                setError(failed || t("recordings.deleteFailed"));
+                return;
+              }
+              setError(null);
+              revalidator.revalidate();
+            }}
+          >
+            {t("recordings.delete")}
+          </Button>,
+        ])}
+      />
       {error ? (
         <p role="alert" className="mt-2 text-sm text-destructive">
           {error}

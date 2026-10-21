@@ -10,9 +10,9 @@
  * says so; a YouTube Data API key lists a whole playlist.
  */
 import { useEffect } from "react";
-import { Form, Link, redirect, useRevalidator } from "react-router";
+import { Form, redirect, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { Route } from "./+types/feeds.$feedId";
 import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
@@ -29,6 +29,9 @@ import {
 } from "~/lib/feeds.server";
 import { entryState, type FeedActionData } from "~/lib/feeds-types";
 import { PageHeader } from "~/components/ui/page-header";
+import { DateText } from "~/components/ui/date-text";
+import { BookMeta } from "~/components/doc/book-meta";
+import { DocSection } from "~/components/reading/doc-section";
 
 /** How often the list refreshes while entries are being added. */
 const POLL_MS = 2500;
@@ -125,37 +128,46 @@ export default function FeedPage({ loaderData }: Route.ComponentProps) {
   }, [adding, revalidator]);
 
   return (
-    <div className="lp-measure">
-      <Link
-        to={`/knowledge/${feed.kb_id}`}
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {t("feed.back")}
-      </Link>
-
-      <PageHeader title={feed.title || feed.url} className="mt-2 mb-4">
-        <p className="mt-3 flex min-w-0 items-center gap-3">
-          <span className="lp-tab shrink-0">{t(`feed.kind.${feed.kind}`)}</span>
-          <span className="truncate font-mono text-xs text-muted-foreground">
-            <span className="sr-only">{t("feed.source")}: </span>
-            {feed.url}
-          </span>
-        </p>
+    <div>
+      <PageHeader title={feed.title || feed.url} className="mb-0">
+        <BookMeta
+          label={t("feed.metaLabel")}
+          items={[
+            { label: t("feed.back"), to: `/knowledge/${feed.kb_id}` },
+            { label: t(`feed.kind.${feed.kind}`) },
+            {
+              label: (
+                <span className="break-all">
+                  <span className="sr-only">{t("feed.source")}: </span>
+                  {feed.url}
+                </span>
+              ),
+            },
+            { label: t("feed.entryCount", { count: entries.length }) },
+            ...(feed.last_checked_at
+              ? [
+                  {
+                    label: (
+                      <>
+                        {t("card.updated")} <DateText iso={feed.last_checked_at} />
+                      </>
+                    ),
+                  },
+                ]
+              : []),
+          ]}
+        />
       </PageHeader>
 
       <FeedNotice feed={feed} limits={limits} />
       <FeedControls feed={feed} limits={limits} />
 
-      <section aria-labelledby="lp-feed-entries" className="mt-8">
-        <h2 id="lp-feed-entries" className="lp-section">
-          {t("feed.entriesLabel")}
-        </h2>
-        <p className="mt-2 text-xs leading-snug text-muted-foreground">{t("feed.pickHint")}</p>
+      <DocSection title={t("feed.entriesLabel")} id="lp-feed-entries">
+        <p className="text-sm leading-6 text-muted-foreground">{t("feed.pickHint")}</p>
         <EntryPicker feedId={feed.id} entries={entries} limits={limits} />
-      </section>
+      </DocSection>
 
-      <Form method="post" className="mt-12 border-t pt-6">
+      <Form method="post" className="mt-16 border-t pt-6">
         <input type="hidden" name="intent" value="delete" />
         <input type="hidden" name="kbId" value={feed.kb_id} />
         <Button
@@ -165,7 +177,7 @@ export default function FeedPage({ loaderData }: Route.ComponentProps) {
           onClick={(event) => {
             if (!window.confirm(t("feed.deleteConfirm"))) event.preventDefault();
           }}
-          className="text-destructive hover:bg-destructive-soft"
+          className="border-destructive text-destructive hover:bg-destructive-soft"
         >
           <Trash2 aria-hidden="true" />
           {t("feed.delete")}

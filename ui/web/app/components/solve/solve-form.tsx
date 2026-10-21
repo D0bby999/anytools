@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
+import { Field } from "~/components/doc/field";
 import { OwnVersionFields } from "~/components/chat/own-version-fields";
 import { emptyOwnVersion, ownVersionComplete, type OwnVersion } from "~/lib/own-version";
 
@@ -40,34 +41,30 @@ export function SolveForm<T>({
   const [own, setOwn] = useState<OwnVersion>(emptyOwnVersion);
   const ownReady = !ownVersionFirst || ownVersionComplete(own);
   const submitting = fetcher.state !== "idle";
-  const field =
-    "mt-1 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
   return (
     <fetcher.Form
       method="post"
       encType="multipart/form-data"
-      className="space-y-4 rounded-lg border bg-card p-4"
+      className="flex flex-col gap-1"
       onSubmit={() => onOwnVersion?.(ownVersionFirst ? own : undefined)}
     >
       <input type="hidden" name="intent" value="solve" />
       {ownVersionFirst && <OwnVersionFields value={own} onChange={setOwn} idPrefix="lp-solve-own" />}
-      <div>
-        <label htmlFor="lp-solve-problem" className="block text-sm font-medium">
-          {t("form.problem")}
-        </label>
+      {/* I4, multi-line: the search field's box round a textarea. */}
+      <Field label={t("form.problem")}>
         <textarea
           id="lp-solve-problem"
           name="problem"
           rows={4}
           maxLength={32000}
           placeholder={t("form.problemPlaceholder")}
-          className={field + " py-2 leading-prose"}
+          className="resize-y py-2 leading-6"
         />
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="lp-solve-photo" className="block text-sm font-medium">
+      <div className="my-2">
+        <label htmlFor="lp-solve-photo" className="block text-sm leading-6 font-medium">
           {t("form.photo")}
         </label>
         <input
@@ -76,21 +73,18 @@ export function SolveForm<T>({
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
           aria-describedby="lp-solve-photo-hint"
-          className="mt-1 lp-file"
+          className="mt-1.5 lp-file"
         />
-        <p id="lp-solve-photo-hint" className="mt-1 text-xs leading-snug text-muted-foreground">
+        <p id="lp-solve-photo-hint" className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
           {t("form.photoHint")}
         </p>
       </div>
 
       {kbs.length > 0 && (
-        <div>
-          <label htmlFor="lp-solve-kb" className="block text-sm font-medium">
-            {t("form.kb")}
-          </label>
-          {/* Grounded in the learner's own notes by default when they have some;
-              "Nothing" stays one choice away. */}
-          <select id="lp-solve-kb" name="kb_id" defaultValue={kbs[0]?.id ?? ""} className={field + " min-h-11"}>
+        // Grounded in the learner's own notes by default when they have some;
+        // "Nothing" stays one choice away.
+        <Field label={t("form.kb")}>
+          <select id="lp-solve-kb" name="kb_id" defaultValue={kbs[0]?.id ?? ""}>
             <option value="">{t("form.kbNone")}</option>
             {kbs.map((kb) => (
               <option key={kb.id} value={kb.id}>
@@ -98,14 +92,14 @@ export function SolveForm<T>({
               </option>
             ))}
           </select>
-        </div>
+        </Field>
       )}
 
-      <fieldset>
-        <legend className="text-sm font-medium">{t("form.variant")}</legend>
-        <div className="mt-1 flex flex-wrap gap-x-5">
+      <fieldset className="my-2">
+        <legend className="text-sm leading-6 font-medium">{t("form.variant")}</legend>
+        <div className="mt-1.5 flex flex-wrap gap-2">
           {(["solve", "check"] as const).map((v) => (
-            <label key={v} className="flex min-h-11 items-center gap-2 text-sm">
+            <label key={v} className={CHOICE}>
               <input
                 type="radio"
                 name="variant"
@@ -120,10 +114,7 @@ export function SolveForm<T>({
       </fieldset>
 
       {variant === "check" && (
-        <div>
-          <label htmlFor="lp-solve-answer" className="block text-sm font-medium">
-            {t("form.userAnswer")}
-          </label>
+        <Field label={t("form.userAnswer")}>
           <textarea
             id="lp-solve-answer"
             name="user_answer"
@@ -131,12 +122,12 @@ export function SolveForm<T>({
             required
             maxLength={32000}
             placeholder={t("form.userAnswerPlaceholder")}
-            className={field + " py-2 leading-prose"}
+            className="resize-y py-2 leading-6"
           />
-        </div>
+        </Field>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
         {busy ? (
           <Button type="button" variant="outline" onClick={onStop}>
             {t("form.stop")}
@@ -150,10 +141,18 @@ export function SolveForm<T>({
                 : t("form.submit")}
           </Button>
         )}
-        <p className="text-xs leading-snug text-muted-foreground">
+        <p className="text-sm leading-6 text-muted-foreground">
           {ownReady ? t("form.cost") : tOwn("fields.required")}
         </p>
       </div>
     </fetcher.Form>
   );
 }
+
+/**
+ * A selectable row (I1), as a search result: a 2px hairline, radius 4, the
+ * action ink when hovered or chosen. Shared with the research form's modes.
+ */
+export const CHOICE =
+  "flex min-h-10 cursor-pointer items-center gap-2 rounded-[4px] border-2 border-border bg-card px-3 py-1.5 text-sm transition-colors " +
+  "hover:border-primary has-checked:border-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary";

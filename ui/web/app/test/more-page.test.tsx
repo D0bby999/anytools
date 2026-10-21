@@ -1,28 +1,31 @@
 /**
  * more-page.test.tsx
- * The phone's "More" page lists every study tool that has no rail item, and
- * each one is a registered route.
+ * The "All sections" page lists every page of the table of contents
+ * (lib/nav-tree.ts), group by group, and each link resolves.
  */
-import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
+import { flatEntries, NAV_TREE } from "~/lib/nav-tree";
 
-const { default: More, TOOL_ITEMS } = await import("~/routes/more");
+const { default: More } = await import("~/routes/more");
 
 beforeAll(() => {
   initI18n("en");
 });
 
 describe("More", () => {
-  it("lists every study tool, each a registered route", () => {
+  it("lists every page of the tree under its group's heading", () => {
     const router = createMemoryRouter([{ path: "/", element: <More /> }], { initialEntries: ["/"] });
     render(<RouterProvider router={router} />);
-    const routes = readFileSync("app/routes.ts", "utf8");
-    for (const { to } of TOOL_ITEMS) {
-      expect(screen.getAllByRole("link").some((a) => a.getAttribute("href") === to), to).toBe(true);
-      expect(routes, to).toContain(`"${to.slice(1).replace("settings/", "")}"`);
+    expect(screen.getByRole("heading", { level: 1, name: "All sections" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(NAV_TREE.length);
+    const hrefs = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
+    for (const { page } of flatEntries()) expect(hrefs, page.to).toContain(page.to);
+    // The study tools that used to be listed by hand are all still here.
+    for (const to of ["/quiz/practice", "/quiz/exams", "/mastery/vocabulary", "/mastery/book-cards", "/settings/profile", "/toolkit"]) {
+      expect(hrefs, to).toContain(to);
     }
   });
 });

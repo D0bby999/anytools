@@ -6,7 +6,7 @@
  * providers are not asked for one.
  */
 import { beforeAll, describe, expect, it } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
@@ -46,10 +46,11 @@ describe("Search keys: Zotero", () => {
     const posts: Record<string, string>[] = [];
     renderPage(posts);
     expect(screen.queryByLabelText(/Zotero user ID/)).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: /save/i }));
     await userEvent.selectOptions(screen.getByRole("combobox"), "zotero");
     await userEvent.type(screen.getByLabelText(/Zotero user ID/), "475425");
     await userEvent.type(document.querySelector<HTMLInputElement>('input[name="secret"]')!, "KEY0FIXTURE0000000000000");
-    await userEvent.click(screen.getByRole("button", { name: /save/i }));
+    await userEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: /save/i }));
     await waitFor(() => expect(posts).toHaveLength(1));
     expect(posts[0]).toMatchObject({ intent: "save", provider: "zotero", zotero_user: "475425" });
   });

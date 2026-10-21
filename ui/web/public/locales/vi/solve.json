@@ -43,11 +43,15 @@
     "openChat": "Mở cuộc trò chuyện",
     "noteSaved": "Đã lưu vào sổ ghi chép của bạn.",
     "questionSaved": "Đã thêm vào ngân hàng câu hỏi của bạn.",
-    "openBank": "Mở ngân hàng câu hỏi"
+    "openBank": "Mở ngân hàng câu hỏi",
+    "worked": "Lời giải từng bước"
   },
   "errors": {
     "empty": "Hãy gõ đề bài hoặc đính kèm ảnh đề bài.",
     "tooLarge": "Ảnh đó lớn hơn 5 MB.",
     "failed": "Không bắt đầu giải được."
+  },
+  "problem": {
+    "title": "Đề bài"
   }
 }

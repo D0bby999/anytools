@@ -19,7 +19,51 @@
     "loop": "Loop",
     "comingSoon": "Not available yet",
     "more": "More",
-    "languages": "Languages"
+    "languages": "Languages",
+    "groups": {
+      "start": "Start",
+      "read": "Part I · Read",
+      "ask": "Part II · Ask",
+      "practise": "Part III · Practise",
+      "reflect": "Part IV · Reflect",
+      "settings": "Settings",
+      "appendix": "Appendix"
+    },
+    "pages": {
+      "quizBank": "Question bank",
+      "quizPractice": "Practice",
+      "quizExams": "Exams",
+      "masteryReview": "Review",
+      "masteryVocabulary": "Vocabulary",
+      "masteryBookCards": "Book cards",
+      "masteryDecks": "Decks",
+      "bodyPlan": "Plan",
+      "bodyProgress": "Progress",
+      "bodyCoach": "Coach",
+      "bodyLibrary": "Library",
+      "toolkit": "Toolkit",
+      "settingsConnections": "Connections",
+      "settingsRoutes": "Routes",
+      "settingsSearch": "Search",
+      "settingsAccount": "Account",
+      "settingsProfile": "Profile",
+      "settingsStorage": "Storage",
+      "settingsReminders": "Reminders",
+      "freeTools": "Free tools",
+      "anyProfile": "AnyProfile"
+    },
+    "search": "Search",
+    "searchShortcut": "Open search with {{keys}}",
+    "menu": "Menu",
+    "appearance": "Appearance",
+    "language": "Language",
+    "changeLanguage": "Change language",
+    "mobileNavigation": "Mobile navigation",
+    "extraNavigation": "Extra navigation",
+    "mainNavigation": "Main navigation",
+    "sidebarNavigation": "Sidebar navigation",
+    "toggleSection": "Toggle {{section}}",
+    "account": "Account"
   },
   "actions": {
     "signOut": "Sign out",
@@ -112,6 +156,73 @@
       "warnBody": "These parts work, but not as well as they could.",
       "go": "Fix it in Settings",
       "unknownTitle": "Your AI accounts could not be checked"
+    },
+    "up": {
+      "greeting": "Welcome back, {{name}}.",
+      "nextStep": "Next step",
+      "cycle": "Read · Ask · Practise · Reflect",
+      "task": "Task",
+      "count": "Count",
+      "open": "Open",
+      "facts": "Learning at a glance",
+      "entry": "Choose your entry point",
+      "situation": "Situation",
+      "start": "Start here",
+      "keep": "Keep this result",
+      "setup": "Finish setting up",
+      "entries": {
+        "read": {
+          "situation": "I have something to read.",
+          "keep": "A source and a useful note."
+        },
+        "ask": {
+          "situation": "I have a question.",
+          "keep": "An answer grounded in evidence."
+        },
+        "practise": {
+          "situation": "I want to remember.",
+          "keep": "A checked answer and a review plan."
+        },
+        "reflect": {
+          "situation": "I need a next step.",
+          "keep": "A small task I can repeat."
+        }
+      },
+      "descriptions": {
+        "home": "See your next step and the work due today.",
+        "knowledge": "Collect sources and read with context.",
+        "notebooks": "Keep notes you can return to.",
+        "chat": "Ask questions grounded in your sources.",
+        "solve": "Work through a problem step by step.",
+        "research": "Investigate a topic and keep the evidence.",
+        "quiz": "Check what you understand with questions.",
+        "quizBank": "Browse and organise your questions.",
+        "quizPractice": "Return to mistakes and try again.",
+        "quizExams": "Practise under exam conditions.",
+        "mastery": "Build understanding through spaced review.",
+        "masteryReview": "Review due points across learning paths.",
+        "masteryVocabulary": "Review the words you are learning.",
+        "masteryBookCards": "Revisit cards from your books.",
+        "masteryDecks": "Study cards organised into decks.",
+        "languages": "Choose a language to practise.",
+        "body": "Make room for movement alongside study.",
+        "bodyPlan": "Arrange your training routines.",
+        "bodyProgress": "See how your training is progressing.",
+        "bodyCoach": "Get help with your training.",
+        "bodyLibrary": "Browse exercises for your routines.",
+        "loop": "Choose a goal and keep the next step small.",
+        "toolkit": "Use worksheets to think and reflect.",
+        "settingsConnections": "Connect the AI accounts you use.",
+        "settingsRoutes": "Choose which model handles each task.",
+        "settingsSearch": "Configure how you search for sources.",
+        "settingsAccount": "Manage your account and language.",
+        "settingsProfile": "Shape your learning profile.",
+        "settingsStorage": "Manage where your files are stored.",
+        "settingsReminders": "Choose reminders that fit your day.",
+        "freeTools": "Open free tools for everyday tasks.",
+        "anyProfile": "Create a profile you can share."
+      },
+      "dueToday": "Due today"
     }
   },
   "errors": {
@@ -303,6 +414,20 @@
       "chatgpt_relay": "ChatGPT (subscription)",
       "gemini_code_assist": "Gemini (subscription)",
       "builtin": "This server"
+    },
+    "up": {
+      "readiness": "Route readiness",
+      "task": "Task",
+      "route": "Route",
+      "status": "Status",
+      "position": "Position",
+      "model": "Model",
+      "order": "Order",
+      "moveUp": "Move position {{n}} up",
+      "moveDown": "Move position {{n}} down",
+      "manage": "Manage",
+      "cancel": "Cancel",
+      "close": "Close"
     }
   },
   "chat": {
@@ -481,6 +606,17 @@
           "done": "Used {{tool}}"
         }
       }
+    },
+    "sources": "Sources",
+    "index": {
+      "recent": "Recent",
+      "kicker": "Start",
+      "startTitle": "Ask your documents",
+      "startBody": "A new conversation reads every knowledge base you have, unless you choose some under \"Reads\".",
+      "reads": "Reads",
+      "readsLegend": "This conversation reads",
+      "readsHint": "None ticked means all of them.",
+      "actionsFor": "Actions for {{title}}"
     }
   },
   "more": {
@@ -709,5 +845,49 @@
     "menu": "Account: {{name}}",
     "settings": "Settings",
     "language": "Language"
+  },
+  "doc": {
+    "atAGlance": "At a glance",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "copyCode": "Copy code",
+    "copied": "Copied",
+    "worksheet": {
+      "label": "Use this worksheet",
+      "lead": "Take the whole worksheet into your notes, including instructions, tables, and review steps.",
+      "download": "Download Markdown",
+      "copy": "Copy worksheet",
+      "copying": "Copying…",
+      "copied": "Copied. Paste into your private notes.",
+      "copyFailed": "Copy was unavailable. Use the Markdown download instead."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "quote": "Sometimes the road remains after a page has moved. Start again from Today.",
+    "home": "Return home"
+  },
+  "shell": {
+    "onThisPage": "On this page",
+    "returnToTop": "Return to top",
+    "previous": "Previous page",
+    "next": "Next page",
+    "lastUpdated": "Last updated",
+    "pager": "Pager",
+    "skipToContent": "Skip to content"
+  },
+  "search": {
+    "button": "Search",
+    "label": "Search",
+    "placeholder": "Search pages and your library",
+    "displayDetails": "Display detailed results",
+    "reset": "Reset search",
+    "back": "Close search",
+    "noResults": "No results for “{{query}}”",
+    "results": "Search results",
+    "select": "to select",
+    "navigate": "to navigate",
+    "close": "to close",
+    "yours": "Your library"
   }
 }

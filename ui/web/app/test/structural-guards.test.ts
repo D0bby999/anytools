@@ -114,11 +114,16 @@ describe("secrets are read only in env.server.ts", () => {
 describe("navigation links resolve", () => {
   it("every nav destination is a registered route", async () => {
     const routes = read(join(APP_DIR, "routes.ts"));
-    const { NAV_ITEMS } = await import("~/components/layout/sidebar");
+    const { flatEntries, TOP_NAV } = await import("~/lib/nav-tree");
 
-    expect(NAV_ITEMS.length).toBeGreaterThan(0);
-    for (const { to } of NAV_ITEMS) {
-      expect(routes, `no route registered for ${to}`).toContain(`"${to.replace(/^\//, "")}"`);
+    const pages = flatEntries().map((e) => e.page);
+    expect(pages.length).toBeGreaterThan(0);
+    for (const { to, external } of [...pages, ...TOP_NAV.map((p) => ({ ...p, external: false }))]) {
+      // An external page is a document link to the tools site: its path,
+      // without the query, must still be a route.
+      // Settings pages are children of the "settings" route, named relatively.
+      const path = to.split("?")[0]!.replace(/^\/settings\//, "").replace(/^\//, "");
+      expect(routes, `no route registered for ${to}${external ? " (external)" : ""}`).toContain(`"${path}"`);
     }
   });
 });
@@ -269,12 +274,31 @@ describe("logout is not reachable by GET", () => {
   });
 });
 
+/**
+ * The app shell is one screen tall and scrolls inside. An absolutely placed
+ * element (every sr-only label) is placed against its nearest positioned
+ * ancestor; with none inside the shell it was placed against <body>, at its
+ * spot far down the scrolled content, and the whole shell scrolled off the
+ * screen (2026-10-20: ten pages, /settings/routes 5975px tall). The shell and
+ * its scroll region are positioned so nothing inside can reach past them.
+ */
+describe("the app shell holds what it scrolls", () => {
+  it("the shell and the scroll region are both positioned", () => {
+    const src = read(join(APP_DIR, "routes/app-layout.tsx"));
+    const classes = [...src.matchAll(/className="([^"]*)"/g)].map((m) => (m[1] ?? "").split(/\s+/));
+    const shell = classes.find((c) => c.includes("h-dvh") && c.includes("overflow-hidden"));
+    const scroller = classes.find((c) => c.includes("overflow-y-auto") && c.includes("flex-1"));
+    expect(shell).toContain("relative");
+    expect(scroller).toContain("relative");
+  });
+});
+
 describe("one activity panel per page", () => {
   it("every route that renders its own RightPanel tells app-layout to leave the slot", () => {
     const offenders = sourceFiles
       .filter((p) => p.includes("/routes/") && !p.endsWith("app-layout.tsx"))
       .filter((p) => /<RightPanel\b/.test(read(p)))
-      .filter((p) => !/export const handle = \{ ownsPanel: true \}/.test(read(p)))
+      .filter((p) => !/export const handle = \{ ownsPanel: true[,\s}]/.test(read(p)))
       .map(rel);
     expect(offenders).toEqual([]);
   });
@@ -315,16 +339,15 @@ describe("the Picker token has one door", () => {
 });
 
 /**
- * The phone bar has five slots at 390px: four destinations and "More". A fifth
- * destination shrinks every slot below a usable target, and the ones past the
- * edge become unreachable (measured: ten items, 46px each, Loop and Settings
- * off-screen).
+ * The top nav holds four links, as `up`'s does: a fifth pushes the search,
+ * language and appearance controls off a 1280px bar. Everything else is in
+ * the sidebar and on /more, which stays a route.
  */
-describe("the phone navigation fits", () => {
-  it("at most four destinations are marked phone: true, and /more is a route", async () => {
-    const { NAV_ITEMS, MORE_ITEM } = await import("~/components/layout/sidebar");
-    expect(NAV_ITEMS.filter((n) => n.phone).length).toBeLessThanOrEqual(4);
-    expect(read(join(APP_DIR, "routes.ts"))).toContain(`"${MORE_ITEM.to.slice(1)}"`);
+describe("the top navigation fits", () => {
+  it("has exactly four links, and /more is a route", async () => {
+    const { TOP_NAV } = await import("~/lib/nav-tree");
+    expect(TOP_NAV).toHaveLength(4);
+    expect(read(join(APP_DIR, "routes.ts"))).toContain(`"more"`);
   });
 });
 

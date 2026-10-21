@@ -4,6 +4,7 @@
  * exercise's steps. Text only: the dataset's animations are © Gym visual and
  * not ours to serve (THIRD-PARTY-NOTICES.md).
  */
+import { RefTable } from "~/components/doc/ref-table";
 import { Form, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useLibraryTerm } from "~/components/body/muscles";
@@ -18,10 +19,7 @@ import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Exercise library") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Exercise library") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 const PAGE = 40;
@@ -63,34 +61,9 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader title={t("library.title")} lede={t("library.lead")} />
       <BodyTabs />
-
-      {detail ? (
-        <section data-part="practise" aria-labelledby="lp-library-detail" className="lp-keybox mb-8 p-5 sm:p-6">
-          <h2 id="lp-library-detail" className="font-serif text-2xl font-semibold first-letter:uppercase">
-            {detail.name}
-          </h2>
-          <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-            <dt className="text-muted-foreground">{t("library.target")}</dt>
-            <dd>{term(detail.target)}</dd>
-            {detail.secondary.length > 0 ? (
-              <>
-                <dt className="text-muted-foreground">{t("library.secondary")}</dt>
-                <dd>{detail.secondary.map(term).join(", ")}</dd>
-              </>
-            ) : null}
-            <dt className="text-muted-foreground">{t("library.equipment")}</dt>
-            <dd>{term(detail.equipment)}</dd>
-          </dl>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-prose">
-            {(detail.steps ?? []).map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ol>
-        </section>
-      ) : null}
 
       <Form method="get" role="search" className="flex flex-wrap items-end gap-3">
         <label className="min-w-0 flex-1 basis-56 text-xs text-muted-foreground">
@@ -127,18 +100,42 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
       <p className="mt-4 text-sm text-muted-foreground" role="status">
         {t("library.count", { count: total })}
       </p>
-      <ul className="mt-2 divide-y border-y">
-        {exercises.map((e) => (
-          <li key={e.id}>
-            <Link to={`${page(offset)}&id=${e.id}`} className="flex flex-wrap items-baseline gap-x-4 py-3 hover:bg-hover" preventScrollReset={false}>
-              <span className="min-w-0 flex-1 font-medium first-letter:uppercase">{e.name}</span>
-              <span className="text-xs text-muted-foreground">
-                {term(e.target)} · {term(e.equipment)}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <RefTable
+        caption={t("library.title")}
+        columns={[t("up.exercise"), t("library.target"), t("library.equipment")]}
+        rows={exercises.map((e) => [
+          <Link to={`${page(offset)}&id=${e.id}`} preventScrollReset={false}>
+            {e.name}
+          </Link>,
+          term(e.target),
+          term(e.equipment),
+        ])}
+      />
+      {detail ? (
+        <section data-part="practise" aria-labelledby="lp-library-detail" className="my-8">
+          <h2 id="lp-library-detail" className="font-serif text-2xl font-semibold first-letter:uppercase">
+            {detail.name}
+          </h2>
+          <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+            <dt className="text-muted-foreground">{t("library.target")}</dt>
+            <dd>{term(detail.target)}</dd>
+            {detail.secondary.length > 0 ? (
+              <>
+                <dt className="text-muted-foreground">{t("library.secondary")}</dt>
+                <dd>{detail.secondary.map(term).join(", ")}</dd>
+              </>
+            ) : null}
+            <dt className="text-muted-foreground">{t("library.equipment")}</dt>
+            <dd>{term(detail.equipment)}</dd>
+          </dl>
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-prose">
+            {(detail.steps ?? []).map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
+
       <div className="mt-4 flex gap-3">
         {offset > 0 ? (
           <Button asChild variant="outline" size="sm">

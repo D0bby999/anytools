@@ -1,3 +1,5 @@
+import { SessionProgress } from "~/components/mastery/session-progress";
+import { Badge } from "~/components/doc/badge";
 /**
  * mastery.review.tsx
  * The cross-path review (up-methods phase 12; up, threads/part-1/
@@ -58,7 +60,7 @@ export default function MasteryReview({ loaderData }: Route.ComponentProps) {
   const busy = revalidator.state !== "idle" || navigation.state === "loading";
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <Link
         to="/mastery"
         className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -74,7 +76,7 @@ export default function MasteryReview({ loaderData }: Route.ComponentProps) {
               switch from one subject to the next is the point of this page. */}
           <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-4 border-y py-3 text-sm">
             <dt className="text-xs font-semibold text-xs text-faint">{t("review.path")}</dt>
-            <dd data-testid="review-path">{next.path_goal}</dd>
+            <dd data-testid="review-path"><Badge>{next.path_goal}</Badge></dd>
             <dt className="text-xs font-semibold mt-1 text-xs text-faint">{t("review.module")}</dt>
             <dd data-testid="review-module" className="mt-1">
               {next.module_name} · <span className="text-muted-foreground">{next.knowledge_point.name}</span>
@@ -96,6 +98,7 @@ export default function MasteryReview({ loaderData }: Route.ComponentProps) {
             </p>
           ) : null}
 
+          <SessionProgress cardKey={`${next.path_id}-${next.kind}-${next.question?.id ?? next.knowledge_point.id}`} remaining={next.remaining_due} />
           <div className="mt-4">
             {next.kind === "learn" && next.explanation ? (
               <LearnCard

@@ -17,8 +17,7 @@ import { refHref, SECTIONS, type ProfileEntry, type RefView } from "~/lib/profil
 export type ProfileActionData = { ok?: string; errorKey?: string };
 export type KBOption = { id: string; name: string };
 
-export const field =
-  "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm text-foreground";
+export const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm text-foreground";
 
 /** The evidence an entry cites, as links. */
 export function RefLinks({ refs }: { refs: RefView[] }) {
@@ -61,7 +60,17 @@ function ActionError({ data }: { data: ProfileActionData | undefined }) {
 }
 
 /** One accepted entry: its text, who wrote it, its evidence, Edit and Delete. */
-export function EntryRow({ entry, kbs, maxText }: { entry: ProfileEntry; kbs: KBOption[]; maxText: number }) {
+export function EntryRow({
+  entry,
+  kbs,
+  maxText,
+  showSource = true,
+}: {
+  entry: ProfileEntry;
+  kbs: KBOption[];
+  maxText: number;
+  showSource?: boolean;
+}) {
   const { t } = useTranslation("profile");
   const fetcher = useFetcher<ProfileActionData>();
   const [editing, setEditing] = useState(false);
@@ -76,14 +85,7 @@ export function EntryRow({ entry, kbs, maxText }: { entry: ProfileEntry; kbs: KB
           <input type="hidden" name="id" value={entry.id} />
           <label className="text-xs text-muted-foreground sm:col-span-2">
             {t("entry.text")}
-            <textarea
-              name="text"
-              defaultValue={entry.text}
-              required
-              maxLength={maxText}
-              rows={2}
-              className={field + " py-2"}
-            />
+            <textarea name="text" defaultValue={entry.text} required maxLength={maxText} rows={2} className={field + " py-2"} />
           </label>
           <label className="text-xs text-muted-foreground">
             {t("entry.section")}
@@ -106,9 +108,7 @@ export function EntryRow({ entry, kbs, maxText }: { entry: ProfileEntry; kbs: KB
               ))}
             </select>
           </label>
-          {entry.origin === "consolidated" ? (
-            <p className="text-xs text-muted-foreground sm:col-span-2">{t("entry.editHint")}</p>
-          ) : null}
+          {entry.origin === "consolidated" ? <p className="text-xs text-muted-foreground sm:col-span-2">{t("entry.editHint")}</p> : null}
           <div className="flex gap-2 sm:col-span-2">
             <Button type="submit" size="sm" disabled={busy}>
               {t("entry.save")}
@@ -121,13 +121,15 @@ export function EntryRow({ entry, kbs, maxText }: { entry: ProfileEntry; kbs: KB
       ) : (
         <>
           <p className="text-sm leading-prose">{entry.text}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            <span className="text-xs font-semibold">
-              {entry.origin === "learner" ? t("entry.yours") : t("entry.fromActivity")}
-            </span>
-            {entry.kb_name ? ` · ${t("entry.kb", { name: entry.kb_name })}` : null}
-          </p>
-          <RefLinks refs={entry.refs} />
+          {showSource ? (
+            <>
+              <p className="mt-1 text-xs text-muted-foreground">
+                <span className="text-xs font-semibold">{entry.origin === "learner" ? t("entry.yours") : t("entry.fromActivity")}</span>
+                {entry.kb_name ? ` · ${t("entry.kb", { name: entry.kb_name })}` : null}
+              </p>
+              <RefLinks refs={entry.refs} />
+            </>
+          ) : null}
           <div className="mt-2 flex flex-wrap items-center gap-1">
             <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(true)}>
               {t("entry.edit")}
@@ -171,9 +173,7 @@ export function ProposalRow({ entry }: { entry: ProfileEntry }) {
   return (
     <li className="border-b py-3">
       <p className="text-xs font-semibold text-muted-foreground">{t(`proposals.${entry.op}`, { section })}</p>
-      <p className={entry.op === "remove" ? "mt-1 text-sm leading-prose line-through" : "mt-1 text-sm leading-prose"}>
-        {entry.text}
-      </p>
+      <p className={entry.op === "remove" ? "mt-1 text-sm leading-prose line-through" : "mt-1 text-sm leading-prose"}>{entry.text}</p>
       {entry.op === "update" && entry.replaces_text ? (
         <p className="mt-1 text-xs text-muted-foreground">{t("proposals.was", { text: entry.replaces_text })}</p>
       ) : null}

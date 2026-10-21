@@ -3,6 +3,7 @@ package quiz
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/google/uuid"
 
@@ -22,7 +23,13 @@ type StarterResult struct {
 // knowledge bases as code questions, each once: an exercise whose module the
 // knowledge base already has a code question for is not added again. No
 // model is called.
+// starterMu: the check for exercises already added and the insert are one
+// step, so a double click adds the set once (the API is one process).
+var starterMu sync.Mutex
+
 func (s *Service) AddStarter(ctx context.Context, userID, kbID uuid.UUID, set string) (*StarterResult, error) {
+	starterMu.Lock()
+	defer starterMu.Unlock()
 	if set != StarterPython {
 		return nil, fmt.Errorf("%w: unknown starter set %q", ErrBadRequest, set)
 	}

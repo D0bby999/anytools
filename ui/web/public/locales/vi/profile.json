@@ -102,5 +102,9 @@
     "full": "Phần đó đã có 12 mục. Hãy xóa bớt một mục trước.",
     "conflict": "Mục đó đã thay đổi từ khi trang này được tải. Nó đã được làm mới.",
     "invalid": "Mỗi mục cần có nội dung, tối đa 280 ký tự."
+  },
+  "up": {
+    "item": "Mục",
+    "source": "Nguồn"
   }
 }

@@ -1,65 +1,48 @@
 import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, CheckCircle2, Clock, FileText, Loader2, RefreshCw, RotateCw, Trash2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { asSentence } from "~/lib/sentence";
 import { cn } from "~/lib/utils";
 import { driveReason } from "~/lib/drive-storage";
 import type { DocumentStatus, KBDocument } from "~/lib/kb-types";
+import { Badge, type BadgeType } from "~/components/doc/badge";
+import { Flyout, FLYOUT_ITEM } from "~/components/doc/flyout";
+import { DateText } from "~/components/ui/date-text";
 import { ProcessedByBadge } from "./processed-by-badge";
+import { useOverflowTabStop } from "~/components/doc/scroll-box";
 
 /**
  * document-table.tsx
  *
- * The live status surface. Phase 6 adds an SSE stream on top of the same
- * events; until then the parent revalidates on an interval while anything is
- * working, and this component renders whatever the loader last returned.
+ * The live status surface, as up's tables (pattern P5): Document, Type,
+ * Status, Updated, and the row's actions in a flyout (I9). The parent
+ * revalidates on every stream frame; this renders whatever the loader last
+ * returned.
  *
- * Hairline rows rather than cards (DESIGN.md: "a grid of identical
- * icon-and-heading cards as page structure" is an anti-pattern here). Status is
- * carried by an icon, a word AND a colour, never by colour alone.
+ * Status is a badge (I6) carrying the word, so it is never colour alone:
+ * work in progress is info, ready is tip, a failure is danger, and a video
+ * waiting for its transcript is warning (waiting for the learner, not broken).
  */
 
-const STATUS_ICON: Record<DocumentStatus, typeof Clock> = {
-  queued: Clock,
-  parsing: Loader2,
-  indexing: Loader2,
-  ready: CheckCircle2,
-  failed: AlertTriangle,
-  needs_transcript: FileText,
-};
-
-const STATUS_TONE: Record<DocumentStatus, string> = {
-  queued: "text-muted-foreground",
-  parsing: "text-muted-foreground",
-  indexing: "text-muted-foreground",
-  // "ready" is the brand green, which in this world is also the primary action
-  // and the current nav row — deliberately one ink, because they are one idea.
-  ready: "text-primary",
-  failed: "text-destructive",
-  // Waiting for the learner, not broken: the warning ink, not the danger one.
-  needs_transcript: "text-warning",
+const STATUS_BADGE: Record<DocumentStatus, BadgeType> = {
+  queued: "info",
+  parsing: "info",
+  indexing: "info",
+  ready: "tip",
+  failed: "danger",
+  needs_transcript: "warning",
 };
 
 function StatusCell({ document }: { document: KBDocument }) {
   const { t } = useTranslation("knowledge");
   const { t: tc } = useTranslation("common");
-  const Icon = STATUS_ICON[document.status];
   // A parse that could not reach the original in the learner's Drive says
   // what to do about it (drive-user-storage phase 4).
   const drive = document.status === "failed" ? driveReason(document.error_code) : null;
-  const spinning = document.status === "parsing" || document.status === "indexing";
 
   return (
     <div>
-      <span className={cn("inline-flex items-center gap-1.5 text-sm", STATUS_TONE[document.status])}>
-        <Icon
-          aria-hidden="true"
-          // motion-safe only: the world's motion rule is state feedback, and a
-          // permanent spinner is exactly what a reduced-motion setting is for.
-          className={cn("size-4", spinning && "motion-safe:animate-spin")}
-        />
-        {t(`status.${document.status}`)}
-      </span>
+      <Badge type={STATUS_BADGE[document.status]}>{t(`status.${document.status}`)}</Badge>
       {(document.status === "failed" || document.status === "needs_transcript") && document.error ? (
         // The reason, in full, next to the failure. A truncated error is a
         // support ticket; parse failures already carry an actionable sentence
@@ -86,6 +69,24 @@ function StatusCell({ document }: { document: KBDocument }) {
   );
 }
 
+/** What a document is, for the Type column: the link's kind, or a file's extension. */
+export function documentKind(doc: KBDocument, t: (key: string) => string): string {
+  switch (doc.source_kind) {
+    case "web":
+      return t("source.web");
+    case "youtube":
+      return t("source.youtube");
+    case "site_page":
+      return t("sources.docKind.sitePage");
+    case "repo_file":
+      return t("sources.docKind.repoFile");
+    case "media":
+      return t((doc.media_mime ?? "").startsWith("video/") ? "media.kindVideo" : "media.kindAudio");
+  }
+  const ext = /\.([a-z0-9]{2,5})$/i.exec(doc.title)?.[1];
+  return ext ? ext.toUpperCase() : t("table.kindFile");
+}
+
 export function DocumentTable({
   kbId,
   documents,
@@ -95,80 +96,82 @@ export function DocumentTable({
 }) {
   const { t } = useTranslation("knowledge");
   const fetcher = useFetcher();
+  const [scrollTable, tableTabIndex] = useOverflowTabStop<HTMLTableElement>();
 
   if (documents.length === 0) {
-    return <p className="py-6 text-sm leading-prose text-muted-foreground">{t("detail.empty")}</p>;
+    return <p className="my-4 text-base leading-[1.85] text-muted-foreground">{t("detail.empty")}</p>;
   }
 
   return (
-    // The one horizontally scrollable element on the page. The shell's own
-    // rule is that the body never scrolls sideways; a wide table has to carry
-    // its own overflow or it breaks that at every phone width.
-    // `relative` so the header's sr-only label, absolutely positioned, is
-    // clipped by this scroller too; without it that label sat at 752 px and
-    // gave the whole page a sideways scroll on a phone.
-    <div className="relative overflow-x-auto">
-      <table className="w-full min-w-[46rem] border-collapse text-left">
-        <thead>
-          <tr className="border-b">
-            {["name", "status", "pages", "passages", "processedBy"].map((key) => (
-              <th
-                key={key}
-                scope="col"
-                className="py-2 pr-4 font-mono text-2xs font-semibold tracking-label text-faint uppercase"
-              >
-                {t(`table.${key}`)}
-              </th>
-            ))}
-            <th scope="col" className="py-2 text-right">
-              <span className="sr-only">{t("table.actions")}</span>
+    // lp-table scrolls sideways inside its own box, so a phone's page never
+    // does. From 768 the table fits the column and the box lets the row's
+    // flyout menu hang below the table instead of clipping it.
+    <table ref={scrollTable} tabIndex={tableTabIndex} className="lp-table md:!overflow-visible">
+      <caption className="sr-only">{t("detail.documents")}</caption>
+      <thead>
+        <tr>
+          {["name", "kind", "status", "updated"].map((key) => (
+            <th key={key} scope="col">
+              {t(`table.${key}`)}
             </th>
-          </tr>
-        </thead>
-        <tbody>
-          {documents.map((doc) => {
-            const deleting =
-              fetcher.state !== "idle" && fetcher.formData?.get("documentId") === doc.id;
+          ))}
+          <th scope="col">
+            <span className="sr-only">{t("table.actions")}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {documents.map((doc) => {
+          const deleting = fetcher.state !== "idle" && fetcher.formData?.get("documentId") === doc.id;
+          const facts = [
+            doc.page_count ? t("table.pageCount", { count: doc.page_count }) : null,
+            doc.chunk_count ? t("table.passageCount", { count: doc.chunk_count }) : null,
+          ].filter(Boolean);
 
-            return (
-              <tr key={doc.id} className={cn("border-b align-top", deleting && "opacity-50")}>
-                <th scope="row" className="py-3 pr-4 font-sans text-sm font-medium">
-                  {doc.status === "ready" || doc.status === "needs_transcript" ? (
-                    <Link
-                      to={`/documents/${doc.id}`}
-                      className="text-primary underline-offset-2 hover:underline"
-                    >
-                      {doc.title}
-                    </Link>
-                  ) : (
-                    <span>{doc.title}</span>
-                  )}
-                  <LinkMeta kbId={kbId} document={doc} />
-                </th>
-                <td className="py-3 pr-4">
-                  <StatusCell document={doc} />
-                </td>
-                <td className="py-3 pr-4 text-sm tabular-nums text-muted-foreground">
-                  {doc.page_count || "—"}
-                </td>
-                <td className="py-3 pr-4 text-sm tabular-nums text-muted-foreground">
-                  {doc.chunk_count || "—"}
-                </td>
-                <td className="py-3 pr-4">
+          return (
+            <tr key={doc.id} className={cn(deleting && "opacity-50")}>
+              <th scope="row" className="min-w-48">
+                {doc.status === "ready" || doc.status === "needs_transcript" ? (
+                  <Link
+                    to={`/documents/${doc.id}`}
+                    className="font-medium text-primary underline underline-offset-2 hover:text-primary-hover"
+                  >
+                    {doc.title}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-foreground">{doc.title}</span>
+                )}
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-normal">
+                  {facts.length > 0 ? <span>{facts.join(" · ")}</span> : null}
+                  <span className="sr-only">{t("table.processedBy")}:</span>
                   <ProcessedByBadge processedBy={doc.processed_by} />
-                </td>
-                <td className="py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
+                </div>
+                <LinkMeta kbId={kbId} document={doc} />
+              </th>
+              <td className="whitespace-nowrap text-muted-foreground">{documentKind(doc, t)}</td>
+              <td className="min-w-32">
+                <StatusCell document={doc} />
+              </td>
+              <td className="whitespace-nowrap text-muted-foreground">
+                <DateText iso={doc.updated_at} />
+              </td>
+              <td className="w-0">
+                <Flyout
+                  label={t("table.actionsFor", { title: doc.title })}
+                  icon={<span aria-hidden="true">{t("table.actions")}</span>}
+                  buttonClassName="h-8 rounded-sm px-2 whitespace-nowrap"
+                  menuClassName="top-full mt-1"
+                >
+                  {doc.status === "ready" || doc.status === "needs_transcript" ? (
+                    <Link to={`/documents/${doc.id}`} className={FLYOUT_ITEM}>
+                      {t("table.view")}
+                    </Link>
+                  ) : null}
                   {doc.status === "failed" ? (
                     <fetcher.Form method="post" action={`/knowledge/${kbId}`}>
                       <input type="hidden" name="intent" value="retry-document" />
                       <input type="hidden" name="documentId" value={doc.id} />
-                      <button
-                        type="submit"
-                        disabled={fetcher.state !== "idle"}
-                        className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-primary transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
-                      >
-                        <RotateCw aria-hidden="true" className="size-4" />
+                      <button type="submit" disabled={fetcher.state !== "idle"} className={cn(FLYOUT_ITEM, "disabled:opacity-50")}>
                         {t("table.retry")}
                       </button>
                     </fetcher.Form>
@@ -180,27 +183,23 @@ export function DocumentTable({
                       type="submit"
                       disabled={deleting}
                       // A destructive action with no confirmation is one
-                      // mis-click from deleting a 400-page parse. The native
-                      // confirm is deliberate: a modal here would need a focus
-                      // trap to be accessible, and this is not the phase to
-                      // build one.
+                      // mis-click from deleting a 400-page parse; the native
+                      // confirm is keyboard-correct everywhere.
                       onClick={(event) => {
                         if (!window.confirm(t("table.removeConfirm"))) event.preventDefault();
                       }}
-                      className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-destructive-soft hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
+                      className={cn(FLYOUT_ITEM, "hover:text-destructive disabled:opacity-50")}
                     >
-                      <Trash2 aria-hidden="true" className="size-4" />
-                      <span className="sr-only sm:not-sr-only">{t("table.remove")}</span>
+                      {t("table.remove")}
                     </button>
                   </fetcher.Form>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                </Flyout>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
 
@@ -221,16 +220,6 @@ function LinkMeta({ kbId, document: doc }: { kbId: string; document: KBDocument 
   } catch {
     host = "";
   }
-  const kind =
-    doc.source_kind === "web"
-      ? t("source.web")
-      : doc.source_kind === "site_page"
-        ? t("sources.docKind.sitePage")
-        : doc.source_kind === "repo_file"
-          ? t("sources.docKind.repoFile")
-          : recording
-            ? t((doc.media_mime ?? "").startsWith("video/") ? "media.kindVideo" : "media.kindAudio")
-            : t("source.youtube");
   const transcript =
     doc.transcript_source === "ai_transcript"
       ? t("source.aiTranscript")
@@ -244,11 +233,9 @@ function LinkMeta({ kbId, document: doc }: { kbId: string; document: KBDocument 
 
   return (
     <div className="mt-1 space-y-1 font-normal">
-      <p className="font-mono text-2xs tracking-label text-faint uppercase">
-        {kind}
-        {host ? ` · ${host}` : ""}
-        {transcript ? ` · ${transcript}` : ""}
-      </p>
+      {host || transcript ? (
+        <p className="text-xs text-muted-foreground">{[host, transcript].filter(Boolean).join(" · ")}</p>
+      ) : null}
       {doc.removed_at ? (
         <p className="text-xs text-warning">
           {doc.source_kind === "repo_file" ? t("sources.docKind.removedFromRepo") : t("sources.docKind.removedFromSite")}

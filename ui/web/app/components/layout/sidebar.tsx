@@ -1,162 +1,191 @@
-import { Link, NavLink, useLocation } from "react-router";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
-import {
-  BookOpen,
-  Dumbbell,
-  GraduationCap,
-  Home,
-  Languages,
-  ListChecks,
-  MessageSquare,
-  MoreHorizontal,
-  NotebookPen,
-  Repeat,
-  Settings,
-  Sigma,
-  Telescope,
-  Wrench,
-} from "lucide-react";
-import { cn } from "~/lib/utils";
+import { ChevronRight } from "lucide-react";
+import { Backdrop, useDrawer } from "~/components/layout/drawer";
+import { NAV_TREE, sectionOf, TOP_NAV, type NavGroup, type NavPage } from "~/lib/nav-tree";
 import { PARTS, partOf, type PartId } from "~/lib/parts";
+import { cn } from "~/lib/utils";
 
 /**
- * Navigation is a data array rather than inline JSX so a destination is added
- * by appending one entry, and so a test can assert every `to` resolves to a
- * registered route. `part` places the row in the textbook's table of contents
- * (lib/parts.ts); front matter (Today, Settings) has none.
+ * The sidebar's rows as the flat list the rail used to export, kept for the
+ * pages that still read it (Today's parts list, a few tests). The tree in
+ * lib/nav-tree.ts is the source; this is a view of its top-level pages.
  */
-export const NAV_ITEMS = [
-  { to: "/home", labelKey: "nav.home", icon: Home, end: true, phone: true, part: "home" },
-  { to: "/knowledge", labelKey: "nav.knowledge", icon: BookOpen, end: false, phone: true, part: "read" },
-  { to: "/notebooks", labelKey: "nav.notebooks", icon: NotebookPen, end: false, phone: false, part: "read" },
-  { to: "/chat", labelKey: "nav.chat", icon: MessageSquare, end: false, phone: true, part: "ask" },
-  { to: "/solve", labelKey: "nav.solve", icon: Sigma, end: false, phone: false, part: "ask" },
-  { to: "/research", labelKey: "nav.research", icon: Telescope, end: false, phone: false, part: "ask" },
-  { to: "/quiz", labelKey: "nav.quiz", icon: ListChecks, end: false, phone: false, part: "practise" },
-  { to: "/mastery", labelKey: "nav.mastery", icon: GraduationCap, end: false, phone: false, part: "practise" },
-  { to: "/languages", labelKey: "nav.languages", icon: Languages, end: false, phone: false, part: "practise" },
-  { to: "/body", labelKey: "nav.body", icon: Dumbbell, end: false, phone: false, part: "practise" },
-  { to: "/loop", labelKey: "nav.loop", icon: Repeat, end: false, phone: true, part: "reflect" },
-  { to: "/settings", labelKey: "nav.settings", icon: Settings, end: false, phone: false, part: "home" },
-] as const satisfies ReadonlyArray<{ part: PartId; [k: string]: unknown }>;
+export const NAV_ITEMS: { to: string; labelKey: string; end: boolean; phone: boolean; part: PartId }[] = NAV_TREE.flatMap(
+  (g) => g.items,
+)
+  .filter((p) => !p.external && (p.to === "/settings" || !p.to.startsWith("/settings/")) && p.to !== "/toolkit")
+  .map((p) => ({
+    to: p.to,
+    labelKey: p.to === "/settings" ? "nav.settings" : p.labelKey,
+    end: !!p.end && p.to === "/home",
+    phone: TOP_NAV.some((n) => n.to === p.to),
+    part: partOf(p.to),
+  }));
 
-/**
- * The phone bar's last slot: a link to /more, a plain page listing every
- * destination. Ten destinations do not fit a 390px bar, and a drawer costs a
- * focus trap; a page keeps every destination two taps away at most.
- */
-export const MORE_ITEM = { to: "/more", labelKey: "nav.more", icon: MoreHorizontal } as const;
+/** /more, the page listing every destination (routes/more.tsx). */
+export const MORE_ITEM = { to: "/more", labelKey: "nav.more" } as const;
 
-/**
- * The tools are the book's appendix, not one of its parts: the running head
- * links them as Free tools (topbar.tsx), and More lists them on the phone. `/tools` redirects to
- * the tools home in the visitor's language (routes/tools.ts). AnyProfile is
- * not on the rail: it is a browser for sellers, not part of studying, and it
- * stays on the tools site (owner's call, 2026-10-19).
- */
-export const TOOLS_ITEM = { to: "/tools", labelKey: "tools:nav.tools", icon: Wrench } as const;
+/** The tools appendix; `/tools` redirects to the tools home (routes/tools.ts). */
+export const TOOLS_ITEM = { to: "/tools", labelKey: "tools:nav.tools" } as const;
 
-/** One rail row. The current row takes its part's tint and a full outline. */
-const RAIL_ROW =
-  "flex min-h-10 items-center gap-3 rounded-md border border-transparent px-3 text-sm transition-colors";
-
-function railRowClass(isActive: boolean) {
-  return cn(
-    RAIL_ROW,
-    isActive
-      ? "border-part-line bg-part-soft font-semibold text-foreground [&_svg]:text-part"
-      : "text-muted-foreground hover:bg-hover hover:text-foreground",
-  );
+/** True when `page` or one of its children is the current entry. */
+function contains(page: NavPage, current: string | undefined): boolean {
+  return !!current && (page.to === current || !!page.items?.some((c) => contains(c, current)));
 }
 
-/** One phone slot: icon over label. */
-const PHONE_SLOT =
-  "flex min-h-14 flex-1 flex-col items-center justify-center gap-1 px-1 py-2 text-2xs transition-colors";
+/**
+ * Open/closed state of every foldable group and item, VitePress's rules: a
+ * folded one opens when the page it holds becomes current; otherwise what
+ * the learner chose stays, for this visit only.
+ */
+function useFolds(current: string | undefined) {
+  const [chosen, setChosen] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!current) return;
+    const open: Record<string, boolean> = {};
+    for (const group of NAV_TREE) {
+      if (group.items.some((p) => contains(p, current))) open[group.id] = true;
+      for (const page of group.items) if (page.items && contains(page, current)) open[page.to] = true;
+    }
+    setChosen((c) => ({ ...c, ...open }));
+  }, [current]);
 
-function phoneSlotClass(isActive: boolean) {
-  return cn(
-    PHONE_SLOT,
-    isActive ? "bg-part-soft font-semibold text-foreground [&_svg]:text-part" : "text-muted-foreground hover:bg-hover",
-  );
+  function isOpen(key: string, collapsed: boolean | undefined, holdsCurrent: boolean) {
+    if (collapsed === undefined) return true;
+    return chosen[key] ?? (!collapsed || holdsCurrent);
+  }
+  const toggle = (key: string, now: boolean) => setChosen((c) => ({ ...c, [key]: !now }));
+  return { isOpen, toggle };
 }
 
-type Item = (typeof NAV_ITEMS)[number];
+const LINK = "block py-1 text-sm leading-6 font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
-function RailLink({ item }: { item: Item }) {
+function PageLink({ page, current, hasActive, nested }: { page: NavPage; current?: string; hasActive?: boolean; nested?: boolean }) {
   const { t } = useTranslation("common");
-  const { to, labelKey, icon: Icon, end } = item;
+  const active = page.to === current;
+  const className = cn(LINK, active ? "text-primary" : hasActive ? "text-foreground" : "text-muted-foreground");
+  const label = (
+    <>
+      {/* VitePress marks a current child with a 2px bar on the guide line; a
+          one-sided accent is against this project's rules, so a 6px dot sits
+          on the line instead (plan decision 4). */}
+      {active && nested ? (
+        <span aria-hidden="true" className="absolute top-1/2 -left-[19.5px] size-1.5 -translate-y-1/2 rounded-full bg-primary" />
+      ) : null}
+      {t(page.labelKey)}
+      {active ? <span className="sr-only"> {t("nav.current")}</span> : null}
+    </>
+  );
+  if (page.external) {
+    return (
+      <a href={page.to} className={cn(className, "relative")}>
+        {label}
+      </a>
+    );
+  }
   return (
-    <NavLink to={to} end={end} className={({ isActive }) => railRowClass(isActive)}>
-      {({ isActive }) => (
-        <>
-          <Icon aria-hidden="true" className="size-4 shrink-0" />
-          <span className="truncate">{t(labelKey)}</span>
-          {/* The current row is carried by tint, outline and weight; this makes
-              it survive a colour-blind read and forced high-contrast mode. */}
-          {isActive && <span className="sr-only">{t("nav.current")}</span>}
-        </>
-      )}
-    </NavLink>
+    <Link to={page.to} aria-current={active ? "page" : undefined} className={cn(className, "relative")}>
+      {label}
+    </Link>
   );
 }
 
-/**
- * The rail from `lg` up: a textbook's table of contents. Today first, then the
- * four numbered parts, each under its coloured tab, scrolling on their own;
- * Settings stays pinned at the foot, as in postclaw (owner, 2026-10-20).
- */
-function Rail() {
+function Item({ page, current, folds }: { page: NavPage; current?: string; folds: ReturnType<typeof useFolds> }) {
   const { t } = useTranslation("common");
-  const front = NAV_ITEMS.filter((n) => n.part === "home");
-  const today = front.filter((n) => n.to !== "/settings");
-  const settings = front.filter((n) => n.to === "/settings");
-
+  const childrenId = useId();
+  const hasActive = !!page.items && contains(page, current) && page.to !== current;
+  if (!page.items) return <PageLink page={page} current={current} />;
+  const open = folds.isOpen(page.to, page.collapsed, contains(page, current));
   return (
-    <div className="hidden h-full flex-col lg:flex">
-      <div className="shrink-0 px-5 pt-6 pb-4">
-        <Link to="/home" translate="no" className="font-serif text-2xl font-semibold tracking-display">
-          {t("app.name")}
-        </Link>
+    <div>
+      <div className="flex items-center justify-between">
+        <PageLink page={page} current={current} hasActive={hasActive} />
+        {page.collapsed !== undefined ? (
+          // A link that also folds: the text goes to the page, the caret
+          // folds (VitePress's VPSidebarItem with a link and children).
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={childrenId}
+            aria-label={t("nav.toggleSection", { section: t(page.labelKey) })}
+            onClick={() => folds.toggle(page.to, open)}
+            className="-mr-[7px] flex size-8 shrink-0 items-center justify-center text-faint transition-colors hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <ChevronRight aria-hidden="true" className={cn("size-[18px] transition-transform duration-250 motion-reduce:transition-none", open && "rotate-90")} />
+          </button>
+        ) : null}
       </div>
+      {/* The guide line is a neutral tree rule, not an accent. */}
+      <ul id={childrenId} hidden={!open} className="border-l pl-4">
+        {page.items.map((child) => (
+          <li key={child.to}>
+            <PageLink page={child} current={current} nested />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain pb-5">
-        <ul className="flex flex-col gap-0.5 px-3">
-          {today.map((item) => (
-            <li key={item.to} data-part="home">
-              <RailLink item={item} />
-            </li>
-          ))}
-        </ul>
-
-        {PARTS.map((part) => {
-          const items = NAV_ITEMS.filter((n) => n.part === part.id);
-          const headingId = `lp-rail-${part.id}`;
-          return (
-            // A group, not a region: five landmarks inside one nav is noise.
-            <div key={part.id} role="group" data-part={part.id} aria-labelledby={headingId} className="mt-5 px-3">
-              <h2 id={headingId} className="flex items-center gap-2 px-3 pb-1.5 font-sans text-xs font-semibold text-part">
-                <span aria-hidden="true" className="lp-tab min-w-7 justify-center px-1.5">
-                  {part.numeral}
-                </span>
-                <span className="sr-only">{t("parts.part", { numeral: part.numeral })}: </span>
-                {t(part.labelKey)}
-              </h2>
-              <ul className="flex flex-col gap-0.5">
-                {items.map((item) => (
-                  <li key={item.to}>
-                    <RailLink item={item} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
-      </div>
-
-      <ul className="flex shrink-0 flex-col gap-0.5 border-t px-3 pt-3 pb-5">
-        {settings.map((item) => (
-          <li key={item.to} data-part="home">
-            <RailLink item={item} />
+function Group({ group, current, folds }: { group: NavGroup; current?: string; folds: ReturnType<typeof useFolds> }) {
+  const { t } = useTranslation("common");
+  const headingId = useId();
+  const itemsId = useId();
+  const holdsCurrent = group.items.some((p) => contains(p, current));
+  const open = folds.isOpen(group.id, group.collapsed, holdsCurrent);
+  const foldable = group.collapsed !== undefined;
+  // Parts I to IV carry their numeral tab before the name, like the edge tab
+  // of a textbook's chapter; the colour is wayfinding only (DESIGN.md).
+  const part = PARTS.find((p) => p.id === group.id);
+  const label = part ? (
+    <span className="flex items-center gap-2">
+      <span aria-hidden="true" className="lp-tab min-w-7 justify-center px-1.5">
+        {part.numeral}
+      </span>
+      <span>
+        <span className="sr-only">{t("parts.part", { numeral: part.numeral })}:</span>{" "}
+        {t(part.labelKey)}
+      </span>
+    </span>
+  ) : (
+    t(group.labelKey)
+  );
+  return (
+    // A group, not a landmark (DESIGN.md): a labelled <section> is a region,
+    // and the page often has a region with the same name (Today's guide paths,
+    // /more), which axe flags as landmark-unique.
+    <div
+      role="group"
+      data-part={part?.id}
+      aria-labelledby={headingId}
+      className={cn("[&+&]:border-t [&+&]:pt-2.5 min-[960px]:w-[calc(var(--lp-rail-w)-64px)]", open ? "pb-6" : "pb-2.5")}
+    >
+      <h2 id={headingId} className="font-sans text-sm leading-6 font-bold text-foreground">
+        {foldable ? (
+          // The whole title row toggles, as up's patch makes it; a real
+          // button, so Enter and Space work without a key handler.
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={itemsId}
+            onClick={() => folds.toggle(group.id, open)}
+            className="group flex w-full items-center justify-between py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            {label}
+            <span aria-hidden="true" className="-mr-[7px] flex size-8 items-center justify-center text-faint group-hover:text-muted-foreground">
+              <ChevronRight className={cn("size-[18px] transition-transform duration-250 motion-reduce:transition-none", open && "rotate-90")} />
+            </span>
+          </button>
+        ) : (
+          <span className="block py-1">{label}</span>
+        )}
+      </h2>
+      <ul id={itemsId} hidden={!open}>
+        {group.items.map((page) => (
+          <li key={page.to}>
+            <Item page={page} current={current} folds={folds} />
           </li>
         ))}
       </ul>
@@ -165,57 +194,66 @@ function Rail() {
 }
 
 /**
- * Below `lg`, a bar along the bottom edge: the four destinations marked
- * `phone` and More. Not a drawer behind a hamburger: a collapsed nav
- * is how a shell ends up looking empty on a phone.
+ * The sidebar, VitePress's VPSidebar: the whole NAV_TREE, groups titled
+ * 14/700, pages 14/500 in ink-2, the current one in brand, no icons.
+ *
+ * From 960 it is a column 272 wide on the alt surface, scrolling on its own
+ * (from 1440 it widens to fill the left margin of a 1480 layout, never below
+ * 272). Below 960 the same element is the drawer: fixed at the left,
+ * `min(100vw - 64px, 320px)` wide, hidden (and so out of the tab order)
+ * until the local nav's Menu opens it.
  */
-function PhoneBar() {
+export function Sidebar({
+  open = false,
+  onClose = () => {},
+  returnTo,
+}: {
+  open?: boolean;
+  onClose?: () => void;
+  returnTo?: RefObject<HTMLElement | null>;
+}) {
   const { t } = useTranslation("common");
   const { pathname } = useLocation();
-  const moreActive =
-    pathname === MORE_ITEM.to ||
-    NAV_ITEMS.some((n) => !n.phone && (pathname === n.to || pathname.startsWith(n.to + "/")));
+  const current = sectionOf(pathname)?.page.to;
+  const folds = useFolds(current);
+  const layer = useRef<HTMLDivElement>(null);
+  const aside = useRef<HTMLElement>(null);
+  const nav = useRef<HTMLElement>(null);
+  const { narrow } = useDrawer({ open, onClose, layer, initial: nav, returnTo });
+
+  // Bring the current row into view once, inside the sidebar's own scroll
+  // (scrollIntoView would also scroll the page behind it).
+  useEffect(() => {
+    const el = aside.current;
+    const row = el?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!el || !row || el.scrollHeight <= el.clientHeight) return;
+    el.scrollTop = row.offsetTop - el.clientHeight / 2;
+  }, []);
 
   return (
-    <ul className="flex lg:hidden">
-      {NAV_ITEMS.filter((n) => n.phone).map(({ to, labelKey, icon: Icon, end, part }) => (
-        <li key={to} data-part={part} className="flex flex-1">
-          <NavLink to={to} end={end} className={({ isActive }) => phoneSlotClass(isActive)}>
-            {({ isActive }) => (
-              <>
-                <Icon aria-hidden="true" className="size-5" />
-                <span className="truncate">{t(labelKey)}</span>
-                {isActive && <span className="sr-only">{t("nav.current")}</span>}
-              </>
-            )}
-          </NavLink>
-        </li>
-      ))}
-      <li data-part={partOf(pathname)} className="flex flex-1">
-        <NavLink to={MORE_ITEM.to} className={phoneSlotClass(moreActive)}>
-          <MORE_ITEM.icon aria-hidden="true" className="size-5" />
-          <span className="truncate">{t(MORE_ITEM.labelKey)}</span>
-          {moreActive && <span className="sr-only">{t("nav.current")}</span>}
-        </NavLink>
-      </li>
-    </ul>
-  );
-}
-
-export function Sidebar() {
-  const { t } = useTranslation("common");
-  return (
-    <nav
-      aria-label={t("nav.label")}
-      className={cn(
-        // Phone: a fixed bar along the bottom edge, above the home indicator.
-        "fixed inset-x-0 bottom-0 z-sticky shrink-0 border-t bg-muted [padding-bottom:env(safe-area-inset-bottom)]",
-        // Desktop: the rail, the second neutral layer of the page.
-        "lg:static lg:h-full lg:w-(--lp-rail-w) lg:border-t-0 lg:border-r lg:[padding-bottom:0]",
-      )}
-    >
-      <Rail />
-      <PhoneBar />
-    </nav>
+    <div ref={layer} className="contents">
+      <Backdrop show={open} onClick={onClose} />
+      <aside
+        ref={aside}
+        id="lp-sidebar"
+        // Closed below 960: out of the tab order and the accessibility tree.
+        inert={narrow && !open ? true : undefined}
+        className={cn(
+          "fixed top-0 bottom-0 left-0 z-(--lp-z-sidebar) w-[min(calc(100vw-64px),320px)] overflow-x-hidden overflow-y-auto overscroll-contain bg-muted px-8 pt-8 pb-24 shadow-md",
+          "transition-[opacity,translate] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] motion-reduce:transition-opacity",
+          open ? "visible translate-x-0 opacity-100" : "invisible -translate-x-full opacity-0",
+          "min-[960px]:visible min-[960px]:static min-[960px]:z-auto min-[960px]:w-(--lp-shell-rail) min-[960px]:shrink-0 min-[960px]:translate-x-0 min-[960px]:pt-0 min-[960px]:pl-(--lp-shell-gutter) min-[960px]:opacity-100 min-[960px]:shadow-none min-[960px]:transition-none",
+        )}
+      >
+        <nav ref={nav} tabIndex={-1} aria-labelledby="lp-sidebar-title" className="outline-none">
+          <span id="lp-sidebar-title" className="sr-only">
+            {t("nav.sidebarNavigation")}
+          </span>
+          {NAV_TREE.map((group) => (
+            <Group key={group.id} group={group} current={current} folds={folds} />
+          ))}
+        </nav>
+      </aside>
+    </div>
   );
 }

@@ -1,0 +1,1999 @@
+{
+ "slug": "ultimate-geography-flags-es",
+ "name": "Ultimate Geography: banderas",
+ "language": "es",
+ "version": "v5.3",
+ "source_url": "https://github.com/anki-geo/ultimate-geography",
+ "licence": "Text public domain (the Unlicense); pictures under CC BY-SA, CC BY, CC0 or public domain, credited on each card",
+ "cards": [
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Inglaterra. Nación constitutiva del Reino Unido.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-england.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_England.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Escocia. Nación constitutiva del Reino Unido.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-scotland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Scotland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Reino Unido",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-united_kingdom.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_United_Kingdom.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Francia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-france.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Gales. Nación constitutiva del Reino Unido.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-wales.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Wales.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Georgia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-georgia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Georgia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Alemania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-germany.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Germany.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Grecia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-greece.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Greece.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Groenlandia. Nación constitutiva del Reino de Dinamarca.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-greenland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Greenland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Hungría",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-hungary.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Hungary.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Albania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-albania.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Albania.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Andorra",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-andorra.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Andorra.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Austria",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-austria.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Austria.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Azerbaiyán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-azerbaijan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Azerbaijan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bielorrusia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-belarus.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Belarus.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bélgica",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-belgium.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Belgium.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bosnia y Herzegovina",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-bosnia_and_herzegovina.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bosnia_and_Herzegovina.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bulgaria",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-bulgaria.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bulgaria.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Croacia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-croatia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Croatia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "República Checa. También conocida como Chequia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-czech_republic.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Czech_Republic.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Dinamarca",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-denmark.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Denmark.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Estonia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-estonia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Estonia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Islas Feroe. Nación constitutiva del Reino de Dinamarca.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-faroe_islands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Faroe_Islands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Finlandia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-finland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Finland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Islandia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-iceland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Iceland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Irlanda",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-ireland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ireland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Italia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-italy.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Italy.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Letonia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-latvia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Latvia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Liechtenstein",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-liechtenstein.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Liechtenstein.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Lituania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-lithuania.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Lithuania.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Luxemburgo",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-luxembourg.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Luxembourg.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Macedonia del Norte. Anteriormente conocida como Macedonia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-north_macedonia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_North_Macedonia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Malta",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-malta.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Malta.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Moldavia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-moldova.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Moldova.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Mónaco",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-monaco.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Monaco.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Montenegro",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-montenegro.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Montenegro.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Países Bajos",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-netherlands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Netherlands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Noruega",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-norway.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Norway.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Polonia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-poland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Poland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Portugal",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-portugal.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Portugal.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Rumania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-romania.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Romania.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Rusia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-russia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Russia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "San Marino",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-san_marino.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_San_Marino.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Serbia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-serbia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Serbia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Eslovaquia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-slovakia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Slovakia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Eslovenia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-slovenia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Slovenia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "España",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-spain.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Spain.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Suecia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-sweden.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sweden.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Suiza",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-switzerland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Switzerland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Turquía",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-turkey.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Turkey.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Ucrania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-ukraine.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ukraine.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Ciudad del Vaticano",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-vatican_city.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Vatican_City.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Armenia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-armenia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Armenia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Chipre",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-cyprus.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cyprus.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Kazajistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-kazakhstan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kazakhstan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Egipto",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-egypt.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Egypt.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Argelia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-algeria.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Algeria.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Angola",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-angola.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Angola.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Benín",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-benin.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Benin.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Botsuana",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-botswana.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Botswana.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Burkina Faso",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-burkina_faso.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Burkina_Faso.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Camerún",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-cameroon.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cameroon.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Burundi",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-burundi.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Burundi.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Cabo Verde",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-cape_verde.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cape_Verde.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Santo Tomé y Príncipe",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-sao_tome_and_principe.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sao_Tome_and_Principe.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "República Centroafricana",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-central_african_republic.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Central_African_Republic.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Chad",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-chad.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Chad.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Guinea Ecuatorial",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-equatorial_guinea.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Equatorial_Guinea.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Kenia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-kenya.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kenya.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Comoras",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-comoros.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Comoros.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Costa de Marfil. Oficialmente Côte d'Ivoire.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-ivory_coast.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_C%C3%B4te_d%27Ivoire.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "República Democrática del Congo. Anteriormente Zaire.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-democratic_republic_of_the_congo.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Democratic_Republic_of_the_Congo.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Yibuti",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-djibouti.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Djibouti.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Guinea-Bisáu",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-guinea-bissau.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Guinea-Bissau.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Eritrea",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-eritrea.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Eritrea.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Etiopía",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-ethiopia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ethiopia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Gabón",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-gabon.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Gabon.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Gambia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-the_gambia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_The_Gambia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Lesoto",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-lesotho.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Lesotho.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Liberia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-liberia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Liberia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Madagascar",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-madagascar.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Madagascar.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Malaui",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-malawi.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Malawi.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Malí",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-mali.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mali.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Mauritania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-mauritania.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mauritania.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Mauricio",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-mauritius.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mauritius.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Marruecos",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-morocco.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Morocco.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Mozambique",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-mozambique.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mozambique.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Namibia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-namibia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Namibia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Níger",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-niger.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Niger.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Nigeria",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-nigeria.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nigeria.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "República del Congo",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-republic_of_the_congo.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Republic_of_the_Congo.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Ruanda",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-rwanda.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Rwanda.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Senegal",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-senegal.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Senegal.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Seychelles",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-seychelles.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Seychelles.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Sierra Leona",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-sierra_leone.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sierra_Leone.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Sudáfrica",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-south_africa.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_South_Africa.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Sudán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-sudan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sudan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Suazilandia. Oficialmente Esuatini desde 2018.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-eswatini.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Eswatini.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Tanzania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-tanzania.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tanzania.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Togo",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-togo.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Togo.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Túnez",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-tunisia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tunisia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Uganda",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-uganda.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Uganda.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "República Árabe Saharaui Democrática. Estado parcialmente reconocido reclamado por Marruecos.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-sahrawi_arab_democratic_republic.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Sahrawi_Arab_Democratic_Republic.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Zambia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-zambia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Zambia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Zimbabue",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-zimbabwe.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Zimbabwe.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Afganistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-afghanistan.svg",
+    "source": "https://en.wikipedia.org/wiki/File:Flag_of_the_Taliban.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Baréin",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-bahrain.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bahrain.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bangladés",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-bangladesh.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bangladesh.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bután",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-bhutan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bhutan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Brunéi",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-brunei.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Brunei.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "China",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-china.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_People%27s_Republic_of_China.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Camboya",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-cambodia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cambodia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Indonesia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-indonesia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Indonesia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "India",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-india.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_India.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Hong Kong. Región administrativa especial de China.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-hong_kong.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Hong_Kong.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Irán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-iran.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Iran.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Israel",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-israel.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Israel.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Irak",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-iraq.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Iraq.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Corea del Sur",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-south_korea.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_South_Korea.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Corea del Norte",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-north_korea.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_North_Korea.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Jordania",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-jordan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Jordan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Japón",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-japan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Japan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Líbano",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-lebanon.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Lebanon.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Laos",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-laos.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Laos.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Kirguistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-kyrgyzstan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kyrgyzstan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Kuwait",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-kuwait.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kuwait.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Birmania. También conocida como Myanmar.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-myanmar.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Myanmar.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Mongolia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-mongolia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mongolia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Maldivas",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-maldives.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Maldives.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Malasia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-malaysia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Malaysia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Omán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-oman.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Oman.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Nepal",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-nepal-nobox.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nepal.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Palestina",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-palestine.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Palestine.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Pakistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-pakistan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Pakistan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Catar",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-qatar.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Qatar.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Arabia Saudita",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-saudi_arabia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Saudi_Arabia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Singapur",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-singapore.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Singapore.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Siria",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-syria.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Syrian_revolution.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Taiwán. Estado parcialmente reconocido reclamado por China.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-taiwan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Republic_of_China.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Sri Lanka",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-sri_lanka.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sri_Lanka.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Tayikistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-tajikistan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tajikistan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Tailandia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-thailand.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Thailand.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Timor Oriental",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-timor-leste.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_East_Timor.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Emiratos Árabes Unidos",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-united_arab_emirates.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Arab_Emirates.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Turkmenistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-turkmenistan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Turkmenistan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Yemen",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-yemen.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Yemen.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Vietnam",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-vietnam.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Vietnam.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Uzbekistán",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-uzbekistan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Uzbekistan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Fiyi",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-fiji.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Fiji.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Papúa Nueva Guinea",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-papua_new_guinea.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Papua_New_Guinea.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Australia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-australia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Islas Salomón",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-solomon_islands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Solomon_Islands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Argentina",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-argentina.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Argentina.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bolivia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-bolivia-blur.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Bandera_de_Bolivia_(Estado).svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Brasil",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-brazil.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Brazil.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Chile",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-chile.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Chile.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Colombia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-colombia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Colombia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Ecuador",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-ecuador.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ecuador.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Guyana",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-guyana.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Guyana.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Paraguay",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-paraguay-blur.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Paraguay.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Perú",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-peru.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Peru.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Surinam",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-suriname.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Suriname.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Uruguay",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-uruguay.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Uruguay.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Venezuela",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-venezuela.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Venezuela.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Islas Cook",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-cook_islands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cook_Islands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Estados Federados de Micronesia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-federated_states_of_micronesia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Federated_States_of_Micronesia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Guam. Territorio no incorporado de los Estados Unidos.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-guam-blur.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Guam.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Vanuatu",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-vanuatu.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Vanuatu.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Canadá",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-canada.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Canada.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Estados Unidos",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-united_states_of_america.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_U.S..svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "México",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-mexico.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mexico.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Puerto Rico. Territorio no incorporado de los Estados Unidos.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-puerto_rico.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Puerto_Rico.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Cuba",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-cuba.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cuba.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "República Dominicana",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-dominican_republic.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Dominican_Republic.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Haití",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-haiti.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Haiti.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Jamaica",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-jamaica.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Jamaica.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Trinidad y Tobago",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-trinidad_and_tobago.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Trinidad_and_Tobago.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Bahamas",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-the_bahamas.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Bahamas.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Barbados",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-barbados.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Barbados.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Belice",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-belize.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Belize.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Costa Rica",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-costa_rica-blur.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Costa_Rica_(state).svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "El Salvador",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-el_salvador-blur.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_El_Salvador.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Guatemala",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-guatemala.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Guatemala.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Honduras",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-honduras.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Honduras.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Nicaragua",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-nicaragua-blur.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nicaragua.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Panamá",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-panama.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Panama.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Antigua y Barbuda",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-antigua_and_barbuda.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Antigua_and_Barbuda.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Dominica",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-dominica.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Dominica.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "San Vicente y las Granadinas",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-saint_vincent_and_the_grenadines.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Saint_Vincent_and_the_Grenadines.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Somalia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-somalia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Somalia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Ghana",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-ghana.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ghana.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Guinea",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-guinea.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Guinea.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Nueva Zelanda",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-new_zealand.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_New_Zealand.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Polinesia Francesa. Territorio de ultramar de Francia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-french_polynesia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_French_Polynesia.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Filipinas",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-philippines.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Philippines.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Kosovo. Estado parcialmente reconocido reclamado por Serbia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-kosovo.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kosovo.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Libia",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-libya.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Libya.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Palaos",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-palau.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Palau.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Santa Lucía",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-saint_lucia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Saint_Lucia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Granada",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-grenada.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Grenada.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Curazao. Nación constitutiva del Reino de los Países Bajos.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-curacao.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Curacao.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Kiribati",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-kiribati.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kiribati.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Macao. Región administrativa especial de China.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-macau.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Macau.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Islas Marshall",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-marshall_islands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Marshall_Islands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Nauru",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-nauru.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nauru.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Nueva Caledonia. Territorio de ultramar de Francia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-new_caledonia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_FLNKS.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Niue",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-niue.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Niue.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Chipre del Norte. Estado reconocido solo por Turquía y reclamado por Chipre.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-northern_cyprus.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg",
+    "licence": "CC BY-SA 2.5"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "San Cristóbal y Nieves",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-saint_kitts_and_nevis.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Saint_Kitts_and_Nevis.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Samoa",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-samoa.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Samoa.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Somalilandia. Estado independiente reclamado por Somalia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-somaliland.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Somaliland.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Sudán del Sur",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-south_sudan.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_South_Sudan.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Tuvalu",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-tuvalu.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tuvalu.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Islas Vírgenes de los Estados Unidos. Territorio no incorporado de los Estados Unidos.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-united_states_virgin_islands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States_Virgin_Islands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Åland. Región autónoma de Finlandia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-aland_islands.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Aland_Islands.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Osetia del Sur. Estado independiente reclamado por Georgia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-south_ossetia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_South_Ossetia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Aruba. Nación constitutiva del Reino de los Países Bajos.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-aruba.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Aruba.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Abjasia. Estado independiente reclamado por Georgia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-abkhazia.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Republic_of_Abkhazia.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Tonga",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-tonga.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tonga.svg",
+    "licence": "CC0 1.0"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Transnistria. Estado independiente reclamado por Moldavia.",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-transnistria.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Transnistria.svg",
+    "licence": "PD"
+   }
+  },
+  {
+   "front": "¿De quién es esta bandera?",
+   "back": "Unión Europea",
+   "image": {
+    "src": "ultimate-geography-media@5.3/ug-flag-european_union.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Europe.svg",
+    "licence": "PD"
+   }
+  }
+ ]
+}

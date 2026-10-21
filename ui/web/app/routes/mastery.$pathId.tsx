@@ -1,3 +1,5 @@
+import { BookMeta } from "~/components/doc/book-meta";
+import { AtAGlance } from "~/components/doc/at-a-glance";
 /**
  * mastery.$pathId.tsx
  * One path: its module map with per-point state, the diagnostic, the open
@@ -95,7 +97,7 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
   const busy = fetcher.state !== "idle";
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <Link
         to="/mastery"
         className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -114,6 +116,9 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
           </>
         }
       />
+
+      <BookMeta label={t("path.modules")} items={[{ label: detail.kb_name }, { label: t("path.overall", { mastery: percent(detail.mastery), due: detail.due_count }) }]} />
+      <AtAGlance items={detail.modules.map((m) => m.module.objective || m.module.name)} />
 
       {planned ? (
         <div className="mt-6 flex flex-wrap gap-2">
@@ -162,9 +167,9 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
           </h2>
           <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("path.diagnosticLead")}</p>
           <ol className="mt-4 space-y-4">
-            {fetcher.data.diagnostic.map((q) => (
+            {fetcher.data.diagnostic.map((q, index) => (
               <li key={q.id}>
-                <QuestionCard question={q} />
+                <QuestionCard question={q} position={index + 1} total={fetcher.data?.diagnostic?.length} />
               </li>
             ))}
           </ol>
@@ -180,10 +185,10 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
             <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("path.explainGate")}</p>
           ) : null}
           <ol className="mt-3 space-y-6">
-            {detail.modules.map((m) => (
+            {detail.modules.map((m, index) => (
               <li key={m.module.id}>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h3 className="font-sans text-base font-medium">{m.module.name}</h3>
+                  <h2 id={`module-${m.module.id}`}>{index + 1}. {m.module.name}</h2>
                   <p className="text-sm text-muted-foreground">
                     {m.graduated
                       ? t("path.graduated")
@@ -201,6 +206,7 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
                 {m.module.objective ? (
                   <p className="mt-2 text-sm leading-prose text-muted-foreground">{m.module.objective}</p>
                 ) : null}
+                <Button asChild variant="outline"><Link to={`/mastery/${detail.path.id}/session`}>{t("path.study")}</Link></Button>
                 <ul className="mt-2 border-t">
                   {m.knowledge_points.map((kp) => (
                     <li

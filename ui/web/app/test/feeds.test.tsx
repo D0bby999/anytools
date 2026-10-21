@@ -141,7 +141,10 @@ describe("a feed's page", () => {
     expect(screen.getByRole("link", { name: "Open" })).toHaveAttribute("href", "/documents/d1");
     expect(screen.getByText("Not added: the episode's host answered HTTP 404")).toBeInTheDocument();
     expect(screen.getByText("New")).toBeInTheDocument();
-    expect(screen.getByText("Oct 13, 2026 · 24:05")).toBeInTheDocument();
+    // up's dated list: **date** · title — duration, in the entry's label.
+    const dated = screen.getByText("Oct 13, 2026");
+    expect(dated.tagName).toBe("STRONG");
+    expect(dated.closest("label")).toHaveTextContent("Oct 13, 2026 · Episode 3: Ordering at a café · 24:05");
     expect(screen.getByText("1 entry is being added.")).toBeInTheDocument();
 
     const submit = screen.getByRole("button", { name: "Tick entries to add" });

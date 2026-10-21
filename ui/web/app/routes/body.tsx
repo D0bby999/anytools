@@ -4,6 +4,10 @@
  * glance and the last few sessions. Training sits beside studying here: the
  * same day, the same calm page, nothing that shouts.
  */
+import { DateText } from "~/components/ui/date-text";
+import { DatedList } from "~/components/doc/dated-list";
+import { Badge } from "~/components/doc/badge";
+import { RefTable } from "~/components/doc/ref-table";
 import { Form, Link, redirect, useActionData, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Check, Play } from "lucide-react";
@@ -22,10 +26,7 @@ import { PageHeader } from "~/components/ui/page-header";
 import { PlateEmpty } from "~/components/ui/plate";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Body") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Body") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -73,7 +74,7 @@ export default function BodyToday({ loaderData }: Route.ComponentProps) {
   const firstRun = o.routines.length === 0 && o.recent.length === 0;
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader title={t("page.title")} lede={t("page.lead")} />
       <BodyTabs />
 
@@ -84,24 +85,27 @@ export default function BodyToday({ loaderData }: Route.ComponentProps) {
         </Alert>
       ) : null}
 
-      {firstRun ? (
-        <PlateEmpty name="part-body" className="mb-8">
-          {t("firstRun.body")}{" "}
-          <Link to="/body/coach" className="font-medium text-primary underline underline-offset-4">
-            {t("today.askCoach")}
-          </Link>{" "}
-          ·{" "}
-          <Link to="/body/routines/new" className="font-medium text-primary underline underline-offset-4">
-            {t("today.writeOwn")}
-          </Link>
-        </PlateEmpty>
-      ) : null}
-
       {/* Today: resume, start the planned routine, or rest. */}
-      <section data-part="practise" aria-labelledby="lp-body-today" className="lp-keybox p-5 sm:p-6">
-        <h2 id="lp-body-today" className="lp-section text-xl">
-          {t("today.title", { day: days[o.today.weekday] })}
-        </h2>
+      <section data-part="practise" aria-labelledby="lp-body-today" className="lp-quick-start">
+        <div className="lp-quick-start-heading">
+          <span className="lp-kicker">{t("today.title", { day: days[o.today.weekday] })}</span>
+          <h2 id="lp-body-today" className="lp-section text-xl">
+            {t("up.startWorkout")}
+          </h2>
+        </div>
+        {firstRun ? (
+          <PlateEmpty name="part-body" className="mb-8">
+            {t("firstRun.body")}{" "}
+            <Link to="/body/coach" className="font-medium text-primary underline underline-offset-4">
+              {t("today.askCoach")}
+            </Link>{" "}
+            ·{" "}
+            <Link to="/body/routines/new" className="font-medium text-primary underline underline-offset-4">
+              {t("today.writeOwn")}
+            </Link>
+          </PlateEmpty>
+        ) : null}
+
         {o.open ? (
           <>
             <p className="mt-2 text-sm leading-prose">
@@ -122,9 +126,7 @@ export default function BodyToday({ loaderData }: Route.ComponentProps) {
                 {t("today.trained")}
               </p>
             ) : today ? (
-              <p className="mt-2 text-sm leading-prose">
-                {t("today.planned", { name: today.name, count: today.exercises.length })}
-              </p>
+              <p className="mt-2 text-sm leading-prose">{t("today.planned", { name: today.name, count: today.exercises.length })}</p>
             ) : (
               <p className="mt-2 max-w-[60ch] text-sm leading-prose text-muted-foreground">{t("today.rest")}</p>
             )}
@@ -177,30 +179,29 @@ export default function BodyToday({ loaderData }: Route.ComponentProps) {
 
       {/* The week, Monday first. */}
       <section aria-labelledby="lp-body-week" className="mt-10">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="block">
           <h2 id="lp-body-week" className="lp-section">
             {t("week.title")}
           </h2>
           <p className="text-sm text-muted-foreground">{t("week.done", { count: o.this_week })}</p>
         </div>
-        <ol className="mt-3 grid grid-cols-1 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-7">
-          {WEEK_ORDER.map((d) => {
-            const isToday = d === o.today.weekday;
-            return (
-              <li
-                key={d}
-                data-part={isToday ? "practise" : undefined}
-                className={`flex gap-2 bg-card px-3 py-2 sm:flex-col sm:gap-1 ${isToday ? "bg-part-soft" : ""}`}
-              >
-                <span className="min-w-24 shrink-0 text-xs font-semibold text-muted-foreground sm:min-w-0">
-                  {days[d]}
-                  {isToday ? <span className="sr-only"> ({t("week.today")})</span> : null}
-                </span>
-                <span className="text-sm">{routineName(o.week[d] ?? null) || <span className="text-muted-foreground">{t("week.rest")}</span>}</span>
-              </li>
-            );
-          })}
-        </ol>
+        <RefTable
+          caption={t("week.title")}
+          columns={[t("up.day"), t("today.routine"), t("up.status")]}
+          rows={WEEK_ORDER.map((d) => [
+            days[d],
+            routineName(o.week[d] ?? null) || t("week.rest"),
+            <Badge type={d === o.today.weekday ? "tip" : "info"}>
+              {d === o.today.weekday
+                ? o.today.trained
+                  ? t("today.trained")
+                  : t("week.today")
+                : o.week[d]
+                  ? t("up.planned")
+                  : t("week.rest")}
+            </Badge>,
+          ])}
+        />
         <p className="mt-2">
           <Link to="/body/plan" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">
             {t("week.edit")}
@@ -240,28 +241,26 @@ export default function BodyToday({ loaderData }: Route.ComponentProps) {
         {o.recent.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">{t("recent.none")}</p>
         ) : (
-          <ul className="mt-3 divide-y border-y">
-            {o.recent.map((w) => (
-              <li key={w.id}>
-                <Link to={`/body/workouts/${w.id}`} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-3 hover:bg-hover">
-                  <span className="w-28 font-mono text-xs text-muted-foreground">{w.day}</span>
-                  <span className="min-w-0 flex-1 font-medium">{w.routine_name || t("today.free")}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {t("recent.summary", {
-                      count: w.entries.filter((e) => setsDone(e) > 0).length,
-                      minutes: minutesOf(w),
-                    })}
-                  </span>
-                  <span className="sr-only">
-                    {w.entries.map((e) => names[e.exercise]?.name ?? e.exercise).join(", ")}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <DatedList
+            label={t("recent.title")}
+            items={o.recent.map((w) => ({
+              date: <DateText iso={w.day} />,
+              to: `/body/workouts/${w.id}`,
+              title: (
+                <>
+                  {w.routine_name || t("today.free")}
+                  <span className="sr-only"> {w.entries.map((e) => names[e.exercise]?.name ?? e.exercise).join(", ")}</span>
+                </>
+              ),
+              note: t("recent.summary", { count: w.entries.filter((e) => setsDone(e) > 0).length, minutes: minutesOf(w) }),
+            }))}
+          />
         )}
         <p className="mt-2">
-          <Link to="/body/progress" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">
+          <Link
+            to="/body/progress"
+            className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4"
+          >
             {t("recent.all")}
           </Link>
         </p>

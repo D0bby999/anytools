@@ -7,11 +7,8 @@
  * what it must still do is pass the session's user id to every API call, which
  * is the assertion the Go API's RequireUser trusts this process to make.
  */
-import { PlateEmpty } from "~/components/ui/plate";
-import { useState } from "react";
-import { Form, useNavigation } from "react-router";
+import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Plus } from "lucide-react";
 import type { Route } from "./+types/knowledge.index";
 import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
@@ -20,6 +17,9 @@ import { ApiError } from "~/lib/api.server";
 import { Button } from "~/components/ui/button";
 import { KBCard } from "~/components/knowledge/kb-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { QuickStart } from "~/components/doc/quick-start";
+import { DocSection, Prose } from "~/components/reading/doc-section";
+import { useNewForm } from "~/components/reading/use-new-form";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -59,69 +59,81 @@ export async function action({ request }: Route.ActionArgs) {
 export default function KnowledgeIndex({ loaderData, actionData }: Route.ComponentProps) {
   const { t } = useTranslation("knowledge");
   const navigation = useNavigation();
-  const [creating, setCreating] = useState(false);
+  const { open: creating, close } = useNewForm(Boolean(actionData?.createError));
 
   const submitting = navigation.formMethod === "POST";
+  const first = loaderData.summaries[0]?.kb;
 
   return (
-    <div className="lp-measure">
+    <div>
       <PageHeader title={t("index.title")} lede={t("index.lead")} />
 
-      <div className="mt-8">
-        {creating ? (
-          <Form
-            method="post"
-            className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-4"
-            onSubmit={() => setCreating(false)}
-          >
-            <div className="min-w-0 flex-1">
-              <label htmlFor="lp-kb-name" className="block text-sm font-medium">
-                {t("index.nameLabel")}
-              </label>
-              <input
-                id="lp-kb-name"
-                name="name"
-                required
-                maxLength={200}
-                autoFocus
-                placeholder={t("index.namePlaceholder")}
-                className="mt-1 min-h-11 w-full rounded-md border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button type="submit" disabled={submitting}>
-                {t("index.submit")}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setCreating(false)}>
-                {t("index.cancel")}
-              </Button>
-            </div>
-          </Form>
+      <QuickStart
+        kicker={t("index.up.kicker")}
+        title={t("index.up.title")}
+        description={t("index.up.description")}
+        primary={{ label: t("index.create"), to: "?new#lp-kb-new" }}
+        secondary={
+          // Highlights land in a knowledge base, so the shortcut needs one;
+          // it opens the first one at its "Add sources" tab.
+          first ? [{ label: t("index.up.importHighlights"), to: `/knowledge/${first.id}?add=highlights#lp-kb-add` }] : []
+        }
+      />
+
+      {creating ? (
+        <Form
+          id="lp-kb-new"
+          method="post"
+          className="mt-8 flex scroll-mt-20 flex-wrap items-end gap-3 rounded-lg border bg-card p-4"
+        >
+          <div className="min-w-0 flex-1">
+            <label htmlFor="lp-kb-name" className="block text-sm font-medium">
+              {t("index.nameLabel")}
+            </label>
+            <input
+              id="lp-kb-name"
+              name="name"
+              required
+              maxLength={200}
+              autoFocus
+              placeholder={t("index.namePlaceholder")}
+              className="mt-1 h-10 w-full rounded-sm border bg-card px-3 text-sm focus-visible:border-primary focus-visible:outline-none"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={submitting}>
+              {t("index.submit")}
+            </Button>
+            <Button type="button" variant="outline" onClick={close}>
+              {t("index.cancel")}
+            </Button>
+          </div>
+        </Form>
+      ) : null}
+
+      {actionData?.createError ? (
+        <p role="alert" className="mt-3 text-sm leading-snug text-destructive">
+          {actionData.createError}
+        </p>
+      ) : null}
+
+      <DocSection title={t("index.up.yours")} id="your-knowledge-bases">
+        {loaderData.summaries.length === 0 ? (
+          <Prose>
+            <p>
+              {t("index.empty")} <Link to="?new#lp-kb-new">{t("index.create")}</Link>
+            </p>
+          </Prose>
         ) : (
-          <Button type="button" onClick={() => setCreating(true)}>
-            <Plus aria-hidden="true" />
-            {t("index.create")}
-          </Button>
+          <Prose>
+            <ul aria-label={t("index.up.yours")}>
+              {loaderData.summaries.map((summary) => (
+                <KBCard key={summary.kb.id} summary={summary} />
+              ))}
+            </ul>
+          </Prose>
         )}
-
-        {actionData?.createError ? (
-          <p role="alert" className="mt-3 text-sm leading-snug text-destructive">
-            {actionData.createError}
-          </p>
-        ) : null}
-      </div>
-
-      {loaderData.summaries.length === 0 ? (
-        <PlateEmpty name="part-read" className="mt-8">
-          {t("index.empty")}
-        </PlateEmpty>
-      ) : (
-        <ul className="mt-8 border-t">
-          {loaderData.summaries.map((summary) => (
-            <KBCard key={summary.kb.id} summary={summary} />
-          ))}
-        </ul>
-      )}
+      </DocSection>
     </div>
   );
 }

@@ -775,7 +775,7 @@ func seedEverything(t *testing.T, pool *pg.Pool, alice uuid.UUID) resources {
 	must(err)
 	ids["vocab"], ids["vocab_card"] = word.ID, word.Cards[0].ID
 	// plans/261020-1535-beyond-english-learning-areas, phase 5: a general deck.
-	deck, err := pg.NewVocabStore(pool).CreateDeck(ctx, alice, vocab.NewDeck{Name: "Alice's deck"})
+	deck, err := pg.NewVocabStore(pool).CreateDeck(ctx, alice, vocab.NewDeck{Name: "Alice's deck"}, vocab.MaxDecksPerLearner)
 	must(err)
 	ids["deck"] = deck.ID
 

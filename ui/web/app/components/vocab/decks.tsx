@@ -1,3 +1,4 @@
+import { DownloadGrid } from "~/components/doc/download-grid";
 /**
  * decks.tsx
  * Mastery → Decks' three lists (plans/261020-1535-beyond-english-learning-
@@ -10,7 +11,7 @@ import { useMemo, useState } from "react";
 import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
-import { LIBRARY, LICENCE_TEXT, librarySource, type LibraryDeck, type LicenceKind } from "~/lib/deck-library";
+import { DECK_CARD_LIMIT, GEOGRAPHY, LIBRARY, LICENCE_TEXT, librarySource, type LibraryDeck, type LicenceKind } from "~/lib/deck-library";
 import { languageName } from "~/lib/languages";
 import type { AnkiDeck, CardMap, mapCards as MapCards } from "~/lib/anki/read";
 
@@ -34,11 +35,7 @@ const SQLJS_WASM_BASE = "/tool-runtime/sql.js@1.14.2/";
 
 export function DeckList({ decks }: { decks: Deck[] }) {
   return (
-    <ul className="mt-3 border-t">
-      {decks.map((d) => (
-        <DeckRow key={d.id} deck={d} />
-      ))}
-    </ul>
+    <DownloadGrid cards={decks.map((d) => ({ id: d.id, title: d.name, action: <DeckRow deck={d} /> }))} />
   );
 }
 
@@ -48,6 +45,7 @@ function useLicenceLabel() {
   const labels: Record<LicenceKind, string> = {
     "public-domain": t("decks.licence.publicDomain"),
     "cc-by": t("decks.licence.ccBy"),
+    "free-pictures": t("decks.licence.freePictures"),
     "cc-by-nc": t("decks.licence.ccByNc"),
     none: t("decks.licence.none"),
   };
@@ -67,8 +65,7 @@ function DeckRow({ deck }: { deck: Deck }) {
   const [confirming, setConfirming] = useState(false);
   const busy = fetcher.state !== "idle";
   return (
-    <li className="border-b py-4">
-      <h3 className="font-sans text-base font-medium">{deck.name}</h3>
+    <div>
       <p className="mt-1 text-sm leading-prose text-muted-foreground">
         {t("decks.counts", { count: deck.cards, due: deck.due })}
         {deck.new > 0 && deck.last_new ? ` · ${t("decks.toCome", { count: deck.new, day: deck.last_new })}` : ""}
@@ -82,6 +79,9 @@ function DeckRow({ deck }: { deck: Deck }) {
         )}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2">
+        <Link to="#lp-decks-due" className="lp-download-action">
+          {t("session.title")}
+        </Link>
         {confirming ? (
           <>
             <span className="text-sm">{t("decks.deleteConfirm", { count: deck.cards })}</span>
@@ -104,12 +104,12 @@ function DeckRow({ deck }: { deck: Deck }) {
           </Button>
         )}
       </div>
-    </li>
+    </div>
   );
 }
 
 type AddedData = {
-  added?: { name: string; created: number; first_day?: string; last_day?: string };
+  added?: { name: string; created: number; over_limit?: number; first_day?: string; last_day?: string };
   errorKey?: string;
   errorDetail?: string;
 };
@@ -119,11 +119,12 @@ export function DeckLibrary({ decks }: { decks: Deck[] }) {
   const fetcher = useFetcher<AddedData>();
   const ui = i18n.language;
   const have = new Set(decks.map((d) => d.source));
-  // Ultimate Geography is one entry with a language choice: the learner's
-  // own when it exists, English otherwise.
-  const geographyLangs = LIBRARY.filter((d) => d.slug.startsWith("ultimate-geography-")).map((d) => d.language);
+  // Ultimate Geography's three decks (capitals, flags, maps) share one
+  // language choice, on the first: the learner's own when it exists, English
+  // otherwise.
+  const geographyLangs = [...new Set(LIBRARY.filter((d) => d.slug.startsWith(GEOGRAPHY)).map((d) => d.language))];
   const [geoLang, setGeoLang] = useState(geographyLangs.includes(ui) ? ui : "en");
-  const shown = LIBRARY.filter((d) => !d.slug.startsWith("ultimate-geography-") || d.language === geoLang);
+  const shown = LIBRARY.filter((d) => !d.slug.startsWith(GEOGRAPHY) || d.language === geoLang);
   const subjects = [...new Set(shown.map((d) => d.subject))];
   const busy = fetcher.state !== "idle";
   const added = fetcher.data?.added;
@@ -142,7 +143,7 @@ export function DeckLibrary({ decks }: { decks: Deck[] }) {
                   deck={d}
                   added={have.has(librarySource(d.slug))}
                   busy={busy}
-                  languages={d.slug.startsWith("ultimate-geography-") ? geographyLangs : null}
+                  languages={d.slug === `${GEOGRAPHY}${geoLang}` ? geographyLangs : null}
                   onLanguage={setGeoLang}
                   onAdd={() => fetcher.submit({ intent: "library", slug: d.slug }, { method: "post" })}
                 />
@@ -162,6 +163,12 @@ export function DeckLibrary({ decks }: { decks: Deck[] }) {
               ? t("decks.paceOneDay", { day: added.first_day })
               : t("decks.pace", { first: added.first_day, last: added.last_day, perDay: 20 })
             : null}
+          {added.over_limit ? (
+            <>
+              {" "}
+              {t("decks.overLimit", { count: added.over_limit, limit: DECK_CARD_LIMIT.toLocaleString(i18n.language) })}
+            </>
+          ) : null}
         </p>
       ) : fetcher.data?.errorKey ? (
         <p role="alert" className="mt-3 text-sm text-destructive">
@@ -227,7 +234,7 @@ function LibraryRow({
           <select
             value={deck.language}
             onChange={(e) => onLanguage(e.target.value)}
-            className="h-9 rounded-md border border-control-border bg-card px-2 text-sm text-foreground"
+            className="min-h-11 rounded-md border border-control-border bg-card px-2 text-sm text-foreground"
           >
             {languages.map((l) => (
               <option key={l} value={l}>
@@ -246,11 +253,11 @@ type Phase =
   | { kind: "reading"; size: number }
   | { kind: "mapping"; deck: AnkiDeck; maps: Record<string, CardMap>; name: string; mapCards: typeof MapCards }
   | { kind: "importing"; done: number; total: number }
-  | { kind: "done"; created: number; duplicates: number; skipped: number; first?: string; last?: string; name: string }
+  | { kind: "done"; created: number; duplicates: number; skipped: number; overLimit: number; first?: string; last?: string; name: string }
   | { kind: "failed"; message: string };
 
 export function DeckImport() {
-  const { t } = useTranslation("vocab");
+  const { t, i18n } = useTranslation("vocab");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
 
   const pick = async (file: File) => {
@@ -278,6 +285,7 @@ export function DeckImport() {
     let deckId = "";
     let created = 0;
     let duplicates = 0;
+    let overLimit = 0;
     let first: string | undefined;
     let last: string | undefined;
     setPhase({ kind: "importing", done: 0, total: cards.length });
@@ -288,7 +296,16 @@ export function DeckImport() {
         body: JSON.stringify({ deck_id: deckId || undefined, name, source: name, cards: cards.slice(i, i + 200) }),
       }).catch(() => null);
       const data = (await res?.json().catch(() => null)) as
-        | { deck_id: string; created: number; duplicates: number; invalid: number; first_day?: string; last_day?: string; error?: string }
+        | {
+            deck_id: string;
+            created: number;
+            duplicates: number;
+            invalid: number;
+            over_limit?: number;
+            first_day?: string;
+            last_day?: string;
+            error?: string;
+          }
         | null;
       if (!res?.ok || !data || data.error) {
         setPhase({ kind: "failed", message: data?.error || t("decks.file.failed", { count: created }) });
@@ -300,9 +317,14 @@ export function DeckImport() {
       skipped += data.invalid;
       first ??= data.first_day;
       last = data.last_day ?? last;
+      if (data.over_limit) {
+        // The limit is reached: the cards not yet sent would not be added either.
+        overLimit = data.over_limit + Math.max(0, cards.length - i - 200);
+        break;
+      }
       setPhase({ kind: "importing", done: Math.min(cards.length, i + 200), total: cards.length });
     }
-    setPhase({ kind: "done", created, duplicates, skipped, first, last, name });
+    setPhase({ kind: "done", created, duplicates, skipped, overLimit, first, last, name });
   };
 
   return (
@@ -356,6 +378,9 @@ export function DeckImport() {
           ) : null}
           {phase.duplicates > 0 ? <p>{t("decks.file.duplicates", { count: phase.duplicates })}</p> : null}
           {phase.skipped > 0 ? <p>{t("decks.file.skipped", { count: phase.skipped })}</p> : null}
+          {phase.overLimit > 0 ? (
+            <p>{t("decks.overLimit", { count: phase.overLimit, limit: DECK_CARD_LIMIT.toLocaleString(i18n.language) })}</p>
+          ) : null}
         </div>
       ) : null}
     </div>

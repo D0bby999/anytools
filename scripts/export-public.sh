@@ -65,6 +65,31 @@ if [[ -n "$home_hits" ]]; then
   die "refusing: the tree holds a macOS home path; no commit was made"
 fi
 
+# Belt and braces over the exclusions above: no private directory, and no
+# environment file but the example, whatever the excludes say.
+private_hits=$(cd "$dest" && find . -path ./.git -prune -o \( -path ./plans -o -path ./.claude -o -path ./spikes -o -path ./.design-world -o \( -name '.env*' ! -name .env.example \) \) -print | sed 's#^\./##' | sort)
+if [[ -n "$private_hits" ]]; then
+  sed 's/^/  /' <<<"$private_hits" >&2
+  die "refusing: the tree holds a private directory or an environment file; no commit was made"
+fi
+
+# No value of the owner's real environment either (the production .env, the
+# escrow, the deploy host's address): gitleaks knows shapes, not these values.
+# Values are matched from a scratch file and never printed; short ones and
+# public URLs are skipped. On a machine without those files this checks nothing.
+values=$(mktemp); trap 'rm -f "$values"' EXIT
+for f in "$root/.env.production" "$HOME"/.anytools-secrets/*.env; do
+  [[ -f "$f" ]] && sed -nE 's/^[A-Z0-9_]+=//p' "$f"
+done | awk 'length >= 12 && !/^https?:\/\// && !/^(host|sha)-/' >"$values"
+[[ -f "$HOME/.anytools-secrets/deploy-host" ]] && sed -E 's/^.*@//' "$HOME/.anytools-secrets/deploy-host" >>"$values"
+if [[ -s "$values" ]]; then
+  value_hits=$(cd "$dest" && grep -rlaF --exclude-dir=.git -f "$values" . | sed 's#^\./##' | sort || true)
+  if [[ -n "$value_hits" ]]; then
+    sed 's/^/  /' <<<"$value_hits" >&2
+    die "refusing: these files hold a value from the production environment or the deploy host; no commit was made"
+  fi
+fi
+
 # The repository's own config: the default rules plus the hand-read fixtures.
 leaks_cfg=()
 [[ -f "$dest/.gitleaks.toml" ]] && leaks_cfg=(--config "$dest/.gitleaks.toml")

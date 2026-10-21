@@ -7,14 +7,24 @@
     "nameLabel": "Name",
     "namePlaceholder": "Thermodynamics, Contract law, Semester 2…",
     "submit": "Create",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "up": {
+      "kicker": "Start here",
+      "title": "Make a knowledge base, then add what you study",
+      "description": "Everything AnyLearn answers from lives in one. Add files, links, sites or highlights to it.",
+      "importHighlights": "Import highlights",
+      "yours": "Your knowledge bases"
+    }
   },
   "card": {
     "none": "No documents yet",
     "ready": "{{count}} ready",
     "working": "{{count}} in progress",
     "failed": "{{count}} failed",
-    "needsReembed": "Reindex needed"
+    "needsReembed": "Reindex needed",
+    "documents_one": "{{count}} document",
+    "documents_other": "{{count}} documents",
+    "updated": "updated"
   },
   "detail": {
     "back": "All knowledge bases",
@@ -26,7 +36,17 @@
     "reindexHint": "Re-embeds every passage with your current embedding model. The text and page numbers stay as they are.",
     "needsReembedTitle": "This knowledge base must be reindexed",
     "needsReembedBody": "Your embedding model changed since these documents were indexed. Queries are blocked until the passages are re-embedded, because ranking new questions against old vectors returns confident, wrong answers rather than an error.",
-    "notIndexed": "Not indexed yet"
+    "notIndexed": "Not indexed yet",
+    "lede": "The documents AnyLearn may answer from here, how far each one has been read, and the ways to study from them.",
+    "metaLabel": "About this knowledge base",
+    "metaReady_one": "{{count}} processed",
+    "metaReady_other": "{{count}} processed",
+    "metaBooks_one": "{{count}} book",
+    "metaBooks_other": "{{count}} books",
+    "danger": "Danger zone",
+    "dangerNote": "Deleting removes every document, passage, book and audio overview in this knowledge base.",
+    "deleteTitle": "Delete “{{name}}”?",
+    "keep": "Keep it"
   },
   "upload": {
     "label": "Add a document",
@@ -45,7 +65,15 @@
     "remove": "Remove",
     "retry": "Retry",
     "removeConfirm": "Remove this document and its passages?",
-    "view": "Open"
+    "view": "Open",
+    "kind": "Type",
+    "updated": "Updated",
+    "kindFile": "File",
+    "pageCount_one": "{{count}} page",
+    "pageCount_other": "{{count}} pages",
+    "passageCount_one": "{{count}} passage",
+    "passageCount_other": "{{count}} passages",
+    "actionsFor": "Actions for {{title}}"
   },
   "status": {
     "queued": "Queued",
@@ -75,7 +103,9 @@
     "back": "Back to knowledge base",
     "notReady": "This document has not finished processing yet.",
     "empty": "This page is empty.",
-    "pages": "Pages"
+    "pages": "Pages",
+    "metaLabel": "About this document",
+    "pageN": "Page {{page}}"
   },
   "errors": {
     "createFailed": "The knowledge base could not be created.",
@@ -155,7 +185,10 @@
     "add": "Add to this knowledge base",
     "addedPDF": "Added: the open-access PDF is being read.",
     "addedNote": "Added as a note with the abstract and a link.",
-    "open": "Open the paper"
+    "open": "Open the paper",
+    "colPaper": "Paper",
+    "colYear": "Year",
+    "colCited": "Citations"
   },
   "link": {
     "label": "Add a link",
@@ -476,7 +509,10 @@
       "addFailed": "Those entries could not be added.",
       "updateFailed": "The feed could not be updated.",
       "deleteFailed": "The feed could not be removed."
-    }
+    },
+    "metaLabel": "About this feed",
+    "entryCount_one": "{{count}} entry",
+    "entryCount_other": "{{count}} entries"
   },
   "add": {
     "label": "Add to this knowledge base",
@@ -492,7 +528,11 @@
     "quiz": "Write questions",
     "path": "Plan a mastery path",
     "book": "Write a book",
-    "waiting": "Asking, questions, a path and a book open here once one document is ready."
+    "waiting": "Asking, questions, a path and a book open here once one document is ready.",
+    "chatNote": "a conversation that answers only from these documents, with sources.",
+    "quizNote": "questions drawn from these documents, for spaced review.",
+    "pathNote": "modules with a check at the end of each.",
+    "bookNote": "chapters written from these documents, further down this page."
   },
   "share": {
     "title": "Add to AnyLearn",

@@ -194,7 +194,13 @@
     "stop": "Ngừng luyện",
     "on": "đang luyện",
     "cancel": "Hủy",
-    "failed": "Thẻ vận dụng chưa được lưu."
+    "failed": "Thẻ vận dụng chưa được lưu.",
+    "review": "Ôn tập",
+    "word": "Từ",
+    "context": "Ngữ cảnh",
+    "nextReview": "Lần ôn tiếp theo",
+    "reviewWords": "Ôn {{count}} từ",
+    "reviewCards": "Ôn {{count}} thẻ"
   },
   "byDecision": {
     "title": "Các quyết định khác",
@@ -308,7 +314,7 @@
     "rateNow": "Tự chấm",
     "slots": "Các chữ của từ",
     "slotEmpty": "Chữ thứ {{n}}, chưa viết",
-    "pad": "Bảng viết chữ {{char}}, chữ {{n}} trên {{total}}",
+    "pad": "Bảng viết chữ, chữ {{n}} trên {{total}}",
     "keyboard": "Phần viết cần ngón tay, bút hoặc chuột; nút Hiện chữ và các mức chấm dùng được bằng bàn phím."
   },
   "decks": {
@@ -343,17 +349,20 @@
       "thenFile": "Sau đó chọn tệp ở mục Từ một tệp.",
       "language": "Ngôn ngữ",
       "about": {
-        "ultimateGeography": "Các quốc gia trên thế giới và thủ đô, theo cả hai chiều. Chỉ phần chữ: không kèm cờ và bản đồ.",
+        "ultimateGeography": "Các nước trên thế giới và thủ đô của chúng, hỏi theo cả hai chiều.",
         "jlpt": "Từ vựng tiếng Nhật theo cấp JLPT, có âm thanh. Tệp lớn: chỉ phần chữ được đọc.",
         "french": "Từ vựng tiếng Pháp theo tần suất.",
-        "coding": "Khái niệm và câu lệnh lập trình."
+        "coding": "Khái niệm và câu lệnh lập trình.",
+        "ultimateGeographyFlags": "Gọi tên nước, vùng lãnh thổ hoặc tổ chức từ lá cờ.",
+        "ultimateGeographyMaps": "Gọi tên nước, khu vực hoặc đại dương được tô trên bản đồ."
       }
     },
     "licence": {
       "publicDomain": "Miền công cộng",
       "ccBy": "Miễn phí, ghi nguồn (CC BY)",
       "ccByNc": "Chỉ dùng phi thương mại (CC BY-NC)",
-      "none": "Không ghi giấy phép"
+      "none": "Không ghi giấy phép",
+      "freePictures": "Miễn phí: chữ thuộc phạm vi công cộng, hình theo giấy phép mở (CC BY-SA, CC BY, CC0), ghi nguồn trên từng thẻ"
     },
     "cards_one": "{{count}} thẻ",
     "cards_other": "{{count}} thẻ",
@@ -391,6 +400,13 @@
       "open": "Ôn bộ thẻ"
     },
     "pace": "Mỗi ngày {{perDay}} thẻ mới, từ {{first}} đến {{last}}.",
-    "paceOneDay": "Các thẻ này đến hạn vào {{day}}."
+    "paceOneDay": "Các thẻ này đến hạn vào {{day}}.",
+    "overLimit_one": "{{count}} thẻ chưa được thêm: các bộ thẻ của bạn chứa tối đa {{limit}} thẻ. Hãy xoá một bộ không còn dùng để có chỗ.",
+    "overLimit_other": "{{count}} thẻ chưa được thêm: các bộ thẻ của bạn chứa tối đa {{limit}} thẻ. Hãy xoá một bộ không còn dùng để có chỗ.",
+    "picture": {
+      "alt": "Hình cần gọi tên. Hình không được mô tả ở đây vì chính nó là câu hỏi.",
+      "credit": "Hình:",
+      "publicDomain": "phạm vi công cộng"
+    }
   }
 }

@@ -25,11 +25,18 @@ func TestAMathsAnswerIsMarkedWithoutTheModel(t *testing.T) {
 		name, prompt, recorded, answer, attribution string
 		correct, almost                             bool
 		rating                                      string
+		why                                         string
 	}{
-		{"another form", "Write 2(x+1) another way.", "2(x+1)", "2x + 2", "", true, false, learning.RatingGood},
-		{"wrong", "Write 2(x+1) another way.", "2(x+1)", "2x + 1", "", false, false, learning.RatingAgain},
-		{"not the form asked", "Factorise x^2 - 1.", "(x-1)(x+1)", "x^2 - 1", "confident", true, true, learning.RatingHard},
-		{"a number", "How many?", "42", "42.0", "confident", true, false, learning.RatingEasy},
+		{"another form", "Write 2(x+1) another way.", "2(x+1)", "2x + 2", "", true, false, learning.RatingGood, ""},
+		{"wrong", "Write 2(x+1) another way.", "2(x+1)", "2x + 1", "", false, false, learning.RatingAgain, ""},
+		{"not the form asked", "Factorise x^2 - 1.", "(x-1)(x+1)", "x^2 - 1", "confident", true, true, learning.RatingHard, "form"},
+		{"a number", "How many?", "42", "42.0", "confident", true, false, learning.RatingEasy, ""},
+		{"another unit", "How far, in metres?", "5 m", "500 cm", "", true, false, learning.RatingGood, ""},
+		{"not the unit asked", "Convert 5 m to cm.", "500 cm", "5 m", "confident", true, true, learning.RatingHard, "unit"},
+		{"no unit", "How far?", "5 m", "5", "confident", true, true, learning.RatingHard, "no_unit"},
+		{"an interval", "Solve 2 < x + 1 <= 6.", "(1, 5]", "1 < x <= 5", "", true, false, learning.RatingGood, ""},
+		{"the wrong bracket", "Solve 2 < x + 1 <= 6.", "(1, 5]", "(1, 5)", "", false, false, learning.RatingAgain, ""},
+		{"a matrix", "Transpose [[1, 2], [3, 4]].", "[[1, 3], [2, 4]]", "((1,3),(2,4))", "", true, false, learning.RatingGood, ""},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -46,7 +53,7 @@ func TestAMathsAnswerIsMarkedWithoutTheModel(t *testing.T) {
 			w := st.written[0]
 			var j Judgement
 			_ = json.Unmarshal(w.Judge, &j)
-			if w.IsCorrect != c.correct || j.Mode != JudgeModeMath || j.Almost != c.almost || w.Rating != c.rating {
+			if w.IsCorrect != c.correct || j.Mode != JudgeModeMath || j.Almost != c.almost || j.AlmostWhy != c.why || w.Rating != c.rating {
 				t.Fatalf("correct %v, judge %+v, rating %s", w.IsCorrect, j, w.Rating)
 			}
 			if res.Answer != c.recorded {

@@ -102,5 +102,9 @@
     "full": "Esa sección ya tiene 12 entradas. Elimina una primero.",
     "conflict": "Esa entrada cambió desde que se cargó esta página. Se ha actualizado.",
     "invalid": "Una entrada necesita texto, como máximo 280 caracteres."
+  },
+  "up": {
+    "item": "Elemento",
+    "source": "Origen"
   }
 }

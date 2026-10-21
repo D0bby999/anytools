@@ -52,12 +52,6 @@ export function ChapterList({ book }: { book: Book }) {
             <span className="text-xs text-muted-foreground">{t("book.compileAllCost", { count: book.estimated_calls })}</span>
           </fetcher.Form>
         ) : null}
-        <a
-          href={`/books/${book.id}/export.md`}
-          className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
-        >
-          {t("book.export")}
-        </a>
         <SaveToDrive kind="book" id={book.id} />
       </div>
       {fetcher.data?.errorKey ? (
@@ -67,15 +61,18 @@ export function ChapterList({ book }: { book: Book }) {
         </p>
       ) : null}
 
+      {/* A mini sidebar (I5's `up` nav-link weight: 14/500), not the body's
+          serif prose: this is a table of contents, read by its position
+          and title, not a passage to read in itself. */}
       <ol className="mt-6 border-t">
         {book.chapters.map((c) => (
           <li key={c.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b py-3">
             <Link
               to={`/books/${book.id}/chapters/${c.id}`}
-              className="flex min-h-11 items-baseline gap-3 text-primary underline-offset-4 hover:underline"
+              className="flex min-h-11 items-baseline gap-3 text-sm font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <span className="font-mono text-2xs text-muted-foreground">{String(c.ord).padStart(2, "0")}</span>
-              <span className="font-serif text-base">{c.title}</span>
+              <span>{c.title}</span>
             </Link>
             <span className="font-mono text-2xs text-muted-foreground">
               <ChapterState chapter={c} />

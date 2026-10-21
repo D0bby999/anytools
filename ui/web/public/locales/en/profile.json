@@ -87,5 +87,9 @@
     "full": "That section already holds 12 entries. Delete one first.",
     "conflict": "That entry changed since this page loaded. It has been refreshed.",
     "invalid": "An entry needs some text, at most 280 characters."
+  },
+  "up": {
+    "item": "Item",
+    "source": "Source"
   }
 }

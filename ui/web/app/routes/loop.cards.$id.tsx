@@ -7,7 +7,7 @@
  * in the learner's zone, and that the first attempt is not sent while the
  * retest is pending — so this page renders what it is given and posts back.
  */
-import { Link, useNavigation } from "react-router";
+import { useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.cards.$id";
 import { appTitle } from "~/lib/app-title";
@@ -20,6 +20,7 @@ import { ActionError } from "~/components/loop/action-error";
 import { CardTimeline } from "~/components/loop/card-timeline";
 import type { LinkChoice } from "~/components/loop/card-entry-form";
 import { PageHeader } from "~/components/ui/page-header";
+import { BookMeta } from "~/components/doc/book-meta";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Evidence card", "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
@@ -79,20 +80,28 @@ export default function LoopCard({ loaderData, actionData }: Route.ComponentProp
   const { t } = useTranslation("loop");
   const busy = useNavigation().state === "submitting";
   const { detail, recent } = loaderData;
+  const status: Record<string, string> = {
+    open: t("cards.status.open"),
+    retest_due: t("cards.status.retest_due"),
+    closed: t("cards.status.closed"),
+  };
   return (
-    <div className="lp-measure">
-      <PageHeader title={detail.card.title} lede={detail.kind.summary}>
-        <p className="mt-3">
-          <span className="lp-tab">{detail.kind.name}</span>
-        </p>
-      </PageHeader>
-      <Link to={`/loop/state/${detail.card.state_id}`} className="text-sm text-primary underline underline-offset-4">
-        {t("cards.backToGoal")}
-      </Link>
+    <div>
+      <PageHeader title={detail.card.title} lede={detail.kind.summary} className="mb-0" />
+      <BookMeta
+        label={t("up.card.about")}
+        items={[
+          { label: detail.kind.name },
+          { label: status[detail.card.status] ?? detail.card.status },
+          { label: t("cards.backToGoal"), to: `/loop/state/${detail.card.state_id}` },
+        ]}
+      />
       <ActionError result={actionData} />
-      {detail.baseline_hidden ? <p className="mt-4 text-sm text-muted-foreground">{t("cards.hidden")}</p> : null}
-      <CardTimeline detail={detail} recent={recent} busy={busy} />
-      <p className="mt-6 text-xs leading-prose text-muted-foreground">{t("cards.cannotProve")}</p>
+      <div className="lp-doc">
+        {detail.baseline_hidden ? <p className="text-muted-foreground">{t("cards.hidden")}</p> : null}
+        <CardTimeline detail={detail} recent={recent} busy={busy} />
+        <p className="text-sm text-muted-foreground">{t("cards.cannotProve")}</p>
+      </div>
     </div>
   );
 }

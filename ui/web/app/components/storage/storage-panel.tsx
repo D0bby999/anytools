@@ -8,6 +8,8 @@
  * shows is the loader's, so it says what the API stored. While a move runs
  * the page revalidates every few seconds to show its progress.
  */
+import { Badge } from "~/components/doc/badge";
+import { DownloadGrid } from "~/components/doc/download-grid";
 import { useEffect } from "react";
 import { Form, Link, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -31,15 +33,7 @@ function driveBlocker(status: StorageStatus): string | null {
   return null;
 }
 
-export function StoragePanel({
-  status,
-  pending,
-  result,
-}: {
-  status: StorageStatus;
-  pending: boolean;
-  result?: StorageActionData;
-}) {
+export function StoragePanel({ status, pending, result }: { status: StorageStatus; pending: boolean; result?: StorageActionData }) {
   const { t } = useTranslation("storage");
   const revalidator = useRevalidator();
   const running = moveRunning(status.move);
@@ -73,32 +67,30 @@ export function StoragePanel({
           <input type="hidden" name="intent" value="choose" />
           <fieldset disabled={pending || running}>
             <legend className="text-sm font-medium">{t("choice.legend")}</legend>
-            <div className="mt-2 border-t">
-              {options.map((o) => (
-                <label
-                  key={o.value}
-                  className="flex min-h-11 cursor-pointer items-start gap-3 border-b py-3 has-disabled:cursor-not-allowed has-disabled:opacity-50"
-                >
-                  <input
-                    type="radio"
-                    name="storage"
-                    value={o.value}
-                    defaultChecked={status.storage === o.value}
-                    disabled={o.disabled}
-                    className="mt-1 size-4 accent-primary"
-                  />
-                  <span>
-                    <span className="block text-sm font-medium">
-                      {o.label}
-                      {status.storage === o.value ? (
-                        <span className="text-xs font-semibold ml-2 text-muted-foreground">{t("choice.current")}</span>
-                      ) : null}
-                    </span>
-                    <span className="block text-sm text-muted-foreground">{o.hint}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
+            <DownloadGrid
+              cards={options.map((o) => ({
+                id: o.value,
+                title: (
+                  <>
+                    {o.label} {status.storage === o.value ? <Badge type="tip">{t("up.inUse")}</Badge> : null}
+                  </>
+                ),
+                description: o.hint,
+                action: (
+                  <label className="flex min-h-11 items-center gap-3 text-sm has-disabled:opacity-50">
+                    <input
+                      type="radio"
+                      name="storage"
+                      value={o.value}
+                      defaultChecked={status.storage === o.value}
+                      disabled={o.disabled}
+                      className="size-4 accent-primary"
+                    />
+                    {o.label}
+                  </label>
+                ),
+              }))}
+            />
           </fieldset>
           {blocker ? (
             <p className="text-sm leading-snug text-muted-foreground">
@@ -136,7 +128,7 @@ function Usage({ status }: { status: StorageStatus }) {
   const { t } = useTranslation("storage");
   const u = status.usage;
   return (
-    <section aria-labelledby="lp-storage-usage" className="border-t pt-6">
+    <section aria-labelledby="lp-storage-usage">
       <h2 id="lp-storage-usage" className="lp-section">
         {t("usage.title")}
       </h2>
@@ -167,7 +159,7 @@ function Move({ status, pending, result }: { status: StorageStatus; pending: boo
   const percent = m && m.total > 0 ? Math.round((m.done / m.total) * 100) : 0;
 
   return (
-    <section aria-labelledby="lp-storage-move" className="border-t pt-6">
+    <section aria-labelledby="lp-storage-move">
       <h2 id="lp-storage-move" className="lp-section">
         {t("move.title")}
       </h2>
@@ -176,7 +168,9 @@ function Move({ status, pending, result }: { status: StorageStatus; pending: boo
       {m ? (
         <div className="mt-4 space-y-2">
           <p role="status" className="text-sm leading-snug">
-            {m.status === "failed" ? t(m.error === "drive_full" || m.error === "drive_reconnect" ? `move.${m.error}` : "move.failed") : null}
+            {m.status === "failed"
+              ? t(m.error === "drive_full" || m.error === "drive_reconnect" ? `move.${m.error}` : "move.failed")
+              : null}
             {m.status === "cancelled" ? t("move.cancelled") : null}
             {m.status === "done" ? t("move.done") : null}
             {m.status === "queued" ? t("move.queued") : null}

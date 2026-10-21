@@ -12,11 +12,12 @@ import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import { PROMPT_LEVELS, type CardLinkKind, type Timepoint } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
+import { Details } from "~/components/doc/details";
+import { Field } from "~/components/doc/field";
+import { InputTable } from "~/components/loop/input-table";
 
 /** Something of the learner's an entry may link to. */
 export type LinkChoice = { kind: CardLinkKind; id: string; label: string };
-
-const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 export function CardEntryForm({ timepoint, recent, busy }: { timepoint: Timepoint; recent: LinkChoice[]; busy: boolean }) {
   const { t } = useTranslation("loop");
@@ -32,39 +33,44 @@ export function CardEntryForm({ timepoint, recent, busy }: { timepoint: Timepoin
   };
   const baseline = timepoint === "baseline";
   return (
-    <Form method="post" className="mt-4 space-y-3">
+    <Form method="post" className="mt-4">
       <input type="hidden" name="intent" value="entry" />
       <input type="hidden" name="timepoint" value={timepoint} />
-      {baseline ? <p className="text-sm text-muted-foreground">{t("cards.baselineWarning")}</p> : null}
-      <label className="block text-sm font-medium">
-        {t("cards.write")}
-        <textarea name="body" required rows={baseline ? 8 : 5} maxLength={20000} className={box} />
-        <span className="mt-1 block text-xs font-normal text-faint">{t("cards.writeHint")}</span>
-      </label>
-      {baseline ? (
-        <input type="hidden" name="prompt_level" value="unaided" />
-      ) : (
-        <label className="block text-sm font-medium">
-          {t("cards.promptLevel")}
-          <select
-            name="prompt_level"
-            defaultValue="unaided"
-            className="mt-1 block min-h-11 rounded-md border border-control-border bg-card px-2 text-sm"
-          >
-            {PROMPT_LEVELS.map((l) => (
-              <option key={l} value={l}>
-                {levels[l]}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-      <details>
-        <summary className="min-h-11 cursor-pointer py-2 text-sm text-primary">{t("cards.links")}</summary>
+      {baseline ? <p className="text-muted-foreground">{t("cards.baselineWarning")}</p> : null}
+      {baseline ? <input type="hidden" name="prompt_level" value="unaided" /> : null}
+      <InputTable
+        caption={t("cards.write")}
+        rows={[
+          {
+            id: `lp-entry-${timepoint}`,
+            label: t("cards.write"),
+            hint: t("cards.writeHint"),
+            control: <textarea id={`lp-entry-${timepoint}`} name="body" required rows={baseline ? 8 : 5} maxLength={20000} />,
+          },
+          ...(baseline
+            ? []
+            : [
+                {
+                  id: `lp-entry-${timepoint}-level`,
+                  label: t("cards.promptLevel"),
+                  control: (
+                    <select id={`lp-entry-${timepoint}-level`} name="prompt_level" defaultValue="unaided">
+                      {PROMPT_LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {levels[l]}
+                        </option>
+                      ))}
+                    </select>
+                  ),
+                },
+              ]),
+        ]}
+      />
+      <Details summary={t("cards.links")}>
         {recent.length > 0 ? (
-          <fieldset className="mt-2">
-            <legend className="text-xs text-faint">{t("cards.linkRecent")}</legend>
-            <ul className="mt-1 space-y-1">
+          <fieldset>
+            <legend className="text-sm text-muted-foreground">{t("cards.linkRecent")}</legend>
+            <ul className="m-0! list-none! pl-0!">
               {recent.map((c) => (
                 <li key={`${c.kind}:${c.id}`}>
                   <label className="flex min-h-11 items-center gap-2 text-sm">
@@ -79,12 +85,10 @@ export function CardEntryForm({ timepoint, recent, busy }: { timepoint: Timepoin
             </ul>
           </fieldset>
         ) : null}
-        <label className="mt-2 block text-sm font-medium">
-          {t("cards.linkDocument")}
-          <input name="document_url" maxLength={500} className={box} />
-          <span className="mt-1 block text-xs font-normal text-faint">{t("cards.linkDocumentHint")}</span>
-        </label>
-      </details>
+        <Field label={t("cards.linkDocument")} hint={t("cards.linkDocumentHint")}>
+          <input name="document_url" maxLength={500} />
+        </Field>
+      </Details>
       <Button type="submit" disabled={busy}>
         {t("cards.save")}
       </Button>

@@ -232,9 +232,9 @@ describe("readiness", () => {
         ]}
       />,
     );
-    const stt = screen.getByRole("heading", { name: /Speech to text/ });
+    const stt = screen.getByRole("rowheader", { name: /Speech to text/ });
     expect(stt).toHaveTextContent("Optional");
-    expect(screen.getByRole("heading", { name: "Chat" })).not.toHaveTextContent("Optional");
+    expect(screen.getByRole("rowheader", { name: "Chat" })).not.toHaveTextContent("Optional");
     expect(screen.getByText("Built-in transcription (free, slower)")).toBeInTheDocument();
   });
 });

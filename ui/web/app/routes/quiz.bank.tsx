@@ -1,3 +1,6 @@
+import { Badge } from "~/components/doc/badge";
+import { Flyout } from "~/components/doc/flyout";
+import { DateText } from "~/components/ui/date-text";
 /**
  * quiz.bank.tsx
  * Every question the learner has generated, filterable by knowledge base and
@@ -7,9 +10,8 @@
  * Filters are URL search params, so a filtered bank is a link and the back
  * button works.
  */
-import { Form, Link, useSearchParams } from "react-router";
+import { Form, Link, useSearchParams, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Check, ChevronRight, X } from "lucide-react";
 import type { Route } from "./+types/quiz.bank";
 import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
@@ -20,12 +22,21 @@ import { Button } from "~/components/ui/button";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
 import { QuizTabs } from "~/components/quiz/quiz-tabs";
+import { useOverflowTabStop } from "~/components/doc/scroll-box";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
     { title: appTitle(matches, "Question bank") },
     { name: "robots", content: "noindex, nofollow" },
   ];
+}
+
+// Under "Unanswered", answering a question would reload the list without it,
+// and its card would vanish with the verdict before it is read. The list is
+// left as it is until the filter is applied again.
+export function shouldRevalidate({ formAction, currentUrl, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
+  if (formAction?.startsWith("/quiz/questions/") && currentUrl.searchParams.get("answered") === "no") return false;
+  return defaultShouldRevalidate;
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -50,6 +61,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function QuizBank({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("study");
+  const [scrollTable, tableTabIndex] = useOverflowTabStop<HTMLTableElement>();
   const [params] = useSearchParams();
   const typeLabels: Record<QuestionType, string> = {
     mcq: t("types.mcq"),
@@ -61,12 +73,12 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("bank.title")} lede={t("bank.lead")} />
       <QuizTabs />
 
       <Form method="get" className="mt-6 flex flex-wrap items-end gap-3">
-        <div>
+        <Flyout label={t("bank.kb")} buttonClassName="h-10" menuClassName="left-0 right-auto top-full">
           <label htmlFor="lp-bank-kb" className="block text-sm font-medium">
             {t("bank.kb")}
           </label>
@@ -83,8 +95,8 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
               </option>
             ))}
           </select>
-        </div>
-        <div>
+        </Flyout>
+        <Flyout label={t("bank.state")} buttonClassName="h-10" menuClassName="left-0 right-auto top-full">
           <label htmlFor="lp-bank-answered" className="block text-sm font-medium">
             {t("bank.state")}
           </label>
@@ -98,8 +110,8 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
             <option value="no">{t("bank.unanswered")}</option>
             <option value="yes">{t("bank.answered")}</option>
           </select>
-        </div>
-        <div>
+        </Flyout>
+        <Flyout label={t("bank.type")} buttonClassName="h-10" menuClassName="left-0 right-auto top-full">
           <label htmlFor="lp-bank-type" className="block text-sm font-medium">
             {t("bank.type")}
           </label>
@@ -116,7 +128,7 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
               </option>
             ))}
           </select>
-        </div>
+        </Flyout>
         <Button type="submit" variant="outline">
           {t("bank.filter")}
         </Button>
@@ -132,54 +144,57 @@ export default function QuizBank({ loaderData }: Route.ComponentProps) {
         // h3, and an h3 straight under the page's h1 skips a level (axe).
         <>
           <h2 className="sr-only">{t("bank.listHeading")}</h2>
-          <ol className="mt-8 divide-y border-y">
-            {loaderData.entries.map((entry) => (
-              <li key={entry.question.id}>
-                <details className="group">
-                  <summary className="flex cursor-pointer list-none items-start gap-3 py-3 [&::-webkit-details-marker]:hidden">
-                    <ChevronRight
-                      aria-hidden="true"
-                      className="mt-1 size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90"
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="line-clamp-2 font-serif text-base leading-snug group-hover:text-primary">
-                        {promptLine(entry.question)}
-                      </span>
-                      <span className="mt-1 flex flex-wrap items-center gap-x-2 text-xs leading-ui text-muted-foreground">
-                        <span>{typeLabels[entry.question.type]}</span>
-                        <span aria-hidden="true">·</span>
-                        <span>{t(`difficulty.${entry.question.difficulty}`)}</span>
-                        <span aria-hidden="true">·</span>
-                        <span>{entry.module_name || entry.kb_name}</span>
-                      </span>
-                    </span>
-                    <span className="shrink-0 pt-0.5 text-xs leading-ui">
-                      {entry.attempts > 0 ? (
-                        <span
-                          className={`inline-flex items-center gap-1 ${entry.last_correct ? "text-primary" : "text-destructive"}`}
-                        >
-                          {entry.last_correct ? (
-                            <Check aria-hidden="true" className="size-3.5" />
-                          ) : (
-                            <X aria-hidden="true" className="size-3.5" />
-                          )}
-                          {entry.last_correct ? t("bank.lastRight") : t("bank.lastWrong")}
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">{t("bank.notYet")}</span>
-                      )}
-                    </span>
-                  </summary>
-                  <div className="pb-5 pl-7">
+          <table ref={scrollTable} tabIndex={tableTabIndex} className="lp-table mt-8">
+            <caption className="sr-only">{t("bank.listHeading")}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t("practise.question")}</th>
+                <th scope="col">{t("bank.type")}</th>
+                <th scope="col">{t("bank.kb")}</th>
+                <th scope="col">{t("bank.state")}</th>
+                <th scope="col">{t("practise.lastAttempt")}</th>
+              </tr>
+            </thead>
+            {loaderData.entries.map((entry, index) => (
+              <tbody key={entry.question.id}>
+                <tr>
+                  <th scope="row">{promptLine(entry.question)}</th>
+                  <td>
+                    <Badge>{typeLabels[entry.question.type]}</Badge>
+                  </td>
+                  <td>{entry.module_name || entry.kb_name}</td>
+                  <td>
                     {entry.attempts > 0 ? (
-                      <p className="mb-2 text-xs text-muted-foreground">{t("bank.attempts", { count: entry.attempts })}</p>
-                    ) : null}
-                    <QuestionCard question={entry.question} sources={loaderData.sources} />
-                  </div>
-                </details>
-              </li>
+                      <Badge type={entry.last_correct ? "tip" : "danger"}>
+                        {entry.last_correct ? t("bank.lastRight") : t("bank.lastWrong")}
+                      </Badge>
+                    ) : (
+                      t("bank.notYet")
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap">{entry.last_attempt ? <DateText iso={entry.last_attempt} /> : t("bank.notYet")}</td>
+                </tr>
+                <tr className="lp-table-detail">
+                  <td colSpan={5}>
+                    <details className="lp-details">
+                      <summary>{t("practise.openQuestion")}</summary>
+                      {entry.attempts > 0 ? (
+                        <p className="text-xs text-muted-foreground">
+                          {t("bank.attempts", { count: entry.attempts })}
+                        </p>
+                      ) : null}
+                      <QuestionCard
+                        question={entry.question}
+                        sources={loaderData.sources}
+                        position={index + 1}
+                        total={loaderData.entries.length}
+                      />
+                    </details>
+                  </td>
+                </tr>
+              </tbody>
             ))}
-          </ol>
+          </table>
         </>
       )}
     </div>

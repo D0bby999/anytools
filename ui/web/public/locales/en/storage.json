@@ -67,5 +67,8 @@
     "storageOff": "Turn on Drive storage in Settings → Storage first.",
     "reconnect": "Reconnect Google Drive in Connections first.",
     "full": "Your Google Drive is full."
+  },
+  "up": {
+    "inUse": "In use"
   }
 }

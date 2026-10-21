@@ -124,9 +124,9 @@ describe("Practise hearing it", () => {
       posts,
       (b) => ({ updated: b.id }),
     );
-    const pdfRow = screen.getByText("entropy").closest("li")!;
+    const pdfRow = screen.getByText("entropy").closest("tr")!;
     expect(within(pdfRow).queryByRole("button", { name: "Practise hearing it" })).not.toBeInTheDocument();
-    const videoRow = screen.getByText("equilibrium").closest("li")!;
+    const videoRow = screen.getByText("equilibrium").closest("tr")!;
     await userEvent.click(within(videoRow).getByRole("button", { name: "Practise hearing it" }));
     await screen.findByText("equilibrium");
     expect(posts[0]).toEqual({ intent: "listening", id: "n-video", on: "true" });

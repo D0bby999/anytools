@@ -1,6 +1,6 @@
 /**
  * gate-panel.tsx
- * A cycle's three phases as one hairline timeline, and the gate out of the
+ * A cycle's three phases as a table (plan 261020-2246 phase 12), and the gate out of the
  * current one: what it needs, what is missing, and what even an open gate
  * would not prove. The advance button posts to the page's own action; the
  * server decides, and a shut gate answers with the same reasons shown here.
@@ -8,8 +8,9 @@
 import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import { PHASES, type GateResult, type Phase } from "~/lib/loop-types";
-import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/doc/badge";
+import { RefTable } from "~/components/doc/ref-table";
 import { CannotProve, Metric } from "~/components/loop/metric";
 
 export function usePhaseLabels(): Record<Phase, string> {
@@ -40,25 +41,38 @@ export function GatePanel({
 
   return (
     <div>
-      {/* Three phases in a real order, so they are numbered. The current one
-          is the part's tinted box; past ones are done, future ones faint. */}
-      <ol className="grid grid-cols-3 gap-1.5" aria-label={t("gate.timeline")}>
-        {PHASES.map((p, i) => (
-          <li
-            key={p}
-            aria-current={i === current ? "step" : undefined}
-            className={cn(
-              "flex items-baseline gap-2 rounded-md border px-3 py-2 text-sm",
-              i < current && "border-border text-muted-foreground",
-              i === current && "border-part-line bg-part-soft font-semibold",
-              i > current && "border-dashed border-border text-faint",
-            )}
-          >
-            <span className="font-serif text-base font-semibold text-part">{i + 1}</span>
-            {phaseLabel[p]}
-          </li>
-        ))}
-      </ol>
+      {/* The three phases as a table, as up's 90-day map draws them: each
+          phase's gate open or shut, the current one marked "now". */}
+      <RefTable
+        caption={t("gate.timeline")}
+        columns={[
+          t("up.gate.phase"),
+          ...PHASES.map((p, i) => (
+            <span key={p} aria-current={i === current ? "step" : undefined}>
+              {i + 1}. {phaseLabel[p]}
+              {i === current ? <span className="font-normal text-muted-foreground"> · {t("up.gate.now")}</span> : null}
+            </span>
+          )),
+        ]}
+        rows={[
+          [
+            t("up.gate.gate"),
+            ...PHASES.map((p, i) =>
+              i < current ? (
+                <Badge key={p} type="tip">{t("up.gate.open")}</Badge>
+              ) : i === current && gate.final ? (
+                <Badge key={p}>{t("up.gate.final")}</Badge>
+              ) : i === current && gate.open ? (
+                <Badge key={p} type="tip">{t("up.gate.open")}</Badge>
+              ) : (
+                <Badge key={p} type={i === current ? "warning" : "info"}>
+                  {t("up.gate.shut")}
+                </Badge>
+              ),
+            ),
+          ],
+        ]}
+      />
 
       {gate.final ? (
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("gate.final")}</p>
@@ -77,8 +91,8 @@ export function GatePanel({
 
       {gate.missing.length > 0 && !gate.final ? (
         <div className="mt-3">
-          <h3 className="text-sm font-medium">{t("gate.missing")}</h3>
-          <ul className="mt-1 list-disc pl-5 text-sm leading-prose">
+          <h3>{t("gate.missing")}</h3>
+          <ul className="list-disc pl-5">
             {gate.missing.map((m) => (
               <li key={m}>{m}</li>
             ))}

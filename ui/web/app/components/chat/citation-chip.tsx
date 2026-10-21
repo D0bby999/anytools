@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Source } from "~/hooks/use-turn-stream";
@@ -31,8 +32,25 @@ import { formatClock } from "~/lib/kb-types";
  * A passage read from a photo (up-methods phase 16) says so, with the model
  * that read it, because a model can misread a page: its title carries "read
  * by <model> from a photo" and the chip a short "from a photo".
+ *
+ * Since the up shell (plan 261020-2246, phase 09) a citation in running text
+ * is a superscript number in the action ink, as a footnote reference in a
+ * book: the claim reads on without a pill breaking the line, and the number is
+ * the one the Sources list beside the answer gives the passage. The full
+ * reference stays in the link's accessible name and title, and in a visually
+ * hidden span, so nothing a reader of the old chip learned is lost. A list of
+ * sources (`variant="entry"`) shows the reference whole: number · title — where.
  */
-export function CitationChip({ source, index }: { source: Source; index: number }) {
+export function CitationChip({
+  source,
+  index,
+  variant = "inline",
+}: {
+  source: Source;
+  index: number;
+  /** `inline`: a superscript number in prose. `entry`: one line of a sources list. */
+  variant?: "inline" | "entry";
+}) {
   const { t } = useTranslation("knowledge");
   const label = source.title ?? source.id;
   const page = source.page && source.page > 0 ? source.page : undefined;
@@ -49,12 +67,10 @@ export function CitationChip({ source, index }: { source: Source; index: number 
     page !== undefined && source.sheet ? t("sheetSource.where", { name: source.sheet, page }) : undefined;
   const photoBy = source.photo_model ? t("photos.readBy", { model: source.photo_model }) : undefined;
 
-  const inner = (
+  const entry = variant === "entry";
+  const details = (
     <>
-      <span aria-hidden="true" className="font-mono text-2xs">
-        {index}
-      </span>
-      <span className="truncate">{label}</span>
+      <span className={entry ? "min-w-0 truncate" : undefined}>{label}</span>
       {clock !== undefined ? (
         <span className="shrink-0 text-muted-foreground">· {clock}</span>
       ) : lines !== undefined ? (
@@ -74,10 +90,7 @@ export function CitationChip({ source, index }: { source: Source; index: number 
       ) : null}
     </>
   );
-
-  const shape =
-    "inline-flex max-w-full items-baseline gap-1.5 rounded-full border px-2 py-0.5 " +
-    "align-baseline text-xs leading-ui";
+  const inner = framed(index, details, entry);
 
   // A web source (phase 9's research) opens the page it was gathered from, in
   // a new tab, with no referrer and no opener: the page is a third party's, and
@@ -87,36 +100,36 @@ export function CitationChip({ source, index }: { source: Source; index: number 
   const webURL = source.kind === "url" ? safeWebURL(source.url) : null;
   if (webURL) {
     const host = new URL(webURL).hostname;
-    return (
+    const link = (
       <a
         href={webURL}
         target="_blank"
         rel="noopener noreferrer nofollow"
         referrerPolicy="no-referrer"
-        aria-label={`Open ${label} (${host}) in a new tab`}
+        aria-label={`${index}: Open ${label} (${host}) in a new tab`}
         title={`${label} · ${host}`}
-        className={
-          shape +
-          " border-control-border bg-card text-foreground transition-colors " +
-          "hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 " +
-          "focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        }
+        className={entry ? ENTRY_LINK : INLINE_LINK}
       >
-        <span aria-hidden="true" className="font-mono text-2xs">
-          {index}
-        </span>
-        <span className="truncate">{label}</span>
-        <span className="shrink-0 text-muted-foreground">{host}</span>
+        {framed(
+          index,
+          <>
+            <span className={entry ? "min-w-0 truncate" : undefined}>{label}</span>
+            <span className="shrink-0 text-muted-foreground">{host}</span>
+          </>,
+          entry,
+        )}
       </a>
     );
+    return entry ? link : <sup className="lp-cite-ref">{link}</sup>;
   }
 
   if (!source.document_id) {
-    return (
-      <span className={shape + " bg-sunken text-muted-foreground"} title={label}>
+    const text = (
+      <span className={entry ? ENTRY_SHAPE + " text-muted-foreground" : "text-muted-foreground"} title={label}>
         {inner}
       </span>
     );
+    return entry ? text : <sup className="lp-cite-ref">{text}</sup>;
   }
 
   const params = new URLSearchParams();
@@ -137,13 +150,14 @@ export function CitationChip({ source, index }: { source: Source; index: number 
   const aiNote =
     (source.ai_transcript ? ` (${t("source.aiTranscript")})` : "") + (photoBy ? ` (${photoBy})` : "");
 
-  return (
+  const link = (
     <Link
       to={href}
       // The full reference is in the accessible name, because the visible chip
       // truncates and a screen reader user gets one shot at knowing what they
-      // are about to open.
-      aria-label={`Open ${label}${where}${aiNote}`}
+      // are about to open. It starts with the number on screen, so a voice
+      // user saying "click 1" reaches it (WCAG 2.5.3, label in name).
+      aria-label={`${index}: Open ${label}${where}${aiNote}`}
       title={`${label}${
         clock !== undefined
           ? ` · ${clock}`
@@ -155,17 +169,50 @@ export function CitationChip({ source, index }: { source: Source; index: number 
                 ? ` · page ${page}`
                 : ""
       }${aiNote}`}
-      className={
-        shape +
-        " border-control-border bg-card text-foreground transition-colors " +
-        "hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 " +
-        "focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      }
+      className={entry ? ENTRY_LINK : INLINE_LINK}
     >
       {inner}
     </Link>
   );
+  return entry ? link : <sup className="lp-cite-ref">{link}</sup>;
 }
+
+/**
+ * The number and the reference. Inline, only the number shows and the rest is
+ * read by a screen reader and kept in the text; as an entry, the whole line
+ * shows, joined the way up's dated lists are: number · title — where.
+ */
+function framed(index: number, details: ReactNode, entry: boolean) {
+  if (!entry) {
+    return (
+      <>
+        <span aria-hidden="true">{index}</span>
+        <span className="sr-only">{details}</span>
+      </>
+    );
+  }
+  return (
+    <>
+      <span aria-hidden="true" className="shrink-0 tabular-nums">
+        {index}
+      </span>
+      <span aria-hidden="true" className="shrink-0 text-muted-foreground">
+        ·
+      </span>
+      {details}
+    </>
+  );
+}
+
+// The `!` utilities win over the prose rules the citation sits inside
+// (`.lp-prose .lp-chip a` sets the body ink and no underline).
+const INLINE_LINK =
+  "ml-px rounded-[4px] px-px font-medium text-primary! no-underline! transition-colors " +
+  "hover:text-primary-hover! hover:underline! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+const ENTRY_SHAPE = "inline-flex max-w-full items-baseline gap-1.5 text-sm leading-6";
+const ENTRY_LINK =
+  ENTRY_SHAPE +
+  " text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 /** The URL if it is an absolute http(s) URL, else null. */
 export function safeWebURL(raw: string | undefined): string | null {

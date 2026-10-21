@@ -27,7 +27,8 @@ const css = readFileSync(join(resolve(process.cwd()), "app/tokens.css"), "utf8")
 
 /** Pulls `--name: value` pairs out of one top-level selector block. */
 function readBlock(selector: string): Record<string, string> {
-  const re = new RegExp(`(?:^|\\n)${selector.replace(".", "\\.")}\\s*\\{([\\s\\S]*?)\\n\\}`);
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(?:^|\\n)${escaped}\\s*\\{([\\s\\S]*?)\\n\\}`);
   const body = re.exec(css)?.[1] ?? "";
   const out: Record<string, string> = {};
   for (const match of body.matchAll(/--([\w-]+):\s*([^;]+);/g)) {
@@ -90,6 +91,15 @@ const THEMES: ReadonlyArray<readonly [string, Record<string, string>]> = [
   ["dark", dark],
 ];
 
+describe("the AnyLearn set is the one in force", () => {
+  it("has no second skin over it, and its own paper, ink and faces", () => {
+    expect(css).not.toContain("data-skin");
+    expect(light["lp-paper"]).toBe("#fbfaf6");
+    expect(light["lp-brand"]).toBe("#1f3d78");
+    expect(light["lp-font-serif"]).toMatch(/^"Literata"/);
+  });
+});
+
 describe("tokens parse", () => {
   it.each(THEMES)("%s block defines the whole colour vocabulary", (_mode, t) => {
     for (const name of [
@@ -109,6 +119,8 @@ describe("tokens parse", () => {
       "lp-warning",
       "lp-danger",
       "lp-border-control",
+      "lp-ink-deco",
+      "lp-backdrop",
     ]) {
       expect(t[name], `--${name} missing`).toBeTruthy();
     }
@@ -126,6 +138,18 @@ describe("ink is legible on every surface", () => {
           `--${ink} ${t[ink]} on --${surface} ${t[surface]} = ${ratio.toFixed(2)}:1`,
         ).toBeGreaterThanOrEqual(AA_TEXT);
       }
+    }
+  });
+});
+
+describe("text is legible on a card", () => {
+  // Cards, blocks and code sit on `surface-sunken` (up's bg-soft): body ink,
+  // secondary ink and a link inside one are all text.
+  it.each(THEMES)("%s", (_mode, t) => {
+    const bg = flatten(t["lp-surface-sunken"]!, [255, 255, 255]);
+    for (const ink of ["lp-ink", "lp-ink-2", "lp-ink-3", "lp-brand"]) {
+      const ratio = contrast(flatten(t[ink]!, bg), bg);
+      expect(ratio, `--${ink} on --lp-surface-sunken = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
     }
   });
 });
@@ -246,6 +270,17 @@ describe("things you can see but not read", () => {
         ratio,
         `--lp-border-control on --${surface} = ${ratio.toFixed(2)}:1`,
       ).toBeGreaterThanOrEqual(AA_NON_TEXT);
+    }
+  });
+
+  // `ink-deco` is VitePress's text-3: carets, icons, a decorative glyph. It
+  // is NOT text and is not held to 4.5:1, which is exactly why it has its own
+  // name: text that would sit in it uses ink-3, which is held to 4.5:1 above.
+  it.each(THEMES)("%s: decorative ink reaches 3:1 on every surface", (_mode, t) => {
+    for (const surface of SURFACES) {
+      const bg = flatten(t[surface]!, [255, 255, 255]);
+      const ratio = contrast(flatten(t["lp-ink-deco"]!, bg), bg);
+      expect(ratio, `--lp-ink-deco on --${surface} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_NON_TEXT);
     }
   });
 

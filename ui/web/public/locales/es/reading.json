@@ -62,7 +62,16 @@
     "rename": "Nombre",
     "renameSubmit": "Cambiar nombre",
     "delete": "Eliminar este cuaderno",
-    "deleteConfirm": "¿Eliminar este cuaderno y todas sus notas? Esto no se puede deshacer."
+    "deleteConfirm": "¿Eliminar este cuaderno y todas sus notas? Esto no se puede deshacer.",
+    "up": {
+      "kicker": "Empieza aquí",
+      "title": "Guarda lo que lees en un cuaderno",
+      "description": "Guardar un pasaje o una respuesta desde el lector lo pone en tu cuaderno predeterminado. Crea otros para un curso o un proyecto.",
+      "yours": "Tus cuadernos",
+      "updated": "actualizado",
+      "metaLabel": "Sobre este cuaderno",
+      "edit": "Editar"
+    }
   },
   "note": {
     "editing": "Nota",
@@ -141,5 +150,8 @@
     "byBuiltin": "Lo oyó la transcripción integrada de este servidor.",
     "heardText": "Lo que oyó",
     "notAScore": "Esto comprueba si un oyente entendió cada palabra, no lo cerca que está tu acento. Un acento que se entiende está bien."
-  }
+  },
+  "download": "Descargar",
+  "readAloudPage": "Leer esta página en voz alta",
+  "checkAloudPage": "Comprobar mi lectura de esta página"
 }

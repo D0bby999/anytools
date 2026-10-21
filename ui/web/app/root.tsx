@@ -1,11 +1,11 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useMatches, useRouteLoaderData } from "react-router";
 import { useEffect, useState } from "react";
 import { useNonce } from "~/lib/nonce";
-import { Plate } from "~/components/ui/plate";
 import { I18nextProvider } from "react-i18next";
 
 import type { Route } from "./+types/root";
 import { initI18n, isLoaded, isSupportedLng, loadLanguage, type SupportedLng } from "~/lib/i18n";
+import { NotFound } from "~/components/doc/not-found";
 // The textbook world's three faces (ui/web/DESIGN.md): Literata titles and
 // reads, Be Vietnam Pro operates, Plex Mono carries code and data. Only the
 // weights the world paints. Self-hosted rather than from Google Fonts: its
@@ -37,8 +37,16 @@ export const links: Route.LinksFunction = () => [
 const SITE_ICON = { svg: "/favicon.svg?v=4", ico: "/favicon.ico?v=4" };
 const STUDY_ICON = { svg: "/icons/anylearn-favicon.svg?v=2", ico: "/icons/anylearn.ico?v=2" };
 
-/** Same key and rule as useThemeAfterHydration and components/layout/theme-toggle.tsx. */
+/**
+ * Same key and rule as useThemeAfterHydration and components/layout/theme-toggle.tsx:
+ * dark only when the visitor chose it; light is the default (DESIGN.md), never
+ * taken from the system setting.
+ */
 const APPLY_THEME = `document.documentElement.classList.toggle("dark",localStorage.getItem("anytools-theme")==="dark")`;
+
+function prefersDark(): boolean {
+  return localStorage.getItem("anytools-theme") === "dark";
+}
 
 /**
  * Applies the theme again once React owns the page. When hydration fails on a
@@ -48,7 +56,7 @@ const APPLY_THEME = `document.documentElement.classList.toggle("dark",localStora
 function useThemeAfterHydration() {
   useEffect(() => {
     try {
-      document.documentElement.classList.toggle("dark", localStorage.getItem("anytools-theme") === "dark");
+      document.documentElement.classList.toggle("dark", prefersDark());
     } catch {
       // No storage (Safari private mode): the light default stands.
     }
@@ -87,8 +95,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           // Applies the stored theme before first paint. Without it a dark-mode
           // user sees a white flash on every navigation that triggers a document
           // load, because React only learns the preference after hydration.
-          // Light is the default (owner, 2026-10-19): only a visitor who chose
-          // dark gets it, whatever the system prefers.
+          // With nothing stored, the page is light (owner, 2026-10-19), never
+          // the system setting (APPLY_THEME).
           dangerouslySetInnerHTML={{ __html: `(function(){try{${APPLY_THEME}}catch(e){}})()` }}
         />
       </head>
@@ -141,13 +149,23 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  // App never rendered, so the boundary brings its own translations.
+  const i18n = useAppI18n(useAppLanguage() ?? "en");
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return (
+      <I18nextProvider i18n={i18n}>
+        <NotFound />
+      </I18nextProvider>
+    );
+  }
+
   let title = "Something went wrong";
   let detail = "An unexpected error occurred.";
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    title = error.status === 404 ? "Page not found" : `Error ${error.status}`;
-    detail = error.status === 404 ? "We could not find that page." : error.statusText || detail;
+    title = `Error ${error.status}`;
+    detail = error.statusText || detail;
   } else if (import.meta.env.DEV && error instanceof Error) {
     // Stacks are shown in development only: a production stack trace tells an
     // attacker the file layout and dependency versions of the server.
@@ -155,10 +173,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     stack = error.stack;
   }
 
-  const missing = isRouteErrorResponse(error) && error.status === 404;
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      {missing && <Plate name="notfound" sizes="(min-width: 768px) 36rem, 100vw" className="mb-6" />}
       <h1 className="text-3xl leading-tight">{title}</h1>
       <p className="mt-3 text-lg text-muted-foreground">{detail}</p>
       <p className="mt-6">

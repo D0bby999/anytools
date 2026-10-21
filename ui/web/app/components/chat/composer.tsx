@@ -143,8 +143,11 @@ export function Composer({
   const showPicker = !!models && !!head && models.length > 1 && !!onModel;
 
   return (
-    <div className="border-t bg-card">
-      <div className="mx-auto max-w-(--lp-measure-read) px-4 py-3">
+    // Up's page under a sticky composer: the page background (so the answer
+    // scrolling under it is hidden) with no rule of its own, the box drawn as
+    // the search field (I4) at radius 8, the send button inside it.
+    <div className="bg-background pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto max-w-(--lp-measure-read) pt-2 pb-3">
         {disabled && disabledReason && (
           <p role="status" className="mb-2 text-xs leading-ui text-muted-foreground">
             {disabledReason}
@@ -185,7 +188,7 @@ export function Composer({
           </div>
         )}
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-2 rounded-lg border border-control-border bg-card py-1 pr-1 pl-3 transition-colors focus-within:border-primary focus-within:ring-1 focus-within:ring-primary hover:border-primary">
           <label htmlFor="lp-composer" className="sr-only">
             {t("chat.composerLabel")}
           </label>
@@ -206,16 +209,16 @@ export function Composer({
               }
             }}
             placeholder={busy && canQueue ? t("chat.queue.placeholder") : t("chat.placeholder")}
+            // The ring is the box's: focus-within turns its border to the
+            // action ink, as VitePress's search field does.
             className={
-              "min-h-10 flex-1 resize-none rounded-md border border-control-border bg-card " +
-              "px-3 py-2 text-sm leading-ui text-foreground placeholder:text-faint " +
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary " +
-              "focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+              "min-h-8 flex-1 resize-none bg-transparent py-1.5 text-base leading-6 text-foreground " +
+              "placeholder:text-faint focus-visible:outline-none disabled:opacity-50"
             }
           />
 
           {busy && onStop && value.trim() === "" ? (
-            <Button type="button" variant="outline" size="icon" onClick={onStop}>
+            <Button type="button" variant="outline" size="icon" className="size-8 shrink-0 rounded-sm p-0" onClick={onStop}>
               <Square aria-hidden="true" />
               <span className="sr-only">{t("chat.stop")}</span>
             </Button>
@@ -223,6 +226,7 @@ export function Composer({
             <Button
               type="button"
               size="icon"
+              className="size-8 shrink-0 rounded-sm p-0"
               onClick={send}
               disabled={(busy && !canQueue) || disabled || value.trim() === "" || !ownReady}
             >
@@ -232,7 +236,7 @@ export function Composer({
           )}
         </div>
 
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           {showPicker ? (
             <label className="flex min-w-0 items-center gap-2 text-xs leading-ui text-muted-foreground">
               {t("chat.model.label")}
@@ -240,7 +244,7 @@ export function Composer({
                 value={model ?? ""}
                 disabled={busy}
                 onChange={(e) => onModel?.(e.target.value)}
-                className="h-8 min-w-0 max-w-64 truncate rounded-md border border-control-border bg-card px-2 text-xs text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                className="h-7 min-w-0 max-w-64 truncate rounded-sm bg-transparent px-1 text-xs font-medium text-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
               >
                 <option value="">{t("chat.model.default", { name: head?.name, model: head?.model })}</option>
                 {models?.map((m) => (

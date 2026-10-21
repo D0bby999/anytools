@@ -215,6 +215,6 @@ describe("photo documents and citations", () => {
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/documents/doc-7?page=2");
     expect(link).toHaveTextContent("from a photo");
-    expect(link).toHaveAccessibleName("Open IMG_2041.jpg, page 2 (read by gemini-3.6-flash from a photo)");
+    expect(link).toHaveAccessibleName("1: Open IMG_2041.jpg, page 2 (read by gemini-3.6-flash from a photo)");
   });
 });

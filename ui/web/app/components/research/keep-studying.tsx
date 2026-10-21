@@ -1,6 +1,9 @@
 import { Form, Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
+import { Field } from "~/components/doc/field";
+import { DocSection } from "~/components/research/doc-section";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 /** What the report route's "to-kb" intent answers. */
 export type ToKnowledgeResult =
@@ -26,37 +29,32 @@ export function KeepStudying({ kbs, hasWebSources }: { kbs: { id: string; name: 
   const fetcher = useFetcher<ToKnowledgeResult>();
   const result = fetcher.data;
   const busy = fetcher.state !== "idle";
-  const field = "mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
   return (
-    <section aria-labelledby="lp-keep-studying" className="rounded-lg border bg-card p-4">
-      <h2 id="lp-keep-studying" className="lp-section">
-        {t("keep.title")}
-      </h2>
-      <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("keep.body")}</p>
+    <DocSection title={t("keep.title")} id="lp-keep-studying">
+      <p className="mt-4 text-base leading-[1.85]">{t("keep.body")}</p>
 
       {kbs.length === 0 ? (
-        <p className="mt-3 text-sm">
+        <p className="mt-3 text-sm leading-6">
           {t("keep.noKbs")}{" "}
-          <Link to="/knowledge" className="text-primary underline underline-offset-4">
+          <Link to="/knowledge" className="font-medium text-primary hover:underline">
             {t("keep.createKb")}
           </Link>
         </p>
       ) : (
-        <fetcher.Form method="post" className="mt-3 grid gap-3 sm:max-w-md">
+        <fetcher.Form method="post" className="mt-2 grid gap-2 sm:max-w-md">
           <input type="hidden" name="intent" value="to-kb" />
-          <label className="text-sm font-medium">
-            {t("keep.kb")}
-            <select name="kb_id" required className={field}>
+          <Field label={t("keep.kb")}>
+            <select name="kb_id" required>
               {kbs.map((kb) => (
                 <option key={kb.id} value={kb.id}>
                   {kb.name}
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
           {hasWebSources && (
-            <label className="flex min-h-11 items-start gap-2 text-sm">
+            <label className="flex min-h-10 items-start gap-2 text-sm leading-6">
               <input type="checkbox" name="include_sources" value="1" defaultChecked className="mt-1" />
               <span>
                 {t("keep.includeSources")}
@@ -73,12 +71,12 @@ export function KeepStudying({ kbs, hasWebSources }: { kbs: { id: string; name: 
       )}
 
       {result && !result.ok && (
-        <p role="alert" className="mt-3 text-sm text-destructive">
+        <p role="alert" className="mt-3 text-sm leading-6 text-destructive">
           {result.error}
         </p>
       )}
       {result && result.ok && (
-        <div role="status" className="mt-3 space-y-2 text-sm">
+        <div role="status" className="mt-3 space-y-2 text-sm leading-6">
           <p>{result.reportAdded ? t("keep.added", { kb: result.kbName }) : t("keep.already", { kb: result.kbName })}</p>
           {result.sourcesAdded + result.sourcesAlready + result.sourcesFailed > 0 && (
             <p className="text-muted-foreground">
@@ -103,7 +101,7 @@ export function KeepStudying({ kbs, hasWebSources }: { kbs: { id: string; name: 
           </div>
         </div>
       )}
-    </section>
+    </DocSection>
   );
 }
 
@@ -112,21 +110,19 @@ export function OpenQuestions({ questions }: { questions: string[] }) {
   const { t } = useTranslation("research");
   if (questions.length === 0) return null;
   return (
-    <section aria-labelledby="lp-open-questions" className="rounded-lg border bg-card p-4">
-      <h2 id="lp-open-questions" className="lp-section">
-        {t("open.title")}
-      </h2>
-      <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("open.body")}</p>
-      <ul className="mt-2 flex flex-col gap-2">
+    <DocSection title={t("open.title")} id="lp-open-questions">
+      <p className="mt-4 text-base leading-[1.85]">{t("open.body")}</p>
+      <ul className="mt-3 list-disc pl-5 text-base leading-[1.85] [&>li+li]:mt-2">
         {questions.map((q) => (
-          <li key={q} className="flex flex-wrap items-baseline justify-between gap-2 border-t pt-2 text-sm first:border-t-0">
-            <span className="leading-prose">{q}</span>
-            <Link to={`/research?q=${encodeURIComponent(q)}`} className="text-primary underline underline-offset-4">
+          <li key={q}>
+            {q}
+            {NOTE_JOIN}
+            <Link to={`/research?q=${encodeURIComponent(q)}`} className="font-medium text-primary hover:underline">
               {t("open.research")}
             </Link>
           </li>
         ))}
       </ul>
-    </section>
+    </DocSection>
   );
 }

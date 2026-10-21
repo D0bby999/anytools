@@ -4,7 +4,11 @@
  * goal, each lift's estimated one-rep max, which muscle groups got work, and
  * the full history.
  */
-import { Form, Link } from "react-router";
+import { DateText } from "~/components/ui/date-text";
+import { DatedList } from "~/components/doc/dated-list";
+import { BookMeta } from "~/components/doc/book-meta";
+import { RefTable } from "~/components/doc/ref-table";
+import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/body.progress";
 import { appTitle } from "~/lib/app-title";
@@ -20,10 +24,7 @@ import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Training progress") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Training progress") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -41,28 +42,33 @@ export default function BodyProgress({ loaderData }: Route.ComponentProps) {
   const idle = s.coverage.filter((c) => c.month === 0);
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader title={t("progress.title")} lede={t("progress.lead")} />
       <BodyTabs />
 
-      <dl data-part="practise" className="grid grid-cols-3 gap-px overflow-hidden rounded-md border bg-border">
-        {[
-          { label: t("progress.workouts"), value: s.workouts },
-          { label: t("progress.thisWeek"), value: s.this_week },
-          { label: t("progress.hours"), value: num(s.minutes / 60) },
-        ].map((x) => (
-          <div key={x.label} className="bg-card px-4 py-3">
-            <dt className="text-xs text-muted-foreground">{x.label}</dt>
-            <dd className="mt-1 font-serif text-2xl font-semibold text-part tabular-nums">{x.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <BookMeta
+        label={t("progress.title")}
+        items={[
+          { label: `${t("progress.workouts")}: ${s.workouts}` },
+          { label: `${t("progress.thisWeek")}: ${s.this_week}` },
+          { label: `${t("progress.hours")}: ${num(s.minutes / 60)}` },
+        ]}
+      />
 
       <section aria-labelledby="lp-progress-year" className="mt-10">
         <h2 id="lp-progress-year" className="lp-section">
           {t("heatmap.title")}
         </h2>
         <Heatmap days={s.heatmap} today={today} />
+      </section>
+
+      <section aria-labelledby="lp-progress-bests">
+        <h2 id="lp-progress-bests">{t("up.personalBests")}</h2>
+        <RefTable
+          caption={t("up.personalBests")}
+          columns={[t("up.exercise"), t("up.day"), t("set.weight", { unit: s.unit }), t("set.reps"), t("up.estimatedMax")]}
+          rows={s.exercises.filter((e) => e.best).map((e) => [e.name, e.best!.day, num(e.best!.weight), e.best!.reps, num(e.best!.e1rm)])}
+        />
       </section>
 
       <section aria-labelledby="lp-progress-weight" className="mt-10">
@@ -126,24 +132,11 @@ export default function BodyProgress({ loaderData }: Route.ComponentProps) {
         <p className="mt-1 text-sm text-muted-foreground">
           {idle.length === 0 ? t("coverage.allTrained") : t("coverage.idle", { list: idle.map((c) => muscle(c.group)).join(", ") })}
         </p>
-        <table className="mt-3 w-full text-sm">
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground">
-              <th scope="col" className="py-1 font-medium">{t("coverage.group")}</th>
-              <th scope="col" className="py-1 text-right font-medium">{t("coverage.week")}</th>
-              <th scope="col" className="py-1 text-right font-medium">{t("coverage.month")}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y border-y">
-            {s.coverage.map((c) => (
-              <tr key={c.group} className={c.month === 0 ? "text-muted-foreground" : undefined}>
-                <th scope="row" className="py-2 text-left font-normal">{muscle(c.group)}</th>
-                <td className="py-2 text-right tabular-nums">{num(c.week)}</td>
-                <td className="py-2 text-right tabular-nums">{num(c.month)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <RefTable
+          caption={t("coverage.title")}
+          columns={[t("coverage.group"), t("coverage.week"), t("coverage.month")]}
+          rows={s.coverage.map((c) => [muscle(c.group), num(c.week), num(c.month)])}
+        />
       </section>
 
       <section aria-labelledby="lp-progress-history" className="mt-10">
@@ -153,19 +146,15 @@ export default function BodyProgress({ loaderData }: Route.ComponentProps) {
         {history.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">{t("recent.none")}</p>
         ) : (
-          <ul className="mt-3 divide-y border-y">
-            {history.map((w) => (
-              <li key={w.id}>
-                <Link to={`/body/workouts/${w.id}`} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-3 hover:bg-hover">
-                  <span className="w-28 font-mono text-xs text-muted-foreground">{w.day}</span>
-                  <span className="min-w-0 flex-1 font-medium">{w.routine_name || t("today.free")}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {t("recent.summary", { count: w.entries.filter((e) => setsDone(e) > 0).length, minutes: minutesOf(w) })}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <DatedList
+            label={t("history.title")}
+            items={history.map((w) => ({
+              date: <DateText iso={w.day} />,
+              title: w.routine_name || t("today.free"),
+              to: `/body/workouts/${w.id}`,
+              note: t("recent.summary", { count: w.entries.filter((e) => setsDone(e) > 0).length, minutes: minutesOf(w) }),
+            }))}
+          />
         )}
       </section>
     </div>

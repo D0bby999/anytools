@@ -68,7 +68,9 @@ describe("CardTimeline", () => {
     }
     // The step headings, in timeline order.
     const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
-    expect(headings).toEqual(["Setup", "First attempt, unaided", "Practice", "Retest", "Somewhere new", "Reflection"]);
+    expect(headings).toEqual([
+      "1. Setup", "2. First attempt, unaided", "3. Practice", "4. Retest", "5. Somewhere new", "6. Reflection",
+    ]);
   });
 
   it("while the retest is pending, says the first attempt is hidden and when the retest opens", () => {

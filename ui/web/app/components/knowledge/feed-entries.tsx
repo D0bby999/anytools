@@ -3,6 +3,7 @@ import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/doc/badge";
 import {
   entryState,
   formatDay,
@@ -14,6 +15,7 @@ import {
   type FeedEntry,
   type FeedLimits,
 } from "~/lib/feeds-types";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 /**
  * feed-entries.tsx
@@ -27,7 +29,7 @@ import {
 export function FeedNotice({ feed, limits }: { feed: Feed; limits: FeedLimits }) {
   const { t, i18n } = useTranslation("knowledge");
   return (
-    <div className="mt-4 space-y-1 text-sm leading-prose text-muted-foreground">
+    <div className="mt-4 space-y-1 text-sm leading-6 text-muted-foreground">
       {feed.kind === "youtube" && feed.listed_by === "feed" ? (
         <p role="note">
           {t("feed.keylessLimit", { limit: limits.youtube_feed_limit })}
@@ -130,7 +132,7 @@ export function EntryPicker({ feedId, entries, limits }: { feedId: string; entri
   }, [fetcher.data]);
 
   if (entries.length === 0) {
-    return <p className="mt-3 lp-empty">{t("feed.noEntries")}</p>;
+    return <p className="text-base leading-[1.85] text-muted-foreground">{t("feed.noEntries")}</p>;
   }
   const queued = entries.filter((e) => entryState(e) === "queued").length;
   const full = picked.size >= limits.max_pick;
@@ -146,7 +148,9 @@ export function EntryPicker({ feedId, entries, limits }: { feedId: string; entri
   return (
     <fetcher.Form method="post" action={`/feeds/${feedId}`} className="mt-3">
       <input type="hidden" name="intent" value="add" />
-      <ul className="divide-y border-y">
+      {/* A dated list (P4): **date** · title — duration, each with its
+          tick, so several are added in one go. */}
+      <ul className="space-y-2 leading-[1.85]">
         {entries.map((entry) => {
           const state = entryState(entry);
           const canPick = pickable(entry);
@@ -155,7 +159,7 @@ export function EntryPicker({ feedId, entries, limits }: { feedId: string; entri
           const duration = formatDuration(entry.duration_seconds);
           const day = formatDay(entry.published_at, i18n.language);
           return (
-            <li key={entry.key} className="flex items-start gap-3 py-3">
+            <li key={entry.key} className="flex items-start gap-3">
               <input
                 id={id}
                 type="checkbox"
@@ -165,18 +169,24 @@ export function EntryPicker({ feedId, entries, limits }: { feedId: string; entri
                 disabled={!canPick || (full && !checked)}
                 onChange={(event) => toggle(entry.key, event.currentTarget.checked)}
                 aria-label={t("feed.pickLabel", { title: entry.title })}
-                className="mt-1 size-4 shrink-0 accent-primary"
+                className="mt-[0.45em] size-4 shrink-0 accent-primary"
               />
               <div className="min-w-0 flex-1">
-                <label htmlFor={id} className="block font-medium">
-                  {entry.title}
-                </label>
-                <p className="font-mono text-2xs text-muted-foreground">
-                  {[day, duration].filter(Boolean).join(" · ")}
-                  {entry.new && state === "available" ? (
-                    <span className="ml-2 rounded-full bg-primary-soft px-2 py-0.5 text-primary">{t("feed.state.new")}</span>
+                <label htmlFor={id}>
+                  {day ? (
+                    <>
+                      <strong className="font-semibold">{day}</strong>
+                      {" · "}
+                    </>
                   ) : null}
-                </p>
+                  {entry.title}
+                  {duration ? <span className="text-muted-foreground">{NOTE_JOIN}{duration}</span> : null}
+                </label>
+                {entry.new && state === "available" ? (
+                  <Badge type="tip" className="ml-2">
+                    {t("feed.state.new")}
+                  </Badge>
+                ) : null}
                 <EntryStatus entry={entry} />
               </div>
             </li>
@@ -184,7 +194,7 @@ export function EntryPicker({ feedId, entries, limits }: { feedId: string; entri
         })}
       </ul>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={busy || picked.size === 0}>
+        <Button type="submit" variant="outline" disabled={busy || picked.size === 0}>
           <Plus aria-hidden="true" />
           {busy
             ? t("feed.adding")

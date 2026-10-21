@@ -1,7 +1,8 @@
 /**
  * up-methods-reachability.test.tsx
  * Up-methods phase 14, requirement 1: the plan's features are reachable from
- * where its UI table says, and the phone bar keeps four items plus More.
+ * where its UI table says, and the top nav keeps its four links (the phone bar is gone,
+ * plan 261020-2246 phase 04).
  *
  * The ways into /toolkit are rendered; the other entry points are pinned by
  * which page renders which component, since each component's own behaviour
@@ -12,12 +13,10 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
-import { MORE_ITEM, NAV_ITEMS } from "~/components/layout/sidebar";
+import { flatPages, TOP_NAV } from "~/lib/nav-tree";
 import { ToolkitLink } from "~/components/worksheet/toolkit-link";
 import { StateWorksheets } from "~/components/worksheet/state-worksheets";
 import { RepeatedResistance } from "~/components/loop/repeated-resistance";
-
-const { TOOL_ITEMS } = await import("~/routes/more");
 
 beforeAll(() => {
   initI18n("en");
@@ -35,7 +34,7 @@ const source = (path: string) => readFileSync(path, "utf8");
 
 describe("the way into /toolkit", () => {
   it("is on /more, the Loop home and every learning state's page", () => {
-    expect(TOOL_ITEMS.map((i) => i.to)).toContain("/toolkit");
+    expect(flatPages().map((p) => p.to)).toContain("/toolkit");
     expect(hrefs(<ToolkitLink />)).toContain("/toolkit");
     expect(source("app/routes/loop.index.tsx")).toContain("<ToolkitLink />");
     const state = hrefs(<StateWorksheets stateId="st-1" worksheets={[]} />);
@@ -44,9 +43,12 @@ describe("the way into /toolkit", () => {
     expect(source("app/routes/loop.state.$id.tsx")).toContain("<StateWorksheets ");
   });
 
-  it("leaves the phone bar at four items plus More", () => {
-    expect(NAV_ITEMS.filter((i) => i.phone).map((i) => i.to)).toEqual(["/home", "/knowledge", "/chat", "/loop"]);
-    expect(MORE_ITEM.to).toBe("/more");
+  it("keeps the top nav at the four main ways in, and every up-methods page in the tree", () => {
+    expect(TOP_NAV.map((i) => i.to)).toEqual(["/home", "/knowledge", "/chat", "/loop"]);
+    const tree = flatPages().map((p) => p.to);
+    for (const to of ["/toolkit", "/loop", "/mastery/review", "/mastery/vocabulary", "/settings/account", "/home"]) {
+      expect(tree, to).toContain(to);
+    }
   });
 });
 

@@ -203,7 +203,7 @@ describe("BlockView", () => {
     // The answer is not in the page before an attempt.
     expect(screen.queryByText(/Answer:/)).toBeNull();
     const form = screen.getByText("What comes first?").closest("article")!;
-    await user.click(within(form).getByLabelText(/Retrieval/));
+    await user.click(within(form).getByRole("radio", { name: /Retrieval/ }));
     expect(within(form).getByRole("button", { name: /Check|Submit|Answer/ })).toBeEnabled();
   });
 

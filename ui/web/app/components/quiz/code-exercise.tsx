@@ -34,9 +34,37 @@ export function allPassed(run: RunResult, declared: string[]): boolean {
 /**
  * The instructions under the card's title: the title line taken off, and the
  * Markdown's own headings ("# Instructions") made h4, under the card's h3.
+ * Inside a code block a "#" line is a Python comment and is left alone.
+ * Exercism's notes (a "~~~~exercism/note" block) are prose, so they become a
+ * quotation instead of a code block a phone would have to scroll sideways.
  */
 export function instructions(prompt: string): string {
-  return prompt.replace(/^#{1,6} .*\n+/, "").replace(/^#{1,6} /gm, "#### ");
+  const out: string[] = [];
+  let fence = "";
+  let note = false;
+  for (const line of prompt.replace(/^#{1,6} .*\n+/, "").split("\n")) {
+    const open = /^(`{3,}|~{3,})(\S*)/.exec(line);
+    if (fence) {
+      if (open && open[1] === fence && !open[2]) {
+        fence = "";
+        if (note) {
+          note = false;
+          continue;
+        }
+      } else if (note) {
+        out.push(line ? `> ${line}` : ">");
+        continue;
+      }
+      out.push(line);
+    } else if (open) {
+      fence = open[1]!;
+      note = open[2]!.startsWith("exercism/");
+      if (!note) out.push(line);
+    } else {
+      out.push(line.replace(/^#{1,6} /, "#### "));
+    }
+  }
+  return out.join("\n");
 }
 
 type Phase =
@@ -111,7 +139,17 @@ export function CodeExercise({
 
   const tabKeys = (e: KeyboardEvent<HTMLButtonElement>) => {
     const i = TABS.indexOf(tab);
-    const next = e.key === "ArrowRight" ? TABS[(i + 1) % TABS.length] : e.key === "ArrowLeft" ? TABS[(i + TABS.length - 1) % TABS.length] : null;
+    // The arrows, Home and End, as the ARIA tabs pattern has them.
+    const next =
+      e.key === "ArrowRight"
+        ? TABS[(i + 1) % TABS.length]
+        : e.key === "ArrowLeft"
+          ? TABS[(i + TABS.length - 1) % TABS.length]
+          : e.key === "Home"
+            ? TABS[0]
+            : e.key === "End"
+              ? TABS[TABS.length - 1]
+              : null;
     if (next) {
       e.preventDefault();
       setTab(next);
@@ -171,7 +209,7 @@ export function CodeExercise({
         <p id={`${ids}-editor-help`} className="mt-0.5 text-xs text-muted-foreground">
           {t("code.keys")}
         </p>
-        <div className="mt-1">
+        <div className="lp-code-block mt-1 p-4">
           <CodeEditor
             id={`${ids}-editor`}
             value={code}
@@ -217,10 +255,13 @@ export function CodeExercise({
           ) : null}
         </div>
 
+        {/* The megabytes count up a few times a second: shown, not announced.
+            The status says once that Python is being got ready. */}
+        {loading && progress ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("code.loading", { loaded: mb(progress.loaded), total: mb(progress.total) })}</p>
+        ) : null}
         <div role="status" className="mt-3 space-y-2 text-sm leading-prose">
-          {loading && progress ? (
-            <p className="text-muted-foreground">{t("code.loading", { loaded: mb(progress.loaded), total: mb(progress.total) })}</p>
-          ) : null}
+          {loading ? <p className="sr-only">{t("code.loadingAnnounce")}</p> : null}
           {phase.kind === "failed" ? <p className="text-destructive">{t("code.loadFailed")}</p> : null}
           {phase.kind === "stopped" ? (
             <p>{phase.byTimeout ? t("code.timedOut", { seconds: HARD_STOP_MS / 1000 }) : t("code.stopped")}</p>

@@ -10,9 +10,9 @@ import { RichText } from "~/components/rich-text";
  * formulas. A note has no turn behind it, so citation markers resolve to
  * nothing and are not shown.
  */
-export function MarkdownPreview({ source }: { source: string }) {
+export function MarkdownPreview({ source, className = "text-sm" }: { source: string; className?: string }) {
   return (
-    <div className="text-sm">
+    <div className={className}>
       <RichText text={source} sources={[]} />
     </div>
   );

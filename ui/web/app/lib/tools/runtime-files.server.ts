@@ -13,6 +13,15 @@
  *
  * The path comes from the request, so it is checked segment by segment and
  * then confirmed to resolve inside the root, symlinks included.
+ *
+ * A file staged with a brotli copy beside it (`<file>.br`, made by the
+ * staging script for entries marked `precompress`) is sent as that copy to a
+ * browser that accepts br. Every response says the file's own size in
+ * X-File-Size, as Content-Length is the encoded size or absent once encoded.
+ *
+ * An SVG is a document that can hold scripts, and these are served from the
+ * app's origin: each is sent sandboxed with a policy that runs nothing, so
+ * opening one directly cannot act as the app. As an <img> it never runs any.
  */
 import { createReadStream } from "node:fs";
 import { realpath, stat } from "node:fs/promises";
@@ -36,6 +45,7 @@ const TYPES: Record<string, string> = {
   ".ttf": "font/ttf",
   ".otf": "font/otf",
   ".png": "image/png",
+  ".svg": "image/svg+xml",
   ".bcmap": "application/octet-stream",
   ".pfb": "application/octet-stream",
   ".icc": "application/vnd.iccprofile",
@@ -46,8 +56,23 @@ const TYPES: Record<string, string> = {
   ".txt": "text/plain; charset=utf-8",
 };
 
+/** Whether an Accept-Encoding header takes br (and not at q=0). */
+export function acceptsBrotli(header: string | null | undefined): boolean {
+  return (header ?? "").split(",").some((part) => {
+    const [name, ...params] = part.trim().split(";");
+    if (name?.trim().toLowerCase() !== "br") return false;
+    const q = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+    return !q || Number(q.slice(2)) > 0;
+  });
+}
+
 /** A file under `root`, or null for anything that is not one. */
-export async function runtimeFile(root: string, splat: string): Promise<Response | null> {
+export async function runtimeFile(
+  root: string,
+  splat: string,
+  acceptEncoding?: string | null,
+  method = "GET",
+): Promise<Response | null> {
   const segments = splat.split("/");
   const [pkg] = segments;
   if (!pkg || !PACKAGE.test(pkg) || segments.length < 2) return null;
@@ -68,11 +93,24 @@ export async function runtimeFile(root: string, splat: string): Promise<Response
     return null;
   }
 
-  const body = Readable.toWeb(createReadStream(real)) as ReadableStream<Uint8Array>;
+  let brotli: number | null = null;
+  try {
+    const info = await stat(`${real}.br`);
+    if (info.isFile()) brotli = info.size;
+  } catch {
+    // no brotli copy
+  }
+  const encoded = brotli !== null && acceptsBrotli(acceptEncoding);
+  // A HEAD's body is dropped unread, so no file is opened for one.
+  const body = method === "HEAD" ? null : (Readable.toWeb(createReadStream(encoded ? `${real}.br` : real)) as ReadableStream<Uint8Array>);
   return new Response(body, {
     headers: {
       "Content-Type": type,
-      "Content-Length": String(size),
+      "Content-Length": String(encoded ? brotli : size),
+      "X-File-Size": String(size),
+      ...(encoded ? { "Content-Encoding": "br" } : {}),
+      ...(brotli !== null ? { Vary: "Accept-Encoding" } : {}),
+      ...(type === "image/svg+xml" ? { "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox" } : {}),
       "Cache-Control": "public, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
       "Cross-Origin-Resource-Policy": "same-origin",

@@ -9,6 +9,10 @@
  * version, shown here for the learner to confirm (lib/consistency-plan.ts).
  * The state is read with the caller's id, here and again when the plan is
  * created: another user's state is not found, like a missing one.
+ *
+ * The choice of kind is a table (P11, plan 261020-2246 phase 12): the kind,
+ * when to use it, and "Use". up's "Time" column is left out: no kind says
+ * how long it takes.
  */
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -20,7 +24,6 @@ import * as worksheets from "~/lib/worksheets.server";
 import { ActionError } from "~/components/loop/action-error";
 import { Button } from "~/components/ui/button";
 import { PrivateNote } from "~/components/worksheet/private-note";
-import { inputBox } from "~/components/worksheet/field-input";
 import * as loop from "~/lib/loop.server";
 import {
   CONSISTENCY_PLAN_KIND,
@@ -30,6 +33,8 @@ import {
   type VersionsPrefill,
 } from "~/lib/consistency-plan";
 import { PageHeader } from "~/components/ui/page-header";
+import { Field } from "~/components/doc/field";
+import { RefTable } from "~/components/doc/ref-table";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "New worksheet", "Toolkit") }, { name: "robots", content: "noindex, nofollow" }];
@@ -111,39 +116,41 @@ export default function ToolkitNew({ loaderData, actionData }: Route.ComponentPr
 
   if (!kind) {
     return (
-      <div className="lp-measure">
+      <div>
         <PageHeader title={t("new.chooseTitle")} lede={t("new.chooseLead")} />
-        {kinds.length === 0 ? <p className="mt-6 lp-empty">{t("index.noKinds")}</p> : null}
-        <ul className="mt-6 border-t">
-          {kinds.map((k) => (
-            <li key={k.kind} className="border-b">
-              <Link
-                to={carry(k.kind)}
-                className="block min-h-11 px-1 py-3 transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-              >
-                <span className="block text-sm font-medium">{k.name}</span>
-                <span className="block text-sm text-muted-foreground">{k.summary}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="lp-doc">
+          {kinds.length === 0 ? (
+            <p className="text-muted-foreground">{t("index.noKinds")}</p>
+          ) : (
+            <RefTable
+              caption={t("new.chooseTitle")}
+              columns={[t("up.new.kind"), t("up.new.useWhen"), <span key="use" className="sr-only">{t("up.new.use")}</span>]}
+              rows={kinds.map((k) => [
+                k.name,
+                k.summary,
+                <Link key="use" to={carry(k.kind)} aria-label={t("up.new.useOf", { name: k.name })}>
+                  {t("up.new.use")}
+                </Link>,
+              ])}
+            />
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="lp-measure">
+    <div>
       <PageHeader title={t("new.title", { name: kind.name })} lede={kind.summary} />
       {kind.private ? <PrivateNote kind={kind} /> : null}
       <ActionError result={actionData} />
-      <Form method="post" className="mt-6 space-y-4">
+      <Form method="post">
         <input type="hidden" name="kind" value={kind.kind} />
         <input type="hidden" name="state" value={state} />
         <input type="hidden" name="document" value={document} />
-        <label className="block text-sm font-medium">
-          {t("new.titleLabel")}
-          <input name="title" required maxLength={200} defaultValue={title || kind.name} className={`${inputBox} mt-1`} />
-        </label>
+        <Field label={t("new.titleLabel")}>
+          <input name="title" required maxLength={200} defaultValue={title || kind.name} />
+        </Field>
         {prefill ? <PrefillChoice prefill={prefill} /> : null}
         <Button type="submit" disabled={busy}>
           {t("new.start")}
@@ -157,7 +164,7 @@ export default function ToolkitNew({ loaderData, actionData }: Route.ComponentPr
 function PrefillChoice({ prefill }: { prefill: VersionsPrefill }) {
   const { t } = useTranslation("toolkit");
   return (
-    <fieldset className="rounded-md border p-4">
+    <fieldset className="my-4 rounded-lg border p-4">
       <legend className="lp-kicker px-1">{t("consistency.prefillTitle")}</legend>
       <p className="text-sm text-muted-foreground">{t("consistency.prefillLead")}</p>
       <dl className="mt-3 border-t text-sm">

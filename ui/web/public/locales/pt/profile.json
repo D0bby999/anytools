@@ -102,5 +102,9 @@
     "full": "Essa seção já tem 12 entradas. Exclua uma antes.",
     "conflict": "Essa entrada mudou desde que esta página carregou. Ela foi atualizada.",
     "invalid": "Uma entrada precisa de texto, com no máximo 280 caracteres."
+  },
+  "up": {
+    "item": "Item",
+    "source": "Origem"
   }
 }

@@ -34,13 +34,14 @@ import { StageList } from "~/components/research/stage-list";
 import { ToolActivityPanel } from "~/components/chat/tool-activity";
 import { RightPanel } from "~/components/layout/right-panel";
 import { PageHeader } from "~/components/ui/page-header";
+import { DocSection } from "~/components/research/doc-section";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Research") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 /** Renders its own RightPanel (stages and sources); the layout leaves the slot. */
-export const handle = { ownsPanel: true };
+export const handle = { ownsPanel: true, layout: "page" };
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
@@ -124,12 +125,15 @@ export default function Research({ loaderData }: Route.ComponentProps) {
     stream.failure?.message ?? (fetcher.data && !fetcher.data.ok ? fetcher.data.error : null);
 
   return (
-    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
-      <div className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
+    // P2 + P4: h1 and lede, "1. Question" with the form, "2. Running" with
+    // the stages and the report as it is written, then the earlier reports
+    // as a dated list. The aside keeps the sources being gathered.
+    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)]">
+      <div className="min-w-0 flex-1 px-4 pt-8 pb-24 lg:px-8 lg:pt-12">
         <div className="lp-measure">
-          <PageHeader title={t("title")} lede={t("lead")} />
+          <PageHeader title={t("title")} lede={t("lead")} className="mb-0" />
 
-          <div className="mt-8">
+          <DocSection n={1} title={t("question.title")}>
             <ResearchForm
               fetcher={fetcher}
               kbs={loaderData.kbs}
@@ -139,24 +143,36 @@ export default function Research({ loaderData }: Route.ComponentProps) {
               busy={busy}
               onStop={stop}
             />
-          </div>
+            {failure && (
+              <p role="alert" className="mt-4 rounded-lg bg-destructive-soft px-4 py-3 text-sm leading-6">
+                {failure}
+              </p>
+            )}
+          </DocSection>
 
-          {failure && (
-            <p role="alert" className="mt-4 rounded-(--lp-radius-control) bg-destructive-soft px-3 py-2 text-sm leading-prose">
-              {failure}
-            </p>
-          )}
-
-          {turnId && !stream.failure && (stream.answer !== "" || stream.observations.length > 0) && (
-            <LiveReport
-              key={turnId}
-              text={stream.answer}
-              sources={stream.sources}
-              streaming={!stream.finished}
-              observations={stream.observations}
-              meta={stream.resultMeta}
-            />
-          )}
+          {turnId ? (
+            <DocSection n={2} title={t("running.title")}>
+              <div className="mt-4">
+                <StageList
+                  ns="research"
+                  stages={RESEARCH_STAGES}
+                  current={stream.stage}
+                  done={stream.stagesDone}
+                  finished={stream.finished}
+                />
+              </div>
+              {!stream.failure && (stream.answer !== "" || stream.observations.length > 0) && (
+                <LiveReport
+                  key={turnId}
+                  text={stream.answer}
+                  sources={stream.sources}
+                  streaming={!stream.finished}
+                  observations={stream.observations}
+                  meta={stream.resultMeta}
+                />
+              )}
+            </DocSection>
+          ) : null}
 
           <ReportList reports={loaderData.reports} />
         </div>
@@ -164,21 +180,12 @@ export default function Research({ loaderData }: Route.ComponentProps) {
 
       <RightPanel>
         {turnId ? (
-          <div className="mt-3 flex flex-col gap-5">
-            <StageList
-              ns="research"
-              stages={RESEARCH_STAGES}
-              current={stream.stage}
-              done={stream.stagesDone}
-              finished={stream.finished}
-            />
-            <ToolActivityPanel
-              sources={stream.sources}
-              tools={stream.tools}
-              thinking={stream.thinking}
-              stage={stream.stage}
-            />
-          </div>
+          <ToolActivityPanel
+            sources={stream.sources}
+            tools={stream.tools}
+            thinking={stream.thinking}
+            stage={stream.stage}
+          />
         ) : undefined}
       </RightPanel>
     </div>

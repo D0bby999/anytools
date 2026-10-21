@@ -7,14 +7,24 @@
     "nameLabel": "Tên",
     "namePlaceholder": "Nhiệt động học, Luật hợp đồng, Học kỳ 2…",
     "submit": "Tạo",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "up": {
+      "kicker": "Bắt đầu ở đây",
+      "title": "Tạo một kho kiến thức, rồi thêm thứ bạn học",
+      "description": "Mọi câu trả lời của AnyLearn đều lấy từ một kho. Thêm tệp, liên kết, trang web hoặc đoạn đánh dấu vào đó.",
+      "importHighlights": "Nhập đoạn đánh dấu",
+      "yours": "Kho kiến thức của bạn"
+    }
   },
   "card": {
     "none": "Chưa có tài liệu",
     "ready": "{{count}} sẵn sàng",
     "working": "{{count}} đang xử lý",
     "failed": "{{count}} thất bại",
-    "needsReembed": "Cần lập chỉ mục lại"
+    "needsReembed": "Cần lập chỉ mục lại",
+    "documents_other": "{{count}} tài liệu",
+    "updated": "cập nhật",
+    "documents_one": "{{count}} tài liệu"
   },
   "detail": {
     "back": "Mọi kho tài liệu",
@@ -26,7 +36,17 @@
     "reindexHint": "Tạo lại embedding cho mọi đoạn bằng mô hình embedding hiện tại của bạn. Văn bản và số trang giữ nguyên.",
     "needsReembedTitle": "Kho tài liệu này cần được lập chỉ mục lại",
     "needsReembedBody": "Mô hình embedding của bạn đã đổi kể từ khi các tài liệu này được lập chỉ mục. Việc hỏi đáp tạm khóa cho tới khi các đoạn được embedding lại, vì so câu hỏi mới với vector cũ sẽ cho ra câu trả lời sai mà vẫn rất tự tin, thay vì báo lỗi.",
-    "notIndexed": "Chưa lập chỉ mục"
+    "notIndexed": "Chưa lập chỉ mục",
+    "lede": "Những tài liệu AnyLearn được dùng để trả lời ở đây, mỗi tài liệu đã được đọc tới đâu, và các cách học từ chúng.",
+    "metaLabel": "Về kho kiến thức này",
+    "metaReady_one": "{{count}} đã xử lý",
+    "metaReady_other": "{{count}} đã xử lý",
+    "metaBooks_one": "{{count}} sách",
+    "metaBooks_other": "{{count}} sách",
+    "danger": "Vùng nguy hiểm",
+    "dangerNote": "Xóa sẽ bỏ mọi tài liệu, đoạn văn, sách và bản tổng quan âm thanh trong kho này.",
+    "deleteTitle": "Xóa “{{name}}”?",
+    "keep": "Giữ lại"
   },
   "upload": {
     "label": "Thêm tài liệu",
@@ -45,7 +65,15 @@
     "remove": "Gỡ bỏ",
     "retry": "Thử lại",
     "removeConfirm": "Gỡ tài liệu này và các đoạn của nó?",
-    "view": "Mở"
+    "view": "Mở",
+    "kind": "Loại",
+    "updated": "Cập nhật",
+    "kindFile": "Tệp",
+    "pageCount_one": "{{count}} trang",
+    "pageCount_other": "{{count}} trang",
+    "passageCount_one": "{{count}} đoạn",
+    "passageCount_other": "{{count}} đoạn",
+    "actionsFor": "Thao tác cho {{title}}"
   },
   "status": {
     "queued": "Đang chờ",
@@ -75,7 +103,9 @@
     "back": "Về kho tài liệu",
     "notReady": "Tài liệu này chưa xử lý xong.",
     "empty": "Trang này trống.",
-    "pages": "Trang"
+    "pages": "Trang",
+    "metaLabel": "Về tài liệu này",
+    "pageN": "Trang {{page}}"
   },
   "errors": {
     "createFailed": "Không tạo được kho tài liệu.",
@@ -155,7 +185,10 @@
     "add": "Thêm vào kho tài liệu này",
     "addedPDF": "Đã thêm: PDF truy cập mở đang được đọc.",
     "addedNote": "Đã thêm dưới dạng ghi chú kèm tóm tắt và liên kết.",
-    "open": "Mở bài báo"
+    "open": "Mở bài báo",
+    "colPaper": "Bài báo",
+    "colYear": "Năm",
+    "colCited": "Trích dẫn"
   },
   "link": {
     "label": "Thêm liên kết",
@@ -476,7 +509,10 @@
       "addFailed": "Không thêm được các mục đó.",
       "updateFailed": "Không cập nhật được nguồn theo dõi.",
       "deleteFailed": "Không gỡ được nguồn theo dõi."
-    }
+    },
+    "metaLabel": "Về nguồn cấp này",
+    "entryCount_one": "{{count}} mục",
+    "entryCount_other": "{{count}} mục"
   },
   "add": {
     "label": "Thêm vào kho tài liệu này",
@@ -492,7 +528,11 @@
     "quiz": "Soạn câu hỏi",
     "path": "Lên lộ trình ôn tập",
     "book": "Viết một cuốn sách",
-    "waiting": "Hỏi đáp, câu hỏi, lộ trình và sách sẽ mở ở đây khi có một tài liệu sẵn sàng."
+    "waiting": "Hỏi đáp, câu hỏi, lộ trình và sách sẽ mở ở đây khi có một tài liệu sẵn sàng.",
+    "chatNote": "cuộc trò chuyện chỉ trả lời từ các tài liệu này, có nguồn.",
+    "quizNote": "câu hỏi lấy từ các tài liệu này, để ôn giãn cách.",
+    "pathNote": "các mô-đun, mỗi mô-đun có bài kiểm tra ở cuối.",
+    "bookNote": "các chương viết từ các tài liệu này, ở phía dưới trang."
   },
   "share": {
     "title": "Thêm vào AnyLearn",

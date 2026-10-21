@@ -46,10 +46,11 @@
  * the activity panel carries the tutor.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, redirect, useFetcher, useRevalidator, useSearchParams } from "react-router";
+import { redirect, useFetcher, useRevalidator, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft } from "lucide-react";
+import { Mic, Volume2 } from "lucide-react";
 import type { Route } from "./+types/documents.$docId";
+import type { LayoutHandle, PanelHandle } from "./app-layout";
 import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
@@ -107,11 +108,17 @@ import { BARRIERS, PASSES, closedForRebuild } from "~/lib/reading-passes";
 import { ClosedForRebuild, ReadingPasses } from "~/components/reading/reading-passes";
 import { DriveFileNotice, useDriveReason } from "~/components/storage/drive-file-notice";
 import { PageHeader } from "~/components/ui/page-header";
+import { Button } from "~/components/ui/button";
+import { DateText } from "~/components/ui/date-text";
+import { Badge } from "~/components/doc/badge";
+import { BookMeta } from "~/components/doc/book-meta";
+import { Details } from "~/components/doc/details";
+import { documentKind } from "~/components/knowledge/document-table";
 
 const NO_PASSES: ReadingPassesData = { allowed: false, sheet: null };
 
 /** The tutor lives in the activity panel, so the layout leaves the slot to us. */
-export const handle = { ownsPanel: true };
+export const handle = { ownsPanel: true, measure: "read" } satisfies PanelHandle & LayoutHandle;
 
 export function meta({ data, matches }: Route.MetaArgs) {
   return [
@@ -591,17 +598,18 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
   if (loaderData.notReady || !loaderData.content) {
     const video = loaderData.video;
     return (
-      <div className="lp-measure">
+      <div>
         {video ? (
           <>
-            <Link
-              to={`/knowledge/${video.document.kb_id}`}
-              className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft aria-hidden="true" className="size-4" />
-              {t("viewer.back")}
-            </Link>
-            <PageHeader title={video.document.title} className="mt-2 mb-0" />
+            <PageHeader title={video.document.title} className="mb-0" />
+            <BookMeta
+              label={t("viewer.metaLabel")}
+              items={[
+                { label: t("viewer.back"), to: `/knowledge/${video.document.kb_id}` },
+                { label: documentKind(video.document, t) },
+                { label: <Badge type="info">{t(`status.${video.document.status}`)}</Badge> },
+              ]}
+            />
           </>
         ) : null}
         <div className="mt-6">
@@ -656,6 +664,13 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
       { method: "post" },
     );
   };
+  // The page the learner is on: the one progress last saw, else the cited or
+  // resumed page, else the first.
+  const pageInView = () => {
+    const list = pages ?? [];
+    const at = lastSaved.current.page || startPage || list[0]?.page || 1;
+    return list.find((p) => p.page === at) ?? list[0]!;
+  };
   const dismiss = () => {
     window.getSelection()?.removeAllRanges();
     setSelection(null);
@@ -668,89 +683,121 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
       : null);
 
   return (
-    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
-      <div className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
-        <div className="lp-measure">
-          <Link
-            to={`/knowledge/${doc.kb_id}`}
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("viewer.back")}
-          </Link>
-
-          <header className="lp-page-enter mt-2">
-            <h1 className="text-3xl leading-tight break-words lg:text-4xl">{doc.title}</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-              <span>
-                {t("viewer.pages")}: {doc.page_count}
-              </span>
-              <ProcessedByBadge processedBy={doc.processed_by} />
-            </div>
-            <p className="mt-2 text-xs leading-snug text-muted-foreground">
-              {isVideo ? tr("videoHint") : tr("hint")}
-            </p>
-            {isPhotoMime(doc.mime) ? (
-              <p className="mt-1 text-xs leading-snug text-muted-foreground">{t("photos.viewerHint")}</p>
-            ) : null}
-            {pdfFailed && fileReason ? (
-              <DriveFileNotice reason={fileReason} className="mt-2" />
-            ) : pdfFailed ? (
-              <p role="status" className="mt-2 text-xs text-muted-foreground">
-                {tr("pdfFallback")}
-              </p>
-            ) : null}
-          </header>
-
-          <div ref={rootRef} className="mt-8">
-            {closed ? (
-              <ClosedForRebuild />
-            ) : isVideo ? (
-              <>
-                <VideoViewer
-                  document={doc}
-                  pages={pages}
-                  notes={loaderData.notes}
-                  initialSeconds={startSeconds}
-                  busy={busy}
-                  onAsk={askAboutMoment}
-                  onMoment={reportPage}
-                  listening={loaderData.listening}
-                  initialTab={searchParams.get("view") === "listening" ? "listening" : undefined}
-                  onTranscriptHidden={setTutorHidden}
-                />
-                <details className="mt-8 border-t pt-4">
-                  <summary className="min-h-11 cursor-pointer text-sm text-muted-foreground">
-                    {t("video.replace")}
-                  </summary>
-                  <div className="mt-4">
-                    <NeedsTranscript view={{ document: doc }} replacing />
-                  </div>
-                </details>
-              </>
-            ) : isPdf ? (
-              <PdfViewer
-                url={`/documents/${doc.id}/file`}
-                initialPage={startPage}
-                onVisiblePage={reportPage}
-                onFailed={() => {
-                  setPdfFailed(true);
-                  checkFileReason(`/documents/${doc.id}/file`);
+    // The doc layout's article (up's VPDoc) holds the page; the aside holds
+    // the outline (the document's headings or page numbers) and, through the
+    // panel, the tutor and highlights, which fall to the end below 1280.
+    <div>
+      <PageHeader title={doc.title} className="mb-0">
+        <BookMeta
+          label={t("viewer.metaLabel")}
+          items={[
+            { label: t("viewer.back"), to: `/knowledge/${doc.kb_id}` },
+            { label: documentKind(doc, t) },
+            ...(doc.page_count ? [{ label: t("table.pageCount", { count: doc.page_count }) }] : []),
+            {
+              label: (
+                <>
+                  <span className="sr-only">{t("table.processedBy")}: </span>
+                  <ProcessedByBadge processedBy={doc.processed_by} />
+                </>
+              ),
+            },
+            {
+              label: (
+                <>
+                  {t("card.updated")} <DateText iso={doc.updated_at} />
+                </>
+              ),
+            },
+            ...(doc.mime === "application/pdf" ? [{ label: <a href={`/documents/${doc.id}/file`} download>{tr("download")}</a> }] : []),
+          ]}
+        />
+        {/* Read-aloud, as a row of secondary buttons under the facts:
+            the page in view, read by the browser's voice or checked
+            against the learner's own reading. */}
+        {!closed && !isVideo && pages && pages.length > 0 ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setAloud(plainText(pageInView().markdown ?? ""))}>
+              <Volume2 aria-hidden="true" />
+              {tr("readAloudPage")}
+            </Button>
+            {checkable(plainText(pageInView().markdown ?? "")) ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const page = pageInView();
+                  setAloud(null);
+                  setChecking({ text: plainText(page.markdown ?? ""), page: page.page });
                 }}
-                label={doc.title}
-              />
-            ) : isPhotoMime(doc.mime) ? (
-              <PhotoPages
-                docId={doc.id}
-                pages={pages}
-                onReadPage={(markdown) => setAloud(plainText(markdown))}
-                readPageLabel={tr("actions.readPage")}
-              />
-            ) : (
-              <TextPages pages={pages} onReadPage={(markdown) => setAloud(plainText(markdown))} readPageLabel={tr("actions.readPage")} />
-            )}
+              >
+                <Mic aria-hidden="true" />
+                {tr("checkAloudPage")}
+              </Button>
+            ) : null}
           </div>
-        </div>
+        ) : null}
+        <p className="mt-4 text-sm leading-6 text-muted-foreground">
+          {isVideo ? tr("videoHint") : tr("hint")}
+        </p>
+        {isPhotoMime(doc.mime) ? (
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">{t("photos.viewerHint")}</p>
+        ) : null}
+        {pdfFailed && fileReason ? (
+          <DriveFileNotice reason={fileReason} className="mt-2" />
+        ) : pdfFailed ? (
+          <p role="status" className="mt-2 text-sm text-muted-foreground">
+            {tr("pdfFallback")}
+          </p>
+        ) : null}
+      </PageHeader>
+
+      <div ref={rootRef} className="mt-8">
+        {closed ? (
+          <ClosedForRebuild />
+        ) : isVideo ? (
+          <>
+            <VideoViewer
+              document={doc}
+              pages={pages}
+              notes={loaderData.notes}
+              initialSeconds={startSeconds}
+              busy={busy}
+              onAsk={askAboutMoment}
+              onMoment={reportPage}
+              listening={loaderData.listening}
+              initialTab={searchParams.get("view") === "listening" ? "listening" : undefined}
+              onTranscriptHidden={setTutorHidden}
+            />
+            <Details summary={t("video.replace")} className="mt-8">
+              <NeedsTranscript view={{ document: doc }} replacing />
+            </Details>
+          </>
+        ) : isPdf ? (
+          // The viewer in a frame: a 1px rule, radius 8.
+          <div className="rounded-lg border bg-sunken p-2 sm:p-4">
+            <PdfViewer
+              url={`/documents/${doc.id}/file`}
+              initialPage={startPage}
+              onVisiblePage={reportPage}
+              onFailed={() => {
+                setPdfFailed(true);
+                checkFileReason(`/documents/${doc.id}/file`);
+              }}
+              label={doc.title}
+            />
+          </div>
+        ) : isPhotoMime(doc.mime) ? (
+          <PhotoPages
+            docId={doc.id}
+            pages={pages}
+            onReadPage={(markdown) => setAloud(plainText(markdown))}
+            readPageLabel={tr("actions.readPage")}
+          />
+        ) : (
+          <TextPages pages={pages} onReadPage={(markdown) => setAloud(plainText(markdown))} readPageLabel={tr("actions.readPage")} />
+        )}
       </div>
 
       <RightPanel title={passesOn ? tr("passes.panel") : tr("tutor.title")}>
@@ -776,8 +823,8 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
               />
             ) : null}
             {closed ? null : passesOn ? (
-              <section aria-labelledby="lp-tutor">
-                <h2 id="lp-tutor" className="lp-section">
+              <section aria-labelledby="lp-tutor" className="mt-8">
+                <h2 id="lp-tutor" data-outline-ignore className="text-sm leading-8 font-semibold">
                   {tr("tutor.title")}
                 </h2>
                 <TutorPane exchanges={exchanges} failure={failure} sessionId={loaderData.workspace?.session_id} />

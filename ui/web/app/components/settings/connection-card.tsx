@@ -1,10 +1,3 @@
-import { Form, useNavigation } from "react-router";
-import { useTranslation } from "react-i18next";
-import { Button } from "~/components/ui/button";
-import { StatusPill } from "~/components/settings/readiness-matrix";
-import type { Connection, ReadinessStatus } from "~/lib/byok.types";
-import { providerName } from "~/lib/provider-names";
-
 /**
  * One connected credential.
  *
@@ -16,6 +9,17 @@ import { providerName } from "~/lib/provider-names";
  * never sends one back, so there is nothing to render; replacing a key is a
  * write-only input.
  */
+import { Details } from "~/components/doc/details";
+import { Flyout } from "~/components/doc/flyout";
+import { Dialog } from "~/components/doc/dialog";
+import { useRef, useState } from "react";
+import { Form, useNavigation } from "react-router";
+import { useTranslation } from "react-i18next";
+import { Button } from "~/components/ui/button";
+import { StatusPill } from "~/components/settings/readiness-matrix";
+import type { Connection, ReadinessStatus } from "~/lib/byok.types";
+import { providerName } from "~/lib/provider-names";
+
 export function connectionStatus(conn: Connection): ReadinessStatus {
   if (conn.needs_reconnect) return "blocked";
   if (conn.last_error) return "blocked";
@@ -29,6 +33,13 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
   const status = connectionStatus(connection);
+  const [confirming, setConfirming] = useState(false);
+  const card = useRef<HTMLLIElement>(null);
+  const closeDialog = () => {
+    setConfirming(false);
+    // Opening the dialog folds the flyout; return to its visible trigger.
+    requestAnimationFrame(() => card.current?.querySelector<HTMLButtonElement>("button[aria-expanded]")?.focus());
+  };
 
   const statusLabel =
     status === "green"
@@ -38,7 +49,7 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
         : t("settings.readiness.blocked");
 
   return (
-    <li className="border-b py-5">
+    <li ref={card} className="lp-download-card min-w-0">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-sans text-base font-medium">{connection.name}</h3>
         <StatusPill status={status} label={statusLabel} />
@@ -53,9 +64,7 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
             <dt className="lp-kicker">{t("settings.connections.baseUrl")}</dt>
             {/* The base URL is long and arbitrary; it scrolls inside its own
                 box rather than forcing the page to scroll sideways. */}
-            <dd className="overflow-x-auto font-mono text-xs text-muted-foreground">
-              {connection.api_base}
-            </dd>
+            <dd className="overflow-x-auto font-mono text-xs text-muted-foreground">{connection.api_base}</dd>
           </>
         ) : null}
 
@@ -70,21 +79,15 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
         ) : null}
       </dl>
 
-      {connection.last_error ? (
-        <p className="mt-2 text-sm leading-prose text-destructive">{connection.last_error}</p>
-      ) : null}
+      {connection.last_error ? <p className="mt-2 text-sm leading-prose text-destructive">{connection.last_error}</p> : null}
       {connection.needs_reconnect ? (
-        <p className="mt-2 text-sm leading-prose text-destructive">
-          {t("settings.connections.needsReconnect")}
-        </p>
+        <p className="mt-2 text-sm leading-prose text-destructive">{t("settings.connections.needsReconnect")}</p>
       ) : null}
       {!connection.verified_at && !connection.last_error ? (
-        <p className="mt-2 text-sm leading-prose text-muted-foreground">
-          {t("settings.connections.notVerified")}
-        </p>
+        <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("settings.connections.notVerified")}</p>
       ) : null}
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <Flyout label={t("settings.up.manage")} buttonClassName="!h-10" menuClassName="!top-full !left-0 !right-auto">
         <Form method="post">
           <input type="hidden" name="intent" value="verify" />
           <input type="hidden" name="id" value={connection.id} />
@@ -93,45 +96,46 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
           </Button>
         </Form>
 
-        {/* Destructive and irreversible, so it asks. A native confirm is the
-            honest minimum here: a modal would be a focus trap to build and
-            this action removes a credential, not a draft. */}
-        <Form
-          method="post"
-          onSubmit={(event) => {
-            if (!window.confirm(t("settings.connections.confirmRemove"))) event.preventDefault();
-          }}
-        >
+        <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setConfirming(true)}>
+          {t("settings.connections.remove")}
+        </Button>
+        <Details summary={t("settings.connections.replaceKey")}>
+          <Form method="post" className="mt-2 flex flex-wrap items-end gap-2">
+            <input type="hidden" name="intent" value="replace-key" />
+            <input type="hidden" name="id" value={connection.id} />
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="lp-kicker">{t("settings.connections.newKey")}</span>
+              <input
+                type="password"
+                name="secret"
+                required
+                autoComplete="off"
+                className="h-10 w-72 max-w-full rounded-md border bg-card px-3 font-mono text-sm"
+              />
+            </label>
+            <Button type="submit" variant="outline" size="sm" disabled={busy}>
+              {t("settings.connections.save")}
+            </Button>
+          </Form>
+        </Details>
+      </Flyout>
+      <Dialog
+        open={confirming}
+        onClose={closeDialog}
+        title={t("settings.connections.remove")}
+        description={t("settings.connections.confirmRemove")}
+      >
+        <Form method="post" className="mt-4 flex justify-end gap-2" onSubmit={() => setConfirming(false)}>
           <input type="hidden" name="intent" value="delete" />
           <input type="hidden" name="id" value={connection.id} />
-          <Button type="submit" variant="ghost" size="sm" disabled={busy}>
+          <Button type="button" variant="ghost" onClick={closeDialog}>
+            {t("settings.up.cancel")}
+          </Button>
+          <Button type="submit" variant="destructive" disabled={busy}>
             {t("settings.connections.remove")}
           </Button>
         </Form>
-      </div>
-
-      <details className="mt-3">
-        <summary className="cursor-pointer text-sm text-muted-foreground">
-          {t("settings.connections.replaceKey")}
-        </summary>
-        <Form method="post" className="mt-2 flex flex-wrap items-end gap-2">
-          <input type="hidden" name="intent" value="replace-key" />
-          <input type="hidden" name="id" value={connection.id} />
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="lp-kicker">{t("settings.connections.newKey")}</span>
-            <input
-              type="password"
-              name="secret"
-              required
-              autoComplete="off"
-              className="h-10 w-72 max-w-full rounded-md border bg-card px-3 font-mono text-sm"
-            />
-          </label>
-          <Button type="submit" variant="outline" size="sm" disabled={busy}>
-            {t("settings.connections.save")}
-          </Button>
-        </Form>
-      </details>
+      </Dialog>
     </li>
   );
 }

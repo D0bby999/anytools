@@ -10,6 +10,7 @@ package quiz
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode/utf8"
 
@@ -100,30 +101,37 @@ func testsJudge(q Question, results []TestResult) (Judgement, error) {
 	if len(results) > MaxTestResults {
 		return Judgement{}, fmt.Errorf("%w: too many test results", ErrBadRequest)
 	}
-	passed := map[string]bool{}
-	ran := map[string]bool{}
+	// Counted by method name, as the file declares them: two classes may
+	// each have a test_a, and one failing must not hide behind the other.
+	passed, failed, ran := map[string]int{}, map[string]int{}, map[string]int{}
 	for _, r := range results {
 		name := r.Name
 		if i := strings.LastIndex(name, "."); i >= 0 {
 			name = name[i+1:]
 		}
-		ran[name] = true
+		ran[name]++
 		if r.Passed {
-			passed[name] = true
+			passed[name]++
+		} else {
+			failed[name]++
 		}
 	}
 	declared := TestNames(q.Code.Tests)
-	var missing []string
-	ok := 0
+	want := map[string]int{}
 	for _, n := range declared {
-		switch {
-		case passed[n]:
-			ok++
-		case !ran[n]:
+		want[n]++
+	}
+	var missing []string
+	ok, anyFailed := 0, false
+	for n, w := range want {
+		ok += min(passed[n], w)
+		anyFailed = anyFailed || failed[n] > 0
+		if ran[n] < w {
 			missing = append(missing, n)
 		}
 	}
-	correct := ok == len(declared)
+	sort.Strings(missing)
+	correct := ok == len(declared) && !anyFailed
 	j := Judgement{
 		Correct: correct, Mode: JudgeModeTests, Tests: results,
 		Reason: fmt.Sprintf("%d of %d tests passed.", ok, len(declared)),

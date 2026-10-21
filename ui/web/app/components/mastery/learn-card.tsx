@@ -43,7 +43,7 @@ export function LearnCard({
     );
 
   return (
-    <article aria-labelledby={`lp-learn-${pointId}`} className="rounded-lg border bg-card p-4 sm:p-5">
+    <article aria-labelledby={`lp-learn-${pointId}`} className="lp-doc max-w-[780px]">
       <p className="text-xs font-semibold text-faint">{t("learn.label")}</p>
       <h3 id={`lp-learn-${pointId}`} className="mt-2 font-serif text-lg leading-snug">
         {pointName}

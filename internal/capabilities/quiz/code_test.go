@@ -51,6 +51,11 @@ func TestACodeAttemptIsMarkedFromItsTests(t *testing.T) {
 		{"one not reported", []TestResult{{Name: "LeapTest.test_year_not_divisible_by_4", Passed: true}}, false},
 		{"nothing ran", nil, false},
 		{"a test it does not declare passed", []TestResult{{Name: "test_made_up", Passed: true}}, false},
+		// The same declared test failing in another class is not hidden by a pass.
+		{"one failed beside its namesake", []TestResult{
+			{Name: "LeapTest.test_year_not_divisible_by_4", Passed: true}, {Name: "LeapTest.test_year_divisible_by_400", Passed: true},
+			{Name: "OtherTest.test_year_divisible_by_400", Message: "AssertionError"},
+		}, false},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

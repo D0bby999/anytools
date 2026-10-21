@@ -16,16 +16,16 @@ import { Button } from "~/components/ui/button";
 export function HandoverForm({ result, busy }: { result: HandoverResult | null; busy: boolean }) {
   const { t } = useTranslation("loop");
   return (
-    <div className="mt-3 space-y-4">
+    <div>
       <Form method="post">
         <input type="hidden" name="intent" value="resume" />
-        <p className="text-sm leading-prose text-muted-foreground">{t("resume.lead")}</p>
-        <Button type="submit" variant="outline" className="mt-2" disabled={busy}>
+        <p className="mt-0! text-muted-foreground">{t("resume.lead")}</p>
+        <Button type="submit" variant="outline" disabled={busy}>
           {t("resume.open")}
         </Button>
       </Form>
 
-      <Form method="post" className="space-y-2">
+      <Form method="post" className="mt-6 space-y-2">
         <input type="hidden" name="intent" value="handover" />
         <label htmlFor="lp-handover-text" className="block text-sm font-medium">
           {t("resume.paste")}
@@ -52,7 +52,7 @@ export function HandoverForm({ result, busy }: { result: HandoverResult | null; 
       </Form>
 
       {result ? (
-        <div role="status" className="border-t pt-3 text-sm">
+        <div role="status" className="mt-4 rounded-lg border bg-muted px-4 py-2 text-sm">
           {result.accepted ? (
             <p>{t("resume.accepted")}</p>
           ) : result.valid ? (

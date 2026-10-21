@@ -17,7 +17,8 @@ beforeAll(() => {
   initI18n("en");
 });
 
-const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1";
+const IPHONE =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1";
 const ENDPOINT = "https://fcm.googleapis.com/fcm/send/abc";
 const push = { public_key: "BKz" + "A".repeat(84), hour: 7, timezone: "Asia/Ho_Chi_Minh", endpoints: [] as string[] };
 
@@ -84,7 +85,7 @@ describe("Settings → Reminders", () => {
     routed(<RemindersPanel push={push} pending={false} />);
     expect(await screen.findByText("Tap the Share button.")).toBeInTheDocument();
     expect(screen.getByText(/works once AnyLearn is on your Home Screen/)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Turn on in this browser" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("switch", { name: "Turn on in this browser" })).not.toBeInTheDocument();
   });
 
   it("says an installed app is installed", async () => {
@@ -97,7 +98,7 @@ describe("Settings → Reminders", () => {
     const manager = asDevice({ push: true })!;
     const posts: Post[] = [];
     routed(<RemindersPanel push={push} pending={false} />, posts);
-    await userEvent.click(await screen.findByRole("button", { name: "Turn on in this browser" }));
+    await userEvent.click(await screen.findByRole("switch", { name: "Turn on in this browser" }));
     await vi.waitFor(() => expect(posts).toHaveLength(1));
     expect(manager.subscribe).toHaveBeenCalledWith(expect.objectContaining({ userVisibleOnly: true }));
     const [sent] = posts as [Post];
@@ -109,7 +110,7 @@ describe("Settings → Reminders", () => {
     asDevice({ push: true, subscribed: ENDPOINT });
     routed(<RemindersPanel push={{ ...push, endpoints: [ENDPOINT] }} pending={false} />);
     expect(await screen.findByText("The reminder is on in this browser.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Turn off here" })).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "Turn off here" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("button", { name: "Send a test reminder" })).toBeInTheDocument();
     expect(screen.getByText(/Asia\/Ho_Chi_Minh/)).toBeInTheDocument();
   });

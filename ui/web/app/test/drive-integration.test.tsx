@@ -62,7 +62,8 @@ describe("disconnecting while new files go to Drive", () => {
     const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     inShell(<DriveConnectionCard status={CONNECTED} />, "server");
     await userEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
-    expect(confirm).toHaveBeenCalled();
+    expect(screen.getByRole("dialog", { name: "Disconnect" })).toHaveTextContent(/revoked at Google/);
+    expect(confirm).not.toHaveBeenCalled();
     expect(screen.queryByRole("region", { name: "Before you disconnect" })).toBeNull();
     confirm.mockRestore();
   });
@@ -113,10 +114,7 @@ describe("a parse that could not reach Drive", () => {
       <DocumentTable kbId="kb1" documents={[doc({ error: "This file was removed from your Drive.", error_code: "drive_file_removed" })]} />,
       "drive",
     );
-    expect(await screen.findByText("This file was removed from your Drive.")).toHaveAttribute(
-      "data-drive-reason",
-      "drive_file_removed",
-    );
+    expect(await screen.findByText("This file was removed from your Drive.")).toHaveAttribute("data-drive-reason", "drive_file_removed");
     expect(screen.queryByRole("link", { name: "Reconnect Google Drive" })).toBeNull();
   });
 

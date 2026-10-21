@@ -132,10 +132,12 @@ export function UploadDropzone({ kbId, codec }: { kbId: string; codec?: PhotoCod
 
       <label
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed px-4 py-8 text-center transition-colors",
+          // up's dropzone (spec, knowledge base row): a dashed 1px control
+          // border, radius 8, padding 24, its words 14px in secondary ink.
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground transition-colors",
           // The control border, not the decorative hairline: this is something
           // you operate, and WCAG 1.4.11 wants 3:1 on the boundary that says so.
-          "border-control-border hover:bg-muted",
+          "border-control-border hover:border-primary",
           dragging && "border-primary bg-primary-soft",
           busy && "pointer-events-none opacity-60",
           // The focus ring lands on the label because the input inside it is
@@ -144,7 +146,7 @@ export function UploadDropzone({ kbId, codec }: { kbId: string; codec?: PhotoCod
         )}
       >
         <Upload aria-hidden="true" className="size-5 text-muted-foreground" />
-        <span className="font-sans text-sm font-medium">
+        <span className="text-sm font-medium text-foreground">
           {preparing ? t("photos.preparing") : busy ? t("upload.uploading") : t("upload.drop")}
         </span>
         <span className="text-xs leading-snug text-muted-foreground">{t("upload.accepted")}</span>

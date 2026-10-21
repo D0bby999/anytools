@@ -51,7 +51,7 @@ export function WritingDiagnosisPanel({ worksheetId, section, diagnoses, editor 
   const passes = section.fields.find((f) => f.key === PASSES_FIELD)?.rows ?? [];
   return (
     <section aria-labelledby="ws-diagnosis" className="mt-6">
-      <h3 id="ws-diagnosis" className="lp-section">
+      <h3 id="ws-diagnosis">
         {t("writingDiagnosis.title")}
       </h3>
       <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("writingDiagnosis.lead")}</p>
@@ -124,7 +124,7 @@ function PassDiagnosis({ worksheetId, pass, row, label, stored, editor }: PassPr
             })}
           </p>
           {diagnosis.issues.length === 0 ? (
-            <p className="mt-2 lp-empty">{t("writingDiagnosis.none")}</p>
+            <p className="text-muted-foreground">{t("writingDiagnosis.none")}</p>
           ) : (
             <ul className="mt-2 space-y-4" aria-label={t("writingDiagnosis.issues", { n: pass })}>
               {diagnosis.issues.map((issue, i) => (

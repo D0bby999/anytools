@@ -63,7 +63,7 @@ function AddToEvidence({ worksheet, chains }: { worksheet: Worksheet; chains: Ch
   const [only, ...more] = chains;
   return (
     <section aria-labelledby="ws-artifact-evidence" className="mt-6 rounded-md border bg-muted px-4 py-3">
-      <h3 id="ws-artifact-evidence" className="lp-section">
+      <h3 id="ws-artifact-evidence">
         {t("artifact.evidenceTitle")}
       </h3>
       <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("artifact.evidenceLead")}</p>

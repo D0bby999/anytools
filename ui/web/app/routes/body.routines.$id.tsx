@@ -4,7 +4,8 @@
  * Exercises come from the library; each says how it is logged (reps, a
  * timed hold, cardio), its target, and optionally its own progression.
  */
-import { useState } from "react";
+import { InputTable } from "~/components/body/input-table";
+import { Children, type ReactElement, type ReactNode, useState } from "react";
 import { Form, redirect, useActionData, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
@@ -23,10 +24,7 @@ import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Routine") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Routine") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -73,8 +71,7 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
   const policyName = usePolicyName();
   const [names, setNames] = useState<Names>(loaderData.names);
   const [exercises, setExercises] = useState<PlanExercise[]>(routine?.exercises ?? []);
-  const set = (i: number, patch: Partial<PlanExercise>) =>
-    setExercises((list) => list.map((e, j) => (j === i ? { ...e, ...patch } : e)));
+  const set = (i: number, patch: Partial<PlanExercise>) => setExercises((list) => list.map((e, j) => (j === i ? { ...e, ...patch } : e)));
   const move = (i: number, by: number) =>
     setExercises((list) => {
       const next = [...list];
@@ -84,7 +81,7 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
     });
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader title={routine ? routine.name : t("routine.new")} lede={t("routine.lead")} />
       <BodyTabs />
 
@@ -119,13 +116,20 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
           {exercises.map((e, i) => {
             const name = names[e.exercise]?.name ?? e.exercise;
             return (
-              <li key={`${e.exercise}-${i}`} className="rounded-lg border bg-card p-4">
+              <li key={`${e.exercise}-${i}`} className="list-none">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="min-w-0 flex-1 font-medium">
                     <span className="mr-2 font-mono text-xs text-muted-foreground">{i + 1}</span>
                     {name}
                   </h3>
-                  <Button type="button" size="icon" variant="ghost" aria-label={t("routine.up", { name })} disabled={i === 0} onClick={() => move(i, -1)}>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    aria-label={t("routine.up", { name })}
+                    disabled={i === 0}
+                    onClick={() => move(i, -1)}
+                  >
                     <ArrowUp aria-hidden="true" />
                   </Button>
                   <Button
@@ -148,15 +152,11 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
                     <Trash2 aria-hidden="true" />
                   </Button>
                 </div>
-                {e.why ? <p className="mt-1 text-sm text-muted-foreground">{e.why}</p> : null}
-                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {e.why ? <blockquote className="rounded-lg border bg-sunken p-4">{e.why}</blockquote> : null}
+                <RoutineFields caption={name}>
                   <label className="text-xs text-muted-foreground">
                     {t("routine.mode")}
-                    <select
-                      value={e.mode}
-                      onChange={(ev) => set(i, { mode: ev.target.value as Mode, prog: "" })}
-                      className={SMALL}
-                    >
+                    <select value={e.mode} onChange={(ev) => set(i, { mode: ev.target.value as Mode, prog: "" })} className={SMALL}>
                       {MODES.map((m) => (
                         <option key={m} value={m}>
                           {m === "reps" ? t("mode.reps") : m === "time" ? t("mode.time") : t("mode.cardio")}
@@ -167,14 +167,28 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
                   {e.mode !== "cardio" ? (
                     <label className="text-xs text-muted-foreground">
                       {t("routine.sets")}
-                      <input type="number" min="1" max="10" value={e.sets} onChange={(ev) => set(i, { sets: Number(ev.target.value) })} className={SMALL} />
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={e.sets}
+                        onChange={(ev) => set(i, { sets: Number(ev.target.value) })}
+                        className={SMALL}
+                      />
                     </label>
                   ) : null}
                   {e.mode === "reps" ? (
                     <>
                       <label className="text-xs text-muted-foreground">
                         {t("routine.reps")}
-                        <input type="number" min="1" max="100" value={e.reps ?? 10} onChange={(ev) => set(i, { reps: Number(ev.target.value) })} className={SMALL} />
+                        <input
+                          type="number"
+                          min="1"
+                          max="100"
+                          value={e.reps ?? 10}
+                          onChange={(ev) => set(i, { reps: Number(ev.target.value) })}
+                          className={SMALL}
+                        />
                       </label>
                       <label className="text-xs text-muted-foreground">
                         {t("routine.repsMin")}
@@ -191,13 +205,27 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
                   ) : e.mode === "time" ? (
                     <label className="text-xs text-muted-foreground">
                       {t("routine.sec")}
-                      <input type="number" min="5" max="3600" value={e.sec ?? 45} onChange={(ev) => set(i, { sec: Number(ev.target.value) })} className={SMALL} />
+                      <input
+                        type="number"
+                        min="5"
+                        max="3600"
+                        value={e.sec ?? 45}
+                        onChange={(ev) => set(i, { sec: Number(ev.target.value) })}
+                        className={SMALL}
+                      />
                     </label>
                   ) : (
                     <>
                       <label className="text-xs text-muted-foreground">
                         {t("routine.min")}
-                        <input type="number" min="1" max="300" value={e.min ?? 20} onChange={(ev) => set(i, { min: Number(ev.target.value) })} className={SMALL} />
+                        <input
+                          type="number"
+                          min="1"
+                          max="300"
+                          value={e.min ?? 20}
+                          onChange={(ev) => set(i, { min: Number(ev.target.value) })}
+                          className={SMALL}
+                        />
                       </label>
                       <label className="text-xs text-muted-foreground">
                         {t("set.speed")}
@@ -237,7 +265,7 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
                       ))}
                     </select>
                   </label>
-                </div>
+                </RoutineFields>
               </li>
             );
           })}
@@ -277,5 +305,36 @@ export default function RoutineEditor({ loaderData }: Route.ComponentProps) {
         </div>
       </Form>
     </div>
+  );
+}
+
+/** Keep each native control and its constraints while presenting a worksheet. */
+function RoutineFields({ caption, children }: { caption: string; children: ReactNode }) {
+  const { t } = useTranslation("body");
+  const labels: ReactElement<{ children: ReactNode }>[] = [];
+  function collect(nodes: ReactNode) {
+    Children.forEach(nodes, (node) => {
+      if (!node || typeof node !== "object" || !("props" in node)) return;
+      const element = node as ReactElement<{ children: ReactNode }>;
+      if (element.type === "label") labels.push(element);
+      else collect(element.props.children);
+    });
+  }
+  collect(children);
+  return (
+    <InputTable
+      caption={caption}
+      columns={[t("up.field"), t("up.value")]}
+      rows={labels.map((label) => {
+        const parts = Children.toArray(label.props.children);
+        return [
+          parts[0],
+          <label>
+            <span className="sr-only">{parts[0]}</span>
+            {parts.slice(1)}
+          </label>,
+        ];
+      })}
+    />
   );
 }

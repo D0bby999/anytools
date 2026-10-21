@@ -62,7 +62,16 @@
     "rename": "Tên",
     "renameSubmit": "Đổi tên",
     "delete": "Xóa sổ ghi chép này",
-    "deleteConfirm": "Xóa sổ ghi chép này và mọi ghi chú trong đó? Không thể hoàn tác."
+    "deleteConfirm": "Xóa sổ ghi chép này và mọi ghi chú trong đó? Không thể hoàn tác.",
+    "up": {
+      "kicker": "Bắt đầu ở đây",
+      "title": "Giữ những gì bạn đọc trong sổ ghi chép",
+      "description": "Lưu một đoạn văn hoặc một câu trả lời từ trình đọc sẽ đưa nó vào sổ mặc định. Tạo thêm sổ cho từng khóa học hay dự án.",
+      "yours": "Sổ ghi chép của bạn",
+      "updated": "cập nhật",
+      "metaLabel": "Về sổ ghi chép này",
+      "edit": "Sửa"
+    }
   },
   "note": {
     "editing": "Ghi chú",
@@ -141,5 +150,8 @@
     "byBuiltin": "Do bộ chép lời có sẵn của máy chủ nghe.",
     "heardText": "Nội dung nghe được",
     "notAScore": "Phần này kiểm tra xem người nghe có hiểu từng từ không, không chấm giọng của bạn giống bản xứ đến đâu. Giọng có hơi lạ mà vẫn hiểu được thì không sao."
-  }
+  },
+  "download": "Tải xuống",
+  "readAloudPage": "Đọc to trang này",
+  "checkAloudPage": "Kiểm tra cách tôi đọc trang này"
 }

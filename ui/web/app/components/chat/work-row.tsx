@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { workTotals, type WorkStep, type WorkView } from "~/lib/chat-work";
 
 /** Tools with their own words; anything else reads as "Used <name>". */
@@ -44,29 +44,36 @@ export function WorkRow({ work, live = false }: { work: WorkView; live?: boolean
   }
 
   return (
-    <details className="group mb-2 text-xs leading-ui text-muted-foreground" data-testid="work-row">
-      <summary className="flex min-h-8 w-fit max-w-full cursor-pointer list-none items-center gap-1.5 rounded-md px-1.5 hover:bg-sunken hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
-        <Search className="size-3.5 shrink-0" aria-hidden="true" />
+    // I7 folded to one line: VitePress's details block on the hover fill,
+    // its padding trimmed so a closed one is a single 40px line above the
+    // answer ("Searched twice · 9 passages · 3.1 s").
+    <details
+      className="group lp-details mt-0! mb-3! px-4! py-2! text-muted-foreground! open:pb-3!"
+      data-testid="work-row"
+    >
+      <summary className="m-0! flex min-h-6 max-w-full cursor-pointer list-none items-center gap-1.5 font-medium! text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+        <ChevronRight className="size-3.5 shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none" aria-hidden="true" />
         <span className="truncate" aria-live={live ? "polite" : undefined}>
           {parts.join(" · ")}
         </span>
-        <ChevronRight className="size-3.5 shrink-0 transition-transform group-open:rotate-90" aria-hidden="true" />
       </summary>
 
-      <ol className="mt-1 ml-2 flex flex-col gap-1 rounded-md border px-3 py-2">
+      <ol className="mt-2 flex list-decimal flex-col gap-1 pl-6 text-sm leading-6">
         {work.steps.map((step, i) => (
-          <li key={i} className="flex flex-wrap items-baseline gap-x-1.5">
+          <li key={i}>
             <span className={step.error ? "text-destructive" : "text-foreground"}>
               {stepLabel(step, t, step.running ? "running" : "done")}
             </span>
-            {step.detail ? <span className="min-w-0 break-words">“{step.detail}”</span> : null}
-            {step.repeated ? <span>· {t("chat.work.repeated")}</span> : null}
-            {step.error ? <span className="text-destructive">· {t("chat.work.failed")}</span> : null}
-            {step.found ? <span>· {t("chat.work.passages", { count: step.found })}</span> : null}
+            {step.detail ? <span className="break-words"> “{step.detail}”</span> : null}
+            {step.repeated ? <span> · {t("chat.work.repeated")}</span> : null}
+            {step.error ? <span className="text-destructive"> · {t("chat.work.failed")}</span> : null}
+            {step.found ? <span> · {t("chat.work.passages", { count: step.found })}</span> : null}
           </li>
         ))}
         {notes.map((note) => (
-          <li key={note}>{note}</li>
+          <li key={note} className="list-none -ml-6">
+            {note}
+          </li>
         ))}
       </ol>
     </details>

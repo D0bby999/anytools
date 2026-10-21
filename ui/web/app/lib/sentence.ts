@@ -11,3 +11,9 @@ export function asSentence(text: string): string {
   const first = t.charAt(0).toUpperCase() + t.slice(1);
   return /[.!?]$/.test(first) ? first : `${first}.`;
 }
+
+/**
+ * The join between a list item's title and its note ("title · note"). up
+ * writes an em dash there; AnyLearn's copy has none (DESIGN.md).
+ */
+export const NOTE_JOIN = " · ";

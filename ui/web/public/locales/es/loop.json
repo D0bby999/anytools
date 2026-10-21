@@ -390,5 +390,94 @@
     "gone": "Ese resultado ya no se ofrece. Vuelve a cargar la página.",
     "weekOneTaken": "La semana 1 ya tiene una pregunta."
   },
-  "repeatedRecovery": "O haz un reinicio de recuperación (privado)"
+  "repeatedRecovery": "O haz un reinicio de recuperación (privado)",
+  "up": {
+    "fiveMinutes": "Si hoy solo tienes cinco minutos",
+    "gate": {
+      "phase": "Fase",
+      "gate": "Puerta",
+      "now": "ahora",
+      "open": "Abierta",
+      "shut": "Cerrada",
+      "final": "Última fase"
+    },
+    "loop": {
+      "doMinimum": "Haz el mínimo",
+      "cycle": "Línea base · Tarea mínima · Evidencia · Nueva prueba · Transferencia",
+      "states": "Tus estados de aprendizaje",
+      "noStates": "Aún no hay ningún objetivo. Empieza uno abajo: bastan cuatro líneas.",
+      "weekColumn": "Semana",
+      "week": "Semana {{week}}",
+      "open": "Abrir",
+      "startSummary": "Cuatro líneas: el objetivo, dónde se usa, el resultado a doce semanas y la primera tarea"
+    },
+    "state": {
+      "goal": "Objetivo",
+      "boundaries": "Restricciones y límites",
+      "baseline": "Nivel actual y línea base",
+      "noBaseline": "Aún no hay línea base. El primer intento sin ayuda de una tarjeta de evidencia es el comienzo habitual.",
+      "what": "Qué",
+      "measure": "Medida",
+      "at": "Cuándo",
+      "methods": "Métodos que funcionaron",
+      "noMethods": "Ninguno confirmado aún. Un método aparece aquí cuando la evidencia muestra que funcionó.",
+      "method": "Método",
+      "evidence": "Evidencia",
+      "claim": "Hipótesis",
+      "handover": "Último traspaso",
+      "next": "Siguiente acción",
+      "fiveLead": "La versión más pequeña de hoy, para copiar en tus notas o en un chat.",
+      "fiveEmpty": "Escribe una siguiente tarea y su mínimo en «Siguiente acción» y la versión corta aparecerá aquí.",
+      "interrupted": "¿Interrumpido? Reduce el plan en lugar de abandonarlo",
+      "handOver": "Pasa a un chat nuevo y trae de vuelta su actualización"
+    },
+    "cycle": {
+      "about": "Sobre este ciclo",
+      "started": "Empezó el {{date}}",
+      "weekOf": "Semana {{week}} de 12",
+      "commitment": "Compromiso del ciclo",
+      "commitmentBody": "Noventa días con un objetivo, en tres fases. Cada fase se abre solo con evidencia; la página del objetivo guarda su escenario, resultado y siguiente tarea.",
+      "gates": "Puertas de las tres fases",
+      "questions": "Doce preguntas semanales",
+      "week": "Semana",
+      "question": "Pregunta",
+      "capacity": "Capacidad",
+      "chain": "Cadena de evidencia",
+      "noChain": "Aún no se ha pasado ninguna puerta. Cada puerta que pase este ciclo aparece aquí con la evidencia que contó.",
+      "passed_one": "{{count}} revisión semanal, {{refs}} evidencias",
+      "passed_other": "{{count}} revisiones semanales, {{refs}} evidencias",
+      "interruptions": "Interrupción y recuperación",
+      "noInterruptions": "No hay interrupciones registradas en este ciclo.",
+      "day90": "Revisión del día noventa"
+    },
+    "review": {
+      "about": "Sobre esta revisión",
+      "inventory": "Inventario de evidencia",
+      "source": "Origen",
+      "when": "Momento",
+      "checks": "Cuatro comprobaciones (0–2)",
+      "errors": "Errores y causas",
+      "row": "Fila",
+      "energy": "Energía y recuperación",
+      "change": "Cambia una variable",
+      "handover": "Traspaso"
+    },
+    "chain": {
+      "about": "Sobre esta cadena",
+      "question": "Pregunta",
+      "handover": "Resumen para el traspaso",
+      "handoverLead": "La cadena como bloque para pegar en un traspaso. Solo se lista la evidencia aceptada."
+    },
+    "brief": {
+      "about": "Sobre este encargo"
+    },
+    "log": {
+      "metric": "Métrica"
+    },
+    "card": {
+      "about": "Sobre esta tarjeta",
+      "field": "Campo",
+      "value": "Valor"
+    }
+  }
 }

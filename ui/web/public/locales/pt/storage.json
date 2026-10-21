@@ -67,5 +67,8 @@
     "storageOff": "Ative antes o armazenamento no Drive em Configurações → Armazenamento.",
     "reconnect": "Reconecte antes o Google Drive em Conexões.",
     "full": "Seu Google Drive está cheio."
+  },
+  "up": {
+    "inUse": "Em uso"
   }
 }

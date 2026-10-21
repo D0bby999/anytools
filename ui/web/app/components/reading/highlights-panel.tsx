@@ -1,8 +1,10 @@
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
-import { BookmarkPlus, Trash2 } from "lucide-react";
 import type { Highlight } from "~/lib/reading-types";
-import { Button } from "~/components/ui/button";
+
+/** A row's action, as the chat's action row: 12/500 secondary ink, a text link. */
+const ACTION =
+  "inline-flex min-h-8 cursor-pointer items-center font-medium text-muted-foreground hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50";
 
 /**
  * The reader's highlights, in page order. Each jumps to its page, can be saved
@@ -18,13 +20,14 @@ export function HighlightsPanel({ highlights }: { highlights: Highlight[] }) {
 
   return (
     <section aria-labelledby="lp-highlights" className="mt-8">
-      <h2 id="lp-highlights" className="lp-section">
+      <h2 id="lp-highlights" data-outline-ignore className="text-sm leading-8 font-semibold">
         {t("highlights.title")}
       </h2>
       {sorted.length === 0 ? (
-        <p className="mt-3 lp-empty">{t("highlights.empty")}</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("highlights.empty")}</p>
       ) : (
-        <ul className="mt-3 border-t">
+        // A small dated list (P4): **p. N** · the passage, its two actions under it.
+        <ul className="mt-2 list-disc space-y-3 pl-5 text-sm leading-6">
           {sorted.map((h) => (
             <HighlightRow key={h.id} highlight={h} />
           ))}
@@ -40,7 +43,7 @@ function HighlightRow({ highlight }: { highlight: Highlight }) {
   const busy = fetcher.state !== "idle";
 
   return (
-    <li className="border-b py-3 text-sm">
+    <li>
       <a
         href={`#page-${highlight.page}`}
         onClick={(event) => {
@@ -49,19 +52,19 @@ function HighlightRow({ highlight }: { highlight: Highlight }) {
           event.preventDefault();
           target.scrollIntoView({ block: "start" });
         }}
-        className="block rounded-sm leading-snug hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+        className="rounded-sm text-foreground hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
       >
-        <span className="font-mono text-2xs text-faint">p.{highlight.page}</span>{" "}
-        <span className="line-clamp-3">{highlight.text}</span>
+        <strong className="font-semibold">p.{highlight.page}</strong>
+        {" · "}
+        <span className="line-clamp-3 inline">{highlight.text}</span>
       </a>
-      <div className="mt-1 flex flex-wrap gap-1">
+      <div className="flex flex-wrap items-center gap-x-1 text-xs">
         {highlight.note_id ? (
-          <span className="inline-flex min-h-9 items-center text-xs text-muted-foreground">{t("highlights.saved")}</span>
+          <span className="text-muted-foreground">{t("highlights.saved")}</span>
         ) : (
-          <Button
+          <button
             type="button"
-            size="sm"
-            variant="ghost"
+            className={ACTION}
             disabled={busy}
             onClick={() =>
               fetcher.submit(
@@ -75,21 +78,18 @@ function HighlightRow({ highlight }: { highlight: Highlight }) {
               )
             }
           >
-            <BookmarkPlus aria-hidden="true" />
             {t("actions.save")}
-          </Button>
+          </button>
         )}
-        <Button
+        <span aria-hidden="true">·</span>
+        <button
           type="button"
-          size="sm"
-          variant="ghost"
           disabled={busy}
           onClick={() => fetcher.submit({ intent: "delete-highlight", highlightId: highlight.id }, { method: "post" })}
-          className="text-destructive hover:bg-destructive-soft"
+          className={`${ACTION} hover:text-destructive`}
         >
-          <Trash2 aria-hidden="true" />
           {t("highlights.remove")}
-        </Button>
+        </button>
       </div>
     </li>
   );

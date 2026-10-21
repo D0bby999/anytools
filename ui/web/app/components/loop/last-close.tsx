@@ -15,23 +15,23 @@ export function LastClose({ previous, busy }: { previous: PreviousClose; busy: b
   const { t } = useTranslation("loop");
   if (previous.offers.length === 0 && previous.reduce_first.length === 0) return null;
   return (
-    <div className="mt-3">
+    <div>
       {previous.offers.length > 0 ? (
         <>
-          <p className="text-sm leading-prose text-muted-foreground">{t("cycleClose.fromLastLead")}</p>
-          <ul className="mt-2 border-t">
+          <p className="text-muted-foreground">{t("cycleClose.fromLastLead")}</p>
+          <ul>
             {previous.offers.map((o) => (
-              <li key={o.row} className="flex flex-wrap items-start justify-between gap-3 border-b py-3">
+              <li key={o.row} className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 grow">
-                  <p className="text-xs font-semibold text-faint">
+                  <strong>
                     {t(`cycleClose.destination.${o.destination}`, { defaultValue: o.destination })}
                     {o.result ? ` · ${o.result}` : ""}
-                  </p>
-                  <p className="mt-1 text-sm">{o.next_step}</p>
+                  </strong>
+                  <span className="block">{o.next_step}</span>
                   {o.condition ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <span className="block text-sm text-muted-foreground">
                       {t("cycleClose.changed", { condition: o.condition })}
-                    </p>
+                    </span>
                   ) : null}
                 </div>
                 <Form method="post">
@@ -53,11 +53,11 @@ export function LastClose({ previous, busy }: { previous: PreviousClose; busy: b
         </>
       ) : null}
       {previous.reduce_first.length > 0 ? (
-        <div className="mt-4">
-          <p className="text-xs font-semibold text-faint">{t("cycleClose.reduceFirst")}</p>
-          <ul className="mt-2 border-t">
+        <div>
+          <h4>{t("cycleClose.reduceFirst")}</h4>
+          <ul>
             {previous.reduce_first.map((r) => (
-              <li key={r.row} className="border-b py-2 text-sm">
+              <li key={r.row}>
                 {r.result}
                 {r.next_step ? <span className="text-muted-foreground"> · {r.next_step}</span> : null}
               </li>
@@ -65,10 +65,7 @@ export function LastClose({ previous, busy }: { previous: PreviousClose; busy: b
           </ul>
         </div>
       ) : null}
-      <Link
-        to={`/toolkit/${previous.id}`}
-        className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
-      >
+      <Link to={`/toolkit/${previous.id}`} className="inline-flex min-h-11 items-center">
         {t("cycleClose.openLast")}
       </Link>
     </div>

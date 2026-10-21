@@ -1,10 +1,3 @@
-import { Form, useNavigation } from "react-router";
-import { useTranslation } from "react-i18next";
-import { Alert } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
-import { SubscriptionSignInCards } from "~/components/settings/subscription-signin-cards";
-import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
-
 /**
  * The experimental subscription lanes.
  *
@@ -29,6 +22,13 @@ import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
  * The whole card only renders when the server says the lanes are enabled
  * (ANYTOOLS_EXPERIMENTAL_SUBSCRIPTION_LANES=1), which is off by default.
  */
+import { Form, useNavigation } from "react-router";
+import { useTranslation } from "react-i18next";
+import { Alert } from "~/components/ui/alert";
+import { Button } from "~/components/ui/button";
+import { SubscriptionSignInCards } from "~/components/settings/subscription-signin-cards";
+import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
+
 export function SubscriptionLaneCards({
   enabled,
   geminiRedirectURI,
@@ -48,8 +48,7 @@ export function SubscriptionLaneCards({
 
   if (!enabled) return null;
 
-  const field =
-    "h-10 w-full rounded-md border bg-sunken px-3 font-mono text-sm";
+  const field = "h-10 w-full rounded-md border bg-sunken px-3 font-mono text-sm";
 
   return (
     <section aria-labelledby="lp-experimental" className="mt-10">
@@ -61,13 +60,11 @@ export function SubscriptionLaneCards({
         <p className="leading-prose">{t("settings.experimental.warning")}</p>
       </Alert>
 
-      <div className="mt-4 space-y-6">
+      <div className="lp-download-grid mt-4">
         <SubscriptionSignInCards copilot={copilot} claude={claude} />
-        <div className="rounded-lg border bg-card p-5">
+        <div className="lp-download-card min-w-0">
           <h3 className="font-sans text-base font-medium">{t("settings.experimental.chatgpt.title")}</h3>
-          <p className="mt-1 text-sm leading-prose text-muted-foreground">
-            {t("settings.experimental.chatgpt.body")}
-          </p>
+          <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("settings.experimental.chatgpt.body")}</p>
 
           <Form method="post" className="mt-3 grid gap-3 sm:max-w-md">
             <input type="hidden" name="intent" value="connect-relay" />
@@ -89,14 +86,7 @@ export function SubscriptionLaneCards({
                   treated as long-lived and is never refreshed, so the
                   connection works for about an hour and then fails in a way
                   that looks like a revoked account. */}
-              <input
-                type="number"
-                name="expires_in"
-                min={60}
-                defaultValue={3600}
-                required
-                className={field}
-              />
+              <input type="number" name="expires_in" min={60} defaultValue={3600} required className={field} />
             </label>
             <div>
               <Button type="submit" variant="outline" size="sm" disabled={busy}>
@@ -106,11 +96,9 @@ export function SubscriptionLaneCards({
           </Form>
         </div>
 
-        <div className="rounded-lg border bg-card p-5">
+        <div className="lp-download-card min-w-0">
           <h3 className="font-sans text-base font-medium">{t("settings.experimental.gemini.title")}</h3>
-          <p className="mt-1 text-sm leading-prose text-muted-foreground">
-            {t("settings.experimental.gemini.body")}
-          </p>
+          <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("settings.experimental.gemini.body")}</p>
 
           {/* Step one: get a consent URL. Built server-side with the scope,
               access_type=offline and prompt=consent that make Google return a
@@ -119,12 +107,7 @@ export function SubscriptionLaneCards({
           <Form method="get" className="mt-3 grid gap-3 sm:max-w-md">
             <label className="flex flex-col gap-1 text-sm">
               <span className="lp-kicker">{t("settings.experimental.gemini.redirectUri")}</span>
-              <input
-                type="text"
-                name="gemini_redirect_uri"
-                defaultValue={geminiRedirectURI}
-                className={field}
-              />
+              <input type="text" name="gemini_redirect_uri" defaultValue={geminiRedirectURI} className={field} />
             </label>
             <div>
               <Button type="submit" variant="outline" size="sm" disabled={busy}>
@@ -135,12 +118,7 @@ export function SubscriptionLaneCards({
 
           {geminiAuthURL ? (
             <p className="mt-3 text-sm leading-prose">
-              <a
-                href={geminiAuthURL}
-                rel="noreferrer noopener"
-                target="_blank"
-                className="text-primary underline underline-offset-2"
-              >
+              <a href={geminiAuthURL} rel="noreferrer noopener" target="_blank" className="text-primary underline underline-offset-2">
                 {t("settings.experimental.gemini.openConsent")}
               </a>
             </p>

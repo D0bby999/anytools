@@ -463,7 +463,16 @@ func validAttribution(s string) bool { return learning.ValidAttribution(s) }
 func validErrorType(s string) bool   { return learning.ValidErrorType(s) }
 
 // IsMath reports a short or cloze question whose recorded answer is an
-// expression or an equation, marked by value (mathcheck).
+// expression, an equation, a quantity with its unit, or an answer in
+// brackets (an interval, a set, a vector, a matrix), marked by value
+// (mathcheck).
 func (q Question) IsMath() bool {
-	return (q.Type == TypeShort || q.Type == TypeCloze) && mathcheck.KindOf(q.Answer) == mathcheck.Expression
+	if q.Type != TypeShort && q.Type != TypeCloze {
+		return false
+	}
+	switch mathcheck.KindOf(q.Answer) {
+	case mathcheck.Expression, mathcheck.Quantity, mathcheck.Structure:
+		return true
+	}
+	return false
 }

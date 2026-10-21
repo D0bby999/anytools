@@ -1,11 +1,15 @@
 /**
  * worksheet-list.tsx
- * Worksheets as hairline rows: title, kind, status and the next review.
+ * Worksheets as up's dated list (P4): **date** · title — kind, status and
+ * the next review.
  * Used by /toolkit (per kind) and by a learning state's page.
  */
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { DueReview, WorksheetSummary } from "~/lib/worksheet-types";
+import { Badge } from "~/components/doc/badge";
+import { DateText } from "~/components/ui/date-text";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 /** The earliest review not yet done, if any is scheduled. */
 export function nextReview(w: Pick<WorksheetSummary, "reviews">): string | null {
@@ -27,22 +31,24 @@ export function WorksheetList({
   const { t } = useTranslation("toolkit");
   if (worksheets.length === 0) return null;
   return (
-    <ul className="mt-2 border-t">
+    <ul className="lp-dated-list">
       {worksheets.map((w) => {
         const next = nextReview(w);
         return (
-          <li key={w.id} className="border-b">
-            <Link
-              to={`/toolkit/${w.id}`}
-              className="flex min-h-11 flex-wrap items-baseline gap-x-3 gap-y-1 px-1 py-2 text-sm transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-            >
-              <span className="font-medium">{w.title}</span>
-              {kindNames?.[w.kind] ? <span className="text-muted-foreground">{kindNames[w.kind]}</span> : null}
-              <span className="text-xs font-semibold text-faint">
-                {w.status === "done" ? t("list.done") : t("list.open")}
-              </span>
-              {next ? <span className="text-xs text-faint">{t("list.nextReview", { date: next })}</span> : null}
-            </Link>
+          <li key={w.id}>
+            {w.updated_at ? (
+              <>
+                <strong>
+                  <DateText iso={w.updated_at} />
+                </strong>
+                {" · "}
+              </>
+            ) : null}
+            <Link to={`/toolkit/${w.id}`}>{w.title}</Link>
+            {NOTE_JOIN}
+            {kindNames?.[w.kind] ? <span className="text-muted-foreground">{kindNames[w.kind]} </span> : null}
+            <Badge type={w.status === "done" ? "tip" : "info"}>{w.status === "done" ? t("list.done") : t("list.open")}</Badge>
+            {next ? <span className="text-sm text-muted-foreground"> {t("list.nextReview", { date: next })}</span> : null}
           </li>
         );
       })}
@@ -50,22 +56,19 @@ export function WorksheetList({
   );
 }
 
-/** "To revisit": reviews due on the learner's day or earlier. */
+/** "To revisit": reviews due on the learner's day or earlier, each line led by its date. */
 export function DueReviewList({ due }: { due: DueReview[] }) {
   const { t } = useTranslation("toolkit");
-  if (due.length === 0) return <p className="mt-3 lp-empty">{t("due.none")}</p>;
+  if (due.length === 0) return <p className="text-muted-foreground">{t("due.none")}</p>;
   return (
-    <ul className="mt-3 border-t">
+    <ul className="lp-dated-list">
       {due.map((d) => (
-        <li key={`${d.id}:${d.review}`} className="border-b">
-          <Link
-            to={`/toolkit/${d.id}`}
-            className="flex min-h-11 flex-wrap items-baseline gap-x-3 gap-y-1 px-1 py-2 text-sm transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-          >
-            <span className="font-medium">{d.title}</span>
-            <span className="text-muted-foreground">{d.label}</span>
-            <span className="font-mono text-2xs tabular-nums text-faint">{d.due}</span>
-          </Link>
+        <li key={`${d.id}:${d.review}`}>
+          <strong>{d.due}</strong>
+          {" · "}
+          <Link to={`/toolkit/${d.id}`}>{d.title}</Link>
+          {NOTE_JOIN}
+          {d.label}
         </li>
       ))}
     </ul>

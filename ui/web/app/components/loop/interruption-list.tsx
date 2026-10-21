@@ -23,7 +23,7 @@ export function InterruptionList({ items }: { items: Interruption[] }) {
   const { t } = useTranslation("loop");
   const resistance = useResistanceLabels();
   return (
-    <ul className="mt-3 border-t">
+    <ul className="lp-dated-list">
       {items.map((i) => {
         const lines = [
           { label: t("interruption.line.resistance"), value: i.resistance ? resistance[i.resistance] : "" },
@@ -35,16 +35,15 @@ export function InterruptionList({ items }: { items: Interruption[] }) {
         ].filter((l) => l.value);
         const fact = i.fact || i.note;
         return (
-          <li key={i.at} className="border-b py-3 text-sm">
-            <p>
-              <span className="font-mono text-xs text-faint">{i.at.slice(0, 10)}</span>{" "}
-              {fact || <span className="text-faint">{t("cycle.noNote")}</span>}
-            </p>
-            {!i.fact ? <p className="text-xs text-muted-foreground">{t("interruption.earlier")}</p> : null}
+          <li key={i.at}>
+            <strong>{i.at.slice(0, 10)}</strong>
+            {" · "}
+            {fact ? <span>{fact}</span> : <span className="text-muted-foreground">{t("cycle.noNote")}</span>}
+            {!i.fact ? <span className="block text-sm text-muted-foreground">{t("interruption.earlier")}</span> : null}
             {lines.length > 0 ? (
-              <dl className="mt-1">
+              <dl className="text-sm">
                 {lines.map((l) => (
-                  <div key={l.label} className="grid grid-cols-[9rem_1fr] gap-x-3 py-0.5">
+                  <div key={l.label} className="grid grid-cols-[9rem_1fr] gap-x-3">
                     <dt className="text-muted-foreground">{l.label}</dt>
                     <dd>{l.value}</dd>
                   </div>

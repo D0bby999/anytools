@@ -1,3 +1,4 @@
+import { SessionProgress } from "~/components/mastery/session-progress";
 /**
  * mastery.$pathId.session.tsx
  * One card at a time: due reviews first, then the weakest module. The loader
@@ -22,6 +23,9 @@ import { QuestionCard } from "~/components/quiz/question-card";
 import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
 import { ExplainBackCard } from "~/components/mastery/explain-back-card";
 import { PageHeader } from "~/components/ui/page-header";
+
+/** A session uses the whole height and width (app-layout's `layout: "page"`). */
+export const handle = { layout: "page" };
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -56,7 +60,7 @@ export default function MasterySession({ loaderData, params }: Route.ComponentPr
   const { next } = loaderData;
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <Link
         to={`/mastery/${params.pathId}`}
         className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -78,6 +82,7 @@ export default function MasterySession({ loaderData, params }: Route.ComponentPr
               </span>
             </p>
           </PageHeader>
+          <SessionProgress key={params.pathId} cardKey={`${next.kind}-${next.question?.id ?? next.knowledge_point.id}`} remaining={next.remaining_due} />
           <div className="mt-4">
             {/* Keyed by what they show: the next card is a new card with no
                 leftover answer or verdict from the last one. */}
@@ -121,6 +126,7 @@ export default function MasterySession({ loaderData, params }: Route.ComponentPr
         </>
       ) : (
         <div className="mt-4 lp-prose">
+          <PageHeader title={t("practise.session")} />
           <p>{t(loaderData.stopKey ?? "session.stopped")}</p>
           {loaderData.stopKey === "session.stopped" && loaderData.stopDetail ? (
             <p className="text-sm text-muted-foreground">{loaderData.stopDetail}</p>

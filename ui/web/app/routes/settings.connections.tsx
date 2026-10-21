@@ -1,3 +1,4 @@
+import { Badge } from "~/components/doc/badge";
 /**
  * settings.connections.tsx
  * Add a key, verify it, remove it — and, when the experimental flag is on, the
@@ -11,6 +12,9 @@
  * Phase 13: Google Drive appears here as its own row, with connect and
  * disconnect — and only when Drive is configured on both the BFF and the API.
  */
+import { DownloadGrid } from "~/components/doc/download-grid";
+import { Dialog } from "~/components/doc/dialog";
+import { useEffect, useState } from "react";
 import { data, Form, useNavigation, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.connections";
@@ -191,6 +195,10 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
   const { t } = useTranslation("common");
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
+  const [adding, setAdding] = useState<string | null>(null);
+  useEffect(() => {
+    if (actionData?.ok) setAdding(null);
+  }, [actionData]);
   const [searchParams] = useSearchParams();
   const driveNotice = parseDriveNotice(searchParams.get("drive"));
 
@@ -205,29 +213,47 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
       ) : null}
       {driveNotice ? <DriveNoticeLine notice={driveNotice} /> : null}
 
-      <section aria-labelledby="lp-add-key">
-        <h2 id="lp-add-key" className="lp-section">
-          {t("settings.connections.addTitle")}
-        </h2>
-        <p className="mt-2 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
-          {t("settings.connections.addBody")}
-        </p>
-
+      <DownloadGrid
+        cards={loaderData.providers.map((provider) => ({
+          id: provider,
+          title: (
+            <>
+              {providerName(t, provider)}{" "}
+              <Badge type="info">
+                {loaderData.connections.some((connection) => connection.provider === provider)
+                  ? t("settings.connections.connectedTitle")
+                  : t("settings.connections.drive.notConnected")}
+              </Badge>
+            </>
+          ),
+          description: t("settings.connections.addBody"),
+          action: (
+            <Button type="button" variant="outline" onClick={() => setAdding(provider)}>
+              {t("settings.connections.add")}
+            </Button>
+          ),
+        }))}
+      />
+      <Dialog
+        open={adding !== null}
+        onClose={() => setAdding(null)}
+        title={t("settings.connections.addTitle")}
+        description={t("settings.connections.addBody")}
+      >
+        {actionData?.message ? <Alert variant="destructive">{actionData.message}</Alert> : null}
         <Form method="post" className="mt-4 grid gap-3 sm:max-w-md">
           <input type="hidden" name="intent" value="create" />
 
           <label className="flex flex-col gap-1 text-sm">
             <span className="lp-kicker">{t("settings.connections.provider")}</span>
-            <select name="provider" defaultValue={loaderData.providers[0]} className={field}>
+            <select name="provider" defaultValue={adding ?? loaderData.providers[0]} className={field}>
               {loaderData.providers.map((p) => (
                 <option key={p} value={p}>
                   {providerName(t, p)}
                 </option>
               ))}
             </select>
-            <span className="text-xs leading-prose text-muted-foreground">
-              {t("settings.connections.providerHelp")}
-            </span>
+            <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.providerHelp")}</span>
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
@@ -238,23 +264,13 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
           <label className="flex flex-col gap-1 text-sm">
             <span className="lp-kicker">{t("settings.connections.baseUrl")}</span>
             <input type="url" name="api_base" className={`${field} font-mono`} placeholder="https://…" />
-            <span className="text-xs leading-prose text-muted-foreground">
-              {t("settings.connections.baseUrlHelp")}
-            </span>
+            <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.baseUrlHelp")}</span>
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
             <span className="lp-kicker">{t("settings.connections.key")}</span>
-            <input
-              type="password"
-              name="secret"
-              required
-              autoComplete="off"
-              className={`${field} font-mono`}
-            />
-            <span className="text-xs leading-prose text-muted-foreground">
-              {t("settings.connections.keyHelp")}
-            </span>
+            <input type="password" name="secret" required autoComplete="off" className={`${field} font-mono`} />
+            <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.keyHelp")}</span>
           </label>
 
           <div>
@@ -263,7 +279,10 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
             </Button>
           </div>
         </Form>
-      </section>
+        <Button type="button" variant="ghost" onClick={() => setAdding(null)}>
+          {t("settings.up.close")}
+        </Button>
+      </Dialog>
 
       <section aria-labelledby="lp-connected" className="mt-10">
         <h2 id="lp-connected" className="lp-section">
@@ -271,11 +290,9 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
         </h2>
 
         {loaderData.connections.length === 0 ? (
-          <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
-            {t("settings.connections.empty")}
-          </p>
+          <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">{t("settings.connections.empty")}</p>
         ) : (
-          <ul className="mt-3 border-t">
+          <ul className="lp-download-grid !list-none !p-0">
             {loaderData.connections.map((connection) => (
               <ConnectionCard key={connection.id} connection={connection} />
             ))}
@@ -286,9 +303,7 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
       {loaderData.drive ? (
         <DriveConnectionCard status={loaderData.drive.status} />
       ) : loaderData.driveUnavailable ? (
-        <p className="mt-10 text-sm leading-prose text-muted-foreground">
-          {t("settings.connections.drive.unavailable")}
-        </p>
+        <p className="mt-10 text-sm leading-prose text-muted-foreground">{t("settings.connections.drive.unavailable")}</p>
       ) : null}
 
       <SubscriptionLaneCards

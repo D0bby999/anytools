@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Pencil, RotateCcw } from "lucide-react";
 import type { Source } from "~/hooks/use-turn-stream";
 import { RichText } from "~/components/rich-text";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/doc/badge";
+import { ListenButton } from "~/components/vocab/listen-button";
 import { DrawIt, useDiagramRepair } from "~/components/diagram/draw-it";
 import { OwnVersionShown } from "~/components/chat/own-version-fields";
 import { RetellBox } from "~/components/chat/retell-box";
@@ -93,9 +94,9 @@ export function MessageList({ turns, actions = {} }: { turns: ChatTurnView[]; ac
   const stored = (id: string) => !id.startsWith("live-") && !id.startsWith("settled-");
 
   return (
-    <ol className="flex flex-col gap-6">
+    <ol className="flex flex-col gap-8">
       {turns.map((turn, i) => (
-        <li key={turn.id} className="max-w-(--lp-measure-read)">
+        <li key={turn.id} className={turn.role === "user" ? "flex justify-end" : undefined}>
           {turn.role === "user" ? (
             <UserMessage
               turn={turn}
@@ -139,7 +140,7 @@ function UserMessage({
   if (editing && onEdit) {
     return (
       <form
-        className="rounded-(--lp-radius-card) bg-sunken px-4 py-3"
+        className="w-full max-w-[80%] rounded-lg bg-sunken px-4 py-3"
         onSubmit={(e) => {
           e.preventDefault();
           const text = draft.trim();
@@ -148,7 +149,7 @@ function UserMessage({
           onEdit(text);
         }}
       >
-        <label htmlFor={`lp-edit-${turn.id}`} className="lp-kicker">
+        <label htmlFor={`lp-edit-${turn.id}`} className="text-sm font-medium text-muted-foreground">
           {t("chat.edit.label")}
         </label>
         <textarea
@@ -176,30 +177,30 @@ function UserMessage({
   }
 
   return (
-    <div className="group/q rounded-(--lp-radius-card) bg-sunken px-4 py-3">
-      <div className="flex items-start justify-between gap-2">
-        <p className="lp-kicker">{label}</p>
-        {onEdit ? (
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            className="-mt-1 -mr-2 h-8 px-2 text-xs"
-            onClick={() => {
-              setDraft(turn.content);
-              setEditing(true);
-            }}
-          >
-            <Pencil aria-hidden="true" />
-            {t("chat.edit.open")}
-          </Button>
-        ) : null}
-      </div>
-      <p className="mt-1 text-base leading-prose whitespace-pre-wrap">{turn.content}</p>
+    // The learner's question is a block of its own, never a heading: it is
+    // what they typed, not a section of the page, and an outline or a screen
+    // reader's heading list must not fill up with it. Right-aligned, at most
+    // 80% wide, on the sunken fill, so the page reads as a chapter of answers
+    // with the questions set apart.
+    <div className="max-w-[80%] min-w-0 rounded-lg bg-sunken px-4 py-3">
+      <p className="sr-only">{label}</p>
+      <p className="text-base leading-[1.6] font-medium whitespace-pre-wrap break-words">{turn.content}</p>
       {turn.ownVersion ? (
         <div className="mt-3 border-t pt-3">
           <OwnVersionShown value={turn.ownVersion} />
         </div>
+      ) : null}
+      {onEdit ? (
+        <button
+          type="button"
+          className={TEXT_ACTION + " mt-1"}
+          onClick={() => {
+            setDraft(turn.content);
+            setEditing(true);
+          }}
+        >
+          {t("chat.edit.open")}
+        </button>
       ) : null}
     </div>
   );
@@ -218,47 +219,93 @@ function AssistantMessage({
   const isDiagram = turn.capability === "visualize";
   const settled = turn.capability !== undefined && !turn.streaming && turn.content !== "";
 
-  const actions = settled ? (
-    <>
-      <CopyText text={turn.content} markdown />
-      {onRegenerate ? (
-        <Button type="button" size="sm" variant="ghost" className="mt-1 h-8 px-2 text-xs" onClick={onRegenerate}>
-          <RotateCcw aria-hidden="true" />
-          {t("chat.regenerate")}
-        </Button>
-      ) : null}
-      {turn.incomplete ? null : <DrawIt messageId={turn.id} />}
-    </>
-  ) : undefined;
+  // The answer's actions: Listen · Copy · Ask again · Draw it, as text links
+  // under it (up has no toolbars). Listen is drawn here rather than by
+  // RichText so the four read as one line.
+  // A diagram has none: it is drawn already, and asks for its own repair.
+  const actions =
+    !isDiagram && !turn.streaming && turn.content !== "" ? (
+      <AnswerActions>
+        <span>
+          <ListenButton text={turn.content} />
+        </span>
+        {settled ? (
+          <span>
+            <CopyText text={turn.content} markdown className={TEXT_ACTION} />
+          </span>
+        ) : null}
+        {settled && onRegenerate ? (
+          <span>
+            <button type="button" className={TEXT_ACTION} onClick={onRegenerate}>
+              {t("chat.regenerate")}
+            </button>
+          </span>
+        ) : null}
+        {settled && !turn.incomplete ? (
+          <span>
+            <DrawIt messageId={turn.id} />
+          </span>
+        ) : null}
+      </AnswerActions>
+    ) : undefined;
 
   return (
     <div>
-      <p className="lp-kicker">{t("app.name")}</p>
-      <div className="mt-1">
-        {turn.work ? <WorkRow work={turn.work} live={turn.streaming} /> : null}
-        {/* The model's Markdown and math, rendered; the safety rules are in
-            RichText. The learner's own message above stays plain text. */}
+      <p className="sr-only">{t("app.name")}</p>
+      {turn.work ? <WorkRow work={turn.work} live={turn.streaming} /> : null}
+      {/* The model's Markdown and math, rendered in the article's prose; the
+          safety rules are in RichText. The learner's own message stays plain. */}
+      <div className="lp-doc">
         {isDiagram ? (
           <DiagramMessage turn={turn} />
         ) : turn.ownVersion && settled && !turn.incomplete ? (
           <RetellBox messageId={turn.id} ownVersion={turn.ownVersion} saved={turn.retell}>
-            <RichText text={turn.content} sources={turn.sources} actions={actions} />
+            <RichText text={turn.content} sources={turn.sources} listen={false} />
           </RetellBox>
         ) : (
-          <RichText text={turn.content} sources={turn.sources} streaming={turn.streaming} actions={actions} />
+          <RichText text={turn.content} sources={turn.sources} streaming={turn.streaming} listen={false} />
         )}
-        {turn.incomplete ? (
-          <p className="mt-2 w-fit rounded-md border border-warning/40 bg-warning-soft px-2 py-1 text-xs leading-ui">
-            {t("chat.incomplete")}
-          </p>
-        ) : null}
-        {followUps && turn.followUps && turn.followUps.length > 0 ? (
-          <FollowUps kinds={turn.followUps} onPick={followUps} />
-        ) : null}
       </div>
+      {actions}
+      {turn.incomplete ? (
+        <p className="mt-2 w-fit">
+          <Badge type="warning">{t("chat.incomplete")}</Badge>
+        </p>
+      ) : null}
+      {followUps && turn.followUps && turn.followUps.length > 0 ? (
+        <FollowUps kinds={turn.followUps} onPick={followUps} />
+      ) : null}
     </div>
   );
 }
+
+/** A text action: 14/500 in the secondary ink, the action ink on hover. */
+const TEXT_ACTION =
+  "inline-flex min-h-8 items-center rounded-[4px] text-sm font-medium text-muted-foreground transition-colors " +
+  "hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50";
+
+/**
+ * The row the actions sit in, joined by " · ". Each action is wrapped in a
+ * span; an empty one (Listen without speech synthesis) is hidden and takes
+ * its separator with it. The child selectors restyle the shared buttons
+ * (Listen's, Draw it's) as text links without reaching into the read-aloud
+ * bar, which is fixed to the screen and sits deeper.
+ */
+function AnswerActions({ children }: { children: ReactNode }) {
+  return <div className={ACTION_ROW}>{children}</div>;
+}
+
+// Written out in full: Tailwind finds classes by reading the source, so a
+// class built from a template string would never be generated. The second
+// line is for a button inside a div (Draw it's), the first for one straight
+// in the span.
+const ACTION_ROW = [
+  "mt-1 flex flex-wrap items-center gap-y-1 text-sm text-muted-foreground",
+  "[&>span:empty]:hidden [&>span]:inline-flex [&>span]:items-center [&>span>div]:mt-0",
+  "[&>span:not(:last-child)]:after:mx-2 [&>span:not(:last-child)]:after:content-['·']",
+  "[&>span>button]:h-8 [&>span>button]:bg-transparent [&>span>button]:px-0 [&>span>button]:text-sm [&>span>button]:font-medium [&>span>button]:text-muted-foreground [&>span>button:hover]:bg-transparent [&>span>button:hover]:text-primary [&>span>button_svg]:hidden",
+  "[&>span>div>button]:h-8 [&>span>div>button]:bg-transparent [&>span>div>button]:px-0 [&>span>div>button]:text-sm [&>span>div>button]:font-medium [&>span>div>button]:text-muted-foreground [&>span>div>button:hover]:bg-transparent [&>span>div>button:hover]:text-primary [&>span>div>button_svg]:hidden",
+].join(" ");
 
 function DiagramMessage({ turn }: { turn: ChatTurnView }) {
   const repair = useDiagramRepair(turn.id);

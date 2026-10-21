@@ -7,7 +7,10 @@
  * licence before anything is fetched.
  */
 
-export type LicenceKind = "public-domain" | "cc-by" | "cc-by-nc" | "none";
+/** vocab.MaxDeckCardsPerLearner: the most general cards a learner may have, in all decks. */
+export const DECK_CARD_LIMIT = 50_000;
+
+export type LicenceKind = "public-domain" | "cc-by" | "free-pictures" | "cc-by-nc" | "none";
 
 export type LibraryDeck = {
   /** Bundled decks: the file in app/data/decks; linked decks: an id. */
@@ -24,26 +27,31 @@ export type LibraryDeck = {
   bundled: boolean;
 };
 
+/** Ultimate Geography's decks: one language choice for all three (DeckLibrary). */
+export const GEOGRAPHY = "ultimate-geography-";
+
 export const LIBRARY: LibraryDeck[] = [
   // Card counts as scripts/decks/ultimate-geography.mjs wrote them.
   ...(
     [
-      ["en", 436],
-      ["es", 436],
-      ["pt", 435],
+      ["", "Ultimate Geography", "ultimateGeography", "public-domain", { en: 436, es: 436, pt: 435 }],
+      ["flags-", "Ultimate Geography: flags", "ultimateGeographyFlags", "free-pictures", { en: 221, es: 221, pt: 221 }],
+      ["maps-", "Ultimate Geography: maps", "ultimateGeographyMaps", "free-pictures", { en: 319, es: 319, pt: 319 }],
     ] as const
-  ).map(
-    ([lang, cards]): LibraryDeck => ({
-      slug: `ultimate-geography-${lang}`,
-      subject: "geography",
-      name: "Ultimate Geography",
-      about: "ultimateGeography",
-      language: lang,
-      cards,
-      licence: "public-domain",
-      sourceUrl: "https://github.com/anki-geo/ultimate-geography",
-      bundled: true,
-    }),
+  ).flatMap(([kind, name, about, licence, counts]) =>
+    (["en", "es", "pt"] as const).map(
+      (lang): LibraryDeck => ({
+        slug: `${GEOGRAPHY}${kind}${lang}`,
+        subject: "geography",
+        name,
+        about,
+        language: lang,
+        cards: counts[lang],
+        licence,
+        sourceUrl: "https://github.com/anki-geo/ultimate-geography",
+        bundled: true,
+      }),
+    ),
   ),
   {
     slug: "jlpt-decks",
@@ -84,6 +92,7 @@ export const librarySource = (slug: string) => `library:${slug}`;
 export const LICENCE_TEXT: Record<LicenceKind, string> = {
   "public-domain": "Public domain",
   "cc-by": "CC BY",
+  "free-pictures": "Text public domain; pictures under CC BY-SA, CC BY, CC0 or public domain, credited on each card",
   "cc-by-nc": "CC BY-NC (non-commercial)",
   none: "No licence given",
 };

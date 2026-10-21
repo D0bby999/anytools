@@ -10,23 +10,17 @@
  *
  * Nothing on this page calls a model.
  */
+import { Details } from "~/components/doc/details";
+import { RefTable } from "~/components/doc/ref-table";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.profile";
 import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { listKBs } from "~/lib/kb.server";
-import {
-  addEntry,
-  clearProfile,
-  decideProposal,
-  deleteEntry,
-  editEntry,
-  getProfile,
-  setConsolidation,
-} from "~/lib/profile.server";
+import { addEntry, clearProfile, decideProposal, deleteEntry, editEntry, getProfile, setConsolidation } from "~/lib/profile.server";
 import { isSection, SECTIONS } from "~/lib/profile-types";
-import { EntryRow, ProposalRow, type ProfileActionData } from "~/components/profile/profile-entries";
+import { EntryRow, ProposalRow, RefLinks, type ProfileActionData } from "~/components/profile/profile-entries";
 import { AddEntryForm, ClearProfile, ConsolidationPanel } from "~/components/profile/profile-panels";
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -105,9 +99,7 @@ export default function SettingsProfile({ loaderData }: Route.ComponentProps) {
           <h2 id="lp-profile-proposals" className="lp-section">
             {t("proposals.title")}
           </h2>
-          <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
-            {t("proposals.hint")}
-          </p>
+          <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">{t("proposals.hint")}</p>
           <ul className="mt-3 border-t">
             {proposals.map((e) => (
               <ProposalRow key={e.id} entry={e} />
@@ -120,7 +112,7 @@ export default function SettingsProfile({ loaderData }: Route.ComponentProps) {
         const rows = accepted.filter((e) => e.section === section);
         const id = `lp-profile-${section}`;
         return (
-          <section key={section} aria-labelledby={id} className="border-t pt-6">
+          <section key={section} aria-labelledby={id}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 id={id} className="lp-section">
                 {t(`sections.${section}.title`)}
@@ -133,24 +125,40 @@ export default function SettingsProfile({ loaderData }: Route.ComponentProps) {
             {rows.length === 0 ? (
               <p className="mt-3 text-sm text-faint">{t("page.empty")}</p>
             ) : (
-              <ul className="mt-3 border-t">
-                {rows.map((e) => (
-                  <EntryRow key={e.id} entry={e} kbs={kbs} maxText={profile.max_text_runes} />
-                ))}
-              </ul>
+              <RefTable
+                caption={t(`sections.${section}.title`)}
+                columns={[t("up.item"), t("entry.text"), t("up.source")]}
+                rows={rows.map((e, index) => [
+                  index + 1,
+                  <ul className="!list-none !p-0">
+                    <EntryRow entry={e} kbs={kbs} maxText={profile.max_text_runes} showSource={false} />
+                  </ul>,
+                  <>
+                    {e.origin === "learner" ? t("entry.yours") : t("entry.fromActivity")}
+                    {e.kb_name ? <p>{t("entry.kb", { name: e.kb_name })}</p> : null}
+                    <RefLinks refs={e.refs} />
+                  </>,
+                ])}
+              />
             )}
           </section>
         );
       })}
 
-      <div className="border-t pt-6">
-        <AddEntryForm kbs={kbs} maxText={profile.max_text_runes} />
+      <div>
+        <Details summary={t("add.title")}>
+          <AddEntryForm kbs={kbs} maxText={profile.max_text_runes} />
+        </Details>
       </div>
-      <div className="border-t pt-6">
-        <ConsolidationPanel on={profile.consolidation} lastRun={profile.last_run} />
+      <div>
+        <Details summary={t("consolidation.title")}>
+          <ConsolidationPanel on={profile.consolidation} lastRun={profile.last_run} />
+        </Details>
       </div>
-      <div className="border-t pt-6">
-        <ClearProfile count={profile.entries.length} />
+      <div>
+        <Details summary={t("clear.title")}>
+          <ClearProfile count={profile.entries.length} />
+        </Details>
       </div>
     </div>
   );

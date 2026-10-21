@@ -1,3 +1,5 @@
+import { RefTable } from "~/components/doc/ref-table";
+import { Details } from "~/components/doc/details";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Check, Minus, X } from "lucide-react";
@@ -51,13 +53,8 @@ export function ExamResult({ exam }: { exam: ExamView }) {
         ) : null}
       </section>
 
-      <ol>
-        {exam.items.map((item) => (
-          <li key={item.id} className="border-b py-6">
-            <ResultItem item={item} sources={exam.sources} />
-          </li>
-        ))}
-      </ol>
+      <RefTable caption={t("exams.result.title")} columns={[t("practise.question"), t("practise.score"), t("practise.explanation")]}
+        rows={exam.items.map((item) => [item.number, t("rubric.of", { awarded: points(item.awarded ?? 0), total: points(item.points) }), <Details summary={item.question.prompt}><ResultItem item={item} sources={exam.sources} /></Details>])} />
     </div>
   );
 }

@@ -54,7 +54,7 @@ export function AddLink({ kbId }: { kbId: string }) {
           autoComplete="off"
           placeholder={t("link.placeholder")}
           aria-describedby="lp-link-hint"
-          className="min-h-11 w-full min-w-0 rounded-md border border-control-border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="h-10 w-full min-w-0 rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
         />
         <Button type="submit" disabled={busy} className="shrink-0">
           <Link2 aria-hidden="true" />

@@ -413,5 +413,22 @@
     "inner thighs": "Cara interna del muslo",
     "shins": "Espinillas",
     "core": "Core"
+  },
+  "up": {
+    "day": "Día",
+    "value": "Valor",
+    "dataTable": "Valores registrados",
+    "restRemaining": "Quedan unos {{count}} segundos de descanso",
+    "startWorkout": "Empezar el entrenamiento de hoy",
+    "status": "Estado",
+    "planned": "Programado",
+    "exercise": "Ejercicio",
+    "personalBests": "Mejores marcas",
+    "estimatedMax": "Máximo estimado de una repetición",
+    "weekPlan": "Un plan semanal recurrente",
+    "week": "Semana {{n}}",
+    "target": "Series × repeticiones / duración",
+    "field": "Campo",
+    "why": "Por qué"
   }
 }

@@ -56,7 +56,7 @@ describe("a language's page", () => {
     expect(screen.getByText("日本語")).toHaveAttribute("lang", "ja");
   });
 
-  it("puts its words first, and the review opens only them", () => {
+  it("keeps vocabulary in the skill navigation, and the review opens only its words", () => {
     show({ lang: "en", saved: [{ lang: "en", words: 51, due: 3 }] });
     const vocab = screen.getByRole("region", { name: "Vocabulary" });
     expect(within(vocab).getByText("3 English words are due for review today.")).toBeInTheDocument();
@@ -69,7 +69,8 @@ describe("a language's page", () => {
       "/mastery/vocabulary?lang=en#lp-vocab-words",
     );
     const regions = screen.getAllByRole("region").map((r) => r.getAttribute("aria-labelledby"));
-    expect(regions[0]).toBe("lang-vocabulary");
+    expect(regions).toEqual(["lang-listening", "lang-reading", "lang-vocabulary", "lang-lookups"]);
+    expect(screen.getByRole("navigation", { name: "Skills" })).toContainElement(screen.getByRole("link", { name: "Vocabulary" }));
   });
 
   it("says what to do when the language has no words, and when none is due", () => {
@@ -82,7 +83,7 @@ describe("a language's page", () => {
 
   it("names a diagnostic started here for the language", () => {
     show({ kinds: [kind("english_diagnostic", "Language diagnostic"), kind("speaking_evidence", "Speaking evidence")] });
-    const start = screen.getByRole("region", { name: "Start here" });
+    const start = screen.getByRole("region", { name: "Keep one baseline in five minutes" });
     expect(within(start).getByRole("link", { name: "New Language diagnostic" })).toHaveAttribute(
       "href",
       `/toolkit/new?kind=english_diagnostic&title=${encodeURIComponent("Language diagnostic — Japanese")}`,
@@ -108,7 +109,7 @@ describe("a language's page", () => {
     expect(screen.getByText("You have not added French.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add to my list" })).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Speaking" })).toBeNull();
-    expect(screen.queryByRole("region", { name: "Start here" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Keep one baseline in five minutes" })).toBeNull();
   });
 
   it("is on the rail, in Practise, and the old English page is Practise too", () => {

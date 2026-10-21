@@ -4,14 +4,17 @@
  * AI, and alone again days later — and what that pattern reads as. The third
  * column is the one that separates learning from delegating, so the reading
  * is computed from it (internal/learning/loop/ai_brief.go), never typed.
+ *
+ * A real table of inputs (I2): a row per metric, a column per measurement;
+ * each row's reading follows as a Metric with its note.
  */
 import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { LogDetail, LogMetric, ThreeWayRow } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
+import { InputTable } from "~/components/loop/input-table";
 import { Metric } from "~/components/loop/metric";
-
-const num = "min-h-11 w-full rounded-md border border-control-border bg-card px-2 text-sm";
+import { ScrollBox } from "~/components/doc/scroll-box";
 
 export function ThreeWayTable({ detail, busy }: { detail: LogDetail; busy: boolean }) {
   const { t } = useTranslation("loop");
@@ -32,36 +35,92 @@ export function ThreeWayTable({ detail, busy }: { detail: LogDetail; busy: boole
   const v = (n: number | null) => (n === null ? "" : String(n));
 
   return (
-    <Form method="post" className="mt-3">
+    <Form method="post" className="mt-6">
       <input type="hidden" name="intent" value="log" />
       <input type="hidden" name="log_id" value={detail.log.id} />
-      <div className="text-xs font-semibold hidden grid-cols-[1fr_5rem_5rem_5rem] gap-2 text-faint sm:grid">
-        <span>{t("log.measure")}</span>
-        <span>{t("log.noAI")}</span>
-        <span>{t("log.withAI")}</span>
-        <span>{t("log.later")}</span>
+      <div className="lp-field-table">
+        <ScrollBox>
+          <table className="min-w-[40rem]">
+            <caption className="sr-only">{t("log.title")}</caption>
+            <thead>
+              <tr>
+                <th scope="col">
+                  <span className="sr-only">{t("up.log.metric")}</span>
+                </th>
+                <th scope="col">{t("log.measure")}</th>
+                <th scope="col">{t("log.noAI")}</th>
+                <th scope="col">{t("log.withAI")}</th>
+                <th scope="col">{t("log.later")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detail.rows.map((row) => (
+                <tr key={row.metric}>
+                  <th scope="row">{metric[row.metric]}</th>
+                  <td>
+                    <input
+                      name={`${row.metric}_measure`}
+                      aria-label={`${metric[row.metric]}: ${t("log.measure")}`}
+                      placeholder={t("log.measureHint")}
+                      defaultValue={row.measure}
+                    />
+                  </td>
+                  <td className="w-24">
+                    <input
+                      name={`${row.metric}_base`}
+                      type="number"
+                      step="any"
+                      aria-label={`${metric[row.metric]}: ${t("log.noAI")}`}
+                      defaultValue={v(row.baseline_noai.value)}
+                    />
+                  </td>
+                  <td className="w-24">
+                    <input
+                      name={`${row.metric}_assisted`}
+                      type="number"
+                      step="any"
+                      aria-label={`${metric[row.metric]}: ${t("log.withAI")}`}
+                      defaultValue={v(row.assisted.value)}
+                    />
+                  </td>
+                  <td className="w-24">
+                    <input
+                      name={`${row.metric}_delayed`}
+                      type="number"
+                      step="any"
+                      aria-label={`${metric[row.metric]}: ${t("log.later")}`}
+                      defaultValue={v(row.delayed_independent.value)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollBox>
       </div>
+      {/* What each row's pattern reads as, computed on the server, each with
+          what it cannot prove. */}
       {detail.rows.map((row) => (
-        <div key={row.metric} className="mt-2">
-          <Metric label={metric[row.metric]} value={reading[row.reading]} cannotProve={row.cannot_prove} className="border-b-0" />
-          <div className="grid grid-cols-3 gap-2 border-b pb-3 sm:grid-cols-[1fr_5rem_5rem_5rem]">
-            <input name={`${row.metric}_measure`} aria-label={t("log.measure")} placeholder={t("log.measureHint")} defaultValue={row.measure} className={`${num} col-span-3 sm:col-span-1`} />
-            <input name={`${row.metric}_base`} type="number" step="any" aria-label={t("log.noAI")} defaultValue={v(row.baseline_noai.value)} className={num} />
-            <input name={`${row.metric}_assisted`} type="number" step="any" aria-label={t("log.withAI")} defaultValue={v(row.assisted.value)} className={num} />
-            <input name={`${row.metric}_delayed`} type="number" step="any" aria-label={t("log.later")} defaultValue={v(row.delayed_independent.value)} className={num} />
-          </div>
-        </div>
+        <Metric key={row.metric} label={metric[row.metric]} value={reading[row.reading]} cannotProve={row.cannot_prove} />
       ))}
-      <label className="mt-4 block text-sm font-medium">
-        {t("log.decision")}
-        <textarea
-          name="next_cycle_decision"
-          rows={2}
-          defaultValue={detail.log.next_cycle_decision}
-          className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm"
-        />
-      </label>
-      <Button type="submit" variant="outline" className="mt-2" disabled={busy}>
+      <InputTable
+        caption={t("log.decision")}
+        rows={[
+          {
+            id: `lp-log-decision-${detail.log.id}`,
+            label: t("log.decision"),
+            control: (
+              <textarea
+                id={`lp-log-decision-${detail.log.id}`}
+                name="next_cycle_decision"
+                rows={2}
+                defaultValue={detail.log.next_cycle_decision}
+              />
+            ),
+          },
+        ]}
+      />
+      <Button type="submit" variant="outline" disabled={busy}>
         {t("log.save")}
       </Button>
     </Form>

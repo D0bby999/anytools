@@ -12,13 +12,13 @@ export function QuizTabs() {
   return (
     <nav aria-label={t("quizTabs.label")} className={SECTION_TABS_ROW}>
       <NavLink to="/quiz" end className={sectionTabClass}>
-        {t("quizTabs.new")}
+        {t("practise.today")}
       </NavLink>
       <NavLink to="/quiz/bank" className={sectionTabClass}>
         {t("quizTabs.bank")}
       </NavLink>
       <NavLink to="/quiz/practice" className={sectionTabClass}>
-        {t("quizTabs.mistakes")}
+        {t("practise.practice")}
       </NavLink>
       <NavLink to="/quiz/exams" className={sectionTabClass}>
         {t("quizTabs.exams")}

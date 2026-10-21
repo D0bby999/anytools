@@ -32,12 +32,12 @@ export function ToolActivityPanel({
   if (!hasAnything) return null;
 
   return (
-    <div className="mt-3 flex flex-col gap-5">
+    <div className="mt-2 flex flex-col gap-5">
       {sources.length > 0 && (
-        <ol className="flex flex-col gap-2">
+        <ol className="flex flex-col gap-1.5">
           {sources.map((source, i) => (
             <li key={`${source.kind}:${source.id}`}>
-              <CitationChip source={source} index={i + 1} />
+              <CitationChip source={source} index={i + 1} variant="entry" />
             </li>
           ))}
         </ol>
@@ -45,7 +45,7 @@ export function ToolActivityPanel({
 
       {(tools.length > 0 || stage) && (
         <section aria-labelledby="lp-activity-heading">
-          <h3 id="lp-activity-heading" className="lp-section">
+          <h3 id="lp-activity-heading" data-outline-ignore className="text-sm leading-8 font-semibold">
             {t("chat.activity.title")}
           </h3>
           <ol className="mt-2 flex flex-col gap-1">
@@ -80,7 +80,7 @@ export function ToolActivityPanel({
             type="button"
             onClick={() => setShowThinking((v) => !v)}
             aria-expanded={showThinking}
-            className="lp-kicker text-left underline-offset-4 hover:underline"
+            className="text-left text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             {showThinking ? t("chat.thinking.hide") : t("chat.thinking.show")}
           </button>

@@ -42,9 +42,11 @@ export function BlockView({ block }: { block: Block }) {
   }[block.type];
 
   return (
-    <article className="border-b py-6" aria-labelledby={`lp-block-${block.id}`}>
-      <header className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id={`lp-block-${block.id}`} className="font-serif text-lg font-semibold">
+    // Each block is a section of the chapter under up's h2 (rule above,
+    // 24/32), so the outline lists the chapter's blocks.
+    <article aria-labelledby={`lp-block-${block.id}`}>
+      <header className="mt-12 mb-4 flex flex-wrap items-baseline justify-between gap-2 border-t pt-6">
+        <h2 id={`lp-block-${block.id}`} className="scroll-mt-20 text-2xl leading-8 font-semibold text-balance">
           {heading && heading.toLowerCase() !== block.title.trim().toLowerCase() ? (
             <span className="lp-kicker mr-2 align-middle">{heading}</span>
           ) : null}

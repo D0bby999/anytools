@@ -105,6 +105,14 @@
   --lp-danger-soft: #f5e7ec;
   --lp-danger-fg: #ffffff;
 
+  /* ── Shell inks (up-shell phase 01). `ink-deco` is for an icon, a caret or
+       a decorative glyph and is held to 3:1, never to text contrast. The
+       reading-progress hairline (`--lp-progress`) is the colour of the part
+       being read, so app.css sets it beside `--lp-part`. `backdrop` dims the
+       page behind a drawer or a dialog. ── */
+  --lp-ink-deco: #5c6170;
+  --lp-backdrop: rgba(26, 30, 41, 0.5);
+
   /* ── Type. A book face reads and titles, a sans made for Vietnamese
        operates, a mono carries code and measured data only. All three carry
        U+1EA0-1EF9 and U+20AB. ── */
@@ -156,12 +164,19 @@
   --lp-space-8: 4rem;
 
   /* ── Layout. Read surfaces hold the measure; Operate surfaces widen. ── */
-  --lp-layout-max: 1280px;
+  --lp-layout-max: 1480px; /* up's --vp-layout-max-width */
   --lp-measure-read: 780px; /* from up */
   --lp-measure-form: 28rem;
-  --lp-rail-w: 16rem;
-  --lp-panel-w: 20rem;
-  --lp-topbar-h: 3.5rem;
+  --lp-rail-w: 17rem; /* --vp-sidebar-width, 272 */
+  --lp-aside-w: 224px; /* VPDoc .aside-container */
+  --lp-topbar-h: 4rem; /* --vp-nav-height */
+  --lp-localnav-h: 3rem; /* VPLocalNav */
+  --lp-measure-aside: 688px; /* VPDoc .has-aside .content-container */
+  /* The shell's stacking order, VitePress's --vp-z-index-* values. */
+  --lp-z-localnav: 20;
+  --lp-z-nav: 30;
+  --lp-z-backdrop: 50;
+  --lp-z-sidebar: 60;
 
   /* ── Radius: a printed box has a small corner. Tabs are the tightest. ── */
   --lp-radius-card: 12px;
@@ -239,6 +254,9 @@
   --lp-danger: #f08a9c;
   --lp-danger-soft: #342b32;
   --lp-danger-fg: #2a0a10;
+
+  --lp-ink-deco: #9a968b;
+  --lp-backdrop: rgba(0, 0, 0, 0.6);
 
   /* Light ink on a dark ground eats leading and tracking; give both back. */
   --lp-leading-prose: 1.9;

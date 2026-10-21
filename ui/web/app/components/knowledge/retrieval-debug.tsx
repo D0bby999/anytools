@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import type { Hit } from "~/lib/kb-types";
+import { Details } from "~/components/doc/details";
 
 /**
  * retrieval-debug.tsx
@@ -22,11 +23,9 @@ export function RetrievalDebug({ kbId, blocked }: { kbId: string; blocked: boole
   const hits = fetcher.data?.hits;
 
   return (
-    <section aria-labelledby="lp-retrieval-debug" className="mt-10">
-      <h2 id="lp-retrieval-debug" className="lp-section">
-        {t("debug.title")}
-      </h2>
-      <p className="mt-2 max-w-prose text-sm leading-prose text-muted-foreground">
+    // Folded (I7): a tool for checking the index, not a step of studying.
+    <Details summary={t("debug.title")} className="mt-12">
+      <p className="mt-0 max-w-prose text-sm leading-6 text-muted-foreground">
         {t("debug.hint")}
       </p>
 
@@ -42,7 +41,7 @@ export function RetrievalDebug({ kbId, blocked }: { kbId: string; blocked: boole
           required
           disabled={blocked}
           placeholder={t("debug.placeholder")}
-          className="min-h-11 min-w-0 flex-1 rounded-md border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
+          className="h-10 min-w-0 flex-1 rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none disabled:opacity-50"
         />
         <Button type="submit" disabled={searching || blocked}>
           <Search aria-hidden="true" />
@@ -93,10 +92,9 @@ export function RetrievalDebug({ kbId, blocked }: { kbId: string; blocked: boole
                     <p className="mt-1 font-mono text-2xs text-faint">{hit.heading_path}</p>
                   ) : null}
 
-                  {/* The passage itself, quoted. The one coloured left rule the
-                      world permits is on a blockquote, and it means exactly
-                      this: text taken from a source document. */}
-                  <blockquote className="mt-2 rounded-md border border-part-line bg-part-soft px-3 py-2 text-sm leading-prose text-muted-foreground">
+                  {/* The passage itself, quoted, in a full outline (never a
+                      one-sided rule): text taken from a source document. */}
+                  <blockquote className="mt-2 rounded-lg border bg-card px-3 py-2 text-sm leading-6 text-muted-foreground">
                     {hit.text.length > 600 ? `${hit.text.slice(0, 600)}…` : hit.text}
                   </blockquote>
                 </li>
@@ -105,6 +103,6 @@ export function RetrievalDebug({ kbId, blocked }: { kbId: string; blocked: boole
           </ol>
         ) : null}
       </div>
-    </section>
+    </Details>
   );
 }

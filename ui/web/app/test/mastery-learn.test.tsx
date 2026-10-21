@@ -79,7 +79,7 @@ describe("LearnCard", () => {
   it("renders the explanation with citations that open their page", () => {
     renderWithRoute(<LearnCard pointId="kp1" pointName="Parametric memory" explanation={explanation} />, [], () => null);
     expect(screen.getByText(/lives in the model's weights/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open RAG paper, page 3" })).toHaveAttribute("href", "/documents/doc-1?page=3");
+    expect(screen.getByRole("link", { name: "1: Open RAG paper, page 3" })).toHaveAttribute("href", "/documents/doc-1?page=3");
     expect(screen.queryByText(/Sources changed/)).toBeNull();
   });
 
@@ -142,7 +142,7 @@ describe("ExplainBackCard", () => {
     expect(posts[0]?.request_id).toMatch(/^[0-9a-f-]{36}$/);
     expect(screen.getByText(/did not say where it is stored/)).toBeInTheDocument();
     expect(screen.getByText(/not the retrieved text/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open RAG paper, page 3" })).toHaveAttribute("href", "/documents/doc-1?page=3");
+    expect(screen.getByRole("link", { name: "1: Open RAG paper, page 3" })).toHaveAttribute("href", "/documents/doc-1?page=3");
 
     await userEvent.click(screen.getByRole("button", { name: /Judged wrong/ }));
     await screen.findByText(/counted as explained, on your word/);

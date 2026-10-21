@@ -1,3 +1,6 @@
+import { RefTable } from "~/components/doc/ref-table";
+import { ProgressBar } from "~/components/doc/progress-bar";
+import { Details } from "~/components/doc/details";
 /**
  * mastery.index.tsx
  * The learner's mastery paths, what is due across all of them, and the form
@@ -78,11 +81,11 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
   const created = actionData && "created" in actionData ? actionData.created : undefined;
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("mastery.title")} lede={t("mastery.lead")} />
       <MasteryTabs vocabDue={loaderData.vocabDue} bookDue={loaderData.bookDue} />
 
-      <section aria-labelledby="lp-mastery-due" className="mt-8">
+      <section aria-labelledby="lp-mastery-due" className="lp-quick-start mt-8">
         <h2 id="lp-mastery-due" className="lp-section">
           {t("mastery.due")}
         </h2>
@@ -117,35 +120,32 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
             {t("mastery.noPaths")}
           </PlateEmpty>
         ) : (
-          <ul className="mt-3 border-t">
-            {loaderData.paths.map((p) => (
-              <li key={p.path.id} className="border-b">
-                <Link
-                  to={`/mastery/${p.path.id}`}
-                  className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-4 transition-colors hover:bg-primary-soft"
-                >
-                  <span className="font-sans text-base font-medium">{p.path.goal}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {p.modules === 0
-                      ? t("mastery.notPlanned")
-                      : t("mastery.summary", {
-                          mastery: percent(p.mastery),
-                          due: p.due_count,
-                          graduated: p.graduated_modules,
-                          modules: p.modules,
-                        })}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <RefTable
+            caption={t("mastery.paths")}
+            columns={[t("mastery.goal"), t("practise.progress"), t("mastery.due"), t("practise.open")]}
+            rows={loaderData.paths.map((p) => [
+              p.path.goal,
+              <>
+                <ProgressBar value={p.mastery} label={p.path.goal} />
+                <span className="text-xs">
+                  {p.modules === 0
+                    ? t("mastery.notPlanned")
+                    : t("mastery.summary", {
+                        mastery: percent(p.mastery),
+                        due: p.due_count,
+                        graduated: p.graduated_modules,
+                        modules: p.modules,
+                      })}
+                </span>
+              </>,
+              p.due_count,
+              <Link to={`/mastery/${p.path.id}`}>{t("practise.open")}</Link>,
+            ])}
+          />
         )}
       </section>
 
-      <section aria-labelledby="lp-mastery-new" className="mt-10">
-        <h2 id="lp-mastery-new" className="lp-section">
-          {t("mastery.new")}
-        </h2>
+      <Details summary={t("mastery.new")} open={Boolean(created || actionData)} className="mt-10">
         {loaderData.kbs.length === 0 ? (
           <p className="mt-3 lp-empty">{t("quiz.noKb")}</p>
         ) : (
@@ -200,7 +200,7 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
             <ProposalEditor pathId={created.path.id} proposal={created.proposal} />
           </div>
         ) : null}
-      </section>
+      </Details>
     </div>
   );
 }

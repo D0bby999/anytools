@@ -183,10 +183,11 @@ type DueCard struct {
 	Clip *Clip `json:"clip,omitempty"`
 	// Front and Back are set on flash and deck cards; Book on a book's flash
 	// card, Deck on a general deck's card.
-	Front string   `json:"front,omitempty"`
-	Back  string   `json:"back,omitempty"`
-	Book  *BookRef `json:"book,omitempty"`
-	Deck  *DeckRef `json:"deck,omitempty"`
+	Front string     `json:"front,omitempty"`
+	Back  string     `json:"back,omitempty"`
+	Image *CardImage `json:"image,omitempty"`
+	Book  *BookRef   `json:"book,omitempty"`
+	Deck  *DeckRef   `json:"deck,omitempty"`
 
 	FSRS learning.Card `json:"-"`
 }
@@ -598,6 +599,12 @@ func (s *Service) Update(ctx context.Context, userID, id uuid.UUID, p NotePatch)
 	decisionSent, recordSent, meaningSent := p.Decision != nil, p.Record != nil, p.Meaning != nil
 	// Cards are a word to learn's only (AC5): nothing else may turn one on.
 	listeningOn := p.Listening != nil && *p.Listening
+	// A language no writing card is drawn in turns the card off with it, so
+	// none is left due with nothing to draw.
+	if p.Lang != nil && p.Writing == nil && !Writable("字", *p.Lang) {
+		off := false
+		p.Writing = &off
+	}
 	writingOn := p.Writing != nil && *p.Writing
 	turnsCardsOn := (p.Production != nil && *p.Production) || listeningOn || writingOn || (p.Suspended != nil && !*p.Suspended)
 	p.Check = func(next NoteState) error {

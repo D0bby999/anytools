@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { StatusPill } from "~/components/settings/readiness-matrix";
 import { CitationChip } from "~/components/chat/citation-chip";
+import { Badge, type BadgeType } from "~/components/doc/badge";
+import { RefTable } from "~/components/doc/ref-table";
+import { DocSection } from "~/components/research/doc-section";
 import type { Source } from "~/hooks/use-turn-stream";
 import type { Claim, Verification } from "~/lib/research-types";
-import type { ReadinessStatus } from "~/lib/byok.types";
 
 /**
  * The report's claim check: how many of its claims the cited sources support,
@@ -12,14 +13,15 @@ import type { ReadinessStatus } from "~/lib/byok.types";
  *
  * The caveat is part of the component, not optional copy: the check is an AI
  * reading the cited text, so "supported" means "found in the source", never
- * "true". Verdicts use StatusPill, so they carry a word and a shape as well as
- * a tint.
+ * "true". Since the up shell the claims are a reference table (P5): the claim,
+ * its sources as numbered entries, and the verdict as a badge (I6), which
+ * carries a word as well as a tint.
  */
-const VERDICT_STATUS: Record<Claim["verdict"], ReadinessStatus> = {
-  supported: "green",
-  partial: "warn",
-  uncited: "warn",
-  unsupported: "blocked",
+const VERDICT_BADGE: Record<Claim["verdict"], BadgeType> = {
+  supported: "tip",
+  partial: "warning",
+  uncited: "warning",
+  unsupported: "danger",
 };
 
 export function ClaimCheck({ check, sources }: { check: Verification; sources: Source[] }) {
@@ -27,12 +29,9 @@ export function ClaimCheck({ check, sources }: { check: Verification; sources: S
 
   if (check.status !== "checked") {
     return (
-      <section aria-labelledby="lp-claim-check" className="rounded-lg border bg-card p-4">
-        <h2 id="lp-claim-check" className="lp-section">
-          {t("check.title")}
-        </h2>
-        <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("check.unavailable")}</p>
-      </section>
+      <DocSection title={t("check.title")} id="lp-claim-check">
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("check.unavailable")}</p>
+      </DocSection>
     );
   }
 
@@ -40,47 +39,53 @@ export function ClaimCheck({ check, sources }: { check: Verification; sources: S
   const order = new Map(sources.map((s, i) => [`${s.kind}:${s.id}`, i + 1]));
   const byKey = new Map(sources.map((s) => [`${s.kind}:${s.id}`, s]));
 
-  const row = (claim: Claim, i: number) => (
-    <li key={i} className="border-t py-3 first:border-t-0">
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusPill status={VERDICT_STATUS[claim.verdict]} label={t(`check.verdict.${claim.verdict}`)} />
-        {claim.cites.map((key) => {
-          const source = byKey.get(key);
-          return source ? <CitationChip key={key} source={source} index={order.get(key) ?? 0} /> : null;
-        })}
-      </div>
-      <p className="mt-1.5 text-sm leading-prose">{claim.claim}</p>
-      {claim.note ? <p className="mt-1 text-xs leading-prose text-muted-foreground">{claim.note}</p> : null}
-    </li>
+  const table = (claims: Claim[], caption: string) => (
+    <div className="my-4">
+      <RefTable
+        caption={caption}
+        rowHeaders={false}
+        columns={[t("check.columns.claim"), t("check.columns.source"), t("check.columns.verdict")]}
+        rows={claims.map((claim) => [
+          <>
+            {claim.claim}
+            {claim.note ? <span className="mt-1 block text-[13px] leading-5 text-muted-foreground">{claim.note}</span> : null}
+          </>,
+          <span className="flex flex-col gap-1">
+            {claim.cites.map((key) => {
+              const source = byKey.get(key);
+              return source ? (
+                <CitationChip key={key} source={source} index={order.get(key) ?? 0} variant="entry" />
+              ) : null;
+            })}
+          </span>,
+          <Badge type={VERDICT_BADGE[claim.verdict]}>{t(`check.verdict.${claim.verdict}`)}</Badge>,
+        ])}
+      />
+    </div>
   );
 
   return (
-    <section aria-labelledby="lp-claim-check" className="rounded-lg border bg-card p-4">
-      <h2 id="lp-claim-check" className="lp-section">
-        {t("check.title")}
-      </h2>
-      <p className="mt-2 text-sm font-medium">
+    <DocSection title={t("check.title")} id="lp-claim-check">
+      <p className="mt-4 text-sm leading-6 font-medium">
         {flagged.length === 0
           ? t("check.allSupported")
           : t("check.summary", { supported: check.supported, total: check.total })}
       </p>
-      <p className="mt-1 text-xs leading-prose text-muted-foreground">{t("check.caveat")}</p>
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">{t("check.caveat")}</p>
 
       {flagged.length > 0 && (
         <>
-          <h3 className="mt-4 text-sm font-medium">{t("check.needsChecking")}</h3>
-          <ul className="mt-1">{flagged.map(row)}</ul>
+          <h3 className="mt-6 text-base leading-7 font-semibold">{t("check.needsChecking")}</h3>
+          {table(flagged, `${t("check.title")}: ${t("check.needsChecking")}`)}
         </>
       )}
 
       {check.claims.length > flagged.length && (
-        <details className="mt-3">
-          <summary className="cursor-pointer text-sm text-primary underline-offset-4 hover:underline">
-            {t("check.all", { count: check.total })}
-          </summary>
-          <ul className="mt-1">{check.claims.map(row)}</ul>
+        <details className="lp-details">
+          <summary>{t("check.all", { count: check.total })}</summary>
+          {table(check.claims, `${t("check.title")}: ${t("check.all", { count: check.total })}`)}
         </details>
       )}
-    </section>
+    </DocSection>
   );
 }

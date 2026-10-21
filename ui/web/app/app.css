@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./components/doc/doc.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -54,6 +55,13 @@
 
   /* Reading progress runs in the colour of the part being read */
   --color-accent: var(--lp-part);
+  --color-progress: var(--lp-progress);
+
+  /* An icon, a caret, a decorative glyph: 3:1, never text */
+  --color-deco: var(--lp-ink-deco);
+
+  /* The dimmed page behind a drawer or a dialog */
+  --color-backdrop: var(--lp-backdrop);
 
   /* The highlighter: this needs you now */
   --color-highlight: var(--lp-highlight);
@@ -111,6 +119,12 @@
   --container-form: var(--lp-measure-form);
 }
 
+/* VitePress's third breakpoint (960): the sidebar docks at `vp:`. 768 is
+   `md`, 1280 is `xl`. */
+@theme {
+  --breakpoint-vp: 60rem;
+}
+
 @layer base {
   /* Tailwind v4 dropped v3's default border colour; restore the hairline. */
   *,
@@ -138,6 +152,12 @@
     --lp-part-soft: var(--lp-surface);
     --lp-part-line: var(--lp-border);
     --lp-part-fg: var(--lp-paper);
+    --lp-progress: var(--lp-part);
+  }
+
+  /* The reading-progress hairline is the colour of the part being read. */
+  [data-part] {
+    --lp-progress: var(--lp-part);
   }
 
   [data-part="read"] {
@@ -672,7 +692,7 @@
   inset-inline-start: 0;
   z-index: 1100;
   width: 100%;
-  height: 3px;
+  height: 2px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -681,7 +701,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--lp-part);
+  background: var(--lp-progress);
   transform-origin: left center;
   transition: transform 80ms linear;
 }

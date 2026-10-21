@@ -17,11 +17,8 @@ export function DiagnosticPrompt({ stateId }: { stateId: string }) {
   const { t } = useTranslation("toolkit");
   const params = new URLSearchParams({ kind: DIAGNOSTIC_KIND, state: stateId });
   return (
-    <p className="mt-3 text-sm leading-prose text-muted-foreground">
-      <Link
-        to={`/toolkit/new?${params.toString()}`}
-        className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
-      >
+    <p className="text-sm text-muted-foreground">
+      <Link to={`/toolkit/new?${params.toString()}`} className="inline-flex min-h-11 items-center font-medium">
         {t("diagnostic.start")}
       </Link>
       <span className="block">{t("diagnostic.startLead")}</span>

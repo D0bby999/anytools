@@ -84,6 +84,7 @@ export function Plate({
  * page stays a plain `lp-empty` line.
  */
 export function PlateEmpty({ name, className, children }: { name: PlateName; className?: string; children: React.ReactNode }) {
+  // Without a plate the sentence stands alone, as up's empty page is a paragraph.
   return (
     <div className={cn("grid items-center gap-x-8 gap-y-2 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]", className)}>
       <Plate name={name} sizes="(min-width: 640px) 15rem, 60vw" className="max-w-60" />

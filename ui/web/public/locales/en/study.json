@@ -41,6 +41,8 @@
     "next": "Next question",
     "almost": "Almost",
     "mathAlmost": "Equal to the answer, but not in the form the question asks for.",
+    "mathAlmostUnit": "Equal to the answer, but not in the unit the question asks for.",
+    "mathNoUnit": "The number is right, but the unit is missing.",
     "mathEqual": "Your answer {{answer}} equals the recorded {{recorded}}.",
     "mathWrong": "The value differs from the recorded answer."
   },
@@ -382,6 +384,7 @@
     "resetYes": "Replace it",
     "keep": "Keep mine",
     "loading": "Getting Python ready: {{loaded}} of {{total}} MB (once, then it is kept).",
+    "loadingAnnounce": "Getting Python ready. It is downloaded once, then kept.",
     "loadFailed": "Python couldn't be loaded. Check the connection and try again.",
     "timedOut": "Stopped after {{seconds}} seconds. Is there a loop that never ends?",
     "stopped": "Stopped. Your code is kept.",
@@ -396,5 +399,29 @@
     "title": "Practise Python",
     "lead": "Eighteen small exercises from Exercism's Python track, from Hello World to Bob, each checked by its tests in your browser. They go into a knowledge base called Python basics.",
     "add": "Add the Python exercises"
+  },
+  "practise": {
+    "questionOf": "Question {{n}} of {{total}}",
+    "explanation": "Explanation",
+    "question": "Question",
+    "openQuestion": "Open question",
+    "open": "Open",
+    "progress": "Progress",
+    "answerQuestions": "Answer today’s questions",
+    "baseline": "Keep one baseline in five minutes",
+    "addSource": "Add a source to a knowledge base.",
+    "chooseSource": "Choose that knowledge base and generate a few questions.",
+    "checkAnswer": "Answer a question and check its explanation.",
+    "todayQuestions": "Today’s questions",
+    "score": "Score",
+    "questions": "{{count}} questions",
+    "maxScore": "{{count}} maximum points",
+    "lastAttempt": "Last attempt",
+    "cardOf": "Card {{n}} of {{total}}",
+    "session": "Study session",
+    "today": "Today",
+    "practice": "Practice",
+    "chooseAnswer": "Choose an answer.",
+    "answerQuestionsCount": "Answer today’s {{count}} questions"
   }
 }

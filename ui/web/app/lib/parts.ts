@@ -7,6 +7,10 @@
  * (Today, More, Settings) and the tools appendix. The shell sets
  * `data-part` from this map, so a page's tab, numeral, key-concept boxes and
  * reading progress all take its part's colour without the page naming one.
+ *
+ * Navigation itself (which pages exist, their order, which entry a detail
+ * page belongs to) lives in lib/nav-tree.ts. This map only decides colour;
+ * while the `up` skin is on, every part paints in the one brand colour.
  */
 export type PartId = "home" | "read" | "ask" | "practise" | "reflect" | "tools";
 

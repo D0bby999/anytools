@@ -50,7 +50,7 @@ vi.mock("hanzi-writer", () => ({
 }));
 
 const { WritingPad, writingRating } = await import("~/components/vocab/writing-pad");
-const { joinSplitStrokes, strokeData, drawable } = await import("~/lib/strokes.server");
+const { joinSplitStrokes, strokeData, drawable, lineIndex } = await import("~/lib/strokes.server");
 
 beforeAll(async () => {
   await initI18n("en");
@@ -130,7 +130,7 @@ describe("the writing pad", () => {
     await waitFor(() => expect(writer.quiz).not.toBe(first));
     expect(writer.chars.at(-1)).toBe("強");
     act(() => writer.quiz!.onComplete());
-    expect(done).toHaveBeenCalledWith({ mistakes: 1, shown: false });
+    expect(done).toHaveBeenCalledWith({ mistakes: 1, shown: false, drawn: 2 });
     expect(screen.getByText("Done: 1 mistake.")).toBeInTheDocument();
   });
 
@@ -143,7 +143,7 @@ describe("the writing pad", () => {
     await userEvent.click(screen.getByRole("button", { name: "Next character" }));
     await waitFor(() => expect(writer.quiz).not.toBeNull());
     act(() => writer.quiz!.onComplete());
-    expect(done).toHaveBeenCalledWith({ mistakes: 1, shown: true });
+    expect(done).toHaveBeenCalledWith({ mistakes: 1, shown: true, drawn: 1 });
   });
 
   it("shows a character with no stroke data and lets the learner go on", async () => {
@@ -152,7 +152,9 @@ describe("the writing pad", () => {
     render(<WritingPad term="𠮷" lang="ja" onDone={done} />);
     expect(await screen.findByText("No stroke data for 𠮷: look at it and go on.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Finish" }));
-    expect(done).toHaveBeenCalledWith({ mistakes: 0, shown: false });
+    expect(done).toHaveBeenCalledWith({ mistakes: 0, shown: false, drawn: 0 });
+    // Nothing was drawn: no rating is suggested (independent review).
+    expect(writingRating({ mistakes: 0, shown: false, drawn: 0 })).toBeNull();
   });
 });
 
@@ -163,5 +165,38 @@ describe("which words get the card", () => {
     expect(writable("study", "ja")).toBe(false);
     expect(writable("勉強", "en")).toBe(false);
     expect(writable("한국어", "ko")).toBe(false);
+  });
+});
+
+describe("the stroke files' index", () => {
+  it("finds each line by where it is, across the chunks a file is read in", async () => {
+    const { mkdtemp, writeFile, readFile, rm } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const dir = await mkdtemp(join(tmpdir(), "strokes-"));
+    const line = (c: string, pad = 0) => `{"character":"${c}","strokes":["${"M".repeat(pad)}"],"medians":[]}`;
+    // 学's line starts 6 bytes before the first 64 KB chunk ends, so its
+    // character is read across two chunks; 𠀀 is four bytes; 学 again is
+    // ignored; the last line has no newline.
+    const pad = 65_536 - 6 - 1 - Buffer.byteLength(line("一"));
+    const lines = [line("一", pad), line("学", 200), line("𠀀"), "not a character line", line("学"), line("あ")];
+    expect(Buffer.byteLength(lines[0]! + "\n")).toBe(65_530);
+    const file = join(dir, "graphics.txt");
+    await writeFile(file, lines.join("\n"));
+    try {
+      const found = new Map<string, { file: string; offset: number; length: number }>();
+      await lineIndex(file, found);
+      expect([...found.keys()]).toEqual(["一", "学", "𠀀", "あ"]);
+      const bytes = await readFile(file);
+      const at = (c: string) => {
+        const p = found.get(c)!;
+        return bytes.subarray(p.offset, p.offset + p.length).toString("utf8");
+      };
+      expect(at("学")).toBe(line("学", 200));
+      expect(at("𠀀")).toBe(line("𠀀"));
+      expect(at("あ")).toBe(line("あ"));
+    } finally {
+      await rm(dir, { recursive: true });
+    }
   });
 });

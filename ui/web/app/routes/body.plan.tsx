@@ -3,6 +3,8 @@
  * Body → Plan: the routines, which weekday trains which, and the settings
  * every number depends on (unit, rest, goal weight).
  */
+import { InputTable } from "~/components/body/input-table";
+import { RefTable } from "~/components/doc/ref-table";
 import { Form, Link, useActionData, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
@@ -20,10 +22,7 @@ import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Training plan") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Training plan") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -66,7 +65,7 @@ export default function BodyPlan({ loaderData }: Route.ComponentProps) {
   const days = weekdayNames(i18n.language);
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader
         title={t("plan.title")}
         lede={t("plan.lead")}
@@ -90,7 +89,7 @@ export default function BodyPlan({ loaderData }: Route.ComponentProps) {
 
       <section aria-labelledby="lp-plan-routines">
         <h2 id="lp-plan-routines" className="lp-section">
-          {t("plan.routines")}
+          {t("up.weekPlan")}
         </h2>
         {o.routines.length === 0 ? (
           <p className="mt-2 max-w-[60ch] text-sm leading-prose text-muted-foreground">
@@ -104,24 +103,31 @@ export default function BodyPlan({ loaderData }: Route.ComponentProps) {
             </Link>
           </p>
         ) : (
-          <ul className="mt-3 divide-y border-y">
+          <>
+            <h3>{t("up.week", { n: 1 })}</h3>
             {o.routines.map((r) => (
-              <li key={r.id} className="py-4">
-                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                  <h3 className="min-w-0 flex-1 font-serif text-lg font-semibold">
-                    <Link to={`/body/routines/${r.id}`} className="hover:underline">
-                      {r.name}
-                    </Link>
-                  </h3>
-                  <span className="text-xs text-muted-foreground">{policyName(r.prog)}</span>
-                </div>
-                {r.why ? <p className="mt-1 text-sm text-muted-foreground">{r.why}</p> : null}
-                <p className="mt-1 text-sm">
-                  {r.exercises.map((e) => names[e.exercise]?.name ?? e.exercise).join(" · ") || t("plan.noExercises")}
-                </p>
-              </li>
+              <section key={r.id}>
+                <h3>
+                  <Link to={`/body/routines/${r.id}`}>{r.name}</Link>
+                </h3>
+                <p>{policyName(r.prog)}</p>
+                <RefTable
+                  caption={r.name}
+                  columns={[t("up.exercise"), t("up.target"), t("settings.rest")]}
+                  rows={r.exercises.map((e) => [
+                    names[e.exercise]?.name ?? e.exercise,
+                    e.mode === "time"
+                      ? t("target.time", { sets: e.sets, sec: e.sec ?? 0 })
+                      : e.mode === "cardio"
+                        ? t("target.cardio", { min: num(e.min) })
+                        : t("target.reps", { sets: e.sets, reps: e.reps ?? 0 }),
+                    o.profile.rest_sec,
+                  ])}
+                />
+                {r.why ? <blockquote className="rounded-lg border bg-sunken p-4">{r.why}</blockquote> : null}
+              </section>
             ))}
-          </ul>
+          </>
         )}
       </section>
 
@@ -131,21 +137,21 @@ export default function BodyPlan({ loaderData }: Route.ComponentProps) {
         </h2>
         <Form method="post" className="mt-3">
           <input type="hidden" name="intent" value="week" />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {WEEK_ORDER.map((d) => (
-              <label key={d} className="text-xs text-muted-foreground">
-                {days[d]}
-                <select name={`day${d}`} defaultValue={o.week[d] ?? ""} className={FIELD}>
-                  <option value="">{t("week.rest")}</option>
-                  {o.routines.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
-          </div>
+          <InputTable
+            caption={t("plan.week")}
+            columns={[t("up.day"), t("today.routine")]}
+            rows={WEEK_ORDER.map((d) => [
+              days[d],
+              <select aria-label={days[d]} name={`day${d}`} defaultValue={o.week[d] ?? ""}>
+                <option value="">{t("week.rest")}</option>
+                {o.routines.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>,
+            ])}
+          />
           <div className="mt-4 flex items-center gap-3">
             <Button type="submit" variant="outline" disabled={busy}>
               {t("plan.saveWeek")}

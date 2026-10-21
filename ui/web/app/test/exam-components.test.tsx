@@ -177,7 +177,7 @@ describe("ExamSheet", () => {
     const posts: Record<string, string>[] = [];
     renderRoute(<ExamSheet exam={base} />, posts, { ok: true, saved: true });
 
-    await userEvent.click(screen.getByLabelText(/Its weights/));
+    await userEvent.click(screen.getByRole("radio", { name: /Its weights/ }));
     const essay = screen.getAllByRole("textbox")[0]!;
     expect(essay).toHaveAttribute("maxlength", "20000");
     await userEvent.type(essay, " more");

@@ -413,5 +413,22 @@
     "inner thighs": "Inner thighs",
     "shins": "Shins",
     "core": "Core"
+  },
+  "up": {
+    "day": "Day",
+    "value": "Value",
+    "dataTable": "Recorded values",
+    "restRemaining": "About {{count}} seconds of rest remaining",
+    "startWorkout": "Start today's workout",
+    "status": "Status",
+    "planned": "Planned",
+    "exercise": "Exercise",
+    "personalBests": "Personal bests",
+    "estimatedMax": "Estimated one-rep max",
+    "weekPlan": "A repeating weekly plan",
+    "week": "Week {{n}}",
+    "target": "Sets × reps / duration",
+    "field": "Field",
+    "why": "Why"
   }
 }

@@ -8,7 +8,8 @@
  * The life toolkit's recovery reset (phase 9) is the secondary link: a
  * private worksheet for changing the conditions after a hard stretch.
  *
- * Plain hairline note, no alert styling: this is advice, not a warning.
+ * A tinted box with a full outline, no alert styling: this is advice, not a
+ * warning.
  */
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -19,22 +20,22 @@ export function RepeatedResistance({ resistance, cycleId }: { resistance: Resist
   const { t } = useTranslation("loop");
   const label = useResistanceLabels();
   return (
-    <div role="note" aria-labelledby="lp-repeated-title" className="mt-3 border-y py-3">
-      <h3 id="lp-repeated-title" className="text-sm font-medium">
+    <div role="note" aria-labelledby="lp-repeated-title" className="my-6 rounded-lg border bg-muted px-[18px] py-3">
+      <div id="lp-repeated-title" className="font-semibold">
         {t("repeated.title")}
-      </h3>
-      <p className="mt-1 text-sm leading-prose text-muted-foreground">
+      </div>
+      <p className="my-1! text-sm text-muted-foreground">
         {t("repeated.body", { resistance: label[resistance].toLowerCase() })}
       </p>
       <Link
         to={`/loop/cycle/${cycleId}#lp-cycle-questions`}
-        className="mt-1 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
+        className="inline-flex min-h-11 items-center text-sm"
       >
         {t("repeated.capacity")}
       </Link>
       <Link
         to="/toolkit/new?kind=recovery_reset"
-        className="ml-4 inline-flex min-h-11 items-center text-sm text-muted-foreground underline underline-offset-4"
+        className="ml-4 inline-flex min-h-11 items-center text-sm"
       >
         {t("repeatedRecovery")}
       </Link>

@@ -10,7 +10,7 @@ import { PlateEmpty } from "~/components/ui/plate";
 import { useState } from "react";
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
-import { MessageSquarePlus, Pencil, Search, Trash2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import type { Route } from "./+types/chat.index";
 import { appTitle } from "~/lib/app-title";
 import { requireUser, requireUserId } from "~/lib/auth.server";
@@ -20,7 +20,11 @@ import { Button } from "~/components/ui/button";
 import { requireUUID } from "~/lib/turns";
 import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
+import { Field } from "~/components/doc/field";
+import { Flyout, FLYOUT_ITEM } from "~/components/doc/flyout";
+import { NewConversation } from "~/components/chat/new-conversation";
 import { listKBs } from "~/lib/kb.server";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -36,7 +40,13 @@ export async function loader({ request }: Route.LoaderArgs) {
     listSessions(userId, query),
     listKBs(userId).catch(() => ({ knowledge_bases: [] })),
   ]);
-  return { groups: groupByDay(sessions, user.timezone), query, kbCount: kbs.knowledge_bases.length };
+  return {
+    groups: groupByDay(sessions, user.timezone),
+    query,
+    kbCount: kbs.knowledge_bases.length,
+    // For the quick-start's "Reads" menu; the action already takes kb_id.
+    kbs: kbs.knowledge_bases.map((k) => ({ id: k.kb.id, name: k.kb.name })),
+  };
 }
 
 type Group = { key: "today" | "week" | "older"; sessions: ChatSession[] };
@@ -88,81 +98,68 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect(`/chat/${session.id}`);
 }
 
+/**
+ * The list of conversations, as up's "recent updates" (P4): h1, lede, the
+ * page's one action as a quick-start, then "Recent", each conversation one
+ * line of **date** · title — what it reads, under the learner's own day
+ * groups. Renaming and deleting sit in the line's "…" menu.
+ */
 export default function ChatIndex({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
-  const { groups, query } = loaderData;
+  const { groups, query, kbs } = loaderData;
   const empty = groups.length === 0;
 
   return (
-    <div className="lp-measure">
-      <PageHeader
-        title={t("chat.title")}
-        lede={t("chat.lead")}
-        actions={
-          <Form method="post">
-            <Button type="submit" disabled={busy}>
-              <MessageSquarePlus aria-hidden="true" />
-              {t("chat.new")}
-            </Button>
-          </Form>
-        }
-      />
+    <div className="lp-doc">
+      <PageHeader title={t("chat.title")} lede={t("chat.lead")} className="mb-0" />
+
+      <NewConversation kbs={kbs} busy={busy} />
 
       {loaderData.kbCount === 0 && (
-        <p className="mb-6 rounded-lg border bg-part-soft px-4 py-3 text-sm leading-prose">
-          {t("chat.noKnowledge")}{" "}
-          <Link to="/knowledge" className="font-medium text-primary underline underline-offset-4">
-            {t("chat.noKnowledgeLink")}
-          </Link>
+        <p>
+          {t("chat.noKnowledge")} <Link to="/knowledge">{t("chat.noKnowledgeLink")}</Link>
         </p>
       )}
 
-      {(!empty || query) && (
-        <Form method="get" role="search" className="mb-4 flex items-center gap-2">
-          <label htmlFor="lp-chat-search" className="sr-only">
-            {t("chat.searchLabel")}
-          </label>
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <input
-              id="lp-chat-search"
-              type="search"
-              name="q"
-              defaultValue={query}
-              placeholder={t("chat.search")}
-              className="h-10 w-full rounded-md border border-control-border bg-card pr-3 pl-9 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            />
-          </div>
-          {query ? (
-            <Link to="/chat" className="text-sm text-primary underline underline-offset-4">
-              {t("chat.searchClear")}
-            </Link>
-          ) : null}
-        </Form>
-      )}
+      <section aria-labelledby="lp-chat-recent">
+        <h2 id="lp-chat-recent">{t("chat.index.recent")}</h2>
 
-      {empty ? (
-        query ? (
-          <p className="lp-empty">{t("chat.noMatches", { query })}</p>
+        {(!empty || query) && (
+          <Form method="get" role="search" className="my-4 flex items-end gap-4">
+            <div className="min-w-0 flex-1">
+              <Field label={t("chat.searchLabel")}>
+                <input id="lp-chat-search" type="search" name="q" defaultValue={query} placeholder={t("chat.search")} />
+              </Field>
+            </div>
+            {query ? (
+              <Link to="/chat" className="mb-2.5 text-sm">
+                {t("chat.searchClear")}
+              </Link>
+            ) : null}
+          </Form>
+        )}
+
+        {empty ? (
+          query ? (
+            <p className="lp-empty">{t("chat.noMatches", { query })}</p>
+          ) : (
+            <PlateEmpty name="part-ask">{t("chat.noSessions")}</PlateEmpty>
+          )
         ) : (
-          <PlateEmpty name="part-ask">{t("chat.noSessions")}</PlateEmpty>
-        )
-      ) : (
-        groups.map((group) => (
-          <section key={group.key} aria-labelledby={`lp-chat-group-${group.key}`} className="mb-6">
-            <h2 id={`lp-chat-group-${group.key}`} className="lp-section">
-              {t(`chat.groups.${group.key}`)}
-            </h2>
-            <ul className="mt-2 divide-y border-y">
-              {group.sessions.map((session) => (
-                <SessionRow key={session.id} session={session} busy={busy} />
-              ))}
-            </ul>
-          </section>
-        ))
-      )}
+          groups.map((group) => (
+            <section key={group.key} aria-labelledby={`lp-chat-group-${group.key}`}>
+              <h3 id={`lp-chat-group-${group.key}`}>{t(`chat.groups.${group.key}`)}</h3>
+              <ul className="lp-dated-list">
+                {group.sessions.map((session) => (
+                  <SessionRow key={session.id} session={session} busy={busy} />
+                ))}
+              </ul>
+            </section>
+          ))
+        )}
+      </section>
     </div>
   );
 }
@@ -174,25 +171,25 @@ function SessionRow({ session, busy }: { session: ChatSession; busy: boolean }) 
 
   if (renaming) {
     return (
-      <li className="py-3">
-        <Form method="post" className="flex flex-wrap items-center gap-2" onSubmit={() => setRenaming(false)}>
+      <li>
+        <Form method="post" className="flex flex-wrap items-end gap-3 py-1" onSubmit={() => setRenaming(false)}>
           <input type="hidden" name="intent" value="rename" />
           <input type="hidden" name="sessionId" value={session.id} />
-          <label htmlFor={`lp-rename-${session.id}`} className="sr-only">
-            {t("chat.renameLabel")}
-          </label>
-          <input
-            id={`lp-rename-${session.id}`}
-            name="title"
-            defaultValue={session.title}
-            maxLength={200}
-            required
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setRenaming(false);
-            }}
-            className="h-10 min-w-0 flex-1 rounded-md border border-control-border bg-card px-3 font-serif text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          />
+          <div className="min-w-0 flex-1">
+            <Field label={t("chat.renameLabel")}>
+              <input
+                id={`lp-rename-${session.id}`}
+                name="title"
+                defaultValue={session.title}
+                maxLength={200}
+                required
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setRenaming(false);
+                }}
+              />
+            </Field>
+          </div>
           <Button type="submit" size="sm">
             {t("chat.renameSave")}
           </Button>
@@ -205,46 +202,51 @@ function SessionRow({ session, busy }: { session: ChatSession; busy: boolean }) 
   }
 
   return (
-    <li className="flex items-center gap-1 py-2">
-      <Link to={`/chat/${session.id}`} className="group min-h-11 min-w-0 flex-1 py-2">
-        <span className="block truncate font-serif text-lg group-hover:text-primary group-hover:underline">
-          {title}
-        </span>
-        <span className="block text-xs leading-ui text-muted-foreground">
-          <DateText iso={session.updated_at} />
+    <li>
+      <div className="flex items-start gap-2">
+        <span className="min-w-0 flex-1">
+          <strong>
+            <DateText iso={session.updated_at} />
+          </strong>
           {" · "}
-          {session.kb_ids.length === 0
-            ? t("chat.context.none")
-            : t("chat.context.reads", { count: session.kb_ids.length })}
+          <Link to={`/chat/${session.id}`}>{title}</Link>
+          {NOTE_JOIN}
+          <span className="text-muted-foreground">
+            {session.kb_ids.length === 0
+              ? t("chat.context.none")
+              : t("chat.context.reads", { count: session.kb_ids.length })}
+          </span>
         </span>
-      </Link>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        disabled={busy}
-        aria-label={t("chat.renameNamed", { title })}
-        title={t("chat.rename")}
-        className="text-muted-foreground"
-        onClick={() => setRenaming(true)}
-      >
-        <Pencil aria-hidden="true" />
-      </Button>
-      <Form method="post">
-        <input type="hidden" name="intent" value="delete" />
-        <input type="hidden" name="sessionId" value={session.id} />
-        <Button
-          type="submit"
-          variant="ghost"
-          size="icon"
-          disabled={busy}
-          aria-label={t("chat.deleteNamed", { title })}
-          title={t("chat.delete")}
-          className="text-muted-foreground hover:text-destructive"
+        <Flyout
+          label={t("chat.index.actionsFor", { title })}
+          icon={<MoreHorizontal aria-hidden="true" className="size-4" />}
+          hideChevron
+          buttonClassName="h-8 rounded-sm px-2 text-muted-foreground"
+          menuClassName="top-9"
         >
-          <Trash2 aria-hidden="true" />
-        </Button>
-      </Form>
+          <button
+            type="button"
+            disabled={busy}
+            aria-label={t("chat.renameNamed", { title })}
+            className={FLYOUT_ITEM}
+            onClick={() => setRenaming(true)}
+          >
+            {t("chat.rename")}
+          </button>
+          <Form method="post">
+            <input type="hidden" name="intent" value="delete" />
+            <input type="hidden" name="sessionId" value={session.id} />
+            <button
+              type="submit"
+              disabled={busy}
+              aria-label={t("chat.deleteNamed", { title })}
+              className={FLYOUT_ITEM + " text-destructive hover:text-destructive"}
+            >
+              {t("chat.delete")}
+            </button>
+          </Form>
+        </Flyout>
+      </div>
     </li>
   );
 }

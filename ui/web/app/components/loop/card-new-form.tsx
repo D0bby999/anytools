@@ -9,9 +9,8 @@ import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { CardKind } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
+import { InputTable } from "~/components/loop/input-table";
 import { DiagnosticPrompt, needsDiagnostic, type DiagnosticNeed } from "~/components/worksheet/diagnostic-prompt";
-
-const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
 
 type Props = { kinds: CardKind[]; busy: boolean; diagnostic?: DiagnosticNeed };
 
@@ -21,14 +20,14 @@ export function CardNewForm({ kinds, busy, diagnostic }: Props) {
   const kind = kinds.find((k) => k.kind === chosen);
   if (!kind) return null;
   return (
-    <Form method="post" className="mt-3 space-y-4">
+    <Form method="post">
       <input type="hidden" name="intent" value="newCard" />
       <fieldset>
-        <legend className="text-sm font-medium">{t("cards.chooseKind")}</legend>
-        <ul className="mt-2 border-t">
+        <legend className="text-sm font-semibold">{t("cards.chooseKind")}</legend>
+        <ul className="m-0! list-none! pl-0!">
           {kinds.map((k) => (
-            <li key={k.kind} className="border-b">
-              <label className="flex min-h-11 cursor-pointer items-start gap-3 py-3 transition-colors hover:bg-primary-soft">
+            <li key={k.kind} className="m-0!">
+              <label className="flex min-h-11 cursor-pointer items-start gap-3 py-2">
                 <input
                   type="radio"
                   name="kind"
@@ -40,7 +39,7 @@ export function CardNewForm({ kinds, busy, diagnostic }: Props) {
                 <span>
                   <span className="block text-sm font-medium">{k.name}</span>
                   <span className="block text-sm text-muted-foreground">{k.summary}</span>
-                  <span className="text-xs font-semibold mt-1 block text-faint">
+                  <span className="mt-1 block text-sm text-muted-foreground">
                     {t("cards.retestAfter", { count: k.retest_delay_days })}
                   </span>
                 </span>
@@ -50,17 +49,31 @@ export function CardNewForm({ kinds, busy, diagnostic }: Props) {
         </ul>
       </fieldset>
       {diagnostic && needsDiagnostic(diagnostic, [kind.kind]) ? <DiagnosticPrompt stateId={diagnostic.stateId} /> : null}
-      <label className="block text-sm font-medium">
-        {t("cards.cardTitle")}
-        <input name="title" required maxLength={200} className={box} />
-      </label>
-      {kind.setup.map((f) => (
-        <label key={`${kind.kind}:${f.key}`} className="block text-sm font-medium">
-          {f.label}
-          <textarea name={`setup.${f.key}`} rows={2} required={f.required} maxLength={2000} className={box} />
-          <span className="mt-1 block text-xs font-normal text-faint">{f.hint}</span>
-        </label>
-      ))}
+      <InputTable
+        caption={t("cards.new")}
+        rows={[
+          {
+            id: "lp-card-title",
+            label: t("cards.cardTitle"),
+            control: <input id="lp-card-title" name="title" required maxLength={200} />,
+          },
+          ...kind.setup.map((f) => ({
+            id: `lp-card-setup-${kind.kind}-${f.key}`,
+            label: f.label,
+            hint: f.hint,
+            control: (
+              <textarea
+                key={`${kind.kind}:${f.key}`}
+                id={`lp-card-setup-${kind.kind}-${f.key}`}
+                name={`setup.${f.key}`}
+                rows={2}
+                required={f.required}
+                maxLength={2000}
+              />
+            ),
+          })),
+        ]}
+      />
       <Button type="submit" disabled={busy}>
         {t("cards.create")}
       </Button>

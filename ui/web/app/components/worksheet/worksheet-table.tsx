@@ -5,6 +5,13 @@
  * kind's limit. On a narrow screen the table scrolls inside its own box,
  * never the page. A column's help (its hint) is listed under the table.
  *
+ * Drawn as the library's input table (I2, components/doc/field-table.tsx):
+ * the same `lp-field-table` markup, so a text cell has no box of its own and
+ * focus rings inside the cell. It keeps its own rendering because its cells
+ * are typed (scores, choices, dates, recordings), a free table adds and
+ * removes rows, and a kind's page adds to it (TableExtras); FieldTable only
+ * holds plain text.
+ *
  * A kind's page may add to a table without the form knowing the kind
  * (TableExtras): one read-only column after the kind's own, and what a label
  * column's cell shows — the English diagnostic's row totals and its evidence
@@ -21,6 +28,7 @@ import { columnApplies, labelText } from "~/lib/worksheet-values";
 import { FieldInput } from "~/components/worksheet/field-input";
 import { WorksheetMediaContext } from "~/components/worksheet/audio-cell";
 import { Button } from "~/components/ui/button";
+import { ScrollBox } from "~/components/doc/scroll-box";
 
 /** What a page adds to one table: rows are the table's current, unsaved values. */
 export type TableExtras = {
@@ -70,30 +78,29 @@ export function WorksheetTable({ field, id, rows, onChange, extras }: Props) {
     onChange(next, commit);
   };
 
+  // A cell that holds no text box (radios, a recording, a read-only label)
+  // keeps the cell's padding; a text box fills its cell edge to edge.
+  const padded = (c: WorksheetField) => !["text", "long", "choice", "date"].includes(c.type);
+  const pad = "px-4! py-1!";
+
   return (
-    <div>
-      <div className="overflow-x-auto rounded-md border">
-        <table className="w-full min-w-[36rem] border-collapse text-sm">
+    <div className="lp-field-table">
+      <ScrollBox>
+        <table className="min-w-[36rem]">
           <caption className="sr-only">{field.label}</caption>
-          <thead className="bg-muted">
+          <thead>
             <tr>
-              {!free ? (
-                <th scope="col" className="border-b px-3 py-2 text-left font-medium">
-                  {field.row_header ?? ""}
-                </th>
-              ) : null}
+              {/* The corner names the row labels when the table has a name for
+                them; otherwise it is an empty data cell, not an empty header (axe). */}
+              {field.row_header ? <th scope="col">{field.row_header}</th> : <td />}
               {columns.map((c) => (
-                <th key={c.key} scope="col" className="border-b px-3 py-2 text-left font-medium">
+                <th key={c.key} scope="col">
                   {c.label}
                 </th>
               ))}
-              {extras?.column ? (
-                <th scope="col" className="border-b px-3 py-2 text-left font-medium">
-                  {extras.column.label}
-                </th>
-              ) : null}
+              {extras?.column ? <th scope="col">{extras.column.label}</th> : null}
               {free ? (
-                <th scope="col" className="border-b px-3 py-2">
+                <th scope="col">
                   <span className="sr-only">{t("form.rowActions")}</span>
                 </th>
               ) : null}
@@ -107,22 +114,24 @@ export function WorksheetTable({ field, id, rows, onChange, extras }: Props) {
               const see = free ? undefined : fixed[i]?.see;
               const seeId = see ? related[see.kind] : undefined;
               return (
-                <tr key={free ? i : r.row} className="border-b last:border-b-0 align-top">
-                  {!free ? (
-                    <th scope="row" className="px-3 py-2 text-left font-medium">
-                      {rowLabel}
-                      {see && seeId ? (
-                        <Link
-                          to={`/toolkit/${seeId}#ws-${see.section}`}
-                          className="mt-1 block text-xs font-normal text-primary underline underline-offset-4"
-                        >
-                          {t("recordings.see")}
-                        </Link>
-                      ) : null}
-                    </th>
-                  ) : null}
+                <tr key={free ? i : r.row}>
+                  <th scope="row">
+                    {free ? (
+                      <>
+                        <span aria-hidden="true">{place + 1}</span>
+                        <span className="sr-only">{rowLabel}</span>
+                      </>
+                    ) : (
+                      rowLabel
+                    )}
+                    {see && seeId ? (
+                      <Link to={`/toolkit/${seeId}#ws-${see.section}`} className="mt-1 block text-xs font-normal">
+                        {t("recordings.see")}
+                      </Link>
+                    ) : null}
+                  </th>
                   {columns.map((c) => (
-                    <td key={c.key} className="px-3 py-2">
+                    <td key={c.key} className={padded(c) || (!free && !columnApplies(c, r.row)) ? pad : undefined}>
                       {c.type === "label" ? (
                         (extras?.labelCell?.(c, r) ?? <span className="text-muted-foreground">{labelText(c, r)}</span>)
                       ) : !free && !columnApplies(c, r.row) ? (
@@ -141,9 +150,9 @@ export function WorksheetTable({ field, id, rows, onChange, extras }: Props) {
                       )}
                     </td>
                   ))}
-                  {extras?.column ? <td className="px-3 py-2">{extras.column.cell(r)}</td> : null}
+                  {extras?.column ? <td className={pad}>{extras.column.cell(r)}</td> : null}
                   {free ? (
-                    <td className="px-3 py-2 text-right">
+                    <td className={`${pad} text-right`}>
                       <Button
                         type="button"
                         variant="ghost"
@@ -159,16 +168,15 @@ export function WorksheetTable({ field, id, rows, onChange, extras }: Props) {
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollBox>
       {helped.length > 0 ? (
-        <dl className="mt-2 space-y-1 text-xs text-faint">
+        <ul className="lp-field-table-hints">
           {helped.map((c) => (
-            <div key={c.key}>
-              <dt className="inline font-medium">{c.label}: </dt>
-              <dd className="inline whitespace-pre-line">{c.hint}</dd>
-            </div>
+            <li key={c.key}>
+              <strong>{c.label}</strong>: <span className="whitespace-pre-line">{c.hint}</span>
+            </li>
           ))}
-        </dl>
+        </ul>
       ) : null}
       {free ? (
         <div className="mt-2 flex items-center gap-3">
@@ -181,7 +189,7 @@ export function WorksheetTable({ field, id, rows, onChange, extras }: Props) {
           >
             {t("form.addRow")}
           </Button>
-          <span className="text-xs text-faint">{t("form.rowsLeft", { count: Math.max(0, max - shown.length) })}</span>
+          <span className="text-sm text-muted-foreground">{t("form.rowsLeft", { count: Math.max(0, max - shown.length) })}</span>
         </div>
       ) : null}
     </div>

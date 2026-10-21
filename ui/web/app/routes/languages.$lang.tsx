@@ -1,3 +1,6 @@
+import { LookupSection } from "~/components/languages/lookup-section";
+import { RefTable } from "~/components/doc/ref-table";
+import { SECTION_TABS_ROW, sectionTabClass } from "~/components/ui/section-tabs";
 /**
  * languages.$lang.tsx
  * One language's practice (plans/261020-1535-beyond-english-learning-areas,
@@ -17,7 +20,7 @@ import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import * as worksheets from "~/lib/worksheets.server";
 import { setStudiedLanguages, studiedLanguages } from "~/lib/vocab.server";
-import { isLanguageCode, languageName, languageNameInSentence } from "~/lib/languages";
+import { isLanguageCode, languageName, languageNameInSentence, MAX_STUDIED } from "~/lib/languages";
 import type { WorksheetKind } from "~/lib/worksheet-types";
 import { KindRow } from "~/components/worksheet/toolkit-groups";
 import { LanguageTabs } from "~/components/languages/language-tabs";
@@ -80,13 +83,16 @@ export async function action({ request, params }: Route.ActionArgs) {
   const lang = params.lang;
   if (!isLanguageCode(lang)) throw data(null, { status: 404 });
   const { studied } = await studiedLanguages(user.id);
-  if (!studied.includes(lang)) await setStudiedLanguages(user.id, [...studied, lang], lang);
+  if (studied.includes(lang)) return { added: lang };
+  // A full list says so, instead of the API's refusal as an error page.
+  if (studied.length >= MAX_STUDIED) return { full: true };
+  await setStudiedLanguages(user.id, [...studied, lang], lang);
   return { added: lang };
 }
 
 const LINK = "inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4";
 
-export default function Language({ loaderData }: Route.ComponentProps) {
+export default function Language({ loaderData, actionData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("toolkit");
   const { lang, studied, tabs, saved, words, due, kinds, list } = loaderData;
   const ui = i18n.language;
@@ -106,34 +112,77 @@ export default function Language({ loaderData }: Route.ComponentProps) {
     );
   };
   // Switching tabs moves focus to the language's name, as a new page would;
-  // the first render leaves focus where the browser put it.
+  // the first render leaves focus where the browser put it. Compared with the
+  // language before, not a first-render flag: StrictMode runs effects twice.
   const heading = useRef<HTMLHeadingElement>(null);
-  const first = useRef(true);
+  const shownLang = useRef(lang);
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (shownLang.current === lang) return;
+    shownLang.current = lang;
     heading.current?.focus();
   }, [lang]);
   const diagnosticTitle = diagnostic ? t("languages.diagnosticTitle", { kind: diagnostic.name, name }) : "";
   return (
-    <div className="lp-measure">
-      <PageHeader title={t("languages.title")} lede={t("languages.lead")} />
+    <div className="lp-doc lp-measure">
+      <PageHeader title={name} lede={t("languages.lead")} />
       {tabs.length > 0 ? <LanguageTabs studied={tabs} saved={saved} /> : null}
 
       <h2 id="lang-name" ref={heading} tabIndex={-1} className="font-serif text-2xl font-semibold focus:outline-none">
         {name}
       </h2>
+      <nav aria-label={t("languages.practise.skills")} className={SECTION_TABS_ROW}>
+        {SKILLS.filter((skill) => skill.kinds.some((id) => byId.has(id)) || PRACTICE[skill.id]).map((skill) => <a key={skill.id} href={`#lang-${skill.id}`} className={sectionTabClass({ isActive: false })}>{t(`languages.skills.${skill.id}.title`)}</a>)}
+        <a href="#lang-vocabulary" className={sectionTabClass({ isActive: false })}>{t("languages.skills.vocabulary.title")}</a>
+      </nav>
       {!studied ? (
         <Form method="post" className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           <p className="text-sm leading-prose">{t("languages.notStudied", { name: inSentence })}</p>
           <Button type="submit" variant="outline">
             {t("languages.addIt")}
           </Button>
+          {actionData && "full" in actionData ? (
+            <p role="alert" className="w-full text-sm text-destructive">
+              {t("languages.full", { count: MAX_STUDIED })}
+            </p>
+          ) : null}
         </Form>
       ) : null}
 
+      {diagnostic ? (
+        <section aria-labelledby="lang-start" className="mt-10">
+          <h2 id="lang-start" className="lp-section">
+            {t("languages.practise.baseline")}
+          </h2>
+          <ol><li>{t("languages.practise.baselineOne")}</li><li>{t("languages.practise.baselineTwo")}</li><li>{t("languages.practise.baselineThree")}</li></ol>
+          <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("languages.start.body")}</p>
+          <ul className="mt-3 border-t">
+            <KindRow kind={diagnostic} list={list} newQuery={`&title=${encodeURIComponent(diagnosticTitle)}`} />
+          </ul>
+        </section>
+      ) : null}
+      <h2>{t("languages.practise.fullDiagnostic")}</h2>
+      {SKILLS.map((skill) => {
+        const inSkill = skill.kinds.map((id) => byId.get(id)).filter((k): k is WorksheetKind => k !== undefined);
+        const practice = PRACTICE[skill.id];
+        if (inSkill.length === 0 && !practice) return null;
+        return (
+          <section key={skill.id} aria-labelledby={`lang-${skill.id}`} className="mt-10">
+            <h2 id={`lang-${skill.id}`} className="lp-section">
+              {t(`languages.skills.${skill.id}.title`)}
+            </h2>
+            <p className="mt-1 text-sm leading-prose text-muted-foreground">{t(`languages.skills.${skill.id}.body`)}</p>
+            {practice ? (
+              <Link to={practice} className={LINK}>
+                {t(`languages.skills.${skill.id}.open`)}
+              </Link>
+            ) : null}
+            {inSkill.length > 0 ? (
+              <RefTable caption={t(`languages.skills.${skill.id}.title`)} columns={[t("languages.practise.worksheets")]}
+                rows={inSkill.map((k) => [<ul><KindRow kind={k} list={list} start={start(k)} /></ul>])} />
+            ) : null}
+          </section>
+        );
+      })}
       <section aria-labelledby="lang-vocabulary" className="mt-8">
         <h2 id="lang-vocabulary" className="lp-section">
           {t("languages.skills.vocabulary.title")}
@@ -170,42 +219,9 @@ export default function Language({ loaderData }: Route.ComponentProps) {
         )}
       </section>
 
-      {diagnostic ? (
-        <section aria-labelledby="lang-start" className="mt-10">
-          <h2 id="lang-start" className="lp-section">
-            {t("languages.start.title")}
-          </h2>
-          <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("languages.start.body")}</p>
-          <ul className="mt-3 border-t">
-            <KindRow kind={diagnostic} list={list} newQuery={`&title=${encodeURIComponent(diagnosticTitle)}`} />
-          </ul>
-        </section>
-      ) : null}
-      {SKILLS.map((skill) => {
-        const inSkill = skill.kinds.map((id) => byId.get(id)).filter((k): k is WorksheetKind => k !== undefined);
-        const practice = PRACTICE[skill.id];
-        if (inSkill.length === 0 && !practice) return null;
-        return (
-          <section key={skill.id} aria-labelledby={`lang-${skill.id}`} className="mt-10">
-            <h2 id={`lang-${skill.id}`} className="lp-section">
-              {t(`languages.skills.${skill.id}.title`)}
-            </h2>
-            <p className="mt-1 text-sm leading-prose text-muted-foreground">{t(`languages.skills.${skill.id}.body`)}</p>
-            {practice ? (
-              <Link to={practice} className={LINK}>
-                {t(`languages.skills.${skill.id}.open`)}
-              </Link>
-            ) : null}
-            {inSkill.length > 0 ? (
-              <ul className="mt-3 border-t">
-                {inSkill.map((k) => (
-                  <KindRow key={k.kind} kind={k} list={list} start={start(k)} />
-                ))}
-              </ul>
-            ) : null}
-          </section>
-        );
-      })}
+      <LookupSection key={lang} lang={lang} />
+      <h2>{t("languages.practise.nextStep")}</h2>
+      <ul><li><Link to={`/mastery/vocabulary?lang=${encodeURIComponent(lang)}`}>{t("languages.vocab.all", { name: inSentence })}</Link></li><li><Link to="/toolkit">{t("languages.practise.worksheets")}</Link></li></ul>
     </div>
   );
 }

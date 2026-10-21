@@ -8,7 +8,7 @@
  */
 import { Form, Link, redirect, useFetcher, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Bot, Download, Plus, X } from "lucide-react";
+import { Bot, Plus, X } from "lucide-react";
 import type { Route } from "./+types/notebooks.$notebookId";
 import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
@@ -30,10 +30,13 @@ import {
 } from "~/lib/notebook.server";
 import { Button } from "~/components/ui/button";
 import { NoteEditor } from "~/components/notebook/note-editor";
-import { SaveToDrive } from "~/components/storage/save-to-drive";
+import { SaveToDrive, useFileStorage } from "~/components/storage/save-to-drive";
 import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
-import { plainText } from "~/lib/speech";
+import { sectionTabClass } from "~/components/ui/section-tabs";
+import { BookMeta } from "~/components/doc/book-meta";
+import { MarkdownPreview } from "~/components/notebook/markdown-preview";
+import { DOC_H2 } from "~/components/reading/doc-section";
 
 export function meta({ data, matches }: Route.MetaArgs) {
   return [
@@ -119,34 +122,38 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
   const [params] = useSearchParams();
   const { notebook, notes, categories, notebooks } = loaderData;
   const selectedId = params.get("note");
-  const selected = notes.find((n) => n.id === selectedId) ?? null;
   const activeCategory = params.get("category");
   const categoryFetcher = useFetcher();
+  const onDrive = useFileStorage() === "drive";
+  const noteHref = (id: string) =>
+    `/notebooks/${notebook.id}?note=${id}${activeCategory ? `&category=${activeCategory}` : ""}#note-${id}`;
 
   return (
-    <div className="lp-measure">
-      <Link
-        to="/notebooks"
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {t("notebook.back")}
-      </Link>
-
-      <div className="lp-page-enter mt-2 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <h1 className="text-3xl leading-tight break-words lg:text-4xl">{notebook.name}</h1>
-        <div className="flex flex-wrap items-center gap-x-4">
-          <a
-            href={`/notebooks/${notebook.id}/export.md`}
-            download
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm text-primary underline underline-offset-4"
-          >
-            <Download aria-hidden="true" className="size-4" />
-            {t("notebook.export")}
-          </a>
-          <SaveToDrive kind="notebook" id={notebook.id} />
-        </div>
-      </div>
+    <div>
+      <PageHeader title={notebook.name} className="mb-0">
+        <BookMeta
+          label={t("notebook.up.metaLabel")}
+          items={[
+            { label: t("notebook.back"), to: "/notebooks" },
+            { label: t("notebook.count", { count: notes.length }) },
+            {
+              label: (
+                <>
+                  {t("notebook.up.updated")} <DateText iso={notebook.updated_at} />
+                </>
+              ),
+            },
+            {
+              label: (
+                <a href={`/notebooks/${notebook.id}/export.md`} download>
+                  {t("notebook.export")}
+                </a>
+              ),
+            },
+            ...(onDrive ? [{ label: <SaveToDrive kind="notebook" id={notebook.id} /> }] : []),
+          ]}
+        />
+      </PageHeader>
 
       {actionData && "errorKey" in actionData && actionData.errorKey ? (
         <p role="alert" className="mt-3 text-sm leading-snug text-destructive">
@@ -155,118 +162,117 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
         </p>
       ) : null}
 
-      <section aria-labelledby="lp-nb-categories" className="mt-6">
-        <h2 id="lp-nb-categories" className="lp-section">
-          {t("notebook.categories")}
-        </h2>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Link
-            to={`/notebooks/${notebook.id}`}
-            aria-current={!activeCategory ? "true" : undefined}
-            className="inline-flex min-h-9 items-center rounded-full border px-3 text-xs aria-[current]:bg-selected aria-[current]:text-selected-foreground"
-          >
-            {t("notebook.allNotes")}
-          </Link>
-          {categories.map((c) => (
-            <span key={c.id} className="inline-flex items-center">
-              <Link
-                to={`/notebooks/${notebook.id}?category=${c.id}`}
-                aria-current={activeCategory === c.id ? "true" : undefined}
-                className="inline-flex min-h-9 items-center rounded-l-full border px-3 text-xs aria-[current]:bg-selected aria-[current]:text-selected-foreground"
+      {/* Categories filter the notes, as a row of nav links (up's tabs),
+          with the new-note action at its end. */}
+      <nav aria-label={t("notebook.categories")} className="mt-6 flex flex-wrap items-center gap-1 border-b pb-2">
+        <Link
+          to={`/notebooks/${notebook.id}`}
+          aria-current={!activeCategory ? "page" : undefined}
+          className={sectionTabClass({ isActive: !activeCategory })}
+        >
+          {t("notebook.allNotes")}
+        </Link>
+        {categories.map((c) => (
+          <span key={c.id} className="inline-flex items-center">
+            <Link
+              to={`/notebooks/${notebook.id}?category=${c.id}`}
+              aria-current={activeCategory === c.id ? "page" : undefined}
+              className={sectionTabClass({ isActive: activeCategory === c.id })}
+            >
+              {c.name}
+            </Link>
+            <categoryFetcher.Form method="post">
+              <input type="hidden" name="intent" value="delete-category" />
+              <input type="hidden" name="categoryId" value={c.id} />
+              <button
+                type="submit"
+                aria-label={t("notebook.removeCategory", { name: c.name })}
+                className="inline-flex size-8 items-center justify-center rounded-sm text-deco hover:bg-hover hover:text-destructive focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               >
-                {c.name}
-              </Link>
-              <categoryFetcher.Form method="post">
-                <input type="hidden" name="intent" value="delete-category" />
-                <input type="hidden" name="categoryId" value={c.id} />
-                <button
-                  type="submit"
-                  aria-label={t("notebook.removeCategory", { name: c.name })}
-                  className="inline-flex min-h-9 items-center rounded-r-full border border-l-0 px-2 text-muted-foreground hover:bg-destructive-soft hover:text-destructive"
-                >
-                  <X aria-hidden="true" className="size-3.5" />
-                </button>
-              </categoryFetcher.Form>
-            </span>
-          ))}
-          <categoryFetcher.Form method="post" className="inline-flex items-center gap-1">
-            <input type="hidden" name="intent" value="create-category" />
-            <label htmlFor="lp-cat-name" className="sr-only">
-              {t("notebook.newCategory")}
-            </label>
-            <input
-              id="lp-cat-name"
-              name="name"
-              required
-              maxLength={100}
-              placeholder={t("notebook.newCategory")}
-              className="min-h-9 w-36 rounded-md border border-control-border bg-card px-2 text-xs"
-            />
-            <Button type="submit" size="sm" variant="ghost" aria-label={t("notebook.addCategory")}>
-              <Plus aria-hidden="true" />
-            </Button>
-          </categoryFetcher.Form>
-        </div>
-      </section>
+                <X aria-hidden="true" className="size-3.5" />
+              </button>
+            </categoryFetcher.Form>
+          </span>
+        ))}
+        <categoryFetcher.Form method="post" className="inline-flex items-center gap-1">
+          <input type="hidden" name="intent" value="create-category" />
+          <label htmlFor="lp-cat-name" className="sr-only">
+            {t("notebook.newCategory")}
+          </label>
+          <input
+            id="lp-cat-name"
+            name="name"
+            required
+            maxLength={100}
+            placeholder={t("notebook.newCategory")}
+            className="h-8 w-36 rounded-sm border border-control-border bg-card px-2 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
+          />
+          <Button type="submit" size="sm" variant="ghost" aria-label={t("notebook.addCategory")}>
+            <Plus aria-hidden="true" />
+          </Button>
+        </categoryFetcher.Form>
+        <Form method="post" className="ml-auto">
+          <input type="hidden" name="intent" value="create-note" />
+          <Button type="submit" size="sm">
+            <Plus aria-hidden="true" />
+            {t("notebook.newNote")}
+          </Button>
+        </Form>
+      </nav>
 
-      <section aria-labelledby="lp-nb-notes" className="mt-8">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          <h2 id="lp-nb-notes" className="lp-section">
-            {t("notebook.notes")}
-          </h2>
-          <Form method="post">
-            <input type="hidden" name="intent" value="create-note" />
-            <Button type="submit" size="sm">
-              <Plus aria-hidden="true" />
-              {t("notebook.newNote")}
-            </Button>
-          </Form>
-        </div>
-        {notes.length === 0 ? (
-          <p className="mt-3 lp-empty">{t("notebook.noNotes")}</p>
-        ) : (
-          <ul className="mt-3 border-t">
-            {notes.map((n) => (
-              <li key={n.id} className="border-b">
-                <Link
-                  to={`/notebooks/${notebook.id}?note=${n.id}${activeCategory ? `&category=${activeCategory}` : ""}`}
-                  aria-current={n.id === selectedId ? "true" : undefined}
-                  className="grid min-h-11 grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 px-1 py-3 transition-colors hover:bg-primary-soft aria-[current]:bg-selected"
-                >
-                  <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-medium">
-                    {n.created_by === "agent" ? (
-                      <Bot aria-label={t("note.byTutor")} className="size-3.5 shrink-0 text-muted-foreground" />
-                    ) : null}
-                    <span className="truncate">{n.title || t("note.untitled")}</span>
-                  </span>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    <DateText iso={n.updated_at} />
-                  </span>
-                  {/* The first line of the note, so a list of titles can be
-                      told apart without opening each. */}
-                  {n.body_md ? (
-                    <span className="col-span-2 truncate text-xs leading-ui text-muted-foreground">
-                      {plainText(n.body_md)}
-                    </span>
-                  ) : null}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {/* Each note is a section: an h2 (its title, else its date) and its
+          text, so the outline lists the notes. Edit opens the editor in
+          place of the text. */}
+      {notes.length === 0 ? (
+        <p className="mt-8 text-base leading-[1.85] text-muted-foreground">{t("notebook.noNotes")}</p>
+      ) : (
+        notes.map((n) => {
+          const editing = n.id === selectedId;
+          return (
+            <section key={n.id} aria-labelledby={`note-${n.id}`}>
+              <h2 id={`note-${n.id}`} className={DOC_H2}>
+                {n.title || <DateText iso={n.created_at} />}
+              </h2>
+              <p className="-mt-2 mb-4 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                {n.created_by === "agent" ? (
+                  <>
+                    <Bot aria-hidden="true" className="size-3.5" />
+                    <span>{t("note.byTutor")}</span>
+                    <span aria-hidden="true">·</span>
+                  </>
+                ) : null}
+                <DateText iso={n.updated_at} />
+                {editing ? null : (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <Link
+                      to={noteHref(n.id)}
+                      preventScrollReset
+                      className="font-medium text-primary underline underline-offset-2 hover:text-primary-hover"
+                    >
+                      {t("notebook.up.edit")}
+                      <span className="sr-only"> {n.title || t("note.untitled")}</span>
+                    </Link>
+                  </>
+                )}
+              </p>
+              {editing ? (
+                <NoteEditor key={n.id} note={n} categories={categories} notebooks={notebooks} />
+              ) : n.body_md ? (
+                <MarkdownPreview source={n.body_md} className="text-base leading-[1.85]" />
+              ) : (
+                <p className="text-muted-foreground">{t("note.untitled")}</p>
+              )}
+            </section>
+          );
+        })
+      )}
 
-      {selected ? (
-        <div className="mt-8">
-          <NoteEditor key={selected.id} note={selected} categories={categories} notebooks={notebooks} />
-        </div>
-      ) : null}
-
-      <section aria-labelledby="lp-nb-manage" className="mt-12 border-t pt-6">
-        <h2 id="lp-nb-manage" className="lp-section">
+      <section aria-labelledby="lp-nb-manage">
+        <h2 id="lp-nb-manage" className={DOC_H2}>
           {t("notebook.manage")}
         </h2>
-        <Form method="post" className="mt-3 flex flex-wrap items-end gap-2">
+        <Form method="post" className="flex flex-wrap items-end gap-2">
           <input type="hidden" name="intent" value="rename" />
           <div>
             <label htmlFor="lp-nb-rename" className="block text-sm font-medium">
@@ -278,7 +284,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
               required
               maxLength={200}
               defaultValue={notebook.name}
-              className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
+              className="mt-1 h-10 rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
             />
           </div>
           <Button type="submit" variant="outline">
@@ -292,7 +298,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
               type="submit"
               variant="outline"
               size="sm"
-              className="text-destructive hover:bg-destructive-soft"
+              className="border-destructive text-destructive hover:bg-destructive-soft"
               onClick={(event) => {
                 if (!window.confirm(t("notebook.deleteConfirm"))) event.preventDefault();
               }}

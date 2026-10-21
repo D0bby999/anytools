@@ -110,7 +110,8 @@ describe("the private notice on a life worksheet", () => {
     expect(paragraphs[0]).toMatch(/immediate danger/);
     expect(paragraphs[1]).toMatch(/do not stay alone/);
     expect(paragraphs.findIndex((p) => p.includes("not a daily score"))).toBeGreaterThan(1);
-    const sections = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    // Section headings are numbered as up numbers a worksheet's parts.
+    const sections = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent?.replace(/^\d+\. /, ""));
     const safety = sections.indexOf("Safety first");
     expect(safety).toBeGreaterThanOrEqual(0);
     expect(sections.slice(safety, safety + 5)).toEqual(["Safety first", "Body", "Today", "Support agreement", "Gates before going back to work"]);

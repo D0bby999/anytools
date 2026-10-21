@@ -8,9 +8,9 @@
  * The page reloads every few seconds while a chapter is being written.
  */
 import { useEffect } from "react";
-import { Link, redirect, useFetcher, useRevalidator } from "react-router";
+import { redirect, useFetcher, useRevalidator } from "react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { Route } from "./+types/books.$bookId";
 import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
@@ -21,6 +21,11 @@ import { Button } from "~/components/ui/button";
 import { BookProposalEditor } from "~/components/book/proposal-editor";
 import { ChapterList } from "~/components/book/chapter-list";
 import { PageHeader } from "~/components/ui/page-header";
+import { BookMeta, type BookMetaItem } from "~/components/doc/book-meta";
+import { QuickStart } from "~/components/doc/quick-start";
+import { Details } from "~/components/doc/details";
+import { DateText } from "~/components/ui/date-text";
+import { DocSection } from "~/components/reading/doc-section";
 
 export function meta({ data, matches }: Route.MetaArgs) {
   return [
@@ -90,28 +95,57 @@ export default function BookPage({ loaderData }: Route.ComponentProps) {
     return () => clearInterval(timer);
   }, [book.compiling, revalidator]);
 
+  const written = book.chapters.filter((c) => c.status === "ready").length;
+  // No field tracks where the learner left off reading (only writing
+  // progress is tracked), so the quick-start always opens chapter one
+  // rather than guessing a "continue" target.
+  const firstChapter = book.chapters[0];
+
+  const metaItems: BookMetaItem[] = [
+    ...(book.chapters.length > 0 ? [{ label: t("chapters.count", { count: book.chapters.length }) }] : []),
+    ...(book.chapters.length > 0 ? [{ label: t("kb.progress", { ready: written, total: book.chapters.length }) }] : []),
+    { label: <>{t("meta.updated")} <DateText iso={book.updated_at} /></> },
+  ];
+
   return (
-    <div className="lp-measure">
-      <Link
-        to={`/knowledge/${book.kb_id}`}
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {t("book.back")}
-      </Link>
-      <PageHeader title={book.title} className="mt-2" lede={book.proposal.audience || undefined}>
-        <p className="mt-3">
-          <span className="lp-tab">{book.status === "proposed" ? t("book.outlineKicker") : t("book.kicker")}</span>
-        </p>
+    <div>
+      <PageHeader title={book.title} lede={book.proposal.audience || undefined} className="mb-0">
+        <BookMeta
+          label={t("meta.bookLabel")}
+          items={[
+            { label: t("book.back"), to: `/knowledge/${book.kb_id}` },
+            { label: book.status === "proposed" ? t("book.outlineKicker") : t("book.kicker") },
+            ...metaItems,
+            // A plain anchor: the export is a resource route, so it must be a
+            // real browser navigation for its download headers to apply.
+            ...(book.status === "proposed"
+              ? []
+              : [{ label: <a href={`/books/${book.id}/export.md`}>{t("book.export")}</a> }]),
+          ]}
+        />
       </PageHeader>
 
       {book.status === "proposed" ? (
-        <>
-          <p className="mt-4 text-sm leading-prose text-muted-foreground">{t("editor.lead")}</p>
+        // The outline is editable only while it is a proposal (the API
+        // refuses an edit after Confirm), so the editor folds here, open.
+        <Details summary={t("book.up.editProposal")} open className="mt-8">
+          <p className="text-sm leading-6 text-muted-foreground">{t("editor.lead")}</p>
           <BookProposalEditor book={book} />
-        </>
+        </Details>
       ) : (
-        <ChapterList book={book} />
+        <>
+          {firstChapter ? (
+            <QuickStart
+              kicker={t("book.up.kicker")}
+              title={t("book.up.title")}
+              primary={{ label: t("book.up.readFrom1"), to: `/books/${book.id}/chapters/${firstChapter.id}` }}
+            />
+          ) : null}
+
+          <DocSection title={t("book.up.contents")} id="lp-book-contents">
+            <ChapterList book={book} />
+          </DocSection>
+        </>
       )}
 
       <DeleteBook />
@@ -123,7 +157,7 @@ function DeleteBook() {
   const { t } = useTranslation("book");
   const fetcher = useFetcher();
   return (
-    <section aria-labelledby="lp-book-danger" className="mt-12 border-t pt-6">
+    <section aria-labelledby="lp-book-danger" className="mt-16 border-t pt-6">
       <h2 id="lp-book-danger" className="sr-only">
         {t("book.delete")}
       </h2>
@@ -137,7 +171,7 @@ function DeleteBook() {
           onClick={(event) => {
             if (!window.confirm(t("book.deleteConfirm"))) event.preventDefault();
           }}
-          className="text-destructive hover:bg-destructive-soft"
+          className="border-destructive text-destructive hover:bg-destructive-soft"
         >
           <Trash2 aria-hidden="true" />
           {t("book.delete")}

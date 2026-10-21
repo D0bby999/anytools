@@ -11,6 +11,14 @@
  * action with 400. With it, the request's scheme and host are the ones the
  * proxy saw (X-Forwarded-Proto, X-Forwarded-Host). The port is reached only
  * through that proxy: nothing else can set those headers.
+ *
+ * And one header the build cannot carry: the Python worker's own policy.
+ * The worker runs code an exercise brings, which may have been written from
+ * a document the learner did not write, and it shares the app's origin. A
+ * worker's script response sets its policy: here no eval, and nothing
+ * loaded or fetched but the app's own scripts and run-time files, so no
+ * import() of a page with the learner's session, and nothing sent away
+ * (plans/261020-1535-beyond-english-learning-areas, phase 4; review H1).
  */
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -28,6 +36,17 @@ const app = express();
 app.disable("x-powered-by");
 app.set("trust proxy", true);
 app.use(compression());
+const PYTHON_WORKER = /^\/python\.worker-[\w-]+\.js$/;
+app.use(path.posix.join(build.publicPath, "assets"), (req, res, next) => {
+  if (PYTHON_WORKER.test(req.path)) {
+    const origin = `${req.protocol}://${req.get("host")}`;
+    res.setHeader(
+      "Content-Security-Policy",
+      `default-src 'none'; script-src ${origin}/assets/ ${origin}/tool-runtime/ 'wasm-unsafe-eval'; connect-src ${origin}/tool-runtime/`,
+    );
+  }
+  next();
+});
 app.use(path.posix.join(build.publicPath, "assets"), express.static(path.join(assets, "assets"), { immutable: true, maxAge: "1y" }));
 app.use(build.publicPath, express.static(assets));
 app.use(express.static("public", { maxAge: "1h" }));

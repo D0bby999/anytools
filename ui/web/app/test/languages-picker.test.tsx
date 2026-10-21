@@ -66,7 +66,13 @@ describe("the picker", () => {
     const search = screen.getByRole("searchbox", { name: "Find a language" });
     fireEvent.change(search, { target: { value: "swahili" } });
     expect(screen.getByText("1 language matches")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("checkbox", { name: /Kiswahili/ }));
+    const found = screen.getByRole("checkbox", { name: /Kiswahili/ });
+    found.focus();
+    fireEvent.click(found);
+    // Ticked, it stays where it is, so the keyboard's focus stays on it.
+    expect(screen.getByRole("checkbox", { name: /Kiswahili/ })).toBe(found);
+    expect(found).toHaveFocus();
+    expect(screen.getAllByRole("checkbox", { name: /Kiswahili/ })).toHaveLength(1);
     fireEvent.change(search, { target: { value: "zzzz" } });
     expect(screen.getByText("No language by that name.")).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: /Kiswahili/ })).toBeChecked();
@@ -103,6 +109,19 @@ describe("the routes", () => {
     vocab.setStudiedLanguages.mockClear();
     vocab.studiedLanguages.mockResolvedValue({ studied: ["en"], current: "en", saved: [] });
     await englishLoader(req("http://localhost/english"));
+    expect(vocab.setStudiedLanguages).not.toHaveBeenCalled();
+  });
+
+  it("leaves a full list as it is, and says so when asked to add to it", async () => {
+    const full = ["ja", "zh", "ko", "fr", "de", "es", "pt", "it", "ru", "vi", "ar", "hi", "th", "tr", "pl", "nl", "sv", "el", "he", "id"];
+    vocab.studiedLanguages.mockResolvedValue({ studied: full, current: "ja", saved: [] });
+    vocab.setStudiedLanguages.mockClear();
+    const res = (await englishLoader(req("http://localhost/english"))) as Response;
+    expect(res.headers.get("Location")).toBe("/languages/en");
+    expect(vocab.setStudiedLanguages).not.toHaveBeenCalled();
+    const { action } = await import("~/routes/languages.$lang");
+    const out = await action({ request: new Request("http://localhost/languages/en", { method: "POST" }), params: { lang: "en" } } as never);
+    expect(out).toEqual({ full: true });
     expect(vocab.setStudiedLanguages).not.toHaveBeenCalled();
   });
 });

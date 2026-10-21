@@ -6,7 +6,7 @@
  * rather than replacing this page: until a provider and a document exist,
  * "what comes first" is still the more useful thing to say.
  */
-import { Link } from "react-router";
+import { Link, useRouteLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/home";
 import { appTitle } from "~/lib/app-title";
@@ -14,32 +14,33 @@ import { requireUser } from "~/lib/auth.server";
 import { getReadiness, listConnections } from "~/lib/byok.server";
 import { listKBs } from "~/lib/kb.server";
 import { listSessions } from "~/lib/chat.server";
-import { Check } from "lucide-react";
 import { listDue } from "~/lib/mastery.server";
 import { listPractice } from "~/lib/quiz.server";
 import { listRetests } from "~/lib/loop.server";
 import type { Readiness } from "~/lib/byok.types";
 import { ReadinessCard } from "~/components/settings/readiness-card";
-import { VocabDue } from "~/components/vocab/vocab-due";
-import { BookCardsDue } from "~/components/vocab/book-cards-due";
 import { dueCards } from "~/lib/vocab.server";
-import { DeckCardsDue } from "~/components/vocab/book-cards-due";
 import { listStates } from "~/lib/loop.server";
 import { localDay } from "~/lib/local-day";
 import { isLowDay } from "~/lib/low-day.server";
 import { InstallHint } from "~/components/reminders/install-hint";
-import { BodyTodayBlock, type BodyToday } from "~/components/body/body-today";
+import { type BodyToday } from "~/components/body/body-today";
 import { getOverview } from "~/lib/body.server";
 import { TodayBlock, type TodayState } from "~/components/home/today-block";
 import { dueWorksheets } from "~/lib/worksheets.server";
 import { dueCounts, WorksheetsDue, type DueCounts } from "~/components/worksheet/worksheets-due";
 import { duePathCount, ReviewAllLink } from "~/components/mastery/review-all-link";
-import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
 import { Plate } from "~/components/ui/plate";
 import { RightPanel } from "~/components/layout/right-panel";
-import { NAV_ITEMS } from "~/components/layout/sidebar";
+import { NAV_TREE, flatEntries } from "~/lib/nav-tree";
 import { PARTS } from "~/lib/parts";
+import { QuickStart } from "~/components/doc/quick-start";
+import { BookMeta } from "~/components/doc/book-meta";
+import { GuidePaths } from "~/components/doc/guide-paths";
+import { RefTable } from "~/components/doc/ref-table";
+import { Details } from "~/components/doc/details";
+import type { loader as shellLoader } from "~/routes/app-layout";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -129,6 +130,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 /** Home draws its own margin: the pace the book keeps, and its one claim. */
 export const handle = { ownsPanel: true };
 
+const LEARNING_GROUP_IDS = new Set(["read", "ask", "practise", "reflect"]);
+
+function descriptionKey(labelKey: string) {
+  return `home.up.descriptions.${labelKey.split(".").pop()}`;
+}
+
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
   const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, deckDue, worksheetsDue, today, lowDay, body } = loaderData;
@@ -146,135 +153,210 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const total =
     (due ?? 0) + mistakes + retests + (vocabDue ?? 0) + bookDue + deckDue + worksheetsDue.count + worksheetsDue.private;
 
+  const shell = useRouteLoaderData<typeof shellLoader>("routes/app-layout");
+  const nextSetup = !ready && !setupDone ? steps.find((step) => !step.done) : undefined;
+  const primary = nextSetup
+    ? { to: nextSetup.to, label: nextSetup.go }
+    : due && due > 0
+      ? { to: duePaths > 1 ? "/mastery/review" : "/mastery", label: t("home.due.review") }
+      : { to: today ? `/loop/state/${today.id}` : "/loop", label: t("home.noGoal.open") };
+  const dueRows: React.ReactNode[][] = [];
+
+  if (due) {
+    dueRows.push([
+      t("home.due.count", { count: due }),
+      due,
+      <div className="flex flex-wrap gap-x-4">
+        <Link to="/mastery" className={LINK}>
+          {t("home.due.open")}
+        </Link>
+        <ReviewAllLink count={due} paths={duePaths} />
+      </div>,
+    ]);
+  }
+  if (mistakes > 0) {
+    dueRows.push([
+      t("home.due.mistakes", { count: mistakes }),
+      mistakes,
+      <Link to="/quiz/practice" className={LINK}>
+        {t("home.due.openMistakes")}
+      </Link>,
+    ]);
+  }
+  if (retests > 0) {
+    dueRows.push([
+      t("home.due.retests", { count: retests }),
+      retests,
+      <Link to="/loop" className={LINK}>
+        {t("home.due.openRetests")}
+      </Link>,
+    ]);
+  }
+  if (vocabDue) dueRows.push([t("vocab:home.title"), vocabDue, <Link to="/mastery/vocabulary" className={LINK}>
+        {t("vocab:home.open")}
+      </Link>]);
+  if (bookDue > 0) dueRows.push([t("vocab:bookCards.home.title"), bookDue, <Link to="/mastery/book-cards" className={LINK}>
+        {t("vocab:bookCards.home.open")}
+      </Link>]);
+  if (deckDue > 0) dueRows.push([t("vocab:decks.home.title"), deckDue, <Link to="/mastery/decks" className={LINK}>
+        {t("vocab:decks.home.open")}
+      </Link>]);
+  if (worksheetsDue.count > 0 || worksheetsDue.private > 0) {
+    dueRows.push([
+      t("toolkit:home.title"),
+      worksheetsDue.count + worksheetsDue.private,
+      <WorksheetsDue {...worksheetsDue} />,
+    ]);
+  }
+  if (body) {
+    let status = t("body:home.noPlan");
+    if (body.openId) status = t("body:home.open");
+    else if (body.trained) status = t("body:home.trained");
+    else if (lowDay) status = t("body:home.lowDay");
+    else if (body.routine) status = t("body:home.planned", { name: body.routine, count: body.exercises });
+    else if (body.hasPlan) status = t("body:home.rest");
+
+    const destination = body.openId ? `/body/workouts/${body.openId}` : "/body";
+    const action = body.openId
+      ? t("body:today.resume")
+      : body.hasPlan
+        ? t("body:home.go")
+        : t("body:home.start");
+
+    dueRows.push([
+      <div>
+        {t("body:home.title")}
+        <p className="text-sm text-muted-foreground">{status}</p>
+      </div>,
+      t("body:week.done", { count: body.thisWeek }),
+      <Link className={LINK} to={destination}>
+        {action}
+      </Link>,
+    ]);
+  }
+
+  const learningGroups = NAV_TREE.filter((group) => LEARNING_GROUP_IDS.has(group.id));
+  const guideEntries = flatEntries();
+  const appendix = NAV_TREE.find((group) => group.id === "appendix");
+  const entryRows: React.ReactNode[][] = [];
+
+  for (const group of learningGroups) {
+    const firstPage = group.items[0];
+    if (!firstPage) continue;
+    entryRows.push([
+      t(`home.up.entries.${group.id}.situation`),
+      <Link to={firstPage.to} className={LINK}>
+        {t(firstPage.labelKey)}
+      </Link>,
+      t(`home.up.entries.${group.id}.keep`),
+    ]);
+  }
+
   return (
-    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
-      <div className="min-w-0 flex-1 px-4 py-6 lg:px-10 lg:py-10">
-        <div className="lp-measure">
-          <PageHeader title={t("home.title")} lede={t("home.lead")} />
-          <InstallHint />
-
-          {/* Until the three first steps are done, they are the page's first
-              thing. After that, only what still cannot run, in plain words;
-              nothing at all once everything core works. */}
-          {!ready ? (
-            setupDone ? (
-              <div className="mb-8">
-                <ReadinessCard readiness={readiness} />
-              </div>
-            ) : (
-              <Setup steps={steps} />
-            )
-          ) : null}
-
-          {/* Reflect: the next step of the goal touched last. */}
-          <div data-part="reflect">
-            {today ? (
-              <div className="lp-keybox p-5 sm:p-6">
-                <TodayBlock today={today} lowDay={lowDay} />
-              </div>
-            ) : (
-              <section aria-labelledby="lp-no-goal" className="lp-keybox p-5 sm:p-6">
-                <h2 id="lp-no-goal" className="lp-section">
-                  {t("home.noGoal.title")}
-                </h2>
-                <p className="mt-2 max-w-[60ch] text-sm leading-prose text-muted-foreground">{t("home.noGoal.body")}</p>
-                <Button asChild variant="outline" className="mt-4">
-                  <Link to="/loop">{t("home.noGoal.open")}</Link>
-                </Button>
-              </section>
-            )}
+    <div className="min-w-0">
+      <PageHeader title={t("home.title")} lede={shell?.displayName ? t("home.up.greeting", { name: shell.displayName }) : t("home.lead")} />
+      <QuickStart
+        kicker={t("home.up.nextStep")}
+        title={nextSetup?.title ?? (today ? today.goal : t("home.noGoal.title"))}
+        description={nextSetup?.body ?? t(today ? "home.lead" : "home.noGoal.body")}
+        primary={primary}
+        secondary={[{ to: "/knowledge", label: t("nav.knowledge") }, { to: "/chat", label: t("nav.chat") }]}
+        cycle={t("home.up.cycle")}
+        steps={nextSetup ? steps.map((step) => ({ label: step.title, done: step.done, to: step.to })) : undefined}
+        stepsLabel={t("home.next.title")}
+        doneLabel={t("home.next.done")}
+      />
+      <section aria-labelledby="lp-due">
+        <h2 id="lp-due" className="text-2xl font-semibold">
+          {t("home.up.dueToday")}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {total > 0 ? t("home.due.total", { count: total }) : t("home.due.clear")}
+        </p>
+        {dueRows.length > 0 ? (
+          <RefTable
+            caption={t("home.up.dueToday")}
+            columns={[t("home.up.task"), t("home.up.count"), t("home.up.open")]}
+            rows={dueRows}
+          />
+        ) : null}
+        {total === 0 ? (
+          <p className="flex flex-wrap gap-x-5">
+            <Link to="/mastery" className={LINK}>
+              {t("home.due.open")}
+            </Link>
+            <Link to="/mastery/vocabulary" className={LINK}>
+              {t("vocab:home.open")}
+            </Link>
+          </p>
+        ) : null}
+        {total === 0 && !lowDay ? <Plate name="done-today" sizes="10rem" className="hidden max-w-40 sm:block" /> : null}
+      </section>
+      <BookMeta
+        label={t("home.up.facts")}
+        items={[
+          { label: t("home.due.total", { count: total }) },
+          ...(today ? [{ label: today.goal, to: `/loop/state/${today.id}` }] : []),
+        ]}
+      />
+      <section aria-labelledby="lp-entry" className="mt-8">
+        <h2 id="lp-entry" className="text-2xl font-semibold">
+          {t("home.up.entry")}
+        </h2>
+        <RefTable
+          caption={t("home.up.entry")}
+          columns={[t("home.up.situation"), t("home.up.start"), t("home.up.keep")]}
+          rows={entryRows}
+        />
+      </section>
+      <GuidePaths
+        groups={learningGroups.map((group, index) => ({
+          id: group.id,
+          kicker: PARTS.find((part) => part.id === group.id)?.numeral ?? String(index + 1),
+          part: PARTS.find((part) => part.id === group.id)?.id,
+          title: t(group.labelKey),
+          description: t(`parts.${group.id}.body`),
+          paths: guideEntries
+            .filter((entry) => entry.group.id === group.id)
+            .map(({ page }) => ({
+              to: page.to,
+              title: t(page.labelKey),
+              description: t(descriptionKey(page.labelKey)),
+            })),
+        }))}
+      />
+      {/* Appendix destinations leave the app router, so these cards use document links. */}
+      {appendix ? (
+        <section
+          className="lp-guide-path-group mt-5"
+          data-variant="external"
+          data-part="tools"
+          aria-labelledby="guide-appendix"
+        >
+          <div className="lp-guide-path-group-heading">
+            <h2 id="guide-appendix">{t(appendix.labelKey)}</h2>
           </div>
-
-          {/* Practise: everything due, behind one highlighted count. */}
-          <section data-part="practise" aria-labelledby="lp-due" className="mt-6 lp-keybox p-5 sm:p-6">
-            <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
-              <span aria-hidden="true" className="lp-numeral text-4xl">
-                <span className={total > 0 ? "lp-highlight" : undefined}>{total}</span>
-              </span>
-              <div className="min-w-0 flex-1 basis-60">
-                <h2 id="lp-due" className="lp-section text-xl">
-                  {t("home.due.title")}
-                </h2>
-                <p className="mt-1 text-sm leading-snug text-muted-foreground">
-                  {total > 0 ? t("home.due.total", { count: total }) : t("home.due.clear")}
-                </p>
-              </div>
-              {/* Nothing due: the day's study is closed, and the plate says so.
-                  Not on a low day, whose own plate is the one in view. */}
-              {total === 0 && !lowDay ? (
-                <Plate name="done-today" sizes="10rem" className="hidden max-w-40 shrink-0 sm:block" />
-              ) : null}
-              {due !== null && due > 0 ? (
-                <Button asChild>
-                  <Link to={duePaths > 1 ? "/mastery/review" : "/mastery"}>{t("home.due.review")}</Link>
-                </Button>
-              ) : null}
-            </div>
-
-            {total > 0 ? (
-              <ul className="mt-5 divide-y divide-part-line border-y border-part-line">
-                {due ? (
-                  <DueRow count={due} text={t("home.due.count", { count: due })}>
-                    <Link to="/mastery" className={LINK}>
-                      {t("home.due.open")}
-                    </Link>
-                    <ReviewAllLink count={due} paths={duePaths} />
-                  </DueRow>
-                ) : null}
-                {mistakes > 0 ? (
-                  <DueRow count={mistakes} text={t("home.due.mistakes", { count: mistakes })}>
-                    <Link to="/quiz/practice" className={LINK}>
-                      {t("home.due.openMistakes")}
-                    </Link>
-                  </DueRow>
-                ) : null}
-                {retests > 0 ? (
-                  <DueRow count={retests} text={t("home.due.retests", { count: retests })}>
-                    <Link to="/loop" className={LINK}>
-                      {t("home.due.openRetests")}
-                    </Link>
-                  </DueRow>
-                ) : null}
-                {vocabDue ? (
-                  <CountRow count={vocabDue}>
-                    <VocabDue count={vocabDue} />
-                  </CountRow>
-                ) : null}
-                {bookDue > 0 ? (
-                  <CountRow count={bookDue}>
-                    <BookCardsDue count={bookDue} />
-                  </CountRow>
-                ) : null}
-                {deckDue > 0 ? (
-                  <CountRow count={deckDue}>
-                    <DeckCardsDue count={deckDue} />
-                  </CountRow>
-                ) : null}
-                {worksheetsDue.count > 0 || worksheetsDue.private > 0 ? (
-                  <CountRow count={worksheetsDue.count + worksheetsDue.private}>
-                    <WorksheetsDue {...worksheetsDue} />
-                  </CountRow>
-                ) : null}
-              </ul>
-            ) : (
-              // Nothing due: the places to go still exist, as one quiet line.
-              <p className="mt-3 flex flex-wrap gap-x-5 pl-0 sm:pl-[calc(2.5rem+1.5rem)]">
-                <Link to="/mastery" className={LINK}>
-                  {t("home.due.open")}
-                </Link>
-                <Link to="/mastery/vocabulary" className={LINK}>
-                  {t("vocab:home.open")}
-                </Link>
-              </p>
-            )}
-          </section>
-
-          {/* Practise, the body: today's training, after the studying due. */}
-          {body ? <BodyTodayBlock body={body} lowDay={lowDay} /> : null}
-
-          <Contents />
+          <ul className="lp-guide-path-group-items">
+            {appendix.items.map((page) => (
+              <li key={page.to}>
+                <a href={page.to} className="lp-guide-path">
+                  <strong>{t(page.labelKey)}</strong>
+                  {t(descriptionKey(page.labelKey))}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {today ? (
+        <div className="mt-8">
+          <TodayBlock today={today} lowDay={lowDay} />
         </div>
-      </div>
+      ) : null}
+      <Details summary={t("home.up.setup")} className="mt-8">
+        <InstallHint />
+        {!ready ? <ReadinessCard readiness={readiness} /> : null}
+      </Details>
 
       <RightPanel title={t("home.margin.title")}>
         <p className="mt-3 lp-margin-note">{t("home.claim")}</p>
@@ -297,111 +379,3 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 }
 
 const LINK = "inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover";
-
-/** One line of the due list: the count in the margin of the row, then the rest. */
-function CountRow({ count, children }: { count: number; children: React.ReactNode }) {
-  return (
-    <li className="grid grid-cols-[2.5rem_1fr] items-baseline gap-x-3 py-3">
-      <span data-numeric aria-hidden="true" className="text-right font-serif text-lg font-semibold text-part">
-        {count}
-      </span>
-      <div className="min-w-0">{children}</div>
-    </li>
-  );
-}
-
-/** A due line Home writes itself: the sentence, then where to go. */
-function DueRow({ count, text, children }: { count: number; text: string; children: React.ReactNode }) {
-  return (
-    <CountRow count={count}>
-      <p className="text-sm leading-snug">{text}</p>
-      <div className="flex flex-wrap items-center gap-x-4">{children}</div>
-    </CountRow>
-  );
-}
-
-/**
- * The table of contents: the four parts, what each is for, and its sections.
- * A sequence of rows, not a grid of cards: the order is the book's.
- */
-function Contents() {
-  const { t } = useTranslation("common");
-  return (
-    <section aria-labelledby="lp-contents" className="mt-10">
-      <h2 id="lp-contents" className="lp-section text-xl">
-        {t("home.contents.title")}
-      </h2>
-      <ol className="mt-3 border-t">
-        {PARTS.map((part) => (
-          <li key={part.id} data-part={part.id} className="grid grid-cols-[3rem_1fr] gap-x-4 border-b py-4">
-            <span aria-hidden="true" className="lp-numeral text-3xl">
-              {part.numeral}
-            </span>
-            <div className="min-w-0">
-              <h3 className="font-serif text-lg font-semibold text-part">
-                <span className="sr-only">{t("parts.part", { numeral: part.numeral })}: </span>
-                {t(part.labelKey)}
-              </h3>
-              <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{t(part.bodyKey)}</p>
-              <ul className="mt-1 flex flex-wrap gap-x-5">
-                {NAV_ITEMS.filter((n) => n.part === part.id).map((n) => (
-                  <li key={n.to}>
-                    <Link to={n.to} className={LINK}>
-                      {t(n.labelKey)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-/** Before anything runs: the three steps, in their real order, and readiness. */
-type SetupStep = { title: string; body: string; to: string; go: string; done: boolean };
-
-function Setup({ steps }: { steps: SetupStep[] }) {
-  const { t } = useTranslation("common");
-  // The first step not yet done is the one to do now; it alone carries a
-  // button, so the card points at one thing.
-  const current = steps.findIndex((s) => !s.done);
-  return (
-    <section aria-labelledby="lp-next" className="mb-8 lp-keybox p-5 sm:p-6">
-      <h2 id="lp-next" className="lp-section text-xl">
-        {t("home.next.title")}
-      </h2>
-      {/* Numbered because the order is real: there is nothing to ask about
-          until a document exists, and nothing runs before a provider. */}
-      <ol className="mt-3">
-        {steps.map((step, index) => (
-          <li key={step.title} className="grid grid-cols-[2rem_1fr] gap-x-3 border-t py-3 first:border-t-0">
-            {step.done ? (
-              <span className="mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-part-soft text-part">
-                <Check aria-hidden="true" className="size-4" />
-                <span className="sr-only">{t("home.next.done")}</span>
-              </span>
-            ) : (
-              <span aria-hidden="true" className="font-serif text-xl font-semibold text-part">
-                {index + 1}
-              </span>
-            )}
-            <div>
-              <h3 className={`font-sans text-base font-semibold ${step.done ? "text-muted-foreground" : ""}`}>
-                {step.title}
-              </h3>
-              {step.done ? null : <p className="mt-1 text-sm leading-prose text-muted-foreground">{step.body}</p>}
-              {index === current ? (
-                <Button asChild size="sm" className="mt-3">
-                  <Link to={step.to}>{step.go}</Link>
-                </Button>
-              ) : null}
-            </div>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}

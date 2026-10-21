@@ -53,7 +53,13 @@
     "saved": "Saved to your notebook.",
     "back": "All research",
     "engineKeyless": "Web searched through DuckDuckGo (no search key).",
-    "rounds": "Searched in {{count}} rounds"
+    "rounds": "Searched in {{count}} rounds",
+    "atAGlance": "At a glance",
+    "meta": "About this report",
+    "sourcesCount": "{{count}} source",
+    "sourcesCount_other": "{{count}} sources",
+    "words": "{{count}} word",
+    "words_other": "{{count}} words"
   },
   "list": {
     "title": "Earlier reports",
@@ -77,7 +83,12 @@
       "unsupported": "Not in the source",
       "uncited": "No source"
     },
-    "all": "All {{count}} checked claims"
+    "all": "All {{count}} checked claims",
+    "columns": {
+      "claim": "Claim",
+      "source": "Source",
+      "verdict": "Verdict"
+    }
   },
   "open": {
     "title": "Worth researching next",
@@ -99,5 +110,11 @@
     "chat": "Ask about it",
     "noKbs": "You have no knowledge base yet.",
     "createKb": "Create one"
+  },
+  "question": {
+    "title": "Question"
+  },
+  "running": {
+    "title": "Running"
   }
 }

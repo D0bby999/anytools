@@ -22,10 +22,7 @@ import { DateText } from "~/components/ui/date-text";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
-  return [
-    { title: appTitle(matches, "Training coach") },
-    { name: "robots", content: "noindex, nofollow" },
-  ];
+  return [{ title: appTitle(matches, "Training coach") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -90,7 +87,7 @@ export default function BodyCoach({ loaderData }: Route.ComponentProps) {
   const past = proposals.filter((p) => p !== waiting);
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc">
       <PageHeader title={t("coach.title")} lede={t("coach.lead")} />
       <BodyTabs />
       <p className="mb-6 max-w-[64ch] text-sm leading-snug text-muted-foreground">
@@ -102,7 +99,11 @@ export default function BodyCoach({ loaderData }: Route.ComponentProps) {
 
       {result && "error" in result ? (
         <Alert variant="destructive" className="mb-6">
-          {result.error === "no_provider" ? t("coach.noProvider") : result.error === "coach_failed" ? t("coach.failed") : t("errors.generic")}
+          {result.error === "no_provider"
+            ? t("coach.noProvider")
+            : result.error === "coach_failed"
+              ? t("coach.failed")
+              : t("errors.generic")}
           {result.detail && result.error !== "no_provider" ? ` (${result.detail})` : null}
         </Alert>
       ) : null}
@@ -113,7 +114,7 @@ export default function BodyCoach({ loaderData }: Route.ComponentProps) {
       ) : null}
 
       {waiting ? (
-        <section data-part="practise" aria-labelledby="lp-coach-waiting" className="lp-keybox mb-10 p-5 sm:p-6">
+        <section data-part="practise" aria-labelledby="lp-coach-waiting" className="mb-10">
           <h2 id="lp-coach-waiting" className="lp-section text-xl">
             {waiting.kind === "plan" ? t("coach.waitingPlan") : t("coach.waitingReview")}
           </h2>
@@ -137,7 +138,14 @@ export default function BodyCoach({ loaderData }: Route.ComponentProps) {
               <input type="hidden" name="id" value={waiting.id} />
               <label className="block text-xs text-muted-foreground">
                 {t("coach.refine")}
-                <textarea name="text" required maxLength={1000} rows={2} placeholder={t("coach.refineExample")} className={`${FIELD} py-2`} />
+                <textarea
+                  name="text"
+                  required
+                  maxLength={1000}
+                  rows={2}
+                  placeholder={t("coach.refineExample")}
+                  className={`${FIELD} py-2`}
+                />
               </label>
               <Button type="submit" variant="outline" className="mt-3" disabled={busy}>
                 {t("coach.refineGo")}
@@ -184,18 +192,41 @@ export default function BodyCoach({ loaderData }: Route.ComponentProps) {
           </label>
           <label className="text-xs text-muted-foreground">
             {t("intake.days")}
-            <input type="number" name="days_per_week" required min="1" max="7" defaultValue={intake?.days_per_week ?? 3} className={FIELD} />
+            <input
+              type="number"
+              name="days_per_week"
+              required
+              min="1"
+              max="7"
+              defaultValue={intake?.days_per_week ?? 3}
+              className={FIELD}
+            />
           </label>
           <label className="text-xs text-muted-foreground">
             {t("intake.minutes")}
-            <input type="number" name="session_min" required min="10" max="180" step="5" defaultValue={intake?.session_min ?? 45} className={FIELD} />
+            <input
+              type="number"
+              name="session_min"
+              required
+              min="10"
+              max="180"
+              step="5"
+              defaultValue={intake?.session_min ?? 45}
+              className={FIELD}
+            />
           </label>
           <fieldset className="sm:col-span-2">
             <legend className="text-xs text-muted-foreground">{t("intake.preferred")}</legend>
             <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
               {WEEK_ORDER.map((d) => (
                 <label key={d} className="inline-flex min-h-11 items-center gap-2 text-sm">
-                  <input type="checkbox" name="preferred_days" value={d} defaultChecked={intake?.preferred_days.includes(d)} className="size-4" />
+                  <input
+                    type="checkbox"
+                    name="preferred_days"
+                    value={d}
+                    defaultChecked={intake?.preferred_days.includes(d)}
+                    className="size-4"
+                  />
                   {days[d]}
                 </label>
               ))}
@@ -255,7 +286,7 @@ export default function BodyCoach({ loaderData }: Route.ComponentProps) {
           <ul className="mt-3 divide-y border-y">
             {past.map((p) => (
               <li key={p.id} className="py-3">
-                <details>
+                <details className="lp-details">
                   <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-3 text-sm">
                     <span className="font-medium">{p.kind === "plan" ? (p.plan?.name ?? t("coach.plan")) : t("coach.review")}</span>
                     <span className="text-muted-foreground">

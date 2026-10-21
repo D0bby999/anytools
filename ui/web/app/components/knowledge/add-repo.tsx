@@ -74,7 +74,7 @@ export function AddRepo({ kbId, defaults }: { kbId: string; defaults: RepoDefaul
           name="ignore"
           rows={3}
           placeholder={"drafts/\n*.generated.md"}
-          className="w-full min-w-0 rounded-md border border-control-border bg-card px-3 py-2 font-mono text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="w-full min-w-0 rounded-sm border border-control-border bg-card px-3 py-2 font-mono text-xs hover:border-primary focus-visible:border-primary focus-visible:outline-none"
         />
       </label>
       <div className="flex flex-wrap items-center gap-3">

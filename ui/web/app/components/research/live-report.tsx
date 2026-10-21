@@ -29,18 +29,18 @@ export function LiveReport({
   const check = meta?.verification as Verification | undefined;
 
   return (
-    <section aria-labelledby="lp-research-live" className="mt-10">
+    <section aria-labelledby="lp-research-live" className="mt-8">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id="lp-research-live" className="lp-section">
+        <h3 id="lp-research-live" className="text-xl leading-7 font-semibold">
           {t("report.live")}
-        </h2>
+        </h3>
         {kbOnly && <KBOnlyBadge reason={reason} />}
       </div>
 
       {observations.length > 0 && (
         <ul className="mt-3 flex flex-col gap-1" aria-live="polite">
           {observations.map((note, i) => (
-            <li key={i} className="rounded-(--lp-radius-control) bg-sunken px-3 py-2 text-sm leading-snug">
+            <li key={i} className="rounded-lg bg-sunken px-4 py-2 text-sm leading-6">
               {note}
             </li>
           ))}
@@ -51,7 +51,7 @@ export function LiveReport({
       )}
 
       {text !== "" && (
-        <div className="mt-4">
+        <div className="lp-doc mt-4">
           <CitedBody text={text} sources={sources} streaming={streaming} />
         </div>
       )}
@@ -65,7 +65,7 @@ export function LiveReport({
                 : t("check.summary", { supported: check.supported, total: check.total })}
             </span>
           )}
-          <Link to={`/research/${reportId}`} className="text-primary underline underline-offset-4">
+          <Link to={`/research/${reportId}`} className="font-medium text-primary hover:underline">
             {t("report.open")}
           </Link>
         </p>

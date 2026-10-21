@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/D0bby999/anytools/internal/learning"
 	"github.com/D0bby999/anytools/internal/vocab"
 )
 
@@ -95,5 +96,80 @@ func TestDecksComeUpTwentyADayAndAreTheirOwnQueue(t *testing.T) {
 	var left int
 	if err := f.pool.QueryRow(ctx, `SELECT count(*) FROM vocab_cards WHERE user_id = $1 AND kind = 'card'`, f.alice).Scan(&left); err != nil || left != 0 {
 		t.Fatalf("%d deck cards left after deleting the deck, %v", left, err)
+	}
+}
+
+// TestDeckLimitsKeepWhatFits: a learner's decks and general cards have a
+// ceiling. A deck past it is refused; a batch reaching it adds what fits and
+// counts the rest as over the limit, so an import keeps its first part.
+func TestDeckLimitsKeepWhatFits(t *testing.T) {
+	ctx, f := newVocabFixture(t)
+	first, err := f.store.CreateDeck(ctx, f.alice, vocab.NewDeck{Name: "One"}, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.store.CreateDeck(ctx, f.alice, vocab.NewDeck{Name: "Two"}, 1); !errors.Is(err, vocab.ErrLimit) {
+		t.Fatalf("a deck past the limit: %v", err)
+	}
+	if _, err := f.store.CreateDeck(ctx, f.bob, vocab.NewDeck{Name: "Bob's"}, 1); err != nil {
+		t.Fatalf("another learner's limit is their own: %v", err)
+	}
+
+	batch := func(fronts ...string) vocab.DeckBatch {
+		b := vocab.DeckBatch{UserID: f.alice, DeckID: first.ID, Zone: "UTC", PerDay: 20, Now: f.now, Limit: 3}
+		b.FirstDay = vocab.AddDays(learning.LocalDay(f.now, "UTC"), 1)
+		for _, front := range fronts {
+			b.Cards = append(b.Cards, vocab.DeckCard{Front: front, Back: "back"})
+		}
+		return b
+	}
+	res, err := f.store.AddDeckCards(ctx, batch("a", "b", "c", "d", "e"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Created != 3 || res.OverLimit != 2 {
+		t.Fatalf("the first batch: %+v, want 3 created and 2 over the limit", res)
+	}
+	res, err = f.store.AddDeckCards(ctx, batch("a", "f"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Created != 0 || res.Duplicates != 1 || res.OverLimit != 1 {
+		t.Fatalf("at the limit: %+v, want the duplicate counted and the new one over", res)
+	}
+}
+
+// TestDeckCardsCarryTheirPicture: a card's picture is kept and read back
+// with its credit; two cards asking the same question about different
+// pictures are two cards; a picture that is not a staged file is refused.
+func TestDeckCardsCarryTheirPicture(t *testing.T) {
+	ctx, f := newVocabFixture(t)
+	deck, err := f.svc.CreateDeck(ctx, f.alice, vocab.NewDeck{Name: "Flags"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	flag := func(file string) *vocab.CardImage {
+		return &vocab.CardImage{Src: "ultimate-geography-media@5.3/" + file, Source: "https://commons.wikimedia.org/wiki/File:" + file, Licence: "PD"}
+	}
+	res, err := f.svc.AddDeckCards(ctx, f.alice, deck.ID, []vocab.DeckCard{
+		{Front: "Which country's flag is this?", Back: "France", Image: flag("ug-flag-france.svg")},
+		{Front: "Which country's flag is this?", Back: "Japan", Image: flag("ug-flag-japan.svg")},
+		{Front: "Which country's flag is this?", Back: "Japan", Image: flag("ug-flag-japan.svg")},
+		{Front: "Which country's flag is this?", Back: "Elsewhere", Image: &vocab.CardImage{Src: "https://example.com/x.png", Source: "https://example.com", Licence: "PD"}},
+		{Front: "Which country's flag is this?", Back: "No credit", Image: &vocab.CardImage{Src: "ultimate-geography-media@5.3/ug-flag-chad.svg"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Created != 2 || res.Duplicates != 1 || res.Invalid != 2 {
+		t.Fatalf("added %+v, want 2 created, 1 duplicate, 2 invalid", res)
+	}
+	f.now = f.now.AddDate(0, 0, 1) // new cards come up tomorrow
+	due, _, err := f.svc.DueDeck(ctx, f.alice, vocab.DeckCards, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(due) != 2 || due[0].Image == nil || *due[0].Image != *flag("ug-flag-france.svg") {
+		t.Fatalf("due %+v, want both cards, France's with its picture and credit", due)
 	}
 }

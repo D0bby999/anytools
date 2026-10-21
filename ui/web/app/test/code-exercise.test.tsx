@@ -137,6 +137,8 @@ describe("a code exercise", () => {
     python.next.push({ kind: "result", result: { error: "", output: "", results: [pass("test_year_not_divisible_by_4"), pass("test_year_divisible_by_400")] } });
     await userEvent.click(screen.getByRole("button", { name: "Run the tests" }));
     await screen.findByText("Correct");
+    // The editor is gone; the keyboard's focus goes to the verdict, not the page.
+    await waitFor(() => expect(document.activeElement?.textContent).toContain("Correct"));
     expect(posts).toHaveLength(1);
     expect(screen.getAllByText("2 of 2 tests passed.").length).toBeGreaterThan(0);
     expect(screen.queryByRole("button", { name: "Run the tests" })).toBeNull();
@@ -151,5 +153,15 @@ describe("a code exercise", () => {
     python.next.push({ kind: "stopped", byTimeout: true });
     await userEvent.click(screen.getByRole("button", { name: "Run the tests" }));
     await waitFor(() => expect(screen.getByText("Stopped after 30 seconds. Is there a loop that never ends?")).toBeInTheDocument());
+  });
+});
+
+describe("an exercise's instructions", () => {
+  it("makes headings h4, leaves comments in code alone and turns Exercism's notes into a quotation", async () => {
+    const { instructions } = await import("~/components/quiz/code-exercise");
+    const prompt = "# Leap\n\n# Instructions\n\nText.\n\n```python\n# a comment\nx = 1\n```\n\n~~~~exercism/note\nA long note.\n\nSecond line.\n~~~~\n\nAfter.";
+    expect(instructions(prompt)).toBe(
+      "#### Instructions\n\nText.\n\n```python\n# a comment\nx = 1\n```\n\n> A long note.\n>\n> Second line.\n\nAfter.",
+    );
   });
 });

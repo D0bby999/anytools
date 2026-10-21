@@ -4,7 +4,11 @@
  * an event (the first pass, the delivery) says "not scheduled" until that
  * event is written down. A scheduled date can be moved later, never earlier
  * than up's delay allows — the API refuses that, and says why.
+ *
+ * Folded (I7) at the foot of the worksheet: the dates matter on the day,
+ * not while the page is being filled in.
  */
+import { Details } from "~/components/doc/details";
 import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { ReviewDate, WorksheetKind } from "~/lib/worksheet-types";
@@ -26,15 +30,12 @@ export function WorksheetReviews({
   const list = kind.reviews ?? [];
   if (list.length === 0) return null;
   return (
-    <section aria-labelledby="ws-reviews" className="mt-8">
-      <h2 id="ws-reviews" className="lp-section">
-        {t("reviews.title")}
-      </h2>
-      <ul className="mt-3 border-t">
+    <Details summary={t("reviews.title")}>
+      <ul className="m-0! list-none! border-t p-0!">
         {list.map((r) => {
           const date = reviews[r.key];
           return (
-            <li key={r.key} className="border-b py-3">
+            <li key={r.key} className="m-0! border-b py-3">
               <div className="flex flex-wrap items-baseline gap-x-3">
                 <span className="text-sm font-medium">{r.label}</span>
                 {date ? (
@@ -80,6 +81,6 @@ export function WorksheetReviews({
           );
         })}
       </ul>
-    </section>
+    </Details>
   );
 }

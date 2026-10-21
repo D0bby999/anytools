@@ -53,7 +53,13 @@
     "saved": "Guardado en tu cuaderno.",
     "back": "Todas las investigaciones",
     "engineKeyless": "Búsqueda web con DuckDuckGo (sin clave de búsqueda).",
-    "rounds": "Buscado en {{count}} rondas"
+    "rounds": "Buscado en {{count}} rondas",
+    "atAGlance": "De un vistazo",
+    "meta": "Sobre este informe",
+    "sourcesCount": "{{count}} fuente",
+    "sourcesCount_other": "{{count}} fuentes",
+    "words": "{{count}} palabra",
+    "words_other": "{{count}} palabras"
   },
   "list": {
     "title": "Informes anteriores",
@@ -77,7 +83,12 @@
       "unsupported": "No está en la fuente",
       "uncited": "Sin fuente"
     },
-    "all": "Las {{count}} afirmaciones comprobadas"
+    "all": "Las {{count}} afirmaciones comprobadas",
+    "columns": {
+      "claim": "Afirmación",
+      "source": "Fuente",
+      "verdict": "Veredicto"
+    }
   },
   "open": {
     "title": "Vale la pena investigar después",
@@ -99,5 +110,11 @@
     "chat": "Preguntar sobre él",
     "noKbs": "Todavía no tienes ninguna base de conocimiento.",
     "createKb": "Crear una"
+  },
+  "question": {
+    "title": "Pregunta"
+  },
+  "running": {
+    "title": "En curso"
   }
 }

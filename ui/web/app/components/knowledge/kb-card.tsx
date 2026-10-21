@@ -1,12 +1,15 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle } from "lucide-react";
+import { DateText } from "~/components/ui/date-text";
 import type { KBSummary } from "~/lib/kb-types";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 /**
  * kb-card.tsx
  *
- * One row per knowledge base, as a hairline row rather than a card in a grid.
+ * One knowledge base as one line of a dated list (pattern P4, up's "recent
+ * updates"): **name** · documents · updated — what is ready. It renders an
+ * `<li>` for the `ul` in `.lp-doc` the index page puts round it.
  *
  * DESIGN.md names "a grid of identical icon-and-heading cards as page
  * structure" as an anti-pattern for this project, and these really are a list:
@@ -20,34 +23,28 @@ export function KBCard({ summary }: { summary: KBSummary }) {
   // Counts, not a progress bar. A bar implies a single job with an end; a
   // knowledge base is a set that grows, and "3 ready, 1 failed" is the fact.
   const facts = [
-    summary.documents === 0 ? t("card.none") : null,
     summary.ready > 0 ? t("card.ready", { count: summary.ready }) : null,
     summary.working > 0 ? t("card.working", { count: summary.working }) : null,
     summary.failed > 0 ? t("card.failed", { count: summary.failed }) : null,
   ].filter(Boolean);
 
   return (
-    <li className="border-b">
-      <Link
-        to={`/knowledge/${kb.id}`}
-        className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-4 transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-      >
-        <span className="font-sans text-base font-medium">{kb.name}</span>
-
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-          {facts.join(" · ")}
-          {kb.needs_reembed ? (
-            // Amber, which in this world means "needs your attention" and is
-            // deliberately not red: nothing is broken, but queries are blocked
-            // until it is dealt with. The icon carries it too, so the meaning
-            // survives a colour-blind read.
-            <span className="inline-flex items-center gap-1 text-warning">
-              <AlertTriangle aria-hidden="true" className="size-4" />
-              {t("card.needsReembed")}
-            </span>
-          ) : null}
-        </span>
-      </Link>
+    <li>
+      <strong>
+        <Link to={`/knowledge/${kb.id}`}>{kb.name}</Link>
+      </strong>
+      {" · "}
+      {summary.documents === 0 ? t("card.none") : t("card.documents", { count: summary.documents })}
+      {" · "}
+      {t("card.updated")} <DateText iso={kb.updated_at} />
+      {facts.length > 0 ? <>{NOTE_JOIN}{facts.join(", ")}</> : null}
+      {kb.needs_reembed ? (
+        // Amber, which in this world means "needs your attention" and is
+        // deliberately not red: nothing is broken, but queries are blocked
+        // until it is dealt with. The word carries it too, so the meaning
+        // survives a colour-blind read.
+        <span className="text-warning"> · {t("card.needsReembed")}</span>
+      ) : null}
     </li>
   );
 }

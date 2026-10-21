@@ -303,6 +303,59 @@
         "title": "Ngoại ngữ cho công việc",
         "body": "Cho một vị trí thật: bạn có thể hiện được đúng năng lực của mình trong quy trình tuyển dụng của nó không?"
       }
+    },
+    "practise": {
+      "level": "Trình độ",
+      "due": "Đến hạn",
+      "open": "Mở",
+      "notAssessed": "Chưa đánh giá",
+      "skills": "Kỹ năng",
+      "worksheets": "Phiếu học tập",
+      "baseline": "Ghi lại mốc ban đầu trong năm phút",
+      "baselineOne": "Chọn một kỹ năng để luyện hôm nay.",
+      "baselineTwo": "Ghi lại một mẫu ngắn trong phiếu đánh giá.",
+      "baselineThree": "Chọn một điều cần thay đổi cho lần thử tiếp theo.",
+      "fullDiagnostic": "Đánh giá đầy đủ",
+      "nextStep": "Bước tiếp theo",
+      "lookups": "Tra cứu",
+      "lookupWord": "Từ cần tra"
+    },
+    "full_one": "Bạn đang học {{count}} ngôn ngữ, mức tối đa cùng lúc: hãy bỏ bớt một ngôn ngữ khỏi danh sách trước.",
+    "full_other": "Bạn đang học {{count}} ngôn ngữ, mức tối đa cùng lúc: hãy bỏ bớt một ngôn ngữ khỏi danh sách trước."
+  },
+  "up": {
+    "savedAt": "Đã lưu · {{time}}",
+    "sheet": {
+      "about": "Về phiếu này",
+      "field": "Trường",
+      "value": "Giá trị"
+    },
+    "recordings": {
+      "take": "Bản ghi",
+      "length": "Thời lượng",
+      "listen": "Nghe",
+      "delete": "Xóa",
+      "where": "{{where}} · {{date}}",
+      "listenTo": "Nghe: {{take}}"
+    },
+    "index": {
+      "firstAsk": "Hỏi trước: mình đang vướng ở đâu?",
+      "ifYou": "Nếu bạn đang làm",
+      "use": "Dùng",
+      "yours": "Phiếu của bạn",
+      "noneYet": "Chưa có phiếu nào. Hãy bắt đầu từ một loại bên dưới.",
+      "all": "Mọi phiếu học",
+      "when": {
+        "language": "Một ngôn ngữ: mốc ban đầu, nghe, nói, đọc, viết, từ vựng hoặc ngữ pháp",
+        "projects": "Một dự án, một sản phẩm, một thử nghiệm hoặc một chu kỳ cần khép lại",
+        "life": "Một quyết định, một mối quan hệ, sự chú ý hoặc phục hồi sau giai đoạn khó khăn (riêng tư)"
+      }
+    },
+    "new": {
+      "kind": "Loại",
+      "useWhen": "Dùng khi",
+      "use": "Dùng",
+      "useOf": "Dùng {{name}}"
     }
   }
 }

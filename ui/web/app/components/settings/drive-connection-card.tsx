@@ -1,13 +1,3 @@
-import { useState } from "react";
-import { Form, Link, useNavigation } from "react-router";
-import { useTranslation } from "react-i18next";
-import { Button } from "~/components/ui/button";
-import { StatusPill } from "~/components/settings/readiness-matrix";
-import { Timestamp } from "~/components/knowledge/drive-grants";
-import { useFileStorage } from "~/components/storage/save-to-drive";
-import type { DriveStatus } from "~/lib/drive-types";
-import type { ReadinessStatus } from "~/lib/byok.types";
-
 /**
  * Google Drive, as a connection.
  *
@@ -20,6 +10,17 @@ import type { ReadinessStatus } from "~/lib/byok.types";
  * The route renders this only when Drive is configured on both the BFF and the
  * API. There is no "not configured" state here, by construction.
  */
+import { Dialog } from "~/components/doc/dialog";
+import { useState } from "react";
+import { Form, Link, useNavigation } from "react-router";
+import { useTranslation } from "react-i18next";
+import { Button } from "~/components/ui/button";
+import { StatusPill } from "~/components/settings/readiness-matrix";
+import { Timestamp } from "~/components/knowledge/drive-grants";
+import { useFileStorage } from "~/components/storage/save-to-drive";
+import type { DriveStatus } from "~/lib/drive-types";
+import type { ReadinessStatus } from "~/lib/byok.types";
+
 export function driveStatusTone(status: DriveStatus): ReadinessStatus {
   if (!status.connected) return "warn";
   if (status.needs_reconnect) return "blocked";
@@ -56,7 +57,7 @@ export function DriveConnectionCard({ status, storage }: { status: DriveStatus; 
         {t("settings.connections.drive.title")}
       </h2>
 
-      <div className="mt-3 border-y py-5">
+      <div className="lp-download-card mt-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="font-sans text-base font-medium">{t("settings.connections.drive.name")}</h3>
           <StatusPill status={tone} label={label} />
@@ -101,18 +102,12 @@ export function DriveConnectionCard({ status, storage }: { status: DriveStatus; 
         )}
 
         {status.needs_reconnect ? (
-          <p className="mt-2 text-sm leading-prose text-destructive">
-            {t("settings.connections.drive.needsReconnect")}
-          </p>
+          <p className="mt-2 text-sm leading-prose text-destructive">{t("settings.connections.drive.needsReconnect")}</p>
         ) : null}
         {status.connected && status.re_pick > 0 ? (
-          <p className="mt-2 text-sm leading-prose text-warning">
-            {t("settings.connections.drive.rePick", { count: status.re_pick })}
-          </p>
+          <p className="mt-2 text-sm leading-prose text-warning">{t("settings.connections.drive.rePick", { count: status.re_pick })}</p>
         ) : null}
-        {status.sync?.last_error ? (
-          <p className="mt-2 text-sm leading-prose text-destructive">{status.sync.last_error}</p>
-        ) : null}
+        {status.sync?.last_error ? <p className="mt-2 text-sm leading-prose text-destructive">{status.sync.last_error}</p> : null}
 
         <div className="mt-3 flex flex-wrap gap-2">
           {!status.connected || status.needs_reconnect ? (
@@ -123,29 +118,35 @@ export function DriveConnectionCard({ status, storage }: { status: DriveStatus; 
               </a>
             </Button>
           ) : null}
-          {status.connected && !keeps ? (
-            <Form
-              method="post"
-              onSubmit={(event) => {
-                if (!window.confirm(t("settings.connections.drive.confirmDisconnect"))) event.preventDefault();
-              }}
-            >
-              <input type="hidden" name="intent" value="drive-disconnect" />
-              <Button type="submit" variant="ghost" size="sm" disabled={busy}>
-                {t("settings.connections.drive.disconnect")}
-              </Button>
-            </Form>
-          ) : null}
-          {status.connected && keeps && !confirming ? (
-            <Button type="button" variant="ghost" size="sm" onClick={() => setConfirming(true)}>
+          {status.connected ? (
+            <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setConfirming(true)}>
               {t("settings.connections.drive.disconnect")}
             </Button>
           ) : null}
         </div>
 
-        {status.connected && keeps && confirming ? (
-          <DisconnectWithFiles busy={busy} onKeep={() => setConfirming(false)} />
-        ) : null}
+        <Dialog
+          open={status.connected && confirming}
+          onClose={() => setConfirming(false)}
+          title={keeps ? t("settings.connections.drive.disconnectFilesTitle") : t("settings.connections.drive.disconnect")}
+        >
+          {keeps ? (
+            <DisconnectWithFiles busy={busy} onKeep={() => setConfirming(false)} />
+          ) : (
+            <>
+              <p>{t("settings.connections.drive.confirmDisconnect")}</p>
+              <Form method="post" className="mt-4 flex justify-end gap-2">
+                <input type="hidden" name="intent" value="drive-disconnect" />
+                <Button type="button" variant="ghost" onClick={() => setConfirming(false)}>
+                  {t("settings.connections.drive.keepConnected")}
+                </Button>
+                <Button type="submit" variant="destructive" disabled={busy}>
+                  {t("settings.connections.drive.disconnect")}
+                </Button>
+              </Form>
+            </>
+          )}
+        </Dialog>
       </div>
     </section>
   );

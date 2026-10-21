@@ -1,3 +1,4 @@
+import { Badge } from "~/components/doc/badge";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { clock } from "~/lib/exam-types";
@@ -23,9 +24,9 @@ export function ExamTimer({ deadline, serverNow }: { deadline: string; serverNow
   const left = (Date.parse(deadline) - now) / 1000;
   const over = left < 0;
   return (
-    <p className={over ? "font-mono text-sm font-semibold text-warning" : "font-mono text-sm font-semibold"}>
+    <Badge type={left < 300 ? "warning" : "info"} className="font-mono">
       <span className="sr-only">{over ? t("exams.take.overLabel") : t("exams.take.leftLabel")} </span>
       {over ? t("exams.take.over", { time: clock(-left) }) : t("exams.take.left", { time: clock(left) })}
-    </p>
+    </Badge>
   );
 }

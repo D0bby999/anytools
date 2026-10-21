@@ -11,10 +11,21 @@
     "proposed": "Outline to review",
     "progress": "{{ready}} of {{total}} chapters written"
   },
+  "chapters": {
+    "count": "{{count}} chapter",
+    "count_other": "{{count}} chapters"
+  },
   "book": {
     "back": "Knowledge base",
     "kicker": "Living book",
     "outlineKicker": "Proposed outline",
+    "up": {
+      "kicker": "Read",
+      "title": "Read this book",
+      "readFrom1": "Read from chapter 1",
+      "contents": "Contents",
+      "editProposal": "Edit the proposal"
+    },
     "compileAll": "Write every chapter",
     "compileAllCost": "About {{count}} call on your key, in the background.",
     "compileAllCost_other": "About {{count}} calls on your key, in the background.",
@@ -56,6 +67,7 @@
   },
   "chapter": {
     "kicker": "Chapter {{n}}",
+    "heading": "Chapter {{n}}: {{title}}",
     "blocksWritten": "{{ready}} of {{total}} blocks",
     "staleShort": "sources changed",
     "stale": "Sources changed since this was written. Refresh.",
@@ -70,7 +82,8 @@
     "addNote": "Add note",
     "nav": "Chapters",
     "prev": "← {{title}}",
-    "next": "{{title}} →"
+    "next": "{{title}} →",
+    "closing": "End of chapter {{n}}"
   },
   "block": {
     "example": "Worked example",
@@ -101,5 +114,10 @@
     "regenerateFailed": "The block was not rewritten; the previous version is kept.",
     "noteFailed": "The note was not saved.",
     "emptyNote": "Write something first."
+  },
+  "meta": {
+    "bookLabel": "Book facts",
+    "chapterLabel": "Chapter facts",
+    "updated": "Updated"
   }
 }

@@ -257,7 +257,7 @@ describe("the collaboration dimensions on a version 1 diagnostic", () => {
     const d = page([], { scores: { scores: [{ row: "reading", cells: { task: 2, reason: "essay, para 3" } }] } });
     renderPage({ ...d, kind: v2 });
     const titles = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
-    expect(titles.slice(0, 3)).toEqual(["Four first-version tasks", "Collaboration dimensions", "Scores: effect, not feeling"]);
+    expect(titles.slice(0, 3)).toEqual(["1. Four first-version tasks", "2. Collaboration dimensions", "3. Scores: effect, not feeling"]);
     expect(screen.getByText(/Optional\. Use it when/)).toBeInTheDocument();
 
     const table = screen.getByRole("table", { name: "Collaboration samples" });

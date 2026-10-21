@@ -9,10 +9,15 @@
  * hanzi-writer-data is built from, 9,574 characters. Japanese: animCJK
  * (Arphic PL for the graphics, LGPL for the rest), whose kanji have
  * Japanese stroke forms and which has the kana. Each is one file, a JSON line
- * per character, read once and indexed. Both are staged under tool-runtime/
- * by scripts/stage-tool-runtime.mjs, with their licences.
+ * per character. Both are staged under tool-runtime/ by
+ * scripts/stage-tool-runtime.mjs, with their licences.
+ *
+ * The files are 54 MB together, and the web container has 512 MB: they are
+ * not held in memory. Each is read once, a small piece at a time, to note
+ * where each character's line is; a lookup reads that one line from disk.
  */
-import { readFile } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { open } from "node:fs/promises";
 import { join } from "node:path";
 import { RUNTIME_ROOT } from "~/lib/tools/runtime-files.server";
 
@@ -81,22 +86,51 @@ function sameTail(a: number[][], b: number[][]): boolean {
   return k >= 3 && k * 2 >= shorter;
 }
 
-const indexes = new Map<string, Promise<Map<string, string>>>();
+/** Where a character's line is: its file, the byte it starts at, its length in bytes. */
+type Place = { file: string; offset: number; length: number };
 
-/** A language's graphics, one JSON line per character, read once. */
-function index(lang: "zh" | "ja", root: string): Promise<Map<string, string>> {
+const indexes = new Map<string, Promise<Map<string, Place>>>();
+
+/** Every line's character comes first: {"character":"学",… */
+const HEAD = Buffer.from('{"character":"');
+
+/**
+ * Notes where each line of a file starts and ends, and its character, reading
+ * the file a chunk at a time; only a line's first bytes are kept while it is read.
+ */
+export async function lineIndex(file: string, into: Map<string, Place>): Promise<void> {
+  let offset = 0; // of the chunk being read, in the file
+  let start = 0; // of the current line, in the file
+  let head: number[] = []; // the current line's first bytes
+  const done = (end: number) => {
+    const first = Buffer.from(head);
+    if (first.subarray(0, HEAD.length).equals(HEAD)) {
+      const rest = first.subarray(HEAD.length).toString("utf8");
+      const char = [...rest][0];
+      if (char && rest.startsWith(`${char}"`) && !into.has(char)) into.set(char, { file, offset: start, length: end - start });
+    }
+    start = end + 1;
+    head = [];
+  };
+  for await (const chunk of createReadStream(file, { highWaterMark: 64 * 1024 }) as AsyncIterable<Buffer>) {
+    for (let i = 0; i < chunk.length; i++) {
+      if (chunk[i] === 0x0a) done(offset + i);
+      else if (head.length < HEAD.length + 5) head.push(chunk[i]!);
+    }
+    offset += chunk.length;
+  }
+  if (offset > start) done(offset);
+}
+
+/** A language's graphics: where each character's line is, noted once. */
+function index(lang: "zh" | "ja", root: string): Promise<Map<string, Place>> {
   const key = `${root}\0${lang}`;
   let found = indexes.get(key);
   if (!found) {
     found = (async () => {
-      const byChar = new Map<string, string>();
-      for (const file of FILES[lang]) {
-        const text = await readFile(join(root, file), "utf8");
-        for (const line of text.split("\n")) {
-          const m = /^\{"character":"(.+?)"/u.exec(line);
-          if (m?.[1] && !byChar.has(m[1])) byChar.set(m[1], line);
-        }
-      }
+      const byChar = new Map<string, Place>();
+      // In order: the first file that has a character wins (animCJK's kana file first).
+      for (const file of FILES[lang]) await lineIndex(join(root, file), byChar);
       return byChar;
     })();
     // A failed read is tried again next time, not remembered.
@@ -109,10 +143,21 @@ function index(lang: "zh" | "ja", root: string): Promise<Map<string, string>> {
 /** The character's strokes in `lang` (zh or ja), or null when there are none. */
 export async function strokeData(lang: "zh" | "ja", char: string, root = RUNTIME_ROOT): Promise<StrokeData | null> {
   if (!drawable(char)) return null;
-  const line = (await index(lang, root)).get(char);
-  if (!line) return null;
-  const row = JSON.parse(line) as StrokeData;
+  const place = (await index(lang, root)).get(char);
+  if (!place) return null;
+  const row = JSON.parse(await readLine(place)) as StrokeData;
   const data = { strokes: row.strokes, medians: row.medians };
   // Only animCJK splits strokes; Make Me A Hanzi's are whole.
   return lang === "ja" ? joinSplitStrokes(data) : data;
+}
+
+async function readLine({ file, offset, length }: Place): Promise<string> {
+  const handle = await open(file, "r");
+  try {
+    const buf = Buffer.alloc(length);
+    await handle.read(buf, 0, length, offset);
+    return buf.toString("utf8");
+  } finally {
+    await handle.close();
+  }
 }

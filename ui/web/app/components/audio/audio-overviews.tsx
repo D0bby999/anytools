@@ -6,6 +6,7 @@ import type { AudioActionData } from "~/routes/app.api.audio";
 import { AUDIO_FINAL, currentSegment, segmentStarts, type AudioOverview, type AudioSource } from "~/lib/audio-types";
 import { SpeakIt, SpokenBy } from "./speak-it";
 import { DriveFileNotice, useDriveReason } from "~/components/storage/drive-file-notice";
+import { DOC_H2 } from "~/components/reading/doc-section";
 
 const ACTION = "/app/api/audio";
 
@@ -23,10 +24,13 @@ export function AudioOverviews({
   overviews,
   kbId,
   reportId,
+  n,
 }: {
   overviews: AudioOverview[];
   kbId?: string;
   reportId?: string;
+  /** The h2's number on a page done in order (a knowledge base's "4."). */
+  n?: number;
 }) {
   const { t } = useTranslation("common");
   const revalidator = useRevalidator();
@@ -41,16 +45,18 @@ export function AudioOverviews({
   }, [working, revalidator]);
 
   return (
-    <section aria-labelledby="lp-audio-title" className="mt-10">
-      <h2 id="lp-audio-title" className="lp-section">
+    <section aria-labelledby="lp-audio-title">
+      <h2 id="lp-audio-title" className={DOC_H2}>
+        {n ? `${n}. ` : null}
         {t("audio.title")}
       </h2>
-      <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("audio.lead")}</p>
+      <p className="text-base leading-[1.85] text-muted-foreground">{t("audio.lead")}</p>
       <NewOverview kbId={kbId} reportId={reportId} />
       {overviews.length > 0 ? (
-        <ul className="mt-6 border-t">
+        // A dated list (P4): one overview a line, its player under it.
+        <ul className="mt-6 list-disc space-y-4 pl-5 leading-[1.85]">
           {overviews.map((o) => (
-            <li key={o.id} className="border-b py-4">
+            <li key={o.id}>
               <OverviewRow overview={o} />
             </li>
           ))}
@@ -72,7 +78,7 @@ function NewOverview({ kbId, reportId }: { kbId?: string; reportId?: string }) {
       {reportId ? <input type="hidden" name="reportId" value={reportId} /> : null}
       <label className="text-sm">
         <span className="block font-medium">{t("audio.minutes")}</span>
-        <select name="minutes" defaultValue="5" className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3">
+        <select name="minutes" defaultValue="5" className="mt-1 h-10 rounded-sm border border-control-border bg-card px-3 hover:border-primary focus-visible:border-primary focus-visible:outline-none">
           {[3, 5, 10, 15].map((m) => (
             <option key={m} value={m}>
               {t("audio.minutesValue", { count: m })}
@@ -82,7 +88,7 @@ function NewOverview({ kbId, reportId }: { kbId?: string; reportId?: string }) {
       </label>
       <label className="text-sm">
         <span className="block font-medium">{t("audio.language")}</span>
-        <select name="language" defaultValue="" className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3">
+        <select name="language" defaultValue="" className="mt-1 h-10 rounded-sm border border-control-border bg-card px-3 hover:border-primary focus-visible:border-primary focus-visible:outline-none">
           <option value="">{t("audio.languageAuto")}</option>
           <option value="en">English</option>
           <option value="vi">Tiếng Việt</option>
@@ -95,7 +101,7 @@ function NewOverview({ kbId, reportId }: { kbId?: string; reportId?: string }) {
             name="topic"
             maxLength={200}
             placeholder={t("audio.topicPlaceholder")}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3"
+            className="mt-1 h-10 w-full rounded-sm border border-control-border bg-card px-3 hover:border-primary focus-visible:border-primary focus-visible:outline-none"
           />
         </label>
       ) : null}
@@ -123,7 +129,7 @@ function OverviewRow({ overview: o }: { overview: AudioOverview }) {
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="font-medium">{o.title || o.topic || t("audio.untitled")}</p>
+        <p className="font-semibold">{o.title || o.topic || t("audio.untitled")}</p>
         <p role="status" className="text-xs text-muted-foreground">
           {o.status === "synthesizing"
             ? t("audio.status.synthesizing", { done: o.chunks_done, total: o.chunks_total })

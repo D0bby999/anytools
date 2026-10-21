@@ -11,10 +11,21 @@
     "proposed": "Esboço para revisar",
     "progress": "{{ready}} de {{total}} capítulos escritos"
   },
+  "chapters": {
+    "count": "{{count}} capítulo",
+    "count_other": "{{count}} capítulos"
+  },
   "book": {
     "back": "Base de conhecimento",
     "kicker": "Livro vivo",
     "outlineKicker": "Esboço proposto",
+    "up": {
+      "kicker": "Ler",
+      "title": "Ler este livro",
+      "readFrom1": "Ler a partir do capítulo 1",
+      "contents": "Índice",
+      "editProposal": "Editar a proposta"
+    },
     "compileAll": "Escrever todos os capítulos",
     "compileAllCost": "Cerca de {{count}} chamada com a sua chave, em segundo plano.",
     "compileAllCost_other": "Cerca de {{count}} chamadas com a sua chave, em segundo plano.",
@@ -56,6 +67,7 @@
   },
   "chapter": {
     "kicker": "Capítulo {{n}}",
+    "heading": "Capítulo {{n}}: {{title}}",
     "blocksWritten": "{{ready}} de {{total}} blocos",
     "staleShort": "as fontes mudaram",
     "stale": "As fontes mudaram desde que isto foi escrito. Atualize.",
@@ -70,7 +82,8 @@
     "addNote": "Adicionar nota",
     "nav": "Capítulos",
     "prev": "← {{title}}",
-    "next": "{{title}} →"
+    "next": "{{title}} →",
+    "closing": "Fim do capítulo {{n}}"
   },
   "block": {
     "example": "Exemplo resolvido",
@@ -101,5 +114,10 @@
     "regenerateFailed": "O bloco não foi reescrito; a versão anterior foi mantida.",
     "noteFailed": "A nota não foi salva.",
     "emptyNote": "Escreva algo primeiro."
+  },
+  "meta": {
+    "bookLabel": "Dados do livro",
+    "chapterLabel": "Dados do capítulo",
+    "updated": "Atualizado"
   }
 }

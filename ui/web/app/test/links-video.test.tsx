@@ -258,7 +258,7 @@ describe("CitationChip for a video", () => {
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/documents/doc-v?page=3&t=754");
     expect(link).toHaveTextContent("Me at the zoo· 12:34");
-    expect(link).toHaveAccessibleName("Open Me at the zoo at 12:34");
+    expect(link).toHaveAccessibleName("2: Open Me at the zoo at 12:34");
   });
 
   it("says when the passage is from an AI transcript", () => {
@@ -270,6 +270,6 @@ describe("CitationChip for a video", () => {
     );
     const link = screen.getByRole("link");
     expect(link).toHaveTextContent("AI transcript");
-    expect(link).toHaveAccessibleName("Open Talk at 00:00 (AI transcript)");
+    expect(link).toHaveAccessibleName("1: Open Talk at 00:00 (AI transcript)");
   });
 });

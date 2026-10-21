@@ -6,7 +6,6 @@
  * in the default notebook when none is named, so that one always exists once
  * anything has been saved.
  */
-import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/notebooks.index";
@@ -16,6 +15,10 @@ import { ApiError } from "~/lib/api.server";
 import { createNotebook, listNotebooks } from "~/lib/notebook.server";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/components/ui/page-header";
+import { DateText } from "~/components/ui/date-text";
+import { QuickStart } from "~/components/doc/quick-start";
+import { DocSection, Prose } from "~/components/reading/doc-section";
+import { useNewForm } from "~/components/reading/use-new-form";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -46,28 +49,39 @@ export async function action({ request }: Route.ActionArgs) {
 export default function NotebooksIndex({ loaderData, actionData }: Route.ComponentProps) {
   const { t } = useTranslation("reading");
   const navigation = useNavigation();
+  const { open: creating } = useNewForm(Boolean(actionData?.errorKey));
 
   return (
-    <div className="lp-measure">
+    <div>
       <PageHeader title={t("notebook.title")} lede={t("notebook.lead")} />
 
-      <Form method="post" className="mt-8 flex flex-wrap items-end gap-3">
-        <div className="min-w-0 flex-1">
-          <label htmlFor="lp-nb-name" className="block text-sm font-medium">
-            {t("notebook.newName")}
-          </label>
-          <input
-            id="lp-nb-name"
-            name="name"
-            required
-            maxLength={200}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
-          />
-        </div>
-        <Button type="submit" disabled={navigation.formMethod === "POST"}>
-          {t("notebook.create")}
-        </Button>
-      </Form>
+      <QuickStart
+        kicker={t("notebook.up.kicker")}
+        title={t("notebook.up.title")}
+        description={t("notebook.up.description")}
+        primary={{ label: t("notebook.newName"), to: "?new#lp-nb-new" }}
+      />
+
+      {creating ? (
+        <Form id="lp-nb-new" method="post" className="mt-8 flex scroll-mt-20 flex-wrap items-end gap-3 rounded-lg border bg-card p-4">
+          <div className="min-w-0 flex-1">
+            <label htmlFor="lp-nb-name" className="block text-sm font-medium">
+              {t("notebook.newName")}
+            </label>
+            <input
+              id="lp-nb-name"
+              name="name"
+              required
+              maxLength={200}
+              autoFocus
+              className="mt-1 h-10 w-full rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
+            />
+          </div>
+          <Button type="submit" disabled={navigation.formMethod === "POST"}>
+            {t("notebook.create")}
+          </Button>
+        </Form>
+      ) : null}
       {actionData?.errorKey ? (
         <p role="alert" className="mt-3 text-sm leading-snug text-destructive">
           {t(actionData.errorKey)}
@@ -75,30 +89,29 @@ export default function NotebooksIndex({ loaderData, actionData }: Route.Compone
         </p>
       ) : null}
 
-      {loaderData.notebooks.length === 0 ? (
-        <PlateEmpty name="part-read" className="mt-8">
-          {t("notebook.empty")}
-        </PlateEmpty>
-      ) : (
-        <ul className="mt-8 border-t">
-          {loaderData.notebooks.map((nb) => (
-            <li key={nb.id} className="border-b">
-              <Link
-                to={`/notebooks/${nb.id}`}
-                className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-4 transition-colors hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-              >
-                <span className="font-sans text-base font-medium">
-                  {nb.name}
-                  {nb.is_default ? (
-                    <span className="ml-2 text-xs font-normal text-muted-foreground">{t("notebook.default")}</span>
-                  ) : null}
-                </span>
-                <span className="text-sm text-muted-foreground">{t("notebook.count", { count: nb.note_count })}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <DocSection title={t("notebook.up.yours")} id="your-notebooks">
+        <Prose>
+          {loaderData.notebooks.length === 0 ? (
+            <p>{t("notebook.empty")}</p>
+          ) : (
+            // A dated list (P4): **name** · notes · updated.
+            <ul aria-label={t("notebook.up.yours")}>
+              {loaderData.notebooks.map((nb) => (
+                <li key={nb.id}>
+                  <strong>
+                    <Link to={`/notebooks/${nb.id}`}>{nb.name}</Link>
+                  </strong>
+                  {nb.is_default ? <span className="text-muted-foreground"> ({t("notebook.default")})</span> : null}
+                  {" · "}
+                  {t("notebook.count", { count: nb.note_count })}
+                  {" · "}
+                  {t("notebook.up.updated")} <DateText iso={nb.updated_at} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </Prose>
+      </DocSection>
     </div>
   );
 }

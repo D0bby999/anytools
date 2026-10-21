@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import { ClipPlayer } from "~/components/vocab/clip-player";
 import { WritingPad, writingRating, type Written } from "~/components/vocab/writing-pad";
 import { Lookups } from "~/components/languages/lookups";
+import { CardPicture, PictureCredit } from "~/components/vocab/card-picture";
 import { readingKind } from "~/lib/languages";
 
 type ReviewData = { reviewed?: string; errorKey?: string };
@@ -50,13 +51,27 @@ export function newRequestID(): string {
 export function ReviewSession({ cards, total }: { cards: DueCard[]; total: number }) {
   const { t } = useTranslation("vocab");
   const fetcher = useFetcher<ReviewData>();
-  const [index, setIndex] = useState(0);
+  // The cards reviewed in this session, by id. Not a position: a review
+  // reloads the page's due cards without the one just reviewed, so the
+  // position of the next card changes under the session.
+  const [done, setDone] = useState<string[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [answer, setAnswer] = useState("");
   const [lineShown, setLineShown] = useState(false);
   const [written, setWritten] = useState<Written | null>(null);
   const requestIDs = useRef(new Map<string, string>());
-  const card = cards[index];
+  const queue = cards.filter((c) => !done.includes(c.id));
+  const card = queue[0];
+  // A new card starts unanswered (set while rendering, so it never shows the
+  // last card's answer for a frame).
+  const [shownId, setShownId] = useState(card?.id);
+  if (card?.id !== shownId) {
+    setShownId(card?.id);
+    setRevealed(false);
+    setAnswer("");
+    setLineShown(false);
+    setWritten(null);
+  }
 
   const requestID = useMemo(() => {
     if (!card) return "";
@@ -67,23 +82,42 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
     return id;
   }, [card]);
 
-  // Advance once the server confirms THIS card's review.
+  // Advance once the server confirms a card's review.
+  const reviewed = fetcher.state === "idle" ? fetcher.data?.reviewed : undefined;
   useEffect(() => {
-    if (fetcher.state === "idle" && card && fetcher.data?.reviewed === card.id) {
-      setIndex((i) => i + 1);
-      setRevealed(false);
-      setAnswer("");
-      setLineShown(false);
-      setWritten(null);
-    }
-  }, [fetcher.state, fetcher.data, card]);
+    if (reviewed) setDone((d) => (d.includes(reviewed) ? d : [...d, reviewed]));
+  }, [reviewed]);
 
-  if (cards.length === 0) {
-    return <p className="mt-3 lp-empty">{t("session.empty")}</p>;
+  // The control a keyboard was on goes away twice per card: "Show" when the
+  // answer is shown, the ratings when the next card comes. When focus fell to
+  // the page there, it goes to the ratings (the suggested one first), or to
+  // the new card, so Tab carries on from where the learner was.
+  const region = useRef<HTMLElement | null>(null);
+  const ratings = useRef<HTMLFieldSetElement>(null);
+  useEffect(() => {
+    // A control just disabled (the typed answer once checked) still holds
+    // focus until the browser moves it; that counts as lost too.
+    const el = document.activeElement;
+    const lost = !el || el === document.body || el.matches(":disabled");
+    if (!lost) return;
+    if (revealed && ratings.current) {
+      const buttons = [...ratings.current.querySelectorAll<HTMLButtonElement>("button")];
+      (buttons.find((b) => b.dataset.suggested !== undefined) ?? buttons[0])?.focus();
+    } else if (done.length > 0) {
+      region.current?.focus();
+    }
+  }, [done.length, revealed, shownId]);
+
+  if (cards.length === 0 && done.length === 0) {
+    return (
+      <p ref={(el) => void (region.current = el)} tabIndex={-1} className="mt-3 lp-empty focus:outline-none">
+        {t("session.empty")}
+      </p>
+    );
   }
   if (!card) {
     return (
-      <p role="status" className="mt-3 text-sm leading-prose text-muted-foreground">
+      <p ref={(el) => void (region.current = el)} tabIndex={-1} role="status" className="mt-3 text-sm leading-prose text-muted-foreground focus:outline-none">
         {total > cards.length ? t("session.more", { count: total - cards.length }) : t("session.finished")}
       </p>
     );
@@ -108,14 +142,15 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
   const matched = typed && revealed ? clozeMatches(answer, card.term) : null;
 
   return (
-    <div className="mt-3 border-t pt-4" aria-live="polite">
+    <div ref={(el) => void (region.current = el)} tabIndex={-1} className="mt-3 border-t pt-4 focus:outline-none">
       <p className="text-xs font-semibold text-muted-foreground">
-        {t("session.progress", { done: index + 1, total: cards.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind === "write" ? t("write.kind") : card.kind === "card" ? (card.deck?.name ?? "") : card.kind}
+        {t("session.progress", { done: done.length + 1, total: done.length + queue.length })} · {card.kind === "production" ? t("production.kind") : card.kind === "listen" ? t("listen.kind") : card.kind === "write" ? t("write.kind") : card.kind === "card" ? (card.deck?.name ?? "") : card.kind}
         {card.lang ? ` · ${card.lang}` : ""}
       </p>
 
       {card.kind === "flash" || card.kind === "card" ? (
         <>
+          {card.image ? <CardPicture image={card.image} /> : null}
           <p className="mt-3 font-serif text-xl font-semibold leading-snug" dir="auto">
             {card.front}
           </p>
@@ -137,7 +172,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
             ) : null}
           </p>
           {card.cloze ? (
-            <blockquote className="mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
+            <blockquote className="rounded-lg border bg-sunken p-4 mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
               {card.cloze}
             </blockquote>
           ) : null}
@@ -153,7 +188,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
         </>
       ) : card.kind === "recognition" ? (
         <>
-          <p className="mt-3 font-serif text-2xl font-semibold" lang={card.lang}>
+          <p className="mt-3 font-sans text-2xl font-semibold" lang={card.lang}>
             {card.term}
             {card.reading ? (
               <span className="ml-3 font-sans text-sm font-normal text-muted-foreground">
@@ -163,7 +198,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
             ) : null}
           </p>
           {card.context ? (
-            <blockquote className="mt-3 text-sm leading-prose" lang={card.lang}>
+            <blockquote className="rounded-lg border bg-sunken p-4 mt-3 text-sm leading-prose" lang={card.lang}>
               {card.context}
             </blockquote>
           ) : null}
@@ -195,7 +230,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
               <p className="mt-3 text-sm text-muted-foreground">{t("listen.prompt")}</p>
               {card.clip ? <ClipPlayer key={card.id} clip={card.clip} /> : <p className="mt-3 text-sm">{t("listen.gone")}</p>}
               {lineShown || !card.clip || revealed ? (
-                <blockquote className="mt-3 text-base leading-prose" lang={card.lang}>
+                <blockquote className="rounded-lg border bg-sunken p-4 mt-3 text-base leading-prose" lang={card.lang}>
                   {card.cloze}
                 </blockquote>
               ) : (
@@ -207,7 +242,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
           ) : (
             <>
               <p className="mt-3 text-sm text-muted-foreground">{t("session.clozePrompt")}</p>
-              <blockquote className="mt-3 text-base leading-prose" lang={card.lang}>
+              <blockquote className="rounded-lg border bg-sunken p-4 mt-3 text-base leading-prose" lang={card.lang}>
                 {card.cloze}
               </blockquote>
             </>
@@ -247,9 +282,12 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
             </p>
           ) : null}
           {card.kind === "flash" || card.kind === "card" ? (
-            <p className="mt-2 whitespace-pre-line text-base leading-prose" dir="auto">
-              {card.back}
-            </p>
+            <>
+              <p className="mt-2 whitespace-pre-line text-base leading-prose" dir="auto">
+                {card.back}
+              </p>
+              {card.image ? <PictureCredit image={card.image} /> : null}
+            </>
           ) : card.kind === "production" ? (
             <div className="mt-2 text-base leading-prose">
               <p>
@@ -269,7 +307,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
                 </p>
               ) : null}
               {card.context ? (
-                <blockquote className="mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
+                <blockquote className="rounded-lg border bg-sunken p-4 mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
                   {card.context}
                 </blockquote>
               ) : null}
@@ -281,7 +319,7 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
                 {card.meaning}
               </p>
               {card.kind === "listen" && card.context ? (
-                <blockquote className="mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
+                <blockquote className="rounded-lg border bg-sunken p-4 mt-2 text-sm leading-prose text-muted-foreground" lang={card.lang}>
                   {card.context}
                 </blockquote>
               ) : null}
@@ -309,14 +347,15 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
           ) : null}
           {card.kind !== "flash" ? <Lookups lang={card.lang} term={card.term} className="mt-1" /> : null}
 
-          <fieldset className="mt-4" disabled={busy}>
+          <fieldset ref={ratings} className="mt-4" disabled={busy}>
             <legend className="text-xs text-muted-foreground">{card.kind === "flash" || card.kind === "card" ? t("session.rateLabelCard") : t("session.rateLabel")}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {RATINGS.map((rating) => (
                 <Button
                   key={rating}
                   type="button"
-                  variant={suggested === rating ? "default" : "outline"}
+                  variant="outline"
+                  data-suggested={suggested === rating ? "" : undefined}
                   onClick={() => rate(rating)}
                 >
                   {labels[rating]}

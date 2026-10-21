@@ -136,7 +136,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
             <select
               name="track"
               aria-label={t("video.needs.track")}
-              className="min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
+              className="h-10 rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
             >
               {tracks.map((tr) => (
                 <option key={tr.lang + String(tr.auto)} value={tr.lang}>
@@ -187,7 +187,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
             rows={8}
             aria-label={t("video.needs.paste")}
             aria-describedby="lp-paste-hint"
-            className="w-full rounded-md border border-control-border bg-card p-3 font-mono text-sm leading-snug focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="w-full rounded-sm border border-control-border bg-card p-3 font-mono text-sm leading-snug hover:border-primary focus-visible:border-primary focus-visible:outline-none"
           />
           <p id="lp-paste-hint" className="text-xs text-muted-foreground">
             {t("video.needs.pasteHint")}

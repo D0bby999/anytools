@@ -4,7 +4,7 @@
  * the kind describes it, autosave posts exactly one section, a private kind
  * shows its notice, and /toolkit groups kinds as up does.
  */
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import type { ReactElement } from "react";
@@ -103,7 +103,7 @@ function inRouter(el: ReactElement, onAction?: (form: FormData) => unknown) {
 describe("WorksheetForm", () => {
   it("renders every field type from the served kind", () => {
     inRouter(<WorksheetForm worksheetId="w1" kind={kind} answers={{}} revision="2026-10-01T00:00:00Z" />);
-    for (const title of ["Where it starts", "The retest", "The log"]) {
+    for (const title of ["1. Where it starts", "2. The retest", "3. The log"]) {
       expect(screen.getByRole("heading", { name: title })).toBeInTheDocument();
     }
     expect(screen.getByText("Write the task first.")).toBeInTheDocument();
@@ -165,7 +165,7 @@ describe("WorksheetForm", () => {
     );
     expect(values.task).toBe("new task");
     expect(values.situation).toBeNull();
-    await waitFor(() => expect(screen.getByText("Saved")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/^Saved · \d/)).toBeInTheDocument());
   });
 
   it("reloads a section the server says was changed elsewhere", async () => {
@@ -243,7 +243,33 @@ describe("the worksheet page", () => {
     // An event-free review is scheduled from creation; this one has no date yet.
     expect(screen.getByText("Seventh-day retest")).toBeInTheDocument();
     expect(screen.getByText(/Not scheduled yet/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Download as Markdown" })).toHaveAttribute("href", "/toolkit/w1/export.md");
+    expect(screen.getByRole("link", { name: "Download Markdown" })).toHaveAttribute("href", "/toolkit/w1/export.md");
+  });
+});
+
+describe("the worksheet page as up lays it out", () => {
+  it("opens with the worksheet actions, and the copy says what happened in its status line", async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: write }, configurable: true });
+    const fetchMock = vi.fn().mockResolvedValue(new Response("# My sheet", { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      renderPage(detail({ private: false }));
+      const actions = screen.getByRole("region", { name: "Use this worksheet" });
+      expect(within(actions).getByRole("link", { name: "Download Markdown" })).toHaveAttribute("href", "/toolkit/w1/export.md");
+      fireEvent.click(within(actions).getByRole("button", { name: "Copy worksheet" }));
+      await waitFor(() => expect(within(actions).getByRole("status")).toHaveTextContent("Copied. Paste into your private notes."));
+      expect(fetchMock).toHaveBeenCalledWith("/toolkit/w1/export.md", expect.anything());
+      expect(write).toHaveBeenCalledWith("# My sheet");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("numbers the sections in the kind's order", () => {
+    renderPage(detail({ private: false }));
+    const titles = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(titles.slice(0, 3)).toEqual(["1. Where it starts", "2. The retest", "3. The log"]);
   });
 });
 
@@ -268,7 +294,8 @@ describe("/toolkit", () => {
       },
     ]);
     render(<RouterProvider router={router} />);
-    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Language", "Projects", "Life"]);
+    // The groups sit under the page's "All worksheets" h2, as up's toolkit index.
+    expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Language", "Projects", "Life"]);
     const life = screen.getByRole("region", { name: "Life" });
     expect(within(life).getByText("Private")).toBeInTheDocument();
     expect(within(life).getByRole("link", { name: /My recovery/ })).toHaveAttribute("href", "/toolkit/a");

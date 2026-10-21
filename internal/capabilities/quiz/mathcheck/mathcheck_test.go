@@ -36,6 +36,7 @@ func TestJudgeComparesByValue(t *testing.T) {
 		{"", "3 × 4", "12", Right},
 		{"", "a/b", "a÷b", Right},
 		{"", "1,000", "1000", Right},
+		{"", "0.005", "0,005", Right},
 		// Different values.
 		{"", "2(x+1)", "2x+1", Wrong},
 		{"", "x^2", "2x", Wrong},
@@ -75,9 +76,6 @@ func TestJudgeComparesByValue(t *testing.T) {
 		{"", "DNA", "DNA", Skip},
 		{"", "on/off", "on/off", Skip},
 		{"", "x = 2 or x = -3", "x = 2 or x = -3", Skip},
-		{"", "[2, 5)", "[2, 5)", Skip},
-		{"", "x > 2", "x > 2", Skip},
-		{"", "5 cm", "5 cm", Skip},
 		{"", "Paris", "Paris", Skip},
 		{"", "1945", "in 1945", Skip},
 	}

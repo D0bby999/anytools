@@ -413,5 +413,22 @@
     "inner thighs": "Parte interna da coxa",
     "shins": "Canelas",
     "core": "Core"
+  },
+  "up": {
+    "day": "Dia",
+    "value": "Valor",
+    "dataTable": "Valores registrados",
+    "restRemaining": "Restam cerca de {{count}} segundos de descanso",
+    "startWorkout": "Começar o treino de hoje",
+    "status": "Estado",
+    "planned": "Planejado",
+    "exercise": "Exercício",
+    "personalBests": "Melhores marcas",
+    "estimatedMax": "Máximo estimado de uma repetição",
+    "weekPlan": "Um plano semanal recorrente",
+    "week": "Semana {{n}}",
+    "target": "Séries × repetições / duração",
+    "field": "Campo",
+    "why": "Por quê"
   }
 }

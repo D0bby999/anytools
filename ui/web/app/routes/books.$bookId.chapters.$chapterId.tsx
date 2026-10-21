@@ -10,9 +10,9 @@
  * on the page until the new one is ready.
  */
 import { useEffect } from "react";
-import { Link, useFetcher, useRevalidator } from "react-router";
+import { useFetcher, useRevalidator, type UIMatch } from "react-router";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import type { Route } from "./+types/books.$bookId.chapters.$chapterId";
 import { appTitle, raw } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
@@ -22,6 +22,12 @@ import { Button } from "~/components/ui/button";
 import { BlockView } from "~/components/book/block-view";
 import { ChapterState } from "~/components/book/chapter-list";
 import { PageHeader } from "~/components/ui/page-header";
+import { BookMeta, type BookMetaItem } from "~/components/doc/book-meta";
+import { AtAGlance } from "~/components/doc/at-a-glance";
+import { Closing } from "~/components/doc/closing";
+import { Prose } from "~/components/reading/doc-section";
+import { DateText } from "~/components/ui/date-text";
+import type { Pager, PagerHandle } from "~/components/layout/doc-pager";
 
 export function meta({ data, matches }: Route.MetaArgs) {
   return [
@@ -43,6 +49,36 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw error;
   }
 }
+
+/** What the pager reads from the loader: the book's chapter order and this chapter. */
+type PagerData = {
+  book: { id: string; chapters: { id: string; title: string }[] };
+  view: { chapter: { id: string } };
+};
+
+/**
+ * Previous and next chapter, in `book.chapters`' own order (the book's
+ * loader already carries the whole chapter list, so no extra fetch is
+ * needed). Exported as a plain function so the pager can be unit-tested
+ * without mounting the route or a router.
+ */
+export function chapterPager(data: PagerData | undefined): Pager | null {
+  if (!data) return null;
+  const { book, view } = data;
+  const index = book.chapters.findIndex((c) => c.id === view.chapter.id);
+  if (index === -1) return null;
+  const prev = index > 0 ? book.chapters[index - 1] : undefined;
+  const next = index < book.chapters.length - 1 ? book.chapters[index + 1] : undefined;
+  return {
+    prev: prev ? { to: `/books/${book.id}/chapters/${prev.id}`, label: prev.title } : undefined,
+    next: next ? { to: `/books/${book.id}/chapters/${next.id}`, label: next.title } : undefined,
+  };
+}
+
+/** A book chapter pages through its own chapters, not NAV_TREE's neighbours. */
+export const handle: PagerHandle = {
+  pager: (match: UIMatch) => chapterPager(match.data as PagerData | undefined),
+};
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { user } = await requireUser(request);
@@ -89,33 +125,24 @@ export default function ChapterPage({ loaderData }: Route.ComponentProps) {
     return () => clearInterval(timer);
   }, [compiling, revalidator]);
 
-  const index = book.chapters.findIndex((c) => c.id === chapter.id);
-  const prev = index > 0 ? book.chapters[index - 1] : undefined;
-  const next = index >= 0 && index < book.chapters.length - 1 ? book.chapters[index + 1] : undefined;
+  const metaItems: BookMetaItem[] = [
+    { label: book.title, to: `/books/${book.id}` },
+    { label: <ChapterState chapter={chapter} /> },
+    ...(chapter.compiled_at
+      ? [{ label: <>{t("meta.updated")} <DateText iso={chapter.compiled_at} /></> }]
+      : []),
+  ];
 
   return (
-    <div className="lp-measure">
-      <Link
-        to={`/books/${book.id}`}
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {book.title}
-      </Link>
-      {/* The chapter's position is the numeral; the sentence form stays for
-          screen readers, which the numeral is hidden from. */}
-      <PageHeader title={chapter.title} numeral={chapter.ord} className="mt-2 mb-4">
-        <p className="sr-only">{t("chapter.kicker", { n: chapter.ord })}</p>
-        <p className="mt-2 font-mono text-xs text-muted-foreground">
-          <ChapterState chapter={chapter} />
-        </p>
+    <div>
+      <PageHeader title={t("chapter.heading", { n: chapter.ord, title: chapter.title })} className="mb-0">
+        <BookMeta items={metaItems} label={t("meta.chapterLabel")} />
       </PageHeader>
+
       {chapter.objectives.length > 0 ? (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-prose text-muted-foreground">
-          {chapter.objectives.map((o, i) => (
-            <li key={i}>{o}</li>
-          ))}
-        </ul>
+        <Prose>
+          <AtAGlance items={chapter.objectives} />
+        </Prose>
       ) : null}
 
       {chapter.stale ? <StaleBanner /> : null}
@@ -138,7 +165,7 @@ export default function ChapterPage({ loaderData }: Route.ComponentProps) {
         busy={book.compiling && !compiling}
       />
 
-      <div className="mt-6 border-t">
+      <div>
         {blocks.map((b) => (
           <BlockView key={b.id} block={b} />
         ))}
@@ -148,20 +175,9 @@ export default function ChapterPage({ loaderData }: Route.ComponentProps) {
           form, so saved text is never left looking unsaved. */}
       <NoteForm key={blocks.filter((b) => b.type === "note").length} />
 
-      <nav aria-label={t("chapter.nav")} className="mt-10 flex flex-wrap justify-between gap-3 border-t pt-4 text-sm">
-        {prev ? (
-          <Link to={`/books/${book.id}/chapters/${prev.id}`} className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">
-            {t("chapter.prev", { title: prev.title })}
-          </Link>
-        ) : (
-          <span />
-        )}
-        {next ? (
-          <Link to={`/books/${book.id}/chapters/${next.id}`} className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">
-            {t("chapter.next", { title: next.title })}
-          </Link>
-        ) : null}
-      </nav>
+      {/* up's afterword-closing: where the chapter ends. The pager after it
+          is the doc layout's, from handle.pager, in the book's own order. */}
+      <Closing theme={t("chapter.closing", { n: chapter.ord })} signoff={book.title} />
     </div>
   );
 }

@@ -6,7 +6,7 @@
  * explanation checkable — its citations open the page they came from.
  */
 import { beforeAll, describe, expect, it } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
@@ -85,13 +85,13 @@ describe("QuestionCard", () => {
     const posts: Record<string, string>[] = [];
     renderCard(mcq, posts);
 
-    await userEvent.click(screen.getByLabelText(/In the retrieved passages/));
+    await userEvent.click(screen.getByRole("radio", { name: /In the retrieved passages/ }));
     await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
 
     await screen.findByText("Not quite");
     expect(posts[0]).toMatchObject({ intent: "attempt", user_answer: "A" });
-    expect(screen.getByText(/B\. In the model's weights/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open RAG paper, page 3" })).toHaveAttribute(
+    expect(within(screen.getByText("Answer:").parentElement!).getByText(/B\. In the model's weights/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "1: Open RAG paper, page 3" })).toHaveAttribute(
       "href",
       "/documents/doc-1?page=3",
     );
@@ -103,7 +103,7 @@ describe("QuestionCard", () => {
     const posts: Record<string, string>[] = [];
     renderCard(mcq, posts);
 
-    await userEvent.click(screen.getByLabelText(/In the retrieved passages/));
+    await userEvent.click(screen.getByRole("radio", { name: /In the retrieved passages/ }));
     await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
     await userEvent.click(await screen.findByRole("button", { name: "I was right. Count it" }));
 
@@ -115,7 +115,46 @@ describe("QuestionCard", () => {
   it("shows a previously answered question's answer and explanation without a form", () => {
     renderCard({ ...mcq, revealed: true, answer: "B", explanation: "See [[cite:chunk:c1]]" }, []);
     expect(screen.queryByRole("radio")).toBeNull();
-    expect(screen.getByText(/B\. In the model's weights/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open RAG paper, page 3" })).toBeInTheDocument();
+    expect(within(screen.getByText("Answer:").parentElement!).getByText(/B\. In the model's weights/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "1: Open RAG paper, page 3" })).toBeInTheDocument();
+  });
+});
+
+
+describe("QuestionCard choice rows", () => {
+  it("keeps an unanswered form from submitting and focuses its choices", async () => {
+    const posts: Record<string, string>[] = [];
+    renderCard(mcq, posts);
+    await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
+    expect(posts).toEqual([]);
+    expect(screen.getByRole("alert")).toHaveTextContent("Choose an answer.");
+    expect(screen.getAllByRole("radio")[0]).toHaveFocus();
+  });
+
+  it("chooses with number and arrow keys and submits the chosen answer", async () => {
+    const posts: Record<string, string>[] = [];
+    renderCard(mcq, posts);
+    const first = screen.getAllByRole("radio")[0]!;
+    first.focus();
+    await userEvent.keyboard("2");
+    expect(screen.getAllByRole("radio")[1]).toHaveAttribute("aria-checked", "true");
+    await userEvent.keyboard("{ArrowUp}");
+    expect(first).toHaveAttribute("aria-checked", "true");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(screen.getAllByRole("radio")[1]).toHaveFocus();
+    await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
+    await waitFor(() => expect(posts[0]?.user_answer).toBe("B"));
+  });
+
+  it("marks a wrong choice and opens the explanation after grading", async () => {
+    renderCard(mcq, []);
+    await userEvent.click(screen.getByRole("radio", { name: /In the retrieved passages/ }));
+    await userEvent.click(screen.getByRole("button", { name: "Check answer" }));
+    const explanation = await screen.findByText("Explanation");
+    expect(explanation.closest("details")).toHaveAttribute("open");
+    expect(screen.getByRole("radio", { name: /In the retrieved passages/ })).toHaveAttribute("data-state", "wrong");
+    expect(screen.getByRole("radio", { name: /In the model's weights/ })).toHaveAttribute("data-state", "correct");
+    await userEvent.click(screen.getByRole("radio", { name: /In the model's weights/ }));
+    expect(screen.getByRole("radio", { name: /In the retrieved passages/ })).toHaveAttribute("aria-checked", "true");
   });
 });

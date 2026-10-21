@@ -150,7 +150,8 @@ describe("disconnecting a Drive that keeps the learner's files", () => {
     const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     routed(<DriveConnectionCard status={{ ...CONNECTED, files_in_drive: 0 }} />);
     await userEvent.click(screen.getByRole("button", { name: "Disconnect" }));
-    expect(confirm).toHaveBeenCalled();
+    expect(screen.getByRole("dialog", { name: "Disconnect" })).toHaveTextContent(/revoked at Google/);
+    expect(confirm).not.toHaveBeenCalled();
     expect(screen.queryByRole("region", { name: "Before you disconnect" })).toBeNull();
     confirm.mockRestore();
   });

@@ -36,7 +36,7 @@ describe("url citation chips", () => {
     expect(link).toHaveAttribute("target", "_blank");
     expect(link.getAttribute("rel")).toContain("noopener");
     expect(link.getAttribute("rel")).toContain("noreferrer");
-    expect(link).toHaveAccessibleName("Open RAG paper (arxiv.org) in a new tab");
+    expect(link).toHaveAccessibleName("2: Open RAG paper (arxiv.org) in a new tab");
   });
 
   it("never renders a non-http URL as a link", () => {

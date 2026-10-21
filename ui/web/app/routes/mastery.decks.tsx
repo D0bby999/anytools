@@ -1,3 +1,5 @@
+import { QuickStart } from "~/components/doc/quick-start";
+import { Details } from "~/components/doc/details";
 /**
  * mastery.decks.tsx
  * Mastery → Decks (plans/261020-1535-beyond-english-learning-areas, phase 5;
@@ -68,9 +70,10 @@ export default function Decks({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("vocab");
   const { cards, dueCount, decks, vocabDue, bookDue } = loaderData;
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("decks.title")} lede={t("decks.lead")} />
       <MasteryTabs vocabDue={vocabDue} bookDue={bookDue} deckDue={dueCount} />
+      <QuickStart kicker={t("session.title")} title={t("practise.reviewCards", { count: dueCount })} primary={{ to: "#lp-decks-due", label: t("session.title") }} />
 
       <section aria-labelledby="lp-decks-due" className="mt-8">
         <h2 id="lp-decks-due" className="lp-section">
@@ -99,12 +102,9 @@ export default function Decks({ loaderData }: Route.ComponentProps) {
         <DeckLibrary decks={decks} />
       </section>
 
-      <section aria-labelledby="lp-decks-file" className="mt-10">
-        <h2 id="lp-decks-file" className="lp-section">
-          {t("decks.file.title")}
-        </h2>
+      <div id="lp-decks-file"><Details summary={t("decks.file.title")}>
         <DeckImport />
-      </section>
+      </Details></div>
     </div>
   );
 }

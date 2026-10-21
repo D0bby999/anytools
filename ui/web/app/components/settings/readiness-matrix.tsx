@@ -1,9 +1,3 @@
-import { useTranslation } from "react-i18next";
-import { entryNote, rowReason } from "~/lib/readiness-text";
-import { cn } from "~/lib/utils";
-import type { FunctionReadiness, ReadinessStatus } from "~/lib/byok.types";
-import { providerName } from "~/lib/provider-names";
-
 /**
  * The readiness matrix: one row per capability, saying whether it will run and,
  * when it will not, the one sentence that fixes it.
@@ -17,12 +11,12 @@ import { providerName } from "~/lib/provider-names";
  * "needs your attention" and deliberately not red, because a resting connection
  * is not a broken one.
  */
-
-const STATUS_CLASS: Record<ReadinessStatus, string> = {
-  green: "bg-primary-soft text-primary",
-  warn: "bg-warning-soft text-warning",
-  blocked: "bg-destructive-soft text-destructive",
-};
+import { useTranslation } from "react-i18next";
+import { entryNote, rowReason } from "~/lib/readiness-text";
+import { Badge } from "~/components/doc/badge";
+import { RefTable } from "~/components/doc/ref-table";
+import type { FunctionReadiness, ReadinessStatus } from "~/lib/byok.types";
+import { providerName } from "~/lib/provider-names";
 
 /** A shape as well as a tint, so the state is legible without colour. */
 const STATUS_MARK: Record<ReadinessStatus, string> = {
@@ -33,15 +27,9 @@ const STATUS_MARK: Record<ReadinessStatus, string> = {
 
 export function StatusPill({ status, label }: { status: ReadinessStatus; label: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-2xs font-semibold uppercase tracking-label",
-        STATUS_CLASS[status],
-      )}
-    >
-      <span aria-hidden="true">{STATUS_MARK[status]}</span>
-      {label}
-    </span>
+    <Badge type={status === "green" ? "tip" : status === "warn" ? "warning" : "danger"}>
+      <span aria-hidden="true">{STATUS_MARK[status]}</span> {label}
+    </Badge>
   );
 }
 
@@ -63,49 +51,29 @@ export function ReadinessMatrix({
         : t("settings.readiness.blocked");
 
   return (
-    // Hairline rows, not a grid of cards: these are one list of one kind of
-    // thing, and nine identical cards would read as nine products.
-    <ul className="border-t">
-      {functions.map((row) => (
-        <li key={row.function} className="border-b py-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-sans text-base font-medium">
-              {t(`settings.functions.${row.function}` as never, { defaultValue: row.function })}
-              {optional.includes(row.function) ? (
-                <span className="text-xs font-semibold ml-2 text-faint">
-                  {t("readinessExtra.optional")}
-                </span>
-              ) : null}
-            </h3>
-            <StatusPill status={row.status} label={statusLabel(row.status)} />
-          </div>
-
-          {row.reason ? (
-            <p className="mt-1 text-sm leading-prose text-muted-foreground">{rowReason(t, row)}</p>
+    <RefTable
+      caption={t("settings.up.readiness")}
+      columns={[t("settings.up.task"), t("settings.up.route"), t("settings.up.status")]}
+      rows={functions.map((row) => [
+        <>
+          {t(`settings.functions.${row.function}` as never, { defaultValue: row.function })}
+          {optional.includes(row.function) ? (
+            <span className="ml-2 text-xs text-muted-foreground">{t("readinessExtra.optional")}</span>
           ) : null}
-
-          {row.entries.length > 0 ? (
-            <ol className="mt-2 space-y-1">
-              {row.entries.map((entry, index) => (
-                <li key={`${entry.provider}:${entry.connection_id}`} className="flex flex-wrap items-baseline gap-2 text-sm">
-                  {/* The position is real information here: it is the order the
-                      chain will try them in. */}
-                  <span aria-hidden="true" className="font-mono text-2xs tabular-nums text-faint">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-foreground">{entry.name || providerName(t, entry.provider)}</span>
-                  {entry.model ? (
-                    <span className="font-mono text-xs text-faint">{entry.model}</span>
-                  ) : null}
-                  {entry.note ? (
-                    <span className="text-muted-foreground">{entryNote(t, row, entry)}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
-          ) : null}
-        </li>
-      ))}
-    </ul>
+        </>,
+        <>
+          {row.reason ? <p>{rowReason(t, row)}</p> : null}
+          <ol>
+            {row.entries.map((entry) => (
+              <li key={`${entry.provider}:${entry.connection_id}`}>
+                <span>{entry.name || providerName(t, entry.provider)}</span> <span className="font-mono text-xs">{entry.model}</span>
+                {entry.note ? <span> {entryNote(t, row, entry)}</span> : null}
+              </li>
+            ))}
+          </ol>
+        </>,
+        <StatusPill status={row.status} label={statusLabel(row.status)} />,
+      ])}
+    />
   );
 }

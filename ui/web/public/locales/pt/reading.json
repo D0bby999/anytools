@@ -62,7 +62,16 @@
     "rename": "Nome",
     "renameSubmit": "Renomear",
     "delete": "Excluir este caderno",
-    "deleteConfirm": "Excluir este caderno e todas as notas dele? Isto não pode ser desfeito."
+    "deleteConfirm": "Excluir este caderno e todas as notas dele? Isto não pode ser desfeito.",
+    "up": {
+      "kicker": "Comece aqui",
+      "title": "Guarde o que você lê em um caderno",
+      "description": "Salvar um trecho ou uma resposta do leitor o coloca no seu caderno padrão. Crie outros para um curso ou um projeto.",
+      "yours": "Seus cadernos",
+      "updated": "atualizado",
+      "metaLabel": "Sobre este caderno",
+      "edit": "Editar"
+    }
   },
   "note": {
     "editing": "Nota",
@@ -141,5 +150,8 @@
     "byBuiltin": "Ouvido pela transcrição integrada deste servidor.",
     "heardText": "O que ouviu",
     "notAScore": "Isto verifica se um ouvinte entendeu cada palavra, não o quanto seu sotaque se aproxima. Um sotaque que se entende está ótimo."
-  }
+  },
+  "download": "Baixar",
+  "readAloudPage": "Ler esta página em voz alta",
+  "checkAloudPage": "Verificar minha leitura desta página"
 }

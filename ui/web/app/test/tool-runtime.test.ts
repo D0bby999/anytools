@@ -103,7 +103,7 @@ describe("the route", () => {
 
   it("hands the loader the whole path, folder included", async () => {
     const { loader } = await import("~/routes/tool-runtime.$");
-    const res = (await loader({ params: { pkg: "u2netp@0.0.0", "*": "u2netp.onnx" } } as never)) as Response;
+    const res = (await loader({ params: { pkg: "u2netp@0.0.0", "*": "u2netp.onnx" }, request: new Request("http://localhost/tool-runtime/u2netp@0.0.0/u2netp.onnx") } as never)) as Response;
     expect(res.status).toBe(200);
     await res.body?.cancel();
   });
@@ -128,7 +128,8 @@ describe("the staged folder", () => {
   });
 
   it("serves every staged file but licence texts, so no library fetch 404s on a type", async () => {
-    const files = walk(RUNTIME_ROOT, (p) => !/\/(\.gitkeep|LICENSE[^/.]*)$/.test(p));
+    // A .br file is a brotli copy, sent in place of the file it is beside.
+    const files = walk(RUNTIME_ROOT, (p) => !/\/(\.gitkeep|LICENSE[^/.]*)$/.test(p) && !p.endsWith(".br"));
     expect(files.length).toBeGreaterThan(0);
     const refused: string[] = [];
     for (const f of files) {

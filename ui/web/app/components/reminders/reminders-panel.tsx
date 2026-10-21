@@ -8,18 +8,14 @@
  * shown is how to put it there; Chromium offers an install prompt, held by
  * lib/pwa.ts until the learner asks.
  */
+import { Field } from "~/components/doc/field";
+import { Switch } from "~/components/doc/switch";
+import { Details } from "~/components/doc/details";
 import { useEffect, useState } from "react";
 import { Form, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
-import {
-  applicationServerKey,
-  clearInstallPrompt,
-  isIOS,
-  isStandalone,
-  pendingInstallPrompt,
-  pushSupported,
-} from "~/lib/pwa";
+import { applicationServerKey, clearInstallPrompt, isIOS, isStandalone, pendingInstallPrompt, pushSupported } from "~/lib/pwa";
 
 export type RemindersActionData = {
   intent: string;
@@ -132,34 +128,7 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
 
   return (
     <div className="mt-8 space-y-10">
-      <section aria-labelledby="lp-reminders-install">
-        <h2 id="lp-reminders-install" className="lp-section">
-          {t("reminders.install.title")}
-        </h2>
-        <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">{t("reminders.install.lead")}</p>
-        {!device.ready ? null : device.standalone ? (
-          <p role="status" className="mt-3 text-sm leading-snug">
-            {t("reminders.install.installed")}
-          </p>
-        ) : device.ios ? (
-          <ol className="mt-4 max-w-(--lp-measure-read) list-decimal space-y-1.5 pl-5 text-sm leading-snug">
-            <li>{t("reminders.install.ios.safari")}</li>
-            <li>{t("reminders.install.ios.share")}</li>
-            <li>{t("reminders.install.ios.add")}</li>
-            <li>{t("reminders.install.ios.open")}</li>
-          </ol>
-        ) : canPrompt ? (
-          <div className="mt-4">
-            <Button type="button" onClick={() => void install()}>
-              {t("reminders.install.button")}
-            </Button>
-          </div>
-        ) : (
-          <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-snug">{t("reminders.install.browser")}</p>
-        )}
-      </section>
-
-      <section aria-labelledby="lp-reminders-push" className="border-t pt-6">
+      <section aria-labelledby="lp-reminders-push">
         <h2 id="lp-reminders-push" className="lp-section">
           {t("reminders.push.title")}
         </h2>
@@ -179,14 +148,15 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
               <p role="status" className="text-sm leading-snug">
                 {t("reminders.push.onHere")}
               </p>
-              <Button type="button" variant="outline" size="sm" disabled={working} onClick={() => void turnOff()}>
-                {t("reminders.push.turnOff")}
-              </Button>
+              <Switch checked onCheckedChange={() => void turnOff()} disabled={working} label={t("reminders.push.turnOff")} />
             </div>
           ) : (
-            <Button type="button" disabled={working || !push.public_key} onClick={() => void turnOn()}>
-              {t("reminders.push.turnOn")}
-            </Button>
+            <Switch
+              checked={false}
+              onCheckedChange={() => void turnOn()}
+              disabled={working || !push.public_key}
+              label={t("reminders.push.turnOn")}
+            />
           )}
 
           {push.endpoints.length > 0 ? (
@@ -200,14 +170,13 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
         </div>
       </section>
 
-      <section aria-labelledby="lp-reminders-hour" className="border-t pt-6">
+      <section aria-labelledby="lp-reminders-hour">
         <h2 id="lp-reminders-hour" className="lp-section">
           {t("reminders.hour.title")}
         </h2>
         <Form method="post" className="mt-4 flex flex-wrap items-end gap-3">
           <input type="hidden" name="intent" value="hour" />
-          <label className="flex flex-col gap-1.5 text-sm font-medium">
-            {t("reminders.hour.label")}
+          <Field label={t("reminders.hour.label")}>
             <select
               name="hour"
               defaultValue={push.hour}
@@ -219,7 +188,7 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
                 </option>
               ))}
             </select>
-          </label>
+          </Field>
           <Button type="submit" variant="outline" disabled={pending}>
             {t("reminders.hour.save")}
           </Button>
@@ -255,6 +224,31 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
           </p>
         ) : null}
       </section>
+      <Details summary={t("reminders.install.title")}>
+        <p className="mt-3 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">{t("reminders.install.lead")}</p>
+        {!device.ready ? null : device.standalone ? (
+          <p role="status" className="mt-3 text-sm leading-snug">
+            {t("reminders.install.installed")}
+          </p>
+        ) : device.ios ? (
+          <ol className="mt-4 max-w-(--lp-measure-read) list-decimal space-y-1.5 pl-5 text-sm leading-snug">
+            <li>{t("reminders.install.ios.safari")}</li>
+            <li>{t("reminders.install.ios.share")}</li>
+            <li>{t("reminders.install.ios.add")}</li>
+            <li>{t("reminders.install.ios.open")}</li>
+          </ol>
+        ) : canPrompt ? (
+          <div className="mt-4">
+            <Button type="button" onClick={() => void install()}>
+              {t("reminders.install.button")}
+            </Button>
+          </div>
+        ) : (
+          <ol className="list-decimal pl-5">
+            <li>{t("reminders.install.browser")}</li>
+          </ol>
+        )}
+      </Details>
     </div>
   );
 }

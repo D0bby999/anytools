@@ -2,6 +2,8 @@ import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Source } from "~/hooks/use-turn-stream";
 import { Button } from "~/components/ui/button";
+import { Badge, type BadgeType } from "~/components/doc/badge";
+import { DocSection } from "~/components/research/doc-section";
 import { CitedBody } from "~/components/research/cited-body";
 import { DrawIt } from "~/components/diagram/draw-it";
 import { RetellBox } from "~/components/chat/retell-box";
@@ -14,6 +16,14 @@ export type FollowUpResult =
   | { ok: false; error: string };
 
 const VERDICTS = ["correct", "incorrect", "partly", "unclear"] as const;
+
+/** A verdict as a badge (I6): the word carries it, the tint repeats it. */
+const VERDICT_BADGE: Record<(typeof VERDICTS)[number], BadgeType> = {
+  correct: "tip",
+  incorrect: "danger",
+  partly: "warning",
+  unclear: "info",
+};
 
 /**
  * A finished (or streaming) solution, and the two things a learner does with
@@ -46,19 +56,17 @@ export function SolutionView({
   const pending = followUp.state !== "idle";
 
   return (
-    <section aria-labelledby="lp-solve-result" className="mt-10">
-      <h2 id="lp-solve-result" className="lp-section">
-        {t("result.title")}
-      </h2>
-
+    <DocSection n={2} title={t("result.worked")} id="lp-solve-result">
       {(VERDICTS as readonly string[]).includes(verdict) && (
-        <p className="mt-3 rounded-(--lp-radius-control) bg-sunken px-3 py-2 text-sm">
-          <span className="font-medium">{t("result.verdict")}: </span>
-          {t(`result.verdicts.${verdict}`)}
+        <p className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-medium">{t("result.verdict")}:</span>
+          <Badge type={VERDICT_BADGE[verdict as (typeof VERDICTS)[number]]}>{t(`result.verdicts.${verdict}`)}</Badge>
         </p>
       )}
 
-      <div className="mt-3">
+      {/* The write-up's numbered steps are an ordered list in the model's
+          Markdown, so the prose rules number them as up numbers a list. */}
+      <div className="lp-doc mt-2">
         {ownVersion && messageId && !streaming ? (
           <RetellBox messageId={messageId} ownVersion={ownVersion}>
             <CitedBody text={text} sources={sources} streaming={false} />
@@ -69,14 +77,14 @@ export function SolutionView({
       </div>
 
       {finalAnswer !== "" && !streaming && (
-        <p className="mt-4 text-sm">
-          <span className="font-medium">{t("result.finalAnswer")}: </span>
+        <p className="mt-4 rounded-lg bg-sunken px-4 py-3 text-base">
+          <span className="font-semibold">{t("result.finalAnswer")}: </span>
           <span className="font-mono">{finalAnswer}</span>
         </p>
       )}
 
       {messageId && !streaming && (
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
           <followUp.Form method="post">
             <input type="hidden" name="intent" value="note" />
             <input type="hidden" name="messageId" value={messageId} />
@@ -92,7 +100,7 @@ export function SolutionView({
             </Button>
           </followUp.Form>
           {sessionId && (
-            <Link to={`/chat/${sessionId}`} className="text-sm text-primary underline underline-offset-4">
+            <Link to={`/chat/${sessionId}`} className="text-sm font-medium text-primary hover:underline">
               {t("result.openChat")}
             </Link>
           )}
@@ -104,7 +112,7 @@ export function SolutionView({
         <p
           role={followUp.data.ok ? "status" : "alert"}
           className={
-            "mt-3 text-sm leading-snug " + (followUp.data.ok ? "text-muted-foreground" : "text-destructive")
+            "mt-3 text-sm leading-6 " + (followUp.data.ok ? "text-muted-foreground" : "text-destructive")
           }
         >
           {followUp.data.ok
@@ -122,6 +130,6 @@ export function SolutionView({
           )}
         </p>
       )}
-    </section>
+    </DocSection>
   );
 }

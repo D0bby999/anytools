@@ -1,4 +1,9 @@
-import { useId } from "react";
+import { ChoiceRow } from "~/components/doc/choice-row";
+import { Field } from "~/components/doc/field";
+import { Badge } from "~/components/doc/badge";
+import { Details } from "~/components/doc/details";
+import { StatusLine } from "~/components/doc/status-line";
+import { useEffect, useId, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Check, X } from "lucide-react";
@@ -33,7 +38,11 @@ export function QuestionCard({
   question,
   sources = [],
   onAnswered,
+  position,
+  total,
 }: {
+  position?: number;
+  total?: number;
   question: QuestionView;
   sources?: Source[];
   onAnswered?: (result: AttemptResult) => void;
@@ -67,7 +76,8 @@ export function QuestionCard({
   return (
     <article aria-labelledby={`${ids}-prompt`} className="rounded-lg border bg-card p-4 sm:p-5">
       <p className="text-xs font-semibold text-faint">
-        {typeLabel} · {difficultyLabel}
+        {position !== undefined && total !== undefined ? <span>{t("practise.questionOf", { n: position, total })} · </span> : null}
+        <Badge>{typeLabel}</Badge> · {difficultyLabel}
       </p>
       <h3 id={`${ids}-prompt`} className="mt-2 font-serif text-lg leading-snug">
         {promptLine(question)}
@@ -102,7 +112,7 @@ export function QuestionCard({
           ) : null}
           <fieldset disabled={answered || submitting} className="space-y-4">
             <legend className="sr-only">{t("card.yourAnswer")}</legend>
-            <AnswerInput question={question} idBase={ids} />
+            <AnswerInput question={question} idBase={ids} result={result} disabled={answered || submitting} />
 
             <div>
               <label htmlFor={`${ids}-attr`} className="block text-sm font-medium">
@@ -177,42 +187,53 @@ export function QuestionCard({
   );
 }
 
-function AnswerInput({ question, idBase }: { question: QuestionView; idBase: string }) {
+function AnswerInput({ question, idBase, result, disabled }: {
+  question: QuestionView;
+  idBase: string;
+  result?: AttemptResult;
+  disabled: boolean;
+}) {
   const { t } = useTranslation("study");
-  const radio =
-    "flex min-h-11 cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 text-sm " +
-    "has-[:checked]:border-primary has-[:checked]:bg-primary-soft";
-
-  if (question.type === "mcq") {
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [requiredError, setRequiredError] = useState(false);
+  if (question.type === "mcq" || question.type === "tf") {
+    const options = question.type === "mcq" ? question.options.map((o) => ({ id: o.label, label: `${o.label}. ${o.body}` })) : [
+      { id: "true", label: t("card.true") }, { id: "false", label: t("card.false") },
+    ];
     return (
-      <div role="radiogroup" aria-labelledby={`${idBase}-prompt`} className="space-y-2">
-        {question.options.map((option) => (
-          <label key={option.label} className={radio}>
-            <input type="radio" name="user_answer" value={option.label} required className="mt-1" />
-            <span>
-              <span className="font-mono text-xs font-semibold">{option.label}.</span> {option.body}
-            </span>
-          </label>
-        ))}
+      <div>
+        {/* A native required control keeps the existing form contract and validation. */}
+        <select
+          name="user_answer"
+          value={answer ?? ""}
+          onChange={(event) => setAnswer(event.target.value)}
+          required
+          hidden
+          onInvalid={(event) => {
+            event.preventDefault();
+            setRequiredError(true);
+            event.currentTarget.parentElement?.querySelector<HTMLElement>('[role="radio"]')?.focus();
+          }}
+        >
+          <option value="" />
+          {options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+        </select>
+        <ChoiceRow
+          label={promptLine(question)}
+          value={answer}
+          onChange={(value) => { setAnswer(value); setRequiredError(false); }}
+          disabled={disabled}
+          choices={options.map((option) => ({
+            ...option,
+            state: !result ? undefined
+              : option.id === result.attempt.user_answer ? (result.attempt.is_correct ? "correct" : "wrong")
+              : option.id === result.answer ? "correct" : undefined,
+          }))}
+        />
+        {requiredError ? <p role="alert" className="text-sm text-destructive">{t("practise.chooseAnswer")}</p> : null}
       </div>
     );
   }
-  if (question.type === "tf") {
-    return (
-      <div role="radiogroup" aria-labelledby={`${idBase}-prompt`} className="flex flex-wrap gap-2">
-        <label className={radio}>
-          <input type="radio" name="user_answer" value="true" required className="mt-1" />
-          {t("card.true")}
-        </label>
-        <label className={radio}>
-          <input type="radio" name="user_answer" value="false" required className="mt-1" />
-          {t("card.false")}
-        </label>
-      </div>
-    );
-  }
-  const box =
-    "min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
   if (question.math) {
     return (
       <div>
@@ -222,21 +243,20 @@ function AnswerInput({ question, idBase }: { question: QuestionView; idBase: str
         <p id={`${idBase}-mathhint`} className="mt-0.5 text-xs text-muted-foreground">
           {t("card.mathHint")}
         </p>
-        <MathField
-          id={`${idBase}-answer`}
-          name="user_answer"
-          label={t("card.yourAnswer")}
-          describedBy={`${idBase}-mathhint`}
-          className={`${box} py-2 text-base text-foreground`}
-        />
+        <div className="lp-field-box">
+          <MathField
+            id={`${idBase}-answer`}
+            name="user_answer"
+            label={t("card.yourAnswer")}
+            describedBy={`${idBase}-mathhint`}
+            className="w-full px-3 py-2 text-base text-foreground"
+          />
+        </div>
       </div>
     );
   }
   return (
-    <div>
-      <label htmlFor={`${idBase}-answer`} className="block text-sm font-medium">
-        {t("card.yourAnswer")}
-      </label>
+    <Field label={t("card.yourAnswer")}>
       {question.type === "short" || question.type === "written" ? (
         <textarea
           id={`${idBase}-answer`}
@@ -258,7 +278,7 @@ function AnswerInput({ question, idBase }: { question: QuestionView; idBase: str
           className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
         />
       )}
-    </div>
+    </Field>
   );
 }
 
@@ -291,7 +311,7 @@ function Revealed({ question, sources }: { question: QuestionView; sources: Sour
     <div className="mt-4 space-y-2 border-t pt-4 text-sm leading-prose">
       <AnswerBody question={question} answer={question.answer ?? ""} />
       {question.rubric ? <RubricList rubric={question.rubric} /> : null}
-      {question.explanation ? <RichText text={question.explanation} sources={sources} /> : null}
+      {question.explanation ? <Details summary={t("practise.explanation")} open><RichText text={question.explanation} sources={sources} /></Details> : null}
     </div>
   );
 }
@@ -318,15 +338,24 @@ function Verdict({
   const testsRun = attempt.judge.mode === "tests" ? (attempt.judge.tests ?? []) : null;
   const math = attempt.judge.mode === "math";
 
+  // The verdict appears where the answer was: the answer's controls are
+  // disabled or gone (a code exercise's editor), so a keyboard's focus,
+  // left on nothing, comes here and Tab goes on to the override and the sources.
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = document.activeElement;
+    if (!el || el === document.body || el.matches(":disabled")) box.current?.focus();
+  }, []);
+
   return (
-    <div role="status" className="mt-4 space-y-3 border-t pt-4 text-sm leading-prose">
+    <div ref={box} tabIndex={-1} role="status" className="mt-4 space-y-3 border-t pt-4 text-sm leading-prose focus:outline-none">
       {/* Icon and word both carry the verdict, so it survives a colour-blind
           read; colour is the third channel, not the only one. */}
-      <p className={correct ? "flex items-center gap-2 font-medium text-primary" : "flex items-center gap-2 font-medium text-destructive"}>
+      <StatusLine tone={correct ? "info" : "error"}>
         {correct ? <Check aria-hidden="true" className="size-4" /> : <X aria-hidden="true" className="size-4" />}
         {almost ? t("verdict.almost") : correct ? t("verdict.correct") : t("verdict.incorrect")}
         {overridden ? <span className="font-normal text-muted-foreground">· {t("verdict.overridden")}</span> : null}
-      </p>
+      </StatusLine>
       {testsRun ? (
         <p className="text-muted-foreground">
           {t("code.summary", {
@@ -338,7 +367,11 @@ function Verdict({
         // Marked by value in Go: the reasons are said here, in the learner's language.
         <p className="text-muted-foreground">
           {almost
-            ? t("verdict.mathAlmost")
+            ? attempt.judge.almost_why === "unit"
+              ? t("verdict.mathAlmostUnit")
+              : attempt.judge.almost_why === "no_unit"
+                ? t("verdict.mathNoUnit")
+                : t("verdict.mathAlmost")
             : correct
               ? sameText(attempt.user_answer, result.answer)
                 ? null
@@ -353,7 +386,7 @@ function Verdict({
       ) : null}
 
       <AnswerBody question={question} answer={result.answer} />
-      {result.explanation ? <RichText text={result.explanation} sources={result.sources} /> : null}
+      {result.explanation ? <Details summary={t("practise.explanation")} open><RichText text={result.explanation} sources={result.sources} /></Details> : null}
 
       {result.scheduled ? (
         <p className="text-muted-foreground">

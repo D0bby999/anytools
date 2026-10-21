@@ -1,3 +1,4 @@
+import { QuickStart } from "~/components/doc/quick-start";
 /**
  * quiz.index.tsx
  * Generate questions from one knowledge base, and answer them in place.
@@ -6,7 +7,6 @@
  * bank: it is "the questions I just asked for", and every one of them is also
  * in the bank the moment the API stored it.
  */
-import { PlateEmpty } from "~/components/ui/plate";
 import { Form, Link, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/quiz.index";
@@ -100,18 +100,19 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
   };
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("quiz.title")} lede={t("quiz.lead")} />
 
       <QuizTabs />
+      <QuickStart kicker={t("quiz.title")} title={result ? t("practise.answerQuestionsCount", { count: result.questions.length }) : t("practise.answerQuestions")} description={t("quiz.lead")} primary={{ to: result ? "#lp-quiz-set" : loaderData.kbs.length ? "#lp-quiz-generate" : "/knowledge", label: t("quiz.submit") }} />
 
       {loaderData.kbs.length === 0 ? (
-        <PlateEmpty name="part-practise" className="mt-8">
+        <section className="mt-8"><h2>{t("practise.baseline")}</h2><ol><li>{t("practise.addSource")}</li><li>{t("practise.chooseSource")}</li><li>{t("practise.checkAnswer")}</li></ol><p>
           {t("quiz.noKb")}{" "}
           <Link to="/knowledge" className="text-primary not-italic underline underline-offset-4">
             {t("quiz.goKnowledge")}
           </Link>
-        </PlateEmpty>
+        </p></section>
       ) : (
         <section aria-labelledby="lp-quiz-generate" className="mt-8">
           <h2 id="lp-quiz-generate" className="lp-section">
@@ -195,7 +196,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
       {result ? (
         <section aria-labelledby="lp-quiz-set" className="mt-10">
           <h2 id="lp-quiz-set" className="lp-section">
-            {t("quiz.set")}
+            1. {t("practise.todayQuestions")}
           </h2>
           <p className="mt-2 text-xs leading-snug text-muted-foreground">
             {t("quiz.setMeta", {
@@ -207,9 +208,9 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
           </p>
           {result.note ? <p className="mt-2 text-sm leading-prose text-muted-foreground">{result.note}</p> : null}
           <ol className="mt-4 space-y-4">
-            {result.questions.map((q) => (
+            {result.questions.map((q, index) => (
               <li key={q.id}>
-                <QuestionCard question={q} />
+                <QuestionCard question={q} position={index + 1} total={result.questions.length} />
               </li>
             ))}
           </ol>

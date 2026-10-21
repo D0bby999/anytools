@@ -90,6 +90,18 @@ describe("a maths answer", () => {
     expect(screen.getByText("Equal to the answer, but not in the form the question asks for.")).toBeInTheDocument();
   });
 
+  it("says when the unit is not the one asked", async () => {
+    renderCard(() => ({ result: result("5 m", { correct: true, mode: "math", almost: true, almost_why: "unit" }) }), []);
+    await answer("5 m");
+    expect(await screen.findByText("Equal to the answer, but not in the unit the question asks for.")).toBeInTheDocument();
+  });
+
+  it("says when the unit is missing", async () => {
+    renderCard(() => ({ result: result("5", { correct: true, mode: "math", almost: true, almost_why: "no_unit" }) }), []);
+    await answer("5");
+    expect(await screen.findByText("The number is right, but the unit is missing.")).toBeInTheDocument();
+  });
+
   it("says the value differs when it is wrong, without a model's reason", async () => {
     renderCard(() => ({ result: result("x^2+1", { correct: false, mode: "math", reason: "The value differs from the recorded answer." }) }), []);
     await answer("x^2+1");

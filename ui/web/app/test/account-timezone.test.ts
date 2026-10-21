@@ -7,7 +7,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("~/lib/env.server", () => ({
-  API_BASE: "http://api", API_TOKEN: "t", APP_URL: "http://app.test", SESSION_SECRET: "s".repeat(32), useSecureCookies: false,
+  API_BASE: "http://api",
+  API_TOKEN: "t",
+  APP_URL: "http://app.test",
+  SESSION_SECRET: "s".repeat(32),
+  useSecureCookies: false,
 }));
 const requireUser = vi.fn();
 const requireUserId = vi.fn();
@@ -69,5 +73,16 @@ describe("time zone", () => {
     expect(result).toMatchObject({ intent: "timezone", errorKey: "settings.account.zoneInvalid" });
     expect(apiFetch).toHaveBeenCalledTimes(1);
     expect(apiFetch).not.toHaveBeenCalledWith("/v1/me", "user-1", { method: "DELETE" });
+  });
+});
+
+describe("account language choice", () => {
+  it.each(["en", "vi", "es", "pt"])("saves %s through the native language action", async (language) => {
+    const result = await settings.action(
+      post("http://app.test/settings/account", { intent: "language", language }) as unknown as Parameters<typeof settings.action>[0],
+    );
+    expect(apiFetch).toHaveBeenCalledWith("/v1/me/language", "user-1", { method: "PUT", body: { language, only_if_unset: false } });
+    expect(result).toBeInstanceOf(Response);
+    expect((result as Response).headers.get("Location")).toBe("/settings/account");
   });
 });

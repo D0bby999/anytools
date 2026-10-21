@@ -37,7 +37,13 @@ let python: Promise<Pyodide> | null = null;
 
 async function prefetch() {
   const sizes = await Promise.all(
-    BIG.map((f) => fetch(BASE + f, { method: "HEAD" }).then((r) => Number(r.headers.get("Content-Length") ?? 0)).catch(() => 0)),
+    // The file's own size: Content-Length is the compressed size, or absent,
+    // while the reader below counts the bytes after decompression.
+    BIG.map((f) =>
+      fetch(BASE + f, { method: "HEAD" })
+        .then((r) => Number(r.headers.get("X-File-Size") ?? r.headers.get("Content-Length") ?? 0))
+        .catch(() => 0),
+    ),
   );
   const total = sizes.reduce((a, b) => a + b, 0);
   let loaded = 0;

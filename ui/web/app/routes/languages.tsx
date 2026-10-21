@@ -1,3 +1,5 @@
+import { RefTable } from "~/components/doc/ref-table";
+import { Details } from "~/components/doc/details";
 /**
  * languages.tsx
  * Languages (plans/261020-1535-beyond-english-learning-areas, phase 1): the
@@ -6,13 +8,13 @@
  * Saving keeps the learner's order, adds what was ticked after it, and opens
  * the first language added, or the current one.
  */
-import { redirect } from "react-router";
+import { Link, redirect } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/languages";
 import { appTitle } from "~/lib/app-title";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
-import { isLanguageCode } from "~/lib/languages";
+import { isLanguageCode, languageName } from "~/lib/languages";
 import { setStudiedLanguages, studiedLanguages } from "~/lib/vocab.server";
 import { LanguagePicker } from "~/components/languages/language-picker";
 import { PageHeader } from "~/components/ui/page-header";
@@ -55,16 +57,20 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function Languages({ loaderData, actionData }: Route.ComponentProps) {
-  const { t } = useTranslation("toolkit");
+  const { t, i18n } = useTranslation("toolkit");
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("languages.title")} lede={t("languages.lead")} />
+      {loaderData.studied.length > 0 ? <RefTable caption={t("languages.title")} columns={[t("languages.title"), t("languages.practise.level"), t("languages.practise.due"), t("languages.practise.open")]}
+        rows={loaderData.studied.map((lang) => [languageName(lang, i18n.language), t("languages.practise.notAssessed"), loaderData.saved.find((s) => s.lang === lang)?.due ?? 0, <Link to={`/languages/${lang}`}>{t("languages.practise.open")}</Link>])} /> : null}
+      <Details summary={t("languages.tabs.add")} open>
       <LanguagePicker
         saved={loaderData.saved}
         studied={loaderData.studied}
         current={loaderData.current}
         error={actionData?.error}
       />
+      </Details>
     </div>
   );
 }

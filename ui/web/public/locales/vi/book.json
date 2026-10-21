@@ -11,10 +11,21 @@
     "proposed": "Dàn ý cần duyệt",
     "progress": "Đã viết {{ready}} trên {{total}} chương"
   },
+  "chapters": {
+    "count": "{{count}} chương",
+    "count_other": "{{count}} chương"
+  },
   "book": {
     "back": "Kho tài liệu",
     "kicker": "Sách sống",
     "outlineKicker": "Dàn ý đề xuất",
+    "up": {
+      "kicker": "Đọc",
+      "title": "Đọc sách này",
+      "readFrom1": "Đọc từ chương 1",
+      "contents": "Mục lục",
+      "editProposal": "Sửa đề xuất"
+    },
     "compileAll": "Viết mọi chương",
     "compileAllCost": "Khoảng {{count}} lệnh gọi trên khóa của bạn, chạy nền.",
     "compileAllCost_other": "Khoảng {{count}} lệnh gọi trên khóa của bạn, chạy nền.",
@@ -56,6 +67,7 @@
   },
   "chapter": {
     "kicker": "Chương {{n}}",
+    "heading": "Chương {{n}}: {{title}}",
     "blocksWritten": "{{ready}} trên {{total}} khối",
     "staleShort": "nguồn đã đổi",
     "stale": "Nguồn đã thay đổi từ khi phần này được viết. Hãy làm mới.",
@@ -70,7 +82,8 @@
     "addNote": "Thêm ghi chú",
     "nav": "Chương",
     "prev": "← {{title}}",
-    "next": "{{title}} →"
+    "next": "{{title}} →",
+    "closing": "Hết chương {{n}}"
   },
   "block": {
     "example": "Ví dụ có lời giải",
@@ -101,5 +114,10 @@
     "regenerateFailed": "Khối chưa được viết lại; phiên bản trước vẫn được giữ.",
     "noteFailed": "Ghi chú chưa được lưu.",
     "emptyNote": "Hãy viết gì đó trước."
+  },
+  "meta": {
+    "bookLabel": "Thông tin sách",
+    "chapterLabel": "Thông tin chương",
+    "updated": "Cập nhật"
   }
 }

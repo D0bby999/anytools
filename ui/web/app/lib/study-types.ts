@@ -80,8 +80,10 @@ export type Judgement = {
   /** A rubric's marking: the share of the points, and each criterion's. */
   score?: number;
   criteria?: CriterionResult[];
-  /** A maths answer equal to the recorded one but not in the form asked: right, scheduled as Hard. */
+  /** A maths answer equal to the recorded one but not as asked: right, scheduled as Hard. */
   almost?: boolean;
+  /** How: not in the form asked, not in the unit the question names, or with no unit. */
+  almost_why?: "form" | "unit" | "no_unit";
   /** A code attempt's tests, as the browser ran them. */
   tests?: { name: string; passed: boolean; message?: string }[];
 };

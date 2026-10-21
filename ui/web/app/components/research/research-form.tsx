@@ -2,6 +2,8 @@ import type { FetcherWithComponents } from "react-router";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
+import { Field } from "~/components/doc/field";
+import { CHOICE } from "~/components/solve/solve-form";
 
 /**
  * The research form: the question, quick or deep, which documents to include,
@@ -33,15 +35,11 @@ export function ResearchForm<T>({
 }) {
   const { t } = useTranslation("research");
   const submitting = fetcher.state !== "idle";
-  const field = "mt-1 w-full rounded-md border border-control-border bg-card px-3 text-sm";
 
   return (
-    <fetcher.Form method="post" className="space-y-4 rounded-lg border bg-card p-4">
+    <fetcher.Form method="post" className="flex flex-col gap-1">
       <input type="hidden" name="intent" value="research" />
-      <div>
-        <label htmlFor="lp-research-query" className="block text-sm font-medium">
-          {t("form.query")}
-        </label>
+      <Field label={t("form.query")}>
         <textarea
           id="lp-research-query"
           name="query"
@@ -50,15 +48,15 @@ export function ResearchForm<T>({
           maxLength={4000}
           defaultValue={defaultQuery}
           placeholder={t("form.queryPlaceholder")}
-          className={field + " py-2 leading-prose"}
+          className="resize-y py-2 leading-6"
         />
-      </div>
+      </Field>
 
-      <fieldset>
-        <legend className="text-sm font-medium">{t("form.mode")}</legend>
-        <div className="mt-1 grid gap-2 sm:grid-cols-2">
+      <fieldset className="my-2">
+        <legend className="text-sm leading-6 font-medium">{t("form.mode")}</legend>
+        <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
           {(["quick", "deep"] as const).map((mode) => (
-            <label key={mode} className="flex min-h-11 items-start gap-2 rounded-md border px-3 py-2 text-sm">
+            <label key={mode} className={CHOICE + " items-start"}>
               <input type="radio" name="mode" value={mode} defaultChecked={mode === "quick"} className="mt-1" />
               <span>
                 <span className="font-medium">{t(`form.${mode}`)}</span>
@@ -71,19 +69,18 @@ export function ResearchForm<T>({
 
       {kbs.length > 0 && (
         <div>
-          <label htmlFor="lp-research-kb" className="block text-sm font-medium">
-            {t("form.kb")}
-          </label>
-          <select id="lp-research-kb" name="kb_id" defaultValue="" className={field + " min-h-11"}>
-            <option value="">{t("form.kbNone")}</option>
-            {kbs.map((kb) => (
-              <option key={kb.id} value={kb.id}>
-                {kb.name}
-              </option>
-            ))}
-          </select>
+          <Field label={t("form.kb")}>
+            <select id="lp-research-kb" name="kb_id" defaultValue="">
+              <option value="">{t("form.kbNone")}</option>
+              {kbs.map((kb) => (
+                <option key={kb.id} value={kb.id}>
+                  {kb.name}
+                </option>
+              ))}
+            </select>
+          </Field>
           {webAvailable && (
-            <label className="mt-2 flex min-h-11 items-start gap-2 text-sm">
+            <label className="flex min-h-10 items-start gap-2 text-sm leading-6">
               <input type="checkbox" name="allow_web" value="1" className="mt-1" aria-describedby="lp-research-web-hint" />
               <span>
                 {t("form.allowWeb")}
@@ -96,16 +93,16 @@ export function ResearchForm<T>({
         </div>
       )}
 
-      <p className="rounded-(--lp-radius-control) bg-sunken px-3 py-2 text-sm leading-snug">
+      <p className="my-2 rounded-lg bg-sunken px-4 py-3 text-sm leading-6">
         {webKeyless ? t("web.keyless") : webAvailable ? t("web.available") : t("web.missing")}{" "}
         {(webKeyless || !webAvailable) && (
-          <Link to="/settings/search" className="text-primary underline underline-offset-4">
+          <Link to="/settings/search" className="font-medium text-primary hover:underline">
             {webKeyless ? t("web.connectKey") : t("web.connect")}
           </Link>
         )}
       </p>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
         {busy ? (
           <Button type="button" variant="outline" onClick={onStop}>
             {t("form.stop")}

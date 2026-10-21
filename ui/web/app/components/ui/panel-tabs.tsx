@@ -8,8 +8,8 @@ export type PanelTab = { id: string; label: string; panel: ReactNode };
  * add to a knowledge base). Every panel stays mounted and only the chosen one
  * is shown, so a half-typed URL survives a look at another tab.
  *
- * They look like the page-section tabs (section-tabs.tsx): a tinted tab with a
- * full outline, never an underline.
+ * They look like the page-section tabs (section-tabs.tsx): a nav link whose
+ * colour turns to the action ink when chosen, never an underline.
  *
  * The WAI-ARIA tabs pattern: one tab stop for the list, arrow keys, Home and
  * End move between tabs, and activation follows focus.

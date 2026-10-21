@@ -7,14 +7,24 @@
     "nameLabel": "Nombre",
     "namePlaceholder": "Termodinámica, Derecho contractual, Segundo semestre…",
     "submit": "Crear",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "up": {
+      "kicker": "Empieza aquí",
+      "title": "Crea una base de conocimiento y añade lo que estudias",
+      "description": "Todo lo que AnyLearn responde sale de una. Añade archivos, enlaces, sitios o subrayados.",
+      "importHighlights": "Importar subrayados",
+      "yours": "Tus bases de conocimiento"
+    }
   },
   "card": {
     "none": "Aún no hay documentos",
     "ready": "{{count}} listos",
     "working": "{{count}} en proceso",
     "failed": "{{count}} con error",
-    "needsReembed": "Hay que reindexar"
+    "needsReembed": "Hay que reindexar",
+    "documents_one": "{{count}} documento",
+    "documents_other": "{{count}} documentos",
+    "updated": "actualizada"
   },
   "detail": {
     "back": "Todas las bases de conocimiento",
@@ -26,7 +36,17 @@
     "reindexHint": "Vuelve a generar el embedding de cada pasaje con tu modelo de embeddings actual. El texto y los números de página no cambian.",
     "needsReembedTitle": "Hay que reindexar esta base de conocimiento",
     "needsReembedBody": "Tu modelo de embeddings cambió desde que se indexaron estos documentos. Las consultas quedan bloqueadas hasta volver a generar los embeddings, porque comparar preguntas nuevas con vectores viejos da respuestas seguras pero erróneas en lugar de un error.",
-    "notIndexed": "Aún sin indexar"
+    "notIndexed": "Aún sin indexar",
+    "lede": "Los documentos con los que AnyLearn puede responder aquí, cuánto se ha leído cada uno y las formas de estudiar con ellos.",
+    "metaLabel": "Sobre esta base de conocimiento",
+    "metaReady_one": "{{count}} procesado",
+    "metaReady_other": "{{count}} procesados",
+    "metaBooks_one": "{{count}} libro",
+    "metaBooks_other": "{{count}} libros",
+    "danger": "Zona de peligro",
+    "dangerNote": "Eliminarla borra cada documento, pasaje, libro y resumen en audio de esta base de conocimiento.",
+    "deleteTitle": "¿Eliminar «{{name}}»?",
+    "keep": "Conservarla"
   },
   "upload": {
     "label": "Añadir un documento",
@@ -45,7 +65,15 @@
     "remove": "Quitar",
     "retry": "Reintentar",
     "removeConfirm": "¿Quitar este documento y sus pasajes?",
-    "view": "Abrir"
+    "view": "Abrir",
+    "kind": "Tipo",
+    "updated": "Actualizado",
+    "kindFile": "Archivo",
+    "pageCount_one": "{{count}} página",
+    "pageCount_other": "{{count}} páginas",
+    "passageCount_one": "{{count}} pasaje",
+    "passageCount_other": "{{count}} pasajes",
+    "actionsFor": "Acciones para {{title}}"
   },
   "status": {
     "queued": "En cola",
@@ -75,7 +103,9 @@
     "back": "Volver a la base de conocimiento",
     "notReady": "Este documento todavía no ha terminado de procesarse.",
     "empty": "Esta página está vacía.",
-    "pages": "Páginas"
+    "pages": "Páginas",
+    "metaLabel": "Sobre este documento",
+    "pageN": "Página {{page}}"
   },
   "errors": {
     "createFailed": "No se pudo crear la base de conocimiento.",
@@ -155,7 +185,10 @@
     "add": "Añadir a esta base de conocimiento",
     "addedPDF": "Añadido: se está leyendo el PDF de acceso abierto.",
     "addedNote": "Añadido como nota con el resumen y un enlace.",
-    "open": "Abrir el artículo"
+    "open": "Abrir el artículo",
+    "colPaper": "Artículo",
+    "colYear": "Año",
+    "colCited": "Citas"
   },
   "link": {
     "label": "Añadir un enlace",
@@ -476,7 +509,10 @@
       "addFailed": "No se pudieron añadir esas entradas.",
       "updateFailed": "No se pudo actualizar la fuente.",
       "deleteFailed": "No se pudo quitar la fuente."
-    }
+    },
+    "metaLabel": "Sobre este feed",
+    "entryCount_one": "{{count}} entrada",
+    "entryCount_other": "{{count}} entradas"
   },
   "add": {
     "label": "Añadir a esta base de conocimiento",
@@ -492,7 +528,11 @@
     "quiz": "Crear preguntas",
     "path": "Planificar una ruta de dominio",
     "book": "Escribir un libro",
-    "waiting": "Las preguntas, el chat, la ruta y el libro se abren aquí en cuanto un documento esté listo."
+    "waiting": "Las preguntas, el chat, la ruta y el libro se abren aquí en cuanto un documento esté listo.",
+    "chatNote": "una conversación que solo responde con estos documentos, con fuentes.",
+    "quizNote": "preguntas sacadas de estos documentos, para repaso espaciado.",
+    "pathNote": "módulos con una comprobación al final de cada uno.",
+    "bookNote": "capítulos escritos a partir de estos documentos, más abajo en esta página."
   },
   "share": {
     "title": "Añadir a AnyLearn",

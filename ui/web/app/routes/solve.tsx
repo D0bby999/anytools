@@ -31,13 +31,14 @@ import { StageList } from "~/components/research/stage-list";
 import { ToolActivityPanel } from "~/components/chat/tool-activity";
 import { RightPanel } from "~/components/layout/right-panel";
 import { PageHeader } from "~/components/ui/page-header";
+import { DocSection } from "~/components/research/doc-section";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Solve") }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 /** Renders its own RightPanel (stages and sources); the layout leaves the slot. */
-export const handle = { ownsPanel: true };
+export const handle = { ownsPanel: true, layout: "page" };
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
@@ -141,12 +142,14 @@ export default function Solve({ loaderData }: Route.ComponentProps) {
     (fetcher.data && !fetcher.data.ok ? fetcher.data.error : null);
 
   return (
-    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
-      <div className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
+    // A worksheet (P2): h1, lede, "1. The problem" with the form, "2. Worked
+    // solution" once there is one; the stages sit in the aside.
+    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)]">
+      <div className="min-w-0 flex-1 px-4 pt-8 pb-24 lg:px-8 lg:pt-12">
         <div className="lp-measure">
-          <PageHeader title={t("title")} lede={t("lead")} />
+          <PageHeader title={t("title")} lede={t("lead")} className="mb-0" />
 
-          <div className="mt-8">
+          <DocSection n={1} title={t("problem.title")}>
             <SolveForm
               fetcher={fetcher}
               kbs={loaderData.kbs}
@@ -155,13 +158,12 @@ export default function Solve({ loaderData }: Route.ComponentProps) {
               ownVersionFirst={loaderData.ownVersionFirst}
               onOwnVersion={setSentOwn}
             />
-          </div>
-
-          {failure && (
-            <p role="alert" className="mt-4 rounded-(--lp-radius-control) bg-destructive-soft px-3 py-2 text-sm leading-prose">
-              {failure}
-            </p>
-          )}
+            {failure && (
+              <p role="alert" className="mt-4 rounded-lg bg-destructive-soft px-4 py-3 text-sm leading-6">
+                {failure}
+              </p>
+            )}
+          </DocSection>
 
           {turnId && (stream.answer !== "" || stream.finished) && !stream.failure && (
             <SolutionView
@@ -179,7 +181,7 @@ export default function Solve({ loaderData }: Route.ComponentProps) {
 
       <RightPanel>
         {turnId ? (
-          <div className="mt-3 flex flex-col gap-5">
+          <div className="mt-2 flex flex-col gap-5">
             <StageList
               ns="solve"
               stages={SOLVE_STAGES}

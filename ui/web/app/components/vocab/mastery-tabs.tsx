@@ -23,6 +23,7 @@ export function MasteryTabs({
       <NavLink to="/mastery" end className={tab}>
         {t("tabs.paths")}
       </NavLink>
+      <NavLink to="/mastery/review" className={tab}>{t("practise.review")}</NavLink>
       <NavLink to="/mastery/vocabulary" className={tab}>
         {t("tabs.vocabulary")}
         {vocabDue ? (

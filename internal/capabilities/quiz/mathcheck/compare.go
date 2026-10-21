@@ -3,6 +3,7 @@ package mathcheck
 import (
 	"math"
 	"math/rand/v2"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -24,6 +25,11 @@ const (
 	// Unreadable: the recorded answer is an expression and the learner's is
 	// not readable as one. Never marked wrong.
 	Unreadable
+	// AlmostUnit: an equal quantity, in another unit than the one the
+	// question names (units.go).
+	AlmostUnit
+	// MissingUnit: the recorded quantity's number, with no unit.
+	MissingUnit
 )
 
 // Kind is what a recorded answer is.
@@ -36,12 +42,23 @@ const (
 	Number
 	// Expression: an expression or an equation.
 	Expression
+	// Quantity: a number and a unit (units.go).
+	Quantity
+	// Structure: an interval, an inequality, a set, a tuple, a vector or a
+	// matrix (structures.go).
+	Structure
 )
 
 // KindOf classifies a recorded answer. A string of letters alone ("DNA") is
 // not maths even though it parses as a product: maths has a digit with an
 // operation, or an operation or an equals sign.
 func KindOf(answer string) Kind {
+	if _, err := parseStructure(answer); err == nil {
+		return Structure
+	}
+	if _, ok := parseQuantity(answer, true); ok {
+		return Quantity
+	}
 	p, err := Parse(answer)
 	if err != nil {
 		return NotMaths
@@ -61,10 +78,31 @@ func KindOf(answer string) Kind {
 // Judge compares a learner's answer to the recorded one. prompt is the
 // question, read only for the form it asks for.
 func Judge(prompt, recorded, answer string) Verdict {
+	if want, err := parseStructure(recorded); err == nil {
+		got, err := parseStructure(answer)
+		if err != nil {
+			if looksLikeMaths(answer) {
+				return Unreadable
+			}
+			return Skip
+		}
+		switch eq, decided := sameStructure(want, got); {
+		case !decided:
+			return Skip
+		case eq:
+			return Right
+		}
+		return Wrong
+	}
+	if want, ok := parseQuantity(recorded, true); ok {
+		return judgeQuantity(prompt, want, answer)
+	}
 	kind := KindOf(recorded)
 	if kind == NotMaths {
 		return Skip
 	}
+	// f(x) = 2x + 3 names the function; its value is the answer.
+	recorded, answer = functionName.ReplaceAllString(recorded, ""), functionName.ReplaceAllString(answer, "")
 	want, err := Parse(recorded)
 	if err != nil {
 		return Skip
@@ -77,6 +115,21 @@ func Judge(prompt, recorded, answer string) Verdict {
 		// "about 42", "x equals three": words, for the model.
 		return Skip
 	}
+	// A letter the recorded answer has not ("1945 AD", "3 m", "co2" for
+	// "CO2") is not a value to compare: the model reads it.
+	if extraVariables(want.Root, got.Root) {
+		return Skip
+	}
+	// 3.14 recorded and pi written: the exact value of a rounded answer is
+	// right when it rounds to it. A decimal written is compared as written.
+	if kind == Number && !plainNumber(got.Root) {
+		if d := recordedDecimals(recorded); d > 0 {
+			v, w := eval(got.Root, nil), eval(want.Root, nil)
+			if finite(v) && math.Abs(v-w) <= 0.5*math.Pow(10, -float64(d))+1e-12 {
+				return Right
+			}
+		}
+	}
 	eq, decided := equivalent(want.Root, got.Root)
 	switch {
 	case !decided:
@@ -87,6 +140,45 @@ func Judge(prompt, recorded, answer string) Verdict {
 		return Almost
 	}
 	return Right
+}
+
+// extraVariables: the answer has a variable the recorded one has not. The
+// variable an answer's equation names against a recorded expression (x in
+// x = 3 for 3) does not count.
+func extraVariables(want, got *Node) bool {
+	have := map[string]bool{}
+	collect(want, have)
+	if got.kind == nEq && got.a.kind == nVar && want.kind != nEq {
+		got = got.b
+	}
+	vars := map[string]bool{}
+	collect(got, vars)
+	for v := range vars {
+		if !have[v] {
+			return true
+		}
+	}
+	return false
+}
+
+func plainNumber(n *Node) bool {
+	if n.kind == nNeg {
+		n = n.a
+	}
+	return n.kind == nNum
+}
+
+var (
+	trailingDecimals = regexp.MustCompile(`\.(\d+)$`)
+	functionName     = regexp.MustCompile(`^\s*\$?\s*[a-zA-Z]\s*\(\s*[a-zA-Z]\s*\)\s*=\s*`)
+)
+
+// recordedDecimals: the digits after a recorded number's decimal point.
+func recordedDecimals(recorded string) int {
+	if m := trailingDecimals.FindStringSubmatch(normalize(recorded)); m != nil {
+		return len(m[1])
+	}
+	return 0
 }
 
 // looksLikeMaths: an attempt at an expression, not a sentence. A reply with
@@ -155,7 +247,7 @@ func collect(n *Node, into map[string]bool) {
 	if n == nil {
 		return
 	}
-	if n.kind == nVar && n.name != "pi" {
+	if n.kind == nVar && n.name != "pi" && n.name != "e" {
 		into[n.name] = true
 	}
 	collect(n.a, into)
@@ -163,6 +255,9 @@ func collect(n *Node, into map[string]bool) {
 }
 
 func near(x, y float64) bool {
+	if !finite(x) || !finite(y) {
+		return false
+	}
 	return math.Abs(x-y) <= 1e-9+1e-7*math.Max(math.Abs(x), math.Abs(y))
 }
 
@@ -217,8 +312,11 @@ func eval(n *Node, vars map[string]float64) float64 {
 	case nNum:
 		return n.num
 	case nVar:
-		if n.name == "pi" {
+		switch n.name {
+		case "pi":
 			return math.Pi
+		case "e":
+			return math.E
 		}
 		return vars[n.name]
 	case nNeg:

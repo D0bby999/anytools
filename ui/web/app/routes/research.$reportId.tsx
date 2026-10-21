@@ -28,6 +28,8 @@ import { ClaimCheck } from "~/components/research/claim-check";
 import { KeepStudying, OpenQuestions, type ToKnowledgeResult } from "~/components/research/keep-studying";
 import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
+import { BookMeta } from "~/components/doc/book-meta";
+import { AtAGlance } from "~/components/doc/at-a-glance";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Report") }, { name: "robots", content: "noindex, nofollow" }];
@@ -112,80 +114,86 @@ export default function ResearchReport({ loaderData }: Route.ComponentProps) {
   const save = useFetcher<SaveResult>();
   const saved = report.note_id || (save.data && save.data.ok);
 
+  const words = report.report_md.split(/\s+/).filter(Boolean).length;
+  // "At a glance": the claims the check found in their sources, which are
+  // the report's conclusions a learner can lean on. Without a check there is
+  // nothing to stand behind, so the list is left out rather than guessed.
+  const glance =
+    report.verification?.status === "checked"
+      ? report.verification.claims.filter((c) => c.verdict === "supported").slice(0, 5).map((c) => c.claim)
+      : [];
+
   return (
-    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
-      <div className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
-        <article className="lp-measure">
-          <Link
-            to="/research"
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            {t("report.back")}
-          </Link>
-          <PageHeader title={report.query} className="mt-2 mb-0" />
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            <span>
-              {t("report.mode")}: {t(`form.${report.mode}`)}
-            </span>
-            <span>
-              {t("report.created")}: <DateText iso={report.created_at} withTime />
-            </span>
-            {report.kb_only && <KBOnlyBadge reason={report.kb_only_reason} />}
-          </div>
-          {report.kb_only && (
-            <p className="mt-2 text-sm text-muted-foreground">{t(kbOnlyReasonKey(report.kb_only_reason))}</p>
-          )}
-          {report.engine === "duckduckgo" && (
-            <p className="mt-2 text-sm text-muted-foreground">{t("report.engineKeyless")}</p>
-          )}
+    // A chapter (P1): h1, book-meta, "At a glance", the report as prose with
+    // superscript citations, then "Claim check", open questions and "Keep
+    // studying"; the sources are in the aside.
+    <article>
+      <Link
+        to="/research"
+        className="inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        <ArrowLeft aria-hidden="true" className="size-4" />
+        {t("report.back")}
+      </Link>
+      <PageHeader title={report.query} className="mt-2 mb-0" />
+      <BookMeta
+        label={t("report.meta")}
+        items={[
+          { label: t("report.sourcesCount", { count: report.sources.length }) },
+          { label: t("report.words", { count: words }) },
+          { label: <DateText iso={report.created_at} withTime /> },
+          { label: `${t("report.mode")}: ${t(`form.${report.mode}`)}` },
+          ...(report.kb_only ? [{ label: <KBOnlyBadge reason={report.kb_only_reason} /> }] : []),
+        ]}
+      />
+      {report.kb_only && <p className="mt-2 text-sm leading-6 text-muted-foreground">{t(kbOnlyReasonKey(report.kb_only_reason))}</p>}
+      {report.engine === "duckduckgo" && (
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("report.engineKeyless")}</p>
+      )}
 
-          <div className="mt-6">
-            <CitedBody text={report.report_md} sources={report.sources} />
-          </div>
+      <div className="lp-doc">
+        {glance.length > 0 ? <AtAGlance items={glance} title={t("report.atAGlance")} id="lp-report-glance" /> : null}
+        <CitedBody text={report.report_md} sources={report.sources} />
+      </div>
 
-          <div className="mt-8 flex flex-col gap-4">
-            {report.verification && <ClaimCheck check={report.verification} sources={report.sources} />}
-            <OpenQuestions questions={report.open_questions ?? []} />
-            <KeepStudying kbs={kbs} hasWebSources={report.sources.some((s) => s.kind === "url")} />
-          </div>
+      {report.verification && <ClaimCheck check={report.verification} sources={report.sources} />}
+      <OpenQuestions questions={report.open_questions ?? []} />
+      <KeepStudying kbs={kbs} hasWebSources={report.sources.some((s) => s.kind === "url")} />
 
-          <AudioOverviews overviews={loaderData.overviews} reportId={report.id} />
+      <AudioOverviews overviews={loaderData.overviews} reportId={report.id} />
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            {saved ? (
-              <p role="status" className="text-sm text-muted-foreground">
-                {t("report.saved")}
-              </p>
-            ) : (
-              <save.Form method="post">
-                <Button type="submit" variant="outline" disabled={save.state !== "idle"}>
-                  {t("report.save")}
-                </Button>
-              </save.Form>
-            )}
-            {save.data && !save.data.ok && (
-              <p role="alert" className="text-sm text-destructive">
-                {save.data.error}
-              </p>
-            )}
-          </div>
-        </article>
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        {saved ? (
+          <p role="status" className="text-sm text-muted-foreground">
+            {t("report.saved")}
+          </p>
+        ) : (
+          <save.Form method="post">
+            <Button type="submit" variant="outline" disabled={save.state !== "idle"}>
+              {t("report.save")}
+            </Button>
+          </save.Form>
+        )}
+        {save.data && !save.data.ok && (
+          <p role="alert" className="text-sm text-destructive">
+            {save.data.error}
+          </p>
+        )}
       </div>
 
       <RightPanel>
         {report.sources.length === 0 ? (
-          <p className="mt-3 lp-empty">{t("report.noSources")}</p>
+          <p className="mt-2 lp-empty">{t("report.noSources")}</p>
         ) : (
-          <ol className="mt-3 flex flex-col gap-2">
+          <ol className="mt-2 flex flex-col gap-1.5">
             {report.sources.map((source, i) => (
               <li key={`${source.kind}:${source.id}`}>
-                <CitationChip source={source} index={i + 1} />
+                <CitationChip source={source} index={i + 1} variant="entry" />
               </li>
             ))}
           </ol>
         )}
       </RightPanel>
-    </div>
+    </article>
   );
 }

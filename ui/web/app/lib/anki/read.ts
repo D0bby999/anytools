@@ -277,7 +277,8 @@ export function mapCards(deck: AnkiDeck, maps: CardMap[]): { cards: { front: str
       .map((i) => fieldText(n.fields[i] ?? ""))
       .filter(Boolean)
       .join("\n");
-    if (!front || !back || front.length > MAX_FRONT || back.length > MAX_BACK) {
+    // Characters, as the API counts them: an emoji or a rare Han character is one.
+    if (!front || !back || [...front].length > MAX_FRONT || [...back].length > MAX_BACK) {
       skipped++;
       continue;
     }

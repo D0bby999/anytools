@@ -6,7 +6,7 @@
  * place Body in Part III.
  */
 import { beforeAll, describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import type { ReactElement } from "react";
 import { initI18n } from "~/lib/i18n";
@@ -114,12 +114,15 @@ describe("ProposalView", () => {
       decided_at: null,
       can_revert: false,
     };
-    render(<ProposalView proposal={proposal} names={{ "0043": { name: "barbell full squat", body_part: "", equipment: "", target: "" } }} />);
+    render(
+      <ProposalView proposal={proposal} names={{ "0043": { name: "barbell full squat", body_part: "", equipment: "", target: "" } }} />,
+    );
     expect(screen.getByText("Stalled 3 sessions")).toBeTruthy();
     expect(screen.getByText("barbell full squat")).toBeTruthy();
     expect(screen.getByText("Legs first.")).toBeTruthy();
-    // Three weekdays in the week strip, and the routine's own heading.
-    expect(screen.getAllByText("Day A")).toHaveLength(4);
+    // Three scheduled days and a separately navigable routine heading.
+    expect(within(screen.getByRole("table", { name: "Full body" })).getAllByText("Day A")).toHaveLength(3);
+    expect(screen.getByRole("heading", { name: /Day A/ })).toBeInTheDocument();
   });
 });
 
@@ -160,7 +163,17 @@ describe("Body's first run", () => {
   });
 
   it("leaves the plate out once a workout is logged", () => {
-    const w = { id: "w", routine_id: null, routine_name: "", day: "2026-10-19", started_at: "", finished_at: "", bodyweight: null, entries: [], note: "" } as unknown as Workout;
+    const w = {
+      id: "w",
+      routine_id: null,
+      routine_name: "",
+      day: "2026-10-19",
+      started_at: "",
+      finished_at: "",
+      bodyweight: null,
+      entries: [],
+      note: "",
+    } as unknown as Workout;
     const { container } = inRouter(<Page loaderData={{ overview: overview([w]), names: {} }} />);
     expect(plates(container)).toEqual([]);
   });

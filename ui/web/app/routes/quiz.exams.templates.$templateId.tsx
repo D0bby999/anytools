@@ -85,7 +85,7 @@ export default function ExamTemplatePage({ loaderData }: Route.ComponentProps) {
 
   const progress = template.progress;
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <Link to="/quiz/exams" className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("exams.back")}

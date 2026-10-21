@@ -1,11 +1,11 @@
-import { useTranslation } from "react-i18next";
-import { num, type Prescription, type Unit } from "~/lib/body-types";
-
 /**
  * Why this number: every target the progression engine set says so in a
  * sentence, because a suggestion nobody can audit is one nobody trusts.
  * Literal t() calls, so the i18n guard can see every key.
  */
+import { useTranslation } from "react-i18next";
+import { num, type Prescription, type Unit } from "~/lib/body-types";
+
 export function AdviceText({ advice, unit }: { advice?: Prescription; unit: Unit }) {
   const { t } = useTranslation("body");
   if (!advice?.reason) return null;
@@ -59,7 +59,7 @@ export function AdviceText({ advice, unit }: { advice?: Prescription; unit: Unit
     default:
       return null;
   }
-  return <p className="mt-1 text-sm leading-snug text-muted-foreground">{text}</p>;
+  return <blockquote className="my-4 rounded-lg border bg-sunken p-4 text-sm leading-prose text-muted-foreground">{text}</blockquote>;
 }
 
 /** A policy's name, for the plan editor and the coach's proposals. */

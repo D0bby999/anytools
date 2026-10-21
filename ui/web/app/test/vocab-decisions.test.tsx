@@ -234,7 +234,7 @@ describe("Mastery → Vocabulary by decision", () => {
     expect(screen.getByText("only a connector")).toBeInTheDocument();
     expect(screen.getByText("Low")).toBeInTheDocument();
 
-    const skipRow = screen.getByText("moreover").closest("li")!;
+    const skipRow = screen.getByText("moreover").closest("tr")!;
     expect(within(skipRow).queryByRole("button", { name: "Suspend" })).not.toBeInTheDocument();
     expect(within(skipRow).queryByRole("button", { name: "Practise using it" })).not.toBeInTheDocument();
     await userEvent.click(within(skipRow).getByRole("button", { name: "Learn this" }));
@@ -257,7 +257,7 @@ describe("Mastery → Vocabulary by decision", () => {
   it("asks for a scenario before making the production card", async () => {
     const posts: Post[] = [];
     routed(<WordList notes={notes} q="" lang="" langs={["en"]} />, posts, (b) => ({ updated: b.id }));
-    const learnRow = screen.getByText("equilibrium").closest("li")!;
+    const learnRow = screen.getByText("equilibrium").closest("tr")!;
     await userEvent.click(within(learnRow).getByRole("button", { name: "Practise using it" }));
     expect(within(learnRow).getByLabelText("Your situation")).toBeRequired();
     await userEvent.type(within(learnRow).getByLabelText("Your situation"), "Explaining a stable market to my team");

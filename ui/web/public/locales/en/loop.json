@@ -390,5 +390,94 @@
     "gone": "That result is no longer offered. Reload the page.",
     "weekOneTaken": "Week 1 already has a question."
   },
-  "repeatedRecovery": "Or work through a recovery reset (private)"
+  "repeatedRecovery": "Or work through a recovery reset (private)",
+  "up": {
+    "fiveMinutes": "If you only have five minutes today",
+    "gate": {
+      "phase": "Phase",
+      "gate": "Gate",
+      "now": "now",
+      "open": "Open",
+      "shut": "Shut",
+      "final": "Last phase"
+    },
+    "loop": {
+      "doMinimum": "Do the minimum",
+      "cycle": "Baseline · Minimum task · Evidence · Retest · Transfer",
+      "states": "Your learning states",
+      "noStates": "No goal yet. Start one below: four lines are enough.",
+      "weekColumn": "Week",
+      "week": "Week {{week}}",
+      "open": "Open",
+      "startSummary": "Four lines: the goal, where it is used, the twelve-week outcome, the first task"
+    },
+    "state": {
+      "goal": "Goal",
+      "boundaries": "Constraints and boundaries",
+      "baseline": "Current level and baseline",
+      "noBaseline": "No baseline recorded yet. An evidence card's first unaided attempt is the usual start.",
+      "what": "What",
+      "measure": "Measure",
+      "at": "When",
+      "methods": "Methods that worked",
+      "noMethods": "None confirmed yet. A method counts here once evidence shows it worked.",
+      "method": "Method",
+      "evidence": "Evidence",
+      "claim": "Hypothesis",
+      "handover": "Latest handover",
+      "next": "Next action",
+      "fiveLead": "The smallest version of today, to copy into your notes or a chat.",
+      "fiveEmpty": "Write a next task and its minimum under “Next action”, and the short version will show here.",
+      "interrupted": "Interrupted? Shrink the plan instead of dropping it",
+      "handOver": "Hand over to a new chat, and bring its update back"
+    },
+    "cycle": {
+      "about": "About this cycle",
+      "started": "Started {{date}}",
+      "weekOf": "Week {{week}} of 12",
+      "commitment": "Cycle commitment",
+      "commitmentBody": "Ninety days on one goal, in three phases. Each phase opens only on evidence; the goal's page holds its scenario, outcome and next task.",
+      "gates": "Gates for three phases",
+      "questions": "Twelve weekly questions",
+      "week": "Week",
+      "question": "Question",
+      "capacity": "Capacity",
+      "chain": "Evidence chain",
+      "noChain": "No gate passed yet. Each gate this cycle passes is listed here with the evidence it counted.",
+      "passed_one": "{{count}} weekly review, {{refs}} pieces of evidence",
+      "passed_other": "{{count}} weekly reviews, {{refs}} pieces of evidence",
+      "interruptions": "Interruption and recovery",
+      "noInterruptions": "No interruptions logged on this cycle.",
+      "day90": "Day-ninety review"
+    },
+    "review": {
+      "about": "About this review",
+      "inventory": "Evidence inventory",
+      "source": "Source",
+      "when": "Timepoint",
+      "checks": "Four checks (0–2)",
+      "errors": "Errors and causes",
+      "row": "Row",
+      "energy": "Energy and recovery",
+      "change": "Change one variable",
+      "handover": "Handover"
+    },
+    "chain": {
+      "about": "About this chain",
+      "question": "Question",
+      "handover": "Handover summary",
+      "handoverLead": "The chain as a block to paste into a handover. Only accepted evidence is listed."
+    },
+    "brief": {
+      "about": "About this brief"
+    },
+    "log": {
+      "metric": "Metric"
+    },
+    "card": {
+      "about": "About this card",
+      "field": "Field",
+      "value": "Value"
+    }
+  }
 }

@@ -14,6 +14,10 @@ export const inputBox =
   "w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
+// The input table (I2) stretches every input in a cell to the cell's size;
+// a box or a radio keeps its own, so these win over that rule.
+const tick = "min-h-0! p-0! accent-primary";
+
 type Props = {
   field: WorksheetField;
   id: string;
@@ -104,7 +108,7 @@ function FieldControl({ field, id, value, onChange, options, ariaLabel }: Props)
           type="checkbox"
           checked={value === true}
           onChange={(e) => onChange(e.target.checked)}
-          className="size-5 accent-primary"
+          className={`size-5! ${tick}`}
           {...named}
         />
       );
@@ -122,7 +126,7 @@ function FieldControl({ field, id, value, onChange, options, ariaLabel }: Props)
                 onChange={(e) =>
                   onChange(e.target.checked ? [...chosen, o] : chosen.filter((c) => c !== o))
                 }
-                className="size-4 accent-primary"
+                className={`size-4 ${tick}`}
               />
               {optionLabel(field, o)}
             </label>
@@ -155,7 +159,7 @@ function FieldControl({ field, id, value, onChange, options, ariaLabel }: Props)
                 name={id}
                 checked={value === n}
                 onChange={() => onChange(n)}
-                className="size-4 accent-primary"
+                className={`size-4 ${tick}`}
               />
               <span className="font-mono tabular-nums">{n}</span>
               {labels[n] ? <span className="text-muted-foreground">{labels[n]}</span> : null}
@@ -174,7 +178,7 @@ function FieldControl({ field, id, value, onChange, options, ariaLabel }: Props)
                 name={id}
                 checked={value === b}
                 onChange={() => onChange(b)}
-                className="size-4 accent-primary"
+                className={`size-4 ${tick}`}
               />
               {b ? t("form.yes") : t("form.no")}
             </label>

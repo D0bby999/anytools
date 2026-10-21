@@ -390,5 +390,94 @@
     "gone": "Kết quả đó không còn được đề xuất nữa. Hãy tải lại trang.",
     "weekOneTaken": "Tuần 1 đã có câu hỏi."
   },
-  "repeatedRecovery": "Hoặc làm một lượt phục hồi (riêng tư)"
+  "repeatedRecovery": "Hoặc làm một lượt phục hồi (riêng tư)",
+  "up": {
+    "fiveMinutes": "Nếu hôm nay bạn chỉ có năm phút",
+    "gate": {
+      "phase": "Giai đoạn",
+      "gate": "Cổng",
+      "now": "hiện tại",
+      "open": "Mở",
+      "shut": "Đóng",
+      "final": "Giai đoạn cuối"
+    },
+    "loop": {
+      "doMinimum": "Làm bản tối thiểu",
+      "cycle": "Mốc ban đầu · Việc tối thiểu · Bằng chứng · Kiểm tra lại · Chuyển giao",
+      "states": "Các trạng thái học của bạn",
+      "noStates": "Chưa có mục tiêu nào. Bắt đầu một mục tiêu bên dưới: bốn dòng là đủ.",
+      "weekColumn": "Tuần",
+      "week": "Tuần {{week}}",
+      "open": "Mở",
+      "startSummary": "Bốn dòng: mục tiêu, nơi dùng đến, kết quả sau mười hai tuần, việc đầu tiên"
+    },
+    "state": {
+      "goal": "Mục tiêu",
+      "boundaries": "Ràng buộc và giới hạn",
+      "baseline": "Trình độ hiện tại và mốc ban đầu",
+      "noBaseline": "Chưa ghi mốc ban đầu. Lần thử đầu tiên không trợ giúp trên một thẻ bằng chứng thường là điểm bắt đầu.",
+      "what": "Nội dung",
+      "measure": "Cách đo",
+      "at": "Thời điểm",
+      "methods": "Phương pháp đã hiệu quả",
+      "noMethods": "Chưa có phương pháp nào được xác nhận. Một phương pháp chỉ được ghi ở đây khi có bằng chứng cho thấy nó hiệu quả.",
+      "method": "Phương pháp",
+      "evidence": "Bằng chứng",
+      "claim": "Giả thuyết",
+      "handover": "Bàn giao gần nhất",
+      "next": "Việc tiếp theo",
+      "fiveLead": "Phiên bản nhỏ nhất của hôm nay, để chép vào ghi chú hoặc một cuộc trò chuyện.",
+      "fiveEmpty": "Hãy viết việc tiếp theo và bản tối thiểu của nó ở mục “Việc tiếp theo”, bản ngắn sẽ hiện ở đây.",
+      "interrupted": "Bị gián đoạn? Thu nhỏ kế hoạch thay vì bỏ nó",
+      "handOver": "Bàn giao sang cuộc trò chuyện mới và mang cập nhật về"
+    },
+    "cycle": {
+      "about": "Về chu kỳ này",
+      "started": "Bắt đầu {{date}}",
+      "weekOf": "Tuần {{week}}/12",
+      "commitment": "Cam kết của chu kỳ",
+      "commitmentBody": "Chín mươi ngày cho một mục tiêu, chia ba giai đoạn. Mỗi giai đoạn chỉ mở khi có bằng chứng; trang mục tiêu ghi tình huống, kết quả và việc tiếp theo.",
+      "gates": "Cổng của ba giai đoạn",
+      "questions": "Mười hai câu hỏi hằng tuần",
+      "week": "Tuần",
+      "question": "Câu hỏi",
+      "capacity": "Sức chứa",
+      "chain": "Chuỗi bằng chứng",
+      "noChain": "Chưa qua cổng nào. Mỗi cổng chu kỳ này vượt qua sẽ được liệt kê ở đây cùng bằng chứng đã tính.",
+      "passed_one": "{{count}} lần nhìn lại tuần, {{refs}} bằng chứng",
+      "passed_other": "{{count}} lần nhìn lại tuần, {{refs}} bằng chứng",
+      "interruptions": "Gián đoạn và phục hồi",
+      "noInterruptions": "Chu kỳ này chưa ghi gián đoạn nào.",
+      "day90": "Nhìn lại ngày thứ chín mươi"
+    },
+    "review": {
+      "about": "Về lần nhìn lại này",
+      "inventory": "Kiểm kê bằng chứng",
+      "source": "Nguồn",
+      "when": "Thời điểm",
+      "checks": "Bốn tiêu chí (0–2)",
+      "errors": "Lỗi và nguyên nhân",
+      "row": "Dòng",
+      "energy": "Năng lượng và phục hồi",
+      "change": "Đổi một biến",
+      "handover": "Bàn giao"
+    },
+    "chain": {
+      "about": "Về chuỗi này",
+      "question": "Câu hỏi",
+      "handover": "Tóm tắt bàn giao",
+      "handoverLead": "Chuỗi dưới dạng một khối để dán vào bản bàn giao. Chỉ liệt kê bằng chứng đã chấp nhận."
+    },
+    "brief": {
+      "about": "Về bản giao việc này"
+    },
+    "log": {
+      "metric": "Chỉ số"
+    },
+    "card": {
+      "about": "Về thẻ này",
+      "field": "Trường",
+      "value": "Giá trị"
+    }
+  }
 }

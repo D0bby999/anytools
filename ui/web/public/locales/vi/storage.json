@@ -67,5 +67,8 @@
     "storageOff": "Hãy bật lưu trữ trên Drive trong Cài đặt → Lưu trữ trước.",
     "reconnect": "Hãy kết nối lại Google Drive trong Kết nối trước.",
     "full": "Google Drive của bạn đã đầy."
+  },
+  "up": {
+    "inUse": "Đang dùng"
   }
 }

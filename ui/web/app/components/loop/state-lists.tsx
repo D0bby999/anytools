@@ -2,99 +2,100 @@
  * state-lists.tsx
  * What hangs off a learning state: the hypotheses its reviews wrote back, its
  * cycle, its evidence chains and its AI briefs, each with a one-field "new".
+ *
+ * Each piece is placed by the state's page under its own heading (plan
+ * 261020-2246 phase 12): the hypotheses as a table in the numbered parts,
+ * the cycle, chains and briefs as plain lists after them.
  */
 import { Form, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { StateDetail } from "~/lib/loop-types";
 import { Button } from "~/components/ui/button";
-
-const input = "min-h-11 flex-1 rounded-md border border-control-border bg-card px-3 text-sm";
-const row = "flex min-h-11 items-baseline justify-between gap-x-4 py-3 transition-colors hover:bg-primary-soft";
+import { Field } from "~/components/doc/field";
+import { RefTable } from "~/components/doc/ref-table";
 
 function NewForm({ intent, name, label, submit, busy }: {
   intent: string; name: string; label: string; submit: string; busy: boolean;
 }) {
   return (
-    <Form method="post" className="mt-3 flex flex-wrap gap-2">
+    <Form method="post" className="flex flex-wrap items-end gap-x-3">
       <input type="hidden" name="intent" value={intent} />
-      <input name={name} required aria-label={label} placeholder={label} maxLength={1000} className={input} />
-      <Button type="submit" variant="outline" disabled={busy}>
+      <div className="min-w-60 grow">
+        <Field label={label}>
+          <input name={name} required maxLength={1000} />
+        </Field>
+      </div>
+      <Button type="submit" variant="outline" disabled={busy} className="mb-4">
         {submit}
       </Button>
     </Form>
   );
 }
 
-export function StateLists({ detail, busy }: { detail: StateDetail; busy: boolean }) {
+/** The hypotheses the weekly reviews wrote back, as a table. */
+export function Hypotheses({ state }: { state: StateDetail["state"] }) {
   const { t } = useTranslation("loop");
-  const { state, cycle, chains, briefs } = detail;
+  if (state.hypotheses.length === 0) return <p className="text-muted-foreground">{t("state.noHypotheses")}</p>;
+  return (
+    <RefTable
+      caption={t("state.hypotheses")}
+      columns={[t("up.state.claim"), t("review.errNextTest"), t("review.errStop")]}
+      rows={state.hypotheses.map((h) => [h.claim, h.next_test ?? "", h.stop_condition ?? ""])}
+    />
+  );
+}
+
+/** The state's cycle: a link to it, and a new cycle once this one delivers. */
+export function CycleLinks({ cycle, busy }: { cycle: StateDetail["cycle"]; busy: boolean }) {
+  const { t } = useTranslation("loop");
+  if (!cycle) return null;
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-3">
+      <Link to={`/loop/cycle/${cycle.id}`}>{t("state.openCycle")}</Link>
+      {cycle.phase === "deliver" ? (
+        <Form method="post">
+          <input type="hidden" name="intent" value="newCycle" />
+          <Button type="submit" variant="outline" size="sm" disabled={busy}>
+            {t("state.newCycle")}
+          </Button>
+        </Form>
+      ) : null}
+    </div>
+  );
+}
+
+export function ChainList({ chains, busy }: { chains: StateDetail["chains"]; busy: boolean }) {
+  const { t } = useTranslation("loop");
   return (
     <>
-      <section aria-labelledby="lp-state-hyp" className="mt-10">
-        <h2 id="lp-state-hyp" className="lp-section">
-          {t("state.hypotheses")}
-        </h2>
-        {state.hypotheses.length === 0 ? (
-          <p className="mt-3 lp-empty">{t("state.noHypotheses")}</p>
-        ) : (
-          <ul className="mt-3 border-t">
-            {state.hypotheses.map((h, i) => (
-              <li key={`${h.week ?? 0}-${i}`} className="border-b py-3 text-sm">
-                <p className="font-medium">{h.claim}</p>
-                {h.next_test ? <p className="mt-1 text-muted-foreground">{h.next_test}</p> : null}
-                {h.stop_condition ? <p className="text-muted-foreground">{h.stop_condition}</p> : null}
-              </li>
-            ))}
-          </ul>
-        )}
-        {cycle ? (
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Link to={`/loop/cycle/${cycle.id}`} className="text-sm text-primary underline underline-offset-4">
-              {t("state.openCycle")}
-            </Link>
-            {cycle.phase === "deliver" ? (
-              <Form method="post">
-                <input type="hidden" name="intent" value="newCycle" />
-                <Button type="submit" variant="outline" size="sm" disabled={busy}>
-                  {t("state.newCycle")}
-                </Button>
-              </Form>
-            ) : null}
-          </div>
-        ) : null}
-      </section>
-
-      <section aria-labelledby="lp-state-chains" className="mt-10">
-        <h2 id="lp-state-chains" className="lp-section">
-          {t("chain.title")}
-        </h2>
-        <ul className="mt-3 border-t">
+      {chains.length > 0 ? (
+        <ul>
           {chains.map((c) => (
-            <li key={c.id} className="border-b">
-              <Link to={`/loop/evidence/${c.id}`} className={row}>
-                <span className="text-sm">{c.question}</span>
-              </Link>
+            <li key={c.id}>
+              <Link to={`/loop/evidence/${c.id}`}>{c.question}</Link>
             </li>
           ))}
         </ul>
-        <NewForm intent="newChain" name="question" label={t("chain.question")} submit={t("chain.new")} busy={busy} />
-      </section>
+      ) : null}
+      <NewForm intent="newChain" name="question" label={t("chain.question")} submit={t("chain.new")} busy={busy} />
+    </>
+  );
+}
 
-      <section aria-labelledby="lp-state-briefs" className="mt-10">
-        <h2 id="lp-state-briefs" className="lp-section">
-          {t("brief.title")}
-        </h2>
-        <ul className="mt-3 border-t">
+export function BriefList({ briefs, busy }: { briefs: StateDetail["briefs"]; busy: boolean }) {
+  const { t } = useTranslation("loop");
+  return (
+    <>
+      {briefs.length > 0 ? (
+        <ul>
           {briefs.map((b) => (
-            <li key={b.id} className="border-b">
-              <Link to={`/loop/brief/${b.id}`} className={row}>
-                <span className="text-sm">{b.task}</span>
-              </Link>
+            <li key={b.id}>
+              <Link to={`/loop/brief/${b.id}`}>{b.task}</Link>
             </li>
           ))}
         </ul>
-        <NewForm intent="newBrief" name="task" label={t("brief.task")} submit={t("brief.new")} busy={busy} />
-      </section>
+      ) : null}
+      <NewForm intent="newBrief" name="task" label={t("brief.task")} submit={t("brief.new")} busy={busy} />
     </>
   );
 }

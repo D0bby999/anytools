@@ -2,8 +2,14 @@
  * loop.evidence.$id.tsx
  * One evidence chain: a single question followed through four timepoints,
  * with what was seen kept apart from what it is taken to mean.
+ *
+ * Laid out as up's Evidence Chain Template (plan 261020-2246 phase 12): the
+ * question, the four timepoints as one table, the fact / interpretation /
+ * hypothesis split as a three-column input table, and the chain as a block
+ * to copy into a handover. The template's "Next step" is left out: a chain
+ * has no field for it.
  */
-import { Form, Link, useNavigation } from "react-router";
+import { Form, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.evidence.$id";
 import { appTitle } from "~/lib/app-title";
@@ -18,6 +24,11 @@ import { ChainColumns } from "~/components/loop/chain-columns";
 import { Metric } from "~/components/loop/metric";
 import { SuggestionRow } from "~/components/loop/suggestion-row";
 import { PageHeader } from "~/components/ui/page-header";
+import { BookMeta } from "~/components/doc/book-meta";
+import { CodeBlock } from "~/components/doc/code-block";
+import { NumberedSection } from "~/components/doc/numbered-section";
+import { useTimepointLabels } from "~/components/loop/timepoint-select";
+import { ScrollBox } from "~/components/doc/scroll-box";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Evidence chain", "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
@@ -64,65 +75,100 @@ export async function action({ request, params }: Route.ActionArgs) {
 export default function LoopChain({ loaderData, actionData }: Route.ComponentProps) {
   const { t } = useTranslation("loop");
   const busy = useNavigation().state === "submitting";
+  const tps = useTimepointLabels();
   const { chain, recent } = loaderData;
   const filled = chain.columns.filter((c) => c.refs.some((r) => r.status === "accepted")).length;
-  const box = "mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm";
+  // The chain as a block to paste into a handover: only accepted evidence counts.
+  const summary = [
+    `## ${chain.question}`,
+    ...chain.columns.map((c) => {
+      const kept = c.refs.filter((r) => r.status === "accepted").map((r) => r.target?.label ?? t("evidence.gone"));
+      return `- ${tps[c.timepoint]}: ${kept.length ? kept.join("; ") : "—"}`;
+    }),
+    `- ${t("chainPage.fact")}: ${chain.split.fact || "—"}`,
+    `- ${t("chainPage.interpretation")}: ${chain.split.interpretation || "—"}`,
+    `- ${t("chainPage.hypothesis")}: ${chain.split.hypothesis || "—"}`,
+  ].join("\n");
 
   return (
     <div>
-      <div className="lp-measure">
-        <PageHeader title={chain.question} />
-        <Link to={`/loop/state/${chain.state_id}`} className="text-sm text-primary underline underline-offset-4">
-          {t("cycle.backToGoal")}
-        </Link>
-        <ActionError result={actionData} />
-        <Metric className="mt-6" label={t("chainPage.filled")} value={`${filled}/4`} cannotProve={chain.cannot_prove} />
-      </div>
+      <PageHeader title={chain.question} className="mb-0" />
+      <BookMeta label={t("up.chain.about")} items={[{ label: t("cycle.backToGoal"), to: `/loop/state/${chain.state_id}` }]} />
+      <ActionError result={actionData} />
 
-      <section aria-labelledby="lp-chain-cols" className="mt-8">
-        <h2 id="lp-chain-cols" className="lp-section">
-          {t("chainPage.timeline")}
-        </h2>
-        <ChainColumns chain={chain} />
-      </section>
+      <div className="lp-doc">
+        <NumberedSection n={1} title={t("up.chain.question")} id="lp-chain-question">
+          <p>{chain.question}</p>
+          <Metric label={t("chainPage.filled")} value={`${filled}/4`} cannotProve={chain.cannot_prove} />
+        </NumberedSection>
 
-      <div className="lp-measure">
-        <section aria-labelledby="lp-chain-add" className="mt-10">
-          <h2 id="lp-chain-add" className="lp-section">
-            {t("chainPage.add")}
-          </h2>
-          {recent.length === 0 ? <p className="mt-3 lp-empty">{t("review.noSuggestions")}</p> : null}
-          <ul className="mt-3 border-t">
-            {recent.map((c) => (
-              <SuggestionRow key={`${c.kind}:${c.ref_id}`} item={c} />
-            ))}
-          </ul>
-        </section>
+        <NumberedSection n={2} title={t("chainPage.timeline")} id="lp-chain-cols">
+          <ChainColumns chain={chain} />
+        </NumberedSection>
 
-        <section aria-labelledby="lp-chain-split" className="mt-10">
-          <h2 id="lp-chain-split" className="lp-section">
-            {t("chainPage.split")}
-          </h2>
-          <Form method="post" className="mt-3 space-y-3">
+        <NumberedSection n={3} title={t("chainPage.add")} id="lp-chain-add">
+          {recent.length === 0 ? (
+            <p className="text-muted-foreground">{t("review.noSuggestions")}</p>
+          ) : (
+            <ul>
+              {recent.map((c) => (
+                <SuggestionRow key={`${c.kind}:${c.ref_id}`} item={c} />
+              ))}
+            </ul>
+          )}
+        </NumberedSection>
+
+        <NumberedSection n={4} title={t("chainPage.split")} id="lp-chain-split">
+          <Form method="post">
             <input type="hidden" name="intent" value="split" />
             <input type="hidden" name="question" value={chain.question} />
-            <label className="block text-sm font-medium">
-              {t("chainPage.fact")}
-              <textarea name="fact" rows={2} defaultValue={chain.split.fact} className={box} />
-            </label>
-            <label className="block text-sm font-medium">
-              {t("chainPage.interpretation")}
-              <textarea name="interpretation" rows={2} defaultValue={chain.split.interpretation} className={box} />
-            </label>
-            <label className="block text-sm font-medium">
-              {t("chainPage.hypothesis")}
-              <textarea name="hypothesis" rows={2} defaultValue={chain.split.hypothesis} className={box} />
-            </label>
+            <div className="lp-field-table">
+              <ScrollBox>
+                <table className="min-w-[36rem]">
+                  <caption className="sr-only">{t("chainPage.split")}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{t("chainPage.fact")}</th>
+                      <th scope="col">{t("chainPage.interpretation")}</th>
+                      <th scope="col">{t("chainPage.hypothesis")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <textarea name="fact" rows={4} aria-label={t("chainPage.fact")} defaultValue={chain.split.fact} />
+                      </td>
+                      <td>
+                        <textarea
+                          name="interpretation"
+                          rows={4}
+                          aria-label={t("chainPage.interpretation")}
+                          defaultValue={chain.split.interpretation}
+                        />
+                      </td>
+                      <td>
+                        <textarea
+                          name="hypothesis"
+                          rows={4}
+                          aria-label={t("chainPage.hypothesis")}
+                          defaultValue={chain.split.hypothesis}
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </ScrollBox>
+            </div>
             <Button type="submit" variant="outline" disabled={busy}>
               {t("state.save")}
             </Button>
           </Form>
-        </section>
+        </NumberedSection>
+
+        <NumberedSection n={5} title={t("up.chain.handover")} id="lp-chain-handover">
+          <p className="text-muted-foreground">{t("up.chain.handoverLead")}</p>
+          <CodeBlock code={summary} lang="md" />
+        </NumberedSection>
       </div>
     </div>
   );

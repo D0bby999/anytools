@@ -20,6 +20,11 @@ import { DeckLibrary, DeckList } from "~/components/vocab/decks";
 import en from "~/data/decks/ultimate-geography-en.json";
 import es from "~/data/decks/ultimate-geography-es.json";
 import pt from "~/data/decks/ultimate-geography-pt.json";
+import flagsEn from "~/data/decks/ultimate-geography-flags-en.json";
+import flagsEs from "~/data/decks/ultimate-geography-flags-es.json";
+import mapsPt from "~/data/decks/ultimate-geography-maps-pt.json";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 let SQL: SqlJsStatic;
 beforeAll(async () => {
@@ -101,7 +106,26 @@ describe("the bundled decks", () => {
       expect(new Set(d.cards.map((c) => c.front)).size).toBe(d.cards.length);
     }
     expect(es.cards[0]).toEqual({ front: "Inglaterra: ¿capital?", back: "Londres" });
-    expect(LIBRARY.filter((d) => d.bundled).every((d) => d.licence === "public-domain" || d.licence === "cc-by")).toBe(true);
+    expect(LIBRARY.filter((d) => d.bundled).every((d) => ["public-domain", "cc-by", "free-pictures"].includes(d.licence))).toBe(true);
+  });
+
+  it("show a staged picture on each flag and map card, credited", () => {
+    // The pictures are staged by `pnpm build` (scripts/stage-tool-runtime.mjs);
+    // where they are, every card's file must be among them.
+    const staged = existsSync(join(process.cwd(), "tool-runtime", "ultimate-geography-media@5.3"));
+    for (const d of [flagsEn, flagsEs, mapsPt]) {
+      expect(d.cards.length).toBe(LIBRARY.find((l) => l.slug === d.slug)?.cards);
+      for (const c of d.cards) {
+        expect(c.image.src).toMatch(/^ultimate-geography-media@5\.3\/ug-(flag|map)-[a-z0-9_-]+\.(svg|png)$/);
+        if (staged) expect(existsSync(join(process.cwd(), "tool-runtime", c.image.src)), c.image.src).toBe(true);
+        expect(c.image.source).toMatch(/^https:\/\//);
+        expect(["PD", "CC0 1.0", "CC BY 3.0", "CC BY-SA 2.5", "CC BY-SA 3.0", "CC BY-SA 4.0"]).toContain(c.image.licence);
+        expect(c.back.length).toBeLessThanOrEqual(MAX_BACK);
+      }
+      // One card per picture: they all ask the same question.
+      expect(new Set(d.cards.map((c) => c.image.src)).size).toBe(d.cards.length);
+    }
+    expect(flagsEn.cards.find((c) => c.image.src.endsWith("ug-flag-france.svg"))?.back).toMatch(/^France/);
   });
 });
 
@@ -117,7 +141,7 @@ describe("the library", () => {
   it("adds a free deck in one tap and links the others with their licence", async () => {
     const posts: Record<string, string>[] = [];
     inRouter(<DeckLibrary decks={[]} />, posts);
-    const geo = screen.getByRole("heading", { name: /Ultimate Geography/ }).closest("li")!;
+    const geo = screen.getByRole("heading", { name: /^Ultimate Geography \(/ }).closest("li")!;
     expect(within(geo).getByText(/436 cards · Public domain/)).toBeInTheDocument();
     await userEvent.click(within(geo).getByRole("button", { name: "Add Ultimate Geography (English)" }));
     expect(posts[0]).toEqual({ intent: "library", slug: "ultimate-geography-en" });
@@ -127,9 +151,19 @@ describe("the library", () => {
     expect(within(jlpt).queryByRole("button", { name: /^Add/ })).toBeNull();
   });
 
+  it("says how many cards were left out when the decks are full", async () => {
+    const router = createMemoryRouter(
+      [{ path: "/", element: <DeckLibrary decks={[]} />, action: () => ({ added: { name: "Ultimate Geography", created: 30, over_limit: 406 } }) }],
+      { initialEntries: ["/"] },
+    );
+    render(<RouterProvider router={router} />);
+    await userEvent.click(screen.getByRole("button", { name: "Add Ultimate Geography (English)" }));
+    expect(await screen.findByText(/406 cards were not added: your decks hold at most 50,000 cards in all/)).toBeInTheDocument();
+  });
+
   it("says a deck already added, and offers Ultimate Geography in another language", async () => {
     inRouter(<DeckLibrary decks={[{ id: "d", name: "UG", source: "library:ultimate-geography-en", licence: "", source_url: "", cards: 438, due: 0, new: 438 }]} />);
-    const geo = screen.getByRole("heading", { name: /Ultimate Geography/ }).closest("li")!;
+    const geo = screen.getByRole("heading", { name: /^Ultimate Geography \(/ }).closest("li")!;
     expect(within(geo).getByText("Added")).toBeInTheDocument();
     await userEvent.selectOptions(within(geo).getByLabelText("Language"), "es");
     expect(screen.getByRole("button", { name: "Add Ultimate Geography (Spanish)" })).toBeInTheDocument();
@@ -156,5 +190,24 @@ describe("a field's text", () => {
   it("leaves an entity outside Unicode as written instead of failing the deck", async () => {
     const { fieldText } = await import("~/lib/anki/read");
     expect(fieldText("a &#99999999; b &#x41;")).toBe("a &#99999999; b A");
+  });
+});
+
+describe("a card with a picture", () => {
+  it("shows the picture without naming it, then the answer with the picture's credit", async () => {
+    const { ReviewSession } = await import("~/components/vocab/review-session");
+    const card = {
+      id: "c1", kind: "card" as const, due_at: "2026-10-21T00:00:00Z", reps: 0, term: "", lang: "", reading: "", pos: "", meaning: "", context: "",
+      front: "Whose flag is this?", back: "France", deck: { id: "d", name: "Ultimate Geography: flags" },
+      image: { src: "ultimate-geography-media@5.3/ug-flag-france.svg", source: "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg", licence: "PD" },
+    };
+    inRouter(<ReviewSession cards={[card]} total={1} />);
+    const img = screen.getByRole("img", { name: /The picture to name/ });
+    expect(img).toHaveAttribute("src", "/tool-runtime/ultimate-geography-media@5.3/ug-flag-france.svg");
+    expect(screen.queryByText("France")).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Show the answer" }));
+    expect(screen.getByText("France")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "commons.wikimedia.org" })).toHaveAttribute("href", card.image.source);
+    expect(screen.getByText(/public domain/)).toBeInTheDocument();
   });
 });

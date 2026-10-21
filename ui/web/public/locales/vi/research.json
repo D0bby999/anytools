@@ -53,7 +53,13 @@
     "saved": "Đã lưu vào sổ ghi chép của bạn.",
     "back": "Mọi nghiên cứu",
     "engineKeyless": "Đã tìm trên web qua DuckDuckGo (không có khóa tìm kiếm).",
-    "rounds": "Đã tìm trong {{count}} vòng"
+    "rounds": "Đã tìm trong {{count}} vòng",
+    "atAGlance": "Tóm tắt nhanh",
+    "meta": "Thông tin báo cáo",
+    "sourcesCount": "{{count}} nguồn",
+    "sourcesCount_other": "{{count}} nguồn",
+    "words": "{{count}} từ",
+    "words_other": "{{count}} từ"
   },
   "list": {
     "title": "Báo cáo trước đây",
@@ -77,7 +83,12 @@
       "unsupported": "Không có trong nguồn",
       "uncited": "Không có nguồn"
     },
-    "all": "Cả {{count}} khẳng định đã kiểm tra"
+    "all": "Cả {{count}} khẳng định đã kiểm tra",
+    "columns": {
+      "claim": "Khẳng định",
+      "source": "Nguồn",
+      "verdict": "Kết luận"
+    }
   },
   "open": {
     "title": "Đáng nghiên cứu tiếp",
@@ -99,5 +110,11 @@
     "chat": "Hỏi về nó",
     "noKbs": "Bạn chưa có kho tài liệu nào.",
     "createKb": "Tạo một kho"
+  },
+  "question": {
+    "title": "Câu hỏi"
+  },
+  "running": {
+    "title": "Đang chạy"
   }
 }

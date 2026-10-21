@@ -1,3 +1,7 @@
+import { Field } from "~/components/doc/field";
+import { ChoiceRow } from "~/components/doc/choice-row";
+import { Badge } from "~/components/doc/badge";
+import { BookMeta } from "~/components/doc/book-meta";
 import { useEffect, useId, useState } from "react";
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -72,13 +76,14 @@ export function ExamSheet({ exam }: { exam: ExamView }) {
 
   return (
     <div>
-      <div className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 border-b bg-background px-4 py-2 sm:mx-0 sm:px-0">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         {exam.deadline_at ? <ExamTimer deadline={exam.deadline_at} serverNow={exam.server_now} /> : <span />}
         <p role="status" className="text-xs text-muted-foreground">
           {partial ? t("exams.take.locked") : saveState}
         </p>
       </div>
 
+      <BookMeta label={t("exams.take.leftLabel")} items={[{ label: t("practise.questions", { count: exam.items.length }) }, { label: t("practise.maxScore", { count: exam.items.reduce((sum, item) => sum + item.points, 0) }) }]} />
       {partial ? (
         <p role="alert" className="mt-4 text-sm leading-prose text-warning">
           {t("exams.take.partial", { marked: exam.marked, total: exam.item_count })}
@@ -122,50 +127,20 @@ function SheetItem({
   const { t } = useTranslation("study");
   const ids = useId();
   const q = item.question;
-  const radio =
-    "flex min-h-11 cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 text-sm " +
-    "has-[:checked]:border-primary has-[:checked]:bg-primary-soft";
 
   return (
     <fieldset disabled={disabled} aria-labelledby={`${ids}-q`}>
-      <p className="text-xs font-semibold text-faint">
-        {t("exams.take.item", { number: item.number, count: item.points })}
-      </p>
+      <h2 className="text-lg font-semibold">
+        {t("exams.take.item", { number: item.number, count: item.points })} <Badge>{t(`types.${q.type}`)}</Badge>
+      </h2>
       <div id={`${ids}-q`} className="mt-2 font-serif text-lg leading-snug">
         <RichText text={q.prompt} sources={[]} />
       </div>
-      {q.type === "mcq" ? (
-        <div role="radiogroup" aria-labelledby={`${ids}-q`} className="mt-3 space-y-2">
-          {q.options.map((o) => (
-            <label key={o.label} className={radio}>
-              <input
-                type="radio"
-                name={`${ids}-answer`}
-                value={o.label}
-                checked={value === o.label}
-                onChange={() => onChange(o.label)}
-                className="mt-1"
-              />
-              <span>
-                <span className="font-mono text-xs font-semibold">{o.label}.</span> {o.body}
-              </span>
-            </label>
-          ))}
-        </div>
-      ) : q.type === "tf" ? (
-        <div role="radiogroup" aria-labelledby={`${ids}-q`} className="mt-3 flex flex-wrap gap-2">
-          {(["true", "false"] as const).map((v) => (
-            <label key={v} className={radio}>
-              <input type="radio" name={`${ids}-answer`} value={v} checked={value === v} onChange={() => onChange(v)} className="mt-1" />
-              {v === "true" ? t("card.true") : t("card.false")}
-            </label>
-          ))}
-        </div>
+      {q.type === "mcq" || q.type === "tf" ? (
+        <ChoiceRow label={q.prompt} value={value} onChange={onChange} disabled={disabled}
+          choices={q.type === "mcq" ? q.options.map((o) => ({ id: o.label, label: `${o.label}. ${o.body}` })) : [{ id: "true", label: t("card.true") }, { id: "false", label: t("card.false") }]} />
       ) : q.type === "cloze" ? (
-        <>
-          <label htmlFor={`${ids}-a`} className="sr-only">
-            {t("card.yourAnswer")}
-          </label>
+        <Field label={t("card.yourAnswer")}>
           <input
             id={`${ids}-a`}
             value={value}
@@ -174,12 +149,9 @@ function SheetItem({
             onChange={(e) => onChange(e.target.value)}
             className={`${input} min-h-11`}
           />
-        </>
+        </Field>
       ) : (
-        <>
-          <label htmlFor={`${ids}-a`} className="sr-only">
-            {t("card.yourAnswer")}
-          </label>
+        <Field label={t("card.yourAnswer")}>
           <textarea
             id={`${ids}-a`}
             value={value}
@@ -188,7 +160,7 @@ function SheetItem({
             onChange={(e) => onChange(e.target.value)}
             className={`${input} py-2 leading-prose`}
           />
-        </>
+        </Field>
       )}
     </fieldset>
   );

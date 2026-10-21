@@ -67,9 +67,12 @@ type Judgement struct {
 	// the points awarded, and what each criterion earned.
 	Score    *float64          `json:"score,omitempty"`
 	Criteria []CriterionResult `json:"criteria,omitempty"`
-	// Almost is a maths answer equal to the recorded one but not in the form
-	// the question asks for: right, and scheduled as Hard.
-	Almost bool `json:"almost,omitempty"`
+	// Almost is a maths answer equal to the recorded one but not as the
+	// question asks: right, and scheduled as Hard. AlmostWhy says how:
+	// "form" (not simplified, factorised or expanded as asked), "unit" (in
+	// another unit than the one the question names) or "no_unit".
+	Almost    bool   `json:"almost,omitempty"`
+	AlmostWhy string `json:"almost_why,omitempty"`
 	// Tests are a code attempt's results, as the browser ran them.
 	Tests []TestResult `json:"tests,omitempty"`
 }
@@ -286,8 +289,18 @@ func (s *Service) judge(ctx context.Context, userID uuid.UUID, q Question, answe
 			return Judgement{Correct: true, Mode: JudgeModeMath}, nil
 		case mathcheck.Almost:
 			return Judgement{
-				Correct: true, Mode: JudgeModeMath, Almost: true,
+				Correct: true, Mode: JudgeModeMath, Almost: true, AlmostWhy: "form",
 				Reason: "Equal to the answer, but not in the form the question asks for.",
+			}, nil
+		case mathcheck.AlmostUnit:
+			return Judgement{
+				Correct: true, Mode: JudgeModeMath, Almost: true, AlmostWhy: "unit",
+				Reason: "Equal to the answer, but not in the unit the question asks for.",
+			}, nil
+		case mathcheck.MissingUnit:
+			return Judgement{
+				Correct: true, Mode: JudgeModeMath, Almost: true, AlmostWhy: "no_unit",
+				Reason: "The number is right, but the unit is missing.",
 			}, nil
 		case mathcheck.Wrong:
 			return Judgement{

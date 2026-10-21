@@ -14,13 +14,15 @@
  * And "write my own version first" (up-methods phase 11): with it on, Solve
  * and chat ask for three lines before sending.
  */
+import { Field } from "~/components/doc/field";
+import { LanguageChoice } from "~/components/settings/language-choice";
 import { useEffect, useState } from "react";
 import { Form, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.account";
 import { requireUser } from "~/lib/auth.server";
 import { ApiError, apiFetch } from "~/lib/api.server";
-import { isSupportedLng, supportedLngs, type SupportedLng } from "~/lib/i18n";
+import { isSupportedLng, type SupportedLng } from "~/lib/i18n";
 import { destroySession, getSession } from "~/lib/session.server";
 import { invalidateWatermark } from "~/lib/session-watermark.server";
 import { Button } from "~/components/ui/button";
@@ -84,7 +86,9 @@ export async function action({ request }: Route.ActionArgs): Promise<ActionResul
       throw error;
     }
   }
-  const typed = String(form.get("confirm") ?? "").trim().toLowerCase();
+  const typed = String(form.get("confirm") ?? "")
+    .trim()
+    .toLowerCase();
   if (typed !== user.email.toLowerCase()) {
     return { errorKey: "settings.account.mismatch", errorDetail: "" };
   }
@@ -122,7 +126,7 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
     <div className="mt-8 space-y-10">
       <section aria-labelledby="lp-account-who">
         <h2 id="lp-account-who" className="lp-section">
-          {t("settings.account.signedIn")}
+          1. {t("settings.connections.name")}
         </h2>
         <p className="mt-3 text-sm">
           {loaderData.displayName ? `${loaderData.displayName} · ` : ""}
@@ -130,54 +134,40 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
         </p>
       </section>
 
-      <section aria-labelledby="lp-account-language" className="border-t pt-6">
+      <section aria-labelledby="lp-account-language">
         <h2 id="lp-account-language" className="lp-section">
-          {t("settings.account.languageTitle")}
+          2. {t("settings.account.languageTitle")}
         </h2>
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("settings.account.languageBody")}</p>
         <Form method="post" reloadDocument className="mt-4 flex flex-wrap items-end gap-3">
           <input type="hidden" name="intent" value="language" />
-          <label className="flex flex-col gap-1.5 text-sm font-medium">
-            {t("settings.account.languageLabel")}
-            <select
-              name="language"
-              defaultValue={loaderData.language}
-              className="min-h-11 min-w-48 rounded-md border border-control-border bg-card px-3 text-sm"
-            >
-              {supportedLngs.map((l) => (
-                <option key={l} value={l} lang={l}>
-                  {LANGUAGE_NAMES[l]}
-                </option>
-              ))}
-            </select>
-          </label>
+          <LanguageChoice language={loaderData.language} names={LANGUAGE_NAMES} label={t("settings.account.languageLabel")} />
           <Button type="submit" variant="outline">
             {t("settings.account.languageSave")}
           </Button>
         </Form>
       </section>
 
-      <section aria-labelledby="lp-account-zone" className="border-t pt-6">
+      <section aria-labelledby="lp-account-zone">
         <h2 id="lp-account-zone" className="lp-section">
-          {t("settings.account.zoneTitle")}
+          3. {t("settings.account.zoneTitle")}
         </h2>
         <p className="mt-3 text-sm leading-prose text-muted-foreground">{t("settings.account.zoneBody")}</p>
         <Form method="post" className="mt-4 space-y-3">
           <input type="hidden" name="intent" value="timezone" />
           <div>
-            <label htmlFor="lp-account-zone-input" className="block text-sm font-medium">
-              {t("settings.account.zoneLabel")}
-            </label>
-            <input
-              id="lp-account-zone-input"
-              name="timezone"
-              list="lp-account-zone-list"
-              required
-              autoComplete="off"
-              spellCheck={false}
-              defaultValue={loaderData.timezone}
-              className="mt-1 min-h-11 w-full max-w-sm rounded-md border border-control-border bg-card px-3 text-sm"
-            />
+            <Field label={t("settings.account.zoneLabel")}>
+              <input
+                id="lp-account-zone-input"
+                name="timezone"
+                list="lp-account-zone-list"
+                required
+                autoComplete="off"
+                spellCheck={false}
+                defaultValue={loaderData.timezone}
+                className="mt-1 min-h-11 w-full max-w-sm rounded-md border border-control-border bg-card px-3 text-sm"
+              />
+            </Field>
             <datalist id="lp-account-zone-list">
               {zones.map((z) => (
                 <option key={z} value={z} />
@@ -207,7 +197,13 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
         failed={ownResult?.errorKey ? ownResult.errorDetail || " " : ""}
       />
 
-      <section aria-labelledby="lp-account-delete" className="border-t pt-6">
+      <Form method="post" action="/auth/logout">
+        <Button type="submit" variant="outline">
+          {t("actions.signOut")}
+        </Button>
+      </Form>
+
+      <section aria-labelledby="lp-account-delete">
         <h2 id="lp-account-delete" className="lp-section">
           {t("settings.account.deleteTitle")}
         </h2>

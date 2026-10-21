@@ -224,7 +224,7 @@ function LanguageAndWrite({
         <select
           value={selected}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-11 rounded-md border border-control-border bg-card px-3"
+          className="h-10 rounded-sm border border-control-border bg-card px-3 hover:border-primary focus-visible:border-primary focus-visible:outline-none"
         >
           {languages.map((l) => (
             <option key={l} value={l}>

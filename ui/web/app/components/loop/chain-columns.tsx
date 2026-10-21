@@ -1,35 +1,41 @@
 /**
  * chain-columns.tsx
  * An evidence chain's four timepoints side by side: where it started, right
- * after, days later, somewhere new. Four columns from `md` up, stacked in the
- * same order below it, so the reading order is the timeline on every screen.
+ * after, days later, somewhere new. A table of four columns (plan 261020-2246
+ * phase 12, up's Evidence Chain Template), so the reading order is the
+ * timeline; on a narrow screen it scrolls inside its own box.
  */
 import { useTranslation } from "react-i18next";
 import type { ChainDetail } from "~/lib/loop-types";
-import { EvidenceRow } from "~/components/loop/evidence-row";
+import { RefTable } from "~/components/doc/ref-table";
+import { EvidenceLabel } from "~/components/loop/evidence-row";
 import { useTimepointLabels } from "~/components/loop/timepoint-select";
 
 export function ChainColumns({ chain }: { chain: ChainDetail }) {
   const { t } = useTranslation("loop");
   const labels = useTimepointLabels();
   return (
-    <div className="mt-3 grid gap-6 md:grid-cols-4 md:gap-4">
-      {chain.columns.map((col) => (
-        <section key={col.timepoint} aria-labelledby={`lp-col-${col.timepoint}`}>
-          <h3 id={`lp-col-${col.timepoint}`} className="lp-section border-b pb-2">
-            {labels[col.timepoint]}
-          </h3>
-          {col.refs.length === 0 ? (
-            <p className="mt-2 text-xs text-faint">{t("chainPage.emptyColumn")}</p>
+    <RefTable
+      caption={t("chainPage.timeline")}
+      rowHeaders={false}
+      columns={chain.columns.map((col) => labels[col.timepoint])}
+      rows={[
+        chain.columns.map((col) =>
+          col.refs.length === 0 ? (
+            <span key={col.timepoint} className="text-muted-foreground">
+              {t("chainPage.emptyColumn")}
+            </span>
           ) : (
-            <ul>
+            <ul key={col.timepoint} className="m-0! pl-5">
               {col.refs.map((r) => (
-                <EvidenceRow key={r.id} item={r} editable={false} />
+                <li key={r.id}>
+                  <EvidenceLabel item={r} />
+                </li>
               ))}
             </ul>
-          )}
-        </section>
-      ))}
-    </div>
+          ),
+        ),
+      ]}
+    />
   );
 }

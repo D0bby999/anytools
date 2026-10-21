@@ -8,6 +8,9 @@
  */
 
 /** Offered first in the picker, in this order. */
+/** vocab.MaxStudied: the most languages a learner studies at once. */
+export const MAX_STUDIED = 20;
+
 export const COMMON_LANGUAGES = ["en", "zh", "ja", "ko", "fr", "de", "es", "pt", "it", "ru", "vi"] as const;
 
 /** Every ISO 639-1 code: the picker's search. */

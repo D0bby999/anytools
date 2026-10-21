@@ -7,8 +7,8 @@
 import type { Route } from "./+types/tool-runtime.$";
 import { RUNTIME_ROOT, runtimeFile } from "~/lib/tools/runtime-files.server";
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const file = await runtimeFile(RUNTIME_ROOT, `${params.pkg}/${params["*"] ?? ""}`);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const file = await runtimeFile(RUNTIME_ROOT, `${params.pkg}/${params["*"] ?? ""}`, request.headers.get("Accept-Encoding"), request.method);
   if (!file) throw new Response("Not found", { status: 404 });
   return file;
 }

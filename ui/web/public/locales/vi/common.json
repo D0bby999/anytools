@@ -19,7 +19,51 @@
     "loop": "Vòng học",
     "comingSoon": "Chưa có",
     "more": "Thêm",
-    "languages": "Ngoại ngữ"
+    "languages": "Ngoại ngữ",
+    "groups": {
+      "start": "Bắt đầu",
+      "read": "Phần I · Đọc",
+      "ask": "Phần II · Hỏi",
+      "practise": "Phần III · Luyện",
+      "reflect": "Phần IV · Suy ngẫm",
+      "settings": "Cài đặt",
+      "appendix": "Phụ lục"
+    },
+    "pages": {
+      "quizBank": "Ngân hàng câu hỏi",
+      "quizPractice": "Luyện tập",
+      "quizExams": "Đề thi",
+      "masteryReview": "Ôn lại",
+      "masteryVocabulary": "Từ vựng",
+      "masteryBookCards": "Thẻ sách",
+      "masteryDecks": "Bộ thẻ",
+      "bodyPlan": "Kế hoạch",
+      "bodyProgress": "Tiến độ",
+      "bodyCoach": "Huấn luyện viên",
+      "bodyLibrary": "Thư viện bài tập",
+      "toolkit": "Bộ công cụ",
+      "settingsConnections": "Kết nối",
+      "settingsRoutes": "Định tuyến",
+      "settingsSearch": "Tìm kiếm",
+      "settingsAccount": "Tài khoản",
+      "settingsProfile": "Hồ sơ",
+      "settingsStorage": "Lưu trữ",
+      "settingsReminders": "Nhắc nhở",
+      "freeTools": "Công cụ miễn phí",
+      "anyProfile": "AnyProfile"
+    },
+    "search": "Tìm kiếm",
+    "searchShortcut": "Mở tìm kiếm bằng {{keys}}",
+    "menu": "Menu",
+    "appearance": "Giao diện",
+    "language": "Ngôn ngữ",
+    "changeLanguage": "Đổi ngôn ngữ",
+    "mobileNavigation": "Điều hướng trên điện thoại",
+    "extraNavigation": "Điều hướng thêm",
+    "mainNavigation": "Điều hướng chính",
+    "sidebarNavigation": "Điều hướng thanh bên",
+    "toggleSection": "Mở hoặc thu gọn {{section}}",
+    "account": "Tài khoản"
   },
   "actions": {
     "signOut": "Đăng xuất",
@@ -112,6 +156,73 @@
       "warnBody": "Những phần này vẫn chạy, nhưng chưa tốt bằng mức có thể.",
       "go": "Sửa trong Cài đặt",
       "unknownTitle": "Chưa kiểm tra được tài khoản AI của bạn"
+    },
+    "up": {
+      "greeting": "Chào mừng bạn trở lại, {{name}}.",
+      "nextStep": "Bước tiếp theo",
+      "cycle": "Đọc · Hỏi · Luyện · Suy ngẫm",
+      "task": "Việc",
+      "count": "Số lượng",
+      "open": "Mở",
+      "facts": "Tổng quan việc học",
+      "entry": "Chọn điểm bắt đầu",
+      "situation": "Tình huống",
+      "start": "Bắt đầu tại đây",
+      "keep": "Kết quả nên giữ",
+      "setup": "Hoàn tất thiết lập",
+      "entries": {
+        "read": {
+          "situation": "Tôi có tài liệu muốn đọc.",
+          "keep": "Một nguồn và một ghi chú hữu ích."
+        },
+        "ask": {
+          "situation": "Tôi có câu hỏi.",
+          "keep": "Câu trả lời có căn cứ."
+        },
+        "practise": {
+          "situation": "Tôi muốn ghi nhớ.",
+          "keep": "Một câu trả lời đã kiểm tra và lịch ôn."
+        },
+        "reflect": {
+          "situation": "Tôi cần bước tiếp theo.",
+          "keep": "Một việc nhỏ có thể lặp lại."
+        }
+      },
+      "descriptions": {
+        "home": "Xem bước tiếp theo và những việc đến hạn hôm nay.",
+        "knowledge": "Thu thập nguồn và đọc trong ngữ cảnh.",
+        "notebooks": "Lưu ghi chú để quay lại sau.",
+        "chat": "Đặt câu hỏi dựa trên nguồn của bạn.",
+        "solve": "Giải quyết vấn đề từng bước.",
+        "research": "Tìm hiểu chủ đề và lưu bằng chứng.",
+        "quiz": "Kiểm tra mức độ hiểu bằng câu hỏi.",
+        "quizBank": "Xem và sắp xếp các câu hỏi.",
+        "quizPractice": "Quay lại lỗi sai và thử lần nữa.",
+        "quizExams": "Luyện tập trong điều kiện thi.",
+        "mastery": "Xây dựng hiểu biết bằng ôn tập ngắt quãng.",
+        "masteryReview": "Ôn các điểm đến hạn trên nhiều lộ trình.",
+        "masteryVocabulary": "Ôn những từ bạn đang học.",
+        "masteryBookCards": "Ôn lại thẻ từ sách của bạn.",
+        "masteryDecks": "Học các thẻ được sắp theo bộ.",
+        "languages": "Chọn một ngôn ngữ để luyện tập.",
+        "body": "Dành thời gian vận động bên cạnh việc học.",
+        "bodyPlan": "Sắp xếp các lịch tập của bạn.",
+        "bodyProgress": "Xem tiến bộ trong quá trình tập luyện.",
+        "bodyCoach": "Nhận hỗ trợ cho việc tập luyện.",
+        "bodyLibrary": "Xem các bài tập cho lịch tập của bạn.",
+        "loop": "Chọn mục tiêu và giữ bước tiếp theo thật nhỏ.",
+        "toolkit": "Dùng phiếu bài tập để suy nghĩ và nhìn lại.",
+        "settingsConnections": "Kết nối các tài khoản AI bạn dùng.",
+        "settingsRoutes": "Chọn mô hình xử lý từng tác vụ.",
+        "settingsSearch": "Thiết lập cách tìm kiếm nguồn.",
+        "settingsAccount": "Quản lý tài khoản và ngôn ngữ.",
+        "settingsProfile": "Xây dựng hồ sơ học tập của bạn.",
+        "settingsStorage": "Quản lý nơi lưu các tệp của bạn.",
+        "settingsReminders": "Chọn lời nhắc phù hợp với ngày của bạn.",
+        "freeTools": "Mở công cụ miễn phí cho việc hằng ngày.",
+        "anyProfile": "Tạo hồ sơ để chia sẻ."
+      },
+      "dueToday": "Đến hạn hôm nay"
     }
   },
   "errors": {
@@ -303,6 +414,20 @@
       "chatgpt_relay": "ChatGPT (gói đăng ký)",
       "gemini_code_assist": "Gemini (gói đăng ký)",
       "builtin": "Máy chủ này"
+    },
+    "up": {
+      "readiness": "Độ sẵn sàng của tuyến",
+      "task": "Tác vụ",
+      "route": "Tuyến",
+      "status": "Trạng thái",
+      "position": "Vị trí",
+      "model": "Mô hình",
+      "order": "Thứ tự",
+      "moveUp": "Đưa vị trí {{n}} lên",
+      "moveDown": "Đưa vị trí {{n}} xuống",
+      "manage": "Quản lý",
+      "cancel": "Hủy",
+      "close": "Đóng"
     }
   },
   "chat": {
@@ -481,6 +606,17 @@
           "done": "Đã dùng {{tool}}"
         }
       }
+    },
+    "sources": "Nguồn",
+    "index": {
+      "recent": "Gần đây",
+      "kicker": "Bắt đầu",
+      "startTitle": "Hỏi tài liệu của bạn",
+      "startBody": "Cuộc trò chuyện mới đọc mọi kho tài liệu bạn có, trừ khi bạn chọn một vài kho trong mục \"Đọc\".",
+      "reads": "Đọc",
+      "readsLegend": "Cuộc trò chuyện này đọc",
+      "readsHint": "Không đánh dấu kho nào nghĩa là đọc tất cả.",
+      "actionsFor": "Thao tác cho {{title}}"
     }
   },
   "more": {
@@ -709,5 +845,49 @@
     "menu": "Tài khoản: {{name}}",
     "settings": "Cài đặt",
     "language": "Ngôn ngữ"
+  },
+  "doc": {
+    "atAGlance": "Tóm tắt nhanh",
+    "correct": "Đúng",
+    "incorrect": "Sai",
+    "copyCode": "Sao chép mã",
+    "copied": "Đã sao chép",
+    "worksheet": {
+      "label": "Dùng phiếu này",
+      "lead": "Mang cả phiếu vào ghi chú của bạn, gồm hướng dẫn, các bảng và các bước xem lại.",
+      "download": "Tải Markdown",
+      "copy": "Sao chép cả phiếu",
+      "copying": "Đang sao chép…",
+      "copied": "Đã sao chép. Dán vào ghi chú riêng của bạn.",
+      "copyFailed": "Không sao chép được. Hãy tải bản Markdown thay thế."
+    }
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "quote": "Đôi khi trang đã dời đi nhưng con đường vẫn còn. Hãy bắt đầu lại từ Hôm nay.",
+    "home": "Về trang chủ"
+  },
+  "shell": {
+    "onThisPage": "Trên trang này",
+    "returnToTop": "Về đầu trang",
+    "previous": "Trang trước",
+    "next": "Trang sau",
+    "lastUpdated": "Cập nhật lần cuối",
+    "pager": "Chuyển trang",
+    "skipToContent": "Bỏ qua tới nội dung"
+  },
+  "search": {
+    "button": "Tìm kiếm",
+    "label": "Tìm kiếm",
+    "placeholder": "Tìm trang và thư viện của bạn",
+    "displayDetails": "Hiện kết quả chi tiết",
+    "reset": "Xóa tìm kiếm",
+    "back": "Đóng tìm kiếm",
+    "noResults": "Không có kết quả cho “{{query}}”",
+    "results": "Kết quả tìm kiếm",
+    "select": "để chọn",
+    "navigate": "để di chuyển",
+    "close": "để đóng",
+    "yours": "Thư viện của bạn"
   }
 }

@@ -15,7 +15,15 @@
 # Mac asleep at that hour runs it on waking.
 set -euo pipefail
 
-host=${1:-root@157.180.70.19}
+# The host stays out of the repository (the public one included): anytools.world
+# sits behind Cloudflare, and its origin's address is not published. It comes
+# from ANYTOOLS_DEPLOY_HOST, else ~/.anytools-secrets/deploy-host (user@address).
+deploy_host() {
+  local h=${ANYTOOLS_DEPLOY_HOST:-$(cat "$HOME/.anytools-secrets/deploy-host" 2>/dev/null)}
+  [[ -n $h ]] || { echo "no deploy host: set ANYTOOLS_DEPLOY_HOST or write ~/.anytools-secrets/deploy-host" >&2; exit 1; }
+  echo "$h"
+}
+host=${1:-$(deploy_host)}
 dest=${ANYTOOLS_BACKUP_DIR:-$HOME/Backups/anytools.world}
 keep_days=30
 

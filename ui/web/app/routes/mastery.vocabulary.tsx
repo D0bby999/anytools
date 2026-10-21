@@ -1,3 +1,5 @@
+import { QuickStart } from "~/components/doc/quick-start";
+import { Details } from "~/components/doc/details";
 /**
  * mastery.vocabulary.tsx
  * Mastery → Vocabulary: today's word cards and the word list.
@@ -146,9 +148,10 @@ async function copyToAudit(userId: string, worksheetId: string, ids: string[]) {
 export default function Vocabulary({ loaderData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("vocab");
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("page.title")} lede={t("page.lead")} />
       <MasteryTabs vocabDue={loaderData.dueCount} bookDue={loaderData.bookDue} />
+      <QuickStart kicker={t("session.title")} title={t("practise.reviewWords", { count: loaderData.dueCount })} primary={{ to: "#lp-vocab-due", label: t("session.title") }} />
 
       <section aria-labelledby="lp-vocab-due" className="mt-8">
         <h2 id="lp-vocab-due" className="lp-section">
@@ -178,13 +181,10 @@ export default function Vocabulary({ loaderData }: Route.ComponentProps) {
         />
       </section>
 
-      <section aria-labelledby="lp-vocab-anki" className="mt-10">
-        <h2 id="lp-vocab-anki" className="lp-section">
-          {t("anki.title")}
-        </h2>
+      <div id="lp-vocab-anki"><Details summary={t("anki.title")}>
         <AnkiImport langs={loaderData.langs} />
         <AnkiExport />
-      </section>
+      </Details></div>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 /**
  * loop.brief.$id.tsx
  * One AI task brief and the learning logs run against it, each with its
- * three-way table.
+ * three-way table. Numbered parts, as up's AI Task Brief (plan 261020-2246
+ * phase 12); each log's three-way table stays a table.
  */
-import { Form, Link, useNavigation } from "react-router";
+import { Form, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.brief.$id";
 import { appTitle } from "~/lib/app-title";
@@ -17,6 +18,8 @@ import { ActionError } from "~/components/loop/action-error";
 import { BriefForm } from "~/components/loop/brief-form";
 import { ThreeWayTable } from "~/components/loop/three-way-table";
 import { PageHeader } from "~/components/ui/page-header";
+import { BookMeta } from "~/components/doc/book-meta";
+import { NumberedSection } from "~/components/doc/numbered-section";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "AI brief", "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
@@ -92,38 +95,27 @@ export default function LoopBrief({ loaderData, actionData }: Route.ComponentPro
   const { brief, unchecked, logs } = loaderData;
 
   return (
-    <div className="lp-measure">
-      <PageHeader title={brief.task} />
-      <Link to={`/loop/state/${brief.state_id}`} className="text-sm text-primary underline underline-offset-4">
-        {t("cycle.backToGoal")}
-      </Link>
+    <div>
+      <PageHeader title={brief.task} className="mb-0" />
+      <BookMeta label={t("up.brief.about")} items={[{ label: t("cycle.backToGoal"), to: `/loop/state/${brief.state_id}` }]} />
       <ActionError result={actionData} />
 
-      <section aria-labelledby="lp-brief-form" className="mt-8">
-        <h2 id="lp-brief-form" className="lp-section">
-          {t("brief.title")}
-        </h2>
-        {unchecked.length > 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">{t("brief.notReady")}</p>
-        ) : null}
-        <BriefForm brief={brief} busy={busy} />
-      </section>
+      <div className="lp-doc">
+        <BriefForm brief={brief} busy={busy} notReady={unchecked.length > 0} />
 
-      <section aria-labelledby="lp-brief-logs" className="mt-10">
-        <h2 id="lp-brief-logs" className="lp-section">
-          {t("log.title")}
-        </h2>
-        <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("log.lead")}</p>
-        {logs.map((l) => (
-          <ThreeWayTable key={l.log.id} detail={l} busy={busy} />
-        ))}
-        <Form method="post" className="mt-4">
-          <input type="hidden" name="intent" value="newLog" />
-          <Button type="submit" variant="outline" disabled={busy}>
-            {t("log.new")}
-          </Button>
-        </Form>
-      </section>
+        <NumberedSection n={3} title={t("log.title")} id="lp-brief-logs">
+          <p className="text-muted-foreground">{t("log.lead")}</p>
+          {logs.map((l) => (
+            <ThreeWayTable key={l.log.id} detail={l} busy={busy} />
+          ))}
+          <Form method="post">
+            <input type="hidden" name="intent" value="newLog" />
+            <Button type="submit" variant="outline" disabled={busy}>
+              {t("log.new")}
+            </Button>
+          </Form>
+        </NumberedSection>
+      </div>
     </div>
   );
 }

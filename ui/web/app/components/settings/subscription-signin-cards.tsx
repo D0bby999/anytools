@@ -1,8 +1,3 @@
-import { Form, useNavigation } from "react-router";
-import { useTranslation } from "react-i18next";
-import { Button } from "~/components/ui/button";
-import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
-
 /**
  * The two sign-in lanes that finish in a second step: GitHub Copilot (enter a
  * code on GitHub) and Claude Pro/Max (paste the code Claude shows).
@@ -12,20 +7,19 @@ import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
  * bound to this user on the server, so carrying it through the page is safe.
  * They render inside SubscriptionLaneCards, under its warning.
  */
-export function SubscriptionSignInCards({
-  copilot,
-  claude,
-}: {
-  copilot: CopilotStart | null;
-  claude: ClaudeStart | null;
-}) {
+import { Form, useNavigation } from "react-router";
+import { useTranslation } from "react-i18next";
+import { Button } from "~/components/ui/button";
+import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
+
+export function SubscriptionSignInCards({ copilot, claude }: { copilot: CopilotStart | null; claude: ClaudeStart | null }) {
   const { t } = useTranslation("common");
   const busy = useNavigation().state !== "idle";
   const field = "h-10 w-full rounded-md border bg-sunken px-3 font-mono text-sm";
 
   return (
     <>
-      <div className="rounded-lg border bg-card p-5">
+      <div className="lp-download-card min-w-0">
         <h3 className="font-sans text-base font-medium">{t("settings.experimental.copilot.title")}</h3>
         <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("settings.experimental.copilot.body")}</p>
 
@@ -65,7 +59,7 @@ export function SubscriptionSignInCards({
         )}
       </div>
 
-      <div className="rounded-lg border bg-card p-5">
+      <div className="lp-download-card min-w-0">
         <h3 className="font-sans text-base font-medium">{t("settings.experimental.claude.title")}</h3>
         <p className="mt-1 text-sm leading-prose text-muted-foreground">{t("settings.experimental.claude.body")}</p>
 

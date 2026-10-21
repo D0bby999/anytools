@@ -303,6 +303,59 @@
         "title": "Idiomas para o trabalho",
         "body": "Para uma vaga real: você consegue mostrar sua capacidade real no processo seletivo dela?"
       }
+    },
+    "practise": {
+      "level": "Nível",
+      "due": "Pendente",
+      "open": "Abrir",
+      "notAssessed": "Não avaliado",
+      "skills": "Habilidades",
+      "worksheets": "Fichas de trabalho",
+      "baseline": "Registre um ponto de partida em cinco minutos",
+      "baselineOne": "Escolha uma habilidade para praticar hoje.",
+      "baselineTwo": "Registre uma amostra curta na ficha de diagnóstico.",
+      "baselineThree": "Escolha uma mudança para a próxima tentativa.",
+      "fullDiagnostic": "Diagnóstico completo",
+      "nextStep": "Próximo passo",
+      "lookups": "Consultas",
+      "lookupWord": "Palavra para consultar"
+    },
+    "full_one": "Você já estuda {{count}} idioma, o máximo de uma vez: tire um da lista primeiro.",
+    "full_other": "Você já estuda {{count}} idiomas, o máximo de uma vez: tire um da lista primeiro."
+  },
+  "up": {
+    "savedAt": "Salvo · {{time}}",
+    "sheet": {
+      "about": "Sobre esta ficha",
+      "field": "Campo",
+      "value": "Valor"
+    },
+    "recordings": {
+      "take": "Gravação",
+      "length": "Duração",
+      "listen": "Ouvir",
+      "delete": "Excluir",
+      "where": "{{where}} · {{date}}",
+      "listenTo": "Ouvir: {{take}}"
+    },
+    "index": {
+      "firstAsk": "Primeiro pergunte: onde estou travado?",
+      "ifYou": "Se você está trabalhando em",
+      "use": "Use",
+      "yours": "Suas fichas",
+      "noneYet": "Nenhuma ainda. Comece uma a partir de um tipo abaixo.",
+      "all": "Todas as fichas",
+      "when": {
+        "language": "Um idioma: linha de base, escuta, fala, leitura, escrita, vocabulário ou gramática",
+        "projects": "Um projeto, um trabalho, um experimento ou um ciclo a fechar",
+        "life": "Uma decisão, um relacionamento, sua atenção ou recuperar-se de uma fase difícil (privado)"
+      }
+    },
+    "new": {
+      "kind": "Tipo",
+      "useWhen": "Use quando",
+      "use": "Usar",
+      "useOf": "Usar {{name}}"
     }
   }
 }

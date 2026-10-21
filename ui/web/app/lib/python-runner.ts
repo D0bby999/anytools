@@ -34,7 +34,14 @@ function spawn(): Worker {
       clearTimeout(pending.timer);
       const done = pending.resolve;
       pending = null;
-      done(m.kind === "result" ? { kind: "result", result: m.result } : { kind: "failed", message: m.message });
+      if (m.kind === "result") done({ kind: "result", result: m.result });
+      else {
+        // A run that threw (Python itself out of memory, a stack overflow)
+        // leaves the worker unable to load Python again: its fetch is cut
+        // off. The next run gets a new worker.
+        end();
+        done({ kind: "failed", message: m.message });
+      }
     }
   };
   worker.onerror = () => {

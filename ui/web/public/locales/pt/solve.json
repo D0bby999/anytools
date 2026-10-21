@@ -43,11 +43,15 @@
     "openChat": "Abrir a conversa",
     "noteSaved": "Salvo no seu caderno.",
     "questionSaved": "Adicionada ao seu banco de perguntas.",
-    "openBank": "Abrir o banco"
+    "openBank": "Abrir o banco",
+    "worked": "Solução passo a passo"
   },
   "errors": {
     "empty": "Digite um problema ou anexe uma foto dele.",
     "tooLarge": "Essa foto tem mais de 5 MB.",
     "failed": "Não foi possível começar a resolver."
+  },
+  "problem": {
+    "title": "O problema"
   }
 }

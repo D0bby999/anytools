@@ -151,7 +151,7 @@ describe("helpers and citations", () => {
       { initialEntries: ["/"] },
     );
     render(<RouterProvider router={router} />);
-    const chip = screen.getByRole("link", { name: "Open memory.go, lines 40–72" });
+    const chip = screen.getByRole("link", { name: "1: Open memory.go, lines 40–72" });
     expect(chip).toHaveAttribute("href", "/documents/d9");
   });
 });

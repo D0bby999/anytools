@@ -194,7 +194,13 @@
     "stop": "Dejar de practicar",
     "on": "practicando",
     "cancel": "Cancelar",
-    "failed": "La tarjeta de producción no se guardó."
+    "failed": "La tarjeta de producción no se guardó.",
+    "review": "Repasar",
+    "word": "Palabra",
+    "context": "Contexto",
+    "nextReview": "Próximo repaso",
+    "reviewWords": "Repasar {{count}} palabras",
+    "reviewCards": "Repasar {{count}} tarjetas"
   },
   "byDecision": {
     "title": "Otras decisiones",
@@ -308,7 +314,7 @@
     "rateNow": "Calificar",
     "slots": "Caracteres de la palabra",
     "slotEmpty": "Carácter {{n}}, aún sin escribir",
-    "pad": "Panel de escritura de {{char}}, carácter {{n}} de {{total}}",
+    "pad": "Panel de escritura, carácter {{n}} de {{total}}",
     "keyboard": "Dibujar requiere un dedo, un lápiz o un ratón; Mostrar el carácter y las calificaciones funcionan con teclado."
   },
   "decks": {
@@ -343,17 +349,20 @@
       "thenFile": "Luego elige el archivo en Desde un archivo.",
       "language": "Idioma",
       "about": {
-        "ultimateGeography": "Los países del mundo y sus capitales, en los dos sentidos. Solo texto: no incluye sus banderas ni mapas.",
+        "ultimateGeography": "Los países del mundo y sus capitales, en ambos sentidos.",
         "jlpt": "Vocabulario japonés por nivel JLPT, con audio. Un archivo grande: solo se lee su texto.",
         "french": "Vocabulario francés por frecuencia.",
-        "coding": "Conceptos y comandos de programación."
+        "coding": "Conceptos y comandos de programación.",
+        "ultimateGeographyFlags": "Nombra el país, territorio u organización por su bandera.",
+        "ultimateGeographyMaps": "Nombra el país, región u océano resaltado en un mapa."
       }
     },
     "licence": {
       "publicDomain": "Dominio público",
       "ccBy": "Libre, citando la fuente (CC BY)",
       "ccByNc": "Solo uso no comercial (CC BY-NC)",
-      "none": "Sin licencia indicada"
+      "none": "Sin licencia indicada",
+      "freePictures": "Libre: texto de dominio público, imágenes con licencias libres (CC BY-SA, CC BY, CC0), con su crédito en cada tarjeta"
     },
     "cards_one": "{{count}} tarjeta",
     "cards_other": "{{count}} tarjetas",
@@ -391,6 +400,13 @@
       "open": "Repasar los mazos"
     },
     "pace": "Llegan {{perDay}} nuevas al día, del {{first}} al {{last}}.",
-    "paceOneDay": "Llegan el {{day}}."
+    "paceOneDay": "Llegan el {{day}}.",
+    "overLimit_one": "{{count}} tarjeta no se añadió: tus mazos admiten como máximo {{limit}} tarjetas en total. Borra un mazo que ya no uses para hacer sitio.",
+    "overLimit_other": "{{count}} tarjetas no se añadieron: tus mazos admiten como máximo {{limit}} tarjetas en total. Borra un mazo que ya no uses para hacer sitio.",
+    "picture": {
+      "alt": "La imagen que hay que nombrar. No se describe aquí, porque es la pregunta.",
+      "credit": "Imagen:",
+      "publicDomain": "dominio público"
+    }
   }
 }

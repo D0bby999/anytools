@@ -56,7 +56,7 @@ publishes only after a good deploy, so the public repository never runs ahead of
 1. It asks the host which commit is live (`ANYTOOLS_IMAGE_TAG=host-<commit>` in
    `/opt/anytools/.env`). If HEAD changes nothing since then but `docs/`, `plans/`, `.claude/` or a
    top-level `*.md`, it publishes without a deploy.
-2. Otherwise `deploy/scripts/deploy-host.sh root@157.180.70.19`:
+2. Otherwise `deploy/scripts/deploy-host.sh <host>`, the host read from `~/.anytools-secrets/deploy-host` (or `ANYTOOLS_DEPLOY_HOST`); the address is kept out of the repository because the site's origin sits behind Cloudflare:
    - checks, fast: `gofmt`, `go vet ./...`, the web app's typecheck;
    - builds the API for linux/amd64 and the web app, and renders every old URL against the build
      (`ssr-smoke.mjs`);
@@ -78,6 +78,8 @@ HEAD again. The full suites are not in the deploy path; run them by hand before 
 `go test ./...` (with `ANYTOOLS_TEST_DSN`) and `pnpm test` in `ui/web`. The Test and Images
 workflows still exist on GitHub, by hand only (**Run workflow**); Images publishes images for
 self-hosters.
+
+**The host's environment.** `/opt/anytools/.env` is kept on the owner's machine as `.env.production` at the repository root (gitignored, mode 600), as postclaw keeps its own; `~/.anytools-secrets/anytools.world.env` stays the escrow copy. To change a value, edit `.env.production` and run `deploy/scripts/env-sync.sh push`: it backs the host's `.env` up, keeps the host's `ANYTOOLS_IMAGE_TAG` (each deploy writes it there), restarts the stack and, when the API, the web server or `https://anytools.world/` do not answer within two minutes, puts the backup back. `env-sync.sh pull` refreshes the local copy. Do not `scp` the file over by hand: its tag may be a deploy behind.
 
 **Rolling back by hand.** Set `ANYTOOLS_IMAGE_TAG` in `/opt/anytools/.env` to one of the kept
 `host-…` tags (`docker images ghcr.io/d0bby999/anytools-web`) and run
@@ -191,9 +193,9 @@ Every Drive behaviour has been proven only against a fake of Drive v3 shaped fro
 
 With `ANYTOOLS_R2_ACCOUNT_ID`, `ANYTOOLS_R2_BUCKET`, `ANYTOOLS_R2_ACCESS_KEY_ID` and `ANYTOOLS_R2_SECRET_ACCESS_KEY` set, the API keeps what learners upload and record (originals, recordings, generated audio, exam papers, page photos and the other per-row objects) in a Cloudflare R2 bucket instead of the data volume (`internal/blob/bucket.go`, `internal/connectors/r2`). The volume keeps parsed Markdown, which every search reads, and scratch files. A learner who chose their own Google Drive still has their files there; "the server" now means the bucket.
 
-- **anytools.world.** Bucket `anytools-media` in the owner's Cloudflare account (Dobby999), location hint EEUR, next to the Helsinki host.
+- **anytools.world.** Bucket `anytools` in the owner's Cloudflare account (Dobby999), location hint EEUR, next to the Helsinki host.
 - **Private.** No `r2.dev` URL and no custom domain: a file reaches a browser only through the API, after the same ownership checks as before. Keep it that way; a public bucket would serve one learner's documents to anyone with the key.
-- **The token.** R2 → Manage API tokens → Create: permission *Object Read & Write*, applied to `anytools-media` only. Its Access Key ID and Secret Access Key go in `/opt/anytools/.env` with the account id and the bucket name, then deploy. The API lists the bucket at boot and does not start when it cannot, so a wrong key rolls the deploy back.
+- **The token.** R2 → Manage API tokens → Create: permission *Object Read & Write*, applied to `anytools` only. Its Access Key ID and Secret Access Key go in `.env.production` with the account id and the bucket name, then `deploy/scripts/env-sync.sh push`. The API lists the bucket at boot and does not start when it cannot, so a wrong key rolls the deploy back.
 - **Files from before.** Reads look in the bucket, then on the disk; a write to the bucket removes the disk's copy, and deletes remove both. Nothing has to be copied by hand.
 - **Backups.** The nightly `anytools-data` tar no longer holds the files in the bucket. R2 keeps its own copies; what it does not protect against is a delete, by the app or by a token. A restore needs the database and the bucket from the same moment.
 - **Check.** `anytools verify` reads the same four variables and checks every original in the bucket.

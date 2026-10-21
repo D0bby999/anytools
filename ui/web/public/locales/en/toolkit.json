@@ -303,6 +303,59 @@
         "title": "Language for work",
         "body": "For one real role: can you get your actual ability across in its hiring process?"
       }
+    },
+    "practise": {
+      "level": "Level",
+      "due": "Due",
+      "open": "Open",
+      "notAssessed": "Not assessed",
+      "skills": "Skills",
+      "worksheets": "Worksheets",
+      "baseline": "Keep one baseline in five minutes",
+      "baselineOne": "Choose one skill to practise today.",
+      "baselineTwo": "Record a short sample in the diagnostic worksheet.",
+      "baselineThree": "Choose one change for your next attempt.",
+      "fullDiagnostic": "Full diagnostic",
+      "nextStep": "Next step",
+      "lookups": "Lookups",
+      "lookupWord": "Word to look up"
+    },
+    "full_one": "You study {{count}} language already, the most at once: take one off the list first.",
+    "full_other": "You study {{count}} languages already, the most at once: take one off the list first."
+  },
+  "up": {
+    "savedAt": "Saved · {{time}}",
+    "sheet": {
+      "about": "About this worksheet",
+      "field": "Field",
+      "value": "Value"
+    },
+    "recordings": {
+      "take": "Take",
+      "length": "Length",
+      "listen": "Listen",
+      "delete": "Delete",
+      "where": "{{where}} · {{date}}",
+      "listenTo": "Listen: {{take}}"
+    },
+    "index": {
+      "firstAsk": "First ask: where am I stuck?",
+      "ifYou": "If you are working on",
+      "use": "Use",
+      "yours": "Your worksheets",
+      "noneYet": "None yet. Start one from a kind below.",
+      "all": "All worksheets",
+      "when": {
+        "language": "A language: a baseline, listening, speaking, reading, writing, words or grammar",
+        "projects": "A project, a piece of work, an experiment or a cycle to close",
+        "life": "A decision, a relationship, your attention or recovering from a hard stretch (private)"
+      }
+    },
+    "new": {
+      "kind": "Kind",
+      "useWhen": "Use it when",
+      "use": "Use",
+      "useOf": "Use {{name}}"
     }
   }
 }

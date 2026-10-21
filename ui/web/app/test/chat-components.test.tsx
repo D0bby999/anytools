@@ -38,7 +38,7 @@ describe("CitationChip", () => {
 
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/documents/doc-1?page=14");
-    expect(link).toHaveAccessibleName("Open Chapter 3, page 14");
+    expect(link).toHaveAccessibleName("1: Open Chapter 3, page 14");
   });
 
   it("omits the page parameter when the source is not page-addressable", () => {
@@ -58,7 +58,7 @@ describe("CitationChip", () => {
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/documents/doc-3?page=2");
     expect(link).toHaveTextContent("Sheet: Budget, p. 2");
-    expect(link).toHaveAccessibleName("Open Plan.xlsx, Sheet: Budget, p. 2");
+    expect(link).toHaveAccessibleName("2: Open Plan.xlsx, Sheet: Budget, p. 2");
     expect(link).not.toHaveTextContent("p.2");
   });
 

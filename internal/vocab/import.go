@@ -70,6 +70,9 @@ type ImportResult struct {
 	// Invalid had no term, a term too long to be one, or no meaning.
 	Duplicates int `json:"duplicates"`
 	Invalid    int `json:"invalid"`
+	// OverLimit were not added: the learner has MaxDeckCardsPerLearner
+	// general cards (deck batches only).
+	OverLimit int `json:"over_limit,omitempty"`
 	// FirstDay and LastDay are the days this batch's words first come up,
 	// as YYYY-MM-DD in the learner's zone; empty when none was created.
 	FirstDay string `json:"first_day,omitempty"`

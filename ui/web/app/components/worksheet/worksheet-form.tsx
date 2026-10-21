@@ -24,6 +24,12 @@ import type {
 import { initialValues, sectionPayload, shown, type SectionValues } from "~/lib/worksheet-values";
 import { FieldInput } from "~/components/worksheet/field-input";
 import { WorksheetTable, type TableExtras } from "~/components/worksheet/worksheet-table";
+import { ScrollBox } from "~/components/doc/scroll-box";
+
+/** "22:14" in the learner's own clock. */
+function clockTime(at: Date): string {
+  return at.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
 
 /** What a kind's page adds to its tables, by section and table field. */
 export type FormExtras = (section: string, field: WorksheetField) => TableExtras | undefined;
@@ -56,6 +62,8 @@ type FormProps = {
   onValues?: (section: string, values: SectionValues) => void;
   /** Shown after a section's fields, when it returns something. */
   renderSectionExtra?: (section: WorksheetSection, editor: SectionEditor) => ReactNode;
+  /** Number the sections' headings "1. …", as up's worksheets do (the default). */
+  numbered?: boolean;
 };
 
 export function WorksheetForm({
@@ -67,16 +75,18 @@ export function WorksheetForm({
   renderSectionExtra,
   extras,
   onValues,
+  numbered = true,
 }: FormProps) {
   // The newest revision any section's save returned. A section written by
   // someone else is still refused: the API compares per section.
   const [revision, setRevision] = useState(loaded);
   useEffect(() => setRevision((r) => (loaded > r ? loaded : r)), [loaded]);
   return (
-    <div className="mt-6 space-y-10">
-      {kind.sections.map((s) => (
+    <div>
+      {kind.sections.map((s, i) => (
         <SectionForm
           key={s.key}
+          number={numbered ? i + 1 : 0}
           worksheetId={worksheetId}
           section={s}
           stored={answers[s.key]}
@@ -93,6 +103,8 @@ export function WorksheetForm({
 }
 
 type SectionProps = {
+  /** The heading's number; 0 for none. */
+  number: number;
   worksheetId: string;
   section: WorksheetSection;
   stored: Record<string, FieldValue> | undefined;
@@ -105,6 +117,7 @@ type SectionProps = {
 };
 
 function SectionForm({
+  number,
   worksheetId,
   section,
   stored,
@@ -126,8 +139,11 @@ function SectionForm({
 
   // A save's answer: a new revision, or the server's copy after a conflict.
   const result = fetcher.state === "idle" ? fetcher.data : undefined;
+  // When this section was last saved, for its status line ("Saved · 22:14").
+  const [savedAt, setSavedAt] = useState("");
   useEffect(() => {
     if (!result || result.section !== section.key) return;
+    setSavedAt("ok" in result ? clockTime(new Date()) : "");
     if ("ok" in result) onSaved(result.revision);
     if ("conflict" in result) {
       setValues(initialValues(section, result.values));
@@ -188,22 +204,29 @@ function SectionForm({
   };
   const extra = renderExtra?.(section, editor);
 
+  // A section's own lines are one input table (I2), a row per line; each of
+  // its tables follows as a table of its own, in the kind's order.
+  const blocks: (WorksheetField | WorksheetField[])[] = [];
+  for (const f of section.fields.filter((x) => shown(x, values))) {
+    const last = blocks[blocks.length - 1];
+    if (f.type === "table") blocks.push(f);
+    else if (Array.isArray(last)) last.push(f);
+    else blocks.push([f]);
+  }
+
   return (
     <section aria-labelledby={headingId}>
-      <h2 id={headingId} className="font-serif text-xl font-semibold">
-        {section.title}
-      </h2>
-      {section.hint ? (
-        <p className="mt-1 whitespace-pre-line text-sm leading-prose text-muted-foreground">{section.hint}</p>
-      ) : null}
-      <fieldset className="mt-4 space-y-5" onBlur={save} aria-labelledby={headingId}>
-        {section.fields.filter((f) => shown(f, values)).map((f) => {
-          const id = `ws-${section.key}-${f.key}`;
-          if (f.type === "table") {
+      <h2 id={headingId}>{number ? `${number}. ${section.title}` : section.title}</h2>
+      {section.hint ? <p className="whitespace-pre-line text-muted-foreground">{section.hint}</p> : null}
+      <fieldset onBlur={save} aria-labelledby={headingId}>
+        {blocks.map((block) => {
+          if (!Array.isArray(block)) {
+            const f = block;
+            const id = `ws-${section.key}-${f.key}`;
             return (
               <div key={f.key}>
-                <p className="mb-2 text-sm font-medium">{f.label}</p>
-                {f.hint ? <p className="mb-2 text-xs text-faint">{f.hint}</p> : null}
+                <p className="mb-0! font-medium">{f.label}</p>
+                {f.hint ? <p className="mt-1! mb-0! text-sm text-muted-foreground">{f.hint}</p> : null}
                 <WorksheetTable
                   field={f}
                   id={id}
@@ -214,32 +237,46 @@ function SectionForm({
               </div>
             );
           }
-          const inline = f.type === "check";
           return (
-            <div key={f.key} className={inline ? "flex min-h-11 items-center gap-3" : ""}>
-              {inline ? (
-                <FieldInput field={f} id={id} value={values[f.key] as never} onChange={(v, commit) => set(f.key, v, commit)} />
-              ) : null}
-              <label htmlFor={id} className={inline ? "text-sm" : "block text-sm font-medium"}>
-                {f.label}
-              </label>
-              {f.hint ? <p className="text-xs text-faint">{f.hint}</p> : null}
-              {!inline ? (
-                <div className="mt-1">
-                  <FieldInput field={f} id={id} value={values[f.key] as never} onChange={(v, commit) => set(f.key, v, commit)} />
-                </div>
-              ) : null}
+            <div key={block[0]?.key} className="lp-field-table">
+              <ScrollBox>
+                <table>
+                  <tbody>
+                    {block.map((f) => {
+                      const id = `ws-${section.key}-${f.key}`;
+                      const boxed = ["text", "long", "choice", "date"].includes(f.type);
+                      return (
+                        <tr key={f.key}>
+                          <th scope="row" className="w-[34%]">
+                            <label htmlFor={id}>{f.label}</label>
+                            {f.hint ? (
+                              <span className="mt-1 block text-[13px] font-normal whitespace-pre-line">{f.hint}</span>
+                            ) : null}
+                          </th>
+                          <td className={boxed ? undefined : "px-4! py-1!"}>
+                            <FieldInput
+                              field={f}
+                              id={id}
+                              value={values[f.key] as never}
+                              onChange={(v, commit) => set(f.key, v, commit)}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </ScrollBox>
             </div>
           );
         })}
       </fieldset>
       {extra}
-      <p className="mt-2 min-h-5 text-xs text-faint" aria-live="polite">
-        {fetcher.state !== "idle"
-          ? t("form.saving")
-          : result && "ok" in result
-            ? t("form.saved")
-            : ""}
+      {/* Drawn as the status line (I11), but a polite live region rather
+          than role="status": a page holding a worksheet (the listening
+          practice) has its own status, and every section has one of these. */}
+      <p className="lp-status-line" aria-live="polite">
+        {fetcher.state !== "idle" ? t("form.saving") : savedAt ? t("up.savedAt", { time: savedAt }) : ""}
       </p>
       {result && "error" in result ? (
         <p role="alert" className="text-sm text-destructive">

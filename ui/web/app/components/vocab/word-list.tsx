@@ -1,3 +1,5 @@
+import { RefTable } from "~/components/doc/ref-table";
+import { DateText } from "~/components/ui/date-text";
 import { useEffect, useState } from "react";
 import { Form, Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -86,11 +88,7 @@ export function WordList({
           <h3 className="lp-section mt-6">
             {t("byDecision.learnTitle")} · {t("byDecision.count", { count: learning.length })}
           </h3>
-          <ul className="mt-2 border-t">
-            {learning.map((note) => (
-              <WordRow key={note.id} note={note} selectable={audits.length > 0} />
-            ))}
-          </ul>
+          <WordTable notes={learning} selectable={audits.length > 0} />
           {others.length > 0 ? (
             <section aria-labelledby="lp-vocab-others" className="mt-8">
               <h3 id="lp-vocab-others" className="lp-section">
@@ -102,11 +100,7 @@ export function WordList({
                   <h4 className="text-xs font-semibold text-muted-foreground">
                     {t(`decide.options.${g.decision}`)} · {t("byDecision.count", { count: g.notes.length })}
                   </h4>
-                  <ul className="mt-1 border-t">
-                    {g.notes.map((note) => (
-                      <WordRow key={note.id} note={note} selectable={audits.length > 0} />
-                    ))}
-                  </ul>
+                  <WordTable notes={g.notes} selectable={audits.length > 0} />
                 </div>
               ))}
             </section>
@@ -116,6 +110,26 @@ export function WordList({
       )}
     </>
   );
+}
+
+function WordTable({ notes, selectable }: { notes: VocabNote[]; selectable: boolean }) {
+  const { t } = useTranslation("vocab");
+  const columns = [t("practise.word"), t("list.meaning"), t("practise.context"), t("practise.nextReview")];
+  const rows = notes.map((note) => {
+    const nextReview = note.cards
+      .filter((card) => !card.suspended)
+      .map((card) => card.due_at)
+      .sort()[0];
+
+    return [
+      <WordRow key={note.id} note={note} selectable={selectable} />,
+      note.meaning,
+      note.contexts.map((context) => context.sentence).join(" · "),
+      nextReview ? <DateText iso={nextReview} /> : "—",
+    ];
+  });
+
+  return <RefTable caption={t("list.title")} columns={columns} rows={rows} />;
 }
 
 /**
@@ -187,7 +201,7 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
   }, [saved, fetcher.data]);
 
   return (
-    <li className="border-b py-3">
+    <div className="py-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="text-sm font-medium" lang={note.lang}>
           {selectable ? (
@@ -430,7 +444,7 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
           {t("list.failed")} {fetcher.data.errorDetail}
         </p>
       ) : null}
-    </li>
+    </div>
   );
 }
 

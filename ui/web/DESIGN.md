@@ -18,6 +18,15 @@ A rule with no strike is a rule the code currently obeys.
 > textbook, plus the highlighter from the notebook comp. Three things were kept from
 > `up`: the reading measure, the prose leading and the reading-progress hairline.
 
+> ~~The textbook's structure: a rail of icons under numeral tabs, a running head, a
+> margin that is always there, a phone bar of four places plus More.~~
+> **Superseded 2026-10-21:** the owner asked for AnyLearn to take `up`'s structure and
+> UX in detail (its VitePress 1.6.4 shell, its page patterns, every feature laid out as
+> one of them), then to wear the textbook's own type and colour, which stay as written
+> below. Plan `plans/261020-2246-anylearn-up-shell`. The measured mimic (up's colours
+> and Inter too) is the git tag `up-shell-mimic`; the numbers are in that plan's
+> `reports/fidelity.md`.
+
 ## The world
 
 **A premium printed study guide turned into software.** The page is warm white. Titles
@@ -67,6 +76,9 @@ action ink. Four part colours are used for wayfinding only, and one highlighter 
 | `--lp-highlight` | `#fbe36b` | `#e9d45a` | **Needs you now**: a due count, the selection. A fill behind ink, never a text colour |
 | `--lp-warning` | `#7a5200` on `#fef5cb` | `#e2b84a` on `#3f3d2e` | Attention. Deliberately the highlighter's family |
 | `--lp-danger` | `#9e0b3c` | `#f08a9c` | Destructive or failed, and nothing else |
+| `--lp-progress` | the part's colour | the part's colour | The reading-progress hairline, set per part in `app.css` |
+| `--lp-backdrop` | `rgba(26,30,41,.5)` | `rgba(0,0,0,.6)` | Behind the drawer and the search modal |
+| `--lp-ink-deco` | `#5c6170` | `#9a968b` | Icons and carets only (3:1); never text |
 
 Each part also has `-soft` (the fill of its key-concept box), `-line` (that box's full
 outline) and `-fg` (text on a solid tab). Translucent tints are **frozen to hex**, so
@@ -94,6 +106,12 @@ self-hosted through `@fontsource`.
 | Book | Literata | 400, 400 italic, 600, 800 | `h1` to `h3`, prose, margin notes, the chapter numeral (800), the wordmark |
 | Interface | Be Vietnam Pro | 400, 500, 600 | Body, labels, buttons, data |
 | Code and data | IBM Plex Mono | 400 | Code, hashes, model ids. Never a label |
+
+**Roles in the up structure.** The article (`.lp-doc`, `components/doc/doc.css`) sets
+its prose and titles in the book face; tables, badges and controls inside it, the
+sidebar, the top nav and the outline are the interface face. The wordmark is book face.
+Kickers are interface face, 12px/600, in sentence case (up's mono capitals are not
+kept: see the anti-patterns).
 
 The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Leading is
 1.5 for the interface, **1.85 for prose** (from `up`) and 1.12 for titles. `h1` tracks
@@ -141,34 +159,42 @@ row has about 9 px to spare, and the tiles would push the theme switch to a seco
 
 ## Geometry
 
-Measured at 1440:
+> ~~Rail 256, workspace padded by 32, margin 320 always present; the rail with icons,
+> the phone bar, the running head and the margin as described on 2026-10-19.~~
+> **Superseded 2026-10-21:** VitePress's geometry, from `up` (plan
+> 261020-2246-anylearn-up-shell), measured in Chrome:
 
-- **Rail:** 256 wide.
-- **Workspace:** padded by 32.
-- **Reading measure:** 780.
-- **Margin:** 320.
+Measured at 1440 (`--lp-*` in `tokens.css`):
 
-At 390, everything is full-bleed with 16px gutters and no horizontal scroll. This is
-checked on every main page, in both themes.
+- **Top nav:** 64 high (`--lp-topbar-h`). The wordmark sits in a column as wide as the
+  sidebar; then ⌘K search (40 high, radius 8), four places (Today, Knowledge, Chat,
+  Loop: `TOP_NAV`), the language menu, the appearance switch (a 40×22 pill), Free
+  tools and the account menu. Below 1280 the inline controls fold into "…"; below 768
+  the places too, into a full-screen nav screen behind ☰.
+- **Sidebar:** 272 wide (`--lp-rail-w`), on `surface-soft`, no icons. It is the table of
+  contents, from one source (`lib/nav-tree.ts`, `NAV_TREE`): Start (Today); Parts I to
+  IV, each title behind its numeral tab (`lp-tab` in the part's colour); Settings
+  (folded); Appendix: tools (folded). Groups and pages with children fold; the one that
+  holds the current page opens itself. The current page is navy, with
+  `aria-current="page"` and "Current section"; a current child also has a 6px dot on the
+  tree's guide line. Groups are `role="group"`, not landmarks.
+- **Article:** 780 (`--lp-measure-read`), 688 (`--lp-measure-aside`) beside an outline
+  or a page's own panel. The reader keeps 780 (`handle.measure = "read"`). Chat,
+  Solve, Research and a mastery session take the whole width (`handle.layout = "page"`).
+- **Aside:** from 1280, 224 wide (`--lp-aside-w`): "On this page" (the page's h2 and h3,
+  scroll-spied, a dot on the rail for the current one), then the part's margin note or
+  the page's own panel (sources in Ask, the tutor in the reader). Its title lines up
+  with the h1.
+- **Pager:** under every page in the nav tree, Previous and Next from `flatPages()`
+  (two 336×66 cards). A book chapter passes its own order (`handle.pager`).
+- **Reading progress:** 2px, fixed at the top, in the part's colour, only when the
+  article is more than 160px longer than the screen.
 
-- **The rail is a table of contents.** It runs, in order:
-  - the wordmark;
-  - Today;
-  - Parts I to IV, each under its numeral tab;
-  - Settings;
-  - then, pushed to the foot, **Appendix: tools**. It holds the **AnyProfile cover**
-    (ink card) and "All free tools".
-
-  The current row takes its part's tint, a full outline, weight and a screen-reader
-  "Current section". Part groups are `role="group"`, not landmarks.
-- **The phone bar** has four destinations plus Tools and More. Its tests cap the bar at
-  four destinations. **More** is the phone's table of contents: the same parts,
-  then the study tools, then the appendix with the AnyProfile cover.
-- **The running head** (topbar) shows the part's tab and the section name, like the top
-  of a textbook page. It replaces a breadcrumb.
-- **The margin** (right panel) is always present. It shows sources in Read and Ask,
-  and the part's own margin note elsewhere (Practise: how review works; Reflect: the
-  5-minute / 14-day / 90-day pace from `up`). A page can pass its own content.
+Below 1280 "On this page" is a dropdown in the **local nav** (48 high, under the top
+nav). Below 960 the local nav also has **Menu**, which opens the sidebar as a 320
+drawer over a backdrop; Esc closes it and returns focus, and the page is `inert`
+behind it. There is no phone bar: `/more` lists the same tree as a page. At 390
+nothing scrolls sideways; wide tables scroll inside their own box.
 
 ### Visitor mode per surface
 
@@ -182,10 +208,10 @@ checked on every main page, in both themes.
 
 ## Components and moves
 
-1. **The page header** (`components/ui/page-header.tsx`): a book-face title, a lede
-   and the page's actions. A **chapter numeral** appears only when the number means
-   something: a book chapter's position, a review's week. Nothing floats above a title.
-   A kind or status sits below it as a part tab.
+1. **The page header** (`components/ui/page-header.tsx`): a book-face title (42px, 22ch,
+   32px on a phone), a lede and the page's actions under it. Nothing floats above a
+   title. ~~A chapter numeral; a part tab below the title.~~ **Superseded 2026-10-21:**
+   up's header has neither; the sidebar and the outline say where you are.
 2. **The part tab** (`lp-tab`): a small solid label in the part's colour, like a
    chapter's edge tab. It does wayfinding and is never a control.
 3. **The key-concept box** (`lp-keybox`): the part's tint with a full outline. It is
@@ -197,14 +223,16 @@ checked on every main page, in both themes.
    It says what will appear and how to put it there.
 6. **The dot leader** (`lp-leader`): drawn dots between a name and its count, used in
    the tools index.
-7. **Section tabs** (`components/ui/section-tabs.tsx`): Settings, Mastery and Quiz
+7. **Section tabs** (`components/ui/section-tabs.tsx`). **Since 2026-10-21** they are
+   drawn as up's nav links: 14/500, the current one in navy with `aria-current`, no
+   tint, no outline, no underline. What follows describes where they are used:: Settings, Mastery and Quiz
    (`components/quiz/quiz-tabs.tsx`). The current tab is tinted and outlined, **never
    underlined**. Ways of doing one thing inside a page (adding to a knowledge base) use
    the same look as ARIA tabs: `components/ui/panel-tabs.tsx`.
 8. **The cover:** ink panels for AnyProfile (More, tools home, landing, its own page)
-   and for the sign-in book. It is the one block that is not paper. On the rail,
-   beside study pages, AnyProfile is a slate-tinted card instead: the ink block was
-   the heaviest shape on every page.
+   and for the sign-in book. It is the one block that is not paper. ~~On the rail,
+   AnyProfile is a slate-tinted card.~~ **Superseded 2026-10-21:** the sidebar is a
+   table of contents of text rows, so AnyProfile is a row in its folded Appendix group.
 9. **Share cards:** the site card is drawn from `deploy/og/og.html` (title beside the contents I to IV). A tool's
    card is rendered by `lib/tools/og-image.server.ts` with the part tab of the appendix. Bump `OG_VERSION` in
    `lib/tools/seo.ts` whenever either changes look, or caches serve the old card for a day.
@@ -222,10 +250,13 @@ checked on every main page, in both themes.
 14. **The chat surface** (plan 261019-1015, after postclaw's): an answer opens with
    its **work row** (`components/chat/work-row.tsx`), one folded muted line ("Searched
    twice · 9 passages · 3.1 s") that opens onto the steps; it names the running step
-   while the turn streams and never spins. Under the answer: Listen, Copy, Ask again
-   (last answer only), Draw it, then **follow-ups** as outlined pill buttons (last
-   answer only). The last question has Edit. The composer sticks above the phone bar,
-   grows to 160px, keeps a draft per conversation, queues up to three messages while
+   while the turn streams and never spins. **Since 2026-10-21** the conversation reads
+   as a chapter (`layout: "page"`): the learner's question is a block on the right, not a
+   heading; the answer is prose in the book face with citations as superscript numbers
+   (their names start with the number); its sources are in the aside. Under the answer:
+   Listen · Copy · Ask again (last answer only) · Draw it, as text links, then
+   **follow-ups** as "→" links (last answer only). The last question has Edit. The
+   composer sticks to the foot of the page, grows to 160px, keeps a draft per conversation, queues up to three messages while
    a turn runs, and carries the model menu and the keyboard hint underneath. "Jump to
    latest" appears only when the learner has scrolled away from a streaming answer.
 
@@ -236,10 +267,9 @@ checked on every main page, in both themes.
    **language menu** (a `<details>` naming the current language; pages in one
    language draw none), the theme switch, and Sign in as an outlined button. On a
    phone the places and Sign in fold into the ☰ menu and the search takes its own row.
-   The signed-in app keeps its rail and topbar: a workspace, not a site (ten places in
-   four parts do not fit three header links). The topbar ends like the site header: the
-   wordmark in the same size on a phone, the theme switch, and Sign out as the same
-   outlined button (`ACCOUNT_ACTION`). The site
+   The signed-in app has its own top nav and sidebar (Geometry): a workspace, not a
+   site. ~~Its rail and topbar.~~ **Superseded 2026-10-21** by up's top nav, whose
+   account menu holds Sign out. The site
    **footer** (`SiteFooter`) is one too: wordmark, a sentence, the links.
 16. **Plates** (`components/ui/plate.tsx`, `public/plates/`): textbook figures in pen
    and ink with flat washes in the parts' colours, made with 9router
@@ -255,6 +285,29 @@ checked on every main page, in both themes.
    low day (the smaller step is the plan, not a failure), and `part-body` on the card a
    finished workout shows; `part-body` is also Body's first-run plate.
 
+17. **up's page patterns** (`components/doc/`, spec in the plan's
+   `reports/feature-ui-spec.md`). Every app page is one column built from them:
+   **At a glance** (an h2 and a short list), **numbered sections** (h2 "1. …" with a
+   rule above), **QuickStart** (kicker, title, one primary and up to two secondary
+   actions, the cycle line), **BookMeta** (numbers split by 1px rules), **GuidePaths**
+   (Today's groups, tinted and outlined in their part's colour, names in navy),
+   **DatedList** (**date** · title · note; the join is `NOTE_JOIN` in
+   `lib/sentence.ts`), **RefTable** (zebra rows, scrolls inside itself),
+   **DownloadGrid**, **ChoiceRow** (an answer or option as up's search-result row: a 2px
+   outline, navy when chosen, danger or tip after marking), **FieldTable** (a form as a
+   table of inputs), **Field**, **Badge**, **Details**, **CodeBlock** (with Copy),
+   **StatusLine** (the result of an action, `role="status"`, under its buttons, never a
+   toast), **Dialog**, **ProgressBar**, **WorksheetActions** (Download Markdown, Copy
+   worksheet), **Closing** and the **404**. Charts always have a table of their numbers
+   under them.
+18. **Search** (`components/layout/search-modal.tsx`, ⌘K, Ctrl K or `/`): up's local
+   search box over the nav tree and the learner's own titles
+   (`/app/api/search-index`, per user). It matches without diacritics ("ngan hang"
+   finds "Ngân hàng"), ↑↓ choose, Enter opens, Esc returns focus where it came from.
+19. **ScrollBox** (`components/doc/scroll-box.tsx`) and `useOverflowTabStop`: a wide
+   table scrolls in its own box, which is a tab stop only while it overflows and is
+   positioned, so the sr-only labels in its cells cannot widen the page.
+
 ## Anti-patterns for this project
 
 - **One-sided borders.** Callouts, quotes, tabs and timelines all use full outlines or
@@ -263,11 +316,39 @@ checked on every main page, in both themes.
 - **Misused part colours.** A part colour never goes on a button or a link; navy is
   the only action ink. The highlighter is never text, and red is never "attention".
 - **Mono as a costume.** Plex Mono is for code and data. Labels are sans, in sentence
-  case.
+  case. This is why up's mono capital kickers ("START HERE") were not kept.
 - **Em dashes in the app's English copy.** Rendered joins use ` · `. A bare `—` still
   marks a missing value, and the indexed page titles keep theirs.
 - **Colour as the only carrier of meaning.** The current row has tint, outline, weight
   and screen-reader text.
+
+## Deliberate departures from `up` (2026-10-21)
+
+- The textbook's type and colour instead of Inter, white and up's green.
+- A 6px dot instead of up's 2px coloured bar for the current child and the outline's
+  current entry, and blockquotes with a full outline instead of a left bar (one-sided
+  borders are banned here).
+- Accessibility up's theme does not do: `aria-current` and "Current section", group
+  titles as real buttons, the page `inert` behind the drawer, labelled scroll boxes.
+- One scroll region (`[data-lp-scroll]`) instead of the window, for the reasons in
+  `routes/app-layout.tsx`; the nav and sidebar sit outside it rather than `fixed`.
+- Light by default, never from the system setting (owner, 2026-10-19).
+- Plates are kept (first-run empty states and the moments listed under Plates).
+
+## Verified (2026-10-21, up structure)
+
+- axe-core 4.10.2 (wcag2a/aa, wcag21a/aa, best-practice), 0 violations on the final
+  version at 1440 light: Today, a knowledge base, a document, a conversation, the
+  question bank, Mastery, a learning state, a worksheet, Settings, Body, More; at 1440
+  dark: Today, the question bank, Loop, Settings, a conversation, Knowledge; at 390
+  light: Today, a knowledge base, Chat, the question bank, Loop, Mastery, a worksheet,
+  Settings, More. The mimic had the same on 40 more page checks, with the drawer and
+  the search modal open (the plan's `reports/fidelity.md`).
+- No horizontal scroll at any of them.
+- Geometry of the final version equals the mimic's: nav 64, sidebar 272, article 688
+  beside the outline, aside at x 1169 and 224 wide, h1 42/49.56.
+- Full web suite: 6754 passed; the 13 failures are the unbuilt tool-runtime folder in a
+  fresh worktree (`tool-runtime`, `tools-batch-b`, `unzip-archive`), as before the plan.
 
 ## Verified (2026-10-19)
 

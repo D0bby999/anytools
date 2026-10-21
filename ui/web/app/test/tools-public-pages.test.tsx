@@ -19,7 +19,7 @@ import { LocaleSwitcher } from "~/components/tools-site/locale-switcher";
 import { PublicShell } from "~/components/tools-site/public-shell";
 import { ToolCatalog } from "~/components/tools-site/tool-catalog";
 import { Sidebar, TOOLS_ITEM } from "~/components/layout/sidebar";
-import { Topbar } from "~/components/layout/topbar";
+import { TopNav } from "~/components/layout/top-nav";
 import { initI18n, publicLngs } from "~/lib/i18n";
 import { catalogEntries } from "~/lib/tools/catalog";
 import { toolsI18n, type ToolsMessages } from "~/lib/tools/i18n";
@@ -208,9 +208,9 @@ describe("a whole tool page", () => {
 });
 
 describe("the app's Free tools link", () => {
-  it("is in the running head, goes to /tools, and is no longer on the rail", () => {
+  it("is in the top nav and goes to /tools; the sidebar keeps it in the folded appendix", () => {
     const router = createMemoryRouter(
-      [{ path: "/home", element: (<><Topbar displayName="A" email="a@example.com" /><Sidebar /></>) }],
+      [{ path: "/home", element: (<><TopNav displayName="A" email="a@example.com" /><Sidebar /></>) }],
       { initialEntries: ["/home"] },
     );
     render(<RouterProvider router={router} />);
@@ -219,12 +219,20 @@ describe("the app's Free tools link", () => {
     expect(TOOLS_ITEM.to).toBe("/tools");
   });
 
-  it("keeps Settings outside the rail's scrolling list", () => {
+  // The pinned Settings row of the old rail is gone (plan 261020-2246, phase
+  // 04): Settings is the sidebar's folded group after Part IV, as in up.
+  it("keeps Settings as a folded group after Part IV, reachable in one click", () => {
     const router = createMemoryRouter([{ path: "/home", element: <Sidebar /> }], { initialEntries: ["/home"] });
-    const { container } = render(<RouterProvider router={router} />);
-    const settings = screen.getAllByRole("link", { name: "Settings" })[0]!;
-    expect(settings.closest(".overflow-y-auto")).toBeNull();
-    expect(container.querySelector(".overflow-y-auto")?.textContent).toContain("Part I");
+    render(<RouterProvider router={router} />);
+    const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    // Part IV's heading is its numeral tab (decorative) and "Part IV: Reflect".
+    const reflect = headings.findIndex((h) => h?.endsWith("Part IV: Reflect"));
+    expect(reflect).toBeGreaterThan(-1);
+    expect(headings.indexOf("Settings")).toBe(reflect + 1);
+    const settings = screen.getByRole("button", { name: "Settings" });
+    expect(settings).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(settings);
+    expect(screen.getByRole("link", { name: "Connections" })).toHaveAttribute("href", "/settings");
   });
 });
 

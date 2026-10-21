@@ -6,9 +6,10 @@ import type { FollowUp } from "~/lib/chat-work";
  *
  * The server picks the kinds from what the turn did (suggestions.go) and never
  * writes their words; the words live here, and clicking one sends them as the
- * learner's next message. They are outlined buttons in a row, the same weight
- * as any secondary action, so they read as offers rather than as part of the
- * answer.
+ * learner's next message. Since the up shell they are a list of links in the
+ * action ink, each led by "→", as up ends a chapter with its next steps; they
+ * stay buttons underneath, because they send a message rather than go
+ * anywhere. The arrow is hidden from the accessible name.
  */
 export function FollowUps({
   kinds,
@@ -63,16 +64,17 @@ function PromptRow({
   disabled?: boolean;
 }) {
   return (
-    <div className="mt-3" role="group" aria-label={label}>
-      <ul className="flex flex-wrap gap-2">
+    <div className="mt-4" role="group" aria-label={label}>
+      <ul className="flex flex-col gap-1">
         {prompts.map((p) => (
           <li key={p.label}>
             <button
               type="button"
               disabled={disabled}
               onClick={() => onPick(p.prompt)}
-              className="min-h-9 rounded-full border border-control-border bg-card px-3 text-left text-sm leading-ui text-foreground hover:bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              className="inline-flex min-h-8 items-baseline gap-1.5 rounded-[4px] text-left text-base leading-[1.6] font-medium text-primary transition-colors hover:text-primary-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
             >
+              <span aria-hidden="true">→</span>
               {p.label}
             </button>
           </li>

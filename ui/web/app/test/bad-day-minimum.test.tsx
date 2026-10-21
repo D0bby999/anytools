@@ -13,7 +13,7 @@ import { initI18n } from "~/lib/i18n";
 import { TodayBlock, type TodayState } from "~/components/home/today-block";
 import { InterruptForm } from "~/components/loop/interrupt-form";
 import { InterruptionList } from "~/components/loop/interruption-list";
-import { StateEditForm } from "~/components/loop/state-edit-form";
+import { StateBoundaryFields } from "~/components/loop/state-edit-form";
 import LoopState from "~/routes/loop.state.$id";
 import type { Cycle, GateResult, LearningState, StateDetail } from "~/lib/loop-types";
 
@@ -113,7 +113,7 @@ describe("Home's Today block", () => {
 
 describe("the minimum contract on the edit form", () => {
   it("asks up's three questions with their answers, and says which ones a model sees", () => {
-    inRouter(<StateEditForm state={learningState} busy={false} />);
+    inRouter(<StateBoundaryFields state={learningState} />);
     const group = screen.getByRole("group", { name: "Minimum contract for bad days" });
     expect(within(group).getByLabelText("When do I shrink the task instead of pushing through?")).toHaveValue(
       "Under five hours of sleep",
@@ -212,6 +212,24 @@ describe("the repeated-resistance advice on a state", () => {
       "href",
       "/loop/cycle/cy-1#lp-cycle-questions",
     );
+  });
+
+  it("lays the state out as up's Learning State Template, its parts numbered in order", () => {
+    page("");
+    const titles = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(titles.slice(0, 8)).toEqual([
+      "If you only have five minutes today",
+      "1. Goal",
+      "2. Constraints and boundaries",
+      "3. Current level and baseline",
+      "4. Methods that worked",
+      "5. Hypotheses",
+      "6. Latest handover",
+      "7. Next action",
+    ]);
+    // Every part's inputs post with the one save form.
+    expect(screen.getByLabelText("Real scenario")).toHaveAttribute("form", "lp-state-edit");
+    expect(screen.getByLabelText("Next task")).toHaveAttribute("form", "lp-state-edit");
   });
 
   it("is absent otherwise", () => {

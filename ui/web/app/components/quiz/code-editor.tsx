@@ -31,7 +31,11 @@ export function CodeEditor({
   const [ready, setReady] = useState(false);
   const latest = useRef({ onChange, onRun });
   latest.current = { onChange, onRun };
-  const initial = useRef(value);
+  // The text as it is now, not as it was on the first render: the learner
+  // may type in the plain box before CodeMirror has loaded.
+  const current = useRef(value);
+  current.current = value;
+  const plain = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,14 +47,16 @@ export function CodeEditor({
       import("@codemirror/language"),
       import("@lezer/highlight"),
     ])
-      .then(([{ basicSetup, EditorView: View }, { python }, { keymap }, { indentWithTab }, { HighlightStyle, syntaxHighlighting }, { tags }]) => {
+      .then(([{ basicSetup, EditorView: View }, { python }, { keymap }, { indentWithTab }, { HighlightStyle, syntaxHighlighting, indentUnit }, { tags }]) => {
         if (cancelled || !host.current) return;
         const theme = View.theme({
           "&": { backgroundColor: "var(--color-card)", color: "var(--color-foreground)", fontSize: "14px" },
           ".cm-content": { fontFamily: "var(--font-mono)", caretColor: "var(--color-primary)" },
           ".cm-gutters": { backgroundColor: "var(--color-card)", color: "var(--color-muted-foreground)", border: "none" },
           ".cm-activeLine, .cm-activeLineGutter": { backgroundColor: "var(--color-hover)" },
-          "&.cm-focused": { outline: "2px solid var(--color-primary)" },
+          // The focus ring is the frame's (focus-within), as a button's: an
+          // outline here is clipped by the frame, or covered by the gutter.
+          "&.cm-focused": { outline: "none" },
           ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": { backgroundColor: "var(--color-selected)" },
         });
         // The app's own ink, readable in both themes: keywords in the action
@@ -62,17 +68,23 @@ export function CodeEditor({
           { tag: [tags.function(tags.variableName), tags.definition(tags.variableName)], color: "var(--color-foreground)", fontWeight: "600" },
         ]);
         view.current = new View({
-          doc: initial.current,
+          doc: current.current,
           parent: host.current,
           extensions: [
-            basicSetup,
-            python(),
-            theme,
-            syntaxHighlighting(highlight, { fallback: false }),
+            // Before basicSetup: the first keymap wins, and basicSetup's
+            // Mod-Enter inserts a blank line. Ctrl-Enter too on a Mac, as the
+            // hint says, where Mod is Cmd.
             keymap.of([
               { key: "Mod-Enter", run: () => (latest.current.onRun(), true) },
+              { key: "Ctrl-Enter", run: () => (latest.current.onRun(), true) },
               indentWithTab,
             ]),
+            basicSetup,
+            python(),
+            // Four spaces, as PEP 8 and every exercise's own code.
+            indentUnit.of("    "),
+            theme,
+            syntaxHighlighting(highlight, { fallback: false }),
             View.updateListener.of((u) => {
               if (u.docChanged) latest.current.onChange(u.state.doc.toString());
             }),
@@ -83,7 +95,10 @@ export function CodeEditor({
             }),
           ],
         });
+        // Typing goes on in the editor where it was going on in the box.
+        const typing = document.activeElement === plain.current;
         setReady(true);
+        if (typing) view.current?.focus();
       })
       .catch(() => undefined); // The textarea stays, and works.
     return () => {
@@ -107,6 +122,7 @@ export function CodeEditor({
     <>
       {ready ? null : (
         <textarea
+          ref={plain}
           id={id}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -122,7 +138,7 @@ export function CodeEditor({
           className="w-full rounded-md border border-control-border bg-card p-3 font-mono text-sm text-foreground"
         />
       )}
-      <div ref={host} hidden={!ready} className="overflow-hidden rounded-md border border-control-border" />
+      <div ref={host} hidden={!ready} className="overflow-hidden rounded-md border border-control-border focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background" />
     </>
   );
 }

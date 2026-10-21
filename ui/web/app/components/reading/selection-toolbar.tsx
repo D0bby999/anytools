@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import { BookmarkPlus, Flag, Highlighter, Mic, Shapes, Volume2, X } from "lucide-react";
 import type { ReaderSelection } from "~/lib/reading-selection";
 import type { ReadingAction } from "~/lib/reading-types";
-import { Button } from "~/components/ui/button";
+import { FLYOUT_ITEM } from "~/components/doc/flyout";
+import { cn } from "~/lib/utils";
 
 /**
  * The actions on a selection, as a bar pinned to the bottom of the viewport.
@@ -14,6 +15,9 @@ import { Button } from "~/components/ui/button";
  * `onPointerDown` prevents the default so pressing a button does not collapse
  * the selection it is about to act on.
  */
+/** A row of the floating menu: the flyout row, sized to its words. */
+const ITEM = cn(FLYOUT_ITEM, "w-auto disabled:opacity-50");
+
 export function SelectionToolbar({
   selection,
   busy,
@@ -56,66 +60,66 @@ export function SelectionToolbar({
       <div
         role="toolbar"
         aria-label={t("toolbar.label")}
-        className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-lg border bg-card p-2 shadow-sm"
+        // A flyout menu (I9) that floats: radius 12, 1px border, the raised
+        // shadow, padding 12, rows 32 high with a hover tint.
+        className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1 rounded-xl border bg-card p-3 shadow-md"
       >
         <span className="sr-only">
           {t("toolbar.selected")} {selection.page > 0 ? t("toolbar.onPage", { page: selection.page }) : ""}
         </span>
         {actions.map(({ action, label }) => (
-          <Button
+          <button
             key={action}
             type="button"
-            size="sm"
-            variant={action === "explain" ? "default" : "ghost"}
+            className={cn(ITEM, action === "explain" && "text-primary")}
             disabled={busy}
             onPointerDown={keep}
             onClick={() => onAction(action)}
           >
             {label}
-          </Button>
+          </button>
         ))}
         {onDraw ? (
-          <Button type="button" size="sm" variant="ghost" disabled={busy} onPointerDown={keep} onClick={onDraw}>
-            <Shapes aria-hidden="true" />
+          <button type="button" className={ITEM} disabled={busy} onPointerDown={keep} onClick={onDraw}>
+            <Shapes aria-hidden="true" className="size-4" />
             {t("actions.draw")}
-          </Button>
+          </button>
         ) : null}
-        <Button type="button" size="sm" variant="ghost" disabled={busy} onPointerDown={keep} onClick={onHighlight}>
-          <Highlighter aria-hidden="true" />
+        <button type="button" className={ITEM} disabled={busy} onPointerDown={keep} onClick={onHighlight}>
+          <Highlighter aria-hidden="true" className="size-4" />
           {t("actions.highlight")}
-        </Button>
-        <Button type="button" size="sm" variant="ghost" disabled={busy} onPointerDown={keep} onClick={onSave}>
-          <BookmarkPlus aria-hidden="true" />
+        </button>
+        <button type="button" className={ITEM} disabled={busy} onPointerDown={keep} onClick={onSave}>
+          <BookmarkPlus aria-hidden="true" className="size-4" />
           {t("actions.save")}
-        </Button>
+        </button>
         {onMarkBarrier ? (
-          <Button type="button" size="sm" variant="ghost" onPointerDown={keep} onClick={onMarkBarrier}>
-            <Flag aria-hidden="true" />
+          <button type="button" className={ITEM} onPointerDown={keep} onClick={onMarkBarrier}>
+            <Flag aria-hidden="true" className="size-4" />
             {t("passes.markBarrier")}
-          </Button>
+          </button>
         ) : null}
         {onReadAloud ? (
-          <Button type="button" size="sm" variant="ghost" onPointerDown={keep} onClick={onReadAloud}>
-            <Volume2 aria-hidden="true" />
+          <button type="button" className={ITEM} onPointerDown={keep} onClick={onReadAloud}>
+            <Volume2 aria-hidden="true" className="size-4" />
             {t("actions.readAloud")}
-          </Button>
+          </button>
         ) : null}
         {onCheckAloud ? (
-          <Button type="button" size="sm" variant="ghost" onPointerDown={keep} onClick={onCheckAloud}>
-            <Mic aria-hidden="true" />
+          <button type="button" className={ITEM} onPointerDown={keep} onClick={onCheckAloud}>
+            <Mic aria-hidden="true" className="size-4" />
             {t("actions.checkAloud")}
-          </Button>
+          </button>
         ) : null}
-        <Button
+        <button
           type="button"
-          size="icon"
-          variant="ghost"
+          className={cn(ITEM, "px-2")}
           aria-label={t("toolbar.dismiss")}
           onPointerDown={keep}
           onClick={onDismiss}
         >
-          <X aria-hidden="true" />
-        </Button>
+          <X aria-hidden="true" className="size-4" />
+        </button>
       </div>
     </div>
   );

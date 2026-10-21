@@ -41,6 +41,8 @@
     "next": "Próxima pergunta",
     "almost": "Quase",
     "mathAlmost": "Igual à resposta, mas não na forma que a pergunta pede.",
+    "mathAlmostUnit": "Igual à resposta, mas não na unidade que a pergunta pede.",
+    "mathNoUnit": "O número está certo, mas falta a unidade.",
     "mathEqual": "Sua resposta {{answer}} é igual à registrada, {{recorded}}.",
     "mathWrong": "O valor é diferente da resposta registrada."
   },
@@ -382,6 +384,7 @@
     "resetYes": "Trocar",
     "keep": "Manter o meu",
     "loading": "Preparando o Python: {{loaded}} de {{total}} MB (uma vez; depois fica guardado).",
+    "loadingAnnounce": "Preparando o Python. É baixado uma vez e guardado.",
     "loadFailed": "Não foi possível carregar o Python. Confira a conexão e tente de novo.",
     "timedOut": "Parado após {{seconds}} segundos. Existe um laço que nunca termina?",
     "stopped": "Parado. Seu código foi mantido.",
@@ -396,5 +399,29 @@
     "title": "Praticar Python",
     "lead": "Dezoito exercícios curtos da trilha de Python do Exercism, de Hello World a Bob, cada um conferido pelos testes no seu navegador. Eles vão para uma base de conhecimento chamada Python basics.",
     "add": "Adicionar os exercícios de Python"
+  },
+  "practise": {
+    "questionOf": "Pergunta {{n}} de {{total}}",
+    "explanation": "Explicação",
+    "question": "Pergunta",
+    "openQuestion": "Abrir pergunta",
+    "open": "Abrir",
+    "progress": "Progresso",
+    "answerQuestions": "Responda às perguntas de hoje",
+    "baseline": "Registre um ponto de partida em cinco minutos",
+    "addSource": "Adicione uma fonte a uma base de conhecimento.",
+    "chooseSource": "Escolha essa base e gere algumas perguntas.",
+    "checkAnswer": "Responda a uma pergunta e confira a explicação.",
+    "todayQuestions": "Perguntas de hoje",
+    "score": "Pontuação",
+    "questions": "{{count}} perguntas",
+    "maxScore": "Máximo de {{count}} pontos",
+    "lastAttempt": "Última tentativa",
+    "cardOf": "Cartão {{n}} de {{total}}",
+    "session": "Sessão de estudo",
+    "today": "Hoje",
+    "practice": "Prática",
+    "chooseAnswer": "Escolha uma resposta.",
+    "answerQuestionsCount": "Responda às {{count}} perguntas de hoje"
   }
 }

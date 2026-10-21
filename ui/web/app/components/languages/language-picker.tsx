@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { ALL_LANGUAGES, COMMON_LANGUAGES, languageName, nativeName, type SavedLanguage } from "~/lib/languages";
 import { Button } from "~/components/ui/button";
 
-const ROW = "flex min-h-11 items-center gap-3 border-b py-2 text-sm";
+const ROW = "lp-choice flex min-h-11 items-center gap-3 p-3 text-sm has-[:checked]:border-primary";
 
 export function LanguagePicker({
   saved,
@@ -39,17 +39,18 @@ export function LanguagePicker({
   const suggested = saved.map((s) => s.lang);
   const common = COMMON_LANGUAGES.filter((l) => !suggested.includes(l));
   const shown = new Set<string>([...suggested, ...common]);
-  // A language ticked from the search stays on the list after the search changes.
-  const otherTicked = [...ticked].filter((l) => !shown.has(l));
   const q = query.trim().toLocaleLowerCase(ui);
   const matches = q
     ? ALL_LANGUAGES.filter(
         (l) =>
           !shown.has(l) &&
-          !ticked.has(l) &&
           (l === q || languageName(l, ui).toLocaleLowerCase(ui).includes(q) || nativeName(l).toLocaleLowerCase().includes(q)),
       )
     : [];
+  // A language ticked from the search stays on the list after the search
+  // changes. While it still matches it stays among the results instead, so
+  // ticking it does not move the box out from under the keyboard's focus.
+  const otherTicked = [...ticked].filter((l) => !shown.has(l) && !matches.slice(0, 30).includes(l));
 
   const toggle = (l: string, on: boolean) =>
     setTicked((prev) => {
@@ -103,7 +104,7 @@ export function LanguagePicker({
       {saved.length > 0 ? (
         <fieldset className="mt-6">
           <legend className="text-sm font-semibold">{t("languages.picker.suggested")}</legend>
-          <ul className="mt-2 border-t">
+          <ul className="mt-2 space-y-2">
             {saved.map((s) => row(s.lang, t("languages.picker.words", { count: s.words })))}
           </ul>
         </fieldset>
@@ -111,12 +112,12 @@ export function LanguagePicker({
 
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold">{t("languages.picker.common")}</legend>
-        <ul className="mt-2 border-t">{common.map((l) => row(l))}</ul>
+        <ul className="mt-2 space-y-2">{common.map((l) => row(l))}</ul>
       </fieldset>
 
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold">{t("languages.picker.other")}</legend>
-        {otherTicked.length > 0 ? <ul className="mt-2 border-t">{otherTicked.map((l) => row(l))}</ul> : null}
+        {otherTicked.length > 0 ? <ul className="mt-2 space-y-2">{otherTicked.map((l) => row(l))}</ul> : null}
         <label className="mt-3 block text-sm">
           {t("languages.picker.search")}
           <input
@@ -129,7 +130,7 @@ export function LanguagePicker({
         <p aria-live="polite" className="mt-2 text-xs text-muted-foreground">
           {q ? (matches.length > 0 ? t("languages.picker.matches", { count: matches.length }) : t("languages.picker.noMatch")) : ""}
         </p>
-        {matches.length > 0 ? <ul className="mt-1 border-t">{matches.slice(0, 30).map((l) => row(l))}</ul> : null}
+        {matches.length > 0 ? <ul className="mt-1 space-y-2">{matches.slice(0, 30).map((l) => row(l))}</ul> : null}
       </fieldset>
 
       {studied.length > 0 ? (

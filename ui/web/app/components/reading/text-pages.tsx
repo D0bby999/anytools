@@ -39,8 +39,8 @@ export function TextPages({
           className="scroll-mt-20 border-t py-6 first:border-t-0"
         >
           <div className="flex items-center justify-between gap-2">
-            <h2 id={`page-${page.page}-label`} className="lp-section">
-              {page.page}
+            <h2 id={`page-${page.page}-label`} className="text-sm leading-8 font-semibold text-muted-foreground">
+              {t("viewer.pageN", { page: page.page })}
             </h2>
             {onReadPage && page.markdown ? (
               <button

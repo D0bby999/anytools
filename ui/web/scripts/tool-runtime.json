@@ -156,6 +156,7 @@
   },
   "pyodide@314.0.7": {
     "package": "pyodide",
+    "precompress": true,
     "copy": [
       {
         "from": "pyodide.mjs",
@@ -254,6 +255,19 @@
       {
         "from": "dist/full/zxing_full.wasm",
         "to": "zxing_full.wasm"
+      }
+    ]
+  },
+  "ultimate-geography-media@5.3": {
+    "download": [
+      {
+        "url": "https://github.com/anki-geo/ultimate-geography/releases/download/v5.3/Ultimate_Geography_v5.3_EN.zip",
+        "sha256": "25068fc3442a1407395eb2d8130e368e1b016d15747f9453386bf4aef553d617",
+        "to": "",
+        "extract": {
+          "prefix": "Ultimate Geography [EN]/media/",
+          "match": "^ug-(flag|map)-[a-z0-9_-]+\\.(svg|png)$"
+        }
       }
     ]
   }

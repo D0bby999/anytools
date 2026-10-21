@@ -17,10 +17,15 @@ import type HanziWriter from "hanzi-writer";
 import { drawable, type Rating } from "~/lib/vocab-types";
 import { Button } from "~/components/ui/button";
 
-export type Written = { mistakes: number; shown: boolean };
+/** drawn: the characters the learner drew; one with no stroke data is only shown. */
+export type Written = { mistakes: number; shown: boolean; drawn?: number };
 
-/** No mistakes: Good; one to three: Hard; more, or a character shown: Again. */
-export function writingRating({ mistakes, shown }: Written): Rating {
+/**
+ * No mistakes: Good; one to three: Hard; more, or a character shown: Again.
+ * Nothing drawn (no character had stroke data): no suggestion.
+ */
+export function writingRating({ mistakes, shown, drawn }: Written): Rating | null {
+  if (drawn === 0 && !shown) return null;
   if (shown || mistakes > 3) return "again";
   return mistakes > 0 ? "hard" : "good";
 }
@@ -46,7 +51,7 @@ export function WritingPad({ term, lang, onDone }: { term: string; lang: string;
   const [phase, setPhase] = useState<Phase>("loading");
   const [status, setStatus] = useState("");
   const [missing, setMissing] = useState(false);
-  const tally = useRef<Written>({ mistakes: 0, shown: false });
+  const tally = useRef<Written>({ mistakes: 0, shown: false, drawn: 0 });
   const [mistakes, setMistakes] = useState(0);
   const [size, setSize] = useState(280);
   const outer = useRef<HTMLDivElement>(null);
@@ -60,6 +65,8 @@ export function WritingPad({ term, lang, onDone }: { term: string; lang: string;
   const nextIndex = (from: number) => chars.findIndex((c, i) => i > from && drawable(c));
 
   // One quiz per character; the writer is reused, its character swapped.
+  // The first is set again too: that is how a character with no stroke data
+  // is told (the second fetch is the browser's cache).
   const quiz = (index: number) => {
     const w = writer.current;
     const char = chars[index];
@@ -77,6 +84,7 @@ export function WritingPad({ term, lang, onDone }: { term: string; lang: string;
             setStatus(t("write.strokeWrong"));
           },
           onComplete: () => {
+            tally.current.drawn = (tally.current.drawn ?? 0) + 1;
             setStatus(t("write.charDone"));
             const next = nextIndex(index);
             if (next < 0) finish();
@@ -210,7 +218,7 @@ export function WritingPad({ term, lang, onDone }: { term: string; lang: string;
         <div
           ref={target}
           role="img"
-          aria-label={t("write.pad", { char: chars[at] ?? "", n: at + 1, total: chars.length })}
+          aria-label={t("write.pad", { n: at + 1, total: chars.length })}
           className="touch-none rounded-md bg-card"
           style={{ width: size, height: size }}
         />
@@ -221,14 +229,16 @@ export function WritingPad({ term, lang, onDone }: { term: string; lang: string;
       <p className="mt-1 text-xs text-muted-foreground">{t("write.keyboard")}</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <span className="text-sm tabular-nums">{t("write.mistakes", { count: mistakes })}</span>
-        {phase === "drawing" ? (
-          <Button type="button" variant="outline" size="sm" onClick={show}>
-            {t("write.show")}
-          </Button>
-        ) : null}
-        {phase === "between" ? (
-          <Button type="button" variant="outline" size="sm" onClick={onward}>
-            {nextIndex(at) < 0 ? t("write.finish") : t("write.next")}
+        {/* One button that changes, not two that swap: a keyboard's focus stays on it. */}
+        {phase !== "done" ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-disabled={phase === "loading" || undefined}
+            onClick={phase === "drawing" ? show : phase === "between" ? onward : undefined}
+          >
+            {phase === "between" ? (nextIndex(at) < 0 ? t("write.finish") : t("write.next")) : t("write.show")}
           </Button>
         ) : null}
       </div>

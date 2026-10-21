@@ -19,7 +19,51 @@
     "loop": "Ciclo",
     "comingSoon": "Ainda não disponível",
     "more": "Mais",
-    "languages": "Idiomas"
+    "languages": "Idiomas",
+    "groups": {
+      "start": "Início",
+      "read": "Parte I · Ler",
+      "ask": "Parte II · Perguntar",
+      "practise": "Parte III · Praticar",
+      "reflect": "Parte IV · Refletir",
+      "settings": "Configurações",
+      "appendix": "Apêndice"
+    },
+    "pages": {
+      "quizBank": "Banco de questões",
+      "quizPractice": "Prática",
+      "quizExams": "Provas",
+      "masteryReview": "Revisão",
+      "masteryVocabulary": "Vocabulário",
+      "masteryBookCards": "Cartões de livros",
+      "masteryDecks": "Baralhos",
+      "bodyPlan": "Plano",
+      "bodyProgress": "Progresso",
+      "bodyCoach": "Treinador",
+      "bodyLibrary": "Biblioteca",
+      "toolkit": "Caixa de ferramentas",
+      "settingsConnections": "Conexões",
+      "settingsRoutes": "Rotas",
+      "settingsSearch": "Busca",
+      "settingsAccount": "Conta",
+      "settingsProfile": "Perfil",
+      "settingsStorage": "Armazenamento",
+      "settingsReminders": "Lembretes",
+      "freeTools": "Ferramentas grátis",
+      "anyProfile": "AnyProfile"
+    },
+    "search": "Buscar",
+    "searchShortcut": "Abrir a busca com {{keys}}",
+    "menu": "Menu",
+    "appearance": "Aparência",
+    "language": "Idioma",
+    "changeLanguage": "Mudar idioma",
+    "mobileNavigation": "Navegação móvel",
+    "extraNavigation": "Navegação extra",
+    "mainNavigation": "Navegação principal",
+    "sidebarNavigation": "Navegação lateral",
+    "toggleSection": "Mostrar ou ocultar {{section}}",
+    "account": "Conta"
   },
   "actions": {
     "signOut": "Sair",
@@ -112,6 +156,73 @@
       "warnBody": "Estas partes funcionam, mas não tão bem quanto poderiam.",
       "go": "Corrija em Configurações",
       "unknownTitle": "Não foi possível verificar suas contas de IA"
+    },
+    "up": {
+      "greeting": "Bom ter você de volta, {{name}}.",
+      "nextStep": "Próximo passo",
+      "cycle": "Ler · Perguntar · Praticar · Refletir",
+      "task": "Tarefa",
+      "count": "Quantidade",
+      "open": "Abrir",
+      "facts": "Seu aprendizado em resumo",
+      "entry": "Escolha por onde começar",
+      "situation": "Situação",
+      "start": "Comece aqui",
+      "keep": "Guarde este resultado",
+      "setup": "Concluir a configuração",
+      "entries": {
+        "read": {
+          "situation": "Tenho algo para ler.",
+          "keep": "Uma fonte e uma nota útil."
+        },
+        "ask": {
+          "situation": "Tenho uma pergunta.",
+          "keep": "Uma resposta baseada em evidências."
+        },
+        "practise": {
+          "situation": "Quero lembrar.",
+          "keep": "Uma resposta conferida e um plano de revisão."
+        },
+        "reflect": {
+          "situation": "Preciso de um próximo passo.",
+          "keep": "Uma tarefa pequena que eu possa repetir."
+        }
+      },
+      "descriptions": {
+        "home": "Veja seu próximo passo e as tarefas previstas para hoje.",
+        "knowledge": "Reúna fontes e leia com contexto.",
+        "notebooks": "Guarde notas que você possa consultar depois.",
+        "chat": "Faça perguntas com base nas suas fontes.",
+        "solve": "Resolva um problema passo a passo.",
+        "research": "Investigue um tema e guarde as evidências.",
+        "quiz": "Confira o que você entende com perguntas.",
+        "quizBank": "Explore e organize suas perguntas.",
+        "quizPractice": "Volte aos erros e tente novamente.",
+        "quizExams": "Pratique em condições de prova.",
+        "mastery": "Construa sua compreensão com revisões espaçadas.",
+        "masteryReview": "Revise pontos pendentes de diferentes percursos.",
+        "masteryVocabulary": "Revise as palavras que está aprendendo.",
+        "masteryBookCards": "Reveja os cartões dos seus livros.",
+        "masteryDecks": "Estude cartões organizados em baralhos.",
+        "languages": "Escolha um idioma para praticar.",
+        "body": "Reserve tempo para se movimentar junto com o estudo.",
+        "bodyPlan": "Organize suas rotinas de treino.",
+        "bodyProgress": "Veja o progresso dos seus treinos.",
+        "bodyCoach": "Receba ajuda para treinar.",
+        "bodyLibrary": "Explore exercícios para suas rotinas.",
+        "loop": "Escolha uma meta e mantenha o próximo passo pequeno.",
+        "toolkit": "Use fichas para pensar e refletir.",
+        "settingsConnections": "Conecte as contas de IA que você usa.",
+        "settingsRoutes": "Escolha qual modelo realiza cada tarefa.",
+        "settingsSearch": "Configure como você busca fontes.",
+        "settingsAccount": "Gerencie sua conta e seu idioma.",
+        "settingsProfile": "Defina seu perfil de aprendizado.",
+        "settingsStorage": "Gerencie onde seus arquivos são armazenados.",
+        "settingsReminders": "Escolha lembretes que combinem com seu dia.",
+        "freeTools": "Abra ferramentas gratuitas para tarefas do dia a dia.",
+        "anyProfile": "Crie um perfil que você possa compartilhar."
+      },
+      "dueToday": "Para hoje"
     }
   },
   "errors": {
@@ -303,6 +414,20 @@
       "chatgpt_relay": "ChatGPT (assinatura)",
       "gemini_code_assist": "Gemini (assinatura)",
       "builtin": "Este servidor"
+    },
+    "up": {
+      "readiness": "Disponibilidade das rotas",
+      "task": "Tarefa",
+      "route": "Rota",
+      "status": "Estado",
+      "position": "Posição",
+      "model": "Modelo",
+      "order": "Ordem",
+      "moveUp": "Subir posição {{n}}",
+      "moveDown": "Descer posição {{n}}",
+      "manage": "Gerenciar",
+      "cancel": "Cancelar",
+      "close": "Fechar"
     }
   },
   "chat": {
@@ -481,6 +606,17 @@
           "done": "Usou {{tool}}"
         }
       }
+    },
+    "sources": "Fontes",
+    "index": {
+      "recent": "Recentes",
+      "kicker": "Começar",
+      "startTitle": "Pergunte aos seus documentos",
+      "startBody": "Uma conversa nova lê todas as suas bases de conhecimento, a menos que você escolha algumas em \"Lê\".",
+      "reads": "Lê",
+      "readsLegend": "Esta conversa lê",
+      "readsHint": "Nenhuma marcada significa todas.",
+      "actionsFor": "Ações para {{title}}"
     }
   },
   "more": {
@@ -709,5 +845,49 @@
     "menu": "Conta: {{name}}",
     "settings": "Configurações",
     "language": "Idioma"
+  },
+  "doc": {
+    "atAGlance": "Em resumo",
+    "correct": "Correta",
+    "incorrect": "Incorreta",
+    "copyCode": "Copiar código",
+    "copied": "Copiado",
+    "worksheet": {
+      "label": "Usar esta ficha",
+      "lead": "Leve a ficha inteira para as suas notas, com as instruções, as tabelas e os passos de revisão.",
+      "download": "Baixar Markdown",
+      "copy": "Copiar a ficha",
+      "copying": "Copiando…",
+      "copied": "Copiada. Cole nas suas notas privadas.",
+      "copyFailed": "Não foi possível copiar. Use o download em Markdown."
+    }
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "quote": "Às vezes o caminho continua mesmo quando a página mudou de lugar. Recomece a partir de Hoje.",
+    "home": "Voltar ao início"
+  },
+  "shell": {
+    "onThisPage": "Nesta página",
+    "returnToTop": "Voltar ao topo",
+    "previous": "Página anterior",
+    "next": "Próxima página",
+    "lastUpdated": "Última atualização",
+    "pager": "Paginação",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "search": {
+    "button": "Buscar",
+    "label": "Buscar",
+    "placeholder": "Busque páginas e sua biblioteca",
+    "displayDetails": "Mostrar resultados detalhados",
+    "reset": "Limpar a busca",
+    "back": "Fechar a busca",
+    "noResults": "Nenhum resultado para “{{query}}”",
+    "results": "Resultados da busca",
+    "select": "para selecionar",
+    "navigate": "para navegar",
+    "close": "para fechar",
+    "yours": "Sua biblioteca"
   }
 }

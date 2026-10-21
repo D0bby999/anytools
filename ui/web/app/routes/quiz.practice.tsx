@@ -66,7 +66,7 @@ export default function QuizPractice({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("practice.title")} lede={t("practice.lead")} />
       <QuizTabs />
 
@@ -90,7 +90,7 @@ export default function QuizPractice({ loaderData }: Route.ComponentProps) {
             </span>
           </h2>
           <div className="mt-3">
-            <QuestionCard key={current.question.id} question={current.question} onAnswered={next} />
+            <QuestionCard key={current.question.id} question={current.question} position={index + 1} total={items.length} onAnswered={next} />
           </div>
         </section>
       ) : (

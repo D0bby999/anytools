@@ -3,8 +3,12 @@
  * The Learning Loop home: the goal being worked on, its cycle and the gate
  * out of the current phase, this week's review, and what is due from the
  * mastery paths. Other goals are listed below; the four-line start is last.
+ *
+ * Laid out as up's group index (plan 261020-2246 phase 12): the current
+ * goal's quick-start, then numbered sections for the goals, this week,
+ * retests and cards. The quick-start sits outside the `.lp-doc` article so
+ * the article's link rule does not repaint its buttons.
  */
-import { Plate } from "~/components/ui/plate";
 import { Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/loop.index";
@@ -15,7 +19,6 @@ import { getCycle, getState, listCardKinds, listRetests, listStates } from "~/li
 import { handleLoopIntent } from "~/lib/loop-actions.server";
 import { GatePanel, usePhaseLabels } from "~/components/loop/gate-panel";
 import { StartForm } from "~/components/loop/start-form";
-import { StateCard } from "~/components/loop/state-card";
 import { WeekCard } from "~/components/loop/week-card";
 import { ActionError } from "~/components/loop/action-error";
 import { CardList, RetestsDueList } from "~/components/loop/card-list";
@@ -23,6 +26,12 @@ import { listWorksheets } from "~/lib/worksheets.server";
 import { DIAGNOSTIC_KIND } from "~/lib/english-diagnostic";
 import { ToolkitLink } from "~/components/worksheet/toolkit-link";
 import { PageHeader } from "~/components/ui/page-header";
+import { Badge } from "~/components/doc/badge";
+import { Details } from "~/components/doc/details";
+import { NumberedSection } from "~/components/doc/numbered-section";
+import { QuickStart } from "~/components/doc/quick-start";
+import { RefTable } from "~/components/doc/ref-table";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Learning loop") }, { name: "robots", content: "noindex, nofollow" }];
@@ -60,130 +69,106 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
   const busy = useNavigation().state === "submitting";
   const { states, detail, cycle, due, retests, kinds } = loaderData;
   const thisWeek = cycle?.reviews.find((r) => r.week_no === cycle.current_week);
+  const focus = detail?.state;
 
   return (
-    <div className="lp-measure">
+    <div>
       <PageHeader title={t("home.title")} lede={t("home.lead")} />
       <ActionError result={actionData} />
 
-      {/* Retests first: a retest is the one thing here with a day attached. */}
-      {retests.length > 0 ? (
-        <section aria-labelledby="lp-loop-retests" className="mt-8">
-          <h2 id="lp-loop-retests" className="lp-section">
-            {t("cards.retests.title")}
-          </h2>
-          <RetestsDueList retests={retests} kinds={kinds} />
-        </section>
+      {focus ? (
+        <QuickStart
+          kicker={t("home.current")}
+          title={focus.goal}
+          description={`${t("state.nextTask")}: ${focus.next_task || t("state.empty")}`}
+          primary={{ label: t("up.loop.doMinimum"), to: `/loop/state/${focus.id}#lp-state-minimum` }}
+          secondary={[{ label: t("interrupt.open"), to: `/loop/state/${focus.id}#lp-state-interrupt` }]}
+          cycle={t("up.loop.cycle")}
+        />
       ) : null}
 
-      {detail ? (
-        <section aria-labelledby="lp-loop-state" className="mt-8 lp-keybox p-5 sm:p-6">
-          <h2 id="lp-loop-state" className="font-sans text-sm font-semibold text-part">
-            {t("home.current")}
-          </h2>
-          <StateCard state={detail.state} />
-        </section>
-      ) : null}
+      <div className="lp-doc">
+        <NumberedSection n={1} title={t("up.loop.states")} id="lp-loop-goals">
+          {states.length === 0 ? (
+            <p className="text-muted-foreground">{t("up.loop.noStates")}</p>
+          ) : (
+            <RefTable
+              caption={t("up.loop.states")}
+              columns={[t("start.goal"), t("up.loop.weekColumn"), t("up.gate.gate"), t("up.loop.open")]}
+              rows={states.map((s) => {
+                const current = s.id === focus?.id && cycle;
+                return [
+                  s.goal,
+                  current ? t("up.loop.week", { week: cycle.current_week }) : "—",
+                  current ? (
+                    <Badge key="gate" type={cycle.gate.open ? "tip" : "info"}>
+                      {phases[cycle.phase]} · {cycle.gate.open ? t("up.gate.open") : t("up.gate.shut")}
+                    </Badge>
+                  ) : s.phase ? (
+                    <Badge key="gate">{phases[s.phase]}</Badge>
+                  ) : (
+                    "—"
+                  ),
+                  <Link key="open" to={`/loop/state/${s.id}`} aria-label={`${t("up.loop.open")}: ${s.goal}`}>
+                    {t("up.loop.open")}
+                  </Link>,
+                ];
+              })}
+            />
+          )}
+        </NumberedSection>
 
-      {cycle ? (
-        <>
-          <section aria-labelledby="lp-loop-cycle" className="mt-10">
-            <h2 id="lp-loop-cycle" className="lp-section">
-              {t("home.cycle")}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              <Link to={`/loop/cycle/${cycle.id}`} className="underline underline-offset-4">
-                {t("home.week", { week: cycle.current_week })}
-              </Link>
-            </p>
-            <div className="mt-3">
-              <GatePanel cycleId={cycle.id} phase={cycle.phase} gate={cycle.gate} busy={busy} />
-            </div>
-          </section>
-          <section aria-labelledby="lp-loop-week" className="mt-10">
-            <h2 id="lp-loop-week" className="lp-section">
-              {t("home.thisWeek")}
-            </h2>
+        {cycle ? (
+          <NumberedSection n={2} title={t("home.thisWeek")} id="lp-loop-week">
             <WeekCard cycleId={cycle.id} week={cycle.current_week} review={thisWeek} cannotProve={t("week.cannotProve")} />
-          </section>
-        </>
-      ) : null}
+            <h3>{t("home.cycle")}</h3>
+            <p>
+              <Link to={`/loop/cycle/${cycle.id}`}>{t("home.week", { week: cycle.current_week })}</Link>
+            </p>
+            <GatePanel cycleId={cycle.id} phase={cycle.phase} gate={cycle.gate} busy={busy} />
+          </NumberedSection>
+        ) : null}
 
-      {detail ? (
-        <section aria-labelledby="lp-loop-cards" className="mt-10">
-          <h2 id="lp-loop-cards" className="lp-section">
-            {t("cards.title")}
-          </h2>
-          <CardList cards={detail.cards} kinds={kinds} diagnostic={loaderData.diagnostic} />
-          <Link
-            to={`/loop/state/${detail.state.id}`}
-            className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
-          >
-            {t("cards.new")}
-          </Link>
+        <NumberedSection n={cycle ? 3 : 2} title={t("cards.retests.title")} id="lp-loop-retests">
+          <RetestsDueList retests={retests} kinds={kinds} />
+        </NumberedSection>
+
+        {detail ? (
+          <NumberedSection n={cycle ? 4 : 3} title={t("cards.title")} id="lp-loop-cards">
+            <CardList cards={detail.cards} kinds={kinds} diagnostic={loaderData.diagnostic} />
+            <p>
+              <Link to={`/loop/state/${detail.state.id}`}>{t("cards.new")}</Link>
+            </p>
+          </NumberedSection>
+        ) : null}
+
+        <section aria-labelledby="lp-loop-due">
+          <h2 id="lp-loop-due">{t("home.due")}</h2>
+          {due.length === 0 ? (
+            <p className="text-muted-foreground">{t("home.nothingDue")}</p>
+          ) : (
+            <ul className="lp-dated-list">
+              {due.map((item) => (
+                <li key={item.knowledge_point_id}>
+                  <Link to={`/mastery/${item.path_id}/session`}>{item.knowledge_point_name}</Link>
+                  {NOTE_JOIN}
+                  {item.path_goal}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
-      ) : null}
 
-      <section aria-labelledby="lp-loop-due" className="mt-10">
-        <h2 id="lp-loop-due" className="lp-section">
-          {t("home.due")}
-        </h2>
-        {due.length === 0 ? (
-          <p className="mt-3 lp-empty">{t("home.nothingDue")}</p>
-        ) : (
-          <ul className="mt-3 border-t">
-            {due.map((item) => (
-              <li key={item.knowledge_point_id} className="border-b">
-                <Link
-                  to={`/mastery/${item.path_id}/session`}
-                  className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 py-3 transition-colors hover:bg-primary-soft"
-                >
-                  <span className="text-sm font-medium">{item.knowledge_point_name}</span>
-                  <span className="text-xs text-muted-foreground">{item.path_goal}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {states.length > 1 ? (
-        <section aria-labelledby="lp-loop-goals" className="mt-10">
-          <h2 id="lp-loop-goals" className="lp-section">
-            {t("home.goals")}
-          </h2>
-          <ul className="mt-3 border-t">
-            {states.map((s) => (
-              <li key={s.id} className="border-b">
-                <Link
-                  to={`/loop/state/${s.id}`}
-                  className="flex min-h-11 flex-wrap items-baseline justify-between gap-x-4 py-3 transition-colors hover:bg-primary-soft"
-                >
-                  <span className="text-sm font-medium">{s.goal}</span>
-                  <span className="text-xs font-semibold text-faint">{s.phase ? phases[s.phase] : ""}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <ToolkitLink />
-
-      <section aria-labelledby="lp-loop-start" className="mt-10">
-        <h2 id="lp-loop-start" className="lp-section">
-          {states.length === 0 ? t("start.first") : t("start.another")}
-        </h2>
-        {states.length === 0 ? (
-          // The first visit: the part's plate beside the form that starts it.
-          <div className="grid items-start gap-x-8 gap-y-4 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
-            <Plate name="part-reflect" sizes="(min-width: 640px) 15rem, 60vw" className="mt-3 max-w-60" />
+        <section aria-labelledby="lp-loop-start">
+          <h2 id="lp-loop-start">{states.length === 0 ? t("start.first") : t("start.another")}</h2>
+          {/* Open on a first visit, when starting is the only thing to do here. */}
+          <Details summary={t("up.loop.startSummary")} open={states.length === 0}>
             <StartForm busy={busy} />
-          </div>
-        ) : (
-          <StartForm busy={busy} />
-        )}
-      </section>
+          </Details>
+        </section>
+
+        <ToolkitLink />
+      </div>
     </div>
   );
 }

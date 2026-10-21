@@ -1,3 +1,4 @@
+import { QuickStart } from "~/components/doc/quick-start";
 /**
  * mastery.book-cards.tsx
  * Mastery → Book cards: today's flash cards from the learner's living books
@@ -53,9 +54,10 @@ export async function action({ request }: Route.ActionArgs) {
 export default function BookCards({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("vocab");
   return (
-    <div className="lp-measure">
+    <div className="lp-doc lp-measure">
       <PageHeader title={t("bookCards.title")} lede={t("bookCards.lead")} />
       <MasteryTabs vocabDue={loaderData.vocabDue} bookDue={loaderData.dueCount} />
+      <QuickStart kicker={t("session.title")} title={t("practise.reviewCards", { count: loaderData.dueCount })} primary={{ to: "#lp-book-cards-due", label: t("session.title") }} />
       <section aria-labelledby="lp-book-cards-due" className="mt-8">
         <h2 id="lp-book-cards-due" className="lp-section">
           {t("session.title")}

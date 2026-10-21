@@ -6,6 +6,7 @@
 # Env / secrets
 .env
 .env.local
+.env.production
 !.env.example
 
 # Node

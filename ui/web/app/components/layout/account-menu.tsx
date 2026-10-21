@@ -1,8 +1,6 @@
-import { Form, Link } from "react-router";
+import { Form } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Languages, LogOut, Settings } from "lucide-react";
-import { useDisclosureMenu } from "~/components/tools-site/locale-switcher";
-import { cn } from "~/lib/utils";
+import { Flyout, FlyoutGroup, FlyoutLink, FLYOUT_ITEM } from "~/components/doc/flyout";
 
 /** One or two letters for the avatar: the name's initials, else the email's first. */
 export function initials(displayName: string, email: string): string {
@@ -12,72 +10,58 @@ export function initials(displayName: string, email: string): string {
   return (email.trim()[0] ?? "?").toUpperCase();
 }
 
-const ITEM =
-  "flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+/** Who is signed in, Settings, the language and a POST sign-out: the menu's rows. */
+export function AccountItems({ displayName, email }: { displayName: string; email: string }) {
+  const { t } = useTranslation("common");
+  const name = displayName || email;
+  return (
+    <>
+      <FlyoutGroup>
+        <p className="truncate px-3 text-sm leading-8 font-semibold">{name}</p>
+        {displayName ? <p className="truncate px-3 pb-1 text-xs text-muted-foreground">{email}</p> : null}
+      </FlyoutGroup>
+      <FlyoutGroup>
+        <FlyoutLink to="/settings">{t("account.settings")}</FlyoutLink>
+        <FlyoutLink to="/settings/account">{t("account.language")}</FlyoutLink>
+      </FlyoutGroup>
+      <FlyoutGroup>
+        {/* A POST, not a link: a GET logout can be fired by any third-party
+            <img src="/auth/logout"> the user's browser happens to load. */}
+        <Form method="post" action="/auth/logout">
+          <button type="submit" className={FLYOUT_ITEM}>
+            {t("actions.signOut")}
+          </button>
+        </Form>
+      </FlyoutGroup>
+    </>
+  );
+}
 
 /**
- * The account, as one round button in the running head (plan 261019-1317,
- * phase 3): who is signed in, Settings, the interface language, and Sign out.
- * It replaces the name, email and outlined Sign out button that sat on every
- * page, the loudest thing in the running head after the page's own title.
- *
- * A `<details>`, like the site's language menu, so it opens and signs out
- * before hydration; useDisclosureMenu closes it on a click outside, on Escape
- * and after navigating.
+ * The account, as a flyout at the end of the nav (pattern I9): the avatar's
+ * initials open who is signed in, Settings, the interface language and Sign
+ * out. The name is read as text, not shown: the visible initials are hidden
+ * from the name, so they cannot disagree with it (WCAG 2.5.3).
  */
 export function AccountMenu({ displayName, email }: { displayName: string; email: string }) {
   const { t } = useTranslation("common");
-  const ref = useDisclosureMenu();
   const name = displayName || email;
-
   return (
-    <details ref={ref} className="group relative">
-      {/* The name is read as text, not aria-label: an aria-label that does not
-          contain the visible initials fails WCAG 2.5.3 (axe). */}
-      <summary
-        className={cn(
-          "flex size-11 cursor-pointer list-none items-center justify-center rounded-full select-none",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden",
-        )}
-      >
+    <Flyout
+      label={t("account.menu", { name })}
+      hideChevron
+      buttonClassName="group px-2"
+      menuClassName="w-64"
+      icon={
         <span
           aria-hidden="true"
-          className="flex size-9 items-center justify-center rounded-full border border-control-border bg-card font-sans text-sm font-semibold text-foreground transition-colors group-open:border-primary group-hover:border-primary"
+          className="flex size-8 items-center justify-center rounded-full border border-control-border bg-card text-xs font-semibold text-foreground transition-colors group-hover:border-primary group-aria-expanded:border-primary"
         >
           {initials(displayName, email)}
         </span>
-        <span className="sr-only">{t("account.menu", { name })}</span>
-      </summary>
-      <div className="absolute right-0 z-50 mt-1 w-64 rounded-lg border bg-card p-1 shadow-md">
-        <div className="border-b px-3 pt-2 pb-3">
-          <p className="truncate text-sm font-medium">{name}</p>
-          {displayName ? <p className="truncate text-xs text-muted-foreground">{email}</p> : null}
-        </div>
-        <ul className="pt-1">
-          <li>
-            <Link to="/settings" className={ITEM}>
-              <Settings aria-hidden="true" className="size-4" />
-              {t("account.settings")}
-            </Link>
-          </li>
-          <li>
-            <Link to="/settings/account" className={ITEM}>
-              <Languages aria-hidden="true" className="size-4" />
-              {t("account.language")}
-            </Link>
-          </li>
-          <li className="mt-1 border-t pt-1">
-            {/* A POST, not a link: a GET logout can be fired by any third-party
-                <img src="/auth/logout"> the user's browser happens to load. */}
-            <Form method="post" action="/auth/logout">
-              <button type="submit" className={ITEM}>
-                <LogOut aria-hidden="true" className="size-4" />
-                {t("actions.signOut")}
-              </button>
-            </Form>
-          </li>
-        </ul>
-      </div>
-    </details>
+      }
+    >
+      <AccountItems displayName={displayName} email={email} />
+    </Flyout>
   );
 }

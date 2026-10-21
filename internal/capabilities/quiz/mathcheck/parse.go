@@ -79,9 +79,15 @@ var stopWords = map[string]bool{
 }
 
 var (
-	thousands    = regexp.MustCompile(`^\d{1,3}(,\d{3})+$`)
+	thousands    = regexp.MustCompile(`^[1-9]\d{0,2}(,\d{3})+$`)
 	decimalComma = regexp.MustCompile(`(\d),(\d)`)
 	latexSpaces  = regexp.MustCompile(`\\[,;:! ]|\\quad|\\qquad`)
+	// MathLive's ASCII for \sqrt[n]{x}: root(n)(x).
+	asciiRoot = regexp.MustCompile(`root\(([^()]+)\)\(([^()]+)\)`)
+	// 1\frac{1}{2} and MathLive's 1(1)/(2): a whole number and a fraction of
+	// numbers written against it is a mixed number, 1½.
+	mixedLatex = regexp.MustCompile(`(^|[^\w.^_])(\d+)\s*\\frac\{(\d+)\}\{(\d+)\}`)
+	mixedASCII = regexp.MustCompile(`(^|[^\w.)^_])(\d+)\((\d+)\)/\((\d+)\)`)
 )
 
 // Parse reads one expression or one equation.
@@ -116,20 +122,28 @@ func Parse(s string) (*Parsed, error) {
 	return out, nil
 }
 
-// normalize strips math delimiters and spells symbols one way.
-func normalize(s string) string {
+// stripDelimiters takes off $…$, $$…$$, \(…\) and \[…\].
+func stripDelimiters(s string) string {
 	s = strings.TrimSpace(s)
 	for _, pair := range [][2]string{{"$$", "$$"}, {"$", "$"}, {`\(`, `\)`}, {`\[`, `\]`}} {
 		if strings.HasPrefix(s, pair[0]) && strings.HasSuffix(s, pair[1]) && len(s) >= len(pair[0])+len(pair[1]) {
 			s = strings.TrimSpace(s[len(pair[0]) : len(s)-len(pair[1])])
 		}
 	}
-	s = strings.TrimSuffix(s, ".")
+	return s
+}
+
+// normalize strips math delimiters and spells symbols one way.
+func normalize(s string) string {
+	s = strings.TrimSuffix(stripDelimiters(s), ".")
 	s = latexSpaces.ReplaceAllString(s, " ")
+	s = asciiRoot.ReplaceAllString(s, "(($2)^(1/($1)))")
+	s = mixedLatex.ReplaceAllString(s, "$1($2+$3/$4)")
+	s = mixedASCII.ReplaceAllString(s, "$1($2+$3/$4)")
 	r := strings.NewReplacer(
 		`\left`, "", `\right`, "", `\cdot`, "*", `\times`, "*", `\div`, "/", `\dfrac`, `\frac`, `\tfrac`, `\frac`,
 		`\mathrm`, "", `\displaystyle`, "",
-		"×", "*", "·", "*", "⋅", "*", "÷", "/", "−", "-", "–", "-", "√", "sqrt", "π", " pi ",
+		"×", "*", "·", "*", "⋅", "*", "÷", "/", "-:", "/", "−", "-", "–", "-", "√", "sqrt", "π", " pi ",
 		"²", "^2", "³", "^3", "**", "^",
 	)
 	s = r.Replace(s)
@@ -248,8 +262,9 @@ func tokenize(s string) ([]token, error) {
 			if i < len(rs) && rs[i] == '_' && len(out) > 0 && out[len(out)-1].kind == tVar {
 				k := i + 1
 				var sub string
-				if k < len(rs) && rs[k] == '{' {
-					end := runeIndex(rs[k:], '}')
+				if k < len(rs) && (rs[k] == '{' || rs[k] == '(') {
+					// x_{12}, and MathLive's x_(12)
+					end := runeIndex(rs[k:], map[rune]rune{'{': '}', '(': ')'}[rs[k]])
 					if end < 0 {
 						return nil, ErrUnreadable
 					}
@@ -566,7 +581,18 @@ func (p *parser) primary() (*Node, error) {
 		if q := p.peek(); q != nil && q.kind == tOpen {
 			arg, err = p.group()
 		} else {
-			arg, err = p.power() // sin x, sqrt 2
+			// sin x, sqrt 2, and sin 2x as sin(2x): a bracketless argument
+			// is a number and the variables written against it.
+			arg, err = p.power()
+			for err == nil {
+				if q := p.peek(); q == nil || q.kind != tVar {
+					break
+				}
+				var v *Node
+				if v, err = p.power(); err == nil {
+					arg = &Node{kind: nMul, a: arg, b: v}
+				}
+			}
 		}
 		if err != nil {
 			return nil, err

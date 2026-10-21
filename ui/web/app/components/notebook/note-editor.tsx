@@ -6,6 +6,7 @@ import type { Category, Note, Notebook } from "~/lib/reading-types";
 import { sourceHref } from "~/lib/reading-types";
 import { Button } from "~/components/ui/button";
 import { MarkdownPreview } from "~/components/notebook/markdown-preview";
+import { sectionTabClass } from "~/components/ui/section-tabs";
 
 /**
  * One note, editable: title, Markdown body with a preview tab, categories,
@@ -34,10 +35,11 @@ export function NoteEditor({
   const error = save.data?.errorKey ? save.data : other.data;
 
   return (
+    // In place of the note's text under its h2: a 1px box, radius 8.
     <article aria-labelledby="lp-note-editor" className="rounded-lg border bg-card p-4 sm:p-5">
-      <h2 id="lp-note-editor" className="lp-section">
+      <h3 id="lp-note-editor" className="text-sm leading-6 font-semibold text-muted-foreground">
         {t("note.editing")}
-      </h2>
+      </h3>
       <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
         {note.created_by === "agent" ? (
           <span className="inline-flex items-center gap-1">
@@ -64,17 +66,19 @@ export function NoteEditor({
             name="title"
             defaultValue={note.title}
             maxLength={300}
-            className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
+            className="mt-1 h-10 w-full rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
           />
         </div>
 
-        <div role="tablist" aria-label={t("note.bodyLabel")} className="flex gap-1">
-          <Button type="button" role="tab" aria-selected={!preview} size="sm" variant={preview ? "ghost" : "outline"} onClick={() => setPreview(false)}>
+        {/* Write / Preview as nav links, as up's tabs: the chosen one in the
+            action ink, never an underline. */}
+        <div role="tablist" aria-label={t("note.bodyLabel")} className="flex gap-1 border-b pb-1">
+          <button type="button" role="tab" aria-selected={!preview} className={sectionTabClass({ isActive: !preview })} onClick={() => setPreview(false)}>
             {t("note.write")}
-          </Button>
-          <Button type="button" role="tab" aria-selected={preview} size="sm" variant={preview ? "outline" : "ghost"} onClick={() => setPreview(true)}>
+          </button>
+          <button type="button" role="tab" aria-selected={preview} className={sectionTabClass({ isActive: preview })} onClick={() => setPreview(true)}>
             {t("note.preview")}
-          </Button>
+          </button>
         </div>
         {/* The textarea stays mounted while previewing so the draft is what
             gets submitted either way. */}
@@ -88,10 +92,10 @@ export function NoteEditor({
           onChange={(e) => setBody(e.target.value)}
           rows={12}
           hidden={preview}
-          className="w-full rounded-md border border-control-border bg-card px-3 py-2 font-mono text-sm leading-prose"
+          className="w-full rounded-sm border border-control-border bg-card px-3 py-2 font-mono text-sm leading-6 hover:border-primary focus-visible:border-primary focus-visible:outline-none"
         />
         {preview ? (
-          <div className="min-h-40 rounded-md border px-3 py-2">
+          <div className="min-h-40 rounded-sm border px-3 py-2">
             <MarkdownPreview source={body} />
           </div>
         ) : null}
@@ -129,7 +133,7 @@ export function NoteEditor({
               <select
                 id="lp-note-target"
                 name="notebookId"
-                className="mt-1 min-h-11 rounded-md border border-control-border bg-card px-3 text-sm"
+                className="mt-1 h-10 rounded-sm border border-control-border bg-card px-3 text-sm hover:border-primary focus-visible:border-primary focus-visible:outline-none"
               >
                 {targets.map((nb) => (
                   <option key={nb.id} value={nb.id}>
@@ -152,7 +156,7 @@ export function NoteEditor({
           <Button
             type="submit"
             variant="outline"
-            className="text-destructive hover:bg-destructive-soft"
+            className="border-destructive text-destructive hover:bg-destructive-soft"
             disabled={other.state !== "idle"}
             onClick={(event) => {
               if (!window.confirm(t("note.deleteConfirm"))) event.preventDefault();

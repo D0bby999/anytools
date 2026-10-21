@@ -44,8 +44,10 @@ describe("claim check", () => {
     renderRouted(<ClaimCheck check={check} sources={sources} />);
     expect(screen.getByText("1 of 3 claims are supported by the sources they cite.")).toBeTruthy();
     expect(screen.getByText(/not proof that a claim is true/)).toBeTruthy();
+    // The flagged claims are the rows of the table under "Needs checking"
+    // (the header row aside), in the order the check gave them.
     const flagged = screen.getByText("Needs checking").nextElementSibling as HTMLElement;
-    const items = within(flagged).getAllByRole("listitem");
+    const items = within(flagged).getAllByRole("row").slice(1);
     expect(items.map((li) => li.textContent)).toEqual([
       expect.stringContaining("Not in the source"),
       expect.stringContaining("Partly supported"),

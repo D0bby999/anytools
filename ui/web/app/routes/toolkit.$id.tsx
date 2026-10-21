@@ -16,8 +16,15 @@
  *
  * An AI evaluation (up f13ff2d, phase 2) shows beside its stored pass rates
  * the rates its case rows give as they are edited (evaluation-extras.tsx).
+ *
+ * Laid out as up's worksheet page (P2, plan 261020-2246 phase 12): the title
+ * and one lede, the facts line, "Download Markdown / Copy worksheet", the
+ * private notice, then each section as a numbered h2 with its input tables.
+ * The worksheet actions sit outside the `.lp-doc` article so its link rule
+ * does not repaint their buttons. up's "If you only have five minutes today"
+ * is left out: no kind serves a minimum version yet.
  */
-import { Form, Link, redirect, useNavigation } from "react-router";
+import { Form, redirect, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/toolkit.$id";
 import { appTitle } from "~/lib/app-title";
@@ -37,7 +44,6 @@ import { useDiagnosticExtras } from "~/components/worksheet/diagnostic-extras";
 import { useGrammarExtras } from "~/components/worksheet/grammar-extras";
 import { useCycleCloseExtras } from "~/components/worksheet/cycle-close-extras";
 import { useEvaluationExtras } from "~/components/worksheet/evaluation-extras";
-import { inputBox } from "~/components/worksheet/field-input";
 import { WorksheetMediaContext } from "~/components/worksheet/audio-cell";
 import { RecordingsPanel } from "~/components/worksheet/recordings-panel";
 import { WRITING_EVIDENCE, writingDiagnosisExtra, type DiagnoseResult } from "~/components/worksheet/writing-diagnosis";
@@ -46,6 +52,11 @@ import type { Chain } from "~/lib/loop-types";
 import { ARTIFACT_BRIEF, artifactSectionExtra, useArtifactExtras } from "~/components/worksheet/artifact-extras";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
 import { PageHeader } from "~/components/ui/page-header";
+import { BookMeta, type BookMetaItem } from "~/components/doc/book-meta";
+import { Details } from "~/components/doc/details";
+import { Field } from "~/components/doc/field";
+import { RefTable } from "~/components/doc/ref-table";
+import { WorksheetActions } from "~/components/doc/worksheet-actions";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [{ title: appTitle(matches, "Worksheet", "Toolkit") }, { name: "robots", content: "noindex, nofollow" }];
@@ -218,141 +229,114 @@ export default function ToolkitWorksheet({ loaderData, actionData }: Route.Compo
         ? actionData
         : null;
 
+  // The facts and the ways back, as up's book-meta line under the title.
+  const meta: BookMetaItem[] = [
+    ...(kind && kind.summary ? [{ label: kind.name }] : []),
+    { label: w.status === "done" ? t("list.done") : t("list.open") },
+    { label: t("sheet.back"), to: "/toolkit" },
+    ...(w.state_id ? [{ label: t("sheet.goal"), to: `/loop/state/${w.state_id}` }] : []),
+    ...(w.cycle_id ? [{ label: t("cycleClose.backToCycle"), to: `/loop/cycle/${w.cycle_id}` }] : []),
+    // A worksheet on a video (the listening kinds, up-methods phase 2) goes
+    // back to the video's "Practise listening".
+    ...(w.document_id
+      ? [
+          kind?.document_kinds?.includes("youtube")
+            ? { label: tl("backToVideo"), to: `/documents/${w.document_id}?view=listening` }
+            : { label: t("sheet.document"), to: `/documents/${w.document_id}` },
+        ]
+      : []),
+  ];
+
   return (
-    <div className="lp-measure">
-      <PageHeader title={w.title} lede={kind ? kind.name : t("sheet.unknownKind")} />
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <Link to="/toolkit" className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">
-          {t("sheet.back")}
-        </Link>
-        {w.state_id ? (
-          <Link
-            to={`/loop/state/${w.state_id}`}
-            className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
-          >
-            {t("sheet.goal")}
-          </Link>
-        ) : null}
-        {w.cycle_id ? (
-          <Link
-            to={`/loop/cycle/${w.cycle_id}`}
-            className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
-          >
-            {t("cycleClose.backToCycle")}
-          </Link>
-        ) : null}
-        {w.document_id ? (
-          // A worksheet on a video (the listening kinds, up-methods phase 2)
-          // goes back to the video's "Practise listening".
-          kind?.document_kinds?.includes("youtube") ? (
-            <Link
-              to={`/documents/${w.document_id}?view=listening`}
-              className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
-            >
-              {tl("backToVideo")}
-            </Link>
-          ) : (
-            <Link
-              to={`/documents/${w.document_id}`}
-              className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
-            >
-              {t("sheet.document")}
-            </Link>
-          )
-        ) : null}
-        <a
-          href={`/toolkit/${w.id}/export.md`}
-          download
-          className="inline-flex min-h-11 items-center text-primary underline underline-offset-4"
-        >
-          {t("sheet.export")}
-        </a>
-        <SaveToDrive kind="worksheet" id={w.id} />
-      </div>
+    <div>
+      <PageHeader
+        title={w.title}
+        lede={kind ? kind.summary || kind.name : t("sheet.unknownKind")}
+        className="mb-0"
+      />
+      <BookMeta items={meta} label={t("up.sheet.about")} />
+      <WorksheetActions href={`/toolkit/${w.id}/export.md`} extra={<SaveToDrive kind="worksheet" id={w.id} />} />
       {w.private ? <PrivateNote kind={kind} /> : null}
       <ActionError result={pageError} />
 
-      {kind ? (
-        <>
-          {kind.summary ? <p className="mt-4 text-sm leading-prose text-muted-foreground">{kind.summary}</p> : null}
-          <WorksheetReviews kind={kind} reviews={w.reviews} revision={w.updated_at} busy={busy} />
-          <WorksheetMediaContext.Provider value={{ worksheetId: w.id, recordings, related }}>
-            {/* Keeping or deleting a take changes what the server holds in
-                its cells: the form starts again from the saved answers. */}
-            <WorksheetForm
-              key={recordings.map((r) => r.id).join(",")}
-              worksheetId={w.id}
-              kind={kind}
-              answers={w.answers}
-              revision={w.updated_at}
-              extras={extras}
-              onValues={evaluation.onValues}
-              renderSectionExtra={
-                writingDiagnosisExtra(kind, w.id, diagnoses ?? []) ??
-                artifactSectionExtra(kind, w, loaderData.chains ?? [])
-              }
-            />
-          </WorksheetMediaContext.Provider>
-          <RecordingsPanel worksheetId={w.id} kind={kind} answers={w.answers} recordings={recordings} />
-        </>
-      ) : null}
+      <div className="lp-doc">
+        {kind ? (
+          <>
+            <WorksheetMediaContext.Provider value={{ worksheetId: w.id, recordings, related }}>
+              {/* Keeping or deleting a take changes what the server holds in
+                  its cells: the form starts again from the saved answers. */}
+              <WorksheetForm
+                key={recordings.map((r) => r.id).join(",")}
+                worksheetId={w.id}
+                kind={kind}
+                answers={w.answers}
+                revision={w.updated_at}
+                extras={extras}
+                onValues={evaluation.onValues}
+                renderSectionExtra={
+                  writingDiagnosisExtra(kind, w.id, diagnoses ?? []) ??
+                  artifactSectionExtra(kind, w, loaderData.chains ?? [])
+                }
+              />
+            </WorksheetMediaContext.Provider>
+            <RecordingsPanel worksheetId={w.id} kind={kind} answers={w.answers} recordings={recordings} />
+          </>
+        ) : null}
 
-      {earlier.length > 0 ? (
-        <section aria-labelledby="ws-earlier" className="mt-10">
-          <h2 id="ws-earlier" className="lp-section">
-            {t("sheet.earlier")}
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">{t("sheet.earlierLead")}</p>
-          <dl className="mt-3 border-t text-sm">
-            {earlier.map((path) => {
-              const [section = "", key = ""] = path.split(".");
-              return (
-                <div key={path} className="border-b py-2">
-                  <dt className="font-mono text-xs text-faint">{path}</dt>
-                  <dd className="mt-1 whitespace-pre-wrap break-words">
+        {earlier.length > 0 ? (
+          <section aria-labelledby="ws-earlier">
+            <h2 id="ws-earlier">{t("sheet.earlier")}</h2>
+            <p className="text-muted-foreground">{t("sheet.earlierLead")}</p>
+            <RefTable
+              caption={t("sheet.earlier")}
+              columns={[t("up.sheet.field"), t("up.sheet.value")]}
+              rows={earlier.map((path) => {
+                const [section = "", key = ""] = path.split(".");
+                return [
+                  <code key="path">{path}</code>,
+                  <span key="value" className="whitespace-pre-wrap break-words">
                     {JSON.stringify(w.answers[section]?.[key] ?? null)}
-                  </dd>
-                </div>
-              );
-            })}
-          </dl>
-        </section>
-      ) : null}
+                  </span>,
+                ];
+              })}
+            />
+          </section>
+        ) : null}
 
-      <section aria-labelledby="ws-manage" className="mt-10">
-        <h2 id="ws-manage" className="lp-section">
-          {t("sheet.manage")}
-        </h2>
-        <Form method="post" className="mt-3 flex flex-wrap items-end gap-2">
-          <input type="hidden" name="intent" value="title" />
-          <input type="hidden" name="revision" value={w.updated_at} />
-          <label className="block grow text-sm font-medium">
-            {t("sheet.title")}
-            <input name="title" required maxLength={200} defaultValue={w.title} className={`${inputBox} mt-1`} />
-          </label>
-          <Button type="submit" variant="outline" disabled={busy}>
-            {t("sheet.rename")}
-          </Button>
-        </Form>
-        <Form method="post" className="mt-4">
-          <input type="hidden" name="intent" value="status" />
-          <input type="hidden" name="revision" value={w.updated_at} />
-          <input type="hidden" name="status" value={w.status === "done" ? "open" : "done"} />
-          <Button type="submit" variant="outline" disabled={busy}>
-            {w.status === "done" ? t("sheet.reopen") : t("sheet.markDone")}
-          </Button>
-        </Form>
-        <details className="mt-4">
-          <summary className="min-h-11 cursor-pointer py-2 text-sm text-destructive">{t("sheet.delete")}</summary>
-          <Form method="post" className="mt-2">
-            <input type="hidden" name="intent" value="delete" />
-            <p className="text-sm text-muted-foreground">{t("sheet.deleteConfirm")}</p>
-            <Button type="submit" variant="destructive" className="mt-2" disabled={busy}>
-              {t("sheet.deleteNow")}
+        <section aria-labelledby="ws-manage">
+          <h2 id="ws-manage">{t("sheet.manage")}</h2>
+          {kind ? <WorksheetReviews kind={kind} reviews={w.reviews} revision={w.updated_at} busy={busy} /> : null}
+          <Form method="post" className="flex flex-wrap items-end gap-x-3">
+            <input type="hidden" name="intent" value="title" />
+            <input type="hidden" name="revision" value={w.updated_at} />
+            <div className="min-w-60 grow">
+              <Field label={t("sheet.title")}>
+                <input name="title" required maxLength={200} defaultValue={w.title} />
+              </Field>
+            </div>
+            <Button type="submit" variant="outline" disabled={busy} className="mb-4">
+              {t("sheet.rename")}
             </Button>
           </Form>
-        </details>
-      </section>
+          <Form method="post">
+            <input type="hidden" name="intent" value="status" />
+            <input type="hidden" name="revision" value={w.updated_at} />
+            <input type="hidden" name="status" value={w.status === "done" ? "open" : "done"} />
+            <Button type="submit" variant="outline" disabled={busy}>
+              {w.status === "done" ? t("sheet.reopen") : t("sheet.markDone")}
+            </Button>
+          </Form>
+          <Details summary={t("sheet.delete")} className="mt-6">
+            <Form method="post">
+              <input type="hidden" name="intent" value="delete" />
+              <p className="mt-0! text-sm text-muted-foreground">{t("sheet.deleteConfirm")}</p>
+              <Button type="submit" variant="destructive" disabled={busy}>
+                {t("sheet.deleteNow")}
+              </Button>
+            </Form>
+          </Details>
+        </section>
+      </div>
     </div>
   );
 }

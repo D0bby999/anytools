@@ -62,7 +62,16 @@
     "rename": "Name",
     "renameSubmit": "Rename",
     "delete": "Delete this notebook",
-    "deleteConfirm": "Delete this notebook and every note in it? This cannot be undone."
+    "deleteConfirm": "Delete this notebook and every note in it? This cannot be undone.",
+    "up": {
+      "kicker": "Start here",
+      "title": "Keep what you read in a notebook",
+      "description": "Saving a passage or an answer from the reader puts it in your default notebook. Make others for a course or a project.",
+      "yours": "Your notebooks",
+      "updated": "updated",
+      "metaLabel": "About this notebook",
+      "edit": "Edit"
+    }
   },
   "note": {
     "editing": "Note",
@@ -141,5 +150,8 @@
     "byBuiltin": "Heard by this server's built-in transcription.",
     "heardText": "What it heard",
     "notAScore": "This checks whether a listener got each word, not how close your accent is. An accent that is understood is fine."
-  }
+  },
+  "download": "Download",
+  "readAloudPage": "Read this page aloud",
+  "checkAloudPage": "Check my reading of this page"
 }

@@ -1,3 +1,5 @@
+import { Details } from "~/components/doc/details";
+import { Field } from "~/components/doc/field";
 import { useId, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -83,9 +85,7 @@ export function ExplainBackCard({
             fetcher.submit({ intent: "explain", text, request_id: requestId.current }, { method: "post", action });
           }}
         >
-          <label htmlFor={`${ids}-text`} className="block text-sm font-medium">
-            {t("explain.yourWords")}
-          </label>
+          <Field label={t("explain.yourWords")}>
           <textarea
             id={`${ids}-text`}
             name="text"
@@ -101,6 +101,7 @@ export function ExplainBackCard({
             }}
             className="w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           />
+          </Field>
           <p className="text-xs text-faint tabular-nums">
             {t("explain.count", { count: length, min: EXPLAIN_MIN, max: EXPLAIN_MAX })}
           </p>
@@ -200,7 +201,7 @@ function Verdict({
           <Findings items={attempt.misconceptions} sources={attempt.sources} />
         </section>
       ) : null}
-      {attempt.feedback ? <RichText text={attempt.feedback} sources={attempt.sources} /> : null}
+      {attempt.feedback ? <Details summary={t("practise.explanation")} open><RichText text={attempt.feedback} sources={attempt.sources} /></Details> : null}
 
       {result.graduated.map((m) => (
         <p key={m.module_id} className="text-muted-foreground">

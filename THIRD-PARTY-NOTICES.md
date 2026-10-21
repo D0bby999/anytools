@@ -2782,15 +2782,25 @@ travel with the data: `/tool-runtime/makemeahanzi@0.0.0-bddc96d/ARPHICPL.TXT` an
 `/tool-runtime/animcjk@0.0.0-3e1253b/ARPHICPL.TXT`, `COPYING.txt` and `LGPL.txt`. The quiz itself
 is [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT), listed above.
 
-## Ultimate Geography (text only)
+## Ultimate Geography (text, flags and maps)
 
-The deck library (plans/261020-1535-beyond-english-learning-areas, phase 5) ships the text of
+The deck library (plans/261020-1535-beyond-english-learning-areas, phase 5) ships
 [Ultimate Geography](https://github.com/anki-geo/ultimate-geography) v5.3 in English, Spanish and
-Portuguese: country → capital and capital → country cards, written into
-`ui/web/app/data/decks/ultimate-geography-<lang>.json` by `ui/web/scripts/decks/ultimate-geography.mjs`
-from the release's CrowdAnki files. The deck, excluding its images, is released into the public
-domain under the Unlicense; its images (flags and maps) are not included. No notice is required;
-this section records the source.
+Portuguese: country → capital and capital → country cards, and flag and map cards, written into
+`ui/web/app/data/decks/ultimate-geography-*.json` by `ui/web/scripts/decks/ultimate-geography.mjs`
+from the release's CrowdAnki files and the repository's `sources.csv`. The deck's text is released
+into the public domain under the Unlicense.
+
+Its pictures are **redistributed unchanged** from the v5.3 release
+(`Ultimate_Geography_v5.3_EN.zip`, sha256 `25068fc3442a1407395eb2d8130e368e1b016d15747f9453386bf4aef553d617`,
+its `media/ug-flag-*` and `media/ug-map-*` files) and served under
+`/tool-runtime/ultimate-geography-media@5.3/`. They are not public domain: each is under the licence
+`sources.csv` gives it (CC BY-SA 1.0, 2.5, 3.0 or 4.0, CC BY 3.0, CC0 1.0, or public domain), and
+each card that shows one credits it by its source page (which names its author) and its licence,
+with a link to the licence. Ultimate Geography optimised, resized or converted them; any further
+change is in `sources.csv`'s Modifications column. AnyLearn changes none. Some flags may carry
+restrictions beyond copyright (the European Union's flag, for one), as Ultimate Geography's licence
+notes. A picture `sources.csv` does not list is left out.
 
 ## Pyodide (Python in the browser)
 

@@ -26,9 +26,7 @@ vi.mock("~/lib/google-picker.client", () => ({
 
 const { DriveGrants } = await import("~/components/knowledge/drive-grants");
 const { DriveConnectionCard, driveStatusTone } = await import("~/components/settings/drive-connection-card");
-const { toPicked } = await vi.importActual<typeof import("~/lib/google-picker.client")>(
-  "~/lib/google-picker.client",
-);
+const { toPicked } = await vi.importActual<typeof import("~/lib/google-picker.client")>("~/lib/google-picker.client");
 
 beforeAll(() => {
   initI18n("en");
@@ -102,9 +100,7 @@ afterEach(() => {
 
 describe("DriveGrants", () => {
   it("offers Connect — not a Picker — to an unconnected user", () => {
-    renderRouted(
-      <DriveGrants kbId={KB_ID} picker={PICKER} status={{ ...CONNECTED, connected: false }} grants={[]} />,
-    );
+    renderRouted(<DriveGrants kbId={KB_ID} picker={PICKER} status={{ ...CONNECTED, connected: false }} grants={[]} />);
 
     const connect = screen.getByRole("link", { name: "Connect Google Drive" });
     expect(connect).toHaveAttribute("href", `/auth/drive?next=${encodeURIComponent(`/knowledge/${KB_ID}`)}`);
@@ -156,9 +152,7 @@ describe("DriveGrants", () => {
   });
 
   it("asks for a reconnect, and offers no Picker, when Google stopped honouring the grant", () => {
-    renderRouted(
-      <DriveGrants kbId={KB_ID} picker={PICKER} status={{ ...CONNECTED, needs_reconnect: true }} grants={GRANTS} />,
-    );
+    renderRouted(<DriveGrants kbId={KB_ID} picker={PICKER} status={{ ...CONNECTED, needs_reconnect: true }} grants={GRANTS} />);
     expect(screen.getByRole("link", { name: "Reconnect Google Drive" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Pick more" })).toBeNull();
   });
@@ -243,10 +237,7 @@ describe("DrivePickerButton", () => {
 describe("DriveConnectionCard", () => {
   it("offers Connect to an unconnected user and no Disconnect", () => {
     renderRouted(<DriveConnectionCard status={{ ...CONNECTED, connected: false, grants: 0 }} />);
-    expect(screen.getByRole("link", { name: "Connect Google Drive" })).toHaveAttribute(
-      "href",
-      "/auth/drive?next=%2Fsettings",
-    );
+    expect(screen.getByRole("link", { name: "Connect Google Drive" })).toHaveAttribute("href", "/auth/drive?next=%2Fsettings");
     expect(screen.queryByRole("button", { name: "Disconnect" })).toBeNull();
   });
 
@@ -273,7 +264,8 @@ describe("DriveConnectionCard", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Disconnect" }));
 
-    expect(confirm).toHaveBeenCalledWith(expect.stringMatching(/revoked at Google/));
+    expect(screen.getByRole("dialog", { name: "Disconnect" })).toHaveTextContent(/revoked at Google/);
+    expect(confirm).not.toHaveBeenCalled();
     expect(onAction).not.toHaveBeenCalled();
     confirm.mockRestore();
   });

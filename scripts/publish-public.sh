@@ -9,7 +9,7 @@
 # deploy is published, so the public repository never runs ahead of the site.
 # A HEAD that changes nothing but docs/, plans/, .claude/ or top-level *.md
 # since the live commit deploys nothing. SKIP_DEPLOY=1 publishes without
-# deploying; ANYTOOLS_DEPLOY_HOST names another host.
+# deploying.
 #
 # The public repository (github.com/D0bby999/anytools) began as one commit
 # made by export-public.sh. Later updates keep its history: this exports HEAD
@@ -28,7 +28,15 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 [[ -z "$(git -C "$root" status --porcelain)" ]] || die "uncommitted changes; publish a commit"
 
-host=${ANYTOOLS_DEPLOY_HOST:-root@157.180.70.19}
+# The host stays out of the repository (the public one included): anytools.world
+# sits behind Cloudflare, and its origin's address is not published. It comes
+# from ANYTOOLS_DEPLOY_HOST, else ~/.anytools-secrets/deploy-host (user@address).
+deploy_host() {
+  local h=${ANYTOOLS_DEPLOY_HOST:-$(cat "$HOME/.anytools-secrets/deploy-host" 2>/dev/null)}
+  [[ -n $h ]] || { echo "no deploy host: set ANYTOOLS_DEPLOY_HOST or write ~/.anytools-secrets/deploy-host" >&2; exit 1; }
+  echo "$h"
+}
+host=$(deploy_host)
 head=$(git -C "$root" rev-parse --short HEAD)
 # Does HEAD change anything the site runs, since the commit that is live?
 needs_deploy() {

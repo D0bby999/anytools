@@ -8,10 +8,12 @@ import { redirect } from "react-router";
 import type { Route } from "./+types/english";
 import { requireUser } from "~/lib/auth.server";
 import { setStudiedLanguages, studiedLanguages } from "~/lib/vocab.server";
+import { MAX_STUDIED } from "~/lib/languages";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
   const { studied } = await studiedLanguages(user.id);
-  if (!studied.includes("en")) await setStudiedLanguages(user.id, [...studied, "en"], "en");
+  // A full list (MAX_STUDIED) is left as it is; English's page still opens.
+  if (!studied.includes("en") && studied.length < MAX_STUDIED) await setStudiedLanguages(user.id, [...studied, "en"], "en");
   return redirect("/languages/en");
 }

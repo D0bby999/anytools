@@ -27,10 +27,10 @@
  * configured on both the BFF and the API (drive.server `loadDrive`), so a
  * deployment without a GCP project shows no Drive button at all.
  */
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Form, Link, useFetcher, useRevalidator, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { AlertTriangle, ArrowLeft, BookMarked, GraduationCap, ListChecks, MessageSquare, RefreshCw, Trash2 } from "lucide-react";
+import { RefreshCw, Trash2 } from "lucide-react";
 import { PanelTabs } from "~/components/ui/panel-tabs";
 import type { Route } from "./+types/knowledge.$kbId";
 import { appTitle, raw } from "~/lib/app-title";
@@ -85,6 +85,14 @@ import type { SourcesData } from "~/lib/sources-types";
 import { DriveGrants, DriveNoticeLine } from "~/components/knowledge/drive-grants";
 import { driveReason } from "~/lib/drive-storage";
 import { PageHeader } from "~/components/ui/page-header";
+import { Alert, AlertTitle } from "~/components/ui/alert";
+import { DateText } from "~/components/ui/date-text";
+import { AtAGlance } from "~/components/doc/at-a-glance";
+import { Badge } from "~/components/doc/badge";
+import { BookMeta } from "~/components/doc/book-meta";
+import { Dialog } from "~/components/doc/dialog";
+import { DocSection, Prose } from "~/components/reading/doc-section";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 /** How often the document list is refetched when the stream is not available. */
 const POLL_MS = 2500;
@@ -394,28 +402,27 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
   const { kb, documents, drive, grants, driveUnavailable } = loaderData;
   const [searchParams] = useSearchParams();
   const driveNotice = parseDriveNotice(searchParams.get("drive"));
+  // `?add=highlights` (the knowledge list's "Import highlights") opens that tab.
+  const addTab = searchParams.get("add") ?? undefined;
   const revalidator = useRevalidator();
   const reindexFetcher = useFetcher();
 
   const working = isWorking(documents);
+  const ready = documents.filter((d) => d.status === "ready").length;
 
-  // A frame means "something changed"; the loader is what says what it changed
-  // to. Overlapping revalidations are skipped rather than queued — a burst of
-  // four status events during one parse must not become four round trips
-  // stacked behind a slow one.
   const refresh = useCallback(() => {
     if (revalidator.state === "idle") revalidator.revalidate();
   }, [revalidator]);
 
+  // The stream: one frame per status change, each a cue to revalidate.
   const { status } = useEventStream({
     url: `/app/api/stream/kb/${kb.id}`,
     events: KB_EVENTS,
     onFrame: refresh,
   });
 
-  // The fallback, and only the fallback: EventSource retries on its own and
-  // only reports `error` once it has given up. Polling underneath a healthy
-  // stream would be the round trips the stream exists to remove.
+  // The fallback: poll only while the stream is down AND something is still
+  // working, so a dropped connection cannot leave a row at "Reading".
   const streamDown = status === "error";
   useEffect(() => {
     if (!working || !streamDown) return;
@@ -423,14 +430,68 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
     return () => window.clearInterval(id);
   }, [working, streamDown, refresh]);
 
-  const addSources = (
-    <section aria-labelledby="lp-kb-add" className="mt-10">
-      <h2 id="lp-kb-add" className="lp-section">
-        {t("add.label")}
-      </h2>
-      <div className="mt-3">
+  const h3 = "mt-8 text-xl leading-7 font-semibold first:mt-0";
+
+  return (
+    <div>
+      <PageHeader title={kb.name} lede={t("detail.lede")} />
+
+      <BookMeta
+        label={t("detail.metaLabel")}
+        items={[
+          { label: documents.length === 0 ? t("card.none") : t("card.documents", { count: documents.length }) },
+          { label: t("detail.metaReady", { count: ready }) },
+          { label: t("detail.metaBooks", { count: loaderData.books.length }) },
+          {
+            label: (
+              <>
+                {t("card.updated")} <DateText iso={kb.updated_at} />
+              </>
+            ),
+          },
+          { label: kb.embedding_model ? `${kb.embedding_model} · ${kb.dims}d` : t("detail.notIndexed") },
+        ]}
+      />
+
+      {kb.needs_reembed ? (
+        <Alert variant="warning" role="status" className="mt-6">
+          <AlertTitle>{t("detail.needsReembedTitle")}</AlertTitle>
+          <p className="mt-1 text-sm leading-6">{t("detail.needsReembedBody")}</p>
+        </Alert>
+      ) : null}
+
+      <StudyActions kbId={kb.id} ready={ready > 0} />
+
+      <DocSection
+        n={1}
+        title={t("detail.documents")}
+        id="lp-kb-documents"
+        aside={
+          <reindexFetcher.Form method="post">
+            <input type="hidden" name="intent" value="reindex" />
+            <Button type="submit" variant="outline" size="sm" disabled={reindexFetcher.state !== "idle"}>
+              <RefreshCw aria-hidden="true" />
+              {t("detail.reindex")}
+            </Button>
+          </reindexFetcher.Form>
+        }
+      >
+        <p className="text-sm leading-6 text-muted-foreground">{t("detail.reindexHint")}</p>
+        <ActionError data={reindexFetcher.data} />
+
+        <DocumentTable kbId={kb.id} documents={documents} />
+
+        {working ? (
+          <p aria-live="polite" className="text-sm text-muted-foreground">
+            {t("status.live")}
+          </p>
+        ) : null}
+      </DocSection>
+
+      <DocSection n={2} title={t("add.label")} id="lp-kb-add">
         <PanelTabs
           label={t("add.label")}
+          initial={addTab}
           tabs={[
             {
               id: "file",
@@ -442,7 +503,7 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
                   {drive ? (
                     <DriveGrants kbId={kb.id} picker={drive.picker} status={drive.status} grants={grants} />
                   ) : driveUnavailable ? (
-                    <p className="mt-6 text-sm leading-prose text-muted-foreground">{t("drive.unavailable")}</p>
+                    <p className="mt-6 text-sm leading-6 text-muted-foreground">{t("drive.unavailable")}</p>
                   ) : null}
                 </>
               ),
@@ -455,18 +516,18 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
                   <AddLink kbId={kb.id} />
                   <section aria-labelledby="lp-kb-feeds" className="mt-8">
                     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                      <h3 id="lp-kb-feeds" className="font-serif text-lg font-semibold">
+                      <h3 id="lp-kb-feeds" className="text-xl leading-7 font-semibold">
                         {t("feed.label")}
                       </h3>
                       {loaderData.feeds && loaderData.feeds.new > 0 ? (
-                        <p className="font-mono text-2xs text-primary">{t("feed.kbNew", { count: loaderData.feeds.new })}</p>
+                        <Badge type="tip">{t("feed.kbNew", { count: loaderData.feeds.new })}</Badge>
                       ) : null}
                     </div>
                     <div className="mt-3">
                       {loaderData.feeds ? (
                         <FeedPanel feeds={loaderData.feeds.feeds} />
                       ) : (
-                        <p className="text-sm leading-prose text-muted-foreground">{t("feed.unavailable")}</p>
+                        <p className="text-sm leading-6 text-muted-foreground">{t("feed.unavailable")}</p>
                       )}
                     </div>
                   </section>
@@ -474,7 +535,6 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
               ),
             },
             { id: "zotero", label: t("add.zotero"), panel: <ZoteroPanel kbId={kb.id} /> },
-            // plans/261020-1155-open-source-adds, phase 5: Kindle and KOReader highlights.
             {
               id: "highlights",
               label: t("add.highlights"),
@@ -485,186 +545,144 @@ export default function KnowledgeDetail({ loaderData }: Route.ComponentProps) {
               label: t("add.siteRepo"),
               panel: loaderData.sources ? (
                 <>
-                  <h3 className="font-serif text-lg font-semibold">{t("site.label")}</h3>
+                  <h3 className={h3}>{t("site.label")}</h3>
                   <div className="mt-3">
                     <AddSite kbId={kb.id} limits={loaderData.sources.limits} />
                   </div>
-                  <h3 className="mt-8 font-serif text-lg font-semibold">{t("repo.label")}</h3>
+                  <h3 className={h3}>{t("repo.label")}</h3>
                   <div className="mt-3">
                     <AddRepo kbId={kb.id} defaults={loaderData.sources.defaults} />
                   </div>
-                  <h3 className="mt-8 font-serif text-lg font-semibold">{t("sources.label")}</h3>
+                  <h3 className={h3}>{t("sources.label")}</h3>
                   <div className="mt-3">
                     <KbSources sites={loaderData.sources.sites} repos={loaderData.sources.repos} />
                   </div>
                 </>
               ) : (
-                <p className="text-sm leading-prose text-muted-foreground">{t("sources.unavailable")}</p>
+                <p className="text-sm leading-6 text-muted-foreground">{t("sources.unavailable")}</p>
               ),
             },
           ]}
         />
-      </div>
-    </section>
-  );
+      </DocSection>
 
-  return (
-    <div className="lp-measure">
-      <Link
-        to="/knowledge"
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {t("detail.back")}
-      </Link>
+      <KbBooks n={3} kbId={kb.id} books={loaderData.books} />
 
-      <PageHeader title={kb.name} className="mt-2">
-        <p className="mt-2 font-mono text-xs text-faint">
-          {kb.embedding_model ? `${kb.embedding_model} · ${kb.dims}d` : t("detail.notIndexed")}
-        </p>
-      </PageHeader>
+      <AudioOverviews n={4} overviews={loaderData.overviews} kbId={kb.id} />
 
-      {kb.needs_reembed ? (
-        // The block is stated, and so is the reason for it. Ranking a new
-        // question against vectors from a different embedding space does not
-        // fail — it returns confident, wrong answers — so the user needs to
-        // know why the search box is disabled rather than assuming it is broken.
-        <div
-          role="status"
-          className="mt-4 flex gap-3 rounded-lg border border-warning bg-warning-soft p-4"
-        >
-          <AlertTriangle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-warning" />
-          <div>
-            <p className="font-sans text-sm font-medium">{t("detail.needsReembedTitle")}</p>
-            <p className="mt-1 text-sm leading-prose text-muted-foreground">
-              {t("detail.needsReembedBody")}
-            </p>
-          </div>
-        </div>
-      ) : null}
-
-      <StudyActions kbId={kb.id} ready={documents.some((d) => d.status === "ready")} />
-
-      {/* With nothing in it yet, adding is the only thing to do here, so it
-          comes first; after that the documents lead and adding more waits
-          below them. Five "Add…" forms used to fill 1,500 px above the list. */}
-      {documents.length === 0 ? addSources : null}
-
-      <section aria-labelledby="lp-kb-documents" className="mt-10">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-          <h2 id="lp-kb-documents" className="lp-section">
-            {t("detail.documents")}
-          </h2>
-          <reindexFetcher.Form method="post">
-            <input type="hidden" name="intent" value="reindex" />
-            <Button type="submit" variant="outline" size="sm" disabled={reindexFetcher.state !== "idle"}>
-              <RefreshCw aria-hidden="true" />
-              {t("detail.reindex")}
-            </Button>
-          </reindexFetcher.Form>
-        </div>
-        <p className="mt-2 text-xs leading-snug text-muted-foreground">{t("detail.reindexHint")}</p>
-        <ActionError data={reindexFetcher.data} />
-
-        <div className="mt-4">
-          <DocumentTable kbId={kb.id} documents={documents} />
-        </div>
-
-        {working ? (
-          <p aria-live="polite" className="mt-3 text-xs text-muted-foreground">
-            {t("status.live")}
-          </p>
-        ) : null}
-      </section>
-
-      {documents.length > 0 ? addSources : null}
-
-      <AudioOverviews overviews={loaderData.overviews} kbId={kb.id} />
-
-      <RelatedPapers kbId={kb.id} />
-
-      <KbBooks kbId={kb.id} books={loaderData.books} />
+      <RelatedPapers n={5} kbId={kb.id} />
 
       <RetrievalDebug kbId={kb.id} blocked={kb.needs_reembed} />
 
-      <DeleteKnowledgeBase />
+      <DeleteKnowledgeBase name={kb.name} />
     </div>
   );
 }
 
 /**
- * What this knowledge base is for, at the top of it: the four ways to study
- * from it. Before, the page was all intake and upkeep, and asking a question
- * about these documents meant leaving for Chat and finding them again there.
+ * "At a glance": the ways to study from this knowledge base, at the top of
+ * it, as up opens a chapter with a short list. Before, the page was all
+ * intake and upkeep, and asking a question about these documents meant
+ * leaving for Chat and finding them again there.
  */
 function StudyActions({ kbId, ready }: { kbId: string; ready: boolean }) {
   const { t } = useTranslation("knowledge");
-  const link =
-    "inline-flex min-h-11 items-center gap-2 rounded-md border border-control-border bg-card px-4 text-sm font-medium transition-colors hover:bg-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none";
-
   if (!ready) {
-    return <p className="mt-6 text-sm leading-prose text-muted-foreground">{t("study.waiting")}</p>;
+    return (
+      <Prose>
+        <AtAGlance items={[t("study.waiting")]} title={t("study.label")} id="lp-kb-study" />
+      </Prose>
+    );
   }
   return (
-    <nav aria-label={t("study.label")} className="mt-6 flex flex-wrap gap-2">
-      <Form method="post" action="/chat">
-        <input type="hidden" name="kb_id" value={kbId} />
-        <Button type="submit">
-          <MessageSquare aria-hidden="true" />
-          {t("study.chat")}
-        </Button>
-      </Form>
-      <Link to={`/quiz?kb=${kbId}#lp-quiz-generate`} className={link}>
-        <ListChecks aria-hidden="true" className="size-4" />
-        {t("study.quiz")}
-      </Link>
-      <Link to={`/mastery?kb=${kbId}#lp-mastery-new`} className={link}>
-        <GraduationCap aria-hidden="true" className="size-4" />
-        {t("study.path")}
-      </Link>
-      <a href="#lp-kb-books" className={link}>
-        <BookMarked aria-hidden="true" className="size-4" />
-        {t("study.book")}
-      </a>
-    </nav>
+    <Prose>
+      <AtAGlance
+        title={t("study.label")}
+        id="lp-kb-study"
+        items={[
+          // Starting a chat is a POST (it creates the session), so this item
+          // is a form whose button reads as the list's other links.
+          <Form key="chat" method="post" action="/chat" className="inline">
+            <input type="hidden" name="kb_id" value={kbId} />
+            <button
+              type="submit"
+              className="cursor-pointer font-medium text-primary underline underline-offset-2 hover:text-primary-hover focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            >
+              {t("study.chat")}
+            </button>
+            {NOTE_JOIN}
+            {t("study.chatNote")}
+          </Form>,
+          <span key="quiz">
+            <Link to={`/quiz?kb=${kbId}#lp-quiz-generate`}>{t("study.quiz")}</Link>
+            {NOTE_JOIN}
+            {t("study.quizNote")}
+          </span>,
+          <span key="path">
+            <Link to={`/mastery?kb=${kbId}#lp-mastery-new`}>{t("study.path")}</Link>
+            {NOTE_JOIN}
+            {t("study.pathNote")}
+          </span>,
+          <span key="book">
+            <a href="#lp-kb-books">{t("study.book")}</a>
+            {NOTE_JOIN}
+            {t("study.bookNote")}
+          </span>,
+        ]}
+      />
+    </Prose>
   );
 }
 
 /**
- * The destructive control: last on the page, behind a confirmation, and in the
- * world's danger ink rather than its action ink.
- *
- * The native confirm is deliberate. A modal would need a focus trap to be
- * accessible, and a dialog built without one is worse than the browser's, which
- * is already keyboard-correct everywhere.
+ * The destructive control: last on the page under "Danger zone", in the
+ * danger ink, behind a confirmation dialog (I12) that names what goes.
  */
-function DeleteKnowledgeBase() {
+function DeleteKnowledgeBase({ name }: { name: string }) {
   const { t } = useTranslation("knowledge");
   const fetcher = useFetcher();
+  const [confirming, setConfirming] = useState(false);
 
   return (
-    <section aria-labelledby="lp-kb-danger" className="mt-12 border-t pt-6">
-      <h2 id="lp-kb-danger" className="sr-only">
+    <DocSection title={t("detail.danger")} id="lp-kb-danger">
+      <p className="text-sm leading-6 text-muted-foreground">{t("detail.dangerNote")}</p>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={fetcher.state !== "idle"}
+        onClick={() => setConfirming(true)}
+        className="mt-4 border-destructive text-destructive hover:bg-destructive-soft"
+      >
+        <Trash2 aria-hidden="true" />
         {t("detail.delete")}
-      </h2>
-      <fetcher.Form method="post">
-        <input type="hidden" name="intent" value="delete-kb" />
-        <Button
-          type="submit"
-          variant="outline"
-          size="sm"
-          disabled={fetcher.state !== "idle"}
-          onClick={(event) => {
-            if (!window.confirm(t("detail.deleteConfirm"))) event.preventDefault();
-          }}
-          className="text-destructive hover:bg-destructive-soft"
-        >
-          <Trash2 aria-hidden="true" />
-          {t("detail.delete")}
-        </Button>
-      </fetcher.Form>
+      </Button>
       <ActionError data={fetcher.data} />
-    </section>
+      <Dialog
+        open={confirming}
+        onClose={() => setConfirming(false)}
+        title={t("detail.deleteTitle", { name })}
+        description={t("detail.deleteConfirm")}
+        actions={
+          <>
+            <Button type="button" variant="outline" onClick={() => setConfirming(false)}>
+              {t("detail.keep")}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={fetcher.state !== "idle"}
+              onClick={() => {
+                setConfirming(false);
+                void fetcher.submit({ intent: "delete-kb" }, { method: "post" });
+              }}
+            >
+              {t("detail.delete")}
+            </Button>
+          </>
+        }
+      />
+    </DocSection>
   );
 }
 

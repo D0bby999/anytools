@@ -74,7 +74,7 @@ export function shouldRevalidate({ formData, defaultShouldRevalidate }: ShouldRe
 }
 
 /** This route renders its own panel (sources and stream activity). */
-export const handle = { ownsPanel: true };
+export const handle = { ownsPanel: true, layout: "page" };
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   // The user, not only the id: the composer needs their "write my own version
@@ -363,8 +363,11 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
   const attachedNames = loaderData.kbs.filter((k) => loaderData.session.kb_ids.includes(k.id)).map((k) => k.name);
 
   return (
-    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)] lg:flex-row">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+    // Read as a chapter (P1, `layout: page`): one 780 column with the title
+    // and what it reads, the transcript, and the composer stuck to the bottom
+    // of the scroll region. The sources sit in the aside from 1280.
+    <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)]">
+      <div className="mx-auto flex min-h-0 w-full max-w-(--lp-measure-read) flex-1 flex-col px-4 pt-8 lg:px-8 lg:pt-12 xl:px-0">
         <ContextBar
           title={loaderData.session.title}
           kbs={loaderData.kbs}
@@ -372,7 +375,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
           allowWeb={loaderData.session.allow_web}
         />
 
-        <div className="min-h-0 flex-1 px-4 py-6 lg:px-8">
+        <div className="min-h-0 flex-1 pb-8">
           <MessageList
             turns={turns}
             actions={{
@@ -398,7 +401,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
           )}
 
           {stopped && !busy ? (
-            <p role="status" className="mt-4 max-w-(--lp-measure-read) text-sm leading-prose text-muted-foreground">
+            <p role="status" className="mt-4 text-sm leading-6 text-muted-foreground">
               {t("chat.stopped")}
             </p>
           ) : null}
@@ -406,7 +409,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
           {failure && !busy && (
             <div
               role="alert"
-              className="mt-6 flex max-w-(--lp-measure-read) flex-wrap items-center gap-3 rounded-(--lp-radius-control) bg-destructive-soft px-3 py-2 text-sm leading-prose"
+              className="mt-6 flex flex-wrap items-center gap-3 rounded-lg bg-destructive-soft px-4 py-3 text-sm leading-6"
             >
               <span className="min-w-0 flex-1">{failure.message}</span>
               {sendRefused && pendingQuestion !== null && !starting ? (
@@ -427,7 +430,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
           )}
 
           {queue.paused && queue.items.length > 0 && !busy ? (
-            <div role="status" className="mt-4 flex max-w-(--lp-measure-read) flex-wrap items-center gap-3 text-sm leading-prose">
+            <div role="status" className="mt-4 flex flex-wrap items-center gap-3 text-sm leading-6">
               <span className="text-muted-foreground">{t("chat.queue.paused", { count: queue.items.length })}</span>
               <Button type="button" size="sm" variant="outline" onClick={queue.resume}>
                 {t("chat.queue.resume")}
@@ -436,10 +439,17 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
           ) : null}
         </div>
 
-        <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 lg:bottom-0">
+        {/* Stuck to the bottom of the one scroll region. The phone bar it
+            used to clear is gone with the up shell, and the region ends at
+            the viewport's dynamic height, so an open on-screen keyboard
+            shrinks the region rather than covering the composer. */}
+        <div className="sticky bottom-0 z-10">
           {away ? (
+            // Only while the learner has scrolled away from the answer being
+            // written (useFollowScroll): a secondary button floating at the
+            // middle of the bottom edge, just above the composer.
             <div className="pointer-events-none absolute inset-x-0 -top-12 flex justify-center">
-              <Button type="button" size="sm" variant="outline" className="pointer-events-auto bg-card shadow-sm" onClick={jump}>
+              <Button type="button" size="sm" variant="outline" className="pointer-events-auto rounded-full bg-card" onClick={jump}>
                 <ArrowDown aria-hidden="true" />
                 {t("chat.jumpToLatest")}
               </Button>
@@ -466,14 +476,15 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
 
-      <RightPanel>
-        {/* Tool steps are in the transcript now (WorkRow); the panel keeps
-            the sources and the reasoning. */}
+      {/* "Sources" in the aside, in place of an outline: the latest answer's
+          passages as a dated-list line each (number · document — page), the
+          numbers matching the superscripts in the answer. Tool steps are in
+          the transcript (WorkRow); the panel keeps the sources and the
+          reasoning. */}
+      <RightPanel title={t("chat.sources")}>
         <ToolActivityPanel sources={panelSources} tools={[]} thinking={stream.thinking} stage={null} />
         {panelSources.length === 0 && stream.thinking === "" && (
-          <p className="mt-3 text-sm leading-prose text-muted-foreground">
-            {t("panel.sources.empty")}
-          </p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("panel.sources.empty")}</p>
         )}
       </RightPanel>
     </div>

@@ -8,6 +8,9 @@ import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { WorksheetGroup, WorksheetKind, WorksheetSummary } from "~/lib/worksheet-types";
 import { WorksheetList } from "~/components/worksheet/worksheet-list";
+import { Badge } from "~/components/doc/badge";
+import { Details } from "~/components/doc/details";
+import { NOTE_JOIN } from "~/lib/sentence";
 
 /** Kinds by group, in up's order; a group with no kind is left out. */
 export function groupKinds(kinds: WorksheetKind[]): { group: WorksheetGroup; kinds: WorksheetKind[] }[] {
@@ -25,16 +28,13 @@ function LifeHowTo() {
   const { t } = useTranslation("toolkit");
   const steps = ["step1", "step2", "step3", "step4", "step5"] as const;
   return (
-    <details className="mt-3">
-      <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm text-primary underline-offset-4 hover:underline">
-        {t("life.howTo.title")}
-      </summary>
-      <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm leading-prose text-muted-foreground">
+    <Details summary={t("life.howTo.title")}>
+      <ol>
         {steps.map((s) => (
           <li key={s}>{t(`life.howTo.${s}`)}</li>
         ))}
       </ol>
-    </details>
+    </Details>
   );
 }
 
@@ -80,25 +80,44 @@ export function KindRow({
   );
 }
 
+/** A group's title, as up names its toolkits. */
+export function useGroupTitles(): Record<WorksheetGroup, string> {
+  const { t } = useTranslation("toolkit");
+  return { language: t("groups.language"), projects: t("groups.projects"), life: t("groups.life") };
+}
+
+/**
+ * /toolkit's "All worksheets": a group per h3 and its kinds as a plain list
+ * (up's toolkit index, P11): the name, "New", the summary, then the
+ * learner's own worksheets of that kind.
+ */
 export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: WorksheetSummary[] }) {
   const { t } = useTranslation("toolkit");
-  const groupTitle: Record<WorksheetGroup, string> = {
-    language: t("groups.language"),
-    projects: t("groups.projects"),
-    life: t("groups.life"),
-  };
-  if (kinds.length === 0) return <p className="mt-6 lp-empty">{t("index.noKinds")}</p>;
+  const groupTitle = useGroupTitles();
+  if (kinds.length === 0) return <p className="text-muted-foreground">{t("index.noKinds")}</p>;
   return (
     <>
       {groupKinds(kinds).map(({ group, kinds: inGroup }) => (
-        <section key={group} aria-labelledby={`tk-${group}`} className="mt-10">
-          <h2 id={`tk-${group}`} className="lp-section">
-            {groupTitle[group]}
-          </h2>
+        <section key={group} aria-labelledby={`tk-${group}`}>
+          <h3 id={`tk-${group}`}>{groupTitle[group]}</h3>
           {group === "life" ? <LifeHowTo /> : null}
-          <ul className="mt-3 border-t">
+          <ul>
             {inGroup.map((k) => (
-              <KindRow key={k.kind} kind={k} list={list} />
+              <li key={k.kind}>
+                <strong>{k.name}</strong>
+                {k.private ? (
+                  <>
+                    {" "}
+                    <Badge>{t("index.private")}</Badge>
+                  </>
+                ) : null}
+                {NOTE_JOIN}
+                <Link to={`/toolkit/new?kind=${encodeURIComponent(k.kind)}`} aria-label={t("index.newOf", { name: k.name })}>
+                  {t("index.new")}
+                </Link>
+                <span className="block text-muted-foreground">{k.summary}</span>
+                <WorksheetList worksheets={list.filter((w) => w.kind === k.kind)} />
+              </li>
             ))}
           </ul>
         </section>
@@ -106,4 +125,3 @@ export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: W
     </>
   );
 }
-
