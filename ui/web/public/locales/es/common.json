@@ -55,7 +55,8 @@
       "files": "Mis archivos",
       "upload": "Subir",
       "links": "Enlaces de estudio",
-      "storage": "Almacenamiento"
+      "storage": "Almacenamiento",
+      "settingsProviders": "Proveedores"
     },
     "search": "Buscar",
     "searchShortcut": "Abrir la búsqueda con {{keys}}",
@@ -229,7 +230,8 @@
         "upload": "Añade un archivo a la base de conocimiento que elijas.",
         "links": "Guarda páginas web, vídeos y fuentes para aprender, y ve todo lo que guardaste.",
         "storage": "Elige dónde se guardan tus archivos y ve el espacio que ocupa cada lado.",
-        "library": "Añade material listo de fuentes abiertas, cada uno con su licencia."
+        "library": "Añade material listo de fuentes abiertas, cada uno con su licencia.",
+        "settingsProviders": "Busca un proveedor y conéctalo con una clave."
       },
       "dueToday": "Pendiente para hoy"
     }
@@ -248,7 +250,8 @@
       "search": "Claves de búsqueda",
       "profile": "Perfil de aprendizaje",
       "account": "Cuenta",
-      "reminders": "Recordatorios"
+      "reminders": "Recordatorios",
+      "providers": "Proveedores"
     },
     "readiness": {
       "title": "Estado",
@@ -333,14 +336,26 @@
       "providerHelp": "Solo Gemini, OpenAI y Anthropic pueden leer PDF escaneados. Para indexar documentos necesitas uno que genere embeddings: Gemini, OpenAI, Mistral o Qwen. Los demás responden, crean cuestionarios, resuelven e investigan."
     },
     "routes": {
-      "lead": "Cada función usa las conexiones que indiques, en orden: si la primera se queda sin cuota o se niega, AnyLearn prueba la siguiente. Deja una posición vacía para terminar la cadena.",
-      "noConnections": "Todavía no hay nada que asignar. Añade antes una clave en Conexiones.",
+      "lead": "Cada función usa las conexiones de su cadena, en orden: si la primera se queda sin cuota o rechaza, AnyLearn prueba la siguiente. Edita una cadena para añadir alternativas, arrástralas para ordenarlas y elige el modelo de cada una.",
+      "noConnections": "Todavía no hay nada que asignar. Conecta primero un proveedor en Proveedores.",
       "none": "Ninguna",
       "connectionAt": "Conexión en la posición {{position}}",
       "modelAt": "Modelo en la posición {{position}}",
       "modelPlaceholder": "Déjalo vacío para usar el predeterminado",
       "save": "Guardar cadena",
-      "editorsTitle": "Cadenas"
+      "editorsTitle": "Cadenas",
+      "empty": "Sin conexión todavía",
+      "edit": "Editar",
+      "editFor": "Editar la cadena de {{fn}}",
+      "dialogHelp": "Las conexiones que usa esta función, de la primera a la última.",
+      "reorderHelp": "Arrastra una fila por su asa, o enfoca el asa y pulsa Alt+↑ o Alt+↓.",
+      "handle": "Arrastra o pulsa Alt+flecha para mover la posición {{n}}",
+      "moved": "Movido de la posición {{from}} a la {{to}}",
+      "movedTo": "Movido a la posición {{to}}",
+      "removeAt": "Quitar la posición {{n}}",
+      "addFallback": "Añadir alternativa",
+      "verifyAll": "Verificar todo",
+      "verifying": "Comprobando…"
     },
     "search": {
       "lead": "La investigación puede leer la web además de tus documentos, con una clave de búsqueda propia. No hay clave compartida: sin una, la investigación funciona igual, pero solo responde a partir de tus documentos. Una clave de OpenAlex es opcional y solo sirve para artículos académicos: sin ella, AnyLearn usa la cuota diaria gratuita de OpenAlex, compartida por todos en este servidor.",
@@ -422,7 +437,45 @@
       "openai_compat": "Endpoint compatible con OpenAI",
       "chatgpt_relay": "ChatGPT (suscripción)",
       "gemini_code_assist": "Gemini (suscripción)",
-      "builtin": "Este servidor"
+      "builtin": "Este servidor",
+      "agnes": "Agnes AI",
+      "api_airforce": "API.airforce",
+      "atria": "Atria Dawn",
+      "bai": "B.AI",
+      "baidu": "Baidu Qianfan",
+      "bazaarlink": "Bazaarlink",
+      "blackbox": "Blackbox AI",
+      "bluesminds": "BluesMinds",
+      "cerebras": "Cerebras",
+      "chutes": "Chutes AI",
+      "cohere": "Cohere",
+      "dahl": "Dahl Inference",
+      "featherless": "Featherless",
+      "fireworks": "Fireworks AI",
+      "hyperbolic": "Hyperbolic",
+      "kilo_gateway": "Kilo Gateway",
+      "kimchi": "Kimchi",
+      "llm7": "LLM7",
+      "minimax": "MiniMax",
+      "morph": "Morph",
+      "muse": "Muse (Meta Model API)",
+      "nebius": "Nebius AI",
+      "nvidia": "NVIDIA NIM",
+      "ollama_cloud": "Ollama Cloud",
+      "perplexity": "Perplexity",
+      "poolside": "Poolside",
+      "sambanova": "SambaNova",
+      "siliconflow": "SiliconFlow",
+      "tencent": "Tencent Hunyuan",
+      "together": "Together AI",
+      "tokenharbor": "Token Harbor",
+      "tokenrouter": "TokenRouter",
+      "venice": "Venice AI",
+      "vercel_ai_gateway": "Vercel AI Gateway",
+      "xiaomi_mimo": "Xiaomi MiMo",
+      "yescale": "YesScale",
+      "github_copilot": "GitHub Copilot",
+      "claude_sub": "Claude (subscription)"
     },
     "up": {
       "readiness": "Disponibilidad de rutas",
@@ -437,6 +490,69 @@
       "manage": "Gestionar",
       "cancel": "Cancelar",
       "close": "Cerrar"
+    },
+    "providers": {
+      "lead": "Busca tu proveedor y conéctalo con una clave. La clave se comprueba una vez, al conectarla; luego elige sus modelos en Rutas.",
+      "search": "Buscar proveedores",
+      "searchPlaceholder": "Buscar proveedores",
+      "access": "Acceso",
+      "accessOptions": {
+        "all": "Todos",
+        "api_key": "Clave de API",
+        "free": "Nivel gratuito",
+        "sign_in": "Inicio de sesión",
+        "custom": "Tu propia dirección"
+      },
+      "serves": "Puede",
+      "servesOptions": {
+        "all": "Cualquier cosa",
+        "chat": "Chatear",
+        "parse": "Leer documentos",
+        "embed": "Buscar en documentos",
+        "tts": "Leer en voz alta",
+        "stt": "Dictado"
+      },
+      "connectedOnly": "Solo conectados",
+      "count": "{{shown}} de {{total}} proveedores",
+      "empty": "Ningún proveedor coincide. Prueba con menos filtros o conecta cualquier servidor compatible con OpenAI como Endpoint propio.",
+      "connectedCount_one": "{{count}} conexión",
+      "connectedCount_other": "{{count}} conexiones",
+      "free": "Nivel gratuito",
+      "all": "Todos los proveedores",
+      "getKey": "Obtener una clave de {{provider}}",
+      "servedAt": "Servido en",
+      "needsModel": "AnyLearn no tiene un modelo predeterminado para este proveedor. Después de conectar, elige uno de sus modelos en Rutas.",
+      "signIn": "Esto es un inicio de sesión de suscripción, no una clave. Su tarjeta está en",
+      "addTitle": "Conectar una clave",
+      "connect": "Conectar y comprobar",
+      "noneYet": "Todavía no hay conexiones con este proveedor.",
+      "browse": "Ver todos los proveedores"
+    },
+    "models": {
+      "title": "Modelos",
+      "show": "Mostrar modelos",
+      "hide": "Ocultar",
+      "loading": "Pidiendo al proveedor sus modelos…",
+      "unavailable": "No se pudieron listar los modelos.",
+      "none": "No hay modelos en la lista.",
+      "search": "Buscar modelos",
+      "added": "añadido por ti",
+      "addedTitle": "Añadidos por ti",
+      "remove": "Quitar {{model}}",
+      "kinds": {
+        "chat": "Chat",
+        "embed": "Embeddings",
+        "stt": "Voz a texto",
+        "tts": "Texto a voz",
+        "image": "Imágenes",
+        "other": "Otros"
+      },
+      "more_one": "{{count}} más; búscalo",
+      "more_other": "{{count}} más; búscalos",
+      "addTitle": "Añadir un modelo por su id",
+      "addLabel": "Id del modelo",
+      "add": "Añadir modelo",
+      "addHelp": "Para un modelo que el proveedor sirve pero no lista. Aparece en los selectores de modelo de Rutas."
     }
   },
   "chat": {

@@ -24,35 +24,28 @@ func invalid(format string, args ...any) error {
 	return fmt.Errorf("%w: %s", ErrInvalidInput, fmt.Sprintf(format, args...))
 }
 
-// apiKeyProviders are the providers a user connects by pasting a key. The two
-// subscription providers are deliberately absent: they are created by the OAuth
-// endpoints, and accepting one here would mean accepting a pasted access token
-// as if it were a key, with no refresh token and therefore a one-hour lifespan.
-var apiKeyProviders = map[string]bool{
-	providers.ProviderOpenAI:       true,
-	providers.ProviderGemini:       true,
-	providers.ProviderAnthropic:    true,
-	providers.ProviderOpenRouter:   true,
-	providers.ProviderOpenAICompat: true,
-	providers.ProviderDeepSeek:     true,
-	providers.ProviderXAI:          true,
-	providers.ProviderMistral:      true,
-	providers.ProviderGroq:         true,
-	providers.ProviderQwen:         true,
-	providers.ProviderZAI:          true,
-}
-
-// APIKeyProviders lists, in display order, the providers the Connections page
-// offers.
-func APIKeyProviders() []string {
-	out := []string{
-		providers.ProviderGemini,
-		providers.ProviderOpenAI,
-		providers.ProviderAnthropic,
-		providers.ProviderOpenRouter,
+// apiKeyProviders are the providers a user connects by pasting a key: the
+// catalog's API-key and custom rows. The subscription providers are
+// deliberately absent: they are created by the OAuth endpoints, and accepting
+// one here would mean accepting a pasted access token as if it were a key,
+// with no refresh token and therefore a one-hour lifespan.
+var apiKeyProviders = func() map[string]bool {
+	out := map[string]bool{}
+	for _, p := range APIKeyProviders() {
+		out[p] = true
 	}
-	out = append(out, presetOrder...)
-	return append(out, providers.ProviderOpenAICompat)
+	return out
+}()
+
+// APIKeyProviders lists, in display order, the providers a key connects.
+func APIKeyProviders() []string {
+	var out []string
+	for _, r := range catalogRows {
+		if r.Auth == AuthAPIKey || r.Auth == AuthCustom {
+			out = append(out, r.Type)
+		}
+	}
+	return out
 }
 
 // NewConnection is the request to add an API-key connection.

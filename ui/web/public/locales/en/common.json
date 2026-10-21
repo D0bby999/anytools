@@ -55,7 +55,8 @@
       "files": "My files",
       "upload": "Upload",
       "links": "Study links",
-      "storage": "Storage"
+      "storage": "Storage",
+      "settingsProviders": "Providers"
     },
     "search": "Search",
     "searchShortcut": "Open search with {{keys}}",
@@ -229,7 +230,8 @@
         "upload": "Add a file to the knowledge base of your choice.",
         "links": "Save web pages, videos and feeds to learn from, and see every one you saved.",
         "storage": "Choose where your files are kept and see the space each side holds.",
-        "library": "Add ready material from open sources, each with its licence."
+        "library": "Add ready material from open sources, each with its licence.",
+        "settingsProviders": "Find a provider and connect it with a key."
       },
       "dueToday": "Due today"
     }
@@ -248,7 +250,8 @@
       "search": "Search keys",
       "profile": "Learning profile",
       "account": "Account",
-      "reminders": "Reminders"
+      "reminders": "Reminders",
+      "providers": "Providers"
     },
     "readiness": {
       "title": "Readiness",
@@ -333,14 +336,26 @@
       "providerHelp": "Only Gemini, OpenAI and Anthropic can read scanned PDFs. To index documents you need one that embeds: Gemini, OpenAI, Mistral or Qwen. The others answer, quiz, solve and research."
     },
     "routes": {
-      "lead": "Each capability runs on the connections you list, in order: if the first is out of quota or refuses, AnyLearn tries the next. Leave a position empty to end the chain.",
-      "noConnections": "There is nothing to route yet. Add a key under Connections first.",
+      "lead": "Each capability runs on the connections in its chain, in order: if the first is out of quota or refuses, AnyLearn tries the next. Edit a chain to add fallbacks, drag them into order and pick each one's model.",
+      "noConnections": "There is nothing to route yet. Connect a provider under Providers first.",
       "none": "None",
       "connectionAt": "Connection at position {{position}}",
       "modelAt": "Model at position {{position}}",
       "modelPlaceholder": "Leave empty for the default",
       "save": "Save chain",
-      "editorsTitle": "Chains"
+      "editorsTitle": "Chains",
+      "empty": "No connection yet",
+      "edit": "Edit",
+      "editFor": "Edit the {{fn}} chain",
+      "dialogHelp": "The connections this capability runs on, first to last.",
+      "reorderHelp": "Drag a row by its handle, or focus the handle and press Alt+↑ or Alt+↓.",
+      "handle": "Drag or press Alt+arrow to move position {{n}}",
+      "moved": "Moved from position {{from}} to {{to}}",
+      "movedTo": "Moved to position {{to}}",
+      "removeAt": "Remove position {{n}}",
+      "addFallback": "Add a fallback",
+      "verifyAll": "Verify all",
+      "verifying": "Checking…"
     },
     "search": {
       "lead": "Research can read the web as well as your documents, using a search key of your own. There is no shared key: without one, research still works; it just answers from your documents only. An OpenAlex key is optional and only for scholarly papers: without one, AnyLearn uses OpenAlex's free daily allowance, shared by everyone on this server.",
@@ -422,7 +437,45 @@
       "openai_compat": "OpenAI-compatible endpoint",
       "chatgpt_relay": "ChatGPT (subscription)",
       "gemini_code_assist": "Gemini (subscription)",
-      "builtin": "This server"
+      "builtin": "This server",
+      "agnes": "Agnes AI",
+      "api_airforce": "API.airforce",
+      "atria": "Atria Dawn",
+      "bai": "B.AI",
+      "baidu": "Baidu Qianfan",
+      "bazaarlink": "Bazaarlink",
+      "blackbox": "Blackbox AI",
+      "bluesminds": "BluesMinds",
+      "cerebras": "Cerebras",
+      "chutes": "Chutes AI",
+      "cohere": "Cohere",
+      "dahl": "Dahl Inference",
+      "featherless": "Featherless",
+      "fireworks": "Fireworks AI",
+      "hyperbolic": "Hyperbolic",
+      "kilo_gateway": "Kilo Gateway",
+      "kimchi": "Kimchi",
+      "llm7": "LLM7",
+      "minimax": "MiniMax",
+      "morph": "Morph",
+      "muse": "Muse (Meta Model API)",
+      "nebius": "Nebius AI",
+      "nvidia": "NVIDIA NIM",
+      "ollama_cloud": "Ollama Cloud",
+      "perplexity": "Perplexity",
+      "poolside": "Poolside",
+      "sambanova": "SambaNova",
+      "siliconflow": "SiliconFlow",
+      "tencent": "Tencent Hunyuan",
+      "together": "Together AI",
+      "tokenharbor": "Token Harbor",
+      "tokenrouter": "TokenRouter",
+      "venice": "Venice AI",
+      "vercel_ai_gateway": "Vercel AI Gateway",
+      "xiaomi_mimo": "Xiaomi MiMo",
+      "yescale": "YesScale",
+      "github_copilot": "GitHub Copilot",
+      "claude_sub": "Claude (subscription)"
     },
     "up": {
       "readiness": "Route readiness",
@@ -437,6 +490,69 @@
       "manage": "Manage",
       "cancel": "Cancel",
       "close": "Close"
+    },
+    "providers": {
+      "lead": "Find your provider and connect it with a key. A key is checked once, when you connect it; then pick its models under Routes.",
+      "search": "Search providers",
+      "searchPlaceholder": "Search providers",
+      "access": "Access",
+      "accessOptions": {
+        "all": "All",
+        "api_key": "API key",
+        "free": "Free tier",
+        "sign_in": "Sign-in",
+        "custom": "Your own address"
+      },
+      "serves": "Can do",
+      "servesOptions": {
+        "all": "Anything",
+        "chat": "Chat",
+        "parse": "Read documents",
+        "embed": "Search documents",
+        "tts": "Read aloud",
+        "stt": "Dictation"
+      },
+      "connectedOnly": "Connected only",
+      "count": "{{shown}} of {{total}} providers",
+      "empty": "No provider matches. Try fewer filters, or connect any OpenAI-compatible server as Custom endpoint.",
+      "connectedCount_one": "{{count}} connection",
+      "connectedCount_other": "{{count}} connections",
+      "free": "Free tier",
+      "all": "All providers",
+      "getKey": "Get a key from {{provider}}",
+      "servedAt": "Served at",
+      "needsModel": "AnyLearn has no default model for this provider. After you connect, pick one of its models under Routes.",
+      "signIn": "This is a subscription sign-in, not a key. Its card is on",
+      "addTitle": "Connect a key",
+      "connect": "Connect and check",
+      "noneYet": "No connection to this provider yet.",
+      "browse": "Browse all providers"
+    },
+    "models": {
+      "title": "Models",
+      "show": "Show models",
+      "hide": "Hide",
+      "loading": "Asking the provider for its models…",
+      "unavailable": "The models could not be listed.",
+      "none": "No models listed.",
+      "search": "Search models",
+      "added": "added by you",
+      "addedTitle": "Added by you",
+      "remove": "Remove {{model}}",
+      "kinds": {
+        "chat": "Chat",
+        "embed": "Embeddings",
+        "stt": "Speech to text",
+        "tts": "Text to speech",
+        "image": "Images",
+        "other": "Other"
+      },
+      "more_one": "{{count}} more; search to find it",
+      "more_other": "{{count}} more; search to find them",
+      "addTitle": "Add a model by its id",
+      "addLabel": "Model id",
+      "add": "Add model",
+      "addHelp": "For a model the provider serves but does not list. It appears in the model pickers under Routes."
     }
   },
   "chat": {

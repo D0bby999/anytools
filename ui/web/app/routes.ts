@@ -35,6 +35,8 @@ export default [
         // web" are different questions, and stacking them buries the third.
         route("settings", "routes/settings.tsx", [
           index("routes/settings.connections.tsx"),
+          route("providers", "routes/settings.providers.tsx"),
+          route("providers/:type", "routes/settings.providers.$type.tsx"),
           route("routes", "routes/settings.routes.tsx"),
           route("search", "routes/settings.search.tsx"),
           route("account", "routes/settings.account.tsx"),
@@ -179,6 +181,7 @@ export default [
     // POST-only resource route; its action calls requireUserId.
     route("app/api/timezone", "routes/app.api.timezone.ts"),
     route("app/api/search-index", "routes/app.api.search-index.ts"),
+    route("app/api/byok-models", "routes/app.api.byok-models.ts"),
 
     // Learning depth, phase 5: "Draw it" and its one repair. POST-only
     // resource route; its action calls requireUserId.

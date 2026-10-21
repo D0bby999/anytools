@@ -1,12 +1,12 @@
 {
   "title": "Library",
-  "lead": "Ready material from open sources, mostly in English, with some in other languages: decks, word lists, question sets, courses and videos, textbooks and books. Each one says its licence and where it comes from.",
+  "lead": "Ready material from open sources for every field, from business, law and medicine to engineering and the arts, mostly in English: decks, word lists, question sets, courses and videos, textbooks and books. Each one says its licence and where it comes from.",
   "filter": {
     "search": "Search",
     "kind": "Kind",
     "anyKind": "Any kind",
-    "subject": "Subject",
-    "anySubject": "Any subject",
+    "subject": "Field",
+    "anySubject": "Any field",
     "language": "Language",
     "myLanguages": "English, then my language",
     "allLanguages": "All languages, English first",
@@ -30,13 +30,21 @@
     "book": "Book"
   },
   "subjects": {
+    "business": "Business and management",
+    "economics": "Economics and finance",
+    "law": "Law",
+    "health": "Medicine and health",
+    "engineering": "Engineering",
+    "programming": "Computing and programming",
+    "science": "Natural sciences",
+    "maths": "Mathematics",
+    "social": "Social sciences",
+    "humanities": "Humanities and arts",
+    "education": "Education",
+    "media": "Communication and media",
     "languages": "Languages",
-    "maths": "Maths",
-    "science": "Science",
-    "programming": "Programming",
-    "geography": "Geography",
+    "skills": "Study and life skills",
     "general": "General knowledge",
-    "humanities": "Humanities",
     "fitness": "Fitness"
   },
   "units": {
@@ -51,7 +59,9 @@
     "books_one": "{{count}} book",
     "books_other": "{{count}} books",
     "exercises_one": "{{count}} exercise",
-    "exercises_other": "{{count}} exercises"
+    "exercises_other": "{{count}} exercises",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours"
   },
   "licence": {
     "public-domain": "Public domain",
@@ -64,26 +74,29 @@
     "cc-by-nc": "Non-commercial use only (CC BY-NC)",
     "cc-by-nc-sa": "Non-commercial use only (CC BY-NC-SA)",
     "none": "No licence given",
-    "free-access": "Free to read or watch at its source"
+    "free-access": "Free to read or watch at its source",
+    "gfdl": "Free, with credit and the same licence (GNU FDL)",
+    "cc-by-nd": "Free to share unchanged, with credit (CC BY-ND)",
+    "cc-by-nc-nd": "Non-commercial use only, unchanged (CC BY-NC-ND)"
   },
   "why": {
     "nonCommercial": "Free for non-commercial use, so AnyLearn does not copy it: open it at the source.",
     "noLicence": "It gives no licence, so AnyLearn does not copy it: open it at the source, then bring its file to Decks.",
     "bringFile": "Open the papers at the source, then upload one in Quiz → Exams → Upload a past paper.",
-    "textbook": "Read it at OpenStax, or download its PDF and upload it to a knowledge base (files up to 50 MB)."
+    "textbook": "Read it at its source, or download its PDF and upload the chapters you need to a knowledge base (a file of up to 50 MB and 400 pages).",
+    "textbookNonCommercial": "Read it at its source, or download its PDF. Its licence allows only non-commercial use: upload the chapters you need to a knowledge base for your own study (a file of up to 50 MB and 400 pages)."
   },
   "items": {
     "upWords": "English terms a programmer meets, by language (Python, Go, JavaScript and more): words only, to look up and save.",
     "upGuide": "A book on learning methods: state, cycles, evidence and review, with worksheets.",
-    "mitOcw": "Lecture videos, notes and problem sets from MIT courses.",
     "khan": "Short video lessons and practice in maths, science and more, in many languages.",
     "thptName": "Vietnamese high school graduation exam papers",
     "thpt": "The Ministry of Education's reference and past papers, by subject.",
     "bodyName": "Body: exercise library",
     "body": "Exercises by muscle and equipment, each with its steps, to use in your plan."
   },
-  "count_one": "{{count}} item",
-  "count_other": "{{count}} items",
+  "count_one": "{{count, number}} item",
+  "count_other": "{{count, number}} items",
   "empty": "Nothing matches. Try any kind, any subject or all languages.",
   "results": "Results",
   "manyLanguages": "Many languages",
@@ -116,7 +129,14 @@
   },
   "credits": {
     "fpb": "The courses and books are listed by free-programming-books (Free Ebook Foundation, CC BY 4.0); each belongs to its author.",
-    "gutenberg": "The books are from Project Gutenberg and are in the public domain in the United States; check your country's law before using them elsewhere."
+    "gutenberg": "The books are from Project Gutenberg and are in the public domain in the United States; check your country's law before using them elsewhere.",
+    "otl": "The textbooks are listed by the Open Textbook Library (Center for Open Education, University of Minnesota); each has its own licence, shown with it, and belongs to its authors.",
+    "mit": "The courses are MIT OpenCourseWare's, under CC BY-NC-SA 4.0, listed from MIT Learn; they open at MIT.",
+    "awesome": {
+      "math": "Listed by awesome-math (rossant/awesome-math, CC0); each link belongs to its owner.",
+      "certificates": "Listed by awesome-certificates (PanXProject/awesome-certificates, CC0); each course belongs to its provider, and its certificate is the provider's to give.",
+      "youtubers": "Listed by awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0); each channel belongs to its owner, and is added as a feed to choose videos from."
+    }
   },
   "level": "Level",
   "levelOption_one": "{{name}} ({{count}} word)",
@@ -156,5 +176,7 @@
     "python": "Exercism's Python exercises, easiest first: write the code in the browser and run the tests."
   },
   "pdf": "PDF of the whole book",
-  "wordsDays": "New ones come up from {{first}} to {{last}}."
+  "wordsDays": "New ones come up from {{first}} to {{last}}.",
+  "allInField_one": "See the {{count, number}} item in {{field}}",
+  "allInField_other": "See all {{count, number}} in {{field}}"
 }

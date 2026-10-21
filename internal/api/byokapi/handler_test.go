@@ -119,6 +119,9 @@ func TestEveryBYOKRouteIsIsolatedBetweenUsers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("search key: %v", err)
 	}
+	if err := h.svc.AddCustomModel(ctx, alice, conn.ID, "alice/own-model"); err != nil {
+		t.Fatalf("custom model: %v", err)
+	}
 
 	// Every route that names a resource id, probed as Mallory. A 2xx on any of
 	// them is a cross-user read or write.
@@ -130,6 +133,8 @@ func TestEveryBYOKRouteIsIsolatedBetweenUsers(t *testing.T) {
 		{http.MethodDelete, "/v1/byok/connections/" + conn.ID.String(), nil},
 		{http.MethodPost, "/v1/byok/connections/" + conn.ID.String() + "/verify", nil},
 		{http.MethodGet, "/v1/byok/connections/" + conn.ID.String() + "/models", nil},
+		{http.MethodPost, "/v1/byok/connections/" + conn.ID.String() + "/custom-models", map[string]any{"model": "mallory/model"}},
+		{http.MethodDelete, "/v1/byok/connections/" + conn.ID.String() + "/custom-models?model=alice%2Fown-model", nil},
 		{http.MethodDelete, "/v1/byok/search-connections/" + searchRow.ID.String(), nil},
 		{http.MethodPost, "/v1/byok/search-connections/" + searchRow.ID.String() + "/verify", nil},
 	}
@@ -182,18 +187,23 @@ func TestEveryBYOKRouteIsIsolatedBetweenUsers(t *testing.T) {
 	if after.Name != "alice-secret-name" {
 		t.Fatalf("a cross-user write landed: %+v", after)
 	}
+	if own, _ := h.svc.ConnectionModels(ctx, alice, conn.ID); own == nil || len(own.Custom) != 1 || own.Custom[0] != "alice/own-model" {
+		t.Fatalf("a cross-user write touched alice's added models: %+v", own)
+	}
 }
 
 // This is the guard that keeps the case list above honest: every registered
 // /v1/byok route with an {id} must appear in the probe list.
 func TestIsolationSuiteCoversEveryIDRoute(t *testing.T) {
 	covered := map[string]bool{
-		"PUT /v1/byok/connections/{id}":                true,
-		"DELETE /v1/byok/connections/{id}":             true,
-		"POST /v1/byok/connections/{id}/verify":        true,
-		"GET /v1/byok/connections/{id}/models":         true,
-		"DELETE /v1/byok/search-connections/{id}":      true,
-		"POST /v1/byok/search-connections/{id}/verify": true,
+		"PUT /v1/byok/connections/{id}":                  true,
+		"DELETE /v1/byok/connections/{id}":               true,
+		"POST /v1/byok/connections/{id}/verify":          true,
+		"GET /v1/byok/connections/{id}/models":           true,
+		"POST /v1/byok/connections/{id}/custom-models":   true,
+		"DELETE /v1/byok/connections/{id}/custom-models": true,
+		"DELETE /v1/byok/search-connections/{id}":        true,
+		"POST /v1/byok/search-connections/{id}/verify":   true,
 	}
 	for _, pattern := range api.RegisteredPatterns() {
 		if !strings.Contains(pattern, "{id}") {

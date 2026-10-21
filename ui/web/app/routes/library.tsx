@@ -1,9 +1,11 @@
 /**
  * library.tsx
  * Library (the private design notes, phase 1): ready material
- * from open sources, filtered by kind, subject and language, each with its
+ * from open sources, filtered by kind, field and language, each with its
  * licence and source, and one action that puts it where it is used. What
- * AnyLearn may not copy is listed and opened at its source.
+ * AnyLearn may not copy is listed and opened at its source. With no field and
+ * no search the page shows a few items of each field
+ * (the private design notes).
  */
 import { useId } from "react";
 import { Form, Link, data, useFetcher } from "react-router";
@@ -16,7 +18,7 @@ import { isSupportedLng } from "~/lib/i18n";
 import { addLibraryDeck } from "~/lib/decks.server";
 import { addLink, createKB, listKBs } from "~/lib/kb.server";
 import { addQuestionSet } from "~/lib/quiz.server";
-import { catalogueLanguages, findItems, libraryItem } from "~/lib/library/catalogue.server";
+import { catalogueLanguages, findByField, findItems, libraryItem, type FieldGroup } from "~/lib/library/catalogue.server";
 import { addWordListLevel } from "~/lib/library/word-lists.server";
 import { LIBRARY_KINDS, LIBRARY_PAGE, LIBRARY_SUBJECTS, type LibraryItem, type LibraryKind, type LibrarySubject } from "~/lib/library/types";
 import { languageName } from "~/lib/languages";
@@ -41,7 +43,7 @@ function filterOf(url: URL) {
     kind: (LIBRARY_KINDS as readonly string[]).includes(kind) ? (kind as LibraryKind) : undefined,
     subject: (LIBRARY_SUBJECTS as readonly string[]).includes(subject) ? (subject as LibrarySubject) : undefined,
     lang: (url.searchParams.get("lang") ?? "").slice(0, 12),
-    q: (url.searchParams.get("q") ?? "").slice(0, 80),
+    q: (url.searchParams.get("q") ?? "").trim().slice(0, 80),
     offset: Math.max(0, Math.floor(Number(url.searchParams.get("offset")) || 0)),
   };
 }
@@ -50,9 +52,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
   const ui = isSupportedLng(user.language ?? "") ? user.language! : "en";
   const filter = filterOf(new URL(request.url));
-  const found = findItems(filter, ui);
+  // The first screen is by field; a field or a search is one list.
+  const byField = !filter.subject && !filter.q;
+  const found: { total: number; items: LibraryItem[]; groups: FieldGroup[] } = byField
+    ? { ...findByField(filter, ui), items: [] }
+    : { ...findItems(filter, ui), groups: [] };
+  const shown = byField ? found.groups.flatMap((g) => g.items) : found.items;
   // Knowledge bases only when something on this page goes into one.
-  const needsKB = found.items.some((i) => i.action.type === "link" || i.action.type === "set");
+  const needsKB = shown.some((i) => i.action.type === "link" || i.action.type === "set");
   const kbs = needsKB ? (await listKBs(user.id)).knowledge_bases.map((k) => ({ id: k.kb.id, name: k.kb.name })) : [];
   return { ...found, filter, kbs, languages: catalogueLanguages() };
 }
@@ -122,11 +129,12 @@ async function chosenKB(userId: string, choice: string, name: string) {
 
 export default function Library({ loaderData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("library");
-  const { items, total, filter, kbs, languages } = loaderData;
-  const page = (offset: number) => {
+  const { items, groups, total, filter, kbs, languages } = loaderData;
+  const shown = groups.length ? groups.flatMap((g) => g.items) : items;
+  const page = (offset: number, subject = filter.subject) => {
     const p = new URLSearchParams();
     if (filter.kind) p.set("kind", filter.kind);
-    if (filter.subject) p.set("subject", filter.subject);
+    if (subject) p.set("subject", subject);
     if (filter.lang) p.set("lang", filter.lang);
     if (filter.q) p.set("q", filter.q);
     if (offset) p.set("offset", String(offset));
@@ -186,31 +194,54 @@ export default function Library({ loaderData }: Route.ComponentProps) {
         {total === 0 ? t("empty") : t("count", { count: total })}
       </p>
 
-      <section aria-labelledby="lp-library-results" className="mt-2">
-        <h2 id="lp-library-results" className="sr-only">
-          {t("results")}
-        </h2>
-        {/* Each result is a heading to jump between, not an entry in the page's outline. */}
-        <ol data-outline-ignore>
-          {items.map((item) => (
-            <ItemRow key={item.id} item={item} kbs={kbs} />
-          ))}
-        </ol>
-      </section>
+      {groups.length ? (
+        groups.map((g) => (
+          <section key={g.subject} aria-labelledby={`lp-library-${g.subject}`} className="mt-8">
+            <h2 id={`lp-library-${g.subject}`} className="font-sans text-lg font-semibold">
+              {t(`subjects.${g.subject}`)}
+            </h2>
+            {/* Each result is a heading to jump between, not an entry in the page's outline. */}
+            <ol data-outline-ignore>
+              {g.items.map((item) => (
+                <ItemRow key={item.id} item={item} kbs={kbs} />
+              ))}
+            </ol>
+            {g.total > g.items.length ? (
+              <p className="mt-3 text-sm">
+                <Link to={page(0, g.subject)} className={LINK}>
+                  {t("allInField", { count: g.total, field: t(`subjects.${g.subject}`) })}
+                </Link>
+              </p>
+            ) : null}
+          </section>
+        ))
+      ) : (
+        <section aria-labelledby="lp-library-results" className="mt-2">
+          <h2 id="lp-library-results" className="sr-only">
+            {t("results")}
+          </h2>
+          {/* Each result is a heading to jump between, not an entry in the page's outline. */}
+          <ol data-outline-ignore>
+            {items.map((item) => (
+              <ItemRow key={item.id} item={item} kbs={kbs} />
+            ))}
+          </ol>
+        </section>
+      )}
 
       <div className="mt-4 flex gap-3">
-        {filter.offset > 0 ? (
+        {!groups.length && filter.offset > 0 ? (
           <Button asChild variant="outline" size="sm">
             <Link to={page(Math.max(0, filter.offset - LIBRARY_PAGE))}>{t("previous")}</Link>
           </Button>
         ) : null}
-        {filter.offset + LIBRARY_PAGE < total ? (
+        {!groups.length && filter.offset + LIBRARY_PAGE < total ? (
           <Button asChild variant="outline" size="sm">
             <Link to={page(filter.offset + LIBRARY_PAGE)}>{t("next")}</Link>
           </Button>
         ) : null}
       </div>
-      {[...new Set(items.map((i) => i.credit).filter(Boolean))].map((key) => (
+      {[...new Set(shown.map((i) => i.credit).filter(Boolean))].map((key) => (
         <p key={key} className="mt-6 text-xs leading-snug text-muted-foreground">
           {t(key!)}
         </p>

@@ -150,6 +150,7 @@ export const NAV_TREE: NavGroup[] = [
     collapsed: true,
     items: [
       { to: "/settings", labelKey: "nav.pages.settingsConnections", end: true },
+      { to: "/settings/providers", labelKey: "nav.pages.settingsProviders" },
       { to: "/settings/routes", labelKey: "nav.pages.settingsRoutes" },
       { to: "/settings/search", labelKey: "nav.pages.settingsSearch" },
       { to: "/settings/account", labelKey: "nav.pages.settingsAccount" },

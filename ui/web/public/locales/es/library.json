@@ -1,12 +1,12 @@
 {
   "title": "Biblioteca",
-  "lead": "Material listo de fuentes abiertas, sobre todo en inglés y algo en otros idiomas: mazos, listas de palabras, bancos de preguntas, cursos y vídeos, libros de texto y libros. Cada uno indica su licencia y su origen.",
+  "lead": "Material listo de fuentes abiertas para cualquier área, de la empresa, el derecho y la medicina a la ingeniería y las artes, sobre todo en inglés: mazos, listas de palabras, bancos de preguntas, cursos y vídeos, libros de texto y libros. Cada uno indica su licencia y su origen.",
   "filter": {
     "search": "Buscar",
     "kind": "Tipo",
     "anyKind": "Cualquier tipo",
-    "subject": "Materia",
-    "anySubject": "Cualquier materia",
+    "subject": "Área",
+    "anySubject": "Cualquier área",
     "language": "Idioma",
     "myLanguages": "Inglés, luego mi idioma",
     "allLanguages": "Todos los idiomas, primero inglés",
@@ -30,14 +30,22 @@
     "book": "Libro"
   },
   "subjects": {
-    "languages": "Idiomas",
+    "business": "Empresa y gestión",
+    "economics": "Economía y finanzas",
+    "law": "Derecho",
+    "health": "Medicina y salud",
+    "engineering": "Ingeniería",
+    "programming": "Informática y programación",
+    "science": "Ciencias naturales",
     "maths": "Matemáticas",
-    "science": "Ciencias",
-    "programming": "Programación",
-    "geography": "Geografía",
+    "social": "Ciencias sociales",
+    "humanities": "Humanidades y artes",
+    "education": "Educación",
+    "media": "Comunicación y medios",
+    "languages": "Idiomas",
+    "skills": "Estudio y habilidades para la vida",
     "general": "Cultura general",
-    "humanities": "Humanidades",
-    "fitness": "Ejercicio físico"
+    "fitness": "Forma física"
   },
   "units": {
     "cards_one": "{{count}} tarjeta",
@@ -51,7 +59,9 @@
     "books_one": "{{count}} libro",
     "books_other": "{{count}} libros",
     "exercises_one": "{{count}} ejercicio",
-    "exercises_other": "{{count}} ejercicios"
+    "exercises_other": "{{count}} ejercicios",
+    "hours_one": "{{count}} hora",
+    "hours_other": "{{count}} horas"
   },
   "licence": {
     "public-domain": "Dominio público",
@@ -64,26 +74,29 @@
     "cc-by-nc": "Solo uso no comercial (CC BY-NC)",
     "cc-by-nc-sa": "Solo uso no comercial (CC BY-NC-SA)",
     "none": "Sin licencia indicada",
-    "free-access": "Libre para leer o ver en su origen"
+    "free-access": "Libre para leer o ver en su origen",
+    "gfdl": "Libre, con atribución y la misma licencia (GNU FDL)",
+    "cc-by-nd": "Se puede compartir sin cambios, con atribución (CC BY-ND)",
+    "cc-by-nc-nd": "Solo uso no comercial, sin cambios (CC BY-NC-ND)"
   },
   "why": {
     "nonCommercial": "Es libre solo para uso no comercial, así que AnyLearn no lo copia: ábrelo en su origen.",
     "noLicence": "No indica licencia, así que AnyLearn no lo copia: ábrelo en su origen y luego trae su archivo a Mazos.",
     "bringFile": "Abre los exámenes en su origen y luego sube uno en Cuestionarios → Exámenes → Subir un examen anterior.",
-    "textbook": "Léelo en OpenStax, o descarga su PDF y súbelo a una base de conocimiento (archivos de hasta 50 MB)."
+    "textbook": "Léelo en su fuente, o descarga su PDF y sube a una base de conocimiento los capítulos que necesites (un archivo de hasta 50 MB y 400 páginas).",
+    "textbookNonCommercial": "Léelo en su fuente, o descarga su PDF. Su licencia solo permite el uso no comercial: sube a una base de conocimiento los capítulos que necesites para tu propio estudio (un archivo de hasta 50 MB y 400 páginas)."
   },
   "items": {
     "upWords": "Términos en inglés que encuentra un programador, por lenguaje (Python, Go, JavaScript y más): solo palabras, para consultar y guardar.",
     "upGuide": "Un libro sobre métodos de aprendizaje: estado, ciclos, evidencias y repaso, con fichas de trabajo.",
-    "mitOcw": "Vídeos de clases, apuntes y problemas de cursos del MIT.",
     "khan": "Lecciones breves en vídeo y práctica de matemáticas, ciencias y más, en muchos idiomas.",
     "thptName": "Exámenes de graduación de secundaria de Vietnam",
     "thpt": "Exámenes de referencia y de años anteriores del Ministerio de Educación de Vietnam, por materia.",
     "bodyName": "Body: biblioteca de ejercicios",
     "body": "Ejercicios por músculo y material, cada uno con sus pasos, para usar en tu plan."
   },
-  "count_one": "{{count}} elemento",
-  "count_other": "{{count}} elementos",
+  "count_one": "{{count, number}} elemento",
+  "count_other": "{{count, number}} elementos",
   "empty": "Nada coincide. Prueba con cualquier tipo, cualquier materia o todos los idiomas.",
   "results": "Resultados",
   "manyLanguages": "Muchos idiomas",
@@ -116,7 +129,14 @@
   },
   "credits": {
     "fpb": "Los cursos y libros los recopila free-programming-books (Free Ebook Foundation, CC BY 4.0); cada uno pertenece a su autor.",
-    "gutenberg": "Los libros son de Project Gutenberg y son de dominio público en Estados Unidos; consulta la ley de tu país antes de usarlos en otro lugar."
+    "gutenberg": "Los libros son de Project Gutenberg y son de dominio público en Estados Unidos; consulta la ley de tu país antes de usarlos en otro lugar.",
+    "otl": "Los libros de texto los lista la Open Textbook Library (Center for Open Education, Universidad de Minnesota); cada uno tiene su propia licencia, indicada con él, y pertenece a sus autores.",
+    "mit": "Los cursos son de MIT OpenCourseWare, bajo CC BY-NC-SA 4.0, listados desde MIT Learn; se abren en el MIT.",
+    "awesome": {
+      "math": "Listado por awesome-math (rossant/awesome-math, CC0); cada enlace pertenece a su dueño.",
+      "certificates": "Listado por awesome-certificates (PanXProject/awesome-certificates, CC0); cada curso pertenece a su proveedor, que es quien da el certificado.",
+      "youtubers": "Listado por awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0); cada canal pertenece a su dueño y se añade como fuente para elegir vídeos."
+    }
   },
   "level": "Nivel",
   "levelOption_one": "{{name}} ({{count}} palabra)",
@@ -156,5 +176,7 @@
     "python": "Los ejercicios de Python de Exercism, del más fácil al más difícil: escribe el código en el navegador y ejecuta las pruebas."
   },
   "pdf": "PDF del libro completo",
-  "wordsDays": "Las nuevas aparecen del {{first}} al {{last}}."
+  "wordsDays": "Las nuevas aparecen del {{first}} al {{last}}.",
+  "allInField_one": "Ver el {{count, number}} elemento de {{field}}",
+  "allInField_other": "Ver los {{count, number}} de {{field}}"
 }

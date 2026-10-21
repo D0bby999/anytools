@@ -1,7 +1,5 @@
 package byok
 
-import "github.com/D0bby999/anytools/internal/providers"
-
 // presets.go — API-key providers that speak the OpenAI wire format at a known
 // address, so connecting one is "pick it, paste a key" rather than typing a
 // base URL into openai_compat.
@@ -12,18 +10,18 @@ import "github.com/D0bby999/anytools/internal/providers"
 // the preset id, which is what the provider's compat hooks key on
 // (providers.applyStrictSchemaCompat for Mistral).
 //
-// Model ids are defaults dated 2026-09-26 and follow models.go's rule: a model
-// id is written here or in a user's route entry, never inline in a client. The
-// chat ids were taken from postclaw's provider defaults where it had one
-// (Groq's Llama ids were shut down in 2026 in favour of gpt-oss; DeepSeek's
-// `deepseek-chat` is its stable alias).
+// The rows themselves live in catalog.go, one per provider. Model ids follow
+// models.go's rule: a model id is written there or in a user's route entry,
+// never inline in a client.
 
 // preset describes one OpenAI-compatible provider.
 type preset struct {
 	// Base is the default API base, INCLUDING its version segment — Z.AI's is
 	// /v4 and DashScope's is /compatible-mode/v1, so no single "append /v1"
 	// rule covers them.
-	Base      string
+	Base string
+	// ChatModel is empty for the providers added from postclaw's catalog: a
+	// route on one names a model from its live list (catalog.go).
 	ChatModel string
 	// EmbedModel is empty when the provider has no embeddings endpoint.
 	EmbedModel string
@@ -32,19 +30,16 @@ type preset struct {
 	EmbedSendsDims bool
 }
 
-var presets = map[string]preset{
-	providers.ProviderDeepSeek: {Base: "https://api.deepseek.com/v1", ChatModel: "deepseek-chat"},
-	providers.ProviderXAI:      {Base: "https://api.x.ai/v1", ChatModel: "grok-4"},
-	// mistral-embed is 1024 wide — one of the widths the vector column takes.
-	providers.ProviderMistral: {Base: "https://api.mistral.ai/v1", ChatModel: "mistral-medium-latest",
-		EmbedModel: "mistral-embed"},
-	providers.ProviderGroq: {Base: "https://api.groq.com/openai/v1", ChatModel: "openai/gpt-oss-120b"},
-	// Alibaba's international endpoint. text-embedding-v4 defaults to 1024 and
-	// honours `dimensions`.
-	providers.ProviderQwen: {Base: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", ChatModel: "qwen3-max",
-		EmbedModel: "text-embedding-v4", EmbedSendsDims: true},
-	providers.ProviderZAI: {Base: "https://api.z.ai/api/paas/v4", ChatModel: "glm-5.3"},
-}
+// presets are the catalog rows that carry one (catalog.go), by provider id.
+var presets = func() map[string]preset {
+	out := map[string]preset{}
+	for _, r := range catalogRows {
+		if r.preset != nil {
+			out[r.Type] = *r.preset
+		}
+	}
+	return out
+}()
 
 // presetOf returns a provider's preset, if it is one.
 func presetOf(provider string) (preset, bool) {
@@ -59,15 +54,4 @@ func presetBase(provider, stored string) string {
 		return base
 	}
 	return presets[provider].Base
-}
-
-// presetOrder is the display order on the Connections page, after the four
-// first-party providers and before openai_compat.
-var presetOrder = []string{
-	providers.ProviderDeepSeek,
-	providers.ProviderQwen,
-	providers.ProviderMistral,
-	providers.ProviderXAI,
-	providers.ProviderGroq,
-	providers.ProviderZAI,
 }

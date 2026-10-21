@@ -360,3 +360,20 @@ describe("code inks are legible on a code block", () => {
     }
   });
 });
+
+describe("a provider tile's letters are legible on its tint", () => {
+  // components/settings/provider-tile.tsx: two letters in a part ink on that
+  // part's soft tint, on a card (plan 261021-1100 phase 4).
+  it.each(THEMES)("%s", (_mode, t) => {
+    const card = flatten(t["lp-surface"]!, [255, 255, 255]);
+    const pairs: [string, string][] = [
+      ...PARTS.map((p) => [`lp-part-${p}`, `lp-part-${p}-soft`] as [string, string]),
+      ["lp-brand", "lp-brand-soft"],
+    ];
+    for (const [ink, tint] of pairs) {
+      const bg = flatten(t[tint]!, card);
+      const ratio = contrast(flatten(t[ink]!, bg), bg);
+      expect(ratio, `--${ink} on --${tint} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+});

@@ -1,12 +1,12 @@
 {
   "title": "Biblioteca",
-  "lead": "Material pronto de fontes abertas, principalmente em inglês, com parte em outros idiomas: baralhos, listas de palavras, bancos de questões, cursos e vídeos, livros didáticos e livros. Cada um informa a licença e a origem.",
+  "lead": "Material pronto de fontes abertas para qualquer área, de negócios, direito e medicina a engenharia e artes, principalmente em inglês: baralhos, listas de palavras, bancos de questões, cursos e vídeos, livros didáticos e livros. Cada um informa a licença e a origem.",
   "filter": {
     "search": "Buscar",
     "kind": "Tipo",
     "anyKind": "Qualquer tipo",
-    "subject": "Matéria",
-    "anySubject": "Qualquer matéria",
+    "subject": "Área",
+    "anySubject": "Qualquer área",
     "language": "Idioma",
     "myLanguages": "Inglês, depois meu idioma",
     "allLanguages": "Todos os idiomas, inglês primeiro",
@@ -30,14 +30,22 @@
     "book": "Livro"
   },
   "subjects": {
-    "languages": "Idiomas",
+    "business": "Negócios e gestão",
+    "economics": "Economia e finanças",
+    "law": "Direito",
+    "health": "Medicina e saúde",
+    "engineering": "Engenharia",
+    "programming": "Computação e programação",
+    "science": "Ciências naturais",
     "maths": "Matemática",
-    "science": "Ciências",
-    "programming": "Programação",
-    "geography": "Geografia",
+    "social": "Ciências sociais",
+    "humanities": "Humanidades e artes",
+    "education": "Educação",
+    "media": "Comunicação e mídia",
+    "languages": "Idiomas",
+    "skills": "Estudo e habilidades para a vida",
     "general": "Conhecimentos gerais",
-    "humanities": "Humanidades",
-    "fitness": "Exercício físico"
+    "fitness": "Condicionamento físico"
   },
   "units": {
     "cards_one": "{{count}} cartão",
@@ -51,7 +59,9 @@
     "books_one": "{{count}} livro",
     "books_other": "{{count}} livros",
     "exercises_one": "{{count}} exercício",
-    "exercises_other": "{{count}} exercícios"
+    "exercises_other": "{{count}} exercícios",
+    "hours_one": "{{count}} hora",
+    "hours_other": "{{count}} horas"
   },
   "licence": {
     "public-domain": "Domínio público",
@@ -64,26 +74,29 @@
     "cc-by-nc": "Somente uso não comercial (CC BY-NC)",
     "cc-by-nc-sa": "Somente uso não comercial (CC BY-NC-SA)",
     "none": "Sem licença informada",
-    "free-access": "Livre para ler ou assistir na origem"
+    "free-access": "Livre para ler ou assistir na origem",
+    "gfdl": "Livre, com crédito e a mesma licença (GNU FDL)",
+    "cc-by-nd": "Pode ser compartilhado sem alterações, com crédito (CC BY-ND)",
+    "cc-by-nc-nd": "Somente uso não comercial, sem alterações (CC BY-NC-ND)"
   },
   "why": {
     "nonCommercial": "É livre só para uso não comercial, então o AnyLearn não o copia: abra na origem.",
     "noLicence": "Não informa licença, então o AnyLearn não o copia: abra na origem e depois traga o arquivo para Baralhos.",
     "bringFile": "Abra as provas na origem e depois envie uma em Quizzes → Provas → Enviar uma prova anterior.",
-    "textbook": "Leia no OpenStax, ou baixe o PDF e envie para uma base de conhecimento (arquivos de até 50 MB)."
+    "textbook": "Leia na fonte, ou baixe o PDF e envie para uma base de conhecimento os capítulos de que precisa (um arquivo de até 50 MB e 400 páginas).",
+    "textbookNonCommercial": "Leia na fonte, ou baixe o PDF. A licença permite apenas uso não comercial: envie para uma base de conhecimento os capítulos de que precisa para seu próprio estudo (um arquivo de até 50 MB e 400 páginas)."
   },
   "items": {
     "upWords": "Termos em inglês que um programador encontra, por linguagem (Python, Go, JavaScript e outras): só palavras, para consultar e salvar.",
     "upGuide": "Um livro sobre métodos de aprendizagem: estado, ciclos, evidências e revisão, com fichas de trabalho.",
-    "mitOcw": "Vídeos de aulas, notas e listas de exercícios de cursos do MIT.",
     "khan": "Aulas curtas em vídeo e prática de matemática, ciências e mais, em muitos idiomas.",
     "thptName": "Provas de conclusão do ensino médio do Vietnã",
     "thpt": "Provas de referência e de anos anteriores do Ministério da Educação do Vietnã, por matéria.",
     "bodyName": "Body: biblioteca de exercícios",
     "body": "Exercícios por músculo e equipamento, cada um com seus passos, para usar no seu plano."
   },
-  "count_one": "{{count}} item",
-  "count_other": "{{count}} itens",
+  "count_one": "{{count, number}} item",
+  "count_other": "{{count, number}} itens",
   "empty": "Nada corresponde. Tente qualquer tipo, qualquer matéria ou todos os idiomas.",
   "results": "Resultados",
   "manyLanguages": "Vários idiomas",
@@ -116,7 +129,14 @@
   },
   "credits": {
     "fpb": "Os cursos e livros são listados pelo free-programming-books (Free Ebook Foundation, CC BY 4.0); cada um pertence ao seu autor.",
-    "gutenberg": "Os livros são do Project Gutenberg e estão em domínio público nos Estados Unidos; verifique a lei do seu país antes de usá-los em outro lugar."
+    "gutenberg": "Os livros são do Project Gutenberg e estão em domínio público nos Estados Unidos; verifique a lei do seu país antes de usá-los em outro lugar.",
+    "otl": "Os livros didáticos são listados pela Open Textbook Library (Center for Open Education, Universidade de Minnesota); cada um tem sua própria licença, mostrada com ele, e pertence aos autores.",
+    "mit": "Os cursos são do MIT OpenCourseWare, sob CC BY-NC-SA 4.0, listados a partir do MIT Learn; abrem no MIT.",
+    "awesome": {
+      "math": "Listado por awesome-math (rossant/awesome-math, CC0); cada link pertence ao dono.",
+      "certificates": "Listado por awesome-certificates (PanXProject/awesome-certificates, CC0); cada curso pertence ao provedor, que é quem emite o certificado.",
+      "youtubers": "Listado por awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0); cada canal pertence ao dono e é adicionado como feed para escolher vídeos."
+    }
   },
   "level": "Nível",
   "levelOption_one": "{{name}} ({{count}} palavra)",
@@ -156,5 +176,7 @@
     "python": "Os exercícios de Python do Exercism, do mais fácil ao mais difícil: escreva o código no navegador e rode os testes."
   },
   "pdf": "PDF do livro inteiro",
-  "wordsDays": "As novas aparecem de {{first}} a {{last}}."
+  "wordsDays": "As novas aparecem de {{first}} a {{last}}.",
+  "allInField_one": "Ver o {{count, number}} item de {{field}}",
+  "allInField_other": "Ver os {{count, number}} de {{field}}"
 }

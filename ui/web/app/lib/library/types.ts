@@ -9,7 +9,29 @@
 export const LIBRARY_KINDS = ["deck", "words", "questions", "course", "textbook", "book"] as const;
 export type LibraryKind = (typeof LIBRARY_KINDS)[number];
 
-export const LIBRARY_SUBJECTS = ["languages", "maths", "science", "programming", "geography", "general", "humanities", "fitness"] as const;
+/**
+ * The fields the Library files its material in, in the order the page shows
+ * them (the private design notes): for any profession, not only
+ * languages and programming. The URL keeps the name "subject".
+ */
+export const LIBRARY_SUBJECTS = [
+  "business",
+  "economics",
+  "law",
+  "health",
+  "engineering",
+  "programming",
+  "science",
+  "maths",
+  "social",
+  "humanities",
+  "education",
+  "media",
+  "languages",
+  "skills",
+  "general",
+  "fitness",
+] as const;
 export type LibrarySubject = (typeof LIBRARY_SUBJECTS)[number];
 
 /** A licence in kinds the page can say in the learner's language. */
@@ -21,8 +43,11 @@ export type Licence =
   | "mit"
   | "unlicense"
   | "free-pictures"
+  | "gfdl"
+  | "cc-by-nd"
   | "cc-by-nc"
   | "cc-by-nc-sa"
+  | "cc-by-nc-nd"
   /** A link in a list: the work is its owner's, free to read or watch at its source. */
   | "free-access"
   | "none";
@@ -40,7 +65,7 @@ export type LibraryAction =
   /** A page of AnyLearn's own. */
   | { type: "page"; to: string }
   /** Nothing to add: opened at its source, for the reason given. */
-  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook"; pdf?: string };
+  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook" | "textbookNonCommercial"; pdf?: string };
 
 export type LibraryItem = {
   /** Unique in the catalogue, stable: an action names its item by it. */
@@ -61,7 +86,7 @@ export type LibraryItem = {
   author?: string;
   /** How much there is, counted in unit. */
   count?: number;
-  unit?: "cards" | "words" | "questions" | "courses" | "books" | "exercises";
+  unit?: "cards" | "words" | "questions" | "courses" | "books" | "exercises" | "hours";
   /** A video or a playlist. */
   video?: boolean;
   licence: Licence;

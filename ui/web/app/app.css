@@ -1043,3 +1043,17 @@ math-field::part(menu-toggle) {
   outline-offset: 4px;
   border-radius: 4px;
 }
+
+/* A provider's tile on the Providers page (components/settings/provider-tile.tsx):
+   a part ink on its own tint and line, which theme-contrast measures. */
+.lp-provider-tile {
+  color: var(--lp-tile-ink);
+  background: var(--lp-tile-tint);
+  border-color: var(--lp-tile-line);
+}
+.lp-provider-tile[data-hue="read"] { --lp-tile-ink: var(--lp-part-read); --lp-tile-tint: var(--lp-part-read-soft); --lp-tile-line: var(--lp-part-read-line); }
+.lp-provider-tile[data-hue="ask"] { --lp-tile-ink: var(--lp-part-ask); --lp-tile-tint: var(--lp-part-ask-soft); --lp-tile-line: var(--lp-part-ask-line); }
+.lp-provider-tile[data-hue="practise"] { --lp-tile-ink: var(--lp-part-practise); --lp-tile-tint: var(--lp-part-practise-soft); --lp-tile-line: var(--lp-part-practise-line); }
+.lp-provider-tile[data-hue="reflect"] { --lp-tile-ink: var(--lp-part-reflect); --lp-tile-tint: var(--lp-part-reflect-soft); --lp-tile-line: var(--lp-part-reflect-line); }
+.lp-provider-tile[data-hue="tools"] { --lp-tile-ink: var(--lp-part-tools); --lp-tile-tint: var(--lp-part-tools-soft); --lp-tile-line: var(--lp-part-tools-line); }
+.lp-provider-tile[data-hue="brand"] { --lp-tile-ink: var(--lp-brand); --lp-tile-tint: var(--lp-brand-soft); --lp-tile-line: var(--lp-border-control); }

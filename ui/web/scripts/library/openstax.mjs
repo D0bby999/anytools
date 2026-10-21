@@ -21,14 +21,20 @@ const SUBJECTS = {
   Matemáticas: "maths",
   Science: "science",
   Ciencia: "science",
-  Nursing: "science",
+  Nursing: "health",
   "Computer Science": "programming",
-  Business: "humanities",
-  Empresarial: "humanities",
-  "Social Sciences": "humanities",
+  Business: "business",
+  Empresarial: "business",
+  "Social Sciences": "social",
   Humanities: "humanities",
-  "College Success": "general",
+  "College Success": "skills",
 };
+
+/** The Library's field for a book: its first OpenStax subject, economics and finance by title. */
+export function subjectOf(subject, title) {
+  if (/econom|financ|accounting|contabilidad|finanzas/i.test(title)) return "economics";
+  return SUBJECTS[subject] ?? "general";
+}
 const SPANISH = new Set(["Matemáticas", "Ciencia", "Empresarial"]);
 
 /** The licence's kind, from the API's name for it. */
@@ -47,7 +53,7 @@ export function bookOf(b) {
     slug: b.meta.slug,
     title: b.title.trim(),
     language: subjects.some((s) => SPANISH.has(s)) ? "es" : "en",
-    subject: SUBJECTS[subjects[0]] ?? "general",
+    subject: subjectOf(subjects[0], b.title),
     section: subjects[0] ?? "",
     licence: licenceOf(b.license_name),
     url: `https://openstax.org/details/books/${b.meta.slug}`,

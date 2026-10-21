@@ -27,6 +27,9 @@ const (
 )
 
 // Target is a playlist, a channel or a channel's @handle named by a link.
+// A handle target's ID is "@name", or a channel's older address, "c/name"
+// (a custom URL) or "user/name" (a username): all three are read the same
+// way, from the channel's page.
 type Target struct {
 	Kind string
 	ID   string
@@ -36,6 +39,7 @@ var (
 	playlistID = regexp.MustCompile(`^[A-Za-z0-9_-]{10,64}$`)
 	channelID  = regexp.MustCompile(`^UC[A-Za-z0-9_-]{22}$`)
 	handleName = regexp.MustCompile(`^@[A-Za-z0-9._-]{3,30}$`)
+	legacyName = regexp.MustCompile(`^[\p{L}\p{N}._-]{1,100}$`)
 )
 
 var youtubeHosts = map[string]bool{
@@ -43,8 +47,10 @@ var youtubeHosts = map[string]bool{
 }
 
 // RecognizeYouTube reads a playlist link (any YouTube link whose list= names
-// a playlist), a channel link (/channel/UC…) or a handle link (/@name). A
-// watch link that names a video as well is the caller's to treat as a video.
+// a playlist), a channel link (/channel/UC…), a handle link (/@name) or a
+// channel's older link (/c/name, /user/name), which lists such as
+// awesome-youtubers still use. A watch link that names a video as well is
+// the caller's to treat as a video.
 func RecognizeYouTube(raw string) (Target, bool) {
 	u, err := url.Parse(strings.TrimSpace(raw))
 	if err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.User != nil {
@@ -65,6 +71,8 @@ func RecognizeYouTube(raw string) (Target, bool) {
 		return Target{Kind: TargetChannel, ID: parts[1]}, true
 	case len(parts) >= 1 && handleName.MatchString(parts[0]):
 		return Target{Kind: TargetHandle, ID: parts[0]}, true
+	case len(parts) >= 2 && (parts[0] == "c" || parts[0] == "user") && legacyName.MatchString(parts[1]):
+		return Target{Kind: TargetHandle, ID: parts[0] + "/" + parts[1]}, true
 	}
 	return Target{}, false
 }
@@ -106,14 +114,18 @@ func PlaylistOf(feedURL string) (string, bool) {
 // ErrNoChannel: the handle's page did not name a channel.
 var ErrNoChannel = errors.New("feeds: that YouTube handle does not name a channel")
 
-// Resolve turns a handle into its channel; a playlist or a channel is
-// returned as it is.
+// Resolve turns a handle (or a /c/ or /user/ name) into its channel; a
+// playlist or a channel is returned as it is.
 func (y *YouTube) Resolve(ctx context.Context, t Target) (Target, error) {
 	if t.Kind != TargetHandle {
 		return t, nil
 	}
+	segments := strings.Split(t.ID, "/")
+	for i, s := range segments {
+		segments[i] = url.PathEscape(s)
+	}
 	page, err := security.FetchPage(ctx, y.HTTP, security.PageRequest{
-		URL: y.Base + "/" + url.PathEscape(t.ID), Accept: "text/html", UserAgent: feedUserAgent,
+		URL: y.Base + "/" + strings.Join(segments, "/"), Accept: "text/html", UserAgent: feedUserAgent,
 		Types: []string{"text/html"},
 	})
 	if err != nil {

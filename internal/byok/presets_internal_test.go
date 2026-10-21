@@ -17,18 +17,12 @@ import (
 )
 
 // Every preset must be connectable by key alone: a default base with its
-// version segment, and a default chat model, so verify never asks for either.
-func TestEveryPresetIsUsableWithoutABaseOrAModel(t *testing.T) {
-	offered := map[string]bool{}
-	for _, p := range APIKeyProviders() {
-		offered[p] = true
-	}
+// version segment. Those with a default chat model use it everywhere chat is
+// served; those without one (catalog.go) take the routed model.
+func TestEveryPresetIsUsableWithoutABase(t *testing.T) {
 	for id, p := range presets {
-		if !offered[id] {
-			t.Errorf("preset %q is not offered on the Connections page", id)
-		}
-		if p.Base == "" || p.ChatModel == "" {
-			t.Errorf("preset %q lacks a default base or chat model", id)
+		if p.Base == "" {
+			t.Errorf("preset %q lacks a default base", id)
 		}
 		if got := presetBase(id, ""); got != p.Base {
 			t.Errorf("preset %q with no stored base serves on %q, want %q", id, got, p.Base)

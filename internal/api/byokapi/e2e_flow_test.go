@@ -324,11 +324,13 @@ func TestVerifyingAnOpenAICompatConnectionNeedsAModelFirst(t *testing.T) {
 	}
 	connID := decodeBody[map[string]any](t, created)["id"].(string)
 
+	// With no model, verify reads the model list (phase 4 of plan
+	// 261021-1100); this server lists none, so the answer names the fix.
 	refused := h.do(t, user, http.MethodPost, "/v1/byok/connections/"+connID+"/verify", nil)
-	if refused.Code != http.StatusBadRequest {
-		t.Fatalf("verify without a model = %d, want 400 (body %s)", refused.Code, refused.Body.String())
+	if refused.Code != http.StatusOK {
+		t.Fatalf("verify without a model = %d (body %s)", refused.Code, refused.Body.String())
 	}
-	if !strings.Contains(refused.Body.String(), "model") {
+	if passed, _ := decodeBody[map[string]any](t, refused)["ok"].(bool); passed || !strings.Contains(refused.Body.String(), "Choose a model") {
 		t.Fatalf("the refusal does not name the problem: %s", refused.Body.String())
 	}
 	if sawModel != "" {

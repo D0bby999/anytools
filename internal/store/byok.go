@@ -167,6 +167,16 @@ type ProviderConnectionStore interface {
 	SetVerifyResult(ctx context.Context, userID uuid.UUID, id uuid.UUID, verifiedAt *time.Time, lastError string) error
 }
 
+// CustomModelStore keeps the model ids a learner adds by hand to one of their
+// connections (plan 261021-1100 phase 4). Every method is scoped to the owner:
+// another user's connection id reads as not found.
+type CustomModelStore interface {
+	ListCustomModels(ctx context.Context, userID, connectionID uuid.UUID) ([]string, error)
+	// AddCustomModel is idempotent: adding a model twice keeps one row.
+	AddCustomModel(ctx context.Context, userID, connectionID uuid.UUID, model string) error
+	DeleteCustomModel(ctx context.Context, userID, connectionID uuid.UUID, model string) error
+}
+
 // FunctionRoute is one entry of one function's chain, as the API returns it.
 type FunctionRoute struct {
 	ID           uuid.UUID

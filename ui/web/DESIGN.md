@@ -393,6 +393,16 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    that runs the full width. Terminal colours map to the same inks; backgrounds and
    256-colour codes are dropped rather than trusted. A streamed fence stays plain until
    its closing marker arrives.
+24. **Providers** (`routes/settings.providers*.tsx`, `components/settings/`, plan
+   261021-1100 phase 4, after postclaw's settings-providers): a grid of cards, each a
+   two-letter tile in a part ink on that part's tint (`.lp-provider-tile[data-hue]`; the
+   API spreads providers over the inks by name, so no brand colour is ever drawn), its
+   name and what it can do. Filters are toggle buttons in labelled groups, which scroll
+   sideways on a phone instead of stacking. Inside `.lp-doc` a card's name and lines are
+   divs: the unlayered heading and paragraph rules would set them in the book face with
+   prose margins. A route chain is one line until **Edit** opens it in a dialog: rows
+   with a grip handle (drag, or Alt+↑ / Alt+↓ on the focused handle, said in a live
+   region), a connection above its model picker, and the arrows kept as buttons.
 
 ## Anti-patterns for this project
 

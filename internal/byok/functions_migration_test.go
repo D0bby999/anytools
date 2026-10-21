@@ -160,3 +160,26 @@ func TestMigrationChecksCoverEverySubscriptionLane(t *testing.T) {
 		}
 	}
 }
+
+// The catalog is the provider list (catalog.go); the CHECK in force must be
+// exactly it, so a removed row cannot leave the database accepting a provider
+// nothing serves, and an added one cannot be refused at write time.
+func TestCatalogMatchesTheDatabaseCheck(t *testing.T) {
+	m := latestMatch(t, regexp.MustCompile(`(?s)CONSTRAINT provider_connections_provider_known CHECK \(\s*provider IN \((.*?)\)\)`))
+	inCheck := map[string]bool{}
+	for _, p := range parseQuotedList(m[1]) {
+		inCheck[p] = true
+	}
+	inCatalog := map[string]bool{}
+	for _, e := range byok.Catalog(true) {
+		inCatalog[e.Type] = true
+		if !inCheck[e.Type] {
+			t.Errorf("catalog provider %q is rejected by the CHECK", e.Type)
+		}
+	}
+	for p := range inCheck {
+		if !inCatalog[p] {
+			t.Errorf("the CHECK accepts %q, which the catalog does not offer", p)
+		}
+	}
+}

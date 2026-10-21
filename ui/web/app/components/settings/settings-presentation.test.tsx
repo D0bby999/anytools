@@ -5,7 +5,7 @@ import { createMemoryRouter, Form, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
 import { LanguageChoice } from "./language-choice";
 import { OwnVersionSetting } from "./own-version-setting";
-import { RouteChainEditor } from "./route-chain-editor";
+import { RouteChainDialog, moveRow } from "./route-chain-dialog";
 import type { Connection } from "~/lib/byok.types";
 import Settings from "~/routes/settings";
 import { NAV_TREE } from "~/lib/nav-tree";
@@ -23,6 +23,25 @@ function routed(element: React.ReactNode, posts: Record<string, FormDataEntryVal
     },
   ]);
   return render(<RouterProvider router={router} />);
+}
+
+function chainDialog() {
+  const connections = [
+    { id: "a", name: "Primary", provider: "openai" },
+    { id: "b", name: "Backup", provider: "cerebras" },
+  ] as Connection[];
+  return (
+    <RouteChainDialog
+      fn="chat"
+      entries={[
+        { connection_id: "a", model: "first" },
+        { connection_id: "b", model: "second" },
+      ]}
+      connections={connections}
+      catalog={[]}
+      maxEntries={3}
+    />
+  );
 }
 
 describe("Settings controls preserve form contracts", () => {
@@ -51,33 +70,37 @@ describe("Settings controls preserve form contracts", () => {
   });
   it("moves edited connection/model pairs together and saves their new positions", async () => {
     const posts: Record<string, FormDataEntryValue>[] = [];
-    const connections = [
-      { id: "a", name: "Primary" },
-      { id: "b", name: "Backup" },
-    ] as Connection[];
-    routed(
-      <RouteChainEditor
-        fn="chat"
-        entries={[
-          { connection_id: "a", model: "first" },
-          { connection_id: "b", model: "second" },
-        ]}
-        connections={connections}
-        maxEntries={3}
-      />,
-      posts,
-    );
-    const models = screen.getAllByRole("textbox");
+    routed(chainDialog(), posts);
+    await userEvent.click(screen.getByRole("button", { name: "Edit the Chat chain" }));
+    const models = screen.getAllByRole("combobox", { name: /^Model at position/ });
     await userEvent.clear(models[1]!);
     await userEvent.type(models[1]!, "edited");
     expect(screen.getByRole("button", { name: "Move position 1 up" })).toBeDisabled();
     await userEvent.click(screen.getByRole("button", { name: "Move position 2 up" }));
     await userEvent.click(screen.getByRole("button", { name: /save/i }));
+
     await waitFor(() =>
-      expect(posts).toEqual([
-        { function: "chat", connection_0: "b", model_0: "edited", connection_1: "a", model_1: "first", connection_2: "", model_2: "" },
-      ]),
+      expect(posts).toEqual([{ function: "chat", connection_0: "b", model_0: "edited", connection_1: "a", model_1: "first" }]),
     );
+  });
+  it("reorders the chain from the keyboard: Alt+arrow on a row's handle, said aloud", async () => {
+    const posts: Record<string, FormDataEntryValue>[] = [];
+    routed(chainDialog(), posts);
+    await userEvent.click(screen.getByRole("button", { name: "Edit the Chat chain" }));
+    const handle = screen.getByRole("button", { name: "Drag or press Alt+arrow to move position 2" });
+    handle.focus();
+    await userEvent.keyboard("{Alt>}{ArrowUp}{/Alt}");
+    expect(screen.getByRole("status")).toHaveTextContent("Moved from position 2 to 1");
+    // An arrow without Alt does nothing, so a handle can be tabbed past.
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.click(screen.getByRole("button", { name: /save/i }));
+    await waitFor(() =>
+      expect(posts).toEqual([{ function: "chat", connection_0: "b", model_0: "second", connection_1: "a", model_1: "first" }]),
+    );
+  });
+  it("moveRow moves one row and leaves an out-of-range move alone", () => {
+    expect(moveRow(["a", "b", "c"], 2, 0)).toEqual(["c", "a", "b"]);
+    expect(moveRow(["a", "b"], 0, 5)).toEqual(["a", "b"]);
   });
   it("orders all seven tabs by NAV_TREE", () => {
     routed(<Settings />);

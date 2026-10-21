@@ -159,6 +159,9 @@ func TestLinkRecognition(t *testing.T) {
 		"https://www.youtube.com/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw/videos":          {TargetChannel, "UC_x5XG1OV2P6uZZ5FSM9Ttw"},
 		"https://www.youtube.com/@GoogleDevelopers":                                {TargetHandle, "@GoogleDevelopers"},
 		"https://youtube.com/@google.devs/featured":                                {TargetHandle, "@google.devs"},
+		"https://www.youtube.com/c/Techsithtube":                                   {TargetHandle, "c/Techsithtube"},
+		"https://youtube.com/user/derekbanas/videos":                               {TargetHandle, "user/derekbanas"},
+		"https://www.youtube.com/c/AniaKub%C3%B3w/featured":                        {TargetHandle, "c/AniaKubów"},
 	}
 	for raw, want := range cases {
 		got, ok := RecognizeYouTube(raw)
@@ -171,6 +174,10 @@ func TestLinkRecognition(t *testing.T) {
 		"https://www.youtube.com/playlist?list=bad!",
 		"https://www.youtube.com/channel/notachannel",
 		"https://www.youtube.com/@x",
+		"https://www.youtube.com/c/",
+		"https://www.youtube.com/c/bad%20name",
+		"https://www.youtube.com/results?search_query=go",
+		"https://www.youtube.com/kepowob",
 		"https://evil.example.com/playlist?list=PLOU2XLYxmsIKfqoxytJ70EOjSVexbqbtc",
 		"https://user@www.youtube.com/@GoogleDevelopers",
 		"javascript:alert(1)",
@@ -201,7 +208,7 @@ func TestAHandleResolvesThroughItsChannelPage(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		paths = append(paths, r.URL.RequestURI())
 		switch {
-		case r.URL.Path == "/@GoogleDevelopers":
+		case r.URL.Path == "/@GoogleDevelopers", r.URL.Path == "/c/GoogleDevelopers":
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			_, _ = w.Write(fixture(t, "youtube_handle_page.html"))
 		case r.URL.Path == "/feeds/videos.xml" && r.URL.Query().Get("channel_id") == "UC_x5XG1OV2P6uZZ5FSM9Ttw":
@@ -225,6 +232,10 @@ func TestAHandleResolvesThroughItsChannelPage(t *testing.T) {
 	f, err := y.Fetch(ctx, got)
 	if err != nil || len(f.Entries) != YouTubeFeedLimit {
 		t.Fatalf("Fetch = %v, %d", err, len(f.Entries))
+	}
+	// A channel's older /c/ address is read from its page the same way.
+	if got, err := y.Resolve(ctx, Target{TargetHandle, "c/GoogleDevelopers"}); err != nil || got != (Target{TargetChannel, "UC_x5XG1OV2P6uZZ5FSM9Ttw"}) {
+		t.Errorf("Resolve(c/…) = %+v, %v", got, err)
 	}
 	if _, err := y.Resolve(ctx, Target{TargetHandle, "@nobody1"}); !errors.Is(err, ErrNoChannel) {
 		t.Errorf("a page with no channel: %v", err)

@@ -305,6 +305,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## decolua/9router
+
+The provider catalog (`internal/byok/catalog.go`: names, API bases and key pages) comes from
+postclaw's catalog, which was generated from [9router](https://github.com/decolua/9router)'s
+provider registry. MIT requires its notice to travel with the data:
+
+```
+MIT License
+
+Copyright (c) 2024-2026 decolua and contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## Tools ported from the old AnyTools repository
 
 The public tools under the **Tools** tab were written in the old AnyTools repository
@@ -2951,6 +2981,35 @@ downloaded public-domain books (titles, authors, shelves and links, read by
 copied. OpenStax® is a trademark of Rice University; Project Gutenberg™ is a trademark of the
 Project Gutenberg Literary Archive Foundation; AnyLearn is affiliated with neither. A Gutenberg
 book a learner adds is fetched from gutenberg.org into their own knowledge base by the link import.
+
+## Catalogues for every field: Open Textbook Library, MIT OpenCourseWare, three awesome lists
+
+The Library's fields (the private design notes) list, without copying any book or
+course:
+
+- **Open Textbook Library** (Center for Open Education, University of Minnesota): 1,825 textbooks'
+  titles, authors' and editors' names, subjects, licences and links, read from its catalogue API
+  (`open.umn.edu/opentextbooks/textbooks.json`) by `ui/web/scripts/library/open-textbooks.mjs` on
+  2026-10-21. No description, review or cover is kept. Each book keeps the licence the API gives
+  it (CC BY, CC BY-SA, CC0, GNU FDL, CC BY-ND, CC BY-NC, CC BY-NC-SA or CC BY-NC-ND), shown with
+  it; books OpenStax publishes are left out, being listed from OpenStax's own catalogue.
+- **MIT OpenCourseWare**: 2,591 courses' titles, numbers, departments, terms, levels,
+  instructors' names and links, read from the MIT Learn API
+  (`api.learn.mit.edu/api/v1/courses/?platform=ocw`) by `ui/web/scripts/library/mit-ocw.mjs` on
+  2026-10-21. The courses are licensed CC BY-NC-SA 4.0 by MIT; AnyLearn opens them at
+  ocw.mit.edu and copies none of their material, descriptions or pictures. MIT OpenCourseWare is
+  a trademark of the Massachusetts Institute of Technology; AnyLearn is not affiliated with MIT.
+- **Lists from sindresorhus/awesome**, each under CC0 1.0 (the script reads each list's licence
+  from GitHub at its pinned commit and stops unless it is CC0), read by
+  `ui/web/scripts/library/awesome-lists.mjs`: rossant/awesome-math
+  (`21066c9d58e470d5b9030755bf1cb4c77a786a91`, 297 links; paid ones, journals, blogs and links to
+  Khan Academy, MIT OpenCourseWare and OpenStax, listed on their own, left out),
+  PanXProject/awesome-certificates (`c738741ae10b4479996b5d1dc624a05caf3bc93a`, 180 free courses
+  with provider, level and hours) and JoseDeFreitas/awesome-youtubers
+  (`eacc1f55a8231114239a6c6cfacd80f1bd78aa1b`, 246 YouTube channels; two bare `youtube.com/name` links left out). The lists' titles and
+  one-line notes are kept; each linked work belongs to its owner, and a learner adds one through
+  the link import (a channel as a feed). The lists are credited on the Library page though CC0
+  does not require it.
 
 ---
 

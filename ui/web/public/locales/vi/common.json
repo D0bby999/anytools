@@ -55,7 +55,8 @@
       "files": "Tệp của tôi",
       "upload": "Tải lên",
       "links": "Liên kết học tập",
-      "storage": "Lưu trữ"
+      "storage": "Lưu trữ",
+      "settingsProviders": "Nhà cung cấp"
     },
     "search": "Tìm kiếm",
     "searchShortcut": "Mở tìm kiếm bằng {{keys}}",
@@ -229,7 +230,8 @@
         "upload": "Thêm một tệp vào cơ sở tri thức bạn chọn.",
         "links": "Lưu trang web, video và nguồn tin để học, và xem mọi liên kết đã lưu.",
         "storage": "Chọn nơi giữ tệp của bạn và xem dung lượng mỗi bên.",
-        "library": "Thêm tài liệu có sẵn từ nguồn mở, kèm giấy phép của từng mục."
+        "library": "Thêm tài liệu có sẵn từ nguồn mở, kèm giấy phép của từng mục.",
+        "settingsProviders": "Tìm nhà cung cấp và kết nối bằng một khóa."
       },
       "dueToday": "Đến hạn hôm nay"
     }
@@ -248,7 +250,8 @@
       "search": "Khóa tìm kiếm",
       "profile": "Hồ sơ học tập",
       "account": "Tài khoản",
-      "reminders": "Nhắc ôn"
+      "reminders": "Nhắc ôn",
+      "providers": "Nhà cung cấp"
     },
     "readiness": {
       "title": "Mức sẵn sàng",
@@ -333,14 +336,26 @@
       "providerHelp": "Chỉ Gemini, OpenAI và Anthropic đọc được PDF dạng ảnh quét. Để lập chỉ mục tài liệu, bạn cần một nhà cung cấp có embedding: Gemini, OpenAI, Mistral hoặc Qwen. Các nhà cung cấp còn lại dùng để trả lời, soạn câu hỏi, giải bài và nghiên cứu."
     },
     "routes": {
-      "lead": "Mỗi chức năng chạy trên các kết nối bạn liệt kê, theo thứ tự: nếu kết nối đầu hết hạn mức hoặc từ chối, AnyLearn thử kết nối tiếp theo. Để trống một vị trí để kết thúc chuỗi.",
-      "noConnections": "Chưa có gì để phân việc. Hãy thêm một khóa trong mục Kết nối trước.",
+      "lead": "Mỗi tính năng chạy trên các kết nối trong chuỗi của nó, theo thứ tự: nếu cái đầu hết hạn mức hoặc từ chối, AnyLearn thử cái tiếp theo. Sửa một chuỗi để thêm dự phòng, kéo để sắp thứ tự và chọn model cho từng cái.",
+      "noConnections": "Chưa có gì để phân việc. Hãy kết nối một nhà cung cấp ở mục Nhà cung cấp trước.",
       "none": "Không có",
       "connectionAt": "Kết nối ở vị trí {{position}}",
       "modelAt": "Mô hình ở vị trí {{position}}",
       "modelPlaceholder": "Để trống để dùng mặc định",
       "save": "Lưu chuỗi",
-      "editorsTitle": "Các chuỗi"
+      "editorsTitle": "Các chuỗi",
+      "empty": "Chưa có kết nối",
+      "edit": "Sửa",
+      "editFor": "Sửa chuỗi {{fn}}",
+      "dialogHelp": "Các kết nối mà tính năng này chạy trên, từ đầu đến cuối.",
+      "reorderHelp": "Kéo một dòng bằng tay nắm, hoặc đưa tiêu điểm vào tay nắm rồi nhấn Alt+↑ hoặc Alt+↓.",
+      "handle": "Kéo hoặc nhấn Alt+mũi tên để di chuyển vị trí {{n}}",
+      "moved": "Đã chuyển từ vị trí {{from}} sang {{to}}",
+      "movedTo": "Đã chuyển tới vị trí {{to}}",
+      "removeAt": "Bỏ vị trí {{n}}",
+      "addFallback": "Thêm dự phòng",
+      "verifyAll": "Kiểm tra tất cả",
+      "verifying": "Đang kiểm tra…"
     },
     "search": {
       "lead": "Nghiên cứu có thể đọc cả web lẫn tài liệu của bạn, bằng khóa tìm kiếm của riêng bạn. Không có khóa dùng chung: không có khóa thì nghiên cứu vẫn chạy, chỉ là trả lời từ tài liệu của bạn. Khóa OpenAlex là tùy chọn và chỉ dành cho bài báo khoa học: không có khóa, AnyLearn dùng hạn mức miễn phí hằng ngày của OpenAlex, chia chung cho mọi người trên máy chủ này.",
@@ -422,7 +437,45 @@
       "openai_compat": "Endpoint tương thích OpenAI",
       "chatgpt_relay": "ChatGPT (gói đăng ký)",
       "gemini_code_assist": "Gemini (gói đăng ký)",
-      "builtin": "Máy chủ này"
+      "builtin": "Máy chủ này",
+      "agnes": "Agnes AI",
+      "api_airforce": "API.airforce",
+      "atria": "Atria Dawn",
+      "bai": "B.AI",
+      "baidu": "Baidu Qianfan",
+      "bazaarlink": "Bazaarlink",
+      "blackbox": "Blackbox AI",
+      "bluesminds": "BluesMinds",
+      "cerebras": "Cerebras",
+      "chutes": "Chutes AI",
+      "cohere": "Cohere",
+      "dahl": "Dahl Inference",
+      "featherless": "Featherless",
+      "fireworks": "Fireworks AI",
+      "hyperbolic": "Hyperbolic",
+      "kilo_gateway": "Kilo Gateway",
+      "kimchi": "Kimchi",
+      "llm7": "LLM7",
+      "minimax": "MiniMax",
+      "morph": "Morph",
+      "muse": "Muse (Meta Model API)",
+      "nebius": "Nebius AI",
+      "nvidia": "NVIDIA NIM",
+      "ollama_cloud": "Ollama Cloud",
+      "perplexity": "Perplexity",
+      "poolside": "Poolside",
+      "sambanova": "SambaNova",
+      "siliconflow": "SiliconFlow",
+      "tencent": "Tencent Hunyuan",
+      "together": "Together AI",
+      "tokenharbor": "Token Harbor",
+      "tokenrouter": "TokenRouter",
+      "venice": "Venice AI",
+      "vercel_ai_gateway": "Vercel AI Gateway",
+      "xiaomi_mimo": "Xiaomi MiMo",
+      "yescale": "YesScale",
+      "github_copilot": "GitHub Copilot",
+      "claude_sub": "Claude (subscription)"
     },
     "up": {
       "readiness": "Độ sẵn sàng của tuyến",
@@ -437,6 +490,69 @@
       "manage": "Quản lý",
       "cancel": "Hủy",
       "close": "Đóng"
+    },
+    "providers": {
+      "lead": "Tìm nhà cung cấp của bạn và kết nối bằng một khóa. Khóa được kiểm tra một lần khi bạn kết nối; sau đó chọn model trong Phân việc.",
+      "search": "Tìm nhà cung cấp",
+      "searchPlaceholder": "Tìm nhà cung cấp",
+      "access": "Cách kết nối",
+      "accessOptions": {
+        "all": "Tất cả",
+        "api_key": "Khóa API",
+        "free": "Có gói miễn phí",
+        "sign_in": "Đăng nhập",
+        "custom": "Địa chỉ riêng"
+      },
+      "serves": "Làm được",
+      "servesOptions": {
+        "all": "Mọi việc",
+        "chat": "Trò chuyện",
+        "parse": "Đọc tài liệu",
+        "embed": "Tìm trong tài liệu",
+        "tts": "Đọc thành tiếng",
+        "stt": "Đọc chính tả"
+      },
+      "connectedOnly": "Chỉ cái đã kết nối",
+      "count": "{{shown}} trên {{total}} nhà cung cấp",
+      "empty": "Không có nhà cung cấp nào khớp. Hãy bớt bộ lọc, hoặc kết nối một máy chủ tương thích OpenAI bất kỳ qua Endpoint tự nhập.",
+      "connectedCount_other": "{{count}} kết nối",
+      "free": "Có gói miễn phí",
+      "all": "Tất cả nhà cung cấp",
+      "getKey": "Lấy khóa từ {{provider}}",
+      "servedAt": "Phục vụ tại",
+      "needsModel": "AnyLearn không có model mặc định cho nhà cung cấp này. Sau khi kết nối, hãy chọn một model của nó trong Phân việc.",
+      "signIn": "Đây là đăng nhập gói thuê bao, không phải khóa. Thẻ của nó nằm ở",
+      "addTitle": "Kết nối một khóa",
+      "connect": "Kết nối và kiểm tra",
+      "noneYet": "Chưa có kết nối nào tới nhà cung cấp này.",
+      "browse": "Xem tất cả nhà cung cấp",
+      "connectedCount_one": "{{count}} kết nối"
+    },
+    "models": {
+      "title": "Model",
+      "show": "Xem model",
+      "hide": "Ẩn",
+      "loading": "Đang hỏi nhà cung cấp danh sách model…",
+      "unavailable": "Không lấy được danh sách model.",
+      "none": "Không có model nào được liệt kê.",
+      "search": "Tìm model",
+      "added": "bạn đã thêm",
+      "addedTitle": "Bạn đã thêm",
+      "remove": "Bỏ {{model}}",
+      "kinds": {
+        "chat": "Trò chuyện",
+        "embed": "Embedding",
+        "stt": "Giọng nói thành chữ",
+        "tts": "Chữ thành giọng nói",
+        "image": "Hình ảnh",
+        "other": "Khác"
+      },
+      "more_other": "Còn {{count}} model; hãy tìm để thấy",
+      "addTitle": "Thêm model theo id",
+      "addLabel": "Id của model",
+      "add": "Thêm model",
+      "addHelp": "Cho model mà nhà cung cấp phục vụ nhưng không liệt kê. Nó sẽ hiện trong ô chọn model ở Phân việc.",
+      "more_one": "Còn {{count}} model; hãy tìm để thấy"
     }
   },
   "chat": {

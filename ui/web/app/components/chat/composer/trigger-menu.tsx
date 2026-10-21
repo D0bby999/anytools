@@ -23,6 +23,7 @@ export function TriggerMenu({
   empty,
   onPick,
   onHover,
+  placement = "above",
 }: {
   id: string;
   label: string;
@@ -32,9 +33,16 @@ export function TriggerMenu({
   empty: string;
   onPick: (index: number) => void;
   onHover: (index: number) => void;
+  /** Above the composer; below a field such as the model picker. */
+  placement?: "above" | "below";
 }) {
   return (
-    <div className="absolute inset-x-0 bottom-full z-dropdown mb-2 overflow-hidden rounded-xl border bg-card shadow-md">
+    <div
+      className={cn(
+        "absolute inset-x-0 z-dropdown overflow-hidden rounded-xl border bg-card shadow-md",
+        placement === "above" ? "bottom-full mb-2" : "top-full mt-1",
+      )}
+    >
       <p className="px-3 pt-2 text-xs leading-5 font-semibold text-muted-foreground">{label}</p>
       <ul id={id} role="listbox" aria-label={label} className="max-h-64 overflow-y-auto p-1">
         {items.map((item, i) => (

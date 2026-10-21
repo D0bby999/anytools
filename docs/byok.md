@@ -22,11 +22,13 @@ At a minimum, set up `chat`, `parse` and `embed`: Settings → Readiness marks t
 
 ## Connecting a key
 
-1. **Add the key.** Go to Settings → Connections → Add a key and choose a provider (table below), or any OpenAI-compatible endpoint (give its base URL).
+1. **Find the provider.** Settings → Providers lists every provider AnyLearn can connect (about 46, below), with a search and filters by access (API key, free tier, sign-in, your own address) and by what it can do. Each opens its own page: what it serves, where its keys come from, and your connections to it.
+2. **Add the key there.** Paste it and press **Connect and check**; a custom endpoint also takes its base URL.
    - The key is encrypted before it is stored and is never shown again.
    - A base URL must be `https` and must not resolve to a private address. It is checked when you save it and again on every connection.
-2. **Verify it.** Press **Verify**. This makes one small real call and records which model answered.
-3. **Route it.** Settings → Routes assigns connections to each function, in order. When the first connection is out of quota or refuses, the next one is tried.
+   - The key is **checked once, when you connect it**: one small real call, or, for a provider with no default model, a read of its model list, which spends no tokens. There is no scheduled re-check; **Verify** on a connection, or **Verify all** under Routes, checks again.
+3. **See its models.** On the provider's page, **Show models** lists what the provider offers your key, grouped into chat, embeddings, speech and images (OpenAI-shaped `/models`, Anthropic's `/v1/models`, Gemini's own list). **Add a model by its id** keeps one the provider serves but does not list; it is yours alone and goes when the connection does.
+4. **Route it.** Settings → Routes shows each function's chain; **Edit** opens it in a dialog, where you add fallbacks, drag them into order (or focus a row's handle and press Alt+↑ / Alt+↓), and pick each one's model from that connection's list. When the first connection is out of quota or refuses, the next one is tried.
    - **Embedding never fails over.** A second embedding model is a different vector space, so a failed embed fails.
    - **An answer that has started streaming is never restarted** on another connection.
 
@@ -50,9 +52,12 @@ Every provider can serve the chat-type functions: `chat`, `quiz`, `mastery`, `re
 | xAI (Grok) | no | no | `grok-4` |
 | Groq | no | no | `openai/gpt-oss-120b` |
 | Z.AI (GLM) | no | no | `glm-5.3` |
+| 36 more OpenAI-compatible providers (below) | no | no | none: pick one from its list under Routes |
 | OpenAI-compatible endpoint | no | no | none: name one under Routes |
 
-The defaults were current on 2026-09-26 (`internal/byok/models.go`, `internal/byok/presets.go`). A model named on a route always wins, so when a default is retired, route the replacement. To index documents you need at least one connection that can embed.
+The 36 added on 2026-10-21 from postclaw's catalog (9router's registry, MIT): Agnes AI, API.airforce, Atria Dawn, B.AI, Baidu Qianfan, Bazaarlink, Blackbox AI, BluesMinds, Cerebras, Chutes AI, Cohere, Dahl Inference, Featherless, Fireworks AI, Hyperbolic, Kilo Gateway, Kimchi, LLM7, MiniMax, Morph, Muse (Meta Model API), Nebius AI, NVIDIA NIM, Ollama Cloud, Perplexity, Poolside, SambaNova, SiliconFlow, Tencent Hunyuan, Together AI, Token Harbor, TokenRouter, Venice AI, Vercel AI Gateway, Xiaomi MiMo and YesScale. They carry no default model on purpose: model ids there change monthly and could not be checked without a key each, so you pick from the live list. Media-only providers and "coding plan" endpoints (whose terms tie the key to coding tools) are left out. The whole table is `internal/byok/catalog.go`; the database's provider list is pinned to it by a test.
+
+The defaults were current on 2026-09-26 (`internal/byok/models.go`, `internal/byok/catalog.go`). A model named on a route always wins, so when a default is retired, route the replacement. To index documents you need at least one connection that can embed.
 
 ## Web search
 

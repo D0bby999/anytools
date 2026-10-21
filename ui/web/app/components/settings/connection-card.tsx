@@ -12,8 +12,8 @@
 import { Details } from "~/components/doc/details";
 import { Flyout } from "~/components/doc/flyout";
 import { Dialog } from "~/components/doc/dialog";
-import { useRef, useState } from "react";
-import { Form, useNavigation } from "react-router";
+import { useRef, useState, type ReactNode } from "react";
+import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { StatusPill } from "~/components/settings/readiness-matrix";
@@ -28,7 +28,17 @@ export function connectionStatus(conn: Connection): ReadinessStatus {
   return "green";
 }
 
-export function ConnectionCard({ connection }: { connection: Connection }) {
+export function ConnectionCard({
+  connection,
+  children,
+  linkProvider = true,
+}: {
+  connection: Connection;
+  /** More about the connection, at the foot of the card (its models, on a provider's page). */
+  children?: ReactNode;
+  /** Name the provider as a link to its page; off on that page itself. */
+  linkProvider?: boolean;
+}) {
   const { t } = useTranslation("common");
   const navigation = useNavigation();
   const busy = navigation.state !== "idle";
@@ -57,7 +67,15 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
 
       <dl className="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
         <dt className="lp-kicker">{t("settings.connections.provider")}</dt>
-        <dd className="text-muted-foreground">{providerName(t, connection.provider)}</dd>
+        <dd className="text-muted-foreground">
+          {linkProvider ? (
+            <Link to={`/settings/providers/${connection.provider}`} className="text-primary underline underline-offset-2">
+              {providerName(t, connection.provider)}
+            </Link>
+          ) : (
+            providerName(t, connection.provider)
+          )}
+        </dd>
 
         {connection.api_base ? (
           <>
@@ -136,6 +154,7 @@ export function ConnectionCard({ connection }: { connection: Connection }) {
           </Button>
         </Form>
       </Dialog>
+      {children}
     </li>
   );
 }

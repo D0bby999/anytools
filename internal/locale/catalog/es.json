@@ -585,5 +585,7 @@
  "a comment is at most 2000 characters": "un comentario tiene como máximo 2000 caracteres",
  "could not record the rating": "no se pudo guardar la valoración",
  "could not retract the rating": "no se pudo retirar la valoración",
- "record your question first": "graba primero tu pregunta"
+ "record your question first": "graba primero tu pregunta",
+ "The key could not be checked: this provider publishes no model list. Choose a model under Settings → Routes, then verify again.": "No se pudo comprobar la clave: este proveedor no publica una lista de modelos. Elige un modelo en Ajustes → Rutas y vuelve a verificar.",
+ "choose a model for this connection under Settings → Routes before verifying it": "elige un modelo para esta conexión en Ajustes → Rutas antes de verificarla"
 }

@@ -65,6 +65,20 @@ func (s *Service) VerifyConnection(ctx context.Context, userID, id uuid.UUID, fn
 	// `"model": ""` and every verify fails with an unexplained 400. The routed
 	// model is the thing the user needs told about.
 	model, err := s.modelForVerify(ctx, userID, id, conn.Provider, fn)
+	if errors.Is(err, errNoModelChosen) && KindOf(fn) == KindChat && conn.Kind == store.KindAPIKey {
+		// No model routed and no default (a provider added from the catalog,
+		// or a custom endpoint): the key is proved by reading its model list,
+		// which spends no tokens and is what the learner picks a model from.
+		ctx, cancel := context.WithTimeout(ctx, verifyTimeout)
+		defer cancel()
+		result := &VerifyResult{}
+		models, probeErr := listModelsFor(ctx, conn)
+		if probeErr == nil && len(models) == 0 {
+			probeErr = ErrNoModelList
+		}
+		s.recordVerify(ctx, userID, id, result, probeErr)
+		return result, nil
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +179,11 @@ func (s *Service) modelForVerify(ctx context.Context, userID, id uuid.UUID, prov
 	if model := defaultModelFor(provider, fn); model != "" {
 		return model, nil
 	}
-	return "", invalid("choose a model for this connection under Settings → Routes before verifying it")
+	return "", errNoModelChosen
 }
+
+// errNoModelChosen is a verify with no routed model and no default to try.
+var errNoModelChosen = fmt.Errorf("%w: choose a model for this connection under Settings → Routes before verifying it", ErrInvalidInput)
 
 // ErrEmptyCompletion is the zero-content non-tool completion the spike
 // measured behind a misconfigured base URL. A sentinel, so VerifyErrorMessage
@@ -289,6 +306,8 @@ func VerifyErrorMessage(err error) string {
 	switch {
 	case errors.Is(err, context.DeadlineExceeded):
 		return "The provider did not answer in time."
+	case errors.Is(err, ErrNoModelList):
+		return "The key could not be checked: this provider publishes no model list. Choose a model under Settings → Routes, then verify again."
 	case errors.Is(err, ErrEmptyCompletion), errors.Is(err, providers.ErrEmptyResponse):
 		return "The provider answered with nothing at all. Check the base URL."
 	case errors.Is(err, providers.ErrStreamClosed):
@@ -381,24 +400,6 @@ func SafeErrorText(err error) string {
 		return fmt.Sprintf("provider returned HTTP %d", httpErr.Status)
 	}
 	return err.Error()
-}
-
-// ListModels asks the provider which models this key may actually call.
-//
-// Only Gemini answers today, because it is the only lane with a list endpoint
-// that a plain API key can read and whose result is meaningfully filtered (by
-// generateContent support). For everyone else the routes editor falls back to
-// the dated defaults in models.go plus free text, which is honest: an
-// OpenAI-compatible base URL can serve any model id its operator chose.
-func (s *Service) ListModels(ctx context.Context, userID, id uuid.UUID) ([]string, error) {
-	conn, err := s.conns.GetConnectionWithSecret(ctx, userID, id)
-	if err != nil {
-		return nil, err
-	}
-	if conn.Provider != providers.ProviderGemini {
-		return nil, invalid("%s does not publish a model list for an API key", conn.Provider)
-	}
-	return parse.GeminiListModels(ctx, conn.Secret, conn.APIBase)
 }
 
 // VerifySearchConnection makes one real search with the user's key.

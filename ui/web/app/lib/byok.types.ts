@@ -28,6 +28,31 @@ export type Connection = {
 
 export type RouteEntry = { connection_id: string; model: string; dims?: number };
 
+/** What a provider can do here, as the Providers page filters by it. */
+export type ProviderServe = "chat" | "parse" | "embed" | "tts" | "stt";
+
+/** One provider of the catalog (GET /v1/byok/catalog, internal/byok/catalog.go). */
+export type CatalogEntry = {
+  type: string;
+  label: string;
+  icon: string;
+  auth: "api_key" | "sign_in" | "custom";
+  free_tier?: boolean;
+  key_url?: string;
+  api_base?: string;
+  /** A part ink name (read, ask, practise, reflect, tools, brand), never a colour. */
+  hue: string;
+  serves: ProviderServe[];
+  /** No default model: a route on it names one from the live list. */
+  needs_model?: boolean;
+};
+
+/** A connection's models: listed by the provider, and added by hand. */
+export type ModelList = { models: string[]; custom: string[]; list_error?: string };
+
+/** What /app/api/byok-models answers. */
+export type ModelsData = ({ ok: true } & ModelList) | { ok: false; error: string };
+
 export type SearchConnection = {
   id: string;
   provider: string;

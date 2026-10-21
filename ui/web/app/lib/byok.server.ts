@@ -13,8 +13,10 @@
  */
 import { apiFetch, ApiError } from "~/lib/api.server";
 import type {
+  CatalogEntry,
   ClaudeStart,
   Connection,
+  ModelList,
   CopilotStart,
   Readiness,
   RouteEntry,
@@ -62,6 +64,26 @@ export type VerifyResult = { ok: boolean; model?: string; dims?: number; message
  */
 function path(segment: string): string {
   return encodeURIComponent(segment);
+}
+
+/** Every provider a learner can connect (plan 261021-1100 phase 4). */
+export function listCatalog(userId: string) {
+  return apiFetch<{ providers: CatalogEntry[] }>("/v1/byok/catalog", userId);
+}
+
+/** A connection's models: what the provider lists for the key, and the ones added by hand. */
+export function listModels(userId: string, id: string) {
+  return apiFetch<ModelList>(`/v1/byok/connections/${path(id)}/models`, userId);
+}
+
+export function addCustomModel(userId: string, id: string, model: string) {
+  return apiFetch<void>(`/v1/byok/connections/${path(id)}/custom-models`, userId, { method: "POST", body: { model } });
+}
+
+export function deleteCustomModel(userId: string, id: string, model: string) {
+  return apiFetch<void>(`/v1/byok/connections/${path(id)}/custom-models?model=${encodeURIComponent(model)}`, userId, {
+    method: "DELETE",
+  });
 }
 
 export function listConnections(userId: string) {

@@ -14,7 +14,7 @@ export type LicenceKind = "public-domain" | "cc-by" | "free-pictures" | "cc-by-n
 export type LibraryDeck = {
   /** Bundled decks: the file in app/data/decks; linked decks: an id. */
   slug: string;
-  subject: "geography" | "languages" | "programming";
+  subject: "general" | "languages" | "programming";
   name: string;
   /** What it covers, in English; the page's own copy says it in the learner's language. */
   about: string;
@@ -41,7 +41,7 @@ export const LIBRARY: LibraryDeck[] = [
     (["en", "es", "pt"] as const).map(
       (lang): LibraryDeck => ({
         slug: `${GEOGRAPHY}${kind}${lang}`,
-        subject: "geography",
+        subject: "general",
         name,
         about,
         language: lang,

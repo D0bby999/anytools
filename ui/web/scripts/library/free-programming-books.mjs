@@ -87,6 +87,9 @@ export function subjectOf(section) {
   if (/^0 - |mooc|meta-list/.test(s)) return "general";
   if (/math|statistic|calculus|algebra|probabilit|toán|matemát|estatíst|estadíst/.test(s)) return "maths";
   if (/physics|chemistry|biology|bioinformatics|quantum|física|química|biolog|vật lý|hoá học/.test(s)) return "science";
+  if (/^professional development/.test(s)) return "skills";
+  if (/^licensing/.test(s)) return "law";
+  if (/digital electronics|robotics|plc - |verilog|vhdl|embedded systems/.test(s)) return "engineering";
   return "programming";
 }
 

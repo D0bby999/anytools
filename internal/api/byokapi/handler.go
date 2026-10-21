@@ -43,6 +43,11 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("DELETE /v1/byok/connections/{id}", h.deleteConnection)      // budget: none
 	mux.HandleFunc("POST /v1/byok/connections/{id}/verify", h.verifyConnection) // budget: verify
 	mux.HandleFunc("GET /v1/byok/connections/{id}/models", h.listModels)        // budget: verify
+	// Models a learner adds by hand (plan 261021-1100 phase 4).
+	mux.HandleFunc("POST /v1/byok/connections/{id}/custom-models", h.addCustomModel)      // budget: none
+	mux.HandleFunc("DELETE /v1/byok/connections/{id}/custom-models", h.deleteCustomModel) // budget: none
+	// Every provider a learner can connect, for the Providers page.
+	mux.HandleFunc("GET /v1/byok/catalog", h.catalog)
 
 	// The two experimental lanes. Separate endpoints rather than a `kind` field
 	// on the create call, because their inputs have nothing in common: one
@@ -252,12 +257,48 @@ func (h *Handler) listModels(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	models, err := h.svc.ListModels(r.Context(), userID, id)
+	models, err := h.svc.ConnectionModels(r.Context(), userID, id)
 	if err != nil {
 		writeErr(w, err, "list models")
 		return
 	}
-	httpx.WriteJSON(w, http.StatusOK, map[string]any{"models": models})
+	httpx.WriteJSON(w, http.StatusOK, models)
+}
+
+func (h *Handler) addCustomModel(w http.ResponseWriter, r *http.Request) {
+	userID := httpx.MustUserID(r.Context())
+	id, ok := pathUUID(w, r, "id")
+	if !ok {
+		return
+	}
+	var req struct {
+		Model string `json:"model"`
+	}
+	if !decode(w, r, &req) {
+		return
+	}
+	if err := h.svc.AddCustomModel(r.Context(), userID, id, req.Model); err != nil {
+		writeErr(w, err, "add custom model")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) deleteCustomModel(w http.ResponseWriter, r *http.Request) {
+	userID := httpx.MustUserID(r.Context())
+	id, ok := pathUUID(w, r, "id")
+	if !ok {
+		return
+	}
+	if err := h.svc.DeleteCustomModel(r.Context(), userID, id, r.URL.Query().Get("model")); err != nil {
+		writeErr(w, err, "delete custom model")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"providers": byok.Catalog(h.svc.LanesEnabled())})
 }
 
 type relayRequest struct {

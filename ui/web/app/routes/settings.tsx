@@ -22,6 +22,7 @@ export function meta({ matches }: Route.MetaArgs) {
 
 const SECTIONS = [
   { to: "/settings", labelKey: "settings.nav.connections", end: true },
+  { to: "/settings/providers", labelKey: "settings.nav.providers", end: false },
   { to: "/settings/routes", labelKey: "settings.nav.routes", end: false },
   { to: "/settings/search", labelKey: "settings.nav.search", end: false },
   { to: "/settings/profile", labelKey: "settings.nav.profile", end: false },

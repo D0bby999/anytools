@@ -199,7 +199,11 @@ describe("the Settings surface as a whole", () => {
       "components/settings/readiness-card.tsx",
       "components/settings/connection-card.tsx",
       "components/settings/subscription-lane-card.tsx",
-      "components/settings/route-chain-editor.tsx",
+      "components/settings/route-chain-dialog.tsx",
+      "components/settings/model-picker.tsx",
+      "components/settings/connection-models.tsx",
+      "components/settings/provider-grid.tsx",
+      "components/settings/provider-tile.tsx",
     ]) {
       const src = readFileSync(join(APP, file), "utf8");
       expect(src, `${file} imports a server module`).not.toMatch(/from\s+["'][^"']*\.server["']/);

@@ -1,4 +1,3 @@
-import { Badge } from "~/components/doc/badge";
 /**
  * settings.connections.tsx
  * Add a key, verify it, remove it — and, when the experimental flag is on, the
@@ -12,10 +11,7 @@ import { Badge } from "~/components/doc/badge";
  * Phase 13: Google Drive appears here as its own row, with connect and
  * disconnect — and only when Drive is configured on both the BFF and the API.
  */
-import { DownloadGrid } from "~/components/doc/download-grid";
-import { Dialog } from "~/components/doc/dialog";
-import { useEffect, useState } from "react";
-import { data, Form, useNavigation, useSearchParams } from "react-router";
+import { data, Link, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.connections";
 import { requireUser } from "~/lib/auth.server";
@@ -42,7 +38,6 @@ import { DriveConnectionCard } from "~/components/settings/drive-connection-card
 import { DriveNoticeLine } from "~/components/knowledge/drive-grants";
 import { disconnectDrive, loadDrive, type DriveAvailability } from "~/lib/drive.server";
 import { parseDriveNotice } from "~/lib/drive-types";
-import { providerName } from "~/lib/provider-names";
 import { ApiError } from "~/lib/api.server";
 import type { ClaudeStart, CopilotStart } from "~/lib/byok.types";
 
@@ -193,16 +188,8 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Connections({ loaderData, actionData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-  const navigation = useNavigation();
-  const busy = navigation.state !== "idle";
-  const [adding, setAdding] = useState<string | null>(null);
-  useEffect(() => {
-    if (actionData?.ok) setAdding(null);
-  }, [actionData]);
   const [searchParams] = useSearchParams();
   const driveNotice = parseDriveNotice(searchParams.get("drive"));
-
-  const field = "h-10 w-full rounded-md border bg-sunken px-3 text-sm";
 
   return (
     <div>
@@ -213,76 +200,14 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
       ) : null}
       {driveNotice ? <DriveNoticeLine notice={driveNotice} /> : null}
 
-      <DownloadGrid
-        cards={loaderData.providers.map((provider) => ({
-          id: provider,
-          title: (
-            <>
-              {providerName(t, provider)}{" "}
-              <Badge type="info">
-                {loaderData.connections.some((connection) => connection.provider === provider)
-                  ? t("settings.connections.connectedTitle")
-                  : t("settings.connections.drive.notConnected")}
-              </Badge>
-            </>
-          ),
-          description: t("settings.connections.addBody"),
-          action: (
-            <Button type="button" variant="outline" onClick={() => setAdding(provider)}>
-              {t("settings.connections.add")}
-            </Button>
-          ),
-        }))}
-      />
-      <Dialog
-        open={adding !== null}
-        onClose={() => setAdding(null)}
-        title={t("settings.connections.addTitle")}
-        description={t("settings.connections.addBody")}
-      >
-        {actionData?.message ? <Alert variant="destructive">{actionData.message}</Alert> : null}
-        <Form method="post" className="mt-4 grid gap-3 sm:max-w-md">
-          <input type="hidden" name="intent" value="create" />
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="lp-kicker">{t("settings.connections.provider")}</span>
-            <select name="provider" defaultValue={adding ?? loaderData.providers[0]} className={field}>
-              {loaderData.providers.map((p) => (
-                <option key={p} value={p}>
-                  {providerName(t, p)}
-                </option>
-              ))}
-            </select>
-            <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.providerHelp")}</span>
-          </label>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="lp-kicker">{t("settings.connections.name")}</span>
-            <input type="text" name="name" className={field} placeholder={t("settings.connections.namePlaceholder")} />
-          </label>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="lp-kicker">{t("settings.connections.baseUrl")}</span>
-            <input type="url" name="api_base" className={`${field} font-mono`} placeholder="https://…" />
-            <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.baseUrlHelp")}</span>
-          </label>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="lp-kicker">{t("settings.connections.key")}</span>
-            <input type="password" name="secret" required autoComplete="off" className={`${field} font-mono`} />
-            <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.keyHelp")}</span>
-          </label>
-
-          <div>
-            <Button type="submit" disabled={busy}>
-              {t("settings.connections.add")}
-            </Button>
-          </div>
-        </Form>
-        <Button type="button" variant="ghost" onClick={() => setAdding(null)}>
-          {t("settings.up.close")}
+      {/* Adding a key starts from the provider's own page (plan 261021-1100
+          phase 4): forty-odd providers are a grid with a search, not a select. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button asChild>
+          <Link to="/settings/providers">{t("settings.providers.browse")}</Link>
         </Button>
-      </Dialog>
+        <p className="text-sm leading-prose text-muted-foreground">{t("settings.connections.addBody")}</p>
+      </div>
 
       <section aria-labelledby="lp-connected" className="mt-10">
         <h2 id="lp-connected" className="lp-section">

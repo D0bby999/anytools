@@ -585,5 +585,7 @@
  "a comment is at most 2000 characters": "ghi chú dài tối đa 2000 ký tự",
  "could not record the rating": "không lưu được đánh giá",
  "could not retract the rating": "không gỡ được đánh giá",
- "record your question first": "hãy ghi âm câu hỏi của bạn trước"
+ "record your question first": "hãy ghi âm câu hỏi của bạn trước",
+ "The key could not be checked: this provider publishes no model list. Choose a model under Settings → Routes, then verify again.": "Không kiểm tra được khóa: nhà cung cấp này không công bố danh sách model. Hãy chọn một model trong Cài đặt → Phân việc, rồi kiểm tra lại.",
+ "choose a model for this connection under Settings → Routes before verifying it": "hãy chọn một model cho kết nối này trong Cài đặt → Phân việc trước khi kiểm tra"
 }

@@ -38,7 +38,7 @@ describe("NAV_TREE", () => {
       "/body", "/body/plan", "/body/progress", "/body/coach", "/body/library",
       "/loop", "/toolkit",
       "/files", "/upload", "/links", "/storage",
-      "/settings", "/settings/routes", "/settings/search", "/settings/account", "/settings/profile", "/settings/reminders",
+      "/settings", "/settings/providers", "/settings/routes", "/settings/search", "/settings/account", "/settings/profile", "/settings/reminders",
     ]);
     expect(TOP_NAV.map((p) => p.to)).toEqual(["/home", "/knowledge", "/chat", "/loop"]);
   });

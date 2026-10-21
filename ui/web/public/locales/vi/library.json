@@ -1,12 +1,12 @@
 {
   "title": "Thư viện",
-  "lead": "Tài liệu có sẵn từ các nguồn mở, chủ yếu bằng tiếng Anh, kèm một phần bằng ngôn ngữ khác: bộ thẻ, danh sách từ, bộ câu hỏi, khoá học và video, sách giáo khoa và sách. Mỗi mục ghi rõ giấy phép và nguồn.",
+  "lead": "Tài liệu có sẵn từ các nguồn mở cho mọi ngành nghề, từ kinh doanh, luật, y tế đến kỹ thuật và nghệ thuật, chủ yếu bằng tiếng Anh: bộ thẻ, danh sách từ, bộ câu hỏi, khoá học và video, giáo trình và sách. Mỗi mục ghi rõ giấy phép và nguồn.",
   "filter": {
     "search": "Tìm",
     "kind": "Loại",
     "anyKind": "Mọi loại",
-    "subject": "Môn",
-    "anySubject": "Mọi môn",
+    "subject": "Ngành",
+    "anySubject": "Mọi ngành",
     "language": "Ngôn ngữ",
     "myLanguages": "Tiếng Anh, rồi ngôn ngữ của tôi",
     "allLanguages": "Mọi ngôn ngữ, tiếng Anh trước",
@@ -30,13 +30,21 @@
     "book": "Sách"
   },
   "subjects": {
-    "languages": "Ngôn ngữ",
+    "business": "Kinh doanh và quản lý",
+    "economics": "Kinh tế và tài chính",
+    "law": "Luật",
+    "health": "Y tế và sức khoẻ",
+    "engineering": "Kỹ thuật",
+    "programming": "Tin học và lập trình",
+    "science": "Khoa học tự nhiên",
     "maths": "Toán",
-    "science": "Khoa học",
-    "programming": "Lập trình",
-    "geography": "Địa lý",
+    "social": "Khoa học xã hội",
+    "humanities": "Nhân văn và nghệ thuật",
+    "education": "Giáo dục",
+    "media": "Truyền thông",
+    "languages": "Ngôn ngữ",
+    "skills": "Kỹ năng học tập và sống",
     "general": "Kiến thức chung",
-    "humanities": "Khoa học xã hội",
     "fitness": "Thể chất"
   },
   "units": {
@@ -51,7 +59,9 @@
     "books_one": "{{count}} cuốn",
     "books_other": "{{count}} cuốn",
     "exercises_one": "{{count}} bài tập",
-    "exercises_other": "{{count}} bài tập"
+    "exercises_other": "{{count}} bài tập",
+    "hours_one": "{{count}} giờ",
+    "hours_other": "{{count}} giờ"
   },
   "licence": {
     "public-domain": "Phạm vi công cộng",
@@ -64,26 +74,29 @@
     "cc-by-nc": "Chỉ dùng phi thương mại (CC BY-NC)",
     "cc-by-nc-sa": "Chỉ dùng phi thương mại (CC BY-NC-SA)",
     "none": "Không ghi giấy phép",
-    "free-access": "Đọc hoặc xem miễn phí tại nguồn"
+    "free-access": "Đọc hoặc xem miễn phí tại nguồn",
+    "gfdl": "Tự do, ghi nguồn và giữ cùng giấy phép (GNU FDL)",
+    "cc-by-nd": "Được chia sẻ nguyên vẹn, ghi nguồn (CC BY-ND)",
+    "cc-by-nc-nd": "Chỉ dùng phi thương mại, giữ nguyên vẹn (CC BY-NC-ND)"
   },
   "why": {
     "nonCommercial": "Chỉ miễn phí cho mục đích phi thương mại, nên AnyLearn không sao chép: hãy mở tại nguồn.",
     "noLicence": "Nguồn không ghi giấy phép, nên AnyLearn không sao chép: hãy mở tại nguồn, rồi đưa file vào Bộ thẻ.",
     "bringFile": "Mở đề tại nguồn, rồi tải lên trong Câu hỏi → Đề thi → Tải lên một đề cũ.",
-    "textbook": "Đọc tại OpenStax, hoặc tải file PDF về rồi tải lên một kho tài liệu (file tối đa 50 MB)."
+    "textbook": "Đọc tại nguồn, hoặc tải PDF về rồi tải lên kho tài liệu những chương bạn cần (mỗi tệp tối đa 50 MB và 400 trang).",
+    "textbookNonCommercial": "Đọc tại nguồn, hoặc tải PDF về. Giấy phép chỉ cho dùng phi thương mại: hãy tải lên kho tài liệu những chương bạn cần để tự học (mỗi tệp tối đa 50 MB và 400 trang)."
   },
   "items": {
     "upWords": "Thuật ngữ tiếng Anh lập trình viên hay gặp, theo ngôn ngữ (Python, Go, JavaScript…): chỉ có từ, để tra và lưu.",
     "upGuide": "Một cuốn sách về phương pháp học: trạng thái, chu kỳ, bằng chứng và ôn lại, kèm phiếu bài tập.",
-    "mitOcw": "Video bài giảng, ghi chú và bài tập từ các khoá học của MIT.",
     "khan": "Bài học video ngắn và bài luyện tập về toán, khoa học và nhiều môn khác, bằng nhiều ngôn ngữ.",
     "thptName": "Đề thi tốt nghiệp THPT",
     "thpt": "Đề tham khảo và đề các năm của Bộ Giáo dục và Đào tạo, theo môn.",
     "bodyName": "Body: thư viện bài tập",
     "body": "Bài tập theo nhóm cơ và dụng cụ, mỗi bài có các bước, để dùng trong kế hoạch tập."
   },
-  "count_one": "{{count}} mục",
-  "count_other": "{{count}} mục",
+  "count_one": "{{count, number}} mục",
+  "count_other": "{{count, number}} mục",
   "empty": "Không có mục nào khớp. Hãy thử mọi loại, mọi môn hoặc mọi ngôn ngữ.",
   "results": "Kết quả",
   "manyLanguages": "Nhiều ngôn ngữ",
@@ -116,7 +129,14 @@
   },
   "credits": {
     "fpb": "Danh sách khoá học và sách lấy từ free-programming-books (Free Ebook Foundation, CC BY 4.0); mỗi tài liệu thuộc về tác giả của nó.",
-    "gutenberg": "Sách lấy từ Project Gutenberg, thuộc phạm vi công cộng tại Hoa Kỳ; hãy kiểm tra luật nước bạn trước khi dùng ở nơi khác."
+    "gutenberg": "Sách lấy từ Project Gutenberg, thuộc phạm vi công cộng tại Hoa Kỳ; hãy kiểm tra luật nước bạn trước khi dùng ở nơi khác.",
+    "otl": "Danh sách giáo trình do Open Textbook Library (Center for Open Education, Đại học Minnesota) lập; mỗi cuốn có giấy phép riêng, ghi kèm theo, và thuộc về tác giả.",
+    "mit": "Các khoá học thuộc MIT OpenCourseWare, giấy phép CC BY-NC-SA 4.0, lấy danh sách từ MIT Learn; khoá học mở tại trang của MIT.",
+    "awesome": {
+      "math": "Danh sách do awesome-math (rossant/awesome-math, CC0) lập; mỗi liên kết thuộc về chủ sở hữu.",
+      "certificates": "Danh sách do awesome-certificates (PanXProject/awesome-certificates, CC0) lập; mỗi khoá học thuộc về đơn vị cung cấp, và chứng chỉ do đơn vị đó cấp.",
+      "youtubers": "Danh sách do awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0) lập; mỗi kênh thuộc về chủ kênh, và được thêm thành nguồn cấp để bạn chọn video."
+    }
   },
   "level": "Mức",
   "levelOption_one": "{{name}} ({{count}} từ)",
@@ -156,5 +176,7 @@
     "python": "Bài tập Python của Exercism, dễ trước: viết code ngay trong trình duyệt và chạy test."
   },
   "pdf": "PDF cả cuốn",
-  "wordsDays": "Từ mới xuất hiện từ {{first}} đến {{last}}."
+  "wordsDays": "Từ mới xuất hiện từ {{first}} đến {{last}}.",
+  "allInField_one": "Xem {{count, number}} mục của ngành {{field}}",
+  "allInField_other": "Xem cả {{count, number}} mục của ngành {{field}}"
 }

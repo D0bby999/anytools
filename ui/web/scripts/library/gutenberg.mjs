@@ -43,10 +43,29 @@ function decode(s) {
     .trim();
 }
 
-/** The Library's subject for a book, from Gutenberg's "Category:" shelves. */
+/**
+ * The Library's field for a book, from Gutenberg's "Category:" shelves: the
+ * first field-specific shelf in this order, else humanities (literature,
+ * history, philosophy, the most of them).
+ */
+const FIELDS = [
+  [/^Mathematics$/, "maths"],
+  [/^Health & Medicine$/, "health"],
+  [/^(Engineering & Technology|Architecture)$/, "engineering"],
+  [/^(Science - |Nature\/)/, "science"],
+  [/^Business\/Management$/, "business"],
+  [/^Economics$/, "economics"],
+  [/^Law & Criminology$/, "law"],
+  [/^Teaching & Education$/, "education"],
+  [/^Journalism\/Media\/Writing$/, "media"],
+  [/^Language & Communication$/, "languages"],
+  [/^(Psychiatry\/Psychology|Sociology|Politics|Archaeology & Anthropology|Gender & Sexuality Studies)$/, "social"],
+  [/^(How To \.\.\.|Cooking & Drinking)$/, "skills"],
+  [/^Encyclopedias\/Dictionaries\/Reference$/, "general"],
+];
 export function subjectOf(shelves) {
-  if (shelves.includes("Category: Mathematics")) return "maths";
-  if (shelves.some((s) => /^Category: (Science - |Health & Medicine|Engineering & Technology|Nature\/)/.test(s))) return "science";
+  const categories = shelves.filter((s) => s.startsWith("Category: ")).map((s) => s.slice(10));
+  for (const [re, field] of FIELDS) if (categories.some((c) => re.test(c))) return field;
   return "humanities";
 }
 
