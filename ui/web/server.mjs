@@ -48,8 +48,11 @@ app.use(path.posix.join(build.publicPath, "assets"), (req, res, next) => {
   next();
 });
 app.use(path.posix.join(build.publicPath, "assets"), express.static(path.join(assets, "assets"), { immutable: true, maxAge: "1y" }));
-app.use(build.publicPath, express.static(assets));
-app.use(express.static("public", { maxAge: "1h" }));
+// redirect: false: a folder of static files that shares a page's name
+// (public/apps beside the Learning apps page) must not answer /apps with a
+// 301 to /apps/; the router has the page.
+app.use(build.publicPath, express.static(assets, { redirect: false }));
+app.use(express.static("public", { maxAge: "1h", redirect: false }));
 app.use(morgan("tiny"));
 app.all("*", createRequestHandler({ build, mode: process.env.NODE_ENV }));
 
