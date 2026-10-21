@@ -107,7 +107,7 @@ export function reviewCard(
   });
 }
 
-/** One imported batch's outcome (plans/261020-1155-open-source-adds, phase 3). */
+/** One imported batch's outcome (the private design notes, phase 3). */
 export type ImportResult = { created: number; duplicates: number; invalid: number; first_day?: string; last_day?: string };
 
 /** One batch of an Anki deck's words, as the page mapped them. */

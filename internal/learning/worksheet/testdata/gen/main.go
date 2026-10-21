@@ -1,5 +1,5 @@
 // Command gen writes a worksheet kind's outline from up's Markdown
-// (plans/260930-0915-up-methods, phase 0, requirement 18). Each kind's phase
+// (the private design notes, phase 0, requirement 18). Each kind's phase
 // runs it once for its source and commits the result unedited:
 //
 //	go run ./internal/learning/worksheet/testdata/gen \
@@ -16,7 +16,7 @@
 // all: -file takes a comma-separated list and -sections one selection per
 // file, separated by ";". The outline's source is then the directory, and
 // its selection names each file with its sections
-// (plans/261017-1828-up-f13ff2d-upgrade, phase 3):
+// (the private design notes, phase 3):
 //
 //	go run ./internal/learning/worksheet/testdata/gen -fenced \
 //	    -file docs/en/threads/part-6/a.md,docs/en/threads/part-6/b.md \

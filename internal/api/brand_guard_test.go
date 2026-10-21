@@ -31,7 +31,7 @@ var brandKeptEverywhere = []string{
 	// plaintext would read as a wrong encryption key at boot.
 	"longplay-encryption-key-sentinel-v1",
 	// links to plan folders, which keep their names.
-	"260916-1225-longplay-self-learning-platform",
+	"a private plan",
 }
 
 // brandKeptInFile are the one-release LONGPLAY_* fallback and its tests, and

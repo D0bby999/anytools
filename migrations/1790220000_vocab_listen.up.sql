@@ -1,4 +1,4 @@
--- The listening card (plans/261020-1155-open-source-adds, phase 1): a word
+-- The listening card (the private design notes, phase 1): a word
 -- saved from a video's or a recording's transcript plays that line, and the
 -- learner types the word they hear.
 --

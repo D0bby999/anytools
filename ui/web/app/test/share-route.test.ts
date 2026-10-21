@@ -1,6 +1,6 @@
 /**
  * share-route.test.ts
- * The /share page (plans/261020-1155-open-source-adds, phase 4): the loader
+ * The /share page (the private design notes, phase 4): the loader
  * finds the link and offers the knowledge base used last; the action adds the
  * link as "Add a link" does, creates a first knowledge base when there is
  * none, remembers the choice and goes to that knowledge base.

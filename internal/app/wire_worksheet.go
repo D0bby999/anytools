@@ -9,7 +9,7 @@ import (
 	"github.com/D0bby999/anytools/internal/store/pg"
 )
 
-// wire_worksheet.go assembles up's worksheet engine (plans/260930-0915-up-methods,
+// wire_worksheet.go assembles up's worksheet engine (the private design notes,
 // phase 0). Kinds register themselves from their own files in
 // internal/learning/worksheet; nothing here names one.
 

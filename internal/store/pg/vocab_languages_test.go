@@ -9,7 +9,7 @@ import (
 )
 
 // vocab_languages_test.go is the Languages page's list and counts
-// (plans/261020-1535-beyond-english-learning-areas, phase 1).
+// (the private design notes, phase 1).
 
 func TestVocabStudiedLanguagesAreTheLearnersOwn(t *testing.T) {
 	ctx, f := newVocabFixture(t)

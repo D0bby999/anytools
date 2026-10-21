@@ -1,6 +1,6 @@
 /**
  * mastery.vocabulary.anki.ts
- * Resource route for Anki decks (plans/261020-1155-open-source-adds, phase 3).
+ * Resource route for Anki decks (the private design notes, phase 3).
  * The deck is read and written in the browser; this only moves words. GET is
  * every word being learned, for the export; POST is one batch of an import's
  * words. Not under app-layout, so it calls requireUser itself.

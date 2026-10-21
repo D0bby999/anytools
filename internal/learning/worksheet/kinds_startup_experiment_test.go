@@ -8,7 +8,7 @@ import (
 	"github.com/D0bby999/anytools/internal/learning"
 )
 
-// The startup experiment (phase 2 of 261017-1828-up-f13ff2d-upgrade): up's one
+// The startup experiment (phase 2 of a private plan): up's one
 // card in the phase's order of sections, its four decisions, and the next
 // review on the date the learner writes.
 

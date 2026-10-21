@@ -46,7 +46,7 @@ const JudgeModeLLM = "llm"
 const JudgeModeUser = "user"
 
 // JudgeModeMath marks a maths answer compared by value, in Go, with no model
-// call (mathcheck; plans/261020-1535-beyond-english-learning-areas, phase 2).
+// call (mathcheck; the private design notes, phase 2).
 const JudgeModeMath = "math"
 
 // ErrUnreadableMath answers a maths answer the checker could not read when

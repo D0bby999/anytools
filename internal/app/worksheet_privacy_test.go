@@ -75,7 +75,7 @@ const helpMarker = "PRIVHELP7Q"
 
 // privateKinds are the plan's private kinds (principle 5): the life toolkit
 // (phase 9), the narrative case review (phase 8), and from
-// plans/261017-1828-up-f13ff2d-upgrade the care card (phase 1) and the
+// the private design notes the care card (phase 1) and the
 // self-reflection cards (phase 3).
 var privateKinds = []string{"attention_audit", "choice_brief", "life_weekly_review",
 	"narrative_case_review", "recovery_reset", "relationship_card", "life_care_card",

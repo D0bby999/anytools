@@ -1,7 +1,7 @@
 /**
  * documents.$docId.speaking-check.ts
  * Resource route (action only): the read-aloud check on a passage of this
- * document (plans/261020-1155-open-source-adds, phase 2). The browser posts
+ * document (the private design notes, phase 2). The browser posts
  * the take, the page and the passage; the workspace is opened here for the
  * document, as the reader's own action does, so no posted workspace id has to
  * be trusted. Not under app-layout, so it calls requireUser itself.

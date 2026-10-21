@@ -68,7 +68,7 @@ type Deps struct {
 	Exams *examapi.Handler
 	// Vocab is learning-depth phase 7: vocabulary notes and their cards.
 	Vocab *vocabapi.Handler
-	// Speak is the read-aloud check (plans/261020-1155-open-source-adds, phase 2).
+	// Speak is the read-aloud check (the private design notes, phase 2).
 	Speak *speakapi.Handler
 	// Profile is learning-depth phase 9: the learner profile.
 	Profile *profileapi.Handler
@@ -82,7 +82,7 @@ type Deps struct {
 	Storage *storageapi.Handler
 	// Push is Settings → Reminders: the daily review reminder.
 	Push *pushapi.Handler
-	// Body is the training log and its coach (plans/261019-1810-body-fitness).
+	// Body is the training log and its coach (the private design notes).
 	Body         *bodyapi.Handler
 	Users        httpx.UserLookup
 	GatewayToken string

@@ -1,7 +1,7 @@
 /**
  * anki/write.ts
  * Writes the vocabulary as an Anki deck (.apkg) in the browser (plans/
- * 261020-1155-open-source-adds, phase 3): `collection.anki2` in Anki's schema
+ * a private plan, phase 3): `collection.anki2` in Anki's schema
  * 11, which every Anki and AnkiDroid opens, holding one note type "AnyLearn
  * word" (Term, Meaning, Sentence, Source) and one deck "AnyLearn". Written
  * from Anki's documented schema and checked against genanki's (MIT); no code

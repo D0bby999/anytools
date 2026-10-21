@@ -1,6 +1,6 @@
 /**
  * vocab-write.test.tsx
- * The writing card (plans/261020-1535-beyond-english-learning-areas, phase 3;
+ * The writing card (the private design notes, phase 3;
  * ux/03-writing.md): kana strokes split by animCJK are joined back, a word
  * is drawn character by character with each mistake counted, "Show the
  * character" counts as one and suggests Again, the rating is suggested from

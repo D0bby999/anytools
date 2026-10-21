@@ -8,7 +8,7 @@ import (
 	"github.com/D0bby999/anytools/internal/learning"
 )
 
-// The AI trend radar (phase 2 of 261017-1828-up-f13ff2d-upgrade): no decision
+// The AI trend radar (phase 2 of a private plan): no decision
 // and no "done" without §1's primary source, up's option lists as choices,
 // and the thirty-day review from the decision.
 

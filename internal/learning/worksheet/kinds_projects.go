@@ -1,6 +1,6 @@
 package worksheet
 
-// Phase 8 of plans/260930-0915-up-methods: three of up's worksheets about
+// Phase 8 of the private design notes: three of up's worksheets about
 // turning learning into delivered work and reviewing it honestly (structure
 // only; wording written fresh).
 //

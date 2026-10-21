@@ -1,8 +1,7 @@
 /**
  * ultimate-geography.mjs
  * Turns Ultimate Geography's CrowdAnki releases into the text-only decks
- * AnyLearn ships in its library (plans/261020-1535-beyond-english-learning-
- * areas, phase 5): app/data/decks/ultimate-geography-<lang>.json.
+ * AnyLearn ships in its library (the private design notes, phase 5): app/data/decks/ultimate-geography-<lang>.json.
  *
  * Usage: node scripts/decks/ultimate-geography.mjs <EN.zip> <ES.zip> <PT.zip> <sources.csv>
  * (the v5.3 release assets, Ultimate_Geography_v5.3_<LANG>.zip, and the

@@ -1,7 +1,7 @@
 package pg
 
 // vocab_languages.go stores the languages a learner studies
-// (plans/261020-1535-beyond-english-learning-areas, phase 1).
+// (the private design notes, phase 1).
 
 import (
 	"context"

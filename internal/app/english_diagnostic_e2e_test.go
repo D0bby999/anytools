@@ -4,7 +4,7 @@ package app
 // diagnostic is served with its CEFR self-check, a barrier from another
 // skill's list and a score of 3 are 400 naming the cell, and the Day 7 row
 // written three days after the first version is 409. Since f13ff2d
-// (plans/261017-1828-up-f13ff2d-upgrade, phase 0) the kind is version 2 with
+// (the private design notes, phase 0) the kind is version 2 with
 // up's §2A, and a version 1 worksheet keeps every value.
 
 import (

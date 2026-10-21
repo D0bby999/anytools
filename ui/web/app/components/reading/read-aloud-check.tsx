@@ -6,7 +6,7 @@ import { clock, pickRecordingType, RAW_AUDIO, UploadFallback } from "~/component
 
 /**
  * read-aloud-check.tsx
- * "Check my reading aloud" on a selection (plans/261020-1155-open-source-adds,
+ * "Check my reading aloud" on a selection (the private design notes,
  * phase 2): record yourself reading the passage, and see which words a
  * speech engine did not get. It says whether the words were understood, not
  * how close an accent is.

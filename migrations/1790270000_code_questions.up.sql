@@ -1,4 +1,4 @@
--- Code exercises (plans/261020-1535-beyond-english-learning-areas, phase 4;
+-- Code exercises (the private design notes, phase 4;
 -- owner decision 4): a Python question whose answer is code, run against its
 -- tests in the learner's browser (Pyodide), never on the server. `code` holds
 -- what the browser needs to run it, shown before the attempt: the module the

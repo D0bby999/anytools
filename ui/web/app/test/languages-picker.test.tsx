@@ -1,7 +1,6 @@
 /**
  * languages-picker.test.tsx
- * The Languages picker and its routes (plans/261020-1535-beyond-english-
- * learning-areas, phase 1): suggestions from the saved words, ticked on a
+ * The Languages picker and its routes (the private design notes, phase 1): suggestions from the saved words, ticked on a
  * first visit; a search over every language; nothing to save until one is
  * ticked; the list keeps the learner's order; /english lands on English's
  * tab and adds English; dictionary links per language.

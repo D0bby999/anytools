@@ -1,8 +1,7 @@
 import { DownloadGrid } from "~/components/doc/download-grid";
 /**
  * decks.tsx
- * Mastery → Decks' three lists (plans/261020-1535-beyond-english-learning-
- * areas, phase 5; ux/05-decks.md): the learner's decks, the library of ready
+ * Mastery → Decks' three lists (the private design notes, phase 5; ux/05-decks.md): the learner's decks, the library of ready
  * decks, and a deck brought from a file. A file is read here, in the browser
  * (lib/anki/read.ts, only the entry it needs), mapped to fronts and backs,
  * and sent in batches; the server never sees the file.

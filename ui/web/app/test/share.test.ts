@@ -1,6 +1,6 @@
 /**
  * share.test.ts
- * Share to AnyLearn (plans/261020-1155-open-source-adds, phase 4): the link a
+ * Share to AnyLearn (the private design notes, phase 4): the link a
  * share carries, wherever the sharing app put it, and the manifest's share
  * target pointing at the route that reads it.
  */

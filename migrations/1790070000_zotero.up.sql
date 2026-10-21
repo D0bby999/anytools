@@ -1,5 +1,5 @@
 -- 1790070000_zotero — a learner's Zotero library as a knowledge-base source
--- (plans/260930-0915-up-methods, phase 20).
+-- (the private design notes, phase 20).
 --
 -- Back up the database before running this: it widens a CHECK constraint on
 -- search_connections and adds a column and an index to documents.

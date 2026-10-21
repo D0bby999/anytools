@@ -1,10 +1,10 @@
 package worksheet
 
 // up: docs/en/templates/life-practice-toolkit.md at f13ff2d, §1–§4 and §6
-// (structure only; wording written fresh). plans/260930-0915-up-methods,
+// (structure only; wording written fresh). the private design notes,
 // phase 9. At f13ff2d up inserted §5, the care and shared responsibility
 // card, so the weekly review moved from §5 to §6 with its fields unchanged
-// (plans/261017-1828-up-f13ff2d-upgrade, phase 0).
+// (the private design notes, phase 0).
 //
 // up's life practice toolkit: four worksheets and five weekly questions for
 // the moments when a choice, attention, a relationship or tiredness gets out

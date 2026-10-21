@@ -1,7 +1,7 @@
 package worksheet
 
 // up: docs/en/templates/vocabulary-audit.md, §1–§11 (structure only; wording
-// written fresh). plans/260930-0915-up-methods, phase 3.
+// written fresh). the private design notes, phase 3.
 //
 // The vocabulary evidence card: one real task, a first encounter kept before
 // any lookup, the decision queue for unknown items (the same five decisions

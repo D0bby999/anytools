@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// Phase 2 of plans/261017-1828-up-f13ff2d-upgrade: up's AI evaluation record
+// Phase 2 of the private design notes: up's AI evaluation record
 // (structure only; wording written fresh).
 //
 //   - docs/en/templates/ai-evaluation.md, "Copyable record": scope, test

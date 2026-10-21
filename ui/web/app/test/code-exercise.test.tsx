@@ -1,7 +1,6 @@
 /**
  * code-exercise.test.tsx
- * A code question on the shared card (plans/261020-1535-beyond-english-
- * learning-areas, phase 4; ux/04-code.md): runs are practice and send
+ * A code question on the shared card (the private design notes, phase 4; ux/04-code.md): runs are practice and send
  * nothing; a run where every declared test passes sends the attempt with
  * the results; after a failed run "Show a solution" sends it as not passed;
  * a stopped run says so; an answered card shows the verdict and no form.

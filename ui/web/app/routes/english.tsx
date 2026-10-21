@@ -1,7 +1,6 @@
 /**
  * english.tsx
- * The English page became Languages (plans/261020-1535-beyond-english-
- * learning-areas, decision 2). An old link lands on English's tab; a learner
+ * The English page became Languages (the private design notes, decision 2). An old link lands on English's tab; a learner
  * who followed one is learning English, so English joins their list.
  */
 import { redirect } from "react-router";

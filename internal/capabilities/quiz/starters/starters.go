@@ -1,5 +1,5 @@
 // Package starters holds the exercise sets the quiz can add to a knowledge
-// base (plans/261020-1535-beyond-english-learning-areas, phase 4): today the
+// base (the private design notes, phase 4): today the
 // Python set, eighteen exercises from Exercism's Python track (MIT), written
 // by scripts/quizstarters with their instructions, stub, tests and example
 // solution unchanged.

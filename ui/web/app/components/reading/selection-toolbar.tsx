@@ -40,7 +40,7 @@ export function SelectionToolbar({
   onDismiss: () => void;
   /** Learning depth, phase 7: read the selection aloud (browser voices). */
   onReadAloud?: () => void;
-  /** Record yourself reading the selection (plans/261020-1155-open-source-adds, phase 2). */
+  /** Record yourself reading the selection (the private design notes, phase 2). */
   onCheckAloud?: () => void;
   /** up-methods phase 5: a row in the reading card's barrier map, from this selection and its page. */
   onMarkBarrier?: () => void;

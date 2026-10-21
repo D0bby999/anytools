@@ -1,7 +1,6 @@
 package quiz
 
-// code.go is the code exercise (plans/261020-1535-beyond-english-learning-
-// areas, phase 4; owner decision 4): a Python question answered with code,
+// code.go is the code exercise (the private design notes, phase 4; owner decision 4): a Python question answered with code,
 // run against its tests in the learner's browser (Pyodide, in a Web Worker),
 // never on this server. The browser reports each test's result; Go marks the
 // attempt from them. They are the learner's own run, recorded as reported,

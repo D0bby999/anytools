@@ -1,5 +1,5 @@
 -- 1790090000_drive_storage — a learner's own files kept in their Google Drive
--- (plans/261017-1828-drive-user-storage, phase 1).
+-- (the private design notes, phase 1).
 --
 -- Two tables, both new; nothing existing changes.
 --

@@ -1,7 +1,6 @@
 /**
  * deck-library.ts
- * The ready decks AnyLearn offers (plans/261020-1535-beyond-english-learning-
- * areas, phase 5; ux/05-decks.md). A deck AnyLearn may ship (public domain,
+ * The ready decks AnyLearn offers (the private design notes, phase 5; ux/05-decks.md). A deck AnyLearn may ship (public domain,
  * CC0, CC BY) is bundled as text and added in one tap; any other is linked,
  * and the learner brings its file to the importer. Each entry says its
  * licence before anything is fetched.

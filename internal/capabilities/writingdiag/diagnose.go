@@ -1,5 +1,5 @@
 // Package writingdiag diagnoses one revision pass of a writing evidence card
-// (plans/260930-0915-up-methods, phase 4): at most three issues in the
+// (the private design notes, phase 4): at most three issues in the
 // learner's unaided draft, each quoting it, with a basis, a confidence and how
 // the diagnosis might be wrong.
 //

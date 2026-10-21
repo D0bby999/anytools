@@ -19,7 +19,7 @@ import (
 )
 
 // lifeKinds are phase 9's five, and the care card up added at f13ff2d
-// (plans/261017-1828-up-f13ff2d-upgrade, phase 1).
+// (the private design notes, phase 1).
 var lifeKinds = []string{"choice_brief", "attention_audit", "relationship_card", "recovery_reset", "life_weekly_review",
 	"life_care_card"}
 

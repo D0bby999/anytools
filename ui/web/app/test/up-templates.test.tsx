@@ -1,6 +1,6 @@
 /**
  * up-templates.test.tsx
- * up's four templates new at f13ff2d (plans/261017-1828-up-f13ff2d-upgrade,
+ * up's four templates new at f13ff2d (the private design notes,
  * phase 2), the parts the page adds: an AI evaluation shows the pass rates
  * its case rows give, counted with failures and timeouts among the attempts
  * and updated as the rows change; a consistency plan started on a learning

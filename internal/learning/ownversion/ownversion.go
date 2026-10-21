@@ -1,5 +1,4 @@
-// Package ownversion is "write your own version first" (plans/260930-0915-
-// up-methods, phase 11).
+// Package ownversion is "write your own version first" (the private design notes, phase 11).
 //
 // Source: up, docs/en/threads/part-3/3-attention-and-judgment.md §3 ("Leave
 // Your Version Before Using AI"), and docs/en/threads/part-1/7-ai.md §1. Before

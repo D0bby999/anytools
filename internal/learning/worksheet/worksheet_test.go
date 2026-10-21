@@ -18,7 +18,7 @@ func init() { RegisterExample() }
 // ─────────────────────────────────────────────────────── the AC1 harness
 
 // upCommit is the up commit every kind follows; testdata/gen refuses any
-// other (plans/261017-1828-up-f13ff2d-upgrade, phase 0).
+// other (the private design notes, phase 0).
 const upCommit = "f13ff2d"
 
 // kindOutline counts a kind the way outline.Generate counts up's Markdown.

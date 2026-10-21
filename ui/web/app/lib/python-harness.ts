@@ -1,7 +1,7 @@
 /**
  * python-harness.ts
  * The Python that runs a code exercise's tests inside Pyodide
- * (plans/261020-1535-beyond-english-learning-areas, phase 4). The learner's
+ * (the private design notes, phase 4). The learner's
  * code becomes the module the tests import (`from leap import leap_year`);
  * the tests may be plain `test_*` functions with `assert` or unittest
  * classes (Exercism's), and each is reported with its name, whether it

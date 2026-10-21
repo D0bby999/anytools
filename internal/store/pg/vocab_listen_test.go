@@ -10,8 +10,7 @@ import (
 	"github.com/D0bby999/anytools/internal/vocab"
 )
 
-// vocab_listen_test.go is the listening card (plans/261020-1155-open-source-
-// adds, phase 1) over the real VocabStore: it is asked for on a word saved
+// vocab_listen_test.go is the listening card (the private design notes, phase 1) over the real VocabStore: it is asked for on a word saved
 // from a line of a video, plays that line's current timing, keeps its
 // schedule when turned off and on, and reads back as a cloze once the video
 // is gone.

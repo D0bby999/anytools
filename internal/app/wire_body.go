@@ -12,7 +12,7 @@ import (
 )
 
 // wire_body.go assembles Body: the training log and its coach, which runs on
-// the learner's chat route (plans/261019-1810-body-fitness).
+// the learner's chat route (the private design notes).
 
 func buildBody(pool *pg.Pool, byokService *byok.Service) *bodyapi.Handler {
 	users := pg.NewUserStore(pool)

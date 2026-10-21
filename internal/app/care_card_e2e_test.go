@@ -1,6 +1,6 @@
 package app
 
-// care_card_e2e_test.go — plans/261017-1828-up-f13ff2d-upgrade, phase 1,
+// care_card_e2e_test.go — the private design notes, phase 1,
 // over HTTP: the care card's "next review date" is its review. It is due on
 // that day in the learner's own zone, not before, and Home's list shows it
 // as a private note without its title. TestLifeToolkitIsPrivateEndToEnd

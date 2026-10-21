@@ -1,7 +1,7 @@
 package vocab
 
 // languages.go is the languages a learner studies
-// (plans/261020-1535-beyond-english-learning-areas, phase 1): the tabs of the
+// (the private design notes, phase 1): the tabs of the
 // Languages page, in the learner's order, and the one viewed last. A word's
 // language stays its own (Note.Lang, detected from its page); this list only
 // says which tabs to show, so dropping a language keeps its words.

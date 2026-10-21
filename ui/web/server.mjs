@@ -18,7 +18,7 @@
  * worker's script response sets its policy: here no eval, and nothing
  * loaded or fetched but the app's own scripts and run-time files, so no
  * import() of a page with the learner's session, and nothing sent away
- * (plans/261020-1535-beyond-english-learning-areas, phase 4; review H1).
+ * (the private design notes, phase 4; review H1).
  */
 import path from "node:path";
 import { pathToFileURL } from "node:url";

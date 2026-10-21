@@ -1,4 +1,4 @@
--- The structured day-90 close (plans/260930-0915-up-methods, phase 10).
+-- The structured day-90 close (the private design notes, phase 10).
 --
 -- A cycle_close worksheet (internal/learning/worksheet/kinds_cycle_close.go)
 -- may name the cycle it closes. One close per cycle: the unique index refuses

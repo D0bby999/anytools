@@ -8,7 +8,7 @@ import (
 	"github.com/D0bby999/anytools/internal/learning"
 )
 
-// The consistency plan (phase 2 of 261017-1828-up-f13ff2d-upgrade): up's
+// The consistency plan (phase 2 of a private plan): up's
 // three versions as a fixed table, the cycle review on the cycle's last day,
 // and the cells a learning state prefills (ui/web/app/lib/consistency-plan.ts
 // names the same keys).

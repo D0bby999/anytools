@@ -1,5 +1,5 @@
 -- 1789930000_own_version_first — "write your own version first"
--- (plans/260930-0915-up-methods, phase 11; up: docs/en/threads/part-3/
+-- (the private design notes, phase 11; up: docs/en/threads/part-3/
 -- 3-attention-and-judgment.md §3).
 --
 -- With the switch on, a chat turn or a solve is refused until the learner has

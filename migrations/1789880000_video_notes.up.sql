@@ -1,6 +1,6 @@
 -- 1789880000_video_notes — study notes of a YouTube video: the video's
 -- sections, each with a summary and its key points, every one tied to a
--- second of the video (plans/260927-2009-video-study-notes).
+-- second of the video (the private design notes).
 --
 -- One set of notes per video and language. The notes record the transcript
 -- they were written from (its sha256), so a transcript replaced later shows

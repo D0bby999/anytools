@@ -139,7 +139,7 @@ func FuzzBracketsAndUnits(f *testing.F) {
 	})
 }
 
-// The independent review's cases (plans/reports/code-review-261021-0310-
+// The independent review's cases (the private design notes
 // beyond-english-independent.md), each as it was reported.
 func TestReviewCases(t *testing.T) {
 	cases := []struct {

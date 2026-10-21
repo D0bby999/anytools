@@ -1,6 +1,6 @@
 /**
  * languages-page.test.tsx
- * Languages (plans/261020-1535-beyond-english-learning-areas, phase 1;
+ * Languages (the private design notes, phase 1;
  * ux/01-languages.md): one tab per studied language, that language's words
  * due and the review narrowed to them, the diagnostic named for the
  * language, each skill's kinds, a language opened from a link offered to the

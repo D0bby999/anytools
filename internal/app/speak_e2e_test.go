@@ -17,8 +17,7 @@ import (
 	"github.com/D0bby999/anytools/internal/testutil"
 )
 
-// speak_e2e_test.go is the read-aloud check (plans/261020-1155-open-source-
-// adds, phase 2) through the real mux: the passage is checked against the
+// speak_e2e_test.go is the read-aloud check (the private design notes, phase 2) through the real mux: the passage is checked against the
 // stored page, the take is normalised by ffmpeg and heard by the server's
 // engine on the learner's daily allowance, and nothing is left on disk.
 

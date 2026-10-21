@@ -1,5 +1,5 @@
 // Package mathcheck marks a maths answer by its value
-// (plans/261020-1535-beyond-english-learning-areas, phase 2).
+// (the private design notes, phase 2).
 //
 // "2(x+1)", "2x + 2" and "\frac{4x+4}{2}" are one answer; asking a model to
 // say so costs the learner a call and is sometimes wrong. Two expressions are

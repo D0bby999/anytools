@@ -47,7 +47,7 @@ const STARTER_KB = "Python basics";
 export async function action({ request }: Route.ActionArgs) {
   const { user } = await requireUser(request);
   const form = await request.formData();
-  // plans/261020-1535-beyond-english-learning-areas, phase 4: the starter set.
+  // the private design notes, phase 4: the starter set.
   if (form.get("intent") === "starter") {
     try {
       const { knowledge_bases } = await listKBs(user.id);

@@ -1,5 +1,5 @@
 -- 1790190000_push_reminders — the daily review reminder, sent as a web push
--- (plans/261019-1215-anylearn-pwa-reminders).
+-- (the private design notes).
 --
 --  1. push_vapid — the server's one VAPID key pair, made on first use. The
 --     private key is encrypted under ANYTOOLS_ENCRYPTION_KEY like every other

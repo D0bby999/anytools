@@ -1,5 +1,5 @@
 -- 1790014000_sites_repos — documentation sites and GitHub repositories as
--- knowledge-base sources (plans/260930-0915-up-methods, phase 18).
+-- knowledge-base sources (the private design notes, phase 18).
 --
 -- Back up the database before running this: it widens CHECK constraints on
 -- documents, and the down migration refuses to run while site pages or

@@ -1,5 +1,5 @@
 -- 1790050000_media_sources — audio and video files as knowledge-base
--- documents (plans/260930-0915-up-methods, phase 15).
+-- documents (the private design notes, phase 15).
 --
 -- Back up the database before running this: it replaces CHECK constraints on
 -- documents, and the down migration refuses to run while media documents

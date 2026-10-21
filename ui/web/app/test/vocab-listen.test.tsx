@@ -1,6 +1,6 @@
 /**
  * vocab-listen.test.tsx
- * The listening card (plans/261020-1155-open-source-adds, phase 1): it plays
+ * The listening card (the private design notes, phase 1): it plays
  * the line a word was saved from, cut to that line; the blanked line waits
  * behind "Show the line"; the answer is typed and marked like a cloze; a card
  * whose video is gone reads as a cloze. The word list offers it only for a

@@ -27,7 +27,7 @@ import (
 )
 
 // ruleSince is the commit that set the rule: plan.md of
-// plans/260930-0915-up-methods, "Migrations" (red team SF-4).
+// the private design notes, "Migrations" (red team SF-4).
 const ruleSince = "704436c"
 
 // gitLines runs git in the repository root and returns its output lines.

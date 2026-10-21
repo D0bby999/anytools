@@ -2,7 +2,7 @@ package worksheet
 
 import "strings"
 
-// Phase 6 of plans/260930-0915-up-methods: grammar as meaning decisions.
+// Phase 6 of the private design notes: grammar as meaning decisions.
 //
 // Two kinds share the chapter's two lists, defined once below and served
 // with the kinds as their options:

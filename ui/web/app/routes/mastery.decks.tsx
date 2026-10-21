@@ -2,7 +2,7 @@ import { QuickStart } from "~/components/doc/quick-start";
 import { Details } from "~/components/doc/details";
 /**
  * mastery.decks.tsx
- * Mastery → Decks (plans/261020-1535-beyond-english-learning-areas, phase 5;
+ * Mastery → Decks (the private design notes, phase 5;
  * ux/05-decks.md): today's cards from the learner's general decks, one
  * queue for all of them; the decks with their counts; a library of ready
  * decks, the free ones added in one tap; and an Anki or CrowdAnki file read

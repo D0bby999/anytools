@@ -49,7 +49,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /v1/quiz/practice", h.practice)
 	mux.HandleFunc("POST /v1/questions/{id}/attempt", h.attempt)       // budget: generate
 	mux.HandleFunc("POST /v1/quiz/attempts/{id}/override", h.override) // budget: none
-	// plans/261020-1535-beyond-english-learning-areas, phase 4: a starter set.
+	// the private design notes, phase 4: a starter set.
 	mux.HandleFunc("POST /v1/quiz/starters", h.addStarter) // budget: none
 }
 

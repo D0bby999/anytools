@@ -23,7 +23,7 @@ A rule with no strike is a rule the code currently obeys.
 > **Superseded 2026-10-21:** the owner asked for AnyLearn to take `up`'s structure and
 > UX in detail (its VitePress 1.6.4 shell, its page patterns, every feature laid out as
 > one of them), then to wear the textbook's own type and colour, which stay as written
-> below. Plan `plans/261020-2246-anylearn-up-shell`. The measured mimic (up's colours
+> below. Plan `the private design notes`. The measured mimic (up's colours
 > and Inter too) is the git tag `up-shell-mimic`; the numbers are in that plan's
 > `reports/fidelity.md`.
 
@@ -162,7 +162,7 @@ row has about 9 px to spare, and the tiles would push the theme switch to a seco
 > ~~Rail 256, workspace padded by 32, margin 320 always present; the rail with icons,
 > the phone bar, the running head and the margin as described on 2026-10-19.~~
 > **Superseded 2026-10-21:** VitePress's geometry, from `up` (plan
-> 261020-2246-anylearn-up-shell), measured in Chrome:
+> a private plan), measured in Chrome:
 
 Measured at 1440 (`--lp-*` in `tokens.css`):
 
@@ -367,7 +367,7 @@ nothing scrolls sideways; wide tables scroll inside their own box.
 
 ## View-by-view review (2026-10-19)
 
-Every study view was seen with real content (plan `261019-0148-study-ui-review`):
+Every study view was seen with real content (plan `a private plan`):
 documents indexed through the real pipeline on a local model, the rest seeded. What
 changed: chat chooses its knowledge bases; the reader renders Markdown; a failed
 document can be retried; a knowledge base leads with its documents and how to study

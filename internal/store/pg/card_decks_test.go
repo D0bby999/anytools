@@ -11,8 +11,7 @@ import (
 	"github.com/D0bby999/anytools/internal/vocab"
 )
 
-// card_decks_test.go is the general decks (plans/261020-1535-beyond-english-
-// learning-areas, phase 5) over the real VocabStore: a deck's cards come up
+// card_decks_test.go is the general decks (the private design notes, phase 5) over the real VocabStore: a deck's cards come up
 // twenty a day after the earlier deck imports, a front the deck has is a
 // duplicate, they are their own queue and not the words', they are the
 // learner's own, and they go with their deck.

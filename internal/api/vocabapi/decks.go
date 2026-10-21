@@ -1,7 +1,6 @@
 package vocabapi
 
-// decks.go is the general decks' HTTP layer (plans/261020-1535-beyond-
-// english-learning-areas, phase 5). The page reads a deck in the browser and
+// decks.go is the general decks' HTTP layer (the private design notes, phase 5). The page reads a deck in the browser and
 // sends its cards in batches; none of these calls a model.
 
 import (

@@ -1,6 +1,6 @@
 /**
  * ai-evaluation.ts
- * The AI evaluation's pass rates (plans/261017-1828-up-f13ff2d-upgrade, phase
+ * The AI evaluation's pass rates (the private design notes, phase
  * 2), counted the way the API checks them (internal/learning/worksheet/
  * kinds_ai_evaluation.go): an attempt is a case row with a version and a
  * first pass chosen, failures and timeouts included; the first-pass rate

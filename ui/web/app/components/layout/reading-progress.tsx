@@ -4,7 +4,7 @@ import { useLocation } from "react-router";
 /**
  * The hairline across the top edge that says how far through a long page you
  * are. Ported from `up`'s `ReadingProgress.vue` (MIT, see
- * plans/261020-2246-anylearn-up-shell/reports/reference/up-d442046/) and
+ * the private design notes) and
  * rewritten for React: 2px, fixed at the top above everything, in the
  * `progress` colour, scaled on the next frame with an 80ms linear ease.
  *

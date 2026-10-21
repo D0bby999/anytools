@@ -6,8 +6,7 @@ import type { AnkiDeck, FieldMap, MappedNote, mapNotes as MapNotes } from "~/lib
 
 /**
  * anki-decks.tsx
- * Anki decks in and out, in Mastery → Vocabulary (plans/261020-1155-open-
- * source-adds, phase 3). The deck is read and written here, in the browser;
+ * Anki decks in and out, in Mastery → Vocabulary (the private design notes, phase 3). The deck is read and written here, in the browser;
  * the server only receives the mapped words, in batches, and sends back the
  * words being learned for the export.
  *

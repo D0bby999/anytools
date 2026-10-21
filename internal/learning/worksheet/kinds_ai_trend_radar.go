@@ -1,6 +1,6 @@
 package worksheet
 
-// Phase 2 of plans/261017-1828-up-f13ff2d-upgrade: up's AI trend experiment,
+// Phase 2 of the private design notes: up's AI trend experiment,
 // one capability taken from a signal to a decision (structure only; wording
 // written fresh).
 //

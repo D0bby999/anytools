@@ -1,5 +1,5 @@
 -- Unknown-word decisions and the production card
--- (plans/260930-0915-up-methods, phase 3).
+-- (the private design notes, phase 3).
 --
 -- up's vocabulary chapter §3 (docs/en/threads/part-1/2-vocabulary.md): not
 -- every unknown word deserves review. Each saved term now carries one of five

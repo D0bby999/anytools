@@ -1,4 +1,4 @@
--- General decks (plans/261020-1535-beyond-english-learning-areas, phase 5;
+-- General decks (the private design notes, phase 5;
 -- owner decision 5): a deck that is not vocabulary (countries and capitals,
 -- a programming deck) brought in from the library or an Anki file. Its cards
 -- have a front and a back and no note, like a living book's flash cards, and

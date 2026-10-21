@@ -1,5 +1,5 @@
 // Package worksheet is the engine behind up's worksheets
-// (plans/260930-0915-up-methods, phase 0): a titled page of headed sections,
+// (the private design notes, phase 0): a titled page of headed sections,
 // each a list of labelled lines, small fixed tables, option lists, 0–2 scores,
 // yes/no gates, checklists and review dates — the pages up's reader copies
 // into a private note.

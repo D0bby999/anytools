@@ -1,7 +1,6 @@
 /**
  * highlights.ts
- * Kindle and KOReader highlights as documents (plans/261020-1155-open-source-
- * adds, phase 5). A Kindle's `My Clippings.txt` or a KOReader JSON export is
+ * Kindle and KOReader highlights as documents (the private design notes, phase 5). A Kindle's `My Clippings.txt` or a KOReader JSON export is
  * read here, in the browser, and each book becomes one Markdown file uploaded
  * to a knowledge base like any other: then the reader, citations, quizzes and
  * the word picker all work on it. The idea is vocabsieve's and fyodor's; none

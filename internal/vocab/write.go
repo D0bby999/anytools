@@ -5,8 +5,7 @@ import (
 	"unicode"
 )
 
-// KindWrite is the writing card (plans/261020-1535-beyond-english-learning-
-// areas, phase 3): the learner draws a Chinese or Japanese word stroke by
+// KindWrite is the writing card (the private design notes, phase 3): the learner draws a Chinese or Japanese word stroke by
 // stroke from its meaning and reading, each stroke checked in the browser as
 // it is drawn (hanzi-writer). Like listening it is not in CardKinds(); only
 // "Practise writing it" creates it. Its rating is the learner's, suggested

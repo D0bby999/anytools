@@ -96,7 +96,7 @@ cycle_close | §4 tables | up 4x2, kind 4x3 | phase 10 requirement 1: up's quest
 cycle_close | §4 labels | up 0, kind 1 | phase 10 requirement 1: up's note to yourself three months on (§10's last paragraph, prose with no label line) is kept as a field
 cycle_close | §5 tables | up 4x3, kind 4x5 | phase 10 requirement 1: up's central action and evidence of completion are the read-only text of each stage; the learner's "done" and "where" are the added columns
 
-# plans/261017-1828-up-f13ff2d-upgrade, phase 3: the self-reflection cards.
+# the private design notes, phase 3: the self-reflection cards.
 # The kind gathers the eleven copyable cards of up's part 6 from five files
 # (1-understanding-yourself.md §4, §6; 2-knowing-yourself.md §3, §6;
 # 3-being-kind-to-yourself.md §4, §7; 4-improving-yourself.md §1, §6, §9;
@@ -108,7 +108,7 @@ cycle_close | §5 tables | up 4x3, kind 4x5 | phase 10 requirement 1: up's centr
 # -sections '5,7;4,7;…'), so the gathering itself needs no line; every card
 # keeps up's line count.
 self_reflection | §9 labels | up 6, kind 7: "Retest date" is added before the day-30 decision | phase 3 requirement 3: the thirty-day experiment's retest date, if written, is the kind's review, and up's card has no date line to follow
-# Phase 2 of 261017-1828-up-f13ff2d-upgrade: consistency plan, AI evaluation,
+# Phase 2 of a private plan: consistency plan, AI evaluation,
 # AI trend radar, startup experiment. startup_experiment matches up exactly:
 # its blank-line groups are sections that continue the first. The consistency
 # plan's heading lines ("Updated", "Cycle", "Review date or condition") are

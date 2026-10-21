@@ -1,7 +1,6 @@
 /**
  * python.worker.ts
- * Python for a code exercise, in its own thread (plans/261020-1535-beyond-
- * english-learning-areas, phase 4): Pyodide (MPL-2.0, unmodified, staged
+ * Python for a code exercise, in its own thread (the private design notes, phase 4): Pyodide (MPL-2.0, unmodified, staged
  * under /tool-runtime/), so a loop that never ends can be stopped by ending
  * this worker, and the page never freezes.
  *

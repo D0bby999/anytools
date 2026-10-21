@@ -6,8 +6,7 @@ import { Button } from "~/components/ui/button";
 
 /**
  * clip-player.tsx
- * Plays one transcript line for a listening card (plans/261020-1155-open-
- * source-adds, phase 1): a YouTube video in the nocookie embed, cut to the
+ * Plays one transcript line for a listening card (the private design notes, phase 1): a YouTube video in the nocookie embed, cut to the
  * line by start= and end=; an uploaded recording from 'self', seeked to the
  * line and paused at its end. A second press plays the line again.
  *

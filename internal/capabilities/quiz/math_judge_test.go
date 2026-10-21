@@ -13,7 +13,7 @@ import (
 )
 
 // math_judge_test.go: a maths answer is marked by value in Go, with no model
-// call (plans/261020-1535-beyond-english-learning-areas, phase 2).
+// call (the private design notes, phase 2).
 
 func mathQuestion(user uuid.UUID, prompt, answer string) Question {
 	return Question{ID: uuid.New(), UserID: user, Type: TypeShort, Prompt: prompt, Answer: answer}

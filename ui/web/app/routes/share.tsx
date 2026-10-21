@@ -1,6 +1,6 @@
 /**
  * share.tsx
- * Share to AnyLearn (plans/261020-1155-open-source-adds, phase 4). On Android
+ * Share to AnyLearn (the private design notes, phase 4). On Android
  * the installed app is a share target (manifest.webmanifest's share_target):
  * Share → AnyLearn from YouTube, a browser or a podcast app opens this page
  * with the shared title, text and url. It finds the link, offers the

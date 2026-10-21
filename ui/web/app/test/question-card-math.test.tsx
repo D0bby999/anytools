@@ -1,7 +1,6 @@
 /**
  * question-card-math.test.tsx
- * A maths answer on the shared question card (plans/261020-1535-beyond-
- * english-learning-areas, phase 2; ux/02-maths.md): a math field with its
+ * A maths answer on the shared question card (the private design notes, phase 2; ux/02-maths.md): a math field with its
  * hint, the flag that asks to be told about an unreadable answer, the
  * "couldn't read" alert with "Send as text", and the three outcomes worded
  * apart. MathLive does not load under jsdom: the plain box it starts as is

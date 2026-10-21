@@ -12,7 +12,7 @@ import (
 	"github.com/D0bby999/anytools/internal/learning"
 )
 
-// import.go is an Anki deck brought in (plans/261020-1155-open-source-adds,
+// import.go is an Anki deck brought in (the private design notes,
 // phase 3). The browser reads the .apkg and maps its fields; this receives
 // words in batches. Each becomes a word to learn, marked as imported, with a
 // fresh schedule: Anki's history is not carried over.

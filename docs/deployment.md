@@ -202,6 +202,8 @@ With `ANYTOOLS_R2_ACCOUNT_ID`, `ANYTOOLS_R2_BUCKET`, `ANYTOOLS_R2_ACCESS_KEY_ID`
 
 ## Cloudflare in front of anytools.world
 
+**Only through Cloudflare.** The HTTPS router carries `anytools-via-cloudflare`, a Traefik `ipallowlist` of Cloudflare's published ranges (cloudflare.com/ips-v4 and /ips-v6) plus loopback and the private ranges the host's own checks come from. A request straight to the origin's address gets 403, so the address, which was once in the public repository and is in another site's DNS on the same box, does not get around Cloudflare. Checked 2026-10-21: through Cloudflare 200, on the host 200, direct from outside 403. When Cloudflare adds a range, add it there; a self-hosted copy not behind Cloudflare removes the middleware.
+
 The web server sends `Cache-Control: private, no-cache` on every page and every `*.data` response (`applyCachePolicy` in `ui/web/app/lib/security-headers.server.ts`). Hashed files under `/assets/` are `immutable` for a year.
 
 **No cache rule may override it.** Until 2026-10-20 the zone had a "cache everything" rule left from the old Next.js site: it stored every 200 for about two hours whatever its headers, keyed on the URL alone, and stripped `Set-Cookie` from what it stored. Its only bypass was the old site's `better-auth.session_token` cookie. So cached pages named scripts a deploy had removed (tools dead until the copy expired), and a 200 rendered for one session came back as a `HIT` for another session and for an anonymous visitor. Headers from the origin could not stop it (49e32eb tried a `Set-Cookie` on every signed-in response, and was reverted). The owner deleted the rule on 2026-10-20; pages and data are now `DYNAMIC`, and `/assets/` still `HIT`.

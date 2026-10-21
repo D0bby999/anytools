@@ -1,7 +1,6 @@
 /**
  * code-exercise.tsx
- * A code question, answered in place (plans/261020-1535-beyond-english-
- * learning-areas, phase 4; ux/04-code.md): the instructions, the tests'
+ * A code question, answered in place (the private design notes, phase 4; ux/04-code.md): the instructions, the tests'
  * names, an editor with the starting code, "Run the tests" in Python in the
  * browser (lib/python-runner.ts), and the results test by test.
  *

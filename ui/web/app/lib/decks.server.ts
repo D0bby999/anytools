@@ -1,7 +1,6 @@
 /**
  * decks.server.ts
- * The general decks' API module (plans/261020-1535-beyond-english-learning-
- * areas, phase 5). Server-side only; every call is scoped by the user id.
+ * The general decks' API module (the private design notes, phase 5). Server-side only; every call is scoped by the user id.
  */
 import type { CardImage } from "~/lib/vocab-types";
 import { apiFetch } from "~/lib/api.server";

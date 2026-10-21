@@ -8,8 +8,7 @@ import (
 	"github.com/D0bby999/anytools/internal/vocab"
 )
 
-// vocab_write_test.go is the writing card (plans/261020-1535-beyond-english-
-// learning-areas, phase 3) over the real VocabStore: a Chinese or Japanese
+// vocab_write_test.go is the writing card (the private design notes, phase 3) over the real VocabStore: a Chinese or Japanese
 // word being learned gets it on request, it shows the sentence with the word
 // blanked, and turning it off suspends it without losing its schedule.
 

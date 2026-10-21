@@ -1,6 +1,6 @@
 package worksheet
 
-// Phase 2 of plans/261017-1828-up-f13ff2d-upgrade: up's consistency plan, one
+// Phase 2 of the private design notes: up's consistency plan, one
 // action experiment with an end date (structure only; wording written fresh).
 //
 //   - docs/en/templates/consistency-plan.md, "Copyable Template": its heading

@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -48,6 +49,9 @@ func gitOut(t *testing.T, dir string, args ...string) string {
 	return strings.TrimSpace(string(out))
 }
 
+// A plan's folder name, cited with or without plans/ (a private plan).
+var planName = regexp.MustCompile(`\b2[5-9][01]\d{3}-\d{4}-[a-z]|plans/\d{6}-`)
+
 func TestPublicExportIsOneCleanCommit(t *testing.T) {
 	needExportTools(t)
 	script, err := filepath.Abs("../../scripts/export-public.sh")
@@ -83,8 +87,14 @@ func TestPublicExportIsOneCleanCommit(t *testing.T) {
 				t.Errorf("the export holds %s", f)
 			}
 		}
-		if b, err := os.ReadFile(filepath.Join(dest, f)); err == nil && strings.Contains(string(b), homePath) {
-			t.Errorf("%s holds a home path", f)
+		if b, err := os.ReadFile(filepath.Join(dest, f)); err == nil {
+			if strings.Contains(string(b), homePath) {
+				t.Errorf("%s holds a home path", f)
+			}
+			// plans/ is private, and so are the plans' names.
+			if planName.Match(b) {
+				t.Errorf("%s names a plan: %s", f, planName.Find(b))
+			}
 		}
 	}
 	for _, want := range []string{"LICENSE", "README.md", "THIRD-PARTY-NOTICES.md", "CONTRIBUTING.md", "SECURITY.md", "go.mod", "ui/web/package.json"} {

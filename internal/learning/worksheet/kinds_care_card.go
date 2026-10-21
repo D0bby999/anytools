@@ -3,7 +3,7 @@ package worksheet
 // up: docs/en/templates/life-practice-toolkit.md at f13ff2d, §5 "Care and
 // Shared Responsibility Card" (structure only; wording written fresh), with
 // its chapter docs/en/threads/part-2/care-and-carry-on.md.
-// plans/261017-1828-up-f13ff2d-upgrade, phase 1.
+// the private design notes, phase 1.
 //
 // One practical task shared with someone the learner cares for: what that
 // person says they need, what each side can really carry, the next step both

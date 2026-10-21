@@ -114,7 +114,7 @@ export function drawSelection(userId: string, workspaceId: string, selection: st
 export const MAX_SPEAKING_REQUEST = 4 * 1024 * 1024 + 64 * 1024;
 
 /**
- * The read-aloud check (plans/261020-1155-open-source-adds, phase 2): one
+ * The read-aloud check (the private design notes, phase 2): one
  * take and the passage it reads, forwarded as a multipart form, as
  * uploadRecording does. The API checks the passage against the stored page;
  * its answer, or its translated error, comes back as it is.

@@ -15,7 +15,7 @@ package providers
 //     refresh, like Kimi's) so several accounts behind one host are not linked.
 //   - third-party tool names cloaked, else a misleading 400.
 // Everything runs server-side (token exchange, refresh, serve) — api.anthropic.com
-// does not IP-block datacenters. See plans/journals/2026-08-30 + scratchpad notes.
+// does not IP-block datacenters. See the private design notes + scratchpad notes.
 
 import (
 	"crypto/sha256"

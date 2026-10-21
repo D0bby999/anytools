@@ -181,7 +181,7 @@ func TestTheDiagnosticCarriesItsHelp(t *testing.T) {
 	}
 }
 
-// Version 2 (plans/261017-1828-up-f13ff2d-upgrade, phase 0): up's §2A sits
+// Version 2 (the private design notes, phase 0): up's §2A sits
 // right after §2. Its three rows' sample text is read-only, like §2's; the
 // evidence column is the learner's and validates like every written cell.
 func TestTheCollaborationDimensionsFollowUp2A(t *testing.T) {

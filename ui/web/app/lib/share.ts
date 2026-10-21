@@ -1,6 +1,6 @@
 /**
  * share.ts
- * The link in a share (plans/261020-1155-open-source-adds, phase 4). Android
+ * The link in a share (the private design notes, phase 4). Android
  * hands the installed app what was shared as `title`, `text` and `url`; most
  * apps put the link in `url`, YouTube and many others in `text`, after a
  * sentence. Only http and https links are taken: AnyLearn adds web pages,

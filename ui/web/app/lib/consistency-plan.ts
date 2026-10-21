@@ -1,7 +1,6 @@
 /**
  * consistency-plan.ts
- * The consistency plan's start from a learning state (plans/261017-1828-up-
- * f13ff2d-upgrade, phase 2): "Three versions" may open with the state's
+ * The consistency plan's start from a learning state (the private design notes, phase 2): "Three versions" may open with the state's
  * minimum version of its next task in the Minimum row and the next task in
  * the Standard row. The new-worksheet page shows both and the learner
  * confirms; the plan is new, so nothing is overwritten. Only these two

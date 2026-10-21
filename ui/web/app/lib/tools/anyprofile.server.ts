@@ -3,7 +3,7 @@
  * The newest AnyProfile release, for the download buttons on /{locale}/anyprofile.
  *
  * AnyProfile's release workflow publishes `latest.json` beside the installers
- * (its plan 261016-1546-updater-and-anytools-release; the same file its
+ * (its plan a private plan; the same file its
  * in-app updater reads): a version, a date and, per platform, the asset's URL
  * and SHA-256. The page reads it so a button names the build it downloads and
  * its checksum.

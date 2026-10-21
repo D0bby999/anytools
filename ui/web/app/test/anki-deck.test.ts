@@ -1,6 +1,6 @@
 /**
  * anki-deck.test.ts
- * Anki decks in and out (plans/261020-1155-open-source-adds, phase 3): an
+ * Anki decks in and out (the private design notes, phase 3): an
  * .apkg written by anki/write.ts reads back the same words through
  * anki/read.ts; a new-format deck (zstd-compressed collection.anki21b, with
  * the legacy "please update" stub beside it) is read from its newest

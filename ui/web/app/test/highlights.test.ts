@@ -1,6 +1,6 @@
 /**
  * highlights.test.ts
- * Kindle and KOReader highlights (plans/261020-1155-open-source-adds, phase
+ * Kindle and KOReader highlights (the private design notes, phase
  * 5): My Clippings.txt in the Kindle's own words (English, Spanish,
  * Portuguese), bookmarks dropped, notes on their highlights, an edited
  * highlight kept once, BOM and CRLF, an unknown kind kept; KOReader's JSON;

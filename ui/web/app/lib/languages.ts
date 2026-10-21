@@ -1,7 +1,6 @@
 /**
  * languages.ts
- * The languages a learner can study (plans/261020-1535-beyond-english-
- * learning-areas, phase 1): their names, where to look a word up, and what a
+ * The languages a learner can study (the private design notes, phase 1): their names, where to look a word up, and what a
  * word's reading is called. Names come from the browser's own data
  * (Intl.DisplayNames), so no list of names is kept here; a code is what the
  * server stores (vocab.ValidLang).

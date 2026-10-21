@@ -1,6 +1,6 @@
 /**
  * anki-import.test.tsx
- * Mastery → Vocabulary → Anki decks (plans/261020-1155-open-source-adds,
+ * Mastery → Vocabulary → Anki decks (the private design notes,
  * phase 3): a deck is read in the browser, each note type's fields are
  * mapped, the first words are shown, and the words go to the server in
  * batches; the outcome says how many were imported, over which days, and how

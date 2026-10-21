@@ -8,8 +8,7 @@ import (
 	"strings"
 )
 
-// Quantities: a number and a unit (an extension of plans/261020-1535-
-// beyond-english-learning-areas, phase 2). They are compared in SI units, so
+// Quantities: a number and a unit (an extension of the private design notes, phase 2). They are compared in SI units, so
 // 5 m is 500 cm and 60 km/h is 16.67 m/s. An equal value in another unit is
 // right, unless the question names the recorded unit ("convert 5 m to cm"):
 // then it is almost (AlmostUnit). The right number with no unit is almost

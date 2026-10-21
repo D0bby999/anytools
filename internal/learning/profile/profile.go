@@ -1,4 +1,4 @@
-// Package profile is the learner profile (plans/260926-2301-learning-depth,
+// Package profile is the learner profile (the private design notes,
 // phase 9): what the learner studies, where they struggle, how they like to be
 // taught and what constrains them, as short entries they can see, edit and
 // delete.

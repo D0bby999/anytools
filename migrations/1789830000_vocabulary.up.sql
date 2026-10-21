@@ -1,4 +1,4 @@
--- Vocabulary notes and their cards (plans/260926-2301-learning-depth, phase 7).
+-- Vocabulary notes and their cards (the private design notes, phase 7).
 --
 -- The Anki shape: one NOTE per term and language holds the fields, and it owns
 -- CARDS, each with its own FSRS schedule. Two card kinds exist today —

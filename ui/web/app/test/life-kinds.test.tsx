@@ -45,7 +45,7 @@ const LIFE: WorksheetKind[] = [
     section("return", "Gates before going back to work"),
   ]),
   lifeKind("life_weekly_review", "Weekly five questions", [section("questions", "This week")]),
-  // The care card up added at f13ff2d (plans/261017-1828-up-f13ff2d-upgrade, phase 1).
+  // The care card up added at f13ff2d (the private design notes, phase 1).
   lifeKind("life_care_card", "Care and shared responsibility card", [
     section("person", "The person or the task"),
     section("carry", "What each of us carries"),

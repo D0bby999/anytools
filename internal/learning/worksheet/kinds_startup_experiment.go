@@ -1,6 +1,6 @@
 package worksheet
 
-// Phase 2 of plans/261017-1828-up-f13ff2d-upgrade: up's startup experiment
+// Phase 2 of the private design notes: up's startup experiment
 // card, one business assumption tested within an effort limit (structure
 // only; wording written fresh).
 //

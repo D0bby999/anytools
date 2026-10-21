@@ -6,8 +6,7 @@ import (
 	"testing"
 )
 
-// An Anki deck's batch through the real mux (plans/261020-1155-open-source-
-// adds, phase 3): the words are saved as imported words to learn, a second
+// An Anki deck's batch through the real mux (the private design notes, phase 3): the words are saved as imported words to learn, a second
 // batch of the same words is all duplicates, and a batch over the limit is
 // refused whole.
 func TestAnAnkiDeckBatchImportsThroughTheAPI(t *testing.T) {

@@ -6,8 +6,7 @@ import (
 	"strings"
 )
 
-// Answers written in brackets (an extension of plans/261020-1535-beyond-
-// english-learning-areas, phase 2): intervals and their unions, inequalities
+// Answers written in brackets (an extension of the private design notes, phase 2): intervals and their unions, inequalities
 // in one variable (read as intervals), sets, tuples, vectors and matrices.
 // Each is compared part by part, every part by value.
 //

@@ -1,5 +1,5 @@
 -- 1790095000_storage_choice — where a learner's own files are kept
--- (plans/261017-1828-drive-user-storage, phase 2).
+-- (the private design notes, phase 2).
 --
 --  1. users.file_storage — 'server' or 'drive'. Drive storage is opt-in
 --     (owner decision 2): connecting Drive never changes it; only the

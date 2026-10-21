@@ -2,7 +2,7 @@ package worksheet
 
 // up: docs/en/threads/part-2/narrative-and-evidence.md §6, "One-page Case
 // Review" (structure only; wording written fresh). Phase 8 of
-// plans/260930-0915-up-methods.
+// the private design notes
 //
 // §6 tells the reader to copy the AI case review template
 // (docs/en/templates/ai-case-review.md), add two gates, "Narrative boundary"

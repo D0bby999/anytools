@@ -14,8 +14,7 @@ import (
 
 // code_test.go: a code exercise is marked from its tests' results, shows its
 // starting code and tests but not its solution before the attempt, and the
-// Python starter set is added once (plans/261020-1535-beyond-english-
-// learning-areas, phase 4).
+// Python starter set is added once (the private design notes, phase 4).
 
 const leapTests = `import unittest
 

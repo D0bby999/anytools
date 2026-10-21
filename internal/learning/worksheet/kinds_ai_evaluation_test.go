@@ -7,7 +7,7 @@ import (
 	"github.com/D0bby999/anytools/internal/learning"
 )
 
-// The AI evaluation (phase 2 of 261017-1828-up-f13ff2d-upgrade): each
+// The AI evaluation (phase 2 of a private plan): each
 // version's rates are counted from its case rows with failures and timeouts
 // among the attempts, and a stored rate that disagrees is refused when the
 // results are written — not when a later case makes it out of date.

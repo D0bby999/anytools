@@ -1,7 +1,7 @@
 /**
  * doc-patterns.test.tsx
  * The pattern library every page is assembled from while the app takes
- * byoungd/up's shape (plan 261020-2246-anylearn-up-shell, phase 07,
+ * byoungd/up's shape (plan a private plan, phase 07,
  * reports/feature-ui-spec.md tables P and I). One test per pattern for what a
  * screen reader and a keyboard meet: roles, names, `aria-*`, and the three
  * behaviours with rules of their own — the choice rows' keys (I1), copying a

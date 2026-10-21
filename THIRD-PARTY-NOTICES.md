@@ -2762,7 +2762,7 @@ so the notices, are the same.
 
 ## Stroke data: Make Me A Hanzi and animCJK
 
-AnyLearn's writing card (plans/261020-1535-beyond-english-learning-areas, phase 3) checks each
+AnyLearn's writing card (the private design notes, phase 3) checks each
 stroke a learner draws against stroke outlines and median lines from two open data sets, which
 this site **redistributes**: they are staged by `ui/web/scripts/tool-runtime.json` and served one
 character at a time by `/strokes/<zh|ja>/<character>` (`ui/web/app/lib/strokes.server.ts`).
@@ -2784,7 +2784,7 @@ is [hanzi-writer](https://github.com/chanind/hanzi-writer) (MIT), listed above.
 
 ## Ultimate Geography (text, flags and maps)
 
-The deck library (plans/261020-1535-beyond-english-learning-areas, phase 5) ships
+The deck library (the private design notes, phase 5) ships
 [Ultimate Geography](https://github.com/anki-geo/ultimate-geography) v5.3 in English, Spanish and
 Portuguese: country → capital and capital → country cards, and flag and map cards, written into
 `ui/web/app/data/decks/ultimate-geography-*.json` by `ui/web/scripts/decks/ultimate-geography.mjs`
@@ -2804,7 +2804,7 @@ notes. A picture `sources.csv` does not list is left out.
 
 ## Pyodide (Python in the browser)
 
-Code exercises (plans/261020-1535-beyond-english-learning-areas, phase 4) run the learner's Python in
+Code exercises (the private design notes, phase 4) run the learner's Python in
 the browser with [Pyodide](https://github.com/pyodide/pyodide) 314.0.7, which this site
 **redistributes**: `pyodide.mjs`, `pyodide.asm.mjs`, `pyodide.asm.wasm`, `python_stdlib.zip` and
 `pyodide-lock.json` are copied unmodified from the npm package by `ui/web/scripts/tool-runtime.json`

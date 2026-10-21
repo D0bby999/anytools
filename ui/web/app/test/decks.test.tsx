@@ -1,6 +1,6 @@
 /**
  * decks.test.tsx
- * General decks on the page (plans/261020-1535-beyond-english-learning-areas,
+ * General decks on the page (the private design notes,
  * phase 5; ux/05-decks.md): a CrowdAnki deck is read from its deck.json,
  * sub-decks too, without its media; notes map to fronts and backs; the
  * bundled decks are whole and within the API's limits; the library says each

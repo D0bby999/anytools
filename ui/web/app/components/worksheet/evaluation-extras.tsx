@@ -1,7 +1,6 @@
 /**
  * evaluation-extras.tsx
- * What an AI evaluation's results show beyond the served kind (plans/261017-
- * 1828-up-f13ff2d-upgrade, phase 2): beside each version's stored rates, the
+ * What an AI evaluation's results show beyond the served kind (the private design notes, phase 2): beside each version's stored rates, the
  * rates its case rows give right now, counted as the learner edits the rows
  * (lib/ai-evaluation.ts). The API refuses results whose rates disagree with
  * the rows; a case added after the results were saved is not refused, so the

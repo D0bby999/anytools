@@ -1,6 +1,6 @@
 /**
  * import-highlights.test.tsx
- * Knowledge → Add → Highlights (plans/261020-1155-open-source-adds, phase 5):
+ * Knowledge → Add → Highlights (the private design notes, phase 5):
  * the books found in a file, a book already here unticked, and the ticked
  * books sent through the page's own upload as one Markdown file each.
  */

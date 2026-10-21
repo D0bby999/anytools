@@ -17,7 +17,7 @@ export type VocabSource = { document_id: string; title: string; page?: number };
 
 /**
  * production and listen exist only when the learner asked for them
- * (up-methods phase 3; plans/261020-1155-open-source-adds, phase 1).
+ * (up-methods phase 3; the private design notes, phase 1).
  */
 export type CardKind = "recognition" | "cloze" | "production" | "listen" | "write";
 

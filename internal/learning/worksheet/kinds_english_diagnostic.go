@@ -13,7 +13,7 @@ package worksheet
 // added. Section numbers here are up's; the harness counts §2A as its third
 // section, so deviations.txt names up's §3 and §4 as §4 and §5.
 //
-// Version 2 (plans/261017-1828-up-f13ff2d-upgrade, phase 0) adds §2A. A
+// Version 2 (the private design notes, phase 0) adds §2A. A
 // version 1 worksheet keeps every answer where it was; its §2A is empty.
 var englishDiagnostic = Kind{
 	Kind: "english_diagnostic", Name: "Language diagnostic", Group: GroupLanguage, Version: 2,

@@ -1,5 +1,5 @@
 // Package vocab is the learner's vocabulary: words saved while reading, kept
-// as notes that each own two spaced cards (plans/260926-2301-learning-depth,
+// as notes that each own two spaced cards (the private design notes,
 // phase 7).
 //
 // The shape is Anki's (external findings §6). A NOTE is one term in one

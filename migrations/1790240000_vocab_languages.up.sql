@@ -1,4 +1,4 @@
--- The languages a learner studies (plans/261020-1535-beyond-english-learning-areas,
+-- The languages a learner studies (the private design notes,
 -- phase 1). The Languages page shows one tab per studied language, in the
 -- learner's order, and opens on the one viewed last. Words keep their own
 -- language (vocab_notes.lang); this list only says which tabs to show, so

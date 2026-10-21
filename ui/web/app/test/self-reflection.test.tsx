@@ -1,6 +1,6 @@
 /**
  * self-reflection.test.tsx
- * The self-reflection cards of up's part 6 (plans/261017-1828-up-f13ff2d-upgrade,
+ * The self-reflection cards of up's part 6 (the private design notes,
  * phase 3): one private life worksheet whose notice carries the first
  * chapter's safety line, and whose cards each open with the chapter they
  * come from. A worksheet with one card written shows that card's words and

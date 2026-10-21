@@ -2,7 +2,7 @@ package vocab
 
 // decisions.go is up's "five decisions about an unknown word"
 // (docs/en/threads/part-1/2-vocabulary.md §3; structure only, wording written
-// fresh) and the production card (§6 and §8), plans/260930-0915-up-methods
+// fresh) and the production card (§6 and §8), the private design notes
 // phase 3.
 //
 // Not every unknown word deserves review. Each saved term carries one of five

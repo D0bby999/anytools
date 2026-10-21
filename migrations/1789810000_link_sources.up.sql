@@ -1,5 +1,5 @@
 -- 1789810000_link_sources — web pages and YouTube videos as knowledge-base
--- documents (plans/260926-2301-learning-depth, phase 4).
+-- documents (the private design notes, phase 4).
 --
 -- Back up the database before running this: it replaces a uniqueness
 -- constraint on documents, and the down migration refuses to run while link

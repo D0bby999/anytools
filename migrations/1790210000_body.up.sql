@@ -1,5 +1,5 @@
 -- 1790210000_body — Body: a training log beside the learning
--- (plans/261019-1810-body-fitness).
+-- (the private design notes).
 --
 -- Behaviour after openGym, rewritten (internal/body). Every weight is in the
 -- learner's unit (body_profiles.unit); switching the unit converts every row

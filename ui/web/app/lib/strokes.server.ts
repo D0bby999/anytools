@@ -1,7 +1,7 @@
 /**
  * strokes.server.ts
  * The stroke data of one character, for the writing card
- * (plans/261020-1535-beyond-english-learning-areas, phase 3), in
+ * (the private design notes, phase 3), in
  * hanzi-writer's shape: each stroke's outline and its median line, in the
  * Make Me A Hanzi frame (1024 wide, y up, baseline at 900).
  *

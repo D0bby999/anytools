@@ -110,7 +110,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     listPractice(user.id).then((q) => q.remaining).catch((): number => 0),
     // Worksheet reviews due on the learner's local day (up methods, phase 0).
     dueWorksheets(user.id).then(dueCounts).catch((): DueCounts => ({ count: 0, private: 0 })),
-      // A general deck's cards due today (plans/261020-1535-beyond-english-learning-areas, phase 5).
+      // A general deck's cards due today (the private design notes, phase 5).
     dueCards(user.id, 0, "cards").then((d) => d.due_count).catch((): number => 0),
 ]);
   // Which of the three first steps are already done, so the card can tick

@@ -116,7 +116,7 @@ func TestVocabularyDecisionsEndToEnd(t *testing.T) {
 		t.Fatalf("production off = %v", off)
 	}
 
-	// The listening card (plans/261020-1155-open-source-adds, phase 1): refused
+	// The listening card (the private design notes, phase 1): refused
 	// for a word from a PDF; once the document is a timed video, the note
 	// carries the line and its card plays it.
 	if got := e.status(http.MethodPatch, "/v1/vocab/"+id, map[string]any{"listening": true}); got != http.StatusBadRequest {

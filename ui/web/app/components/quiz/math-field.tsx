@@ -1,7 +1,7 @@
 /**
  * math-field.tsx
  * The answer box of a question whose answer is maths
- * (plans/261020-1535-beyond-english-learning-areas, phase 2; ux/02-maths.md).
+ * (the private design notes, phase 2; ux/02-maths.md).
  *
  * It starts as a plain text box, which works before any script and if
  * MathLive cannot load, and becomes a MathLive field once the library has

@@ -51,7 +51,7 @@ export default [
       // second route, so citations written today keep resolving.
       route("knowledge", "routes/knowledge.index.tsx"),
       route("knowledge/:kbId", "routes/knowledge.$kbId.tsx"),
-      // plans/261020-1155-open-source-adds, phase 4: Share to AnyLearn (the manifest's share_target).
+      // the private design notes, phase 4: Share to AnyLearn (the manifest's share_target).
       route("share", "routes/share.tsx"),
       route("documents/:docId", "routes/documents.$docId.tsx"),
       // Up-methods phase 17: a podcast feed or YouTube playlist to pick from.
@@ -69,7 +69,7 @@ export default [
       route("mastery/vocabulary", "routes/mastery.vocabulary.tsx"),
       // Learning depth, phase 11: the living books' flash cards.
       route("mastery/book-cards", "routes/mastery.book-cards.tsx"),
-      // General decks (plans/261020-1535-beyond-english-learning-areas, phase 5).
+      // General decks (the private design notes, phase 5).
       route("mastery/decks", "routes/mastery.decks.tsx"),
       // up-methods phase 12: one review across every path, interleaved.
       route("mastery/review", "routes/mastery.review.tsx"),
@@ -101,12 +101,12 @@ export default [
       route("toolkit/new", "routes/toolkit.new.tsx"),
       route("toolkit/:id", "routes/toolkit.$id.tsx"),
       // Languages: each studied language's practice, gathered by skill
-      // (plans/261020-1535-beyond-english-learning-areas, phase 1). The old
+      // (the private design notes, phase 1). The old
       // English page answers with English's tab.
       route("languages", "routes/languages.tsx"),
       route("languages/:lang", "routes/languages.$lang.tsx"),
       route("english", "routes/english.tsx"),
-      // Body: the training log beside the studying (plans/261019-1810-body-fitness).
+      // Body: the training log beside the studying (the private design notes).
       // One rail row; its sections are tabs (components/body/body-tabs.tsx).
       route("body", "routes/body.tsx"),
       route("body/plan", "routes/body.plan.tsx"),
@@ -135,7 +135,7 @@ export default [
     // upload streamed to the API rather than buffered here. Each handler
     // calls requireUser.
     route("documents/:docId/media", "routes/documents.$docId.media.ts"),
-    // plans/261020-1155-open-source-adds, phase 2: the read-aloud check.
+    // the private design notes, phase 2: the read-aloud check.
     route("documents/:docId/speaking-check", "routes/documents.$docId.speaking-check.ts"),
     // phase 3: an Anki deck's words in (POST) and out (GET).
     route("mastery/vocabulary/anki", "routes/mastery.vocabulary.anki.ts"),

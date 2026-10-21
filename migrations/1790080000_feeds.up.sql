@@ -1,5 +1,5 @@
 -- 1790080000_feeds — podcast feeds and YouTube playlists and channels as
--- knowledge-base sources (plans/260930-0915-up-methods, phase 17).
+-- knowledge-base sources (the private design notes, phase 17).
 --
 -- Back up the database before running this: it replaces a CHECK constraint
 -- on search_connections.

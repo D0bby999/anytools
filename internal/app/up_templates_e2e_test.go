@@ -1,6 +1,6 @@
 package app
 
-// up_templates_e2e_test.go — phase 2 of plans/261017-1828-up-f13ff2d-upgrade
+// up_templates_e2e_test.go — phase 2 of the private design notes
 // over HTTP: up's four templates new at f13ff2d are served as project kinds,
 // each goes on a goal's evidence chain; an AI evaluation's stored pass rate
 // that disagrees with its case rows is 400 (a timeout counts among the

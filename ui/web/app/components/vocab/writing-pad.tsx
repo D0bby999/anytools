@@ -1,6 +1,6 @@
 /**
  * writing-pad.tsx
- * The writing card's pad (plans/261020-1535-beyond-english-learning-areas,
+ * The writing card's pad (the private design notes,
  * phase 3; ux/03-writing.md): the word is drawn one character at a time,
  * each stroke checked as it is drawn by hanzi-writer (MIT, a lazy chunk),
  * from stroke data served by /strokes/<zh|ja>/<character>.

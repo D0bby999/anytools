@@ -56,13 +56,13 @@ var planKinds = map[string]struct {
 	"life_weekly_review": {"life", true},
 	// Cycle close (phase 10).
 	"cycle_close": {"projects", false},
-	// The care card up added at f13ff2d (plans/261017-1828-up-f13ff2d-upgrade,
+	// The care card up added at f13ff2d (the private design notes,
 	// phase 1).
 	"life_care_card": {"life", true},
 	// The self-reflection cards of up's part 6
-	// (plans/261017-1828-up-f13ff2d-upgrade, phase 3).
+	// (the private design notes, phase 3).
 	"self_reflection": {"life", true},
-	// The four templates new at f13ff2d (plans/261017-1828-up-f13ff2d-upgrade,
+	// The four templates new at f13ff2d (the private design notes,
 	// phase 2).
 	"consistency_plan":   {"projects", false},
 	"ai_evaluation":      {"projects", false},
@@ -78,7 +78,7 @@ var datedKinds = map[string]bool{
 }
 
 func TestWorksheetKindsAreThePlansInventory(t *testing.T) {
-	// 21 kinds from up-methods, plus the six of plans/261017-1828-up-f13ff2d-upgrade.
+	// 21 kinds from up-methods, plus the six of the private design notes
 	if len(planKinds) != 27 {
 		t.Fatalf("the plan's inventory has %d kinds, want 27", len(planKinds))
 	}

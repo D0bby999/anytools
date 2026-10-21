@@ -1,4 +1,4 @@
--- The writing card (plans/261020-1535-beyond-english-learning-areas, phase 3):
+-- The writing card (the private design notes, phase 3):
 -- a Chinese or Japanese word being learned is drawn stroke by stroke from its
 -- meaning and reading, each stroke checked as it is drawn.
 ALTER TABLE vocab_cards DROP CONSTRAINT vocab_cards_kind_check;

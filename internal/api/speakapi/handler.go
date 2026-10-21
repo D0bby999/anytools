@@ -1,5 +1,4 @@
-// Package speakapi is the read-aloud check's HTTP surface (plans/261020-1155-
-// open-source-adds, phase 2): one multipart POST with the passage and the
+// Package speakapi is the read-aloud check's HTTP surface (the private design notes, phase 2): one multipart POST with the passage and the
 // take, answered with the word-by-word comparison. Nothing is stored.
 package speakapi
 

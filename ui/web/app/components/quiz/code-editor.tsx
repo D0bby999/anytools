@@ -1,7 +1,6 @@
 /**
  * code-editor.tsx
- * The code exercise's editor (plans/261020-1535-beyond-english-learning-
- * areas, phase 4): CodeMirror 6 (MIT) with Python, loaded on the first code
+ * The code exercise's editor (the private design notes, phase 4): CodeMirror 6 (MIT) with Python, loaded on the first code
  * question, in the app's mono face and its ink and paper in both themes.
  * Until it loads, and if it cannot, a plain textarea holds the code.
  *

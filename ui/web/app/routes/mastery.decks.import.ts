@@ -1,7 +1,7 @@
 /**
  * mastery.decks.import.ts
  * Resource route (action only): a deck read in the browser, sent as cards in
- * batches (plans/261020-1535-beyond-english-learning-areas, phase 5). The
+ * batches (the private design notes, phase 5). The
  * first batch creates the deck; each answers with the deck's id and what it
  * added. Its own requireUser: a resource route is not under app-layout's guard.
  *

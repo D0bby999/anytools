@@ -1,7 +1,7 @@
 /**
  * python-worker-lockdown.test.ts
  * The Python worker cuts itself off before an exercise runs (plans/
- * 261020-1535-beyond-english-learning-areas, phase 4): an exercise written
+ * a private plan, phase 4): an exercise written
  * from an untrusted document must not reach the app's routes with the
  * learner's session, nor the offline cache. The cut covers the global and
  * every prototype behind it, as fetch and the storage getters live there too.

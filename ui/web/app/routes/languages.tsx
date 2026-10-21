@@ -2,7 +2,7 @@ import { RefTable } from "~/components/doc/ref-table";
 import { Details } from "~/components/doc/details";
 /**
  * languages.tsx
- * Languages (plans/261020-1535-beyond-english-learning-areas, phase 1): the
+ * Languages (the private design notes, phase 1): the
  * picker. A learner with languages already lands on the one viewed last
  * (routes/languages.$lang.tsx); `?edit` opens the picker to change the list.
  * Saving keeps the learner's order, adds what was ticked after it, and opens

@@ -22,8 +22,7 @@ import (
 	"github.com/D0bby999/anytools/internal/store/pg"
 )
 
-// wire_speak.go assembles the read-aloud check (plans/261020-1155-open-
-// source-adds, phase 2): the passage is checked against the stored page as a
+// wire_speak.go assembles the read-aloud check (the private design notes, phase 2): the passage is checked against the stored page as a
 // vocabulary selection is, and the take is heard on the learner's own stt
 // route, or by the server's built-in engine on their daily allowance.
 

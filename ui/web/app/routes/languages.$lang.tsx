@@ -3,7 +3,7 @@ import { RefTable } from "~/components/doc/ref-table";
 import { SECTION_TABS_ROW, sectionTabClass } from "~/components/ui/section-tabs";
 /**
  * languages.$lang.tsx
- * One language's practice (plans/261020-1535-beyond-english-learning-areas,
+ * One language's practice (the private design notes,
  * phase 1; ux/01-languages.md). It adds no practice of its own: the tabs of
  * the languages studied, this language's words due and the review that opens
  * them, then the diagnostic and each skill's worksheets from the Toolkit,

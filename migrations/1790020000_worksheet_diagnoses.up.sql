@@ -1,5 +1,5 @@
 -- 1790020000_worksheet_diagnoses — the writing evidence card's per-pass
--- diagnoses (plans/260930-0915-up-methods, phase 4). A model diagnoses one
+-- diagnoses (the private design notes, phase 4). A model diagnoses one
 -- of up's five revision passes on the learner's unaided draft; it never
 -- rewrites it.
 --

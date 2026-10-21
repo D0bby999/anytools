@@ -1,7 +1,7 @@
 package worksheet
 
 // up: docs/en/templates/writing-evidence.md, §1–§11 (structure only; wording
-// written fresh). Phase 4 of plans/260930-0915-up-methods.
+// written fresh). Phase 4 of the private design notes
 //
 // One difference from up, listed in testdata/deviations.txt: §2 holds the
 // unaided draft itself, not only where it is kept, so the per-pass diagnosis

@@ -2,7 +2,7 @@ package vocab
 
 import "github.com/google/uuid"
 
-// KindListen is the listening card (plans/261020-1155-open-source-adds,
+// KindListen is the listening card (the private design notes,
 // phase 1): the line of a video or a recording a word was saved from is
 // played, and the learner types the word they hear. Like production it is not
 // in CardKinds(); only "Practise hearing it" creates it.

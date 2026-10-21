@@ -11,7 +11,7 @@ import (
 )
 
 // lifeKinds are phase 9's five kinds and the care card up added at f13ff2d
-// (plans/261017-1828-up-f13ff2d-upgrade, phase 1).
+// (the private design notes, phase 1).
 var lifeKinds = []string{"choice_brief", "attention_audit", "relationship_card", "recovery_reset", "life_weekly_review",
 	"life_care_card"}
 
@@ -147,7 +147,7 @@ func TestALifeExportSaysItIsPrivate(t *testing.T) {
 
 // At f13ff2d up inserted the care card as §5, so the weekly review is §6.
 // Only the section it follows moved: a weekly review exports the headings
-// and lines it did before (plans/261017-1828-up-f13ff2d-upgrade, phase 0).
+// and lines it did before (the private design notes, phase 0).
 func TestTheWeeklyReviewExportsAsBefore(t *testing.T) {
 	k, _ := Lookup("life_weekly_review")
 	if k.Version != 1 {
@@ -178,7 +178,7 @@ func TestTheWeeklyReviewExportsAsBefore(t *testing.T) {
 
 // The care card follows up's §5 block in its four groups, with the review
 // date last; its one review is the date the learner writes, and only that
-// (plans/261017-1828-up-f13ff2d-upgrade, phase 1).
+// (the private design notes, phase 1).
 func TestTheCareCardFollowsUpsFourGroups(t *testing.T) {
 	k, ok := Lookup("life_care_card")
 	if !ok {

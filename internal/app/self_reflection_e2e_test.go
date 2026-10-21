@@ -1,6 +1,6 @@
 package app
 
-// self_reflection_e2e_test.go — plans/261017-1828-up-f13ff2d-upgrade, phase
+// self_reflection_e2e_test.go — the private design notes, phase
 // 3, over HTTP: the self-reflection cards are one private kind. A worksheet
 // with one card written saves and exports; the thirty-day experiment's retest
 // date puts it on Home's due list on that day, as "Private note" only; and it

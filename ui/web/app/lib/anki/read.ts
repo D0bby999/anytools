@@ -1,8 +1,7 @@
 /**
  * anki/read.ts
- * Reads an Anki deck in the browser (plans/261020-1155-open-source-adds,
- * phase 3; CrowdAnki and lazy reading: plans/261020-1535-beyond-english-
- * learning-areas, phase 5), so the server needs no SQLite and no zstd.
+ * Reads an Anki deck in the browser (the private design notes,
+ * phase 3; CrowdAnki and lazy reading: the private design notes, phase 5), so the server needs no SQLite and no zstd.
  * Written from the documented formats; no Anki code is used.
  *
  * Two kinds of file, both zips:

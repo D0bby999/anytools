@@ -1,4 +1,4 @@
--- Living books (plans/260926-2301-learning-depth, phase 11): a knowledge base
+-- Living books (the private design notes, phase 11): a knowledge base
 -- turned into a book the learner confirms outline-first, then reads chapter by
 -- chapter as typed blocks written from their own material.
 --

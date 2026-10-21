@@ -1,4 +1,4 @@
-// Package worksheetapi is up's worksheets over HTTP (plans/260930-0915-up-methods,
+// Package worksheetapi is up's worksheets over HTTP (the private design notes,
 // phase 0): the kinds, a learner's worksheets, section-by-section writes, row
 // appends, the due reviews and the Markdown export.
 //

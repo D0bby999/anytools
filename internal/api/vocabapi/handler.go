@@ -40,12 +40,12 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/vocab/cards/{id}/review", h.review) // budget: none
 	// up-methods phase 3: "Practise using it", the production card.
 	mux.HandleFunc("POST /v1/vocab/{id}/production", h.production) // budget: none
-	// plans/261020-1155-open-source-adds, phase 3: an Anki deck's words, in batches.
+	// the private design notes, phase 3: an Anki deck's words, in batches.
 	mux.HandleFunc("POST /v1/vocab/import", h.importDeck) // budget: upload
-	// plans/261020-1535-beyond-english-learning-areas, phase 1: the Languages tabs.
+	// the private design notes, phase 1: the Languages tabs.
 	mux.HandleFunc("GET /v1/vocab/languages", h.languages)
 	mux.HandleFunc("PUT /v1/vocab/languages", h.setLanguages) // budget: none
-	// plans/261020-1535-beyond-english-learning-areas, phase 5: general decks.
+	// the private design notes, phase 5: general decks.
 	h.registerDecks(mux)
 }
 
@@ -189,9 +189,9 @@ type patchRequest struct {
 	Scenario   *string           `json:"scenario"`
 	Confusable *string           `json:"confusable"`
 	Production *bool             `json:"production"`
-	// The listening card (plans/261020-1155-open-source-adds, phase 1).
+	// The listening card (the private design notes, phase 1).
 	Listening *bool `json:"listening"`
-	// The writing card (plans/261020-1535-beyond-english-learning-areas, phase 3).
+	// The writing card (the private design notes, phase 3).
 	Writing *bool `json:"writing"`
 }
 

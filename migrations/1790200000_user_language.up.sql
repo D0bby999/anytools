@@ -1,5 +1,5 @@
 -- 1790200000_user_language — the language AnyLearn speaks to a learner
--- (plans/261019-1317-anytools-professional, phase 2).
+-- (the private design notes, phase 2).
 --
 -- users.language is one of the four the site is written in. language_set_at
 -- is NULL until the learner's first sign-in reported a language (the site's

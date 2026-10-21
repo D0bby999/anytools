@@ -1,5 +1,5 @@
 -- 1790010000_worksheet_recordings — the learner's own voice on a worksheet
--- (plans/260930-0915-up-methods, phase 7): the raw recordings up's speaking
+-- (the private design notes, phase 7): the raw recordings up's speaking
 -- evidence card keeps — baselines, shadowing levels, delayed retests.
 --
 -- The audio is a blob.ObjectStore object in namespace `recordings`, keyed by

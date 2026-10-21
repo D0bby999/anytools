@@ -54,6 +54,20 @@ while IFS= read -r line; do
   rm -rf "${dest:?}/${path%/}"
 done <"$exclude_file"
 
+# plans/ stays private, and so do the plans' names: comments that cite a plan
+# ("the private design notes, phase 7", "phase 2 of 261017-1828-…")
+# name the private design notes instead. A name broken across a comment's
+# lines is taken whole. Only text files; the private tree is unchanged.
+plan_re='plans/(?:\d{6}-(?:[\w.-]|(?<=-)\n[ \t]*(?://|#|\*|--)?[ \t]*)*(?:/[\w./-]*)?|(?:reports|journals)/[\w.-]+)'
+slug_re='\b2[5-9][01]\d{3}-\d{4}-[a-z][a-z0-9-]*'
+plan_files=$(cd "$dest" && grep -rlIE --exclude-dir=.git 'plans/[0-9]{6}-|plans/(reports|journals)/|\b2[5-9][01][0-9]{3}-[0-9]{4}-[a-z]' . || true)
+if [[ -n "$plan_files" ]]; then
+  (cd "$dest" && tr '\n' '\0' <<<"$plan_files" | xargs -0 perl -0pi -e "s{$plan_re}{the private design notes}g; s{$slug_re}{a private plan}g")
+fi
+echo "files citing a plan by name, masked: $(printf '%s' "$plan_files" | grep -c . || true)"
+left=$(cd "$dest" && grep -rlIE --exclude-dir=.git 'plans/[0-9]{6}-|\b2[5-9][01][0-9]{3}-[0-9]{4}-[a-z]' . || true)
+[[ -z "$left" ]] || { sed 's/^/  /' <<<"$left" >&2; die "refusing: a plan's name is still in the tree; no commit was made"; }
+
 # ---- checks ---------------------------------------------------------------
 # Binary files too: a PDF's metadata can carry the path it was made from.
 # Spelled in two pieces, so this script is not a hit itself.

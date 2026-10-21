@@ -1,4 +1,4 @@
--- Skill evidence cards (plans/260926-2301-learning-depth, phase 8).
+-- Skill evidence cards (the private design notes, phase 8).
 --
 -- A card is a guided view over one evidence chain: the learner names a real
 -- situation, keeps an unaided first attempt, practises, and retests after a

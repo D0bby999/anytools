@@ -1,7 +1,7 @@
 package worksheet
 
 // up: docs/en/templates/interview-evidence.md, §1–§11 (structure only;
-// wording written fresh). Phase 8 of plans/260930-0915-up-methods.
+// wording written fresh). Phase 8 of the private design notes
 //
 // The retests count from §3's baseline date: the day-seven retest and the
 // day-fourteen transfer, at +7 and +14, and §9's rows for them open on those

@@ -1,4 +1,4 @@
--- 1789945000_worksheets — up's worksheets (plans/260930-0915-up-methods,
+-- 1789945000_worksheets — up's worksheets (the private design notes,
 -- phase 0): a page of headed sections of fields and tables, whose kind is Go
 -- data (internal/learning/worksheet). The engine validates every answer
 -- against its kind before it is stored; the database holds the shape.

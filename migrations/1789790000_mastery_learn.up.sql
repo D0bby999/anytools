@@ -1,4 +1,4 @@
--- Mastery: learn, then explain it back (plans/260926-2301-learning-depth,
+-- Mastery: learn, then explain it back (the private design notes,
 -- phase 2). A session teaches a knowledge point from the learner's own
 -- documents before testing it, and concept and design points need a passed
 -- explain-back (the Feynman check) before their module graduates.

@@ -15,7 +15,7 @@ import (
 )
 
 // vocab_decisions_test.go is up's five decisions about an unknown word and
-// the production card (plans/260930-0915-up-methods, phase 3) over the real
+// the production card (the private design notes, phase 3) over the real
 // VocabStore: only a word to learn has cards in review (AC5), a decision
 // changes by PATCH and never by a second save, and moving between decisions
 // suspends and resumes the same cards.

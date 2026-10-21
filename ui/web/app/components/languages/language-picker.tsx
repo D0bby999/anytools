@@ -1,7 +1,6 @@
 /**
  * language-picker.tsx
- * "Which languages are you learning?" (plans/261020-1535-beyond-english-
- * learning-areas, ux/01-languages.md): the languages of the learner's saved
+ * "Which languages are you learning?" (the private design notes, ux/01-languages.md): the languages of the learner's saved
  * words first, ticked on a first visit; then the often learned; then a search
  * over every language the browser can name. Real checkboxes, one fieldset a
  * group, posted as `lang` values to routes/languages.tsx.

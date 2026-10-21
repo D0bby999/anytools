@@ -39,7 +39,7 @@ export function newRequestID(): string {
  *   learner's own situation and the meaning, with a blank to type the
  *   expression; marked like a cloze. The back adds the reading, the part of
  *   speech, the confusable expression and the sentence it was met in.
- * - Listen (only when asked for; plans/261020-1155-open-source-adds, phase 1):
+ * - Listen (only when asked for; the private design notes, phase 1):
  *   the transcript line the word was saved from is played, and the learner
  *   types the word heard; marked like a cloze. The line, blanked, is behind
  *   "Show the line". A card whose video is gone shows the blanked line, and

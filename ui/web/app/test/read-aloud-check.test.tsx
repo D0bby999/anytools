@@ -1,6 +1,6 @@
 /**
  * read-aloud-check.test.tsx
- * The read-aloud check (plans/261020-1155-open-source-adds, phase 2): which
+ * The read-aloud check (the private design notes, phase 2): which
  * selections it is offered for, and the outcome said in words as well as
  * colour — words not heard, heard differently, added — with the engine that
  * heard it and what it heard.

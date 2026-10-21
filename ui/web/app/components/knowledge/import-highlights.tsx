@@ -6,8 +6,7 @@ import { bookFileName, bookMarkdown, parseHighlights, type Book } from "~/lib/hi
 
 /**
  * import-highlights.tsx
- * Knowledge → a knowledge base → Add → Highlights (plans/261020-1155-open-
- * source-adds, phase 5): a Kindle's My Clippings.txt or a KOReader JSON
+ * Knowledge → a knowledge base → Add → Highlights (the private design notes, phase 5): a Kindle's My Clippings.txt or a KOReader JSON
  * export, read here; the learner ticks the books to add, and each becomes a
  * Markdown document through the page's own upload, one file per book.
  *

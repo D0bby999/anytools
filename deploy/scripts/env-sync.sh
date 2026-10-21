@@ -2,7 +2,8 @@
 # env-sync.sh pull|push [HOST] — anytools.world's .env, kept locally as
 # .env.production (gitignored, mode 600), the way postclaw keeps its own.
 #
-#   pull  copies the host's /opt/anytools/.env to .env.production.
+#   pull  copies the host's /opt/anytools/.env to .env.production, keeping
+#         a local copy that differed as .env.production.bak.
 #   push  sends .env.production back and restarts the stack with it: the
 #         host's .env is backed up first, ANYTOOLS_IMAGE_TAG keeps the host's
 #         value (each deploy writes it there, so a local copy is stale), and
@@ -30,6 +31,11 @@ case $cmd in
 pull)
   umask 077
   ssh_ cat /opt/anytools/.env > "$file.tmp"
+  # Edits not pushed yet would be lost: keep the previous copy.
+  if [[ -f $file ]] && ! cmp -s "$file" "$file.tmp"; then
+    cp -p "$file" "$file.bak"
+    echo "env-sync: the previous .env.production differed; kept as .env.production.bak"
+  fi
   mv "$file.tmp" "$file"
   chmod 600 "$file"
   echo "env-sync: pulled $(grep -cE '^[A-Z0-9_]+=' "$file") values to .env.production"

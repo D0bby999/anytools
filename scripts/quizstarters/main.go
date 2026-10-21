@@ -1,5 +1,5 @@
 // Command quizstarters writes the Python starter set AnyLearn's quiz offers
-// (plans/261020-1535-beyond-english-learning-areas, phase 4) from a checkout
+// (the private design notes, phase 4) from a checkout
 // of Exercism's Python track (MIT): each exercise's instructions, stub, tests
 // and example solution, unchanged, into
 // internal/capabilities/quiz/starters/python.json.

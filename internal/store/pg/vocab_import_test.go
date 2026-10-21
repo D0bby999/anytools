@@ -10,8 +10,7 @@ import (
 	"github.com/D0bby999/anytools/internal/vocab"
 )
 
-// vocab_import_test.go is an Anki deck's words (plans/261020-1155-open-source-
-// adds, phase 3) over the real VocabStore: each becomes a word to learn,
+// vocab_import_test.go is an Anki deck's words (the private design notes, phase 3) over the real VocabStore: each becomes a word to learn,
 // marked as imported, with a cloze card only when its sentence holds it;
 // duplicates and empty words are counted, not saved; and the words come up
 // twenty a day from the learner's tomorrow, the next batch carrying on where

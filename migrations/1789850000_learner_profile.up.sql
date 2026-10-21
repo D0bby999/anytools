@@ -1,4 +1,4 @@
--- The learner profile (plans/260926-2301-learning-depth, phase 9): what the
+-- The learner profile (the private design notes, phase 9): what the
 -- learner studies, where they struggle and how they like to be taught, as
 -- short entries they can see, edit and delete.
 --

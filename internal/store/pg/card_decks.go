@@ -1,7 +1,7 @@
 package pg
 
 // card_decks.go stores the learner's general decks and their cards
-// (plans/261020-1535-beyond-english-learning-areas, phase 5).
+// (the private design notes, phase 5).
 
 import (
 	"context"

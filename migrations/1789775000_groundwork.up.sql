@@ -1,4 +1,4 @@
--- Groundwork shared by the learning-depth phases (plans/260926-2301-learning-depth,
+-- Groundwork shared by the learning-depth phases (the private design notes,
 -- phase 0). Everything more than one later phase needs lands here once, so no
 -- two parallel branches rewrite the same CHECK.
 

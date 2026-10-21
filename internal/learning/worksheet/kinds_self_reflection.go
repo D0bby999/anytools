@@ -1,7 +1,7 @@
 package worksheet
 
 // up: docs/en/threads/part-6/, chapters 1–5 at f13ff2d (structure only;
-// wording written fresh). plans/261017-1828-up-f13ff2d-upgrade, phase 3.
+// wording written fresh). the private design notes, phase 3.
 //
 // up's part 6 is about the learner's relationship with themselves. Its five
 // chapters leave eleven short copyable cards, each a code block of a few

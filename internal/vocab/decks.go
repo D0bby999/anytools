@@ -1,7 +1,6 @@
 package vocab
 
-// decks.go is the learner's general decks (plans/261020-1535-beyond-english-
-// learning-areas, phase 5; owner decision 5): a deck that is not vocabulary,
+// decks.go is the learner's general decks (the private design notes, phase 5; owner decision 5): a deck that is not vocabulary,
 // from the library or an Anki file. Its cards are a front and a back with no
 // note (KindCard), reviewed in their own queue (DeckCards) and counted with
 // the rest in Home's total and the reminder. Like an imported vocabulary deck

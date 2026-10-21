@@ -1,5 +1,4 @@
-// Package speakcheck is the read-aloud check (plans/261020-1155-open-source-
-// adds, phase 2): the learner selects a passage while reading, records
+// Package speakcheck is the read-aloud check (the private design notes, phase 2): the learner selects a passage while reading, records
 // themselves reading it aloud, and sees which words a speech engine did not
 // get. The idea is gemini-teacher's and ai-pronunciation-trainer's; nothing of
 // their code is used.
