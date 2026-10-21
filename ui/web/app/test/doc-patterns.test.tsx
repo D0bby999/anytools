@@ -80,7 +80,6 @@ describe("I3 · quick-start", () => {
   it("has a heading, one primary and at most two secondary actions, and marks done steps in words", () => {
     inRouter(
       <QuickStart
-        kicker="Next step"
         title="Review your cards"
         description="Twelve are due."
         primary={{ label: "Review 12 due cards", to: "/vocab/review" }}
@@ -102,6 +101,9 @@ describe("I3 · quick-start", () => {
     const steps = within(region).getByRole("list", { name: "Finish setting up" });
     expect(within(steps).getAllByRole("listitem")[0]).toHaveTextContent("Add a document (done)");
     expect(within(region).getByText("Read · Ask · Practise · Reflect")).toBeInTheDocument();
+    // No label above the title (design-world refuse list, owner 2026-10-21).
+    expect(region.querySelector(".lp-kicker")).toBeNull();
+    expect(region.firstElementChild?.firstElementChild?.tagName).toBe("H2");
   });
 });
 

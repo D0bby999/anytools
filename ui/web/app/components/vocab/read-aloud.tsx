@@ -174,7 +174,7 @@ export function ReadAloudBar({ text, lang: givenLang, onClose }: { text: string;
                     if (e.target.value) play(e.target.value, rate);
                   }}
                 >
-                  {noVoice ? <option value="">—</option> : null}
+                  {noVoice ? <option value="">–</option> : null}
                   {[...own, ...others].map((v) => (
                     <option key={v.voiceURI} value={v.voiceURI}>
                       {label(v)}

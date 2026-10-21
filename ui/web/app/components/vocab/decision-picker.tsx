@@ -90,7 +90,7 @@ export function DecisionFields({
                 {t(`decide.fields.${f}`)}
                 <select name={`record_${f}`} required defaultValue={own(decision)[f] ?? ""} className={field}>
                   <option value="" disabled>
-                    —
+                    –
                   </option>
                   {CONFIDENCES.map((c) => (
                     <option key={c} value={c}>

@@ -78,7 +78,6 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
 
       {focus ? (
         <QuickStart
-          kicker={t("home.current")}
           title={focus.goal}
           description={`${t("state.nextTask")}: ${focus.next_task || t("state.empty")}`}
           primary={{ label: t("up.loop.doMinimum"), to: `/loop/state/${focus.id}#lp-state-minimum` }}
@@ -88,7 +87,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
       ) : null}
 
       <div className="lp-doc">
-        <NumberedSection n={1} title={t("up.loop.states")} id="lp-loop-goals">
+        <NumberedSection title={t("up.loop.states")} id="lp-loop-goals">
           {states.length === 0 ? (
             <p className="text-muted-foreground">{t("up.loop.noStates")}</p>
           ) : (
@@ -99,7 +98,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
                 const current = s.id === focus?.id && cycle;
                 return [
                   s.goal,
-                  current ? t("up.loop.week", { week: cycle.current_week }) : "—",
+                  current ? t("up.loop.week", { week: cycle.current_week }) : "–",
                   current ? (
                     <Badge key="gate" type={cycle.gate.open ? "tip" : "info"}>
                       {phases[cycle.phase]} · {cycle.gate.open ? t("up.gate.open") : t("up.gate.shut")}
@@ -107,7 +106,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
                   ) : s.phase ? (
                     <Badge key="gate">{phases[s.phase]}</Badge>
                   ) : (
-                    "—"
+                    "–"
                   ),
                   <Link key="open" to={`/loop/state/${s.id}`} aria-label={`${t("up.loop.open")}: ${s.goal}`}>
                     {t("up.loop.open")}
@@ -119,7 +118,7 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
         </NumberedSection>
 
         {cycle ? (
-          <NumberedSection n={2} title={t("home.thisWeek")} id="lp-loop-week">
+          <NumberedSection title={t("home.thisWeek")} id="lp-loop-week">
             <WeekCard cycleId={cycle.id} week={cycle.current_week} review={thisWeek} cannotProve={t("week.cannotProve")} />
             <h3>{t("home.cycle")}</h3>
             <p>
@@ -129,12 +128,12 @@ export default function LoopIndex({ loaderData, actionData }: Route.ComponentPro
           </NumberedSection>
         ) : null}
 
-        <NumberedSection n={cycle ? 3 : 2} title={t("cards.retests.title")} id="lp-loop-retests">
+        <NumberedSection title={t("cards.retests.title")} id="lp-loop-retests">
           <RetestsDueList retests={retests} kinds={kinds} />
         </NumberedSection>
 
         {detail ? (
-          <NumberedSection n={cycle ? 4 : 3} title={t("cards.title")} id="lp-loop-cards">
+          <NumberedSection title={t("cards.title")} id="lp-loop-cards">
             <CardList cards={detail.cards} kinds={kinds} diagnostic={loaderData.diagnostic} />
             <p>
               <Link to={`/loop/state/${detail.state.id}`}>{t("cards.new")}</Link>

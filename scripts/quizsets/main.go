@@ -257,11 +257,14 @@ func arc(path string) set {
 		ID: setARC, Name: "ARC (AI2 Reasoning Challenge)", Licence: "cc-by-sa", Source: "https://allenai.org/data/arc",
 		Credit: "Question from the AI2 Reasoning Challenge (ARC), Allen Institute for AI, CC BY-SA 4.0.",
 	}
+	// One prompt once in the whole set: a knowledge base skips a question it
+	// has by its prompt, so a Challenge question worded as an Easy one would
+	// never be added.
+	seen := map[string]bool{}
 	for _, level := range []struct{ cfg, id, name, difficulty string }{
 		{"ARC-Easy", "easy", "Easy", "easy"}, {"ARC-Challenge", "challenge", "Challenge", "hard"},
 	} {
 		var qs []question
-		seen := map[string]bool{}
 		for _, r := range raw.Rows[level.cfg] {
 			prompt := strings.TrimSpace(r.Question)
 			if seen[prompt] {

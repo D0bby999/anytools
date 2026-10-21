@@ -111,7 +111,7 @@ function PaperRow({ paper: p, kbId }: { paper: Paper; kbId: string }) {
           {t("related.open")}
         </a>
       </th>
-      <td className="whitespace-nowrap text-muted-foreground">{p.year || "—"}</td>
+      <td className="whitespace-nowrap text-muted-foreground">{p.year || "–"}</td>
       <td className="whitespace-nowrap text-muted-foreground">{t("related.cited", { count: p.citations })}</td>
       <td>
         {added ? (

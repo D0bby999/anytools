@@ -6,12 +6,11 @@ export type QuickStartStep = { label: ReactNode; done?: boolean; to?: string };
 
 /**
  * Quick-start (I3): the page's main action, as up's `.quick-start` on its home
- * page. A mono kicker and a heading, a one-line description, one primary
- * action and at most two secondary ones, then a line of small print (the
+ * page. A heading, a one-line description, one primary action and at most
+ * two secondary ones, then a line of small print (the
  * cycle) and, for a first visit, the steps still to do.
  */
 export function QuickStart({
-  kicker,
   title,
   description,
   primary,
@@ -21,7 +20,6 @@ export function QuickStart({
   stepsLabel,
   doneLabel,
 }: {
-  kicker: ReactNode;
   title: ReactNode;
   description?: ReactNode;
   primary?: QuickStartAction;
@@ -36,7 +34,6 @@ export function QuickStart({
   return (
     <section className="lp-quick-start" aria-labelledby={id}>
       <div className="lp-quick-start-heading">
-        <span className="lp-kicker">{kicker}</span>
         <h2 id={id}>{title}</h2>
         {description ? <p>{description}</p> : null}
       </div>

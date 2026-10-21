@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 // fake answers as the three services did when read on 2026-10-21.
@@ -27,20 +28,24 @@ func fake(t *testing.T, calls *atomic.Int32) *httptest.Server {
 		  "translations":[{"text":"Hãy xem kỹ.","lang":"vie","license":"CC BY 2.0 FR","owner":"a","is_direct":false},
 		                  {"text":"Hãy nhìn thật kỹ.","lang":"vie","license":"CC BY 2.0 FR","owner":"dotheduyet1999","is_direct":true}]},
 		 {"id":2,"text":"Unchecked carefully.","license":"CC BY 2.0 FR","owner":"x","is_unapproved":true,"translations":[]},
-		 {"id":3,"text":"No licence carefully.","license":"","owner":"x","translations":[]}]}`)
+		 {"id":3,"text":"No licence carefully.","license":"","owner":"x","translations":[]},
+		 {"id":4,"text":"Another form: careful.","license":"CC BY 2.0 FR","owner":"x","translations":[]},
+		 {"id":5,"text":"Uncarefully inside a word.","license":"CC BY 2.0 FR","owner":"x","translations":[]}]}`)
 	})
 	mux.HandleFunc("/w/api.php", func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
 		io.WriteString(w, `{"query":{"pages":[
 		 {"title":"File:LL-Q1860 (eng)-Vealhurl-carefully.wav","imageinfo":[{"extmetadata":{"LicenseShortName":{"value":"CC BY-SA 4.0"}}}]},
 		 {"title":"File:LL-Q1860 (eng)-Someone-carefully done.wav","imageinfo":[{"extmetadata":{"LicenseShortName":{"value":"CC BY-SA 4.0"}}}]},
+		 {"title":"File:LL-Q1860 (eng)-Jean-Pierre-carefully.wav","imageinfo":[{"extmetadata":{"LicenseShortName":{"value":"CC0"}}}]},
 		 {"title":"File:LL-Q1860 (eng)-Nolicence-carefully.wav","imageinfo":[{"extmetadata":{}}]}]}}`)
 	})
 	mux.HandleFunc("/api/v2/entries/en/carefully", func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
 		io.WriteString(w, `[{"phonetics":[
 		 {"audio":"https://api.dictionaryapi.dev/media/pronunciations/en/carefully-us.mp3","sourceUrl":"https://commons.wikimedia.org/w/index.php?curid=1","license":{"name":"BY-SA 3.0"}},
-		 {"audio":"https://evil.example/x.mp3","license":{"name":"BY-SA 3.0"}}]}]`)
+		 {"audio":"https://evil.example/x.mp3","license":{"name":"BY-SA 3.0"}},
+		 {"audio":"https://api.dictionaryapi.dev/media/pronunciations/en/carefully-uk.mp3","sourceUrl":"javascript:alert(1)","license":{"name":"BY-SA 3.0"}}]}]`)
 	})
 	// MediaWiki's path for "LL-Q1860_(eng)-Vealhurl-carefully.wav".
 	mux.HandleFunc("/wikipedia/commons/", func(w http.ResponseWriter, r *http.Request) {
@@ -90,8 +95,10 @@ func TestRecordingsAreTheWordItselfWithALicence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(got) != 2 || got[0].ID != "commons:LL-Q1860 (eng)-Vealhurl-carefully.wav" || got[0].Speaker != "Vealhurl" ||
-		got[1].ID != "dictapi:media/pronunciations/en/carefully-us.mp3" || got[1].Licence != "BY-SA 3.0" {
+	if len(got) != 4 || got[0].ID != "commons:LL-Q1860 (eng)-Vealhurl-carefully.wav" || got[0].Speaker != "Vealhurl" ||
+		got[1].Speaker != "Jean-Pierre" ||
+		got[2].ID != "dictapi:media/pronunciations/en/carefully-us.mp3" || got[2].Licence != "BY-SA 3.0" || got[2].Page == "" ||
+		got[3].Page != "" {
 		t.Fatalf("recordings = %+v", got)
 	}
 }
@@ -109,7 +116,7 @@ func TestAudioIsSentOnOnlyForARecordingsID(t *testing.T) {
 	if string(b) != "RIFF" || ct != "audio/wav" {
 		t.Fatalf("audio %q, %s", b, ct)
 	}
-	for _, id := range []string{"", "commons:Some photo.jpg", "commons:../../etc/passwd", "dictapi:../secret.mp3", "dictapi:media/pronunciations/en/a b.mp3", "https://evil.example/x.mp3"} {
+	for _, id := range []string{"", "commons:Some photo.jpg", "commons:../../etc/passwd", "commons:LL-Q1 (eng)-a/../b.wav", "dictapi:../secret.mp3", "dictapi:media/pronunciations/en/a b.mp3", "https://evil.example/x.mp3"} {
 		if _, _, err := c.Audio(context.Background(), id); !errors.Is(err, ErrNotARecording) {
 			t.Errorf("%q: %v", id, err)
 		}
@@ -129,5 +136,37 @@ func TestACommonsFileIsAskedForWhereMediaWikiKeepsIt(t *testing.T) {
 	got := New().uploadURL("LL-Q1860 (eng)-Ajshul-carefully.wav")
 	if got != "https://upload.wikimedia.org/wikipedia/commons/8/84/LL-Q1860_%28eng%29-Ajshul-carefully.wav" {
 		t.Fatal(got)
+	}
+}
+
+func TestOneLookupAtATimePerWord(t *testing.T) {
+	var calls atomic.Int32
+	release := make(chan struct{})
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		<-release
+		io.WriteString(w, `{"data":[]}`)
+	}))
+	defer srv.Close()
+	c := client(srv)
+	done := make(chan error, 3)
+	for range 3 {
+		go func() {
+			_, err := c.Sentences(context.Background(), "en", "carefully", "vi")
+			done <- err
+		}()
+	}
+	for calls.Load() == 0 {
+		time.Sleep(time.Millisecond)
+	}
+	time.Sleep(20 * time.Millisecond)
+	close(release)
+	for range 3 {
+		if err := <-done; err != nil {
+			t.Fatal(err)
+		}
+	}
+	if calls.Load() != 1 {
+		t.Fatalf("%d calls for one word", calls.Load())
 	}
 }

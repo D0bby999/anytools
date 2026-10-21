@@ -110,3 +110,25 @@ func with(in speakcheck.Input, f func(*speakcheck.Input)) speakcheck.Input {
 	f(&in)
 	return in
 }
+
+// Dictation (plan 261021-1100 phase 2): the same take, heard the same way,
+// with no passage to compare against.
+func TestDictateHearsATakeWithoutAPassage(t *testing.T) {
+	tmp := t.TempDir()
+	owner, ws := uuid.New(), uuid.New()
+	ears := &fakeEars{text: "  What is ATP?  "}
+	svc := speakcheck.New(fakePages{owner, ws}, fakeAudio{4}, ears, tmp)
+	got, err := svc.Dictate(context.Background(), owner, webm, "vi")
+	if err != nil || got.Text != "What is ATP?" || ears.gotLang != "vi" {
+		t.Fatalf("Dictate = %+v, %v (lang %q)", got, err, ears.gotLang)
+	}
+	if _, err := svc.Dictate(context.Background(), owner, nil, ""); !errors.Is(err, speakcheck.ErrInvalid) {
+		t.Fatalf("an empty take: %v", err)
+	}
+	if _, err := svc.Dictate(context.Background(), owner, []byte("not audio"), ""); !errors.Is(err, speakcheck.ErrUnreadable) {
+		t.Fatalf("a take that is not audio: %v", err)
+	}
+	if _, err := speakcheck.New(fakePages{owner, ws}, fakeAudio{40}, ears, tmp).Dictate(context.Background(), owner, webm, ""); !errors.Is(err, speakcheck.ErrInvalid) {
+		t.Fatalf("a take over 30 s: %v", err)
+	}
+}

@@ -8,6 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/D0bby999/anytools/internal/runtime"
 )
 
 // ErrNotAnAnswer is returned when a rating names a message that is not one of
@@ -116,6 +118,32 @@ func (s *ChatStore) RunningSessions(ctx context.Context, userID uuid.UUID) (map[
 			return nil, fmt.Errorf("scan running session: %w", err)
 		}
 		out[id] = true
+	}
+	return out, rows.Err()
+}
+
+// DocumentsInKBs returns the learner's documents among ids that sit in one of
+// kbIDs, with their titles, in the order asked. A document of another user,
+// or outside those knowledge bases, is simply absent.
+func (s *ChatStore) DocumentsInKBs(ctx context.Context, userID uuid.UUID, kbIDs, ids []uuid.UUID) ([]runtime.DocumentRef, error) {
+	if len(ids) == 0 || len(kbIDs) == 0 {
+		return nil, nil
+	}
+	rows, err := s.pool.Query(ctx, `
+		SELECT id, title FROM documents
+		 WHERE user_id = $1 AND kb_id = ANY($2) AND id = ANY($3)
+		 ORDER BY array_position($3, id)`, userID, kbIDs, ids)
+	if err != nil {
+		return nil, fmt.Errorf("referenced documents: %w", err)
+	}
+	defer rows.Close()
+	out := []runtime.DocumentRef{}
+	for rows.Next() {
+		var r runtime.DocumentRef
+		if err := rows.Scan(&r.ID, &r.Title); err != nil {
+			return nil, fmt.Errorf("scan referenced document: %w", err)
+		}
+		out = append(out, r)
 	}
 	return out, rows.Err()
 }

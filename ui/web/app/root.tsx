@@ -5,7 +5,7 @@ import { I18nextProvider } from "react-i18next";
 
 import type { Route } from "./+types/root";
 import { initI18n, isLoaded, isSupportedLng, loadLanguage, type SupportedLng } from "~/lib/i18n";
-import { NotFound } from "~/components/doc/not-found";
+import { NotFound, ServerError } from "~/components/doc/not-found";
 // The textbook world's three faces (ui/web/DESIGN.md): Literata titles and
 // reads, Be Vietnam Pro operates, Plex Mono carries code and data. Only the
 // weights the world paints. Self-hosted rather than from Google Fonts: its
@@ -159,13 +159,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     );
   }
 
-  let title = "Something went wrong";
-  let detail = "An unexpected error occurred.";
+  let status: number | undefined;
+  let detail: string | undefined;
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    title = `Error ${error.status}`;
-    detail = error.statusText || detail;
+    status = error.status;
+    detail = error.statusText || undefined;
   } else if (import.meta.env.DEV && error instanceof Error) {
     // Stacks are shown in development only: a production stack trace tells an
     // attacker the file layout and dependency versions of the server.
@@ -174,19 +174,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-3xl leading-tight">{title}</h1>
-      <p className="mt-3 text-lg text-muted-foreground">{detail}</p>
-      <p className="mt-6">
-        <a href="/" className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4">
-          AnyTools
-        </a>
-      </p>
-      {stack && (
-        <pre className="mt-6 w-full overflow-x-auto rounded-md bg-muted p-4 text-xs">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <I18nextProvider i18n={i18n}>
+      <ServerError status={status} detail={detail} stack={stack} />
+    </I18nextProvider>
   );
 }

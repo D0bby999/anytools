@@ -181,6 +181,24 @@ Ultimate Geography comes as three decks in each of English, Spanish and Portugue
 
 A learner has at most 100 decks and 50,000 general cards in all (`vocab.MaxDecksPerLearner`, `MaxDeckCardsPerLearner`; AnKing's medical deck, about 35,000 notes, fits). Both are counted under the user's row lock. A batch that reaches the cards' limit adds what fits and reports the rest as `over_limit`; the importers stop sending and say how many were not added.
 
+## Library
+
+Library (`/library`, under Read; the private design notes) is ready material from open sources, filtered by kind, subject and language, mostly English (owner, 2026-10-21): English material always comes first, then material in many languages, then the rest; by default the learner's interface language is shown after English and searched without accents. The catalogue is built once on the server (`ui/web/app/lib/library/catalogue.server.ts`) from bundled data in `ui/web/app/data/library/`, each file written by a pinned script under `ui/web/scripts/library/` or `scripts/`; the page gets one screen of it. Every item says its size, language, licence in words and source. One action puts it where it is used:
+
+- **Decks**: the deck library above, added to Decks.
+- **Word lists**: NGSL and NAWL (CC BY-SA 4.0), HSK 2.0 and 3.0 (meanings from CC-CEDICT, CC BY-SA), JLPT N5–N1 (Waller's lists, CC BY, with JMdict's meanings, CC BY-SA), one level (at most 1,000 words; larger ones in parts of 500) at a time into the language's words, paced 20 new a day after any import still coming up. Each word records `origin` `library:<level>` (migration 1790310000) and shows the list and its credit.
+- **Question sets**: Open Trivia DB (5,295), ARC Easy and Challenge (7,752), GSM8K (8,792 word problems, marked by value) and Exercism's Python track (120), one part (at most 100) at a time into a knowledge base's Quiz (`POST /v1/quiz/starters` with `set` and `part`; duplicates by prompt). Each explanation ends with its set's credit.
+- **Body**: the exercise library, opened in Body. free-exercise-db was tried and taken out: its photos and steps were scraped from bodybuilding.com.
+- **Courses and videos, books**: free-programming-books (CC BY 4.0) in English, Vietnamese, Spanish and Portuguese, added to a knowledge base through the link import (a YouTube playlist becomes a feed). Project Gutenberg's most read public-domain books in nine languages, added the same way from their HTML edition.
+- **Textbooks**: OpenStax's live books, opened at their page with their PDF; a whole book is past the link import's 5 MB, so the page says to download and upload it.
+- **Link only**: what AnyLearn may not copy (up's word lists and guide, MIT OpenCourseWare, Khan Academy, the THPT exam papers, non-commercial decks) opens at its source with the reason.
+
+Licences and changes are in `THIRD-PARTY-NOTICES.md`; share-alike data files keep their licence beside the MIT code.
+
+## Example sentences and recordings
+
+A saved word's "Sentences and sound" asks, from the server and only when opened, Tatoeba for sentences with the word and their translation into the learner's language, and Wikimedia Commons for Lingua Libre's recordings (for English also Wiktionary's through the Free Dictionary API). Each shows its author, licence and page. "Use this sentence" keeps it as the word's newest context, credited (`POST /v1/vocab/{id}/sentence`), and gives a word being learned its fill-in card. `internal/connectors/wordsources` caches answers a week and plays only recordings it found; Tatoeba is slow (about 30 s on 2026-10-21) and has a 45 s timeout.
+
 ## Share to AnyLearn
 
 With AnyLearn installed on an Android phone (Chrome → Install app), Share from YouTube, a browser or a podcast app lists AnyLearn. It opens a page that shows the link and the knowledge base you used last; Add puts the link there exactly as Knowledge → Add a link does, so a playlist or a podcast feed becomes a feed, and then opens that knowledge base. A share with no web link says so. iPhone and iPad cannot do this: Safari does not let web apps receive shares.
@@ -282,7 +300,7 @@ With your Zotero user id and a read-only API key (Settings → Search keys), a k
 
 Body keeps a training log in the same app, because the mind that studies lives in a body that needs moving. Its behaviour follows [openGym](https://github.com/DuarteSantos8/openGym), rewritten (openGym is AGPL-3.0; nothing of its code is reused).
 
-- **Plan.** Routines of exercises from a 1,324-exercise library (exercise names and steps in English, text only; body parts, equipment and muscles in your language), each logged as weight × reps, a timed hold, or cardio. Each weekday trains one routine or rests.
+- **Plan.** Routines of exercises from a 1,324-exercise library (exercise names and steps in English, text only; some names in Spanish and Portuguese from wger, CC BY-SA, credited, with a link to wger's page and its video; body parts, equipment and muscles in your language), each logged as weight × reps, a timed hold, or cardio. Each weekday trains one routine or rests.
 - **Workout.** Today's routine starts with every target already worked out. Ticking a set starts the rest timer, the screen stays on while the session is open, and finishing it names any new best set (a lift's first session sets its starting point and is not a record).
 - **Progression.** Worked out from the log every time, never stored. Linear adds a step when every rep of every set was done; double climbs a rep range first; a timed hold adds seconds; body-weight work adds reps. A step is 5 kg (10 lb) for legs and 2.5 kg (5 lb) for everything else. A set not ticked, or short, is a miss; three misses in a row bring the weight down about 10 %. Each target says why in a sentence.
 - **Progress.** A year heatmap of minutes trained, body weight against a goal, an estimated one-rep max per lift (Epley, not above 12 reps), and the sets each muscle group got in 7 and 30 days (a set counts once for the exercise's target muscle and half for each secondary one).

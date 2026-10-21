@@ -104,7 +104,7 @@ export default function QuizIndex({ loaderData, actionData }: Route.ComponentPro
       <PageHeader title={t("quiz.title")} lede={t("quiz.lead")} />
 
       <QuizTabs />
-      <QuickStart kicker={t("quiz.title")} title={result ? t("practise.answerQuestionsCount", { count: result.questions.length }) : t("practise.answerQuestions")} description={t("quiz.lead")} primary={{ to: result ? "#lp-quiz-set" : loaderData.kbs.length ? "#lp-quiz-generate" : "/knowledge", label: t("quiz.submit") }} />
+      <QuickStart title={result ? t("practise.answerQuestionsCount", { count: result.questions.length }) : t("practise.answerQuestions")} description={t("quiz.lead")} primary={{ to: result ? "#lp-quiz-set" : loaderData.kbs.length ? "#lp-quiz-generate" : "/knowledge", label: t("quiz.submit") }} />
 
       {loaderData.kbs.length === 0 ? (
         <section className="mt-8"><h2>{t("practise.baseline")}</h2><ol><li>{t("practise.addSource")}</li><li>{t("practise.chooseSource")}</li><li>{t("practise.checkAnswer")}</li></ol><p>

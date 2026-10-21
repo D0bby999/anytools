@@ -130,7 +130,7 @@ function WordTable({ notes, selectable }: { notes: VocabNote[]; selectable: bool
       <WordRow key={note.id} note={note} selectable={selectable} />,
       note.meaning,
       note.contexts.map((context) => context.sentence).join(" · "),
-      nextReview ? <DateText iso={nextReview} /> : "—",
+      nextReview ? <DateText iso={nextReview} /> : "–",
     ];
   });
 

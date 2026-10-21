@@ -88,10 +88,11 @@ export default function BodyToday({ loaderData }: Route.ComponentProps) {
       {/* Today: resume, start the planned routine, or rest. */}
       <section data-part="practise" aria-labelledby="lp-body-today" className="lp-quick-start">
         <div className="lp-quick-start-heading">
-          <span className="lp-kicker">{t("today.title", { day: days[o.today.weekday] })}</span>
           <h2 id="lp-body-today" className="lp-section text-xl">
             {t("up.startWorkout")}
           </h2>
+          {/* The day was a kicker above the title; it is the line under it now. */}
+          <p>{t("today.title", { day: days[o.today.weekday] })}</p>
         </div>
         {firstRun ? (
           <PlateEmpty name="part-body" className="mb-8">

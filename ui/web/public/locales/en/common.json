@@ -901,7 +901,19 @@
     "Share": "Share",
     "My files": "My files",
     "Upload": "Upload",
-    "Study links": "Study links"
+    "Study links": "Study links",
+    "Library": "Library",
+    "Decks": "Decks",
+    "Body": "Body",
+    "Training plan": "Training plan",
+    "Training progress": "Training progress",
+    "Training coach": "Training coach",
+    "Exercise library": "Exercise library",
+    "Languages": "Languages",
+    "Routine": "Routine",
+    "Workout": "Workout",
+    "Page not found": "Page not found",
+    "Something went wrong": "Something went wrong"
   },
   "readinessText": {
     "no_route": "No connection does {{function}} yet. Choose one in Settings → Routes.",
@@ -1006,5 +1018,10 @@
       "title": "Storage",
       "lead": "Where your files are kept, how much space each side holds, and moving them."
     }
+  },
+  "serverError": {
+    "title": "Something went wrong",
+    "status": "Error {{status}}",
+    "body": "This page could not load. Try again in a moment, or start again from Today."
   }
 }

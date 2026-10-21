@@ -5,10 +5,14 @@
  * carries its date and minutes as a title for pointer and screen reader.
  */
 import { RefTable } from "~/components/doc/ref-table";
+import { useOverflowTabStop } from "~/components/doc/scroll-box";
 import { useTranslation } from "react-i18next";
 
 export function Heatmap({ days, today }: { days: { day: string; minutes: number }[]; today: string }) {
   const { t } = useTranslation("body");
+  // 53 weeks are wider than a phone and than the column beside the outline:
+  // the year scrolls in its own box, a tab stop while it does.
+  const [scroller, tabIndex] = useOverflowTabStop<HTMLDivElement>();
   const byDay = new Map(days.map((d) => [d.day, d.minutes]));
   const end = new Date(`${today}T00:00:00Z`);
   // Start on the Monday 52 weeks before this week's Monday.
@@ -41,7 +45,7 @@ export function Heatmap({ days, today }: { days: { day: string; minutes: number 
   return (
     <>
       <figure data-part="practise" className="mt-3 bg-background">
-        <div className="overflow-x-auto pb-2" role="img" aria-label={t("heatmap.label", { count: trained })}>
+        <div ref={scroller} tabIndex={tabIndex} className="relative overflow-x-auto pb-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" role="img" aria-label={t("heatmap.label", { count: trained })}>
           <div className="flex gap-[3px]">
             {weeks.map((col) => (
               <div key={col[0]?.day} className="flex flex-col gap-[3px]">

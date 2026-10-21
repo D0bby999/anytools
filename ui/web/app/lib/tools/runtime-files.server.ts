@@ -45,7 +45,6 @@ const TYPES: Record<string, string> = {
   ".ttf": "font/ttf",
   ".otf": "font/otf",
   ".png": "image/png",
-  ".jpg": "image/jpeg",
   ".svg": "image/svg+xml",
   ".bcmap": "application/octet-stream",
   ".pfb": "application/octet-stream",

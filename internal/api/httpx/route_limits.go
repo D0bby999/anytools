@@ -78,6 +78,9 @@ var RouteClasses = []RouteClass{
 			// The read-aloud check: a take of up to 30 s, heard on the
 			// learner's stt route or the server's engine.
 			"POST /v1/speaking/check",
+			// Dictating a question into the chat composer: the same take,
+			// heard the same way (plan 261021-1100 phase 2).
+			"POST /v1/speaking/dictate",
 			// An Anki deck's words: up to 200 notes and their cards a call.
 			"POST /v1/vocab/import",
 			// A general deck's cards: up to 200 a call (vocab/decks.go).

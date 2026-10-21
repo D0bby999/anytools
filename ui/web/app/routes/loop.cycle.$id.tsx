@@ -147,18 +147,18 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
       <ActionError result={errorKey ? { error: t(errorKey) } : actionData} />
 
       <div className="lp-doc">
-        <NumberedSection n={1} title={t("up.cycle.commitment")} id="lp-cycle-commitment">
+        <NumberedSection title={t("up.cycle.commitment")} id="lp-cycle-commitment">
           <p>{t("up.cycle.commitmentBody")}</p>
           <p>
             <Link to={`/loop/state/${c.state_id}`}>{t("cycle.backToGoal")}</Link>
           </p>
         </NumberedSection>
 
-        <NumberedSection n={2} title={t("up.cycle.gates")} id="lp-cycle-gate">
+        <NumberedSection title={t("up.cycle.gates")} id="lp-cycle-gate">
           <GatePanel cycleId={c.id} phase={c.phase} gate={c.gate} busy={busy} />
         </NumberedSection>
 
-        <NumberedSection n={3} title={t("up.cycle.questions")} id="lp-cycle-questions">
+        <NumberedSection title={t("up.cycle.questions")} id="lp-cycle-questions">
           {c.closes.previous && weekOneIsEmpty(c.weekly_questions) ? (
             <section aria-labelledby="lp-cycle-last-close">
               <h3 id="lp-cycle-last-close">{t("cycleClose.fromLast")}</h3>
@@ -183,7 +183,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
           ))}
         </NumberedSection>
 
-        <NumberedSection n={4} title={t("up.cycle.chain")} id="lp-cycle-chain">
+        <NumberedSection title={t("up.cycle.chain")} id="lp-cycle-chain">
           {c.gate_evidence.length === 0 ? (
             <p className="text-muted-foreground">{t("up.cycle.noChain")}</p>
           ) : (
@@ -201,7 +201,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
           )}
         </NumberedSection>
 
-        <NumberedSection n={5} title={t("up.cycle.interruptions")} id="lp-cycle-int">
+        <NumberedSection title={t("up.cycle.interruptions")} id="lp-cycle-int">
           {c.interruptions.length === 0 ? (
             <p className="text-muted-foreground">{t("up.cycle.noInterruptions")}</p>
           ) : (
@@ -209,7 +209,7 @@ export default function LoopCycle({ loaderData: c, actionData }: Route.Component
           )}
         </NumberedSection>
 
-        <NumberedSection n={6} title={t("up.cycle.day90")} id="lp-cycle-90">
+        <NumberedSection title={t("up.cycle.day90")} id="lp-cycle-90">
           <h3 id="lp-cycle-close">{t("cycleClose.region")}</h3>
           <CycleCloseLink goal={c.goal} day={c.day} closeFromDay={c.close_from_day} close={c.closes.close} busy={busy} />
 

@@ -272,3 +272,14 @@ export function writable(term: string, lang: string): boolean {
   const primary = lang.split("-")[0];
   return (primary === "zh" || primary === "ja") && [...term].some(drawable);
 }
+
+/** A sentence and a recording from open sources (the private design notes, phase 6). */
+export type SourceSentence = {
+  id: number;
+  text: string;
+  licence: string;
+  author: string;
+  url: string;
+  translation?: { text: string; licence: string; author: string };
+};
+export type SourceRecording = { id: string; speaker: string; licence: string; page: string; source: string };

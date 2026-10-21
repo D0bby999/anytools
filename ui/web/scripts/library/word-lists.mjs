@@ -17,7 +17,11 @@
  *    Jonathan Waller's tanos.co.uk (CC BY: "Everything on this site (that
  *    I'm not selling), is licenced under Creative Commons BY", its Sharing
  *    and copyrights page, web.archive.org/web/2019/http://www.tanos.co.uk/
- *    jlpt/sharing/).
+ *    jlpt/sharing/). Its English meanings are taken to come from JMdict/
+ *    EDICT (CC BY-SA), so the file is labelled CC BY-SA, as HSK's is.
+ *
+ * A level of more than SPLIT words is cut into parts of PART, so one tap
+ * adds at most 25 days of new words (HSK 3.0's 7–9 is 5,606 words).
  */
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -112,6 +116,22 @@ async function readXlsx(bytes) {
 }
 
 const clean = (s) => s.replace(/\s+/g, " ").trim();
+
+const SPLIT = 1000;
+const PART = 500;
+
+/** A level of more than SPLIT words as parts of PART: "7–9 · 1–500", "7–9 · 501–1000", … */
+export function splitLevels(levels) {
+  return levels.flatMap((l) => {
+    if (l.notes.length <= SPLIT) return [l];
+    const parts = [];
+    for (let i = 0; i < l.notes.length; i += PART) {
+      const notes = l.notes.slice(i, i + PART);
+      parts.push({ id: `${l.id}-${parts.length + 1}`, name: `${l.name} · ${i + 1}–${i + notes.length}`, notes });
+    }
+    return parts;
+  });
+}
 
 /** Bands of `size` words: levels named by their ranks ("1–500"). */
 function bands(words, size, prefix) {
@@ -212,9 +232,9 @@ async function jlpt() {
       list: "jlpt",
       name: "JLPT N5–N1",
       language: "ja",
-      licence: "cc-by",
+      licence: "cc-by-sa",
       source: "https://github.com/jamsinclair/open-anki-jlpt-decks",
-      credit: "Jonathan Waller's JLPT lists (tanos.co.uk), CC BY; jamsinclair/open-anki-jlpt-decks (MIT)",
+      credit: "Jonathan Waller's JLPT lists (tanos.co.uk), CC BY; meanings from JMdict/EDICT (EDRDG), CC BY-SA; jamsinclair/open-anki-jlpt-decks (MIT)",
       levels,
     },
   ];
@@ -223,7 +243,7 @@ async function jlpt() {
 async function main() {
   mkdirSync(OUT, { recursive: true });
   const index = [];
-  for (const list of [...(await ngsl()), ...(await hsk()), ...(await jlpt())]) {
+  for (const list of [...(await ngsl()), ...(await hsk()), ...(await jlpt())].map((l) => ({ ...l, levels: splitLevels(l.levels) }))) {
     for (const level of list.levels) {
       const terms = new Set(level.notes.map((n) => n.t));
       if (terms.size !== level.notes.length) throw new Error(`${level.id}: a term twice`);

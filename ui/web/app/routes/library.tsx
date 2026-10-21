@@ -21,6 +21,7 @@ import { addWordListLevel } from "~/lib/library/word-lists.server";
 import { LIBRARY_KINDS, LIBRARY_PAGE, LIBRARY_SUBJECTS, type LibraryItem, type LibraryKind, type LibrarySubject } from "~/lib/library/types";
 import { languageName } from "~/lib/languages";
 import { NOTE_JOIN } from "~/lib/sentence";
+import { formatDate } from "~/components/ui/date-text";
 import { FIELD } from "~/components/body/fields";
 import { Details } from "~/components/doc/details";
 import { StatusLine } from "~/components/doc/status-line";
@@ -59,7 +60,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export type LibraryActionResult =
   | { id: string; deck: { name: string; created: number; duplicates: number; overLimit: number } }
   | { id: string; link: { kbId: string; kbName: string; feed: boolean } }
-  | { id: string; words: { created: number; duplicates: number; firstDay?: string; language: string } }
+  | { id: string; words: { created: number; duplicates: number; firstDay?: string; lastDay?: string; language: string } }
   | { id: string; set: { added: number; already: number; kbId: string; kbName: string } }
   | { id: string; errorKey: string; errorDetail?: string };
 
@@ -83,7 +84,7 @@ export async function action({ request }: Route.ActionArgs): Promise<LibraryActi
         if (item.action.type !== "words") break;
         const added = await addWordListLevel(user.id, item.action.list, String(form.get("level") ?? ""));
         if (!added) break;
-        return { id, words: { created: added.created, duplicates: added.duplicates, firstDay: added.firstDay, language: added.language } };
+        return { id, words: { created: added.created, duplicates: added.duplicates, firstDay: added.firstDay, lastDay: added.lastDay, language: added.language } };
       }
       case "add-set": {
         if (item.action.type !== "set") break;
@@ -189,7 +190,8 @@ export default function Library({ loaderData }: Route.ComponentProps) {
         <h2 id="lp-library-results" className="sr-only">
           {t("results")}
         </h2>
-        <ol>
+        {/* Each result is a heading to jump between, not an entry in the page's outline. */}
+        <ol data-outline-ignore>
           {items.map((item) => (
             <ItemRow key={item.id} item={item} kbs={kbs} />
           ))}
@@ -352,7 +354,20 @@ function ItemAction({ item, name, kbs }: { item: LibraryItem; name: string; kbs:
         </p>
       );
     case "open":
-      return <p className="mt-2 text-sm text-muted-foreground">{t(`why.${item.action.why}`)}</p>;
+      return (
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t(`why.${item.action.why}`)}
+          {item.action.pdf ? (
+            <>
+              {" "}
+              <a href={item.action.pdf} target="_blank" rel="noopener noreferrer" className={LINK}>
+                {t("pdf")}
+                <span className="sr-only"> {t("newTab")}</span>
+              </a>
+            </>
+          ) : null}
+        </p>
+      );
     default:
       return null;
   }
@@ -377,7 +392,7 @@ function KBSelect({ id, kbs, name }: { id: string; kbs: { id: string; name: stri
 }
 
 function Outcome({ result }: { result?: LibraryActionResult }) {
-  const { t } = useTranslation("library");
+  const { t, i18n } = useTranslation("library");
   if (!result) return <StatusLine />;
   if ("deck" in result) {
     const d = result.deck;
@@ -396,7 +411,8 @@ function Outcome({ result }: { result?: LibraryActionResult }) {
     return (
       <StatusLine>
         {w.created ? t("wordsAdded", { count: w.created }) : t("wordsNone")}
-        {w.duplicates ? ` ${t("wordsHad", { count: w.duplicates })}` : ""}{" "}
+        {w.duplicates ? ` ${t("wordsHad", { count: w.duplicates })}` : ""}
+        {w.created && w.firstDay && w.lastDay ? ` ${t("wordsDays", { first: formatDate(w.firstDay, false, i18n.language), last: formatDate(w.lastDay, false, i18n.language) })}` : ""}{" "}
         <Link to={`/languages/${w.language}`} className={LINK}>
           {t("openWords")}
         </Link>

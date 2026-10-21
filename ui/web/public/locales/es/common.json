@@ -901,7 +901,19 @@
     "Share": "Compartir",
     "My files": "Mis archivos",
     "Upload": "Subir",
-    "Study links": "Enlaces de estudio"
+    "Study links": "Enlaces de estudio",
+    "Library": "Biblioteca",
+    "Decks": "Mazos",
+    "Body": "Cuerpo",
+    "Training plan": "Plan de entrenamiento",
+    "Training progress": "Progreso del entrenamiento",
+    "Training coach": "Entrenador",
+    "Exercise library": "Biblioteca de ejercicios",
+    "Languages": "Idiomas",
+    "Routine": "Rutina",
+    "Workout": "Sesión de entrenamiento",
+    "Page not found": "Página no encontrada",
+    "Something went wrong": "Algo salió mal"
   },
   "readinessText": {
     "no_route": "Todavía ninguna conexión hace {{function}}. Elige una en Ajustes → Rutas.",
@@ -1006,5 +1018,10 @@
       "title": "Almacenamiento",
       "lead": "Dónde se guardan tus archivos, cuánto espacio ocupa cada lado y cómo moverlos."
     }
+  },
+  "serverError": {
+    "title": "Algo salió mal",
+    "status": "Error {{status}}",
+    "body": "Esta página no se pudo cargar. Inténtalo de nuevo en un momento o vuelve a empezar desde Hoy."
   }
 }

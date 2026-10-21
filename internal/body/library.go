@@ -29,13 +29,8 @@ type Exercise struct {
 	Target    string   `json:"target"`
 	Secondary []string `json:"secondary"`
 	Steps     []string `json:"steps,omitempty"`
-	// Source is the dataset the text is from: "opengym" or "fedb"
-	// (free-exercise-db, the Unlicense; the private design notes, phase 3).
-	Source string `json:"source"`
-	// Photo is the free-exercise-db id whose start and end photos the page
-	// shows (staged under /tool-runtime/), or empty.
-	Photo string `json:"photo,omitempty"`
-	// Wger is the name in other languages and the video wger has for it.
+	// Wger is the name in other languages and the video wger has for it
+	// (the private design notes, phase 3).
 	Wger *Wger `json:"wger,omitempty"`
 }
 
@@ -61,12 +56,6 @@ func (e Exercise) Mode() string {
 // Bodyweight reports whether the exercise carries no external load.
 func (e Exercise) Bodyweight() bool { return e.Equipment == "body weight" }
 
-// The library's sources.
-const (
-	SourceOpenGym = "opengym"
-	SourceFedb    = "fedb"
-)
-
 var (
 	libOnce  sync.Once
 	libList  []Exercise
@@ -75,16 +64,14 @@ var (
 
 func loadLibrary() {
 	var raw []struct {
-		ID  string   `json:"id"`
-		N   string   `json:"n"`
-		BP  string   `json:"bp"`
-		EQ  string   `json:"eq"`
-		TG  string   `json:"tg"`
-		SM  []string `json:"sm"`
-		ST  []string `json:"st"`
-		Src string   `json:"src"`
-		Img string   `json:"img"`
-		Wg  *struct {
+		ID string   `json:"id"`
+		N  string   `json:"n"`
+		BP string   `json:"bp"`
+		EQ string   `json:"eq"`
+		TG string   `json:"tg"`
+		SM []string `json:"sm"`
+		ST []string `json:"st"`
+		Wg *struct {
 			ID    int               `json:"id"`
 			Names map[string]string `json:"names"`
 			Lic   map[string]string `json:"lic"`
@@ -98,10 +85,7 @@ func loadLibrary() {
 	libList = make([]Exercise, 0, len(raw))
 	libIndex = make(map[string]Exercise, len(raw))
 	for _, r := range raw {
-		e := Exercise{ID: r.ID, Name: capitalize(r.N), BodyPart: r.BP, Equipment: r.EQ, Target: r.TG, Secondary: r.SM, Steps: r.ST, Source: SourceOpenGym, Photo: r.Img}
-		if r.Src == SourceFedb {
-			e.Source = SourceFedb
-		}
+		e := Exercise{ID: r.ID, Name: capitalize(r.N), BodyPart: r.BP, Equipment: r.EQ, Target: r.TG, Secondary: r.SM, Steps: r.ST}
 		if r.Wg != nil {
 			e.Wger = &Wger{ID: r.Wg.ID, Names: r.Wg.Names, Licences: r.Wg.Lic, Authors: r.Wg.By, Video: r.Wg.Video}
 		}

@@ -136,7 +136,6 @@ export default function BookPage({ loaderData }: Route.ComponentProps) {
         <>
           {firstChapter ? (
             <QuickStart
-              kicker={t("book.up.kicker")}
               title={t("book.up.title")}
               primary={{ label: t("book.up.readFrom1"), to: `/books/${book.id}/chapters/${firstChapter.id}` }}
             />

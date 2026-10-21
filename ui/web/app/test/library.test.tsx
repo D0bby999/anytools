@@ -72,6 +72,20 @@ describe("the catalogue", () => {
     for (const i of nc) expect(i.action.type).toBe("open");
   });
 
+  it("puts English material first, whatever else is shown", () => {
+    for (const lang of ["", "all"]) {
+      const { items } = findItems({ kind: "course", lang, q: "", offset: 0 }, "vi");
+      expect(items.every((i) => i.language === "en" || i.language === "mul")).toBe(true);
+    }
+    const all = findItems({ lang: "all", q: "", offset: 0 }, "vi");
+    const pages = Math.ceil(all.total / 30);
+    const ranks: number[] = [];
+    for (let p = 0; p < pages; p++) {
+      for (const i of findItems({ lang: "all", q: "", offset: p * 30 }, "vi").items) ranks.push(i.language === "en" ? 0 : i.language === "mul" ? 1 : 2);
+    }
+    expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
+  });
+
   it("filters by kind, subject, language and words without accents", () => {
     const mine = findItems({ lang: "", q: "", offset: 0 }, "vi");
     expect(mine.items.every((i) => ["vi", "en", "mul"].includes(i.language.split("-")[0]!))).toBe(true);
@@ -93,6 +107,8 @@ describe("the exam word lists", () => {
       for (const level of data.levels) {
         expect(`library:${level.id}`).toMatch(/^library:[a-z0-9][a-z0-9-]{0,47}$/);
         expect(new Set(level.notes.map((n) => n.t)).size).toBe(level.notes.length);
+        // One tap adds at most 50 days of new words at 20 a day.
+        expect(level.notes.length).toBeLessThanOrEqual(1000);
         expect(level.notes.every((n) => n.t && n.m && n.t.length <= 80 && n.m.length <= 1000)).toBe(true);
       }
     }
@@ -112,6 +128,31 @@ describe("the exam word lists", () => {
     expect(wordListOf("anki")).toBeNull();
     // A level the list does not have is refused.
     expect(await post({ intent: "add-words", id: "words:hsk3", level: "jlpt-n5" })).toMatchObject({ errorKey: "library:errors.failed" });
+  });
+});
+
+describe("the textbooks", () => {
+  it("lists OpenStax's live books with their own licences, opened at their page", () => {
+    const books = catalogue().items.filter((i) => i.kind === "textbook");
+    expect(books.length).toBeGreaterThan(80);
+    for (const b of books) {
+      expect(b.url).toMatch(/^https:\/\/openstax\.org\/details\/books\//);
+      expect(b.action).toMatchObject({ type: "open", why: "textbook" });
+    }
+    expect(new Set(books.map((b) => b.licence))).toEqual(new Set(["cc-by", "cc-by-nc-sa", "none"]));
+    expect(findItems({ kind: "textbook", subject: "maths", lang: "es", q: "", offset: 0 }, "en").total).toBeGreaterThan(3);
+  });
+});
+
+describe("Project Gutenberg's books", () => {
+  it("adds a public-domain book from its HTML edition, credited", async () => {
+    const books = catalogue().items.filter((i) => i.source.name === "Project Gutenberg");
+    expect(books.length).toBeGreaterThan(1000);
+    const pride = books.find((b) => b.id === "gutenberg:1342")!;
+    expect(pride).toMatchObject({ kind: "book", language: "en", licence: "public-domain", credit: "credits.gutenberg", author: "Austen, Jane" });
+    expect(pride.action).toEqual({ type: "link", url: "https://www.gutenberg.org/cache/epub/1342/pg1342-images.html" });
+    expect(books.every((b) => !/&#?\w+;/.test(b.name))).toBe(true);
+    expect(findItems({ kind: "book", lang: "es", q: "", offset: 0 }, "en").total).toBeGreaterThanOrEqual(100);
   });
 });
 
@@ -175,7 +216,7 @@ describe("the page", () => {
     expect(within(ocw).getByText(/Non-commercial use only/)).toBeInTheDocument();
     expect(within(ocw).getByText(/open it at the source/)).toBeInTheDocument();
     expect(within(ocw).queryByRole("button")).toBeNull();
-    const geo = screen.getByRole("button", { name: "Add Ultimate Geography (Spanish) to Decks" });
+    const geo = screen.getByRole("button", { name: "Add to Decks: Ultimate Geography (English)" });
     expect(geo).toBeInTheDocument();
     await userEvent.tab();
     expect(screen.getByRole("searchbox", { name: "Search" })).toHaveFocus();
@@ -208,5 +249,29 @@ describe("free-programming-books' lists", async () => {
     expect(subjectOf("Toán học")).toBe("maths");
     expect(subjectOf("0 - MOOC")).toBe("general");
     expect(subjectOf("Python")).toBe("programming");
+  });
+});
+
+describe("Gutenberg's catalogue dump", async () => {
+  // @ts-expect-error: a build script, plain JavaScript.
+  const { bookOf, subjectOf } = await import("../../scripts/library/gutenberg.mjs");
+  const rdf = (extra: string) => `<pgterms:ebook rdf:about="ebooks/1342">
+    <dcterms:rights>Public domain in the USA.</dcterms:rights>
+    <pgterms:downloads rdf:datatype="x">190246</pgterms:downloads>
+    <dcterms:creator><pgterms:agent rdf:about="2010/agents/68"><pgterms:name>Austen, Jane</pgterms:name></pgterms:agent></dcterms:creator>
+    <dcterms:title>Pride and Prejudice&#13; A Novel</dcterms:title>
+    <dcterms:language><rdf:Description><rdf:value rdf:datatype="x">en</rdf:value></rdf:Description></dcterms:language>
+    <dcterms:type><rdf:Description><rdf:value>Text</rdf:value></rdf:Description></dcterms:type>
+    <pgterms:bookshelf><rdf:Description><rdf:value>Category: Novels</rdf:value></rdf:Description></pgterms:bookshelf>
+    <pgterms:file rdf:about="https://www.gutenberg.org/ebooks/1342.html.images"><dcterms:extent rdf:datatype="x">${extra}</dcterms:extent></pgterms:file>
+  </pgterms:ebook>`;
+  it("keeps a public-domain text whose HTML the link import can read", () => {
+    expect(bookOf(rdf("852590"))).toEqual({ id: 1342, title: "Pride and Prejudice A Novel", author: "Austen, Jane", language: "en", subject: "humanities", shelves: ["Novels"], downloads: 190246 });
+    expect(bookOf(rdf(String(6 << 20)))).toBeNull();
+    expect(bookOf(rdf("852590").replace("Public domain in the USA.", "Copyrighted."))).toBeNull();
+  });
+  it("files science fiction as a novel", () => {
+    expect(subjectOf(["Category: Science-Fiction & Fantasy"])).toBe("humanities");
+    expect(subjectOf(["Category: Science - Physics"])).toBe("science");
   });
 });

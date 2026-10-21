@@ -301,7 +301,7 @@
   },
   "library": {
     "title": "Biblioteca de exercícios",
-    "lead": "1.957 exercícios, cada um com o músculo principal e como fazer; 866 com fotos da posição inicial e final.",
+    "lead": "1.324 exercícios, cada um com o músculo principal e como fazer.",
     "target": "Músculo principal",
     "secondary": "Também trabalha",
     "equipment": "Equipamento",
@@ -313,11 +313,7 @@
     "count_other": "{{count}} exercícios",
     "previous": "Anterior",
     "next": "Próxima",
-    "credit": "Nomes e instruções dos exercícios: hasaneyldrm/exercises-dataset (MIT) e free-exercise-db (domínio público), em inglês; fotos do free-exercise-db; alguns nomes em espanhol e português do wger (CC BY-SA). As imagens do primeiro conjunto são © Gym visual e não aparecem aqui. As regras de progressão do Body seguem o openGym, de Duarte Santos.",
-    "photoStart": "{{name}}: posição inicial",
-    "photoEnd": "{{name}}: posição final",
-    "creditFedb": "Texto e fotos: free-exercise-db, domínio público (Unlicense).",
-    "creditPhotos": "Fotos: free-exercise-db, domínio público (Unlicense).",
+    "credit": "Nomes e instruções dos exercícios: hasaneyldrm/exercises-dataset (MIT), em inglês; alguns nomes em espanhol e português do wger (CC BY-SA), creditados em cada exercício. As imagens do conjunto são © Gym visual e não aparecem aqui. As regras de progressão do Body seguem o openGym, de Duarte Santos.",
     "creditWger": "Nome no seu idioma: wger, {{licence}}, por {{author}}.",
     "wgerVideo": "Vídeo no wger",
     "wgerPage": "Este exercício no wger"

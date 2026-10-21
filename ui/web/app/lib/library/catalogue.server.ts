@@ -10,6 +10,8 @@ import { LIBRARY as DECKS } from "~/lib/deck-library";
 import fpb from "~/data/library/free-programming-books.json";
 import { WORD_LISTS } from "~/lib/library/word-lists";
 import questionSets from "~/data/library/question-sets.json";
+import textbooks from "~/data/library/textbooks.json";
+import gutenberg from "~/data/library/gutenberg.json";
 import { LIBRARY_PAGE, type LibraryFilter, type LibraryItem } from "~/lib/library/types";
 
 /** Material AnyLearn may not copy: listed, opened at its source. */
@@ -85,10 +87,11 @@ const LINK_ONLY: LibraryItem[] = [
     name: "Body: exercise library",
     nameKey: "library:items.bodyName",
     aboutKey: "library:items.body",
-    count: 1957,
+    count: 1324,
     unit: "exercises",
     licence: "mit",
-    source: { name: "openGym, free-exercise-db, wger", url: "https://github.com/yuhonas/free-exercise-db" },
+    creditText: "hasaneyldrm/exercises-dataset (MIT); names in Spanish and Portuguese from wger (CC BY-SA)",
+    source: { name: "hasaneyldrm/exercises-dataset", url: "https://github.com/hasaneyldrm/exercises-dataset" },
     url: "/body/library",
     action: { type: "page", to: "/body/library" },
   },
@@ -181,12 +184,53 @@ function questionSetItems(): LibraryItem[] {
   }));
 }
 
+/**
+ * OpenStax's textbooks (phase 7): opened at their page. A whole book's PDF
+ * (30 to 60 MB) is past the link import's 5 MB, so the learner downloads it
+ * and uploads it, where the upload's 50 MB allows.
+ */
+function textbookItems(): LibraryItem[] {
+  return textbooks.books.map((b: (typeof textbooks.books)[number] & { pdf?: string }) => ({
+    id: `openstax:${b.slug}`,
+    kind: "textbook",
+    subject: b.subject as LibraryItem["subject"],
+    language: b.language,
+    name: b.title,
+    section: b.section,
+    licence: b.licence as LibraryItem["licence"],
+    source: { name: "OpenStax", url: textbooks.source },
+    url: b.url,
+    action: { type: "open", why: "textbook", pdf: b.pdf },
+  }));
+}
+
+/** Project Gutenberg's most read books (phase 8): each added through the link import from its HTML edition. */
+function gutenbergItems(): LibraryItem[] {
+  return gutenberg.books.map((b) => {
+    const url = `https://www.gutenberg.org/cache/epub/${b.id}/pg${b.id}-images.html`;
+    return {
+      id: `gutenberg:${b.id}`,
+      kind: "book",
+      subject: b.subject as LibraryItem["subject"],
+      language: b.language,
+      name: b.title,
+      author: b.author || undefined,
+      section: b.shelves.join(", ") || undefined,
+      licence: "public-domain",
+      credit: "credits.gutenberg",
+      source: { name: "Project Gutenberg", url: `https://www.gutenberg.org/ebooks/${b.id}` },
+      url,
+      action: { type: "link", url },
+    };
+  });
+}
+
 let built: { items: LibraryItem[]; byId: Map<string, LibraryItem>; text: string[] } | null = null;
 
 /** The catalogue, built on first use. */
 export function catalogue() {
   if (built) return built;
-  const items = [...deckItems(), ...wordListItems(), ...questionSetItems(), ...LINK_ONLY, ...fpbItems()];
+  const items = [...deckItems(), ...wordListItems(), ...questionSetItems(), ...LINK_ONLY, ...textbookItems(), ...gutenbergItems(), ...fpbItems()];
   const byId = new Map(items.map((i) => [i.id, i]));
   if (byId.size !== items.length) throw new Error("library: two items share an id");
   // What a search looks in, folded once.
@@ -222,12 +266,22 @@ export function findItems(filter: LibraryFilter, ui: string) {
     if (words.length && !words.every((w) => text[i]!.includes(w))) return;
     kept.push(item);
   });
+  // The Library is mostly English (owner, 2026-10-21): English material
+  // first, then what is in many languages, then the rest, each in
+  // catalogue order (the sort is stable).
+  kept.sort((a, b) => languageRank(a) - languageRank(b));
   return { total: kept.length, items: kept.slice(filter.offset, filter.offset + LIBRARY_PAGE) };
+}
+
+function languageRank(item: LibraryItem): number {
+  const base = item.language.split("-")[0];
+  return base === "en" ? 0 : base === "mul" ? 1 : 2;
 }
 
 /** The languages the catalogue has material in, for the filter's choices. */
 export function catalogueLanguages(): string[] {
   const set = new Set<string>();
   for (const i of catalogue().items) if (i.language !== "mul") set.add(i.language.split("-")[0]!);
-  return [...set].sort();
+  // English first, as the Library is; the others by code.
+  return [...set].sort((a, b) => (a === "en" ? -1 : b === "en" ? 1 : a.localeCompare(b)));
 }

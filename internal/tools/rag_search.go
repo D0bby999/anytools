@@ -1,6 +1,8 @@
 package tools
 
 import (
+	"github.com/google/uuid"
+
 	"context"
 	"fmt"
 	"strings"
@@ -90,9 +92,25 @@ func (t *RAGSearch) Execute(ctx context.Context, args map[string]any, in runtime
 		limit = min(n, maxSearchLimit)
 	}
 
-	chunks, err := t.retriever.Search(ctx, in.UserID, kbIDs, query, limit)
+	// Documents the learner pointed at: search wider, keep only theirs. The
+	// retriever ranks across the knowledge bases, so a narrow pick needs a
+	// deeper list to find enough passages of its own.
+	fetch := limit
+	if len(in.DocumentIDs) > 0 {
+		fetch = limit * 4
+	}
+	chunks, err := t.retriever.Search(ctx, in.UserID, kbIDs, query, fetch)
 	if err != nil {
 		return runtime.ToolResult{}, fmt.Errorf("rag_search: %w", err)
+	}
+	if len(in.DocumentIDs) > 0 {
+		chunks = onlyDocuments(chunks, in.DocumentIDs, limit)
+		if len(chunks) == 0 {
+			return runtime.ToolResult{
+				Content: "No passage in the documents the learner pointed at matched that query. " +
+					"Try other words, or read a page of them with read_source; do not answer from memory.",
+			}, nil
+		}
 	}
 	if len(chunks) == 0 {
 		return runtime.ToolResult{
@@ -163,4 +181,23 @@ func lineEnd(c Chunk) int {
 		return 0
 	}
 	return max(c.PageEnd, c.Page)
+}
+
+// onlyDocuments keeps the chunks of the given documents, in rank order, up to
+// limit.
+func onlyDocuments(chunks []Chunk, docs []uuid.UUID, limit int) []Chunk {
+	keep := make(map[string]bool, len(docs))
+	for _, d := range docs {
+		keep[d.String()] = true
+	}
+	out := make([]Chunk, 0, limit)
+	for _, c := range chunks {
+		if keep[c.DocumentID] {
+			out = append(out, c)
+			if len(out) == limit {
+				break
+			}
+		}
+	}
+	return out
 }

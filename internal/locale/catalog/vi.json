@@ -584,5 +584,6 @@
  "unknown reason": "lý do không hợp lệ",
  "a comment is at most 2000 characters": "ghi chú dài tối đa 2000 ký tự",
  "could not record the rating": "không lưu được đánh giá",
- "could not retract the rating": "không gỡ được đánh giá"
+ "could not retract the rating": "không gỡ được đánh giá",
+ "record your question first": "hãy ghi âm câu hỏi của bạn trước"
 }

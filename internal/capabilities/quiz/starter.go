@@ -27,9 +27,38 @@ type SetStore interface {
 	ExistingQuestions(ctx context.Context, userID, kbID uuid.UUID, prompts, modules []string) (map[string]bool, error)
 }
 
-// starterMu: the check for questions already added and the insert are one
-// step, so a double click adds a part once (the API is one process).
-var starterMu sync.Mutex
+// setLocks: the check for questions already added and the insert are one
+// step per knowledge base, so a double click adds a part once (the API is
+// one process) and one learner's add does not wait on another's.
+var (
+	setLocksMu sync.Mutex
+	setLocks   = map[uuid.UUID]*setLock{}
+)
+
+type setLock struct {
+	sync.Mutex
+	users int
+}
+
+func lockKB(kb uuid.UUID) func() {
+	setLocksMu.Lock()
+	l := setLocks[kb]
+	if l == nil {
+		l = &setLock{}
+		setLocks[kb] = l
+	}
+	l.users++
+	setLocksMu.Unlock()
+	l.Lock()
+	return func() {
+		l.Unlock()
+		setLocksMu.Lock()
+		if l.users--; l.users == 0 {
+			delete(setLocks, kb)
+		}
+		setLocksMu.Unlock()
+	}
+}
 
 // AddStarter adds the Python set's first part: what the quiz bank's button
 // has always added.
@@ -42,8 +71,7 @@ func (s *Service) AddStarter(ctx context.Context, userID, kbID uuid.UUID, set st
 // the same module) is not added again. No model is called. Each question's
 // explanation ends with its set's credit.
 func (s *Service) AddSet(ctx context.Context, userID, kbID uuid.UUID, set, part string) (*StarterResult, error) {
-	starterMu.Lock()
-	defer starterMu.Unlock()
+	defer lockKB(kbID)()
 	qs, err := setQuestions(userID, kbID, set, part)
 	if err != nil {
 		return nil, err

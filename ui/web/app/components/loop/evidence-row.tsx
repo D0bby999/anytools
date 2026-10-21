@@ -83,7 +83,7 @@ export function EvidenceTable({ items, editable }: { items: EvidenceRef[]; edita
         ) : item.timepoint ? (
           tps[item.timepoint]
         ) : (
-          "—"
+          "–"
         ),
       ])}
     />

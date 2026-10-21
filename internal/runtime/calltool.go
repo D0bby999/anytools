@@ -47,12 +47,13 @@ func (tc *TurnContext) CallTool(
 	})
 
 	res, err := tool.Execute(ctx, args, ToolInput{
-		UserID:    tc.Turn.UserID,
-		SessionID: tc.Session.ID,
-		TurnID:    tc.Turn.ID,
-		KBIDs:     tc.Session.KBIDs,
-		AllowWeb:  tc.Session.AllowWeb,
-		URLs:      urls,
+		UserID:      tc.Turn.UserID,
+		SessionID:   tc.Session.ID,
+		TurnID:      tc.Turn.ID,
+		KBIDs:       tc.Session.KBIDs,
+		AllowWeb:    tc.Session.AllowWeb,
+		URLs:        urls,
+		DocumentIDs: referenceIDs(tc.References()),
 	})
 	if err != nil {
 		if ctx.Err() != nil {

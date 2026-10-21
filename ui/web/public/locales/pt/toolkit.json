@@ -197,7 +197,7 @@
   },
   "cycleClose": {
     "missing": "Ainda falta",
-    "none": "—",
+    "none": "–",
     "need": {
       "condition": "a condição alterada",
       "basis": "os motivos",
@@ -262,7 +262,7 @@
       "anki": "Importar do Anki",
       "openKnowledge": "Abrir Conhecimento"
     },
-    "diagnosticTitle": "{{kind}} — {{name}}",
+    "diagnosticTitle": "{{kind}}: {{name}}",
     "fromDocument": "A partir de um documento",
     "fromDocumentOf": "Começar {{name}} a partir de um documento",
     "fromRecording": "A partir de um vídeo ou gravação",

@@ -25,6 +25,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/D0bby999/anytools/internal/security"
+	"github.com/D0bby999/anytools/internal/vocab"
 )
 
 // UserAgent names AnyTools to the services, as their policies ask.
@@ -90,12 +91,21 @@ type Client struct {
 	now      func() time.Time
 	mu       sync.Mutex
 	cache    map[string]cached
+	flying   map[string]*flight
 	audioHTT *http.Client
 }
 
 type cached struct {
 	at  time.Time
 	val any
+}
+
+// flight is a lookup under way: a second asker for the same key waits for
+// it rather than calling the source again (Tatoeba takes half a minute).
+type flight struct {
+	done chan struct{}
+	val  any
+	err  error
 }
 
 // New is a client on the public endpoints.
@@ -109,6 +119,7 @@ func New() *Client {
 		dictapi:  "https://api.dictionaryapi.dev",
 		now:      time.Now,
 		cache:    map[string]cached{},
+		flying:   map[string]*flight{},
 	}
 }
 
@@ -124,12 +135,23 @@ func (c *Client) remember(key string, compute func() (any, error)) (any, error) 
 		c.mu.Unlock()
 		return e.val, nil
 	}
+	if f, ok := c.flying[key]; ok {
+		c.mu.Unlock()
+		<-f.done
+		return f.val, f.err
+	}
+	f := &flight{done: make(chan struct{})}
+	c.flying[key] = f
 	c.mu.Unlock()
-	v, err := compute()
+	f.val, f.err = compute()
+	c.mu.Lock()
+	delete(c.flying, key)
+	close(f.done)
+	v, err := f.val, f.err
 	if err != nil {
+		c.mu.Unlock()
 		return nil, err
 	}
-	c.mu.Lock()
 	if len(c.cache) >= cacheMax {
 		// Full: the oldest half goes. Rare, and simpler than an LRU list.
 		cut := c.now().Add(-cacheFor / 2)
@@ -200,7 +222,8 @@ func (c *Client) Sentences(ctx context.Context, lang, term, to string) ([]Senten
 		if from == "cmn" || from == "jpn" || from == "tha" {
 			q = term
 		}
-		p := url.Values{"lang": {from}, "q": {q}, "sort": {"relevance"}, "limit": {fmt.Sprint(MaxSentences)}}
+		// Twice what is shown: some are dropped below.
+		p := url.Values{"lang": {from}, "q": {q}, "sort": {"relevance"}, "limit": {fmt.Sprint(2 * MaxSentences)}}
 		if into != "" && into != from {
 			p.Set("trans:lang", into)
 		}
@@ -226,7 +249,9 @@ func (c *Client) Sentences(ctx context.Context, lang, term, to string) ([]Senten
 		}
 		out := []Sentence{}
 		for _, d := range body.Data {
-			if d.Unapproved || strings.TrimSpace(d.Text) == "" || d.License == "" {
+			// Only a sentence with the word as saved: Tatoeba also matches
+			// another script's form (學習 for 学习), which a card cannot blank.
+			if d.Unapproved || d.License == "" || !vocab.TermInSelection(vocab.Normalize(term), vocab.Normalize(d.Text)) {
 				continue
 			}
 			s := Sentence{ID: d.ID, Text: strings.TrimSpace(d.Text), Licence: d.License, Author: d.Owner,
@@ -236,7 +261,9 @@ func (c *Client) Sentences(ctx context.Context, lang, term, to string) ([]Senten
 					s.Translation = &Translation{Text: strings.TrimSpace(t.Text), Licence: t.License, Author: t.Owner}
 				}
 			}
-			out = append(out, s)
+			if out = append(out, s); len(out) == MaxSentences {
+				break
+			}
 		}
 		return out, nil
 	})
@@ -246,8 +273,10 @@ func (c *Client) Sentences(ctx context.Context, lang, term, to string) ([]Senten
 	return v.([]Sentence), nil
 }
 
-// llTitle is a Lingua Libre file: "File:LL-Q<n> (<iso3>)-<speaker>-<word>.wav".
-var llTitle = regexp.MustCompile(`^File:LL-Q\d+ \(([a-z]{3})\)-(.+?)-(.+)\.wav$`)
+// llTitle is a Lingua Libre file: "File:LL-Q<n> (<iso3>)-<speaker>-<word>.wav";
+// the speaker and the word may hold hyphens, so they are told apart by the
+// word asked for. No slash: the name is a path segment.
+var llTitle = regexp.MustCompile(`^File:LL-Q\d+ \(([a-z]{3})\)-([^/]+)\.wav$`)
 
 // Recordings is people saying the term: Lingua Libre's, and for English
 // Wiktionary's through the Free Dictionary API.
@@ -304,16 +333,21 @@ func (c *Client) linguaLibre(ctx context.Context, code, term string) ([]Recordin
 	out := []Recording{}
 	for _, pg := range body.Query.Pages {
 		m := llTitle.FindStringSubmatch(pg.Title)
-		if m == nil || m[1] != code || !strings.EqualFold(m[3], term) || len(pg.ImageInfo) == 0 {
+		if m == nil || m[1] != code || len(pg.ImageInfo) == 0 {
 			continue
 		}
+		rest, suffix := m[2], "-"+term
+		if len(rest) <= len(suffix) || !strings.EqualFold(rest[len(rest)-len(suffix):], suffix) {
+			continue
+		}
+		speaker := rest[:len(rest)-len(suffix)]
 		lic := strings.TrimSpace(pg.ImageInfo[0].Ext.Licence.Value)
 		if lic == "" {
 			continue
 		}
 		name := strings.TrimPrefix(pg.Title, "File:")
 		out = append(out, Recording{
-			ID: "commons:" + name, Speaker: m[2], Licence: lic, Source: "Lingua Libre",
+			ID: "commons:" + name, Speaker: speaker, Licence: lic, Source: "Lingua Libre",
 			Page: "https://commons.wikimedia.org/wiki/" + url.PathEscape(strings.ReplaceAll(pg.Title, " ", "_")),
 		})
 	}
@@ -347,10 +381,25 @@ func (c *Client) dictionary(ctx context.Context, term string) ([]Recording, erro
 			if !dictPath.MatchString(path) {
 				continue
 			}
-			out = append(out, Recording{ID: "dictapi:" + path, Speaker: "Wiktionary", Licence: ph.License.Name, Page: ph.SourceURL, Source: "Wiktionary"})
+			out = append(out, Recording{ID: "dictapi:" + path, Speaker: "Wiktionary", Licence: ph.License.Name, Page: wikiPage(ph.SourceURL), Source: "Wiktionary"})
 		}
 	}
 	return out, nil
+}
+
+// wikiPage keeps a recording's page only when it is an https page on
+// Wikimedia's or Wiktionary's sites; the API's text is not trusted as a link.
+func wikiPage(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme != "https" || u.User != nil {
+		return ""
+	}
+	for _, h := range []string{"wikimedia.org", "wiktionary.org", "wikipedia.org"} {
+		if u.Host == h || strings.HasSuffix(u.Host, "."+h) {
+			return u.String()
+		}
+	}
+	return ""
 }
 
 // Audio is a recording's sound, for a Recording.ID: only Lingua Libre's

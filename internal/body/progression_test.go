@@ -28,14 +28,8 @@ func TestLibraryHasTheExercisesTheseTestsName(t *testing.T) {
 		}
 		t.Logf("%s = %s (%s)", id, e.Name, e.BodyPart)
 	}
-	openGym := 0
-	for _, e := range Library() {
-		if e.Source == SourceOpenGym {
-			openGym++
-		}
-	}
-	if openGym != 1324 {
-		t.Errorf("library has %d of openGym's exercises, want 1324", openGym)
+	if len(Library()) != 1324 {
+		t.Errorf("library has %d exercises, want 1324", len(Library()))
 	}
 	for _, e := range Library() {
 		if e.Name == "" || e.BodyPart == "" || e.Equipment == "" {

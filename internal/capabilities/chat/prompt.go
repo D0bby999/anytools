@@ -126,3 +126,18 @@ func sessionContext(session runtime.Session) string {
 	}
 	return note
 }
+
+// referencesNote names the documents the learner pointed at for this question
+// (`@` in the composer). rag_search returns only their passages this turn.
+func referencesNote(refs []runtime.DocumentRef) string {
+	if len(refs) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString("For this question the learner pointed at these documents. Answer from them: ")
+	b.WriteString("rag_search returns only their passages in this turn, and read_source reads their pages.\n")
+	for _, r := range refs {
+		fmt.Fprintf(&b, "- %q (document id %s)\n", r.Title, r.ID)
+	}
+	return strings.TrimRight(b.String(), "\n")
+}

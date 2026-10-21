@@ -44,6 +44,7 @@ type SessionStore interface {
 	DeleteFeedback(ctx context.Context, userID, messageID uuid.UUID) error
 	ListFeedback(ctx context.Context, userID, sessionID uuid.UUID) ([]pg.ChatFeedback, error)
 	RunningSessions(ctx context.Context, userID uuid.UUID) (map[uuid.UUID]bool, error)
+	DocumentsInKBs(ctx context.Context, userID uuid.UUID, kbIDs, ids []uuid.UUID) ([]runtime.DocumentRef, error)
 }
 
 // TurnReader is the read half of turn persistence: the row and its event log.

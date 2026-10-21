@@ -6,14 +6,12 @@
  * being the word's sentence (and its fill-in card); people saying the word,
  * from Lingua Libre and Wiktionary, credited.
  */
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
-import type { SourceRecording, SourceSentence } from "~/lib/vocab.server";
-import type { VocabNote } from "~/lib/vocab-types";
+import type { SourceRecording, SourceSentence, VocabNote } from "~/lib/vocab-types";
 import { NOTE_JOIN } from "~/lib/sentence";
 import { Button } from "~/components/ui/button";
-import { StatusLine } from "~/components/doc/status-line";
 
 const ROUTE = "/mastery/vocabulary/sources";
 const LINK = "underline underline-offset-4";
@@ -35,29 +33,37 @@ export function WordSources({ note, onClose }: { note: Pick<VocabNote, "id" | "t
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [note.id]);
 
-  const have = new Set(note.contexts.map((c) => c.sentence));
+  // A stored sentence is the part of the source's that holds the word
+  // (vocab.ContextSentence): a source sentence holding one is already in.
+  const stored = note.contexts.map((c) => c.sentence);
+  const isIn = (text: string) => stored.some((s) => s && text.includes(s));
+  const done = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    // The button pressed is gone once its sentence is in: focus the line that says so.
+    if (use.state === "idle" && use.data) done.current?.focus();
+  }, [use.state, use.data]);
   const sentenceData = sentences.data;
   const recordingData = recordings.data;
 
   return (
     <section aria-label={t("sources.title", { term: note.term })} className="mt-2 border-t pt-2">
       <h4 className="font-sans text-sm font-medium">{t("sources.sentences")}</h4>
-      {sentences.state !== "idle" || !sentenceData ? (
-        <p className="mt-1 text-xs text-muted-foreground" role="status">
-          {t("sources.lookingSentences")}
-        </p>
-      ) : "error" in sentenceData ? (
-        <p className="mt-1 text-xs text-destructive" role="status">
-          {sentenceData.unavailable ? t("sources.down", { source: "Tatoeba" }) : t("sources.failed")}
-        </p>
-      ) : sentenceData.sentences.length === 0 ? (
-        <p className="mt-1 text-xs text-muted-foreground" role="status">
-          {t("sources.noSentences")}
-        </p>
-      ) : (
+      {/* One status line, always mounted, so the result after a long wait is announced. */}
+      <p className="mt-1 text-xs text-muted-foreground" role="status">
+        {sentences.state !== "idle" || !sentenceData
+          ? t("sources.lookingSentences")
+          : "error" in sentenceData
+            ? sentenceData.unavailable
+              ? t("sources.down", { source: "Tatoeba" })
+              : t("sources.failed")
+            : sentenceData.sentences.length === 0
+              ? t("sources.noSentences")
+              : t("sources.foundSentences", { count: sentenceData.sentences.length })}
+      </p>
+      {!sentenceData || sentences.state !== "idle" || "error" in sentenceData || sentenceData.sentences.length === 0 ? null : (
         <ul className="mt-1 space-y-3">
           {sentenceData.sentences.map((s) => {
-            const used = have.has(s.text) || (use.data && "used" in use.data && use.data.used === s.text);
+            const used = isIn(s.text) || (use.data && "used" in use.data && use.data.used === s.text);
             const credit = ["Tatoeba", s.author, s.licence].join(NOTE_JOIN);
             return (
               <li key={s.id} className="text-sm leading-prose">
@@ -93,24 +99,23 @@ export function WordSources({ note, onClose }: { note: Pick<VocabNote, "id" | "t
           })}
         </ul>
       )}
-      <StatusLine tone={use.data && "error" in use.data ? "error" : "info"}>
+      <p ref={done} tabIndex={-1} className="lp-status-line focus:outline-none" role="status" data-tone={use.data && "error" in use.data ? "error" : undefined}>
         {use.data ? ("error" in use.data ? use.data.error || t("sources.failed") : t("sources.used")) : null}
-      </StatusLine>
+      </p>
 
       <h4 className="mt-4 font-sans text-sm font-medium">{t("sources.recordings")}</h4>
-      {recordings.state !== "idle" || !recordingData ? (
-        <p className="mt-1 text-xs text-muted-foreground" role="status">
-          {t("sources.lookingRecordings")}
-        </p>
-      ) : "error" in recordingData ? (
-        <p className="mt-1 text-xs text-destructive" role="status">
-          {recordingData.unavailable ? t("sources.down", { source: "Wikimedia Commons" }) : t("sources.failed")}
-        </p>
-      ) : recordingData.recordings.length === 0 ? (
-        <p className="mt-1 text-xs text-muted-foreground" role="status">
-          {t("sources.noRecordings")}
-        </p>
-      ) : (
+      <p className="mt-1 text-xs text-muted-foreground" role="status">
+        {recordings.state !== "idle" || !recordingData
+          ? t("sources.lookingRecordings")
+          : "error" in recordingData
+            ? recordingData.unavailable
+              ? t("sources.down", { source: "Wikimedia Commons" })
+              : t("sources.failed")
+            : recordingData.recordings.length === 0
+              ? t("sources.noRecordings")
+              : t("sources.foundRecordings", { count: recordingData.recordings.length })}
+      </p>
+      {!recordingData || recordings.state !== "idle" || "error" in recordingData || recordingData.recordings.length === 0 ? null : (
         <ul className="mt-1 space-y-2">
           {recordingData.recordings.map((r) => (
             <li key={r.id} className="text-sm">

@@ -2848,22 +2848,17 @@ file, filtered as said). The Library credits the project under every page of res
 its entries. The courses and books themselves belong to their authors; AnyLearn links to them and
 copies none.
 
-## free-exercise-db and wger (Body's exercise library)
+## wger (Body's exercise names in Spanish and Portuguese)
 
-Body's exercise library (the private design notes, phase 3) adds the exercises and
-photos of [free-exercise-db](https://github.com/yuhonas/free-exercise-db) by yuhonas, at commit
-`f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5`, released into the public domain under the Unlicense.
-`scripts/bodylibrary` writes its exercises into `internal/body/library.json` (ids `fe-<its id>`; its
-muscles and equipment renamed to the library's words), or gives an existing exercise with the same
-name its photos. The photos are redistributed unchanged from the commit's archive (sha256
-`ad2770ed89335c8b79da12854cc684d419e0f482de69b826c4a31bfac2405eab`, `exercises/*/0.jpg` and `1.jpg`)
-and served under `/tool-runtime/free-exercise-db@0.0.0-f00c92c/`.
+Some of Body's exercises carry their Spanish or Portuguese name from [wger](https://wger.de) (the
+wger project's exercise database, read through its API on 2026-10-21 and matched by name by
+`scripts/bodylibrary`), and a link to the exercise's page on wger, which has its video when there
+is one. Each name keeps the licence wger gives it (CC BY-SA 4.0 or 3.0, CC BY 4.0, or CC0) and its
+author, both shown with it. No wger image or video is copied.
 
-Some exercises carry their Spanish or Portuguese name from [wger](https://wger.de) (the wger
-project's exercise database, read through its API on 2026-10-21), and a link to the exercise's page
-on wger, which has its video when there is one. Each name keeps the licence wger gives it (CC BY-SA
-4.0 or 3.0, CC BY 4.0, or CC0) and its author, both shown beside it. No wger image or video is
-copied.
+free-exercise-db (yuhonas, "the Unlicense") was added and then taken out on the same day: its photos
+were scraped from bodybuilding.com, as the dataset it derives from (wrkout/exercises.json) says in
+its CONTRIBUTING, and its steps match bodybuilding.com's word for word. Nothing of it is shipped.
 
 ## Exam word lists: NGSL and NAWL, HSK, JLPT
 
@@ -2887,8 +2882,10 @@ sha256:
   from Jonathan Waller's JLPT lists (tanos.co.uk), which he licenses under Creative Commons
   Attribution ("Everything on this site (that I'm not selling), is licenced under Creative Commons
   BY", his Sharing and copyrights page, archived at
-  https://web.archive.org/web/2019/http://www.tanos.co.uk/jlpt/sharing/). Changed: the reading put
-  before the meaning, repeated words left out.
+  https://web.archive.org/web/2019/http://www.tanos.co.uk/jlpt/sharing/). Its English meanings are
+  taken to come from JMdict/EDICT (the Electronic Dictionary Research and Development Group, CC BY-SA
+  4.0), so `jlpt.json` is under CC BY-SA 4.0. Changed: the reading put before the meaning, repeated
+  words left out.
 
 The Library and each word added from a list name the list, its level and this credit.
 
@@ -2905,7 +2902,8 @@ explanation ending with its credit:
   CC BY-SA 4.0.
 - **ARC, the AI2 Reasoning Challenge** (Allen Institute for AI), Easy and Challenge, from the
   Hugging Face dataset `allenai/ai2_arc` at revision `210d026faf9955653af8916fad021475a3f00453`,
-  licensed under CC BY-SA 4.0. Changed: options relabelled A to D, repeated questions left out, in
+  licensed under CC BY-SA 4.0. Changed: options relabelled A to D, repeated questions (across both
+  levels) left out, in
   parts of 100. `arc.json.gz` is under CC BY-SA 4.0.
 - **GSM8K** from openai/grade-school-math at `3101c7d5072418e28b9008a6636bde82a006892c`, MIT
   licence, Copyright (c) 2021 OpenAI. Changed: the answer is the number after "####", without
@@ -2931,3 +2929,14 @@ Tatoeba's sentences are under CC BY 2.0 FR (some CC0), each shown with its autho
 link to its page; a sentence the learner takes is kept with that credit and link. Recordings are
 under the licence Commons gives each (mostly CC BY-SA 4.0 or CC0), shown with the speaker and a
 link to the file's page; they are played through AnyTools' server and not stored.
+
+## Catalogues: OpenStax and Project Gutenberg
+
+The Library lists OpenStax's live textbooks (titles, subjects, licences and links, read from
+openstax.org's CMS API by `ui/web/scripts/library/openstax.mjs`) and Project Gutenberg's most
+downloaded public-domain books (titles, authors, shelves and links, read by
+`ui/web/scripts/library/gutenberg.mjs` from Gutenberg's RDF catalogue dump, sha256
+`93988fc1c6e4171e41dab67f8f21cbcd0b2babde99c659acfacc9ce58150db38`). Neither book text nor cover is
+copied. OpenStax® is a trademark of Rice University; Project Gutenberg™ is a trademark of the
+Project Gutenberg Literary Archive Foundation; AnyLearn is affiliated with neither. A Gutenberg
+book a learner adds is fetched from gutenberg.org into their own knowledge base by the link import.

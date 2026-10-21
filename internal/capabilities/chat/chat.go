@@ -95,6 +95,9 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 	if stateNote != "" {
 		notes = append(notes, stateNote)
 	}
+	if note := referencesNote(tc.References()); note != "" {
+		notes = append(notes, note)
+	}
 
 	work := &workRecord{}
 	summary := tc.Session.Summary
@@ -125,6 +128,7 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 	var turnMsgs []runtime.Message
 	overflowRetried := false
 	work.ContextTokens, work.ContextWindow = promptTokens(msgs), window
+	work.HistoryBudget = budget
 
 	tc.Emit(runtime.Event{
 		Type:   runtime.EvSessionMeta,

@@ -142,33 +142,66 @@ func (s *Service) Check(ctx context.Context, userID uuid.UUID, in Input) (*Resul
 		return nil, fmt.Errorf("%w: that passage is not on this page of the document", ErrInvalid)
 	}
 
-	dir, err := os.MkdirTemp(s.tmp, "speakcheck-")
-	if err != nil {
-		return nil, fmt.Errorf("speakcheck: %w", err)
-	}
-	defer os.RemoveAll(dir)
-	take := filepath.Join(dir, "take")
-	if err := os.WriteFile(take, in.Take, 0o600); err != nil {
-		return nil, fmt.Errorf("speakcheck: %w", err)
-	}
-	length, err := s.audio.Duration(ctx, take)
-	if err != nil {
-		return nil, ErrUnreadable
-	}
-	// A take the recorder stopped at 30 s may measure a fraction over.
-	if length > MaxSeconds+1 {
-		return nil, fmt.Errorf("%w: a take is at most %d seconds", ErrInvalid, MaxSeconds)
-	}
-	windows, err := s.audio.Split(ctx, take, dir, []media.Window{{Start: 0, End: MaxSeconds + 1}})
-	if err != nil || len(windows) != 1 {
-		return nil, ErrUnreadable
-	}
 	lang := vocab.DetectLang(page)
-	// The allowance counts the take to the nearest second: a container
-	// measures a few milliseconds over what was recorded.
-	heard, err := s.ears.Hear(ctx, userID, windows[0], media.OutputMIME, lang, max(1, int(math.Round(length))))
+	heard, err := s.hear(ctx, userID, in.Take, lang)
 	if err != nil {
 		return nil, err
 	}
 	return &Result{Alignment: Align(text, heard.Text), Heard: strings.TrimSpace(heard.Text), By: heard.By, Lang: lang}, nil
+}
+
+// hear writes a take to a scratch directory, checks its length, normalises it
+// to one window and hears it: the learner's own stt route first, then the
+// server's engine.
+func (s *Service) hear(ctx context.Context, userID uuid.UUID, take []byte, lang string) (Heard, error) {
+	dir, err := os.MkdirTemp(s.tmp, "speakcheck-")
+	if err != nil {
+		return Heard{}, fmt.Errorf("speakcheck: %w", err)
+	}
+	defer os.RemoveAll(dir)
+	path := filepath.Join(dir, "take")
+	if err := os.WriteFile(path, take, 0o600); err != nil {
+		return Heard{}, fmt.Errorf("speakcheck: %w", err)
+	}
+	length, err := s.audio.Duration(ctx, path)
+	if err != nil {
+		return Heard{}, ErrUnreadable
+	}
+	// A take the recorder stopped at 30 s may measure a fraction over.
+	if length > MaxSeconds+1 {
+		return Heard{}, fmt.Errorf("%w: a take is at most %d seconds", ErrInvalid, MaxSeconds)
+	}
+	windows, err := s.audio.Split(ctx, path, dir, []media.Window{{Start: 0, End: MaxSeconds + 1}})
+	if err != nil || len(windows) != 1 {
+		return Heard{}, ErrUnreadable
+	}
+	// The allowance counts the take to the nearest second: a container
+	// measures a few milliseconds over what was recorded.
+	return s.ears.Hear(ctx, userID, windows[0], media.OutputMIME, lang, max(1, int(math.Round(length))))
+}
+
+// Dictation is what a dictated take said, and which engine heard it.
+type Dictation struct {
+	Text string `json:"text"`
+	By   By     `json:"by"`
+}
+
+// Dictate hears a take of the learner speaking a question into the chat
+// composer, where the browser has no speech recognition of its own. lang is
+// a language code ("vi") or "" to let the engine decide. Nothing is kept.
+func (s *Service) Dictate(ctx context.Context, userID uuid.UUID, take []byte, lang string) (*Dictation, error) {
+	switch {
+	case len(take) == 0:
+		return nil, fmt.Errorf("%w: record your question first", ErrInvalid)
+	case len(take) > MaxBytes:
+		return nil, fmt.Errorf("%w: a take is at most %d seconds", ErrInvalid, MaxSeconds)
+	}
+	if _, ok := worksheet.SniffAudio(take); !ok {
+		return nil, ErrUnreadable
+	}
+	heard, err := s.hear(ctx, userID, take, lang)
+	if err != nil {
+		return nil, err
+	}
+	return &Dictation{Text: strings.TrimSpace(heard.Text), By: heard.By}, nil
 }

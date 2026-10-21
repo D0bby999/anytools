@@ -88,19 +88,94 @@
     "count": 972
    },
    {
-    "id": "hsk3-5",
-    "name": "5",
-    "count": 1059
+    "id": "hsk3-5-1",
+    "name": "5 · 1–500",
+    "count": 500
    },
    {
-    "id": "hsk3-6",
-    "name": "6",
-    "count": 1123
+    "id": "hsk3-5-2",
+    "name": "5 · 501–1000",
+    "count": 500
    },
    {
-    "id": "hsk3-7",
-    "name": "7–9",
-    "count": 5606
+    "id": "hsk3-5-3",
+    "name": "5 · 1001–1059",
+    "count": 59
+   },
+   {
+    "id": "hsk3-6-1",
+    "name": "6 · 1–500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-6-2",
+    "name": "6 · 501–1000",
+    "count": 500
+   },
+   {
+    "id": "hsk3-6-3",
+    "name": "6 · 1001–1123",
+    "count": 123
+   },
+   {
+    "id": "hsk3-7-1",
+    "name": "7–9 · 1–500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-2",
+    "name": "7–9 · 501–1000",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-3",
+    "name": "7–9 · 1001–1500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-4",
+    "name": "7–9 · 1501–2000",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-5",
+    "name": "7–9 · 2001–2500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-6",
+    "name": "7–9 · 2501–3000",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-7",
+    "name": "7–9 · 3001–3500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-8",
+    "name": "7–9 · 3501–4000",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-9",
+    "name": "7–9 · 4001–4500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-10",
+    "name": "7–9 · 4501–5000",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-11",
+    "name": "7–9 · 5001–5500",
+    "count": 500
+   },
+   {
+    "id": "hsk3-7-12",
+    "name": "7–9 · 5501–5606",
+    "count": 106
    }
   ]
  },
@@ -133,14 +208,44 @@
     "count": 598
    },
    {
-    "id": "hsk2-5",
-    "name": "5",
-    "count": 1298
+    "id": "hsk2-5-1",
+    "name": "5 · 1–500",
+    "count": 500
    },
    {
-    "id": "hsk2-6",
-    "name": "6",
-    "count": 2500
+    "id": "hsk2-5-2",
+    "name": "5 · 501–1000",
+    "count": 500
+   },
+   {
+    "id": "hsk2-5-3",
+    "name": "5 · 1001–1298",
+    "count": 298
+   },
+   {
+    "id": "hsk2-6-1",
+    "name": "6 · 1–500",
+    "count": 500
+   },
+   {
+    "id": "hsk2-6-2",
+    "name": "6 · 501–1000",
+    "count": 500
+   },
+   {
+    "id": "hsk2-6-3",
+    "name": "6 · 1001–1500",
+    "count": 500
+   },
+   {
+    "id": "hsk2-6-4",
+    "name": "6 · 1501–2000",
+    "count": 500
+   },
+   {
+    "id": "hsk2-6-5",
+    "name": "6 · 2001–2500",
+    "count": 500
    }
   ]
  },
@@ -148,9 +253,9 @@
   "list": "jlpt",
   "name": "JLPT N5–N1",
   "language": "ja",
-  "licence": "cc-by",
+  "licence": "cc-by-sa",
   "source": "https://github.com/jamsinclair/open-anki-jlpt-decks",
-  "credit": "Jonathan Waller's JLPT lists (tanos.co.uk), CC BY; jamsinclair/open-anki-jlpt-decks (MIT)",
+  "credit": "Jonathan Waller's JLPT lists (tanos.co.uk), CC BY; meanings from JMdict/EDICT (EDRDG), CC BY-SA; jamsinclair/open-anki-jlpt-decks (MIT)",
   "levels": [
    {
     "id": "jlpt-n5",
@@ -163,19 +268,79 @@
     "count": 666
    },
    {
-    "id": "jlpt-n3",
-    "name": "N3",
-    "count": 2103
+    "id": "jlpt-n3-1",
+    "name": "N3 · 1–500",
+    "count": 500
    },
    {
-    "id": "jlpt-n2",
-    "name": "N2",
-    "count": 1898
+    "id": "jlpt-n3-2",
+    "name": "N3 · 501–1000",
+    "count": 500
    },
    {
-    "id": "jlpt-n1",
-    "name": "N1",
-    "count": 2685
+    "id": "jlpt-n3-3",
+    "name": "N3 · 1001–1500",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n3-4",
+    "name": "N3 · 1501–2000",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n3-5",
+    "name": "N3 · 2001–2103",
+    "count": 103
+   },
+   {
+    "id": "jlpt-n2-1",
+    "name": "N2 · 1–500",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n2-2",
+    "name": "N2 · 501–1000",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n2-3",
+    "name": "N2 · 1001–1500",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n2-4",
+    "name": "N2 · 1501–1898",
+    "count": 398
+   },
+   {
+    "id": "jlpt-n1-1",
+    "name": "N1 · 1–500",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n1-2",
+    "name": "N1 · 501–1000",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n1-3",
+    "name": "N1 · 1001–1500",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n1-4",
+    "name": "N1 · 1501–2000",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n1-5",
+    "name": "N1 · 2001–2500",
+    "count": 500
+   },
+   {
+    "id": "jlpt-n1-6",
+    "name": "N1 · 2501–2685",
+    "count": 185
    }
   ]
  }

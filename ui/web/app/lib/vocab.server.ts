@@ -5,7 +5,7 @@
  */
 import { apiFetch } from "~/lib/api.server";
 import { API_BASE, API_TOKEN } from "~/lib/env.server";
-import type { Decision, DueCard, Rating, ReviewResult, Term, VocabNote, Week } from "~/lib/vocab-types";
+import type { Decision, DueCard, Rating, ReviewResult, SourceRecording, SourceSentence, Term, VocabNote, Week } from "~/lib/vocab-types";
 import type { StudiedLanguages } from "~/lib/languages";
 
 /** A decision and its minimum record (up-methods phase 3). */
@@ -144,15 +144,6 @@ export function setStudiedLanguages(userId: string, studied: string[], current =
 
 // ── sentences and recordings from open sources (the private design notes, phase 6)
 
-export type SourceSentence = {
-  id: number;
-  text: string;
-  licence: string;
-  author: string;
-  url: string;
-  translation?: { text: string; licence: string; author: string };
-};
-export type SourceRecording = { id: string; speaker: string; licence: string; page: string; source: string };
 
 export function lookupSentences(userId: string, lang: string, term: string, to: string) {
   const q = new URLSearchParams({ lang, term, to });

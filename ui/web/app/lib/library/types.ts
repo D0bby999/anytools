@@ -40,7 +40,7 @@ export type LibraryAction =
   /** A page of AnyLearn's own. */
   | { type: "page"; to: string }
   /** Nothing to add: opened at its source, for the reason given. */
-  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" };
+  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook"; pdf?: string };
 
 export type LibraryItem = {
   /** Unique in the catalogue, stable: an action names its item by it. */

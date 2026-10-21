@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sync"
@@ -149,6 +150,42 @@ type TurnContext struct {
 
 // Param returns one of StartTurn.Params, or "".
 func (tc *TurnContext) Param(key string) string { return tc.Params[key] }
+
+// ParamReferences is the StartTurn.Params key holding the documents the
+// learner pointed at (`@` in the composer), as a JSON list of DocumentRef.
+// The API checked each one belongs to them and to the session's knowledge
+// bases before it wrote them here.
+const ParamReferences = "references"
+
+// DocumentRef is one document the learner pointed at.
+type DocumentRef struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+}
+
+// References returns the documents the learner pointed at for this turn.
+func (tc *TurnContext) References() []DocumentRef {
+	raw := tc.Params[ParamReferences]
+	if raw == "" {
+		return nil
+	}
+	var refs []DocumentRef
+	if err := json.Unmarshal([]byte(raw), &refs); err != nil {
+		return nil
+	}
+	return refs
+}
+
+func referenceIDs(refs []DocumentRef) []uuid.UUID {
+	if len(refs) == 0 {
+		return nil
+	}
+	ids := make([]uuid.UUID, 0, len(refs))
+	for _, r := range refs {
+		ids = append(ids, r.ID)
+	}
+	return ids
+}
 
 // Emit publishes an event on the turn's stream.
 func (tc *TurnContext) Emit(ev Event) Event { return tc.Bus.Emit(ev) }

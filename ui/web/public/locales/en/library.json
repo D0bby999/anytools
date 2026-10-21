@@ -1,6 +1,6 @@
 {
   "title": "Library",
-  "lead": "Ready material from open sources: decks, word lists, question sets, courses and videos, textbooks and books. Each one says its licence and where it comes from.",
+  "lead": "Ready material from open sources, mostly in English, with some in other languages: decks, word lists, question sets, courses and videos, textbooks and books. Each one says its licence and where it comes from.",
   "filter": {
     "search": "Search",
     "kind": "Kind",
@@ -8,8 +8,8 @@
     "subject": "Subject",
     "anySubject": "Any subject",
     "language": "Language",
-    "myLanguages": "My languages",
-    "allLanguages": "All languages",
+    "myLanguages": "English, then my language",
+    "allLanguages": "All languages, English first",
     "show": "Show"
   },
   "kinds": {
@@ -69,7 +69,8 @@
   "why": {
     "nonCommercial": "Free for non-commercial use, so AnyLearn does not copy it: open it at the source.",
     "noLicence": "It gives no licence, so AnyLearn does not copy it: open it at the source, then bring its file to Decks.",
-    "bringFile": "Open the papers at the source, then upload one in Quiz → Exams → Upload a past paper."
+    "bringFile": "Open the papers at the source, then upload one in Quiz → Exams → Upload a past paper.",
+    "textbook": "Read it at OpenStax, or download its PDF and upload it to a knowledge base (files up to 50 MB)."
   },
   "items": {
     "upWords": "English terms a programmer meets, by language (Python, Go, JavaScript and more): words only, to look up and save.",
@@ -89,11 +90,11 @@
   "source": "Source: {{name}}",
   "newTab": "(opens in a new tab)",
   "addDeck": "Add to Decks",
-  "addDeckOf": "Add {{name}} to Decks",
+  "addDeckOf": "Add to Decks: {{name}}",
   "adding": "Adding…",
   "add": "Add",
   "addToKB": "Add to a knowledge base",
-  "addToKBOf": "Add {{name}} to the knowledge base",
+  "addToKBOf": "Add: {{name}}",
   "kb": "Knowledge base",
   "newKB": "New: {{name}}",
   "openHere": "Open",
@@ -114,13 +115,14 @@
     "failed": "That could not be added."
   },
   "credits": {
-    "fpb": "The courses and books are listed by free-programming-books (Free Ebook Foundation, CC BY 4.0); each belongs to its author."
+    "fpb": "The courses and books are listed by free-programming-books (Free Ebook Foundation, CC BY 4.0); each belongs to its author.",
+    "gutenberg": "The books are from Project Gutenberg and are in the public domain in the United States; check your country's law before using them elsewhere."
   },
   "level": "Level",
   "levelOption_one": "{{name}} ({{count}} word)",
   "levelOption_other": "{{name}} ({{count}} words)",
   "addWords": "Add to my words",
-  "addWordsOf": "Add a level of {{name}} to my words",
+  "addWordsOf": "Add to my words: {{name}}",
   "wordsPace": "The words come up 20 new a day from tomorrow, after any you are already being given.",
   "wordsAdded_one": "Added {{count}} word to your words.",
   "wordsAdded_other": "Added {{count}} words to your words.",
@@ -137,7 +139,7 @@
   },
   "fromList": "From {{list}}, level {{level}}",
   "addToQuiz": "Add to a knowledge base's Quiz",
-  "addToQuizOf": "Add a part of {{name}} to the knowledge base's Quiz",
+  "addToQuizOf": "Add: {{name}}",
   "part": "Part",
   "partOption_one": "{{name}} ({{count}})",
   "partOption_other": "{{name}} ({{count}})",
@@ -152,5 +154,7 @@
     "arc": "Grade-school science questions from real tests, multiple choice: Easy, and Challenge, which simple lookups get wrong.",
     "gsm8k": "Maths word problems of two to eight steps, answered with a number and marked by value, each with its worked steps.",
     "python": "Exercism's Python exercises, easiest first: write the code in the browser and run the tests."
-  }
+  },
+  "pdf": "PDF of the whole book",
+  "wordsDays": "New ones come up from {{first}} to {{last}}."
 }

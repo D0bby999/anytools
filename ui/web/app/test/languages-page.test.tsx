@@ -86,7 +86,7 @@ describe("a language's page", () => {
     const start = screen.getByRole("region", { name: "Keep one baseline in five minutes" });
     expect(within(start).getByRole("link", { name: "New Language diagnostic" })).toHaveAttribute(
       "href",
-      `/toolkit/new?kind=english_diagnostic&title=${encodeURIComponent("Language diagnostic — Japanese")}`,
+      `/toolkit/new?kind=english_diagnostic&title=${encodeURIComponent("Language diagnostic: Japanese")}`,
     );
     expect(within(screen.getByRole("region", { name: "Speaking" })).getByText("Speaking evidence")).toBeInTheDocument();
   });

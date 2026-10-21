@@ -386,7 +386,7 @@
       "skipped_one": "{{count}} ghi chú có mặt trống hoặc quá dài nên bị bỏ qua.",
       "skipped_other": "{{count}} ghi chú có mặt trống hoặc quá dài nên bị bỏ qua.",
       "name": "Tên bộ thẻ",
-      "none": "— không —",
+      "none": "Không có",
       "front": "Mặt trước",
       "back": "Mặt sau",
       "extra": "Thêm vào mặt sau",
@@ -420,13 +420,17 @@
     "failed": "Chưa làm được. Hãy thử lại.",
     "translatedBy": "bản dịch: {{author}}, {{licence}}",
     "use": "Dùng câu này",
-    "useOf": "Dùng “{{sentence}}” làm câu của từ",
+    "useOf": "Dùng câu này: {{sentence}}",
     "isTheSentence": "Đây là một câu của từ này.",
     "used": "Đã lưu làm câu của từ; từ bạn đang học sẽ có thẻ điền từ từ câu này.",
     "recordings": "Người bản ngữ đọc",
     "lookingRecordings": "Đang tìm bản ghi âm…",
     "noRecordings": "Chưa có bản ghi âm cho từ này.",
     "recordingOf": "{{term}}, do {{speaker}} đọc",
-    "close": "Đóng"
+    "close": "Đóng",
+    "foundSentences_one": "Tìm thấy {{count}} câu.",
+    "foundSentences_other": "Tìm thấy {{count}} câu.",
+    "foundRecordings_one": "Tìm thấy {{count}} bản ghi âm.",
+    "foundRecordings_other": "Tìm thấy {{count}} bản ghi âm."
   }
 }

@@ -55,6 +55,10 @@ type workRecord struct {
 	// ContextWindow the model's window it was sized against.
 	ContextTokens int `json:"context_tokens,omitempty"`
 	ContextWindow int `json:"context_window,omitempty"`
+	// HistoryBudget is how much of the window earlier messages may take
+	// before the oldest are summarised (historyBudget): the composer's
+	// context meter marks it.
+	HistoryBudget int `json:"history_budget,omitempty"`
 }
 
 type toolOutcome struct {

@@ -41,6 +41,9 @@ type ToolInput struct {
 	// written before a KB was deleted must not keep reading it.
 	KBIDs    []uuid.UUID
 	AllowWeb bool
+	// DocumentIDs are the documents the learner pointed at for this turn
+	// (`@` in the composer). When set, a search returns only their passages.
+	DocumentIDs []uuid.UUID
 	// URLs numbers the web pages this turn has gathered, so `[[cite:url:<n>]]`
 	// means the same page across every web tool call in the turn. Nil outside
 	// research; a web tool given none numbers within its own call.

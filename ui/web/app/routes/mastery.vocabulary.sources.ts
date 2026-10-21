@@ -16,6 +16,15 @@ const failure = (error: unknown) =>
     { status: error instanceof ApiError ? error.status : 500 },
   );
 
+/**
+ * The lookups are loaded once per word opened: another action on the page
+ * (an edit, a decision, this route's own "use") does not ask the sources
+ * again, which would cost the learner's lookup budget and half a minute.
+ */
+export function shouldRevalidate() {
+  return false;
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
   const q = new URL(request.url).searchParams;

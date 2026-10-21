@@ -386,7 +386,7 @@
       "skipped_one": "{{count}} nota tenía una cara vacía o demasiado larga y se dejó fuera.",
       "skipped_other": "{{count}} notas tenían una cara vacía o demasiado larga y se dejaron fuera.",
       "name": "Nombre del mazo",
-      "none": "— ninguno —",
+      "none": "Ninguno",
       "front": "Anverso",
       "back": "Reverso",
       "extra": "También en el reverso",
@@ -420,13 +420,17 @@
     "failed": "No funcionó. Inténtalo de nuevo.",
     "translatedBy": "traducción: {{author}}, {{licence}}",
     "use": "Usar esta frase",
-    "useOf": "Usar «{{sentence}}» como frase de la palabra",
+    "useOf": "Usar esta frase: {{sentence}}",
     "isTheSentence": "Esta es una de las frases de la palabra.",
     "used": "Guardada como frase de la palabra; una palabra que estás aprendiendo recibe de ella su tarjeta de completar.",
     "recordings": "Dicha por personas",
     "lookingRecordings": "Buscando grabaciones…",
     "noRecordings": "Aún no hay grabación de esta palabra.",
     "recordingOf": "{{term}}, dicha por {{speaker}}",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "foundSentences_one": "{{count}} frase encontrada.",
+    "foundSentences_other": "{{count}} frases encontradas.",
+    "foundRecordings_one": "{{count}} grabación encontrada.",
+    "foundRecordings_other": "{{count}} grabaciones encontradas."
   }
 }

@@ -2,6 +2,7 @@ package chatapi
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -29,7 +30,14 @@ type createTurnRequest struct {
 	// question and everything after it are removed first. With no message it
 	// is "regenerate", the same question again; with one it is "edit".
 	RewindToID string `json:"rewind_to_id"`
+	// References are documents the learner pointed at (`@`): each must be
+	// theirs and in one of the session's knowledge bases. This turn's searches
+	// return only their passages.
+	References []string `json:"references"`
 }
+
+// maxReferences caps the documents one question may point at.
+const maxReferences = 8
 
 // createTurn stores the user's message and starts a turn.
 //
@@ -131,7 +139,13 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	turn, serr := h.begin(r.Context(), userID, *sess, capability, message, attachments, nil, nil)
+	params, serr := h.references(r.Context(), userID, *sess, req.References)
+	if serr != nil {
+		httpx.WriteError(w, serr.Status, serr.Message, serr.Code)
+		return
+	}
+
+	turn, serr := h.begin(r.Context(), userID, *sess, capability, message, attachments, nil, params)
 	if serr != nil {
 		httpx.WriteError(w, serr.Status, serr.Message, serr.Code)
 		return
@@ -141,6 +155,40 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 		"turn_id": turn.ID.String(),
 		"status":  turn.Status,
 	})
+}
+
+// references checks the documents a question points at and returns them as
+// the turn's params. Each must be the caller's and sit in one of the
+// session's knowledge bases; anything else is a 404, as for any other id
+// that is not theirs.
+func (h *Handler) references(ctx context.Context, userID uuid.UUID, sess runtime.Session, raw []string) (map[string]string, *StartError) {
+	if len(raw) == 0 {
+		return nil, nil
+	}
+	if len(raw) > maxReferences {
+		return nil, &StartError{http.StatusBadRequest, "a question may point at up to 8 documents", "too_many_references"}
+	}
+	ids := make([]uuid.UUID, 0, len(raw))
+	seen := map[uuid.UUID]bool{}
+	for _, s := range raw {
+		id, err := uuid.Parse(s)
+		if err != nil {
+			return nil, &StartError{http.StatusNotFound, "not found", "not_found"}
+		}
+		if !seen[id] {
+			seen[id] = true
+			ids = append(ids, id)
+		}
+	}
+	refs, err := h.sessions.DocumentsInKBs(ctx, userID, sess.KBIDs, ids)
+	if err != nil {
+		return nil, &StartError{http.StatusInternalServerError, "could not check the documents", "references_failed"}
+	}
+	if len(refs) != len(ids) {
+		return nil, &StartError{http.StatusNotFound, "not found", "not_found"}
+	}
+	encoded, _ := json.Marshal(refs)
+	return map[string]string{runtime.ParamReferences: string(encoded)}, nil
 }
 
 // CheckOwnVersion applies "write your own version first" for the caller:

@@ -901,7 +901,19 @@
     "Share": "Chia sẻ",
     "My files": "Tệp của tôi",
     "Upload": "Tải lên",
-    "Study links": "Liên kết học tập"
+    "Study links": "Liên kết học tập",
+    "Library": "Thư viện",
+    "Decks": "Bộ thẻ",
+    "Body": "Thể lực",
+    "Training plan": "Kế hoạch tập",
+    "Training progress": "Tiến độ tập",
+    "Training coach": "Huấn luyện viên",
+    "Exercise library": "Thư viện bài tập",
+    "Languages": "Ngoại ngữ",
+    "Routine": "Bài tập theo lịch",
+    "Workout": "Buổi tập",
+    "Page not found": "Không tìm thấy trang",
+    "Something went wrong": "Đã có lỗi xảy ra"
   },
   "readinessText": {
     "no_route": "Chưa có kết nối nào làm việc {{function}}. Hãy chọn một kết nối trong Cài đặt → Phân việc.",
@@ -1006,5 +1018,10 @@
       "title": "Lưu trữ",
       "lead": "Nơi giữ tệp của bạn, dung lượng mỗi bên và việc chuyển tệp."
     }
+  },
+  "serverError": {
+    "title": "Đã có lỗi xảy ra",
+    "status": "Lỗi {{status}}",
+    "body": "Không tải được trang này. Hãy thử lại sau ít phút, hoặc bắt đầu lại từ Hôm nay."
   }
 }

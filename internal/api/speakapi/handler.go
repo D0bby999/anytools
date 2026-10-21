@@ -26,11 +26,12 @@ func NewHandler(svc *speakcheck.Service) *Handler { return &Handler{svc: svc} }
 
 // RegisterRoutes registers this package's patterns on the mux.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /v1/speaking/check", h.check) // budget: upload
+	mux.HandleFunc("POST /v1/speaking/check", h.check)     // budget: upload
+	mux.HandleFunc("POST /v1/speaking/dictate", h.dictate) // budget: upload
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
-func Patterns() []string { return []string{"POST /v1/speaking/check"} }
+func Patterns() []string { return []string{"POST /v1/speaking/check", "POST /v1/speaking/dictate"} }
 
 // maxRequest is the take and the small fields beside it.
 const maxRequest = speakcheck.MaxBytes + 64<<10
@@ -94,6 +95,77 @@ func (h *Handler) check(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, res)
+}
+
+// dictate hears a question spoken into the chat composer, where the browser
+// has no speech recognition of its own: a multipart body with an audio part
+// and an optional lang ("vi"). It answers the text; nothing is kept.
+func (h *Handler) dictate(w http.ResponseWriter, r *http.Request) {
+	userID := httpx.MustUserID(r.Context())
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequest)
+	mr, err := r.MultipartReader()
+	if err != nil {
+		badRequest(w, "send the take as a multipart form with an audio part")
+		return
+	}
+	var take []byte
+	lang := ""
+	for {
+		part, err := mr.NextPart()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			badRequest(w, "malformed multipart body")
+			return
+		}
+		limit := int64(16)
+		if part.FormName() == "audio" {
+			limit = speakcheck.MaxBytes
+		}
+		data, over, err := blob.ReadAllLimited(part, limit)
+		if over {
+			httpx.WriteError(w, http.StatusRequestEntityTooLarge,
+				"a take is at most "+strconv.Itoa(speakcheck.MaxSeconds)+" seconds", "too_large")
+			return
+		}
+		if err != nil {
+			badRequest(w, "malformed multipart body")
+			return
+		}
+		switch part.FormName() {
+		case "audio":
+			take = data
+		case "lang":
+			lang = strings.ToLower(strings.TrimSpace(string(data)))
+			if !langCode(lang) {
+				badRequest(w, "lang is a language code")
+				return
+			}
+		}
+	}
+	res, err := h.svc.Dictate(r.Context(), userID, take, lang)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, res)
+}
+
+// langCode accepts "" or two or three lowercase letters.
+func langCode(s string) bool {
+	if s == "" {
+		return true
+	}
+	if len(s) < 2 || len(s) > 3 {
+		return false
+	}
+	for _, r := range s {
+		if r < 'a' || r > 'z' {
+			return false
+		}
+	}
+	return true
 }
 
 func badRequest(w http.ResponseWriter, msg string) {

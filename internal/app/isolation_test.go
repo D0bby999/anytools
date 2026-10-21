@@ -1339,6 +1339,7 @@ var writesWithoutResourceIDs = map[string]string{
 	"POST /v1/vocab/import":                       "a deck's words for the caller's own vocabulary; names no row",
 	"POST /v1/decks/{id}/cards":                   "fronts and backs; the path's deck is probed",
 	"DELETE /v1/decks/{id}":                       "no body",
+	"POST /v1/speaking/dictate":                   "a multipart take of the caller's own voice; it names no resource",
 	"POST /v1/speaking/check":                     "a multipart take; its workspace_id is resolved with the caller's id before anything is heard (TestTheReadAloudCheckRefusesAnotherUsersWorkspace)",
 	"DELETE /v1/worksheets/{id}/recordings/{rid}": "no body; both path ids probed, mixed owners too",
 	// Up-methods phase 18. Bodies name a URL, limits, a branch, a folder,

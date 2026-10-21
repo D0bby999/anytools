@@ -151,7 +151,7 @@ export default function Vocabulary({ loaderData }: Route.ComponentProps) {
     <div className="lp-doc lp-measure">
       <PageHeader title={t("page.title")} lede={t("page.lead")} />
       <MasteryTabs vocabDue={loaderData.dueCount} bookDue={loaderData.bookDue} />
-      <QuickStart kicker={t("session.title")} title={t("practise.reviewWords", { count: loaderData.dueCount })} primary={{ to: "#lp-vocab-due", label: t("session.title") }} />
+      <QuickStart title={t("practise.reviewWords", { count: loaderData.dueCount })} primary={{ to: "#lp-vocab-due", label: t("session.title") }} />
 
       <section aria-labelledby="lp-vocab-due" className="mt-8">
         <h2 id="lp-vocab-due" className="lp-section">

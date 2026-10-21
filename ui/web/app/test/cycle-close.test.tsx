@@ -208,7 +208,7 @@ describe("a close's destinations", () => {
     expect(screen.getByRole("columnheader", { name: "Still missing" })).toBeInTheDocument();
     expect(screen.getByText("where it is archived, who was told")).toBeInTheDocument();
     expect(screen.getByText("the changed condition")).toBeInTheDocument();
-    expect(screen.getAllByText("—")).toHaveLength(1);
+    expect(screen.getAllByText("–")).toHaveLength(1);
   });
 
   it("add nothing to another kind's tables", () => {

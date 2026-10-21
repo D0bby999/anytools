@@ -1,6 +1,6 @@
 {
   "title": "Biblioteca",
-  "lead": "Material listo de fuentes abiertas: mazos, listas de palabras, bancos de preguntas, cursos y vídeos, libros de texto y libros. Cada uno indica su licencia y su origen.",
+  "lead": "Material listo de fuentes abiertas, sobre todo en inglés y algo en otros idiomas: mazos, listas de palabras, bancos de preguntas, cursos y vídeos, libros de texto y libros. Cada uno indica su licencia y su origen.",
   "filter": {
     "search": "Buscar",
     "kind": "Tipo",
@@ -8,8 +8,8 @@
     "subject": "Materia",
     "anySubject": "Cualquier materia",
     "language": "Idioma",
-    "myLanguages": "Mis idiomas",
-    "allLanguages": "Todos los idiomas",
+    "myLanguages": "Inglés, luego mi idioma",
+    "allLanguages": "Todos los idiomas, primero inglés",
     "show": "Mostrar"
   },
   "kinds": {
@@ -69,7 +69,8 @@
   "why": {
     "nonCommercial": "Es libre solo para uso no comercial, así que AnyLearn no lo copia: ábrelo en su origen.",
     "noLicence": "No indica licencia, así que AnyLearn no lo copia: ábrelo en su origen y luego trae su archivo a Mazos.",
-    "bringFile": "Abre los exámenes en su origen y luego sube uno en Cuestionarios → Exámenes → Subir un examen anterior."
+    "bringFile": "Abre los exámenes en su origen y luego sube uno en Cuestionarios → Exámenes → Subir un examen anterior.",
+    "textbook": "Léelo en OpenStax, o descarga su PDF y súbelo a una base de conocimiento (archivos de hasta 50 MB)."
   },
   "items": {
     "upWords": "Términos en inglés que encuentra un programador, por lenguaje (Python, Go, JavaScript y más): solo palabras, para consultar y guardar.",
@@ -89,11 +90,11 @@
   "source": "Fuente: {{name}}",
   "newTab": "(se abre en una pestaña nueva)",
   "addDeck": "Añadir a Mazos",
-  "addDeckOf": "Añadir {{name}} a Mazos",
+  "addDeckOf": "Añadir a Mazos: {{name}}",
   "adding": "Añadiendo…",
   "add": "Añadir",
   "addToKB": "Añadir a una base de conocimiento",
-  "addToKBOf": "Añadir {{name}} a la base de conocimiento",
+  "addToKBOf": "Añadir: {{name}}",
   "kb": "Base de conocimiento",
   "newKB": "Nueva: {{name}}",
   "openHere": "Abrir",
@@ -114,13 +115,14 @@
     "failed": "No se pudo añadir."
   },
   "credits": {
-    "fpb": "Los cursos y libros los recopila free-programming-books (Free Ebook Foundation, CC BY 4.0); cada uno pertenece a su autor."
+    "fpb": "Los cursos y libros los recopila free-programming-books (Free Ebook Foundation, CC BY 4.0); cada uno pertenece a su autor.",
+    "gutenberg": "Los libros son de Project Gutenberg y son de dominio público en Estados Unidos; consulta la ley de tu país antes de usarlos en otro lugar."
   },
   "level": "Nivel",
   "levelOption_one": "{{name}} ({{count}} palabra)",
   "levelOption_other": "{{name}} ({{count}} palabras)",
   "addWords": "Añadir a mis palabras",
-  "addWordsOf": "Añadir un nivel de {{name}} a mis palabras",
+  "addWordsOf": "Añadir a mis palabras: {{name}}",
   "wordsPace": "Las palabras aparecen de 20 en 20 cada día desde mañana, después de las que ya se te están dando.",
   "wordsAdded_one": "Se añadió {{count}} palabra a tus palabras.",
   "wordsAdded_other": "Se añadieron {{count}} palabras a tus palabras.",
@@ -137,7 +139,7 @@
   },
   "fromList": "De {{list}}, nivel {{level}}",
   "addToQuiz": "Añadir a los cuestionarios de una base de conocimiento",
-  "addToQuizOf": "Añadir una parte de {{name}} a los cuestionarios de la base de conocimiento",
+  "addToQuizOf": "Añadir: {{name}}",
   "part": "Parte",
   "partOption_one": "{{name}} ({{count}})",
   "partOption_other": "{{name}} ({{count}})",
@@ -152,5 +154,7 @@
     "arc": "Preguntas de ciencias escolares de exámenes reales, de opción múltiple: Fácil, y Desafío, que una búsqueda simple responde mal.",
     "gsm8k": "Problemas de matemáticas de dos a ocho pasos, respondidos con un número y corregidos por su valor, cada uno con su resolución.",
     "python": "Los ejercicios de Python de Exercism, del más fácil al más difícil: escribe el código en el navegador y ejecuta las pruebas."
-  }
+  },
+  "pdf": "PDF del libro completo",
+  "wordsDays": "Las nuevas aparecen del {{first}} al {{last}}."
 }

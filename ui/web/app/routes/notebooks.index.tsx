@@ -56,7 +56,6 @@ export default function NotebooksIndex({ loaderData, actionData }: Route.Compone
       <PageHeader title={t("notebook.title")} lede={t("notebook.lead")} />
 
       <QuickStart
-        kicker={t("notebook.up.kicker")}
         title={t("notebook.up.title")}
         description={t("notebook.up.description")}
         primary={{ label: t("notebook.newName"), to: "?new#lp-nb-new" }}

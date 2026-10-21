@@ -54,11 +54,13 @@ describe("a word's sentences and recordings", () => {
     expect(screen.getByRole("link", { name: "Tatoeba · CK · CC BY 2.0 FR" })).toHaveAttribute("href", "https://tatoeba.org/en/sentences/show/2107662");
     const audio = await screen.findByLabelText("carefully, said by Vealhurl");
     expect(audio.getAttribute("src")).toContain("kind=audio");
-    const use = screen.getByRole("button", { name: "Use “Watch carefully.” as the word's sentence" });
+    const use = screen.getByRole("button", { name: "Use this sentence: Watch carefully." });
     use.focus();
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(onUse).toHaveBeenCalledWith({ id: "n1", sentence: "Watch carefully.", credit: "Tatoeba · CK · CC BY 2.0 FR", url: "https://tatoeba.org/en/sentences/show/2107662" }));
-    expect(await screen.findByText(/Saved as the word's sentence/)).toBeInTheDocument();
+    const saved = await screen.findByText(/Saved as the word's sentence/);
+    // The pressed button is gone with its sentence in: focus is on the line that says so.
+    await waitFor(() => expect(saved).toHaveFocus());
   });
 
   it("says when Tatoeba did not answer", async () => {

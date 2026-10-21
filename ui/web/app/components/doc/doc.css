@@ -325,7 +325,8 @@ fieldset {
   border-bottom: 1px solid var(--lp-border);
 }
 
-.lp-quick-start-heading,
+/* A quick start is a title and its line; a guide-path group puts its part's
+   numeral tab in a column before them. */
 .lp-guide-path-group-heading {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -351,9 +352,12 @@ fieldset {
   line-height: 1.35;
 }
 
-.lp-quick-start-heading p,
 .lp-guide-path-group-heading p {
   grid-column: 2;
+}
+
+.lp-quick-start-heading p,
+.lp-guide-path-group-heading p {
   margin: 4px 0 0;
   color: var(--lp-ink-2);
   font-size: 14px;

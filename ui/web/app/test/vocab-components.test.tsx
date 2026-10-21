@@ -172,7 +172,7 @@ describe("ReadAloudBar", () => {
     const select = screen.getByLabelText("Voice");
     const options = within(select).getAllByRole("option").map((o) => o.textContent);
     expect(options).toEqual([
-      "—",
+      "–",
       "Samantha (en-US) · on this device",
       "Google US English (en-US) · online: the text is sent to your browser's maker",
     ]);

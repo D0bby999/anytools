@@ -584,5 +584,6 @@
  "unknown reason": "motivo desconhecido",
  "a comment is at most 2000 characters": "um comentário tem no máximo 2000 caracteres",
  "could not record the rating": "não foi possível salvar a avaliação",
- "could not retract the rating": "não foi possível retirar a avaliação"
+ "could not retract the rating": "não foi possível retirar a avaliação",
+ "record your question first": "grave sua pergunta primeiro"
 }

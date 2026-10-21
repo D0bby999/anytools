@@ -53,7 +53,7 @@ function rowLabel(field: WorksheetField, row: TableRow): string {
 function RowTotal({ field, row }: { field: WorksheetField; row: TableRow }) {
   const { t } = useTranslation("toolkit");
   const { total, max, scored } = scoreTotal(field, row);
-  if (scored === 0) return <span className="text-faint">—</span>;
+  if (scored === 0) return <span className="text-faint">–</span>;
   return (
     <span className="font-mono tabular-nums" aria-label={t("diagnostic.totalOf", { total, max })}>
       {total} / {max}

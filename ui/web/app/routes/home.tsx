@@ -256,7 +256,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <div className="min-w-0">
       <PageHeader title={t("home.title")} lede={shell?.displayName ? t("home.up.greeting", { name: shell.displayName }) : t("home.lead")} />
       <QuickStart
-        kicker={t("home.up.nextStep")}
         title={nextSetup?.title ?? (today ? today.goal : t("home.noGoal.title"))}
         description={nextSetup?.body ?? t(today ? "home.lead" : "home.noGoal.body")}
         primary={primary}

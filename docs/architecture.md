@@ -472,6 +472,8 @@ its own store, API sub-package and routes. Four rules hold across them:
 | Video study notes | `capabilities/videonotes` | One call per language; times outside the transcript or their section are dropped; creator chapters are the boundaries; stale when the transcript's sha256 changes. |
 | Diagrams | `capabilities/visualize`, `components/diagram` | Mermaid shown only through `<img src=blob:>`; charts from an allow-listed JSON spec. |
 | Papers | `rag/papers`, `capabilities/related` | OpenAlex then arXiv; keys never reach an error; a keyless budget per user. |
+| Library | `ui/web/app/lib/library`, `quiz/starters` | Bundled catalogue from pinned scripts; actions reuse decks, the vocabulary import (`origin library:<level>`), quiz sets (`AddSet`) and the link import. No live call. |
+| Word sources | `connectors/wordsources` | Tatoeba, Wikimedia Commons, Free Dictionary API from the server on the safe client; a week's cache; audio only for ids it returned, at most 3 MB; route class `lookup`. |
 | Vocabulary, read-aloud | `vocab` | Its own FSRS scheduler with fuzz; read-aloud is the browser's voices. |
 | Skill cards | `learning/loop/cards.go` | The server enforces the retest date and withholds the baseline until then. |
 | Learner profile | `learning/profile` | Consolidation is off by default and writes proposals the learner approves. |

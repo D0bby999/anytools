@@ -197,7 +197,7 @@
   },
   "cycleClose": {
     "missing": "Vẫn còn thiếu",
-    "none": "—",
+    "none": "–",
     "need": {
       "condition": "điều kiện đã đổi",
       "basis": "căn cứ",
@@ -262,7 +262,7 @@
       "anki": "Nhập từ Anki",
       "openKnowledge": "Mở Tài liệu"
     },
-    "diagnosticTitle": "{{kind}} — {{name}}",
+    "diagnosticTitle": "{{kind}}: {{name}}",
     "fromDocument": "Từ một tài liệu",
     "fromDocumentOf": "Bắt đầu {{name}} từ một tài liệu",
     "fromRecording": "Từ video hoặc bản ghi âm",

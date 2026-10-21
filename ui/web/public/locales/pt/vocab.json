@@ -386,7 +386,7 @@
       "skipped_one": "{{count}} nota tinha uma face vazia ou longa demais e ficou de fora.",
       "skipped_other": "{{count}} notas tinham uma face vazia ou longa demais e ficaram de fora.",
       "name": "Nome do baralho",
-      "none": "— nenhum —",
+      "none": "Nenhum",
       "front": "Frente",
       "back": "Verso",
       "extra": "Também no verso",
@@ -420,13 +420,17 @@
     "failed": "Não funcionou. Tente de novo.",
     "translatedBy": "tradução: {{author}}, {{licence}}",
     "use": "Usar esta frase",
-    "useOf": "Usar “{{sentence}}” como frase da palavra",
+    "useOf": "Usar esta frase: {{sentence}}",
     "isTheSentence": "Esta é uma das frases da palavra.",
     "used": "Salva como frase da palavra; uma palavra que você está aprendendo ganha dela o cartão de completar.",
     "recordings": "Dita por pessoas",
     "lookingRecordings": "Procurando gravações…",
     "noRecordings": "Ainda não há gravação desta palavra.",
     "recordingOf": "{{term}}, dita por {{speaker}}",
-    "close": "Fechar"
+    "close": "Fechar",
+    "foundSentences_one": "{{count}} frase encontrada.",
+    "foundSentences_other": "{{count}} frases encontradas.",
+    "foundRecordings_one": "{{count}} gravação encontrada.",
+    "foundRecordings_other": "{{count}} gravações encontradas."
   }
 }

@@ -23,105 +23,109 @@ export default [
     layout("routes/auth-layout.tsx", [route("login", "routes/login.tsx")]),
 
     layout("routes/app-layout.tsx", [
-      // Phase 12: `/` is the public landing; the signed-in home lives at /home.
-      route("home", "routes/home.tsx"),
-      // The phone bar's "More": every destination as a plain page (sidebar.tsx).
-      route("more", "routes/more.tsx"),
-      // Settings is a layout with three sections rather than one long page:
-      // "what have I connected", "what serves what" and "what may search the
-      // web" are different questions, and stacking them buries the third.
-      route("settings", "routes/settings.tsx", [
-        index("routes/settings.connections.tsx"),
-        route("routes", "routes/settings.routes.tsx"),
-        route("search", "routes/settings.search.tsx"),
-        route("account", "routes/settings.account.tsx"),
-        // Learning depth, phase 9: the learner profile (no new rail item).
-        route("profile", "routes/settings.profile.tsx"),
-        // Moved to /storage (Mine); the old address redirects there.
-        route("storage", "routes/settings.storage.tsx"),
-        // The daily review reminder (a web push) and installing AnyLearn.
-        route("reminders", "routes/settings.reminders.tsx"),
+      // Every signed-in page sits under one pathless layout whose error
+      // boundary answers a failure inside the shell (routes/app-errors.tsx).
+      layout("routes/app-errors.tsx", [
+        // Phase 12: `/` is the public landing; the signed-in home lives at /home.
+        route("home", "routes/home.tsx"),
+        // The phone bar's "More": every destination as a plain page (sidebar.tsx).
+        route("more", "routes/more.tsx"),
+        // Settings is a layout with three sections rather than one long page:
+        // "what have I connected", "what serves what" and "what may search the
+        // web" are different questions, and stacking them buries the third.
+        route("settings", "routes/settings.tsx", [
+          index("routes/settings.connections.tsx"),
+          route("routes", "routes/settings.routes.tsx"),
+          route("search", "routes/settings.search.tsx"),
+          route("account", "routes/settings.account.tsx"),
+          // Learning depth, phase 9: the learner profile (no new rail item).
+          route("profile", "routes/settings.profile.tsx"),
+          // Moved to /storage (Mine); the old address redirects there.
+          route("storage", "routes/settings.storage.tsx"),
+          // The daily review reminder (a web push) and installing AnyLearn.
+          route("reminders", "routes/settings.reminders.tsx"),
+        ]),
+        // Phase 6: grounded chat. Nested under app-layout, so it inherits the
+        // session guard rather than remembering to ask for one.
+        // Mine (2026-10-21): the learner's own files, uploads, study links and
+        // storage, across every knowledge base.
+        route("files", "routes/files.tsx"),
+        route("upload", "routes/upload.tsx"),
+        route("links", "routes/links.tsx"),
+        route("storage", "routes/storage.tsx"),
+        route("chat", "routes/chat.index.tsx"),
+        route("chat/:sessionId", "routes/chat.$sessionId.tsx"),
+        // Phase 5. `documents/:docId` is the ONE document viewer (red-team
+        // RT-15); phase 8 replaces its renderer in place rather than adding a
+        // second route, so citations written today keep resolving.
+        route("knowledge", "routes/knowledge.index.tsx"),
+        route("knowledge/:kbId", "routes/knowledge.$kbId.tsx"),
+        // the private design notes, phase 4: Share to AnyLearn (the manifest's share_target).
+        route("share", "routes/share.tsx"),
+        route("documents/:docId", "routes/documents.$docId.tsx"),
+        // Up-methods phase 17: a podcast feed or YouTube playlist to pick from.
+        route("feeds/:feedId", "routes/feeds.$feedId.tsx"),
+        // Phase 7: the question bank and the mastery path.
+        route("quiz", "routes/quiz.index.tsx"),
+        route("quiz/bank", "routes/quiz.bank.tsx"),
+        route("quiz/practice", "routes/quiz.practice.tsx"),
+        // Learning depth, phase 3: past papers and mock exams, under Quiz.
+        route("quiz/exams", "routes/quiz.exams.tsx"),
+        route("quiz/exams/templates/:templateId", "routes/quiz.exams.templates.$templateId.tsx"),
+        route("quiz/exams/:examId", "routes/quiz.exams.$examId.tsx"),
+        route("mastery", "routes/mastery.index.tsx"),
+        // Learning depth, phase 7: word cards, under Mastery (no new rail item).
+        route("mastery/vocabulary", "routes/mastery.vocabulary.tsx"),
+        // Learning depth, phase 11: the living books' flash cards.
+        route("mastery/book-cards", "routes/mastery.book-cards.tsx"),
+        // General decks (the private design notes, phase 5).
+        route("mastery/decks", "routes/mastery.decks.tsx"),
+        // up-methods phase 12: one review across every path, interleaved.
+        route("mastery/review", "routes/mastery.review.tsx"),
+        route("mastery/:pathId", "routes/mastery.$pathId.tsx"),
+        route("mastery/:pathId/session", "routes/mastery.$pathId.session.tsx"),
+        // Phase 8: the notebook.
+        route("notebooks", "routes/notebooks.index.tsx"),
+        route("notebooks/:notebookId", "routes/notebooks.$notebookId.tsx"),
+        // Phase 9: worked solutions and cited research. Both run as turns on
+        // chat sessions, so their streams go through the same proxy route.
+        route("solve", "routes/solve.tsx"),
+        route("research", "routes/research.tsx"),
+        route("research/:reportId", "routes/research.$reportId.tsx"),
+        // Phase 10: the learning loop. `evidence/:id` is an evidence chain.
+        route("loop", "routes/loop.index.tsx"),
+        route("loop/state/:id", "routes/loop.state.$id.tsx"),
+        route("loop/cycle/:id", "routes/loop.cycle.$id.tsx"),
+        route("loop/review/:id", "routes/loop.review.$id.tsx"),
+        route("loop/evidence/:id", "routes/loop.evidence.$id.tsx"),
+        route("loop/brief/:id", "routes/loop.brief.$id.tsx"),
+        // Learning depth, phase 8: a skill evidence card on a goal's chain.
+        route("loop/cards/:id", "routes/loop.cards.$id.tsx"),
+        // Learning depth, phase 11: a living book, made from the knowledge base
+        // page (no rail item), and one chapter of it.
+        route("books/:bookId", "routes/books.$bookId.tsx"),
+        route("books/:bookId/chapters/:chapterId", "routes/books.$bookId.chapters.$chapterId.tsx"),
+        // up methods, phase 0: up's worksheets (no rail item; /more lists it).
+        route("toolkit", "routes/toolkit.index.tsx"),
+        route("toolkit/new", "routes/toolkit.new.tsx"),
+        route("toolkit/:id", "routes/toolkit.$id.tsx"),
+        // Languages: each studied language's practice, gathered by skill
+        // (the private design notes, phase 1). The old
+        // English page answers with English's tab.
+        route("languages", "routes/languages.tsx"),
+        route("languages/:lang", "routes/languages.$lang.tsx"),
+        route("english", "routes/english.tsx"),
+        // Body: the training log beside the studying (the private design notes).
+        // One rail row; its sections are tabs (components/body/body-tabs.tsx).
+        route("body", "routes/body.tsx"),
+        route("body/plan", "routes/body.plan.tsx"),
+        route("body/routines/:id", "routes/body.routines.$id.tsx"),
+        route("body/workouts/:id", "routes/body.workouts.$id.tsx"),
+        route("body/progress", "routes/body.progress.tsx"),
+        route("body/coach", "routes/body.coach.tsx"),
+        route("body/library", "routes/body.library.tsx"),
+        route("library", "routes/library.tsx"),
       ]),
-      // Phase 6: grounded chat. Nested under app-layout, so it inherits the
-      // session guard rather than remembering to ask for one.
-      // Mine (2026-10-21): the learner's own files, uploads, study links and
-      // storage, across every knowledge base.
-      route("files", "routes/files.tsx"),
-      route("upload", "routes/upload.tsx"),
-      route("links", "routes/links.tsx"),
-      route("storage", "routes/storage.tsx"),
-      route("chat", "routes/chat.index.tsx"),
-      route("chat/:sessionId", "routes/chat.$sessionId.tsx"),
-      // Phase 5. `documents/:docId` is the ONE document viewer (red-team
-      // RT-15); phase 8 replaces its renderer in place rather than adding a
-      // second route, so citations written today keep resolving.
-      route("knowledge", "routes/knowledge.index.tsx"),
-      route("knowledge/:kbId", "routes/knowledge.$kbId.tsx"),
-      // the private design notes, phase 4: Share to AnyLearn (the manifest's share_target).
-      route("share", "routes/share.tsx"),
-      route("documents/:docId", "routes/documents.$docId.tsx"),
-      // Up-methods phase 17: a podcast feed or YouTube playlist to pick from.
-      route("feeds/:feedId", "routes/feeds.$feedId.tsx"),
-      // Phase 7: the question bank and the mastery path.
-      route("quiz", "routes/quiz.index.tsx"),
-      route("quiz/bank", "routes/quiz.bank.tsx"),
-      route("quiz/practice", "routes/quiz.practice.tsx"),
-      // Learning depth, phase 3: past papers and mock exams, under Quiz.
-      route("quiz/exams", "routes/quiz.exams.tsx"),
-      route("quiz/exams/templates/:templateId", "routes/quiz.exams.templates.$templateId.tsx"),
-      route("quiz/exams/:examId", "routes/quiz.exams.$examId.tsx"),
-      route("mastery", "routes/mastery.index.tsx"),
-      // Learning depth, phase 7: word cards, under Mastery (no new rail item).
-      route("mastery/vocabulary", "routes/mastery.vocabulary.tsx"),
-      // Learning depth, phase 11: the living books' flash cards.
-      route("mastery/book-cards", "routes/mastery.book-cards.tsx"),
-      // General decks (the private design notes, phase 5).
-      route("mastery/decks", "routes/mastery.decks.tsx"),
-      // up-methods phase 12: one review across every path, interleaved.
-      route("mastery/review", "routes/mastery.review.tsx"),
-      route("mastery/:pathId", "routes/mastery.$pathId.tsx"),
-      route("mastery/:pathId/session", "routes/mastery.$pathId.session.tsx"),
-      // Phase 8: the notebook.
-      route("notebooks", "routes/notebooks.index.tsx"),
-      route("notebooks/:notebookId", "routes/notebooks.$notebookId.tsx"),
-      // Phase 9: worked solutions and cited research. Both run as turns on
-      // chat sessions, so their streams go through the same proxy route.
-      route("solve", "routes/solve.tsx"),
-      route("research", "routes/research.tsx"),
-      route("research/:reportId", "routes/research.$reportId.tsx"),
-      // Phase 10: the learning loop. `evidence/:id` is an evidence chain.
-      route("loop", "routes/loop.index.tsx"),
-      route("loop/state/:id", "routes/loop.state.$id.tsx"),
-      route("loop/cycle/:id", "routes/loop.cycle.$id.tsx"),
-      route("loop/review/:id", "routes/loop.review.$id.tsx"),
-      route("loop/evidence/:id", "routes/loop.evidence.$id.tsx"),
-      route("loop/brief/:id", "routes/loop.brief.$id.tsx"),
-      // Learning depth, phase 8: a skill evidence card on a goal's chain.
-      route("loop/cards/:id", "routes/loop.cards.$id.tsx"),
-      // Learning depth, phase 11: a living book, made from the knowledge base
-      // page (no rail item), and one chapter of it.
-      route("books/:bookId", "routes/books.$bookId.tsx"),
-      route("books/:bookId/chapters/:chapterId", "routes/books.$bookId.chapters.$chapterId.tsx"),
-      // up methods, phase 0: up's worksheets (no rail item; /more lists it).
-      route("toolkit", "routes/toolkit.index.tsx"),
-      route("toolkit/new", "routes/toolkit.new.tsx"),
-      route("toolkit/:id", "routes/toolkit.$id.tsx"),
-      // Languages: each studied language's practice, gathered by skill
-      // (the private design notes, phase 1). The old
-      // English page answers with English's tab.
-      route("languages", "routes/languages.tsx"),
-      route("languages/:lang", "routes/languages.$lang.tsx"),
-      route("english", "routes/english.tsx"),
-      // Body: the training log beside the studying (the private design notes).
-      // One rail row; its sections are tabs (components/body/body-tabs.tsx).
-      route("body", "routes/body.tsx"),
-      route("body/plan", "routes/body.plan.tsx"),
-      route("body/routines/:id", "routes/body.routines.$id.tsx"),
-      route("body/workouts/:id", "routes/body.workouts.$id.tsx"),
-      route("body/progress", "routes/body.progress.tsx"),
-      route("body/coach", "routes/body.coach.tsx"),
-      route("body/library", "routes/body.library.tsx"),
-      route("library", "routes/library.tsx"),
     ]),
 
     // Body: the exercise picker's search. Loader only; its loader calls requireUserId.

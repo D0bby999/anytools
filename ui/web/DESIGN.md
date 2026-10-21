@@ -110,8 +110,9 @@ self-hosted through `@fontsource`.
 **Roles in the up structure.** The article (`.lp-doc`, `components/doc/doc.css`) sets
 its prose and titles in the book face; tables, badges and controls inside it, the
 sidebar, the top nav and the outline are the interface face. The wordmark is book face.
-Kickers are interface face, 12px/600, in sentence case (up's mono capitals are not
-kept: see the anti-patterns).
+Small labels (`lp-kicker`) are interface face, 12px/600, in sentence case, and label a
+field or a value, never a heading: ~~a kicker over the QuickStart title~~ **Superseded
+2026-10-21** (design-world refuse list, owner agreed): the title stands alone.
 
 The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Leading is
 1.5 for the interface, **1.85 for prose** (from `up`) and 1.12 for titles. `h1` tracks
@@ -333,8 +334,10 @@ nothing scrolls sideways; wide tables scroll inside their own box.
 
 17. **up's page patterns** (`components/doc/`, spec in the plan's
    `reports/feature-ui-spec.md`). Every app page is one column built from them:
-   **At a glance** (an h2 and a short list), **numbered sections** (h2 "1. …" with a
-   rule above), **QuickStart** (kicker, title, one primary and up to two secondary
+   **At a glance** (an h2 and a short list), **numbered sections** (h2 "1. …" only
+   where the order is the work: the weekly review, an evidence chain, a card's timeline,
+   a learning state's parts; a page that lists its parts, Loop and a cycle, leaves the
+   number out), **QuickStart** (a title, its line, one primary and up to two secondary
    actions, the cycle line), **BookMeta** (numbers split by 1px rules), **GuidePaths**
    (Today's groups, tinted and outlined in their part's colour, names in navy),
    **DatedList** (**date** · title · note; the join is `NOTE_JOIN` in
@@ -362,6 +365,11 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    face, and reading text carries `lp-prose`, which sets the book face itself. ~~The
    whole `.lp-doc` in the book face.~~ **Superseded 2026-10-21:** settings cards, tabs
    and labels in the book face read as a document, not a tool.
+
+22. **Errors inside the app** (`routes/app-errors.tsx`, a pathless layout round every
+   signed-in page): a page whose loader or render fails, or a missing record, is
+   answered in the shell's `<main>` in the 404's frame, so the nav and the sidebar stay.
+   Only a failure of the session itself reaches root's bare boundary. Both name the tab.
 
 ## Anti-patterns for this project
 

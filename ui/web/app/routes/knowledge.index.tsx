@@ -69,7 +69,6 @@ export default function KnowledgeIndex({ loaderData, actionData }: Route.Compone
       <PageHeader title={t("index.title")} lede={t("index.lead")} />
 
       <QuickStart
-        kicker={t("index.up.kicker")}
         title={t("index.up.title")}
         description={t("index.up.description")}
         primary={{ label: t("index.create"), to: "?new#lp-kb-new" }}

@@ -156,7 +156,7 @@ describe("the diagnostic's scores", () => {
     const reading = within(table).getByRole("row", { name: /Reading/ });
     expect(within(reading).getByLabelText("1 of 4")).toBeInTheDocument();
     // An unscored row has no total yet.
-    expect(within(within(table).getByRole("row", { name: /Listening/ })).getByText("—")).toBeInTheDocument();
+    expect(within(within(table).getByRole("row", { name: /Listening/ })).getByText("–")).toBeInTheDocument();
 
     const comprehensibility = within(table).getByRole("group", { name: "Reading: Comprehensibility" });
     fireEvent.click(within(comprehensibility).getAllByRole("radio")[2]!);

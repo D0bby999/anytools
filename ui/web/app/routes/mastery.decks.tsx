@@ -74,7 +74,7 @@ export default function Decks({ loaderData }: Route.ComponentProps) {
     <div className="lp-doc lp-measure">
       <PageHeader title={t("decks.title")} lede={t("decks.lead")} />
       <MasteryTabs vocabDue={vocabDue} bookDue={bookDue} deckDue={dueCount} />
-      <QuickStart kicker={t("session.title")} title={t("practise.reviewCards", { count: dueCount })} primary={{ to: "#lp-decks-due", label: t("session.title") }} />
+      <QuickStart title={t("practise.reviewCards", { count: dueCount })} primary={{ to: "#lp-decks-due", label: t("session.title") }} />
 
       <section aria-labelledby="lp-decks-due" className="mt-8">
         <h2 id="lp-decks-due" className="lp-section">

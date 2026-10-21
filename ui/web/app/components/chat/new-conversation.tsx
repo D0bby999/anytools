@@ -18,7 +18,6 @@ export function NewConversation({ kbs, busy }: { kbs: { id: string; name: string
   return (
     <section className="lp-quick-start" aria-labelledby={id}>
       <div className="lp-quick-start-heading">
-        <span className="lp-kicker">{t("chat.index.kicker")}</span>
         <h2 id={id}>{t("chat.index.startTitle")}</h2>
         <p>{t("chat.index.startBody")}</p>
       </div>

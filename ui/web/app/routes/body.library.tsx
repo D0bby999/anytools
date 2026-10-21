@@ -1,9 +1,9 @@
 /**
  * body.library.tsx
  * Body → Library: the exercises by name, body part and equipment, and one
- * exercise's steps. openGym's dataset's animations are © Gym visual and not
- * ours to serve (THIRD-PARTY-NOTICES.md); the photos are free-exercise-db's,
- * public domain, and the other languages' names wger's (the private design notes, phase 3).
+ * exercise's steps. Text only: the dataset's animations are © Gym visual and
+ * not ours to serve (THIRD-PARTY-NOTICES.md). Names in other languages are
+ * wger's (the private design notes, phase 3).
  */
 import { RefTable } from "~/components/doc/ref-table";
 import { Form, Link } from "react-router";
@@ -15,7 +15,7 @@ import { appTitle } from "~/lib/app-title";
 import { requireUserId } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { getExercise, searchExercises } from "~/lib/body.server";
-import { exerciseName, exercisePhotos, wgerPage } from "~/lib/body-library";
+import { exerciseName, wgerPage } from "~/lib/body-library";
 import { BodyTabs } from "~/components/body/body-tabs";
 import { FIELD } from "~/components/body/fields";
 import { Button } from "~/components/ui/button";
@@ -119,7 +119,6 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
           <h2 id="lp-library-detail" className="font-serif text-2xl font-semibold first-letter:uppercase">
             {exerciseName(detail, i18n.language)}
           </h2>
-          <ExercisePhotos exercise={detail} />
           <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             <dt className="text-muted-foreground">{t("library.target")}</dt>
             <dd>{term(detail.target)}</dd>
@@ -158,38 +157,13 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
   );
 }
 
-/** The start and end positions, when free-exercise-db has them. */
-function ExercisePhotos({ exercise }: { exercise: Exercise }) {
-  const { t } = useTranslation("body");
-  const photos = exercisePhotos(exercise);
-  if (!photos) return null;
-  return (
-    <div className="mt-4 grid grid-cols-2 gap-3">
-      {photos.map((src, i) => (
-        <img
-          key={src}
-          src={src}
-          alt={t(i === 0 ? "library.photoStart" : "library.photoEnd", { name: exercise.name })}
-          width={750}
-          height={500}
-          loading="lazy"
-          decoding="async"
-          className="h-auto w-full rounded border border-border bg-muted"
-        />
-      ))}
-    </div>
-  );
-}
 
-/** Whose text, photos and names these are, and wger's page with its video. */
+/** Whose name in the learner's language this is, and wger's page with its video. */
 function ExerciseCredit({ exercise }: { exercise: Exercise }) {
   const { t, i18n } = useTranslation("body");
   const lang = i18n.language.split("-")[0]!;
   const w = exercise.wger;
-  const lines = [
-    exercise.source === "fedb" ? t("library.creditFedb") : exercise.photo ? t("library.creditPhotos") : null,
-    w?.names[lang] ? t("library.creditWger", { licence: w.licences[lang], author: w.authors[lang] || "wger" }) : null,
-  ].filter(Boolean);
+  const lines = [w?.names[lang] ? t("library.creditWger", { licence: w.licences[lang], author: w.authors[lang] || "wger" }) : null].filter(Boolean);
   if (!lines.length && !w?.video) return null;
   return (
     <p className="mt-4 text-xs leading-snug text-muted-foreground">

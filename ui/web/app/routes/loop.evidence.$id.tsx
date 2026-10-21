@@ -83,11 +83,11 @@ export default function LoopChain({ loaderData, actionData }: Route.ComponentPro
     `## ${chain.question}`,
     ...chain.columns.map((c) => {
       const kept = c.refs.filter((r) => r.status === "accepted").map((r) => r.target?.label ?? t("evidence.gone"));
-      return `- ${tps[c.timepoint]}: ${kept.length ? kept.join("; ") : "—"}`;
+      return `- ${tps[c.timepoint]}: ${kept.length ? kept.join("; ") : "–"}`;
     }),
-    `- ${t("chainPage.fact")}: ${chain.split.fact || "—"}`,
-    `- ${t("chainPage.interpretation")}: ${chain.split.interpretation || "—"}`,
-    `- ${t("chainPage.hypothesis")}: ${chain.split.hypothesis || "—"}`,
+    `- ${t("chainPage.fact")}: ${chain.split.fact || "–"}`,
+    `- ${t("chainPage.interpretation")}: ${chain.split.interpretation || "–"}`,
+    `- ${t("chainPage.hypothesis")}: ${chain.split.hypothesis || "–"}`,
   ].join("\n");
 
   return (
