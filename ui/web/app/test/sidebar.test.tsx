@@ -56,10 +56,14 @@ describe("the sidebar", () => {
     expect(settings).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("lights Knowledge for a document, and has no icons", () => {
-    const { container } = show("/documents/abc");
-    expect(screen.getByRole("link", { name: /Knowledge/ })).toHaveAttribute("aria-current", "page");
-    expect(container.querySelectorAll("aside a svg")).toHaveLength(0);
+  it("lights Knowledge for a document; top-level rows carry a decorative icon, child rows none", () => {
+    show("/documents/abc");
+    const knowledge = screen.getByRole("link", { name: /Knowledge/ });
+    expect(knowledge).toHaveAttribute("aria-current", "page");
+    // Owner, 2026-10-21: icons so a row is found by shape (up's sidebar has none).
+    expect(knowledge.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByRole("link", { name: "Quiz" }).querySelector("svg")).not.toBeNull();
+    expect(screen.getByRole("link", { name: /Question bank/, hidden: true }).querySelector("svg")).toBeNull();
   });
 
   it("is a labelled navigation inside an aside", () => {

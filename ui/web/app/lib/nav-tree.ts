@@ -9,6 +9,24 @@
  * array is the reading order, which is also the pager's Previous / Next.
  */
 
+import {
+  BookOpen,
+  Dumbbell,
+  GraduationCap,
+  Home,
+  Languages,
+  ListChecks,
+  MessageSquare,
+  NotebookPen,
+  NotebookText,
+  Repeat,
+  Settings,
+  Sigma,
+  Telescope,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
+
 export type NavPage = {
   to: string;
   labelKey: string;
@@ -18,30 +36,41 @@ export type NavPage = {
   external?: boolean;
   items?: NavPage[];
   collapsed?: boolean;
+  /** Top-level pages only: the sidebar row's icon, so a row is found by shape before it is read. */
+  icon?: LucideIcon;
 };
 
 /** One of the learner's own titles in the search index (routes/app.api.search-index.ts). `section` is a common.json label key. */
 export type SearchIndexItem = { title: string; to: string; section: string };
 
-export type NavGroup = { id: string; labelKey: string; collapsed?: boolean; items: NavPage[] };
+export type NavGroup = {
+  id: string;
+  labelKey: string;
+  collapsed?: boolean;
+  items: NavPage[];
+  /** The sidebar draws no title for it (Start holds Today alone); the label still names the group. */
+  untitled?: boolean;
+  /** A folded group drawn as a row of its own (Settings, Appendix), with this icon. */
+  icon?: LucideIcon;
+};
 
 export const NAV_TREE: NavGroup[] = [
-  { id: "start", labelKey: "nav.groups.start", items: [{ to: "/home", labelKey: "nav.home", end: true }] },
+  { id: "start", labelKey: "nav.groups.start", untitled: true, items: [{ to: "/home", labelKey: "nav.home", end: true, icon: Home }] },
   {
     id: "read",
     labelKey: "nav.groups.read",
     items: [
-      { to: "/knowledge", labelKey: "nav.knowledge" },
-      { to: "/notebooks", labelKey: "nav.notebooks" },
+      { to: "/knowledge", labelKey: "nav.knowledge", icon: BookOpen },
+      { to: "/notebooks", labelKey: "nav.notebooks", icon: NotebookPen },
     ],
   },
   {
     id: "ask",
     labelKey: "nav.groups.ask",
     items: [
-      { to: "/chat", labelKey: "nav.chat" },
-      { to: "/solve", labelKey: "nav.solve" },
-      { to: "/research", labelKey: "nav.research" },
+      { to: "/chat", labelKey: "nav.chat", icon: MessageSquare },
+      { to: "/solve", labelKey: "nav.solve", icon: Sigma },
+      { to: "/research", labelKey: "nav.research", icon: Telescope },
     ],
   },
   {
@@ -51,6 +80,7 @@ export const NAV_TREE: NavGroup[] = [
       {
         to: "/quiz",
         labelKey: "nav.quiz",
+        icon: ListChecks,
         end: true,
         collapsed: true,
         items: [
@@ -62,6 +92,7 @@ export const NAV_TREE: NavGroup[] = [
       {
         to: "/mastery",
         labelKey: "nav.mastery",
+        icon: GraduationCap,
         end: true,
         collapsed: true,
         items: [
@@ -71,10 +102,11 @@ export const NAV_TREE: NavGroup[] = [
           { to: "/mastery/decks", labelKey: "nav.pages.masteryDecks" },
         ],
       },
-      { to: "/languages", labelKey: "nav.languages" },
+      { to: "/languages", labelKey: "nav.languages", icon: Languages },
       {
         to: "/body",
         labelKey: "nav.body",
+        icon: Dumbbell,
         end: true,
         collapsed: true,
         items: [
@@ -90,13 +122,14 @@ export const NAV_TREE: NavGroup[] = [
     id: "reflect",
     labelKey: "nav.groups.reflect",
     items: [
-      { to: "/loop", labelKey: "nav.loop" },
-      { to: "/toolkit", labelKey: "nav.pages.toolkit" },
+      { to: "/loop", labelKey: "nav.loop", icon: Repeat },
+      { to: "/toolkit", labelKey: "nav.pages.toolkit", icon: NotebookText },
     ],
   },
   {
     id: "settings",
     labelKey: "nav.groups.settings",
+    icon: Settings,
     collapsed: true,
     items: [
       { to: "/settings", labelKey: "nav.pages.settingsConnections", end: true },
@@ -111,6 +144,7 @@ export const NAV_TREE: NavGroup[] = [
   {
     id: "appendix",
     labelKey: "nav.groups.appendix",
+    icon: Wrench,
     collapsed: true,
     items: [
       // `/tools` redirects to the tools home in the learner's language, and

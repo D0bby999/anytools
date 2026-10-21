@@ -244,8 +244,33 @@
 
   :root {
     caret-color: var(--lp-brand);
-    scrollbar-color: var(--lp-border-control) transparent;
-    scrollbar-width: thin;
+  }
+
+  /* One scrollbar for every scroll box (the page region, the sidebar,
+     tables, the composer): thin, a rounded thumb on no track. Where the
+     standard properties exist they win (Chrome, Firefox); scrollbar-width is
+     not inherited, hence every element. Safari draws the WebKit one below. */
+  @supports (scrollbar-color: auto) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--lp-scrollbar) transparent;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background: var(--lp-scrollbar) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--lp-scrollbar-hover);
   }
 
   a {
@@ -333,6 +358,22 @@
 
 /* The part tab: a small solid label in the part's colour, like the coloured
    edge tab of a textbook chapter. Wayfinding, never a control. */
+/* A scroll box whose thumb shows only while the pointer is over it (the sidebar). */
+@utility lp-scroll-quiet {
+  scrollbar-color: transparent transparent;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &:hover,
+  &:focus-within {
+    scrollbar-color: var(--lp-scrollbar) transparent;
+  }
+  &:hover::-webkit-scrollbar-thumb,
+  &:focus-within::-webkit-scrollbar-thumb {
+    background-color: var(--lp-scrollbar);
+  }
+}
+
 @utility lp-tab {
   display: inline-flex;
   align-items: center;

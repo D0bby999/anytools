@@ -43,6 +43,9 @@
        outlines something you can operate, and is held to 3:1. ── */
   --lp-border: #e2dccd;
   --lp-border-control: #8a8476;
+  /* Scrollbar thumb: between the hairline and the control outline, darker under the pointer. */
+  --lp-scrollbar: #cdc6b5;
+  --lp-scrollbar-hover: #a29b8b;
 
   /* ── Ink: textbook blue-black, then secondary and metadata. All three hold
        4.5:1 on all three surfaces. ── */
@@ -207,6 +210,8 @@
 
   --lp-border: #30323b;
   --lp-border-control: #737786;
+  --lp-scrollbar: #3a3d48;
+  --lp-scrollbar-hover: #565a67;
 
   --lp-ink: #ece8df;
   --lp-ink-2: #b0ab9f;

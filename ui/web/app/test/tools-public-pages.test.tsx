@@ -221,14 +221,16 @@ describe("the app's Free tools link", () => {
 
   // The pinned Settings row of the old rail is gone (plan 261020-2246, phase
   // 04): Settings is the sidebar's folded group after Part IV, as in up.
-  it("keeps Settings as a folded group after Part IV, reachable in one click", () => {
+  it("keeps Settings as a folded group pinned at the sidebar's foot, reachable in one click", () => {
     const router = createMemoryRouter([{ path: "/home", element: <Sidebar /> }], { initialEntries: ["/home"] });
     render(<RouterProvider router={router} />);
     const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
     // Part IV's heading is its numeral tab (decorative) and "Part IV: Reflect".
     const reflect = headings.findIndex((h) => h?.endsWith("Part IV: Reflect"));
     expect(reflect).toBeGreaterThan(-1);
-    expect(headings.indexOf("Settings")).toBe(reflect + 1);
+    // Owner, 2026-10-21: Settings is pinned below the book, after the appendix.
+    expect(headings.indexOf("Appendix")).toBeGreaterThan(reflect);
+    expect(headings.at(-1)).toBe("Settings");
     const settings = screen.getByRole("button", { name: "Settings" });
     expect(settings).toHaveAttribute("aria-expanded", "false");
     fireEvent.click(settings);

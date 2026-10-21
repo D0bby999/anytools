@@ -171,13 +171,23 @@ Measured at 1440 (`--lp-*` in `tokens.css`):
   Loop: `TOP_NAV`), the language menu, the appearance switch (a 40×22 pill), Free
   tools and the account menu. Below 1280 the inline controls fold into "…"; below 768
   the places too, into a full-screen nav screen behind ☰.
-- **Sidebar:** 272 wide (`--lp-rail-w`), on `surface-soft`, no icons. It is the table of
-  contents, from one source (`lib/nav-tree.ts`, `NAV_TREE`): Start (Today); Parts I to
-  IV, each title behind its numeral tab (`lp-tab` in the part's colour); Settings
-  (folded); Appendix: tools (folded). Groups and pages with children fold; the one that
-  holds the current page opens itself. The current page is navy, with
-  `aria-current="page"` and "Current section"; a current child also has a 6px dot on the
-  tree's guide line. Groups are `role="group"`, not landmarks.
+- **Sidebar:** 272 wide (`--lp-rail-w`), on `surface-soft`. It is the table of contents,
+  from one source (`lib/nav-tree.ts`, `NAV_TREE`): Today (no title above it); Parts I to
+  IV, each under a quiet caption (its numeral tab, 18 high, then the name in 12/600
+  ink-2); Appendix: tools (folded); and **Settings, pinned at the foot** under one rule,
+  while the rest scrolls above it (its own box, at most half the height). Every row is
+  30 high: a 16px icon in `deco`, the name in 14/500 ink, a rounded hover; the current
+  row is filled in `selected` with `aria-current="page"` and "Current section". Child
+  rows hang from a guide line under the parent's icon, a step quieter, without icons.
+  Groups and pages with children fold; the one that holds the current page opens
+  itself. Groups are `role="group"`, not landmarks. ~~VitePress's rows: 32 high, no
+  icons, groups titled 14/700 and split by rules, the current page in navy text only,
+  a 6px dot for a current child.~~ **Superseded 2026-10-21:** the owner found it sparse
+  and hard to read; the whole tree with Settings open still fits a 900-high window.
+- **Scrollbars:** one look everywhere (`app.css`, base layer): thin, a rounded thumb in
+  `--lp-scrollbar` on no track (`--lp-scrollbar-hover` under the pointer in Safari). The
+  sidebar's lists use `lp-scroll-quiet`: the thumb shows only while the pointer or
+  focus is inside.
 - **Article:** 780 (`--lp-measure-read`), 688 (`--lp-measure-aside`) beside an outline
   or a page's own panel. The reader keeps 780 (`handle.measure = "read"`). Chat,
   Solve, Research and a mastery session take the whole width (`handle.layout = "page"`).
