@@ -1,7 +1,7 @@
 ---
 title: Chính sách bảo mật
 description: Các công cụ chạy trong trình duyệt và không gửi gì cho chúng tôi. Ứng dụng học lưu những gì bạn chọn lưu, và chỉ gọi AI qua tài khoản bạn tự kết nối.
-updated: 2026-10-18
+updated: 2026-10-21
 ---
 
 ## Tóm tắt
@@ -36,6 +36,20 @@ Khi một tính năng cần mô hình hay tìm kiếm web, yêu cầu được g
 
 Một số tính năng tải trang công khai khi bạn yêu cầu: trang web, video hay nguồn tin bạn thêm, thông tin bài báo từ OpenAlex, và mục trong thư viện Zotero của bạn khi bạn kết nối nó.
 
+## Ứng dụng đã kết nối
+
+Bạn tự chọn kết nối ứng dụng nào ở trang Ứng dụng học tập, và có thể ngắt từng ứng dụng ở đó bất cứ lúc nào. Ngắt kết nối sẽ thu hồi quyền của AnyLearn tại ứng dụng đó; những gì đã nhập vẫn nằm trong AnyLearn cho tới khi bạn xóa.
+
+- **Google Drive** (`drive.file`): AnyLearn chỉ mở các tệp bạn chọn trong trình chọn của chính Google và các tệp nó tạo cho bạn (tệp lưu trữ, bản xuất, tài liệu cho NotebookLM). Nó không thấy phần còn lại của Drive.
+- **Google Lịch** (`calendar.app.created`): AnyLearn tạo một lịch riêng tên AnyLearn và ghi giờ ôn, ngày học vào đó. Nó không đọc được các lịch khác của bạn.
+- **Google Classroom** (chỉ đọc: lớp học, tài liệu lớp, bài tập của chính bạn và thông báo): AnyLearn liệt kê một lớp khi bạn mở nó và chỉ nhập những mục bạn đánh dấu. Nó không bao giờ đăng, nộp hay sửa gì trong Classroom.
+- **Google Photos** (chỉ trình chọn): AnyLearn chỉ nhận những ảnh bạn chọn trong trình chọn của Google, một lần, và đọc chúng như ảnh trang.
+- **Google Forms và Sheets**: qua quyền Drive ở trên, AnyLearn chỉ mở form hoặc bảng tính bạn chọn, và chỉ tạo form khi bạn yêu cầu.
+- **Nhận email**: thư bạn gửi hoặc chuyển tiếp tới địa chỉ AnyLearn của bạn trở thành tài liệu. AnyLearn không bao giờ đọc hộp thư của bạn và không xin quyền Gmail nào.
+- **Canva** và **Notion**: AnyLearn chỉ đọc những thiết kế bạn chọn và những trang bạn chia sẻ với nó trong Notion, và chỉ ghi những gì bạn gửi sang.
+
+Việc AnyLearn sử dụng và chuyển giao sang ứng dụng khác thông tin nhận được từ Google API tuân thủ [Chính sách dữ liệu người dùng của Google API Services](https://developers.google.com/terms/api-services-user-data-policy), bao gồm các yêu cầu Limited Use. Dữ liệu từ Google, Canva và Notion chỉ được dùng để cung cấp các tính năng bạn đã bật: không bán, không dùng cho quảng cáo, không dùng để huấn luyện mô hình AI, và không ai đọc trừ khi để sửa lỗi bạn báo, với sự đồng ý của bạn. Token của các ứng dụng này được mã hóa trước khi lưu.
+
 ## Cookie và lưu trữ
 
 Các công cụ không đặt cookie nào. Lựa chọn giao diện sáng hay tối được lưu trong bộ nhớ cục bộ của trình duyệt.
@@ -48,7 +62,7 @@ Cài đặt → Tài khoản xóa tài khoản của bạn và mọi thứ trong
 
 ## Bên thứ ba
 
-Lưu trữ máy chủ: Hetzner (Đức, EU). Mạng và DNS: Cloudflare. Đăng nhập: Google và GitHub. AI và tìm kiếm: chỉ những nhà cung cấp bạn kết nối. Mỗi bên hoạt động theo chính sách bảo mật riêng.
+Lưu trữ máy chủ: Hetzner (Đức, EU). Mạng và DNS: Cloudflare. Đăng nhập: Google và GitHub. AI và tìm kiếm: chỉ những nhà cung cấp bạn kết nối. Ứng dụng học tập: Google, Canva và Notion, chỉ những ứng dụng bạn kết nối; thư gửi đến đi qua Cloudflare Email Routing. Mỗi bên hoạt động theo chính sách bảo mật riêng.
 
 ## Quyền của bạn
 

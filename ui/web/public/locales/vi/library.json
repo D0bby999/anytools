@@ -10,7 +10,20 @@
     "language": "Ngôn ngữ",
     "myLanguages": "Tiếng Anh, rồi ngôn ngữ của tôi",
     "allLanguages": "Mọi ngôn ngữ, tiếng Anh trước",
-    "show": "Xem"
+    "show": "Xem",
+    "sort": "Sắp xếp",
+    "level": "Cấp độ",
+    "anyLevel": "Mọi cấp độ",
+    "certificate": "Chứng chỉ",
+    "anyCertificate": "Có hay không đều được",
+    "certificates": {
+      "any": "Có chứng chỉ hoặc huy hiệu",
+      "free": "Chứng chỉ hoặc huy hiệu miễn phí",
+      "paid": "Chứng chỉ có phí"
+    },
+    "video": "Có video",
+    "reusable": "Được dùng lại tự do",
+    "more": "Thêm bộ lọc: cấp độ, chứng chỉ, video, giấy phép"
   },
   "kinds": {
     "deck": "Bộ thẻ",
@@ -59,9 +72,7 @@
     "books_one": "{{count}} cuốn",
     "books_other": "{{count}} cuốn",
     "exercises_one": "{{count}} bài tập",
-    "exercises_other": "{{count}} bài tập",
-    "hours_one": "{{count}} giờ",
-    "hours_other": "{{count}} giờ"
+    "exercises_other": "{{count}} bài tập"
   },
   "licence": {
     "public-domain": "Phạm vi công cộng",
@@ -84,7 +95,8 @@
     "noLicence": "Nguồn không ghi giấy phép, nên AnyLearn không sao chép: hãy mở tại nguồn, rồi đưa file vào Bộ thẻ.",
     "bringFile": "Mở đề tại nguồn, rồi tải lên trong Câu hỏi → Đề thi → Tải lên một đề cũ.",
     "textbook": "Đọc tại nguồn, hoặc tải PDF về rồi tải lên kho tài liệu những chương bạn cần (mỗi tệp tối đa 50 MB và 400 trang).",
-    "textbookNonCommercial": "Đọc tại nguồn, hoặc tải PDF về. Giấy phép chỉ cho dùng phi thương mại: hãy tải lên kho tài liệu những chương bạn cần để tự học (mỗi tệp tối đa 50 MB và 400 trang)."
+    "textbookNonCommercial": "Đọc tại nguồn, hoặc tải PDF về. Giấy phép chỉ cho dùng phi thương mại: hãy tải lên kho tài liệu những chương bạn cần để tự học (mỗi tệp tối đa 50 MB và 400 trang).",
+    "enrol": "Học miễn phí tại nguồn, bạn đăng ký ở đó; AnyLearn không chép khoá học."
   },
   "items": {
     "upWords": "Thuật ngữ tiếng Anh lập trình viên hay gặp, theo ngôn ngữ (Python, Go, JavaScript…): chỉ có từ, để tra và lưu.",
@@ -136,7 +148,8 @@
       "math": "Danh sách do awesome-math (rossant/awesome-math, CC0) lập; mỗi liên kết thuộc về chủ sở hữu.",
       "certificates": "Danh sách do awesome-certificates (PanXProject/awesome-certificates, CC0) lập; mỗi khoá học thuộc về đơn vị cung cấp, và chứng chỉ do đơn vị đó cấp.",
       "youtubers": "Danh sách do awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0) lập; mỗi kênh thuộc về chủ kênh, và được thêm thành nguồn cấp để bạn chọn video."
-    }
+    },
+    "mitx": "Các khoá học thuộc MITx Online, lấy danh sách từ MIT Learn: học miễn phí, chứng chỉ có phí; mỗi khoá mở tại trang của MIT."
   },
   "level": "Mức",
   "levelOption_one": "{{name}} ({{count}} từ)",
@@ -178,5 +191,52 @@
   "pdf": "PDF cả cuốn",
   "wordsDays": "Từ mới xuất hiện từ {{first}} đến {{last}}.",
   "allInField_one": "Xem {{count, number}} mục của ngành {{field}}",
-  "allInField_other": "Xem cả {{count, number}} mục của ngành {{field}}"
+  "allInField_other": "Xem cả {{count, number}} mục của ngành {{field}}",
+  "sorts": {
+    "featured": "Đề xuất",
+    "rating": "Đánh giá cao nhất",
+    "popular": "Nhiều người dùng nhất",
+    "shortest": "Ngắn nhất",
+    "newest": "Mới nhất"
+  },
+  "levels": {
+    "beginner": "Cơ bản",
+    "intermediate": "Trung cấp",
+    "advanced": "Nâng cao"
+  },
+  "certificate": {
+    "free": "Chứng chỉ hoàn thành miễn phí (theo danh sách)",
+    "badge": "Huy hiệu số miễn phí (theo danh sách)",
+    "paid": "{{name}}: học miễn phí, chứng chỉ {{fee}}",
+    "certificate": "Chứng chỉ",
+    "feeUnknown": "chưa nêu phí"
+  },
+  "rated_one": "★ {{value}} ({{count, number}} đánh giá)",
+  "rated_other": "★ {{value}} ({{count, number}} đánh giá)",
+  "hours_one": "Khoảng {{count, number}} giờ",
+  "hours_other": "Khoảng {{count, number}} giờ",
+  "popularity": {
+    "views_one": "{{count, number}} lượt xem",
+    "views_other": "{{count, number}} lượt xem",
+    "downloads_one": "{{count, number}} lượt tải trong 30 ngày",
+    "downloads_other": "{{count, number}} lượt tải trong 30 ngày"
+  },
+  "scores": {
+    "title": "Điểm theo từng tiêu chí",
+    "outOf5": "{{value}} / 5",
+    "readReviews": "Đọc các đánh giá tại {{name}}",
+    "comprehensiveness": "Đầy đủ",
+    "accuracy": "Chính xác",
+    "relevance": "Phù hợp và lâu bền",
+    "clarity": "Rõ ràng",
+    "consistency": "Nhất quán",
+    "modularity": "Dễ chia chương",
+    "organization": "Bố cục",
+    "interface": "Giao diện",
+    "grammatical": "Ngữ pháp",
+    "cultural": "Phù hợp văn hoá"
+  },
+  "notLoaded": "Server đang nạp Thư viện. Hãy thử lại sau một phút.",
+  "minutes_one": "Khoảng {{count, number}} phút",
+  "minutes_other": "Khoảng {{count, number}} phút"
 }

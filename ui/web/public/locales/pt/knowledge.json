@@ -159,7 +159,11 @@
       "connected": "O Google Drive está conectado.",
       "denied": "O Google Drive não foi conectado: a permissão do Drive não foi concedida.",
       "failed": "Não foi possível conectar o Google Drive. Tente de novo.",
-      "no_refresh": "O Google não devolveu uma permissão duradoura. Tente conectar de novo e aprove a tela de consentimento."
+      "no_refresh": "O Google não devolveu uma permissão duradoura. Tente conectar de novo e aprove a tela de consentimento.",
+      "other_account": "Essa conta do Google não é a que já está conectada. Escolha a conta conectada ou desconecte o Google primeiro.",
+      "partial": "O Google está conectado, mas você não permitiu o recurso que pediu. Tente de novo e marque a caixa dele.",
+      "unavailable": "Este recurso aguarda a aprovação do Google para o AnyLearn e ainda não está aberto.",
+      "school_blocked": "O administrador Google da sua escola não permitiu o AnyLearn. Apps de estudo → Google Sala de Aula explica o que pedir a ele."
     },
     "errors": {
       "reconnect": "O Google deixou de aceitar esta conexão do Drive. Reconecte o Google Drive e tente de novo.",

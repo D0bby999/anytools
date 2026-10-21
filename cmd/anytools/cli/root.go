@@ -20,7 +20,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd(), serveCmd(), migrateCmd(), verifyCmd())
+	rootCmd.AddCommand(versionCmd(), serveCmd(), migrateCmd(), verifyCmd(), libraryCmd())
 }
 
 // Execute runs the root command.

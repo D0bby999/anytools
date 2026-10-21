@@ -2,6 +2,8 @@ package storageapi
 
 import (
 	"net/http"
+
+	"github.com/google/uuid"
 	"path"
 	"strings"
 	"time"
@@ -26,7 +28,7 @@ type Exports struct {
 // Exports is nil when Drive is not configured: the feature handlers then
 // register no "Save to my Drive" route.
 func (h *Handler) Exports() *Exports {
-	if h == nil || h.files == nil {
+	if h == nil || (h.files == nil && len(h.sinks) == 0) {
 		return nil
 	}
 	return &Exports{h: h, now: time.Now}
@@ -43,8 +45,17 @@ type exportResponse struct {
 // learner's local date and time so a second save is a second file beside the
 // first, and answers 201 with a link to it. key names what was exported
 // ("worksheet:<id>"); it goes in the file's appProperties.
+//
+// With ?to= the export goes to another app instead (learning-tool-
+// connections): "notebooklm", a Google Doc in AnyLearn's NotebookLM folder;
+// "canva", a Canva Doc; "notion", a page. Each needs its app connected, not
+// Drive storage.
 func (e *Exports) Save(w http.ResponseWriter, r *http.Request, key, filename, markdown string) {
 	userID := httpx.MustUserID(r.Context())
+	if to := r.URL.Query().Get("to"); to != "" {
+		e.saveTo(w, r, to, userID, filename, markdown)
+		return
+	}
 	storage, err := e.h.settings.FileStorage(r.Context(), userID)
 	if err != nil {
 		internal(w, r, err)
@@ -90,4 +101,18 @@ func stampedName(filename string, at time.Time, zone string) string {
 		base = "Export"
 	}
 	return base + " " + at.In(loc).Format("2006-01-02 15.04") + ext
+}
+
+func (e *Exports) saveTo(w http.ResponseWriter, r *http.Request, to string, userID uuid.UUID, filename, markdown string) {
+	sink := e.h.sinks[to]
+	if sink == nil {
+		httpx.WriteError(w, http.StatusConflict, "that app is not available on this server", "app_unavailable")
+		return
+	}
+	id, name, url, err := sink.CreateDoc(r.Context(), userID, strings.TrimSuffix(filename, path.Ext(filename)), markdown)
+	if err != nil {
+		driveFailed(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusCreated, exportResponse{FileID: id, Name: name, URL: url})
 }

@@ -226,7 +226,14 @@ export default function Connections({ loaderData, actionData }: Route.ComponentP
       </section>
 
       {loaderData.drive ? (
-        <DriveConnectionCard status={loaderData.drive.status} />
+        <>
+          <DriveConnectionCard status={loaderData.drive.status} />
+          <p className="mt-3 text-sm leading-prose text-muted-foreground">
+            <Link to="/apps">
+              {t("apps.settingsMoved")}
+            </Link>
+          </p>
+        </>
       ) : loaderData.driveUnavailable ? (
         <p className="mt-10 text-sm leading-prose text-muted-foreground">{t("settings.connections.drive.unavailable")}</p>
       ) : null}

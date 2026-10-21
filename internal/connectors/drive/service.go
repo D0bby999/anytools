@@ -46,6 +46,10 @@ type Service struct {
 	// becomes the advisory lock internal/store/pg/oauth_connection_locks.go
 	// already provides.
 	refreshMu sync.Map // uuid.UUID -> *sync.Mutex
+
+	// emailOf finds a learner's AnyTools email, which decides whether the
+	// sensitive Google features are offered to them (google.go).
+	emailOf func(ctx context.Context, userID uuid.UUID) (string, error)
 }
 
 // Config assembles a Service.
@@ -60,6 +64,10 @@ type Config struct {
 	// MaxImportBytes caps one downloaded file. Zero takes the default below.
 	MaxImportBytes int64
 	Now            func() time.Time
+
+	// EmailOf looks up a learner's email; nil offers sensitive features to
+	// no one but an "all" setting.
+	EmailOf func(ctx context.Context, userID uuid.UUID) (string, error)
 }
 
 // defaultMaxImportBytes matches knowledge.MaxUploadBytes. A Drive file larger
@@ -81,6 +89,7 @@ func NewService(cfg Config) *Service {
 		baseURL:        cfg.BaseURL,
 		maxImportBytes: cfg.MaxImportBytes,
 		now:            now,
+		emailOf:        cfg.EmailOf,
 	}
 }
 
@@ -137,6 +146,10 @@ type Status struct {
 	// learner reconnects. They count while disconnected too.
 	FilesInDrive int   `json:"files_in_drive"`
 	BytesInDrive int64 `json:"bytes_in_drive"`
+
+	// Features is the Google catalogue for this learner: which they may turn
+	// on and which the grant already covers (learning-tool-connections).
+	Features []FeatureState `json:"features"`
 }
 
 // Status reports the connector's state for one user.
@@ -152,6 +165,7 @@ func (s *Service) Status(ctx context.Context, userID uuid.UUID) (*Status, error)
 
 	conn, err := s.store.GetConnection(ctx, userID)
 	if errors.Is(err, ErrNotConnected) {
+		out.Features = s.FeatureStates(ctx, userID, "")
 		return out, nil
 	}
 	if err != nil {
@@ -161,6 +175,7 @@ func (s *Service) Status(ctx context.Context, userID uuid.UUID) (*Status, error)
 	out.Connected = true
 	out.Email = conn.Email
 	out.Scope = conn.Scope
+	out.Features = s.FeatureStates(ctx, userID, conn.Scope)
 	out.NeedsReconnect = conn.NeedsReconnect
 	out.LastError = conn.LastError
 	connectedAt := conn.ConnectedAt
@@ -235,6 +250,23 @@ func (s *Service) Connect(ctx context.Context, userID uuid.UUID, creds Credentia
 	// better than finding it out one 403 at a time.
 	if creds.Scope != "" && !strings.Contains(creds.Scope, ScopeDriveFile) {
 		return fmt.Errorf("drive: the granted scope %q does not include %s", creds.Scope, ScopeDriveFile)
+	}
+
+	// A consent from another Google account would replace the grant every
+	// Google feature and every imported Drive file depends on; it is refused
+	// until the learner disconnects on purpose.
+	stored, err := s.store.GetConnection(ctx, userID)
+	if err != nil && !errors.Is(err, ErrNotConnected) {
+		return err
+	}
+	if !sameAccount(stored, creds.GoogleSub) {
+		return ErrDifferentAccount
+	}
+	if stored != nil && creds.GoogleSub == "" {
+		creds.GoogleSub = stored.GoogleSub
+	}
+	if stored != nil && creds.Email == "" {
+		creds.Email = stored.Email
 	}
 
 	conn := Connection{

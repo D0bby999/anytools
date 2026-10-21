@@ -34,21 +34,39 @@ vi.mock("~/lib/auth.server", () => ({
 }));
 
 const saveDriveCredentials = vi.fn();
+const driveStatus = vi.fn();
 vi.mock("~/lib/drive.server", () => ({
   saveDriveCredentials: (...args: unknown[]) => saveDriveCredentials(...args),
+  driveStatus: (...args: unknown[]) => driveStatus(...args),
 }));
 
-const { startDriveConnect, handleDriveCallback, withNotice, DRIVE_SCOPE } = await import("~/auth/drive.server");
+const { startDriveConnect, handleDriveCallback, withNotice, idTokenClaims, DRIVE_SCOPE } = await import(
+  "~/auth/drive.server"
+);
+const { ApiError } = await import("~/lib/api.server");
+
+const CALENDAR = "https://www.googleapis.com/auth/calendar.app.created";
+const FEATURES = [
+  { id: "drive", scopes: [DRIVE_SCOPE], sensitive: false, available: true, granted: true },
+  { id: "calendar", scopes: [CALENDAR], sensitive: true, available: true, granted: false },
+  { id: "classroom", scopes: ["https://www.googleapis.com/auth/classroom.courses.readonly"], sensitive: true, available: false, granted: false },
+];
+
+/** An id_token's shape, unsigned: only its payload is read. */
+function idToken(claims: Record<string, unknown>) {
+  return `e30.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;
+}
 
 beforeEach(() => {
   session.userId = "user-1";
   saveDriveCredentials.mockReset().mockResolvedValue({ connected: true });
+  driveStatus.mockReset().mockResolvedValue({ connected: true, email: "a@example.com", features: FEATURES });
 });
 
 /** Starts a flow and returns the authorize URL plus the cookie to send back. */
-async function start(next = "/knowledge/kb-1") {
+async function start(next = "/knowledge/kb-1", add = "") {
   const res = await startDriveConnect(
-    new Request(`${APP_URL}/auth/drive?next=${encodeURIComponent(next)}`),
+    new Request(`${APP_URL}/auth/drive?next=${encodeURIComponent(next)}${add ? `&add=${add}` : ""}`),
   );
   expect(res.status).toBe(302);
   const setCookie = res.headers.get("Set-Cookie") ?? "";
@@ -89,7 +107,9 @@ describe("startDriveConnect", () => {
 
     expect(authorize.origin + authorize.pathname).toBe("https://accounts.google.com/o/oauth2/v2/auth");
     const q = authorize.searchParams;
-    expect(q.get("scope")).toBe("https://www.googleapis.com/auth/drive.file");
+    // openid and email name the account, so the API can refuse another one.
+    expect(q.get("scope")).toBe("openid email https://www.googleapis.com/auth/drive.file");
+    expect(q.get("include_granted_scopes")).toBe("true");
     // Both, or a reconnect gets no refresh token and dies after an hour.
     expect(q.get("access_type")).toBe("offline");
     expect(q.get("prompt")).toBe("consent");
@@ -141,6 +161,8 @@ describe("handleDriveCallback", () => {
       access_token: "ya29.access",
       expires_in: 3599,
       scope: `openid ${DRIVE_SCOPE}`,
+      google_sub: "",
+      email: "",
     });
   });
 
@@ -212,6 +234,53 @@ describe("handleDriveCallback", () => {
       tokenResponse(GOOD_TOKEN),
     );
     expect(res.location).toContain("drive=failed");
+  });
+});
+
+describe("adding a Google feature (learning-tool-connections phase 1)", () => {
+  it("asks for the feature's scopes from the API's catalogue, on top of drive.file", async () => {
+    const { authorize } = await start("/apps", "calendar");
+    expect(authorize.searchParams.get("scope")).toBe(`openid email ${DRIVE_SCOPE} ${CALENDAR}`);
+    expect(authorize.searchParams.get("login_hint")).toBe("a@example.com");
+  });
+
+  it("refuses a feature not offered to this learner, and an unknown one, before Google is asked", async () => {
+    for (const add of ["classroom", "gmail"]) {
+      const res = await startDriveConnect(new Request(`${APP_URL}/auth/drive?next=%2Fapps&add=${add}`));
+      expect(res.headers.get("Location")).toBe("/apps?drive=unavailable");
+    }
+  });
+
+  it("sends the account's subject and email to the API", async () => {
+    const { authorize, cookie } = await start("/apps", "calendar");
+    const fetchImpl = tokenResponse({
+      ...GOOD_TOKEN,
+      scope: `openid email ${DRIVE_SCOPE} ${CALENDAR}`,
+      id_token: idToken({ sub: "1234", email: "a@example.com" }),
+    });
+    const res = await callback(`code=c&state=${authorize.searchParams.get("state")}`, cookie, fetchImpl);
+    expect(res.location).toBe("/apps?drive=connected");
+    expect(saveDriveCredentials.mock.calls[0]?.[1]).toMatchObject({ google_sub: "1234", email: "a@example.com" });
+  });
+
+  it("says so when the feature's box was unticked, keeping Drive", async () => {
+    const { authorize, cookie } = await start("/apps", "calendar");
+    const res = await callback(`code=c&state=${authorize.searchParams.get("state")}`, cookie, tokenResponse(GOOD_TOKEN));
+    expect(saveDriveCredentials).toHaveBeenCalled();
+    expect(res.location).toBe("/apps?drive=partial");
+  });
+
+  it("names the refusal of another Google account", async () => {
+    saveDriveCredentials.mockRejectedValue(new ApiError(409, "different", "different_google_account"));
+    const { authorize, cookie } = await start("/apps");
+    const res = await callback(`code=c&state=${authorize.searchParams.get("state")}`, cookie, tokenResponse(GOOD_TOKEN));
+    expect(res.location).toBe("/apps?drive=other_account");
+  });
+
+  it("reads an id_token's claims and survives a malformed one", () => {
+    expect(idTokenClaims(idToken({ sub: "9", email: "x@y.z" }))).toEqual({ sub: "9", email: "x@y.z" });
+    expect(idTokenClaims("not-a-jwt")).toEqual({ sub: "", email: "" });
+    expect(idTokenClaims(undefined)).toEqual({ sub: "", email: "" });
   });
 });
 

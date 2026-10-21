@@ -18,6 +18,14 @@
  *
  * Its state cookie is its own, scoped to /auth/drive, so a Drive consent in one
  * tab cannot overwrite — or be satisfied by — a sign-in in another.
+ *
+ * Learning-tool-connections phase 1: this is the learner's one Google grant.
+ * `?add=calendar` (or classroom, photos) asks for that feature's scopes on top
+ * of drive.file through incremental authorization; the scopes come from the
+ * API's feature catalogue, never from the query string, and a sensitive
+ * feature the API does not offer this learner is refused before Google is
+ * asked. `openid email` name the account, so the API can refuse a consent
+ * given with another Google account than the connected one.
  */
 import { createCookie, redirect } from "react-router";
 import {
@@ -30,7 +38,8 @@ import {
 } from "~/lib/env.server";
 import { pkceChallenge, randomToken, timingSafeEqual } from "~/auth/state-cookie.server";
 import { getUserId, requireUserId } from "~/lib/auth.server";
-import { saveDriveCredentials } from "~/lib/drive.server";
+import { driveStatus, saveDriveCredentials } from "~/lib/drive.server";
+import { ApiError } from "~/lib/api.server";
 import { sanitizeNextPath } from "~/lib/safe-redirect-target";
 import type { DriveNotice } from "~/lib/drive-types";
 
@@ -49,6 +58,8 @@ type DriveState = {
   userId: string;
   /** Validated relative path to return to. */
   next: string;
+  /** Every scope this consent asked for beyond openid and email. */
+  want?: string[];
 };
 
 const driveStateCookie = createCookie("__anytools_drive_state", {
@@ -85,7 +96,26 @@ export async function startDriveConnect(request: Request): Promise<Response> {
     throw new Response("Not found", { status: 404 });
   }
 
-  const next = sanitizeNextPath(new URL(request.url).searchParams.get("next")) ?? DEFAULT_NEXT;
+  const params = new URL(request.url).searchParams;
+  const next = sanitizeNextPath(params.get("next")) ?? DEFAULT_NEXT;
+
+  // The features asked for, resolved against the API's catalogue for THIS
+  // learner: an unknown id or a feature not offered to them stops here.
+  const add = (params.get("add") ?? "").split(",").map((v) => v.trim()).filter(Boolean);
+  let want = [DRIVE_SCOPE];
+  let loginHint = "";
+  if (add.length > 0) {
+    const status = await driveStatus(userId).catch(() => null);
+    const features = status?.features ?? [];
+    for (const id of add) {
+      const feature = features.find((f) => f.id === id);
+      if (!feature || !feature.available) return redirect(withNotice(next, "unavailable"));
+      want = [...want, ...feature.scopes];
+    }
+    loginHint = status?.connected ? (status.email ?? "") : "";
+  }
+  want = [...new Set(want)];
+
   const state = randomToken();
   const codeVerifier = randomToken(48);
 
@@ -93,7 +123,8 @@ export async function startDriveConnect(request: Request): Promise<Response> {
   url.searchParams.set("client_id", GOOGLE_CLIENT_ID);
   url.searchParams.set("redirect_uri", driveRedirectURI());
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", DRIVE_SCOPE);
+  url.searchParams.set("scope", ["openid", "email", ...want].join(" "));
+  if (loginHint) url.searchParams.set("login_hint", loginHint);
   url.searchParams.set("access_type", "offline");
   url.searchParams.set("prompt", "consent");
   url.searchParams.set("include_granted_scopes", "true");
@@ -103,7 +134,7 @@ export async function startDriveConnect(request: Request): Promise<Response> {
 
   return redirect(url.toString(), {
     headers: {
-      "Set-Cookie": await driveStateCookie.serialize({ state, codeVerifier, userId, next }),
+      "Set-Cookie": await driveStateCookie.serialize({ state, codeVerifier, userId, next, want }),
     },
   });
 }
@@ -128,6 +159,9 @@ export async function handleDriveCallback(
     redirect(withNotice(stored?.next ?? DEFAULT_NEXT, notice), { headers: { "Set-Cookie": clear } });
 
   const url = new URL(request.url);
+  // A school account whose administrator has not allowed the app is refused
+  // at consent with its own error (learning-tool-connections phase 6).
+  if (url.searchParams.get("error") === "admin_policy_enforced") return finish("school_blocked");
   if (url.searchParams.get("error")) return finish("denied");
 
   const code = url.searchParams.get("code");
@@ -168,6 +202,7 @@ export async function handleDriveCallback(
     refresh_token?: string;
     expires_in?: number;
     scope?: string;
+    id_token?: string;
   };
   if (!token.access_token) return finish("failed");
   // Granular consent lets a user untick the Drive box and still "Allow". That
@@ -175,17 +210,46 @@ export async function handleDriveCallback(
   if (!(token.scope ?? "").split(" ").includes(DRIVE_SCOPE)) return finish("denied");
   if (!token.refresh_token) return finish("no_refresh");
 
+  const who = idTokenClaims(token.id_token);
   try {
     await saveDriveCredentials(liveUserId, {
       refresh_token: token.refresh_token,
       access_token: token.access_token,
       expires_in: token.expires_in ?? 0,
       scope: token.scope ?? "",
+      google_sub: who.sub,
+      email: who.email,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApiError && error.code === "different_google_account") return finish("other_account");
     return finish("failed");
   }
+  // Granular consent: the learner may have allowed Drive and unticked the
+  // feature they came for. Drive is saved; the page says what is missing.
+  const granted = (token.scope ?? "").split(" ");
+  if (!(stored.want ?? [DRIVE_SCOPE]).every((s) => granted.includes(s))) return finish("partial");
   return finish("connected");
+}
+
+/**
+ * The subject and email in the id_token Google's token endpoint returned.
+ *
+ * Read without checking the signature, which OpenID Connect allows for a
+ * token received straight from the token endpoint over TLS (Core 1.0
+ * §3.1.3.7): nothing between Google and this server could have written it.
+ */
+export function idTokenClaims(idToken: string | undefined): { sub: string; email: string } {
+  const payload = idToken?.split(".")[1];
+  if (!payload) return { sub: "", email: "" };
+  try {
+    const json = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as { sub?: unknown; email?: unknown };
+    return {
+      sub: typeof json.sub === "string" ? json.sub : "",
+      email: typeof json.email === "string" ? json.email : "",
+    };
+  } catch {
+    return { sub: "", email: "" };
+  }
 }
 
 /** Appends `drive=<notice>` to a relative path, keeping any query it has. */

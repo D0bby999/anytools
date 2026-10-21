@@ -51,6 +51,7 @@ import * as loop from "~/lib/loop.server";
 import type { Chain } from "~/lib/loop-types";
 import { ARTIFACT_BRIEF, artifactSectionExtra, useArtifactExtras } from "~/components/worksheet/artifact-extras";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
+import { SendTo } from "~/components/apps/send-to";
 import { PageHeader } from "~/components/ui/page-header";
 import { BookMeta, type BookMetaItem } from "~/components/doc/book-meta";
 import { Details } from "~/components/doc/details";
@@ -255,7 +256,12 @@ export default function ToolkitWorksheet({ loaderData, actionData }: Route.Compo
         className="mb-0"
       />
       <BookMeta items={meta} label={t("up.sheet.about")} />
-      <WorksheetActions href={`/toolkit/${w.id}/export.md`} extra={<SaveToDrive kind="worksheet" id={w.id} />} />
+      <WorksheetActions href={`/toolkit/${w.id}/export.md`} extra={
+          <>
+            <SaveToDrive kind="worksheet" id={w.id} />
+            <SendTo kind="worksheet" id={w.id} />
+          </>
+        } />
       {w.private ? <PrivateNote kind={kind} /> : null}
       <ActionError result={pageError} />
 

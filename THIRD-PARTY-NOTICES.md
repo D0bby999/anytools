@@ -3011,6 +3011,27 @@ course:
   the link import (a channel as a feed). The lists are credited on the Library page though CC0
   does not require it.
 
+## The Library's facts: ratings, certificates, popularity; MITx Online
+
+The Library's catalogue is stored in Postgres (the private design notes), loaded from
+`internal/library/catalogue.json.gz`, which `ui/web/scripts/library/export.mjs` builds from the
+catalogues above. Kept beyond titles and links:
+
+- **Open Textbook Library**: each book's rating out of 5, its number of reviews, the average of
+  the ten criteria its reviewers score from 1 to 5, its copyright year and the accessibility
+  features it lists. The reviews' text and the reviewers' names are not copied; each book links to
+  its page, where the reviews are.
+- **awesome-certificates**: each course's reward as the list marks it (a certificate of completion
+  or a digital badge) and its level.
+- **MIT OpenCourseWare**: each course's page views and year, as the MIT Learn API gives them.
+- **MITx Online**: 108 courses' titles, departments or topics, certificate names and fees (USD),
+  weeks, weekly hours, page views and links, read from the MIT Learn API
+  (`api.learn.mit.edu/api/v1/courses/?platform=mitxonline&free=true&certification=true`) by
+  `ui/web/scripts/library/mitx-online.mjs` on 2026-10-21. The courses are MIT's and are taken at
+  MITx Online; none of their material, descriptions or pictures is copied. MITx is a trademark of
+  the Massachusetts Institute of Technology; AnyLearn is not affiliated with MIT.
+- **Project Gutenberg**: each book's downloads in the last 30 days, from the RDF dump above.
+
 ---
 
 ## Go modules in the API binary

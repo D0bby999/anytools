@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import type { Book, Chapter } from "~/lib/book-types";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
+import { SendTo } from "~/components/apps/send-to";
 
 type ActionData = { errorKey?: string; errorDetail?: string };
 
@@ -53,6 +54,7 @@ export function ChapterList({ book }: { book: Book }) {
           </fetcher.Form>
         ) : null}
         <SaveToDrive kind="book" id={book.id} />
+        <SendTo kind="book" id={book.id} />
       </div>
       {fetcher.data?.errorKey ? (
         <p role="alert" className="mt-2 text-sm text-destructive">

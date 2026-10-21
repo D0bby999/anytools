@@ -99,6 +99,31 @@ type Handler struct {
 	settings Settings
 	files    DriveFiles
 	moves    Moves
+	// sinks write an export somewhere else than the Exports folder, by
+	// ?to=: "notebooklm" (a Google Doc, learning-tool-connections phase 7),
+	// "canva" (a Canva Doc, phase 8), "notion" (a page, phase 9).
+	sinks map[string]DocWriter
+}
+
+// DocWriter writes an export into another app and says where it is.
+type DocWriter interface {
+	CreateDoc(ctx context.Context, userID uuid.UUID, name, markdown string) (fileID, docName, url string, err error)
+}
+
+// Errors a DocWriter answers with for an app outside Google.
+var (
+	ErrAppNotConnected = errors.New("storage: the app is not connected")
+	ErrAppReconnect    = errors.New("storage: the app needs to be reconnected")
+	ErrAppNoTarget     = errors.New("storage: the app has nowhere to put it")
+)
+
+// WithSink turns on one ?to= target on every export.
+func (h *Handler) WithSink(to string, d DocWriter) *Handler {
+	if h.sinks == nil {
+		h.sinks = map[string]DocWriter{}
+	}
+	h.sinks[to] = d
+	return h
 }
 
 // NewHandler builds the handler. files is nil when Drive is not configured:
@@ -394,6 +419,12 @@ func driveFailed(w http.ResponseWriter, r *http.Request, err error) {
 		httpx.WriteError(w, http.StatusConflict, "reconnect Google Drive in Settings", "drive_reconnect")
 	case errors.Is(err, ErrDriveFull):
 		httpx.WriteError(w, http.StatusConflict, "your Google Drive is full", "drive_full")
+	case errors.Is(err, ErrAppNotConnected):
+		httpx.WriteError(w, http.StatusConflict, "connect the app on Learning apps first", "app_not_connected")
+	case errors.Is(err, ErrAppReconnect):
+		httpx.WriteError(w, http.StatusConflict, "reconnect the app on Learning apps", "app_reconnect")
+	case errors.Is(err, ErrAppNoTarget):
+		httpx.WriteError(w, http.StatusConflict, err.Error(), "app_no_target")
 	default:
 		slog.Warn("storageapi: Google Drive could not be reached", "path", r.URL.Path, "error", err)
 		httpx.WriteError(w, http.StatusBadGateway, "Google Drive could not be reached; try again", "drive_failed")

@@ -32,6 +32,7 @@ type DocsView = {
   setIncludeFolders(v: boolean): DocsView;
   setSelectFolderEnabled(v: boolean): DocsView;
   setMimeTypes(v: string): DocsView;
+  setFileIds(v: string): DocsView;
 };
 
 type PickerBuilder = {
@@ -98,6 +99,16 @@ export type OpenPickerOptions = {
   appId: string;
   accessToken: string;
   title?: string;
+  /**
+   * One kind of file only (learning-tool-connections phase 5): a form, a
+   * sheet. With it there is no folder view and one pick at a time.
+   */
+  mimeTypes?: string;
+  /**
+   * Exactly these files (phase 6): a class's attachments, offered so the
+   * learner grants drive.file on each with one confirmation.
+   */
+  fileIds?: string[];
 };
 
 /**
@@ -108,13 +119,12 @@ export async function openDrivePicker(opts: OpenPickerOptions): Promise<PickedIt
   const picker = await loadPicker();
 
   return new Promise((resolve) => {
-    const docs = new picker.DocsView(picker.ViewId.DOCS)
-      .setIncludeFolders(true)
-      .setSelectFolderEnabled(true);
-    const folders = new picker.DocsView(picker.ViewId.FOLDERS)
-      .setIncludeFolders(true)
-      .setSelectFolderEnabled(true)
-      .setMimeTypes(FOLDER_MIME);
+    const narrow = Boolean(opts.mimeTypes || opts.fileIds);
+    let docs = new picker.DocsView(picker.ViewId.DOCS)
+      .setIncludeFolders(!narrow)
+      .setSelectFolderEnabled(!narrow);
+    if (opts.mimeTypes) docs = docs.setMimeTypes(opts.mimeTypes);
+    if (opts.fileIds) docs = docs.setFileIds(opts.fileIds.join(","));
 
     let builder = new picker.PickerBuilder()
       .setDeveloperKey(opts.apiKey)
@@ -122,9 +132,14 @@ export async function openDrivePicker(opts: OpenPickerOptions): Promise<PickedIt
       // without it the user picks a file the app is still not allowed to read.
       .setAppId(opts.appId)
       .setOAuthToken(opts.accessToken)
-      .addView(docs)
-      .addView(folders)
-      .enableFeature(picker.Feature.MULTISELECT_ENABLED)
+      .addView(docs);
+    if (!opts.mimeTypes) builder = builder.enableFeature(picker.Feature.MULTISELECT_ENABLED);
+    if (!narrow) {
+      builder = builder.addView(
+        new picker.DocsView(picker.ViewId.FOLDERS).setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes(FOLDER_MIME),
+      );
+    }
+    builder = builder
       .setCallback((data) => {
         const action = data[picker.Response.ACTION];
         if (action === picker.Action.CANCEL) resolve(null);
@@ -150,4 +165,30 @@ export function toPicked(documents: PickerDocument[], picker: Pick<PickerNamespa
       kind: d[picker.Document.MIME_TYPE] === FOLDER_MIME ? ("folder" as const) : ("file" as const),
     }))
     .filter((d) => d.id !== "");
+}
+
+/** Why a Picker did not open, as a key under `apps.picker`. */
+export type PickError = "reconnect" | "notConnected" | "failed";
+
+/**
+ * Fetches a Picker token and shows the Picker: the ids picked, null when the
+ * learner closed it, or why it could not open.
+ */
+export async function pickFromDrive(
+  config: { apiKey: string; appId: string },
+  opts: Omit<OpenPickerOptions, "apiKey" | "appId" | "accessToken">,
+): Promise<{ ids: string[] } | { error: PickError } | null> {
+  try {
+    const res = await fetch("/app/api/drive/picker-token", { method: "POST" });
+    const body = (await res.json().catch(() => ({}))) as { access_token?: string; error?: string };
+    if (!res.ok || !body.access_token) {
+      return {
+        error: body.error === "needs_reconnect" ? "reconnect" : body.error === "not_connected" ? "notConnected" : "failed",
+      };
+    }
+    const picked = await openDrivePicker({ ...opts, apiKey: config.apiKey, appId: config.appId, accessToken: body.access_token });
+    return picked && picked.length > 0 ? { ids: picked.map((p) => p.id) } : null;
+  } catch {
+    return { error: "failed" };
+  }
 }

@@ -55,6 +55,9 @@ export default [
         route("upload", "routes/upload.tsx"),
         route("links", "routes/links.tsx"),
         route("storage", "routes/storage.tsx"),
+        // Learning-tool-connections: every tool AnyLearn connects to.
+        route("apps", "routes/apps.tsx"),
+        route("apps/classroom", "routes/apps.classroom.tsx"),
         route("chat", "routes/chat.index.tsx"),
         route("chat/:sessionId", "routes/chat.$sessionId.tsx"),
         // Phase 5. `documents/:docId` is the ONE document viewer (red-team
@@ -243,7 +246,17 @@ export default [
     // must never reach the code that does.
     route("auth/drive", "routes/auth.drive.tsx"),
     route("auth/drive/callback", "routes/auth.drive.callback.tsx"),
+    // Learning-tool-connections phases 8 and 9: Canva and Notion. Their own
+    // callback, never the sign-in one.
+    route("auth/app/:provider", "routes/auth.app.$provider.tsx"),
+    route("auth/app/:provider/callback", "routes/auth.app.$provider.callback.tsx"),
   ]),
+
+  // Learning-tool-connections phase 2: the study calendar feed. Outside every
+  // layout: a calendar app has no session, and the token is the credential.
+  route("cal/:file", "routes/cal.$file.ts"),
+  // Learning-tool-connections phase 4: mail from the Cloudflare Email Worker.
+  route("inbound/email", "routes/inbound.email.ts"),
 
   // Phase 12: crawler files, generated so they name the configured origin.
   route("robots.txt", "routes/robots[.]txt.ts"),

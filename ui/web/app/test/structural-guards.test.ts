@@ -356,13 +356,31 @@ describe("the top navigation fits", () => {
  * The CSRF check (same-origin.server.ts) runs inside getUserId. An action that
  * never asks who the user is would never be checked, so every one must.
  */
+/**
+ * Machine-to-machine writes with no session, each named here with what
+ * authenticates it instead. The Cloudflare Email Worker's delivery is signed
+ * (HMAC over the body), and the API checks the signature
+ * (learning-tool-connections phase 4); a browser cannot forge one, so there
+ * is no cross-site write to check the origin of.
+ */
+const SIGNED_MACHINE_ROUTES: Record<string, RegExp> = {
+  "routes/inbound.email.ts": /forwardInbound\(/,
+};
+
 describe("every action is origin-checked", () => {
   it("each route exporting an action reaches getUserId", () => {
     const unchecked = sourceFiles
       .filter((p) => p.includes("/routes/"))
       .filter((p) => /export (async )?function action\b/.test(read(p)))
       .filter((p) => !/\b(requireUser|requireUserId|getUserId)\(/.test(read(p)))
-      .map(rel);
+      .map(rel)
+      .filter((p) => !SIGNED_MACHINE_ROUTES[p]?.test(read(join(APP_DIR, p))));
     expect(unchecked).toEqual([]);
+  });
+
+  it("a signed machine route forwards the signature it is trusted for", () => {
+    const forwarder = read(join(APP_DIR, "lib/inbound.server.ts"));
+    expect(forwarder).toMatch(/X-Inbound-Signature/);
+    expect(forwarder).toMatch(/X-Inbound-Timestamp/);
   });
 });

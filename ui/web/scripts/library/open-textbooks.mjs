@@ -9,8 +9,12 @@
  *   node scripts/library/open-textbooks.mjs              (reads the API)
  *   node scripts/library/open-textbooks.mjs books.json   (the API's books, saved)
  *
- * Only the catalogue is kept (titles, authors, subjects, licences, links): no
- * description, review or cover. Each book keeps the licence the API gives it.
+ * Only the catalogue is kept (titles, authors, subjects, licences, links,
+ * year, accessibility features) and the reviews' numbers: the book's rating
+ * out of 5, how many reviewed it, and the average of each criterion the
+ * reviewers score from 1 to 5. No description, review text or cover is
+ * copied; a book links to its page, where the reviews are. Each book keeps
+ * the licence the API gives it.
  * Books OpenStax publishes are left out; the Library lists OpenStax's own
  * catalogue (openstax.mjs).
  */
@@ -68,6 +72,19 @@ export function fieldOf(subjects) {
   return { subject: top ? FIELDS[top.name] : parent ? PARENT_FIELDS[parent.parent_subject_id] : "general", section: named?.name ?? "" };
 }
 
+/** The criteria each review scores from 1 to 5 (the API's "<name>_rating"). */
+export const CRITERIA = ["comprehensiveness", "accuracy", "relevance", "clarity", "consistency", "modularity", "organization", "interface", "grammatical", "cultural"];
+
+/** The average of each criterion over the reviews that score it, to two decimals. */
+export function scoresOf(reviews) {
+  const out = {};
+  for (const c of CRITERIA) {
+    const got = (reviews ?? []).map((r) => Number(r[`${c}_rating`])).filter((n) => n >= 1 && n <= 5);
+    if (got.length) out[c] = Math.round((got.reduce((a, b) => a + b, 0) / got.length) * 100) / 100;
+  }
+  return out;
+}
+
 const fullName = (c) => [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(" ").trim();
 
 /** A book as a catalogue entry, or null if the Library does not list it. */
@@ -78,8 +95,16 @@ export function bookOf(b) {
   if (!language || !licence || !url || !b.title) return null;
   if ((b.formats ?? []).some((f) => /^https?:\/\/(www\.)?openstax\.org\//.test(f.url ?? ""))) return null;
   // A PDF link only where it is one: most "PDF" formats are a page to download it from.
-  const pdf = (b.formats ?? []).find((f) => f.type === "PDF" && /^https:\/\/[^?#]+\.pdf$/i.test(f.url ?? ""))?.url;
+  // A file on GitHub is linked raw: its /blob/ address is a page about it.
+  const pdf = (b.formats ?? [])
+    .find((f) => f.type === "PDF" && /^https:\/\/[^?#]+\.pdf$/i.test(f.url ?? ""))
+    ?.url.replace(/^(https:\/\/github\.com\/[^/]+\/[^/]+)\/blob\//, "$1/raw/");
   const authors = (b.contributors ?? []).filter((c) => c.contribution === "Author" || c.contribution === "Editor").map(fullName).filter(Boolean);
+  const rating = Number(b.rating);
+  const reviews = Number(b.textbook_reviews_count) || 0;
+  const scores = scoresOf(b.reviews);
+  const year = Number(b.copyright_year);
+  const accessibility = (b.accessibility_features ?? []).filter((f) => f && f !== "unknown" && f !== "none");
   return {
     id: b.id,
     title: b.title.trim(),
@@ -89,6 +114,10 @@ export function bookOf(b) {
     licence,
     url,
     ...(pdf ? { pdf } : {}),
+    ...(rating > 0 && reviews > 0 ? { rating, reviews } : {}),
+    ...(Object.keys(scores).length ? { scores } : {}),
+    ...(year >= 1900 && year <= 2100 ? { year } : {}),
+    ...(accessibility.length ? { accessibility } : {}),
   };
 }
 
@@ -96,12 +125,12 @@ const REUSABLE = new Set(["cc-by", "cc-by-sa", "cc0", "gfdl"]);
 
 /**
  * The order the Library shows a field's books in: free to reuse with a PDF
- * first, then free to reuse, then the rest, each by title; the first screen
- * shows the first of them.
+ * first, then free to reuse, then the rest; within each the best rated
+ * first, then by title. The first screen shows the first of them.
  */
 export function featured(a, b) {
   const rank = (x) => (REUSABLE.has(x.licence) ? (x.pdf ? 0 : 1) : 2);
-  return rank(a) - rank(b) || a.title.localeCompare(b.title) || a.id - b.id;
+  return rank(a) - rank(b) || (b.rating ?? 0) - (a.rating ?? 0) || a.title.localeCompare(b.title) || a.id - b.id;
 }
 
 async function readAPI() {

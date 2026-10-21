@@ -21,10 +21,12 @@ import (
 	"github.com/D0bby999/anytools/internal/api"
 	"github.com/D0bby999/anytools/internal/api/authapi"
 	"github.com/D0bby999/anytools/internal/api/byokapi"
+	"github.com/D0bby999/anytools/internal/api/calendarapi"
 	"github.com/D0bby999/anytools/internal/api/chatapi"
 	"github.com/D0bby999/anytools/internal/api/feedapi"
 	"github.com/D0bby999/anytools/internal/api/httpx"
 	"github.com/D0bby999/anytools/internal/api/kbapi"
+	"github.com/D0bby999/anytools/internal/api/playlistapi"
 	"github.com/D0bby999/anytools/internal/api/pushapi"
 	"github.com/D0bby999/anytools/internal/api/sourceapi"
 	"github.com/D0bby999/anytools/internal/api/videonotesapi"
@@ -33,6 +35,7 @@ import (
 	"github.com/D0bby999/anytools/internal/authz"
 	"github.com/D0bby999/anytools/internal/blob"
 	"github.com/D0bby999/anytools/internal/byok"
+	"github.com/D0bby999/anytools/internal/calendar"
 	"github.com/D0bby999/anytools/internal/capabilities/chat"
 	"github.com/D0bby999/anytools/internal/capabilities/reading"
 	"github.com/D0bby999/anytools/internal/capabilities/research"
@@ -41,6 +44,7 @@ import (
 	"github.com/D0bby999/anytools/internal/capabilities/visualize"
 	"github.com/D0bby999/anytools/internal/capabilities/zoterolib"
 	"github.com/D0bby999/anytools/internal/config"
+	"github.com/D0bby999/anytools/internal/connectors/youtube"
 	"github.com/D0bby999/anytools/internal/jobs"
 	"github.com/D0bby999/anytools/internal/knowledge"
 	"github.com/D0bby999/anytools/internal/notebook"
@@ -127,6 +131,10 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 	// drive-user-storage phase 2: Settings → Storage, and "Save to my Drive"
 	// on every Markdown export. See wire_storage.go.
 	storageHandler := buildStorage(pool, kb, dc, users)
+	// Learning-tool-connections phases 8 and 9: Canva and Notion, and their
+	// "Open in Canva" and "Export to Notion" on every export. See wire_apps.go.
+	apps := buildApps(cfg, pool, kb)
+	apps.sinks(storageHandler)
 	driveExports := storageHandler.Exports()
 	if driveConnector != nil {
 		// A Drive grant Google has stopped honouring fails the same test the
@@ -173,6 +181,12 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 	// wire_push.go.
 	reminders := buildPush(pool, cfg).WithCounter(newDueTotal(pool, loopSvc)).WithPlanner(newTrainingPlanner(pool))
 
+	// Learning-tool-connections phases 2 and 3: the study calendar, as a feed
+	// and written into Google Calendar. See wire_gcal.go.
+	studyCalendar := calendar.NewService(pg.NewCalendarStore(pool, cfg.Security.EncryptionKey), cfg.Server.AppURL)
+	gcalHandler, gcalSvc := buildGCal(pool, driveConnector, studyCalendar, newDueTotal(pool, loopSvc))
+	classroomHandler, classroomSvc := buildClassroom(pool, driveConnector, kb)
+
 	// Phase 7. See wire_quiz.go.
 	quizHandler, masteryHandler, startLearning := buildQuizMastery(pool, kb, newChatResolver(byokService), nil, reminders)
 
@@ -189,32 +203,42 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 			WithTimezones(users).
 			WithLanguages(users).
 			WithOwnVersionFirst(users),
-		BYOK:         byokapi.NewHandler(byokService),
-		Knowledge:    kb.handler,
-		Chat:         rt.handler,
-		Quiz:         quizHandler,
-		Mastery:      masteryHandler,
-		Notebook:     notebookHandler.WithDriveExport(driveExports),
-		Reading:      readingHandler,
-		Drive:        driveHandler,
-		Solve:        solveHandler,
-		Research:     researchHandler,
-		Visualize:    visualizeapi.NewHandler(diagrams),
-		Audio:        audioHandler,
-		Related:      relatedHandler,
-		VideoNotes:   videoNotesHandler,
-		Exams:        examHandler,
-		Loop:         loopHandler,
-		Vocab:        buildVocab(pool, pages),
-		Speak:        buildSpeak(pool, pages, byokService, cfg.Engines),
-		Profile:      profileHandler,
-		Books:        buildBooks(pool, kb, byokService).WithDriveExport(driveExports),
-		Worksheets:   buildWorksheets(pool, kb).WithDiagnoser(buildWritingDiagnosis(pool, newChatResolver(byokService))).WithDriveExport(driveExports), // up methods, phases 0, 4 and 7; see wire_worksheet.go
-		Sources:      sourceapi.NewHandler(kb.service, kb.authz),
-		Zotero:       buildZotero(pool, kb, byokService, web.zotero), // up methods, phase 20; see wire_zotero.go
-		Feeds:        feedapi.NewHandler(kb.service, kb.authz),
-		Storage:      storageHandler,
-		Push:         pushapi.NewHandler(reminders),
+		BYOK:       byokapi.NewHandler(byokService),
+		Knowledge:  kb.handler,
+		Chat:       rt.handler,
+		Quiz:       quizHandler,
+		Mastery:    masteryHandler,
+		Notebook:   notebookHandler.WithDriveExport(driveExports),
+		Reading:    readingHandler,
+		Drive:      driveHandler,
+		Solve:      solveHandler,
+		Research:   researchHandler,
+		Visualize:  visualizeapi.NewHandler(diagrams),
+		Audio:      audioHandler,
+		Related:    relatedHandler,
+		VideoNotes: videoNotesHandler,
+		Exams:      examHandler,
+		Loop:       loopHandler,
+		Vocab:      buildVocab(pool, pages),
+		Speak:      buildSpeak(pool, pages, byokService, cfg.Engines),
+		Profile:    profileHandler,
+		Books:      buildBooks(pool, kb, byokService).WithDriveExport(driveExports),
+		Worksheets: buildWorksheets(pool, kb).WithDiagnoser(buildWritingDiagnosis(pool, newChatResolver(byokService))).WithDriveExport(driveExports), // up methods, phases 0, 4 and 7; see wire_worksheet.go
+		Sources:    sourceapi.NewHandler(kb.service, kb.authz),
+		Zotero:     buildZotero(pool, kb, byokService, web.zotero), // up methods, phase 20; see wire_zotero.go
+		Feeds:      feedapi.NewHandler(kb.service, kb.authz),
+		Storage:    storageHandler,
+		Push:       pushapi.NewHandler(reminders),
+		Library:    buildLibrary(ctx, pool),
+		Inbound:    buildInbound(cfg, pool, kb),
+		Workspace:  buildWorkspace(pool, kb, driveConnector, newChatResolver(byokService), pages),
+		Calendar:   calendarapi.NewHandler(studyCalendar),
+		GCal:       gcalHandler,
+		Classroom:  classroomHandler,
+		Photos:     buildPhotos(driveConnector, kb),
+		Apps:       apps.handler,
+		Playlists: playlistapi.NewHandler(
+			youtube.NewPlaylistReader(config.Getenv("ANYTOOLS_GOOGLE_API_KEY"), cfg.Engines.YTDLP), kbBridge{kb: kb}),
 		Body:         buildBody(pool, byokService),
 		Users:        users,
 		GatewayToken: cfg.Security.GatewayToken,
@@ -254,6 +278,13 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 	if driveConnector != nil {
 		startDriveSync(bgCtx, &app.bgDone, driveConnector)
 	}
+	if gcalSvc != nil {
+		startGCalSync(bgCtx, &app.bgDone, gcalSvc)
+	}
+	if classroomSvc != nil {
+		startClassroomCheck(bgCtx, &app.bgDone, classroomSvc)
+	}
+	startNotionSync(bgCtx, &app.bgDone, apps.notion)
 	startLoop(bgCtx, &app.bgDone)
 	startProfile(bgCtx, &app.bgDone)
 

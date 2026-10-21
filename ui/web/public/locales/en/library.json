@@ -10,7 +10,20 @@
     "language": "Language",
     "myLanguages": "English, then my language",
     "allLanguages": "All languages, English first",
-    "show": "Show"
+    "show": "Show",
+    "sort": "Sort by",
+    "level": "Level",
+    "anyLevel": "Any level",
+    "certificate": "Certificate",
+    "anyCertificate": "With or without",
+    "certificates": {
+      "any": "Gives a certificate or badge",
+      "free": "Free certificate or badge",
+      "paid": "Certificate for a fee"
+    },
+    "video": "With video",
+    "reusable": "Free to reuse",
+    "more": "More filters: level, certificate, video, licence"
   },
   "kinds": {
     "deck": "Decks",
@@ -59,9 +72,7 @@
     "books_one": "{{count}} book",
     "books_other": "{{count}} books",
     "exercises_one": "{{count}} exercise",
-    "exercises_other": "{{count}} exercises",
-    "hours_one": "{{count}} hour",
-    "hours_other": "{{count}} hours"
+    "exercises_other": "{{count}} exercises"
   },
   "licence": {
     "public-domain": "Public domain",
@@ -84,7 +95,8 @@
     "noLicence": "It gives no licence, so AnyLearn does not copy it: open it at the source, then bring its file to Decks.",
     "bringFile": "Open the papers at the source, then upload one in Quiz → Exams → Upload a past paper.",
     "textbook": "Read it at its source, or download its PDF and upload the chapters you need to a knowledge base (a file of up to 50 MB and 400 pages).",
-    "textbookNonCommercial": "Read it at its source, or download its PDF. Its licence allows only non-commercial use: upload the chapters you need to a knowledge base for your own study (a file of up to 50 MB and 400 pages)."
+    "textbookNonCommercial": "Read it at its source, or download its PDF. Its licence allows only non-commercial use: upload the chapters you need to a knowledge base for your own study (a file of up to 50 MB and 400 pages).",
+    "enrol": "Free to take at its source, where you enrol; AnyLearn does not copy it."
   },
   "items": {
     "upWords": "English terms a programmer meets, by language (Python, Go, JavaScript and more): words only, to look up and save.",
@@ -136,7 +148,8 @@
       "math": "Listed by awesome-math (rossant/awesome-math, CC0); each link belongs to its owner.",
       "certificates": "Listed by awesome-certificates (PanXProject/awesome-certificates, CC0); each course belongs to its provider, and its certificate is the provider's to give.",
       "youtubers": "Listed by awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0); each channel belongs to its owner, and is added as a feed to choose videos from."
-    }
+    },
+    "mitx": "The courses are MITx Online's, listed from MIT Learn: free to take, with a certificate for a fee; each opens at MIT."
   },
   "level": "Level",
   "levelOption_one": "{{name}} ({{count}} word)",
@@ -178,5 +191,52 @@
   "pdf": "PDF of the whole book",
   "wordsDays": "New ones come up from {{first}} to {{last}}.",
   "allInField_one": "See the {{count, number}} item in {{field}}",
-  "allInField_other": "See all {{count, number}} in {{field}}"
+  "allInField_other": "See all {{count, number}} in {{field}}",
+  "sorts": {
+    "featured": "Recommended",
+    "rating": "Best rated",
+    "popular": "Most used",
+    "shortest": "Shortest",
+    "newest": "Newest"
+  },
+  "levels": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "certificate": {
+    "free": "Free certificate of completion (as the list says)",
+    "badge": "Free digital badge (as the list says)",
+    "paid": "{{name}}: free to take, certificate {{fee}}",
+    "certificate": "Certificate",
+    "feeUnknown": "fee not given"
+  },
+  "rated_one": "★ {{value}} ({{count, number}} review)",
+  "rated_other": "★ {{value}} ({{count, number}} reviews)",
+  "hours_one": "About {{count, number}} hour",
+  "hours_other": "About {{count, number}} hours",
+  "popularity": {
+    "views_one": "{{count, number}} view",
+    "views_other": "{{count, number}} views",
+    "downloads_one": "{{count, number}} download in 30 days",
+    "downloads_other": "{{count, number}} downloads in 30 days"
+  },
+  "scores": {
+    "title": "Ratings by criterion",
+    "outOf5": "{{value}} / 5",
+    "readReviews": "Read the reviews at {{name}}",
+    "comprehensiveness": "Comprehensiveness",
+    "accuracy": "Accuracy",
+    "relevance": "Relevance and longevity",
+    "clarity": "Clarity",
+    "consistency": "Consistency",
+    "modularity": "Modularity",
+    "organization": "Organization",
+    "interface": "Interface",
+    "grammatical": "Grammar",
+    "cultural": "Cultural relevance"
+  },
+  "notLoaded": "The Library is still being loaded on the server. Try again in a minute.",
+  "minutes_one": "About {{count, number}} minute",
+  "minutes_other": "About {{count, number}} minutes"
 }

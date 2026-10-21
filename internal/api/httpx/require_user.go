@@ -63,6 +63,12 @@ var AllowlistedPaths = map[string]bool{
 // account" is not reachable even from the BFF.
 var GatewayOnlyPaths = map[string]bool{
 	"POST /v1/auth/identity": true,
+	// learning-tool-connections phase 2: a calendar app reading
+	// /cal/<token>.ics has no session; the token in the body picks the feed.
+	"POST /v1/calendar/feed/read": true,
+	// learning-tool-connections phase 4: mail the Cloudflare Email Worker
+	// signed; the HMAC, checked in internal/inbound, is its credential.
+	"POST /v1/inbound/email": true,
 }
 
 // RequireUser is AnyTools' single authentication chokepoint. It wraps the

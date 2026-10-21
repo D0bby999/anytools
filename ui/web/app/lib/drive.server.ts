@@ -81,7 +81,14 @@ export function disconnectDrive(userId: string) {
  */
 export function saveDriveCredentials(
   userId: string,
-  body: { refresh_token: string; access_token: string; expires_in: number; scope: string },
+  body: {
+    refresh_token: string;
+    access_token: string;
+    expires_in: number;
+    scope: string;
+    google_sub?: string;
+    email?: string;
+  },
 ) {
   return apiFetch<{ connected: boolean }>("/v1/connectors/drive/credentials", userId, {
     method: "POST",

@@ -54,11 +54,19 @@ func newDriveConnector(cfg *config.Config, pool *pg.Pool) *driveConnector {
 		return nil
 	}
 	store := pg.NewDriveStore(pool, cfg.Security.EncryptionKey)
+	users := pg.NewUserStore(pool)
 	return &driveConnector{
 		svc: drive.NewService(drive.Config{
 			Store:          store,
 			OAuth:          oauthCfg,
 			MaxImportBytes: knowledge.MaxUploadBytes,
+			EmailOf: func(ctx context.Context, userID uuid.UUID) (string, error) {
+				u, err := users.GetUser(ctx, userID)
+				if err != nil {
+					return "", err
+				}
+				return u.Email, nil
+			},
 		}),
 		store: store,
 	}

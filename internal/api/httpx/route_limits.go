@@ -64,6 +64,18 @@ var RouteClasses = []RouteClass{
 			// and an embed; a re-sync can re-embed; a transcript upload or
 			// paste re-indexes; an AI transcript is a Gemini call.
 			"POST /v1/kb/{id}/links",
+			// Learning-tool-connections phase 6: a class's links, videos and
+			// posts, each a fetch or a parse and an embed.
+			"POST /v1/classroom/courses/{id}/import",
+			// Phase 7: a YouTube playlist, each video a link document.
+			"POST /v1/kb/{id}/playlist",
+			// Phase 7: photos picked in Google Photos, read as page photos.
+			"POST /v1/kb/{id}/photos/google",
+			// Phases 8 and 9: a Canva design exported as a PDF and parsed;
+			// Notion pages read and parsed, now or on a sync.
+			"POST /v1/kb/{id}/canva/import",
+			"POST /v1/kb/{id}/notion/import",
+			"POST /v1/notion/sync",
 			"POST /v1/documents/{id}/resync",
 			// A retry re-parses and re-embeds a failed upload.
 			"POST /v1/documents/{id}/retry",

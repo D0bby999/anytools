@@ -10,6 +10,7 @@
  */
 
 import {
+  Blocks,
   BookOpen,
   Dumbbell,
   FolderOpen,
@@ -141,6 +142,8 @@ export const NAV_TREE: NavGroup[] = [
       { to: "/upload", labelKey: "nav.pages.upload", icon: Upload },
       { to: "/links", labelKey: "nav.pages.links", icon: Link2 },
       { to: "/storage", labelKey: "nav.pages.storage", icon: HardDrive },
+      // Learning-tool-connections (2026-10-21): Google, email, Canva, Notion.
+      { to: "/apps", labelKey: "nav.pages.apps", icon: Blocks },
     ],
   },
   {

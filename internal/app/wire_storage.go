@@ -11,6 +11,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/storageapi"
 	"github.com/D0bby999/anytools/internal/blob"
 	"github.com/D0bby999/anytools/internal/connectors/drive"
+	"github.com/D0bby999/anytools/internal/connectors/gdocs"
 	"github.com/D0bby999/anytools/internal/jobs"
 	"github.com/D0bby999/anytools/internal/store"
 	"github.com/D0bby999/anytools/internal/store/pg"
@@ -37,7 +38,28 @@ func buildStorage(pool *pg.Pool, kb knowledgeSubsystem, dc *driveConnector, user
 			kb.soloHandlers[storageapi.JobKind] = storageMoveHandler(kb.queue, kb.driveFiles)
 		}
 	}
-	return storageapi.NewHandler(users, files, storageMoves{queue: kb.queue, index: index})
+	h := storageapi.NewHandler(users, files, storageMoves{queue: kb.queue, index: index})
+	if dc != nil {
+		// Learning-tool-connections phase 7: "Send to NotebookLM".
+		h.WithSink("notebooklm", docWriter{gdocs.NewService(dc.svc)})
+	}
+	return h
+}
+
+// docWriter adapts gdocs to the export sink, in the sink's own error words.
+type docWriter struct{ docs *gdocs.Service }
+
+func (d docWriter) CreateDoc(ctx context.Context, userID uuid.UUID, name, markdown string) (string, string, string, error) {
+	doc, err := d.docs.Create(ctx, userID, name, markdown)
+	switch {
+	case errors.Is(err, drive.ErrNotConnected):
+		return "", "", "", storageapi.ErrDriveNotConnected
+	case errors.Is(err, drive.ErrNeedsReconnect), errors.Is(err, drive.ErrScopeMissing):
+		return "", "", "", storageapi.ErrDriveReconnect
+	case err != nil:
+		return "", "", "", err
+	}
+	return doc.ID, doc.Name, doc.URL, nil
 }
 
 // fileStorageOf is the router's reading of the learner's choice. Account

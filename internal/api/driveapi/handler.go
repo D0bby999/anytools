@@ -91,6 +91,10 @@ func (h *Handler) saveCredentials(w http.ResponseWriter, r *http.Request) {
 	if err := h.svc.Connect(r.Context(), userID, creds); err != nil {
 		// Connect's refusals are written for a person and name no secret, so
 		// they pass through; anything else is ours.
+		if errors.Is(err, drive.ErrDifferentAccount) {
+			httpx.WriteError(w, http.StatusConflict, err.Error(), "different_google_account")
+			return
+		}
 		if errors.Is(err, drive.ErrNotConfigured) {
 			httpx.WriteError(w, http.StatusServiceUnavailable,
 				"Google Drive is not configured on this deployment", "not_configured")
@@ -229,6 +233,9 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
 	case errors.Is(err, drive.ErrNeedsReconnect):
 		httpx.WriteError(w, http.StatusConflict,
 			"Google Drive needs to be reconnected", "needs_reconnect")
+	case errors.Is(err, drive.ErrScopeMissing):
+		httpx.WriteError(w, http.StatusConflict,
+			"the Google connection does not include this feature yet", "scope_missing")
 	case errors.Is(err, drive.ErrNotConfigured):
 		httpx.WriteError(w, http.StatusServiceUnavailable,
 			"Google Drive is not configured on this deployment", "not_configured")

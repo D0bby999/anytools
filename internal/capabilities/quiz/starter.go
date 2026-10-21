@@ -71,10 +71,21 @@ func (s *Service) AddStarter(ctx context.Context, userID, kbID uuid.UUID, set st
 // the same module) is not added again. No model is called. Each question's
 // explanation ends with its set's credit.
 func (s *Service) AddSet(ctx context.Context, userID, kbID uuid.UUID, set, part string) (*StarterResult, error) {
-	defer lockKB(kbID)()
 	qs, err := setQuestions(userID, kbID, set, part)
 	if err != nil {
 		return nil, err
+	}
+	return s.AddQuestions(ctx, userID, kbID, qs)
+}
+
+// AddQuestions adds ready questions to a knowledge base's bank, skipping any
+// whose prompt (or code module) is already there: a Library set, or a quiz
+// imported from Google Forms (learning-tool-connections phase 5). Each
+// question's UserID and KBID are set here.
+func (s *Service) AddQuestions(ctx context.Context, userID, kbID uuid.UUID, qs []Question) (*StarterResult, error) {
+	defer lockKB(kbID)()
+	for i := range qs {
+		qs[i].UserID, qs[i].KBID = userID, kbID
 	}
 	if err := s.authz.OwnsKB(ctx, userID, kbID); err != nil {
 		return nil, ErrNoAccess

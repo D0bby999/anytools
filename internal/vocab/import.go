@@ -26,6 +26,10 @@ import (
 // OriginAnki marks a note imported from an Anki deck.
 const OriginAnki = "anki"
 
+// OriginSheets marks a note imported from a Google Sheet
+// (learning-tool-connections phase 5).
+const OriginSheets = "sheets"
+
 // OriginLibrary prefixes the origin of a word added from one of the
 // Library's word lists: "library:<list>-<level>" (the private design notes, phase 4). Such words are paced as an import.
 const OriginLibrary = "library:"
@@ -101,7 +105,7 @@ func (s *Service) Import(ctx context.Context, userID uuid.UUID, lang string, not
 // ImportFrom is Import with the words' origin: OriginAnki, or a library
 // list's ("library:hsk3-1").
 func (s *Service) ImportFrom(ctx context.Context, userID uuid.UUID, lang, origin string, notes []ImportNote) (*ImportResult, error) {
-	if origin != OriginAnki && !libraryOrigin.MatchString(origin) {
+	if origin != OriginAnki && origin != OriginSheets && !libraryOrigin.MatchString(origin) {
 		return nil, fmt.Errorf("%w: %q is not a word list", ErrInvalid, origin)
 	}
 	store, ok := s.store.(ImportStore)

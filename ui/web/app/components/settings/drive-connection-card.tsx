@@ -11,7 +11,7 @@
  * API. There is no "not configured" state here, by construction.
  */
 import { Dialog } from "~/components/doc/dialog";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
@@ -30,18 +30,9 @@ export function driveStatusTone(status: DriveStatus): ReadinessStatus {
 
 export function DriveConnectionCard({ status, storage }: { status: DriveStatus; storage?: "server" | "drive" }) {
   const { t } = useTranslation("common");
-  const navigation = useNavigation();
-  const busy = navigation.state !== "idle";
   const tone = driveStatusTone(status);
   const connectHref = `/auth/drive?next=${encodeURIComponent("/settings")}`;
-  // Drive-user-storage phase 3: with the learner's own files kept in this
-  // Drive, Disconnect first says what happens to them. Phase 4: so it does
-  // when new files are set to go there (Settings → Storage), even before
-  // the first one has.
   const inDrive = status.files_in_drive ?? 0;
-  const shell = useFileStorage();
-  const keeps = inDrive > 0 || (storage ?? shell) === "drive";
-  const [confirming, setConfirming] = useState(false);
 
   const label = !status.connected
     ? t("settings.connections.drive.notConnected")
@@ -118,37 +109,72 @@ export function DriveConnectionCard({ status, storage }: { status: DriveStatus; 
               </a>
             </Button>
           ) : null}
-          {status.connected ? (
-            <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setConfirming(true)}>
-              {t("settings.connections.drive.disconnect")}
-            </Button>
-          ) : null}
+          {status.connected ? <DriveDisconnect status={status} storage={storage} /> : null}
         </div>
-
-        <Dialog
-          open={status.connected && confirming}
-          onClose={() => setConfirming(false)}
-          title={keeps ? t("settings.connections.drive.disconnectFilesTitle") : t("settings.connections.drive.disconnect")}
-        >
-          {keeps ? (
-            <DisconnectWithFiles busy={busy} onKeep={() => setConfirming(false)} />
-          ) : (
-            <>
-              <p>{t("settings.connections.drive.confirmDisconnect")}</p>
-              <Form method="post" className="mt-4 flex justify-end gap-2">
-                <input type="hidden" name="intent" value="drive-disconnect" />
-                <Button type="button" variant="ghost" onClick={() => setConfirming(false)}>
-                  {t("settings.connections.drive.keepConnected")}
-                </Button>
-                <Button type="submit" variant="destructive" disabled={busy}>
-                  {t("settings.connections.drive.disconnect")}
-                </Button>
-              </Form>
-            </>
-          )}
-        </Dialog>
       </div>
     </section>
+  );
+}
+
+/**
+ * Disconnect, with its confirmation. Exported for Learning apps, whose Google
+ * card ends the same grant (learning-tool-connections phase 1); the form
+ * posts `intent=drive-disconnect` to whichever route renders it.
+ *
+ * Drive-user-storage phase 3: with the learner's own files kept in this
+ * Drive, Disconnect first says what happens to them. Phase 4: so it does
+ * when new files are set to go there (Settings → Storage), even before the
+ * first one has.
+ */
+export function DriveDisconnect({
+  status,
+  storage,
+  label,
+  extra,
+}: {
+  status: DriveStatus;
+  storage?: "server" | "drive";
+  /** The button's words; Learning apps says "Disconnect Google". */
+  label?: string;
+  /** One more sentence in the confirmation, e.g. which features stop. */
+  extra?: ReactNode;
+}) {
+  const { t } = useTranslation("common");
+  const navigation = useNavigation();
+  const busy = navigation.state !== "idle";
+  const inDrive = status.files_in_drive ?? 0;
+  const shell = useFileStorage();
+  const keeps = inDrive > 0 || (storage ?? shell) === "drive";
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <>
+      <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setConfirming(true)}>
+        {label ?? t("settings.connections.drive.disconnect")}
+      </Button>
+      <Dialog
+        open={status.connected && confirming}
+        onClose={() => setConfirming(false)}
+        title={keeps ? t("settings.connections.drive.disconnectFilesTitle") : (label ?? t("settings.connections.drive.disconnect"))}
+      >
+        {extra}
+        {keeps ? (
+          <DisconnectWithFiles busy={busy} onKeep={() => setConfirming(false)} />
+        ) : (
+          <>
+            <p>{t("settings.connections.drive.confirmDisconnect")}</p>
+            <Form method="post" className="mt-4 flex justify-end gap-2">
+              <input type="hidden" name="intent" value="drive-disconnect" />
+              <Button type="button" variant="ghost" onClick={() => setConfirming(false)}>
+                {t("settings.connections.drive.keepConnected")}
+              </Button>
+              <Button type="submit" variant="destructive" disabled={busy}>
+                {label ?? t("settings.connections.drive.disconnect")}
+              </Button>
+            </Form>
+          </>
+        )}
+      </Dialog>
+    </>
   );
 }
 

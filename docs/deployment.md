@@ -152,6 +152,20 @@ Without the profile, or with `ANYTOOLS_TTS_URL` unset, the built-in option does 
 
 **Local runs.** `deploy/scripts/run-local.sh` starts the same image on `127.0.0.1:8880` when Docker is present (`ANYTOOLS_LOCAL_TTS=0` skips it), and skips it with a message when Docker is absent.
 
+## Learning apps
+
+Google Calendar, Classroom, Forms, Sheets, Photos, YouTube playlists, email in, Canva and Notion are described in [integrations.md](integrations.md), with each one's setup. The server settings they read:
+
+| Variable | What it does | Unset |
+|---|---|---|
+| `ANYTOOLS_GOOGLE_SENSITIVE_SCOPES` | Who may turn on Google Calendar, Classroom and Photos: a comma-separated list of test accounts' emails, or `all` once Google has verified the app. | Nobody; the cards say they are waiting for Google. |
+| `ANYTOOLS_INBOUND_SECRET` | The secret the inbound mail Worker signs with (the Worker's `INBOUND_SECRET`). | Email in refuses every delivery and the card says it is not set up. |
+| `ANYTOOLS_INBOUND_DOMAIN` | The domain of learners' addresses. | `in.anytools.world`. |
+| `ANYTOOLS_CANVA_CLIENT_ID`, `ANYTOOLS_CANVA_CLIENT_SECRET` | The Canva Connect integration. | The Canva card says it is not set up. |
+| `ANYTOOLS_NOTION_CLIENT_ID`, `ANYTOOLS_NOTION_CLIENT_SECRET` | The Notion public connection. | The Notion card says it is not set up. |
+
+In the Google Cloud project, enable the APIs the features call: Google Calendar API, Google Classroom API, Google Forms API, Google Photos Picker API and YouTube Data API v3 (the last on the browser key's project, for playlists).
+
 ## Learners' files in their Google Drive
 
 **The data volume must belong to the API's user (uid 10001).** Images from 2026-10-20 on create the mount point with that owner, so a new volume gets it. A volume made by an older image is root's: the API then boots until a Google client is set, and fails with `blob: create cache dir: ... permission denied`. Fix it once:

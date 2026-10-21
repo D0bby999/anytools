@@ -34,6 +34,23 @@ export const LIBRARY_SUBJECTS = [
 ] as const;
 export type LibrarySubject = (typeof LIBRARY_SUBJECTS)[number];
 
+/** How hard an item is, where its source says (the private design notes). */
+export const LIBRARY_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+export type LibraryLevel = (typeof LIBRARY_LEVELS)[number];
+
+/** What finishing an item earns: a free certificate, a digital badge, or a certificate for a fee. */
+export type LibraryCertificate = { kind: "free" | "badge" | "paid"; name?: string; priceMin?: number; priceMax?: number; currency?: "USD" };
+
+/** A source's reviews: the rating out of 5, how many, and each criterion's average (1 to 5). */
+export type LibraryRating = { value: number; count: number; scores?: Record<string, number> };
+
+/** The orders the page offers; English always comes first. */
+export const LIBRARY_SORTS = ["featured", "rating", "popular", "shortest", "newest"] as const;
+export type LibrarySort = (typeof LIBRARY_SORTS)[number];
+
+/** Licences that let anyone copy and adapt, commercially too. */
+export const REUSABLE_LICENCES = ["public-domain", "cc0", "cc-by", "cc-by-sa", "mit", "unlicense", "gfdl", "free-pictures"] as const;
+
 /** A licence in kinds the page can say in the learner's language. */
 export type Licence =
   | "public-domain"
@@ -65,7 +82,7 @@ export type LibraryAction =
   /** A page of AnyLearn's own. */
   | { type: "page"; to: string }
   /** Nothing to add: opened at its source, for the reason given. */
-  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook" | "textbookNonCommercial"; pdf?: string };
+  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook" | "textbookNonCommercial" | "enrol"; pdf?: string };
 
 export type LibraryItem = {
   /** Unique in the catalogue, stable: an action names its item by it. */
@@ -86,9 +103,20 @@ export type LibraryItem = {
   author?: string;
   /** How much there is, counted in unit. */
   count?: number;
-  unit?: "cards" | "words" | "questions" | "courses" | "books" | "exercises" | "hours";
+  unit?: "cards" | "words" | "questions" | "courses" | "books" | "exercises";
   /** A video or a playlist. */
   video?: boolean;
+  level?: LibraryLevel;
+  /** About how many hours it takes, as its source says. */
+  hours?: number;
+  /** The year of its edition, term or copyright. */
+  year?: number;
+  certificate?: LibraryCertificate;
+  rating?: LibraryRating;
+  /** How often it is used, as its source counts: page views or downloads. */
+  popularity?: { count: number; kind: "views" | "downloads" };
+  /** Accessibility features its source names ("alternativeText", "tableOfContents"). */
+  accessibility?: string[];
   licence: Licence;
   /** Where it comes from: the project that made or lists it. */
   source: { name: string; url: string };
@@ -109,7 +137,16 @@ export type LibraryFilter = {
   lang: string;
   q: string;
   offset: number;
+  sort?: LibrarySort;
+  level?: LibraryLevel;
+  /** "any" a certificate or badge, "free" a free one, "paid" one for a fee. */
+  certificate?: "any" | "free" | "paid";
+  video?: boolean;
+  reusable?: boolean;
 };
+
+/** A source as the catalogue names it, with what pins its data. */
+export type LibrarySource = { name: string; url: string; licence: string; pin: string; read: string };
 
 /** Results shown at once; the page goes on with Next. */
 export const LIBRARY_PAGE = 30;

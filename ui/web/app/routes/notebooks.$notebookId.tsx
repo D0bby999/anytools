@@ -31,6 +31,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { NoteEditor } from "~/components/notebook/note-editor";
 import { SaveToDrive, useFileStorage } from "~/components/storage/save-to-drive";
+import { SendTo } from "~/components/apps/send-to";
 import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
 import { sectionTabClass } from "~/components/ui/section-tabs";
@@ -151,6 +152,7 @@ export default function NotebookPage({ loaderData, actionData }: Route.Component
               ),
             },
             ...(onDrive ? [{ label: <SaveToDrive kind="notebook" id={notebook.id} /> }] : []),
+            { label: <SendTo kind="notebook" id={notebook.id} /> },
           ]}
         />
       </PageHeader>

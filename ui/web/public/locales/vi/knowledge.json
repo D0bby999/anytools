@@ -159,7 +159,11 @@
       "connected": "Google Drive đã được kết nối.",
       "denied": "Chưa kết nối được Google Drive: quyền truy cập Drive chưa được cấp.",
       "failed": "Không kết nối được Google Drive. Hãy thử lại.",
-      "no_refresh": "Google không trả về quyền truy cập lâu dài. Hãy thử kết nối lại và chấp thuận màn hình xin quyền."
+      "no_refresh": "Google không trả về quyền truy cập lâu dài. Hãy thử kết nối lại và chấp thuận màn hình xin quyền.",
+      "other_account": "Tài khoản Google này không phải tài khoản đang kết nối. Hãy chọn đúng tài khoản đó, hoặc ngắt kết nối Google trước.",
+      "partial": "Đã kết nối Google, nhưng bạn chưa cho phép tính năng vừa chọn. Thử lại và đánh dấu ô của nó.",
+      "unavailable": "Tính năng này đang chờ Google duyệt AnyLearn nên chưa mở.",
+      "school_blocked": "Quản trị viên Google của trường bạn chưa cho phép AnyLearn. Trang Google Classroom trong Ứng dụng học tập ghi rõ cần nhờ họ làm gì."
     },
     "errors": {
       "reconnect": "Google không còn chấp nhận kết nối Drive này. Hãy kết nối lại Google Drive rồi thử lại.",

@@ -5,9 +5,12 @@
  * licence and source, and one action that puts it where it is used. What
  * AnyLearn may not copy is listed and opened at its source. With no field and
  * no search the page shows a few items of each field
+ * (the private design notes). The catalogue is in Postgres and
+ * answered by the API, sorted and filtered by rating, popularity, hours,
+ * year, level, certificate, video and licence
  * (the private design notes).
  */
-import { useId } from "react";
+import { Fragment, useId } from "react";
 import { Form, Link, data, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/library";
@@ -18,9 +21,21 @@ import { isSupportedLng } from "~/lib/i18n";
 import { addLibraryDeck } from "~/lib/decks.server";
 import { addLink, createKB, listKBs } from "~/lib/kb.server";
 import { addQuestionSet } from "~/lib/quiz.server";
-import { catalogueLanguages, findByField, findItems, libraryItem, type FieldGroup } from "~/lib/library/catalogue.server";
+import { findByField, findItems, libraryItem, type FieldGroup } from "~/lib/library/api.server";
 import { addWordListLevel } from "~/lib/library/word-lists.server";
-import { LIBRARY_KINDS, LIBRARY_PAGE, LIBRARY_SUBJECTS, type LibraryItem, type LibraryKind, type LibrarySubject } from "~/lib/library/types";
+import {
+  LIBRARY_KINDS,
+  LIBRARY_LEVELS,
+  LIBRARY_PAGE,
+  LIBRARY_SORTS,
+  LIBRARY_SUBJECTS,
+  type LibraryFilter,
+  type LibraryItem,
+  type LibraryKind,
+  type LibraryLevel,
+  type LibrarySort,
+  type LibrarySubject,
+} from "~/lib/library/types";
 import { languageName } from "~/lib/languages";
 import { NOTE_JOIN } from "~/lib/sentence";
 import { formatDate } from "~/components/ui/date-text";
@@ -36,16 +51,44 @@ export function meta({ matches }: Route.MetaArgs) {
 
 const LINK = "text-primary underline underline-offset-4";
 
-function filterOf(url: URL) {
-  const kind = url.searchParams.get("kind") ?? "";
-  const subject = url.searchParams.get("subject") ?? "";
+const CERTIFICATES = ["any", "free", "paid"] as const;
+
+/** One of a list's values, or undefined. */
+function oneOf<T extends string>(list: readonly T[], value: string | null): T | undefined {
+  return (list as readonly string[]).includes(value ?? "") ? (value as T) : undefined;
+}
+
+function filterOf(url: URL): LibraryFilter {
+  const p = url.searchParams;
   return {
-    kind: (LIBRARY_KINDS as readonly string[]).includes(kind) ? (kind as LibraryKind) : undefined,
-    subject: (LIBRARY_SUBJECTS as readonly string[]).includes(subject) ? (subject as LibrarySubject) : undefined,
-    lang: (url.searchParams.get("lang") ?? "").slice(0, 12),
-    q: (url.searchParams.get("q") ?? "").trim().slice(0, 80),
-    offset: Math.max(0, Math.floor(Number(url.searchParams.get("offset")) || 0)),
+    kind: oneOf<LibraryKind>(LIBRARY_KINDS, p.get("kind")),
+    subject: oneOf<LibrarySubject>(LIBRARY_SUBJECTS, p.get("subject")),
+    lang: (p.get("lang") ?? "").slice(0, 12),
+    q: (p.get("q") ?? "").trim().slice(0, 80),
+    offset: Math.min(100_000, Math.max(0, Math.floor(Number(p.get("offset")) || 0))),
+    sort: oneOf<LibrarySort>(LIBRARY_SORTS, p.get("sort")),
+    level: oneOf<LibraryLevel>(LIBRARY_LEVELS, p.get("level")),
+    certificate: oneOf(CERTIFICATES, p.get("certificate")),
+    video: p.get("video") === "1",
+    reusable: p.get("reusable") === "1",
   };
+}
+
+/** A filter as the page's URL, with a field and an offset of its own. */
+function libraryURL(filter: LibraryFilter, subject: LibrarySubject | undefined, offset: number) {
+  const p = new URLSearchParams();
+  if (filter.kind) p.set("kind", filter.kind);
+  if (subject) p.set("subject", subject);
+  if (filter.lang) p.set("lang", filter.lang);
+  if (filter.q) p.set("q", filter.q);
+  if (filter.sort && filter.sort !== "featured") p.set("sort", filter.sort);
+  if (filter.level) p.set("level", filter.level);
+  if (filter.certificate) p.set("certificate", filter.certificate);
+  if (filter.video) p.set("video", "1");
+  if (filter.reusable) p.set("reusable", "1");
+  if (offset) p.set("offset", String(offset));
+  const s = p.toString();
+  return s ? `/library?${s}` : "/library";
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -54,14 +97,19 @@ export async function loader({ request }: Route.LoaderArgs) {
   const filter = filterOf(new URL(request.url));
   // The first screen is by field; a field or a search is one list.
   const byField = !filter.subject && !filter.q;
-  const found: { total: number; items: LibraryItem[]; groups: FieldGroup[] } = byField
-    ? { ...findByField(filter, ui), items: [] }
-    : { ...findItems(filter, ui), groups: [] };
+  let found: { total: number; items: LibraryItem[]; groups: FieldGroup[]; languages: string[]; notLoaded?: boolean };
+  try {
+    found = byField ? { ...(await findByField(user.id, filter, ui)), items: [] } : { ...(await findItems(user.id, filter, ui)), groups: [] };
+  } catch (error) {
+    // The API loads the catalogue as it starts; until it has, the page says so.
+    if (!(error instanceof ApiError && error.code === "library_not_loaded")) throw error;
+    found = { total: 0, items: [], groups: [], languages: [], notLoaded: true };
+  }
   const shown = byField ? found.groups.flatMap((g) => g.items) : found.items;
   // Knowledge bases only when something on this page goes into one.
   const needsKB = shown.some((i) => i.action.type === "link" || i.action.type === "set");
   const kbs = needsKB ? (await listKBs(user.id)).knowledge_bases.map((k) => ({ id: k.kb.id, name: k.kb.name })) : [];
-  return { ...found, filter, kbs, languages: catalogueLanguages() };
+  return { ...found, filter, kbs };
 }
 
 export type LibraryActionResult =
@@ -76,7 +124,7 @@ export async function action({ request }: Route.ActionArgs): Promise<LibraryActi
   const { user } = await requireUser(request);
   const form = await request.formData();
   const id = String(form.get("id") ?? "");
-  const item = libraryItem(id);
+  const item = id ? await libraryItem(user.id, id) : null;
   if (!item) throw data(null, { status: 404 });
   try {
     switch (String(form.get("intent") ?? "")) {
@@ -129,29 +177,21 @@ async function chosenKB(userId: string, choice: string, name: string) {
 
 export default function Library({ loaderData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("library");
-  const { items, groups, total, filter, kbs, languages } = loaderData;
+  const { items, groups, total, filter, kbs, languages, notLoaded } = loaderData;
   const shown = groups.length ? groups.flatMap((g) => g.items) : items;
-  const page = (offset: number, subject = filter.subject) => {
-    const p = new URLSearchParams();
-    if (filter.kind) p.set("kind", filter.kind);
-    if (subject) p.set("subject", subject);
-    if (filter.lang) p.set("lang", filter.lang);
-    if (filter.q) p.set("q", filter.q);
-    if (offset) p.set("offset", String(offset));
-    const s = p.toString();
-    return s ? `/library?${s}` : "/library";
-  };
+  const page = (offset: number, subject = filter.subject) => libraryURL(filter, subject, offset);
 
   return (
     <div className="lp-doc lp-measure">
       <PageHeader title={t("title")} lede={t("lead")} />
 
-      <Form method="get" role="search" className="flex flex-wrap items-end gap-3">
-        <label className="min-w-0 flex-1 basis-56 text-xs text-muted-foreground">
+      {/* Two columns on a phone, so the results start sooner; one row as wide as there is room for. */}
+      <Form method="get" role="search" className="grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap">
+        <label className="col-span-2 min-w-0 flex-1 basis-56 text-xs text-muted-foreground">
           {t("filter.search")}
           <input type="search" name="q" defaultValue={filter.q} maxLength={80} className={FIELD} />
         </label>
-        <label className="text-xs text-muted-foreground">
+        <label className="min-w-0 text-xs text-muted-foreground">
           {t("filter.kind")}
           <select name="kind" defaultValue={filter.kind ?? ""} className={FIELD}>
             <option value="">{t("filter.anyKind")}</option>
@@ -162,7 +202,7 @@ export default function Library({ loaderData }: Route.ComponentProps) {
             ))}
           </select>
         </label>
-        <label className="text-xs text-muted-foreground">
+        <label className="min-w-0 text-xs text-muted-foreground">
           {t("filter.subject")}
           <select name="subject" defaultValue={filter.subject ?? ""} className={FIELD}>
             <option value="">{t("filter.anySubject")}</option>
@@ -173,7 +213,7 @@ export default function Library({ loaderData }: Route.ComponentProps) {
             ))}
           </select>
         </label>
-        <label className="text-xs text-muted-foreground">
+        <label className="min-w-0 text-xs text-muted-foreground">
           {t("filter.language")}
           <select name="lang" defaultValue={filter.lang} className={FIELD}>
             <option value="">{t("filter.myLanguages")}</option>
@@ -185,13 +225,62 @@ export default function Library({ loaderData }: Route.ComponentProps) {
             ))}
           </select>
         </label>
-        <Button type="submit" variant="outline">
+        <label className="min-w-0 text-xs text-muted-foreground">
+          {t("filter.sort")}
+          <select name="sort" defaultValue={filter.sort ?? "featured"} className={FIELD}>
+            {LIBRARY_SORTS.map((s) => (
+              <option key={s} value={s}>
+                {t(`sorts.${s}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Button type="submit" variant="outline" className="col-span-2 sm:col-auto">
           {t("filter.show")}
         </Button>
+        {/* What narrows further, folded so a phone shows results first; open while one is in use. */}
+        <Details
+          summary={t("filter.more")}
+          open={Boolean(filter.level || filter.certificate || filter.video || filter.reusable)}
+          className="col-span-2 w-full"
+        >
+          <div className="mt-2 flex flex-wrap items-end gap-3">
+            <label className="min-w-0 text-xs text-muted-foreground">
+              {t("filter.level")}
+              <select name="level" defaultValue={filter.level ?? ""} className={FIELD}>
+                <option value="">{t("filter.anyLevel")}</option>
+                {LIBRARY_LEVELS.map((l) => (
+                  <option key={l} value={l}>
+                    {t(`levels.${l}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="min-w-0 text-xs text-muted-foreground">
+              {t("filter.certificate")}
+              <select name="certificate" defaultValue={filter.certificate ?? ""} className={FIELD}>
+                <option value="">{t("filter.anyCertificate")}</option>
+                {CERTIFICATES.map((c) => (
+                  <option key={c} value={c}>
+                    {t(`filter.certificates.${c}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex min-h-11 items-center gap-2 text-sm">
+              <input type="checkbox" name="video" value="1" defaultChecked={filter.video} className="size-4" />
+              {t("filter.video")}
+            </label>
+            <label className="flex min-h-11 items-center gap-2 text-sm">
+              <input type="checkbox" name="reusable" value="1" defaultChecked={filter.reusable} className="size-4" />
+              {t("filter.reusable")}
+            </label>
+          </div>
+        </Details>
       </Form>
 
       <p className="mt-4 text-sm text-muted-foreground" role="status">
-        {total === 0 ? t("empty") : t("count", { count: total })}
+        {notLoaded ? t("notLoaded") : total === 0 ? t("empty") : t("count", { count: total })}
       </p>
 
       {groups.length ? (
@@ -273,6 +362,7 @@ function ItemRow({ item, kbs }: { item: LibraryItem; kbs: { id: string; name: st
     item.author ?? null,
     t(`licence.${item.licence}`),
   ].filter(Boolean);
+  const highlights = useHighlights(item);
   const internal = item.action.type === "page";
   return (
     <li className="border-b py-4">
@@ -290,6 +380,7 @@ function ItemRow({ item, kbs }: { item: LibraryItem; kbs: { id: string; name: st
       </h3>
       {about ? <p className="mt-1 text-sm leading-prose text-muted-foreground">{about}</p> : null}
       {item.creditText ? <p className="mt-1 text-xs leading-snug text-muted-foreground">{item.creditText}</p> : null}
+      {highlights.length ? <p className="mt-1 text-sm font-medium leading-prose">{highlights.join(NOTE_JOIN)}</p> : null}
       <p className="mt-1 text-sm leading-prose">
         {facts.join(NOTE_JOIN)}
         {NOTE_JOIN}
@@ -297,8 +388,62 @@ function ItemRow({ item, kbs }: { item: LibraryItem; kbs: { id: string; name: st
           {t("source", { name: item.source.name })}
         </a>
       </p>
+      {item.rating?.scores ? <Scores item={item} /> : null}
       <ItemAction item={item} name={label} kbs={kbs} />
     </li>
+  );
+}
+
+/**
+ * What matters most when choosing (the private design notes):
+ * the certificate, the rating, the level, the hours, the year, and how
+ * often it is used, each where its source says.
+ */
+function useHighlights(item: LibraryItem): string[] {
+  const { t, i18n } = useTranslation("library");
+  const out: string[] = [];
+  const c = item.certificate;
+  if (c?.kind === "paid") {
+    const money = new Intl.NumberFormat(i18n.language, { style: "currency", currency: c.currency ?? "USD", maximumFractionDigits: 0 });
+    const fee =
+      c.priceMin == null ? t("certificate.feeUnknown") : c.priceMax != null && c.priceMax !== c.priceMin ? `${money.format(c.priceMin)}–${money.format(c.priceMax)}` : money.format(c.priceMin);
+    out.push(t("certificate.paid", { name: c.name ?? t("certificate.certificate"), fee }));
+  } else if (c) {
+    out.push(t(`certificate.${c.kind}`));
+  }
+  if (item.rating) {
+    const value = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }).format(item.rating.value);
+    out.push(t("rated", { value, count: item.rating.count }));
+  }
+  if (item.level) out.push(t(`levels.${item.level}`));
+  if (item.hours) out.push(item.hours < 1 ? t("minutes", { count: Math.round(item.hours * 60) }) : t("hours", { count: item.hours }));
+  if (item.year) out.push(String(item.year));
+  if (item.popularity) out.push(t(`popularity.${item.popularity.kind}`, { count: item.popularity.count }));
+  return out;
+}
+
+/** A source's review criteria, each averaged out of 5, and where the reviews are. */
+function Scores({ item }: { item: LibraryItem }) {
+  const { t, i18n } = useTranslation("library");
+  const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
+  const scores = Object.entries(item.rating?.scores ?? {}).sort((a, b) => b[1] - a[1]);
+  return (
+    <Details summary={t("scores.title")} className="mt-2">
+      <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+        {scores.map(([criterion, score]) => (
+          <Fragment key={criterion}>
+            <dt>{t(`scores.${criterion}`, { defaultValue: criterion })}</dt>
+            <dd className="text-right tabular-nums">{t("scores.outOf5", { value: number.format(score) })}</dd>
+          </Fragment>
+        ))}
+      </dl>
+      <p className="mt-2 text-sm">
+        <a href={item.url} target="_blank" rel="noopener noreferrer" className={LINK}>
+          {t("scores.readReviews", { name: item.source.name })}
+          <span className="sr-only"> {t("newTab")}</span>
+        </a>
+      </p>
+    </Details>
   );
 }
 

@@ -5,20 +5,28 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/D0bby999/anytools/internal/api/appsapi"
 	"github.com/D0bby999/anytools/internal/api/audioapi"
 	"github.com/D0bby999/anytools/internal/api/authapi"
 	"github.com/D0bby999/anytools/internal/api/bodyapi"
 	"github.com/D0bby999/anytools/internal/api/bookapi"
 	"github.com/D0bby999/anytools/internal/api/byokapi"
+	"github.com/D0bby999/anytools/internal/api/calendarapi"
 	"github.com/D0bby999/anytools/internal/api/chatapi"
+	"github.com/D0bby999/anytools/internal/api/classroomapi"
 	"github.com/D0bby999/anytools/internal/api/driveapi"
 	"github.com/D0bby999/anytools/internal/api/examapi"
 	"github.com/D0bby999/anytools/internal/api/feedapi"
+	"github.com/D0bby999/anytools/internal/api/gcalapi"
 	"github.com/D0bby999/anytools/internal/api/httpx"
+	"github.com/D0bby999/anytools/internal/api/inboundapi"
 	"github.com/D0bby999/anytools/internal/api/kbapi"
+	"github.com/D0bby999/anytools/internal/api/libraryapi"
 	"github.com/D0bby999/anytools/internal/api/loopapi"
 	"github.com/D0bby999/anytools/internal/api/masteryapi"
 	"github.com/D0bby999/anytools/internal/api/notebookapi"
+	"github.com/D0bby999/anytools/internal/api/photosapi"
+	"github.com/D0bby999/anytools/internal/api/playlistapi"
 	"github.com/D0bby999/anytools/internal/api/profileapi"
 	"github.com/D0bby999/anytools/internal/api/pushapi"
 	"github.com/D0bby999/anytools/internal/api/quizapi"
@@ -33,6 +41,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/visualizeapi"
 	"github.com/D0bby999/anytools/internal/api/vocabapi"
 	"github.com/D0bby999/anytools/internal/api/worksheetapi"
+	"github.com/D0bby999/anytools/internal/api/workspaceapi"
 	"github.com/D0bby999/anytools/internal/api/zoteroapi"
 )
 
@@ -82,6 +91,24 @@ type Deps struct {
 	Storage *storageapi.Handler
 	// Push is Settings → Reminders: the daily review reminder.
 	Push *pushapi.Handler
+	// Calendar is the study calendar feed (learning-tool-connections phase 2).
+	Calendar *calendarapi.Handler
+	// Inbound is email in (learning-tool-connections phase 4).
+	Inbound *inboundapi.Handler
+	// Workspace is Google Forms and Sheets (learning-tool-connections phase 5).
+	Workspace *workspaceapi.Handler
+	// GCal writes the study calendar into Google Calendar (phase 3).
+	GCal *gcalapi.Handler
+	// Classroom is Google Classroom (phase 6).
+	Classroom *classroomapi.Handler
+	// Playlists is a YouTube playlist as a course (phase 7).
+	Playlists *playlistapi.Handler
+	// Photos is picking from Google Photos (phase 7).
+	Photos *photosapi.Handler
+	// Apps is Canva and Notion (phases 8 and 9).
+	Apps *appsapi.Handler
+	// Library is the catalogue of ready material (the private design notes).
+	Library *libraryapi.Handler
 	// Body is the training log and its coach (the private design notes).
 	Body         *bodyapi.Handler
 	Users        httpx.UserLookup
@@ -183,8 +210,35 @@ func BuildMux(deps Deps) http.Handler {
 	if deps.Zotero != nil {
 		deps.Zotero.RegisterRoutes(mux)
 	}
+	if deps.Calendar != nil {
+		deps.Calendar.RegisterRoutes(mux)
+	}
+	if deps.Inbound != nil {
+		deps.Inbound.RegisterRoutes(mux)
+	}
+	if deps.Workspace != nil {
+		deps.Workspace.RegisterRoutes(mux)
+	}
+	if deps.GCal != nil {
+		deps.GCal.RegisterRoutes(mux)
+	}
+	if deps.Classroom != nil {
+		deps.Classroom.RegisterRoutes(mux)
+	}
+	if deps.Playlists != nil {
+		deps.Playlists.RegisterRoutes(mux)
+	}
+	if deps.Photos != nil {
+		deps.Photos.RegisterRoutes(mux)
+	}
+	if deps.Apps != nil {
+		deps.Apps.RegisterRoutes(mux)
+	}
 	if deps.Push != nil {
 		deps.Push.RegisterRoutes(mux)
+	}
+	if deps.Library != nil {
+		deps.Library.RegisterRoutes(mux)
 	}
 	if deps.Storage != nil {
 		deps.Storage.RegisterRoutes(mux)
@@ -294,6 +348,16 @@ func RegisteredPatterns() []string {
 	// drive-user-storage phase 2: Settings → Storage.
 	patterns = append(patterns, storageapi.Patterns()...)
 	patterns = append(patterns, pushapi.Patterns()...)
+	patterns = append(patterns, calendarapi.Patterns()...)
+	patterns = append(patterns, inboundapi.Patterns()...)
+	patterns = append(patterns, workspaceapi.Patterns()...)
+	patterns = append(patterns, gcalapi.Patterns()...)
+	patterns = append(patterns, classroomapi.Patterns()...)
+	patterns = append(patterns, playlistapi.Patterns()...)
+	patterns = append(patterns, photosapi.Patterns()...)
+	patterns = append(patterns, appsapi.Patterns()...)
+	// The Library's catalogue: the same for every learner, behind RequireUser.
+	patterns = append(patterns, libraryapi.Patterns()...)
 	// Body: the training log and its coach. Behind RequireUser; none is allowlisted.
 	patterns = append(patterns, bodyapi.Patterns()...)
 	return patterns

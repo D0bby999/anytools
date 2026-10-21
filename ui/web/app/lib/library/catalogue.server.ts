@@ -1,11 +1,11 @@
 /**
  * library/catalogue.server.ts
  * Every item the Library offers (the private design notes),
- * built once per process from the bundled data, and the filter the page
- * asks for. Server-side only: thousands of items, of which the page sends
- * one screen to the browser.
+ * built from the bundled data in catalogue order. export.server.ts turns it
+ * into the export the API loads into Postgres, where the page's filters
+ * and sorts run (the private design notes). Build-time and
+ * tests only: the page asks the API.
  */
-import { fold } from "~/lib/vocab-types";
 import { LIBRARY as DECKS } from "~/lib/deck-library";
 import fpb from "~/data/library/free-programming-books.json";
 import { WORD_LISTS } from "~/lib/library/word-lists";
@@ -14,8 +14,9 @@ import textbooks from "~/data/library/textbooks.json";
 import gutenberg from "~/data/library/gutenberg.json";
 import openTextbooks from "~/data/library/open-textbooks.json";
 import mitOcw from "~/data/library/mit-ocw.json";
+import mitxOnline from "~/data/library/mitx-online.json";
 import awesome from "~/data/library/awesome.json";
-import { LIBRARY_PAGE, LIBRARY_SUBJECTS, type LibraryFilter, type LibraryItem, type LibrarySubject } from "~/lib/library/types";
+import type { LibraryItem, LibraryLevel } from "~/lib/library/types";
 
 /**
  * A textbook is opened, its PDF downloaded by the learner; one whose licence
@@ -206,9 +207,19 @@ function textbookItems(): LibraryItem[] {
  * is one. Like OpenStax's, a whole book is usually past the 400 pages a
  * knowledge base reads, so the learner uploads the chapters they need.
  */
+type OtlBook = (typeof openTextbooks.books)[number] & {
+  author?: string;
+  pdf?: string;
+  rating?: number;
+  reviews?: number;
+  scores?: Record<string, number>;
+  year?: number;
+  accessibility?: string[];
+};
+
 function openTextbookItems(): LibraryItem[] {
   const source = { name: "Open Textbook Library", url: openTextbooks.source };
-  return openTextbooks.books.map((b: (typeof openTextbooks.books)[number] & { author?: string; pdf?: string }) => ({
+  return openTextbooks.books.map((b: OtlBook) => ({
     id: `otl:${b.id}`,
     kind: "textbook",
     subject: b.subject as LibraryItem["subject"],
@@ -216,6 +227,9 @@ function openTextbookItems(): LibraryItem[] {
     name: b.title,
     author: b.author,
     section: b.section || undefined,
+    year: b.year,
+    ...(b.rating && b.reviews ? { rating: { value: b.rating, count: b.reviews, scores: b.scores } } : {}),
+    accessibility: b.accessibility,
     licence: b.licence as LibraryItem["licence"],
     credit: "credits.otl",
     source,
@@ -224,7 +238,18 @@ function openTextbookItems(): LibraryItem[] {
   }));
 }
 
-type MitCourse = (typeof mitOcw.courses)[number] & { number?: string; term?: string; level?: string; instructors?: string; video?: boolean };
+type MitCourse = (typeof mitOcw.courses)[number] & {
+  number?: string;
+  term?: string;
+  level?: string;
+  instructors?: string;
+  video?: boolean;
+  year?: number;
+  views?: number;
+};
+
+/** MIT's levels as the Library's; its own label stays in the item's section. */
+const MIT_LEVELS: Record<string, LibraryLevel> = { "High School": "beginner", Undergraduate: "intermediate", Graduate: "advanced" };
 
 /** MIT OpenCourseWare's courses, filed by department: non-commercial, so opened at MIT. */
 function mitItems(): LibraryItem[] {
@@ -238,6 +263,9 @@ function mitItems(): LibraryItem[] {
     author: c.instructors,
     section: [c.number, c.department, c.level, c.term].filter(Boolean).join(", ") || undefined,
     video: c.video,
+    level: c.level ? MIT_LEVELS[c.level] : undefined,
+    year: c.year,
+    popularity: c.views ? { count: c.views, kind: "views" as const } : undefined,
     licence: "cc-by-nc-sa",
     credit: "credits.mit",
     source,
@@ -246,7 +274,40 @@ function mitItems(): LibraryItem[] {
   }));
 }
 
-type AwesomeItem = (typeof awesome.lists)[number]["items"][number] & { about?: string; author?: string; hours?: number; video?: boolean };
+type MitxCourse = (typeof mitxOnline.courses)[number] & { priceMin?: number; priceMax?: number; hours?: number; commitment?: string; views?: number };
+
+/**
+ * MITx Online's courses that are free to take and give a certificate for a
+ * fee (the private design notes): taken at MITx Online.
+ */
+function mitxItems(): LibraryItem[] {
+  const source = { name: "MITx Online", url: mitxOnline.source };
+  return (mitxOnline.courses as MitxCourse[]).map((c) => ({
+    id: `mitx:${c.id}`,
+    kind: "course",
+    subject: c.subject as LibraryItem["subject"],
+    language: "en",
+    name: c.title,
+    section: [c.department, c.commitment].filter(Boolean).join(", ") || undefined,
+    hours: c.hours,
+    certificate: { kind: "paid" as const, name: c.certificate, priceMin: c.priceMin, priceMax: c.priceMax, currency: "USD" as const },
+    popularity: c.views ? { count: c.views, kind: "views" as const } : undefined,
+    licence: "free-access",
+    credit: "credits.mitx",
+    source,
+    url: c.url,
+    action: { type: "open", why: "enrol" },
+  }));
+}
+
+type AwesomeItem = (typeof awesome.lists)[number]["items"][number] & {
+  about?: string;
+  author?: string;
+  hours?: number;
+  video?: boolean;
+  level?: string;
+  certificate?: "free" | "badge";
+};
 
 /** Links from three CC0 lists in sindresorhus/awesome: added through the link import (a channel as a feed). */
 function awesomeItems(): LibraryItem[] {
@@ -262,7 +323,9 @@ function awesomeItems(): LibraryItem[] {
       author: i.author,
       section: i.section,
       video: i.video,
-      ...(i.hours ? { count: i.hours, unit: "hours" as const } : {}),
+      hours: i.hours,
+      level: i.level as LibraryLevel | undefined,
+      certificate: i.certificate ? { kind: i.certificate } : undefined,
       licence: "free-access" as const,
       credit: `credits.awesome.${l.id}`,
       source,
@@ -284,6 +347,7 @@ function gutenbergItems(): LibraryItem[] {
       name: b.title,
       author: b.author || undefined,
       section: b.shelves.join(", ") || undefined,
+      popularity: b.downloads ? { count: b.downloads, kind: "downloads" as const } : undefined,
       licence: "public-domain",
       credit: "credits.gutenberg",
       source: { name: "Project Gutenberg", url: `https://www.gutenberg.org/ebooks/${b.id}` },
@@ -293,7 +357,7 @@ function gutenbergItems(): LibraryItem[] {
   });
 }
 
-let built: { items: LibraryItem[]; byId: Map<string, LibraryItem>; text: string[]; rank: Map<LibraryItem, number> } | null = null;
+let built: { items: LibraryItem[]; byId: Map<string, LibraryItem> } | null = null;
 
 /** The catalogue, built on first use. */
 export function catalogue() {
@@ -306,117 +370,14 @@ export function catalogue() {
     ...textbookItems(),
     ...openTextbookItems(),
     ...mitItems(),
+    ...mitxItems(),
     ...awesomeItems(),
     ...gutenbergItems(),
     ...fpbItems(),
   ];
   const byId = new Map(items.map((i) => [i.id, i]));
   if (byId.size !== items.length) throw new Error("library: two items share an id");
-  // What a search looks in, folded once.
-  const text = items.map((i) => fold([i.name, i.about, i.section, i.author].filter(Boolean).join(" ")));
-  const rank = new Map(items.map((i) => [i, languageRank(i)]));
-  built = { items, byId, text, rank };
+  built = { items, byId };
   return built;
 }
 
-export function libraryItem(id: string): LibraryItem | undefined {
-  return catalogue().byId.get(id);
-}
-
-/** A language matches its own code, a regional one ("pt-BR" for "pt"), and "mul". */
-function inLanguage(item: LibraryItem, langs: string[]): boolean {
-  if (item.language === "mul") return true;
-  const base = item.language.split("-")[0]!;
-  return langs.includes(base);
-}
-
-/** The items the filter keeps, in catalogue order. */
-function matching(filter: LibraryFilter, ui: string): LibraryItem[] {
-  const { items, text } = catalogue();
-  const langs = filter.lang === "all" ? null : filter.lang ? [filter.lang] : [...new Set([ui, "en"])];
-  const words = fold(filter.q).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-  const out: LibraryItem[] = [];
-  items.forEach((item, i) => {
-    if (filter.kind && item.kind !== filter.kind) return;
-    if (filter.subject && item.subject !== filter.subject) return;
-    if (langs && !inLanguage(item, langs)) return;
-    if (words.length && !words.every((w) => text[i]!.includes(w))) return;
-    out.push(item);
-  });
-  return out;
-}
-
-/**
- * The Library is mostly English (owner, 2026-10-21): English material first,
- * then what is in many languages, then the rest. Within each, the sources
- * take turns (one from each, then the second of each), so one source's
- * thousands of links do not fill the page; the sort is stable, so each
- * source keeps its catalogue order.
- */
-function shownOrder(items: LibraryItem[]): LibraryItem[] {
-  const { rank } = catalogue();
-  const seen = new Map<string, number>();
-  const turn = new Map<LibraryItem, number>();
-  for (const i of items) {
-    const key = `${rank.get(i)}:${i.source.name}`;
-    const n = seen.get(key) ?? 0;
-    seen.set(key, n + 1);
-    turn.set(i, n);
-  }
-  return items.sort((a, b) => rank.get(a)! - rank.get(b)! || turn.get(a)! - turn.get(b)!);
-}
-
-/**
- * One page of the items the filter keeps and how many there are. ui is the
- * learner's interface language, used when lang is "".
- */
-export function findItems(filter: LibraryFilter, ui: string) {
-  const items = shownOrder(matching(filter, ui));
-  return { total: items.length, items: items.slice(filter.offset, filter.offset + LIBRARY_PAGE) };
-}
-
-/** Items a field shows on the first screen. */
-export const FIELD_SAMPLE = 3;
-
-export type FieldGroup = { subject: LibrarySubject; total: number; items: LibraryItem[] };
-
-/** First screens already built, by kind, language and interface language: the catalogue does not change while the server runs. */
-const firstScreens = new Map<string, { total: number; groups: FieldGroup[] }>();
-const FIRST_SCREENS_KEPT = 200;
-
-/**
- * The first screen, with no field and no words chosen: each field that has
- * something, in LIBRARY_SUBJECTS' order, with its first FIELD_SAMPLE items
- * and how many it has. A kind and a language still apply.
- */
-export function findByField(filter: LibraryFilter, ui: string): { total: number; groups: FieldGroup[] } {
-  const key = `${filter.kind ?? ""}|${filter.lang}|${ui}`;
-  const cached = firstScreens.get(key);
-  if (cached) return cached;
-  const screen = buildFirstScreen(filter, ui);
-  if (firstScreens.size >= FIRST_SCREENS_KEPT) firstScreens.clear();
-  firstScreens.set(key, screen);
-  return screen;
-}
-
-function buildFirstScreen(filter: LibraryFilter, ui: string): { total: number; groups: FieldGroup[] } {
-  const items = matching({ ...filter, subject: undefined, q: "" }, ui);
-  const bySubject = new Map<LibrarySubject, LibraryItem[]>(LIBRARY_SUBJECTS.map((s) => [s, []]));
-  for (const i of items) bySubject.get(i.subject)!.push(i);
-  // Each field in the order its own list has (findItems with the field).
-  const groups = [...bySubject].map(([subject, list]) => ({ subject, total: list.length, items: shownOrder(list).slice(0, FIELD_SAMPLE) }));
-  return { total: items.length, groups: groups.filter((g) => g.total > 0) };
-}
-
-function languageRank(item: LibraryItem): number {
-  const base = item.language.split("-")[0];
-  return base === "en" ? 0 : base === "mul" ? 1 : 2;
-}
-
-/** The languages the catalogue has material in, for the filter's choices. */
-export function catalogueLanguages(): string[] {
-  const set = new Set<string>();
-  for (const i of catalogue().items) if (i.language !== "mul") set.add(i.language.split("-")[0]!);
-  // English first, as the Library is; the others by code.
-  return [...set].sort((a, b) => (a === "en" ? -1 : b === "en" ? 1 : a.localeCompare(b)));
-}

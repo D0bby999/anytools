@@ -126,6 +126,19 @@ var idKinds = map[string]string{
 var notResourceIDs = map[string]string{
 	"PUT /v1/byok/routes/{function}": "names a route function; each user writes only their own row",
 	"DELETE /v1/body/weights/{day}":  "names a calendar day; each user deletes only their own weigh-in",
+	// Learning-tool-connections: an app's name, a Google Classroom course
+	// and a Google Photos picker session are read through the caller's own
+	// grant; AnyLearn's rows behind them are WHERE user_id.
+	"GET /v1/apps/{provider}":                "names an app; each user reads only their own grant",
+	"POST /v1/apps/{provider}/authorize":     "names an app; builds the caller's own consent URL",
+	"POST /v1/apps/{provider}/connect":       "names an app; stores the caller's own grant",
+	"DELETE /v1/apps/{provider}":             "names an app; revokes the caller's own grant",
+	"GET /v1/classroom/courses/{id}/items":   "a Google Classroom course id, read with the caller's own grant",
+	"POST /v1/classroom/courses/{id}/link":   "a Google Classroom course id; the link row is the caller's own",
+	"POST /v1/classroom/courses/{id}/import": "a Google Classroom course id; the link row is the caller's own",
+	"POST /v1/classroom/courses/{id}/seen":   "a Google Classroom course id; the link row is the caller's own",
+	"GET /v1/photos/sessions/{id}":           "a Google Photos picker session, read with the caller's own grant",
+	"GET /v1/library/items/{id}":             "names an item of the Library's catalogue, the same for every user",
 }
 
 // bodies are what each write route needs to get PAST validation to the
@@ -988,6 +1001,13 @@ func bodyProbes() []bodyProbe {
 		return map[string]any{"title": "x", "kb_ids": []string{id.String()}}
 	}
 	return []bodyProbe{
+		// Learning-tool-connections: where email in and a class go.
+		{pattern: "PUT /v1/inbound/address", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"kb_id": id}
+		}},
+		{pattern: "POST /v1/classroom/courses/{id}/link", kind: "kb", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"name": "x", "kb_id": id}
+		}},
 		{pattern: "POST /v1/chat/sessions", kind: "kb", body: kbList},
 		{pattern: "PATCH /v1/chat/sessions/{id}", kind: "kb", body: func(e *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kb_ids": []string{id.String()}}
@@ -1191,6 +1211,33 @@ var validatesBeforeOwnership = map[string]bool{
 
 // writesWithoutResourceIDs name no other resource in their body.
 var writesWithoutResourceIDs = map[string]string{
+	// Learning-tool-connections. Ids in these bodies are Google's, Canva's,
+	// Notion's or YouTube's, read through the caller's own grant, or the
+	// caller's own rows found WHERE user_id.
+	"PUT /v1/calendar/feed":                      "titles and kinds of events for the caller's own feed",
+	"POST /v1/calendar/feed/rotate":              "rotates the caller's own feed",
+	"POST /v1/calendar/feed/read":                "gateway-only; the token picks the feed",
+	"POST /v1/gcal/enable":                       "the caller's own AnyLearn calendar",
+	"POST /v1/gcal/sync":                         "the caller's own AnyLearn calendar",
+	"POST /v1/gcal/disable":                      "the caller's own AnyLearn calendar",
+	"POST /v1/inbound/address/rotate":            "rotates the caller's own address",
+	"POST /v1/inbound/email":                     "gateway-only and signed; the recipient address picks the learner",
+	"POST /v1/kb/{id}/forms/import":              "a Google Form id, opened with the caller's own grant",
+	"POST /v1/kb/{id}/forms/export":              "a form title",
+	"POST /v1/sheets/preview":                    "a Google Sheet id, opened with the caller's own grant",
+	"POST /v1/sheets/vocab":                      "a Google Sheet id and column numbers, into the caller's own vocabulary",
+	"POST /v1/classroom/courses/{id}/import":     "item keys of a course read with the caller's own grant",
+	"POST /v1/classroom/courses/{id}/seen":       "Drive file ids of the caller's own course link",
+	"POST /v1/playlists/preview":                 "a public YouTube playlist link",
+	"POST /v1/kb/{id}/playlist":                  "a public YouTube playlist link and its video ids",
+	"POST /v1/photos/sessions":                   "starts the caller's own picker session",
+	"POST /v1/kb/{id}/photos/google":             "a picker session read with the caller's own grant",
+	"POST /v1/apps/{provider}/authorize":         "state, challenge and the fixed redirect URI",
+	"POST /v1/apps/{provider}/connect":           "a code and its verifier for the caller's own grant",
+	"DELETE /v1/apps/{provider}":                 "no body",
+	"POST /v1/kb/{id}/canva/import":              "a Canva design id, read with the caller's own grant",
+	"POST /v1/kb/{id}/notion/import":             "Notion page ids, read with the caller's own grant",
+	"POST /v1/notion/sync":                       "syncs the caller's own imported pages",
 	"POST /v1/auth/identity":                     "gateway-only; link target is cross-checked against the verified identity",
 	"POST /v1/byok/connections":                  "creates the caller's own connection",
 	"POST /v1/byok/connections/relay":            "creates the caller's own connection",

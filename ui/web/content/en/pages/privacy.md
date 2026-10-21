@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 description: The tools run in your browser and send us nothing. The study app keeps what you save in it and calls AI only through the accounts you connect.
-updated: 2026-10-18
+updated: 2026-10-21
 ---
 
 ## Summary
@@ -36,6 +36,20 @@ When a feature needs a model or a web search, the request goes to the provider y
 
 Some features fetch public pages when you ask them to: a web page, video or feed you add, paper details from OpenAlex, and items from your Zotero library once you connect it.
 
+## Connected apps
+
+You choose which apps to connect on Learning apps, and you can disconnect each one there at any time. Disconnecting revokes AnyLearn's access at the app; what you already imported stays in AnyLearn until you delete it.
+
+- **Google Drive** (`drive.file`): AnyLearn opens only the files you pick in Google's own picker and the files it creates for you (your stored files, exports, and docs for NotebookLM). It cannot see the rest of your Drive.
+- **Google Calendar** (`calendar.app.created`): AnyLearn creates one calendar of its own, named AnyLearn, and writes your review times and study days into it. It cannot read your other calendars.
+- **Google Classroom** (read-only: your classes, their materials, your own coursework and announcements): AnyLearn lists a class when you open it and imports only the items you tick. It never posts, submits or changes anything in Classroom.
+- **Google Photos** (picker only): AnyLearn receives only the photos you pick in Google's picker, once, and reads them as page photos.
+- **Google Forms and Sheets**: through the Drive permission above, AnyLearn opens only the form or sheet you pick, and creates forms only when you ask.
+- **Email in**: mail you send or forward to your AnyLearn address becomes documents. AnyLearn never reads your mailbox and asks for no Gmail permission.
+- **Canva** and **Notion**: AnyLearn reads only the designs you choose and the pages you share with it in Notion, and writes only what you send there.
+
+AnyLearn's use and transfer of information received from Google APIs to any other app will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements. Data from Google, Canva and Notion is used only to provide the features you turned on: it is not sold, not used for advertising, not used to train AI models, and not read by people except to fix a problem you report, with your consent. Tokens for these apps are encrypted before they are stored.
+
 ## Cookies and storage
 
 The tools set no cookies. Your light or dark theme is kept in your browser's local storage.
@@ -48,7 +62,7 @@ Settings → Account deletes your account and everything in it. Access you grant
 
 ## Third parties
 
-Hosting: Hetzner (Germany, EU). Network and DNS: Cloudflare. Sign-in: Google and GitHub. AI and search: only the providers you connect. Each works under its own privacy policy.
+Hosting: Hetzner (Germany, EU). Network and DNS: Cloudflare. Sign-in: Google and GitHub. AI and search: only the providers you connect. Learning apps: Google, Canva and Notion, only those you connect; mail in arrives through Cloudflare Email Routing. Each works under its own privacy policy.
 
 ## Your rights
 

@@ -7,7 +7,8 @@
  *   - rossant/awesome-math: free textbooks, notes and video courses in
  *     mathematics; paid ones are left out.
  *   - PanXProject/awesome-certificates: free courses with a certificate, with
- *     their provider and level.
+ *     their provider, level, hours and reward (the list's 🏆, a certificate
+ *     of completion, or 🏅, a digital badge).
  *   - JoseDeFreitas/awesome-youtubers: YouTube channels that teach, added
  *     as feeds.
  *
@@ -95,7 +96,7 @@ const CERTIFICATE_FIELDS = {
   Statistics: "maths",
 };
 
-/** awesome-certificates' table rows: course, provider, level, hours. */
+/** awesome-certificates' table rows: course, provider, level, hours, reward. */
 export function parseCertificates(md) {
   const items = [];
   let section = "";
@@ -105,9 +106,10 @@ export function parseCertificates(md) {
       section = plain(h[1]);
       continue;
     }
-    const row = /^\|\s*<a href="(https:\/\/[^"]+)"[^>]*>([^<]+)<\/a>\s*\|([^|]*)\|([^|]*)\|([^|]*)\|/.exec(line);
+    const row = /^\|\s*<a href="(https:\/\/[^"]+)"[^>]*>([^<]+)<\/a>\s*\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|?/.exec(line);
     if (!row || !section) continue;
-    const [, url, title, provider, level, hours] = row;
+    const [, url, title, provider, level, hours, reward] = row;
+    const certificate = reward.includes("🏆") ? "free" : reward.includes("🏅") ? "badge" : undefined;
     const h2 = Number(hours.trim());
     items.push({
       kind: "course",
@@ -116,6 +118,8 @@ export function parseCertificates(md) {
       ...(plain(provider) ? { author: plain(provider) } : {}),
       section: [section, plain(level)].filter(Boolean).join(", "),
       ...(h2 > 0 ? { hours: h2 } : {}),
+      ...(/^(beginner|intermediate|advanced)$/i.test(plain(level)) ? { level: plain(level).toLowerCase() } : {}),
+      ...(certificate ? { certificate } : {}),
       url,
       ...(isVideo(url) ? { video: true } : {}),
     });

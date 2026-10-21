@@ -1,0 +1,15 @@
+# AnyLearn's inbound mail Worker (learning-tool-connections phase 4).
+#
+# Cloudflare Email Routing hands every message sent to *@in.anytools.world to
+# this Worker. It signs the raw message and posts it to the app, which files
+# it as documents for the learner whose address it is. Setup is in
+# docs/integrations.md ("Email in").
+#
+#   npx wrangler deploy
+#   npx wrangler secret put INBOUND_SECRET   # the same value as the server's ANYTOOLS_INBOUND_SECRET
+name = "anylearn-inbound"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+[vars]
+INBOUND_URL = "https://anytools.world/inbound/email"

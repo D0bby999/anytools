@@ -79,6 +79,17 @@ services:
       # Files kept in learners' Drives are cached under the data directory's
       # cache/, up to this many MB (empty: 2048). Backups leave cache/ out.
       ANYTOOLS_DRIVE_CACHE_MB: ${ANYTOOLS_DRIVE_CACHE_MB:-}
+      # Learning apps (docs/integrations.md): who may turn on Google's
+      # sensitive features before verification, the browser key for YouTube
+      # playlists, email in's signing secret, and Canva's and Notion's OAuth.
+      ANYTOOLS_GOOGLE_SENSITIVE_SCOPES: ${ANYTOOLS_GOOGLE_SENSITIVE_SCOPES:-}
+      ANYTOOLS_GOOGLE_API_KEY: ${ANYTOOLS_GOOGLE_API_KEY:-}
+      ANYTOOLS_INBOUND_SECRET: ${ANYTOOLS_INBOUND_SECRET:-}
+      ANYTOOLS_INBOUND_DOMAIN: ${ANYTOOLS_INBOUND_DOMAIN:-}
+      ANYTOOLS_CANVA_CLIENT_ID: ${ANYTOOLS_CANVA_CLIENT_ID:-}
+      ANYTOOLS_CANVA_CLIENT_SECRET: ${ANYTOOLS_CANVA_CLIENT_SECRET:-}
+      ANYTOOLS_NOTION_CLIENT_ID: ${ANYTOOLS_NOTION_CLIENT_ID:-}
+      ANYTOOLS_NOTION_CLIENT_SECRET: ${ANYTOOLS_NOTION_CLIENT_SECRET:-}
       # Uploaded documents and parsed Markdown. On a named volume, NOT a bind
       # mount into the repo and NOT inside any web root: `web` serves its own
       # build directory, so nothing here is reachable by URL. Phase 12's backup

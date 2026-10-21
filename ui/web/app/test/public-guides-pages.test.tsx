@@ -240,7 +240,7 @@ describe("about, privacy, terms and contact", () => {
   it("renders the privacy policy in Spanish, with the date and a mailto link", async () => {
     const { container } = await renderRoute(page, "/es/privacy", "/:locale/privacy", { locale: "es" });
     expect(container.querySelector("h1")?.textContent).toBe("Política de privacidad");
-    expect(screen.getByText("Última actualización: 2026-10-18")).toBeTruthy();
+    expect(screen.getByText("Última actualización: 2026-10-21")).toBeTruthy();
     expect(container.querySelector('a[href="mailto:support@anytools.world"]')).not.toBeNull();
     expect(container.querySelector("script, img")).toBeNull();
   });

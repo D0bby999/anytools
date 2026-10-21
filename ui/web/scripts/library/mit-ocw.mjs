@@ -2,8 +2,9 @@
  * mit-ocw.mjs
  * Writes the Library's MIT OpenCourseWare courses
  * (the private design notes): app/data/library/mit-ocw.json,
- * every OCW course in the MIT Learn API with its field, term, instructors and
- * whether it has lecture videos.
+ * every OCW course in the MIT Learn API with its field, term, instructors,
+ * whether it has lecture videos, and how many times MIT Learn says its page
+ * was viewed.
  *
  * Usage:
  *   node scripts/library/mit-ocw.mjs               (reads the API)
@@ -85,6 +86,8 @@ export function courseOf(c) {
     ...(run?.level?.[0]?.name ? { level: run.level[0].name } : {}),
     ...(instructors.length ? { instructors: instructors.slice(0, 3).join("; ") } : {}),
     ...((c.course_feature ?? []).some((f) => /video/i.test(f)) ? { video: true } : {}),
+    ...(Number(run?.year) > 1900 ? { year: Number(run.year) } : {}),
+    ...(Number(c.views) > 0 ? { views: Number(c.views) } : {}),
     url,
   };
 }

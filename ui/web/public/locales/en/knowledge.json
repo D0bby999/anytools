@@ -159,7 +159,11 @@
       "connected": "Google Drive is connected.",
       "denied": "Google Drive was not connected: the Drive permission was not granted.",
       "failed": "Google Drive could not be connected. Try again.",
-      "no_refresh": "Google did not return a lasting permission. Try connecting again and approve the consent screen."
+      "no_refresh": "Google did not return a lasting permission. Try connecting again and approve the consent screen.",
+      "other_account": "That Google account is not the one already connected. Choose the connected account, or disconnect Google first.",
+      "partial": "Google is connected, but the feature you asked for was not allowed. Try again and tick its box.",
+      "unavailable": "This feature is waiting for Google to approve AnyLearn and is not open yet.",
+      "school_blocked": "Your school's Google administrator has not allowed AnyLearn. Learning apps → Google Classroom says what to ask them."
     },
     "errors": {
       "reconnect": "Google stopped accepting this Drive connection. Reconnect Google Drive, then try again.",

@@ -39,6 +39,15 @@ export type DriveSyncState = {
   rebaselines: number;
 };
 
+/** Mirrors drive.FeatureState: one Google feature for this learner. */
+export type GoogleFeature = {
+  id: "drive" | "calendar" | "classroom" | "photos";
+  scopes: string[];
+  sensitive: boolean;
+  available: boolean;
+  granted: boolean;
+};
+
 /** Mirrors drive.Status. */
 export type DriveStatus = {
   connected: boolean;
@@ -58,6 +67,8 @@ export type DriveStatus = {
    */
   files_in_drive?: number;
   bytes_in_drive?: number;
+  /** The Google feature catalogue for this learner; older APIs leave it out. */
+  features?: GoogleFeature[];
 };
 
 /** What the Picker hands back, and what POST /drive/import takes. */
@@ -106,7 +117,18 @@ export type PickerConfig = { apiKey: string; appId: string };
  * The query flags /auth/drive/callback redirects back with. Closed, so the
  * page can only ever render a message it has copy for.
  */
-export const DRIVE_NOTICES = ["connected", "denied", "failed", "no_refresh"] as const;
+export const DRIVE_NOTICES = [
+  "connected",
+  "denied",
+  "failed",
+  "no_refresh",
+  // Learning-tool-connections phase 1: another Google account than the one
+  // connected; a feature unticked at Google; a feature not offered yet.
+  "other_account",
+  "partial",
+  "unavailable",
+  "school_blocked",
+] as const;
 export type DriveNotice = (typeof DRIVE_NOTICES)[number];
 
 export function parseDriveNotice(value: string | null): DriveNotice | null {

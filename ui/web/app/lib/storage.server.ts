@@ -42,8 +42,8 @@ export function exportPath(kind: ExportKind, id: string, language?: string): str
   }
 }
 
-export function saveToDrive(userId: string, kind: ExportKind, id: string, language?: string) {
-  return apiFetch<{ file_id: string; name: string; url: string }>(exportPath(kind, id, language), userId, {
-    method: "POST",
-  });
+export function saveToDrive(userId: string, kind: ExportKind, id: string, language?: string, to?: string) {
+  const path = exportPath(kind, id, language);
+  const target = to ? `${path}${path.includes("?") ? "&" : "?"}to=${encodeURIComponent(to)}` : path;
+  return apiFetch<{ file_id: string; name: string; url: string }>(target, userId, { method: "POST" });
 }

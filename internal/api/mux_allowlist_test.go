@@ -141,7 +141,7 @@ func TestExceptionListsAreExactlyAsDeclared(t *testing.T) {
 		}
 	}
 
-	wantGatewayOnly := map[string]bool{"POST /v1/auth/identity": true}
+	wantGatewayOnly := map[string]bool{"POST /v1/auth/identity": true, "POST /v1/calendar/feed/read": true, "POST /v1/inbound/email": true}
 	if len(httpx.GatewayOnlyPaths) != len(wantGatewayOnly) {
 		t.Fatalf("GatewayOnlyPaths = %v, want %v", keys(httpx.GatewayOnlyPaths), keys(wantGatewayOnly))
 	}

@@ -10,7 +10,20 @@
     "language": "Idioma",
     "myLanguages": "Inglés, luego mi idioma",
     "allLanguages": "Todos los idiomas, primero inglés",
-    "show": "Mostrar"
+    "show": "Mostrar",
+    "sort": "Ordenar por",
+    "level": "Nivel",
+    "anyLevel": "Cualquier nivel",
+    "certificate": "Certificado",
+    "anyCertificate": "Con o sin",
+    "certificates": {
+      "any": "Da un certificado o insignia",
+      "free": "Certificado o insignia gratis",
+      "paid": "Certificado de pago"
+    },
+    "video": "Con vídeo",
+    "reusable": "Libre para reutilizar",
+    "more": "Más filtros: nivel, certificado, vídeo, licencia"
   },
   "kinds": {
     "deck": "Mazos",
@@ -59,9 +72,7 @@
     "books_one": "{{count}} libro",
     "books_other": "{{count}} libros",
     "exercises_one": "{{count}} ejercicio",
-    "exercises_other": "{{count}} ejercicios",
-    "hours_one": "{{count}} hora",
-    "hours_other": "{{count}} horas"
+    "exercises_other": "{{count}} ejercicios"
   },
   "licence": {
     "public-domain": "Dominio público",
@@ -84,7 +95,8 @@
     "noLicence": "No indica licencia, así que AnyLearn no lo copia: ábrelo en su origen y luego trae su archivo a Mazos.",
     "bringFile": "Abre los exámenes en su origen y luego sube uno en Cuestionarios → Exámenes → Subir un examen anterior.",
     "textbook": "Léelo en su fuente, o descarga su PDF y sube a una base de conocimiento los capítulos que necesites (un archivo de hasta 50 MB y 400 páginas).",
-    "textbookNonCommercial": "Léelo en su fuente, o descarga su PDF. Su licencia solo permite el uso no comercial: sube a una base de conocimiento los capítulos que necesites para tu propio estudio (un archivo de hasta 50 MB y 400 páginas)."
+    "textbookNonCommercial": "Léelo en su fuente, o descarga su PDF. Su licencia solo permite el uso no comercial: sube a una base de conocimiento los capítulos que necesites para tu propio estudio (un archivo de hasta 50 MB y 400 páginas).",
+    "enrol": "Gratis en su fuente, donde te inscribes; AnyLearn no lo copia."
   },
   "items": {
     "upWords": "Términos en inglés que encuentra un programador, por lenguaje (Python, Go, JavaScript y más): solo palabras, para consultar y guardar.",
@@ -136,7 +148,8 @@
       "math": "Listado por awesome-math (rossant/awesome-math, CC0); cada enlace pertenece a su dueño.",
       "certificates": "Listado por awesome-certificates (PanXProject/awesome-certificates, CC0); cada curso pertenece a su proveedor, que es quien da el certificado.",
       "youtubers": "Listado por awesome-youtubers (JoseDeFreitas/awesome-youtubers, CC0); cada canal pertenece a su dueño y se añade como fuente para elegir vídeos."
-    }
+    },
+    "mitx": "Los cursos son de MITx Online, listados desde MIT Learn: gratis, con certificado de pago; cada uno se abre en el MIT."
   },
   "level": "Nivel",
   "levelOption_one": "{{name}} ({{count}} palabra)",
@@ -178,5 +191,52 @@
   "pdf": "PDF del libro completo",
   "wordsDays": "Las nuevas aparecen del {{first}} al {{last}}.",
   "allInField_one": "Ver el {{count, number}} elemento de {{field}}",
-  "allInField_other": "Ver los {{count, number}} de {{field}}"
+  "allInField_other": "Ver los {{count, number}} de {{field}}",
+  "sorts": {
+    "featured": "Recomendados",
+    "rating": "Mejor valorados",
+    "popular": "Más usados",
+    "shortest": "Más cortos",
+    "newest": "Más recientes"
+  },
+  "levels": {
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzado"
+  },
+  "certificate": {
+    "free": "Certificado de finalización gratis (según la lista)",
+    "badge": "Insignia digital gratis (según la lista)",
+    "paid": "{{name}}: cursarlo es gratis, el certificado cuesta {{fee}}",
+    "certificate": "Certificado",
+    "feeUnknown": "precio no indicado"
+  },
+  "rated_one": "★ {{value}} ({{count, number}} reseña)",
+  "rated_other": "★ {{value}} ({{count, number}} reseñas)",
+  "hours_one": "Unas {{count, number}} hora",
+  "hours_other": "Unas {{count, number}} horas",
+  "popularity": {
+    "views_one": "{{count, number}} visita",
+    "views_other": "{{count, number}} visitas",
+    "downloads_one": "{{count, number}} descarga en 30 días",
+    "downloads_other": "{{count, number}} descargas en 30 días"
+  },
+  "scores": {
+    "title": "Valoración por criterio",
+    "outOf5": "{{value}} / 5",
+    "readReviews": "Leer las reseñas en {{name}}",
+    "comprehensiveness": "Exhaustividad",
+    "accuracy": "Exactitud",
+    "relevance": "Pertinencia y vigencia",
+    "clarity": "Claridad",
+    "consistency": "Coherencia",
+    "modularity": "Modularidad",
+    "organization": "Organización",
+    "interface": "Interfaz",
+    "grammatical": "Gramática",
+    "cultural": "Pertinencia cultural"
+  },
+  "notLoaded": "El servidor todavía está cargando la Biblioteca. Vuelve a intentarlo en un minuto.",
+  "minutes_one": "Unos {{count, number}} minuto",
+  "minutes_other": "Unos {{count, number}} minutos"
 }

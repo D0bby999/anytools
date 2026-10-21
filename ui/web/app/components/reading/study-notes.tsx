@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formatClock, type KBDocument } from "~/lib/kb-types";
 import { NOTE_LANGUAGES, type VideoNotes } from "~/lib/video-notes-types";
 import { SaveToDrive } from "~/components/storage/save-to-drive";
+import { SendTo } from "~/components/apps/send-to";
 
 /**
  * study-notes.tsx
@@ -118,6 +119,7 @@ export function StudyNotes({
               {t("video.notes.export")}
             </a>
             <SaveToDrive kind="study_notes" id={doc.id} language={current.language} />
+            <SendTo kind="study_notes" id={doc.id} language={current.language} />
             <button
               type="button"
               disabled={busy}

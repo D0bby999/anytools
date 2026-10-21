@@ -22,15 +22,45 @@ vi.mock("~/lib/vocab.server", () => vocab);
 const quiz = { addQuestionSet: vi.fn() };
 vi.mock("~/lib/quiz.server", () => quiz);
 
-const { catalogue, findByField, findItems, FIELD_SAMPLE } = await import("~/lib/library/catalogue.server");
+// The API answers from Postgres (internal/store/pg/library_test.go tests
+// its filters and orders); here it answers from the catalogue the export is
+// built from, English first, a field's first three on the first screen.
+const api = { findItems: vi.fn(), findByField: vi.fn(), libraryItem: vi.fn() };
+vi.mock("~/lib/library/api.server", () => api);
+
+const { catalogue } = await import("~/lib/library/catalogue.server");
 const { LIBRARY_KINDS, LIBRARY_SUBJECTS } = await import("~/lib/library/types");
+type Filter = import("~/lib/library/types").LibraryFilter;
+type Item = import("~/lib/library/types").LibraryItem;
 const route = await import("~/routes/library");
+
+const rank = (i: Item) => (i.language === "en" ? 0 : i.language === "mul" ? 1 : 2);
+function kept(f: Filter, ui: string) {
+  const langs = f.lang === "all" ? null : f.lang ? [f.lang] : [ui, "en"];
+  return catalogue()
+    .items.filter((i) => (!f.kind || i.kind === f.kind) && (!f.subject || i.subject === f.subject))
+    .filter((i) => !langs || i.language === "mul" || langs.includes(i.language.split("-")[0]!))
+    .sort((a, b) => rank(a) - rank(b));
+}
 
 beforeAll(() => initI18n("en"));
 beforeEach(() => {
   vi.clearAllMocks();
   requireUser.mockResolvedValue({ userId: "user-1", user: { id: "user-1", language: "vi" } });
   kb.listKBs.mockResolvedValue({ knowledge_bases: [{ kb: { id: "kb-1", name: "Physics" } }] });
+  api.libraryItem.mockImplementation(async (_user: string, id: string) => catalogue().byId.get(id) ?? null);
+  api.findItems.mockImplementation(async (_user: string, f: Filter, ui: string) => {
+    const items = kept(f, ui);
+    return { total: items.length, items: items.slice(f.offset, f.offset + 30), languages: ["en", "vi"] };
+  });
+  api.findByField.mockImplementation(async (_user: string, f: Filter, ui: string) => {
+    const items = kept({ ...f, subject: undefined }, ui);
+    const groups = LIBRARY_SUBJECTS.map((subject) => {
+      const all = items.filter((i) => i.subject === subject);
+      return { subject, total: all.length, items: all.slice(0, 3) };
+    }).filter((g) => g.total);
+    return { total: items.length, groups, languages: ["en", "vi"] };
+  });
 });
 
 const post = (fields: Record<string, string>) => {
@@ -61,9 +91,7 @@ describe("the catalogue", () => {
       expect(i.url).toMatch(/^https:\/\//);
       expect(i.credit).toBe("credits.fpb");
     }
-    const vi = findItems({ kind: "course", lang: "vi", q: "", offset: 0 }, "vi");
-    expect(vi.total).toBeGreaterThan(300);
-    expect(findItems({ kind: "course", lang: "vi", q: "lap trinh android", offset: 0 }, "vi").total).toBeGreaterThan(3);
+    expect(fpb.filter((i) => i.kind === "course" && i.language === "vi").length).toBeGreaterThan(300);
   });
 
   it("lists what may not be copied without an add action", () => {
@@ -72,81 +100,101 @@ describe("the catalogue", () => {
     for (const i of nc) expect(i.action.type).toBe("open");
   });
 
-  it("puts English material first, whatever else is shown", () => {
-    for (const lang of ["", "all"]) {
-      const { items } = findItems({ kind: "course", lang, q: "", offset: 0 }, "vi");
-      expect(items.every((i) => i.language === "en" || i.language === "mul")).toBe(true);
-    }
-    // Across the whole list: every English item, then the many-language ones, then the rest.
-    const all = findItems({ lang: "all", q: "", offset: 0 }, "vi").total;
-    const en = findItems({ lang: "en", q: "", offset: 0 }, "vi").total;
-    const mul = catalogue().items.filter((i) => i.language === "mul").length;
-    const rank = (offset: number) => findItems({ lang: "all", q: "", offset }, "vi").items.map((i) => (i.language === "en" ? 0 : i.language === "mul" ? 1 : 2));
-    expect(rank(en - mul - 1)[0]).toBe(0);
-    expect(rank(en - mul)[0]).toBe(1);
-    expect(rank(en)[0]).toBe(2);
-    expect(rank(all - 30).every((r) => r === 2)).toBe(true);
-  });
-
-  it("filters by kind, subject, language and words without accents", () => {
-    const mine = findItems({ lang: "", q: "", offset: 0 }, "vi");
-    expect(mine.items.every((i) => ["vi", "en", "mul"].includes(i.language.split("-")[0]!))).toBe(true);
-    const all = findItems({ lang: "all", q: "", offset: 0 }, "vi");
-    expect(all.total).toBeGreaterThan(mine.total);
-    const geo = findItems({ kind: "deck", subject: "general", lang: "es", q: "", offset: 0 }, "en");
-    expect(geo.total).toBe(3);
-    expect(findItems({ lang: "all", q: "de thi tot nghiep", offset: 0 }, "en").items.map((i) => i.id)).toEqual(["thpt-papers"]);
-  });
 });
 
 describe("the fields", () => {
-  it("has English material in every field, a few of each on the first screen", () => {
-    const { total, groups } = findByField({ lang: "", q: "", offset: 0 }, "en");
-    expect(groups.map((g) => g.subject)).toEqual([...LIBRARY_SUBJECTS]);
-    expect(groups.reduce((n, g) => n + g.total, 0)).toBe(total);
-    for (const g of groups) {
-      expect(g.items.length).toBe(Math.min(FIELD_SAMPLE, g.total));
-      expect(g.items.every((i) => i.subject === g.subject && i.language === "en")).toBe(true);
-    }
-    // Professions, not only programming: each of these has hundreds.
-    const count = Object.fromEntries(groups.map((g) => [g.subject, g.total]));
-    for (const field of ["business", "law", "health", "engineering", "social", "humanities", "education"]) expect(count[field]).toBeGreaterThan(80);
+  it("has material for the professions in every field", () => {
+    const count = (subject: string) => catalogue().items.filter((i) => i.subject === subject && i.language === "en").length;
+    for (const subject of LIBRARY_SUBJECTS) expect(count(subject)).toBeGreaterThan(0);
+    for (const field of ["business", "law", "health", "engineering", "social", "humanities", "education"]) expect(count(field)).toBeGreaterThan(80);
   });
 
-  it("lets the sources take turns, so one source does not fill a page", () => {
-    const { items } = findItems({ subject: "programming", lang: "", q: "", offset: 0 }, "en");
-    expect(new Set(items.slice(0, 10).map((i) => i.source.name)).size).toBeGreaterThan(4);
-    const first = findByField({ kind: "course", lang: "", q: "", offset: 0 }, "en").groups.find((g) => g.subject === "programming")!;
-    expect(new Set(first.items.map((i) => i.source.name)).size).toBe(FIELD_SAMPLE);
+  it("says the Library is being loaded while the API has none", async () => {
+    const { ApiError } = await import("~/lib/api.server");
+    api.findByField.mockRejectedValueOnce(new ApiError(503, "the Library is still being loaded", "library_not_loaded"));
+    const res = await route.loader({ request: new Request("http://localhost/library"), params: {}, context: {} } as never);
+    expect(res).toMatchObject({ notLoaded: true, total: 0, groups: [] });
+    api.findByField.mockRejectedValueOnce(new ApiError(500, "something went wrong", "internal"));
+    await expect(route.loader({ request: new Request("http://localhost/library"), params: {}, context: {} } as never)).rejects.toMatchObject({ status: 500 });
   });
 
-  it("shows the first screen by field, and a field or a search as one list", async () => {
-    const first = await route.loader({ request: new Request("http://localhost/library"), params: {}, context: {} } as never);
-    expect(first.groups.length).toBe(LIBRARY_SUBJECTS.length);
+  it("asks the API for the first screen by field, and for a field or a search as one list", async () => {
+    const first = await route.loader({ request: new Request("http://localhost/library?sort=rating&certificate=paid&video=1"), params: {}, context: {} } as never);
+    expect(api.findByField).toHaveBeenCalledWith("user-1", expect.objectContaining({ sort: "rating", certificate: "paid", video: true, reusable: false }), "vi");
+    expect(first.groups.length).toBeGreaterThan(10);
     expect(first.items).toEqual([]);
-    const field = await route.loader({ request: new Request("http://localhost/library?subject=law"), params: {}, context: {} } as never);
+    const field = await route.loader({ request: new Request("http://localhost/library?subject=law&level=advanced&reusable=1&sort=nope"), params: {}, context: {} } as never);
+    expect(api.findItems).toHaveBeenLastCalledWith("user-1", expect.objectContaining({ subject: "law", level: "advanced", reusable: true, sort: undefined }), "vi");
     expect(field.groups).toEqual([]);
-    expect(field.items.length).toBe(30);
-    expect(field.items.every((i) => i.subject === "law")).toBe(true);
-    const search = await route.loader({ request: new Request("http://localhost/library?q=nursing"), params: {}, context: {} } as never);
-    expect(search.groups).toEqual([]);
-    expect(search.total).toBeGreaterThan(5);
+    await route.loader({ request: new Request("http://localhost/library?q=nursing"), params: {}, context: {} } as never);
+    expect(api.findItems).toHaveBeenLastCalledWith("user-1", expect.objectContaining({ q: "nursing" }), "vi");
     // Spaces alone are no search.
-    const blank = await route.loader({ request: new Request("http://localhost/library?q=%20%20"), params: {}, context: {} } as never);
-    expect(blank.groups.length).toBe(LIBRARY_SUBJECTS.length);
+    api.findByField.mockClear();
+    await route.loader({ request: new Request("http://localhost/library?q=%20%20"), params: {}, context: {} } as never);
+    expect(api.findByField).toHaveBeenCalledTimes(1);
   });
 
-  it("builds a first screen once, and shows each field's featured items first", () => {
-    const a = findByField({ lang: "", q: "", offset: 0 }, "en");
-    expect(findByField({ lang: "", q: "", offset: 0 }, "en")).toBe(a);
-    // MIT's courses with lecture videos first; the Open Textbook Library's reusable books with a PDF first.
-    const mit = findItems({ subject: "engineering", lang: "", q: "", offset: 0 }, "en").items.find((i) => i.source.name === "MIT OpenCourseWare")!;
-    expect(mit.video).toBe(true);
-    const otl = findItems({ subject: "law", lang: "", q: "", offset: 0 }, "en").items.find((i) => i.source.name === "Open Textbook Library")!;
+  it("writes each source's featured items first", () => {
+    const first = (source: string, subject: string) => catalogue().items.find((i) => i.source.name === source && i.subject === subject)!;
+    expect(first("MIT OpenCourseWare", "engineering").video).toBe(true);
+    const otl = first("Open Textbook Library", "law");
     expect(otl.licence).toMatch(/^(cc-by|cc-by-sa|cc0|gfdl)$/);
     expect(otl.action).toMatchObject({ pdf: expect.stringMatching(/\.pdf$/i) });
-    // Sites listed on their own are not listed again from the awesome lists.
     expect(catalogue().items.filter((i) => i.id.startsWith("awesome-") && /khanacademy\.org|ocw\.mit\.edu|openstax\.org/.test(i.url))).toEqual([]);
+  });
+});
+
+describe("ratings, certificates, hours and popularity", () => {
+  const CRITERIA = ["comprehensiveness", "accuracy", "relevance", "clarity", "consistency", "modularity", "organization", "interface", "grammatical", "cultural"];
+
+  it("keeps each source's facts", () => {
+    const items = catalogue().items;
+    const rated = items.filter((i) => i.rating);
+    expect(rated.length).toBeGreaterThan(1000);
+    for (const i of rated) {
+      expect(i.source.name).toBe("Open Textbook Library");
+      expect(i.rating!.value).toBeGreaterThan(0);
+      expect(i.rating!.value).toBeLessThanOrEqual(5);
+      expect(i.rating!.count).toBeGreaterThan(0);
+      for (const [c, v] of Object.entries(i.rating!.scores ?? {})) {
+        expect(CRITERIA).toContain(c);
+        expect(v).toBeGreaterThanOrEqual(1);
+        expect(v).toBeLessThanOrEqual(5);
+      }
+    }
+    const certs = items.filter((i) => i.id.startsWith("awesome-certificates:"));
+    expect(certs.every((i) => i.certificate && ["free", "badge"].includes(i.certificate.kind))).toBe(true);
+    expect(certs.filter((i) => i.hours).length).toBeGreaterThan(150);
+    const mitx = items.filter((i) => i.source.name === "MITx Online");
+    expect(mitx.length).toBeGreaterThan(100);
+    for (const c of mitx) {
+      expect(c).toMatchObject({ kind: "course", language: "en", licence: "free-access", certificate: { kind: "paid", currency: "USD" }, action: { type: "open", why: "enrol" } });
+      expect(c.url).toMatch(/^https:\/\/learn\.mit\.edu\/courses\//);
+    }
+    expect(items.filter((i) => i.popularity?.kind === "downloads").length).toBeGreaterThan(1000);
+    expect(items.filter((i) => i.popularity?.kind === "views").length).toBeGreaterThan(2500);
+  });
+
+  it("shows them first on each item, with the criteria in a disclosure", async () => {
+    const items = catalogue().items;
+    const mitx = items.find((i) => i.source.name === "MITx Online" && i.certificate?.priceMax !== i.certificate?.priceMin)!;
+    const book = items.find((i) => i.rating && i.rating.count > 2 && i.rating.scores)!;
+    const badge = items.find((i) => i.certificate?.kind === "badge" && i.hours)!;
+    const loaderData = { items: [mitx, book, badge], groups: [], total: 3, languages: ["en"], kbs: [], filter: { lang: "", q: "", offset: 0, sort: "rating", video: false, reusable: false } };
+    const router = createMemoryRouter([{ path: "/library", element: <route.default loaderData={loaderData as never} params={{}} matches={[] as never} /> }], {
+      initialEntries: ["/library?q=x&sort=rating"],
+    });
+    render(<RouterProvider router={router} />);
+    const row = (name: string) => screen.getByRole("link", { name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) }).closest("li")!;
+    expect(within(row(mitx.name)).getByText(new RegExp(`${mitx.certificate!.name}: free to take, certificate \\$[\\d,]+–\\$[\\d,]+`))).toBeInTheDocument();
+    const rated = row(book.name);
+    expect(within(rated).getByText(new RegExp(`★ [\\d.]+ \\(${book.rating!.count} reviews\\)`))).toBeInTheDocument();
+    await userEvent.click(within(rated).getByText("Ratings by criterion"));
+    expect(within(rated).getByText("Clarity")).toBeInTheDocument();
+    expect(within(rated).getByRole("link", { name: /Read the reviews at Open Textbook Library/ })).toHaveAttribute("href", book.url);
+    expect(within(row(badge.name)).getByText(/^Free digital badge \(as the list says\) · .*About [\d.,]+ (hours?|minutes?)$/)).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("rating");
+    expect(screen.getByRole("checkbox", { name: "Free to reuse" })).not.toBeChecked();
   });
 });
 
@@ -193,7 +241,7 @@ describe("the textbooks", () => {
       expect(b.action).toMatchObject({ type: "open", why: b.licence.includes("nc") ? "textbookNonCommercial" : "textbook" });
     }
     expect(new Set(books.map((b) => b.licence))).toEqual(new Set(["cc-by", "cc-by-nc-sa", "none"]));
-    expect(findItems({ kind: "textbook", subject: "maths", lang: "es", q: "", offset: 0 }, "en").total).toBeGreaterThan(3);
+    expect(books.filter((b) => b.subject === "maths" && b.language === "es").length).toBeGreaterThan(3);
   });
 
   it("lists the Open Textbook Library's books in every field, each with its licence, none of OpenStax's twice", () => {
@@ -236,7 +284,7 @@ describe("the lists from sindresorhus/awesome", () => {
       expect(i.licence).toBe("free-access");
     }
     expect(by("youtubers").every((i) => i.video && /youtube\.com\//.test(i.url))).toBe(true);
-    expect(by("certificates").some((i) => i.unit === "hours" && i.count! > 0)).toBe(true);
+    expect(by("certificates").some((i) => i.hours! > 0)).toBe(true);
   });
 });
 
@@ -248,7 +296,7 @@ describe("Project Gutenberg's books", () => {
     expect(pride).toMatchObject({ kind: "book", language: "en", licence: "public-domain", credit: "credits.gutenberg", author: "Austen, Jane" });
     expect(pride.action).toEqual({ type: "link", url: "https://www.gutenberg.org/cache/epub/1342/pg1342-images.html" });
     expect(books.every((b) => !/&#?\w+;/.test(b.name))).toBe(true);
-    expect(findItems({ kind: "book", lang: "es", q: "", offset: 0 }, "en").total).toBeGreaterThanOrEqual(100);
+    expect(books.filter((b) => b.language === "es").length).toBeGreaterThanOrEqual(100);
   });
 });
 
@@ -384,7 +432,7 @@ describe("Gutenberg's catalogue dump", async () => {
 
 describe("the Open Textbook Library's catalogue", async () => {
   // @ts-expect-error: a build script, plain JavaScript.
-  const { bookOf, fieldOf } = await import("../../scripts/library/open-textbooks.mjs");
+  const { bookOf, fieldOf, scoresOf } = await import("../../scripts/library/open-textbooks.mjs");
   const book = (extra: object) => ({
     id: 4,
     title: " Financial Accounting ",
@@ -412,6 +460,26 @@ describe("the Open Textbook Library's catalogue", async () => {
     expect(bookOf(book({ license: "Something else" }))).toBeNull();
     expect(bookOf(book({ language: "xxx" }))).toBeNull();
   });
+  it("keeps the reviews' numbers, not their text, and links a GitHub PDF raw", () => {
+    const reviewed = bookOf(
+      book({
+        rating: "4.5",
+        textbook_reviews_count: 2,
+        copyright_year: 2019,
+        accessibility_features: ["unknown", "tableOfContents"],
+        reviews: [
+          { clarity_rating: 5, accuracy_rating: 4, overall_rating: 9, clarity_review: "Not kept." },
+          { clarity_rating: 4, accuracy_rating: 0 },
+        ],
+        formats: [{ type: "PDF", url: "https://github.com/o/r/blob/main/b.pdf" }],
+      }),
+    );
+    expect(reviewed).toMatchObject({ rating: 4.5, reviews: 2, year: 2019, accessibility: ["tableOfContents"], pdf: "https://github.com/o/r/raw/main/b.pdf" });
+    expect(reviewed.scores).toEqual({ clarity: 4.5, accuracy: 4 });
+    expect(JSON.stringify(reviewed)).not.toContain("Not kept");
+    expect(scoresOf(undefined)).toEqual({});
+  });
+
   it("files a book that names only a child subject under its parent's field", () => {
     expect(fieldOf([{ name: "Biology", parent_subject_id: 8 }])).toEqual({ subject: "science", section: "Biology" });
     expect(fieldOf([{ name: "Nursing", parent_subject_id: 17 }, { name: "Medicine", parent_subject_id: null }])).toEqual({ subject: "health", section: "Nursing" });
@@ -453,9 +521,55 @@ describe("MIT OpenCourseWare's catalogue", async () => {
       level: "Graduate",
       instructors: "Prof. George Haller",
       video: true,
+      year: 2004,
       url: "https://ocw.mit.edu/courses/2-032-dynamics-fall-2004/",
     });
     expect(courseOf({ title: "x", url: "https://example.com/" })).toBeNull();
+  });
+});
+
+describe("MITx Online's catalogue", async () => {
+  // @ts-expect-error: a build script, plain JavaScript.
+  const { courseOf, fieldOfCourse } = await import("../../scripts/library/mitx-online.mjs");
+  const course = (extra: object) => ({
+    id: 1,
+    readable_id: "course-v1:MITxT+14.100x",
+    title: "Microeconomics",
+    url: "https://learn.mit.edu/courses/course-v1:MITxT+14.100x",
+    free: true,
+    certification: true,
+    certification_type: { code: "micromasters", name: "MicroMasters Credential" },
+    resource_prices: [{ amount: "0.00", currency: "USD" }, { amount: "250.00", currency: "USD" }, { amount: "1000.00", currency: "USD" }],
+    departments: [{ name: "Economics" }],
+    max_weeks: 14,
+    max_weekly_hours: 14,
+    time_commitment: "12–14 hours per week",
+    views: "40511",
+    ...extra,
+  });
+  it("keeps the certificate, its fee, the weeks and hours, and the views", () => {
+    expect(courseOf(course({}))).toEqual({
+      id: "course-v1:MITxT+14.100x",
+      title: "Microeconomics",
+      subject: "economics",
+      department: "Economics",
+      certificate: "MicroMasters Credential",
+      priceMin: 250,
+      priceMax: 1000,
+      weeks: 14,
+      weeklyHours: 14,
+      hours: 196,
+      commitment: "12–14 hours per week",
+      views: 40511,
+      url: "https://learn.mit.edu/courses/course-v1:MITxT+14.100x",
+    });
+    expect(courseOf(course({ free: false }))).toBeNull();
+    expect(courseOf(course({ certification: false }))).toBeNull();
+  });
+  it("files a course with no department by its topics", () => {
+    expect(fieldOfCourse("", "Supply Chain Design", ["Business & Management", "Supply Chain"])).toBe("business");
+    expect(fieldOfCourse("", "Probability and Statistical Data Analysis", [])).toBe("maths");
+    expect(fieldOfCourse("Physics", "Mechanics", ["Engineering"])).toBe("science");
   });
 });
 
@@ -489,7 +603,7 @@ describe("the awesome lists' parsers", async () => {
       '| <a href="https://example.org/f" target="_blank">Finance Basics</a> | Acme &amp; Co |Beginner| 2.5 | 🏆 |',
     ].join("\n");
     expect(parseCertificates(certs)).toEqual([
-      { kind: "course", subject: "economics", title: "Finance Basics", author: "Acme & Co", section: "Finance, Beginner", hours: 2.5, url: "https://example.org/f" },
+      { kind: "course", subject: "economics", title: "Finance Basics", author: "Acme & Co", section: "Finance, Beginner", hours: 2.5, level: "beginner", certificate: "free", url: "https://example.org/f" },
     ]);
     const tubes = ["## Life Skills", "[**Ali Abdaal**](https://www.youtube.com/c/aliabdaal) \\", "Content about: Productivity, Studying \\", "[**Bare**](https://www.youtube.com/bare) \\", "[**Ania**](https://www.youtube.com/c/AniaKub%C3%B3w/featured) \\", "## Other languages", "[**X**](https://www.youtube.com/c/x) \\"].join("\n");
     expect(parseYouTubers(tubes)).toEqual([
