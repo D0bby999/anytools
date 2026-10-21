@@ -22,6 +22,7 @@ import { PageHeader } from "~/components/ui/page-header";
 import { DateText } from "~/components/ui/date-text";
 import { Field } from "~/components/doc/field";
 import { Flyout, FLYOUT_ITEM } from "~/components/doc/flyout";
+import { RECENT_LIMIT } from "~/components/chat/recent-conversations";
 import { NewConversation } from "~/components/chat/new-conversation";
 import { listKBs } from "~/lib/kb.server";
 import { NOTE_JOIN } from "~/lib/sentence";
@@ -36,12 +37,19 @@ export function meta({ matches }: Route.MetaArgs) {
 export async function loader({ request }: Route.LoaderArgs) {
   const { userId, user } = await requireUser(request);
   const query = (new URL(request.url).searchParams.get("q") ?? "").trim().slice(0, 200);
-  const [{ sessions }, kbs] = await Promise.all([
+  const [{ sessions }, kbs, recent] = await Promise.all([
     listSessions(userId, query),
     listKBs(userId).catch(() => ({ knowledge_bases: [] })),
+    // The sidebar's rows under Chat are the latest, whatever the search.
+    query ? listSessions(userId, "", RECENT_LIMIT).catch(() => ({ sessions: [] })) : null,
   ]);
   return {
     groups: groupByDay(sessions, user.timezone),
+    chatRecent: (recent?.sessions ?? sessions.slice(0, RECENT_LIMIT)).map((s) => ({
+      id: s.id,
+      title: s.title,
+      running: s.running,
+    })),
     query,
     kbCount: kbs.knowledge_bases.length,
     // For the quick-start's "Reads" menu; the action already takes kb_id.
@@ -76,6 +84,9 @@ export async function action({ request }: Route.ActionArgs) {
   if (intent === "delete") {
     const id = String(form.get("sessionId") ?? "");
     if (id) await deleteSession(userId, requireUUID(id));
+    // From the sidebar, deleting another conversation keeps the reader where
+    // they are; deleting the open one comes back to the list.
+    if (form.get("stay") === "1") return { ok: true };
     return redirect("/chat");
   }
   if (intent === "rename") {
@@ -134,7 +145,7 @@ export default function ChatIndex({ loaderData }: Route.ComponentProps) {
               </Field>
             </div>
             {query ? (
-              <Link to="/chat" className="mb-2.5 text-sm">
+              <Link to="/chat" className="mb-3 text-sm">
                 {t("chat.searchClear")}
               </Link>
             ) : null}
@@ -210,6 +221,12 @@ function SessionRow({ session, busy }: { session: ChatSession; busy: boolean }) 
           </strong>
           {" · "}
           <Link to={`/chat/${session.id}`}>{title}</Link>
+          {session.running ? (
+            <>
+              {NOTE_JOIN}
+              <span className="font-medium text-primary">{t("chat.recent.running")}</span>
+            </>
+          ) : null}
           {NOTE_JOIN}
           <span className="text-muted-foreground">
             {session.kb_ids.length === 0

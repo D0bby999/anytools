@@ -10,6 +10,7 @@
     "knowledge": "Tài liệu",
     "chat": "Chat",
     "notebooks": "Sổ ghi chép",
+    "library": "Thư viện",
     "quiz": "Câu hỏi",
     "mastery": "Ôn tập",
     "body": "Thể lực",
@@ -27,7 +28,8 @@
       "practise": "Phần III · Luyện",
       "reflect": "Phần IV · Suy ngẫm",
       "settings": "Cài đặt",
-      "appendix": "Phụ lục"
+      "appendix": "Phụ lục",
+      "mine": "Của tôi"
     },
     "pages": {
       "quizBank": "Ngân hàng câu hỏi",
@@ -47,10 +49,13 @@
       "settingsSearch": "Tìm kiếm",
       "settingsAccount": "Tài khoản",
       "settingsProfile": "Hồ sơ",
-      "settingsStorage": "Lưu trữ",
       "settingsReminders": "Nhắc nhở",
       "freeTools": "Công cụ miễn phí",
-      "anyProfile": "AnyProfile"
+      "anyProfile": "AnyProfile",
+      "files": "Tệp của tôi",
+      "upload": "Tải lên",
+      "links": "Liên kết học tập",
+      "storage": "Lưu trữ"
     },
     "search": "Tìm kiếm",
     "searchShortcut": "Mở tìm kiếm bằng {{keys}}",
@@ -217,10 +222,14 @@
         "settingsSearch": "Thiết lập cách tìm kiếm nguồn.",
         "settingsAccount": "Quản lý tài khoản và ngôn ngữ.",
         "settingsProfile": "Xây dựng hồ sơ học tập của bạn.",
-        "settingsStorage": "Quản lý nơi lưu các tệp của bạn.",
         "settingsReminders": "Chọn lời nhắc phù hợp với ngày của bạn.",
         "freeTools": "Mở công cụ miễn phí cho việc hằng ngày.",
-        "anyProfile": "Tạo hồ sơ để chia sẻ."
+        "anyProfile": "Tạo hồ sơ để chia sẻ.",
+        "files": "Mọi tệp bạn đã tải lên, từ mọi cơ sở tri thức, trong một bảng.",
+        "upload": "Thêm một tệp vào cơ sở tri thức bạn chọn.",
+        "links": "Lưu trang web, video và nguồn tin để học, và xem mọi liên kết đã lưu.",
+        "storage": "Chọn nơi giữ tệp của bạn và xem dung lượng mỗi bên.",
+        "library": "Thêm tài liệu có sẵn từ nguồn mở, kèm giấy phép của từng mục."
       },
       "dueToday": "Đến hạn hôm nay"
     }
@@ -617,6 +626,71 @@
       "readsLegend": "Cuộc trò chuyện này đọc",
       "readsHint": "Không đánh dấu kho nào nghĩa là đọc tất cả.",
       "actionsFor": "Thao tác cho {{title}}"
+    },
+    "process": {
+      "category": {
+        "search": {
+          "running": "Đang tìm",
+          "done": "Đã tìm"
+        },
+        "read": {
+          "running": "Đang đọc",
+          "done": "Đã đọc nguồn"
+        },
+        "write": {
+          "running": "Đang ghi chú",
+          "done": "Đã ghi chú"
+        },
+        "ask": {
+          "running": "Đang hỏi bạn",
+          "done": "Đã hỏi bạn"
+        },
+        "thinking": {
+          "running": "Đang suy nghĩ",
+          "done": "Đã suy nghĩ"
+        },
+        "other": {
+          "running": "Đang làm việc",
+          "done": "Đã dùng công cụ"
+        }
+      }
+    },
+    "expandAll": "Mở hết",
+    "answerReady": "Câu trả lời đã xong.",
+    "feedback": {
+      "like": "Câu trả lời tốt",
+      "dislike": "Câu trả lời chưa tốt",
+      "title": "Câu trả lời này chưa tốt ở đâu?",
+      "reasons": "Lý do",
+      "reason": {
+        "wrong_info": "Sai thông tin",
+        "ignored_material": "Không dùng tài liệu của tôi",
+        "unclear": "Khó hiểu",
+        "too_long": "Quá dài",
+        "tool_failed": "Một bước bị lỗi",
+        "other": "Lý do khác"
+      },
+      "comment": "Ghi chú thêm (không bắt buộc)",
+      "commentPlaceholder": "Điều gì sẽ giúp ích hơn?",
+      "failed": "Chưa lưu được đánh giá. Hãy thử lại.",
+      "cancel": "Huỷ",
+      "send": "Gửi"
+    },
+    "find": {
+      "label": "Tìm trong cuộc trò chuyện này",
+      "placeholder": "Tìm trong cuộc trò chuyện này",
+      "none": "Không tìm thấy",
+      "count": "{{current}} / {{total}}",
+      "previous": "Kết quả trước",
+      "next": "Kết quả sau",
+      "close": "Đóng tìm kiếm"
+    },
+    "recent": {
+      "label": "Cuộc trò chuyện gần đây",
+      "all": "Tất cả cuộc trò chuyện",
+      "running": "Đang trả lời",
+      "actions": "Thao tác cho {{title}}",
+      "confirmDelete": "Xoá “{{title}}”?"
     }
   },
   "more": {
@@ -824,7 +898,10 @@
     "Weekly review": "Tổng kết tuần",
     "Worksheet": "Phiếu học",
     "English": "Tiếng Anh",
-    "Share": "Chia sẻ"
+    "Share": "Chia sẻ",
+    "My files": "Tệp của tôi",
+    "Upload": "Tải lên",
+    "Study links": "Liên kết học tập"
   },
   "readinessText": {
     "no_route": "Chưa có kết nối nào làm việc {{function}}. Hãy chọn một kết nối trong Cài đặt → Phân việc.",
@@ -889,5 +966,45 @@
     "navigate": "để di chuyển",
     "close": "để đóng",
     "yours": "Thư viện của bạn"
+  },
+  "mine": {
+    "noKb": "Bạn chưa có cơ sở tri thức nào. Mỗi tài liệu thuộc về một cơ sở, nên hãy tạo một cái trước.",
+    "noKbAction": "Tạo cơ sở tri thức",
+    "pickKb": "Cơ sở tri thức nhận tệp",
+    "pickKbLink": "Cơ sở tri thức nhận liên kết",
+    "opensNewTab": "(mở trong thẻ mới)",
+    "table": {
+      "document": "Tài liệu",
+      "source": "Nguồn",
+      "kb": "Cơ sở tri thức",
+      "kind": "Loại",
+      "status": "Trạng thái",
+      "updated": "Cập nhật"
+    },
+    "files": {
+      "title": "Tệp của tôi",
+      "lead_one": "{{count}} tệp bạn đã tải lên, từ mọi cơ sở tri thức.",
+      "lead_other": "{{count}} tệp bạn đã tải lên, từ mọi cơ sở tri thức.",
+      "upload": "Tải tệp lên",
+      "empty": "Chưa có tệp nào. Tải một tệp lên, AnyLearn sẽ đọc nó để bạn hỏi và ôn từ đó."
+    },
+    "upload": {
+      "title": "Tải lên",
+      "lead": "Chọn cơ sở tri thức nhận tệp, rồi kéo thả hoặc chọn tệp. AnyLearn đọc, chia đoạn và lập chỉ mục cho nó.",
+      "recent": "Vừa tải lên",
+      "all": "Xem mọi tệp của bạn"
+    },
+    "links": {
+      "title": "Liên kết học tập",
+      "lead": "Trang web, video YouTube và nguồn tin bạn đã lưu để học, từ mọi cơ sở tri thức.",
+      "add": "Lưu một liên kết",
+      "saved_one": "{{count}} liên kết đã lưu",
+      "saved_other": "{{count}} liên kết đã lưu",
+      "empty": "Chưa có liên kết nào. Dán một địa chỉ ở trên để lưu nó."
+    },
+    "storage": {
+      "title": "Lưu trữ",
+      "lead": "Nơi giữ tệp của bạn, dung lượng mỗi bên và việc chuyển tệp."
+    }
   }
 }

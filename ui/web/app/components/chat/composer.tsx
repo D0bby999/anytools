@@ -212,7 +212,7 @@ export function Composer({
             // The ring is the box's: focus-within turns its border to the
             // action ink, as VitePress's search field does.
             className={
-              "min-h-8 flex-1 resize-none bg-transparent py-1.5 text-base leading-6 text-foreground " +
+              "min-h-8 flex-1 resize-none bg-transparent py-1 text-base leading-6 text-foreground " +
               "placeholder:text-faint focus-visible:outline-none disabled:opacity-50"
             }
           />
@@ -236,7 +236,7 @@ export function Composer({
           )}
         </div>
 
-        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           {showPicker ? (
             <label className="flex min-w-0 items-center gap-2 text-xs leading-ui text-muted-foreground">
               {t("chat.model.label")}

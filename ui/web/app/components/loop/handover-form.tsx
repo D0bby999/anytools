@@ -60,7 +60,7 @@ export function HandoverForm({ result, busy }: { result: HandoverResult | null; 
           ) : (
             <>
               <p className="text-destructive">{t("resume.invalid")}</p>
-              <ul className="mt-1 list-disc pl-5 leading-prose">
+              <ul className="mt-1 leading-prose space-y-1">
                 {result.problems.map((p) => (
                   <li key={p}>{p}</li>
                 ))}
@@ -68,7 +68,7 @@ export function HandoverForm({ result, busy }: { result: HandoverResult | null; 
             </>
           )}
           {result.paste_back && !result.accepted ? (
-            <ul className="mt-2 list-disc pl-5 text-muted-foreground">
+            <ul className="mt-2 text-muted-foreground space-y-1">
               {result.paste_back.restated.map((b) => (
                 <li key={b}>{b}</li>
               ))}

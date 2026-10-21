@@ -74,6 +74,14 @@ export function overrideAttempt(userId: string, attemptId: string, isCorrect: bo
   });
 }
 
+/** Adds one part of a Library question set (the private design notes, phase 5). */
+export function addQuestionSet(userId: string, kbId: string, set: string, part: string) {
+  return apiFetch<{ added: number; already: number }>("/v1/quiz/starters", userId, {
+    method: "POST",
+    body: { kb_id: kbId, set, part },
+  });
+}
+
 /** Adds a starter set (the Python exercises) to the learner's knowledge base. */
 export function addStarter(userId: string, kbId: string, set: "python") {
   return apiFetch<{ added: number; already: number }>("/v1/quiz/starters", userId, {

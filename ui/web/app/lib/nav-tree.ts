@@ -12,9 +12,14 @@
 import {
   BookOpen,
   Dumbbell,
+  FolderOpen,
+  HardDrive,
+  Link2,
+  Upload,
   GraduationCap,
   Home,
   Languages,
+  Library,
   ListChecks,
   MessageSquare,
   NotebookPen,
@@ -62,6 +67,7 @@ export const NAV_TREE: NavGroup[] = [
     items: [
       { to: "/knowledge", labelKey: "nav.knowledge", icon: BookOpen },
       { to: "/notebooks", labelKey: "nav.notebooks", icon: NotebookPen },
+      { to: "/library", labelKey: "nav.library", icon: Library },
     ],
   },
   {
@@ -127,6 +133,17 @@ export const NAV_TREE: NavGroup[] = [
     ],
   },
   {
+    // The learner's own things, across every knowledge base (owner, 2026-10-21).
+    id: "mine",
+    labelKey: "nav.groups.mine",
+    items: [
+      { to: "/files", labelKey: "nav.pages.files", icon: FolderOpen },
+      { to: "/upload", labelKey: "nav.pages.upload", icon: Upload },
+      { to: "/links", labelKey: "nav.pages.links", icon: Link2 },
+      { to: "/storage", labelKey: "nav.pages.storage", icon: HardDrive },
+    ],
+  },
+  {
     id: "settings",
     labelKey: "nav.groups.settings",
     icon: Settings,
@@ -137,7 +154,6 @@ export const NAV_TREE: NavGroup[] = [
       { to: "/settings/search", labelKey: "nav.pages.settingsSearch" },
       { to: "/settings/account", labelKey: "nav.pages.settingsAccount" },
       { to: "/settings/profile", labelKey: "nav.pages.settingsProfile" },
-      { to: "/settings/storage", labelKey: "nav.pages.settingsStorage" },
       { to: "/settings/reminders", labelKey: "nav.pages.settingsReminders" },
     ],
   },

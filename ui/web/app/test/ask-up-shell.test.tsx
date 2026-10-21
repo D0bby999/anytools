@@ -111,6 +111,8 @@ describe("the conversation page", () => {
       ownVersionFirst: false,
       kbs: [],
       models: [],
+      chatRecent: [],
+      feedback: [],
     };
     const props = { loaderData, params: { sessionId: loaderData.session.id } } as unknown as Parameters<typeof ChatSession>[0];
     renderRouted(<ChatSession {...props} />);

@@ -31,7 +31,7 @@ export function LocalNav({
           aria-expanded={drawerOpen}
           aria-controls="lp-sidebar"
           onClick={onMenu}
-          className="flex h-full items-center gap-1.5 px-6 pt-3 pb-[11px] text-xs leading-6 font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset md:px-8 md:py-0 min-[960px]:hidden"
+          className="flex h-full items-center gap-2 px-6 pt-3 pb-[11px] text-xs leading-6 font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset md:px-8 md:py-0 min-[960px]:hidden"
         >
           <AlignLeft aria-hidden="true" className="size-3.5" />
           {t("nav.menu")}

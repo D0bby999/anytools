@@ -301,7 +301,7 @@
   },
   "library": {
     "title": "Thư viện bài tập",
-    "lead": "1.324 bài tập, mỗi bài có nhóm cơ chính và cách thực hiện.",
+    "lead": "1.957 bài tập, mỗi bài có nhóm cơ chính và cách thực hiện; 866 bài có ảnh tư thế bắt đầu và kết thúc.",
     "target": "Cơ chính",
     "secondary": "Cơ phụ",
     "equipment": "Dụng cụ",
@@ -313,7 +313,14 @@
     "count_other": "{{count}} bài tập",
     "previous": "Trước",
     "next": "Tiếp",
-    "credit": "Tên và hướng dẫn bài tập: hasaneyldrm/exercises-dataset (MIT), bằng tiếng Anh. Hình ảnh của bộ dữ liệu thuộc bản quyền Gym visual và không hiển thị ở đây. Quy tắc tăng tải của phần Thể lực theo openGym của Duarte Santos."
+    "credit": "Tên và hướng dẫn bài tập: hasaneyldrm/exercises-dataset (MIT) và free-exercise-db (phạm vi công cộng), bằng tiếng Anh; ảnh từ free-exercise-db; một số tên tiếng Tây Ban Nha và Bồ Đào Nha từ wger (CC BY-SA). Hình ảnh của bộ dữ liệu đầu tiên thuộc bản quyền Gym visual và không hiển thị ở đây. Quy tắc tăng tải của phần Thể lực theo openGym của Duarte Santos.",
+    "photoStart": "{{name}}: tư thế bắt đầu",
+    "photoEnd": "{{name}}: tư thế kết thúc",
+    "creditFedb": "Nội dung và ảnh: free-exercise-db, phạm vi công cộng (Unlicense).",
+    "creditPhotos": "Ảnh: free-exercise-db, phạm vi công cộng (Unlicense).",
+    "creditWger": "Tên theo ngôn ngữ của bạn: wger, {{licence}}, tác giả {{author}}.",
+    "wgerVideo": "Video trên wger",
+    "wgerPage": "Bài tập này trên wger"
   },
   "home": {
     "title": "Thể lực hôm nay",

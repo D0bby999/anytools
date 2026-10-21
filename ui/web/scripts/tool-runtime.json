@@ -270,5 +270,19 @@
         }
       }
     ]
+  },
+  "free-exercise-db@0.0.0-f00c92c": {
+    "download": [
+      {
+        "url": "https://github.com/yuhonas/free-exercise-db/archive/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5.zip",
+        "sha256": "ad2770ed89335c8b79da12854cc684d419e0f482de69b826c4a31bfac2405eab",
+        "to": "",
+        "extract": {
+          "prefix": "free-exercise-db-f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/",
+          "match": "^[A-Za-z0-9_-]+/[01]\\.jpg$",
+          "flatten": true
+        }
+      }
+    ]
   }
 }

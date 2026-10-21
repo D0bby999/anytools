@@ -3,6 +3,7 @@ import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useLibraryTerm } from "~/components/body/muscles";
 import type { Exercise } from "~/lib/body-types";
+import { exerciseName } from "~/lib/body-library";
 import { Button } from "~/components/ui/button";
 import { FIELD } from "~/components/body/fields";
 
@@ -12,7 +13,7 @@ import { FIELD } from "~/components/body/fields";
  * to the browser.
  */
 export function ExercisePicker({ onPick, label }: { onPick: (e: Exercise) => void; label?: string }) {
-  const { t } = useTranslation("body");
+  const { t, i18n } = useTranslation("body");
   const term = useLibraryTerm();
   const fetcher = useFetcher<{ exercises: Exercise[]; total: number }>();
   const [q, setQ] = useState("");
@@ -47,7 +48,7 @@ export function ExercisePicker({ onPick, label }: { onPick: (e: Exercise) => voi
           {results.map((e) => (
             <li key={e.id} className="flex items-center gap-3 px-3 py-2">
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium">{e.name}</span>
+                <span className="block truncate text-sm font-medium">{exerciseName(e, i18n.language)}</span>
                 <span className="block truncate text-xs text-muted-foreground">
                   {term(e.target)} · {term(e.equipment)}
                 </span>
@@ -56,7 +57,7 @@ export function ExercisePicker({ onPick, label }: { onPick: (e: Exercise) => voi
                 type="button"
                 size="sm"
                 variant="outline"
-                aria-label={t("picker.addNamed", { name: e.name })}
+                aria-label={t("picker.addNamed", { name: exerciseName(e, i18n.language) })}
                 onClick={() => {
                   onPick(e);
                   setQ("");

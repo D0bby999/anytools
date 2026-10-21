@@ -82,7 +82,7 @@ describe("the run-time URLs", () => {
   it("downloads only from immutable URLs, each with a pinned sha256", () => {
     for (const entry of Object.values(manifest)) {
       for (const d of entry.download ?? []) {
-        expect(d.url).toMatch(/^https:\/\/github\.com\/[^/]+\/[^/]+\/(raw\/([0-9a-f]{40}|\d[\w.]*)\/|releases\/download\/v[\w.]+\/)/);
+        expect(d.url).toMatch(/^https:\/\/github\.com\/[^/]+\/[^/]+\/(raw\/([0-9a-f]{40}|\d[\w.]*)\/|releases\/download\/v[\w.]+\/|archive\/[0-9a-f]{40}\.zip$)/);
         expect(d.sha256).toMatch(/^[0-9a-f]{64}$/);
       }
     }

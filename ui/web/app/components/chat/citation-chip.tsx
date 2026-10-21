@@ -209,7 +209,7 @@ function framed(index: number, details: ReactNode, entry: boolean) {
 const INLINE_LINK =
   "ml-px rounded-[4px] px-px font-medium text-primary! no-underline! transition-colors " +
   "hover:text-primary-hover! hover:underline! focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
-const ENTRY_SHAPE = "inline-flex max-w-full items-baseline gap-1.5 text-sm leading-6";
+const ENTRY_SHAPE = "inline-flex max-w-full items-baseline gap-2 text-sm leading-6";
 const ENTRY_LINK =
   ENTRY_SHAPE +
   " text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";

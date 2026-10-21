@@ -69,7 +69,7 @@ export function ProposalView({ proposal: p, names }: { proposal: Proposal; names
       {p.notes.length > 0 ? (
         <>
           <h3 className="mt-4 text-sm font-semibold">{t("coach.notes")}</h3>
-          <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
+          <ul className="mt-1 space-y-1 text-sm">
             {p.notes.map((n, i) => (
               <li key={i}>{n}</li>
             ))}

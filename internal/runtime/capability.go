@@ -169,6 +169,14 @@ func (tc *TurnContext) RecordProvider(name, model string) {
 	tc.provider, tc.model = name, model
 }
 
+// Served returns the provider and model RecordProvider last noted: the ones
+// that actually answered, which the stored answer carries for its ratings.
+func (tc *TurnContext) Served() (provider, model string) {
+	tc.mu.Lock()
+	defer tc.mu.Unlock()
+	return tc.provider, tc.model
+}
+
 // AddUsage folds one call's token usage into the turn total.
 func (tc *TurnContext) AddUsage(u *Usage) {
 	tc.mu.Lock()

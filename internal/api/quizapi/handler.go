@@ -348,6 +348,9 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
 type starterRequest struct {
 	KBID uuid.UUID `json:"kb_id"`
 	Set  string    `json:"set"`
+	// Part is the part of the set to add (the Library's question sets);
+	// empty is the first, which is what the Python set's button adds.
+	Part string `json:"part"`
 }
 
 // addStarter adds a starter set's exercises to the caller's knowledge base.
@@ -357,7 +360,7 @@ func (h *Handler) addStarter(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusBadRequest, "malformed request body", "bad_request")
 		return
 	}
-	res, err := h.svc.AddStarter(r.Context(), httpx.MustUserID(r.Context()), req.KBID, req.Set)
+	res, err := h.svc.AddSet(r.Context(), httpx.MustUserID(r.Context()), req.KBID, req.Set, req.Part)
 	if err != nil {
 		h.fail(w, r, err)
 		return

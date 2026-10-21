@@ -8,6 +8,10 @@
  * `--lp-*` tokens, so the textbook world can take these blocks back by
  * changing token values, not this file.
  *
+ * Spacing is on AnyLearn's 4pt scale (DESIGN.md, Space): where VitePress had
+ * 6, 10, 14, 18 or 22, the nearest step stands (2026-10-21). Type sizes and the
+ * prose leading stay VitePress's.
+ *
  * Three departures from up, all from the project's rules: a blockquote has a
  * full outline instead of a 3px rule down its left side; a table and an input
  * table scroll inside their own box; the reduced-motion and print rules from
@@ -16,9 +20,11 @@
 
 /* ── The article: `.vp-doc` with up's measure and leading. ── */
 .lp-doc {
-  /* The book face for reading (DESIGN.md: prose); data and controls inside
-     take the interface face below. */
-  font-family: var(--lp-font-serif);
+  /* The interface face: an app page is mostly forms, cards and tables. Its
+     titles are the book face (below), and reading text carries lp-prose,
+     which sets the book face itself (owner, 2026-10-21: settings cards, tabs
+     and labels in the book face read as a document, not a tool). */
+  font-family: var(--lp-font-sans);
   font-size: 16px;
   line-height: 1.85;
   color: var(--lp-ink);
@@ -54,16 +60,29 @@
   text-wrap: balance;
 }
 
+/* A section is set apart by space and its book-face title, not by VitePress's
+   rule above every h2: the app's blocks (tabs rows, quick starts, ruled lists)
+   draw their own, and the two together stacked hairlines 25 to 56px apart on
+   six pages (owner, 2026-10-21: room that does nothing). */
 .lp-doc h2 {
-  margin: 48px 0 16px;
-  padding-top: 24px;
-  border-top: 1px solid var(--lp-border);
+  margin: 40px 0 12px;
   font-size: 24px;
   line-height: 32px;
 }
 
+/* The first title in a block opens it, with no space above. */
+.lp-doc :is(.lp-tabs-row, :has(> .lp-tabs-row)) + h2,
+.lp-doc .lp-quick-start > h2:first-child {
+  margin-top: 0;
+}
+
+/* A ruled list that ends a quick start: the block's own bottom rule closes it. */
+.lp-quick-start > :is(ul, ol):last-child > li:last-child {
+  border-bottom-width: 0;
+}
+
 .lp-doc h3 {
-  margin: 32px 0 0;
+  margin: 24px 0 0;
   font-size: 20px;
   line-height: 28px;
 }
@@ -75,11 +94,7 @@
 }
 
 .lp-doc p {
-  margin: 18px 0;
-  line-height: 1.85;
-}
-
-.lp-doc li {
+  margin: 16px 0;
   line-height: 1.85;
 }
 
@@ -102,25 +117,45 @@
   font-weight: 600;
 }
 
-.lp-doc :is(ul, ol) {
-  margin: 16px 0;
-  padding-left: 1.25rem;
-}
+/*
+ * Lists in the app's pages carry no browser bullets (owner, 2026-10-21: the
+ * dots read as unfinished). A bare list is a stack with 8px between items;
+ * a bare <ol> numbers its steps with quiet numerals (lp-steps in app.css).
+ * Inside a layer, so a list's own classes (mt-4, gap-2…) still win; this file
+ * is otherwise unlayered and would outrank them. Rendered Markdown (.lp-rich)
+ * keeps its own bullets: there a list is the author's text.
+ */
+@layer components {
+  .lp-doc :is(ul, ol):not([class]):not(.lp-rich *) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+    line-height: 1.85;
+  }
 
-.lp-doc ul {
-  list-style: disc;
-}
+  .lp-doc ol:not([class]):not(.lp-rich *) {
+    counter-reset: lp-step;
+  }
 
-.lp-doc ol {
-  list-style: decimal;
-}
+  .lp-doc ol:not([class]):not(.lp-rich *) > li {
+    position: relative;
+    padding-left: 28px;
+    counter-increment: lp-step;
+  }
 
-.lp-doc li + li {
-  margin-top: 8px;
-}
-
-.lp-doc li > :is(ul, ol) {
-  margin: 8px 0 0;
+  .lp-doc ol:not([class]):not(.lp-rich *) > li::before {
+    content: counter(lp-step);
+    position: absolute;
+    left: 0;
+    width: 20px;
+    color: var(--lp-ink-3);
+    font-family: var(--font-sans);
+    font-size: 0.875em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
 }
 
 .lp-doc hr {
@@ -133,7 +168,7 @@
    its left rule (the world refuses one-sided rules, open question 4). */
 .lp-doc blockquote {
   margin: 24px 0;
-  padding: 12px 18px;
+  padding: 12px 16px;
   border: 1px solid var(--lp-border);
   border-radius: 8px;
   background: var(--lp-surface-soft);
@@ -151,7 +186,7 @@
 }
 
 .lp-doc :not(pre) > code {
-  padding: 3px 6px;
+  padding: 2px 4px;
   border-radius: 4px;
   background: var(--lp-hover);
   color: var(--lp-brand);
@@ -284,9 +319,9 @@ fieldset {
 /* ── Quick-start (I3). ── */
 .lp-quick-start {
   display: grid;
-  gap: 10px;
-  margin: 22px 0 30px;
-  padding: 0 0 18px;
+  gap: 12px;
+  margin: 24px 0 32px;
+  padding: 0 0 16px;
   border-bottom: 1px solid var(--lp-border);
 }
 
@@ -294,7 +329,7 @@ fieldset {
 .lp-guide-path-group-heading {
   display: grid;
   grid-template-columns: auto 1fr;
-  column-gap: 10px;
+  column-gap: 8px;
   align-items: baseline;
 }
 
@@ -341,16 +376,16 @@ fieldset {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 16px;
+  gap: 12px 16px;
 }
 
 .lp-quick-start-action {
   display: inline-flex;
-  min-height: 42px;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 9px 16px;
+  padding: 8px 16px;
   border: 1px solid transparent;
   border-radius: 6px;
   font-size: 14px;
@@ -404,12 +439,12 @@ fieldset {
 /* ── Guide-paths (P7). ── */
 .lp-guide-paths {
   display: grid;
-  gap: 18px;
+  gap: 16px;
   margin: 28px 0 36px;
 }
 
 .lp-guide-path-group {
-  padding: 18px;
+  padding: 16px;
   border: 1px solid var(--lp-border);
   border-radius: 16px;
   background: linear-gradient(145deg, var(--lp-surface-soft), var(--lp-paper));
@@ -431,7 +466,7 @@ fieldset {
 .lp-guide-path-group-items {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -444,7 +479,7 @@ fieldset {
 .lp-guide-path {
   display: block;
   height: 100%;
-  padding: 14px 15px;
+  padding: 12px 16px;
   border: 1px solid var(--lp-border);
   border-radius: 8px;
   color: var(--lp-ink);
@@ -462,7 +497,7 @@ fieldset {
 
 .lp-guide-path strong {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: var(--lp-brand);
   font-size: 15px;
   font-weight: 600;
@@ -494,8 +529,8 @@ fieldset {
 /* ── Dated list (P4): **date** · title — note. ── */
 .lp-dated-list {
   margin: 16px 0;
-  padding-left: 1.25rem;
-  list-style: disc;
+  padding-left: 0;
+  list-style: none;
   line-height: 1.85;
 }
 
@@ -532,7 +567,7 @@ fieldset {
 }
 
 .lp-download-card p {
-  margin: 10px 0 16px;
+  margin: 8px 0 16px;
   color: var(--lp-ink-2);
   font-size: 14px;
   line-height: 1.6;
@@ -541,8 +576,8 @@ fieldset {
 .lp-download-action {
   display: inline-flex;
   align-items: center;
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 16px;
   border: 1px solid var(--lp-brand);
   border-radius: 6px;
   background: var(--lp-brand);
@@ -616,10 +651,12 @@ fieldset {
 /* ── Badge (I6): VPBadge. ── */
 .lp-badge {
   display: inline-block;
+  /* The interface face, also inside a book-face heading. */
+  font-family: var(--lp-font-sans);
   flex: none;
   border: 1px solid transparent;
   border-radius: 12px;
-  padding: 0 10px;
+  padding: 0 8px;
   font-size: 12px;
   font-weight: 500;
   line-height: 22px;
@@ -766,7 +803,7 @@ fieldset {
 
 /* ── Status line (I11): `.worksheet-feedback`. ── */
 .lp-status-line {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   color: var(--lp-ink-2);
   font-size: 14px;
   line-height: 1.65;
@@ -783,7 +820,7 @@ fieldset {
 /* ── Worksheet actions (up's WorksheetActions.vue). ── */
 .lp-worksheet-actions {
   margin: 0 0 24px;
-  padding: 16px 18px;
+  padding: 16px;
   border: 1px solid var(--lp-border);
   border-radius: 8px;
   background: var(--lp-surface-soft);
@@ -893,7 +930,7 @@ fieldset {
 
 .lp-field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   margin: 16px 0;
 }
 
@@ -923,7 +960,7 @@ fieldset {
 .lp-field-box > :is(input, select, textarea) {
   flex: 1;
   min-width: 0;
-  min-height: 38px;
+  min-height: 40px;
   border: 0;
   background: transparent;
   color: var(--lp-ink);
@@ -955,7 +992,7 @@ fieldset {
 .lp-progress-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 12px;
   color: var(--lp-ink-2);
 }
@@ -963,20 +1000,20 @@ fieldset {
 .lp-progress-bar-track {
   position: relative;
   flex: 1;
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   background: var(--lp-hover);
 }
 
 .lp-progress-bar-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 4px;
   background: var(--lp-brand);
 }
 
 .lp-progress-bar-tick {
   position: absolute;
-  top: -3px;
+  top: -2px;
   width: 2px;
   height: 12px;
   margin-left: -1px;
@@ -1043,7 +1080,7 @@ fieldset {
 
 .lp-closing p {
   max-width: 38em;
-  margin: 0 auto 18px;
+  margin: 0 auto 16px;
   font-size: 1.08rem;
   line-height: 1.9;
 }
@@ -1087,7 +1124,7 @@ fieldset {
 .lp-not-found-divider {
   width: 64px;
   height: 1px;
-  margin: 24px auto 18px;
+  margin: 24px auto 16px;
   background: var(--lp-border);
 }
 
@@ -1105,7 +1142,7 @@ fieldset {
 
 .lp-not-found-link {
   display: inline-block;
-  padding: 3px 16px;
+  padding: 4px 16px;
   border: 1px solid var(--lp-brand);
   border-radius: 16px;
   color: var(--lp-brand);
@@ -1140,7 +1177,7 @@ fieldset {
   }
 
   .lp-book-meta {
-    gap: 6px 16px;
+    gap: 8px 16px;
   }
 
   .lp-book-meta > li + li::before {
@@ -1148,8 +1185,8 @@ fieldset {
   }
 
   .lp-quick-start {
-    margin-top: 22px;
-    padding: 14px;
+    margin-top: 24px;
+    padding: 16px;
     border: 1px solid var(--lp-border);
     border-radius: 12px;
   }
@@ -1171,18 +1208,18 @@ fieldset {
   }
 
   .lp-guide-paths {
-    gap: 14px;
-    margin-top: 22px;
+    gap: 12px;
+    margin-top: 24px;
   }
 
   .lp-guide-path-group {
-    padding: 14px;
+    padding: 16px;
     border-radius: 12px;
   }
 
   .lp-closing {
     margin-top: 44px;
-    padding: 20px 14px;
+    padding: 20px 16px;
   }
 
   .lp-closing .lp-closing-theme {

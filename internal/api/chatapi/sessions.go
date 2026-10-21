@@ -24,10 +24,13 @@ type SessionJSON struct {
 	KBIDs     []string `json:"kb_ids"`
 	ModelHint string   `json:"model_hint,omitempty"`
 	// ConnectionID is the connection picked for this conversation, if any.
-	ConnectionID string    `json:"connection_id,omitempty"`
-	AllowWeb     bool      `json:"allow_web"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ConnectionID string `json:"connection_id,omitempty"`
+	AllowWeb     bool   `json:"allow_web"`
+	// Running is set on the list when a turn of this conversation has not
+	// ended (queued, running, or waiting on the learner).
+	Running   bool      `json:"running,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func sessionJSON(s runtime.Session) SessionJSON {
@@ -88,9 +91,16 @@ func (h *Handler) listSessions(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, "could not list sessions", "list_failed")
 		return
 	}
+	// A failure to read which ones run costs the dots, not the list.
+	running, err := h.sessions.RunningSessions(r.Context(), userID)
+	if err != nil {
+		running = nil
+	}
 	out := make([]SessionJSON, 0, len(sessions))
 	for _, s := range sessions {
-		out = append(out, sessionJSON(s))
+		j := sessionJSON(s)
+		j.Running = running[s.ID]
+		out = append(out, j)
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{"sessions": out})
 }

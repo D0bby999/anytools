@@ -438,21 +438,21 @@ function EntryCard({
                 );
                 return (
                   <tr key={k} className={s.done ? "bg-part-soft" : undefined} data-part={s.done ? "practise" : undefined}>
-                    <td className="py-1.5 font-mono text-xs text-muted-foreground">{k + 1}</td>
+                    <td className="py-2 font-mono text-xs text-muted-foreground">{k + 1}</td>
                     {mode === "cardio" ? (
                       <>
-                        <td className="py-1.5">{numberField(s.min, "min", t("set.minutes"), "0.5")}</td>
-                        <td className="py-1.5">{numberField(s.speed, "speed", t("set.speed"), "0.1")}</td>
+                        <td className="py-2">{numberField(s.min, "min", t("set.minutes"), "0.5")}</td>
+                        <td className="py-2">{numberField(s.speed, "speed", t("set.speed"), "0.1")}</td>
                       </>
                     ) : (
                       <>
-                        <td className="py-1.5">{numberField(s.weight, "weight", t("set.weight", { unit }), "0.5")}</td>
-                        <td className="py-1.5">
+                        <td className="py-2">{numberField(s.weight, "weight", t("set.weight", { unit }), "0.5")}</td>
+                        <td className="py-2">
                           {mode === "time" ? numberField(s.sec, "sec", t("set.seconds")) : numberField(s.reps, "reps", t("set.reps"))}
                         </td>
                       </>
                     )}
-                    <td className="py-1.5 text-right">
+                    <td className="py-2 text-right">
                       <button
                         type="button"
                         aria-pressed={s.done}

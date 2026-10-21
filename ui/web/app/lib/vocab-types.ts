@@ -11,6 +11,9 @@ export type VocabContext = {
   page?: number;
   chunk_id?: string;
   added_at: string;
+  /** A sentence taken from an open source: whose it is, and its page. */
+  credit?: string;
+  url?: string;
 };
 
 export type VocabSource = { document_id: string; title: string; page?: number };
@@ -55,6 +58,8 @@ export type VocabNote = {
   meaning: string;
   contexts: VocabContext[];
   source?: VocabSource;
+  /** "anki", "library:<level>" (a Library word list) or "" (saved while reading). */
+  origin?: string;
   cards: CardSummary[];
   suspended: boolean;
   created_at: string;

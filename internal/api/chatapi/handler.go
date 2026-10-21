@@ -39,6 +39,11 @@ type SessionStore interface {
 
 	GetMessage(ctx context.Context, userID, messageID uuid.UUID) (*runtime.ChatMessage, error)
 	SetRetell(ctx context.Context, userID, messageID uuid.UUID, retell []byte) error
+
+	PutFeedback(ctx context.Context, userID, messageID uuid.UUID, rating, category, comment string) (*pg.ChatFeedback, error)
+	DeleteFeedback(ctx context.Context, userID, messageID uuid.UUID) error
+	ListFeedback(ctx context.Context, userID, sessionID uuid.UUID) ([]pg.ChatFeedback, error)
+	RunningSessions(ctx context.Context, userID uuid.UUID) (map[uuid.UUID]bool, error)
 }
 
 // TurnReader is the read half of turn persistence: the row and its event log.
@@ -120,6 +125,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/turns/{id}/cancel", h.cancelTurn)     // budget: none
 	mux.HandleFunc("POST /v1/turns/{id}/answer", h.answerTurn)     // budget: none
 	mux.HandleFunc("POST /v1/chat/messages/{id}/retell", h.retell) // budget: none
+	mux.HandleFunc("GET /v1/chat/sessions/{id}/feedback", h.listFeedback)
+	mux.HandleFunc("PUT /v1/chat/messages/{id}/feedback", h.putFeedback)       // budget: none
+	mux.HandleFunc("DELETE /v1/chat/messages/{id}/feedback", h.deleteFeedback) // budget: none
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
@@ -136,6 +144,9 @@ func Patterns() []string {
 		"POST /v1/turns/{id}/cancel",
 		"POST /v1/turns/{id}/answer",
 		"POST /v1/chat/messages/{id}/retell",
+		"GET /v1/chat/sessions/{id}/feedback",
+		"PUT /v1/chat/messages/{id}/feedback",
+		"DELETE /v1/chat/messages/{id}/feedback",
 	}
 }
 

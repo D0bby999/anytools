@@ -112,7 +112,7 @@ export function OpenQuestions({ questions }: { questions: string[] }) {
   return (
     <DocSection title={t("open.title")} id="lp-open-questions">
       <p className="mt-4 text-base leading-[1.85]">{t("open.body")}</p>
-      <ul className="mt-3 list-disc pl-5 text-base leading-[1.85] [&>li+li]:mt-2">
+      <ul className="mt-3 text-base leading-[1.85] [&>li+li]:mt-2">
         {questions.map((q) => (
           <li key={q}>
             {q}

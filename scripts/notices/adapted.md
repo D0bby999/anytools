@@ -2832,3 +2832,102 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## free-programming-books (the Library's courses and books)
+
+The Library (the private design notes, phase 2) lists the courses and books of the
+Free Ebook Foundation's [free-programming-books](https://github.com/EbookFoundation/free-programming-books)
+at commit `eb55e4e8c3ac3a57f89bd36258ab7f826d3a74a6`: its English, Vietnamese, Spanish and
+Brazilian Portuguese course lists, its English books by language and by subject, and its
+Vietnamese, Spanish and Brazilian Portuguese book lists. `ui/web/scripts/library/free-programming-books.mjs`
+reads them into `ui/web/app/data/library/free-programming-books.json`: each entry's title, link,
+author, notes and section, links that are not https and repeated links left out. The lists are
+licensed under the Creative Commons Attribution 4.0 International licence (CC BY 4.0,
+https://creativecommons.org/licenses/by/4.0/); this is a changed form of them (reordered into one
+file, filtered as said). The Library credits the project under every page of results that shows
+its entries. The courses and books themselves belong to their authors; AnyLearn links to them and
+copies none.
+
+## free-exercise-db and wger (Body's exercise library)
+
+Body's exercise library (the private design notes, phase 3) adds the exercises and
+photos of [free-exercise-db](https://github.com/yuhonas/free-exercise-db) by yuhonas, at commit
+`f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5`, released into the public domain under the Unlicense.
+`scripts/bodylibrary` writes its exercises into `internal/body/library.json` (ids `fe-<its id>`; its
+muscles and equipment renamed to the library's words), or gives an existing exercise with the same
+name its photos. The photos are redistributed unchanged from the commit's archive (sha256
+`ad2770ed89335c8b79da12854cc684d419e0f482de69b826c4a31bfac2405eab`, `exercises/*/0.jpg` and `1.jpg`)
+and served under `/tool-runtime/free-exercise-db@0.0.0-f00c92c/`.
+
+Some exercises carry their Spanish or Portuguese name from [wger](https://wger.de) (the wger
+project's exercise database, read through its API on 2026-10-21), and a link to the exercise's page
+on wger, which has its video when there is one. Each name keeps the licence wger gives it (CC BY-SA
+4.0 or 3.0, CC BY 4.0, or CC0) and its author, both shown beside it. No wger image or video is
+copied.
+
+## Exam word lists: NGSL and NAWL, HSK, JLPT
+
+The Library's word lists (the private design notes, phase 4) are written into
+`ui/web/app/data/library/words/` by `ui/web/scripts/library/word-lists.mjs` from files pinned by
+sha256:
+
+- **NGSL 1.2** and **NAWL 1.2**, by Browne, C., Culligan, B., and Phillips, J.
+  (newgeneralservicelist.com), with their definitions in easy English, licensed under the Creative
+  Commons Attribution-ShareAlike 4.0 International licence (CC BY-SA 4.0,
+  https://creativecommons.org/licenses/by-sa/4.0/). Changed: NGSL ordered by its frequency rank and
+  cut into bands of 500, NAWL into two halves, the one NGSL word without a definition left out. The
+  files that hold them (`ngsl.json`, `nawl.json`) are under CC BY-SA 4.0 too.
+- **HSK 2.0 and 3.0** word lists from drkameleon/complete-hsk-vocabulary at
+  `7ac65bf1a6387d35f1ade478906172a19311c7f9`, MIT licence, Copyright (c) 2026 Yanis Zafirópulos
+  (aka Dr.Kameleon). Its English meanings come from CC-CEDICT (MDBG), licensed under CC BY-SA 4.0;
+  `hsk2.json` and `hsk3.json`, which keep each word's first pinyin and meanings, are under CC BY-SA
+  4.0.
+- **JLPT N5–N1** from jamsinclair/open-anki-jlpt-decks at
+  `1ad66734417aca9dbcca6b2d5ee440cb13ab3ba0`, MIT licence, Copyright (c) 2020 Jamie Sinclair, built
+  from Jonathan Waller's JLPT lists (tanos.co.uk), which he licenses under Creative Commons
+  Attribution ("Everything on this site (that I'm not selling), is licenced under Creative Commons
+  BY", his Sharing and copyrights page, archived at
+  https://web.archive.org/web/2019/http://www.tanos.co.uk/jlpt/sharing/). Changed: the reading put
+  before the meaning, repeated words left out.
+
+The Library and each word added from a list name the list, its level and this credit.
+
+## Question sets: Open Trivia DB, ARC, GSM8K, and Exercism's whole Python track
+
+The Library's question sets (the private design notes, phase 5) are written by
+`scripts/quizsets` into `internal/capabilities/quiz/starters/sets/*.json.gz`, each question's
+explanation ending with its credit:
+
+- **Open Trivia DB** (opentdb.com): its 5,299 verified questions, read through its API on 2026-10-21,
+  licensed under the Creative Commons Attribution-ShareAlike 4.0 International licence (CC BY-SA
+  4.0). Changed: grouped by category in parts of 100, easiest first, a multiple-choice question's
+  options put in an order fixed by its text, repeated questions left out. `trivia.json.gz` is under
+  CC BY-SA 4.0.
+- **ARC, the AI2 Reasoning Challenge** (Allen Institute for AI), Easy and Challenge, from the
+  Hugging Face dataset `allenai/ai2_arc` at revision `210d026faf9955653af8916fad021475a3f00453`,
+  licensed under CC BY-SA 4.0. Changed: options relabelled A to D, repeated questions left out, in
+  parts of 100. `arc.json.gz` is under CC BY-SA 4.0.
+- **GSM8K** from openai/grade-school-math at `3101c7d5072418e28b9008a6636bde82a006892c`, MIT
+  licence, Copyright (c) 2021 OpenAI. Changed: the answer is the number after "####", without
+  thousands separators; the worked steps are kept without their `<<calculator>>` notes.
+
+The Python set now holds Exercism's whole Python practice track at
+`6105f6d9d3ef66ce3d5c8f529d2882af3d76b706` (MIT, as above) but the deprecated exercises, two whose
+example solution does not pass its tests in Pyodide, and seven whose instructions are longer than
+a question's 4,000 characters; for twelve others the introduction is left out and the instructions
+kept.
+
+Hendrycks's MATH dataset is not used: its problems come from AMC and AIME papers, whose copyright
+its MIT licence does not cover.
+
+## Example sentences and recordings: Tatoeba, Lingua Libre, Wiktionary
+
+A saved word's "Sentences and sound" (the private design notes, phase 6) asks, from
+AnyTools' server and only when the learner opens it, [Tatoeba](https://tatoeba.org)'s API for
+sentences with the word and their translations, Wikimedia Commons for
+[Lingua Libre](https://lingualibre.org)'s recordings of it, and for English the
+[Free Dictionary API](https://dictionaryapi.dev) for Wiktionary's recordings. Nothing is bundled.
+Tatoeba's sentences are under CC BY 2.0 FR (some CC0), each shown with its author and licence and a
+link to its page; a sentence the learner takes is kept with that credit and link. Recordings are
+under the licence Commons gives each (mostly CC BY-SA 4.0 or CC0), shown with the speaker and a
+link to the file's page; they are played through AnyTools' server and not stored.

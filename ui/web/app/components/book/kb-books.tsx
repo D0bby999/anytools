@@ -70,7 +70,7 @@ export function KbBooks({ kbId, books, n }: { kbId: string; books: Book[]; n?: n
 
       {books.length > 0 ? (
         // A dated list (P4): **title** · progress.
-        <ul className="mt-6 list-disc space-y-2 pl-5 leading-[1.85]">
+        <ul className="mt-6 space-y-2 leading-[1.85]">
           {books.map((b) => {
             const written = b.chapters.filter((c) => c.status === "ready").length;
             return (

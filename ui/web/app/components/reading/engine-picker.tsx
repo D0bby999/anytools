@@ -142,7 +142,7 @@ export function EnginePicker({ estimate, recording = false }: { estimate: Transc
                     disabled={!o.usable}
                     onChange={() => setChosen(value)}
                     aria-describedby={`${id}-detail`}
-                    className="mt-1.5 size-4 shrink-0"
+                    className="mt-2 size-4 shrink-0"
                   />
                   <div className="min-w-0">
                     <label htmlFor={id} className="text-sm font-medium">

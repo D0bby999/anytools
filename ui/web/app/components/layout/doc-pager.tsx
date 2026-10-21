@@ -32,7 +32,7 @@ export function usePager(): Pager | null {
 }
 
 const CARD =
-  "flex h-full flex-col rounded-md border px-4 pt-[11px] pb-[13px] transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+  "flex h-full flex-col rounded-md border px-4 py-3 transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 /**
  * VPDocFooter's prev-next: 64px under the page, a 1px rule, then two cards
@@ -43,7 +43,7 @@ export function DocPager({ pager }: { pager: Pager | null }) {
   const { t } = useTranslation("common");
   if (!pager || (!pager.prev && !pager.next)) return null;
   return (
-    <nav aria-label={t("shell.pager")} className="mt-16 grid gap-y-2 border-t pt-6 sm:grid-cols-2 sm:gap-x-4">
+    <nav aria-label={t("shell.pager")} className="mt-12 grid gap-y-2 border-t pt-6 sm:grid-cols-2 sm:gap-x-4">
       {pager.prev ? (
         <Link to={pager.prev.to} rel="prev" className={CARD}>
           <span className="text-xs leading-5 font-medium text-muted-foreground">{t("shell.previous")}</span>

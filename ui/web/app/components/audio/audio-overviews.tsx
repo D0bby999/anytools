@@ -54,7 +54,7 @@ export function AudioOverviews({
       <NewOverview kbId={kbId} reportId={reportId} />
       {overviews.length > 0 ? (
         // A dated list (P4): one overview a line, its player under it.
-        <ul className="mt-6 list-disc space-y-4 pl-5 leading-[1.85]">
+        <ul className="mt-6 space-y-4 leading-[1.85]">
           {overviews.map((o) => (
             <li key={o.id}>
               <OverviewRow overview={o} />

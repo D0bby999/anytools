@@ -351,7 +351,7 @@ func (c *Capability) keepPartial(ctx context.Context, tc *runtime.TurnContext, p
 		return
 	}
 	work.MS = time.Since(started).Milliseconds()
-	attachments, _ := json.Marshal(map[string]any{"sources": res.Sources, "work": work, "incomplete": true})
+	attachments, _ := json.Marshal(map[string]any{"sources": res.Sources, "work": work, "incomplete": true, "served": served(tc)})
 	writeCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 	defer cancel()
 	if _, err := c.messages.AppendMessage(writeCtx, runtime.ChatMessage{
@@ -360,6 +360,13 @@ func (c *Capability) keepPartial(ctx context.Context, tc *runtime.TurnContext, p
 	}); err != nil {
 		slog.Warn("chat: keep partial answer", "error", err, "turn", tc.Turn.ID)
 	}
+}
+
+// served is who answered, kept on the answer so a rating of it names the
+// provider and model server-side (chat_feedback).
+func served(tc *runtime.TurnContext) map[string]string {
+	provider, model := tc.Served()
+	return map[string]string{"provider": provider, "model": model}
 }
 
 func concat(a, b []runtime.Message) []runtime.Message {
@@ -413,7 +420,7 @@ func (c *Capability) deliver(ctx context.Context, tc *runtime.TurnContext, answe
 	})
 	tc.Emit(runtime.Event{Type: runtime.EvStageEnd, Stage: stageAnswering, Source: c.Name()})
 
-	stored := map[string]any{"sources": res.Sources, "work": work}
+	stored := map[string]any{"sources": res.Sources, "work": work, "served": served(tc)}
 	if len(followUps) > 0 {
 		stored["suggestions"] = followUps
 	}

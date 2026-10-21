@@ -33,7 +33,8 @@ const STATUS_BADGE: Record<DocumentStatus, BadgeType> = {
   needs_transcript: "warning",
 };
 
-function StatusCell({ document }: { document: KBDocument }) {
+/** A document's status badge and, when it failed, why; also on the Mine pages. */
+export function StatusCell({ document }: { document: KBDocument }) {
   const { t } = useTranslation("knowledge");
   const { t: tc } = useTranslation("common");
   // A parse that could not reach the original in the learner's Drive says
@@ -159,7 +160,7 @@ export function DocumentTable({
                 <Flyout
                   label={t("table.actionsFor", { title: doc.title })}
                   icon={<span aria-hidden="true">{t("table.actions")}</span>}
-                  buttonClassName="h-8 rounded-sm px-2 whitespace-nowrap"
+                  buttonClassName="-my-1 h-8 rounded-sm px-2 whitespace-nowrap"
                   menuClassName="top-full mt-1"
                 >
                   {doc.status === "ready" || doc.status === "needs_transcript" ? (
@@ -264,7 +265,7 @@ function LinkMeta({ kbId, document: doc }: { kbId: string; document: KBDocument 
             <button
               type="submit"
               disabled={working || !done}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-1 text-xs text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md px-1 text-xs text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
             >
               <RefreshCw aria-hidden="true" className={cn("size-3.5", working && "motion-safe:animate-spin")} />
               {working ? t("sync.resyncing") : t("sync.resync")}

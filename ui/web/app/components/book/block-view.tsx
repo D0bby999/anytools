@@ -128,7 +128,7 @@ function BlockBody({ block }: { block: Block }) {
       return (
         <div>
           <RichText text={e.problem ?? ""} sources={block.sources} listen={false} />
-          <ol className="mt-3 list-decimal space-y-2 pl-6">
+          <ol className="lp-steps mt-3 space-y-2">
             {(e.steps ?? []).map((step, i) => (
               <li key={i}>
                 <RichText text={step} sources={block.sources} listen={false} />

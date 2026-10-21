@@ -1,6 +1,7 @@
 package pg
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -622,7 +623,7 @@ func (s *VocabStore) ImportNotes(ctx context.Context, b vocab.ImportBatch) (*voc
 		WITH pending AS (
 		  SELECT c.due_at FROM vocab_cards c
 		    JOIN vocab_notes n ON n.id = c.note_id AND n.user_id = c.user_id
-		   WHERE c.user_id = $1 AND n.origin = 'anki' AND c.kind = 'recognition' AND c.reps = 0 AND NOT c.suspended)
+		   WHERE c.user_id = $1 AND n.origin <> '' AND c.kind = 'recognition' AND c.reps = 0 AND NOT c.suspended)
 		SELECT max(due_at), count(*) FILTER (WHERE due_at = (SELECT max(due_at) FROM pending)) FROM pending`,
 		b.UserID).Scan(&last, &count); err != nil {
 		return nil, fmt.Errorf("read import pace: %w", err)
@@ -646,9 +647,9 @@ func (s *VocabStore) ImportNotes(ctx context.Context, b vocab.ImportBatch) (*voc
 		err := tx.QueryRow(ctx, `
 			INSERT INTO vocab_notes (user_id, term, lang, meaning, contexts, decision, record, origin,
 			                         decided_at, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, 'learn', '{}', 'anki', $6, $6, $6)
+			VALUES ($1, $2, $3, $4, $5, 'learn', '{}', $7, $6, $6, $6)
 			ON CONFLICT (user_id, lang, lower(term)) DO NOTHING
-			RETURNING id`, b.UserID, n.Term, b.Lang, n.Meaning, raw, b.Now).Scan(&id)
+			RETURNING id`, b.UserID, n.Term, b.Lang, n.Meaning, raw, b.Now, cmp.Or(b.Origin, vocab.OriginAnki)).Scan(&id)
 		if errors.Is(err, pgx.ErrNoRows) {
 			res.Duplicates++
 			continue
@@ -1059,4 +1060,54 @@ func SetFlashInReview(ctx context.Context, q interface {
 		return 0, fmt.Errorf("flash cards in review: %w", err)
 	}
 	return int(tag.RowsAffected()), nil
+}
+
+// AddSentence implements vocab.SentenceStore: c becomes the note's newest
+// context (a sentence already there is not repeated; at most
+// vocab.MaxContexts), and a note being learned gets its cloze card.
+func (s *VocabStore) AddSentence(ctx context.Context, userID, noteID uuid.UUID, c vocab.Context, newCard learning.Card, now time.Time) (*vocab.Note, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("begin add sentence: %w", err)
+	}
+	defer tx.Rollback(context.WithoutCancel(ctx)) //nolint:errcheck
+
+	var (
+		raw      []byte
+		decision string
+	)
+	err = tx.QueryRow(ctx, `SELECT contexts, decision FROM vocab_notes WHERE id = $1 AND user_id = $2 FOR UPDATE`, noteID, userID).Scan(&raw, &decision)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, vocab.ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("find vocab note: %w", err)
+	}
+	var existing []vocab.Context
+	_ = json.Unmarshal(raw, &existing)
+	merged := []vocab.Context{c}
+	for _, e := range existing {
+		if e.Sentence != c.Sentence && len(merged) < vocab.MaxContexts {
+			merged = append(merged, e)
+		}
+	}
+	out, _ := json.Marshal(merged)
+	if _, err := tx.Exec(ctx, `UPDATE vocab_notes SET contexts = $3, updated_at = $4 WHERE id = $1 AND user_id = $2`, noteID, userID, out, now); err != nil {
+		return nil, fmt.Errorf("add vocab sentence: %w", err)
+	}
+	// A cloze card if the note has none; one it has, suspended or not, is left as it is.
+	if vocab.HasCards(decision) {
+		card, _ := json.Marshal(newCard)
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO vocab_cards (user_id, note_id, kind, fsrs_card, due_at, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $6)
+			ON CONFLICT (note_id, kind) DO NOTHING`,
+			userID, noteID, vocab.KindCloze, card, newCard.Due, now); err != nil {
+			return nil, fmt.Errorf("create vocab cloze card: %w", err)
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return nil, fmt.Errorf("add vocab sentence: %w", err)
+	}
+	return s.GetNote(ctx, userID, noteID)
 }

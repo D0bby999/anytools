@@ -378,4 +378,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   );
 }
 
-const LINK = "inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover";
+// Every LINK here sits in a table cell: a text link on the cell's first line
+// (a 44px box centred its text 10px below the row's other cells), with an
+// invisible 48px hit area so a finger still finds it.
+const LINK = "relative text-sm leading-6 font-medium text-primary underline underline-offset-4 hover:text-primary-hover after:absolute after:inset-x-0 after:-inset-y-3";

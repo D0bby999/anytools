@@ -19,6 +19,11 @@ import { Button } from "~/components/ui/button";
 import { DecisionFields } from "~/components/vocab/decision-picker";
 import { WeekNotice } from "~/components/vocab/week-notice";
 import { languageName, readingKind } from "~/lib/languages";
+import { wordListOf } from "~/lib/library/word-lists";
+import { WordSources } from "~/components/vocab/word-sources";
+
+/** Languages Tatoeba and Lingua Libre are asked about (wordsources.ISO3). */
+const SOURCE_LANGS = new Set(["ar","bg","ca","cs","da","de","el","en","eo","es","et","fa","fi","fr","he","hi","hu","id","it","ja","ko","lt","lv","ms","nb","nl","no","pl","pt","ro","ru","sk","sl","sr","sv","th","tl","tr","uk","ur","vi","zh"]);
 
 type ListData = { updated?: string; deleted?: string; week?: Week; errorKey?: string; errorDetail?: string };
 type AuditData = { auditAdded?: number; auditFull?: boolean; errorKey?: string; errorDetail?: string };
@@ -192,7 +197,7 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   // "Learn this" (another decision → learn), or "Practise using it".
-  const [panel, setPanel] = useState<"learn" | "practise" | null>(null);
+  const [panel, setPanel] = useState<"learn" | "practise" | "sources" | null>(null);
   const busy = fetcher.state !== "idle";
   const learning = note.decision === "learn";
   const saved = fetcher.state === "idle" && fetcher.data?.updated === note.id;
@@ -289,10 +294,22 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
       ) : (
         <>
           {note.meaning ? <p className="mt-1 text-sm leading-prose text-muted-foreground">{note.meaning}</p> : null}
+          <FromWordList origin={note.origin} />
           {!learning ? <RecordLines note={note} /> : null}
           {note.contexts[0] ? (
             <p className="mt-1 text-xs leading-snug text-faint" lang={note.lang}>
               “{note.contexts[0].sentence}”
+              {note.contexts[0].credit ? (
+                <span lang="" className="ml-1">
+                  {note.contexts[0].url ? (
+                    <a href={note.contexts[0].url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                      {note.contexts[0].credit}
+                    </a>
+                  ) : (
+                    note.contexts[0].credit
+                  )}
+                </span>
+              ) : null}
             </p>
           ) : null}
           {fetcher.data?.week && fetcher.data.updated === note.id ? <WeekNotice week={fetcher.data.week} /> : null}
@@ -300,6 +317,12 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
             <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(true)}>
               {t("list.edit")}
             </Button>
+            {/* Sentences and recordings from open sources, for a language they cover. */}
+            {SOURCE_LANGS.has(note.lang.split("-")[0]!) ? (
+              <Button type="button" size="sm" variant="ghost" aria-expanded={panel === "sources"} onClick={() => setPanel(panel === "sources" ? null : "sources")}>
+                {t("sources.open")}
+              </Button>
+            ) : null}
             {learning ? (
               <>
                 <Button
@@ -409,6 +432,7 @@ function WordRow({ note, selectable }: { note: VocabNote; selectable: boolean })
           </div>
         </fetcher.Form>
       ) : null}
+      {panel === "sources" ? <WordSources note={note} onClose={() => setPanel(null)} /> : null}
       {panel === "practise" ? (
         <fetcher.Form method="post" className="mt-2 grid gap-2 border-t pt-2">
           <input type="hidden" name="intent" value="practise" />
@@ -464,3 +488,20 @@ function RecordLines({ note }: { note: VocabNote }) {
     </dl>
   );
 }
+
+/** The Library word list a word came from, credited (the private design notes, phase 4). */
+function FromWordList({ origin }: { origin?: string }) {
+  const { t } = useTranslation("library");
+  const from = wordListOf(origin);
+  if (!from) return null;
+  return (
+    <p className="mt-1 text-xs leading-snug text-muted-foreground">
+      {t("fromList", { list: from.list.name, level: from.level.name })}
+      {" · "}
+      <a href={from.list.source} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+        {from.list.credit}
+      </a>
+    </p>
+  );
+}
+

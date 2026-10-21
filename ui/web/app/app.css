@@ -374,6 +374,31 @@
   }
 }
 
+/* Numbered steps without the browser's "1." (DESIGN.md, Lists): a quiet
+   tabular numeral in a 20px column, the text 28px in. */
+@utility lp-steps {
+  counter-reset: lp-step;
+  list-style: none;
+  padding-left: 0;
+  & > li {
+    position: relative;
+    padding-left: 28px;
+    counter-increment: lp-step;
+  }
+  & > li::before {
+    content: counter(lp-step);
+    position: absolute;
+    left: 0;
+    width: 20px;
+    color: var(--lp-ink-3);
+    font-family: var(--font-sans);
+    font-size: 0.875em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
 @utility lp-tab {
   display: inline-flex;
   align-items: center;
@@ -890,4 +915,55 @@ math-field {
 }
 math-field::part(menu-toggle) {
   display: none;
+}
+
+/* Chat (plan 261021-1100, after postclaw's chat surface). A live step's label
+   carries a moving highlight through its own glyphs while the step runs
+   (postclaw's TextShimmer, value for value): the "still being produced" signal
+   for a label, which never spins. Reduced motion keeps plain text. */
+.lp-live-label[data-live] {
+  background-image: linear-gradient(
+    90deg,
+    currentColor calc(50% - var(--lp-live-spread)),
+    color-mix(in oklab, currentColor 45%, transparent),
+    currentColor calc(50% + var(--lp-live-spread))
+  );
+  background-position: 100% center;
+  background-repeat: no-repeat;
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: lp-live-label 1.5s cubic-bezier(0.33, 0, 0.67, 1) infinite;
+}
+@keyframes lp-live-label {
+  66.6667%,
+  100% {
+    background-position: 0% center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-live-label[data-live] {
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
+  }
+}
+
+/* Find in a conversation (components/chat/search-bar.tsx): every match in the
+   warning tint, the current one in the highlighter, drawn with the CSS Custom
+   Highlight API so the exact words are marked inside a rendered answer. */
+::highlight(lp-chat-match) {
+  background-color: var(--lp-warning-soft);
+}
+::highlight(lp-chat-match-current) {
+  background-color: var(--lp-highlight);
+  color: var(--lp-highlight-fg);
+}
+/* Where the Highlight API is missing: the block holding the current match is
+   outlined on all four sides. */
+[data-search-current] {
+  outline: 2px solid var(--lp-highlight);
+  outline-offset: 4px;
+  border-radius: 4px;
 }

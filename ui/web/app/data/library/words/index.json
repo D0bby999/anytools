@@ -1,0 +1,182 @@
+[
+ {
+  "list": "ngsl",
+  "name": "New General Service List (NGSL 1.2)",
+  "language": "en",
+  "licence": "cc-by-sa",
+  "source": "https://www.newgeneralservicelist.com/new-general-service-list",
+  "credit": "NGSL 1.2 by Browne, C., Culligan, B., and Phillips, J., CC BY-SA 4.0",
+  "levels": [
+   {
+    "id": "ngsl-1",
+    "name": "1–500",
+    "count": 500
+   },
+   {
+    "id": "ngsl-2",
+    "name": "501–1000",
+    "count": 500
+   },
+   {
+    "id": "ngsl-3",
+    "name": "1001–1500",
+    "count": 500
+   },
+   {
+    "id": "ngsl-4",
+    "name": "1501–2000",
+    "count": 500
+   },
+   {
+    "id": "ngsl-5",
+    "name": "2001–2500",
+    "count": 500
+   },
+   {
+    "id": "ngsl-6",
+    "name": "2501–2808",
+    "count": 308
+   }
+  ]
+ },
+ {
+  "list": "nawl",
+  "name": "New Academic Word List (NAWL 1.2)",
+  "language": "en",
+  "licence": "cc-by-sa",
+  "source": "https://www.newgeneralservicelist.com/new-academic-word-list",
+  "credit": "NAWL 1.2 by Browne, C., Culligan, B., and Phillips, J., CC BY-SA 4.0",
+  "levels": [
+   {
+    "id": "nawl-1",
+    "name": "1–480",
+    "count": 480
+   },
+   {
+    "id": "nawl-2",
+    "name": "481–958",
+    "count": 478
+   }
+  ]
+ },
+ {
+  "list": "hsk3",
+  "name": "HSK 3.0",
+  "language": "zh",
+  "licence": "cc-by-sa",
+  "source": "https://github.com/drkameleon/complete-hsk-vocabulary",
+  "credit": "drkameleon/complete-hsk-vocabulary (MIT); meanings from CC-CEDICT, CC BY-SA 4.0",
+  "levels": [
+   {
+    "id": "hsk3-1",
+    "name": "1",
+    "count": 506
+   },
+   {
+    "id": "hsk3-2",
+    "name": "2",
+    "count": 750
+   },
+   {
+    "id": "hsk3-3",
+    "name": "3",
+    "count": 953
+   },
+   {
+    "id": "hsk3-4",
+    "name": "4",
+    "count": 972
+   },
+   {
+    "id": "hsk3-5",
+    "name": "5",
+    "count": 1059
+   },
+   {
+    "id": "hsk3-6",
+    "name": "6",
+    "count": 1123
+   },
+   {
+    "id": "hsk3-7",
+    "name": "7–9",
+    "count": 5606
+   }
+  ]
+ },
+ {
+  "list": "hsk2",
+  "name": "HSK 2.0",
+  "language": "zh",
+  "licence": "cc-by-sa",
+  "source": "https://github.com/drkameleon/complete-hsk-vocabulary",
+  "credit": "drkameleon/complete-hsk-vocabulary (MIT); meanings from CC-CEDICT, CC BY-SA 4.0",
+  "levels": [
+   {
+    "id": "hsk2-1",
+    "name": "1",
+    "count": 150
+   },
+   {
+    "id": "hsk2-2",
+    "name": "2",
+    "count": 147
+   },
+   {
+    "id": "hsk2-3",
+    "name": "3",
+    "count": 298
+   },
+   {
+    "id": "hsk2-4",
+    "name": "4",
+    "count": 598
+   },
+   {
+    "id": "hsk2-5",
+    "name": "5",
+    "count": 1298
+   },
+   {
+    "id": "hsk2-6",
+    "name": "6",
+    "count": 2500
+   }
+  ]
+ },
+ {
+  "list": "jlpt",
+  "name": "JLPT N5–N1",
+  "language": "ja",
+  "licence": "cc-by",
+  "source": "https://github.com/jamsinclair/open-anki-jlpt-decks",
+  "credit": "Jonathan Waller's JLPT lists (tanos.co.uk), CC BY; jamsinclair/open-anki-jlpt-decks (MIT)",
+  "levels": [
+   {
+    "id": "jlpt-n5",
+    "name": "N5",
+    "count": 710
+   },
+   {
+    "id": "jlpt-n4",
+    "name": "N4",
+    "count": 666
+   },
+   {
+    "id": "jlpt-n3",
+    "name": "N3",
+    "count": 2103
+   },
+   {
+    "id": "jlpt-n2",
+    "name": "N2",
+    "count": 1898
+   },
+   {
+    "id": "jlpt-n1",
+    "name": "N1",
+    "count": 2685
+   }
+  ]
+ }
+]

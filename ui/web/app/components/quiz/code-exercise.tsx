@@ -194,7 +194,7 @@ export function CodeExercise({
 
       <div {...panel("tests")}>
         <h4 className="mt-4 text-sm font-semibold">{t("code.testsTitle", { count: declared.length })}</h4>
-        <ul className="mt-1 list-disc pl-5 text-sm text-muted-foreground">
+        <ul className="mt-1 text-sm text-muted-foreground space-y-1">
           {declared.map((n) => (
             <li key={n}>{testLabel(n)}</li>
           ))}

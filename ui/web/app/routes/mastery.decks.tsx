@@ -8,6 +8,7 @@ import { Details } from "~/components/doc/details";
  * decks, the free ones added in one tap; and an Anki or CrowdAnki file read
  * in the browser and sent as cards (routes/mastery.decks.import.ts).
  */
+import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/mastery.decks";
 import { appTitle } from "~/lib/app-title";
@@ -100,6 +101,11 @@ export default function Decks({ loaderData }: Route.ComponentProps) {
           {t("decks.library.title")}
         </h2>
         <DeckLibrary decks={decks} />
+        <p className="mt-3 text-sm">
+          <Link to="/library" className="text-primary underline underline-offset-4">
+            {t("decks.library.more")}
+          </Link>
+        </p>
       </section>
 
       <div id="lp-decks-file"><Details summary={t("decks.file.title")}>

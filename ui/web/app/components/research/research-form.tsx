@@ -54,7 +54,7 @@ export function ResearchForm<T>({
 
       <fieldset className="my-2">
         <legend className="text-sm leading-6 font-medium">{t("form.mode")}</legend>
-        <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {(["quick", "deep"] as const).map((mode) => (
             <label key={mode} className={CHOICE + " items-start"}>
               <input type="radio" name="mode" value={mode} defaultChecked={mode === "quick"} className="mt-1" />

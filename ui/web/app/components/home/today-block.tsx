@@ -73,7 +73,7 @@ export function TodayBlock({ today, lowDay }: { today: TodayState | null; lowDay
           </Link>
           <dl className="mt-3 border-t border-part-line">
             {rows.map((r) => (
-              <div key={r.label} className="grid gap-x-4 border-b border-part-line py-2.5 text-sm sm:grid-cols-[10rem_1fr]">
+              <div key={r.label} className="grid gap-x-4 border-b border-part-line py-3 text-sm sm:grid-cols-[10rem_1fr]">
                 <dt className="text-muted-foreground">{r.label}</dt>
                 <dd className="font-medium">{r.value || <span className="font-normal text-faint">{t("today.none")}</span>}</dd>
               </div>

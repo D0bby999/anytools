@@ -45,7 +45,7 @@ function PageList({ pages, nested = false }: { pages: NavPage[]; nested?: boolea
   const { t } = useTranslation("common");
 
   return (
-    <ul className={nested ? "mt-2 list-disc space-y-2 pl-5" : "mt-4 list-disc space-y-2 pl-5 leading-prose"}>
+    <ul className={nested ? "mt-2 space-y-2 pl-4" : "mt-4 space-y-2 leading-prose"}>
       {pages.map((page) => (
         <li key={page.to}>
           <PageLink page={page} />{NOTE_JOIN}<span className="text-muted-foreground">{t(descriptionKey(page))}</span>

@@ -176,6 +176,7 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		"PATCH /v1/exams/templates/{id}":           map[string]any{"title": "x"},
 		"PUT /v1/exams/{id}/answers":               map[string]any{"answers": []any{}},
 		"POST /v1/chat/messages/{id}/retell":       map[string]any{"text": "x"},
+		"PUT /v1/chat/messages/{id}/feedback":      map[string]any{"rating": "good"},
 		// up methods, phase 0: a valid revision and title, so the probe
 		// reaches the owner's row lock.
 		"PATCH /v1/worksheets/{id}":     map[string]any{"revision": time.Now().UTC().Format(time.RFC3339Nano), "title": "x"},
@@ -186,6 +187,9 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		// up methods, phase 3: a valid scenario, so the probe reaches the
 		// owner's row lock.
 		"POST /v1/vocab/{id}/production": map[string]any{"scenario": "x"},
+		// Library phase 6: a valid sentence and credit, so the probe reaches
+		// the note lookup.
+		"POST /v1/vocab/{id}/sentence": map[string]any{"sentence": "x", "credit": "Tatoeba"},
 		// up methods, phase 20: a well-formed item key, so the probe reaches
 		// the knowledge base's ownership check (which runs before the
 		// learner's key is read or Zotero is called).
@@ -1322,6 +1326,9 @@ var writesWithoutResourceIDs = map[string]string{
 	// up-methods phase 11.
 	"PUT /v1/me/own-version-first":       "the caller's own on/off switch",
 	"POST /v1/chat/messages/{id}/retell": "the learner's retell text; the path's answer is probed",
+	// Plan 261021-1100 phase 1: ratings.
+	"PUT /v1/chat/messages/{id}/feedback":    "a rating, a reason and a comment; the path's answer is probed",
+	"DELETE /v1/chat/messages/{id}/feedback": "no body",
 	// up methods, phase 0.
 	"DELETE /v1/worksheets/{id}": "no body",
 	// Up-methods phase 7. The upload's body is the audio and its length.
@@ -1356,6 +1363,8 @@ var writesWithoutResourceIDs = map[string]string{
 	"POST /v1/worksheets/{id}/diagnose": "a pass number, 1 to 5; the draft is read from the path's worksheet",
 	// up methods, phase 3.
 	"POST /v1/vocab/{id}/production": "the learner's scenario and a confusable expression; the path's note is probed",
+	// Library phase 6.
+	"POST /v1/vocab/{id}/sentence": "a sentence, its credit and its https link, all text; the path's note is probed",
 	// up methods, phase 20.
 	"POST /v1/kb/{id}/zotero/items": "item_key names an item in the caller's own Zotero library, re-read from Zotero on the caller's key, not a row; the path's knowledge base is probed",
 	// drive-user-storage phase 2. The storage routes name nothing but the

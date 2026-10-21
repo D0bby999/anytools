@@ -37,23 +37,33 @@ describe("the sidebar", () => {
     expect(bank.textContent).toContain("Current section");
     // The parent of the current page is marked has-active (ink), not current.
     expect(screen.getByRole("link", { name: "Quiz" })).not.toHaveAttribute("aria-current");
-    expect(group("Settings")).toHaveAttribute("aria-expanded", "false");
+    // Settings is one row to its page (owner, 2026-10-21); its sections are
+    // the page's own tabs, so none of them is listed here.
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/settings");
+    expect(screen.getByRole("link", { name: "Settings" })).not.toHaveAttribute("aria-current");
     expect(screen.queryByRole("link", { name: "Account" })).toBeNull();
     expect(screen.getByRole("button", { name: "Toggle Mastery" })).toHaveAttribute("aria-expanded", "false");
   });
 
   it("toggles a group by click and by Space", async () => {
     show("/home");
-    const settings = group("Settings");
-    fireEvent.click(settings);
-    expect(settings).toHaveAttribute("aria-expanded", "true");
-    const items = document.getElementById(settings.getAttribute("aria-controls")!)!;
-    expect(within(items).getAllByRole("link")).toHaveLength(7);
-    settings.focus();
+    const appendix = group("Appendix");
+    fireEvent.click(appendix);
+    expect(appendix).toHaveAttribute("aria-expanded", "true");
+    const items = document.getElementById(appendix.getAttribute("aria-controls")!)!;
+    expect(within(items).getAllByRole("link")).toHaveLength(2);
+    appendix.focus();
     await userEvent.keyboard(" ");
-    expect(settings).toHaveAttribute("aria-expanded", "false");
+    expect(appendix).toHaveAttribute("aria-expanded", "false");
     await userEvent.keyboard("{Enter}");
-    expect(settings).toHaveAttribute("aria-expanded", "true");
+    expect(appendix).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("lights the Settings row on every Settings tab", () => {
+    show("/settings/account");
+    const settings = screen.getByRole("link", { name: /Settings/ });
+    expect(settings).toHaveAttribute("aria-current", "page");
+    expect(settings.textContent).toContain("Current section");
   });
 
   it("lights Knowledge for a document; top-level rows carry a decorative icon, child rows none", () => {

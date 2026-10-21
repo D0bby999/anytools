@@ -2,9 +2,9 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "~/lib/utils";
 
 /**
- * A pill switch, VitePress's VPSwitch (pattern I10): 40×22, radius 11, a 1px
- * control border that turns brand on hover, and an 18px knob that slides 18px
- * when on. `children` is the knob's icon (12px), as the appearance switch puts
+ * A pill switch after VitePress's VPSwitch (pattern I10), on the 4pt scale:
+ * 40×24, fully rounded, a 1px control border that turns brand on hover, and a
+ * 20px knob that slides 16px when on. `children` is the knob's icon (12px), as the appearance switch puts
  * a sun or a moon there.
  *
  * A real `role="switch"` button, so it is reached by Tab and toggled by Space
@@ -31,7 +31,7 @@ export function Switch({
       aria-checked={checked}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        "relative block h-[22px] w-10 shrink-0 rounded-[11px] border border-control-border bg-hover transition-[border-color] duration-250 hover:border-primary",
+        "relative block h-6 w-10 shrink-0 rounded-full border border-control-border bg-hover transition-[border-color] duration-250 hover:border-primary",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         className,
       )}
@@ -40,9 +40,9 @@ export function Switch({
       <span
         aria-hidden="true"
         className={cn(
-          "absolute top-px left-px flex size-[18px] items-center justify-center overflow-hidden rounded-full bg-card shadow-sm transition-transform duration-250 motion-reduce:transition-none",
+          "absolute top-px left-px flex size-5 items-center justify-center overflow-hidden rounded-full bg-card shadow-sm transition-transform duration-250 motion-reduce:transition-none",
           "text-muted-foreground [&_svg]:size-3",
-          checked && "translate-x-[18px] text-foreground",
+          checked && "translate-x-4 text-foreground",
         )}
       >
         {children}

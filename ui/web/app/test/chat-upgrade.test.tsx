@@ -9,7 +9,7 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { initI18n } from "~/lib/i18n";
 import { MessageList, type ChatTurnView } from "~/components/chat/message-list";
 import { Composer } from "~/components/chat/composer";
-import { WorkRow } from "~/components/chat/work-row";
+import { ProcessRow } from "~/components/chat/process-row";
 import { Starters } from "~/components/chat/follow-ups";
 import { withoutCitations } from "~/components/ui/copy-text";
 import { liveWork, readFollowUps, readWork, workTotals } from "~/lib/chat-work";
@@ -66,34 +66,55 @@ describe("chat-work", () => {
   });
 });
 
-describe("WorkRow", () => {
-  it("folds a finished turn into one line and lists the steps inside", async () => {
-    render(
-      <WorkRow
-        work={{
-          steps: [
-            { tool: "rag_search", detail: "ty thể", found: 3 },
-            { tool: "rag_search", detail: "ribosome", found: 2 },
-            { tool: "read_source", detail: "p. 2" },
-          ],
-          summarised: 4,
-          ms: 4200,
-        }}
-      />,
-    );
-    expect(screen.getByText("Searched 2 times · 5 passages · 4.2 s")).toBeInTheDocument();
-    await userEvent.click(screen.getByText("Searched 2 times · 5 passages · 4.2 s"));
-    expect(screen.getByText("“ribosome”")).toBeVisible();
+describe("ProcessRow", () => {
+  const work = {
+    steps: [
+      { tool: "rag_search", detail: "ty thể", found: 3 },
+      { tool: "rag_search", detail: "ribosome", found: 2 },
+      { tool: "read_source", detail: "p. 2" },
+    ],
+    summarised: 4,
+    ms: 4200,
+  };
+
+  it("folds a completed answer's work behind one row, grouped by kind inside", async () => {
+    render(<ProcessRow turnId="a1" work={work} state="done" />);
+    const turn = screen.getByRole("button", { name: "Searched, Read sources · 5 passages · 4.2 s" });
+    expect(turn).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(turn);
+    expect(turn).toHaveAttribute("aria-expanded", "true");
+    const group = screen.getByRole("button", { name: "Searched (2)" });
+    expect(screen.getByRole("button", { name: "Read sources" })).toBeVisible();
     expect(screen.getByText("Summarised 4 earlier messages to fit the model")).toBeVisible();
+    await userEvent.click(group);
+    expect(screen.getByText("“ribosome”")).toBeVisible();
   });
 
-  it("names the step in progress while the turn runs", () => {
-    render(<WorkRow live work={{ steps: [{ tool: "rag_search", running: true }] }} />);
-    expect(screen.getAllByText("Searching your documents")[0]).toBeVisible();
+  it("keeps folded steps in the page, hidden until found", () => {
+    const { container } = render(<ProcessRow turnId="a1" work={work} state="done" />);
+    expect(screen.getByText("“ribosome”", { selector: "span" })).toBeInTheDocument();
+    expect(container.querySelector('[data-fold-key="a1"]')).toHaveAttribute("hidden", "until-found");
+  });
+
+  it("shows the groups open while running, naming the live step and its argument", () => {
+    render(<ProcessRow turnId="live" state="running" work={{ steps: [{ tool: "rag_search", detail: "Ohm's law", running: true }] }} />);
+    expect(screen.queryByTestId("process-turn")).toBeNull();
+    expect(screen.getByRole("button", { name: "Searching · Ohm's law" })).toBeInTheDocument();
+  });
+
+  it("keeps a stopped answer's work open, with a failed group marked", () => {
+    render(<ProcessRow turnId="a2" state="interrupted" work={{ steps: [{ tool: "web_search", error: true }] }} />);
+    expect(screen.queryByTestId("process-turn")).toBeNull();
+    expect(screen.getByRole("button", { name: "Searched" })).toHaveClass("text-destructive");
+  });
+
+  it("shows live reasoning as its own group", () => {
+    render(<ProcessRow turnId="live" state="running" thinking="Let me check the page." work={{ steps: [] }} />);
+    expect(screen.getByRole("button", { name: "Thinking" })).toBeInTheDocument();
   });
 
   it("renders nothing for a turn that did no work", () => {
-    const { container } = render(<WorkRow work={{ steps: [] }} />);
+    const { container } = render(<ProcessRow turnId="a3" state="done" work={{ steps: [] }} />);
     expect(container).toBeEmptyDOMElement();
   });
 });

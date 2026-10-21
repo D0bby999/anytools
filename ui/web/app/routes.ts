@@ -37,13 +37,19 @@ export default [
         route("account", "routes/settings.account.tsx"),
         // Learning depth, phase 9: the learner profile (no new rail item).
         route("profile", "routes/settings.profile.tsx"),
-        // drive-user-storage phase 2: where the learner's own files are kept.
+        // Moved to /storage (Mine); the old address redirects there.
         route("storage", "routes/settings.storage.tsx"),
         // The daily review reminder (a web push) and installing AnyLearn.
         route("reminders", "routes/settings.reminders.tsx"),
       ]),
       // Phase 6: grounded chat. Nested under app-layout, so it inherits the
       // session guard rather than remembering to ask for one.
+      // Mine (2026-10-21): the learner's own files, uploads, study links and
+      // storage, across every knowledge base.
+      route("files", "routes/files.tsx"),
+      route("upload", "routes/upload.tsx"),
+      route("links", "routes/links.tsx"),
+      route("storage", "routes/storage.tsx"),
       route("chat", "routes/chat.index.tsx"),
       route("chat/:sessionId", "routes/chat.$sessionId.tsx"),
       // Phase 5. `documents/:docId` is the ONE document viewer (red-team
@@ -115,6 +121,7 @@ export default [
       route("body/progress", "routes/body.progress.tsx"),
       route("body/coach", "routes/body.coach.tsx"),
       route("body/library", "routes/body.library.tsx"),
+      route("library", "routes/library.tsx"),
     ]),
 
     // Body: the exercise picker's search. Loader only; its loader calls requireUserId.
@@ -139,6 +146,7 @@ export default [
     route("documents/:docId/speaking-check", "routes/documents.$docId.speaking-check.ts"),
     // phase 3: an Anki deck's words in (POST) and out (GET).
     route("mastery/vocabulary/anki", "routes/mastery.vocabulary.anki.ts"),
+    route("mastery/vocabulary/sources", "routes/mastery.vocabulary.sources.ts"),
     route("mastery/decks/import", "routes/mastery.decks.import.ts"),
     route("knowledge/:kbId/upload", "routes/knowledge.$kbId.upload.ts"),
     // up methods, phase 16: a photo document's page photo. Its loader calls requireUser.
@@ -197,6 +205,10 @@ export default [
     // up-methods phase 11: "Close it and retell" under a chat or Solve answer.
     // POST-only resource route; its action calls requireUserId.
     route("app/api/retell", "routes/app.api.retell.ts"),
+
+    // Plan 261021-1100 phase 1: Like / Dislike under a chat answer.
+    // POST-only resource route; its action calls requireUserId.
+    route("app/api/chat-feedback", "routes/app.api.chat-feedback.ts"),
 
     // up-methods, phase 13: the Home "Low day" switch. POST-only resource
     // route; its action calls requireUser and only sets a cookie.

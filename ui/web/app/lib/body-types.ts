@@ -100,6 +100,12 @@ export type Exercise = {
   target: string;
   secondary: string[];
   steps?: string[];
+  /** "opengym" or "fedb" (free-exercise-db): whose text it is. */
+  source?: "opengym" | "fedb";
+  /** free-exercise-db's id for its start and end photos (lib/body-library.ts). */
+  photo?: string;
+  /** wger's names in other languages, each with its licence and author, and its video. */
+  wger?: { id: number; names: Record<string, string>; licences: Record<string, string>; authors: Record<string, string>; video?: boolean };
 };
 
 export type Facets = { body_parts: string[]; equipment: string[] };

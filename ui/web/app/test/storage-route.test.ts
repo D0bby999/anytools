@@ -19,7 +19,8 @@ vi.mock("~/lib/auth.server", () => ({
 const apiFetch = vi.fn();
 vi.mock("~/lib/api.server", async (orig) => ({ ...(await orig<object>()), apiFetch: (...a: unknown[]) => apiFetch(...a) }));
 
-const route = await import("~/routes/settings.storage");
+const route = await import("~/routes/storage");
+const oldRoute = await import("~/routes/settings.storage");
 const save = await import("~/routes/app.api.save-to-drive");
 const { ApiError } = await import("~/lib/api.server");
 
@@ -39,9 +40,9 @@ beforeEach(() => {
 
 describe("the storage action", () => {
   it("maps each intent to its route", async () => {
-    await route.action(post("http://app.test/settings/storage", { intent: "choose", storage: "drive" }));
-    await route.action(post("http://app.test/settings/storage", { intent: "move" }));
-    await route.action(post("http://app.test/settings/storage", { intent: "cancel" }));
+    await route.action(post("http://app.test/storage", { intent: "choose", storage: "drive" }));
+    await route.action(post("http://app.test/storage", { intent: "move" }));
+    await route.action(post("http://app.test/storage", { intent: "cancel" }));
     expect(apiFetch.mock.calls).toEqual([
       ["/v1/me/file-storage", "user-1", { method: "PUT", body: { storage: "drive" } }],
       ["/v1/me/file-storage/move", "user-1", { method: "POST" }],
@@ -50,7 +51,7 @@ describe("the storage action", () => {
   });
 
   it("refuses a choice that is neither place without calling the API", async () => {
-    expect(await route.action(post("http://app.test/settings/storage", { intent: "choose", storage: "dropbox" }))).toEqual({
+    expect(await route.action(post("http://app.test/storage", { intent: "choose", storage: "dropbox" }))).toEqual({
       intent: "choose",
       errorKey: "errors.generic",
     });
@@ -59,17 +60,17 @@ describe("the storage action", () => {
 
   it("words the API's refusals", async () => {
     apiFetch.mockRejectedValueOnce(new ApiError(409, "connect", "drive_not_connected"));
-    expect(await route.action(post("http://app.test/settings/storage", { intent: "choose", storage: "drive" }))).toEqual({
+    expect(await route.action(post("http://app.test/storage", { intent: "choose", storage: "drive" }))).toEqual({
       intent: "choose",
       errorKey: "errors.notConnected",
     });
     apiFetch.mockRejectedValueOnce(new ApiError(409, "running", "move_running"));
-    expect(await route.action(post("http://app.test/settings/storage", { intent: "move" }))).toEqual({
+    expect(await route.action(post("http://app.test/storage", { intent: "move" }))).toEqual({
       intent: "move",
       errorKey: "errors.running",
     });
     apiFetch.mockRejectedValueOnce(new ApiError(409, "full", "drive_full"));
-    expect(await route.action(post("http://app.test/settings/storage", { intent: "choose", storage: "drive" }))).toEqual({
+    expect(await route.action(post("http://app.test/storage", { intent: "choose", storage: "drive" }))).toEqual({
       intent: "choose",
       errorKey: "errors.full",
     });
@@ -77,7 +78,7 @@ describe("the storage action", () => {
 
   it("reports nothing to move", async () => {
     apiFetch.mockResolvedValueOnce({ move: null, nothing_to_move: true });
-    expect(await route.action(post("http://app.test/settings/storage", { intent: "move" }))).toEqual({
+    expect(await route.action(post("http://app.test/storage", { intent: "move" }))).toEqual({
       intent: "move",
       ok: true,
       nothing: true,
@@ -120,5 +121,13 @@ describe("save to my Drive", () => {
       ok: false,
       errorKey: "export.failed",
     });
+  });
+});
+
+describe("the old Settings → Storage address", () => {
+  it("redirects to /storage, keeping the query string Drive returns with", () => {
+    const res = oldRoute.loader({ request: new Request("http://app.test/settings/storage?drive=connected") } as never) as Response;
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe("/storage?drive=connected");
   });
 });

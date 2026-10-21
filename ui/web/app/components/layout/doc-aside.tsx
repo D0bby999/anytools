@@ -18,11 +18,11 @@ export function DocAside({
   ownsPanel: boolean;
 }) {
   return (
-    // -mt-12 cancels the VPDoc's 48 top padding the column sits in: the sticky
-    // container below carries that 48 itself, so the outline title lines up
-    // with the h1 at rest (y = 112) and stays 48 below the nav when scrolled.
-    <div className="relative -mt-12 hidden w-64 shrink-0 pl-8 xl:block">
-      <div className="sticky top-0 flex max-h-[calc(100dvh-var(--lp-topbar-h))] w-(--lp-aside-w) flex-col overflow-x-hidden overflow-y-auto pt-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    // -mt-8 cancels the 32 top padding the column sits in: the sticky
+    // container below carries that 32 itself, so the outline title lines up
+    // with the h1 at rest (y = 96) and stays 32 below the nav when scrolled.
+    <div className="relative -mt-8 hidden w-64 shrink-0 pl-8 xl:block">
+      <div className="sticky top-0 flex max-h-[calc(100dvh-var(--lp-topbar-h))] w-(--lp-aside-w) flex-col overflow-x-hidden overflow-y-auto pt-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex flex-col pb-8">
           <Outline entries={entries} active={active} />
           <div id={PANEL_ASIDE_SLOT} className={entries.length > 0 ? "mt-8" : undefined}>

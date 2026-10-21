@@ -119,7 +119,17 @@ The rem scale is fixed (`2xs` 0.6875 to `4xl` 3rem, plus `numeral` 4.5rem). Lead
 
 ### Space, radius, depth, motion
 
-- **Space:** a 4pt scale.
+- **Space:** a 4pt scale: every margin, padding and gap is a multiple of 4px, Tailwind's
+  half steps (`1.5`, `2.5`, `3.5`) included. The exceptions are hairline nudges of 1 to
+  2px, a padding that makes a bordered control land on a 4pt height (a 40px button is
+  1 + 9 + 20 + 9 + 1), the prose's own em-based rhythm, auto margins that centre a
+  column, and CodeMirror's internals. Checked on 22 app pages at 1440 and 8 at 390
+  (2026-10-21); the free-tools pages keep their older spacing.
+- **Controls:** 40px high (buttons, fields, the quick-start actions), 36 for a small
+  button; the switch is 40×24 with a 20px knob.
+- **Links in a table cell** are text links on the cell's first line with an invisible
+  48px hit area (`after:-inset-y-3`), never a 44px box: a box centres its text below
+  the row's other cells. Cells stay top-aligned.
 - **Radius:** 12px for cards, 8px for controls, 6px for tabs.
 - **Depth:** a page lying on a desk. A card is lifted one sheet (`shadow-sm`), and the
   feature covers and the sign-in book use `shadow-md`.
@@ -173,17 +183,29 @@ Measured at 1440 (`--lp-*` in `tokens.css`):
   the places too, into a full-screen nav screen behind ☰.
 - **Sidebar:** 272 wide (`--lp-rail-w`), on `surface-soft`. It is the table of contents,
   from one source (`lib/nav-tree.ts`, `NAV_TREE`): Today (no title above it); Parts I to
-  IV, each under a quiet caption (its numeral tab, 18 high, then the name in 12/600
-  ink-2); Appendix: tools (folded); and **Settings, pinned at the foot** under one rule,
-  while the rest scrolls above it (its own box, at most half the height). Every row is
-  30 high: a 16px icon in `deco`, the name in 14/500 ink, a rounded hover; the current
+  IV, each under a quiet caption (its numeral tab, 20 high, then the name in 12/600
+  ink-2); **Mine** (My files, Upload, Study links, Storage: the learner's own things
+  across every knowledge base, 2026-10-21); Appendix: tools (folded); and **Settings,
+  pinned at the foot** under one rule, while the rest scrolls above it. Settings is one
+  row that opens the Settings page (current on every Settings tab); its sections are the
+  page's own tabs, not sidebar rows. Groups sit 16 apart. Every row is
+  32 high: a 16px icon in `deco`, the name in 14/500 ink, a rounded hover; the current
   row is filled in `selected` with `aria-current="page"` and "Current section". Child
-  rows hang from a guide line under the parent's icon, a step quieter, without icons.
+  rows hang from a guide line under the parent's icon, a step quieter, without icons,
+  their text in line with the parent's.
   Groups and pages with children fold; the one that holds the current page opens
   itself. Groups are `role="group"`, not landmarks. ~~VitePress's rows: 32 high, no
   icons, groups titled 14/700 and split by rules, the current page in navy text only,
   a 6px dot for a current child.~~ **Superseded 2026-10-21:** the owner found it sparse
   and hard to read; the whole tree with Settings open still fits a 900-high window.
+- **Vertical rhythm:** the article starts 32 below the nav (24 on a phone), so the h1
+  sits at y = 96; it ends 64 above the pager, which sits 48 below the content. A
+  section is set apart by 40 of space and its book-face h2, with no rule above it
+  (**Superseded 2026-10-21:** VitePress's rule over every h2 stacked with the app's own
+  ruled blocks, two hairlines 25 to 56px apart on six pages).
+- **Scrollbar room:** the page region keeps its scrollbar's room on every page
+  (`scrollbar-gutter: stable`), so the centred column does not move between a long
+  page and a short one where scrollbars take space.
 - **Scrollbars:** one look everywhere (`app.css`, base layer): thin, a rounded thumb in
   `--lp-scrollbar` on no track (`--lp-scrollbar-hover` under the pointer in Safari). The
   sidebar's lists use `lp-scroll-quiet`: the thumb shows only while the pointer or
@@ -233,9 +255,11 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    It says what will appear and how to put it there.
 6. **The dot leader** (`lp-leader`): drawn dots between a name and its count, used in
    the tools index.
-7. **Section tabs** (`components/ui/section-tabs.tsx`). **Since 2026-10-21** they are
-   drawn as up's nav links: 14/500, the current one in navy with `aria-current`, no
-   tint, no outline, no underline. What follows describes where they are used:: Settings, Mastery and Quiz
+7. **Section tabs** (`components/ui/section-tabs.tsx`). **Since 2026-10-21 (second
+   pass)** they are drawn like the sidebar's rows: 36 high, rounded, the current one
+   filled in `selected` with `aria-current`, the others ink-2 with a hover fill, in a
+   row closed by one neutral rule (`lp-tabs-row`). ~~up's nav links: colour only.~~ The
+   owner found plain coloured text did not read as tabs. Where they are used:: Settings, Mastery and Quiz
    (`components/quiz/quiz-tabs.tsx`). The current tab is tinted and outlined, **never
    underlined**. Ways of doing one thing inside a page (adding to a knowledge base) use
    the same look as ARIA tabs: `components/ui/panel-tabs.tsx`.
@@ -257,15 +281,27 @@ nothing scrolls sideways; wide tables scroll inside their own box.
 13. **Dates** (`components/ui/date-text.tsx`): "19 Oct 2026", never a numeric date.
    API errors shown after our own sentence go through `lib/sentence.ts`.
 
-14. **The chat surface** (plan 261019-1015, after postclaw's): an answer opens with
-   its **work row** (`components/chat/work-row.tsx`), one folded muted line ("Searched
-   twice · 9 passages · 3.1 s") that opens onto the steps; it names the running step
-   while the turn streams and never spins. **Since 2026-10-21** the conversation reads
+14. **The chat surface** (plans 261019-1015 and 261021-1100, after postclaw's): an
+   answer opens with its **process row** (`components/chat/process-row.tsx`). While it
+   streams, its steps show as groups by kind of work (Searched, Read sources, Wrote a
+   note, Asked you, Thinking), each folded to one 32px row, the live one naming its step
+   and argument ("Searching · Ohm's law") with a highlight moving through the label
+   (`lp-live-label`, off under reduced motion); nothing spins. A completed answer folds
+   it all behind one muted row ("Searched, Read sources · 9 passages · 3.1 s"); a failed
+   or stopped one keeps it open. Folds are `hidden="until-found"`, so Find reaches them.
+   **Since 2026-10-21** the conversation reads
    as a chapter (`layout: "page"`): the learner's question is a block on the right, not a
    heading; the answer is prose in the book face with citations as superscript numbers
    (their names start with the number); its sources are in the aside. Under the answer:
-   Listen · Copy · Ask again (last answer only) · Draw it, as text links, then
-   **follow-ups** as "→" links (last answer only). The last question has Edit. The
+   Listen · Copy · Ask again (last answer only) · Draw it · Expand all, as text links,
+   then Like and Dislike as two 32px icon buttons (the recorded one filled and pressed;
+   a Dislike asks for an optional reason and comment in a dialog), then **follow-ups**
+   as "→" links (last answer only). The last question has Edit. Mod+F opens a find bar
+   at the top of the conversation: matches in the warning tint, the current one in the
+   highlighter, drawn with the CSS Custom Highlight API inside rendered answers; going
+   to a match opens the folds that hold it. The latest eight conversations hang under
+   Chat in the sidebar as its child rows, a navy dot on one still answering, Rename and
+   Delete in each row's "…" menu, then All conversations. The
    composer sticks to the foot of the page, grows to 160px, keeps a draft per conversation, queues up to three messages while
    a turn runs, and carries the model menu and the keyboard hint underneath. "Jump to
    latest" appears only when the learner has scrolled away from a streaming answer.
@@ -317,6 +353,15 @@ nothing scrolls sideways; wide tables scroll inside their own box.
 19. **ScrollBox** (`components/doc/scroll-box.tsx`) and `useOverflowTabStop`: a wide
    table scrolls in its own box, which is a tab stop only while it overflows and is
    positioned, so the sr-only labels in its cells cannot widen the page.
+
+20. **Lists** carry no browser bullets or "1." in the app's pages: a list is a stack 8
+   apart, and numbered steps use `lp-steps` (a quiet tabular numeral in a 20px column).
+   Rendered Markdown (`.lp-rich`) keeps its bullets, in ink-3, because there the list
+   is the author's text. A ruled list that ends a quick start drops its last rule.
+21. **Faces in an app page:** `.lp-doc` is the interface face; its titles are the book
+   face, and reading text carries `lp-prose`, which sets the book face itself. ~~The
+   whole `.lp-doc` in the book face.~~ **Superseded 2026-10-21:** settings cards, tabs
+   and labels in the book face read as a document, not a tool.
 
 ## Anti-patterns for this project
 

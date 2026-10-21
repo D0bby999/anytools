@@ -34,7 +34,7 @@ export function ToolActivityPanel({
   return (
     <div className="mt-2 flex flex-col gap-5">
       {sources.length > 0 && (
-        <ol className="flex flex-col gap-1.5">
+        <ol className="flex flex-col gap-2">
           {sources.map((source, i) => (
             <li key={`${source.kind}:${source.id}`}>
               <CitationChip source={source} index={i + 1} variant="entry" />

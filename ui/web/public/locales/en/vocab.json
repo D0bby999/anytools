@@ -355,7 +355,8 @@
         "coding": "Programming concepts and commands.",
         "ultimateGeographyFlags": "Name the country, territory or organisation from its flag.",
         "ultimateGeographyMaps": "Name the country, region or ocean highlighted on a map."
-      }
+      },
+      "more": "More word lists, question sets, courses and books in the Library"
     },
     "licence": {
       "publicDomain": "Public domain",
@@ -408,5 +409,24 @@
       "credit": "Picture:",
       "publicDomain": "public domain"
     }
+  },
+  "sources": {
+    "open": "Sentences and sound",
+    "title": "Sentences and recordings for {{term}}",
+    "sentences": "Example sentences (Tatoeba)",
+    "lookingSentences": "Looking in Tatoeba… the first look can take half a minute.",
+    "noSentences": "Tatoeba has no sentence with this word.",
+    "down": "{{source}} did not answer. Try again later.",
+    "failed": "That did not work. Try again.",
+    "translatedBy": "translation: {{author}}, {{licence}}",
+    "use": "Use this sentence",
+    "useOf": "Use “{{sentence}}” as the word's sentence",
+    "isTheSentence": "This is one of the word's sentences.",
+    "used": "Saved as the word's sentence; a word you are learning gets its fill-in card from it.",
+    "recordings": "Said by people",
+    "lookingRecordings": "Looking for recordings…",
+    "noRecordings": "No recording of this word yet.",
+    "recordingOf": "{{term}}, said by {{speaker}}",
+    "close": "Close"
   }
 }

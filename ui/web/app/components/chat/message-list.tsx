@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import type { Source } from "~/hooks/use-turn-stream";
 import { RichText } from "~/components/rich-text";
 import { Button } from "~/components/ui/button";
@@ -10,8 +11,12 @@ import { OwnVersionShown } from "~/components/chat/own-version-fields";
 import { RetellBox } from "~/components/chat/retell-box";
 import { CopyText } from "~/components/ui/copy-text";
 import { FollowUps } from "~/components/chat/follow-ups";
-import { WorkRow } from "~/components/chat/work-row";
+import { ProcessRow, processFoldKeys } from "~/components/chat/process-row";
+import { FeedbackDialog } from "~/components/chat/feedback-dialog";
+import { useFolds } from "~/components/chat/folds";
+import type { ChatFeedbackController } from "~/hooks/use-chat-feedback";
 import type { FollowUp, WorkView } from "~/lib/chat-work";
+import { cn } from "~/lib/utils";
 import type { OwnVersion, Retell } from "~/lib/own-version";
 
 /** One rendered message. */
@@ -38,6 +43,8 @@ export type ChatTurnView = {
   retell?: Retell;
   /** How the answer was found (lib/chat-work.ts). */
   work?: WorkView | null;
+  /** The model's reasoning, while the answer streams. */
+  thinking?: string;
   /** Next steps the server offered for this answer. */
   followUps?: FollowUp[];
   /** The text streamed before the turn failed or was stopped. */
@@ -54,6 +61,8 @@ export type TranscriptActions = {
   onFollowUp?: (prompt: string) => void;
   /** A turn is running or starting: nothing that starts one is offered. */
   busy?: boolean;
+  /** Like / Dislike on stored answers (hooks/use-chat-feedback.ts). */
+  feedback?: ChatFeedbackController;
 };
 
 /**
@@ -116,6 +125,7 @@ export function MessageList({ turns, actions = {} }: { turns: ChatTurnView[]; ac
                   : undefined
               }
               followUps={i === last && !actions.busy ? actions.onFollowUp : undefined}
+              feedback={stored(turn.id) ? actions.feedback : undefined}
             />
           )}
         </li>
@@ -184,7 +194,9 @@ function UserMessage({
     // with the questions set apart.
     <div className="max-w-[80%] min-w-0 rounded-lg bg-sunken px-4 py-3">
       <p className="sr-only">{label}</p>
-      <p className="text-base leading-[1.6] font-medium whitespace-pre-wrap break-words">{turn.content}</p>
+      <p data-chat-searchable className="text-base leading-[1.6] font-medium whitespace-pre-wrap break-words">
+        {turn.content}
+      </p>
       {turn.ownVersion ? (
         <div className="mt-3 border-t pt-3">
           <OwnVersionShown value={turn.ownVersion} />
@@ -210,14 +222,18 @@ function AssistantMessage({
   turn,
   onRegenerate,
   followUps,
+  feedback,
 }: {
   turn: ChatTurnView;
   onRegenerate?: () => void;
   followUps?: (prompt: string) => void;
+  feedback?: ChatFeedbackController;
 }) {
   const { t } = useTranslation("common");
+  const folds = useFolds();
   const isDiagram = turn.capability === "visualize";
   const settled = turn.capability !== undefined && !turn.streaming && turn.content !== "";
+  const hasWork = (turn.work?.steps.length ?? 0) > 0;
 
   // The answer's actions: Listen · Copy · Ask again · Draw it, as text links
   // under it (up has no toolbars). Listen is drawn here rather than by
@@ -246,16 +262,39 @@ function AssistantMessage({
             <DrawIt messageId={turn.id} />
           </span>
         ) : null}
+        {settled && hasWork ? (
+          <span>
+            <button
+              type="button"
+              className={TEXT_ACTION}
+              onClick={() => folds.openAll(processFoldKeys(turn.id, turn.work))}
+            >
+              {t("chat.expandAll")}
+            </button>
+          </span>
+        ) : null}
+        {settled && feedback ? (
+          <span>
+            <Ratings messageId={turn.id} feedback={feedback} />
+          </span>
+        ) : null}
       </AnswerActions>
     ) : undefined;
 
   return (
     <div>
       <p className="sr-only">{t("app.name")}</p>
-      {turn.work ? <WorkRow work={turn.work} live={turn.streaming} /> : null}
+      {turn.work || turn.thinking ? (
+        <ProcessRow
+          turnId={turn.id}
+          work={turn.work}
+          thinking={turn.thinking}
+          state={turn.streaming ? "running" : turn.incomplete ? "interrupted" : "done"}
+        />
+      ) : null}
       {/* The model's Markdown and math, rendered in the article's prose; the
           safety rules are in RichText. The learner's own message stays plain. */}
-      <div className="lp-doc">
+      <div className="lp-doc" data-chat-searchable>
         {isDiagram ? (
           <DiagramMessage turn={turn} />
         ) : turn.ownVersion && settled && !turn.incomplete ? (
@@ -276,6 +315,58 @@ function AssistantMessage({
         <FollowUps kinds={turn.followUps} onPick={followUps} />
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Like and Dislike, as two small icon buttons at the end of the action row.
+ * A Like records at once; a Dislike asks why (FeedbackDialog); pressing the
+ * recorded one again retracts it. The recorded one is filled and pressed. A
+ * refused write rolls back and says so under the row.
+ */
+function Ratings({ messageId, feedback }: { messageId: string; feedback: ChatFeedbackController }) {
+  const { t } = useTranslation("common");
+  const [asking, setAsking] = useState(false);
+  const current = feedback.ratingOf(messageId);
+  const button = (rating: "good" | "bad") => {
+    const Icon = rating === "good" ? ThumbsUp : ThumbsDown;
+    const on = current === rating;
+    return (
+      <button
+        type="button"
+        aria-pressed={on}
+        aria-label={t(rating === "good" ? "chat.feedback.like" : "chat.feedback.dislike")}
+        title={t(rating === "good" ? "chat.feedback.like" : "chat.feedback.dislike")}
+        onClick={() => {
+          if (on) void feedback.retract(messageId);
+          else if (rating === "good") void feedback.rate(messageId, "good");
+          else setAsking(true);
+        }}
+        className={cn(
+          "inline-flex size-8 items-center justify-center rounded-md transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+          on ? "text-primary" : "text-muted-foreground hover:text-primary",
+        )}
+      >
+        <Icon aria-hidden="true" className="size-4" fill={on ? "currentColor" : "none"} />
+      </button>
+    );
+  };
+  return (
+    <span className="inline-flex items-center">
+      {button("good")}
+      {button("bad")}
+      {feedback.failed(messageId) ? (
+        <span role="alert" className="ml-2 text-sm text-destructive">
+          {t("chat.feedback.failed")}
+        </span>
+      ) : null}
+      <FeedbackDialog
+        open={asking}
+        onClose={() => setAsking(false)}
+        onSubmit={(details) => feedback.rate(messageId, "bad", details)}
+      />
+    </span>
   );
 }
 

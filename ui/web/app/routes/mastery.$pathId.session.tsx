@@ -63,7 +63,7 @@ export default function MasterySession({ loaderData, params }: Route.ComponentPr
     <div className="lp-doc lp-measure">
       <Link
         to={`/mastery/${params.pathId}`}
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("session.back")}

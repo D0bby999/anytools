@@ -228,7 +228,7 @@ export function SearchModal({ loadIndex = fetchIndex }: { loadIndex?: () => Prom
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKey}
-            className="min-w-0 flex-1 bg-transparent px-3 py-1.5 text-base outline-none placeholder:text-muted-foreground"
+            className="min-w-0 flex-1 bg-transparent px-3 py-2 text-base outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
@@ -255,7 +255,7 @@ export function SearchModal({ loadIndex = fetchIndex }: { loadIndex?: () => Prom
           </button>
         </form>
 
-        <ul id={listId} role="listbox" aria-label={t("search.results")} className="flex min-h-0 flex-col gap-1.5 overflow-y-auto">
+        <ul id={listId} role="listbox" aria-label={t("search.results")} className="flex min-h-0 flex-col gap-2 overflow-y-auto">
           {results.map((doc, i) => (
             <li key={`${doc.to}-${i}`} id={`${listId}-${i}`} role="option" aria-selected={i === selected}>
               <a
@@ -300,16 +300,16 @@ export function SearchModal({ loadIndex = fetchIndex }: { loadIndex?: () => Prom
 
         <div className="flex gap-4 text-[0.8rem] opacity-75 max-md:hidden">
           <span>
-            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-1.5 py-[3px] text-center">↵</kbd>
+            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-2 py-[3px] text-center">↵</kbd>
             {t("search.select")}
           </span>
           <span>
-            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-1.5 py-[3px] text-center">↑</kbd>
-            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-1.5 py-[3px] text-center">↓</kbd>
+            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-2 py-[3px] text-center">↑</kbd>
+            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-2 py-[3px] text-center">↓</kbd>
             {t("search.navigate")}
           </span>
           <span>
-            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-1.5 py-[3px] text-center">esc</kbd>
+            <kbd className="mr-1 inline-block min-w-6 rounded-[4px] border bg-hover px-2 py-[3px] text-center">esc</kbd>
             {t("search.close")}
           </span>
         </div>

@@ -154,6 +154,7 @@ describe("i18n keys exist in the en bundle", () => {
     body: JSON.parse(read(join(WEB_DIR, "public/locales/en/body.json"))),
     tools: JSON.parse(read(join(WEB_DIR, "public/locales/en/tools.json"))),
     pages: JSON.parse(read(join(WEB_DIR, "public/locales/en/pages.json"))),
+    library: JSON.parse(read(join(WEB_DIR, "public/locales/en/library.json"))),
   };
 
   function lookup(ns: string, key: string): unknown {

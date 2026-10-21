@@ -93,7 +93,7 @@ export function NeedsTranscript({ view, replacing = false }: { view: DocumentVie
         {transcribe?.available ? (
           <>
             <p className="mt-2 text-sm leading-prose">{t("video.needs.geminiBody")}</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-snug text-muted-foreground">
+            <ul className="mt-2 space-y-1 text-sm leading-snug text-muted-foreground">
               <li>
                 {transcribe.duration_seconds > 0
                   ? t("video.needs.estimate", {

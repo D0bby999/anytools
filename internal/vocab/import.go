@@ -3,6 +3,7 @@ package vocab
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -24,6 +25,12 @@ import (
 
 // OriginAnki marks a note imported from an Anki deck.
 const OriginAnki = "anki"
+
+// OriginLibrary prefixes the origin of a word added from one of the
+// Library's word lists: "library:<list>-<level>" (the private design notes, phase 4). Such words are paced as an import.
+const OriginLibrary = "library:"
+
+var libraryOrigin = regexp.MustCompile(`^library:[a-z0-9][a-z0-9-]{0,47}$`)
 
 // Import limits.
 const (
@@ -54,6 +61,8 @@ type ImportWrite struct {
 type ImportBatch struct {
 	UserID uuid.UUID
 	Lang   string
+	// Origin is OriginAnki or a library list's origin.
+	Origin string
 	Notes  []ImportWrite
 	// FirstDay is the learner's tomorrow, in Zone; PerDay words start each day.
 	FirstDay learning.Day
@@ -86,6 +95,15 @@ type ImportStore interface {
 
 // Import checks a batch and saves its words.
 func (s *Service) Import(ctx context.Context, userID uuid.UUID, lang string, notes []ImportNote) (*ImportResult, error) {
+	return s.ImportFrom(ctx, userID, lang, OriginAnki, notes)
+}
+
+// ImportFrom is Import with the words' origin: OriginAnki, or a library
+// list's ("library:hsk3-1").
+func (s *Service) ImportFrom(ctx context.Context, userID uuid.UUID, lang, origin string, notes []ImportNote) (*ImportResult, error) {
+	if origin != OriginAnki && !libraryOrigin.MatchString(origin) {
+		return nil, fmt.Errorf("%w: %q is not a word list", ErrInvalid, origin)
+	}
 	store, ok := s.store.(ImportStore)
 	if !ok {
 		return nil, fmt.Errorf("vocab: this store cannot import")
@@ -99,7 +117,7 @@ func (s *Service) Import(ctx context.Context, userID uuid.UUID, lang string, not
 	case len(notes) > MaxImportBatch:
 		return nil, fmt.Errorf("%w: at most %d words at once", ErrInvalid, MaxImportBatch)
 	}
-	b := ImportBatch{UserID: userID, Lang: lang, PerDay: ImportPerDay}
+	b := ImportBatch{UserID: userID, Lang: lang, Origin: origin, PerDay: ImportPerDay}
 	invalid := 0
 	for _, n := range notes {
 		term := strings.TrimSpace(Normalize(n.Term))

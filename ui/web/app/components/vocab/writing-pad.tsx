@@ -192,7 +192,7 @@ export function WritingPad({ term, lang, onDone }: { term: string; lang: string;
 
   return (
     <div ref={outer} className="mt-3">
-      <ol aria-label={t("write.slots")} className="flex flex-wrap gap-1.5" lang={lang}>
+      <ol aria-label={t("write.slots")} className="flex flex-wrap gap-2" lang={lang}>
         {chars.map((c, i) => {
           const done = phase === "done" || i < at || !drawable(c);
           return (

@@ -54,7 +54,7 @@ describe("disconnecting while new files go to Drive", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Disconnect" }));
     expect(confirm).not.toHaveBeenCalled();
     expect(screen.getByRole("region", { name: "Before you disconnect" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Move my files back first" })).toHaveAttribute("href", "/settings/storage");
+    expect(screen.getByRole("link", { name: "Move my files back first" })).toHaveAttribute("href", "/storage");
     confirm.mockRestore();
   });
 

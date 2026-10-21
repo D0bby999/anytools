@@ -27,7 +27,7 @@ export function MasteryTabs({
       <NavLink to="/mastery/vocabulary" className={tab}>
         {t("tabs.vocabulary")}
         {vocabDue ? (
-          <span className="rounded-sm bg-highlight px-1.5 text-xs font-semibold text-highlight-foreground tabular-nums">
+          <span className="rounded-sm bg-highlight px-2 text-xs font-semibold text-highlight-foreground tabular-nums">
             {t("tabs.dueBadge", { count: vocabDue })}
           </span>
         ) : null}
@@ -35,7 +35,7 @@ export function MasteryTabs({
       <NavLink to="/mastery/book-cards" className={tab}>
         {t("tabs.bookCards")}
         {bookDue ? (
-          <span className="rounded-sm bg-highlight px-1.5 text-xs font-semibold text-highlight-foreground tabular-nums">
+          <span className="rounded-sm bg-highlight px-2 text-xs font-semibold text-highlight-foreground tabular-nums">
             {t("tabs.dueBadge", { count: bookDue })}
           </span>
         ) : null}
@@ -43,7 +43,7 @@ export function MasteryTabs({
       <NavLink to="/mastery/decks" className={tab}>
         {t("tabs.decks")}
         {deckDue ? (
-          <span className="rounded-sm bg-highlight px-1.5 text-xs font-semibold text-highlight-foreground tabular-nums">
+          <span className="rounded-sm bg-highlight px-2 text-xs font-semibold text-highlight-foreground tabular-nums">
             {t("tabs.dueBadge", { count: deckDue })}
           </span>
         ) : null}

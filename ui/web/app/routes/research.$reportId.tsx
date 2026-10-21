@@ -130,7 +130,7 @@ export default function ResearchReport({ loaderData }: Route.ComponentProps) {
     <article>
       <Link
         to="/research"
-        className="inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className="inline-flex min-h-8 items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("report.back")}
@@ -185,7 +185,7 @@ export default function ResearchReport({ loaderData }: Route.ComponentProps) {
         {report.sources.length === 0 ? (
           <p className="mt-2 lp-empty">{t("report.noSources")}</p>
         ) : (
-          <ol className="mt-2 flex flex-col gap-1.5">
+          <ol className="mt-2 flex flex-col gap-2">
             {report.sources.map((source, i) => (
               <li key={`${source.kind}:${source.id}`}>
                 <CitationChip source={source} index={i + 1} variant="entry" />

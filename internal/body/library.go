@@ -29,6 +29,24 @@ type Exercise struct {
 	Target    string   `json:"target"`
 	Secondary []string `json:"secondary"`
 	Steps     []string `json:"steps,omitempty"`
+	// Source is the dataset the text is from: "opengym" or "fedb"
+	// (free-exercise-db, the Unlicense; the private design notes, phase 3).
+	Source string `json:"source"`
+	// Photo is the free-exercise-db id whose start and end photos the page
+	// shows (staged under /tool-runtime/), or empty.
+	Photo string `json:"photo,omitempty"`
+	// Wger is the name in other languages and the video wger has for it.
+	Wger *Wger `json:"wger,omitempty"`
+}
+
+// Wger is wger's data for an exercise: each name with its licence and
+// author, by language, and whether its page has a video.
+type Wger struct {
+	ID       int               `json:"id"`
+	Names    map[string]string `json:"names"`
+	Licences map[string]string `json:"licences"`
+	Authors  map[string]string `json:"authors"`
+	Video    bool              `json:"video,omitempty"`
 }
 
 // Mode is how the exercise is logged when nothing else says: cardio by time
@@ -43,6 +61,12 @@ func (e Exercise) Mode() string {
 // Bodyweight reports whether the exercise carries no external load.
 func (e Exercise) Bodyweight() bool { return e.Equipment == "body weight" }
 
+// The library's sources.
+const (
+	SourceOpenGym = "opengym"
+	SourceFedb    = "fedb"
+)
+
 var (
 	libOnce  sync.Once
 	libList  []Exercise
@@ -51,13 +75,22 @@ var (
 
 func loadLibrary() {
 	var raw []struct {
-		ID string   `json:"id"`
-		N  string   `json:"n"`
-		BP string   `json:"bp"`
-		EQ string   `json:"eq"`
-		TG string   `json:"tg"`
-		SM []string `json:"sm"`
-		ST []string `json:"st"`
+		ID  string   `json:"id"`
+		N   string   `json:"n"`
+		BP  string   `json:"bp"`
+		EQ  string   `json:"eq"`
+		TG  string   `json:"tg"`
+		SM  []string `json:"sm"`
+		ST  []string `json:"st"`
+		Src string   `json:"src"`
+		Img string   `json:"img"`
+		Wg  *struct {
+			ID    int               `json:"id"`
+			Names map[string]string `json:"names"`
+			Lic   map[string]string `json:"lic"`
+			By    map[string]string `json:"by"`
+			Video bool              `json:"video"`
+		} `json:"wg"`
 	}
 	if err := json.Unmarshal(libraryJSON, &raw); err != nil {
 		panic("body: library.json: " + err.Error())
@@ -65,7 +98,13 @@ func loadLibrary() {
 	libList = make([]Exercise, 0, len(raw))
 	libIndex = make(map[string]Exercise, len(raw))
 	for _, r := range raw {
-		e := Exercise{ID: r.ID, Name: capitalize(r.N), BodyPart: r.BP, Equipment: r.EQ, Target: r.TG, Secondary: r.SM, Steps: r.ST}
+		e := Exercise{ID: r.ID, Name: capitalize(r.N), BodyPart: r.BP, Equipment: r.EQ, Target: r.TG, Secondary: r.SM, Steps: r.ST, Source: SourceOpenGym, Photo: r.Img}
+		if r.Src == SourceFedb {
+			e.Source = SourceFedb
+		}
+		if r.Wg != nil {
+			e.Wger = &Wger{ID: r.Wg.ID, Names: r.Wg.Names, Licences: r.Wg.Lic, Authors: r.Wg.By, Video: r.Wg.Video}
+		}
 		libList = append(libList, e)
 		libIndex[e.ID] = e
 	}
@@ -123,6 +162,11 @@ func Search(f LibraryFilter) ([]Exercise, int) {
 			continue
 		}
 		hay := strings.ToLower(e.Name + " " + e.Target)
+		if e.Wger != nil {
+			for _, n := range e.Wger.Names {
+				hay += " " + strings.ToLower(n)
+			}
+		}
 		if !allIn(words, hay) {
 			continue
 		}

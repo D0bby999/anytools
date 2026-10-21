@@ -10,6 +10,7 @@
     "knowledge": "Conocimiento",
     "chat": "Chat",
     "notebooks": "Cuaderno",
+    "library": "Biblioteca",
     "quiz": "Cuestionarios",
     "mastery": "Dominio",
     "body": "Cuerpo",
@@ -27,7 +28,8 @@
       "practise": "Parte III · Practicar",
       "reflect": "Parte IV · Reflexionar",
       "settings": "Ajustes",
-      "appendix": "Apéndice"
+      "appendix": "Apéndice",
+      "mine": "Lo mío"
     },
     "pages": {
       "quizBank": "Banco de preguntas",
@@ -47,10 +49,13 @@
       "settingsSearch": "Búsqueda",
       "settingsAccount": "Cuenta",
       "settingsProfile": "Perfil",
-      "settingsStorage": "Almacenamiento",
       "settingsReminders": "Recordatorios",
       "freeTools": "Herramientas gratis",
-      "anyProfile": "AnyProfile"
+      "anyProfile": "AnyProfile",
+      "files": "Mis archivos",
+      "upload": "Subir",
+      "links": "Enlaces de estudio",
+      "storage": "Almacenamiento"
     },
     "search": "Buscar",
     "searchShortcut": "Abrir la búsqueda con {{keys}}",
@@ -217,10 +222,14 @@
         "settingsSearch": "Configura cómo buscas fuentes.",
         "settingsAccount": "Gestiona tu cuenta y tu idioma.",
         "settingsProfile": "Define tu perfil de aprendizaje.",
-        "settingsStorage": "Gestiona dónde se guardan tus archivos.",
         "settingsReminders": "Elige recordatorios que encajen en tu día.",
         "freeTools": "Abre herramientas gratuitas para tareas cotidianas.",
-        "anyProfile": "Crea un perfil que puedas compartir."
+        "anyProfile": "Crea un perfil que puedas compartir.",
+        "files": "Todos los archivos que subiste, de todas tus bases de conocimiento, en una tabla.",
+        "upload": "Añade un archivo a la base de conocimiento que elijas.",
+        "links": "Guarda páginas web, vídeos y fuentes para aprender, y ve todo lo que guardaste.",
+        "storage": "Elige dónde se guardan tus archivos y ve el espacio que ocupa cada lado.",
+        "library": "Añade material listo de fuentes abiertas, cada uno con su licencia."
       },
       "dueToday": "Pendiente para hoy"
     }
@@ -617,6 +626,71 @@
       "readsLegend": "Esta conversación lee",
       "readsHint": "Si no marcas ninguna, las lee todas.",
       "actionsFor": "Acciones para {{title}}"
+    },
+    "process": {
+      "category": {
+        "search": {
+          "running": "Buscando",
+          "done": "Buscó"
+        },
+        "read": {
+          "running": "Leyendo",
+          "done": "Leyó las fuentes"
+        },
+        "write": {
+          "running": "Escribiendo una nota",
+          "done": "Escribió una nota"
+        },
+        "ask": {
+          "running": "Preguntándote",
+          "done": "Te preguntó"
+        },
+        "thinking": {
+          "running": "Pensando",
+          "done": "Lo pensó"
+        },
+        "other": {
+          "running": "Trabajando",
+          "done": "Usó herramientas"
+        }
+      }
+    },
+    "expandAll": "Desplegar todo",
+    "answerReady": "La respuesta está lista.",
+    "feedback": {
+      "like": "Buena respuesta",
+      "dislike": "No es una buena respuesta",
+      "title": "¿Qué falló en esta respuesta?",
+      "reasons": "Motivo",
+      "reason": {
+        "wrong_info": "Información errónea",
+        "ignored_material": "No usó mi material",
+        "unclear": "Poco clara",
+        "too_long": "Demasiado larga",
+        "tool_failed": "Falló un paso",
+        "other": "Otra cosa"
+      },
+      "comment": "Algo más (opcional)",
+      "commentPlaceholder": "¿Qué te habría ayudado?",
+      "failed": "No se guardó la valoración. Inténtalo de nuevo.",
+      "cancel": "Cancelar",
+      "send": "Enviar"
+    },
+    "find": {
+      "label": "Buscar en esta conversación",
+      "placeholder": "Buscar en esta conversación",
+      "none": "Sin resultados",
+      "count": "{{current}} de {{total}}",
+      "previous": "Resultado anterior",
+      "next": "Resultado siguiente",
+      "close": "Cerrar la búsqueda"
+    },
+    "recent": {
+      "label": "Conversaciones recientes",
+      "all": "Todas las conversaciones",
+      "running": "Respuesta en curso",
+      "actions": "Acciones para {{title}}",
+      "confirmDelete": "¿Eliminar «{{title}}»?"
     }
   },
   "more": {
@@ -824,7 +898,10 @@
     "Weekly review": "Revisión semanal",
     "Worksheet": "Ficha",
     "English": "Inglés",
-    "Share": "Compartir"
+    "Share": "Compartir",
+    "My files": "Mis archivos",
+    "Upload": "Subir",
+    "Study links": "Enlaces de estudio"
   },
   "readinessText": {
     "no_route": "Todavía ninguna conexión hace {{function}}. Elige una en Ajustes → Rutas.",
@@ -889,5 +966,45 @@
     "navigate": "para navegar",
     "close": "para cerrar",
     "yours": "Tu biblioteca"
+  },
+  "mine": {
+    "noKb": "Aún no tienes ninguna base de conocimiento. Cada documento pertenece a una, así que crea una primero.",
+    "noKbAction": "Crear una base de conocimiento",
+    "pickKb": "Base de conocimiento para el archivo",
+    "pickKbLink": "Base de conocimiento para el enlace",
+    "opensNewTab": "(se abre en una pestaña nueva)",
+    "table": {
+      "document": "Documento",
+      "source": "Fuente",
+      "kb": "Base de conocimiento",
+      "kind": "Tipo",
+      "status": "Estado",
+      "updated": "Actualizado"
+    },
+    "files": {
+      "title": "Mis archivos",
+      "lead_one": "{{count}} archivo que subiste, de todas tus bases de conocimiento.",
+      "lead_other": "{{count}} archivos que subiste, de todas tus bases de conocimiento.",
+      "upload": "Subir un archivo",
+      "empty": "Aún no hay archivos. Sube uno y AnyLearn lo leerá para que preguntes y repases a partir de él."
+    },
+    "upload": {
+      "title": "Subir",
+      "lead": "Elige la base de conocimiento que recibe el archivo y luego suéltalo o selecciónalo. AnyLearn lo lee, lo divide en pasajes y lo indexa.",
+      "recent": "Subidos hace poco",
+      "all": "Ver todos tus archivos"
+    },
+    "links": {
+      "title": "Enlaces de estudio",
+      "lead": "Páginas web, vídeos de YouTube y fuentes que guardaste para aprender, de todas tus bases de conocimiento.",
+      "add": "Guardar un enlace",
+      "saved_one": "{{count}} enlace guardado",
+      "saved_other": "{{count}} enlaces guardados",
+      "empty": "Aún no hay enlaces. Pega una dirección arriba para guardarla."
+    },
+    "storage": {
+      "title": "Almacenamiento",
+      "lead": "Dónde se guardan tus archivos, cuánto espacio ocupa cada lado y cómo moverlos."
+    }
   }
 }

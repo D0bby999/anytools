@@ -92,7 +92,7 @@ export function GatePanel({
       {gate.missing.length > 0 && !gate.final ? (
         <div className="mt-3">
           <h3>{t("gate.missing")}</h3>
-          <ul className="list-disc pl-5">
+          <ul className="space-y-1">
             {gate.missing.map((m) => (
               <li key={m}>{m}</li>
             ))}

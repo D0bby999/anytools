@@ -90,7 +90,8 @@ export async function action({ request, params }: Route.ActionArgs) {
   return { added: lang };
 }
 
-const LINK = "inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4";
+// In a table cell: a text link with an invisible 48px hit area (see routes/home.tsx).
+const LINK = "relative text-sm leading-6 text-primary underline underline-offset-4 after:absolute after:inset-x-0 after:-inset-y-3";
 
 export default function Language({ loaderData, actionData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("toolkit");

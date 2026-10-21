@@ -1,0 +1,1208 @@
+[
+ {
+  "id": "trivia",
+  "name": "Open Trivia DB",
+  "licence": "cc-by-sa",
+  "source": "https://opentdb.com",
+  "credit": "Question from Open Trivia DB (opentdb.com), CC BY-SA 4.0.",
+  "parts": [
+   {
+    "id": "general-knowledge-1",
+    "name": "General Knowledge 1",
+    "count": 100
+   },
+   {
+    "id": "general-knowledge-2",
+    "name": "General Knowledge 2",
+    "count": 100
+   },
+   {
+    "id": "general-knowledge-3",
+    "name": "General Knowledge 3",
+    "count": 100
+   },
+   {
+    "id": "general-knowledge-4",
+    "name": "General Knowledge 4",
+    "count": 100
+   },
+   {
+    "id": "general-knowledge-5",
+    "name": "General Knowledge 5",
+    "count": 69
+   },
+   {
+    "id": "entertainment-books-1",
+    "name": "Entertainment: Books 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-books-2",
+    "name": "Entertainment: Books 2",
+    "count": 20
+   },
+   {
+    "id": "entertainment-film-1",
+    "name": "Entertainment: Film 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-film-2",
+    "name": "Entertainment: Film 2",
+    "count": 100
+   },
+   {
+    "id": "entertainment-film-3",
+    "name": "Entertainment: Film 3",
+    "count": 100
+   },
+   {
+    "id": "entertainment-film-4",
+    "name": "Entertainment: Film 4",
+    "count": 1
+   },
+   {
+    "id": "entertainment-music-1",
+    "name": "Entertainment: Music 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-music-2",
+    "name": "Entertainment: Music 2",
+    "count": 100
+   },
+   {
+    "id": "entertainment-music-3",
+    "name": "Entertainment: Music 3",
+    "count": 100
+   },
+   {
+    "id": "entertainment-music-4",
+    "name": "Entertainment: Music 4",
+    "count": 100
+   },
+   {
+    "id": "entertainment-music-5",
+    "name": "Entertainment: Music 5",
+    "count": 95
+   },
+   {
+    "id": "entertainment-musicals-theatres-1",
+    "name": "Entertainment: Musicals \u0026 Theatres",
+    "count": 36
+   },
+   {
+    "id": "entertainment-television-1",
+    "name": "Entertainment: Television 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-television-2",
+    "name": "Entertainment: Television 2",
+    "count": 96
+   },
+   {
+    "id": "entertainment-video-games-1",
+    "name": "Entertainment: Video Games 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-2",
+    "name": "Entertainment: Video Games 2",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-3",
+    "name": "Entertainment: Video Games 3",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-4",
+    "name": "Entertainment: Video Games 4",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-5",
+    "name": "Entertainment: Video Games 5",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-6",
+    "name": "Entertainment: Video Games 6",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-7",
+    "name": "Entertainment: Video Games 7",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-8",
+    "name": "Entertainment: Video Games 8",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-9",
+    "name": "Entertainment: Video Games 9",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-10",
+    "name": "Entertainment: Video Games 10",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-11",
+    "name": "Entertainment: Video Games 11",
+    "count": 100
+   },
+   {
+    "id": "entertainment-video-games-12",
+    "name": "Entertainment: Video Games 12",
+    "count": 85
+   },
+   {
+    "id": "entertainment-board-games-1",
+    "name": "Entertainment: Board Games",
+    "count": 78
+   },
+   {
+    "id": "science-nature-1",
+    "name": "Science \u0026 Nature 1",
+    "count": 100
+   },
+   {
+    "id": "science-nature-2",
+    "name": "Science \u0026 Nature 2",
+    "count": 100
+   },
+   {
+    "id": "science-nature-3",
+    "name": "Science \u0026 Nature 3",
+    "count": 99
+   },
+   {
+    "id": "science-computers-1",
+    "name": "Science: Computers 1",
+    "count": 100
+   },
+   {
+    "id": "science-computers-2",
+    "name": "Science: Computers 2",
+    "count": 92
+   },
+   {
+    "id": "science-mathematics-1",
+    "name": "Science: Mathematics",
+    "count": 79
+   },
+   {
+    "id": "mythology-1",
+    "name": "Mythology",
+    "count": 71
+   },
+   {
+    "id": "sports-1",
+    "name": "Sports 1",
+    "count": 100
+   },
+   {
+    "id": "sports-2",
+    "name": "Sports 2",
+    "count": 76
+   },
+   {
+    "id": "geography-1",
+    "name": "Geography 1",
+    "count": 100
+   },
+   {
+    "id": "geography-2",
+    "name": "Geography 2",
+    "count": 100
+   },
+   {
+    "id": "geography-3",
+    "name": "Geography 3",
+    "count": 100
+   },
+   {
+    "id": "geography-4",
+    "name": "Geography 4",
+    "count": 83
+   },
+   {
+    "id": "history-1",
+    "name": "History 1",
+    "count": 100
+   },
+   {
+    "id": "history-2",
+    "name": "History 2",
+    "count": 100
+   },
+   {
+    "id": "history-3",
+    "name": "History 3",
+    "count": 100
+   },
+   {
+    "id": "history-4",
+    "name": "History 4",
+    "count": 100
+   },
+   {
+    "id": "history-5",
+    "name": "History 5",
+    "count": 10
+   },
+   {
+    "id": "politics-1",
+    "name": "Politics",
+    "count": 77
+   },
+   {
+    "id": "art-1",
+    "name": "Art",
+    "count": 58
+   },
+   {
+    "id": "celebrities-1",
+    "name": "Celebrities",
+    "count": 53
+   },
+   {
+    "id": "animals-1",
+    "name": "Animals",
+    "count": 99
+   },
+   {
+    "id": "vehicles-1",
+    "name": "Vehicles",
+    "count": 87
+   },
+   {
+    "id": "entertainment-comics-1",
+    "name": "Entertainment: Comics",
+    "count": 79
+   },
+   {
+    "id": "science-gadgets-1",
+    "name": "Science: Gadgets",
+    "count": 40
+   },
+   {
+    "id": "entertainment-japanese-anime-manga-1",
+    "name": "Entertainment: Japanese Anime \u0026 Manga 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-japanese-anime-manga-2",
+    "name": "Entertainment: Japanese Anime \u0026 Manga 2",
+    "count": 100
+   },
+   {
+    "id": "entertainment-japanese-anime-manga-3",
+    "name": "Entertainment: Japanese Anime \u0026 Manga 3",
+    "count": 4
+   },
+   {
+    "id": "entertainment-cartoon-animations-1",
+    "name": "Entertainment: Cartoon \u0026 Animations 1",
+    "count": 100
+   },
+   {
+    "id": "entertainment-cartoon-animations-2",
+    "name": "Entertainment: Cartoon \u0026 Animations 2",
+    "count": 8
+   }
+  ]
+ },
+ {
+  "id": "arc",
+  "name": "ARC (AI2 Reasoning Challenge)",
+  "licence": "cc-by-sa",
+  "source": "https://allenai.org/data/arc",
+  "credit": "Question from the AI2 Reasoning Challenge (ARC), Allen Institute for AI, CC BY-SA 4.0.",
+  "parts": [
+   {
+    "id": "easy-1",
+    "name": "Easy 1",
+    "count": 100
+   },
+   {
+    "id": "easy-2",
+    "name": "Easy 2",
+    "count": 100
+   },
+   {
+    "id": "easy-3",
+    "name": "Easy 3",
+    "count": 100
+   },
+   {
+    "id": "easy-4",
+    "name": "Easy 4",
+    "count": 100
+   },
+   {
+    "id": "easy-5",
+    "name": "Easy 5",
+    "count": 100
+   },
+   {
+    "id": "easy-6",
+    "name": "Easy 6",
+    "count": 100
+   },
+   {
+    "id": "easy-7",
+    "name": "Easy 7",
+    "count": 100
+   },
+   {
+    "id": "easy-8",
+    "name": "Easy 8",
+    "count": 100
+   },
+   {
+    "id": "easy-9",
+    "name": "Easy 9",
+    "count": 100
+   },
+   {
+    "id": "easy-10",
+    "name": "Easy 10",
+    "count": 100
+   },
+   {
+    "id": "easy-11",
+    "name": "Easy 11",
+    "count": 100
+   },
+   {
+    "id": "easy-12",
+    "name": "Easy 12",
+    "count": 100
+   },
+   {
+    "id": "easy-13",
+    "name": "Easy 13",
+    "count": 100
+   },
+   {
+    "id": "easy-14",
+    "name": "Easy 14",
+    "count": 100
+   },
+   {
+    "id": "easy-15",
+    "name": "Easy 15",
+    "count": 100
+   },
+   {
+    "id": "easy-16",
+    "name": "Easy 16",
+    "count": 100
+   },
+   {
+    "id": "easy-17",
+    "name": "Easy 17",
+    "count": 100
+   },
+   {
+    "id": "easy-18",
+    "name": "Easy 18",
+    "count": 100
+   },
+   {
+    "id": "easy-19",
+    "name": "Easy 19",
+    "count": 100
+   },
+   {
+    "id": "easy-20",
+    "name": "Easy 20",
+    "count": 100
+   },
+   {
+    "id": "easy-21",
+    "name": "Easy 21",
+    "count": 100
+   },
+   {
+    "id": "easy-22",
+    "name": "Easy 22",
+    "count": 100
+   },
+   {
+    "id": "easy-23",
+    "name": "Easy 23",
+    "count": 100
+   },
+   {
+    "id": "easy-24",
+    "name": "Easy 24",
+    "count": 100
+   },
+   {
+    "id": "easy-25",
+    "name": "Easy 25",
+    "count": 100
+   },
+   {
+    "id": "easy-26",
+    "name": "Easy 26",
+    "count": 100
+   },
+   {
+    "id": "easy-27",
+    "name": "Easy 27",
+    "count": 100
+   },
+   {
+    "id": "easy-28",
+    "name": "Easy 28",
+    "count": 100
+   },
+   {
+    "id": "easy-29",
+    "name": "Easy 29",
+    "count": 100
+   },
+   {
+    "id": "easy-30",
+    "name": "Easy 30",
+    "count": 100
+   },
+   {
+    "id": "easy-31",
+    "name": "Easy 31",
+    "count": 100
+   },
+   {
+    "id": "easy-32",
+    "name": "Easy 32",
+    "count": 100
+   },
+   {
+    "id": "easy-33",
+    "name": "Easy 33",
+    "count": 100
+   },
+   {
+    "id": "easy-34",
+    "name": "Easy 34",
+    "count": 100
+   },
+   {
+    "id": "easy-35",
+    "name": "Easy 35",
+    "count": 100
+   },
+   {
+    "id": "easy-36",
+    "name": "Easy 36",
+    "count": 100
+   },
+   {
+    "id": "easy-37",
+    "name": "Easy 37",
+    "count": 100
+   },
+   {
+    "id": "easy-38",
+    "name": "Easy 38",
+    "count": 100
+   },
+   {
+    "id": "easy-39",
+    "name": "Easy 39",
+    "count": 100
+   },
+   {
+    "id": "easy-40",
+    "name": "Easy 40",
+    "count": 100
+   },
+   {
+    "id": "easy-41",
+    "name": "Easy 41",
+    "count": 100
+   },
+   {
+    "id": "easy-42",
+    "name": "Easy 42",
+    "count": 100
+   },
+   {
+    "id": "easy-43",
+    "name": "Easy 43",
+    "count": 100
+   },
+   {
+    "id": "easy-44",
+    "name": "Easy 44",
+    "count": 100
+   },
+   {
+    "id": "easy-45",
+    "name": "Easy 45",
+    "count": 100
+   },
+   {
+    "id": "easy-46",
+    "name": "Easy 46",
+    "count": 100
+   },
+   {
+    "id": "easy-47",
+    "name": "Easy 47",
+    "count": 100
+   },
+   {
+    "id": "easy-48",
+    "name": "Easy 48",
+    "count": 100
+   },
+   {
+    "id": "easy-49",
+    "name": "Easy 49",
+    "count": 100
+   },
+   {
+    "id": "easy-50",
+    "name": "Easy 50",
+    "count": 100
+   },
+   {
+    "id": "easy-51",
+    "name": "Easy 51",
+    "count": 100
+   },
+   {
+    "id": "easy-52",
+    "name": "Easy 52",
+    "count": 78
+   },
+   {
+    "id": "challenge-1",
+    "name": "Challenge 1",
+    "count": 100
+   },
+   {
+    "id": "challenge-2",
+    "name": "Challenge 2",
+    "count": 100
+   },
+   {
+    "id": "challenge-3",
+    "name": "Challenge 3",
+    "count": 100
+   },
+   {
+    "id": "challenge-4",
+    "name": "Challenge 4",
+    "count": 100
+   },
+   {
+    "id": "challenge-5",
+    "name": "Challenge 5",
+    "count": 100
+   },
+   {
+    "id": "challenge-6",
+    "name": "Challenge 6",
+    "count": 100
+   },
+   {
+    "id": "challenge-7",
+    "name": "Challenge 7",
+    "count": 100
+   },
+   {
+    "id": "challenge-8",
+    "name": "Challenge 8",
+    "count": 100
+   },
+   {
+    "id": "challenge-9",
+    "name": "Challenge 9",
+    "count": 100
+   },
+   {
+    "id": "challenge-10",
+    "name": "Challenge 10",
+    "count": 100
+   },
+   {
+    "id": "challenge-11",
+    "name": "Challenge 11",
+    "count": 100
+   },
+   {
+    "id": "challenge-12",
+    "name": "Challenge 12",
+    "count": 100
+   },
+   {
+    "id": "challenge-13",
+    "name": "Challenge 13",
+    "count": 100
+   },
+   {
+    "id": "challenge-14",
+    "name": "Challenge 14",
+    "count": 100
+   },
+   {
+    "id": "challenge-15",
+    "name": "Challenge 15",
+    "count": 100
+   },
+   {
+    "id": "challenge-16",
+    "name": "Challenge 16",
+    "count": 100
+   },
+   {
+    "id": "challenge-17",
+    "name": "Challenge 17",
+    "count": 100
+   },
+   {
+    "id": "challenge-18",
+    "name": "Challenge 18",
+    "count": 100
+   },
+   {
+    "id": "challenge-19",
+    "name": "Challenge 19",
+    "count": 100
+   },
+   {
+    "id": "challenge-20",
+    "name": "Challenge 20",
+    "count": 100
+   },
+   {
+    "id": "challenge-21",
+    "name": "Challenge 21",
+    "count": 100
+   },
+   {
+    "id": "challenge-22",
+    "name": "Challenge 22",
+    "count": 100
+   },
+   {
+    "id": "challenge-23",
+    "name": "Challenge 23",
+    "count": 100
+   },
+   {
+    "id": "challenge-24",
+    "name": "Challenge 24",
+    "count": 100
+   },
+   {
+    "id": "challenge-25",
+    "name": "Challenge 25",
+    "count": 100
+   },
+   {
+    "id": "challenge-26",
+    "name": "Challenge 26",
+    "count": 79
+   }
+  ]
+ },
+ {
+  "id": "gsm8k",
+  "name": "GSM8K: maths word problems",
+  "licence": "mit",
+  "source": "https://github.com/openai/grade-school-math",
+  "credit": "Problem from GSM8K (OpenAI, grade-school-math), MIT licence.",
+  "parts": [
+   {
+    "id": "p-1",
+    "name": "Problems 1",
+    "count": 100
+   },
+   {
+    "id": "p-2",
+    "name": "Problems 2",
+    "count": 100
+   },
+   {
+    "id": "p-3",
+    "name": "Problems 3",
+    "count": 100
+   },
+   {
+    "id": "p-4",
+    "name": "Problems 4",
+    "count": 100
+   },
+   {
+    "id": "p-5",
+    "name": "Problems 5",
+    "count": 100
+   },
+   {
+    "id": "p-6",
+    "name": "Problems 6",
+    "count": 100
+   },
+   {
+    "id": "p-7",
+    "name": "Problems 7",
+    "count": 100
+   },
+   {
+    "id": "p-8",
+    "name": "Problems 8",
+    "count": 100
+   },
+   {
+    "id": "p-9",
+    "name": "Problems 9",
+    "count": 100
+   },
+   {
+    "id": "p-10",
+    "name": "Problems 10",
+    "count": 100
+   },
+   {
+    "id": "p-11",
+    "name": "Problems 11",
+    "count": 100
+   },
+   {
+    "id": "p-12",
+    "name": "Problems 12",
+    "count": 100
+   },
+   {
+    "id": "p-13",
+    "name": "Problems 13",
+    "count": 100
+   },
+   {
+    "id": "p-14",
+    "name": "Problems 14",
+    "count": 100
+   },
+   {
+    "id": "p-15",
+    "name": "Problems 15",
+    "count": 100
+   },
+   {
+    "id": "p-16",
+    "name": "Problems 16",
+    "count": 100
+   },
+   {
+    "id": "p-17",
+    "name": "Problems 17",
+    "count": 100
+   },
+   {
+    "id": "p-18",
+    "name": "Problems 18",
+    "count": 100
+   },
+   {
+    "id": "p-19",
+    "name": "Problems 19",
+    "count": 100
+   },
+   {
+    "id": "p-20",
+    "name": "Problems 20",
+    "count": 100
+   },
+   {
+    "id": "p-21",
+    "name": "Problems 21",
+    "count": 100
+   },
+   {
+    "id": "p-22",
+    "name": "Problems 22",
+    "count": 100
+   },
+   {
+    "id": "p-23",
+    "name": "Problems 23",
+    "count": 100
+   },
+   {
+    "id": "p-24",
+    "name": "Problems 24",
+    "count": 100
+   },
+   {
+    "id": "p-25",
+    "name": "Problems 25",
+    "count": 100
+   },
+   {
+    "id": "p-26",
+    "name": "Problems 26",
+    "count": 100
+   },
+   {
+    "id": "p-27",
+    "name": "Problems 27",
+    "count": 100
+   },
+   {
+    "id": "p-28",
+    "name": "Problems 28",
+    "count": 100
+   },
+   {
+    "id": "p-29",
+    "name": "Problems 29",
+    "count": 100
+   },
+   {
+    "id": "p-30",
+    "name": "Problems 30",
+    "count": 100
+   },
+   {
+    "id": "p-31",
+    "name": "Problems 31",
+    "count": 100
+   },
+   {
+    "id": "p-32",
+    "name": "Problems 32",
+    "count": 100
+   },
+   {
+    "id": "p-33",
+    "name": "Problems 33",
+    "count": 100
+   },
+   {
+    "id": "p-34",
+    "name": "Problems 34",
+    "count": 100
+   },
+   {
+    "id": "p-35",
+    "name": "Problems 35",
+    "count": 100
+   },
+   {
+    "id": "p-36",
+    "name": "Problems 36",
+    "count": 100
+   },
+   {
+    "id": "p-37",
+    "name": "Problems 37",
+    "count": 100
+   },
+   {
+    "id": "p-38",
+    "name": "Problems 38",
+    "count": 100
+   },
+   {
+    "id": "p-39",
+    "name": "Problems 39",
+    "count": 100
+   },
+   {
+    "id": "p-40",
+    "name": "Problems 40",
+    "count": 100
+   },
+   {
+    "id": "p-41",
+    "name": "Problems 41",
+    "count": 100
+   },
+   {
+    "id": "p-42",
+    "name": "Problems 42",
+    "count": 100
+   },
+   {
+    "id": "p-43",
+    "name": "Problems 43",
+    "count": 100
+   },
+   {
+    "id": "p-44",
+    "name": "Problems 44",
+    "count": 100
+   },
+   {
+    "id": "p-45",
+    "name": "Problems 45",
+    "count": 100
+   },
+   {
+    "id": "p-46",
+    "name": "Problems 46",
+    "count": 100
+   },
+   {
+    "id": "p-47",
+    "name": "Problems 47",
+    "count": 100
+   },
+   {
+    "id": "p-48",
+    "name": "Problems 48",
+    "count": 100
+   },
+   {
+    "id": "p-49",
+    "name": "Problems 49",
+    "count": 100
+   },
+   {
+    "id": "p-50",
+    "name": "Problems 50",
+    "count": 100
+   },
+   {
+    "id": "p-51",
+    "name": "Problems 51",
+    "count": 100
+   },
+   {
+    "id": "p-52",
+    "name": "Problems 52",
+    "count": 100
+   },
+   {
+    "id": "p-53",
+    "name": "Problems 53",
+    "count": 100
+   },
+   {
+    "id": "p-54",
+    "name": "Problems 54",
+    "count": 100
+   },
+   {
+    "id": "p-55",
+    "name": "Problems 55",
+    "count": 100
+   },
+   {
+    "id": "p-56",
+    "name": "Problems 56",
+    "count": 100
+   },
+   {
+    "id": "p-57",
+    "name": "Problems 57",
+    "count": 100
+   },
+   {
+    "id": "p-58",
+    "name": "Problems 58",
+    "count": 100
+   },
+   {
+    "id": "p-59",
+    "name": "Problems 59",
+    "count": 100
+   },
+   {
+    "id": "p-60",
+    "name": "Problems 60",
+    "count": 100
+   },
+   {
+    "id": "p-61",
+    "name": "Problems 61",
+    "count": 100
+   },
+   {
+    "id": "p-62",
+    "name": "Problems 62",
+    "count": 100
+   },
+   {
+    "id": "p-63",
+    "name": "Problems 63",
+    "count": 100
+   },
+   {
+    "id": "p-64",
+    "name": "Problems 64",
+    "count": 100
+   },
+   {
+    "id": "p-65",
+    "name": "Problems 65",
+    "count": 100
+   },
+   {
+    "id": "p-66",
+    "name": "Problems 66",
+    "count": 100
+   },
+   {
+    "id": "p-67",
+    "name": "Problems 67",
+    "count": 100
+   },
+   {
+    "id": "p-68",
+    "name": "Problems 68",
+    "count": 100
+   },
+   {
+    "id": "p-69",
+    "name": "Problems 69",
+    "count": 100
+   },
+   {
+    "id": "p-70",
+    "name": "Problems 70",
+    "count": 100
+   },
+   {
+    "id": "p-71",
+    "name": "Problems 71",
+    "count": 100
+   },
+   {
+    "id": "p-72",
+    "name": "Problems 72",
+    "count": 100
+   },
+   {
+    "id": "p-73",
+    "name": "Problems 73",
+    "count": 100
+   },
+   {
+    "id": "p-74",
+    "name": "Problems 74",
+    "count": 100
+   },
+   {
+    "id": "p-75",
+    "name": "Problems 75",
+    "count": 100
+   },
+   {
+    "id": "p-76",
+    "name": "Problems 76",
+    "count": 100
+   },
+   {
+    "id": "p-77",
+    "name": "Problems 77",
+    "count": 100
+   },
+   {
+    "id": "p-78",
+    "name": "Problems 78",
+    "count": 100
+   },
+   {
+    "id": "p-79",
+    "name": "Problems 79",
+    "count": 100
+   },
+   {
+    "id": "p-80",
+    "name": "Problems 80",
+    "count": 100
+   },
+   {
+    "id": "p-81",
+    "name": "Problems 81",
+    "count": 100
+   },
+   {
+    "id": "p-82",
+    "name": "Problems 82",
+    "count": 100
+   },
+   {
+    "id": "p-83",
+    "name": "Problems 83",
+    "count": 100
+   },
+   {
+    "id": "p-84",
+    "name": "Problems 84",
+    "count": 100
+   },
+   {
+    "id": "p-85",
+    "name": "Problems 85",
+    "count": 100
+   },
+   {
+    "id": "p-86",
+    "name": "Problems 86",
+    "count": 100
+   },
+   {
+    "id": "p-87",
+    "name": "Problems 87",
+    "count": 100
+   },
+   {
+    "id": "p-88",
+    "name": "Problems 88",
+    "count": 92
+   }
+  ]
+ },
+ {
+  "id": "python",
+  "name": "Exercism: Python",
+  "licence": "mit",
+  "source": "https://exercism.org/tracks/python",
+  "credit": "Exercises from Exercism's Python track, MIT licence.",
+  "parts": [
+   {
+    "id": "1",
+    "name": "1–20",
+    "count": 20
+   },
+   {
+    "id": "2",
+    "name": "21–40",
+    "count": 20
+   },
+   {
+    "id": "3",
+    "name": "41–60",
+    "count": 20
+   },
+   {
+    "id": "4",
+    "name": "61–80",
+    "count": 20
+   },
+   {
+    "id": "5",
+    "name": "81–100",
+    "count": 20
+   },
+   {
+    "id": "6",
+    "name": "101–120",
+    "count": 20
+   }
+  ]
+ }
+]

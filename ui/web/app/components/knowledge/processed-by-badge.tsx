@@ -29,7 +29,7 @@ export function ProcessedByBadge({ processedBy }: { processedBy?: ProcessedBy | 
   const label = processedBy?.model ? `${parser} · ${processedBy.model}` : parser;
 
   return (
-    <span className="inline-flex flex-wrap items-center gap-1.5">
+    <span className="inline-flex flex-wrap items-center gap-2">
       <span
         className={cn(
           "inline-flex items-center rounded-full px-2 py-0.5 font-mono text-2xs",

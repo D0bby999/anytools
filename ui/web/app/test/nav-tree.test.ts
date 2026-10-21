@@ -27,17 +27,18 @@ describe("NAV_TREE", () => {
   });
 
   it("reads in the plan's order", () => {
-    expect(NAV_TREE.map((g) => g.id)).toEqual(["start", "read", "ask", "practise", "reflect", "settings", "appendix"]);
+    expect(NAV_TREE.map((g) => g.id)).toEqual(["start", "read", "ask", "practise", "reflect", "mine", "settings", "appendix"]);
     expect(flatPages().map((p) => p.to)).toEqual([
       "/home",
-      "/knowledge", "/notebooks",
+      "/knowledge", "/notebooks", "/library",
       "/chat", "/solve", "/research",
       "/quiz", "/quiz/bank", "/quiz/practice", "/quiz/exams",
       "/mastery", "/mastery/review", "/mastery/vocabulary", "/mastery/book-cards", "/mastery/decks",
       "/languages",
       "/body", "/body/plan", "/body/progress", "/body/coach", "/body/library",
       "/loop", "/toolkit",
-      "/settings", "/settings/routes", "/settings/search", "/settings/account", "/settings/profile", "/settings/storage", "/settings/reminders",
+      "/files", "/upload", "/links", "/storage",
+      "/settings", "/settings/routes", "/settings/search", "/settings/account", "/settings/profile", "/settings/reminders",
     ]);
     expect(TOP_NAV.map((p) => p.to)).toEqual(["/home", "/knowledge", "/chat", "/loop"]);
   });

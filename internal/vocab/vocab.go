@@ -99,6 +99,10 @@ type Context struct {
 	Page          int        `json:"page,omitempty"`
 	ChunkID       *uuid.UUID `json:"chunk_id,omitempty"`
 	AddedAt       time.Time  `json:"added_at"`
+	// Credit and URL: a sentence taken from an open source (Tatoeba, plans/
+	// a private plan, phase 6) says whose it is and where.
+	Credit string `json:"credit,omitempty"`
+	URL    string `json:"url,omitempty"`
 }
 
 // Source is the document a note was first saved from.
@@ -145,7 +149,8 @@ type Note struct {
 	Listening bool `json:"listening"`
 	// Writing is whether the learner asked for the writing card (write.go).
 	Writing bool `json:"writing"`
-	// Origin is "anki" for a word imported from a deck (import.go), "" for
+	// Origin is "anki" for a word imported from a deck (import.go),
+	// "library:<list>-<level>" for one from a Library word list, "" for
 	// one saved while reading.
 	Origin    string        `json:"origin"`
 	Clip      *Clip         `json:"clip,omitempty"`
@@ -845,4 +850,10 @@ func SuggestedRating(answer, term string) string {
 		return learning.RatingGood
 	}
 	return learning.RatingAgain
+}
+
+// SentenceStore adds a sentence to a note (sentence.go). The pg store
+// implements it.
+type SentenceStore interface {
+	AddSentence(ctx context.Context, userID, noteID uuid.UUID, c Context, newCard learning.Card, now time.Time) (*Note, error)
 }

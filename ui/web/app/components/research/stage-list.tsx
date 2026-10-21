@@ -34,7 +34,7 @@ export function StageList({
       <h3 id={`lp-${ns}-stages`} data-outline-ignore className="text-sm leading-8 font-semibold">
         {t("stages.title")}
       </h3>
-      <ol className="mt-1 flex list-decimal flex-col gap-1 pl-5 text-sm leading-6 marker:text-muted-foreground" aria-live="polite">
+      <ol className="lp-steps mt-1 flex flex-col gap-1 text-sm leading-6" aria-live="polite">
         {stages.map((stage) => {
           const state = done.includes(stage)
             ? "done"

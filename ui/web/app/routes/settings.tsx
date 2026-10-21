@@ -25,8 +25,6 @@ const SECTIONS = [
   { to: "/settings/routes", labelKey: "settings.nav.routes", end: false },
   { to: "/settings/search", labelKey: "settings.nav.search", end: false },
   { to: "/settings/profile", labelKey: "settings.nav.profile", end: false },
-  // drive-user-storage phase 2; its label lives in its own namespace.
-  { to: "/settings/storage", labelKey: "storage:nav", end: false },
   // The daily review reminder, and installing AnyLearn on this device.
   { to: "/settings/reminders", labelKey: "settings.nav.reminders", end: false },
   { to: "/settings/account", labelKey: "settings.nav.account", end: false },

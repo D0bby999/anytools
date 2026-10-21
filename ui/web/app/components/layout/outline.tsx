@@ -158,7 +158,7 @@ export function OutlineList({
         />
       ) : null}
       {entries.map((entry) => (
-        <li key={entry.id} className={entry.level === 3 ? "pl-[13px]" : undefined}>
+        <li key={entry.id} className={entry.level === 3 ? "pl-3" : undefined}>
           <a
             href={`#${entry.id}`}
             onClick={onNavigate}

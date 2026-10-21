@@ -301,7 +301,7 @@
   },
   "library": {
     "title": "Exercise library",
-    "lead": "1,324 exercises, each with its target muscle and how to do it.",
+    "lead": "1,957 exercises, each with its target muscle and how to do it; 866 with photos of the start and end.",
     "target": "Target",
     "secondary": "Also works",
     "equipment": "Equipment",
@@ -313,7 +313,14 @@
     "count_other": "{{count}} exercises",
     "previous": "Previous",
     "next": "Next",
-    "credit": "Exercise names and instructions: hasaneyldrm/exercises-dataset (MIT), in English. The dataset's images are © Gym visual and are not shown here. Body's progression rules follow openGym by Duarte Santos."
+    "credit": "Exercise names and instructions: hasaneyldrm/exercises-dataset (MIT) and free-exercise-db (public domain), in English; photos from free-exercise-db; some names in Spanish and Portuguese from wger (CC BY-SA). The first dataset's images are © Gym visual and are not shown here. Body's progression rules follow openGym by Duarte Santos.",
+    "photoStart": "{{name}}: the start",
+    "photoEnd": "{{name}}: the end",
+    "creditFedb": "Text and photos: free-exercise-db, public domain (the Unlicense).",
+    "creditPhotos": "Photos: free-exercise-db, public domain (the Unlicense).",
+    "creditWger": "Name in your language: wger, {{licence}}, by {{author}}.",
+    "wgerVideo": "Video on wger",
+    "wgerPage": "This exercise on wger"
   },
   "home": {
     "title": "Body today",

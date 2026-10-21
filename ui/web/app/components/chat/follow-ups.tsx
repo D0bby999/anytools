@@ -72,7 +72,7 @@ function PromptRow({
               type="button"
               disabled={disabled}
               onClick={() => onPick(p.prompt)}
-              className="inline-flex min-h-8 items-baseline gap-1.5 rounded-[4px] text-left text-base leading-[1.6] font-medium text-primary transition-colors hover:text-primary-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              className="inline-flex min-h-8 items-baseline gap-2 rounded-[4px] text-left text-base leading-[1.6] font-medium text-primary transition-colors hover:text-primary-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
             >
               <span aria-hidden="true">→</span>
               {p.label}

@@ -42,8 +42,8 @@ function SearchButton() {
         onClick={openSearch}
         aria-keyshortcuts="Meta+K Control+K /"
         className={cn(
-          "flex h-[55px] w-12 items-center justify-center text-foreground",
-          "md:h-10 md:w-auto md:justify-start md:rounded-md md:border md:border-transparent md:bg-muted md:pr-2.5 md:pl-3 md:transition-colors md:hover:border-primary",
+          "flex h-14 w-12 items-center justify-center text-foreground",
+          "md:h-10 md:w-auto md:justify-start md:rounded-md md:border md:border-transparent md:bg-muted md:pr-2 md:pl-3 md:transition-colors md:hover:border-primary",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         )}
       >
@@ -51,7 +51,7 @@ function SearchButton() {
         <span className="sr-only lg:not-sr-only lg:pr-4 lg:text-[13px] lg:font-medium lg:text-muted-foreground">
           {t("nav.search")}
         </span>
-        <span aria-hidden="true" className="hidden h-[22px] items-center gap-0.5 rounded-xs border px-1.5 text-xs font-medium text-muted-foreground lg:flex">
+        <span aria-hidden="true" className="hidden h-6 items-center gap-0.5 rounded-xs border px-2 text-xs font-medium text-muted-foreground lg:flex">
           <kbd className="font-sans">{mod}</kbd>
           <kbd className="font-sans">K</kbd>
         </span>

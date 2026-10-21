@@ -271,3 +271,20 @@ The drill done so far ran on a development machine in local mode. The production
 - Both `api` and `web` log to stdout. `api` writes structured JSON. Docker keeps 5 × 20 MB per service.
 - `api` exposes `GET /health`, which reports process liveness only. It is reachable only inside the compose network.
 - Point an external uptime check at `https://DOMAIN/`.
+
+### Answer ratings
+
+Learners rate chat answers with Like or Dislike (`chat_feedback`). There is no admin page; the provider and model come from the stored answer, so a rating can be compared per model with one query on the host:
+
+```sh
+docker compose -p anytools exec -T postgres psql -U anytools anytools -c "
+  SELECT model, provider,
+         count(*) FILTER (WHERE rating = 'good') AS likes,
+         count(*) FILTER (WHERE rating = 'bad')  AS dislikes
+    FROM chat_feedback
+   WHERE created_at > now() - interval '30 days'
+   GROUP BY model, provider
+   ORDER BY dislikes DESC;"
+```
+
+The reasons of recent dislikes are in `category` and `comment`. Answers written before 2026-10-21 carry no model, so their ratings show an empty one.

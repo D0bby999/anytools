@@ -51,14 +51,14 @@ export function SaveToDrive({
         <button
           type="submit"
           disabled={busy}
-          className="inline-flex min-h-11 items-center gap-1.5 text-sm text-primary underline underline-offset-4 disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-primary underline underline-offset-4 disabled:opacity-50"
         >
           <CloudUpload aria-hidden="true" className="size-4" />
           {busy ? t("export.saving") : t("export.save")}
         </button>
       </fetcher.Form>
       {result?.ok ? (
-        <span role="status" className="inline-flex items-center gap-1.5 text-sm">
+        <span role="status" className="inline-flex items-center gap-2 text-sm">
           {t("export.saved")}
           {link ? (
             <a

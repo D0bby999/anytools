@@ -87,7 +87,7 @@ describe("the outline", () => {
     expect(links.map((a) => a.getAttribute("href"))).toEqual(["#tieng-viet-co-ban", "#doc-hieu", "#kept"]);
     expect(screen.getByRole("heading", { name: "Tiếng Việt cơ bản" })).toHaveAttribute("id", "tieng-viet-co-ban");
     // The h3 sits indented under its h2.
-    expect(links[1]!.closest("li")).toHaveClass("pl-[13px]");
+    expect(links[1]!.closest("li")).toHaveClass("pl-3");
   });
 
   it("opens the dropdown with Return to top, and closes it on Escape", async () => {

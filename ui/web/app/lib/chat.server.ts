@@ -18,6 +18,8 @@ export type ChatSession = {
   /** The connection picked for this conversation, if any. */
   connection_id?: string;
   allow_web: boolean;
+  /** On the list only: a turn of this conversation has not ended. */
+  running?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -66,12 +68,42 @@ export type Turn = {
   capability: string;
 };
 
-export function listSessions(userId: string, query = "") {
-  const q = query.trim();
-  return apiFetch<{ sessions: ChatSession[] }>(
-    q ? `/v1/chat/sessions?q=${encodeURIComponent(q)}` : "/v1/chat/sessions",
-    userId,
-  );
+export function listSessions(userId: string, query = "", limit?: number) {
+  const params = new URLSearchParams();
+  if (query.trim()) params.set("q", query.trim());
+  if (limit) params.set("limit", String(limit));
+  const qs = params.toString();
+  return apiFetch<{ sessions: ChatSession[] }>(`/v1/chat/sessions${qs ? `?${qs}` : ""}`, userId);
+}
+
+/** One rating of an answer; provider and model are the server's attribution. */
+export type ChatFeedback = {
+  message_id: string;
+  rating: "good" | "bad";
+  category?: string;
+  comment?: string;
+  provider?: string;
+  model?: string;
+  updated_at: string;
+};
+
+export function listFeedback(userId: string, sessionId: string) {
+  return apiFetch<{ feedback: ChatFeedback[] }>(`/v1/chat/sessions/${sessionId}/feedback`, userId);
+}
+
+export function putFeedback(
+  userId: string,
+  messageId: string,
+  body: { rating: "good" | "bad"; category?: string; comment?: string },
+) {
+  return apiFetch<ChatFeedback>(`/v1/chat/messages/${encodeURIComponent(messageId)}/feedback`, userId, {
+    method: "PUT",
+    body,
+  });
+}
+
+export function deleteFeedback(userId: string, messageId: string) {
+  return apiFetch<void>(`/v1/chat/messages/${encodeURIComponent(messageId)}/feedback`, userId, { method: "DELETE" });
 }
 
 export function createSession(userId: string, body: { title?: string; kb_ids?: string[] }) {

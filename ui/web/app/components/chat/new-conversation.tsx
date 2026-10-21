@@ -29,7 +29,7 @@ export function NewConversation({ kbs, busy }: { kbs: { id: string; name: string
         {kbs.length > 0 ? (
           <Flyout
             label={t("chat.index.reads")}
-            buttonClassName="h-[42px] rounded-sm"
+            buttonClassName="h-10 rounded-sm"
             menuClassName="top-11 left-0 right-auto min-w-56"
           >
             <fieldset>

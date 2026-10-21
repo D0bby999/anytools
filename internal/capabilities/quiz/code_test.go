@@ -4,11 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"slices"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 
+	"github.com/D0bby999/anytools/internal/capabilities/quiz/mathcheck"
 	"github.com/D0bby999/anytools/internal/capabilities/quiz/starters"
 )
 
@@ -124,14 +130,20 @@ func (s *starterStore) InsertQuestions(_ context.Context, qs []Question) ([]Ques
 	return qs, nil
 }
 
-func (s *starterStore) ListQuestions(_ context.Context, userID uuid.UUID, f Filter) ([]BankEntry, error) {
-	var out []BankEntry
+func (s *starterStore) ExistingQuestions(_ context.Context, userID, kbID uuid.UUID, prompts, modules []string) (map[string]bool, error) {
+	have := map[string]bool{}
 	for _, q := range s.rows {
-		if q.UserID == userID && q.KBID == *f.KBID && q.Type == f.Type {
-			out = append(out, BankEntry{Question: q})
+		if q.UserID != userID || q.KBID != kbID {
+			continue
+		}
+		if slices.Contains(prompts, q.Prompt) {
+			have[q.Prompt] = true
+		}
+		if q.Code != nil && slices.Contains(modules, q.Code.Module) {
+			have["module:"+q.Code.Module] = true
 		}
 	}
-	return out, nil
+	return have, nil
 }
 
 type owns struct{ user, kb uuid.UUID }
@@ -151,8 +163,8 @@ func TestThePythonStarterSetIsAddedOnce(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := len(starters.Python())
-	if want != 18 || res.Added != want || res.Already != 0 {
+	want := starters.PythonPart
+	if len(starters.Python()) < 100 || res.Added != want || res.Already != 0 {
 		t.Fatalf("first add: %+v of %d", res, want)
 	}
 	q := st.rows[1]
@@ -168,6 +180,86 @@ func TestThePythonStarterSetIsAddedOnce(t *testing.T) {
 	}
 	if _, err := svc.AddStarter(context.Background(), user, kb, "cobol"); !errors.Is(err, ErrBadRequest) {
 		t.Fatalf("an unknown set: %v", err)
+	}
+	// The second part adds the next twenty; a part past the end is refused.
+	next, err := svc.AddSet(context.Background(), user, kb, StarterPython, "2")
+	if err != nil || next.Added != starters.PythonPart || next.Already != 0 {
+		t.Fatalf("part 2: %+v, %v", next, err)
+	}
+	for _, part := range []string{"0", "99", "01", "x"} {
+		if _, err := svc.AddSet(context.Background(), user, kb, StarterPython, part); !errors.Is(err, ErrBadRequest) {
+			t.Errorf("part %q: %v", part, err)
+		}
+	}
+}
+
+// Every Python exercise is a code question the quiz accepts, within the
+// prompt's 4,000 characters.
+func TestEveryPythonExerciseFits(t *testing.T) {
+	for i, part := range starters.PythonParts() {
+		qs, err := setQuestions(uuid.New(), uuid.New(), StarterPython, strconv.Itoa(i+1))
+		if err != nil || len(qs) != len(part) {
+			t.Fatalf("part %d: %d questions, %v", i+1, len(qs), err)
+		}
+		for _, q := range qs {
+			if utf8.RuneCountInString(q.Prompt) > 4000 || q.Code == nil || q.Answer == "" {
+				t.Fatalf("%s: %d characters", q.Code.Module, utf8.RuneCountInString(q.Prompt))
+			}
+		}
+	}
+}
+
+func TestEveryQuestionSetPartIsAQuizItCanMark(t *testing.T) {
+	for _, set := range []string{starters.SetTrivia, starters.SetARC, starters.SetGSM8K} {
+		for n := 1; ; n++ {
+			id := map[string]string{starters.SetGSM8K: "p", starters.SetARC: "easy"}[set]
+			if id == "" {
+				break // trivia's parts are named by category: checked below
+			}
+			s, p, ok := starters.QuestionPart(set, fmt.Sprintf("%s-%d", id, n))
+			if !ok {
+				if n == 1 {
+					t.Fatalf("%s has no part %s-1", set, id)
+				}
+				break
+			}
+			checkPart(t, s, p)
+		}
+	}
+	s, p, ok := starters.QuestionPart(starters.SetTrivia, "general-knowledge-1")
+	if !ok {
+		t.Fatal("trivia has no general-knowledge-1")
+	}
+	checkPart(t, s, p)
+}
+
+func checkPart(t *testing.T, s *starters.Set, p *starters.Part) {
+	t.Helper()
+	qs, err := setQuestions(uuid.New(), uuid.New(), s.ID, p.ID)
+	if err != nil || len(qs) == 0 || len(qs) > 100 {
+		t.Fatalf("%s %s: %d, %v", s.ID, p.ID, len(qs), err)
+	}
+	for _, q := range qs {
+		if !strings.HasSuffix(q.Explanation, s.Credit) || utf8.RuneCountInString(q.Prompt) > 4000 {
+			t.Fatalf("%s %s: %+v", s.ID, p.ID, q)
+		}
+		switch q.Type {
+		case TypeMCQ:
+			if !matchesLabel(q.Options, q.Answer, q.Answer) {
+				t.Fatalf("%s: answer %q is not an option", q.Prompt, q.Answer)
+			}
+		case TypeTF:
+			if q.Answer != "true" && q.Answer != "false" {
+				t.Fatalf("%s: answer %q", q.Prompt, q.Answer)
+			}
+		case TypeShort:
+			// A word problem's number is marked by value, without a model.
+			if v := mathcheck.Judge(q.Prompt, q.Answer, q.Answer); v != mathcheck.Right {
+				t.Fatalf("%s: its own answer %q is %v", q.Prompt, q.Answer, v)
+			}
+		default:
+			t.Fatalf("%s: type %s", q.Prompt, q.Type)
+		}
 	}
 }
 

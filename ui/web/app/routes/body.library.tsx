@@ -1,18 +1,21 @@
 /**
  * body.library.tsx
- * Body → Library: 1,324 exercises by name, body part and equipment, and one
- * exercise's steps. Text only: the dataset's animations are © Gym visual and
- * not ours to serve (THIRD-PARTY-NOTICES.md).
+ * Body → Library: the exercises by name, body part and equipment, and one
+ * exercise's steps. openGym's dataset's animations are © Gym visual and not
+ * ours to serve (THIRD-PARTY-NOTICES.md); the photos are free-exercise-db's,
+ * public domain, and the other languages' names wger's (the private design notes, phase 3).
  */
 import { RefTable } from "~/components/doc/ref-table";
 import { Form, Link } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useLibraryTerm } from "~/components/body/muscles";
+import type { Exercise } from "~/lib/body-types";
 import type { Route } from "./+types/body.library";
 import { appTitle } from "~/lib/app-title";
 import { requireUserId } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { getExercise, searchExercises } from "~/lib/body.server";
+import { exerciseName, exercisePhotos, wgerPage } from "~/lib/body-library";
 import { BodyTabs } from "~/components/body/body-tabs";
 import { FIELD } from "~/components/body/fields";
 import { Button } from "~/components/ui/button";
@@ -48,7 +51,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
-  const { t } = useTranslation("body");
+  const { t, i18n } = useTranslation("body");
   const term = useLibraryTerm();
   const { exercises, total, facets, q, bodyPart, equipment, offset, detail } = loaderData;
   const page = (o: number) => {
@@ -105,7 +108,7 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
         columns={[t("up.exercise"), t("library.target"), t("library.equipment")]}
         rows={exercises.map((e) => [
           <Link to={`${page(offset)}&id=${e.id}`} preventScrollReset={false}>
-            {e.name}
+            {exerciseName(e, i18n.language)}
           </Link>,
           term(e.target),
           term(e.equipment),
@@ -114,8 +117,9 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
       {detail ? (
         <section data-part="practise" aria-labelledby="lp-library-detail" className="my-8">
           <h2 id="lp-library-detail" className="font-serif text-2xl font-semibold first-letter:uppercase">
-            {detail.name}
+            {exerciseName(detail, i18n.language)}
           </h2>
+          <ExercisePhotos exercise={detail} />
           <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             <dt className="text-muted-foreground">{t("library.target")}</dt>
             <dd>{term(detail.target)}</dd>
@@ -128,11 +132,12 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
             <dt className="text-muted-foreground">{t("library.equipment")}</dt>
             <dd>{term(detail.equipment)}</dd>
           </dl>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-prose">
+          <ol className="lp-steps mt-4 space-y-2 text-sm leading-prose">
             {(detail.steps ?? []).map((s, i) => (
               <li key={i}>{s}</li>
             ))}
           </ol>
+          <ExerciseCredit exercise={detail} />
         </section>
       ) : null}
 
@@ -150,5 +155,53 @@ export default function BodyLibrary({ loaderData }: Route.ComponentProps) {
       </div>
       <p className="mt-8 text-xs leading-snug text-muted-foreground">{t("library.credit")}</p>
     </div>
+  );
+}
+
+/** The start and end positions, when free-exercise-db has them. */
+function ExercisePhotos({ exercise }: { exercise: Exercise }) {
+  const { t } = useTranslation("body");
+  const photos = exercisePhotos(exercise);
+  if (!photos) return null;
+  return (
+    <div className="mt-4 grid grid-cols-2 gap-3">
+      {photos.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={t(i === 0 ? "library.photoStart" : "library.photoEnd", { name: exercise.name })}
+          width={750}
+          height={500}
+          loading="lazy"
+          decoding="async"
+          className="h-auto w-full rounded border border-border bg-muted"
+        />
+      ))}
+    </div>
+  );
+}
+
+/** Whose text, photos and names these are, and wger's page with its video. */
+function ExerciseCredit({ exercise }: { exercise: Exercise }) {
+  const { t, i18n } = useTranslation("body");
+  const lang = i18n.language.split("-")[0]!;
+  const w = exercise.wger;
+  const lines = [
+    exercise.source === "fedb" ? t("library.creditFedb") : exercise.photo ? t("library.creditPhotos") : null,
+    w?.names[lang] ? t("library.creditWger", { licence: w.licences[lang], author: w.authors[lang] || "wger" }) : null,
+  ].filter(Boolean);
+  if (!lines.length && !w?.video) return null;
+  return (
+    <p className="mt-4 text-xs leading-snug text-muted-foreground">
+      {lines.join(" ")}
+      {w ? (
+        <>
+          {lines.length ? " " : ""}
+          <a href={wgerPage(w.id)} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">
+            {w.video ? t("library.wgerVideo") : t("library.wgerPage")}
+          </a>
+        </>
+      ) : null}
+    </p>
   );
 }

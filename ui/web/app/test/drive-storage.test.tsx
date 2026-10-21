@@ -133,7 +133,7 @@ describe("disconnecting a Drive that keeps the learner's files", () => {
     expect(panel).toHaveTextContent(/stay in your Google Drive/);
     expect(panel).toHaveTextContent(/cannot open them again until you reconnect/);
     expect(panel).toHaveTextContent(/move them back/);
-    expect(screen.getByRole("link", { name: "Move my files back first" })).toHaveAttribute("href", "/settings/storage");
+    expect(screen.getByRole("link", { name: "Move my files back first" })).toHaveAttribute("href", "/storage");
 
     await userEvent.click(screen.getByRole("button", { name: "Keep connected" }));
     expect(screen.queryByRole("region", { name: "Before you disconnect" })).toBeNull();

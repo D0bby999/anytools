@@ -63,7 +63,7 @@ export default function MasteryReview({ loaderData }: Route.ComponentProps) {
     <div className="lp-doc lp-measure">
       <Link
         to="/mastery"
-        className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft aria-hidden="true" className="size-4" />
         {t("review.back")}

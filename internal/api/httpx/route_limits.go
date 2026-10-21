@@ -165,6 +165,17 @@ var RouteClasses = []RouteClass{
 		},
 	},
 	{
+		// Word lookups (the private design notes, phase 6): a
+		// call to Tatoeba, Wikimedia Commons or the Free Dictionary API from
+		// this server, cached a week; audio sent on from them.
+		Name: "lookup", RPM: 30, Burst: 10,
+		Patterns: []string{
+			"GET /v1/vocab/lookup/sentences",
+			"GET /v1/vocab/lookup/recordings",
+			"GET /v1/vocab/lookup/audio",
+		},
+	},
+	{
 		// An embed call plus a hybrid search.
 		Name: "search", RPM: 60, Burst: 20,
 		Patterns: []string{

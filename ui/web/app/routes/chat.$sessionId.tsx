@@ -20,7 +20,7 @@
  * learner scrolls away, and the conversation can be pinned to one of the
  * learner's chat connections.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher, useRevalidator, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowDown } from "lucide-react";
@@ -32,6 +32,8 @@ import {
   cancelTurn,
   getMessages,
   getSession,
+  listFeedback,
+  listSessions,
   patchSession,
   startTurn,
   type ChatMessage,
@@ -39,6 +41,11 @@ import {
 import { listConnections, listRoutes } from "~/lib/byok.server";
 import { useTurnStream, type Source } from "~/hooks/use-turn-stream";
 import { useFollowScroll } from "~/hooks/use-follow-scroll";
+import { useChatFeedback } from "~/hooks/use-chat-feedback";
+import { useChatSearch } from "~/hooks/use-chat-search";
+import { FoldsProvider } from "~/components/chat/folds";
+import { RECENT_LIMIT, setLiveConversation } from "~/components/chat/recent-conversations";
+import { SearchBar } from "~/components/chat/search-bar";
 import { exchangeOwnVersions, fieldName, readOwnVersion, retellOf, type OwnVersion } from "~/lib/own-version";
 import { liveWork, readFollowUps, readWork } from "~/lib/chat-work";
 import { liveTurnID, requireUUID } from "~/lib/turns";
@@ -83,11 +90,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   // Validated before it is interpolated into an API path. See requireUUID.
   const sessionId = requireUUID(params.sessionId);
 
-  const [session, history, kbs, models] = await Promise.all([
+  const [session, history, kbs, models, recent, feedback] = await Promise.all([
     getSession(userId, sessionId),
     getMessages(userId, sessionId),
     listKBs(userId).catch(() => ({ knowledge_bases: [] })),
     chatModels(userId),
+    // The sidebar's rows under Chat, and the answers' ratings: either one
+    // failing costs its own part, never the page.
+    listSessions(userId, "", RECENT_LIMIT).catch(() => ({ sessions: [] })),
+    listFeedback(userId, sessionId).catch(() => ({ feedback: [] })),
   ]);
 
   return {
@@ -97,6 +108,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     ownVersionFirst: user.own_version_first === true,
     kbs: kbs.knowledge_bases.map((k) => ({ id: k.kb.id, name: k.kb.name })),
     models,
+    chatRecent: recent.sessions.map((s) => ({ id: s.id, title: s.title, running: s.running })),
+    feedback: feedback.feedback,
   };
 }
 
@@ -175,7 +188,17 @@ export async function action({ request, params }: Route.ActionArgs): Promise<Act
   }
 }
 
-export default function ChatSession({ loaderData }: Route.ComponentProps) {
+export default function ChatSession(props: Route.ComponentProps) {
+  // The folds are shared by the transcript, its search and "Expand all"; a
+  // new conversation starts with its own.
+  return (
+    <FoldsProvider key={props.loaderData.session.id}>
+      <Conversation {...props} />
+    </FoldsProvider>
+  );
+}
+
+function Conversation({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
   const fetcher = useFetcher<ActionResult>();
   const revalidator = useRevalidator();
@@ -203,6 +226,11 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
 
   const stream = useTurnStream(turnId);
   const queue = useQueue(sessionId);
+  const feedback = useChatFeedback(loaderData.feedback);
+  const transcript = useRef<HTMLDivElement>(null);
+  // Said once per answer to a screen reader; a stop and a failure have their
+  // own status and alert below.
+  const [announced, setAnnounced] = useState("");
 
   useEffect(() => {
     const data = fetcher.data;
@@ -236,6 +264,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
     setPendingQuestion(null);
     setPendingOwn(undefined);
     setStopped(stream.cancelled);
+    if (!stream.failure) setAnnounced(t("chat.answerReady"));
     // Queued messages wait while something is wrong; the learner resumes them.
     if (stream.failure && queue.items.length > 0) queue.pause();
     revalidator.revalidate();
@@ -253,6 +282,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
     revalidator,
     loaderData.messages,
     queue,
+    t,
   ]);
 
   const submitTurn = useCallback(
@@ -319,6 +349,12 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
   const busy = turnId !== null && !stream.finished;
   const starting = fetcher.state !== "idle" && fetcher.formData?.get("intent") === "send";
 
+  // The sidebar's dot for this conversation follows the stream.
+  useEffect(() => {
+    setLiveConversation(busy || starting ? sessionId : null);
+  }, [busy, starting, sessionId]);
+  useEffect(() => () => setLiveConversation(null), []);
+
   // Drain the queue: the next message goes once the turn before it has
   // finished well and nothing else is in flight. The pause gives the server a
   // moment to release the finished turn.
@@ -336,7 +372,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
   if (pendingQuestion !== null) {
     live.push({ id: "live-user", role: "user", content: pendingQuestion, sources: [], ownVersion: pendingOwn });
   }
-  if (turnId && (stream.answer !== "" || stream.tools.length > 0 || stream.compacted > 0)) {
+  if (turnId && (stream.answer !== "" || stream.tools.length > 0 || stream.compacted > 0 || stream.thinking !== "")) {
     live.push({
       id: `live-${turnId}`,
       role: "assistant",
@@ -344,6 +380,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
       sources: stream.sources,
       streaming: !stream.finished,
       work: { ...liveWork(stream.tools), summarised: stream.compacted || undefined },
+      thinking: stream.thinking || undefined,
     });
   }
   const turns = [...shown, ...settled, ...live];
@@ -358,7 +395,9 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
         ? { message: fetcher.data.error, retryable: false }
         : null;
 
-  const { away, jump } = useFollowScroll(`${turns.length}:${stream.answer.length}:${stream.tools.length}`);
+  const contentKey = `${turns.length}:${stream.answer.length}:${stream.tools.length}`;
+  const { away, jump } = useFollowScroll(contentKey);
+  const search = useChatSearch(transcript, contentKey);
 
   const attachedNames = loaderData.kbs.filter((k) => loaderData.session.kb_ids.includes(k.id)).map((k) => k.name);
 
@@ -368,6 +407,10 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
     // of the scroll region. The sources sit in the aside from 1280.
     <div className="-mx-4 -my-6 flex min-h-0 flex-1 flex-col lg:-mx-8 lg:-my-8 lg:min-h-[calc(100%+4rem)]">
       <div className="mx-auto flex min-h-0 w-full max-w-(--lp-measure-read) flex-1 flex-col px-4 pt-8 lg:px-8 lg:pt-12 xl:px-0">
+        <SearchBar search={search} className="sticky top-2 z-20 mb-4" />
+        <p role="status" className="sr-only">
+          {announced}
+        </p>
         <ContextBar
           title={loaderData.session.title}
           kbs={loaderData.kbs}
@@ -375,7 +418,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
           allowWeb={loaderData.session.allow_web}
         />
 
-        <div className="min-h-0 flex-1 pb-8">
+        <div ref={transcript} className="min-h-0 flex-1 pb-8">
           <MessageList
             turns={turns}
             actions={{
@@ -383,6 +426,7 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
               onRegenerate: regenerate,
               onEdit: edit,
               onFollowUp: send,
+              feedback,
             }}
           />
 
@@ -478,12 +522,12 @@ export default function ChatSession({ loaderData }: Route.ComponentProps) {
 
       {/* "Sources" in the aside, in place of an outline: the latest answer's
           passages as a dated-list line each (number · document — page), the
-          numbers matching the superscripts in the answer. Tool steps are in
-          the transcript (WorkRow); the panel keeps the sources and the
-          reasoning. */}
+          numbers matching the superscripts in the answer. Tool steps and the
+          reasoning are in the answer's process row (postclaw's grouped work);
+          the panel keeps the sources. */}
       <RightPanel title={t("chat.sources")}>
-        <ToolActivityPanel sources={panelSources} tools={[]} thinking={stream.thinking} stage={null} />
-        {panelSources.length === 0 && stream.thinking === "" && (
+        <ToolActivityPanel sources={panelSources} tools={[]} thinking="" stage={null} />
+        {panelSources.length === 0 && (
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("panel.sources.empty")}</p>
         )}
       </RightPanel>

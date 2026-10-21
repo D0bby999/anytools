@@ -86,7 +86,7 @@ export function NavScreen({
           </div>
         </div>
 
-        <div className="mt-6 rounded-md bg-muted px-3.5 py-3">
+        <div className="mt-6 rounded-md bg-muted px-4 py-3">
           <AppearanceSwitch label={t("nav.appearance")} />
         </div>
 

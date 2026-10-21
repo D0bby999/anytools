@@ -182,8 +182,11 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
         {/* ONE scroll region, at every breakpoint: one tab stop for axe's
             scrollable-region-focusable, one thing for the progress hairline
             and the outline's scroll-spy to measure. The aside stays in view by
-            sticking, not by owning its own overflow. */}
-        <div data-lp-scroll tabIndex={0} className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+            sticking, not by owning its own overflow. Its scrollbar's room is
+            kept on every page (scrollbar-gutter), or where scrollbars take
+            space the centred column moves by half of one between a long page
+            and a short one. */}
+        <div data-lp-scroll tabIndex={0} className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable]">
           {pageLayout ? (
             <div className="flex flex-1 flex-col lg:flex-row">
               <main id="lp-main" className="flex min-w-0 flex-1 flex-col px-4 py-6 lg:px-8 lg:py-8">
@@ -193,11 +196,13 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
               {ownsPanel ? <DocAside entries={[]} ownsPanel /> : null}
             </div>
           ) : (
-            // VPDoc: 32 24 96 on a phone, 48 32 128 from 768, 48 32 0 from
-            // 960 (the article's own 128 bottom takes over); from 1440 the
-            // right margin of a centred 1480 layout.
-            <div className="flex justify-center px-6 pt-8 pb-24 md:px-8 md:pt-12 md:pb-32 min-[960px]:pb-0 min-[1440px]:pr-[max(2rem,calc((100vw-var(--lp-layout-max))/2+2rem))]">
-              <main id="lp-main" className="w-full min-w-0 min-[960px]:px-8 min-[960px]:pb-32 xl:min-w-[640px] xl:flex-1">
+            // After VPDoc, tightened (owner, 2026-10-21: the first screen
+            // should hold the page, not its margins): 24 24 64 on a phone,
+            // 32 32 64 from 768, 32 32 0 from 960 (the article's own 64
+            // bottom takes over); from 1440 the right margin of a centred
+            // 1480 layout.
+            <div className="flex justify-center px-6 pt-6 pb-16 md:px-8 md:pt-8 md:pb-16 min-[960px]:pb-0 min-[1440px]:pr-[max(2rem,calc((100vw-var(--lp-layout-max))/2+2rem))]">
+              <main id="lp-main" className="w-full min-w-0 min-[960px]:px-8 min-[960px]:pb-16 xl:min-w-[640px] xl:flex-1">
                 <div
                   data-lp-content
                   className={narrowMeasure ? "mx-auto max-w-(--lp-measure-read) xl:max-w-(--lp-measure-aside)" : "mx-auto max-w-(--lp-measure-read)"}

@@ -73,9 +73,9 @@ export function SolveForm<T>({
           type="file"
           accept="image/png,image/jpeg,image/webp,image/gif"
           aria-describedby="lp-solve-photo-hint"
-          className="mt-1.5 lp-file"
+          className="mt-2 lp-file"
         />
-        <p id="lp-solve-photo-hint" className="mt-1.5 text-[13px] leading-5 text-muted-foreground">
+        <p id="lp-solve-photo-hint" className="mt-2 text-[13px] leading-5 text-muted-foreground">
           {t("form.photoHint")}
         </p>
       </div>
@@ -97,7 +97,7 @@ export function SolveForm<T>({
 
       <fieldset className="my-2">
         <legend className="text-sm leading-6 font-medium">{t("form.variant")}</legend>
-        <div className="mt-1.5 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-2">
           {(["solve", "check"] as const).map((v) => (
             <label key={v} className={CHOICE}>
               <input
@@ -154,5 +154,5 @@ export function SolveForm<T>({
  * action ink when hovered or chosen. Shared with the research form's modes.
  */
 export const CHOICE =
-  "flex min-h-10 cursor-pointer items-center gap-2 rounded-[4px] border-2 border-border bg-card px-3 py-1.5 text-sm transition-colors " +
+  "flex min-h-10 cursor-pointer items-center gap-2 rounded-[4px] border-2 border-border bg-card px-3 py-2 text-sm transition-colors " +
   "hover:border-primary has-checked:border-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary";

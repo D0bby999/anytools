@@ -231,7 +231,7 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
             {t("reminders.install.installed")}
           </p>
         ) : device.ios ? (
-          <ol className="mt-4 max-w-(--lp-measure-read) list-decimal space-y-1.5 pl-5 text-sm leading-snug">
+          <ol className="lp-steps mt-4 max-w-(--lp-measure-read) space-y-2 text-sm leading-snug">
             <li>{t("reminders.install.ios.safari")}</li>
             <li>{t("reminders.install.ios.share")}</li>
             <li>{t("reminders.install.ios.add")}</li>
@@ -244,7 +244,7 @@ export function RemindersPanel({ push, pending, result }: { push: Push; pending:
             </Button>
           </div>
         ) : (
-          <ol className="list-decimal pl-5">
+          <ol className="lp-steps space-y-1">
             <li>{t("reminders.install.browser")}</li>
           </ol>
         )}

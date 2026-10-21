@@ -37,7 +37,7 @@ export function WorksheetsDue({ count, private: privateCount = 0 }: { count: num
           {t("life.homePrivate", { count: privateCount })}
         </p>
       ) : null}
-      <Link to="/toolkit" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:text-primary-hover">
+      <Link to="/toolkit" className="mt-1 inline-block relative text-sm leading-6 font-medium text-primary underline underline-offset-4 hover:text-primary-hover after:absolute after:inset-x-0 after:-inset-y-3">
         {t("home.open")}
       </Link>
     </section>

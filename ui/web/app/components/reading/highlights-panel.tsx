@@ -27,7 +27,7 @@ export function HighlightsPanel({ highlights }: { highlights: Highlight[] }) {
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("highlights.empty")}</p>
       ) : (
         // A small dated list (P4): **p. N** · the passage, its two actions under it.
-        <ul className="mt-2 list-disc space-y-3 pl-5 text-sm leading-6">
+        <ul className="mt-2 space-y-3 text-sm leading-6">
           {sorted.map((h) => (
             <HighlightRow key={h.id} highlight={h} />
           ))}

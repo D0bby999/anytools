@@ -613,3 +613,30 @@ func nonNilOptions(in []quiz.Option) []quiz.Option {
 	}
 	return in
 }
+
+// ExistingQuestions implements quiz.SetStore: of the prompts and code
+// modules given, those the knowledge base already has a question for, keyed
+// by the prompt or by "module:<module>".
+func (s *QuestionStore) ExistingQuestions(ctx context.Context, userID, kbID uuid.UUID, prompts, modules []string) (map[string]bool, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT prompt, COALESCE(code->>'module', '') FROM questions
+		 WHERE user_id = $1 AND kb_id = $2
+		   AND (prompt = ANY($3) OR (type = 'code' AND code->>'module' = ANY($4)))`,
+		userID, kbID, prompts, modules)
+	if err != nil {
+		return nil, fmt.Errorf("read existing questions: %w", err)
+	}
+	defer rows.Close()
+	have := map[string]bool{}
+	for rows.Next() {
+		var prompt, module string
+		if err := rows.Scan(&prompt, &module); err != nil {
+			return nil, fmt.Errorf("read existing questions: %w", err)
+		}
+		have[prompt] = true
+		if module != "" {
+			have["module:"+module] = true
+		}
+	}
+	return have, rows.Err()
+}

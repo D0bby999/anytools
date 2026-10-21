@@ -149,7 +149,7 @@ export function StudyNotes({
                   </h3>
                   {s.summary ? <p className="text-sm leading-prose">{s.summary}</p> : null}
                   {s.points.length > 0 ? (
-                    <ul className="list-disc space-y-1 pl-5 text-sm leading-snug">
+                    <ul className="space-y-1 text-sm leading-snug">
                       {s.points.map((p, i) => (
                         <li key={i}>
                           {p.text}

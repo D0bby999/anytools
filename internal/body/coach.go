@@ -800,6 +800,11 @@ func intakeOut(in *Intake) any {
 func librarySlice(equipment []string) string {
 	var b strings.Builder
 	for _, e := range Library() {
+		// free-exercise-db's additions are the learner's to pick: the coach's
+		// list stays openGym's, so its request is no larger (phase 3).
+		if e.Source == SourceFedb {
+			continue
+		}
 		if len(equipment) > 0 && !slices.Contains(equipment, e.Equipment) && !e.Bodyweight() {
 			continue
 		}

@@ -20,7 +20,7 @@ export function RepeatedResistance({ resistance, cycleId }: { resistance: Resist
   const { t } = useTranslation("loop");
   const label = useResistanceLabels();
   return (
-    <div role="note" aria-labelledby="lp-repeated-title" className="my-6 rounded-lg border bg-muted px-[18px] py-3">
+    <div role="note" aria-labelledby="lp-repeated-title" className="my-6 rounded-lg border bg-muted px-4 py-3">
       <div id="lp-repeated-title" className="font-semibold">
         {t("repeated.title")}
       </div>

@@ -17,6 +17,8 @@
  *    with `extract` is a zip: it is kept in node_modules/.cache by its hash,
  *    and only its files under `prefix` whose names match `match` are staged
  *    (Ultimate Geography's flags and maps, not the rest of its release).
+ *    With `flatten`, a match may be one folder deep, staged as
+ *    "<folder>-<file>" (free-exercise-db's "<exercise>/0.jpg").
  *
  * An entry with `precompress` also gets a brotli copy (`<file>.br`, quality
  * 11) of each script, wasm and JSON file of 64 KB or more, which the route
@@ -85,8 +87,12 @@ async function extract(out, file) {
   let n = 0;
   for (const e of await reader.getEntries()) {
     if (e.directory || !e.filename.startsWith(file.extract.prefix)) continue;
-    const name = e.filename.slice(file.extract.prefix.length);
-    if (name.includes("/") || !match.test(name)) continue;
+    let name = e.filename.slice(file.extract.prefix.length);
+    if (!match.test(name)) continue;
+    // flatten: "<folder>/<file>" is staged as "<folder>-<file>"; the match
+    // is what keeps ".." and deeper paths out.
+    if (file.extract.flatten) name = name.replace("/", "-");
+    if (name.includes("/")) continue;
     writeFileSync(join(out, name), await e.getData(new Uint8ArrayWriter()));
     n++;
   }

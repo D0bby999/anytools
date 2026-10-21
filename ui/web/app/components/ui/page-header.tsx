@@ -32,9 +32,9 @@ export function PageHeader({
       <h1 id={id} className="lp-h1 break-words">
         {title}
       </h1>
-      {lede ? <div className="mt-[18px] text-base leading-[1.85] text-muted-foreground">{lede}</div> : null}
+      {lede ? <div className="mt-4 text-base leading-[1.85] text-muted-foreground">{lede}</div> : null}
       {children}
-      {actions ? <div className="mt-[18px] flex flex-wrap items-center gap-x-4 gap-y-2.5">{actions}</div> : null}
+      {actions ? <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3">{actions}</div> : null}
     </header>
   );
 }

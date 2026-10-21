@@ -355,7 +355,8 @@
         "coding": "Khái niệm và câu lệnh lập trình.",
         "ultimateGeographyFlags": "Gọi tên nước, vùng lãnh thổ hoặc tổ chức từ lá cờ.",
         "ultimateGeographyMaps": "Gọi tên nước, khu vực hoặc đại dương được tô trên bản đồ."
-      }
+      },
+      "more": "Thêm danh sách từ, bộ câu hỏi, khoá học và sách trong Thư viện"
     },
     "licence": {
       "publicDomain": "Miền công cộng",
@@ -408,5 +409,24 @@
       "credit": "Hình:",
       "publicDomain": "phạm vi công cộng"
     }
+  },
+  "sources": {
+    "open": "Câu ví dụ và phát âm",
+    "title": "Câu ví dụ và bản ghi âm cho {{term}}",
+    "sentences": "Câu ví dụ (Tatoeba)",
+    "lookingSentences": "Đang tìm trong Tatoeba… lần đầu có thể mất nửa phút.",
+    "noSentences": "Tatoeba chưa có câu nào chứa từ này.",
+    "down": "{{source}} không phản hồi. Hãy thử lại sau.",
+    "failed": "Chưa làm được. Hãy thử lại.",
+    "translatedBy": "bản dịch: {{author}}, {{licence}}",
+    "use": "Dùng câu này",
+    "useOf": "Dùng “{{sentence}}” làm câu của từ",
+    "isTheSentence": "Đây là một câu của từ này.",
+    "used": "Đã lưu làm câu của từ; từ bạn đang học sẽ có thẻ điền từ từ câu này.",
+    "recordings": "Người bản ngữ đọc",
+    "lookingRecordings": "Đang tìm bản ghi âm…",
+    "noRecordings": "Chưa có bản ghi âm cho từ này.",
+    "recordingOf": "{{term}}, do {{speaker}} đọc",
+    "close": "Đóng"
   }
 }

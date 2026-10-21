@@ -355,7 +355,8 @@
         "coding": "Conceitos e comandos de programação.",
         "ultimateGeographyFlags": "Diga o país, território ou organização pela bandeira.",
         "ultimateGeographyMaps": "Diga o país, região ou oceano destacado no mapa."
-      }
+      },
+      "more": "Mais listas de palavras, bancos de questões, cursos e livros na Biblioteca"
     },
     "licence": {
       "publicDomain": "Domínio público",
@@ -408,5 +409,24 @@
       "credit": "Imagem:",
       "publicDomain": "domínio público"
     }
+  },
+  "sources": {
+    "open": "Frases e som",
+    "title": "Frases e gravações de {{term}}",
+    "sentences": "Frases de exemplo (Tatoeba)",
+    "lookingSentences": "Procurando no Tatoeba… a primeira busca pode levar meio minuto.",
+    "noSentences": "O Tatoeba não tem frases com esta palavra.",
+    "down": "{{source}} não respondeu. Tente mais tarde.",
+    "failed": "Não funcionou. Tente de novo.",
+    "translatedBy": "tradução: {{author}}, {{licence}}",
+    "use": "Usar esta frase",
+    "useOf": "Usar “{{sentence}}” como frase da palavra",
+    "isTheSentence": "Esta é uma das frases da palavra.",
+    "used": "Salva como frase da palavra; uma palavra que você está aprendendo ganha dela o cartão de completar.",
+    "recordings": "Dita por pessoas",
+    "lookingRecordings": "Procurando gravações…",
+    "noRecordings": "Ainda não há gravação desta palavra.",
+    "recordingOf": "{{term}}, dita por {{speaker}}",
+    "close": "Fechar"
   }
 }

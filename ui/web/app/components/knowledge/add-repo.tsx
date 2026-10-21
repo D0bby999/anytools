@@ -113,7 +113,7 @@ function ExtensionGroup({ label, extensions, checked }: { label: string; extensi
       <p className="text-xs font-semibold text-faint">{label}</p>
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {extensions.map((ext) => (
-          <label key={ext} className="inline-flex min-h-11 items-center gap-1.5 font-mono text-xs">
+          <label key={ext} className="inline-flex min-h-11 items-center gap-2 font-mono text-xs">
             <input type="checkbox" name="ext" value={ext} defaultChecked={checked} className="size-4 accent-primary" />
             {ext}
           </label>

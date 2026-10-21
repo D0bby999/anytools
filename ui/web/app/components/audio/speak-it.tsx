@@ -100,7 +100,7 @@ export function SpeakIt({ overview: o }: { overview: AudioOverview }) {
                   disabled={!e.usable}
                   onChange={() => setChosen(value)}
                   aria-describedby={`${id}-detail`}
-                  className="mt-1.5 size-4 shrink-0"
+                  className="mt-2 size-4 shrink-0"
                 />
                 <div className="min-w-0">
                   <label htmlFor={id} className="text-sm font-medium">
@@ -137,7 +137,7 @@ export function SpeakIt({ overview: o }: { overview: AudioOverview }) {
               value={BROWSER}
               checked={chosen === BROWSER}
               onChange={() => setChosen(BROWSER)}
-              className="mt-1.5 size-4 shrink-0"
+              className="mt-2 size-4 shrink-0"
             />
             <div className="min-w-0">
               <label htmlFor={`lp-speak-${o.id}-${BROWSER}`} className="text-sm font-medium">

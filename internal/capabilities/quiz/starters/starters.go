@@ -20,6 +20,7 @@ type Exercise struct {
 	Tests        string `json:"tests"`
 	Solution     string `json:"solution"`
 	Credit       string `json:"credit"`
+	Difficulty   int    `json:"difficulty"`
 }
 
 //go:embed python.json

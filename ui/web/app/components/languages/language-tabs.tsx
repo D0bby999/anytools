@@ -21,7 +21,7 @@ export function LanguageTabs({ studied, saved }: { studied: string[]; saved: Sav
               {nativeName(l)}
             </span>
             {n > 0 ? (
-              <span className="rounded-sm bg-highlight px-1.5 text-xs font-semibold text-highlight-foreground tabular-nums">
+              <span className="rounded-sm bg-highlight px-2 text-xs font-semibold text-highlight-foreground tabular-nums">
                 <span aria-hidden="true">{n}</span>
                 <span className="sr-only">{t("languages.tabs.due", { count: n })}</span>
               </span>

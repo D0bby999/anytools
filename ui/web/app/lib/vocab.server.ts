@@ -4,6 +4,7 @@
  * an explicit user id, as in reading.server.ts.
  */
 import { apiFetch } from "~/lib/api.server";
+import { API_BASE, API_TOKEN } from "~/lib/env.server";
 import type { Decision, DueCard, Rating, ReviewResult, Term, VocabNote, Week } from "~/lib/vocab-types";
 import type { StudiedLanguages } from "~/lib/languages";
 
@@ -110,9 +111,12 @@ export function reviewCard(
 /** One imported batch's outcome (the private design notes, phase 3). */
 export type ImportResult = { created: number; duplicates: number; invalid: number; first_day?: string; last_day?: string };
 
-/** One batch of an Anki deck's words, as the page mapped them. */
-export function importWords(userId: string, lang: string, notes: { term: string; meaning: string; sentence: string }[]) {
-  return apiFetch<ImportResult>("/v1/vocab/import", userId, { method: "POST", body: { lang, notes } });
+/**
+ * One batch of an Anki deck's words, as the page mapped them; or of a
+ * Library word list's, with its origin ("library:hsk3-1").
+ */
+export function importWords(userId: string, lang: string, notes: { term: string; meaning: string; sentence: string }[], origin?: string) {
+  return apiFetch<ImportResult>("/v1/vocab/import", userId, { method: "POST", body: { lang, notes, ...(origin ? { origin } : {}) } });
 }
 
 /** Every word being learned, read in pages of the API's largest list. */
@@ -137,3 +141,50 @@ export function setStudiedLanguages(userId: string, studied: string[], current =
     body: { studied, current },
   });
 }
+
+// ── sentences and recordings from open sources (the private design notes, phase 6)
+
+export type SourceSentence = {
+  id: number;
+  text: string;
+  licence: string;
+  author: string;
+  url: string;
+  translation?: { text: string; licence: string; author: string };
+};
+export type SourceRecording = { id: string; speaker: string; licence: string; page: string; source: string };
+
+export function lookupSentences(userId: string, lang: string, term: string, to: string) {
+  const q = new URLSearchParams({ lang, term, to });
+  return apiFetch<{ sentences: SourceSentence[] }>(`/v1/vocab/lookup/sentences?${q}`, userId);
+}
+
+export function lookupRecordings(userId: string, lang: string, term: string) {
+  const q = new URLSearchParams({ lang, term });
+  return apiFetch<{ recordings: SourceRecording[] }>(`/v1/vocab/lookup/recordings?${q}`, userId);
+}
+
+/** Takes a source's sentence for the word: its newest, credited, and its cloze card. */
+export function addSourceSentence(userId: string, id: string, body: { sentence: string; credit: string; url: string }) {
+  return apiFetch<VocabNote>(`/v1/vocab/${encodeURIComponent(id)}/sentence`, userId, { method: "POST", body });
+}
+
+/** A recording's sound, streamed from the API (which fetched it from Commons or Wiktionary). */
+export async function fetchSourceAudio(userId: string, id: string, signal: AbortSignal): Promise<Response> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/v1/vocab/lookup/audio?${new URLSearchParams({ id })}`, {
+      headers: { ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}), "X-AnyTools-User-Id": userId },
+      signal,
+    });
+  } catch {
+    return new Response("The API could not be reached.", { status: 503 });
+  }
+  const headers = new Headers({ "X-Content-Type-Options": "nosniff" });
+  for (const name of ["Content-Type", "Cache-Control"]) {
+    const value = res.headers.get(name);
+    if (value) headers.set(name, value);
+  }
+  return new Response(res.ok ? res.body : null, { status: res.status, headers });
+}
+

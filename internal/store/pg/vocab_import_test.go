@@ -109,3 +109,33 @@ func TestVocabAnImportedDeckComesUpTwentyADay(t *testing.T) {
 		}
 	}
 }
+
+// A Library word list's level (the private design notes,
+// phase 4) is recorded with its origin and paced after an Anki deck's.
+func TestVocabALibraryWordListIsPacedAfterAnAnkiDeck(t *testing.T) {
+	ctx, f := newVocabFixture(t)
+	deck := make([]vocab.ImportNote, 30)
+	for i := range deck {
+		deck[i] = vocab.ImportNote{Term: fmt.Sprintf("anki%02d", i), Meaning: "m"}
+	}
+	if _, err := f.svc.Import(ctx, f.alice, "en", deck); err != nil {
+		t.Fatal(err)
+	}
+	res, err := f.svc.ImportFrom(ctx, f.alice, "zh", "library:hsk3-1", []vocab.ImportNote{{Term: "我", Meaning: "wǒ · I; me"}, {Term: "你", Meaning: "nǐ · you"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The deck's 30 fill the 28th and ten of the 29th: the list's words follow.
+	if res.Created != 2 || res.FirstDay != "2026-09-29" {
+		t.Fatalf("result = %+v", res)
+	}
+	list, err := f.svc.List(ctx, f.alice, vocab.Filter{Terms: []string{"我"}})
+	if err != nil || len(list) != 1 || list[0].Origin != "library:hsk3-1" || list[0].Lang != "zh" {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+	for _, origin := range []string{"library:", "library:../x", "library:HSK", "zotero", "library:" + strings.Repeat("a", 49)} {
+		if _, err := f.svc.ImportFrom(ctx, f.alice, "zh", origin, []vocab.ImportNote{{Term: "好", Meaning: "hǎo"}}); !errors.Is(err, vocab.ErrInvalid) {
+			t.Errorf("origin %q: %v", origin, err)
+		}
+	}
+}

@@ -166,14 +166,14 @@ function DisconnectWithFiles({ busy, onKeep }: { busy: boolean; onKeep: () => vo
       <h3 id="lp-drive-disconnect" className="lp-section">
         {t("settings.connections.drive.disconnectFilesTitle")}
       </h3>
-      <ul className="mt-2 max-w-(--lp-measure-read) list-disc space-y-1 pl-5 text-sm leading-prose">
+      <ul className="mt-2 max-w-(--lp-measure-read) space-y-1 text-sm leading-prose">
         <li>{t("settings.connections.drive.disconnectFilesStay")}</li>
         <li>{t("settings.connections.drive.disconnectFilesClosed")}</li>
         <li>{t("settings.connections.drive.disconnectFilesMove")}</li>
       </ul>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button asChild variant="outline" size="sm">
-          <Link to="/settings/storage">{t("settings.connections.drive.moveBackFirst")}</Link>
+          <Link to="/storage">{t("settings.connections.drive.moveBackFirst")}</Link>
         </Button>
         <Form method="post">
           <input type="hidden" name="intent" value="drive-disconnect" />

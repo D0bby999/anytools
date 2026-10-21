@@ -11,6 +11,7 @@
 package vocabapi
 
 import (
+	"cmp"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -20,11 +21,15 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/D0bby999/anytools/internal/api/httpx"
+	"github.com/D0bby999/anytools/internal/connectors/wordsources"
 	"github.com/D0bby999/anytools/internal/vocab"
 )
 
 // Handler serves the vocabulary routes.
-type Handler struct{ svc *vocab.Service }
+type Handler struct {
+	svc   *vocab.Service
+	words *wordsources.Client
+}
 
 // NewHandler returns a Handler.
 func NewHandler(svc *vocab.Service) *Handler { return &Handler{svc: svc} }
@@ -47,6 +52,8 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("PUT /v1/vocab/languages", h.setLanguages) // budget: none
 	// the private design notes, phase 5: general decks.
 	h.registerDecks(mux)
+	// the private design notes, phase 6: sentences and recordings.
+	h.registerLookups(mux)
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
@@ -62,12 +69,14 @@ func Patterns() []string {
 		"POST /v1/vocab/import",
 		"GET /v1/vocab/languages",
 		"PUT /v1/vocab/languages",
-	}, deckPatterns()...)
+	}, append(deckPatterns(), lookupPatterns()...)...)
 }
 
 type importRequest struct {
-	Lang  string             `json:"lang"`
-	Notes []vocab.ImportNote `json:"notes"`
+	Lang string `json:"lang"`
+	// Origin: empty for an Anki deck, or a library list's "library:<list>-<level>".
+	Origin string             `json:"origin"`
+	Notes  []vocab.ImportNote `json:"notes"`
 }
 
 // importDeck saves one batch of a deck the page read and mapped.
@@ -78,7 +87,7 @@ func (h *Handler) importDeck(w http.ResponseWriter, r *http.Request) {
 		badRequest(w, "malformed request body")
 		return
 	}
-	res, err := h.svc.Import(r.Context(), userID, req.Lang, req.Notes)
+	res, err := h.svc.ImportFrom(r.Context(), userID, req.Lang, cmp.Or(req.Origin, vocab.OriginAnki), req.Notes)
 	if err != nil {
 		h.fail(w, r, err)
 		return

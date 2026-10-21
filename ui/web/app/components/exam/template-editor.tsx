@@ -66,7 +66,7 @@ export function TemplateEditor({ template, paperUrl }: { template: ExamTemplate;
           <h2 id="lp-exam-warnings" className="lp-section text-warning">
             {t("exams.review.warnings")}
           </h2>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+          <ul className="mt-2 space-y-1 text-sm">
             {template.warnings.map((w) => (
               <li key={w}>{w}</li>
             ))}

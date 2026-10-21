@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
 import { Backdrop, useDrawer } from "~/components/layout/drawer";
+import { RecentConversations, useChatRecent } from "~/components/chat/recent-conversations";
 import { NAV_TREE, sectionOf, TOP_NAV, type NavGroup, type NavPage } from "~/lib/nav-tree";
 import { PARTS, partOf, type PartId } from "~/lib/parts";
 import { cn } from "~/lib/utils";
@@ -61,16 +62,22 @@ function useFolds(current: string | undefined) {
 }
 
 /*
- * One row shape for every page and for the folded groups' titles: 30 high,
- * a 16px icon, a rounded hover, and the current row filled in navy tint on
+ * One row shape for every page and for the folded groups' titles: 32 high
+ * (on the 4pt scale), a 16px icon, a rounded hover, and the current row filled in navy tint on
  * all four sides (never a one-sided bar). Owner, 2026-10-21: the VitePress
  * rows (32 high, no icons, groups split by rules) read as sparse.
  */
 const ROW =
-  "-mx-2 flex min-h-[30px] items-center gap-2.5 rounded-md px-2 py-[5px] text-sm leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+  "-mx-2 flex min-h-8 items-center gap-3 rounded-md px-2 py-1 text-sm leading-6 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 const ROW_IDLE = "text-foreground hover:bg-hover";
 const ROW_CURRENT = "bg-selected font-semibold text-selected-foreground";
 const ICON = "size-4 shrink-0";
+/*
+ * Child rows: their text lines up with the parent's (8 + 16 icon + 12 gap =
+ * 28 in), and the guide line, a neutral tree rule drawn as a pseudo-element so
+ * it takes no width, runs under the centre of the parent's icon.
+ */
+const NESTED = "relative my-1 pl-7 before:absolute before:inset-y-0 before:left-2 before:w-px before:bg-border";
 const CARET = "size-4 transition-transform duration-200 motion-reduce:transition-none";
 
 function PageLink({ page, current, hasActive, nested }: { page: NavPage; current?: string; hasActive?: boolean; nested?: boolean }) {
@@ -114,6 +121,21 @@ function Item({ page, current, folds }: { page: NavPage; current?: string; folds
   const { t } = useTranslation("common");
   const childrenId = useId();
   const hasActive = !!page.items && contains(page, current) && page.to !== current;
+  // Chat carries the latest conversations as its children (plan 261021-1100),
+  // from the chat routes' loaders. With one of them open, it is the current
+  // row and Chat holds it, as a parent does.
+  const recent = useChatRecent();
+  if (page.to === "/chat" && recent && recent.sessions.length > 0) {
+    const inside = !!recent.current && page.to === current;
+    return (
+      <div>
+        <PageLink page={page} current={inside ? undefined : current} hasActive={inside} />
+        <div className={NESTED}>
+          <RecentConversations sessions={recent.sessions} current={recent.current} />
+        </div>
+      </div>
+    );
+  }
   if (!page.items) return <PageLink page={page} current={current} />;
   const open = folds.isOpen(page.to, page.collapsed, contains(page, current));
   return (
@@ -129,14 +151,13 @@ function Item({ page, current, folds }: { page: NavPage; current?: string; folds
             aria-controls={childrenId}
             aria-label={t("nav.toggleSection", { section: t(page.labelKey) })}
             onClick={() => folds.toggle(page.to, open)}
-            className="-mr-2 flex size-[30px] shrink-0 items-center justify-center rounded-md text-deco transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="-mr-2 flex size-8 shrink-0 items-center justify-center rounded-md text-deco transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <Caret open={open} />
           </button>
         ) : null}
       </div>
-      {/* The guide line runs under the parent's icon; a neutral tree rule, not an accent. */}
-      <ul id={childrenId} hidden={!open} className="my-0.5 ml-[7px] border-l pl-[11px]">
+      <ul id={childrenId} hidden={!open} className={NESTED}>
         {page.items.map((child) => (
           <li key={child.to}>
             <PageLink page={child} current={current} nested />
@@ -159,7 +180,7 @@ function Group({ group, current, folds }: { group: NavGroup; current?: string; f
   const part = PARTS.find((p) => p.id === group.id);
   const GroupIcon = group.icon;
   const items = (
-    <ul id={itemsId} hidden={!open} className={cn(GroupIcon && "my-0.5 ml-[7px] border-l pl-[11px]")}>
+    <ul id={itemsId} hidden={!open} className={cn(GroupIcon && NESTED)}>
       {group.items.map((page) => (
         <li key={page.to}>
           <Item page={page} current={current} folds={folds} />
@@ -179,18 +200,22 @@ function Group({ group, current, folds }: { group: NavGroup; current?: string; f
       aria-label={group.untitled ? t(group.labelKey) : undefined}
       className={cn(
         "min-[960px]:w-[calc(var(--lp-rail-w)-64px)]",
-        part && "mt-5",
-        group.id === "appendix" && "mt-5",
+        !group.untitled && "mt-4",
       )}
     >
       {group.untitled ? null : part ? (
         <h2 id={headingId} className="mb-1 flex items-center gap-2 font-sans text-xs leading-5 font-semibold text-muted-foreground">
-          <span aria-hidden="true" className="lp-tab h-[18px] min-w-6 justify-center px-1 text-[11px] leading-none">
+          <span aria-hidden="true" className="lp-tab h-5 min-w-6 justify-center px-1 text-[11px] leading-none">
             {part.numeral}
           </span>
           <span>
             <span className="sr-only">{t("parts.part", { numeral: part.numeral })}:</span> {t(part.labelKey)}
           </span>
+        </h2>
+      ) : !foldable ? (
+        // Mine: the same quiet caption as a part's, without a numeral.
+        <h2 id={headingId} className="mb-1 font-sans text-xs leading-5 font-semibold text-muted-foreground">
+          {t(group.labelKey)}
         </h2>
       ) : (
         <h2 id={headingId} className="font-sans text-sm leading-5 font-medium">
@@ -211,6 +236,26 @@ function Group({ group, current, folds }: { group: NavGroup; current?: string; f
       )}
       {items}
     </div>
+  );
+}
+
+/**
+ * Settings, pinned at the sidebar's foot: one row that opens the Settings
+ * page, whose own tabs hold its sections (owner, 2026-10-21: a folded group
+ * of seven rows made Settings a menu, not a place). It is current on every
+ * Settings tab.
+ */
+function SettingsRow({ pathname }: { pathname: string }) {
+  const { t } = useTranslation("common");
+  const group = NAV_TREE.find((g) => g.id === "settings");
+  const Icon = group?.icon;
+  const active = pathname === "/settings" || pathname.startsWith("/settings/");
+  return (
+    <Link to="/settings" aria-current={active ? "page" : undefined} className={cn(ROW, "font-medium", active ? ROW_CURRENT : ROW_IDLE)}>
+      {Icon ? <Icon aria-hidden="true" className={cn(ICON, active ? "text-selected-foreground" : "text-deco")} /> : null}
+      <span className="min-w-0 truncate">{t("nav.settings")}</span>
+      {active ? <span className="sr-only"> {t("nav.current")}</span> : null}
+    </Link>
   );
 }
 
@@ -274,16 +319,14 @@ export function Sidebar({
               the pointer is over the list. */}
           <div
             ref={scroller}
-            className="lp-scroll-quiet relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-6 pt-6 pb-6 min-[960px]:pt-3 min-[960px]:pl-(--lp-shell-gutter)"
+            className="lp-scroll-quiet relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-6 pt-6 pb-4 min-[960px]:pt-2 min-[960px]:pl-(--lp-shell-gutter)"
           >
             {NAV_TREE.filter((g) => g.id !== "settings").map((group) => (
               <Group key={group.id} group={group} current={current} folds={folds} />
             ))}
           </div>
-          <div className="lp-scroll-quiet max-h-[50%] shrink-0 overflow-y-auto border-t px-6 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[960px]:pl-(--lp-shell-gutter)">
-            {NAV_TREE.filter((g) => g.id === "settings").map((group) => (
-              <Group key={group.id} group={group} current={current} folds={folds} />
-            ))}
+          <div className="shrink-0 border-t px-6 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] min-[960px]:pl-(--lp-shell-gutter)">
+            <SettingsRow pathname={pathname} />
           </div>
         </nav>
       </aside>

@@ -10,6 +10,7 @@
     "knowledge": "Knowledge",
     "chat": "Chat",
     "notebooks": "Notebook",
+    "library": "Library",
     "quiz": "Quiz",
     "mastery": "Mastery",
     "body": "Body",
@@ -27,7 +28,8 @@
       "practise": "Part III · Practise",
       "reflect": "Part IV · Reflect",
       "settings": "Settings",
-      "appendix": "Appendix"
+      "appendix": "Appendix",
+      "mine": "Mine"
     },
     "pages": {
       "quizBank": "Question bank",
@@ -47,10 +49,13 @@
       "settingsSearch": "Search",
       "settingsAccount": "Account",
       "settingsProfile": "Profile",
-      "settingsStorage": "Storage",
       "settingsReminders": "Reminders",
       "freeTools": "Free tools",
-      "anyProfile": "AnyProfile"
+      "anyProfile": "AnyProfile",
+      "files": "My files",
+      "upload": "Upload",
+      "links": "Study links",
+      "storage": "Storage"
     },
     "search": "Search",
     "searchShortcut": "Open search with {{keys}}",
@@ -217,10 +222,14 @@
         "settingsSearch": "Configure how you search for sources.",
         "settingsAccount": "Manage your account and language.",
         "settingsProfile": "Shape your learning profile.",
-        "settingsStorage": "Manage where your files are stored.",
         "settingsReminders": "Choose reminders that fit your day.",
         "freeTools": "Open free tools for everyday tasks.",
-        "anyProfile": "Create a profile you can share."
+        "anyProfile": "Create a profile you can share.",
+        "files": "Every file you uploaded, from every knowledge base, in one table.",
+        "upload": "Add a file to the knowledge base of your choice.",
+        "links": "Save web pages, videos and feeds to learn from, and see every one you saved.",
+        "storage": "Choose where your files are kept and see the space each side holds.",
+        "library": "Add ready material from open sources, each with its licence."
       },
       "dueToday": "Due today"
     }
@@ -617,6 +626,71 @@
       "readsLegend": "This conversation reads",
       "readsHint": "None ticked means all of them.",
       "actionsFor": "Actions for {{title}}"
+    },
+    "process": {
+      "category": {
+        "search": {
+          "running": "Searching",
+          "done": "Searched"
+        },
+        "read": {
+          "running": "Reading",
+          "done": "Read sources"
+        },
+        "write": {
+          "running": "Writing a note",
+          "done": "Wrote a note"
+        },
+        "ask": {
+          "running": "Asking you",
+          "done": "Asked you"
+        },
+        "thinking": {
+          "running": "Thinking",
+          "done": "Thought it through"
+        },
+        "other": {
+          "running": "Working",
+          "done": "Used tools"
+        }
+      }
+    },
+    "expandAll": "Expand all",
+    "answerReady": "The answer is ready.",
+    "feedback": {
+      "like": "Good answer",
+      "dislike": "Not a good answer",
+      "title": "What was wrong with this answer?",
+      "reasons": "Reason",
+      "reason": {
+        "wrong_info": "Wrong information",
+        "ignored_material": "Did not use my material",
+        "unclear": "Unclear",
+        "too_long": "Too long",
+        "tool_failed": "A step failed",
+        "other": "Something else"
+      },
+      "comment": "Anything to add (optional)",
+      "commentPlaceholder": "What would have helped?",
+      "failed": "The rating was not saved. Try again.",
+      "cancel": "Cancel",
+      "send": "Send"
+    },
+    "find": {
+      "label": "Find in this conversation",
+      "placeholder": "Find in this conversation",
+      "none": "No matches",
+      "count": "{{current}} of {{total}}",
+      "previous": "Previous match",
+      "next": "Next match",
+      "close": "Close find"
+    },
+    "recent": {
+      "label": "Recent conversations",
+      "all": "All conversations",
+      "running": "Answer in progress",
+      "actions": "Actions for {{title}}",
+      "confirmDelete": "Delete “{{title}}”?"
     }
   },
   "more": {
@@ -824,7 +898,10 @@
     "Weekly review": "Weekly review",
     "Worksheet": "Worksheet",
     "English": "English",
-    "Share": "Share"
+    "Share": "Share",
+    "My files": "My files",
+    "Upload": "Upload",
+    "Study links": "Study links"
   },
   "readinessText": {
     "no_route": "No connection does {{function}} yet. Choose one in Settings → Routes.",
@@ -889,5 +966,45 @@
     "navigate": "to navigate",
     "close": "to close",
     "yours": "Your library"
+  },
+  "mine": {
+    "noKb": "You have no knowledge base yet. Every document belongs to one, so make one first.",
+    "noKbAction": "Create a knowledge base",
+    "pickKb": "Knowledge base for the file",
+    "pickKbLink": "Knowledge base for the link",
+    "opensNewTab": "(opens in a new tab)",
+    "table": {
+      "document": "Document",
+      "source": "Source",
+      "kb": "Knowledge base",
+      "kind": "Type",
+      "status": "Status",
+      "updated": "Updated"
+    },
+    "files": {
+      "title": "My files",
+      "lead_one": "{{count}} file you uploaded, from every knowledge base.",
+      "lead_other": "{{count}} files you uploaded, from every knowledge base.",
+      "upload": "Upload a file",
+      "empty": "No files yet. Upload one and AnyLearn reads it, so you can ask about it and review it."
+    },
+    "upload": {
+      "title": "Upload",
+      "lead": "Choose the knowledge base the file goes into, then drop or pick it. AnyLearn reads it, splits it into passages and indexes it.",
+      "recent": "Uploaded lately",
+      "all": "See all your files"
+    },
+    "links": {
+      "title": "Study links",
+      "lead": "Web pages, YouTube videos and feeds you saved to learn from, from every knowledge base.",
+      "add": "Save a link",
+      "saved_one": "{{count}} saved link",
+      "saved_other": "{{count}} saved links",
+      "empty": "No links yet. Paste an address above to save it."
+    },
+    "storage": {
+      "title": "Storage",
+      "lead": "Where your files are kept, how much space each side holds, and moving them."
+    }
   }
 }

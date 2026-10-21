@@ -51,7 +51,7 @@ export function ContextBar({
 
       <details className="group relative">
         <summary
-          className={`flex min-h-8 cursor-pointer list-none items-center gap-1.5 rounded-sm text-sm font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden ${
+          className={`flex min-h-8 cursor-pointer list-none items-center gap-2 rounded-sm text-sm font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden ${
             none ? "bg-warning-soft px-2 text-foreground" : "text-muted-foreground"
           }`}
           aria-label={t("chat.context.choose")}

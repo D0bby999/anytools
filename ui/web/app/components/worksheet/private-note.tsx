@@ -38,7 +38,7 @@ export function PrivateNote({ kind }: { kind?: Pick<WorksheetKind, "kind" | "gro
   );
   const first = kind ? SAFETY_FIRST.has(kind.kind) : false;
   return (
-    <aside aria-labelledby="ws-private" className="my-6 rounded-lg border bg-muted px-[18px] py-3">
+    <aside aria-labelledby="ws-private" className="my-6 rounded-lg border bg-muted px-4 py-3">
       <div id="ws-private" className="text-sm font-semibold">
         {t("private.title")}
       </div>

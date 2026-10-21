@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"github.com/D0bby999/anytools/internal/connectors/wordsources"
 
 	"github.com/google/uuid"
 
@@ -34,7 +35,7 @@ func buildVocab(pool *pg.Pool, pages reading.PageLoader) *vocabapi.Handler {
 		Store: pg.NewVocabStore(pool),
 		Pages: vocabPages{pages},
 		Zones: pg.NewUserStore(pool),
-	}))
+	})).WithWordSources(wordsources.New())
 }
 
 // parsedMarkdown reads a document's stored parse: the document row is read
