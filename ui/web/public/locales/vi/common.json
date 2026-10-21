@@ -467,7 +467,10 @@
       "chooseHelp": "Câu trả lời chỉ lấy từ các kho tài liệu được đánh dấu ở đây.",
       "apply": "Dùng các kho này",
       "noKnowledge": "Bạn chưa có kho tài liệu nào.",
-      "allowWeb": "Cho phép dùng web trong phiên này"
+      "allowWeb": "Cho phép dùng web trong phiên này",
+      "label": "Ngữ cảnh đã dùng",
+      "meter": "Câu hỏi vừa rồi dùng khoảng {{used}} trên {{window}} token ({{percent}}%).",
+      "budget": "Khi tin nhắn trước vượt khoảng {{budget}} token, các tin cũ nhất được tóm tắt."
     },
     "activity": {
       "title": "Hoạt động",
@@ -487,7 +490,7 @@
       "placeholder": "Câu trả lời của bạn",
       "submit": "Trả lời"
     },
-    "hint": "Enter để gửi · Shift+Enter để xuống dòng",
+    "hint": "Enter để gửi · / để dùng lệnh",
     "hintBusy": "Esc để dừng câu trả lời · Enter để xếp hàng tin nhắn tiếp theo",
     "copy": "Sao chép",
     "copied": "Đã sao chép",
@@ -523,13 +526,20 @@
       "remove": "Bỏ “{{message}}” khỏi hàng chờ",
       "placeholder": "Gõ tin nhắn tiếp theo; nó sẽ được gửi khi câu trả lời này xong",
       "add": "Xếp hàng tin nhắn",
-      "paused": "{{count}} tin nhắn trong hàng chờ.",
-      "paused_other": "{{count}} tin nhắn trong hàng chờ.",
-      "resume": "Gửi tiếp"
+      "resume": "Gửi tiếp",
+      "pausedStopped": "Đã dừng. Còn {{count}} tin đang chờ.",
+      "pausedStopped_other": "Đã dừng. Còn {{count}} tin đang chờ.",
+      "pausedFailed": "Câu trả lời bị lỗi. Còn {{count}} tin đang chờ.",
+      "pausedFailed_other": "Câu trả lời bị lỗi. Còn {{count}} tin đang chờ."
     },
     "model": {
       "label": "Mô hình",
-      "default": "Thứ tự mặc định ({{name}} trước)"
+      "default": "Thứ tự mặc định ({{name}} trước)",
+      "badge": "Mặc định",
+      "chip": "Model: {{name}}, {{model}}",
+      "failed": "Không đổi được model",
+      "search": "Tìm model",
+      "none": "Không có model nào khớp"
     },
     "followUps": {
       "label": "Bước tiếp theo",
@@ -691,6 +701,89 @@
       "running": "Đang trả lời",
       "actions": "Thao tác cho {{title}}",
       "confirmDelete": "Xoá “{{title}}”?"
+    },
+    "slash": {
+      "menu": "Lệnh",
+      "none": "Không có lệnh nào khớp",
+      "topicDefault": "điều chúng ta vừa trao đổi",
+      "command": {
+        "explain": {
+          "label": "Giải thích",
+          "detail": "từng bước dễ hiểu",
+          "template": "Giải thích {{topic}} thật dễ hiểu, từng bước, dựa trên tài liệu của tôi."
+        },
+        "quiz": {
+          "label": "Hỏi tôi",
+          "detail": "mỗi lần một câu",
+          "template": "Hãy kiểm tra tôi về {{topic}}: hỏi từng câu một và chờ tôi trả lời rồi mới hỏi tiếp."
+        },
+        "flashcards": {
+          "label": "Thẻ ghi nhớ",
+          "detail": "thuật ngữ và nghĩa",
+          "template": "Tạo thẻ ghi nhớ về {{topic}} từ tài liệu của tôi: mỗi dòng một thuật ngữ và nghĩa của nó."
+        },
+        "summarise": {
+          "label": "Tóm tắt",
+          "detail": "vài ý ngắn",
+          "template": "Tóm tắt {{topic}} từ tài liệu của tôi thành vài ý ngắn."
+        },
+        "solve": {
+          "label": "Giải bài",
+          "detail": "giải từng bước"
+        },
+        "research": {
+          "label": "Nghiên cứu",
+          "detail": "báo cáo có trích dẫn"
+        },
+        "draw": {
+          "label": "Vẽ",
+          "detail": "sơ đồ cho câu trả lời trước"
+        }
+      }
+    },
+    "mention": {
+      "menu": "Tài liệu",
+      "none": "Không có tài liệu nào khớp"
+    },
+    "attach": {
+      "label": "Đính kèm",
+      "reference": "Đọc từ",
+      "removeNamed": "Gỡ {{name}}",
+      "photo": "Ảnh cho Giải bài: {{name}}",
+      "uploading": "Đang thêm {{name}} vào {{kb}}",
+      "uploaded": "Đã thêm {{name}} vào {{kb}}; đang đọc tài liệu",
+      "uploadFailed": "Chưa thêm được {{name}}. {{error}}",
+      "dismiss": "Đóng",
+      "button": "Đính kèm ảnh hoặc tệp",
+      "dropTitle": "Thả để đính kèm",
+      "dropHelp": "Ảnh sẽ dùng cho Giải bài; tệp khác được thêm vào {{kb}}.",
+      "dropPhotoOnly": "Ảnh sẽ dùng cho Giải bài. Muốn thêm tệp, hãy chọn kho kiến thức cho cuộc trò chuyện này trước.",
+      "photoTooLarge": "Ảnh tối đa 5 MB.",
+      "noKnowledge": "Hãy chọn kho kiến thức cho cuộc trò chuyện này trước.",
+      "photoQuestion": "(ảnh chụp một bài tập)"
+    },
+    "mic": {
+      "start": "Nói câu hỏi",
+      "stop": "Dừng nghe",
+      "listening": "Đang nghe",
+      "hearing": "Đang chuyển câu hỏi thành chữ",
+      "denied": "Micro đang bị chặn cho trang này.",
+      "failed": "Không nghe được câu hỏi. Hãy thử lại hoặc gõ."
+    },
+    "shortcuts": {
+      "title": "Phím tắt",
+      "open": "Phím tắt",
+      "close": "Đóng",
+      "send": "Gửi",
+      "newline": "Xuống dòng",
+      "stop": "Dừng câu trả lời, hoặc đóng menu",
+      "focus": "Về ô nhập tin nhắn",
+      "commands": "Lệnh, ở đầu tin nhắn",
+      "mention": "Nhắc tới một tài liệu",
+      "find": "Tìm trong cuộc trò chuyện",
+      "search": "Tìm mọi thứ",
+      "new": "Cuộc trò chuyện mới",
+      "help": "Hiện bảng phím tắt"
     }
   },
   "more": {

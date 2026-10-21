@@ -16,7 +16,7 @@ AnyTools has no AI credential of its own, and no platform key for search either.
 | Research | `research` | Plans and writes a cited report |
 | Rerank | `rerank` | Reserved; not used yet |
 | Speech | `tts` | Speaks audio overviews in two voices. Optional: the server's built-in voices (when it runs them) or your browser can speak a script with no key. Served by an **OpenAI API key** (`tts-1` by default; `tts-1-hd` or `gpt-4o-mini-tts` by name) or **your own OpenAI-compatible speech server**, such as your own Kokoro (name its model, e.g. `kokoro`; its base URL passes the same private-address check as every endpoint). Gemini no longer speaks: its old Speech routes were removed. Verify speaks one short sentence. |
-| Speech to text | `stt` | Transcribes a video without captions, an uploaded audio or video file, or a podcast episode. Optional: the server's built-in Whisper (when it runs one, within the daily minutes) needs no key, and a subtitle file or a pasted transcript always works. Served by **Groq** (`whisper-large-v3-turbo` by default; the Groq preset under Add a key, whose free tier is on your own Groq account), **OpenAI** (`whisper-1`, the one OpenAI model with segment times), **your own OpenAI-compatible Whisper server** (name its model), or **Gemini**, which reads a public YouTube URL or an uploaded file through its Files API instead of hearing audio here. An API key only, never a subscription lane. The page shows the cost or time before anything runs. |
+| Speech to text | `stt` | Transcribes a video without captions, an uploaded audio or video file, or a podcast episode, and a question spoken into chat's mic where the browser cannot recognise speech itself (up to 30 seconds, not kept). Optional: the server's built-in Whisper (when it runs one, within the daily minutes) needs no key, and a subtitle file or a pasted transcript always works. Served by **Groq** (`whisper-large-v3-turbo` by default; the Groq preset under Add a key, whose free tier is on your own Groq account), **OpenAI** (`whisper-1`, the one OpenAI model with segment times), **your own OpenAI-compatible Whisper server** (name its model), or **Gemini**, which reads a public YouTube URL or an uploaded file through its Files API instead of hearing audio here. An API key only, never a subscription lane. The page shows the cost or time before anything runs. |
 
 At a minimum, set up `chat`, `parse` and `embed`: Settings → Readiness marks those three as core. The others refuse with "no model is configured" until they are routed.
 
@@ -30,7 +30,9 @@ At a minimum, set up `chat`, `parse` and `embed`: Settings → Readiness marks t
    - **Embedding never fails over.** A second embedding model is a different vector space, so a failed embed fails.
    - **An answer that has started streaming is never restarted** on another connection.
 
-Each chat turn records which connection and model actually answered.
+Each chat turn records which connection and model actually answered, and each answer keeps them, so a Like or Dislike on it names the model.
+
+In a conversation, `@` points a question at documents of its knowledge bases: that question's searches return only their passages. `/solve` and `/research` run Solve and Research on the conversation with the same routes as their own pages.
 
 ### Which provider can do what
 

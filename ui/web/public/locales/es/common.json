@@ -467,7 +467,10 @@
       "chooseHelp": "Las respuestas salen solo de las bases de conocimiento marcadas aquí.",
       "apply": "Usar estas",
       "noKnowledge": "Todavía no tienes bases de conocimiento.",
-      "allowWeb": "Permitir la web en esta sesión"
+      "allowWeb": "Permitir la web en esta sesión",
+      "label": "Contexto usado",
+      "meter": "La última pregunta usó unos {{used}} de {{window}} tokens ({{percent}} %).",
+      "budget": "Cuando los mensajes anteriores pasan de unos {{budget}} tokens, los más antiguos se resumen."
     },
     "activity": {
       "title": "Actividad",
@@ -487,7 +490,7 @@
       "placeholder": "Tu respuesta",
       "submit": "Responder"
     },
-    "hint": "Intro para enviar · Mayús+Intro para una línea nueva",
+    "hint": "Enter para enviar · / para comandos",
     "hintBusy": "Esc detiene la respuesta · Intro pone en cola tu siguiente mensaje",
     "copy": "Copiar",
     "copied": "Copiado",
@@ -523,13 +526,20 @@
       "remove": "Quitar “{{message}}” de la cola",
       "placeholder": "Escribe tu siguiente mensaje; se enviará cuando termine esta respuesta",
       "add": "Poner en cola",
-      "paused": "Hay {{count}} mensaje en cola.",
-      "paused_other": "Hay {{count}} mensajes en cola.",
-      "resume": "Enviar el siguiente"
+      "resume": "Enviar el siguiente",
+      "pausedStopped": "Detenida. {{count}} mensaje en cola espera.",
+      "pausedStopped_other": "Detenida. {{count}} mensajes en cola esperan.",
+      "pausedFailed": "La respuesta falló. {{count}} mensaje en cola espera.",
+      "pausedFailed_other": "La respuesta falló. {{count}} mensajes en cola esperan."
     },
     "model": {
       "label": "Modelo",
-      "default": "Orden predeterminado ({{name}} primero)"
+      "default": "Orden predeterminado ({{name}} primero)",
+      "badge": "Predeterminado",
+      "chip": "Modelo: {{name}}, {{model}}",
+      "failed": "No se pudo cambiar el modelo",
+      "search": "Buscar un modelo",
+      "none": "Ningún modelo coincide"
     },
     "followUps": {
       "label": "Siguientes pasos",
@@ -691,6 +701,89 @@
       "running": "Respuesta en curso",
       "actions": "Acciones para {{title}}",
       "confirmDelete": "¿Eliminar «{{title}}»?"
+    },
+    "slash": {
+      "menu": "Comandos",
+      "none": "Ningún comando coincide",
+      "topicDefault": "lo que acabamos de ver",
+      "command": {
+        "explain": {
+          "label": "Explicar",
+          "detail": "paso a paso",
+          "template": "Explica {{topic}} de forma sencilla, paso a paso, a partir de mis documentos."
+        },
+        "quiz": {
+          "label": "Pregúntame",
+          "detail": "una pregunta cada vez",
+          "template": "Ponme a prueba sobre {{topic}}: haz una pregunta cada vez y espera mi respuesta antes de la siguiente."
+        },
+        "flashcards": {
+          "label": "Tarjetas",
+          "detail": "términos y significados",
+          "template": "Crea tarjetas sobre {{topic}} a partir de mis documentos: un término y su significado por línea."
+        },
+        "summarise": {
+          "label": "Resumir",
+          "detail": "unos pocos puntos",
+          "template": "Resume {{topic}} a partir de mis documentos en unos pocos puntos breves."
+        },
+        "solve": {
+          "label": "Resolver",
+          "detail": "un problema, paso a paso"
+        },
+        "research": {
+          "label": "Investigar",
+          "detail": "un informe con citas"
+        },
+        "draw": {
+          "label": "Dibujar",
+          "detail": "un diagrama de la última respuesta"
+        }
+      }
+    },
+    "mention": {
+      "menu": "Documentos",
+      "none": "Ningún documento coincide"
+    },
+    "attach": {
+      "label": "Adjuntos",
+      "reference": "Lee de",
+      "removeNamed": "Quitar {{name}}",
+      "photo": "Foto para Resolver: {{name}}",
+      "uploading": "Añadiendo {{name}} a {{kb}}",
+      "uploaded": "{{name}} añadido a {{kb}}; se está leyendo",
+      "uploadFailed": "No se añadió {{name}}. {{error}}",
+      "dismiss": "Cerrar",
+      "button": "Adjuntar una foto o un archivo",
+      "dropTitle": "Suelta para adjuntar",
+      "dropHelp": "Una foto va a Resolver; los demás archivos se añaden a {{kb}}.",
+      "dropPhotoOnly": "Una foto va a Resolver. Para añadir archivos, elige antes una base de conocimiento para esta conversación.",
+      "photoTooLarge": "Una foto puede pesar hasta 5 MB.",
+      "noKnowledge": "Elige antes una base de conocimiento para esta conversación.",
+      "photoQuestion": "(una foto de un problema)"
+    },
+    "mic": {
+      "start": "Di tu pregunta",
+      "stop": "Dejar de escuchar",
+      "listening": "Escuchando",
+      "hearing": "Convirtiendo tu pregunta en texto",
+      "denied": "El micrófono está bloqueado para este sitio.",
+      "failed": "No se pudo oír tu pregunta. Inténtalo de nuevo o escríbela."
+    },
+    "shortcuts": {
+      "title": "Atajos de teclado",
+      "open": "Atajos",
+      "close": "Cerrar",
+      "send": "Enviar",
+      "newline": "Línea nueva",
+      "stop": "Detener la respuesta o cerrar un menú",
+      "focus": "Ir al cuadro del mensaje",
+      "commands": "Comandos, al principio de un mensaje",
+      "mention": "Señalar un documento",
+      "find": "Buscar en esta conversación",
+      "search": "Buscar en todo",
+      "new": "Conversación nueva",
+      "help": "Mostrar estos atajos"
     }
   },
   "more": {

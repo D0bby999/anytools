@@ -64,7 +64,7 @@ describe("chat", () => {
   it("shows the API's refusal when the switch is on and the lines are missing", async () => {
     apiFetch.mockRejectedValueOnce(new ApiError(400, "write your own version first", "own_version_required"));
     const result = await chat.action(post("http://app.test/chat/x", { intent: "send", message: "Why?" }, { sessionId: SESSION }));
-    expect(result).toEqual({ ok: false, error: "write your own version first" });
+    expect(result).toEqual({ ok: false, error: "write your own version first", intent: "send" });
   });
 });
 

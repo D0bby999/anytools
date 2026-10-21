@@ -69,7 +69,7 @@ describe("Composer with own version first", () => {
     expect(send).toBeEnabled();
 
     await userEvent.click(send);
-    expect(onSend).toHaveBeenCalledWith("Why does gradient descent subtract?", LINES);
+    expect(onSend).toHaveBeenCalledWith("Why does gradient descent subtract?", LINES, {});
     expect(screen.getByLabelText("What I understand now")).toHaveValue("");
   });
 });

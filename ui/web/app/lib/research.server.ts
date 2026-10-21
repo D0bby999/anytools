@@ -8,7 +8,7 @@ import type { Report, ReportSummary, ResearchMode, StartedTurn } from "~/lib/res
 
 export function startResearch(
   userId: string,
-  body: { query: string; mode: ResearchMode; kb_ids?: string[]; allow_web?: boolean },
+  body: { query: string; mode: ResearchMode; kb_ids?: string[]; allow_web?: boolean; session_id?: string },
 ) {
   return apiFetch<StartedTurn>("/v1/research", userId, { method: "POST", body });
 }

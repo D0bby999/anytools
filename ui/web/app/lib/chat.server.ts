@@ -147,10 +147,12 @@ export function startTurn(
   message: string,
   ownVersion?: OwnVersion,
   rewindToId?: string,
+  references?: string[],
 ) {
   const body: Record<string, unknown> = { message };
   if (ownVersion) body.own_version = ownVersion;
   if (rewindToId) body.rewind_to_id = rewindToId;
+  if (references && references.length > 0) body.references = references;
   return apiFetch<{ turn_id: string; status: string }>(
     `/v1/chat/sessions/${sessionId}/turns`,
     userId,

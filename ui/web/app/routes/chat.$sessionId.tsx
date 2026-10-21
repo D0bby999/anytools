@@ -24,6 +24,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher, useRevalidator, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowDown } from "lucide-react";
+import { ApiError, apiFetch } from "~/lib/api.server";
+import { MAX_IMAGE_BYTES, startSolve } from "~/lib/solve.server";
+import { startResearch } from "~/lib/research.server";
+import { listDocuments } from "~/lib/kb.server";
+import { planSend } from "~/lib/chat-slash";
+import { decideShortcut } from "~/lib/chat-shortcuts";
+import { ShortcutHelpDialog } from "~/components/chat/shortcut-help-dialog";
 import type { Route } from "./+types/chat.$sessionId";
 import { appTitle, raw } from "~/lib/app-title";
 import { requireUser, requireUserId } from "~/lib/auth.server";
@@ -49,7 +56,7 @@ import { SearchBar } from "~/components/chat/search-bar";
 import { exchangeOwnVersions, fieldName, readOwnVersion, retellOf, type OwnVersion } from "~/lib/own-version";
 import { liveWork, readFollowUps, readWork } from "~/lib/chat-work";
 import { liveTurnID, requireUUID } from "~/lib/turns";
-import { Composer, modelKey, type ModelOption } from "~/components/chat/composer";
+import { Composer, modelKey, type ModelOption, type Reference, type SendExtra } from "~/components/chat/composer";
 import { ContextBar } from "~/components/chat/context-bar";
 import { Starters } from "~/components/chat/follow-ups";
 import { MessageList, type ChatTurnView } from "~/components/chat/message-list";
@@ -76,7 +83,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
  */
 export function shouldRevalidate({ formData, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
   const intent = formData?.get("intent");
-  if (intent === "send" || intent === "answer" || intent === "cancel") return false;
+  if (intent === "send" || intent === "solve" || intent === "research" || intent === "answer" || intent === "cancel") return false;
   return defaultShouldRevalidate;
 }
 
@@ -103,6 +110,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   return {
     session,
+    documents: await attachedDocuments(userId, session.kb_ids),
     messages: history.messages,
     turns: history.turns,
     ownVersionFirst: user.own_version_first === true,
@@ -111,6 +119,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     chatRecent: recent.sessions.map((s) => ({ id: s.id, title: s.title, running: s.running })),
     feedback: feedback.feedback,
   };
+}
+
+/** The most documents the `@` menu is given. */
+const MAX_DOCUMENTS = 300;
+
+/**
+ * The documents of the knowledge bases this conversation reads, for `@`. A
+ * knowledge base that cannot be listed costs its own documents, not the page.
+ */
+async function attachedDocuments(userId: string, kbIds: string[]): Promise<Reference[]> {
+  const lists = await Promise.all(kbIds.map((id) => listDocuments(userId, id).catch(() => ({ documents: [] }))));
+  return lists
+    .flatMap((l) => l.documents)
+    .slice(0, MAX_DOCUMENTS)
+    .map((d) => ({ id: d.id, title: d.title }));
 }
 
 /**
@@ -136,7 +159,8 @@ type ActionResult =
   | { ok: true; cancelled: true }
   | { ok: true; attached: true }
   | { ok: true; pinned: true }
-  | { ok: false; error: string };
+  | { ok: true; drawn: true }
+  | { ok: false; error: string; intent?: string };
 
 export async function action({ request, params }: Route.ActionArgs): Promise<ActionResult> {
   const userId = await requireUserId(request);
@@ -172,19 +196,49 @@ export async function action({ request, params }: Route.ActionArgs): Promise<Act
       );
       return { ok: true, answered: true };
     }
+    const sessionId = requireUUID(params.sessionId);
+    if (intent === "solve") {
+      // `/solve`, or a photo: Solve on this conversation, streamed like chat.
+      const problem = String(form.get("message") ?? "").trim();
+      const photo = form.get("photo");
+      let image: { mime_type: string; data: string } | undefined;
+      if (photo instanceof File && photo.size > 0) {
+        if (photo.size > MAX_IMAGE_BYTES) return { ok: false, error: "That photo is larger than 5 MB.", intent };
+        image = { mime_type: photo.type || "image/jpeg", data: Buffer.from(await photo.arrayBuffer()).toString("base64") };
+      }
+      if (problem === "" && !image) return { ok: false, error: "Type a problem or attach a photo of one.", intent };
+      const started = await startSolve(userId, { session_id: sessionId, problem, image, own_version: readOwnVersion(form) });
+      return { ok: true, turnId: started.turn_id };
+    }
+    if (intent === "research") {
+      const query = String(form.get("message") ?? "").trim();
+      if (query === "") return { ok: false, error: "Say what to research after /research.", intent };
+      const started = await startResearch(userId, { session_id: sessionId, query, mode: "quick" });
+      return { ok: true, turnId: started.turn_id };
+    }
+    if (intent === "draw") {
+      // `/draw`: the latest answer, drawn; the reload shows the diagram.
+      await apiFetch("/v1/visualize", userId, {
+        method: "POST",
+        body: { message_id: requireUUID(String(form.get("messageId") ?? "")), request: String(form.get("message") ?? "") },
+      });
+      return { ok: true, drawn: true };
+    }
     const rewind = String(form.get("rewind_to_id") ?? "");
     const { turn_id } = await startTurn(
       userId,
-      requireUUID(params.sessionId),
+      sessionId,
       String(form.get("message") ?? ""),
       readOwnVersion(form),
       rewind === "" ? undefined : requireUUID(rewind),
+      form.getAll("reference").map((v) => requireUUID(String(v))),
     );
     return { ok: true, turnId: turn_id };
   } catch (error) {
     // The message is shown to the user, so it has to be the API's own
     // sentence, not a stack trace.
-    return { ok: false, error: error instanceof Error ? error.message : "unknown error" };
+    const message = error instanceof ApiError || error instanceof Error ? error.message : "unknown error";
+    return { ok: false, error: message, intent };
   }
 }
 
@@ -213,6 +267,7 @@ function Conversation({ loaderData }: Route.ComponentProps) {
   // loader, re-read after the turn, no longer has them.
   const [cutFrom, setCutFrom] = useState<string | null>(null);
   const [stopped, setStopped] = useState(false);
+  const [failed, setFailed] = useState<{ message: string; retryable?: boolean } | null>(null);
 
   // Settled views were held only until the loader caught up with them; once
   // it has, the stored transcript is the truth again.
@@ -264,9 +319,12 @@ function Conversation({ loaderData }: Route.ComponentProps) {
     setPendingQuestion(null);
     setPendingOwn(undefined);
     setStopped(stream.cancelled);
+    // Settling resets the stream, and its failure with it: keep the failure
+    // on screen, with its Try again, until the next question.
+    setFailed(stream.failure && !stream.cancelled ? stream.failure : null);
     if (!stream.failure) setAnnounced(t("chat.answerReady"));
     // Queued messages wait while something is wrong; the learner resumes them.
-    if (stream.failure && queue.items.length > 0) queue.pause();
+    if (stream.failure && queue.items.length > 0) queue.pause(stream.cancelled ? "stopped" : "failed");
     revalidator.revalidate();
   }, [
     stream.finished,
@@ -286,31 +344,58 @@ function Conversation({ loaderData }: Route.ComponentProps) {
   ]);
 
   const submitTurn = useCallback(
-    (message: string, ownVersion?: OwnVersion, rewindToId?: string) => {
-      setPendingQuestion(message);
+    (
+      message: string,
+      ownVersion?: OwnVersion,
+      rewindToId?: string,
+      opts: { intent?: "send" | "solve" | "research"; references?: Reference[]; photo?: File } = {},
+    ) => {
+      setPendingQuestion(message || (opts.photo ? t("chat.attach.photoQuestion") : ""));
       setPendingOwn(ownVersion);
       setStopped(false);
-      const fields: Record<string, string> = { intent: "send", message };
+      setFailed(null);
+      const form = new FormData();
+      form.set("intent", opts.intent ?? "send");
+      form.set("message", message);
       if (ownVersion) {
-        fields[fieldName("understanding")] = ownVersion.understanding;
-        fields[fieldName("uncertain")] = ownVersion.uncertain;
-        fields[fieldName("proof")] = ownVersion.proof;
+        form.set(fieldName("understanding"), ownVersion.understanding);
+        form.set(fieldName("uncertain"), ownVersion.uncertain);
+        form.set(fieldName("proof"), ownVersion.proof);
       }
+      for (const r of opts.references ?? []) form.append("reference", r.id);
+      if (opts.photo) form.set("photo", opts.photo, opts.photo.name);
       if (rewindToId) {
-        fields.rewind_to_id = rewindToId;
+        form.set("rewind_to_id", rewindToId);
         setCutFrom(rewindToId);
         setSettled([]);
         setSettledAgainst(loaderData.messages);
       }
-      fetcher.submit(fields, { method: "post" });
+      void fetcher.submit(form, { method: "post", encType: opts.photo ? "multipart/form-data" : "application/x-www-form-urlencoded" });
     },
-    [fetcher, loaderData.messages],
+    [fetcher, loaderData.messages, t],
   );
-
-  const send = useCallback((message: string, ownVersion?: OwnVersion) => submitTurn(message, ownVersion), [submitTurn]);
 
   const stored = useMemo(() => toViews(loaderData.messages), [loaderData.messages]);
   const lastQuestion = [...stored].reverse().find((m) => m.role === "user");
+  const lastAnswer = [...stored].reverse().find((m) => m.role === "assistant" && m.capability !== "visualize");
+
+  // A message as typed: a `/` command becomes what it stands for (a written
+  // request, Solve, Research or a drawing); a photo goes to Solve.
+  const send = useCallback(
+    (message: string, ownVersion?: OwnVersion, extra: SendExtra = {}) => {
+      const plan = planSend(message, !!extra.photo, (id, topic) =>
+        t(`chat.slash.command.${id}.template`, { topic: topic || t("chat.slash.topicDefault") }),
+      );
+      if (plan.intent === "draw") {
+        if (lastAnswer) void fetcher.submit({ intent: "draw", messageId: lastAnswer.id, message: plan.text }, { method: "post" });
+        return;
+      }
+      if (plan.intent === "solve") submitTurn(plan.text, ownVersion, undefined, { intent: "solve", photo: extra.photo });
+      else if (plan.intent === "research") submitTurn(plan.text, ownVersion, undefined, { intent: "research" });
+      else submitTurn(plan.text, ownVersion, undefined, { references: extra.references });
+    },
+    [submitTurn, fetcher, lastAnswer, t],
+  );
 
   const regenerate = useCallback(
     (questionId: string) => {
@@ -347,7 +432,28 @@ function Conversation({ loaderData }: Route.ComponentProps) {
   );
 
   const busy = turnId !== null && !stream.finished;
-  const starting = fetcher.state !== "idle" && fetcher.formData?.get("intent") === "send";
+  const submitting = fetcher.state !== "idle" ? String(fetcher.formData?.get("intent") ?? "") : "";
+  const starting = submitting === "send" || submitting === "solve" || submitting === "research";
+
+  // The model chip: the pick shows while it is saved; a refusal falls back
+  // to what the conversation uses, and says so.
+  const pinned = loaderData.session.connection_id
+    ? modelKey({ id: loaderData.session.connection_id, model: loaderData.session.model_hint ?? "" })
+    : "";
+  const modelPending = submitting === "model";
+  const modelShown = modelPending ? String(fetcher.formData?.get("entry") ?? "") : pinned;
+  const modelFailed = fetcher.state === "idle" && !!fetcher.data && !fetcher.data.ok && fetcher.data.intent === "model";
+
+  // How full the window was: the answer being written, else the last one.
+  const contextWork = readWork(stream.resultMeta?.work) ?? [...stored].reverse().find((m) => m.work?.contextWindow)?.work;
+  const context =
+    contextWork?.contextTokens && contextWork.contextWindow
+      ? { used: contextWork.contextTokens, window: contextWork.contextWindow, budget: contextWork.historyBudget }
+      : null;
+
+  // The knowledge base an attached file goes to: the first this
+  // conversation reads.
+  const firstKB = loaderData.kbs.find((k) => loaderData.session.kb_ids.includes(k.id)) ?? null;
 
   // The sidebar's dot for this conversation follows the stream.
   useEffect(() => {
@@ -391,13 +497,43 @@ function Conversation({ loaderData }: Route.ComponentProps) {
   const failure =
     stream.failure && !stream.cancelled
       ? stream.failure
-      : fetcher.data && !fetcher.data.ok
+      : failed
+        ? failed
+        : fetcher.data && !fetcher.data.ok && fetcher.data.intent !== "model"
         ? { message: fetcher.data.error, retryable: false }
         : null;
 
   const contentKey = `${turns.length}:${stream.answer.length}:${stream.tools.length}`;
   const { away, jump } = useFollowScroll(contentKey);
   const search = useChatSearch(transcript, contentKey);
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  // The page's keys (lib/chat-shortcuts.ts). Mod+F is the search hook's own;
+  // a key a field or a menu already handled is left alone.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.defaultPrevented) return;
+      const el = e.target as HTMLElement | null;
+      const action = decideShortcut(
+        { key: e.key, mod: e.metaKey || e.ctrlKey, shift: e.shiftKey, alt: e.altKey, composing: e.isComposing },
+        {
+          typing: !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)),
+          hasModal: !!document.querySelector('[aria-modal="true"]'),
+          searchOpen: search.open,
+          running: busy,
+        },
+      );
+      if (!action || action === "find") return;
+      e.preventDefault();
+      if (action === "stop") stop();
+      else if (action === "close-find") search.close();
+      else if (action === "help") setHelpOpen(true);
+      else if (action === "focus-composer") document.getElementById("lp-composer")?.focus();
+      else if (action === "new-conversation") void fetcher.submit({}, { method: "post", action: "/chat?index" });
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [search, busy, stop, fetcher]);
 
   const attachedNames = loaderData.kbs.filter((k) => loaderData.session.kb_ids.includes(k.id)).map((k) => k.name);
 
@@ -473,14 +609,6 @@ function Conversation({ loaderData }: Route.ComponentProps) {
             </div>
           )}
 
-          {queue.paused && queue.items.length > 0 && !busy ? (
-            <div role="status" className="mt-4 flex flex-wrap items-center gap-3 text-sm leading-6">
-              <span className="text-muted-foreground">{t("chat.queue.paused", { count: queue.items.length })}</span>
-              <Button type="button" size="sm" variant="outline" onClick={queue.resume}>
-                {t("chat.queue.resume")}
-              </Button>
-            </div>
-          ) : null}
         </div>
 
         {/* Stuck to the bottom of the one scroll region. The phone bar it
@@ -509,14 +637,22 @@ function Conversation({ loaderData }: Route.ComponentProps) {
             queued={queue.items}
             onQueue={queue.push}
             onUnqueue={queue.remove}
+            queuePaused={queue.paused && !busy ? queue.paused : null}
+            onResume={queue.resume}
             models={loaderData.models}
-            model={
-              loaderData.session.connection_id
-                ? modelKey({ id: loaderData.session.connection_id, model: loaderData.session.model_hint ?? "" })
-                : ""
-            }
+            model={modelShown}
             onModel={pinModel}
+            modelPending={modelPending}
+            modelFailed={modelFailed}
+            context={context}
+            documents={loaderData.documents}
+            uploadKB={firstKB}
+            onHelp={() => setHelpOpen(true)}
+            onUploaded={() => {
+              if (!busy) revalidator.revalidate();
+            }}
           />
+          <ShortcutHelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
         </div>
       </div>
 
@@ -543,7 +679,7 @@ function Conversation({ loaderData }: Route.ComponentProps) {
 function useQueue(sessionId: string) {
   const key = `anytools.chat.queue.${sessionId}`;
   const [items, setItems] = useState<string[]>([]);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState<"stopped" | "failed" | null>(null);
 
   useEffect(() => {
     try {
@@ -578,8 +714,8 @@ function useQueue(sessionId: string) {
         save(rest);
         return first;
       },
-      pause: () => setPaused(true),
-      resume: () => setPaused(false),
+      pause: (reason: "stopped" | "failed") => setPaused(reason),
+      resume: () => setPaused(null),
     }),
     [items, paused, save],
   );

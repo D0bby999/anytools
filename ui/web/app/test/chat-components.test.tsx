@@ -240,7 +240,7 @@ describe("Composer", () => {
     expect(onSend).not.toHaveBeenCalled();
 
     await userEvent.type(box, "{Enter}");
-    expect(onSend).toHaveBeenCalledWith("first line\nsecond line");
+    expect(onSend).toHaveBeenCalledWith("first line\nsecond line", undefined, {});
     expect(box).toHaveValue("");
   });
 
@@ -262,20 +262,12 @@ describe("Composer", () => {
     expect(onStop).toHaveBeenCalled();
   });
 
-  it("names the model choice only when there is one to make", () => {
-    const { rerender } = render(<Composer onSend={vi.fn()} busy={false} models={[{ id: "a", name: "Key", model: "m" }]} onModel={vi.fn()} />);
-    expect(screen.queryByLabelText("Model")).toBeNull();
-    rerender(
-      <Composer
-        onSend={vi.fn()}
-        busy={false}
-        models={[
-          { id: "a", name: "OpenAI", model: "gpt-4o" },
-          { id: "b", name: "Ollama", model: "qwen" },
-        ]}
-        onModel={vi.fn()}
-      />,
-    );
-    expect(screen.getByLabelText("Model")).toBeInTheDocument();
+  it("names the model in use whenever the chat route has one, and none without", () => {
+    const { rerender } = render(<Composer onSend={vi.fn()} busy={false} models={[]} onModel={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: /^Model:/ })).toBeNull();
+    rerender(<Composer onSend={vi.fn()} busy={false} models={[{ id: "a", name: "Key", model: "m" }]} onModel={vi.fn()} />);
+    // One connection is no choice: named, without a menu.
+    expect(screen.getByText("Model: Key, m")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Model:/ })).toBeNull();
   });
 });

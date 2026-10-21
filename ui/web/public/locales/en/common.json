@@ -467,7 +467,10 @@
       "chooseHelp": "Answers come only from the knowledge bases ticked here.",
       "apply": "Use these",
       "noKnowledge": "You have no knowledge bases yet.",
-      "allowWeb": "Allow web in this session"
+      "allowWeb": "Allow web in this session",
+      "label": "Context used",
+      "meter": "About {{used}} of {{window}} tokens ({{percent}}%) went into the last question.",
+      "budget": "Past about {{budget}} tokens of earlier messages, the oldest are summarised."
     },
     "activity": {
       "title": "Activity",
@@ -487,7 +490,7 @@
       "placeholder": "Your answer",
       "submit": "Answer"
     },
-    "hint": "Enter to send · Shift+Enter for a new line",
+    "hint": "Enter to send · / for commands",
     "hintBusy": "Esc stops the answer · Enter queues your next message",
     "copy": "Copy",
     "copied": "Copied",
@@ -523,13 +526,20 @@
       "remove": "Remove \"{{message}}\" from the queue",
       "placeholder": "Type your next message; it sends when this answer finishes",
       "add": "Queue message",
-      "paused": "{{count}} queued message is waiting.",
-      "paused_other": "{{count}} queued messages are waiting.",
-      "resume": "Send next"
+      "resume": "Send next",
+      "pausedStopped": "Stopped. {{count}} queued message is waiting.",
+      "pausedStopped_other": "Stopped. {{count}} queued messages are waiting.",
+      "pausedFailed": "The answer failed. {{count}} queued message is waiting.",
+      "pausedFailed_other": "The answer failed. {{count}} queued messages are waiting."
     },
     "model": {
       "label": "Model",
-      "default": "Default order ({{name}} first)"
+      "default": "Default order ({{name}} first)",
+      "badge": "Default",
+      "chip": "Model: {{name}}, {{model}}",
+      "failed": "Couldn't switch model",
+      "search": "Find a model",
+      "none": "No model matches"
     },
     "followUps": {
       "label": "Next steps",
@@ -691,6 +701,89 @@
       "running": "Answer in progress",
       "actions": "Actions for {{title}}",
       "confirmDelete": "Delete “{{title}}”?"
+    },
+    "slash": {
+      "menu": "Commands",
+      "none": "No command matches",
+      "topicDefault": "what we just discussed",
+      "command": {
+        "explain": {
+          "label": "Explain",
+          "detail": "in simple steps",
+          "template": "Explain {{topic}} simply, step by step, from my documents."
+        },
+        "quiz": {
+          "label": "Quiz me",
+          "detail": "one question at a time",
+          "template": "Quiz me on {{topic}}: ask one question at a time and wait for my answer before the next."
+        },
+        "flashcards": {
+          "label": "Flashcards",
+          "detail": "terms and meanings",
+          "template": "Make flashcards on {{topic}} from my documents: one term and its meaning per line."
+        },
+        "summarise": {
+          "label": "Summarise",
+          "detail": "a few short points",
+          "template": "Summarise {{topic}} from my documents in a few short points."
+        },
+        "solve": {
+          "label": "Solve",
+          "detail": "a problem, step by step"
+        },
+        "research": {
+          "label": "Research",
+          "detail": "a cited report"
+        },
+        "draw": {
+          "label": "Draw it",
+          "detail": "a diagram of the last answer"
+        }
+      }
+    },
+    "mention": {
+      "menu": "Documents",
+      "none": "No document matches"
+    },
+    "attach": {
+      "label": "Attached",
+      "reference": "Reads from",
+      "removeNamed": "Remove {{name}}",
+      "photo": "Photo for Solve: {{name}}",
+      "uploading": "Adding {{name}} to {{kb}}",
+      "uploaded": "{{name}} added to {{kb}}; it is being read",
+      "uploadFailed": "{{name}} was not added. {{error}}",
+      "dismiss": "Dismiss",
+      "button": "Attach a photo or a file",
+      "dropTitle": "Drop to attach",
+      "dropHelp": "A photo goes to Solve; other files are added to {{kb}}.",
+      "dropPhotoOnly": "A photo goes to Solve. To add files, choose a knowledge base for this conversation first.",
+      "photoTooLarge": "A photo is at most 5 MB.",
+      "noKnowledge": "Choose a knowledge base for this conversation first.",
+      "photoQuestion": "(a photo of a problem)"
+    },
+    "mic": {
+      "start": "Speak your question",
+      "stop": "Stop listening",
+      "listening": "Listening",
+      "hearing": "Turning your question into text",
+      "denied": "The microphone is blocked for this site.",
+      "failed": "Your question could not be heard. Try again or type it."
+    },
+    "shortcuts": {
+      "title": "Keyboard shortcuts",
+      "open": "Shortcuts",
+      "close": "Close",
+      "send": "Send",
+      "newline": "New line",
+      "stop": "Stop the answer, or close a menu",
+      "focus": "Go to the message box",
+      "commands": "Commands, at the start of a message",
+      "mention": "Point at a document",
+      "find": "Find in this conversation",
+      "search": "Search everything",
+      "new": "New conversation",
+      "help": "Show these shortcuts"
     }
   },
   "more": {

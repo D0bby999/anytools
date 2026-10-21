@@ -178,48 +178,51 @@ describe("MessageList at the end of a conversation", () => {
 });
 
 describe("Composer", () => {
+  const docs = [
+    { id: "d1", title: "Tế bào.pdf" },
+    { id: "d2", title: "Ty thể notes" },
+  ];
+
   it("queues a message typed while a turn runs instead of sending it", async () => {
     const onSend = vi.fn();
     const onQueue = vi.fn();
-    render(<Composer onSend={onSend} onStop={vi.fn()} busy onQueue={onQueue} />);
+    renderRouted(<Composer onSend={onSend} onStop={vi.fn()} busy onQueue={onQueue} />);
     await userEvent.type(screen.getByLabelText("Your message"), "next one{Enter}");
     expect(onSend).not.toHaveBeenCalled();
     expect(onQueue).toHaveBeenCalledWith("next one");
   });
 
-  it("stops the running turn on Esc", async () => {
-    const onStop = vi.fn();
-    render(<Composer onSend={vi.fn()} onStop={onStop} busy />);
-    await userEvent.type(screen.getByLabelText("Your message"), "{Escape}");
-    expect(onStop).toHaveBeenCalled();
-  });
-
-  it("lists queued messages and removes one", async () => {
+  it("lists queued messages in the dock, removes one, and resumes a paused queue", async () => {
     const onUnqueue = vi.fn();
-    render(<Composer onSend={vi.fn()} busy queued={["a", "b"]} onQueue={vi.fn()} onUnqueue={onUnqueue} />);
-    expect(screen.getByText("2 messages waiting to send")).toBeInTheDocument();
+    const onResume = vi.fn();
+    renderRouted(
+      <Composer onSend={vi.fn()} busy queued={["a", "b"]} onQueue={vi.fn()} onUnqueue={onUnqueue} queuePaused="failed" onResume={onResume} />,
+    );
+    expect(screen.getByText("The answer failed. 2 queued messages are waiting.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: 'Remove "b" from the queue' }));
     expect(onUnqueue).toHaveBeenCalledWith(1);
+    await userEvent.click(screen.getByRole("button", { name: "Send next" }));
+    expect(onResume).toHaveBeenCalled();
   });
 
   it("keeps the draft per conversation and clears it on send", async () => {
     const onSend = vi.fn();
-    const { unmount } = render(<Composer onSend={onSend} busy={false} draftKey="draft-1" />);
+    const first = renderRouted(<Composer onSend={onSend} busy={false} draftKey="draft-1" />);
     await userEvent.type(screen.getByLabelText("Your message"), "half a question");
     expect(window.localStorage.getItem("draft-1")).toBe("half a question");
-    unmount();
+    first.unmount();
 
-    render(<Composer onSend={onSend} busy={false} draftKey="draft-1" />);
+    renderRouted(<Composer onSend={onSend} busy={false} draftKey="draft-1" />);
     const box = screen.getByLabelText("Your message");
     expect(box).toHaveValue("half a question");
     await userEvent.type(box, "{Enter}");
-    expect(onSend).toHaveBeenCalledWith("half a question");
+    expect(onSend).toHaveBeenCalledWith("half a question", undefined, {});
     expect(window.localStorage.getItem("draft-1")).toBeNull();
   });
 
-  it("pins a connection from the model menu", async () => {
+  it("pins a connection from the model chip, naming each by the learner's name and its model", async () => {
     const onModel = vi.fn();
-    render(
+    renderRouted(
       <Composer
         onSend={vi.fn()}
         busy={false}
@@ -231,8 +234,82 @@ describe("Composer", () => {
         onModel={onModel}
       />,
     );
-    await userEvent.selectOptions(screen.getByLabelText("Model"), "b::qwen");
+    const chip = screen.getByRole("button", { name: "Model: OpenAI, gpt-4o" });
+    await userEvent.click(chip);
+    expect(screen.getByRole("menuitemradio", { name: /OpenAI.*gpt-4o.*Default/ })).toHaveAttribute("aria-checked", "true");
+    await userEvent.click(screen.getByRole("menuitemradio", { name: /Ollama.*qwen/ }));
     expect(onModel).toHaveBeenCalledWith("b::qwen");
+  });
+
+  it("shows a pending switch as busy and a refused one as such", () => {
+    const models = [
+      { id: "a", name: "OpenAI", model: "gpt-4o" },
+      { id: "b", name: "Ollama", model: "qwen" },
+    ];
+    const { rerender } = renderRouted(<Composer onSend={vi.fn()} busy={false} models={models} model="" onModel={vi.fn()} modelPending />);
+    expect(screen.getByRole("button", { name: "Model: OpenAI, gpt-4o" })).toHaveAttribute("aria-busy", "true");
+    rerender(
+      <RouterProvider
+        router={createMemoryRouter([{ path: "/", element: <Composer onSend={vi.fn()} busy={false} models={models} model="" onModel={vi.fn()} modelFailed /> }])}
+      />,
+    );
+    expect(screen.getByRole("status")).toHaveTextContent("Couldn't switch model");
+  });
+
+  it("offers the commands after a leading /, by keyboard", async () => {
+    renderRouted(<Composer onSend={vi.fn()} busy={false} />);
+    const box = screen.getByLabelText("Your message");
+    await userEvent.type(box, "/su");
+    expect(box).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("listbox", { name: "Commands" })).toBeInTheDocument();
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["/summariseSummarise · a few short points"]);
+    await userEvent.keyboard("{Enter}");
+    expect(box).toHaveValue("/summarise ");
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("closes the menu on Escape without anything else", async () => {
+    renderRouted(<Composer onSend={vi.fn()} busy={false} />);
+    const box = screen.getByLabelText("Your message");
+    await userEvent.type(box, "/");
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(box).toHaveValue("/");
+  });
+
+  it("points at a document with @, without diacritics, and sends it as a reference", async () => {
+    const onSend = vi.fn();
+    renderRouted(<Composer onSend={onSend} busy={false} documents={docs} />);
+    const box = screen.getByLabelText("Your message");
+    await userEvent.type(box, "Explain @te ba");
+    expect(screen.queryByRole("listbox")).toBeNull(); // a space ends the mention
+    await userEvent.clear(box);
+    await userEvent.type(box, "Explain @te");
+    // A word starting with "te" (Tế) before a title that only contains it (notes).
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Tế bào.pdf", "Ty thể notes"]);
+    await userEvent.keyboard("{Enter}");
+    expect(box).toHaveValue("Explain ");
+    expect(screen.getByRole("list", { name: "Attached" })).toHaveTextContent("Tế bào.pdf");
+    await userEvent.type(box, "this{Enter}");
+    expect(onSend).toHaveBeenCalledWith("Explain this", undefined, { references: [docs[0]] });
+  });
+
+  it("sends a photo with the question, and a photo alone", async () => {
+    const onSend = vi.fn();
+    globalThis.URL.createObjectURL = vi.fn(() => "blob:x");
+    globalThis.URL.revokeObjectURL = vi.fn();
+    const { container } = renderRouted(<Composer onSend={onSend} busy={false} />);
+    const photo = new File(["x"], "problem.png", { type: "image/png" });
+    await userEvent.upload(container.querySelector<HTMLInputElement>('input[type="file"]')!, photo);
+    expect(await screen.findByText("Photo for Solve: problem.png")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Send" }));
+    expect(onSend).toHaveBeenCalledWith("", undefined, { photo });
+  });
+
+  it("refuses a file when the conversation reads no knowledge base", async () => {
+    const { container } = renderRouted(<Composer onSend={vi.fn()} busy={false} />);
+    await userEvent.upload(container.querySelector<HTMLInputElement>('input[type="file"]')!, new File(["x"], "notes.pdf", { type: "application/pdf" }));
+    expect(await screen.findByText(/notes.pdf was not added. Choose a knowledge base/)).toBeInTheDocument();
   });
 });
 

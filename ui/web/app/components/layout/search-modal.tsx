@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useFetcher, useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ChevronRight, ListFilter, Search, X } from "lucide-react";
 import { useInertOutside, useModalFocus } from "~/components/layout/modal-layer";
@@ -8,7 +8,8 @@ import { flatEntries, type SearchIndexItem } from "~/lib/nav-tree";
 import { cn } from "~/lib/utils";
 
 /** One row of the index: the path of titles it is shown under, and where it goes. */
-type Doc = { titles: string[]; to: string; external?: boolean };
+/** A page to open, or an action to run (`act`), such as a new conversation. */
+type Doc = { titles: string[]; to: string; external?: boolean; act?: "new-conversation" };
 
 /**
  * Lower case with accents dropped, one character for one, so a match found in
@@ -98,6 +99,7 @@ const TOOL = "flex items-center justify-center rounded-xs p-2 text-muted-foregro
 export function SearchModal({ loadIndex = fetchIndex }: { loadIndex?: () => Promise<SearchIndexItem[]> }) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
+  const fetcher = useFetcher();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -159,7 +161,10 @@ export function SearchModal({ loadIndex = fetchIndex }: { loadIndex?: () => Prom
       external: page.external,
     }));
     const mine = (own ?? []).map((i) => ({ titles: [t(i.section), i.title], to: i.to }));
-    return [...pages, ...mine];
+    // Actions, after postclaw's command palette: start a conversation from
+    // anywhere (chat.index's action creates it and opens it).
+    const actions: Doc[] = [{ titles: [t("nav.chat"), t("chat.new")], to: "/chat", act: "new-conversation" }];
+    return [...actions, ...pages, ...mine];
   }, [t, own]);
 
   const results = useMemo(() => search(docs, query), [docs, query]);
@@ -175,6 +180,10 @@ export function SearchModal({ loadIndex = fetchIndex }: { loadIndex?: () => Prom
   function go(doc: Doc | undefined) {
     if (!doc) return;
     setOpen(false);
+    if (doc.act === "new-conversation") {
+      void fetcher.submit({}, { method: "post", action: "/chat?index" });
+      return;
+    }
     if (doc.external) window.location.assign(doc.to);
     else navigate(doc.to);
   }

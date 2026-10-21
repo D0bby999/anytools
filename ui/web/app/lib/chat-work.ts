@@ -29,6 +29,8 @@ export type WorkView = {
   ms?: number;
   contextTokens?: number;
   contextWindow?: number;
+  /** Where earlier messages start to be summarised (chat history budget). */
+  historyBudget?: number;
 };
 
 /** Follow-up kinds the server may offer (capabilities/chat/suggestions.go). */
@@ -68,6 +70,7 @@ export function readWork(raw: unknown): WorkView | null {
     ms: num(r.ms),
     contextTokens: num(r.context_tokens),
     contextWindow: num(r.context_window),
+    historyBudget: num(r.history_budget),
   };
 }
 

@@ -7,7 +7,7 @@
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createMemoryRouter, RouterProvider, useLocation } from "react-router";
+import { createMemoryRouter, redirect, RouterProvider, useLocation } from "react-router";
 import { initI18n } from "~/lib/i18n";
 import { fold, SearchModal } from "~/components/layout/search-modal";
 import { openSearch } from "~/components/layout/top-nav";
@@ -70,6 +70,41 @@ describe("the search modal", () => {
     await userEvent.keyboard("{Enter}");
     expect(screen.getByTestId("where").textContent).toBe("/quiz/bank");
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("starts a new conversation from anywhere", async () => {
+    let posted = false;
+    const router = createMemoryRouter(
+      [
+        {
+          path: "*",
+          element: (
+            <>
+              <button type="button" onClick={openSearch}>
+                Search
+              </button>
+              <Where />
+              <SearchModal loadIndex={async () => own} />
+            </>
+          ),
+        },
+        {
+          path: "/chat",
+          action: () => {
+            posted = true;
+            return redirect("/chat/new-one");
+          },
+        },
+      ],
+      { initialEntries: ["/home"] },
+    );
+    render(<RouterProvider router={router} />);
+    const { input } = await openFromButton();
+    await userEvent.type(input, "new conv");
+    expect(screen.getByRole("option", { selected: true }).textContent).toMatch(/Chat.*New conversation/);
+    await userEvent.keyboard("{Enter}");
+    await screen.findByText("/chat/new-one");
+    expect(posted).toBe(true);
   });
 
   it("matches the learner's own titles without their accents", async () => {

@@ -214,6 +214,11 @@ export default [
     // POST-only resource route; its action calls requireUserId.
     route("app/api/chat-feedback", "routes/app.api.chat-feedback.ts"),
 
+    // Plan 261021-1100 phase 2: a question spoken into the chat composer,
+    // where the browser has no speech recognition. POST-only resource route;
+    // its action calls requireUserId.
+    route("app/api/dictate", "routes/app.api.dictate.ts"),
+
     // up-methods, phase 13: the Home "Low day" switch. POST-only resource
     // route; its action calls requireUser and only sets a cookie.
     route("app/api/low-day", "routes/app.api.low-day.ts"),

@@ -143,3 +143,26 @@ export async function checkReadingAloud(
   }
   return new Response(res.body, { status: res.status, headers: { "Content-Type": "application/json" } });
 }
+
+/**
+ * A question spoken into the chat composer, where the browser has no speech
+ * recognition (plan 261021-1100 phase 2): the same take and engines as the
+ * read-aloud check, answered with the text. lang is the learner's language
+ * ("vi") or "" for the engine to decide.
+ */
+export async function dictateQuestion(userId: string, audio: File, lang: string): Promise<Response> {
+  const body = new FormData();
+  if (/^[a-z]{2,3}$/.test(lang)) body.set("lang", lang);
+  body.set("audio", audio, audio.name || "take");
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/v1/speaking/dictate`, {
+      method: "POST",
+      headers: { ...(API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {}), [USER_ID_HEADER]: userId },
+      body,
+    });
+  } catch {
+    return Response.json({ error: "The API could not be reached." }, { status: 503 });
+  }
+  return new Response(res.body, { status: res.status, headers: { "Content-Type": "application/json" } });
+}

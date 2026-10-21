@@ -303,9 +303,22 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    to a match opens the folds that hold it. The latest eight conversations hang under
    Chat in the sidebar as its child rows, a navy dot on one still answering, Rename and
    Delete in each row's "…" menu, then All conversations. The
-   composer sticks to the foot of the page, grows to 160px, keeps a draft per conversation, queues up to three messages while
-   a turn runs, and carries the model menu and the keyboard hint underneath. "Jump to
-   latest" appears only when the learner has scrolled away from a streaming answer.
+   composer sticks to the foot of the page, grows to 160px and keeps a draft per
+   conversation (plan 261021-1100 phase 2, after postclaw's). `/` at the start opens the
+   commands (explain, quiz, flashcards, summarise, solve, research, draw) and `@` the
+   conversation's documents, both as a list above the box driven from the text field
+   (a combobox: ↑ ↓, Enter or Tab, Esc); a picked document is a chip this question reads
+   from. The paperclip, or a file dropped anywhere on the page (a dashed overlay says
+   where it goes), attaches a photo for Solve or adds a file to the conversation's first
+   knowledge base. A mic beside Send writes a spoken question into the box. While a turn
+   runs, Enter queues up to five messages in a dock above the box, which pauses with the
+   reason on a stop or a failure. Under the box: attach, the **model chip** (the
+   connection's name, then its model in the caption ink, one truncating line; its menu
+   searches past five models; a switch being saved sweeps; a refused one says so), the
+   **context meter** (a 48px bar with a tick where summarising starts, the numbers in
+   text beside it), then the hint and Shortcuts, which opens the keys (also `?` outside
+   a field). Nothing spins. "Jump to latest" appears only when the learner has scrolled
+   away from a streaming answer.
 
 15. **The site header** (`components/layout/site-header.tsx`, owner 2026-10-19): one
    header on the landing page, every public tool page and sign-in, drawn from the
