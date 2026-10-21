@@ -26,4 +26,4 @@ La app de estudio nació de la misma idea. No vende tiempo de IA. Pone a trabaja
 
 ## Contacto
 
-¿Quieres pedir una herramienta, encontraste un error o quieres colaborar? Escribe a chaudai621@gmail.com o abre una incidencia en [GitHub](https://github.com/D0bby999/anytools/issues). Lo leemos todo.
+¿Quieres pedir una herramienta, encontraste un error o quieres colaborar? Escribe a support@anytools.world o abre una incidencia en [GitHub](https://github.com/D0bby999/anytools/issues). Lo leemos todo.

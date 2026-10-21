@@ -46,6 +46,6 @@ Bạn có thể ngừng dùng Dịch vụ bất cứ lúc nào, và xóa tài kh
 
 ## Liên hệ
 
-Có câu hỏi về Điều khoản? Email chaudai621@gmail.com.
+Có câu hỏi về Điều khoản? Email support@anytools.world.
 
 AnyTools do Cassau, LLC vận hành, một công ty trách nhiệm hữu hạn tại Delaware (đại diện đăng ký: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA).

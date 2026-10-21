@@ -6,7 +6,7 @@ updated: 2026-10-18
 
 ## Correo
 
-Para cualquier cosa, ya sean peticiones de funciones, informes de errores, colaboraciones, prensa o simplemente saludar, escribe a chaudai621@gmail.com. Intentamos responder en dos días laborables.
+Para cualquier cosa, ya sean peticiones de funciones, informes de errores, colaboraciones, prensa o simplemente saludar, escribe a support@anytools.world. Intentamos responder en dos días laborables.
 
 ## GitHub
 
@@ -18,4 +18,4 @@ El código y el gestor de incidencias están en GitHub. Abre una incidencia si e
 
 ## Prensa y colaboraciones
 
-Para consultas de prensa o propuestas de colaboración, escribe a chaudai621@gmail.com con "Press" o "Partnership" en el asunto.
+Para consultas de prensa o propuestas de colaboración, escribe a support@anytools.world con "Press" o "Partnership" en el asunto.

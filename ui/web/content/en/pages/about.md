@@ -26,4 +26,4 @@ The study app grew from the same idea. It does not sell AI time. It puts the mod
 
 ## Get in touch
 
-Have a tool request, found a bug, or want to work together? Email chaudai621@gmail.com, or open an issue on [GitHub](https://github.com/D0bby999/anytools/issues). We read everything.
+Have a tool request, found a bug, or want to work together? Email support@anytools.world, or open an issue on [GitHub](https://github.com/D0bby999/anytools/issues). We read everything.

@@ -241,7 +241,7 @@ describe("about, privacy, terms and contact", () => {
     const { container } = await renderRoute(page, "/es/privacy", "/:locale/privacy", { locale: "es" });
     expect(container.querySelector("h1")?.textContent).toBe("Política de privacidad");
     expect(screen.getByText("Última actualización: 2026-10-18")).toBeTruthy();
-    expect(container.querySelector('a[href="mailto:chaudai621@gmail.com"]')).not.toBeNull();
+    expect(container.querySelector('a[href="mailto:support@anytools.world"]')).not.toBeNull();
     expect(container.querySelector("script, img")).toBeNull();
   });
 });

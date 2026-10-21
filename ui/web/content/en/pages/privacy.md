@@ -52,7 +52,7 @@ Hosting: Hetzner (Germany, EU). Network and DNS: Cloudflare. Sign-in: Google and
 
 ## Your rights
 
-You can ask for a copy of the data we hold about you, for its correction, or for its deletion, by writing to chaudai621@gmail.com. We answer within 30 days. Residents of the EU have further rights under the GDPR, residents of Vietnam under its personal data protection law, and residents of California under the CCPA.
+You can ask for a copy of the data we hold about you, for its correction, or for its deletion, by writing to support@anytools.world. We answer within 30 days. Residents of the EU have further rights under the GDPR, residents of Vietnam under its personal data protection law, and residents of California under the CCPA.
 
 ## Children
 
@@ -64,6 +64,6 @@ We update this policy when the product changes. The date at the top says when it
 
 ## Contact
 
-Email: chaudai621@gmail.com.
+Email: support@anytools.world.
 
 AnyTools is operated by Cassau, LLC, a Delaware limited liability company. Registered agent: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA.

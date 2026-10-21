@@ -46,6 +46,6 @@ These Terms are governed by the laws of the State of Delaware, USA, without rega
 
 ## Contact
 
-Questions about these Terms? Email chaudai621@gmail.com.
+Questions about these Terms? Email support@anytools.world.
 
 AnyTools is operated by Cassau, LLC, a Delaware limited liability company (registered agent: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA).

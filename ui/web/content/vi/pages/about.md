@@ -26,4 +26,4 @@ Phần lớn trang công cụ chậm vì quảng cáo, chỉ có tiếng Anh, v�
 
 ## Liên hệ
 
-Muốn đề xuất công cụ, gặp lỗi, hay muốn hợp tác? Email chaudai621@gmail.com, hoặc mở issue trên [GitHub](https://github.com/D0bby999/anytools/issues). Chúng tôi đọc tất cả.
+Muốn đề xuất công cụ, gặp lỗi, hay muốn hợp tác? Email support@anytools.world, hoặc mở issue trên [GitHub](https://github.com/D0bby999/anytools/issues). Chúng tôi đọc tất cả.

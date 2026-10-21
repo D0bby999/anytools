@@ -6,7 +6,7 @@ updated: 2026-10-18
 
 ## E-mail
 
-Para qualquer assunto, seja pedido de recurso, relato de bug, parceria, imprensa ou só para dizer oi, escreva para chaudai621@gmail.com. Procuramos responder em dois dias úteis.
+Para qualquer assunto, seja pedido de recurso, relato de bug, parceria, imprensa ou só para dizer oi, escreva para support@anytools.world. Procuramos responder em dois dias úteis.
 
 ## GitHub
 
@@ -18,4 +18,4 @@ Achou uma vulnerabilidade? Relate em particular pelos avisos de segurança do Gi
 
 ## Imprensa e parcerias
 
-Para imprensa ou propostas de parceria, escreva para chaudai621@gmail.com com "Press" ou "Partnership" no assunto.
+Para imprensa ou propostas de parceria, escreva para support@anytools.world com "Press" ou "Partnership" no assunto.

@@ -46,6 +46,6 @@ Estos Términos se rigen por las leyes del Estado de Delaware, EE. UU., sin tene
 
 ## Contacto
 
-¿Preguntas sobre estos Términos? Escribe a chaudai621@gmail.com.
+¿Preguntas sobre estos Términos? Escribe a support@anytools.world.
 
 AnyTools está operada por Cassau, LLC, una sociedad de responsabilidad limitada de Delaware (agente registrado: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA).

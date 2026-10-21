@@ -52,7 +52,7 @@ Lưu trữ máy chủ: Hetzner (Đức, EU). Mạng và DNS: Cloudflare. Đăng 
 
 ## Quyền của bạn
 
-Bạn có thể yêu cầu bản sao dữ liệu chúng tôi giữ về bạn, yêu cầu sửa hoặc xóa, bằng cách viết đến chaudai621@gmail.com. Chúng tôi trả lời trong 30 ngày. Người ở EU có thêm quyền theo GDPR, người ở Việt Nam theo luật bảo vệ dữ liệu cá nhân, và người ở California theo CCPA.
+Bạn có thể yêu cầu bản sao dữ liệu chúng tôi giữ về bạn, yêu cầu sửa hoặc xóa, bằng cách viết đến support@anytools.world. Chúng tôi trả lời trong 30 ngày. Người ở EU có thêm quyền theo GDPR, người ở Việt Nam theo luật bảo vệ dữ liệu cá nhân, và người ở California theo CCPA.
 
 ## Trẻ em
 
@@ -64,6 +64,6 @@ Chúng tôi cập nhật chính sách này khi sản phẩm thay đổi. Ngày �
 
 ## Liên hệ
 
-Email: chaudai621@gmail.com.
+Email: support@anytools.world.
 
 AnyTools do Cassau, LLC vận hành, một công ty trách nhiệm hữu hạn tại Delaware. Đại diện đăng ký: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA.

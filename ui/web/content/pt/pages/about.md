@@ -26,4 +26,4 @@ O app de estudo nasceu da mesma ideia. Ele não vende tempo de IA. Ele põe os m
 
 ## Fale conosco
 
-Quer pedir uma ferramenta, achou um bug ou quer colaborar? Escreva para chaudai621@gmail.com ou abra uma issue no [GitHub](https://github.com/D0bby999/anytools/issues). Lemos tudo.
+Quer pedir uma ferramenta, achou um bug ou quer colaborar? Escreva para support@anytools.world ou abra uma issue no [GitHub](https://github.com/D0bby999/anytools/issues). Lemos tudo.

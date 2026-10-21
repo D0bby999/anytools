@@ -6,7 +6,7 @@ updated: 2026-10-18
 
 ## Email
 
-For anything at all, whether feature requests, bug reports, partnership or press enquiries, or just to say hello, write to chaudai621@gmail.com. We aim to answer within two business days.
+For anything at all, whether feature requests, bug reports, partnership or press enquiries, or just to say hello, write to support@anytools.world. We aim to answer within two business days.
 
 ## GitHub
 
@@ -18,4 +18,4 @@ Found a vulnerability? Report it privately through GitHub's security advisories:
 
 ## Press and partnerships
 
-For press enquiries or partnership discussions, email chaudai621@gmail.com with "Press" or "Partnership" in the subject line.
+For press enquiries or partnership discussions, email support@anytools.world with "Press" or "Partnership" in the subject line.

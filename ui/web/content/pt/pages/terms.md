@@ -46,6 +46,6 @@ Estes Termos são regidos pelas leis do Estado de Delaware, EUA, sem considerar 
 
 ## Contato
 
-Dúvidas sobre estes Termos? Escreva para chaudai621@gmail.com.
+Dúvidas sobre estes Termos? Escreva para support@anytools.world.
 
 O AnyTools é operado pela Cassau, LLC, uma sociedade de responsabilidade limitada de Delaware (agente registrado: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA).

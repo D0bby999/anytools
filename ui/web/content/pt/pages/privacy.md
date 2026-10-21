@@ -52,7 +52,7 @@ Hospedagem: Hetzner (Alemanha, UE). Rede e DNS: Cloudflare. Login: Google e GitH
 
 ## Seus direitos
 
-Você pode pedir uma cópia dos dados que temos sobre você, a correção ou a exclusão deles escrevendo para chaudai621@gmail.com. Respondemos em 30 dias. Residentes da UE têm direitos adicionais pelo RGPD, do Brasil pela LGPD, do Vietnã pela lei de proteção de dados pessoais e da Califórnia pela CCPA.
+Você pode pedir uma cópia dos dados que temos sobre você, a correção ou a exclusão deles escrevendo para support@anytools.world. Respondemos em 30 dias. Residentes da UE têm direitos adicionais pelo RGPD, do Brasil pela LGPD, do Vietnã pela lei de proteção de dados pessoais e da Califórnia pela CCPA.
 
 ## Crianças
 
@@ -64,6 +64,6 @@ Atualizamos esta política quando o produto muda. A data no topo diz quando foi 
 
 ## Contato
 
-E-mail: chaudai621@gmail.com.
+E-mail: support@anytools.world.
 
 O AnyTools é operado pela Cassau, LLC, uma sociedade de responsabilidade limitada de Delaware. Agente registrado: Legalinc Corporate Services Inc., 131 Continental Dr, Suite 305, Newark, DE 19713, USA.

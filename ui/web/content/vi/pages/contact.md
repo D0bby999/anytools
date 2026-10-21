@@ -6,7 +6,7 @@ updated: 2026-10-18
 
 ## Email
 
-Với mọi việc, từ đề xuất tính năng, báo lỗi, hợp tác, báo chí, hay chỉ để chào hỏi, hãy viết đến chaudai621@gmail.com. Chúng tôi cố gắng trả lời trong hai ngày làm việc.
+Với mọi việc, từ đề xuất tính năng, báo lỗi, hợp tác, báo chí, hay chỉ để chào hỏi, hãy viết đến support@anytools.world. Chúng tôi cố gắng trả lời trong hai ngày làm việc.
 
 ## GitHub
 
@@ -18,4 +18,4 @@ Phát hiện lỗ hổng? Hãy báo riêng qua mục security advisories của G
 
 ## Báo chí và hợp tác
 
-Với yêu cầu từ báo chí hay đề nghị hợp tác, email chaudai621@gmail.com với "Press" hoặc "Partnership" trong tiêu đề.
+Với yêu cầu từ báo chí hay đề nghị hợp tác, email support@anytools.world với "Press" hoặc "Partnership" trong tiêu đề.
