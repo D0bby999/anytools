@@ -16,6 +16,15 @@ import (
 // an inert text line — the system prompt is never echoed back to the end user.
 const SystemCacheBoundaryMarker = "<!--anytools:cache-boundary-->"
 
+// StripCacheMarker removes the boundary marker for a provider with no use
+// for it, so it never reaches a model as text.
+func StripCacheMarker(s string) string {
+	if !strings.Contains(s, SystemCacheBoundaryMarker) {
+		return s
+	}
+	return strings.TrimSpace(strings.ReplaceAll(s, SystemCacheBoundaryMarker, ""))
+}
+
 // buildRawBlock reconstructs a complete content block from streaming data.
 // This is needed to preserve thinking blocks (with signatures) for tool use passback.
 func (p *AnthropicProvider) buildRawBlock(blockType string, result *ChatResponse, toolCallJSON map[int]string, _ int) json.RawMessage {
@@ -82,6 +91,10 @@ func (p *AnthropicProvider) buildRequestBody(model string, req ChatRequest, stre
 	// to "last block" for legacy callers that don't emit the boundary marker,
 	// e.g. the compaction/summarizer system-less prompts).
 	staticSystemBlockIdx := -1
+	// markerSeen pins the breakpoint to the marked block: a system message
+	// after it (chat's per-turn notes beside the question) is the dynamic
+	// part, and must not move the breakpoint onto itself.
+	markerSeen := false
 
 	for _, msg := range req.Messages {
 		switch msg.Role {
@@ -101,6 +114,7 @@ func (p *AnthropicProvider) buildRequestBody(model string, req ChatRequest, stre
 						"text": staticPart,
 					})
 					staticSystemBlockIdx = len(systemBlocks) - 1
+					markerSeen = true
 				}
 				if dynamicPart != "" {
 					systemBlocks = append(systemBlocks, map[string]interface{}{
@@ -116,7 +130,9 @@ func (p *AnthropicProvider) buildRequestBody(model string, req ChatRequest, stre
 			})
 			// No marker (e.g. a bare summarizer/compaction prompt): treat the
 			// whole thing as cacheable, matching the pre-C2 behavior.
-			staticSystemBlockIdx = len(systemBlocks) - 1
+			if !markerSeen {
+				staticSystemBlockIdx = len(systemBlocks) - 1
+			}
 
 		case "user":
 			if len(msg.Images) > 0 {

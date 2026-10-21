@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -62,6 +63,22 @@ func (c *Capability) Name() string { return "chat" }
 //   - running out of rounds asks for an answer from what was found, and an
 //     answer cut at the token limit is continued once;
 //   - text that already streamed is kept when the provider fails after it.
+//
+// And what phase 5 of plan 261021-1100 added from the same source:
+//   - the prompt opens with one stable system message and keeps per-turn
+//     notes beside the question, so a provider's prompt cache keeps hitting
+//     (prompt.go); a summary is checked for its parts before it replaces
+//     the old one (compaction.go);
+//   - a long tool result is kept whole for the turn and read back by page
+//     (spill.go), and older results leave the prompt when it nears the
+//     window;
+//   - arguments are checked against the tool's schema, and each tool has a
+//     time bound (tools.go, args_check.go);
+//   - rounds that keep bringing nothing new end the loop, a response cut
+//     for safety or at the length limit does not have its tool calls run,
+//     and a model that stops sending ends the call (guard.go);
+//   - one turn can ask another model on the route without re-pinning the
+//     conversation.
 func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 	started := time.Now()
 	provider, err := chatProvider(ctx, tc)
@@ -81,22 +98,20 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 		return fmt.Errorf("load history: %w", err)
 	}
 
-	// The notes that sit right after the system prompt: the linked learning
-	// state, then the learner's Preferences. Read once; a rebuild after an
-	// overflow reuses them.
-	var notes []string
+	// The learner's Preferences change rarely and open the prompt with the
+	// system rules; the linked learning state and the documents pointed at
+	// can change every turn, so they sit beside the question (prompt.go).
+	// Read once; a rebuild after an overflow reuses them.
 	stateNote, revision, err := c.stateContext(ctx, tc)
 	if err != nil {
 		return err
 	}
-	if note := c.profileNote(ctx, tc); note != "" {
-		notes = append(notes, note)
-	}
+	notes := promptNotes{stable: c.profileNote(ctx, tc)}
 	if stateNote != "" {
-		notes = append(notes, stateNote)
+		notes.turn = append(notes.turn, stateNote)
 	}
 	if note := referencesNote(tc.References()); note != "" {
-		notes = append(notes, note)
+		notes.turn = append(notes.turn, note)
 	}
 
 	work := &workRecord{}
@@ -143,7 +158,8 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 	// in the context, a network tool is only mounted with the session's
 	// explicit "allow web" consent (red-team Security 4).
 	hasRetrievedContext := false
-	seen := map[string]string{}
+	turn := newTurnTools()
+	staleRounds := 0
 	var answer string
 
 	tc.Emit(runtime.Event{Type: runtime.EvStageStart, Stage: stagePlanning, Source: c.Name()})
@@ -153,6 +169,16 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 	// budget and this turn's tool output is cut harder, then the call repeats.
 	call := func(tools []runtime.ToolDefinition) (*runtime.ChatResponse, error) {
 		for {
+			// Near the window, earlier rounds' results leave the prompt;
+			// each stays readable through its handle.
+			if n := elideOlderResults(turnMsgs, turn, promptTokens(concat(msgs, turnMsgs)), window); n > 0 {
+				work.Elided += n
+				tc.Emit(runtime.Event{
+					Type: runtime.EvProgress, Stage: stagePlanning, Source: c.Name(),
+					Content:  "set earlier tool results aside to make room",
+					Metadata: map[string]any{"kind": "elided", "results": n},
+				})
+			}
 			req := runtime.ChatRequest{Messages: concat(msgs, turnMsgs), Tools: tools, Model: model}
 			resp, partial, err := c.callProvider(ctx, tc, provider, req)
 			if err == nil {
@@ -171,7 +197,7 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 				msgs = base(budget)
 				for i := range turnMsgs {
 					if turnMsgs[i].Role == runtime.RoleTool {
-						turnMsgs[i].Content = capToolOutput(turnMsgs[i].Content, toolOutputRetryChars)
+						turnMsgs[i].Content = shrinkToolOutput(turnMsgs[i].Content, toolOutputRetryChars, turn.book)
 					}
 				}
 				tc.Emit(runtime.Event{
@@ -184,7 +210,7 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 			if partial != "" {
 				c.keepPartial(ctx, tc, partial, work, started)
 			}
-			if errors.Is(err, runtime.ErrTurnCancelled) {
+			if errors.Is(err, runtime.ErrTurnCancelled) || errors.Is(err, runtime.ErrStalled) {
 				return nil, err
 			}
 			return nil, fmt.Errorf("%w: %s", runtime.ErrProvider, err)
@@ -200,9 +226,22 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 		}
 		work.Rounds++
 
-		resp, err := call(tc.Tools.Definitions(tc.Session.AllowWeb, hasRetrievedContext))
+		defs := tc.Tools.Definitions(tc.Session.AllowWeb, hasRetrievedContext)
+		if !turn.book.empty() {
+			defs = append(defs, readResultDefinition())
+		}
+		resp, err := call(defs)
 		if err != nil {
 			return err
+		}
+		// A response the provider cut for safety may hold half-formed tool
+		// calls and an unfinished answer: neither is acted on, and the
+		// learner is told why (postclaw safety_termination.go).
+		if stoppedForSafety(resp) {
+			if resp.Content != "" {
+				c.keepPartial(ctx, tc, resp.Content, work, started)
+			}
+			return runtime.ErrSafetyStop
 		}
 		if resp.Thinking != "" {
 			tc.Emit(runtime.Event{Type: runtime.EvThinking, Stage: stagePlanning,
@@ -225,7 +264,12 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 			ToolCalls: resp.ToolCalls,
 		})
 
-		outcomes, err := c.runTools(ctx, tc, resp.ToolCalls, seen, work)
+		notRun := ""
+		if cutAtLength(resp) {
+			notRun = cutCallsNote
+		}
+		before := len(work.Steps)
+		outcomes, err := c.runTools(ctx, tc, resp.ToolCalls, turn, work, notRun)
 		if err != nil {
 			return err
 		}
@@ -238,18 +282,48 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 				ToolCallID: tcall.ID,
 				Content:    outcomes[i].content,
 			})
+			turn.calls[tcall.ID] = callInfo{tool: tcall.Name, retrieved: outcomes[i].retrieved}
+		}
+
+		// Rounds that bring nothing new end the loop: the model is
+		// circling, and another round only spends the learner's key.
+		if staleRound(work.Steps[before:]) {
+			staleRounds++
+		} else {
+			staleRounds = 0
+		}
+		if staleRounds >= staleRoundLimit {
+			work.Stopped = "loop"
+			tc.Emit(runtime.Event{
+				Type: runtime.EvProgress, Stage: stagePlanning, Source: c.Name(),
+				Content:  "stopped searching: the last rounds found nothing new",
+				Metadata: map[string]any{"kind": "loop_stopped", "rounds": staleRounds},
+			})
+			break
 		}
 	}
 
-	// Out of rounds: one more call, with no tools, for an answer from what
-	// was found. Eight rounds of searching that end in an error and nothing
-	// else are the worst use of a learner's key.
+	// Out of rounds, or stopped for going in circles: one more call, with no
+	// tools, for an answer from what was found. Eight rounds of searching
+	// that end in an error and nothing else are the worst use of a
+	// learner's key.
 	if answer == "" && !tc.BudgetExceeded() && ctx.Err() == nil {
-		work.LimitReached = true
-		turnMsgs = append(turnMsgs, runtime.Message{Role: runtime.RoleSystem, Content: roundLimitNote})
+		note := roundLimitNote
+		if work.Stopped == "" {
+			work.LimitReached = true
+		} else {
+			note = loopStopNote
+		}
+		turnMsgs = append(turnMsgs, runtime.Message{Role: runtime.RoleSystem, Content: note})
 		resp, err := call(nil)
 		if err != nil {
 			return err
+		}
+		if stoppedForSafety(resp) {
+			if resp.Content != "" {
+				c.keepPartial(ctx, tc, resp.Content, work, started)
+			}
+			return runtime.ErrSafetyStop
 		}
 		if len(resp.ToolCalls) == 0 {
 			answer = resp.Content
@@ -265,12 +339,18 @@ func (c *Capability) Run(ctx context.Context, tc *runtime.TurnContext) error {
 
 	tc.Emit(runtime.Event{Type: runtime.EvStageEnd, Stage: stagePlanning, Source: c.Name()})
 	work.MS = time.Since(started).Milliseconds()
+	work.CachedTokens = tc.Usage().CacheReadTokens
 	return c.deliver(ctx, tc, answer, revision, work)
 }
 
-// chatProvider resolves the chat route, with the conversation's picked
-// connection first when it has one and the resolver can honour it.
+// chatProvider resolves the chat route, with this turn's pick first when it
+// has one, else the conversation's, when the resolver can honour it.
 func chatProvider(ctx context.Context, tc *runtime.TurnContext) (runtime.ChatProvider, error) {
+	if id, err := uuid.Parse(tc.Param(runtime.ParamConnection)); err == nil {
+		if pr, ok := tc.Providers.(runtime.PreferringResolver); ok {
+			return pr.ChatPreferring(ctx, tc.Turn.UserID, "chat", id, tc.Param(runtime.ParamModel))
+		}
+	}
 	if pin := tc.Session.ConnectionID; pin != nil {
 		if pr, ok := tc.Providers.(runtime.PreferringResolver); ok {
 			return pr.ChatPreferring(ctx, tc.Turn.UserID, "chat", *pin, tc.Session.ModelHint)
@@ -318,7 +398,10 @@ func (c *Capability) callProvider(
 	provider runtime.ChatProvider, req runtime.ChatRequest,
 ) (*runtime.ChatResponse, string, error) {
 	var streamed strings.Builder
-	resp, err := provider.ChatStream(ctx, req, func(chunk runtime.StreamChunk) {
+	callCtx, stop, stalled := watchStream(ctx)
+	defer stop()
+	resp, err := provider.ChatStream(callCtx, req, func(chunk runtime.StreamChunk) {
+		stalled.touch()
 		switch {
 		case chunk.Content != "":
 			streamed.WriteString(chunk.Content)
@@ -331,6 +414,9 @@ func (c *Capability) callProvider(
 	if err != nil {
 		if ctx.Err() != nil {
 			return nil, streamed.String(), runtime.ErrTurnCancelled
+		}
+		if after := stalled.fired(); after > 0 {
+			return nil, streamed.String(), fmt.Errorf("%w for %d seconds", runtime.ErrStalled, int(after.Seconds()))
 		}
 		return nil, streamed.String(), err
 	}
@@ -378,10 +464,17 @@ func concat(a, b []runtime.Message) []runtime.Message {
 	return append(append(out, a...), b...)
 }
 
-// resolveModel is the session's explicit choice, or whatever the provider says
-// it will use. Called before the first request and again after every response,
-// because the second answer can differ from the first: see RecordProvider above.
+// resolveModel is this turn's model, the session's explicit choice, or
+// whatever the provider says it will use. Called before the first request and
+// again after every response, because the second answer can differ from the
+// first: see RecordProvider above.
 func resolveModel(tc *runtime.TurnContext, provider runtime.ChatProvider) string {
+	if tc.Param(runtime.ParamConnection) != "" {
+		if m := tc.Param(runtime.ParamModel); m != "" {
+			return m
+		}
+		return provider.DefaultModel()
+	}
 	if hint := tc.Session.ModelHint; hint != "" {
 		return hint
 	}
@@ -482,4 +575,58 @@ func redactArgs(args map[string]any) map[string]any {
 		out[k] = v
 	}
 	return out
+}
+
+// The stream guard (postclaw providers/stream_guard.go, moved up a layer so
+// every provider has it): a call that sends nothing for this long is ended,
+// and the turn fails as PROVIDER_STALLED with what had streamed kept. The
+// first chunk may take longer, since a reasoning model thinks first; any
+// chunk, thinking included, counts as the model still working.
+var (
+	stallBeforeFirst = 180 * time.Second
+	stallBetween     = 90 * time.Second
+)
+
+// streamWatch notices a call that has gone quiet.
+type streamWatch struct {
+	last   atomic.Int64 // unix nanos of the last chunk, 0 before the first
+	start  time.Time
+	firing atomic.Int64 // the silence that ended the call, in nanos
+}
+
+func (w *streamWatch) touch() { w.last.Store(time.Now().UnixNano()) }
+
+// fired is how long the call had been silent when it was ended, or 0.
+func (w *streamWatch) fired() time.Duration { return time.Duration(w.firing.Load()) }
+
+// watchStream returns a context for one call that is cancelled when the
+// call goes quiet, a stop for when the call returns, and the watch.
+func watchStream(ctx context.Context) (context.Context, func(), *streamWatch) {
+	callCtx, cancel := context.WithCancel(ctx)
+	w := &streamWatch{start: time.Now()}
+	done := make(chan struct{})
+	tick := min(stallBetween, stallBeforeFirst) / 6
+	go func() {
+		t := time.NewTicker(tick)
+		defer t.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case <-callCtx.Done():
+				return
+			case now := <-t.C:
+				limit, since := stallBetween, time.Unix(0, w.last.Load())
+				if w.last.Load() == 0 {
+					limit, since = stallBeforeFirst, w.start
+				}
+				if quiet := now.Sub(since); quiet >= limit {
+					w.firing.Store(int64(limit))
+					cancel()
+					return
+				}
+			}
+		}
+	}()
+	return callCtx, func() { close(done); cancel() }, w
 }

@@ -633,5 +633,6 @@
  "turn on Google Calendar first": "ative o Google Agenda primeiro",
  "turn on Google Classroom first": "ative o Google Sala de Aula primeiro",
  "turn on Google Photos first": "ative o Google Fotos primeiro",
- "unknown address": "endereço desconhecido"
+ "unknown address": "endereço desconhecido",
+ "that model id is too long": "esse id de modelo é longo demais"
 }

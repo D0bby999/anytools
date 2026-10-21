@@ -65,6 +65,10 @@ export type ToolActivity = {
   found?: number;
   /** The same call was already made in this turn and was not run again. */
   repeated?: boolean;
+  /** The result held text written as an instruction to the model. */
+  flagged?: boolean;
+  /** The result was kept whole to be read back by page. */
+  kept?: boolean;
 };
 
 /**
@@ -107,6 +111,8 @@ export type TurnState = {
   cancelled: boolean;
   /** Earlier messages were summarised to make room (a `progress` frame). */
   compacted: number;
+  /** The rounds stopped because they brought nothing new (a `progress` frame). */
+  loopStopped: boolean;
   /** The model the turn is using, from `session_meta`. */
   model: string | null;
   finished: boolean;
@@ -126,6 +132,7 @@ const EMPTY: TurnState = {
   failure: null,
   cancelled: false,
   compacted: 0,
+  loopStopped: false,
   model: null,
   finished: false,
   lastSeq: 0,
@@ -235,6 +242,8 @@ function reduce(prev: TurnState, ev: TurnEvent, seq: number): TurnState {
               detail: ev.content,
               found: typeof found === "number" ? found : undefined,
               repeated: ev.metadata?.repeated === true,
+              flagged: Array.isArray(ev.metadata?.flagged),
+              kept: typeof ev.metadata?.kept === "string",
             }
           : t,
       );
@@ -272,6 +281,7 @@ function reduce(prev: TurnState, ev: TurnEvent, seq: number): TurnState {
       if (ev.metadata?.kind === "compaction" && typeof ev.metadata.messages === "number") {
         next.compacted = prev.compacted + ev.metadata.messages;
       }
+      if (ev.metadata?.kind === "loop_stopped") next.loopStopped = true;
       return next;
 
     case "session_meta":

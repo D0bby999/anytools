@@ -403,6 +403,17 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    prose margins. A route chain is one line until **Edit** opens it in a dialog: rows
    with a grip handle (drag, or Alt+↑ / Alt+↓ on the focused handle, said in a live
    region), a connection above its model picker, and the arrows kept as buttons.
+25. **The chat loop's marks** (`components/chat/summary-checkpoint.tsx`,
+   `ask-again-with.tsx`, plan 261021-1100 phase 5). Where earlier messages were
+   summarised, the transcript draws one hairline row across the column with its
+   sentence and a text toggle between two rules, like a section break in a book;
+   the summary opens below it on the sunken ground, its four parts as a
+   definition list named in the learner's language. "Ask again with…" is one
+   more text action in the answer's row, opening a card of the route's models
+   below it with one line saying the pick is for this answer only. What the
+   loop did (a result kept to read by page, an instruction in a passage not
+   followed, rounds stopped, results set aside, cache reads) is said in words
+   in the process row; only "not followed" takes the warning ink.
 
 ## Anti-patterns for this project
 

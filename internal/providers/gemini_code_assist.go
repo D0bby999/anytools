@@ -88,7 +88,7 @@ func (p *GeminiCodeAssistProvider) buildBody(model string, req ChatRequest) map[
 	contents := make([]any, 0, len(req.Messages))
 	for _, m := range req.Messages {
 		if m.Role == "system" {
-			systemParts = append(systemParts, map[string]any{"text": m.Content})
+			systemParts = append(systemParts, map[string]any{"text": StripCacheMarker(m.Content)})
 			continue
 		}
 		role := "user"

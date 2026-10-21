@@ -33,6 +33,15 @@ type SessionJSON struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// sessionDetailJSON is one session as its page reads it: with the summary
+// that stands in for its earliest messages, and the last message it covers,
+// so the transcript can mark where the model's memory of them begins.
+type sessionDetailJSON struct {
+	SessionJSON
+	Summary          string `json:"summary,omitempty"`
+	SummaryThroughID string `json:"summary_through_id,omitempty"`
+}
+
 func sessionJSON(s runtime.Session) SessionJSON {
 	ids := make([]string, 0, len(s.KBIDs))
 	for _, id := range s.KBIDs {
@@ -117,7 +126,11 @@ func (h *Handler) getSession(w http.ResponseWriter, r *http.Request) {
 		notFound(w)
 		return
 	}
-	httpx.WriteJSON(w, http.StatusOK, sessionJSON(*sess))
+	detail := sessionDetailJSON{SessionJSON: sessionJSON(*sess)}
+	if sess.SummaryThroughID != nil && sess.Summary != "" {
+		detail.Summary, detail.SummaryThroughID = sess.Summary, sess.SummaryThroughID.String()
+	}
+	httpx.WriteJSON(w, http.StatusOK, detail)
 }
 
 type patchSessionRequest struct {

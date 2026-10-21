@@ -574,15 +574,50 @@ postclaw's agent (`internal/agent`) learned the hard way:
   after it. The kept part is cut back to 60% of the budget, so the summary call
   is not repeated every turn. A failed summary call trims instead of failing
   the turn. Rewinding past the summary's last message clears it.
+- **A summary must be whole to be kept** (plan 261021-1100 phase 5,
+  `compaction.go`). It is written in four labelled parts (Goal, Covered, Open,
+  Documents; the labels stay English, the text is the conversation's
+  language). One cut at the output limit or empty never replaces the stored
+  one; one missing a part is asked for once more; the titles the overflow's
+  answers cited and its questions that got no full answer are added back
+  without a call when the model left them out. The chat page draws a
+  checkpoint after `summary_through_id` that opens the summary.
 - **Overflow recovers once.** A provider's "context length" refusal
   (`providers.IsContextOverflow`) rebuilds the history at a third of the budget,
   cuts this turn's tool output to 4k characters each, and retries; a second
   refusal fails the turn.
-- **Tools.** Each result is capped at 16k characters (head and tail) before it
-  enters the prompt. Several calls in one response run concurrently (four at a
-  time), and their results are handled in the model's order, so sources and
-  citation numbers do not depend on timing. The same call twice in a turn is
-  answered from the first result.
+- **A stable prefix for prompt caches** (`prompt.go`). The first message is
+  the rules, what the conversation reads and the learner's Preferences, ending
+  at `providers.SystemCacheBoundaryMarker`; then the summary, the kept history,
+  this turn's own notes (a linked learning state, documents pointed at with
+  `@`) and the question. A request repeats the previous turn's, byte for byte,
+  up to that turn's question. Anthropic gets its breakpoint at the marker, a
+  later system message never moves it, and OpenAI-shaped providers cache the
+  repeated prefix themselves. Cache reads are summed into
+  `attachments.work.cached_tokens` and shown on the context meter.
+- **Tools.** Arguments are checked against the tool's own schema first, as
+  leniently as the tools read them; a bad one is said back with what the tool
+  takes. Each call has a time bound: 60 s locally, 90 s for a network tool, or
+  the tool's own `Timeout()`; running out is a tool error, not a failed turn.
+  A result over 16k characters is kept whole for the turn (`spill.go`, memory
+  only, since tool results never outlive the turn) and enters the prompt as
+  its head and tail with a handle; `read_result` reads any 12k-character page
+  of it back, or the lines containing a phrase. Near 70% of the window, older
+  rounds' results leave the prompt for a note naming their handle. Retrieved
+  text that addresses the model ("ignore previous instructions", in English,
+  Vietnamese, Spanish or Portuguese, or a system tag) gets a note in front of
+  it and the step is flagged. Several calls in one response run concurrently
+  (four at a time), and their results are handled in the model's order, so
+  sources and citation numbers do not depend on timing. The same call twice
+  in a turn is answered from the first result.
+- **Guards** (`guard.go`). Two rounds in a row whose every call was a repeat
+  or failed end the loop (`work.stopped = "loop"`) and ask for an answer from
+  what was found. A response the provider stopped for safety is not acted on
+  (`SAFETY_STOP`); tool calls written into a response cut at the length limit
+  are not run, and the model is asked to send them again. A call that sends
+  nothing for 90 s (180 s before its first chunk; thinking counts) is ended
+  as `PROVIDER_STALLED`, keeping what streamed. A learner's message loses its
+  control characters and direction overrides at the API.
 - **Endings.** Running out of rounds makes one call without tools for an answer
   from what was found. An answer cut at the output limit is continued once.
   Text that streamed before a provider failure or a stop is stored, marked
@@ -598,7 +633,9 @@ postclaw's agent (`internal/agent`) learned the hard way:
 - **A conversation can be pinned** to an entry of the learner's chat route
   (`chat_sessions.connection_id` + `model_hint`); `byok.Chain.Prefer` moves it
   to the front and leaves the rest as the fallback. Only connections on the
-  caller's own chat route are accepted (`ChatStore.OnChatRoute`).
+  caller's own chat route are accepted (`ChatStore.OnChatRoute`). One turn can
+  name another entry of the route instead (`connection_id` and `model` on the
+  turn, "Ask again with…" under the last answer); the pin is left alone.
 - An untitled conversation is named after its first question, without a model
   call.
 

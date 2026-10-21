@@ -386,6 +386,10 @@ func classify(err error) (code string, retryable bool) {
 		return FailureToolRounds, false
 	case errors.Is(err, ErrTokenBudget):
 		return FailureTokenBudget, false
+	case errors.Is(err, ErrStalled):
+		return FailureStalled, true
+	case errors.Is(err, ErrSafetyStop):
+		return FailureSafety, false
 	case errors.Is(err, ErrProvider):
 		return FailureProvider, true
 	case errors.Is(err, context.DeadlineExceeded):
@@ -404,6 +408,11 @@ var (
 	ErrToolRoundLimit = errors.New("tool round limit reached")
 	// ErrTokenBudget means the turn spent its allowance.
 	ErrTokenBudget = errors.New("token budget exhausted")
+	// ErrStalled means the model stopped sending in the middle of a call.
+	ErrStalled = errors.New("the model stopped sending")
+	// ErrSafetyStop means the provider cut the response for safety; its
+	// unfinished tool calls were not run.
+	ErrSafetyStop = errors.New("the provider stopped the answer for safety")
 )
 
 func ptr[T any](v T) *T { return &v }

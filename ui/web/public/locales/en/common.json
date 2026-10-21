@@ -588,7 +588,8 @@
       "allowWeb": "Allow web in this session",
       "label": "Context used",
       "meter": "About {{used}} of {{window}} tokens ({{percent}}%) went into the last question.",
-      "budget": "Past about {{budget}} tokens of earlier messages, the oldest are summarised."
+      "budget": "Past about {{budget}} tokens of earlier messages, the oldest are summarised.",
+      "cached": "The provider read about {{tokens}} of them from its cache."
     },
     "activity": {
       "title": "Activity",
@@ -741,8 +742,18 @@
         "other": {
           "running": "Using {{tool}}",
           "done": "Used {{tool}}"
+        },
+        "read_result": {
+          "running": "Reading back a long result",
+          "done": "Read back a long result"
         }
-      }
+      },
+      "kept": "too long to show whole, kept to read by page",
+      "flagged": "contained an instruction to the model, not followed",
+      "stoppedLoop": "Stopped searching when the last rounds found nothing new, then answered from what was found",
+      "elided_one": "Set {{count}} earlier result aside to make room",
+      "elided_other": "Set {{count}} earlier results aside to make room",
+      "cached": "{{tokens}} tokens read from the provider's cache"
     },
     "sources": "Sources",
     "index": {
@@ -902,6 +913,30 @@
       "search": "Search everything",
       "new": "New conversation",
       "help": "Show these shortcuts"
+    },
+    "failureCode": {
+      "PROVIDER_STALLED": "The model stopped sending partway through. What arrived is kept above; try again.",
+      "SAFETY_STOP": "The provider stopped this answer for safety, so nothing it started was carried out. Try rephrasing the question.",
+      "TOOL_ROUND_LIMIT": "The model kept searching without answering. Try a narrower question.",
+      "TOKEN_BUDGET": "This question used up its token allowance. Try a narrower question."
+    },
+    "askWith": {
+      "action": "Ask again with…",
+      "label": "Ask again with another model",
+      "help": "For this answer only. The conversation keeps its model."
+    },
+    "checkpoint": {
+      "label": "Earlier messages summarised",
+      "show": "Show summary",
+      "hide": "Hide summary",
+      "help": "The model reads this summary in place of the messages above it.",
+      "none": "Nothing",
+      "parts": {
+        "goal": "Goal",
+        "covered": "Covered",
+        "open": "Still open",
+        "documents": "Documents"
+      }
     }
   },
   "more": {

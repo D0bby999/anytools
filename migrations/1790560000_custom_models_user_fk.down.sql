@@ -1,0 +1,1 @@
+ALTER TABLE provider_custom_models DROP CONSTRAINT provider_custom_models_user_fk;

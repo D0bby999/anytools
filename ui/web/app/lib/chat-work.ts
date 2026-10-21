@@ -14,6 +14,10 @@ export type WorkStep = {
   found?: number;
   error?: boolean;
   repeated?: boolean;
+  /** The result held text written as an instruction to the model, which it was told not to follow. */
+  flagged?: boolean;
+  /** The result was too long to show the model whole and was kept to read back by page. */
+  kept?: boolean;
   ms?: number;
   running?: boolean;
 };
@@ -26,6 +30,12 @@ export type WorkView = {
   continued?: boolean;
   /** Every tool round was used; the answer came from what was found. */
   limitReached?: boolean;
+  /** The rounds stopped early because they kept bringing nothing new. */
+  stoppedLoop?: boolean;
+  /** Earlier results set aside to make room in the model's window. */
+  elided?: number;
+  /** Prompt tokens the provider read from its cache over the turn. */
+  cachedTokens?: number;
   ms?: number;
   contextTokens?: number;
   contextWindow?: number;
@@ -57,6 +67,8 @@ export function readWork(raw: unknown): WorkView | null {
             found: num(x.found),
             error: x.error === true,
             repeated: x.repeated === true,
+            flagged: x.flagged === true,
+            kept: typeof x.kept === "string" && x.kept !== "",
             ms: num(x.ms),
           },
         ];
@@ -67,6 +79,9 @@ export function readWork(raw: unknown): WorkView | null {
     summarised: num(r.summarised),
     continued: r.continued === true,
     limitReached: r.limit_reached === true,
+    stoppedLoop: r.stopped === "loop",
+    elided: num(r.elided),
+    cachedTokens: num(r.cached_tokens),
     ms: num(r.ms),
     contextTokens: num(r.context_tokens),
     contextWindow: num(r.context_window),
@@ -89,6 +104,8 @@ export function liveWork(tools: ToolActivity[]): WorkView {
       found: t.found,
       error: t.status === "error",
       repeated: t.repeated,
+      flagged: t.flagged,
+      kept: t.kept,
       running: t.status === "running",
     })),
   };

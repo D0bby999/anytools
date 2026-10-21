@@ -6,6 +6,8 @@
  * model's window, with a tick where earlier messages start to be summarised
  * (the chat capability's history budget). Numbers in text beside it, and a
  * sentence for a screen reader and on hover; the bar alone carries nothing.
+ * When the provider read part of the prompt from its cache, the sentence
+ * says how much (plan 261021-1100 phase 5).
  */
 import { useTranslation } from "react-i18next";
 import { cn } from "~/lib/utils";
@@ -17,7 +19,18 @@ export function compactTokens(n: number): string {
   return String(n);
 }
 
-export function ContextMeter({ used, window, budget }: { used: number; window: number; budget?: number }) {
+export function ContextMeter({
+  used,
+  window,
+  budget,
+  cached,
+}: {
+  used: number;
+  window: number;
+  budget?: number;
+  /** Prompt tokens the provider read from its cache for the last answer. */
+  cached?: number;
+}) {
   const { t } = useTranslation("common");
   if (!(used > 0 && window > 0)) return null;
   const share = Math.min(1, used / window);
@@ -28,7 +41,12 @@ export function ContextMeter({ used, window, budget }: { used: number; window: n
     window: compactTokens(window),
     percent: Math.round(share * 100),
   });
-  const note = budget ? t("chat.context.budget", { budget: compactTokens(budget) }) : "";
+  const note = [
+    budget ? t("chat.context.budget", { budget: compactTokens(budget) }) : "",
+    cached ? t("chat.context.cached", { tokens: compactTokens(cached) }) : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
     <div className="flex items-center gap-2 text-xs leading-ui text-muted-foreground" title={note ? `${sentence} ${note}` : sentence}>
       <div

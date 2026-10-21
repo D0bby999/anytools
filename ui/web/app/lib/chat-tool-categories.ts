@@ -19,6 +19,8 @@ export const TOOL_CATEGORIES: Record<string, ProcessCategory> = {
   zotero_search: "search",
   web_search: "search",
   read_source: "read",
+  // The chat loop's own: a long result of this turn, read back by page.
+  read_result: "read",
   kb_files: "read",
   web_fetch: "read",
   write_note: "write",

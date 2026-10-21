@@ -11,6 +11,7 @@ import (
 
 	"github.com/D0bby999/anytools/internal/api/httpx"
 	"github.com/D0bby999/anytools/internal/api/sse"
+	"github.com/D0bby999/anytools/internal/capabilities/chat"
 	"github.com/D0bby999/anytools/internal/learning/ownversion"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/store/pg"
@@ -34,6 +35,11 @@ type createTurnRequest struct {
 	// theirs and in one of the session's knowledge bases. This turn's searches
 	// return only their passages.
 	References []string `json:"references"`
+	// ConnectionID and Model ask this one turn of another model on the
+	// learner's chat route ("Ask again with…"); the conversation keeps its
+	// own pick.
+	ConnectionID string `json:"connection_id"`
+	Model        string `json:"model"`
 }
 
 // maxReferences caps the documents one question may point at.
@@ -57,7 +63,9 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusBadRequest, "invalid request body", "bad_request")
 		return
 	}
-	message := strings.TrimSpace(req.Message)
+	// Control characters and direction overrides go before anything else
+	// reads the message (chat's input guard).
+	message := strings.TrimSpace(chat.CleanInput(req.Message))
 	rewindID := uuid.Nil
 	if req.RewindToID != "" {
 		id, err := uuid.Parse(req.RewindToID)
@@ -144,6 +152,10 @@ func (h *Handler) createTurn(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, serr.Status, serr.Message, serr.Code)
 		return
 	}
+	if serr := h.turnModel(r.Context(), userID, req.ConnectionID, req.Model, &params); serr != nil {
+		httpx.WriteError(w, serr.Status, serr.Message, serr.Code)
+		return
+	}
 
 	turn, serr := h.begin(r.Context(), userID, *sess, capability, message, attachments, nil, params)
 	if serr != nil {
@@ -189,6 +201,42 @@ func (h *Handler) references(ctx context.Context, userID uuid.UUID, sess runtime
 	}
 	encoded, _ := json.Marshal(refs)
 	return map[string]string{runtime.ParamReferences: string(encoded)}, nil
+}
+
+// maxModelID caps a model id named for one turn, as Settings caps one added
+// by hand.
+const maxModelID = 200
+
+// turnModel checks a connection named for one turn and adds it to params. It
+// must be on the caller's chat route; anything else answers as a connection
+// that does not exist, as a pin does.
+func (h *Handler) turnModel(ctx context.Context, userID uuid.UUID, rawID, model string, params *map[string]string) *StartError {
+	if strings.TrimSpace(rawID) == "" {
+		return nil
+	}
+	id, err := uuid.Parse(strings.TrimSpace(rawID))
+	if err != nil || h.connections == nil {
+		return &StartError{http.StatusNotFound, "not found", "not_found"}
+	}
+	model = strings.TrimSpace(chat.CleanInput(model))
+	if len(model) > maxModelID {
+		return &StartError{http.StatusBadRequest, "that model id is too long", "model_too_long"}
+	}
+	on, err := h.connections.OnChatRoute(ctx, userID, id)
+	if err != nil {
+		return &StartError{http.StatusInternalServerError, "could not check the connection", "check_failed"}
+	}
+	if !on {
+		return &StartError{http.StatusNotFound, "not found", "not_found"}
+	}
+	if *params == nil {
+		*params = map[string]string{}
+	}
+	(*params)[runtime.ParamConnection] = id.String()
+	if model != "" {
+		(*params)[runtime.ParamModel] = model
+	}
+	return nil
 }
 
 // CheckOwnVersion applies "write your own version first" for the caller:

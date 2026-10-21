@@ -588,7 +588,8 @@
       "allowWeb": "Permitir la web en esta sesión",
       "label": "Contexto usado",
       "meter": "La última pregunta usó unos {{used}} de {{window}} tokens ({{percent}} %).",
-      "budget": "Cuando los mensajes anteriores pasan de unos {{budget}} tokens, los más antiguos se resumen."
+      "budget": "Cuando los mensajes anteriores pasan de unos {{budget}} tokens, los más antiguos se resumen.",
+      "cached": "El proveedor leyó unos {{tokens}} de ellos de su caché."
     },
     "activity": {
       "title": "Actividad",
@@ -741,8 +742,18 @@
         "other": {
           "running": "Usando {{tool}}",
           "done": "Usó {{tool}}"
+        },
+        "read_result": {
+          "running": "Releyendo un resultado largo",
+          "done": "Releyó un resultado largo"
         }
-      }
+      },
+      "kept": "demasiado largo para mostrarlo entero, guardado para leerlo por páginas",
+      "flagged": "contenía una instrucción para el modelo, no seguida",
+      "stoppedLoop": "Dejó de buscar cuando las últimas rondas no encontraron nada nuevo y respondió con lo encontrado",
+      "elided_one": "Apartó {{count}} resultado anterior para hacer sitio",
+      "elided_other": "Apartó {{count}} resultados anteriores para hacer sitio",
+      "cached": "{{tokens}} tokens leídos de la caché del proveedor"
     },
     "sources": "Fuentes",
     "index": {
@@ -902,6 +913,30 @@
       "search": "Buscar en todo",
       "new": "Conversación nueva",
       "help": "Mostrar estos atajos"
+    },
+    "failureCode": {
+      "PROVIDER_STALLED": "El modelo dejó de enviar a mitad de camino. Lo que llegó se conserva arriba; inténtalo de nuevo.",
+      "SAFETY_STOP": "El proveedor detuvo esta respuesta por seguridad, así que no se llevó a cabo nada de lo que empezó. Prueba a reformular la pregunta.",
+      "TOOL_ROUND_LIMIT": "El modelo siguió buscando sin responder. Prueba con una pregunta más concreta.",
+      "TOKEN_BUDGET": "Esta pregunta agotó su asignación de tokens. Prueba con una pregunta más concreta."
+    },
+    "askWith": {
+      "action": "Preguntar de nuevo con…",
+      "label": "Preguntar de nuevo con otro modelo",
+      "help": "Solo para esta respuesta. La conversación mantiene su modelo."
+    },
+    "checkpoint": {
+      "label": "Mensajes anteriores resumidos",
+      "show": "Ver resumen",
+      "hide": "Ocultar resumen",
+      "help": "El modelo lee este resumen en lugar de los mensajes de arriba.",
+      "none": "Nada",
+      "parts": {
+        "goal": "Objetivo",
+        "covered": "Visto",
+        "open": "Pendiente",
+        "documents": "Documentos"
+      }
     }
   },
   "more": {

@@ -292,7 +292,7 @@ func TestStreamedTextIsKeptWhenTheProviderFails(t *testing.T) {
 func TestEarlierMessagesBeyondTheBudgetAreSummarised(t *testing.T) {
 	provider := &scriptProvider{reply: func(_ int, req runtime.ChatRequest, _ func(runtime.StreamChunk)) (*runtime.ChatResponse, error) {
 		if strings.Contains(req.Messages[0].Content, "running summary") {
-			return answer("They studied cell membranes."), nil
+			return answer("Goal: cell membranes\nCovered: They studied cell membranes.\nOpen: none\nDocuments: none"), nil
 		}
 		return answer("ok"), nil
 	}}
@@ -309,7 +309,7 @@ func TestEarlierMessagesBeyondTheBudgetAreSummarised(t *testing.T) {
 	if err := capability.Run(context.Background(), tc); err != nil {
 		t.Fatal(err)
 	}
-	if store.summary != "They studied cell membranes." || store.through == uuid.Nil {
+	if !strings.Contains(store.summary, "They studied cell membranes.") || store.through == uuid.Nil {
 		t.Fatalf("summary = %q through %v", store.summary, store.through)
 	}
 	main := provider.sent()[1]

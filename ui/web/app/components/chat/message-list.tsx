@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import type { Source } from "~/hooks/use-turn-stream";
@@ -13,6 +13,9 @@ import { CopyText } from "~/components/ui/copy-text";
 import { FollowUps } from "~/components/chat/follow-ups";
 import { ProcessRow, processFoldKeys } from "~/components/chat/process-row";
 import { FeedbackDialog } from "~/components/chat/feedback-dialog";
+import { AskAgainWith } from "~/components/chat/ask-again-with";
+import { SummaryCheckpoint } from "~/components/chat/summary-checkpoint";
+import type { ModelOption } from "~/components/chat/composer/model-chip";
 import { useFolds } from "~/components/chat/folds";
 import type { ChatFeedbackController } from "~/hooks/use-chat-feedback";
 import type { FollowUp, WorkView } from "~/lib/chat-work";
@@ -55,6 +58,9 @@ export type ChatTurnView = {
 export type TranscriptActions = {
   /** Ask the question again; the id is the question's. */
   onRegenerate?: (questionId: string) => void;
+  /** The chat route's models, to ask the last question again with one of them once. */
+  askWith?: ModelOption[];
+  onRegenerateWith?: (questionId: string, model: ModelOption) => void;
   /** Replace the question and ask the new one. */
   onEdit?: (questionId: string, text: string) => void;
   /** Send a follow-up's words as the next message. */
@@ -81,7 +87,16 @@ export type TranscriptActions = {
  * edited and the last answer asked again, because the history is linear and
  * changing an earlier question would orphan everything after it.
  */
-export function MessageList({ turns, actions = {} }: { turns: ChatTurnView[]; actions?: TranscriptActions }) {
+export function MessageList({
+  turns,
+  actions = {},
+  checkpoint,
+}: {
+  turns: ChatTurnView[];
+  actions?: TranscriptActions;
+  /** Where the model's memory turns into a summary: after the message with this id. */
+  checkpoint?: { afterId: string; summary: string } | null;
+}) {
   const { t } = useTranslation("common");
 
   if (turns.length === 0) {
@@ -105,7 +120,8 @@ export function MessageList({ turns, actions = {} }: { turns: ChatTurnView[]; ac
   return (
     <ol className="flex flex-col gap-8">
       {turns.map((turn, i) => (
-        <li key={turn.id} className={turn.role === "user" ? "flex justify-end" : undefined}>
+        <Fragment key={turn.id}>
+        <li className={turn.role === "user" ? "flex justify-end" : undefined}>
           {turn.role === "user" ? (
             <UserMessage
               turn={turn}
@@ -124,11 +140,23 @@ export function MessageList({ turns, actions = {} }: { turns: ChatTurnView[]; ac
                   ? () => actions.onRegenerate?.(question.id)
                   : undefined
               }
+              onRegenerateWith={
+                i === last && question && lastUser < i && stored(question.id) && !actions.busy && actions.onRegenerateWith
+                  ? (model) => actions.onRegenerateWith?.(question.id, model)
+                  : undefined
+              }
+              askWith={actions.askWith}
               followUps={i === last && !actions.busy ? actions.onFollowUp : undefined}
               feedback={stored(turn.id) ? actions.feedback : undefined}
             />
           )}
         </li>
+        {checkpoint && checkpoint.afterId === turn.id && i < last ? (
+          <li>
+            <SummaryCheckpoint summary={checkpoint.summary} />
+          </li>
+        ) : null}
+        </Fragment>
       ))}
     </ol>
   );
@@ -221,11 +249,15 @@ function UserMessage({
 function AssistantMessage({
   turn,
   onRegenerate,
+  onRegenerateWith,
+  askWith,
   followUps,
   feedback,
 }: {
   turn: ChatTurnView;
   onRegenerate?: () => void;
+  onRegenerateWith?: (model: ModelOption) => void;
+  askWith?: ModelOption[];
   followUps?: (prompt: string) => void;
   feedback?: ChatFeedbackController;
 }) {
@@ -255,6 +287,11 @@ function AssistantMessage({
             <button type="button" className={TEXT_ACTION} onClick={onRegenerate}>
               {t("chat.regenerate")}
             </button>
+          </span>
+        ) : null}
+        {settled && onRegenerateWith && askWith && askWith.length > 1 ? (
+          <span>
+            <AskAgainWith models={askWith} onPick={onRegenerateWith} />
           </span>
         ) : null}
         {settled && !turn.incomplete ? (

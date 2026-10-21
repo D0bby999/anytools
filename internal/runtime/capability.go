@@ -157,6 +157,15 @@ func (tc *TurnContext) Param(key string) string { return tc.Params[key] }
 // bases before it wrote them here.
 const ParamReferences = "references"
 
+// ParamConnection and ParamModel ask one turn of a model other than the
+// conversation's: a connection on the learner's chat route (the API checked
+// it is) and, optionally, its model. The conversation's own pick is
+// unchanged.
+const (
+	ParamConnection = "connection_id"
+	ParamModel      = "model"
+)
+
 // DocumentRef is one document the learner pointed at.
 type DocumentRef struct {
 	ID    uuid.UUID `json:"id"`

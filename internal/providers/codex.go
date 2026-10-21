@@ -99,7 +99,7 @@ func (p *CodexProvider) buildBody(model string, req ChatRequest, stream bool) ma
 	input := make([]any, 0, len(req.Messages))
 	for _, m := range req.Messages {
 		if m.Role == "system" {
-			instructions = append(instructions, m.Content)
+			instructions = append(instructions, StripCacheMarker(m.Content))
 			continue
 		}
 		role := m.Role

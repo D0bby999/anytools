@@ -633,5 +633,6 @@
  "turn on Google Calendar first": "hãy bật Google Lịch trước",
  "turn on Google Classroom first": "hãy bật Google Classroom trước",
  "turn on Google Photos first": "hãy bật Google Photos trước",
- "unknown address": "địa chỉ không tồn tại"
+ "unknown address": "địa chỉ không tồn tại",
+ "that model id is too long": "id model đó quá dài"
 }

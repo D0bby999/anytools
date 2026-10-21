@@ -88,6 +88,11 @@ const (
 	FailureCapability   = "CAPABILITY_ERROR"
 	FailureNoProvider   = "NO_PROVIDER"
 	FailureUnrecognized = "UNKNOWN"
+	// FailureStalled: the model stopped sending mid-call (chat's stream
+	// guard). Retryable: a stall is usually the provider's moment.
+	FailureStalled = "PROVIDER_STALLED"
+	// FailureSafety: the provider stopped the response for safety.
+	FailureSafety = "SAFETY_STOP"
 )
 
 func nowUnix() float64 { return float64(time.Now().UnixNano()) / 1e9 }

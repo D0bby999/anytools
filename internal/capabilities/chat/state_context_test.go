@@ -66,16 +66,19 @@ func resultMeta(evs []runtime.Event) map[string]any {
 	return nil
 }
 
-func TestALinkedSessionIsShownItsStateAfterTheSystemPrompt(t *testing.T) {
+// The state can change between turns, so its note sits beside the question,
+// after the prompt's stable part (prompt.go).
+func TestALinkedSessionIsShownItsStateBesideTheQuestion(t *testing.T) {
 	rc := resumeContext()
 	provider, _ := linkedRun(t, fakeStates{rc: rc}, "Here is where things stand.")
 
 	msgs := provider.sent()[0].Messages
-	if msgs[0].Content != SystemPrompt {
+	if !strings.HasPrefix(msgs[0].Content, SystemPrompt) {
 		t.Fatalf("the system prompt must come first: %+v", msgs[0])
 	}
-	if msgs[1].Role != runtime.RoleSystem || msgs[1].Content != "STATE NOTE for "+rc.State.Goal {
-		t.Fatalf("the state note must follow the system prompt: %+v", msgs[1])
+	note := msgs[len(msgs)-2]
+	if note.Role != runtime.RoleSystem || note.Content != "STATE NOTE for "+rc.State.Goal {
+		t.Fatalf("the state note must sit right before the question: %+v", note)
 	}
 }
 

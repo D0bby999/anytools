@@ -140,6 +140,9 @@ async function attachedDocuments(userId: string, kbIds: string[]): Promise<Refer
  * The connections on the learner's chat route, in route order, named as they
  * named them. A failure reads as "no choice to offer", never as a broken page.
  */
+/** Failures said in the learner's language rather than the API's English. */
+const FAILURE_CODES = new Set(["PROVIDER_STALLED", "SAFETY_STOP", "TOOL_ROUND_LIMIT", "TOKEN_BUDGET"]);
+
 async function chatModels(userId: string): Promise<ModelOption[]> {
   try {
     const [routes, conns] = await Promise.all([listRoutes(userId), listConnections(userId)]);
@@ -225,6 +228,7 @@ export async function action({ request, params }: Route.ActionArgs): Promise<Act
       return { ok: true, drawn: true };
     }
     const rewind = String(form.get("rewind_to_id") ?? "");
+    const askWith = String(form.get("connection_id") ?? "");
     const { turn_id } = await startTurn(
       userId,
       sessionId,
@@ -232,6 +236,7 @@ export async function action({ request, params }: Route.ActionArgs): Promise<Act
       readOwnVersion(form),
       rewind === "" ? undefined : requireUUID(rewind),
       form.getAll("reference").map((v) => requireUUID(String(v))),
+      askWith === "" ? undefined : { connectionId: requireUUID(askWith), model: String(form.get("model") ?? "") },
     );
     return { ok: true, turnId: turn_id };
   } catch (error) {
@@ -267,7 +272,7 @@ function Conversation({ loaderData }: Route.ComponentProps) {
   // loader, re-read after the turn, no longer has them.
   const [cutFrom, setCutFrom] = useState<string | null>(null);
   const [stopped, setStopped] = useState(false);
-  const [failed, setFailed] = useState<{ message: string; retryable?: boolean } | null>(null);
+  const [failed, setFailed] = useState<{ message: string; code?: string; retryable?: boolean } | null>(null);
 
   // Settled views were held only until the loader caught up with them; once
   // it has, the stored transcript is the truth again.
@@ -348,7 +353,7 @@ function Conversation({ loaderData }: Route.ComponentProps) {
       message: string,
       ownVersion?: OwnVersion,
       rewindToId?: string,
-      opts: { intent?: "send" | "solve" | "research"; references?: Reference[]; photo?: File } = {},
+      opts: { intent?: "send" | "solve" | "research"; references?: Reference[]; photo?: File; model?: ModelOption } = {},
     ) => {
       setPendingQuestion(message || (opts.photo ? t("chat.attach.photoQuestion") : ""));
       setPendingOwn(ownVersion);
@@ -364,6 +369,10 @@ function Conversation({ loaderData }: Route.ComponentProps) {
       }
       for (const r of opts.references ?? []) form.append("reference", r.id);
       if (opts.photo) form.set("photo", opts.photo, opts.photo.name);
+      if (opts.model) {
+        form.set("connection_id", opts.model.id);
+        form.set("model", opts.model.model);
+      }
       if (rewindToId) {
         form.set("rewind_to_id", rewindToId);
         setCutFrom(rewindToId);
@@ -401,6 +410,14 @@ function Conversation({ loaderData }: Route.ComponentProps) {
     (questionId: string) => {
       const q = stored.find((m) => m.id === questionId);
       if (q) submitTurn(q.content, q.ownVersion, questionId);
+    },
+    [stored, submitTurn],
+  );
+  // Once, with another model on the route; the conversation keeps its pick.
+  const regenerateWith = useCallback(
+    (questionId: string, model: ModelOption) => {
+      const q = stored.find((m) => m.id === questionId);
+      if (q) submitTurn(q.content, q.ownVersion, questionId, { model });
     },
     [stored, submitTurn],
   );
@@ -448,7 +465,12 @@ function Conversation({ loaderData }: Route.ComponentProps) {
   const contextWork = readWork(stream.resultMeta?.work) ?? [...stored].reverse().find((m) => m.work?.contextWindow)?.work;
   const context =
     contextWork?.contextTokens && contextWork.contextWindow
-      ? { used: contextWork.contextTokens, window: contextWork.contextWindow, budget: contextWork.historyBudget }
+      ? {
+          used: contextWork.contextTokens,
+          window: contextWork.contextWindow,
+          budget: contextWork.historyBudget,
+          cached: contextWork.cachedTokens,
+        }
       : null;
 
   // The knowledge base an attached file goes to: the first this
@@ -485,7 +507,7 @@ function Conversation({ loaderData }: Route.ComponentProps) {
       content: stream.answer,
       sources: stream.sources,
       streaming: !stream.finished,
-      work: { ...liveWork(stream.tools), summarised: stream.compacted || undefined },
+      work: { ...liveWork(stream.tools), summarised: stream.compacted || undefined, stoppedLoop: stream.loopStopped || undefined },
       thinking: stream.thinking || undefined,
     });
   }
@@ -557,9 +579,16 @@ function Conversation({ loaderData }: Route.ComponentProps) {
         <div ref={transcript} className="min-h-0 flex-1 pb-8">
           <MessageList
             turns={turns}
+            checkpoint={
+              loaderData.session.summary && loaderData.session.summary_through_id
+                ? { afterId: loaderData.session.summary_through_id, summary: loaderData.session.summary }
+                : null
+            }
             actions={{
               busy: busy || starting,
               onRegenerate: regenerate,
+              askWith: loaderData.models,
+              onRegenerateWith: regenerateWith,
               onEdit: edit,
               onFollowUp: send,
               feedback,
@@ -591,7 +620,9 @@ function Conversation({ loaderData }: Route.ComponentProps) {
               role="alert"
               className="mt-6 flex flex-wrap items-center gap-3 rounded-lg bg-destructive-soft px-4 py-3 text-sm leading-6"
             >
-              <span className="min-w-0 flex-1">{failure.message}</span>
+              <span className="min-w-0 flex-1">
+                {failure.code && FAILURE_CODES.has(failure.code) ? t(`chat.failureCode.${failure.code}`) : failure.message}
+              </span>
               {sendRefused && pendingQuestion !== null && !starting ? (
                 <Button
                   type="button"

@@ -169,9 +169,10 @@ func events(bus *runtime.StreamBus) []runtime.Event {
 
 // A model that only ever calls tools must be stopped, not indulged: the limit
 // is what stands between a loop and the user's own API bill. The same call is
-// run once (repeat guard), and after the last round one call without tools
-// asks for an answer; a model that still answers with nothing fails the turn.
-func TestToolRoundLimitEndsTheTurn(t *testing.T) {
+// run once (repeat guard); two rounds of nothing but repeats end the loop
+// (guard.go), and one call without tools asks for an answer; a model that
+// still answers with nothing fails the turn.
+func TestARepeatingModelIsStoppedAfterTwoRoundsWithNothingNew(t *testing.T) {
 	tool := &scriptedTool{name: "rag_search", result: runtime.ToolResult{Content: "nothing useful"}}
 	provider := &stubProvider{responses: []*runtime.ChatResponse{{
 		FinishReason: "tool_calls",
@@ -184,11 +185,16 @@ func TestToolRoundLimitEndsTheTurn(t *testing.T) {
 	if !errors.Is(err, runtime.ErrToolRoundLimit) {
 		t.Fatalf("Run = %v, want ErrToolRoundLimit", err)
 	}
-	if got := len(provider.sent()); got != runtime.MaxToolRounds+1 {
-		t.Fatalf("the model was called %d times, want MaxToolRounds + the final call (%d)", got, runtime.MaxToolRounds+1)
+	// One round that ran the call, two that only repeated it, the final call.
+	if got := len(provider.sent()); got != 1+staleRoundLimit+1 {
+		t.Fatalf("the model was called %d times, want %d", got, 1+staleRoundLimit+1)
 	}
-	if last := provider.sent()[runtime.MaxToolRounds]; len(last.Tools) != 0 {
+	last := provider.sent()[len(provider.sent())-1]
+	if len(last.Tools) != 0 {
 		t.Fatalf("the final call still offered %d tools", len(last.Tools))
+	}
+	if note := last.Messages[len(last.Messages)-1].Content; note != loopStopNote {
+		t.Fatalf("the final call said %q", note)
 	}
 	if tool.callCount() != 1 {
 		t.Fatalf("the same call ran %d times, want once", tool.callCount())
@@ -460,11 +466,11 @@ func TestSystemMessagesNameTheSessionsKnowledgeBases(t *testing.T) {
 	if msgs[0].Role != runtime.RoleSystem || !strings.Contains(msgs[0].Content, `trust="untrusted"`) {
 		t.Fatalf("the first message is not the injection-aware system prompt: %+v", msgs[0])
 	}
-	if !strings.Contains(msgs[1].Content, tc.Session.KBIDs[0].String()) {
-		t.Fatalf("the session context does not name the attached KB: %q", msgs[1].Content)
+	if !strings.Contains(msgs[0].Content, tc.Session.KBIDs[0].String()) {
+		t.Fatalf("the session context does not name the attached KB: %q", msgs[0].Content)
 	}
-	if !strings.Contains(msgs[1].Content, "web is not available") {
-		t.Fatalf("a session without allow_web does not say so: %q", msgs[1].Content)
+	if !strings.Contains(msgs[0].Content, "web is not available") {
+		t.Fatalf("a session without allow_web does not say so: %q", msgs[0].Content)
 	}
 
 	// The user's own message is the last one, and is a user message — the
@@ -513,7 +519,7 @@ func TestTheStoredQuestionIsNotSentTwice(t *testing.T) {
 		}
 	}
 	// The earlier exchange survives.
-	if !strings.Contains(sent[2].Content, "an earlier question") {
+	if !strings.Contains(sent[1].Content, "an earlier question") {
 		t.Fatalf("history was dropped: %+v", sent)
 	}
 }
@@ -540,8 +546,8 @@ func TestHistoryOnlyReplaysUserAndAssistantMessages(t *testing.T) {
 	}
 
 	kept, _ := splitHistory(history, nil, uuid.Nil, historyBudget(defaultContextWindow))
-	msgs := buildMessages(sess, "", nil, kept, history, "now", uuid.Nil)
-	for _, m := range msgs[2:] {
+	msgs := buildMessages(sess, "", promptNotes{}, kept, history, "now", uuid.Nil)
+	for _, m := range msgs[1:] {
 		if m.Role == runtime.RoleTool || m.Role == runtime.RoleSystem {
 			t.Fatalf("a %s message was replayed from history: %+v", m.Role, m)
 		}
@@ -549,10 +555,10 @@ func TestHistoryOnlyReplaysUserAndAssistantMessages(t *testing.T) {
 			t.Fatal("an empty message was replayed")
 		}
 	}
-	// system prompt + session context + the two replayable history rows + the
-	// current question. The blank user row and the tool/system rows are gone.
-	if len(msgs) != 5 {
-		t.Fatalf("built %d messages, want 5: %+v", len(msgs), msgs)
+	// the system message + the two replayable history rows + the current
+	// question. The blank user row and the tool/system rows are gone.
+	if len(msgs) != 4 {
+		t.Fatalf("built %d messages, want 4: %+v", len(msgs), msgs)
 	}
 }
 

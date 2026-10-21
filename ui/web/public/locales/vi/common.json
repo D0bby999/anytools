@@ -588,7 +588,8 @@
       "allowWeb": "Cho phép dùng web trong phiên này",
       "label": "Ngữ cảnh đã dùng",
       "meter": "Câu hỏi vừa rồi dùng khoảng {{used}} trên {{window}} token ({{percent}}%).",
-      "budget": "Khi tin nhắn trước vượt khoảng {{budget}} token, các tin cũ nhất được tóm tắt."
+      "budget": "Khi tin nhắn trước vượt khoảng {{budget}} token, các tin cũ nhất được tóm tắt.",
+      "cached": "Nhà cung cấp đọc khoảng {{tokens}} token trong số đó từ bộ nhớ đệm."
     },
     "activity": {
       "title": "Hoạt động",
@@ -741,8 +742,18 @@
         "other": {
           "running": "Đang dùng {{tool}}",
           "done": "Đã dùng {{tool}}"
+        },
+        "read_result": {
+          "running": "Đang đọc lại một kết quả dài",
+          "done": "Đã đọc lại một kết quả dài"
         }
-      }
+      },
+      "kept": "quá dài để hiện hết, được giữ lại để đọc từng trang",
+      "flagged": "có câu ra lệnh cho mô hình, không làm theo",
+      "stoppedLoop": "Dừng tìm khi các vòng gần nhất không tìm thêm được gì, rồi trả lời từ những gì đã có",
+      "elided_one": "Tạm cất {{count}} kết quả trước để có chỗ",
+      "elided_other": "Tạm cất {{count}} kết quả trước để có chỗ",
+      "cached": "{{tokens}} token đọc từ bộ nhớ đệm của nhà cung cấp"
     },
     "sources": "Nguồn",
     "index": {
@@ -902,6 +913,30 @@
       "search": "Tìm mọi thứ",
       "new": "Cuộc trò chuyện mới",
       "help": "Hiện bảng phím tắt"
+    },
+    "failureCode": {
+      "PROVIDER_STALLED": "Mô hình ngừng gửi giữa chừng. Phần đã nhận vẫn được giữ ở trên; hãy thử lại.",
+      "SAFETY_STOP": "Nhà cung cấp đã dừng câu trả lời này vì lý do an toàn, nên không việc nào đang làm dở được thực hiện. Hãy thử diễn đạt lại câu hỏi.",
+      "TOOL_ROUND_LIMIT": "Mô hình cứ tìm mãi mà không trả lời. Hãy hỏi hẹp hơn.",
+      "TOKEN_BUDGET": "Câu hỏi này đã dùng hết hạn mức token. Hãy hỏi hẹp hơn."
+    },
+    "askWith": {
+      "action": "Hỏi lại bằng…",
+      "label": "Hỏi lại bằng mô hình khác",
+      "help": "Chỉ cho câu trả lời này. Cuộc trò chuyện vẫn giữ mô hình của nó."
+    },
+    "checkpoint": {
+      "label": "Các tin nhắn trước đã được tóm tắt",
+      "show": "Xem bản tóm tắt",
+      "hide": "Ẩn bản tóm tắt",
+      "help": "Mô hình đọc bản tóm tắt này thay cho các tin nhắn phía trên.",
+      "none": "Không có",
+      "parts": {
+        "goal": "Mục tiêu",
+        "covered": "Đã học",
+        "open": "Còn bỏ ngỏ",
+        "documents": "Tài liệu"
+      }
     }
   },
   "more": {

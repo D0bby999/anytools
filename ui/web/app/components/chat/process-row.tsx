@@ -156,6 +156,8 @@ function GroupRow({ turnId, group }: { turnId: string; group: ProcessGroup }) {
                   </span>
                   {step.detail ? <span className="break-words"> “{step.detail}”</span> : null}
                   {step.repeated ? <span> · {t("chat.work.repeated")}</span> : null}
+                  {step.kept ? <span> · {t("chat.work.kept")}</span> : null}
+                  {step.flagged ? <span className="text-warning"> · {t("chat.work.flagged")}</span> : null}
                   {step.error ? <span className="text-destructive"> · {t("chat.work.failed")}</span> : null}
                   {step.found ? <span> · {t("chat.work.passages", { count: step.found })}</span> : null}
                 </li>
@@ -208,10 +210,13 @@ function workNotes(work: WorkView, t: T): string[] {
   const notes: string[] = [];
   if (work.summarised) notes.push(t("chat.work.summarised", { count: work.summarised }));
   if (work.limitReached) notes.push(t("chat.work.limitReached"));
+  if (work.stoppedLoop) notes.push(t("chat.work.stoppedLoop"));
+  if (work.elided) notes.push(t("chat.work.elided", { count: work.elided }));
   if (work.continued) notes.push(t("chat.work.continued"));
   if (work.contextTokens && work.contextWindow) {
     notes.push(t("chat.work.context", { used: compact(work.contextTokens), window: compact(work.contextWindow) }));
   }
+  if (work.cachedTokens) notes.push(t("chat.work.cached", { tokens: compact(work.cachedTokens) }));
   return notes;
 }
 

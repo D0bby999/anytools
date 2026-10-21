@@ -29,7 +29,8 @@ export function modelKey(m: { id: string; model: string }): string {
 /** A search box appears in the menu past this many options. */
 const SEARCH_FROM = 6;
 
-function Name({ name, model }: { name: string; model?: string }) {
+/** A connection's name, then its model in the caption ink, truncating the model first. */
+export function ModelName({ name, model }: { name: string; model?: string }) {
   return (
     <span className="flex min-w-0 items-baseline gap-1.5">
       <span className="max-w-[60%] shrink-0 truncate">{name}</span>
@@ -103,7 +104,7 @@ export function ModelChip({
       <span className="flex h-8 max-w-72 min-w-0 items-center px-2 text-xs font-medium text-foreground">
         <span className="sr-only">{t("chat.model.chip", { name: head.name, model: head.model })}</span>
         <span aria-hidden="true" className="min-w-0">
-          <Name name={head.name} model={head.model} />
+          <ModelName name={head.name} model={head.model} />
         </span>
       </span>
     );
@@ -128,7 +129,7 @@ export function ModelChip({
       >
         <Check aria-hidden="true" className={cn("size-3.5 shrink-0", checked ? "text-primary" : "invisible")} />
         <span className="min-w-0 flex-1">
-          <Name name={m.name} model={m.model} />
+          <ModelName name={m.name} model={m.model} />
         </span>
         {isDefault ? (
           <span className="shrink-0 rounded-sm border px-1.5 text-xs leading-5 text-muted-foreground">{t("chat.model.badge")}</span>
@@ -159,7 +160,7 @@ export function ModelChip({
             {label.name}
           </LiveLabel>
         ) : (
-          <Name name={label.name} model={label.model} />
+          <ModelName name={label.name} model={label.model} />
         )}
         <ChevronDown aria-hidden="true" className="size-3.5 shrink-0 text-deco" />
       </button>

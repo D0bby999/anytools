@@ -196,6 +196,11 @@ func jsonReply(v any) string {
 
 // answer scripts one reply per stage, recognised by its system prompt.
 func (m *stageModel) answer(t *testing.T, system, user, image string) (string, string) {
+	// Chat's first message is its rules followed by the conversation's
+	// context, ending at the cache boundary (chat/prompt.go).
+	if strings.HasPrefix(system, chat.SystemPrompt) {
+		system = chat.SystemPrompt
+	}
 	switch system {
 	case solveprompts.Plan:
 		m.mu.Lock()

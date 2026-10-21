@@ -109,7 +109,7 @@ export function Composer({
   modelPending?: boolean;
   modelFailed?: boolean;
   /** The last question's prompt against the model's window. */
-  context?: { used: number; window: number; budget?: number } | null;
+  context?: { used: number; window: number; budget?: number; cached?: number } | null;
   /** The documents of the conversation's knowledge bases, for `@`. */
   documents?: Reference[];
   /** Where an attached file goes, or null when the conversation reads none. */
@@ -476,7 +476,7 @@ export function Composer({
                 disabled={busy}
               />
             ) : null}
-            {context ? <ContextMeter used={context.used} window={context.window} budget={context.budget} /> : null}
+            {context ? <ContextMeter used={context.used} window={context.window} budget={context.budget} cached={context.cached} /> : null}
           </div>
           <p className="hidden shrink-0 items-center gap-2 text-xs leading-ui text-muted-foreground sm:flex">
             {busy && onStop ? t("chat.hintBusy") : t("chat.hint")}

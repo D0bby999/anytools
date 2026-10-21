@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/D0bby999/anytools/internal/runtime"
 )
 
@@ -33,6 +35,15 @@ const (
 	toolOutputRetryChars = 4_000
 )
 
+// Per-tool time bounds (postclaw tool_timeout_policy.go). A tool that hangs
+// would otherwise hold the turn until the learner gives up; one that runs out
+// of time is a tool error the model reads, and the turn goes on. A tool can
+// name its own bound by implementing Timeout() time.Duration.
+const (
+	localToolTimeout   = 60 * time.Second
+	networkToolTimeout = 90 * time.Second
+)
+
 // workStep is one tool call, as the answer's "how it was found" row shows it.
 type workStep struct {
 	Tool     string `json:"tool"`
@@ -40,7 +51,12 @@ type workStep struct {
 	Found    int    `json:"found,omitempty"`
 	Error    bool   `json:"error,omitempty"`
 	Repeated bool   `json:"repeated,omitempty"`
-	MS       int64  `json:"ms"`
+	// Flagged marks a result with text written as an instruction to the
+	// model (guard.go); the model was told not to follow it.
+	Flagged bool `json:"flagged,omitempty"`
+	// Kept is the handle of a result too long to show whole (spill.go).
+	Kept string `json:"kept,omitempty"`
+	MS   int64  `json:"ms"`
 }
 
 // workRecord is a turn's work, stored on its answer.
@@ -50,7 +66,15 @@ type workRecord struct {
 	Summarised   int        `json:"summarised,omitempty"`
 	Continued    bool       `json:"continued,omitempty"`
 	LimitReached bool       `json:"limit_reached,omitempty"`
-	MS           int64      `json:"ms"`
+	// Stopped says why the tool rounds ended early: "loop" when rounds kept
+	// bringing nothing new (guard.go).
+	Stopped string `json:"stopped,omitempty"`
+	// Elided counts earlier results taken out of the prompt to make room.
+	Elided int   `json:"elided,omitempty"`
+	MS     int64 `json:"ms"`
+	// CachedTokens is the prompt the provider read from its cache over the
+	// turn's calls, when it says (Anthropic, OpenAI, DeepSeek, …).
+	CachedTokens int `json:"cached_tokens,omitempty"`
 	// ContextTokens is the estimated prompt before this turn's tool rounds;
 	// ContextWindow the model's window it was sized against.
 	ContextTokens int `json:"context_tokens,omitempty"`
@@ -64,6 +88,24 @@ type workRecord struct {
 type toolOutcome struct {
 	content   string
 	retrieved bool
+}
+
+// turnTools is what one turn's tool rounds share: the calls already made, and
+// the results kept whole.
+type turnTools struct {
+	seen  map[string]string
+	book  *spillBook
+	calls map[string]callInfo // by call id, for elision
+}
+
+// callInfo is what elision needs to know about a tool message.
+type callInfo struct {
+	tool      string
+	retrieved bool
+}
+
+func newTurnTools() *turnTools {
+	return &turnTools{seen: map[string]string{}, book: &spillBook{}, calls: map[string]callInfo{}}
 }
 
 // execution is the first pass's result for one call.
@@ -82,9 +124,12 @@ type execution struct {
 // see and correct. Only an infrastructure failure, the retriever's database
 // being down, ends the turn, because retrying that in the loop just burns
 // rounds.
+//
+// notRun, when set, is every call's result instead of running it: the
+// response that held them was cut (guard.go).
 func (c *Capability) runTools(
 	ctx context.Context, tc *runtime.TurnContext, calls []runtime.ToolCall,
-	seen map[string]string, work *workRecord,
+	turn *turnTools, work *workRecord, notRun string,
 ) ([]toolOutcome, error) {
 	execs := make([]execution, len(calls))
 
@@ -97,12 +142,32 @@ func (c *Capability) runTools(
 			Metadata: map[string]any{"tool": call.Name, "call_id": call.ID, "arguments": redactArgs(call.Arguments)},
 		})
 
+		if notRun != "" {
+			execs[i].skip = &toolOutcome{content: notRun}
+			continue
+		}
 		// postclaw's hard-won rule (providers/types.go:170): a call whose
 		// argument JSON did not parse must NOT be dispatched. Arguments is an
 		// empty map in that case, and running rag_search with no arguments is a
 		// search the user never asked for.
 		if call.ArgsParseError != "" {
-			execs[i].skip = &toolOutcome{content: "your arguments were not valid JSON; send them again"}
+			execs[i].skip = &toolOutcome{content: fmt.Sprintf("%s was not run: its arguments were not valid JSON (%s). "+
+				"You sent: %s. Send the call again with valid JSON.", call.Name, call.ArgsParseError, truncate(call.RawArguments, 300))}
+			continue
+		}
+		if call.Name == readResultName && !turn.book.empty() {
+			if _, dup := turn.seen[callKey(call)]; dup {
+				execs[i].repeated = true
+				execs[i].skip = &toolOutcome{content: "You already read this in this turn; it is above."}
+				continue
+			}
+			turn.seen[callKey(call)] = call.ID
+			content, retrieved, failed := readResult(turn.book, call.Arguments)
+			if failed {
+				execs[i].skip = &toolOutcome{content: content}
+			} else {
+				execs[i].result = runtime.ToolResult{Content: content, Retrieved: retrieved}
+			}
 			continue
 		}
 		tool, err := tc.Tools.Get(call.Name)
@@ -110,18 +175,26 @@ func (c *Capability) runTools(
 			execs[i].skip = &toolOutcome{content: fmt.Sprintf("there is no tool called %q in this conversation", call.Name)}
 			continue
 		}
+		// Arguments are checked against the tool's own schema before it
+		// runs, and a bad one is said back precisely: "query is required"
+		// is something a model fixes in one round, an empty search is not.
+		if problem := checkArgs(tool.Definition().Function.Parameters, call.Arguments); problem != "" {
+			execs[i].skip = &toolOutcome{content: fmt.Sprintf("%s was not run: %s. %s", call.Name, problem,
+				argsSignature(tool.Definition().Function.Parameters))}
+			continue
+		}
 
 		// The same call twice in one turn is answered from the first result
 		// rather than paid for again: a weak model otherwise searches one
 		// query until the rounds run out (postclaw's tool-loop guard).
 		key := callKey(call)
-		if _, dup := seen[key]; dup {
+		if _, dup := turn.seen[key]; dup {
 			execs[i].repeated = true
 			execs[i].skip = &toolOutcome{content: "You already made this exact call in this turn; its result is above. " +
 				"Use it, or change the arguments if it did not help."}
 			continue
 		}
-		seen[key] = call.ID
+		turn.seen[key] = call.ID
 
 		wg.Add(1)
 		go func(i int, call runtime.ToolCall, tool runtime.Tool) {
@@ -129,14 +202,28 @@ func (c *Capability) runTools(
 			slots <- struct{}{}
 			defer func() { <-slots }()
 			start := time.Now()
-			execs[i].result, execs[i].err = tool.Execute(ctx, call.Arguments, runtime.ToolInput{
+			limit := toolTimeout(tool)
+			callCtx, cancel := context.WithTimeout(ctx, limit)
+			defer cancel()
+			execs[i].result, execs[i].err = tool.Execute(callCtx, call.Arguments, runtime.ToolInput{
 				UserID:    tc.Turn.UserID,
 				SessionID: tc.Session.ID,
 				TurnID:    tc.Turn.ID,
 				KBIDs:     tc.Session.KBIDs,
 				AllowWeb:  tc.Session.AllowWeb,
+				// The documents the learner pointed at with `@`: a search
+				// returns only their passages this turn.
+				DocumentIDs: referenceIDs(tc.References()),
 			})
 			execs[i].ms = time.Since(start).Milliseconds()
+			// Out of time, while the turn itself is not: the model is told,
+			// and the turn goes on.
+			if execs[i].err != nil && ctx.Err() == nil && errors.Is(callCtx.Err(), context.DeadlineExceeded) {
+				execs[i].err = nil
+				execs[i].result = runtime.ToolResult{IsError: true, Content: fmt.Sprintf(
+					"%s took longer than %d seconds and was stopped. Try a narrower request, or answer from what you have.",
+					call.Name, int(limit.Seconds()))}
+			}
 		}(i, call, tool)
 	}
 	wg.Wait()
@@ -194,12 +281,30 @@ func (c *Capability) runTools(
 			res := ex.result
 			tc.AddSources(res.Sources...)
 			step.Found = len(res.Sources)
+			meta := map[string]any{"tool": call.Name, "call_id": call.ID, "sources": len(res.Sources)}
+			content := res.Content
+			// A long result is kept whole for the turn and shown as its head
+			// and tail with a handle. read_result's own pages are already
+			// page-sized and are never kept again.
+			if call.Name != readResultName && len([]rune(content)) > toolOutputMaxChars {
+				kept := turn.book.keep(call.Name, content, res.Retrieved)
+				page, _ := turn.book.get(kept)
+				content = previewKept(content, toolOutputMaxChars, kept, page.pages)
+				step.Kept = kept
+				meta["kept"] = kept
+			}
+			// Retrieved text that addresses the model gets a note in front:
+			// the envelope says it is quoted, this says which part tried.
+			if res.Retrieved {
+				if marks := injectionMarkers(res.Content); len(marks) > 0 {
+					content = fmt.Sprintf(flaggedNote, strings.Join(marks, ", ")) + content
+					step.Flagged = true
+					meta["flagged"] = marks
+				}
+			}
 			tc.Emit(runtime.Event{
 				Type: runtime.EvToolResult, Stage: stagePlanning, Source: c.Name(),
-				Content: summarize(res.Content),
-				Metadata: map[string]any{
-					"tool": call.Name, "call_id": call.ID, "sources": len(res.Sources),
-				},
+				Content: summarize(res.Content), Metadata: meta,
 			})
 			if len(res.Sources) > 0 {
 				tc.Emit(runtime.Event{
@@ -207,7 +312,7 @@ func (c *Capability) runTools(
 					Content: fmt.Sprintf("%d passages retrieved", len(res.Sources)),
 				})
 			}
-			out[i] = toolOutcome{content: capToolOutput(res.Content, toolOutputMaxChars), retrieved: res.Retrieved}
+			out[i] = toolOutcome{content: content, retrieved: res.Retrieved}
 		}
 		work.Steps = append(work.Steps, step)
 	}
@@ -251,14 +356,29 @@ func capToolOutput(s string, max int) string {
 	if len(r) <= max {
 		return s
 	}
-	head := string(r[:max*2/3])
-	tail := string(r[len(r)-max/3:])
-	if i := strings.LastIndexByte(head, '\n'); i > len(head)/2 {
-		head = head[:i]
-	}
-	if i := strings.IndexByte(tail, '\n'); i >= 0 && i < len(tail)/2 {
-		tail = tail[i+1:]
-	}
+	head, tail := snapHead(string(r[:max*2/3])), snapTail(string(r[len(r)-max/3:]))
 	omitted := len(r) - len([]rune(head)) - len([]rune(tail))
 	return head + fmt.Sprintf("\n\n[… %d characters of this result left out to fit the context …]\n\n", omitted) + tail
+}
+
+// toolTimeout is a tool's own bound when it names one, else its kind's.
+func toolTimeout(tool runtime.Tool) time.Duration {
+	if t, ok := tool.(interface{ Timeout() time.Duration }); ok && t.Timeout() > 0 {
+		return t.Timeout()
+	}
+	if tool.NeedsNetwork() {
+		return networkToolTimeout
+	}
+	return localToolTimeout
+}
+
+func referenceIDs(refs []runtime.DocumentRef) []uuid.UUID {
+	if len(refs) == 0 {
+		return nil
+	}
+	ids := make([]uuid.UUID, len(refs))
+	for i, r := range refs {
+		ids[i] = r.ID
+	}
+	return ids
 }

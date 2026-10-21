@@ -20,6 +20,9 @@ export type ChatSession = {
   allow_web: boolean;
   /** On the list only: a turn of this conversation has not ended. */
   running?: boolean;
+  /** On one session only: what stands in for its earliest messages, and the last message it covers. */
+  summary?: string;
+  summary_through_id?: string;
   created_at: string;
   updated_at: string;
 };
@@ -148,11 +151,17 @@ export function startTurn(
   ownVersion?: OwnVersion,
   rewindToId?: string,
   references?: string[],
+  model?: { connectionId: string; model: string },
 ) {
   const body: Record<string, unknown> = { message };
   if (ownVersion) body.own_version = ownVersion;
   if (rewindToId) body.rewind_to_id = rewindToId;
   if (references && references.length > 0) body.references = references;
+  // Another model on the route for this one turn ("Ask again with…").
+  if (model) {
+    body.connection_id = model.connectionId;
+    body.model = model.model;
+  }
   return apiFetch<{ turn_id: string; status: string }>(
     `/v1/chat/sessions/${sessionId}/turns`,
     userId,
