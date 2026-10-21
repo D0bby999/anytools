@@ -694,6 +694,82 @@
     line-height: var(--lp-leading-ui);
   }
 
+  /* A fenced block in its frame (components/rich-text): the frame carries
+     the border and the paper, its pre only the text. */
+  & .lp-code {
+    margin-block: var(--lp-space-4);
+    overflow: hidden;
+    border: 1px solid var(--lp-border);
+    border-radius: var(--lp-radius-control);
+    background: var(--lp-code-background);
+  }
+
+  & .lp-code pre {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--lp-code-foreground);
+  }
+
+  & .lp-code pre:focus-visible {
+    outline: 2px solid var(--lp-brand);
+    outline-offset: -2px;
+  }
+
+  /* Diff rows: the tint fills the row however far it scrolls, and the sign
+     column says added or removed where colour cannot. */
+  & .lp-diff {
+    display: grid;
+    width: max-content;
+    min-width: 100%;
+  }
+
+  & .lp-code[data-block="diff"] pre {
+    padding-inline: 0;
+  }
+
+  & .lp-diff-row {
+    display: block;
+    padding-inline: var(--lp-space-4);
+  }
+
+  & .lp-diff-sign {
+    display: inline-block;
+    width: 2ch;
+    user-select: none;
+  }
+
+  & .lp-diff-row[data-diff="add"] {
+    background: var(--lp-part-reflect-soft);
+  }
+
+  & .lp-diff-row[data-diff="remove"] {
+    background: var(--lp-danger-soft);
+  }
+
+  & .lp-diff-row[data-diff="add"] .lp-diff-sign,
+  & .lp-diff-count[data-diff="add"] {
+    color: var(--lp-code-token-inserted);
+  }
+
+  & .lp-diff-row[data-diff="remove"] .lp-diff-sign,
+  & .lp-diff-count[data-diff="remove"] {
+    color: var(--lp-code-token-deleted);
+  }
+
+  & .lp-diff-row:is([data-diff="hunk"], [data-diff="meta"]) {
+    color: var(--lp-ink-3);
+  }
+
+  & .lp-diff-note {
+    display: block;
+    margin-top: var(--lp-space-2);
+    padding-inline: var(--lp-space-4);
+    color: var(--lp-ink-3);
+    font-family: var(--lp-font-sans);
+    font-size: var(--lp-text-xs);
+  }
+
   /* A table scrolls inside its own box, so a wide one does not widen a
      phone's page. */
   & .lp-table-scroll {

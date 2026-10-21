@@ -316,3 +316,47 @@ describe("no part reads as an error", () => {
     }
   });
 });
+
+describe("code inks are legible on a code block", () => {
+  // tokens.css declares the --lp-code-* set once, as var()s onto the world's
+  // inks; resolve them in each theme the way the cascade would.
+  function resolve(t: Record<string, string>, name: string): string {
+    let value = t[name]!;
+    for (let hops = 0; value?.startsWith("var("); hops++) {
+      if (hops > 4) throw new Error(`--${name} does not resolve`);
+      value = t[/^var\(--([\w-]+)\)$/.exec(value)![1]!]!;
+    }
+    return value;
+  }
+  const inks = Object.keys(light).filter(
+    (n) => n.startsWith("lp-code-") && n !== "lp-code-background",
+  );
+
+  it("declares the whole css-variables theme and the sixteen terminal colours", () => {
+    expect(inks.filter((n) => n.startsWith("lp-code-token-"))).toHaveLength(12);
+    expect(inks.filter((n) => n.startsWith("lp-code-ansi-"))).toHaveLength(16);
+  });
+
+  it.each(THEMES)("%s: every token and terminal colour on the block's paper", (_mode, t) => {
+    const bg = flatten(resolve(t, "lp-code-background"), [255, 255, 255]);
+    for (const ink of inks) {
+      const ratio = contrast(flatten(resolve(t, ink), bg), bg);
+      expect(ratio, `--${ink} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+
+  it.each(THEMES)("%s: a diff row's text and sign on its tint", (_mode, t) => {
+    const page = flatten(resolve(t, "lp-code-background"), [255, 255, 255]);
+    for (const [tint, sign] of [
+      ["lp-part-reflect-soft", "lp-code-token-inserted"],
+      ["lp-danger-soft", "lp-code-token-deleted"],
+    ] as const) {
+      const bg = flatten(t[tint]!, page);
+      // Diff rows are not syntax-highlighted: only the text and its sign sit on a tint.
+      for (const ink of ["lp-code-foreground", sign]) {
+        const ratio = contrast(flatten(resolve(t, ink), bg), bg);
+        expect(ratio, `--${ink} on --${tint} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    }
+  });
+});

@@ -905,7 +905,12 @@
     "free": "Công cụ miễn phí"
   },
   "richText": {
-    "table": "Bảng"
+    "table": "Bảng",
+    "code": "Mã",
+    "diff": "Thay đổi",
+    "diffCount": "Thêm {{added}} dòng, bỏ {{removed}} dòng",
+    "diffClipped": "Đang hiện {{count}} dòng đầu. Nút Sao chép lấy cả bản diff.",
+    "terminal": "Kết quả terminal"
   },
   "reminders": {
     "install": {

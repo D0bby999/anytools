@@ -905,7 +905,12 @@
     "free": "Herramientas gratis"
   },
   "richText": {
-    "table": "Tabla"
+    "table": "Tabla",
+    "code": "Código",
+    "diff": "Cambios",
+    "diffCount": "{{added}} líneas añadidas, {{removed}} quitadas",
+    "diffClipped": "Se muestran las primeras {{count}} líneas. Copiar toma el diff completo.",
+    "terminal": "Salida de terminal"
   },
   "reminders": {
     "install": {

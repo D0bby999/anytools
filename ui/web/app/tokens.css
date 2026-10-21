@@ -116,6 +116,44 @@
   --lp-ink-deco: #5c6170;
   --lp-backdrop: rgba(26, 30, 41, 0.5);
 
+  /* ── Code (postclaw parity, phase 3). Highlighted code and terminal output
+       wear the world's own inks, so they flip with the theme and need no
+       second set: keywords plum, strings forest, numbers and constants brick,
+       functions navy, comments the quiet ink. Named for shiki's css-variables
+       theme (lib/highlight.ts) and read by lib/ansi.ts; theme-contrast
+       measures each on the code block's paper. Declared once, here: the
+       `var()`s resolve against whichever theme is in force. ── */
+  --lp-code-foreground: var(--lp-ink);
+  --lp-code-background: var(--lp-surface-soft);
+  --lp-code-token-keyword: var(--lp-part-practise);
+  --lp-code-token-string: var(--lp-part-reflect);
+  --lp-code-token-string-expression: var(--lp-part-reflect);
+  --lp-code-token-constant: var(--lp-part-ask);
+  --lp-code-token-function: var(--lp-brand);
+  --lp-code-token-parameter: var(--lp-part-read);
+  --lp-code-token-comment: var(--lp-ink-3);
+  --lp-code-token-punctuation: var(--lp-ink-2);
+  --lp-code-token-link: var(--lp-brand);
+  --lp-code-token-inserted: var(--lp-part-reflect);
+  --lp-code-token-deleted: var(--lp-danger);
+  --lp-code-token-changed: var(--lp-warning);
+  --lp-code-ansi-black: var(--lp-ink);
+  --lp-code-ansi-red: var(--lp-danger);
+  --lp-code-ansi-green: var(--lp-part-reflect);
+  --lp-code-ansi-yellow: var(--lp-warning);
+  --lp-code-ansi-blue: var(--lp-brand);
+  --lp-code-ansi-magenta: var(--lp-part-practise);
+  --lp-code-ansi-cyan: var(--lp-part-read);
+  --lp-code-ansi-white: var(--lp-ink);
+  --lp-code-ansi-bright-black: var(--lp-ink-3);
+  --lp-code-ansi-bright-red: var(--lp-danger);
+  --lp-code-ansi-bright-green: var(--lp-part-reflect);
+  --lp-code-ansi-bright-yellow: var(--lp-warning);
+  --lp-code-ansi-bright-blue: var(--lp-brand);
+  --lp-code-ansi-bright-magenta: var(--lp-part-practise);
+  --lp-code-ansi-bright-cyan: var(--lp-part-read);
+  --lp-code-ansi-bright-white: var(--lp-ink);
+
   /* ── Type. A book face reads and titles, a sans made for Vietnamese
        operates, a mono carries code and measured data only. All three carry
        U+1EA0-1EF9 and U+20AB. ── */

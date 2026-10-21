@@ -11,7 +11,10 @@ import { ChartBlock } from "~/components/diagram/chart-block";
 import { MermaidBlock } from "~/components/diagram/mermaid-block";
 import { DiagramErrorContext } from "~/components/diagram/diagram-error";
 import { protectCitations, remarkCitations } from "~/lib/remark-citations";
-import { CopyText } from "~/components/ui/copy-text";
+import { CodeBlock } from "~/components/rich-text/code-block";
+import { DiffBlock } from "~/components/rich-text/diff-block";
+import { AnsiBlock } from "~/components/rich-text/ansi-block";
+import { hasAnsi } from "~/lib/ansi";
 import { ListenButton } from "~/components/vocab/listen-button";
 
 /**
@@ -37,7 +40,14 @@ import { ListenButton } from "~/components/vocab/listen-button";
  *
  * Diagrams: a fence tagged `mermaid` or `chart` is drawn (components/diagram,
  * with their own safety rules), but only once the answer has finished, never
- * from a half-written fence. Every other fence stays a code block.
+ * from a half-written fence.
+ *
+ * Code (phase 3 of the postclaw parity plan, components/rich-text): a fence
+ * tagged `diff` or `patch` is a diff, one tagged `ansi` or `terminal`, or
+ * holding colour codes, is terminal output, and any other is a code block,
+ * highlighted with shiki loaded on demand. While streaming, a fence becomes
+ * one of these once its closing marker has arrived; until then it is plain
+ * text, so nothing is tokenised twice.
  */
 export function RichText({
   text,
@@ -62,7 +72,7 @@ export function RichText({
 
   return (
     <SourcesContext.Provider value={bySource}>
-      <StreamingContext.Provider value={streaming}>
+      <StreamingContext.Provider value={streaming ? source : null}>
         <DiagramErrorContext.Provider value={onDiagramError ?? null}>
           <div className="lp-prose lp-rich">
             <Markdown
@@ -92,9 +102,29 @@ export function RichText({
 }
 
 const SourcesContext = createContext<ReadonlyMap<string, Source>>(new Map());
-const StreamingContext = createContext(false);
+/** The Markdown being streamed, or null once the answer is complete. */
+const StreamingContext = createContext<string | null>(null);
 
-type HastNode = { type: string; tagName?: string; value?: string; properties?: { className?: unknown }; children?: HastNode[] };
+type HastNode = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: { className?: unknown };
+  children?: HastNode[];
+  position?: { start: { offset?: number }; end: { offset?: number } };
+};
+
+/** A closing fence line: three or more backticks or tildes, alone. */
+const CLOSING_FENCE = /^ {0,3}(`{3,}|~{3,})\s*$/;
+
+/** Whether a streamed fence's closing marker has arrived (an open one runs to the end). */
+function closedIn(source: string, node: HastNode | undefined): boolean {
+  const start = node?.position?.start.offset;
+  const end = node?.position?.end.offset;
+  if (start === undefined || end === undefined) return false;
+  const lines = source.slice(start, end).split("\n");
+  return lines.length > 1 && CLOSING_FENCE.test(lines.at(-1)!);
+}
 
 /** A fenced block's language and text, when `pre` holds exactly one `code`. */
 function fenceOf(node: HastNode | undefined): { lang: string; text: string } | null {
@@ -106,23 +136,25 @@ function fenceOf(node: HastNode | undefined): { lang: string; text: string } | n
   return { lang, text };
 }
 
-/** A code block, or a diagram when the fence asks for one and the answer is complete. */
+/** A code block, diff or terminal output; a diagram when the fence asks for one and the answer is complete. */
 function Fence({ node, children, ...rest }: ComponentProps<"pre"> & { node?: HastNode }) {
-  const streaming = useContext(StreamingContext);
-  const fence = streaming ? null : fenceOf(node);
-  if (fence?.lang === "mermaid") return <MermaidBlock source={fence.text} />;
-  if (fence?.lang === "chart") return <ChartBlock source={fence.text} />;
-  // A code block can scroll sideways: it takes focus, so a keyboard can scroll it (axe).
-  if (!fence || fence.text === "") return <pre tabIndex={0} {...rest}>{children}</pre>;
-  // A finished code block can be copied exactly, without selecting it.
-  return (
-    <div className="relative">
+  const streamed = useContext(StreamingContext);
+  const fence = streamed === null || closedIn(streamed, node) ? fenceOf(node) : null;
+  const lang = fence?.lang.toLowerCase() ?? "";
+  if (fence && streamed === null && lang === "mermaid") return <MermaidBlock source={fence.text} />;
+  if (fence && streamed === null && lang === "chart") return <ChartBlock source={fence.text} />;
+  // Half-written, or empty: plain text that can scroll sideways. It takes
+  // focus, so a keyboard can scroll it (axe).
+  if (!fence || fence.text === "" || lang === "mermaid" || lang === "chart") {
+    return (
       <pre tabIndex={0} {...rest}>
         {children}
       </pre>
-      <CopyText text={fence.text} className="absolute top-1.5 right-1.5 h-7 bg-card px-2 text-xs" />
-    </div>
-  );
+    );
+  }
+  if (lang === "diff" || lang === "patch") return <DiffBlock text={fence.text} />;
+  if (lang === "ansi" || lang === "terminal" || hasAnsi(fence.text)) return <AnsiBlock text={fence.text} />;
+  return <CodeBlock code={fence.text} lang={fence.lang} />;
 }
 
 /** A `lp-cite` element from remark-citations: its chip, if the source is known. */

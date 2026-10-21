@@ -383,6 +383,16 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    signed-in page): a page whose loader or render fails, or a missing record, is
    answered in the shell's `<main>` in the 404's frame, so the nav and the sidebar stay.
    Only a failure of the session itself reaches root's bare boundary. Both name the tab.
+23. **Code in rendered Markdown** (`components/rich-text/`, plan 261021-1100 phase 3,
+   after postclaw's renderers): a fence sits in a bordered frame whose caption names
+   it (the language, "Changes" with +n −n, or "Terminal output") beside a sans Copy.
+   Code is coloured by shiki, loaded only when a fence is on screen, in the world's
+   own inks (`--lp-code-*` in tokens.css: keywords plum, strings forest, numbers brick,
+   functions navy, comments ink-3), so it flips with the theme and theme-contrast
+   holds each at 4.5:1. A diff row carries its + or − as well as a forest or rose tint
+   that runs the full width. Terminal colours map to the same inks; backgrounds and
+   256-colour codes are dropped rather than trusted. A streamed fence stays plain until
+   its closing marker arrives.
 
 ## Anti-patterns for this project
 

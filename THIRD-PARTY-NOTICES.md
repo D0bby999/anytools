@@ -4709,6 +4709,14 @@ ships with it in the image's `node_modules`.
 | [@react-router/serve](https://github.com/remix-run/react-router#readme) | 7.18.4 | MIT |
 | [@resvg/resvg-wasm](https://github.com/yisibl/resvg-js#readme) | 2.6.2 | MPL-2.0 |
 | [@scure/bip39](https://paulmillr.com/noble/#scure) | 2.4.0 | MIT |
+| [@shikijs/core](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/engine-javascript](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/engine-oniguruma](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/langs](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/primitive](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/themes](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/types](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
+| [@shikijs/vscode-textmate](https://github.com/shikijs/vscode-textmate#readme) | 10.1.0 | MIT |
 | [@shuding/opentype.js](https://github.com/opentypejs/opentype.js#readme) | 1.4.0-beta.0 | MIT |
 | [@types/d3](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3) | 7.4.3 | MIT |
 | [@types/d3-array](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/d3-array) | 3.2.2 | MIT |
@@ -4991,6 +4999,7 @@ ships with it in the image's `node_modules`.
 | [hast-util-from-parse5](https://github.com/syntax-tree/hast-util-from-parse5#readme) | 8.0.3 | MIT |
 | [hast-util-is-element](https://github.com/syntax-tree/hast-util-is-element#readme) | 3.0.0 | MIT |
 | [hast-util-parse-selector](https://github.com/syntax-tree/hast-util-parse-selector#readme) | 4.0.0 | MIT |
+| [hast-util-to-html](https://github.com/syntax-tree/hast-util-to-html#readme) | 9.0.5 | MIT |
 | [hast-util-to-jsx-runtime](https://github.com/syntax-tree/hast-util-to-jsx-runtime#readme) | 2.3.6 | MIT |
 | [hast-util-to-text](https://github.com/syntax-tree/hast-util-to-text#readme) | 4.0.2 | MIT |
 | [hast-util-whitespace](https://github.com/syntax-tree/hast-util-whitespace#readme) | 3.0.0 | MIT |
@@ -5000,6 +5009,7 @@ ships with it in the image's `node_modules`.
 | [html-entities](https://github.com/mdevils/html-entities#readme) | 2.6.0 | MIT |
 | [html-parse-stringify](https://github.com/henrikjoreteg/html-parse-stringify) | 3.1.0 | MIT |
 | [html-url-attributes](https://github.com/rehypejs/rehype-minify/tree/main#readme) | 3.0.1 | MIT |
+| [html-void-elements](https://github.com/wooorm/html-void-elements#readme) | 3.0.0 | MIT |
 | [http-errors](https://github.com/jshttp/http-errors#readme) | 2.0.1 | MIT |
 | [i18next](https://www.i18next.com) | 25.10.10 | MIT |
 | [iconv-lite](https://github.com/ashtuchkin/iconv-lite) | 0.4.24, 0.6.3 | MIT |
@@ -5179,6 +5189,8 @@ ships with it in the image's `node_modules`.
 | [on-finished](https://github.com/jshttp/on-finished#readme) | 2.4.1 | MIT |
 | [on-headers](https://github.com/jshttp/on-headers#readme) | 1.1.0 | MIT |
 | [once](https://github.com/isaacs/once#readme) | 1.4.0 | ISC |
+| [oniguruma-parser](https://github.com/slevithan/oniguruma-parser#readme) | 0.12.2 | MIT |
+| [oniguruma-to-es](https://github.com/slevithan/oniguruma-to-es#readme) | 4.3.6 | MIT |
 | [onnxruntime-common](https://github.com/Microsoft/onnxruntime#readme) | 1.29.0 | MIT |
 | [onnxruntime-web](https://github.com/Microsoft/onnxruntime#readme) | 1.29.0 | MIT |
 | [open-color](https://github.com/yeun/open-color) | 1.9.1 | MIT |
@@ -5246,6 +5258,9 @@ ships with it in the image's `node_modules`.
 | [reflect-metadata](http://rbuckton.github.io/reflect-metadata) | 0.2.2 | Apache-2.0 |
 | [reflect.getprototypeof](https://github.com/es-shims/Reflect.getPrototypeOf) | 1.0.10 | MIT |
 | [regenerator-runtime](https://github.com/facebook/regenerator/tree/main#readme) | 0.13.11 | MIT |
+| [regex](https://github.com/slevithan/regex#readme) | 6.1.0 | MIT |
+| [regex-recursion](https://github.com/slevithan/regex-recursion#readme) | 6.0.2 | MIT |
+| [regex-utilities](https://github.com/slevithan/regex-utilities#readme) | 2.3.0 | MIT |
 | [regexp.prototype.flags](https://github.com/es-shims/RegExp.prototype.flags#readme) | 1.5.4 | MIT |
 | [rehype-katex](https://github.com/remarkjs/remark-math/tree/main#readme) | 7.0.1 | MIT |
 | [remark-gfm](https://github.com/remarkjs/remark-gfm#readme) | 4.0.1 | MIT |
@@ -5281,6 +5296,7 @@ ships with it in the image's `node_modules`.
 | [setprototypeof](https://github.com/wesleytodd/setprototypeof) | 1.2.0 | ISC |
 | [shebang-command](https://github.com/kevva/shebang-command#readme) | 2.0.0 | MIT |
 | [shebang-regex](https://github.com/sindresorhus/shebang-regex#readme) | 3.0.0 | MIT |
+| [shiki](https://github.com/shikijs/shiki#readme) | 4.5.0 | MIT |
 | [side-channel](https://github.com/ljharb/side-channel#readme) | 1.1.1 | MIT |
 | [side-channel-list](https://github.com/ljharb/side-channel-list#readme) | 1.0.1 | MIT |
 | [side-channel-map](https://github.com/ljharb/side-channel-map#readme) | 1.0.1 | MIT |
