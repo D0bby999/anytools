@@ -269,8 +269,16 @@ describe("the AnyProfile page", () => {
     expect(within(sums).getAllByText(SHA)).toHaveLength(2);
   });
 
+  it("says the next release is coming, with no download link, when none is published", async () => {
+    vi.stubGlobal("fetch", async () => new Response("Not Found", { status: 404 }));
+    await renderRoute(anyprofile, "/vi/anyprofile", "/:locale/anyprofile", { locale: "vi" });
+    expect(screen.getByText("Sắp ra mắt")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /Mac|Windows/ })).toBeNull();
+    expect(screen.queryAllByRole("link").some((a) => a.getAttribute("href")?.includes("/releases"))).toBe(false);
+  });
+
   it("falls back to GitHub's latest download when latest.json cannot be read", async () => {
-    vi.stubGlobal("fetch", async () => new Response("", { status: 404 }));
+    vi.stubGlobal("fetch", async () => new Response("", { status: 502 }));
     const { container } = await renderRoute(anyprofile, "/en/anyprofile", "/:locale/anyprofile", { locale: "en" });
     expect(screen.getByRole("link", { name: /Download for Windows/ }).getAttribute("href")).toBe(
       "https://github.com/D0bby999/anyprofile/releases/latest/download/AnyProfile-amd64-installer.exe",

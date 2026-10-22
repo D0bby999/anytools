@@ -21,6 +21,8 @@
     "downloadMacNote": "Chip Apple (M1 trở lên), macOS 13 trở lên",
     "downloadWindows": "Tải cho Windows",
     "downloadWindowsNote": "Windows 10 hoặc 11, 64-bit",
+    "comingSoon": "Sắp ra mắt",
+    "comingSoonNote": "Bản phát hành tiếp theo đang được chuẩn bị. Theo dõi repository trên GitHub để biết khi bản mới ra.",
     "allReleases": "Mọi phiên bản và ghi chú thay đổi",
     "howToInstall": "Cách cài và mở lần đầu",
     "featuresTitle": "App làm được gì",

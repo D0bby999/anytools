@@ -14,9 +14,12 @@
  * - only an https URL under this repository's release downloads becomes a link,
  *   and only a 64-digit hex string becomes a checksum.
  *
- * Without the file (no release yet, GitHub down, a malformed manifest) the
- * buttons fall back to GitHub's /releases/latest/download/<file> redirect,
- * which is what the old site linked, so a download never depends on this read.
+ * When GitHub answers 404, no release is published (none yet, or the last one
+ * was taken back to a draft): the page says the next one is coming instead of
+ * linking downloads that would 404 too. Any other failure (GitHub down, a
+ * malformed manifest) falls back to GitHub's /releases/latest/download/<file>
+ * redirect, which is what the old site linked, so a download never depends on
+ * this read.
  */
 
 export const ANYPROFILE_REPO = "https://github.com/D0bby999/anyprofile";
@@ -46,9 +49,15 @@ export type AnyProfileRelease = {
   assets: Record<AnyProfilePlatform, AnyProfileAsset | null>;
 };
 
+/** GitHub's answer that no release is published, as opposed to a read that failed. */
+export const UNRELEASED = "unreleased";
+export type ReleaseRead = AnyProfileRelease | typeof UNRELEASED | null;
+
 /** What the page renders: the release when it is known, and a link per platform either way. */
 export type AnyProfileDownloads = {
   release: AnyProfileRelease | null;
+  /** No release is published: the page shows "coming soon" in place of the buttons. */
+  unreleased: boolean;
   links: Record<AnyProfilePlatform, AnyProfileAsset>;
 };
 
@@ -122,14 +131,15 @@ async function readLimited(res: Response, max: number): Promise<string | null> {
 
 export type Fetcher = (url: string, init: RequestInit) => Promise<Response>;
 
-/** One read of latest.json. Never throws: a failure is null. */
-export async function fetchRelease(fetcher: Fetcher = fetch): Promise<AnyProfileRelease | null> {
+/** One read of latest.json. Never throws: a 404 is UNRELEASED, any other failure null. */
+export async function fetchRelease(fetcher: Fetcher = fetch): Promise<ReleaseRead> {
   try {
     const res = await fetcher(ANYPROFILE_MANIFEST_URL, {
       redirect: "follow",
       signal: AbortSignal.timeout(MANIFEST_TIMEOUT_MS),
       headers: { Accept: "application/json, application/octet-stream" },
     });
+    if (res.status === 404) return UNRELEASED;
     if (!res.ok) return null;
     const text = await readLimited(res, MANIFEST_MAX_BYTES);
     if (text === null) return null;
@@ -139,14 +149,15 @@ export async function fetchRelease(fetcher: Fetcher = fetch): Promise<AnyProfile
   }
 }
 
-type Cache = { release: AnyProfileRelease | null; at: number; ok: boolean };
+type Cache = { release: ReleaseRead; at: number; ok: boolean };
 let cache: Cache | null = null;
-let inFlight: Promise<AnyProfileRelease | null> | null = null;
+let inFlight: Promise<ReleaseRead> | null = null;
 
-function refresh(fetcher: Fetcher, now: () => number): Promise<AnyProfileRelease | null> {
+function refresh(fetcher: Fetcher, now: () => number): Promise<ReleaseRead> {
   inFlight ??= fetchRelease(fetcher)
     .then((release) => {
-      // A failed read keeps the last good release rather than forgetting it.
+      // A failed read keeps the last answer rather than forgetting it; UNRELEASED
+      // is an answer, so a release taken back stops being linked.
       cache = release ? { release, at: now(), ok: true } : { release: cache?.release ?? null, at: now(), ok: false };
       return cache.release;
     })
@@ -161,16 +172,17 @@ function refresh(fetcher: Fetcher, now: () => number): Promise<AnyProfileRelease
  * waits on GitHub (at most MANIFEST_TIMEOUT_MS); after that a stale answer is
  * served at once while one refresh runs behind it.
  */
-export async function latestRelease(fetcher: Fetcher = fetch, now: () => number = Date.now): Promise<AnyProfileRelease | null> {
+export async function latestRelease(fetcher: Fetcher = fetch, now: () => number = Date.now): Promise<ReleaseRead> {
   if (!cache) return refresh(fetcher, now);
   const age = now() - cache.at;
   if (age >= (cache.ok ? FRESH_MS : RETRY_MS)) void refresh(fetcher, now);
   return cache.release;
 }
 
-export function downloadsFor(release: AnyProfileRelease | null): AnyProfileDownloads {
+export function downloadsFor(read: ReleaseRead): AnyProfileDownloads {
+  const release = read === UNRELEASED ? null : read;
   const link = (p: AnyProfilePlatform): AnyProfileAsset => release?.assets[p] ?? { url: ANYPROFILE_FALLBACK[p], sha256: null };
-  return { release, links: { mac: link("mac"), windows: link("windows") } };
+  return { release, unreleased: read === UNRELEASED, links: { mac: link("mac"), windows: link("windows") } };
 }
 
 /** For tests: forget the cached release. */

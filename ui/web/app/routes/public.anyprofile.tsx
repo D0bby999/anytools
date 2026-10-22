@@ -4,9 +4,10 @@
  * open-source desktop app, ported from the old site with the same copy and
  * no ads. The buttons point at the build named in the release's latest.json
  * when it can be read, with its version and checksums, and at GitHub's
- * "latest" redirect when it cannot (lib/tools/anyprofile.server.ts).
+ * "latest" redirect when it cannot (lib/tools/anyprofile.server.ts). With no
+ * release published, a "coming soon" note takes the buttons' place.
  */
-import { Download, Github, Laptop, Monitor } from "lucide-react";
+import { Clock, Download, Github, Laptop, Monitor } from "lucide-react";
 import { useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/public.anyprofile";
@@ -64,7 +65,7 @@ export default function AnyProfilePage() {
   const { locale, pages, downloads, releasesUrl, repoUrl } = useLoaderData<typeof loader>();
   addPagesBundle(locale, pages);
   const { t } = useTranslation("pages");
-  const { release, links } = downloads;
+  const { release, unreleased, links } = downloads;
 
   const buttons = [
     { platform: "mac", href: links.mac.url, label: t("anyprofile.downloadMac"), note: t("anyprofile.downloadMacNote"), Icon: Laptop },
@@ -92,7 +93,16 @@ export default function AnyProfilePage() {
           </div>
 
           <div className="flex min-w-0 flex-col gap-3 lg:justify-end">
-            {buttons.map(({ platform, href, label, note, Icon }) => (
+            {unreleased && (
+              <div className="flex items-start gap-4 rounded-lg border border-background px-5 py-4">
+                <Clock className="mt-0.5 size-6 shrink-0" aria-hidden="true" />
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-base font-semibold">{t("anyprofile.comingSoon")}</span>
+                  <span className="text-sm opacity-80">{t("anyprofile.comingSoonNote")}</span>
+                </span>
+              </div>
+            )}
+            {!unreleased && buttons.map(({ platform, href, label, note, Icon }) => (
               <a
                 key={platform}
                 href={href}
@@ -116,12 +126,12 @@ export default function AnyProfilePage() {
                 </span>
               )}
               <a
-                href={releasesUrl}
+                href={unreleased ? repoUrl : releasesUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-11 items-center underline underline-offset-4 hover:opacity-80"
               >
-                {t("anyprofile.allReleases")}
+                {unreleased ? t("anyprofile.sourceLink") : t("anyprofile.allReleases")}
               </a>
               <a href="#ap-install" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:opacity-80">
                 {t("anyprofile.howToInstall")}

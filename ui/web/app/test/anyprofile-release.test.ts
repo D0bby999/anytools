@@ -20,6 +20,8 @@ import {
   resetReleaseCache,
   RETRY_MS,
   safeAssetUrl,
+  UNRELEASED,
+  type ReleaseRead,
   type Fetcher,
 } from "~/lib/tools/anyprofile.server";
 
@@ -102,6 +104,9 @@ describe("parseManifest", () => {
   });
 });
 
+/** The version a read names, whatever else it is. */
+const versionOf = (r: ReleaseRead) => (r && r !== UNRELEASED ? r.version : r);
+
 describe("fetchRelease", () => {
   it("asks for the one manifest URL, with a time limit", async () => {
     const calls: { url: string; init: RequestInit }[] = [];
@@ -109,14 +114,18 @@ describe("fetchRelease", () => {
       calls.push({ url, init });
       return new Response(JSON.stringify(manifest()));
     });
-    expect(release?.version).toBe("1.4.0");
+    expect(versionOf(release)).toBe("1.4.0");
     expect(calls).toHaveLength(1);
     expect(calls[0]?.url).toBe(ANYPROFILE_MANIFEST_URL);
     expect(calls[0]?.init.signal).toBeInstanceOf(AbortSignal);
   });
 
+  it("is UNRELEASED when GitHub has no published release", async () => {
+    expect(await fetchRelease(async () => new Response("Not Found", { status: 404 }))).toBe(UNRELEASED);
+  });
+
   it("is null on an error status, bad JSON, a network failure or a timeout", async () => {
-    expect(await fetchRelease(async () => new Response("nope", { status: 404 }))).toBeNull();
+    expect(await fetchRelease(async () => new Response("nope", { status: 502 }))).toBeNull();
     expect(await fetchRelease(async () => new Response("{not json"))).toBeNull();
     expect(await fetchRelease(async () => Promise.reject(new TypeError("fetch failed")))).toBeNull();
     expect(await fetchRelease(async () => Promise.reject(new DOMException("timed out", "TimeoutError")))).toBeNull();
@@ -143,9 +152,9 @@ describe("latestRelease", () => {
   it("reads once, then serves from memory while fresh", async () => {
     let now = 1_000_000;
     const fetcher = vi.fn(ok(manifest()));
-    expect((await latestRelease(fetcher, () => now))?.version).toBe("1.4.0");
+    expect(versionOf(await latestRelease(fetcher, () => now))).toBe("1.4.0");
     now += FRESH_MS - 1;
-    expect((await latestRelease(fetcher, () => now))?.version).toBe("1.4.0");
+    expect(versionOf(await latestRelease(fetcher, () => now))).toBe("1.4.0");
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
@@ -154,9 +163,9 @@ describe("latestRelease", () => {
     await latestRelease(ok(manifest()), () => now);
     now += FRESH_MS;
     const next = vi.fn(ok(manifest({ version: "1.5.0" })));
-    expect((await latestRelease(next, () => now))?.version).toBe("1.4.0");
+    expect(versionOf(await latestRelease(next, () => now))).toBe("1.4.0");
     expect(next).toHaveBeenCalledTimes(1);
-    await vi.waitFor(async () => expect((await latestRelease(next, () => now))?.version).toBe("1.5.0"));
+    await vi.waitFor(async () => expect(versionOf(await latestRelease(next, () => now))).toBe("1.5.0"));
   });
 
   it("keeps the last good release through a failed refresh, and retries sooner after a failure", async () => {
@@ -166,14 +175,23 @@ describe("latestRelease", () => {
     const failing = vi.fn<Fetcher>(async () => new Response("", { status: 502 }));
     await latestRelease(failing, () => now);
     await vi.waitFor(() => expect(failing).toHaveBeenCalledTimes(1));
-    expect((await latestRelease(failing, () => now))?.version).toBe("1.4.0");
+    expect(versionOf(await latestRelease(failing, () => now))).toBe("1.4.0");
     now += RETRY_MS;
     await latestRelease(failing, () => now);
     expect(failing).toHaveBeenCalledTimes(2);
   });
 
   it("is null until a release has ever been read", async () => {
-    expect(await latestRelease(async () => new Response("", { status: 404 }), () => 0)).toBeNull();
+    expect(await latestRelease(async () => new Response("", { status: 502 }), () => 0)).toBeNull();
+  });
+
+  it("stops serving a release once it is taken back", async () => {
+    let now = 0;
+    await latestRelease(ok(manifest()), () => now);
+    now += FRESH_MS;
+    const gone = vi.fn<Fetcher>(async () => new Response("", { status: 404 }));
+    await latestRelease(gone, () => now);
+    await vi.waitFor(async () => expect(await latestRelease(gone, () => now)).toBe(UNRELEASED));
   });
 });
 
@@ -182,6 +200,12 @@ describe("downloadsFor", () => {
     const d = downloadsFor(parseManifest(manifest()));
     expect(d.links.mac).toEqual({ url: `${BASE}/AnyProfile-macos-arm64.dmg`, sha256: SHA_MAC });
     expect(d.links.windows.url).toBe(`${BASE}/AnyProfile-amd64-installer.exe`);
+  });
+
+  it("is unreleased only on GitHub's 404, never on a failed read", () => {
+    expect(downloadsFor(UNRELEASED)).toMatchObject({ release: null, unreleased: true });
+    expect(downloadsFor(null).unreleased).toBe(false);
+    expect(downloadsFor(parseManifest(manifest())).unreleased).toBe(false);
   });
 
   it("falls back to GitHub's latest-release redirect, per platform", () => {

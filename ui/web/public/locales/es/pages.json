@@ -21,6 +21,8 @@
     "downloadMacNote": "Apple Silicon (M1 o posterior), macOS 13+",
     "downloadWindows": "Descargar para Windows",
     "downloadWindowsNote": "Windows 10 u 11, 64 bits",
+    "comingSoon": "Próximamente",
+    "comingSoonNote": "La próxima versión se está preparando. Sigue el repositorio en GitHub para saber cuándo sale.",
     "allReleases": "Todas las versiones y notas",
     "howToInstall": "Cómo instalarla y abrirla la primera vez",
     "featuresTitle": "Qué hace",
