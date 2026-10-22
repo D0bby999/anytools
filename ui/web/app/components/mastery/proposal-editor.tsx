@@ -12,13 +12,23 @@ import { Button } from "~/components/ui/button";
  * lines. Each point's type (memory / concept / …) is carried through in a
  * hidden map keyed by name, so an unedited point keeps the type the model gave
  * it and a new one defaults to `concept` on the server.
+ *
+ * A point the knowledge base hardly covers is named under its module's list
+ * (the private design notes, phase 4): the plan may have added
+ * something the documents never teach. Deleting its line drops it; keeping it
+ * keeps the mark.
  */
 export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal: Proposal }) {
   const { t } = useTranslation("study");
   const fetcher = useFetcher<{ errorKey?: string; errorDetail?: string }>();
 
   const types: Record<string, string> = {};
-  for (const m of proposal.modules) for (const kp of m.knowledge_points) types[kp.name] = kp.type;
+  const outside: string[] = [];
+  for (const m of proposal.modules)
+    for (const kp of m.knowledge_points) {
+      types[kp.name] = kp.type;
+      if (kp.outside_source) outside.push(kp.name);
+    }
 
   if (proposal.modules.length === 0) {
     return (
@@ -33,7 +43,11 @@ export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal:
       <input type="hidden" name="intent" value="approve" />
       <input type="hidden" name="modules" value={proposal.modules.length} />
       <input type="hidden" name="types" value={JSON.stringify(types)} />
+      <input type="hidden" name="outside" value={JSON.stringify(outside)} />
       {proposal.note ? <p className="text-sm leading-prose text-muted-foreground">{proposal.note}</p> : null}
+      {proposal.coverage === "skipped" ? (
+        <p className="text-xs leading-prose text-muted-foreground">{t("path.coverageSkipped")}</p>
+      ) : null}
 
       <ol className="space-y-4">
         {proposal.modules.map((m, i) => (
@@ -80,6 +94,19 @@ export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal:
                   className="mt-1 w-full rounded-md border border-control-border bg-card px-3 py-2 text-sm leading-prose"
                 />
                 <p className="mt-1 text-xs text-muted-foreground">{t("path.pointsHint")}</p>
+                {m.knowledge_points.some((kp) => kp.outside_source) ? (
+                  <div className="mt-2 rounded-md bg-warning-soft px-3 py-2 text-xs leading-prose">
+                    <p className="font-medium">{t("path.outsideTitle")}</p>
+                    <ul className="mt-1 list-disc pl-5">
+                      {m.knowledge_points
+                        .filter((kp) => kp.outside_source)
+                        .map((kp) => (
+                          <li key={kp.name}>{kp.name}</li>
+                        ))}
+                    </ul>
+                    <p className="mt-1 text-muted-foreground">{t("path.outsideHint")}</p>
+                  </div>
+                ) : null}
               </div>
             </div>
           </li>

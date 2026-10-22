@@ -114,6 +114,18 @@ export function detectLang(text: string): string {
 
 const primary = (tag: string) => tag.toLowerCase().split(/[-_]/)[0] ?? "";
 
+/** Below this many letters a sentence is too short to tell ("OK.", "Hi!"). */
+const MIN_LETTERS_TO_TELL = 12;
+
+/**
+ * Each sentence's language. A Vietnamese answer that quotes English is read
+ * with both voices, not all of it in the passage's one; a sentence too short
+ * to tell keeps the passage's language.
+ */
+export function sentenceLanguages(sentences: readonly string[], passage: string): string[] {
+  return sentences.map((s) => (s.replace(/[^\p{L}]/gu, "").length >= MIN_LETTERS_TO_TELL ? detectLang(s) : passage));
+}
+
 /** The voices that speak `lang`, local ones first, then by name. */
 export function voicesFor(voices: readonly SpeechSynthesisVoice[], lang: string): SpeechSynthesisVoice[] {
   const want = primary(lang);
@@ -195,6 +207,11 @@ export type SpeakOptions = {
   onEnd?: () => void;
   onError?: (error: string) => void;
   /**
+   * A voice for a sentence in another language, by index (sentenceLanguages).
+   * A missing entry is read with `voice`.
+   */
+  sentenceVoices?: readonly (SpeechSynthesisVoice | null | undefined)[];
+  /**
    * Who is speaking, announced with SPEECH_START_EVENT. The event fires
    * inside speak(), before the caller holds the returned id, so a reader
    * recognises its own announcement by this token rather than by the id.
@@ -230,8 +247,9 @@ export function speak(text: string, opts: SpeakOptions): Speaking {
   let stopped = false;
   sentences.forEach((sentence, index) => {
     const u = new SpeechSynthesisUtterance(sentence);
-    u.lang = opts.voice?.lang ?? opts.lang;
-    if (opts.voice) u.voice = opts.voice;
+    const voice = opts.sentenceVoices?.[index] ?? opts.voice;
+    u.lang = voice?.lang ?? opts.lang;
+    if (voice) u.voice = voice;
     u.rate = opts.rate;
     u.onstart = () => {
       if (!stopped) opts.onSentence?.(index);

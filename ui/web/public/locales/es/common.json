@@ -73,7 +73,8 @@
     "mainNavigation": "Navegación principal",
     "sidebarNavigation": "Navegación lateral",
     "toggleSection": "Mostrar u ocultar {{section}}",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "showcase": "Perfil público"
   },
   "actions": {
     "signOut": "Cerrar sesión",
@@ -169,6 +170,7 @@
     },
     "up": {
       "greeting": "Qué bueno verte, {{name}}.",
+      "greetingNew": "Te damos la bienvenida, {{name}}.",
       "nextStep": "Siguiente paso",
       "cycle": "Leer · Preguntar · Practicar · Reflexionar",
       "task": "Tarea",
@@ -239,9 +241,45 @@
         "storage": "Elige dónde se guardan tus archivos y ve el espacio que ocupa cada lado.",
         "library": "Añade material listo de fuentes abiertas, cada uno con su licencia.",
         "settingsProviders": "Busca un proveedor y conéctalo con una clave.",
-        "apps": "Google, correo, Canva y Notion, conectados con lo que estudias."
+        "apps": "Google, correo, Canva y Notion, conectados con lo que estudias.",
+        "showcase": "Una página propia para mostrar cómo estudias, contado por AnyLearn."
       },
       "dueToday": "Pendiente para hoy"
+    },
+    "focus": {
+      "title": "¿Qué quieres aprender?",
+      "lead": "Elige una o más opciones. Inicio muestra primero las partes que sirven para ello; todas siguen en el menú y puedes cambiarlo en Ajustes → Cuenta.",
+      "options": {
+        "languages": {
+          "title": "Un idioma",
+          "body": "Palabras, escucha, lectura, conversación y escritura en un idioma que aprendes."
+        },
+        "documents": {
+          "title": "Con mi propio material",
+          "body": "Libros, cursos, apuntes y vídeos que traes: lee con un tutor, pregunta y practica con ellos."
+        },
+        "exams": {
+          "title": "Para un examen",
+          "body": "Exámenes anteriores y simulacros con tiempo."
+        },
+        "research": {
+          "title": "Investigar una pregunta",
+          "body": "Informes con fuentes de tus documentos y de la web."
+        },
+        "body": {
+          "title": "Entrenamiento",
+          "body": "Rutinas, un plan y el progreso de tu cuerpo."
+        }
+      },
+      "which": "¿Qué idioma?",
+      "starter": "Añadir sus primeras palabras para repasar, 20 al día desde hoy ({{list}}, {{count}} palabras)",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saved": "Guardado. Inicio muestra primero estas partes.",
+      "skip": "Omitir",
+      "showAll_one": "Mostrar todas las partes ({{count}} más)",
+      "showAll_other": "Mostrar todas las partes ({{count}} más)",
+      "showMine": "Mostrar solo las partes para lo que aprendo"
     }
   },
   "errors": {
@@ -259,19 +297,20 @@
       "profile": "Perfil de aprendizaje",
       "account": "Cuenta",
       "reminders": "Recordatorios",
-      "providers": "Proveedores",
       "groups": {
         "ai": "IA y búsqueda",
         "you": "Tú",
         "notify": "Notificaciones"
       },
-      "pick": "Elige una sección de ajustes"
+      "pick": "Elige una sección de ajustes",
+      "providers": "Proveedores"
     },
     "readiness": {
       "title": "Estado",
       "ready": "Listo",
       "attention": "Requiere atención",
       "blocked": "Bloqueado",
+      "notSet": "Sin configurar",
       "unavailable": "AnyLearn no pudo comunicarse con su API ahora mismo, así que no puede decir qué está listo."
     },
     "functions": {
@@ -353,6 +392,7 @@
       "lead": "Cada función usa las conexiones de su cadena, en orden: si la primera se queda sin cuota o rechaza, AnyLearn prueba la siguiente. Edita una cadena para añadir alternativas, arrástralas para ordenarlas y elige el modelo de cada una.",
       "noConnections": "Todavía no hay nada que asignar. Conecta primero un proveedor en Proveedores.",
       "none": "Ninguna",
+      "cannotDo": "{{name}} (no puede hacer esto)",
       "connectionAt": "Conexión en la posición {{position}}",
       "modelAt": "Modelo en la posición {{position}}",
       "modelPlaceholder": "Déjalo vacío para usar el predeterminado",
@@ -535,7 +575,8 @@
       "all": "Todos los proveedores",
       "getKey": "Obtener una clave de {{provider}}",
       "servedAt": "Servido en",
-      "needsModel": "AnyLearn no tiene un modelo predeterminado para este proveedor. Después de conectar, elige uno de sus modelos en Rutas.",
+      "needsModel": "AnyLearn no tiene un modelo predeterminado para este proveedor. Al conectar, te ofrece usar la conexión para todas las tareas, y eliges sus modelos ahí.",
+      "customBaseHelp": "La dirección del servidor, que suele terminar en /v1 (por ejemplo https://ai.example.com/v1). Debe ser https y accesible desde internet: un servidor en tu propio ordenador solo funciona con una copia de AnyLearn que ejecutes tú.",
       "signIn": "Esto es un inicio de sesión de suscripción, no una clave. Su tarjeta está en",
       "addTitle": "Conectar una clave",
       "connect": "Conectar y comprobar",
@@ -567,6 +608,26 @@
       "addLabel": "Id del modelo",
       "add": "Añadir modelo",
       "addHelp": "Para un modelo que el proveedor sirve pero no lista. Aparece en los selectores de modelo de Rutas."
+    },
+    "quick": {
+      "button": "Usar para todas las tareas",
+      "fillEmpty": "Completar las tareas vacías",
+      "title": "Usar {{name}} para todas las tareas",
+      "lead": "Cada tarea sin conexión recibe esta. Las tareas que ya configuraste conservan la suya, y la voz y el dictado quedan para después.",
+      "connection": "Conexión",
+      "chatModel": "Modelo para respuestas, cuestionarios y rutas de estudio",
+      "embedModel": "Modelo para indexar documentos (embeddings)",
+      "embedHelp": "Un modelo de embeddings, como nomic-embed-text o text-embedding-3-small. Déjalo vacío para configurar la indexación después.",
+      "defaultModel": "El modelo predeterminado del proveedor",
+      "noEmbed": "{{provider}} no puede indexar documentos. Conecta un proveedor que pueda (Gemini, OpenAI o un servidor compatible con OpenAI) para esa tarea.",
+      "submit": "Configurar las tareas vacías",
+      "working": "Configurando las tareas…",
+      "done_one": "{{count}} tarea configurada.",
+      "done_other": "{{count}} tareas configuradas.",
+      "left": "Quedan vacías: {{list}}.",
+      "nothing": "Todas las tareas ya tenían conexión, así que nada cambió.",
+      "close": "Cerrar",
+      "embedLink": "Elegir un modelo para indexar"
     }
   },
   "chat": {
@@ -905,6 +966,7 @@
     },
     "mic": {
       "start": "Di tu pregunta",
+      "speakIn": "Hablar en",
       "stop": "Dejar de escuchar",
       "listening": "Escuchando",
       "hearing": "Convirtiendo tu pregunta en texto",
@@ -949,6 +1011,21 @@
         "open": "Pendiente",
         "documents": "Documentos"
       }
+    },
+    "mistakes": {
+      "open": "Guardar errores para repasar",
+      "finding": "Leyendo las correcciones…",
+      "title": "Errores en tu mensaje",
+      "lead": "Tu modelo de chat encontró estos en tu mensaje. Desmarca los que no quieras repasar.",
+      "none": "Esta respuesta no corrigió ningún error tuyo.",
+      "production": "Practicar también cómo decirlo bien (una tarjeta que muestra lo que escribiste y pide las palabras correctas)",
+      "save_one": "Guardar {{count}} en Vocabulario",
+      "save_other": "Guardar {{count}} en Vocabulario",
+      "saving": "Guardando…",
+      "saved_one": "{{count}} guardado en Vocabulario, en el repaso de hoy.",
+      "saved_other": "{{count}} guardados en Vocabulario, en el repaso de hoy.",
+      "review": "Repasarlos",
+      "failed": "No funcionó. Inténtalo de nuevo."
     }
   },
   "more": {
@@ -1066,8 +1143,7 @@
   },
   "appendix": {
     "title": "Apéndice: herramientas",
-    "all": "Todas las herramientas gratis",
-    "free": "Herramientas gratis"
+    "all": "Todas las herramientas gratis"
   },
   "richText": {
     "table": "Tabla",
@@ -1182,10 +1258,14 @@
     "Progress": "Progreso",
     "Study with friends": "Estudiar con amigos",
     "Study circle": "Grupo de estudio",
-    "Learning methods": "Métodos de estudio"
+    "Learning methods": "Métodos de estudio",
+    "Public profile": "Perfil público"
   },
   "readinessText": {
     "no_route": "Todavía ninguna conexión hace {{function}}. Elige una en Ajustes → Rutas.",
+    "no_route_here": "Ninguna conexión hace {{function}} todavía. Elige Editar en su fila, en Cadenas, más abajo.",
+    "optional_unset": "Opcional. AnyLearn funciona sin ello.",
+    "parse_local": "Ningún modelo lee documentos: los archivos con texto se leen en el servidor, pero los PDF escaneados y las fotos necesitan un modelo que lea imágenes (Gemini, OpenAI o Anthropic).",
     "all_unusable": "Ninguna de las conexiones asignadas a {{function}} se puede usar.",
     "some_unusable": "{{unusable}} de {{total}} conexiones de {{function}} no se pueden usar.",
     "connection_gone": "Esta conexión ya no existe.",

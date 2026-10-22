@@ -135,3 +135,21 @@ func TestPageLoaderCutsThePageAndTheNextOne(t *testing.T) {
 		t.Fatal("the document was read for a user who does not own the workspace")
 	}
 }
+
+// The gloss is asked for in the learner's language only when it is not the
+// passage's, and the suggestions that do not fit are dropped, not the term.
+func TestTermsAskForAGlossAndKeepTheSuggestionsThatFit(t *testing.T) {
+	if p := TermsSystemPrompt("vi", "en"); !strings.Contains(p, `"gloss": the same sense in Vietnamese`) {
+		t.Fatalf("no Vietnamese gloss asked for:\n%s", p)
+	}
+	if p := TermsSystemPrompt("en", "en-GB"); strings.Contains(p, `Give "gloss"`) {
+		t.Fatal("a gloss was asked for in the passage's own language")
+	}
+	got := FilterTerms([]Term{{
+		Term: "equilibrium", Meaning: "a balance", Gloss: " trạng thái cân bằng ",
+		Sound: strings.Repeat("x", MaxSoundLen+1), Collocation: "at equilibrium",
+	}}, "a system at equilibrium")
+	if len(got) != 1 || got[0].Gloss != "trạng thái cân bằng" || got[0].Sound != "" || got[0].Collocation != "at equilibrium" {
+		t.Fatalf("FilterTerms = %+v", got)
+	}
+}

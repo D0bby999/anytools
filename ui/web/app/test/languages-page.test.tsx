@@ -73,6 +73,14 @@ describe("a language's page", () => {
     expect(screen.getByRole("navigation", { name: "Skills" })).toContainElement(screen.getByRole("link", { name: "Vocabulary" }));
   });
 
+  it("points at the Library's shelf for the language (the private design notes)", () => {
+    show({ lang: "ja", saved: [{ lang: "ja", words: 2, due: 0 }] });
+    expect(screen.getByRole("link", { name: "Choose some for learning Japanese in the Library" })).toHaveAttribute(
+      "href",
+      "/library?teaches=ja",
+    );
+  });
+
   it("says what to do when the language has no words, and when none is due", () => {
     show({ lang: "ja" });
     expect(screen.getByText(/No Japanese words yet\. Open a document in Japanese/)).toBeInTheDocument();

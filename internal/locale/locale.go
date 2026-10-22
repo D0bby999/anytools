@@ -16,6 +16,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 // Languages are the interface languages, English first: the one every
@@ -98,7 +100,34 @@ func Translate(lang, msg string) string {
 	if l == nil || msg == "" {
 		return msg
 	}
-	return l.translate(lang, msg, 0)
+	out := l.translate(lang, msg, 0)
+	if out != msg {
+		return out
+	}
+	// A sentence written lower-case where it is composed and capitalised on
+	// its way out (byok.UserMessage): matched lower-case, sent capitalised.
+	if low := lowerFirst(msg); low != msg {
+		if t := l.translate(lang, low, 0); t != low {
+			return upperFirst(t)
+		}
+	}
+	return msg
+}
+
+func lowerFirst(s string) string {
+	r, size := utf8.DecodeRuneInString(s)
+	if r == utf8.RuneError || !unicode.IsUpper(r) {
+		return s
+	}
+	return string(unicode.ToLower(r)) + s[size:]
+}
+
+func upperFirst(s string) string {
+	r, size := utf8.DecodeRuneInString(s)
+	if r == utf8.RuneError {
+		return s
+	}
+	return string(unicode.ToUpper(r)) + s[size:]
 }
 
 func (l *language) translate(lang, msg string, depth int) string {

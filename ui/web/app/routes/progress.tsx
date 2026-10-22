@@ -68,7 +68,15 @@ export default function ProgressPage({ loaderData, actionData }: Route.Component
 
   return (
     <div className="lp-doc">
-      <PageHeader title={t("title")} lede={t("lede")} />
+      <PageHeader
+        title={t("title")}
+        lede={t("lede")}
+        actions={
+          <Link to="/showcase" className={LINK}>
+            {t("showcase:fromProgress")}
+          </Link>
+        }
+      />
       <BookMeta
         label={t("facts")}
         items={[

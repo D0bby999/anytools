@@ -29,6 +29,8 @@ export async function action({ request, params }: Route.ActionArgs) {
           // rather than sent: a 400 is not something the learner can act on.
           variant: Number.isInteger(variant) ? Math.abs(variant) % EXPLANATION_VARIANTS : 0,
           refresh: form.get("refresh") === "true",
+          // "Explain in …": a code or "source"; the API checks it.
+          ...(form.get("lang") ? { lang: String(form.get("lang")).slice(0, 12) } : {}),
         }),
       };
     }

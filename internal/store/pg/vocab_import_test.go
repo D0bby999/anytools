@@ -13,12 +13,13 @@ import (
 // vocab_import_test.go is an Anki deck's words (the private design notes, phase 3) over the real VocabStore: each becomes a word to learn,
 // marked as imported, with a cloze card only when its sentence holds it;
 // duplicates and empty words are counted, not saved; and the words come up
-// twenty a day from the learner's tomorrow, the next batch carrying on where
+// twenty a day from the learner's today, the next batch carrying on where
 // the last left off. They are not the week's "five to eight".
 
 func TestVocabAnImportedDeckComesUpTwentyADay(t *testing.T) {
 	ctx, f := newVocabFixture(t)
-	// The learner's tomorrow starts 2026-09-28 (f.now is the 27th, UTC).
+	// The learner's today is 2026-09-27 (f.now, UTC): a first import is
+	// there to review on the day it is added.
 	f.save(t, ctx, "knowledge", ragSelection)
 
 	notes := []vocab.ImportNote{
@@ -34,7 +35,7 @@ func TestVocabAnImportedDeckComesUpTwentyADay(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Created != 2 || res.Duplicates != 2 || res.Invalid != 3 || res.FirstDay != "2026-09-28" || res.LastDay != "2026-09-28" {
+	if res.Created != 2 || res.Duplicates != 2 || res.Invalid != 3 || res.FirstDay != "2026-09-27" || res.LastDay != "2026-09-27" {
 		t.Fatalf("result = %+v", res)
 	}
 	list, err := f.svc.List(ctx, f.alice, vocab.Filter{Terms: []string{"equilibrium", "entropy"}})
@@ -53,16 +54,17 @@ func TestVocabAnImportedDeckComesUpTwentyADay(t *testing.T) {
 	if len(en.Cards) != 1 || en.Cards[0].Kind != vocab.KindRecognition || len(en.Contexts) != 0 {
 		t.Fatalf("entropy: a sentence without the term gives no cloze: %+v", en)
 	}
-	// Not due today; and not the week's deliberate choices.
+	// Due today with the word saved while reading; not the week's
+	// deliberate choices.
 	_, due, _ := f.svc.Due(ctx, f.alice, 0)
-	if due != 2 { // "knowledge"'s two cards only
-		t.Fatalf("%d due today, want only the word saved while reading", due)
+	if due != 5 { // "knowledge"'s two cards, equilibrium's two, entropy's one
+		t.Fatalf("%d due today, want the imported words with the word saved while reading", due)
 	}
 	if week, _ := f.svc.Week(ctx, f.alice); week.Learning != 1 {
 		t.Fatalf("week counts %d, want the one word chosen while reading", week.Learning)
 	}
 
-	// 45 more: 18 fill the 28th (2 there already), 20 the 29th, 7 the 30th.
+	// 45 more: 18 fill the 27th (2 there already), 20 the 28th, 7 the 29th.
 	more := make([]vocab.ImportNote, 45)
 	for i := range more {
 		more[i] = vocab.ImportNote{Term: fmt.Sprintf("word%02d", i), Meaning: "m"}
@@ -71,7 +73,7 @@ func TestVocabAnImportedDeckComesUpTwentyADay(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Created != 45 || res.FirstDay != "2026-09-28" || res.LastDay != "2026-09-30" {
+	if res.Created != 45 || res.FirstDay != "2026-09-27" || res.LastDay != "2026-09-29" {
 		t.Fatalf("second batch = %+v", res)
 	}
 	perDay := map[string]int{}
@@ -87,12 +89,12 @@ func TestVocabAnImportedDeckComesUpTwentyADay(t *testing.T) {
 		perDay[d.UTC().Format(time.DateOnly)]++
 	}
 	rows.Close()
-	if perDay["2026-09-28"] != 20 || perDay["2026-09-29"] != 20 || perDay["2026-09-30"] != 7 {
+	if perDay["2026-09-27"] != 20 || perDay["2026-09-28"] != 20 || perDay["2026-09-29"] != 7 {
 		t.Fatalf("per day = %v", perDay)
 	}
 
 	// Bob's import never meets Alice's words.
-	if res, err := f.svc.Import(ctx, f.bob, "en", []vocab.ImportNote{{Term: "equilibrium", Meaning: "m"}}); err != nil || res.Created != 1 || res.FirstDay != "2026-09-28" {
+	if res, err := f.svc.Import(ctx, f.bob, "en", []vocab.ImportNote{{Term: "equilibrium", Meaning: "m"}}); err != nil || res.Created != 1 || res.FirstDay != "2026-09-27" {
 		t.Fatalf("Bob's import = %+v, %v", res, err)
 	}
 
@@ -125,8 +127,8 @@ func TestVocabALibraryWordListIsPacedAfterAnAnkiDeck(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The deck's 30 fill the 28th and ten of the 29th: the list's words follow.
-	if res.Created != 2 || res.FirstDay != "2026-09-29" {
+	// The deck's 30 fill the 27th and ten of the 28th: the list's words follow.
+	if res.Created != 2 || res.FirstDay != "2026-09-28" {
 		t.Fatalf("result = %+v", res)
 	}
 	list, err := f.svc.List(ctx, f.alice, vocab.Filter{Terms: []string{"我"}})

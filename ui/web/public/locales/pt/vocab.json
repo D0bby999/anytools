@@ -69,6 +69,8 @@
     "none": "O modelo não encontrou palavras para salvar neste trecho.",
     "language": "Idioma",
     "save": "Salvar",
+    "learnIt": "Aprender esta palavra",
+    "otherWays": "Outras formas de guardar",
     "saved": "Salva",
     "added": "Uma frase foi adicionada",
     "failed": "Não foi possível encontrar palavras.",
@@ -145,7 +147,7 @@
       "sound": "Como soa: a sílaba tônica ou uma grafia fonética.",
       "collocation": "As palavras com que ela costuma aparecer.",
       "cue": "A situação que deveria trazê-la à mente.",
-      "learnRetest": "O novo teste é o calendário de revisão: dois cartões voltam a partir de amanhã.",
+      "learnRetest": "O reteste é o calendário de revisão: dois cartões, a partir de hoje. Qualquer um destes campos pode ficar vazio.",
       "owner": "Quem responde por este termo na sua situação."
     },
     "confidences": {
@@ -157,6 +159,7 @@
     "suggestion": "Significado sugerido",
     "suggestionHidden": "Escreva primeiro o seu significado candidato; a sugestão aparece depois.",
     "suggestionNote": "A sugestão de um modelo é uma candidata, não uma fonte.",
+    "inPassage": "No trecho: {{meaning}}",
     "impact": "Impacto na tarefa",
     "impactNone": "Não informado",
     "impacts": {
@@ -170,6 +173,7 @@
     "change": "Mudar a decisão",
     "cancel": "Cancelar",
     "savedAs": "Salva como {{decision}}.",
+    "savedToday": "Salva para aprender. Os dois cartões dela estão na revisão de hoje.",
     "already": "Você já decidiu sobre esta palavra: {{decision}}.",
     "changed": "Decisão alterada para {{decision}}.",
     "failed": "Essa decisão não foi salva."
@@ -432,5 +436,11 @@
     "foundSentences_other": "{{count}} frases encontradas.",
     "foundRecordings_one": "{{count}} gravação encontrada.",
     "foundRecordings_other": "{{count}} gravações encontradas."
+  },
+  "cardExample": {
+    "title": "Um exemplo de {{term}}",
+    "looking": "Procurando uma frase de exemplo…",
+    "keep": "Guardar esta frase",
+    "kept": "Guardada como a frase da palavra; o cartão de completar é feito com ela."
   }
 }

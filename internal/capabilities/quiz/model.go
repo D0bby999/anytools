@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/D0bby999/anytools/internal/capabilities/modeljson"
+	"github.com/D0bby999/anytools/internal/locale"
+	quizprompts "github.com/D0bby999/anytools/internal/prompts/quiz"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/tools"
 )
@@ -27,7 +29,7 @@ func askJSON(
 	resp, err := provider.Chat(ctx, runtime.ChatRequest{
 		Model: model,
 		Messages: []runtime.Message{
-			{Role: runtime.RoleSystem, Content: system},
+			{Role: runtime.RoleSystem, Content: system + languageRule(ctx, system)},
 			{Role: runtime.RoleUser, Content: user},
 		},
 	})
@@ -79,4 +81,15 @@ func chunkIndex(chunks []Chunk) map[string]Chunk {
 		idx[c.ID.String()] = c
 	}
 	return idx
+}
+
+// languageRule is the learner's language rule (locale.ExplainIn). A question
+// itself stays in its passages' language, which on a language the learner
+// studies is the reading they practise (owner, the private design notes): only its explanation and the feedback are in their own.
+func languageRule(ctx context.Context, system string) string {
+	rule := locale.ExplainIn(ctx)
+	if rule == "" || (system != quizprompts.Generate && system != quizprompts.Ideate) {
+		return rule
+	}
+	return rule + "\n- Write each question, its options and its expected answer in the language of the passages. Only the explanation follows the language above."
 }

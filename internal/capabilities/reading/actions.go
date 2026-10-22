@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/D0bby999/anytools/internal/connectors/youtube"
+	"github.com/D0bby999/anytools/internal/locale"
 	"github.com/D0bby999/anytools/internal/tools"
 )
 
@@ -112,6 +113,12 @@ type Request struct {
 	At           int
 	Window       string
 	AITranscript bool
+
+	// LearnerLang is the learner's own language (the interface's), for what
+	// is written for them rather than about the passage; PassageLang is the
+	// page's. Terms asks for a gloss when the two differ.
+	LearnerLang string
+	PassageLang string
 }
 
 // TranscriptMessage is what is STORED as the user's message for this turn.
@@ -161,7 +168,30 @@ func (r Request) Prompt() string {
 	if r.Page > 0 && id != "" {
 		id = fmt.Sprintf("%s#page-%d", id, r.Page)
 	}
-	return Instruction(r.Action) + "\n\n" + tools.Wrap(source, id, r.Selection)
+	return r.instruction() + "\n\n" + tools.Wrap(source, id, r.Selection)
+}
+
+// instruction is Instruction in the learner's language when it is known
+// (the private design notes, phase 4): a Vietnamese learner reading
+// English was explained English in English. The passage's own words stay as
+// they are; a quiz's questions stay in its language, which is the reading
+// being practised.
+func (r Request) instruction() string {
+	if r.LearnerLang == "" {
+		return Instruction(r.Action)
+	}
+	name := locale.EnglishName(r.LearnerLang)
+	switch r.Action {
+	case ActionTranslate:
+		return fmt.Sprintf("Translate the passage below into %s. Keep technical terms "+
+			"in the original alongside the translation where a learner would need them.", name)
+	case ActionQuiz:
+		return Instruction(r.Action) + fmt.Sprintf(" Write the questions and answers in the passage's language, "+
+			"and any explanation of an answer in %s.", name)
+	default:
+		return Instruction(r.Action) + fmt.Sprintf(" Write your answer in %s, quoting the passage's own words "+
+			"where they are what is being explained.", name)
+	}
 }
 
 // videoPrompt is Prompt for a video: the transcript window, enveloped, with
@@ -182,7 +212,7 @@ func (r Request) videoPrompt() string {
 	}
 	lead := fmt.Sprintf("The reader is watching a video at [%s]. The material below is the transcript of the "+
 		"minute either side of that moment, one [MM:SS] line per caption.", clock)
-	return lead + " " + Instruction(r.Action) + "\n\n" +
+	return lead + " " + r.instruction() + "\n\n" +
 		tools.Wrap(source, fmt.Sprintf("%s#t=%d", r.DocumentID, r.At), body)
 }
 

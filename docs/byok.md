@@ -18,7 +18,9 @@ AnyTools has no AI credential of its own, and no platform key for search either.
 | Speech | `tts` | Speaks audio overviews in two voices. Optional: the server's built-in voices (when it runs them) or your browser can speak a script with no key. Served by an **OpenAI API key** (`tts-1` by default; `tts-1-hd` or `gpt-4o-mini-tts` by name) or **your own OpenAI-compatible speech server**, such as your own Kokoro (name its model, e.g. `kokoro`; its base URL passes the same private-address check as every endpoint). Gemini no longer speaks: its old Speech routes were removed. Verify speaks one short sentence. |
 | Speech to text | `stt` | Transcribes a video without captions, an uploaded audio or video file, or a podcast episode, and a question spoken into chat's mic where the browser cannot recognise speech itself (up to 30 seconds, not kept). Optional: the server's built-in Whisper (when it runs one, within the daily minutes) needs no key, and a subtitle file or a pasted transcript always works. Served by **Groq** (`whisper-large-v3-turbo` by default; the Groq preset under Add a key, whose free tier is on your own Groq account), **OpenAI** (`whisper-1`, the one OpenAI model with segment times), **your own OpenAI-compatible Whisper server** (name its model), or **Gemini**, which reads a public YouTube URL or an uploaded file through its Files API instead of hearing audio here. An API key only, never a subscription lane. The page shows the cost or time before anything runs. |
 
-At a minimum, set up `chat`, `parse` and `embed`: Settings → Readiness marks those three as core. The others refuse with "no model is configured" until they are routed.
+At a minimum, set up `chat` and `embed`: Settings → Readiness marks those two as core, and Home ticks "Connect an AI account" only when both run. `parse` is optional: Markdown, Word, web pages and a PDF with a text layer are read on the server, and only a scanned PDF or a photo needs a model that reads images, which the Readiness row says. The chat-type functions refuse with "no model is configured" until they are routed; an optional one left empty reads "Not set", not "Blocked".
+
+**Quick setup.** A key that passes its check on the provider's page is offered for every task at once ("Use for every task", also on each connection, and "Fill the empty tasks" on Routes): one model for the chat-type functions and one embeddings model. It writes a one-entry chain for each function that has none, through the same `PUT /v1/byok/routes/{function}`, and never replaces a chain already set; speech is left alone (`quickSetup` in `ui/web/app/lib/byok.server.ts`).
 
 ## Connecting a key
 
@@ -53,11 +55,15 @@ Every provider can serve the chat-type functions: `chat`, `quiz`, `mastery`, `re
 | Groq | no | no | `openai/gpt-oss-120b` |
 | Z.AI (GLM) | no | no | `glm-5.3` |
 | 36 more OpenAI-compatible providers (below) | no | no | none: pick one from its list under Routes |
-| OpenAI-compatible endpoint | no | no | none: name one under Routes |
+| OpenAI-compatible endpoint | no | yes, name its model (Ollama: `nomic-embed-text`) | none: name one under Routes |
 
 The 36 added on 2026-10-21 from postclaw's catalog (9router's registry, MIT): Agnes AI, API.airforce, Atria Dawn, B.AI, Baidu Qianfan, Bazaarlink, Blackbox AI, BluesMinds, Cerebras, Chutes AI, Cohere, Dahl Inference, Featherless, Fireworks AI, Hyperbolic, Kilo Gateway, Kimchi, LLM7, MiniMax, Morph, Muse (Meta Model API), Nebius AI, NVIDIA NIM, Ollama Cloud, Perplexity, Poolside, SambaNova, SiliconFlow, Tencent Hunyuan, Together AI, Token Harbor, TokenRouter, Venice AI, Vercel AI Gateway, Xiaomi MiMo and YesScale. They carry no default model on purpose: model ids there change monthly and could not be checked without a key each, so you pick from the live list. Media-only providers and "coding plan" endpoints (whose terms tie the key to coding tools) are left out. The whole table is `internal/byok/catalog.go`; the database's provider list is pinned to it by a test.
 
 The defaults were current on 2026-09-26 (`internal/byok/models.go`, `internal/byok/catalog.go`). A model named on a route always wins, so when a default is retired, route the replacement. To index documents you need at least one connection that can embed.
+
+An OpenAI-compatible endpoint embeds through its `/embeddings` with no `dimensions` field (`embedClient` in `internal/byok/service.go`); its width is measured on verify, and a width AnyLearn cannot store (not in `embed.SupportedDims`, such as 2560 or 4096) fails the check with the supported widths named, before any knowledge base is pinned to it. It cannot `parse`: the PDF parser needs the Responses API's file input. On anytools.world its base URL must be public `https`; a server on your own computer works only on a self-hosted copy with `ANYTOOLS_BYOK_ALLOW_PRIVATE_ENDPOINTS=1`.
+
+A refusal names the provider and the task in words ("Anthropic cannot be used for indexing documents", `internal/byok/unsupported.go`), and every sentence `invalid(…)` returns is in the locale catalog: `internal/locale/catalog_test.go` reads them.
 
 ## Web search
 

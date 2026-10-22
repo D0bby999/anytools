@@ -6,8 +6,10 @@
     "kind": "Kind",
     "anyKind": "Any kind",
     "subject": "Field",
+    "teaches": "For learning",
+    "anyTeaches": "Any material",
     "anySubject": "Any field",
-    "language": "Language",
+    "language": "Written in",
     "myLanguages": "English, then my language",
     "allLanguages": "All languages, English first",
     "show": "Show",
@@ -96,7 +98,8 @@
     "bringFile": "Open the papers at the source, then upload one in Quiz → Exams → Upload a past paper.",
     "textbook": "Read it at its source, or download its PDF and upload the chapters you need to a knowledge base (a file of up to 50 MB and 400 pages).",
     "textbookNonCommercial": "Read it at its source, or download its PDF. Its licence allows only non-commercial use: upload the chapters you need to a knowledge base for your own study (a file of up to 50 MB and 400 pages).",
-    "enrol": "Free to take at its source, where you enrol; AnyLearn does not copy it."
+    "enrol": "Free to take at its source, where you enrol; AnyLearn does not copy it.",
+    "chooseLesson": "Free to reuse, one lesson at a time: open it, choose a lesson, then add its address to a knowledge base with Add a link."
   },
   "items": {
     "upWords": "English terms a programmer meets, by language (Python, Go, JavaScript and more): words only, to look up and save.",
@@ -105,7 +108,11 @@
     "thptName": "Vietnamese high school graduation exam papers",
     "thpt": "The Ministry of Education's reference and past papers, by subject.",
     "bodyName": "Body: exercise library",
-    "body": "Exercises by muscle and equipment, each with its steps, to use in your plan."
+    "body": "Exercises by muscle and equipment, each with its steps, to use in your plan.",
+    "voa": "News and stories in slower, simpler English, with audio, video and transcripts, at three levels.",
+    "wikibooksEsl": "An open book of English lessons for learners: grammar, vocabulary and everyday phrases.",
+    "storybooks": "Short illustrated stories at five levels, read aloud, with the same story in many other languages.",
+    "usaLearns": "A free English course with video lessons for everyday life and work, from beginner up."
   },
   "count_one": "{{count, number}} item",
   "count_other": "{{count, number}} items",
@@ -156,7 +163,7 @@
   "levelOption_other": "{{name}} ({{count}} words)",
   "addWords": "Add to my words",
   "addWordsOf": "Add to my words: {{name}}",
-  "wordsPace": "The words come up 20 new a day from tomorrow, after any you are already being given.",
+  "wordsPace": "The words come up 20 new a day from today, after any you are already being given.",
   "wordsAdded_one": "Added {{count}} word to your words.",
   "wordsAdded_other": "Added {{count}} words to your words.",
   "wordsNone": "No new words: you have them all.",

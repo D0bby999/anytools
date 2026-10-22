@@ -75,6 +75,9 @@ type Handler struct {
 	// nil reads it as off.
 	ownVersion  OwnVersionSetting
 	connections ChatConnections
+	// "Save mistakes to review" (corrections.go); nil turns it off.
+	correctionModels runtime.ChatProviderResolver
+	corrections      CorrectionSaver
 }
 
 // OwnVersionSetting reads "write your own version first" (up-methods phase
@@ -129,6 +132,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /v1/chat/sessions/{id}/feedback", h.listFeedback)
 	mux.HandleFunc("PUT /v1/chat/messages/{id}/feedback", h.putFeedback)       // budget: none
 	mux.HandleFunc("DELETE /v1/chat/messages/{id}/feedback", h.deleteFeedback) // budget: none
+	// the private design notes, phase 3: a correction becomes a card.
+	mux.HandleFunc("POST /v1/chat/messages/{id}/corrections", h.findCorrections)      // budget: generate
+	mux.HandleFunc("POST /v1/chat/messages/{id}/corrections/save", h.saveCorrections) // budget: none
 }
 
 // Patterns lists what RegisterRoutes registers, for api.RegisteredPatterns().
@@ -148,6 +154,8 @@ func Patterns() []string {
 		"GET /v1/chat/sessions/{id}/feedback",
 		"PUT /v1/chat/messages/{id}/feedback",
 		"DELETE /v1/chat/messages/{id}/feedback",
+		"POST /v1/chat/messages/{id}/corrections",
+		"POST /v1/chat/messages/{id}/corrections/save",
 	}
 }
 

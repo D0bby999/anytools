@@ -136,7 +136,11 @@
     "archiveConfirm": "¿Archivar esta ruta? Su historial se conserva, pero deja de aparecer en tu lista de pendientes.",
     "practise": "Practicar estos",
     "explained": "Explicado ✓",
-    "explainGate": "Los puntos de concepto y de diseño necesitan una explicación con tus propias palabras antes de completar su módulo."
+    "explainGate": "Los puntos de concepto y de diseño necesitan una explicación con tus propias palabras antes de completar su módulo.",
+    "outsideTitle": "No está en tus documentos",
+    "outsideHint": "Tus documentos apenas tratan estos puntos, así que sus lecciones se apoyarían en el modelo y no en tu material. Borra una línea para quitarlo, o déjalo marcado.",
+    "outsideMark": "No está en tus documentos",
+    "coverageSkipped": "Estos puntos no se compararon con tus documentos: esta base no se pudo medir con tu modelo de embeddings actual."
   },
   "session": {
     "back": "Volver a la ruta",
@@ -177,6 +181,8 @@
     "label": "Aprender",
     "testMe": "Entendido, ponme a prueba",
     "differently": "Explícalo de otra forma",
+    "inSource": "Explicar en el idioma de los documentos",
+    "inLanguage": "Explicar en {{language}}",
     "writing": "Escribiendo una explicación…",
     "teachMe": "Enséñame esto",
     "stale": "Las fuentes cambiaron: un documento que se cita aquí se actualizó después de escribir la explicación.",
@@ -423,5 +429,12 @@
     "practice": "Práctica",
     "chooseAnswer": "Elige una respuesta.",
     "answerQuestionsCount": "Responde las {{count}} preguntas de hoy"
+  },
+  "explainLang": {
+    "label": "Explicar en",
+    "mine": "Mi idioma ({{language}})",
+    "source": "El idioma de los documentos",
+    "help": "El plan, las lecciones y los comentarios se escriben en este idioma. Los términos, citas y ejemplos de tus documentos se quedan como están.",
+    "saved": "Guardado. Las nuevas lecciones y comentarios lo usan."
   }
 }

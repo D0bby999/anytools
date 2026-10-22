@@ -28,6 +28,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/kbapi"
 	"github.com/D0bby999/anytools/internal/api/playlistapi"
 	"github.com/D0bby999/anytools/internal/api/pushapi"
+	"github.com/D0bby999/anytools/internal/api/showcaseapi"
 	"github.com/D0bby999/anytools/internal/api/sourceapi"
 	"github.com/D0bby999/anytools/internal/api/videonotesapi"
 	"github.com/D0bby999/anytools/internal/api/visualizeapi"
@@ -52,9 +53,11 @@ import (
 	"github.com/D0bby999/anytools/internal/progress"
 	"github.com/D0bby999/anytools/internal/rag/retrieve"
 	"github.com/D0bby999/anytools/internal/runtime"
+	"github.com/D0bby999/anytools/internal/showcase"
 	"github.com/D0bby999/anytools/internal/store/kbindex"
 	"github.com/D0bby999/anytools/internal/store/pg"
 	"github.com/D0bby999/anytools/internal/tools"
+	"github.com/D0bby999/anytools/internal/vocab"
 )
 
 // App is a fully wired AnyTools API, ready to serve.
@@ -200,13 +203,15 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 	profileHandler, startProfile := buildProfile(pool, newChatResolver(byokService))
 
 	progressHandler, circleHandler := buildProgress(pool, progressSvc)
+	showcaseHandler := showcaseapi.NewHandler(showcase.NewService(pg.NewShowcaseStore(pool), progressSvc))
 	handler := api.BuildMux(api.Deps{
 		Auth: authapi.NewHandler(identities, users).
 			WithAccountDeletion(buildAccount(pool, kb, driveConnector, cfg.Security.EncryptionKey)).
 			WithSessionRevocation(users).
 			WithTimezones(users).
 			WithLanguages(users).
-			WithOwnVersionFirst(users),
+			WithOwnVersionFirst(users).
+			WithStudyFocus(users),
 		BYOK:       byokapi.NewHandler(byokService),
 		Knowledge:  kb.handler,
 		Chat:       rt.handler,
@@ -236,6 +241,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 		Library:    buildLibrary(ctx, pool),
 		Progress:   progressHandler,
 		Circles:    circleHandler,
+		Showcase:   showcaseHandler,
 		Inbound:    buildInbound(cfg, pool, kb),
 		Workspace:  buildWorkspace(pool, kb, driveConnector, newChatResolver(byokService), pages),
 		Calendar:   calendarapi.NewHandler(studyCalendar),
@@ -416,7 +422,9 @@ func buildChatRuntime(
 		// own version first".
 		handler: chatapi.NewHandler(chatStore, turnStore, orch, owner).
 			WithOwnVersion(pg.NewUserStore(pool)).
-			WithChatConnections(chatStore),
+			WithChatConnections(chatStore).
+			WithCorrections(newChatResolver(byokService),
+				vocab.NewService(vocab.Config{Store: pg.NewVocabStore(pool), Zones: pg.NewUserStore(pool)})),
 		chatStore: chatStore,
 		orch:      orch,
 		notes:     noteWriter,

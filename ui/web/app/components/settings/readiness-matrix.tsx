@@ -12,7 +12,7 @@
  * is not a broken one.
  */
 import { useTranslation } from "react-i18next";
-import { entryNote, rowReason } from "~/lib/readiness-text";
+import { entryNote, isUnsetOptional, rowReason } from "~/lib/readiness-text";
 import { Badge } from "~/components/doc/badge";
 import { RefTable } from "~/components/doc/ref-table";
 import type { FunctionReadiness, ReadinessStatus } from "~/lib/byok.types";
@@ -36,10 +36,13 @@ export function StatusPill({ status, label }: { status: ReadinessStatus; label: 
 export function ReadinessMatrix({
   functions,
   optional = [],
+  onRoutesPage = false,
 }: {
   functions: FunctionReadiness[];
   /** Functions that may stay unrouted; their row says so (up-methods phase 21). */
   optional?: string[];
+  /** Rendered above the chains, so a missing route points at its Edit. */
+  onRoutesPage?: boolean;
 }) {
   const { t } = useTranslation("common");
 
@@ -54,7 +57,11 @@ export function ReadinessMatrix({
     <RefTable
       caption={t("settings.up.readiness")}
       columns={[t("settings.up.task"), t("settings.up.route"), t("settings.up.status")]}
-      rows={functions.map((row) => [
+      rows={functions.map((row) => {
+        // An optional task left empty is a choice, not a failure: neutral,
+        // never the red "Blocked" (the English walkthrough's Voice row).
+        const unset = isUnsetOptional(row, optional);
+        return [
         <>
           {t(`settings.functions.${row.function}` as never, { defaultValue: row.function })}
           {optional.includes(row.function) ? (
@@ -62,7 +69,7 @@ export function ReadinessMatrix({
           ) : null}
         </>,
         <>
-          {row.reason ? <p>{rowReason(t, row)}</p> : null}
+          {unset ? <p>{t("readinessText.optional_unset")}</p> : row.reason ? <p>{rowReason(t, row, onRoutesPage)}</p> : null}
           <ol>
             {row.entries.map((entry) => (
               <li key={`${entry.provider}:${entry.connection_id}`}>
@@ -72,8 +79,13 @@ export function ReadinessMatrix({
             ))}
           </ol>
         </>,
-        <StatusPill status={row.status} label={statusLabel(row.status)} />,
-      ])}
+        unset ? (
+          <Badge type="info">{t("settings.readiness.notSet")}</Badge>
+        ) : (
+          <StatusPill status={row.status} label={statusLabel(row.status)} />
+        ),
+        ];
+      })}
     />
   );
 }

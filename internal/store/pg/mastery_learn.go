@@ -95,7 +95,7 @@ func (s *MasteryStore) AwaitingExplainBack(ctx context.Context, userID, pathID u
 // makes the entry stale. The document ids come out of jsonb and are resolved
 // with the owner's id, as every id read from jsonb is.
 func (s *MasteryStore) Explanation(
-	ctx context.Context, userID, kpID uuid.UUID, model string, variant int,
+	ctx context.Context, userID, kpID uuid.UUID, model string, variant int, lang string,
 ) (*mastery.Explanation, error) {
 	var (
 		e       mastery.Explanation
@@ -108,8 +108,8 @@ func (s *MasteryStore) Explanation(
 		             LEFT JOIN documents d ON d.id = v.document_id AND d.user_id = x.user_id
 		            WHERE d.id IS NULL OR d.version <> v.version)
 		  FROM kp_explanations x
-		 WHERE x.user_id = $1 AND x.kp_id = $2 AND x.model = $3 AND x.variant = $4`,
-		userID, kpID, model, variant).
+		 WHERE x.user_id = $1 AND x.kp_id = $2 AND x.model = $3 AND x.variant = $4 AND x.lang = $5`,
+		userID, kpID, model, variant, lang).
 		Scan(&e.ID, &e.UserID, &e.KnowledgePointID, &e.Model, &e.Variant, &e.BodyMD, &sources, &e.CreatedAt, &e.Stale)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, mastery.ErrNotFound
@@ -141,13 +141,13 @@ func (s *MasteryStore) SaveExplanation(
 	}
 	out := e
 	err = s.pool.QueryRow(ctx, `
-		INSERT INTO kp_explanations (user_id, kp_id, model, variant, body_md, sources, source_versions)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		ON CONFLICT (user_id, kp_id, model, variant) DO UPDATE
+		INSERT INTO kp_explanations (user_id, kp_id, model, variant, body_md, sources, source_versions, lang)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		ON CONFLICT (user_id, kp_id, model, variant, lang) DO UPDATE
 		   SET body_md = EXCLUDED.body_md, sources = EXCLUDED.sources,
 		       source_versions = EXCLUDED.source_versions, created_at = now()
 		RETURNING id, created_at`,
-		e.UserID, e.KnowledgePointID, e.Model, e.Variant, e.BodyMD, sources, vers).
+		e.UserID, e.KnowledgePointID, e.Model, e.Variant, e.BodyMD, sources, vers, e.Lang).
 		Scan(&out.ID, &out.CreatedAt)
 	if isForeignKeyViolation(err) {
 		// The point went (its path was re-planned or deleted) while the model

@@ -41,6 +41,7 @@ func filterOf(r *http.Request) library.Filter {
 		Kind:        q.Get("kind"),
 		Subject:     q.Get("subject"),
 		Lang:        q.Get("lang"),
+		Teaches:     q.Get("teaches"),
 		UI:          q.Get("ui"),
 		Q:           q.Get("q"),
 		Sort:        q.Get("sort"),

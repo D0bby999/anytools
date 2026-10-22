@@ -7,6 +7,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+
+	"github.com/D0bby999/anytools/internal/locale"
 )
 
 type contextKey struct{ name string }
@@ -39,16 +41,13 @@ func MustUserID(ctx context.Context) uuid.UUID {
 	return id
 }
 
-var languageKey = contextKey{"anytools.language"}
-
 // WithLanguage attaches the learner's interface language (users.language).
-// RequireUser sets it beside the user id; Localize reads it.
+// RequireUser sets it beside the user id; Localize reads it, and so do the
+// prompts, through locale.FromContext (the key is locale's, so a capability
+// need not import this package).
 func WithLanguage(ctx context.Context, lang string) context.Context {
-	return context.WithValue(ctx, languageKey, lang)
+	return locale.WithLanguage(ctx, lang)
 }
 
 // Language is the learner's interface language, "" before RequireUser.
-func Language(ctx context.Context) string {
-	lang, _ := ctx.Value(languageKey).(string)
-	return lang
-}
+func Language(ctx context.Context) string { return locale.FromContext(ctx) }

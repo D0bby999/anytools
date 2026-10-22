@@ -69,6 +69,8 @@
     "none": "El modelo no encontró palabras que guardar en este pasaje.",
     "language": "Idioma",
     "save": "Guardar",
+    "learnIt": "Aprender esta palabra",
+    "otherWays": "Otras formas de guardarla",
     "saved": "Guardada",
     "added": "Se añadió una frase",
     "failed": "No se encontraron palabras.",
@@ -145,7 +147,7 @@
       "sound": "Cómo suena: el acento o una transcripción.",
       "collocation": "Las palabras con las que suele ir.",
       "cue": "La situación que debería traértela a la mente.",
-      "learnRetest": "La reevaluación es el calendario de repaso: dos tarjetas vuelven desde mañana.",
+      "learnRetest": "La nueva prueba es el calendario de repaso: dos tarjetas, desde hoy. Cualquiera de estos campos puede quedar vacío.",
       "owner": "Quién responde de este término en tu situación."
     },
     "confidences": {
@@ -157,6 +159,7 @@
     "suggestion": "Significado sugerido",
     "suggestionHidden": "Escribe primero tu significado candidato; la sugerencia aparece después.",
     "suggestionNote": "La sugerencia de un modelo es una candidata, no una fuente.",
+    "inPassage": "En el pasaje: {{meaning}}",
     "impact": "Impacto en la tarea",
     "impactNone": "Sin indicar",
     "impacts": {
@@ -170,6 +173,7 @@
     "change": "Cambiar la decisión",
     "cancel": "Cancelar",
     "savedAs": "Guardada como {{decision}}.",
+    "savedToday": "Guardada para aprender. Sus dos tarjetas están en el repaso de hoy.",
     "already": "Ya decidiste sobre esta palabra: {{decision}}.",
     "changed": "Decisión cambiada a {{decision}}.",
     "failed": "Esa decisión no se guardó."
@@ -432,5 +436,11 @@
     "foundSentences_other": "{{count}} frases encontradas.",
     "foundRecordings_one": "{{count}} grabación encontrada.",
     "foundRecordings_other": "{{count}} grabaciones encontradas."
+  },
+  "cardExample": {
+    "title": "Un ejemplo de {{term}}",
+    "looking": "Buscando una frase de ejemplo…",
+    "keep": "Guardar esta frase",
+    "kept": "Guardada como la frase de la palabra; su tarjeta de completar se hace con ella."
   }
 }

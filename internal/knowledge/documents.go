@@ -192,8 +192,9 @@ type Document struct {
 	Error      string    `json:"error,omitempty"`
 	// ErrorCode names a failure the page answers with an action of its own:
 	// a parse that could not read the original from the learner's Drive
-	// (drive_reconnect, drive_file_removed, drive_full). Derived from Error
-	// on read, never stored (drive-user-storage phase 4).
+	// (drive_reconnect, drive_file_removed, drive_full), or no route to index
+	// it with (no_embed_route). Derived from Error on read, never stored
+	// (drive-user-storage phase 4).
 	ErrorCode string `json:"error_code,omitempty"`
 	// ProcessedBy is raw JSON here rather than the struct because the store
 	// round-trips it and an unknown field written by a later phase must survive
@@ -304,3 +305,8 @@ type TranscribeJobPayload struct {
 type ReindexJobPayload struct {
 	KBID uuid.UUID `json:"kb_id"`
 }
+
+// NoEmbedRouteReason is the failure stored when a document reached indexing
+// with no embed route. The store reads it back as error_code no_embed_route,
+// which the page answers with a link to the route.
+const NoEmbedRouteReason = "no embedding model is configured — add one in Settings, then retry"

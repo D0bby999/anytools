@@ -127,6 +127,7 @@ var RouteClasses = []RouteClass{
 			"POST /v1/chat/sessions/{id}/turns",
 			"POST /v1/reading/{id}/actions",
 			"POST /v1/reading/{id}/terms",
+			"POST /v1/chat/messages/{id}/corrections",
 			"POST /v1/quiz/generate",
 			"POST /v1/mastery/paths",
 			"POST /v1/mastery/paths/{id}/propose",
@@ -202,8 +203,8 @@ var RouteClasses = []RouteClass{
 		},
 	},
 	{
-		// Study circles (the private design notes): what
-		// reaches other people. Guessing invite codes, making circles and
+		// Study circles (the private design notes) and the
+		// public profile: what reaches other people. Guessing invite codes, making circles and
 		// cheering are kept to a person's pace.
 		Name: "social", RPM: 20, Burst: 10,
 		Patterns: []string{
@@ -211,6 +212,9 @@ var RouteClasses = []RouteClass{
 			"POST /v1/circles/join",
 			"POST /v1/circles/{id}/invite",
 			"POST /v1/circles/{id}/cheers",
+			// A public profile: what others read, and the handle a learner
+			// tries is told taken or not (the private design notes).
+			"PUT /v1/showcase",
 		},
 	},
 }

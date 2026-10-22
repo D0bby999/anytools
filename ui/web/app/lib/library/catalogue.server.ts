@@ -17,6 +17,7 @@ import mitOcw from "~/data/library/mit-ocw.json";
 import mitxOnline from "~/data/library/mitx-online.json";
 import awesome from "~/data/library/awesome.json";
 import type { LibraryItem, LibraryLevel } from "~/lib/library/types";
+import { teachesOf } from "~/lib/library/teaches";
 
 /**
  * A textbook is opened, its PDF downloaded by the learner; one whose licence
@@ -26,6 +27,71 @@ const textbookWhy = (licence: string) => (licence.includes("nc") ? "textbookNonC
 
 /** Material AnyLearn may not copy: listed, opened at its source. */
 const LINK_ONLY: LibraryItem[] = [
+  // For people learning English (the private design notes, phase 6).
+  // Each licence read at its source on 2026-10-22.
+  {
+    id: "voa-learning-english",
+    kind: "course",
+    subject: "languages",
+    language: "en",
+    teaches: "en",
+    name: "VOA Learning English",
+    aboutKey: "library:items.voa",
+    video: true,
+    level: "beginner",
+    // "Learning English texts, MP3s, photos and videos are in the public
+    // domain", with credit; agency stories (AP, Reuters, AFP) are not.
+    licence: "public-domain",
+    creditText: "Voice of America, learningenglish.voanews.com (public domain; stories from AP, Reuters and AFP excluded)",
+    source: { name: "VOA Learning English", url: "https://learningenglish.voanews.com" },
+    url: "https://learningenglish.voanews.com",
+    action: { type: "open", why: "chooseLesson" },
+  },
+  {
+    id: "wikibooks-esl",
+    kind: "book",
+    subject: "languages",
+    language: "en",
+    teaches: "en",
+    name: "English as a Second Language (Wikibooks)",
+    aboutKey: "library:items.wikibooksEsl",
+    licence: "cc-by-sa",
+    creditText: "Wikibooks contributors, CC BY-SA",
+    source: { name: "Wikibooks", url: "https://en.wikibooks.org" },
+    url: "https://en.wikibooks.org/wiki/English_as_a_Second_Language",
+    action: { type: "link", url: "https://en.wikibooks.org/wiki/English_as_a_Second_Language" },
+  },
+  {
+    id: "english-storybooks",
+    kind: "book",
+    subject: "languages",
+    language: "en",
+    teaches: "en",
+    name: "Global Storybooks: English",
+    aboutKey: "library:items.storybooks",
+    level: "beginner",
+    // Each story is CC BY or CC BY-NC (global-asp/asp-source): read as the
+    // narrower, so nothing is copied.
+    licence: "cc-by-nc",
+    source: { name: "Global Storybooks", url: "https://globalstorybooks.net" },
+    url: "https://englishstorybooks.org",
+    action: { type: "open", why: "nonCommercial" },
+  },
+  {
+    id: "usa-learns",
+    kind: "course",
+    subject: "languages",
+    language: "en",
+    teaches: "en",
+    name: "USA Learns",
+    aboutKey: "library:items.usaLearns",
+    video: true,
+    level: "beginner",
+    licence: "free-access",
+    source: { name: "USA Learns", url: "https://www.usalearns.org" },
+    url: "https://www.usalearns.org",
+    action: { type: "open", why: "enrol" },
+  },
   {
     id: "up-word-lists",
     kind: "words",
@@ -374,7 +440,10 @@ export function catalogue() {
     ...awesomeItems(),
     ...gutenbergItems(),
     ...fpbItems(),
-  ];
+  ].map((i) => {
+    const teaches = teachesOf(i);
+    return teaches ? { ...i, teaches } : i;
+  });
   const byId = new Map(items.map((i) => [i.id, i]));
   if (byId.size !== items.length) throw new Error("library: two items share an id");
   built = { items, byId };

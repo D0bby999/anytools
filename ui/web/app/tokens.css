@@ -206,6 +206,7 @@
 
   /* ── Layout. Read surfaces hold the measure; Operate surfaces widen. ── */
   --lp-layout-max: 1480px; /* up's --vp-layout-max-width */
+  --lp-site-max: 1280px; /* the public site (lp-layout): its spacing and plates were set at this width */
   --lp-measure-read: 780px; /* from up */
   --lp-measure-form: 28rem;
   --lp-rail-w: 17rem; /* --vp-sidebar-width, 272 */

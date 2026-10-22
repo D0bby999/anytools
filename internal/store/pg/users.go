@@ -35,7 +35,7 @@ func NewUserStore(pool *Pool) *UserStore { return &UserStore{pool: pool} }
 
 var _ store.UserStore = (*UserStore)(nil)
 
-const userColumns = `id, email, email_verified_at, display_name, created_at, deleted_at, timezone, timezone_set_at, own_version_first, file_storage, language, language_set_at`
+const userColumns = `id, email, email_verified_at, display_name, created_at, deleted_at, timezone, timezone_set_at, own_version_first, file_storage, language, language_set_at, study_focus`
 
 // UpsertIdentity applies AnyTools' account-linking policy inside one
 // transaction. The policy, in order:
@@ -333,6 +333,20 @@ func (s *UserStore) Timezone(ctx context.Context, id uuid.UUID) (string, error) 
 	return zone, nil
 }
 
+// SetStudyFocus stores what the learner came to learn; an empty list records
+// that they skipped the question.
+func (s *UserStore) SetStudyFocus(ctx context.Context, id uuid.UUID, focus []string) error {
+	if focus == nil {
+		focus = []string{}
+	}
+	if _, err := s.pool.Exec(ctx, `
+		UPDATE users SET study_focus = $2, updated_at = now()
+		 WHERE id = $1 AND deleted_at IS NULL`, id, focus); err != nil {
+		return fmt.Errorf("set study focus: %w", err)
+	}
+	return nil
+}
+
 // SetOwnVersionFirst turns "write your own version first" on or off.
 func (s *UserStore) SetOwnVersionFirst(ctx context.Context, id uuid.UUID, on bool) error {
 	if _, err := s.pool.Exec(ctx, `
@@ -382,7 +396,7 @@ func getUser(ctx context.Context, q rowQuerier, id uuid.UUID) (*store.User, erro
 	err := q.QueryRow(ctx,
 		`SELECT `+userColumns+` FROM users WHERE id = $1 AND deleted_at IS NULL`, id,
 	).Scan(&u.ID, &u.Email, &u.EmailVerifiedAt, &u.DisplayName, &u.CreatedAt, &u.DeletedAt,
-		&u.Timezone, &u.TimezoneSetAt, &u.OwnVersionFirst, &u.FileStorage, &u.Language, &u.LanguageSetAt)
+		&u.Timezone, &u.TimezoneSetAt, &u.OwnVersionFirst, &u.FileStorage, &u.Language, &u.LanguageSetAt, &u.StudyFocus)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, store.ErrUserNotFound
 	}

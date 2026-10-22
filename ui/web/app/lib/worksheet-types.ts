@@ -91,6 +91,8 @@ export type WorksheetKind = {
   row_reviews?: { section: string; field: string; row: string; review: string }[];
   version: number;
   sections: WorksheetSection[];
+  /** The quick version's fields (internal/learning/worksheet/quick.go); absent on a short kind. */
+  quick?: { section: string; field: string; today?: boolean }[];
 };
 
 /** A table value: fixed rows carry their row key, free rows "". */

@@ -15,6 +15,7 @@ import (
 	"github.com/D0bby999/anytools/internal/capabilities/quiz"
 	"github.com/D0bby999/anytools/internal/citations"
 	"github.com/D0bby999/anytools/internal/learning"
+	"github.com/D0bby999/anytools/internal/locale"
 	masteryprompts "github.com/D0bby999/anytools/internal/prompts/mastery"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/tools"
@@ -98,6 +99,9 @@ type Explanation struct {
 	Stale     bool      `json:"stale"`
 	Cached    bool      `json:"cached"`
 	CreatedAt time.Time `json:"created_at"`
+	// Lang is the language it was written for, "" when it followed the
+	// documents; part of the cache key.
+	Lang string `json:"lang"`
 }
 
 // DocVersion is one cited document's version when an explanation was written.
@@ -173,7 +177,7 @@ type LearnStore interface {
 
 	// Explanation reads a cached explanation; ErrNotFound when there is none.
 	// Stale is computed against the cited documents' current versions.
-	Explanation(ctx context.Context, userID, kpID uuid.UUID, model string, variant int) (*Explanation, error)
+	Explanation(ctx context.Context, userID, kpID uuid.UUID, model string, variant int, lang string) (*Explanation, error)
 	// SaveExplanation writes (or rewrites) one variant with the versions of
 	// the documents it cites.
 	SaveExplanation(ctx context.Context, e Explanation, versions []DocVersion) (*Explanation, error)
@@ -245,6 +249,9 @@ type LearnRequest struct {
 	// Refresh rewrites a cached explanation from the current sources. The
 	// learn card offers it when the cache is stale.
 	Refresh bool `json:"refresh,omitempty"`
+	// Lang asks for this one explanation in another language than the
+	// path's ("Explain in English"): a code, or "source".
+	Lang string `json:"lang,omitempty"`
 }
 
 // Learn returns the cached explanation for a point, or writes it.
@@ -271,6 +278,13 @@ func (s *Service) Learn(ctx context.Context, userID, kpID uuid.UUID, req LearnRe
 	if err != nil {
 		return nil, err
 	}
+	if req.Lang != "" && !ValidExplainLang(req.Lang) {
+		return nil, fmt.Errorf("%w: that is not a language code", ErrBadRequest)
+	}
+	ctx = inLanguage(ctx, path.ExplainLang)
+	if req.Lang != "" {
+		ctx = inLanguage(ctx, req.Lang)
+	}
 
 	provider, err := s.providers.ChatFor(ctx, userID, functionMastery)
 	if err != nil {
@@ -278,7 +292,7 @@ func (s *Service) Learn(ctx context.Context, userID, kpID uuid.UUID, req LearnRe
 	}
 	model := provider.DefaultModel()
 
-	cached, err := s.store.Explanation(ctx, userID, kpID, model, variant)
+	cached, err := s.store.Explanation(ctx, userID, kpID, model, variant, locale.FromContext(ctx))
 	switch {
 	case err == nil && (!cached.Stale || !req.Refresh):
 		return s.served(ctx, userID, cached)
@@ -356,7 +370,7 @@ func (s *Service) teach(
 
 	saved, err := s.store.SaveExplanation(ctx, Explanation{
 		UserID: userID, KnowledgePointID: point.ID, Model: model, Variant: variant,
-		BodyMD: strings.TrimSpace(res.Text), Sources: res.Sources,
+		BodyMD: strings.TrimSpace(res.Text), Sources: res.Sources, Lang: locale.FromContext(ctx),
 	}, versions)
 	if err != nil {
 		return nil, err
@@ -421,6 +435,7 @@ func (s *Service) ExplainBack(
 	if err != nil {
 		return nil, err
 	}
+	ctx = inLanguage(ctx, path.ExplainLang)
 
 	// Reserve BEFORE the model call. A double-submit then finds the row and
 	// waits for the first verdict instead of paying for a second one.
@@ -673,12 +688,13 @@ func chunkSources(chunks []quiz.Chunk) []citations.Source {
 
 // askModelJSON makes one non-streaming call and decodes the JSON reply. A
 // reply with no readable JSON is ErrBadExplanation; a provider failure is
-// runtime.ErrProvider.
+// runtime.ErrProvider. The learner's language rule (locale.ExplainIn) ends
+// the system prompt.
 func askModelJSON(ctx context.Context, provider runtime.ChatProvider, model, system, user string, out any) error {
 	resp, err := provider.Chat(ctx, runtime.ChatRequest{
 		Model: model,
 		Messages: []runtime.Message{
-			{Role: runtime.RoleSystem, Content: system},
+			{Role: runtime.RoleSystem, Content: system + locale.ExplainIn(ctx)},
 			{Role: runtime.RoleUser, Content: user},
 		},
 	})

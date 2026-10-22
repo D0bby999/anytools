@@ -1,0 +1,140 @@
+{
+  "title": "Perfil público",
+  "lede": "Uma página sua para mostrar como você estuda: o que o AnyLearn contou, que você não pode editar, e algumas palavras suas. Você escolhe o que entra nela e quem recebe o link.",
+  "fromProgress": "Mostrar no seu perfil público",
+  "open": "Abrir minha página",
+  "newTab": "(abre em uma nova aba)",
+  "tab": "Perfil de estudo",
+  "since": "estuda no AnyLearn desde {{date}}",
+  "counted": "Os números aqui são contados pelo AnyLearn a partir do estudo registrado nele, até {{date}}. {{name}} não pode editá-los.",
+  "theirWords": "Nas palavras de {{name}}.",
+  "theirLinks": "Links que {{name}} adicionou.",
+  "footer": {
+    "made": "Esta página foi feita com o AnyLearn, que conta os dias de estudo a partir do estudo real.",
+    "start": "Aprenda com o AnyLearn"
+  },
+  "blocks": {
+    "summary": {
+      "title": "Num relance",
+      "about": "Dias de estudo, a sequência, as semanas seguidas com a meta cumprida e o nível."
+    },
+    "calendar": {
+      "title": "Um ano de estudo",
+      "about": "Cada dia estudado no último ano, mais escuro quanto mais se estudou."
+    },
+    "milestones": {
+      "title": "Marcos",
+      "about": "Cada marco alcançado, com o dia em que foi alcançado."
+    },
+    "outcomes": {
+      "title": "O que o estudo rendeu",
+      "about": "Cartões na memória de longo prazo, pontos de conhecimento dominados, explicações aprovadas, perguntas respondidas e treinos."
+    },
+    "about": {
+      "title": "Sobre mim"
+    },
+    "links": {
+      "title": "Links"
+    }
+  },
+  "summary": {
+    "days_one": "dia de estudo",
+    "days_other": "dias de estudo",
+    "streak_one": "dia na sequência atual",
+    "streak_other": "dias na sequência atual",
+    "longest_one": "A mais longa: {{count, number}} dia",
+    "longest_other": "A mais longa: {{count, number}} dias",
+    "weeks_one": "semana seguida cumprindo uma meta de {{goal, number}} dias de estudo",
+    "weeks_other": "semanas seguidas cumprindo uma meta de {{goal, number}} dias de estudo",
+    "longestWeeks_one": "A mais longa: {{count, number}} semana",
+    "longestWeeks_other": "A mais longa: {{count, number}} semanas",
+    "level": "nível atual",
+    "levelHow": "Conquistado com dias de estudo; nunca diminui."
+  },
+  "milestones": {
+    "none": "Nenhum ainda."
+  },
+  "outcomes": {
+    "longTerm": "Cartões na memória de longo prazo",
+    "mastered": "Pontos de conhecimento dominados",
+    "explains": "Explicações aprovadas",
+    "answered": "Perguntas respondidas",
+    "workouts": "Treinos concluídos"
+  },
+  "accents": {
+    "reflect": "Floresta",
+    "read": "Verde-azulado",
+    "ask": "Tijolo",
+    "practise": "Ameixa",
+    "tools": "Ardósia"
+  },
+  "share": {
+    "title": "Sua página está pública",
+    "draft": "Sua página é um rascunho",
+    "draftNote": "Só você pode vê-la. Marque 'Pública' e salve para compartilhá-la.",
+    "copy": "Copiar link",
+    "copied": "Link copiado."
+  },
+  "editor": {
+    "you": "Você",
+    "handle": "Endereço",
+    "handleNote": "De 3 a 30 caracteres: letras de a a z, dígitos e hifens simples. Se você mudar depois, o link antigo deixa de funcionar.",
+    "name": "Nome exibido",
+    "namePlaceholder": "Seu nome",
+    "headline": "Título",
+    "headlinePlaceholder": "Por exemplo: aprendendo espanhol e análise de dados",
+    "published": "Pública: qualquer pessoa com o link pode vê-la",
+    "publishedNote": "Desmarque e salve para ocultá-la de novo.",
+    "indexed": "Deixar que o Google e outros buscadores a mostrem",
+    "indexedNote": "Enquanto a página estiver pública, dá para encontrá-la buscando seu nome. Desmarque para compartilhá-la só pelo link; os buscadores podem demorar para tirar uma página que já mostram.",
+    "look": "Aparência",
+    "accent": "Cor de destaque",
+    "blocks": "Blocos, em ordem",
+    "blocksNote": "Os blocos contados pelo AnyLearn mostram só o que foi registrado; os seus mostram o que você escreve.",
+    "noBlocks": "Sem blocos: a página mostra só seu nome e seu título.",
+    "counted": "contado pelo AnyLearn",
+    "yours": "suas palavras",
+    "up": "Mover {{block}} para cima",
+    "down": "Mover {{block}} para baixo",
+    "remove": "Remover {{block}}",
+    "add": "Adicionar um bloco",
+    "pick": "Escolha um bloco",
+    "addButton": "Adicionar",
+    "aboutTitle": "Título (opcional)",
+    "aboutBody": "Texto",
+    "linkN": "Link {{n}}",
+    "linkLabel": "Rótulo",
+    "linkURL": "Endereço (https)",
+    "removeLink": "Remover o link {{n}}",
+    "addLink": "Adicionar um link",
+    "linksNote": "Os links abrem em uma nova aba e aparecem como seus.",
+    "save": "Salvar",
+    "failed": "Não foi salvo: {{detail}}",
+    "savedPublished": "Salvo. Sua página está pública.",
+    "savedDraft": "Salvo como rascunho. Só você pode vê-la.",
+    "deleted": "Página excluída. O endereço dela está livre.",
+    "preview": "Pré-visualização",
+    "previewNote": "Como um visitante vai vê-la, com seus números de agora.",
+    "unreadable": "não foi possível ler o design da página",
+    "dropped_one": "{{count, number}} bloco da sua página não pôde ser lido por esta versão do AnyLearn e ficou de fora. Ao salvar, a página fica sem ele.",
+    "dropped_other": "{{count, number}} blocos da sua página não puderam ser lidos por esta versão do AnyLearn e ficaram de fora. Ao salvar, a página fica sem eles.",
+    "droppedAll": "Esta versão do AnyLearn não conseguiu ler o design da sua página, então ela não mostra blocos. Ao salvar, a página fica como aparece aqui.",
+    "moved": "{{block}} foi para a posição {{n, number}} de {{total, number}}.",
+    "removed": "{{block}} foi removido.",
+    "added": "{{block}} foi adicionado no fim."
+  },
+  "seo": {
+    "description": "O perfil de estudo de {{name}} no AnyLearn: dias de estudo, sequência e marcos contados a partir do estudo real."
+  },
+  "missing": {
+    "title": "Não há um perfil público aqui",
+    "lede": "Não há nenhum perfil público neste endereço, ou o dono ainda não o tornou público.",
+    "busyTitle": "Pedidos demais",
+    "busy": "Espere um minuto e tente de novo."
+  },
+  "delete": {
+    "title": "Excluir a página",
+    "note": "A página e o endereço somem. Seu estudo e os números ficam.",
+    "button": "Excluir minha página pública"
+  }
+}

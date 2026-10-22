@@ -82,6 +82,9 @@ describe("the word picker's five decisions", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "Find words to save" }));
     await screen.findByText("equilibrium");
+    // the private design notes, phase 3: one click learns it; the
+    // five decisions are one more.
+    await userEvent.click(screen.getByRole("button", { name: "Other ways to keep it" }));
 
     const radios = screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value);
     expect(radios).toEqual(["skip", "infer", "lookup", "learn", "verify"]);
@@ -93,13 +96,17 @@ describe("the word picker's five decisions", () => {
     const records: Record<string, string[]> = {
       Skip: ["Why it can wait"],
       "Quick lookup": ["Source of the current sense", "Current sense"],
-      "Learn deliberately": ["Sound", "Collocation", "Retrieval cue", "Current sense"],
+      "Learn deliberately": ["Current sense"],
       "Verify professionally": ["Primary definition", "Scope", "Accountable owner"],
     };
     for (const [decision, fields] of Object.entries(records)) {
       await userEvent.click(screen.getByRole("radio", { name: new RegExp(`^${decision}`) }));
       for (const f of fields) expect(screen.getByLabelText(f)).toBeRequired();
     }
+    // A word to learn may leave its record empty (the owner, 2026-10-22);
+    // the model's proposal fills it.
+    await userEvent.click(screen.getByRole("radio", { name: /^Learn deliberately/ }));
+    for (const f of ["Sound", "Collocation", "Retrieval cue"]) expect(screen.getByLabelText(f)).not.toBeRequired();
     // Skip and verify show the suggestion once decided; it is a candidate.
     expect(screen.getByText("A balanced state.")).toBeInTheDocument();
 

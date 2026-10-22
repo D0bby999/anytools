@@ -122,6 +122,8 @@ func (s *Service) Next(ctx context.Context, userID, pathID uuid.UUID) (*NextQues
 func (s *Service) serve(ctx context.Context, userID uuid.UUID, path *Path, chosen learning.Candidate,
 	now time.Time, remaining int, explainBack bool,
 ) (*NextQuestion, error) {
+	// Its questions and lessons are written in the path's language.
+	ctx = inLanguage(ctx, path.ExplainLang)
 	point, module, err := s.store.KnowledgePoint(ctx, userID, chosen.KPID)
 	if err != nil {
 		return nil, err
@@ -207,6 +209,7 @@ func (s *Service) Diagnostic(ctx context.Context, userID, pathID uuid.UUID) ([]m
 	if err != nil {
 		return nil, err
 	}
+	ctx = inLanguage(ctx, path.ExplainLang)
 	detail, err := s.store.Detail(ctx, userID, pathID, s.now().UTC())
 	if err != nil {
 		return nil, err

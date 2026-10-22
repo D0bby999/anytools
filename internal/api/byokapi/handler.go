@@ -21,6 +21,7 @@ import (
 
 	"github.com/D0bby999/anytools/internal/api/httpx"
 	"github.com/D0bby999/anytools/internal/byok"
+	"github.com/D0bby999/anytools/internal/locale"
 	"github.com/D0bby999/anytools/internal/oauth"
 	"github.com/D0bby999/anytools/internal/store"
 )
@@ -245,9 +246,11 @@ func (h *Handler) verifyConnection(w http.ResponseWriter, r *http.Request) {
 	}
 	// A failed verify is a successful REQUEST: the user asked whether the key
 	// works and got a truthful answer. Returning 4xx here would make the BFF's
-	// error path swallow the message that says why.
+	// error path swallow the message that says why. `message` is not one of
+	// the fields httpx.Localize translates, so it is worded here.
 	httpx.WriteJSON(w, http.StatusOK, verifyResponse{
-		OK: result.OK, Model: result.Model, Dims: result.Dims, Message: result.Message,
+		OK: result.OK, Model: result.Model, Dims: result.Dims,
+		Message: locale.Translate(httpx.Language(r.Context()), result.Message),
 	})
 }
 
@@ -519,7 +522,7 @@ func (h *Handler) verifySearchConnection(w http.ResponseWriter, r *http.Request)
 		writeErr(w, err, "verify search connection")
 		return
 	}
-	httpx.WriteJSON(w, http.StatusOK, verifyResponse{OK: result.OK, Message: result.Message})
+	httpx.WriteJSON(w, http.StatusOK, verifyResponse{OK: result.OK, Message: locale.Translate(httpx.Language(r.Context()), result.Message)})
 }
 
 func (h *Handler) readiness(w http.ResponseWriter, r *http.Request) {

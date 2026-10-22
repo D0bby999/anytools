@@ -8,6 +8,7 @@ import {
   loadVoices,
   pickVoice,
   readPrefs,
+  sentenceLanguages,
   speak,
   speechSupported,
   splitSentences,
@@ -66,9 +67,15 @@ export function ReadAloudBar({ text, lang: givenLang, onClose }: { text: string;
       if (!voice) return;
       setFailure(null);
       setPlaying(true);
+      // With no language given (a chat answer), each sentence in another
+      // language gets its own voice; the menu chooses the passage's.
+      const langs = givenLang ? null : sentenceLanguages(splitSentences(text), lang);
+      const prefs = readPrefs();
+      const sentenceVoices = langs?.map((l) => (l === lang || !voices ? null : pickVoice(voices, l, prefs.voices[l])));
       reading.current = speak(text, {
         voice,
         lang,
+        sentenceVoices,
         rate: speed,
         owner: me.current,
         onSentence: setCurrent,
@@ -82,7 +89,7 @@ export function ReadAloudBar({ text, lang: givenLang, onClose }: { text: string;
         },
       });
     },
-    [voices, text, lang, t],
+    [voices, text, lang, givenLang, t],
   );
 
   // Start as soon as a voice is known; stop when the panel goes away.

@@ -1,0 +1,140 @@
+{
+  "title": "Public profile",
+  "lede": "A page of your own to show how you study: what AnyLearn counted, which you cannot edit, and a few words of yours. You choose what is on it and who gets the link.",
+  "fromProgress": "Show it on your public profile",
+  "open": "Open my page",
+  "newTab": "(opens in a new tab)",
+  "tab": "Learning profile",
+  "since": "studying on AnyLearn since {{date}}",
+  "counted": "The numbers here are counted by AnyLearn from study recorded in it, through {{date}}. {{name}} cannot edit them.",
+  "theirWords": "In {{name}}'s own words.",
+  "theirLinks": "Links {{name}} added.",
+  "footer": {
+    "made": "This page is made with AnyLearn, which counts study days from real study.",
+    "start": "Learn with AnyLearn"
+  },
+  "blocks": {
+    "summary": {
+      "title": "At a glance",
+      "about": "Study days, the streak, the weekly goal met in a row, and the level."
+    },
+    "calendar": {
+      "title": "A year of study",
+      "about": "Each day studied in the last year, shaded by how much."
+    },
+    "milestones": {
+      "title": "Milestones",
+      "about": "Each milestone reached, with the day it was reached."
+    },
+    "outcomes": {
+      "title": "What the study produced",
+      "about": "Cards in long-term memory, knowledge points mastered, explanations passed, questions answered and workouts."
+    },
+    "about": {
+      "title": "About me"
+    },
+    "links": {
+      "title": "Links"
+    }
+  },
+  "summary": {
+    "days_one": "study day",
+    "days_other": "study days",
+    "streak_one": "day in the current streak",
+    "streak_other": "days in the current streak",
+    "longest_one": "Longest: {{count, number}} day",
+    "longest_other": "Longest: {{count, number}} days",
+    "weeks_one": "week in a row meeting a goal of {{goal, number}} study days",
+    "weeks_other": "weeks in a row meeting a goal of {{goal, number}} study days",
+    "longestWeeks_one": "Longest: {{count, number}} week",
+    "longestWeeks_other": "Longest: {{count, number}} weeks",
+    "level": "current level",
+    "levelHow": "Earned by study days; it never goes down."
+  },
+  "milestones": {
+    "none": "None yet."
+  },
+  "outcomes": {
+    "longTerm": "Cards in long-term memory",
+    "mastered": "Knowledge points mastered",
+    "explains": "Explanations passed",
+    "answered": "Questions answered",
+    "workouts": "Workouts finished"
+  },
+  "accents": {
+    "reflect": "Forest",
+    "read": "Teal",
+    "ask": "Brick",
+    "practise": "Plum",
+    "tools": "Slate"
+  },
+  "share": {
+    "title": "Your page is public",
+    "draft": "Your page is a draft",
+    "draftNote": "Only you can see it. Tick 'Public' and save to share it.",
+    "copy": "Copy link",
+    "copied": "Link copied."
+  },
+  "editor": {
+    "you": "You",
+    "handle": "Address",
+    "handleNote": "3 to 30 characters: letters a to z, digits and single hyphens. Changing it later stops the old link working.",
+    "name": "Name shown",
+    "namePlaceholder": "Your name",
+    "headline": "Headline",
+    "headlinePlaceholder": "For example: learning Spanish and data analysis",
+    "published": "Public: anyone with the link can see it",
+    "publishedNote": "Untick and save to hide it again.",
+    "indexed": "Let Google and other search engines show it",
+    "indexedNote": "While the page is public, people can find it by searching your name. Untick to share it only by its link; search engines can take a while to drop a page they already list.",
+    "look": "Look",
+    "accent": "Accent colour",
+    "blocks": "Blocks, in order",
+    "blocksNote": "Blocks counted by AnyLearn show only what is recorded; your blocks show what you write.",
+    "noBlocks": "No blocks: the page shows only your name and headline.",
+    "counted": "counted by AnyLearn",
+    "yours": "your words",
+    "up": "Move {{block}} up",
+    "down": "Move {{block}} down",
+    "remove": "Remove {{block}}",
+    "add": "Add a block",
+    "pick": "Choose a block",
+    "addButton": "Add",
+    "aboutTitle": "Title (optional)",
+    "aboutBody": "Text",
+    "linkN": "Link {{n}}",
+    "linkLabel": "Label",
+    "linkURL": "Address (https)",
+    "removeLink": "Remove link {{n}}",
+    "addLink": "Add a link",
+    "linksNote": "Links open in a new tab and are marked as yours.",
+    "save": "Save",
+    "failed": "Not saved: {{detail}}",
+    "savedPublished": "Saved. Your page is public.",
+    "savedDraft": "Saved as a draft. Only you can see it.",
+    "deleted": "Page deleted. Its address is free.",
+    "preview": "Preview",
+    "previewNote": "As a visitor will see it, with your numbers as of now.",
+    "unreadable": "the page's design could not be read",
+    "dropped_one": "{{count, number}} block of your page could not be read by this version of AnyLearn and is left out. Saving keeps the page without it.",
+    "dropped_other": "{{count, number}} blocks of your page could not be read by this version of AnyLearn and are left out. Saving keeps the page without them.",
+    "droppedAll": "Your page's design could not be read by this version of AnyLearn, so it shows no blocks. Saving keeps the page as shown here.",
+    "moved": "Moved {{block}} to place {{n, number}} of {{total, number}}.",
+    "removed": "Removed {{block}}.",
+    "added": "Added {{block}} at the end."
+  },
+  "seo": {
+    "description": "{{name}}'s learning profile on AnyLearn: study days, streak and milestones counted from real study."
+  },
+  "missing": {
+    "title": "No public profile here",
+    "lede": "There is no public profile at this address, or its owner has not made it public.",
+    "busyTitle": "Too many requests",
+    "busy": "Wait a minute and try again."
+  },
+  "delete": {
+    "title": "Delete the page",
+    "note": "The page and its address go. Your study and its numbers stay.",
+    "button": "Delete my public page"
+  }
+}

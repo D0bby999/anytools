@@ -18,10 +18,12 @@ import (
 // words in batches. Each becomes a word to learn, marked as imported, with a
 // fresh schedule: Anki's history is not carried over.
 //
-// A deck of two thousand must not land in tomorrow's queue, nor in Home's
+// A deck of two thousand must not land in one day's queue, nor in Home's
 // count and the daily reminder, all at once. The imported words come up
-// ImportPerDay a day, in deck order, from the learner's tomorrow — or from
-// where the imports before this one left off.
+// ImportPerDay a day, in deck order, from the learner's today — or from
+// where the imports before this one left off. Today, not tomorrow
+// (the private design notes, phase 3): a learner who adds a word list
+// on their first day had nothing to review until the next.
 
 // OriginAnki marks a note imported from an Anki deck.
 const OriginAnki = "anki"
@@ -68,7 +70,7 @@ type ImportBatch struct {
 	// Origin is OriginAnki or a library list's origin.
 	Origin string
 	Notes  []ImportWrite
-	// FirstDay is the learner's tomorrow, in Zone; PerDay words start each day.
+	// FirstDay is the learner's today, in Zone; PerDay words start each day.
 	FirstDay learning.Day
 	Zone     string
 	PerDay   int
@@ -145,7 +147,7 @@ func (s *Service) ImportFrom(ctx context.Context, userID uuid.UUID, lang, origin
 	}
 	now := s.now().UTC()
 	b.Zone, b.Now, b.NewCard = zone, now, s.scheduler.NewCard(now)
-	b.FirstDay = AddDays(learning.LocalDay(now, zone), 1)
+	b.FirstDay = learning.LocalDay(now, zone)
 	for i := range b.Notes {
 		if c := b.Notes[i].Context; c != nil {
 			c.AddedAt = now

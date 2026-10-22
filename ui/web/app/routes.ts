@@ -21,6 +21,10 @@ export default [
     // language (/en, /vi, /es, /pt), and a signed-in one to /home.
     index("routes/home-redirect.ts"),
     layout("routes/auth-layout.tsx", [route("login", "routes/login.tsx")]),
+    // A learner's public profile, for anyone, signed in or not, in the
+    // visitor's language (the private design notes). A static first
+    // segment, so it outranks `:locale/:cluster`.
+    route("u/:handle", "routes/u.$handle.tsx"),
 
     layout("routes/app-layout.tsx", [
       // Every signed-in page sits under one pathless layout whose error
@@ -137,6 +141,9 @@ export default [
         route("progress", "routes/progress.tsx"),
         route("circles", "routes/circles.tsx"),
         route("circles/:id", "routes/circles.$id.tsx"),
+        // The learner's public profile, made here and shown at /u/<handle>
+        // (the private design notes).
+        route("showcase", "routes/showcase.tsx"),
       ]),
     ]),
 
@@ -192,10 +199,12 @@ export default [
     route("app/api/timezone", "routes/app.api.timezone.ts"),
     route("app/api/search-index", "routes/app.api.search-index.ts"),
     route("app/api/byok-models", "routes/app.api.byok-models.ts"),
+    route("app/api/quick-setup", "routes/app.api.quick-setup.ts"),
 
     // Learning depth, phase 5: "Draw it" and its one repair. POST-only
     // resource route; its action calls requireUserId.
     route("app/api/diagram", "routes/app.api.diagram.ts"),
+    route("app/api/chat-corrections", "routes/app.api.chat-corrections.ts"),
 
     // Learning depth, phase 10: audio overviews. The WAV comes from 'self'
     // with range support (loader only, requireUserId); start, cancel and
@@ -262,6 +271,8 @@ export default [
   // Learning-tool-connections phase 2: the study calendar feed. Outside every
   // layout: a calendar app has no session, and the token is the credential.
   route("cal/:file", "routes/cal.$file.ts"),
+  // The card a public profile's link unfurls into. Loader only, no sign-in.
+  route("u/:handle/og.png", "routes/u.$handle.og[.]png.ts"),
   // Learning-tool-connections phase 4: mail from the Cloudflare Email Worker.
   route("inbound/email", "routes/inbound.email.ts"),
 

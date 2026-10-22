@@ -78,7 +78,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   // The tab shows whose page this is: AnyLearn's inside the study app and on
   // its sign-in, AnyTools' everywhere else. Here rather than in `links`, which
   // cannot see the route. `?v=` makes browsers drop the icon they cached.
-  const study = useMatches().some((m) => m.id === "routes/app-layout" || m.id === "routes/auth-layout");
+  const study = useMatches().some((m) => m.id === "routes/app-layout" || m.id === "routes/auth-layout" || m.id === "routes/u.$handle");
   const icon = study ? STUDY_ICON : SITE_ICON;
   return (
     <html lang={lang} data-app-lang={appLang} suppressHydrationWarning>
@@ -113,7 +113,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 function useAppLanguage(): SupportedLng | undefined {
   const app = useRouteLoaderData<{ language?: string }>("routes/app-layout")?.language;
   const auth = useRouteLoaderData<{ language?: string }>("routes/auth-layout")?.language;
-  const lang = app ?? auth;
+  // A learner's public profile is AnyLearn's too, in its visitor's language.
+  const showcase = useRouteLoaderData<{ language?: string }>("routes/u.$handle")?.language;
+  const lang = app ?? auth ?? showcase;
   return lang && isSupportedLng(lang) ? lang : undefined;
 }
 

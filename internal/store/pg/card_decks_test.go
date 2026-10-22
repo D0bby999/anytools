@@ -39,11 +39,11 @@ func TestDecksComeUpTwentyADayAndAreTheirOwnQueue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// f.now is 2026-09-27: tomorrow is the 28th; 20, 20 and 5.
-	if res.Created != 45 || res.Duplicates != 1 || res.Invalid != 1 || res.FirstDay != "2026-09-28" || res.LastDay != "2026-09-30" {
+	// f.now is 2026-09-27, and new cards start today: 20, 20 and 5.
+	if res.Created != 45 || res.Duplicates != 1 || res.Invalid != 1 || res.FirstDay != "2026-09-27" || res.LastDay != "2026-09-29" {
 		t.Fatalf("first batch: %+v", res)
 	}
-	// A second batch fills the 30th, then goes on.
+	// A second batch fills the 29th, then goes on.
 	more, err := f.svc.AddDeckCards(ctx, f.alice, geo.ID, []vocab.DeckCard{
 		{Front: "Country 0: capital?", Back: "a duplicate across batches"},
 		{Front: "Extra 1", Back: "b"}, {Front: "Extra 2", Back: "b"},
@@ -51,7 +51,7 @@ func TestDecksComeUpTwentyADayAndAreTheirOwnQueue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if more.Created != 2 || more.Duplicates != 1 || more.FirstDay != "2026-09-30" {
+	if more.Created != 2 || more.Duplicates != 1 || more.FirstDay != "2026-09-29" {
 		t.Fatalf("second batch: %+v", more)
 	}
 
@@ -59,17 +59,16 @@ func TestDecksComeUpTwentyADayAndAreTheirOwnQueue(t *testing.T) {
 	if err != nil || len(decks) != 1 {
 		t.Fatalf("decks: %v, %+v", err, decks)
 	}
-	if d := decks[0]; d.Cards != 47 || d.Due != 0 || d.New != 47 || d.LastNew != "2026-09-30" || d.Licence != "Public domain" {
+	if d := decks[0]; d.Cards != 47 || d.Due != 20 || d.New != 47 || d.LastNew != "2026-09-29" || d.Licence != "Public domain" {
 		t.Fatalf("the deck's counts today: %+v", d)
 	}
 	// Not in the words' queue; the words' not in the cards'.
 	if _, n, _ := f.svc.Due(ctx, f.alice, 0); n != 2 {
 		t.Fatalf("%d words due, want the word's 2", n)
 	}
-	f.now = f.now.AddDate(0, 0, 1)
 	due, n, err := f.svc.DueDeck(ctx, f.alice, vocab.DeckCards, 50)
 	if err != nil || n != 20 || len(due) != 20 {
-		t.Fatalf("cards due tomorrow: %d (%d listed), %v", n, len(due), err)
+		t.Fatalf("cards due today: %d (%d listed), %v", n, len(due), err)
 	}
 	c := due[0]
 	if c.Kind != vocab.KindCard || c.Front != "Country 0: capital?" || c.Back != "City 0" || c.Deck == nil || c.Deck.Name != "Geography" {
@@ -163,7 +162,7 @@ func TestDeckCardsCarryTheirPicture(t *testing.T) {
 	if res.Created != 2 || res.Duplicates != 1 || res.Invalid != 2 {
 		t.Fatalf("added %+v, want 2 created, 1 duplicate, 2 invalid", res)
 	}
-	f.now = f.now.AddDate(0, 0, 1) // new cards come up tomorrow
+	// New cards come up today.
 	due, _, err := f.svc.DueDeck(ctx, f.alice, vocab.DeckCards, 50)
 	if err != nil {
 		t.Fatal(err)

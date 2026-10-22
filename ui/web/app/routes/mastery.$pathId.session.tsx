@@ -10,8 +10,11 @@ import { SessionProgress } from "~/components/mastery/session-progress";
  * A loader that generates (when nothing unanswered is banked for the chosen
  * point, or a point is taught for the first time) spends a model call — the
  * same call pressing Next would make, and only then.
+ *
+ * Answering does not revalidate (`answerKeepsTheCard`): only the card's Next
+ * does, so the verdict stays until the learner has read it.
  */
-import { Link, useRevalidator } from "react-router";
+import { Link, useRevalidator, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/mastery.$pathId.session";
@@ -23,6 +26,7 @@ import { QuestionCard } from "~/components/quiz/question-card";
 import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
 import { ExplainBackCard } from "~/components/mastery/explain-back-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { answerKeepsTheCard } from "~/lib/card-answers";
 
 /** A session uses the whole height and width (app-layout's `layout: "page"`). */
 export const handle = { layout: "page" };
@@ -32,6 +36,11 @@ export function meta({ matches }: Route.MetaArgs) {
     { title: appTitle(matches, "Study") },
     { name: "robots", content: "noindex, nofollow" },
   ];
+}
+
+export function shouldRevalidate({ formAction, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
+  if (answerKeepsTheCard(formAction)) return false;
+  return defaultShouldRevalidate;
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {

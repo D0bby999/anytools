@@ -340,3 +340,44 @@ func TestTranscriptMessageFormatIsTheWebContract(t *testing.T) {
 		t.Fatalf("TranscriptMessage = %q, want %q", got, want)
 	}
 }
+
+// The web client tells the actions apart by these heads, whatever the
+// interface language (reading-selection.ts STORED_ACTION_HEADS, tested against
+// the same four in app/test/reading-selection.test.ts). A renamed label here
+// without the same change there hides "Find words to save" in every language.
+func TestActionLabelsAreTheWebContract(t *testing.T) {
+	want := map[Action]string{
+		ActionExplain:   "Explain this",
+		ActionVocab:     "Vocabulary here",
+		ActionQuiz:      "Quiz me on this",
+		ActionTranslate: "Translate this",
+	}
+	for a, label := range want {
+		if got := Label(a); got != label {
+			t.Errorf("Label(%s) = %q, want %q", a, got, label)
+		}
+	}
+	if len(Actions()) != len(want) {
+		t.Fatalf("%d actions, the web knows %d", len(Actions()), len(want))
+	}
+}
+
+// The tutor answers in the learner's language, keeps the passage's words,
+// and translates into it (the private design notes, phase 4).
+func TestTheTutorAnswersInTheLearnersLanguage(t *testing.T) {
+	r := Request{Action: ActionExplain, Selection: "hands the turn back", LearnerLang: "vi"}
+	if p := r.Prompt(); !strings.Contains(p, "Write your answer in Vietnamese") {
+		t.Fatalf("explain: %q", p)
+	}
+	r.Action = ActionTranslate
+	if p := r.Prompt(); !strings.Contains(p, "Translate the passage below into Vietnamese") {
+		t.Fatalf("translate: %q", p)
+	}
+	r.Action = ActionQuiz
+	if p := r.Prompt(); !strings.Contains(p, "questions and answers in the passage's language") {
+		t.Fatalf("quiz: %q", p)
+	}
+	if p := (Request{Action: ActionExplain, Selection: "x"}).Prompt(); strings.Contains(p, "Write your answer in") {
+		t.Fatalf("no language, yet a rule: %q", p)
+	}
+}

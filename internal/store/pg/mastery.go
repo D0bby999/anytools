@@ -198,7 +198,7 @@ func restoreKPState(ctx context.Context, tx pgx.Tx, userID, kpID uuid.UUID, raw 
 
 // ── paths ─────────────────────────────────────────────────────────────────
 
-const pathColumns = `id, user_id, kb_id, goal, status, created_at, updated_at`
+const pathColumns = `id, user_id, kb_id, goal, status, created_at, updated_at, explain_lang`
 
 // CreatePath inserts a path.
 func (s *MasteryStore) CreatePath(ctx context.Context, p mastery.Path) (*mastery.Path, error) {
@@ -207,9 +207,18 @@ func (s *MasteryStore) CreatePath(ctx context.Context, p mastery.Path) (*mastery
 		status = mastery.StatusActive
 	}
 	row := s.pool.QueryRow(ctx,
-		`INSERT INTO mastery_paths (user_id, kb_id, goal, status)
-		 VALUES ($1, $2, $3, $4) RETURNING `+pathColumns,
-		p.UserID, p.KBID, p.Goal, status)
+		`INSERT INTO mastery_paths (user_id, kb_id, goal, status, explain_lang)
+		 VALUES ($1, $2, $3, $4, $5) RETURNING `+pathColumns,
+		p.UserID, p.KBID, p.Goal, status, p.ExplainLang)
+	return scanPath(row)
+}
+
+// SetExplainLang sets the language a path's lessons and feedback are written
+// in: empty for the learner's, "source" for the documents', or a code.
+func (s *MasteryStore) SetExplainLang(ctx context.Context, userID, pathID uuid.UUID, lang string) (*mastery.Path, error) {
+	row := s.pool.QueryRow(ctx,
+		`UPDATE mastery_paths SET explain_lang = $3, updated_at = now()
+		  WHERE id = $1 AND user_id = $2 RETURNING `+pathColumns, pathID, userID, lang)
 	return scanPath(row)
 }
 
@@ -246,7 +255,7 @@ func (s *MasteryStore) ArchivePath(ctx context.Context, userID, pathID uuid.UUID
 // ListPaths returns a user's paths with the numbers the list screen shows.
 func (s *MasteryStore) ListPaths(ctx context.Context, userID uuid.UUID, now time.Time) ([]mastery.PathSummary, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT p.id, p.user_id, p.kb_id, p.goal, p.status, p.created_at, p.updated_at,
+		SELECT p.id, p.user_id, p.kb_id, p.goal, p.status, p.created_at, p.updated_at, p.explain_lang,
 		       COALESCE(kb.name, ''),
 		       COALESCE(agg.modules, 0), COALESCE(agg.points, 0),
 		       COALESCE(agg.due, 0), COALESCE(agg.mastery, 0), COALESCE(agg.graduated, 0)
@@ -283,7 +292,7 @@ func (s *MasteryStore) ListPaths(ctx context.Context, userID uuid.UUID, now time
 		var sum mastery.PathSummary
 		if err := rows.Scan(
 			&sum.Path.ID, &sum.Path.UserID, &sum.Path.KBID, &sum.Path.Goal, &sum.Path.Status,
-			&sum.Path.CreatedAt, &sum.Path.UpdatedAt, &sum.KBName,
+			&sum.Path.CreatedAt, &sum.Path.UpdatedAt, &sum.Path.ExplainLang, &sum.KBName,
 			&sum.Modules, &sum.Points, &sum.DueCount, &sum.Mastery, &sum.Graduated,
 		); err != nil {
 			return nil, fmt.Errorf("list paths: scan: %w", err)
@@ -350,9 +359,9 @@ func (s *MasteryStore) ApproveModules(
 		for _, kp := range m.KnowledgePoints {
 			var kpID uuid.UUID
 			if err := tx.QueryRow(ctx, `
-				INSERT INTO knowledge_points (user_id, module_id, name, type)
-				VALUES ($1, $2, $3, $4) RETURNING id`,
-				userID, moduleID, kp.Name, kp.Type).Scan(&kpID); err != nil {
+				INSERT INTO knowledge_points (user_id, module_id, name, type, outside_source)
+				VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+				userID, moduleID, kp.Name, kp.Type, kp.OutsideSource).Scan(&kpID); err != nil {
 				return nil, fmt.Errorf("approve modules: insert knowledge point: %w", err)
 			}
 			// Every point starts DUE. A plan whose cards are scheduled for some
@@ -395,7 +404,7 @@ func (s *MasteryStore) Detail(ctx context.Context, userID, pathID uuid.UUID, now
 
 	rows, err := s.pool.Query(ctx, `
 		SELECT m.id, m.user_id, m.path_id, m.ord, m.name, m.objective, m.pass_threshold,
-		       kp.id, kp.module_id, kp.name, kp.type,
+		       kp.id, kp.module_id, kp.name, kp.type, COALESCE(kp.outside_source, false),
 		       COALESCE(st.due_at, $3), COALESCE(st.mastery_estimate, 0),
 		       COALESCE(st.status, 'active'), COALESCE(st.reviews, 0), COALESCE(st.lapses, 0)
 		  FROM mastery_modules m
@@ -417,10 +426,11 @@ func (s *MasteryStore) Detail(ctx context.Context, userID, pathID uuid.UUID, now
 			kpMod *uuid.UUID
 			name  *string
 			kind  *string
+			off   bool
 			state mastery.KPState
 		)
 		if err := rows.Scan(&m.ID, &m.UserID, &m.PathID, &m.Ord, &m.Name, &m.Objective, &m.PassThreshold,
-			&kpID, &kpMod, &name, &kind,
+			&kpID, &kpMod, &name, &kind, &off,
 			&state.DueAt, &state.MasteryEstimate, &state.Status, &state.Reviews, &state.Lapses); err != nil {
 			return nil, fmt.Errorf("path detail: scan: %w", err)
 		}
@@ -440,7 +450,7 @@ func (s *MasteryStore) Detail(ctx context.Context, userID, pathID uuid.UUID, now
 		view := mastery.KPView{
 			KnowledgePoint: mastery.KnowledgePoint{
 				ID: *kpID, UserID: userID, ModuleID: *kpMod,
-				Name: derefString(name), Type: derefString(kind),
+				Name: derefString(name), Type: derefString(kind), OutsideSource: off,
 			},
 			State: state,
 			Due:   state.Status == mastery.KPActive && !state.DueAt.After(now),
@@ -513,12 +523,12 @@ func (s *MasteryStore) KnowledgePoint(ctx context.Context, userID, kpID uuid.UUI
 		m  mastery.Module
 	)
 	err := s.pool.QueryRow(ctx, `
-		SELECT kp.id, kp.user_id, kp.module_id, kp.name, kp.type,
+		SELECT kp.id, kp.user_id, kp.module_id, kp.name, kp.type, kp.outside_source,
 		       m.id, m.user_id, m.path_id, m.ord, m.name, m.objective, m.pass_threshold
 		  FROM knowledge_points kp
 		  JOIN mastery_modules m ON m.id = kp.module_id AND m.user_id = kp.user_id
 		 WHERE kp.id = $1 AND kp.user_id = $2`, kpID, userID).
-		Scan(&kp.ID, &kp.UserID, &kp.ModuleID, &kp.Name, &kp.Type,
+		Scan(&kp.ID, &kp.UserID, &kp.ModuleID, &kp.Name, &kp.Type, &kp.OutsideSource,
 			&m.ID, &m.UserID, &m.PathID, &m.Ord, &m.Name, &m.Objective, &m.PassThreshold)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil, mastery.ErrNotFound
@@ -820,7 +830,7 @@ func (s *MasteryStore) OpenErrors(ctx context.Context, userID, pathID uuid.UUID,
 
 func scanPath(row pgx.Row) (*mastery.Path, error) {
 	var p mastery.Path
-	err := row.Scan(&p.ID, &p.UserID, &p.KBID, &p.Goal, &p.Status, &p.CreatedAt, &p.UpdatedAt)
+	err := row.Scan(&p.ID, &p.UserID, &p.KBID, &p.Goal, &p.Status, &p.CreatedAt, &p.UpdatedAt, &p.ExplainLang)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, mastery.ErrNotFound
 	}

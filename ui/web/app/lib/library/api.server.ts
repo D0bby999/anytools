@@ -14,6 +14,7 @@ function query(filter: LibraryFilter, ui: string) {
   if (filter.kind) p.set("kind", filter.kind);
   if (filter.subject) p.set("subject", filter.subject);
   if (filter.lang) p.set("lang", filter.lang);
+  if (filter.teaches) p.set("teaches", filter.teaches);
   if (filter.q) p.set("q", filter.q);
   if (filter.sort && filter.sort !== "featured") p.set("sort", filter.sort);
   if (filter.level) p.set("level", filter.level);

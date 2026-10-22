@@ -35,6 +35,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/readingapi"
 	"github.com/D0bby999/anytools/internal/api/relatedapi"
 	"github.com/D0bby999/anytools/internal/api/researchapi"
+	"github.com/D0bby999/anytools/internal/api/showcaseapi"
 	"github.com/D0bby999/anytools/internal/api/solveapi"
 	"github.com/D0bby999/anytools/internal/api/sourceapi"
 	"github.com/D0bby999/anytools/internal/api/speakapi"
@@ -115,6 +116,8 @@ type Deps struct {
 	// with friends (the private design notes).
 	Progress *progressapi.Handler
 	Circles  *circleapi.Handler
+	// Showcase is a learner's public profile (the private design notes).
+	Showcase *showcaseapi.Handler
 	// Body is the training log and its coach (the private design notes).
 	Body         *bodyapi.Handler
 	Users        httpx.UserLookup
@@ -252,6 +255,9 @@ func BuildMux(deps Deps) http.Handler {
 	if deps.Circles != nil {
 		deps.Circles.RegisterRoutes(mux)
 	}
+	if deps.Showcase != nil {
+		deps.Showcase.RegisterRoutes(mux)
+	}
 	if deps.Storage != nil {
 		deps.Storage.RegisterRoutes(mux)
 	}
@@ -351,6 +357,8 @@ func RegisteredPatterns() []string {
 	patterns = append(patterns, bookapi.Patterns()...)
 	// up-methods phase 11: the "write your own version first" switch.
 	patterns = append(patterns, "PUT /v1/me/own-version-first")
+	// the private design notes, phase 7: Home's first question.
+	patterns = append(patterns, "PUT /v1/me/study-focus")
 	// Learning depth, phase 3: exams. Behind RequireUser; none is allowlisted.
 	patterns = append(patterns, examapi.Patterns()...)
 	// up methods, phase 0: worksheets. Behind RequireUser; none is allowlisted.
@@ -373,6 +381,8 @@ func RegisteredPatterns() []string {
 	// Progress and study circles: the caller's own, and circles they are in.
 	patterns = append(patterns, progressapi.Patterns()...)
 	patterns = append(patterns, circleapi.Patterns()...)
+	// The public profile: the caller's own page, and the gateway-only read.
+	patterns = append(patterns, showcaseapi.Patterns()...)
 	// Body: the training log and its coach. Behind RequireUser; none is allowlisted.
 	patterns = append(patterns, bodyapi.Patterns()...)
 	return patterns

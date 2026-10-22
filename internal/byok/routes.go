@@ -63,7 +63,7 @@ func (s *Service) SetRoute(ctx context.Context, userID uuid.UUID, fn Function, e
 			return oauth.ErrLanesDisabled
 		}
 		if !ConnectionSupports(conn.Provider, conn.Kind, fn) {
-			return invalid("%s cannot serve %s", conn.Provider, fn)
+			return unsupported(conn.Provider, fn)
 		}
 
 		model := e.Model

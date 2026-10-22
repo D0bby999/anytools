@@ -7,6 +7,8 @@
     "noKinds": "Todavía no hay fichas disponibles.",
     "private": "Privada",
     "new": "Nueva",
+    "start": "Empezar",
+    "startQuick": "Empezar (5 min)",
     "newOf": "Nueva: {{name}}"
   },
   "groups": {
@@ -222,6 +224,10 @@
   "languages": {
     "title": "Idiomas",
     "lead": "Practica los idiomas que estás aprendiendo, por habilidad, con tu propio material: los vídeos, artículos y borradores que ya tienes.",
+    "shelf": {
+      "lead": "¿Aún no tienes material?",
+      "link": "Elige material para aprender {{name}} en la Biblioteca"
+    },
     "tabs": {
       "label": "Idiomas que estás aprendiendo",
       "add": "+ Añadir un idioma",
@@ -357,5 +363,17 @@
       "use": "Usar",
       "useOf": "Usar {{name}}"
     }
+  },
+  "quick": {
+    "title": "Versión rápida",
+    "lead_one": "{{count}} línea, unos cinco minutos. Lo que escribas aquí también forma parte de la ficha completa.",
+    "lead_other": "{{count}} líneas, unos cinco minutos. Lo que escribas aquí también forma parte de la ficha completa.",
+    "openFull_one": "Abrir la ficha completa ({{count}} sección)",
+    "openFull_other": "Abrir la ficha completa ({{count}} secciones)",
+    "backToQuick": "Volver a la versión rápida"
+  },
+  "selfEstimate": {
+    "label": "Tu propia estimación:",
+    "note": "Lo que elegiste en la autoevaluación del MCER, no el resultado de un examen. Vuelve a elegir en cada revisión."
   }
 }

@@ -36,6 +36,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /v1/mastery/paths", h.createPath) // budget: generate
 	mux.HandleFunc("GET /v1/mastery/paths/{id}", h.getPath)
 	mux.HandleFunc("DELETE /v1/mastery/paths/{id}", h.archivePath)         // budget: none
+	mux.HandleFunc("PATCH /v1/mastery/paths/{id}", h.patchPath)            // budget: none
 	mux.HandleFunc("POST /v1/mastery/paths/{id}/propose", h.propose)       // budget: generate
 	mux.HandleFunc("POST /v1/mastery/paths/{id}/approve", h.approve)       // budget: none
 	mux.HandleFunc("POST /v1/mastery/paths/{id}/diagnostic", h.diagnostic) // budget: generate
@@ -55,6 +56,7 @@ func Patterns() []string {
 		"POST /v1/mastery/paths",
 		"GET /v1/mastery/paths/{id}",
 		"DELETE /v1/mastery/paths/{id}",
+		"PATCH /v1/mastery/paths/{id}",
 		"POST /v1/mastery/paths/{id}/propose",
 		"POST /v1/mastery/paths/{id}/approve",
 		"POST /v1/mastery/paths/{id}/diagnostic",
@@ -134,6 +136,31 @@ func (h *Handler) archivePath(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+type patchPathRequest struct {
+	// ExplainLang: "" the learner's language, "source", or a code.
+	ExplainLang *string `json:"explain_lang"`
+}
+
+// patchPath changes what a path is explained in (the private design notes, phase 4). It is the only field a path's PATCH takes.
+func (h *Handler) patchPath(w http.ResponseWriter, r *http.Request) {
+	userID := httpx.MustUserID(r.Context())
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	var req patchPathRequest
+	if err := httpx.DecodeJSON(w, r, &req); err != nil || req.ExplainLang == nil {
+		httpx.WriteError(w, http.StatusBadRequest, "malformed request body", "bad_request")
+		return
+	}
+	path, err := h.svc.SetExplainLang(r.Context(), userID, id, *req.ExplainLang)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, path)
 }
 
 func (h *Handler) propose(w http.ResponseWriter, r *http.Request) {

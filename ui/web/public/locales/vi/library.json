@@ -6,8 +6,10 @@
     "kind": "Loại",
     "anyKind": "Mọi loại",
     "subject": "Ngành",
+    "teaches": "Để học tiếng",
+    "anyTeaches": "Mọi tài liệu",
     "anySubject": "Mọi ngành",
-    "language": "Ngôn ngữ",
+    "language": "Viết bằng",
     "myLanguages": "Tiếng Anh, rồi ngôn ngữ của tôi",
     "allLanguages": "Mọi ngôn ngữ, tiếng Anh trước",
     "show": "Xem",
@@ -96,7 +98,8 @@
     "bringFile": "Mở đề tại nguồn, rồi tải lên trong Câu hỏi → Đề thi → Tải lên một đề cũ.",
     "textbook": "Đọc tại nguồn, hoặc tải PDF về rồi tải lên kho tài liệu những chương bạn cần (mỗi tệp tối đa 50 MB và 400 trang).",
     "textbookNonCommercial": "Đọc tại nguồn, hoặc tải PDF về. Giấy phép chỉ cho dùng phi thương mại: hãy tải lên kho tài liệu những chương bạn cần để tự học (mỗi tệp tối đa 50 MB và 400 trang).",
-    "enrol": "Học miễn phí tại nguồn, bạn đăng ký ở đó; AnyLearn không chép khoá học."
+    "enrol": "Học miễn phí tại nguồn, bạn đăng ký ở đó; AnyLearn không chép khoá học.",
+    "chooseLesson": "Được dùng lại tự do, từng bài một: mở trang, chọn một bài, rồi thêm địa chỉ bài đó vào kho bằng Thêm liên kết."
   },
   "items": {
     "upWords": "Thuật ngữ tiếng Anh lập trình viên hay gặp, theo ngôn ngữ (Python, Go, JavaScript…): chỉ có từ, để tra và lưu.",
@@ -105,7 +108,11 @@
     "thptName": "Đề thi tốt nghiệp THPT",
     "thpt": "Đề tham khảo và đề các năm của Bộ Giáo dục và Đào tạo, theo môn.",
     "bodyName": "Body: thư viện bài tập",
-    "body": "Bài tập theo nhóm cơ và dụng cụ, mỗi bài có các bước, để dùng trong kế hoạch tập."
+    "body": "Bài tập theo nhóm cơ và dụng cụ, mỗi bài có các bước, để dùng trong kế hoạch tập.",
+    "voa": "Tin tức và câu chuyện bằng tiếng Anh chậm, đơn giản, có âm thanh, video và lời thoại, chia ba cấp độ.",
+    "wikibooksEsl": "Một cuốn sách mở gồm các bài học tiếng Anh cho người học: ngữ pháp, từ vựng và câu nói hằng ngày.",
+    "storybooks": "Truyện ngắn có tranh, chia năm cấp độ, có giọng đọc, và cùng câu chuyện bằng nhiều ngôn ngữ khác.",
+    "usaLearns": "Một khóa tiếng Anh miễn phí với các bài học video cho đời sống và công việc hằng ngày, từ trình độ mới bắt đầu."
   },
   "count_one": "{{count, number}} mục",
   "count_other": "{{count, number}} mục",
@@ -156,7 +163,7 @@
   "levelOption_other": "{{name}} ({{count}} từ)",
   "addWords": "Thêm vào từ của tôi",
   "addWordsOf": "Thêm vào từ của tôi: {{name}}",
-  "wordsPace": "Mỗi ngày có 20 từ mới, bắt đầu từ ngày mai, sau những từ bạn đang được đưa ra.",
+  "wordsPace": "Mỗi ngày có 20 từ mới, bắt đầu từ hôm nay, sau những từ bạn đang được đưa ra.",
   "wordsAdded_one": "Đã thêm {{count}} từ vào danh sách từ của bạn.",
   "wordsAdded_other": "Đã thêm {{count}} từ vào danh sách từ của bạn.",
   "wordsNone": "Không có từ mới: bạn đã có tất cả.",

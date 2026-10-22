@@ -398,6 +398,11 @@ func (s *Service) embedClient(_ context.Context, _ uuid.UUID, e store.ChainEntry
 		return embed.NewGeminiEmbedder(c.Secret, c.APIBase, model, dims), nil
 	case providers.ProviderOpenAI:
 		return embed.NewOpenAIEmbedder(c.Secret, c.APIBase, model, dims), nil
+	case providers.ProviderOpenAICompat:
+		// No `dimensions` field: an unknown server may reject it or ignore
+		// it, and the width is the model's own, learned on verify. The base
+		// passed the BYOK endpoint guard when it was saved.
+		return embed.NewOpenAIEmbedder(c.Secret, c.APIBase, model, dims).WithoutDimensionsField(), nil
 	}
 	if p, ok := presetOf(c.Provider); ok && p.EmbedModel != "" {
 		e := embed.NewOpenAIEmbedder(c.Secret, presetBase(c.Provider, c.APIBase), model, dims)

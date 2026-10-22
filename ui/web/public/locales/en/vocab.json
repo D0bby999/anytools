@@ -69,6 +69,8 @@
     "none": "The model found no words in this passage to save.",
     "language": "Language",
     "save": "Save",
+    "learnIt": "Learn this word",
+    "otherWays": "Other ways to keep it",
     "saved": "Saved",
     "added": "Added a sentence",
     "failed": "Could not find words.",
@@ -145,7 +147,7 @@
       "sound": "How it sounds: stress, or a respelling.",
       "collocation": "The words it usually comes with.",
       "cue": "The situation that should bring it to mind.",
-      "learnRetest": "The retest is the review schedule: two cards come back from tomorrow.",
+      "learnRetest": "The retest is the review schedule: two cards, from today. Any of these may stay empty.",
       "owner": "Who answers for this term in your situation."
     },
     "confidences": {
@@ -157,6 +159,7 @@
     "suggestion": "Suggested meaning",
     "suggestionHidden": "Write your candidate sense first; the suggestion appears after.",
     "suggestionNote": "A model's suggestion is a candidate, not a source.",
+    "inPassage": "In the passage: {{meaning}}",
     "impact": "Task impact",
     "impactNone": "Not said",
     "impacts": {
@@ -170,6 +173,7 @@
     "change": "Change the decision",
     "cancel": "Cancel",
     "savedAs": "Saved as {{decision}}.",
+    "savedToday": "Saved to learn. Its two cards are in today's review.",
     "already": "You already decided on this word: {{decision}}.",
     "changed": "Decision changed to {{decision}}.",
     "failed": "That decision was not saved."
@@ -432,5 +436,11 @@
     "foundSentences_other": "{{count}} sentences found.",
     "foundRecordings_one": "{{count}} recording found.",
     "foundRecordings_other": "{{count}} recordings found."
+  },
+  "cardExample": {
+    "title": "An example of {{term}}",
+    "looking": "Looking for an example sentence…",
+    "keep": "Keep this sentence",
+    "kept": "Kept as the word's sentence; its fill-in card is made from it."
   }
 }

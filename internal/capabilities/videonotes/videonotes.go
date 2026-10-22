@@ -26,6 +26,7 @@ import (
 	"github.com/D0bby999/anytools/internal/capabilities/modeljson"
 	"github.com/D0bby999/anytools/internal/connectors/youtube"
 	"github.com/D0bby999/anytools/internal/knowledge"
+	"github.com/D0bby999/anytools/internal/locale"
 	videonotesprompts "github.com/D0bby999/anytools/internal/prompts/videonotes"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/tools"
@@ -263,23 +264,7 @@ func userPrompt(title, lines string, chapters []youtube.Chapter, language string
 	return b.String()
 }
 
-// languageName is how the prompt names a language: a name the model reads
-// unambiguously for the common ones, the code with its meaning otherwise.
-func languageName(code string) string {
-	names := map[string]string{
-		"en": "English", "vi": "Vietnamese", "fr": "French", "de": "German", "es": "Spanish",
-		"ja": "Japanese", "ko": "Korean", "zh": "Chinese", "pt": "Portuguese", "ru": "Russian",
-	}
-	if n, ok := names[baseLanguage(code)]; ok {
-		return n
-	}
-	return fmt.Sprintf("the language with the BCP 47 code %q", code)
-}
+// languageName is how the prompt names a language (locale.EnglishName).
+func languageName(code string) string { return locale.EnglishName(code) }
 
-func baseLanguage(l string) string {
-	l = strings.ToLower(strings.TrimSpace(l))
-	if i := strings.IndexAny(l, "-_"); i > 0 {
-		return l[:i]
-	}
-	return l
-}
+func baseLanguage(l string) string { return locale.Base(l) }

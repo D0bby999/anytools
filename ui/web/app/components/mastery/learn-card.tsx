@@ -1,6 +1,7 @@
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { EXPLANATION_VARIANTS, type Explanation } from "~/lib/study-types";
+import { languageNameInSentence } from "~/lib/languages";
 import { Button } from "~/components/ui/button";
 import { RichText } from "~/components/rich-text";
 
@@ -18,6 +19,9 @@ type ActionData = { explanation?: Explanation; errorKey?: string; errorDetail?: 
  * A stale explanation — a document it cites was re-parsed or re-synced — is
  * shown with a notice and a rewrite button rather than silently regenerated:
  * rewriting spends a call on the learner's key.
+ *
+ * "Explain in …" (the private design notes, phase 4) switches between
+ * the learner's own language and the documents', one lesson each, cached.
  */
 export function LearnCard({
   pointId,
@@ -30,15 +34,19 @@ export function LearnCard({
   explanation: Explanation;
   onContinue?: () => void;
 }) {
-  const { t } = useTranslation("study");
+  const { t, i18n } = useTranslation("study");
   const fetcher = useFetcher<ActionData>();
   const explanation = fetcher.data?.explanation ?? initial;
   const busy = fetcher.state !== "idle";
   const action = `/mastery/points/${pointId}`;
+  const ui = (i18n.language || "en").slice(0, 2);
+  // The lesson's language ("" followed the documents), and the other one.
+  const current = explanation.lang === undefined ? null : explanation.lang || "source";
+  const other = current === null ? null : current === "source" ? ui : "source";
 
-  const ask = (variant: number, refresh = false) =>
+  const ask = (variant: number, refresh = false, lang = current ?? "") =>
     fetcher.submit(
-      { intent: "learn", variant: String(variant), refresh: String(refresh) },
+      { intent: "learn", variant: String(variant), refresh: String(refresh), lang },
       { method: "post", action },
     );
 
@@ -84,6 +92,13 @@ export function LearnCard({
         >
           {busy ? t("learn.writing") : t("learn.differently")}
         </Button>
+        {other ? (
+          <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => ask(explanation.variant, false, other)}>
+            {other === "source"
+              ? t("learn.inSource")
+              : t("learn.inLanguage", { language: languageNameInSentence(other, i18n.language) })}
+          </Button>
+        ) : null}
       </div>
 
       {fetcher.data?.errorKey ? (

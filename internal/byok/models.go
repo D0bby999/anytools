@@ -137,7 +137,11 @@ func ProviderSupports(provider string, f Function) bool {
 	case KindParse:
 		return defaultParseModel(provider) != ""
 	case KindEmbed:
-		return defaultEmbedModel(provider) != ""
+		// A custom endpoint has no default, but most OpenAI-compatible
+		// servers (Ollama, LM Studio, vLLM, TEI) answer /embeddings: a route
+		// on one names its model, and verify refuses a width AnyLearn cannot
+		// store (embed.SupportedDims).
+		return defaultEmbedModel(provider) != "" || provider == providers.ProviderOpenAICompat
 	case KindTTS:
 		// An explicit allow-list. Falling through to the default would offer
 		// Anthropic, every OpenAI-compatible preset and the subscription

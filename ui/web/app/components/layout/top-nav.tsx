@@ -90,7 +90,7 @@ function ExtraMenu({ displayName, email }: { displayName: string; email: string 
       </FlyoutGroup>
       <FlyoutGroup>
         <FlyoutLink to="/tools" external>
-          {t("appendix.free")}
+          AnyTools
         </FlyoutLink>
       </FlyoutGroup>
       <AccountItems displayName={displayName} email={email} />
@@ -128,7 +128,7 @@ function Hamburger({ open, onClick, buttonRef }: { open: boolean; onClick: () =>
  * The top nav, VitePress's VPNavBar, 64 high: the wordmark in a column as
  * wide as the sidebar (on the sidebar's surface from 960), then search, the
  * four TOP_NAV links (from 768), and from 1280 the language flyout, the
- * appearance switch, Free tools and the account; between 768 and 1279 those
+ * appearance switch, the AnyTools link and the account; between 768 and 1279 those
  * fold into "…", below 768 into the nav screen behind the hamburger.
  *
  * Its bottom hairline appears only once the scroll region has left the top,
@@ -204,7 +204,7 @@ export function TopNav({ displayName, email }: { displayName: string; email: str
             <Rule className="ml-4" />
             {/* A plain link: /tools is the tools site, outside this app's router. */}
             <a href="/tools" className={cn(NAV_LINK, "text-foreground")}>
-              {t("appendix.free")}
+              AnyTools
             </a>
             <AccountMenu displayName={displayName} email={email} />
           </div>

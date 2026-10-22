@@ -337,7 +337,7 @@ func TestBumpingACitedDocumentsVersionMarksTheExplanationStale(t *testing.T) {
 		t.Fatal(err)
 	}
 	read := func() *mastery.Explanation {
-		e, err := f.store.Explanation(ctx, f.user, f.kp, "fake-1", 0)
+		e, err := f.store.Explanation(ctx, f.user, f.kp, "fake-1", 0, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -353,7 +353,7 @@ func TestBumpingACitedDocumentsVersionMarksTheExplanationStale(t *testing.T) {
 		t.Fatal("a re-parsed source did not mark the explanation stale")
 	}
 	// Another user's copy of the key reads nothing.
-	if _, err := f.store.Explanation(ctx, uuid.New(), f.kp, "fake-1", 0); !errors.Is(err, mastery.ErrNotFound) {
+	if _, err := f.store.Explanation(ctx, uuid.New(), f.kp, "fake-1", 0, ""); !errors.Is(err, mastery.ErrNotFound) {
 		t.Fatalf("a stranger's read: err = %v", err)
 	}
 }

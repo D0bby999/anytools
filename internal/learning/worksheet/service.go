@@ -205,10 +205,21 @@ func (s *Service) Create(ctx context.Context, userID uuid.UUID, in NewWorksheet)
 	if err != nil {
 		return nil, err
 	}
+	// A quick version's "this happened on" date starts as the learner's day
+	// (quick.go), so its reviews are scheduled from the start.
+	answers := Answers{}
+	for _, qf := range k.Quick {
+		if qf.Today {
+			if answers[qf.Section] == nil {
+				answers[qf.Section] = map[string]any{}
+			}
+			answers[qf.Section][qf.Field] = today.String()
+		}
+	}
 	reviews := map[string]ReviewDate{}
-	schedule(k, Answers{}, reviews, today, today)
+	schedule(k, answers, reviews, today, today)
 	return s.store.Create(ctx, Worksheet{
-		UserID: userID, Kind: k.Kind, KindVersion: k.Version, Title: title, Answers: Answers{},
+		UserID: userID, Kind: k.Kind, KindVersion: k.Version, Title: title, Answers: answers,
 		StateID: in.StateID, DocumentID: in.DocumentID, CycleID: in.CycleID, Status: StatusOpen, Private: k.Private,
 		Reviews: reviews,
 	})

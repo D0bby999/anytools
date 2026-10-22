@@ -54,7 +54,7 @@ describe("landing", () => {
 describe("crawler files", () => {
   // AnyTools phase 2: the public tool pages joined the landing page here
   // (tools-public-routes.test.ts covers what they list).
-  it("robots.txt allows only the landing page, the public tool pages and the files they are drawn with, and names the sitemap", async () => {
+  it("robots.txt allows only the landing page, the public tool pages, public profiles and the files they are drawn with, and names the sitemap", async () => {
     const body = await robots.loader().text();
     expect(body).toContain("Allow: /$");
     expect(body).toContain("Disallow: /");
@@ -63,6 +63,7 @@ describe("crawler files", () => {
       "Allow: /?lng=",
       "Allow: /en$", "Allow: /en/", "Allow: /vi$", "Allow: /vi/",
       "Allow: /es$", "Allow: /es/", "Allow: /pt$", "Allow: /pt/",
+      "Allow: /u/",
       "Allow: /assets/", "Allow: /plates/", "Allow: /brand/", "Allow: /icons/",
       "Allow: /favicon.svg", "Allow: /favicon.ico", "Allow: /apple-touch-icon.png", "Allow: /og.png", "Allow: /llms.txt",
     ]);
@@ -70,7 +71,7 @@ describe("crawler files", () => {
   });
 
   it("sitemap.xml lists the landing page and nothing private", async () => {
-    const body = await sitemap.loader().text();
+    const body = await (await sitemap.loader()).text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     // The landing page in each language; `/` only redirects, so it is not listed.
     for (const l of ["en", "vi", "es", "pt"]) expect(locs).toContain(`https://learn.example.com/${l}`);

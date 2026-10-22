@@ -52,7 +52,14 @@ type User struct {
 	// nil until the first sign-in reported one or the learner chose one.
 	Language      string
 	LanguageSetAt *time.Time
+	// StudyFocus is what the learner came to learn (StudyFocuses), asked on
+	// their first visit: nil until asked, empty when they skipped.
+	StudyFocus []string
 }
+
+// StudyFocuses are the answers to "What do you want to learn?", in the order
+// Home offers them (the private design notes, phase 7).
+var StudyFocuses = []string{"languages", "documents", "exams", "research", "body"}
 
 // IdentityClaims are the verified facts the BFF extracted from a provider.
 // They arrive already verified: the Go API never talks to Google or GitHub.

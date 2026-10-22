@@ -7,6 +7,8 @@
     "noKinds": "Ainda não há fichas disponíveis.",
     "private": "Privada",
     "new": "Nova",
+    "start": "Começar",
+    "startQuick": "Começar (5 min)",
     "newOf": "Nova: {{name}}"
   },
   "groups": {
@@ -222,6 +224,10 @@
   "languages": {
     "title": "Idiomas",
     "lead": "Pratique os idiomas que você está aprendendo, por habilidade, com seu próprio material: os vídeos, artigos e rascunhos que você já tem.",
+    "shelf": {
+      "lead": "Ainda sem material?",
+      "link": "Escolha material para aprender {{name}} na Biblioteca"
+    },
     "tabs": {
       "label": "Idiomas que você está aprendendo",
       "add": "+ Adicionar um idioma",
@@ -357,5 +363,17 @@
       "use": "Usar",
       "useOf": "Usar {{name}}"
     }
+  },
+  "quick": {
+    "title": "Versão rápida",
+    "lead_one": "{{count}} linha, cerca de cinco minutos. O que você escrever aqui também faz parte da ficha completa.",
+    "lead_other": "{{count}} linhas, cerca de cinco minutos. O que você escrever aqui também faz parte da ficha completa.",
+    "openFull_one": "Abrir a ficha completa ({{count}} seção)",
+    "openFull_other": "Abrir a ficha completa ({{count}} seções)",
+    "backToQuick": "Voltar à versão rápida"
+  },
+  "selfEstimate": {
+    "label": "Sua própria estimativa:",
+    "note": "O que você escolheu na autoavaliação do QECR, não o resultado de uma prova. Escolha de novo a cada revisão."
   }
 }

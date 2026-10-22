@@ -24,9 +24,21 @@ export function entryNote(t: TFunction, row: FunctionReadiness, entry: Readiness
   });
 }
 
-/** A row's reason: what keeps this function from being plainly ready. */
-export function rowReason(t: TFunction, row: FunctionReadiness): string {
+/** An optional function nobody routed: not a failure, so not red. */
+export function isUnsetOptional(row: FunctionReadiness, optional: readonly string[]): boolean {
+  return optional.includes(row.function) && row.reason_code === "no_route" && row.entries.length === 0;
+}
+
+/**
+ * A row's reason: what keeps this function from being plainly ready. On the
+ * Routes page (`onRoutesPage`) a missing route points at the row's own Edit
+ * below, not at the page the learner is already on.
+ */
+export function rowReason(t: TFunction, row: FunctionReadiness, onRoutesPage = false): string {
   if (!row.reason_code) return row.reason;
+  if (onRoutesPage && row.reason_code === "no_route") {
+    return t("readinessText.no_route_here", { defaultValue: row.reason, function: functionName(t, row.function) });
+  }
   // A warning row borrows its first warning entry's note, code and all.
   const entry = row.entries.find((e) => e.note_code === row.reason_code);
   if (entry) return entryNote(t, row, entry);

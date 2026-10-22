@@ -11,6 +11,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/httpx"
 	"github.com/D0bby999/anytools/internal/capabilities/reading"
 	"github.com/D0bby999/anytools/internal/knowledge"
+	"github.com/D0bby999/anytools/internal/locale"
 	"github.com/D0bby999/anytools/internal/runtime"
 )
 
@@ -94,6 +95,7 @@ func (h *Handler) action(w http.ResponseWriter, r *http.Request) {
 		Page:          req.Page,
 		DocumentID:    ws.DocumentID.String(),
 		DocumentTitle: doc.Title,
+		LearnerLang:   locale.FromContext(r.Context()),
 	}
 	if doc.Timed() {
 		// A video's tutor answers from the stored transcript around the

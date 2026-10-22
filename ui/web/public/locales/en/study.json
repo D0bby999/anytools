@@ -136,7 +136,11 @@
     "archiveConfirm": "Archive this path? Its history is kept, but it stops appearing in your due list.",
     "practise": "Practise these",
     "explained": "Explained ✓",
-    "explainGate": "Concept and design points need an explanation in your own words before their module is done."
+    "explainGate": "Concept and design points need an explanation in your own words before their module is done.",
+    "outsideTitle": "Not found in your documents",
+    "outsideHint": "Your documents hardly cover these points, so lessons on them would lean on the model rather than your material. Delete a line to drop it, or keep it marked.",
+    "outsideMark": "Not in your documents",
+    "coverageSkipped": "These points were not checked against your documents: this knowledge base could not be measured with your current embeddings model."
   },
   "session": {
     "back": "Back to the path",
@@ -177,6 +181,8 @@
     "label": "Learn",
     "testMe": "Got it, test me",
     "differently": "Explain it differently",
+    "inSource": "Explain in the documents' language",
+    "inLanguage": "Explain in {{language}}",
     "writing": "Writing an explanation…",
     "teachMe": "Teach me this",
     "stale": "Sources changed: a document this cites has been updated since it was written.",
@@ -423,5 +429,12 @@
     "practice": "Practice",
     "chooseAnswer": "Choose an answer.",
     "answerQuestionsCount": "Answer today’s {{count}} questions"
+  },
+  "explainLang": {
+    "label": "Explain in",
+    "mine": "My language ({{language}})",
+    "source": "The documents' language",
+    "help": "The plan, lessons and feedback are written in this language. Terms, quotations and examples from your documents stay as they are.",
+    "saved": "Saved. New lessons and feedback use it."
   }
 }

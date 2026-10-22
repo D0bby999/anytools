@@ -119,7 +119,7 @@ func (s *LibraryStore) ReplaceCatalogue(ctx context.Context, c *library.Catalogu
 			accessibility = []string{}
 		}
 		items = append(items, []any{
-			it.ID, it.Position, it.Source.Name, it.Kind, it.Subject, it.Language, int16(it.LanguageRank()),
+			it.ID, it.Position, it.Source.Name, it.Kind, it.Subject, it.Language, it.Teaches, int16(it.LanguageRank()),
 			it.Name, it.NameKey, it.About, it.AboutKey, it.Section, it.Author, it.URL, it.Licence, it.Reusable,
 			it.Credit, it.CreditText, size, it.Unit, it.Video, it.Level, it.Hours, year,
 			cert, certName, certMin, certMax, certCurrency, rating, ratingCount, popularity, popularityKind,
@@ -127,7 +127,7 @@ func (s *LibraryStore) ReplaceCatalogue(ctx context.Context, c *library.Catalogu
 		})
 	}
 	if _, err := tx.CopyFrom(ctx, pgx.Identifier{"library_items"}, []string{
-		"id", "position", "source", "kind", "subject", "language", "language_rank",
+		"id", "position", "source", "kind", "subject", "language", "teaches", "language_rank",
 		"name", "name_key", "about", "about_key", "section", "author", "url", "licence", "reusable",
 		"credit", "credit_text", "size", "unit", "video", "level", "hours", "year",
 		"certificate", "certificate_name", "certificate_min", "certificate_max", "certificate_currency", "rating", "rating_count", "popularity", "popularity_kind",
@@ -162,6 +162,9 @@ func libraryWhere(f library.Filter) (string, []any) {
 	}
 	if f.Subject != "" {
 		conds = append(conds, "i.subject = "+arg(f.Subject))
+	}
+	if f.Teaches != "" {
+		conds = append(conds, "i.teaches = "+arg(f.Teaches))
 	}
 	if langs := f.Languages(); langs != nil {
 		conds = append(conds, "(i.language = 'mul' OR split_part(i.language, '-', 1) = ANY("+arg(langs)+"))")
@@ -212,7 +215,7 @@ func libraryOrder(sort string) string {
 	return "k.turn, k.position"
 }
 
-const libraryColumns = `i.id, i.kind, i.subject, i.language, i.name, i.name_key, i.about, i.about_key, i.section, i.author,
+const libraryColumns = `i.id, i.kind, i.subject, i.language, i.teaches, i.name, i.name_key, i.about, i.about_key, i.section, i.author,
 	i.size, i.unit, i.video, i.level, i.hours, i.year, i.certificate, i.certificate_name, i.certificate_min,
 	i.certificate_max, i.certificate_currency, i.rating, i.rating_count, i.popularity, i.popularity_kind,
 	i.accessibility, i.licence, i.source, src.url, i.credit, i.credit_text, i.url, i.action`
@@ -226,7 +229,7 @@ func scanLibraryItem(row pgx.Row, extra ...any) (*library.Item, error) {
 	var ratingCount int
 	var popularity *int64
 	var action []byte
-	dest := append(extra, &it.ID, &it.Kind, &it.Subject, &it.Language, &it.Name, &it.NameKey, &it.About, &it.AboutKey,
+	dest := append(extra, &it.ID, &it.Kind, &it.Subject, &it.Language, &it.Teaches, &it.Name, &it.NameKey, &it.About, &it.AboutKey,
 		&it.Section, &it.Author, &size, &it.Unit, &it.Video, &it.Level, &it.Hours, &year, &cert, &certName, &certMin,
 		&certMax, &certCurrency, &rating, &ratingCount, &popularity, &popularityKind, &it.Accessibility, &it.Licence,
 		&it.Source.Name, &it.Source.URL, &it.Credit, &it.CreditText, &it.URL, &action)

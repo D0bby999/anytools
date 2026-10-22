@@ -19,12 +19,13 @@ import { requireUser } from "~/lib/auth.server";
 import { ApiError } from "~/lib/api.server";
 import { listKBs } from "~/lib/kb.server";
 import { createPath, listDue, listPaths } from "~/lib/mastery.server";
+import { ExplainLangSelect } from "~/components/mastery/explain-lang-select";
 import { percent } from "~/lib/study-types";
 import { Button } from "~/components/ui/button";
 import { ProposalEditor } from "~/components/mastery/proposal-editor";
 import { MasteryTabs } from "~/components/vocab/mastery-tabs";
 import { ReviewAllLink } from "~/components/mastery/review-all-link";
-import { dueCards } from "~/lib/vocab.server";
+import { dueCards, studiedLanguages } from "~/lib/vocab.server";
 import { PageHeader } from "~/components/ui/page-header";
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -43,6 +44,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     dueCards(user.id, 0).then((d) => d.due_count).catch((): number | null => null),
     dueCards(user.id, 0, "book").then((d) => d.due_count).catch((): number | null => null),
   ]);
+  const studied = await studiedLanguages(user.id).then((s) => s.studied).catch((): string[] => []);
   return {
     paths: paths.filter((p) => p.path.status === "active"),
     kbs: knowledge_bases.filter((s) => s.ready > 0).map((s) => ({ id: s.kb.id, name: s.kb.name })),
@@ -51,6 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     bookDue,
     // A knowledge base page links here with ?kb= to plan a path from it.
     selectedKb: new URL(request.url).searchParams.get("kb") ?? "",
+    studied,
   };
 }
 
@@ -63,7 +66,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (!goal) return { errorKey: "errors.goalRequired", errorDetail: "" };
 
   try {
-    const created = await createPath(user.id, kbId, goal);
+    const created = await createPath(user.id, kbId, goal, String(form.get("explain_lang") ?? ""));
     return { created };
   } catch (error) {
     return { errorKey: "errors.createPathFailed", errorDetail: error instanceof ApiError ? error.message : "" };
@@ -180,6 +183,13 @@ export default function MasteryIndex({ loaderData, actionData }: Route.Component
                 placeholder={t("mastery.goalPlaceholder")}
                 className="mt-1 min-h-11 w-full rounded-md border border-control-border bg-card px-3 text-sm"
               />
+            </div>
+            <div>
+              <label htmlFor="lp-path-lang" className="block text-sm font-medium">
+                {t("explainLang.label")}
+              </label>
+              <ExplainLangSelect id="lp-path-lang" studied={loaderData.studied} />
+              <p className="mt-1 text-xs leading-prose text-muted-foreground">{t("explainLang.help")}</p>
             </div>
             <Button type="submit" disabled={creating}>
               {creating ? t("mastery.planning") : t("mastery.create")}

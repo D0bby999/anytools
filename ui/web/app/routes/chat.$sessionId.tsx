@@ -65,6 +65,7 @@ import { WaitForInputCard } from "~/components/chat/wait-for-input-card";
 import { RightPanel } from "~/components/layout/right-panel";
 import { Button } from "~/components/ui/button";
 import { listKBs } from "~/lib/kb.server";
+import { studiedLanguages } from "~/lib/vocab.server";
 
 export function meta({ data, matches }: Route.MetaArgs) {
   const title = data?.session.title;
@@ -97,7 +98,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   // Validated before it is interpolated into an API path. See requireUUID.
   const sessionId = requireUUID(params.sessionId);
 
-  const [session, history, kbs, models, recent, feedback] = await Promise.all([
+  const [session, history, kbs, models, recent, feedback, studied] = await Promise.all([
     getSession(userId, sessionId),
     getMessages(userId, sessionId),
     listKBs(userId).catch(() => ({ knowledge_bases: [] })),
@@ -106,6 +107,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     // failing costs its own part, never the page.
     listSessions(userId, "", RECENT_LIMIT).catch(() => ({ sessions: [] })),
     listFeedback(userId, sessionId).catch(() => ({ feedback: [] })),
+    // The mic's "Speak in": the languages the learner studies, current first.
+    studiedLanguages(userId).catch(() => ({ studied: [] as string[], current: "" })),
   ]);
 
   return {
@@ -118,6 +121,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     models,
     chatRecent: recent.sessions.map((s) => ({ id: s.id, title: s.title, running: s.running })),
     feedback: feedback.feedback,
+    speechLanguages: studied.current
+      ? [studied.current, ...studied.studied.filter((code) => code !== studied.current)]
+      : studied.studied,
   };
 }
 
@@ -679,6 +685,7 @@ function Conversation({ loaderData }: Route.ComponentProps) {
             documents={loaderData.documents}
             uploadKB={firstKB}
             onHelp={() => setHelpOpen(true)}
+            speechLanguages={loaderData.speechLanguages}
             onUploaded={() => {
               if (!busy) revalidator.revalidate();
             }}

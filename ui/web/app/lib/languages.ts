@@ -22,6 +22,19 @@ export const ALL_LANGUAGES = (
   "za zh zu"
 ).split(" ");
 
+/**
+ * The tag a speech recogniser is given for a code: Chrome hears "en-US" far
+ * better than a bare "en". A code that already names a region is kept.
+ */
+const SPEECH_REGIONS: Record<string, string> = {
+  en: "en-US", vi: "vi-VN", es: "es-ES", pt: "pt-BR", fr: "fr-FR", de: "de-DE",
+  it: "it-IT", ja: "ja-JP", ko: "ko-KR", zh: "zh-CN", ru: "ru-RU",
+};
+
+export function speechTag(code: string): string {
+  return code.includes("-") ? code : (SPEECH_REGIONS[code] ?? code);
+}
+
 /** A code the server accepts: en, vi, pt-BR. */
 export function isLanguageCode(s: string): boolean {
   return /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})?$/.test(s);

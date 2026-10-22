@@ -8,6 +8,7 @@
  * pinned to that list by a test: a second copy of the enum is a copy that
  * drifts, and red-team RT-13 found exactly that drift in the plan.
  */
+import { useState } from "react";
 import { data, Form, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/settings.routes";
@@ -27,6 +28,7 @@ import { ReadinessMatrix } from "~/components/settings/readiness-matrix";
 import { Button } from "~/components/ui/button";
 import { StatusPill } from "~/components/settings/readiness-matrix";
 import { RouteChainDialog } from "~/components/settings/route-chain-dialog";
+import { QuickSetupDialog } from "~/components/settings/quick-setup-dialog";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
@@ -94,6 +96,8 @@ export async function action({ request }: Route.ActionArgs) {
 export default function Routes({ loaderData, actionData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
   const navigation = useNavigation();
+  const [quickOpen, setQuickOpen] = useState(false);
+  const empty = loaderData.routes.functions.filter((fn) => (loaderData.routes.routes[fn] ?? []).length === 0);
 
   return (
     <div>
@@ -119,6 +123,7 @@ export default function Routes({ loaderData, actionData }: Route.ComponentProps)
           <ReadinessMatrix
             functions={loaderData.readiness.functions}
             optional={loaderData.readiness.optional_functions ?? []}
+            onRoutesPage
           />
         </div>
       </section>
@@ -126,14 +131,21 @@ export default function Routes({ loaderData, actionData }: Route.ComponentProps)
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
         <h2 className="lp-section">{t("settings.routes.editorsTitle")}</h2>
         {loaderData.connections.length > 0 ? (
-          <Form method="post">
-            <input type="hidden" name="intent" value="verify-all" />
-            <Button type="submit" variant="outline" size="sm" disabled={navigation.state !== "idle"}>
-              {navigation.formData?.get("intent") === "verify-all"
-                ? t("settings.routes.verifying")
-                : t("settings.routes.verifyAll")}
-            </Button>
-          </Form>
+          <div className="flex flex-wrap gap-2">
+            {empty.length > 0 ? (
+              <Button type="button" size="sm" onClick={() => setQuickOpen(true)}>
+                {t("settings.quick.fillEmpty")}
+              </Button>
+            ) : null}
+            <Form method="post">
+              <input type="hidden" name="intent" value="verify-all" />
+              <Button type="submit" variant="outline" size="sm" disabled={navigation.state !== "idle"}>
+                {navigation.formData?.get("intent") === "verify-all"
+                  ? t("settings.routes.verifying")
+                  : t("settings.routes.verifyAll")}
+              </Button>
+            </Form>
+          </div>
         ) : null}
       </div>
 
@@ -172,6 +184,14 @@ export default function Routes({ loaderData, actionData }: Route.ComponentProps)
           ))}
         </div>
       )}
+      {quickOpen ? (
+        <QuickSetupDialog
+          open
+          onClose={() => setQuickOpen(false)}
+          connections={loaderData.connections}
+          catalog={loaderData.catalog}
+        />
+      ) : null}
     </div>
   );
 }

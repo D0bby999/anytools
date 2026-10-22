@@ -8,6 +8,14 @@
  * without touching any other section. If someone else wrote this section
  * since (another tab, a row added from the reader), the API refuses, and the
  * section is reloaded from what the server now holds.
+ *
+ * A kind with a quick version opens on it (the private design notes,
+ * phase 5): its three to five fields, each section's shown alone, and a
+ * button to the full worksheet, remembered per worksheet. The two are never
+ * on screen together: a full section holding an older copy of a quick field
+ * would save it back over the newer one. A section save sends only the fields
+ * it shows, and the API merges by field, so the quick form never clears the
+ * rest.
  */
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useFetcher } from "react-router";
@@ -25,6 +33,7 @@ import { initialValues, sectionPayload, shown, type SectionValues } from "~/lib/
 import { FieldInput } from "~/components/worksheet/field-input";
 import { WorksheetTable, type TableExtras } from "~/components/worksheet/worksheet-table";
 import { ScrollBox } from "~/components/doc/scroll-box";
+import { Button } from "~/components/ui/button";
 
 /** "22:14" in the learner's own clock. */
 function clockTime(at: Date): string {
@@ -64,7 +73,19 @@ type FormProps = {
   renderSectionExtra?: (section: WorksheetSection, editor: SectionEditor) => ReactNode;
   /** Number the sections' headings "1. …", as up's worksheets do (the default). */
   numbered?: boolean;
+  /** Open on the full worksheet even when the kind has a quick version. */
+  fullOnly?: boolean;
 };
+
+const FULL_KEY = (id: string) => `anytools.worksheet.full.${id}`;
+
+/** The kind's quick fields, grouped into their sections, in the kind's order. */
+export function quickSections(kind: WorksheetKind): WorksheetSection[] {
+  const quick = kind.quick ?? [];
+  return kind.sections
+    .map((s) => ({ ...s, fields: s.fields.filter((f) => quick.some((q) => q.section === s.key && q.field === f.key)) }))
+    .filter((s) => s.fields.length > 0);
+}
 
 export function WorksheetForm({
   worksheetId,
@@ -76,13 +97,58 @@ export function WorksheetForm({
   extras,
   onValues,
   numbered = true,
+  fullOnly = false,
 }: FormProps) {
+  const { t } = useTranslation("toolkit");
   // The newest revision any section's save returned. A section written by
   // someone else is still refused: the API compares per section.
   const [revision, setRevision] = useState(loaded);
   useEffect(() => setRevision((r) => (loaded > r ? loaded : r)), [loaded]);
+  const quick = fullOnly ? [] : quickSections(kind);
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    if (window.localStorage.getItem(FULL_KEY(worksheetId)) === "1") setFull(true);
+  }, [worksheetId]);
+  const showFull = (on: boolean) => {
+    setFull(on);
+    if (on) window.localStorage.setItem(FULL_KEY(worksheetId), "1");
+    else window.localStorage.removeItem(FULL_KEY(worksheetId));
+  };
+
+  if (quick.length > 0 && !full) {
+    const count = quick.reduce((n, s) => n + s.fields.length, 0);
+    return (
+      <div className="lp-quick-worksheet">
+        <h2>{t("quick.title")}</h2>
+        <p className="text-muted-foreground">{t("quick.lead", { count })}</p>
+        {quick.map((s) => (
+          <SectionForm
+            key={s.key}
+            number={0}
+            heading="h3"
+            worksheetId={worksheetId}
+            section={s}
+            stored={answers[s.key]}
+            revision={revision}
+            onSaved={(r) => setRevision((cur) => (r > cur ? r : cur))}
+            action={action}
+            extras={extras}
+            onValues={onValues}
+          />
+        ))}
+        <Button type="button" variant="outline" onClick={() => showFull(true)}>
+          {t("quick.openFull", { count: kind.sections.length })}
+        </Button>
+      </div>
+    );
+  }
   return (
     <div>
+      {quick.length > 0 ? (
+        <Button type="button" variant="ghost" size="sm" className="mb-2" onClick={() => showFull(false)}>
+          {t("quick.backToQuick")}
+        </Button>
+      ) : null}
       {kind.sections.map((s, i) => (
         <SectionForm
           key={s.key}
@@ -105,6 +171,8 @@ export function WorksheetForm({
 type SectionProps = {
   /** The heading's number; 0 for none. */
   number: number;
+  /** h3 inside the quick version, under its own h2. */
+  heading?: "h2" | "h3";
   worksheetId: string;
   section: WorksheetSection;
   stored: Record<string, FieldValue> | undefined;
@@ -118,6 +186,7 @@ type SectionProps = {
 
 function SectionForm({
   number,
+  heading: Heading = "h2",
   worksheetId,
   section,
   stored,
@@ -216,7 +285,7 @@ function SectionForm({
 
   return (
     <section aria-labelledby={headingId}>
-      <h2 id={headingId}>{number ? `${number}. ${section.title}` : section.title}</h2>
+      <Heading id={headingId}>{number ? `${number}. ${section.title}` : section.title}</Heading>
       {section.hint ? <p className="whitespace-pre-line text-muted-foreground">{section.hint}</p> : null}
       <fieldset onBlur={save} aria-labelledby={headingId}>
         {blocks.map((block) => {

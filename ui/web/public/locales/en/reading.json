@@ -30,6 +30,8 @@
     "empty": "Select a passage and choose an action. The tutor answers from the passage you chose, and every answer can be saved to your notebook with its page.",
     "save": "Save answer to notebook",
     "saved": "Saved",
+    "onPage": "(page {{page}})",
+    "atMoment": "(at {{clock}})",
     "openInChat": "Continue this in Chat",
     "videoEmpty": "Choose a moment in the transcript and an action. The tutor answers from what is said around that moment."
   },

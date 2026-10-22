@@ -57,6 +57,30 @@ func TestTheLibraryCatalogueLoadsAndAnswersThePage(t *testing.T) {
 		return total, got
 	}
 
+	// the private design notes, phase 6: a shelf per language learned,
+	// whatever the material is written in and whatever the interface's.
+	t.Run("a shelf for learning a language", func(t *testing.T) {
+		total, got := find(library.Filter{Teaches: "en", UI: "vi"})
+		ids := map[string]bool{}
+		for _, it := range got {
+			ids[it.ID] = true
+			if it.Teaches != "en" {
+				t.Errorf("%s teaches %q on the English shelf", it.ID, it.Teaches)
+			}
+		}
+		if total < 10 || !ids["words:ngsl"] || !ids["voa-learning-english"] {
+			t.Fatalf("English shelf: %d items, %v", total, ids)
+		}
+		// Japanese material is written in English or Japanese: both are on
+		// the shelf of a Vietnamese learner.
+		if _, ja := find(library.Filter{Teaches: "ja", UI: "vi"}); !slices.ContainsFunc(ja, func(it library.Item) bool { return it.ID == "words:jlpt" }) {
+			t.Fatal("JLPT is not on the Japanese shelf")
+		}
+		if _, _, err := svc.Find(ctx, library.Filter{Teaches: "English"}); !errors.Is(err, library.ErrBadFilter) {
+			t.Fatalf("a language name as a shelf: %v", err)
+		}
+	})
+
 	t.Run("English first, the sources taking turns", func(t *testing.T) {
 		_, got := find(library.Filter{Subject: "programming", UI: "vi"})
 		if len(got) != library.PageSize {

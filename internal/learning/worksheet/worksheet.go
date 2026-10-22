@@ -152,6 +152,9 @@ type Kind struct {
 	// case rows when the results are saved, and a case added afterwards is
 	// not refused for the rate it makes out of date (the page shows that).
 	CheckWritten func(a Answers, written map[string]bool) error `json:"-"`
+	// Quick is the kind's quick version (quick.go), set from quickSets on
+	// registration; empty for a short kind.
+	Quick []QuickField `json:"quick,omitempty"`
 	// Version is bumped when the kind's structure changes. Rows keep the
 	// version they were created with (worksheets.kind_version).
 	Version  int       `json:"version"`
@@ -354,6 +357,9 @@ var (
 // register adds a kind. It panics on a mistake a kind file could make, so a
 // broken kind fails every test binary that links it.
 func register(k Kind) {
+	if len(k.Quick) == 0 {
+		k.Quick = quickSets[k.Kind]
+	}
 	if err := checkKind(&k); err != nil {
 		panic(fmt.Sprintf("worksheet: kind %q: %v", k.Kind, err))
 	}
@@ -448,7 +454,7 @@ func checkKind(k *Kind) error {
 			return fmt.Errorf("row review %s.%s[%s] → %s does not name a fixed row and a review", rr.Section, rr.Field, rr.Row, rr.Review)
 		}
 	}
-	return nil
+	return checkQuick(k)
 }
 
 func checkField(f Field, column bool) error {

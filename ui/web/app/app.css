@@ -309,8 +309,10 @@
   margin-inline: auto;
 }
 
+/* The public site's column. The app shell widens to --lp-layout-max on its
+   own; the site keeps the width its pages were laid out at. */
 @utility lp-layout {
-  max-width: var(--lp-layout-max);
+  max-width: var(--lp-site-max);
   margin-inline: auto;
 }
 

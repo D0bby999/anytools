@@ -122,7 +122,30 @@ export type ReviewResult = {
   replayed: boolean;
 };
 
-export type Term = { term: string; meaning: string; pos?: string };
+/**
+ * A term the reading model proposes: its meaning in the passage's sense, and
+ * suggestions for a word to learn (the sense in the learner's language, how
+ * it sounds, what it goes with), each the learner's to change.
+ */
+export type Term = { term: string; meaning: string; pos?: string; gloss?: string; sound?: string; collocation?: string };
+
+/**
+ * A retrieval cue from the passage: the sentence the term is in, with the
+ * term blanked, so the cue asks for the word instead of showing it.
+ */
+export function cueFrom(term: string, selection: string): string {
+  const sentences = selection.split(/(?<=[.!?…])\s+/);
+  const lower = term.toLowerCase();
+  const sentence = sentences.find((s) => s.toLowerCase().includes(lower)) ?? selection;
+  const at = sentence.toLowerCase().indexOf(lower);
+  const blanked = at < 0 ? sentence : `${sentence.slice(0, at)}___${sentence.slice(at + term.length)}`;
+  return blanked.trim().slice(0, MAX_RECORD);
+}
+
+/** What a word to learn starts with, from the term the model proposed. */
+export function learnPrefill(term: Term, selection: string): Record<string, string> {
+  return { sound: term.sound ?? "", collocation: term.collocation ?? "", cue: cueFrom(term.term, selection) };
+}
 
 export const RATINGS = ["again", "hard", "good", "easy"] as const;
 export type Rating = (typeof RATINGS)[number];
@@ -282,4 +305,7 @@ export type SourceSentence = {
   url: string;
   translation?: { text: string; licence: string; author: string };
 };
+/** Languages Tatoeba and Lingua Libre are asked about (wordsources.ISO3). */
+export const SOURCE_LANGS = new Set(["ar","bg","ca","cs","da","de","el","en","eo","es","et","fa","fi","fr","he","hi","hu","id","it","ja","ko","lt","lv","ms","nb","nl","no","pl","pt","ro","ru","sk","sl","sr","sv","th","tl","tr","uk","ur","vi","zh"]);
+
 export type SourceRecording = { id: string; speaker: string; licence: string; page: string; source: string };

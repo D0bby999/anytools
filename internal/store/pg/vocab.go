@@ -74,21 +74,30 @@ func (s *VocabStore) SaveNote(ctx context.Context, w vocab.NoteWrite) (*vocab.No
 	}
 
 	var id uuid.UUID
+	// A note saved from a page names its document; one from chat names none.
+	var doc *uuid.UUID
+	if w.DocumentID != uuid.Nil {
+		doc = &w.DocumentID
+	}
 	err = tx.QueryRow(ctx, `
 		INSERT INTO vocab_notes (user_id, term, lang, reading, pos, meaning, contexts,
 		                         source_document_id, source_page, decision, record, task_impact,
-		                         decided_at, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $13)
+		                         origin, decided_at, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14, $14)
 		ON CONFLICT (user_id, lang, lower(term)) DO NOTHING
 		RETURNING id`,
 		w.UserID, w.Term, w.Lang, w.Reading, w.POS, w.Meaning, first,
-		w.DocumentID, w.Page, w.Decision, recordJSON(w.Record), w.TaskImpact, w.Now).Scan(&id)
+		doc, w.Page, w.Decision, recordJSON(w.Record), w.TaskImpact, w.Origin, w.Now).Scan(&id)
 	created := err == nil
 	switch {
 	case created:
 		// Only a word to learn is reviewed (up's vocabulary chapter §3).
+		kinds := w.Kinds
+		if kinds == nil {
+			kinds = vocab.CardKinds()
+		}
 		if vocab.HasCards(w.Decision) {
-			if err := upsertCards(ctx, tx, w.UserID, id, vocab.CardKinds(), w.NewCard, w.Now); err != nil {
+			if err := upsertCards(ctx, tx, w.UserID, id, kinds, w.NewCard, w.Now); err != nil {
 				return nil, false, err
 			}
 		}
@@ -623,7 +632,7 @@ func (s *VocabStore) ImportNotes(ctx context.Context, b vocab.ImportBatch) (*voc
 		WITH pending AS (
 		  SELECT c.due_at FROM vocab_cards c
 		    JOIN vocab_notes n ON n.id = c.note_id AND n.user_id = c.user_id
-		   WHERE c.user_id = $1 AND n.origin <> '' AND c.kind = 'recognition' AND c.reps = 0 AND NOT c.suspended)
+		   WHERE c.user_id = $1 AND n.origin NOT IN ('', 'chat') AND c.kind = 'recognition' AND c.reps = 0 AND NOT c.suspended)
 		SELECT max(due_at), count(*) FILTER (WHERE due_at = (SELECT max(due_at) FROM pending)) FROM pending`,
 		b.UserID).Scan(&last, &count); err != nil {
 		return nil, fmt.Errorf("read import pace: %w", err)

@@ -5,7 +5,6 @@
  * cheer for each, the invite link, and the owner's controls. Nobody's
  * studies are shown, only their steadiness.
  */
-import { useEffect, useState } from "react";
 import { Form, Link, data, redirect, useFetcher, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/circles.$id";
@@ -24,6 +23,7 @@ import {
 import { Details } from "~/components/doc/details";
 import { RefTable } from "~/components/doc/ref-table";
 import { StatusLine } from "~/components/doc/status-line";
+import { CopyLink } from "~/components/doc/copy-link";
 import { FIELD } from "~/components/body/fields";
 import { Bar } from "~/components/progress/study-calendar";
 import { Button } from "~/components/ui/button";
@@ -115,30 +115,6 @@ function CheerButton({ member }: { member: CircleMember }) {
   );
 }
 
-function CopyLink({ url }: { url: string }) {
-  const { t } = useTranslation("progress");
-  const [copied, setCopied] = useState(false);
-  useEffect(() => {
-    if (!copied) return;
-    const id = setTimeout(() => setCopied(false), 3000);
-    return () => clearTimeout(id);
-  }, [copied]);
-  return (
-    <>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => {
-          void navigator.clipboard?.writeText(url).then(() => setCopied(true));
-        }}
-      >
-        {t("circle.copy")}
-      </Button>
-      <StatusLine>{copied ? t("circle.copied") : null}</StatusLine>
-    </>
-  );
-}
-
 export default function CirclePage({ loaderData, actionData }: Route.ComponentProps) {
   const { t, i18n } = useTranslation("progress");
   const { detail, invite } = loaderData;
@@ -210,7 +186,7 @@ export default function CirclePage({ loaderData, actionData }: Route.ComponentPr
           {t("circle.invite.code")} <span className="font-mono">{circle.invite_code}</span>
         </p>
         <div className="mt-3">
-          <CopyLink url={invite} />
+          <CopyLink url={invite} label={t("circle.copy")} copiedLabel={t("circle.copied")} />
         </div>
       </section>
 

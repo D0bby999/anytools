@@ -135,6 +135,14 @@ export default function Language({ loaderData, actionData }: Route.ComponentProp
         {SKILLS.filter((skill) => skill.kinds.some((id) => byId.has(id)) || PRACTICE[skill.id]).map((skill) => <a key={skill.id} href={`#lang-${skill.id}`} className={sectionTabClass({ isActive: false })}>{t(`languages.skills.${skill.id}.title`)}</a>)}
         <a href="#lang-vocabulary" className={sectionTabClass({ isActive: false })}>{t("languages.skills.vocabulary.title")}</a>
       </nav>
+      {/* Material to learn it from, when the learner has none of their own
+          (the private design notes, phase 6). */}
+      <p className="mt-3 text-sm leading-prose">
+        {t("languages.shelf.lead", { name: inSentence })}{" "}
+        <Link to={`/library?teaches=${encodeURIComponent(lang.split("-")[0] ?? lang)}`} className={LINK}>
+          {t("languages.shelf.link", { name: inSentence })}
+        </Link>
+      </p>
       {!studied ? (
         <Form method="post" className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           <p className="text-sm leading-prose">{t("languages.notStudied", { name: inSentence })}</p>

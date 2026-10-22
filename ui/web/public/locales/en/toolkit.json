@@ -7,6 +7,8 @@
     "noKinds": "No worksheets are available yet.",
     "private": "Private",
     "new": "New",
+    "start": "Start",
+    "startQuick": "Start (5 min)",
     "newOf": "New {{name}}"
   },
   "groups": {
@@ -222,6 +224,10 @@
   "languages": {
     "title": "Languages",
     "lead": "Practise the languages you are learning, by skill, on your own material: the videos, articles and drafts you already have.",
+    "shelf": {
+      "lead": "No material yet?",
+      "link": "Choose some for learning {{name}} in the Library"
+    },
     "tabs": {
       "label": "Languages you are learning",
       "add": "+ Add a language",
@@ -357,5 +363,17 @@
       "use": "Use",
       "useOf": "Use {{name}}"
     }
+  },
+  "quick": {
+    "title": "Quick version",
+    "lead_one": "{{count}} line, about five minutes. Everything you write here is part of the full worksheet too.",
+    "lead_other": "{{count}} lines, about five minutes. Everything you write here is part of the full worksheet too.",
+    "openFull_one": "Open the full worksheet ({{count}} section)",
+    "openFull_other": "Open the full worksheet ({{count}} sections)",
+    "backToQuick": "Back to the quick version"
+  },
+  "selfEstimate": {
+    "label": "Your own estimate:",
+    "note": "What you chose in the CEFR self-check, not a test result. Choose again at each review."
   }
 }

@@ -30,6 +30,8 @@
     "empty": "Selecione um trecho e escolha uma ação. O tutor responde a partir do trecho que você escolheu, e cada resposta pode ser salva no seu caderno com a página.",
     "save": "Salvar a resposta no caderno",
     "saved": "Salva",
+    "onPage": "(página {{page}})",
+    "atMoment": "(em {{clock}})",
     "openInChat": "Continuar no Chat",
     "videoEmpty": "Escolha um momento da transcrição e uma ação. O tutor responde a partir do que é dito em torno desse momento."
   },

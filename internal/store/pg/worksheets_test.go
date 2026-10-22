@@ -507,3 +507,18 @@ func TestTheGrammarErrorMapAttachesToTheOwnersStateOrDocument(t *testing.T) {
 		t.Errorf("a map outlived its document: %v", err)
 	}
 }
+
+// A quick version's "this happened on" date starts as the learner's day, so
+// a new diagnostic is scheduled before a line is written
+// (the private design notes, phase 5).
+func TestWorksheetsAQuickDateStartsAsToday(t *testing.T) {
+	ctx, f := newWorksheetFixture(t)
+	w := f.create(t, ctx, f.alice, "english_diagnostic", nil)
+	got, _ := w.Answers["first_version"]["first_version_on"].(string)
+	if got == "" || len(w.Reviews) != 3 {
+		t.Fatalf("first version on %q, reviews %v", got, w.Reviews)
+	}
+	if day7 := w.Reviews["day7"]; day7.Due == "" || day7.Due <= got {
+		t.Fatalf("day 7 = %+v after %s", day7, got)
+	}
+}

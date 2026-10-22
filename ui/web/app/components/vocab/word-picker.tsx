@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
-import type { Decision, Term, VocabNote, Week } from "~/lib/vocab-types";
+import { learnPrefill, type Decision, type Term, type VocabNote, type Week } from "~/lib/vocab-types";
 import { Button } from "~/components/ui/button";
 import { DecisionFields } from "~/components/vocab/decision-picker";
 import { WeekNotice } from "~/components/vocab/week-notice";
@@ -33,6 +33,11 @@ type SaveData = {
  * meaning shown — for Infer, only after a candidate sense of their own. A
  * term already saved shows its decision and offers to change it, which is a
  * PATCH: saving it again would only add the sentence.
+ *
+ * The common case is one click (the private design notes, phase 3):
+ * "Learn this word" saves it to learn with the meaning in the learner's own
+ * language and the sound, collocation and cue the model proposed. "Other
+ * ways to keep it" opens the five decisions, prefilled the same way.
  */
 export function WordPicker({ selection, page }: { selection: string; page: number }) {
   const { t } = useTranslation("vocab");
@@ -115,12 +120,18 @@ function TermRow({
   // the one found when the terms were listed.
   const note = result ?? saved;
   const [changing, setChanging] = useState(false);
-  const deciding = !note || changing;
+  const [choosing, setChoosing] = useState(false);
+  const deciding = (!note && choosing) || changing;
+  const prefill = learnPrefill(term, selection);
+  const meaning = term.gloss || term.meaning;
   const busy = saver.state !== "idle";
   const done = saver.state === "idle" && saver.data?.savedWord === true;
   // A change closes the form once the server has taken it.
   useEffect(() => {
-    if (done) setChanging(false);
+    if (done) {
+      setChanging(false);
+      setChoosing(false);
+    }
   }, [done, saver.data]);
 
   let status: string | null = null;
@@ -131,7 +142,9 @@ function TermRow({
       : saver.data.changed
         ? t("decide.changed", { decision })
         : saver.data.created
-          ? t("decide.savedAs", { decision })
+          ? note.decision === "learn"
+            ? t("decide.savedToday")
+            : t("decide.savedAs", { decision })
           : t("decide.already", { decision });
   }
 
@@ -149,7 +162,27 @@ function TermRow({
       ) : null}
       {saver.data?.week ? <WeekNotice week={saver.data.week} /> : null}
 
-      {deciding ? (
+      {!note && !choosing ? (
+        <saver.Form method="post" className="mt-2 flex flex-wrap items-center gap-2">
+          <input type="hidden" name="intent" value="save-word" />
+          <input type="hidden" name="selection" value={selection} />
+          <input type="hidden" name="page" value={String(page)} />
+          <input type="hidden" name="term" value={term.term} />
+          <input type="hidden" name="pos" value={term.pos ?? ""} />
+          <input type="hidden" name="lang" value={lang} />
+          <input type="hidden" name="decision" value="learn" />
+          <input type="hidden" name="meaning" value={meaning} />
+          {Object.entries(prefill).map(([k, v]) => (
+            <input key={k} type="hidden" name={`record_${k}`} value={v} />
+          ))}
+          <Button type="submit" size="sm" disabled={busy}>
+            {busy ? t("decide.saving") : t("picker.learnIt")}
+          </Button>
+          <Button type="button" size="sm" variant="ghost" onClick={() => setChoosing(true)}>
+            {t("picker.otherWays")}
+          </Button>
+        </saver.Form>
+      ) : deciding ? (
         <saver.Form method="post">
           <input type="hidden" name="intent" value={note ? "decide-word" : "save-word"} />
           {note ? <input type="hidden" name="id" value={note.id} /> : null}
@@ -159,7 +192,9 @@ function TermRow({
           <input type="hidden" name="pos" value={term.pos ?? ""} />
           <input type="hidden" name="lang" value={lang} />
           <DecisionFields
-            suggestion={note?.meaning || term.meaning}
+            suggestion={note?.meaning || meaning}
+            passageMeaning={note ? undefined : term.meaning}
+            prefill={note ? undefined : prefill}
             lang={lang || undefined}
             initial={
               note
@@ -171,8 +206,16 @@ function TermRow({
             <Button type="submit" size="sm" disabled={busy}>
               {busy ? t("decide.saving") : t("decide.save")}
             </Button>
-            {changing ? (
-              <Button type="button" size="sm" variant="ghost" onClick={() => setChanging(false)}>
+            {changing || choosing ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setChanging(false);
+                  setChoosing(false);
+                }}
+              >
                 {t("decide.cancel")}
               </Button>
             ) : null}

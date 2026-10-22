@@ -3,7 +3,10 @@
  * composer mic).
  *
  * Where the browser recognises speech itself (Chrome, Edge, Safari), the words
- * are written into the composer as they are heard, in the learner's language.
+ * are written into the composer as they are heard. It listens for the
+ * interface language unless the learner picks a language they study in
+ * "Speak in" (remembered): a Vietnamese interface heard spoken English as
+ * Vietnamese.
  * Elsewhere the question is recorded, up to 30 seconds, and heard by the
  * learner's speech-to-text route or the server's engine (app.api.dictate.ts).
  * With neither a recogniser nor a microphone, there is no button. Nothing is
@@ -13,9 +16,11 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Mic, Square } from "lucide-react";
 import { pickRecordingType } from "~/components/worksheet/recorder";
+import { languageName, speechTag } from "~/lib/languages";
 import { cn } from "~/lib/utils";
 
 const MAX_SECONDS = 30;
+const SPEAK_IN_KEY = "anytools.chat.micLang";
 
 type Recognition = {
   lang: string;
@@ -36,8 +41,21 @@ function recognitionClass(): (new () => Recognition) | null {
 
 type Mode = "recognise" | "record" | null;
 
-export function MicButton({ onText, disabled }: { onText: (text: string) => void; disabled?: boolean }) {
+export function MicButton({
+  onText,
+  disabled,
+  languages = [],
+}: {
+  onText: (text: string) => void;
+  disabled?: boolean;
+  /** Studied languages the learner may speak in, besides the interface's. */
+  languages?: readonly string[];
+}) {
   const { t, i18n } = useTranslation("common");
+  const ui = (i18n.language || "en").slice(0, 2);
+  const choices = [ui, ...languages.filter((code) => code !== ui)];
+  const choiceList = choices.join(" ");
+  const [spokenIn, setSpokenIn] = useState(ui);
   const [mode, setMode] = useState<Mode>(null);
   const [state, setState] = useState<"idle" | "listening" | "hearing">("idle");
   const [problem, setProblem] = useState<string | null>(null);
@@ -48,6 +66,12 @@ export function MicButton({ onText, disabled }: { onText: (text: string) => void
   sink.current = onText;
 
   // Known only in a browser: the server and the first render draw no button.
+  // The remembered choice, once in a browser, if it is still a choice.
+  useEffect(() => {
+    const saved = window.localStorage.getItem(SPEAK_IN_KEY);
+    setSpokenIn(saved && choiceList.split(" ").includes(saved) ? saved : ui);
+  }, [choiceList, ui]);
+
   useEffect(() => {
     if (recognitionClass()) setMode("recognise");
     else if (pickRecordingType() && typeof navigator.mediaDevices?.getUserMedia === "function") setMode("record");
@@ -63,13 +87,12 @@ export function MicButton({ onText, disabled }: { onText: (text: string) => void
   );
 
   if (!mode) return null;
-  const lang = (i18n.language || "en").slice(0, 2);
 
   function recognise() {
     const Rec = recognitionClass();
     if (!Rec) return;
     const rec = new Rec();
-    rec.lang = i18n.language || "en";
+    rec.lang = speechTag(spokenIn);
     rec.continuous = true;
     rec.interimResults = false;
     rec.onresult = (e) => {
@@ -105,7 +128,7 @@ export function MicButton({ onText, disabled }: { onText: (text: string) => void
       if (timer.current) window.clearTimeout(timer.current);
       setState("hearing");
       const body = new FormData();
-      body.set("lang", lang);
+      body.set("lang", spokenIn);
       body.set("audio", new File(chunks, "question", { type: rec.mimeType || type || "audio/webm" }));
       try {
         const res = await fetch("/app/api/dictate", { method: "POST", credentials: "same-origin", body });
@@ -136,7 +159,26 @@ export function MicButton({ onText, disabled }: { onText: (text: string) => void
 
   const listening = state === "listening";
   return (
-    <span className="relative inline-flex">
+    <span className="relative inline-flex items-center">
+      {choices.length > 1 ? (
+        <select
+          value={spokenIn}
+          onChange={(e) => {
+            setSpokenIn(e.target.value);
+            window.localStorage.setItem(SPEAK_IN_KEY, e.target.value);
+          }}
+          disabled={disabled || listening || state === "hearing"}
+          aria-label={t("chat.mic.speakIn")}
+          title={t("chat.mic.speakIn")}
+          className="h-8 max-w-28 truncate rounded-sm bg-transparent px-1 text-xs text-muted-foreground hover:bg-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+        >
+          {choices.map((code) => (
+            <option key={code} value={code}>
+              {languageName(code, ui)}
+            </option>
+          ))}
+        </select>
+      ) : null}
       <button
         type="button"
         onClick={toggle}

@@ -28,15 +28,20 @@ export function listPaths(userId: string) {
   return apiFetch<{ paths: PathSummary[] }>("/v1/mastery/paths", userId);
 }
 
-export function createPath(userId: string, kbId: string, goal: string) {
+export function createPath(userId: string, kbId: string, goal: string, explainLang = "") {
   return apiFetch<{ path: Path; proposal: Proposal }>("/v1/mastery/paths", userId, {
     method: "POST",
-    body: { kb_id: kbId, goal },
+    body: { kb_id: kbId, goal, explain_lang: explainLang },
   });
 }
 
 export function getPath(userId: string, pathId: string) {
   return apiFetch<PathDetail>(base(pathId), userId);
+}
+
+/** The language a path is explained in: "" the learner's, "source", or a code. */
+export function setExplainLang(userId: string, pathId: string, lang: string) {
+  return apiFetch<Path>(base(pathId), userId, { method: "PATCH", body: { explain_lang: lang } });
 }
 
 export function archivePath(userId: string, pathId: string) {
@@ -78,7 +83,7 @@ export function openErrors(userId: string, pathId: string) {
 const point = (pointId: string) => `/v1/mastery/points/${encodeURIComponent(pointId)}`;
 
 /** Teach a point: cached per point and model; `refresh` rewrites a stale one. */
-export function learnPoint(userId: string, pointId: string, body: { variant?: number; refresh?: boolean }) {
+export function learnPoint(userId: string, pointId: string, body: { variant?: number; refresh?: boolean; lang?: string }) {
   return apiFetch<Explanation>(`${point(pointId)}/learn`, userId, { method: "POST", body });
 }
 

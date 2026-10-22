@@ -11,6 +11,7 @@ import { POPULATED_CLUSTERS } from "./catalog";
 import { clusterIsIndexable, isIndexableTool, loadToolContent, toolLocales } from "./content.server";
 import { toolMetas } from "~/tools/meta-registry";
 import { GUIDE_SLUGS, guideLocales, STATIC_PAGES } from "./pages.server";
+import { showcaseLangPath, showcasePath } from "~/lib/showcase/design";
 
 /**
  * The day the redesigned site went live: every page's markup, copy and
@@ -29,6 +30,20 @@ function entry(path: (l: PublicLng) => string, self: PublicLng, alternates: read
   const links = alternates.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${APP_URL}${path(l)}"/>`);
   if (alternates.includes("en")) links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}${xDefault ?? path("en")}"/>`);
   return `  <url>\n    <loc>${APP_URL}${path(self)}</loc>\n    <lastmod>${lastmod(updated)}</lastmod>\n${links.join("\n")}\n  </url>`;
+}
+
+/**
+ * Public profiles their learners let search engines list
+ * (the private design notes): one entry each, at the bare address
+ * that answers in the visitor's language, naming each language's address.
+ */
+export function showcaseUrls(pages: { handle: string; updated_at: string }[]): string[] {
+  return pages.map((p) => {
+    const day = p.updated_at.slice(0, 10);
+    const links = publicLngs.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${APP_URL}${showcaseLangPath(p.handle, l)}"/>`);
+    links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${APP_URL}${showcasePath(p.handle)}"/>`);
+    return `  <url>\n    <loc>${APP_URL}${showcasePath(p.handle)}</loc>\n    <lastmod>${/^\d{4}-\d{2}-\d{2}$/.test(day) ? day : SITE_UPDATED}</lastmod>\n${links.join("\n")}\n  </url>`;
+  });
 }
 
 export function publicUrls(): string[] {

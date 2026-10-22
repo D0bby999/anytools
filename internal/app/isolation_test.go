@@ -183,6 +183,7 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		"POST /v1/reading/{id}/diagram":        map[string]any{"selection": "x"},
 		"POST /v1/reading/{id}/terms":          map[string]any{"selection": "x", "page": 1},
 		"PATCH /v1/vocab/{id}":                 map[string]any{"meaning": "x"},
+		"PATCH /v1/mastery/paths/{id}":         map[string]any{"explain_lang": "vi"},
 		"POST /v1/vocab/cards/{id}/review":     map[string]any{"rating": "good", "request_id": uuid.NewString()},
 		"POST /v1/decks/{id}/cards":            map[string]any{"cards": []map[string]string{{"front": "f", "back": "b"}}},
 		"POST /v1/learning/states/{id}/cards":  isolationCard(),
@@ -197,6 +198,9 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		"PUT /v1/exams/{id}/answers":               map[string]any{"answers": []any{}},
 		"POST /v1/chat/messages/{id}/retell":       map[string]any{"text": "x"},
 		"PUT /v1/chat/messages/{id}/feedback":      map[string]any{"rating": "good"},
+		// the private design notes, phase 3: one valid item, so the
+		// probe reaches the answer's lookup.
+		"POST /v1/chat/messages/{id}/corrections/save": map[string]any{"items": []map[string]any{{"wrong": "a", "right": "b"}}},
 		// up methods, phase 0: a valid revision and title, so the probe
 		// reaches the owner's row lock.
 		"PATCH /v1/worksheets/{id}":     map[string]any{"revision": time.Now().UTC().Format(time.RFC3339Nano), "title": "x"},
@@ -1254,6 +1258,11 @@ var writesWithoutResourceIDs = map[string]string{
 	"PATCH /v1/circles/{id}":       "a name and the caller's own nickname for the path's circle; body names nothing else",
 	"POST /v1/circles/{id}/invite": "no body",
 	"POST /v1/circles/{id}/leave":  "no body",
+	// The public profile (the private design notes).
+	"PUT /v1/showcase":         "the caller's own page: a handle, their words and a design; a handle another has is refused as taken",
+	"DELETE /v1/showcase":      "deletes the caller's own page",
+	"POST /v1/showcase/read":   "gateway-only; the handle picks a published page, shown to anyone",
+	"POST /v1/showcase/listed": "gateway-only; no body; the handles of published pages that may be indexed",
 	// Learning-tool-connections. Ids in these bodies are Google's, Canva's,
 	// Notion's or YouTube's, read through the caller's own grant, or the
 	// caller's own rows found WHERE user_id.
@@ -1418,10 +1427,15 @@ var writesWithoutResourceIDs = map[string]string{
 	"DELETE /v1/exams/{id}":                       "no body",
 	// up-methods phase 11.
 	"PUT /v1/me/own-version-first":       "the caller's own on/off switch",
+	"PUT /v1/me/study-focus":             "the caller's own answer to what they want to learn",
 	"POST /v1/chat/messages/{id}/retell": "the learner's retell text; the path's answer is probed",
 	// Plan 261021-1100 phase 1: ratings.
 	"PUT /v1/chat/messages/{id}/feedback":    "a rating, a reason and a comment; the path's answer is probed",
 	"DELETE /v1/chat/messages/{id}/feedback": "no body",
+	// the private design notes, phase 3.
+	"POST /v1/chat/messages/{id}/corrections":      "no body; the path's answer is probed",
+	"PATCH /v1/mastery/paths/{id}":                 "a language choice, text; the path's path is probed",
+	"POST /v1/chat/messages/{id}/corrections/save": "the corrected words, why, a sentence and a language, all text; the path's answer is probed",
 	// up methods, phase 0.
 	"DELETE /v1/worksheets/{id}": "no body",
 	// Up-methods phase 7. The upload's body is the audio and its length.

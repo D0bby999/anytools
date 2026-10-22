@@ -73,7 +73,8 @@
     "mainNavigation": "Điều hướng chính",
     "sidebarNavigation": "Điều hướng thanh bên",
     "toggleSection": "Mở hoặc thu gọn {{section}}",
-    "account": "Tài khoản"
+    "account": "Tài khoản",
+    "showcase": "Hồ sơ công khai"
   },
   "actions": {
     "signOut": "Đăng xuất",
@@ -169,6 +170,7 @@
     },
     "up": {
       "greeting": "Chào mừng bạn trở lại, {{name}}.",
+      "greetingNew": "Chào mừng bạn, {{name}}.",
       "nextStep": "Bước tiếp theo",
       "cycle": "Đọc · Hỏi · Luyện · Suy ngẫm",
       "task": "Việc",
@@ -239,9 +241,45 @@
         "storage": "Chọn nơi giữ tệp của bạn và xem dung lượng mỗi bên.",
         "library": "Thêm tài liệu có sẵn từ nguồn mở, kèm giấy phép của từng mục.",
         "settingsProviders": "Tìm nhà cung cấp và kết nối bằng một khóa.",
-        "apps": "Google, email, Canva và Notion, nối với những gì bạn học."
+        "apps": "Google, email, Canva và Notion, nối với những gì bạn học.",
+        "showcase": "Một trang của riêng bạn để cho người khác thấy bạn học thế nào, do AnyLearn đếm."
       },
       "dueToday": "Đến hạn hôm nay"
+    },
+    "focus": {
+      "title": "Bạn muốn học gì?",
+      "lead": "Chọn một hoặc nhiều mục. Trang Hôm nay sẽ ưu tiên các phần phục vụ mục bạn chọn; mọi phần vẫn có trong menu, và bạn có thể đổi lại trong Cài đặt → Tài khoản.",
+      "options": {
+        "languages": {
+          "title": "Một ngôn ngữ",
+          "body": "Từ vựng, nghe, đọc, nói và viết bằng ngôn ngữ bạn đang học."
+        },
+        "documents": {
+          "title": "Từ tài liệu của tôi",
+          "body": "Sách, khóa học, ghi chú và video bạn mang tới: đọc cùng trợ giảng, đặt câu hỏi và luyện tập từ chúng."
+        },
+        "exams": {
+          "title": "Để thi",
+          "body": "Đề thi cũ và bài thi thử có tính giờ."
+        },
+        "research": {
+          "title": "Nghiên cứu một câu hỏi",
+          "body": "Báo cáo có nguồn từ tài liệu của bạn và trên web."
+        },
+        "body": {
+          "title": "Rèn luyện thể chất",
+          "body": "Bài tập, kế hoạch và tiến độ cho cơ thể."
+        }
+      },
+      "which": "Ngôn ngữ nào?",
+      "starter": "Thêm các từ đầu tiên để ôn, 20 từ mỗi ngày từ hôm nay ({{list}}, {{count}} từ)",
+      "save": "Lưu",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu. Trang Hôm nay sẽ ưu tiên các phần này.",
+      "skip": "Bỏ qua",
+      "showAll_other": "Hiện mọi phần (thêm {{count}})",
+      "showMine": "Chỉ hiện các phần cho mục tôi học",
+      "showAll_one": "Hiện mọi phần (thêm {{count}})"
     }
   },
   "errors": {
@@ -259,19 +297,20 @@
       "profile": "Hồ sơ học tập",
       "account": "Tài khoản",
       "reminders": "Nhắc ôn",
-      "providers": "Nhà cung cấp",
       "groups": {
         "ai": "AI và tìm kiếm",
         "you": "Bạn",
         "notify": "Thông báo"
       },
-      "pick": "Chọn mục cài đặt"
+      "pick": "Chọn mục cài đặt",
+      "providers": "Nhà cung cấp"
     },
     "readiness": {
       "title": "Mức sẵn sàng",
       "ready": "Sẵn sàng",
       "attention": "Cần xem lại",
       "blocked": "Đang bị chặn",
+      "notSet": "Chưa đặt",
       "unavailable": "AnyLearn chưa kết nối được tới API của nó, nên chưa thể cho biết phần nào sẵn sàng."
     },
     "functions": {
@@ -353,6 +392,7 @@
       "lead": "Mỗi tính năng chạy trên các kết nối trong chuỗi của nó, theo thứ tự: nếu cái đầu hết hạn mức hoặc từ chối, AnyLearn thử cái tiếp theo. Sửa một chuỗi để thêm dự phòng, kéo để sắp thứ tự và chọn model cho từng cái.",
       "noConnections": "Chưa có gì để phân việc. Hãy kết nối một nhà cung cấp ở mục Nhà cung cấp trước.",
       "none": "Không có",
+      "cannotDo": "{{name}} (không làm được việc này)",
       "connectionAt": "Kết nối ở vị trí {{position}}",
       "modelAt": "Mô hình ở vị trí {{position}}",
       "modelPlaceholder": "Để trống để dùng mặc định",
@@ -534,7 +574,8 @@
       "all": "Tất cả nhà cung cấp",
       "getKey": "Lấy khóa từ {{provider}}",
       "servedAt": "Phục vụ tại",
-      "needsModel": "AnyLearn không có model mặc định cho nhà cung cấp này. Sau khi kết nối, hãy chọn một model của nó trong Phân việc.",
+      "needsModel": "AnyLearn không có model mặc định cho nhà cung cấp này. Sau khi kết nối, AnyLearn sẽ đề nghị dùng kết nối này cho mọi việc, và bạn chọn model ngay ở đó.",
+      "customBaseHelp": "Địa chỉ của máy chủ, thường kết thúc bằng /v1 (ví dụ https://ai.example.com/v1). Địa chỉ phải là https và truy cập được từ internet: máy chủ chạy trên chính máy tính của bạn chỉ dùng được với bản AnyLearn bạn tự chạy.",
       "signIn": "Đây là đăng nhập gói thuê bao, không phải khóa. Thẻ của nó nằm ở",
       "addTitle": "Kết nối một khóa",
       "connect": "Kết nối và kiểm tra",
@@ -567,6 +608,26 @@
       "add": "Thêm model",
       "addHelp": "Cho model mà nhà cung cấp phục vụ nhưng không liệt kê. Nó sẽ hiện trong ô chọn model ở Phân việc.",
       "more_one": "Còn {{count}} model; hãy tìm để thấy"
+    },
+    "quick": {
+      "button": "Dùng cho mọi việc",
+      "fillEmpty": "Điền các việc còn trống",
+      "title": "Dùng {{name}} cho mọi việc",
+      "lead": "Mọi việc chưa có kết nối sẽ dùng kết nối này. Việc nào bạn đã đặt thì giữ nguyên; giọng đọc và chuyển giọng nói thành chữ để sau.",
+      "connection": "Kết nối",
+      "chatModel": "Model cho câu trả lời, câu hỏi kiểm tra và lộ trình học",
+      "embedModel": "Model lập chỉ mục tài liệu (embedding)",
+      "embedHelp": "Một model embedding, ví dụ nomic-embed-text hoặc text-embedding-3-small. Để trống nếu muốn đặt việc lập chỉ mục sau.",
+      "defaultModel": "Model mặc định của nhà cung cấp",
+      "noEmbed": "{{provider}} không lập chỉ mục tài liệu được. Hãy kết nối một nhà cung cấp làm được việc này (Gemini, OpenAI hoặc máy chủ tương thích OpenAI).",
+      "submit": "Đặt các việc còn trống",
+      "working": "Đang đặt các việc…",
+      "done_one": "Đã đặt {{count}} việc.",
+      "done_other": "Đã đặt {{count}} việc.",
+      "left": "Còn trống: {{list}}.",
+      "nothing": "Việc nào cũng đã có kết nối, nên không có gì thay đổi.",
+      "close": "Đóng",
+      "embedLink": "Chọn model lập chỉ mục"
     }
   },
   "chat": {
@@ -905,6 +966,7 @@
     },
     "mic": {
       "start": "Nói câu hỏi",
+      "speakIn": "Nói bằng",
       "stop": "Dừng nghe",
       "listening": "Đang nghe",
       "hearing": "Đang chuyển câu hỏi thành chữ",
@@ -949,6 +1011,21 @@
         "open": "Còn bỏ ngỏ",
         "documents": "Tài liệu"
       }
+    },
+    "mistakes": {
+      "open": "Lưu lỗi sai để ôn",
+      "finding": "Đang đọc các chỗ sửa…",
+      "title": "Lỗi trong tin nhắn của bạn",
+      "lead": "Model trò chuyện của bạn tìm thấy những lỗi này trong tin nhắn của bạn. Bỏ chọn lỗi nào bạn không muốn ôn.",
+      "none": "Câu trả lời này không sửa lỗi nào của bạn.",
+      "production": "Luyện cả cách nói đúng (một thẻ cho xem câu bạn đã viết và hỏi cách viết đúng)",
+      "save_other": "Lưu {{count}} lỗi vào Từ vựng",
+      "saving": "Đang lưu…",
+      "saved_other": "Đã lưu {{count}} lỗi vào Từ vựng, có trong lượt ôn hôm nay.",
+      "review": "Ôn ngay",
+      "failed": "Chưa làm được. Hãy thử lại.",
+      "save_one": "Lưu {{count}} lỗi vào Từ vựng",
+      "saved_one": "Đã lưu {{count}} lỗi vào Từ vựng, có trong lượt ôn hôm nay."
     }
   },
   "more": {
@@ -1066,8 +1143,7 @@
   },
   "appendix": {
     "title": "Phụ lục: công cụ",
-    "all": "Mọi công cụ miễn phí",
-    "free": "Công cụ miễn phí"
+    "all": "Mọi công cụ miễn phí"
   },
   "richText": {
     "table": "Bảng",
@@ -1182,10 +1258,14 @@
     "Progress": "Tiến bộ",
     "Study with friends": "Học cùng bạn",
     "Study circle": "Nhóm học",
-    "Learning methods": "Phương pháp học"
+    "Learning methods": "Phương pháp học",
+    "Public profile": "Hồ sơ công khai"
   },
   "readinessText": {
     "no_route": "Chưa có kết nối nào làm việc {{function}}. Hãy chọn một kết nối trong Cài đặt → Phân việc.",
+    "no_route_here": "Chưa có kết nối nào làm việc {{function}}. Chọn Sửa ở dòng của nó trong mục Các chuỗi bên dưới.",
+    "optional_unset": "Không bắt buộc. AnyLearn vẫn chạy khi chưa đặt.",
+    "parse_local": "Chưa có model đọc tài liệu: tệp có chữ vẫn được đọc trên máy chủ, nhưng PDF scan và ảnh chụp cần một model đọc được hình (Gemini, OpenAI hoặc Anthropic).",
     "all_unusable": "Mọi kết nối được giao cho {{function}} đều không dùng được.",
     "some_unusable": "{{unusable}} trên {{total}} kết nối cho {{function}} không dùng được.",
     "connection_gone": "Kết nối này không còn tồn tại.",

@@ -70,7 +70,7 @@ export function KindRow({
             className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
             aria-label={t("index.newOf", { name: k.name })}
           >
-            {t("index.new")}
+            {k.quick?.length ? t("index.startQuick") : t("index.start")}
           </Link>
         )}
       </div>
@@ -113,7 +113,7 @@ export function ToolkitGroups({ kinds, list }: { kinds: WorksheetKind[]; list: W
                 ) : null}
                 {NOTE_JOIN}
                 <Link to={`/toolkit/new?kind=${encodeURIComponent(k.kind)}`} aria-label={t("index.newOf", { name: k.name })}>
-                  {t("index.new")}
+                  {k.quick?.length ? t("index.startQuick") : t("index.start")}
                 </Link>
                 <span className="block text-muted-foreground">{k.summary}</span>
                 <WorksheetList worksheets={list.filter((w) => w.kind === k.kind)} />

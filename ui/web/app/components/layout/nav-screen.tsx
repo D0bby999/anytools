@@ -16,7 +16,7 @@ const ROW =
  * The phone's nav screen, VitePress's VPNavScreen: everything the 64px bar
  * cannot hold, full screen under the nav on the paper, in a 288 column. The
  * TOP_NAV links, the languages (a group that opens), the appearance row,
- * Free tools and the account. Behind it the page is inert and does not
+ * the AnyTools link and the account. Behind it the page is inert and does not
  * scroll; Escape closes it and focus goes back to the hamburger.
  */
 export function NavScreen({
@@ -91,7 +91,7 @@ export function NavScreen({
         </div>
 
         <a href="/tools" className={cn(ROW, "mt-4")}>
-          {t("appendix.free")}
+          AnyTools
         </a>
 
         <div className="mt-6">

@@ -206,7 +206,7 @@ describe("tool pages", () => {
 
 describe("the sitemap", () => {
   it("lists the homes, indexable clusters and ported tools, each with its translations", async () => {
-    const body = await sitemap.loader().text();
+    const body = await (await sitemap.loader()).text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     // Phase 2's own: two clusters and eight tools in four languages.
     expect(locs.filter((l) => /\/(time-date|web3)(\/|$)/.test(l ?? ""))).toHaveLength(2 * 4 + 8 * 4);

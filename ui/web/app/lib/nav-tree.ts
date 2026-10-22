@@ -10,6 +10,7 @@
  */
 
 import {
+  BadgeCheck,
   Blocks,
   BookOpen,
   Dumbbell,
@@ -139,6 +140,8 @@ export const NAV_TREE: NavGroup[] = [
       // What the studying added up to, and friends to study with (2026-10-22).
       { to: "/progress", labelKey: "nav.progress", icon: TrendingUp },
       { to: "/circles", labelKey: "nav.circles", icon: Users },
+      // A public page to show it (the private design notes).
+      { to: "/showcase", labelKey: "nav.showcase", icon: BadgeCheck },
     ],
   },
   {

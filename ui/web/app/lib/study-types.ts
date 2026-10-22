@@ -147,6 +147,8 @@ export type Path = {
   goal: string;
   status: "active" | "archived";
   created_at: string;
+  /** "" the learner's language, "source" the documents', or a language code. */
+  explain_lang?: string;
 };
 
 export type PathSummary = {
@@ -159,7 +161,14 @@ export type PathSummary = {
   graduated_modules: number;
 };
 
-export type KnowledgePoint = { id: string; module_id: string; name: string; type: string };
+export type KnowledgePoint = {
+  id: string;
+  module_id: string;
+  name: string;
+  type: string;
+  /** Proposed, hardly covered by the knowledge base, and kept. */
+  outside_source?: boolean;
+};
 
 export type KPView = {
   knowledge_point: KnowledgePoint;
@@ -197,10 +206,16 @@ export type ProposedModule = {
   name: string;
   objective: string;
   pass_threshold: number;
-  knowledge_points: { name: string; type: string }[];
+  knowledge_points: { name: string; type: string; outside_source?: boolean }[];
 };
 
-export type Proposal = { modules: ProposedModule[]; note?: string; model?: string };
+export type Proposal = {
+  modules: ProposedModule[];
+  note?: string;
+  model?: string;
+  /** "checked" when each point was measured against the knowledge base, "skipped" when it could not be. */
+  coverage?: "checked" | "skipped";
+};
 
 export type DueItem = {
   knowledge_point_id: string;
@@ -223,6 +238,8 @@ export type Explanation = {
   stale: boolean;
   cached: boolean;
   created_at: string;
+  /** The language it was written for; "" when it followed the documents. */
+  lang?: string;
 };
 
 /** How many "explain it differently" angles a point has (MaxVariants). */

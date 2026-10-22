@@ -82,7 +82,7 @@ export type LibraryAction =
   /** A page of AnyLearn's own. */
   | { type: "page"; to: string }
   /** Nothing to add: opened at its source, for the reason given. */
-  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook" | "textbookNonCommercial" | "enrol"; pdf?: string };
+  | { type: "open"; why: "nonCommercial" | "noLicence" | "bringFile" | "textbook" | "textbookNonCommercial" | "enrol" | "chooseLesson"; pdf?: string };
 
 export type LibraryItem = {
   /** Unique in the catalogue, stable: an action names its item by it. */
@@ -91,6 +91,8 @@ export type LibraryItem = {
   subject: LibrarySubject;
   /** The material's language (a BCP 47 code), or "mul" for many. */
   language: string;
+  /** The language it is for learning, when it is (library/teaches.ts): a French textbook written in English teaches "fr". */
+  teaches?: string;
   name: string;
   /** A translation key for a name AnyLearn wrote ("ns:key"), used instead of name. */
   nameKey?: string;
@@ -135,6 +137,8 @@ export type LibraryFilter = {
   subject?: LibrarySubject;
   /** "" is the learner's languages (the interface's and English); "all" is every language. */
   lang: string;
+  /** Only material for learning this language. */
+  teaches?: string;
   q: string;
   offset: number;
   sort?: LibrarySort;

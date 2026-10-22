@@ -87,7 +87,7 @@ func TestVocabEachDecisionNeedsItsMinimumRecord(t *testing.T) {
 		"infer without a confidence": {vocab.DecisionInfer, map[string]string{"sense": "s"}},
 		"infer, confidence unsure":   {vocab.DecisionInfer, map[string]string{"sense": "s", "confidence": "unsure"}},
 		"lookup without a source":    {vocab.DecisionLookup, map[string]string{}},
-		"learn without a cue":        {vocab.DecisionLearn, map[string]string{"sound": "s", "collocation": "c"}},
+		"learn with another record":  {vocab.DecisionLearn, map[string]string{"why": "w"}},
 		"verify without an owner":    {vocab.DecisionVerify, map[string]string{"definition": "d", "scope": "s"}},
 		"a field of another record":  {vocab.DecisionSkip, map[string]string{"why": "w", "sense": "s"}},
 		"an unknown decision":        {"memorise", map[string]string{"why": "w"}},

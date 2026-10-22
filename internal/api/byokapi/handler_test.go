@@ -297,7 +297,7 @@ func TestSetRouteRefusesAProviderThatCannotServeTheFunction(t *testing.T) {
 	if rec.Code != http.StatusBadRequest {
 		t.Fatalf("anthropic was accepted for embed: %d %s", rec.Code, rec.Body.String())
 	}
-	if !strings.Contains(rec.Body.String(), "embed") {
+	if !strings.Contains(rec.Body.String(), "Anthropic cannot be used for indexing documents") {
 		t.Fatalf("the message does not name the problem: %s", rec.Body.String())
 	}
 }

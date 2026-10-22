@@ -258,6 +258,9 @@ describe("WordPicker", () => {
     const code = screen.getByLabelText("Language code");
     await userEvent.clear(code);
     await userEvent.type(code, "en-GB");
+    // One click learns it; the five decisions are behind "Other ways to keep it".
+    expect(screen.getByRole("button", { name: "Learn this word" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Other ways to keep it" }));
     await userEvent.click(screen.getByRole("radio", { name: /Quick lookup/ }));
     expect(screen.getByLabelText("Current sense")).toHaveValue("A balanced state.");
     await userEvent.type(screen.getByLabelText("Source of the current sense"), "Cambridge dictionary");

@@ -69,6 +69,12 @@ var GatewayOnlyPaths = map[string]bool{
 	// learning-tool-connections phase 4: mail the Cloudflare Email Worker
 	// signed; the HMAC, checked in internal/inbound, is its credential.
 	"POST /v1/inbound/email": true,
+	// the private design notes: a visitor to /u/<handle> has no
+	// session; the handle picks the page, and only a published one answers.
+	"POST /v1/showcase/read": true,
+	// The sitemap lists published pages their learners let search engines
+	// index: handles and dates only.
+	"POST /v1/showcase/listed": true,
 }
 
 // RequireUser is AnyTools' single authentication chokepoint. It wraps the

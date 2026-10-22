@@ -54,7 +54,7 @@ func (s *Service) VerifyConnection(ctx context.Context, userID, id uuid.UUID, fn
 		return nil, invalid("this connection's lane is disabled")
 	}
 	if !ConnectionSupports(conn.Provider, conn.Kind, fn) {
-		return nil, invalid("%s cannot serve %s", conn.Provider, fn)
+		return nil, unsupported(conn.Provider, fn)
 	}
 
 	// Probe the model the user actually ROUTED, when there is one.
@@ -145,6 +145,13 @@ func (s *Service) VerifyConnection(ctx context.Context, userID, id uuid.UUID, fn
 		var dims int
 		dims, probeErr = client.Ping(ctx)
 		result.Dims = dims
+		// A width the column cannot hold is refused here, before any
+		// knowledge base is pinned to it: padding a 4096-wide vector is not
+		// possible, and a 2560-wide one would sit beside other spaces.
+		if probeErr == nil && embed.ValidateDims(dims) != nil {
+			probeErr = invalid("this model's vectors are %d numbers wide, and AnyLearn stores only these widths: %s. Choose another embeddings model", dims, supportedWidths())
+			result.Dims = 0
+		}
 
 	default:
 		client, err := s.chatClient(ctx, userID, entry)

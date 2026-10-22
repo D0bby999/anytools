@@ -64,6 +64,14 @@ export function StatusCell({ document }: { document: KBDocument }) {
               </Link>
             </>
           ) : null}
+          {document.status === "failed" && document.error_code === "no_embed_route" ? (
+            <>
+              {" "}
+              <Link to="/settings/routes" className="text-primary underline underline-offset-4">
+                {tc("settings.quick.embedLink")}
+              </Link>
+            </>
+          ) : null}
         </p>
       ) : null}
     </div>

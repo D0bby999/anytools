@@ -27,6 +27,7 @@ import { destroySession, getSession } from "~/lib/session.server";
 import { invalidateWatermark } from "~/lib/session-watermark.server";
 import { Button } from "~/components/ui/button";
 import { OwnVersionSetting } from "~/components/settings/own-version-setting";
+import { isStudyFocus, STUDY_FOCUSES } from "~/lib/study-focus";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
@@ -35,6 +36,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     displayName: user.display_name,
     timezone: user.timezone,
     ownVersionFirst: user.own_version_first === true,
+    studyFocus: user.study_focus ?? [],
     language: isSupportedLng(user.language ?? "") ? (user.language as SupportedLng) : "en",
   };
 }
@@ -45,7 +47,7 @@ export const LANGUAGE_NAMES: Record<SupportedLng, string> = { en: "English", vi:
 type ActionResult = {
   errorKey: string;
   errorDetail: string;
-  intent?: "timezone" | "own_version";
+  intent?: "timezone" | "own_version" | "focus";
   saved?: boolean;
 };
 
@@ -71,6 +73,11 @@ export async function action({ request }: Route.ActionArgs): Promise<ActionResul
       }
       throw error;
     }
+  }
+  if (form.get("intent") === "focus") {
+    const focus = [...new Set(form.getAll("focus").map(String).filter(isStudyFocus))];
+    await apiFetch("/v1/me/study-focus", user.id, { method: "PUT", body: { focus } });
+    return { intent: "focus", saved: true, errorKey: "", errorDetail: "" };
   }
   if (form.get("intent") === "own_version") {
     try {
@@ -188,6 +195,30 @@ export default function SettingsAccount({ loaderData, actionData }: Route.Compon
             {t(zoneResult.errorKey)}
           </p>
         ) : null}
+      </section>
+
+      {/* What Home lists first (the private design notes, phase 7). */}
+      <section aria-labelledby="lp-account-focus">
+        <h2 id="lp-account-focus" className="lp-section">
+          {t("home.focus.title")}
+        </h2>
+        <Form method="post" className="mt-3 grid gap-2">
+          <input type="hidden" name="intent" value="focus" />
+          {STUDY_FOCUSES.map((f) => (
+            <label key={f} className="flex min-h-11 items-center gap-2 text-sm">
+              <input type="checkbox" name="focus" value={f} defaultChecked={(loaderData.studyFocus ?? []).includes(f)} />
+              {t(`home.focus.options.${f}.title`)}
+            </label>
+          ))}
+          <div className="flex items-center gap-3">
+            <Button type="submit" variant="outline" size="sm" disabled={navigation.state !== "idle"}>
+              {t("home.focus.save")}
+            </Button>
+            <span role="status" className="text-xs text-muted-foreground">
+              {actionData && "intent" in actionData && actionData.intent === "focus" && actionData.saved ? t("home.focus.saved") : ""}
+            </span>
+          </div>
+        </Form>
       </section>
 
       <OwnVersionSetting

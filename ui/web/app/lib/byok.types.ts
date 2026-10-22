@@ -31,6 +31,14 @@ export type RouteEntry = { connection_id: string; model: string; dims?: number }
 /** What a provider can do here, as the Providers page filters by it. */
 export type ProviderServe = "chat" | "parse" | "embed" | "tts" | "stt";
 
+/** What a function needs a provider to do (byok.KindOf). */
+export function serveFor(fn: string): ProviderServe {
+  return fn === "parse" || fn === "embed" || fn === "tts" || fn === "stt" ? fn : "chat";
+}
+
+/** What quick setup did: the tasks it set, and the ones it left empty. */
+export type QuickSetupResult = { ok: true; set: string[]; left: string[] } | { ok: false; error: string };
+
 /** One provider of the catalog (GET /v1/byok/catalog, internal/byok/catalog.go). */
 export type CatalogEntry = {
   type: string;

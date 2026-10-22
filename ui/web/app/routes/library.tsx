@@ -36,7 +36,7 @@ import {
   type LibrarySort,
   type LibrarySubject,
 } from "~/lib/library/types";
-import { languageName } from "~/lib/languages";
+import { COMMON_LANGUAGES, languageName } from "~/lib/languages";
 import { NOTE_JOIN } from "~/lib/sentence";
 import { formatDate } from "~/components/ui/date-text";
 import { FIELD } from "~/components/body/fields";
@@ -64,6 +64,8 @@ function filterOf(url: URL): LibraryFilter {
     kind: oneOf<LibraryKind>(LIBRARY_KINDS, p.get("kind")),
     subject: oneOf<LibrarySubject>(LIBRARY_SUBJECTS, p.get("subject")),
     lang: (p.get("lang") ?? "").slice(0, 12),
+    // A shelf for learning a language (the private design notes, phase 6).
+    teaches: /^[a-z]{2,3}$/.test(p.get("teaches") ?? "") ? (p.get("teaches") ?? undefined) : undefined,
     q: (p.get("q") ?? "").trim().slice(0, 80),
     offset: Math.min(100_000, Math.max(0, Math.floor(Number(p.get("offset")) || 0))),
     sort: oneOf<LibrarySort>(LIBRARY_SORTS, p.get("sort")),
@@ -80,6 +82,7 @@ function libraryURL(filter: LibraryFilter, subject: LibrarySubject | undefined, 
   if (filter.kind) p.set("kind", filter.kind);
   if (subject) p.set("subject", subject);
   if (filter.lang) p.set("lang", filter.lang);
+  if (filter.teaches) p.set("teaches", filter.teaches);
   if (filter.q) p.set("q", filter.q);
   if (filter.sort && filter.sort !== "featured") p.set("sort", filter.sort);
   if (filter.level) p.set("level", filter.level);
@@ -209,6 +212,17 @@ export default function Library({ loaderData }: Route.ComponentProps) {
             {LIBRARY_SUBJECTS.map((s) => (
               <option key={s} value={s}>
                 {t(`subjects.${s}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="min-w-0 text-xs text-muted-foreground">
+          {t("filter.teaches")}
+          <select name="teaches" defaultValue={filter.teaches ?? ""} className={FIELD}>
+            <option value="">{t("filter.anyTeaches")}</option>
+            {COMMON_LANGUAGES.map((l) => (
+              <option key={l} value={l}>
+                {languageName(l, i18n.language)}
               </option>
             ))}
           </select>

@@ -6,7 +6,7 @@
  * rather than replacing this page: until a provider and a document exist,
  * "what comes first" is still the more useful thing to say.
  */
-import { Link, useRouteLoaderData } from "react-router";
+import { Link, redirect, useRouteLoaderData, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/home";
 import { appTitle } from "~/lib/app-title";
@@ -42,6 +42,38 @@ import { GuidePaths } from "~/components/doc/guide-paths";
 import { RefTable } from "~/components/doc/ref-table";
 import { Details } from "~/components/doc/details";
 import type { loader as shellLoader } from "~/routes/app-layout";
+import { apiFetch } from "~/lib/api.server";
+import { setStudiedLanguages, studiedLanguages } from "~/lib/vocab.server";
+import { addWordListLevel } from "~/lib/library/word-lists.server";
+import { WORD_LISTS } from "~/lib/library/word-lists";
+import { isStudyFocus, servesFocus } from "~/lib/study-focus";
+import { StudyFocusQuestion, type StarterWords } from "~/components/home/study-focus";
+import { isLanguageCode, MAX_STUDIED } from "~/lib/languages";
+
+// A language's first words, offered on the first visit: the first level of
+// the first Library word list in it (NGSL 1–500 for English).
+export const STARTERS: StarterWords[] = WORD_LISTS.filter((l, i) => WORD_LISTS.findIndex((m) => m.language === l.language) === i).flatMap(
+  (l) => (l.levels[0] ? [{ lang: l.language, list: l.list, level: l.levels[0].id, name: `${l.name} ${l.levels[0].name}`, count: l.levels[0].count }] : []),
+);
+
+// budget: none for the answer; a starter word list is one import of its first level, in batches.
+export async function action({ request }: Route.ActionArgs) {
+  const { user } = await requireUser(request);
+  const form = await request.formData();
+  if (form.get("intent") !== "focus") return null;
+  const focus = form.get("skip") ? [] : [...new Set(form.getAll("focus").map(String).filter(isStudyFocus))];
+  await apiFetch("/v1/me/study-focus", user.id, { method: "PUT", body: { focus } });
+  const lang = String(form.get("lang") ?? "");
+  if (focus.includes("languages") && isLanguageCode(lang)) {
+    const { studied } = await studiedLanguages(user.id).catch(() => ({ studied: [] as string[] }));
+    const next = studied.includes(lang) ? studied : [...studied, lang].slice(0, MAX_STUDIED);
+    await setStudiedLanguages(user.id, next, lang);
+    const [list, level] = String(form.get("starter") ?? "").split(":");
+    const starter = STARTERS.find((s) => s.lang === lang && s.list === list && s.level === level);
+    if (starter) await addWordListLevel(user.id, starter.list, starter.level);
+  }
+  return redirect("/home");
+}
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
@@ -98,7 +130,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Progress (the private design notes): the streak, this
   // week against the goal and the level, and cheers from study circles.
   const progressP = getProgressBrief(user.id)
-    .then((p) => ({ streak: p.streak, weekDays: p.week_days, weekGoal: p.week_goal, level: p.level }))
+    .then((p) => ({ streak: p.streak, weekDays: p.week_days, weekGoal: p.week_goal, level: p.level, studiedBefore: Boolean(p.last_studied) }))
     .catch(() => null);
   const cheersP = listCircles(user.id)
     .then((r) => r.cheers.slice(0, 3))
@@ -132,8 +164,17 @@ export async function loader({ request }: Route.LoaderArgs) {
   const [today, body, progress, cheers] = await Promise.all([todayP, bodyP, progressP, cheersP]);
   // The low-day switch is a cookie for the learner's local day.
   const lowDay = today ? await isLowDay(request, user.id, localDay(user.timezone)) : false;
-  const setup = { provider: hasProvider, documents: hasDocuments, asked: hasAsked };
-  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, deckDue, mistakes, today, lowDay, worksheetsDue, body, progress, cheers };
+  // "Connect an AI account" is done when the core tasks run (chat and
+  // indexing), not when a connection exists: a key with no routes ticked it
+  // while all eleven tasks were blocked. Readiness unreachable: the count.
+  const coreRuns = readiness
+    ? readiness.functions.filter((f) => readiness.core_functions.includes(f.function)).every((f) => f.status !== "blocked")
+    : hasProvider;
+  const setup = { provider: hasProvider && coreRuns, documents: hasDocuments, asked: hasAsked };
+  // What they came to learn (the private design notes, phase 7):
+  // null until asked, which Home then asks first.
+  const focus = user.study_focus === undefined ? null : user.study_focus;
+  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, deckDue, mistakes, today, lowDay, worksheetsDue, body, progress, cheers, focus, starters: focus === null ? STARTERS : [] };
 }
 
 /** Home draws its own margin: the pace the book keeps, and its one claim. */
@@ -147,7 +188,12 @@ function descriptionKey(labelKey: string) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, deckDue, worksheetsDue, today, lowDay, body, progress, cheers } = loaderData;
+  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, deckDue, worksheetsDue, today, lowDay, body, progress, cheers, focus, starters } = loaderData;
+  // The parts listed follow what they came to learn; "Show every part" lists
+  // them all. What is due is never filtered.
+  const [params] = useSearchParams();
+  const everything = params.get("parts") === "all";
+  const shownFocus = everything ? null : focus;
   const ready = readiness?.core === "green";
   // Written as literal t() calls rather than a key built from a loop variable:
   // the i18n guard in app/test/structural-guards.test.ts can only verify keys
@@ -245,7 +291,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   }
 
   const learningGroups = NAV_TREE.filter((group) => LEARNING_GROUP_IDS.has(group.id));
-  const guideEntries = flatEntries();
+  const allEntries = flatEntries();
+  const guideEntries = allEntries.filter(({ page }) => servesFocus(page.to, shownFocus));
+  const hidden = allEntries.length - guideEntries.length;
   const appendix = NAV_TREE.find((group) => group.id === "appendix");
   const entryRows: React.ReactNode[][] = [];
 
@@ -263,7 +311,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="min-w-0">
-      <PageHeader title={t("home.title")} lede={shell?.displayName ? t("home.up.greeting", { name: shell.displayName }) : t("home.lead")} />
+      <PageHeader
+        title={t("home.title")}
+        lede={
+          shell?.displayName
+            ? // "Welcome back" only to someone who has been here: a first
+              // visit is greeted as one.
+              progress && !progress.studiedBefore
+              ? t("home.up.greetingNew", { name: shell.displayName })
+              : t("home.up.greeting", { name: shell.displayName })
+            : t("home.lead")
+        }
+      />
+      {focus === null ? <StudyFocusQuestion starters={starters} /> : null}
       <QuickStart
         title={nextSetup?.title ?? (today ? today.goal : t("home.noGoal.title"))}
         description={nextSetup?.body ?? t(today ? "home.lead" : "home.noGoal.body")}
@@ -341,6 +401,19 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             })),
         }))}
       />
+      {hidden > 0 ? (
+        <p className="mt-3 text-sm">
+          <Link to="/home?parts=all" className="text-primary underline underline-offset-4">
+            {t("home.focus.showAll", { count: hidden })}
+          </Link>
+        </p>
+      ) : everything && focus && focus.length > 0 ? (
+        <p className="mt-3 text-sm">
+          <Link to="/home" className="text-primary underline underline-offset-4">
+            {t("home.focus.showMine")}
+          </Link>
+        </p>
+      ) : null}
       {/* Appendix destinations leave the app router, so these cards use document links. */}
       {appendix ? (
         <section

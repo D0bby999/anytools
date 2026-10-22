@@ -28,12 +28,14 @@ type scriptedModel struct {
 	replies []string
 	calls   int
 	users   []string
+	systems []string
 }
 
 func (m *scriptedModel) Chat(_ context.Context, req runtime.ChatRequest) (*runtime.ChatResponse, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.users = append(m.users, req.Messages[len(req.Messages)-1].Content)
+	m.systems = append(m.systems, req.Messages[0].Content)
 	reply := m.replies[min(m.calls, len(m.replies)-1)]
 	m.calls++
 	return &runtime.ChatResponse{Content: reply}, nil
@@ -95,6 +97,15 @@ func (f *fakeStore) KnowledgePoint(_ context.Context, userID, kpID uuid.UUID) (*
 	return &p, &m, nil
 }
 
+func (f *fakeStore) SetExplainLang(_ context.Context, userID, pathID uuid.UUID, lang string) (*Path, error) {
+	if userID != f.user || pathID != f.path.ID {
+		return nil, ErrNotFound
+	}
+	f.path.ExplainLang = lang
+	p := f.path
+	return &p, nil
+}
+
 func (f *fakeStore) GetPath(_ context.Context, userID, pathID uuid.UUID) (*Path, error) {
 	if userID != f.user || pathID != f.path.ID {
 		return nil, ErrNotFound
@@ -103,11 +114,11 @@ func (f *fakeStore) GetPath(_ context.Context, userID, pathID uuid.UUID) (*Path,
 	return &p, nil
 }
 
-func (f *fakeStore) Explanation(_ context.Context, _, _ uuid.UUID, _ string, variant int) (*Explanation, error) {
+func (f *fakeStore) Explanation(_ context.Context, _, _ uuid.UUID, _ string, variant int, lang string) (*Explanation, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	e, ok := f.explanations[variant]
-	if !ok {
+	if !ok || e.Lang != lang {
 		return nil, ErrNotFound
 	}
 	return &e, nil

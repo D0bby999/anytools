@@ -136,7 +136,11 @@
     "archiveConfirm": "Lưu trữ lộ trình này? Lịch sử của nó được giữ lại, nhưng nó sẽ không hiện trong danh sách đến hạn nữa.",
     "practise": "Luyện những câu này",
     "explained": "Đã giảng lại ✓",
-    "explainGate": "Các điểm khái niệm và thiết kế cần được giải thích bằng lời của bạn trước khi học phần của chúng xong."
+    "explainGate": "Các điểm khái niệm và thiết kế cần được giải thích bằng lời của bạn trước khi học phần của chúng xong.",
+    "outsideTitle": "Không tìm thấy trong tài liệu của bạn",
+    "outsideHint": "Tài liệu của bạn gần như không nói tới các điểm này, nên bài giảng về chúng sẽ dựa vào model chứ không phải tài liệu. Xoá dòng nào để bỏ, hoặc giữ lại kèm dấu.",
+    "outsideMark": "Không có trong tài liệu",
+    "coverageSkipped": "Các điểm này chưa được đối chiếu với tài liệu của bạn: không đo được kho này bằng model embedding hiện tại."
   },
   "session": {
     "back": "Về lộ trình",
@@ -177,6 +181,8 @@
     "label": "Học",
     "testMe": "Đã hiểu, kiểm tra tôi đi",
     "differently": "Giải thích theo cách khác",
+    "inSource": "Giải thích bằng ngôn ngữ của tài liệu",
+    "inLanguage": "Giải thích bằng {{language}}",
     "writing": "Đang viết lời giải thích…",
     "teachMe": "Dạy tôi phần này",
     "stale": "Nguồn đã thay đổi: một tài liệu được trích ở đây đã được cập nhật sau khi lời giải thích được viết.",
@@ -423,5 +429,12 @@
     "practice": "Luyện tập",
     "chooseAnswer": "Hãy chọn một đáp án.",
     "answerQuestionsCount": "Trả lời {{count}} câu hỏi hôm nay"
+  },
+  "explainLang": {
+    "label": "Giải thích bằng",
+    "mine": "Ngôn ngữ của tôi ({{language}})",
+    "source": "Ngôn ngữ của tài liệu",
+    "help": "Lộ trình, bài giảng và nhận xét được viết bằng ngôn ngữ này. Thuật ngữ, trích dẫn và ví dụ từ tài liệu của bạn được giữ nguyên.",
+    "saved": "Đã lưu. Bài giảng và nhận xét mới sẽ dùng ngôn ngữ này."
   }
 }

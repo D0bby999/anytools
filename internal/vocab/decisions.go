@@ -10,6 +10,13 @@ package vocab
 // cards. What is decided here and not by the client: a decision is one of the
 // five, its record has exactly its own fields, each filled, and a confidence
 // is low, medium or high.
+//
+// One exception (the private design notes, phase 3): a word to learn
+// may leave its record empty. The reading tutor now proposes its sound,
+// collocation and cue with the word, and the English walkthrough showed a
+// required three-field form in front of every saved word is what stops a
+// learner saving words at all. The cards are what learning a word needs; a
+// record the learner leaves empty is one the review can still ask about.
 
 import (
 	"fmt"
@@ -113,6 +120,9 @@ func CheckRecord(decision string, rec map[string]string) (map[string]string, err
 	out := make(map[string]string, len(fields))
 	for _, f := range fields {
 		v := strings.TrimSpace(strings.ReplaceAll(rec[f], "\x00", ""))
+		if v == "" && decision == DecisionLearn {
+			continue
+		}
 		switch {
 		case v == "":
 			return nil, fmt.Errorf("%w: a %s decision needs its %s", ErrInvalid, decision, f)

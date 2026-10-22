@@ -80,7 +80,7 @@ import { decisionBody } from "~/lib/vocab-types";
 import { ReadAloudBar } from "~/components/vocab/read-aloud";
 import { checkable, ReadAloudCheck } from "~/components/reading/read-aloud-check";
 import { plainText } from "~/lib/speech";
-import { readSelection, transcriptPage, type ReaderSelection } from "~/lib/reading-selection";
+import { readSelection, storedActionHead, transcriptPage, type ReaderSelection } from "~/lib/reading-selection";
 import { liveTurnID } from "~/lib/turns";
 import { useTurnStream, type Source } from "~/hooks/use-turn-stream";
 import { ProcessedByBadge } from "~/components/knowledge/processed-by-badge";
@@ -645,9 +645,9 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
 
   const runAction = (act: ReadingAction) => {
     if (!selection) return;
-    // Shaped like the transcript line readingapi stores, so the question does
-    // not change wording when the stored transcript replaces it.
-    const head = `${tr(`actionLabels.${act}`)}${selection.page > 0 ? ` (page ${selection.page})` : ""}`;
+    // The transcript line readingapi stores, so the question does not change
+    // when the stored transcript replaces it; the pane shows it localized.
+    const head = storedActionHead(act, { page: selection.page });
     setPending({ question: `${head}:\n\n> ${selection.text}`, page: selection.page });
     actionFetcher.submit(
       { intent: "action", action: act, selection: selection.text, page: String(selection.page) },
@@ -657,7 +657,7 @@ export default function DocumentViewer({ loaderData }: Route.ComponentProps) {
   // A video's tutor is asked about a moment, not a selection: the server
   // builds the window around `at` from the stored transcript.
   const askAboutMoment = (act: ReadingAction, moment: { at: number; page: number; text: string }) => {
-    const head = `${tr(`actionLabels.${act}`)} (at ${formatClock(moment.at)})`;
+    const head = storedActionHead(act, { clock: formatClock(moment.at) });
     setPending({ question: `${head}:\n\n> ${moment.text}`, page: moment.page });
     actionFetcher.submit(
       { intent: "action", action: act, selection: moment.text, page: String(moment.page), at: String(moment.at) },

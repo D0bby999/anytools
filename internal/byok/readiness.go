@@ -79,10 +79,12 @@ type Readiness struct {
 	Connectors []ConnectorReadiness `json:"connectors"`
 }
 
-// coreFunctions are the three without which nothing in the product runs: a
-// document cannot be read without parse, cannot be retrieved without embed, and
-// cannot be asked about without chat.
-var coreFunctions = []Function{FunctionChat, FunctionParse, FunctionEmbed}
+// coreFunctions are the two without which nothing in the product runs: a
+// document cannot be retrieved without embed, and cannot be asked about
+// without chat. Parse is not one of them: Markdown, Word, web pages and a PDF
+// with a text layer are read on the server, and only a scanned PDF or a photo
+// needs a model that reads images (readinessFor's parse_local).
+var coreFunctions = []Function{FunctionChat, FunctionEmbed}
 
 // Compute builds the readiness matrix for a user.
 func (s *Service) Compute(ctx context.Context, userID uuid.UUID) (*Readiness, error) {
@@ -145,6 +147,12 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 	row := FunctionReadiness{Function: fn, Entries: []ReadinessEntry{}}
 	now := s.now()
 
+	if len(routes) == 0 && fn == FunctionParse {
+		row.Status = StatusWarn
+		row.Reason = "No model reads documents: files with text are read on the server, but scanned PDFs and photos need a model that reads images (Gemini, OpenAI or Anthropic)."
+		row.ReasonCode = "parse_local"
+		return row
+	}
 	if len(routes) == 0 {
 		row.Status = StatusBlocked
 		row.Reason = fmt.Sprintf("No %s route. Choose a connection for it in Settings → Routes.", fn)
@@ -180,7 +188,7 @@ func (s *Service) readinessFor(fn Function, routes []store.FunctionRoute,
 		// matrix and is invisible at serve time — the worst combination.
 		case !ConnectionSupports(conn.Provider, conn.Kind, fn):
 			entry.Status = StatusBlocked
-			entry.Note = conn.Provider + " cannot serve " + string(fn) + "."
+			entry.Note = UserMessage(unsupported(conn.Provider, fn)) + "."
 			entry.NoteCode = "unsupported"
 		case isSubscriptionKind(conn.Kind) && !s.lanesEnabled():
 			entry.Status = StatusBlocked

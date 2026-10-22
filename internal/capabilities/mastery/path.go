@@ -10,6 +10,7 @@ import (
 
 	"github.com/D0bby999/anytools/internal/capabilities/modeljson"
 	"github.com/D0bby999/anytools/internal/learning"
+	"github.com/D0bby999/anytools/internal/locale"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/tools"
 )
@@ -20,6 +21,8 @@ import (
 type CreateRequest struct {
 	KBID uuid.UUID `json:"kb_id"`
 	Goal string    `json:"goal"`
+	// ExplainLang: "" the learner's language, "source", or a code.
+	ExplainLang string `json:"explain_lang,omitempty"`
 }
 
 // CreateResult is the new path plus the plan the model suggests for it.
@@ -45,11 +48,14 @@ func (s *Service) Create(ctx context.Context, userID uuid.UUID, req CreateReques
 	if req.KBID == uuid.Nil {
 		return nil, ErrNoAccess
 	}
+	if !ValidExplainLang(req.ExplainLang) {
+		return nil, fmt.Errorf("%w: that is not a language code", ErrBadRequest)
+	}
 	if err := s.authz.OwnsKB(ctx, userID, req.KBID); err != nil {
 		return nil, ErrNoAccess
 	}
 
-	path, err := s.store.CreatePath(ctx, Path{UserID: userID, KBID: req.KBID, Goal: goal, Status: StatusActive})
+	path, err := s.store.CreatePath(ctx, Path{UserID: userID, KBID: req.KBID, Goal: goal, Status: StatusActive, ExplainLang: req.ExplainLang})
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +80,7 @@ func (s *Service) Propose(ctx context.Context, userID, pathID uuid.UUID) (*Propo
 	if err != nil {
 		return nil, err
 	}
+	ctx = inLanguage(ctx, path.ExplainLang)
 
 	outline, err := s.outline.Outline(ctx, userID, path.KBID, 60)
 	if err != nil {
@@ -103,7 +110,7 @@ func (s *Service) Propose(ctx context.Context, userID, pathID uuid.UUID) (*Propo
 	resp, err := provider.Chat(ctx, runtime.ChatRequest{
 		Model: model,
 		Messages: []runtime.Message{
-			{Role: runtime.RoleSystem, Content: PathPrompt},
+			{Role: runtime.RoleSystem, Content: PathPrompt + locale.ExplainIn(ctx)},
 			{Role: runtime.RoleUser, Content: b.String()},
 		},
 	})
@@ -126,10 +133,12 @@ func (s *Service) Propose(ctx context.Context, userID, pathID uuid.UUID) (*Propo
 		return nil, fmt.Errorf("%w: the model's plan could not be read: %s", ErrBadRequest, err)
 	}
 
+	modules := NormalizeModules(reply.Modules)
 	return &Proposal{
-		Modules: NormalizeModules(reply.Modules),
-		Note:    strings.TrimSpace(reply.Note),
-		Model:   model,
+		Modules:  modules,
+		Note:     strings.TrimSpace(reply.Note),
+		Model:    model,
+		Coverage: s.markCoverage(ctx, userID, path.KBID, modules),
 	}, nil
 }
 
@@ -212,7 +221,7 @@ func NormalizeModules(in []ProposedModule) []ProposedModule {
 			if !learning.ValidKnowledgeType(kpType) {
 				kpType = learning.TypeConcept
 			}
-			points = append(points, ProposedKP{Name: kpName, Type: kpType})
+			points = append(points, ProposedKP{Name: kpName, Type: kpType, OutsideSource: kp.OutsideSource})
 		}
 		if len(points) == 0 {
 			// A module with nothing testable in it cannot be studied or

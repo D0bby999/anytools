@@ -6,8 +6,10 @@
     "kind": "Tipo",
     "anyKind": "Cualquier tipo",
     "subject": "Área",
+    "teaches": "Para aprender",
+    "anyTeaches": "Cualquier material",
     "anySubject": "Cualquier área",
-    "language": "Idioma",
+    "language": "Escrito en",
     "myLanguages": "Inglés, luego mi idioma",
     "allLanguages": "Todos los idiomas, primero inglés",
     "show": "Mostrar",
@@ -96,7 +98,8 @@
     "bringFile": "Abre los exámenes en su origen y luego sube uno en Cuestionarios → Exámenes → Subir un examen anterior.",
     "textbook": "Léelo en su fuente, o descarga su PDF y sube a una base de conocimiento los capítulos que necesites (un archivo de hasta 50 MB y 400 páginas).",
     "textbookNonCommercial": "Léelo en su fuente, o descarga su PDF. Su licencia solo permite el uso no comercial: sube a una base de conocimiento los capítulos que necesites para tu propio estudio (un archivo de hasta 50 MB y 400 páginas).",
-    "enrol": "Gratis en su fuente, donde te inscribes; AnyLearn no lo copia."
+    "enrol": "Gratis en su fuente, donde te inscribes; AnyLearn no lo copia.",
+    "chooseLesson": "Libre para reutilizar, lección a lección: ábrelo, elige una lección y añade su dirección a una base con Añadir un enlace."
   },
   "items": {
     "upWords": "Términos en inglés que encuentra un programador, por lenguaje (Python, Go, JavaScript y más): solo palabras, para consultar y guardar.",
@@ -105,7 +108,11 @@
     "thptName": "Exámenes de graduación de secundaria de Vietnam",
     "thpt": "Exámenes de referencia y de años anteriores del Ministerio de Educación de Vietnam, por materia.",
     "bodyName": "Body: biblioteca de ejercicios",
-    "body": "Ejercicios por músculo y material, cada uno con sus pasos, para usar en tu plan."
+    "body": "Ejercicios por músculo y material, cada uno con sus pasos, para usar en tu plan.",
+    "voa": "Noticias e historias en un inglés más lento y sencillo, con audio, vídeo y transcripciones, en tres niveles.",
+    "wikibooksEsl": "Un libro abierto de lecciones de inglés para estudiantes: gramática, vocabulario y frases cotidianas.",
+    "storybooks": "Cuentos ilustrados cortos en cinco niveles, leídos en voz alta, con el mismo cuento en muchos otros idiomas.",
+    "usaLearns": "Un curso de inglés gratuito con lecciones en vídeo para la vida diaria y el trabajo, desde principiante."
   },
   "count_one": "{{count, number}} elemento",
   "count_other": "{{count, number}} elementos",
@@ -156,7 +163,7 @@
   "levelOption_other": "{{name}} ({{count}} palabras)",
   "addWords": "Añadir a mis palabras",
   "addWordsOf": "Añadir a mis palabras: {{name}}",
-  "wordsPace": "Las palabras aparecen de 20 en 20 cada día desde mañana, después de las que ya se te están dando.",
+  "wordsPace": "Las palabras llegan de 20 en 20 cada día desde hoy, después de las que ya te están llegando.",
   "wordsAdded_one": "Se añadió {{count}} palabra a tus palabras.",
   "wordsAdded_other": "Se añadieron {{count}} palabras a tus palabras.",
   "wordsNone": "Ninguna palabra nueva: ya las tienes todas.",

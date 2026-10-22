@@ -73,7 +73,8 @@
     "mainNavigation": "Main navigation",
     "sidebarNavigation": "Sidebar navigation",
     "toggleSection": "Toggle {{section}}",
-    "account": "Account"
+    "account": "Account",
+    "showcase": "Public profile"
   },
   "actions": {
     "signOut": "Sign out",
@@ -169,6 +170,7 @@
     },
     "up": {
       "greeting": "Welcome back, {{name}}.",
+      "greetingNew": "Welcome, {{name}}.",
       "nextStep": "Next step",
       "cycle": "Read · Ask · Practise · Reflect",
       "task": "Task",
@@ -239,9 +241,45 @@
         "storage": "Choose where your files are kept and see the space each side holds.",
         "library": "Add ready material from open sources, each with its licence.",
         "settingsProviders": "Find a provider and connect it with a key.",
-        "apps": "Google, email, Canva and Notion, connected to what you study."
+        "apps": "Google, email, Canva and Notion, connected to what you study.",
+        "showcase": "A page of your own to show how you study, counted by AnyLearn."
       },
       "dueToday": "Due today"
+    },
+    "focus": {
+      "title": "What do you want to learn?",
+      "lead": "Choose one or more. Home lists the parts that serve them first; every part stays in the menu, and you can change this in Settings → Account.",
+      "options": {
+        "languages": {
+          "title": "A language",
+          "body": "Words, listening, reading, speaking and writing in a language you are learning."
+        },
+        "documents": {
+          "title": "From my own material",
+          "body": "Books, courses, notes and videos you bring: read with a tutor, ask, and practise from them."
+        },
+        "exams": {
+          "title": "For an exam",
+          "body": "Past papers and timed practice exams."
+        },
+        "research": {
+          "title": "Research a question",
+          "body": "Sourced reports from your documents and the web."
+        },
+        "body": {
+          "title": "Training",
+          "body": "Workouts, a plan and progress for your body."
+        }
+      },
+      "which": "Which language?",
+      "starter": "Add its first words to review, 20 a day from today ({{list}}, {{count}} words)",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved. Home lists these parts first.",
+      "skip": "Skip",
+      "showAll_one": "Show every part ({{count}} more)",
+      "showAll_other": "Show every part ({{count}} more)",
+      "showMine": "Show only the parts for what I learn"
     }
   },
   "errors": {
@@ -259,19 +297,20 @@
       "profile": "Learning profile",
       "account": "Account",
       "reminders": "Reminders",
-      "providers": "Providers",
       "groups": {
         "ai": "AI and search",
         "you": "You",
         "notify": "Notifications"
       },
-      "pick": "Choose a settings section"
+      "pick": "Choose a settings section",
+      "providers": "Providers"
     },
     "readiness": {
       "title": "Readiness",
       "ready": "Ready",
       "attention": "Needs attention",
       "blocked": "Blocked",
+      "notSet": "Not set",
       "unavailable": "AnyLearn could not reach its API just now, so it cannot say what is ready."
     },
     "functions": {
@@ -353,6 +392,7 @@
       "lead": "Each capability runs on the connections in its chain, in order: if the first is out of quota or refuses, AnyLearn tries the next. Edit a chain to add fallbacks, drag them into order and pick each one's model.",
       "noConnections": "There is nothing to route yet. Connect a provider under Providers first.",
       "none": "None",
+      "cannotDo": "{{name}} (cannot do this)",
       "connectionAt": "Connection at position {{position}}",
       "modelAt": "Model at position {{position}}",
       "modelPlaceholder": "Leave empty for the default",
@@ -535,7 +575,8 @@
       "all": "All providers",
       "getKey": "Get a key from {{provider}}",
       "servedAt": "Served at",
-      "needsModel": "AnyLearn has no default model for this provider. After you connect, pick one of its models under Routes.",
+      "needsModel": "AnyLearn has no default model for this provider. After you connect, it offers to use the connection for every task, and you pick its models there.",
+      "customBaseHelp": "The server's address, which usually ends in /v1 (for example https://ai.example.com/v1). It must be https and reachable from the internet: a server on your own computer works only with a copy of AnyLearn you run yourself.",
       "signIn": "This is a subscription sign-in, not a key. Its card is on",
       "addTitle": "Connect a key",
       "connect": "Connect and check",
@@ -567,6 +608,26 @@
       "addLabel": "Model id",
       "add": "Add model",
       "addHelp": "For a model the provider serves but does not list. It appears in the model pickers under Routes."
+    },
+    "quick": {
+      "button": "Use for every task",
+      "fillEmpty": "Fill the empty tasks",
+      "title": "Use {{name}} for every task",
+      "lead": "Every task with no connection yet gets this one. Tasks you already set keep theirs, and voice and speech to text are left for later.",
+      "connection": "Connection",
+      "chatModel": "Model for answers, quizzes and study paths",
+      "embedModel": "Model for indexing documents (embeddings)",
+      "embedHelp": "An embeddings model, such as nomic-embed-text or text-embedding-3-small. Leave it empty to set indexing later.",
+      "defaultModel": "The provider's default",
+      "noEmbed": "{{provider}} cannot index documents. Connect a provider that can (Gemini, OpenAI or an OpenAI-compatible server) for that task.",
+      "submit": "Set the empty tasks",
+      "working": "Setting the tasks…",
+      "done_one": "{{count}} task set.",
+      "done_other": "{{count}} tasks set.",
+      "left": "Left empty: {{list}}.",
+      "nothing": "Every task already had a connection, so nothing changed.",
+      "close": "Close",
+      "embedLink": "Choose a model for indexing"
     }
   },
   "chat": {
@@ -905,6 +966,7 @@
     },
     "mic": {
       "start": "Speak your question",
+      "speakIn": "Speak in",
       "stop": "Stop listening",
       "listening": "Listening",
       "hearing": "Turning your question into text",
@@ -949,6 +1011,21 @@
         "open": "Still open",
         "documents": "Documents"
       }
+    },
+    "mistakes": {
+      "open": "Save mistakes to review",
+      "finding": "Reading the corrections…",
+      "title": "Mistakes in your message",
+      "lead": "Your chat model listed these from your message. Untick any you do not want to review.",
+      "none": "No mistake of yours was corrected in this answer.",
+      "production": "Also practise saying it right (a card that shows what you wrote and asks for the right words)",
+      "save_one": "Save {{count}} to Vocabulary",
+      "save_other": "Save {{count}} to Vocabulary",
+      "saving": "Saving…",
+      "saved_one": "Saved {{count}} to Vocabulary, in today's review.",
+      "saved_other": "Saved {{count}} to Vocabulary, in today's review.",
+      "review": "Review them",
+      "failed": "That did not work. Try again."
     }
   },
   "more": {
@@ -1066,8 +1143,7 @@
   },
   "appendix": {
     "title": "Appendix: tools",
-    "all": "All free tools",
-    "free": "Free tools"
+    "all": "All free tools"
   },
   "richText": {
     "table": "Table",
@@ -1182,10 +1258,14 @@
     "Progress": "Progress",
     "Study with friends": "Study with friends",
     "Study circle": "Study circle",
-    "Learning methods": "Learning methods"
+    "Learning methods": "Learning methods",
+    "Public profile": "Public profile"
   },
   "readinessText": {
     "no_route": "No connection does {{function}} yet. Choose one in Settings → Routes.",
+    "no_route_here": "No connection does {{function}} yet. Choose Edit on its row under Chains, below.",
+    "optional_unset": "Optional. AnyLearn works without it.",
+    "parse_local": "No model reads documents: files with text are read on the server, but scanned PDFs and photos need a model that reads images (Gemini, OpenAI or Anthropic).",
     "all_unusable": "Every connection routed to {{function}} is unusable.",
     "some_unusable": "{{unusable}} of {{total}} connections for {{function}} are unusable.",
     "connection_gone": "This connection no longer exists.",

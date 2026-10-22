@@ -6,8 +6,10 @@
     "kind": "Tipo",
     "anyKind": "Qualquer tipo",
     "subject": "Área",
+    "teaches": "Para aprender",
+    "anyTeaches": "Qualquer material",
     "anySubject": "Qualquer área",
-    "language": "Idioma",
+    "language": "Escrito em",
     "myLanguages": "Inglês, depois meu idioma",
     "allLanguages": "Todos os idiomas, inglês primeiro",
     "show": "Mostrar",
@@ -96,7 +98,8 @@
     "bringFile": "Abra as provas na origem e depois envie uma em Quizzes → Provas → Enviar uma prova anterior.",
     "textbook": "Leia na fonte, ou baixe o PDF e envie para uma base de conhecimento os capítulos de que precisa (um arquivo de até 50 MB e 400 páginas).",
     "textbookNonCommercial": "Leia na fonte, ou baixe o PDF. A licença permite apenas uso não comercial: envie para uma base de conhecimento os capítulos de que precisa para seu próprio estudo (um arquivo de até 50 MB e 400 páginas).",
-    "enrol": "Gratuito na fonte, onde você se inscreve; o AnyLearn não o copia."
+    "enrol": "Gratuito na fonte, onde você se inscreve; o AnyLearn não o copia.",
+    "chooseLesson": "Livre para reutilizar, uma lição de cada vez: abra, escolha uma lição e adicione o endereço dela a uma base com Adicionar um link."
   },
   "items": {
     "upWords": "Termos em inglês que um programador encontra, por linguagem (Python, Go, JavaScript e outras): só palavras, para consultar e salvar.",
@@ -105,7 +108,11 @@
     "thptName": "Provas de conclusão do ensino médio do Vietnã",
     "thpt": "Provas de referência e de anos anteriores do Ministério da Educação do Vietnã, por matéria.",
     "bodyName": "Body: biblioteca de exercícios",
-    "body": "Exercícios por músculo e equipamento, cada um com seus passos, para usar no seu plano."
+    "body": "Exercícios por músculo e equipamento, cada um com seus passos, para usar no seu plano.",
+    "voa": "Notícias e histórias em inglês mais lento e simples, com áudio, vídeo e transcrições, em três níveis.",
+    "wikibooksEsl": "Um livro aberto de lições de inglês para estudantes: gramática, vocabulário e frases do dia a dia.",
+    "storybooks": "Histórias curtas ilustradas em cinco níveis, lidas em voz alta, com a mesma história em muitos outros idiomas.",
+    "usaLearns": "Um curso de inglês gratuito com aulas em vídeo para o dia a dia e o trabalho, a partir do iniciante."
   },
   "count_one": "{{count, number}} item",
   "count_other": "{{count, number}} itens",
@@ -156,7 +163,7 @@
   "levelOption_other": "{{name}} ({{count}} palavras)",
   "addWords": "Adicionar às minhas palavras",
   "addWordsOf": "Adicionar às minhas palavras: {{name}}",
-  "wordsPace": "As palavras aparecem 20 novas por dia a partir de amanhã, depois das que você já está recebendo.",
+  "wordsPace": "As palavras chegam 20 novas por dia a partir de hoje, depois das que você já está recebendo.",
   "wordsAdded_one": "{{count}} palavra adicionada às suas palavras.",
   "wordsAdded_other": "{{count}} palavras adicionadas às suas palavras.",
   "wordsNone": "Nenhuma palavra nova: você já tem todas.",

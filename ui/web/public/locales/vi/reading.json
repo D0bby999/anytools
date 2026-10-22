@@ -30,6 +30,8 @@
     "empty": "Chọn một đoạn và chọn thao tác. Gia sư trả lời dựa trên đoạn bạn chọn, và mọi câu trả lời đều lưu được vào sổ ghi chép kèm số trang.",
     "save": "Lưu câu trả lời vào sổ ghi chép",
     "saved": "Đã lưu",
+    "onPage": "(trang {{page}})",
+    "atMoment": "(lúc {{clock}})",
     "openInChat": "Tiếp tục trong Chat",
     "videoEmpty": "Chọn một khoảnh khắc trong bản chép lời và một thao tác. Gia sư trả lời dựa trên những gì được nói quanh khoảnh khắc đó."
   },

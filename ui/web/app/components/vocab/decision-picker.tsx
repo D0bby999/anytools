@@ -30,12 +30,19 @@ export type DecisionInitial = {
  * Inference before lookup: the suggested meaning stays hidden until a
  * decision is chosen, and for Infer until the learner has written a
  * candidate sense of their own.
+ *
+ * A word to learn starts from what the model proposed (`prefill`: its sound,
+ * collocation and a cue from the passage) and may be saved with any of them
+ * empty (internal/vocab/decisions.go). `passageMeaning` is the sense in the
+ * passage's language, shown under a meaning prefilled in the learner's own.
  */
 export function DecisionFields({
   suggestion,
   initial,
   preset,
   lang,
+  prefill,
+  passageMeaning,
 }: {
   /** The model's meaning, or the note's own. */
   suggestion: string;
@@ -43,11 +50,15 @@ export function DecisionFields({
   /** Start on this decision, as "Learn this" does. */
   preset?: Decision;
   lang?: string;
+  /** Record values to start a new decision from. */
+  prefill?: Record<string, string>;
+  /** The sense in the passage's language, when `suggestion` is a gloss. */
+  passageMeaning?: string;
 }) {
   const { t } = useTranslation("vocab");
   const id = useId();
   const [decision, setDecision] = useState<Decision | null>(preset ?? initial?.decision ?? null);
-  const own = (d: Decision) => (initial?.decision === d ? initial.record : {});
+  const own = (d: Decision) => (initial?.decision === d ? initial.record : (prefill ?? {}));
   const [sense, setSense] = useState(own("infer").sense ?? "");
   const [meaning, setMeaning] = useState(initial?.meaning || suggestion);
 
@@ -105,7 +116,7 @@ export function DecisionFields({
                   {t(`decide.fields.${f}`)}
                   <input
                     name={`record_${f}`}
-                    required
+                    required={decision !== "learn"}
                     maxLength={MAX_RECORD}
                     {...(f === "sense"
                       ? { value: sense, onChange: (e: React.ChangeEvent<HTMLInputElement>) => setSense(e.target.value) }
@@ -142,6 +153,11 @@ export function DecisionFields({
                   className={field + " py-2"}
                 />
               </label>
+              {passageMeaning && passageMeaning !== suggestion ? (
+                <span className="mt-1 block text-xs leading-snug text-muted-foreground" lang={lang} dir="auto">
+                  {t("decide.inPassage", { meaning: passageMeaning })}
+                </span>
+              ) : null}
               {suggestion ? (
                 <span id={`${id}-note`} className="mt-1 block text-2xs text-faint">
                   {t("decide.suggestionNote")}

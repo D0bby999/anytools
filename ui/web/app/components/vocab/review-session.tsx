@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
-import { clozeMatches, RATINGS, suggestedRating, type DueCard, type Rating } from "~/lib/vocab-types";
+import { clozeMatches, RATINGS, SOURCE_LANGS, suggestedRating, type DueCard, type Rating } from "~/lib/vocab-types";
+import { CardExample } from "~/components/vocab/card-example";
 import { Button } from "~/components/ui/button";
 import { ClipPlayer } from "~/components/vocab/clip-player";
 import { WritingPad, writingRating, type Written } from "~/components/vocab/writing-pad";
@@ -272,6 +273,13 @@ export function ReviewSession({ cards, total }: { cards: DueCard[]; total: numbe
           </form>
         </>
       )}
+
+      {/* A word met in no sentence (a Library word list) is given one, and a
+          voice, from open sources: looked up as the card is shown, read
+          once it is answered. */}
+      {card.note_id && !card.context && card.kind === "recognition" && SOURCE_LANGS.has(card.lang.split("-")[0]!) ? (
+        <CardExample key={card.id} noteId={card.note_id} term={card.term} lang={card.lang} show={revealed} />
+      ) : null}
 
       {revealed ? (
         <div className="mt-4">

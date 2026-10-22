@@ -85,6 +85,7 @@ export function Composer({
   uploadKB = null,
   onHelp,
   onUploaded,
+  speechLanguages = [],
 }: {
   onSend: (message: string, ownVersion?: OwnVersion, extra?: SendExtra) => void;
   onStop?: () => void;
@@ -118,6 +119,8 @@ export function Composer({
   onHelp?: () => void;
   /** A file reached the knowledge base: the page re-reads its documents. */
   onUploaded?: () => void;
+  /** The languages the learner studies, which the mic may listen for. */
+  speechLanguages?: string[];
 }) {
   const { t } = useTranslation("common");
   const { t: tOwn } = useTranslation("ownversion");
@@ -447,7 +450,7 @@ export function Composer({
               }
             />
 
-            <MicButton onText={insertSpoken} disabled={disabled} />
+            <MicButton onText={insertSpoken} disabled={disabled} languages={speechLanguages} />
 
             {busy && onStop && value.trim() === "" ? (
               <Button type="button" variant="outline" size="icon" className="size-8 shrink-0 rounded-sm p-0" onClick={onStop}>

@@ -9,14 +9,20 @@
  * chain as one form, the shape the action has always read (connection_N,
  * model_N in order), because the API replaces a chain atomically: moving
  * single positions would cross the (user, function, position) unique index.
+ *
+ * The form goes through a fetcher, and the dialog closes only on a saved
+ * chain: a refusal ("Anthropic cannot be used for indexing documents") stays
+ * inside it, beside the rows it is about, instead of closing with the dialog.
+ * A connection whose provider cannot do this task is listed but not offered.
  */
-import { useId, useRef, useState } from "react";
-import { Form, useNavigation } from "react-router";
+import { useEffect, useId, useRef, useState } from "react";
+import { useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowDown, ArrowUp, GripVertical, Plus, X } from "lucide-react";
 import { Dialog } from "~/components/doc/dialog";
 import { Button } from "~/components/ui/button";
-import type { CatalogEntry, Connection, RouteEntry } from "~/lib/byok.types";
+import { Alert } from "~/components/ui/alert";
+import { serveFor, type CatalogEntry, type Connection, type RouteEntry } from "~/lib/byok.types";
 import { cn } from "~/lib/utils";
 import { ModelPicker } from "./model-picker";
 
@@ -45,8 +51,8 @@ export function RouteChainDialog({
   maxEntries: number;
 }) {
   const { t } = useTranslation("common");
-  const navigation = useNavigation();
-  const busy = navigation.state !== "idle";
+  const fetcher = useFetcher<{ message?: string | null }>();
+  const busy = fetcher.state !== "idle";
   const title = t(`settings.functions.${fn}` as never, { defaultValue: fn });
   const [open, setOpen] = useState(false);
   const seq = useRef(0);
@@ -63,10 +69,26 @@ export function RouteChainDialog({
   const byId = new Map(connections.map((c) => [c.id, c]));
   const needsModel = (connectionId: string) =>
     !!catalog.find((p) => p.type === byId.get(connectionId)?.provider)?.needs_model;
+  const serves = (c: Connection) => {
+    const entry = catalog.find((p) => p.type === c.provider);
+    return !entry || entry.serves.includes(serveFor(fn));
+  };
+
+  // Closed once a submitted chain comes back saved; a refusal keeps it open.
+  const submitted = useRef(false);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !submitted.current) return;
+    submitted.current = false;
+    const message = fetcher.data?.message ?? null;
+    setRefusal(message);
+    if (!message) setOpen(false);
+  }, [fetcher.state, fetcher.data]);
 
   const openEditor = () => {
     setRows(entries.length ? entries.map((e) => fresh(e)) : [fresh()]);
     setSaid("");
+    setRefusal(null);
     setOpen(true);
   };
   const move = (from: number, to: number) => {
@@ -105,7 +127,13 @@ export function RouteChainDialog({
         title={title}
         description={t(`settings.functionHelp.${fn}` as never, { defaultValue: t("settings.routes.dialogHelp") })}
       >
-        <Form method="post" onSubmit={() => setOpen(false)}>
+        <fetcher.Form
+          method="post"
+          onSubmit={() => {
+            submitted.current = true;
+            setRefusal(null);
+          }}
+        >
           <input type="hidden" name="function" value={fn} />
           <p className="mt-2 text-xs leading-prose text-muted-foreground">{t("settings.routes.reorderHelp")}</p>
           <ol id={listId} className="mt-3 grid list-none gap-2 p-0">
@@ -161,11 +189,14 @@ export function RouteChainDialog({
                     className="h-10 min-w-0 rounded-md border border-control-border bg-card px-2 text-sm"
                   >
                     <option value="">{t("settings.routes.none")}</option>
-                    {connections.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
+                    {connections.map((c) => {
+                      const can = serves(c);
+                      return (
+                        <option key={c.id} value={c.id} disabled={!can && c.id !== row.connection_id}>
+                          {can ? c.name : t("settings.routes.cannotDo", { name: c.name })}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ModelPicker
                     name={`model_${i}`}
@@ -221,6 +252,11 @@ export function RouteChainDialog({
               {t("settings.routes.addFallback")}
             </Button>
           ) : null}
+          {refusal ? (
+            <Alert variant="destructive" className="mt-3">
+              {refusal}
+            </Alert>
+          ) : null}
           <div className="mt-5 flex flex-wrap justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               {t("settings.up.cancel")}
@@ -229,7 +265,7 @@ export function RouteChainDialog({
               {t("settings.routes.save")}
             </Button>
           </div>
-        </Form>
+        </fetcher.Form>
       </Dialog>
     </div>
   );

@@ -9,6 +9,7 @@ import {
   MAX_SCENARIO,
   needsMeaning,
   RECORD_FIELDS,
+  SOURCE_LANGS,
   type Decision,
   type VocabNote,
   type Week,
@@ -22,8 +23,6 @@ import { languageName, readingKind } from "~/lib/languages";
 import { wordListOf } from "~/lib/library/word-lists";
 import { WordSources } from "~/components/vocab/word-sources";
 
-/** Languages Tatoeba and Lingua Libre are asked about (wordsources.ISO3). */
-const SOURCE_LANGS = new Set(["ar","bg","ca","cs","da","de","el","en","eo","es","et","fa","fi","fr","he","hi","hu","id","it","ja","ko","lt","lv","ms","nb","nl","no","pl","pt","ro","ru","sk","sl","sr","sv","th","tl","tr","uk","ur","vi","zh"]);
 
 type ListData = { updated?: string; deleted?: string; week?: Week; errorKey?: string; errorDetail?: string };
 type AuditData = { auditAdded?: number; auditFull?: boolean; errorKey?: string; errorDetail?: string };

@@ -78,6 +78,10 @@ type Path struct {
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	// ExplainLang is the language its lessons and feedback are written in:
+	// "" the learner's interface language, "source" the documents', or a
+	// code (the private design notes, phase 4).
+	ExplainLang string `json:"explain_lang"`
 }
 
 // PathSummary is a path with the numbers the list screen shows.
@@ -109,6 +113,9 @@ type KnowledgePoint struct {
 	ModuleID uuid.UUID `json:"module_id"`
 	Name     string    `json:"name"`
 	Type     string    `json:"type"`
+	// OutsideSource: the plan proposed it, the knowledge base hardly covers
+	// it, and the learner kept it.
+	OutsideSource bool `json:"outside_source,omitempty"`
 }
 
 // KPState is one knowledge point's schedule and estimate.
@@ -156,6 +163,8 @@ type PathDetail struct {
 type ProposedKP struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
+	// OutsideSource marks a point the knowledge base hardly covers (coverage.go).
+	OutsideSource bool `json:"outside_source,omitempty"`
 }
 
 // ProposedModule is one module in a proposal.
@@ -178,6 +187,10 @@ type Proposal struct {
 	Modules []ProposedModule `json:"modules"`
 	Note    string           `json:"note,omitempty"`
 	Model   string           `json:"model,omitempty"`
+	// Coverage says whether each point was checked against the knowledge
+	// base: "checked", or "skipped" when it could not be (no embedding
+	// route, or one that no longer matches the base's).
+	Coverage string `json:"coverage,omitempty"`
 }
 
 // DueItem is one knowledge point waiting, across all of a user's paths.
@@ -226,6 +239,7 @@ type Store interface {
 	CreatePath(ctx context.Context, p Path) (*Path, error)
 	ListPaths(ctx context.Context, userID uuid.UUID, now time.Time) ([]PathSummary, error)
 	GetPath(ctx context.Context, userID, pathID uuid.UUID) (*Path, error)
+	SetExplainLang(ctx context.Context, userID, pathID uuid.UUID, lang string) (*Path, error)
 	ArchivePath(ctx context.Context, userID, pathID uuid.UUID) error
 
 	// ApproveModules replaces a path's modules with the approved list and seeds
@@ -289,6 +303,7 @@ type Service struct {
 	authz     Authorizer
 	retriever quiz.Retriever
 	profile   Profile
+	coverage  Coverage
 	now       func() time.Time
 }
 
@@ -305,7 +320,9 @@ type Config struct {
 	// Profile is the learner profile's note for learn and explain-back
 	// (learning-depth phase 9); nil reads no profile.
 	Profile Profile
-	Now     func() time.Time
+	// Coverage marks proposed points the base hardly covers; nil skips it.
+	Coverage Coverage
+	Now      func() time.Time
 }
 
 // NewService returns a Service.
@@ -322,6 +339,7 @@ func NewService(cfg Config) *Service {
 		authz:     cfg.Authz,
 		retriever: cfg.Retriever,
 		profile:   cfg.Profile,
+		coverage:  cfg.Coverage,
 		now:       now,
 	}
 }

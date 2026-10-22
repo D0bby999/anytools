@@ -1,0 +1,140 @@
+{
+  "title": "Hồ sơ công khai",
+  "lede": "Một trang của riêng bạn để cho người khác thấy bạn học thế nào: những gì AnyLearn đếm được, bạn không sửa được, cùng vài dòng của bạn. Bạn chọn trang có gì và gửi link cho ai.",
+  "fromProgress": "Đưa lên hồ sơ công khai",
+  "open": "Mở trang của tôi",
+  "newTab": "(mở trong thẻ mới)",
+  "tab": "Hồ sơ học tập",
+  "since": "học trên AnyLearn từ {{date}}",
+  "counted": "Các con số ở đây do AnyLearn đếm từ việc học được ghi lại trong ứng dụng, tính đến {{date}}. {{name}} không sửa được chúng.",
+  "theirWords": "Lời của chính {{name}}.",
+  "theirLinks": "Liên kết do {{name}} thêm.",
+  "footer": {
+    "made": "Trang này được làm bằng AnyLearn, ứng dụng đếm ngày học từ việc học thật.",
+    "start": "Học cùng AnyLearn"
+  },
+  "blocks": {
+    "summary": {
+      "title": "Tổng quan",
+      "about": "Số ngày học, chuỗi ngày học, số tuần liên tiếp đạt mục tiêu và bậc."
+    },
+    "calendar": {
+      "title": "Một năm học",
+      "about": "Mỗi ngày đã học trong năm qua, đậm nhạt theo lượng học."
+    },
+    "milestones": {
+      "title": "Các mốc",
+      "about": "Các mốc đã đạt, kèm ngày đạt."
+    },
+    "outcomes": {
+      "title": "Thành quả học tập",
+      "about": "Thẻ đã vào trí nhớ dài hạn, điểm kiến thức đã thành thạo, lần giải thích lại đạt, câu hỏi đã trả lời và buổi tập."
+    },
+    "about": {
+      "title": "Giới thiệu"
+    },
+    "links": {
+      "title": "Liên kết"
+    }
+  },
+  "summary": {
+    "days_one": "ngày học",
+    "days_other": "ngày học",
+    "streak_one": "ngày trong chuỗi hiện tại",
+    "streak_other": "ngày trong chuỗi hiện tại",
+    "longest_one": "Dài nhất: {{count, number}} ngày",
+    "longest_other": "Dài nhất: {{count, number}} ngày",
+    "weeks_one": "tuần liên tiếp đạt mục tiêu {{goal, number}} ngày học",
+    "weeks_other": "tuần liên tiếp đạt mục tiêu {{goal, number}} ngày học",
+    "longestWeeks_one": "Dài nhất: {{count, number}} tuần",
+    "longestWeeks_other": "Dài nhất: {{count, number}} tuần",
+    "level": "bậc hiện tại",
+    "levelHow": "Đạt được nhờ số ngày học; không bao giờ giảm."
+  },
+  "milestones": {
+    "none": "Chưa có mốc nào."
+  },
+  "outcomes": {
+    "longTerm": "Thẻ đã vào trí nhớ dài hạn",
+    "mastered": "Điểm kiến thức đã thành thạo",
+    "explains": "Lần giải thích lại đạt",
+    "answered": "Câu hỏi đã trả lời",
+    "workouts": "Buổi tập đã hoàn thành"
+  },
+  "accents": {
+    "reflect": "Xanh rừng",
+    "read": "Xanh mòng két",
+    "ask": "Đỏ gạch",
+    "practise": "Tím mận",
+    "tools": "Xám đá"
+  },
+  "share": {
+    "title": "Trang của bạn đang công khai",
+    "draft": "Trang của bạn đang là bản nháp",
+    "draftNote": "Chỉ mình bạn thấy được. Đánh dấu 'Công khai' rồi lưu để chia sẻ.",
+    "copy": "Sao chép link",
+    "copied": "Đã sao chép link."
+  },
+  "editor": {
+    "you": "Bạn",
+    "handle": "Địa chỉ",
+    "handleNote": "3 đến 30 ký tự: chữ a đến z, chữ số và dấu gạch ngang đơn. Đổi địa chỉ sau này thì link cũ sẽ không mở được nữa.",
+    "name": "Tên hiển thị",
+    "namePlaceholder": "Tên của bạn",
+    "headline": "Dòng giới thiệu",
+    "headlinePlaceholder": "Ví dụ: đang học tiếng Tây Ban Nha và phân tích dữ liệu",
+    "published": "Công khai: ai có link đều xem được",
+    "publishedNote": "Bỏ đánh dấu rồi lưu để ẩn lại.",
+    "indexed": "Cho Google và các công cụ tìm kiếm khác hiển thị trang",
+    "indexedNote": "Khi trang đang công khai, người khác có thể tìm thấy trang bằng cách tìm tên bạn. Bỏ đánh dấu nếu chỉ muốn chia sẻ bằng link; công cụ tìm kiếm có thể mất một thời gian mới gỡ trang đã liệt kê.",
+    "look": "Giao diện",
+    "accent": "Màu nhấn",
+    "blocks": "Các khối, theo thứ tự",
+    "blocksNote": "Khối do AnyLearn đếm chỉ hiện những gì đã ghi lại; khối của bạn hiện những gì bạn viết.",
+    "noBlocks": "Chưa có khối nào: trang chỉ hiện tên và dòng giới thiệu của bạn.",
+    "counted": "do AnyLearn đếm",
+    "yours": "lời của bạn",
+    "up": "Đưa {{block}} lên",
+    "down": "Đưa {{block}} xuống",
+    "remove": "Bỏ {{block}}",
+    "add": "Thêm khối",
+    "pick": "Chọn một khối",
+    "addButton": "Thêm",
+    "aboutTitle": "Tiêu đề (không bắt buộc)",
+    "aboutBody": "Nội dung",
+    "linkN": "Liên kết {{n}}",
+    "linkLabel": "Nhãn",
+    "linkURL": "Địa chỉ (https)",
+    "removeLink": "Bỏ liên kết {{n}}",
+    "addLink": "Thêm liên kết",
+    "linksNote": "Liên kết mở trong thẻ mới và được ghi rõ là của bạn.",
+    "save": "Lưu",
+    "failed": "Chưa lưu được: {{detail}}",
+    "savedPublished": "Đã lưu. Trang của bạn đang công khai.",
+    "savedDraft": "Đã lưu dạng nháp. Chỉ mình bạn thấy được.",
+    "deleted": "Đã xoá trang. Địa chỉ của nó đã trống.",
+    "preview": "Xem trước",
+    "previewNote": "Như người xem sẽ thấy, với số liệu của bạn tính đến lúc này.",
+    "unreadable": "không đọc được thiết kế của trang",
+    "dropped_one": "{{count, number}} khối trên trang của bạn không đọc được bằng phiên bản AnyLearn này nên đã bị bỏ ra. Lưu lại thì trang sẽ không còn khối đó.",
+    "dropped_other": "{{count, number}} khối trên trang của bạn không đọc được bằng phiên bản AnyLearn này nên đã bị bỏ ra. Lưu lại thì trang sẽ không còn các khối đó.",
+    "droppedAll": "Phiên bản AnyLearn này không đọc được thiết kế trang của bạn, nên trang không hiện khối nào. Lưu lại thì trang sẽ giữ như đang thấy ở đây.",
+    "moved": "Đã chuyển {{block}} đến vị trí {{n, number}} trên {{total, number}}.",
+    "removed": "Đã bỏ {{block}}.",
+    "added": "Đã thêm {{block}} vào cuối."
+  },
+  "seo": {
+    "description": "Hồ sơ học tập của {{name}} trên AnyLearn: ngày học, chuỗi và các mốc được đếm từ việc học thật."
+  },
+  "missing": {
+    "title": "Không có hồ sơ công khai ở đây",
+    "lede": "Không có hồ sơ công khai nào ở địa chỉ này, hoặc chủ trang chưa công khai nó.",
+    "busyTitle": "Quá nhiều yêu cầu",
+    "busy": "Hãy đợi một phút rồi thử lại."
+  },
+  "delete": {
+    "title": "Xoá trang",
+    "note": "Trang và địa chỉ của nó sẽ bị xoá. Việc học và các con số của bạn vẫn còn.",
+    "button": "Xoá trang công khai của tôi"
+  }
+}

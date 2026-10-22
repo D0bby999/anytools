@@ -36,9 +36,10 @@ func (s *Service) UseBuiltin(fn Function, e BuiltinEngine) {
 	s.builtins[fn] = e
 }
 
-// optionalFunctions run without a route: speech falls back to the browser's
-// voices, transcription to a subtitle file, a paste, or the built-in engine.
-var optionalFunctions = []Function{FunctionTTS, FunctionSTT}
+// optionalFunctions run without a route: parse reads text files and text-layer
+// PDFs on the server, speech falls back to the browser's voices, and
+// transcription to a subtitle file, a paste, or the built-in engine.
+var optionalFunctions = []Function{FunctionParse, FunctionTTS, FunctionSTT}
 
 // withBuiltin adds fn's built-in engine to its row when it answers. With no
 // route the engine alone makes the function ready.

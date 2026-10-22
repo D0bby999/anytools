@@ -7,6 +7,8 @@
     "noKinds": "Chưa có phiếu học nào.",
     "private": "Riêng tư",
     "new": "Mới",
+    "start": "Bắt đầu",
+    "startQuick": "Bắt đầu (5 phút)",
     "newOf": "{{name}} mới"
   },
   "groups": {
@@ -222,6 +224,10 @@
   "languages": {
     "title": "Ngoại ngữ",
     "lead": "Luyện các ngôn ngữ bạn đang học, theo từng kỹ năng, trên tài liệu của chính mình: video, bài đọc và bản nháp bạn đã có.",
+    "shelf": {
+      "lead": "Chưa có tài liệu?",
+      "link": "Chọn tài liệu học {{name}} trong Thư viện"
+    },
     "tabs": {
       "label": "Ngôn ngữ đang học",
       "add": "+ Thêm ngôn ngữ",
@@ -357,5 +363,17 @@
       "use": "Dùng",
       "useOf": "Dùng {{name}}"
     }
+  },
+  "quick": {
+    "title": "Bản nhanh",
+    "lead_other": "{{count}} dòng, khoảng năm phút. Những gì bạn viết ở đây cũng là một phần của phiếu đầy đủ.",
+    "openFull_other": "Mở phiếu đầy đủ ({{count}} phần)",
+    "backToQuick": "Quay lại bản nhanh",
+    "lead_one": "{{count}} dòng, khoảng năm phút. Những gì bạn viết ở đây cũng là một phần của phiếu đầy đủ.",
+    "openFull_one": "Mở phiếu đầy đủ ({{count}} phần)"
+  },
+  "selfEstimate": {
+    "label": "Bạn tự đánh giá:",
+    "note": "Là mức bạn tự chọn trong phần tự kiểm tra CEFR, không phải kết quả bài thi. Hãy chọn lại ở mỗi lần xem lại."
   }
 }

@@ -6,6 +6,7 @@ import { MessageList, type ChatTurnView } from "~/components/chat/message-list";
 import { Button } from "~/components/ui/button";
 import { WordPicker } from "~/components/vocab/word-picker";
 import { transcriptSelection } from "~/lib/vocab-types";
+import { transcriptAction, transcriptHead } from "~/lib/reading-selection";
 
 export type TutorExchange = {
   id: string;
@@ -43,8 +44,9 @@ export function TutorPane({
   return (
     <div className="mt-3 space-y-6">
       {exchanges.map((ex) => {
+        const question = transcriptHead(ex.question, t);
         const turns: ChatTurnView[] = [
-          { id: `${ex.id}-q`, role: "user", content: ex.question, sources: [] },
+          { id: `${ex.id}-q`, role: "user", content: question, sources: [] },
         ];
         if (ex.answer || ex.streaming) {
           turns.push({
@@ -59,8 +61,8 @@ export function TutorPane({
         return (
           <div key={ex.id} className="text-sm">
             <MessageList turns={turns} />
-            {!ex.streaming && ex.answer ? <SaveAnswer exchange={ex} /> : null}
-            {!ex.streaming && ex.answer && ex.question.startsWith(t("actionLabels.vocab")) ? (
+            {!ex.streaming && ex.answer ? <SaveAnswer exchange={{ ...ex, question }} /> : null}
+            {!ex.streaming && ex.answer && transcriptAction(ex.question) === "vocab" ? (
               <WordPicker selection={transcriptSelection(ex.question)} page={ex.page} />
             ) : null}
           </div>

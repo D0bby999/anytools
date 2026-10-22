@@ -30,6 +30,8 @@
     "empty": "Selecciona un pasaje y elige una acción. El tutor responde a partir del pasaje que elegiste, y cada respuesta se puede guardar en tu cuaderno con su página.",
     "save": "Guardar la respuesta en el cuaderno",
     "saved": "Guardada",
+    "onPage": "(página {{page}})",
+    "atMoment": "(en {{clock}})",
     "openInChat": "Seguir en el chat",
     "videoEmpty": "Elige un momento de la transcripción y una acción. El tutor responde a partir de lo que se dice alrededor de ese momento."
   },

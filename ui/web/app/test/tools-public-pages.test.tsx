@@ -207,14 +207,14 @@ describe("a whole tool page", () => {
   });
 });
 
-describe("the app's Free tools link", () => {
+describe("the app's AnyTools link", () => {
   it("is in the top nav and goes to /tools; the sidebar keeps it in the folded appendix", () => {
     const router = createMemoryRouter(
       [{ path: "/home", element: (<><TopNav displayName="A" email="a@example.com" /><Sidebar /></>) }],
       { initialEntries: ["/home"] },
     );
     render(<RouterProvider router={router} />);
-    expect(screen.getByRole("link", { name: "Free tools" })).toHaveAttribute("href", "/tools");
+    expect(screen.getByRole("link", { name: "AnyTools" })).toHaveAttribute("href", "/tools");
     expect(screen.queryByRole("link", { name: /all free tools|^tools$/i })).toBeNull();
     expect(TOOLS_ITEM.to).toBe("/tools");
   });

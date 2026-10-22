@@ -69,6 +69,8 @@
     "none": "Mô hình không tìm thấy từ nào trong đoạn này để lưu.",
     "language": "Ngôn ngữ",
     "save": "Lưu",
+    "learnIt": "Học từ này",
+    "otherWays": "Cách giữ khác",
     "saved": "Đã lưu",
     "added": "Đã thêm một câu",
     "failed": "Không tìm được từ.",
@@ -145,7 +147,7 @@
       "sound": "Cách phát âm: trọng âm, hoặc cách viết theo âm.",
       "collocation": "Những từ thường đi kèm với nó.",
       "cue": "Tình huống sẽ khiến bạn nhớ tới nó.",
-      "learnRetest": "Lần kiểm tra lại chính là lịch ôn: hai thẻ sẽ quay lại từ ngày mai.",
+      "learnRetest": "Lần kiểm tra lại chính là lịch ôn: hai thẻ, bắt đầu từ hôm nay. Ô nào cũng có thể để trống.",
       "owner": "Ai chịu trách nhiệm về thuật ngữ này trong hoàn cảnh của bạn."
     },
     "confidences": {
@@ -157,6 +159,7 @@
     "suggestion": "Nghĩa gợi ý",
     "suggestionHidden": "Hãy viết nghĩa bạn đoán trước; gợi ý sẽ hiện ra sau.",
     "suggestionNote": "Gợi ý của mô hình chỉ là một khả năng, không phải nguồn.",
+    "inPassage": "Theo đoạn văn: {{meaning}}",
     "impact": "Ảnh hưởng tới việc đang làm",
     "impactNone": "Không nói",
     "impacts": {
@@ -170,6 +173,7 @@
     "change": "Đổi quyết định",
     "cancel": "Hủy",
     "savedAs": "Đã lưu là {{decision}}.",
+    "savedToday": "Đã lưu để học. Hai thẻ của từ này có trong lượt ôn hôm nay.",
     "already": "Bạn đã quyết định cho từ này rồi: {{decision}}.",
     "changed": "Đã đổi quyết định thành {{decision}}.",
     "failed": "Quyết định đó chưa được lưu."
@@ -432,5 +436,11 @@
     "foundSentences_other": "Tìm thấy {{count}} câu.",
     "foundRecordings_one": "Tìm thấy {{count}} bản ghi âm.",
     "foundRecordings_other": "Tìm thấy {{count}} bản ghi âm."
+  },
+  "cardExample": {
+    "title": "Ví dụ cho {{term}}",
+    "looking": "Đang tìm câu ví dụ…",
+    "keep": "Giữ câu này",
+    "kept": "Đã giữ làm câu của từ này; thẻ điền từ sẽ được làm từ câu này."
   }
 }

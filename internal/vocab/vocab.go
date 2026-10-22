@@ -232,6 +232,11 @@ type NoteWrite struct {
 	Decision   string
 	Record     map[string]string
 	TaskImpact string
+	// Origin marks a note not saved from a page (OriginChat); empty for one
+	// that was. DocumentID is uuid.Nil then.
+	Origin string
+	// Kinds are the cards a new word to learn gets; nil is CardKinds().
+	Kinds []string
 	// NewCard is the FSRS card each new card starts with.
 	NewCard learning.Card
 	Now     time.Time

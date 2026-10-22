@@ -53,6 +53,7 @@ import { ARTIFACT_BRIEF, artifactSectionExtra, useArtifactExtras } from "~/compo
 import { SaveToDrive } from "~/components/storage/save-to-drive";
 import { SendTo } from "~/components/apps/send-to";
 import { PageHeader } from "~/components/ui/page-header";
+import { SelfEstimate } from "~/components/worksheet/self-estimate";
 import { BookMeta, type BookMetaItem } from "~/components/doc/book-meta";
 import { Details } from "~/components/doc/details";
 import { Field } from "~/components/doc/field";
@@ -262,6 +263,7 @@ export default function ToolkitWorksheet({ loaderData, actionData }: Route.Compo
             <SendTo kind="worksheet" id={w.id} />
           </>
         } />
+      {kind ? <SelfEstimate kind={kind} answers={w.answers} /> : null}
       {w.private ? <PrivateNote kind={kind} /> : null}
       <ActionError result={pageError} />
 

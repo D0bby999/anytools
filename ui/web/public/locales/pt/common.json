@@ -73,7 +73,8 @@
     "mainNavigation": "Navegação principal",
     "sidebarNavigation": "Navegação lateral",
     "toggleSection": "Mostrar ou ocultar {{section}}",
-    "account": "Conta"
+    "account": "Conta",
+    "showcase": "Perfil público"
   },
   "actions": {
     "signOut": "Sair",
@@ -169,6 +170,7 @@
     },
     "up": {
       "greeting": "Bom ter você de volta, {{name}}.",
+      "greetingNew": "Boas-vindas, {{name}}.",
       "nextStep": "Próximo passo",
       "cycle": "Ler · Perguntar · Praticar · Refletir",
       "task": "Tarefa",
@@ -239,9 +241,45 @@
         "storage": "Escolha onde seus arquivos ficam e veja o espaço que cada lado ocupa.",
         "library": "Adicione material pronto de fontes abertas, cada um com sua licença.",
         "settingsProviders": "Encontre um provedor e conecte-o com uma chave.",
-        "apps": "Google, e-mail, Canva e Notion, ligados ao que você estuda."
+        "apps": "Google, e-mail, Canva e Notion, ligados ao que você estuda.",
+        "showcase": "Uma página sua para mostrar como você estuda, contado pelo AnyLearn."
       },
       "dueToday": "Para hoje"
+    },
+    "focus": {
+      "title": "O que você quer aprender?",
+      "lead": "Escolha uma ou mais opções. O Início mostra primeiro as partes que servem para isso; todas continuam no menu, e você pode mudar em Configurações → Conta.",
+      "options": {
+        "languages": {
+          "title": "Um idioma",
+          "body": "Palavras, escuta, leitura, fala e escrita em um idioma que você aprende."
+        },
+        "documents": {
+          "title": "Com meu próprio material",
+          "body": "Livros, cursos, anotações e vídeos que você traz: leia com um tutor, pergunte e pratique com eles."
+        },
+        "exams": {
+          "title": "Para uma prova",
+          "body": "Provas anteriores e simulados com tempo."
+        },
+        "research": {
+          "title": "Pesquisar uma pergunta",
+          "body": "Relatórios com fontes dos seus documentos e da web."
+        },
+        "body": {
+          "title": "Treino",
+          "body": "Treinos, um plano e o progresso do seu corpo."
+        }
+      },
+      "which": "Qual idioma?",
+      "starter": "Adicionar as primeiras palavras para revisar, 20 por dia a partir de hoje ({{list}}, {{count}} palavras)",
+      "save": "Salvar",
+      "saving": "Salvando…",
+      "saved": "Salvo. O Início mostra estas partes primeiro.",
+      "skip": "Pular",
+      "showAll_one": "Mostrar todas as partes (mais {{count}})",
+      "showAll_other": "Mostrar todas as partes (mais {{count}})",
+      "showMine": "Mostrar só as partes do que eu aprendo"
     }
   },
   "errors": {
@@ -259,19 +297,20 @@
       "profile": "Perfil de aprendizagem",
       "account": "Conta",
       "reminders": "Lembretes",
-      "providers": "Provedores",
       "groups": {
         "ai": "IA e pesquisa",
         "you": "Você",
         "notify": "Notificações"
       },
-      "pick": "Escolha uma seção das configurações"
+      "pick": "Escolha uma seção das configurações",
+      "providers": "Provedores"
     },
     "readiness": {
       "title": "Prontidão",
       "ready": "Pronto",
       "attention": "Precisa de atenção",
       "blocked": "Bloqueado",
+      "notSet": "Não definido",
       "unavailable": "O AnyLearn não conseguiu acessar sua API agora, então não sabe dizer o que está pronto."
     },
     "functions": {
@@ -353,6 +392,7 @@
       "lead": "Cada função usa as conexões da sua cadeia, em ordem: se a primeira ficar sem cota ou recusar, o AnyLearn tenta a próxima. Edite uma cadeia para adicionar alternativas, arraste para ordenar e escolha o modelo de cada uma.",
       "noConnections": "Ainda não há nada para rotear. Conecte primeiro um provedor em Provedores.",
       "none": "Nenhuma",
+      "cannotDo": "{{name}} (não faz isso)",
       "connectionAt": "Conexão na posição {{position}}",
       "modelAt": "Modelo na posição {{position}}",
       "modelPlaceholder": "Deixe vazio para usar o padrão",
@@ -535,7 +575,8 @@
       "all": "Todos os provedores",
       "getKey": "Obter uma chave de {{provider}}",
       "servedAt": "Servido em",
-      "needsModel": "O AnyLearn não tem um modelo padrão para este provedor. Depois de conectar, escolha um dos modelos dele em Rotas.",
+      "needsModel": "O AnyLearn não tem modelo padrão para este provedor. Depois de conectar, ele oferece usar a conexão para todas as tarefas, e você escolhe os modelos ali.",
+      "customBaseHelp": "O endereço do servidor, que costuma terminar em /v1 (por exemplo https://ai.example.com/v1). Precisa ser https e acessível pela internet: um servidor no seu próprio computador só funciona com uma cópia do AnyLearn que você mesmo roda.",
       "signIn": "Isto é um login de assinatura, não uma chave. O cartão dele está em",
       "addTitle": "Conectar uma chave",
       "connect": "Conectar e verificar",
@@ -567,6 +608,26 @@
       "addLabel": "Id do modelo",
       "add": "Adicionar modelo",
       "addHelp": "Para um modelo que o provedor serve mas não lista. Ele aparece nos seletores de modelo em Rotas."
+    },
+    "quick": {
+      "button": "Usar para todas as tarefas",
+      "fillEmpty": "Preencher as tarefas vazias",
+      "title": "Usar {{name}} para todas as tarefas",
+      "lead": "Toda tarefa sem conexão recebe esta. As tarefas que você já definiu mantêm a sua, e a voz e a transcrição ficam para depois.",
+      "connection": "Conexão",
+      "chatModel": "Modelo para respostas, questionários e trilhas de estudo",
+      "embedModel": "Modelo para indexar documentos (embeddings)",
+      "embedHelp": "Um modelo de embeddings, como nomic-embed-text ou text-embedding-3-small. Deixe vazio para definir a indexação depois.",
+      "defaultModel": "O modelo padrão do provedor",
+      "noEmbed": "{{provider}} não consegue indexar documentos. Conecte um provedor que consiga (Gemini, OpenAI ou um servidor compatível com OpenAI) para essa tarefa.",
+      "submit": "Definir as tarefas vazias",
+      "working": "Definindo as tarefas…",
+      "done_one": "{{count}} tarefa definida.",
+      "done_other": "{{count}} tarefas definidas.",
+      "left": "Ficaram vazias: {{list}}.",
+      "nothing": "Todas as tarefas já tinham conexão, então nada mudou.",
+      "close": "Fechar",
+      "embedLink": "Escolher um modelo para indexar"
     }
   },
   "chat": {
@@ -905,6 +966,7 @@
     },
     "mic": {
       "start": "Fale sua pergunta",
+      "speakIn": "Falar em",
       "stop": "Parar de ouvir",
       "listening": "Ouvindo",
       "hearing": "Transformando sua pergunta em texto",
@@ -949,6 +1011,21 @@
         "open": "Em aberto",
         "documents": "Documentos"
       }
+    },
+    "mistakes": {
+      "open": "Salvar erros para revisar",
+      "finding": "Lendo as correções…",
+      "title": "Erros na sua mensagem",
+      "lead": "Seu modelo de chat encontrou estes na sua mensagem. Desmarque os que não quer revisar.",
+      "none": "Esta resposta não corrigiu nenhum erro seu.",
+      "production": "Praticar também como dizer certo (um cartão que mostra o que você escreveu e pede as palavras certas)",
+      "save_one": "Salvar {{count}} no Vocabulário",
+      "save_other": "Salvar {{count}} no Vocabulário",
+      "saving": "Salvando…",
+      "saved_one": "{{count}} salvo no Vocabulário, na revisão de hoje.",
+      "saved_other": "{{count}} salvos no Vocabulário, na revisão de hoje.",
+      "review": "Revisar",
+      "failed": "Não deu certo. Tente de novo."
     }
   },
   "more": {
@@ -1066,8 +1143,7 @@
   },
   "appendix": {
     "title": "Apêndice: ferramentas",
-    "all": "Todas as ferramentas grátis",
-    "free": "Ferramentas grátis"
+    "all": "Todas as ferramentas grátis"
   },
   "richText": {
     "table": "Tabela",
@@ -1182,10 +1258,14 @@
     "Progress": "Progresso",
     "Study with friends": "Estudar com amigos",
     "Study circle": "Grupo de estudo",
-    "Learning methods": "Métodos de estudo"
+    "Learning methods": "Métodos de estudo",
+    "Public profile": "Perfil público"
   },
   "readinessText": {
     "no_route": "Nenhuma conexão faz {{function}} ainda. Escolha uma em Configurações → Rotas.",
+    "no_route_here": "Nenhuma conexão faz {{function}} ainda. Escolha Editar na linha dela, em Cadeias, logo abaixo.",
+    "optional_unset": "Opcional. O AnyLearn funciona sem isso.",
+    "parse_local": "Nenhum modelo lê documentos: arquivos com texto são lidos no servidor, mas PDFs digitalizados e fotos precisam de um modelo que leia imagens (Gemini, OpenAI ou Anthropic).",
     "all_unusable": "Nenhuma das conexões direcionadas para {{function}} pode ser usada.",
     "some_unusable": "{{unusable}} de {{total}} conexões de {{function}} não podem ser usadas.",
     "connection_gone": "Esta conexão não existe mais.",

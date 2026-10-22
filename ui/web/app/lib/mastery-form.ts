@@ -14,6 +14,14 @@ export function parseApproval(form: FormData): ProposedModule[] {
   } catch {
     types = {};
   }
+  // Points the knowledge base hardly covers, by name: kept, they stay marked.
+  let outside: string[] = [];
+  try {
+    const parsed = JSON.parse(String(form.get("outside") ?? "[]")) as unknown;
+    outside = Array.isArray(parsed) ? parsed.filter((n): n is string => typeof n === "string") : [];
+  } catch {
+    outside = [];
+  }
   const modules: ProposedModule[] = [];
   for (let i = 0; i < count; i++) {
     if (!form.get(`module-${i}-keep`)) continue;
@@ -21,7 +29,7 @@ export function parseApproval(form: FormData): ProposedModule[] {
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean)
-      .map((name) => ({ name, type: types[name] ?? "concept" }));
+      .map((name) => ({ name, type: types[name] ?? "concept", ...(outside.includes(name) ? { outside_source: true } : {}) }));
     modules.push({
       name: String(form.get(`module-${i}-name`) ?? "").trim(),
       objective: String(form.get(`module-${i}-objective`) ?? "").trim(),

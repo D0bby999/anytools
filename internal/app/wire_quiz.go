@@ -14,6 +14,7 @@ import (
 	"github.com/D0bby999/anytools/internal/authz"
 	"github.com/D0bby999/anytools/internal/capabilities/mastery"
 	"github.com/D0bby999/anytools/internal/capabilities/quiz"
+	"github.com/D0bby999/anytools/internal/knowledge"
 	"github.com/D0bby999/anytools/internal/learning"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/store/pg"
@@ -50,7 +51,10 @@ func buildQuizMastery(
 		// Learning depth, phase 9: learn and explain-back read the learner's
 		// Preferences and this knowledge base's Struggles.
 		Profile: newLearnerProfile(pool),
-		Now:     now,
+		// the private design notes, phase 4: is each proposed point
+		// in the material at all.
+		Coverage: kbCoverage{kb: kb},
+		Now:      now,
 	})
 
 	// After an attempt that advanced a knowledge point, check whether its
@@ -107,6 +111,28 @@ func newQuizService(pool *pg.Pool, kb knowledgeSubsystem, resolver runtime.ChatP
 		Authz:     kbAuthorizer{kb.authz},
 		Now:       now,
 	})
+}
+
+// kbCoverage is mastery's Coverage: how close each text is to the nearest
+// passage of one knowledge base, on the route the base was indexed with. A
+// base indexed with another model, or not yet, is ErrCoverageUnknown: the
+// plan is then shown without marks, never marked from another vector space.
+type kbCoverage struct{ kb knowledgeSubsystem }
+
+func (c kbCoverage) Closeness(ctx context.Context, userID, kbID uuid.UUID, texts []string) ([]float64, error) {
+	kbRow, err := c.kb.service.GetKB(ctx, userID, kbID)
+	if err != nil {
+		return nil, err
+	}
+	embedder, err := c.kb.providers.EmbedderFor(ctx, userID)
+	if err != nil || kbRow.Dims == 0 || kbRow.NeedsReembed || kbRow.EmbeddingModel != embedder.Model() {
+		return nil, mastery.ErrCoverageUnknown
+	}
+	vectors, dims, err := embedder.Embed(ctx, texts, knowledge.EmbedQuery)
+	if err != nil || dims != kbRow.Dims || len(vectors) != len(texts) {
+		return nil, mastery.ErrCoverageUnknown
+	}
+	return c.kb.retriever.Nearest(ctx, userID, kbID, dims, vectors)
 }
 
 func newQuizRetriever(kb knowledgeSubsystem) quizRetriever {

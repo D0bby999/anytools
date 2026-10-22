@@ -98,4 +98,6 @@ export type ApiUser = {
   language?: string;
   /** False until the first sign-in reported a language or the learner chose one. */
   language_set?: boolean;
+  /** What they came to learn: null until Home asked, [] when they skipped (lib/study-focus.ts). */
+  study_focus?: string[] | null;
 };

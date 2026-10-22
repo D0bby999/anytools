@@ -124,6 +124,89 @@ export async function renderToolCard(input: { title: string; description: string
       ),
     ],
   );
+  return draw(card, loaded);
+}
+
+async function draw(card: Node, loaded: Font[]): Promise<Uint8Array> {
   const svg = await satori(card as unknown as Parameters<typeof satori>[0], { width: 1200, height: 630, fonts: loaded });
   return new Resvg(svg).render().asPng();
+}
+
+/**
+ * A learner's public profile card (the private design notes): their
+ * name and headline, and the counts their page shows, in its accent. Only
+ * numbers the page itself shows are passed in.
+ */
+export async function renderShowcaseCard(input: {
+  name: string;
+  headline: string;
+  accent: string;
+  tab: string;
+  stats: { value: string; label: string }[];
+  address: string;
+}): Promise<Uint8Array> {
+  const loaded = await setup();
+  const part = (suffix = "") => token(`part-${input.accent}${suffix}`);
+  const card = el(
+    "div",
+    {
+      width: 1200,
+      height: 630,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      padding: "64px 96px",
+      background: token("paper"),
+      color: token("ink"),
+    },
+    [
+      el("div", { display: "flex", alignItems: "center", gap: 20 }, [
+        el("div", { fontFamily: SERIF, fontSize: 40, fontWeight: 600 }, "AnyLearn"),
+        el(
+          "div",
+          { fontFamily: SANS, fontSize: 22, fontWeight: 600, padding: "4px 14px", borderRadius: 8, background: part(), color: part("-fg") },
+          input.tab,
+        ),
+      ]),
+      el("div", { display: "flex", flexDirection: "column", gap: 16 }, [
+        el("div", { fontFamily: SERIF, fontSize: 68, fontWeight: 600, lineHeight: 1.1 }, input.name),
+        ...(input.headline ? [el("div", { fontFamily: SANS, fontSize: 30, color: token("ink-2"), lineHeight: 1.4 }, input.headline)] : []),
+      ]),
+      el(
+        "div",
+        { display: "flex", gap: 24 },
+        input.stats.map((s) =>
+          el(
+            "div",
+            {
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              padding: "18px 24px",
+              borderRadius: 12,
+              border: `2px solid ${part("-line")}`,
+              background: part("-soft"),
+            },
+            [
+              el("div", { fontFamily: SERIF, fontSize: 56, fontWeight: 600, color: part() }, s.value),
+              el("div", { fontFamily: SANS, fontSize: 24, color: token("ink-2") }, s.label),
+            ],
+          ),
+        ),
+      ),
+      el(
+        "div",
+        {
+          display: "flex",
+          justifyContent: "flex-end",
+          borderTop: `1px solid ${token("border")}`,
+          paddingTop: 20,
+          fontFamily: SANS,
+          fontSize: 22,
+        },
+        [el("div", { color: token("brand"), fontWeight: 600 }, input.address)],
+      ),
+    ],
+  );
+  return draw(card, loaded);
 }

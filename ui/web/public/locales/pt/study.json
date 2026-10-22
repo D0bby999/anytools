@@ -136,7 +136,11 @@
     "archiveConfirm": "Arquivar esta trilha? O histórico dela é mantido, mas ela deixa de aparecer na sua lista de pendentes.",
     "practise": "Praticar estes",
     "explained": "Explicado ✓",
-    "explainGate": "Pontos de conceito e de design precisam de uma explicação com suas próprias palavras antes de o módulo deles terminar."
+    "explainGate": "Pontos de conceito e de design precisam de uma explicação com suas próprias palavras antes de o módulo deles terminar.",
+    "outsideTitle": "Não está nos seus documentos",
+    "outsideHint": "Seus documentos quase não tratam destes pontos, então as aulas sobre eles dependeriam do modelo, não do seu material. Apague uma linha para tirá-lo, ou mantenha-o marcado.",
+    "outsideMark": "Não está nos seus documentos",
+    "coverageSkipped": "Estes pontos não foram comparados com seus documentos: esta base não pôde ser medida com seu modelo de embeddings atual."
   },
   "session": {
     "back": "Voltar à trilha",
@@ -177,6 +181,8 @@
     "label": "Aprender",
     "testMe": "Entendi, pode testar",
     "differently": "Explique de outro jeito",
+    "inSource": "Explicar no idioma dos documentos",
+    "inLanguage": "Explicar em {{language}}",
     "writing": "Escrevendo uma explicação…",
     "teachMe": "Me ensine isto",
     "stale": "As fontes mudaram: um documento citado aqui foi atualizado depois que a explicação foi escrita.",
@@ -423,5 +429,12 @@
     "practice": "Prática",
     "chooseAnswer": "Escolha uma resposta.",
     "answerQuestionsCount": "Responda às {{count}} perguntas de hoje"
+  },
+  "explainLang": {
+    "label": "Explicar em",
+    "mine": "Meu idioma ({{language}})",
+    "source": "O idioma dos documentos",
+    "help": "O plano, as aulas e os comentários são escritos neste idioma. Termos, citações e exemplos dos seus documentos ficam como estão.",
+    "saved": "Salvo. As novas aulas e comentários usam este idioma."
   }
 }

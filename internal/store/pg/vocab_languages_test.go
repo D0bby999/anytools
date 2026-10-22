@@ -60,18 +60,14 @@ func TestVocabDueNarrowsToOneLanguage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []vocab.LangCount{{Lang: "en", Words: 1, Due: 2}, {Lang: "ja", Words: 1, Due: 0}}
+	want := []vocab.LangCount{{Lang: "en", Words: 1, Due: 2}, {Lang: "ja", Words: 1, Due: 1}}
 	if !slices.Equal(got.Saved, want) {
-		t.Fatalf("saved = %+v, want %+v (the import starts tomorrow)", got.Saved, want)
+		t.Fatalf("saved = %+v, want %+v (the import starts today)", got.Saved, want)
 	}
 	cards, n, err := f.svc.DueIn(ctx, f.alice, vocab.DeckWords, "en", 50)
 	if err != nil || n != 2 || len(cards) != 2 || cards[0].Lang != "en" {
 		t.Fatalf("en: %d due, %d cards, %v", n, len(cards), err)
 	}
-	if _, n, _ := f.svc.DueIn(ctx, f.alice, vocab.DeckWords, "ja", 50); n != 0 {
-		t.Fatalf("ja: %d due today, want 0", n)
-	}
-	f.now = f.now.AddDate(0, 0, 2)
 	cards, n, err = f.svc.DueIn(ctx, f.alice, vocab.DeckWords, "ja", 50)
 	if err != nil || n != 1 || len(cards) != 1 || cards[0].Term != "勉強" {
 		t.Fatalf("ja two days on: %d due, %+v, %v", n, cards, err)

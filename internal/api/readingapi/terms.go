@@ -80,9 +80,11 @@ func (h *Handler) terms(w http.ResponseWriter, r *http.Request) {
 			"no model is configured for reading — add one in Settings", "no_provider")
 		return
 	}
+	passageLang := vocab.DetectLang(pageText)
 	terms, _, err := reading.ExtractTerms(r.Context(), provider, provider.DefaultModel(), reading.Request{
 		Action: reading.ActionVocab, Selection: selection, Page: req.Page,
 		DocumentID: ws.DocumentID.String(), DocumentTitle: doc.Title,
+		LearnerLang: httpx.Language(r.Context()), PassageLang: passageLang,
 	})
 	switch {
 	case errors.Is(err, reading.ErrBadTerms):
@@ -98,6 +100,6 @@ func (h *Handler) terms(w http.ResponseWriter, r *http.Request) {
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{
 		"terms": terms,
-		"lang":  vocab.DetectLang(pageText),
+		"lang":  passageLang,
 	})
 }

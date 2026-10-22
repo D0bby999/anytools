@@ -15,6 +15,7 @@ import { ProcessRow, processFoldKeys } from "~/components/chat/process-row";
 import { FeedbackDialog } from "~/components/chat/feedback-dialog";
 import { AskAgainWith } from "~/components/chat/ask-again-with";
 import { SummaryCheckpoint } from "~/components/chat/summary-checkpoint";
+import { SaveMistakesButton, SaveMistakesPanel } from "~/components/chat/save-mistakes";
 import type { ModelOption } from "~/components/chat/composer/model-chip";
 import { useFolds } from "~/components/chat/folds";
 import type { ChatFeedbackController } from "~/hooks/use-chat-feedback";
@@ -299,6 +300,13 @@ function AssistantMessage({
             <DrawIt messageId={turn.id} />
           </span>
         ) : null}
+        {/* A chat answer's corrections become cards; the reading tutor's
+            answers (no capability) have their own "Find words to save". */}
+        {settled && !turn.incomplete && turn.capability === "chat" ? (
+          <span>
+            <SaveMistakesButton messageId={turn.id} className={TEXT_ACTION} />
+          </span>
+        ) : null}
         {settled && hasWork ? (
           <span>
             <button
@@ -343,6 +351,7 @@ function AssistantMessage({
         )}
       </div>
       {actions}
+      {settled && !turn.incomplete && turn.capability === "chat" ? <SaveMistakesPanel messageId={turn.id} /> : null}
       {turn.incomplete ? (
         <p className="mt-2 w-fit">
           <Badge type="warning">{t("chat.incomplete")}</Badge>

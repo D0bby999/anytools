@@ -22,6 +22,7 @@ import type {
   RouteEntry,
   SearchConnection,
 } from "~/lib/byok.types";
+import { serveFor } from "~/lib/byok.types";
 
 export type {
   ReadinessStatus,
@@ -200,6 +201,51 @@ export function deleteSearchConnection(userId: string, id: string) {
 
 export function verifySearchConnection(userId: string, id: string) {
   return apiFetch<VerifyResult>(`/v1/byok/search-connections/${path(id)}/verify`, userId, { method: "POST" });
+}
+
+/**
+ * Quick setup (the private design notes, phase 2): one connection for
+ * every task that has none yet, with one model for the chat tasks and one
+ * for indexing. A chain the learner already set is never replaced; speech is
+ * left alone (it is optional, and a chat key rarely speaks). One PUT per
+ * task, in order, the same call the Routes page makes.
+ */
+export async function quickSetup(
+  userId: string,
+  connectionId: string,
+  models: { chat: string; embed: string },
+): Promise<{ set: string[]; left: string[] }> {
+  const [routes, payload, catalog] = await Promise.all([
+    listRoutes(userId),
+    listConnections(userId),
+    listCatalog(userId),
+  ]);
+  const conn = payload.connections.find((c) => c.id === connectionId);
+  if (!conn) throw new ApiError(404, "That connection no longer exists.", "not_found");
+  const entry = catalog.providers.find((p) => p.type === conn.provider);
+  const serves = entry?.serves ?? ["chat"];
+  const needsModel = entry?.needs_model ?? false;
+  const set: string[] = [];
+  const left: string[] = [];
+  for (const fn of routes.functions) {
+    if ((routes.routes[fn] ?? []).length > 0) continue;
+    const kind = serveFor(fn);
+    const model = kind === "chat" ? models.chat : kind === "embed" ? models.embed : "";
+    const skip =
+      kind === "tts" ||
+      kind === "stt" ||
+      !serves.includes(kind) ||
+      (needsModel && !model) ||
+      // Parse is offered only where the provider reads documents with its own default.
+      (kind === "parse" && needsModel);
+    if (skip) {
+      left.push(fn);
+      continue;
+    }
+    await setRoute(userId, fn, [{ connection_id: connectionId, model }]);
+    set.push(fn);
+  }
+  return { set, left };
 }
 
 export function getReadiness(userId: string) {

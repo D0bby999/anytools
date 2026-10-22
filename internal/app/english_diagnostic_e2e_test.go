@@ -44,8 +44,11 @@ func TestTheEnglishDiagnosticEndToEnd(t *testing.T) {
 
 	created := e.json(http.MethodPost, "/v1/worksheets", map[string]any{"kind": "english_diagnostic", "title": "October baseline"}, http.StatusCreated)
 	id, rev := created["id"].(string), created["updated_at"].(string)
-	if len(mapAt(created, "reviews")) != 0 {
-		t.Fatalf("reviews scheduled before the first version: %v", created["reviews"])
+	// The quick version's first-version date starts as today, so the three
+	// reviews are scheduled at once (the private design notes, phase
+	// 5); moving the date below moves them.
+	if len(mapAt(created, "reviews")) != 3 || mapAt(mapAt(created, "answers"), "first_version")["first_version_on"] == nil {
+		t.Fatalf("a new diagnostic: reviews %v, answers %v", created["reviews"], created["answers"])
 	}
 
 	bad := e.json(http.MethodPatch, "/v1/worksheets/"+id, map[string]any{"revision": rev,

@@ -519,8 +519,7 @@ func (s *Service) ProcessDocument(ctx context.Context, userID uuid.UUID, payload
 
 	embedder, err := s.providers.EmbedderFor(ctx, userID)
 	if err != nil {
-		return s.failDocument(ctx, doc,
-			"no embedding model is configured — add one in Settings, then retry", err, true, attempt)
+		return s.failDocument(ctx, doc, NoEmbedRouteReason, err, true, attempt)
 	}
 
 	stored, dims, err := s.embedChunks(ctx, embedder, pieces)

@@ -26,6 +26,7 @@ type Handler struct {
 	zones      TimezoneSetter
 	languages  LanguageSetter
 	ownVersion OwnVersionSetter
+	studyFocus StudyFocusSetter
 }
 
 // TimezoneSetter stores the learner's zone (learning-depth phase 0).
@@ -57,6 +58,18 @@ func (h *Handler) WithTimezones(z TimezoneSetter) *Handler {
 // (up-methods phase 11).
 type OwnVersionSetter interface {
 	SetOwnVersionFirst(ctx context.Context, id uuid.UUID, on bool) error
+}
+
+// StudyFocusSetter stores what the learner came to learn (phase 7 of
+// the private design notes).
+type StudyFocusSetter interface {
+	SetStudyFocus(ctx context.Context, id uuid.UUID, focus []string) error
+}
+
+// WithStudyFocus enables PUT /v1/me/study-focus.
+func (h *Handler) WithStudyFocus(s StudyFocusSetter) *Handler {
+	h.studyFocus = s
+	return h
 }
 
 // WithOwnVersionFirst enables PUT /v1/me/own-version-first.
@@ -100,6 +113,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	}
 	if h.ownVersion != nil {
 		mux.HandleFunc("PUT /v1/me/own-version-first", h.putOwnVersionFirst) // budget: none
+	}
+	if h.studyFocus != nil {
+		mux.HandleFunc("PUT /v1/me/study-focus", h.putStudyFocus) // budget: none
 	}
 	if h.sessions != nil {
 		mux.HandleFunc("GET /v1/auth/session-watermark", h.getWatermark)
@@ -167,6 +183,9 @@ type userResponse struct {
 	// FileStorage is "server" or "drive": where new files are written, and
 	// whether "Save to my Drive" is offered (drive-user-storage phase 2).
 	FileStorage string `json:"file_storage"`
+	// StudyFocus is what the learner came to learn: null until asked, []
+	// when they skipped the question.
+	StudyFocus []string `json:"study_focus"`
 	// Language is the interface language; LanguageSet is false until the
 	// first sign-in reported one or the learner chose one.
 	Language    string `json:"language"`
@@ -272,7 +291,36 @@ func toUserResponse(u *store.User) userResponse {
 		FileStorage:     u.FileStorage,
 		Language:        u.Language,
 		LanguageSet:     u.LanguageSetAt != nil,
+		StudyFocus:      u.StudyFocus,
 	}
+}
+
+type studyFocusRequest struct {
+	Focus []string `json:"focus"`
+}
+
+// putStudyFocus stores the answers to Home's "What do you want to learn?";
+// an empty list is "Skip".
+func (h *Handler) putStudyFocus(w http.ResponseWriter, r *http.Request) {
+	var req studyFocusRequest
+	if err := httpx.DecodeJSON(w, r, &req); err != nil || req.Focus == nil || len(req.Focus) > len(store.StudyFocuses) {
+		httpx.WriteError(w, http.StatusBadRequest, "focus is a list of what you want to learn", "bad_request")
+		return
+	}
+	seen := map[string]bool{}
+	for _, f := range req.Focus {
+		if !slices.Contains(store.StudyFocuses, f) || seen[f] {
+			httpx.WriteError(w, http.StatusBadRequest, "focus is a list of what you want to learn", "bad_request")
+			return
+		}
+		seen[f] = true
+	}
+	if err := h.studyFocus.SetStudyFocus(r.Context(), httpx.MustUserID(r.Context()), req.Focus); err != nil {
+		slog.Error("authapi: set study focus", "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "could not save the setting", "internal")
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"study_focus": req.Focus})
 }
 
 type languageRequest struct {

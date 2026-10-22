@@ -225,7 +225,7 @@ func (s *Service) AddDeckCards(ctx context.Context, userID, deckID uuid.UUID, ca
 	}
 	now := s.now().UTC()
 	b.Zone, b.Now, b.NewCard = zone, now, s.scheduler.NewCard(now)
-	b.FirstDay = AddDays(learning.LocalDay(now, zone), 1)
+	b.FirstDay = learning.LocalDay(now, zone)
 	res, err := store.AddDeckCards(ctx, b)
 	if err != nil {
 		return nil, err

@@ -44,6 +44,18 @@ A short guide to what each study feature does, what it costs on your own AI key,
 | Zotero | A knowledge base → Add from Zotero; Research | An index of each item added; research may search it as a tool |
 | Body (training) | Body, Home → Body today | Nothing to log or progress; the coach is one call on your `chat` model per plan, review or revision, and at most one repair |
 
+## The first visit
+
+Home greets a learner who has not studied yet as new ("Welcome", not "Welcome back") and asks what they want to learn: a language, their own material, an exam, research, training, or Skip (plans 261022-1210, phase 7). The answer is `users.study_focus` (`PUT /v1/me/study-focus`; null until asked, empty when skipped), changeable under Settings → Account. Choosing a language asks which, adds it to the studied languages, and offers its first words from the Library's word lists (NGSL 1–500 for English), which start in today's review. Home then leaves out the parts made for another purpose (`lib/study-focus.ts`: Languages and Vocabulary for languages, timed exams, Research, Body) with "Show every part" beside them; what is due is never filtered, and every part stays in the menu.
+
+## The language explanations are written in
+
+What a model writes for the learner (a study plan, a lesson, an explain-back's feedback, a quiz question's explanation, the reading tutor's answer, "Find words to save"'s gloss) is in the learner's interface language, with terms, quotations and examples from their documents kept as they are (plans 261022-1210, phase 4). The rule is one section, `locale.ExplainRule`, added to the system prompt from the request context (`locale.FromContext`, which `httpx.WithLanguage` fills); a background job has no language and follows its material, as before. A quiz question, its options and its answer stay in the passages' language, which on a language being studied is the reading practised.
+
+A mastery path may choose another ("Explain in" when it is created and on its page, `PATCH /v1/mastery/paths/{id}`): the learner's language, the documents' (`source`, no rule), or a studied language. A lesson offers the other of the learner's and the documents' language; each language is its own cached lesson (`kp_explanations.lang`).
+
+**Points not in the documents.** A proposed plan's points are each embedded on the knowledge base's own route and measured against its nearest passage (`retrieve.Nearest`, cosine similarity). Because the scale differs by embedding model, the mark is relative: a point below 0.8 of the plan's median and 0.08 under it is "Not found in your documents" (`mastery.OutsideSource`). The editor names them under their module; one kept on approval stays marked (`knowledge_points.outside_source`). A base indexed with another model is not measured, and the plan says so.
+
 ## Maths answers, marked by value
 
 A short or cloze question whose recorded answer is an expression or an equation is marked in Go, with no model call (`internal/capabilities/quiz/mathcheck`): both are evaluated at the same 24 sample points, so `2(x+1)`, `2x + 2` and `\frac{4x+4}{2}` are one answer, an equation equals any rearrangement of itself, and `x = 3` equals `3`. A bare number is compared by value when the reply is a number. The notation read is what people type and what MathLive writes: decimal commas, implicit multiplication, `^`, roots, `|x|`, the usual functions, π and a LaTeX subset. When the question asks to simplify, factorise or expand, an equal answer in another form is "Almost": right, scheduled as Hard. Units, matrices, intervals, solution sets, inequalities and proofs go to the model as before (owner decision 3).
@@ -129,6 +141,8 @@ Marking free-text answers, judging explanations, reading exam papers and consoli
 
 The toolkit holds 27 worksheets taken from up's templates (`byoungd/up` at `f13ff2d`), in three groups: language, projects and life. Each worksheet has the sections, fields, tables and options of its source, and is checked against them when it is saved. Many carry up's review dates, counted from the day that matters (a draft, a delivery, a first pass) on your local day. They appear on Home when due, and a dated retest row cannot be filled in before its date. A worksheet that is not private can be added to a learning state's evidence. Every worksheet downloads as Markdown.
 
+**Quick versions.** A worksheet with more than twelve fields opens on its quick version: three to five of its fields, chosen per kind in `internal/learning/worksheet/quick.go`, with "Open the full worksheet" one click away (remembered per worksheet in the browser). A quick field is the full worksheet's own field, and a section save sends only the fields it shows, which the API merges by field. Each quick version holds the field its reviews count from, and a "this happened on" date (`today` in the kind) starts as the learner's day when the worksheet is created, so a quick worksheet is scheduled like a full one. `quick_test.go` runs every kind's quick version alone through validation, its checks and the scheduler. The Toolkit and Languages links read "Start (5 min)" for such a kind.
+
 Nothing in the toolkit calls a model, except a writing diagnosis that you ask for. **Worksheets are stored like notes: readable by the server, not encrypted at rest.** Do not put passwords, ID numbers, exact addresses or medical details in them.
 
 ## Languages, in one place
@@ -141,7 +155,7 @@ Each language has a small profile in `ui/web/app/lib/languages.ts`: a dictionary
 
 ## Language diagnostic
 
-A four-skill diagnostic (the kind is still `english_diagnostic`; its text says "the language you are learning") with a CEFR self-check rated per skill, never averaged into one level. Each skill's evidence card opens the matching worksheet, prefilled. Listening and reading evidence start from the video or text you practise on, so the diagnostic names them and says where to begin.
+A four-skill diagnostic (the kind is still `english_diagnostic`; its text says "the language you are learning") with a CEFR self-check rated per skill, never averaged into one level. The self-check's table is part of the quick version, and the levels chosen show in one line at the top of the worksheet, labelled as the learner's own estimate. Each skill's evidence card opens the matching worksheet, prefilled. Listening and reading evidence start from the video or text you practise on, so the diagnostic names them and says where to begin.
 
 ## Listening practice
 
@@ -150,6 +164,12 @@ A video or an audio file has a "Practise listening" tab with up's listening audi
 ## Unknown words: five decisions
 
 Saving a word now asks what to do with it first: skip, infer, look it up, learn, or verify. Each decision has its short record, and the suggested meaning stays hidden until you decide (for "infer", until you have written your own guess). **Only "learn" makes review cards.** Up advises five to eight words to learn per cycle; the page says so when you pass that, but does not stop you. "Practise using it" adds a production card: your own second scenario and one easily confused expression.
+
+The common case is one click (plans 261022-1210, phase 3). "Find words to save" asks the reading model, in the same call, for each word's sense in the learner's interface language when it is not the passage's (`gloss`), how it is said (stress or a respelling, never guessed IPA) and its collocation from the passage (`internal/capabilities/reading/terms.go`). "Learn this word" saves it to learn with that sense as its meaning, the passage's sense shown beside it, and the record prefilled (the cue is the passage sentence with the word blanked); "Other ways to keep it" opens the five decisions, prefilled the same way. A word to learn may leave its record empty: this relaxes up's "each field filled" for `learn` only (`CheckRecord`), because a required three-field form in front of every word stopped the English walkthrough's learner saving words at all.
+
+**Mistakes from chat.** Under a chat answer, "Save mistakes to review" asks the chat model once for the mistakes the answer corrected in the learner's previous message (`POST /v1/chat/messages/{id}/corrections`, budget `generate`). The server keeps one only if the learner's message holds the wrong words (`chat.FilterCorrections`). The learner unticks any and saves the rest (`…/corrections/save`): each becomes a word to learn with origin `chat` and no document, its term the right words, its meaning why, its cue what was written, a cloze card when the corrected sentence holds the words, and optionally a production card ("You wrote: …"). They are due today and are not paced behind imports.
+
+**An example on the card.** A recognition card for a word met in no sentence (a Library word list, an Anki deck without sentences) looks up Tatoeba's first sentence, with its translation, and Lingua Libre's first recording as the card is shown, and shows them with their credits once it is answered (`components/vocab/card-example.tsx`). "Keep this sentence" stores it as "Use this sentence" does.
 
 ## Listening cards
 
@@ -167,11 +187,11 @@ Select up to 80 words while reading and choose "Check my reading aloud". You rec
 
 ## Anki decks in and out
 
-Mastery → Vocabulary → Anki decks imports an Anki deck (`.apkg`) and exports the words you are learning as one. The deck is read in the browser, from its newest collection (`collection.anki21b` from Anki 2.1.50 on, else `collection.anki21` or `collection.anki2`); you say, per note type, which field is the word, which the meaning and which an example sentence, and see the first ten words before anything is sent. Each word becomes a word to learn with a fresh schedule, a recognition card always and a cloze card when the sentence holds the word; a word already in your vocabulary in that language is left as it is. Imported words come up for review 20 a day from tomorrow, in deck order, and a second import carries on where the first left off, so a big deck does not fill Home's count or the daily reminder at once. They are not counted in the week's "five to eight". Images, sounds and Anki's review history are not imported. The export is one note type "AnyLearn word" (Term, Meaning, Sentence, Source) in a deck "AnyLearn", in Anki's schema 11, which Anki and AnkiDroid open; schedules start new there, and exporting again updates the same notes in Anki rather than doubling them. Written from Anki's documented file format and checked against genanki's schema; no Anki or genanki code is used.
+Mastery → Vocabulary → Anki decks imports an Anki deck (`.apkg`) and exports the words you are learning as one. The deck is read in the browser, from its newest collection (`collection.anki21b` from Anki 2.1.50 on, else `collection.anki21` or `collection.anki2`); you say, per note type, which field is the word, which the meaning and which an example sentence, and see the first ten words before anything is sent. Each word becomes a word to learn with a fresh schedule, a recognition card always and a cloze card when the sentence holds the word; a word already in your vocabulary in that language is left as it is. Imported words come up for review 20 a day from today (from tomorrow before plans 261022-1210 phase 3, which left a first day with nothing to review), in deck order, and a second import carries on where the first left off, so a big deck does not fill Home's count or the daily reminder at once. They are not counted in the week's "five to eight". Images, sounds and Anki's review history are not imported. The export is one note type "AnyLearn word" (Term, Meaning, Sentence, Source) in a deck "AnyLearn", in Anki's schema 11, which Anki and AnkiDroid open; schedules start new there, and exporting again updates the same notes in Anki rather than doubling them. Written from Anki's documented file format and checked against genanki's schema; no Anki or genanki code is used.
 
 ## Decks: a library and general cards
 
-Mastery → Decks holds decks that are not vocabulary (owner decision 5): their cards are a front and a back (card kind `card`, no note, in `card_decks`; `GET/POST /v1/decks`, `DELETE /v1/decks/{id}`, `POST /v1/decks/{id}/cards` in batches of 200). They are reviewed in their own queue (`GET /v1/vocab/due?deck=cards`), counted in Home's total and the daily reminder, and come up 20 new a day from tomorrow, continuing after earlier deck imports, in the deck's order; a front the deck already has is a duplicate. Deleting a deck deletes its cards.
+Mastery → Decks holds decks that are not vocabulary (owner decision 5): their cards are a front and a back (card kind `card`, no note, in `card_decks`; `GET/POST /v1/decks`, `DELETE /v1/decks/{id}`, `POST /v1/decks/{id}/cards` in batches of 200). They are reviewed in their own queue (`GET /v1/vocab/due?deck=cards`), counted in Home's total and the daily reminder, and come up 20 new a day from today, continuing after earlier deck imports, in the deck's order; a front the deck already has is a duplicate. Deleting a deck deletes its cards.
 
 The library (`ui/web/app/lib/deck-library.ts`) says each deck's licence before anything is fetched. A deck AnyLearn may ship is bundled as text and added in one tap: Ultimate Geography v5.3 (public domain, images excluded) in English, Spanish and Portuguese, 435–436 country ↔ capital cards, written by `ui/web/scripts/decks/ultimate-geography.mjs`. Others (non-commercial or unlicensed) are links; the learner brings the file to "From a file", which reads an `.apkg` or a CrowdAnki `.zip` in the browser, maps fields to front and back (plus one more for the back), shows the first ten and imports. A vocabulary deck still goes through Mastery → Vocabulary's importer.
 
@@ -196,6 +216,8 @@ Library (`/library`, under Read; the private design notes) is ready material fro
 
 Licences and changes are in `THIRD-PARTY-NOTICES.md`; share-alike data files keep their licence beside the MIT code.
 
+
+**Shelves for learning a language** (plans 261022-1210, phase 6). Each item may say which language it is for learning, apart from the one it is written in (`library_items.teaches`): a French textbook in English teaches French. It is read from the title in `ui/web/app/lib/library/teaches.ts`, conservatively (a word list or deck is its own language; course and textbook titles naming a language; ESL books and MIT's ELS subjects for English, never a teacher's guide; linguistics and literature untagged). "For learning" filters by it (`?teaches=`), and then the material may be written in any language; "Language" is now "Written in". A language's tab links its shelf. Four sources for English learners were added, each licence read at its source on 2026-10-22: VOA Learning English (public domain with credit, agency stories excluded; opened at the source to choose a lesson, whose address the learner adds), Wikibooks' English as a Second Language (CC BY-SA, added as a link), Global Storybooks in English (each story CC BY or CC BY-NC, so link only) and USA Learns (free with an account, link only).
 ## Example sentences and recordings
 
 A saved word's "Sentences and sound" asks, from the server and only when opened, Tatoeba for sentences with the word and their translation into the learner's language, and Wikimedia Commons for Lingua Libre's recordings (for English also Wiktionary's through the Free Dictionary API). Each shows its author, licence and page. "Use this sentence" keeps it as the word's newest context, credited (`POST /v1/vocab/{id}/sentence`), and gives a word being learned its fill-in card. `internal/connectors/wordsources` caches answers a week and plays only recordings it found; Tatoeba is slow (about 30 s on 2026-10-21) and has a 45 s timeout.
@@ -343,6 +365,59 @@ review reminder says how long it is.
 - The earliest member owns the circle: they rename it, make a new code (the old link stops
   working) and remove members. When the owner leaves, the next earliest member owns it; when the
   last member leaves, the circle is deleted.
+
+## Public profile
+
+`/showcase` makes a page of the learner's own at `/u/<handle>`, to send to someone as proof
+of how they study or to show it off (the private design notes).
+
+- **What is on it.**
+  - The learner's own words: a name, a headline, up to three "about" blocks and up to five
+    links. They are marked as theirs.
+  - What AnyLearn counted, which they cannot edit: study days, the streak, weeks meeting the
+    goal, the level, the year's calendar, the milestones with their dates, and outcomes. The
+    page says the day these are counted through. Outcomes are totals, never a share right.
+- **Private by default.**
+  - Nothing is public until "Public" is ticked and saved. An unpublished page and a missing
+    one are the same 404.
+  - Search: "Let Google and other search engines show it" is ticked for a new page, and the
+    learner can untick it. A public page with it ticked is in `sitemap.xml` (robots.txt
+    allows `/u/`) and has:
+    - a canonical address per language (`/u/<handle>?lang=vi`, …), with the bare address as
+      `x-default`;
+    - hreflang links between them;
+    - a schema.org `ProfilePage` naming the person and their links.
+
+    Without it, the page says `noindex` and is shared by its link only.
+  - The server sends only the data of the blocks on the page, so a hidden calendar never
+    leaves it.
+  - Deleting the page, or the account, frees the handle.
+- **Sharing.** Copy the link. A shared link unfurls into a card (`/u/<handle>/og.png`) with
+  the name, the headline and, only if the page shows them, study days, streak and level.
+- **The design is a document.** A page is a versioned JSON document: a `theme` (an accent,
+  one of the five part colours) and `blocks` in order. The editor adds, removes and orders
+  blocks and picks the accent, with a live preview.
+
+### Extending the design
+
+The page was built so learners can design more of it later without rework:
+
+| To add | Server (`internal/showcase/design.go`) | Web |
+|---|---|---|
+| A block type | an entry in `blockSpecs` (how many, whether it shows counted data, its `fields`, a `check` for them) | `BLOCK_SPECS` in `app/lib/showcase/design.ts`, a view in `BLOCK_VIEWS` (`components/showcase/showcase-view.tsx`), its words in `showcase.json` |
+| A block option | a field on `Block`, its JSON name in that type's `fields`, checked in its `check` | a control in `BlockFields` (`routes/showcase.tsx`), used by the view |
+| A theme option | a field on `Theme`, checked in `Design.check` | applied on `ShowcaseView`'s wrapper; a control under "Look" |
+| A change to stored pages | `DesignVersion + 1` and a case in `upgrade` that rewrites the old version | `DESIGN_VERSION` |
+
+- On save, unknown types and fields (and a field its type does not take) are refused, never
+  dropped, so a page cannot carry markup or styles the server did not check. Text with a
+  control, direction or zero-width character is refused too.
+- A stored page is read leniently, so a rule tightened later does not empty pages saved
+  before it. A block the running version cannot take is left out and the editor says so. A
+  design it cannot read at all shows no blocks, never blocks the learner may have hidden.
+- A milestone goes out as its kind, target and date only, never the learner's current total.
+  A page with no counted block is not counted at all.
+- `app/test/showcase.test.tsx` fails when the two registries disagree.
 
 ## Bad-day minimum
 

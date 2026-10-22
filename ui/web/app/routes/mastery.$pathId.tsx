@@ -8,6 +8,7 @@ import { AtAGlance } from "~/components/doc/at-a-glance";
  * Actions here are intents on one path: propose, approve, diagnostic, archive.
  * `approve` is also the target of ProposalEditor on the index page.
  */
+import { useState } from "react";
 import { Link, redirect, useFetcher } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
@@ -22,6 +23,7 @@ import {
   openErrors,
   proposePath,
   runDiagnostic,
+  setExplainLang,
 } from "~/lib/mastery.server";
 import { percent, type Proposal, type QuestionView } from "~/lib/study-types";
 import { parseApproval } from "~/lib/mastery-form";
@@ -30,6 +32,8 @@ import { ProposalEditor } from "~/components/mastery/proposal-editor";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { PageHeader } from "~/components/ui/page-header";
 import { MasteryMeter } from "~/components/mastery/mastery-meter";
+import { ExplainLangSelect } from "~/components/mastery/explain-lang-select";
+import { studiedLanguages } from "~/lib/vocab.server";
 
 export function meta({ data, matches }: Route.MetaArgs) {
   return [
@@ -41,11 +45,12 @@ export function meta({ data, matches }: Route.MetaArgs) {
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { user } = await requireUser(request);
   try {
-    const [detail, errors] = await Promise.all([
+    const [detail, errors, studied] = await Promise.all([
       getPath(user.id, params.pathId),
       openErrors(user.id, params.pathId),
+      studiedLanguages(user.id).then((s) => s.studied).catch((): string[] => []),
     ]);
-    return { detail, errors: errors.errors };
+    return { detail, errors: errors.errors, studied };
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       throw new Response("Not found", { status: 404 });
@@ -75,6 +80,9 @@ export async function action({ request, params }: Route.ActionArgs) {
       case "archive":
         await archivePath(user.id, pathId);
         return redirect("/mastery");
+      case "explain-lang":
+        await setExplainLang(user.id, pathId, String(form.get("explain_lang") ?? ""));
+        return { langSaved: true };
     }
   } catch (error) {
     return { errorKey: "errors.pathActionFailed", errorDetail: error instanceof ApiError ? error.message : "" };
@@ -83,6 +91,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 }
 
 type ActionData = {
+  langSaved?: boolean;
   proposal?: Proposal;
   diagnostic?: QuestionView[];
   errorKey?: string;
@@ -116,6 +125,8 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
           </>
         }
       />
+
+      <ExplainLangForm pathId={detail.path.id} value={detail.path.explain_lang ?? ""} studied={loaderData.studied} />
 
       <BookMeta label={t("path.modules")} items={[{ label: detail.kb_name }, { label: t("path.overall", { mastery: percent(detail.mastery), due: detail.due_count }) }]} />
       <AtAGlance items={detail.modules.map((m) => m.module.objective || m.module.name)} />
@@ -213,7 +224,12 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
                       key={kp.knowledge_point.id}
                       className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b py-3 text-sm"
                     >
-                      <span>{kp.knowledge_point.name}</span>
+                      <span>
+                        {kp.knowledge_point.name}
+                        {kp.knowledge_point.outside_source ? (
+                          <span className="ml-2 text-xs text-muted-foreground">{t("path.outsideMark")}</span>
+                        ) : null}
+                      </span>
                       <span className="text-xs text-muted-foreground tabular-nums">
                         {kp.state.explain_passed_at ? (
                           <span className="mr-2 font-medium text-primary">{t("path.explained")}</span>
@@ -285,5 +301,38 @@ export default function MasteryPath({ loaderData }: Route.ComponentProps) {
         </fetcher.Form>
       </section>
     </div>
+  );
+}
+
+/** "Explain in": changed on the spot, with a line saying it took. */
+function ExplainLangForm({ pathId, value, studied }: { pathId: string; value: string; studied: string[] }) {
+  const { t } = useTranslation("study");
+  const fetcher = useFetcher<ActionData>();
+  const [lang, setLang] = useState(value);
+  return (
+    <fetcher.Form method="post" action={`/mastery/${pathId}`} className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+      <input type="hidden" name="intent" value="explain-lang" />
+      <label htmlFor="lp-path-explain-lang" className="text-muted-foreground">
+        {t("explainLang.label")}
+      </label>
+      <ExplainLangSelect
+        id="lp-path-explain-lang"
+        value={lang}
+        studied={studied}
+        onChange={(next) => {
+          setLang(next);
+          void fetcher.submit({ intent: "explain-lang", explain_lang: next }, { method: "post", action: `/mastery/${pathId}` });
+        }}
+        className="min-h-10 rounded-md border border-control-border bg-card px-2 text-sm"
+      />
+      <span role="status" className="text-xs text-muted-foreground">
+        {fetcher.state === "idle" && fetcher.data?.langSaved ? t("explainLang.saved") : ""}
+      </span>
+      {fetcher.data?.errorKey ? (
+        <span role="alert" className="text-xs text-destructive">
+          {t(fetcher.data.errorKey)}
+        </span>
+      ) : null}
+    </fetcher.Form>
   );
 }

@@ -5,14 +5,17 @@
  * generator would have to be told so for each.
  *
  * The tool pages' entries come from lib/tools/sitemap.server.ts. No priority
- * or changefreq on them: Google ignores both.
+ * or changefreq on them: Google ignores both. Then the public profiles whose
+ * learners let search engines list them (the private design notes).
  */
-import { publicUrls } from "~/lib/tools/sitemap.server";
+import { listIndexedShowcases } from "~/lib/showcase/api.server";
+import { publicUrls, showcaseUrls } from "~/lib/tools/sitemap.server";
 
-export function loader() {
+export async function loader() {
+  const profiles = showcaseUrls(await listIndexedShowcases());
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${publicUrls().join("\n")}
+${[...publicUrls(), ...profiles].join("\n")}
 </urlset>
 `;
   return new Response(body, {

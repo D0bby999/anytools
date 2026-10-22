@@ -14,6 +14,7 @@
  * action, so a pasted key goes from the browser to this server and on to the
  * API, and nowhere else.
  */
+import { useEffect, useState } from "react";
 import { data, Form, Link, useNavigation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -35,6 +36,7 @@ import { Button } from "~/components/ui/button";
 import { ConnectionCard } from "~/components/settings/connection-card";
 import { ConnectionModels } from "~/components/settings/connection-models";
 import { ProviderTile } from "~/components/settings/provider-tile";
+import { QuickSetupDialog } from "~/components/settings/quick-setup-dialog";
 import { providerName } from "~/lib/provider-names";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -45,14 +47,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return { entry, connections: payload.connections.filter((c) => c.provider === entry.type) };
 }
 
-type ActionResult = { ok: boolean; message: string | null; intent: string };
+type ActionResult = { ok: boolean; message: string | null; intent: string; created?: string };
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { user } = await requireUser(request);
   const form = await request.formData();
   const intent = String(form.get("intent") ?? "");
   const str = (k: string) => String(form.get(k) ?? "");
-  const done = (message: string | null = null, ok = true) => data<ActionResult>({ ok, message, intent });
+  const done = (message: string | null = null, ok = true, created?: string) => data<ActionResult>({ ok, message, intent, created });
   try {
     switch (intent) {
       case "create": {
@@ -62,9 +64,10 @@ export async function action({ request, params }: Route.ActionArgs) {
           api_base: str("api_base").trim(),
           secret: str("secret"),
         });
-        // Checked once, now: the card below then says whether the key works.
+        // Checked once, now: the card below then says whether the key works,
+        // and a key that works is offered for every task at once.
         const result = await verifyConnection(user.id, conn.id, "chat");
-        return done(result.ok ? null : (result.message ?? null), result.ok);
+        return done(result.ok ? null : (result.message ?? null), result.ok, result.ok ? conn.id : undefined);
       }
       case "verify": {
         const result = await verifyConnection(user.id, str("id"), "chat");
@@ -102,6 +105,12 @@ export default function ProviderPage({ loaderData, actionData }: Route.Component
   const field = "h-10 w-full rounded-md border border-control-border bg-card px-3 text-sm";
   // Model add and remove go through a fetcher and report in their own panel.
   const message = actionData && !actionData.intent.endsWith("-model") ? actionData.message : null;
+  // Quick setup: opened by itself after a key is connected and works, or by
+  // a connection's "Use for every task".
+  const [quickFor, setQuickFor] = useState<string | null>(null);
+  useEffect(() => {
+    if (actionData?.created) setQuickFor(actionData.created);
+  }, [actionData]);
 
   return (
     <div>
@@ -171,7 +180,7 @@ export default function ProviderPage({ loaderData, actionData }: Route.Component
               <label className="flex flex-col gap-1 text-sm">
                 <span>{t("settings.connections.baseUrl")}</span>
                 <input type="url" name="api_base" required className={`${field} font-mono`} placeholder="https://…" />
-                <span className="text-xs leading-prose text-muted-foreground">{t("settings.connections.baseUrlHelp")}</span>
+                <span className="text-xs leading-prose text-muted-foreground">{t("settings.providers.customBaseHelp")}</span>
               </label>
             ) : null}
             <label className="flex flex-col gap-1 text-sm">
@@ -198,12 +207,27 @@ export default function ProviderPage({ loaderData, actionData }: Route.Component
           <ul className="mt-3 grid list-none gap-4 p-0">
             {connections.map((c) => (
               <ConnectionCard key={c.id} connection={c} linkProvider={false}>
+                <div className="mt-3">
+                  <Button type="button" variant="outline" size="sm" onClick={() => setQuickFor(c.id)}>
+                    {t("settings.quick.button")}
+                  </Button>
+                </div>
                 {c.kind === "api_key" ? <ConnectionModels connectionId={c.id} /> : null}
               </ConnectionCard>
             ))}
           </ul>
         )}
       </section>
+      {quickFor ? (
+        <QuickSetupDialog
+          key={quickFor}
+          open
+          onClose={() => setQuickFor(null)}
+          connections={connections.filter((c) => c.id === quickFor)}
+          catalog={[entry]}
+          initialConnectionId={quickFor}
+        />
+      ) : null}
     </div>
   );
 }

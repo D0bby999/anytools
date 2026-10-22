@@ -100,6 +100,13 @@ func sentences(t *testing.T) map[string]string {
 				if s, ok := literal(c.Args[0]); ok && strings.HasPrefix(s, "%w: ") {
 					add(strings.TrimPrefix(s, "%w: "), at(c))
 				}
+			case fn == "invalid" && len(c.Args) >= 1 && strings.Contains(path, "byok"):
+				// byok's invalid(…) is a "%w: …" wrap by another name: its
+				// text is what UserMessage hands the learner. Other packages'
+				// invalid helpers take field names, not sentences.
+				if s, ok := literal(c.Args[0]); ok {
+					add(s, at(c))
+				}
 			case failureCalls[fn]:
 				for _, a := range c.Args {
 					if s, ok := literal(a); ok {
@@ -159,7 +166,7 @@ func TestEverySentenceIsTranslated(t *testing.T) {
 			tr, ok := entries[s]
 			if !ok {
 				missing++
-				if missing <= 20 {
+				if missing <= 200 {
 					t.Errorf("%s: no translation for %q (%s)", lang, s, where)
 				}
 				continue

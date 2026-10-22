@@ -80,10 +80,14 @@ type ItemSource struct {
 
 // Item is one entry, in the shape the web app's LibraryItem has.
 type Item struct {
-	ID            string          `json:"id"`
-	Kind          string          `json:"kind"`
-	Subject       string          `json:"subject"`
-	Language      string          `json:"language"`
+	ID       string `json:"id"`
+	Kind     string `json:"kind"`
+	Subject  string `json:"subject"`
+	Language string `json:"language"`
+	// Teaches is the language it is for learning, when it is: a French
+	// textbook written in English teaches "fr" (ui/web/app/lib/library/
+	// teaches.ts). The shelf a learner of a language starts from.
+	Teaches       string          `json:"teaches,omitempty"`
 	Name          string          `json:"name"`
 	NameKey       string          `json:"nameKey,omitempty"`
 	About         string          `json:"about,omitempty"`
@@ -154,6 +158,9 @@ type Catalogue struct {
 
 var versionPattern = regexp.MustCompile(`^[0-9a-f]{64}$`)
 
+// teachesShape is a primary language tag: what Teaches holds.
+var teachesShape = regexp.MustCompile(`^[a-z]{2,3}$`)
+
 // Embedded reads the catalogue built into the binary and checks what the
 // tables' constraints would refuse, so a bad export fails here, by name.
 func Embedded() (*Catalogue, error) {
@@ -187,6 +194,8 @@ func parse(gz []byte) (*Catalogue, error) {
 			return nil, fmt.Errorf("library: item %q is empty or listed twice", it.ID)
 		case !slices.Contains(Kinds, it.Kind), !slices.Contains(Subjects, it.Subject):
 			return nil, fmt.Errorf("library: item %q has kind %q, field %q", it.ID, it.Kind, it.Subject)
+		case it.Teaches != "" && !teachesShape.MatchString(it.Teaches):
+			return nil, fmt.Errorf("library: item %q teaches %q", it.ID, it.Teaches)
 		case it.Level != "" && !slices.Contains(Levels, it.Level):
 			return nil, fmt.Errorf("library: item %q has level %q", it.ID, it.Level)
 		case !sources[it.Source.Name]:
@@ -226,7 +235,10 @@ type Filter struct {
 	Kind    string
 	Subject string
 	// Lang is "" (the learner's interface language and English), "all", or one language.
-	Lang        string
+	Lang string
+	// Teaches keeps only material for learning this language; with it, an
+	// empty Lang means any language it is written in.
+	Teaches     string
 	UI          string
 	Q           string
 	Sort        string
@@ -259,6 +271,9 @@ func (f *Filter) Normalize() error {
 	if len(f.Lang) > 12 || len(f.UI) > 12 {
 		return ErrBadFilter
 	}
+	if f.Teaches != "" && !teachesShape.MatchString(f.Teaches) {
+		return ErrBadFilter
+	}
 	if r := []rune(strings.TrimSpace(f.Q)); len(r) > MaxQuery {
 		f.Q = string(r[:MaxQuery])
 	}
@@ -268,6 +283,10 @@ func (f *Filter) Normalize() error {
 
 // Languages are the languages a filter keeps: nil for every language.
 func (f Filter) Languages() []string {
+	if f.Lang == "" && f.Teaches != "" {
+		// A shelf for learning a language: whatever it is written in.
+		return nil
+	}
 	switch f.Lang {
 	case "all":
 		return nil

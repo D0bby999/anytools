@@ -52,3 +52,19 @@ func TestTranslate(t *testing.T) {
 		}
 	}
 }
+
+// byok.UserMessage capitalises the sentence it was composed with; the catalog
+// holds it as composed. Both must reach the learner translated.
+func TestACapitalisedSentenceIsTranslated(t *testing.T) {
+	got := Translate("vi", "Choose a model for \"Ollama\"")
+	if got != "Hãy chọn một model cho \"Ollama\"" {
+		t.Fatalf("got %q", got)
+	}
+	got = Translate("vi", "Custom endpoint cannot be used for reading documents")
+	if got != "Không dùng Endpoint tương thích OpenAI cho việc đọc tài liệu được" {
+		t.Fatalf("got %q", got)
+	}
+	if got := Translate("vi", "Nothing here matches"); got != "Nothing here matches" {
+		t.Fatalf("an unknown sentence changed: %q", got)
+	}
+}

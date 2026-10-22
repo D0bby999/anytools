@@ -64,6 +64,9 @@ func (d *scannedDocument) decodeLinkFields() error {
 	if reason, ok := blob.ReasonOf(d.Error); ok && d.Status == knowledge.StatusFailed {
 		d.ErrorCode = reason.Code
 	}
+	if d.Status == knowledge.StatusFailed && d.Error == knowledge.NoEmbedRouteReason {
+		d.ErrorCode = "no_embed_route"
+	}
 	if len(d.timeline) > 0 && string(d.timeline) != "null" {
 		if err := json.Unmarshal(d.timeline, &d.Timeline); err != nil {
 			return fmt.Errorf("pg: document timeline: %w", err)

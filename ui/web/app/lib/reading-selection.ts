@@ -2,7 +2,7 @@
  * reading-selection.ts
  * What the reader has selected, and which page it came from. Client-safe.
  */
-import { MAX_SELECTION } from "~/lib/reading-types";
+import { MAX_SELECTION, READING_ACTIONS, type ReadingAction } from "~/lib/reading-types";
 
 export type ReaderSelection = { text: string; page: number };
 
@@ -45,4 +45,62 @@ export function readSelection(root: HTMLElement, selection: Selection | null): R
 export function transcriptPage(message: string): number {
   const match = /^[^\n]*\(page (\d+)\):/.exec(message);
   return match ? Number(match[1]) : 0;
+}
+
+/**
+ * The head readingapi stores for each action, in English whatever the
+ * interface language (reading.Label; reading_test.go pins the same four).
+ * A stored transcript is matched on these, never on a translated label: in
+ * Vietnamese "Từ vựng ở đây" is never the start of "Vocabulary here (page 1):".
+ */
+export const STORED_ACTION_HEADS: Record<ReadingAction, string> = {
+  explain: "Explain this",
+  vocab: "Vocabulary here",
+  quiz: "Quiz me on this",
+  translate: "Translate this",
+};
+
+/** The action a stored reading message was, or null for a typed question. */
+export function transcriptAction(message: string): ReadingAction | null {
+  const head = message.split("\n", 1)[0] ?? "";
+  for (const act of READING_ACTIONS) {
+    const stored = STORED_ACTION_HEADS[act];
+    if (head === stored || head.startsWith(`${stored} (`) || head.startsWith(`${stored}:`)) return act;
+  }
+  return null;
+}
+
+/** The stored line for an action, as readingapi writes it, for the pending question. */
+export function storedActionHead(act: ReadingAction, where: { page?: number; clock?: string }): string {
+  const head = STORED_ACTION_HEADS[act];
+  if (where.clock) return `${head} (at ${where.clock})`;
+  return where.page && where.page > 0 ? `${head} (page ${where.page})` : head;
+}
+
+type Translate = (key: string, options?: Record<string, unknown>) => string;
+
+/**
+ * The message as the learner reads it: the stored English head in the
+ * interface language ("Từ vựng ở đây (trang 1):"). Display only; the stored
+ * text, and every reader of its format, stay as they are.
+ */
+export function transcriptHead(message: string, t: Translate): string {
+  const act = transcriptAction(message);
+  if (!act) return message;
+  const newline = message.indexOf("\n");
+  const first = newline < 0 ? message : message.slice(0, newline);
+  const rest = newline < 0 ? "" : message.slice(newline);
+  const tail = first.slice(STORED_ACTION_HEADS[act].length);
+  const page = /^ \(page (\d+)\)/.exec(tail);
+  const at = /^ \(at ([\d:]+)\)/.exec(tail);
+  let head = t(`actionLabels.${act}`);
+  let after = tail;
+  if (page) {
+    head += ` ${t("tutor.onPage", { page: Number(page[1]) })}`;
+    after = tail.slice(page[0].length);
+  } else if (at) {
+    head += ` ${t("tutor.atMoment", { clock: at[1] })}`;
+    after = tail.slice(at[0].length);
+  }
+  return `${head}${after}${rest}`;
 }

@@ -260,3 +260,43 @@ func clampEF(n int) int {
 	}
 	return n
 }
+
+// Nearest is the cosine similarity of the closest passage in one knowledge
+// base to each vector, 0 when the base has none of that width
+// (the private design notes, phase 4: is a proposed point in the
+// learner's material at all). Exact, one query per vector, inside one
+// read-only transaction; a plan has at most sixty points.
+func (r *Retriever) Nearest(ctx context.Context, userID, kbID uuid.UUID, dims int, vectors [][]float32) ([]float64, error) {
+	if userID == uuid.Nil || kbID == uuid.Nil {
+		return nil, errors.New("retrieve: no user or knowledge base")
+	}
+	if err := embed.ValidateDims(dims); err != nil {
+		return nil, err
+	}
+	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
+	if err != nil {
+		return nil, fmt.Errorf("retrieve: begin: %w", err)
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck // read-only; rollback is the close
+
+	out := make([]float64, len(vectors))
+	for i, v := range vectors {
+		padded, err := embed.Pad(v)
+		if err != nil {
+			return nil, err
+		}
+		var sim *float64
+		if err := tx.QueryRow(ctx, `
+			SELECT 1 - (embedding <=> $4::halfvec(3072))
+			  FROM chunks
+			 WHERE user_id = $1 AND kb_id = $2 AND dims = $3 AND embedding IS NOT NULL
+			 ORDER BY embedding <=> $4::halfvec(3072)
+			 LIMIT 1`, userID, kbID, dims, embed.Literal(padded)).Scan(&sim); err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("retrieve: nearest: %w", err)
+		}
+		if sim != nil {
+			out[i] = *sim
+		}
+	}
+	return out, nil
+}

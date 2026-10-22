@@ -16,7 +16,7 @@ import { Badge } from "~/components/doc/badge";
  *
  * A loader that generates spends a model call, as the per-path session does.
  */
-import { Link, useNavigate, useNavigation, useRevalidator } from "react-router";
+import { Link, useNavigate, useNavigation, useRevalidator, type ShouldRevalidateFunctionArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import type { Route } from "./+types/mastery.review";
@@ -27,12 +27,20 @@ import { reviewNext } from "~/lib/mastery.server";
 import { QuestionCard } from "~/components/quiz/question-card";
 import { LearnCard, TeachMeThis } from "~/components/mastery/learn-card";
 import { PageHeader } from "~/components/ui/page-header";
+import { answerKeepsTheCard } from "~/lib/card-answers";
 
 export function meta({ matches }: Route.MetaArgs) {
   return [
     { title: appTitle(matches, "Review") },
     { name: "robots", content: "noindex, nofollow" },
   ];
+}
+
+// As in the per-path session: an answer must not swap the card before its
+// verdict is read; Next moves on.
+export function shouldRevalidate({ formAction, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
+  if (answerKeepsTheCard(formAction)) return false;
+  return defaultShouldRevalidate;
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

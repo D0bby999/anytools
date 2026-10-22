@@ -367,6 +367,8 @@ type Summary struct {
 	Calendar []DayCount `json:"calendar"`
 	// Weeks are the last RecentWeeks weeks, oldest first.
 	Weeks []WeekTotal `json:"weeks"`
+	// FirstDay is the first study day; empty before any.
+	FirstDay string `json:"first_day,omitempty"`
 }
 
 // CalendarWeeks and RecentWeeks are how far back the page looks.
@@ -402,7 +404,14 @@ func (s *Service) Brief(ctx context.Context, user uuid.UUID, fresh time.Duration
 
 // Summary counts the learner's progress, recording milestones newly reached.
 func (s *Service) Summary(ctx context.Context, user uuid.UUID) (*Summary, error) {
-	_, set, today, days, err := s.days(ctx, user, 0)
+	return s.SummaryWithin(ctx, user, 0)
+}
+
+// SummaryWithin is Summary from a count up to fresh old (zero: counted now).
+// A public profile takes one ten minutes old, so its visitors cannot make the
+// server count.
+func (s *Service) SummaryWithin(ctx context.Context, user uuid.UUID, fresh time.Duration) (*Summary, error) {
+	_, set, today, days, err := s.days(ctx, user, fresh)
 	if err != nil {
 		return nil, err
 	}
@@ -415,6 +424,9 @@ func (s *Service) Summary(ctx context.Context, user uuid.UUID) (*Summary, error)
 	}
 	for _, d := range days {
 		out.Totals.add(d.Counts)
+	}
+	if len(days) > 0 {
+		out.FirstDay = days[0].Day.Format(time.DateOnly)
 	}
 	out.Outcomes, err = s.store.Outcomes(ctx, user, s.now().Add(-RecentDays*24*time.Hour))
 	if err != nil {

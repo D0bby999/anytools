@@ -45,7 +45,7 @@ It is free and bring-your-own-key: AnyTools holds no AI credential of its own.
 | Body: training plan, workouts, progression, body weight, coach | `internal/body`, `internal/api/bodyapi`, `ui/web/app/routes/body.*` |
 | Bring your own keys: connections, routes, readiness | `internal/byok`, `internal/providers` |
 
-The stack is a Go 1.26 API, a React Router 7 server (the BFF) with Tailwind v4, and PostgreSQL 16 with pgvector. The browser only ever talks to the BFF, and the API is not reachable from outside the compose network. See [docs/architecture.md](docs/architecture.md).
+The stack is a Go 1.26 API, a React Router 7 server (the BFF) with Tailwind v4, and PostgreSQL 16 with pgvector. The browser only ever talks to the BFF, and the API is not reachable from outside the compose network. See [docs/architecture.md](docs/architecture.md), and [docs/chat.md](docs/chat.md) for the chat surface.
 
 ## Quick start (local)
 
@@ -59,7 +59,7 @@ deploy/scripts/run-local.sh          # builds, migrates, runs; open http://local
 
 This runs the same production builds the server runs. `.env.local` turns on a **development-only local sign-in** ("Continue locally" on `/login`), so you can use the app before any OAuth app exists. It is offered only on a `localhost` URL with `ANYTOOLS_DEV_LOGIN=1`, and the API accepts it only when `ANYTOOLS_ENV=development`, so a server never shows it. Back up `ANYTOOLS_ENCRYPTION_KEY` from `.env.local`: without it, the API keys you save cannot be read.
 
-After signing in, connect an AI key in **Settings → Connections** and route it in **Settings → Routes**; see [docs/byok.md](docs/byok.md). Google and GitHub sign-in work locally too once their client ids are in `.env.local` (`.env.example` lists the redirect URIs to register).
+After signing in, connect an AI key in **Settings → Providers** and route it in **Settings → Routes**; see [docs/byok.md](docs/byok.md). Google and GitHub sign-in work locally too once their client ids are in `.env.local` (`.env.example` lists the redirect URIs to register).
 
 The tools under the **Tools** tab need neither a sign-in nor a key.
 
