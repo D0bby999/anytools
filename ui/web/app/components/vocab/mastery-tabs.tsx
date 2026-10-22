@@ -5,7 +5,7 @@ import { sectionTabClass, SECTION_TABS_ROW } from "~/components/ui/section-tabs"
 /**
  * Mastery's sections. Vocabulary and the living books' cards live under
  * Mastery rather than in the rail (DESIGN.md caps the navigation); the count
- * beside each is how many cards are due today — a number, not a streak.
+ * beside each is how many cards are due today.
  */
 export function MasteryTabs({
   vocabDue,

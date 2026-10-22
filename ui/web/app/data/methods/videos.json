@@ -1,0 +1,481 @@
+{
+  "checked": "2026-10-22",
+  "videos": [
+    {
+      "id": "p60rN9JEapg",
+      "lang": "en",
+      "methods": [
+        "overview"
+      ],
+      "title": "The 9 BEST Scientific Study Tips",
+      "channel": "AsapSCIENCE",
+      "seconds": 205,
+      "published": "2015-09-03"
+    },
+    {
+      "id": "0NIXM74NwXs",
+      "lang": "en",
+      "methods": [
+        "overview",
+        "judge"
+      ],
+      "title": "How to study to maximize performance | Elizabeth Bjork & Robert Bjork | TEDxManhattanBeach",
+      "channel": "TEDx Talks",
+      "seconds": 910,
+      "published": "2019-03-07"
+    },
+    {
+      "id": "0hJlVqNrnIo",
+      "lang": "vi",
+      "methods": [
+        "overview"
+      ],
+      "title": "Học Và Ôn Thi Đúng Cách Theo Phương Pháp Khoa Học",
+      "channel": "Duy Thanh Nguyen",
+      "seconds": 1421,
+      "published": "2021-06-02"
+    },
+    {
+      "id": "3gGVgdXoWLM",
+      "lang": "vi",
+      "methods": [
+        "overview"
+      ],
+      "title": "Học ít, nhớ lâu: 5 phương pháp ghi nhớ chuẩn khoa học",
+      "channel": "The Present Writer",
+      "seconds": 960,
+      "published": "2025-11-23"
+    },
+    {
+      "id": "noNv_rTwwNw",
+      "lang": "es",
+      "methods": [
+        "overview"
+      ],
+      "title": "Técnicas de aprendizaje según la ciencia | Héctor Ruiz, neurobiólogo",
+      "channel": "AprendemosJuntos",
+      "seconds": 3218,
+      "published": "2022-01-19"
+    },
+    {
+      "id": "jBbeUc6A8y4",
+      "lang": "es",
+      "methods": [
+        "overview"
+      ],
+      "title": "8 técnicas científicas para aprender algo nuevo o prepararse para un examen | BBC Mundo",
+      "channel": "BBC News Mundo",
+      "seconds": 569,
+      "published": "2025-08-30"
+    },
+    {
+      "id": "posTc56basM",
+      "lang": "pt",
+      "methods": [
+        "overview"
+      ],
+      "title": "3 técnicas indicadas por cientistas para qualquer pessoa melhorar nos estudos",
+      "channel": "BBC News Brasil",
+      "seconds": 287,
+      "published": "2020-02-16"
+    },
+    {
+      "id": "KzahejCdXys",
+      "lang": "pt",
+      "methods": [
+        "overview"
+      ],
+      "title": "8 técnicas da ciência pra aprender algo novo ou se preparar para exames",
+      "channel": "BBC News Brasil",
+      "seconds": 541,
+      "published": "2025-08-07"
+    },
+    {
+      "id": "Pjrqc6UMDKM",
+      "lang": "en",
+      "methods": [
+        "retrieval"
+      ],
+      "title": "Study Strategies: Retrieval Practice",
+      "channel": "The Learning Scientists",
+      "seconds": 180,
+      "published": "2016-09-19"
+    },
+    {
+      "id": "jfREWvtd_DM",
+      "lang": "en",
+      "methods": [
+        "retrieval"
+      ],
+      "title": "Retrieval Practice: A video for Students",
+      "channel": "The Learning Scientists",
+      "seconds": 201,
+      "published": "2021-12-24"
+    },
+    {
+      "id": "gaHK7zJ50BI",
+      "lang": "vi",
+      "methods": [
+        "retrieval"
+      ],
+      "title": "Cách Áp Dụng Active Recall Để Ghi Nhớ Tối Đa Thông Tin Trước Kỳ Thi",
+      "channel": "Duy Thanh Nguyen",
+      "seconds": 1768,
+      "published": "2021-06-07"
+    },
+    {
+      "id": "UAcGGxi2WqM",
+      "lang": "vi",
+      "methods": [
+        "retrieval",
+        "spacing"
+      ],
+      "title": "ÔN THI HIỆU QUẢ bằng phương pháp khoa học: ACTIVE RECALL và SPACED REPETITION",
+      "channel": "The Present Writer",
+      "seconds": 841,
+      "published": "2021-04-14"
+    },
+    {
+      "id": "QD-zwXc3dtQ",
+      "lang": "es",
+      "methods": [
+        "retrieval"
+      ],
+      "title": "Cómo aplicar el Active Recall? La mejor técnica de estudio, según la ciencia",
+      "channel": "Adrià Solà Pastor",
+      "seconds": 894,
+      "published": "2023-11-09"
+    },
+    {
+      "id": "riw1rl5z0kM",
+      "lang": "pt",
+      "methods": [
+        "retrieval"
+      ],
+      "title": "Como estudar com eficiência - Métodos ativos e Active recall (Como estudo na faculdade de medicina)",
+      "channel": "Letícia Fernandes",
+      "seconds": 514,
+      "published": "2021-05-27"
+    },
+    {
+      "id": "ss382Iqnws8",
+      "lang": "pt",
+      "methods": [
+        "retrieval"
+      ],
+      "title": "A Prática de Recuperação | «Estudo a 100%»",
+      "channel": "Iniciativa Educação",
+      "seconds": 225,
+      "published": "2021-06-30"
+    },
+    {
+      "id": "3WJYp98eys8",
+      "lang": "en",
+      "methods": [
+        "spacing"
+      ],
+      "title": "Study Strategies: Spaced Practice",
+      "channel": "The Learning Scientists",
+      "seconds": 101,
+      "published": "2016-09-19"
+    },
+    {
+      "id": "eVajQPuRmk8",
+      "lang": "en",
+      "methods": [
+        "spacing"
+      ],
+      "title": "The Most Powerful Way to Remember What You Study",
+      "channel": "Thomas Frank",
+      "seconds": 466,
+      "published": "2016-08-11"
+    },
+    {
+      "id": "h2AF8Y5AKbo",
+      "lang": "vi",
+      "methods": [
+        "spacing"
+      ],
+      "title": "Spaced Repetition: Tối Ưu Hóa Thời Gian Ôn Luyện Trước Kỳ Thi",
+      "channel": "Duy Thanh Nguyen",
+      "seconds": 1728,
+      "published": "2021-06-12"
+    },
+    {
+      "id": "fp_YbxuJJkQ",
+      "lang": "es",
+      "methods": [
+        "spacing"
+      ],
+      "title": "Cómo aplicar la Repetición Espaciada? La mejor forma de estudiar, según la ciencia",
+      "channel": "Adrià Solà Pastor",
+      "seconds": 740,
+      "published": "2024-02-11"
+    },
+    {
+      "id": "XG0CAM_VYdE",
+      "lang": "pt",
+      "methods": [
+        "spacing"
+      ],
+      "title": "3 Formas de Aplicar a Prática Espaçada nos Estudos",
+      "channel": "Susane Ribeiro",
+      "seconds": 481,
+      "published": "2023-01-26"
+    },
+    {
+      "id": "kV64Bu6sec0",
+      "lang": "en",
+      "methods": [
+        "interleaving"
+      ],
+      "title": "Study Strategies: Interleaving",
+      "channel": "The Learning Scientists",
+      "seconds": 125,
+      "published": "2016-09-26"
+    },
+    {
+      "id": "4wJEB0cEUok",
+      "lang": "en",
+      "methods": [
+        "interleaving"
+      ],
+      "title": "The Benefits of Interleaved Practice, Dr. Doug Rohrer",
+      "channel": "LastingLearning.com",
+      "seconds": 332,
+      "published": "2016-01-01"
+    },
+    {
+      "id": "gQRzW24KrDc",
+      "lang": "en",
+      "methods": [
+        "elaboration"
+      ],
+      "title": "Study Strategies: Elaboration",
+      "channel": "The Learning Scientists",
+      "seconds": 92,
+      "published": "2016-09-24"
+    },
+    {
+      "id": "tkm0TNFzIeg",
+      "lang": "en",
+      "methods": [
+        "explain"
+      ],
+      "title": "The Feynman Technique",
+      "channel": "Sprouts",
+      "seconds": 121,
+      "published": "2015-10-12"
+    },
+    {
+      "id": "_f-qkGJBPts",
+      "lang": "en",
+      "methods": [
+        "explain"
+      ],
+      "title": "How to Learn Faster with the Feynman Technique (Example Included)",
+      "channel": "Thomas Frank",
+      "seconds": 347,
+      "published": "2017-02-08"
+    },
+    {
+      "id": "XCd8tC1fei0",
+      "lang": "vi",
+      "methods": [
+        "explain"
+      ],
+      "title": "HỌC ĐÂU NHỚ ĐÓ nhờ phương pháp thiên tài của bộ não kiệt xuất ngành Vật Lý | Viết Cùng Tiểu Hy",
+      "channel": "Spiderum",
+      "seconds": 809,
+      "published": "2024-11-19"
+    },
+    {
+      "id": "noevwClxaVA",
+      "lang": "es",
+      "methods": [
+        "explain"
+      ],
+      "title": "Técnica Feynman EXPLICADA: 4 pasos sencillos para aprender cualquier cosa | Aprendizaje Arata 14",
+      "channel": "Arata Academy SPANISH",
+      "seconds": 624,
+      "published": "2019-11-27"
+    },
+    {
+      "id": "JG0xf0nP69o",
+      "lang": "pt",
+      "methods": [
+        "explain"
+      ],
+      "title": "Técnica Feynman EXPLICADA: 4 simples passos para aprender qualquer coisa | Aprender Arata 14",
+      "channel": "Arata Academy",
+      "seconds": 571,
+      "published": "2019-12-04"
+    },
+    {
+      "id": "TVHUs67kwRk",
+      "lang": "pt",
+      "methods": [
+        "explain"
+      ],
+      "title": "Como Aprender TUDO Que Quiser: Técnica Feynman (5 Passos)",
+      "channel": "Eureka!",
+      "seconds": 453,
+      "published": "2019-05-30"
+    },
+    {
+      "id": "7wF0lCBMh9Y",
+      "lang": "en",
+      "methods": [
+        "examples"
+      ],
+      "title": "Study Strategies: Concrete Examples",
+      "channel": "The Learning Scientists",
+      "seconds": 105,
+      "published": "2016-10-02"
+    },
+    {
+      "id": "6xCZ4XnkpCc",
+      "lang": "en",
+      "methods": [
+        "dual"
+      ],
+      "title": "Study Strategies: Dual Coding",
+      "channel": "The Learning Scientists",
+      "seconds": 91,
+      "published": "2016-10-04"
+    },
+    {
+      "id": "XPllm-gtrMM",
+      "lang": "en",
+      "methods": [
+        "generate",
+        "judge"
+      ],
+      "title": "Using Desirable Difficulties to Enhance Learning, Dr. Robert Bjork",
+      "channel": "LastingLearning.com",
+      "seconds": 242,
+      "published": "2015-10-27"
+    },
+    {
+      "id": "f2O6mQkFiiw",
+      "lang": "en",
+      "methods": [
+        "deliberate"
+      ],
+      "title": "How to practice effectively...for just about anything - Annie Bosler and Don Greene",
+      "channel": "TED-Ed",
+      "seconds": 289,
+      "published": "2017-02-27"
+    },
+    {
+      "id": "WbUOY9ioIqw",
+      "lang": "en",
+      "methods": [
+        "deliberate"
+      ],
+      "title": "What People Get Wrong About Deliberate Practice",
+      "channel": "Benjamin Keep, PhD, JD",
+      "seconds": 561,
+      "published": "2021-10-20"
+    },
+    {
+      "id": "T4Z4N4zl0_Q",
+      "lang": "vi",
+      "methods": [
+        "deliberate"
+      ],
+      "title": "Phương pháp luyện tập có chủ đích - Anders Ericsson | Tips for Learner",
+      "channel": "VMP Academy",
+      "seconds": 386,
+      "published": "2024-09-13"
+    },
+    {
+      "id": "a6brY4se_WM",
+      "lang": "en",
+      "methods": [
+        "judge"
+      ],
+      "title": "Overcoming Illusions of Competence, Dr. Elizabeth Bjork",
+      "channel": "LastingLearning.com",
+      "seconds": 145,
+      "published": "2015-10-28"
+    },
+    {
+      "id": "QACB1z6I8LQ",
+      "lang": "en",
+      "methods": [
+        "breaks"
+      ],
+      "title": "Study skills: one-minute tips - The Pomodoro Technique",
+      "channel": "OpenLearn from The Open University",
+      "seconds": 79,
+      "published": "2023-05-12"
+    },
+    {
+      "id": "mNBmG24djoY",
+      "lang": "en",
+      "methods": [
+        "breaks"
+      ],
+      "title": "POMODORO TECHNIQUE - My Favorite Tool to Improve Studying and Productivity",
+      "channel": "Med School Insiders",
+      "seconds": 347,
+      "published": "2016-12-10"
+    },
+    {
+      "id": "vm_-taF_CRw",
+      "lang": "vi",
+      "methods": [
+        "breaks"
+      ],
+      "title": "LÀM VIỆC HIỆU QUẢ với PHƯƠNG PHÁP POMODORO // Tăng độ tập trung cho học tập và công việc",
+      "channel": "The Present Writer",
+      "seconds": 676,
+      "published": "2021-03-24"
+    },
+    {
+      "id": "6TyIY6u31gk",
+      "lang": "en",
+      "methods": [
+        "sleep"
+      ],
+      "title": "Hacking your memory -- with sleep | Sleeping with Science, a TED series",
+      "channel": "TED",
+      "seconds": 283,
+      "published": "2020-09-02"
+    },
+    {
+      "id": "gedoSfZvBgE",
+      "lang": "en",
+      "methods": [
+        "sleep"
+      ],
+      "title": "The benefits of a good night's sleep - Shai Marcu",
+      "channel": "TED-Ed",
+      "seconds": 345,
+      "published": "2015-01-05"
+    },
+    {
+      "id": "rhgwIhB58PA",
+      "lang": "en",
+      "methods": [
+        "myths"
+      ],
+      "title": "The Biggest Myth In Education",
+      "channel": "Veritasium",
+      "seconds": 867,
+      "published": "2021-07-09"
+    },
+    {
+      "id": "NvM4mnEIxuQ",
+      "lang": "en",
+      "methods": [
+        "myths"
+      ],
+      "title": "The Myth of Individual Learning Styles, Dr. Robert Bjork",
+      "channel": "LastingLearning.com",
+      "seconds": 287,
+      "published": "2015-10-28"
+    }
+  ]
+}

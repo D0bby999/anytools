@@ -201,6 +201,18 @@ var RouteClasses = []RouteClass{
 			"GET /v1/kb/{id}/zotero/collections",
 		},
 	},
+	{
+		// Study circles (the private design notes): what
+		// reaches other people. Guessing invite codes, making circles and
+		// cheering are kept to a person's pace.
+		Name: "social", RPM: 20, Burst: 10,
+		Patterns: []string{
+			"POST /v1/circles",
+			"POST /v1/circles/join",
+			"POST /v1/circles/{id}/invite",
+			"POST /v1/circles/{id}/cheers",
+		},
+	},
 }
 
 // RouteLimiter applies RouteClasses in front of a mux.

@@ -11,6 +11,9 @@
     "chat": "Chat",
     "notebooks": "Sổ ghi chép",
     "library": "Thư viện",
+    "methods": "Phương pháp học",
+    "progress": "Tiến bộ",
+    "circles": "Học cùng bạn",
     "quiz": "Câu hỏi",
     "mastery": "Ôn tập",
     "body": "Thể lực",
@@ -219,6 +222,9 @@
         "bodyLibrary": "Xem các bài tập cho lịch tập của bạn.",
         "loop": "Chọn mục tiêu và giữ bước tiếp theo thật nhỏ.",
         "toolkit": "Dùng phiếu bài tập để suy nghĩ và nhìn lại.",
+        "methods": "Cách học để nhớ lâu theo nghiên cứu, kèm video ngắn.",
+        "progress": "Ngày học, chuỗi và mục tiêu tuần, bậc của bạn, và thành quả việc học tạo ra.",
+        "circles": "Nhóm bạn bè thấy nhịp học của nhau và cổ vũ nhau.",
         "settingsConnections": "Kết nối các tài khoản AI bạn dùng.",
         "settingsRoutes": "Chọn mô hình xử lý từng tác vụ.",
         "settingsSearch": "Thiết lập cách tìm kiếm nguồn.",
@@ -253,7 +259,13 @@
       "profile": "Hồ sơ học tập",
       "account": "Tài khoản",
       "reminders": "Nhắc ôn",
-      "providers": "Nhà cung cấp"
+      "providers": "Nhà cung cấp",
+      "groups": {
+        "ai": "AI và tìm kiếm",
+        "you": "Bạn",
+        "notify": "Thông báo"
+      },
+      "pick": "Chọn mục cài đặt"
     },
     "readiness": {
       "title": "Mức sẵn sàng",
@@ -1081,7 +1093,7 @@
     },
     "push": {
       "title": "Nhắc ôn",
-      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu việc cần ôn (đúng con số trên Trang chủ) và hôm nay lịch tuần có buổi tập nào. Ngày nào không có cả hai thì không gửi, và không có chuỗi ngày nào phải giữ.",
+      "lead": "Mỗi ngày một lần, vào giờ bạn chọn, AnyLearn báo cho thiết bị này biết có bao nhiêu việc cần ôn (đúng con số trên Trang chủ) và hôm nay lịch tuần có buổi tập nào. Ngày nào không có cả hai thì không gửi. Khi đang có chuỗi ngày học, lời nhắc cho biết chuỗi dài bao nhiêu ngày.",
       "turnOn": "Bật trên trình duyệt này",
       "turnOff": "Tắt ở đây",
       "onHere": "Lời nhắc đang bật trên trình duyệt này.",
@@ -1166,7 +1178,11 @@
     "Page not found": "Không tìm thấy trang",
     "Something went wrong": "Đã có lỗi xảy ra",
     "Learning apps": "Ứng dụng học tập",
-    "Google Classroom": "Google Classroom"
+    "Google Classroom": "Google Classroom",
+    "Progress": "Tiến bộ",
+    "Study with friends": "Học cùng bạn",
+    "Study circle": "Nhóm học",
+    "Learning methods": "Phương pháp học"
   },
   "readinessText": {
     "no_route": "Chưa có kết nối nào làm việc {{function}}. Hãy chọn một kết nối trong Cài đặt → Phân việc.",

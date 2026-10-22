@@ -1,0 +1,236 @@
+{
+  "title": "Tiến bộ",
+  "lede": "Những gì việc học của bạn cộng lại: những ngày bạn đã học, chuỗi ngày học cho phép ngày nghỉ, tuần này so với mục tiêu, và thành quả việc học tạo ra. Mọi con số đều đếm từ việc học thật, và mỗi con số dẫn tới nơi nó được tạo ra.",
+  "facts": "Tiến bộ của bạn",
+  "level": {
+    "short": "Bậc {{level, number}}",
+    "title": "Bậc",
+    "current": "Bậc {{level, number}}",
+    "none": "Chưa có bậc",
+    "days_one": "từ {{count, number}} ngày học",
+    "days_other": "từ {{count, number}} ngày học",
+    "bar": "Tiến tới bậc {{level, number}}",
+    "next_one": "Còn {{count, number}} ngày học để lên bậc {{level, number}} ({{days, number}} ngày).",
+    "next_other": "Còn {{count, number}} ngày học để lên bậc {{level, number}} ({{days, number}} ngày).",
+    "last": "Bậc cuối cùng: một nghìn ngày học.",
+    "how": "Bậc được tính bằng số ngày bạn đã học: bất kỳ ngày nào có một lần ôn thẻ, một câu trả lời, một buổi tập hay một bản ghi âm. Bậc không bao giờ giảm."
+  },
+  "streak": {
+    "short_one": "Chuỗi {{count, number}} ngày",
+    "short_other": "Chuỗi {{count, number}} ngày",
+    "title": "Chuỗi ngày học và mục tiêu tuần",
+    "current_one": "Chuỗi {{count, number}} ngày học.",
+    "current_other": "Chuỗi {{count, number}} ngày học.",
+    "none": "Chưa có chuỗi nào đang chạy.",
+    "longest_one": "Dài nhất: {{count, number}} ngày.",
+    "longest_other": "Dài nhất: {{count, number}} ngày.",
+    "today": "Hôm nay bạn đã học.",
+    "keep": "Hôm nay chưa học: chỉ một lần ôn là giữ được chuỗi.",
+    "start": "Một lần ôn hôm nay là bắt đầu một chuỗi.",
+    "rest_one": "Ngày nghỉ còn lại tuần này: {{count, number}}/{{total, number}}; một ngày bỏ lỡ dùng một ngày nghỉ và chuỗi vẫn giữ.",
+    "rest_other": "Ngày nghỉ còn lại tuần này: {{count, number}}/{{total, number}}; một ngày bỏ lỡ dùng một ngày nghỉ và chuỗi vẫn giữ.",
+    "noRest": "Không có ngày nghỉ: bỏ lỡ một ngày là hết chuỗi."
+  },
+  "week": {
+    "short": "Tuần này: {{days, number}}/{{goal, number}} ngày",
+    "title": "Tuần này",
+    "days": "{{days, number}} trên {{goal, number}} ngày học.",
+    "met": "Đã đạt mục tiêu.",
+    "bar": "{{days, number}} trên {{goal, number}} ngày học tuần này",
+    "inARow_one": "Đạt mục tiêu {{count, number}} tuần liền.",
+    "inARow_other": "Đạt mục tiêu {{count, number}} tuần liền.",
+    "longest_one": "Lâu nhất: {{count, number}} tuần.",
+    "longest_other": "Lâu nhất: {{count, number}} tuần."
+  },
+  "settings": {
+    "title": "Đổi mục tiêu và ngày nghỉ",
+    "goal": "Số ngày học mỗi tuần",
+    "goalOption_one": "{{count, number}} ngày",
+    "goalOption_other": "{{count, number}} ngày",
+    "rest": "Số ngày nghỉ mỗi tuần",
+    "restOption_one": "{{count, number}} ngày",
+    "restOption_other": "{{count, number}} ngày",
+    "save": "Lưu",
+    "note": "Tuần bắt đầu từ thứ Hai. Mục tiêu mới cũng áp dụng cho các tuần đã qua.",
+    "saved": "Đã lưu."
+  },
+  "calendar": {
+    "title": "Một năm học",
+    "label_one": "{{count, number}} ngày học trong năm qua",
+    "label_other": "{{count, number}} ngày học trong năm qua",
+    "cell_one": "{{day}}: {{count, number}} lượt học",
+    "cell_other": "{{day}}: {{count, number}} lượt học",
+    "less": "Ít",
+    "more": "Nhiều",
+    "list": "Danh sách các ngày",
+    "day": "Ngày",
+    "count": "Lượt học"
+  },
+  "outcomes": {
+    "title": "Thành quả",
+    "lede": "Đọc từ thẻ, câu trả lời và nhật ký của bạn như hiện tại.",
+    "what": "Nội dung",
+    "count": "Số lượng",
+    "where": "Bằng chứng",
+    "longTerm": "Thẻ đã nhớ lâu (nhớ được từ 21 ngày trở lên)",
+    "ofLearning_one": "{{count, number}} trên {{learning, number}} thẻ đang học",
+    "ofLearning_other": "{{count, number}} trên {{learning, number}} thẻ đang học",
+    "mastered": "Điểm kiến thức đã thành thạo",
+    "right": "Trả lời đúng trong 30 ngày qua",
+    "noAnswers": "Chưa có câu trả lời nào",
+    "share_one": "{{percent, number}}% trên {{count, number}} lượt",
+    "share_other": "{{percent, number}}% trên {{count, number}} lượt",
+    "answered": "Lượt ôn thẻ và câu hỏi đã trả lời",
+    "explains": "Lượt giảng lại đạt",
+    "workouts": "Buổi tập đã hoàn thành",
+    "recordings": "Bản ghi âm nói",
+    "highlights": "Đánh dấu khi đọc",
+    "open": {
+      "vocab": "Từ vựng",
+      "mastery": "Thành thạo",
+      "review": "Ôn tập",
+      "practice": "Luyện tập",
+      "body": "Tiến độ tập luyện",
+      "toolkit": "Bộ công cụ",
+      "knowledge": "Kiến thức"
+    }
+  },
+  "weeks": {
+    "title": "Mười hai tuần gần đây",
+    "week": "Tuần bắt đầu",
+    "days": "Ngày học",
+    "reviews": "Lượt ôn thẻ",
+    "questions": "Câu hỏi",
+    "workouts": "Buổi tập",
+    "other": "Khác"
+  },
+  "milestones": {
+    "title": "Các mốc",
+    "next": "Mốc tiếp theo",
+    "reached": "Đã đạt",
+    "none": "Chưa có: mốc đầu tiên chỉ là một ngày học.",
+    "toGo": "{{value}}/{{target}}",
+    "on": "ngày {{date}}",
+    "kinds": {
+      "days_one": "{{count, number}} ngày học",
+      "days_other": "{{count, number}} ngày học",
+      "streak_one": "Chuỗi {{count, number}} ngày",
+      "streak_other": "Chuỗi {{count, number}} ngày",
+      "weeks_one": "Đạt mục tiêu tuần {{count, number}} tuần liền",
+      "weeks_other": "Đạt mục tiêu tuần {{count, number}} tuần liền",
+      "long_term_one": "{{count, number}} thẻ đã nhớ lâu",
+      "long_term_other": "{{count, number}} thẻ đã nhớ lâu",
+      "mastered_one": "{{count, number}} điểm kiến thức thành thạo",
+      "mastered_other": "{{count, number}} điểm kiến thức thành thạo",
+      "reviews_one": "{{count, number}} lượt ôn và trả lời",
+      "reviews_other": "{{count, number}} lượt ôn và trả lời",
+      "workouts_one": "{{count, number}} buổi tập",
+      "workouts_other": "{{count, number}} buổi tập"
+    }
+  },
+  "circles": {
+    "link": "Học cùng bạn",
+    "title": "Học cùng bạn",
+    "lede": "Nhóm học là vài người bạn giữ nhịp học cho nhau: mỗi người thấy người khác tuần này đã học chưa, chuỗi và bậc của họ, và có thể cổ vũ họ mỗi ngày một lần. Không ai thấy người khác học gì.",
+    "invited": {
+      "title": "Bạn được mời vào một nhóm học",
+      "body": "Chọn tên mà nhóm sẽ thấy, rồi tham gia."
+    },
+    "nickname": "Tên của bạn trong nhóm",
+    "join": {
+      "title": "Vào nhóm bằng mã",
+      "code": "Mã mời",
+      "submit": "Tham gia"
+    },
+    "cheers": {
+      "title": "Lời cổ vũ trong một ngày qua",
+      "line": "{{name}} đã cổ vũ bạn trong nhóm",
+      "home": "{{name}} đã cổ vũ bạn trong {{circle}}"
+    },
+    "mine": "Nhóm của bạn",
+    "none": "Bạn chưa ở trong nhóm nào. Hãy tạo một nhóm và gửi link cho bạn bè, hoặc vào nhóm bằng mã.",
+    "members_one": "{{count, number}} thành viên",
+    "members_other": "{{count, number}} thành viên",
+    "youOwn": "bạn là chủ nhóm",
+    "create": {
+      "title": "Tạo nhóm học",
+      "name": "Tên nhóm",
+      "submit": "Tạo"
+    },
+    "privacy": {
+      "title": "Nhóm thấy những gì",
+      "seen": "Người khác thấy tên bạn đặt trong nhóm, số ngày học tuần này so với mục tiêu, chuỗi, bậc và ngày bạn học gần nhất.",
+      "notSeen": "Họ không bao giờ thấy bạn học gì, tài liệu, câu trả lời hay email của bạn.",
+      "together": "Không có bảng xếp hạng: mục tiêu của nhóm là ai cũng đạt mục tiêu tuần của chính mình."
+    },
+    "toProgress": "Tiến bộ của riêng bạn",
+    "errors": {
+      "notFound": "Không nhóm nào có mã này. Hãy hỏi lại người gửi; chủ nhóm có thể tạo mã mới."
+    },
+    "nicknameNote": "Tên bạn dùng trong nhóm là thứ duy nhất về tài khoản của bạn mà người khác thấy. Chọn tên nào cũng được."
+  },
+  "circle": {
+    "back": "Tất cả nhóm của bạn",
+    "lede_one": "{{count, number}} thành viên. Mỗi người thấy nhịp học của người khác, không bao giờ thấy họ học gì.",
+    "lede_other": "{{count, number}} thành viên. Mỗi người thấy nhịp học của người khác, không bao giờ thấy họ học gì.",
+    "week": {
+      "title": "Tuần này cùng nhau",
+      "met_one": "{{count, number}}/{{total, number}} người đã đạt mục tiêu tuần",
+      "met_other": "{{count, number}}/{{total, number}} người đã đạt mục tiêu tuần",
+      "lede": "Mục tiêu của nhóm là ai cũng đạt tuần của mình. Mỗi người được đếm theo múi giờ của họ, và tuần bắt đầu từ thứ Hai."
+    },
+    "members": "Thành viên",
+    "name": "Tên",
+    "thisWeek": "Tuần này",
+    "streak": "Chuỗi",
+    "level": "Bậc",
+    "last": "Học gần nhất",
+    "cheerColumn": "Cổ vũ",
+    "owner": "chủ nhóm",
+    "cheers_one": "{{count, number}} lời cổ vũ trong một ngày qua",
+    "cheers_other": "{{count, number}} lời cổ vũ trong một ngày qua",
+    "days_one": "{{count, number}} ngày",
+    "days_other": "{{count, number}} ngày",
+    "today": "Hôm nay",
+    "notYet": "Chưa học",
+    "you": "Bạn",
+    "cheered": "Đã cổ vũ hôm nay",
+    "cheer": "Cổ vũ",
+    "cheerName": "Cổ vũ {{name}}",
+    "invite": {
+      "title": "Mời bạn bè",
+      "lede": "Gửi link này cho bạn bè có tài khoản AnyLearn. Ai có link đều vào được cho tới khi chủ nhóm tạo mã mới.",
+      "code": "Mã:"
+    },
+    "copy": "Sao chép link",
+    "copied": "Đã sao chép link.",
+    "me": {
+      "title": "Bạn trong nhóm này",
+      "save": "Lưu tên"
+    },
+    "manage": {
+      "title": "Quản lý nhóm",
+      "rename": "Đổi tên",
+      "newCode": "Tạo mã mời mới",
+      "newCodeNote": "Link cũ sẽ hết hiệu lực; thành viên vẫn ở lại.",
+      "remove": "Mời ra",
+      "removeName": "Mời {{name}} ra khỏi nhóm"
+    },
+    "leave": {
+      "title": "Rời nhóm",
+      "last": "Bạn là thành viên duy nhất: rời nhóm sẽ xoá nhóm.",
+      "owner": "Bạn là chủ nhóm: người vào nhóm kế tiếp sẽ thành chủ nhóm.",
+      "member": "Những người khác sẽ không còn thấy tiến bộ của bạn.",
+      "submit": "Rời nhóm"
+    },
+    "done": {
+      "nickname": "Đã lưu.",
+      "rename": "Đã đổi tên.",
+      "invite": "Đã có mã mới; link cũ không còn dùng được.",
+      "remove": "Đã mời ra.",
+      "leave": "Bạn đã rời nhóm.",
+      "cheer": "Đã cổ vũ."
+    },
+    "metGoal": "đã đạt mục tiêu"
+  }
+}

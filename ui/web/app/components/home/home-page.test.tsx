@@ -14,7 +14,7 @@ const base: Data = {
   setup: { provider: true, documents: true, asked: true },
   readiness: null, due: 0, duePaths: 0, vocabDue: 0, retests: 0, bookDue: 0,
   deckDue: 0, mistakes: 0, today: null, lowDay: false,
-  worksheetsDue: { count: 0, private: 0 }, body: null,
+  worksheetsDue: { count: 0, private: 0 }, body: null, progress: null, cheers: [],
 };
 beforeAll(() => initI18n("en"));
 function show(data: Data) {

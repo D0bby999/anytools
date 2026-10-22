@@ -1,0 +1,268 @@
+{
+  "title": "Métodos de estudo",
+  "lede": "Como estudar para que dure, a partir do que a pesquisa testou. Cada método diz quão forte é a evidência, como fazer, onde o AnyLearn faz por você, e traz vídeos curtos.",
+  "start": {
+    "title": "Se fizer só três coisas",
+    "steps": [
+      "Teste-se em vez de reler.",
+      "Espalhe o estudo por vários dias e revise o que está pendente.",
+      "Explique com suas palavras o que aprende."
+    ],
+    "note": "O AnyLearn é construído em torno disso: perguntas de prática, um calendário de revisão e a explicação com suas palavras."
+  },
+  "evidence": {
+    "strong": "Evidência forte",
+    "moderate": "Evidência moderada",
+    "limited": "Evidência limitada",
+    "myth": "Mitos e hábitos pouco eficazes",
+    "note": "Quão forte é a evidência: forte significa que muitos estudos e revisões concordam; moderada, bons estudos com limites sobre quando ajuda; limitada, poucos estudos."
+  },
+  "overview": {
+    "videos": "Vídeos: a ciência de estudar",
+    "search": "como estudar segundo a ciência"
+  },
+  "all": "Todos os métodos",
+  "open": "Ler",
+  "back": "Todos os métodos de estudo",
+  "what": "O que é",
+  "why": "Por que funciona",
+  "how": "Como fazer",
+  "mistake": "O erro comum",
+  "today": "Experimente hoje",
+  "inApp": "Faça no AnyLearn",
+  "sources": "A pesquisa",
+  "sourcesNote": "Cada estudo foi conferido com seu registro no Crossref. O DOI abre a página do artigo.",
+  "videos": {
+    "title": "Vídeos para assistir",
+    "lede": "Explicações de pesquisadores e de canais que citam a pesquisa, primeiro no seu idioma. Tocam no player de privacidade aprimorada do YouTube, que só carrega quando você aperta play.",
+    "play": "Reproduzir: {{title}}",
+    "meta": "{{channel}} · {{minutes}} min · {{language}}",
+    "watch": "Abrir no YouTube",
+    "save": "Adicionar ao meu conhecimento",
+    "saved": "Adicionado a \"{{kb}}\": as legendas viram um documento para perguntar e praticar.",
+    "openKB": "Abrir",
+    "failed": "Não foi possível adicionar o vídeo: {{detail}}",
+    "none": "Ainda não há vídeo no seu idioma para este método; abaixo estão os em inglês.",
+    "search": "Buscar mais no YouTube",
+    "notListed": "este vídeo não está no guia",
+    "added": "Adicionado",
+    "checked": "Vídeos conferidos em {{date}}."
+  },
+  "newTab": "(abre em uma nova aba)",
+  "do": {
+    "practice": "Perguntas de prática",
+    "review": "Revisar o que está pendente",
+    "reviewAll": "Revisar tudo o que está pendente, misturado",
+    "vocabulary": "Cartões de vocabulário",
+    "reminders": "Um lembrete diário de revisão",
+    "decks": "Baralhos",
+    "progress": "Progresso: a porcentagem de acertos",
+    "chat": "Pergunte sobre seus documentos",
+    "notebooks": "Cadernos",
+    "explainBack": "Explicar com suas palavras, num ponto de domínio",
+    "ownVersion": "Escrever primeiro a minha própria versão (Configurações, Conta)",
+    "solve": "Resolver passo a passo",
+    "diagrams": "Pedir um diagrama ao chat",
+    "mistakes": "Praticar seus erros",
+    "toolkit": "Ferramentas: revisão de escrita, leitura em voz alta",
+    "body": "Corpo: treino",
+    "lowDay": "Início: o mínimo de dia ruim"
+  },
+  "methods": {
+    "retrieval": {
+      "name": "Teste-se (prática de recuperação)",
+      "short": "Tire a resposta da memória em vez de ler de novo.",
+      "what": "Feche o livro e tente lembrar: responda perguntas, complete um cartão em branco, escreva tudo o que lembrar e depois confira.",
+      "why": "Cada vez que você recupera algo, fica mais fácil recuperar da próxima vez. Em experimentos, quem se testou lembrou muito mais uma semana depois do que quem releu o mesmo texto, embora reler parecesse mais eficaz. Uma meta-análise da pesquisa concluiu que se testar supera reler e qualquer outra forma de estudo com que foi comparado.",
+      "steps": [
+        "Depois de ler uma seção, feche-a e escreva as ideias principais de memória.",
+        "Responda às perguntas antes de olhar as respostas; confira logo depois.",
+        "Transforme o que aprende em cartões e revise com eles, não com as anotações.",
+        "Volte ao que errou e teste de novo mais tarde."
+      ],
+      "mistake": "Olhar a resposta antes de realmente tentar. O esforço de tentar é o que funciona, mesmo quando você erra.",
+      "today": "Responda dez perguntas de prática sem consultar nada.",
+      "search": "prática de recuperação active recall"
+    },
+    "spacing": {
+      "name": "Espace os estudos (prática espaçada)",
+      "short": "Estude em várias sessões curtas espalhadas por dias, não em uma longa.",
+      "what": "Volte ao mesmo material depois de um intervalo, e aumente os intervalos à medida que se lembra melhor.",
+      "why": "As mesmas horas de estudo, espalhadas, são lembradas por muito mais tempo do que concentradas. Uma revisão de centenas de experimentos encontrou isso em quase todos os casos; o melhor intervalo cresce com o tempo que você precisa lembrar.",
+      "steps": [
+        "Divida o estudo em sessões curtas em dias diferentes.",
+        "Revise o conteúdo novo no dia seguinte, depois em alguns dias, depois em uma ou duas semanas.",
+        "Deixe o calendário de revisão decidir: os cartões do AnyLearn voltam logo antes de você esquecer.",
+        "Comece cedo: espaçar precisa de dias antes da prova, não de horas."
+      ],
+      "mistake": "Estudar tudo na véspera. Pode servir para a prova de amanhã, mas uma semana depois quase tudo se foi.",
+      "today": "Faça as revisões de hoje, nada mais: as de amanhã chegam amanhã.",
+      "search": "repetição espaçada como estudar"
+    },
+    "judge": {
+      "name": "Julgue testando, não pelo que sente",
+      "short": "Sentir que sabe algo é um mau guia; um teste é um bom.",
+      "what": "Decida o que estudar a seguir pelo que você realmente consegue fazer sem ajuda, não pelo quanto parece familiar.",
+      "why": "Reler e grifar fazem o material parecer familiar, e familiaridade parece conhecimento. A maioria dos estudantes, ao ser perguntada como estuda, escolhe isso e para quando fica fácil. Os métodos que parecem mais difíceis, como se testar e espaçar, são os que duram: os pesquisadores chamam isso de dificuldades desejáveis.",
+      "steps": [
+        "Antes de decidir que sabe um tema, responda algumas perguntas sobre ele sem se preparar.",
+        "Anote quão seguro está e compare com como se saiu.",
+        "Gaste seu tempo no que errou, não no que acertou.",
+        "Espere que estudar bem pareça mais lento; costuma ser sinal de que funciona."
+      ],
+      "mistake": "Parar quando a página parece familiar. Familiar não é o mesmo que conseguir lembrar amanhã.",
+      "today": "Veja sua porcentagem de acertos em Progresso e escolha o tema mais fraco.",
+      "search": "dificuldades desejáveis aprendizagem"
+    },
+    "sleep": {
+      "name": "Durma bem para lembrar",
+      "short": "É no sono que o cérebro guarda o que você aprendeu no dia.",
+      "what": "Durma o suficiente nas noites depois de estudar, e não troque o sono por mais horas de estudo.",
+      "why": "Durante o sono, as memórias recém-aprendidas são repassadas e fortalecidas. Quem dorme depois de aprender lembra mais do que quem fica acordado o mesmo tempo, e dormir pouco antes de aprender dificulta absorver coisas novas.",
+      "steps": [
+        "Mantenha um horário regular de dormir nos dias de estudo.",
+        "Faça uma revisão curta à noite em vez de uma longa de madrugada.",
+        "Antes de uma prova, durma em vez de estudar a noite toda.",
+        "Coloque o lembrete de revisão num horário bom para você, não de madrugada."
+      ],
+      "mistake": "Virar a noite antes de uma prova. Você abre mão do sono que guarda o que estudou.",
+      "today": "Termine de estudar hoje uma hora antes de dormir.",
+      "search": "sono e memória aprendizagem"
+    },
+    "interleaving": {
+      "name": "Misture (prática intercalada)",
+      "short": "Misture tipos diferentes de problemas ou temas em vez de um de cada vez.",
+      "what": "Em vez de vinte problemas do tipo A e depois vinte do tipo B, faça-os misturados, para que a cada vez você primeiro decida de que tipo é.",
+      "why": "Misturar faz você praticar a escolha do método, que é o que uma prova real pede. Em um estudo, quem praticou problemas de matemática misturados tirou notas muito mais altas numa prova uma semana depois do que quem praticou em blocos. Uma meta-análise mostra que ajuda mais com categorias fáceis de confundir, como tipos de problema parecidos ou estilos de pintores, e recomenda cautela com vocabulário e com textos expositivos, onde não ajudou.",
+      "steps": [
+        "Quando conhecer um pouco cada tipo, pratique-os num conjunto misturado.",
+        "Misture temas relacionados e fáceis de confundir.",
+        "Antes de resolver, diga que tipo de problema é e por quê.",
+        "Deixe as revisões se misturarem: a revisão do AnyLearn alterna entre os módulos de um percurso."
+      ],
+      "mistake": "Misturar antes de saber algo de cada tipo, ou misturar temas sem nada em comum. No começo parece mais difícil; é o esperado.",
+      "today": "Faça uma série de problemas que misture dois temas relacionados.",
+      "search": "prática intercalada estudar"
+    },
+    "elaboration": {
+      "name": "Pergunte por quê e como (elaboração)",
+      "short": "Explique a si mesmo por que algo é verdade e como se liga ao que você sabe.",
+      "what": "Para cada ideia nova, pergunte 'por que é assim?', 'como funciona?' e 'em que se parece ou difere de algo que eu sei?', e responda com suas palavras.",
+      "why": "As respostas que você mesmo constrói ligam o novo ao que você já sabe, dando mais caminhos para encontrá-lo depois. A evidência é boa para fatos e conceitos, e melhor quando você já sabe algo do tema.",
+      "steps": [
+        "Escolha uma frase das anotações e pergunte por que é verdade.",
+        "Responda sem olhar e depois compare com a fonte.",
+        "Conecte: cite algo parecido e algo diferente.",
+        "Faça ao chat perguntas de 'por quê' sobre seus documentos e confira as fontes."
+      ],
+      "mistake": "Aceitar uma resposta vaga. Se você não consegue dizer por quê em uma ou duas frases, essa é a parte a estudar.",
+      "today": "Escreva 'por quê?' ao lado de três coisas que aprendeu hoje e responda.",
+      "search": "interrogação elaborativa estudo"
+    },
+    "explain": {
+      "name": "Explique de forma simples (técnica Feynman)",
+      "short": "Explique a ideia com palavras simples, como para alguém novo; as lacunas mostram o que estudar.",
+      "what": "Escreva ou fale uma explicação sem as anotações. Onde travar ou apelar para jargão, volte à fonte e explique de novo de forma mais simples.",
+      "why": "Estudantes que explicaram a si mesmos cada passo de um texto o entenderam melhor do que quem o leu duas vezes. Explicar para outra pessoa também funciona: quem ensinou o material aprendeu mais do que quem só estudou. O nome 'técnica Feynman' é popular, não um método estudado, mas suas partes são.",
+      "steps": [
+        "Escolha uma ideia e escreva a explicação sem anotações, em frases curtas.",
+        "Marque cada lugar em que travou ou usou uma palavra que não saberia definir.",
+        "Volte à fonte só nesses lugares.",
+        "Explique de novo, mais curto, com um exemplo. No AnyLearn, a explicação com suas palavras é avaliada com seus documentos."
+      ],
+      "mistake": "Explicar com as anotações abertas. Aí você está lendo, não explicando.",
+      "today": "Explique ao AnyLearn um ponto que está aprendendo.",
+      "search": "técnica Feynman"
+    },
+    "examples": {
+      "name": "Aprenda com exemplos (resolvidos e concretos)",
+      "short": "Estude exemplos resolvidos e casos concretos antes e junto com as regras abstratas.",
+      "what": "Quando é novo num tema, estude um exemplo resolvido passo a passo e depois resolva um parecido sozinho. Para ideias, encontre dois ou três casos reais diferentes da mesma coisa.",
+      "why": "Iniciantes que estudaram exemplos resolvidos aprenderam a resolver problemas de álgebra mais rápido e com menos erros do que quem resolvia desde o início: podiam dedicar a atenção ao método em vez de procurar às cegas. Vários casos concretos diferentes ajudam a ver o que uma ideia abstrata tem em comum.",
+      "steps": [
+        "Estude um exemplo resolvido e diga por que cada passo segue.",
+        "Cubra a solução e resolva você mesmo um parecido.",
+        "À medida que melhora, use menos exemplos e resolva mais sozinho.",
+        "Para uma ideia, junte dois ou três exemplos de contextos diferentes e diga o que têm em comum."
+      ],
+      "mistake": "Ler exemplos sem resolver nenhum, ou ficar com um só exemplo, e assim aprender a superfície dele em vez da ideia.",
+      "today": "Peça ao Resolver um exemplo resolvido e depois tente um parecido sem ele.",
+      "search": "exemplos resolvidos aprendizagem"
+    },
+    "dual": {
+      "name": "Palavras e imagens (codificação dupla)",
+      "short": "Coloque o que aprende em palavras e em imagem: um diagrama, uma linha do tempo, um esboço.",
+      "what": "Combine o texto com uma imagem que mostre a mesma coisa e depois explique a imagem com palavras. Quando puder, desenhe-a de memória.",
+      "why": "Segundo essa teoria, palavras e imagens são guardadas de formas em parte separadas, então o que é guardado dos dois jeitos tem dois caminhos de volta. Não se trata de ser 'visual': um bom diagrama ao lado do texto costuma ajudar qualquer pessoa.",
+      "steps": [
+        "Transforme um processo num fluxograma e um período numa linha do tempo.",
+        "Explique cada parte da imagem numa frase.",
+        "Redesenhe de memória e compare com o original.",
+        "Peça ao chat um diagrama dos seus documentos e confira com o texto."
+      ],
+      "mistake": "Imagens decorativas que não mostram o conteúdo, ou um diagrama tão cheio que esconde a ideia.",
+      "today": "Desenhe de memória algo que aprendeu hoje.",
+      "search": "codificação dupla estudo"
+    },
+    "generate": {
+      "name": "Tente primeiro, depois confira",
+      "short": "Chute ou responda antes de ser informado; até uma tentativa errada ajuda, se você conferir logo depois.",
+      "what": "Antes de ler uma seção, tente as perguntas dela. Antes de pedir ajuda, escreva primeiro a sua versão. Depois compare com a resposta real.",
+      "why": "Palavras que as pessoas produziram sozinhas foram lembradas melhor do que as que só leram. Tentar perguntas antes de ler, mesmo errando, melhorou o aprendizado das respostas em comparação com ler pelo mesmo tempo.",
+      "steps": [
+        "Veja as perguntas do fim de um capítulo antes de lê-lo e chute.",
+        "Escreva sua primeira resposta antes de perguntar ao chat.",
+        "Compare sua tentativa com a fonte e anote o que foi diferente.",
+        "Ative 'Escrever primeiro a minha própria versão' em Configurações para que o AnyLearn peça sempre."
+      ],
+      "mistake": "Pular a conferência. Chutar só ajuda quando você descobre a resposta certa logo depois.",
+      "today": "Antes da sua próxima pergunta ao chat, escreva o que acha que é a resposta.",
+      "search": "efeito do pré-teste aprendizagem"
+    },
+    "deliberate": {
+      "name": "Pratique seus pontos fracos (prática deliberada)",
+      "short": "Pratique exatamente o que ainda não consegue fazer, com retorno rápido, em vez de repetir o que já sabe.",
+      "what": "Escolha uma fraqueza específica, pratique em rodadas curtas e focadas, receba retorno de cada tentativa e ajuste.",
+      "why": "Num estudo conhecido com músicos, os melhores violinistas tinham dedicado muito mais horas a esse tipo de prática focada do que os outros. Uma meta-análise posterior concluiu que a quantidade de prática deliberada explica parte das diferenças entre as pessoas, mais em jogos e música do que em educação ou trabalho; importa, mas não é tudo.",
+      "steps": [
+        "Encontre exatamente o que dá errado: um tipo de pergunta, um som, um movimento.",
+        "Pratique só isso, em rodadas de poucos minutos.",
+        "Confira cada tentativa na hora com uma resposta, uma gravação ou um treinador.",
+        "Aumente um pouco a dificuldade quando acertar na maioria das vezes."
+      ],
+      "mistake": "Praticar o que já é confortável porque é agradável. O tempo no que você já sabe fazer acrescenta pouco.",
+      "today": "Abra 'Praticar seus erros' e resolva três.",
+      "search": "prática deliberada como praticar"
+    },
+    "breaks": {
+      "name": "Blocos de foco e pausas (Pomodoro)",
+      "short": "Estude em blocos cronometrados com pausas curtas planejadas.",
+      "what": "Programe cerca de 25 minutos para uma única tarefa sem notificações e depois descanse 5 minutos longe da tela; após quatro rodadas, uma pausa maior.",
+      "why": "A evidência é limitada. Num estudo com universitários, pausas fixas (24 minutos de estudo, 6 de descanso) os deixaram menos cansados e mais motivados do que pausas quando tinham vontade, e fizeram o mesmo trabalho em menos tempo. Ajuda a manter o ritmo; não substitui os métodos acima.",
+      "steps": [
+        "Escolha uma tarefa para o bloco e anote.",
+        "Silencie o celular e programe o timer.",
+        "Quando tocar, pare e descanse: levante, olhe para longe, beba água.",
+        "Num dia difícil, um bloco basta; no Início, 'Dia ruim' mostra só o mínimo de cada tarefa."
+      ],
+      "mistake": "Encher os blocos com releitura. Reler com foco continua sendo reler; preencha-os com testes e prática.",
+      "today": "Faça um bloco de 25 minutos de perguntas de prática.",
+      "search": "técnica pomodoro estudar"
+    },
+    "myths": {
+      "name": "Mitos: estilos de aprendizagem, reler e grifar",
+      "short": "Hábitos populares com pouco respaldo, e o que fazer no lugar.",
+      "what": "Adaptar o estudo a um 'estilo de aprendizagem' (visual, auditivo, cinestésico) não tem respaldo na evidência. Reler e grifar é o que a maioria dos estudantes faz, e está entre o menos eficaz.",
+      "why": "Uma revisão procurou estudos que testassem direito se ensinar conforme o estilo de cada pessoa melhora o aprendizado, e quase não encontrou nenhum; os poucos que testaram não acharam benefício. As pessoas têm preferências, mas a melhor forma de aprender algo depende do conteúdo, não da pessoa. Uma revisão de dez técnicas classificou reler e grifar como de baixa utilidade.",
+      "steps": [
+        "Use a forma que combina com o conteúdo: um mapa para geografia, som para pronúncia, um diagrama para um processo.",
+        "Troque uma segunda leitura por um teste sobre as mesmas páginas.",
+        "Se grifar, transforme depois cada grifo numa pergunta.",
+        "Julgue um método pelos seus resultados num teste, não pelo que sente."
+      ],
+      "mistake": "Evitar um bom método porque 'não é meu estilo'. Testar-se e espaçar ajudam todo mundo.",
+      "today": "Transforme três dos seus grifos em perguntas.",
+      "search": "mito dos estilos de aprendizagem"
+    }
+  }
+}

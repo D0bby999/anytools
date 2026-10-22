@@ -13,6 +13,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/byokapi"
 	"github.com/D0bby999/anytools/internal/api/calendarapi"
 	"github.com/D0bby999/anytools/internal/api/chatapi"
+	"github.com/D0bby999/anytools/internal/api/circleapi"
 	"github.com/D0bby999/anytools/internal/api/classroomapi"
 	"github.com/D0bby999/anytools/internal/api/driveapi"
 	"github.com/D0bby999/anytools/internal/api/examapi"
@@ -28,6 +29,7 @@ import (
 	"github.com/D0bby999/anytools/internal/api/photosapi"
 	"github.com/D0bby999/anytools/internal/api/playlistapi"
 	"github.com/D0bby999/anytools/internal/api/profileapi"
+	"github.com/D0bby999/anytools/internal/api/progressapi"
 	"github.com/D0bby999/anytools/internal/api/pushapi"
 	"github.com/D0bby999/anytools/internal/api/quizapi"
 	"github.com/D0bby999/anytools/internal/api/readingapi"
@@ -109,6 +111,10 @@ type Deps struct {
 	Apps *appsapi.Handler
 	// Library is the catalogue of ready material (the private design notes).
 	Library *libraryapi.Handler
+	// Progress and Circles are study days, streaks, milestones and studying
+	// with friends (the private design notes).
+	Progress *progressapi.Handler
+	Circles  *circleapi.Handler
 	// Body is the training log and its coach (the private design notes).
 	Body         *bodyapi.Handler
 	Users        httpx.UserLookup
@@ -240,6 +246,12 @@ func BuildMux(deps Deps) http.Handler {
 	if deps.Library != nil {
 		deps.Library.RegisterRoutes(mux)
 	}
+	if deps.Progress != nil {
+		deps.Progress.RegisterRoutes(mux)
+	}
+	if deps.Circles != nil {
+		deps.Circles.RegisterRoutes(mux)
+	}
 	if deps.Storage != nil {
 		deps.Storage.RegisterRoutes(mux)
 	}
@@ -358,6 +370,9 @@ func RegisteredPatterns() []string {
 	patterns = append(patterns, appsapi.Patterns()...)
 	// The Library's catalogue: the same for every learner, behind RequireUser.
 	patterns = append(patterns, libraryapi.Patterns()...)
+	// Progress and study circles: the caller's own, and circles they are in.
+	patterns = append(patterns, progressapi.Patterns()...)
+	patterns = append(patterns, circleapi.Patterns()...)
 	// Body: the training log and its coach. Behind RequireUser; none is allowlisted.
 	patterns = append(patterns, bodyapi.Patterns()...)
 	return patterns

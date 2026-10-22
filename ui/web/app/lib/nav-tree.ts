@@ -14,13 +14,13 @@ import {
   BookOpen,
   Dumbbell,
   FolderOpen,
-  HardDrive,
-  Link2,
-  Upload,
   GraduationCap,
+  HardDrive,
   Home,
   Languages,
   Library,
+  Lightbulb,
+  Link2,
   ListChecks,
   MessageSquare,
   NotebookPen,
@@ -29,8 +29,11 @@ import {
   Settings,
   Sigma,
   Telescope,
-  Wrench,
+  TrendingUp,
   type LucideIcon,
+  Upload,
+  Users,
+  Wrench,
 } from "lucide-react";
 
 export type NavPage = {
@@ -131,6 +134,11 @@ export const NAV_TREE: NavGroup[] = [
     items: [
       { to: "/loop", labelKey: "nav.loop", icon: Repeat },
       { to: "/toolkit", labelKey: "nav.pages.toolkit", icon: NotebookText },
+      // How to study, from the research (2026-10-22).
+      { to: "/methods", labelKey: "nav.methods", icon: Lightbulb },
+      // What the studying added up to, and friends to study with (2026-10-22).
+      { to: "/progress", labelKey: "nav.progress", icon: TrendingUp },
+      { to: "/circles", labelKey: "nav.circles", icon: Users },
     ],
   },
   {

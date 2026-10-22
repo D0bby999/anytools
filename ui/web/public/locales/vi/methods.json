@@ -1,0 +1,268 @@
+{
+  "title": "Phương pháp học",
+  "lede": "Cách học để nhớ lâu, dựa trên những gì nghiên cứu đã kiểm chứng. Mỗi phương pháp cho biết bằng chứng mạnh đến đâu, cách làm, chỗ AnyLearn làm giúp bạn, kèm video ngắn để xem.",
+  "start": {
+    "title": "Nếu chỉ làm ba việc",
+    "steps": [
+      "Tự kiểm tra thay vì đọc lại.",
+      "Rải việc học ra nhiều ngày và ôn những gì đến hạn.",
+      "Giải thích điều đã học bằng lời của mình."
+    ],
+    "note": "AnyLearn được xây quanh ba việc này: câu hỏi luyện tập, lịch ôn tập và giải thích lại."
+  },
+  "evidence": {
+    "strong": "Bằng chứng mạnh",
+    "moderate": "Bằng chứng vừa",
+    "limited": "Bằng chứng hạn chế",
+    "myth": "Ngộ nhận và thói quen kém hiệu quả",
+    "note": "Mức bằng chứng: mạnh nghĩa là nhiều nghiên cứu và tổng quan đồng thuận; vừa nghĩa là có nghiên cứu tốt nhưng chỉ hiệu quả trong một số trường hợp; hạn chế nghĩa là còn ít nghiên cứu."
+  },
+  "overview": {
+    "videos": "Video: khoa học về cách học",
+    "search": "cách học hiệu quả theo khoa học"
+  },
+  "all": "Tất cả phương pháp",
+  "open": "Xem",
+  "back": "Tất cả phương pháp học",
+  "what": "Là gì",
+  "why": "Vì sao hiệu quả",
+  "how": "Cách làm",
+  "mistake": "Lỗi thường gặp",
+  "today": "Thử ngay hôm nay",
+  "inApp": "Làm trong AnyLearn",
+  "sources": "Nghiên cứu",
+  "sourcesNote": "Mỗi nghiên cứu đã được đối chiếu với hồ sơ của nó trên Crossref. Mã DOI mở trang của bài báo.",
+  "videos": {
+    "title": "Video để xem",
+    "lede": "Video giải thích của các nhà nghiên cứu và những kênh dẫn nguồn nghiên cứu, ưu tiên ngôn ngữ của bạn. Video phát bằng trình phát bảo vệ quyền riêng tư của YouTube, chỉ tải khi bạn bấm phát.",
+    "play": "Phát: {{title}}",
+    "meta": "{{channel}} · {{minutes}} phút · {{language}}",
+    "watch": "Mở trên YouTube",
+    "save": "Thêm vào kiến thức của tôi",
+    "saved": "Đã thêm vào \"{{kb}}\": phụ đề của video thành tài liệu để bạn làm câu hỏi và hỏi đáp.",
+    "openKB": "Mở",
+    "failed": "Không thêm được video: {{detail}}",
+    "none": "Chưa có video bằng ngôn ngữ của bạn cho phương pháp này; bên dưới là video tiếng Anh.",
+    "search": "Tìm thêm trên YouTube",
+    "notListed": "video này không có trong hướng dẫn",
+    "added": "Đã thêm",
+    "checked": "Video được kiểm tra ngày {{date}}."
+  },
+  "newTab": "(mở trong thẻ mới)",
+  "do": {
+    "practice": "Câu hỏi luyện tập",
+    "review": "Ôn những gì đến hạn",
+    "reviewAll": "Ôn mọi thứ đến hạn, trộn lẫn",
+    "vocabulary": "Thẻ từ vựng",
+    "reminders": "Lời nhắc ôn hằng ngày",
+    "decks": "Bộ thẻ",
+    "progress": "Tiến bộ: tỉ lệ trả lời đúng",
+    "chat": "Hỏi về tài liệu của bạn",
+    "notebooks": "Sổ ghi chép",
+    "explainBack": "Giải thích lại, trên một điểm kiến thức",
+    "ownVersion": "Tự viết phiên bản của tôi trước (Cài đặt, Tài khoản)",
+    "solve": "Giải bài từng bước",
+    "diagrams": "Nhờ chat vẽ sơ đồ",
+    "mistakes": "Luyện lại lỗi sai",
+    "toolkit": "Bộ công cụ: sửa bài viết, kiểm tra đọc to",
+    "body": "Thể chất: tập luyện",
+    "lowDay": "Trang chủ: mức tối thiểu cho ngày khó"
+  },
+  "methods": {
+    "retrieval": {
+      "name": "Tự kiểm tra (luyện gợi nhớ)",
+      "short": "Tự lấy câu trả lời ra từ trí nhớ thay vì đọc lại.",
+      "what": "Gấp sách lại và cố nhớ ra: trả lời câu hỏi, điền thẻ trống, viết ra mọi thứ bạn nhớ, rồi mới đối chiếu.",
+      "why": "Mỗi lần bạn lấy một điều ra khỏi trí nhớ, lần sau lấy ra sẽ dễ hơn. Trong thí nghiệm, sinh viên tự kiểm tra nhớ được nhiều hơn hẳn sau một tuần so với người đọc lại cùng bài, dù đọc lại cho cảm giác hiệu quả hơn. Một phân tích tổng hợp các nghiên cứu cho thấy tự kiểm tra hiệu quả hơn đọc lại và mọi cách học khác được đem ra so sánh.",
+      "steps": [
+        "Đọc xong một phần, gấp lại và viết các ý chính theo trí nhớ.",
+        "Trả lời câu hỏi trước khi xem đáp án; đối chiếu ngay sau đó.",
+        "Biến điều đã học thành thẻ và ôn bằng thẻ, không ôn bằng ghi chú.",
+        "Quay lại những câu sai và kiểm tra lại vào lúc sau."
+      ],
+      "mistake": "Nhìn đáp án trước khi thật sự cố nhớ. Chính nỗ lực cố nhớ mới tạo ra hiệu quả, kể cả khi bạn nhớ sai.",
+      "today": "Trả lời mười câu luyện tập mà không tra cứu gì.",
+      "search": "phương pháp active recall"
+    },
+    "spacing": {
+      "name": "Giãn cách (ôn ngắt quãng)",
+      "short": "Học thành nhiều buổi ngắn rải ra nhiều ngày, thay vì một buổi dài.",
+      "what": "Quay lại cùng nội dung sau một khoảng nghỉ, và kéo dài khoảng nghỉ khi bạn nhớ tốt hơn.",
+      "why": "Cùng số giờ học, rải ra thì nhớ lâu hơn nhiều so với nhồi một lần. Một tổng hợp hàng trăm thí nghiệm thấy điều này gần như trong mọi trường hợp; khoảng cách tốt nhất tăng theo thời gian bạn cần nhớ.",
+      "steps": [
+        "Chia việc học thành những buổi ngắn vào các ngày khác nhau.",
+        "Ôn nội dung mới vào hôm sau, rồi sau vài ngày, rồi sau một hai tuần.",
+        "Để lịch ôn quyết định: thẻ của AnyLearn quay lại ngay trước lúc bạn sắp quên.",
+        "Bắt đầu sớm: giãn cách cần nhiều ngày trước kỳ thi, không phải vài giờ."
+      ],
+      "mistake": "Học dồn đêm trước kỳ thi. Có thể qua được bài kiểm tra ngày mai, nhưng một tuần sau phần lớn đã quên.",
+      "today": "Làm các lượt ôn đến hạn hôm nay, không hơn: lượt của ngày mai để ngày mai.",
+      "search": "spaced repetition lặp lại ngắt quãng"
+    },
+    "judge": {
+      "name": "Đánh giá bằng kiểm tra, không bằng cảm giác",
+      "short": "Cảm giác đã biết là thước đo kém; một bài kiểm tra mới là thước đo tốt.",
+      "what": "Chọn học gì tiếp theo dựa trên những gì bạn thật sự làm được mà không cần trợ giúp, không phải dựa trên việc nó trông quen thuộc.",
+      "why": "Đọc lại và tô sáng khiến nội dung trông quen, và cảm giác quen dễ bị nhầm là đã biết. Phần lớn sinh viên khi được hỏi cách học đều chọn những cách này và dừng lại khi thấy dễ. Những cách có cảm giác khó hơn, như tự kiểm tra và giãn cách, mới là cách giúp nhớ lâu: các nhà nghiên cứu gọi đó là những khó khăn đáng có.",
+      "steps": [
+        "Trước khi kết luận mình đã biết một chủ đề, hãy trả lời vài câu hỏi về nó mà không chuẩn bị.",
+        "Ghi lại bạn chắc chắn đến đâu, rồi so với kết quả thật.",
+        "Dành thời gian cho chỗ sai, không phải chỗ đúng.",
+        "Chấp nhận rằng học tốt thường thấy chậm hơn; đó thường là dấu hiệu nó đang có tác dụng."
+      ],
+      "mistake": "Dừng lại khi trang sách trông quen. Quen không có nghĩa là ngày mai bạn nhớ ra được.",
+      "today": "Xem tỉ lệ trả lời đúng trên trang Tiến bộ và chọn chủ đề yếu nhất.",
+      "search": "ảo tưởng năng lực khi học"
+    },
+    "sleep": {
+      "name": "Ngủ đủ để nhớ",
+      "short": "Giấc ngủ là lúc não giữ lại những gì bạn học trong ngày.",
+      "what": "Ngủ đủ vào những đêm sau khi học, và đừng đổi giấc ngủ lấy thêm giờ học.",
+      "why": "Trong khi ngủ, ký ức mới học được phát lại và củng cố. Người ngủ sau khi học nhớ được nhiều hơn người thức cùng khoảng thời gian, và thiếu ngủ trước khi học khiến việc tiếp nhận điều mới khó hơn.",
+      "steps": [
+        "Giữ giờ đi ngủ đều đặn vào những ngày học.",
+        "Ôn ngắn vào buổi tối thay vì ôn dài lúc khuya.",
+        "Trước kỳ thi, hãy ngủ thay vì thức trắng ôn bài.",
+        "Đặt giờ nhắc ôn vào lúc hợp với ngày của bạn, không phải lúc khuya."
+      ],
+      "mistake": "Thức trắng trước kỳ thi. Bạn bỏ mất giấc ngủ vốn giúp giữ lại những gì đã học.",
+      "today": "Học xong trước giờ ngủ một tiếng.",
+      "search": "giấc ngủ và trí nhớ khi học"
+    },
+    "interleaving": {
+      "name": "Học xen kẽ",
+      "short": "Trộn nhiều dạng bài hoặc chủ đề thay vì làm từng dạng một.",
+      "what": "Thay vì hai mươi bài dạng A rồi hai mươi bài dạng B, hãy làm theo thứ tự trộn, để mỗi lần bạn phải xác định đó là dạng nào trước.",
+      "why": "Học xen kẽ buộc bạn luyện cả việc chọn cách giải, đúng thứ bài thi thật đòi hỏi. Trong một nghiên cứu, học sinh luyện toán theo thứ tự trộn đạt điểm cao hơn hẳn khi kiểm tra sau một tuần so với người luyện theo từng khối. Một phân tích tổng hợp cho thấy cách này giúp nhiều nhất với những nhóm dễ nhầm lẫn, như các dạng bài giống nhau hay phong cách của các họa sĩ, và khuyên thận trọng khi áp dụng cho từ vựng và văn bản giải thích, vì ở đó nó không giúp ích.",
+      "steps": [
+        "Khi đã biết sơ qua từng dạng, hãy luyện chúng trong một bộ trộn lẫn.",
+        "Trộn những chủ đề liên quan và dễ nhầm với nhau.",
+        "Trước khi giải, nói ra đây là dạng bài nào và vì sao.",
+        "Để lượt ôn được trộn: phần ôn của AnyLearn xen kẽ các học phần trong một lộ trình."
+      ],
+      "mistake": "Trộn khi chưa biết gì về từng dạng, hoặc trộn những chủ đề chẳng liên quan. Lúc đầu thấy khó hơn là chuyện bình thường.",
+      "today": "Làm một bộ bài trộn hai chủ đề có liên quan.",
+      "search": "học xen kẽ interleaving"
+    },
+    "elaboration": {
+      "name": "Hỏi vì sao và như thế nào",
+      "short": "Tự giải thích vì sao một điều là đúng và nó nối với những gì bạn đã biết ra sao.",
+      "what": "Với mỗi ý mới, hỏi 'vì sao lại như vậy?', 'nó hoạt động thế nào?' và 'nó giống hay khác điều gì mình đã biết?', rồi trả lời bằng lời của mình.",
+      "why": "Câu trả lời do bạn tự xây dựng buộc điều mới vào những gì bạn đã biết, nên sau này có nhiều đường để tìm lại nó. Bằng chứng tốt với kiến thức và khái niệm, và tốt nhất khi bạn đã biết chút ít về chủ đề.",
+      "steps": [
+        "Chọn một câu trong ghi chú và hỏi vì sao nó đúng.",
+        "Trả lời mà không nhìn tài liệu, rồi đối chiếu với nguồn.",
+        "Kết nối: nêu một điều giống nó và một điều khác nó.",
+        "Hỏi chat những câu 'vì sao' về chính tài liệu của bạn, và xem lại nguồn nó dẫn."
+      ],
+      "mistake": "Chấp nhận một câu trả lời mơ hồ. Nếu bạn không nói được vì sao trong một hai câu, đó chính là phần cần học.",
+      "today": "Viết 'vì sao?' cạnh ba điều bạn học hôm nay và trả lời.",
+      "search": "phương pháp học hỏi vì sao elaboration"
+    },
+    "explain": {
+      "name": "Giải thích lại thật đơn giản (tự giải thích, kỹ thuật Feynman)",
+      "short": "Giải thích ý tưởng bằng lời giản dị như nói với người mới; chỗ vấp chính là chỗ cần học.",
+      "what": "Viết hoặc nói ra lời giải thích mà không nhìn ghi chú. Chỗ nào bạn bí hoặc phải dùng thuật ngữ, quay lại nguồn rồi giải thích lại đơn giản hơn.",
+      "why": "Học sinh tự giải thích từng bước trong một bài đọc hiểu sâu hơn người đọc bài đó hai lần. Giải thích cho người khác cũng hiệu quả: người dạy lại nội dung học được nhiều hơn người chỉ học. Cái tên 'kỹ thuật Feynman' là tên gọi phổ biến, không phải phương pháp được nghiên cứu, nhưng các phần của nó thì có.",
+      "steps": [
+        "Chọn một ý và viết lời giải thích mà không nhìn ghi chú, bằng câu ngắn.",
+        "Đánh dấu mọi chỗ bạn bí hoặc dùng một từ mà bạn không định nghĩa được.",
+        "Quay lại nguồn, chỉ cho những chỗ đó.",
+        "Giải thích lại, ngắn hơn, kèm ví dụ. Trong AnyLearn, 'Giải thích lại' chấm lời giải thích của bạn dựa trên tài liệu của bạn."
+      ],
+      "mistake": "Giải thích trong khi vẫn mở ghi chú. Lúc đó bạn đang đọc, không phải giải thích.",
+      "today": "Giải thích lại một điểm kiến thức bạn đang học cho AnyLearn chấm.",
+      "search": "kỹ thuật Feynman"
+    },
+    "examples": {
+      "name": "Học từ ví dụ (ví dụ mẫu và ví dụ cụ thể)",
+      "short": "Xem các ví dụ đã giải và trường hợp cụ thể trước và cùng lúc với quy tắc trừu tượng.",
+      "what": "Khi mới học một chủ đề, hãy xem kỹ một ví dụ giải đầy đủ từng bước, rồi tự giải một bài tương tự. Với khái niệm, hãy tìm hai ba trường hợp thực tế khác nhau của cùng một điều.",
+      "why": "Người mới học xem ví dụ giải sẵn học cách giải bài đại số nhanh hơn và ít sai hơn người giải bài ngay từ đầu: họ dồn sự chú ý vào phương pháp thay vì mò mẫm. Nhiều trường hợp cụ thể khác nhau giúp bạn thấy điểm chung của một ý tưởng trừu tượng.",
+      "steps": [
+        "Xem một ví dụ đã giải và nói vì sao bước này dẫn tới bước kia.",
+        "Che lời giải đi và tự giải một bài tương tự.",
+        "Khi đã khá hơn, dùng ít ví dụ hơn và tự giải nhiều hơn.",
+        "Với một khái niệm, gom hai ba ví dụ từ các hoàn cảnh khác nhau và nói ra điểm chung của chúng."
+      ],
+      "mistake": "Chỉ đọc ví dụ mà không tự giải bài nào, hoặc chỉ dựa vào một ví dụ, nên bạn chỉ nhớ bề mặt của nó chứ không nắm ý tưởng.",
+      "today": "Nhờ Giải bài cho một ví dụ giải từng bước, rồi tự giải một bài tương tự mà không nhìn.",
+      "search": "học qua ví dụ mẫu"
+    },
+    "dual": {
+      "name": "Chữ kèm hình (mã hoá kép)",
+      "short": "Diễn đạt điều đã học bằng cả lời lẫn hình: sơ đồ, dòng thời gian, hình vẽ phác.",
+      "what": "Kết hợp chữ với một hình ảnh thể hiện cùng nội dung, rồi giải thích hình đó bằng lời. Khi có thể, hãy tự vẽ lại theo trí nhớ.",
+      "why": "Theo lý thuyết này, chữ và hình được não lưu theo những cách phần nào tách biệt, nên nội dung được lưu theo cả hai cách sẽ có hai đường để nhớ lại. Đây không phải chuyện 'người học bằng hình ảnh': một sơ đồ tốt bên cạnh chữ thường có ích, dù bạn là ai.",
+      "steps": [
+        "Biến một quy trình thành sơ đồ luồng, một giai đoạn thành dòng thời gian.",
+        "Giải thích từng phần của hình bằng một câu.",
+        "Vẽ lại theo trí nhớ rồi so với bản gốc.",
+        "Nhờ chat vẽ sơ đồ từ tài liệu của bạn, rồi đối chiếu với văn bản."
+      ],
+      "mistake": "Hình trang trí không thể hiện nội dung, hoặc sơ đồ quá rối làm mờ ý chính.",
+      "today": "Vẽ phác theo trí nhớ một điều bạn học hôm nay.",
+      "search": "mã hoá kép dual coding học tập"
+    },
+    "generate": {
+      "name": "Thử trước, rồi đối chiếu",
+      "short": "Đoán hoặc trả lời trước khi được cho biết; kể cả thử sai cũng có ích, nếu bạn đối chiếu ngay sau đó.",
+      "what": "Trước khi đọc một phần, thử làm câu hỏi của nó. Trước khi nhờ trợ giúp, hãy viết phiên bản của chính mình trước. Rồi so với đáp án thật.",
+      "why": "Những từ người ta tự tạo ra được nhớ tốt hơn những từ chỉ đọc. Làm thử câu hỏi trước khi đọc, kể cả làm sai, vẫn giúp học đáp án tốt hơn so với dùng cùng thời gian đó để đọc.",
+      "steps": [
+        "Xem câu hỏi cuối chương trước khi đọc, và đoán thử.",
+        "Viết câu trả lời đầu tiên của bạn trước khi hỏi chat.",
+        "So bản thử của bạn với nguồn, ghi lại điểm khác.",
+        "Bật 'Tự viết phiên bản của tôi trước' trong Cài đặt để lần nào AnyLearn cũng hỏi."
+      ],
+      "mistake": "Bỏ qua bước đối chiếu. Đoán chỉ có ích khi bạn biết đáp án đúng ngay sau đó.",
+      "today": "Trước câu hỏi tiếp theo cho chat, viết ra điều bạn nghĩ là câu trả lời.",
+      "search": "thử trả lời trước khi học"
+    },
+    "deliberate": {
+      "name": "Luyện đúng điểm yếu (luyện tập có chủ đích)",
+      "short": "Luyện đúng thứ bạn chưa làm được, có phản hồi nhanh, thay vì lặp lại thứ đã làm được.",
+      "what": "Chọn một điểm yếu cụ thể, luyện nó trong những lượt ngắn và tập trung, nhận phản hồi sau mỗi lần thử, rồi điều chỉnh.",
+      "why": "Trong một nghiên cứu nổi tiếng về nhạc công, những nghệ sĩ violin giỏi nhất đã dành nhiều giờ luyện tập tập trung kiểu này hơn hẳn những người khác. Một phân tích tổng hợp sau đó cho thấy lượng luyện tập có chủ đích giải thích được một phần khác biệt giữa người với người, nhiều hơn ở trò chơi và âm nhạc so với học tập hay công việc; nó quan trọng nhưng không phải tất cả.",
+      "steps": [
+        "Tìm đúng chỗ hay sai: một dạng câu hỏi, một âm, một động tác.",
+        "Chỉ luyện chỗ đó, theo từng lượt vài phút.",
+        "Kiểm tra mỗi lần thử ngay lập tức với đáp án, bản ghi âm hay người hướng dẫn.",
+        "Tăng độ khó một chút khi bạn đã làm đúng phần lớn số lần."
+      ],
+      "mistake": "Luyện thứ đã thoải mái vì thấy dễ chịu. Thời gian dành cho thứ đã làm được mang lại rất ít.",
+      "today": "Mở 'Luyện lại lỗi sai' và xử lý ba lỗi.",
+      "search": "luyện tập có chủ đích"
+    },
+    "breaks": {
+      "name": "Khối tập trung và nghỉ giải lao (Pomodoro)",
+      "short": "Học theo những khối có hẹn giờ, xen giữa là các lần nghỉ ngắn đã định trước.",
+      "what": "Hẹn giờ khoảng 25 phút cho một việc, tắt thông báo, rồi nghỉ 5 phút rời màn hình; sau bốn lượt thì nghỉ dài hơn.",
+      "why": "Bằng chứng còn hạn chế. Trong một nghiên cứu với sinh viên đại học, nghỉ theo lịch cố định (học 24 phút, nghỉ 6 phút) giúp họ ít mệt và có động lực hơn so với nghỉ tùy hứng, và họ làm xong cùng khối lượng trong thời gian ngắn hơn. Cách này giúp bạn duy trì, không thay thế được các phương pháp ở trên.",
+      "steps": [
+        "Chọn một việc cho khối thời gian và ghi ra.",
+        "Tắt tiếng điện thoại và hẹn giờ.",
+        "Khi chuông reo, dừng lại và nghỉ: đứng dậy, nhìn ra xa, uống nước.",
+        "Ngày mệt, một khối là đủ; trên Trang chủ, 'Ngày mệt' chỉ hiện phần tối thiểu của từng việc."
+      ],
+      "mistake": "Dùng các khối để đọc lại. Đọc lại tập trung vẫn là đọc lại; hãy dùng chúng để tự kiểm tra và luyện tập.",
+      "today": "Làm một khối 25 phút trả lời câu hỏi luyện tập.",
+      "search": "phương pháp pomodoro"
+    },
+    "myths": {
+      "name": "Ngộ nhận: phong cách học, đọc lại và tô sáng",
+      "short": "Những thói quen phổ biến nhưng ít bằng chứng, và nên làm gì thay thế.",
+      "what": "Học theo 'phong cách học' (thị giác, thính giác, vận động) không có bằng chứng ủng hộ. Đọc lại và tô sáng là cách phần lớn học sinh dùng, và nằm trong số những cách kém hiệu quả nhất.",
+      "why": "Một bài tổng quan tìm các nghiên cứu kiểm tra đúng cách xem dạy theo phong cách của từng người có giúp học tốt hơn không, và gần như không tìm thấy; số ít đã kiểm tra thì không thấy lợi ích. Người ta có sở thích riêng, nhưng cách học tốt nhất phụ thuộc vào nội dung, không phải vào người học. Một bài đánh giá mười kỹ thuật xếp đọc lại và tô sáng vào nhóm ít hiệu quả.",
+      "steps": [
+        "Dùng hình thức hợp với nội dung: bản đồ cho địa lý, âm thanh cho phát âm, sơ đồ cho quy trình.",
+        "Thay lần đọc thứ hai bằng một bài kiểm tra trên cùng các trang đó.",
+        "Nếu tô sáng, sau đó hãy biến mỗi chỗ tô sáng thành một câu hỏi.",
+        "Đánh giá một phương pháp bằng kết quả kiểm tra, không bằng cảm giác."
+      ],
+      "mistake": "Tránh một phương pháp tốt vì nghĩ 'không hợp phong cách của mình'. Tự kiểm tra và giãn cách giúp ích cho mọi người.",
+      "today": "Biến ba chỗ tô sáng của bạn thành câu hỏi.",
+      "search": "ngộ nhận phong cách học tập"
+    }
+  }
+}

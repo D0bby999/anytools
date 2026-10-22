@@ -136,7 +136,7 @@
       }
     },
     "notTitle": "What it will not do",
-    "notBody": "AnyLearn does not answer from its own general knowledge when your documents are silent; it says they do not cover the question. It does not keep streaks, points or badges. And it cannot promise that a file never reaches an AI provider: reading a document means sending it to the model you chose, and every document shows which one read it.",
+    "notBody": "AnyLearn does not answer from its own general knowledge when your documents are silent; it says they do not cover the question. And it cannot promise that a file never reaches an AI provider: reading a document means sending it to the model you chose, and every document shows which one read it.",
     "tools": {
       "title": "Appendix: free tools, no account",
       "body": "More than a hundred everyday tools: formatters, encoders, converters, calculators, and PDF and image tools. They run in your browser, need no sign-in, and come in English, Vietnamese, Spanish and Portuguese.",

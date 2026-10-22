@@ -49,6 +49,7 @@ import (
 	"github.com/D0bby999/anytools/internal/knowledge"
 	"github.com/D0bby999/anytools/internal/notebook"
 	"github.com/D0bby999/anytools/internal/oauth"
+	"github.com/D0bby999/anytools/internal/progress"
 	"github.com/D0bby999/anytools/internal/rag/retrieve"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/store/kbindex"
@@ -179,7 +180,9 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 
 	// The daily review reminder: a web push at the learner's hour. See
 	// wire_push.go.
-	reminders := buildPush(pool, cfg).WithCounter(newDueTotal(pool, loopSvc)).WithPlanner(newTrainingPlanner(pool))
+	progressSvc := progress.NewService(pg.NewProgressStore(pool))
+	reminders := buildPush(pool, cfg).WithCounter(newDueTotal(pool, loopSvc)).WithPlanner(newTrainingPlanner(pool)).
+		WithStreak(progressStreak{progressSvc})
 
 	// Learning-tool-connections phases 2 and 3: the study calendar, as a feed
 	// and written into Google Calendar. See wire_gcal.go.
@@ -196,6 +199,7 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 	// Learning depth, phase 9: the learner profile. See wire_profile.go.
 	profileHandler, startProfile := buildProfile(pool, newChatResolver(byokService))
 
+	progressHandler, circleHandler := buildProgress(pool, progressSvc)
 	handler := api.BuildMux(api.Deps{
 		Auth: authapi.NewHandler(identities, users).
 			WithAccountDeletion(buildAccount(pool, kb, driveConnector, cfg.Security.EncryptionKey)).
@@ -230,6 +234,8 @@ func Build(ctx context.Context, cfg *config.Config) (*App, error) {
 		Storage:    storageHandler,
 		Push:       pushapi.NewHandler(reminders),
 		Library:    buildLibrary(ctx, pool),
+		Progress:   progressHandler,
+		Circles:    circleHandler,
 		Inbound:    buildInbound(cfg, pool, kb),
 		Workspace:  buildWorkspace(pool, kb, driveConnector, newChatResolver(byokService), pages),
 		Calendar:   calendarapi.NewHandler(studyCalendar),

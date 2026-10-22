@@ -36,7 +36,7 @@ describe("NAV_TREE", () => {
       "/mastery", "/mastery/review", "/mastery/vocabulary", "/mastery/book-cards", "/mastery/decks",
       "/languages",
       "/body", "/body/plan", "/body/progress", "/body/coach", "/body/library",
-      "/loop", "/toolkit",
+      "/loop", "/toolkit", "/methods", "/progress", "/circles",
       "/files", "/upload", "/links", "/storage", "/apps",
       "/settings", "/settings/providers", "/settings/routes", "/settings/search", "/settings/account", "/settings/profile", "/settings/reminders",
     ]);

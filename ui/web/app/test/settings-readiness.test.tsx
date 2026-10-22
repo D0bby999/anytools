@@ -176,7 +176,8 @@ describe("the Settings surface as a whole", () => {
 
   it("every section the Settings nav offers is a registered route", () => {
     const routes = readFileSync(join(APP, "routes.ts"), "utf8");
-    const settings = readFileSync(join(APP, "routes/settings.tsx"), "utf8");
+    // The sections are listed in the rail's own module since 2026-10-22.
+    const settings = readFileSync(join(APP, "components/settings/settings-nav.tsx"), "utf8");
     const destinations = [...settings.matchAll(/to: "(\/settings[^"]*)"/g)].map((m) => m[1] ?? "");
 
     expect(destinations.length).toBeGreaterThan(0);

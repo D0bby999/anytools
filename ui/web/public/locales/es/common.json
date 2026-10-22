@@ -11,6 +11,9 @@
     "chat": "Chat",
     "notebooks": "Cuaderno",
     "library": "Biblioteca",
+    "methods": "Métodos de estudio",
+    "progress": "Progreso",
+    "circles": "Estudiar con amigos",
     "quiz": "Cuestionarios",
     "mastery": "Dominio",
     "body": "Cuerpo",
@@ -219,6 +222,9 @@
         "bodyLibrary": "Explora ejercicios para tus rutinas.",
         "loop": "Elige una meta y un siguiente paso pequeño.",
         "toolkit": "Usa fichas para pensar y reflexionar.",
+        "methods": "Cómo estudiar para que dure, según la investigación, con vídeos cortos.",
+        "progress": "Días de estudio, tu racha y meta semanal, tu nivel y lo que produjo el estudio.",
+        "circles": "Un grupo de amigos que ven la constancia de los demás y se animan.",
         "settingsConnections": "Conecta las cuentas de IA que utilizas.",
         "settingsRoutes": "Elige qué modelo realiza cada tarea.",
         "settingsSearch": "Configura cómo buscas fuentes.",
@@ -253,7 +259,13 @@
       "profile": "Perfil de aprendizaje",
       "account": "Cuenta",
       "reminders": "Recordatorios",
-      "providers": "Proveedores"
+      "providers": "Proveedores",
+      "groups": {
+        "ai": "IA y búsqueda",
+        "you": "Tú",
+        "notify": "Notificaciones"
+      },
+      "pick": "Elige una sección de ajustes"
     },
     "readiness": {
       "title": "Estado",
@@ -1081,7 +1093,7 @@
     },
     "push": {
       "title": "Recordatorio de repaso",
-      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántas cosas tienes para repasar (la misma cifra que en Inicio) y qué entrenamiento toca hoy según tu semana. Los días sin ninguna de las dos cosas no se envía nada, y no hay rachas que mantener.",
+      "lead": "Una vez al día, a la hora que elijas, AnyLearn avisa a este dispositivo de cuántas cosas tienes para repasar (la misma cifra que en Inicio) y qué entrenamiento toca hoy según tu semana. Los días sin ninguna de las dos cosas no se envía nada. Si tienes una racha de estudio en curso, dice cuántos días lleva.",
       "turnOn": "Activar en este navegador",
       "turnOff": "Desactivar aquí",
       "onHere": "El recordatorio está activado en este navegador.",
@@ -1166,7 +1178,11 @@
     "Page not found": "Página no encontrada",
     "Something went wrong": "Algo salió mal",
     "Learning apps": "Apps de estudio",
-    "Google Classroom": "Google Classroom"
+    "Google Classroom": "Google Classroom",
+    "Progress": "Progreso",
+    "Study with friends": "Estudiar con amigos",
+    "Study circle": "Grupo de estudio",
+    "Learning methods": "Métodos de estudio"
   },
   "readinessText": {
     "no_route": "Todavía ninguna conexión hace {{function}}. Elige una en Ajustes → Rutas.",

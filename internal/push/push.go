@@ -5,8 +5,9 @@
 // pair on first use, and a browser's push service (Google's, Mozilla's,
 // Apple's or Microsoft's) delivers the message; nobody holds an account.
 //
-// The reminder says only how many review points are due. It is not a streak
-// and never nags: one a day at most, at the learner's own local hour, and only
+// The reminder says how many review points are due, and the learner's study
+// streak when one is running (the private design notes). It
+// never nags: one a day at most, at the learner's own local hour, and only
 // when something is actually due (learning.DueDigestJob decides that).
 package push
 
@@ -101,6 +102,11 @@ type Planner interface {
 	PlannedToday(ctx context.Context, userID uuid.UUID) (string, error)
 }
 
+// Streaker is the learner's running study streak in days (internal/progress).
+type Streaker interface {
+	Streak(ctx context.Context, userID uuid.UUID) (int, error)
+}
+
 // Sender delivers one encrypted message to one subscription.
 type Sender interface {
 	Send(ctx context.Context, sub Subscription, payload []byte, keys Keys) error
@@ -113,6 +119,7 @@ type Service struct {
 	appURL  string
 	counter Counter
 	planner Planner
+	streak  Streaker
 
 	mu   sync.Mutex
 	keys *Keys
@@ -135,6 +142,13 @@ func (s *Service) WithCounter(c Counter) *Service {
 // review only.
 func (s *Service) WithPlanner(p Planner) *Service {
 	s.planner = p
+	return s
+}
+
+// WithStreak adds the running streak to the reminder; without one it is not
+// mentioned.
+func (s *Service) WithStreak(k Streaker) *Service {
+	s.streak = k
 	return s
 }
 
@@ -269,7 +283,17 @@ func (s *Service) Notify(ctx context.Context, summary learning.DueSummary) error
 	if err != nil || !ok {
 		return err
 	}
-	if s.deliver(ctx, subs, s.message(dueBody(summary.Due, summary.Workout, language), "/home", summary.Due, language)) == 0 {
+	body := dueBody(summary.Due, summary.Workout, language)
+	if s.streak != nil {
+		// Read for this one learner, after the claim; the reminder goes
+		// without it when it fails.
+		if days, err := s.streak.Streak(ctx, summary.UserID); err != nil {
+			slog.Warn("push: reading the streak failed", "user", summary.UserID, "error", err)
+		} else {
+			body += streakLine(days, language)
+		}
+	}
+	if s.deliver(ctx, subs, s.message(body, "/home", summary.Due, language)) == 0 {
 		return fmt.Errorf("push: no browser accepted the reminder")
 	}
 	return nil
@@ -312,17 +336,23 @@ type reminderWords struct {
 	// workout is today's training alone; oneAnd and otherAnd are review and
 	// training together.
 	workout, oneAnd, otherAnd string
+	// streakOne and streakOther follow the rest when a streak is running.
+	streakOne, streakOther string
 }
 
 var reminderText = map[string]reminderWords{
 	"en": {one: "1 thing is waiting for your review.", other: "%d things are waiting for your review.", test: "This is a test. Your review reminder will look like this.",
-		workout: "Today's training: %s.", oneAnd: "1 thing is waiting for your review, and today's training is %s.", otherAnd: "%d things are waiting for your review, and today's training is %s."},
+		workout: "Today's training: %s.", oneAnd: "1 thing is waiting for your review, and today's training is %s.", otherAnd: "%d things are waiting for your review, and today's training is %s.",
+		streakOne: " Your streak: 1 day.", streakOther: " Your streak: %d days."},
 	"vi": {one: "Có 1 việc cần ôn đang chờ bạn.", other: "Có %d việc cần ôn đang chờ bạn.", test: "Đây là thông báo thử. Lời nhắc ôn của bạn sẽ trông như thế này.",
-		workout: "Hôm nay có buổi tập: %s.", oneAnd: "Có 1 việc cần ôn đang chờ bạn, và hôm nay có buổi tập: %s.", otherAnd: "Có %d việc cần ôn đang chờ bạn, và hôm nay có buổi tập: %s."},
+		workout: "Hôm nay có buổi tập: %s.", oneAnd: "Có 1 việc cần ôn đang chờ bạn, và hôm nay có buổi tập: %s.", otherAnd: "Có %d việc cần ôn đang chờ bạn, và hôm nay có buổi tập: %s.",
+		streakOne: " Chuỗi ngày học: 1 ngày.", streakOther: " Chuỗi ngày học: %d ngày."},
 	"es": {one: "Tienes 1 cosa por repasar.", other: "Tienes %d cosas por repasar.", test: "Esto es una prueba. Así se verá tu recordatorio de repaso.",
-		workout: "Hoy toca entrenar: %s.", oneAnd: "Tienes 1 cosa por repasar, y hoy toca entrenar: %s.", otherAnd: "Tienes %d cosas por repasar, y hoy toca entrenar: %s."},
+		workout: "Hoy toca entrenar: %s.", oneAnd: "Tienes 1 cosa por repasar, y hoy toca entrenar: %s.", otherAnd: "Tienes %d cosas por repasar, y hoy toca entrenar: %s.",
+		streakOne: " Tu racha: 1 día.", streakOther: " Tu racha: %d días."},
 	"pt": {one: "Você tem 1 coisa para revisar.", other: "Você tem %d coisas para revisar.", test: "Isto é um teste. Seu lembrete de revisão vai ficar assim.",
-		workout: "Hoje tem treino: %s.", oneAnd: "Você tem 1 coisa para revisar, e hoje tem treino: %s.", otherAnd: "Você tem %d coisas para revisar, e hoje tem treino: %s."},
+		workout: "Hoje tem treino: %s.", oneAnd: "Você tem 1 coisa para revisar, e hoje tem treino: %s.", otherAnd: "Você tem %d coisas para revisar, e hoje tem treino: %s.",
+		streakOne: " Sua sequência: 1 dia.", streakOther: " Sua sequência: %d dias."},
 }
 
 // words is the reminder's text in language, English for any other.
@@ -346,6 +376,18 @@ func dueBody(due int, workout, language string) string {
 		return w.one
 	}
 	return fmt.Sprintf(w.other, due)
+}
+
+// streakLine is the streak sentence, or "" when no streak is running.
+func streakLine(days int, language string) string {
+	w := words(language)
+	switch {
+	case days <= 0:
+		return ""
+	case days == 1:
+		return w.streakOne
+	}
+	return fmt.Sprintf(w.streakOther, days)
 }
 
 func validKey(k string, minLen, maxLen int) bool {

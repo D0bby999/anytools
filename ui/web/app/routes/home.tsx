@@ -37,6 +37,7 @@ import { NAV_TREE, flatEntries } from "~/lib/nav-tree";
 import { PARTS } from "~/lib/parts";
 import { QuickStart } from "~/components/doc/quick-start";
 import { BookMeta } from "~/components/doc/book-meta";
+import { getProgressBrief, listCircles, type Cheer } from "~/lib/progress.server";
 import { GuidePaths } from "~/components/doc/guide-paths";
 import { RefTable } from "~/components/doc/ref-table";
 import { Details } from "~/components/doc/details";
@@ -94,6 +95,14 @@ export async function loader({ request }: Route.LoaderArgs) {
       };
     })
     .catch((): BodyToday | null => null);
+  // Progress (the private design notes): the streak, this
+  // week against the goal and the level, and cheers from study circles.
+  const progressP = getProgressBrief(user.id)
+    .then((p) => ({ streak: p.streak, weekDays: p.week_days, weekGoal: p.week_goal, level: p.level }))
+    .catch(() => null);
+  const cheersP = listCircles(user.id)
+    .then((r) => r.cheers.slice(0, 3))
+    .catch((): Cheer[] => []);
   const [readiness, due, vocabDue, retests, bookDue, mistakes, worksheetsDue, deckDue] = await Promise.all([
     getReadiness(user.id).catch((): Readiness | null => null),
     // up-methods phase 12: the paths the due points span, too, for the
@@ -120,11 +129,11 @@ export async function loader({ request }: Route.LoaderArgs) {
     listKBs(user.id).then((r) => r.knowledge_bases.some((k) => k.ready > 0)).catch(() => false),
     listSessions(user.id).then((r) => r.sessions.length > 0).catch(() => false),
   ]);
-  const [today, body] = await Promise.all([todayP, bodyP]);
+  const [today, body, progress, cheers] = await Promise.all([todayP, bodyP, progressP, cheersP]);
   // The low-day switch is a cookie for the learner's local day.
   const lowDay = today ? await isLowDay(request, user.id, localDay(user.timezone)) : false;
   const setup = { provider: hasProvider, documents: hasDocuments, asked: hasAsked };
-  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, deckDue, mistakes, today, lowDay, worksheetsDue, body };
+  return { setup, readiness, due: due?.count ?? null, duePaths: due?.paths ?? 0, vocabDue, retests, bookDue, deckDue, mistakes, today, lowDay, worksheetsDue, body, progress, cheers };
 }
 
 /** Home draws its own margin: the pace the book keeps, and its one claim. */
@@ -138,7 +147,7 @@ function descriptionKey(labelKey: string) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation("common");
-  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, deckDue, worksheetsDue, today, lowDay, body } = loaderData;
+  const { setup, readiness, due, duePaths, mistakes, retests, vocabDue, bookDue, deckDue, worksheetsDue, today, lowDay, body, progress, cheers } = loaderData;
   const ready = readiness?.core === "green";
   // Written as literal t() calls rather than a key built from a loop variable:
   // the i18n guard in app/test/structural-guards.test.ts can only verify keys
@@ -295,6 +304,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         label={t("home.up.facts")}
         items={[
           { label: t("home.due.total", { count: total }) },
+          ...(progress
+            ? [
+                { label: t("progress:streak.short", { count: progress.streak }), to: "/progress" },
+                { label: t("progress:week.short", { days: progress.weekDays, goal: progress.weekGoal }), to: "/progress" },
+                { label: t("progress:level.short", { level: progress.level }), to: "/progress" },
+              ]
+            : []),
+          ...cheers.map((c) => ({ label: t("progress:circles.cheers.home", { name: c.from, circle: c.circle }), to: `/circles/${c.circle_id}` })),
           ...(today ? [{ label: today.goal, to: `/loop/state/${today.id}` }] : []),
         ]}
       />

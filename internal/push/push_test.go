@@ -222,6 +222,33 @@ func TestNotifySendsOnlyWhenClaimedAndForgetsGoneBrowsers(t *testing.T) {
 	if len(store.forgotten) != 1 || store.forgotten[0] != iphone {
 		t.Fatalf("forgotten = %v, want the gone iPhone", store.forgotten)
 	}
+	if strings.Contains(sender.payload, "Chuỗi") {
+		t.Errorf("a streak without a Streaker: %s", sender.payload)
+	}
+
+	// With a streak running it follows; with none, or when it fails, not.
+	for days, want := range map[int]string{12: "Có 2 việc cần ôn đang chờ bạn. Chuỗi ngày học: 12 ngày.", 0: "Có 2 việc cần ôn đang chờ bạn.\"", -1: "Có 2 việc cần ôn đang chờ bạn.\""} {
+		s.WithStreak(fakeStreak(days))
+		if err := s.Notify(context.Background(), summary); err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(sender.payload, want) {
+			t.Errorf("streak %d: %s", days, sender.payload)
+		}
+	}
+	if got := streakLine(1, "en"); got != " Your streak: 1 day." {
+		t.Errorf("one day: %q", got)
+	}
+}
+
+// fakeStreak is a running streak; a negative one fails.
+type fakeStreak int
+
+func (f fakeStreak) Streak(context.Context, uuid.UUID) (int, error) {
+	if f < 0 {
+		return 0, errors.New("the database is down")
+	}
+	return int(f), nil
 }
 
 func TestDueDigestsCountEverythingDueForTheLearnersInTheirHour(t *testing.T) {

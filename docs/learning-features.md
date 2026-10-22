@@ -257,7 +257,92 @@ AnyLearn is written in English, Vietnamese, Spanish and Portuguese. A new accoun
 
 ## Review reminder
 
-Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many things are due for review and, if your training week schedules a workout today that is not done yet, which one; tapping it opens Home. Nothing is sent on a day with neither, and there are no streaks. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is Home's "Due for review" total: mastery points, mistakes to practise, skill-card retests, vocabulary, book cards and worksheet reviews.
+Settings → Reminders sends one notification a day, at the hour you choose in your own time zone, saying how many things are due for review and, if your training week schedules a workout today that is not done yet, which one; tapping it opens Home. Nothing is sent on a day with neither. When a study streak is running, the reminder ends with how long it is. It is a web push to each browser you turn it on in, so it needs no account anywhere. On iPhone and iPad it works only once AnyLearn is on the Home Screen (Share, then Add to Home Screen); Settings → Reminders shows how, and Home says so once in Safari. The count is Home's "Due for review" total: mastery points, mistakes to practise, skill-card retests, vocabulary, book cards and worksheet reviews.
+
+## Learning methods
+
+`/methods` explains how to study so that it lasts, drawing on research
+(the private design notes; research in
+the private design notes).
+
+The methods are grouped by how strong the evidence is:
+
+- **Strong:** testing yourself, spacing study out, judging by tests rather than by feeling, and sleep.
+- **Moderate:**
+  - interleaving
+  - asking why and how
+  - explaining in your own words (the Feynman technique)
+  - worked and concrete examples
+  - words with pictures
+  - trying before being told
+  - practising weak spots
+- **Limited:** focus blocks with breaks (Pomodoro).
+- **Myths:** learning styles, and rereading and highlighting.
+
+Each method's page has:
+
+- what it is, why it works, four steps, the usual mistake, and one thing to try today
+- links to where AnyLearn does it
+- the studies, each with a DOI checked against Crossref
+- videos: the learner's language first, then English
+
+Each video sits behind a play button that loads YouTube's privacy-enhanced player, links to
+YouTube, and has an "Add to my knowledge" button. That button puts the video into a knowledge
+base named "Learning methods" (made the first time), in the learner's language, through the link
+import, so its captions become a document to quiz and ask about.
+
+A "Search YouTube for more" link opens YouTube's own search in the learner's words; there is no
+live search on the server. `ui/web/scripts/methods/videos.mjs` checks the pinned videos again
+(public, embeddable, spoken language).
+
+## Progress and study circles
+
+**Progress** (`/progress`) counts what you have done from the work itself
+(the private design notes):
+
+- **A study day** is a day, in your time zone, with at least one of these:
+  - a card review (words, decks, book cards)
+  - an answered question (quizzes, mastery, mistakes, exams)
+  - an explain-back
+  - a finished workout
+  - a speaking recording
+  - a reading highlight
+  - a skill-card entry
+
+  Days before yesterday are kept as counted, so deleting a deck does not unmake the days you
+  studied it.
+- **Streak.** Each week (Monday first) forgives up to your rest days (0 to 2, one by default).
+  A missed day uses one of them and the streak goes on; one more ends it. Today not studied yet
+  never breaks it.
+- **Weekly goal.** You choose 1 to 7 study days a week (four by default). The page shows the
+  weeks in a row you met it.
+- **Level** is a number of study days: 1, 3, 7, 14, 30, 60, 100, 150, 200, 300, 365, 500, 730
+  and 1,000. It never goes down.
+- **What the studying produced:**
+  - cards in long-term memory (a stability of 21 days or more) out of those being learnt
+  - knowledge points mastered
+  - the share answered right in the last 30 days
+  - workouts, recordings, highlights and explain-backs passed
+
+  Each links to its page.
+- **Also on the page:** a year's calendar, the last twelve weeks, and milestones with the day
+  each was first reached.
+
+Home's facts line shows the streak, the week and the level. When a streak is running, the
+review reminder says how long it is.
+
+**Study with friends** (`/circles`):
+
+- Start a circle and send its invite link (`/circles?join=CODE`) to a friend, or join one by its
+  code. A circle holds up to 20 members, and you can be in up to 10 circles.
+- Each member picks the name the circle sees. Members see each other's study days this week
+  against their goal, streak, level and last study day. Nobody sees what anyone studies, their
+  documents or their email.
+- You can cheer each member on once a day; cheers show on the circle, on `/circles` and on Home.
+- There is no ranking. The circle's goal is that everyone meets their own week.
+- The earliest member owns the circle: they rename it, make a new code (the old link stops
+  working) and remove members. When the owner leaves, the next earliest member owns it; when the
+  last member leaves, the circle is deleted.
 
 ## Bad-day minimum
 

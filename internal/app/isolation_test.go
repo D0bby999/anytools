@@ -44,6 +44,7 @@ import (
 	"github.com/D0bby999/anytools/internal/capabilities/quiz"
 	"github.com/D0bby999/anytools/internal/capabilities/reading"
 	"github.com/D0bby999/anytools/internal/capabilities/research"
+	"github.com/D0bby999/anytools/internal/circles"
 	"github.com/D0bby999/anytools/internal/config"
 	"github.com/D0bby999/anytools/internal/connectors/feeds"
 	"github.com/D0bby999/anytools/internal/knowledge"
@@ -120,6 +121,8 @@ var idKinds = map[string]string{
 	"/v1/body/routines/":        "body_routine",
 	"/v1/body/workouts/":        "body_workout",
 	"/v1/body/coach/proposals/": "body_proposal",
+	// Study circles: a circle the caller is not in is refused like none.
+	"/v1/circles/": "circle",
 }
 
 // notResourceIDs are placeholders that do not name another user's resource.
@@ -148,6 +151,9 @@ func bodies(bobNotebook uuid.UUID) map[string]any {
 		"PUT /v1/byok/connections/{id}":                map[string]any{"name": "x"},
 		"POST /v1/byok/connections/{id}/custom-models": map[string]any{"model": "x"},
 		"PATCH /v1/chat/sessions/{id}":                 map[string]any{"title": "x"},
+		"PATCH /v1/circles/{id}":                       map[string]any{"name": "x"},
+		"POST /v1/circles/{id}/remove":                 map[string]any{"member_id": uuid.NewString()},
+		"POST /v1/circles/{id}/cheers":                 map[string]any{"member_id": uuid.NewString()},
 		"POST /v1/chat/sessions/{id}/turns":            map[string]any{"message": "x"},
 		"POST /v1/turns/{id}/answer":                   map[string]any{"answer": "x"},
 		"POST /v1/kb/{id}/query":                       map[string]any{"query": "x"},
@@ -355,6 +361,12 @@ func newIsolationEnv(t *testing.T) *isolationEnv {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Bob's own study circle: the path of the member probes, whose body
+	// names Alice's membership.
+	bobCircle, err := pg.NewCircleStore(pool).Create(ctx, bob, "Bob's circle", "Bob", circles.NewCode())
+	if err != nil {
+		t.Fatal(err)
+	}
 	return &isolationEnv{pool: pool, url: server.URL, alice: alice, bob: bob, ids: ids,
 		bobNotebook: bobNotebook.ID, bobSession: bobSession.ID,
 		bobOwn: resources{"notebook": bobNotebook.ID, "kb": bobKB.ID, "document": bobDoc.ID,
@@ -364,7 +376,7 @@ func newIsolationEnv(t *testing.T) *isolationEnv {
 			"book": bobProposed.book, "book_chapter": bobBook.chapter, "book_block": bobBook.block,
 			"exam_template": bobTemplate, "exam": bobExam,
 			"worksheet": bobSheet.ID, "recording": bobRecording, "audio": bobAudio.ID,
-			"learning_state": bobCycle.StateID}}
+			"learning_state": bobCycle.StateID, "circle": bobCircle.ID}}
 }
 
 func TestEveryRouteWithAnIDRefusesAnotherUser(t *testing.T) {
@@ -485,6 +497,16 @@ func TestEveryRouteWithAnIDRefusesAnotherUser(t *testing.T) {
 		WHERE r.user_id = $1 AND r.name = 'Alice''s legs'`, alice).Scan(&bodyLeft)
 	if bodyLeft != 1 {
 		t.Errorf("alice's training changed under bob's probes")
+	}
+	// Bob's rename, invite, leave, remove and cheer probes left Alice's
+	// circle as it was: its name, its one member, no cheers.
+	var circleLeft int
+	_ = pool.QueryRow(ctx, `SELECT count(*) FROM study_circles c
+		WHERE c.id = $1 AND c.name = 'Alice''s circle'
+		  AND (SELECT count(*) FROM study_circle_members m WHERE m.circle_id = c.id) = 1
+		  AND NOT EXISTS (SELECT 1 FROM study_cheers)`, ids["circle"]).Scan(&circleLeft)
+	if circleLeft != 1 {
+		t.Errorf("alice's study circle changed under bob's probes")
 	}
 	var diagnoses int
 	_ = pool.QueryRow(ctx, `SELECT count(*) FROM worksheet_diagnoses`).Scan(&diagnoses)
@@ -877,6 +899,13 @@ func seedEverything(t *testing.T, pool *pg.Pool, alice uuid.UUID) resources {
 			Routines: []bodypkg.CoachRoutine{{Key: "a", Name: "A", Exercises: routine.Exercises}}}})
 	must(err)
 	ids["body_proposal"] = proposal.ID
+	// A study circle Alice is the only member of.
+	circle, err := pg.NewCircleStore(pool).Create(ctx, alice, "Alice's circle", "Alice", circles.NewCode())
+	must(err)
+	ids["circle"] = circle.ID
+	_, members, err := pg.NewCircleStore(pool).Members(ctx, alice, circle.ID)
+	must(err)
+	ids["circle_member"] = members[0].ID
 	return ids
 }
 
@@ -1184,6 +1213,13 @@ func bodyProbes() []bodyProbe {
 		{pattern: "POST /v1/body/workouts", kind: "body_routine", body: func(_ *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"routine_id": id}
 		}},
+		// Study circles: Alice's membership named in Bob's own circle.
+		{own: "circle", pattern: "POST /v1/circles/{id}/remove", kind: "circle_member", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"member_id": id}
+		}},
+		{own: "circle", pattern: "POST /v1/circles/{id}/cheers", kind: "circle_member", body: func(_ *isolationEnv, id uuid.UUID) any {
+			return map[string]any{"member_id": id}
+		}},
 		{pattern: "POST /v1/worksheets", kind: "cycle", body: func(e *isolationEnv, id uuid.UUID) any {
 			return map[string]any{"kind": "cycle_close", "title": "x", "cycle_id": id, "state_id": e.bobOwn["learning_state"]}
 		}},
@@ -1211,6 +1247,13 @@ var validatesBeforeOwnership = map[string]bool{
 
 // writesWithoutResourceIDs name no other resource in their body.
 var writesWithoutResourceIDs = map[string]string{
+	// Progress and study circles (the private design notes).
+	"PUT /v1/progress/settings":    "the caller's own goal and rest days",
+	"POST /v1/circles":             "creates a circle with the caller as its only member",
+	"POST /v1/circles/join":        "an invite code is the capability to join: whoever holds it is meant to (ten characters of 32); a wrong one answers like none",
+	"PATCH /v1/circles/{id}":       "a name and the caller's own nickname for the path's circle; body names nothing else",
+	"POST /v1/circles/{id}/invite": "no body",
+	"POST /v1/circles/{id}/leave":  "no body",
 	// Learning-tool-connections. Ids in these bodies are Google's, Canva's,
 	// Notion's or YouTube's, read through the caller's own grant, or the
 	// caller's own rows found WHERE user_id.
@@ -1562,6 +1605,7 @@ var requestIDFields = map[string]string{
 	"template_id":        "bodyProbes: POST /v1/exams (Alice's template with Bob's knowledge base)",
 	"item_id":            "bodyProbes: PUT /v1/exams/{id}/answers (Alice's item in Bob's exam); resolved with the exam id and the caller's user_id (TestAnswersAreSavedOnlyToTheExamsOwnItems)",
 	"state_id":           "bodyProbes: POST /v1/worksheets; query probe /v1/worksheets?state_id=",
+	"member_id":          "bodyProbes: circle remove and cheers (Alice's membership in Bob's circle); matched with the path's circle, which the caller must be in",
 	"routine_id":         "bodyProbes: POST /v1/body/workouts (Alice's routine started by Bob); resolved with the caller's user_id in Go and again by the composite key (routine_id, user_id)",
 	"cycle_id":           "bodyProbes: POST /v1/worksheets (a cycle close of Alice's cycle, alone and on Bob's own state); resolved with the caller's user_id in Go and again in the INSERT, and by the composite key (cycle_id, user_id)",
 	"answers":            "bodyProbes: PATCH /v1/worksheets/{id} and POST …/rows with Alice's recording in an audio cell (resolved with the worksheet and the caller's user_id under the row lock on save; served only through both ids and the owner), PUT /v1/exams/{id}/answers",

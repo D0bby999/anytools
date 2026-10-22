@@ -3020,3 +3020,17 @@ catalogues above. Kept beyond titles and links:
   MITx Online; none of their material, descriptions or pictures is copied. MITx is a trademark of
   the Massachusetts Institute of Technology; AnyLearn is not affiliated with MIT.
 - **Project Gutenberg**: each book's downloads in the last 30 days, from the RDF dump above.
+
+## Learning methods: YouTube videos
+
+The learning-methods guide (the private design notes) lists 43 YouTube videos, chosen by
+hand and read by `ui/web/scripts/methods/videos.mjs` with yt-dlp on 2026-10-22 into
+`ui/web/app/data/methods/videos.json`: each video's id, title, channel name, length, upload date
+and spoken language. Nothing else is copied: no description, thumbnail, caption or frame. The
+videos belong to their channels and play in YouTube's own embedded player
+(www.youtube-nocookie.com), loaded only when the learner presses play, under YouTube's Terms of
+Service. "Add to my knowledge" fetches a video's captions for that learner's own use, as any
+YouTube link they add does.
+
+The guide's words are AnyLearn's own. The studies it cites are listed with their DOIs; none of
+their text is copied.

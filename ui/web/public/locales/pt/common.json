@@ -11,6 +11,9 @@
     "chat": "Chat",
     "notebooks": "Caderno",
     "library": "Biblioteca",
+    "methods": "Métodos de estudo",
+    "progress": "Progresso",
+    "circles": "Estudar com amigos",
     "quiz": "Quizzes",
     "mastery": "Domínio",
     "body": "Corpo",
@@ -219,6 +222,9 @@
         "bodyLibrary": "Explore exercícios para suas rotinas.",
         "loop": "Escolha uma meta e mantenha o próximo passo pequeno.",
         "toolkit": "Use fichas para pensar e refletir.",
+        "methods": "Como estudar para que dure, segundo a pesquisa, com vídeos curtos.",
+        "progress": "Dias de estudo, sua sequência e meta semanal, seu nível e o que o estudo produziu.",
+        "circles": "Um grupo de amigos que veem a constância uns dos outros e torcem uns pelos outros.",
         "settingsConnections": "Conecte as contas de IA que você usa.",
         "settingsRoutes": "Escolha qual modelo realiza cada tarefa.",
         "settingsSearch": "Configure como você busca fontes.",
@@ -253,7 +259,13 @@
       "profile": "Perfil de aprendizagem",
       "account": "Conta",
       "reminders": "Lembretes",
-      "providers": "Provedores"
+      "providers": "Provedores",
+      "groups": {
+        "ai": "IA e pesquisa",
+        "you": "Você",
+        "notify": "Notificações"
+      },
+      "pick": "Escolha uma seção das configurações"
     },
     "readiness": {
       "title": "Prontidão",
@@ -1081,7 +1093,7 @@
     },
     "push": {
       "title": "Lembrete de revisão",
-      "lead": "Uma vez por dia, na hora que você escolher, o AnyLearn avisa este dispositivo de quantas coisas estão para revisar (o mesmo número do Início) e qual treino sua semana marca para hoje. Nos dias sem nenhum dos dois nada é enviado, e não há sequências para manter.",
+      "lead": "Uma vez por dia, na hora que você escolher, o AnyLearn avisa este dispositivo de quantas coisas estão para revisar (o mesmo número do Início) e qual treino sua semana marca para hoje. Nos dias sem nenhum dos dois nada é enviado. Quando há uma sequência de estudo em andamento, ele diz quantos dias ela tem.",
       "turnOn": "Ativar neste navegador",
       "turnOff": "Desativar aqui",
       "onHere": "O lembrete está ativado neste navegador.",
@@ -1166,7 +1178,11 @@
     "Page not found": "Página não encontrada",
     "Something went wrong": "Algo deu errado",
     "Learning apps": "Apps de estudo",
-    "Google Classroom": "Google Sala de Aula"
+    "Google Classroom": "Google Sala de Aula",
+    "Progress": "Progresso",
+    "Study with friends": "Estudar com amigos",
+    "Study circle": "Grupo de estudo",
+    "Learning methods": "Métodos de estudo"
   },
   "readinessText": {
     "no_route": "Nenhuma conexão faz {{function}} ainda. Escolha uma em Configurações → Rotas.",

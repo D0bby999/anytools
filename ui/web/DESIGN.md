@@ -41,7 +41,10 @@ surface reads like a book you check, not a dashboard that performs.
 **Refused by choice:**
 
 - The AI-SaaS default: dark hero, violet gradient, glow, glass.
-- Gamification: no streaks, confetti, XP or mascot.
+- Reward theatre: no confetti, flames, XP, points, mascot, or ranking people against each
+  other. Progress (`/progress`) and study circles (`/circles`) show counts of real study:
+  study days, a streak that forgives rest days, a weekly goal, a level that is a number of
+  study days, and milestones that link to their evidence (owner, 2026-10-22).
 - A grid of identical cards as page structure.
 
 ## Tokens
@@ -188,8 +191,8 @@ Measured at 1440 (`--lp-*` in `tokens.css`):
   ink-2); **Mine** (My files, Upload, Study links, Storage: the learner's own things
   across every knowledge base, 2026-10-21); Appendix: tools (folded); and **Settings,
   pinned at the foot** under one rule, while the rest scrolls above it. Settings is one
-  row that opens the Settings page (current on every Settings tab); its sections are the
-  page's own tabs, not sidebar rows. Groups sit 16 apart. Every row is
+  row that opens the Settings page (current on every Settings section); its sections are
+  the page's own rail (item 7), not sidebar rows. Groups sit 16 apart. Every row is
   32 high: a 16px icon in `deco`, the name in 14/500 ink, a rounded hover; the current
   row is filled in `selected` with `aria-current="page"` and "Current section". Child
   rows hang from a guide line under the parent's icon, a step quieter, without icons,
@@ -260,8 +263,15 @@ nothing scrolls sideways; wide tables scroll inside their own box.
    pass)** they are drawn like the sidebar's rows: 36 high, rounded, the current one
    filled in `selected` with `aria-current`, the others ink-2 with a hover fill, in a
    row closed by one neutral rule (`lp-tabs-row`). ~~up's nav links: colour only.~~ The
-   owner found plain coloured text did not read as tabs. Where they are used:: Settings, Mastery and Quiz
-   (`components/quiz/quiz-tabs.tsx`). The current tab is tinted and outlined, **never
+   owner found plain coloured text did not read as tabs. Where they are used: Mastery and Quiz
+   (`components/quiz/quiz-tabs.tsx`). ~~Settings.~~ **Superseded 2026-10-22:** Settings
+   has its own rail after postclaw's (`components/settings/settings-nav.tsx`, owner,
+   2026-10-21): its sections in three groups (AI and search, You, Notifications), each a
+   12/600 caption over rows drawn like the sidebar's, in a 208 column beside the section
+   from 768, sticky under the nav; the page takes the whole width (`layout: "page"`).
+   Below 768 one 44-high button names the group and the section and opens the same rows
+   in the dialog, 44 high there, the current one focused, with Close at the end because
+   the dialog is the whole screen. The current tab is tinted and outlined, **never
    underlined**. Ways of doing one thing inside a page (adding to a knowledge base) use
    the same look as ARIA tabs: `components/ui/panel-tabs.tsx`.
 8. **The cover:** ink panels for AnyProfile (More, tools home, landing, its own page)

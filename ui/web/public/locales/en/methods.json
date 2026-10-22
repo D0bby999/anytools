@@ -1,0 +1,268 @@
+{
+  "title": "Learning methods",
+  "lede": "How to study so that it lasts, from what research has tested. Each method says how strong the evidence is, how to do it, where AnyLearn does it for you, and has short videos to watch.",
+  "start": {
+    "title": "If you do only three things",
+    "steps": [
+      "Test yourself instead of rereading.",
+      "Spread study over days and review what is due.",
+      "Explain what you learn in your own words."
+    ],
+    "note": "AnyLearn is built around these: practice questions, a review schedule, and explain-back."
+  },
+  "evidence": {
+    "strong": "Strong evidence",
+    "moderate": "Moderate evidence",
+    "limited": "Limited evidence",
+    "myth": "Myths and weak habits",
+    "note": "How strong the evidence is: strong means many studies and reviews agree; moderate means good studies with limits on when it helps; limited means few studies."
+  },
+  "overview": {
+    "videos": "Videos: the science of studying",
+    "search": "how to study effectively science"
+  },
+  "all": "All methods",
+  "open": "Read",
+  "back": "All learning methods",
+  "what": "What it is",
+  "why": "Why it works",
+  "how": "How to do it",
+  "mistake": "The usual mistake",
+  "today": "Try it today",
+  "inApp": "Do it in AnyLearn",
+  "sources": "The research",
+  "sourcesNote": "Each study was checked against its record in Crossref. The DOI opens the paper's page.",
+  "videos": {
+    "title": "Videos to watch",
+    "lede": "Explainers from researchers and from channels that cite the research, in your language first. They play in YouTube's privacy-enhanced player, which loads only when you press play.",
+    "play": "Play: {{title}}",
+    "meta": "{{channel}} · {{minutes}} min · {{language}}",
+    "watch": "Open on YouTube",
+    "save": "Add to my knowledge",
+    "saved": "Added to \"{{kb}}\": its captions become a document you can quiz and ask about.",
+    "openKB": "Open it",
+    "failed": "The video could not be added: {{detail}}",
+    "none": "No video in your language yet for this method; the English ones are below.",
+    "search": "Search YouTube for more",
+    "notListed": "this video is not in the guide",
+    "added": "Added",
+    "checked": "Videos checked on {{date}}."
+  },
+  "newTab": "(opens in a new tab)",
+  "do": {
+    "practice": "Practice questions",
+    "review": "Review what is due",
+    "reviewAll": "Review everything due, mixed",
+    "vocabulary": "Vocabulary cards",
+    "reminders": "A daily review reminder",
+    "decks": "Decks",
+    "progress": "Progress: the share answered right",
+    "chat": "Ask about your documents",
+    "notebooks": "Notebooks",
+    "explainBack": "Explain it back, on a mastery point",
+    "ownVersion": "Write my own version first (Settings, Account)",
+    "solve": "Solve, step by step",
+    "diagrams": "Ask the chat for a diagram",
+    "mistakes": "Practise your mistakes",
+    "toolkit": "Toolkit: writing revision, read-aloud check",
+    "body": "Body: training",
+    "lowDay": "Home: the low-day minimum"
+  },
+  "methods": {
+    "retrieval": {
+      "name": "Test yourself (retrieval practice)",
+      "short": "Pull the answer out of your memory instead of reading it again.",
+      "what": "Close the book and try to recall: answer questions, fill in a blank card, write down everything you remember, then check.",
+      "why": "Each time you retrieve something, you make it easier to retrieve again. In experiments, students who tested themselves remembered far more a week later than students who reread the same text, even though rereading felt more effective. A meta-analysis of the research found practice tests beat rereading and every other way of studying it compared them with.",
+      "steps": [
+        "After reading a section, close it and write the main points from memory.",
+        "Answer questions before you look at the answers; check right after.",
+        "Turn what you learn into cards and review them, not your notes.",
+        "Go back to what you got wrong and test it again later."
+      ],
+      "mistake": "Peeking at the answer before you have really tried. The effort of trying is what does the work, even when you get it wrong.",
+      "today": "Answer ten practice questions without looking anything up.",
+      "search": "retrieval practice how to study"
+    },
+    "spacing": {
+      "name": "Space it out (spaced practice)",
+      "short": "Study in several short sessions spread over days, not one long one.",
+      "what": "Come back to the same material after a gap, and make the gaps longer as you remember it better.",
+      "why": "The same hours of study, spread out, are remembered much longer than when crammed. A review of hundreds of experiments found this in nearly every case; the best gap grows with how long you need to remember.",
+      "steps": [
+        "Split study into short sessions on different days.",
+        "Review new material the next day, then after a few days, then after a week or two.",
+        "Let the review schedule decide: AnyLearn's cards come back just before you would forget them.",
+        "Start early: spacing needs days before the exam, not hours."
+      ],
+      "mistake": "Cramming the night before. It can get you through tomorrow's test, but most of it is gone a week later.",
+      "today": "Do today's due reviews, and nothing more: tomorrow's will come tomorrow.",
+      "search": "spaced repetition how to study"
+    },
+    "judge": {
+      "name": "Judge by testing, not by feeling",
+      "short": "Feeling that you know something is a poor guide; a test is a good one.",
+      "what": "Decide what to study next from what you can actually do without help, not from how familiar it looks.",
+      "why": "Rereading and highlighting make material feel familiar, and familiarity feels like knowing. Most students, asked how they study, choose these and stop when it feels easy. Methods that feel harder, like testing and spacing, are the ones that last: researchers call them desirable difficulties.",
+      "steps": [
+        "Before you decide you know a topic, answer a few questions on it cold.",
+        "Write down how sure you are, then compare with how you did.",
+        "Spend your time on what you got wrong, not what you got right.",
+        "Expect good study to feel slower; that is often a sign it is working."
+      ],
+      "mistake": "Stopping when the page feels familiar. Familiar is not the same as being able to recall it tomorrow.",
+      "today": "Check your share answered right on Progress, and pick the weakest topic.",
+      "search": "desirable difficulties Bjork"
+    },
+    "sleep": {
+      "name": "Sleep on it",
+      "short": "Sleep is when the brain keeps what you learned that day.",
+      "what": "Get enough sleep on the nights after you study, and do not trade it for more hours of study.",
+      "why": "During sleep, newly learned memories are replayed and strengthened. People who sleep after learning remember more than people who stay awake for the same time, and losing sleep before learning makes it harder to take new things in.",
+      "steps": [
+        "Keep a regular bedtime on study days.",
+        "Do a short review in the evening rather than a long one late at night.",
+        "Before an exam, sleep instead of studying all night.",
+        "Set the review reminder for a time that suits your day, not late at night."
+      ],
+      "mistake": "Pulling an all-nighter before an exam. It gives up the sleep that keeps what you studied.",
+      "today": "Finish today's study an hour before bed.",
+      "search": "sleep and memory learning"
+    },
+    "interleaving": {
+      "name": "Mix it up (interleaving)",
+      "short": "Mix different kinds of problems or topics instead of doing one kind at a time.",
+      "what": "Instead of twenty problems of type A then twenty of type B, do them in a mixed order, so each time you first decide which kind it is.",
+      "why": "Mixing makes you practise choosing the method, which is what a real test asks for. In one study, students who practised maths problems mixed scored far higher on a test a week later than those who practised them in blocks. A meta-analysis finds it helps most with categories that are easy to confuse, like similar problem types or painters' styles, and advises caution with words and with explanatory texts, where it did not help.",
+      "steps": [
+        "Once you know each type a little, practise them in a mixed set.",
+        "Mix topics that are related and easy to confuse.",
+        "Before solving, say which kind of problem it is and why.",
+        "Let your reviews mix: AnyLearn's review alternates between the modules of a path."
+      ],
+      "mistake": "Mixing before you know anything about each type, or mixing topics that have nothing in common. It feels harder at first; that is expected.",
+      "today": "Do one set of problems that mixes two related topics.",
+      "search": "interleaved practice study"
+    },
+    "elaboration": {
+      "name": "Ask why and how (elaboration)",
+      "short": "Explain to yourself why a fact is true and how it connects to what you know.",
+      "what": "For each new idea, ask 'why is this so?', 'how does it work?' and 'how is it like or unlike something I know?', and answer in your own words.",
+      "why": "Answers you build yourself tie the new fact to what you already know, which gives it more ways to be found later. The evidence is good for facts and concepts, and best when you already know something about the topic.",
+      "steps": [
+        "Pick a sentence from your notes and ask why it is true.",
+        "Answer without looking, then check your answer against the source.",
+        "Connect it: name one thing it is like and one thing it is unlike.",
+        "Ask the chat 'why' questions about your own documents, and check its sources."
+      ],
+      "mistake": "Accepting a vague answer. If you cannot say why in a sentence or two, that is the part to study.",
+      "today": "Write 'why?' next to three facts you learned today and answer them.",
+      "search": "elaborative interrogation study strategy"
+    },
+    "explain": {
+      "name": "Explain it simply (self-explanation, the Feynman technique)",
+      "short": "Explain the idea in plain words, as if to someone new to it; the gaps show where to study.",
+      "what": "Write or say an explanation without your notes. Where you get stuck or reach for jargon, go back to the source, then explain again more simply.",
+      "why": "Students who explained each step of a text to themselves understood it better than those who read it twice. Explaining to someone else works too: students who taught the material learned more than those who only studied it. The name 'Feynman technique' is popular, not a studied method, but its parts are.",
+      "steps": [
+        "Pick one idea and write its explanation without notes, in short sentences.",
+        "Mark every place you got stuck or used a word you could not define.",
+        "Go back to the source for just those places.",
+        "Explain it again, shorter, with an example. In AnyLearn, explain-back judges your explanation against your documents."
+      ],
+      "mistake": "Explaining with the notes open. Then you are reading, not explaining.",
+      "today": "Explain one point you are learning back to AnyLearn.",
+      "search": "Feynman technique"
+    },
+    "examples": {
+      "name": "Learn from examples (worked and concrete examples)",
+      "short": "Study solved examples and concrete cases before and alongside abstract rules.",
+      "what": "When you are new to a topic, study a fully solved example step by step, then solve a similar one yourself. For ideas, find two or three different real cases of the same thing.",
+      "why": "Beginners who studied worked examples learned to solve algebra problems faster, and made fewer errors, than those who solved problems from the start: they could spend their attention on the method instead of on searching. Several different concrete cases help you see what an abstract idea has in common across them.",
+      "steps": [
+        "Study one solved example and say why each step follows.",
+        "Cover the solution and solve a similar problem yourself.",
+        "As you improve, use fewer examples and solve more on your own.",
+        "For an idea, collect two or three examples from different settings and name what they share."
+      ],
+      "mistake": "Reading examples without solving any yourself, or relying on one example only, so you learn its surface instead of the idea.",
+      "today": "Ask Solve for a worked example, then try a similar problem without it.",
+      "search": "worked examples learning"
+    },
+    "dual": {
+      "name": "Words and pictures (dual coding)",
+      "short": "Put what you learn into words and into a picture: a diagram, a timeline, a sketch.",
+      "what": "Combine text with a visual that shows the same thing, then explain the visual in words. Draw it yourself from memory when you can.",
+      "why": "The theory is that words and images are held in partly separate ways, so material stored both ways has two routes back. It is not about being a 'visual learner': a good diagram next to the words usually helps, whoever you are.",
+      "steps": [
+        "Turn a process into a flow chart and a period into a timeline.",
+        "Explain each part of the picture in a sentence.",
+        "Redraw it from memory, then compare with the original.",
+        "Ask the chat to draw a diagram from your documents, then check it against the text."
+      ],
+      "mistake": "Decorative pictures that do not show the content, or a diagram so crowded that it hides the idea.",
+      "today": "Sketch one thing you learned today from memory.",
+      "search": "dual coding study strategy"
+    },
+    "generate": {
+      "name": "Try first, then check (generation and pretesting)",
+      "short": "Guess or answer before you are told; even a wrong attempt helps, if you check it soon after.",
+      "what": "Before reading a section, try its questions. Before asking for help, write your own version first. Then compare with the real answer.",
+      "why": "Words people produced themselves were remembered better than words they only read. Trying questions before reading, and getting them wrong, still improved learning of the answers, compared with reading for the same time.",
+      "steps": [
+        "Look at the questions at the end of a chapter before reading it, and guess.",
+        "Write your own first answer before you ask the chat.",
+        "Compare your attempt with the source, and note what was different.",
+        "Turn on 'Write my own version first' in Settings so AnyLearn asks for it every time."
+      ],
+      "mistake": "Skipping the check. A guess helps only when you find out the right answer soon after.",
+      "today": "Before your next chat question, write what you think the answer is.",
+      "search": "pretesting effect learning"
+    },
+    "deliberate": {
+      "name": "Practise your weak spots (deliberate practice)",
+      "short": "Practise exactly what you cannot yet do, with quick feedback, rather than repeating what you can.",
+      "what": "Pick one specific weakness, practise it in short focused rounds, get feedback on each attempt, and adjust.",
+      "why": "In a well-known study of musicians, the best violinists had spent far more hours in this kind of focused practice than the others. A later meta-analysis found that the amount of deliberate practice explains part of the differences between people, more in games and music than in education or work, so it matters but is not the whole story.",
+      "steps": [
+        "Find the exact thing that goes wrong: one kind of question, one sound, one move.",
+        "Practise only that, in rounds of a few minutes.",
+        "Check each attempt right away against an answer, a recording or a coach.",
+        "Make it a little harder once you get it right most of the time."
+      ],
+      "mistake": "Practising what is already comfortable because it feels good. Time spent on what you can already do adds little.",
+      "today": "Open 'Practise your mistakes' and clear three of them.",
+      "search": "deliberate practice how to practice"
+    },
+    "breaks": {
+      "name": "Focus blocks and breaks (Pomodoro)",
+      "short": "Study in timed blocks with short, planned breaks.",
+      "what": "Set a timer for about 25 minutes of one task with notifications off, then take a 5-minute break away from the screen; after four rounds, a longer break.",
+      "why": "The evidence is limited. In one study of university students, fixed breaks (24 minutes of study, 6 of rest) left them less tired and more motivated than breaks taken whenever they felt like it, and they got the same work done in less time. It helps you keep going; it does not replace the methods above.",
+      "steps": [
+        "Choose one task for the block and write it down.",
+        "Silence your phone and set a timer.",
+        "When it rings, stop and rest: stand up, look away, drink water.",
+        "On a hard day, one block is enough; on Home, 'Low day' shows only each task's minimum."
+      ],
+      "mistake": "Filling the blocks with rereading. A focused block of rereading is still rereading; fill it with testing and practice.",
+      "today": "Do one 25-minute block of practice questions.",
+      "search": "pomodoro technique study"
+    },
+    "myths": {
+      "name": "Myths: learning styles, rereading and highlighting",
+      "short": "Popular habits with little support: what to do instead.",
+      "what": "Matching study to a 'learning style' (visual, auditory, kinaesthetic) is not supported by evidence. Rereading and highlighting are what most students do, and among the least effective methods.",
+      "why": "A review looked for studies that properly tested whether teaching to a person's style improves learning, and found almost none that did, and those that did found no benefit. People do have preferences, but the best way to learn something depends on the content, not on the person. A review of ten techniques rated rereading and highlighting as low utility.",
+      "steps": [
+        "Use whatever form suits the content: a map for geography, sound for pronunciation, a diagram for a process.",
+        "Replace a second reading with a quiz on the same pages.",
+        "If you highlight, turn each highlight into a question afterwards.",
+        "Judge a method by your results on a test, not by how it feels."
+      ],
+      "mistake": "Avoiding a good method because it 'is not my style'. Testing and spacing help everyone.",
+      "today": "Turn three of your highlights into questions.",
+      "search": "learning styles myth"
+    }
+  }
+}

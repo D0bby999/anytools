@@ -1,0 +1,236 @@
+{
+  "title": "Progreso",
+  "lede": "Lo que suma tu estudio: los días que estudiaste, una racha que perdona días de descanso, tu semana frente a tu meta y lo que produjo el estudio. Cada número se cuenta a partir de estudio real y enlaza a donde se ganó.",
+  "facts": "Tu progreso",
+  "level": {
+    "short": "Nivel {{level, number}}",
+    "title": "Nivel",
+    "current": "Nivel {{level, number}}",
+    "none": "Todavía sin nivel",
+    "days_one": "con {{count, number}} día de estudio",
+    "days_other": "con {{count, number}} días de estudio",
+    "bar": "Avance hacia el nivel {{level, number}}",
+    "next_one": "Falta {{count, number}} día de estudio para el nivel {{level, number}} ({{days, number}} días).",
+    "next_other": "Faltan {{count, number}} días de estudio para el nivel {{level, number}} ({{days, number}} días).",
+    "last": "El último nivel: mil días de estudio.",
+    "how": "Un nivel se gana con los días que estudiaste: cualquier día con un repaso, una respuesta, un entrenamiento o una grabación. Nunca baja."
+  },
+  "streak": {
+    "short_one": "Racha: {{count, number}} día",
+    "short_other": "Racha: {{count, number}} días",
+    "title": "Racha y meta semanal",
+    "current_one": "Una racha de {{count, number}} día de estudio.",
+    "current_other": "Una racha de {{count, number}} días de estudio.",
+    "none": "No hay ninguna racha en curso.",
+    "longest_one": "La más larga: {{count, number}} día.",
+    "longest_other": "La más larga: {{count, number}} días.",
+    "today": "Hoy ya estudiaste.",
+    "keep": "Hoy todavía no has estudiado: un repaso la mantiene.",
+    "start": "Un repaso hoy empieza una.",
+    "rest_one": "Días de descanso que quedan esta semana: {{count, number}} de {{total, number}}; un día perdido usa uno y la racha sigue.",
+    "rest_other": "Días de descanso que quedan esta semana: {{count, number}} de {{total, number}}; un día perdido usa uno y la racha sigue.",
+    "noRest": "Sin días de descanso: un día perdido termina la racha."
+  },
+  "week": {
+    "short": "Esta semana: {{days, number}} / {{goal, number}} días",
+    "title": "Esta semana",
+    "days": "{{days, number}} de {{goal, number}} días de estudio.",
+    "met": "Meta cumplida.",
+    "bar": "{{days, number}} de {{goal, number}} días de estudio esta semana",
+    "inARow_one": "Meta cumplida {{count, number}} semana seguida.",
+    "inARow_other": "Meta cumplida {{count, number}} semanas seguidas.",
+    "longest_one": "La mejor serie: {{count, number}} semana.",
+    "longest_other": "La mejor serie: {{count, number}} semanas."
+  },
+  "settings": {
+    "title": "Cambiar la meta y los días de descanso",
+    "goal": "Días de estudio por semana",
+    "goalOption_one": "{{count, number}} día",
+    "goalOption_other": "{{count, number}} días",
+    "rest": "Días de descanso por semana",
+    "restOption_one": "{{count, number}} día",
+    "restOption_other": "{{count, number}} días",
+    "save": "Guardar",
+    "note": "Las semanas empiezan el lunes. Una meta nueva cuenta también para las semanas pasadas.",
+    "saved": "Guardado."
+  },
+  "calendar": {
+    "title": "Un año de estudio",
+    "label_one": "{{count, number}} día de estudio en el último año",
+    "label_other": "{{count, number}} días de estudio en el último año",
+    "cell_one": "{{day}}: {{count, number}} cosa estudiada",
+    "cell_other": "{{day}}: {{count, number}} cosas estudiadas",
+    "less": "Menos",
+    "more": "Más",
+    "list": "Los días en una lista",
+    "day": "Día",
+    "count": "Cosas estudiadas"
+  },
+  "outcomes": {
+    "title": "Lo que produjo el estudio",
+    "lede": "Leído de tus tarjetas, respuestas y registros tal como están ahora.",
+    "what": "Qué",
+    "count": "Cuántos",
+    "where": "La evidencia",
+    "longTerm": "Tarjetas en la memoria a largo plazo (recordadas 21 días o más)",
+    "ofLearning_one": "{{count, number}} de {{learning, number}} tarjetas en estudio",
+    "ofLearning_other": "{{count, number}} de {{learning, number}} tarjetas en estudio",
+    "mastered": "Puntos de conocimiento dominados",
+    "right": "Respondido bien en los últimos 30 días",
+    "noAnswers": "Todavía nada respondido",
+    "share_one": "{{percent, number}} % de {{count, number}}",
+    "share_other": "{{percent, number}} % de {{count, number}}",
+    "answered": "Repasos y preguntas respondidas",
+    "explains": "Explicaciones aprobadas",
+    "workouts": "Entrenamientos terminados",
+    "recordings": "Grabaciones habladas",
+    "highlights": "Resaltados al leer",
+    "open": {
+      "vocab": "Vocabulario",
+      "mastery": "Dominio",
+      "review": "Repaso",
+      "practice": "Práctica",
+      "body": "Progreso del entrenamiento",
+      "toolkit": "Herramientas",
+      "knowledge": "Conocimiento"
+    }
+  },
+  "weeks": {
+    "title": "Las últimas doce semanas",
+    "week": "Semana del",
+    "days": "Días de estudio",
+    "reviews": "Repasos",
+    "questions": "Preguntas",
+    "workouts": "Entrenamientos",
+    "other": "Otros"
+  },
+  "milestones": {
+    "title": "Hitos",
+    "next": "Siguientes",
+    "reached": "Alcanzados",
+    "none": "Ninguno todavía: el primero es un solo día de estudio.",
+    "toGo": "{{value}} de {{target}}",
+    "on": "el {{date}}",
+    "kinds": {
+      "days_one": "{{count, number}} día de estudio",
+      "days_other": "{{count, number}} días de estudio",
+      "streak_one": "Una racha de {{count, number}} día",
+      "streak_other": "Una racha de {{count, number}} días",
+      "weeks_one": "La meta semanal {{count, number}} semana seguida",
+      "weeks_other": "La meta semanal {{count, number}} semanas seguidas",
+      "long_term_one": "{{count, number}} tarjeta en la memoria a largo plazo",
+      "long_term_other": "{{count, number}} tarjetas en la memoria a largo plazo",
+      "mastered_one": "{{count, number}} punto de conocimiento dominado",
+      "mastered_other": "{{count, number}} puntos de conocimiento dominados",
+      "reviews_one": "{{count, number}} repaso o respuesta",
+      "reviews_other": "{{count, number}} repasos y respuestas",
+      "workouts_one": "{{count, number}} entrenamiento",
+      "workouts_other": "{{count, number}} entrenamientos"
+    }
+  },
+  "circles": {
+    "link": "Estudiar con amigos",
+    "title": "Estudiar con amigos",
+    "lede": "Un grupo de estudio son unos pocos amigos que se mantienen en marcha: cada uno ve si los demás estudiaron esta semana, sus rachas y niveles, y puede animarlos una vez al día. Nadie ve qué estudia nadie.",
+    "invited": {
+      "title": "Te invitaron a un grupo de estudio",
+      "body": "Elige el nombre con el que te verá el grupo y únete."
+    },
+    "nickname": "Tu nombre en el grupo",
+    "join": {
+      "title": "Unirse con un código",
+      "code": "Código de invitación",
+      "submit": "Unirse"
+    },
+    "cheers": {
+      "title": "Ánimos del último día",
+      "line": "{{name}} te animó en",
+      "home": "{{name}} te animó en {{circle}}"
+    },
+    "mine": "Tus grupos",
+    "none": "Todavía no estás en ningún grupo. Crea uno y envía el enlace a un amigo, o únete a uno con su código.",
+    "members_one": "{{count, number}} miembro",
+    "members_other": "{{count, number}} miembros",
+    "youOwn": "lo creaste tú",
+    "create": {
+      "title": "Crear un grupo",
+      "name": "Nombre del grupo",
+      "submit": "Crear"
+    },
+    "privacy": {
+      "title": "Qué ve un grupo",
+      "seen": "Los demás ven el nombre que le das al grupo, tus días de estudio de esta semana frente a tu meta, tu racha, tu nivel y el último día que estudiaste.",
+      "notSeen": "Nunca ven qué estudias, tus documentos, tus respuestas ni tu correo.",
+      "together": "No hay clasificación: la meta del grupo es que todos cumplan su propia semana."
+    },
+    "toProgress": "Tu propio progreso",
+    "errors": {
+      "notFound": "Ningún grupo tiene ese código. Compruébalo con quien te lo envió; quien creó el grupo puede generar otro."
+    },
+    "nicknameNote": "El nombre que usas en un grupo es lo único de tu cuenta que ven los demás. Elige el que quieras."
+  },
+  "circle": {
+    "back": "Todos tus grupos",
+    "lede_one": "{{count, number}} miembro. Cada uno ve la constancia de los demás, nunca qué estudian.",
+    "lede_other": "{{count, number}} miembros. Cada uno ve la constancia de los demás, nunca qué estudian.",
+    "week": {
+      "title": "Esta semana juntos",
+      "met_one": "{{count, number}} de {{total, number}} cumplió su meta semanal",
+      "met_other": "{{count, number}} de {{total, number}} cumplieron su meta semanal",
+      "lede": "La meta del grupo es que todos cumplan su propia semana. Cada uno cuenta en su propia zona horaria y las semanas empiezan el lunes."
+    },
+    "members": "Miembros",
+    "name": "Nombre",
+    "thisWeek": "Esta semana",
+    "streak": "Racha",
+    "level": "Nivel",
+    "last": "Último estudio",
+    "cheerColumn": "Ánimo",
+    "owner": "creador",
+    "cheers_one": "{{count, number}} ánimo en el último día",
+    "cheers_other": "{{count, number}} ánimos en el último día",
+    "days_one": "{{count, number}} día",
+    "days_other": "{{count, number}} días",
+    "today": "Hoy",
+    "notYet": "Todavía no",
+    "you": "Tú",
+    "cheered": "Animado hoy",
+    "cheer": "Animar",
+    "cheerName": "Animar a {{name}}",
+    "invite": {
+      "title": "Invitar a un amigo",
+      "lede": "Envía este enlace a un amigo con cuenta de AnyLearn. Cualquiera con el enlace puede unirse hasta que quien creó el grupo genere un código nuevo.",
+      "code": "Código:"
+    },
+    "copy": "Copiar el enlace",
+    "copied": "Enlace copiado.",
+    "me": {
+      "title": "Tú en este grupo",
+      "save": "Guardar el nombre"
+    },
+    "manage": {
+      "title": "Administrar el grupo",
+      "rename": "Cambiar el nombre",
+      "newCode": "Generar un código nuevo",
+      "newCodeNote": "El enlace anterior deja de funcionar; los miembros siguen.",
+      "remove": "Quitar",
+      "removeName": "Quitar a {{name}} del grupo"
+    },
+    "leave": {
+      "title": "Salir del grupo",
+      "last": "Eres su único miembro: salir borra el grupo.",
+      "owner": "Lo creaste tú: el miembro que se unió después pasa a administrarlo.",
+      "member": "Los demás dejarán de ver tu progreso.",
+      "submit": "Salir"
+    },
+    "done": {
+      "nickname": "Guardado.",
+      "rename": "Nombre cambiado.",
+      "invite": "El código nuevo está listo; el enlace anterior ya no funciona.",
+      "remove": "Quitado.",
+      "leave": "Saliste.",
+      "cheer": "Animado."
+    },
+    "metGoal": "meta cumplida"
+  }
+}

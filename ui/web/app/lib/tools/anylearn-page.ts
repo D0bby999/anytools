@@ -52,7 +52,7 @@ const en: AnyLearnCopy = {
     },
     {
       title: "A daily review reminder",
-      body: "Once a day, at the hour you choose, your phone or computer is told how many review points are due. Nothing on a day with nothing due, and no streaks.",
+      body: "Once a day, at the hour you choose, your phone or computer is told how many review points are due. Nothing on a day with nothing due; when a study streak is running, it says how long.",
     },
     {
       title: "Progress backed by evidence",
@@ -97,7 +97,7 @@ const en: AnyLearnCopy = {
     },
   ],
   notTitle: "What it will not do",
-  not: "AnyLearn does not answer from its own general knowledge when your documents are silent. It does not keep streaks, points or badges. And it cannot promise that a file never reaches an AI provider: reading a document means sending it to the model you chose, and every document shows which one read it.",
+  not: "AnyLearn does not answer from its own general knowledge when your documents are silent. And it cannot promise that a file never reaches an AI provider: reading a document means sending it to the model you chose, and every document shows which one read it.",
 };
 
 const vi: AnyLearnCopy = {
@@ -125,7 +125,7 @@ const vi: AnyLearnCopy = {
     },
     {
       title: "Nhắc ôn mỗi ngày",
-      body: "Mỗi ngày một lần, vào giờ bạn chọn, điện thoại hoặc máy tính báo có bao nhiêu điểm cần ôn. Ngày nào không có gì đến hạn thì không nhắc, và không có chuỗi ngày phải giữ.",
+      body: "Mỗi ngày một lần, vào giờ bạn chọn, điện thoại hoặc máy tính báo có bao nhiêu điểm cần ôn. Ngày nào không có gì đến hạn thì không nhắc; khi đang có chuỗi ngày học, lời nhắc cho biết chuỗi dài bao nhiêu ngày.",
     },
     {
       title: "Tiến bộ có bằng chứng",
@@ -170,7 +170,7 @@ const vi: AnyLearnCopy = {
     },
   ],
   notTitle: "Những gì AnyLearn không làm",
-  not: "AnyLearn không tự trả lời bằng kiến thức chung khi tài liệu của bạn không nói tới. Không có chuỗi ngày, điểm hay huy hiệu. Và không thể hứa rằng tài liệu không bao giờ tới nhà cung cấp AI: đọc một tài liệu nghĩa là gửi nó tới mô hình bạn chọn, và mỗi tài liệu đều ghi rõ mô hình nào đã đọc nó.",
+  not: "AnyLearn không tự trả lời bằng kiến thức chung khi tài liệu của bạn không nói tới. Và không thể hứa rằng tài liệu không bao giờ tới nhà cung cấp AI: đọc một tài liệu nghĩa là gửi nó tới mô hình bạn chọn, và mỗi tài liệu đều ghi rõ mô hình nào đã đọc nó.",
 };
 
 const es: AnyLearnCopy = {
@@ -198,7 +198,7 @@ const es: AnyLearnCopy = {
     },
     {
       title: "Un recordatorio de repaso al día",
-      body: "Una vez al día, a la hora que elijas, tu móvil o tu ordenador te dice cuántos puntos tienes para repasar. Nada los días sin repasos pendientes, y sin rachas.",
+      body: "Una vez al día, a la hora que elijas, tu móvil o tu ordenador te dice cuántos puntos tienes para repasar. Nada los días sin repasos pendientes; si tienes una racha de estudio en curso, dice cuántos días lleva.",
     },
     {
       title: "Progreso con pruebas",
@@ -243,7 +243,7 @@ const es: AnyLearnCopy = {
     },
   ],
   notTitle: "Lo que no hace",
-  not: "AnyLearn no responde con su conocimiento general cuando tus documentos no dicen nada. No tiene rachas, puntos ni insignias. Y no puede prometer que un archivo nunca llegue a un proveedor de IA: leer un documento significa enviarlo al modelo que elegiste, y cada documento muestra cuál lo leyó.",
+  not: "AnyLearn no responde con su conocimiento general cuando tus documentos no dicen nada. Y no puede prometer que un archivo nunca llegue a un proveedor de IA: leer un documento significa enviarlo al modelo que elegiste, y cada documento muestra cuál lo leyó.",
 };
 
 const pt: AnyLearnCopy = {
@@ -271,7 +271,7 @@ const pt: AnyLearnCopy = {
     },
     {
       title: "Um lembrete de revisão por dia",
-      body: "Uma vez por dia, na hora que você escolher, seu celular ou computador avisa quantos pontos estão para revisar. Nada nos dias sem revisão pendente, e sem sequências.",
+      body: "Uma vez por dia, na hora que você escolher, seu celular ou computador avisa quantos pontos estão para revisar. Nada nos dias sem revisão pendente; quando há uma sequência de estudo em andamento, ele diz quantos dias ela tem.",
     },
     {
       title: "Progresso com evidências",
@@ -316,7 +316,7 @@ const pt: AnyLearnCopy = {
     },
   ],
   notTitle: "O que ele não faz",
-  not: "O AnyLearn não responde com conhecimento geral quando seus documentos não dizem nada. Não tem sequências, pontos nem medalhas. E não pode prometer que um arquivo nunca chegue a um provedor de IA: ler um documento significa enviá-lo ao modelo que você escolheu, e cada documento mostra qual modelo o leu.",
+  not: "O AnyLearn não responde com conhecimento geral quando seus documentos não dizem nada. E não pode prometer que um arquivo nunca chegue a um provedor de IA: ler um documento significa enviá-lo ao modelo que você escolheu, e cada documento mostra qual modelo o leu.",
 };
 
 const COPY: Record<PublicLng, AnyLearnCopy> = { en, vi, es, pt };

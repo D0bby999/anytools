@@ -11,6 +11,9 @@
     "chat": "Chat",
     "notebooks": "Notebook",
     "library": "Library",
+    "methods": "Learning methods",
+    "progress": "Progress",
+    "circles": "Study with friends",
     "quiz": "Quiz",
     "mastery": "Mastery",
     "body": "Body",
@@ -219,6 +222,9 @@
         "bodyLibrary": "Browse exercises for your routines.",
         "loop": "Choose a goal and keep the next step small.",
         "toolkit": "Use worksheets to think and reflect.",
+        "methods": "How to study so it lasts, from the research, with short videos.",
+        "progress": "Study days, your streak and weekly goal, your level, and what the studying produced.",
+        "circles": "A circle of friends who see each other's steadiness and cheer each other on.",
         "settingsConnections": "Connect the AI accounts you use.",
         "settingsRoutes": "Choose which model handles each task.",
         "settingsSearch": "Configure how you search for sources.",
@@ -253,7 +259,13 @@
       "profile": "Learning profile",
       "account": "Account",
       "reminders": "Reminders",
-      "providers": "Providers"
+      "providers": "Providers",
+      "groups": {
+        "ai": "AI and search",
+        "you": "You",
+        "notify": "Notifications"
+      },
+      "pick": "Choose a settings section"
     },
     "readiness": {
       "title": "Readiness",
@@ -1081,7 +1093,7 @@
     },
     "push": {
       "title": "Review reminder",
-      "lead": "Once a day, at the hour you choose, AnyLearn tells this device how many things are due for review (the same count as Home) and which training your week schedules today. Nothing is sent on a day with neither, and there are no streaks to keep.",
+      "lead": "Once a day, at the hour you choose, AnyLearn tells this device how many things are due for review (the same count as Home) and which training your week schedules today. Nothing is sent on a day with neither. When a study streak is running, it says how long.",
       "turnOn": "Turn on in this browser",
       "turnOff": "Turn off here",
       "onHere": "The reminder is on in this browser.",
@@ -1166,7 +1178,11 @@
     "Page not found": "Page not found",
     "Something went wrong": "Something went wrong",
     "Learning apps": "Learning apps",
-    "Google Classroom": "Google Classroom"
+    "Google Classroom": "Google Classroom",
+    "Progress": "Progress",
+    "Study with friends": "Study with friends",
+    "Study circle": "Study circle",
+    "Learning methods": "Learning methods"
   },
   "readinessText": {
     "no_route": "No connection does {{function}} yet. Choose one in Settings → Routes.",

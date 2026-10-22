@@ -130,6 +130,13 @@ export default [
         route("body/coach", "routes/body.coach.tsx"),
         route("body/library", "routes/body.library.tsx"),
         route("library", "routes/library.tsx"),
+        // Progress and studying with friends (the private design notes).
+        // How to study, from the research, with videos (the private design notes).
+        route("methods", "routes/methods.tsx"),
+        route("methods/:slug", "routes/methods.$slug.tsx"),
+        route("progress", "routes/progress.tsx"),
+        route("circles", "routes/circles.tsx"),
+        route("circles/:id", "routes/circles.$id.tsx"),
       ]),
     ]),
 

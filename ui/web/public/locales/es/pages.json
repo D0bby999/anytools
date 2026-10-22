@@ -136,7 +136,7 @@
       }
     },
     "notTitle": "Lo que no hará",
-    "notBody": "AnyLearn no responde con su propio conocimiento general cuando tus documentos no dicen nada; te dice que no cubren la pregunta. No lleva rachas, puntos ni insignias. Y no puede prometer que un archivo nunca llegue a un proveedor de IA: leer un documento significa enviarlo al modelo que elegiste, y cada documento muestra qué modelo lo leyó.",
+    "notBody": "AnyLearn no responde con su propio conocimiento general cuando tus documentos no dicen nada; te dice que no cubren la pregunta. Y no puede prometer que un archivo nunca llegue a un proveedor de IA: leer un documento significa enviarlo al modelo que elegiste, y cada documento muestra qué modelo lo leyó.",
     "tools": {
       "title": "Apéndice: herramientas gratis, sin cuenta",
       "body": "Más de cien herramientas cotidianas: formateadores, codificadores, conversores, calculadoras y herramientas de PDF e imagen. Funcionan en tu navegador, no piden registro y están en inglés, vietnamita, español y portugués.",

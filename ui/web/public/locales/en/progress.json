@@ -1,0 +1,236 @@
+{
+  "title": "Progress",
+  "lede": "What your studying adds up to: the days you studied, a streak that forgives rest days, your week against your goal, and what the studying produced. Every number is counted from real study, and each links to where it was earned.",
+  "facts": "Your progress",
+  "level": {
+    "short": "Level {{level, number}}",
+    "title": "Level",
+    "current": "Level {{level, number}}",
+    "none": "No level yet",
+    "days_one": "from {{count, number}} study day",
+    "days_other": "from {{count, number}} study days",
+    "bar": "Progress to level {{level, number}}",
+    "next_one": "{{count, number}} more study day to level {{level, number}} ({{days, number}} days).",
+    "next_other": "{{count, number}} more study days to level {{level, number}} ({{days, number}} days).",
+    "last": "The last level: a thousand days of study.",
+    "how": "A level is earned by days you studied, any day with a review, an answer, a workout or a recording. It never goes down."
+  },
+  "streak": {
+    "short_one": "Streak: {{count, number}} day",
+    "short_other": "Streak: {{count, number}} days",
+    "title": "Streak and weekly goal",
+    "current_one": "A streak of {{count, number}} study day.",
+    "current_other": "A streak of {{count, number}} study days.",
+    "none": "No streak running.",
+    "longest_one": "Longest: {{count, number}} day.",
+    "longest_other": "Longest: {{count, number}} days.",
+    "today": "You studied today.",
+    "keep": "Not studied today yet: one review keeps it going.",
+    "start": "One review today starts one.",
+    "rest_one": "Rest days left this week: {{count, number}} of {{total, number}}; a missed day uses one and keeps the streak.",
+    "rest_other": "Rest days left this week: {{count, number}} of {{total, number}}; a missed day uses one and keeps the streak.",
+    "noRest": "No rest days: a missed day ends the streak."
+  },
+  "week": {
+    "short": "This week: {{days, number}} / {{goal, number}} days",
+    "title": "This week",
+    "days": "{{days, number}} of {{goal, number}} study days.",
+    "met": "Goal met.",
+    "bar": "{{days, number}} of {{goal, number}} study days this week",
+    "inARow_one": "Goal met {{count, number}} week in a row.",
+    "inARow_other": "Goal met {{count, number}} weeks in a row.",
+    "longest_one": "Longest run: {{count, number}} week.",
+    "longest_other": "Longest run: {{count, number}} weeks."
+  },
+  "settings": {
+    "title": "Change the goal and rest days",
+    "goal": "Study days a week",
+    "goalOption_one": "{{count, number}} day",
+    "goalOption_other": "{{count, number}} days",
+    "rest": "Rest days a week",
+    "restOption_one": "{{count, number}} day",
+    "restOption_other": "{{count, number}} days",
+    "save": "Save",
+    "note": "Weeks start on Monday. A new goal counts for past weeks too.",
+    "saved": "Saved."
+  },
+  "calendar": {
+    "title": "A year of study",
+    "label_one": "{{count, number}} study day in the last year",
+    "label_other": "{{count, number}} study days in the last year",
+    "cell_one": "{{day}}: {{count, number}} thing studied",
+    "cell_other": "{{day}}: {{count, number}} things studied",
+    "less": "Less",
+    "more": "More",
+    "list": "The days as a list",
+    "day": "Day",
+    "count": "Things studied"
+  },
+  "outcomes": {
+    "title": "What the studying produced",
+    "lede": "Read from your cards, answers and logs as they are now.",
+    "what": "What",
+    "count": "How many",
+    "where": "The evidence",
+    "longTerm": "Cards in long-term memory (remembered for 21 days or more)",
+    "ofLearning_one": "{{count, number}} of {{learning, number}} card being learnt",
+    "ofLearning_other": "{{count, number}} of {{learning, number}} cards being learnt",
+    "mastered": "Knowledge points mastered",
+    "right": "Answered right in the last 30 days",
+    "noAnswers": "Nothing answered yet",
+    "share_one": "{{percent, number}}% of {{count, number}}",
+    "share_other": "{{percent, number}}% of {{count, number}}",
+    "answered": "Reviews and questions answered",
+    "explains": "Explain-backs passed",
+    "workouts": "Workouts finished",
+    "recordings": "Speaking recordings",
+    "highlights": "Highlights while reading",
+    "open": {
+      "vocab": "Vocabulary",
+      "mastery": "Mastery",
+      "review": "Review",
+      "practice": "Practice",
+      "body": "Training progress",
+      "toolkit": "Toolkit",
+      "knowledge": "Knowledge"
+    }
+  },
+  "weeks": {
+    "title": "The last twelve weeks",
+    "week": "Week of",
+    "days": "Study days",
+    "reviews": "Card reviews",
+    "questions": "Questions",
+    "workouts": "Workouts",
+    "other": "Other"
+  },
+  "milestones": {
+    "title": "Milestones",
+    "next": "Next",
+    "reached": "Reached",
+    "none": "None yet: the first is a single day of study.",
+    "toGo": "{{value}} of {{target}}",
+    "on": "on {{date}}",
+    "kinds": {
+      "days_one": "{{count, number}} study day",
+      "days_other": "{{count, number}} study days",
+      "streak_one": "A streak of {{count, number}} day",
+      "streak_other": "A streak of {{count, number}} days",
+      "weeks_one": "The weekly goal {{count, number}} week in a row",
+      "weeks_other": "The weekly goal {{count, number}} weeks in a row",
+      "long_term_one": "{{count, number}} card in long-term memory",
+      "long_term_other": "{{count, number}} cards in long-term memory",
+      "mastered_one": "{{count, number}} knowledge point mastered",
+      "mastered_other": "{{count, number}} knowledge points mastered",
+      "reviews_one": "{{count, number}} review or answer",
+      "reviews_other": "{{count, number}} reviews and answers",
+      "workouts_one": "{{count, number}} workout",
+      "workouts_other": "{{count, number}} workouts"
+    }
+  },
+  "circles": {
+    "link": "Study with friends",
+    "title": "Study with friends",
+    "lede": "A study circle is a few friends who keep each other going: each sees whether the others studied this week, their streaks and levels, and can cheer them on once a day. Nobody sees what anyone studies.",
+    "invited": {
+      "title": "You were invited to a study circle",
+      "body": "Pick the name the circle will see you by, then join."
+    },
+    "nickname": "Your name in the circle",
+    "join": {
+      "title": "Join with a code",
+      "code": "Invite code",
+      "submit": "Join"
+    },
+    "cheers": {
+      "title": "Cheers in the last day",
+      "line": "{{name}} cheered you on in",
+      "home": "{{name}} cheered you on in {{circle}}"
+    },
+    "mine": "Your circles",
+    "none": "You are in no circle yet. Start one and send the link to a friend, or join one with its code.",
+    "members_one": "{{count, number}} member",
+    "members_other": "{{count, number}} members",
+    "youOwn": "you started it",
+    "create": {
+      "title": "Start a circle",
+      "name": "The circle's name",
+      "submit": "Start"
+    },
+    "privacy": {
+      "title": "What a circle sees",
+      "seen": "The others see the name you give the circle, your study days this week against your goal, your streak, your level and the day you last studied.",
+      "notSeen": "They never see what you study, your documents, your answers or your email.",
+      "together": "There is no ranking: the circle's goal is that everyone meets their own week."
+    },
+    "toProgress": "Your own progress",
+    "errors": {
+      "notFound": "No circle has that code. Check it with whoever sent it; a circle's owner can make a new one."
+    },
+    "nicknameNote": "The name you go by in a circle is the only thing about your account the others see. Pick any name."
+  },
+  "circle": {
+    "back": "All your circles",
+    "lede_one": "{{count, number}} member. Each sees the others' steadiness, never what they study.",
+    "lede_other": "{{count, number}} members. Each sees the others' steadiness, never what they study.",
+    "week": {
+      "title": "This week together",
+      "met_one": "{{count, number}} of {{total, number}} met their weekly goal",
+      "met_other": "{{count, number}} of {{total, number}} met their weekly goal",
+      "lede": "The circle's goal is everyone meeting their own week. Each counts in their own time zone, and weeks start on Monday."
+    },
+    "members": "Members",
+    "name": "Name",
+    "thisWeek": "This week",
+    "streak": "Streak",
+    "level": "Level",
+    "last": "Last studied",
+    "cheerColumn": "Cheer",
+    "owner": "owner",
+    "cheers_one": "{{count, number}} cheer in the last day",
+    "cheers_other": "{{count, number}} cheers in the last day",
+    "days_one": "{{count, number}} day",
+    "days_other": "{{count, number}} days",
+    "today": "Today",
+    "notYet": "Not yet",
+    "you": "You",
+    "cheered": "Cheered today",
+    "cheer": "Cheer on",
+    "cheerName": "Cheer {{name}} on",
+    "invite": {
+      "title": "Invite a friend",
+      "lede": "Send this link to a friend with an AnyLearn account. Anyone with the link can join until the owner makes a new code.",
+      "code": "Code:"
+    },
+    "copy": "Copy the link",
+    "copied": "Link copied.",
+    "me": {
+      "title": "You in this circle",
+      "save": "Save the name"
+    },
+    "manage": {
+      "title": "Manage the circle",
+      "rename": "Rename",
+      "newCode": "Make a new invite code",
+      "newCodeNote": "The old link stops working; members stay.",
+      "remove": "Remove",
+      "removeName": "Remove {{name}} from the circle"
+    },
+    "leave": {
+      "title": "Leave the circle",
+      "last": "You are its only member: leaving deletes the circle.",
+      "owner": "You started it: the member who joined next becomes its owner.",
+      "member": "The others will no longer see your progress.",
+      "submit": "Leave"
+    },
+    "done": {
+      "nickname": "Saved.",
+      "rename": "Renamed.",
+      "invite": "A new code is ready; the old link no longer works.",
+      "remove": "Removed.",
+      "leave": "You left.",
+      "cheer": "Cheered."
+    },
+    "metGoal": "goal met"
+  }
+}

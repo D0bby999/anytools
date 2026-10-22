@@ -136,7 +136,7 @@
       }
     },
     "notTitle": "O que ele não faz",
-    "notBody": "O AnyLearn não responde com o próprio conhecimento geral quando seus documentos não dizem nada; ele avisa que eles não cobrem a pergunta. Não tem sequências, pontos nem medalhas. E não pode prometer que um arquivo nunca chegue a um provedor de IA: ler um documento significa enviá-lo ao modelo que você escolheu, e cada documento mostra qual modelo o leu.",
+    "notBody": "O AnyLearn não responde com o próprio conhecimento geral quando seus documentos não dizem nada; ele avisa que eles não cobrem a pergunta. E não pode prometer que um arquivo nunca chegue a um provedor de IA: ler um documento significa enviá-lo ao modelo que você escolheu, e cada documento mostra qual modelo o leu.",
     "tools": {
       "title": "Apêndice: ferramentas grátis, sem conta",
       "body": "Mais de cem ferramentas do dia a dia: formatadores, codificadores, conversores, calculadoras e ferramentas de PDF e imagem. Rodam no seu navegador, não pedem login e estão em inglês, vietnamita, espanhol e português.",
