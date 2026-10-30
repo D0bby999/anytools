@@ -625,6 +625,7 @@
       "done_one": "Đã đặt {{count}} việc.",
       "done_other": "Đã đặt {{count}} việc.",
       "left": "Còn trống: {{list}}.",
+      "refused": "Chưa đặt phần lập chỉ mục: {{message}}",
       "nothing": "Việc nào cũng đã có kết nối, nên không có gì thay đổi.",
       "close": "Đóng",
       "embedLink": "Chọn model lập chỉ mục"

@@ -33,3 +33,6 @@ spikes/out/
 # Tools' run-time files, staged from ui/web/scripts/tool-runtime.json at build time.
 ui/web/tool-runtime/*
 !ui/web/tool-runtime/.gitkeep
+
+# Graphify knowledge-graph artifacts
+graphify-out/

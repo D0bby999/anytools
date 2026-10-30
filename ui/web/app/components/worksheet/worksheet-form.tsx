@@ -11,7 +11,9 @@
  *
  * A kind with a quick version opens on it (the private design notes,
  * phase 5): its three to five fields, each section's shown alone, and a
- * button to the full worksheet, remembered per worksheet. The two are never
+ * button to the full worksheet, remembered per worksheet. A worksheet with
+ * an answer outside the quick fields opens on the full one, so work written
+ * before the quick version existed is never hidden behind it. The two are never
  * on screen together: a full section holding an older copy of a quick field
  * would save it back over the newer one. A section save sends only the fields
  * it shows, and the API merges by field, so the quick form never clears the
@@ -77,7 +79,23 @@ type FormProps = {
   fullOnly?: boolean;
 };
 
+/** "1": the learner chose the full worksheet; "0": the quick version. */
 const FULL_KEY = (id: string) => `anytools.worksheet.full.${id}`;
+
+function filled(v: unknown): boolean {
+  if (v === null || v === undefined || v === "" || v === false) return false;
+  if (Array.isArray(v)) return v.some(filled);
+  if (typeof v === "object") return Object.values(v as Record<string, unknown>).some(filled);
+  return true;
+}
+
+/** Whether any field the quick version does not show holds an answer. */
+export function answeredBeyondQuick(kind: WorksheetKind, answers: Answers): boolean {
+  const quick = kind.quick ?? [];
+  return Object.entries(answers).some(([section, values]) =>
+    Object.entries(values ?? {}).some(([field, v]) => !quick.some((q) => q.section === section && q.field === field) && filled(v)),
+  );
+}
 
 /** The kind's quick fields, grouped into their sections, in the kind's order. */
 export function quickSections(kind: WorksheetKind): WorksheetSection[] {
@@ -105,14 +123,17 @@ export function WorksheetForm({
   const [revision, setRevision] = useState(loaded);
   useEffect(() => setRevision((r) => (loaded > r ? loaded : r)), [loaded]);
   const quick = fullOnly ? [] : quickSections(kind);
-  const [full, setFull] = useState(false);
+  // The full worksheet when something beyond the quick fields is written,
+  // unless the learner chose otherwise on this device.
+  const [full, setFull] = useState(() => answeredBeyondQuick(kind, answers));
   useEffect(() => {
-    if (window.localStorage.getItem(FULL_KEY(worksheetId)) === "1") setFull(true);
+    const chosen = window.localStorage.getItem(FULL_KEY(worksheetId));
+    if (chosen === "1") setFull(true);
+    else if (chosen === "0") setFull(false);
   }, [worksheetId]);
   const showFull = (on: boolean) => {
     setFull(on);
-    if (on) window.localStorage.setItem(FULL_KEY(worksheetId), "1");
-    else window.localStorage.removeItem(FULL_KEY(worksheetId));
+    window.localStorage.setItem(FULL_KEY(worksheetId), on ? "1" : "0");
   };
 
   if (quick.length > 0 && !full) {

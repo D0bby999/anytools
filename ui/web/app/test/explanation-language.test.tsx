@@ -114,4 +114,19 @@ describe("points not in the documents", () => {
       { name: "A new one", type: "concept" },
     ]);
   });
+
+  it("says when a plan in another language than the documents was not checked", () => {
+    routed(
+      <ProposalEditor
+        pathId="p1"
+        proposal={{
+          coverage: "language",
+          modules: [{ name: "Mở đầu", objective: "", pass_threshold: 0.7, knowledge_points: [{ name: "Hỏi về cuối tuần", type: "concept" }] }],
+        }}
+      />,
+      [],
+    );
+    expect(screen.getByText(/the plan is written in another language than they are/)).toBeInTheDocument();
+    expect(screen.queryByText("Not found in your documents")).toBeNull();
+  });
 });

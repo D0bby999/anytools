@@ -63,6 +63,12 @@ describe("a first visit", () => {
     await screen.findByText("Welcome back, Lan.");
     expect(screen.queryByRole("region", { name: "What do you want to learn?" })).toBeNull();
   });
+
+  it("does not ask a learner who studied before the question existed", async () => {
+    show({ ...base, focus: null, progress: { ...progress, studiedBefore: true } });
+    await screen.findByText("Welcome back, Lan.");
+    expect(screen.queryByRole("region", { name: "What do you want to learn?" })).toBeNull();
+  });
 });
 
 describe("a language's first words", () => {

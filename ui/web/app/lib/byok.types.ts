@@ -37,7 +37,8 @@ export function serveFor(fn: string): ProviderServe {
 }
 
 /** What quick setup did: the tasks it set, and the ones it left empty. */
-export type QuickSetupResult = { ok: true; set: string[]; left: string[] } | { ok: false; error: string };
+/** `refused`: the embeddings model failed its check, in the API's words (indexing is left empty). */
+export type QuickSetupResult = { ok: true; set: string[]; left: string[]; refused?: string } | { ok: false; error: string };
 
 /** One provider of the catalog (GET /v1/byok/catalog, internal/byok/catalog.go). */
 export type CatalogEntry = {

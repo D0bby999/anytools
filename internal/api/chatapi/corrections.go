@@ -37,6 +37,23 @@ func (h *Handler) WithCorrections(providers runtime.ChatProviderResolver, saver 
 // historyForCorrections is how far back an answer's question is looked for.
 const historyForCorrections = 400
 
+// questionBefore is the learner's message just before the answer in history
+// (oldest first), and whether the answer is there at all. An answer older
+// than the history read is not found, rather than paired with a message
+// that came after it.
+func questionBefore(history []runtime.ChatMessage, answer uuid.UUID) (string, bool) {
+	question := ""
+	for _, m := range history {
+		if m.ID == answer {
+			return question, true
+		}
+		if m.Role == runtime.RoleUser {
+			question = m.Content
+		}
+	}
+	return "", false
+}
+
 // answerAndQuestion is the caller's answer and the learner message before it.
 func (h *Handler) answerAndQuestion(w http.ResponseWriter, r *http.Request, userID uuid.UUID) (*runtime.ChatMessage, string, bool) {
 	messageID, ok := pathID(w, r, "id")
@@ -58,14 +75,10 @@ func (h *Handler) answerAndQuestion(w http.ResponseWriter, r *http.Request, user
 		httpx.WriteError(w, http.StatusInternalServerError, "could not read the conversation", "store_failed")
 		return nil, "", false
 	}
-	question := ""
-	for _, m := range history {
-		if m.ID == msg.ID {
-			break
-		}
-		if m.Role == runtime.RoleUser {
-			question = m.Content
-		}
+	question, found := questionBefore(history, msg.ID)
+	if !found {
+		httpx.WriteError(w, http.StatusBadRequest, "this answer is too far back in the conversation; ask again and save from the new answer", "too_far_back")
+		return nil, "", false
 	}
 	if question == "" {
 		httpx.WriteError(w, http.StatusBadRequest, "this answer has no message of yours before it", "no_question")

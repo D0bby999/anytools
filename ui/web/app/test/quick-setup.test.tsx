@@ -13,6 +13,7 @@ import { initI18n } from "~/lib/i18n";
 import type { CatalogEntry, Connection, FunctionReadiness } from "~/lib/byok.types";
 
 const calls: { path: string; method: string; body?: unknown }[] = [];
+let verify: { ok: boolean; message?: string } = { ok: true, dims: 768 } as never;
 let routes: Record<string, unknown[]> = {};
 let provider = "openai_compat";
 
@@ -35,6 +36,7 @@ vi.mock("~/lib/api.server", () => ({
         max_chain_entries: 5,
       };
     }
+    if (path.endsWith("/verify")) return verify;
     if (path === "/v1/byok/connections") return { connections: [{ id: "c1", provider, kind: "api_key", name: "Ollama" }] };
     if (path === "/v1/byok/catalog") {
       return {
@@ -60,6 +62,7 @@ beforeEach(() => {
   calls.length = 0;
   routes = {};
   provider = "openai_compat";
+  verify = { ok: true } as never;
 });
 
 const puts = () => calls.filter((c) => c.method === "PUT").map((c) => c.path.replace("/v1/byok/routes/", ""));
@@ -74,6 +77,17 @@ describe("quick setup", () => {
     expect(embed?.body).toEqual({ entries: [{ connection_id: "c1", model: "nomic-embed-text" }] });
     const chat = calls.find((c) => c.path.endsWith("/chat"));
     expect(chat?.body).toEqual({ entries: [{ connection_id: "c1", model: "gemma4:31b-cloud" }] });
+  });
+
+  it("checks the embeddings model it set, and empties indexing again with the check's words when it fails", async () => {
+    verify = { ok: false, message: "This model returns 4096 numbers per text; AnyLearn stores up to 3072." };
+    const result = await quickSetup("u", "c1", { chat: "gemma4:31b-cloud", embed: "qwen3-embedding:8b" });
+    const embedPuts = calls.filter((c) => c.method === "PUT" && c.path.endsWith("/embed")).map((c) => c.body);
+    expect(embedPuts).toEqual([{ entries: [{ connection_id: "c1", model: "qwen3-embedding:8b" }] }, { entries: [] }]);
+    expect(calls.find((c) => c.path.endsWith("/verify"))?.body).toEqual({ function: "embed" });
+    expect(result.set).not.toContain("embed");
+    expect(result.left).toContain("embed");
+    expect(result.refused).toMatch(/4096/);
   });
 
   it("leaves indexing empty without an embeddings model on a provider that needs one", async () => {

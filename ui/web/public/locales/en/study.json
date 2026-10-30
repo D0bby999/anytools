@@ -140,7 +140,8 @@
     "outsideTitle": "Not found in your documents",
     "outsideHint": "Your documents hardly cover these points, so lessons on them would lean on the model rather than your material. Delete a line to drop it, or keep it marked.",
     "outsideMark": "Not in your documents",
-    "coverageSkipped": "These points were not checked against your documents: this knowledge base could not be measured with your current embeddings model."
+    "coverageSkipped": "These points were not checked against your documents: this knowledge base could not be measured with your current embeddings model.",
+    "coverageLanguage": "These points were not checked against your documents: the plan is written in another language than they are, and that comparison would mark the wrong points."
   },
   "session": {
     "back": "Back to the path",

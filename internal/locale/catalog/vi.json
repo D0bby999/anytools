@@ -714,5 +714,6 @@
  "could not save the corrections": "không lưu được các lỗi sửa",
  "only an answer has corrections": "chỉ câu trả lời mới có lỗi sửa",
  "a correction needs the right words": "một lỗi sửa cần có cách viết đúng",
- "focus is a list of what you want to learn": "focus là danh sách những gì bạn muốn học"
+ "focus is a list of what you want to learn": "focus là danh sách những gì bạn muốn học",
+ "this answer is too far back in the conversation; ask again and save from the new answer": "câu trả lời này đã quá xa trong cuộc trò chuyện; hãy hỏi lại rồi lưu từ câu trả lời mới"
 }

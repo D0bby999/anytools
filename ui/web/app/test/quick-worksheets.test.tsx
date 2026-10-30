@@ -11,7 +11,7 @@ import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import type { ReactElement } from "react";
 import { initI18n } from "~/lib/i18n";
-import { WorksheetForm, quickSections } from "~/components/worksheet/worksheet-form";
+import { WorksheetForm, answeredBeyondQuick, quickSections } from "~/components/worksheet/worksheet-form";
 import { SelfEstimate } from "~/components/worksheet/self-estimate";
 import { KindRow } from "~/components/worksheet/toolkit-groups";
 import type { WorksheetKind } from "~/lib/worksheet-types";
@@ -92,6 +92,7 @@ describe("the quick version", () => {
   });
 
   it("saves only the fields it shows, so the rest of the section is kept", async () => {
+    window.localStorage.setItem("anytools.worksheet.full.w1", "0"); // chose the quick version
     const posts: FormData[] = [];
     inRouter(
       <WorksheetForm worksheetId="w1" kind={kind} answers={{ boundary: { audience: "my team" } }} revision="r" />,
@@ -113,6 +114,15 @@ describe("the quick version", () => {
     expect(await screen.findByRole("heading", { name: "2. Scores" })).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Back to the quick version" }));
     expect(screen.getByRole("heading", { level: 2, name: "Quick version" })).toBeInTheDocument();
+  });
+
+  it("opens a worksheet with answers beyond the quick fields on the full one, so earlier work shows", () => {
+    window.localStorage.removeItem("anytools.worksheet.full.w3");
+    inRouter(<WorksheetForm worksheetId="w3" kind={kind} answers={{ boundary: { topic: "x", audience: "my team" } }} revision="r" />);
+    expect(screen.getByRole("heading", { name: "2. Scores" })).toBeInTheDocument();
+    expect(screen.getByDisplayValue("my team")).toBeInTheDocument();
+    expect(answeredBeyondQuick(kind, { boundary: { topic: "only quick" } })).toBe(false);
+    expect(answeredBeyondQuick(kind, { boundary: { audience: "" } })).toBe(false);
   });
 });
 

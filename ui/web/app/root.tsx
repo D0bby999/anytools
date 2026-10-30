@@ -85,6 +85,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta
+          name="impact-site-verification"
+          {...({ value: "16248454-4207-44fb-8f39-d9520b7fa249" } as Record<string, string>)}
+        />
         <link rel="icon" href={icon.svg} type="image/svg+xml" />
         <link rel="icon" href={icon.ico} sizes="16x16 32x32 48x48" />
         <Meta />

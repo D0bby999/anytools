@@ -45,8 +45,10 @@ export function ProposalEditor({ pathId, proposal }: { pathId: string; proposal:
       <input type="hidden" name="types" value={JSON.stringify(types)} />
       <input type="hidden" name="outside" value={JSON.stringify(outside)} />
       {proposal.note ? <p className="text-sm leading-prose text-muted-foreground">{proposal.note}</p> : null}
-      {proposal.coverage === "skipped" ? (
-        <p className="text-xs leading-prose text-muted-foreground">{t("path.coverageSkipped")}</p>
+      {proposal.coverage === "skipped" || proposal.coverage === "language" ? (
+        <p className="text-xs leading-prose text-muted-foreground">
+          {t(proposal.coverage === "language" ? "path.coverageLanguage" : "path.coverageSkipped")}
+        </p>
       ) : null}
 
       <ol className="space-y-4">

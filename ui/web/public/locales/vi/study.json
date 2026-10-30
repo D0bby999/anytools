@@ -140,7 +140,8 @@
     "outsideTitle": "Không tìm thấy trong tài liệu của bạn",
     "outsideHint": "Tài liệu của bạn gần như không nói tới các điểm này, nên bài giảng về chúng sẽ dựa vào model chứ không phải tài liệu. Xoá dòng nào để bỏ, hoặc giữ lại kèm dấu.",
     "outsideMark": "Không có trong tài liệu",
-    "coverageSkipped": "Các điểm này chưa được đối chiếu với tài liệu của bạn: không đo được kho này bằng model embedding hiện tại."
+    "coverageSkipped": "Các điểm này chưa được đối chiếu với tài liệu của bạn: không đo được kho này bằng model embedding hiện tại.",
+    "coverageLanguage": "Các điểm này chưa được đối chiếu với tài liệu của bạn: kế hoạch viết bằng ngôn ngữ khác với tài liệu, và so sánh như vậy sẽ đánh dấu nhầm."
   },
   "session": {
     "back": "Về lộ trình",

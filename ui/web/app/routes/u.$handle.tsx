@@ -17,7 +17,7 @@ import type { Route } from "./+types/u.$handle";
 import { SiteHeader } from "~/components/layout/site-header";
 import { ShowcaseView } from "~/components/showcase/showcase-view";
 import { APP_URL } from "~/lib/env.server";
-import { initI18n, loadLanguage, publicLngs } from "~/lib/i18n";
+import { initI18n, isSupportedLng, loadLanguage, publicLngs } from "~/lib/i18n";
 import { clientIP, createIPLimiter } from "~/lib/ip-limit.server";
 import { visitorLanguage } from "~/lib/language.server";
 import { readShowcase } from "~/lib/showcase/api.server";
@@ -30,6 +30,9 @@ const HANDLE = new RegExp(`^${HANDLE_PATTERN}$`);
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const handle = (params.handle ?? "").toLowerCase();
+  // Whether the address named its language: then it is that language's own
+  // address; the bare one answers in the visitor's and is the default.
+  const named = isSupportedLng(new URL(request.url).searchParams.get("lang") ?? "");
   const language = await visitorLanguage(request);
   await loadLanguage(language);
   const indexed = (page: ShowcasePage | null) => Boolean(page?.profile.published && page.profile.indexed);
@@ -40,6 +43,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         handle,
         page,
         origin: APP_URL,
+        named,
         status,
         indexed: indexed(page),
         // The search result's line when the learner wrote no headline.
@@ -72,7 +76,8 @@ export function meta({ data: d }: Route.MetaArgs) {
   // the bare address as the default, and who the page is about.
   const search = d.indexed
     ? [
-        { tagName: "link", rel: "canonical", href: `${d.origin}${showcaseLangPath(p.handle, d.language)}` },
+        // Each address is its own canonical, so the sitemap's bare address is one too.
+        { tagName: "link", rel: "canonical", href: d.named ? `${d.origin}${showcaseLangPath(p.handle, d.language)}` : url },
         ...publicLngs.map((l) => ({ tagName: "link", rel: "alternate", hrefLang: l, href: `${d.origin}${showcaseLangPath(p.handle, l)}` })),
         { tagName: "link", rel: "alternate", hrefLang: "x-default", href: url },
         {

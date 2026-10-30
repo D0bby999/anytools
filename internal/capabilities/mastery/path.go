@@ -13,6 +13,7 @@ import (
 	"github.com/D0bby999/anytools/internal/locale"
 	"github.com/D0bby999/anytools/internal/runtime"
 	"github.com/D0bby999/anytools/internal/tools"
+	"github.com/D0bby999/anytools/internal/vocab"
 )
 
 // path.go creates a path and proposes its shape; approval is a separate call.
@@ -138,7 +139,7 @@ func (s *Service) Propose(ctx context.Context, userID, pathID uuid.UUID) (*Propo
 		Modules:  modules,
 		Note:     strings.TrimSpace(reply.Note),
 		Model:    model,
-		Coverage: s.markCoverage(ctx, userID, path.KBID, modules),
+		Coverage: s.markCoverage(ctx, userID, path.KBID, modules, locale.FromContext(ctx), vocab.DetectLang(outline)),
 	}, nil
 }
 

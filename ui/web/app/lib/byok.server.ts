@@ -209,12 +209,17 @@ export function verifySearchConnection(userId: string, id: string) {
  * for indexing. A chain the learner already set is never replaced; speech is
  * left alone (it is optional, and a chat key rarely speaks). One PUT per
  * task, in order, the same call the Routes page makes.
+ *
+ * Indexing is checked once set, as Verify on the Routes page checks it: an
+ * embeddings model whose width AnyLearn cannot store (or that does not
+ * answer) would fail the first upload. Then its chain is emptied again and
+ * the check's message is returned, so setup never says "set" for it.
  */
 export async function quickSetup(
   userId: string,
   connectionId: string,
   models: { chat: string; embed: string },
-): Promise<{ set: string[]; left: string[] }> {
+): Promise<{ set: string[]; left: string[]; refused?: string }> {
   const [routes, payload, catalog] = await Promise.all([
     listRoutes(userId),
     listConnections(userId),
@@ -227,6 +232,7 @@ export async function quickSetup(
   const needsModel = entry?.needs_model ?? false;
   const set: string[] = [];
   const left: string[] = [];
+  let refused: string | undefined;
   for (const fn of routes.functions) {
     if ((routes.routes[fn] ?? []).length > 0) continue;
     const kind = serveFor(fn);
@@ -243,9 +249,18 @@ export async function quickSetup(
       continue;
     }
     await setRoute(userId, fn, [{ connection_id: connectionId, model }]);
+    if (kind === "embed") {
+      const check = await verifyConnection(userId, connectionId, fn).catch(() => null);
+      if (!check?.ok) {
+        await setRoute(userId, fn, []);
+        left.push(fn);
+        refused = check?.message || undefined;
+        continue;
+      }
+    }
     set.push(fn);
   }
-  return { set, left };
+  return { set, left, ...(refused ? { refused } : {}) };
 }
 
 export function getReadiness(userId: string) {

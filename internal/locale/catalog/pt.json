@@ -714,5 +714,6 @@
  "could not save the corrections": "não foi possível salvar as correções",
  "only an answer has corrections": "só uma resposta tem correções",
  "a correction needs the right words": "uma correção precisa das palavras certas",
- "focus is a list of what you want to learn": "focus é uma lista do que você quer aprender"
+ "focus is a list of what you want to learn": "focus é uma lista do que você quer aprender",
+ "this answer is too far back in the conversation; ask again and save from the new answer": "esta resposta está muito para trás na conversa; pergunte de novo e salve a partir da nova resposta"
 }

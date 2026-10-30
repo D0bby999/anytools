@@ -323,7 +323,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             : t("home.lead")
         }
       />
-      {focus === null ? <StudyFocusQuestion starters={starters} /> : null}
+      {/* Asked on a first visit only: a learner who studied before this
+          question existed has no answer stored, and is not asked. */}
+      {focus === null && progress && !progress.studiedBefore ? <StudyFocusQuestion starters={starters} /> : null}
       <QuickStart
         title={nextSetup?.title ?? (today ? today.goal : t("home.noGoal.title"))}
         description={nextSetup?.body ?? t(today ? "home.lead" : "home.noGoal.body")}

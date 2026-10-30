@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sort"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -34,6 +35,9 @@ var ErrCoverageUnknown = errors.New("mastery: coverage cannot be measured")
 const (
 	CoverageChecked = "checked"
 	CoverageSkipped = "skipped"
+	// CoverageLanguage: not measured, the plan being in another language
+	// than the documents.
+	CoverageLanguage = "language"
 )
 
 const (
@@ -45,9 +49,20 @@ const (
 
 // markCoverage sets OutsideSource on the points far from the base, and says
 // whether it could check.
-func (s *Service) markCoverage(ctx context.Context, userID, kbID uuid.UUID, modules []ProposedModule) string {
+//
+// Names written in another language than the documents are not measured: on
+// an embedding model that knows one language, a translated name sits far
+// from its own passage while a term kept in the original sits close, so the
+// marks would fall on the translated points, which the learner is then
+// invited to delete (the private design notes
+// M2). planLang is the language the plan was written in ("" for the
+// documents' own); docLang the documents', as vocab.DetectLang tells it.
+func (s *Service) markCoverage(ctx context.Context, userID, kbID uuid.UUID, modules []ProposedModule, planLang, docLang string) string {
 	if s.coverage == nil {
 		return CoverageSkipped
+	}
+	if !sameLanguage(planLang, docLang) {
+		return CoverageLanguage
 	}
 	var texts []string
 	for _, m := range modules {
@@ -71,6 +86,16 @@ func (s *Service) markCoverage(ctx context.Context, userID, kbID uuid.UUID, modu
 		}
 	}
 	return CoverageChecked
+}
+
+// sameLanguage reports whether names in planLang ("" for the documents'
+// own) can be measured against documents in docLang.
+func sameLanguage(planLang, docLang string) bool {
+	if planLang == "" {
+		return true
+	}
+	base, _, _ := strings.Cut(strings.ToLower(planLang), "-")
+	return base == docLang
 }
 
 // OutsideSource reports, for each similarity, whether it is clearly below

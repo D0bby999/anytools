@@ -66,7 +66,7 @@ Tables: `chat_sessions` (including `summary`, `summary_through_id`,
 | `routes/chat.$sessionId.tsx` | The page: loader, action intents (`send`, `solve`, `research`, `draw`, `answer`, `cancel`, `model`, `kbs`), failure codes, wiring of everything below. |
 | `routes/chat.index.tsx` | New conversation. |
 | `components/chat/message-list.tsx` | The transcript, answer actions, the summary checkpoint. |
-| `components/chat/save-mistakes.tsx` | "Save mistakes to review": the row's button and the list under the answer share one keyed fetcher; `routes/app.api.chat-corrections.ts` posts to `/v1/chat/messages/{id}/corrections` and `…/save` (`internal/api/chatapi/corrections.go`). |
+| `components/chat/save-mistakes.tsx` | "Save mistakes to review": the row's button and the list under the answer share one keyed fetcher; `routes/app.api.chat-corrections.ts` posts to `/v1/chat/messages/{id}/corrections` and `…/save` (`internal/api/chatapi/corrections.go`). The question read is the learner's message just before the answer (`questionBefore`); an answer older than the 400 messages read is refused rather than paired with a later one. |
 | `components/chat/process-row.tsx`, `tool-activity.tsx`, `work-row.tsx` | "How this was answered": steps, notes, timings. |
 | `components/chat/composer.tsx` and `composer/` | Composer, attachments, mic, model chip, `/` and `@` menu, queue, context meter. |
 | `components/chat/search-bar.tsx`, `shortcut-help-dialog.tsx`, `feedback-dialog.tsx`, `follow-ups.tsx`, `recent-conversations.tsx`, `ask-again-with.tsx`, `summary-checkpoint.tsx` | One feature each, named as they read. |

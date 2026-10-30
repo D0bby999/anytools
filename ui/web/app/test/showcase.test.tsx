@@ -228,6 +228,9 @@ describe("the public page", () => {
     const tags = publicPage.meta({ data: res.data } as never) as Record<string, unknown>[];
     expect(tags.some((t) => t.name === "robots")).toBe(false);
     expect(tags).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.world/u/minh?lang=vi" });
+    // The bare address, the sitemap's, is its own canonical.
+    const bare = await publicPage.loader({ request: new Request("http://localhost/u/minh", { headers: { "Accept-Language": "es" } }), params: { handle: "minh" }, context: {} } as never);
+    expect(publicPage.meta({ data: bare.data } as never)).toContainEqual({ tagName: "link", rel: "canonical", href: "https://anytools.world/u/minh" });
     expect(tags).toContainEqual({ tagName: "link", rel: "alternate", hrefLang: "es", href: "https://anytools.world/u/minh?lang=es" });
     expect(tags).toContainEqual({ tagName: "link", rel: "alternate", hrefLang: "x-default", href: "https://anytools.world/u/minh" });
     const ld = tags.find((t) => "script:ld+json" in t)?.["script:ld+json"] as Record<string, Record<string, unknown>>;

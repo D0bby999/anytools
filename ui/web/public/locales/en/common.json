@@ -625,6 +625,7 @@
       "done_one": "{{count}} task set.",
       "done_other": "{{count}} tasks set.",
       "left": "Left empty: {{list}}.",
+      "refused": "Indexing was left empty: {{message}}",
       "nothing": "Every task already had a connection, so nothing changed.",
       "close": "Close",
       "embedLink": "Choose a model for indexing"

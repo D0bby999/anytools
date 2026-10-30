@@ -625,6 +625,7 @@
       "done_one": "{{count}} tarefa definida.",
       "done_other": "{{count}} tarefas definidas.",
       "left": "Ficaram vazias: {{list}}.",
+      "refused": "A indexação ficou vazia: {{message}}",
       "nothing": "Todas as tarefas já tinham conexão, então nada mudou.",
       "close": "Fechar",
       "embedLink": "Escolher um modelo para indexar"

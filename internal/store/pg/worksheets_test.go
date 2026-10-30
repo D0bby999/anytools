@@ -508,15 +508,24 @@ func TestTheGrammarErrorMapAttachesToTheOwnersStateOrDocument(t *testing.T) {
 	}
 }
 
-// A quick version's "this happened on" date starts as the learner's day, so
-// a new diagnostic is scheduled before a line is written
-// (the private design notes, phase 5).
+// A quick version's "this happened on" date starts as the learner's day
+// (the private design notes, phase 5). Its reviews are scheduled at
+// the first write, not on opening: a diagnostic opened only to look puts no
+// reviews on Home.
 func TestWorksheetsAQuickDateStartsAsToday(t *testing.T) {
 	ctx, f := newWorksheetFixture(t)
 	w := f.create(t, ctx, f.alice, "english_diagnostic", nil)
 	got, _ := w.Answers["first_version"]["first_version_on"].(string)
-	if got == "" || len(w.Reviews) != 3 {
+	if got == "" || len(w.Reviews) != 0 {
 		t.Fatalf("first version on %q, reviews %v", got, w.Reviews)
+	}
+	w, err := f.svc.Update(ctx, f.alice, w.ID, worksheet.Patch{Revision: w.UpdatedAt,
+		Answers: map[string]json.RawMessage{"first_version": section(t, map[string]any{"first_version_on": got})}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(w.Reviews) != 3 {
+		t.Fatalf("after the first write, reviews %v", w.Reviews)
 	}
 	if day7 := w.Reviews["day7"]; day7.Due == "" || day7.Due <= got {
 		t.Fatalf("day 7 = %+v after %s", day7, got)

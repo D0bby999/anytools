@@ -19,6 +19,9 @@ import type { CatalogEntry, Connection, QuickSetupResult } from "~/lib/byok.type
 import { providerName } from "~/lib/provider-names";
 import { ModelPicker } from "./model-picker";
 
+/** Embeddings models whose width AnyLearn stores (internal/rag/embed SupportedDims). */
+const KNOWN_EMBED = /nomic-embed-text|mxbai-embed-large|bge-m3|all-minilm|snowflake-arctic-embed|embeddinggemma|text-embedding-3-small|text-embedding-3-large/i;
+
 export function QuickSetupDialog({
   open,
   onClose,
@@ -47,8 +50,9 @@ export function QuickSetupDialog({
   const canEmbed = entry ? entry.serves.includes("embed") : false;
   const name = conn ? conn.name || providerName(t, conn.provider) : "";
 
-  // An embeddings model is usually named so; offer the first one the
-  // provider lists rather than an empty box.
+  // An embeddings model is usually named so; offer one the provider lists
+  // rather than an empty box, a common model whose width AnyLearn stores
+  // first (setup checks the one chosen either way).
   const { data } = useConnectionModels(open && canEmbed && needsModel ? connectionId : null, open);
   useEffect(() => {
     if (!open) return;
@@ -57,7 +61,8 @@ export function QuickSetupDialog({
   }, [open, connectionId, conn?.verified_model]);
   useEffect(() => {
     if (!data?.ok || embedModel) return;
-    const found = [...data.custom, ...data.models].find((m) => /embed/i.test(m));
+    const listed = [...data.custom, ...data.models];
+    const found = listed.find((m) => KNOWN_EMBED.test(m)) ?? listed.find((m) => /embed/i.test(m));
     if (found) setEmbedModel(found);
   }, [data, embedModel]);
 
@@ -76,6 +81,7 @@ export function QuickSetupDialog({
         <div className="mt-3 grid gap-3 text-sm leading-prose" role="status">
           <p>{result.set.length ? t("settings.quick.done", { count: result.set.length }) : t("settings.quick.nothing")}</p>
           {result.left.length ? <p className="text-muted-foreground">{t("settings.quick.left", { list: result.left.map(fnName).join(", ") })}</p> : null}
+          {result.refused ? <p>{t("settings.quick.refused", { message: result.refused })}</p> : null}
           <div className="flex justify-end">
             <Button type="button" onClick={onClose}>
               {t("settings.quick.close")}

@@ -43,7 +43,7 @@ func TestMarkCoverageSaysWhenItCouldNotCheck(t *testing.T) {
 	}
 	s := &Service{coverage: fixedCoverage{sims: []float64{0.5, 0.52, 0.2, 0.49}}}
 	ms := modules()
-	if got := s.markCoverage(context.Background(), uuid.New(), uuid.New(), ms); got != CoverageChecked {
+	if got := s.markCoverage(context.Background(), uuid.New(), uuid.New(), ms, "", "en"); got != CoverageChecked {
 		t.Fatalf("coverage = %q", got)
 	}
 	if !ms[0].KnowledgePoints[2].OutsideSource || ms[0].KnowledgePoints[0].OutsideSource {
@@ -51,11 +51,31 @@ func TestMarkCoverageSaysWhenItCouldNotCheck(t *testing.T) {
 	}
 	s = &Service{coverage: fixedCoverage{err: ErrCoverageUnknown}}
 	ms = modules()
-	if got := s.markCoverage(context.Background(), uuid.New(), uuid.New(), ms); got != CoverageSkipped || ms[0].KnowledgePoints[2].OutsideSource {
+	if got := s.markCoverage(context.Background(), uuid.New(), uuid.New(), ms, "", "en"); got != CoverageSkipped || ms[0].KnowledgePoints[2].OutsideSource {
 		t.Fatalf("an unmeasured base was marked: %q %+v", got, ms)
 	}
-	if got := (&Service{}).markCoverage(context.Background(), uuid.New(), uuid.New(), modules()); got != CoverageSkipped {
+	if got := (&Service{}).markCoverage(context.Background(), uuid.New(), uuid.New(), modules(), "", "en"); got != CoverageSkipped {
 		t.Fatalf("no coverage = %q", got)
+	}
+}
+
+// Names in another language than the documents are not measured, or the
+// translated points would be the ones marked; names in the documents' own
+// language are.
+func TestMarkCoverageOnlyInTheDocumentsLanguage(t *testing.T) {
+	s := &Service{coverage: fixedCoverage{sims: []float64{0.5, 0.52, 0.2, 0.49}}}
+	ms := []ProposedModule{{Name: "m", KnowledgePoints: []ProposedKP{{Name: "a"}, {Name: "b"}, {Name: "c"}, {Name: "d"}}}}
+	if got := s.markCoverage(context.Background(), uuid.New(), uuid.New(), ms, "vi", "en"); got != CoverageLanguage || ms[0].KnowledgePoints[2].OutsideSource {
+		t.Fatalf("Vietnamese names against English documents: %q %+v", got, ms)
+	}
+	for _, lang := range []string{"", "vi", "vi-VN"} {
+		docs := "vi"
+		if lang == "" {
+			docs = "en"
+		}
+		if got := s.markCoverage(context.Background(), uuid.New(), uuid.New(), ms, lang, docs); got != CoverageChecked {
+			t.Errorf("plan %q, documents %q: %q", lang, docs, got)
+		}
 	}
 }
 

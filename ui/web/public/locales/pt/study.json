@@ -140,7 +140,8 @@
     "outsideTitle": "Não está nos seus documentos",
     "outsideHint": "Seus documentos quase não tratam destes pontos, então as aulas sobre eles dependeriam do modelo, não do seu material. Apague uma linha para tirá-lo, ou mantenha-o marcado.",
     "outsideMark": "Não está nos seus documentos",
-    "coverageSkipped": "Estes pontos não foram comparados com seus documentos: esta base não pôde ser medida com seu modelo de embeddings atual."
+    "coverageSkipped": "Estes pontos não foram comparados com seus documentos: esta base não pôde ser medida com seu modelo de embeddings atual.",
+    "coverageLanguage": "Estes pontos não foram comparados com seus documentos: o plano está em outro idioma que eles, e essa comparação marcaria os pontos errados."
   },
   "session": {
     "back": "Voltar à trilha",

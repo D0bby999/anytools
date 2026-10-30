@@ -214,7 +214,7 @@ export type Proposal = {
   note?: string;
   model?: string;
   /** "checked" when each point was measured against the knowledge base, "skipped" when it could not be. */
-  coverage?: "checked" | "skipped";
+  coverage?: "checked" | "skipped" | "language";
 };
 
 export type DueItem = {

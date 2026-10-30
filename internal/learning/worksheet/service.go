@@ -206,7 +206,9 @@ func (s *Service) Create(ctx context.Context, userID uuid.UUID, in NewWorksheet)
 		return nil, err
 	}
 	// A quick version's "this happened on" date starts as the learner's day
-	// (quick.go), so its reviews are scheduled from the start.
+	// (quick.go), so the form shows it filled. Its reviews are scheduled at
+	// the first write, not here: a worksheet opened only to look must not
+	// put reviews on Home a week later.
 	answers := Answers{}
 	for _, qf := range k.Quick {
 		if qf.Today {
@@ -217,7 +219,7 @@ func (s *Service) Create(ctx context.Context, userID uuid.UUID, in NewWorksheet)
 		}
 	}
 	reviews := map[string]ReviewDate{}
-	schedule(k, answers, reviews, today, today)
+	schedule(k, Answers{}, reviews, today, today)
 	return s.store.Create(ctx, Worksheet{
 		UserID: userID, Kind: k.Kind, KindVersion: k.Version, Title: title, Answers: answers,
 		StateID: in.StateID, DocumentID: in.DocumentID, CycleID: in.CycleID, Status: StatusOpen, Private: k.Private,
