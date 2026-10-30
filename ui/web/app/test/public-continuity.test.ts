@@ -95,13 +95,13 @@ describe("the old site's URLs", () => {
 });
 
 describe("the landing page's addresses (2026-10-19)", () => {
-  it("is /{locale}; the tools home is /{locale}/tools; / and /?lng= only redirect", async () => {
+  it("serves English at /, keeps localized homes and redirects legacy /?lng= addresses", async () => {
     for (const locale of ["en", "vi", "es", "pt"]) {
       expect((await answer(`/${locale}`)).status, `/${locale}`).toBe(200);
       expect((await answer(`/${locale}/tools`)).status, `/${locale}/tools`).toBe(200);
       expect(await answer(`/?lng=${locale}`)).toEqual({ status: 301, location: `/${locale}` });
     }
-    expect(await answer("/")).toEqual({ status: 302, location: "/en" });
+    expect(await answer("/")).toEqual({ status: 200, location: null });
     expect((await answer("/fr")).status).toBe(404);
   });
 });

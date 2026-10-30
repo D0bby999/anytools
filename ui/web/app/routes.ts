@@ -17,8 +17,7 @@ export const DROPPED_SECTIONS = ["blog", "sign-in", "sign-up", "dashboard", "fav
 
 export default [
   layout("routes/locale-layout.tsx", [
-    // `/` shows nothing: it sends a visitor to the landing page in their
-    // language (/en, /vi, /es, /pt), and a signed-in one to /home.
+    // `/` serves the English landing page directly; signed-in visitors go to /home.
     index("routes/home-redirect.ts"),
     layout("routes/auth-layout.tsx", [route("login", "routes/login.tsx")]),
     // A learner's public profile, for anyone, signed in or not, in the

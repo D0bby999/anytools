@@ -310,11 +310,12 @@ The public pages have one path per language, for search engines: the site's
 home (the landing page) at `/en`, `/vi`, `/es` and `/pt`, the tools home at
 `/{lng}/tools`, and every tool, cluster, guide and page under the same prefix.
 Each is canonical to itself, with hreflang to the others and an x-default, and
-all are in the sitemap. The bare `/` has no page (`routes/home-redirect.ts`): a
-signed-in visitor goes to `/home`; anyone else gets a 302 (`Vary:
-Accept-Language, Cookie`) to the language last opened (the `anylearn-lang`
-cookie the landing page sets, which sign-in reads too), else the browser's,
-else `/en`, which is what a crawler gets. It is the landing page's x-default.
+all are in the sitemap. The bare `/` (`routes/home-redirect.ts`) serves the
+English landing page directly with a 200, including the site's verification
+meta tags, regardless of the browser's language or the `anylearn-lang` cookie.
+It is an alias canonical to `/en` and the landing page's x-default. Signed-in
+visitors still go to `/home`. Localized homes keep remembering their language
+in `anylearn-lang` for sign-in.
 `/?lng=xx`, the landing page's address for a few hours on 2026-10-19, answers
 301 to `/xx`.
 

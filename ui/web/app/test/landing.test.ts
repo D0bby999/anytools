@@ -29,7 +29,19 @@ describe("landing", () => {
     // `/` sends them on; the landing page itself (/en) is public to anyone.
     const sent = await home.loader(bare);
     expect(sent).toBeInstanceOf(Response);
+    if (!(sent instanceof Response)) throw new Error("Expected a redirect");
     expect(sent.headers.get("Location")).toBe("/home");
+  });
+
+  it.each<Record<string, string>>([
+    {},
+    { "Accept-Language": "vi-VN,vi;q=0.9" },
+    { "Accept-Language": "es", Cookie: "anylearn-lang=pt" },
+  ])("serves English at / without redirecting, regardless of visitor language: %j", async (headers) => {
+    getUserId.mockResolvedValue(null);
+    const out = await home.loader({ ...bare, request: new Request("https://learn.example.com/", { headers }) });
+    expect(out).not.toBeInstanceOf(Response);
+    expect(out).toMatchObject({ data: { toolsLocale: "en", seo: { title: expect.any(String) } } });
   });
 
   it("renders for a visitor, with a canonical URL, an OG image, the site's Organization and WebSite, and AnyLearn's SoftwareApplication", async () => {
@@ -73,7 +85,7 @@ describe("crawler files", () => {
   it("sitemap.xml lists the landing page and nothing private", async () => {
     const body = await (await sitemap.loader()).text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-    // The landing page in each language; `/` only redirects, so it is not listed.
+    // The canonical homes in each language; `/` is an English alias, canonical to /en.
     for (const l of ["en", "vi", "es", "pt"]) expect(locs).toContain(`https://learn.example.com/${l}`);
     expect(locs).not.toContain("https://learn.example.com/");
     const priv = locs.filter((l) => !/^https:\/\/learn\.example\.com\/(en|vi|es|pt)(\/.*)?$/.test(l ?? ""));

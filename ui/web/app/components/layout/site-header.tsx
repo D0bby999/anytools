@@ -12,8 +12,8 @@ export const SEARCH_ATTR = "data-tools-search";
 
 /**
  * The site's home in a language: the landing page at /en, /vi, /es or /pt.
- * The bare `/` only redirects (routes/home-redirect.ts), so a link names its
- * language and a choice is never undone by the browser's.
+ * The bare `/` also serves English (routes/home-redirect.ts). Links name their
+ * language explicitly so a visitor's choice is never undone by the browser.
  */
 export function homeHref(locale: PublicLng): string {
   return `/${locale}`;

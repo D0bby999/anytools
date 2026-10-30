@@ -311,14 +311,15 @@ describe("the merged landing page", () => {
   };
   const chose = async (lng: string) => (await languageCookie.serialize(lng)).split(";")[0]!;
 
-  it("lives at /{locale}, and / sends a visitor to the browser's language", async () => {
-    expect(await bare("/", { "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8" })).toEqual({
-      status: 302,
-      location: "/vi",
-      vary: "Accept-Language, Cookie",
-    });
-    // A crawler sends no language and no cookie.
-    expect(await bare("/", {})).toMatchObject({ status: 302, location: "/en" });
+  it("renders English directly at /, even in a Vietnamese browser", async () => {
+    const out = await call(homeRedirect.loader, "/", {}, { "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8" });
+    expect(out).not.toBeInstanceOf(Response);
+    const { data } = out as { data: LandingData };
+    expect(data.toolsLocale).toBe("en");
+    const Stub = createRoutesStub([{ path: "/", Component: homeRedirect.default as never, loader: () => data }]);
+    render(<Stub initialEntries={["/"]} />);
+    expect(await screen.findByRole("heading", { level: 1, name: "Study from your own documents." })).toBeInTheDocument();
+    expect(canonical(metaOf(homeRedirect.meta, data))).toBe("https://anytools.example/en");
     // The address it had for a few hours on 2026-10-19 moves for good.
     expect(await bare("/?lng=pt", { "Accept-Language": "vi" })).toMatchObject({ status: 301, location: "/pt" });
     const en = await landingCall("en", { "Accept-Language": "vi" });
@@ -329,11 +330,10 @@ describe("the merged landing page", () => {
   });
 
   // 2026-10-19: choosing English in a Vietnamese browser showed Vietnamese.
-  it("remembers the language the visitor opened, over the browser's", async () => {
+  it("remembers a chosen language for sign-in, but / always serves English", async () => {
     const pick = await landingCall("en", { "Accept-Language": "vi-VN,vi;q=0.9" });
     expect(pick.setCookie).toMatch(/^anylearn-lang=/);
-    expect(await bare("/", { "Accept-Language": "vi-VN,vi;q=0.9", Cookie: await chose("en") })).toMatchObject({ location: "/en" });
-    expect(await bare("/", { "Accept-Language": "en-US", Cookie: await chose("pt") })).toMatchObject({ location: "/pt" });
+    expect(await call(homeRedirect.loader, "/", {}, { "Accept-Language": "vi-VN,vi;q=0.9", Cookie: await chose("pt") })).toMatchObject({ data: { toolsLocale: "en" } });
     // Opening the language already kept sets nothing.
     expect((await landingCall("en", { Cookie: await chose("en") })).setCookie).toBeNull();
     const h = landing.headers({ loaderHeaders: new Headers({ "Set-Cookie": "anylearn-lang=x" }) } as never);

@@ -8,9 +8,9 @@
  * clusters and the public pages' links. Since 2026-10-19 the page itself is
  * in the visitor's language (`pages.json` → `landing`), and each language has
  * its own path, canonical to itself, with hreflang to the others and x-default
- * to `/` (routes/home-redirect.ts), which sends a visitor here in their
- * language. Opening one remembers it in the `anylearn-lang` cookie, which `/`
- * and sign-in read. The tools home moved to /{locale}/tools to make room.
+ * to `/` (routes/home-redirect.ts), which serves this page directly in English.
+ * Opening a home remembers its language in the `anylearn-lang` cookie for
+ * sign-in; `/` always defaults to English. The tools home is at /{locale}/tools.
  *
  * It draws its own header and footer (`handle.ownFrame`, public-shell.tsx).
  *
