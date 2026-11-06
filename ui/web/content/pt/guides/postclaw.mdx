@@ -1,0 +1,74 @@
+---
+title: "PostClaw: Agende posts com IA"
+description: "Conheça o PostClaw: escrita com IA, agendamento de posts em redes sociais e blogs, métricas de engajamento, chaves de API próprias e hospedagem própria."
+updated: 2026-11-06
+readingTime: 5
+---
+
+Publicar uma mesma ideia no LinkedIn, no Facebook e em um blog costuma exigir vários editores, adaptações no texto e atenção ao horário de cada versão. Para quem mantém um calendário regular, esse trabalho operacional se acumula.
+
+O [PostClaw](https://postclaw.fun/) é uma plataforma de gestão de redes sociais com assistência de IA que reúne criação de rascunhos, agendamento de publicações e relatórios de engajamento em um único painel. A ferramenta é voltada a criadores de conteúdo, profissionais de marketing e equipes que gerenciam vários canais.
+
+Esta apresentação se baseia no [README do PostClaw](https://github.com/D0bby999/PostClaw#readme), não em uma avaliação prática de todas as integrações. Veja o que vale saber antes de decidir se a ferramenta combina com sua rotina de publicação.
+
+## Do rascunho ao calendário
+
+As ferramentas de IA do PostClaw geram variações de conteúdo, sugerem hashtags e permitem agendar publicações em linguagem natural. Conferir os fatos, o tom e a formatação continua sendo sua responsabilidade. A IA ajuda a preparar o rascunho; não substitui a revisão editorial.
+
+Para anunciar um produto, por exemplo, você pode preparar um post curto para as redes, uma explicação mais longa para o LinkedIn e um artigo completo para o blog. Esse é um exemplo de fluxo de trabalho, não uma promessa de que todos os destinos tenham os mesmos recursos ou de que a adaptação automática dispense edição.
+
+Para formatos recorrentes, como atualizações semanais, os modelos reutilizáveis aceitam variáveis no formato `{{variable}}`, categorias e versões específicas por plataforma. Assim, você parte de uma estrutura conhecida sem precisar copiar o rascunho inteiro a cada publicação.
+
+## Redes sociais e blogs
+
+O README lista **18 integrações de publicação implementadas: 11 redes sociais e 7 destinos de blog**. As redes incluem X/Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, Threads, Bluesky, Pinterest, Mastodon e Dribbble. Os destinos de blog incluem WordPress, Medium, Dev.to, Hashnode, Ghost, Blogger e seu próprio site.
+
+Uma integração implementada não significa disponibilidade verificada. A documentação registra **12 integrações aprovadas e verificadas de ponta a ponta: 10 redes sociais e 2 destinos de blog**.
+
+Pinterest, Dev.to, Hashnode, Ghost, Blogger e o publicador para sites próprios ainda aguardam verificação. O Pinterest não recebeu acesso à API Standard. O LinkedIn permite publicar em perfis pessoais; a publicação em páginas de empresas aguarda a análise do Marketing Developer Program.
+
+Se um canal específico for essencial para seu trabalho, confira a situação atual no [site do PostClaw](https://postclaw.fun/) antes de transferir seu calendário de publicações.
+
+## IA com sua própria chave
+
+O PostClaw aceita provedores como Anthropic, Gemini, DeepSeek, Groq e OpenRouter. Você pode usar a cota de IA da plataforma ou conectar sua própria chave de API, opção conhecida como **BYOK**.
+
+Com BYOK, você paga diretamente ao provedor do modelo. Essas chamadas não descontam créditos de IA do PostClaw, mas não são gratuitas: o custo depende dos preços do provedor e do seu uso.
+
+O editor também inclui geração de imagens e vídeos e conversão de texto em fala. Segundo o README, os planos Free, Pro e Business exigem BYOK para gerar mídia. A cota de IA de texto incluída no plano não deve ser confundida com um orçamento para gerar imagens ou vídeos.
+
+## Depois de publicar
+
+O PostClaw busca métricas de engajamento pelas APIs das plataformas. A documentação descreve uma atualização automática a cada seis horas para posts dos últimos 30 dias, além da opção de atualização manual. No X/Twitter, a atualização é apenas manual e conta com controles de gastos.
+
+Mapas de calor de engajamento e resumos diários pelo Telegram, Discord ou Zalo ajudam a revisar o conteúdo e os horários de publicação. São ferramentas de análise, não uma garantia de aumento de alcance.
+
+O PostClaw também permite visualizar comentários organizados em conversas no Facebook, Instagram, LinkedIn e YouTube, com análise de sentimento. Os dados disponíveis dependem da conta conectada e das permissões da API.
+
+## Trabalhando em equipe
+
+Para uma equipe, o calendário de publicações também precisa de responsabilidades claras: quem pode editar, quem aprova e quem publica. O PostClaw inclui funções de equipe e fluxos de aprovação, além de recursos empresariais como OIDC/SSO, registros de auditoria, personalização de marca e domínios próprios. Confirme qual plano oferece os recursos de que você precisa.
+
+O produto oferece suporte a 12 idiomas, incluindo vietnamita. Para equipes técnicas que desejam operar sua própria instalação, o repositório fornece instruções com Docker Compose para o backend em Go, o frontend em React Router e o banco de dados PostgreSQL. Na hospedagem própria, as chaves de API, a configuração de OAuth, os backups e as atualizações ficam sob sua responsabilidade.
+
+Diferentemente das utilidades do Anytools que rodam localmente no navegador, um serviço de publicação conecta contas de redes sociais e envia dados aos serviços envolvidos. Leia os termos de privacidade e confira as permissões solicitadas antes de conectar uma conta.
+
+## Custos a conferir
+
+Estes valores vêm do README no momento da redação. Não substituem os preços nem os termos de assinatura atuais:
+
+| Plano | Preço mensal | Posts por mês | Contas sociais | Créditos de IA por mês |
+| --- | --- | --- | --- | --- |
+| Free | Grátis | 50 | 5 | 5.000 |
+| Pro | US$ 20 | Sem limite conforme o plano | 15 | 80.000 |
+| Business | US$ 50 | Sem limite conforme o plano | 25 | 250.000 |
+
+Os créditos de IA são calculados pelo consumo de tokens e pelo preço do modelo, não como um crédito por post. As plataformas conectadas ainda podem impor limites de API mesmo quando o plano não limita a quantidade de posts. Calcule separadamente as cobranças do provedor ao usar BYOK e os custos de infraestrutura se optar por hospedagem própria.
+
+## Comece com o PostClaw
+
+Vale considerar o PostClaw se você publica regularmente em vários canais, quer assistência de IA para criar variações de conteúdo ou precisa de um processo de aprovação em equipe. Se você publica apenas de vez em quando em uma rede, as ferramentas de agendamento nativas podem ser suficientes.
+
+Uma maneira de começar com pouco risco é conectar um canal verificado, preparar um rascunho, conferir a mídia e agendar um post de teste antes de migrar o calendário inteiro.
+
+**[Conheça o PostClaw](https://postclaw.fun/)** para ver o produto e os planos atuais. Para consultar o código ou executar sua própria instalação, veja o [guia de início no GitHub](https://github.com/D0bby999/PostClaw#quick-start).

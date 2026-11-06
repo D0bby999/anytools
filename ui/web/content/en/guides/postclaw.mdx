@@ -1,0 +1,74 @@
+---
+title: "PostClaw: Social scheduling with AI"
+description: "Meet PostClaw for AI-assisted writing, social and blog scheduling, engagement analytics, bring-your-own API keys, and self-hosted deployment."
+updated: 2026-11-06
+readingTime: 5
+---
+
+Publishing one idea across LinkedIn, Facebook, and a blog often means opening several editors, adapting the copy, and remembering when each version should go live. For a recurring content schedule, that operational work adds up.
+
+[PostClaw](https://postclaw.fun/) is an AI-assisted social media management platform that brings drafting, scheduled publishing, and engagement reporting into one dashboard. It is aimed at creators, marketers, and teams managing multiple channels.
+
+This introduction is based on the [PostClaw README](https://github.com/D0bby999/PostClaw#readme), not a hands-on review of every integration. Here is what to know before deciding whether it fits your publishing workflow.
+
+## From draft to schedule
+
+PostClaw's AI tools generate content variations, suggest hashtags, and support scheduling in natural language. You remain responsible for checking facts, tone, and formatting before publishing. The AI helps prepare a draft; it does not replace editorial review.
+
+For a product announcement, for example, you might prepare a short social post, a longer LinkedIn explanation, and a full blog article. That is an example workflow, not a promise that every destination has identical features or that automatic adaptation needs no editing.
+
+For recurring formats such as weekly updates, reusable post templates support `{{variable}}` placeholders, categories, and platform-specific variants. This gives repeat posts a starting structure without requiring you to copy the whole draft each time.
+
+## Social networks and blogs
+
+The README lists **18 implemented publishing integrations: 11 social networks and 7 blog destinations**. Social destinations include X/Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, Threads, Bluesky, Pinterest, Mastodon, and Dribbble. Blog destinations include WordPress, Medium, Dev.to, Hashnode, Ghost, Blogger, and your own website.
+
+Implementation and verified availability are different. The documentation records **12 approved and end-to-end verified integrations: 10 social and 2 blog destinations**.
+
+Pinterest, Dev.to, Hashnode, Ghost, Blogger, and the custom website publisher are still awaiting verification. Pinterest has not received Standard API access. LinkedIn currently publishes to member profiles; Company Page publishing awaits Marketing Developer Program review.
+
+If a particular channel is essential to your work, check its current status on the [PostClaw website](https://postclaw.fun/) before moving your publishing calendar.
+
+## AI with your own key
+
+PostClaw supports providers including Anthropic, Gemini, DeepSeek, Groq, and OpenRouter. You can use the platform's AI allowance or connect your own API key, also known as **BYOK**.
+
+With BYOK, you pay the model provider directly. Those calls do not debit PostClaw AI credits, but they are not free: the provider's model pricing and your usage still determine the cost.
+
+The composer also includes image generation, video generation, and text-to-speech. According to the README, Free, Pro, and Business require BYOK for media generation. An included text AI allowance should not be mistaken for an included image or video generation budget.
+
+## After publishing
+
+PostClaw retrieves engagement metrics through platform APIs. The documented refresh cycle is every six hours for posts from the last 30 days, with manual refresh also available. X/Twitter is manual-only and has billing safeguards.
+
+Engagement heatmaps and daily digests through Telegram, Discord, or Zalo help you review content and posting times. They are reporting tools, not a guarantee of increased reach.
+
+PostClaw also supports threaded comment views for Facebook, Instagram, LinkedIn, and YouTube, with sentiment analysis. Available data depends on the connected account and its API permissions.
+
+## Working with a team
+
+For teams, a publishing schedule also needs clear responsibility: who can edit, who approves, and who publishes. PostClaw includes team roles and approval workflows, alongside enterprise features such as OIDC/SSO, audit logs, white-label branding, and custom domains. Confirm which plan includes the features you need.
+
+The product supports 12 languages, including Vietnamese. For technical teams that want to operate their own deployment, the repository provides Docker Compose instructions for its Go backend, React Router frontend, and PostgreSQL database. Self-hosting makes API keys, OAuth configuration, backups, and updates your responsibility.
+
+Unlike Anytools utilities that run locally in your browser, a publishing service connects social accounts and sends data to the relevant services. Review privacy terms and permission scopes before connecting an account.
+
+## Costs to check
+
+These figures come from the README at the time of writing. They do not replace current pricing or subscription terms:
+
+| Plan | Monthly price | Posts per month | Social accounts | Monthly AI credits |
+| --- | --- | --- | --- | --- |
+| Free | Free | 50 | 5 | 5,000 |
+| Pro | $20 | Unlimited under the plan | 15 | 80,000 |
+| Business | $50 | Unlimited under the plan | 25 | 250,000 |
+
+AI credits are calculated from token usage and model pricing, not as one credit per post. Connected platforms can still impose API limits even when a plan has no post cap. Budget separately for provider charges when using BYOK and infrastructure costs when self-hosting.
+
+## Start with PostClaw
+
+PostClaw is worth considering if you publish regularly across multiple channels, want AI-assisted content variations, or need a team approval process. If you post occasionally to a single network, its built-in scheduling tools may already be enough.
+
+A low-risk starting point is to connect one verified channel, prepare a draft, check its media, and schedule a test post before migrating a full calendar.
+
+**[Explore PostClaw](https://postclaw.fun/)** for the product and current plan information. To inspect the source or run your own deployment, see the [GitHub quick start](https://github.com/D0bby999/PostClaw#quick-start).

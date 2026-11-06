@@ -215,9 +215,13 @@ describe("the sitemap", () => {
       toolMetas.filter((m) => isIndexableTool(m, l)).map((m) => `${l}/${m.cluster}`),
     );
     // The landing page and the tools home in four languages (`/` only
-    // redirects); phase 4: the guides index, seven guides, AnyLearn,
-    // AnyProfile and the four static pages, in four languages.
-    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 7 + 2 + 4) * 4);
+    // redirects); the guides index, eight guides (including PostClaw),
+    // AnyLearn, AnyProfile and the four static pages, all in four languages.
+    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 8 + 2 + 4) * 4);
+    expect(locs).toContain("https://anytools.example/en/guides/postclaw");
+    expect(locs).toContain("https://anytools.example/vi/guides/postclaw");
+    expect(locs).toContain("https://anytools.example/es/guides/postclaw");
+    expect(locs).toContain("https://anytools.example/pt/guides/postclaw");
     // Batch A (phase 3a): finance, health and lifestyle pages, an English-only tool in English only.
     expect(locs).toContain("https://anytools.example/vi/finance/loan-calculator");
     expect(locs).toContain("https://anytools.example/pt/health");

@@ -24,7 +24,7 @@ const PAGE_FILES = import.meta.glob<string>("/content/*/pages/*.md", {
   eager: true,
 });
 
-/** The old site's order (load-guide-content.ts): the three deep guides, then one per cluster. */
+/** Keep the ported guides' order, followed by new editorial guides. */
 export const GUIDE_SLUGS = [
   "json-complete-guide",
   "regex-mastery",
@@ -33,6 +33,7 @@ export const GUIDE_SLUGS = [
   "health-fitness-tools",
   "lifestyle-utilities",
   "design-color-tools",
+  "postclaw",
 ] as const;
 
 export const STATIC_PAGES = ["about", "privacy", "terms", "contact"] as const;

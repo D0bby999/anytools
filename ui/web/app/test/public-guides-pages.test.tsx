@@ -20,7 +20,7 @@ vi.mock("~/lib/auth.server", () => ({ getUserId: (r: Request) => getUserId(r) })
 import { initI18n, publicLngs, type PublicLng } from "~/lib/i18n";
 import { toolsI18n } from "~/lib/tools/i18n";
 import { toolsMessages } from "~/lib/tools/messages.server";
-import { GUIDE_SLUGS, listGuides, loadGuide, loadPage, pageFileKeys, STATIC_PAGES } from "~/lib/tools/pages.server";
+import { GUIDE_SLUGS, guideLocales, listGuides, loadGuide, loadPage, pageFileKeys, STATIC_PAGES } from "~/lib/tools/pages.server";
 import { resetReleaseCache } from "~/lib/tools/anyprofile.server";
 
 const guides = await import("~/routes/public.guides");
@@ -93,14 +93,17 @@ describe("the pages namespace", () => {
 });
 
 describe("the content", () => {
-  it("has every guide and every page in every locale, and no file nothing serves", () => {
-    for (const l of publicLngs) {
-      for (const slug of GUIDE_SLUGS) {
+  it("has every guide and static page in all four languages, and no orphaned file", () => {
+    for (const slug of GUIDE_SLUGS) {
+      expect(guideLocales(slug), slug).toEqual(publicLngs);
+      for (const l of guideLocales(slug)) {
         const g = loadGuide(l, slug);
         expect(g?.title, `${l}/${slug}`).toBeTruthy();
         expect(g?.description, `${l}/${slug}`).toBeTruthy();
         expect(g?.readingTime, `${l}/${slug}`).toBeGreaterThan(0);
       }
+    }
+    for (const l of publicLngs) {
       for (const p of STATIC_PAGES) {
         const doc = loadPage(l, p);
         expect(doc?.title, `${l}/${p}`).toBeTruthy();
@@ -109,7 +112,7 @@ describe("the content", () => {
       }
     }
     const served = new Set([
-      ...publicLngs.flatMap((l) => GUIDE_SLUGS.map((s) => `/content/${l}/guides/${s}.mdx`)),
+      ...GUIDE_SLUGS.flatMap((s) => guideLocales(s).map((l) => `/content/${l}/guides/${s}.mdx`)),
       ...publicLngs.flatMap((l) => STATIC_PAGES.map((p) => `/content/${l}/pages/${p}.md`)),
     ]);
     expect(pageFileKeys().filter((k) => !served.has(k))).toEqual([]);
@@ -117,8 +120,8 @@ describe("the content", () => {
   });
 
   it("drops a guide's own title from its body, since the page shows it as the h1", () => {
-    for (const l of publicLngs) {
-      for (const slug of GUIDE_SLUGS) expect(loadGuide(l, slug)?.source, `${l}/${slug}`).not.toMatch(/^\s*#\s/);
+    for (const slug of GUIDE_SLUGS) {
+      for (const l of guideLocales(slug)) expect(loadGuide(l, slug)?.source, `${l}/${slug}`).not.toMatch(/^\s*#\s/);
     }
   });
 
@@ -166,7 +169,7 @@ describe("the merged privacy policy", () => {
 describe("the guides pages", () => {
   it("index: every guide, canonical and four hreflang links", async () => {
     const data = (await call(guides.loader, "/es/guides", { locale: "es" })) as { guides: { slug: string }[]; seo: { title: string } };
-    expect(data.guides).toHaveLength(7);
+    expect(data.guides.map((g) => g.slug)).toEqual([...GUIDE_SLUGS]);
     expect(data.seo.title).toBe("Guías de JSON, regex, codificación, finanzas y diseño");
     const tags = metaOf(guides.meta, data);
     expect(canonical(tags)).toBe("https://anytools.example/es/guides");
@@ -192,6 +195,31 @@ describe("the guides pages", () => {
     expect(en.source).toContain("](/en/encoding/url-encode)");
   });
 
+  it("serves the PostClaw article in all four languages with crawlable backlinks and matching SEO", async () => {
+    for (const locale of publicLngs) {
+      const url = `/${locale}/guides/postclaw`;
+      const params = { locale, slug: "postclaw" };
+      const data = await call(guide.loader, url, params);
+      const tags = metaOf(guide.meta, data);
+      expect(canonical(tags)).toBe(`https://anytools.example${url}`);
+      expect(hreflangs(tags)).toEqual([...publicLngs, "x-default"]);
+      expect(tags.find((t) => t.name === "robots")?.content).toMatch(/^index/);
+      expect(ld(tags)[0]).toMatchObject({ "@type": "Article", inLanguage: locale, dateModified: "2026-11-06" });
+      expect(listGuides(locale).map((g) => g.slug)).toContain("postclaw");
+      const view = await renderRoute(guide, url, "/:locale/guides/:slug", params);
+      expect(view.container.querySelectorAll("h1")).toHaveLength(1);
+      expect(view.container.querySelectorAll("h2").length).toBeGreaterThan(3);
+      const backlinks = view.container.querySelectorAll('a[href="https://postclaw.fun/"]');
+      expect(backlinks.length).toBeGreaterThanOrEqual(2);
+      for (const link of backlinks) {
+        expect(link.textContent).toMatch(/PostClaw/);
+        expect(link.getAttribute("rel")).not.toMatch(/nofollow|sponsored|ugc/);
+        expect(link.getAttribute("rel")).toContain("noopener");
+      }
+      view.unmount();
+    }
+  });
+
   it("an unknown guide is a 404", async () => {
     const thrown = await Promise.resolve()
       .then(() => call(guide.loader, "/en/guides/nope", { locale: "en", slug: "nope" }))
@@ -214,7 +242,7 @@ describe("the guides pages", () => {
     await renderRoute(guides, "/pt/guides", "/:locale/guides", { locale: "pt" });
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Guias");
     const links = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
-    expect(links).toEqual(GUIDE_SLUGS.map((s) => `/pt/guides/${s}`));
+    expect(links).toEqual(listGuides("pt").map((g) => `/pt/guides/${g.slug}`));
   });
 });
 

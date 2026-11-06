@@ -1,0 +1,74 @@
+---
+title: "PostClaw: Lên lịch bài với AI"
+description: "Giới thiệu PostClaw: soạn nội dung bằng AI, lên lịch đăng mạng xã hội và blog, theo dõi tương tác, dùng khóa API riêng hoặc tự triển khai."
+updated: 2026-11-06
+readingTime: 6
+---
+
+Bạn có một ý tưởng cho bài viết mới, nhưng để đưa nó lên LinkedIn, Facebook và blog, bạn lại phải mở nhiều tab, sửa từng phiên bản rồi nhớ giờ đăng. Khi công việc lặp lại mỗi tuần, phần vận hành dễ chiếm hết thời gian dành cho nội dung.
+
+[PostClaw](https://postclaw.fun/) là nền tảng quản lý nội dung mạng xã hội có AI hỗ trợ, gom việc soạn bài, lên lịch xuất bản và theo dõi tương tác về một dashboard. Công cụ hướng tới người sáng tạo nội dung, người làm marketing và nhóm quản lý nhiều kênh.
+
+Bài giới thiệu này dựa trên [README của PostClaw](https://github.com/D0bby999/PostClaw#readme), không phải bài đánh giá sau khi thử nghiệm toàn bộ tích hợp. Nếu bạn đang tìm một nơi để tổ chức lịch đăng thay vì chuyển qua lại giữa các ứng dụng, đây là những điểm đáng xem.
+
+## Từ bản nháp đến lịch đăng
+
+Quy trình có thể bắt đầu từ một nội dung gốc. AI hỗ trợ tạo các biến thể, gợi ý hashtag và lên lịch bằng ngôn ngữ tự nhiên. Bạn vẫn cần kiểm tra thông tin, giọng văn và định dạng trước khi xuất bản; AI giúp chuẩn bị bản nháp, không thay thế trách nhiệm biên tập.
+
+Chẳng hạn, với một bài giới thiệu sản phẩm, bạn có thể chuẩn bị bản ngắn cho mạng xã hội, bản giải thích dài hơn cho LinkedIn và bài đầy đủ cho blog. Đây là ví dụ về cách tổ chức công việc, không phải cam kết rằng mọi kênh đều có cùng tính năng hay tự chuyển đổi hoàn hảo.
+
+Với nội dung lặp lại như bản tin tuần hoặc thông báo sự kiện, PostClaw có mẫu bài viết dùng biến theo dạng `{{variable}}`, phân loại mẫu và biến thể theo nền tảng. Bạn giữ được cấu trúc quen thuộc mà không phải sao chép lại toàn bộ mỗi lần.
+
+## Mạng xã hội và blog
+
+Theo README, PostClaw đã triển khai **18 tích hợp xuất bản: 11 mạng xã hội và 7 nền tảng blog**. Danh sách mạng xã hội gồm X/Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube, Threads, Bluesky, Pinterest, Mastodon và Dribbble. Phần blog gồm WordPress, Medium, Dev.to, Hashnode, Ghost, Blogger và website riêng.
+
+Có một khác biệt quan trọng khi chọn công cụ: **đã có mã tích hợp không đồng nghĩa đã được xác minh hoạt động đầu cuối**. Tài liệu hiện ghi nhận 12 tích hợp đã được phê duyệt và xác minh, gồm 10 mạng xã hội và 2 nền tảng blog.
+
+Sáu tích hợp còn chờ xác minh là Pinterest, Dev.to, Hashnode, Ghost, Blogger và website riêng. Pinterest chưa được cấp quyền Standard API. LinkedIn hiện hỗ trợ đăng lên hồ sơ cá nhân; đăng lên Company Page còn chờ xét duyệt Marketing Developer Program.
+
+Nếu một kênh là bắt buộc trong công việc của bạn, hãy kiểm tra trạng thái hỗ trợ mới nhất trên [website PostClaw](https://postclaw.fun/) trước khi chuyển lịch nội dung sang đó.
+
+## AI với khóa riêng
+
+PostClaw hỗ trợ nhiều nhà cung cấp mô hình, trong đó có Anthropic, Gemini, DeepSeek, Groq và OpenRouter. Bạn có thể dùng hạn mức AI của nền tảng hoặc kết nối khóa API riêng, thường gọi là **BYOK**.
+
+Với BYOK, bạn thanh toán chi phí mô hình trực tiếp cho nhà cung cấp. Phần sử dụng bằng khóa riêng không bị trừ credit AI của PostClaw, nhưng không có nghĩa là miễn phí: phí API vẫn phụ thuộc mô hình và mức sử dụng của bạn.
+
+Ngoài văn bản, trình soạn bài có công cụ tạo ảnh, video và chuyển văn bản thành giọng nói. Theo README, các gói Free, Pro và Business yêu cầu BYOK cho tính năng tạo media. Đừng nhầm credit AI văn bản đi kèm gói với ngân sách tạo video hoặc hình ảnh.
+
+## Theo dõi sau khi đăng
+
+Sau khi xuất bản, PostClaw lấy số liệu tương tác từ API của các nền tảng. Tài liệu mô tả cơ chế tự làm mới mỗi 6 giờ cho bài đăng trong 30 ngày gần nhất, cùng tùy chọn làm mới thủ công. Riêng X/Twitter chỉ làm mới thủ công và có cơ chế kiểm soát chi phí.
+
+Dashboard có bản đồ nhiệt tương tác và bản tổng hợp hằng ngày qua Telegram, Discord hoặc Zalo. Những dữ liệu này giúp bạn xem lại nội dung và thời điểm đăng; chúng không phải cam kết tăng lượt tiếp cận.
+
+PostClaw cũng hỗ trợ hiển thị luồng bình luận từ Facebook, Instagram, LinkedIn và YouTube, kèm phân tích cảm xúc. Mức dữ liệu lấy được còn phụ thuộc quyền API và tài khoản đã kết nối.
+
+## Làm việc cùng nhóm
+
+Khi nhiều người cùng quản lý nội dung, vấn đề không chỉ là giờ đăng mà còn là ai được sửa, ai duyệt và ai chịu trách nhiệm xuất bản. PostClaw có vai trò nhóm và quy trình phê duyệt, cùng các tính năng doanh nghiệp như OIDC/SSO, nhật ký kiểm toán, tùy chỉnh thương hiệu và tên miền riêng. Hãy xác nhận gói áp dụng trước khi lựa chọn.
+
+Công cụ hỗ trợ 12 ngôn ngữ, có tiếng Việt. Với đội kỹ thuật muốn tự vận hành, repository cung cấp hướng dẫn Docker Compose; stack gồm backend Go, frontend React Router và PostgreSQL. Tự triển khai đồng nghĩa bạn phải quản lý khóa API, cấu hình OAuth, sao lưu và cập nhật hệ thống.
+
+Khác với các tiện ích Anytools chạy cục bộ trong trình duyệt, một công cụ xuất bản cần kết nối tài khoản mạng xã hội và gửi dữ liệu tới những dịch vụ liên quan. Hãy đọc chính sách quyền riêng tư và kiểm tra phạm vi quyền trước khi kết nối tài khoản.
+
+## Chi phí cần biết
+
+Các mức dưới đây được ghi trong README tại thời điểm biên soạn, không thay thế bảng giá hoặc điều khoản hiện hành:
+
+| Gói | Giá theo tháng | Bài đăng mỗi tháng | Tài khoản mạng xã hội | Credit AI mỗi tháng |
+| --- | --- | --- | --- | --- |
+| Free | Miễn phí | 50 | 5 | 5.000 |
+| Pro | 20 USD | Không giới hạn theo gói | 15 | 80.000 |
+| Business | 50 USD | Không giới hạn theo gói | 25 | 250.000 |
+
+Credit AI được tính theo lượng token và giá mô hình, không phải một credit cho mỗi bài viết. Giới hạn API của nền tảng kết nối vẫn có thể áp dụng dù gói không giới hạn số bài. Chi phí nhà cung cấp khi dùng BYOK và chi phí hạ tầng nếu tự triển khai cần được tính riêng.
+
+## Bắt đầu với PostClaw
+
+PostClaw đáng cân nhắc nếu bạn thường xuyên đăng trên nhiều kênh, cần chuẩn bị các phiên bản nội dung bằng AI hoặc muốn có quy trình duyệt bài cho nhóm. Nếu chỉ đăng thỉnh thoảng lên một kênh, công cụ lên lịch có sẵn của mạng xã hội có thể đã đủ.
+
+Một cách bắt đầu ít rủi ro là kết nối một kênh đã được xác minh, tạo một bản nháp, kiểm tra media rồi lên lịch một bài thử trước khi đưa cả lịch nội dung vào hệ thống.
+
+**[Khám phá PostClaw](https://postclaw.fun/)** để xem sản phẩm và thông tin gói hiện hành. Nếu muốn xem mã nguồn hoặc tự triển khai, đọc [hướng dẫn trên GitHub](https://github.com/D0bby999/PostClaw#quick-start).
