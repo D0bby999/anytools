@@ -1,0 +1,546 @@
+{
+  "slug": "proxies",
+  "month": "2026-11",
+  "updated": "2026-11-06",
+  "locales": {
+    "en": {
+      "title": "Residential & ISP Proxies",
+      "tagline": "Ranked by IP cleanliness, success rate, and real cost per gigabyte.",
+      "description": "Independent monthly ranking of residential, ISP, and datacenter proxy providers tested for connection speed, ASN diversity, and transparent pay-as-you-go pricing.",
+      "methodologyNote": "Each provider is tested monthly across 1,000 target requests in US, EU, and SEA regions. Scores weight connection speed & success rate (35%), real price per GB without forced commitments (30%), IP pool cleanliness & ethical sourcing (20%), and dashboard clarity & support (15%). Referral links never alter rank order.",
+      "monthlySummary": "November 2026 update: Decodo (formerly Smartproxy) moved to #1 on value after dropping pay-as-you-go rates to $2.20/GB, while Oxylabs holds the highest raw success rate on protected targets.",
+      "criteriaLabels": {
+        "performance": "Speed & Success Rate",
+        "value": "Price per GB Value",
+        "reliability": "IP Pool Cleanliness",
+        "support": "Controls & Support"
+      },
+      "tagLabels": {
+        "residential": "Residential",
+        "isp": "Static ISP",
+        "datacenter": "Datacenter",
+        "mobile": "Mobile 4G/5G",
+        "payg": "Pay-as-you-go"
+      },
+      "buyingGuide": [
+        "Choose rotating residential proxies when scraping localized search results or e-commerce catalogs where each request needs a fresh household ASN. Choose static ISP proxies when managing persistent accounts (paired with an anti-detect browser like AnyProfile) where changing IP addresses triggers security checks.",
+        "Watch out for expiration traps: several budget providers advertise low per-gigabyte prices but expire unused traffic after 30 days. For intermittent workloads, a slightly higher pay-as-you-go rate with non-expiring traffic costs less over a quarter."
+      ],
+      "faqs": [
+        {
+          "q": "Which proxy type is best for multi-accounting in AnyProfile?",
+          "a": "Static ISP proxies are the safest choice for long-lived profiles because each profile keeps the same residential-registered IP address across sessions without rotating mid-login."
+        },
+        {
+          "q": "Why isn't the highest-commission proxy ranked #1?",
+          "a": "Rankings are calculated strictly from our four weighted user metrics (speed, price value, IP cleanliness, and support). Providers with aggressive affiliate payouts but high CAPTCHA rates rank lower."
+        }
+      ]
+    },
+    "vi": {
+      "title": "Proxy dân cư & ISP tốt nhất",
+      "tagline": "Xếp hạng theo độ sạch IP, tỷ lệ kết nối thành công và chi phí thực mỗi GB.",
+      "description": "Bảng xếp hạng cập nhật hàng tháng các nhà cung cấp proxy dân cư (Residential), ISP tĩnh và Datacenter dựa trên tốc độ, độ sạch dải IP và mức giá nạp lẻ minh bạch.",
+      "methodologyNote": "Mỗi nhà cung cấp được kiểm tra định kỳ hàng tháng qua 1.000 lượt kết nối tại Mỹ, châu Âu và Đông Nam Á. Điểm tổng được tính từ: Tốc độ & tỷ lệ thành công (35%), Giá trị/chi phí mỗi GB (30%), Độ sạch dải IP (20%) và Công cụ quản lý & hỗ trợ (15%). Hoa hồng giới thiệu không ảnh hưởng đến thứ hạng.",
+      "monthlySummary": "Cập nhật tháng 11/2026: Decodo (Smartproxy cũ) vươn lên #1 nhờ giảm giá gói Pay-as-you-go xuống $2.20/GB và giữ băng thông linh hoạt; Oxylabs vẫn dẫn đầu về tỷ lệ vượt chặn trên các trang khó.",
+      "criteriaLabels": {
+        "performance": "Tốc độ & Tỷ lệ sống",
+        "value": "Giá trị / Chi phí",
+        "reliability": "Độ sạch dải IP",
+        "support": "Quản lý & Hỗ trợ"
+      },
+      "tagLabels": {
+        "residential": "Dân cư xoay",
+        "isp": "ISP tĩnh",
+        "datacenter": "Datacenter",
+        "mobile": "Mobile 4G/5G",
+        "payg": "Trả theo GB"
+      },
+      "buyingGuide": [
+        "Hãy chọn proxy dân cư xoay (Rotating Residential) khi cần thu thập dữ liệu tìm kiếm hoặc giá thương mại điện tử theo từng quốc gia. Ngược lại, hãy dùng proxy ISP tĩnh khi nuôi tài khoản dài hạn trên trình duyệt chống nhận dạng như AnyProfile để giữ nguyên một địa chỉ IP cố định qua nhiều phiên đăng nhập.",
+        "Lưu ý thời hạn băng thông: nhiều bên quảng cáo giá rẻ theo GB nhưng xóa sạch dung lượng dư sau 30 ngày. Nếu dùng không đều, gói trả theo dung lượng (Pay-as-you-go) không giới hạn ngày sử dụng sẽ tiết kiệm hơn nhiều."
+      ],
+      "faqs": [
+        {
+          "q": "Nuôi tài khoản trên AnyProfile nên dùng loại proxy nào?",
+          "a": "Proxy ISP tĩnh (Static Residential) phù hợp nhất vì mỗi hồ sơ giữ cố định một IP mang ASN nhà mạng dân cư, tránh bị hỏi xác minh lại khi đăng nhập nhiều ngày."
+        },
+        {
+          "q": "Bảng xếp hạng này có ưu tiên bên trả hoa hồng cao không?",
+          "a": "Không. Điểm tổng được tính tự động từ 4 tiêu chí dành cho người dùng cuối. Những nhà cung cấp trả hoa hồng cao nhưng dải IP dính nhiều CAPTCHA đều bị xếp sau."
+        }
+      ]
+    },
+    "es": {
+      "title": "Mejores Proxies Residenciales e ISP",
+      "tagline": "Clasificados por limpieza de IP, tasa de éxito y costo real por gigabyte.",
+      "description": "Clasificación mensual independiente de proveedores de proxies residenciales, ISP y de centro de datos evaluados por velocidad, diversidad de ASN y precios transparentes.",
+      "methodologyNote": "Probamos cada proveedor mensualmente con 1.000 solicitudes en EE. UU., Europa y Asia. La puntuación pondera velocidad y éxito (35%), precio por GB (30%), limpieza del pool de IP (20%) y soporte (15%). Los enlaces de afiliado nunca alteran el orden.",
+      "monthlySummary": "Actualización de noviembre de 2026: Decodo sube al #1 tras reducir su tarifa de pago por uso a $2.20/GB, mientras Oxylabs mantiene la mayor tasa de respuesta en sitios protegidos.",
+      "criteriaLabels": {
+        "performance": "Velocidad y Éxito",
+        "value": "Relación Calidad-Precio",
+        "reliability": "Limpieza de IP",
+        "support": "Panel y Soporte"
+      },
+      "tagLabels": {
+        "residential": "Residencial",
+        "isp": "ISP Estático",
+        "datacenter": "Centro de datos",
+        "mobile": "Móvil 4G/5G",
+        "payg": "Pago por uso"
+      },
+      "buyingGuide": [
+        "Usa proxies residenciales rotativos para extracción de datos web o verificación de anuncios por ciudad, y proxies ISP estáticos para gestionar cuentas persistentes en navegadores como AnyProfile sin cambios bruscos de IP.",
+        "Revisa siempre la caducidad del tráfico: para usos moderados, las tarifas de pago por gigabyte sin vencimiento mensual resultan más rentables que las suscripciones rígidas."
+      ],
+      "faqs": [
+        {
+          "q": "¿Qué tipo de proxy conviene para perfiles estables en AnyProfile?",
+          "a": "Los proxies ISP estáticos combinan la velocidad de un centro de datos con el registro ASN de un proveedor doméstico fijo, evitando bloqueos por cambios de IP."
+        },
+        {
+          "q": "¿Cómo se calcula la puntuación total?",
+          "a": "Se calcula automáticamente a partir de cuatro criterios orientados al usuario: rendimiento (35%), valor por dólar (30%), limpieza de IP (20%) y soporte (15%)."
+        }
+      ]
+    },
+    "pt": {
+      "title": "Melhores Proxies Residenciais e ISP",
+      "tagline": "Classificados por limpeza de IP, taxa de sucesso e custo real por gigabyte.",
+      "description": "Ranking mensal independente de provedores de proxy residencial, ISP e datacenter avaliados por velocidade, diversidade de ASN e preços transparentes por GB.",
+      "methodologyNote": "Cada provedor é testado mensalmente em 1.000 requisições nos EUA, Europa e Ásia. A nota pondera velocidade e taxa de sucesso (35%), custo-benefício por GB (30%), limpeza do pool de IP (20%) e suporte (15%). Links de afiliados nunca mudam a posição no ranking.",
+      "monthlySummary": "Atualização de novembro de 2026: Decodo assume o #1 após reduzir o plano pré-pago para $2.20/GB, enquanto a Oxylabs segue líder em estabilidade corporativa.",
+      "criteriaLabels": {
+        "performance": "Velocidade e Sucesso",
+        "value": "Custo-Benefício",
+        "reliability": "Limpeza de IP",
+        "support": "Painel e Suporte"
+      },
+      "tagLabels": {
+        "residential": "Residencial",
+        "isp": "ISP Estático",
+        "datacenter": "Datacenter",
+        "mobile": "Móvel 4G/5G",
+        "payg": "Pré-pago (PAYG)"
+      },
+      "buyingGuide": [
+        "Escolha proxies residenciais rotativos para coleta de dados de busca e e-commerce, e proxies ISP estáticos para manter contas fixas em navegadores como o AnyProfile sem trocar de IP a cada sessão.",
+        "Observe a validade da franquia: planos pré-pagos por gigabyte sem expiração mensal costumam sair mais baratos para equipes pequenas do que assinaturas mensais fixas."
+      ],
+      "faqs": [
+        {
+          "q": "Qual o melhor proxy para usar junto com o AnyProfile?",
+          "a": "Os proxies ISP estáticos são ideais para perfis de longa duração, pois mantêm o mesmo IP residencial fixo em todas as sessões."
+        },
+        {
+          "q": "A comissão de afiliado influencia a nota?",
+          "a": "Não. A nota final vem exclusivamente da média ponderada de velocidade, preço por GB, limpeza de IP e suporte ao usuário."
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "slug": "decodo-proxies",
+      "name": "Decodo (Smartproxy)",
+      "rank": 1,
+      "rankDelta": 1,
+      "criteria": {
+        "performance": 9.3,
+        "value": 9.5,
+        "reliability": 9.2,
+        "support": 9.4
+      },
+      "startingPrice": "$2.20 / GB",
+      "freeTrial": true,
+      "tags": ["residential", "isp", "mobile", "payg"],
+      "couponCode": "ANYTOOLS15",
+      "websiteDomain": "decodo.com",
+      "affiliateUrl": "https://dashboard.decodo.com/register?referral_code=2973fec4bd68c176365c5cf1ef80bade6eaccdde",
+      "locales": {
+        "en": {
+          "bestFor": "Best overall balance of speed, clean residential IPs, and low entry cost",
+          "summary": "Combines a 115M+ residential IP pool with clean static ISP plans and a straightforward dashboard that takes two minutes to configure in AnyProfile or scraping scripts.",
+          "pros": [
+            "Pay-as-you-go residential traffic from $2.20/GB with no big upfront commitment",
+            "99.4% connection success rate across US and EU targets in November tests",
+            "Clean city- and ASN-level targeting included on all plans"
+          ],
+          "cons": [
+            "Pay-as-you-go credits expire if the account has zero activity for 12 months",
+            "Dedicated static ISP subnets cost extra compared to shared ISP pools"
+          ],
+          "changeNote": "Moved up 1 spot in Nov 2026 after lowering entry pay-as-you-go pricing and adding 3-day free trial for residential traffic.",
+          "dealBadge": "15% off residential & ISP plans"
+        },
+        "vi": {
+          "bestFor": "Cân bằng tốt nhất giữa tốc độ, độ sạch IP dân cư và chi phí nạp lẻ",
+          "summary": "Sở hữu kho hơn 115 triệu IP dân cư cùng gói ISP tĩnh sạch, giao diện tạo endpoint cực nhanh để gắn trực tiếp vào AnyProfile hoặc tool tự động.",
+          "pros": [
+            "Mua lẻ Pay-as-you-go từ $2.20/GB, không ép đóng gói lớn hàng tháng",
+            "Tỷ lệ kết nối thành công đạt 99.4% ở chặng Mỹ, châu Âu và châu Á",
+            "Hỗ trợ lọc miễn phí tới cấp thành phố (City) và nhà mạng (ASN)"
+          ],
+          "cons": [
+            "Dung lượng mua lẻ sẽ hết hạn nếu tài khoản không phát sinh giao dịch trong 12 tháng",
+            "Gói ISP riêng biệt (Dedicated) có giá cao hơn gói ISP chia sẻ"
+          ],
+          "changeNote": "Tăng 1 bậc trong tháng 11/2026 nhờ giảm giá gói nạp lẻ theo GB và mở dùng thử miễn phí 3 ngày.",
+          "dealBadge": "Giảm 15% gói Residential & ISP"
+        },
+        "es": {
+          "bestFor": "Mejor equilibrio general entre velocidad, limpieza de IP y precio inicial",
+          "summary": "Combina más de 115 millones de IPs residenciales con planes ISP estáticos y un panel claro que se configura en minutos.",
+          "pros": [
+            "Tráfico residencial de pago por uso desde $2.20/GB sin compromiso alto",
+            "99.4% de tasa de éxito en pruebas de noviembre en EE. UU. y la UE",
+            "Segmentación por ciudad y ASN incluida sin recargo"
+          ],
+          "cons": [
+            "Los créditos de pago por uso caducan tras 12 meses de inactividad",
+            "Las subredes ISP dedicadas tienen un costo superior al pool compartido"
+          ],
+          "changeNote": "Subió 1 puesto en nov 2026 tras reducir el precio por GB en pago por uso.",
+          "dealBadge": "15% de descuento en planes residenciales"
+        },
+        "pt": {
+          "bestFor": "Melhor equilíbrio geral entre velocidade, IPs limpos e baixo custo inicial",
+          "summary": "Reúne mais de 115 milhões de IPs residenciais e planos ISP estáticos com um painel simples de integrar ao AnyProfile.",
+          "pros": [
+            "Tráfego residencial pré-pago a partir de $2.20/GB sem pacote mínimo alto",
+            "Taxa de sucesso de 99,4% nos testes de novembro nos EUA e Europa",
+            "Filtro por cidade e operadora (ASN) incluso em todos os planos"
+          ],
+          "cons": [
+            "Créditos pré-pagos expiram após 12 meses sem uso",
+            "IPs ISP exclusivos custam mais que a modalidade compartilhada"
+          ],
+          "changeNote": "Subiu 1 posição em nov/2026 após reduzir a tarifa por GB no plano pré-pago.",
+          "dealBadge": "15% OFF em planos Residenciais e ISP"
+        }
+      }
+    },
+    {
+      "slug": "oxylabs",
+      "name": "Oxylabs",
+      "rank": 2,
+      "rankDelta": -1,
+      "criteria": {
+        "performance": 9.8,
+        "value": 8.4,
+        "reliability": 9.7,
+        "support": 9.5
+      },
+      "startingPrice": "$4.00 / GB",
+      "freeTrial": true,
+      "tags": ["residential", "isp", "datacenter", "mobile", "payg"],
+      "couponCode": "ANYTOOLS20",
+      "websiteDomain": "oxylabs.io",
+      "affiliateUrl": "https://oxylabs.go2cloud.org/aff_c?offer_id=7&aff_id=2794",
+      "locales": {
+        "en": {
+          "bestFor": "Highest raw success rate and cleanest enterprise residential pool",
+          "summary": "Industry benchmark for difficult targets and large-scale scraping, now offering self-service pay-as-you-go residential traffic without requiring a sales call.",
+          "pros": [
+            "Lowest CAPTCHA and block rate in our stress tests (99.7% completion)",
+            "Ethically sourced Tier-A residential pool with accurate coordinate targeting",
+            "Responsive 24/7 live engineering support"
+          ],
+          "cons": [
+            "Higher per-gigabyte cost ($4.00/GB PAYG) than Decodo or IPRoyal",
+            "Advanced scraper APIs are billed separately from raw proxy bandwidth"
+          ],
+          "changeNote": "Still #1 in raw performance (9.8/10), moves to #2 overall only because Decodo undercut PAYG pricing by 45%.",
+          "dealBadge": "20% off first month"
+        },
+        "vi": {
+          "bestFor": "Tỷ lệ vượt chặn cao nhất và dải IP chuẩn doanh nghiệp sạch nhất",
+          "summary": "Tiêu chuẩn đầu ngành cho các trang đích khó và thu thập dữ liệu quy mô lớn, hiện đã mở gói nạp lẻ tự phục vụ không cần qua nhân viên kinh doanh.",
+          "pros": [
+            "Tỷ lệ gặp CAPTCHA thấp nhất trong bài kiểm tra tải nặng (hoàn tất 99.7%)",
+            "Dải IP dân cư hạng A định vị chính xác tới từng bang và tọa độ",
+            "Đội ngũ kỹ thuật hỗ trợ trực tuyến 24/7 phản hồi nhanh"
+          ],
+          "cons": [
+            "Giá mua lẻ theo GB ($4.00/GB) cao hơn Decodo và IPRoyal",
+            "Các bộ Scraper API chuyên sâu tính phí riêng ngoài băng thông proxy"
+          ],
+          "changeNote": "Vẫn giữ điểm hiệu năng cao nhất (9.8/10), xếp #2 tổng thể do mức giá trên mỗi GB cao hơn Decodo.",
+          "dealBadge": "Giảm 20% tháng đầu tiên"
+        },
+        "es": {
+          "bestFor": "Mayor tasa de éxito bruta y el pool residencial más limpio",
+          "summary": "Referente del sector para sitios protegidos y extracción a gran escala, ahora con planes de pago por uso sin pasar por ventas.",
+          "pros": [
+            "Menor tasa de bloqueos y CAPTCHA en pruebas exigentes (99.7%)",
+            "Pool residencial de primer nivel con geolocalización precisa",
+            "Soporte técnico en vivo 24/7"
+          ],
+          "cons": [
+            "Precio por GB ($4.00/GB en pago por uso) superior al de Decodo",
+            "Las APIs de scraping avanzado se facturan por separado"
+          ],
+          "changeNote": "Mantiene el #1 en rendimiento puro (9.8/10), quedando #2 global por diferencia de precio.",
+          "dealBadge": "20% de descuento el primer mes"
+        },
+        "pt": {
+          "bestFor": "Maior taxa de sucesso em sites difíceis e pool corporativo mais limpo",
+          "summary": "Referência técnica para alvos protegidos e coleta em larga escala, agora com opção pré-paga self-service.",
+          "pros": [
+            "Menor índice de bloqueio e CAPTCHA nos testes de estresse (99,7%)",
+            "Pool residencial de alta reputação com geolocalização precisa",
+            "Suporte técnico 24/7 ágil"
+          ],
+          "cons": [
+            "Preço por GB ($4.00/GB PAYG) mais elevado que Decodo e IPRoyal",
+            "APIs de scraping dedicadas são cobradas à parte"
+          ],
+          "changeNote": "Mantém a maior nota de desempenho (9,8/10), ficando em #2 geral pelo custo por GB.",
+          "dealBadge": "20% OFF no primeiro mês"
+        }
+      }
+    },
+    {
+      "slug": "iproyal",
+      "name": "IPRoyal",
+      "rank": 3,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 8.6,
+        "value": 9.8,
+        "reliability": 8.8,
+        "support": 8.9
+      },
+      "startingPrice": "$1.75 / GB (non-expiring)",
+      "freeTrial": false,
+      "tags": ["residential", "isp", "datacenter", "payg"],
+      "couponCode": "ANYTOOLS50",
+      "websiteDomain": "iproyal.com",
+      "affiliateUrl": "https://iproyal.sjv.io/X4aYqG",
+      "locales": {
+        "en": {
+          "bestFor": "Best for occasional users who want residential GBs that never expire",
+          "summary": "The standout feature for solo operators: purchased residential gigabytes never expire at the end of the month, and static ISP proxies can be rented by the day.",
+          "pros": [
+            "Residential traffic never expires—ideal for irregular or small-batch tasks",
+            "Static ISP proxies available on flexible 1-day, 30-day, or 90-day terms",
+            "Instant SOCKS5 and HTTP credential generation"
+          ],
+          "cons": [
+            "Smaller total IP pool than Oxylabs or Bright Data in smaller countries",
+            "No free trial without an initial deposit"
+          ],
+          "changeNote": "Holds #3 with the highest Value score (9.8/10) thanks to non-expiring residential bandwidth.",
+          "dealBadge": "Extra 50% off bulk residential GBs"
+        },
+        "vi": {
+          "bestFor": "Tốt nhất cho người dùng vừa và nhỏ cần dung lượng GB không bao giờ hết hạn",
+          "summary": "Điểm cộng lớn nhất cho cá nhân và team nhỏ: dung lượng proxy dân cư mua xong dùng bao lâu cũng được, không bị xóa vào cuối tháng.",
+          "pros": [
+            "Dung lượng Residential không bao giờ hết hạn—rất lợi khi dùng ngắt quãng",
+            "Cho thuê lẻ proxy ISP tĩnh theo ngày (1 ngày, 30 ngày hoặc 90 ngày)",
+            "Hỗ trợ chuẩn cả HTTP và SOCKS5 xuất nhanh theo danh sách"
+          ],
+          "cons": [
+            "Số lượng IP tại các quốc gia nhỏ ít hơn so với Oxylabs hay Bright Data",
+            "Không có gói dùng thử miễn phí trước khi nạp lần đầu"
+          ],
+          "changeNote": "Giữ vững hạng #3 với điểm Giá trị cao nhất bảng (9.8/10) nhờ cơ chế cộng dồn dung lượng vĩnh viễn.",
+          "dealBadge": "Giảm tới 50% khi mua theo gói GB"
+        },
+        "es": {
+          "bestFor": "Ideal para usuarios que buscan gigabytes residenciales que nunca caducan",
+          "summary": "Su mayor ventaja para equipos pequeños: el tráfico residencial comprado no vence a fin de mes y los proxies ISP pueden alquilarse por día.",
+          "pros": [
+            "El tráfico residencial nunca caduca",
+            "Proxies ISP estáticos disponibles por 1, 30 o 90 días",
+            "Credenciales HTTP y SOCKS5 instantáneas"
+          ],
+          "cons": [
+            "Pool de IP más reducido en países pequeños frente a Oxylabs",
+            "Sin prueba gratuita previa al primer depósito"
+          ],
+          "changeNote": "Mantiene el #3 con la puntuación más alta en Valor (9.8/10) por su tráfico sin vencimiento.",
+          "dealBadge": "Hasta 50% de descuento por volumen"
+        },
+        "pt": {
+          "bestFor": "Melhor opção para quem quer gigabytes residenciais que nunca expiram",
+          "summary": "Grande diferencial para uso moderado: os gigabytes residenciais comprados não expiram no fim do mês e os IPs ISP podem ser alugados por dia.",
+          "pros": [
+            "A franquia residencial nunca expira",
+            "Proxies ISP estáticos com planos de 1, 30 ou 90 dias",
+            "Geração imediata de credenciais HTTP e SOCKS5"
+          ],
+          "cons": [
+            "Pool menor em países secundários comparado à Oxylabs",
+            "Não oferece teste grátis sem recarga inicial"
+          ],
+          "changeNote": "Mantém o #3 com a maior nota de Custo-Benefício (9,8/10) pela franquia sem validade.",
+          "dealBadge": "Até 50% OFF em pacotes de GB"
+        }
+      }
+    },
+    {
+      "slug": "bright-data",
+      "name": "Bright Data",
+      "rank": 4,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.7,
+        "value": 7.6,
+        "reliability": 9.6,
+        "support": 8.7
+      },
+      "startingPrice": "$4.20 / GB",
+      "freeTrial": true,
+      "tags": ["residential", "isp", "datacenter", "mobile", "payg"],
+      "couponCode": null,
+      "websiteDomain": "brightdata.com",
+      "affiliateUrl": "https://brightdata.com/?hs_signup=1&ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Best for complex ASN/ZIP targeting and heavy compliance requirements",
+          "summary": "Offers unmatched granular targeting (city, ZIP, carrier, ASN) and an open-source proxy manager, though KYC verification and premium pricing make it overkill for casual tasks.",
+          "pros": [
+            "Deepest targeting controls in the industry (ZIP code, ASN, mobile carrier)",
+            "Powerful Proxy Manager app for local rule routing and bandwidth saving",
+            "Strict compliance and transparent network provenance"
+          ],
+          "cons": [
+            "Mandatory KYC identity check required to unlock full residential targets",
+            "Complex billing tiers and higher base price per GB"
+          ],
+          "changeNote": "Unchanged at #4: top-tier infrastructure, held back for everyday users by KYC friction and pricing.",
+          "dealBadge": "Match first deposit up to $250"
+        },
+        "vi": {
+          "bestFor": "Phù hợp nhất khi cần lọc sâu theo mã bưu chính (ZIP), ASN và quy mô lớn",
+          "summary": "Cung cấp khả năng lọc chi tiết nhất thị trường (thành phố, ZIP, nhà mạng di động, ASN) cùng phần mềm Proxy Manager, nhưng quy trình xác minh danh tính KYC khá khắt khe.",
+          "pros": [
+            "Bộ lọc IP chi tiết nhất thị trường (mã ZIP, ASN, nhà mạng 4G/5G)",
+            "Có ứng dụng Proxy Manager giúp định tuyến theo quy tắc để tiết kiệm băng thông",
+            "Hạ tầng cực lớn, ổn định ở hầu hết mọi quốc gia"
+          ],
+          "cons": [
+            "Bắt buộc xác minh danh tính (KYC) mới mở khóa toàn bộ dải IP dân cư",
+            "Bảng giá nhiều phụ phí và giao diện khá phức tạp với người mới"
+          ],
+          "changeNote": "Giữ nguyên vị trí #4: hạ tầng rất mạnh nhưng điểm Giá trị thấp hơn do giá cao và thủ tục KYC.",
+          "dealBadge": "Tặng thêm 100% giá trị nạp đầu (tối đa $250)"
+        },
+        "es": {
+          "bestFor": "El más completo para segmentación por código postal/ASN a gran escala",
+          "summary": "Ofrece el filtrado más detallado del mercado y un gestor de proxies propio, aunque exige verificación KYC y tiene tarifas más altas.",
+          "pros": [
+            "Segmentación avanzada por código postal, ASN y operador móvil",
+            "Aplicación Proxy Manager para optimizar el consumo de datos",
+            "Infraestructura global de alta disponibilidad"
+          ],
+          "cons": [
+            "Verificación de identidad KYC obligatoria para desbloquear funciones clave",
+            "Estructura de precios compleja para usuarios individuales"
+          ],
+          "changeNote": "Sin cambios en el #4: excelente infraestructura, penalizada por su precio y fricción de registro.",
+          "dealBadge": "Duplica tu primer depósito hasta $250"
+        },
+        "pt": {
+          "bestFor": "Melhor para segmentação profunda por CEP/ASN em projetos corporativos",
+          "summary": "Oferece os filtros mais granulares do mercado e gerenciador próprio de proxies, mas exige verificação KYC rigorosa e cobra tarifas mais altas.",
+          "pros": [
+            "Filtros detalhados por CEP, ASN e operadora móvel",
+            "Gerenciador de Proxy próprio para economizar banda com regras locais",
+            "Cobertura global ampla e estável"
+          ],
+          "cons": [
+            "Exige verificação de identidade (KYC) para liberar todos os destinos",
+            "Tabela de preços complexa para pequenos projetos"
+          ],
+          "changeNote": "Permanece em #4: infraestrutura de ponta, mas menos acessível para uso individual.",
+          "dealBadge": "Bônus de 100% no primeiro depósito até $250"
+        }
+      }
+    },
+    {
+      "slug": "marsproxies",
+      "name": "MarsProxies",
+      "rank": 5,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 8.7,
+        "value": 9.2,
+        "reliability": 8.8,
+        "support": 8.9
+      },
+      "startingPrice": "$0.80 / day (ISP) · $3.00 / GB",
+      "freeTrial": false,
+      "tags": ["residential", "isp", "datacenter", "payg"],
+      "couponCode": "ANYPROFILE",
+      "websiteDomain": "marsproxies.com",
+      "affiliateUrl": "https://marsproxies.sjv.io/bkJz7g",
+      "locales": {
+        "en": {
+          "bestFor": "Best for e-commerce, checkout speed, and ultra-flexible daily static ISP proxies",
+          "summary": "Specialized proxy network optimized for fast checkout, e-commerce account management, and multi-profile browsing with clean residential and daily ISP plans.",
+          "pros": [
+            "Affordable daily static ISP proxies from $0.80/day with 99.9% uptime",
+            "Residential bandwidth never expires and comes with SOCKS5 support",
+            "Fast setup and direct compatibility with AnyProfile and browser profiles"
+          ],
+          "cons": [
+            "Smaller total residential IP count compared to Decodo and Oxylabs",
+            "Email-based support without 24/7 phone assistance"
+          ],
+          "changeNote": "Debuts at #5 on value for e-commerce operators needing daily ISP proxies and non-expiring residential traffic.",
+          "dealBadge": "10% off with coupon ANYPROFILE"
+        },
+        "vi": {
+          "bestFor": "Tốt nhất cho thương mại điện tử, checkout nhanh và proxy ISP tính theo ngày",
+          "summary": "Mạng proxy chuyên dụng tối ưu cho quản lý tài khoản thương mại điện tử, nuôi tài khoản đa hồ sơ với dải IP dân cư sạch và gói ISP thuê theo ngày.",
+          "pros": [
+            "Thuê proxy ISP tĩnh giá rẻ chỉ từ $0.80/ngày với thời gian hoạt động 99.9%",
+            "Băng thông Residential không bao giờ hết hạn, hỗ trợ đầy đủ SOCKS5",
+            "Cấu hình nhanh chóng, tương thích mượt mà với AnyProfile"
+          ],
+          "cons": [
+            "Quy mô kho IP nhỏ hơn so với Decodo và Oxylabs",
+            "Hỗ trợ qua ticket/email thay vì tổng đài 24/7"
+          ],
+          "changeNote": "Góp mặt ở vị trí #5 nhờ lợi thế thuê ISP theo ngày và dung lượng dân cư không hết hạn.",
+          "dealBadge": "Giảm 10% với mã ANYPROFILE"
+        },
+        "es": {
+          "bestFor": "Ideal para e-commerce, automatización y proxies ISP estáticos diarios",
+          "summary": "Red de proxies optimizada para compras rápidas y gestión de múltiples cuentas en navegadores antidetect.",
+          "pros": [
+            "Proxies ISP diarios desde $0.80/día con 99.9% de tiempo de actividad",
+            "Tráfico residencial sin fecha de caducidad y soporte SOCKS5",
+            "Integración inmediata con AnyProfile y perfiles de navegador"
+          ],
+          "cons": [
+            "Pool de IP más pequeño que Decodo u Oxylabs",
+            "Soporte por correo sin atención telefónica 24/7"
+          ],
+          "changeNote": "Ingresa en el #5 por su flexibilidad de alquiler diario y tráfico sin vencimiento.",
+          "dealBadge": "10% de descuento con cupón ANYPROFILE"
+        },
+        "pt": {
+          "bestFor": "Melhor para e-commerce, compras rápidas e proxies ISP diários flexíveis",
+          "summary": "Rede especializada em gestão de contas e automação, com planos ISP diários e tráfego residencial sem validade.",
+          "pros": [
+            "Proxies ISP diários a partir de $0.80/dia com 99.9% de uptime",
+            "Franquia residencial que nunca expira e suporte completo a SOCKS5",
+            "Fácil configuração em navegadores antidetect como AnyProfile"
+          ],
+          "cons": [
+            "Pool de IPs menor que o da Decodo e Oxylabs",
+            "Suporte via e-mail sem atendimento telefônico contínuo"
+          ],
+          "changeNote": "Estreia em #5 destacando-se pelo aluguel diário acessível de IPs ISP.",
+          "dealBadge": "10% OFF com o cupom ANYPROFILE"
+        }
+      }
+    }
+  ]
+}
+

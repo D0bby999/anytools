@@ -8,6 +8,7 @@ import type { Route } from "./+types/auth-layout";
 import { getUserId } from "~/lib/auth.server";
 import { loadLanguage } from "~/lib/i18n";
 import { languageCookie, visitorLanguage } from "~/lib/language.server";
+import { sanitizeNextPath } from "~/lib/safe-redirect-target";
 import { SiteHeader } from "~/components/layout/site-header";
 import { PWA_LINKS } from "~/lib/pwa";
 
@@ -15,7 +16,9 @@ import { PWA_LINKS } from "~/lib/pwa";
 export const links: Route.LinksFunction = () => PWA_LINKS;
 
 export async function loader({ request }: Route.LoaderArgs) {
-  if (await getUserId(request)) throw redirect("/home");
+  const url = new URL(request.url);
+  const next = sanitizeNextPath(url.searchParams.get("next")) ?? "/home";
+  if (await getUserId(request)) throw redirect(next);
   // The sign-in page speaks the visitor's language, and remembers it so a
   // new account starts in it (app-layout reads the cookie once).
   const language = await visitorLanguage(request);

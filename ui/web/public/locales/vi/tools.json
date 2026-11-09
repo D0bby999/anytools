@@ -17,10 +17,12 @@
   },
   "nav": {
     "tools": "Công cụ",
-    "guides": "Hướng dẫn"
+    "guides": "Hướng dẫn",
+    "rankings": "Xếp hạng"
   },
   "footer": {
     "guides": "Hướng dẫn",
+    "rankings": "Xếp hạng",
     "privacy": "Quyền riêng tư",
     "terms": "Điều khoản",
     "about": "Giới thiệu",

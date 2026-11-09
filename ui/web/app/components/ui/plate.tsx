@@ -35,6 +35,13 @@ export const PLATES = [
   "cluster-design",
   "cluster-pdf",
   "cluster-image",
+  // User-first rankings directory and category plates.
+  "rankings-hero",
+  "ranking-proxies",
+  "ranking-ai-tools",
+  "ranking-antidetect-browsers",
+  "ranking-seo-tools",
+  "ranking-vps-hosting",
 ] as const;
 export type PlateName = (typeof PLATES)[number];
 

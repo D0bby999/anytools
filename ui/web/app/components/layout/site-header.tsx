@@ -40,16 +40,19 @@ export function SiteHeader({
   languageHref,
   search = false,
   signIn = true,
+  signedIn = false,
 }: {
   locale: PublicLng;
   languages?: boolean;
   languageHref?: (l: PublicLng) => string;
   search?: boolean;
   signIn?: boolean;
+  signedIn?: boolean;
 }) {
   const { t } = useTranslation("tools");
   const places = [
     { to: `/${locale}/tools`, label: t("nav.tools"), end: true },
+    { to: `/${locale}/rankings`, label: t("nav.rankings"), end: false },
     { to: `/${locale}/guides`, label: t("nav.guides"), end: false },
     { to: `/${locale}/anyprofile`, label: t("footer.anyprofile"), end: false },
   ];
@@ -87,12 +90,22 @@ export function SiteHeader({
         <div className="flex items-center gap-1">
           {languages && <LocaleSwitcher locale={locale} hrefFor={languageHref} />}
           <ThemeToggle labels={{ useLight: t("site.useLight"), useDark: t("site.useDark") }} />
-          <PlacesMenu places={places} signIn={signIn} />
-          {signIn && (
-            <Link to="/login" className={cn(ACCOUNT_ACTION, "ml-1 hidden sm:inline-flex")}>
+          <PlacesMenu places={places} signIn={signIn} signedIn={signedIn} />
+          {signedIn ? (
+            <Link
+              to="/home"
+              className={cn(
+                ACCOUNT_ACTION,
+                "ml-1 hidden border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 sm:inline-flex",
+              )}
+            >
+              {t("site.openApp")}
+            </Link>
+          ) : signIn ? (
+            <Link to="/login?next=/home" className={cn(ACCOUNT_ACTION, "ml-1 hidden sm:inline-flex")}>
               {t("site.signIn")}
             </Link>
-          )}
+          ) : null}
         </div>
       </div>
     </header>
@@ -100,7 +113,15 @@ export function SiteHeader({
 }
 
 /** The three places, on a phone: the same links, behind one button, with the way in under them. */
-function PlacesMenu({ places, signIn }: { places: { to: string; label: string; end: boolean }[]; signIn: boolean }) {
+function PlacesMenu({
+  places,
+  signIn,
+  signedIn = false,
+}: {
+  places: { to: string; label: string; end: boolean }[];
+  signIn: boolean;
+  signedIn?: boolean;
+}) {
   const { t } = useTranslation("tools");
   const ref = useDisclosureMenu();
   return (
@@ -129,16 +150,25 @@ function PlacesMenu({ places, signIn }: { places: { to: string; label: string; e
               </NavLink>
             </li>
           ))}
-          {signIn && (
+          {signedIn ? (
             <li className="mt-1 border-t pt-1 sm:hidden">
               <Link
-                to="/login"
+                to="/home"
+                className="flex min-h-11 items-center rounded-md px-3 text-sm font-semibold text-primary hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {t("site.openApp")}
+              </Link>
+            </li>
+          ) : signIn ? (
+            <li className="mt-1 border-t pt-1 sm:hidden">
+              <Link
+                to="/login?next=/home"
                 className="flex min-h-11 items-center rounded-md px-3 text-sm font-semibold hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {t("site.signIn")}
               </Link>
             </li>
-          )}
+          ) : null}
         </ul>
       </nav>
     </details>

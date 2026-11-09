@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { Link, useMatches } from "react-router";
+import { Link, useMatches, useRouteLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { PublicLng } from "~/lib/i18n";
 import { AnyToolsMark } from "~/components/layout/anytools-mark";
@@ -15,6 +15,7 @@ export const SOURCE_URL = "https://github.com/D0bby999/anytools";
  */
 export const FOOTER_LINKS: readonly { to: (locale: PublicLng) => string; labelKey: string; external?: boolean }[] = [
   { to: (l) => `/${l}/guides`, labelKey: "footer.guides" },
+  { to: (l) => `/${l}/rankings`, labelKey: "footer.rankings" },
   { to: (l) => `/${l}/anyprofile`, labelKey: "footer.anyprofile" },
   { to: (l) => `/${l}/about`, labelKey: "footer.about" },
   { to: (l) => `/${l}/privacy`, labelKey: "footer.privacy" },
@@ -61,6 +62,8 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
   const { t } = useTranslation("tools");
   const handles = useMatches().map((m) => m.handle as { ownSearch?: boolean; ownFrame?: boolean } | undefined);
   const ownSearch = handles.some((h) => h?.ownSearch);
+  const layoutData = useRouteLoaderData<{ locale: PublicLng; signedIn?: boolean }>("routes/public.layout");
+  const signedIn = layoutData?.signedIn ?? false;
   useSearchShortcut();
   // The landing page draws its own header, main and footer (`ownFrame`): it is
   // the study app's front door, so the band pointing at it would repeat it.
@@ -69,13 +72,13 @@ export function PublicShell({ locale, children }: { locale: PublicLng; children:
   return (
     // The tools are the book's appendix: everything here sits in its part.
     <div data-part="tools" className="flex min-h-screen flex-col bg-background">
-      <SiteHeader locale={locale} search={!ownSearch} />
+      <SiteHeader locale={locale} search={!ownSearch} signedIn={signedIn} />
 
       <main id="main" className="flex-1">
         {children}
       </main>
 
-      <StudyBand locale={locale} />
+      <StudyBand locale={locale} signedIn={signedIn} />
 
       <SiteFooter locale={locale} note={t("site.footerNote")} />
     </div>

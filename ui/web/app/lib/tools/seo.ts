@@ -158,6 +158,40 @@ export function faqSchema(items: { q: string; a: string }[]) {
   };
 }
 
+export function itemListSchema(input: {
+  name: string;
+  description: string;
+  url: string;
+  items: { rank: number; name: string; description: string; url: string; userScore: number }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    numberOfItems: input.items.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    itemListElement: input.items.map((item) => ({
+      "@type": "ListItem",
+      position: item.rank,
+      item: {
+        "@type": "SoftwareApplication",
+        name: item.name,
+        description: item.description,
+        url: item.url,
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: item.userScore,
+          bestRating: 10,
+          worstRating: 1,
+          ratingCount: 1,
+        },
+      },
+    })),
+  };
+}
+
 type MetaTag = Record<string, unknown>;
 
 /**

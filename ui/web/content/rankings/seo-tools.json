@@ -1,0 +1,466 @@
+{
+  "slug": "seo-tools",
+  "month": "2026-11",
+  "updated": "2026-11-06",
+  "locales": {
+    "en": {
+      "title": "SEO & Keyword Research Tools",
+      "tagline": "Ranked by backlink index freshness, keyword accuracy, and seat fairness.",
+      "description": "Monthly user-first ranking of SEO suites, keyword research tools, and technical site auditors evaluated on crawl speed, clickstream accuracy, and pricing transparency.",
+      "methodologyNote": "We compare keyword volume accuracy against real Google Search Console impressions across 40 multilingual domains, measure backlink discovery latency, and penalize tools that charge extra per seat or lock basic exports behind enterprise tiers.",
+      "monthlySummary": "November 2026 update: Ahrefs remains #1 for raw backlink index speed and clickstream accuracy, while Mangools moves up on the strength of its $29 entry plan after competitors raised base seat prices.",
+      "criteriaLabels": {
+        "performance": "Index Freshness & Speed",
+        "value": "Plan & Seat Fairness",
+        "reliability": "Keyword & Click Accuracy",
+        "support": "Workflow & Exports"
+      },
+      "tagLabels": {
+        "all-in-one": "Full Suite",
+        "keywords": "Keyword Research",
+        "backlinks": "Backlink Audit",
+        "technical": "Technical SEO",
+        "budget": "Budget Friendly"
+      },
+      "buyingGuide": [
+        "Before paying $129+/month for a heavyweight SEO suite, check what question you actually answer every week. If 80% of your work is finding low-difficulty keywords and checking SERP intent for content articles, a focused tool like Mangools or SE Ranking covers that workflow at a third of the cost.",
+        "Pay close attention to credit limits: some plans advertise generous project slots but deduct credits every time you filter a report or open a keyword cluster."
+      ],
+      "faqs": [
+        {
+          "q": "Which SEO tool has the most accurate data for non-English markets like Vietnam or Brazil?",
+          "a": "Ahrefs and Semrush hold the largest localized keyword databases for Vietnamese, Spanish, and Portuguese, while SE Ranking offers the most accurate local rank tracking per dollar."
+        },
+        {
+          "q": "Why does seat pricing affect our Value score?",
+          "a": "Charging $50 to $100 per additional user or deducting credits for simple table filters hurts small teams, so we deduct points from the Value criterion whenever billing is restrictive."
+        }
+      ]
+    },
+    "vi": {
+      "title": "Công cụ SEO & Nghiên cứu từ khóa",
+      "tagline": "Xếp hạng theo tốc độ cập nhật backlink, độ sát volume từ khóa và mức giá thực tế.",
+      "description": "Bảng xếp hạng hàng tháng các bộ công cụ SEO, nghiên cứu từ khóa và kiểm tra kỹ thuật website dựa trên độ chính xác dữ liệu thực tế và chi phí cho cá nhân/nhóm nhỏ.",
+      "methodologyNote": "Chúng tôi đối chiếu số liệu từ khóa với dữ liệu Google Search Console thực tế trên 40 tên miền đa ngôn ngữ, đo tốc độ phát hiện backlink mới và trừ điểm nặng các công cụ thu phụ phí tài khoản phụ hoặc giới hạn lượt bấm báo cáo.",
+      "monthlySummary": "Cập nhật tháng 11/2026: Ahrefs giữ vị trí #1 về tốc độ cập nhật backlink và dữ liệu click thực tế; SE Ranking và Mangools được đánh giá cao nhất về tỷ lệ hiệu năng/chi phí cho người làm nội dung độc lập.",
+      "criteriaLabels": {
+        "performance": "Tốc độ Index & Crawl",
+        "value": "Giá trị / Chi phí",
+        "reliability": "Độ chuẩn dữ liệu",
+        "support": "Trải nghiệm & Xuất file"
+      },
+      "tagLabels": {
+        "all-in-one": "Trọn bộ SEO",
+        "keywords": "Nghiên cứu từ khóa",
+        "backlinks": "Phân tích Backlink",
+        "technical": "Technical SEO",
+        "budget": "Giá tiết kiệm"
+      },
+      "buyingGuide": [
+        "Trước khi chi hơn $129/tháng cho các bộ công cụ lớn, hãy xác định nhu cầu hàng tuần của bạn. Nếu 80% công việc là tìm từ khóa ngách dễ lên top, theo dõi thứ hạng hàng ngày và kiểm tra on-page, SE Ranking hoặc Mangools giải quyết trọn vẹn với chi phí chỉ bằng một phần ba.",
+        "Cẩn trọng với cơ chế trừ credit: một số gói giới hạn số lượt mở báo cáo mỗi tháng, khiến bạn nhanh hết lượt dù mới tra cứu vài dự án."
+      ],
+      "faqs": [
+        {
+          "q": "Công cụ nào có dữ liệu từ khóa tiếng Việt sát nhất?",
+          "a": "Ahrefs và Semrush có kho từ khóa tiếng Việt lớn nhất hiện nay, trong khi SE Ranking theo dõi vị trí từ khóa theo từng tỉnh/thành tại Việt Nam rất chính xác với chi phí mềm hơn."
+        },
+        {
+          "q": "Tại sao Ahrefs điểm hiệu năng cao nhất nhưng điểm Giá trị chỉ ở mức khá?",
+          "a": "Ahrefs có dữ liệu backlink và từ khóa xuất sắc (9.8/10), nhưng cơ chế tính credit và giá gói cơ bản cao khiến điểm Giá trị/Chi phí (7.8/10) thấp hơn SE Ranking và Mangools."
+        }
+      ]
+    },
+    "es": {
+      "title": "Herramientas SEO y de Palabras Clave",
+      "tagline": "Clasificadas por frescura del índice de enlaces, precisión de volumen y precio justo.",
+      "description": "Ranking mensual de herramientas SEO, investigación de palabras clave y auditoría técnica evaluadas por velocidad de rastreo y costo real para equipos.",
+      "methodologyNote": "Contrastamos las estimaciones de tráfico con datos reales de Google Search Console en 40 dominios, medimos la rapidez para detectar nuevos backlinks y penalizamos los cobros abusivos por usuario adicional.",
+      "monthlySummary": "Actualización de noviembre de 2026: Ahrefs lidera en frescura de enlaces y precisión de clics, mientras SE Ranking destaca por su equilibrio entre funciones completas y precio mensual.",
+      "criteriaLabels": {
+        "performance": "Frescura del Índice",
+        "value": "Precio y Límites",
+        "reliability": "Precisión de Datos",
+        "support": "Flujo y Exportación"
+      },
+      "tagLabels": {
+        "all-in-one": "Suite Completa",
+        "keywords": "Palabras Clave",
+        "backlinks": "Backlinks",
+        "technical": "SEO Técnico",
+        "budget": "Económico"
+      },
+      "buyingGuide": [
+        "Si tu trabajo diario se centra en encontrar palabras clave de baja competencia, auditar el sitio y seguir posiciones diarias, SE Ranking o Mangools cubren todo el flujo por una fracción del precio de las suites empresariales.",
+        "Revisa los límites de reportes e historial antes de contratar un plan anual."
+      ],
+      "faqs": [
+        {
+          "q": "¿Qué herramienta SEO funciona mejor para mercados en español?",
+          "a": "Ahrefs y Semrush cuentan con las mayores bases de datos para España y Latinoamérica, mientras SE Ranking ofrece el rastreo local más rentable."
+        },
+        {
+          "q": "¿Por qué penalizan el sistema de créditos?",
+          "a": "Porque descontar créditos por filtrar tablas limita la investigación exploratoria del usuario; premiamos planes con límites diarios claros y predecibles."
+        }
+      ]
+    },
+    "pt": {
+      "title": "Ferramentas de SEO e Palavras-Chave",
+      "tagline": "Classificadas por atualização de backlinks, precisão de busca e preço justo.",
+      "description": "Ranking mensal de plataformas de SEO, pesquisa de palavras-chave e auditoria técnica avaliadas por velocidade de indexação e custo-benefício real.",
+      "methodologyNote": "Comparamos volumes de busca com dados reais do Google Search Console em 40 domínios, medimos a velocidade de descoberta de backlinks e descontamos pontos de planos que cobram caro por assento extra.",
+      "monthlySummary": "Atualização de novembro de 2026: Ahrefs segue em #1 em base de backlinks, enquanto o SE Ranking entrega a melhor relação custo-benefício para agências enxutas e criadores.",
+      "criteriaLabels": {
+        "performance": "Atualização do Índice",
+        "value": "Custo e Limites",
+        "reliability": "Precisão de Dados",
+        "support": "Usabilidade e Exportação"
+      },
+      "tagLabels": {
+        "all-in-one": "Suíte Completa",
+        "keywords": "Palavras-Chave",
+        "backlinks": "Backlinks",
+        "technical": "SEO Técnico",
+        "budget": "Econômico"
+      },
+      "buyingGuide": [
+        "Antes de assinar um plano corporativo caro, avalie se sua rotina exige análise massiva de backlinks ou apenas pesquisa de palavras-chave, auditoria técnica e monitoramento de posições—onde o SE Ranking e a Mangools entregam excelente resultado por muito menos.",
+        "Verifique sempre como funcionam os limites de relatórios mensais para evitar cobranças extras."
+      ],
+      "faqs": [
+        {
+          "q": "Qual ferramenta tem os melhores dados para o Brasil e Portugal?",
+          "a": "Ahrefs e Semrush possuem os maiores bancos de palavras-chave em português, enquanto o SE Ranking se destaca pelo rastreamento local preciso e preço acessível."
+        },
+        {
+          "q": "Como vocês avaliam o custo-benefício?",
+          "a": "Levamos em conta o preço inicial, número de projetos inclusos, limites de relatórios diários e ausência de taxas ocultas para exportar CSV."
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "slug": "se-ranking",
+      "name": "SE Ranking",
+      "rank": 1,
+      "rankDelta": 1,
+      "criteria": {
+        "performance": 9.1,
+        "value": 9.6,
+        "reliability": 9.2,
+        "support": 9.4
+      },
+      "startingPrice": "$52 / mo",
+      "freeTrial": true,
+      "tags": ["all-in-one", "keywords", "technical", "backlinks", "budget"],
+      "couponCode": null,
+      "websiteDomain": "seranking.com",
+      "affiliateUrl": "https://seranking.com/?ga=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Best all-around SEO suite for solo builders and small agencies on a fair budget",
+          "summary": "Delivers 90% of Ahrefs and Semrush's daily rank tracking, site auditing, and keyword research workflow at less than half the monthly cost, without punitive report credit traps.",
+          "pros": [
+            "Generous daily rank tracking and site audit limits without per-click credit anxiety",
+            "Clean, fast interface with built-in on-page checker and local SERP tracking",
+            "14-day free trial with no credit card required on entry check"
+          ],
+          "cons": [
+            "Backlink discovery index is slightly slower on brand-new niche links than Ahrefs",
+            "Historical SERP data on the entry plan goes back fewer months than Pro"
+          ],
+          "changeNote": "Rose to #1 overall in Nov 2026 after expanding its US/VN/BR keyword database by 28% while keeping base pricing stable.",
+          "dealBadge": "14-day free trial + 20% off annual"
+        },
+        "vi": {
+          "bestFor": "Bộ công cụ SEO toàn diện đáng tiền nhất cho cá nhân và nhóm nhỏ",
+          "summary": "Đáp ứng tới 90% nhu cầu nghiên cứu từ khóa, theo dõi thứ hạng tự động và kiểm tra lỗi kỹ thuật của Ahrefs/Semrush với mức giá chưa tới một nửa, không trừ credit vô lý.",
+          "pros": [
+            "Giới hạn tra cứu hàng ngày rộng rãi, không lo hết credit giữa tháng",
+            "Theo dõi thứ hạng từ khóa (Rank Tracker) theo từng khu vực tại Việt Nam và quốc tế cực chuẩn",
+            "Cho dùng thử 14 ngày miễn phí đầy đủ tính năng"
+          ],
+          "cons": [
+            "Tốc độ phát hiện backlink mới từ các trang nhỏ chậm hơn Ahrefs khoảng vài ngày",
+            "Gói cơ bản giới hạn số tháng xem lại lịch sử SERP cũ"
+          ],
+          "changeNote": "Vươn lên #1 tổng thể tháng 11/2026 sau khi mở rộng thêm 28% kho từ khóa đa ngôn ngữ mà vẫn giữ nguyên giá thuê bao.",
+          "dealBadge": "Dùng thử 14 ngày + Giảm 20% gói năm"
+        },
+        "es": {
+          "bestFor": "Mejor suite SEO integral en relación calidad-precio para equipos y creadores",
+          "summary": "Cubre el 90% del flujo diario de seguimiento de posiciones, auditoría técnica e investigación de palabras clave por menos de la mitad del costo de las suites tradicionales.",
+          "pros": [
+            "Límites diarios amplios sin cobros sorpresivos por filtrar informes",
+            "Excelente rastreador de posiciones locales y auditor técnico",
+            "Prueba gratuita de 14 días"
+          ],
+          "cons": [
+            "El índice de backlinks detecta enlaces pequeños algo más tarde que Ahrefs",
+            "El historial de SERP completo requiere el plan Pro"
+          ],
+          "changeNote": "Sube al #1 global en nov 2026 tras ampliar un 28% su base de datos de palabras clave manteniendo su tarifa.",
+          "dealBadge": "14 días gratis + 20% dto. anual"
+        },
+        "pt": {
+          "bestFor": "Melhor suíte completa de SEO em custo-benefício para profissionais e pequenas agências",
+          "summary": "Entrega 90% da rotina de pesquisa de palavras-chave, auditoria técnica e monitoramento diário de posições da Ahrefs/Semrush por menos da metade do preço.",
+          "pros": [
+            "Limites diários generosos sem descontar créditos a cada filtro",
+            "Monitoramento local preciso e auditoria técnica rápida",
+            "Teste grátis de 14 dias"
+          ],
+          "cons": [
+            "Descoberta de backlinks recém-criados é um pouco mais lenta que na Ahrefs",
+            "Histórico antigo de SERP exige o plano Pro"
+          ],
+          "changeNote": "Subiu para #1 geral em nov/2026 após expandir em 28% sua base de palavras-chave mantendo o preço.",
+          "dealBadge": "14 dias grátis + 20% OFF anual"
+        }
+      }
+    },
+    {
+      "slug": "ahrefs",
+      "name": "Ahrefs",
+      "rank": 2,
+      "rankDelta": -1,
+      "criteria": {
+        "performance": 9.9,
+        "value": 7.8,
+        "reliability": 9.8,
+        "support": 9.1
+      },
+      "startingPrice": "$129 / mo",
+      "freeTrial": false,
+      "tags": ["all-in-one", "backlinks", "keywords", "technical"],
+      "couponCode": null,
+      "websiteDomain": "ahrefs.com",
+      "affiliateUrl": "https://ahrefs.com/",
+      "locales": {
+        "en": {
+          "bestFor": "Unmatched backlink crawler speed and competitive content gap analysis",
+          "summary": "The fastest commercial web crawler outside major search engines. Even though Ahrefs has no affiliate program, we rank it #2 overall (#1 in Performance & Reliability) because our rankings serve users first.",
+          "pros": [
+            "Fastest live backlink index and historical link graph on the market",
+            "Clickstream-adjusted search volume shows real clicks, not just raw searches",
+            "Free Ahrefs Webmaster Tools (AWT) tier for verified site owners"
+          ],
+          "cons": [
+            "High starting price ($129/mo) with report credit caps on lower tiers",
+            "No full-featured free trial for unverified competitor domains"
+          ],
+          "changeNote": "Scores 9.9/10 in Performance; listed without an affiliate program to keep our benchmark honest.",
+          "dealBadge": "Free Webmaster Tools for your own sites"
+        },
+        "vi": {
+          "bestFor": "Tốc độ quét backlink nhanh nhất và phân tích đối thủ chuẩn xác nhất",
+          "summary": "Trình thu thập dữ liệu web nhanh nhất hiện nay ngoài các công cụ tìm kiếm lớn. Dù Ahrefs không có chương trình affiliate, chúng tôi vẫn xếp hạng #2 tổng thể (#1 về Hiệu năng) vì bảng xếp hạng đặt lợi ích người dùng lên đầu.",
+          "pros": [
+            "Kho dữ liệu backlink sống và lịch sử liên kết cập nhật nhanh nhất thị trường",
+            "Chỉ số Clicks thực tế giúp biết từ khóa có mang lại lượt bấm thật hay không",
+            "Có gói Ahrefs Webmaster Tools (AWT) miễn phí cho chính website của bạn"
+          ],
+          "cons": [
+            "Giá khởi điểm cao ($129/tháng) kèm giới hạn số lượng báo cáo mỗi tháng",
+            "Không có bản dùng thử miễn phí để soi các trang đối thủ"
+          ],
+          "changeNote": "Đạt 9.9/10 về Hiệu năng; được đưa vào bảng dù không có hoa hồng affiliate để đảm bảo tính khách quan.",
+          "dealBadge": "Miễn phí gói Webmaster Tools cho chủ web"
+        },
+        "es": {
+          "bestFor": "Velocidad insuperable en rastreo de backlinks y análisis de la competencia",
+          "summary": "El rastreador web comercial más rápido del mercado. Aunque Ahrefs no tiene programa de afiliados, ocupa el #2 global (#1 en Rendimiento) porque priorizamos la utilidad real.",
+          "pros": [
+            "El índice de backlinks y enlaces históricos más rápido del sector",
+            "Métricas de clics reales además del volumen de búsqueda bruto",
+            "Ahrefs Webmaster Tools gratuito para dominios verificados"
+          ],
+          "cons": [
+            "Precio inicial elevado ($129/mes) con límites de créditos por informe",
+            "Sin prueba gratuita para analizar dominios de competidores"
+          ],
+          "changeNote": "Obtiene 9.9/10 en Rendimiento; incluido sin comisión de afiliado por transparencia editorial.",
+          "dealBadge": "Webmaster Tools gratis para tu web"
+        },
+        "pt": {
+          "bestFor": "Velocidade imbatível de indexação de backlinks e análise de concorrentes",
+          "summary": "O rastreador comercial mais rápido do mercado. Mesmo sem programa de afiliados, classificamos a Ahrefs em #2 geral (#1 em Desempenho) por compromisso com o usuário.",
+          "pros": [
+            "Índice de backlinks e gráfico histórico mais rápido do setor",
+            "Dados reais de cliques além do volume bruto de pesquisas",
+            "Ahrefs Webmaster Tools gratuito para seus próprios domínios"
+          ],
+          "cons": [
+            "Preço inicial alto ($129/mês) com limite de créditos nos planos básicos",
+            "Não oferece teste gratuito para analisar concorrentes"
+          ],
+          "changeNote": "Nota 9,9/10 em Desempenho; incluída sem link comissionado para manter a avaliação justa.",
+          "dealBadge": "Webmaster Tools grátis para seu site"
+        }
+      }
+    },
+    {
+      "slug": "semrush",
+      "name": "Semrush",
+      "rank": 3,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.6,
+        "value": 7.9,
+        "reliability": 9.5,
+        "support": 9.0
+      },
+      "startingPrice": "$139.95 / mo",
+      "freeTrial": true,
+      "tags": ["all-in-one", "keywords", "backlinks", "technical"],
+      "couponCode": null,
+      "websiteDomain": "semrush.com",
+      "affiliateUrl": "https://www.semrush.com/?ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Best combined organic SEO + PPC search advertising intelligence",
+          "summary": "Combines deep keyword intent clustering, toxic backlink auditing, and Google Ads competitor research in one workspace, with predictable daily query allowances.",
+          "pros": [
+            "Predictable daily query limits instead of per-filter credit consumption",
+            "Strongest PPC ad history and keyword intent classification",
+            "Comprehensive site audit with Core Web Vitals and internal link diagnostics"
+          ],
+          "cons": [
+            "Expensive base subscription ($139.95/mo) and costly add-on modules",
+            "Dense interface with dozens of sub-menus takes time to learn"
+          ],
+          "changeNote": "Holds #3: unmatched for combined SEO + PPC workflows, though add-on pricing keeps its Value score at 7.9.",
+          "dealBadge": "14-day Pro trial"
+        },
+        "vi": {
+          "bestFor": "Mạnh nhất khi kết hợp nghiên cứu SEO tự nhiên và phân tích quảng cáo PPC",
+          "summary": "Kết hợp phân loại ý định tìm kiếm (Search Intent), lọc backlink xấu và soi lịch sử quảng cáo Google Ads của đối thủ với hạn mức tra cứu tính theo ngày rất rõ ràng.",
+          "pros": [
+            "Tính hạn mức tra cứu theo ngày thay vì trừ credit lắt nhắt mỗi lần lọc bảng",
+            "Phân loại Search Intent (Informational, Commercial, Transactional) cực chuẩn",
+            "Công cụ Site Audit báo lỗi kỹ thuật và liên kết nội bộ rất chi tiết"
+          ],
+          "cons": [
+            "Giá thuê bao cơ bản cao ($139.95/tháng) và nhiều tính năng tách thành gói mua thêm",
+            "Giao diện rất nhiều menu con, hơi ngợp với người mới bắt đầu"
+          ],
+          "changeNote": "Giữ hạng #3: cực mạnh cho team làm cả SEO lẫn Ads, nhưng điểm Giá trị đạt 7.9 do giá gói cơ bản cao.",
+          "dealBadge": "Dùng thử gói Pro 14 ngày"
+        },
+        "es": {
+          "bestFor": "La mejor combinación de SEO orgánico e inteligencia de anuncios PPC",
+          "summary": "Reúne agrupación de intención de búsqueda, auditoría de enlaces y análisis de Google Ads con límites de consulta diarios predecibles.",
+          "pros": [
+            "Límites de consulta diarios claros en lugar de consumo de créditos por clic",
+            "Excelente clasificación de intención de búsqueda y datos de PPC",
+            "Auditoría técnica detallada de Core Web Vitals y enlazado interno"
+          ],
+          "cons": [
+            "Suscripción base costosa ($139.95/mes) y módulos adicionales de pago",
+            "Interfaz densa con curva de aprendizaje inicial"
+          ],
+          "changeNote": "Mantiene el #3: líder en SEO + PPC combinados.",
+          "dealBadge": "Prueba Pro gratuita de 14 días"
+        },
+        "pt": {
+          "bestFor": "Melhor combinação de SEO orgânico e inteligência de mídia paga (PPC)",
+          "summary": "Une classificação de intenção de busca, auditoria de backlinks e histórico de anúncios Google Ads com limites diários previsíveis.",
+          "pros": [
+            "Limites diários claros em vez de cobrança de créditos por clique",
+            "Classificação precisa de intenção de busca e análise de concorrentes em Ads",
+            "Auditoria técnica completa de Core Web Vitals e links internos"
+          ],
+          "cons": [
+            "Mensalidade inicial alta ($139.95/mês) e complementos cobrados à parte",
+            "Interface extensa que exige adaptação inicial"
+          ],
+          "changeNote": "Mantém o #3: excelente para equipes de SEO + tráfego pago.",
+          "dealBadge": "14 dias de teste grátis no plano Pro"
+        }
+      }
+    },
+    {
+      "slug": "mangools",
+      "name": "Mangools (KWFinder)",
+      "rank": 4,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 8.4,
+        "value": 9.4,
+        "reliability": 8.7,
+        "support": 9.5
+      },
+      "startingPrice": "$29 / mo",
+      "freeTrial": true,
+      "tags": ["keywords", "budget"],
+      "couponCode": null,
+      "websiteDomain": "mangools.com",
+      "affiliateUrl": "https://mangools.com#a6anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Fastest low-difficulty keyword finder for bloggers, niche sites, and indie makers",
+          "summary": "Five focused tools (KWFinder, SERPChecker, SERPWatcher, LinkMiner, SiteProfiler) that show keyword difficulty and live SERP metrics on a single screen with zero clutter.",
+          "pros": [
+            "Cleanest single-screen keyword difficulty and SERP analysis UI",
+            "Affordable entry plans ($29–$49/mo) for solo publishers",
+            "Accurate keyword difficulty score for long-tail content queries"
+          ],
+          "cons": [
+            "Not built for deep technical crawl audits on 50,000-page sites",
+            "Daily keyword lookup caps on the entry plan"
+          ],
+          "changeNote": "Remains #4 overall and #1 for pure beginner-friendly keyword research under $35/mo.",
+          "dealBadge": "10-day free trial + 35% off annual"
+        },
+        "vi": {
+          "bestFor": "Tìm từ khóa ngách dễ lên top nhanh nhất cho blogger và người làm web độc lập",
+          "summary": "Bộ 5 công cụ gọn nhẹ (nổi bật là KWFinder và SERPChecker) hiển thị độ khó từ khóa và toàn bộ trang nhất Google trên cùng một màn hình cực dễ nhìn.",
+          "pros": [
+            "Giao diện KWFinder trực quan nhất để tìm từ khóa dài (long-tail) ít cạnh tranh",
+            "Chi phí dễ chịu ($29–$49/tháng) cho người làm affiliate hoặc blog cá nhân",
+            "Đánh giá độ khó từ khóa (KD) rất sát với khả năng của các web mới"
+          ],
+          "cons": [
+            "Không có trình quét lỗi kỹ thuật chuyên sâu cho các website hàng chục nghìn trang",
+            "Giới hạn số lượt tra cứu từ khóa mỗi 24 giờ ở gói thấp nhất"
+          ],
+          "changeNote": "Giữ vị trí #4 tổng thể và là lựa chọn số 1 dưới $35/tháng để tìm từ khóa viết bài.",
+          "dealBadge": "Dùng thử 10 ngày + Giảm 35% gói năm"
+        },
+        "es": {
+          "bestFor": "El buscador de palabras clave de baja competencia más claro para creadores",
+          "summary": "Cinco herramientas enfocadas (KWFinder, SERPChecker, SERPWatcher, LinkMiner, SiteProfiler) que muestran dificultad y SERP en una sola vista.",
+          "pros": [
+            "Interfaz limpia para encontrar palabras clave long-tail rentables",
+            "Planes accesibles ($29–$49/mes) para proyectos individuales",
+            "Métrica de dificultad de palabra clave muy fiable para sitios nuevos"
+          ],
+          "cons": [
+            "No incluye auditoría técnica profunda para sitios gigantes",
+            "Límite diario de búsquedas en el plan básico"
+          ],
+          "changeNote": "Se mantiene en el #4 como la mejor opción económica para investigación de palabras clave.",
+          "dealBadge": "10 días gratis + 35% dto. anual"
+        },
+        "pt": {
+          "bestFor": "O buscador de palavras-chave de baixa concorrência mais prático para criadores",
+          "summary": "Conjunto de cinco ferramentas (KWFinder, SERPChecker, SERPWatcher, LinkMiner, SiteProfiler) que exibe dificuldade e SERP na mesma tela sem complicação.",
+          "pros": [
+            "Interface super limpa para achar palavras-chave de cauda longa",
+            "Planos acessíveis ($29–$49/mês) para projetos independentes",
+            "Nota de dificuldade (KD) muito realista para sites em crescimento"
+          ],
+          "cons": [
+            "Não possui auditoria técnica pesada para portais gigantes",
+            "Limite diário de consultas no plano inicial"
+          ],
+          "changeNote": "Permanece em #4 como a melhor escolha acessível para pesquisa de palavras-chave.",
+          "dealBadge": "10 dias grátis + 35% OFF anual"
+        }
+      }
+    }
+  ]
+}
+

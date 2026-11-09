@@ -17,9 +17,11 @@ export const DROPPED_SECTIONS = ["blog", "sign-in", "sign-up", "dashboard", "fav
 
 export default [
   layout("routes/locale-layout.tsx", [
-    // `/` serves the English landing page directly; signed-in visitors go to /home.
+    // `/` serves the English landing page directly; signed-in visitors remain on landing.
     index("routes/home-redirect.ts"),
     layout("routes/auth-layout.tsx", [route("login", "routes/login.tsx")]),
+    // Direct gateway to AnyLearn study workspace (/learn)
+    route("learn", "routes/learn.ts"),
     // A learner's public profile, for anyone, signed in or not, in the
     // visitor's language (the private design notes). A static first
     // segment, so it outranks `:locale/:cluster`.
@@ -280,6 +282,9 @@ export default [
   route("sitemap.xml", "routes/sitemap[.]xml.ts"),
   route("llms.txt", "routes/llms[.]txt.ts"),
 
+  // Outbound affiliate redirect (/go/<slug>): 302 + X-Robots-Tag: noindex, nofollow.
+  // A static first segment, so it outranks `:locale/:cluster`.
+  route("go/:slug", "routes/go.$slug.ts"),
   // AnyTools phase 2: the app's Tools tab, which picks the visitor's locale
   // and goes to /{locale}/tools.
   route("tools", "routes/tools.ts"),
@@ -297,6 +302,10 @@ export default [
     // segments, so they outrank `:cluster`.
     route("guides", "routes/public.guides.tsx"),
     route("guides/:slug", "routes/public.guide.tsx"),
+    // User-first monthly rankings directory and category leaderboards.
+    route("rankings", "routes/public.rankings.tsx"),
+    route("rankings/:category", "routes/public.ranking-category.tsx"),
+    route("learn", "routes/learn.ts", { id: "routes/public.learn" }),
     route("anyprofile", "routes/public.anyprofile.tsx"),
     // AnyLearn, the study app, beside AnyProfile: what it does and how to install it.
     route("anylearn", "routes/public.anylearn.tsx"),

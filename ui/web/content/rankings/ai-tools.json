@@ -1,0 +1,386 @@
+{
+  "slug": "ai-tools",
+  "month": "2026-11",
+  "updated": "2026-11-06",
+  "locales": {
+    "en": {
+      "title": "AI Research, Coding & Media Tools",
+      "tagline": "Ranked by output fidelity, API/BYOK openness, and real monthly cost.",
+      "description": "Monthly user-first evaluation of AI assistants, API routers, and voice/video generators scored on reasoning quality, latency, and absence of lock-in.",
+      "methodologyNote": "We evaluate AI tools on real benchmark tasks (document citation accuracy, multi-file code edits, natural multilingual speech synthesis) and heavily reward platforms that offer pay-per-token API access or bring-your-own-key (BYOK) compatibility with apps like AnyLearn.",
+      "monthlySummary": "November 2026 update: OpenRouter leads #1 as the most versatile single-balance API gateway for BYOK learners and developers, while ElevenLabs holds #1 in multilingual voice realism.",
+      "criteriaLabels": {
+        "performance": "Output Quality & Speed",
+        "value": "Pricing & Token Transparency",
+        "reliability": "API Uptime & Privacy",
+        "support": "BYOK & Export Freedom"
+      },
+      "tagLabels": {
+        "llm-api": "LLM & BYOK API",
+        "voice-audio": "Voice & Audio",
+        "search-rag": "Web Search & RAG",
+        "coding": "Coding & Agents",
+        "free-tier": "Generous Free Tier"
+      },
+      "buyingGuide": [
+        "If you study in AnyLearn or use multiple AI apps, paying three separate $20/month chat subscriptions wastes money during light weeks. Connecting a pay-as-you-go API key (via OpenRouter, Anthropic, or OpenAI) lets you pay only for the exact tokens you read and generate.",
+        "For grounded web research, pair your LLM key with a dedicated search API like Tavily or Brave Search so every claim links back to a verifiable source URL."
+      ],
+      "faqs": [
+        {
+          "q": "Which AI provider works best with AnyLearn's Bring-Your-Own-Key (BYOK) setup?",
+          "a": "OpenRouter is the easiest single connection because one API key unlocks Claude, GPT, Gemini, and DeepSeek models with transparent per-token pricing."
+        },
+        {
+          "q": "Do these AI providers train on API data?",
+          "a": "Zero-data-retention (ZDR) endpoints on OpenRouter, Anthropic API, and Tavily API do not train models on your API prompts by default."
+        }
+      ]
+    },
+    "vi": {
+      "title": "Công cụ AI, API & Giọng nói",
+      "tagline": "Xếp hạng theo chất lượng đầu ra, khả năng gắn API (BYOK) và chi phí thực tế.",
+      "description": "Bảng xếp hạng hàng tháng các nền tảng AI, cổng API đa mô hình và công cụ tạo giọng nói/tìm kiếm dựa trên độ chính xác, tốc độ phản hồi và tính minh bạch khi trả theo token.",
+      "methodologyNote": "Chúng tôi chấm điểm dựa trên bài toán thực tế (trích dẫn tài liệu PDF, viết mã nguồn, đọc giọng tiếng Việt tự nhiên) và cộng điểm cho các nền tảng cho phép nạp lẻ theo token hoặc gắn khóa API (BYOK) trực tiếp vào AnyLearn.",
+      "monthlySummary": "Cập nhật tháng 11/2026: OpenRouter dẫn đầu #1 nhờ gom toàn bộ Claude, GPT, Gemini và DeepSeek vào một ví nạp lẻ duy nhất; ElevenLabs giữ ngôi đầu về độ tự nhiên của giọng đọc đa ngôn ngữ.",
+      "criteriaLabels": {
+        "performance": "Chất lượng & Tốc độ",
+        "value": "Minh bạch giá Token",
+        "reliability": "Độ ổn định & Bảo mật",
+        "support": "Hỗ trợ BYOK & Xuất file"
+      },
+      "tagLabels": {
+        "llm-api": "Cổng LLM & BYOK",
+        "voice-audio": "Giọng nói & Audio",
+        "search-rag": "Tìm kiếm cho AI",
+        "coding": "Lập trình & Agent",
+        "free-tier": "Có gói miễn phí"
+      },
+      "buyingGuide": [
+        "Nếu bạn đang tự học trên AnyLearn hoặc dùng nhiều công cụ AI, việc đóng cùng lúc 2–3 gói $20/tháng rất lãng phí. Chỉ cần tạo một khóa API trả theo lượng dùng thực tế (Pay-as-you-go qua OpenRouter), bạn vừa dùng được mọi mô hình mạnh nhất vừa chỉ tốn vài đô mỗi tháng.",
+        "Khi cần AI tra cứu thông tin mới trên web kèm trích dẫn chuẩn, hãy kết hợp thêm khóa API của Tavily trong mục Cài đặt → Tìm kiếm của AnyLearn."
+      ],
+      "faqs": [
+        {
+          "q": "Nên dùng cổng API nào để gắn vào AnyLearn tiện nhất?",
+          "a": "OpenRouter là lựa chọn tiện nhất vì chỉ cần 1 khóa API duy nhất là bạn chọn được cả Claude, GPT, Gemini và các mô hình miễn phí ngay trong AnyLearn."
+        },
+        {
+          "q": "Dữ liệu gửi qua API có bị dùng để huấn luyện AI không?",
+          "a": "Các cổng API trả phí và chế độ Zero Data Retention (ZDR) trên OpenRouter cam kết không dùng tài liệu của bạn để huấn luyện mô hình."
+        }
+      ]
+    },
+    "es": {
+      "title": "Herramientas de IA, APIs y Voz",
+      "tagline": "Clasificadas por calidad de respuesta, apertura BYOK/API y costo real por uso.",
+      "description": "Evaluación mensual de plataformas de IA, pasarelas de modelos y generadores de voz puntuados por precisión, latencia y precios transparentes.",
+      "methodologyNote": "Probamos cada herramienta en tareas reales (citas de documentos, edición de código, síntesis de voz en español) y priorizamos servicios con acceso API de pago por uso compatibles con AnyLearn.",
+      "monthlySummary": "Actualización de noviembre de 2026: OpenRouter lidera en el #1 como la pasarela API más flexible para conectar múltiples modelos con un solo saldo.",
+      "criteriaLabels": {
+        "performance": "Calidad y Velocidad",
+        "value": "Transparencia de Precio",
+        "reliability": "Estabilidad y Privacidad",
+        "support": "Integración BYOK"
+      },
+      "tagLabels": {
+        "llm-api": "API LLM y BYOK",
+        "voice-audio": "Voz y Audio",
+        "search-rag": "Búsqueda Web IA",
+        "coding": "Código y Agentes",
+        "free-tier": "Nivel Gratis"
+      },
+      "buyingGuide": [
+        "En lugar de pagar varias suscripciones mensuales de $20, conectar una clave API de pago por uso en AnyLearn te permite acceder a los mejores modelos pagando únicamente por los tokens consumidos.",
+        "Combina tu modelo con un buscador dedicado como Tavily para obtener respuestas con citas web verificables."
+      ],
+      "faqs": [
+        {
+          "q": "¿Qué proveedor conviene más para usar con mi propia clave en AnyLearn?",
+          "a": "OpenRouter permite cambiar entre Claude, GPT, Gemini y DeepSeek con una sola clave API y saldo prepago."
+        },
+        {
+          "q": "¿Tienen nivel gratuito para empezar?",
+          "a": "Tanto OpenRouter (modelos gratuitos) como Tavily (1.000 búsquedas al mes) ofrecen niveles gratuitos sin tarjeta."
+        }
+      ]
+    },
+    "pt": {
+      "title": "Ferramentas de IA, APIs e Voz",
+      "tagline": "Classificadas por fidelidade de resposta, abertura de API/BYOK e custo real.",
+      "description": "Ranking mensal de plataformas de IA, roteadores de modelos e geradores de voz avaliados por qualidade de raciocínio, latência e ausência de fidelidade forçada.",
+      "methodologyNote": "Testamos cada ferramenta em tarefas práticas (citação de PDFs, código, síntese de voz em português) e valorizamos serviços que permitem uso via chave própria (BYOK) no AnyLearn.",
+      "monthlySummary": "Atualização de novembro de 2026: OpenRouter lidera em #1 pela praticidade de reunir dezenas de modelos em um único saldo pré-pago.",
+      "criteriaLabels": {
+        "performance": "Qualidade e Velocidade",
+        "value": "Transparência de Preço",
+        "reliability": "Estabilidade e Privacidade",
+        "support": "Liberdade BYOK"
+      },
+      "tagLabels": {
+        "llm-api": "API LLM e BYOK",
+        "voice-audio": "Voz e Áudio",
+        "search-rag": "Busca Web para IA",
+        "coding": "Código e Agentes",
+        "free-tier": "Plano Grátis"
+      },
+      "buyingGuide": [
+        "Em vez de acumular várias assinaturas mensais de $20, conectar uma chave de API pré-paga no AnyLearn permite usar os modelos mais avançados pagando apenas pelos tokens processados.",
+        "Para pesquisas na web com fontes citadas, adicione uma chave gratuita da Tavily nas configurações de busca."
+      ],
+      "faqs": [
+        {
+          "q": "Qual o melhor provedor para conectar no AnyLearn?",
+          "a": "O OpenRouter é o mais prático, pois uma única chave dá acesso aos modelos Claude, GPT, Gemini e DeepSeek com cobrança por token."
+        },
+        {
+          "q": "É possível começar sem pagar nada?",
+          "a": "Sim, o OpenRouter disponibiliza modelos gratuitos e a Tavily oferece 1.000 buscas mensais grátis."
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "slug": "openrouter",
+      "name": "OpenRouter",
+      "rank": 1,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.6,
+        "value": 9.8,
+        "reliability": 9.5,
+        "support": 9.7
+      },
+      "startingPrice": "$0 (Pay-per-token + Free models)",
+      "freeTrial": true,
+      "tags": ["llm-api", "coding", "free-tier"],
+      "couponCode": null,
+      "websiteDomain": "openrouter.ai",
+      "affiliateUrl": "https://openrouter.ai/",
+      "locales": {
+        "en": {
+          "bestFor": "Best single API key to run Claude, GPT, Gemini, and DeepSeek in AnyLearn",
+          "summary": "Unifies 200+ language models behind one OpenAI-compatible API key with automatic provider fallback, zero markup on upstream token rates, and free community models.",
+          "pros": [
+            "One prepaid balance and one API key for Anthropic, OpenAI, Google, and open-weight models",
+            "Automatic fallback to backup providers when an upstream API has an outage",
+            "Strict Zero Data Retention (ZDR) routing filter available in account settings"
+          ],
+          "cons": [
+            "Small 5.5% credit top-up fee when purchasing prepaid balance",
+            "Free-tier models have stricter per-minute rate limits during peak hours"
+          ],
+          "changeNote": "Holds #1: still the highest-value companion for AnyLearn BYOK users.",
+          "dealBadge": "Free models included on sign-up"
+        },
+        "vi": {
+          "bestFor": "Khóa API toàn năng tốt nhất để dùng Claude, GPT, Gemini và DeepSeek trên AnyLearn",
+          "summary": "Gom hơn 200 mô hình ngôn ngữ về chung một chuẩn API duy nhất, tự động chuyển hướng khi nhà cung cấp gốc bị nghẽn mạng và có sẵn nhiều mô hình miễn phí.",
+          "pros": [
+            "Chỉ cần 1 số dư nạp lẻ và 1 khóa API để dùng tất cả mô hình lớn (Claude, GPT, Gemini, Qwen, DeepSeek)",
+            "Tự động đổi sang máy chủ dự phòng khi một nhà cung cấp bị quá tải",
+            "Có tùy chọn chỉ gửi dữ liệu tới các máy chủ không lưu trữ (Zero Data Retention)"
+          ],
+          "cons": [
+            "Thu phí nạp tiền 5.5% khi nạp số dư vào ví",
+            "Các mô hình miễn phí (`:free`) bị giới hạn số lượt gọi mỗi phút vào giờ cao điểm"
+          ],
+          "changeNote": "Giữ vững #1: giải pháp tiết kiệm và tiện lợi nhất cho người dùng BYOK trên AnyLearn.",
+          "dealBadge": "Có sẵn các model miễn phí ngay khi đăng ký"
+        },
+        "es": {
+          "bestFor": "La mejor clave API única para usar Claude, GPT, Gemini y DeepSeek en AnyLearn",
+          "summary": "Unifica más de 200 modelos bajo una sola clave API con respaldo automático entre proveedores y modelos gratuitos incluidos.",
+          "pros": [
+            "Un solo saldo prepago para todos los modelos principales",
+            "Conmutación automática si un proveedor sufre caídas",
+            "Filtro de retención cero de datos (ZDR) disponible"
+          ],
+          "cons": [
+            "Comisión de recarga del 5.5% al añadir saldo",
+            "Límites por minuto más estrictos en los modelos gratuitos"
+          ],
+          "changeNote": "Se mantiene en el #1 como la pasarela BYOK más completa.",
+          "dealBadge": "Modelos gratuitos incluidos al registrarse"
+        },
+        "pt": {
+          "bestFor": "Melhor chave de API única para rodar Claude, GPT, Gemini e DeepSeek no AnyLearn",
+          "summary": "Reúne mais de 200 modelos de linguagem em uma única chave de API com fallback automático entre provedores e modelos gratuitos.",
+          "pros": [
+            "Um único saldo pré-pago para todos os principais modelos do mercado",
+            "Troca automática de rota quando um provedor apresenta instabilidade",
+            "Opção de retenção zero de dados (ZDR) nas configurações"
+          ],
+          "cons": [
+            "Taxa de 5,5% no momento da recarga de créditos",
+            "Limites de requisições por minuto nos modelos gratuitos em horários de pico"
+          ],
+          "changeNote": "Segue em #1 como a integração BYOK mais econômica.",
+          "dealBadge": "Modelos gratuitos liberados no cadastro"
+        }
+      }
+    },
+    {
+      "slug": "elevenlabs",
+      "name": "ElevenLabs",
+      "rank": 2,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.8,
+        "value": 8.6,
+        "reliability": 9.4,
+        "support": 9.2
+      },
+      "startingPrice": "$5 / mo (Free tier available)",
+      "freeTrial": true,
+      "tags": ["voice-audio", "free-tier"],
+      "couponCode": null,
+      "websiteDomain": "elevenlabs.io",
+      "affiliateUrl": "https://try.elevenlabs.io/anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Most natural multilingual text-to-speech, dubbing, and voice cloning",
+          "summary": "Produces human-grade intonation across 32 languages (including Vietnamese, Spanish, and Portuguese) with low-latency Turbo/Flash models for study audio and video narration.",
+          "pros": [
+            "Best prosody and emotional pacing across English, Vietnamese, Spanish, and Portuguese",
+            "Flash v2.5 model cuts latency to ~75ms at half the character credit cost",
+            "Starter plan at $5/mo includes commercial license and instant voice cloning"
+          ],
+          "cons": [
+            "Character credits can burn quickly on long audiobooks if using the heavier Multilingual v2 model",
+            "Unused monthly character quota only partially rolls over"
+          ],
+          "changeNote": "Holds #2 overall and #1 in Audio/Voice thanks to the 50% cheaper Flash v2.5 model.",
+          "dealBadge": "10,000 free characters/month"
+        },
+        "vi": {
+          "bestFor": "Giọng đọc AI đa ngôn ngữ, lồng tiếng video và nhân bản giọng tự nhiên nhất",
+          "summary": "Tạo giọng đọc có ngữ điệu tự nhiên như người thật ở 32 ngôn ngữ (đặc biệt đọc tiếng Việt rất chuẩn dấu và ngắt nghỉ mượt), phục vụ tốt cả học ngoại ngữ lẫn làm video.",
+          "pros": [
+            "Ngữ điệu tiếng Việt, tiếng Anh, Tây Ban Nha, Bồ Đào Nha tự nhiên nhất hiện nay",
+            "Mô hình Flash v2.5 phản hồi cực nhanh (~75ms) và tiết kiệm 50% số ký tự",
+            "Gói Starter chỉ $5/tháng đã có bản quyền thương mại và nhân bản giọng nhanh"
+          ],
+          "cons": [
+            "Dùng mô hình Multilingual v2 cho sách dài sẽ tốn credit khá nhanh",
+            "Số ký tự dư cuối tháng chỉ được bảo lưu một phần sang tháng sau"
+          ],
+          "changeNote": "Giữ hạng #2 tổng thể và #1 mảng Giọng nói nhờ mô hình Flash v2.5 giảm một nửa chi phí.",
+          "dealBadge": "Miễn phí 10.000 ký tự mỗi tháng"
+        },
+        "es": {
+          "bestFor": "Síntesis de voz multilingüe, doblaje y clonación de voz más natural",
+          "summary": "Genera entonación humana en 32 idiomas con modelos de baja latencia ideales para narración de videos y estudio de idiomas.",
+          "pros": [
+            "Excelente naturalidad y acento en español, inglés y portugués",
+            "El modelo Flash v2.5 reduce a la mitad el consumo de créditos",
+            "Plan inicial desde $5/mes con licencia comercial"
+          ],
+          "cons": [
+            "Los audiolibros largos consumen créditos rápido en el modelo estándar",
+            "La acumulación de créditos no usados de un mes a otro es limitada"
+          ],
+          "changeNote": "Mantiene el #2 global y #1 en voz gracias al modelo económico Flash v2.5.",
+          "dealBadge": "10.000 caracteres gratis al mes"
+        },
+        "pt": {
+          "bestFor": "Voz neural multilíngue, dublagem e clonagem de voz mais realista",
+          "summary": "Entrega entonação natural em 32 idiomas (incluindo português brasileiro fluido) com modelos rápidos para narração de vídeos e estudo.",
+          "pros": [
+            "Prosódia e sotaque muito naturais em português, inglês e espanhol",
+            "Modelo Flash v2.5 consome metade dos créditos com baixa latência",
+            "Plano Starter de $5/mês já inclui licença comercial"
+          ],
+          "cons": [
+            "Textos muito longos consomem a franquia rapidamente no modelo completo",
+            "Acúmulo limitado de créditos não utilizados para o mês seguinte"
+          ],
+          "changeNote": "Mantém o #2 geral e #1 em áudio pelo custo reduzido do modelo Flash v2.5.",
+          "dealBadge": "10.000 caracteres grátis por mês"
+        }
+      }
+    },
+    {
+      "slug": "tavily",
+      "name": "Tavily Search API",
+      "rank": 3,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.3,
+        "value": 9.5,
+        "reliability": 9.2,
+        "support": 9.3
+      },
+      "startingPrice": "$0 (1,000 searches / mo free)",
+      "freeTrial": true,
+      "tags": ["search-rag", "llm-api", "free-tier"],
+      "couponCode": null,
+      "websiteDomain": "tavily.com",
+      "affiliateUrl": "https://tavily.com/",
+      "locales": {
+        "en": {
+          "bestFor": "Best live web search API built specifically for cited AI research in AnyLearn",
+          "summary": "Returns clean, pre-extracted article passages ready for RAG and cited research reports instead of raw HTML clutter, with 1,000 free searches every month.",
+          "pros": [
+            "1,000 free API searches every month with no credit card required",
+            "Native integration in AnyLearn Settings → Search for cited web research",
+            "Returns clean markdown snippets and source URLs in one fast call"
+          ],
+          "cons": [
+            "Deep search mode costs 2 credits per query",
+            "Focused on factual web pages rather than social media firehose"
+          ],
+          "changeNote": "Remains #3: the cleanest plug-and-play web search key for AnyLearn Research.",
+          "dealBadge": "1,000 free API searches every month"
+        },
+        "vi": {
+          "bestFor": "API tìm kiếm web tốt nhất để AI viết báo cáo có trích dẫn nguồn trên AnyLearn",
+          "summary": "Trả về nội dung bài viết đã lọc sạch rác HTML để mô hình AI đọc và trích dẫn nguồn chuẩn xác, tặng sẵn 1.000 lượt tìm kiếm miễn phí mỗi tháng.",
+          "pros": [
+            "Miễn phí 1.000 lượt tìm kiếm API mỗi tháng không cần thẻ tín dụng",
+            "Tích hợp sẵn trong mục Cài đặt → Tìm kiếm của AnyLearn",
+            "Trả về đoạn trích sạch và URL gốc chỉ trong một lần gọi nhanh"
+          ],
+          "cons": [
+            "Chế độ tìm kiếm sâu (Advanced Search) tính 2 credit mỗi lượt",
+            "Tập trung vào bài viết và tài liệu web hơn là mạng xã hội thời gian thực"
+          ],
+          "changeNote": "Giữ hạng #3: mảnh ghép tìm kiếm miễn phí tốt nhất cho tính năng Research trên AnyLearn.",
+          "dealBadge": "Miễn phí 1.000 lượt tìm kiếm/tháng"
+        },
+        "es": {
+          "bestFor": "Mejor API de búsqueda web para informes de investigación citados en AnyLearn",
+          "summary": "Devuelve fragmentos limpios listos para RAG e informes con citas verificables, con 1.000 búsquedas gratuitas cada mes.",
+          "pros": [
+            "1.000 búsquedas mensuales gratis sin tarjeta de crédito",
+            "Integración directa en Ajustes → Búsqueda dentro de AnyLearn",
+            "Extrae contenido limpio y URLs de origen en una sola llamada"
+          ],
+          "cons": [
+            "El modo de búsqueda profunda consume 2 créditos por consulta",
+            "Orientado a artículos web y documentación más que a redes sociales"
+          ],
+          "changeNote": "Se mantiene en el #3 como el motor de búsqueda RAG más práctico.",
+          "dealBadge": "1.000 búsquedas API gratis al mes"
+        },
+        "pt": {
+          "bestFor": "Melhor API de busca web para relatórios de pesquisa com citações no AnyLearn",
+          "summary": "Retorna trechos limpos e estruturados para RAG e relatórios citados, oferecendo 1.000 buscas gratuitas todos os meses.",
+          "pros": [
+            "1.000 buscas mensais grátis sem exigir cartão de crédito",
+            "Integração nativa em Configurações → Busca no AnyLearn",
+            "Entrega trechos em markdown e URLs originais com baixa latência"
+          ],
+          "cons": [
+            "O modo de busca avançada consome 2 créditos por consulta",
+            "Focado em páginas e artigos web, não em redes sociais em tempo real"
+          ],
+          "changeNote": "Segue em #3 como a melhor API gratuita de busca para agentes de IA.",
+          "dealBadge": "1.000 buscas de API grátis/mês"
+        }
+      }
+    }
+  ]
+}
+

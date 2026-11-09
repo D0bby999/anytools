@@ -9,6 +9,7 @@ import { APP_URL } from "~/lib/env.server";
 import { POPULATED_CLUSTERS, toolDescription, toolTitle } from "~/lib/tools/catalog";
 import { isIndexableTool } from "~/lib/tools/content.server";
 import { listGuides } from "~/lib/tools/pages.server";
+import { listRankingCategories } from "~/lib/tools/rankings.server";
 import { toolsT } from "~/lib/tools/route.server";
 import { toolMetas } from "~/tools/meta-registry";
 
@@ -28,6 +29,11 @@ export function loader() {
     "## Guides",
     "",
     ...listGuides("en").map((g) => `- [${g.title}](${APP_URL}/en/guides/${g.slug}): ${g.description}`),
+    "",
+    "## Rankings",
+    "",
+    `- [User-First Rankings](${APP_URL}/en/rankings): Monthly user-first software and service leaderboards`,
+    ...listRankingCategories("en").map((c) => `- [${c.title}](${APP_URL}/en/rankings/${c.slug}): ${c.description}`),
   ];
   for (const cluster of POPULATED_CLUSTERS) {
     const tools = toolMetas.filter((m) => m.cluster === cluster && isIndexableTool(m, "en"));

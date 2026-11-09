@@ -28,7 +28,19 @@ export function loader() {
   const files = PUBLIC_FILES.map((f) => `Allow: ${f}`);
   // `/?lng=` answers 301 to /{lng} (routes/home-redirect.ts); a crawler must
   // be let in to see that.
-  const body = ["User-agent: *", "Allow: /$", "Allow: /?lng=", ...allow, "Allow: /u/", ...files, "Disallow: /", "", `Sitemap: ${APP_URL}/sitemap.xml`, ""].join("\n");
+  const body = [
+    "User-agent: *",
+    "Allow: /$",
+    "Allow: /?lng=",
+    ...allow,
+    "Allow: /u/",
+    ...files,
+    "Disallow: /go/",
+    "Disallow: /",
+    "",
+    `Sitemap: ${APP_URL}/sitemap.xml`,
+    "",
+  ].join("\n");
   return new Response(body, {
     headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=3600" },
   });

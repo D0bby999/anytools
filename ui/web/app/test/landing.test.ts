@@ -13,6 +13,7 @@ vi.mock("~/lib/auth.server", () => ({ getUserId: (r: Request) => getUserId(r) })
 
 const landing = await import("~/routes/landing");
 const home = await import("~/routes/home-redirect");
+const learn = await import("~/routes/learn");
 const robots = await import("~/routes/robots[.]txt");
 const sitemap = await import("~/routes/sitemap[.]xml");
 const llms = await import("~/routes/llms[.]txt");
@@ -24,13 +25,24 @@ const bare = { request: new Request("https://learn.example.com/"), params: {} } 
 beforeEach(() => getUserId.mockReset());
 
 describe("landing", () => {
-  it("sends a signed-in visitor to the app", async () => {
+  it("serves English at / without redirecting to /home, even when signed in", async () => {
     getUserId.mockResolvedValue("user-1");
-    // `/` sends them on; the landing page itself (/en) is public to anyone.
-    const sent = await home.loader(bare);
-    expect(sent).toBeInstanceOf(Response);
-    if (!(sent instanceof Response)) throw new Error("Expected a redirect");
-    expect(sent.headers.get("Location")).toBe("/home");
+    // `/` keeps signed-in visitors on English landing page without auto-redirecting
+    const out = await home.loader(bare);
+    expect(out).not.toBeInstanceOf(Response);
+    expect(out).toMatchObject({ data: { toolsLocale: "en", signedIn: true } });
+  });
+
+  it("gateway /learn routes to /home when signed in and to /login when signed out", async () => {
+    getUserId.mockResolvedValue("user-1");
+    const authed = await learn.loader({ request: new Request("https://learn.example.com/learn") });
+    expect(authed).toBeInstanceOf(Response);
+    expect(authed.headers.get("Location")).toBe("/home");
+
+    getUserId.mockResolvedValue(null);
+    const unauthed = await learn.loader({ request: new Request("https://learn.example.com/learn") });
+    expect(unauthed).toBeInstanceOf(Response);
+    expect(unauthed.headers.get("Location")).toBe("/login?next=/home");
   });
 
   it.each<Record<string, string>>([

@@ -216,8 +216,11 @@ describe("the sitemap", () => {
     );
     // The landing page and the tools home in four languages (`/` only
     // redirects); the guides index, eight guides (including PostClaw),
-    // AnyLearn, AnyProfile and the four static pages, all in four languages.
-    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 8 + 2 + 4) * 4);
+    // the rankings index, five ranking categories, AnyLearn, AnyProfile and
+    // the four static pages, all in four languages.
+    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 8 + 1 + 5 + 2 + 4) * 4);
+    expect(locs).toContain("https://anytools.example/en/rankings");
+    expect(locs).toContain("https://anytools.example/vi/rankings/proxies");
     expect(locs).toContain("https://anytools.example/en/guides/postclaw");
     expect(locs).toContain("https://anytools.example/vi/guides/postclaw");
     expect(locs).toContain("https://anytools.example/es/guides/postclaw");

@@ -11,6 +11,8 @@ import { POPULATED_CLUSTERS } from "./catalog";
 import { clusterIsIndexable, isIndexableTool, loadToolContent, toolLocales } from "./content.server";
 import { toolMetas } from "~/tools/meta-registry";
 import { GUIDE_SLUGS, guideLocales, STATIC_PAGES } from "./pages.server";
+import { RANKING_CATEGORY_IDS } from "./rankings";
+import { loadRankingCategory } from "./rankings.server";
 import { showcaseLangPath, showcasePath } from "~/lib/showcase/design";
 
 /**
@@ -70,6 +72,11 @@ export function publicUrls(): string[] {
     for (const slug of GUIDE_SLUGS) {
       const alternates = guideLocales(slug);
       if (alternates.includes(locale)) out.push(entry((l) => `/${l}/guides/${slug}`, locale, alternates));
+    }
+    out.push(entry((l) => `/${l}/rankings`, locale, publicLngs));
+    for (const cat of RANKING_CATEGORY_IDS) {
+      const updated = loadRankingCategory(locale, cat)?.updated;
+      out.push(entry((l) => `/${l}/rankings/${cat}`, locale, publicLngs, undefined, updated));
     }
     for (const page of ["anylearn", "anyprofile", ...STATIC_PAGES]) out.push(entry((l) => `/${l}/${page}`, locale, publicLngs));
   }

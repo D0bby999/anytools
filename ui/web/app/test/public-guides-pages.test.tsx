@@ -379,6 +379,7 @@ describe("the merged landing page", () => {
     const nav = screen.getByRole("navigation", { name: "Más de AnyTools" });
     expect(within(nav).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual([
       "/es/guides",
+      "/es/rankings",
       "/es/anyprofile",
       "/es/about",
       "/es/privacy",
@@ -412,8 +413,8 @@ describe("the merged landing page", () => {
 
 describe("ported files speak this app's tokens", () => {
   it("no colour literal or old class vocabulary in the new routes", () => {
-    const files = readdirSync(join(WEB_DIR, "app/routes")).filter((f) => /^public\.(guides?|page|anyprofile)\.tsx$/.test(f));
-    expect(files).toHaveLength(4);
+    const files = readdirSync(join(WEB_DIR, "app/routes")).filter((f) => /^public\.(guides?|page|anyprofile|rankings|ranking-category)\.tsx$/.test(f));
+    expect(files).toHaveLength(6);
     for (const f of files) {
       const src = readFileSync(join(WEB_DIR, "app/routes", f), "utf8");
       expect(src, f).not.toMatch(/#[0-9a-f]{3,8}\b|rgb\(|hsl\(|bg-accent|border-input|ring-ring|text-\[\d+px\]|border-l-\d|rounded-full border bg-background/i);

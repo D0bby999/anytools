@@ -30,6 +30,7 @@ import { Plate } from "~/components/ui/plate";
 import { AnyProfileFeature } from "~/components/tools-site/anyprofile-feature";
 import { SiteFooter } from "~/components/tools-site/public-shell";
 import { homeHref, SiteHeader } from "~/components/layout/site-header";
+import { getUserId } from "~/lib/auth.server";
 import { PARTS } from "~/lib/parts";
 import { catalogEntries, CLUSTER_ORDER } from "~/lib/tools/catalog";
 import { addPagesBundle, toolsI18n } from "~/lib/tools/i18n";
@@ -49,10 +50,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const clusters = CLUSTER_ORDER.map((id) => ({ id, count: catalogEntries(locale, id).length })).filter((c) => c.count > 0);
   const t = pagesT(locale);
+  const userId = await getUserId(request);
   return data(
     {
       appUrl: APP_URL,
       toolsLocale: locale,
+      signedIn: Boolean(userId),
       clusters,
       messages: toolsMessages(locale),
       pages: pagesMessages(locale),
@@ -127,7 +130,7 @@ export default function Landing() {
 }
 
 function LandingPage() {
-  const { toolsLocale: lng, clusters } = useLoaderData<typeof loader>();
+  const { toolsLocale: lng, clusters, signedIn } = useLoaderData<typeof loader>();
   const { t } = useTranslation("pages");
   const { t: tTools } = useTranslation("tools");
 
@@ -147,7 +150,7 @@ function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader locale={lng} search />
+      <SiteHeader locale={lng} search signedIn={signedIn} />
 
       <main id="main" className="flex-1">
         {/* First viewport: the offer, the one action, and the book on the desk. */}
@@ -157,10 +160,21 @@ function LandingPage() {
             <p className="mt-4 max-w-[30ch] font-serif text-2xl leading-snug text-muted-foreground italic">{t("landing.subtitle")}</p>
             <p className="mt-6 max-w-[52ch] text-lg leading-snug">{t("landing.lede")}</p>
             <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
-              <Button asChild size="lg">
-                <Link to="/login">{t("landing.cta")}</Link>
-              </Button>
-              <p className="max-w-[34ch] text-sm leading-snug text-muted-foreground">{t("landing.ctaNote")}</p>
+              {signedIn ? (
+                <>
+                  <Button asChild size="lg">
+                    <Link to="/home">{t("landing.ctaSignedIn")}</Link>
+                  </Button>
+                  <p className="max-w-[34ch] text-sm leading-snug text-muted-foreground">{t("landing.ctaNoteSignedIn")}</p>
+                </>
+              ) : (
+                <>
+                  <Button asChild size="lg">
+                    <Link to="/login?next=/home">{t("landing.cta")}</Link>
+                  </Button>
+                  <p className="max-w-[34ch] text-sm leading-snug text-muted-foreground">{t("landing.ctaNote")}</p>
+                </>
+              )}
             </div>
           </div>
           <Plate name="hero-study" priority sizes="(min-width: 1024px) 52vw, 100vw" className="-mx-2 w-[calc(100%+1rem)] max-w-none lg:mx-0 lg:w-full" />

@@ -149,6 +149,7 @@ describe("the footer", () => {
     }
     expect(FOOTER_LINKS.map((l) => l.labelKey)).toEqual([
       "footer.guides",
+      "footer.rankings",
       "footer.anyprofile",
       "footer.about",
       "footer.privacy",

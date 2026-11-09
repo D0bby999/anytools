@@ -17,10 +17,12 @@
   },
   "nav": {
     "tools": "Tools",
-    "guides": "Guides"
+    "guides": "Guides",
+    "rankings": "Rankings"
   },
   "footer": {
     "guides": "Guides",
+    "rankings": "Rankings",
     "privacy": "Privacy",
     "terms": "Terms",
     "about": "About",

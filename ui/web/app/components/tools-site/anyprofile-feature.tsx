@@ -46,7 +46,7 @@ export function AnyProfileFeature({ locale, compact = false }: { locale: PublicL
  * The study app, from inside the tools appendix: the product's main part, so
  * every tools page ends by pointing back to it.
  */
-export function StudyBand({ locale }: { locale: PublicLng }) {
+export function StudyBand({ locale, signedIn = false }: { locale: PublicLng; signedIn?: boolean }) {
   const { t } = useTranslation("tools");
   return (
     <section aria-labelledby="tools-study" className="border-t bg-muted">
@@ -57,13 +57,13 @@ export function StudyBand({ locale }: { locale: PublicLng }) {
           </h2>
           <p className="mt-2 text-sm leading-prose text-muted-foreground">{t("feature.study.body")}</p>
         </div>
-        <a
-          href={`/${locale}`}
+        <Link
+          to={signedIn ? "/home" : `/${locale}`}
           className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-md border border-primary bg-primary px-6 text-base font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover"
         >
-          {t("feature.study.cta")}
+          {signedIn ? t("site.openApp") : t("feature.study.cta")}
           <ArrowRight aria-hidden="true" className="size-4" />
-        </a>
+        </Link>
       </div>
     </section>
   );

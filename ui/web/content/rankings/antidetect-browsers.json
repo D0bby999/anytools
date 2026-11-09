@@ -1,0 +1,382 @@
+{
+  "slug": "antidetect-browsers",
+  "month": "2026-11",
+  "updated": "2026-11-06",
+  "locales": {
+    "en": {
+      "title": "Anti-Detect & Multi-Account Browsers",
+      "tagline": "Ranked by fingerprint isolation, Chromium patch speed, and local privacy.",
+      "description": "Monthly ranking of anti-detect browsers tested against CreepJS, Pixelscan, and real e-commerce/ad platforms for fingerprint consistency, profile speed, and pricing.",
+      "methodologyNote": "Each browser is tested on macOS (Apple Silicon) and Windows against CreepJS, Pixelscan, and BrowserLeaks, measuring Chromium update lag (days behind stable Chrome), local vs. cloud storage privacy, and cost per profile.",
+      "monthlySummary": "November 2026 update: AnyProfile leads for local-first privacy and zero monthly subscription cost, while Multilogin and Dolphin{anty} lead for cloud team seat syncing and agency automation.",
+      "criteriaLabels": {
+        "performance": "Fingerprint & Chrome Parity",
+        "value": "Profile Cost & Free Tier",
+        "reliability": "Isolation & Local Privacy",
+        "support": "Proxy & Automation UX"
+      },
+      "tagLabels": {
+        "local-first": "Local-First & Free",
+        "team-cloud": "Cloud Team Sync",
+        "automation": "Playwright / API",
+        "ecommerce": "E-commerce & Ads"
+      },
+      "buyingGuide": [
+        "The biggest hidden risk in cloud anti-detect browsers is storing session cookies on a third-party vendor's database. If you operate solo or in a small trusted setup, a local-first desktop app like AnyProfile keeps cookies and proxy credentials on your own machine with zero monthly rent.",
+        "When you need multi-seat cloud handoffs across 10+ virtual assistants with role permissions, pair a cloud browser like Dolphin{anty} or Multilogin with dedicated static ISP proxies."
+      ],
+      "faqs": [
+        {
+          "q": "Why does Chromium update speed matter so much?",
+          "a": "Anti-bot systems flag profiles whose User-Agent claims Chrome 131 while the underlying TLS/WebGPU binary behaves like an older Chromium build. Faster Chromium updates prevent version mismatch flags."
+        },
+        {
+          "q": "Can I use my own residential or ISP proxies with all of these browsers?",
+          "a": "Yes. Every browser ranked here supports standard HTTP and SOCKS5 proxies with per-profile IP check before launch."
+        }
+      ]
+    },
+    "vi": {
+      "title": "Trình duyệt chống nhận dạng (Antidetect Browser)",
+      "tagline": "Xếp hạng theo độ sạch vân tay thiết bị, tốc độ cập nhật nhân Chrome và quyền riêng tư.",
+      "description": "Bảng xếp hạng hàng tháng các trình duyệt nuôi đa tài khoản (Antidetect Browser) được kiểm tra trực tiếp trên CreepJS, Pixelscan và các sàn TMĐT/Ads về độ cô lập hồ sơ và chi phí.",
+      "methodologyNote": "Chúng tôi kiểm tra từng trình duyệt trên cả macOS (chip M) và Windows qua CreepJS, Pixelscan và BrowserLeaks, đo độ trễ cập nhật nhân Chromium so với Chrome gốc, mức độ an toàn của dữ liệu cookie và chi phí trên mỗi hồ sơ.",
+      "monthlySummary": "Cập nhật tháng 11/2026: AnyProfile dẫn đầu cho nhu cầu lưu trữ cục bộ an toàn và miễn phí hoàn toàn; Dolphin{anty} và Multilogin dẫn đầu phân khúc đồng bộ đám mây cho đội nhóm lớn.",
+      "criteriaLabels": {
+        "performance": "Vân tay & Nhân Chrome",
+        "value": "Chi phí / Số lượng Profile",
+        "reliability": "Độ cô lập & Bảo mật",
+        "support": "Gắn Proxy & Tự động hóa"
+      },
+      "tagLabels": {
+        "local-first": "Lưu máy cục bộ & Miễn phí",
+        "team-cloud": "Đồng bộ nhóm Cloud",
+        "automation": "Hỗ trợ API / Playwright",
+        "ecommerce": "Nuôi acc TMĐT & Ads"
+      },
+      "buyingGuide": [
+        "Rủi ro lớn nhất khi dùng trình duyệt đám mây là toàn bộ cookie đăng nhập của bạn nằm trên máy chủ của bên thứ ba. Nếu làm cá nhân hoặc nhóm nhỏ cho TikTok, Shopee, Amazon, ứng dụng lưu trực tiếp trên máy như AnyProfile vừa bảo mật tuyệt đối vừa không tốn phí thuê bao hàng tháng.",
+        "Nếu cần phân quyền cho hàng chục nhân sự từ xa cùng mở chung hồ sơ mà không lộ mật khẩu, hãy chọn Dolphin{anty} hoặc Multilogin kết hợp cùng proxy ISP tĩnh."
+      ],
+      "faqs": [
+        {
+          "q": "Tại sao tốc độ cập nhật nhân Chromium lại quan trọng khi nuôi tài khoản?",
+          "a": "Các hệ thống kiểm tra gian lận sẽ phát hiện ngay nếu chuỗi User-Agent báo Chrome mới nhưng nhân trình duyệt bên dưới vẫn dùng mã nguồn cũ. Cập nhật sát nhân Chrome gốc giúp hồ sơ trông giống người dùng thật nhất."
+        },
+        {
+          "q": "Các trình duyệt này có bắt buộc mua proxy của hãng không?",
+          "a": "Không. Bạn có thể gắn bất kỳ proxy HTTP hoặc SOCKS5 nào từ Decodo, IPRoyal hoặc Oxylabs vào từng hồ sơ riêng biệt."
+        }
+      ]
+    },
+    "es": {
+      "title": "Navegadores Antidetección y Multicuentas",
+      "tagline": "Clasificados por aislamiento de huella digital, actualización de Chromium y privacidad.",
+      "description": "Ranking mensual de navegadores antidetección evaluados en CreepJS y Pixelscan por consistencia de huella, velocidad de perfil y costo.",
+      "methodologyNote": "Probamos cada navegador en macOS y Windows frente a CreepJS, Pixelscan y BrowserLeaks, midiendo el retraso respecto a Chrome estable, la privacidad de las cookies y el precio por perfil.",
+      "monthlySummary": "Actualización de noviembre de 2026: AnyProfile lidera en privacidad local gratuita y sin suscripción, mientras Dolphin{anty} y Multilogin destacan para equipos en la nube.",
+      "criteriaLabels": {
+        "performance": "Huella y Paridad Chrome",
+        "value": "Costo por Perfil",
+        "reliability": "Aislamiento y Privacidad",
+        "support": "Proxies y Automatización"
+      },
+      "tagLabels": {
+        "local-first": "Local y Gratis",
+        "team-cloud": "Equipos en la Nube",
+        "automation": "API / Playwright",
+        "ecommerce": "E-commerce y Ads"
+      },
+      "buyingGuide": [
+        "Para operadores individuales de comercio electrónico o redes sociales, un navegador local como AnyProfile mantiene tus cookies y proxies en tu propio disco sin pagar cuotas mensuales.",
+        "Para agencias que comparten perfiles entre múltiples operadores remotos con permisos granulares, Dolphin{anty} o Multilogin ofrecen sincronización en la nube."
+      ],
+      "faqs": [
+        {
+          "q": "¿Por qué importa la rapidez con que actualizan el núcleo Chromium?",
+          "a": "Porque los sistemas antifraude detectan discrepancias entre el User-Agent declarado y las señales reales de TLS y WebGPU del motor Chromium."
+        },
+        {
+          "q": "¿Puedo usar mis propios proxies residenciales o ISP?",
+          "a": "Sí, todos los navegadores listados aceptan proxies HTTP y SOCKS5 externos por perfil."
+        }
+      ]
+    },
+    "pt": {
+      "title": "Navegadores Antidetecção e Multicontas",
+      "tagline": "Classificados por isolamento de fingerprint, atualização do Chromium e privacidade.",
+      "description": "Ranking mensal de navegadores antidetecção testados no CreepJS e Pixelscan para consistência de impressão digital, velocidade e custo por perfil.",
+      "methodologyNote": "Testamos cada navegador no macOS e Windows contra CreepJS, Pixelscan e BrowserLeaks, avaliando a rapidez de atualização do Chromium, privacidade local e preço por perfil.",
+      "monthlySummary": "Atualização de novembro de 2026: AnyProfile lidera em privacidade local gratuita sem mensalidade; Dolphin{anty} e Multilogin se destacam na sincronização em nuvem para equipes.",
+      "criteriaLabels": {
+        "performance": "Fingerprint e Chromium",
+        "value": "Custo por Perfil",
+        "reliability": "Isolamento e Privacidade",
+        "support": "Proxies e Automação"
+      },
+      "tagLabels": {
+        "local-first": "Local e Gratuito",
+        "team-cloud": "Equipes em Nuvem",
+        "automation": "API / Playwright",
+        "ecommerce": "E-commerce e Ads"
+      },
+      "buyingGuide": [
+        "Para operações individuais de e-commerce e anúncios, um aplicativo desktop local como o AnyProfile mantém seus cookies e credenciais na própria máquina sem mensalidade.",
+        "Quando há necessidade de compartilhar perfis na nuvem entre vários operadores remotos, o Dolphin{anty} e o Multilogin oferecem controle de permissões em equipe."
+      ],
+      "faqs": [
+        {
+          "q": "Por que a atualização rápida do Chromium é tão importante?",
+          "a": "Porque sistemas antifraude cruzam a versão informada no User-Agent com o comportamento real do binário TLS e WebGPU do navegador."
+        },
+        {
+          "q": "Posso usar qualquer proxy residencial ou ISP nesses navegadores?",
+          "a": "Sim, todos aceitam proxies HTTP e SOCKS5 padrão configurados individualmente por perfil."
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "slug": "anyprofile",
+      "name": "AnyProfile",
+      "rank": 1,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.4,
+        "value": 10.0,
+        "reliability": 9.7,
+        "support": 9.2
+      },
+      "startingPrice": "$0 (Free & Open Source)",
+      "freeTrial": true,
+      "tags": ["local-first", "ecommerce"],
+      "couponCode": null,
+      "websiteDomain": "anytools.world",
+      "affiliateUrl": "https://anytools.world/en/anyprofile",
+      "locales": {
+        "en": {
+          "bestFor": "Best free, local-first multi-account browser with zero cloud cookie risk",
+          "summary": "Our own open-source desktop browser for macOS and Windows that isolates every profile's storage, proxy, and hardware fingerprint locally on your machine with no subscription or telemetry.",
+          "pros": [
+            "100% free and open source with no artificial profile count limits",
+            "All cookies, sessions, and proxy credentials stay on your disk—no vendor cloud leaks",
+            "Built-in per-profile proxy checker and clean multi-account organizer for sellers"
+          ],
+          "cons": [
+            "Local-first by design: does not include cloud team seat sharing out of the box",
+            "Focused on macOS and Windows desktop profiles rather than mobile OS emulation"
+          ],
+          "changeNote": "Holds #1 for solo operators and privacy-conscious sellers who want zero monthly rent.",
+          "dealBadge": "Free forever & Open Source"
+        },
+        "vi": {
+          "bestFor": "Trình duyệt đa tài khoản miễn phí, lưu trữ cục bộ an toàn tuyệt đối cho người bán hàng",
+          "summary": "Ứng dụng máy tính mã nguồn mở do chính đội ngũ AnyTools phát triển cho macOS và Windows, tách biệt hoàn toàn dữ liệu, proxy và thông số phần cứng của từng hồ sơ ngay trên ổ cứng của bạn.",
+          "pros": [
+            "Miễn phí 100% và mã nguồn mở, không giới hạn số lượng hồ sơ tạo trên máy",
+            "Toàn bộ cookie và mật khẩu nằm trên máy của bạn—không lo rò rỉ từ đám mây bên thứ ba",
+            "Kiểm tra proxy trực tiếp trên từng hồ sơ, cực kỳ gọn nhẹ cho người bán TikTok, Shopee, Amazon"
+          ],
+          "cons": [
+            "Thiết kế ưu tiên lưu cục bộ nên không có sẵn tính năng phân quyền đám mây cho hàng chục nhân viên",
+            "Tập trung vào môi trường máy tính (macOS/Windows)"
+          ],
+          "changeNote": "Giữ vị trí #1 cho người dùng cá nhân và nhà bán hàng ưu tiên bảo mật dữ liệu tuyệt đối, không tốn phí hàng tháng.",
+          "dealBadge": "Miễn phí trọn đời & Mã nguồn mở"
+        },
+        "es": {
+          "bestFor": "Mejor navegador multicuentas gratuito y local sin riesgo de fugas en la nube",
+          "summary": "Nuestra aplicación de escritorio de código abierto para macOS y Windows que aísla cookies, proxies y huella de cada perfil localmente sin suscripción.",
+          "pros": [
+            "100% gratuito y de código abierto sin límites artificiales de perfiles",
+            "Todas las sesiones y proxies permanecen en tu disco local",
+            "Comprobador de proxy integrado por perfil"
+          ],
+          "cons": [
+            "Diseño local: no incluye sincronización en la nube para grandes equipos",
+            "Enfocado en escritorio macOS y Windows"
+          ],
+          "changeNote": "Lidera en el #1 para vendedores y operadores individuales que priorizan privacidad y costo cero.",
+          "dealBadge": "Gratis para siempre y Open Source"
+        },
+        "pt": {
+          "bestFor": "Melhor navegador multicontas gratuito e local sem risco de vazamento em nuvem",
+          "summary": "Nosso aplicativo desktop de código aberto para macOS e Windows que isola cookies, proxies e impressão digital de cada perfil localmente, sem assinatura.",
+          "pros": [
+            "100% gratuito e open source sem limite artificial de perfis",
+            "Todos os cookies e proxies ficam salvos apenas no seu computador",
+            "Verificador de proxy integrado por perfil"
+          ],
+          "cons": [
+            "Foco local: não possui compartilhamento em nuvem para grandes equipes",
+            "Voltado para desktop macOS e Windows"
+          ],
+          "changeNote": "Mantém o #1 para operadores independentes que buscam privacidade total e custo zero.",
+          "dealBadge": "Gratuito para sempre e Open Source"
+        }
+      }
+    },
+    {
+      "slug": "dolphin-anty",
+      "name": "Dolphin{anty}",
+      "rank": 2,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.3,
+        "value": 9.1,
+        "reliability": 9.0,
+        "support": 9.3
+      },
+      "startingPrice": "$0 (10 free profiles) / $89 mo",
+      "freeTrial": true,
+      "tags": ["team-cloud", "automation", "ecommerce"],
+      "couponCode": "ANYTOOLS20",
+      "websiteDomain": "dolphin-anty.com",
+      "affiliateUrl": "https://dolphin-anty.com/?ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Best cloud anti-detect browser with a 10-profile free tier and fast bulk proxy tools",
+          "summary": "Built for media buyers and affiliate teams who need fast bulk proxy switching, status tags, notes, and a permanent 10-profile free plan before scaling to team seats.",
+          "pros": [
+            "Includes 10 cloud-synced browser profiles for free with no time limit",
+            "Fastest one-click bulk proxy rotation and cookie robot warm-up tools",
+            "Clean Puppeteer, Playwright, and Selenium local API hooks"
+          ],
+          "cons": [
+            "Paid jump from the free tier to the 100-profile Base plan ($89/mo) is steep",
+            "Additional team member seats are billed on top of the base plan"
+          ],
+          "changeNote": "Holds #2 overall and #1 among commercial cloud browsers thanks to its 10-profile free tier.",
+          "dealBadge": "10 free profiles + 20% off first payment"
+        },
+        "vi": {
+          "bestFor": "Trình duyệt đám mây tốt nhất có sẵn 10 hồ sơ miễn phí và quản lý proxy hàng loạt cực nhanh",
+          "summary": "Được thiết kế tối ưu cho các đội chạy quảng cáo và làm affiliate cần gắn nhãn trạng thái, ghi chú nhanh, đổi proxy hàng loạt và có sẵn gói 10 profile miễn phí vĩnh viễn.",
+          "pros": [
+            "Tặng sẵn 10 hồ sơ đồng bộ đám mây miễn phí không giới hạn thời gian",
+            "Quản lý danh sách proxy, kiểm tra kết nối hàng loạt và kịch bản nuôi cookie rất tiện",
+            "Tích hợp mượt với Playwright, Puppeteer và Selenium qua cổng API cục bộ"
+          ],
+          "cons": [
+            "Bước nhảy giá từ bản miễn phí lên gói Base 100 profile ($89/tháng) khá cao",
+            "Tính thêm phí trên mỗi tài khoản thành viên phụ trong team"
+          ],
+          "changeNote": "Giữ vị trí #2 tổng thể và #1 trong nhóm trình duyệt đám mây thương mại.",
+          "dealBadge": "10 profile miễn phí + Giảm 20% kỳ đầu"
+        },
+        "es": {
+          "bestFor": "Mejor navegador antidetección en la nube con 10 perfiles gratis y gestión masiva",
+          "summary": "Diseñado para equipos de medios y afiliados que necesitan cambio masivo de proxies, etiquetas de estado y un plan gratuito permanente de 10 perfiles.",
+          "pros": [
+            "10 perfiles sincronizados en la nube gratis de forma permanente",
+            "Gestión masiva de proxies y robot de calentamiento de cookies",
+            "Integración sencilla con Playwright, Puppeteer y Selenium"
+          ],
+          "cons": [
+            "Salto de precio elevado hacia el plan Base de 100 perfiles ($89/mes)",
+            "Los asientos adicionales de equipo se cobran aparte"
+          ],
+          "changeNote": "Mantiene el #2 global y lidera entre las opciones comerciales en la nube.",
+          "dealBadge": "10 perfiles gratis + 20% dto. primer pago"
+        },
+        "pt": {
+          "bestFor": "Melhor navegador em nuvem com 10 perfis gratuitos e gestão rápida de proxies em lote",
+          "summary": "Feito para equipes de tráfego e afiliados que precisam de troca rápida de proxies, etiquetas de status e um plano gratuito permanente de 10 perfis.",
+          "pros": [
+            "10 perfis sincronizados na nuvem grátis sem prazo de expiração",
+            "Troca em massa de proxies e robô de aquecimento de cookies",
+            "Integração direta com Playwright, Puppeteer e Selenium"
+          ],
+          "cons": [
+            "Salto de preço alto para o plano Base de 100 perfis ($89/mês)",
+            "Assentos extras para membros da equipe são cobrados à parte"
+          ],
+          "changeNote": "Segue em #2 geral e #1 entre os navegadores comerciais em nuvem.",
+          "dealBadge": "10 perfis grátis + 20% OFF no 1º pagamento"
+        }
+      }
+    },
+    {
+      "slug": "multilogin",
+      "name": "Multilogin",
+      "rank": 3,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.6,
+        "value": 8.1,
+        "reliability": 9.5,
+        "support": 9.1
+      },
+      "startingPrice": "€9 / mo (Pro 10)",
+      "freeTrial": false,
+      "tags": ["team-cloud", "automation", "ecommerce"],
+      "couponCode": "ANYTOOLS50",
+      "websiteDomain": "multilogin.com",
+      "affiliateUrl": "https://multilogin.com/?ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Longest track record for agency-grade team permissions and Mimic/Stealthfox engines",
+          "summary": "The veteran enterprise anti-detect platform offering both Chromium (Mimic) and Firefox (Stealthfox) cores with bundled residential proxy traffic and granular workspace permissions.",
+          "pros": [
+            "Offers both custom Chromium (Mimic) and Firefox (Stealthfox) browser engines",
+            "New €9/mo entry tier lowers the barrier for small 10-profile setups",
+            "Mature API and role-based access control for large agency teams"
+          ],
+          "cons": [
+            "Higher per-profile cost when scaling past 300 profiles compared to competitors",
+            "Web-first dashboard workflow takes a few extra clicks compared to native local apps"
+          ],
+          "changeNote": "Holds #3: top-tier fingerprint engines and agency controls, now more accessible via the €9 entry tier.",
+          "dealBadge": "50% off first month with code"
+        },
+        "vi": {
+          "bestFor": "Lâu đời và ổn định nhất cho agency cần cả hai nhân Chromium (Mimic) và Firefox (Stealthfox)",
+          "summary": "Nền tảng lão làng trong ngành chống nhận dạng, cung cấp song song nhân Chromium lẫn Firefox cùng hệ thống phân quyền phòng ban chặt chẽ và tặng kèm băng thông proxy dân cư.",
+          "pros": [
+            "Hỗ trợ cả hai nhân trình duyệt độc lập: Mimic (Chromium) và Stealthfox (Firefox)",
+            "Đã có gói khởi điểm nhỏ €9/tháng cho 10 hồ sơ kèm lưu lượng proxy tích hợp",
+            "Hệ thống phân quyền nhóm và lịch sử thao tác chuẩn doanh nghiệp"
+          ],
+          "cons": [
+            "Chi phí khi mở rộng lên trên 300 hồ sơ đắt hơn mặt bằng chung",
+            "Giao diện điều khiển qua nền web đôi khi mất thêm thao tác so với app thuần"
+          ],
+          "changeNote": "Giữ hạng #3: độ ổn định vân tay rất cao, phù hợp cho các đội ngũ agency chuyên nghiệp.",
+          "dealBadge": "Giảm 50% tháng đầu tiên"
+        },
+        "es": {
+          "bestFor": "Mayor trayectoria para agencias con motores Chromium (Mimic) y Firefox (Stealthfox)",
+          "summary": "La plataforma veterana del sector que ofrece núcleos tanto Chromium como Firefox, tráfico proxy residencial incluido y permisos avanzados para equipos.",
+          "pros": [
+            "Motores de navegador duales: Mimic (Chromium) y Stealthfox (Firefox)",
+            "Nuevo plan inicial de €9/mes para 10 perfiles",
+            "Control de acceso por roles maduro para agencias"
+          ],
+          "cons": [
+            "Costo elevado al escalar por encima de 300 perfiles",
+            "Flujo de panel web menos inmediato que una app nativa ligera"
+          ],
+          "changeNote": "Se mantiene en el #3 por su madurez técnica y motores duales.",
+          "dealBadge": "50% de descuento el primer mes"
+        },
+        "pt": {
+          "bestFor": "Maior tradição para agências com motores Chromium (Mimic) e Firefox (Stealthfox)",
+          "summary": "Plataforma veterana que oferece motores Chromium e Firefox, tráfego de proxy residencial incluso e controle avançado de permissões para equipes.",
+          "pros": [
+            "Dois motores independentes: Mimic (Chromium) e Stealthfox (Firefox)",
+            "Novo plano de entrada de €9/mês para 10 perfis",
+            "API madura e permissões detalhadas para agências"
+          ],
+          "cons": [
+            "Custo mais alto ao escalar acima de 300 perfis",
+            "Painel baseado em web exige alguns cliques a mais que apps locais"
+          ],
+          "changeNote": "Mantém o #3 pela solidez dos motores de fingerprint e recursos de equipe.",
+          "dealBadge": "50% OFF no primeiro mês"
+        }
+      }
+    }
+  ]
+}
+

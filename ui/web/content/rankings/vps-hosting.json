@@ -1,0 +1,382 @@
+{
+  "slug": "vps-hosting",
+  "month": "2026-11",
+  "updated": "2026-11-06",
+  "locales": {
+    "en": {
+      "title": "Cloud VPS & Self-Hosting Servers",
+      "tagline": "Ranked by NVMe disk I/O, CPU performance per dollar, and renewal honesty.",
+      "description": "Monthly benchmark of Linux VPS and cloud servers for self-hosting Docker Compose apps (like AnyTools, Coolify, n8n, and Postgres) scored on real hardware per dollar and bandwidth inclusions.",
+      "methodologyNote": "We benchmark single-core and multi-core Geekbench 6 scores, fio NVMe random 4K read/write speeds, included monthly egress traffic, and penalize hosts that double prices on renewal.",
+      "monthlySummary": "November 2026 update: Hetzner Cloud remains the undisputed #1 in raw CPU/NVMe performance per euro, while Hostinger and Vultr lead for global edge locations in Asia and the Americas.",
+      "criteriaLabels": {
+        "performance": "CPU & NVMe Disk Speed",
+        "value": "RAM/vCPU per Dollar",
+        "reliability": "Uptime & Renewal Honesty",
+        "support": "Snapshots, Firewalls & UI"
+      },
+      "tagLabels": {
+        "docker": "Docker & Coolify Ready",
+        "nvme": "High-Speed NVMe",
+        "hourly": "Hourly Billing",
+        "asia-latam": "Asia & Americas PoPs"
+      },
+      "buyingGuide": [
+        "To self-host a full Docker Compose stack (PostgreSQL with pgvector, a Go API, and a Node web server like AnyTools), pick a KVM VPS with at least 4 GB of RAM and local NVMe storage. Shared burstable instances with 1 GB RAM will swap under database indexing.",
+        "Always check included outbound bandwidth: Hetzner includes 20 TB/month on €4 plans, whereas hyperscalers can charge hundreds of dollars for the same egress."
+      ],
+      "faqs": [
+        {
+          "q": "What VPS size do I need to self-host AnyTools or Coolify?",
+          "a": "A 2 vCPU / 4 GB RAM NVMe VPS (around €4.50 to $8/month on Hetzner) runs Postgres + pgvector, the API, and the web server comfortably."
+        },
+        {
+          "q": "Why do you penalize promotional renewal jumps?",
+          "a": "Migrating a live database after 12 months because your host tripled the renewal rate wastes engineering time, so our Reliability & Renewal score rewards flat monthly pricing."
+        }
+      ]
+    },
+    "vi": {
+      "title": "Cloud VPS & Máy chủ tự vận hành (Self-Host)",
+      "tagline": "Xếp hạng theo tốc độ ổ cứng NVMe, hiệu năng CPU trên từng đô la và giá gia hạn minh bạch.",
+      "description": "Bảng xếp hạng hàng tháng các nhà cung cấp Cloud VPS Linux tốt nhất để tự cài đặt Docker Compose, Coolify, n8n, Postgres hoặc tự host AnyTools, chấm điểm dựa trên phần cứng thực tế và băng thông.",
+      "methodologyNote": "Chúng tôi đo trực tiếp điểm CPU Geekbench 6, tốc độ đọc/ghi ngẫu nhiên 4K của ổ NVMe bằng fio, dung lượng băng thông miễn phí đi kèm và trừ điểm nặng các bên tăng giá gấp đôi khi gia hạn.",
+      "monthlySummary": "Cập nhật tháng 11/2026: Hetzner Cloud tiếp tục giữ vững ngôi đầu #1 tuyệt đối về cấu hình/giá tiền; Vultr và Hostinger dẫn đầu khi cần đặt máy chủ gần châu Á hoặc Mỹ Latinh.",
+      "criteriaLabels": {
+        "performance": "Tốc độ CPU & Ổ NVMe",
+        "value": "Cấu hình / Chi phí",
+        "reliability": "Độ ổn định & Giá gia hạn",
+        "support": "Tường lửa, Backup & Quản lý"
+      },
+      "tagLabels": {
+        "docker": "Tối ưu Docker & Coolify",
+        "nvme": "Ổ cứng NVMe tốc độ cao",
+        "hourly": "Tính tiền theo giờ",
+        "asia-latam": "Có cụm máy chủ châu Á"
+      },
+      "buyingGuide": [
+        "Để tự vận hành (self-host) trọn bộ ứng dụng Docker Compose gồm PostgreSQL (pgvector), API và Web (như AnyTools hoặc n8n + Coolify), bạn nên chọn VPS ảo hóa KVM có tối thiểu 4 GB RAM và ổ cứng NVMe. Các gói 1 GB RAM giá rẻ rất dễ bị tràn bộ nhớ khi đánh chỉ mục tài liệu.",
+        "Hãy kiểm tra kỹ băng thông (Bandwidth) đi kèm: Hetzner tặng sẵn 20 TB/tháng ngay từ gói hơn €4, giúp bạn không bao giờ lo hóa đơn phát sinh bất ngờ."
+      ],
+      "faqs": [
+        {
+          "q": "Cấu hình VPS tối thiểu để tự cài đặt AnyTools hoặc Coolify là bao nhiêu?",
+          "a": "Chỉ cần gói 2 vCPU / 4 GB RAM ổ NVMe (khoảng €4.50–$8/tháng tại Hetzner) là chạy mượt cả cơ sở dữ liệu Postgres lẫn ứng dụng web."
+        },
+        {
+          "q": "Khi nào nên chọn Vultr thay vì Hetzner?",
+          "a": "Hetzner rẻ và mạnh nhất ở châu Âu, Mỹ và Singapore, nhưng nếu bạn cần đặt máy chủ tại Nhật Bản, Hàn Quốc hoặc nhiều điểm châu Á khác và duyệt tài khoản tức thì, Vultr dễ đăng ký hơn."
+        }
+      ]
+    },
+    "es": {
+      "title": "Servidores Cloud VPS y Autoalojamiento",
+      "tagline": "Clasificados por velocidad NVMe, rendimiento de CPU por dólar y precios sin sorpresas.",
+      "description": "Evaluación mensual de servidores VPS Linux para alojar Docker Compose, Coolify, n8n, Postgres o AnyTools, puntuados por hardware real y ancho de banda incluido.",
+      "methodologyNote": "Medimos el rendimiento de CPU en Geekbench 6, lectura/escritura 4K en discos NVMe, tráfico mensual incluido y penalizamos las subidas ocultas al renovar.",
+      "monthlySummary": "Actualización de noviembre de 2026: Hetzner Cloud mantiene el #1 indiscutible en rendimiento por euro, mientras Vultr y Hostinger destacan por sus ubicaciones en América y Asia.",
+      "criteriaLabels": {
+        "performance": "Velocidad CPU y NVMe",
+        "value": "RAM/vCPU por Dólar",
+        "reliability": "Uptime y Precio de Renovación",
+        "support": "Panel, Backups y Firewall"
+      },
+      "tagLabels": {
+        "docker": "Listo para Docker y Coolify",
+        "nvme": "NVMe de Alta Velocidad",
+        "hourly": "Facturación por Hora",
+        "asia-latam": "Regiones en América y Asia"
+      },
+      "buyingGuide": [
+        "Para autoalojar una pila completa con Docker Compose (PostgreSQL con pgvector, API y servidor web como AnyTools o Coolify), elige un VPS KVM con al menos 4 GB de RAM y disco NVMe.",
+        "Revisa siempre la transferencia mensual incluida: Hetzner incluye 20 TB al mes en sus planes básicos sin cargos sorpresa."
+      ],
+      "faqs": [
+        {
+          "q": "¿Qué tamaño de VPS necesito para alojar AnyTools o Coolify?",
+          "a": "Un VPS de 2 vCPU y 4 GB de RAM con disco NVMe (unos €4.50–$8/mes) ejecuta Postgres, la API y la web con total fluidez."
+        },
+        {
+          "q": "¿Por qué valoran el precio plano de renovación?",
+          "a": "Porque migrar bases de datos tras el primer año debido a subidas de tarifa consume tiempo valioso; premiamos precios por hora o mensuales estables."
+        }
+      ]
+    },
+    "pt": {
+      "title": "Servidores Cloud VPS e Self-Hosting",
+      "tagline": "Classificados por velocidade NVMe, desempenho de CPU por dólar e renovação justa.",
+      "description": "Ranking mensal de servidores VPS Linux para rodar Docker Compose, Coolify, n8n, Postgres ou AnyTools, avaliados por hardware real e franquia de tráfego.",
+      "methodologyNote": "Medimos pontuação no Geekbench 6, velocidade de leitura/gravação 4K em NVMe, tráfego mensal incluso e penalizamos provedores que dobram o valor na renovação.",
+      "monthlySummary": "Atualização de novembro de 2026: Hetzner Cloud segue líder absoluto em desempenho por dólar/euro, enquanto Vultr e Hostinger se destacam pelas regiões nas Américas e Ásia.",
+      "criteriaLabels": {
+        "performance": "Velocidade CPU e NVMe",
+        "value": "RAM/vCPU por Dólar",
+        "reliability": "Uptime e Preço de Renovação",
+        "support": "Painel, Backups e Firewall"
+      },
+      "tagLabels": {
+        "docker": "Pronto para Docker e Coolify",
+        "nvme": "NVMe de Alta Velocidade",
+        "hourly": "Cobrança por Hora",
+        "asia-latam": "Regiões nas Américas e Ásia"
+      },
+      "buyingGuide": [
+        "Para hospedar uma pilha Docker Compose completa (PostgreSQL com pgvector, API e servidor web como AnyTools ou Coolify), escolha um VPS KVM com pelo menos 4 GB de RAM e armazenamento NVMe.",
+        "Verifique sempre a franquia de tráfego inclusa: a Hetzner entrega 20 TB/mês nos planos iniciais sem cobranças surpresa."
+      ],
+      "faqs": [
+        {
+          "q": "Qual configuração de VPS preciso para rodar o AnyTools ou Coolify?",
+          "a": "Um VPS com 2 vCPU e 4 GB de RAM NVMe (cerca de €4.50 a $8/mês) roda o banco Postgres, a API e a web com folga."
+        },
+        {
+          "q": "Por que a cobrança por hora é vantajosa?",
+          "a": "Porque permite testar servidores, redimensionar recursos ou encerrar instâncias pagando exatamente pelas horas utilizadas."
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "slug": "hetzner-cloud",
+      "name": "Hetzner Cloud",
+      "rank": 1,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.8,
+        "value": 9.9,
+        "reliability": 9.7,
+        "support": 9.1
+      },
+      "startingPrice": "€4.51 / mo (4 GB RAM, 2 vCPU)",
+      "freeTrial": true,
+      "tags": ["docker", "nvme", "hourly"],
+      "couponCode": null,
+      "websiteDomain": "hetzner.com",
+      "affiliateUrl": "https://hetzner.cloud/?ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Unbeatable RAM, NVMe speed, and 20 TB bandwidth per euro for Docker & Coolify",
+          "summary": "The gold standard for indie developers and self-hosters: delivers 4 GB RAM, fast AMD/Arm64 vCPUs, and 20 TB of traffic for under €5/month with flat hourly billing and zero renewal tricks.",
+          "pros": [
+            "Doubles or triples the RAM and CPU per dollar of AWS Lightsail or DigitalOcean",
+            "Includes 20 TB of outbound bandwidth in EU/US locations with flat hourly pricing",
+            "Clean cloud firewall, private networks, and automated backups (+20%)"
+          ],
+          "cons": [
+            "Strict anti-fraud verification on new sign-ups (sometimes rejects prepaid cards)",
+            "Fewer edge regions in South America or East Asia than Vultr"
+          ],
+          "changeNote": "Holds #1 by a wide margin: powers the majority of Coolify and self-hosted AnyTools deployments.",
+          "dealBadge": "€20 free cloud credit for new accounts"
+        },
+        "vi": {
+          "bestFor": "Vô địch tuyệt đối về dung lượng RAM, tốc độ ổ NVMe và 20 TB băng thông trên từng đồng chi phí",
+          "summary": "Lựa chọn số 1 của giới lập trình viên tự vận hành (self-host): chỉ khoảng €4.51/tháng đã có ngay 4 GB RAM, 2 vCPU cực khỏe và 20 TB băng thông, tính tiền theo giờ minh bạch, không bao giờ tăng giá lén khi gia hạn.",
+          "pros": [
+            "Cấu hình RAM và CPU trên cùng mức giá mạnh gấp 2–3 lần DigitalOcean hay AWS",
+            "Tặng kèm tới 20 TB băng thông mỗi tháng tại cụm Mỹ/Âu, tính phí theo giờ dùng thực tế",
+            "Quản lý tường lửa (Cloud Firewall), mạng nội bộ và sao lưu tự động cực kỳ gọn nhẹ"
+          ],
+          "cons": [
+            "Duyệt tài khoản mới khá kỹ để chống gian lận (cần thẻ thanh toán chính chủ hoặc PayPal)",
+            "Ít cụm máy chủ tại Đông Á hơn so với Vultr (hiện có Singapore, Mỹ, Đức, Phần Lan)"
+          ],
+          "changeNote": "Giữ vững #1 tuyệt đối: hạ tầng chuẩn đang chạy phần lớn các máy chủ Coolify và AnyTools tự host.",
+          "dealBadge": "Tặng €20 tín dụng Cloud cho tài khoản mới"
+        },
+        "es": {
+          "bestFor": "Imbatible en RAM, velocidad NVMe y 20 TB de tráfico por euro para Docker y Coolify",
+          "summary": "El estándar de oro para desarrolladores independientes: ofrece 4 GB de RAM, 2 vCPU rápidas y 20 TB de transferencia por menos de €5/mes con facturación por hora sin trucos de renovación.",
+          "pros": [
+            "Duplica o triplica la RAM y CPU por dólar frente a proveedores tradicionales",
+            "Incluye 20 TB de ancho de banda mensual en EE. UU. y Europa",
+            "Firewall en la nube, redes privadas y copias de seguridad sencillas"
+          ],
+          "cons": [
+            "Verificación antifraude estricta al crear una cuenta nueva",
+            "Menos centros de datos en Latinoamérica que Vultr"
+          ],
+          "changeNote": "Sigue en el #1 absoluto por su relación rendimiento/precio.",
+          "dealBadge": "€20 de crédito gratis para cuentas nuevas"
+        },
+        "pt": {
+          "bestFor": "Imbatível em RAM, velocidade NVMe e 20 TB de tráfego por euro para Docker e Coolify",
+          "summary": "Referência absoluta para desenvolvedores e self-hosting: entrega 4 GB de RAM, 2 vCPUs rápidas e 20 TB de tráfego por menos de €5/mês com cobrança por hora sem pegadinhas na renovação.",
+          "pros": [
+            "Entrega o dobro ou triplo de RAM e CPU por dólar frente aos concorrentes",
+            "Inclui 20 TB de tráfego mensal nos datacenters dos EUA e Europa",
+            "Firewall na nuvem, rede privada e backups fáceis de ativar"
+          ],
+          "cons": [
+            "Verificação cadastral rigorosa na abertura de novas contas",
+            "Não possui datacenter local no Brasil (opções mais próximas nos EUA)"
+          ],
+          "changeNote": "Segue em #1 absoluto em desempenho por dólar.",
+          "dealBadge": "€20 em créditos grátis para novas contas"
+        }
+      }
+    },
+    {
+      "slug": "vultr",
+      "name": "Vultr",
+      "rank": 2,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 9.3,
+        "value": 8.7,
+        "reliability": 9.4,
+        "support": 9.3
+      },
+      "startingPrice": "$6 / mo (High Frequency NVMe)",
+      "freeTrial": true,
+      "tags": ["docker", "nvme", "hourly", "asia-latam"],
+      "couponCode": null,
+      "websiteDomain": "vultr.com",
+      "affiliateUrl": "https://www.vultr.com/?ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Best global datacenter footprint (32 regions across Asia, Americas, and Europe) with instant signup",
+          "summary": "Offers High Frequency 3GHz+ NVMe instances and AMD EPYC cloud compute across 32 worldwide locations—including Tokyo, Seoul, Singapore, São Paulo, and Santiago—with frictionless hourly billing.",
+          "pros": [
+            "32 global locations including Tokyo, Seoul, Singapore, São Paulo, and Sydney",
+            "High Frequency NVMe plans deliver strong single-core clock speeds for databases",
+            "Fast account onboarding with crypto, PayPal, and card support"
+          ],
+          "cons": [
+            "RAM per dollar is roughly half of Hetzner's equivalent price tier",
+            "Automated backups add 20% to the monthly instance bill"
+          ],
+          "changeNote": "Holds #2: the best choice when low latency to East Asia or South America is mandatory.",
+          "dealBadge": "$250 free trial credit for new users"
+        },
+        "vi": {
+          "bestFor": "Mạng lưới 32 cụm máy chủ toàn cầu (Sing, Nhật, Hàn, Mỹ, Úc) và đăng ký duyệt ngay lập tức",
+          "summary": "Cung cấp dòng máy chủ High Frequency NVMe xung nhịp trên 3GHz tại 32 vị trí trên thế giới—rất mạnh khi bạn cần ping thấp về Việt Nam qua cụm Singapore, Tokyo hoặc Seoul.",
+          "pros": [
+            "Có tới 32 cụm máy chủ toàn cầu (Singapore, Tokyo, Seoul, Sydney, São Paulo...)",
+            "Dòng High Frequency NVMe có tốc độ đơn nhân rất cao, chạy web và DB cực bốc",
+            "Đăng ký tài khoản duyệt tự động nhanh chóng, hỗ trợ thẻ, PayPal và Crypto"
+          ],
+          "cons": [
+            "Dung lượng RAM trên cùng mức giá thấp hơn so với Hetzner",
+            "Tính năng sao lưu tự động (Auto Backup) tính thêm 20% phí hàng tháng"
+          ],
+          "changeNote": "Giữ hạng #2: lựa chọn tốt nhất khi ưu tiên máy chủ đặt sát châu Á và mở tài khoản nhanh.",
+          "dealBadge": "Tặng tới $250 tín dụng dùng thử"
+        },
+        "es": {
+          "bestFor": "Mejor cobertura global (32 regiones incluyendo Santiago, São Paulo y Miami) y alta inmediata",
+          "summary": "Ofrece instancias NVMe de alta frecuencia en 32 ubicaciones globales con facturación por hora y baja latencia hacia toda Latinoamérica y España.",
+          "pros": [
+            "32 regiones globales incluyendo Santiago, São Paulo, Ciudad de México, Miami y Madrid",
+            "Excelente velocidad mononúcleo en los planes High Frequency NVMe",
+            "Registro rápido con tarjeta, PayPal y criptomonedas"
+          ],
+          "cons": [
+            "Menos RAM por dólar en comparación con Hetzner",
+            "Las copias de seguridad automáticas suman un 20% al costo"
+          ],
+          "changeNote": "Se mantiene en el #2 como la mejor opción con presencia directa en Latinoamérica.",
+          "dealBadge": "Hasta $250 de crédito de prueba"
+        },
+        "pt": {
+          "bestFor": "Melhor presença global (32 regiões incluindo São Paulo) com ativação imediata",
+          "summary": "Oferece instâncias High Frequency NVMe em 32 datacenters pelo mundo—incluindo São Paulo, Miami e Lisboa—com cobrança por hora e baixa latência no Brasil.",
+          "pros": [
+            "32 localizações globais, incluindo datacenter local em São Paulo",
+            "Planos High Frequency NVMe com ótimo desempenho single-core para bancos de dados",
+            "Cadastro rápido sem burocracia"
+          ],
+          "cons": [
+            "Menor quantidade de RAM por dólar em comparação à Hetzner",
+            "Backups automáticos acrescentam 20% ao valor da instância"
+          ],
+          "changeNote": "Mantém o #2 como a melhor opção para quem precisa de servidor local em São Paulo.",
+          "dealBadge": "Até $250 em créditos de teste"
+        }
+      }
+    },
+    {
+      "slug": "hostinger-vps",
+      "name": "Hostinger KVM VPS",
+      "rank": 3,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 8.9,
+        "value": 9.0,
+        "reliability": 8.8,
+        "support": 9.4
+      },
+      "startingPrice": "$5.99 / mo (KVM 2 — 8 GB RAM)",
+      "freeTrial": false,
+      "tags": ["docker", "nvme", "asia-latam"],
+      "couponCode": "ANYTOOLS10",
+      "websiteDomain": "hostinger.com",
+      "affiliateUrl": "https://www.hostinger.com/vps-hosting?ref=anytools",
+      "locales": {
+        "en": {
+          "bestFor": "Easiest 1-click templates for Coolify, n8n, and Docker with 30-day money-back guarantee",
+          "summary": "Provides true KVM virtualization with AMD EPYC processors, NVMe storage, and pre-built 1-click OS templates for Coolify, n8n, and Docker—ideal for users who want guided setup.",
+          "pros": [
+            "True 1-click OS templates for Coolify, n8n, Docker, and WireGuard",
+            "Generous RAM allocations (4 GB on KVM 1, 8 GB on KVM 2) with 30-day refund policy",
+            "Datacenters in Europe, US, Brazil, India, and Indonesia"
+          ],
+          "cons": [
+            "Best monthly prices require a 12-month or 24-month upfront term; renewals cost more",
+            "Not billed hourly like Hetzner or Vultr"
+          ],
+          "changeNote": "Holds #3: top pick for beginners who want 1-click Coolify/n8n templates and a 30-day refund safety net.",
+          "dealBadge": "Extra 10% off KVM VPS plans"
+        },
+        "vi": {
+          "bestFor": "Cài đặt Coolify, n8n và Docker chỉ bằng 1 cú nhấp chuột kèm chính sách hoàn tiền 30 ngày",
+          "summary": "Cung cấp VPS ảo hóa KVM thực thụ dùng chip AMD EPYC và ổ NVMe, tích hợp sẵn bộ cài tự động 1-click cho Coolify, n8n, Docker cực kỳ thân thiện với người không chuyên quản trị mạng.",
+          "pros": [
+            "Có sẵn mẫu cài đặt 1-click cho Coolify, n8n, Docker mà không cần gõ lệnh phức tạp",
+            "Dung lượng RAM lớn (4 GB ở gói KVM 1, 8 GB ở gói KVM 2) kèm bảo đảm hoàn tiền trong 30 ngày",
+            "Có máy chủ đặt tại châu Á (Ấn Độ, Indonesia), châu Âu, Mỹ và Brazil"
+          ],
+          "cons": [
+            "Mức giá rẻ nhất yêu cầu thanh toán theo kỳ 12 hoặc 24 tháng, giá gia hạn kỳ sau cao hơn",
+            "Không hỗ trợ trả tiền theo từng giờ như Hetzner hay Vultr"
+          ],
+          "changeNote": "Giữ hạng #3: dễ dùng nhất cho người mới muốn dựng nhanh n8n/Coolify trong 5 phút.",
+          "dealBadge": "Giảm thêm 10% gói KVM VPS"
+        },
+        "es": {
+          "bestFor": "Plantillas en 1 clic para Coolify, n8n y Docker con garantía de reembolso de 30 días",
+          "summary": "Ofrece virtualización KVM real con procesadores AMD EPYC, discos NVMe y plantillas preconfiguradas en un clic para Coolify, n8n y Docker.",
+          "pros": [
+            "Instalación en 1 clic de Coolify, n8n y Docker sin consola compleja",
+            "Buena dotación de RAM (4 GB en KVM 1, 8 GB en KVM 2) y garantía de 30 días",
+            "Servidores en EE. UU., Europa, Brasil y Asia"
+          ],
+          "cons": [
+            "El mejor precio requiere contratación anual o bianual y sube al renovar",
+            "Sin facturación por hora"
+          ],
+          "changeNote": "Se mantiene en el #3 por su facilidad de uso y plantillas preinstaladas.",
+          "dealBadge": "10% de descuento extra en planes KVM"
+        },
+        "pt": {
+          "bestFor": "Templates em 1 clique para Coolify, n8n e Docker com garantia de 30 dias",
+          "summary": "Entrega virtualização KVM real com AMD EPYC, NVMe e instalação em 1 clique para Coolify, n8n e Docker, com servidores no Brasil.",
+          "pros": [
+            "Instalação em 1 clique para Coolify, n8n e Docker",
+            "Boa quantidade de RAM (4 GB no KVM 1, 8 GB no KVM 2) e reembolso em 30 dias",
+            "Possui datacenter no Brasil, EUA, Europa e Ásia"
+          ],
+          "cons": [
+            "Os melhores preços exigem ciclo de 12 ou 24 meses, com valor maior na renovação",
+            "Não oferece cobrança por hora"
+          ],
+          "changeNote": "Segue em #3 pela praticidade dos templates prontos e servidor no Brasil.",
+          "dealBadge": "10% OFF extra nos planos KVM VPS"
+        }
+      }
+    }
+  ]
+}
+

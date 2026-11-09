@@ -10,13 +10,15 @@ import { isRouteErrorResponse, Link, Outlet, useLoaderData, useRouteError, useRo
 import type { Route } from "./+types/public.layout";
 import { PublicShell } from "~/components/tools-site/public-shell";
 import { Plate } from "~/components/ui/plate";
+import { getUserId } from "~/lib/auth.server";
 import { toolsI18n } from "~/lib/tools/i18n";
 import { toolsMessages } from "~/lib/tools/messages.server";
 import { publicLocale } from "~/lib/tools/route.server";
 
-export function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = publicLocale(params);
-  return { locale, messages: toolsMessages(locale) };
+  const userId = await getUserId(request);
+  return { locale, signedIn: Boolean(userId), messages: toolsMessages(locale) };
 }
 
 export default function PublicLayout() {
