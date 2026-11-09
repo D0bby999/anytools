@@ -142,6 +142,27 @@ export default function AnyProfilePage() {
       </header>
 
       <div className="lp-layout px-4 py-12 lg:px-6">
+        <section aria-labelledby="ap-demo" className="mb-14">
+          <h2 id="ap-demo" className="lp-section text-2xl">
+            {t("anyprofile.demoTitle")}
+          </h2>
+          <div className="mt-5 overflow-hidden rounded-2xl border bg-black shadow-lg">
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/apps/anyprofile-demo-poster.jpg"
+              className="aspect-video w-full"
+            >
+              <source
+                src={locale === "vi" ? "/apps/anyprofile-demo-vi.mp4" : "/apps/anyprofile-demo-en.mp4"}
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </section>
+
         <section aria-labelledby="ap-features">
           <h2 id="ap-features" className="lp-section text-2xl">
             {t("anyprofile.featuresTitle")}
