@@ -88,7 +88,7 @@ describe("crawler files", () => {
       "Allow: /en$", "Allow: /en/", "Allow: /vi$", "Allow: /vi/",
       "Allow: /es$", "Allow: /es/", "Allow: /pt$", "Allow: /pt/",
       "Allow: /u/",
-      "Allow: /assets/", "Allow: /plates/", "Allow: /brand/", "Allow: /icons/",
+      "Allow: /assets/", "Allow: /plates/", "Allow: /brand/", "Allow: /icons/", "Allow: /logos/", "Allow: /apps/",
       "Allow: /favicon.svg", "Allow: /favicon.ico", "Allow: /apple-touch-icon.png", "Allow: /og.png", "Allow: /llms.txt",
     ]);
     expect(body).toContain("Sitemap: https://learn.example.com/sitemap.xml");
@@ -107,10 +107,11 @@ describe("crawler files", () => {
     expect(urls.every((u) => /<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/.exec(u)?.[1]! >= "2026-10-20")).toBe(true);
   });
 
-  it("llms.txt says what the site is and links AnyLearn, the guides and the tools in English", async () => {
+  it("llms.txt says what the site is and links AnyLearn, AnyProfile, the guides and the tools in English", async () => {
     const body = await llms.loader().text();
     expect(body.startsWith("# AnyTools\n\n> ")).toBe(true);
     expect(body).toContain("(https://learn.example.com/en/anylearn)");
+    expect(body).toContain("(https://learn.example.com/en/anyprofile)");
     expect(body).toContain("(https://learn.example.com/en/guides/regex-mastery)");
     expect(body).toContain("(https://learn.example.com/en/pdf/merge-pdf)");
     expect(body).not.toMatch(/\]\(https:\/\/learn\.example\.com\/(vi|es|pt)\//);

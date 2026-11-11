@@ -8,7 +8,7 @@
  * release published, a "coming soon" note takes the buttons' place.
  */
 import { Clock, Download, Github, Laptop, Monitor } from "lucide-react";
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { useTranslation } from "react-i18next";
 import type { Route } from "./+types/public.anyprofile";
 import { Button } from "~/components/ui/button";
@@ -18,11 +18,48 @@ import { ANYPROFILE_RELEASES, ANYPROFILE_REPO, downloadsFor, latestRelease } fro
 import { addPagesBundle } from "~/lib/tools/i18n";
 import { pagesMessages } from "~/lib/tools/messages.server";
 import { pagesT, publicLocale } from "~/lib/tools/route.server";
-import { alternateLinks, clampMetaDescription, pageMeta, ogImage } from "~/lib/tools/seo";
+import { alternateLinks, breadcrumbSchema, clampMetaDescription, faqSchema, pageMeta } from "~/lib/tools/seo";
+
+type FaqItem = { q: string; a: string };
+type DemoChapter = { name: string; startOffset: number; endOffset: number; label: string };
+
+const DEMO_CHAPTERS: Record<"en" | "vi", DemoChapter[]> = {
+  en: [
+    { name: "Local-first vs Cloud SaaS", startOffset: 0, endOffset: 11, label: "0:00" },
+    { name: "Isolated Fingerprints & Live Checks", startOffset: 11, endOffset: 26, label: "0:11" },
+    { name: "New Profile & Engine Selector", startOffset: 26, endOffset: 38, label: "0:26" },
+    { name: "Arrange Windows Multi-Browser Tiling", startOffset: 38, endOffset: 49, label: "0:38" },
+    { name: "Keychain Proxies & Provider Hub", startOffset: 49, endOffset: 62, label: "0:49" },
+    { name: "Native Android 15 VM on Apple Silicon", startOffset: 62, endOffset: 75, label: "1:02" },
+    { name: "Local REST API & AI Agent MCP", startOffset: 75, endOffset: 87, label: "1:15" },
+  ],
+  vi: [
+    { name: "Chạy cục bộ thay vì trình duyệt đám mây", startOffset: 0, endOffset: 8, label: "0:00" },
+    { name: "Tách biệt vân tay & kiểm tra IP", startOffset: 8, endOffset: 18, label: "0:08" },
+    { name: "Tạo profile mới & chọn nhân trình duyệt", startOffset: 18, endOffset: 27, label: "0:18" },
+    { name: "Arrange Windows xếp đa cửa sổ", startOffset: 27, endOffset: 36, label: "0:27" },
+    { name: "Proxy mã hóa Keychain & nhà cung cấp", startOffset: 36, endOffset: 46, label: "0:36" },
+    { name: "Máy ảo Android 15 trên Apple Silicon", startOffset: 46, endOffset: 57, label: "0:46" },
+    { name: "Local API & AI Agent MCP", startOffset: 57, endOffset: 66, label: "0:57" },
+  ],
+};
+
+function videoMedia(locale: string) {
+  const isVi = locale === "vi";
+  return {
+    isVi,
+    videoPath: isVi ? "/apps/anyprofile-demo-vi.mp4" : "/apps/anyprofile-demo-en.mp4",
+    posterPath: isVi ? "/apps/anyprofile-demo-poster-vi.jpg" : "/apps/anyprofile-demo-poster.jpg",
+    captionPath: isVi ? "/apps/anyprofile-demo-vi.vtt" : "/apps/anyprofile-demo-en.vtt",
+    durationIso: isVi ? "PT1M14S" : "PT1M38S",
+    chapters: isVi ? DEMO_CHAPTERS.vi : DEMO_CHAPTERS.en,
+  };
+}
 
 export async function loader({ params }: Route.LoaderArgs) {
   const locale = publicLocale(params);
   const t = pagesT(locale);
+  const faqs = list<FaqItem>(t("anyprofile.faqs", { returnObjects: true }));
   return {
     locale,
     origin: APP_URL,
@@ -31,29 +68,117 @@ export async function loader({ params }: Route.LoaderArgs) {
     // From the loader, because the component may not import a .server module.
     releasesUrl: ANYPROFILE_RELEASES,
     repoUrl: ANYPROFILE_REPO,
+    faqs,
     seo: { title: t("anyprofile.metaTitle"), description: clampMetaDescription(t("anyprofile.metaDescription")) },
   };
 }
 
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [];
-  const { origin, locale, seo } = data;
+  const { origin, locale, seo, downloads, faqs, repoUrl } = data;
   const path = (l: string) => `/${l}/anyprofile`;
-  return [
+  const url = `${origin}${path(locale)}`;
+  const media = videoMedia(locale);
+  const posterUrl = `${origin}${media.posterPath}`;
+  const ogPosterUrl = `${posterUrl}?v=20261111`;
+
+  const softwareLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "AnyProfile",
+    applicationCategory: "BrowserApplication",
+    operatingSystem: "macOS 13+ (Apple Silicon), Windows 10/11",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    isAccessibleForFree: true,
+    inLanguage: locale,
+    description: seo.description,
+    url,
+    sameAs: [repoUrl, `${origin}/${locale}/guides/anyprofile`],
+    image: ogPosterUrl,
+    screenshot: ogPosterUrl,
+    softwareVersion: downloads?.release?.version ?? "0.2.2",
+    downloadUrl: downloads?.links?.mac?.url ?? url,
+    license: "https://github.com/D0bby999/anyprofile/blob/master/LICENSE",
+    featureList: [
+      "Isolated Chromium browser profiles with persistent per-profile fingerprints",
+      "Per-profile HTTP/HTTPS/SOCKS5 proxy relay with automatic timezone & geolocation",
+      "macOS Keychain / Windows Credential Manager encrypted secrets vault",
+      "Native Apple Silicon Android 15 VM with Hypervisor.framework KVM & Fast Start",
+      "Local REST API and MCP server for Claude Code, Codex, and Playwright",
+    ],
+    author: {
+      "@type": "Person",
+      name: "Nguyen Minh Chau",
+      url: "https://github.com/D0bby999",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "AnyProfile",
+      url,
+    },
+  };
+
+  const videoLd = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: media.isVi
+      ? "AnyProfile — Trình duyệt Antidetect miễn phí & Máy ảo Android 15 (Demo)"
+      : "AnyProfile — Free Open-Source Antidetect Browser & Android VM Walkthrough",
+    description: seo.description,
+    thumbnailUrl: [ogPosterUrl],
+    uploadDate: "2026-11-11T12:40:00+07:00",
+    contentUrl: `${origin}${media.videoPath}`,
+    embedUrl: `${url}#ap-demo`,
+    duration: media.durationIso,
+    inLanguage: media.isVi ? "vi" : "en",
+    encodingFormat: "video/mp4",
+    width: 1920,
+    height: 1080,
+    caption: `${origin}${media.captionPath}`,
+    publisher: {
+      "@type": "Organization",
+      name: "AnyTools",
+      url: origin,
+    },
+    hasPart: media.chapters.map((c) => ({
+      "@type": "Clip",
+      name: c.name,
+      startOffset: c.startOffset,
+      endOffset: c.endOffset,
+      url: `${url}#t=${c.startOffset}`,
+    })),
+  };
+
+  const breadcrumbsLd = breadcrumbSchema([
+    { name: "AnyTools", url: `${origin}/${locale}` },
+    { name: "AnyProfile", url },
+  ]);
+
+  const tags = [
     ...pageMeta({
       title: seo.title,
       description: seo.description,
-      url: `${origin}${path(locale)}`,
-      image: ogImage(origin),
+      url,
+      image: ogPosterUrl,
       locale,
       indexable: true,
       alternateLocales: publicLngs,
     }),
     ...alternateLinks(origin, path, locale, publicLngs),
+    { "script:ld+json": softwareLd },
+    { "script:ld+json": videoLd },
+    { "script:ld+json": breadcrumbsLd },
   ];
+
+  if (Array.isArray(faqs) && faqs.length > 0) {
+    tags.push({ "script:ld+json": faqSchema(faqs) });
+  }
+
+  return tags;
 }
 
 type Feature = { title: string; body: string };
+type CompareRow = { label: string; anyprofile: string; commercial: string };
 type InstallBlock = { os: string; steps: string[] };
 
 /** A `returnObjects` list from the bundle, or nothing if the key is not one. */
@@ -66,6 +191,7 @@ export default function AnyProfilePage() {
   addPagesBundle(locale, pages);
   const { t } = useTranslation("pages");
   const { release, unreleased, links } = downloads;
+  const media = videoMedia(locale);
 
   const buttons = [
     { platform: "mac", href: links.mac.url, label: t("anyprofile.downloadMac"), note: t("anyprofile.downloadMacNote"), Icon: Laptop },
@@ -146,20 +272,65 @@ export default function AnyProfilePage() {
           <h2 id="ap-demo" className="lp-section text-2xl">
             {t("anyprofile.demoTitle")}
           </h2>
+          <p className="mt-2 max-w-[70ch] text-sm leading-prose text-muted-foreground">{t("anyprofile.demoSubtitle")}</p>
           <div className="mt-5 overflow-hidden rounded-2xl border bg-black shadow-lg">
             <video
               controls
               playsInline
               preload="metadata"
-              poster="/apps/anyprofile-demo-poster.jpg"
+              poster={media.posterPath}
               className="aspect-video w-full"
             >
-              <source
-                src={locale === "vi" ? "/apps/anyprofile-demo-vi.mp4" : "/apps/anyprofile-demo-en.mp4"}
-                type="video/mp4"
+              <source src={media.videoPath} type="video/mp4" />
+              <track
+                kind="captions"
+                src={media.captionPath}
+                srcLang={media.isVi ? "vi" : "en"}
+                label={media.isVi ? "Tiếng Việt" : "English"}
+                default
               />
               Your browser does not support the video tag.
             </video>
+          </div>
+          <ol className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-4">
+            {media.chapters.map((ch) => (
+              <li key={ch.name} className="rounded-md border px-3 py-2">
+                <span className="font-mono font-semibold text-foreground">{ch.label}</span>{" "}
+                <span>{ch.name}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
+            <Link
+              to={`/${locale}/guides/anyprofile`}
+              className="font-medium text-primary underline underline-offset-4 hover:opacity-80"
+            >
+              {t("anyprofile.guideCta")} →
+            </Link>
+            <span>
+              {!unreleased && (
+                <>
+                  {t("anyprofile.demoShortsLabel")}{" "}
+                  <a
+                    href="https://github.com/D0bby999/anyprofile/releases/latest/download/anyprofile-short-en.mp4"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-4 hover:text-foreground"
+                  >
+                    EN (9:16)
+                  </a>
+                  {" · "}
+                  <a
+                    href="https://github.com/D0bby999/anyprofile/releases/latest/download/anyprofile-short-vi.mp4"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-4 hover:text-foreground"
+                  >
+                    VI (9:16)
+                  </a>
+                </>
+              )}
+            </span>
           </div>
         </section>
 
@@ -175,6 +346,41 @@ export default function AnyProfilePage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section aria-labelledby="ap-compare" className="mt-14">
+          <h2 id="ap-compare" className="lp-section text-2xl">
+            {t("anyprofile.compareTitle")}
+          </h2>
+          <p className="mt-2 max-w-[70ch] text-sm leading-prose text-muted-foreground">{t("anyprofile.compareSubtitle")}</p>
+          <div className="mt-5 overflow-hidden rounded-lg border">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead className="hidden border-b bg-muted/40 text-sm text-muted-foreground sm:table-header-group">
+                <tr>
+                  <th scope="col" className="px-4 py-3 font-semibold">{t("anyprofile.compareColCriteria")}</th>
+                  <th scope="col" className="px-4 py-3 font-semibold text-foreground">{t("anyprofile.compareColAnyProfile")}</th>
+                  <th scope="col" className="px-4 py-3 font-semibold">{t("anyprofile.compareColCommercial")}</th>
+                </tr>
+              </thead>
+              <tbody className="block divide-y sm:table-row-group">
+                {list<CompareRow>(t("anyprofile.compareRows", { returnObjects: true })).map((row) => (
+                  <tr key={row.label} className="block space-y-2 p-4 align-top sm:table-row sm:space-y-0 sm:p-0">
+                    <th scope="row" className="block font-serif text-base font-semibold text-foreground sm:table-cell sm:px-4 sm:py-3.5 sm:font-sans sm:text-sm sm:font-medium">
+                      {row.label}
+                    </th>
+                    <td className="block font-medium text-foreground sm:table-cell sm:px-4 sm:py-3.5">
+                      <span className="text-muted-foreground sm:hidden">{t("anyprofile.compareColAnyProfile")}: </span>
+                      {row.anyprofile}
+                    </td>
+                    <td className="block text-muted-foreground sm:table-cell sm:px-4 sm:py-3.5">
+                      <span className="font-medium text-foreground sm:hidden">{t("anyprofile.compareColCommercial")}: </span>
+                      {row.commercial}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section aria-labelledby="ap-install" className="mt-14">
@@ -245,7 +451,36 @@ export default function AnyProfilePage() {
           </section>
         </div>
 
-        <p className="mt-14 max-w-(--lp-measure-read) border-t pt-6 text-xs leading-prose text-muted-foreground">
+        <section aria-labelledby="ap-faqs" className="mt-14">
+          <h2 id="ap-faqs" className="lp-section text-2xl">
+            {t("anyprofile.faqTitle")}
+          </h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {list<FaqItem>(t("anyprofile.faqs", { returnObjects: true })).map((faq) => (
+              <div key={faq.q} className="lp-keybox p-5 sm:p-6">
+                <h3 className="font-serif text-lg font-semibold">{faq.q}</h3>
+                <p className="mt-2 text-sm leading-prose text-muted-foreground">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <nav aria-label={t("rankings.title")} className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <Link
+            to={`/${locale}/rankings/proxies`}
+            className="font-medium text-primary underline underline-offset-4 hover:opacity-80"
+          >
+            {t("rankings.viewCategory")}: Proxies →
+          </Link>
+          <Link
+            to={`/${locale}/rankings/antidetect-browsers`}
+            className="font-medium text-primary underline underline-offset-4 hover:opacity-80"
+          >
+            {t("rankings.viewCategory")}: Antidetect Browsers →
+          </Link>
+        </nav>
+
+        <p className="mt-8 max-w-(--lp-measure-read) border-t pt-6 text-xs leading-prose text-muted-foreground">
           {t("anyprofile.responsibility")}
         </p>
       </div>

@@ -15,7 +15,8 @@ import { publicLngs } from "~/lib/i18n";
 import { APP_URL } from "~/lib/env.server";
 import { addPagesBundle } from "~/lib/tools/i18n";
 import { pagesMessages } from "~/lib/tools/messages.server";
-import { loadRankingCategory } from "~/lib/tools/rankings.server";
+import { getToolLogo } from "~/lib/tools/rankings";
+import { listRankingCategories, loadRankingCategory } from "~/lib/tools/rankings.server";
 import { notFound, pagesT, publicLocale } from "~/lib/tools/route.server";
 import {
   alternateLinks,
@@ -39,11 +40,13 @@ export function loader({ params }: Route.LoaderArgs) {
   const category = loadRankingCategory(locale, categoryId);
   if (!category) notFound();
   const t = pagesT(locale);
+  const otherCategories = listRankingCategories(locale).filter((c) => c.slug !== category.slug);
   return {
     locale,
     origin: APP_URL,
     pages: pagesMessages(locale),
     category,
+    otherCategories,
     rankingsLabel: t("rankings.title"),
   };
 }
@@ -69,13 +72,19 @@ export function meta({ data }: Route.MetaArgs) {
         name: category.title,
         description: category.description,
         url,
-        items: category.items.map((item) => ({
-          rank: item.rank,
-          name: item.name,
-          description: item.summary,
-          url: `${origin}${item.affiliatePath}`,
-          userScore: item.userScore,
-        })),
+        items: category.items.map((item) => {
+          const logo = getToolLogo(item.websiteDomain);
+          return {
+            rank: item.rank,
+            name: item.name,
+            description: item.summary,
+            url: `${url}#rank-${item.slug}`,
+            userScore: item.userScore,
+            image: logo ? `${origin}${logo}` : undefined,
+            startingPrice: item.startingPrice,
+            websiteDomain: item.websiteDomain,
+          };
+        }),
       }),
     },
     {
@@ -93,7 +102,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function RankingCategoryPage() {
-  const { locale, pages, category } = useLoaderData<typeof loader>();
+  const { locale, pages, category, otherCategories } = useLoaderData<typeof loader>();
   addPagesBundle(locale, pages);
   const { t } = useTranslation("pages");
 
@@ -164,7 +173,28 @@ export default function RankingCategoryPage() {
         </section>
       )}
 
-      <p className="mt-12 border-t pt-6 text-sm">
+      {otherCategories && otherCategories.length > 0 && (
+        <nav aria-label={t("rankings.allCategories")} className="mt-16 border-t pt-8">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {otherCategories.map((cat) => (
+              <Link
+                key={cat.slug}
+                to={`/${locale}/rankings/${cat.slug}`}
+                className="group rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+              >
+                <p className="font-serif text-base font-semibold text-foreground group-hover:text-primary group-hover:underline">
+                  {cat.title}
+                </p>
+                <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                  {cat.tagline}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
+
+      <p className="mt-8 pt-2 text-sm">
         <Link
           to={`/${locale}/rankings`}
           className="inline-flex min-h-11 items-center gap-1.5 font-medium text-primary underline underline-offset-4"

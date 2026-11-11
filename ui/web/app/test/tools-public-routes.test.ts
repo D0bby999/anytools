@@ -215,16 +215,21 @@ describe("the sitemap", () => {
       toolMetas.filter((m) => isIndexableTool(m, l)).map((m) => `${l}/${m.cluster}`),
     );
     // The landing page and the tools home in four languages (`/` only
-    // redirects); the guides index, eight guides (including PostClaw),
-    // the rankings index, five ranking categories, AnyLearn, AnyProfile and
-    // the four static pages, all in four languages.
-    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 8 + 1 + 5 + 2 + 4) * 4);
+    // redirects); the guides index, nine guides (including PostClaw and
+    // AnyProfile), the rankings index, five ranking categories, AnyLearn,
+    // AnyProfile and the four static pages, all in four languages.
+    expect(locs).toHaveLength(4 + 4 + new Set(tools).size + tools.length + (1 + 9 + 1 + 5 + 2 + 4) * 4);
     expect(locs).toContain("https://anytools.example/en/rankings");
     expect(locs).toContain("https://anytools.example/vi/rankings/proxies");
     expect(locs).toContain("https://anytools.example/en/guides/postclaw");
     expect(locs).toContain("https://anytools.example/vi/guides/postclaw");
     expect(locs).toContain("https://anytools.example/es/guides/postclaw");
     expect(locs).toContain("https://anytools.example/pt/guides/postclaw");
+    expect(locs).toContain("https://anytools.example/en/guides/anyprofile");
+    expect(locs).toContain("https://anytools.example/vi/guides/anyprofile");
+    expect(body).toContain('xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"');
+    expect(body).toContain("<video:content_loc>https://anytools.example/apps/anyprofile-demo-en.mp4</video:content_loc>");
+    expect(body).toContain("<video:content_loc>https://anytools.example/apps/anyprofile-demo-vi.mp4</video:content_loc>");
     // Batch A (phase 3a): finance, health and lifestyle pages, an English-only tool in English only.
     expect(locs).toContain("https://anytools.example/vi/finance/loan-calculator");
     expect(locs).toContain("https://anytools.example/pt/health");

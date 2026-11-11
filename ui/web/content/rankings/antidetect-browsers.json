@@ -37,7 +37,7 @@
       ]
     },
     "vi": {
-      "title": "Trình duyệt chống nhận dạng (Antidetect Browser)",
+      "title": "Trình duyệt Antidetect tốt nhất",
       "tagline": "Xếp hạng theo độ sạch vân tay thiết bị, tốc độ cập nhật nhân Chrome và quyền riêng tư.",
       "description": "Bảng xếp hạng hàng tháng các trình duyệt nuôi đa tài khoản (Antidetect Browser) được kiểm tra trực tiếp trên CreepJS, Pixelscan và các sàn TMĐT/Ads về độ cô lập hồ sơ và chi phí.",
       "methodologyNote": "Chúng tôi kiểm tra từng trình duyệt trên cả macOS (chip M) và Windows qua CreepJS, Pixelscan và BrowserLeaks, đo độ trễ cập nhật nhân Chromium so với Chrome gốc, mức độ an toàn của dữ liệu cookie và chi phí trên mỗi hồ sơ.",

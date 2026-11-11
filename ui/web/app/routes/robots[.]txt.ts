@@ -16,6 +16,8 @@ const PUBLIC_FILES = [
   "/plates/",
   "/brand/",
   "/icons/",
+  "/logos/",
+  "/apps/",
   "/favicon.svg",
   "/favicon.ico",
   "/apple-touch-icon.png",

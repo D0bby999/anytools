@@ -162,7 +162,16 @@ export function itemListSchema(input: {
   name: string;
   description: string;
   url: string;
-  items: { rank: number; name: string; description: string; url: string; userScore: number }[];
+  items: {
+    rank: number;
+    name: string;
+    description: string;
+    url: string;
+    userScore: number;
+    image?: string;
+    startingPrice?: string;
+    websiteDomain?: string;
+  }[];
 }) {
   return {
     "@context": "https://schema.org",
@@ -172,23 +181,40 @@ export function itemListSchema(input: {
     url: input.url,
     numberOfItems: input.items.length,
     itemListOrder: "https://schema.org/ItemListOrderDescending",
-    itemListElement: input.items.map((item) => ({
-      "@type": "ListItem",
-      position: item.rank,
-      item: {
-        "@type": "SoftwareApplication",
-        name: item.name,
-        description: item.description,
-        url: item.url,
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: item.userScore,
-          bestRating: 10,
-          worstRating: 1,
-          ratingCount: 1,
+    itemListElement: input.items.map((item) => {
+      const priceMatch = item.startingPrice?.match(/\d+(?:\.\d+)?/);
+      return {
+        "@type": "ListItem",
+        position: item.rank,
+        item: {
+          "@type": "SoftwareApplication",
+          name: item.name,
+          description: item.description,
+          url: item.url,
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web / Cloud",
+          ...(item.image ? { image: item.image } : {}),
+          ...(item.websiteDomain ? { sameAs: `https://${item.websiteDomain}` } : {}),
+          ...(priceMatch
+            ? {
+                offers: {
+                  "@type": "Offer",
+                  price: priceMatch[0],
+                  priceCurrency: "USD",
+                  ...(item.startingPrice ? { description: item.startingPrice } : {}),
+                },
+              }
+            : {}),
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: item.userScore,
+            bestRating: 10,
+            worstRating: 1,
+            ratingCount: 1,
+          },
         },
-      },
-    })),
+      };
+    }),
   };
 }
 

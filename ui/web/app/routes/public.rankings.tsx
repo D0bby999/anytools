@@ -60,6 +60,26 @@ export function meta({ data }: Route.MetaArgs) {
         { name: seo.label, url: `${origin}${path(locale)}` },
       ]),
     },
+    {
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: seo.title,
+        description: seo.description,
+        url: `${origin}${path(locale)}`,
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: data.categories.length,
+          itemListElement: data.categories.map((cat, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: cat.title,
+            description: cat.description,
+            url: `${origin}/${locale}/rankings/${cat.slug}`,
+          })),
+        },
+      },
+    },
   ];
 }
 

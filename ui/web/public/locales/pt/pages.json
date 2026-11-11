@@ -11,8 +11,8 @@
     "updated": "Última atualização: {{date}}"
   },
   "anyprofile": {
-    "metaTitle": "AnyProfile — navegador multiperfil para macOS e Windows",
-    "metaDescription": "App gratuito e de código aberto que dá a cada conta o seu próprio navegador: cookies separados, proxy próprio e uma impressão digital coerente. Para macOS e Windows.",
+    "metaTitle": "AnyProfile — Navegador Antidetect Grátis e Open Source",
+    "metaDescription": "Navegador antidetect gratuito para macOS e Windows. Isole cookies, proxies Keychain, VM Android 15 e automação MCP localmente.",
     "title": "AnyProfile",
     "tagline": "Um navegador por conta, lado a lado.",
     "intro": "AnyProfile é um app de desktop gratuito para criadores e vendedores que gerem várias contas de TikTok, YouTube, Shopee ou Amazon. Cada perfil é um navegador separado, com os seus próprios cookies, o seu próprio proxy e uma impressão digital de dispositivo coerente, para que as sessões nunca se misturem.",
@@ -26,6 +26,9 @@
     "allReleases": "Todas as versões e notas",
     "howToInstall": "Como instalar e abrir pela primeira vez",
     "demoTitle": "Veja o AnyProfile em ação",
+    "demoSubtitle": "Demonstração em vídeo cobrindo perfis isolados, Arrange Windows, proxies no Keychain, VM Android 15 nativa e MCP para agentes de IA.",
+    "demoShortsLabel": "Vídeos verticais 9:16 no GitHub Releases:",
+    "guideCta": "Ler o guia completo de isolamento de perfis e proxies",
     "featuresTitle": "O que faz",
     "features": [
       {
@@ -88,7 +91,68 @@
     "sourceLink": "Código-fonte no GitHub",
     "responsibility": "Você é responsável por seguir as regras de cada plataforma que usa. Muitas limitam quantas contas uma pessoa pode ter; o AnyProfile não muda essas regras.",
     "latest": "Versão {{version}}, lançada em {{date}}",
-    "checksums": "Somas de verificação SHA-256"
+    "checksums": "Somas de verificação SHA-256",
+    "faqTitle": "Perguntas Frequentes",
+    "compareTitle": "Comparativo com apps pagos",
+    "compareSubtitle": "Focado em privacidade local, verificação aberta e fluxos nativos com agentes de IA em vez de assinaturas mensais na nuvem.",
+    "compareColCriteria": "Recurso",
+    "compareColAnyProfile": "AnyProfile",
+    "compareColCommercial": "Opções comerciais (Multilogin, AdsPower, GoLogin, HideMyAcc)",
+    "compareRows": [
+      {
+        "label": "Preço e limite de perfis",
+        "anyprofile": "100% gratuito e open source (AGPL-3.0), perfis locais ilimitados",
+        "commercial": "$50–$200+/mês com limites de 10–100 perfis"
+      },
+      {
+        "label": "Dados e cookies",
+        "anyprofile": "SQLite 100% local + cofre AES-GCM no Keychain / Windows",
+        "commercial": "Sincronização e sessões guardadas na nuvem do fornecedor"
+      },
+      {
+        "label": "Segurança de proxy",
+        "anyprofile": "Relay 127.0.0.1 fail-closed oculta credenciais e bloqueia vazamento de IP",
+        "commercial": "Credenciais diretas no navegador ou extensões de terceiros"
+      },
+      {
+        "label": "IA e automação",
+        "anyprofile": "Servidor MCP nativo (/mcp) para Claude, Codex, Gemini + API REST",
+        "commercial": "Robôs RPA pagos ou API liberada só em planos caros"
+      },
+      {
+        "label": "Desempenho e motor",
+        "anyprofile": "Go + Wails leve com motores AnyBrowser, Apostate e Fury",
+        "commercial": "Wrappers Electron pesados presos a um único núcleo fechado"
+      },
+      {
+        "label": "Perfis móveis",
+        "anyprofile": "VM Android 15 (macOS) e LDPlayer (Windows) isolados via proxy",
+        "commercial": "Taxas extras altas por dispositivo móvel na nuvem"
+      },
+      {
+        "label": "Transparência",
+        "anyprofile": "Código aberto no GitHub com somas SHA-256 verificáveis",
+        "commercial": "Código fechado sem auditoria independente"
+      }
+    ],
+    "faqs": [
+      {
+        "q": "O AnyProfile é realmente 100% gratuito e open-source?",
+        "a": "Sim. O AnyProfile possui licença AGPL-3.0, sem planos mensais, sem limites de perfis e com armazenamento 100% local em SQLite."
+      },
+      {
+        "q": "Como o AnyProfile isola impressões digitais e evita bloqueios?",
+        "a": "Cada perfil possui uma impressão digital única e consistente (WebGL, Canvas, Áudio, User-Agent) calibrada para o seu hardware real, impedindo o rastreamento cruzado."
+      },
+      {
+        "q": "Posso usar proxies individuais em cada perfil?",
+        "a": "Sim. Suporta proxies HTTP, HTTPS e SOCKS5 com ajuste automático de fuso horário, idioma e geolocalização com base no IP do proxy."
+      },
+      {
+        "q": "Qual a vantagem em relação aos navegadores antidetect pagos?",
+        "a": "Não exige mensalidades de $50 a $200+ nem envia seus dados para nuvens de terceiros: roda com máxima velocidade nativa e total privacidade local."
+      }
+    ]
   },
   "landing": {
     "metaTitle": "AnyTools: estude seus documentos com IA e ferramentas grátis",
@@ -163,7 +227,7 @@
     "description": "Rankings mensais de proxies, ferramentas de SEO, IA, navegadores anti-detect e VPS — avaliados por desempenho e custo-benefício real.",
     "lede": "Classificações mensais avaliadas estritamente pelo valor real para o usuário final — desempenho (35%), custo-benefício (30%), estabilidade (20%) e suporte (15%) — nunca por comissão de afiliado.",
     "disclosureTitle": "Independente e transparente",
-    "disclosureBody": "Alguns links externos (/go/) usam códigos de indicação que podem gerar comissão para o AnyTools sem custo extra para você. Comissões nunca influenciam a posição ou a nota de um produto.",
+    "disclosureBody": "Os links externos (/go/) — incluindo todos os provedores no ranking de Proxies — utilizam links de afiliados verificados (rel=\"sponsored\") que podem gerar comissão para o AnyTools sem custo extra para você. Comissões nunca influenciam a posição ou a nota de um produto.",
     "searchPlaceholder": "Buscar em {{count}} produtos e categorias...",
     "clearSearch": "Limpar",
     "sortLabel": "Ordenar categorias",

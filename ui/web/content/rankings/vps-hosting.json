@@ -37,7 +37,7 @@
       ]
     },
     "vi": {
-      "title": "Cloud VPS & Máy chủ tự vận hành (Self-Host)",
+      "title": "Cloud VPS & Máy chủ riêng tốt nhất",
       "tagline": "Xếp hạng theo tốc độ ổ cứng NVMe, hiệu năng CPU trên từng đô la và giá gia hạn minh bạch.",
       "description": "Bảng xếp hạng hàng tháng các nhà cung cấp Cloud VPS Linux tốt nhất để tự cài đặt Docker Compose, Coolify, n8n, Postgres hoặc tự host AnyTools, chấm điểm dựa trên phần cứng thực tế và băng thông.",
       "methodologyNote": "Chúng tôi đo trực tiếp điểm CPU Geekbench 6, tốc độ đọc/ghi ngẫu nhiên 4K của ổ NVMe bằng fio, dung lượng băng thông miễn phí đi kèm và trừ điểm nặng các bên tăng giá gấp đôi khi gia hạn.",

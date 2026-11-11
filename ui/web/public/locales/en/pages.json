@@ -11,8 +11,8 @@
     "updated": "Last updated {{date}}"
   },
   "anyprofile": {
-    "metaTitle": "AnyProfile — free multi-profile browser for macOS & Windows",
-    "metaDescription": "Free, open-source app that gives every account its own browser: separate cookies, its own proxy and a consistent fingerprint. For macOS and Windows.",
+    "metaTitle": "AnyProfile — Free Open-Source Antidetect Browser",
+    "metaDescription": "Free open-source antidetect browser for Mac & Windows. Isolate cookies, proxies, Android 15 VMs & AI MCP locally—with zero monthly fees.",
     "title": "AnyProfile",
     "tagline": "One browser per account, side by side.",
     "intro": "AnyProfile is a free desktop app for creators and sellers who run several TikTok, YouTube, Shopee or Amazon accounts. Each profile is a separate browser with its own cookies, its own proxy and a consistent device fingerprint, so sessions never mix.",
@@ -26,6 +26,9 @@
     "allReleases": "All releases and release notes",
     "howToInstall": "How to install and open it the first time",
     "demoTitle": "Watch AnyProfile in action",
+    "demoSubtitle": "Full 98-second walkthrough covering isolated profiles, Arrange Windows, Keychain proxies, native Android 15 VM, and Claude/Playwright MCP.",
+    "demoShortsLabel": "9:16 mobile shorts on GitHub Releases:",
+    "guideCta": "Read the complete profile isolation & proxy setup guide",
     "featuresTitle": "What it does",
     "features": [
       {
@@ -88,7 +91,68 @@
     "sourceLink": "Source code on GitHub",
     "responsibility": "You are responsible for following the rules of every platform you use. Many limit how many accounts one person may run; AnyProfile does not change those rules.",
     "latest": "Version {{version}}, released {{date}}",
-    "checksums": "SHA-256 checksums"
+    "checksums": "SHA-256 checksums",
+    "faqTitle": "Frequently Asked Questions",
+    "compareTitle": "AnyProfile vs paid browsers",
+    "compareSubtitle": "Built for local privacy, open verification, and native AI agent workflows instead of monthly cloud seats.",
+    "compareColCriteria": "Capability",
+    "compareColAnyProfile": "AnyProfile",
+    "compareColCommercial": "Commercial tools (Multilogin, AdsPower, GoLogin, HideMyAcc)",
+    "compareRows": [
+      {
+        "label": "Cost & profile limits",
+        "anyprofile": "100% free & open source (AGPL-3.0), unlimited local profiles",
+        "commercial": "$50 to $200+/month subscriptions with 10–100 profile caps"
+      },
+      {
+        "label": "Data & cookie storage",
+        "anyprofile": "100% local SQLite + AES-GCM Keychain / Credential Manager vault",
+        "commercial": "Vendor cloud sync & remote session storage"
+      },
+      {
+        "label": "Proxy security",
+        "anyprofile": "Fail-closed 127.0.0.1 relay hides credentials & blocks IP leaks",
+        "commercial": "Direct proxy credentials or third-party browser extensions"
+      },
+      {
+        "label": "AI & automation",
+        "anyprofile": "Built-in MCP server (/mcp) for Claude, Codex, Gemini + REST API",
+        "commercial": "Paid proprietary RPA bots or higher-tier API plans"
+      },
+      {
+        "label": "Desktop runtime",
+        "anyprofile": "Lightweight Go + Wails with AnyBrowser, Apostate, and Fury engines",
+        "commercial": "Heavy Electron wrappers locked to one closed engine"
+      },
+      {
+        "label": "Mobile isolation",
+        "anyprofile": "Native Android 15 VM (macOS) & LDPlayer (Windows), proxy-locked",
+        "commercial": "High per-device cloud phone surcharges"
+      },
+      {
+        "label": "Verifiability",
+        "anyprofile": "Public GitHub source code & SHA-256 release checksums",
+        "commercial": "Closed-source binary with opaque telemetry"
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Is AnyProfile really 100% free and open source?",
+        "a": "Yes. AnyProfile is licensed under AGPL-3.0 with zero subscription fees, no profile limits, and no cloud lock-in. All cookies, passwords, and profile data remain on your local machine in SQLite."
+      },
+      {
+        "q": "How does AnyProfile isolate fingerprints and prevent detection?",
+        "a": "Each profile runs in its own isolated browser session with consistent hardware fingerprints (WebGL, Canvas, AudioContext, ClientRects, User-Agent) calibrated to your actual OS, preventing cross-profile tracking on TikTok, Facebook, Google, and Amazon."
+      },
+      {
+        "q": "Can I assign dedicated proxies to individual profiles?",
+        "a": "Yes. AnyProfile supports HTTP, HTTPS, and SOCKS5 proxies with credentials encrypted locally. The app automatically aligns timezones, languages, and geolocations to the proxy exit IP and alerts you if the exit IP shifts."
+      },
+      {
+        "q": "How does AnyProfile compare to commercial antidetect browsers (Multilogin, AdsPower, GoLogin)?",
+        "a": "Unlike commercial tools that cost $50 to $200+ per month and store your browser sessions on remote cloud servers, AnyProfile is completely free, runs with native desktop speed via Wails and Chromium, and keeps your private data strictly local."
+      }
+    ]
   },
   "landing": {
     "metaTitle": "AnyTools: study your documents with AI + free online tools",
@@ -163,7 +227,7 @@
     "description": "Monthly user-first rankings for proxies, SEO software, AI tools, anti-detect browsers, and cloud VPS — scored on real performance and value.",
     "lede": "Monthly leaderboards scored strictly on how well each product serves end users — performance (35%), real price value (30%), uptime reliability (20%), and support (15%) — never on affiliate commission.",
     "disclosureTitle": "Reader-supported & independent",
-    "disclosureBody": "Some outbound links use referral codes (/go/) that may earn AnyTools a commission at no extra cost to you. Commission rates never influence a product's rank or score.",
+    "disclosureBody": "Outbound links (/go/)—including all providers in our Proxy rankings—use verified affiliate referral codes (rel=\"sponsored\") that may earn AnyTools a commission at no extra cost to you. Commission rates never influence a product's rank or score.",
     "searchPlaceholder": "Search {{count}} ranked products & categories...",
     "clearSearch": "Clear",
     "sortLabel": "Sort categories",

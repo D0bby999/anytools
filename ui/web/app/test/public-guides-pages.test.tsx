@@ -313,6 +313,7 @@ describe("the AnyProfile page", () => {
     );
     expect(screen.queryByRole("region", { name: "SHA-256 checksums" })).toBeNull();
     expect(container.querySelectorAll("ul li").length).toBeGreaterThan(6);
+    expect(screen.getByRole("table")).toBeTruthy();
     // No ad slot, no third-party script.
     expect(container.querySelector("script, ins, iframe")).toBeNull();
   });
@@ -323,6 +324,26 @@ describe("the AnyProfile page", () => {
     const tags = metaOf(anyprofile.meta, data);
     expect(canonical(tags)).toBe("https://anytools.example/pt/anyprofile");
     expect(hreflangs(tags)).toEqual(["en", "vi", "es", "pt", "x-default"]);
+  });
+
+  it("emits SoftwareApplication, VideoObject, BreadcrumbList, and FAQPage structured data", async () => {
+    vi.stubGlobal("fetch", async () => new Response("", { status: 404 }));
+    const data = await call(anyprofile.loader, "/en/anyprofile", { locale: "en" });
+    const tags = metaOf(anyprofile.meta, data);
+    const schemas = ld(tags);
+    expect(schemas.map((s) => s["@type"])).toEqual(["SoftwareApplication", "VideoObject", "BreadcrumbList", "FAQPage"]);
+    const app = schemas.find((s) => s["@type"] === "SoftwareApplication");
+    expect(app?.name).toBe("AnyProfile");
+    expect(app?.operatingSystem).toContain("macOS");
+    expect(app?.isAccessibleForFree).toBe(true);
+    const video = schemas.find((s) => s["@type"] === "VideoObject");
+    expect(video?.name).toBeTruthy();
+    expect(video?.contentUrl).toContain("anyprofile-demo");
+    expect(video?.duration).toBe("PT1M38S");
+    expect(video?.encodingFormat).toBe("video/mp4");
+    expect(video?.caption).toBe("https://anytools.example/apps/anyprofile-demo-en.vtt");
+    expect(Array.isArray(video?.hasPart)).toBe(true);
+    expect((video?.hasPart as unknown[])?.length).toBe(7);
   });
 });
 

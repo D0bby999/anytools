@@ -28,6 +28,34 @@ export function isRankingCategoryId(value: string | undefined): value is Ranking
 export const CRITERION_KEYS = ["performance", "value", "reliability", "support"] as const;
 export type CriterionKey = (typeof CRITERION_KEYS)[number];
 
+export const TOOL_LOGOS: Record<string, string> = {
+  "decodo.com": "/logos/tools/decodo.png",
+  "oxylabs.io": "/logos/tools/oxylabs.png",
+  "iproyal.com": "/logos/tools/iproyal.png",
+  "brightdata.com": "/logos/tools/brightdata.png",
+  "marsproxies.com": "/logos/tools/marsproxies.png",
+  "rayobyte.com": "/logos/tools/rayobyte.png",
+  "openrouter.ai": "/logos/tools/openrouter.png",
+  "elevenlabs.io": "/logos/tools/elevenlabs.png",
+  "tavily.com": "/logos/tools/tavily.svg",
+  "anytools.world": "/logos/tools/anyprofile.png",
+  "dolphin-anty.com": "/logos/tools/dolphin-anty.png",
+  "multilogin.com": "/logos/tools/multilogin.svg",
+  "seranking.com": "/logos/tools/seranking.png",
+  "ahrefs.com": "/logos/tools/ahrefs.svg",
+  "semrush.com": "/logos/tools/semrush.png",
+  "mangools.com": "/logos/tools/mangools.png",
+  "hetzner.com": "/logos/tools/hetzner.png",
+  "vultr.com": "/logos/tools/vultr.png",
+  "hostinger.com": "/logos/tools/hostinger.png",
+};
+
+export function getToolLogo(domain: string | undefined): string | undefined {
+  if (!domain) return undefined;
+  const clean = domain.trim().toLowerCase().replace(/^www\./, "");
+  return TOOL_LOGOS[clean];
+}
+
 export const CRITERION_WEIGHTS: Record<CriterionKey, number> = {
   performance: 0.35,
   value: 0.3,

@@ -34,6 +34,7 @@ export const GUIDE_SLUGS = [
   "lifestyle-utilities",
   "design-color-tools",
   "postclaw",
+  "anyprofile",
 ] as const;
 
 export const STATIC_PAGES = ["about", "privacy", "terms", "contact"] as const;

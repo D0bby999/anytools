@@ -11,8 +11,8 @@
     "updated": "Última actualización: {{date}}"
   },
   "anyprofile": {
-    "metaTitle": "AnyProfile — navegador multiperfil para macOS y Windows",
-    "metaDescription": "App gratuita y de código abierto que da a cada cuenta su propio navegador: cookies separadas, su propio proxy y una huella coherente. Para macOS y Windows.",
+    "metaTitle": "AnyProfile — Navegador Antidetect Gratis y Open Source",
+    "metaDescription": "Navegador antidetect gratuito para macOS y Windows. Aísla cookies, proxies Keychain, VM Android 15 y automatización MCP en local.",
     "title": "AnyProfile",
     "tagline": "Un navegador por cuenta, uno al lado del otro.",
     "intro": "AnyProfile es una app de escritorio gratuita para creadores y vendedores que gestionan varias cuentas de TikTok, YouTube, Shopee o Amazon. Cada perfil es un navegador independiente con sus propias cookies, su propio proxy y una huella de dispositivo coherente, para que las sesiones nunca se mezclen.",
@@ -26,6 +26,9 @@
     "allReleases": "Todas las versiones y notas",
     "howToInstall": "Cómo instalarla y abrirla la primera vez",
     "demoTitle": "Vea AnyProfile en acción",
+    "demoSubtitle": "Recorrido en vídeo con perfiles aislados, Arrange Windows, proxies cifrados en Keychain, máquina virtual Android 15 y MCP para IA.",
+    "demoShortsLabel": "Vídeos verticales 9:16 en GitHub Releases:",
+    "guideCta": "Leer la guía completa de aislamiento de perfiles y proxies",
     "featuresTitle": "Qué hace",
     "features": [
       {
@@ -88,7 +91,68 @@
     "sourceLink": "Código fuente en GitHub",
     "responsibility": "Eres responsable de cumplir las normas de cada plataforma que uses. Muchas limitan cuántas cuentas puede tener una persona; AnyProfile no cambia esas normas.",
     "latest": "Versión {{version}}, publicada el {{date}}",
-    "checksums": "Sumas de comprobación SHA-256"
+    "checksums": "Sumas de comprobación SHA-256",
+    "faqTitle": "Preguntas Frecuentes",
+    "compareTitle": "Frente a navegadores de pago",
+    "compareSubtitle": "Diseñado para privacidad local, verificación abierta y flujos nativos con agentes de IA en lugar de suscripciones en la nube.",
+    "compareColCriteria": "Característica",
+    "compareColAnyProfile": "AnyProfile",
+    "compareColCommercial": "Opciones comerciales (Multilogin, AdsPower, GoLogin, HideMyAcc)",
+    "compareRows": [
+      {
+        "label": "Coste y límite de perfiles",
+        "anyprofile": "100% gratis y open source (AGPL-3.0), perfiles locales ilimitados",
+        "commercial": "$50–$200+/mes con límites de 10–100 perfiles"
+      },
+      {
+        "label": "Datos y cookies",
+        "anyprofile": "SQLite 100% local + bóveda AES-GCM en Keychain / Windows",
+        "commercial": "Sincronización y sesiones almacenadas en la nube del proveedor"
+      },
+      {
+        "label": "Seguridad de proxy",
+        "anyprofile": "Relay 127.0.0.1 fail-closed que oculta credenciales y evita fugas IP",
+        "commercial": "Credenciales expuestas al navegador o extensiones externas"
+      },
+      {
+        "label": "IA y automatización",
+        "anyprofile": "Servidor MCP nativo (/mcp) para Claude, Codex, Gemini + API REST",
+        "commercial": "Bots RPA propietarios de pago o API solo en planes altos"
+      },
+      {
+        "label": "Motor de escritorio",
+        "anyprofile": "Go + Wails ligero con motores AnyBrowser, Apostate y Fury",
+        "commercial": "Wrappers pesados de Electron con un único núcleo cerrado"
+      },
+      {
+        "label": "Perfiles móviles",
+        "anyprofile": "VM Android 15 (macOS) y LDPlayer (Windows) aislados por proxy",
+        "commercial": "Altos recargos por cada teléfono en la nube"
+      },
+      {
+        "label": "Transparencia",
+        "anyprofile": "Código público en GitHub y sumas SHA-256 verificables",
+        "commercial": "Software cerrado sin auditoría independiente"
+      }
+    ],
+    "faqs": [
+      {
+        "q": "¿Es AnyProfile realmente 100% gratuito y de código abierto?",
+        "a": "Sí. AnyProfile tiene licencia AGPL-3.0 sin suscripciones, sin límites de perfiles y con almacenamiento local en SQLite sin enviar datos a la nube."
+      },
+      {
+        "q": "¿Cómo previene AnyProfile la detección de huellas digitales?",
+        "a": "Cada perfil genera una huella de hardware consistente (WebGL, Canvas, Audio, User-Agent) adaptada a tu sistema operativo real, evitando la vinculación de cuentas en TikTok, Facebook y Google."
+      },
+      {
+        "q": "¿Puedo asignar proxies dedicados a cada perfil?",
+        "a": "Sí. Soporta proxies HTTP, HTTPS y SOCKS5 con sincronización automática de zona horaria, idioma y geolocalización basada en la IP de salida."
+      },
+      {
+        "q": "¿En qué se diferencia de navegadores comerciales de pago?",
+        "a": "A diferencia de herramientas que cobran $50–$200+ al mes y suben tus perfiles a servidores externos, AnyProfile funciona 100% en local con rendimiento nativo y cero coste."
+      }
+    ]
   },
   "landing": {
     "metaTitle": "AnyTools: estudia tus apuntes con IA + herramientas gratis",
@@ -163,7 +227,7 @@
     "description": "Rankings mensuales de proxies, software SEO, herramientas de IA, navegadores anti-detect y VPS — puntuados por rendimiento y valor real.",
     "lede": "Clasificaciones mensuales puntuadas estrictamente según qué tan bien sirve cada producto al usuario final — rendimiento (35%), relación calidad-precio (30%), fiabilidad (20%) y soporte (15%) — nunca por comisión de afiliado.",
     "disclosureTitle": "Independiente y transparente",
-    "disclosureBody": "Algunos enlaces salientes (/go/) usan códigos de referencia que pueden generar una comisión para AnyTools sin costo adicional para ti. Las comisiones nunca influyen en el puesto ni en la puntuación.",
+    "disclosureBody": "Los enlaces salientes (/go/) —incluidos todos los proveedores del ranking de Proxies— usan enlaces de afiliado verificados (rel=\"sponsored\") que pueden generar una comisión para AnyTools sin costo adicional para ti. Las comisiones nunca influyen en el puesto ni en la puntuación.",
     "searchPlaceholder": "Buscar en {{count}} productos y categorías...",
     "clearSearch": "Limpiar",
     "sortLabel": "Ordenar categorías",

@@ -7,7 +7,7 @@
       "title": "Residential & ISP Proxies",
       "tagline": "Ranked by IP cleanliness, success rate, and real cost per gigabyte.",
       "description": "Independent monthly ranking of residential, ISP, and datacenter proxy providers tested for connection speed, ASN diversity, and transparent pay-as-you-go pricing.",
-      "methodologyNote": "Each provider is tested monthly across 1,000 target requests in US, EU, and SEA regions. Scores weight connection speed & success rate (35%), real price per GB without forced commitments (30%), IP pool cleanliness & ethical sourcing (20%), and dashboard clarity & support (15%). Referral links never alter rank order.",
+      "methodologyNote": "Each provider is tested monthly across 1,000 target requests in US, EU, and SEA regions. Scores weight connection speed & success rate (35%), real price per GB without forced commitments (30%), IP pool cleanliness & ethical sourcing (20%), and dashboard clarity & support (15%). Note: All 6 proxy providers below carry verified partner affiliate links (/go/ marked rel=\"sponsored\") and reader coupon codes; referral commissions never alter rank order or scores.",
       "monthlySummary": "November 2026 update: Decodo (formerly Smartproxy) moved to #1 on value after dropping pay-as-you-go rates to $2.20/GB, while Oxylabs holds the highest raw success rate on protected targets.",
       "criteriaLabels": {
         "performance": "Speed & Success Rate",
@@ -41,7 +41,7 @@
       "title": "Proxy dân cư & ISP tốt nhất",
       "tagline": "Xếp hạng theo độ sạch IP, tỷ lệ kết nối thành công và chi phí thực mỗi GB.",
       "description": "Bảng xếp hạng cập nhật hàng tháng các nhà cung cấp proxy dân cư (Residential), ISP tĩnh và Datacenter dựa trên tốc độ, độ sạch dải IP và mức giá nạp lẻ minh bạch.",
-      "methodologyNote": "Mỗi nhà cung cấp được kiểm tra định kỳ hàng tháng qua 1.000 lượt kết nối tại Mỹ, châu Âu và Đông Nam Á. Điểm tổng được tính từ: Tốc độ & tỷ lệ thành công (35%), Giá trị/chi phí mỗi GB (30%), Độ sạch dải IP (20%) và Công cụ quản lý & hỗ trợ (15%). Hoa hồng giới thiệu không ảnh hưởng đến thứ hạng.",
+      "methodologyNote": "Mỗi nhà cung cấp được kiểm tra định kỳ hàng tháng qua 1.000 lượt kết nối tại Mỹ, châu Âu và Đông Nam Á. Điểm tổng được tính từ: Tốc độ & tỷ lệ thành công (35%), Giá trị/chi phí mỗi GB (30%), Độ sạch dải IP (20%) và Công cụ quản lý & hỗ trợ (15%). Lưu ý: Cả 6 nhà cung cấp proxy dưới đây đều đã có link affiliate đối tác chính thức (/go/, gắn nhãn rel=\"sponsored\") kèm mã giảm giá cho người đọc; mức hoa hồng hoàn toàn không ảnh hưởng đến thứ hạng hay điểm số.",
       "monthlySummary": "Cập nhật tháng 11/2026: Decodo (Smartproxy cũ) vươn lên #1 nhờ giảm giá gói Pay-as-you-go xuống $2.20/GB và giữ băng thông linh hoạt; Oxylabs vẫn dẫn đầu về tỷ lệ vượt chặn trên các trang khó.",
       "criteriaLabels": {
         "performance": "Tốc độ & Tỷ lệ sống",
@@ -75,7 +75,7 @@
       "title": "Mejores Proxies Residenciales e ISP",
       "tagline": "Clasificados por limpieza de IP, tasa de éxito y costo real por gigabyte.",
       "description": "Clasificación mensual independiente de proveedores de proxies residenciales, ISP y de centro de datos evaluados por velocidad, diversidad de ASN y precios transparentes.",
-      "methodologyNote": "Probamos cada proveedor mensualmente con 1.000 solicitudes en EE. UU., Europa y Asia. La puntuación pondera velocidad y éxito (35%), precio por GB (30%), limpieza del pool de IP (20%) y soporte (15%). Los enlaces de afiliado nunca alteran el orden.",
+      "methodologyNote": "Probamos cada proveedor mensualmente con 1.000 solicitudes en EE. UU., Europa y Asia. La puntuación pondera velocidad y éxito (35%), precio por GB (30%), limpieza del pool de IP (20%) y soporte (15%). Nota: Los 6 proveedores de proxy incluyen enlaces de afiliado verificados (/go/, rel=\"sponsored\") y códigos de descuento; las comisiones nunca alteran el orden.",
       "monthlySummary": "Actualización de noviembre de 2026: Decodo sube al #1 tras reducir su tarifa de pago por uso a $2.20/GB, mientras Oxylabs mantiene la mayor tasa de respuesta en sitios protegidos.",
       "criteriaLabels": {
         "performance": "Velocidad y Éxito",
@@ -109,7 +109,7 @@
       "title": "Melhores Proxies Residenciais e ISP",
       "tagline": "Classificados por limpeza de IP, taxa de sucesso e custo real por gigabyte.",
       "description": "Ranking mensal independente de provedores de proxy residencial, ISP e datacenter avaliados por velocidade, diversidade de ASN e preços transparentes por GB.",
-      "methodologyNote": "Cada provedor é testado mensalmente em 1.000 requisições nos EUA, Europa e Ásia. A nota pondera velocidade e taxa de sucesso (35%), custo-benefício por GB (30%), limpeza do pool de IP (20%) e suporte (15%). Links de afiliados nunca mudam a posição no ranking.",
+      "methodologyNote": "Cada provedor é testado mensalmente em 1.000 requisições nos EUA, Europa e Ásia. A nota pondera velocidade e taxa de sucesso (35%), custo-benefício por GB (30%), limpeza do pool de IP (20%) e suporte (15%). Nota: Todos os 6 provedores de proxy possuem links de afiliados verificados (/go/, rel=\"sponsored\") e cupons de desconto; as comissões nunca mudam a posição no ranking.",
       "monthlySummary": "Atualização de novembro de 2026: Decodo assume o #1 após reduzir o plano pré-pago para $2.20/GB, enquanto a Oxylabs segue líder em estabilidade corporativa.",
       "criteriaLabels": {
         "performance": "Velocidade e Sucesso",
@@ -397,7 +397,7 @@
       "tags": ["residential", "isp", "datacenter", "mobile", "payg"],
       "couponCode": null,
       "websiteDomain": "brightdata.com",
-      "affiliateUrl": "https://brightdata.com/?hs_signup=1&ref=anytools",
+      "affiliateUrl": "https://get.brightdata.com/nhyeetzbk27n",
       "locales": {
         "en": {
           "bestFor": "Best for complex ASN/ZIP targeting and heavy compliance requirements",
@@ -538,6 +538,81 @@
           ],
           "changeNote": "Estreia em #5 destacando-se pelo aluguel diário acessível de IPs ISP.",
           "dealBadge": "10% OFF com o cupom ANYPROFILE"
+        }
+      }
+    },
+    {
+      "slug": "rayobyte",
+      "name": "Rayobyte",
+      "rank": 6,
+      "rankDelta": 0,
+      "criteria": {
+        "performance": 8.8,
+        "value": 9.0,
+        "reliability": 8.7,
+        "support": 8.6
+      },
+      "startingPrice": "$1.00 / GB · $2.50 / IP (ISP)",
+      "freeTrial": false,
+      "tags": ["residential", "isp", "datacenter", "mobile", "payg"],
+      "websiteDomain": "rayobyte.com",
+      "affiliateUrl": "https://rayobyte.com/products/residential-proxies/?ref=chau-d11bd8",
+      "locales": {
+        "en": {
+          "bestFor": "Best for ethically-sourced US infrastructure proxies with granular IP replacement",
+          "summary": "Long-running US provider (formerly Blazing SEO) offering residential, dedicated ISP, and datacenter proxies backed by certified ethical sourcing and flexible gigabyte pricing.",
+          "pros": [
+            "EWDCI, GDPR, and CCPA certified ethical residential proxy network",
+            "Reliable US infrastructure with dedicated static ISP and datacenter IPs",
+            "Granular IP replacement and seamless integration with browser profiles"
+          ],
+          "cons": [
+            "Entry pricing for small-volume static ISP is higher than budget aggregators",
+            "Dashboard interface has a steeper learning curve for beginners"
+          ],
+          "changeNote": "Debuts at #6 with strong marks for verified infrastructure cleanliness and ethical residential sourcing."
+        },
+        "vi": {
+          "bestFor": "Tốt nhất cho proxy hạ tầng tại Mỹ, nguồn gốc IP sạch có chứng nhận đạo đức",
+          "summary": "Nhà cung cấp lâu năm tại Mỹ (tiền thân là Blazing SEO) sở hữu hạ tầng proxy dân cư, ISP riêng và datacenter với quy trình thu thập đạt chuẩn đạo đức và giá theo GB linh hoạt.",
+          "pros": [
+            "Mạng proxy dân cư đạt chứng nhận đạo đức EWDCI, tuân thủ GDPR và CCPA",
+            "Hạ tầng máy chủ riêng tại Mỹ ổn định, dải IP ISP tĩnh chất lượng cao",
+            "Hỗ trợ đổi IP linh hoạt, tương thích tốt với các hồ sơ trình duyệt"
+          ],
+          "cons": [
+            "Giá mua lẻ ISP tĩnh số lượng ít cao hơn so với các bên gom proxy giá rẻ",
+            "Giao diện quản lý kỹ thuật cần thời gian làm quen với người mới"
+          ],
+          "changeNote": "Góp mặt ở vị trí #6 nhờ điểm cao về độ sạch hạ tầng và quy trình thu thập IP minh bạch."
+        },
+        "es": {
+          "bestFor": "El mejor para proxies con infraestructura en EE. UU. y abastecimiento ético certificado",
+          "summary": "Proveedor consolidado de EE. UU. (antes Blazing SEO) con proxies residenciales, ISP dedicados y centros de datos respaldados por certificaciones éticas.",
+          "pros": [
+            "Red residencial certificada por EWDCI con cumplimiento de GDPR y CCPA",
+            "Infraestructura sólida en EE. UU. con IPs ISP estáticas dedicadas",
+            "Reemplazo ágil de IPs y compatibilidad con perfiles de navegador"
+          ],
+          "cons": [
+            "El costo por unidad para pocos IPs ISP es mayor que en agregadores económicos",
+            "Panel de control más técnico para usuarios principiantes"
+          ],
+          "changeNote": "Debuta en el #6 destacando por la limpieza verificada de su infraestructura y procedencia ética."
+        },
+        "pt": {
+          "bestFor": "Melhor para infraestrutura própria nos EUA com fornecimento ético certificado",
+          "summary": "Provedor tradicional nos EUA (antiga Blazing SEO) com proxies residenciais, ISP dedicados e datacenter respaldados por certificações de conformidade.",
+          "pros": [
+            "Rede residencial ética com certificação EWDCI, em conformidade com GDPR e CCPA",
+            "Infraestrutura própria nos EUA com IPs ISP estáticos dedicados e alta estabilidade",
+            "Substituição flexível de IPs e compatibilidade com navegadores antidetect"
+          ],
+          "cons": [
+            "Preço unitário de IPs ISP em pequenas quantidades é mais alto que o de agregadores",
+            "Painel com curva de aprendizado inicial mais acentuada"
+          ],
+          "changeNote": "Estreia em #6 com nota alta em limpeza de infraestrutura e governança ética."
         }
       }
     }

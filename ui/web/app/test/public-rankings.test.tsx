@@ -128,6 +128,11 @@ describe("the rankings directory page (/{locale}/rankings)", () => {
           "@type": "BreadcrumbList",
         }),
       );
+      expect(ld(tags)).toContainEqual(
+        expect.objectContaining({
+          "@type": "CollectionPage",
+        }),
+      );
     }
   });
 
@@ -159,6 +164,10 @@ describe("the category leaderboard page (/{locale}/rankings/{category})", () => 
 
       const schemas = ld(tags);
       expect(schemas.map((s) => s["@type"])).toEqual(["ItemList", "BreadcrumbList", "FAQPage"]);
+      const itemList = schemas[0] as { itemListElement: { item: Record<string, unknown> }[] };
+      expect(itemList.itemListElement[0]?.item.image).toBe("https://anytools.example/logos/tools/decodo.png");
+      expect(itemList.itemListElement[0]?.item.sameAs).toBe("https://decodo.com");
+      expect(itemList.itemListElement[0]?.item.offers).toMatchObject({ "@type": "Offer", price: "2.20", priceCurrency: "USD" });
     }
 
     await expect(
@@ -185,11 +194,12 @@ describe("the category leaderboard page (/{locale}/rankings/{category})", () => 
     expect(screen.getByText("decodo.com")).toBeInTheDocument();
     expect(screen.getByText("oxylabs.io")).toBeInTheDocument();
     expect(screen.getByText("marsproxies.com")).toBeInTheDocument();
+    expect(screen.getByText("rayobyte.com")).toBeInTheDocument();
 
-    // Filter by free trial only (IPRoyal and MarsProxies have freeTrial: false, so 5 -> 3 items)
+    // Filter by free trial only (IPRoyal, MarsProxies and Rayobyte have freeTrial: false, so 6 -> 3 items)
     const freeTrialBtn = screen.getByRole("button", { name: "Free tier / trial only" });
     fireEvent.click(freeTrialBtn);
-    expect(screen.getByText("Showing 3 of 5 tested products")).toBeInTheDocument();
+    expect(screen.getByText("Showing 3 of 6 tested products")).toBeInTheDocument();
 
     // Reset free trial filter and sort by Highest performance (Oxylabs has 9.8 performance vs Decodo 9.3)
     fireEvent.click(freeTrialBtn);
